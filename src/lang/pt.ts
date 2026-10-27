@@ -3836,6 +3836,10 @@ const DICT: Record<string, string> = {
  "Age {0}: never part of any romance.": "{0} anos: nunca faz parte de nenhum romance.",
  "Feelings between two people": "Sentimentos entre duas pessoas",
  "Together": "Juntos",
- "Not a couple": "Não são um casal"
+ "Not a couple": "Não são um casal",
+ "When you stop playing someone (\"Play as\"), their feelings": "Quando você deixa de jogar como alguém (\"Jogar como\"), os sentimentos dessa pessoa",
+ "follow how everyone now feels about them": "acompanham o que cada um agora sente por ela",
+ "stay as they were": "ficam como estavam",
+ "While you play someone, their own feelings wait. When you leave them, they can feel about each person what that person came to feel about them, or carry on from where they were.": "Enquanto você joga como alguém, os sentimentos dessa pessoa esperam. Quando você a deixa, ela pode sentir por cada um o que essa pessoa passou a sentir por ela, ou seguir de onde estava."
 };
 export default DICT;

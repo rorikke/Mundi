@@ -3,13 +3,14 @@
 // Shared by everyone you play: the needs (energy, mood…) and the money. Each person has their own: approval,
 // feelings, texts, plans, dating, diary and job (their "seat", swapped in and out). Friendship, romance and couples
 // live in the relationships store (sim/rel.ts), where `'__you'` is whoever you play: switching rewrites its ids like
-// the ties'. The two of you see each other the same way: the friendship and romance between you are mirrored each
-// time you switch.
+// the ties'. While you play someone their own feelings are frozen; when you leave them, a per-save setting decides
+// whether they now feel about each person what that person came to feel about them (default) or keep what they felt.
 import { nowAbs } from '../core/store.js';
 import { charOf, avatarUrl, createPersona, createCharacter, usePersona, persona, personaName, personas } from '../st/bridge.js';
 import { whereNow } from './people.js';
 import { ties, normalizeHomes } from './living.js';
-import { fr, ro, hasMeter, setFr, setRo, swapIds, seedFromTies, YOU } from './rel.js';
+import { fr, ro, setFr, setRo, swapIds, relCfg } from './rel.js';
+import { familyBlocked } from './family.js';
 import { note } from './facts.js';
 import { resident } from './game.js';
 import { verdictNow } from './verdict.js';
@@ -34,11 +35,22 @@ function putIn(g, p) {
     x.journalProse = p.journalProse;
     x.journalProseTr = p.journalProseTr;
 }
-// Someone played for the first time: a seat of their own (texts, plans, approval…). How people feel about them is
-// already in the store; directions toward them that have no value yet start from their ties (family, friends…).
-function fresh(g, who) {
-    seedFromTies(g, ties(g), (_x, y) => y !== who);
-    return { social: { threads: {}, unread: {}, appts: [], with: [] }, approval: {}, journalProse: {}, journalProseTr: {} };
+// Someone played for the first time: a seat of their own (texts, plans, approval…). How people feel about them, and
+// how they feel about others, is already in the store.
+const fresh = () => ({ social: { threads: {}, unread: {}, appts: [], with: [] }, approval: {}, journalProse: {}, journalProseTr: {} });
+// The one you leave becomes a person again. "Copy" (default): they now feel about each person what that person came to
+// feel about them, friendship and romance (not romance they can't feel: family, minors), without the pacing weight; a
+// one-off copy, after which both directions move on their own. "Keep": their feelings stay as they were.
+function feelingsOfLeft(g, left) {
+    if (relCfg(g).playAs === 'keep')
+        return;
+    for (const x of Object.keys(g.cast)) {
+        if (x === left)
+            continue;
+        setFr(g, left, x, fr(g, x, left));
+        if (!familyBlocked(g, left, x))
+            setRo(g, left, x, ro(g, x, left));
+    }
 }
 /* ---------- your original character, as a person of the world ---------- */
 async function origCardOf(g, w, s) {
@@ -92,11 +104,9 @@ export async function switchTo(g, w, target) {
     const wasWithMe = (mine.social.with ?? []).some((c) => c.avatar === toCard);
     s.persp[fromKey] = mine;
     s.jobs[fromKey] = g.player.job ?? null;
-    const theirs = s.persp[toKey] ?? fresh(g, toCard);
+    const theirs = s.persp[toKey] ?? fresh();
     delete s.persp[toKey];
     putIn(g, theirs);
-    // the two of you see each other the same way: what the one you take feels for you now, you'll feel for them
-    const mirrored = { f: hasMeter(g, 'f', toCard, YOU) ? fr(g, toCard, YOU) : null, r: hasMeter(g, 'r', toCard, YOU) ? ro(g, toCard, YOU) : null };
     g.player.job = s.jobs[toKey] ?? null;
     // the household follows who you play: you live in their home; the one you were keeps theirs (and their family)
     s.homes ??= {};
@@ -131,10 +141,7 @@ export async function switchTo(g, w, target) {
     }
     await usePersona(file);
     s.avatar = target;
-    if (mirrored.f !== null)
-        setFr(g, fromCard, YOU, mirrored.f);
-    if (mirrored.r !== null)
-        setRo(g, fromCard, YOU, mirrored.r);
+    feelingsOfLeft(g, fromCard);
     // you take their place (and go where they are); the one you were stays with you only if they were your company
     g.player.loc = where || g.player.loc;
     const soc2 = g.social;
