@@ -19,7 +19,7 @@ export const TOGETHER = {
     f: 0.1, // friendship, each way (paced), up to the pair's cap: 40 + 25 × how well they click (`affinity`);
     // time alone makes friends, good friends at most, and more takes real moments (the scene verdict)
     drift: 0.1, // friendship lost each way by rivals and people who dislike each other, down to Hates
-    r: 0.1, // romance, × chemistry (paced), between single people who like each other, up to `rCap`
+    r: 0.2, // romance, × chemistry (paced), between single people who like each other, up to `rCap` (0.1 before fading: too few couples)
     rCap: 60,
     crowd: 12, // in a bigger crowd only people who already know each other count
 };
