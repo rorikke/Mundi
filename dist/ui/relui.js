@@ -34,7 +34,8 @@ export function relBar(avatar, romance = true) {
 }
 // Under a person's name: their friendship tier, their romance tier or status, and the label from both ("In love").
 export function relSubtitle(g, avatar) {
-    const b = bondOf(g, avatar), rt = romanceTier(g, avatar), lab = labelToward(g, avatar);
+    const b = bondOf(g, avatar), rt = romanceTier(g, avatar);
+    const lab = romOf(g, avatar).status !== 'none' && labelToward(g, avatar)?.id === 'platonic' ? null : labelToward(g, avatar); // "platonic" can't describe someone you're seeing
     return `${esc(friendTier(b).name)}${rt.id !== 'none' && sysOn(g, 'romance') ? ` · <span class="mu-love-tag">${esc(rt.name)}</span>` : ''}${lab ? ` · <em class="mu-rel-label">${esc(lab.name)}</em>` : ''}`;
 }
 /* ---------- the buttons on a person's card ---------- */
