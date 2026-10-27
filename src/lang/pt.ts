@@ -3941,6 +3941,9 @@ const DICT: Record<string, string> = {
  "Choose a color of your own": "Escolher uma cor sua",
  "Back to a color your AI chooses": "Voltar a uma cor escolhida pela sua IA",
  "Dialogue color": "Cor das falas",
- "A color you choose is saved on their card.": "A cor que você escolher é salva no card da pessoa."
+ "A color you choose is saved on their card.": "A cor que você escolher é salva no card da pessoa.",
+ "Used to be: {0}, until day {1}": "Já foram: {0}, até o dia {1}",
+ "A couple": "Um casal",
+ "Forget": "Esquecer"
 };
 export default DICT;

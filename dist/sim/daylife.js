@@ -12,6 +12,7 @@ import { regionOf, regionState } from './worldstate.js';
 import { presentAt } from './people.js';
 import { isOpen } from './daynight.js';
 import { overhear, couples } from './living.js';
+import { exesOf } from './rel.js';
 import { lex } from '../core/lexicon.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -56,9 +57,10 @@ function work(g, w, r, day, tense) {
     if (roll < 0.21) {
         const pairs = couples(g);
         const ties = g.living?.ties ?? [];
+        const exes = new Set(exesOf(g, r.avatar, false)); // exes (not old flings) don't drop by
         const close = [...pairs.filter(p => p.includes(r.avatar)).flat(), ...ties.filter(t => (t.a === r.avatar || t.b === r.avatar) && t.type !== 'rival' && t.type !== 'ex').flatMap(t => [t.a, t.b])]
-            .filter(a => a !== r.avatar && a !== '__you' && g.cast[a] && homeOf(g.cast[a]) !== home);
-        const pool = close.length ? close : Object.keys(g.cast).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a));
+            .filter(a => a !== r.avatar && a !== '__you' && g.cast[a] && homeOf(g.cast[a]) !== home && !exes.has(a));
+        const pool = close.length ? close : Object.keys(g.cast).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a) && !exes.has(a));
         if (pool.length) {
             const o = g.cast[pool[Math.floor(H(`${k}|whom`) * pool.length)]], h = 18 + Math.floor(H(`${k}|when`) * 3);
             return { kind: 'visit', from: at(h), to: at(h) + 120, place: homeOf(o), why: `is visiting ${o.name}` };

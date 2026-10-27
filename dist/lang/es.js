@@ -3952,6 +3952,9 @@ const DICT = {
     "Choose a color of your own": "Elegir un color propio",
     "Back to a color your AI chooses": "Volver a un color que elige tu IA",
     "Dialogue color": "Color del diálogo",
-    "A color you choose is saved on their card.": "El color que elijas se guarda en su tarjeta."
+    "A color you choose is saved on their card.": "El color que elijas se guarda en su tarjeta.",
+    "Used to be: {0}, until day {1}": "Fueron: {0}, hasta el día {1}",
+    "A couple": "Una pareja",
+    "Forget": "Olvidar"
 };
 export default DICT;

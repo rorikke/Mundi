@@ -4,7 +4,7 @@
 // the engine apply the result. Each scene is judged when it ends (sim/verdict.ts).
 import { nowAbs, cfg } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, setStatus, setCooldown, attracted, rateOf, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, pastOf, pastWords, setStatus, setCooldown, attracted, rateOf, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { intimacyReady, intimacyLine, styleOf } from './intimacy.js';
 import { dating, lookingOf } from './feed.js';
@@ -278,9 +278,10 @@ export function romanceLine(g, present) {
         ? ` In this world relationships are open: {{user}} is with ${mine.join(' and ')}, everyone knows and nobody is jealous of it.`
         : mine.length > 1 ? ` {{user}} is seeing ${mine.join(' and ')} at the same time${exclusive.length ? `; ${exclusive.join(' and ')} ${exclusive.length > 1 ? 'each expect' : 'expects'} to be the only one` : ''}.` : '')
         + (flings.length ? ` {{user}} has something casual with ${flings.join(' and ')} (no strings attached, not a couple).` : '');
+    const past = present.map(r => { const p = pastOf(g, r.avatar, YOU); return p ? `${r.name} and {{user}} ${pastWords(g, p)}` : ''; }).filter(Boolean);
     const jl = g.jealous ?? {};
     const hurt = present.filter(r => jl[r.avatar] && g.day - jl[r.avatar].day < 7).map(r => `${r.name} is still hurt that {{user}} is also with ${g.cast[jl[r.avatar].of]?.name ?? 'someone else'}`);
     const needs = sysOn(g, 'romance') ? intimacyLine(g, present, a => romanceBlocked(g, a)) : '';
     const slow = present.map(r => { const m = slowedDown(g, r.avatar); return m ? SLOW_WORDS[m](r.name) : ''; }).filter(Boolean);
-    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}${slow.length ? ` ${slow.join('; ')}.` : ''}`;
+    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${past.length ? ` ${past.join('; ')}.` : ''}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}${slow.length ? ` ${slow.join('; ')}.` : ''}`;
 }

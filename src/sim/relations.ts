@@ -16,7 +16,7 @@ import { styleOf, needsMetToward } from './intimacy.js';
 import { bondOf } from './social.js';
 import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked } from './family.js';
-import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
+import { ties, homeKey, normalizeHomes } from './living.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { note } from './facts.js';
 import { lifeMoment } from './happenings.js';
@@ -117,15 +117,13 @@ export const feelOf = (g: Save, a: string, b: string, status: Status, since: num
     ({ status, days: g.day - since, rab: ro(g, a, b), rba: ro(g, b, a), fab: fr(g, a, b), fba: fr(g, b, a) });
 
 // A couple splits: the one who still cared more is hurt more (and likes the other less); a marriage that ends undoes
-// moving in together.
+// moving in together. The store remembers them as exes (setStatus).
 export function splitUp(g: Save, w: WorldDef, a: string, b: string) {
     const married = statusOf(g, a, b) === 'married';
     setStatus(g, a, b, null);
     const [left, leaver] = ro(g, a, b) >= ro(g, b, a) ? [a, b] : [b, a];
     lose(g, 'r', leaver, left, 20); lose(g, 'f', leaver, left, 5);
     lose(g, 'r', left, leaver, 15); lose(g, 'f', left, leaver, 15);
-    const old = tieOf(g, a, b);
-    removeTie(g, a, b); setTie(g, { a, b, type: 'ex', tone: old?.tone ?? 'tense' });
     if (married) moveOut(g, w, a, b);
 }
 function moveOut(g: Save, w: WorldDef, a: string, b: string) {

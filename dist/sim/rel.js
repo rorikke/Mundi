@@ -1,6 +1,6 @@
 // One store for relationships (save key `rel`). Friendship (−100..100) and romance (0..100) are kept per direction
-// ("x>y": how x feels about y), the status of a couple (dating, engaged, married) and its cooldowns per unordered pair
-// ("a|b"), for the player and between characters alike. `'__you'` is whoever you play, as in ties and households:
+// ("x>y": how x feels about y), the status of a couple (dating, engaged, married), its cooldowns and the couple they
+// used to be per unordered pair ("a|b"), for the player and between characters alike. `'__you'` is whoever you play, as in ties and households:
 // "Play as" rewrites the ids (`swapIds`), so everyone's feelings stay with the person. The store is sparse: a
 // missing entry is the default (0, no status), and a write that lands on the default removes it.
 // Only this file touches `rel.m`, `rel.fat` and `rel.pairs`; the older names (bondOf, addBond, romOf…) read through it.
@@ -8,6 +8,7 @@ import { nowAbs, cfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt } from './pace.js';
+import { onCoupleEnd } from './hooks.js';
 export const YOU = '__you';
 export function relOf(g) {
     const r = (g.rel ??= {});
@@ -166,10 +167,11 @@ export function undoGain(g, m, x, y, a, meterOnly = false) {
 export const PARTNER = ['dating', 'engaged', 'married'];
 export const pairOf = (g, a, b) => relOf(g).pairs[pk(idOf(g, a), idOf(g, b))];
 export const statusOf = (g, a, b) => pairOf(g, a, b)?.status ?? null;
-function tidyPair(st, k) { const p = st.pairs[k]; if (p && !p.status && !p.cooldown)
+function tidyPair(st, k) { const p = st.pairs[k]; if (p && !p.status && !p.cooldown && !p.was)
     delete st.pairs[k]; }
-// Sets (or ends, with null) the status of a pair; a new status starts counting from today.
-export function setStatus(g, a, b, status, since = g.day) {
+// Sets (or ends, with null) the status of a pair; a new status starts counting from today. An ending is remembered as
+// the couple they used to be (`was`), unless `remember` is off: a change made by hand in an editor isn't a break-up.
+export function setStatus(g, a, b, status, since = g.day, remember = true) {
     a = idOf(g, a);
     b = idOf(g, b);
     if (!a || !b || a === b)
@@ -181,11 +183,18 @@ export function setStatus(g, a, b, status, since = g.day) {
         if (p.status !== status)
             p.since = since;
         p.status = status;
+        delete p.was;
     }
     else {
+        const ended = p.status;
+        if (ended && remember)
+            p.was = { status: ended, until: g.day };
         delete p.status;
         delete p.since;
         delete p.low;
+        if (ended)
+            for (const f of onCoupleEnd)
+                f(g, a, b);
     }
     tidyPair(st, k);
 }
@@ -270,6 +279,48 @@ export function casualPairs(g) {
     }
     return out;
 }
+/* ---------- couples that ended ---------- */
+export const pastOf = (g, a, b) => pairOf(g, a, b)?.was;
+export function forgetPast(g, a, b) {
+    a = idOf(g, a);
+    b = idOf(g, b);
+    const st = relOf(g);
+    const k = pk(a, b);
+    if (st.pairs[k]?.was) {
+        delete st.pairs[k].was;
+        tidyPair(st, k);
+    }
+}
+// Everyone `id` used to be a couple with (`casual`: flings that ended too).
+export function exesOf(g, id = YOU, casual = true) {
+    id = idOf(g, id);
+    const out = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (!p.was || (!casual && p.was.status === 'casual'))
+            continue;
+        const [a, b] = k.split('|');
+        if (a === id)
+            out.push(b);
+        else if (b === id)
+            out.push(a);
+    }
+    return out;
+}
+// Couples that ended between two people of the world (not you).
+export function pastPairs(g) {
+    const out = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (!p.was)
+            continue;
+        const [a, b] = k.split('|');
+        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b])
+            out.push({ a, b, was: p.was });
+    }
+    return out;
+}
+const PAST_WORDS = { casual: 'used to have something casual', dating: 'used to date', engaged: 'were engaged once', married: 'used to be married', ex: 'are exes' };
+// For the AI: "used to date", and whether it's recent (a week or less).
+export const pastWords = (g, p) => `${PAST_WORDS[p.status ?? 'ex']}${g.day - p.until <= 7 ? ' (it ended recently)' : ''}`;
 /* ---------- contact (romance fades without it) ---------- */
 // The last day a and b had contact: a scene or a text with you, a plan kept, time together between people.
 export function touch(g, a, b = YOU) {

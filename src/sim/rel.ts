@@ -1,6 +1,6 @@
 // One store for relationships (save key `rel`). Friendship (−100..100) and romance (0..100) are kept per direction
-// ("x>y": how x feels about y), the status of a couple (dating, engaged, married) and its cooldowns per unordered pair
-// ("a|b"), for the player and between characters alike. `'__you'` is whoever you play, as in ties and households:
+// ("x>y": how x feels about y), the status of a couple (dating, engaged, married), its cooldowns and the couple they
+// used to be per unordered pair ("a|b"), for the player and between characters alike. `'__you'` is whoever you play, as in ties and households:
 // "Play as" rewrites the ids (`swapIds`), so everyone's feelings stay with the person. The store is sparse: a
 // missing entry is the default (0, no status), and a write that lands on the default removes it.
 // Only this file touches `rel.m`, `rel.fat` and `rel.pairs`; the older names (bondOf, addBond, romOf…) read through it.
@@ -8,14 +8,18 @@ import { nowAbs, cfg, type Save, type RelCfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
+import { onCoupleEnd } from './hooks.js';
 import type { TieType, TieTone } from './living.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
 
 export const YOU = '__you';
 export type Meter = 'f' | 'r';
 export type Status = 'casual' | 'dating' | 'engaged' | 'married';
-/** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no"). */
-export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number }
+/** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no", or `was`).
+ *  `was`: the couple they used to be and the day it ended. */
+export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number; was?: Past }
+/** A couple that ended. `status` missing: exes from before this was kept (what they were is unknown). */
+export interface Past { status?: Status; until: number }
 export type Pace = PaceId;
 /** A person's own settings. `age` from the world's example cast; `minor` set in the People tab: minors are left out of
  *  every romance. `gender`: one of the world's gender ids (unset: nobody's attraction depends on it). */
@@ -172,14 +176,20 @@ export function undoGain(g: Save, m: Meter, x: string, y: string, a: Applied, me
 export const PARTNER: Status[] = ['dating', 'engaged', 'married'];
 export const pairOf = (g: Save, a: string, b: string): PairState | undefined => relOf(g).pairs[pk(idOf(g, a), idOf(g, b))];
 export const statusOf = (g: Save, a: string, b: string): Status | null => pairOf(g, a, b)?.status ?? null;
-function tidyPair(st: RelStore, k: string) { const p = st.pairs[k]; if (p && !p.status && !p.cooldown) delete st.pairs[k]; }
-// Sets (or ends, with null) the status of a pair; a new status starts counting from today.
-export function setStatus(g: Save, a: string, b: string, status: Status | null, since = g.day) {
+function tidyPair(st: RelStore, k: string) { const p = st.pairs[k]; if (p && !p.status && !p.cooldown && !p.was) delete st.pairs[k]; }
+// Sets (or ends, with null) the status of a pair; a new status starts counting from today. An ending is remembered as
+// the couple they used to be (`was`), unless `remember` is off: a change made by hand in an editor isn't a break-up.
+export function setStatus(g: Save, a: string, b: string, status: Status | null, since = g.day, remember = true) {
     a = idOf(g, a); b = idOf(g, b);
     if (!a || !b || a === b) return;
     const st = relOf(g); const k = pk(a, b); const p = (st.pairs[k] ??= {});
-    if (status) { if (p.status !== status) p.since = since; p.status = status; }
-    else { delete p.status; delete p.since; delete p.low; }
+    if (status) { if (p.status !== status) p.since = since; p.status = status; delete p.was; }
+    else {
+        const ended = p.status;
+        if (ended && remember) p.was = { status: ended, until: g.day };
+        delete p.status; delete p.since; delete p.low;
+        if (ended) for (const f of onCoupleEnd) f(g, a, b);
+    }
     tidyPair(st, k);
 }
 // Days in a row a partner has felt too little (a partner leaving you counts them; 0 clears it).
@@ -240,6 +250,39 @@ export function casualPairs(g: Save): { a: string; b: string; since: number }[] 
     }
     return out;
 }
+
+/* ---------- couples that ended ---------- */
+
+export const pastOf = (g: Save, a: string, b: string): Past | undefined => pairOf(g, a, b)?.was;
+export function forgetPast(g: Save, a: string, b: string) {
+    a = idOf(g, a); b = idOf(g, b);
+    const st = relOf(g); const k = pk(a, b);
+    if (st.pairs[k]?.was) { delete st.pairs[k].was; tidyPair(st, k); }
+}
+// Everyone `id` used to be a couple with (`casual`: flings that ended too).
+export function exesOf(g: Save, id = YOU, casual = true): string[] {
+    id = idOf(g, id);
+    const out: string[] = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (!p.was || (!casual && p.was.status === 'casual')) continue;
+        const [a, b] = k.split('|');
+        if (a === id) out.push(b); else if (b === id) out.push(a);
+    }
+    return out;
+}
+// Couples that ended between two people of the world (not you).
+export function pastPairs(g: Save): { a: string; b: string; was: Past }[] {
+    const out: { a: string; b: string; was: Past }[] = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (!p.was) continue;
+        const [a, b] = k.split('|');
+        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, was: p.was });
+    }
+    return out;
+}
+const PAST_WORDS: Record<Status | 'ex', string> = { casual: 'used to have something casual', dating: 'used to date', engaged: 'were engaged once', married: 'used to be married', ex: 'are exes' };
+// For the AI: "used to date", and whether it's recent (a week or less).
+export const pastWords = (g: Save, p: Past) => `${PAST_WORDS[p.status ?? 'ex']}${g.day - p.until <= 7 ? ' (it ended recently)' : ''}`;
 
 /* ---------- contact (romance fades without it) ---------- */
 

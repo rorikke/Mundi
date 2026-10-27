@@ -3,14 +3,14 @@
 import { personaName } from '../st/bridge.js';
 import { nowAbs } from '../core/store.js';
 import { systemOn } from '../core/world.js';
-import { onDay } from './hooks.js';
+import { onDay, onCoupleEnd } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { weatherAt, regionOf, regionState } from './worldstate.js';
 import { period, isWeekend, seasonOf } from './time.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
-import { couplePairs, casualPairs, TYPE_START, startFriendship } from './rel.js';
+import { couplePairs, casualPairs, pastPairs, pastWords, TYPE_START, startFriendship } from './rel.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -118,7 +118,8 @@ export function couplesLine(g, present) {
     const c = couplePairs(g).filter(p => here.has(p.a) || here.has(p.b));
     const word = { dating: 'are dating', engaged: 'are engaged', married: 'are married' };
     const casual = casualPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} have something casual (not a couple)`);
-    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`), ...casual];
+    const past = pastPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${pastWords(g, p.was)}`);
+    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`), ...casual, ...past];
     return all.length ? `Relationships between people: ${all.join('; ')}.` : '';
 }
 const GOSSIP = ['love', 'party', 'plan', 'life', 'goal', 'work', 'crisis'];
@@ -229,6 +230,10 @@ export function setTie(g, t) {
 }
 export function removeTie(g, a, b) { const list = ties(g); const i = list.findIndex(x => (x.a === a && x.b === b) || (x.a === b && x.b === a)); if (i >= 0)
     list.splice(i, 1); }
+// A couple that ends takes its couple tie along: "married to" after a divorce would mislead the AI.
+const COUPLE_TIES = ['spouse', 'partner', 'dating'];
+onCoupleEnd.push((g, a, b) => { if (ties(g).some(t => ((t.a === a && t.b === b) || (t.a === b && t.b === a)) && COUPLE_TIES.includes(t.type)))
+    removeTie(g, a, b); });
 // Living together: the second person moves into the first one's home (the player's home for '__you').
 export function liveTogether(g, host, guest) {
     const r = g.cast[guest];

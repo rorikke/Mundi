@@ -31,7 +31,7 @@ import { ACT, INPUT } from './reg.js';
 import { talkFieldHtml } from './talkcolors.js';
 import { ME } from '../sim/talkcolors.js';
 import { playing } from '../sim/playas.js';
-import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, seedFromTies, startFriendship, relOf, relCfg, idOf, YOU } from '../sim/rel.js';
+import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, pastOf, forgetPast, seedFromTies, startFriendship, relOf, relCfg, idOf, YOU } from '../sim/rel.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
@@ -71,6 +71,7 @@ function personForm(g, w) {
                 <small class="mu-muted">None chosen: any leisure place.</small></div>
             <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="-100" max="100" value="${bond}" data-input="wc-bond"></label>
             ${systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) ? `<label class="mu-field"><span>With you</span><select data-input="wc-status">${[['none', 'Not together'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, romOf(g, r.avatar).status === v)).join('')}</select></label>` : ''}
+            ${pastHtml(g, r.avatar, YOU)}
             ${personPanel('save', r.avatar, ['attraction', 'pace', 'ways'])}
             ${charOf(r.avatar) ? `<div class="mu-row"><button class="mu-ghost" data-act="wc-save-card">${icon('save')}<span>Save to card</span></button><small class="mu-muted">Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.</small></div>` : ''}
             ${minorHtml(g, r.avatar)}
@@ -125,7 +126,16 @@ function pairHtml(g, w, a) {
         ${slider(a, b, 'f')}${slider(b, a, 'f')}
         ${love ? `${slider(a, b, 'r')}${slider(b, a, 'r')}
             <label class="mu-field"><span>Together</span><select data-input="wc-pair-status" data-b="${esc(b)}">${[['', 'Not a couple'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, st === v)).join('')}</select></label>` : ''}
+        ${pastHtml(g, a, b)}
     </section>`;
+}
+// The couple two people used to be, with a way to forget it (set by mistake, or a story that went another way).
+const PAST_UI = { casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married' };
+function pastHtml(g, a, b) {
+    const p = pastOf(g, a, b);
+    if (!p)
+        return '';
+    return `<div class="mu-row"><small class="mu-muted">Used to be: ${PAST_UI[p.status ?? ''] ?? 'A couple'}, until day ${esc(p.until)}</small><button class="mu-ghost" data-act="wc-past-forget" data-b="${esc(b)}">Forget</button></div>`;
 }
 // Relationships, per save: open relationships, and (Advanced) how fast feelings grow and the debug view.
 function relSection(g, w) {
@@ -434,6 +444,8 @@ Object.assign(ACT, {
         TIE.together = false;
         await changed();
     },
+    'wc-past-forget': async (el) => { const g = game(); if (!g)
+        return; forgetPast(g, WC.who, el.dataset.b); await changed(); },
     'wc-tie-del': async (el) => { const g = game(); if (!g)
         return; removeTie(g, el.dataset.a, el.dataset.b); await changed(); },
     'wc-diff': (el) => { const g = game(); if (!g)
@@ -468,7 +480,7 @@ Object.assign(INPUT, {
         return; setMeter(g, el.dataset.m, el.dataset.x, el.dataset.y, Number(el.value)); saveGame(); const b = el.previousElementSibling?.querySelector('b'); if (b)
         b.textContent = el.value; },
     'wc-pair-status': async (el) => { const g = game(); if (!g)
-        return; setStatus(g, WC.who, el.dataset.b, (el.value || null)); await changed(); },
+        return; setStatus(g, WC.who, el.dataset.b, (el.value || null), g.day, false); await changed(); },
     'wc-tie-together': (el) => { TIE.together = el.checked; },
     'wc-adv': (el) => { WC.adv = el.checked; notify(); },
     'wc-q': (el) => { WC.q = el.value; notify(); },
@@ -500,7 +512,7 @@ Object.assign(INPUT, {
         el.checked = false;
         toast('Not possible with family or a child.', 'info');
         return;
-    } const was = romOf(g, WC.who).status; setStatus(g, WC.who, YOU, el.checked ? (was === 'none' ? 'dating' : was) : null); saveGame(); notify(); },
+    } const was = romOf(g, WC.who).status; setStatus(g, WC.who, YOU, el.checked ? (was === 'none' ? 'dating' : was) : null, g.day, false); saveGame(); notify(); },
     'wc-note': (el) => { ctx().chatMetadata.note_prompt = el.value; noteSave(); const t = document.getElementById('extension_floating_prompt'); if (t)
         t.value = el.value; },
     'wc-note-num': (el) => { ctx().chatMetadata[el.dataset.k] = Number(el.value); noteSave(); },
@@ -593,7 +605,7 @@ Object.assign(INPUT, {
             notify();
             return;
         }
-        setStatus(g, WC.who, YOU, el.value === 'none' ? null : el.value);
+        setStatus(g, WC.who, YOU, el.value === 'none' ? null : el.value, g.day, false);
         saveGame();
         notify();
     },
