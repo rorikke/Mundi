@@ -1,11 +1,11 @@
 // Each speaker's colour for their dialogue (the "…" in their lines), when Chat look's "Colour each speaker's dialogue"
 // is on. Who decides, in order: a colour set on the card (`data.extensions.mundi.color`; yours is per persona, in the
-// interface settings), then your AI (one background call that reads the cards, the avatars' colours and who is often
+// interface settings), then your AI (one background call that reads the cards, the colours of their pictures and who is often
 // together), then hue spacing in code when the AI can't answer. Code makes every chosen colour readable on the
 // dialogue box and keeps it apart from the others, above all from the people they are often with. The result is kept
 // in the save (`talk`), so a colour never changes by itself.
 import { UI, saveSettings, saveGame, notify, game, TUT } from '../core/store.js';
-import { charOf, speakerOf, fullCharacter, quiet, thumb, persona, personaThumb, personaName, personas } from '../st/bridge.js';
+import { charOf, speakerOf, fullCharacter, fetchSprites, quiet, thumb, persona, personaThumb, personaName, personas } from '../st/bridge.js';
 import { ties, homeKey } from './living.js';
 import { couplePairs, YOU } from './rel.js';
 import { swapOf, playing } from './playas.js';
@@ -82,7 +82,7 @@ function needed(n, C) {
 }
 // How far a colour is from the nearest one taken; with `loose`, people rarely together count as farther than they are.
 const score = (x, taken, loose = false) => taken.reduce((lo, t) => Math.min(lo, dist(x, t.lab) / (loose && !t.close ? 0.6 : 1)), Infinity);
-// The colour closest to the one wanted (a hue from the AI or the avatar) that is far enough from those taken: from
+// The colour closest to the one wanted (a hue from the AI or the picture) that is far enough from those taken: from
 // everyone if there is room, else from the people often together; with none far enough, the one farthest from all.
 function place(want, taken, n, salt) {
     const r = readable(), need = needed(n, r.C);
@@ -107,10 +107,20 @@ function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
 } return h >>> 0; }
-/* ---------- avatars ---------- */
-// The two or three strongest colours of a picture (greys, near-black and near-white left out), read once per picture.
+/* ---------- pictures ---------- */
+// The picture that shows a person best: their neutral expression sprite (the usual folder, not an outfit), which is
+// mostly hair and clothes on a transparent background; without sprites, their avatar (a persona's for you).
+export async function pictureOf(g, id) {
+    if (id === ME)
+        return { url: personaThumb(myPersona(g)), kind: 'avatar' };
+    const list = id.startsWith('__') ? [] : await fetchSprites(id, '');
+    const hit = list.find(x => String(x.label).toLowerCase() === 'neutral') ?? list[0];
+    return hit?.path ? { url: String(hit.path), kind: 'sprite' } : { url: thumb(id), kind: 'avatar' };
+}
+// The two or three strongest colours of a picture, read once per picture. Greys, near-black and near-white are left
+// out, and skin tones count for little, so hair, eyes and clothes lead.
 const palettes = new Map();
-export function avatarColors(url) {
+export function pictureColors(url) {
     if (!url || typeof document === 'undefined' || typeof Image === 'undefined')
         return Promise.resolve([]);
     let p = palettes.get(url);
@@ -119,12 +129,13 @@ export function avatarColors(url) {
             const img = new Image();
             img.onload = () => {
                 try {
-                    const N = 32, cv = document.createElement('canvas');
-                    cv.width = N;
-                    cv.height = N;
+                    const W = 32, H = Math.max(8, Math.min(64, Math.round(32 * img.naturalHeight / Math.max(1, img.naturalWidth))));
+                    const cv = document.createElement('canvas');
+                    cv.width = W;
+                    cv.height = H;
                     const cx = cv.getContext('2d', { willReadFrequently: true });
-                    cx.drawImage(img, 0, 0, N, N);
-                    const d = cx.getImageData(0, 0, N, N).data;
+                    cx.drawImage(img, 0, 0, W, H);
+                    const d = cx.getImageData(0, 0, W, H).data;
                     const bins = Array.from({ length: 24 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
                     let all = 0;
                     for (let i = 0; i < d.length; i += 4) {
@@ -135,7 +146,8 @@ export function avatarColors(url) {
                         if (s < 0.25 || v < 0.2)
                             continue;
                         const h = hi === lo ? 0 : hi === r ? ((g - b) / (hi - lo) + 6) % 6 : hi === g ? (b - r) / (hi - lo) + 2 : (r - g) / (hi - lo) + 4;
-                        const bin = bins[Math.floor(h * 4) % 24], w = s * v;
+                        const skin = h >= 0.08 && h <= 0.75 && s >= 0.15 && s <= 0.6 && v >= 0.4; // 5–45°, the range of skin
+                        const bin = bins[Math.floor(h * 4) % 24], w = s * v * (skin ? 0.2 : 1);
                         bin.w += w;
                         bin.r += r * w;
                         bin.g += g * w;
@@ -337,7 +349,7 @@ export async function ensure(g, again = false) {
         // first the spaced colours, so every line has one while the AI thinks
         const pics = new Map();
         for (const id of todo)
-            pics.set(id, await avatarColors(id === ME ? personaThumb(myPersona(g)) : thumb(id)));
+            pics.set(id, await pictureColors((await pictureOf(g, id)).url));
         for (const id of todo)
             if (!s[id])
                 s[id] = { c: place(pics.get(id)?.[0] ?? '', takenFor(id, new Set()), n, nameOf(g, id)), by: 'auto' };
@@ -399,7 +411,7 @@ async function askAi(g, todo, ids, pics, close, narrator) {
     const rows = [];
     for (const id of todo) {
         const name = nameOf(g, id), p = pics.get(id) ?? [];
-        rows.push(`- ${name}${id === ME ? ' (the player)' : ''}. ${p.length ? `Avatar colors: ${p.join(', ')}. ` : ''}${clip(fill(await card(id), name), 300)}`.trim());
+        rows.push(`- ${name}${id === ME ? ' (the player)' : ''}. ${p.length ? `Colors in their picture: ${p.join(', ')}. ` : ''}${clip(fill(await card(id), name), 300)}`.trim());
     }
     const taken = ids.filter(id => !todo.includes(id)).map(id => ({ id, c: colorNow(g, id) })).filter(x => x.c).map(x => `- ${nameOf(g, x.id)}: ${x.c}`);
     if (narrator)
@@ -412,7 +424,7 @@ async function askAi(g, todo, ids, pics, close, narrator) {
                     pairs.push(`${nameOf(g, a)} & ${nameOf(g, b)}`);
     const dark = readable().L > 0.6;
     const prompt = 'Each character\'s spoken words ("…") are shown in their own color, so readers can tell who is talking.\n' +
-        'Choose one color for each character below that fits them (their avatar\'s colors, their personality, a color their description mentions) ' +
+        'Choose one color for each character below that fits them (the colors in their picture, their personality, a color their description mentions) ' +
         'and is easy to tell apart from every other color here, above all from the people they are often with.\n' +
         `The words are shown on a ${dark ? 'dark' : 'light'} background: choose ${dark ? 'bright' : 'deep'}, saturated colors (no black, gray or white).\n\n` +
         (taken.length ? `Colors already taken (don't reuse them or come close):\n${taken.join('\n')}\n\n` : '') +
