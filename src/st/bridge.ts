@@ -637,6 +637,15 @@ export async function saveCardPerson(avatar: string, person: object | undefined)
     }
 }
 
+// The colour of a person's dialogue on their card (`data.extensions.mundi.color`, "#rrggbb"); null removes it (sent
+// as null, which readers drop). The card's other Mundi data stays.
+export async function saveCardColor(avatar: string, color: string | null) {
+    const res = await fetch('/api/characters/merge-attributes', { method: 'POST', headers: headers(), body: JSON.stringify({ avatar, data: { extensions: { mundi: { color } } } }) });
+    if (!res.ok) throw new Error('Could not save the character.');
+    const c = charOf(avatar);
+    if (c) { const ext = (c.data ??= {}).extensions ??= {}; ext.mundi = { ...(ext.mundi ?? {}), color }; }
+}
+
 export interface PersonaRow { file: string; name: string; description: string; position: number; depth: number; role: number; title: string }
 export function personas(): PersonaRow[] {
     const names = power_user.personas ?? {};

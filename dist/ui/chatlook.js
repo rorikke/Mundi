@@ -5,6 +5,7 @@ import { esc, notify, toast, UI, saveSettings, state, onPhone } from '../core/st
 import { ctx, chat, speakerOf, thumb, avatarUrl, persona, personaThumb } from '../st/bridge.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
+import { talkLookHtml } from './talkcolors.js';
 // @ts-ignore
 import { power_user } from '../../../../../power-user.js';
 const U = () => UI();
@@ -54,7 +55,7 @@ export const fullPicOf = (m) => {
     return a ? avatarUrl(a) : '';
 };
 // your lines keep the persona they were written as (at Mundi's picture quality)
-const lineFile = (fa) => { const q = fa.match(/[?&]file=([^&]+)/)?.[1]; return q ? decodeURIComponent(q) : /^\/?User Avatars\//i.test(fa) ? decodeURIComponent(fa.replace(/^\/?User Avatars\//i, '')) : ''; };
+export const lineFile = (fa) => { const q = fa.match(/[?&]file=([^&]+)/)?.[1]; return q ? decodeURIComponent(q) : /^\/?User Avatars\//i.test(fa) ? decodeURIComponent(fa.replace(/^\/?User Avatars\//i, '')) : ''; };
 export const smallPicOf = (m) => (m?.is_user ? personaThumb(lineFile(String(m.force_avatar ?? '')) || undefined) : (speakerOf(m) ? thumb(speakerOf(m)) : ''));
 export function avatarHtml(m) {
     const shape = U().avatarShape ?? 'rect';
@@ -274,6 +275,7 @@ export function lookPanelHtml() {
                 <span class="mu-look-alpha" title="Transparency"><input type="range" min="0" max="100" step="1" value="${Math.round((parseColor(c[k])?.a ?? 1) * 100)}" data-input="look-alpha" data-k="${k}" ${c[k] ? '' : 'disabled'}><small>${c[k] ? `${Math.round((parseColor(c[k])?.a ?? 1) * 100)}%` : '—'}</small></span></label>`).join('')}</div>
             <div class="mu-row"><button class="mu-ghost" data-act="look-import-st">${icon('upload')}<span>Use SillyTavern's current colors</span></button>
                 <button class="mu-ghost" data-act="look-colors-default" ${Object.keys(c).length ? '' : 'aria-disabled="true"'}>${icon('undo')}<span>Default colors</span></button></div>`)}
+        ${sec('talk', "Speakers' colors", talkLookHtml())}
         ${sec('themes', 'From a SillyTavern theme', !stThemes ? '<p class="mu-muted">Loading…</p>' : `<div class="mu-look-themegrid">${themes.map((t) => {
         const sc = stColors(t);
         return `<button class="mu-look-theme" data-act="look-theme" data-name="${esc(t.name)}" title="Use the colors of ${esc(t.name)}" style="--tb:${esc(sc.chat || '#222')};--tm:${esc(sc.main || '#fff')}">

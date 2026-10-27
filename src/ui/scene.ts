@@ -152,7 +152,8 @@ function background(g: Save, w: WorldDef) {
     return `background-image:url('${worldFile(w, pictureAt(w, g.minutes, map.image, map.images)!)}');background-size:420% auto;background-position:${p.x}% ${p.y}%`;
 }
 
-import { fullPicOf as fullPic } from './chatlook.js';
+import { fullPicOf as fullPic, lineFile } from './chatlook.js';
+import { lineColor } from '../sim/talkcolors.js';
 // SillyTavern's own formatting (Markdown, code blocks, regex scripts of your presets), with Mundi's as a fallback.
 const lineText = (m: any, i: number) => stFormat(cleanText(shownText(m)), m, i, (t) => `<p>${formatText(t)}</p>`);
 function lineHtml(m: any, i: number, last: boolean, lastChar: number) {
@@ -164,7 +165,8 @@ function lineHtml(m: any, i: number, last: boolean, lastChar: number) {
     const editing = state.modal?.type === 'edit' && state.modal.i === i;
     const swipes = !m.is_user && i === lastChar && Array.isArray(m.swipes) && m.swipes.length > 0
         ? `<span class="mu-swipes"><button data-act="swipe" data-d="-1" title="Previous answer" ${(m.swipe_id ?? 0) <= 0 ? 'disabled' : ''}>‹</button><small>${(m.swipe_id ?? 0) + 1}/${m.swipes.length}</small><button data-act="swipe" data-d="1" title="Next answer (generates a new one at the end)">›</button></span>` : '';
-    return `<div class="mu-line ${m.is_user ? 'is-user' : ''} ${narr ? 'is-narrator' : ''} ${last && state.generating && !m.is_user ? 'is-live' : ''}" data-i="${i}">${narr ? '' : cardPicHtml(m)}<div class="mu-line-body">
+    const tint = pic ? '' : lineColor(m, lineFile);   // the speaker's dialogue colour (Chat look), if on
+    return `<div class="mu-line ${m.is_user ? 'is-user' : ''} ${narr ? 'is-narrator' : ''} ${last && state.generating && !m.is_user ? 'is-live' : ''} ${tint ? 'has-who' : ''}" data-i="${i}"${tint ? ` style="--mu-who:${esc(tint)}"` : ''}>${narr ? '' : cardPicHtml(m)}<div class="mu-line-body">
         <div class="mu-line-head">${narr ? '' : avatarHtml(m)}<b ${narr ? '' : `data-act="portrait" data-src="${esc(fullPic(m))}" data-name="${esc(who)}"`}>${esc(who)}</b>${swipes}
             ${state.modal?.type === 'delete' && state.modal.i === i
                 ? `<span class="mu-line-ask">Delete this line? <button class="mu-danger" data-act="delete-yes" data-i="${i}">Delete</button><button data-act="edit-cancel">Cancel</button></span>`

@@ -3934,6 +3934,24 @@ const DICT = {
     "Their feelings have grown a lot lately: more will come, slowly, after some time.": "Sus sentimientos han crecido mucho últimamente: vendrá más, despacio, después de un tiempo.",
     "You have grown close quickly lately: more will come, slowly, after some time.": "Se han acercado rápido últimamente: vendrá más, despacio, después de un tiempo.",
     "Opinions spread through friends": "Las opiniones se extienden entre amigos",
-    "Someone who adores you, or can't stand you, talks about you to their close friends, and slowly colors what they think of you (never worse than wary, by talk alone).": "Quien te adora, o no te soporta, habla de ti con sus amigos cercanos y, poco a poco, tiñe lo que piensan de ti (nunca peor que receloso, solo por hablar)."
+    "Someone who adores you, or can't stand you, talks about you to their close friends, and slowly colors what they think of you (never worse than wary, by talk alone).": "Quien te adora, o no te soporta, habla de ti con sus amigos cercanos y, poco a poco, tiñe lo que piensan de ti (nunca peor que receloso, solo por hablar).",
+    "Speakers' colors": "Colores de quien habla",
+    "Color each speaker's dialogue": "Colorear los diálogos de cada personaje",
+    "Quotes (\"…\") in a line, and the speaker's name, take that person's color. Leave it off if your preset or regex scripts already color quotes. The narrator keeps the quoted text color.": "Las frases entre comillas (\"…\") de un mensaje, y el nombre de quien habla, toman el color de esa persona. Déjalo apagado si tu preset o tus scripts de regex ya colorean las comillas. El narrador mantiene el color del texto entre comillas.",
+    "Open a game to see its people's colors.": "Abre una partida para ver los colores de su gente.",
+    "Pick colors again": "Elegir los colores de nuevo",
+    "Your AI is choosing colors…": "Tu IA está eligiendo los colores…",
+    "Your AI could not choose: automatic colors are used for now.": "Tu IA no pudo elegir: por ahora se usan colores automáticos.",
+    "Colors set on a card (or yours) stay; your AI chooses the others, and Mundi keeps them readable and apart.": "Los colores puestos en una tarjeta (o el tuyo) se quedan; tu IA elige los demás, y Mundi los mantiene legibles y distintos entre sí.",
+    "Your choice": "Tu elección",
+    "Set on the card": "Puesto en la tarjeta",
+    "Chosen by your AI": "Elegido por tu IA",
+    "Automatic": "Automático",
+    "Not chosen yet": "Aún sin elegir",
+    "Change": "Cambiar",
+    "Choose a color of your own": "Elegir un color propio",
+    "Back to a color your AI chooses": "Volver a un color que elige tu IA",
+    "Dialogue color": "Color del diálogo",
+    "A color you choose is saved on their card.": "El color que elijas se guarda en su tarjeta."
 };
 export default DICT;

@@ -28,6 +28,9 @@ import { openCreatorEdit, CW as CREATOR } from './creator.js';
 import { tabAiContext } from './aictx.js';
 import { warningsBanner } from './warnings.js';
 import { ACT, INPUT } from './reg.js';
+import { talkFieldHtml } from './talkcolors.js';
+import { ME } from '../sim/talkcolors.js';
+import { playing } from '../sim/playas.js';
 import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, seedFromTies, startFriendship, relOf, relCfg, idOf, YOU, type Meter, type Status } from '../sim/rel.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
@@ -59,6 +62,7 @@ function personForm(g: Save, w: WorldDef): string {
         : `<label class="mu-field"><span>Job</span><select data-input="wc-job">${opt('', 'No job', !r.occupation)}${w.occupations.map(o => opt(o.id, `${o.name} · ${placeOf(g, w, o.place)?.name ?? ''}`, r.occupation === o.id)).join('')}</select></label>
         <label class="mu-field"><span>Lives in</span><select data-input="wc-zone">${w.homes.zones.map(z => opt(z.id, `${z.name} (${w.homes.kinds[z.kind]?.name ?? z.kind})`, r.home.zone === z.id)).join('')}</select></label>`}
         <label class="mu-check"><input type="checkbox" data-input="wc-met" ${r.met ? 'checked' : ''}><span>You know them<small>They show up by name, in People and in Messages.</small></span></label>
+        ${talkFieldHtml(r.avatar)}
         ${personPanel('save', r.avatar, ['gender'])}
         ${tiesHtml(g, r.avatar)}
         ${WC.adv ? `<h4 class="mu-lib-advhead">Advanced settings</h4>
@@ -79,6 +83,7 @@ function personForm(g: Save, w: WorldDef): string {
 // You: your own gender (the others' attraction reads it) and, under Advanced, your attraction (it sorts the dating app).
 function youForm(g: Save, w: WorldDef): string {
     return `<header class="mu-wc-head"><img src="${esc(personaThumb())}" alt=""><div><h3 data-notr>${esc(personaName())}</h3><small>You · ${esc(homeAddress(w, g.player.home))}</small></div></header>
+        ${talkFieldHtml(playing(g) || ME)}
         ${personPanel('save', YOU, ['gender'])}
         ${WC.adv ? personPanel('save', YOU, ['attraction'], { you: true }) : '<p class="mu-muted">Turn on "Advanced" for who you are attracted to.</p>'}`;
 }
