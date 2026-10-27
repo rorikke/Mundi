@@ -404,19 +404,61 @@ function colorNow(g, id) {
     return e?.c ? (e.by === 'card' ? e.c : fit(e.c)) : '';
 }
 const clip = (t, n) => { const s = t.replace(/\s+/g, ' ').trim(); return s.length > n ? `${s.slice(0, n)}…` : s; };
+// What a card says about someone's looks, for choosing their colour: its labelled lines first ("Attire:", "Hair:",
+// "Eyes:"…, or W++ like Clothes("…")), then an appearance section, then sentences about hair, eyes, clothes or colours,
+// and only then its opening. Body measurements are left out (they say nothing about colours), and a line about their
+// personality is added when the card has one.
+const LOOK_LABELS = [[/attire|outfit|cloth(?:es|ing)|wardrobe|fashion|^style$|wears?/, 0], [/hair/, 1], [/eyes?|face/, 2], [/appearance|looks?|colou?rs?/, 3]];
+const MIND = /core persona|personality|persona|temperament/;
+const LOOK_WORDS = /\b(hair|eyes?|wears?|wearing|dress(?:es|ed)?|outfit|shirt|jacket|coat|skirt|jeans|uniform|red|orange|yellow|green|blue|purple|violet|pink|black|white|silver|gold)\b/i;
+export function looksOf(text, max = 480) {
+    const all = String(text ?? '').replace(/\r/g, '');
+    const lines = all.split('\n').map(l => l.trim()).filter(Boolean);
+    const found = [];
+    let mind = '';
+    for (const l of lines) {
+        const m = /^(?:[-*•]\s*)?\**\s*([A-Za-z][A-Za-z &/'-]{1,30}?)\s*\**\s*:\s*\**\s*(.+)$/.exec(l);
+        if (m) {
+            const key = m[1].toLowerCase(), r = LOOK_LABELS.find(([re]) => re.test(key));
+            if (r && !/body|build|height/.test(key))
+                found.push({ rank: r[1], text: `${m[1]}: ${clip(m[2], 170)}` });
+            else if (!mind && MIND.test(key))
+                mind = `${m[1]}: ${clip(m[2], 150)}`;
+        }
+        for (const w of l.matchAll(/\b(Clothes|Clothing|Outfit|Attire|Hair|Eyes|Appearance)\s*\(\s*([^)]*)\)/gi)) {
+            const r = LOOK_LABELS.find(([re]) => re.test(w[1].toLowerCase()));
+            found.push({ rank: r ? r[1] : 3, text: `${w[1]}: ${clip(w[2].replace(/["+]/g, ' '), 170)}` });
+        }
+    }
+    let looks = found.sort((a, b) => a.rank - b.rank).map(x => x.text).join(' · ');
+    if (!looks) {
+        // an appearance section: the lines under a heading about looks, up to the next heading
+        const head = (l) => /^(#{1,6}\s|\[[^\]]+\]$|[A-Z][A-Za-z &/()'-]{2,40}:$)/.test(l);
+        const at = lines.findIndex(l => head(l) && /appearance|physical|looks|visual/i.test(l));
+        if (at >= 0) {
+            const end = lines.findIndex((l, i) => i > at && head(l));
+            looks = lines.slice(at + 1, end < 0 ? undefined : end).filter(l => !/^\W*body\b/i.test(l)).join(' ');
+        }
+    }
+    if (!looks)
+        looks = all.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(x => LOOK_WORDS.test(x)).join(' ');
+    if (!looks)
+        return clip(all, 300);
+    return [clip(looks, max), mind].filter(Boolean).join(' · ');
+}
 async function askAi(g, todo, ids, pics, close, narrator) {
     const me = personaName(myPersona(g));
     const card = async (id) => {
         if (id === ME)
             return personas().find(p => p.file === myPersona(g))?.description ?? '';
         const c = await fullCharacter(id).catch(() => null) ?? charOf(id);
-        return [c?.description, c?.personality].filter(Boolean).join(' ');
+        return [c?.description, c?.personality].filter(Boolean).join('\n');
     };
     const fill = (t, name) => t.replace(/{{char}}/gi, name).replace(/{{user}}/gi, me);
     const rows = [];
     for (const id of todo) {
         const name = nameOf(g, id), p = pics.get(id) ?? [];
-        rows.push(`- ${name}${id === ME ? ' (the player)' : ''}. ${p.length ? `Colors in their picture: ${p.join(', ')}. ` : ''}${clip(fill(await card(id), name), 300)}`.trim());
+        rows.push(`- ${name}${id === ME ? ' (the player)' : ''}. ${p.length ? `Colors in their picture: ${p.join(', ')}. ` : ''}${looksOf(fill(await card(id), name))}`.trim());
     }
     const taken = ids.filter(id => !todo.includes(id)).map(id => ({ id, c: colorNow(g, id) })).filter(x => x.c).map(x => `- ${nameOf(g, x.id)}: ${x.c}`);
     if (narrator)
