@@ -106,7 +106,7 @@ export async function sendText(g, w, avatar, text) {
     (s.threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
     addBond(g, avatar, 2);
     ((g.post ??= { queue: [], contact: {} }).contact)[avatar] = g.day; // keeping in touch (letters from afar)
-    const reply = await sayLine(textTranscript(g, w, r), r.name, [r.name, personaName()], 320);
+    const reply = await sayLine(textTranscript(g, w, r), r.name, [r.name, personaName()], 320, 120, 'now');
     if (reply)
         s.threads[avatar].push({ me: false, text: reply, at: nowAbs(g) });
     return reply;
@@ -126,7 +126,7 @@ export async function textFrom(g, w, avatar, note, fallback, mine = '') {
     } // your message shows right away (in the chat's language)
     let reply = '';
     try {
-        reply = await sayLine(textTranscript(g, w, r, note), r.name, [r.name, personaName()], 320);
+        reply = await sayLine(textTranscript(g, w, r, note), r.name, [r.name, personaName()], 320, 120, 'now');
     }
     catch { /* offline */ }
     t.push({ me: false, text: reply || fallback, at: nowAbs(g) });

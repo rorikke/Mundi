@@ -5,9 +5,11 @@
 // @ts-ignore
 import { getContext } from '../../../../../st-context.js';
 // @ts-ignore
-import { getCurrentChatId, deleteMessage, updateMessageBlock, saveChatDebounced, getCharacters, setUserName, printCharacters, doNewChat, processDroppedFiles, deleteCharacterChatByName } from '../../../../../../script.js';
+import { getCurrentChatId, deleteMessage, updateMessageBlock, saveChatDebounced, getCharacters, setUserName, printCharacters, doNewChat, processDroppedFiles, deleteCharacterChatByName, is_send_press } from '../../../../../../script.js';
 // @ts-ignore
-import { groups, selected_group, openGroupById, openGroupChat, editGroup, getGroups, createNewGroupChat, getGroupPastChats, deleteGroupChat as stDeleteGroupChat } from '../../../../../group-chats.js';
+import { groups, selected_group, openGroupById, openGroupChat, editGroup, getGroups, createNewGroupChat, getGroupPastChats, deleteGroupChat as stDeleteGroupChat, is_group_generating } from '../../../../../group-chats.js';
+// @ts-ignore
+import { modules } from '../../../../../extensions.js';
 // @ts-ignore
 import { convertSoloToGroupChat } from '../../../../../bookmarks.js';
 // @ts-ignore
@@ -412,6 +414,9 @@ export function editMessage(index, text) {
         delete m.extra.display_text;
     updateMessageBlock(index, m);
     saveChatDebounced();
+    // the same events as SillyTavern's own edit, so whatever follows edits (Mundi's records, other extensions) sees it
+    const c = ctx();
+    void c.eventSource.emit(c.eventTypes.MESSAGE_EDITED, index).then(() => c.eventSource.emit(c.eventTypes.MESSAGE_UPDATED, index));
     return true;
 }
 export const deleteMessageAt = (index) => deleteMessage(index, undefined, false); // Mundi asks first, in its own screen
@@ -442,23 +447,55 @@ export async function narratorLine(text) {
         chat()[i].extra = { ...(chat()[i].extra ?? {}), mundi: true, mundi_narrator: true };
     saveChatDebounced();
 }
-// An AI call outside the conversation (a diary, a description).
-// Models that think before answering (Claude with thinking, reasoning models) spend part of the length on thinking:
-// a small length left nothing for the answer ("No message generated"). So the length asked is never small, the
-// answer is cut by Mundi afterwards, and an empty answer is tried once more with room to spare.
-export async function quiet(prompt, responseLength = 300, systemPrompt = '') {
+const LANES = { now: [], later: [] };
+let pumping = false;
+export const replying = () => !!(is_send_press || is_group_generating);
+const pause = (ms) => new Promise(r => setTimeout(r, ms));
+// waits until SillyTavern isn't generating (a stuck flag only holds a call up for a few minutes, never forever)
+async function untilIdle() { for (let t = 0; replying() && t < 180000; t += 250)
+    await pause(250); }
+export function queued(lane, run) {
+    return new Promise((resolve, reject) => {
+        LANES[lane].push(() => run().then(resolve, reject));
+        void pump();
+    });
+}
+async function pump() {
+    if (pumping)
+        return;
+    pumping = true;
+    try {
+        for (;;) {
+            await untilIdle();
+            const next = LANES.now.shift() ?? LANES.later.shift();
+            if (!next)
+                break;
+            await next();
+        }
+    }
+    finally {
+        pumping = false;
+    }
+}
+// An AI call outside the conversation (a diary, a description), through the queue above ('later' unless the player
+// is waiting for it). Models that think before answering (Claude with thinking, reasoning models) spend part of the
+// length on thinking: a small length left nothing for the answer ("No message generated"). So the length asked is
+// never small, the answer is cut by Mundi afterwards, and an empty answer is tried once more with room to spare.
+export function quiet(prompt, responseLength = 300, systemPrompt = '', { lane = 'later' } = {}) {
     const ask = async (len) => String(await ctx().generateRaw({ prompt, systemPrompt, responseLength: len }) ?? '')
         .replace(/<(think|thinking|reasoning)>[\s\S]*?<\/\1>/gi, '').trim();
-    try {
-        const out = await ask(Math.max(responseLength, 1000));
-        if (out)
-            return out;
-    }
-    catch (e) {
-        if (!/no message generated|empty/i.test(String(e?.message ?? e)))
-            throw e;
-    }
-    return ask(Math.min(Math.max(responseLength * 2, 3000), 4000)); // one more try, with more room (models that think first)
+    return queued(lane, async () => {
+        try {
+            const out = await ask(Math.max(responseLength, 1000));
+            if (out)
+                return out;
+        }
+        catch (e) {
+            if (!/no message generated|empty/i.test(String(e?.message ?? e)))
+                throw e;
+        }
+        return ask(Math.min(Math.max(responseLength * 2, 3000), 4000)); // one more try, with more room (models that think first)
+    });
 }
 // Hides lines from the AI's prompt (SillyTavern's /hide: the messages stay in the chat).
 export async function hideMessages(start, end) {
@@ -498,11 +535,11 @@ export function cleanLine(raw, names, max = 280) {
     }
     return t;
 }
-export async function sayLine(transcript, speaker, names, max = 280, tokens = 120) {
-    let line = cleanLine(await quiet(`${transcript}\n${speaker}:`, tokens), names, max);
+export async function sayLine(transcript, speaker, names, max = 280, tokens = 120, lane = 'later') {
+    let line = cleanLine(await quiet(`${transcript}\n${speaker}:`, tokens, '', { lane }), names, max);
     // a reply of a word or two ("Vooom!") says nothing: one more try
     if (line.replace(/[^\p{L}\p{N}]/gu, '').length < 8) {
-        const again = cleanLine(await quiet(`${transcript}\n${speaker}:`, tokens), names, max);
+        const again = cleanLine(await quiet(`${transcript}\n${speaker}:`, tokens, '', { lane }), names, max);
         if (again.length > line.length)
             line = again;
     }
@@ -538,8 +575,13 @@ export async function bindChatLore(name) {
 }
 /* ---------- expressions ---------- */
 let exprMod = undefined;
-// The emotion of a line, using whatever classifier the user set up in the Expressions extension.
 export async function expressionOf(text) {
+    const all = ctx().extensionSettings ?? {};
+    const ex = all.expressions;
+    if (all.disabledExtensions?.includes('expressions') || ex?.api == null || ex.api === 99)
+        return 'none'; // 99: "None"
+    if (ex.api === 1 && !modules?.includes?.('classify'))
+        return 'none'; // 1: Extras, without its classify module
     if (exprMod === undefined) {
         try {
             // @ts-ignore
@@ -550,12 +592,13 @@ export async function expressionOf(text) {
         }
     }
     if (!exprMod?.getExpressionLabel)
-        return null;
+        return 'none';
     try {
-        return (await exprMod.getExpressionLabel(text)) || null;
+        const label = String(await queued('now', () => exprMod.getExpressionLabel(text)) ?? '').trim();
+        return !label || label === ex.fallback_expression ? 'failed' : { label };
     }
     catch {
-        return null;
+        return 'failed';
     }
 }
 // Sprites in the character's Expressions folder (and its outfit subfolders).

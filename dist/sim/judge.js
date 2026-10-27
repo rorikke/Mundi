@@ -55,7 +55,7 @@ CHECK: yes or no
 SKILL: persuasion, deception, intimidation, insight or performance
 TARGET: the name of the person (or none)
 DIFFICULTY: easy, medium, hard or very hard (how much it asks of that person: a small favor is easy; risking their job, money or safety is very hard)
-QUALITY: a number from -2 to 2 (how good the approach is: clumsy -2, ordinary 0, clever and fitting 2)`, 60);
+QUALITY: a number from -2 to 2 (how good the approach is: clumsy -2, ordinary 0, clever and fitting 2)`, 60, '', { lane: 'now' });
     const v = parseVerdict(out);
     if (!v.check && !force)
         return null;

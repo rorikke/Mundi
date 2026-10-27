@@ -9,6 +9,7 @@ import { whereNow } from './people.js';
 import { ties, normalizeHomes } from './living.js';
 import { note } from './facts.js';
 import { resident } from './game.js';
+import { settleNow } from './msglog.js';
 const ORIG = '__orig';
 export const swapOf = (g) => (g.swap ?? null);
 const ensure = (g) => (g.swap ??= { avatar: '', orig: persona(), origName: personaName(), files: {} });
@@ -100,6 +101,8 @@ export async function switchTo(g, w, target) {
         return '';
     if (target && !charOf(target))
         throw new Error('That character is not in SillyTavern anymore.');
+    // what the scene changed is kept as it is: the records point at the feelings of the person you leave
+    settleNow(`p${nowAbs(g)}`);
     // an event or a night over ends when you leave the person you are
     const soc = g.social ?? {};
     soc.event = null;

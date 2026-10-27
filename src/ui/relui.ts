@@ -120,7 +120,7 @@ export async function checkAsk() {
     let answer: 'yes' | 'no' | 'maybe' = 'maybe';
     try {
         const out = (await quiet(`${personaName()} asked ${name} ${askWhat(kind)}. This is the scene since then (lines by the player may be story directions that decide what happens):\n"""\n${said}\n"""\n\nHas ${name} accepted? Reply with one word only: yes (accepted), no (refused), or maybe (no clear answer yet, or asked for time).`, 20,
-            'You read a scene and say whether the person accepted. One word: yes, no, or maybe.')).toLowerCase();
+            'You read a scene and say whether the person accepted. One word: yes, no, or maybe.', { lane: 'now' })).toLowerCase();
         answer = /\byes\b/.test(out) ? 'yes' : /\bno\b/.test(out) ? 'no' : 'maybe';
     } catch { /* not sure: treat it as "maybe" */ }
     if (answer === 'maybe' && ASK.round < 2) {

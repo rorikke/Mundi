@@ -10,6 +10,7 @@ import { patchLastLine } from './ui/scene.js';
 import { installSfx } from './ui/sfx.js';
 import { refreshPrompt, clearPrompt } from './sim/prompt.js';
 import { applyGameLore } from './sim/lore.js';
+import { schedule as reconcileSoon, ledger } from './sim/msglog.js';
 
 // A reply that came back empty (the prompt did not fit the model's context, or the reply ran out of tokens while the
 // model was still thinking) is removed, so it does not pile up in the story, and Mundi says why.
@@ -105,6 +106,9 @@ function follow() {
         if (who && markMet(g, who)) { saveGame(); (await import('./sim/prompt.js')).refreshPrompt(); redraw(); }
     });
     for (const ev of ['MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_EDITED', 'MESSAGE_DELETED', 'MESSAGE_UPDATED']) on(ev, redraw);
+    // feelings follow the messages: after any change to the chat, the records of what each message changed are
+    // compared with the chat (sim/msglog.ts; it waits for a reply being written to finish)
+    for (const ev of ['MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_EDITED', 'MESSAGE_DELETED', 'MESSAGE_UPDATED', 'GENERATION_ENDED', 'GENERATION_STOPPED', 'GROUP_WRAPPER_FINISHED', 'CHAT_CHANGED']) on(ev, () => reconcileSoon());
     on('CHAT_CHANGED', () => {
         // "Continue" opens what was last played in Mundi: a world save or a scenario chat
         if (state.open) {
@@ -137,4 +141,5 @@ async function init() {
 
 const c = ctx();
 c.eventSource.on(c.eventTypes.APP_READY, () => { init().catch(e => console.error('[Mundi] init', e)); });
-(globalThis as any).Mundi = { open: openApp, close: closeApp };
+// `Mundi.ledger()` in the console: what the open messages changed (one row per message)
+(globalThis as any).Mundi = { open: openApp, close: closeApp, ledger: () => console.table(ledger()) };

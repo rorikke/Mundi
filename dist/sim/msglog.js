@@ -1,0 +1,254 @@
+// What each message changed, so feelings follow the chat (swipe, regenerate, edit, continue, delete or reload).
+// Every change a message causes (your line's talk, the reaction in a reply) is recorded against a fingerprint of
+// its speaker and text. After any change to the chat, reconcile() compares the open messages (those since the last
+// settle point) with the records: a record whose message is gone (deleted, swiped away, regenerated, edited) is
+// undone exactly, and a message without a record is judged. Leaving a place or sleeping settles the scene: its
+// messages are marked, their records are dropped, and changing them later changes nothing.
+//
+// The emotion read in a reply is kept on the message itself (`extra.mundi_ex`, with the fingerprint of the text it
+// belongs to), so a label SillyTavern copies onto a new swipe is recognized as stale, and an earlier swipe shown
+// again needs no new AI call.
+import { game, saveGame, nowAbs, state, TUT } from '../core/store.js';
+import { getWorld } from '../core/world.js';
+import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId } from '../st/bridge.js';
+import { presentAt } from './people.js';
+import { social, addBond } from './social.js';
+import { reactionGain } from './mood.js';
+const logOf = (g) => (g.rel ??= {}).log;
+const YOU = '__you';
+/* ---------- fingerprints ---------- */
+const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+} return (h >>> 0).toString(36); };
+// the words of a message as the AI and the classifier see them (no thinking, whitespace collapsed)
+const textOf = (m) => String(m?.mes ?? '')
+    .replace(/<(think|thinking|reasoning)>[\s\S]*?<\/\1>/gi, '').replace(/<(think|thinking|reasoning)>[\s\S]*$/i, '')
+    .replace(/\s+/g, ' ').trim();
+const speakerKey = (m) => (m.is_user ? YOU : speakerOf(m) ?? String(m.name ?? ''));
+export const fpOf = (m) => fnv(`${speakerKey(m)}\n${textOf(m)}`);
+const isLine = (m) => m && !m.is_system && textOf(m) !== '';
+// The open messages: everything after the last settled one (system lines, like the narrator's, don't count).
+function openWindow(list) {
+    let start = list.length;
+    while (start > 0 && !list[start - 1]?.extra?.mundi_settled)
+        start--;
+    return list.slice(start).filter(isLine);
+}
+/* ---------- emotions ---------- */
+// Results kept for this session too (a reply swiped away while it was being read gets its answer when shown again).
+const known = new Map();
+const pending = new Set();
+const tries = new Map();
+const RETRIES = 2;
+function exOf(m, fp = fpOf(m)) {
+    const ex = m?.extra?.mundi_ex;
+    if (ex?.fp === fp)
+        return ex;
+    const k = known.get(fp);
+    if (k) {
+        m.extra = { ...(m.extra ?? {}), mundi_ex: k, mundi_expr: k.l ?? null };
+        saveChat();
+    }
+    return k;
+}
+// The emotion to show for a line (sprites): its own, a stale one copied from another swipe counts as none yet.
+// Lines from before Mundi kept fingerprints only have `mundi_expr`.
+export function labelOf(m) {
+    if (!m || m.is_user || m.is_system)
+        return null;
+    if (m.extra?.mundi_ex)
+        return exOf(m)?.l ?? null;
+    return known.get(fpOf(m))?.l ?? m.extra?.mundi_expr ?? null;
+}
+// Reads a reply's emotion in the background (queued with Mundi's other AI calls); a failure is tried again twice.
+function classify(fp, text) {
+    if (pending.has(fp))
+        return;
+    pending.add(fp);
+    void expressionOf(text).then(async (res) => {
+        if (res === 'failed' && (tries.get(fp) ?? 0) < RETRIES) {
+            tries.set(fp, (tries.get(fp) ?? 0) + 1);
+            await new Promise(r => setTimeout(r, 1500));
+            pending.delete(fp);
+            schedule(0);
+            return;
+        }
+        const ex = res === 'none' ? { fp, k: 'n' } : res === 'failed' ? { fp, k: 'f' } : { fp, k: 'l', l: res.label };
+        known.set(fp, ex);
+        tries.delete(fp);
+        pending.delete(fp);
+        for (const m of chat())
+            if (!m.is_user && !m.is_system && fpOf(m) === fp)
+                m.extra = { ...(m.extra ?? {}), mundi_ex: ex, mundi_expr: ex.l ?? null };
+        saveChat();
+        schedule(0);
+    }).catch(() => { pending.delete(fp); });
+}
+/* ---------- judging and undoing ---------- */
+// Friendship gained through the daily cap, recorded so it can be taken back exactly.
+function gain(g, a, n) {
+    const s = social(g);
+    const before = s.bond[a] ?? 0;
+    const fat = addBond(g, a, n);
+    if (!fat)
+        return null;
+    return { x: a, m: 'f', d: (s.bond[a] ?? 0) - before, fat, key: `${a}|${g.day}` };
+}
+function undo(g, r) {
+    const s = social(g);
+    for (const c of r.ch) {
+        if (c.d)
+            s.bond[c.x] = Math.max(0, Math.min(100, (s.bond[c.x] ?? 0) - c.d));
+        if (c.fat && s.today[c.key]) {
+            s.today[c.key] = Math.max(0, s.today[c.key] - c.fat);
+            if (!s.today[c.key])
+                delete s.today[c.key];
+        }
+    }
+}
+// Your line: talking brings you closer to everyone listening (only the one you talk to, when talking alone).
+function judgeLine(g, fp) {
+    const w = getWorld(g.world);
+    const solo = String(g.social?.solo ?? '');
+    const hearers = w ? presentAt(g, w, g.player.loc).filter(r => r.met && (!solo || r.avatar === solo)) : [];
+    const ch = hearers.map(r => gain(g, r.avatar, 3)).filter((c) => !!c);
+    return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
+}
+// A reply: a warm reaction brings the speaker closer (once you've met).
+function judgeReply(g, m, fp, ex) {
+    const who = speakerOf(m) ?? '';
+    const n = ex.k === 'l' ? reactionGain(ex.l ?? '') : 0;
+    const c = n && who && g.cast[who]?.met ? gain(g, who, n) : null;
+    return { fp, who, kind: 'reply', at: nowAbs(g), why: ex.k === 'l' ? ex.l : ex.k === 'f' ? 'not read (classifier failed)' : 'no classifier', label: ex.l, ch: c ? [c] : [] };
+}
+/* ---------- reconcile ---------- */
+let timer = null;
+// Reconciles soon (changes to the chat come in bursts: a swipe is a delete, a generation, a render…).
+export function schedule(ms = 300) {
+    clearTimeout(timer);
+    timer = setTimeout(() => { timer = null; reconcile(); }, ms);
+}
+// Marks the messages after the last settled one (all of them in a chat that has none) as settled.
+function markSettled(list, id) {
+    let n = 0;
+    for (let i = list.length - 1; i >= 0 && !list[i]?.extra?.mundi_settled; i--) {
+        list[i].extra = { ...(list[i].extra ?? {}), mundi_settled: id };
+        n++;
+    }
+    if (n)
+        saveChat();
+}
+export function reconcile() {
+    if (TUT.save)
+        return; // the tutorial's lines aren't a chat
+    if (replying()) {
+        schedule(1000);
+        return;
+    } // never while a reply is being written
+    const list = chat();
+    const g = game();
+    if (!g) {
+        if (state.open && state.view === 'chat')
+            sprites(list);
+        return;
+    } // other chats: only Mundi's chat view reads emotions
+    let log = logOf(g);
+    // the first time (a save from before records, or a chat copied from another): what's already there is settled
+    const chatId = currentChatId();
+    if (!log || log.chat !== chatId) {
+        markSettled(list, 'start');
+        g.rel.log = { chat: chatId, open: [] };
+        saveGame();
+        return;
+    }
+    const win = openWindow(list);
+    const msgs = new Map();
+    for (const m of win) {
+        const fp = fpOf(m);
+        (msgs.get(fp) ?? msgs.set(fp, []).get(fp)).push(m);
+    }
+    let changed = false;
+    // records whose message is gone (more records with a fingerprint than open messages with it): undo the newest
+    const byFp = new Map();
+    log.open.forEach((r, i) => (byFp.get(r.fp) ?? byFp.set(r.fp, []).get(r.fp)).push(i));
+    const drop = new Set();
+    for (const [fp, idx] of byFp)
+        for (let k = 0; k < idx.length - (msgs.get(fp)?.length ?? 0); k++)
+            drop.add(idx[idx.length - 1 - k]);
+    for (let i = log.open.length - 1; i >= 0; i--)
+        if (drop.has(i)) {
+            undo(g, log.open[i]);
+            log.open.splice(i, 1);
+            changed = true;
+        }
+    // messages without a record, oldest first
+    const recs = new Map();
+    for (const r of log.open)
+        recs.set(r.fp, (recs.get(r.fp) ?? 0) + 1);
+    const used = new Map();
+    for (const m of win) {
+        const fp = fpOf(m);
+        const u = (used.get(fp) ?? 0) + 1;
+        used.set(fp, u);
+        if (u <= (recs.get(fp) ?? 0))
+            continue; // this one already has its record
+        if (m.is_user) {
+            log.open.push(judgeLine(g, fp));
+            changed = true;
+            continue;
+        }
+        const ex = exOf(m, fp);
+        if (!ex) {
+            classify(fp, textOf(m));
+            continue;
+        }
+        log.open.push(judgeReply(g, m, fp, ex));
+        changed = true;
+        recs.set(fp, (recs.get(fp) ?? 0) + 1);
+    }
+    if (changed) {
+        saveGame();
+        notifyLater();
+    }
+}
+// Outside a game (a chat with characters): only the emotions of the last replies, for the sprites. A label from
+// before fingerprints (`mundi_expr` alone) is kept as it is.
+function sprites(list) {
+    const old = (m) => m.extra?.mundi_expr !== undefined && !m.extra?.mundi_ex;
+    for (const m of list.slice(-6))
+        if (!m.is_user && isLine(m) && !old(m) && !exOf(m))
+            classify(fpOf(m), textOf(m));
+}
+// Redraws once the records changed (imported lazily: the screen's store is loaded already).
+const notifyLater = () => { void import('../core/store.js').then(s => s.notify()); };
+/* ---------- settling ---------- */
+// Ends the undo window: the open messages are marked settled and their records dropped (their changes stay).
+export function settleNow(id) {
+    const g = game();
+    if (!g || TUT.save)
+        return;
+    const log = logOf(g);
+    markSettled(chat(), id);
+    if (log)
+        log.open = [];
+    saveGame();
+}
+// The same at the end of a scene, after the replies still being read have been judged (a few seconds at most).
+export async function settleScene(id) {
+    if (TUT.save || !game())
+        return;
+    for (let t = 0; pending.size && t < 8000; t += 250)
+        await new Promise(r => setTimeout(r, 250));
+    reconcile();
+    settleNow(id);
+}
+/* ---------- debugging ---------- */
+// The open records, for the console (`Mundi.ledger()`).
+export function ledger() {
+    const g = game();
+    const log = g && logOf(g);
+    if (!log)
+        return [];
+    return log.open.map(r => ({ who: r.who === YOU ? 'you' : g.cast[r.who]?.name ?? r.who, kind: r.kind, why: r.why, changes: r.ch.map(c => `${g.cast[c.x]?.name ?? c.x} ${c.d >= 0 ? '+' : ''}${c.d}`).join(', '), fp: r.fp }));
+}

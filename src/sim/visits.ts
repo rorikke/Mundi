@@ -1,10 +1,11 @@
 // Visits: each stay at a place is its own scene. When you leave (or sleep), the lines of that visit are hidden
 // from the AI with SillyTavern's own "hide" (they stay in the chat, readable in SillyTavern) and a short recap
 // is kept, so the next scene starts clean but the story still remembers what happened.
-import type { Save } from '../core/store.js';
+import { nowAbs, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { chat, hideMessages, setPrompt } from '../st/bridge.js';
 import { note, placeName } from './facts.js';
+import { settleScene } from './msglog.js';
 
 export interface Recap { day: number; minutes: number; place: string; who: string[]; text: string }
 // Where this visit starts in the chat. A mark past the end (lines deleted, or an old copied save) falls back to just
@@ -18,6 +19,8 @@ export const visitStart = (g: Save) => {
 export const recaps = (g: Save): Recap[] => ((g as any).recaps ??= []);
 
 export async function endVisit(g: Save, w: WorldDef) {
+    // the scene is over: what its messages changed stays, even if they're edited or deleted later
+    await settleScene(`v${nowAbs(g)}`);
     const list = chat();
     const start = visitStart(g), end = list.length - 1;
     (g as any).visitStart = list.length;

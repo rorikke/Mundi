@@ -9,17 +9,16 @@ import { pictureAt } from '../sim/daynight.js';
 import { nativeHost } from './native.js';
 import { lockScene } from '../sim/life.js';
 import { soloOf } from './lifeui.js';
-import { judgeReaction } from '../sim/mood.js';
+import { schedule as reconcileSoon, labelOf } from '../sim/msglog.js';
 import { state, notify, esc, game, toast, ROOT_ID, saveGame } from '../core/store.js';
 import { getWorld, worldFile, systemOn } from '../core/world.js';
-import { chat, speakerOf, thumb, sendText, replyAs, regenerate, continueLast, impersonate, stop, swipeLeft, swipeRight, editMessage, deleteMessageAt, expressionOf, fetchSprites, saveChat, me, currentCharacter, charOf, characters, ctx, addUserLine, narratorLine, personaName, quiet, lorebooks, chatLores, setChatLores, scenarioOpen, scenarioCast, scenarioTitle, addToScenario, removeFromScenario, setChatBackground, newScenarioChat, persona, personas, personaThumb, usePersona, } from '../st/bridge.js';
+import { chat, speakerOf, thumb, sendText, replyAs, regenerate, continueLast, impersonate, stop, swipeLeft, swipeRight, editMessage, deleteMessageAt, fetchSprites, saveChat, me, currentCharacter, charOf, characters, ctx, addUserLine, narratorLine, personaName, quiet, lorebooks, chatLores, setChatLores, scenarioOpen, scenarioCast, scenarioTitle, addToScenario, removeFromScenario, setChatBackground, newScenarioChat, persona, personas, personaThumb, usePersona, } from '../st/bridge.js';
 import { placeOf, isOuting } from '../sim/places.js';
 import { outingOf } from '../sim/outing.js';
 import { bgStyle } from './outing.js';
 import { bgHead, bgGrid } from './bgpick.js';
 import { presentAt } from '../sim/people.js';
 import { toolsHtml } from './tools.js';
-import { addBond } from '../sim/social.js';
 import { mentionIn, closeMention } from './mention.js';
 import { visitStart } from '../sim/visits.js';
 import { icon } from './icons.js';
@@ -114,7 +113,7 @@ function expressions() {
     for (let i = list.length - 1; i >= 0 && i > list.length - 60; i--) {
         const a = speakerOf(list[i]);
         if (a && !(a in out))
-            out[a] = list[i].extra?.mundi_expr ?? null;
+            out[a] = labelOf(list[i]);
     }
     return out;
 }
@@ -354,34 +353,10 @@ export function patchLastLine() {
     if (STICK.get(log) !== false)
         log.scrollTop = log.scrollHeight; // you scrolled up to read: the reply streams in without pulling you down
 }
-// After drawing: the newest character line gets its expression (once, using the Expressions extension).
-let classifying = -1;
+// After drawing: the replies' emotions and what the messages changed are brought up to date (sim/msglog.ts).
 export function afterScene(_main) {
-    if (state.generating)
-        return;
-    const list = chat();
-    for (let i = list.length - 1; i >= 0 && i > list.length - 6; i--) {
-        const m = list[i];
-        if (m.is_user || m.is_system)
-            continue;
-        if (m.extra?.mundi_expr !== undefined || classifying === i)
-            break;
-        classifying = i;
-        expressionOf(cleanText(m.mes)).then(label => {
-            m.extra = { ...(m.extra ?? {}), mundi_expr: label };
-            // in a world, how they react moves the bond
-            const g = game();
-            const who = speakerOf(m);
-            if (g && who && g.cast[who]?.met) {
-                judgeReaction(g, who, label);
-                saveGame();
-            }
-            saveChat();
-            if (label)
-                notify();
-        }).finally(() => { classifying = -1; });
-        break;
-    }
+    if (!state.generating)
+        reconcileSoon();
 }
 Object.assign(ACT, {
     'sc-open': (el) => { SC.pick = el.dataset.v; SC.q = ''; if (SC.pick === 'bg')
@@ -487,14 +462,10 @@ Object.assign(ACT, {
             toast('SillyTavern\'s message box was not found.', 'error');
             return;
         }
-        // talking to people brings you closer (a little each line, capped per day)
+        // (talking brings you closer: that's recorded with your line once it's in the chat, sim/msglog.ts)
         const g = game();
         const w = g && getWorld(g.world);
         if (g && w) {
-            const hearers = presentAt(g, w, g.player.loc).filter(r => !soloOf(g) || r.avatar === soloOf(g));
-            for (const r of hearers)
-                if (r.met)
-                    addBond(g, r.avatar, 3);
             lockScene(g, w);
             saveGame();
         }
@@ -533,7 +504,7 @@ async function soloNarrate(g, w, text) {
         await addUserLine(text);
         const me = personaName();
         const recent = chat().slice(-8).filter((m) => !m.is_system).map((m) => `${m.is_user ? me : m.name}: ${String(m.mes ?? '').replace(/\s+/g, ' ').slice(0, 300)}`).join('\n');
-        const out = await quiet(`${sceneText().replace(/\{\{user\}\}/g, me)}\n\n${recent}\n\nNarrate what happens next in 2 to 4 sentences, in the second person ("you"), following ${me}'s last line. ${me} is alone: describe only the place, small details, the passing moment and ${me}'s feelings and thoughts. No other character appears, speaks or arrives. Do not write ${me}'s words or decisions.${aiLangNote() ? ` ${aiLangNote()}` : ''}`, 260, 'You are the quiet narrator of a life simulation. You never bring other characters into the scene.');
+        const out = await quiet(`${sceneText().replace(/\{\{user\}\}/g, me)}\n\n${recent}\n\nNarrate what happens next in 2 to 4 sentences, in the second person ("you"), following ${me}'s last line. ${me} is alone: describe only the place, small details, the passing moment and ${me}'s feelings and thoughts. No other character appears, speaks or arrives. Do not write ${me}'s words or decisions.${aiLangNote() ? ` ${aiLangNote()}` : ''}`, 260, 'You are the quiet narrator of a life simulation. You never bring other characters into the scene.', { lane: 'now' });
         if (out.trim())
             await narratorLine(out.trim());
         else
