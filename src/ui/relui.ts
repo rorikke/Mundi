@@ -11,7 +11,7 @@ import { ASK_WHAT } from '../sim/initiative.js';
 import { setCooldown, YOU } from '../sim/rel.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
-import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
+import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
 import { WORK_MODES, workShift, jobDef, rankOf, type WorkMode } from '../sim/work.js';
@@ -40,7 +40,8 @@ export function relBar(avatar: string, romance = true): string {
 export function relSubtitle(g: Save, avatar: string): string {
     const b = bondOf(g, avatar), rt = romanceTier(g, avatar);
     const lab = romOf(g, avatar).status !== 'none' && labelToward(g, avatar)?.id === 'platonic' ? null : labelToward(g, avatar);   // "platonic" can't describe someone you're seeing
-    return `${esc(friendTier(b).name)}${rt.id !== 'none' && sysOn(g, 'romance') ? ` · <span class="mu-love-tag">${esc(rt.name)}</span>` : ''}${lab ? ` · <em class="mu-rel-label">${esc(lab.name)}</em>` : ''}`;
+    const slow = slowedDown(g, avatar);
+    return `${esc(friendTier(b).name)}${rt.id !== 'none' && sysOn(g, 'romance') ? ` · <span class="mu-love-tag">${esc(rt.name)}</span>` : ''}${lab ? ` · <em class="mu-rel-label">${esc(lab.name)}</em>` : ''}${slow ? ` · <span class="mu-rel-slow" title="${slow === 'r' ? 'Their feelings have grown a lot lately: more will come, slowly, after some time.' : 'You have grown close quickly lately: more will come, slowly, after some time.'}">Needs some time</span>` : ''}`;
 }
 
 /* ---------- the buttons on a person's card ---------- */

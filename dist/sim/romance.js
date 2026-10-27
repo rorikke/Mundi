@@ -4,7 +4,7 @@
 // the engine apply the result. Each scene is judged when it ends (sim/verdict.ts).
 import { nowAbs, cfg } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, setStatus, setCooldown, attracted, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, setStatus, setCooldown, attracted, rateOf, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { intimacyReady, intimacyLine, styleOf } from './intimacy.js';
 import { dating, lookingOf } from './feed.js';
@@ -248,6 +248,14 @@ export function endRelationship(g, avatar, name) {
     note(g, was === 'married' ? '{u} and {0} got divorced.' : '{u} broke up with {0}.', [name], [avatar], g.player.loc, 'love');
     return was === 'married' ? `You and ${name} are divorced.` : `You and ${name} broke up.`;
 }
+// Gains toward you that have slowed a lot (S-11's readable slowdown): romance first, then friendship; null when not.
+export const SLOW_RATE = 0.25;
+export function slowedDown(g, avatar) {
+    if (sysOn(g, 'romance') && !romanceBlocked(g, avatar) && rateOf(g, 'r', avatar, YOU) < SLOW_RATE)
+        return 'r';
+    return rateOf(g, 'f', avatar, YOU) < SLOW_RATE ? 'f' : null;
+}
+const SLOW_WORDS = { r: (n) => `${n} needs some time to take all this in`, f: (n) => `${n} needs a little time before getting any closer` };
 // For the AI: where {{user}} stands with the people in this scene (friendship and romance, in words).
 export function romanceLine(g, present) {
     const parts = present.map(r => {
@@ -273,5 +281,6 @@ export function romanceLine(g, present) {
     const jl = g.jealous ?? {};
     const hurt = present.filter(r => jl[r.avatar] && g.day - jl[r.avatar].day < 7).map(r => `${r.name} is still hurt that {{user}} is also with ${g.cast[jl[r.avatar].of]?.name ?? 'someone else'}`);
     const needs = sysOn(g, 'romance') ? intimacyLine(g, present, a => romanceBlocked(g, a)) : '';
-    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}`;
+    const slow = present.map(r => { const m = slowedDown(g, r.avatar); return m ? SLOW_WORDS[m](r.name) : ''; }).filter(Boolean);
+    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}${slow.length ? ` ${slow.join('; ')}.` : ''}`;
 }

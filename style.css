@@ -3718,6 +3718,7 @@ body.mundi-open #completion_prompt_manager_popup {
 /* Relationships: the label from both meters under a name ("In love", "Platonic"), and the groups in the phone's People app. */
 #mundi-root .mu-rel-label { font-style: normal; color: #ffb3d1; font-weight: 700; }
 #mundi-root .mu-ph-group { margin: 10px 12px 2px; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+#mundi-root .mu-rel-slow { color: var(--muted); font-style: italic; }
 /* A person's own ways (gender, attraction, pace, styles): the new game's "Who they are" list, and suggestions from the cards. */
 #mundi-root .mu-ngwho { display: grid; gap: 8px; padding: 14px 18px; }
 #mundi-root .mu-ngwho-row { display: grid; grid-template-columns: 28px minmax(90px, 1fr) minmax(150px, 2fr) auto; align-items: center; gap: 10px; }

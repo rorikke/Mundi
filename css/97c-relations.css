@@ -1,3 +1,4 @@
 /* Relationships: the label from both meters under a name ("In love", "Platonic"), and the groups in the phone's People app. */
 #mundi-root .mu-rel-label { font-style: normal; color: #ffb3d1; font-weight: 700; }
 #mundi-root .mu-ph-group { margin: 10px 12px 2px; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+#mundi-root .mu-rel-slow { color: var(--muted); font-style: italic; }

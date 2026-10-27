@@ -3918,6 +3918,9 @@ const DICT: Record<string, string> = {
  "Not tonight, but soon?": "Hoje não, mas logo?",
  "You said no to {0}.": "Você disse não a {0}.",
  "They are still upset with you.": "Ainda está chateado(a) com você.",
- "What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.": "O que as pessoas aqui puxam por conta própria nesta cena (se abrir, uma confissão, te pedir algo), e o que cada uma quer de você."
+ "What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.": "O que as pessoas aqui puxam por conta própria nesta cena (se abrir, uma confissão, te pedir algo), e o que cada uma quer de você.",
+ "Needs some time": "Precisa de um tempo",
+ "Their feelings have grown a lot lately: more will come, slowly, after some time.": "Os sentimentos cresceram muito nos últimos tempos: mais virá, devagar, depois de um tempo.",
+ "You have grown close quickly lately: more will come, slowly, after some time.": "Vocês se aproximaram rápido nos últimos tempos: mais virá, devagar, depois de um tempo."
 };
 export default DICT;
