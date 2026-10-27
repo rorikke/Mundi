@@ -115,8 +115,27 @@ export async function pictureOf(g: Save, id: string): Promise<{ url: string; kin
     const hit = list.find(x => String(x.label).toLowerCase() === 'neutral') ?? list[0];
     return hit?.path ? { url: String(hit.path), kind: 'sprite' } : { url: thumb(id), kind: 'avatar' };
 }
-// The two or three strongest colours of a picture, read once per picture. Greys, near-black and near-white are left
-// out, and skin tones count for little, so hair, eyes and clothes lead.
+// The two or three strongest colours of RGBA pixels, measured in OKLab (where a pale lavender counts as a colour
+// and a dark brown barely does): greys, near-black (outlines, dark hair, the dark of shadows) and near-white are left
+// out, and skin tones count for little, so clothes, eyes and bright hair lead. Each pixel weighs as much as it is
+// colourful.
+export function paletteOf(d: ArrayLike<number>): string[] {
+    const bins = Array.from({ length: 24 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
+    let all = 0;
+    for (let i = 0; i + 3 < d.length; i += 4) {
+        if (d[i + 3] < 128) continue;
+        const r = d[i], g = d[i + 1], b = d[i + 2];
+        const x = hexToLab(`#${[r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')}`);
+        const C = chromaOf(x), h = hueOf(x);
+        if (x[0] < 0.3 || x[0] > 0.97 || C < 0.025) continue;
+        const skin = h >= 25 && h <= 80 && C < 0.11 && x[0] > 0.4;
+        const w = C * (skin ? 0.15 : 1), bin = bins[Math.floor(h / 15) % 24];
+        bin.w += w; bin.r += r * w; bin.g += g * w; bin.b += b * w; all += w;
+    }
+    return bins.filter(x => x.w > all * 0.08).sort((x, y) => y.w - x.w).slice(0, 3)
+        .map(x => `#${[x.r, x.g, x.b].map(v => Math.round(v / x.w).toString(16).padStart(2, '0')).join('')}`);
+}
+// A picture's colours (see paletteOf), read once per picture from a small copy of it.
 const palettes = new Map<string, Promise<string[]>>();
 export function pictureColors(url: string): Promise<string[]> {
     if (!url || typeof document === 'undefined' || typeof Image === 'undefined') return Promise.resolve([]);
@@ -126,24 +145,10 @@ export function pictureColors(url: string): Promise<string[]> {
             const img = new Image();
             img.onload = () => {
                 try {
-                    const W = 32, H = Math.max(8, Math.min(64, Math.round(32 * img.naturalHeight / Math.max(1, img.naturalWidth))));
+                    const W = 48, H = Math.max(12, Math.min(96, Math.round(W * img.naturalHeight / Math.max(1, img.naturalWidth))));
                     const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
                     const cx = cv.getContext('2d', { willReadFrequently: true })!; cx.drawImage(img, 0, 0, W, H);
-                    const d = cx.getImageData(0, 0, W, H).data;
-                    const bins = Array.from({ length: 24 }, () => ({ w: 0, r: 0, g: 0, b: 0 }));
-                    let all = 0;
-                    for (let i = 0; i < d.length; i += 4) {
-                        if (d[i + 3] < 128) continue;
-                        const [r, g, b] = [d[i], d[i + 1], d[i + 2]], hi = Math.max(r, g, b), lo = Math.min(r, g, b);
-                        const v = hi / 255, s = hi ? (hi - lo) / hi : 0;
-                        if (s < 0.25 || v < 0.2) continue;
-                        const h = hi === lo ? 0 : hi === r ? ((g - b) / (hi - lo) + 6) % 6 : hi === g ? (b - r) / (hi - lo) + 2 : (r - g) / (hi - lo) + 4;
-                        const skin = h >= 0.08 && h <= 0.75 && s >= 0.15 && s <= 0.6 && v >= 0.4;   // 5–45°, the range of skin
-                        const bin = bins[Math.floor(h * 4) % 24], w = s * v * (skin ? 0.2 : 1);
-                        bin.w += w; bin.r += r * w; bin.g += g * w; bin.b += b * w; all += w;
-                    }
-                    resolve(bins.filter(x => x.w > all * 0.08).sort((x, y) => y.w - x.w).slice(0, 3)
-                        .map(x => `#${[x.r, x.g, x.b].map(v => Math.round(v / x.w).toString(16).padStart(2, '0')).join('')}`));
+                    resolve(paletteOf(cx.getImageData(0, 0, W, H).data));
                 } catch { resolve([]); }
             };
             img.onerror = () => resolve([]);
