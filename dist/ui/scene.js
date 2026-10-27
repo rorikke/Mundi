@@ -9,7 +9,7 @@ import { pictureAt } from '../sim/daynight.js';
 import { nativeHost } from './native.js';
 import { lockScene } from '../sim/life.js';
 import { soloOf } from './lifeui.js';
-import { judgeLine, judgeReaction } from '../sim/mood.js';
+import { judgeReaction } from '../sim/mood.js';
 import { state, notify, esc, game, toast, ROOT_ID, saveGame } from '../core/store.js';
 import { getWorld, worldFile, systemOn } from '../core/world.js';
 import { chat, speakerOf, thumb, sendText, replyAs, regenerate, continueLast, impersonate, stop, swipeLeft, swipeRight, editMessage, deleteMessageAt, expressionOf, fetchSprites, saveChat, me, currentCharacter, charOf, characters, ctx, addUserLine, narratorLine, personaName, quiet, lorebooks, chatLores, setChatLores, scenarioOpen, scenarioCast, scenarioTitle, addToScenario, removeFromScenario, setChatBackground, newScenarioChat, persona, personas, personaThumb, usePersona, } from '../st/bridge.js';
@@ -492,12 +492,9 @@ Object.assign(ACT, {
         const w = g && getWorld(g.world);
         if (g && w) {
             const hearers = presentAt(g, w, g.player.loc).filter(r => !soloOf(g) || r.avatar === soloOf(g));
-            const hurt = judgeLine(g, w, raw, hearers);
-            hurt.forEach(m => toast(m, 'warn'));
-            if (!hurt.length)
-                for (const r of hearers)
-                    if (r.met)
-                        addBond(g, r.avatar, 3);
+            for (const r of hearers)
+                if (r.met)
+                    addBond(g, r.avatar, 3);
             lockScene(g, w);
             saveGame();
         }
