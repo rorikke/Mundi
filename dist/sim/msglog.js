@@ -10,11 +10,12 @@
 // belongs to), so a label SillyTavern copies onto a new swipe is recognized as stale, and an earlier swipe shown
 // again needs no new AI call.
 import { game, saveGame, nowAbs, state, TUT } from '../core/store.js';
-import { getWorld } from '../core/world.js';
+import { getWorld, systemOn } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId } from '../st/bridge.js';
 import { presentAt } from './people.js';
-import { gain as gainMeter, undoGain, relCfg, SOURCES, YOU } from './rel.js';
-import { reactionGain } from './mood.js';
+import { gain as gainMeter, undoGain, relCfg, ro, SOURCES, YOU } from './rel.js';
+import { reactionGain, reactionRomance } from './mood.js';
+import { romanceBlocked } from './family.js';
 const logOf = (g) => (g.rel ??= {}).log;
 /* ---------- fingerprints ---------- */
 const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) {
@@ -86,10 +87,10 @@ function classify(fp, text) {
     }).catch(() => { pending.delete(fp); });
 }
 /* ---------- judging and undoing ---------- */
-// Friendship toward you gained (paced), recorded so it can be taken back exactly.
-function gain(g, a, n) {
-    const r = gainMeter(g, 'f', a, YOU, n);
-    return r.d || r.fat ? { x: a, m: 'f', d: r.d, fat: r.fat } : null;
+// Friendship (or romance) toward you gained (paced), recorded so it can be taken back exactly.
+function gain(g, a, n, m = 'f') {
+    const r = gainMeter(g, m, a, YOU, n);
+    return r.d || r.fat ? { x: a, m, d: r.d, fat: r.fat } : null;
 }
 function undo(g, r) {
     for (const c of r.ch)
@@ -104,12 +105,25 @@ function judgeLine(g, fp, speakers) {
     const ch = hearers.map(r => gain(g, r.avatar, SOURCES.talk)).filter((c) => !!c);
     return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
 }
-// A reply: a warm reaction brings the speaker closer (once you've met).
-function judgeReply(g, m, fp, ex) {
+// A reply: a warm reaction brings the speaker closer (once you've met). One-on-one (talking alone with them, or
+// nobody else has spoken since the last verdict), desire or love also raise their romance.
+function judgeReply(g, m, fp, ex, speakers) {
     const who = speakerOf(m) ?? '';
-    const n = ex.k === 'l' ? reactionGain(ex.l ?? '') : 0;
-    const c = n && who && g.cast[who]?.met ? gain(g, who, n) : null;
-    return { fp, who, kind: 'reply', at: nowAbs(g), why: ex.k === 'l' ? ex.l : ex.k === 'f' ? 'not read (classifier failed)' : 'no classifier', label: ex.l, ch: c ? [c] : [] };
+    const met = !!who && !!g.cast[who]?.met;
+    const label = ex.k === 'l' ? ex.l ?? '' : '';
+    const ch = [];
+    const f = met ? reactionGain(label) : 0;
+    const c = f ? gain(g, who, f) : null;
+    if (c)
+        ch.push(c);
+    const solo = String(g.social?.solo ?? '');
+    const oneOnOne = solo ? solo === who : speakers.size === 1 && speakers.has(who);
+    const w = getWorld(g.world);
+    const r = met && oneOnOne && systemOn(w, 'romance') && !romanceBlocked(g, who) ? reactionRomance(label, ro(g, who, YOU)) : 0;
+    const cr = r ? gain(g, who, r, 'r') : null;
+    if (cr)
+        ch.push(cr);
+    return { fp, who, kind: 'reply', at: nowAbs(g), why: ex.k === 'l' ? ex.l : ex.k === 'f' ? 'not read (classifier failed)' : 'no classifier', label: ex.l, ch };
 }
 /* ---------- reconcile ---------- */
 let timer = null;
@@ -193,7 +207,7 @@ export function reconcile() {
             classify(fp, textOf(m));
             continue;
         }
-        add(judgeReply(g, m, fp, ex));
+        add(judgeReply(g, m, fp, ex, speakers));
         recs.set(fp, (recs.get(fp) ?? 0) + 1);
     }
     if (changed) {

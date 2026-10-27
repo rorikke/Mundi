@@ -10,11 +10,12 @@
 // belongs to), so a label SillyTavern copies onto a new swipe is recognized as stale, and an earlier swipe shown
 // again needs no new AI call.
 import { game, saveGame, nowAbs, state, TUT, type Save } from '../core/store.js';
-import { getWorld } from '../core/world.js';
+import { getWorld, systemOn } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId, type Expr } from '../st/bridge.js';
 import { presentAt } from './people.js';
-import { gain as gainMeter, undoGain, relCfg, SOURCES, YOU, type Meter } from './rel.js';
-import { reactionGain } from './mood.js';
+import { gain as gainMeter, undoGain, relCfg, ro, SOURCES, YOU, type Meter } from './rel.js';
+import { reactionGain, reactionRomance } from './mood.js';
+import { romanceBlocked } from './family.js';
 
 /** One meter change: `x`'s meter `m` toward `y` (you when absent) moved by `d`, its pacing weight by `fat`. */
 interface Change { x: string; y?: string; m: Meter; d: number; fat: number }
@@ -94,10 +95,10 @@ function classify(fp: string, text: string) {
 
 /* ---------- judging and undoing ---------- */
 
-// Friendship toward you gained (paced), recorded so it can be taken back exactly.
-function gain(g: Save, a: string, n: number): Change | null {
-    const r = gainMeter(g, 'f', a, YOU, n);
-    return r.d || r.fat ? { x: a, m: 'f', d: r.d, fat: r.fat } : null;
+// Friendship (or romance) toward you gained (paced), recorded so it can be taken back exactly.
+function gain(g: Save, a: string, n: number, m: Meter = 'f'): Change | null {
+    const r = gainMeter(g, m, a, YOU, n);
+    return r.d || r.fat ? { x: a, m, d: r.d, fat: r.fat } : null;
 }
 function undo(g: Save, r: Rec) {
     for (const c of r.ch) undoGain(g, c.m ?? 'f', c.x, c.y ?? YOU, { d: c.d, fat: c.fat });
@@ -112,12 +113,23 @@ function judgeLine(g: Save, fp: string, speakers: Set<string>): Rec {
     const ch = hearers.map(r => gain(g, r.avatar, SOURCES.talk)).filter((c): c is Change => !!c);
     return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
 }
-// A reply: a warm reaction brings the speaker closer (once you've met).
-function judgeReply(g: Save, m: any, fp: string, ex: Ex): Rec {
+// A reply: a warm reaction brings the speaker closer (once you've met). One-on-one (talking alone with them, or
+// nobody else has spoken since the last verdict), desire or love also raise their romance.
+function judgeReply(g: Save, m: any, fp: string, ex: Ex, speakers: Set<string>): Rec {
     const who = speakerOf(m) ?? '';
-    const n = ex.k === 'l' ? reactionGain(ex.l ?? '') : 0;
-    const c = n && who && g.cast[who]?.met ? gain(g, who, n) : null;
-    return { fp, who, kind: 'reply', at: nowAbs(g), why: ex.k === 'l' ? ex.l! : ex.k === 'f' ? 'not read (classifier failed)' : 'no classifier', label: ex.l, ch: c ? [c] : [] };
+    const met = !!who && !!g.cast[who]?.met;
+    const label = ex.k === 'l' ? ex.l ?? '' : '';
+    const ch: Change[] = [];
+    const f = met ? reactionGain(label) : 0;
+    const c = f ? gain(g, who, f) : null;
+    if (c) ch.push(c);
+    const solo = String((g as any).social?.solo ?? '');
+    const oneOnOne = solo ? solo === who : speakers.size === 1 && speakers.has(who);
+    const w = getWorld(g.world);
+    const r = met && oneOnOne && systemOn(w, 'romance') && !romanceBlocked(g, who) ? reactionRomance(label, ro(g, who, YOU)) : 0;
+    const cr = r ? gain(g, who, r, 'r') : null;
+    if (cr) ch.push(cr);
+    return { fp, who, kind: 'reply', at: nowAbs(g), why: ex.k === 'l' ? ex.l! : ex.k === 'f' ? 'not read (classifier failed)' : 'no classifier', label: ex.l, ch };
 }
 
 /* ---------- reconcile ---------- */
@@ -174,7 +186,7 @@ export function reconcile() {
         if (m.is_user) { add(judgeLine(g, fp, speakers)); continue; }
         const ex = exOf(m, fp);
         if (!ex) { classify(fp, textOf(m)); continue; }
-        add(judgeReply(g, m, fp, ex));
+        add(judgeReply(g, m, fp, ex, speakers));
         recs.set(fp, (recs.get(fp) ?? 0) + 1);
     }
     if (changed) { saveGame(); notifyLater(); }

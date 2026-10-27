@@ -8,12 +8,14 @@ import { addStatus } from './needs.js';
 import { feel } from './life.js';
 import { note as remember } from './facts.js';
 import { nowAbs } from '../core/store.js';
+import { systemOn } from '../core/world.js';
 import { hm, weekday } from './time.js';
 import { placeOf, playerHomeId, travelMinutes } from './places.js';
 import { routineStep, routineAt, whereNow } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom } from './social.js';
 import { dating } from './feed.js';
-import { shutOut, crushOn } from './romance.js';
+import { shutOut, crushOn, addRomance } from './romance.js';
+import { romanceBlocked } from './family.js';
 import { personaName } from '../st/bridge.js';
 export const HANGOUT_BOND = 15; // acquaintance: you can hang out
 export const DATE_BOND = 50; // a date needs a good bond, a Spark match or being together
@@ -210,6 +212,8 @@ export function planTick(g, w) {
                 addStatus(g, w, 'mood', a.kind === 'date' || a.kind === 'party' ? 15 : 10);
             }
             bump(g, a.avatar, a.kind === 'date' ? 8 : 5);
+            if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar))
+                addRomance(g, a.avatar, 5); // a date kept is romantic too (a milestone)
             approve(g, a.avatar, 5);
             feel(g, a.avatar, a.kind === 'party' ? 'Had a great time at your party' : a.kind === 'date' ? 'Happy about the date' : 'Glad you kept your word', 1);
             remember(g, a.kind === 'date' ? '{u} and {0} had a date at {1}, as planned.' : '{u} and {0} met up at {1}, as planned.', [nameOf(a.avatar), placeName(a.place)], [a.avatar], a.place, 'plan');

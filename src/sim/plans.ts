@@ -8,13 +8,14 @@ import { addStatus } from './needs.js';
 import { feel } from './life.js';
 import { note as remember } from './facts.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
-import type { WorldDef } from '../core/world.js';
+import { systemOn, type WorldDef } from '../core/world.js';
 import { hm, weekday } from './time.js';
 import { placeOf, playerHomeId, travelMinutes } from './places.js';
 import { routineStep, routineAt, whereNow } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom, type Appointment, type PlanKind } from './social.js';
 import { dating } from './feed.js';
-import { shutOut, crushOn } from './romance.js';
+import { shutOut, crushOn, addRomance } from './romance.js';
+import { romanceBlocked } from './family.js';
 import { personaName } from '../st/bridge.js';
 
 export const HANGOUT_BOND = 15;   // acquaintance: you can hang out
@@ -191,6 +192,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
             if (cw) cw.until = Math.max(cw.until, a.to); else s.with.push({ avatar: a.avatar, until: a.to });
             if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', a.kind === 'date' || a.kind === 'party' ? 15 : 10); }
             bump(g, a.avatar, a.kind === 'date' ? 8 : 5);
+            if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar)) addRomance(g, a.avatar, 5);   // a date kept is romantic too (a milestone)
             approve(g, a.avatar, 5);
             feel(g, a.avatar, a.kind === 'party' ? 'Had a great time at your party' : a.kind === 'date' ? 'Happy about the date' : 'Glad you kept your word', 1);
             remember(g, a.kind === 'date' ? '{u} and {0} had a date at {1}, as planned.' : '{u} and {0} met up at {1}, as planned.', [nameOf(a.avatar), placeName(a.place)], [a.avatar], a.place, 'plan');
