@@ -12,6 +12,7 @@ import { runPlans } from './plans.js';
 import { showTransition } from './lifeui.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
+import { verdictNow } from '../sim/verdict.js';
 
 const GRACE = 60;
 const live = (g: Save) => social(g).appts.filter(a => a.state === 'set' && !a.come && g.cast[a.avatar]);
@@ -85,7 +86,7 @@ const find = (g: Save, id: string) => social(g).appts.find(a => a.id === id);
 // time passes until they arrive, and the meet-up starts
 async function waitFor(g: Save, w: WorldDef, a: Appointment) {
     const mins = a.from - nowAbs(g);
-    if (mins > 0) advance(g, w, mins).forEach(m => toast(m, 'warn'));
+    if (mins > 0) { await verdictNow(g, w, 'waiting'); advance(g, w, mins).forEach(m => toast(m, 'warn')); }
     runPlans();
     saveGame(); await syncScene();
     const r = g.cast[a.avatar];

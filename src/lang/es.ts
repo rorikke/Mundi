@@ -3822,6 +3822,9 @@ const DICT: Record<string, string> = {
  "rate": "ritmo",
  "pace": "paso",
  "world default": "lo del mundo",
- "Nothing recorded for them since the last scene.": "Nada registrado para esta persona desde la última escena."
+ "Nothing recorded for them since the last scene.": "Nada registrado para esta persona desde la última escena.",
+ "Judge each scene when it ends": "Juzgar cada escena cuando termina",
+ "When you leave, sleep, skip time or someone you talked with leaves, the AI reads the scene and says how it changed what each person feels about you (one short AI call per scene). Off: only talking, warm replies and the game's own events move relationships.": "Cuando te vas, duermes, saltas el tiempo o alguien con quien hablaste se va, la IA lee la escena y dice cómo cambió lo que cada persona siente por ti (una llamada corta a la IA por escena). Apagado: solo hablar, las respuestas cálidas y los eventos del propio juego mueven las relaciones.",
+ "(scene verdict)": "(veredicto de la escena)"
 };
 export default DICT;

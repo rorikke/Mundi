@@ -100,6 +100,7 @@ function toRelStore(g) {
     delete liv.pairInfo;
     if (g.cfg)
         delete g.cfg.bondCap;
+    delete g.rel.day; // moving values isn't a change of the day (the recap would show them all)
 }
 export const schemaOf = (g) => Number(g.schema ?? 0);
 const KEEP = 3;

@@ -24,7 +24,11 @@ export interface RelStore {
     pairs: Record<string, PairState>;                          // "a|b", sorted
     people: Record<string, Person>;
     log?: unknown;                                             // records per message (sim/msglog.ts)
+    day?: DaySnap;                                             // today's start values toward you (the recap)
 }
+/** Values toward you when today's first change came (x → [friendship, romance]), and the reasons the day's verdicts
+ *  gave per person: the end-of-day recap compares with it, whatever the source of each change. */
+export interface DaySnap { day: number; snap: Record<string, [number, number]>; why: Record<string, string[]> }
 
 export function relOf(g: Save): RelStore {
     const r = ((g as any).rel ??= {}) as RelStore;
@@ -49,11 +53,19 @@ export const ro = (g: Save, x: string, y: string) => meter(g, 'r', x, y);
 // friendship toward you doesn't go below 0 yet (people who dislike you come with directional relationships)
 const floor = (m: Meter, y: string) => (m === 'f' && y === YOU ? 0 : LO[m]);
 
+// The start of today's values toward you, kept at the first change of the day.
+function markDay(g: Save, st: RelStore) {
+    if (st.day?.day === g.day) return;
+    const snap: Record<string, [number, number]> = {};
+    for (const [k, e] of Object.entries(st.m)) if (k.endsWith(`>${YOU}`)) snap[k.slice(0, -YOU.length - 1)] = [e.f ?? 0, e.r ?? 0];
+    st.day = { day: g.day, snap, why: {} };
+}
 // An explicit value: starting values, editors, the migration.
 export function setMeter(g: Save, m: Meter, x: string, y: string, v: number) {
     x = idOf(g, x); y = idOf(g, y);
     if (!x || !y || x === y || !Number.isFinite(v)) return;
     const st = relOf(g); const k = dk(x, y);
+    if (y === YOU) markDay(g, st);
     const val = clean(Math.max(floor(m, y), Math.min(100, v)));
     const e = (st.m[k] ??= {});
     if (val === 0) delete e[m]; else e[m] = val;
@@ -116,7 +128,7 @@ export function gain(g: Save, m: Meter, x: string, y: string, raw: number, isPac
 /** What each everyday source is worth (raw points, before pacing). Other sources pass their own amounts. */
 export const SOURCES = {
     talk: 0.5,      // each line you say, to each resident present who has spoken in the scene
-    verdict: 3,     // each step of the night's verdict (−3..+3), friendship and romance
+    verdict: 2,     // each step of a scene verdict (−3..+3), friendship and romance (sim/verdict.ts)
 };
 // A loss: in full, never paced. Returns how much it went down.
 export function lose(g: Save, m: Meter, x: string, y: string, n: number): number {

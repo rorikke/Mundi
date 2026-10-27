@@ -1,12 +1,12 @@
 // The diary: when you go to sleep, the day becomes one diary entry (first person) written by the AI from the day's
 // atomic facts (certain, written by the engine) and the day's conversation. The conversation itself is already
 // hidden from the AI scene by scene (visits.ts); from then on the story remembers the day through these entries.
+// It changes no relationship: each scene is judged when it ends (verdict.ts).
 import { settings, saveGame, notify, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { chat, quiet, personaName, ctx, translateTo } from '../st/bridge.js';
 import { facts, factText, placeName } from './facts.js';
 import { fmtClock as hm } from '../core/fmt.js';
-import { applyVerdict, type Change } from './romance.js';
 
 export const diaryOn = () => (settings() as any).diaryOnSleep !== false;
 export const diaryEntries = (g: Save): Record<string, string> => (((g as any).journalProse ??= {}) as Record<string, string>);
@@ -16,37 +16,25 @@ const clean = (t: unknown) => String(t ?? '').replace(/<(think|thinking|reasonin
 export const dayStart = (g: Save) => { const d = (g as any).dayStart ?? 0; return d <= chat().length ? d : 0; };
 export const markDayStart = (g: Save) => { (g as any).dayStart = chat().length; };
 
-export interface DiaryResult { ok: boolean; changes: Change[] }
-export async function writeDiary(g: Save, w: WorldDef, day: number, verdict = true): Promise<DiaryResult> {
+export interface DiaryResult { ok: boolean }
+export async function writeDiary(g: Save, w: WorldDef, day: number): Promise<DiaryResult> {
     const me = personaName();
     const dayFacts = facts(g).filter(f => Math.floor(f.at / 1440) === day);
     const msgs = chat().slice(dayStart(g)).filter((m: any) => clean(m.mes) && !m.extra?.mundi_diary);
     const talk = msgs.map((m: any) => `${m.is_user ? me : m.extra?.mundi_narrator ? 'Narrator' : m.name}: ${clean(m.mes).slice(0, 320)}`);
     let convo = talk.slice(-60).join('\n');
     if (convo.length > 9000) convo = convo.slice(-9000);
-    if (!dayFacts.length && !convo) return { ok: false, changes: [] };
-    // the people of the day: who appears in the facts or spoke
-    const spoke = new Set(msgs.filter((m: any) => !m.is_user).map((m: any) => String(m.name ?? '')));
-    const people = Object.values(g.cast).filter(r => r.met && (spoke.has(r.name) || dayFacts.some(f => f.who.includes(r.avatar)))).map(r => ({ avatar: r.avatar, name: r.name }));
+    if (!dayFacts.length && !convo) return { ok: false };
     const factList = dayFacts.map(f => `- ${hm(f.at % 1440)}, ${placeName(g, w, f.place)}: ${factText(f, me)}`).join('\n');
-    const verdictAsk = verdict && people.length ? `\n\nThen write a line with only "---", and below it one line for each of these people: ${people.map(p => p.name).join(', ')}. ` +
-        `Each line exactly like this: Name | friendship +1 | romance 0 | a short reason (what happened between them and ${me} today). ` +
-        `Friendship and romance go from -3 to +3; 0 when nothing changed. Romance only moves with flirting, dates or love; insults, fights or broken promises are negative. Be honest, not generous.` : '';
     const out = await quiet(`This is one day (day ${day}) in ${me}'s life in ${w.name}.\n\nWhat surely happened:\n${factList || '(nothing noted)'}\n\n` +
         `${convo ? `What was said that day:\n${convo}\n\n` : ''}Write ${me}'s diary entry for that day, in the first person, in one or two short paragraphs (at most 150 words). ` +
-        `Keep the people's names, what ${me} felt, promises and plans made, the important things that were said, and every relationship moment (asking someone out, a proposal, a breakup, and the answer). Each of the facts above must be in the entry. Use only what is above: invent nothing.${verdictAsk}`, 2000,   // room for models that think first
+        `Keep the people's names, what ${me} felt, promises and plans made, the important things that were said, and every relationship moment (asking someone out, a proposal, a breakup, and the answer). Each of the facts above must be in the entry. Use only what is above: invent nothing.`, 2000,   // room for models that think first
         'You write short, faithful diary entries from notes and conversations. You never invent events.');
-    const raw = String(out ?? '').replace(/<(think|thinking|reasoning)>[\s\S]*?<\/\1>/gi, '');
-    let [entryPart, verdictPart = ''] = raw.split(/\n\s*-{3,}\s*\n/);
-    // the model forgot the "---": the verdict lines ("Name | friendship +1 | romance 0 | …") are taken out of the entry
-    const VERDICT = /^\s*[-*]?\s*[^|\n]+\|\s*friendship\s*[+-]?\d\s*\|\s*romance\s*[+-]?\d\s*\|.*$/gim;
-    if (!verdictPart && VERDICT.test(entryPart)) { verdictPart = (entryPart.match(VERDICT) ?? []).join('\n'); entryPart = entryPart.replace(VERDICT, ''); }
-    const text = clean(entryPart);
-    if (!text) return { ok: false, changes: [] };
+    const text = clean(String(out ?? '').replace(/<(think|thinking|reasoning)>[\s\S]*?<\/\1>/gi, ''));
+    if (!text) return { ok: false };
     diaryEntries(g)[day] = text;
-    const changes = verdict && verdictPart ? applyVerdict(g, people, verdictPart) : [];
     saveGame();
-    return { ok: true, changes };
+    return { ok: true };
 }
 
 /* ---------- translation: SillyTavern's Chat Translation, when it translates the replies ---------- */

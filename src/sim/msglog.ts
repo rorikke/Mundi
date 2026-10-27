@@ -20,8 +20,9 @@ import { reactionGain } from './mood.js';
 interface Change { x: string; y?: string; m: Meter; d: number; fat: number }
 /** What one message changed. `fp` identifies the message (speaker and text); `why` says what was judged; `undone`:
  *  taken back by hand (the record stays, so the message isn't judged again). */
-export interface Rec { id?: number; fp: string; who: string; kind: 'line' | 'reply'; at: number; why: string; label?: string; ch: Change[]; undone?: true }
-interface Log { chat: string; open: Rec[]; settled?: Rec[]; n?: number }
+export interface Rec { id?: number; fp: string; who: string; kind: 'line' | 'reply' | 'verdict'; at: number; why: string; label?: string; ch: Change[]; undone?: true }
+/** `since`: when the open window started (the last settle point), for the facts noted meanwhile. */
+interface Log { chat: string; open: Rec[]; settled?: Rec[]; n?: number; since?: number }
 /** The emotion read in a reply: k 'l' a label, 'f' the classifier failed, 'n' there is no classifier. */
 interface Ex { fp: string; k: 'l' | 'f' | 'n'; l?: string }
 
@@ -31,7 +32,7 @@ const logOf = (g: Save): Log | undefined => ((g as any).rel ??= {}).log;
 
 const fnv = (s: string) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(36); };
 // the words of a message as the AI and the classifier see them (no thinking, whitespace collapsed)
-const textOf = (m: any) => String(m?.mes ?? '')
+export const textOf = (m: any) => String(m?.mes ?? '')
     .replace(/<(think|thinking|reasoning)>[\s\S]*?<\/\1>/gi, '').replace(/<(think|thinking|reasoning)>[\s\S]*$/i, '')
     .replace(/\s+/g, ' ').trim();
 const speakerKey = (m: any) => (m.is_user ? YOU : speakerOf(m) ?? String(m.name ?? ''));
@@ -146,7 +147,7 @@ export function reconcile() {
     const chatId = currentChatId();
     if (!log || log.chat !== chatId) {
         markSettled(list, 'start');
-        (g as any).rel.log = { chat: chatId, open: [] } as Log;
+        (g as any).rel.log = { chat: chatId, open: [], since: nowAbs(g) } as Log;
         saveGame();
         return;
     }
@@ -177,7 +178,10 @@ export function reconcile() {
         recs.set(fp, (recs.get(fp) ?? 0) + 1);
     }
     if (changed) { saveGame(); notifyLater(); }
+    // a long scene is judged in parts (every 30 messages): imported lazily, the verdict reads these records
+    if (win.length >= LONG_SCENE) void import('./verdict.js').then(v => { const w = getWorld(g.world); if (w) void v.verdictNow(g, w, 'a long scene'); });
 }
+const LONG_SCENE = 30;
 
 // Outside a game (a chat with characters): only the emotions of the last replies, for the sprites. A label from
 // before fingerprints (`mundi_expr` alone) is kept as it is.
@@ -202,14 +206,37 @@ export function settleNow(id: string) {
         if (relCfg(g).debug) log.settled = [...(log.settled ?? []), ...log.open].filter(r => r.at >= nowAbs(g) - 1440);
         else delete log.settled;
         log.open = [];
+        log.since = nowAbs(g);
     }
     saveGame();
+}
+// A change that belongs to no message (the scene verdict): kept with the settled records while the debug view is on.
+export function addSettled(g: Save, r: Rec) {
+    const log = logOf(g);
+    if (!log || !relCfg(g).debug) return;
+    r.id = log.n = (log.n ?? 0) + 1;
+    log.settled = [...(log.settled ?? []), r].filter(x => x.at >= nowAbs(g) - 1440);
+}
+// Before settling: the replies still being read are judged first (a few seconds at most).
+export async function readyToSettle() {
+    for (let t = 0; pending.size && t < 8000; t += 250) await new Promise(r => setTimeout(r, 250));
+    reconcile();
+}
+// The open messages (since the last settle point), and what their records changed toward you per person.
+export const openMessages = (): any[] => (game() && !TUT.save ? openWindow(chat()) : []);
+export const openSince = (g: Save) => logOf(g)?.since ?? 0;
+export function openTotals(g: Save): Record<string, { f: number; r: number }> {
+    const out: Record<string, { f: number; r: number }> = {};
+    for (const r of logOf(g)?.open ?? []) for (const c of r.ch) {
+        if ((c.y ?? YOU) !== YOU) continue;
+        const t = (out[c.x] ??= { f: 0, r: 0 }); t[c.m ?? 'f'] += c.d;
+    }
+    return out;
 }
 // The same at the end of a scene, after the replies still being read have been judged (a few seconds at most).
 export async function settleScene(id: string) {
     if (TUT.save || !game()) return;
-    for (let t = 0; pending.size && t < 8000; t += 250) await new Promise(r => setTimeout(r, 250));
-    reconcile();
+    await readyToSettle();
     settleNow(id);
 }
 

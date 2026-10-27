@@ -23,7 +23,8 @@ import { pins, placeOf, travelMinutes, playerHomeId, isOuting, outingName } from
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
-import { openWork, diaryWaiting, diaryReady } from './relui.js';
+import { verdictNow, daySnapshot, dayChanges } from '../sim/verdict.js';
+import { openWork, diaryWaiting, diaryReady, showDayRecap } from './relui.js';
 import { askAboutPlans } from './appts.js';
 import { doing, isDoing } from './doing.js';
 import { stayOf } from './events.js';
@@ -427,7 +428,8 @@ async function sleep() {
     const until = w.sleep.until;
     const mins = g.minutes < until ? until - g.minutes : 1440 - g.minutes + until;
     const dayEnded = g.day;
-    await endVisit(g, w);
+    const judged = await endVisit(g, w);
+    const start = daySnapshot(g, dayEnded);   // before the night: a change after midnight starts a new day
     beforeSleep(g).forEach(m => toast(m, 'info'));
     g.asleep = true;
     const msgs = advance(g, w, mins);
@@ -450,17 +452,21 @@ async function sleep() {
     if (isScenario(w)) state.view = 'scene';   // Home: you wake up where you were
     showTransition(`Day ${g.day}`, weekday(g.day), 'night');
     notify();
-    // the day becomes a diary entry (one AI call), while the night passes on screen
+    // the day becomes a diary entry (one AI call), while the night passes on screen; then how the day went with
+    // everyone (every source of the day, with the reasons the scene verdicts gave)
+    const recap = (ok: boolean) => judged.done.then(v => dayChanges(g, start, v)).catch(() => dayChanges(g, start, null))
+        .then(changes => (ok ? diaryReady(dayEnded, changes, true) : changes.length ? (diaryReady(dayEnded, [], false), showDayRecap(dayEnded, changes)) : diaryReady(dayEnded, [], false)));
     if (diaryOn() && systemOn(w, 'diary')) {
         setTimeout(() => diaryWaiting(dayEnded), 2600);   // after the night: "writing your diary…" until it is done
         writeDiary(g, w, dayEnded)
-            .then(res => { markDayStart(g); saveGame(); refreshPrompt(); if (res.ok) toast(`Diary updated — day ${dayEnded}. Read it in the Journal.`, 'success'); diaryReady(dayEnded, res.changes, res.ok); })
-            .catch((e: any) => { diaryReady(dayEnded, [], false); toast(`The diary could not be written (${String(e?.message ?? e)}). The facts of the day are still in the Journal.`, 'warn'); });
-    } else markDayStart(g);
+            .then(res => { markDayStart(g); saveGame(); refreshPrompt(); if (res.ok) toast(`Diary updated — day ${dayEnded}. Read it in the Journal.`, 'success'); void recap(res.ok); })
+            .catch((e: any) => { void recap(false); toast(`The diary could not be written (${String(e?.message ?? e)}). The facts of the day are still in the Journal.`, 'warn'); });
+    } else { markDayStart(g); setTimeout(() => void recap(false), 2600); }
 }
 
 // After a shift: time has passed; a short transition shows how it went.
 export async function finishWork(msgs: string[], jobName: string) {
+    { const { g, w } = ctxW(); await verdictNow(g, w, 'a work shift'); }   // the time at work ends the scene
     msgs.forEach((m, i) => toast(m, i ? 'success' : 'info'));
     runPlans();
     saveGame(); await syncScene();
@@ -518,6 +524,7 @@ Object.assign(ACT, {
         const tired = tooTired(g, w, Object.fromEntries(Object.entries(a.effects ?? {}).map(([k, v]) => [k, -v])), a.label.toLowerCase()); if (tired) { toast(tired, 'warn'); return; }
         if (isDoing()) return;
         actionSound(a.effects, a.id);
+        if (a.minutes >= 60) await verdictNow(g, w, 'a long action');   // an hour or more ends the scene
         await doing(a.label, a.icon ?? '⏳', a.minutes);   // a moment on screen while the time passes
         applyAction(g, w, a);
         advance(g, w, a.minutes).forEach(m => toast(m, 'warn'));

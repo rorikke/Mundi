@@ -1,10 +1,10 @@
 // Relationships in two tracks, like The Sims: friendship (the bond, 0..100) and romance (0..100 plus a status).
 // The engine owns the numbers. The AI only plays the scenes: when you ask someone out or propose, the engine tells the
 // AI how ready that person is, the AI writes the reaction, and a tiny follow-up question ("did they accept?") lets
-// the engine apply the result. At night, the diary call also gives a verdict on the day's relationships.
+// the engine apply the result. Each scene is judged when it ends (sim/verdict.ts).
 import { nowAbs, cfg } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, SOURCES, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, YOU } from './rel.js';
 import { approvalOf, approve } from './living.js';
 import { note } from './facts.js';
 import { romanceBlocked, canTryForBaby } from './family.js';
@@ -138,33 +138,6 @@ export function endRelationship(g, avatar, name) {
     approve(g, avatar, -10);
     note(g, was === 'married' ? '{u} and {0} got divorced.' : '{u} broke up with {0}.', [name], [avatar], g.player.loc, 'love');
     return was === 'married' ? `You and ${name} are divorced.` : `You and ${name} broke up.`;
-}
-// lines like "Samantha | friendship +2 | romance 0 | talked at the gym"
-export function applyVerdict(g, people, text) {
-    const out = [];
-    for (const line of text.split('\n')) {
-        const m = line.match(/^\s*[-*]?\s*([^|]+?)\s*\|\s*friendship\s*([+-]?\d)\s*\|\s*romance\s*([+-]?\d)\s*\|\s*(.+)$/i);
-        if (!m)
-            continue;
-        const p = people.find(x => x.name.toLowerCase() === m[1].trim().toLowerCase());
-        if (!p || out.some(c => c.avatar === p.avatar))
-            continue;
-        const df = Math.max(-3, Math.min(3, Number(m[2]))) * SOURCES.verdict, dr = Math.max(-3, Math.min(3, Number(m[3]))) * SOURCES.verdict;
-        const f0 = bondOf(g, p.avatar), r0 = romValue(g, p.avatar);
-        // gains are paced (the day's talk already brought some), losses apply in full
-        if (df > 0)
-            gain(g, 'f', p.avatar, YOU, df);
-        else if (df < 0)
-            lose(g, 'f', p.avatar, YOU, df);
-        if (dr && sysOn(g, 'romance') && !romanceBlocked(g, p.avatar)) {
-            if (dr > 0)
-                gain(g, 'r', p.avatar, YOU, dr);
-            else
-                lose(g, 'r', p.avatar, YOU, dr);
-        }
-        out.push({ avatar: p.avatar, name: p.name, why: m[4].trim().slice(0, 160), f0, f1: bondOf(g, p.avatar), r0, r1: romValue(g, p.avatar) });
-    }
-    return out;
 }
 // For the AI: where {{user}} stands with the people in this scene (friendship and romance, in words).
 export function romanceLine(g, present) {

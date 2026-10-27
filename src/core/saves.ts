@@ -85,6 +85,7 @@ function toRelStore(g: any) {
     for (const p of Object.values<any>(sw?.persp ?? {})) if (p) delete p.romance;
     delete liv.pairs; delete liv.pairInfo;
     if (g.cfg) delete g.cfg.bondCap;
+    delete g.rel.day;   // moving values isn't a change of the day (the recap would show them all)
 }
 
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);

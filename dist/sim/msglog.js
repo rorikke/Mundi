@@ -22,7 +22,7 @@ const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) {
     h = Math.imul(h, 0x01000193);
 } return (h >>> 0).toString(36); };
 // the words of a message as the AI and the classifier see them (no thinking, whitespace collapsed)
-const textOf = (m) => String(m?.mes ?? '')
+export const textOf = (m) => String(m?.mes ?? '')
     .replace(/<(think|thinking|reasoning)>[\s\S]*?<\/\1>/gi, '').replace(/<(think|thinking|reasoning)>[\s\S]*$/i, '')
     .replace(/\s+/g, ' ').trim();
 const speakerKey = (m) => (m.is_user ? YOU : speakerOf(m) ?? String(m.name ?? ''));
@@ -147,7 +147,7 @@ export function reconcile() {
     const chatId = currentChatId();
     if (!log || log.chat !== chatId) {
         markSettled(list, 'start');
-        g.rel.log = { chat: chatId, open: [] };
+        g.rel.log = { chat: chatId, open: [], since: nowAbs(g) };
         saveGame();
         return;
     }
@@ -200,7 +200,12 @@ export function reconcile() {
         saveGame();
         notifyLater();
     }
+    // a long scene is judged in parts (every 30 messages): imported lazily, the verdict reads these records
+    if (win.length >= LONG_SCENE)
+        void import('./verdict.js').then(v => { const w = getWorld(g.world); if (w)
+            void v.verdictNow(g, w, 'a long scene'); });
 }
+const LONG_SCENE = 30;
 // Outside a game (a chat with characters): only the emotions of the last replies, for the sprites. A label from
 // before fingerprints (`mundi_expr` alone) is kept as it is.
 function sprites(list) {
@@ -226,16 +231,43 @@ export function settleNow(id) {
         else
             delete log.settled;
         log.open = [];
+        log.since = nowAbs(g);
     }
     saveGame();
+}
+// A change that belongs to no message (the scene verdict): kept with the settled records while the debug view is on.
+export function addSettled(g, r) {
+    const log = logOf(g);
+    if (!log || !relCfg(g).debug)
+        return;
+    r.id = log.n = (log.n ?? 0) + 1;
+    log.settled = [...(log.settled ?? []), r].filter(x => x.at >= nowAbs(g) - 1440);
+}
+// Before settling: the replies still being read are judged first (a few seconds at most).
+export async function readyToSettle() {
+    for (let t = 0; pending.size && t < 8000; t += 250)
+        await new Promise(r => setTimeout(r, 250));
+    reconcile();
+}
+// The open messages (since the last settle point), and what their records changed toward you per person.
+export const openMessages = () => (game() && !TUT.save ? openWindow(chat()) : []);
+export const openSince = (g) => logOf(g)?.since ?? 0;
+export function openTotals(g) {
+    const out = {};
+    for (const r of logOf(g)?.open ?? [])
+        for (const c of r.ch) {
+            if ((c.y ?? YOU) !== YOU)
+                continue;
+            const t = (out[c.x] ??= { f: 0, r: 0 });
+            t[c.m ?? 'f'] += c.d;
+        }
+    return out;
 }
 // The same at the end of a scene, after the replies still being read have been judged (a few seconds at most).
 export async function settleScene(id) {
     if (TUT.save || !game())
         return;
-    for (let t = 0; pending.size && t < 8000; t += 250)
-        await new Promise(r => setTimeout(r, 250));
-    reconcile();
+    await readyToSettle();
     settleNow(id);
 }
 /* ---------- debugging ---------- */

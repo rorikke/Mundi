@@ -84,6 +84,7 @@ function relSection(g: Save, w: WorldDef): string {
     const E = (m: Meter) => rc.pace?.[m]?.E ?? CURVES[m].E, H = (m: Meter) => rc.pace?.[m]?.H ?? CURVES[m].H;
     return `<section class="mu-wc-sec"><h4>Relationships</h4>
         ${systemOn(w, 'romance') ? `<label class="mu-check"><input type="checkbox" data-input="wc-poly" ${c.poly ? 'checked' : ''}><span>Open relationships (polyamory)<small>No jealousy: you can date several people at once, freely, and everyone knows. Off: a new romance hurts the partners you already have.</small></span></label>` : ''}
+        <label class="mu-check"><input type="checkbox" data-input="wc-rel-verdict" ${rc.verdict !== false ? 'checked' : ''}><span>Judge each scene when it ends<small>When you leave, sleep, skip time or someone you talked with leaves, the AI reads the scene and says how it changed what each person feels about you (one short AI call per scene). Off: only talking, warm replies and the game's own events move relationships.</small></span></label>
         ${WC.adv ? `<p class="mu-muted">How fast feelings grow. The first points with someone come at full speed; after that each gain counts a little less, and the pace comes back over the next hours. Nothing ever stops completely.</p>
             ${sl('Friendship: points at full speed', 'f.E', E('f'), 1, 20, 1, '')}
             ${sl('Friendship: points more until half speed', 'f.H', H('f'), 1, 20, 1, '')}
@@ -381,6 +382,7 @@ Object.assign(INPUT, {
         else { const [m, part] = k.split('.') as [Meter, 'E' | 'H']; ((rc.pace ??= {})[m] ??= {})[part] = v; }
         saveGame(); notify();
     },
+    'wc-rel-verdict': (el) => { const g = game(); if (!g) return; const rc = (cfg(g).rel ??= {}); if ((el as HTMLInputElement).checked) delete rc.verdict; else rc.verdict = false; saveGame(); notify(); },
     'wc-rel-debug': (el) => { const g = game(); if (!g) return; const rc = (cfg(g).rel ??= {}); if ((el as HTMLInputElement).checked) rc.debug = true; else delete rc.debug; saveGame(); notify(); },
     'wc-pace': (el) => {
         const g = game(); if (!g) return;

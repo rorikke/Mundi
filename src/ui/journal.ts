@@ -120,7 +120,7 @@ Object.assign(ACT, {
         busy = d; notify();
         try {
             if (d === g.day) {
-                const res = await writeDiary(g, w, d, false);
+                const res = await writeDiary(g, w, d);
                 if (!res.ok) toast('Nothing to write about yet.', 'info');
             } else {
                 const items = facts(g).filter(f => dayOf(f) === d);

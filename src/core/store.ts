@@ -107,6 +107,8 @@ export interface RelCfg {
     halfLife?: number;
     /** show the raw numbers and each message's changes (for tuning; never sent to the AI) */
     debug?: boolean;
+    /** judge each scene when it ends (one AI call per scene; default on) */
+    verdict?: boolean;
 }
 export const cfg = (g: Save): WorldCfg => (((g as any).cfg ??= {}) as WorldCfg);
 // How time passes: "action" (default) only what you do moves the clock (eating, sleeping, working, travelling);

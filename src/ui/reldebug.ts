@@ -28,7 +28,7 @@ export function relChangesHtml(g: Save, avatar: string): string {
     const change = (r: (typeof list)[number]) => r.undone ? 'undone' : r.ch.map(c => `${nm(g, c.x)} ${c.m === 'r' ? 'romance' : 'friendship'} ${c.d >= 0 ? '+' : ''}${n2(c.d)}`).join(', ') || 'no change';
     return `<section class="mu-reldbg-list"><h4>Changes</h4>
         ${list.length ? `<ul>${list.map(r => `<li class="${r.settled ? 'is-settled' : ''}"><small data-notr>${hm(r.at % 1440)}</small>
-            <span><span data-notr>${esc(nm(g, r.who))}</span>${r.kind === 'line' ? ' (your line)' : ''}: <span data-notr>${esc(r.why)}</span> → <span data-notr>${esc(change(r))}</span>${r.settled ? ' · settled' : ''}</span>
+            <span><span data-notr>${esc(nm(g, r.who))}</span>${r.kind === 'line' ? ' (your line)' : r.kind === 'verdict' ? ' (scene verdict)' : ''}: <span data-notr>${esc(r.why)}</span> → <span data-notr>${esc(change(r))}</span>${r.settled ? ' · settled' : ''}</span>
             ${!r.undone && r.ch.length && r.id ? `<button class="mu-ibtn mu-ghost" data-act="rd-undo" data-id="${r.id}" title="Undo">${icon('undo')}</button>` : ''}</li>`).join('')}</ul>`
         : '<p class="mu-muted">Nothing recorded for them since the last scene.</p>'}</section>`;
 }

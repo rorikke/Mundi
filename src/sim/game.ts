@@ -26,6 +26,7 @@ import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave, type TieType, type TieTone } from './living.js';
+import { checkLeft } from './verdict.js';
 import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
 import { applyGameLore } from './lore.js';
 
@@ -295,6 +296,7 @@ export async function startNewGame(o: NewGame) {
     }
     // feelings between the people of the world (and your own, hidden while you play) start from their ties
     seedFromTies(save, tiesOfSave(save));
+    delete (save as any).rel?.day;   // starting values aren't the first day's changes
     if (isScenario(w)) shareRooms(save);   // Home: more people than bedrooms share a room (no second flat in a house)
     normalizeHomes(save);
     // the world's lorebooks and the characters' lorebooks chosen to stay on in this world
@@ -392,6 +394,7 @@ export function syncScene(): Promise<void> {
         const w = getWorld(g.world);
         if (!w) return;
         const here = presentAt(g, w, g.player.loc);
+        checkLeft(g, w, here.map(r => r.avatar));   // someone who spoke left: that part of the scene is judged
         // talking with only one person: the others stay in the scene but keep quiet
         let solo = String((g as any).social?.solo ?? '');
         // the one you were talking to alone left: everyone talks again

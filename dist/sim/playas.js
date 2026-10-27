@@ -12,7 +12,7 @@ import { ties, normalizeHomes } from './living.js';
 import { fr, ro, hasMeter, setFr, setRo, swapIds, seedFromTies, YOU } from './rel.js';
 import { note } from './facts.js';
 import { resident } from './game.js';
-import { settleNow } from './msglog.js';
+import { verdictNow } from './verdict.js';
 const ORIG = '__orig';
 export const swapOf = (g) => (g.swap ?? null);
 const ensure = (g) => (g.swap ??= { avatar: '', orig: persona(), origName: personaName(), files: {} });
@@ -71,8 +71,9 @@ export async function switchTo(g, w, target) {
         return '';
     if (target && !charOf(target))
         throw new Error('That character is not in SillyTavern anymore.');
-    // what the scene changed is kept as it is: the records point at the feelings of the person you leave
-    settleNow(`p${nowAbs(g)}`);
+    // switching ends the scene for the person you leave: it's judged (toward them) and its records settle before the
+    // ids are rewritten
+    await verdictNow(g, w, 'Play as', { end: true });
     // an event or a night over ends when you leave the person you are
     const soc = g.social ?? {};
     soc.event = null;

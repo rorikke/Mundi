@@ -4,6 +4,7 @@ import { period } from '../sim/time.js';
 import { state, game } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { toNextPeriod, advance } from '../sim/time.js';
+import { verdictNow } from '../sim/verdict.js';
 import { runPlans } from './plans.js';
 import { syncScene } from '../sim/game.js';
 import { toast, saveGame, notify } from '../core/store.js';
@@ -20,6 +21,7 @@ Object.assign(ACT, {
         const w = g && getWorld(g.world);
         if (!g || !w)
             return;
+        await verdictNow(g, w, 'time skipped');
         advance(g, w, toNextPeriod(w, g.minutes)).forEach(m => toast(m, 'warn'));
         showTransition(period(w, g.minutes).name, `Day ${g.day}`, 'time');
         runPlans();
