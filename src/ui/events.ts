@@ -31,7 +31,7 @@ export function stayAnswer(g: Save, avatar: string): { ok: boolean; why: string 
     return { ok: true, why: '' };
 }
 // They said yes: they stay with you until the morning (or you with them).
-function beginStay(g: Save, who: string, mine: boolean) {
+export function beginStay(g: Save, who: string, mine: boolean) {
     const r = g.cast[who]; if (!r) return;
     (social(g) as any).stay = { avatar: who, where: g.player.loc, day: g.day } as Stay;
     const s = social(g); const c = s.with.find(x => x.avatar === who);

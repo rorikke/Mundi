@@ -99,7 +99,7 @@ function follow() {
     on('STREAM_TOKEN_RECEIVED', () => { if (state.open && state.view === 'scene')
         patchLastLine(); });
     on('MESSAGE_SENT', (id) => { const m = globalThis.SillyTavern?.getContext?.().chat?.[id]; if (m?.is_user)
-        void import('./ui/relui.js').then(x => x.detectAsk(String(m.mes ?? ''))); });
+        void import('./ui/relui.js').then(x => { x.detectAsk(String(m.mes ?? '')); void x.checkReverse(); }); });
     // Home: time passes with every message you send (Settings › This save can turn it off)
     on('MESSAGE_SENT', async (id) => {
         const m = globalThis.SillyTavern?.getContext?.().chat?.[id];

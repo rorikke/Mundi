@@ -1,13 +1,16 @@
 // Relationships on screen: the asking buttons on a person's card (ask out, propose, marry, break up, divorce), the
 // milestone pop-up ("You and Samantha are now dating"), the end-of-day recap after sleeping (each person's bars
 // moving, a new tier filling the bar and changing its color), and the work screen with its choices.
-import { esc, game, notify, saveGame, toast, state } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, state, nowAbs } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { sysOn } from '../sim/romance.js';
-import { chat, quiet, sendCanned, setPrompt, thumb } from '../st/bridge.js';
+import { chat, quiet, sendCanned, setPrompt, thumb, speakerOf } from '../st/bridge.js';
+import { momentsOf, dropMoment } from '../sim/moments.js';
+import { ASK_WHAT } from '../sim/initiative.js';
+import { setCooldown, YOU } from '../sim/rel.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
-import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
+import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
 import { WORK_MODES, workShift, jobDef, rankOf } from '../sim/work.js';
@@ -217,6 +220,69 @@ export async function checkAsk() {
     notify();
 }
 export const asking = () => ASK.avatar ? { avatar: ASK.avatar, kind: ASK.kind } : null;
+/* ---------- they asked you (A-2): did you accept? ---------- */
+const REV = { busy: false };
+// After each of your lines: someone who was going to ask you something in this scene, and has spoken since, may have
+// asked; the AI says whether, and what you answered. Three of your lines without an answer, and it's left to the
+// scene's verdict. A yes is exactly your own accepted ask; a no costs them a little romance and starts the cooldown.
+export async function checkReverse() {
+    const g = game();
+    const w = g && getWorld(g.world);
+    if (!g || !w || REV.busy || ASK.avatar)
+        return;
+    const m = momentsOf(g).find(x => x.kind === 'ask' && x.sent !== undefined && (x.tries ?? 0) < 3);
+    const r = m && g.cast[m.who];
+    if (!m || !r || !m.ask)
+        return;
+    const since = chat().slice(m.sent).filter((x) => !x.is_system);
+    const theirs = since.findIndex((x) => !x.is_user && speakerOf(x) === m.who);
+    if (theirs < 0 || !since.slice(theirs + 1).some((x) => x.is_user))
+        return;
+    const k = m.ask, me = personaName();
+    const clean = (t) => String(t ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const said = since.map((x) => `${x.is_user ? `${me} (the player)` : String(x.name ?? '')}: ${clean(x.mes)}`).join('\n').slice(-2500);
+    let answer = 'notyet';
+    REV.busy = true;
+    try {
+        const out = (await quiet(`${r.name} was going to ask ${me} ${ASK_WHAT[k]} in this scene. This is the scene since then (lines by the player may be story directions that decide what happens):\n"""\n${said}\n"""\n\nHas ${r.name} asked, and what did ${me} answer? Reply with one word only: yes (${me} accepted), no (${me} refused), maybe (no clear answer, or ${me} asked for time), or notyet (${r.name} has not asked yet).`, 20, 'You read a scene and say whether a question was asked and answered. One word: yes, no, maybe or notyet.', { lane: 'now' })).toLowerCase();
+        answer = /not\s*yet/.test(out) ? 'notyet' : /\byes\b/.test(out) ? 'yes' : /\bno\b/.test(out) ? 'no' : /\bmaybe\b/.test(out) ? 'maybe' : 'notyet';
+    }
+    catch { /* not sure: wait for the next line */ }
+    finally {
+        REV.busy = false;
+    }
+    if (answer === 'notyet') {
+        m.tries = (m.tries ?? 0) + 1;
+        saveGame();
+        return;
+    }
+    dropMoment(g, m.id);
+    if (answer === 'yes') {
+        if (k === 'stay' || k === 'staytheirs') {
+            const { beginStay } = await import('./events.js');
+            beginStay(g, r.avatar, k === 'stay');
+            toast(k === 'stay' ? `${r.name} is staying the night.` : `You are staying at ${r.name}'s tonight.`, 'success');
+        }
+        else {
+            let msg = applyAnswer(g, r.avatar, r.name, k, 'yes');
+            if (k === 'baby')
+                msg = conceive(g, r.avatar, r.name);
+            if (k !== 'baby' || pregnancy(g))
+                milestone(r.avatar, msg);
+            else
+                toast(msg, 'info');
+        }
+    }
+    else if (answer === 'no') {
+        addRomance(g, r.avatar, -3);
+        setCooldown(g, r.avatar, YOU, nowAbs(g) + 3 * 1440);
+        note(g, '{u} turned down {0}.', [r.name], [r.avatar], g.player.loc, 'love');
+        toast(`You said no to ${r.name}.`, 'info');
+    }
+    saveGame();
+    refreshPrompt();
+    notify();
+}
 /* ---------- a milestone ---------- */
 const MS = { avatar: '', text: '', until: 0 };
 export function milestone(avatar, text) { Object.assign(MS, { avatar, text, until: Date.now() + 4200 }); setTimeout(notify, 4300); notify(); }

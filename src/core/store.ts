@@ -115,6 +115,8 @@ export interface RelCfg {
     playAs?: 'copy' | 'keep';
     /** how fast romance fades without contact (× the default; 0 = never) */
     fade?: number;
+    /** how often characters take the initiative with you (default 'normal'; 'off' turns all of it off) */
+    initiative?: 'off' | 'rarely' | 'normal' | 'often';
 }
 export const cfg = (g: Save): WorldCfg => (((g as any).cfg ??= {}) as WorldCfg);
 // How time passes: "action" (default) only what you do moves the clock (eating, sleeping, working, travelling);

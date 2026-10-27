@@ -131,6 +131,8 @@ function relSection(g, w) {
     return `<section class="mu-wc-sec"><h4>Relationships</h4>
         ${systemOn(w, 'romance') ? `<label class="mu-check"><input type="checkbox" data-input="wc-poly" ${c.poly ? 'checked' : ''}><span>Open relationships (polyamory)<small>No jealousy: you can date several people at once, freely, and everyone knows. Off: a new romance hurts the partners you already have.</small></span></label>` : ''}
         <label class="mu-check"><input type="checkbox" data-input="wc-rel-verdict" ${rc.verdict !== false ? 'checked' : ''}><span>Judge each scene when it ends<small>When you leave, sleep, skip time or someone you talked with leaves, the AI reads the scene and says how it changed what each person feels about you (one short AI call per scene). Off: only talking, warm replies and the game's own events move relationships.</small></span></label>
+        <label class="mu-field"><span>Characters take the initiative</span><select data-input="wc-rel-init">${opt('off', 'Off', rc.initiative === 'off')}${opt('rarely', 'Rarely', rc.initiative === 'rarely')}${opt('', 'Normal (default)', !rc.initiative || rc.initiative === 'normal')}${opt('often', 'Often', rc.initiative === 'often')}</select>
+            <small class="mu-muted">People open up, confess, ask you out, text you, warn you before they leave and hold grudges on their own. Normal: at most one thing they start on their own a day, and every few days per person. Off: none of it.</small></label>
         ${isScenario(w) ? '' : `<label class="mu-field"><span>When you stop playing someone ("Play as"), their feelings</span><select data-input="wc-rel-playas">${opt('', 'follow how everyone now feels about them', rc.playAs !== 'keep')}${opt('keep', 'stay as they were', rc.playAs === 'keep')}</select>
             <small class="mu-muted">While you play someone, their own feelings wait. When you leave them, they can feel about each person what that person came to feel about them, or carry on from where they were.</small></label>`}
         ${WC.adv ? `<p class="mu-muted">How fast feelings grow. The first points with someone come at full speed; after that each gain counts a little less, and the pace comes back over the next hours. Nothing ever stops completely.</p>
@@ -556,6 +558,11 @@ Object.assign(INPUT, {
         delete rc.verdict;
     else
         rc.verdict = false; saveGame(); notify(); },
+    'wc-rel-init': (el) => { const g = game(); if (!g)
+        return; const rc = (cfg(g).rel ??= {}); if (el.value)
+        rc.initiative = el.value;
+    else
+        delete rc.initiative; saveGame(); refreshPrompt(); notify(); },
     'wc-rel-playas': (el) => { const g = game(); if (!g)
         return; const rc = (cfg(g).rel ??= {}); if (el.value === 'keep')
         rc.playAs = 'keep';

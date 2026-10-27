@@ -3906,6 +3906,17 @@ const DICT: Record<string, string> = {
  "Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.": "O gênero, a atração, o ritmo e os estilos vão para as configurações Mundi do card, e novos jogos com essa pessoa partem deles. Nada mais no card muda.",
  "Saved to {0}'s card.": "Salvo no card de {0}.",
  "Could not save the character.": "Não foi possível salvar o personagem.",
- "Nothing changes until you apply what your AI read.": "Nada muda até você aplicar o que sua IA leu."
+ "Nothing changes until you apply what your AI read.": "Nada muda até você aplicar o que sua IA leu.",
+ "Their initiatives": "Iniciativas deles",
+ "What the people here bring up on their own this scene: opening up, a confession, asking you something.": "O que as pessoas aqui puxam por conta própria nesta cena: se abrir, uma confissão, te pedir algo.",
+ "Characters take the initiative": "Os personagens tomam a iniciativa",
+ "Rarely": "Raramente",
+ "Normal (default)": "Normal (padrão)",
+ "Often": "Com frequência",
+ "People open up, confess, ask you out, text you, warn you before they leave and hold grudges on their own. Normal: at most one thing they start on their own a day, and every few days per person. Off: none of it.": "As pessoas se abrem, se declaram, te chamam para sair, mandam mensagem, avisam antes de terminar e guardam mágoa por conta própria. Normal: no máximo uma coisa por dia que elas começam sozinhas, e a cada poucos dias por pessoa. Desligado: nada disso.",
+ "Asks you to come over tonight": "Te convida para ir à casa dele(a) hoje à noite",
+ "Not yet": "Ainda não",
+ "Not tonight, but soon?": "Hoje não, mas logo?",
+ "You said no to {0}.": "Você disse não a {0}."
 };
 export default DICT;

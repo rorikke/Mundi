@@ -27,7 +27,7 @@ export function stayAnswer(g, avatar) {
     return { ok: true, why: '' };
 }
 // They said yes: they stay with you until the morning (or you with them).
-function beginStay(g, who, mine) {
+export function beginStay(g, who, mine) {
     const r = g.cast[who];
     if (!r)
         return;

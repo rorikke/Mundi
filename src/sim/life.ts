@@ -195,7 +195,8 @@ export function lockedHere(g: Save, avatar: string): string | null {
 
 /* ---------- people who invite you ---------- */
 
-export interface Invite { avatar: string; place: string; from: number; kind: PlanKind }
+/** `initiative`: they asked you themselves (sim/initiative.ts): a date, or "come over tonight?" from a casual partner. */
+export interface Invite { avatar: string; place: string; from: number; kind: PlanKind; initiative?: 'date' | 'casual' }
 export const pendingInvite = (g: Save): Invite | null => ((social(g) as any).invite ?? null);
 export const clearInvite = (g: Save) => { (social(g) as any).invite = null; };
 function maybeInvite(g: Save, w: WorldDef): string[] {

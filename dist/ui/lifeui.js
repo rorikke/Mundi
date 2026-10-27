@@ -12,6 +12,8 @@ import { money, usualPay } from '../sim/needs.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
 import { residents, whereNow } from '../sim/people.js';
 import { social, bondOf, bump } from '../sim/social.js';
+import { addRomance } from '../sim/romance.js';
+import { setCooldown, YOU } from '../sim/rel.js';
 import { add, check, earliest, HANGOUT_BOND } from '../sim/plans.js';
 import { note } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
@@ -53,8 +55,8 @@ function inviteHtml(g, w) {
     const d = Math.floor(inv.from / 1440);
     const when = `${d === g.day ? 'today' : d === g.day + 1 ? 'tomorrow' : weekday(d)} at ${hm(inv.from % 1440)}`;
     return `<div class="mh-invite mh-glass" role="dialog"><img src="${esc(thumb(r.avatar))}" alt="">
-        <div><b data-notr>${esc(r.name)}</b><p>${inv.kind === 'date' ? 'Asks you out on a date' : 'Invites you to meet up'}: <b data-notr>${esc(placeOf(g, w, inv.place)?.name ?? '')}</b>, ${esc(when)}.</p></div>
-        <div class="mh-invite-btns"><button class="mu-primary" data-act="inv-yes">Accept</button><button data-act="inv-no">Decline</button></div></div>`;
+        <div><b data-notr>${esc(r.name)}</b><p>${inv.initiative === 'casual' ? 'Asks you to come over tonight' : inv.kind === 'date' ? 'Asks you out on a date' : 'Invites you to meet up'}: <b data-notr>${esc(placeOf(g, w, inv.place)?.name ?? '')}</b>, ${esc(when)}.</p></div>
+        <div class="mh-invite-btns"><button class="mu-primary" data-act="inv-yes">Accept</button><button data-act="inv-no">Decline</button>${inv.initiative ? '<button class="mu-ghost" data-act="inv-later">Not yet</button>' : ''}</div></div>`;
 }
 /* ---------- something comes to you: a neighbor at the door, a friend asking advice, a big moment (phase 4) ---------- */
 function happeningHtml(g) {
@@ -221,6 +223,21 @@ Object.assign(ACT, {
             return;
         (social(g).threads[inv.avatar] ??= []).push({ me: true, text: 'Sorry, I can\'t make it this time.', at: nowAbs(g) });
         bump(g, inv.avatar, -1);
+        if (inv.initiative) {
+            addRomance(g, inv.avatar, -3);
+            setCooldown(g, inv.avatar, YOU, nowAbs(g) + 3 * 1440);
+        } // they asked you out: a no stings a little
+        clearInvite(g);
+        saveGame();
+        notify();
+    },
+    // they asked you themselves: not now, but not a no either (no cost)
+    'inv-later': () => {
+        const g = game();
+        const inv = g && pendingInvite(g);
+        if (!g || !inv)
+            return;
+        (social(g).threads[inv.avatar] ??= []).push({ me: true, text: 'Not tonight, but soon?', at: nowAbs(g) });
         clearInvite(g);
         saveGame();
         notify();

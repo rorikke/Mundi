@@ -8,6 +8,7 @@ import { icon } from './icons.js';
 import { hm } from '../sim/time.js';
 import { meter, fatigue, rateOf, paceOf, relCfg, attraction, YOU, type Meter } from '../sim/rel.js';
 import { records, undoRecord } from '../sim/msglog.js';
+import { momentsOf, initiativeOf, usedToday } from '../sim/moments.js';
 import { refreshPrompt } from '../sim/prompt.js';
 
 export const relDebugOn = (g: Save | null) => !!(g && relCfg(g).debug);
@@ -18,7 +19,8 @@ const nm = (g: Save, id: string) => (id === YOU ? 'You' : g.cast[id]?.name ?? id
 export function relNumbersHtml(g: Save, avatar: string): string {
     if (!relDebugOn(g)) return '';
     const row = (m: Meter, label: string) => `<span><b>${label}</b> <span data-notr>${n2(meter(g, m, avatar, YOU))}</span> · weight <span data-notr>${n2(fatigue(g, m, avatar, YOU))}</span> · rate <span data-notr>${n2(rateOf(g, m, avatar, YOU))}</span> · pace ${paceOf(g, avatar, m) ?? 'world default'} · attraction <span data-notr>×${n2(attraction(g, avatar, YOU, m))}</span></span>`;
-    return `<div class="mu-reldbg">${row('f', 'Friendship')}${row('r', 'Romance')}</div>`;
+    const ms = momentsOf(g, avatar).map(m => `<span>${m.sent !== undefined ? 'sent' : 'queued'} · ${m.kind}${m.tier ? ` ${m.tier}` : ''}${m.ask ? ` ${m.ask}` : ''} (day ${m.day}): <span data-notr>${esc(m.text)}</span></span>`);
+    return `<div class="mu-reldbg">${row('f', 'Friendship')}${row('r', 'Romance')}<span><b>Initiative</b> ${initiativeOf(g)} · used today <span data-notr>${usedToday(g)}</span></span>${ms.join('')}</div>`;
 }
 
 // What the messages changed for this person (open records first, then the settled ones kept for a day).

@@ -118,15 +118,21 @@ const seeingOthers = (g: Save, avatar: string) => [...partnersOf(g), ...casualsO
 const LEAN = ['would most likely say no, or feel uncomfortable: it is too soon', 'is unsure: it could go either way, and asking may feel too soon', 'would probably say yes, maybe with some nerves', 'would very likely say yes'];
 
 // How ready they are: told to the AI so it does not simply say yes (models like to please).
-export function readiness(g: Save, avatar: string, name: string, k: AskKind): string {
-    if (k === 'casual') return casualReadiness(g, avatar, name);
+// How much someone wants what's asked (a couple, an engagement, a wedding, a baby) against what it needs: at or above
+// the need, a likely yes. Characters who ask you themselves use the same numbers (sim/initiative.ts).
+export function askScore(g: Save, avatar: string, k: Exclude<AskKind, 'casual'>): { score: number; need: number } {
     const f = bondOf(g, avatar), r = romValue(g, avatar), a = approvalOf(g, avatar);
     // with a crush, dislike isn't counted against them a second time (enemies to lovers)
     const b = f < 0 && r >= CRUSH ? 0 : f;
-    const ft = coldWords(f) ? `${name} ${coldWords(f)} {{user}}` : friendTier(f).name.toLowerCase(), rt = romanceTier(g, avatar).name.toLowerCase();
     const st = romOf(g, avatar).status;
     const need = k === 'date' ? 45 : k === 'propose' ? 70 : k === 'marry' ? 80 : st === 'married' ? 60 : st === 'engaged' ? 75 : 85;
-    const score = r * 0.6 + b * 0.4 + a * 0.2 - (k === 'date' && seeingOthers(g, avatar) && styleOf(g, avatar) === 'exclusive' ? 15 : 0);
+    return { score: r * 0.6 + b * 0.4 + a * 0.2 - (k === 'date' && seeingOthers(g, avatar) && styleOf(g, avatar) === 'exclusive' ? 15 : 0), need };
+}
+export function readiness(g: Save, avatar: string, name: string, k: AskKind): string {
+    if (k === 'casual') return casualReadiness(g, avatar, name);
+    const f = bondOf(g, avatar), a = approvalOf(g, avatar);
+    const ft = coldWords(f) ? `${name} ${coldWords(f)} {{user}}` : friendTier(f).name.toLowerCase(), rt = romanceTier(g, avatar).name.toLowerCase();
+    const { score, need } = askScore(g, avatar, k);
     const lean = k === 'date' && !attracted(g, avatar, YOU) ? `will say no: ${notAttractedWords(g, name)}` : LEAN[score >= need + 15 ? 3 : score >= need ? 2 : score >= need - 15 ? 1 : 0];
     return `[{{user}} is asking ${name} ${k === 'date' ? 'to be a couple' : k === 'propose' ? 'to marry them' : k === 'marry' ? 'to get married now' : 'to try for a baby together'}. Where they stand: ${ft}, romance: ${rt}${a <= -15 ? `, and ${name} disapproves of how {{user}} behaves` : ''}. Realistically ${name} ${lean}. ` +
         (k === 'date' && seeingOthers(g, avatar) ? othersWords(g, avatar, name) : '') +

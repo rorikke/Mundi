@@ -13,6 +13,7 @@ import { openMessages, openTotals, openSince, readyToSettle, settleNow, addSettl
 import { fr, ro, gain, lose, relOf, relCfg, SOURCES, YOU, type Applied, type DaySnap, type Meter } from './rel.js';
 import { facts, factText, placeName } from './facts.js';
 import { romanceBlocked, familyBlocked } from './family.js';
+import { finishMoments } from './moments.js';
 import type { Change } from './romance.js';
 
 export const MIN_MESSAGES = 4;   // passing through a place (a greeting, a word) costs no AI call
@@ -62,6 +63,8 @@ export async function verdictNow(g: Save, w: WorldDef, reason: string, { end = f
         if (talk.length > 9000) talk = talk.slice(-9000);
         const playing = String((g as any).swap?.avatar ?? '');
         const day = g.day;
+        // the moments the story was asked to play with the people who spoke are done (A-0)
+        const moments = finishMoments(g, spoke).map(m => `${g.cast[m.who]?.name ?? ''}: ${m.text}`);
         // then settle: from here on, editing these messages changes nothing
         settleNow(`v${nowAbs(g)}`);
         if (msgs.length < MIN_MESSAGES || !people.length || !verdictOn(g)) { console.debug('[Mundi] scene verdict skipped:', reason, `${msgs.length} messages`); return NONE; }
@@ -71,6 +74,7 @@ export async function verdictNow(g: Save, w: WorldDef, reason: string, { end = f
         const already = people.map(p => { const c = counted[p.avatar]; return c && (c.f || c.r) ? `${p.name}: friendship ${c.f >= 0 ? '+' : ''}${c.f.toFixed(1)}${c.r ? `, romance ${c.r >= 0 ? '+' : ''}${c.r.toFixed(1)}` : ''}` : ''; }).filter(Boolean);
         const prompt = `A scene in ${w.name} between ${me} and ${people.map(p => p.name).join(', ')} has just ended.\n\n` +
             `${noted.length ? `What surely happened meanwhile:\n${noted.join('\n')}\n\n` : ''}What was said:\n${talk}\n\n` +
+            `${moments.length ? `The story asked for these moments in this scene (judge how ${me} responded to them, if they happened): ${moments.join(' ')}\n\n` : ''}` +
             `${already.length ? `Already counted during the scene (from talking and warm replies, in points): ${already.join('; ')}. Judge only what that missed; do not count the same warmth again.\n\n` : ''}` +
             `Judge how this scene changed how each of these people feels about ${me}: ${people.map(p => p.name).join(', ')}. Write one line for each, exactly like this:\n` +
             `Name | friendship +1 | romance 0 | a short reason\n` +
