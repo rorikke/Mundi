@@ -3905,6 +3905,7 @@ const DICT: Record<string, string> = {
  "Save to card": "Salvar no card",
  "Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.": "O gênero, a atração, o ritmo e os estilos vão para as configurações Mundi do card, e novos jogos com essa pessoa partem deles. Nada mais no card muda.",
  "Saved to {0}'s card.": "Salvo no card de {0}.",
- "Could not save the character.": "Não foi possível salvar o personagem."
+ "Could not save the character.": "Não foi possível salvar o personagem.",
+ "Nothing changes until you apply what your AI read.": "Nada muda até você aplicar o que sua IA leu."
 };
 export default DICT;

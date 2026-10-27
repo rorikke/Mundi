@@ -104,7 +104,7 @@ export function attractionWords(name: string, att: Attraction | undefined, gs: G
         const band = (lo: number, hi: number) => gs.filter(d => v(d, 'r') > lo && v(d, 'r') <= hi).map(pluralOf);
         const full = gs.filter(d => v(d, 'r') >= 1).map(pluralOf), some = band(0.5, 0.99999), rare = band(0, 0.5), none = gs.filter(d => v(d, 'r') <= 0).map(pluralOf);
         if (!full.length && !some.length && !rare.length) out.push(`${name} is not attracted to anyone`);
-        else if (!some.length && !rare.length) out.push(`${name} is not attracted to ${list(none)}`);
+        else if (!some.length && !rare.length) out.push(full.length < none.length ? `${name} is only attracted to ${list(full)}` : `${name} is not attracted to ${list(none)}`);
         else {
             const segs: string[] = [];
             const seg = (xs: string[], first: string, later: string) => { if (xs.length) segs.push(`${segs.length ? later : first} ${list(xs)}`); };

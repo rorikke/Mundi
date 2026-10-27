@@ -3916,6 +3916,7 @@ const DICT = {
     "Save to card": "Guardar en la tarjeta",
     "Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.": "Su género, atracción, ritmo y estilos van a los ajustes Mundi de su tarjeta, y las nuevas partidas con esa persona empiezan desde ahí. Nada más cambia en la tarjeta.",
     "Saved to {0}'s card.": "Guardado en la tarjeta de {0}.",
-    "Could not save the character.": "No se pudo guardar el personaje."
+    "Could not save the character.": "No se pudo guardar el personaje.",
+    "Nothing changes until you apply what your AI read.": "Nada cambia hasta que apliques lo que leyó tu IA."
 };
 export default DICT;

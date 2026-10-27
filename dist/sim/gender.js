@@ -119,7 +119,7 @@ export function attractionWords(name, att, gs, romance = true) {
         if (!full.length && !some.length && !rare.length)
             out.push(`${name} is not attracted to anyone`);
         else if (!some.length && !rare.length)
-            out.push(`${name} is not attracted to ${list(none)}`);
+            out.push(full.length < none.length ? `${name} is only attracted to ${list(full)}` : `${name} is not attracted to ${list(none)}`);
         else {
             const segs = [];
             const seg = (xs, first, later) => { if (xs.length)

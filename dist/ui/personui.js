@@ -114,7 +114,7 @@ export function suggestHtml(scope) {
         return '';
     return `<section class="mu-panel mu-sug">
         <div class="mu-row"><button data-act="pp-suggest" data-scope="${esc(scope)}" ${n && !SUG.busy ? '' : 'aria-disabled="true"'}>${SUG.busy ? `<span>${esc(SUG.busy)}</span>` : `<span>Suggest from the cards</span>`}</button>
-            <small class="mu-muted">${n ? `${n} without a gender. Your AI reads each card once (gender, attraction, intimacy); nothing changes until you apply it.` : 'Everyone has a gender.'}</small></div>
+            <small class="mu-muted">${n ? `${n} without a gender. Your AI reads each card once (gender, attraction, intimacy); nothing changes until you apply it.` : mine.length ? 'Nothing changes until you apply what your AI read.' : 'Everyone has a gender.'}</small></div>
         ${mine.map(([k, x]) => `<div class="mu-sug-row"><b data-notr>${esc(x.name)}</b><small>${esc(sugWords(x.p, gs))}</small>
             <span>${x.p ? `<button class="mu-ghost" data-act="pp-sug" data-k="${esc(k)}" data-v="1">Apply</button>` : ''}<button class="mu-ghost" data-act="pp-sug" data-k="${esc(k)}">Dismiss</button></span></div>`).join('')}
         ${mine.filter(([, x]) => x.p).length > 1 ? `<button class="mu-primary" data-act="pp-sug-all" data-scope="${esc(scope)}">Apply all</button>` : ''}</section>`;
