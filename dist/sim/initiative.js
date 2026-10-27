@@ -23,6 +23,7 @@ import { attracted, partnersOf, idOf, relOf, fr, YOU } from './rel.js';
 import { grudgeOf } from './grudges.js';
 import { warning, lowFor } from './warnings.js';
 import { lookingOf } from './feed.js';
+import { confrontations } from './jealousy.js';
 import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat } from './moments.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -210,6 +211,8 @@ export function fits(g, w, m) {
         return !!grudgeOf(g, a);
     if (m.kind === 'talk')
         return lowFor(g, a);
+    if (m.kind === 'jealous')
+        return partnered(g, a);
     if (m.kind === 'ask')
         return readyToAskStill(g, w, m);
     if (m.kind === 'tier') {
@@ -267,6 +270,7 @@ export function checkInitiative(g, w) {
     if (!initiativeOn(g))
         return;
     checkTiers(g, w);
+    confrontations(g, w, presentAt(g, w, g.player.loc));
     checkAsks(g, w);
 }
 onHour.push((g, w) => { if (!initiativeOn(g))

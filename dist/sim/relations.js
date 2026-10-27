@@ -11,6 +11,7 @@ import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { note } from './facts.js';
 import { lifeMoment } from './happenings.js';
+import { rivalsForYou } from './jealousy.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -58,6 +59,10 @@ function meet(g, w, x, y) {
         if (f > HATES)
             lose(g, 'f', x, y, TOGETHER.drift);
     }
+    else if (rivalsForYou(g, w, x, y)) {
+        if (f > DISLIKES)
+            lose(g, 'f', x, y, TOGETHER.drift);
+    } // both have a crush on you (A-5)
     else if (f < friendCap(x, y))
         gain(g, 'f', x, y, TOGETHER.f);
     if (ro(g, x, y) > 0 || ro(g, y, x) > 0)

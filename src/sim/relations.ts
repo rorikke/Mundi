@@ -20,6 +20,7 @@ import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { note } from './facts.js';
 import { lifeMoment } from './happenings.js';
+import { rivalsForYou } from './jealousy.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -67,6 +68,7 @@ function meet(g: Save, w: WorldDef, x: string, y: string) {
     const f = fr(g, x, y);
     const t = tieOf(g, x, y);
     if ((t && RIVALS.includes(t.type)) || f < DISLIKES) { if (f > HATES) lose(g, 'f', x, y, TOGETHER.drift); }
+    else if (rivalsForYou(g, w, x, y)) { if (f > DISLIKES) lose(g, 'f', x, y, TOGETHER.drift); }   // both have a crush on you (A-5)
     else if (f < friendCap(x, y)) gain(g, 'f', x, y, TOGETHER.f);
     if (ro(g, x, y) > 0 || ro(g, y, x) > 0) touch(g, x, y);   // time together is contact (romance doesn't fade)
     const together = PARTNER.includes(statusOf(g, x, y) as Status);

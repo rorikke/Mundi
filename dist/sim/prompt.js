@@ -22,6 +22,7 @@ import { tiesLine } from './living.js';
 import { feelingsLine } from './relations.js'; // also runs feelings between people, hour by hour
 import { romanceLine } from './romance.js';
 import { genderLine } from './gender.js';
+import { rivalsLine } from './jealousy.js';
 import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
 import { markSent } from './moments.js';
 import { familyLine } from './family.js';
@@ -149,7 +150,7 @@ export function sceneBlocks() {
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present)],
-        ties: [...factionLines(g, w, present), tiesLine(g, present, !systemOn(w, 'relations')), feelingsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
+        ties: [...factionLines(g, w, present), tiesLine(g, present, !systemOn(w, 'relations')), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
         romance: [romanceLine(g, met)],
         gender: [genderLine(g, w, present)],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],

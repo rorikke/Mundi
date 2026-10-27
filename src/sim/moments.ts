@@ -12,8 +12,9 @@ import type { AskKind } from './romance.js';
 
 export type Initiative = 'off' | 'rarely' | 'normal' | 'often';
 /** `tier`: a feeling reached a tier (A-1); `down`: it fell to Wary or worse; `ask`: they ask you something (A-2);
- *  `talk`: a partner brings up the relationship (A-3); `grudge`: they bring up what hurt them (A-4). */
-export type MomentKind = 'tier' | 'down' | 'ask' | 'talk' | 'grudge';
+ *  `talk`: a partner brings up the relationship (A-3); `grudge`: they bring up what hurt them (A-4); `jealous`: a
+ *  partner confronts you about someone else (A-5). */
+export type MomentKind = 'tier' | 'down' | 'ask' | 'talk' | 'grudge' | 'jealous';
 export type Asked = AskKind | 'stay' | 'staytheirs';
 export interface Moment {
     id: number; who: string; kind: MomentKind; text: string; day: number;

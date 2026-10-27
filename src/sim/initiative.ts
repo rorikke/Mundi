@@ -23,6 +23,7 @@ import { attracted, partnersOf, idOf, relOf, fr, YOU } from './rel.js';
 import { grudgeOf } from './grudges.js';
 import { warning, lowFor } from './warnings.js';
 import { lookingOf } from './feed.js';
+import { confrontations } from './jealousy.js';
 import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, type Moment, type Asked } from './moments.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -185,6 +186,7 @@ export function fits(g: Save, w: WorldDef, m: Moment): boolean {
     if (m.kind === 'down') return bondOf(g, a) < 0;
     if (m.kind === 'grudge') return !!grudgeOf(g, a);
     if (m.kind === 'talk') return lowFor(g, a);
+    if (m.kind === 'jealous') return partnered(g, a);
     if (m.kind === 'ask') return readyToAskStill(g, w, m);
     if (m.kind === 'tier') {
         const ft = FRIEND_TIERS.find(t => t.id === m.tier);
@@ -235,6 +237,7 @@ export function wantsLine(g: Save, w: WorldDef, present: Resident[]): string {
 export function checkInitiative(g: Save, w: WorldDef) {
     if (!initiativeOn(g)) return;
     checkTiers(g, w);
+    confrontations(g, w, presentAt(g, w, g.player.loc));
     checkAsks(g, w);
 }
 onHour.push((g, w) => { if (!initiativeOn(g)) return []; checkInitiative(g, w); return textAsks(g, w); });
