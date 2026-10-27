@@ -1,13 +1,15 @@
 // Genders and attraction (requirements G-1…G-9): each world has its list (the style's when it has none), each person
 // may have one (`rel.people[id].gender`; unset is fine) and, per gender, how much of the normal rate their friendship
-// and romance grow (`att`; the multiplier itself is `attraction()` in rel.ts, applied to every gain). Also where a person's own settings come from at a new game (their
-// card's Mundi data, a cast preset, the world's example cast), cleaned of anything a hand-edited file might hold, and
-// the AI's line about the gender and pronouns of the people in the scene.
+// and romance grow (`att`; the multiplier itself is `attraction()` in rel.ts, applied to every gain). Also where a
+// person's own settings come from at a new game (their card's Mundi data, a cast preset, the world's example cast),
+// cleaned of anything a hand-edited file might hold; suggestions read from a card by the AI; and the AI's line about
+// the gender, pronouns and attraction of the people in the scene.
 import type { Save, Resident } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type GenderDef, type ExampleCharacter } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
 import { relOf, idOf, YOU, type Person, type Attraction } from './rel.js';
 import { isMinor } from './family.js';
+import { quiet } from '../st/bridge.js';
 
 export const gendersOf = (w: WorldDef | null | undefined): GenderDef[] => w?.genders ?? DEFAULT_GENDERS;
 export const genderDef = (w: WorldDef | null | undefined, id: string | undefined) => (id ? gendersOf(w).find(x => x.id === id) : undefined);
@@ -52,6 +54,41 @@ export function applyPerson(g: Save, a: string, p: Person | undefined) {
     if (!p) return;
     const people = relOf(g).people, id = idOf(g, a);
     people[id] = { ...(people[id] ?? {}), ...structuredClone(p) };
+}
+
+/* ---------- suggestions from a card (nothing is set until the player confirms) ---------- */
+
+const INTIMACY_WORDS: [RegExp, string][] = [[/free/, 'free'], [/passion/, 'passionate'], [/steady/, 'steady'], [/slow/, 'slow'], [/devot/, 'devoted']];
+// The AI's four lines read back: a gender of the world, who they're attracted to, an intimacy style, "only with a
+// partner". Anything unknown or unreadable is left out; undefined when nothing is left.
+export function parseSuggestion(text: string, gs: GenderDef[]): Person | undefined {
+    const line = (label: string) => (new RegExp(`^\\W*${label}\\W*:\\s*(.+)$`, 'im').exec(text)?.[1] ?? '').trim().toLowerCase().replace(/[.*_]+$/g, '');
+    const find = (s: string) => gs.find(d => [d.id, d.name, d.plural ?? '', pluralOf(d)].some(n => n && s.replace(/[^a-z-]/g, '') === n.toLowerCase().replace(/[^a-z-]/g, '')));
+    const p: Person = {};
+    const gender = line('gender');
+    if (gender && !/unknown/.test(gender)) { const d = find(gender); if (d) p.gender = d.id; }
+    const to = line('attracted to');
+    if (to && !/unknown/.test(to)) {
+        if (/no ?one|nobody|none/.test(to)) p.att = Object.fromEntries(gs.map(d => [d.id, { r: 0 }]));
+        else if (!/every|anyone|all/.test(to)) {
+            const yes = to.split(/,|\band\b|\//).map(s => find(s.trim())).filter(Boolean) as GenderDef[];
+            if (yes.length) { const att = Object.fromEntries(gs.filter(d => !yes.includes(d)).map(d => [d.id, { r: 0 }])); if (Object.keys(att).length) p.att = att; }
+        }
+    }
+    const intim = line('intimacy');
+    const preset = INTIMACY_WORDS.find(([re]) => re.test(intim))?.[1];
+    if (preset && preset !== 'steady') p.intimacy = { preset: preset as any };
+    if (/^yes/.test(line('only with a partner'))) p.intimacy = { ...(p.intimacy ?? {}), casual: false };
+    return Object.keys(p).length ? p : undefined;
+}
+// One quiet AI call about one card (the "later" lane: it waits for anything the player is waiting on).
+export async function suggestFromCard(name: string, card: string, gs: GenderDef[]): Promise<Person | undefined> {
+    const names = gs.map(d => d.name.toLowerCase()), plurals = gs.map(pluralOf);
+    const out = await quiet(`This is a character card for ${name}:\n"""\n${card.slice(0, 3000)}\n"""\n\nFrom what the card says (and only that), answer about ${name} in exactly these four lines, with "unknown" wherever the card doesn't say:\n` +
+        `Gender: ${names.join(', ')}, or unknown\nAttracted to: a list of ${plurals.join(', ')}; or everyone, no one, or unknown\n` +
+        'Intimacy: free spirit (a spark is enough), passionate (real attraction, no friendship needed), steady, slow to trust (only with close friends), devoted (only when deeply in love), or unknown\n' +
+        'Only with a partner: yes (no casual intimacy at all), no, or unknown', 120, 'You read character cards and answer in the exact format asked, with no other words.');
+    return parseSuggestion(out, gs);
 }
 
 /* ---------- for the AI ---------- */

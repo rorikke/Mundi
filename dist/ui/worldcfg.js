@@ -8,7 +8,7 @@ import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isS
 import { dressHtml } from './dressui.js';
 import { homeJobOf, SHIFTS, DAYS } from '../sim/hometime.js';
 import './homeui.js';
-import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, chatLore, bindChatLore, createLorebook } from '../st/bridge.js';
+import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, chatLore, bindChatLore, createLorebook, saveCardPerson } from '../st/bridge.js';
 import { homeAddress, placeOf } from '../sim/places.js';
 import { resident, homeSpot, takenHomes, syncScene, currentEntry } from '../sim/game.js';
 import { social, bondLabel } from '../sim/social.js';
@@ -31,8 +31,8 @@ import { ACT, INPUT } from './reg.js';
 import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, seedFromTies, startFriendship, relOf, relCfg, idOf, YOU } from '../sim/rel.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
-import { personPanel, SCOPES } from './personui.js';
-import { gendersOf } from '../sim/gender.js';
+import { personPanel, suggestHtml, SCOPES } from './personui.js';
+import { gendersOf, cleanPerson } from '../sim/gender.js';
 const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
 const WC = { tab: 'people', adv: false, who: '', adding: false, q: '', lq: '', back: 'map' };
 const opt = (v, label, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
@@ -68,6 +68,7 @@ function personForm(g, w) {
             <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="-100" max="100" value="${bond}" data-input="wc-bond"></label>
             ${systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) ? `<label class="mu-field"><span>With you</span><select data-input="wc-status">${[['none', 'Not together'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, romOf(g, r.avatar).status === v)).join('')}</select></label>` : ''}
             ${personPanel('save', r.avatar, ['attraction', 'pace', 'ways'])}
+            ${charOf(r.avatar) ? `<div class="mu-row"><button class="mu-ghost" data-act="wc-save-card">${icon('save')}<span>Save to card</span></button><small class="mu-muted">Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.</small></div>` : ''}
             ${minorHtml(g, r.avatar)}
             ${pairHtml(g, w, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
@@ -90,6 +91,7 @@ SCOPES.save = {
         delete people[k]; saveGame(); refreshPrompt(); },
     genders: () => gendersOf(getWorld(game()?.world ?? '')),
     romance: () => systemOn(getWorld(game()?.world ?? ''), 'romance'),
+    cards: () => { const g = game(); return g ? Object.values(g.cast).filter(r => idOf(g, r.avatar) !== YOU && charOf(r.avatar)).map(r => ({ id: r.avatar, avatar: r.avatar, name: r.name })) : []; },
 };
 // A minor is left out of every romance: a child born in the game, an age under 18 from the world, or this box.
 function minorHtml(g, avatar) {
@@ -182,7 +184,7 @@ function tabPeople(g, w) {
                 ${rs.map(r => `<button class="mu-wc-row ${WC.who === r.avatar ? 'is-on' : ''}" data-act="wc-who" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
                 <span><b data-notr>${esc(r.name)}</b><small>${esc(isScenario(w) ? homeJobOf(r).name || '' : w.occupations.find(o => o.id === r.occupation)?.name ?? 'No job')}</small></span></button>`).join('')}`).join('')}
         </aside>
-        <section class="mu-wc-form" data-keep="wc-form">${personForm(g, w)}</section>
+        <section class="mu-wc-form" data-keep="wc-form">${suggestHtml('save')}${personForm(g, w)}</section>
     </div>${WC.adding ? addPicker(g) : ''}`;
 }
 /* ---------- a Home: the house itself ---------- */
@@ -430,6 +432,19 @@ Object.assign(ACT, {
         return; cfg(g).difficulty = el.dataset.v; saveGame(); notify(); },
     'wc-cfg-reset': () => { const g = game(); if (!g)
         return; const c = cfg(g); delete c.travel; delete c.decay; delete c.seasonDays; delete c.rel; saveGame(); notify(); },
+    'wc-save-card': async () => {
+        const g = game();
+        const r = g?.cast[WC.who];
+        if (!g || !r)
+            return;
+        try {
+            await saveCardPerson(r.avatar, cleanPerson(relOf(g).people[idOf(g, r.avatar)]) ?? {});
+            toast(`Saved to ${r.name}'s card.`, 'success');
+        }
+        catch (e) {
+            toast(String(e?.message ?? e), 'error');
+        }
+    },
     'wc-rel-reset': () => { const g = game(); if (!g)
         return; delete cfg(g).rel; saveGame(); notify(); },
 });

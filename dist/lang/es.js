@@ -3903,6 +3903,19 @@ const DICT = {
     "No one": "Nadie",
     "How fast feelings grow toward each gender (100% is normal, 0% never). Losses are never changed.": "Lo rápido que crecen los sentimientos hacia cada género (100% es lo normal, 0% nunca). Las pérdidas nunca cambian.",
     "Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.": "La tuya solo ordena la app de citas: mientras juegas como alguien, sus propios sentimientos esperan. Vuelve a contar cuando dejas de jugar como esa persona.",
-    "Turn on \"Advanced\" for who you are attracted to.": "Activa \"Avanzado\" para elegir quién te atrae."
+    "Turn on \"Advanced\" for who you are attracted to.": "Activa \"Avanzado\" para elegir quién te atrae.",
+    "Suggest from the cards": "Sugerir desde las tarjetas",
+    "{0} without a gender. Your AI reads each card once (gender, attraction, intimacy); nothing changes until you apply it.": "{0} sin género. Tu IA lee cada tarjeta una vez (género, atracción, intimidad); nada cambia hasta que lo apliques.",
+    "Everyone has a gender.": "Todos tienen un género.",
+    "Reading {0}'s card ({1}/{2})…": "Leyendo la tarjeta de {0} ({1}/{2})…",
+    "The card does not say.": "La tarjeta no lo dice.",
+    "attracted to: {0}": "le atrae: {0}",
+    "attracted to no one": "no le atrae nadie",
+    "only with a partner": "solo con pareja",
+    "Apply all": "Aplicar todo",
+    "Save to card": "Guardar en la tarjeta",
+    "Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.": "Su género, atracción, ritmo y estilos van a los ajustes Mundi de su tarjeta, y las nuevas partidas con esa persona empiezan desde ahí. Nada más cambia en la tarjeta.",
+    "Saved to {0}'s card.": "Guardado en la tarjeta de {0}.",
+    "Could not save the character.": "No se pudo guardar el personaje."
 };
 export default DICT;

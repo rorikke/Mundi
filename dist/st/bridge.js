@@ -694,6 +694,32 @@ export async function saveCharacter(avatar, p) {
     }
     catch { /* the local copy is already updated */ }
 }
+// A person's own Mundi settings on their card (`data.extensions.mundi.person`: gender, attraction, pace, styles), so
+// later games start from them. The merge endpoint keeps keys it isn't sent, so a setting that was removed goes as
+// null (readers drop nulls); the card's other Mundi data stays.
+export async function saveCardPerson(avatar, person) {
+    const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+    const withNulls = (old, next) => {
+        const out = { ...next };
+        if (isObj(old))
+            for (const [k, v] of Object.entries(old)) {
+                if (!(k in next))
+                    out[k] = null;
+                else if (isObj(v) && isObj(next[k]))
+                    out[k] = withNulls(v, next[k]);
+            }
+        return out;
+    };
+    const c = await fullCharacter(avatar);
+    const sent = withNulls(c?.data?.extensions?.mundi?.person, (person ?? {}));
+    const res = await fetch('/api/characters/merge-attributes', { method: 'POST', headers: headers(), body: JSON.stringify({ avatar, data: { extensions: { mundi: { person: sent } } } }) });
+    if (!res.ok)
+        throw new Error('Could not save the character.');
+    if (c) {
+        const ext = (c.data ??= {}).extensions ??= {};
+        ext.mundi = { ...(ext.mundi ?? {}), person: structuredClone(person ?? {}) };
+    }
+}
 export function personas() {
     const names = power_user.personas ?? {};
     return Object.keys(names).map(file => {

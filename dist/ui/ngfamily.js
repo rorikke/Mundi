@@ -8,7 +8,7 @@ import { pickFile } from './cropper.js';
 import { TIE_TYPES, TIE_TONES } from '../sim/living.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { personPanel, SCOPES } from './personui.js';
+import { personPanel, suggestHtml, SCOPES } from './personui.js';
 import { cleanPerson, gendersOf } from '../sim/gender.js';
 import { personaSheet } from '../st/bridge.js';
 const wz = () => state.wizard;
@@ -87,6 +87,7 @@ SCOPES.ng = {
     set: (id, p) => { ngPeople()[id] = p ?? {}; },
     genders: () => gendersOf(getWorld(wz().world)),
     romance: () => !getWorld(wz().world) || systemOn(getWorld(wz().world), 'romance'),
+    cards: () => [...new Set([...wz().cast, ...familyOf().map(f => f.avatar)])].filter(a => charOf(a)).map(a => ({ id: a, avatar: a, name: nm(a) })),
 };
 // What the game starts with, for everyone chosen and you.
 export function ngPeopleFor(avatars) {
@@ -107,6 +108,7 @@ function whoTheyAreHtml() {
         return '';
     return `<section class="mu-panel mu-ngwho"><h3>Who they are</h3>
         <p class="mu-muted">Each one's gender and, under "More", who they are attracted to, how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.</p>
+        ${suggestHtml('ng')}
         ${people.map(a => `<div class="mu-ngwho-row">${face(a)}<b data-notr>${esc(nm(a))}</b>${personPanel('ng', a, ['gender'])}
             <button class="mu-ghost" data-act="ngw-more" data-who="${esc(a)}">${icon(z.whoOpen === a ? 'x' : 'edit')}<span>${z.whoOpen === a ? 'Less' : 'More'}</span></button></div>
             ${z.whoOpen === a ? `<div class="mu-ngwho-more">${personPanel('ng', a, ['attraction', 'pace', 'ways'])}</div>` : ''}`).join('')}
