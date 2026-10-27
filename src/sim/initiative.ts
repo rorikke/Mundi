@@ -196,8 +196,9 @@ export function fits(g: Save, w: WorldDef, m: Moment): boolean {
 }
 // A question already sent stays until it's answered (or the scene ends); one not sent yet must still be the right one.
 function readyToAskStill(g: Save, w: WorldDef, m: Moment): boolean {
-    if (m.sent !== undefined) return true;
     const k = m.ask as Asked;
+    if (m.sent !== undefined) return k === 'stay' || k === 'staytheirs' || ASKS[k].from.includes(romOf(g, m.who).status);   // unless it's already settled
+
     if (k === 'stay' || k === 'staytheirs') return stayKind(g, m.who) === k && romanticOk(g, w, m.who);
     return romanticOk(g, w, m.who) && !coolingDown(g, m.who) && ASKS[k].from.includes(romOf(g, m.who).status);
 }

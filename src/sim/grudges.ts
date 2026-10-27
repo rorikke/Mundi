@@ -17,6 +17,7 @@ export const grudgeOf = (g: Save, a: string) => activeFeelings(g, a).find(f => (
 export function holdGrudge(g: Save, a: string, why: string, days = GRUDGE.days): boolean {
     const r = g.cast[a];
     if (!r || !initiativeOn(g)) return false;
+    why = why.trim().replace(/[.!\s]+$/, '');
     const old = grudgeOf(g, a);
     const until = Math.max(old?.until ?? 0, nowAbs(g) + days * 1440);
     (social(g) as any).feel = [...feelingsOf(g).filter(f => !(f.avatar === a && (f as any).grudge)), { avatar: a, tag: `Hurt: ${why}`, until, grudge: true }].slice(-80);

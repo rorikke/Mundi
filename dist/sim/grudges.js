@@ -16,6 +16,7 @@ export function holdGrudge(g, a, why, days = GRUDGE.days) {
     const r = g.cast[a];
     if (!r || !initiativeOn(g))
         return false;
+    why = why.trim().replace(/[.!\s]+$/, '');
     const old = grudgeOf(g, a);
     const until = Math.max(old?.until ?? 0, nowAbs(g) + days * 1440);
     social(g).feel = [...feelingsOf(g).filter(f => !(f.avatar === a && f.grudge)), { avatar: a, tag: `Hurt: ${why}`, until, grudge: true }].slice(-80);
