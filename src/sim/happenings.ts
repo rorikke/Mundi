@@ -12,6 +12,7 @@ import { note } from './facts.js';
 import { playerHomeId } from './places.js';
 import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
 import { partnersOf, setStatus } from './rel.js';
+import { shutOut } from './romance.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${g.minutes}|${salt}`);
@@ -77,6 +78,7 @@ function neighborHour(g: Save, w: WorldDef) {
     if (l.hap.neighbor === g.day || rnd(g, 'knock') > 0.06) return;   // now and then, at most once a day
     l.hap.neighbor = g.day;
     const r = pick('who');
+    if (shutOut(g, r.avatar)) return;   // a neighbor who dislikes you doesn't come knocking
     const partied = ((g as any).facts ?? []).some((f: any) => f.kind === 'party' && f.place === playerHomeId && nowAbs(g) - f.at < 1440);
     const roll = rnd(g, 'what');
     if (partied && roll < 0.6) push(g, { kind: 'noise', avatar: r.avatar, text: `${r.met ? r.name : 'A neighbor'} knocks: last night's party kept them up.`, choices: [['sorry', 'Apologize'], ['shrug', 'Brush it off']] });

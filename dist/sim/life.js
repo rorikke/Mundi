@@ -16,6 +16,7 @@ import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
 import { whereNow, residents } from './people.js';
 import { partnersOf, YOU } from './rel.js';
+import { shutOut } from './romance.js';
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${g.minutes}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -184,6 +185,8 @@ export function doorAnswer(g, w, loc) {
     if (!r)
         return { ok: true, text: '' };
     const home = whereNow(g, w, r) === loc;
+    if (shutOut(g, r.avatar))
+        return { ok: false, text: lex(w, home ? 'doorOut' : 'doorNobody', r.name) }; // they dislike you: no key, no way in
     if (isPartner(g, r.avatar) || bondOf(g, r.avatar) >= 50)
         return { ok: true, text: home ? '' : `${r.name} is out, but you know where the key is.` };
     if (!home)
@@ -209,7 +212,7 @@ function maybeInvite(g, w) {
     const h = Math.floor(g.minutes / 60);
     if (!systemOn(w, 'plans') || pendingInvite(g) || h < 9 || h > 20 || rnd(g, 'invite') > 0.05)
         return [];
-    const pool = residents(g).filter(r => r.met && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && r.leisure.length);
+    const pool = residents(g).filter(r => r.met && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && r.leisure.length);
     if (!pool.length)
         return [];
     const r = pool[Math.floor(rnd(g, 'who') * pool.length)];

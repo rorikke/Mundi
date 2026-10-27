@@ -6,7 +6,8 @@ import { getWorld, type WorldDef } from '../core/world.js';
 import { ACT } from './reg.js';
 import { icon } from './icons.js';
 import { isWith, bondOf, isPartner, social } from '../sim/social.js';
-import { ALONG_BOND } from '../sim/plans.js';
+import { ALONG_BOND, canAlong } from '../sim/plans.js';
+import { shutOut } from '../sim/romance.js';
 import { featureOn } from '../sim/creator.js';
 import { stayButton } from './events.js';
 import { romanceButtons } from './relui.js';
@@ -25,7 +26,7 @@ function actions(g: Save, w: WorldDef, r: Resident): string[] {
     const out: string[] = [];
     if (!r.met) out.push(btn('pc-intro', r.avatar, 'chat', 'Introduce yourself'));
     out.push(along ? btn('pc-bye', r.avatar, 'back', 'Say goodbye')
-        : btn('pc-along', r.avatar, 'users', 'Come with me', b >= ALONG_BOND || isPartner(g, r.avatar) ? '' : `aria-disabled="true" title="Get closer first (${b}/${ALONG_BOND})"`));
+        : btn('pc-along', r.avatar, 'users', 'Come with me', canAlong(g, r.avatar) ? '' : `aria-disabled="true" title="${shutOut(g, r.avatar, isPartner(g, r.avatar)) ? 'They do not want to go anywhere with you.' : `Get closer first (${b}/${ALONG_BOND})`}"`));
     out.push(btn('pc-plan', r.avatar, 'pin', 'Make plans'));
     out.push(solo ? `<button data-act="solo-off">${icon('users')}<span>Talk with everyone</span></button>` : btn('solo-on', r.avatar, 'chat', 'Talk only with them'));
     out.push(...buttonsIn(stayButton(r.avatar)), ...buttonsIn(romanceButtons(r.avatar)));

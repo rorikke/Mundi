@@ -12,6 +12,7 @@ import { note } from './facts.js';
 import { playerHomeId } from './places.js';
 import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
 import { partnersOf, setStatus } from './rel.js';
+import { shutOut } from './romance.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -78,6 +79,8 @@ function neighborHour(g, w) {
         return; // now and then, at most once a day
     l.hap.neighbor = g.day;
     const r = pick('who');
+    if (shutOut(g, r.avatar))
+        return; // a neighbor who dislikes you doesn't come knocking
     const partied = (g.facts ?? []).some((f) => f.kind === 'party' && f.place === playerHomeId && nowAbs(g) - f.at < 1440);
     const roll = rnd(g, 'what');
     if (partied && roll < 0.6)

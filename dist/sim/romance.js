@@ -24,7 +24,11 @@ export function addRomance(g, avatar, delta) { if (delta > 0)
     gain(g, 'r', avatar, YOU, delta, false);
 else if (delta < 0)
     lose(g, 'r', avatar, YOU, delta); }
+// Below Stranger: people who dislike you (each tier includes its lower bound, so 0 is a Stranger, not Wary).
 export const FRIEND_TIERS = [
+    { id: 'hates', name: 'Hates', lo: -100, hi: -60, color: '#b3261e' },
+    { id: 'dislikes', name: 'Dislikes', lo: -60, hi: -30, color: '#e0603a' },
+    { id: 'wary', name: 'Wary', lo: -30, hi: 0, color: '#c9a227' },
     { id: 'stranger', name: 'Stranger', lo: 0, hi: 10, color: '#8a94a6' },
     { id: 'acquaintance', name: 'Acquaintance', lo: 10, hi: 30, color: '#5aa0e6' },
     { id: 'friend', name: 'Friend', lo: 30, hi: 55, color: '#43b51b' },
@@ -46,20 +50,34 @@ export function romanceTier(g, avatar, value = romValue(g, avatar)) {
     const s = romOf(g, avatar).status;
     return s !== 'none' ? STATUS_TIER[s] : ROMANCE_TIERS.find(t => value >= t.lo && value < t.hi) ?? ROMANCE_TIERS[0];
 }
-// progress inside the tier (the bar fills up and starts again at each new tier, like The Sims)
-export const tierPct = (t, v) => Math.round(Math.max(0, Math.min(1, (v - t.lo) / (Math.min(t.hi, 100) - t.lo))) * 100);
+// progress inside the tier (the bar fills up and starts again at each new tier, like The Sims); below 0 it fills as
+// the dislike deepens
+export const tierPct = (t, v) => Math.round(Math.max(0, Math.min(1, t.hi <= 0 ? (t.hi - v) / (t.hi - t.lo) : (v - t.lo) / (Math.min(t.hi, 100) - t.lo))) * 100);
+export const DISLIKES = -30, HATES = -60, CRUSH = 40;
+// How a feeling below Stranger reads in a sentence ("Kaho dislikes {{user}}"); '' from Stranger up.
+export const coldWords = (f) => (f < HATES ? 'hates' : f < DISLIKES ? 'dislikes' : f < 0 ? 'is wary of' : '');
+// A crush on you that can outweigh dislike (enemies to lovers).
+export const crushOn = (g, avatar) => sysOn(g, 'romance') && !romanceBlocked(g, avatar) && romValue(g, avatar) >= CRUSH;
+// Someone who doesn't want you around: at Hates for everything, at Dislikes unless it's romantic and they have a crush
+// on you. They refuse invitations, plans and "come with me", don't invite you and don't let you in.
+export function shutOut(g, avatar, romantic = false) {
+    const f = bondOf(g, avatar);
+    return f < HATES || (f < DISLIKES && !(romantic && crushOn(g, avatar)));
+}
 export const ASKS = {
     date: { label: 'Ask them out', line: n => `*asks ${n} to be a couple* "Will you be with me? As a couple, I mean."`, to: 'dating', from: ['none'] },
     propose: { label: 'Propose', line: n => `*proposes to ${n}*`, to: 'engaged', from: ['dating'] },
     marry: { label: 'Get married', line: n => `*asks ${n} to set the date and get married*`, to: 'married', from: ['engaged'] },
     baby: { label: 'Try for a baby', line: n => `*asks ${n} if they want to try for a baby together*`, to: null, from: ['dating', 'engaged', 'married'] },
 };
-export const canAsk = (g, avatar, k) => sysOn(g, k === 'baby' ? 'family' : 'romance') && !romanceBlocked(g, avatar) && ASKS[k].from.includes(romOf(g, avatar).status) && (k !== 'baby' || canTryForBaby(g, avatar));
+export const canAsk = (g, avatar, k) => sysOn(g, k === 'baby' ? 'family' : 'romance') && !romanceBlocked(g, avatar) && !shutOut(g, avatar, true) && ASKS[k].from.includes(romOf(g, avatar).status) && (k !== 'baby' || canTryForBaby(g, avatar));
 export const coolingDown = (g, avatar) => (romOf(g, avatar).cooldown ?? 0) > nowAbs(g);
 // How ready they are: told to the AI so it does not simply say yes (models like to please).
 export function readiness(g, avatar, name, k) {
-    const b = bondOf(g, avatar), r = romValue(g, avatar), a = approvalOf(g, avatar);
-    const ft = friendTier(b).name.toLowerCase(), rt = romanceTier(g, avatar).name.toLowerCase();
+    const f = bondOf(g, avatar), r = romValue(g, avatar), a = approvalOf(g, avatar);
+    // with a crush, dislike isn't counted against them a second time (enemies to lovers)
+    const b = f < 0 && r >= CRUSH ? 0 : f;
+    const ft = coldWords(f) ? `${name} ${coldWords(f)} {{user}}` : friendTier(f).name.toLowerCase(), rt = romanceTier(g, avatar).name.toLowerCase();
     const st = romOf(g, avatar).status;
     const need = k === 'date' ? 45 : k === 'propose' ? 70 : k === 'marry' ? 80 : st === 'married' ? 60 : st === 'engaged' ? 75 : 85;
     const score = r * 0.6 + b * 0.4 + a * 0.2;
@@ -142,8 +160,11 @@ export function endRelationship(g, avatar, name) {
 // For the AI: where {{user}} stands with the people in this scene (friendship and romance, in words).
 export function romanceLine(g, present) {
     const parts = present.map(r => {
-        const f = friendTier(bondOf(g, r.avatar)).name.toLowerCase(), rt = romanceTier(g, r.avatar);
-        return `${r.name}: ${f}${rt.id !== 'none' && sysOn(g, 'romance') ? `, ${rt.name.toLowerCase()}` : ''}`;
+        const b = bondOf(g, r.avatar), rt = romanceTier(g, r.avatar), love = rt.id !== 'none' && sysOn(g, 'romance') ? rt.name.toLowerCase() : '';
+        if (!coldWords(b))
+            return `${r.name}: ${friendTier(b).name.toLowerCase()}${love ? `, ${love}` : ''}`;
+        return `${r.name} ${coldWords(b)} {{user}}${love ? ` (yet romance: ${love})` : ''}` +
+            (b < HATES ? `: ${r.name} doesn't want {{user}} around, and leaves or tells {{user}} to leave` : '');
     });
     if (!parts.length)
         return '';

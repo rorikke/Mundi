@@ -14,6 +14,7 @@ import { placeOf, playerHomeId, travelMinutes } from './places.js';
 import { routineStep, routineAt, whereNow } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom, type Appointment, type PlanKind } from './social.js';
 import { dating } from './feed.js';
+import { shutOut, crushOn } from './romance.js';
 import { personaName } from '../st/bridge.js';
 
 export const HANGOUT_BOND = 15;   // acquaintance: you can hang out
@@ -27,6 +28,15 @@ export interface Answer { ok: boolean; why: string }
 const yes: Answer = { ok: true, why: '' };
 const matched = (g: Save, avatar: string) => dating(g).matches.includes(avatar);
 const close = (g: Save, avatar: string, need: number) => isPartner(g, avatar) || bondOf(g, avatar) >= need;
+// A date: close enough, a dating-app match, or a crush on you whatever the friendship (unless they hate you).
+export const canDate = (g: Save, avatar: string) => !shutOut(g, avatar, true) && (close(g, avatar, DATE_BOND) || (matched(g, avatar) && bondOf(g, avatar) >= 10) || crushOn(g, avatar));
+// Hanging out: close enough or a match, and not someone who doesn't want you around.
+export const canHang = (g: Save, avatar: string) => !shutOut(g, avatar) && (close(g, avatar, HANGOUT_BOND) || matched(g, avatar));
+export const canPlan = (g: Save, avatar: string) => canHang(g, avatar) || canDate(g, avatar);
+// "Come with me": close enough, a match or someone you live with; not someone who doesn't want you around (with a
+// partner who has a crush on you, it's romantic).
+export const canAlong = (g: Save, avatar: string) => !shutOut(g, avatar, isPartner(g, avatar)) && (close(g, avatar, ALONG_BOND) || matched(g, avatar) || housemate(g, avatar));
+const NOT_YOU: Answer = { ok: false, why: 'They do not want to spend time with you.' };
 
 export const isWorking = (w: WorldDef, r: Resident, at: number) => routineStep(r, at)[1] === 'work' && !!w.occupations.find(o => o.id === r.occupation);
 export function isSleeping(r: Resident, at: number) {
@@ -46,9 +56,10 @@ export function when(g: Save, at: number) {
 export function check(g: Save, w: WorldDef, avatar: string, place: string, from: number, to: number, kind: PlanKind, need: number): Answer {
     const r = g.cast[avatar];
     if (!r) return { ok: false, why: 'They are not in this world.' };
-    if (kind === 'date' && !(close(g, avatar, DATE_BOND) || (matched(g, avatar) && bondOf(g, avatar) >= 10)))
-        return { ok: false, why: 'They are not ready for a date with you yet.' };
-    if (!close(g, avatar, need) && !matched(g, avatar)) return { ok: false, why: 'They do not know you well enough yet.' };
+    const romantic = kind === 'date';
+    if (shutOut(g, avatar, romantic)) return NOT_YOU;
+    if (romantic && !canDate(g, avatar)) return { ok: false, why: 'They are not ready for a date with you yet.' };
+    if (!close(g, avatar, need) && !matched(g, avatar) && !(romantic && crushOn(g, avatar))) return { ok: false, why: 'They do not know you well enough yet.' };
     if (place === playerHomeId && !close(g, avatar, HOME_BOND)) return { ok: false, why: 'They are not comfortable going to your home yet.' };
     for (let t = from; t < to; t += 30) {
         if (isWorking(w, r, t)) return { ok: false, why: 'They work at that time.' };
@@ -85,7 +96,7 @@ export async function invite(g: Save, w: WorldDef, avatar: string, place: string
     const what = (kind === 'date' ? 'a date' : 'hanging out') + (title.trim() ? ` ("${title.trim()}")` : '');
     const note = ans.ok
         ? `${r.name} happily accepts ${what} at ${where}, ${when(g, from)}, in one short ${lex(w, 'msgNoun')}.`
-        : `${r.name} declines in one short, kind ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as any)[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
+        : `${r.name} declines in one short, ${ans === NOT_YOU ? 'cold' : 'kind'} ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as any)[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
     await textFrom(g, w, avatar, note, ans.ok ? 'Sure! See you there.' : 'Sorry, I can\'t then.', mine);
     return ans;
 }
@@ -115,7 +126,7 @@ export async function callOver(g: Save, w: WorldDef, avatar: string, mine: strin
     if (ans.ok) { social(g).appts = social(g).appts.filter(a => !(a.avatar === avatar && a.come && livePlan(a))); add(g, avatar, here, from, kind, true); }
     const note = ans.ok
         ? `${r.name} agrees to come to ${where} now and says they will be there in about ${trip} minutes, in one short ${lex(w, 'msgNoun')}.`
-        : `${r.name} says they can't come over to ${where} right now, in one short, kind ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as any)[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
+        : `${r.name} says they can't come over to ${where} right now, in one short, ${ans === NOT_YOU ? 'cold' : 'kind'} ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as any)[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
     await textFrom(g, w, avatar, note, ans.ok ? 'On my way!' : 'I can\'t right now, sorry.', mine);
     return { ...ans, at: from };
 }
@@ -128,7 +139,8 @@ export function askAlong(g: Save, w: WorldDef, avatar: string): Answer {
     const r = g.cast[avatar];
     const now = nowAbs(g);
     if (!r) return { ok: false, why: '' };
-    if (!close(g, avatar, ALONG_BOND) && !matched(g, avatar) && !housemate(g, avatar)) return { ok: false, why: 'They do not know you well enough yet.' };
+    if (shutOut(g, avatar, isPartner(g, avatar))) return NOT_YOU;
+    if (!canAlong(g, avatar)) return { ok: false, why: 'They do not know you well enough yet.' };
     if (isWorking(w, r, now) && routineAt(g, w, r, now) === g.player.loc) return { ok: false, why: 'They are working.' };
     const s = social(g);
     if (!s.with.some(c => c.avatar === avatar)) { s.with.push({ avatar, until: now + ALONG_LENGTH }); remember(g, '{0} went along with {u} for a while.', [r.name], [avatar]); }

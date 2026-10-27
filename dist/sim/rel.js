@@ -30,8 +30,6 @@ export const meter = (g, m, x, y) => relOf(g).m[dk(idOf(g, x), idOf(g, y))]?.[m]
 export const hasMeter = (g, m, x, y) => relOf(g).m[dk(idOf(g, x), idOf(g, y))]?.[m] !== undefined;
 export const fr = (g, x, y) => meter(g, 'f', x, y);
 export const ro = (g, x, y) => meter(g, 'r', x, y);
-// friendship toward you doesn't go below 0 yet (people who dislike you come with directional relationships)
-const floor = (m, y) => (m === 'f' && y === YOU ? 0 : LO[m]);
 // The start of today's values toward you, kept at the first change of the day.
 function markDay(g, st) {
     if (st.day?.day === g.day)
@@ -52,7 +50,7 @@ export function setMeter(g, m, x, y, v) {
     const k = dk(x, y);
     if (y === YOU)
         markDay(g, st);
-    const val = clean(Math.max(floor(m, y), Math.min(100, v)));
+    const val = clean(Math.max(LO[m], Math.min(100, v)));
     const e = (st.m[k] ??= {});
     if (val === 0)
         delete e[m];

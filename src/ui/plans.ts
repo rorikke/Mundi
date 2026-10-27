@@ -17,9 +17,9 @@ import { weekday } from '../sim/time.js';
 import { fmtClock as hm } from '../core/fmt.js';
 import { placeOf, playerHomeId, pins } from '../sim/places.js';
 import { bondOf, isPartner, social, isWith, type PlanKind } from '../sim/social.js';
-import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
+import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
+import { shutOut } from '../sim/romance.js';
 import { whereNow } from '../sim/people.js';
-import { dating } from '../sim/feed.js';
 import { icon } from './icons.js';
 import { featureOn } from '../sim/creator.js';
 import { ACT, INPUT } from './reg.js';
@@ -65,8 +65,8 @@ export function sceneCard(g: Save, w: WorldDef): string {
         ${r.met ? '' : `<p class="mu-muted">You don't know them yet. Talk to them, or:</p><button class="mu-primary" data-act="pc-intro" data-who="${esc(r.avatar)}">${icon('chat')}<span>Introduce yourself</span></button>`}
         ${along ? `<p class="mu-muted">${esc(fmt('{0} is with you.', r.name))}</p>
             <button data-act="pc-bye" data-who="${esc(r.avatar)}">${icon('back')}<span>Say goodbye</span></button>`
-            : `<button class="mu-primary" data-act="pc-along" data-who="${esc(r.avatar)}" ${b >= ALONG_BOND || isPartner(g, r.avatar) ? '' : 'aria-disabled="true"'}>${icon('users')}<span>Come with me</span></button>
-            <small class="mu-muted">${b >= ALONG_BOND || isPartner(g, r.avatar) ? (working ? 'They are working now.' : 'They go with you from place to place for a few hours.') : esc(fmt('Get closer first ({0}/{1}).', String(b), String(ALONG_BOND)))}</small>`}
+            : `<button class="mu-primary" data-act="pc-along" data-who="${esc(r.avatar)}" ${canAlong(g, r.avatar) ? '' : 'aria-disabled="true"'}>${icon('users')}<span>Come with me</span></button>
+            <small class="mu-muted">${canAlong(g, r.avatar) ? (working ? 'They are working now.' : 'They go with you from place to place for a few hours.') : shutOut(g, r.avatar, isPartner(g, r.avatar)) ? 'They do not want to go anywhere with you.' : esc(fmt('Get closer first ({0}/{1}).', String(b), String(ALONG_BOND)))}</small>`}
         <button data-act="pc-plan" data-who="${esc(r.avatar)}">${icon('pin')}<span>Make plans</span></button>
         ${String((social(g) as any).solo ?? '') === r.avatar ? `<button data-act="solo-off">${icon('users')}<span>Talk with everyone again</span></button>`
             : `<button data-act="solo-on" data-who="${esc(r.avatar)}">${icon('chat')}<span>Talk only with them</span></button>`}
@@ -89,10 +89,11 @@ function slots(g: Save) {
 export function planForm(g: Save, w: WorldDef, avatar: string, face = false): string {
     const r = g.cast[avatar];
     const b = bondOf(g, avatar);
-    const canDate = isPartner(g, avatar) || b >= DATE_BOND || (dating(g).matches.includes(avatar) && b >= 10);
-    if (b < HANGOUT_BOND && !isPartner(g, avatar) && !dating(g).matches.includes(avatar))
-        return `<section><h4>Plans</h4><p class="mu-muted">${esc(fmt('Get closer before making plans ({0}/{1}).', String(b), String(HANGOUT_BOND)))}</p></section>`;
-    if (PL.kind === 'date' && !canDate) PL.kind = 'hangout';
+    const dateOk = canDate(g, avatar), hangOk = canHang(g, avatar);
+    if (!canPlan(g, avatar))
+        return `<section><h4>Plans</h4><p class="mu-muted">${shutOut(g, avatar) ? 'They do not want to make plans with you.' : esc(fmt('Get closer before making plans ({0}/{1}).', String(b), String(HANGOUT_BOND)))}</p></section>`;
+    if (PL.kind === 'date' && !dateOk) PL.kind = 'hangout';
+    if (PL.kind === 'hangout' && !hangOk) PL.kind = 'date';
     // a scenario: plans are made in a room of the house (the rooms of this game, and your room)
     const places = isScenario(w) ? [...pins(g, w).filter(p => !p.link && !p.home), { id: playerHomeId, name: 'Your room' }, { id: OUT_PICK, name: 'Somewhere out… (write where)' }]
         : [...w.places.filter(p => !p.link), ...(placeOf(g, w, playerHomeId) ? [{ id: playerHomeId, name: 'Your home' }] : [])];
@@ -104,8 +105,8 @@ export function planForm(g: Save, w: WorldDef, avatar: string, face = false): st
     const sheHere = whereNow(g, w, r) === here;
     const plans = upcoming(g, avatar);
     return `<section class="mu-ph-plan"><h4>Make plans</h4>
-            <div class="mu-chips"><button class="mu-chip ${PL.kind === 'hangout' ? 'is-on' : ''}" data-act="pl-kind" data-v="hangout">Hang out</button>
-                <button class="mu-chip ${PL.kind === 'date' ? 'is-on' : ''}" data-act="pl-kind" data-v="date" ${canDate ? '' : `aria-disabled="true" title="${esc(lex(w, 'dateNeeds', String(b), String(DATE_BOND)))}"`}>Date</button></div>
+            <div class="mu-chips"><button class="mu-chip ${PL.kind === 'hangout' ? 'is-on' : ''}" data-act="pl-kind" data-v="hangout" ${hangOk ? '' : 'aria-disabled="true"'}>Hang out</button>
+                <button class="mu-chip ${PL.kind === 'date' ? 'is-on' : ''}" data-act="pl-kind" data-v="date" ${dateOk ? '' : `aria-disabled="true" title="${esc(lex(w, 'dateNeeds', String(b), String(DATE_BOND)))}"`}>Date</button></div>
             <label class="mu-field"><span>Name (optional)</span><input type="text" maxlength="80" data-input="pl-title" data-focus="pltitle" placeholder="${esc(tr(lex(w, 'planTitleEg')))}" value="${esc(PL.title)}"><small class="mu-muted">Tells the story what this event is about.</small></label>
             <label class="mu-field"><span>Where</span><select data-input="pl-place">${places.map(p => `<option value="${esc(p.id)}" ${PL.place === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
             ${PL.place === OUT_PICK ? `<label class="mu-field"><span>Where out</span><input type="text" maxlength="80" data-input="pl-out" data-focus="plout" placeholder="${styleOf(w) === 'medieval' ? 'the market square, the village tavern, the riverbank…' : 'the beach, a café downtown, the cinema…'}" value="${esc(PL.out)}"></label>` : ''}

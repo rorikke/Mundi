@@ -5,7 +5,7 @@ import type { WorldDef } from '../core/world.js';
 import { setPrompt, sendCanned, chat, setAsk } from '../st/bridge.js';
 import { social, bondOf, isPartner, isWith } from '../sim/social.js';
 import { letGo } from '../sim/plans.js';
-import { romOf } from '../sim/romance.js';
+import { romOf, shutOut } from '../sim/romance.js';
 import { romanceBlocked, isMinor } from '../sim/family.js';
 import { playerHomeId } from '../sim/places.js';
 import { note } from '../sim/facts.js';
@@ -25,6 +25,7 @@ const homeOf = (g: Save, avatar: string) => { const r: any = g.cast[avatar]; con
 // Can you two spend the night under the same roof?
 export function stayAnswer(g: Save, avatar: string): { ok: boolean; why: string } {
     if (isMinor(g, avatar)) return { ok: false, why: '' };
+    if (shutOut(g, avatar, true)) return { ok: false, why: 'They do not want to spend the night with you.' };
     if (isPartner(g, avatar) || romOf(g, avatar).status !== 'none') return { ok: true, why: '' };
     if (!romanceBlocked(g, avatar) && romOf(g, avatar).value >= 40) return { ok: true, why: '' };
     if (bondOf(g, avatar) >= 70) return { ok: true, why: '' };

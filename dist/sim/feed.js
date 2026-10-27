@@ -8,7 +8,7 @@ import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { whereNow, residents } from './people.js';
-import { social, addBond, bondLabel, isPartner, bondAtLeast } from './social.js';
+import { social, addBond, standsWith, isPartner, bondAtLeast } from './social.js';
 export function feed(g) {
     const s = social(g);
     const f = (s.feed ??= {});
@@ -84,7 +84,7 @@ function threadOf(g, w, post, aboutWho) {
     const nameOf = (by) => (by === 'me' ? personaName() : g.cast[by]?.name ?? '?');
     return [
         header(g, w),
-        ...aboutWho.map(r => `[${r.name}: ${about(r).slice(0, 350)} ${r.met ? `${r.name} and ${personaName()} are ${bondLabel(g, r.avatar).toLowerCase()}.` : `${r.name} does not know ${personaName()} yet.`}]`),
+        ...aboutWho.map(r => `[${r.name}: ${about(r).slice(0, 350)} ${r.met ? `${standsWith(g, r.avatar, r.name, personaName())}.` : `${r.name} does not know ${personaName()} yet.`}]`),
         `${nameOf(post.by)} (${handleOf(g, post.by)}) posted: ${post.text}`,
         ...post.replies.map(x => `${nameOf(x.by)} (${handleOf(g, x.by)}) replied: ${x.text}`),
     ].join('\n');

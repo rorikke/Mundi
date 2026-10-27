@@ -4,7 +4,7 @@ import { esc, game, notify, saveGame, toast, nowAbs, state } from '../core/store
 import { setPrompt, sendCanned, chat, setAsk } from '../st/bridge.js';
 import { social, bondOf, isPartner, isWith } from '../sim/social.js';
 import { letGo } from '../sim/plans.js';
-import { romOf } from '../sim/romance.js';
+import { romOf, shutOut } from '../sim/romance.js';
 import { romanceBlocked, isMinor } from '../sim/family.js';
 import { playerHomeId } from '../sim/places.js';
 import { note } from '../sim/facts.js';
@@ -20,6 +20,8 @@ const homeOf = (g, avatar) => { const r = g.cast[avatar]; const w = r?.homeWith;
 export function stayAnswer(g, avatar) {
     if (isMinor(g, avatar))
         return { ok: false, why: '' };
+    if (shutOut(g, avatar, true))
+        return { ok: false, why: 'They do not want to spend the night with you.' };
     if (isPartner(g, avatar) || romOf(g, avatar).status !== 'none')
         return { ok: true, why: '' };
     if (!romanceBlocked(g, avatar) && romOf(g, avatar).value >= 40)

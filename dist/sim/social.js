@@ -22,13 +22,21 @@ export function social(g) {
     return s;
 }
 // Friendship toward you, as screens and the AI see it (whole points; the store keeps decimals).
-export const bondOf = (g, avatar) => Math.max(0, Math.round(fr(g, avatar, YOU)));
+// It can be negative (−100..100): below 0 they dislike you, and gates that need a bond treat that as below them.
+export const bondOf = (g, avatar) => Math.round(fr(g, avatar, YOU));
 export const isPartner = (g, avatar) => partnerOfYou(g, avatar);
 export function bondLabel(g, avatar) {
     if (isPartner(g, avatar))
         return 'Partner';
     const b = bondOf(g, avatar);
-    return b >= 80 ? 'Best friend' : b >= 55 ? 'Good friend' : b >= 30 ? 'Friend' : b >= 10 ? 'Acquaintance' : 'Stranger'; // the same tiers as romance.ts
+    return b >= 80 ? 'Best friend' : b >= 55 ? 'Good friend' : b >= 30 ? 'Friend' : b >= 10 ? 'Acquaintance' : b >= 0 ? 'Stranger' // the same tiers as romance.ts
+        : b >= -30 ? 'Wary' : b >= -60 ? 'Dislikes' : 'Hates';
+}
+// Where someone stands with you in a sentence, for the AI: "Kaho and Ro are friend", "Kaho dislikes Ro".
+const COLD = { Wary: 'is wary of', Dislikes: 'dislikes', Hates: 'hates' };
+export function standsWith(g, avatar, name, me) {
+    const l = bondLabel(g, avatar);
+    return COLD[l] ? `${name} ${COLD[l]} ${me}` : `${name} and ${me} are ${l.toLowerCase()}`;
 }
 // A milestone (keeping or missing a date, a match, a story event): applied in full, up or down.
 export function bump(g, avatar, delta) {
@@ -65,8 +73,8 @@ function textTranscript(g, w, r, note = '') {
     const letters = messageKind(w) === 'letters';
     return [
         (letters
-            ? `[Letters in ${w.name}, ${weekday(g.day)} ${hm(g.minutes)}. ${r.name} and ${me} write each other short letters, carried by a courier; they are`
-            : `[Phone chat in ${w.name}, ${weekday(g.day)} ${hm(g.minutes)}. ${r.name} and ${me} text each other; they are`) + ` ${bondLabel(g, r.avatar).toLowerCase()} (${bondOf(g, r.avatar)}/100). ${r.name} is ${nowDoing(g, w, r)}.]`,
+            ? `[Letters in ${w.name}, ${weekday(g.day)} ${hm(g.minutes)}. ${r.name} and ${me} write each other short letters, carried by a courier;`
+            : `[Phone chat in ${w.name}, ${weekday(g.day)} ${hm(g.minutes)}. ${r.name} and ${me} text each other;`) + ` ${standsWith(g, r.avatar, r.name, me)} (${bondOf(g, r.avatar)}/100). ${r.name} is ${nowDoing(g, w, r)}.]`,
         `[They are ${letters ? 'writing letters' : 'texting'}, not together. ${r.name} talks about their own day (what they are doing, how they feel, what they will do today) and answers what ${me} wrote. ${r.name} does not know where ${me} is or what ${me} is doing unless ${me} said it in these messages (never guess it, never mention ${me}'s place or home on their own), and does not keep repeating plans they already agreed on, unless ${me} brings them up.]`,
         `[${r.name}: ${about}${c?.personality ? ` Personality: ${String(c.personality).replace(/\s+/g, ' ').slice(0, 300)}` : ''}]`,
         `[Each ${letters ? 'letter' : 'message'} is short (one to three sentences), ${aiVoice(w)}, written in ${aiLangName(g.lang)}, and answers the ${letters ? 'letter' : 'message'} right before it.]`,

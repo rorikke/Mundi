@@ -3814,6 +3814,13 @@ const DICT: Record<string, string> = {
  "Nothing recorded for them since the last scene.": "Nada registrado para essa pessoa desde a última cena.",
  "Judge each scene when it ends": "Julgar cada cena quando ela termina",
  "When you leave, sleep, skip time or someone you talked with leaves, the AI reads the scene and says how it changed what each person feels about you (one short AI call per scene). Off: only talking, warm replies and the game's own events move relationships.": "Quando você sai, dorme, pula o tempo ou alguém com quem conversou vai embora, a IA lê a cena e diz como ela mudou o que cada pessoa sente por você (uma chamada curta à IA por cena). Desligado: só conversar, respostas calorosas e os eventos do próprio jogo mudam os relacionamentos.",
- "(scene verdict)": "(veredito da cena)"
+ "(scene verdict)": "(veredito da cena)",
+ "Hates": "Odeia",
+ "Dislikes": "Não gosta",
+ "Wary": "Desconfia",
+ "They do not want to spend time with you.": "Não querem passar tempo com você.",
+ "They do not want to go anywhere with you.": "Não querem ir a lugar nenhum com você.",
+ "They do not want to make plans with you.": "Não querem fazer planos com você.",
+ "They do not want to spend the night with you.": "Não querem passar a noite com você."
 };
 export default DICT;

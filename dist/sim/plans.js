@@ -13,6 +13,7 @@ import { placeOf, playerHomeId, travelMinutes } from './places.js';
 import { routineStep, routineAt, whereNow } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom } from './social.js';
 import { dating } from './feed.js';
+import { shutOut, crushOn } from './romance.js';
 import { personaName } from '../st/bridge.js';
 export const HANGOUT_BOND = 15; // acquaintance: you can hang out
 export const DATE_BOND = 50; // a date needs a good bond, a Spark match or being together
@@ -23,6 +24,15 @@ const PLAN_LENGTH = 120, ALONG_LENGTH = 240, GRACE = 60; // they wait an hour be
 const yes = { ok: true, why: '' };
 const matched = (g, avatar) => dating(g).matches.includes(avatar);
 const close = (g, avatar, need) => isPartner(g, avatar) || bondOf(g, avatar) >= need;
+// A date: close enough, a dating-app match, or a crush on you whatever the friendship (unless they hate you).
+export const canDate = (g, avatar) => !shutOut(g, avatar, true) && (close(g, avatar, DATE_BOND) || (matched(g, avatar) && bondOf(g, avatar) >= 10) || crushOn(g, avatar));
+// Hanging out: close enough or a match, and not someone who doesn't want you around.
+export const canHang = (g, avatar) => !shutOut(g, avatar) && (close(g, avatar, HANGOUT_BOND) || matched(g, avatar));
+export const canPlan = (g, avatar) => canHang(g, avatar) || canDate(g, avatar);
+// "Come with me": close enough, a match or someone you live with; not someone who doesn't want you around (with a
+// partner who has a crush on you, it's romantic).
+export const canAlong = (g, avatar) => !shutOut(g, avatar, isPartner(g, avatar)) && (close(g, avatar, ALONG_BOND) || matched(g, avatar) || housemate(g, avatar));
+const NOT_YOU = { ok: false, why: 'They do not want to spend time with you.' };
 export const isWorking = (w, r, at) => routineStep(r, at)[1] === 'work' && !!w.occupations.find(o => o.id === r.occupation);
 export function isSleeping(r, at) {
     const h = Math.floor((at % 1440) / 60);
@@ -40,9 +50,12 @@ export function check(g, w, avatar, place, from, to, kind, need) {
     const r = g.cast[avatar];
     if (!r)
         return { ok: false, why: 'They are not in this world.' };
-    if (kind === 'date' && !(close(g, avatar, DATE_BOND) || (matched(g, avatar) && bondOf(g, avatar) >= 10)))
+    const romantic = kind === 'date';
+    if (shutOut(g, avatar, romantic))
+        return NOT_YOU;
+    if (romantic && !canDate(g, avatar))
         return { ok: false, why: 'They are not ready for a date with you yet.' };
-    if (!close(g, avatar, need) && !matched(g, avatar))
+    if (!close(g, avatar, need) && !matched(g, avatar) && !(romantic && crushOn(g, avatar)))
         return { ok: false, why: 'They do not know you well enough yet.' };
     if (place === playerHomeId && !close(g, avatar, HOME_BOND))
         return { ok: false, why: 'They are not comfortable going to your home yet.' };
@@ -83,7 +96,7 @@ export async function invite(g, w, avatar, place, from, kind, mine, title = '') 
     const what = (kind === 'date' ? 'a date' : 'hanging out') + (title.trim() ? ` ("${title.trim()}")` : '');
     const note = ans.ok
         ? `${r.name} happily accepts ${what} at ${where}, ${when(g, from)}, in one short ${lex(w, 'msgNoun')}.`
-        : `${r.name} declines in one short, kind ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${{ are: 'is', do: 'does', work: 'works', already: 'already has' }[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
+        : `${r.name} declines in one short, ${ans === NOT_YOU ? 'cold' : 'kind'} ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${{ are: 'is', do: 'does', work: 'works', already: 'already has' }[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
     await textFrom(g, w, avatar, note, ans.ok ? 'Sure! See you there.' : 'Sorry, I can\'t then.', mine);
     return ans;
 }
@@ -119,7 +132,7 @@ export async function callOver(g, w, avatar, mine) {
     }
     const note = ans.ok
         ? `${r.name} agrees to come to ${where} now and says they will be there in about ${trip} minutes, in one short ${lex(w, 'msgNoun')}.`
-        : `${r.name} says they can't come over to ${where} right now, in one short, kind ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${{ are: 'is', do: 'does', work: 'works', already: 'already has' }[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
+        : `${r.name} says they can't come over to ${where} right now, in one short, ${ans === NOT_YOU ? 'cold' : 'kind'} ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${{ are: 'is', do: 'does', work: 'works', already: 'already has' }[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
     await textFrom(g, w, avatar, note, ans.ok ? 'On my way!' : 'I can\'t right now, sorry.', mine);
     return { ...ans, at: from };
 }
@@ -131,7 +144,9 @@ export function askAlong(g, w, avatar) {
     const now = nowAbs(g);
     if (!r)
         return { ok: false, why: '' };
-    if (!close(g, avatar, ALONG_BOND) && !matched(g, avatar) && !housemate(g, avatar))
+    if (shutOut(g, avatar, isPartner(g, avatar)))
+        return NOT_YOU;
+    if (!canAlong(g, avatar))
         return { ok: false, why: 'They do not know you well enough yet.' };
     if (isWorking(w, r, now) && routineAt(g, w, r, now) === g.player.loc)
         return { ok: false, why: 'They are working.' };
