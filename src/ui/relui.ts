@@ -155,6 +155,7 @@ export async function checkAsk() {
         toast(`Waiting for ${name}'s answer…`, 'info'); notify(); return;
     }
     ASK.avatar = ''; ASK.onYes = null; setPrompt('mundi_ask', '');
+    for (const m of momentsOf(g, avatar)) if (m.kind === 'ask') dropMoment(g, m.id);   // a question they meant to ask you is answered too
     if (kind === 'stay') {   // no answer yet after a few tries counts as a no
         if (answer === 'yes') { onYes?.(); toast(ASK.mine ? `${name} is staying the night.` : `You are staying at ${name}'s tonight.`, 'success'); }
         else toast(`${name} said no.`, 'info');

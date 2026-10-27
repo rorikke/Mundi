@@ -187,6 +187,9 @@ export async function checkAsk() {
     ASK.avatar = '';
     ASK.onYes = null;
     setPrompt('mundi_ask', '');
+    for (const m of momentsOf(g, avatar))
+        if (m.kind === 'ask')
+            dropMoment(g, m.id); // a question they meant to ask you is answered too
     if (kind === 'stay') { // no answer yet after a few tries counts as a no
         if (answer === 'yes') {
             onYes?.();
