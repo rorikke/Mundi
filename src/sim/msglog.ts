@@ -12,11 +12,11 @@ import { game, saveGame, nowAbs, state, TUT, type Save } from '../core/store.js'
 import { getWorld } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId, type Expr } from '../st/bridge.js';
 import { presentAt } from './people.js';
-import { social, addBond } from './social.js';
+import { gain as gainMeter, undoGain, YOU, type Meter } from './rel.js';
 import { reactionGain } from './mood.js';
 
-/** One meter change: `x`'s friendship toward you moved by `d`, and today's gained count (the daily cap) by `fat`. */
-interface Change { x: string; m: 'f'; d: number; fat: number; key: string }
+/** One meter change: `x`'s meter `m` toward `y` (you when absent) moved by `d`, its pacing weight by `fat`. */
+interface Change { x: string; y?: string; m: Meter; d: number; fat: number }
 /** What one message changed. `fp` identifies the message (speaker and text); `why` says what was judged. */
 export interface Rec { fp: string; who: string; kind: 'line' | 'reply'; at: number; why: string; label?: string; ch: Change[] }
 interface Log { chat: string; open: Rec[] }
@@ -24,7 +24,6 @@ interface Log { chat: string; open: Rec[] }
 interface Ex { fp: string; k: 'l' | 'f' | 'n'; l?: string }
 
 const logOf = (g: Save): Log | undefined => ((g as any).rel ??= {}).log;
-const YOU = '__you';
 
 /* ---------- fingerprints ---------- */
 
@@ -92,20 +91,13 @@ function classify(fp: string, text: string) {
 
 /* ---------- judging and undoing ---------- */
 
-// Friendship gained through the daily cap, recorded so it can be taken back exactly.
+// Friendship toward you gained (paced), recorded so it can be taken back exactly.
 function gain(g: Save, a: string, n: number): Change | null {
-    const s = social(g);
-    const before = s.bond[a] ?? 0;
-    const fat = addBond(g, a, n);
-    if (!fat) return null;
-    return { x: a, m: 'f', d: (s.bond[a] ?? 0) - before, fat, key: `${a}|${g.day}` };
+    const r = gainMeter(g, 'f', a, YOU, n);
+    return r.d || r.fat ? { x: a, m: 'f', d: r.d, fat: r.fat } : null;
 }
 function undo(g: Save, r: Rec) {
-    const s = social(g);
-    for (const c of r.ch) {
-        if (c.d) s.bond[c.x] = Math.max(0, Math.min(100, (s.bond[c.x] ?? 0) - c.d));
-        if (c.fat && s.today[c.key]) { s.today[c.key] = Math.max(0, s.today[c.key] - c.fat); if (!s.today[c.key]) delete s.today[c.key]; }
-    }
+    for (const c of r.ch) undoGain(g, c.m ?? 'f', c.x, c.y ?? YOU, { d: c.d, fat: c.fat });
 }
 
 // Your line: talking brings you closer to everyone listening (only the one you talk to, when talking alone).

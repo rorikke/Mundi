@@ -1,12 +1,15 @@
 // Playing as someone else ("Play as"). You take that person's place; the one you were becomes a person of the world
 // (with a card of their own, created once) and stays with you as company.
-// Shared by everyone you play: the needs (energy, mood…) and the money. Each person has their own: relationships
-// (bonds, romance, approval, feelings, texts, plans, dating), diary and job. The two of you see each other the same
-// way: the bond and romance between you are mirrored each time you switch.
+// Shared by everyone you play: the needs (energy, mood…) and the money. Each person has their own: approval,
+// feelings, texts, plans, dating, diary and job (their "seat", swapped in and out). Friendship, romance and couples
+// live in the relationships store (sim/rel.ts), where `'__you'` is whoever you play: switching rewrites its ids like
+// the ties'. The two of you see each other the same way: the friendship and romance between you are mirrored each
+// time you switch.
 import { nowAbs } from '../core/store.js';
 import { charOf, avatarUrl, createPersona, createCharacter, usePersona, persona, personaName, personas } from '../st/bridge.js';
 import { whereNow } from './people.js';
 import { ties, normalizeHomes } from './living.js';
+import { fr, ro, hasMeter, setFr, setRo, swapIds, seedFromTies, YOU } from './rel.js';
 import { note } from './facts.js';
 import { resident } from './game.js';
 import { settleNow } from './msglog.js';
@@ -21,54 +24,21 @@ export const playing = (g) => swapOf(g)?.avatar ?? '';
 function takeOut(g) {
     const x = g;
     x.living ??= {};
-    return { social: x.social ?? {}, romance: x.romance ?? {}, approval: x.living.approval ?? {}, journalProse: x.journalProse ?? {}, journalProseTr: x.journalProseTr ?? {} };
+    return { social: x.social ?? {}, approval: x.living.approval ?? {}, journalProse: x.journalProse ?? {}, journalProseTr: x.journalProseTr ?? {} };
 }
 function putIn(g, p) {
     const x = g;
     x.living ??= {};
     x.social = p.social;
-    x.romance = p.romance;
     x.living.approval = p.approval;
     x.journalProse = p.journalProse;
     x.journalProseTr = p.journalProseTr;
 }
-// Someone played for the first time: who they know comes from the ties of the world (family, friends, rivals…).
-const TONE_BOND = { close: 75, good: 55, neutral: 30, tense: 15, hostile: 5 };
-function fresh(g, who, origCard) {
-    const social = { bond: {}, today: {}, partner: [], threads: {}, unread: {}, appts: [], with: [] };
-    const romance = {};
-    for (const t of ties(g)) {
-        if (t.a !== who && t.b !== who)
-            continue;
-        let other = t.a === who ? t.b : t.a;
-        if (other === '__you')
-            other = origCard;
-        if (!other || other === who)
-            continue;
-        social.bond[other] = Math.max(social.bond[other] ?? 0, TONE_BOND[t.tone] ?? 30);
-        if (t.type === 'spouse' || t.type === 'partner') {
-            romance[other] = { value: 70, status: t.type === 'spouse' ? 'married' : 'dating' };
-            social.partner.push(other);
-        }
-    }
-    return { social, romance, approval: {}, journalProse: {}, journalProseTr: {} };
-}
-// The bond and romance between the two of you, the same from both sides.
-function mirror(from, fromCard, to, toCard) {
-    if (!fromCard || !toCard)
-        return;
-    to.social.bond ??= {};
-    to.social.partner ??= [];
-    to.social.bond[fromCard] = from.social.bond?.[toCard] ?? to.social.bond[fromCard] ?? 0;
-    const r = from.romance?.[toCard];
-    if (r)
-        to.romance[fromCard] = { value: r.value, status: r.status };
-    const together = (from.social.partner ?? []).includes(toCard);
-    const i = to.social.partner.indexOf(fromCard);
-    if (together && i < 0)
-        to.social.partner.push(fromCard);
-    if (!together && i >= 0)
-        to.social.partner.splice(i, 1);
+// Someone played for the first time: a seat of their own (texts, plans, approval…). How people feel about them is
+// already in the store; directions toward them that have no value yet start from their ties (family, friends…).
+function fresh(g, who) {
+    seedFromTies(g, ties(g), (_x, y) => y !== who);
+    return { social: { threads: {}, unread: {}, appts: [], with: [] }, approval: {}, journalProse: {}, journalProseTr: {} };
 }
 /* ---------- your original character, as a person of the world ---------- */
 async function origCardOf(g, w, s) {
@@ -121,10 +91,11 @@ export async function switchTo(g, w, target) {
     const wasWithMe = (mine.social.with ?? []).some((c) => c.avatar === toCard);
     s.persp[fromKey] = mine;
     s.jobs[fromKey] = g.player.job ?? null;
-    const theirs = s.persp[toKey] ?? fresh(g, toCard, origCard);
+    const theirs = s.persp[toKey] ?? fresh(g, toCard);
     delete s.persp[toKey];
-    mirror(mine, fromCard, theirs, toCard);
     putIn(g, theirs);
+    // the two of you see each other the same way: what the one you take feels for you now, you'll feel for them
+    const mirrored = { f: hasMeter(g, 'f', toCard, YOU) ? fr(g, toCard, YOU) : null, r: hasMeter(g, 'r', toCard, YOU) ? ro(g, toCard, YOU) : null };
     g.player.job = s.jobs[toKey] ?? null;
     // the household follows who you play: you live in their home; the one you were keeps theirs (and their family)
     s.homes ??= {};
@@ -145,6 +116,7 @@ export async function switchTo(g, w, target) {
         t.a = swapId(t.a);
         t.b = swapId(t.b);
     }
+    swapIds(g, swapId);
     if (newHome)
         g.player.home = { ...newHome, kind: w.homes.zones.find(z => z.id === newHome.zone)?.kind ?? g.player.home.kind };
     normalizeHomes(g);
@@ -158,6 +130,10 @@ export async function switchTo(g, w, target) {
     }
     await usePersona(file);
     s.avatar = target;
+    if (mirrored.f !== null)
+        setFr(g, fromCard, YOU, mirrored.f);
+    if (mirrored.r !== null)
+        setRo(g, fromCard, YOU, mirrored.r);
     // you take their place (and go where they are); the one you were stays with you only if they were your company
     g.player.loc = where || g.player.loc;
     const soc2 = g.social;

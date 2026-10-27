@@ -1,8 +1,8 @@
 // Relationships, meet-ups and text messages. Bond grows when you talk to someone (in a scene or by phone);
 // a meet-up puts her at a place you chose for two hours; at a high bond you can ask her to be your partner.
-import { notify, nowAbs, cfg, type Save, type Resident } from '../core/store.js';
-import { type WorldDef, messageKind, aiVoice, isScenario, getWorld } from '../core/world.js';
-import { difficultyOf } from './bills.js';
+import { notify, nowAbs, type Save, type Resident } from '../core/store.js';
+import { type WorldDef, messageKind, aiVoice } from '../core/world.js';
+import { fr, gain, lose, setFr, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
 import { whereNow } from './people.js';
 import { aiLangName } from '../core/i18n.js';
@@ -15,10 +15,8 @@ export type PlanKind = 'hangout' | 'date' | 'party';
 export type PlanState = 'set' | 'met' | 'missed' | 'cancelled';
 export interface Appointment { id: string; avatar: string; place: string; from: number; to: number; kind: PlanKind; state: PlanState; come?: boolean; warned?: boolean; title?: string }
 export interface Companion { avatar: string; until: number }
+// (Friendship toward you, the old `bond`, and the partner list live in the relationships store, sim/rel.ts.)
 export interface Social {
-    bond: Record<string, number>;            // 0..100 per resident
-    today: Record<string, number>;           // bond gained today (capped), key `${avatar}|${day}`
-    partner: string[];
     threads: Record<string, Text[]>;
     unread: Record<string, number>;
     appts: Appointment[];
@@ -26,48 +24,33 @@ export interface Social {
 }
 export function social(g: Save): Social {
     const s = ((g as any).social ??= {}) as Social;
-    s.bond ??= {}; s.today ??= {}; s.partner ??= []; s.threads ??= {}; s.unread ??= {}; s.appts ??= []; s.with ??= [];
+    s.threads ??= {}; s.unread ??= {}; s.appts ??= []; s.with ??= [];
     for (const a of s.appts) { a.id ??= `a${a.from}${a.avatar}`; a.kind ??= 'hangout'; a.state ??= 'set'; }   // saves from before plans
     return s;
 }
 
-export const bondOf = (g: Save, avatar: string) => social(g).bond[avatar] ?? 0;
-export const isPartner = (g: Save, avatar: string) => social(g).partner.includes(avatar);
+// Friendship toward you, as screens and the AI see it (whole points; the store keeps decimals).
+export const bondOf = (g: Save, avatar: string) => Math.max(0, Math.round(fr(g, avatar, YOU)));
+export const isPartner = (g: Save, avatar: string) => partnerOfYou(g, avatar);
 export function bondLabel(g: Save, avatar: string): string {
     if (isPartner(g, avatar)) return 'Partner';
     const b = bondOf(g, avatar);
     return b >= 80 ? 'Best friend' : b >= 55 ? 'Good friend' : b >= 30 ? 'Friend' : b >= 10 ? 'Acquaintance' : 'Stranger';   // the same tiers as romance.ts
 }
 
-// Moves bond without the daily cap (keeping or missing a date, a match).
+// A milestone (keeping or missing a date, a match, a story event): applied in full, up or down.
 export function bump(g: Save, avatar: string, delta: number) {
-    const s = social(g);
-    s.bond[avatar] = Math.max(0, Math.min(100, (s.bond[avatar] ?? 0) + delta));
+    if (delta > 0) gain(g, 'f', avatar, YOU, delta, false); else if (delta < 0) lose(g, 'f', avatar, YOU, delta);
 }
+// Sets friendship toward you to at least `v` (a dating-app match makes you contacts).
+export const bondAtLeast = (g: Save, avatar: string, v: number) => { if (fr(g, avatar, YOU) < v) setFr(g, avatar, YOU, v); };
 
-// Adds bond, at most 15 a day with each person (talking all day does not max it out).
-export function addBond(g: Save, avatar: string, amount: number) {
-    const s = social(g);
-    // Home: the difficulty is how fast relationships grow (gains only; losses stay as they are)
-    const mult = isScenario(getWorld(g.world)) ? difficultyOf(g).bond : 1;
-    if (amount > 0 && mult !== 1) amount = Math.max(1, Math.round(amount * mult));
-    const key = `${avatar}|${g.day}`;
-    const room = Math.max(0, Math.round((cfg(g).bondCap ?? 15) * mult) - (s.today[key] ?? 0));
-    const add = Math.min(room, amount);
-    if (add <= 0) return 0;
-    s.today[key] = (s.today[key] ?? 0) + add;
-    s.bond[avatar] = Math.min(100, (s.bond[avatar] ?? 0) + add);
-    for (const k of Object.keys(s.today)) if (!k.endsWith(`|${g.day}`)) delete s.today[k];
-    return add;
-}
+// Friendship from everyday things (talking, texting, running into someone): paced, so talking all day does not max
+// it out (sim/rel.ts). Returns what was gained.
+export function addBond(g: Save, avatar: string, amount: number) { return gain(g, 'f', avatar, YOU, amount).d; }
 
-// A bond also goes down (an insult, a fight, a broken promise). No daily limit; it never goes below 0.
-export function loseBond(g: Save, avatar: string, amount: number) {
-    const s = social(g);
-    const before = s.bond[avatar] ?? 0;
-    s.bond[avatar] = Math.max(0, before - Math.abs(amount));
-    return before - s.bond[avatar];
-}
+// Friendship also goes down (a fight, a broken promise): in full, never paced. Returns how much it went down.
+export function loseBond(g: Save, avatar: string, amount: number) { return lose(g, 'f', avatar, YOU, amount); }
 
 /* ---------- meet-ups ---------- */
 

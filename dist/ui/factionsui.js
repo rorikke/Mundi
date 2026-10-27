@@ -10,6 +10,7 @@ import { advance } from '../sim/time.js';
 import { factionsOf, standingOf, standingWord, powerOf, memberOf, rankName, isLeader, canJoin, join, leave, doDuty, found, recruit, hireAssistant, setHq, deposit, startAudience, decideAudience, skipShift, fstate, LEVEL_NEEDS, OWN, OWN_COST, } from '../sim/factions.js';
 import { GOVERNMENTS, POWERS, realmPower, faithOf, patronOf, choosePatron, pray, offer, miracle, MIRACLE, isShrine } from '../sim/realm.js';
 import { placeOf } from '../sim/places.js';
+import { bondOf } from '../sim/social.js';
 const UIF = { name: '', kind: 'guild', amount: 50 };
 const bar = (v, cls = '') => `<span class="mu-lp-bar ${cls}"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span>`;
 const repBar = (v) => `<span class="mu-lp-rep"><i style="${v >= 0 ? `left:50%;width:${v / 2}%` : `right:50%;width:${-v / 2}%`}" class="${v >= 0 ? 'is-good' : 'is-bad'}"></i></span>`;
@@ -50,7 +51,7 @@ export function factionsApp(g, w, head) {
         <section><h4>Factions</h4>${list.map(row).join('') || '<p class="mu-muted">None in this world.</p>'}</section>
         ${ownHtml}</div>`;
 }
-const recruitable = (g) => Object.values(g.cast).filter(r => r.met && (g.social?.bond?.[r.avatar] ?? 0) >= 50 && !fstate(g).own?.members.includes(r.avatar)).slice(0, 6);
+const recruitable = (g) => Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= 50 && !fstate(g).own?.members.includes(r.avatar)).slice(0, 6);
 function realmHtml(g, w) {
     const r = w.realm;
     if (!r)

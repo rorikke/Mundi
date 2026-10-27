@@ -12,10 +12,9 @@ import { game, saveGame, nowAbs, state, TUT } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId } from '../st/bridge.js';
 import { presentAt } from './people.js';
-import { social, addBond } from './social.js';
+import { gain as gainMeter, undoGain, YOU } from './rel.js';
 import { reactionGain } from './mood.js';
 const logOf = (g) => (g.rel ??= {}).log;
-const YOU = '__you';
 /* ---------- fingerprints ---------- */
 const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -86,26 +85,14 @@ function classify(fp, text) {
     }).catch(() => { pending.delete(fp); });
 }
 /* ---------- judging and undoing ---------- */
-// Friendship gained through the daily cap, recorded so it can be taken back exactly.
+// Friendship toward you gained (paced), recorded so it can be taken back exactly.
 function gain(g, a, n) {
-    const s = social(g);
-    const before = s.bond[a] ?? 0;
-    const fat = addBond(g, a, n);
-    if (!fat)
-        return null;
-    return { x: a, m: 'f', d: (s.bond[a] ?? 0) - before, fat, key: `${a}|${g.day}` };
+    const r = gainMeter(g, 'f', a, YOU, n);
+    return r.d || r.fat ? { x: a, m: 'f', d: r.d, fat: r.fat } : null;
 }
 function undo(g, r) {
-    const s = social(g);
-    for (const c of r.ch) {
-        if (c.d)
-            s.bond[c.x] = Math.max(0, Math.min(100, (s.bond[c.x] ?? 0) - c.d));
-        if (c.fat && s.today[c.key]) {
-            s.today[c.key] = Math.max(0, s.today[c.key] - c.fat);
-            if (!s.today[c.key])
-                delete s.today[c.key];
-        }
-    }
+    for (const c of r.ch)
+        undoGain(g, c.m ?? 'f', c.x, c.y ?? YOU, { d: c.d, fat: c.fat });
 }
 // Your line: talking brings you closer to everyone listening (only the one you talk to, when talking alone).
 function judgeLine(g, fp) {

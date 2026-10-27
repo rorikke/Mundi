@@ -1,4 +1,3 @@
-import { romOf } from '../sim/romance.js';
 // The phone (Modern world): messages, people, jobs, bank and homes. Opens over the map or the scene.
 import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
@@ -42,6 +41,7 @@ import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/br
 import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
+import { setStatus, YOU } from '../sim/rel.js';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -749,8 +749,7 @@ Object.assign(ACT, {
             return;
         if (bondOf(g, P.who) < PARTNER_BOND || romanceBlocked(g, P.who))
             return;
-        social(g).partner.push(P.who);
-        romOf(g, P.who).status = 'dating';
+        setStatus(g, P.who, YOU, 'dating');
         note(g, '{u} and {0} became a couple.', [g.cast[P.who]?.name ?? ''], [P.who], g.player.loc, 'love');
         feel(g, P.who, 'In love', 7);
         toast(`${g.cast[P.who]?.name} said yes!`, 'success');

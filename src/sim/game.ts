@@ -25,7 +25,8 @@ import {
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
-import { liveTogether, setTie, normalizeHomes, startingStand, type TieType, type TieTone } from './living.js';
+import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave, type TieType, type TieTone } from './living.js';
+import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
 import { applyGameLore } from './lore.js';
 
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
@@ -262,13 +263,14 @@ export async function startNewGame(o: NewGame) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b) continue;
         setTie(save, t);
         const other = t.a === '__you' ? t.b : t.b === '__you' ? t.a : '';
-        if (other) {   // with you: where you stand with them from day one
-            const st = startingStand(t.type);
-            const soc = ((save as any).social ??= {}); (soc.bond ??= {})[other] = st.bond;
+        const couple = TYPE_START[t.type]?.couple ? (t.type === 'spouse' ? 'married' : 'dating') : null;
+        if (other) {   // with you: where you stand with them from day one (the one table in sim/rel.ts)
+            const st = startingStand(t.type, t.tone);
+            setFr(save, other, YOU, st.bond);
             const liv = ((save as any).living ??= {}); (liv.approval ??= {})[other] = st.approval;
             save.cast[other].met = true;
-            if (['dating', 'partner', 'spouse'].includes(t.type)) { (soc.partner ??= []).push(other); (((save as any).romance ??= {})[other] = { value: 70, status: t.type === 'spouse' ? 'married' : 'dating' }); }
-        } else if (['dating', 'partner', 'spouse'].includes(t.type)) { const liv = ((save as any).living ??= {}); (liv.pairs ??= []).push([t.a, t.b]); if (t.type === 'spouse') ((liv.pairInfo ??= {})[[t.a, t.b].sort().join('|')] = { since: save.day, stage: 'married' }); }
+            if (couple) { setStatus(save, other, YOU, couple); setRo(save, other, YOU, COUPLE_ROMANCE); }
+        } else if (couple) setStatus(save, t.a, t.b, couple);
     }
     // a scenario: how you fit in the house (you know everyone already, or nobody), unless a relation said otherwise
     const st0 = isScenario(w) && o.start ? SCENARIO_STARTS.find(s => s.id === o.start!.id) : undefined;
@@ -279,18 +281,20 @@ export async function startNewGame(o: NewGame) {
         if (o.roomActs && Object.keys(o.roomActs).length) (save as any).cfg.roomActs = o.roomActs;
         (save as any).cfg.start = { id: st0.id, ...(st0.id === 'custom' && o.start!.text?.trim() ? { text: o.start!.text.trim().slice(0, 4000) } : {}) };
         if (st0.met) for (const r of Object.values(save.cast)) {
-            const soc = ((save as any).social ??= {}); const liv = ((save as any).living ??= {});
-            if (!r.met) { (soc.bond ??= {})[r.avatar] ??= st0.bond ?? 0; (liv.approval ??= {})[r.avatar] ??= st0.approval ?? 0; }
+            const liv = ((save as any).living ??= {});
+            if (!r.met) { if (!fr(save, r.avatar, YOU)) setFr(save, r.avatar, YOU, st0.bond ?? 0); (liv.approval ??= {})[r.avatar] ??= st0.approval ?? 0; }
             r.met = true;
         }
     }
-    // where each one stands with you, from a preset
+    // where each one stands with you, from a preset: approval as chosen, and friendship from the matching tone
     for (const [a, v] of Object.entries(o.approval ?? {})) {
         if (!save.cast[a] || !Number.isFinite(v)) continue;
         const liv = ((save as any).living ??= {}); (liv.approval ??= {})[a] = Math.max(-100, Math.min(100, v));
-        const soc = ((save as any).social ??= {}); (soc.bond ??= {})[a] = Math.max(0, Math.min(100, Math.round(50 + v / 2)));
+        setFr(save, a, YOU, startFriendship(toneOfApproval(v)));
         save.cast[a].met = true;
     }
+    // feelings between the people of the world (and your own, hidden while you play) start from their ties
+    seedFromTies(save, tiesOfSave(save));
     if (isScenario(w)) shareRooms(save);   // Home: more people than bedrooms share a room (no second flat in a house)
     normalizeHomes(save);
     // the world's lorebooks and the characters' lorebooks chosen to stay on in this world

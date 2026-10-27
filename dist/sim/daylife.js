@@ -11,7 +11,7 @@ import { isHome, placeOf, playerHomeId } from './places.js';
 import { regionOf, regionState } from './worldstate.js';
 import { presentAt } from './people.js';
 import { isOpen } from './daynight.js';
-import { overhear } from './living.js';
+import { overhear, couples } from './living.js';
 import { lex } from '../core/lexicon.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -54,7 +54,7 @@ function work(g, w, r, day, tense) {
         }
     }
     if (roll < 0.21) {
-        const pairs = g.living?.pairs ?? [];
+        const pairs = couples(g);
         const ties = g.living?.ties ?? [];
         const close = [...pairs.filter(p => p.includes(r.avatar)).flat(), ...ties.filter(t => (t.a === r.avatar || t.b === r.avatar) && t.type !== 'rival' && t.type !== 'ex').flatMap(t => [t.a, t.b])]
             .filter(a => a !== r.avatar && a !== '__you' && g.cast[a] && homeOf(g.cast[a]) !== home);

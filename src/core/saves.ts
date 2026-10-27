@@ -11,9 +11,10 @@
 import { SAVE, toast, type Save } from './store.js';
 import { ctx } from '../st/bridge.js';
 import { getWorld, career, type WorldDef } from './world.js';
+import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, seedFromTies, YOU, type Status } from '../sim/rel.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 
 interface Migration { to: number; what: string; run: (g: any) => void }
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -21,7 +22,70 @@ const MIGRATIONS: Migration[] = [
     // 1 (Mundi 0.1.x): the first versioned format. Saves from before only get the stamp; every system already fills
     // in what an older save lacks when it reads it.
     { to: 1, what: 'version stamp', run: () => { /* nothing to change */ } },
+    // 2 (relationships work): friendship, romance and couples move to one store (`rel`, sim/rel.ts).
+    { to: 2, what: 'relationships in one store', run: g => toRelStore(g) },
 ];
+
+// Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
+// directions toward you, the status (and the partner list) the pair's; each "Play as" copy (`swap.persp`) holds how
+// everyone felt about that person, so it fills the directions toward them; couples between characters
+// (`living.pairs`, `pairInfo`) become pairs. Then directions with no value yet start from ties (the one table in
+// sim/rel.ts), except toward you and toward people whose view was stored. The old keys are removed at the end, so a
+// second run finds nothing to move.
+function toRelStore(g: any) {
+    relOf(g);
+    const STATUSES = ['dating', 'engaged', 'married'];
+    const asStatus = (v: unknown): Status | null => (STATUSES.includes(String(v)) ? (v as Status) : null);
+    // a pair's status set by two copies: the current seat wins, then the copy with more romance
+    const setBy = new Map<string, number>();
+    const pairKey = (a: string, b: string) => [idOf(g, a), idOf(g, b)].sort().join('|');
+    const claim = (x: string, y: string, status: Status | null, cooldown: unknown, rank: number) => {
+        const k = pairKey(x, y);
+        if (status && (!statusOf(g, x, y) || (setBy.get(k) ?? -1) < rank)) { setStatus(g, x, y, status, g.day); setBy.set(k, rank); }
+        if (Number(cooldown) > 0 && !(g.rel.pairs[k]?.cooldown)) setCooldown(g, x, y, Number(cooldown));
+    };
+    // 1. the person you play now
+    const soc = g.social ?? {}, rom = g.romance ?? {};
+    const partner: string[] = Array.isArray(soc.partner) ? soc.partner : [];
+    for (const [a, v] of Object.entries(soc.bond ?? {})) setFr(g, a, YOU, Number(v) || 0);
+    for (const [a, r] of Object.entries<any>(rom)) setRo(g, a, YOU, Number(r?.value) || 0);
+    for (const a of new Set([...Object.keys(rom), ...partner])) {
+        const r = rom[a];
+        claim(a, YOU, asStatus(r?.status) ?? (partner.includes(a) ? 'dating' : null), r?.cooldown, Infinity);
+    }
+    // 2. everyone you played before: how others felt about them
+    const sw = g.swap;
+    const viewed = new Set<string>();
+    for (const [key, p] of Object.entries<any>(sw?.persp ?? {})) {
+        const who = key === '__orig' ? sw.origCard : key;
+        if (!who || !g.cast[who]) continue;   // that person is gone
+        viewed.add(idOf(g, who));
+        const ps = p?.social ?? {}, pr = p?.romance ?? {};
+        const pp: string[] = Array.isArray(ps.partner) ? ps.partner : [];
+        for (const [x, v] of Object.entries(ps.bond ?? {})) setFr(g, x, who, Number(v) || 0);
+        for (const [x, r] of Object.entries<any>(pr)) setRo(g, x, who, Number(r?.value) || 0);
+        for (const x of new Set([...Object.keys(pr), ...pp])) {
+            const r = pr[x];
+            claim(x, who, asStatus(r?.status) ?? (pp.includes(x) ? 'dating' : null), r?.cooldown, Number(r?.value) || 0);
+        }
+    }
+    // 3. couples between characters
+    const liv = g.living ?? {};
+    for (const pair of Array.isArray(liv.pairs) ? liv.pairs : []) {
+        const [a, b] = pair ?? [];
+        if (!a || !b || statusOf(g, a, b)) continue;
+        const info = liv.pairInfo?.[[a, b].sort().join('|')];
+        setStatus(g, a, b, asStatus(info?.stage) ?? 'dating', Number(info?.since) || g.day);
+    }
+    // 4. starting values from ties where nothing is stored
+    seedFromTies(g, Array.isArray(liv.ties) ? liv.ties : [], (_x, y) => viewed.has(y));
+    // 5. the old keys
+    for (const x of [soc, ...Object.values<any>(sw?.persp ?? {}).map(p => p?.social)]) if (x) { delete x.bond; delete x.today; delete x.partner; }
+    delete g.romance;
+    for (const p of Object.values<any>(sw?.persp ?? {})) if (p) delete p.romance;
+    delete liv.pairs; delete liv.pairInfo;
+    if (g.cfg) delete g.cfg.bondCap;
+}
 
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);
 

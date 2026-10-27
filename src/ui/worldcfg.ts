@@ -28,6 +28,7 @@ import { openCreatorEdit, CW as CREATOR } from './creator.js';
 import { tabAiContext } from './aictx.js';
 import { warningsBanner } from './warnings.js';
 import { ACT, INPUT } from './reg.js';
+import { setFr, setStatus, YOU } from '../sim/rel.js';
 
 type Tab = 'people' | 'homes' | 'house' | 'save' | 'lore' | 'ai' | 'rules';
 const TABS: [Tab, string][] = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
@@ -42,7 +43,7 @@ function personForm(g: Save, w: WorldDef): string {
     const r = g.cast[WC.who];
     if (!r) return '<p class="mu-muted mu-pad">Choose someone on the left.</p>';
     const tpl = Object.entries(w.cast.routineTemplates).find(([, t]) => sameRoutine(t, r.routine))?.[0] ?? '';
-    const bond = social(g).bond[r.avatar] ?? 0;
+    const bond = bondOf(g, r.avatar);
     const leisure = w.places.filter(p => (p.tags ?? []).some(t => ['leisure', 'food', 'shop'].includes(t)));
     return `<header class="mu-wc-head"><img src="${esc(thumb(r.avatar))}" alt=""><div><h3 data-notr>${esc(r.name)}</h3><small>${esc(homeAddress(w, r.home))}</small></div></header>
         ${isScenario(w) ? (() => { const j = homeJobOf(r); const timed = !!SHIFTS.find(x => x.id === j.shift && x.from !== undefined);
@@ -323,8 +324,8 @@ Object.assign(INPUT, {
     },
     'wc-met': async (el) => { const c = ctxGW(); const r = c?.g.cast[WC.who]; if (!r) return; r.met = el.checked; await changed(); },
     'wc-routine': async (el) => { const c = ctxGW(); const r = c?.g.cast[WC.who]; if (!c || !r || !el.value) return; r.routine = structuredClone(c.w.cast.routineTemplates[el.value]); await changed(); },
-    'wc-bond': (el) => { const g = game(); if (!g) return; social(g).bond[WC.who] = Number(el.value); saveGame(); const s = el.previousElementSibling; if (s) s.textContent = `Bond with you · ${el.value}/100`; },
-    'wc-partner': (el) => { const g = game(); if (!g) return; if (el.checked && romanceBlocked(g, WC.who)) { el.checked = false; toast('Not possible with family or a child.', 'info'); return; } const p = social(g).partner; const i = p.indexOf(WC.who); if (el.checked && i < 0) p.push(WC.who); if (!el.checked && i >= 0) p.splice(i, 1); const ro = romOf(g, WC.who); ro.status = el.checked ? (ro.status === 'none' ? 'dating' : ro.status) : 'none'; saveGame(); notify(); },
+    'wc-bond': (el) => { const g = game(); if (!g) return; setFr(g, WC.who, YOU, Number(el.value)); saveGame(); const s = el.previousElementSibling; if (s) s.textContent = `Bond with you · ${el.value}/100`; },
+    'wc-partner': (el) => { const g = game(); if (!g) return; if (el.checked && romanceBlocked(g, WC.who)) { el.checked = false; toast('Not possible with family or a child.', 'info'); return; } const was = romOf(g, WC.who).status; setStatus(g, WC.who, YOU, el.checked ? (was === 'none' ? 'dating' : was) : null); saveGame(); notify(); },
     'wc-note': (el) => { ctx().chatMetadata.note_prompt = el.value; noteSave(); const t = document.getElementById('extension_floating_prompt') as HTMLTextAreaElement | null; if (t) t.value = el.value; },
     'wc-note-num': (el) => { ctx().chatMetadata[el.dataset.k!] = Number(el.value); noteSave(); },
     'wc-lq': (el) => { WC.lq = el.value; notify(); },

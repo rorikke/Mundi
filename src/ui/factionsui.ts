@@ -13,6 +13,7 @@ import {
 } from '../sim/factions.js';
 import { GOVERNMENTS, POWERS, realmPower, faithOf, patronOf, choosePatron, pray, offer, miracle, MIRACLE, isShrine, type Miracle } from '../sim/realm.js';
 import { placeOf } from '../sim/places.js';
+import { bondOf } from '../sim/social.js';
 
 const UIF = { name: '', kind: 'guild', amount: 50 };
 const bar = (v: number, cls = '') => `<span class="mu-lp-bar ${cls}"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span>`;
@@ -52,7 +53,7 @@ export function factionsApp(g: Save, w: WorldDef, head: string): string {
         <section><h4>Factions</h4>${list.map(row).join('') || '<p class="mu-muted">None in this world.</p>'}</section>
         ${ownHtml}</div>`;
 }
-const recruitable = (g: Save) => Object.values(g.cast).filter(r => r.met && ((g as any).social?.bond?.[r.avatar] ?? 0) >= 50 && !fstate(g).own?.members.includes(r.avatar)).slice(0, 6);
+const recruitable = (g: Save) => Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= 50 && !fstate(g).own?.members.includes(r.avatar)).slice(0, 6);
 
 function realmHtml(g: Save, w: WorldDef): string {
     const r = w.realm; if (!r) return '';

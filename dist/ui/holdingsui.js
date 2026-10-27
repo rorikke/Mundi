@@ -11,6 +11,7 @@ import { bagOf, carried, capacity, goodDef, isMarket, priceOf, sellPrice, buy, s
 import { holdingsOf, freeHomes, buyHome, sellHome, bizKinds, openBusiness, hireStaff, hireFriend, collect, closeBusiness, plant, ripe, harvest, bankLimit, borrow, repay, GARDEN_PLOTS, WAGE } from '../sim/holdings.js';
 import { bountiesOf, payBounty } from '../sim/crime.js';
 import { celestialOn, hazardHere } from '../sim/skies.js';
+import { bondOf } from '../sim/social.js';
 const UIH = { qty: 1, bid: 0, biz: '', loan: 100, pay: 50 };
 const S = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? { g, w } : null; };
 export function holdingsApp(g, w, head) {
@@ -71,7 +72,7 @@ export function holdingsApp(g, w, head) {
     }
     return `${head}<div class="mu-ph-body mu-lp">${parts.join('') || '<p class="mu-muted">Nothing here in this world.</p>'}</div>`;
 }
-const friendsFor = (g) => Object.values(g.cast).filter(r => r.met && (g.social?.bond?.[r.avatar] ?? 0) >= 40 && !holdingsOf(g).biz.some(b => b.friends.includes(r.avatar))).slice(0, 4);
+const friendsFor = (g) => Object.values(g.cast).filter(r => r.met && bondOf(g, r.avatar) >= 40 && !holdingsOf(g).biz.some(b => b.friends.includes(r.avatar))).slice(0, 4);
 export function holdingsActs(g, w) {
     const h = holdingsOf(g);
     const out = [];

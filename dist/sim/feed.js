@@ -8,7 +8,7 @@ import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { whereNow, residents } from './people.js';
-import { social, addBond, bondLabel } from './social.js';
+import { social, addBond, bondLabel, isPartner, bondAtLeast } from './social.js';
 export function feed(g) {
     const s = social(g);
     const f = (s.feed ??= {});
@@ -150,7 +150,7 @@ export function candidates(g, w) {
     const d = dating(g);
     // a random order, the same until the app is opened again (so the card on screen does not jump)
     const seed = String(d.seed ??= Math.random().toString(36).slice(2));
-    return residents(g).sort((a, b) => hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`)).filter(r => !d.seen[r.avatar] && !social(g).partner.includes(r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(w, r).onApp);
+    return residents(g).sort((a, b) => hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`)).filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(w, r).onApp);
 }
 // A like matches when you have enough in common (what you both look for, shared interests) and a bit of luck.
 export function swipe(g, w, avatar, like) {
@@ -168,7 +168,7 @@ export function swipe(g, w, avatar, like) {
     if (match) {
         d.matches.push(avatar);
         r.met = true; // a match is a contact: she shows up in Messages and People
-        social(g).bond[avatar] = Math.max(social(g).bond[avatar] ?? 0, 10);
+        bondAtLeast(g, avatar, 10);
     }
     return match;
 }

@@ -11,6 +11,7 @@ import { quiet, personaName } from '../st/bridge.js';
 import { note } from './facts.js';
 import { playerHomeId } from './places.js';
 import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
+import { partnersOf, setStatus } from './rel.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -99,13 +100,12 @@ const DILEMMAS = [
         } } },
     { id: 'crush', yes: 'Go for it', no: 'Wait a little',
         setup: (g, w, r) => { if (!systemOn(w, 'romance'))
-            return null; const taken = new Set((g.living?.pairs ?? []).flat()); if (taken.has(r.avatar))
-            return null; const list = others(g, r).filter(x => !taken.has(x.avatar) && !(social(g).partner ?? []).includes(x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
+            return null; const taken = (a) => partnersOf(g, a).length > 0; if (taken(r.avatar))
+            return null; const list = others(g, r).filter(x => !taken(x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I really like ${g.cast[x]?.name ?? 'someone'}. Should I ask them out?`,
         apply: (g, _w, r, x) => { if (!g.cast[x])
             return; if (dayRnd(g, `crushyes|${r.avatar}`) < 0.6) {
-            const l = L(g);
-            (l.pairs ??= []).push([r.avatar, x]);
+            setStatus(g, r.avatar, x, 'dating');
             note(g, '{0} and {1} started dating.', [r.name, g.cast[x].name], [r.avatar, x], g.player.loc, 'life');
         } } },
     { id: 'move', yes: 'Move', no: 'Stay',

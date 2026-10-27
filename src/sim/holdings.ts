@@ -22,7 +22,7 @@ import { addGood, goodDef } from './economy.js';
 import { baseTax } from './realm.js';
 import { isRpg, sheetOf } from './rpg.js';
 import { startCombat, inCombat } from './combat.js';
-import { addBond } from './social.js';
+import { addBond, bondOf } from './social.js';
 import { pleaseBlade } from './artifacts.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -86,7 +86,7 @@ export function hireFriend(g: Save, w: WorldDef, id: string, avatar: string): st
     const b = holdingsOf(g).biz.find(x => x.id === id); const d = b && (w.businesses ?? []).find(x => x.id === b.kind); const r = g.cast[avatar];
     if (!b || !d || !r) return '';
     if (b.staff + b.friends.length >= d.staff) return 'No room for more staff.';
-    if (((g as any).social?.bond?.[avatar] ?? 0) < 40) return `${r.name} would rather not work for you.`;
+    if (bondOf(g, avatar) < 40) return `${r.name} would rather not work for you.`;
     b.friends.push(avatar); addBond(g, avatar, 3);
     return `${r.name} helps out at ${b.name}.`;
 }

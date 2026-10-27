@@ -11,6 +11,7 @@ import { quiet, personaName } from '../st/bridge.js';
 import { note } from './facts.js';
 import { playerHomeId } from './places.js';
 import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
+import { partnersOf, setStatus } from './rel.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${g.minutes}|${salt}`);
@@ -45,7 +46,7 @@ const say = (g: Save, avatar: string, text: string, me: boolean) => {
     (s.threads[avatar] ??= []).push({ me, text, at: nowAbs(g) });
     if (!me) s.unread[avatar] = (s.unread[avatar] ?? 0) + 1;
 };
-const L = (g: Save) => { const l = ((g as any).living ??= {}); l.consults ??= []; l.hap ??= {}; return l as { consults: Consult[]; hap: Record<string, number>; homeKey?: string; ties?: any[]; pairs?: [string, string][]; asking?: Asking }; };
+const L = (g: Save) => { const l = ((g as any).living ??= {}); l.consults ??= []; l.hap ??= {}; return l as { consults: Consult[]; hap: Record<string, number>; homeKey?: string; ties?: any[]; asking?: Asking }; };
 const isKid = (g: Save, a: string) => ((g as any).family?.kids ?? []).some((k: any) => k.avatar === a);
 const livesWithYou = (r: Resident) => (r as any).homeWith === '__you';
 
@@ -97,9 +98,9 @@ const DILEMMAS: Dilemma[] = [
         ask: (_g, w, _r, x) => `I got an offer to work as ${w.occupations.find(o => o.id === x)?.name.toLowerCase() ?? 'something new'}. Should I take it?`,
         apply: (g, w, r, x) => { const o = w.occupations.find(j => j.id === x); if (o) { r.occupation = o.id; delete ((g as any).living?.ranks ?? {})[r.avatar]; note(g, '{0} started a new job: {1}.', [r.name, o.name], [r.avatar], o.place, 'life'); } } },
     { id: 'crush', yes: 'Go for it', no: 'Wait a little',
-        setup: (g, w, r) => { if (!systemOn(w, 'romance')) return null; const taken = new Set(((g as any).living?.pairs ?? []).flat()); if (taken.has(r.avatar)) return null; const list = others(g, r).filter(x => !taken.has(x.avatar) && !(social(g).partner ?? []).includes(x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
+        setup: (g, w, r) => { if (!systemOn(w, 'romance')) return null; const taken = (a: string) => partnersOf(g, a).length > 0; if (taken(r.avatar)) return null; const list = others(g, r).filter(x => !taken(x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I really like ${g.cast[x]?.name ?? 'someone'}. Should I ask them out?`,
-        apply: (g, _w, r, x) => { if (!g.cast[x]) return; if (dayRnd(g, `crushyes|${r.avatar}`) < 0.6) { const l = L(g); (l.pairs ??= []).push([r.avatar, x]); note(g, '{0} and {1} started dating.', [r.name, g.cast[x].name], [r.avatar, x], g.player.loc, 'life'); } } },
+        apply: (g, _w, r, x) => { if (!g.cast[x]) return; if (dayRnd(g, `crushyes|${r.avatar}`) < 0.6) { setStatus(g, r.avatar, x, 'dating'); note(g, '{0} and {1} started dating.', [r.name, g.cast[x].name], [r.avatar, x], g.player.loc, 'life'); } } },
     { id: 'move', yes: 'Move', no: 'Stay',
         setup: (g, w, r) => { const z = w.homes.zones.filter(z => z.id !== r.home.zone && z.spots.length); return z.length && !livesWithYou(r) ? z[Math.floor(dayRnd(g, `move|${r.avatar}`) * z.length)].id : null; },
         ask: (_g, w, _r, x) => `I'm thinking of moving to ${w.homes.zones.find(z => z.id === x)?.name ?? 'another part of town'}. What do you think?`,

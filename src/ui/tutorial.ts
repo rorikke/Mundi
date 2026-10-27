@@ -13,6 +13,7 @@ import { actionsHere, applyAction } from '../sim/needs.js';
 import { ACT } from './reg.js';
 import { tr } from '../core/tr.js';
 import { icon } from './icons.js';
+import { setFr, YOU } from '../sim/rel.js';
 
 const STELLA = '__tut:stella';
 const pic = (f: string) => new URL(`../../assets/tutorial/${f}`, import.meta.url).href;
@@ -36,7 +37,7 @@ function practiceSave(w: WorldDef): Save {
     } as Save;
     const r = resident(w, STELLA, new Set());
     g.cast[STELLA] = { ...r, name: 'Stella', occupation: 'barista', met: true };
-    social(g).bond[STELLA] = 35;
+    setFr(g, STELLA, YOU, 35);
     social(g).with.push({ avatar: STELLA, until: 99999 });   // she stays with you for the whole tour
     return g;
 }

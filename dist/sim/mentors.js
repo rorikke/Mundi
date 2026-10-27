@@ -75,8 +75,7 @@ export function lesson(g, w, avatar, here) {
     note(g, '{0} finished learning {1} from {u}: a bond for life.', [r.name, areaName(w, m.area).toLowerCase()], [avatar], g.player.loc, 'goal');
     return { text: `${r.name} has learned all you could teach about ${areaName(w, m.area).toLowerCase()}! Mentor and apprentice, for life.`, minutes: LESSON_MINUTES };
 }
-const social0 = (g, a) => { const s = g.social; if (s?.bond)
-    s.bond[a] = Math.min(100, (s.bond[a] ?? 0) + 15); };
+const social0 = (g, a) => bump(g, a, 15);
 export function dropApprentice(g, avatar) { g.mentees = menteesOf(g).filter(m => m.avatar !== avatar || m.done); }
 // Lessons skipped for 5 days: they cool off a little each day.
 onDay.push((g, w) => {

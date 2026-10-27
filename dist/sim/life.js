@@ -15,6 +15,7 @@ import { social, bondOf, isPartner } from './social.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
 import { whereNow, residents } from './people.js';
+import { partnersOf, YOU } from './rel.js';
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${g.minutes}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -57,10 +58,10 @@ export function feelingLine(g, present) {
 }
 export const ASPIRATIONS = [
     { id: 'rich', name: 'Get rich', icon: '💰', desc: 'Save up a fortune.', reward: 'Good with numbers', check: (g, w) => [g.player.money, usualPay(w) * 3125] },
-    { id: 'romance', name: 'Find love', icon: '💞', desc: 'Be in a relationship.', reward: 'Romantic', check: g => [social(g).partner.length ? 1 : 0, 1] },
+    { id: 'romance', name: 'Find love', icon: '💞', desc: 'Be in a relationship.', reward: 'Romantic', check: g => [partnersOf(g, YOU).length ? 1 : 0, 1] },
     { id: 'career', name: 'Top of the career', icon: '🏆', desc: 'Reach the highest rank of a job.', reward: 'Ambitious', check: (g, w) => { const j = g.player.job; const o = j && w.occupations.find(x => x.id === j.id); const c = o && careerOf(g, o); return [o ? j.rank + 1 : 0, c ? (c.open ? c.ranks.length + 1 : c.ranks.length) : 1]; } },
     { id: 'worker', name: 'Hard worker', icon: '💼', desc: 'Work 20 shifts.', reward: 'Serious', check: g => [countOf(g, 'shifts'), 20] },
-    { id: 'social', name: 'Social butterfly', icon: '🦋', desc: 'Have five good friends.', reward: 'Charming', check: g => [Object.values(social(g).bond).filter(b => b >= 60).length, 5] },
+    { id: 'social', name: 'Social butterfly', icon: '🦋', desc: 'Have five good friends.', reward: 'Charming', check: g => [Object.keys(g.cast).filter(a => bondOf(g, a) >= 60).length, 5] },
     { id: 'host', name: 'Party host', icon: '🎉', desc: 'Throw three parties.', reward: 'Outgoing', check: g => [countOf(g, 'parties'), 3] },
     { id: 'home', name: 'A home of your own', icon: '🏡', desc: 'Live in a house of your own, not in a small rented place.', reward: 'Calm', check: g => [['house', 'manor'].includes(g.player.home.kind) ? 1 : 0, 1] },
     { id: 'scholar', name: 'Lifelong learner', icon: '🎓', desc: 'Finish three courses.', reward: 'Smart', check: g => [learning(g).done.length, 3] },

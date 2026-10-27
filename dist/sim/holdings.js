@@ -10,7 +10,7 @@ import { addGood, goodDef } from './economy.js';
 import { baseTax } from './realm.js';
 import { isRpg, sheetOf } from './rpg.js';
 import { startCombat, inCombat } from './combat.js';
-import { addBond } from './social.js';
+import { addBond, bondOf } from './social.js';
 import { pleaseBlade } from './artifacts.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -92,7 +92,7 @@ export function hireFriend(g, w, id, avatar) {
         return '';
     if (b.staff + b.friends.length >= d.staff)
         return 'No room for more staff.';
-    if ((g.social?.bond?.[avatar] ?? 0) < 40)
+    if (bondOf(g, avatar) < 40)
         return `${r.name} would rather not work for you.`;
     b.friends.push(avatar);
     addBond(g, avatar, 3);

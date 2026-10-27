@@ -7,39 +7,38 @@ import { onDay } from './hooks.js';
 import { note } from './facts.js';
 import { npcCareer } from './work.js';
 import { lifeMoment } from './happenings.js';
-import { couples, setTie, removeTie, liveTogether, homeKey } from './living.js';
+import { setTie, removeTie, liveTogether, homeKey } from './living.js';
+import { couplePairs, setStatus, statusOf } from './rel.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
 type Stage = 'dating' | 'engaged' | 'married';
-interface PairInfo { since: number; stage: Stage }
-const store = (g: Save) => { const l = ((g as any).living ??= {}); l.pairInfo ??= {}; l.ranks ??= {}; l.pairs ??= []; return l as { pairInfo: Record<string, PairInfo>; ranks: Record<string, number>; pairs: [string, string][] }; };
+const store = (g: Save) => { const l = ((g as any).living ??= {}); l.ranks ??= {}; return l as { ranks: Record<string, number> }; };
 const key = (a: string, b: string) => [a, b].sort().join('|');
-export const pairStage = (g: Save, a: string, b: string): Stage | null => (couples(g).some(p => key(p[0], p[1]) === key(a, b)) ? store(g).pairInfo[key(a, b)]?.stage ?? 'dating' : null);
+// The stage of a couple between two people of the world (the relationships store, sim/rel.ts).
+export const pairStage = (g: Save, a: string, b: string): Stage | null => { const s = statusOf(g, a, b); return s === 'dating' || s === 'engaged' || s === 'married' ? s : null; };
 export const npcRank = (g: Save, avatar: string) => store(g).ranks[avatar] ?? 0;
 
 function couplesMoveOn(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
-    const st = store(g);
-    for (const [a, b] of couples(g)) {
+    for (const { a, b, status, since } of couplePairs(g)) {
         const k = key(a, b), A = g.cast[a], B = g.cast[b];
-        const info = (st.pairInfo[k] ??= { since: g.day, stage: 'dating' });
-        const days = g.day - info.since, known = A.met || B.met;
+        const days = g.day - since, known = A.met || B.met;
         const tell = (t: string, kind: string, tone: 'good' | 'bad' = 'good') => {
             note(g, t, [A.name, B.name], [a, b], `home:${a}`, kind);
             const text = t.replace('{0}', A.name).replace('{1}', B.name);
             if (known) out.push(text);
             for (const x of [a, b]) lifeMoment(g, w, x, text, tone);   // the people close to you tell you
         };
-        if (info.stage === 'dating') {
-            if (days >= 14 && rnd(g, `engage|${k}`) < 0.05) { info.stage = 'engaged'; info.since = g.day; tell('{0} and {1} got engaged!', 'life'); }
+        if (status === 'dating') {
+            if (days >= 14 && rnd(g, `engage|${k}`) < 0.05) { setStatus(g, a, b, 'engaged'); tell('{0} and {1} got engaged!', 'life'); }
             else if (rnd(g, `split|${k}`) < 0.012) {
-                st.pairs = st.pairs.filter(p => key(p[0], p[1]) !== k); delete st.pairInfo[k];
+                setStatus(g, a, b, null);
                 removeTie(g, a, b); setTie(g, { a, b, type: 'ex', tone: 'tense' });
                 tell('{0} and {1} broke up.', 'life', 'bad');
             }
-        } else if (info.stage === 'engaged' && days >= 14 && rnd(g, `marry|${k}`) < 0.07) {
-            info.stage = 'married'; info.since = g.day;
+        } else if (status === 'engaged' && days >= 14 && rnd(g, `marry|${k}`) < 0.07) {
+            setStatus(g, a, b, 'married');
             removeTie(g, a, b); setTie(g, { a, b, type: 'spouse', tone: 'close' });
             // they move in together (unless one of them lives with you: then nobody moves)
             const withYou = (x: any) => x.homeWith === '__you';

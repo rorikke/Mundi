@@ -3,7 +3,8 @@
 // AI how ready that person is, the AI writes the reaction, and a tiny follow-up question ("did they accept?") lets
 // the engine apply the result. At night, the diary call also gives a verdict on the day's relationships.
 import { nowAbs, cfg, type Save } from '../core/store.js';
-import { social, bondOf, bump } from './social.js';
+import { bondOf, bump } from './social.js';
+import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, YOU } from './rel.js';
 import { approvalOf, approve } from './living.js';
 import { note } from './facts.js';
 import { romanceBlocked, canTryForBaby } from './family.js';
@@ -13,18 +14,16 @@ export const sysOn = (g: Save, id: SystemId) => systemOn(getWorld(g.world), id);
 
 export type RomStatus = 'none' | 'dating' | 'engaged' | 'married';
 export interface Rom { value: number; status: RomStatus; cooldown?: number }
-const R = (g: Save): Record<string, Rom> => ((g as any).romance ??= {});
+// Where someone stands with you romantically, read from the relationships store (sim/rel.ts). A copy: change the
+// status with setStatus(), romance with addRomance().
 export function romOf(g: Save, avatar: string): Rom {
-    const r = (R(g)[avatar] ??= { value: 0, status: social(g).partner.includes(avatar) ? 'dating' : 'none' });
-    return r;
+    const p = pairOf(g, avatar, YOU);
+    const st = p?.status;
+    return { value: romValue(g, avatar), status: st === 'dating' || st === 'engaged' || st === 'married' ? st : 'none', cooldown: p?.cooldown };
 }
-export const romValue = (g: Save, avatar: string) => romOf(g, avatar).value;
-export function addRomance(g: Save, avatar: string, delta: number) { const r = romOf(g, avatar); r.value = Math.max(0, Math.min(100, r.value + delta)); }
-// keeps the older "partner" list (used by plans, the phone…) in step with the romance status
-function syncPartner(g: Save, avatar: string) {
-    const p = social(g).partner; const on = romOf(g, avatar).status !== 'none'; const i = p.indexOf(avatar);
-    if (on && i < 0) p.push(avatar); if (!on && i >= 0) p.splice(i, 1);
-}
+export const romValue = (g: Save, avatar: string) => Math.round(ro(g, avatar, YOU));
+// Romance toward you, up or down (asks, the night's verdict, breakups).
+export function addRomance(g: Save, avatar: string, delta: number) { if (delta > 0) gain(g, 'r', avatar, YOU, delta, false); else if (delta < 0) lose(g, 'r', avatar, YOU, delta); }
 
 /* ---------- tiers ---------- */
 
@@ -82,7 +81,7 @@ export function readiness(g: Save, avatar: string, name: string, k: AskKind): st
 
 // Open relationships (World → Rules): no jealousy, several partners at once, and everyone knows it.
 export const polyOn = (g: Save) => !!cfg(g).poly;
-export const partnersOf = (g: Save) => Object.entries(R(g)).filter(([, r]) => r.status !== 'none').map(([a]) => a);
+export const partnersOf = (g: Save) => partnersOfId(g, YOU);
 // A new romance while you are with someone else: unless relationships are open, each partner who learns of it is hurt.
 function jealousy(g: Save, avatar: string, name: string): string[] {
     if (polyOn(g)) return [];
@@ -100,19 +99,19 @@ function jealousy(g: Save, avatar: string, name: string): string[] {
 
 // After the reply: the engine applies the answer.
 export function applyAnswer(g: Save, avatar: string, name: string, k: AskKind, answer: 'yes' | 'no' | 'maybe'): string {
-    const r = romOf(g, avatar);
+    const cool = (until: number) => setCooldown(g, avatar, YOU, until);
     if (answer === 'yes') {
-        if (k === 'baby') { r.cooldown = 0; addRomance(g, avatar, 5); return ''; }   // the engine then decides (family.ts)
+        if (k === 'baby') { cool(0); addRomance(g, avatar, 5); return ''; }   // the engine then decides (family.ts)
         const hurt = k === 'date' ? jealousy(g, avatar, name) : [];
-        r.status = ASKS[k].to!; r.cooldown = 0; addRomance(g, avatar, 15); bump(g, avatar, 5); syncPartner(g, avatar);
+        setStatus(g, avatar, YOU, ASKS[k].to as 'dating' | 'engaged' | 'married'); cool(0); addRomance(g, avatar, 15); bump(g, avatar, 5);
         note(g, k === 'date' ? '{u} and {0} started dating.' : k === 'propose' ? '{u} and {0} got engaged.' : '{u} and {0} got married.', [name], [avatar], g.player.loc, 'love');
         return [k === 'date' ? `You and ${name} are now dating!` : k === 'propose' ? `You and ${name} are engaged!` : `You and ${name} are married!`, ...hurt].join(' ');
     }
     const day = 1440;
-    if (answer === 'maybe') { r.cooldown = nowAbs(g) + day; note(g, '{0} asked {u} for some time to think about it.', [name], [avatar], g.player.loc, 'love'); return `${name} wants some time to think.`; }
+    if (answer === 'maybe') { cool(nowAbs(g) + day); note(g, '{0} asked {u} for some time to think about it.', [name], [avatar], g.player.loc, 'love'); return `${name} wants some time to think.`; }
     // a no: a little awkward, and asking again too soon makes it worse
-    if (k === 'baby') { r.cooldown = nowAbs(g) + 3 * day; note(g, '{0} is not ready to have a baby with {u}.', [name], [avatar], g.player.loc, 'family'); return `${name} is not ready for a baby.`; }
-    r.cooldown = nowAbs(g) + 3 * day; addRomance(g, avatar, -8); bump(g, avatar, -4);
+    if (k === 'baby') { cool(nowAbs(g) + 3 * day); note(g, '{0} is not ready to have a baby with {u}.', [name], [avatar], g.player.loc, 'family'); return `${name} is not ready for a baby.`; }
+    cool(nowAbs(g) + 3 * day); addRomance(g, avatar, -8); bump(g, avatar, -4);
     note(g, '{0} turned {u} down.', [name], [avatar], g.player.loc, 'love');
     return `${name} said no.`;
 }
@@ -122,9 +121,9 @@ export function pushTooSoon(g: Save, avatar: string, name: string) { bump(g, ava
 /* ---------- ending it ---------- */
 
 export function endRelationship(g: Save, avatar: string, name: string): string {
-    const r = romOf(g, avatar); const was = r.status;
+    const was = romOf(g, avatar).status;
     if (was === 'none') return '';
-    r.status = 'none'; r.value = Math.max(0, r.value - 45); syncPartner(g, avatar);
+    setStatus(g, avatar, YOU, null); addRomance(g, avatar, -45);
     bump(g, avatar, was === 'married' ? -30 : -20); approve(g, avatar, -10);
     note(g, was === 'married' ? '{u} and {0} got divorced.' : '{u} broke up with {0}.', [name], [avatar], g.player.loc, 'love');
     return was === 'married' ? `You and ${name} are divorced.` : `You and ${name} broke up.`;

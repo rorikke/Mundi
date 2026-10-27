@@ -10,11 +10,12 @@ import { period, isWeekend, seasonOf } from './time.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
+import { couplePairs, setStatus, partnersOf, TYPE_START, startFriendship } from './rel.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
 } return (h >>> 0) / 4294967296; };
-const L = (g) => { const x = (g.living ??= {}); x.approval ??= {}; x.rumors ??= []; x.pairs ??= []; return x; };
+const L = (g) => { const x = (g.living ??= {}); x.approval ??= {}; x.rumors ??= []; return x; };
 /* ---------- approval (55): what people think of the way you act, -100..100 ---------- */
 export const approvalOf = (g, avatar) => L(g).approval[avatar] ?? 0;
 export function approve(g, avatar, delta) { const a = L(g).approval; a[avatar] = Math.max(-100, Math.min(100, (a[avatar] ?? 0) + delta)); }
@@ -71,7 +72,8 @@ export function activeWorldLore(g, w) {
     }).map(e => e.content);
 }
 /* ---------- people's own lives (76) ---------- */
-export const couples = (g) => L(g).pairs.filter(([a, b]) => g.cast[a] && g.cast[b]);
+// Couples between people of the world (the pairs in the relationships store, sim/rel.ts).
+export const couples = (g) => couplePairs(g).map(p => [p.a, p.b]);
 function lifeGoesOn(g, w) {
     const out = [];
     const people = residents(g);
@@ -109,10 +111,11 @@ function lifeGoesOn(g, w) {
         }
     }
     else {
-        const single = people.filter(x => x !== r && !L(g).pairs.some(p => p.includes(x.avatar)) && !L(g).pairs.some(p => p.includes(r.avatar)) && !g.social?.partner?.includes(x.avatar));
-        if (single.length && !g.social?.partner?.includes(r.avatar) && systemOn(w, 'romance')) {
+        const taken = (a) => partnersOf(g, a).length > 0; // with someone already (you included)
+        const single = people.filter(x => x !== r && !taken(x.avatar));
+        if (single.length && !taken(r.avatar) && systemOn(w, 'romance')) {
             const o = single[Math.floor(rnd(g, 'pair') * single.length)];
-            L(g).pairs.push([r.avatar, o.avatar]);
+            setStatus(g, r.avatar, o.avatar, 'dating');
             note(g, '{0} and {1} started dating.', [r.name, o.name], [r.avatar, o.avatar], r.leisure[0] ?? g.player.loc, 'life');
             if (o.met)
                 out.push(`${r.name} and ${o.name} started dating.`);
@@ -124,10 +127,9 @@ function lifeGoesOn(g, w) {
 }
 export function couplesLine(g, present) {
     const here = new Set(present.map(r => r.avatar));
-    const c = couples(g).filter(([a, b]) => here.has(a) || here.has(b));
-    const stage = (a, b) => (g.living?.pairInfo?.[[a, b].sort().join('|')]?.stage ?? 'dating');
+    const c = couplePairs(g).filter(p => here.has(p.a) || here.has(p.b));
     const word = { dating: 'are dating', engaged: 'are engaged', married: 'are married' };
-    return c.length ? `Relationships between people: ${c.map(([a, b]) => `${g.cast[a].name} and ${g.cast[b].name} ${word[stage(a, b)] ?? 'are dating'}`).join('; ')}.` : '';
+    return c.length ? `Relationships between people: ${c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`).join('; ')}.` : '';
 }
 const GOSSIP = ['love', 'party', 'plan', 'life', 'goal', 'work', 'crisis'];
 export const YOU = '__you';
@@ -262,8 +264,8 @@ export function tiesLine(g, present) {
 }
 void INVERSE;
 // A tie to {{user}} set at the start also sets where you stand with them (friends start close, enemies far apart).
-export function startingStand(type) {
-    const m = { bestfriend: [70, 30], friend: [45, 15], ally: [40, 20], colleague: [25, 5], dating: [70, 25], partner: [70, 25], spouse: [80, 30], parent: [60, 20], child: [60, 20], sibling: [55, 15], cousin: [35, 10], roommate: [35, 5], rival: [15, -20], enemy: [5, -50], ex: [20, -10], mentor: [55, 25], apprentice: [55, 25] };
-    const [bond, approval] = m[type] ?? [20, 0];
-    return { bond, approval };
+// Where someone stands with you when a tie starts: friendship from the tone (or the type's usual tone), approval
+// from the type (the one table in sim/rel.ts).
+export function startingStand(type, tone) {
+    return { bond: startFriendship(tone, type), approval: TYPE_START[type]?.approval ?? 0 };
 }
