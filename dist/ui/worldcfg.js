@@ -11,7 +11,7 @@ import './homeui.js';
 import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, chatLore, bindChatLore, createLorebook } from '../st/bridge.js';
 import { homeAddress, placeOf } from '../sim/places.js';
 import { resident, homeSpot, takenHomes, syncScene, currentEntry } from '../sim/game.js';
-import { social, bondLabel, isPartner } from '../sim/social.js';
+import { social, bondLabel } from '../sim/social.js';
 import { romOf, friendTier } from '../sim/romance.js';
 import { romanceBlocked, familyBlocked, isMinor, kidOf } from '../sim/family.js';
 import { tiesOf, setTie, removeTie, liveTogether, normalizeHomes, TIE_TYPES, TIE_TONES } from '../sim/living.js';
@@ -29,6 +29,7 @@ import { tabAiContext } from './aictx.js';
 import { warningsBanner } from './warnings.js';
 import { ACT, INPUT } from './reg.js';
 import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, seedFromTies, startFriendship, relOf, relCfg, paceOf, idOf, YOU } from '../sim/rel.js';
+import { needsOf, R_NAME, F_NAME } from '../sim/intimacy.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
@@ -61,8 +62,9 @@ function personForm(g, w) {
             <div class="mu-field"><span>Where they go in their free time</span><div class="mu-chips">${leisure.map(p => `<button class="mu-chip ${r.leisure.includes(p.id) ? 'is-on' : ''}" data-act="wc-leisure" data-id="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
                 <small class="mu-muted">None chosen: any leisure place.</small></div>
             <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="-100" max="100" value="${bond}" data-input="wc-bond"></label>
-            <label class="mu-check"><input type="checkbox" data-input="wc-partner" ${isPartner(g, r.avatar) ? 'checked' : ''}><span>Together (dating)</span></label>
+            ${systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) ? `<label class="mu-field"><span>With you</span><select data-input="wc-status">${[['none', 'Not together'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, romOf(g, r.avatar).status === v)).join('')}</select></label>` : ''}
             ${paceHtml(g, r.avatar)}
+            ${systemOn(w, 'romance') ? waysHtml(g, r.avatar) : ''}
             ${minorHtml(g, r.avatar)}
             ${pairHtml(g, w, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
@@ -74,6 +76,31 @@ function paceHtml(g, avatar) {
     const PACES = [['', 'World default'], ['slow', 'Slow'], ['normal', 'Normal'], ['fast', 'Fast']];
     const sel = (m, label) => `<label class="mu-field"><span>${label}</span><select data-input="wc-pace" data-m="${m}">${PACES.map(([v, l]) => opt(v, l, (paceOf(g, avatar, m) ?? '') === v)).join('')}</select></label>`;
     return `<div class="mu-row2">${sel('f', 'Friendship grows')}${sel('r', 'Romance grows')}</div>`;
+}
+// How this person is about intimacy (what they need first, and whether only with a partner) and whether they want one
+// partner or are fine with several (unset: the world's setting).
+function waysHtml(g, avatar) {
+    const p = relOf(g).people[idOf(g, avatar)] ?? {};
+    const i = p.intimacy ?? {}, preset = i.preset ?? 'steady';
+    const presets = [['steady', 'Steady (default): a crush, and friends'], ['free', 'Free spirit: a spark is enough'], ['passionate', 'Passionate: a crush, no friendship needed'], ['slow', 'Slow to trust: a crush, and close friends'], ['devoted', 'Devoted: deeply in love, and best friends'], ['custom', 'Custom']];
+    const n = needsOf(g, avatar);
+    return `<label class="mu-field"><span>Before getting intimate, they need</span><select data-input="wc-intim" data-k="preset">${presets.map(([v, l]) => opt(v, l, preset === v)).join('')}</select></label>
+        ${preset === 'custom' ? `<div class="mu-row2"><label class="mu-field"><span>Romance</span><select data-input="wc-intim" data-k="r">${Object.keys(R_NAME).map(v => opt(v, R_NAME[v], n.r === v)).join('')}</select></label>
+            <label class="mu-field"><span>Friendship</span><select data-input="wc-intim" data-k="f">${Object.keys(F_NAME).map(v => opt(v, F_NAME[v], n.f === v)).join('')}</select></label></div>` : ''}
+        <label class="mu-check"><input type="checkbox" data-input="wc-intim-partner" ${i.casual === false ? 'checked' : ''}><span>Only with a partner<small>Nothing casual and no night together that's more than a sleepover until you're a couple, however they feel.</small></span></label>
+        <label class="mu-field"><span>Relationships</span><select data-input="wc-style">${opt('', 'World default', !p.style)}${opt('exclusive', 'Exclusive: one partner', p.style === 'exclusive')}${opt('open', 'Open: fine with more than one', p.style === 'open')}</select></label>`;
+}
+// The person's own entry (the store's id), tidied when it ends up empty.
+function personEdit(g, fn) {
+    const people = relOf(g).people, id = idOf(g, WC.who);
+    const p = (people[id] ??= {});
+    fn(p);
+    if (p.intimacy && !Object.keys(p.intimacy).length)
+        delete p.intimacy;
+    if (!Object.keys(p).length)
+        delete people[id];
+    saveGame();
+    notify();
 }
 // A minor is left out of every romance: a child born in the game, an age under 18 from the world, or this box.
 function minorHtml(g, avatar) {
@@ -532,17 +559,59 @@ Object.assign(INPUT, {
         const g = game();
         if (!g)
             return;
-        const people = relOf(g).people;
-        const p = (people[WC.who] ??= {});
         const m = el.dataset.m;
-        if (el.value)
+        personEdit(g, p => { if (el.value)
             (p.pace ??= {})[m] = el.value;
         else if (p.pace)
-            delete p.pace[m];
-        if (p.pace && !Object.keys(p.pace).length)
-            delete p.pace;
-        if (!Object.keys(p).length)
-            delete people[WC.who];
+            delete p.pace[m]; if (p.pace && !Object.keys(p.pace).length)
+            delete p.pace; });
+    },
+    'wc-intim': (el) => {
+        const g = game();
+        if (!g)
+            return;
+        const k = el.dataset.k;
+        personEdit(g, p => {
+            const i = (p.intimacy ??= {});
+            if (k === 'preset') {
+                if (el.value === 'steady')
+                    delete i.preset;
+                else
+                    i.preset = el.value;
+                if (el.value === 'custom') {
+                    const n = needsOf(g, WC.who);
+                    i.r = n.r;
+                    i.f = n.f;
+                }
+                else {
+                    delete i.r;
+                    delete i.f;
+                }
+            }
+            else
+                i[k] = el.value;
+        });
+    },
+    'wc-intim-partner': (el) => { const g = game(); if (!g)
+        return; personEdit(g, p => { const i = (p.intimacy ??= {}); if (el.checked)
+        i.casual = false;
+    else
+        delete i.casual; }); },
+    'wc-style': (el) => { const g = game(); if (!g)
+        return; personEdit(g, p => { if (el.value)
+        p.style = el.value;
+    else
+        delete p.style; }); },
+    'wc-status': (el) => {
+        const g = game();
+        if (!g)
+            return;
+        if (el.value !== 'none' && romanceBlocked(g, WC.who)) {
+            toast('Not possible with family or a child.', 'info');
+            notify();
+            return;
+        }
+        setStatus(g, WC.who, YOU, el.value === 'none' ? null : el.value);
         saveGame();
         notify();
     },

@@ -206,6 +206,21 @@ export function partnersOf(g, id = YOU) {
     return out;
 }
 export const isPartner = (g, a, b = YOU) => PARTNER.includes(statusOf(g, a, b));
+// Everyone `id` has something casual with (not partners: no key, no moving in, no baby).
+export function casualsOf(g, id = YOU) {
+    id = idOf(g, id);
+    const out = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (p.status !== 'casual')
+            continue;
+        const [a, b] = k.split('|');
+        if (a === id)
+            out.push(b);
+        else if (b === id)
+            out.push(a);
+    }
+    return out;
+}
 // Couples between two people of the world (not you).
 export function couplePairs(g) {
     const out = [];

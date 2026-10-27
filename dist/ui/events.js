@@ -2,10 +2,11 @@
 // way to end it (they say goodbye and tell you what they thought) and, at a home, to spend the night together.
 import { esc, game, notify, saveGame, toast, nowAbs, state } from '../core/store.js';
 import { setPrompt, sendCanned, chat, setAsk } from '../st/bridge.js';
-import { social, bondOf, isPartner, isWith } from '../sim/social.js';
+import { social, isWith } from '../sim/social.js';
 import { letGo } from '../sim/plans.js';
-import { romOf, shutOut } from '../sim/romance.js';
-import { romanceBlocked, isMinor } from '../sim/family.js';
+import { shutOut } from '../sim/romance.js';
+import { isMinor } from '../sim/family.js';
+import { askStay } from './relui.js';
 import { playerHomeId } from '../sim/places.js';
 import { note } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
@@ -16,19 +17,30 @@ export const stayOf = (g) => (social(g).stay ?? null);
 const clearEvent = (g) => { social(g).event = null; };
 // The home of someone (people who live with another person share that person's home).
 const homeOf = (g, avatar) => { const r = g.cast[avatar]; const w = r?.homeWith; return w === '__you' ? playerHomeId : `home:${w && g.cast[w] ? w : avatar}`; };
-// Can you two spend the night under the same roof?
+// Can you even ask? Never a minor; never someone who doesn't want you around. Otherwise they answer in the scene
+// (a readiness hint from friendship, romance and their needs; see stayReadiness in sim/romance.ts).
 export function stayAnswer(g, avatar) {
     if (isMinor(g, avatar))
         return { ok: false, why: '' };
     if (shutOut(g, avatar, true))
         return { ok: false, why: 'They do not want to spend the night with you.' };
-    if (isPartner(g, avatar) || romOf(g, avatar).status !== 'none')
-        return { ok: true, why: '' };
-    if (!romanceBlocked(g, avatar) && romOf(g, avatar).value >= 40)
-        return { ok: true, why: '' };
-    if (bondOf(g, avatar) >= 70)
-        return { ok: true, why: '' };
-    return { ok: false, why: 'They do not feel close enough to stay the night.' };
+    return { ok: true, why: '' };
+}
+// They said yes: they stay with you until the morning (or you with them).
+function beginStay(g, who, mine) {
+    const r = g.cast[who];
+    if (!r)
+        return;
+    social(g).stay = { avatar: who, where: g.player.loc, day: g.day };
+    const s = social(g);
+    const c = s.with.find(x => x.avatar === who);
+    const morning = (g.day + 1) * 1440 + 10 * 60;
+    if (c)
+        c.until = Math.max(c.until, morning);
+    else
+        s.with.push({ avatar: who, until: morning });
+    note(g, mine ? '{0} stayed the night at {u}\'s place.' : '{u} stayed the night at {0}\'s place.', [r.name], [who]);
+    saveGame();
 }
 // Where you could ask: your home (them staying over) or their home (you staying over).
 function stayWhere(g, avatar) {
@@ -92,22 +104,15 @@ Object.assign(ACT, {
         if (!where)
             return;
         const ans = stayAnswer(g, who);
-        if (ans.ok) {
-            social(g).stay = { avatar: who, where: g.player.loc, day: g.day };
-            // they stay with you until the morning
-            const s = social(g);
-            const c = s.with.find(x => x.avatar === who);
-            const morning = (g.day + 1) * 1440 + 10 * 60;
-            if (c)
-                c.until = Math.max(c.until, morning);
-            else
-                s.with.push({ avatar: who, until: morning });
-            note(g, where === 'mine' ? '{0} stayed the night at {u}\'s place.' : '{u} stayed the night at {0}\'s place.', [r.name], [who]);
-        }
-        saveGame();
-        setAsk(`[{{user}} asks ${r.name} ${where === 'mine' ? 'to stay the night' : 'to sleep at their place tonight'}. ${ans.ok ? `${r.name} says yes (it is decided), in their own way.` : `${r.name} says no, kindly: ${ans.why}`} Write ${r.name}'s reply.]`);
-        sendCanned(where === 'mine' ? `"Do you want to stay the night?"` : `"Can I stay here tonight?"`);
-        toast(ans.ok ? `${r.name} is staying the night.` : ans.why, ans.ok ? 'success' : 'info');
+        const line = where === 'mine' ? `"Do you want to stay the night?"` : `"Can I stay here tonight?"`;
+        // they answer in the scene, and a yes/no question settles it (relui.ts)
+        if (ans.ok && askStay(who, where === 'mine', line, () => beginStay(g, who, where === 'mine')))
+            return;
+        if (ans.ok)
+            return; // another question is still waiting for its answer
+        setAsk(`[{{user}} asks ${r.name} ${where === 'mine' ? 'to stay the night' : 'to sleep at their place tonight'}. ${r.name} says no: ${ans.why} Write ${r.name}'s reply.]`);
+        sendCanned(line);
+        toast(ans.why, 'info');
         notify();
     },
 });

@@ -8,7 +8,7 @@ import { sysOn } from '../sim/romance.js';
 import { chat, quiet, sendCanned, setPrompt, thumb } from '../st/bridge.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
-import { ASKS, canAsk, coolingDown, readiness, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
+import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
 import { WORK_MODES, workShift, jobDef, rankOf, type WorkMode } from '../sim/work.js';
@@ -29,7 +29,8 @@ export function relBar(avatar: string, romance = true): string {
     const g = game(); if (!g) return '';
     const b = bondOf(g, avatar); const ft = friendTier(b);
     const rt = romanceTier(g, avatar);
-    return `<span class="mu-tierbar" title="${esc(ft.name)}"><i style="width:${tierPct(ft, b)}%;background:${ft.color}"></i></span>${romance && rt.id !== 'none' && sysOn(g, 'romance') ? `<span class="mu-tierbar is-love" title="${esc(rt.name)}"><i style="width:${tierPct(rt, romOf(g, avatar).value)}%;background:${rt.color}"></i></span>` : ''}`;
+    // both bars, always (high romance with low friendship is a real state), unless romance can't be: off, family, a child
+    return `<span class="mu-tierbar" title="${esc(ft.name)}"><i style="width:${tierPct(ft, b)}%;background:${ft.color}"></i></span>${romance && sysOn(g, 'romance') && !romanceBlocked(g, avatar) ? `<span class="mu-tierbar is-love" title="${esc(rt.name)}"><i style="width:${tierPct(rt, romOf(g, avatar).value)}%;background:${rt.color}"></i></span>` : ''}`;
 }
 
 // Under a person's name: their friendship tier, their romance tier or status, and the label from both ("In love").
@@ -54,7 +55,7 @@ export function romanceButtons(avatar: string): string {
     const r = romOf(g, avatar);
     const p = pregnancy(g);
     const kinds = (Object.keys(ASKS) as AskKind[]).filter(k => canAsk(g, avatar, k));
-    const end = r.status === 'married' ? 'Ask for a divorce' : r.status !== 'none' ? (r.status === 'engaged' ? 'Call off the engagement' : 'Break up') : '';
+    const end = r.status === 'married' ? 'Ask for a divorce' : r.status === 'casual' ? 'Stop seeing each other' : r.status !== 'none' ? (r.status === 'engaged' ? 'Call off the engagement' : 'Break up') : '';
     const busy = !!ASK.avatar;
     return `<div class="mu-pc-love">
         ${kinds.map(k => `<button data-act="rm-ask" data-who="${esc(avatar)}" data-k="${k}" ${busy ? 'aria-disabled="true"' : ''}>${icon('heart')}<span>${ASKS[k].label}</span></button>`).join('')}
@@ -66,17 +67,31 @@ export function romanceButtons(avatar: string): string {
 
 /* ---------- asking: the scene plays it, then the engine reads the answer ---------- */
 
-const ASK = { avatar: '', name: '', kind: 'date' as AskKind, from: 0, waits: 0, round: 0, start: 0 };
+// An ask in progress: a romance ask, or staying the night ('stay', with what to do on a yes).
+type Asked = AskKind | 'stay';
+const ASK = { avatar: '', name: '', kind: 'date' as Asked, from: 0, waits: 0, round: 0, start: 0, mine: true, onYes: null as null | (() => void) };
 const END = { avatar: '' };
-const askWhat = (k: AskKind) => k === 'date' ? 'to be a couple' : k === 'baby' ? 'about trying for a baby together' : k === 'propose' ? 'to marry them' : 'to set the date and get married';
+const askWhat = (k: Asked) => k === 'date' ? 'to be a couple' : k === 'casual' ? 'to keep things casual between them' : k === 'stay' ? (ASK.mine ? 'to stay the night' : 'to let them sleep at their place tonight')
+    : k === 'baby' ? 'about trying for a baby together' : k === 'propose' ? 'to marry them' : 'to set the date and get married';
+const ASK_FACT: Record<AskKind, string> = { casual: '{u} asked {0} to keep things casual.', date: '{u} asked {0} to be a couple.', propose: '{u} proposed to {0}.', marry: '{u} asked {0} to set the date and get married.', baby: '{u} asked {0} about trying for a baby.' };
 
-function startAsk(g: Save, avatar: string, kind: AskKind, from: number) {
+function startAsk(g: Save, avatar: string, kind: Asked, from: number) {
     const r = g.cast[avatar];
     Object.assign(ASK, { avatar, name: r.name, kind, from, waits: 0, round: 0, start: from });
     // the question itself is a fact (the diary and the Journal know it was asked, whatever the answer)
-    note(g, kind === 'date' ? '{u} asked {0} to be a couple.' : kind === 'propose' ? '{u} proposed to {0}.' : kind === 'marry' ? '{u} asked {0} to set the date and get married.' : '{u} asked {0} about trying for a baby.', [r.name], [avatar], g.player.loc, kind === 'baby' ? 'family' : 'love');
+    if (kind !== 'stay') note(g, ASK_FACT[kind], [r.name], [avatar], g.player.loc, kind === 'baby' ? 'family' : 'love');
     saveGame();
-    setPrompt('mundi_ask', readiness(g, avatar, r.name, kind), 0);
+    setPrompt('mundi_ask', kind === 'stay' ? stayReadiness(g, avatar, r.name, ASK.mine) : readiness(g, avatar, r.name, kind), 0);
+}
+// Asking someone to stay the night (or to sleep at theirs): the scene plays it, then the same yes/no question; a yes
+// runs `onYes`.
+export function askStay(avatar: string, mine: boolean, line: string, onYes: () => void): boolean {
+    const g = game(); if (!g || ASK.avatar || !g.cast[avatar]) return false;
+    Object.assign(ASK, { mine, onYes });
+    startAsk(g, avatar, 'stay', chat().length);
+    if (!sendCanned(line)) { Object.assign(ASK, { avatar: '', onYes: null }); setPrompt('mundi_ask', ''); return false; }
+    notify();
+    return true;
 }
 async function ask(avatar: string, kind: AskKind) {
     const g = game(); if (!g || ASK.avatar) return;
@@ -118,7 +133,7 @@ export async function checkAsk() {
     const speakers = new Set(others.map((m: any) => String(m.name ?? '')));
     const reply = [...others].reverse().find(named) ?? (speakers.size === 1 ? others.at(-1) : undefined);
     if (!reply) { if (++ASK.waits >= 3) { setPrompt('mundi_ask', ''); ASK.avatar = ''; notify(); } return; }
-    const { avatar, name, kind } = ASK;
+    const { avatar, name, kind, onYes } = ASK;
     // everything since the question (their words, and yours: a story direction like "she says yes" counts too)
     const clean = (t: unknown) => String(t ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     const said = list.slice(Math.max(0, ASK.start - 1)).filter((m: any) => !m.is_system)
@@ -135,7 +150,13 @@ export async function checkAsk() {
         setPrompt('mundi_ask', `[${name} has not clearly answered {{user}}'s question yet (${askWhat(kind)}). In this reply ${name} gives a clear answer, in their own way: yes, no, or that they need time to think.]`, 0);
         toast(`Waiting for ${name}'s answer…`, 'info'); notify(); return;
     }
-    ASK.avatar = ''; setPrompt('mundi_ask', '');
+    ASK.avatar = ''; ASK.onYes = null; setPrompt('mundi_ask', '');
+    if (kind === 'stay') {   // no answer yet after a few tries counts as a no
+        if (answer === 'yes') { onYes?.(); toast(ASK.mine ? `${name} is staying the night.` : `You are staying at ${name}'s tonight.`, 'success'); }
+        else toast(`${name} said no.`, 'info');
+        saveGame(); notify(); return;
+    }
+    if (forcedNo(g, avatar, kind)) answer = 'no';   // "only with a partner": the engine's own no
     let msg = applyAnswer(g, avatar, name, kind, answer);
     if (kind === 'baby' && answer === 'yes') {
         msg = conceive(g, avatar, name);

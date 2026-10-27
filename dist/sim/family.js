@@ -53,7 +53,8 @@ export const romanceBlocked = (g, avatar) => familyBlocked(g, avatar, YOU);
 /* ---------- trying for a baby ---------- */
 export const pregnancy = (g) => family(g).pregnancy;
 export function canTryForBaby(g, avatar) {
-    return romOf(g, avatar).status !== 'none' && !pregnancy(g) && !romanceBlocked(g, avatar);
+    const st = romOf(g, avatar).status; // only partners: never from something casual
+    return (st === 'dating' || st === 'engaged' || st === 'married') && !pregnancy(g) && !romanceBlocked(g, avatar);
 }
 // They said yes: whether it happens this time is up to chance (it can take a few tries).
 export function conceive(g, avatar, name, rnd = Math.random) {

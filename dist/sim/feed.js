@@ -1,6 +1,8 @@
 // The social network (short posts, like Twitter/X) and the dating app. Posts are written by the AI in one batch
 // call; who posts and whether posts get a picture are options in the game settings.
 import { romanceBlocked } from './family.js';
+import { relOf, idOf } from './rel.js';
+import { needsOf } from './intimacy.js';
 import { nowAbs, settings, saveSettings } from '../core/store.js';
 import { appsOf, socialKind, aiVoice, systemOn } from '../core/world.js';
 import { ctx, charOf, personaName, sayLine } from '../st/bridge.js';
@@ -135,12 +137,25 @@ export function dating(g) {
     d.matches ??= [];
     return d;
 }
-// Her profile on the app: who she is, what she looks for (fixed per person) and a few interests.
-export function theirProfile(w, r) {
+// What someone looks for on the app: set for them, else from how they are about intimacy (only with a partner: a
+// relationship; a free spirit: something casual), else fixed per person.
+export function lookingOf(g, avatar) {
+    const set = relOf(g).people[idOf(g, avatar)]?.looking;
+    if (set && LOOKING.includes(set))
+        return set;
+    const n = needsOf(g, avatar);
+    if (n.partnerOnly)
+        return 'A relationship';
+    if (n.preset === 'free')
+        return 'Something casual';
+    return LOOKING[hash(avatar) % LOOKING.length];
+}
+// Her profile on the app: who she is, what she looks for and a few interests.
+export function theirProfile(g, w, r) {
     const h = hash(r.avatar);
     const interests = (w.sheet.traits?.find(t => t.id === 'interests')?.options ?? []);
     return {
-        looking: LOOKING[h % LOOKING.length],
+        looking: lookingOf(g, r.avatar),
         interests: [interests[h % interests.length], interests[(h >> 3) % interests.length]].filter((x, i, a) => x && a.indexOf(x) === i),
         bio: about(r).split(/(?<=[.!?])\s/).slice(0, 2).join(' '),
         onApp: h % 10 < 8,
@@ -150,7 +165,7 @@ export function candidates(g, w) {
     const d = dating(g);
     // a random order, the same until the app is opened again (so the card on screen does not jump)
     const seed = String(d.seed ??= Math.random().toString(36).slice(2));
-    return residents(g).sort((a, b) => hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`)).filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(w, r).onApp);
+    return residents(g).sort((a, b) => hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`)).filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp);
 }
 // A like matches when you have enough in common (what you both look for, shared interests) and a bit of luck.
 export function swipe(g, w, avatar, like) {
@@ -159,7 +174,7 @@ export function swipe(g, w, avatar, like) {
     if (!like)
         return false;
     const r = g.cast[avatar];
-    const p = theirProfile(w, r);
+    const p = theirProfile(g, w, r);
     let chance = 35;
     if (d.profile.looking.includes(p.looking))
         chance += 30;

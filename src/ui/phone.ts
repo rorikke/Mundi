@@ -14,7 +14,6 @@ import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, he
 import { PL } from './plans.js';
 import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
-import { romanceBlocked } from '../sim/family.js';
 import { relBar, relSubtitle } from './relui.js';
 import { note } from '../sim/facts.js';
 import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
@@ -23,7 +22,7 @@ import { getWorld, worldFile, deviceLook, socialKind, messageKind, appsShown, sy
 import { upcoming } from '../sim/plans.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { whenText } from './plans.js';
-import type { Save } from '../core/store.js';
+import type { Save, Resident } from '../core/store.js';
 import { thumb, chat } from '../st/bridge.js';
 import { weekday } from '../sim/time.js';
 import { fmtClock as hm } from '../core/fmt.js';
@@ -42,7 +41,8 @@ import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/br
 import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
-import { setStatus, YOU } from '../sim/rel.js';
+import { setStatus, casualsOf, YOU } from '../sim/rel.js';
+import { crushOn, canAsk } from '../sim/romance.js';
 
 type App = 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
@@ -223,21 +223,28 @@ function threadApp(g: Save) {
             <button class="mu-ibtn mu-primary" data-act="ph-send" aria-label="${T('send')}" ${P.typing ? 'disabled' : ''}>${icon('send')}</button></div>`;
 }
 
+// People: your partners first, then something casual (listed apart: they aren't partners), then everyone else.
 function peopleApp(g: Save) {
     const list = met(g).filter(r => matchQ(g, r)).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
-    return `${head(appName('people'), 'home')}${searchBox('Search people')}<div class="mu-ph-list">${list.length ? list.map(r => `<button class="mu-ph-row" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
-        <span><b data-notr>${esc(contactName(g, r))}</b><small>${bondLabel(g, r.avatar)}</small>${relBar(r.avatar)}</span>${isPartner(g, r.avatar) ? `<i class="mu-ph-heart">${icon('heart')}</i>` : ''}</button>`).join('')
+    const casual = new Set(casualsOf(g));
+    const row = (r: Resident) => `<button class="mu-ph-row" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+        <span><b data-notr>${esc(contactName(g, r))}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>${isPartner(g, r.avatar) ? `<i class="mu-ph-heart">${icon('heart')}</i>` : ''}</button>`;
+    const groups: [string, Resident[]][] = [['', list.filter(r => isPartner(g, r.avatar))], ['Casual', list.filter(r => casual.has(r.avatar))], ['', list.filter(r => !isPartner(g, r.avatar) && !casual.has(r.avatar))]];
+    return `${head(appName('people'), 'home')}${searchBox('Search people')}<div class="mu-ph-list">${list.length ? groups.filter(([, rs]) => rs.length).map(([h, rs]) => `${h ? `<h5 class="mu-ph-group">${h}</h5>` : ''}${rs.map(row).join('')}`).join('')
         : `<p class="mu-muted mu-pad">${T('noneMet')}</p>`}</div>`;
 }
 
+// A sure yes by phone: very close friends who also have a crush on you (being a couple needs both).
+const quickCouple = (g: Save, a: string) => bondOf(g, a) >= PARTNER_BOND && crushOn(g, a) && canAsk(g, a, 'date');
+
 function personApp(g: Save, w: WorldDef) {
     const r = g.cast[P.who]; if (!r) return peopleApp(g);
-    const b = bondOf(g, r.avatar); const partner = isPartner(g, r.avatar);
+    const partner = isPartner(g, r.avatar);
     return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body">
         <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
         <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
         ${featureOn(w, 'plans') ? planForm(g, w, r.avatar) : ''}
-        ${partner ? '<p class="mu-ph-love">You are together.</p>' : b >= PARTNER_BOND && !romanceBlocked(g, P.who) && systemOn(w, 'romance') ? '<button data-act="ph-partner">Ask to be together</button>' : ''}
+        ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? '<button data-act="ph-partner">Ask to be together</button>' : ''}
         ${referBtn(g, w, r.avatar)}
         ${apprenticeBtn(g, w, r.avatar)}
         <p class="mu-muted">Now: ${esc(placeOf(g, w, whereNow(g, w, r))?.name ?? '')}${breakNow(g, w, r) && whereNow(g, w, r) === breakNow(g, w, r)!.place ? ` · <i>${esc(breakNow(g, w, r)!.why.replace(/^is /, ''))}</i>` : ''}</p>
@@ -412,7 +419,7 @@ function datingApp(g: Save, w: WorldDef) {
     const top = `<div class="mu-ph-head"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="home" aria-label="Back">${icon('back')}</button><b>${appName('dating')}</b>
         <span class="mu-row"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="matches" aria-label="${T('matches')}" title="${T('matches')}">${icon('chat')}</button><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="dprofile" aria-label="${T('yourProfile')}" title="${T('yourProfile')}">${icon('user')}</button></span></div>`;
     if (!r) return `${top}<p class="mu-muted mu-pad">${T('noCandidates')}</p>`;
-    const p = theirProfile(w, r);
+    const p = theirProfile(g, w, r);
     const shared = p.interests.filter(i => d.profile.interests.includes(i));
     return `${top}<div class="mu-sp-card"><img src="${esc(thumb(r.avatar))}" alt="">
             <div class="mu-sp-info"><h3 data-notr>${esc(r.name)}</h3><small>${esc(p.looking)}</small>
@@ -578,7 +585,7 @@ Object.assign(ACT, {
     },
     'ph-partner': () => {
         const g = game(); if (!g) return;
-        if (bondOf(g, P.who) < PARTNER_BOND || romanceBlocked(g, P.who)) return;
+        if (!quickCouple(g, P.who)) return;
         setStatus(g, P.who, YOU, 'dating');
         note(g, '{u} and {0} became a couple.', [g.cast[P.who]?.name ?? ''], [P.who], g.player.loc, 'love');
         feel(g, P.who, 'In love', 7);

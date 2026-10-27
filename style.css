@@ -3715,6 +3715,9 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-reldbg-list li { display: flex; align-items: center; gap: 8px; font-size: 12px; }
 #mundi-root .mu-reldbg-list li > span { flex: 1; }
 #mundi-root .mu-reldbg-list li.is-settled { opacity: .65; }
+/* Relationships: the label from both meters under a name ("In love", "Platonic"), and the groups in the phone's People app. */
+#mundi-root .mu-rel-label { font-style: normal; color: #ffb3d1; font-weight: 700; }
+#mundi-root .mu-ph-group { margin: 10px 12px 2px; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 /* ==========================================================================
    Phones, upright (#mundi-root[data-mobile], set in app.ts).
    The game HUD stacks in rows at the top, the dialogue box fills the bottom, and the panels become full-screen sheets.

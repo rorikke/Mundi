@@ -4,7 +4,9 @@
 // the engine apply the result. Each scene is judged when it ends (sim/verdict.ts).
 import { nowAbs, cfg, type Save } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { intimacyReady, intimacyLine, styleOf } from './intimacy.js';
+import { dating, lookingOf } from './feed.js';
 import { approvalOf, approve } from './living.js';
 import { note } from './facts.js';
 import { romanceBlocked, canTryForBaby } from './family.js';
@@ -12,14 +14,14 @@ import { getWorld, systemOn, type SystemId } from '../core/world.js';
 // Is a system on in this save's world (romance, children)?
 export const sysOn = (g: Save, id: SystemId) => systemOn(getWorld(g.world), id);
 
-export type RomStatus = 'none' | 'dating' | 'engaged' | 'married';
+export type RomStatus = 'none' | 'casual' | 'dating' | 'engaged' | 'married';
 export interface Rom { value: number; status: RomStatus; cooldown?: number }
 // Where someone stands with you romantically, read from the relationships store (sim/rel.ts). A copy: change the
 // status with setStatus(), romance with addRomance().
 export function romOf(g: Save, avatar: string): Rom {
     const p = pairOf(g, avatar, YOU);
     const st = p?.status;
-    return { value: romValue(g, avatar), status: st === 'dating' || st === 'engaged' || st === 'married' ? st : 'none', cooldown: p?.cooldown };
+    return { value: romValue(g, avatar), status: st ?? 'none', cooldown: p?.cooldown };
 }
 export const romValue = (g: Save, avatar: string) => Math.round(ro(g, avatar, YOU));
 // Romance toward you, up or down (asks, the night's verdict, breakups).
@@ -46,6 +48,7 @@ export const ROMANCE_TIERS: Tier[] = [
     { id: 'infatuated', name: 'Infatuated', lo: 70, hi: 101, color: '#d01f6f' },
 ];
 const STATUS_TIER: Record<Exclude<RomStatus, 'none'>, Tier> = {
+    casual: { id: 'casual', name: 'Fling', lo: 0, hi: 101, color: '#ef6c9a' },
     dating: { id: 'dating', name: 'Dating', lo: 0, hi: 101, color: '#e23b6e' },
     engaged: { id: 'engaged', name: 'Engaged', lo: 0, hi: 101, color: '#c2185b' },
     married: { id: 'married', name: 'Married', lo: 0, hi: 101, color: '#ad1457' },
@@ -53,8 +56,11 @@ const STATUS_TIER: Record<Exclude<RomStatus, 'none'>, Tier> = {
 export const friendTier = (v: number) => FRIEND_TIERS.find(t => v >= t.lo && v < t.hi) ?? FRIEND_TIERS[0];
 export function romanceTier(g: Save, avatar: string, value = romValue(g, avatar)): Tier {
     const s = romOf(g, avatar).status;
+    if (s === 'casual') return { ...STATUS_TIER.casual, name: casualName(g, avatar) };
     return s !== 'none' ? STATUS_TIER[s] : ROMANCE_TIERS.find(t => value >= t.lo && value < t.hi) ?? ROMANCE_TIERS[0];
 }
+// Something casual reads by friendship: a fling, or friends with benefits once they're friends.
+export const casualName = (g: Save, avatar: string) => (bondOf(g, avatar) >= 30 ? 'Friends with benefits' : 'Fling');
 // progress inside the tier (the bar fills up and starts again at each new tier, like The Sims); below 0 it fills as
 // the dislike deepens
 export const tierPct = (t: Tier, v: number) => Math.round(Math.max(0, Math.min(1, t.hi <= 0 ? (t.hi - v) / (t.hi - t.lo) : (v - t.lo) / (Math.min(t.hi, 100) - t.lo))) * 100);
@@ -92,9 +98,10 @@ export function shutOut(g: Save, avatar: string, romantic = false) {
 
 /* ---------- asking (the AI plays the scene, the engine reads the answer) ---------- */
 
-export type AskKind = 'date' | 'propose' | 'marry' | 'baby';
+export type AskKind = 'casual' | 'date' | 'propose' | 'marry' | 'baby';
 export const ASKS: Record<AskKind, { label: string; line: (n: string) => string; to: RomStatus | null; from: RomStatus[] }> = {
-    date: { label: 'Ask them out', line: n => `*asks ${n} to be a couple* "Will you be with me? As a couple, I mean."`, to: 'dating', from: ['none'] },
+    casual: { label: 'Keep it casual?', line: n => `*asks ${n} if they'd like to keep things casual between them, no strings attached*`, to: 'casual', from: ['none'] },
+    date: { label: 'Ask them out', line: n => `*asks ${n} to be a couple* "Will you be with me? As a couple, I mean."`, to: 'dating', from: ['none', 'casual'] },
     propose: { label: 'Propose', line: n => `*proposes to ${n}*`, to: 'engaged', from: ['dating'] },
     marry: { label: 'Get married', line: n => `*asks ${n} to set the date and get married*`, to: 'married', from: ['engaged'] },
     baby: { label: 'Try for a baby', line: n => `*asks ${n} if they want to try for a baby together*`, to: null, from: ['dating', 'engaged', 'married'] },
@@ -102,31 +109,52 @@ export const ASKS: Record<AskKind, { label: string; line: (n: string) => string;
 export const canAsk = (g: Save, avatar: string, k: AskKind) => sysOn(g, k === 'baby' ? 'family' : 'romance') && !romanceBlocked(g, avatar) && !shutOut(g, avatar, true) && ASKS[k].from.includes(romOf(g, avatar).status) && (k !== 'baby' || canTryForBaby(g, avatar));
 export const coolingDown = (g: Save, avatar: string) => (romOf(g, avatar).cooldown ?? 0) > nowAbs(g);
 
+// The engine's own "no", whatever the AI writes: something casual with someone who only gets intimate with a partner.
+export const forcedNo = (g: Save, avatar: string, k: AskKind) => k === 'casual' && intimacyReady(g, avatar, '').lean === 'never';
+// Seeing someone else matters to someone exclusive (a step less ready); an open person doesn't mind.
+const seeingOthers = (g: Save, avatar: string) => [...partnersOf(g), ...casualsOf(g)].some(a => a !== avatar);
+const LEAN = ['would most likely say no, or feel uncomfortable: it is too soon', 'is unsure: it could go either way, and asking may feel too soon', 'would probably say yes, maybe with some nerves', 'would very likely say yes'];
+
 // How ready they are: told to the AI so it does not simply say yes (models like to please).
 export function readiness(g: Save, avatar: string, name: string, k: AskKind): string {
+    if (k === 'casual') return casualReadiness(g, avatar, name);
     const f = bondOf(g, avatar), r = romValue(g, avatar), a = approvalOf(g, avatar);
     // with a crush, dislike isn't counted against them a second time (enemies to lovers)
     const b = f < 0 && r >= CRUSH ? 0 : f;
     const ft = coldWords(f) ? `${name} ${coldWords(f)} {{user}}` : friendTier(f).name.toLowerCase(), rt = romanceTier(g, avatar).name.toLowerCase();
     const st = romOf(g, avatar).status;
     const need = k === 'date' ? 45 : k === 'propose' ? 70 : k === 'marry' ? 80 : st === 'married' ? 60 : st === 'engaged' ? 75 : 85;
-    const score = r * 0.6 + b * 0.4 + a * 0.2;
-    const lean = score >= need + 15 ? 'would very likely say yes' : score >= need ? 'would probably say yes, maybe with some nerves' : score >= need - 15 ? 'is unsure: it could go either way, and asking may feel too soon'
-        : 'would most likely say no, or feel uncomfortable: it is too soon';
+    const score = r * 0.6 + b * 0.4 + a * 0.2 - (k === 'date' && seeingOthers(g, avatar) && styleOf(g, avatar) === 'exclusive' ? 15 : 0);
+    const lean = LEAN[score >= need + 15 ? 3 : score >= need ? 2 : score >= need - 15 ? 1 : 0];
     return `[{{user}} is asking ${name} ${k === 'date' ? 'to be a couple' : k === 'propose' ? 'to marry them' : k === 'marry' ? 'to get married now' : 'to try for a baby together'}. Where they stand: ${ft}, romance: ${rt}${a <= -15 ? `, and ${name} disapproves of how {{user}} behaves` : ''}. Realistically ${name} ${lean}. ` +
-        (k === 'date' && partnersOf(g).some(a => a !== avatar) ? (polyOn(g) ? `${name} knows {{user}} is already with someone; relationships are open here, so that is fine. ` : `${name} knows {{user}} is already with someone else, which matters to most people. `) : '') +
+        (k === 'date' && seeingOthers(g, avatar) ? othersWords(g, avatar, name) : '') +
+        `Let ${name}'s personality decide within that; do not make ${name} agree just to please. Write ${name}'s honest reaction, and make the answer clear (yes, no, or that they need time to think).]`;
+}
+const othersWords = (g: Save, avatar: string, name: string) => (styleOf(g, avatar) === 'open'
+    ? `${name} knows {{user}} is seeing someone else, and is fine with open relationships. `
+    : `${name} knows {{user}} is already seeing someone else, which matters to ${name}: they want to be the only one. `);
+// Something casual: decided by their intimacy needs (the least-met one), and whether they only do it with a partner.
+function casualReadiness(g: Save, avatar: string, name: string): string {
+    const ready = intimacyReady(g, avatar, name);
+    let i = ready.lean === 'yes' ? 3 : ready.lean === 'unsure' ? 1 : 0;
+    if (i > 0 && seeingOthers(g, avatar) && styleOf(g, avatar) === 'exclusive') i--;
+    const lean = ready.lean === 'never' ? `will say no: ${ready.why}` : `${LEAN[i]}${ready.lean === 'yes' ? '' : ` (${ready.why})`}`;
+    const app = dating(g).matches.includes(avatar) && lookingOf(g, avatar) === 'Something casual' ? ` ${name} is on the dating app looking for something casual too.` : '';
+    return `[{{user}} is asking ${name} to keep things casual between them: intimacy without being a couple. Where they stand: ${friendTier(bondOf(g, avatar)).name.toLowerCase()}, romance: ${romanceTier(g, avatar).name.toLowerCase()}.${app} Realistically ${name} ${lean}. ` +
+        (seeingOthers(g, avatar) ? othersWords(g, avatar, name) : '') +
         `Let ${name}'s personality decide within that; do not make ${name} agree just to please. Write ${name}'s honest reaction, and make the answer clear (yes, no, or that they need time to think).]`;
 }
 
 // Open relationships (World → Rules): no jealousy, several partners at once, and everyone knows it.
 export const polyOn = (g: Save) => !!cfg(g).poly;
 export const partnersOf = (g: Save) => partnersOfId(g, YOU);
-// A new romance while you are with someone else: unless relationships are open, each partner who learns of it is hurt.
+export const casualsOf = (g: Save) => casualsOfId(g, YOU);
+// A new romance (or something casual) while you are with someone: each partner whose own style is exclusive is hurt
+// when they learn of it. Casual partners are never hurt.
 function jealousy(g: Save, avatar: string, name: string): string[] {
-    if (polyOn(g)) return [];
     const out: string[] = [];
     for (const other of partnersOf(g)) {
-        if (other === avatar) continue;
+        if (other === avatar || styleOf(g, other) === 'open') continue;
         const who = g.cast[other]?.name ?? other;
         addRomance(g, other, -20); bump(g, other, -12); approve(g, other, -15);
         ((g as any).jealous ??= {})[other] = { of: avatar, day: g.day };
@@ -141,7 +169,12 @@ export function applyAnswer(g: Save, avatar: string, name: string, k: AskKind, a
     const cool = (until: number) => setCooldown(g, avatar, YOU, until);
     if (answer === 'yes') {
         if (k === 'baby') { cool(0); addRomance(g, avatar, 5); return ''; }   // the engine then decides (family.ts)
-        const hurt = k === 'date' ? jealousy(g, avatar, name) : [];
+        const hurt = k === 'date' || k === 'casual' ? jealousy(g, avatar, name) : [];
+        if (k === 'casual') {   // a milestone for romance; friendship stays where it is
+            setStatus(g, avatar, YOU, 'casual'); cool(0); addRomance(g, avatar, 5);
+            note(g, '{u} and {0} started something casual.', [name], [avatar], g.player.loc, 'love');
+            return [`You and ${name} are keeping it casual.`, ...hurt].join(' ');
+        }
         setStatus(g, avatar, YOU, ASKS[k].to as 'dating' | 'engaged' | 'married'); cool(0); addRomance(g, avatar, 15); bump(g, avatar, 5);
         note(g, k === 'date' ? '{u} and {0} started dating.' : k === 'propose' ? '{u} and {0} got engaged.' : '{u} and {0} got married.', [name], [avatar], g.player.loc, 'love');
         return [k === 'date' ? `You and ${name} are now dating!` : k === 'propose' ? `You and ${name} are engaged!` : `You and ${name} are married!`, ...hurt].join(' ');
@@ -150,10 +183,27 @@ export function applyAnswer(g: Save, avatar: string, name: string, k: AskKind, a
     if (answer === 'maybe') { cool(nowAbs(g) + day); note(g, '{0} asked {u} for some time to think about it.', [name], [avatar], g.player.loc, 'love'); return `${name} wants some time to think.`; }
     // a no: a little awkward, and asking again too soon makes it worse
     if (k === 'baby') { cool(nowAbs(g) + 3 * day); note(g, '{0} is not ready to have a baby with {u}.', [name], [avatar], g.player.loc, 'family'); return `${name} is not ready for a baby.`; }
+    if (k === 'casual') { cool(nowAbs(g) + 2 * day); addRomance(g, avatar, -4); bump(g, avatar, -2); note(g, '{0} turned down something casual with {u}.', [name], [avatar], g.player.loc, 'love'); return `${name} said no.`; }
     cool(nowAbs(g) + 3 * day); addRomance(g, avatar, -8); bump(g, avatar, -4);
     note(g, '{0} turned {u} down.', [name], [avatar], g.player.loc, 'love');
     return `${name} said no.`;
 }
+// Staying the night (yours or theirs): a sleepover between friends, decided by friendship (or being partners), or a
+// night together, decided by their intimacy needs. Staying doesn't move romance by itself; the scene verdict judges
+// what happened. With the romance system off, only friendship speaks.
+export function stayReadiness(g: Save, avatar: string, name: string, mine: boolean): string {
+    const f = bondOf(g, avatar), st = romOf(g, avatar).status, partner = st !== 'none';
+    const sleep = partner ? 3 : f >= 70 ? 3 : f >= 55 ? 1 : 0;
+    const sleepWords = partner ? `${name} and {{user}} are ${st === 'casual' ? 'seeing each other' : 'together'}` : f >= 70 ? `${name} is close enough to {{user}} for that` : f >= 55 ? `${name} might be, though they aren't that close yet` : `${name} isn't close enough to {{user}} for that`;
+    const love = sysOn(g, 'romance') && !romanceBlocked(g, avatar) && (partner || romValue(g, avatar) >= INTEREST);
+    const ready = love ? intimacyReady(g, avatar, name) : null;
+    const night = !ready ? 0 : ready.lean === 'yes' ? 3 : ready.lean === 'unsure' ? 1 : 0;
+    const nightWords = !ready ? '' : ready.lean === 'yes' ? `As a night together: ${ready.why}, so they may want more than sleeping. `
+        : ready.lean === 'never' ? `As a night together: no (${ready.why}); a sleepover at most. ` : `As a night together: not yet (${ready.why}). `;
+    return `[{{user}} asks ${name} ${mine ? "to stay the night at {{user}}'s place" : `if {{user}} can sleep at ${name}'s place tonight`}. As a sleepover between friends: ${sleepWords}. ${nightWords}` +
+        `Realistically ${name} ${LEAN[Math.max(sleep, night)]}. Staying the night doesn't have to mean more than sleeping. Let ${name}'s personality decide within that; do not make ${name} agree just to please. Write ${name}'s honest reaction, and make the answer clear (yes or no).]`;
+}
+
 // asking again while they still feel awkward
 export function pushTooSoon(g: Save, avatar: string, name: string) { bump(g, avatar, -6); approve(g, avatar, -5); return `${name} is not ready to talk about that again so soon (bond −6).`; }
 
@@ -162,6 +212,11 @@ export function pushTooSoon(g: Save, avatar: string, name: string) { bump(g, ava
 export function endRelationship(g: Save, avatar: string, name: string): string {
     const was = romOf(g, avatar).status;
     if (was === 'none') return '';
+    if (was === 'casual') {   // no strings attached: a smaller sting
+        setStatus(g, avatar, YOU, null); addRomance(g, avatar, -15); bump(g, avatar, -5); approve(g, avatar, -3);
+        note(g, '{u} and {0} stopped seeing each other.', [name], [avatar], g.player.loc, 'love');
+        return `You and ${name} stopped seeing each other.`;
+    }
     setStatus(g, avatar, YOU, null); addRomance(g, avatar, -45);
     bump(g, avatar, was === 'married' ? -30 : -20); approve(g, avatar, -10);
     note(g, was === 'married' ? '{u} and {0} got divorced.' : '{u} broke up with {0}.', [name], [avatar], g.player.loc, 'love');
@@ -187,10 +242,14 @@ export function romanceLine(g: Save, present: { avatar: string; name: string }[]
     });
     if (!parts.length) return '';
     const mine = partnersOf(g).map(a => g.cast[a]?.name ?? a);
-    const love = !sysOn(g, 'romance') || !mine.length ? '' : polyOn(g)
+    const exclusive = partnersOf(g).filter(a => styleOf(g, a) === 'exclusive').map(a => g.cast[a]?.name ?? a);
+    const flings = casualsOf(g).map(a => g.cast[a]?.name ?? a);
+    const love = !sysOn(g, 'romance') ? '' : (!mine.length ? '' : polyOn(g) && !exclusive.length
         ? ` In this world relationships are open: {{user}} is with ${mine.join(' and ')}, everyone knows and nobody is jealous of it.`
-        : mine.length > 1 ? ` {{user}} is seeing ${mine.join(' and ')} at the same time; each one expects to be the only one.` : '';
+        : mine.length > 1 ? ` {{user}} is seeing ${mine.join(' and ')} at the same time${exclusive.length ? `; ${exclusive.join(' and ')} ${exclusive.length > 1 ? 'each expect' : 'expects'} to be the only one` : ''}.` : '')
+        + (flings.length ? ` {{user}} has something casual with ${flings.join(' and ')} (no strings attached, not a couple).` : '');
     const jl = (g as any).jealous ?? {};
-    const hurt = polyOn(g) ? [] : present.filter(r => jl[r.avatar] && g.day - jl[r.avatar].day < 7).map(r => `${r.name} is still hurt that {{user}} is also with ${g.cast[jl[r.avatar].of]?.name ?? 'someone else'}`);
-    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${hurt.length ? ` ${hurt.join('; ')}.` : ''}`;
+    const hurt = present.filter(r => jl[r.avatar] && g.day - jl[r.avatar].day < 7).map(r => `${r.name} is still hurt that {{user}} is also with ${g.cast[jl[r.avatar].of]?.name ?? 'someone else'}`);
+    const needs = sysOn(g, 'romance') ? intimacyLine(g, present, a => romanceBlocked(g, a)) : '';
+    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}`;
 }

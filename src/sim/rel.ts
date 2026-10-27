@@ -9,6 +9,7 @@ import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
 import type { TieType, TieTone } from './living.js';
+import type { Intimacy, RelStyle } from './intimacy.js';
 
 export const YOU = '__you';
 export type Meter = 'f' | 'r';
@@ -18,7 +19,7 @@ export interface PairState { status?: Status; since?: number; cooldown?: number;
 export type Pace = PaceId;
 /** A person's own settings (more come with later features). `age` from the world's example cast; `minor` set in the
  *  People tab: minors are left out of every romance. */
-export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean }
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string }
 export interface RelStore {
     m: Record<string, { f?: number; r?: number }>;            // "x>y": x's friendship and romance toward y
     fat: Record<string, { f?: number; r?: number; at: number }>;   // "x>y": gains still weighing (pacing)
@@ -184,6 +185,17 @@ export function partnersOf(g: Save, id = YOU): string[] {
     return out;
 }
 export const isPartner = (g: Save, a: string, b = YOU) => PARTNER.includes(statusOf(g, a, b) as Status);
+// Everyone `id` has something casual with (not partners: no key, no moving in, no baby).
+export function casualsOf(g: Save, id = YOU): string[] {
+    id = idOf(g, id);
+    const out: string[] = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (p.status !== 'casual') continue;
+        const [a, b] = k.split('|');
+        if (a === id) out.push(b); else if (b === id) out.push(a);
+    }
+    return out;
+}
 // Couples between two people of the world (not you).
 export function couplePairs(g: Save): { a: string; b: string; status: Status; since: number }[] {
     const out: { a: string; b: string; status: Status; since: number }[] = [];

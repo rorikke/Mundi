@@ -3855,6 +3855,26 @@ const DICT = {
     "Infatuated": "Encaprichado(a)",
     "Soulmates": "Almas gemelas",
     "Love-hate": "Amor-odio",
-    "Platonic": "Platónico"
+    "Platonic": "Platónico",
+    "Keep it casual?": "¿Algo casual?",
+    "Stop seeing each other": "Dejar de verse",
+    "Fling": "Aventura",
+    "Friends with benefits": "Amigos con derechos",
+    "Casual": "Casual",
+    "Not together": "No están juntos",
+    "Before getting intimate, they need": "Antes de tener intimidad, necesita",
+    "Steady (default): a crush, and friends": "Constante (predeterminado): un flechazo, y ser amigos",
+    "Free spirit: a spark is enough": "Espíritu libre: basta una chispa",
+    "Passionate: a crush, no friendship needed": "Apasionado: un flechazo, sin necesidad de amistad",
+    "Slow to trust: a crush, and close friends": "Le cuesta confiar: un flechazo, y ser buenos amigos",
+    "Devoted: deeply in love, and best friends": "Devoto: profundamente enamorado, y mejores amigos",
+    "Only with a partner": "Solo con pareja",
+    "Nothing casual and no night together that's more than a sleepover until you're a couple, however they feel.": "Nada casual ni ninguna noche juntos más allá de dormir hasta que seáis pareja, sienta lo que sienta.",
+    "Exclusive: one partner": "Exclusivo: una sola pareja",
+    "Open: fine with more than one": "Abierto: acepta más de uno",
+    "You are staying at {0}'s tonight.": "Esta noche duermes en casa de {0}.",
+    "{0} said no.": "{0} dijo que no.",
+    "You and {0} are keeping it casual.": "Tú y {0} tenéis algo casual.",
+    "You and {0} stopped seeing each other.": "Tú y {0} dejasteis de veros."
 };
 export default DICT;

@@ -3844,6 +3844,26 @@ const DICT: Record<string, string> = {
  "Infatuated": "Encantado(a)",
  "Soulmates": "Almas gêmeas",
  "Love-hate": "Amor e ódio",
- "Platonic": "Platônico"
+ "Platonic": "Platônico",
+ "Keep it casual?": "Algo casual?",
+ "Stop seeing each other": "Parar de se ver",
+ "Fling": "Caso",
+ "Friends with benefits": "Amizade colorida",
+ "Casual": "Casual",
+ "Not together": "Não estão juntos",
+ "Before getting intimate, they need": "Antes de ter intimidade, precisa de",
+ "Steady (default): a crush, and friends": "Constante (padrão): uma paixonite, e serem amigos",
+ "Free spirit: a spark is enough": "Espírito livre: uma faísca basta",
+ "Passionate: a crush, no friendship needed": "Passional: uma paixonite, sem precisar de amizade",
+ "Slow to trust: a crush, and close friends": "Demora a confiar: uma paixonite, e serem bons amigos",
+ "Devoted: deeply in love, and best friends": "Devoto: muito apaixonado, e melhores amigos",
+ "Only with a partner": "Só com um par",
+ "Nothing casual and no night together that's more than a sleepover until you're a couple, however they feel.": "Nada casual e nenhuma noite juntos além de dormir até vocês serem um casal, não importa o que sinta.",
+ "Exclusive: one partner": "Exclusivo: um só par",
+ "Open: fine with more than one": "Aberto: aceita mais de um",
+ "You are staying at {0}'s tonight.": "Você vai dormir na casa de {0} hoje.",
+ "{0} said no.": "{0} disse não.",
+ "You and {0} are keeping it casual.": "Você e {0} estão tendo algo casual.",
+ "You and {0} stopped seeing each other.": "Você e {0} pararam de se ver."
 };
 export default DICT;
