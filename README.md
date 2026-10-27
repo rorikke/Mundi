@@ -6,6 +6,19 @@
 
 It is a SillyTavern **extension** (no server plugin). Everything is built on what SillyTavern already has: your character cards, personas, lorebooks and group chats. A save *is* a chat.
 
+## What this fork adds
+
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) focused on relationships. People in your world have feelings of their own, for you and for each other, and act on them.
+
+- **Feelings go both ways.** Everyone feels their own way about everyone else, and people can come to dislike or even hate you. A crush can still outweigh dislike, so enemies to lovers is possible.
+- **Friendship and romance are separate.** A best friend can stay just a friend; a stranger can flirt with you on the first night. Romance fades when you stop seeing each other, and partners can leave you. Something casual is possible too.
+- **Scenes count.** Each scene is judged when it ends: kindness, flirting, a fight or an insult all change how people feel, right away. Swiping or editing replies no longer stacks changes.
+- **Who people are.** Everyone can have a gender, an attraction (who they can fall for), a way of being about intimacy (from free spirit to devoted) and an exclusive or open relationship style. Your AI can suggest them from the character cards.
+- **People take the initiative.** They open up, confess their feelings, ask you out, text you, warn you before a breakup, hold grudges until you apologize, get jealous, and talk about you to their friends. How often is up to you.
+- **The world's people live their own love lives.** They make friends and rivals, fall for each other, date, marry and break up, from their own feelings.
+
+Your existing Mundi saves open as they are, upgraded once with a backup. More details, from a player's point of view: **[Relationships in this fork](docs/relationships.md)**.
+
 ## What you can do
 
 - **Live in a world.** A map of places, time that moves when you act, weather and seasons. Energy, hunger, thirst, mood and hygiene drop over time.
@@ -52,7 +65,7 @@ On a phone:
 ## Install
 
 1. In SillyTavern, open **Extensions → Install extension**.
-2. Paste `https://github.com/tjalis/Mundi` and install.
+2. Paste `https://github.com/tjalis/Mundi` and install (or `https://github.com/rorikke/Mundi` for this fork; if you already have Mundi installed, remove it first).
 3. Reload SillyTavern (Ctrl+F5). Open Mundi from the **Extensions menu** (the magic wand next to the chat box). The tour starts the first time you open it.
 
 Works with SillyTavern 1.19 or newer. Any chat-completion or text-completion API works; a context of about 30k tokens is a good size.
