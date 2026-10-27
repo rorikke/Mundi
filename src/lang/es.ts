@@ -3892,10 +3892,17 @@ const DICT: Record<string, string> = {
  "Their ways": "Su manera de ser",
  "Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.": "Desde donde empieza cada partida de este mundo (los ajustes Mundi de la propia tarjeta van primero). Sin definir: lo predeterminado.",
  "Who they are": "Quiénes son",
- "Each one's gender and, under \"More\", how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.": "El género de cada uno y, en \"Más\", lo rápido que crecen sus sentimientos y cómo vive la intimidad. Se toma de su tarjeta cuando tiene ajustes Mundi; las tarjetas no se cambian.",
+ "Each one's gender and, under \"More\", who they are attracted to, how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.": "El género de cada uno y, en \"Más\", quién le atrae, lo rápido que crecen sus sentimientos y cómo vive la intimidad. Se toma de su tarjeta cuando tiene ajustes Mundi; las tarjetas no se cambian.",
  "More": "Más",
  "Less": "Menos",
  "Gender and attraction": "Género y atracción",
- "The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.": "El género y los pronombres de las personas aquí (y los tuyos), y quién les atrae cuando no es cualquiera."
+ "The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.": "El género y los pronombres de las personas aquí (y los tuyos), y quién les atrae cuando no es cualquiera.",
+ "Attracted to": "Le atrae",
+ "Everyone (default)": "Todo el mundo (predeterminado)",
+ "Only: {0}": "Solo: {0}",
+ "No one": "Nadie",
+ "How fast feelings grow toward each gender (100% is normal, 0% never). Losses are never changed.": "Lo rápido que crecen los sentimientos hacia cada género (100% es lo normal, 0% nunca). Las pérdidas nunca cambian.",
+ "Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.": "La tuya solo ordena la app de citas: mientras juegas como alguien, sus propios sentimientos esperan. Vuelve a contar cuando dejas de jugar como esa persona.",
+ "Turn on \"Advanced\" for who you are attracted to.": "Activa \"Avanzado\" para elegir quién te atrae."
 };
 export default DICT;

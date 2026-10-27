@@ -9,7 +9,7 @@ import { nowAbs } from '../core/store.js';
 import { charOf, avatarUrl, createPersona, createCharacter, usePersona, persona, personaName, personas } from '../st/bridge.js';
 import { whereNow } from './people.js';
 import { ties, normalizeHomes } from './living.js';
-import { fr, ro, setFr, setRo, swapIds, relCfg } from './rel.js';
+import { fr, ro, setFr, setRo, swapIds, relCfg, attracted } from './rel.js';
 import { familyBlocked } from './family.js';
 import { note } from './facts.js';
 import { resident } from './game.js';
@@ -48,8 +48,8 @@ function feelingsOfLeft(g, left) {
         if (x === left)
             continue;
         setFr(g, left, x, fr(g, x, left));
-        if (!familyBlocked(g, left, x))
-            setRo(g, left, x, ro(g, x, left));
+        if (!familyBlocked(g, left, x) && attracted(g, left, x))
+            setRo(g, left, x, ro(g, x, left)); // never a romance they can't feel
     }
 }
 /* ---------- your original character, as a person of the world ---------- */

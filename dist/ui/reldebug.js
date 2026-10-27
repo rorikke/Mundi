@@ -1,12 +1,12 @@
 // The debug view of relationships (World → Rules → Relationships → "Show the numbers"): the raw values toward you,
-// how fast each one grows right now (the pacing weight and rate), the person's pace, and what each message changed,
+// how fast each one grows right now (the pacing weight and rate), the person's pace and attraction, and what each message changed,
 // with an undo button to correct a misreading. Shown on a person's card and in the People tab; never sent to the AI.
 // With the switch off nothing here is drawn.
 import { esc, game, notify, saveGame } from '../core/store.js';
 import { ACT } from './reg.js';
 import { icon } from './icons.js';
 import { hm } from '../sim/time.js';
-import { meter, fatigue, rateOf, paceOf, relCfg, YOU } from '../sim/rel.js';
+import { meter, fatigue, rateOf, paceOf, relCfg, attraction, YOU } from '../sim/rel.js';
 import { records, undoRecord } from '../sim/msglog.js';
 import { refreshPrompt } from '../sim/prompt.js';
 export const relDebugOn = (g) => !!(g && relCfg(g).debug);
@@ -16,7 +16,7 @@ const nm = (g, id) => (id === YOU ? 'You' : g.cast[id]?.name ?? id);
 export function relNumbersHtml(g, avatar) {
     if (!relDebugOn(g))
         return '';
-    const row = (m, label) => `<span><b>${label}</b> <span data-notr>${n2(meter(g, m, avatar, YOU))}</span> · weight <span data-notr>${n2(fatigue(g, m, avatar, YOU))}</span> · rate <span data-notr>${n2(rateOf(g, m, avatar, YOU))}</span> · pace ${paceOf(g, avatar, m) ?? 'world default'}</span>`;
+    const row = (m, label) => `<span><b>${label}</b> <span data-notr>${n2(meter(g, m, avatar, YOU))}</span> · weight <span data-notr>${n2(fatigue(g, m, avatar, YOU))}</span> · rate <span data-notr>${n2(rateOf(g, m, avatar, YOU))}</span> · pace ${paceOf(g, avatar, m) ?? 'world default'} · attraction <span data-notr>×${n2(attraction(g, avatar, YOU, m))}</span></span>`;
     return `<div class="mu-reldbg">${row('f', 'Friendship')}${row('r', 'Romance')}</div>`;
 }
 // What the messages changed for this person (open records first, then the settled ones kept for a day).

@@ -110,15 +110,28 @@ function addFatigue(g, m, x, y, delta) {
         st.fat[k] = next;
 }
 const NONE = { d: 0, fat: 0 };
+// How much of a gain x feels toward y: x's attraction for y's gender, per meter (0..1; 1 when y has no gender or x
+// set nothing for it). Starting values and losses never read it.
+export function attraction(g, x, y, m) {
+    const people = relOf(g).people, gy = people[idOf(g, y)]?.gender;
+    if (!gy)
+        return 1;
+    const v = people[idOf(g, x)]?.att?.[gy]?.[m];
+    return typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 1;
+}
+// x can fall for y at all (romance attraction above 0).
+export const attracted = (g, x, y) => attraction(g, x, y, 'r') > 0;
 // A gain. Paced gains (talk, reactions, texts, the verdict…) slow down with what was gained recently; milestones (an
-// accepted ask, a kept date, a story event) apply in full and add no fatigue. The person you play gains nothing:
-// their feelings wait for you to leave.
+// accepted ask, a kept date, a story event) apply in full and add no fatigue. Attraction scales it first (zero: it
+// never rises), then the Home difficulty. The person you play gains nothing: their feelings wait for you to leave.
 export function gain(g, m, x, y, raw, isPaced = true) {
     x = idOf(g, x);
     y = idOf(g, y);
     if (!x || !y || x === YOU || x === y || !(raw > 0))
         return NONE;
-    raw *= homeMult(g);
+    raw *= attraction(g, x, y, m) * homeMult(g);
+    if (!(raw > 0))
+        return NONE;
     const before = meter(g, m, x, y);
     const add = isPaced ? paced(raw, fatigue(g, m, x, y), curveOf(g, x, m)) : raw;
     setMeter(g, m, x, y, before + add);

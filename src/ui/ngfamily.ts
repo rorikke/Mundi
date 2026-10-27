@@ -102,15 +102,15 @@ function whoTheyAreHtml(): string {
     const z = wz(); const people: string[] = [...new Set([...(z.cast as string[]), ...familyOf().map(f => f.avatar)])];
     if (!people.length) return '';
     return `<section class="mu-panel mu-ngwho"><h3>Who they are</h3>
-        <p class="mu-muted">Each one's gender and, under "More", how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.</p>
+        <p class="mu-muted">Each one's gender and, under "More", who they are attracted to, how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.</p>
         ${people.map(a => `<div class="mu-ngwho-row">${face(a)}<b data-notr>${esc(nm(a))}</b>${personPanel('ng', a, ['gender'])}
             <button class="mu-ghost" data-act="ngw-more" data-who="${esc(a)}">${icon(z.whoOpen === a ? 'x' : 'edit')}<span>${z.whoOpen === a ? 'Less' : 'More'}</span></button></div>
-            ${z.whoOpen === a ? `<div class="mu-ngwho-more">${personPanel('ng', a, ['pace', 'ways'])}</div>` : ''}`).join('')}
+            ${z.whoOpen === a ? `<div class="mu-ngwho-more">${personPanel('ng', a, ['attraction', 'pace', 'ways'])}</div>` : ''}`).join('')}
     </section>`;
 }
-// Your own gender (on the "Your character" step).
+// Your own gender and attraction (on the "Your character" step).
 export function youWaysHtml(): string {
-    return `<section class="mu-panel mu-ngwho is-you"><h3>About you</h3>${personPanel('ng', '__you', ['gender'])}</section>`;
+    return `<section class="mu-panel mu-ngwho is-you"><h3>About you</h3>${personPanel('ng', '__you', ['gender', 'attraction'], { you: true })}</section>`;
 }
 
 /* ---------- jobs: what each of your characters does for a living ---------- */

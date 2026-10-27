@@ -11,7 +11,7 @@ import { quiet, personaName } from '../st/bridge.js';
 import { note } from './facts.js';
 import { playerHomeId } from './places.js';
 import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
-import { partnersOf, setStatus, fr, ro, gain, lose } from './rel.js';
+import { partnersOf, setStatus, fr, ro, gain, lose, attracted } from './rel.js';
 import { shutOut, CRUSH } from './romance.js';
 import { familyBlocked } from './family.js';
 import { tiesOf } from './living.js';
@@ -107,9 +107,9 @@ const DILEMMAS = [
     { id: 'crush', yes: 'Go for it', no: 'Wait a little',
         setup: (g, w, r) => { if (!systemOn(w, 'romance') || !systemOn(w, 'relations'))
             return null; const taken = (a) => partnersOf(g, a).length > 0; if (taken(r.avatar))
-            return null; const list = others(g, r).filter(x => !taken(x.avatar) && ro(g, r.avatar, x.avatar) >= CRUSH && !familyBlocked(g, r.avatar, x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
+            return null; const list = others(g, r).filter(x => !taken(x.avatar) && ro(g, r.avatar, x.avatar) >= CRUSH && attracted(g, r.avatar, x.avatar) && !familyBlocked(g, r.avatar, x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I really like ${g.cast[x]?.name ?? 'someone'}. Should I ask them out?`,
-        apply: (g, _w, r, x) => { if (!g.cast[x] || partnersOf(g, x).length)
+        apply: (g, _w, r, x) => { if (!g.cast[x] || partnersOf(g, x).length || !attracted(g, x, r.avatar))
             return; if (dayRnd(g, `crushyes|${r.avatar}`) < 0.1 + 0.85 * Math.min(1, ro(g, x, r.avatar) / 50)) {
             setStatus(g, r.avatar, x, 'dating');
             note(g, '{0} and {1} started dating.', [r.name, g.cast[x].name], [r.avatar, x], g.player.loc, 'life');

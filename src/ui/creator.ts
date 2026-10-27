@@ -634,7 +634,7 @@ function peopleEditor(w: WorldDef) {
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ties.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
                 ${w.cast.examples.length > 1 ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-path="${p}.ties" data-i="${i}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
-                ${personPanel('cw', String(i), ['pace', 'ways'])}
+                ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${i}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
         }, 'person', 'Nobody lives here yet.')}

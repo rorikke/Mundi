@@ -4,7 +4,8 @@
 // the engine apply the result. Each scene is judged when it ends (sim/verdict.ts).
 import { nowAbs, cfg, type Save } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, setStatus, setCooldown, attracted, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { notAttractedWords } from './gender.js';
 import { intimacyReady, intimacyLine, styleOf } from './intimacy.js';
 import { dating, lookingOf } from './feed.js';
 import { approvalOf, approve } from './living.js';
@@ -109,8 +110,9 @@ export const ASKS: Record<AskKind, { label: string; line: (n: string) => string;
 export const canAsk = (g: Save, avatar: string, k: AskKind) => sysOn(g, k === 'baby' ? 'family' : 'romance') && !romanceBlocked(g, avatar) && !shutOut(g, avatar, true) && ASKS[k].from.includes(romOf(g, avatar).status) && (k !== 'baby' || canTryForBaby(g, avatar));
 export const coolingDown = (g: Save, avatar: string) => (romOf(g, avatar).cooldown ?? 0) > nowAbs(g);
 
-// The engine's own "no", whatever the AI writes: something casual with someone who only gets intimate with a partner.
-export const forcedNo = (g: Save, avatar: string, k: AskKind) => k === 'casual' && intimacyReady(g, avatar, '').lean === 'never';
+// The engine's own "no", whatever the AI writes: something casual with someone who only gets intimate with a partner,
+// and being a couple or something casual with someone not attracted to your gender (G-6).
+export const forcedNo = (g: Save, avatar: string, k: AskKind) => (k === 'casual' && intimacyReady(g, avatar, '').lean === 'never') || (k === 'date' && !attracted(g, avatar, YOU));
 // Seeing someone else matters to someone exclusive (a step less ready); an open person doesn't mind.
 const seeingOthers = (g: Save, avatar: string) => [...partnersOf(g), ...casualsOf(g)].some(a => a !== avatar);
 const LEAN = ['would most likely say no, or feel uncomfortable: it is too soon', 'is unsure: it could go either way, and asking may feel too soon', 'would probably say yes, maybe with some nerves', 'would very likely say yes'];
@@ -125,7 +127,7 @@ export function readiness(g: Save, avatar: string, name: string, k: AskKind): st
     const st = romOf(g, avatar).status;
     const need = k === 'date' ? 45 : k === 'propose' ? 70 : k === 'marry' ? 80 : st === 'married' ? 60 : st === 'engaged' ? 75 : 85;
     const score = r * 0.6 + b * 0.4 + a * 0.2 - (k === 'date' && seeingOthers(g, avatar) && styleOf(g, avatar) === 'exclusive' ? 15 : 0);
-    const lean = LEAN[score >= need + 15 ? 3 : score >= need ? 2 : score >= need - 15 ? 1 : 0];
+    const lean = k === 'date' && !attracted(g, avatar, YOU) ? `will say no: ${notAttractedWords(g, name)}` : LEAN[score >= need + 15 ? 3 : score >= need ? 2 : score >= need - 15 ? 1 : 0];
     return `[{{user}} is asking ${name} ${k === 'date' ? 'to be a couple' : k === 'propose' ? 'to marry them' : k === 'marry' ? 'to get married now' : 'to try for a baby together'}. Where they stand: ${ft}, romance: ${rt}${a <= -15 ? `, and ${name} disapproves of how {{user}} behaves` : ''}. Realistically ${name} ${lean}. ` +
         (k === 'date' && seeingOthers(g, avatar) ? othersWords(g, avatar, name) : '') +
         `Let ${name}'s personality decide within that; do not make ${name} agree just to please. Write ${name}'s honest reaction, and make the answer clear (yes, no, or that they need time to think).]`;

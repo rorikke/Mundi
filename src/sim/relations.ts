@@ -8,7 +8,7 @@ import type { Save, Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
-import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, couplePairs, directedAbove, PARTNER, YOU, type Status } from './rel.js';
+import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, couplePairs, directedAbove, attracted, PARTNER, YOU, type Status } from './rel.js';
 import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked } from './family.js';
 import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
@@ -134,11 +134,12 @@ function couplesFeel(g: Save) {
     }
 }
 const isPerson = (g: Save, a: string) => a !== YOU && !!g.cast[a];
-// Two single people with a crush on each other may get together (a small chance each day).
+// Two single people with a crush on each other may get together (a small chance each day); never against either
+// one's attraction (a crush set by hand, or from before, doesn't pair them).
 function couplesForm(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     for (const { x, y } of directedAbove(g, 'r', CRUSH)) {
-        if (x > y || !isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) < CRUSH) continue;
+        if (x > y || !isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) < CRUSH || !attracted(g, x, y) || !attracted(g, y, x)) continue;
         if (!single(g, x) || !single(g, y) || familyBlocked(g, x, y) || rnd(g, `pair|${x}|${y}`) >= 0.05) continue;
         setStatus(g, x, y, 'dating');
         const X = g.cast[x], Y = g.cast[y];
@@ -155,7 +156,7 @@ function crushNews(g: Save): string[] {
     const out: string[] = [];
     for (const { x, y } of directedAbove(g, 'r', CRUSH)) {
         const k = `${x}>${y}`;
-        if (!isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) >= ROMANCE_TIERS[1].lo || PARTNER.includes(statusOf(g, x, y) as Status) || told(g).includes(k)) continue;
+        if (!isPerson(g, x) || !isPerson(g, y) || !attracted(g, x, y) || ro(g, y, x) >= ROMANCE_TIERS[1].lo || PARTNER.includes(statusOf(g, x, y) as Status) || told(g).includes(k)) continue;
         told(g).push(k);
         const X = g.cast[x], Y = g.cast[y];
         note(g, '{0} has a crush on {1}.', [X.name, Y.name], [x], `home:${x}`, 'love');

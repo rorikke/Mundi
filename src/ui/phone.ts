@@ -41,7 +41,7 @@ import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/br
 import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
-import { setStatus, casualsOf, YOU } from '../sim/rel.js';
+import { setStatus, casualsOf, attracted, YOU } from '../sim/rel.js';
 import { crushOn, canAsk } from '../sim/romance.js';
 
 type App = 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'settings' | 'profile';
@@ -235,7 +235,7 @@ function peopleApp(g: Save) {
 }
 
 // A sure yes by phone: very close friends who also have a crush on you (being a couple needs both).
-const quickCouple = (g: Save, a: string) => bondOf(g, a) >= PARTNER_BOND && crushOn(g, a) && canAsk(g, a, 'date');
+const quickCouple = (g: Save, a: string) => bondOf(g, a) >= PARTNER_BOND && crushOn(g, a) && canAsk(g, a, 'date') && attracted(g, a, YOU);   // a sure yes: never against attraction
 
 function personApp(g: Save, w: WorldDef) {
     const r = g.cast[P.who]; if (!r) return peopleApp(g);

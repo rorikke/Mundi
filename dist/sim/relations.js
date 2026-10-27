@@ -1,7 +1,7 @@
 import { systemOn } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
-import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, couplePairs, directedAbove, PARTNER, YOU } from './rel.js';
+import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, couplePairs, directedAbove, attracted, PARTNER, YOU } from './rel.js';
 import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked } from './family.js';
 import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
@@ -148,11 +148,12 @@ function couplesFeel(g) {
         }
 }
 const isPerson = (g, a) => a !== YOU && !!g.cast[a];
-// Two single people with a crush on each other may get together (a small chance each day).
+// Two single people with a crush on each other may get together (a small chance each day); never against either
+// one's attraction (a crush set by hand, or from before, doesn't pair them).
 function couplesForm(g, w) {
     const out = [];
     for (const { x, y } of directedAbove(g, 'r', CRUSH)) {
-        if (x > y || !isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) < CRUSH)
+        if (x > y || !isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) < CRUSH || !attracted(g, x, y) || !attracted(g, y, x))
             continue;
         if (!single(g, x) || !single(g, y) || familyBlocked(g, x, y) || rnd(g, `pair|${x}|${y}`) >= 0.05)
             continue;
@@ -173,7 +174,7 @@ function crushNews(g) {
     const out = [];
     for (const { x, y } of directedAbove(g, 'r', CRUSH)) {
         const k = `${x}>${y}`;
-        if (!isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) >= ROMANCE_TIERS[1].lo || PARTNER.includes(statusOf(g, x, y)) || told(g).includes(k))
+        if (!isPerson(g, x) || !isPerson(g, y) || !attracted(g, x, y) || ro(g, y, x) >= ROMANCE_TIERS[1].lo || PARTNER.includes(statusOf(g, x, y)) || told(g).includes(k))
             continue;
         told(g).push(k);
         const X = g.cast[x], Y = g.cast[y];

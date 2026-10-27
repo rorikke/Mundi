@@ -5,7 +5,8 @@
 // (`rel.people`); the engine turns them into readiness hints and words for the AI, and forces a "no" only where the
 // switch says so.
 import { cfg } from '../core/store.js';
-import { relOf, idOf, ro, isPartner, YOU } from './rel.js';
+import { relOf, idOf, ro, isPartner, attracted, YOU } from './rel.js';
+import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
 export const PRESETS = {
     free: { name: 'Free spirit', r: 'interest', f: 'none' },
@@ -30,6 +31,8 @@ export function needsOf(g, a) {
 export const styleOf = (g, a) => personOf(g, a)?.style ?? (cfg(g).poly ? 'open' : 'exclusive');
 export const ownStyle = (g, a) => personOf(g, a)?.style;
 export function intimacyReady(g, a, name) {
+    if (!attracted(g, a, YOU))
+        return { lean: 'never', why: notAttractedWords(g, name) };
     const n = needsOf(g, a);
     if (n.partnerOnly && !isPartner(g, a))
         return { lean: 'never', why: `${name} only gets intimate with a partner, and {{user}} isn't one` };

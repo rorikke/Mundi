@@ -1,11 +1,13 @@
-// Genders (requirements G-1, G-2, G-9): each world has its list (the style's when it has none), each person may have
-// one (`rel.people[id].gender`; unset is fine). Also where a person's own settings come from at a new game (their
+// Genders and attraction (requirements G-1…G-9): each world has its list (the style's when it has none), each person
+// may have one (`rel.people[id].gender`; unset is fine) and, per gender, how much of the normal rate their friendship
+// and romance grow (`att`; the multiplier itself is `attraction()` in rel.ts, applied to every gain). Also where a person's own settings come from at a new game (their
 // card's Mundi data, a cast preset, the world's example cast), cleaned of anything a hand-edited file might hold, and
 // the AI's line about the gender and pronouns of the people in the scene.
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, GenderDef, ExampleCharacter } from '../core/world.js';
+import { getWorld, systemOn, type WorldDef, type GenderDef, type ExampleCharacter } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
-import { relOf, idOf, YOU, type Person } from './rel.js';
+import { relOf, idOf, YOU, type Person, type Attraction } from './rel.js';
+import { isMinor } from './family.js';
 
 export const gendersOf = (w: WorldDef | null | undefined): GenderDef[] => w?.genders ?? DEFAULT_GENDERS;
 export const genderDef = (w: WorldDef | null | undefined, id: string | undefined) => (id ? gendersOf(w).find(x => x.id === id) : undefined);
@@ -54,12 +56,46 @@ export function applyPerson(g: Save, a: string, p: Person | undefined) {
 
 /* ---------- for the AI ---------- */
 
-// The gender (and pronouns) of everyone in the scene who has one, you included.
+const list = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+// Someone's attraction in plain words, when it isn't the usual ("Saya is attracted to men; only rarely to women",
+// "Kaho is not attracted to women"); and friendships that come slowly or never with a gender. No numbers.
+export function attractionWords(name: string, att: Attraction | undefined, gs: GenderDef[], romance = true): string {
+    if (!att || !gs.length) return '';
+    const v = (d: GenderDef, m: 'f' | 'r') => att[d.id]?.[m] ?? 1;
+    const out: string[] = [];
+    if (romance && gs.some(d => v(d, 'r') < 1)) {
+        const band = (lo: number, hi: number) => gs.filter(d => v(d, 'r') > lo && v(d, 'r') <= hi).map(pluralOf);
+        const full = gs.filter(d => v(d, 'r') >= 1).map(pluralOf), some = band(0.5, 0.99999), rare = band(0, 0.5), none = gs.filter(d => v(d, 'r') <= 0).map(pluralOf);
+        if (!full.length && !some.length && !rare.length) out.push(`${name} is not attracted to anyone`);
+        else if (!some.length && !rare.length) out.push(`${name} is not attracted to ${list(none)}`);
+        else {
+            const segs: string[] = [];
+            const seg = (xs: string[], first: string, later: string) => { if (xs.length) segs.push(`${segs.length ? later : first} ${list(xs)}`); };
+            seg(full, 'attracted to', 'attracted to'); seg(some, 'only sometimes attracted to', 'only sometimes to');
+            seg(rare, 'only rarely attracted to', 'only rarely to'); seg(none, 'not attracted to', 'not to');
+            out.push(`${name} is ${segs.join('; ')}`);
+        }
+    }
+    const slow = gs.filter(d => v(d, 'f') > 0 && v(d, 'f') < 1).map(pluralOf), never = gs.filter(d => v(d, 'f') <= 0).map(pluralOf);
+    if (slow.length) out.push(`${name} is slow to make friends with ${list(slow)}`);
+    if (never.length) out.push(`${name} never warms to ${list(never)} as friends`);
+    return out.join('. ');
+}
+// The gender (and pronouns) of everyone in the scene who has one, you included, and the attraction of the people here
+// when it isn't the usual (never for minors).
 export function genderLine(g: Save, w: WorldDef, present: Resident[]): string {
     const say = (name: string, id: string | undefined) => {
         const d = genderDef(w, id); if (!d) return '';
         return `${name}: ${d.name.toLowerCase()}${d.pronouns?.trim() ? ` (${d.pronouns.trim()})` : ''}`;
     };
-    const parts = [say('{{user}}', genderOf(g, YOU)), ...present.filter(r => idOf(g, r.avatar) !== YOU).map(r => say(r.name, genderOf(g, r.avatar)))].filter(Boolean);
-    return parts.length ? `Gender: ${parts.join('; ')}.` : '';
+    const here = present.filter(r => idOf(g, r.avatar) !== YOU);
+    const parts = [say('{{user}}', genderOf(g, YOU)), ...here.map(r => say(r.name, genderOf(g, r.avatar)))].filter(Boolean);
+    const gs = gendersOf(w), romance = systemOn(w, 'romance');
+    const att = here.filter(r => !isMinor(g, r.avatar)).map(r => attractionWords(r.name, relOf(g).people[idOf(g, r.avatar)]?.att, gs, romance)).filter(Boolean);
+    return [parts.length ? `Gender: ${parts.join('; ')}.` : '', att.length ? `${att.join('. ')}.` : ''].filter(Boolean).join(' ');
+}
+// For a "no" that attraction decides: "isn't attracted to men (like {{user}})".
+export function notAttractedWords(g: Save, name: string): string {
+    const d = genderDef(getWorld(g.world), genderOf(g, YOU));
+    return d ? `${name} isn't attracted to ${pluralOf(d)} (like {{user}})` : `${name} isn't attracted to {{user}}`;
 }

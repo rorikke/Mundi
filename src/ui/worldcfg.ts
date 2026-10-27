@@ -67,7 +67,7 @@ function personForm(g: Save, w: WorldDef): string {
                 <small class="mu-muted">None chosen: any leisure place.</small></div>
             <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="-100" max="100" value="${bond}" data-input="wc-bond"></label>
             ${systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) ? `<label class="mu-field"><span>With you</span><select data-input="wc-status">${[['none', 'Not together'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, romOf(g, r.avatar).status === v)).join('')}</select></label>` : ''}
-            ${personPanel('save', r.avatar, ['pace', 'ways'])}
+            ${personPanel('save', r.avatar, ['attraction', 'pace', 'ways'])}
             ${minorHtml(g, r.avatar)}
             ${pairHtml(g, w, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
@@ -75,10 +75,11 @@ function personForm(g: Save, w: WorldDef): string {
         ${relNumbersHtml(g, r.avatar)}${relChangesHtml(g, r.avatar)}`;
 }
 
-// You: your own gender (the others' attraction reads it).
+// You: your own gender (the others' attraction reads it) and, under Advanced, your attraction (it sorts the dating app).
 function youForm(g: Save, w: WorldDef): string {
     return `<header class="mu-wc-head"><img src="${esc(personaThumb())}" alt=""><div><h3 data-notr>${esc(personaName())}</h3><small>You · ${esc(homeAddress(w, g.player.home))}</small></div></header>
-        ${personPanel('save', YOU, ['gender'])}`;
+        ${personPanel('save', YOU, ['gender'])}
+        ${WC.adv ? personPanel('save', YOU, ['attraction'], { you: true }) : '<p class="mu-muted">Turn on "Advanced" for who you are attracted to.</p>'}`;
 }
 // The People tab edits the save's own entries (the store's ids: the person you play is '__you').
 SCOPES.save = {

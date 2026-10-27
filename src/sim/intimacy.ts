@@ -5,7 +5,8 @@
 // (`rel.people`); the engine turns them into readiness hints and words for the AI, and forces a "no" only where the
 // switch says so.
 import { cfg, type Save } from '../core/store.js';
-import { relOf, idOf, ro, isPartner, YOU } from './rel.js';
+import { relOf, idOf, ro, isPartner, attracted, YOU } from './rel.js';
+import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
 
 export type IntimacyPreset = 'free' | 'passionate' | 'steady' | 'slow' | 'devoted' | 'custom';
@@ -38,10 +39,11 @@ export function needsOf(g: Save, a: string): { preset: IntimacyPreset; r: RNeed;
 export const styleOf = (g: Save, a: string): RelStyle => personOf(g, a)?.style ?? (cfg(g).poly ? 'open' : 'exclusive');
 export const ownStyle = (g: Save, a: string): RelStyle | undefined => personOf(g, a)?.style;
 
-/** How ready someone is for intimacy with you (a casual relationship, a night together): `never` only for "only with a
- *  partner" when you aren't one (the engine then says no, whatever the AI writes). `why`: what's missing, in words. */
+/** How ready someone is for intimacy with you (a casual relationship, a night together): `never` for "only with a
+ *  partner" when you aren't one, and for no attraction to your gender (the engine then says no, whatever the AI writes). `why`: what's missing, in words. */
 export interface IntimacyReady { lean: 'yes' | 'unsure' | 'no' | 'never'; why: string }
 export function intimacyReady(g: Save, a: string, name: string): IntimacyReady {
+    if (!attracted(g, a, YOU)) return { lean: 'never', why: notAttractedWords(g, name) };
     const n = needsOf(g, a);
     if (n.partnerOnly && !isPartner(g, a)) return { lean: 'never', why: `${name} only gets intimate with a partner, and {{user}} isn't one` };
     const r = ro(g, a, YOU), f = bondOf(g, a), fNeed = F_AT[n.f];

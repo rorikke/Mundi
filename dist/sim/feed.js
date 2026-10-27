@@ -1,7 +1,7 @@
 // The social network (short posts, like Twitter/X) and the dating app. Posts are written by the AI in one batch
 // call; who posts and whether posts get a picture are options in the game settings.
 import { romanceBlocked } from './family.js';
-import { relOf, idOf } from './rel.js';
+import { relOf, idOf, attraction, YOU } from './rel.js';
 import { needsOf } from './intimacy.js';
 import { nowAbs, settings, saveSettings } from '../core/store.js';
 import { appsOf, socialKind, aiVoice, systemOn } from '../core/world.js';
@@ -161,11 +161,15 @@ export function theirProfile(g, w, r) {
         onApp: h % 10 < 8,
     };
 }
+// Who the app shows: never someone not attracted to your gender, nor someone of a gender you aren't attracted to; the
+// ones of the genders you're most attracted to first.
 export function candidates(g, w) {
     const d = dating(g);
     // a random order, the same until the app is opened again (so the card on screen does not jump)
     const seed = String(d.seed ??= Math.random().toString(36).slice(2));
-    return residents(g).sort((a, b) => hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`)).filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp);
+    const mine = (r) => attraction(g, YOU, r.avatar, 'r');
+    return residents(g).sort((a, b) => mine(b) - mine(a) || hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`))
+        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && mine(r) > 0);
 }
 // A like matches when you have enough in common (what you both look for, shared interests) and a bit of luck.
 export function swipe(g, w, avatar, like) {
@@ -179,6 +183,7 @@ export function swipe(g, w, avatar, like) {
     if (d.profile.looking.includes(p.looking))
         chance += 30;
     chance += 15 * p.interests.filter(i => d.profile.interests.includes(i)).length;
+    chance *= attraction(g, avatar, YOU, 'r'); // less attracted to your gender: fewer matches
     const match = hash(`${avatar}|${g.day}|${d.profile.bio.length}`) % 100 < chance;
     if (match) {
         d.matches.push(avatar);

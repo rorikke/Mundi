@@ -1,5 +1,7 @@
+import { getWorld, systemOn } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
 import { relOf, idOf, YOU } from './rel.js';
+import { isMinor } from './family.js';
 export const gendersOf = (w) => w?.genders ?? DEFAULT_GENDERS;
 export const genderDef = (w, id) => (id ? gendersOf(w).find(x => x.id === id) : undefined);
 export const genderOf = (g, a) => relOf(g).people[idOf(g, a)]?.gender;
@@ -58,7 +60,41 @@ export function applyPerson(g, a, p) {
     people[id] = { ...(people[id] ?? {}), ...structuredClone(p) };
 }
 /* ---------- for the AI ---------- */
-// The gender (and pronouns) of everyone in the scene who has one, you included.
+const list = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+// Someone's attraction in plain words, when it isn't the usual ("Saya is attracted to men; only rarely to women",
+// "Kaho is not attracted to women"); and friendships that come slowly or never with a gender. No numbers.
+export function attractionWords(name, att, gs, romance = true) {
+    if (!att || !gs.length)
+        return '';
+    const v = (d, m) => att[d.id]?.[m] ?? 1;
+    const out = [];
+    if (romance && gs.some(d => v(d, 'r') < 1)) {
+        const band = (lo, hi) => gs.filter(d => v(d, 'r') > lo && v(d, 'r') <= hi).map(pluralOf);
+        const full = gs.filter(d => v(d, 'r') >= 1).map(pluralOf), some = band(0.5, 0.99999), rare = band(0, 0.5), none = gs.filter(d => v(d, 'r') <= 0).map(pluralOf);
+        if (!full.length && !some.length && !rare.length)
+            out.push(`${name} is not attracted to anyone`);
+        else if (!some.length && !rare.length)
+            out.push(`${name} is not attracted to ${list(none)}`);
+        else {
+            const segs = [];
+            const seg = (xs, first, later) => { if (xs.length)
+                segs.push(`${segs.length ? later : first} ${list(xs)}`); };
+            seg(full, 'attracted to', 'attracted to');
+            seg(some, 'only sometimes attracted to', 'only sometimes to');
+            seg(rare, 'only rarely attracted to', 'only rarely to');
+            seg(none, 'not attracted to', 'not to');
+            out.push(`${name} is ${segs.join('; ')}`);
+        }
+    }
+    const slow = gs.filter(d => v(d, 'f') > 0 && v(d, 'f') < 1).map(pluralOf), never = gs.filter(d => v(d, 'f') <= 0).map(pluralOf);
+    if (slow.length)
+        out.push(`${name} is slow to make friends with ${list(slow)}`);
+    if (never.length)
+        out.push(`${name} never warms to ${list(never)} as friends`);
+    return out.join('. ');
+}
+// The gender (and pronouns) of everyone in the scene who has one, you included, and the attraction of the people here
+// when it isn't the usual (never for minors).
 export function genderLine(g, w, present) {
     const say = (name, id) => {
         const d = genderDef(w, id);
@@ -66,6 +102,14 @@ export function genderLine(g, w, present) {
             return '';
         return `${name}: ${d.name.toLowerCase()}${d.pronouns?.trim() ? ` (${d.pronouns.trim()})` : ''}`;
     };
-    const parts = [say('{{user}}', genderOf(g, YOU)), ...present.filter(r => idOf(g, r.avatar) !== YOU).map(r => say(r.name, genderOf(g, r.avatar)))].filter(Boolean);
-    return parts.length ? `Gender: ${parts.join('; ')}.` : '';
+    const here = present.filter(r => idOf(g, r.avatar) !== YOU);
+    const parts = [say('{{user}}', genderOf(g, YOU)), ...here.map(r => say(r.name, genderOf(g, r.avatar)))].filter(Boolean);
+    const gs = gendersOf(w), romance = systemOn(w, 'romance');
+    const att = here.filter(r => !isMinor(g, r.avatar)).map(r => attractionWords(r.name, relOf(g).people[idOf(g, r.avatar)]?.att, gs, romance)).filter(Boolean);
+    return [parts.length ? `Gender: ${parts.join('; ')}.` : '', att.length ? `${att.join('. ')}.` : ''].filter(Boolean).join(' ');
+}
+// For a "no" that attraction decides: "isn't attracted to men (like {{user}})".
+export function notAttractedWords(g, name) {
+    const d = genderDef(getWorld(g.world), genderOf(g, YOU));
+    return d ? `${name} isn't attracted to ${pluralOf(d)} (like {{user}})` : `${name} isn't attracted to {{user}}`;
 }

@@ -3881,10 +3881,17 @@ const DICT = {
     "Their ways": "O jeito de ser",
     "Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.": "De onde cada jogo deste mundo parte (as configurações Mundi do próprio card vêm primeiro). Sem definir: o padrão.",
     "Who they are": "Quem são",
-    "Each one's gender and, under \"More\", how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.": "O gênero de cada um e, em \"Mais\", a rapidez com que os sentimentos crescem e como lida com a intimidade. Vem do card quando ele tem configurações Mundi; os cards não são alterados.",
+    "Each one's gender and, under \"More\", who they are attracted to, how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.": "O gênero de cada um e, em \"Mais\", por quem sente atração, a rapidez com que os sentimentos crescem e como lida com a intimidade. Vem do card quando ele tem configurações Mundi; os cards não são alterados.",
     "More": "Mais",
     "Less": "Menos",
     "Gender and attraction": "Gênero e atração",
-    "The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.": "O gênero e os pronomes das pessoas aqui (e os seus), e por quem se sentem atraídas quando não é por todos."
+    "The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.": "O gênero e os pronomes das pessoas aqui (e os seus), e por quem se sentem atraídas quando não é por todos.",
+    "Attracted to": "Sente atração por",
+    "Everyone (default)": "Todos (padrão)",
+    "Only: {0}": "Só: {0}",
+    "No one": "Ninguém",
+    "How fast feelings grow toward each gender (100% is normal, 0% never). Losses are never changed.": "A rapidez com que os sentimentos crescem por cada gênero (100% é o normal, 0% nunca). As perdas nunca mudam.",
+    "Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.": "A sua só ordena o app de namoro: enquanto você joga como alguém, os sentimentos dessa pessoa esperam. Volta a valer quando você deixa de jogar como ela.",
+    "Turn on \"Advanced\" for who you are attracted to.": "Ative \"Avançado\" para escolher por quem você sente atração."
 };
 export default DICT;
