@@ -281,6 +281,19 @@ export function casualPairs(g) {
 }
 /* ---------- couples that ended ---------- */
 export const pastOf = (g, a, b) => pairOf(g, a, b)?.was;
+// Sets the couple two people used to be (starting relations, the migration); never on a couple that is together now.
+export function setPast(g, a, b, p) {
+    a = idOf(g, a);
+    b = idOf(g, b);
+    if (!a || !b || a === b)
+        return;
+    const st = relOf(g);
+    const k = pk(a, b);
+    const pair = (st.pairs[k] ??= {});
+    if (!pair.status)
+        pair.was = { ...p };
+    tidyPair(st, k);
+}
 export function forgetPast(g, a, b) {
     a = idOf(g, a);
     b = idOf(g, b);
