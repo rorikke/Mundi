@@ -3865,6 +3865,26 @@ const DICT: Record<string, string> = {
  "{0} said no.": "{0} disse não.",
  "You and {0} are keeping it casual.": "Você e {0} estão tendo algo casual.",
  "You and {0} stopped seeing each other.": "Você e {0} pararam de se ver.",
- "Romance fades without contact (× normal; 0 = never)": "O romance esfria sem contato (× normal; 0 = nunca)"
+ "Romance fades without contact (× normal; 0 = never)": "O romance esfria sem contato (× normal; 0 = nunca)",
+ "Gender": "Gênero",
+ "Not set": "Não definido",
+ "Woman": "Mulher",
+ "Man": "Homem",
+ "Non-binary": "Não binário",
+ "New gender": "Novo gênero",
+ "Genders": "Gêneros",
+ "Everyone can have one of these (or none). Who people are attracted to is set per gender.": "Cada pessoa pode ter um destes (ou nenhum). Por quem cada um se sente atraído é definido por gênero.",
+ "Plural (for the AI)": "Plural (para a IA)",
+ "Pronouns": "Pronomes",
+ "No genders: nobody has one, and attraction does nothing.": "Sem gêneros: ninguém tem um, e a atração não faz nada.",
+ "Add a gender": "Adicionar um gênero",
+ "Their ways": "O jeito de ser",
+ "Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.": "De onde cada jogo deste mundo parte (as configurações Mundi do próprio card vêm primeiro). Sem definir: o padrão.",
+ "Who they are": "Quem são",
+ "Each one's gender and, under \"More\", how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.": "O gênero de cada um e, em \"Mais\", a rapidez com que os sentimentos crescem e como lida com a intimidade. Vem do card quando ele tem configurações Mundi; os cards não são alterados.",
+ "More": "Mais",
+ "Less": "Menos",
+ "Gender and attraction": "Gênero e atração",
+ "The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.": "O gênero e os pronomes das pessoas aqui (e os seus), e por quem se sentem atraídas quando não é por todos."
 };
 export default DICT;

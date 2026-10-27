@@ -17,9 +17,12 @@ export type Status = 'casual' | 'dating' | 'engaged' | 'married';
 /** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no"). */
 export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number }
 export type Pace = PaceId;
-/** A person's own settings (more come with later features). `age` from the world's example cast; `minor` set in the
- *  People tab: minors are left out of every romance. */
-export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string }
+/** A person's own settings. `age` from the world's example cast; `minor` set in the People tab: minors are left out of
+ *  every romance. `gender`: one of the world's gender ids (unset: nobody's attraction depends on it). */
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction }
+/** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
+ *  that gender, 0..1 (missing: 1). */
+export type Attraction = Record<string, { f?: number; r?: number }>;
 export interface RelStore {
     m: Record<string, { f?: number; r?: number }>;            // "x>y": x's friendship and romance toward y
     fat: Record<string, { f?: number; r?: number; at: number }>;   // "x>y": gains still weighing (pacing)

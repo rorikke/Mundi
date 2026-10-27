@@ -1,7 +1,7 @@
 // Style presets: what a world of each style starts with, as data. The engine reads only the world; a style is just
 // the set of values a new world (or an older world that lacks a field) begins with. Everything here can be changed
 // per world in the world creator.
-import type { WorldDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef } from './world.js';
+import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef } from './world.js';
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 
 export interface ShopItem { id: string; name: string; desc: string; icon: string; price: number;
@@ -264,6 +264,12 @@ export const PRESETS: Record<string, Preset> = {
         repairCost: 8,
     },
 };
+// The genders a world starts with (every style, Home included); the world creator can rename, add or remove them.
+export const DEFAULT_GENDERS: GenderDef[] = [
+    { id: 'woman', name: 'Woman', plural: 'women', pronouns: 'she/her' },
+    { id: 'man', name: 'Man', plural: 'men', pronouns: 'he/him' },
+    { id: 'nonbinary', name: 'Non-binary', plural: 'non-binary people', pronouns: 'they/them' },
+];
 const styleId = (w: WorldDef) => (w.style ?? ((w.kind || '').toLowerCase().includes('modern') ? 'modern' : (w.kind || 'modern').toLowerCase()));
 export const presetOf = (w: WorldDef): Preset => PRESETS[styleId(w)] ?? PRESETS.modern;
 
@@ -283,6 +289,7 @@ export function upgradeWorld(w: WorldDef): WorldDef {
         for (const a of p.actions) if (!w.actions.some(x => x.id === a.id)) w.actions.push(structuredClone(a));
         (w as any).presetActions = true;
     }
+    w.genders ??= structuredClone(DEFAULT_GENDERS);   // an older world gets the list once (an emptied list stays empty)
     const h = w.homes as any;
     h.breakables ??= structuredClone(p.breakables);
     h.repairCost ??= p.repairCost;

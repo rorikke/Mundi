@@ -5242,6 +5242,7 @@
    {
     "name": "Bianca",
     "age": 24,
+    "gender": "woman",
     "occupation": "barista",
     "home": "downtown",
     "routine": "early",
@@ -5255,6 +5256,7 @@
    {
     "name": "Helena",
     "age": 31,
+    "gender": "woman",
     "occupation": "analyst",
     "home": "waterfront",
     "routine": "office",
@@ -5267,6 +5269,7 @@
    {
     "name": "Yumi",
     "age": 22,
+    "gender": "woman",
     "occupation": null,
     "home": "north",
     "routine": "student",
@@ -5280,6 +5283,7 @@
    {
     "name": "Carla",
     "age": 28,
+    "gender": "woman",
     "occupation": "trainer",
     "home": "south",
     "routine": "early",
@@ -5293,6 +5297,7 @@
    {
     "name": "Marina",
     "age": 35,
+    "gender": "woman",
     "occupation": null,
     "home": "south",
     "routine": "early",
@@ -5305,6 +5310,7 @@
    {
     "name": "Lia",
     "age": 26,
+    "gender": "woman",
     "occupation": "engineer",
     "home": "east",
     "routine": "office",
@@ -5317,6 +5323,7 @@
    {
     "name": "Sofia",
     "age": 29,
+    "gender": "woman",
     "occupation": "librarian",
     "home": "north",
     "routine": "office",
@@ -5330,6 +5337,10 @@
    {
     "name": "Jade",
     "age": 23,
+    "gender": "woman",
+    "intimacy": {
+     "preset": "passionate"
+    },
     "occupation": "waiter",
     "home": "south",
     "routine": "night",
@@ -5343,6 +5354,7 @@
    {
     "name": "Elena",
     "age": 33,
+    "gender": "woman",
     "occupation": "liftop",
     "home": "pc_homes",
     "routine": "early",
@@ -5356,6 +5368,7 @@
    {
     "name": "Rosa",
     "age": 41,
+    "gender": "woman",
     "occupation": "rancher",
     "home": "gv_homes",
     "routine": "early",

@@ -20,6 +20,7 @@ import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave } from './living.js';
 import { checkLeft } from './verdict.js';
 import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, relOf, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
+import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
 import { applyGameLore } from './lore.js';
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 // A square portrait with initials on a gradient (used when no image is chosen).
@@ -159,14 +160,14 @@ export async function startNewGame(o) {
         const chosen = Object.values(o.hero.traits ?? {}).some(v => (Array.isArray(v) ? v.length : !!v));
         if (!chosen && sheet?.traits && sheet.world === w.id)
             o.hero.traits = sheet.traits;
-        setPersonaSheet(personaFile, { ...(sheet ?? {}), world: w.id, origin: o.hero.origin, traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), bio: o.hero.bio ?? '' });
+        setPersonaSheet(personaFile, { ...(sheet ?? {}), world: w.id, origin: o.hero.origin, traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), bio: o.hero.bio ?? '', person: cleanPerson(o.people?.[YOU]) });
     }
     else {
         state.busy = 'Creating your character';
         notify();
         const portrait = o.hero.portrait ?? await initialsAvatar(o.hero.name, ['#22d3ee', '#4f46e5']);
         personaFile = await createPersona(o.hero.name, heroDescription(w, o.hero), portrait);
-        setPersonaSheet(personaFile, sheetOf(w, o.hero));
+        setPersonaSheet(personaFile, { ...sheetOf(w, o.hero), person: cleanPerson(o.people?.[YOU]) });
     }
     state.busy = 'Writing the world\'s lorebook';
     notify();
@@ -280,6 +281,11 @@ export async function startNewGame(o) {
         if (a && Number.isFinite(ex.age))
             (relOf(save).people[a] ??= {}).age = ex.age;
     }
+    // each one's own ways (gender, pace, styles): as chosen in the new game, else their card's, else the world's
+    const exOf = new Map([...exAvatar].map(([name, a]) => [a, w.cast.examples.find(e => e.name === name)]));
+    for (const a of Object.keys(save.cast))
+        applyPerson(save, a, o.people?.[a] ? cleanPerson(o.people[a]) : cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(exOf.get(a)));
+    applyPerson(save, YOU, cleanPerson(o.people?.[YOU]));
     for (const t of o.ties ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;

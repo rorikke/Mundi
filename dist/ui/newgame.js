@@ -24,7 +24,7 @@ import { styleName, inWorld, LOCKED_NOTE } from './styles.js';
 import { pickAndCrop, pickFile } from './cropper.js';
 import { uploadWorldPicture } from '../sim/creator.js';
 import { icon } from './icons.js';
-import { stepHouseholds, yourHouseholdHtml, stepHome } from './ngfamily.js';
+import { stepHouseholds, yourHouseholdHtml, stepHome, ngPeopleFor, youWaysHtml } from './ngfamily.js';
 import { traitsHtml, toggleTrait } from './traits.js';
 import { charPicker, shownChars, resetPick } from './charpick.js';
 const STEPS_ALL = [['world', 'World'], ['cast', 'People'], ['homes', 'Households'], ['hero', 'Your character'], ['house', 'Home'], ['review', 'Start']];
@@ -280,7 +280,7 @@ const asks = (w, k) => w.sheet.ask?.[k] !== false;
 function heroSheetHtml(persona) {
     const w = W(), h = state.wizard.hero, sh = w.sheet;
     const origin = asks(w, 'origin') && !isScenario(w) ? (w.catalogs.origins ?? []) : [];
-    return `${isScenario(w) ? situationHtml() : ''}${origin.length ? `<section class="mu-origins"><h3>Origin</h3><div class="mu-cards small">${origin.map(o => `
+    return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${origin.length ? `<section class="mu-origins"><h3>Origin</h3><div class="mu-cards small">${origin.map(o => `
             <button class="mu-origin ${h.origin === o.id ? 'is-on' : ''}" data-act="ng-origin" data-id="${esc(o.id)}"><b>${esc(o.name)}</b><small>${money(w, o.money)}</small><p>${esc(o.desc ?? '')}</p></button>`).join('')}</div></section>` : ''}
         ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(sh.traits, h.traits, 'ng-trait')}</section>` : ''}
         ${asks(w, 'bio') ? `<section class="mu-bio"><label class="mu-field"><span>${persona ? 'About you in this world (optional; your persona\'s description is not changed)' : 'About you (optional)'}</span><textarea rows="4" data-input="ng-bio" data-focus="ngbio" placeholder="${persona ? 'What you do here, what people know about you' : 'Personality, quirks, what drives you'}">${esc(h.bio)}</textarea></label></section>` : ''}`;
@@ -639,7 +639,8 @@ Object.assign(ACT, {
         try {
             await startNewGame({ world: W(), cast: wz.cast, examples: wz.examples, hero: { ...wz.hero, name: wz.hero.name.trim() }, persona: wz.heroMode === 'existing' ? wz.persona : undefined, lore: chosenLore(),
                 households: (wz.hh ?? []).filter((h) => h.members.length), family: wz.family ?? [], home: wz.home ?? undefined, difficulty: wz.difficulty ?? 'normal',
-                approval: wz.approval ?? undefined, ties: (wz.rels ?? []).filter((t) => t.a !== t.b), mode: rpgOf(W()) ? playMode() : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined });
+                approval: wz.approval ?? undefined, ties: (wz.rels ?? []).filter((t) => t.a !== t.b), mode: rpgOf(W()) ? playMode() : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined,
+                people: ngPeopleFor([...wz.cast, ...(wz.family ?? []).map((f) => f.avatar)]) });
             state.wizard = null;
         }
         catch (e) {

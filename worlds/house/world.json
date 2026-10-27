@@ -1924,6 +1924,7 @@
    {
     "name": "Marisol",
     "age": 27,
+    "gender": "woman",
     "occupation": "trainer",
     "home": "rooms",
     "routine": "early",
@@ -1950,6 +1951,10 @@
    {
     "name": "Tomas",
     "age": 24,
+    "gender": "man",
+    "intimacy": {
+     "preset": "free"
+    },
     "occupation": null,
     "home": "rooms2",
     "routine": "nightowl",
@@ -1975,6 +1980,7 @@
    {
     "name": "Celine",
     "age": 29,
+    "gender": "woman",
     "occupation": "studio",
     "home": "rooms2",
     "routine": "outworker",
@@ -1996,6 +2002,7 @@
    {
     "name": "Rafa",
     "age": 31,
+    "gender": "man",
     "occupation": "cook",
     "home": "rooms3",
     "routine": "outworker",
@@ -2017,6 +2024,7 @@
    {
     "name": "Ivy",
     "age": 30,
+    "gender": "woman",
     "occupation": null,
     "home": "rooms3",
     "routine": "home",

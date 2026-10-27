@@ -3,7 +3,7 @@
 import { state, notify, esc, toast, settings, saveSettings, type CastPreset } from '../core/store.js';
 import { characters, charOf, thumb } from '../st/bridge.js';
 import { charPicker } from './charpick.js';
-import { stepHouseholds } from './ngfamily.js';
+import { stepHouseholds, ngEdited } from './ngfamily.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 
@@ -13,7 +13,7 @@ const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x));
 const nm = (a: string) => charOf(a)?.name ?? a;
 // While a preset is open, the new-game editors (people, households, relations) work on a draft of it.
 function edit(p: CastPreset) {
-    state.wizard = { presetEdit: p.id, name: p.name, cast: [...p.cast], hh: clone(p.hh), rels: clone(p.rels), approval: { ...p.approval }, world: '' } as any;
+    state.wizard = { presetEdit: p.id, name: p.name, cast: [...p.cast], hh: clone(p.hh), rels: clone(p.rels), approval: { ...p.approval }, people: clone(p.people ?? {}), world: '' } as any;
 }
 const draft = () => (state.wizard?.presetEdit ? state.wizard : null) as any;
 
@@ -77,6 +77,7 @@ export function dropPreset(id: string) {
     wz.hh = (wz.hh ?? []).map((h: any) => ({ ...h, members: h.members.filter((a: string) => !out.has(a)), ties: (h.ties ?? []).filter((t: any) => !out.has(t.a) && !out.has(t.b)) })).filter((h: any) => h.members.length);
     wz.rels = (wz.rels ?? []).filter((t: any) => !out.has(t.a) && !out.has(t.b));
     wz.approval = Object.fromEntries(Object.entries(wz.approval ?? {}).filter(([a]) => !out.has(a)));
+    wz.presetPeople = Object.fromEntries(Object.entries(wz.presetPeople ?? {}).filter(([a]) => !out.has(a)));
     wz.cpAsk = null;
     notify();
 }
@@ -97,6 +98,7 @@ export function usePreset(id: string, only?: string[]) {
     if (scen) { wz.hh = []; for (const h of hh) for (const t of h.ties ?? []) if (ok(t) && !wz.rels.some((r: any) => same(r, t))) wz.rels.push(t); }   // one house: households become relations
     else { const taken = new Set(hh.flatMap(h => h.members)); wz.hh = [...(wz.hh ?? []).map((h: any) => ({ ...h, members: h.members.filter((a: string) => !taken.has(a)) })).filter((h: any) => h.members.length), ...hh]; }
     wz.approval = { ...(wz.approval ?? {}), ...Object.fromEntries(Object.entries(p.approval ?? {}).filter(([a]) => cast.includes(a))) };
+    wz.presetPeople = { ...(wz.presetPeople ?? {}), ...Object.fromEntries(Object.entries(p.people ?? {}).filter(([a]) => cast.includes(a))) };   // after the card's own settings
     wz.presetsOn = [...new Set([...(wz.presetsOn ?? []), id])];
     const gone = p.cast.filter(a => !have.has(a)).length;
     if (gone) toast(`${gone} of its characters are not in your SillyTavern anymore.`, 'warn');
@@ -105,7 +107,8 @@ export function usePreset(id: string, only?: string[]) {
 // Saves the people, households and relations of the new game you are making as a preset.
 export function saveWizardAsPreset() {
     const wz = state.wizard as any; if (!wz?.cast?.length) return;
-    const p: CastPreset = { id: `cp${Date.now().toString(36)}`, name: `Preset ${castPresets().length + 1}`, cast: [...wz.cast], hh: clone(wz.hh ?? []).map((h: any) => ({ members: h.members, ties: h.ties })), rels: clone(wz.rels ?? []), approval: { ...(wz.approval ?? {}) } };
+    const people = Object.fromEntries(Object.entries({ ...(wz.presetPeople ?? {}), ...ngEdited() }).filter(([a]) => wz.cast.includes(a)));
+    const p: CastPreset = { id: `cp${Date.now().toString(36)}`, name: `Preset ${castPresets().length + 1}`, cast: [...wz.cast], hh: clone(wz.hh ?? []).map((h: any) => ({ members: h.members, ties: h.ties })), rels: clone(wz.rels ?? []), approval: { ...(wz.approval ?? {}) }, ...(Object.keys(people).length ? { people } : {}) };
     castPresets().push(p); saveSettings(); toast(`Saved as "${p.name}" (Library → Presets).`, 'success'); notify();
 }
 
@@ -115,6 +118,8 @@ Object.assign(ACT, {
     'cp-save': () => {
         const d = draft(); const p = castPresets().find(x => x.id === d?.presetEdit); if (!d || !p) return;
         p.name = String(d.name || 'Preset').trim(); p.cast = [...d.cast]; p.hh = clone(d.hh ?? []).map((h: any) => ({ members: h.members.filter((a: string) => d.cast.includes(a)), ties: h.ties })).filter((h: any) => h.members.length);
+        const people = Object.fromEntries(Object.entries(ngEdited()).filter(([a]) => d.cast.includes(a)));
+        if (Object.keys(people).length) p.people = people; else delete p.people;
         p.rels = clone(d.rels ?? []); p.approval = Object.fromEntries(Object.entries(d.approval ?? {}).filter(([a, v]) => d.cast.includes(a) && v !== '' && v !== null && Number.isFinite(Number(v))).map(([a, v]) => [a, Math.max(-100, Math.min(100, Number(v)))]));
         saveSettings(); toast('Preset saved.', 'success'); notify();
     },

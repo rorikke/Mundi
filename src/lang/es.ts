@@ -3876,6 +3876,26 @@ const DICT: Record<string, string> = {
  "{0} said no.": "{0} dijo que no.",
  "You and {0} are keeping it casual.": "Tú y {0} tenéis algo casual.",
  "You and {0} stopped seeing each other.": "Tú y {0} dejasteis de veros.",
- "Romance fades without contact (× normal; 0 = never)": "El romance se enfría sin contacto (× normal; 0 = nunca)"
+ "Romance fades without contact (× normal; 0 = never)": "El romance se enfría sin contacto (× normal; 0 = nunca)",
+ "Gender": "Género",
+ "Not set": "Sin definir",
+ "Woman": "Mujer",
+ "Man": "Hombre",
+ "Non-binary": "No binario",
+ "New gender": "Nuevo género",
+ "Genders": "Géneros",
+ "Everyone can have one of these (or none). Who people are attracted to is set per gender.": "Cada persona puede tener uno de estos (o ninguno). Quién atrae a cada uno se define por género.",
+ "Plural (for the AI)": "Plural (para la IA)",
+ "Pronouns": "Pronombres",
+ "No genders: nobody has one, and attraction does nothing.": "Sin géneros: nadie tiene uno y la atracción no hace nada.",
+ "Add a gender": "Añadir un género",
+ "Their ways": "Su manera de ser",
+ "Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.": "Desde donde empieza cada partida de este mundo (los ajustes Mundi de la propia tarjeta van primero). Sin definir: lo predeterminado.",
+ "Who they are": "Quiénes son",
+ "Each one's gender and, under \"More\", how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.": "El género de cada uno y, en \"Más\", lo rápido que crecen sus sentimientos y cómo vive la intimidad. Se toma de su tarjeta cuando tiene ajustes Mundi; las tarjetas no se cambian.",
+ "More": "Más",
+ "Less": "Menos",
+ "Gender and attraction": "Género y atracción",
+ "The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.": "El género y los pronombres de las personas aquí (y los tuyos), y quién les atrae cuando no es cualquiera."
 };
 export default DICT;

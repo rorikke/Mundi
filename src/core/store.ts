@@ -45,7 +45,8 @@ export interface Settings {
     /** groups of people the player made in the Library (Presets): who, households, relations, how they see you */
     castPresets?: CastPreset[];
 }
-export interface CastPreset { id: string; name: string; cast: string[]; hh: { members: string[]; ties: { a: string; b: string; type: string; tone: string }[] }[]; rels: { a: string; b: string; type: string; tone: string }[]; approval: Record<string, number> }
+export interface CastPreset { id: string; name: string; cast: string[]; hh: { members: string[]; ties: { a: string; b: string; type: string; tone: string }[] }[]; rels: { a: string; b: string; type: string; tone: string }[]; approval: Record<string, number>;
+    /** each one's own ways (gender, pace, styles…), where the preset sets them */ people?: Record<string, any> }
 // Favorites and folders for personas and lorebooks (SillyTavern only has them for characters, as folder tags).
 export interface LibFolder { id: string; name: string; items: string[] }
 export interface LibPrefs { view: 'list' | 'grid'; fav: Record<string, string[]>; folders: Record<string, LibFolder[]> }

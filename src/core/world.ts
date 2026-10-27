@@ -148,7 +148,15 @@ export interface ExampleCharacter {
     from?: string;
     /** How they relate to the world's other people (`to`: the other person's name), from the start of every game. */
     ties?: { to: string; type: string; tone: string; /** how the other one feels back (missing: the same) */ back?: string }[];
+    /** Their own ways, from the start of every game (all optional: unset means the defaults). `gender`: one of the
+     *  world's gender ids. `attraction`: per gender id, how much of the normal rate their friendship (`f`) and romance
+     *  (`r`) grow toward people of that gender (0..1, missing = 1). */
+    gender?: string; attraction?: Record<string, { f?: number; r?: number }>;
+    pace?: { f?: 'slow' | 'normal' | 'fast'; r?: 'slow' | 'normal' | 'fast' }; style?: 'exclusive' | 'open';
+    intimacy?: { preset?: string; r?: string; f?: string; casual?: false };
 }
+/** One of a world's genders: `pronouns` and the `plural` ("women") are what the AI is told. */
+export interface GenderDef { id: string; name: string; plural?: string; pronouns?: string }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
 /** A phone app: which one (`id`), and how it is called and looks in this world. */
 export interface AppDef { id: string; name: string; icon: string; color: string; on: boolean; rpg?: boolean }
@@ -207,6 +215,8 @@ export interface WorldDef {
     catalogs: { origins?: Origin[]; [name: string]: unknown };
     occupations: Occupation[];
     cast: { routineTemplates: Record<string, Routine>; examples: ExampleCharacter[] };
+    /** The genders people can have here (the style's list when a world has none). */
+    genders?: GenderDef[];
     lore: LoreEntry[];
     /** SillyTavern lorebooks this world uses (switched on while one of its games is open). */
     lorebooks?: string[];

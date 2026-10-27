@@ -27,7 +27,8 @@ import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave, type TieType, type TieTone } from './living.js';
 import { checkLeft } from './verdict.js';
-import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, relOf, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
+import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, relOf, TYPE_START, COUPLE_ROMANCE, YOU, type Person } from './rel.js';
+import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
 import { applyGameLore } from './lore.js';
 
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
@@ -65,7 +66,7 @@ export function heroDescription(w: WorldDef, h: Hero): string {
 }
 
 // What the persona was made from, kept inside the persona itself so the Library can show and edit it.
-export interface PersonaSheet { world: string; name: string; age: number; appearance: Record<string, string>; origin: string; traits: Record<string, string[]>; bio: string }
+export interface PersonaSheet { world: string; name: string; age: number; appearance: Record<string, string>; origin: string; traits: Record<string, string[]>; bio: string; /** your gender and attraction, for the next game */ person?: Person }
 export const sheetOf = (w: WorldDef, h: Hero): PersonaSheet => ({ world: w.id, name: h.name, age: h.age, appearance: { ...h.appearance }, origin: h.origin, traits: JSON.parse(JSON.stringify(h.traits ?? {})), bio: h.bio });
 
 /* ---------- the cast ---------- */
@@ -168,6 +169,8 @@ export interface NewGame {
     start?: { id: string; text?: string };
     /** memories from another game (a save's chat id): only what the people of this cast remember */
     memoriesFrom?: string;
+    /** each one's own ways (gender, pace, styles…) as chosen in the new game, by avatar ('__you' is you) */
+    people?: Record<string, Person>;
 }
 
 export async function startNewGame(o: NewGame) {
@@ -184,12 +187,12 @@ export async function startNewGame(o: NewGame) {
         // the origin, traits and words chosen in the new game win; the persona keeps them for its next game here
         const chosen = Object.values(o.hero.traits ?? {}).some(v => (Array.isArray(v) ? v.length : !!v));
         if (!chosen && sheet?.traits && sheet.world === w.id) o.hero.traits = sheet.traits;
-        setPersonaSheet(personaFile, { ...(sheet ?? {}), world: w.id, origin: o.hero.origin, traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), bio: o.hero.bio ?? '' });
+        setPersonaSheet(personaFile, { ...(sheet ?? {}), world: w.id, origin: o.hero.origin, traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), bio: o.hero.bio ?? '', person: cleanPerson(o.people?.[YOU]) });
     } else {
         state.busy = 'Creating your character'; notify();
         const portrait = o.hero.portrait ?? await initialsAvatar(o.hero.name, ['#22d3ee', '#4f46e5']);
         personaFile = await createPersona(o.hero.name, heroDescription(w, o.hero), portrait);
-        setPersonaSheet(personaFile, sheetOf(w, o.hero));
+        setPersonaSheet(personaFile, { ...sheetOf(w, o.hero), person: cleanPerson(o.people?.[YOU]) });
     }
 
     state.busy = 'Writing the world\'s lorebook'; notify();
@@ -262,6 +265,10 @@ export async function startNewGame(o: NewGame) {
     for (const ex of w.cast.examples) for (const t of ex.ties ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(t.to); if (a && b && a !== b) setTie(save, { a, b, type: t.type as TieType, tone: t.tone as TieTone, ...(t.back ? { back: t.back as TieTone } : {}) }); }
     // the example people's ages (minors are left out of every romance)
     for (const ex of w.cast.examples) { const a = exAvatar.get(ex.name); if (a && Number.isFinite(ex.age)) (relOf(save).people[a] ??= {}).age = ex.age; }
+    // each one's own ways (gender, pace, styles): as chosen in the new game, else their card's, else the world's
+    const exOf = new Map([...exAvatar].map(([name, a]) => [a, w.cast.examples.find(e => e.name === name)]));
+    for (const a of Object.keys(save.cast)) applyPerson(save, a, o.people?.[a] ? cleanPerson(o.people[a]) : cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(exOf.get(a)));
+    applyPerson(save, YOU, cleanPerson(o.people?.[YOU]));
     for (const t of o.ties ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b) continue;
         setTie(save, t);

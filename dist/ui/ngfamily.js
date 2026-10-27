@@ -8,6 +8,9 @@ import { pickFile } from './cropper.js';
 import { TIE_TYPES, TIE_TONES } from '../sim/living.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
+import { personPanel, SCOPES } from './personui.js';
+import { cleanPerson, gendersOf } from '../sim/gender.js';
+import { personaSheet } from '../st/bridge.js';
 const wz = () => state.wizard;
 const W = () => getWorld(wz().world);
 const nm = (a) => charOf(a)?.name ?? a;
@@ -66,7 +69,52 @@ export function stepHouseholds() {
         : '<p class="mu-muted">No households yet: everyone lives alone. Make one with "New household".</p>'}</section></div>
         ${relationsHtml(false)}
         ${jobsHtml()}
+        ${whoTheyAreHtml()}
         ${z.presetEdit || !z.cast.length ? '' : `<div class="mu-row"><button class="mu-ghost" data-act="cp-save-wizard">${icon('save')}<span>Save these people as a preset</span></button><small class="mu-muted">People, households and relations, for other worlds too (Library → Presets).</small></div>`}`;
+}
+/* ---------- who they are: each one's gender and own ways ---------- */
+// The draft's own entries ('__you' is you). An entry, even empty, wins over the card's settings and a preset's.
+const ngPeople = () => (wz().people ??= {});
+// Where someone starts when the draft has nothing for them: your persona's last game, their card's Mundi settings, or
+// the cast preset they came with.
+function startOfPerson(a) {
+    if (a === '__you')
+        return wz().heroMode === 'existing' && wz().persona ? cleanPerson(personaSheet(wz().persona)?.person) : undefined;
+    return cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? cleanPerson(wz().presetPeople?.[a]);
+}
+SCOPES.ng = {
+    get: (id) => ngPeople()[id] ?? startOfPerson(id),
+    set: (id, p) => { ngPeople()[id] = p ?? {}; },
+    genders: () => gendersOf(getWorld(wz().world)),
+    romance: () => !getWorld(wz().world) || systemOn(getWorld(wz().world), 'romance'),
+};
+// What the game starts with, for everyone chosen and you.
+export function ngPeopleFor(avatars) {
+    const out = {};
+    for (const a of [...avatars, '__you']) {
+        const p = SCOPES.ng.get(a);
+        if (p)
+            out[a] = p;
+    }
+    return out;
+}
+// Only the entries made in the draft (a preset keeps those).
+export const ngEdited = () => Object.fromEntries(Object.entries(ngPeople()).filter(([, p]) => cleanPerson(p)).map(([a, p]) => [a, cleanPerson(p)]));
+function whoTheyAreHtml() {
+    const z = wz();
+    const people = [...new Set([...z.cast, ...familyOf().map(f => f.avatar)])];
+    if (!people.length)
+        return '';
+    return `<section class="mu-panel mu-ngwho"><h3>Who they are</h3>
+        <p class="mu-muted">Each one's gender and, under "More", how fast their feelings grow and how they are about intimacy. Taken from their card when it has Mundi settings; the cards are not changed.</p>
+        ${people.map(a => `<div class="mu-ngwho-row">${face(a)}<b data-notr>${esc(nm(a))}</b>${personPanel('ng', a, ['gender'])}
+            <button class="mu-ghost" data-act="ngw-more" data-who="${esc(a)}">${icon(z.whoOpen === a ? 'x' : 'edit')}<span>${z.whoOpen === a ? 'Less' : 'More'}</span></button></div>
+            ${z.whoOpen === a ? `<div class="mu-ngwho-more">${personPanel('ng', a, ['pace', 'ways'])}</div>` : ''}`).join('')}
+    </section>`;
+}
+// Your own gender (on the "Your character" step).
+export function youWaysHtml() {
+    return `<section class="mu-panel mu-ngwho is-you"><h3>About you</h3>${personPanel('ng', '__you', ['gender'])}</section>`;
 }
 /* ---------- jobs: what each of your characters does for a living ---------- */
 // At random (the default), no job, or one of the world's jobs (in a scenario they happen off-screen).
@@ -175,6 +223,7 @@ export function stepHome() {
 }
 /* ---------- actions ---------- */
 Object.assign(ACT, {
+    'ngw-more': (el) => { const z = wz(); z.whoOpen = z.whoOpen === el.dataset.who ? '' : el.dataset.who; notify(); },
     'ngh-new': () => { hhs().push({ members: [], ties: [] }); wz().hhSel = hhs().length - 1; notify(); },
     'ngh-sel': (el) => { wz().hhSel = Number(el.dataset.i); notify(); },
     'ngh-del': (el) => { hhs().splice(Number(el.dataset.i), 1); wz().hhSel = 0; notify(); },

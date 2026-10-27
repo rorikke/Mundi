@@ -22,6 +22,8 @@ import { mapEditorHtml, ME } from './mapedit.js';
 import { pickFile } from './cropper.js';
 import { icon, ICON_NAMES } from './icons.js';
 import { ACT, INPUT } from './reg.js';
+import { personPanel, SCOPES } from './personui.js';
+import { cleanPerson } from '../sim/gender.js';
 const TABS = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
     ['actions', 'Things to do'], ['jobs', 'Jobs'], ['courses', 'Courses'], ['shop', 'Shop'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
 // A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them).
@@ -636,6 +638,7 @@ function peopleEditor(w) {
         const p = `cast.examples.${i}`;
         const e = w.cast.examples[i];
         return `<div class="mu-row2">${txt('Name', `${p}.name`)}${num('Age', `${p}.age`, 18)}</div>
+                ${personPanel('cw', String(i), ['gender'])}
                 <div class="mu-row2">${sel('Job', `${p}.occupation`, jobs, 'nullable')}${sel('Lives in', `${p}.home`, zoneOpts(w))}</div>
                 ${sel('Routine', `${p}.routine`, routines)}
                 <h4>Goes out to (free time)</h4>${pairChips(w.places.filter(x => !x.link).map(x => [x.id, x.name]), `${p}.leisure`)}
@@ -646,17 +649,52 @@ function peopleEditor(w) {
                 ${(e.ties ?? []).map((t, k) => `<div class="mu-row mu-cw-inline">${sel('Is', `${p}.ties.${k}.type`, TIE_TYPES.map(([id, l]) => [id, l]))}${sel('Of', `${p}.ties.${k}.to`, w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name]))}${sel('Feeling', `${p}.ties.${k}.tone`, TIE_TONES.map(([id, l]) => [id, l]))}${sel('Their feeling back', `${p}.ties.${k}.back`, [['', 'The same'], ...TIE_TONES.map(([id, l]) => [id, l])])}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ties.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
                 ${w.cast.examples.length > 1 ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-path="${p}.ties" data-i="${i}">${icon('plus')}<span>Add a relation</span></button>` : ''}
+                <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
+                ${personPanel('cw', String(i), ['pace', 'ways'])}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${i}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
     }, 'person', 'Nobody lives here yet.')}
         <button class="mu-ghost" data-act="cw-rnd-all">${icon('redo')}<span>Shuffle everyone's job, home and routine</span></button></section>`;
 }
+// The genders people can have in this world (the AI is told the pronouns; the plural is for sentences like "attracted
+// to women").
+function gendersEditor(w) {
+    return `<section class="mu-cw-sec"><h4>Genders</h4><p class="mu-muted">Everyone can have one of these (or none). Who people are attracted to is set per gender.</p>
+        ${(w.genders ?? []).map((_x, k) => `<div class="mu-row mu-cw-inline">${txt('Name', `genders.${k}.name`, 'Woman')}${txt('Plural (for the AI)', `genders.${k}.plural`, 'women')}${txt('Pronouns', `genders.${k}.pronouns`, 'she/her')}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="genders.${k}" title="Remove">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">No genders: nobody has one, and attraction does nothing.</p>'}
+        <button class="mu-ghost" data-act="cw-add" data-what="gender">${icon('plus')}<span>Add a gender</span></button></section>`;
+}
 function tabPeople(w) {
     return `<div class="mu-cw-grid">
         ${peopleEditor(w)}
+        ${gendersEditor(w)}
         ${routineEditor(w)}
     </div>`;
 }
+// An example person's own ways, edited with the shared panel (stored on the example; `attraction` in world.json).
+SCOPES.cw = {
+    get: (id) => { const e = CW.w?.cast.examples[Number(id)]; return e ? cleanPerson(e) : undefined; },
+    set: (id, p) => {
+        const e = CW.w?.cast.examples[Number(id)];
+        if (!e)
+            return;
+        for (const k of ['gender', 'attraction', 'pace', 'style', 'intimacy'])
+            delete e[k];
+        if (p?.gender)
+            e.gender = p.gender;
+        if (p?.att)
+            e.attraction = p.att;
+        if (p?.pace)
+            e.pace = p.pace;
+        if (p?.style)
+            e.style = p.style;
+        if (p?.intimacy)
+            e.intimacy = p.intimacy;
+        CW.dirty = true;
+    },
+    genders: () => CW.w?.genders ?? [],
+    romance: () => systemOn(CW.w, 'romance'),
+};
 function tabLore(w) {
     return master('lore', 'lore', (l, k) => `<b>${esc((l.keys ?? []).join(', ') || `#${k + 1}`)}</b><small>${l.constant ? 'Always on' : ''}</small>`, i => {
         const p = `lore.${i}`;
@@ -847,6 +885,7 @@ const NEW = {
     job: () => ['occupations', { id: newId('job'), name: 'New job', place: W().places.find(p => !p.link)?.id ?? '', shift: 6, hours: [8, 18], cost: { energy: 25 }, ranks: [{ name: 'Junior', pay: 15 }, { name: 'Senior', pay: 22 }], promote: [6], likes: [], needs: [] }],
     zone: () => ['homes.zones', { id: newId('zone'), name: 'New area', map: W().maps[0]?.id ?? '', kind: Object.keys(W().homes.kinds)[0] ?? 'apartment', rent: 300, desc: '', spots: [] }],
     origin: () => ['catalogs.origins', { id: newId('origin'), name: 'New origin', desc: '', money: 1000, knows: 0 }],
+    gender: () => ['genders', { id: newId('gender'), name: 'New gender', plural: '', pronouns: '' }],
     person: () => ['cast.examples', { name: 'New person', age: 25, occupation: null, home: W().homes.zones[0]?.id ?? '', routine: Object.keys(W().cast.routineTemplates)[0] ?? '', leisure: [], description: '', first_mes: '', personality: '' }],
     lore: () => ['lore', { keys: [], content: '', constant: false }],
     period: () => ['time.periods', { id: newId('p'), name: 'New period', from: 720 }],

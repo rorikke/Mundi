@@ -3,7 +3,7 @@
 import { state, notify, esc, toast, settings, saveSettings } from '../core/store.js';
 import { characters, charOf, thumb } from '../st/bridge.js';
 import { charPicker } from './charpick.js';
-import { stepHouseholds } from './ngfamily.js';
+import { stepHouseholds, ngEdited } from './ngfamily.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 export const castPresets = () => (settings().castPresets ??= []);
@@ -12,7 +12,7 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
 const nm = (a) => charOf(a)?.name ?? a;
 // While a preset is open, the new-game editors (people, households, relations) work on a draft of it.
 function edit(p) {
-    state.wizard = { presetEdit: p.id, name: p.name, cast: [...p.cast], hh: clone(p.hh), rels: clone(p.rels), approval: { ...p.approval }, world: '' };
+    state.wizard = { presetEdit: p.id, name: p.name, cast: [...p.cast], hh: clone(p.hh), rels: clone(p.rels), approval: { ...p.approval }, people: clone(p.people ?? {}), world: '' };
 }
 const draft = () => (state.wizard?.presetEdit ? state.wizard : null);
 // How someone sees you at the start, as words (the engine keeps a number from −100 to 100).
@@ -85,6 +85,7 @@ export function dropPreset(id) {
     wz.hh = (wz.hh ?? []).map((h) => ({ ...h, members: h.members.filter((a) => !out.has(a)), ties: (h.ties ?? []).filter((t) => !out.has(t.a) && !out.has(t.b)) })).filter((h) => h.members.length);
     wz.rels = (wz.rels ?? []).filter((t) => !out.has(t.a) && !out.has(t.b));
     wz.approval = Object.fromEntries(Object.entries(wz.approval ?? {}).filter(([a]) => !out.has(a)));
+    wz.presetPeople = Object.fromEntries(Object.entries(wz.presetPeople ?? {}).filter(([a]) => !out.has(a)));
     wz.cpAsk = null;
     notify();
 }
@@ -127,6 +128,7 @@ export function usePreset(id, only) {
         wz.hh = [...(wz.hh ?? []).map((h) => ({ ...h, members: h.members.filter((a) => !taken.has(a)) })).filter((h) => h.members.length), ...hh];
     }
     wz.approval = { ...(wz.approval ?? {}), ...Object.fromEntries(Object.entries(p.approval ?? {}).filter(([a]) => cast.includes(a))) };
+    wz.presetPeople = { ...(wz.presetPeople ?? {}), ...Object.fromEntries(Object.entries(p.people ?? {}).filter(([a]) => cast.includes(a))) }; // after the card's own settings
     wz.presetsOn = [...new Set([...(wz.presetsOn ?? []), id])];
     const gone = p.cast.filter(a => !have.has(a)).length;
     if (gone)
@@ -138,7 +140,8 @@ export function saveWizardAsPreset() {
     const wz = state.wizard;
     if (!wz?.cast?.length)
         return;
-    const p = { id: `cp${Date.now().toString(36)}`, name: `Preset ${castPresets().length + 1}`, cast: [...wz.cast], hh: clone(wz.hh ?? []).map((h) => ({ members: h.members, ties: h.ties })), rels: clone(wz.rels ?? []), approval: { ...(wz.approval ?? {}) } };
+    const people = Object.fromEntries(Object.entries({ ...(wz.presetPeople ?? {}), ...ngEdited() }).filter(([a]) => wz.cast.includes(a)));
+    const p = { id: `cp${Date.now().toString(36)}`, name: `Preset ${castPresets().length + 1}`, cast: [...wz.cast], hh: clone(wz.hh ?? []).map((h) => ({ members: h.members, ties: h.ties })), rels: clone(wz.rels ?? []), approval: { ...(wz.approval ?? {}) }, ...(Object.keys(people).length ? { people } : {}) };
     castPresets().push(p);
     saveSettings();
     toast(`Saved as "${p.name}" (Library → Presets).`, 'success');
@@ -155,6 +158,11 @@ Object.assign(ACT, {
         p.name = String(d.name || 'Preset').trim();
         p.cast = [...d.cast];
         p.hh = clone(d.hh ?? []).map((h) => ({ members: h.members.filter((a) => d.cast.includes(a)), ties: h.ties })).filter((h) => h.members.length);
+        const people = Object.fromEntries(Object.entries(ngEdited()).filter(([a]) => d.cast.includes(a)));
+        if (Object.keys(people).length)
+            p.people = people;
+        else
+            delete p.people;
         p.rels = clone(d.rels ?? []);
         p.approval = Object.fromEntries(Object.entries(d.approval ?? {}).filter(([a, v]) => d.cast.includes(a) && v !== '' && v !== null && Number.isFinite(Number(v))).map(([a, v]) => [a, Math.max(-100, Math.min(100, Number(v)))]));
         saveSettings();

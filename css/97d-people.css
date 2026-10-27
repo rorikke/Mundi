@@ -1,0 +1,11 @@
+/* A person's own ways (gender, attraction, pace, styles): the new game's "Who they are" list, and suggestions from the cards. */
+#mundi-root .mu-ngwho { display: grid; gap: 8px; padding: 14px 18px; }
+#mundi-root .mu-ngwho-row { display: grid; grid-template-columns: 28px minmax(90px, 1fr) minmax(150px, 2fr) auto; align-items: center; gap: 10px; }
+#mundi-root .mu-ngwho-row img { width: 28px; height: 28px; max-width: 28px; border-radius: 50%; object-fit: cover; }
+#mundi-root .mu-ngwho-row .mu-field { margin: 0; }
+#mundi-root .mu-ngwho-row .mu-field > span { display: none; }
+#mundi-root .mu-ngwho.is-you .mu-field > span { display: block; }
+#mundi-root .mu-ngwho-more { display: grid; gap: 8px; padding: 6px 0 10px 38px; border-bottom: 1px solid var(--line, rgba(255,255,255,.08)); }
+#mundi-root .mu-sug { display: grid; gap: 8px; padding: 12px 14px; margin: 8px 0; }
+#mundi-root .mu-sug-row { display: grid; grid-template-columns: minmax(90px, 1fr) 3fr auto; align-items: center; gap: 10px; }
+#mundi-root .mu-sug-row small { color: var(--muted); }

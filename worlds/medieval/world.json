@@ -5132,6 +5132,7 @@
    {
     "name": "Elara",
     "age": 23,
+    "gender": "woman",
     "occupation": "tavern",
     "home": "low",
     "routine": "early",
@@ -5146,6 +5147,7 @@
    {
     "name": "Brienne",
     "age": 27,
+    "gender": "woman",
     "occupation": "guard",
     "home": "merchant",
     "routine": "office",
@@ -5160,6 +5162,7 @@
    {
     "name": "Isolde",
     "age": 25,
+    "gender": "woman",
     "occupation": "scribe",
     "home": "castle",
     "routine": "office",
@@ -5174,6 +5177,7 @@
    {
     "name": "Mira",
     "age": 22,
+    "gender": "woman",
     "occupation": "healer",
     "home": "low",
     "routine": "early",
@@ -5188,6 +5192,7 @@
    {
     "name": "Rowena",
     "age": 26,
+    "gender": "woman",
     "occupation": "smith",
     "home": "low",
     "routine": "early",
@@ -5202,6 +5207,7 @@
    {
     "name": "Liesel",
     "age": 24,
+    "gender": "woman",
     "occupation": "merchant",
     "home": "merchant",
     "routine": "office",
@@ -5216,6 +5222,7 @@
    {
     "name": "Ysolde",
     "age": 28,
+    "gender": "woman",
     "occupation": "groom",
     "home": "low",
     "routine": "early",
@@ -5230,6 +5237,7 @@
    {
     "name": "Catrin",
     "age": 21,
+    "gender": "woman",
     "occupation": "fisher",
     "home": "low",
     "routine": "early",

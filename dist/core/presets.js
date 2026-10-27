@@ -250,6 +250,12 @@ export const PRESETS = {
         repairCost: 8,
     },
 };
+// The genders a world starts with (every style, Home included); the world creator can rename, add or remove them.
+export const DEFAULT_GENDERS = [
+    { id: 'woman', name: 'Woman', plural: 'women', pronouns: 'she/her' },
+    { id: 'man', name: 'Man', plural: 'men', pronouns: 'he/him' },
+    { id: 'nonbinary', name: 'Non-binary', plural: 'non-binary people', pronouns: 'they/them' },
+];
 const styleId = (w) => (w.style ?? ((w.kind || '').toLowerCase().includes('modern') ? 'modern' : (w.kind || 'modern').toLowerCase()));
 export const presetOf = (w) => PRESETS[styleId(w)] ?? PRESETS.modern;
 // Fills what a world lacks from its style's preset (older worlds, and worlds made before these were editable).
@@ -272,6 +278,7 @@ export function upgradeWorld(w) {
                 w.actions.push(structuredClone(a));
         w.presetActions = true;
     }
+    w.genders ??= structuredClone(DEFAULT_GENDERS); // an older world gets the list once (an emptied list stays empty)
     const h = w.homes;
     h.breakables ??= structuredClone(p.breakables);
     h.repairCost ??= p.repairCost;
