@@ -10,7 +10,7 @@ import { period, isWeekend, seasonOf } from './time.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
-import { couplePairs, TYPE_START, startFriendship } from './rel.js';
+import { couplePairs, casualPairs, TYPE_START, startFriendship } from './rel.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -117,7 +117,9 @@ export function couplesLine(g, present) {
     const here = new Set(present.map(r => r.avatar));
     const c = couplePairs(g).filter(p => here.has(p.a) || here.has(p.b));
     const word = { dating: 'are dating', engaged: 'are engaged', married: 'are married' };
-    return c.length ? `Relationships between people: ${c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`).join('; ')}.` : '';
+    const casual = casualPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} have something casual (not a couple)`);
+    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`), ...casual];
+    return all.length ? `Relationships between people: ${all.join('; ')}.` : '';
 }
 const GOSSIP = ['love', 'party', 'plan', 'life', 'goal', 'work', 'crisis'];
 export const YOU = '__you';

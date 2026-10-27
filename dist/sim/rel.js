@@ -258,6 +258,18 @@ export function couplePairs(g) {
     }
     return out;
 }
+// Something casual between two people of the world (not you).
+export function casualPairs(g) {
+    const out = [];
+    for (const [k, p] of Object.entries(relOf(g).pairs)) {
+        if (p.status !== 'casual')
+            continue;
+        const [a, b] = k.split('|');
+        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b])
+            out.push({ a, b, since: p.since ?? g.day });
+    }
+    return out;
+}
 /* ---------- contact (romance fades without it) ---------- */
 // The last day a and b had contact: a scene or a text with you, a plan kept, time together between people.
 export function touch(g, a, b = YOU) {

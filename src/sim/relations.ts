@@ -2,13 +2,18 @@
 // own. Time spent at the same place makes people like each other a little more (up to good friends), rivals and
 // people who already dislike each other drift further apart, and romance grows between people with chemistry. Couples
 // form when both have a crush, their romance follows their chemistry, and they move on or split by how they feel
-// (`coupleOdds`, used by sim/longlife.ts). Feelings are directed: A can like B while B can't stand A. With the system
-// off nothing here runs; romance and couples also need the romance system.
+// (`coupleOdds`, used by sim/longlife.ts). Feelings are directed: A can like B while B can't stand A. People whose
+// intimacy needs are met toward each other may start something casual, which becomes dating with friendship or ends
+// quietly when romance fades (R-6); open people may have a second partner when every partner is open too (R-9). With
+// the system off nothing here runs; romance and couples also need the romance system.
 import type { Save, Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
-import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, couplePairs, directedAbove, attracted, PARTNER, YOU, type Status } from './rel.js';
+import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, casualsOf, couplePairs, casualPairs, directedAbove, attracted, PARTNER, YOU, type Status } from './rel.js';
+import { cfg } from '../core/store.js';
+import { styleOf, needsMetToward } from './intimacy.js';
+import { bondOf } from './social.js';
 import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked } from './family.js';
 import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
@@ -47,7 +52,14 @@ export const friendCap = (x: string, y: string) => 40 + 25 * affinity(x, y);
 
 const RIVALS = ['rival', 'enemy'];
 const tieOf = (g: Save, a: string, b: string) => ties(g).find(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
-const single = (g: Save, a: string) => partnersOf(g, a).length === 0;   // nobody, you included
+// Free to start something new (R-9): nobody yet; or one partner when they and every partner they have are open
+// (you count as open only with the world's open relationships), two at most.
+export function freeToPair(g: Save, a: string): boolean {
+    const ps = partnersOf(g, a);
+    if (!ps.length) return true;
+    if (ps.length >= 2 || styleOf(g, a) !== 'open') return false;
+    return ps.every(p => (p === YOU ? !!cfg(g).poly : styleOf(g, p) === 'open'));
+}
 const romanceOn = (w: WorldDef) => systemOn(w, 'romance');
 
 // x spends an hour with y.
@@ -57,7 +69,8 @@ function meet(g: Save, w: WorldDef, x: string, y: string) {
     if ((t && RIVALS.includes(t.type)) || f < DISLIKES) { if (f > HATES) lose(g, 'f', x, y, TOGETHER.drift); }
     else if (f < friendCap(x, y)) gain(g, 'f', x, y, TOGETHER.f);
     if (ro(g, x, y) > 0 || ro(g, y, x) > 0) touch(g, x, y);   // time together is contact (romance doesn't fade)
-    if (romanceOn(w) && f >= 10 && ro(g, x, y) < TOGETHER.rCap && single(g, x) && single(g, y) && !familyBlocked(g, x, y))
+    const together = PARTNER.includes(statusOf(g, x, y) as Status);
+    if (romanceOn(w) && f >= 10 && ro(g, x, y) < TOGETHER.rCap && !together && freeToPair(g, x) && freeToPair(g, y) && !familyBlocked(g, x, y))
         gain(g, 'r', x, y, TOGETHER.r * chemistry(x, y));
 }
 // Each waking hour: the people at the same place (a workplace, a café, a shared home) get to know each other.
@@ -134,13 +147,17 @@ function couplesFeel(g: Save) {
     }
 }
 const isPerson = (g: Save, a: string) => a !== YOU && !!g.cast[a];
-// Two single people with a crush on each other may get together (a small chance each day); never against either
-// one's attraction (a crush set by hand, or from before, doesn't pair them).
+// Two people free to pair (R-9) with a crush on each other may get together (a small chance each day); never against
+// either one's attraction (a crush set by hand, or from before, doesn't pair them). Something casual becomes dating
+// the same way, once they're also friends both ways (R-6).
 function couplesForm(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     for (const { x, y } of directedAbove(g, 'r', CRUSH)) {
         if (x > y || !isPerson(g, x) || !isPerson(g, y) || ro(g, y, x) < CRUSH || !attracted(g, x, y) || !attracted(g, y, x)) continue;
-        if (!single(g, x) || !single(g, y) || familyBlocked(g, x, y) || rnd(g, `pair|${x}|${y}`) >= 0.05) continue;
+        const st = statusOf(g, x, y);
+        if (st && st !== 'casual') continue;
+        if (st === 'casual' && (fr(g, x, y) < FRIEND_AT || fr(g, y, x) < FRIEND_AT)) continue;
+        if (!freeToPair(g, x) || !freeToPair(g, y) || familyBlocked(g, x, y) || rnd(g, `pair|${x}|${y}`) >= 0.05) continue;
         setStatus(g, x, y, 'dating');
         const X = g.cast[x], Y = g.cast[y];
         note(g, '{0} and {1} started dating.', [X.name, Y.name], [x, y], X.leisure[0] ?? `home:${x}`, 'life');
@@ -150,6 +167,39 @@ function couplesForm(g: Save, w: WorldDef): string[] {
     }
     return out;
 }
+/* ---------- something casual between people (R-6) ---------- */
+
+const FRIEND_AT = 30, KNOWN_WELL = 55;
+const knowWell = (g: Save, a: string, b: string) => g.cast[a]?.met && bondOf(g, a) >= KNOWN_WELL || g.cast[b]?.met && bondOf(g, b) >= KNOWN_WELL;
+// Two people whose intimacy needs are met toward each other (neither keeping it for a partner) may start something
+// casual: a small chance each day, never against attraction, family or minors; free to pair (R-9), and one casual
+// relationship at a time.
+function casualForm(g: Save): string[] {
+    const out: string[] = [];
+    for (const { x, y } of directedAbove(g, 'r', ROMANCE_TIERS[1].lo)) {
+        if (x > y || !isPerson(g, x) || !isPerson(g, y) || statusOf(g, x, y) || !attracted(g, x, y) || !attracted(g, y, x)) continue;
+        if (!needsMetToward(g, x, y) || !needsMetToward(g, y, x) || familyBlocked(g, x, y)) continue;
+        if (!freeToPair(g, x) || !freeToPair(g, y) || casualsOf(g, x).length || casualsOf(g, y).length || rnd(g, `casual|${x}|${y}`) >= 0.05) continue;
+        setStatus(g, x, y, 'casual');
+        const X = g.cast[x], Y = g.cast[y];
+        note(g, '{0} and {1} started something casual.', [X.name, Y.name], [x, y], `home:${x}`, 'love');
+        if (knowWell(g, x, y)) out.push(`${X.name} and ${Y.name} have started something casual.`);
+    }
+    return out;
+}
+// It ends quietly when either one's romance fades below Interest: no break-up loss, news only if you know them well.
+function casualEnd(g: Save): string[] {
+    const out: string[] = [];
+    for (const { a, b } of casualPairs(g)) {
+        if (ro(g, a, b) >= ROMANCE_TIERS[1].lo && ro(g, b, a) >= ROMANCE_TIERS[1].lo) continue;
+        setStatus(g, a, b, null);
+        const A = g.cast[a], B = g.cast[b];
+        note(g, '{0} and {1} stopped seeing each other.', [A.name, B.name], [a, b], `home:${a}`, 'love');
+        if (knowWell(g, a, b)) out.push(`${A.name} and ${B.name} aren't seeing each other anymore.`);
+    }
+    return out;
+}
+
 // A crush that isn't returned reaches you as news once, when you know either of them.
 const told = (g: Save): string[] => (((g as any).living ??= {}).crushes ??= []);
 function crushNews(g: Save): string[] {
@@ -169,7 +219,7 @@ onHour.push((g, w) => { if (systemOn(w, 'relations')) timeTogether(g, w); return
 onDay.push((g, w) => {
     if (!systemOn(w, 'relations') || !romanceOn(w)) return [];
     couplesFeel(g);
-    return [...couplesForm(g, w), ...crushNews(g)];
+    return [...couplesForm(g, w), ...casualForm(g), ...casualEnd(g), ...crushNews(g)];
 });
 
 /* ---------- for the AI ---------- */

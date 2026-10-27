@@ -5,7 +5,7 @@
 // (`rel.people`); the engine turns them into readiness hints and words for the AI, and forces a "no" only where the
 // switch says so.
 import { cfg } from '../core/store.js';
-import { relOf, idOf, ro, isPartner, attracted, YOU } from './rel.js';
+import { relOf, idOf, ro, fr, isPartner, attracted, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
 export const PRESETS = {
@@ -46,6 +46,15 @@ export function intimacyReady(g, a, name) {
     if (gap <= 0)
         return { lean: 'yes', why: `${name} feels enough for {{user}} for that` };
     return { lean: gap <= 10 ? 'unsure' : 'no', why: missing.join(', and ') };
+}
+// Between two people of the world (R-6): x's needs are met toward y (romance and friendship at least what x's style
+// asks), and x doesn't keep intimacy for a partner.
+export function needsMetToward(g, x, y) {
+    const n = needsOf(g, x);
+    if (n.partnerOnly)
+        return false;
+    const fNeed = F_AT[n.f];
+    return ro(g, x, y) >= R_AT[n.r] && fr(g, x, y) >= (fNeed ?? 0);
 }
 // For the AI: a non-default style in plain words (no numbers).
 const STYLE_WORDS = {
