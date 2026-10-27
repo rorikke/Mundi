@@ -87,16 +87,18 @@ function needed(n: number, C: number) {
     return Math.min(0.08, 0.7 * 2 * C * Math.sin(Math.PI / ring));
 }
 // How far a colour is from the nearest one taken; with `loose`, people rarely together count as farther than they are.
-const score = (x: Lab, taken: Taken[], loose = false) => taken.reduce((lo, t) => Math.min(lo, dist(x, t.lab) / (loose && !t.close ? 0.6 : 1)), Infinity);
+const score = (x: Lab, taken: Taken[], loose = false) => taken.reduce((lo, t) => Math.min(lo, dist(x, t.lab) / (loose && !t.close ? 0.75 : 1)), Infinity);
 // The colour closest to the one wanted (a hue from the AI or the picture) that is far enough from those taken: from
 // everyone if there is room, else from the people often together; with none far enough, the one farthest from all.
-function place(want: string, taken: Taken[], n: number, salt: string): string {
+// The AI's own choice (`firm`) is only held to the second rule: it stays unless it is too close to someone they are
+// often with (or very close to anyone), so one move never pushes the others out of the colours it gave them.
+function place(want: string, taken: Taken[], n: number, salt: string, firm = false): string {
     const r = readable(), need = needed(n, r.C);
     const pref = want ? hexToLab(fit(want, true)) : null;
     const cands: Lab[] = [];
     for (let h = 0; h < 360; h += 5) { cands.push(shade(r.L, r.C, h)); if (n > 10) cands.push(shade(r.L2, r.C, h)); }
     const start = pref ?? shade(r.L, r.C, hash(salt) % 360);   // no wish: a hue from the name, for variety
-    for (const loose of [false, true]) {
+    for (const loose of firm && pref ? [true] : [false, true]) {
         if (pref && score(pref, taken, loose) >= need) return labHex(pref);
         const ok = cands.filter(c => score(c, taken, loose) >= need);
         if (ok.length) return labHex(ok.reduce((b, c) => (dist(c, start) < dist(b, start) ? c : b)));
@@ -292,7 +294,7 @@ export async function ensure(g: Save, again = false) {
         for (const id of order) {
             pending.delete(id);
             const c = answer[id];
-            if (c) s[id] = { c: place(c, takenFor(id, pending), n, nameOf(g, id)), by: 'ai' };
+            if (c) s[id] = { c: place(c, takenFor(id, pending), n, nameOf(g, id), true), by: 'ai' };
         }
         saveGame();
     } finally { TALK.busy = false; if (want.size) later(); notify(); }
