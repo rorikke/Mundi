@@ -147,6 +147,7 @@ function relSection(g: Save, w: WorldDef): string {
             ${sl('Friendship: points more until half speed', 'f.H', H('f'), 1, 20, 1, '')}
             ${systemOn(w, 'romance') ? `${sl('Romance: points at full speed', 'r.E', E('r'), 1, 20, 1, '')}
             ${sl('Romance: points more until half speed', 'r.H', H('r'), 1, 20, 1, '')}` : ''}
+            ${systemOn(w, 'romance') ? sl('Romance fades without contact (× normal; 0 = never)', 'fade', rc.fade ?? 1, 0, 3, 0.5, '×') : ''}
             ${sl('The pace comes back by half in', 'halfLife', Math.round((rc.halfLife ?? HALF_LIFE) / 60), 1, 24, 1, ' h')}
             <label class="mu-check"><input type="checkbox" data-input="wc-rel-debug" ${rc.debug ? 'checked' : ''}><span>Show the numbers (debug)<small>The raw values, how fast each relationship grows right now, and what each message changed, with undo. For tuning: the AI never sees it.</small></span></label>
             <button class="mu-ghost" data-act="wc-rel-reset">${icon('undo')}<span>Back to the world's defaults</span></button>`
@@ -446,6 +447,7 @@ Object.assign(INPUT, {
         const g = game(); if (!g) return;
         const rc = (cfg(g).rel ??= {}); const k = el.dataset.k!; const v = Number(el.value);
         if (k === 'halfLife') rc.halfLife = v * 60;
+        else if (k === 'fade') { if (v === 1) delete rc.fade; else rc.fade = v; }
         else { const [m, part] = k.split('.') as [Meter, 'E' | 'H']; ((rc.pace ??= {})[m] ??= {})[part] = v; }
         saveGame(); notify();
     },

@@ -25,6 +25,7 @@ export interface RelStore {
     fat: Record<string, { f?: number; r?: number; at: number }>;   // "x>y": gains still weighing (pacing)
     pairs: Record<string, PairState>;                          // "a|b", sorted
     people: Record<string, Person>;
+    contact?: Record<string, number>;                          // "a|b": the last day they had contact (romance fading)
     log?: unknown;                                             // records per message (sim/msglog.ts)
     day?: DaySnap;                                             // today's start values toward you (the recap)
 }
@@ -166,6 +167,13 @@ export function setStatus(g: Save, a: string, b: string, status: Status | null, 
     else { delete p.status; delete p.since; delete p.low; }
     tidyPair(st, k);
 }
+// Days in a row a partner has felt too little (a partner leaving you counts them; 0 clears it).
+export function setLow(g: Save, a: string, b: string, n: number) {
+    a = idOf(g, a); b = idOf(g, b);
+    const p = relOf(g).pairs[pk(a, b)];
+    if (!p) return;
+    if (n > 0) p.low = n; else delete p.low;
+}
 export function setCooldown(g: Save, a: string, b: string, until: number) {
     a = idOf(g, a); b = idOf(g, b);
     if (!a || !b || a === b) return;
@@ -207,6 +215,26 @@ export function couplePairs(g: Save): { a: string; b: string; status: Status; si
     return out;
 }
 
+/* ---------- contact (romance fades without it) ---------- */
+
+// The last day a and b had contact: a scene or a text with you, a plan kept, time together between people.
+export function touch(g: Save, a: string, b = YOU) {
+    a = idOf(g, a); b = idOf(g, b);
+    if (!a || !b || a === b) return;
+    const c = (relOf(g).contact ??= {}); const k = pk(a, b);
+    if (c[k] !== g.day) c[k] = g.day;
+}
+export const lastContact = (g: Save, a: string, b = YOU): number | undefined => relOf(g).contact?.[pk(idOf(g, a), idOf(g, b))];
+// Forgets contact days of pairs with no romance either way and no status (nothing would fade).
+export function tidyContact(g: Save) {
+    const st = relOf(g); if (!st.contact) return;
+    for (const k of Object.keys(st.contact)) {
+        const [a, b] = k.split('|');
+        if (!st.m[dk(a, b)]?.r && !st.m[dk(b, a)]?.r && !st.pairs[k]?.status) delete st.contact[k];
+    }
+    if (!Object.keys(st.contact).length) delete st.contact;
+}
+
 /* ---------- "Play as": the store follows the people ---------- */
 
 // Rewrites every id in the store (the same mapping "Play as" applies to ties and households).
@@ -218,6 +246,7 @@ export function swapIds(g: Save, map: (id: string) => string) {
         return out;
     };
     st.m = re(st.m, '>', false); st.fat = re(st.fat, '>', false); st.pairs = re(st.pairs, '|', true);
+    if (st.contact) st.contact = re(st.contact, '|', true);
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 

@@ -176,6 +176,18 @@ export function setStatus(g, a, b, status, since = g.day) {
     }
     tidyPair(st, k);
 }
+// Days in a row a partner has felt too little (a partner leaving you counts them; 0 clears it).
+export function setLow(g, a, b, n) {
+    a = idOf(g, a);
+    b = idOf(g, b);
+    const p = relOf(g).pairs[pk(a, b)];
+    if (!p)
+        return;
+    if (n > 0)
+        p.low = n;
+    else
+        delete p.low;
+}
 export function setCooldown(g, a, b, until) {
     a = idOf(g, a);
     b = idOf(g, b);
@@ -233,6 +245,32 @@ export function couplePairs(g) {
     }
     return out;
 }
+/* ---------- contact (romance fades without it) ---------- */
+// The last day a and b had contact: a scene or a text with you, a plan kept, time together between people.
+export function touch(g, a, b = YOU) {
+    a = idOf(g, a);
+    b = idOf(g, b);
+    if (!a || !b || a === b)
+        return;
+    const c = (relOf(g).contact ??= {});
+    const k = pk(a, b);
+    if (c[k] !== g.day)
+        c[k] = g.day;
+}
+export const lastContact = (g, a, b = YOU) => relOf(g).contact?.[pk(idOf(g, a), idOf(g, b))];
+// Forgets contact days of pairs with no romance either way and no status (nothing would fade).
+export function tidyContact(g) {
+    const st = relOf(g);
+    if (!st.contact)
+        return;
+    for (const k of Object.keys(st.contact)) {
+        const [a, b] = k.split('|');
+        if (!st.m[dk(a, b)]?.r && !st.m[dk(b, a)]?.r && !st.pairs[k]?.status)
+            delete st.contact[k];
+    }
+    if (!Object.keys(st.contact).length)
+        delete st.contact;
+}
 /* ---------- "Play as": the store follows the people ---------- */
 // Rewrites every id in the store (the same mapping "Play as" applies to ties and households).
 export function swapIds(g, map) {
@@ -248,6 +286,8 @@ export function swapIds(g, map) {
     st.m = re(st.m, '>', false);
     st.fat = re(st.fat, '>', false);
     st.pairs = re(st.pairs, '|', true);
+    if (st.contact)
+        st.contact = re(st.contact, '|', true);
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 /* ---------- where relationships start (one table) ---------- */

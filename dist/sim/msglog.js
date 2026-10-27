@@ -13,7 +13,7 @@ import { game, saveGame, nowAbs, state, TUT } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId } from '../st/bridge.js';
 import { presentAt } from './people.js';
-import { gain as gainMeter, undoGain, relCfg, ro, SOURCES, YOU } from './rel.js';
+import { gain as gainMeter, undoGain, relCfg, ro, touch, SOURCES, YOU } from './rel.js';
 import { reactionGain, reactionRomance } from './mood.js';
 import { romanceBlocked } from './family.js';
 const logOf = (g) => (g.rel ??= {}).log;
@@ -110,6 +110,8 @@ function judgeLine(g, fp, speakers) {
 function judgeReply(g, m, fp, ex, speakers) {
     const who = speakerOf(m) ?? '';
     const met = !!who && !!g.cast[who]?.met;
+    if (met)
+        touch(g, who); // a scene together counts as contact (romance doesn't fade)
     const label = ex.k === 'l' ? ex.l ?? '' : '';
     const ch = [];
     const f = met ? reactionGain(label) : 0;

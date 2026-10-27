@@ -3,7 +3,8 @@
 import { homeJobsLine } from './hometime.js';
 import { dressLine } from './dress.js';
 import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living.js';
-import './longlife.js'; // people's lives over the weeks (runs by itself, day by day)
+import './longlife.js';
+import './fading.js'; // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
 import { game, settings } from '../core/store.js';
 import { getWorld } from '../core/world.js';

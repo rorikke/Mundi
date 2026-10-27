@@ -112,6 +112,8 @@ export interface RelCfg {
     /** when you stop playing someone, their feelings follow how everyone now feels about them ('copy', default) or
      *  stay as they were when you took their place ('keep') */
     playAs?: 'copy' | 'keep';
+    /** how fast romance fades without contact (× the default; 0 = never) */
+    fade?: number;
 }
 export const cfg = (g: Save): WorldCfg => (((g as any).cfg ??= {}) as WorldCfg);
 // How time passes: "action" (default) only what you do moves the clock (eating, sleeping, working, travelling);

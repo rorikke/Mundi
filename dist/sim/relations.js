@@ -1,7 +1,7 @@
 import { systemOn } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
-import { fr, ro, gain, lose, idOf, statusOf, setStatus, partnersOf, couplePairs, directedAbove, PARTNER, YOU } from './rel.js';
+import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, couplePairs, directedAbove, PARTNER, YOU } from './rel.js';
 import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked } from './family.js';
 import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
@@ -48,6 +48,8 @@ function meet(g, w, x, y) {
     }
     else if (f < friendCap(x, y))
         gain(g, 'f', x, y, TOGETHER.f);
+    if (ro(g, x, y) > 0 || ro(g, y, x) > 0)
+        touch(g, x, y); // time together is contact (romance doesn't fade)
     if (romanceOn(w) && f >= 10 && ro(g, x, y) < TOGETHER.rCap && single(g, x) && single(g, y) && !familyBlocked(g, x, y))
         gain(g, 'r', x, y, TOGETHER.r * chemistry(x, y));
 }

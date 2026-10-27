@@ -16,6 +16,7 @@ import { social, bondOf, isPartner, bump, livePlan, textFrom, type Appointment, 
 import { dating } from './feed.js';
 import { shutOut, crushOn, addRomance } from './romance.js';
 import { romanceBlocked } from './family.js';
+import { touch } from './rel.js';
 import { personaName } from '../st/bridge.js';
 
 export const HANGOUT_BOND = 15;   // acquaintance: you can hang out
@@ -191,7 +192,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
             const cw = s.with.find(x => x.avatar === a.avatar);
             if (cw) cw.until = Math.max(cw.until, a.to); else s.with.push({ avatar: a.avatar, until: a.to });
             if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', a.kind === 'date' || a.kind === 'party' ? 15 : 10); }
-            bump(g, a.avatar, a.kind === 'date' ? 8 : 5);
+            bump(g, a.avatar, a.kind === 'date' ? 8 : 5); touch(g, a.avatar);
             if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar)) addRomance(g, a.avatar, 5);   // a date kept is romantic too (a milestone)
             approve(g, a.avatar, 5);
             feel(g, a.avatar, a.kind === 'party' ? 'Had a great time at your party' : a.kind === 'date' ? 'Happy about the date' : 'Glad you kept your word', 1);

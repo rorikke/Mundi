@@ -2,7 +2,7 @@
 // a meet-up puts her at a place you chose for two hours; at a high bond you can ask her to be your partner.
 import { notify, nowAbs, type Save, type Resident } from '../core/store.js';
 import { type WorldDef, messageKind, aiVoice } from '../core/world.js';
-import { fr, gain, lose, setFr, YOU, isPartner as partnerOfYou } from './rel.js';
+import { fr, gain, lose, setFr, touch, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
 import { whereNow } from './people.js';
 import { aiLangName } from '../core/i18n.js';
@@ -104,7 +104,7 @@ export async function sendText(g: Save, w: WorldDef, avatar: string, text: strin
     const r = g.cast[avatar];
     if (!r) return '';
     (s.threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
-    addBond(g, avatar, 2);
+    addBond(g, avatar, 2); touch(g, avatar);
     (((g as any).post ??= { queue: [], contact: {} }).contact)[avatar] = g.day;   // keeping in touch (letters from afar)
     const reply = await sayLine(textTranscript(g, w, r), r.name, [r.name, personaName()], 320, 120, 'now');
     if (reply) s.threads[avatar].push({ me: false, text: reply, at: nowAbs(g) });

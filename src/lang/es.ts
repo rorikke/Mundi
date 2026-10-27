@@ -3875,6 +3875,7 @@ const DICT: Record<string, string> = {
  "You are staying at {0}'s tonight.": "Esta noche duermes en casa de {0}.",
  "{0} said no.": "{0} dijo que no.",
  "You and {0} are keeping it casual.": "Tú y {0} tenéis algo casual.",
- "You and {0} stopped seeing each other.": "Tú y {0} dejasteis de veros."
+ "You and {0} stopped seeing each other.": "Tú y {0} dejasteis de veros.",
+ "Romance fades without contact (× normal; 0 = never)": "El romance se enfría sin contacto (× normal; 0 = nunca)"
 };
 export default DICT;
