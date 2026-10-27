@@ -23,6 +23,7 @@ import { dating } from '../sim/feed.js';
 import { icon } from './icons.js';
 import { featureOn } from '../sim/creator.js';
 import { ACT, INPUT } from './reg.js';
+import { relNumbersHtml } from './reldebug.js';
 
 export const PL = { card: '', kind: 'hangout' as PlanKind, place: '', day: 0, time: 0, busy: '', face: '', title: '', out: '' };
 // Home: a plan can be somewhere out of the house, in your words ("__out" in the list, then the place you type)
@@ -70,6 +71,7 @@ export function sceneCard(g: Save, w: WorldDef): string {
         ${String((social(g) as any).solo ?? '') === r.avatar ? `<button data-act="solo-off">${icon('users')}<span>Talk with everyone again</span></button>`
             : `<button data-act="solo-on" data-who="${esc(r.avatar)}">${icon('chat')}<span>Talk only with them</span></button>`}
         ${stayButton(r.avatar)}
+        ${relNumbersHtml(g, r.avatar)}
         ${romanceButtons(r.avatar)}
         ${!isScenario(getWorld(g.world)) && (along || isPartner(g, r.avatar) || b >= 60) ? `<button class="mu-ghost" data-act="swap-to" data-who="${esc(r.avatar)}">${icon('user')}<span>Play as them</span></button>` : ''}
     </div>`;

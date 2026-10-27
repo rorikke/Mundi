@@ -4,9 +4,10 @@
 // "Play as" rewrites the ids (`swapIds`), so everyone's feelings stay with the person. The store is sparse: a
 // missing entry is the default (0, no status), and a write that lands on the default removes it.
 // Only this file touches `rel.m`, `rel.fat` and `rel.pairs`; the older names (bondOf, addBond, romOf…) read through it.
-import { nowAbs, cfg, type Save } from '../core/store.js';
+import { nowAbs, cfg, type Save, type RelCfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
+import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
 import type { TieType, TieTone } from './living.js';
 
 export const YOU = '__you';
@@ -14,7 +15,7 @@ export type Meter = 'f' | 'r';
 export type Status = 'casual' | 'dating' | 'engaged' | 'married';
 /** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no"). */
 export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number }
-export type Pace = 'slow' | 'normal' | 'fast';
+export type Pace = PaceId;
 /** A person's own settings (more come with later features). */
 export interface Person { pace?: { f?: Pace; r?: Pace } }
 export interface RelStore {
@@ -61,44 +62,74 @@ export function setMeter(g: Save, m: Meter, x: string, y: string, v: number) {
 export const setFr = (g: Save, x: string, y: string, v: number) => setMeter(g, 'f', x, y, v);
 export const setRo = (g: Save, x: string, y: string, v: number) => setMeter(g, 'r', x, y, v);
 
+/* ---------- pacing (sim/pace.ts) ---------- */
+
+export const relCfg = (g: Save): RelCfg => (cfg(g).rel ?? {});
+const halfLife = (g: Save) => relCfg(g).halfLife ?? HALF_LIFE;
+// Home: the difficulty is how fast relationships grow (gains only; losses stay as they are)
+const homeMult = (g: Save) => (isScenario(getWorld(g.world)) ? difficultyOf(g).bond : 1);
+export const paceOf = (g: Save, x: string, m: Meter): Pace | undefined => relOf(g).people[idOf(g, x)]?.pace?.[m];
+// x's curve for a meter: the save's settings, x's own pace, and (the easy points only) the Home difficulty.
+export function curveOf(g: Save, x: string, m: Meter): Curve {
+    const set = relCfg(g).pace?.[m] ?? {};
+    const k = PACE[paceOf(g, x, m) ?? 'normal'] ?? 1;
+    return { E: (set.E ?? CURVES[m].E) * k * homeMult(g), H: (set.H ?? CURVES[m].H) * k };
+}
+// x's fatigue toward y for a meter, faded to now.
+export function fatigue(g: Save, m: Meter, x: string, y: string): number {
+    const f = relOf(g).fat[dk(idOf(g, x), idOf(g, y))];
+    return f ? faded(f[m] ?? 0, nowAbs(g) - f.at, halfLife(g)) : 0;
+}
+// The rate of x's next paced point toward y (1 = full), for the debug view.
+export const rateOf = (g: Save, m: Meter, x: string, y: string) => rateAt(fatigue(g, m, x, y), curveOf(g, x, m));
+// Moves fatigue by `delta` (both meters faded to now first); tiny leftovers are dropped.
+function addFatigue(g: Save, m: Meter, x: string, y: string, delta: number) {
+    const st = relOf(g); const k = dk(x, y); const now = nowAbs(g);
+    const f = st.fat[k];
+    const next: { f?: number; r?: number; at: number } = { at: now };
+    for (const mm of ['f', 'r'] as Meter[]) {
+        const v = clean(faded(f?.[mm] ?? 0, now - (f?.at ?? now), halfLife(g)) + (mm === m ? delta : 0));
+        if (v >= 0.05) next[mm] = v;
+    }
+    if (next.f === undefined && next.r === undefined) delete st.fat[k]; else st.fat[k] = next;
+}
+
 /** What a gain or loss actually changed: the meter by `d`, the pacing weight by `fat` (so it can be undone). */
 export interface Applied { d: number; fat: number }
 const NONE: Applied = { d: 0, fat: 0 };
 
-// A gain. Paced gains (talk, reactions, texts…) count against what was gained recently; milestones (an accepted ask,
-// a kept date, a story event) apply in full. The person you play gains nothing: their feelings wait for you to leave.
-// For now friendship keeps the old rule: at most `bondCap` (15) paced points a day with each person, scaled by the
-// Home difficulty; romance isn't paced.
-export function gain(g: Save, m: Meter, x: string, y: string, raw: number, paced = true): Applied {
+// A gain. Paced gains (talk, reactions, texts, the verdict…) slow down with what was gained recently; milestones (an
+// accepted ask, a kept date, a story event) apply in full and add no fatigue. The person you play gains nothing:
+// their feelings wait for you to leave.
+export function gain(g: Save, m: Meter, x: string, y: string, raw: number, isPaced = true): Applied {
     x = idOf(g, x); y = idOf(g, y);
     if (!x || !y || x === YOU || x === y || !(raw > 0)) return NONE;
+    raw *= homeMult(g);
     const before = meter(g, m, x, y);
-    let add = raw, fat = 0;
-    if (paced && m === 'f') {
-        const mult = isScenario(getWorld(g.world)) ? difficultyOf(g).bond : 1;
-        if (mult !== 1) add = Math.max(1, Math.round(add * mult));
-        const f = relOf(g).fat[dk(x, y)];
-        const today = f && Math.floor(f.at / 1440) === g.day ? f.f ?? 0 : 0;
-        add = Math.min(add, Math.max(0, Math.round((cfg(g).bondCap ?? 15) * mult) - today));
-        if (add <= 0) return NONE;
-        fat = add;
-        relOf(g).fat[dk(x, y)] = { f: today + add, at: nowAbs(g) };
-    }
+    const add = isPaced ? paced(raw, fatigue(g, m, x, y), curveOf(g, x, m)) : raw;
     setMeter(g, m, x, y, before + add);
-    return { d: clean(meter(g, m, x, y) - before), fat };
+    const d = clean(meter(g, m, x, y) - before);
+    const fat = isPaced ? clean(add) : 0;
+    if (fat) addFatigue(g, m, x, y, fat);
+    return { d, fat };
 }
+/** What each everyday source is worth (raw points, before pacing). Other sources pass their own amounts. */
+export const SOURCES = {
+    talk: 0.5,      // each line you say, to each resident present who has spoken in the scene
+    verdict: 3,     // each step of the night's verdict (−3..+3), friendship and romance
+};
 // A loss: in full, never paced. Returns how much it went down.
 export function lose(g: Save, m: Meter, x: string, y: string, n: number): number {
     const before = meter(g, m, x, y);
     setMeter(g, m, x, y, before - Math.abs(n));
     return clean(before - meter(g, m, x, y));
 }
-// Takes back exactly what a gain applied (sim/msglog.ts): the meter, and the pacing weight it added.
-export function undoGain(g: Save, m: Meter, x: string, y: string, a: Applied) {
+// Takes back what a gain applied (sim/msglog.ts): the meter, and the pacing weight it added (unless `meterOnly`:
+// a correction made after the scene, when that weight has already faded).
+export function undoGain(g: Save, m: Meter, x: string, y: string, a: Applied, meterOnly = false) {
     x = idOf(g, x); y = idOf(g, y);
     if (a.d) setMeter(g, m, x, y, meter(g, m, x, y) - a.d);
-    const f = relOf(g).fat[dk(x, y)];
-    if (a.fat && f && Math.floor(f.at / 1440) === g.day) { f.f = clean(Math.max(0, (f.f ?? 0) - a.fat)); if (!f.f) delete relOf(g).fat[dk(x, y)]; }
+    if (a.fat && !meterOnly) addFatigue(g, m, x, y, -Math.min(a.fat, fatigue(g, m, x, y)));
 }
 
 /* ---------- pairs ---------- */

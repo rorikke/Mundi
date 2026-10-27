@@ -3,7 +3,8 @@
 // its speaker and text. After any change to the chat, reconcile() compares the open messages (those since the last
 // settle point) with the records: a record whose message is gone (deleted, swiped away, regenerated, edited) is
 // undone exactly, and a message without a record is judged. Leaving a place or sleeping settles the scene: its
-// messages are marked, their records are dropped, and changing them later changes nothing.
+// messages are marked, their records are dropped (kept a day while the debug view is on, to be looked at and undone
+// by hand), and changing them later changes nothing.
 //
 // The emotion read in a reply is kept on the message itself (`extra.mundi_ex`, with the fingerprint of the text it
 // belongs to), so a label SillyTavern copies onto a new swipe is recognized as stale, and an earlier swipe shown
@@ -12,14 +13,15 @@ import { game, saveGame, nowAbs, state, TUT, type Save } from '../core/store.js'
 import { getWorld } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId, type Expr } from '../st/bridge.js';
 import { presentAt } from './people.js';
-import { gain as gainMeter, undoGain, YOU, type Meter } from './rel.js';
+import { gain as gainMeter, undoGain, relCfg, SOURCES, YOU, type Meter } from './rel.js';
 import { reactionGain } from './mood.js';
 
 /** One meter change: `x`'s meter `m` toward `y` (you when absent) moved by `d`, its pacing weight by `fat`. */
 interface Change { x: string; y?: string; m: Meter; d: number; fat: number }
-/** What one message changed. `fp` identifies the message (speaker and text); `why` says what was judged. */
-export interface Rec { fp: string; who: string; kind: 'line' | 'reply'; at: number; why: string; label?: string; ch: Change[] }
-interface Log { chat: string; open: Rec[] }
+/** What one message changed. `fp` identifies the message (speaker and text); `why` says what was judged; `undone`:
+ *  taken back by hand (the record stays, so the message isn't judged again). */
+export interface Rec { id?: number; fp: string; who: string; kind: 'line' | 'reply'; at: number; why: string; label?: string; ch: Change[]; undone?: true }
+interface Log { chat: string; open: Rec[]; settled?: Rec[]; n?: number }
 /** The emotion read in a reply: k 'l' a label, 'f' the classifier failed, 'n' there is no classifier. */
 interface Ex { fp: string; k: 'l' | 'f' | 'n'; l?: string }
 
@@ -100,12 +102,13 @@ function undo(g: Save, r: Rec) {
     for (const c of r.ch) undoGain(g, c.m ?? 'f', c.x, c.y ?? YOU, { d: c.d, fat: c.fat });
 }
 
-// Your line: talking brings you closer to everyone listening (only the one you talk to, when talking alone).
-function judgeLine(g: Save, fp: string): Rec {
+// Your line: a little closer to everyone in the conversation (residents here who have spoken in this scene; only
+// the one you talk to, when talking alone). Bystanders who never spoke gain nothing.
+function judgeLine(g: Save, fp: string, speakers: Set<string>): Rec {
     const w = getWorld(g.world);
     const solo = String((g as any).social?.solo ?? '');
-    const hearers = w ? presentAt(g, w, g.player.loc).filter(r => r.met && (!solo || r.avatar === solo)) : [];
-    const ch = hearers.map(r => gain(g, r.avatar, 3)).filter((c): c is Change => !!c);
+    const hearers = w ? presentAt(g, w, g.player.loc).filter(r => r.met && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
+    const ch = hearers.map(r => gain(g, r.avatar, SOURCES.talk)).filter((c): c is Change => !!c);
     return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
 }
 // A reply: a warm reaction brings the speaker closer (once you've met).
@@ -161,14 +164,16 @@ export function reconcile() {
     const recs = new Map<string, number>();
     for (const r of log.open) recs.set(r.fp, (recs.get(r.fp) ?? 0) + 1);
     const used = new Map<string, number>();
+    const speakers = new Set(win.filter(m => !m.is_user).map(m => speakerOf(m) ?? ''));
+    const add = (r: Rec) => { r.id = log!.n = (log!.n ?? 0) + 1; log!.open.push(r); changed = true; };
     for (const m of win) {
         const fp = fpOf(m);
         const u = (used.get(fp) ?? 0) + 1; used.set(fp, u);
         if (u <= (recs.get(fp) ?? 0)) continue;   // this one already has its record
-        if (m.is_user) { log.open.push(judgeLine(g, fp)); changed = true; continue; }
+        if (m.is_user) { add(judgeLine(g, fp, speakers)); continue; }
         const ex = exOf(m, fp);
         if (!ex) { classify(fp, textOf(m)); continue; }
-        log.open.push(judgeReply(g, m, fp, ex)); changed = true;
+        add(judgeReply(g, m, fp, ex));
         recs.set(fp, (recs.get(fp) ?? 0) + 1);
     }
     if (changed) { saveGame(); notifyLater(); }
@@ -186,13 +191,18 @@ const notifyLater = () => { void import('../core/store.js').then(s => s.notify()
 
 /* ---------- settling ---------- */
 
-// Ends the undo window: the open messages are marked settled and their records dropped (their changes stay).
+// Ends the undo window: the open messages are marked settled and their records dropped (their changes stay). With
+// the debug view on, the last game day's records are kept to be looked at (and corrected by hand).
 export function settleNow(id: string) {
     const g = game();
     if (!g || TUT.save) return;
     const log = logOf(g);
     markSettled(chat(), id);
-    if (log) log.open = [];
+    if (log) {
+        if (relCfg(g).debug) log.settled = [...(log.settled ?? []), ...log.open].filter(r => r.at >= nowAbs(g) - 1440);
+        else delete log.settled;
+        log.open = [];
+    }
     saveGame();
 }
 // The same at the end of a scene, after the replies still being read have been judged (a few seconds at most).
@@ -204,6 +214,25 @@ export async function settleScene(id: string) {
 }
 
 /* ---------- debugging ---------- */
+
+// The records: open ones (the scene still going), then the settled ones kept for the debug view, newest first.
+export function records(g: Save): (Rec & { settled: boolean })[] {
+    const log = logOf(g);
+    if (!log) return [];
+    if (log.settled && !relCfg(g).debug) delete log.settled;
+    return [...log.open.map(r => ({ ...r, settled: false })), ...(log.settled ?? []).map(r => ({ ...r, settled: true }))].sort((a, b) => b.at - a.at || (b.id ?? 0) - (a.id ?? 0));
+}
+// Takes back one record by hand (the debug view): an open one exactly, a settled one only on the meter (its pacing
+// weight has faded). The record stays, marked undone, so its message isn't judged again.
+export function undoRecord(g: Save, id: number): boolean {
+    const log = logOf(g);
+    const open = log?.open.find(r => r.id === id), done = open ?? log?.settled?.find(r => r.id === id);
+    if (!done || done.undone) return false;
+    for (const c of done.ch) undoGain(g, c.m ?? 'f', c.x, c.y ?? YOU, { d: c.d, fat: c.fat }, !open);
+    done.ch = []; done.undone = true;
+    saveGame();
+    return true;
+}
 
 // The open records, for the console (`Mundi.ledger()`).
 export function ledger() {

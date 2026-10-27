@@ -98,7 +98,16 @@ export interface Save {
 
 // The open chat's save, or null when the open chat is not a Mundi game.
 // Per-save world settings (Globe → World → Advanced). Missing values mean the world's defaults.
-export interface WorldCfg { /** Home: minutes pass with each message (default on) */ perMessage?: boolean; /** Home: the housemates leave the house (work, errands, nights out; default on) */ npcOut?: boolean; travel?: number; decay?: number; bondCap?: number; seasonDays?: number; lore?: string[]; clock?: 'action' | 'live'; /** open relationships: no jealousy, date several people freely */ poly?: boolean }
+export interface WorldCfg { /** Home: minutes pass with each message (default on) */ perMessage?: boolean; /** Home: the housemates leave the house (work, errands, nights out; default on) */ npcOut?: boolean; travel?: number; decay?: number; seasonDays?: number; /** relationships (World → Rules → Relationships) */ rel?: RelCfg; lore?: string[]; clock?: 'action' | 'live'; /** open relationships: no jealousy, date several people freely */ poly?: boolean }
+// Per-save relationship settings. Missing values mean the defaults (sim/pace.ts).
+export interface RelCfg {
+    /** pacing per meter: E = points at full rate, H = points more until gains come at half rate */
+    pace?: { f?: { E?: number; H?: number }; r?: { E?: number; H?: number } };
+    /** game minutes for half of the recent gains' weight to fade (default 480) */
+    halfLife?: number;
+    /** show the raw numbers and each message's changes (for tuning; never sent to the AI) */
+    debug?: boolean;
+}
 export const cfg = (g: Save): WorldCfg => (((g as any).cfg ??= {}) as WorldCfg);
 // How time passes: "action" (default) only what you do moves the clock (eating, sleeping, working, travelling);
 // "live" the clock also runs by itself in real time (World → Rules).

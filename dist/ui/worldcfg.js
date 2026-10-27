@@ -28,7 +28,9 @@ import { openCreatorEdit, CW as CREATOR } from './creator.js';
 import { tabAiContext } from './aictx.js';
 import { warningsBanner } from './warnings.js';
 import { ACT, INPUT } from './reg.js';
-import { setFr, setStatus, YOU } from '../sim/rel.js';
+import { setFr, setStatus, relOf, relCfg, paceOf, YOU } from '../sim/rel.js';
+import { CURVES, HALF_LIFE } from '../sim/pace.js';
+import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
 const WC = { tab: 'people', adv: false, who: '', adding: false, q: '', lq: '', back: 'map' };
 const opt = (v, label, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
@@ -60,8 +62,34 @@ function personForm(g, w) {
                 <small class="mu-muted">None chosen: any leisure place.</small></div>
             <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="0" max="100" value="${bond}" data-input="wc-bond"></label>
             <label class="mu-check"><input type="checkbox" data-input="wc-partner" ${isPartner(g, r.avatar) ? 'checked' : ''}><span>Together (dating)</span></label>
+            ${paceHtml(g, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
-            <small class="mu-muted">Their card stays in SillyTavern; they just stop living here.</small>` : ''}`;
+            <small class="mu-muted">Their card stays in SillyTavern; they just stop living here.</small>` : ''}
+        ${relNumbersHtml(g, r.avatar)}${relChangesHtml(g, r.avatar)}`;
+}
+// How fast this person's own feelings grow (slow halves the easy points and the slowdown, fast doubles them).
+function paceHtml(g, avatar) {
+    const PACES = [['', 'World default'], ['slow', 'Slow'], ['normal', 'Normal'], ['fast', 'Fast']];
+    const sel = (m, label) => `<label class="mu-field"><span>${label}</span><select data-input="wc-pace" data-m="${m}">${PACES.map(([v, l]) => opt(v, l, (paceOf(g, avatar, m) ?? '') === v)).join('')}</select></label>`;
+    return `<div class="mu-row2">${sel('f', 'Friendship grows')}${sel('r', 'Romance grows')}</div>`;
+}
+// Relationships, per save: open relationships, and (Advanced) how fast feelings grow and the debug view.
+function relSection(g, w) {
+    const c = cfg(g);
+    const rc = relCfg(g);
+    const sl = (label, k, v, min, max, step, unit) => `<label class="mu-field slider"><span>${label} · ${v}${unit}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-input="wc-rel" data-k="${k}"></label>`;
+    const E = (m) => rc.pace?.[m]?.E ?? CURVES[m].E, H = (m) => rc.pace?.[m]?.H ?? CURVES[m].H;
+    return `<section class="mu-wc-sec"><h4>Relationships</h4>
+        ${systemOn(w, 'romance') ? `<label class="mu-check"><input type="checkbox" data-input="wc-poly" ${c.poly ? 'checked' : ''}><span>Open relationships (polyamory)<small>No jealousy: you can date several people at once, freely, and everyone knows. Off: a new romance hurts the partners you already have.</small></span></label>` : ''}
+        ${WC.adv ? `<p class="mu-muted">How fast feelings grow. The first points with someone come at full speed; after that each gain counts a little less, and the pace comes back over the next hours. Nothing ever stops completely.</p>
+            ${sl('Friendship: points at full speed', 'f.E', E('f'), 1, 20, 1, '')}
+            ${sl('Friendship: points more until half speed', 'f.H', H('f'), 1, 20, 1, '')}
+            ${systemOn(w, 'romance') ? `${sl('Romance: points at full speed', 'r.E', E('r'), 1, 20, 1, '')}
+            ${sl('Romance: points more until half speed', 'r.H', H('r'), 1, 20, 1, '')}` : ''}
+            ${sl('The pace comes back by half in', 'halfLife', Math.round((rc.halfLife ?? HALF_LIFE) / 60), 1, 24, 1, ' h')}
+            <label class="mu-check"><input type="checkbox" data-input="wc-rel-debug" ${rc.debug ? 'checked' : ''}><span>Show the numbers (debug)<small>The raw values, how fast each relationship grows right now, and what each message changed, with undo. For tuning: the AI never sees it.</small></span></label>
+            <button class="mu-ghost" data-act="wc-rel-reset">${icon('undo')}<span>Back to the world's defaults</span></button>`
+        : '<p class="mu-muted">Turn on "Advanced" for how fast feelings grow and the debug view.</p>'}</section>`;
 }
 function addPicker(g) {
     const q = WC.q.toLowerCase();
@@ -167,14 +195,14 @@ function tabRules(g, w) {
     const slider = (label, key, v, min, max, step, unit) => `<label class="mu-field slider"><span>${label} · ${v}${unit}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-input="wc-cfg" data-k="${key}"></label>`;
     const live = (c.clock ?? 'action') === 'live';
     return `<section class="mu-wc-sec"><h4>${esc(w.name)}</h4><p>${esc(w.description)}</p><p class="mu-muted">Game mode: <b>${GAME_MODES.find(m => m.id === gameMode(w)).name}</b> (change it in the world creator).</p></section>
-        ${isScenario(w) ? `${dressHtml(g, w)}${systemOn(w, 'romance') ? `<section class="mu-wc-sec"><h4>Love</h4><label class="mu-check"><input type="checkbox" data-input="wc-poly" ${c.poly ? 'checked' : ''}><span>Open relationships</span></label></section>` : ''}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
+        ${isScenario(w) ? `${dressHtml(g, w)}${relSection(g, w)}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
         <section class="mu-wc-sec"><h4>Time</h4>
             <div class="mu-heropick is-start">
                 <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>Only with actions</b><p>The clock moves only when you do something: eat, drink, sleep, work, travel, or let time pass. Talking does not spend time.</p></button>
                 <button class="mu-herocard ${live ? 'is-on' : ''}" data-act="wc-clock" data-v="live"><b>Running clock</b><p>Time also passes by itself while you play (1 real second = 1 game minute at ×1). For testing.</p></button></div></section>
         <section class="mu-wc-sec"><h4>Difficulty</h4><p class="mu-muted">Changes the economy: what work pays, what things cost and what bills are.</p>
             <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${difficultyOf(g).id === d.id ? 'is-on' : ''}" data-act="wc-diff" data-v="${d.id}"><b>${d.name}</b><p>${d.desc}</p></button>`).join('')}</div></section>
-        ${systemOn(w, 'romance') ? `<section class="mu-wc-sec"><h4>Love</h4><label class="mu-check"><input type="checkbox" data-input="wc-poly" ${c.poly ? 'checked' : ''}><span>Open relationships (polyamory)<small>No jealousy: you can date several people at once, freely, and everyone knows. Off: a new romance hurts the partners you already have.</small></span></label></section>` : ''}
+        ${relSection(g, w)}
         ${lifeSection(g, w)}
         <section class="mu-wc-sec"><h4>Needs</h4>${list(activeStatuses(w).map(s => `${s.icon} ${s.name}`))}</section>
         <section class="mu-wc-sec"><h4>Places</h4>${list(w.places.map(p => p.name))}</section>
@@ -183,7 +211,6 @@ function tabRules(g, w) {
             ${slider('Travel time', 'travel', c.travel ?? 1, 0.25, 3, 0.25, '×')}
             ${slider('How fast needs drop', 'decay', c.decay ?? 1, 0, 3, 0.25, '×')}
             ${slider('Days in each season', 'seasonDays', c.seasonDays ?? 14, 3, 60, 1, ' days')}
-            ${slider('Most bond you can gain with someone in a day', 'bondCap', c.bondCap ?? 15, 5, 50, 5, '')}
             <button class="mu-ghost" data-act="wc-cfg-reset">${icon('undo')}<span>Back to the world's defaults</span></button></section>`
         : '<p class="mu-muted">Turn on "Advanced" for travel time, how fast needs drop and more.</p>'}`}`;
 }
@@ -340,7 +367,9 @@ Object.assign(ACT, {
     'wc-diff': (el) => { const g = game(); if (!g)
         return; cfg(g).difficulty = el.dataset.v; saveGame(); notify(); },
     'wc-cfg-reset': () => { const g = game(); if (!g)
-        return; const c = cfg(g); delete c.travel; delete c.decay; delete c.bondCap; delete c.seasonDays; saveGame(); notify(); },
+        return; const c = cfg(g); delete c.travel; delete c.decay; delete c.seasonDays; delete c.rel; saveGame(); notify(); },
+    'wc-rel-reset': () => { const g = game(); if (!g)
+        return; delete cfg(g).rel; saveGame(); notify(); },
 });
 Object.assign(INPUT, {
     'wc-tie': (el) => { TIE[el.dataset.k] = el.value; notify(); },
@@ -412,4 +441,43 @@ Object.assign(INPUT, {
         return; cfg(g).poly = el.checked || undefined; saveGame(); notify(); },
     'wc-cfg': (el) => { const g = game(); if (!g)
         return; cfg(g)[el.dataset.k] = Number(el.value); saveGame(); notify(); },
+    'wc-rel': (el) => {
+        const g = game();
+        if (!g)
+            return;
+        const rc = (cfg(g).rel ??= {});
+        const k = el.dataset.k;
+        const v = Number(el.value);
+        if (k === 'halfLife')
+            rc.halfLife = v * 60;
+        else {
+            const [m, part] = k.split('.');
+            ((rc.pace ??= {})[m] ??= {})[part] = v;
+        }
+        saveGame();
+        notify();
+    },
+    'wc-rel-debug': (el) => { const g = game(); if (!g)
+        return; const rc = (cfg(g).rel ??= {}); if (el.checked)
+        rc.debug = true;
+    else
+        delete rc.debug; saveGame(); notify(); },
+    'wc-pace': (el) => {
+        const g = game();
+        if (!g)
+            return;
+        const people = relOf(g).people;
+        const p = (people[WC.who] ??= {});
+        const m = el.dataset.m;
+        if (el.value)
+            (p.pace ??= {})[m] = el.value;
+        else if (p.pace)
+            delete p.pace[m];
+        if (p.pace && !Object.keys(p.pace).length)
+            delete p.pace;
+        if (!Object.keys(p).length)
+            delete people[WC.who];
+        saveGame();
+        notify();
+    },
 });

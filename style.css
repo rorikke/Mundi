@@ -3708,6 +3708,13 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-cw-coverpick button { aspect-ratio: 16 / 10; padding: 0; border-radius: 8px; background: var(--bh) center / cover no-repeat; border: 2px solid transparent; cursor: pointer; }
 #mundi-root .mu-cw-coverpick button:hover { border-color: var(--line); }
 #mundi-root .mu-cw-coverpick button.is-on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+/* The relationships debug view (ui/reldebug.ts): raw numbers on a person's card and in the People tab */
+#mundi-root .mu-reldbg { display: grid; gap: 2px; margin: 6px 0; padding: 6px 8px; border: 1px dashed rgba(255, 255, 255, .25); border-radius: 8px; font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; opacity: .9; }
+#mundi-root .mu-reldbg b { font-weight: 700; }
+#mundi-root .mu-reldbg-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+#mundi-root .mu-reldbg-list li { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+#mundi-root .mu-reldbg-list li > span { flex: 1; }
+#mundi-root .mu-reldbg-list li.is-settled { opacity: .65; }
 /* ==========================================================================
    Phones, upright (#mundi-root[data-mobile], set in app.ts).
    The game HUD stacks in rows at the top, the dialogue box fills the bottom, and the panels become full-screen sheets.

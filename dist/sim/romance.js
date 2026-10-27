@@ -4,7 +4,7 @@
 // the engine apply the result. At night, the diary call also gives a verdict on the day's relationships.
 import { nowAbs, cfg } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, setStatus, setCooldown, partnersOf as partnersOfId, SOURCES, YOU } from './rel.js';
 import { approvalOf, approve } from './living.js';
 import { note } from './facts.js';
 import { romanceBlocked, canTryForBaby } from './family.js';
@@ -149,12 +149,19 @@ export function applyVerdict(g, people, text) {
         const p = people.find(x => x.name.toLowerCase() === m[1].trim().toLowerCase());
         if (!p || out.some(c => c.avatar === p.avatar))
             continue;
-        const df = Math.max(-3, Math.min(3, Number(m[2]))) * 3, dr = Math.max(-3, Math.min(3, Number(m[3]))) * 3;
+        const df = Math.max(-3, Math.min(3, Number(m[2]))) * SOURCES.verdict, dr = Math.max(-3, Math.min(3, Number(m[3]))) * SOURCES.verdict;
         const f0 = bondOf(g, p.avatar), r0 = romValue(g, p.avatar);
-        if (df)
-            bump(g, p.avatar, df);
-        if (dr && sysOn(g, 'romance') && !romanceBlocked(g, p.avatar))
-            addRomance(g, p.avatar, dr);
+        // gains are paced (the day's talk already brought some), losses apply in full
+        if (df > 0)
+            gain(g, 'f', p.avatar, YOU, df);
+        else if (df < 0)
+            lose(g, 'f', p.avatar, YOU, df);
+        if (dr && sysOn(g, 'romance') && !romanceBlocked(g, p.avatar)) {
+            if (dr > 0)
+                gain(g, 'r', p.avatar, YOU, dr);
+            else
+                lose(g, 'r', p.avatar, YOU, dr);
+        }
         out.push({ avatar: p.avatar, name: p.name, why: m[4].trim().slice(0, 160), f0, f1: bondOf(g, p.avatar), r0, r1: romValue(g, p.avatar) });
     }
     return out;
