@@ -19,6 +19,7 @@ import { placeOf, playerHomeId } from './places.js';
 import { whereNow, residents } from './people.js';
 import { partnersOf, YOU } from './rel.js';
 import { shutOut } from './romance.js';
+import { grudgeOf } from './grudges.js';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${g.minutes}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -202,7 +203,7 @@ export const clearInvite = (g: Save) => { (social(g) as any).invite = null; };
 function maybeInvite(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60);
     if (!systemOn(w, 'plans') || pendingInvite(g) || h < 9 || h > 20 || rnd(g, 'invite') > 0.05) return [];
-    const pool = residents(g).filter(r => r.met && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && r.leisure.length);
+    const pool = residents(g).filter(r => r.met && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length);
     if (!pool.length) return [];
     const r = pool[Math.floor(rnd(g, 'who') * pool.length)];
     const from = nowAbs(g) + 120 - (nowAbs(g) % 30);

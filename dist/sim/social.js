@@ -8,6 +8,7 @@ import { whereNow } from './people.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
+import { sawYou } from './warnings.js';
 export function social(g) {
     const s = (g.social ??= {});
     s.threads ??= {};
@@ -96,6 +97,7 @@ export async function sendText(g, w, avatar, text) {
     (s.threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
     addBond(g, avatar, 2);
     touch(g, avatar);
+    sawYou(g, avatar);
     ((g.post ??= { queue: [], contact: {} }).contact)[avatar] = g.day; // keeping in touch (letters from afar)
     const reply = await sayLine(textTranscript(g, w, r), r.name, [r.name, personaName()], 320, 120, 'now');
     if (reply)

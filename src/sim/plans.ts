@@ -17,6 +17,8 @@ import { dating } from './feed.js';
 import { shutOut, crushOn, addRomance } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { touch } from './rel.js';
+import { holdGrudge, grudgeOf } from './grudges.js';
+import { sawYou } from './warnings.js';
 import { personaName } from '../st/bridge.js';
 
 export const HANGOUT_BOND = 15;   // acquaintance: you can hang out
@@ -60,6 +62,7 @@ export function check(g: Save, w: WorldDef, avatar: string, place: string, from:
     if (!r) return { ok: false, why: 'They are not in this world.' };
     const romantic = kind === 'date';
     if (shutOut(g, avatar, romantic)) return NOT_YOU;
+    if (grudgeOf(g, avatar)) return { ok: false, why: 'They are still upset with you.' };
     if (romantic && !canDate(g, avatar)) return { ok: false, why: 'They are not ready for a date with you yet.' };
     if (!close(g, avatar, need) && !matched(g, avatar) && !(romantic && crushOn(g, avatar))) return { ok: false, why: 'They do not know you well enough yet.' };
     if (place === playerHomeId && !close(g, avatar, HOME_BOND)) return { ok: false, why: 'They are not comfortable going to your home yet.' };
@@ -162,6 +165,7 @@ export function cancelPlan(g: Save, id: string) {
     if (!a || a.state !== 'set') return null;
     a.state = 'cancelled';
     approve(g, a.avatar, -4);
+    holdGrudge(g, a.avatar, 'you called off your plans');
     remember(g, '{u} called off the plans with {0}.', [g.cast[a.avatar]?.name ?? ''], [a.avatar], g.player.loc, 'plan');
     if (a.from - nowAbs(g) < 120) bump(g, a.avatar, -2);   // last-minute cancels sting a little
     return a;
@@ -192,7 +196,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
             const cw = s.with.find(x => x.avatar === a.avatar);
             if (cw) cw.until = Math.max(cw.until, a.to); else s.with.push({ avatar: a.avatar, until: a.to });
             if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', a.kind === 'date' || a.kind === 'party' ? 15 : 10); }
-            bump(g, a.avatar, a.kind === 'date' ? 8 : 5); touch(g, a.avatar);
+            bump(g, a.avatar, a.kind === 'date' ? 8 : 5); touch(g, a.avatar); sawYou(g, a.avatar);
             if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar)) addRomance(g, a.avatar, 5);   // a date kept is romantic too (a milestone)
             approve(g, a.avatar, 5);
             feel(g, a.avatar, a.kind === 'party' ? 'Had a great time at your party' : a.kind === 'date' ? 'Happy about the date' : 'Glad you kept your word', 1);
@@ -202,7 +206,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
             a.state = 'missed';
             a.to = Math.min(a.to, now);   // she gives up and goes back to her day
             bump(g, a.avatar, a.kind === 'date' ? -10 : -6);
-            feel(g, a.avatar, 'Resentful: you stood them up', 3);
+            if (!holdGrudge(g, a.avatar, 'you stood them up')) feel(g, a.avatar, 'Resentful: you stood them up', 3);
             approve(g, a.avatar, -12); approveAll(g, -2, [a.avatar]);
             remember(g, '{u} stood {0} up: {0} waited at {1}, and {u} never came.', [nameOf(a.avatar), placeName(a.place)], [a.avatar], a.place, 'plan');
             out.push({ text: `${nameOf(a.avatar)} waited for you at ${placeName(a.place)}, but you never came.`, kind: 'warn', texted: a.avatar });

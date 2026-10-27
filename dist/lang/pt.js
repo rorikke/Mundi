@@ -3908,7 +3908,6 @@ const DICT = {
     "Could not save the character.": "Não foi possível salvar o personagem.",
     "Nothing changes until you apply what your AI read.": "Nada muda até você aplicar o que sua IA leu.",
     "Their initiatives": "Iniciativas deles",
-    "What the people here bring up on their own this scene: opening up, a confession, asking you something.": "O que as pessoas aqui puxam por conta própria nesta cena: se abrir, uma confissão, te pedir algo.",
     "Characters take the initiative": "Os personagens tomam a iniciativa",
     "Rarely": "Raramente",
     "Normal (default)": "Normal (padrão)",
@@ -3917,6 +3916,8 @@ const DICT = {
     "Asks you to come over tonight": "Te convida para ir à casa dele(a) hoje à noite",
     "Not yet": "Ainda não",
     "Not tonight, but soon?": "Hoje não, mas logo?",
-    "You said no to {0}.": "Você disse não a {0}."
+    "You said no to {0}.": "Você disse não a {0}.",
+    "They are still upset with you.": "Ainda está chateado(a) com você.",
+    "What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.": "O que as pessoas aqui puxam por conta própria nesta cena (se abrir, uma confissão, te pedir algo), e o que cada uma quer de você."
 };
 export default DICT;

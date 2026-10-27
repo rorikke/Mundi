@@ -14,6 +14,7 @@ import { fr, ro, gain, lose, relOf, relCfg, SOURCES, YOU, type Applied, type Day
 import { facts, factText, placeName } from './facts.js';
 import { romanceBlocked, familyBlocked } from './family.js';
 import { finishMoments } from './moments.js';
+import { grudgeOf, holdGrudge, makeUp, GRUDGE } from './grudges.js';
 import type { Change } from './romance.js';
 
 export const MIN_MESSAGES = 4;   // passing through a place (a greeting, a word) costs no AI call
@@ -22,7 +23,7 @@ export const verdictOn = (g: Save) => relCfg(g).verdict !== false;
 /* ---------- the answer ---------- */
 
 /** One line of a verdict. `to`: an "A > B" line (how A's feelings for B changed). `madeUp`: the optional "made up"
- *  marker (a grudge resolved; used later). */
+ *  marker: you apologized or made amends, which ends a grudge (sim/grudges.ts). */
 export interface VerdictLine { name: string; to?: string; f: number; r: number; why: string; madeUp: boolean }
 const LINE = /^\s*[-*•]?\s*([^|\n>]+?)\s*(?:>\s*([^|\n]+?)\s*)?\|\s*friendship\s*([+-]?\s*\d)\s*\|\s*romance\s*([+-]?\s*\d)\s*\|\s*([^|\n]+?)\s*(?:\|\s*(made\s*up)\s*)?$/i;
 const step = (v: string) => Math.max(-3, Math.min(3, Number(v.replace(/\s+/g, '')) || 0));
@@ -71,6 +72,7 @@ export async function verdictNow(g: Save, w: WorldDef, reason: string, { end = f
         console.debug('[Mundi] scene verdict queued:', reason, `${msgs.length} messages`);
         const romance = systemOn(w, 'romance');
         const between = systemOn(w, 'relations') && people.length >= 2;
+        const hurt = people.map(p => { const gr = grudgeOf(g, p.avatar); return gr ? `${p.name} (${gr.tag.replace(/^Hurt: /, '')})` : ''; }).filter(Boolean);
         const already = people.map(p => { const c = counted[p.avatar]; return c && (c.f || c.r) ? `${p.name}: friendship ${c.f >= 0 ? '+' : ''}${c.f.toFixed(1)}${c.r ? `, romance ${c.r >= 0 ? '+' : ''}${c.r.toFixed(1)}` : ''}` : ''; }).filter(Boolean);
         const prompt = `A scene in ${w.name} between ${me} and ${people.map(p => p.name).join(', ')} has just ended.\n\n` +
             `${noted.length ? `What surely happened meanwhile:\n${noted.join('\n')}\n\n` : ''}What was said:\n${talk}\n\n` +
@@ -80,6 +82,7 @@ export async function verdictNow(g: Save, w: WorldDef, reason: string, { end = f
             `Name | friendship +1 | romance 0 | a short reason\n` +
             `Friendship${romance ? ' and romance go' : ' goes'} from -3 to +3; 0 when nothing changed. ${romance ? 'Romance only moves with flirting, a date or intimacy. ' : 'Always write romance 0. '}` +
             `Insults, fights, cruelty or broken promises are negative. Be honest, not generous. ` +
+            (hurt.length ? `Still hurt by ${me}: ${hurt.join('; ')}. If ${me} sincerely apologized or made amends to one of them in this scene, end that person's line with: | made up. ` : '') +
             (between ? `When the scene clearly changed how one of them feels about another of them (not about ${me}), add a line for that too, like this:
 ${people[0].name} > ${people[1].name} | friendship -1 | romance 0 | a short reason
 ` : '') +
@@ -117,6 +120,8 @@ function apply(g: Save, w: WorldDef, out: string, people: { avatar: string; name
         const ch = moveBy(g, p.avatar, to, l.f, systemOn(w, 'romance') && !romanceBlocked(g, p.avatar) ? l.r : 0);
         changes.push({ avatar: p.avatar, name: p.name, why: l.why, f0, f1: Math.round(fr(g, p.avatar, to)), r0, r1: Math.round(ro(g, p.avatar, to)) });
         addSettled(g, { fp: 'verdict', who: p.avatar, kind: 'verdict', at: nowAbs(g), why: l.why, ch });
+        // a clear loss leaves a grudge; amends end one (A-4; only toward you)
+        if (to === YOU) { if (l.madeUp) makeUp(g, p.avatar); else if (l.f <= -2) holdGrudge(g, p.avatar, l.why, l.f <= -3 ? GRUDGE.worse : GRUDGE.days); }
         if (st.day?.day === day) (st.day.why[p.avatar] ??= []).push(l.why);
     }
     saveGame(); notify();

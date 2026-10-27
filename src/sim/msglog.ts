@@ -16,6 +16,7 @@ import { presentAt } from './people.js';
 import { gain as gainMeter, undoGain, relCfg, ro, touch, SOURCES, YOU, type Meter } from './rel.js';
 import { reactionGain, reactionRomance } from './mood.js';
 import { romanceBlocked } from './family.js';
+import { sawYou } from './warnings.js';
 
 /** One meter change: `x`'s meter `m` toward `y` (you when absent) moved by `d`, its pacing weight by `fat`. */
 interface Change { x: string; y?: string; m: Meter; d: number; fat: number }
@@ -118,7 +119,7 @@ function judgeLine(g: Save, fp: string, speakers: Set<string>): Rec {
 function judgeReply(g: Save, m: any, fp: string, ex: Ex, speakers: Set<string>): Rec {
     const who = speakerOf(m) ?? '';
     const met = !!who && !!g.cast[who]?.met;
-    if (met) touch(g, who);   // a scene together counts as contact (romance doesn't fade)
+    if (met) { touch(g, who); sawYou(g, who); }   // a scene together counts as contact (romance doesn't fade)
     const label = ex.k === 'l' ? ex.l ?? '' : '';
     const ch: Change[] = [];
     const f = met ? reactionGain(label) : 0;

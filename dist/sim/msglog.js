@@ -16,6 +16,7 @@ import { presentAt } from './people.js';
 import { gain as gainMeter, undoGain, relCfg, ro, touch, SOURCES, YOU } from './rel.js';
 import { reactionGain, reactionRomance } from './mood.js';
 import { romanceBlocked } from './family.js';
+import { sawYou } from './warnings.js';
 const logOf = (g) => (g.rel ??= {}).log;
 /* ---------- fingerprints ---------- */
 const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) {
@@ -110,8 +111,10 @@ function judgeLine(g, fp, speakers) {
 function judgeReply(g, m, fp, ex, speakers) {
     const who = speakerOf(m) ?? '';
     const met = !!who && !!g.cast[who]?.met;
-    if (met)
-        touch(g, who); // a scene together counts as contact (romance doesn't fade)
+    if (met) {
+        touch(g, who);
+        sawYou(g, who);
+    } // a scene together counts as contact (romance doesn't fade)
     const label = ex.k === 'l' ? ex.l ?? '' : '';
     const ch = [];
     const f = met ? reactionGain(label) : 0;

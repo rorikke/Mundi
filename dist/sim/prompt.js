@@ -22,7 +22,7 @@ import { tiesLine } from './living.js';
 import { feelingsLine } from './relations.js'; // also runs feelings between people, hour by hour
 import { romanceLine } from './romance.js';
 import { genderLine } from './gender.js';
-import { checkInitiative, momentsFor, momentsLine } from './initiative.js';
+import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
 import { markSent } from './moments.js';
 import { familyLine } from './family.js';
 import { social, livePlan } from './social.js';
@@ -66,7 +66,7 @@ export const BLOCKS = [
     { id: 'memories', name: 'Memories', desc: 'What the people here remember about you, and what happened earlier in this place.', cut: 9 },
     { id: 'plans', name: 'Plans', desc: 'Plans you made with the people here.', cut: 8 },
     { id: 'focus', name: 'Scene focus', desc: 'Why you are here: a date, a meet-up, someone who came along.', cut: 8 },
-    { id: 'moments', name: 'Their initiatives', desc: 'What the people here bring up on their own this scene: opening up, a confession, asking you something.', cut: 8 },
+    { id: 'moments', name: 'Their initiatives', desc: 'What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.', cut: 8 },
     { id: 'solo', name: 'Talking alone', desc: 'Who you are talking to when you talk only with one person.' },
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
     { id: 'family', name: 'Your children', desc: 'Your children\'s age and how to treat them. Always sent when they are here.' },
@@ -152,7 +152,7 @@ export function sceneBlocks() {
         ties: [...factionLines(g, w, present), tiesLine(g, present, !systemOn(w, 'relations')), feelingsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
         romance: [romanceLine(g, met)],
         gender: [genderLine(g, w, present)],
-        moments: [momentsLine(momentsFor(g, w, present))],
+        moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
         family: [familyLine(g, present)],
         rumors: rumorLines(g, met),
         lore: activeWorldLore(g, w),

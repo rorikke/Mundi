@@ -6,7 +6,7 @@
 // staying the night); afterwards ui/relui.ts asks the AI whether you accepted. Away from you, someone with a crush
 // may text you a date, and a casual partner a "come over tonight?". Romantic initiatives need the romance system,
 // attraction to your gender and no family or minor block; an exclusive person with a partner of their own keeps it
-// to themselves.
+// to themselves. And, for the AI, what each person here wants from you right now (A-7).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
@@ -19,7 +19,10 @@ import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, 
 import { romanceBlocked } from './family.js';
 import { intimacyReady, needsOf, styleOf } from './intimacy.js';
 import { canDate } from './plans.js';
-import { attracted, partnersOf, idOf, YOU } from './rel.js';
+import { attracted, partnersOf, idOf, relOf, fr, YOU } from './rel.js';
+import { grudgeOf } from './grudges.js';
+import { warning, lowFor } from './warnings.js';
+import { lookingOf } from './feed.js';
 import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, type Moment, type Asked } from './moments.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -115,7 +118,7 @@ function stayKind(g: Save, a: string): Asked | null {
 const likelyYes = (g: Save, a: string, k: Exclude<AskKind, 'casual'>) => { const s = askScore(g, a, k); return s.score >= s.need; };
 // What they would ask now, if anything: the next step for your status, when it's what they'd say yes to themselves.
 export function readyToAsk(g: Save, w: WorldDef, a: string): Asked | null {
-    if (!romanticOk(g, w, a) || shutOut(g, a, true) || coolingDown(g, a)) return null;
+    if (!romanticOk(g, w, a) || shutOut(g, a, true) || coolingDown(g, a) || grudgeOf(g, a)) return null;
     const st = romOf(g, a).status;
     const night = intimacyReady(g, a, '').lean === 'yes' && (st !== 'none' || romValue(g, a) >= ROMANCE_TIERS[1].lo);
     const ok = (k: AskKind) => canAsk(g, a, k);
@@ -146,7 +149,7 @@ export function textAsks(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60), s = social(g) as any;
     if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || rnd(g, `textask|${h}`) > 0.05) return [];
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
-    const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && canSpend(g, r.avatar));
+    const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar));
     const pick = (r: Resident): TextAsk | null => {
         const st = romOf(g, r.avatar).status;
         if (st === 'casual' && intimacyReady(g, r.avatar, '').lean === 'yes') return { kind: 'casual' };
@@ -178,6 +181,8 @@ export function textAsks(g: Save, w: WorldDef): string[] {
 export function fits(g: Save, w: WorldDef, m: Moment): boolean {
     const a = m.who; if (!isMine(g, a)) return false;
     if (m.kind === 'down') return bondOf(g, a) < 0;
+    if (m.kind === 'grudge') return !!grudgeOf(g, a);
+    if (m.kind === 'talk') return lowFor(g, a);
     if (m.kind === 'ask') return readyToAskStill(g, w, m);
     if (m.kind === 'tier') {
         const ft = FRIEND_TIERS.find(t => t.id === m.tier);
@@ -197,6 +202,28 @@ function readyToAskStill(g: Save, w: WorldDef, m: Moment): boolean {
 export function momentsFor(g: Save, w: WorldDef, present: Resident[]): Moment[] { return momentsHere(g, present, m => fits(g, w, m)); }
 export function momentsLine(list: Moment[]): string {
     return list.length ? `Moments for this scene (each happens once; play it naturally and in character, when it fits): ${list.map(m => m.text).join(' ')}` : '';
+}
+
+/* ---------- A-7: what each person here wants from you ---------- */
+
+// One plain line per person, from the first rule that matches: an apology, the relationship, being asked out,
+// something casual, getting closer, some space (no numbers).
+export function wantOf(g: Save, w: WorldDef, a: string, n: string): string {
+    const st = romOf(g, a).status, f = bondOf(g, a), r = romValue(g, a);
+    const day = relOf(g).day, lost = day?.day === g.day && (day.snap[a]?.[0] ?? f) - fr(g, a, YOU) >= 3;
+    if (grudgeOf(g, a)) return `${n} is waiting for an apology from {{user}}`;
+    if (warning(g, a)) return `${n} is worried about their relationship with {{user}}`;
+    const love = romanticOk(g, w, a);
+    if (love && st === 'none' && r >= ROMANCE_TIERS[2].lo && !coolingDown(g, a)) return `${n} is hoping {{user}} will ask them out`;
+    if (love && st === 'none' && r >= ROMANCE_TIERS[1].lo && !needsOf(g, a).partnerOnly && (lookingOf(g, a) === 'Something casual' || ['free', 'passionate'].includes(needsOf(g, a).preset))) return `${n} would like to keep things casual with {{user}}`;
+    if (!lost && f >= FRIEND_TIERS[F.friend].lo && f < FRIEND_TIERS[F.best].lo) return `${n} wants to get closer to {{user}}`;
+    if (lost) return `${n} wants some space from {{user}} right now`;
+    return '';
+}
+export function wantsLine(g: Save, w: WorldDef, present: Resident[]): string {
+    if (!initiativeOn(g)) return '';
+    const parts = present.filter(r => r.met && isMine(g, r.avatar)).map(r => wantOf(g, w, r.avatar, r.name)).filter(Boolean);
+    return parts.length ? `What they want from {{user}} right now: ${parts.join('; ')}.` : '';
 }
 
 /* ---------- when it runs ---------- */

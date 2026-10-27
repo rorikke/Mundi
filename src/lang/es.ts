@@ -3919,7 +3919,6 @@ const DICT: Record<string, string> = {
  "Could not save the character.": "No se pudo guardar el personaje.",
  "Nothing changes until you apply what your AI read.": "Nada cambia hasta que apliques lo que leyó tu IA.",
  "Their initiatives": "Sus iniciativas",
- "What the people here bring up on their own this scene: opening up, a confession, asking you something.": "Lo que las personas aquí sacan por su cuenta en esta escena: abrirse, una confesión, pedirte algo.",
  "Characters take the initiative": "Los personajes toman la iniciativa",
  "Rarely": "Rara vez",
  "Normal (default)": "Normal (predeterminado)",
@@ -3928,6 +3927,8 @@ const DICT: Record<string, string> = {
  "Asks you to come over tonight": "Te invita a su casa esta noche",
  "Not yet": "Todavía no",
  "Not tonight, but soon?": "Esta noche no, pero ¿pronto?",
- "You said no to {0}.": "Le dijiste que no a {0}."
+ "You said no to {0}.": "Le dijiste que no a {0}.",
+ "They are still upset with you.": "Todavía está molesto(a) contigo.",
+ "What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.": "Lo que las personas aquí sacan por su cuenta en esta escena (abrirse, una confesión, pedirte algo), y lo que cada una quiere de ti."
 };
 export default DICT;

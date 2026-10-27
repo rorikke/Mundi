@@ -17,6 +17,8 @@ import { dating } from './feed.js';
 import { shutOut, crushOn, addRomance } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { touch } from './rel.js';
+import { holdGrudge, grudgeOf } from './grudges.js';
+import { sawYou } from './warnings.js';
 import { personaName } from '../st/bridge.js';
 export const HANGOUT_BOND = 15; // acquaintance: you can hang out
 export const DATE_BOND = 50; // a date needs a good bond, a Spark match or being together
@@ -56,6 +58,8 @@ export function check(g, w, avatar, place, from, to, kind, need) {
     const romantic = kind === 'date';
     if (shutOut(g, avatar, romantic))
         return NOT_YOU;
+    if (grudgeOf(g, avatar))
+        return { ok: false, why: 'They are still upset with you.' };
     if (romantic && !canDate(g, avatar))
         return { ok: false, why: 'They are not ready for a date with you yet.' };
     if (!close(g, avatar, need) && !matched(g, avatar) && !(romantic && crushOn(g, avatar)))
@@ -178,6 +182,7 @@ export function cancelPlan(g, id) {
         return null;
     a.state = 'cancelled';
     approve(g, a.avatar, -4);
+    holdGrudge(g, a.avatar, 'you called off your plans');
     remember(g, '{u} called off the plans with {0}.', [g.cast[a.avatar]?.name ?? ''], [a.avatar], g.player.loc, 'plan');
     if (a.from - nowAbs(g) < 120)
         bump(g, a.avatar, -2); // last-minute cancels sting a little
@@ -214,6 +219,7 @@ export function planTick(g, w) {
             }
             bump(g, a.avatar, a.kind === 'date' ? 8 : 5);
             touch(g, a.avatar);
+            sawYou(g, a.avatar);
             if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar))
                 addRomance(g, a.avatar, 5); // a date kept is romantic too (a milestone)
             approve(g, a.avatar, 5);
@@ -225,7 +231,8 @@ export function planTick(g, w) {
             a.state = 'missed';
             a.to = Math.min(a.to, now); // she gives up and goes back to her day
             bump(g, a.avatar, a.kind === 'date' ? -10 : -6);
-            feel(g, a.avatar, 'Resentful: you stood them up', 3);
+            if (!holdGrudge(g, a.avatar, 'you stood them up'))
+                feel(g, a.avatar, 'Resentful: you stood them up', 3);
             approve(g, a.avatar, -12);
             approveAll(g, -2, [a.avatar]);
             remember(g, '{u} stood {0} up: {0} waited at {1}, and {u} never came.', [nameOf(a.avatar), placeName(a.place)], [a.avatar], a.place, 'plan');
