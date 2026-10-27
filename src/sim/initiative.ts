@@ -122,7 +122,8 @@ export function readyToAsk(g: Save, w: WorldDef, a: string): Asked | null {
     const st = romOf(g, a).status;
     const night = intimacyReady(g, a, '').lean === 'yes' && (st !== 'none' || romValue(g, a) >= ROMANCE_TIERS[1].lo);
     const ok = (k: AskKind) => canAsk(g, a, k);
-    if ((st === 'none' || st === 'casual') && ok('date') && likelyYes(g, a, 'date')) return 'date';
+    // asking you out takes a crush, however good friends you are
+    if ((st === 'none' || st === 'casual') && ok('date') && romValue(g, a) >= ROMANCE_TIERS[2].lo && likelyYes(g, a, 'date')) return 'date';
     if (st === 'none' && ok('casual') && night && !needsOf(g, a).partnerOnly) return 'casual';
     if (st === 'dating' && ok('propose') && likelyYes(g, a, 'propose')) return 'propose';
     if (st === 'engaged' && ok('marry') && likelyYes(g, a, 'marry')) return 'marry';
@@ -134,7 +135,8 @@ export function readyToAsk(g: Save, w: WorldDef, a: string): Asked | null {
 export function checkAsks(g: Save, w: WorldDef) {
     if (seat(g).moments.some(m => m.kind === 'ask')) return;   // one question at a time
     for (const r of presentAt(g, w, g.player.loc)) {
-        if (!r.met || !isMine(g, r.avatar) || rnd(g, `ask|${r.avatar}`) >= 0.35 || !canSpend(g, r.avatar)) continue;
+        // one thing at a time: a confession or a grudge they still have to bring up comes first
+        if (!r.met || !isMine(g, r.avatar) || seat(g).moments.some(m => m.who === r.avatar) || rnd(g, `ask|${r.avatar}`) >= 0.35 || !canSpend(g, r.avatar)) continue;
         const k = readyToAsk(g, w, r.avatar); if (!k) continue;
         if (queueMoment(g, { who: r.avatar, kind: 'ask', ask: k, text: ASK_TEXT[k](r.name) })) { spend(g, r.avatar); return; }
     }
