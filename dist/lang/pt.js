@@ -3921,6 +3921,8 @@ const DICT = {
     "What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.": "O que as pessoas aqui puxam por conta própria nesta cena (se abrir, uma confissão, te pedir algo), e o que cada uma quer de você.",
     "Needs some time": "Precisa de um tempo",
     "Their feelings have grown a lot lately: more will come, slowly, after some time.": "Os sentimentos cresceram muito nos últimos tempos: mais virá, devagar, depois de um tempo.",
-    "You have grown close quickly lately: more will come, slowly, after some time.": "Vocês se aproximaram rápido nos últimos tempos: mais virá, devagar, depois de um tempo."
+    "You have grown close quickly lately: more will come, slowly, after some time.": "Vocês se aproximaram rápido nos últimos tempos: mais virá, devagar, depois de um tempo.",
+    "Opinions spread through friends": "As opiniões se espalham entre amigos",
+    "Someone who adores you, or can't stand you, talks about you to their close friends, and slowly colors what they think of you (never worse than wary, by talk alone).": "Quem te adora, ou não te suporta, fala de você com os amigos próximos e, aos poucos, muda o que eles pensam de você (nunca pior que desconfiado, só por conversa)."
 };
 export default DICT;

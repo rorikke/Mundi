@@ -58,6 +58,7 @@ import { habitLine } from './habits.js';
 import { petLine } from './pets.js';
 import { mentorLine } from './mentors.js';
 import './letters.js';
+import './spread.js';   // opinions spread through friends (day by day)
 import './journey.js';
 import { systemOn, blockSystem, isScenario, SCENARIO_STARTS, type WorldDef } from '../core/world.js';
 
