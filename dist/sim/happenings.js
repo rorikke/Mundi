@@ -11,8 +11,10 @@ import { quiet, personaName } from '../st/bridge.js';
 import { note } from './facts.js';
 import { playerHomeId } from './places.js';
 import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
-import { partnersOf, setStatus } from './rel.js';
-import { shutOut } from './romance.js';
+import { partnersOf, setStatus, fr, ro, gain, lose } from './rel.js';
+import { shutOut, CRUSH } from './romance.js';
+import { familyBlocked } from './family.js';
+import { tiesOf } from './living.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -101,13 +103,14 @@ const DILEMMAS = [
             delete (g.living?.ranks ?? {})[r.avatar];
             note(g, '{0} started a new job: {1}.', [r.name, o.name], [r.avatar], o.place, 'life');
         } } },
+    // someone they have a crush on; whether it works depends on how that person feels about them
     { id: 'crush', yes: 'Go for it', no: 'Wait a little',
-        setup: (g, w, r) => { if (!systemOn(w, 'romance'))
+        setup: (g, w, r) => { if (!systemOn(w, 'romance') || !systemOn(w, 'relations'))
             return null; const taken = (a) => partnersOf(g, a).length > 0; if (taken(r.avatar))
-            return null; const list = others(g, r).filter(x => !taken(x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
+            return null; const list = others(g, r).filter(x => !taken(x.avatar) && ro(g, r.avatar, x.avatar) >= CRUSH && !familyBlocked(g, r.avatar, x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I really like ${g.cast[x]?.name ?? 'someone'}. Should I ask them out?`,
-        apply: (g, _w, r, x) => { if (!g.cast[x])
-            return; if (dayRnd(g, `crushyes|${r.avatar}`) < 0.6) {
+        apply: (g, _w, r, x) => { if (!g.cast[x] || partnersOf(g, x).length)
+            return; if (dayRnd(g, `crushyes|${r.avatar}`) < 0.1 + 0.85 * Math.min(1, ro(g, x, r.avatar) / 50)) {
             setStatus(g, r.avatar, x, 'dating');
             note(g, '{0} and {1} started dating.', [r.name, g.cast[x].name], [r.avatar, x], g.player.loc, 'life');
         } } },
@@ -118,8 +121,10 @@ const DILEMMAS = [
             return; const spot = homeSpot(w, z.id, takenHomes(g), g.player.home); const key = homeKey(r.home); for (const m of Object.values(g.cast))
             if (homeKey(m.home) === key)
                 m.home = { ...spot }; normalizeHomes(g); note(g, '{0} moved to {1}.', [r.name, z.name], [r.avatar], `home:${r.avatar}`, 'life'); } },
+    // someone they dislike or have a rival tie with; apologizing brings them a little closer, standing firm apart
     { id: 'feud', yes: 'Apologize', no: 'Stand your ground',
-        setup: (g, _w, r) => { const list = others(g, r).filter(x => x.met || x.leisure.some(p => r.leisure.includes(p))); return list.length ? list[Math.floor(dayRnd(g, `feud|${r.avatar}`) * list.length)].avatar : null; },
+        setup: (g, w, r) => { if (!systemOn(w, 'relations'))
+            return null; const rivals = new Set(tiesOf(g, r.avatar).filter(t => t.type === 'rival' || t.type === 'enemy').map(t => (t.a === r.avatar ? t.b : t.a))); const list = others(g, r).filter(x => rivals.has(x.avatar) || fr(g, r.avatar, x.avatar) < 0); return list.length ? list[Math.floor(dayRnd(g, `feud|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I had a fight with ${g.cast[x]?.name ?? 'someone'}. Should I apologize?` },
     { id: 'quit', yes: 'Follow your dream', no: 'Keep your job',
         setup: (_g, w, r) => (systemOn(w, 'jobs') && r.occupation ? 'dream' : null),
@@ -127,6 +132,18 @@ const DILEMMAS = [
         apply: (g, w, r) => { const o = w.occupations.find(j => j.id === r.occupation); r.occupation = null; note(g, '{0} quit the job to follow a dream.', [r.name], [r.avatar], o?.place ?? `home:${r.avatar}`, 'life'); } },
     { id: 'study', yes: 'Do it', no: 'Not now', setup: () => 'study', ask: () => 'Should I go back to studying? I\'d have less time, but…' },
 ];
+// How a feud turns out: an apology brings both a little closer (+3 friendship each way), standing firm pushes them
+// apart (−3).
+function feudEnds(g, a, b, apologized) {
+    if (!g.cast[a] || !g.cast[b])
+        return;
+    for (const [x, y] of [[a, b], [b, a]]) {
+        if (apologized)
+            gain(g, 'f', x, y, 3, false);
+        else
+            lose(g, 'f', x, y, 3);
+    }
+}
 // The advice you gave decides it. Following it (yes) changes their life; either way, you hear how it went.
 function adviceDay(g, w) {
     const out = [];
@@ -233,12 +250,8 @@ function decide(g, w, r, a, verdict, answered = false) {
     const yes = alone ? dayRnd(g, `alone|${r.avatar}|${d.id}`) < 0.5 : verdict === 'yes';
     if (yes && d.apply)
         d.apply(g, w, r, a.x);
-    if (d.id === 'feud' && g.cast[a.x]) {
-        const t = ((g.living ??= {}).ties ??= []);
-        const k = t.findIndex(x => (x.a === r.avatar && x.b === a.x) || (x.b === r.avatar && x.a === a.x));
-        if (k >= 0)
-            t[k].tone = yes ? 'good' : 'tense';
-    }
+    if (d.id === 'feud')
+        feudEnds(g, r.avatar, a.x, yes);
     if (!alone)
         bump(g, r.avatar, 3);
     L(g).consults.push({ avatar: r.avatar, kind: d.id, choice: yes ? 'yes' : 'no', due: g.day + 3, good: dayRnd(g, `out|${r.avatar}|${d.id}`) < 0.6, text: a.ask, ...(alone ? { alone: true } : {}) });
@@ -335,13 +348,8 @@ export function answer(g, w, id, choice) {
             say(g, r.avatar, yes ? `${d.yes}. I think it's right for you.` : `${d.no}. I don't think it's the moment.`, true);
             if (yes && d.apply)
                 d.apply(g, w, r, h.data.x);
-            if (d.id === 'feud' && g.cast[h.data.x]) {
-                const t = ((g.living ??= {}).ties ??= []);
-                const other = h.data.x;
-                const k = t.findIndex(x => (x.a === r.avatar && x.b === other) || (x.b === r.avatar && x.a === other));
-                if (k >= 0)
-                    t[k].tone = yes ? 'good' : 'tense';
-            }
+            if (d.id === 'feud')
+                feudEnds(g, r.avatar, h.data.x, yes);
             bump(g, r.avatar, 3);
             L(g).consults.push({ avatar: r.avatar, kind: d.id, choice, due: g.day + 3, good: dayRnd(g, `out|${r.avatar}|${d.id}`) < 0.6, text: h.text });
             note(g, '{0} asked {u} for advice and {u} said: {1}.', [r.name, (yes ? d.yes : d.no).toLowerCase()], [r.avatar], g.player.loc, 'meet');

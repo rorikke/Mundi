@@ -9,7 +9,7 @@ import { TIE_TYPES, TIE_TONES, type TieType, type TieTone } from '../sim/living.
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 
-export interface NgTie { a: string; b: string; type: TieType; tone: TieTone }
+export interface NgTie { a: string; b: string; type: TieType; tone: TieTone; back?: TieTone }
 export interface NgHousehold { members: string[]; ties: NgTie[]; /** where they live (none: a home at random) */ home?: NgHome }
 export interface NgFamily { avatar: string; type: TieType; tone: TieTone }
 export interface NgHome { zone: string; x: number; y: number; n: number }
@@ -22,6 +22,16 @@ export const familyOf = (): NgFamily[] => (wz().family ??= []);
 const inHousehold = (a: string) => hhs().some(h => h.members.includes(a)) || familyOf().some(f => f.avatar === a);
 const opt = (v: string, l: string, on: boolean) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
 const face = (a: string) => `<img src="${esc(thumb(a))}" alt="" title="${esc(nm(a))}">`;
+// How a tie starts, per direction: a's feeling for b, and b's back (the same by default). With you, only how they see
+// you (your own feelings are played, never set).
+function toneSelects(input: string, k: number, t: NgTie, name: (a: string) => string): string {
+    const tone = `<select data-input="${input}" data-k="${k}" data-f="tone">${TIE_TONES.map(([id, l]) => opt(id, l, t.tone === id)).join('')}</select>`;
+    if (t.a === '__you' || t.b === '__you') return tone;
+    return `<span data-notr>· ${esc(name(t.a))}</span><span>feels</span>${tone}<span data-notr>· ${esc(name(t.b))}</span><span>feels</span>
+        <select data-input="${input}" data-k="${k}" data-f="back">${opt('', 'the same', !t.back)}${TIE_TONES.map(([id, l]) => opt(id, l, t.back === id)).join('')}</select>`;
+}
+// A select's value on a tie (an empty "back" is "the same": no field).
+const setTieField = (t: NgTie | undefined, f: string, v: string) => { if (!t) return; if (f === 'back' && !v) delete t.back; else (t as any)[f] = v; };
 
 /* ---------- step: households ---------- */
 
@@ -43,7 +53,7 @@ export function stepHouseholds(): string {
                 <div class="mu-ngh-members">${h.members.map(a => `<span class="mu-chip is-on">${face(a)}<span data-notr>${esc(nm(a))}</span><button class="mu-ibtn mu-ghost" data-act="ngh-out" data-who="${esc(a)}" title="Take out">${icon('x')}</button></span>`).join('') || '<p class="mu-muted">Click people below to add them.</p>'}</div>
                 ${h.members.length >= 2 ? `<h5>How they are related</h5>
                     ${h.ties.map((t, k) => `<div class="mu-ties-add"><span data-notr>${esc(nm(t.a))} is</span><select data-input="ngh-tie" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
-                        <span data-notr>${esc(nm(t.b))}</span><select data-input="ngh-tie" data-k="${k}" data-f="tone">${TIE_TONES.map(([id, l]) => opt(id, l, t.tone === id)).join('')}</select>
+                        <span data-notr>${esc(nm(t.b))}</span>${toneSelects('ngh-tie', k, t, nm)}
                         <button class="mu-ibtn mu-ghost" data-act="ngh-tie-del" data-k="${k}">${icon('x')}</button></div>`).join('')}
                     <div class="mu-ties-add"><select data-input="ngh-pair" data-f="a">${h.members.map(a => opt(a, nm(a), (h.members.includes(z.hhA) ? z.hhA : h.members[0]) === a)).join('')}</select><span>and</span>
                         <select data-input="ngh-pair" data-f="b">${h.members.map(a => opt(a, nm(a), (h.members.includes(z.hhB) ? z.hhB : h.members[1]) === a)).join('')}</select>
@@ -90,7 +100,7 @@ function relationsHtml(mine: boolean): string {
         ${list.map(([t, k]) => `<div class="mu-ties-add">${t.a === '__you' ? '' : face(t.a)}<span data-notr>${esc(who(t.a))} ${t.a === '__you' ? 'are' : 'is'}</span>
             <select data-input="ngr-set" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
             ${t.b === '__you' ? '' : face(t.b)}<span data-notr>${esc(who(t.b))}</span>
-            <select data-input="ngr-set" data-k="${k}" data-f="tone">${TIE_TONES.map(([id, l]) => opt(id, l, t.tone === id)).join('')}</select>
+            ${toneSelects('ngr-set', k, t, who)}
             <button class="mu-ibtn mu-ghost" data-act="ngr-del" data-k="${k}">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">None yet.</p>'}
         ${people.length ? `<div class="mu-ties-add">${mine ? '<span>You and</span>' : pick('a', '__you', true)}${mine ? '' : '<span>and</span>'}${pick('b', people[0], false)}
             <button data-act="ngr-add" data-mine="${mine ? '1' : ''}">${icon('plus')}<span>Add a relation</span></button></div>` : '<p class="mu-muted">Choose the people of this world first.</p>'}
@@ -235,9 +245,9 @@ Object.assign(ACT, {
 });
 Object.assign(INPUT, {
     'ngj-set': (el) => { const z = wz(); const j = (z.jobs ??= {}); const a = el.dataset.who!; if (el.value) j[a] = el.value; else delete j[a]; },
-    'ngh-tie': (el) => { const h = hhs()[wz().hhSel ?? 0]; const t = h?.ties[Number(el.dataset.k)]; if (t) (t as any)[el.dataset.f!] = el.value; },
+    'ngh-tie': (el) => { const h = hhs()[wz().hhSel ?? 0]; setTieField(h?.ties[Number(el.dataset.k)], el.dataset.f!, el.value); notify(); },
     'ngh-pair': (el) => { wz()[el.dataset.f === 'a' ? 'hhA' : 'hhB'] = el.value; },
-    'ngr-set': (el) => { const t = rels()[Number(el.dataset.k)]; if (t) (t as any)[el.dataset.f!] = el.value; },
+    'ngr-set': (el) => { setTieField(rels()[Number(el.dataset.k)], el.dataset.f!, el.value); notify(); },
     'ngr-pair': (el) => { wz()[el.dataset.f === 'a' ? 'rela' : 'relb'] = el.value; },
     'ngf-set': (el) => { const f = familyOf()[Number(el.dataset.k)]; if (f) (f as any)[el.dataset.f!] = el.value; },
     'ngf-new-f': (el) => { const n = wz().famNew as NewChar | null; if (n) (n as any)[el.dataset.f!] = el.value; },

@@ -9,6 +9,7 @@ import { romOf } from './romance.js';
 import { bump } from './social.js';
 import { setTie, liveTogether, ties } from './living.js';
 import { playerHomeId } from './places.js';
+import { relOf, idOf, YOU } from './rel.js';
 
 export const PREGNANCY_DAYS = 10;
 export const BIRTHDAY_EVERY = 7;
@@ -33,14 +34,24 @@ export const family = (g: Save): Family => {
 };
 export const kidOf = (g: Save, avatar: string) => family(g).kids.find(k => k.avatar === avatar) ?? null;
 export const stageOf = (k: Kid) => STAGES[Math.min(k.stage, STAGES.length - 1)];
-// Children (anyone below the adult stage) are never part of any romance.
-export const isMinor = (g: Save, avatar: string) => { const k = kidOf(g, avatar); return !!k && stageOf(k).id !== 'adult'; };
-
-// No romance at all with your own children (at any age), your parents or siblings, or any minor.
-export function romanceBlocked(g: Save, avatar: string) {
-    if (kidOf(g, avatar)) return true;
-    return ties(g).some(t => ((t.a === '__you' && t.b === avatar) || (t.b === '__you' && t.a === avatar)) && (t.type === 'parent' || t.type === 'child' || t.type === 'sibling'));
+// Children are never part of any romance: a child born in the game below the adult stage, a resident marked as a
+// minor in the People tab, or one whose age (from the world's example cast) is under 18.
+export function isMinor(g: Save, avatar: string) {
+    const k = kidOf(g, avatar); if (k) return stageOf(k).id !== 'adult';
+    const p = relOf(g).people[idOf(g, avatar)];
+    return !!p?.minor || (p?.age !== undefined && p.age < 18);
 }
+
+// No romance between family (parent, child, sibling: between any two people, you included), with your own children
+// at any age, or with any minor.
+export function familyBlocked(g: Save, a: string, b: string) {
+    a = idOf(g, a); b = idOf(g, b);
+    if (isMinor(g, a) || isMinor(g, b)) return true;
+    const kid = (x: string, y: string) => { const k = kidOf(g, x); return !!k && (y === YOU || k.parent === y); };
+    if (kid(a, b) || kid(b, a)) return true;
+    return ties(g).some(t => ((t.a === a && t.b === b) || (t.a === b && t.b === a)) && (t.type === 'parent' || t.type === 'child' || t.type === 'sibling'));
+}
+export const romanceBlocked = (g: Save, avatar: string) => familyBlocked(g, avatar, YOU);
 
 /* ---------- trying for a baby ---------- */
 

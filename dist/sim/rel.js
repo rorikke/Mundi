@@ -61,6 +61,18 @@ export function setMeter(g, m, x, y, v) {
 }
 export const setFr = (g, x, y, v) => setMeter(g, 'f', x, y, v);
 export const setRo = (g, x, y, v) => setMeter(g, 'r', x, y, v);
+// Every direction whose meter is at least `min` (a daily look over the store: crushes, couples forming).
+export function directedAbove(g, m, min) {
+    const out = [];
+    for (const [k, e] of Object.entries(relOf(g).m)) {
+        const v = e[m];
+        if (v !== undefined && v >= min) {
+            const [x, y] = k.split('>');
+            out.push({ x, y, v });
+        }
+    }
+    return out;
+}
 /* ---------- pacing (sim/pace.ts) ---------- */
 export const relCfg = (g) => (cfg(g).rel ?? {});
 const halfLife = (g) => relCfg(g).halfLife ?? HALF_LIFE;
@@ -241,7 +253,8 @@ const TONES = ['hostile', 'tense', 'neutral', 'good', 'close'];
 export const coupleTone = (t) => (TONES.indexOf(t) < TONES.indexOf('good') ? 'good' : t);
 export const startFriendship = (tone, type) => TONE_FRIENDSHIP[tone ?? (type ? TYPE_START[type]?.tone : undefined) ?? 'neutral'] ?? 30;
 // Starting values from ties, for every direction that has none yet (a new game, the migration): friendship from the
-// tone, and for couples (by tie type or by status) romance and at least good terms. Toward you nothing is seeded
+// tone (a's toward b; b's toward a from `back` when they see each other differently), and for couples (by tie type
+// or by status) romance and at least good terms. Toward you nothing is seeded
 // here (that comes from the game's start or the save); your own hidden feelings (`__you>x`) are. `skip(x, y)` leaves
 // a direction alone (the migration: people whose view of others was already stored).
 export function seedFromTies(g, ties, skip = () => false) {
@@ -258,10 +271,10 @@ export function seedFromTies(g, ties, skip = () => false) {
     for (const t of ties) {
         const a = idOf(g, t.a), b = idOf(g, t.b);
         const couple = !!TYPE_START[t.type]?.couple || PARTNER.includes(statusOf(g, a, b));
-        const tone = t.tone ?? TYPE_START[t.type]?.tone ?? 'neutral';
-        const f = startFriendship(couple ? coupleTone(tone) : tone);
-        seed(a, b, f, couple ? COUPLE_ROMANCE : undefined);
-        seed(b, a, f, couple ? COUPLE_ROMANCE : undefined);
+        const tone = t.tone ?? TYPE_START[t.type]?.tone ?? 'neutral', back = t.back ?? tone;
+        const f = (x) => startFriendship(couple ? coupleTone(x) : x);
+        seed(a, b, f(tone), couple ? COUPLE_ROMANCE : undefined);
+        seed(b, a, f(back), couple ? COUPLE_ROMANCE : undefined);
     }
     // couples without a tie between them
     for (const [k, p] of Object.entries(st.pairs)) {

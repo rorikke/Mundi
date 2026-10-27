@@ -10,7 +10,7 @@ import { period, isWeekend, seasonOf } from './time.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
-import { couplePairs, setStatus, partnersOf, TYPE_START, startFriendship } from './rel.js';
+import { couplePairs, TYPE_START, startFriendship } from './rel.js';
 
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const L = (g: Save) => { const x = ((g as any).living ??= {}); x.approval ??= {}; x.rumors ??= []; return x as { approval: Record<string, number>; rumors: Rumor[] }; };
@@ -69,13 +69,14 @@ export function activeWorldLore(g: Save, w: WorldDef): string[] {
 
 /* ---------- people's own lives (76) ---------- */
 
-// Couples between people of the world (the pairs in the relationships store, sim/rel.ts).
+// Couples between people of the world (the pairs in the relationships store, sim/rel.ts). They form from feelings
+// (sim/relations.ts), not here.
 export const couples = (g: Save): [string, string][] => couplePairs(g).map(p => [p.a, p.b]);
 function lifeGoesOn(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     const people = residents(g);
     if (!people.length) return out;
-    // about once a week someone's life changes: a new job, a new home, or a new relationship
+    // about once a week someone's life changes: a new job or a new home
     if (rnd(g, 'life') > 0.15) return out;
     const r = people[Math.floor(rnd(g, 'who') * people.length)];
     const kind = rnd(g, 'kind');
@@ -97,15 +98,6 @@ function lifeGoesOn(g: Save, w: WorldDef): string[] {
             for (const x of house) x.home = { ...spot };
             normalizeHomes(g);
             note(g, '{0} moved to {1}.', [r.name, z.name], [r.avatar], `home:${r.avatar}`, 'life'); tell('{0} moved to {1}.', [r.name, z.name]);
-        }
-    } else {
-        const taken = (a: string) => partnersOf(g, a).length > 0;   // with someone already (you included)
-        const single = people.filter(x => x !== r && !taken(x.avatar));
-        if (single.length && !taken(r.avatar) && systemOn(w, 'romance')) {
-            const o = single[Math.floor(rnd(g, 'pair') * single.length)];
-            setStatus(g, r.avatar, o.avatar, 'dating');
-            note(g, '{0} and {1} started dating.', [r.name, o.name], [r.avatar, o.avatar], r.leisure[0] ?? g.player.loc, 'life');
-            if (o.met) out.push(`${r.name} and ${o.name} started dating.`); else tell('{0} and {1} started dating.', [r.name, o.name]);
         }
     }
     return out;
@@ -211,7 +203,9 @@ onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
 
 export type TieType = 'parent' | 'child' | 'sibling' | 'spouse' | 'partner' | 'dating' | 'cousin' | 'roommate' | 'friend' | 'bestfriend' | 'ally' | 'colleague' | 'rival' | 'enemy' | 'ex' | 'mentor' | 'apprentice';
 export type TieTone = 'close' | 'good' | 'neutral' | 'tense' | 'hostile';
-export interface Tie { a: string; b: string; type: TieType; tone: TieTone }   // `a` is the <type> of `b`; '__you' is the player
+// `a` is the <type> of `b`; '__you' is the player. `tone` is how a saw b when it started and `back` how b saw a
+// (missing: the same): only starting values, since feelings live in the relationships store (sim/rel.ts).
+export interface Tie { a: string; b: string; type: TieType; tone: TieTone; back?: TieTone }
 export const TIE_TYPES: [TieType, string][] = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['spouse', 'married to'], ['partner', 'partner of'], ['cousin', 'cousin of'], ['roommate', 'roommate of'], ['friend', 'friend of'], ['bestfriend', 'best friend of'], ['ally', 'ally of'], ['colleague', 'colleague of'], ['dating', 'dating'], ['rival', 'rival of'], ['enemy', 'enemy of'], ['ex', 'ex of'], ['mentor', 'mentor of'], ['apprentice', 'apprentice of']];
 export const TIE_TONES: [TieTone, string][] = [['close', 'Close'], ['good', 'Good'], ['neutral', 'Neutral'], ['tense', 'Tense'], ['hostile', 'Hostile']];
 export const ties = (g: Save): Tie[] => ((L(g) as any).ties ??= []);
@@ -234,12 +228,14 @@ export { homeKey, normalizeHomes } from './homes.js';
 import { homeKey, normalizeHomes } from './homes.js';
 const nameOfId = (g: Save, id: string) => (id === '__you' ? '{{user}}' : g.cast[id]?.name ?? id);
 const INVERSE: Partial<Record<TieType, string>> = { parent: 'child of', child: 'parent of' };
-// For the AI: the ties of the people in this scene (only those, like the memories).
-export function tiesLine(g: Save, present: Resident[]) {
+// For the AI: the ties of the people in this scene (only those, like the memories). How they get along comes from
+// their feelings (sim/relations.ts); only with "Relationships between people" off, when feelings never move, does the
+// starting tone still say it.
+export function tiesLine(g: Save, present: Resident[], tones = false) {
     const here = new Set(present.map(r => r.avatar));
     const list = ties(g).filter(t => here.has(t.a) || here.has(t.b));
     if (!list.length) return '';
-    return `Family and ties: ${list.map(t => `${nameOfId(g, t.a)} is ${TIE_TYPES.find(x => x[0] === t.type)?.[1] ?? t.type} ${nameOfId(g, t.b)}${t.tone !== 'neutral' ? ` (${t.tone} relationship)` : ''}`).join('; ')}.`;
+    return `Family and ties: ${list.map(t => `${nameOfId(g, t.a)} is ${TIE_TYPES.find(x => x[0] === t.type)?.[1] ?? t.type} ${nameOfId(g, t.b)}${tones && t.tone !== 'neutral' ? ` (${t.tone} relationship)` : ''}`).join('; ')}.`;
 }
 void INVERSE;
 // A tie to {{user}} set at the start also sets where you stand with them (friends start close, enemies far apart).

@@ -147,7 +147,7 @@ export interface ExampleCharacter {
     /** The world whose card this is (a copied world reuses the original's cards instead of making new ones). */
     from?: string;
     /** How they relate to the world's other people (`to`: the other person's name), from the start of every game. */
-    ties?: { to: string; type: string; tone: string }[];
+    ties?: { to: string; type: string; tone: string; /** how the other one feels back (missing: the same) */ back?: string }[];
 }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
 /** A phone app: which one (`id`), and how it is called and looks in this world. */
@@ -326,7 +326,7 @@ export const activeStatuses = (w: WorldDef) => w.statuses.filter(s => !s.off && 
 // The game's systems. Each one can be turned off in a world (features.<id> = false): then it is gone from the HUD,
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
-export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
+export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
     | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies';
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number> }
 export interface CityEventDef {
@@ -395,6 +395,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'breakdowns', name: 'Things break at home', desc: 'nothing at home ever breaks.', apps: [], blocks: [] },
     { id: 'plans', name: 'Plans', desc: 'no meet-ups, dates, "come with me" or invitations.', apps: ['plans'], blocks: ['plans'] },
     { id: 'romance', name: 'Romance', desc: 'only friendship: no dating, love, engagement or marriage.', apps: ['dating'], blocks: ['couples'] },
+    { id: 'relations', name: 'Relationships between people', desc: 'people\'s feelings for each other never change, and couples between them never form, move on or end by themselves.', apps: [], blocks: [] },
     { id: 'family', name: 'Children', desc: 'no babies (children already born stay).', apps: [], blocks: [], needs: 'romance' },
     { id: 'social', name: 'Social network', desc: 'no posts, likes or notices.', apps: ['social'], blocks: [] },
     { id: 'neighbors', name: 'Neighbors', desc: 'nobody from your area knocks at your door. (Needs at least 2 of the world\'s people living in your area.)', apps: [], blocks: [] },

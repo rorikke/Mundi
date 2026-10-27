@@ -12,8 +12,8 @@ import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, c
 import { homeAddress, placeOf } from '../sim/places.js';
 import { resident, homeSpot, takenHomes, syncScene, currentEntry } from '../sim/game.js';
 import { social, bondLabel, isPartner } from '../sim/social.js';
-import { romOf } from '../sim/romance.js';
-import { romanceBlocked } from '../sim/family.js';
+import { romOf, friendTier } from '../sim/romance.js';
+import { romanceBlocked, familyBlocked, isMinor, kidOf } from '../sim/family.js';
 import { tiesOf, setTie, removeTie, liveTogether, normalizeHomes, TIE_TYPES, TIE_TONES } from '../sim/living.js';
 import { freeSpots } from '../sim/work.js';
 import { refreshPrompt } from '../sim/prompt.js';
@@ -28,7 +28,7 @@ import { openCreatorEdit, CW as CREATOR } from './creator.js';
 import { tabAiContext } from './aictx.js';
 import { warningsBanner } from './warnings.js';
 import { ACT, INPUT } from './reg.js';
-import { setFr, setStatus, relOf, relCfg, paceOf, YOU } from '../sim/rel.js';
+import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, seedFromTies, startFriendship, relOf, relCfg, paceOf, idOf, YOU } from '../sim/rel.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
@@ -63,6 +63,8 @@ function personForm(g, w) {
             <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="-100" max="100" value="${bond}" data-input="wc-bond"></label>
             <label class="mu-check"><input type="checkbox" data-input="wc-partner" ${isPartner(g, r.avatar) ? 'checked' : ''}><span>Together (dating)</span></label>
             ${paceHtml(g, r.avatar)}
+            ${minorHtml(g, r.avatar)}
+            ${pairHtml(g, w, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
             <small class="mu-muted">Their card stays in SillyTavern; they just stop living here.</small>` : ''}
         ${relNumbersHtml(g, r.avatar)}${relChangesHtml(g, r.avatar)}`;
@@ -72,6 +74,35 @@ function paceHtml(g, avatar) {
     const PACES = [['', 'World default'], ['slow', 'Slow'], ['normal', 'Normal'], ['fast', 'Fast']];
     const sel = (m, label) => `<label class="mu-field"><span>${label}</span><select data-input="wc-pace" data-m="${m}">${PACES.map(([v, l]) => opt(v, l, (paceOf(g, avatar, m) ?? '') === v)).join('')}</select></label>`;
     return `<div class="mu-row2">${sel('f', 'Friendship grows')}${sel('r', 'Romance grows')}</div>`;
+}
+// A minor is left out of every romance: a child born in the game, an age under 18 from the world, or this box.
+function minorHtml(g, avatar) {
+    const p = relOf(g).people[idOf(g, avatar)], fixed = !!kidOf(g, avatar) || (p?.age !== undefined && p.age < 18);
+    return `<label class="mu-check"><input type="checkbox" data-input="wc-minor" ${isMinor(g, avatar) ? 'checked' : ''} ${fixed ? 'disabled' : ''}><span>A minor<small>${fixed && p?.age !== undefined ? `Age ${esc(p.age)}: never part of any romance.` : 'Never part of any romance.'}</small></span></label>`;
+}
+// How this person and another one feel about each other, both ways (friendship, romance), and whether they're a couple.
+const PAIR = { other: '' };
+function pairHtml(g, w, a) {
+    if (idOf(g, a) === YOU)
+        return '';
+    const others = Object.values(g.cast).filter(x => x.avatar !== a && idOf(g, x.avatar) !== YOU).sort((x, y) => x.name.localeCompare(y.name));
+    if (!others.length)
+        return '';
+    const b = others.some(x => x.avatar === PAIR.other) ? PAIR.other : others[0].avatar;
+    const name = (x) => g.cast[x]?.name ?? x;
+    const debug = !!relCfg(g).debug;
+    const love = systemOn(w, 'romance') && !familyBlocked(g, a, b);
+    const slider = (x, y, m) => {
+        const v = Math.round(meter(g, m, x, y));
+        return `<label class="mu-field slider"><span><span data-notr>${esc(name(x))} → ${esc(name(y))}</span> · ${m === 'f' ? 'Friendship' : 'Romance'} · <b>${v}</b>${m === 'f' ? ` (${esc(friendTier(v).name)})` : ''}${debug ? ` · ${meter(g, m, x, y).toFixed(2)}` : ''}</span><input type="range" min="${m === 'f' ? -100 : 0}" max="100" value="${v}" data-input="wc-pair" data-x="${esc(x)}" data-y="${esc(y)}" data-m="${m}"></label>`;
+    };
+    const st = statusOf(g, a, b) ?? '';
+    return `<section class="mu-wc-pair"><h4>Feelings between two people</h4>
+        <label class="mu-field"><span>With</span><select data-input="wc-pair-who">${others.map(x => opt(x.avatar, x.name, x.avatar === b)).join('')}</select></label>
+        ${slider(a, b, 'f')}${slider(b, a, 'f')}
+        ${love ? `${slider(a, b, 'r')}${slider(b, a, 'r')}
+            <label class="mu-field"><span>Together</span><select data-input="wc-pair-status" data-b="${esc(b)}">${[['', 'Not a couple'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, st === v)).join('')}</select></label>` : ''}
+    </section>`;
 }
 // Relationships, per save: open relationships, and (Advanced) how fast feelings grow and the debug view.
 function relSection(g, w) {
@@ -235,7 +266,7 @@ const ctxGW = () => { const g = game(); const w = g && getWorld(g.world); return
 const changed = async () => { saveGame(); await syncScene(); refreshPrompt(); notify(); };
 const noteSave = () => { ctx().saveMetadataDebounced(); };
 // Family and ties (like The Sims): who is whose mother, sibling, spouse… and how they get along. '__you' is you.
-const TIE = { other: '', type: 'sibling', tone: 'good', together: false };
+const TIE = { other: '', type: 'sibling', tone: 'good', back: '', together: false };
 // a tie told from this person's side ("Sadie is sibling of Aishah" on Sadie's page; parent and child swap)
 function viewTie(t, avatar) {
     if (t.a === avatar)
@@ -248,11 +279,16 @@ function tiesHtml(g, avatar) {
     const others = [['__you', 'You'], ...Object.values(g.cast).filter(x => x.avatar !== avatar).map(x => [x.avatar, x.name])];
     const list = tiesOf(g, avatar);
     return `<section class="mu-ties"><h4>Family and ties</h4>
-        ${list.length ? `<ul>${list.map(t => { const v = viewTie(t, avatar); return `<li><span data-notr>${esc(nm(v.a))} · ${esc(TIE_TYPES.find(x => x[0] === v.type)?.[1] ?? v.type)} · ${esc(nm(v.b))}</span><em class="is-${t.tone}">${t.tone}</em><button class="mu-ibtn mu-ghost" data-act="wc-tie-del" data-a="${esc(t.a)}" data-b="${esc(t.b)}" title="Remove">${icon('x')}</button></li>`; }).join('')}</ul>` : '<p class="mu-muted">No family or ties yet.</p>'}
+        ${list.length ? `<ul>${list.map(t => {
+        const v = viewTie(t, avatar);
+        const mine = t.a === avatar ? t.tone : t.back ?? t.tone, theirs = t.a === avatar ? t.back ?? t.tone : t.tone;
+        return `<li><span data-notr>${esc(nm(v.a))} · ${esc(TIE_TYPES.find(x => x[0] === v.type)?.[1] ?? v.type)} · ${esc(nm(v.b))}</span><em class="is-${mine}">${mine}</em>${theirs !== mine ? `<em class="is-${theirs}" title="${esc(nm(v.b))}">${theirs}</em>` : ''}<button class="mu-ibtn mu-ghost" data-act="wc-tie-del" data-a="${esc(t.a)}" data-b="${esc(t.b)}" title="Remove">${icon('x')}</button></li>`;
+    }).join('')}</ul>` : '<p class="mu-muted">No family or ties yet.</p>'}
         <div class="mu-ties-add"><span data-notr>${esc(g.cast[avatar]?.name ?? '')} is</span>
             <select data-input="wc-tie" data-k="type">${TIE_TYPES.map(([id, l]) => `<option value="${id}" ${TIE.type === id ? 'selected' : ''}>${l}</option>`).join('')}</select>
             <select data-input="wc-tie" data-k="other"><option value="">who?</option>${others.map(([id, n]) => `<option value="${esc(id)}" ${TIE.other === id ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
-            <select data-input="wc-tie" data-k="tone">${TIE_TONES.map(([id, l]) => `<option value="${id}" ${TIE.tone === id ? 'selected' : ''}>${l}</option>`).join('')}</select>
+            <select data-input="wc-tie" data-k="tone" title="How they feel">${TIE_TONES.map(([id, l]) => `<option value="${id}" ${TIE.tone === id ? 'selected' : ''}>${l}</option>`).join('')}</select>
+            ${TIE.other && TIE.other !== '__you' ? `<span>and back:</span><select data-input="wc-tie" data-k="back">${opt('', 'the same', !TIE.back)}${TIE_TONES.map(([id, l]) => opt(id, l, TIE.back === id)).join('')}</select>` : ''}
             <label class="mu-check"><input type="checkbox" data-input="wc-tie-together" ${TIE.together ? 'checked' : ''}><span>Lives with them</span></label>
             <button class="mu-primary" data-act="wc-tie-add" ${TIE.other ? '' : 'aria-disabled="true"'}>${icon('plus')}<span>Add</span></button></div>
     </section>`;
@@ -356,10 +392,16 @@ Object.assign(ACT, {
         const g = game();
         if (!g || !TIE.other)
             return;
-        setTie(g, { a: WC.who, b: TIE.other, type: TIE.type, tone: TIE.tone });
+        const t = { a: WC.who, b: TIE.other, type: TIE.type, tone: TIE.tone, ...(TIE.back && TIE.other !== YOU ? { back: TIE.back } : {}) };
+        setTie(g, t);
+        // a new relation starts where its tones say; feelings already there are kept (edit them below, in Advanced)
+        seedFromTies(g, [t]);
+        if (TIE.other === YOU && !hasMeter(g, 'f', WC.who, YOU))
+            setFr(g, WC.who, YOU, startFriendship(TIE.tone, TIE.type));
         if (TIE.together)
             liveTogether(g, TIE.other, WC.who);
         TIE.other = '';
+        TIE.back = '';
         TIE.together = false;
         await changed();
     },
@@ -374,6 +416,17 @@ Object.assign(ACT, {
 });
 Object.assign(INPUT, {
     'wc-tie': (el) => { TIE[el.dataset.k] = el.value; notify(); },
+    'wc-minor': async (el) => { const g = game(); if (!g)
+        return; const id = idOf(g, WC.who); const ps = relOf(g).people; if (el.checked)
+        (ps[id] ??= {}).minor = true;
+    else if (ps[id])
+        delete ps[id].minor; await changed(); },
+    'wc-pair-who': (el) => { PAIR.other = el.value; notify(); },
+    'wc-pair': (el) => { const g = game(); if (!g)
+        return; setMeter(g, el.dataset.m, el.dataset.x, el.dataset.y, Number(el.value)); saveGame(); const b = el.previousElementSibling?.querySelector('b'); if (b)
+        b.textContent = el.value; },
+    'wc-pair-status': async (el) => { const g = game(); if (!g)
+        return; setStatus(g, WC.who, el.dataset.b, (el.value || null)); await changed(); },
     'wc-tie-together': (el) => { TIE.together = el.checked; },
     'wc-adv': (el) => { WC.adv = el.checked; notify(); },
     'wc-q': (el) => { WC.q = el.value; notify(); },

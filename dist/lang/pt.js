@@ -3821,6 +3821,21 @@ const DICT = {
     "They do not want to spend time with you.": "Não querem passar tempo com você.",
     "They do not want to go anywhere with you.": "Não querem ir a lugar nenhum com você.",
     "They do not want to make plans with you.": "Não querem fazer planos com você.",
-    "They do not want to spend the night with you.": "Não querem passar a noite com você."
+    "They do not want to spend the night with you.": "Não querem passar a noite com você.",
+    "Relationships between people": "Relacionamentos entre as pessoas",
+    "people's feelings for each other never change, and couples between them never form, move on or end by themselves.": "o que as pessoas sentem umas pelas outras nunca muda, e casais entre elas nunca se formam, avançam ou terminam sozinhos.",
+    "Who is whose sister, parent, roommate…, and how the people here feel about each other.": "Quem é irmã, pai, colega de casa de quem…, e o que as pessoas aqui sentem umas pelas outras.",
+    "feels": "sente",
+    "the same": "o mesmo",
+    "The same": "O mesmo",
+    "Their feeling back": "O que o outro sente",
+    "How they feel": "O que sentem",
+    "and back:": "e de volta:",
+    "A minor": "Menor de idade",
+    "Never part of any romance.": "Nunca faz parte de nenhum romance.",
+    "Age {0}: never part of any romance.": "{0} anos: nunca faz parte de nenhum romance.",
+    "Feelings between two people": "Sentimentos entre duas pessoas",
+    "Together": "Juntos",
+    "Not a couple": "Não são um casal"
 };
 export default DICT;

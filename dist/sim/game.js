@@ -19,7 +19,7 @@ import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave } from './living.js';
 import { checkLeft } from './verdict.js';
-import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
+import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, relOf, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
 import { applyGameLore } from './lore.js';
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 // A square portrait with initials on a gradient (used when no image is chosen).
@@ -272,8 +272,14 @@ export async function startNewGame(o) {
         for (const t of ex.ties ?? []) {
             const a = exAvatar.get(ex.name), b = exAvatar.get(t.to);
             if (a && b && a !== b)
-                setTie(save, { a, b, type: t.type, tone: t.tone });
+                setTie(save, { a, b, type: t.type, tone: t.tone, ...(t.back ? { back: t.back } : {}) });
         }
+    // the example people's ages (minors are left out of every romance)
+    for (const ex of w.cast.examples) {
+        const a = exAvatar.get(ex.name);
+        if (a && Number.isFinite(ex.age))
+            (relOf(save).people[a] ??= {}).age = ex.age;
+    }
     for (const t of o.ties ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;

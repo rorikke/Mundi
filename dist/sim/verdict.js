@@ -1,7 +1,9 @@
 // The scene verdict (requirements S-14): when a scene ends (you leave, sleep, skip time, someone who spoke leaves,
 // every 30 messages, a "Play as" switch), one quiet AI call reads what was said and judges how it changed what each
 // resident who spoke feels about you, in a fixed format (`Name | friendship ±n | romance ±n | why`). It judges what
-// the in-scene sources missed (it's told what they already counted), so the same warmth isn't counted twice.
+// the in-scene sources missed (it's told what they already counted), so the same warmth isn't counted twice. With
+// "Relationships between people" on, it also says how the scene changed what two residents who both spoke feel about
+// each other (`A > B | …`).
 // Capture, settle, then ask: the scene is read and its messages settled at once (so swiping or hiding lines later
 // can't race with it), and the answer is applied when it comes back. A failure applies nothing and isn't retried.
 import { saveGame, nowAbs, notify, TUT } from '../core/store.js';
@@ -10,7 +12,7 @@ import { quiet, personaName, speakerOf } from '../st/bridge.js';
 import { openMessages, openTotals, openSince, readyToSettle, settleNow, addSettled, textOf } from './msglog.js';
 import { fr, ro, gain, lose, relOf, relCfg, SOURCES, YOU } from './rel.js';
 import { facts, factText, placeName } from './facts.js';
-import { romanceBlocked } from './family.js';
+import { romanceBlocked, familyBlocked } from './family.js';
 export const MIN_MESSAGES = 4; // passing through a place (a greeting, a word) costs no AI call
 export const verdictOn = (g) => relCfg(g).verdict !== false;
 const LINE = /^\s*[-*•]?\s*([^|\n>]+?)\s*(?:>\s*([^|\n]+?)\s*)?\|\s*friendship\s*([+-]?\s*\d)\s*\|\s*romance\s*([+-]?\s*\d)\s*\|\s*([^|\n]+?)\s*(?:\|\s*(made\s*up)\s*)?$/i;
@@ -59,6 +61,7 @@ export async function verdictNow(g, w, reason, { end = false } = {}) {
         }
         console.debug('[Mundi] scene verdict queued:', reason, `${msgs.length} messages`);
         const romance = systemOn(w, 'romance');
+        const between = systemOn(w, 'relations') && people.length >= 2;
         const already = people.map(p => { const c = counted[p.avatar]; return c && (c.f || c.r) ? `${p.name}: friendship ${c.f >= 0 ? '+' : ''}${c.f.toFixed(1)}${c.r ? `, romance ${c.r >= 0 ? '+' : ''}${c.r.toFixed(1)}` : ''}` : ''; }).filter(Boolean);
         const prompt = `A scene in ${w.name} between ${me} and ${people.map(p => p.name).join(', ')} has just ended.\n\n` +
             `${noted.length ? `What surely happened meanwhile:\n${noted.join('\n')}\n\n` : ''}What was said:\n${talk}\n\n` +
@@ -66,7 +69,11 @@ export async function verdictNow(g, w, reason, { end = false } = {}) {
             `Judge how this scene changed how each of these people feels about ${me}: ${people.map(p => p.name).join(', ')}. Write one line for each, exactly like this:\n` +
             `Name | friendship +1 | romance 0 | a short reason\n` +
             `Friendship${romance ? ' and romance go' : ' goes'} from -3 to +3; 0 when nothing changed. ${romance ? 'Romance only moves with flirting, a date or intimacy. ' : 'Always write romance 0. '}` +
-            `Insults, fights, cruelty or broken promises are negative. Be honest, not generous. Write only the lines.`;
+            `Insults, fights, cruelty or broken promises are negative. Be honest, not generous. ` +
+            (between ? `When the scene clearly changed how one of them feels about another of them (not about ${me}), add a line for that too, like this:
+${people[0].name} > ${people[1].name} | friendship -1 | romance 0 | a short reason
+` : '') +
+            `Write only the lines.`;
         const done = quiet(prompt, 400, 'You judge how a scene changed relationships. You answer only with lines in the given format.')
             .then(out => apply(g, w, out, people, playing, day))
             .catch(e => { console.warn('[Mundi] scene verdict', e); return null; });
@@ -88,30 +95,24 @@ function apply(g, w, out, people, playing, day) {
     const to = String(sw?.avatar ?? '') === playing ? YOU : (playing || String(sw?.origCard ?? '') || YOU);
     const changes = [];
     const st = relOf(g);
+    const who = (n) => people.find(x => x.name.toLowerCase() === n.toLowerCase());
+    const done = new Set();
     for (const l of lines) {
-        if (l.to)
-            continue; // "A > B": feelings between people don't move yet
-        const p = people.find(x => x.name.toLowerCase() === l.name.toLowerCase());
+        if (l.to) { // "A > B": how A's feelings for B changed (both spoke in the scene)
+            const a = who(l.name), b = who(l.to);
+            if (!a || !b || a === b || !systemOn(w, 'relations') || done.has(`${a.avatar}>${b.avatar}`))
+                continue;
+            done.add(`${a.avatar}>${b.avatar}`);
+            const ch = moveBy(g, a.avatar, b.avatar, l.f, systemOn(w, 'romance') && !familyBlocked(g, a.avatar, b.avatar) ? l.r : 0);
+            if (ch.length)
+                addSettled(g, { fp: 'verdict', who: a.avatar, kind: 'verdict', at: nowAbs(g), why: `${l.why} (${b.name})`, ch });
+            continue;
+        }
+        const p = who(l.name);
         if (!p || changes.some(c => c.avatar === p.avatar))
             continue;
         const f0 = Math.round(fr(g, p.avatar, to)), r0 = Math.round(ro(g, p.avatar, to));
-        const ch = [];
-        const move = (m, steps) => {
-            const n = steps * SOURCES.verdict;
-            if (n > 0) {
-                const a = gain(g, m, p.avatar, to, n);
-                if (a.d || a.fat)
-                    ch.push({ x: p.avatar, y: to, m, ...a });
-            }
-            else if (n < 0) {
-                const d = lose(g, m, p.avatar, to, n);
-                if (d)
-                    ch.push({ x: p.avatar, y: to, m, d: -d, fat: 0 });
-            }
-        };
-        move('f', l.f);
-        if (systemOn(w, 'romance') && !romanceBlocked(g, p.avatar))
-            move('r', l.r);
+        const ch = moveBy(g, p.avatar, to, l.f, systemOn(w, 'romance') && !romanceBlocked(g, p.avatar) ? l.r : 0);
         changes.push({ avatar: p.avatar, name: p.name, why: l.why, f0, f1: Math.round(fr(g, p.avatar, to)), r0, r1: Math.round(ro(g, p.avatar, to)) });
         addSettled(g, { fp: 'verdict', who: p.avatar, kind: 'verdict', at: nowAbs(g), why: l.why, ch });
         if (st.day?.day === day)
@@ -120,6 +121,24 @@ function apply(g, w, out, people, playing, day) {
     saveGame();
     notify();
     return { day, changes };
+}
+// x's feelings toward y move by verdict steps (gains paced, losses in full); returns what changed, for the records.
+function moveBy(g, x, y, f, r) {
+    const ch = [];
+    for (const [m, steps] of [['f', f], ['r', r]]) {
+        const n = steps * SOURCES.verdict;
+        if (n > 0) {
+            const a = gain(g, m, x, y, n);
+            if (a.d || a.fat)
+                ch.push({ x, y, m, ...a });
+        }
+        else if (n < 0) {
+            const d = lose(g, m, x, y, n);
+            if (d)
+                ch.push({ x, y, m, d: -d, fat: 0 });
+        }
+    }
+    return ch;
 }
 /* ---------- the end of the day ---------- */
 // A copy of the day's start values (take it before the night passes: a change after midnight starts a new day).

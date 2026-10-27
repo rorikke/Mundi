@@ -1,14 +1,15 @@
 // People's lives over the weeks (also while you sleep or skip time): couples get engaged, marry and move in
-// together, or break up; people get promoted at work. What happens to someone you know reaches you as news.
-// Everything is the engine's, day by day, the same for the same days.
+// together, or break up, by how they feel about each other (sim/relations.ts); people get promoted at work. What
+// happens to someone you know reaches you as news. Everything is the engine's, day by day, the same for the same days.
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { note } from './facts.js';
 import { npcCareer } from './work.js';
 import { lifeMoment } from './happenings.js';
-import { setTie, removeTie, liveTogether, homeKey } from './living.js';
-import { couplePairs, setStatus, statusOf } from './rel.js';
+import { setTie, removeTie, liveTogether, homeKey, ties } from './living.js';
+import { couplePairs, setStatus, statusOf, gain } from './rel.js';
+import { coupleOdds, feelOf, splitUp } from './relations.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -23,23 +24,23 @@ function couplesMoveOn(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     for (const { a, b, status, since } of couplePairs(g)) {
         const k = key(a, b), A = g.cast[a], B = g.cast[b];
-        const days = g.day - since, known = A.met || B.met;
+        const known = A.met || B.met;
         const tell = (t: string, kind: string, tone: 'good' | 'bad' = 'good') => {
             note(g, t, [A.name, B.name], [a, b], `home:${a}`, kind);
             const text = t.replace('{0}', A.name).replace('{1}', B.name);
             if (known) out.push(text);
             for (const x of [a, b]) lifeMoment(g, w, x, text, tone);   // the people close to you tell you
         };
-        if (status === 'dating') {
-            if (days >= 14 && rnd(g, `engage|${k}`) < 0.05) { setStatus(g, a, b, 'engaged'); tell('{0} and {1} got engaged!', 'life'); }
-            else if (rnd(g, `split|${k}`) < 0.012) {
-                setStatus(g, a, b, null);
-                removeTie(g, a, b); setTie(g, { a, b, type: 'ex', tone: 'tense' });
-                tell('{0} and {1} broke up.', 'life', 'bad');
-            }
-        } else if (status === 'engaged' && days >= 14 && rnd(g, `marry|${k}`) < 0.07) {
+        const odds = coupleOdds(feelOf(g, a, b, status, since));
+        if (rnd(g, `split|${k}`) < odds.split) {
+            splitUp(g, w, a, b);
+            tell(status === 'married' ? '{0} and {1} got divorced.' : status === 'engaged' ? '{0} and {1} called off their engagement.' : '{0} and {1} broke up.', 'life', 'bad');
+        } else if (status === 'dating' && rnd(g, `engage|${k}`) < odds.up) { setStatus(g, a, b, 'engaged'); tell('{0} and {1} got engaged!', 'life'); }
+        else if (status === 'engaged' && rnd(g, `marry|${k}`) < odds.up) {
             setStatus(g, a, b, 'married');
-            removeTie(g, a, b); setTie(g, { a, b, type: 'spouse', tone: 'close' });
+            const old = ties(g).find(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
+            removeTie(g, a, b); setTie(g, { a, b, type: 'spouse', tone: old?.tone ?? 'close' });
+            for (const [x, y] of [[a, b], [b, a]]) gain(g, 'f', x, y, 5, false);   // the wedding brings them closer
             // they move in together (unless one of them lives with you: then nobody moves)
             const withYou = (x: any) => x.homeWith === '__you';
             if (!withYou(A) && !withYou(B) && homeKey(A.home) !== homeKey(B.home)) liveTogether(g, a, b);
@@ -68,6 +69,6 @@ function careersMoveOn(g: Save, w: WorldDef): string[] {
 }
 
 onDay.push((g, w) => [
-    ...(systemOn(w, 'living') && systemOn(w, 'romance') ? couplesMoveOn(g, w) : []),
+    ...(systemOn(w, 'relations') && systemOn(w, 'romance') ? couplesMoveOn(g, w) : []),
     ...(systemOn(w, 'living') && systemOn(w, 'jobs') ? careersMoveOn(g, w) : []),
 ]);

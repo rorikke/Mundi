@@ -643,7 +643,7 @@ function peopleEditor(w) {
                 ${area('Personality (optional)', `${p}.personality`, 2)}
                 ${area('First message (optional; the card\'s greeting)', `${p}.first_mes`, 3)}
                 <h4>Relations</h4><p class="mu-muted">How ${esc(e.name)} relates to the world's other people (any of them, wherever they live), from the start of every game.</p>
-                ${(e.ties ?? []).map((t, k) => `<div class="mu-row mu-cw-inline">${sel('Is', `${p}.ties.${k}.type`, TIE_TYPES.map(([id, l]) => [id, l]))}${sel('Of', `${p}.ties.${k}.to`, w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name]))}${sel('Feeling', `${p}.ties.${k}.tone`, TIE_TONES.map(([id, l]) => [id, l]))}
+                ${(e.ties ?? []).map((t, k) => `<div class="mu-row mu-cw-inline">${sel('Is', `${p}.ties.${k}.type`, TIE_TYPES.map(([id, l]) => [id, l]))}${sel('Of', `${p}.ties.${k}.to`, w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name]))}${sel('Feeling', `${p}.ties.${k}.tone`, TIE_TONES.map(([id, l]) => [id, l]))}${sel('Their feeling back', `${p}.ties.${k}.back`, [['', 'The same'], ...TIE_TONES.map(([id, l]) => [id, l])])}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ties.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
                 ${w.cast.examples.length > 1 ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-path="${p}.ties" data-i="${i}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${i}">${icon('redo')}<span>New job, home and routine</span></button></div>

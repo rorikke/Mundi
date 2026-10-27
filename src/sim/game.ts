@@ -27,7 +27,7 @@ import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave, type TieType, type TieTone } from './living.js';
 import { checkLeft } from './verdict.js';
-import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
+import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, relOf, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
 import { applyGameLore } from './lore.js';
 
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
@@ -146,14 +146,14 @@ export function resident(w: WorldDef, avatar: string, taken: Set<string>, avoid?
 export interface NewGame {
     world: WorldDef; cast: string[]; examples: boolean; hero: Hero; persona?: string; lore?: string[];
     /** households made at the start (people who share a home, and their ties), your household, and your chosen home */
-    households?: { members: string[]; ties: { a: string; b: string; type: TieType; tone: TieTone }[]; home?: { zone: string; x: number; y: number; n: number } }[];
+    households?: { members: string[]; ties: { a: string; b: string; type: TieType; tone: TieTone; back?: TieTone }[]; home?: { zone: string; x: number; y: number; n: number } }[];
     family?: { avatar: string; type: TieType; tone: TieTone }[];
     home?: { zone: string; x: number; y: number; n: number };
     difficulty?: Difficulty;
     /** where people stand with you at the start (−100 … 100), from a preset */
     approval?: Record<string, number>;
     /** relations between any two people of the cast ('__you' is you), whatever household they live in */
-    ties?: { a: string; b: string; type: TieType; tone: TieTone }[];
+    ties?: { a: string; b: string; type: TieType; tone: TieTone; back?: TieTone }[];
     /** how this game is played (a world with an RPG can be played either way) */
     mode?: GameMode;
     /** RPG: the class, attributes and skills chosen */
@@ -259,7 +259,9 @@ export async function startNewGame(o: NewGame) {
     // relations: the world's own (between its example people) and the ones chosen for this game (anyone with anyone)
     const exAvatar = new Map<string, string>();
     for (const a of Object.keys(save.cast)) { const tag = charOf(a)?.data?.extensions?.mundi?.example; const ex = w.cast.examples.find(e => exampleTag(w, e) === tag); if (ex) exAvatar.set(ex.name, a); }
-    for (const ex of w.cast.examples) for (const t of ex.ties ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(t.to); if (a && b && a !== b) setTie(save, { a, b, type: t.type as TieType, tone: t.tone as TieTone }); }
+    for (const ex of w.cast.examples) for (const t of ex.ties ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(t.to); if (a && b && a !== b) setTie(save, { a, b, type: t.type as TieType, tone: t.tone as TieTone, ...(t.back ? { back: t.back as TieTone } : {}) }); }
+    // the example people's ages (minors are left out of every romance)
+    for (const ex of w.cast.examples) { const a = exAvatar.get(ex.name); if (a && Number.isFinite(ex.age)) (relOf(save).people[a] ??= {}).age = ex.age; }
     for (const t of o.ties ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b) continue;
         setTie(save, t);

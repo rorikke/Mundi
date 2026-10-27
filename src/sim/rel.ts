@@ -16,8 +16,9 @@ export type Status = 'casual' | 'dating' | 'engaged' | 'married';
 /** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no"). */
 export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number }
 export type Pace = PaceId;
-/** A person's own settings (more come with later features). */
-export interface Person { pace?: { f?: Pace; r?: Pace } }
+/** A person's own settings (more come with later features). `age` from the world's example cast; `minor` set in the
+ *  People tab: minors are left out of every romance. */
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean }
 export interface RelStore {
     m: Record<string, { f?: number; r?: number }>;            // "x>y": x's friendship and romance toward y
     fat: Record<string, { f?: number; r?: number; at: number }>;   // "x>y": gains still weighing (pacing)
@@ -71,6 +72,13 @@ export function setMeter(g: Save, m: Meter, x: string, y: string, v: number) {
 }
 export const setFr = (g: Save, x: string, y: string, v: number) => setMeter(g, 'f', x, y, v);
 export const setRo = (g: Save, x: string, y: string, v: number) => setMeter(g, 'r', x, y, v);
+
+// Every direction whose meter is at least `min` (a daily look over the store: crushes, couples forming).
+export function directedAbove(g: Save, m: Meter, min: number): { x: string; y: string; v: number }[] {
+    const out: { x: string; y: string; v: number }[] = [];
+    for (const [k, e] of Object.entries(relOf(g).m)) { const v = e[m]; if (v !== undefined && v >= min) { const [x, y] = k.split('>'); out.push({ x, y, v }); } }
+    return out;
+}
 
 /* ---------- pacing (sim/pace.ts) ---------- */
 
@@ -220,10 +228,11 @@ const TONES: TieTone[] = ['hostile', 'tense', 'neutral', 'good', 'close'];
 export const coupleTone = (t: TieTone): TieTone => (TONES.indexOf(t) < TONES.indexOf('good') ? 'good' : t);
 export const startFriendship = (tone: TieTone | undefined, type?: TieType) => TONE_FRIENDSHIP[tone ?? (type ? TYPE_START[type]?.tone : undefined) ?? 'neutral'] ?? 30;
 // Starting values from ties, for every direction that has none yet (a new game, the migration): friendship from the
-// tone, and for couples (by tie type or by status) romance and at least good terms. Toward you nothing is seeded
+// tone (a's toward b; b's toward a from `back` when they see each other differently), and for couples (by tie type
+// or by status) romance and at least good terms. Toward you nothing is seeded
 // here (that comes from the game's start or the save); your own hidden feelings (`__you>x`) are. `skip(x, y)` leaves
 // a direction alone (the migration: people whose view of others was already stored).
-export function seedFromTies(g: Save, ties: { a: string; b: string; type: TieType; tone: TieTone }[], skip: (x: string, y: string) => boolean = () => false) {
+export function seedFromTies(g: Save, ties: { a: string; b: string; type: TieType; tone: TieTone; back?: TieTone }[], skip: (x: string, y: string) => boolean = () => false) {
     const st = relOf(g);
     const seed = (x: string, y: string, f: number, r?: number) => {
         if (x === y || y === YOU || skip(x, y)) return;
@@ -234,9 +243,9 @@ export function seedFromTies(g: Save, ties: { a: string; b: string; type: TieTyp
     for (const t of ties) {
         const a = idOf(g, t.a), b = idOf(g, t.b);
         const couple = !!TYPE_START[t.type]?.couple || PARTNER.includes(statusOf(g, a, b) as Status);
-        const tone = t.tone ?? TYPE_START[t.type]?.tone ?? 'neutral';
-        const f = startFriendship(couple ? coupleTone(tone) : tone);
-        seed(a, b, f, couple ? COUPLE_ROMANCE : undefined); seed(b, a, f, couple ? COUPLE_ROMANCE : undefined);
+        const tone = t.tone ?? TYPE_START[t.type]?.tone ?? 'neutral', back = t.back ?? tone;
+        const f = (x: TieTone) => startFriendship(couple ? coupleTone(x) : x);
+        seed(a, b, f(tone), couple ? COUPLE_ROMANCE : undefined); seed(b, a, f(back), couple ? COUPLE_ROMANCE : undefined);
     }
     // couples without a tie between them
     for (const [k, p] of Object.entries(st.pairs)) {

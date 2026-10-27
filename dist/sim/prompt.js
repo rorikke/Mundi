@@ -18,6 +18,7 @@ import { planLines } from './plans.js';
 import { memoryLines } from './facts.js';
 import { diaryLines } from './diary.js';
 import { tiesLine } from './living.js';
+import { feelingsLine } from './relations.js'; // also runs feelings between people, hour by hour
 import { romanceLine } from './romance.js';
 import { familyLine } from './family.js';
 import { social, livePlan } from './social.js';
@@ -64,7 +65,7 @@ export const BLOCKS = [
     { id: 'solo', name: 'Talking alone', desc: 'Who you are talking to when you talk only with one person.' },
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
     { id: 'family', name: 'Your children', desc: 'Your children\'s age and how to treat them. Always sent when they are here.' },
-    { id: 'ties', name: 'Family and ties', desc: 'Who is whose sister, parent, roommate…', cut: 6 },
+    { id: 'ties', name: 'Family and ties', desc: 'Who is whose sister, parent, roommate…, and how the people here feel about each other.', cut: 6 },
     { id: 'needs', name: 'How you feel', desc: 'Hunger, tiredness… only what stands out.', cut: 6 },
     { id: 'diary', name: 'Diary', desc: 'The last two days of your diary.', cut: 5 },
     { id: 'lore', name: 'World lore', desc: 'World lore that switches on with weather, time or place.', cut: 5 },
@@ -142,7 +143,7 @@ export function sceneBlocks() {
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present)],
-        ties: [...factionLines(g, w, present), tiesLine(g, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
+        ties: [...factionLines(g, w, present), tiesLine(g, present, !systemOn(w, 'relations')), feelingsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
         romance: [romanceLine(g, met)],
         family: [familyLine(g, present)],
         rumors: rumorLines(g, met),

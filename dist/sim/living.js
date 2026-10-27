@@ -10,7 +10,7 @@ import { period, isWeekend, seasonOf } from './time.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
-import { couplePairs, setStatus, partnersOf, TYPE_START, startFriendship } from './rel.js';
+import { couplePairs, TYPE_START, startFriendship } from './rel.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -72,14 +72,15 @@ export function activeWorldLore(g, w) {
     }).map(e => e.content);
 }
 /* ---------- people's own lives (76) ---------- */
-// Couples between people of the world (the pairs in the relationships store, sim/rel.ts).
+// Couples between people of the world (the pairs in the relationships store, sim/rel.ts). They form from feelings
+// (sim/relations.ts), not here.
 export const couples = (g) => couplePairs(g).map(p => [p.a, p.b]);
 function lifeGoesOn(g, w) {
     const out = [];
     const people = residents(g);
     if (!people.length)
         return out;
-    // about once a week someone's life changes: a new job, a new home, or a new relationship
+    // about once a week someone's life changes: a new job or a new home
     if (rnd(g, 'life') > 0.15)
         return out;
     const r = people[Math.floor(rnd(g, 'who') * people.length)];
@@ -108,19 +109,6 @@ function lifeGoesOn(g, w) {
             normalizeHomes(g);
             note(g, '{0} moved to {1}.', [r.name, z.name], [r.avatar], `home:${r.avatar}`, 'life');
             tell('{0} moved to {1}.', [r.name, z.name]);
-        }
-    }
-    else {
-        const taken = (a) => partnersOf(g, a).length > 0; // with someone already (you included)
-        const single = people.filter(x => x !== r && !taken(x.avatar));
-        if (single.length && !taken(r.avatar) && systemOn(w, 'romance')) {
-            const o = single[Math.floor(rnd(g, 'pair') * single.length)];
-            setStatus(g, r.avatar, o.avatar, 'dating');
-            note(g, '{0} and {1} started dating.', [r.name, o.name], [r.avatar, o.avatar], r.leisure[0] ?? g.player.loc, 'life');
-            if (o.met)
-                out.push(`${r.name} and ${o.name} started dating.`);
-            else
-                tell('{0} and {1} started dating.', [r.name, o.name]);
         }
     }
     return out;
@@ -254,13 +242,15 @@ export { homeKey, normalizeHomes } from './homes.js';
 import { homeKey, normalizeHomes } from './homes.js';
 const nameOfId = (g, id) => (id === '__you' ? '{{user}}' : g.cast[id]?.name ?? id);
 const INVERSE = { parent: 'child of', child: 'parent of' };
-// For the AI: the ties of the people in this scene (only those, like the memories).
-export function tiesLine(g, present) {
+// For the AI: the ties of the people in this scene (only those, like the memories). How they get along comes from
+// their feelings (sim/relations.ts); only with "Relationships between people" off, when feelings never move, does the
+// starting tone still say it.
+export function tiesLine(g, present, tones = false) {
     const here = new Set(present.map(r => r.avatar));
     const list = ties(g).filter(t => here.has(t.a) || here.has(t.b));
     if (!list.length)
         return '';
-    return `Family and ties: ${list.map(t => `${nameOfId(g, t.a)} is ${TIE_TYPES.find(x => x[0] === t.type)?.[1] ?? t.type} ${nameOfId(g, t.b)}${t.tone !== 'neutral' ? ` (${t.tone} relationship)` : ''}`).join('; ')}.`;
+    return `Family and ties: ${list.map(t => `${nameOfId(g, t.a)} is ${TIE_TYPES.find(x => x[0] === t.type)?.[1] ?? t.type} ${nameOfId(g, t.b)}${tones && t.tone !== 'neutral' ? ` (${t.tone} relationship)` : ''}`).join('; ')}.`;
 }
 void INVERSE;
 // A tie to {{user}} set at the start also sets where you stand with them (friends start close, enemies far apart).
