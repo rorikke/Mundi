@@ -1,9 +1,8 @@
 import { festivalsHtml } from './lifeplus.js';
 import { cityEventsHtml, cityBadge } from './cityui.js';
-import { romanceButtons, relBar } from './relui.js';
+import { romanceButtons, relBar, relSubtitle } from './relui.js';
 import { lex } from '../core/lexicon.js';
 import { stayButton, tidyEvent } from './events.js';
-import { friendTier, romanceTier } from '../sim/romance.js';
 // Plans on screen: the card of a person in the scene ("come with me", "make plans"), the plan form and the
 // Calendar app on the phone, and the toasts the clock produces (reminders, arrivals, missed plans).
 import { housePartyHtml, partyForm } from './lifeui.js';
@@ -57,7 +56,7 @@ export function sceneCard(g, w) {
     const along = isWith(g, r.avatar);
     const working = isWorking(w, r, nowAbs(g));
     return `<div class="mu-pcard" role="dialog" aria-label="${esc(r.name)}">
-        <header><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.met ? r.name : 'Someone')}</b><small>${friendTier(b).name}${romanceTier(g, r.avatar).id !== 'none' ? ` · <span class="mu-love-tag">${romanceTier(g, r.avatar).name}</span>` : ''}</small>${relBar(r.avatar)}</span>
+        <header><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.met ? r.name : 'Someone')}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>
             <button class="mu-ibtn mu-ghost" data-act="pc-close" aria-label="Close">${icon('x')}</button></header>
         ${r.met ? '' : `<p class="mu-muted">You don't know them yet. Talk to them, or:</p><button class="mu-primary" data-act="pc-intro" data-who="${esc(r.avatar)}">${icon('chat')}<span>Introduce yourself</span></button>`}
         ${along ? `<p class="mu-muted">${esc(fmt('{0} is with you.', r.name))}</p>

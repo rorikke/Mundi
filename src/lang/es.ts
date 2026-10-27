@@ -3851,6 +3851,10 @@ const DICT: Record<string, string> = {
  "When you stop playing someone (\"Play as\"), their feelings": "Cuando dejas de jugar como alguien (\"Jugar como\"), sus sentimientos",
  "follow how everyone now feels about them": "siguen lo que cada uno siente ahora por esa persona",
  "stay as they were": "se quedan como estaban",
- "While you play someone, their own feelings wait. When you leave them, they can feel about each person what that person came to feel about them, or carry on from where they were.": "Mientras juegas como alguien, sus sentimientos esperan. Cuando lo dejas, puede sentir por cada uno lo que esa persona llegó a sentir por él, o seguir desde donde estaba."
+ "While you play someone, their own feelings wait. When you leave them, they can feel about each person what that person came to feel about them, or carry on from where they were.": "Mientras juegas como alguien, sus sentimientos esperan. Cuando lo dejas, puede sentir por cada uno lo que esa persona llegó a sentir por él, o seguir desde donde estaba.",
+ "Infatuated": "Encaprichado(a)",
+ "Soulmates": "Almas gemelas",
+ "Love-hate": "Amor-odio",
+ "Platonic": "Platónico"
 };
 export default DICT;

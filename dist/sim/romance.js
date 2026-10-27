@@ -38,7 +38,8 @@ export const FRIEND_TIERS = [
 export const ROMANCE_TIERS = [
     { id: 'none', name: 'No romance', lo: 0, hi: 15, color: '#8a94a6' },
     { id: 'interest', name: 'Interest', lo: 15, hi: 40, color: '#f48fb1' },
-    { id: 'crush', name: 'Crush', lo: 40, hi: 101, color: '#e7489a' },
+    { id: 'crush', name: 'Crush', lo: 40, hi: 70, color: '#e7489a' },
+    { id: 'infatuated', name: 'Infatuated', lo: 70, hi: 101, color: '#d01f6f' },
 ];
 const STATUS_TIER = {
     dating: { id: 'dating', name: 'Dating', lo: 0, hi: 101, color: '#e23b6e' },
@@ -53,7 +54,23 @@ export function romanceTier(g, avatar, value = romValue(g, avatar)) {
 // progress inside the tier (the bar fills up and starts again at each new tier, like The Sims); below 0 it fills as
 // the dislike deepens
 export const tierPct = (t, v) => Math.round(Math.max(0, Math.min(1, t.hi <= 0 ? (t.hi - v) / (t.hi - t.lo) : (v - t.lo) / (Math.min(t.hi, 100) - t.lo))) * 100);
-export const DISLIKES = -30, HATES = -60, CRUSH = 40;
+export const DISLIKES = -30, HATES = -60, INTEREST = 15, CRUSH = 40, INFATUATED = 70;
+const LABELS = [
+    { id: 'soulmates', name: 'Soulmates', words: 'soulmates: deeply in love and the closest of friends', ok: (f, r) => r >= 90 && f >= 90 },
+    { id: 'inlove', name: 'In love', words: 'in love', ok: (f, r) => r >= INFATUATED && f >= 55 },
+    { id: 'infatuated', name: 'Infatuated', words: 'infatuated, without really knowing them yet', ok: (f, r) => r >= INFATUATED && f >= 0 },
+    { id: 'lovehate', name: 'Love-hate', words: 'drawn to them despite resenting them', ok: (f, r) => r >= CRUSH && f < 0 },
+    { id: 'platonic', name: 'Platonic', words: "close, but doesn't see them that way", ok: (f, r) => r < INTEREST && f >= 55 },
+];
+export function labelOf(f, r) {
+    const l = LABELS.find(x => x.ok(f, r));
+    return l ? { id: l.id, name: l.name, words: l.words } : null;
+}
+// The label of someone toward you (romance only counts with the romance system on and no family block).
+export function labelToward(g, avatar) {
+    const love = sysOn(g, 'romance') && !romanceBlocked(g, avatar);
+    return labelOf(bondOf(g, avatar), love ? romValue(g, avatar) : 0);
+}
 // How a feeling below Stranger reads in a sentence ("Kaho dislikes {{user}}"); '' from Stranger up.
 export const coldWords = (f) => (f < HATES ? 'hates' : f < DISLIKES ? 'dislikes' : f < 0 ? 'is wary of' : '');
 // A crush on you that can outweigh dislike (enemies to lovers).
@@ -161,9 +178,13 @@ export function endRelationship(g, avatar, name) {
 export function romanceLine(g, present) {
     const parts = present.map(r => {
         const b = bondOf(g, r.avatar), rt = romanceTier(g, r.avatar), love = rt.id !== 'none' && sysOn(g, 'romance') ? rt.name.toLowerCase() : '';
+        const lab = labelToward(g, r.avatar), st = romOf(g, r.avatar).status;
+        // with a partner: whether they're still in love; otherwise the label in words
+        const how = st !== 'none' ? (lab?.id === 'soulmates' || lab?.id === 'inlove' ? `, and ${lab.words}` : romValue(g, r.avatar) < CRUSH ? ', but no longer in love' : '')
+            : lab && lab.id !== 'lovehate' ? ` (${lab.words})` : '';
         if (!coldWords(b))
-            return `${r.name}: ${friendTier(b).name.toLowerCase()}${love ? `, ${love}` : ''}`;
-        return `${r.name} ${coldWords(b)} {{user}}${love ? ` (yet romance: ${love})` : ''}` +
+            return `${r.name}: ${friendTier(b).name.toLowerCase()}${love ? `, ${love}` : ''}${how}`;
+        return `${r.name} ${coldWords(b)} {{user}}${love ? ` (yet romance: ${love}; ${r.name} is drawn to {{user}} despite resenting them)` : ''}${st !== 'none' ? how : ''}` +
             (b < HATES ? `: ${r.name} doesn't want {{user}} around, and leaves or tells {{user}} to leave` : '');
     });
     if (!parts.length)

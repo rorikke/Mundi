@@ -7,7 +7,7 @@ import { sysOn } from '../sim/romance.js';
 import { chat, quiet, sendCanned, setPrompt, thumb } from '../st/bridge.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
-import { ASKS, canAsk, coolingDown, readiness, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
+import { ASKS, canAsk, coolingDown, readiness, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
 import { WORK_MODES, workShift, jobDef, rankOf } from '../sim/work.js';
@@ -30,6 +30,11 @@ export function relBar(avatar, romance = true) {
     const ft = friendTier(b);
     const rt = romanceTier(g, avatar);
     return `<span class="mu-tierbar" title="${esc(ft.name)}"><i style="width:${tierPct(ft, b)}%;background:${ft.color}"></i></span>${romance && rt.id !== 'none' && sysOn(g, 'romance') ? `<span class="mu-tierbar is-love" title="${esc(rt.name)}"><i style="width:${tierPct(rt, romOf(g, avatar).value)}%;background:${rt.color}"></i></span>` : ''}`;
+}
+// Under a person's name: their friendship tier, their romance tier or status, and the label from both ("In love").
+export function relSubtitle(g, avatar) {
+    const b = bondOf(g, avatar), rt = romanceTier(g, avatar), lab = labelToward(g, avatar);
+    return `${esc(friendTier(b).name)}${rt.id !== 'none' && sysOn(g, 'romance') ? ` · <span class="mu-love-tag">${esc(rt.name)}</span>` : ''}${lab ? ` · <em class="mu-rel-label">${esc(lab.name)}</em>` : ''}`;
 }
 /* ---------- the buttons on a person's card ---------- */
 export function romanceButtons(avatar) {

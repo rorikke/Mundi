@@ -9,7 +9,7 @@ import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { fr, ro, gain, lose, idOf, statusOf, setStatus, partnersOf, couplePairs, directedAbove, PARTNER, YOU, type Status } from './rel.js';
-import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH } from './romance.js';
+import { friendTier, ROMANCE_TIERS, DISLIKES, HATES, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked } from './family.js';
 import { ties, setTie, removeTie, homeKey, normalizeHomes } from './living.js';
 import { homeSpot, takenHomes } from './homes.js';
@@ -175,8 +175,8 @@ onDay.push((g, w) => {
 // How x feels about y in a sentence (directed), and two people who feel the same (said once).
 const ONE_WAY: Record<string, string> = { hates: 'hates', dislikes: "can't stand", wary: 'is wary of', stranger: 'barely knows', acquaintance: 'knows', friend: 'likes', good: 'is fond of', best: 'is very close to' };
 const BOTH: Record<string, string> = { hates: 'hate each other', dislikes: "can't stand each other", wary: 'are wary of each other', stranger: 'barely know each other', acquaintance: 'are acquaintances', friend: 'are friends', good: 'are good friends', best: 'are best friends' };
-const romTier = (v: number) => (v >= CRUSH ? 'crush' : v >= ROMANCE_TIERS[1].lo ? 'interest' : '');
-const LOVE: Record<string, [string, string]> = { crush: ['has a crush on', 'have a crush on each other'], interest: ['is attracted to', 'are attracted to each other'] };
+const romTier = (v: number) => (v >= INFATUATED ? 'infatuated' : v >= CRUSH ? 'crush' : v >= ROMANCE_TIERS[1].lo ? 'interest' : '');
+const LOVE: Record<string, [string, string]> = { infatuated: ['is infatuated with', 'are infatuated with each other'], crush: ['has a crush on', 'have a crush on each other'], interest: ['is attracted to', 'are attracted to each other'] };
 
 // For the people in this scene: how each pair feels about each other (both directions when they differ by a tier),
 // crushes (and whether they're returned), and a partner who has fallen out of love.
