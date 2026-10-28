@@ -9,7 +9,7 @@
 // to themselves. And, for the AI, what each person here wants from you right now (A-7).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
-import { onHour, onDay } from './hooks.js';
+import { onHour, onDay, onLook } from './hooks.js';
 import { presentAt, residents } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
@@ -25,6 +25,7 @@ import { warning, lowFor } from './warnings.js';
 import { lookingOf } from './feed.js';
 import { confrontations } from './jealousy.js';
 import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, type Moment, type Asked } from './moments.js';
+import { threadMomentFits } from './threads.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -183,6 +184,10 @@ export function textAsks(g: Save, w: WorldDef): string[] {
 
 export function fits(g: Save, w: WorldDef, m: Moment): boolean {
     const a = m.who; if (!isMine(g, a)) return false;
+    if (m.until !== undefined && g.day > m.until) return false;
+    if (m.kind === 'thread') return threadMomentFits(g, m.tier ?? '');
+    if (m.kind === 'custom') return true;
+    if (m.kind === 'intro') { if (m.tier?.startsWith('tell:')) return true; const b = g.cast[m.tier ?? '']; return !!b && presentAt(g, w, g.player.loc).includes(b); }
     if (m.kind === 'down') return bondOf(g, a) < 0;
     if (m.kind === 'grudge') return !!grudgeOf(g, a);
     if (m.kind === 'talk') return lowFor(g, a);
@@ -233,8 +238,10 @@ export function wantsLine(g: Save, w: WorldDef, present: Resident[]): string {
 
 /* ---------- when it runs ---------- */
 
-// After anything that may have moved feelings (the prompt is refreshed), and every hour.
+// After anything that may have moved feelings (the prompt is refreshed), and every hour. The world's stories and
+// threads look at the scene first: they don't depend on the initiative setting.
 export function checkInitiative(g: Save, w: WorldDef) {
+    for (const f of onLook) f(g, w);
     if (!initiativeOn(g)) return;
     checkTiers(g, w);
     confrontations(g, w, presentAt(g, w, g.player.loc));

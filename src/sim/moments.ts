@@ -13,8 +13,10 @@ import type { AskKind } from './romance.js';
 export type Initiative = 'off' | 'rarely' | 'normal' | 'often';
 /** `tier`: a feeling reached a tier (A-1); `down`: it fell to Wary or worse; `ask`: they ask you something (A-2);
  *  `talk`: a partner brings up the relationship (A-3); `grudge`: they bring up what hurt them (A-4); `jealous`: a
- *  partner confronts you about someone else (A-5). */
-export type MomentKind = 'tier' | 'down' | 'ask' | 'talk' | 'grudge' | 'jealous';
+ *  partner confronts you about someone else (A-5); `thread`: a step of their own story (E22, sim/threads.ts; `tier`
+ *  is the thread's id); `custom`: a festival's custom between you (E5: Valentine's chocolate; `tier` is the
+ *  festival's id); `intro`: they'd like you to meet a friend of theirs (E30). */
+export type MomentKind = 'tier' | 'down' | 'ask' | 'talk' | 'grudge' | 'jealous' | 'thread' | 'custom' | 'intro';
 export type Asked = AskKind | 'stay' | 'staytheirs';
 export interface Moment {
     id: number; who: string; kind: MomentKind; text: string; day: number;
@@ -23,6 +25,8 @@ export interface Moment {
     sent?: number;
     /** the reverse ask check: how many of your lines it has read without an answer (A-2) */
     tries?: number;
+    /** the last day it may still be sent (unset: 3 days after it was queued) */
+    until?: number;
 }
 interface Seat { moments: Moment[]; next: number; budget: { day: number; used: number; any?: number; last: Record<string, number> } }
 
@@ -65,10 +69,11 @@ export function queueMoment(g: Save, m: Omit<Moment, 'id' | 'day'>): Moment | nu
     return out;
 }
 export function dropMoment(g: Save, id: number) { const s = seat(g); s.moments = s.moments.filter(m => m.id !== id); }
-// Drops what no longer fits (the rule that queued it says so) and what waited 3 days unsent.
+// Drops what no longer fits (the rule that queued it says so) and what waited too long unsent (3 days, or its own
+// last day).
 export function tidyMoments(g: Save, fits: (m: Moment) => boolean) {
     const s = seat(g);
-    s.moments = s.moments.filter(m => (m.sent !== undefined || g.day - m.day <= 3) && fits(m));
+    s.moments = s.moments.filter(m => (m.sent !== undefined || (m.until !== undefined ? g.day <= m.until : g.day - m.day <= 3)) && fits(m));
 }
 // The moments for this scene: the oldest one per person here, two at most (the oldest first).
 export function momentsHere(g: Save, present: Resident[], fits: (m: Moment) => boolean): Moment[] {
