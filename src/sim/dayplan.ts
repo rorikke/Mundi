@@ -140,14 +140,20 @@ export function jobOf(g: Save, w: WorldDef, r: Resident): Occupation | null {
 /** Does this person's job follow a weekly schedule (their shifts come from it, not from their routine)? */
 export const scheduled = (g: Save, w: WorldDef, r: Resident) => !isScenario(w) && !!scheduleOf(jobOf(g, w, r));
 
-interface Plan { days: boolean[]; from: number; to: number; i: number; fixed: Set<number> }
+interface Plan { days: boolean[]; from: number; to: number; i: number; fixed: Set<number>; open: boolean[] }
 // A ritual of someone at their own workplace during their shift hours is a day they work (Kyōko behind the bar on
 // Reiko's Fridays); one elsewhere that their shift would cut short is a day off (Mio's Friday karaoke). Then the other
-// days off go where most of the team is working, so the place is never empty.
+// days off: colleagues share their working days as much as they can (they get to know each other), on the usual week
+// (from Monday on), and a place that opens every day (a shop, a restaurant, a bar, a hospital, not an office) has one
+// of them on its other days, as far as each covering one extra day a week allows.
+// A schedule's hours longer than a shift are when it can be worked: their shift is the part of it closest to their
+// routine's work hours, at least the job's `shift` long.
+// The days that keep a place open beyond the usual week are shared out, one each, and by turns week by week.
 const plansKept = new WeakMap<Stamp, Map<string, Map<string, Plan>>>();
-function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Set<string>()): Map<string, Plan> {
+function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Set<string>(), week = 0): Map<string, Plan> {
     let byJob = plansKept.get(st); if (!byJob) plansKept.set(st, byJob = new Map());
-    const have = byJob.get(o.id); if (have) return have;
+    const key = `${o.id}|${week}`;
+    const have = byJob.get(key); if (have) return have;
     const out = new Map<string, Plan>();
     const s = scheduleOf(o); if (!s) return out;
     if (busy.has(o.id)) return out;   // a loop through rituals on each other's days off: no fixed days this time
@@ -157,7 +163,7 @@ function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Se
     const work = new Map<string, boolean[]>(), must = new Map<string, Set<number>>(), offs = new Map<string, Set<number>>();
     const cover = Array(7).fill(0);
     team.forEach((r, i) => {
-        const rits = ritualsFor(g, w, r.avatar, st).filter(x => weekly(x.rit)).map(x => ({ x, days: ritualWeekdays(g, w, x, st, busy) }));
+        const rits = ritualsFor(g, w, r.avatar, st).filter(x => weekly(x.rit)).map(x => ({ x, days: ritualWeekdays(g, w, x, st, busy, week) }));
         // their shift: the window that covers their rituals at work (Mio behind the counter at 5:00: the night shift),
         // then the one closest to their routine's work hours, then by turns
         const atWork = (win: [number, number]) => rits.reduce((n, { x }) => n + (x.rit.place === o.place ? Math.max(...[0, -24].map(dd => overlap(x.rit.from, x.rit.to, win[0] + dd, win[1] + dd))) : 0), 0);
@@ -165,9 +171,10 @@ function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Se
         const fit = (win: [number, number]) => range(win[0], win[1]).filter(h => hrs.has(h % 24)).length;
         const turn = (k: number) => (((k - i) % s.windows.length) + s.windows.length) % s.windows.length;
         const order = s.windows.map((win, k) => ({ win, k, a: atWork(win), f: fit(win) })).sort((a, b) => b.a - a.a || b.f - a.f || turn(a.k) - turn(b.k));
-        const [from, to] = order[0].win;
+        let [from, to] = order[0].win;
+        if (!o.schedule?.shifts?.length) [from, to] = blockOf(from, to, o.shift, hrs);
         const m = new Set<number>(), off = new Set<number>();
-        out.set(r.avatar, { days: [], from, to, i, fixed: off });
+        out.set(r.avatar, { days: [], from, to, i, fixed: off, open: [] });
         closed?.forEach(d => { const k = WEEKDAY_IDS.indexOf(d as any); if (k >= 0) off.add(k); });
         for (const { x, days } of rits) {
             for (const wd of days) for (const d of [wd - 1, wd, wd + 1]) {
@@ -180,24 +187,58 @@ function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Se
         }
         must.set(r.avatar, m); offs.set(r.avatar, off);
     });
-    // fixed days first, for everyone, then the rest where most are working
+    // fixed days first, for everyone, then the rest
+    const usual = usualWeek(s), daily = opensDaily(w, o.place);
+    const needed = (k: number) => daily ? !closed?.includes(WEEKDAY_IDS[k]) : usual.includes(k);
     for (const r of team) { const days = Array(7).fill(true); for (const k of offs.get(r.avatar)!) if (!must.get(r.avatar)!.has(k)) days[k] = false; work.set(r.avatar, days); days.forEach((on, k) => { if (on) cover[k]++; }); }
-    for (const r of team) {
+    const turns = [...team].sort((a, b) => H(`${a.avatar}|${o.id}|turn|${week}`) - H(`${b.avatar}|${o.id}|turn|${week}`));
+    // (one extra day each at most: a small team keeps the place open most days and still shares most of its week;
+    // the other staff are background)
+    const duty = new Set<string>();
+    if (!Array.isArray(s.days) && team.length > 1) [0, 1, 2, 3, 4, 5, 6].filter(k => needed(k) && !usual.includes(k)).forEach((k, j) => {
+        for (let t = 0; t < turns.length; t++) { const r = turns[(j + t) % turns.length]; if (!duty.has(r.avatar) && work.get(r.avatar)![k]) { must.get(r.avatar)!.add(k); duty.add(r.avatar); return; } }
+    });
+    for (const r of turns) {
         const days = work.get(r.avatar)!, want = Array.isArray(s.days) ? -1 : Math.max(1, Math.min(7, Math.round(s.days)));
         if (want < 0) { const list = s.days as string[]; for (let k = 0; k < 7; k++) { const on = list.includes(WEEKDAY_IDS[k]) && !offs.get(r.avatar)!.has(k) || must.get(r.avatar)!.has(k); if (days[k] && !on) cover[k]--; days[k] = on; } }
         else {
             while (days.filter(Boolean).length > want) {
                 const cand = [0, 1, 2, 3, 4, 5, 6].filter(k => days[k] && !must.get(r.avatar)!.has(k));
                 if (!cand.length) break;
-                cand.sort((a, b) => cover[b] - cover[a] || H(`${r.avatar}|${o.id}|off|${a}`) - H(`${r.avatar}|${o.id}|off|${b}`));
+                // off the usual week first (its extra days are covered by turns, above); not the last one there on a day of
+                // it; where colleagues are off too
+                const rank = (k: number) => [usual.includes(k) ? 1 : 0, usual.includes(k) && cover[k] <= 1 ? 1 : 0, cover[k], H(`${r.avatar}|${o.id}|off|${k}`)];
+                cand.sort((a, b) => { const x = rank(a), y = rank(b); for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; });
                 days[cand[0]] = false; cover[cand[0]]--;
             }
         }
         out.get(r.avatar)!.days = days;
+        out.get(r.avatar)!.open = [0, 1, 2, 3, 4, 5, 6].map(needed);
     }
     busy.delete(o.id);
-    byJob.set(o.id, out);
+    byJob.set(key, out);
     return out;
+}
+// The job's usual working weekdays (0 Monday): its own, an office week for a full-time job, or days spread over the
+// week from Monday (four days: Monday, Tuesday, Thursday, Saturday), the same for every job, so people who work at the
+// same place share their days, and colleagues are never more than two days apart (romance between people fades after
+// two days without seeing each other, sim/fading.ts). The days a place that opens daily needs beyond it are shared out
+// (above).
+function usualWeek(s: Week): number[] {
+    if (Array.isArray(s.days)) return s.days.map(d => WEEKDAY_IDS.indexOf(d as any)).filter(k => k >= 0);
+    const n = Math.max(1, Math.min(7, Math.round(s.days)));
+    return n >= 5 ? [0, 1, 2, 3, 4, 5, 6].slice(0, n) : [...new Set(Array.from({ length: n }, (_, k) => Math.floor((k * 7) / n)))];
+}
+// A place open every day it isn't closed: anything but an office or a school (only work or study among its tags).
+const opensDaily = (w: WorldDef, id: string) => { const t = w.places.find(p => p.id === id)?.tags ?? []; return !t.length || t.some(x => x !== 'work' && x !== 'study'); };
+// The part of [from, to) someone works: their routine's work hours inside it, at least `shift` long (as early as fits).
+function blockOf(from: number, to: number, shift: number | undefined, hrs: Set<number>): [number, number] {
+    const span = to - from, inside = range(from, to).filter(h => hrs.has(h % 24)).length;
+    const len = Math.min(span, Math.max(shift ?? span, inside || (shift ?? span)));
+    if (len >= span) return [from, to];
+    let best = from, most = -1;
+    for (let a = from; a + len <= to; a++) { const n = range(a, a + len).filter(h => hrs.has(h % 24)).length; if (n > most) { most = n; best = a; } }
+    return [best, best + len];
 }
 const range = (a: number, b: number) => { const out: number[] = []; for (let h = Math.floor(a); h < b; h++) out.push(h); return out; };
 
@@ -216,14 +257,14 @@ export interface Shift { from: number; to: number; place: string }
 /** The shift that starts on that day (absolute minutes), if they work then. */
 export function shiftOn(g: Save, w: WorldDef, r: Resident, day: number, st = stampOf(g, w)): Shift | null {
     const o = jobOf(g, w, r); if (!o || isScenario(w) || !scheduleOf(o)) return null;
-    const plans = teamPlans(g, w, o, st), p = plans.get(r.avatar), wd = wdOf(day);
+    const plans = teamPlans(g, w, o, st, undefined, Math.floor((day - 1) / 7)), p = plans.get(r.avatar), wd = wdOf(day);
     if (!p || onVacation(g, w, r, day, st)) return null;
     if (!p.days[wd]) {
-        // someone covers for a colleague on vacation: when nobody else works that day, the first one free (and not off for
-        // a ritual) does
-        if (plans.size < 2) return null;
+        // someone covers for a colleague on vacation: on a day the place is open, when the ones who'd work it are all
+        // away, the first one free (and not off for a ritual) does
+        if (plans.size < 2 || !p.open[wd]) return null;
         const away = (a: string) => onVacation(g, w, g.cast[a], day, st);
-        if ([...plans].some(([a, q]) => q.days[wd] && !away(a))) return null;
+        if (![...plans].some(([a, q]) => q.days[wd] && away(a)) || [...plans].some(([a, q]) => q.days[wd] && !away(a))) return null;
         const cover = [...plans].find(([a, q]) => !away(a) && !q.fixed.has(wd)) ?? [...plans].find(([a]) => !away(a));
         if (cover?.[0] !== r.avatar) return null;
     }
@@ -287,11 +328,11 @@ function ritualIndex(g: Save, w: WorldDef, st: Stamp): Map<string, RitualRef[]> 
 export const ritualsFor = (g: Save, w: WorldDef, avatar: string, st = stampOf(g, w)) => ritualIndex(g, w, st).get(avatar) ?? [];
 const weekly = (rit: Ritual) => rit.every === undefined || rit.every === 'week' || typeof rit.every === 'number';
 // The weekdays of a ritual: its own, or (none given) the owner's days off.
-function ritualWeekdays(g: Save, w: WorldDef, x: RitualRef, st: Stamp, busy?: Set<string>): number[] {
+function ritualWeekdays(g: Save, w: WorldDef, x: RitualRef, st: Stamp, busy?: Set<string>, week = 0): number[] {
     if (x.rit.days?.length) return x.rit.days.map(d => WEEKDAY_IDS.indexOf(d)).filter(k => k >= 0);
     const r = g.cast[x.owner], o = r && jobOf(g, w, r);
     if (!r || !o || !scheduleOf(o)) return [5, 6];
-    const p = teamPlans(g, w, o, st, busy).get(x.owner);
+    const p = teamPlans(g, w, o, st, busy, week).get(x.owner);
     return p ? [0, 1, 2, 3, 4, 5, 6].filter(k => !p.days[k]) : [5, 6];
 }
 const daySeason = (g: Save, day: number) => ((Math.max(1, day) - 1) % seasonDays(g)) + 1;
@@ -299,7 +340,7 @@ const daySeason = (g: Save, day: number) => ((Math.max(1, day) - 1) % seasonDays
  *  is asked when someone asks where they are: it can read things that change during the day.) */
 export function ritualOn(g: Save, w: WorldDef, x: RitualRef, day: number, st = stampOf(g, w)): Shift | null {
     const rit = x.rit, wd = wdOf(day), week = Math.floor((day - 1) / 7);
-    const days = ritualWeekdays(g, w, x, st);
+    const days = ritualWeekdays(g, w, x, st, undefined, week);
     if (rit.festival && !festivalsOn(g, w, day).some(f => f.id === rit.festival)) return null;
     if (rit.event && !eventsOn(g, w, day).some(e => e.ev.id === rit.event && !e.off)) return null;
     if (!rit.festival && !rit.event && !days.includes(wd)) return null;
