@@ -12,8 +12,9 @@ import { regionOf, regionState } from './worldstate.js';
 import { presentAt } from './people.js';
 import { isOpen } from './daynight.js';
 import { overhear, couples } from './living.js';
-import { exesOf } from './rel.js';
+import { exesOf, fr } from './rel.js';
 import { lex } from '../core/lexicon.js';
+const FRIEND = 30; // where Friend starts (FRIEND_TIERS in sim/romance.ts)
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -56,9 +57,10 @@ function work(g, w, r, day, tense) {
     }
     if (roll < 0.21) {
         const pairs = couples(g);
-        const ties = g.living?.ties ?? [];
+        const ties = g.living?.ties ?? []; // family
+        const friends = Object.keys(g.cast).filter(a => fr(g, r.avatar, a) >= FRIEND);
         const exes = new Set(exesOf(g, r.avatar, false)); // exes (not old flings) don't drop by
-        const close = [...pairs.filter(p => p.includes(r.avatar)).flat(), ...ties.filter(t => (t.a === r.avatar || t.b === r.avatar) && t.type !== 'rival' && t.type !== 'ex').flatMap(t => [t.a, t.b])]
+        const close = [...pairs.filter(p => p.includes(r.avatar)).flat(), ...ties.filter(t => t.a === r.avatar || t.b === r.avatar).flatMap(t => [t.a, t.b]), ...friends]
             .filter(a => a !== r.avatar && a !== '__you' && g.cast[a] && homeOf(g.cast[a]) !== home && !exes.has(a));
         const pool = close.length ? close : Object.keys(g.cast).filter(a => a !== r.avatar && homeOf(g.cast[a]) !== home && !isKid(g, a) && !exes.has(a));
         if (pool.length) {

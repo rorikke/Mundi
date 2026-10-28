@@ -8,7 +8,7 @@ import { lex, lexGroups, lexDefault } from '../core/lexicon.js';
 import { slidesHtml, toneTag } from './slides.js';
 import { houseMapsHtml } from './planedit.js';
 import { MEDIEVAL_RPG, MODERN_RPG, POWERS_RPG } from '../core/rpgdef.js';
-import { TIE_TYPES, TIE_TONES } from '../sim/living.js';
+import { OLD_TIE_TYPES as TIE_TYPES, OLD_TIE_TONES as TIE_TONES } from '../sim/living.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
 import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked } from '../core/world.js';

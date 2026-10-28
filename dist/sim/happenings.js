@@ -14,7 +14,6 @@ import { homeSpot, takenHomes, homeKey, normalizeHomes } from './homes.js';
 import { partnersOf, setStatus, fr, ro, gain, lose, attracted } from './rel.js';
 import { shutOut, CRUSH } from './romance.js';
 import { familyBlocked } from './family.js';
-import { tiesOf } from './living.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -124,7 +123,7 @@ const DILEMMAS = [
     // someone they dislike or have a rival tie with; apologizing brings them a little closer, standing firm apart
     { id: 'feud', yes: 'Apologize', no: 'Stand your ground',
         setup: (g, w, r) => { if (!systemOn(w, 'relations'))
-            return null; const rivals = new Set(tiesOf(g, r.avatar).filter(t => t.type === 'rival' || t.type === 'enemy').map(t => (t.a === r.avatar ? t.b : t.a))); const list = others(g, r).filter(x => rivals.has(x.avatar) || fr(g, r.avatar, x.avatar) < 0); return list.length ? list[Math.floor(dayRnd(g, `feud|${r.avatar}`) * list.length)].avatar : null; },
+            return null; const list = others(g, r).filter(x => fr(g, r.avatar, x.avatar) < 0); return list.length ? list[Math.floor(dayRnd(g, `feud|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I had a fight with ${g.cast[x]?.name ?? 'someone'}. Should I apologize?` },
     { id: 'quit', yes: 'Follow your dream', no: 'Keep your job',
         setup: (_g, w, r) => (systemOn(w, 'jobs') && r.occupation ? 'dream' : null),

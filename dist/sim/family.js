@@ -84,9 +84,9 @@ export function welcomeBaby(g, w, avatar, name, base) {
     f.pregnancy = null;
     g.cast[avatar] = { ...base, avatar, name, occupation: null, leisure: [], met: true, routine: kidRoutine(w, kid) };
     liveTogether(g, '__you', avatar);
-    setTie(g, { a: '__you', b: avatar, type: 'parent', tone: 'close' });
+    setTie(g, { a: '__you', b: avatar, type: 'parent' });
     if (g.cast[p.partner])
-        setTie(g, { a: p.partner, b: avatar, type: 'parent', tone: 'close' });
+        setTie(g, { a: p.partner, b: avatar, type: 'parent' });
     bump(g, avatar, 60);
     note(g, '{0} was born! {u} and {1} are parents now.', [name, p.name], [avatar, p.partner], playerHomeId, 'family');
 }

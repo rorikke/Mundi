@@ -14,6 +14,8 @@ export const ROM_START: Record<RomLevel, number> = { none: 0, interest: 25, crus
 // Where someone stands with you at the start (approval) follows how they feel about you; a couple adds a little.
 export const APPROVAL_START: Record<FriendLevel, number> = { hates: -50, dislikes: -25, wary: -10, stranger: 0, acquaintance: 5, friend: 15, good: 20, best: 30 };
 export const COUPLE_APPROVAL = 10;
+// The other way (a cast preset's "how each sees you"): the highest level whose approval it reaches.
+export const levelOfApproval = (v: number): FriendLevel => [...FRIEND_LEVELS].reverse().find(l => v >= APPROVAL_START[l]) ?? 'hates';
 // A couple starts as good friends and in love unless told otherwise.
 export const COUPLE_FRIEND: FriendLevel = 'good';
 

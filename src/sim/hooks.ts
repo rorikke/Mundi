@@ -16,7 +16,5 @@ export const decayMods: ((g: Save, w: WorldDef, status: string) => number)[] = [
 export const closedByEvents: ((g: Save, w: WorldDef, placeId: string) => boolean)[] = [];
 // Things that react to the end of a fight (a quest step, the ecology…).
 export const afterFight: ((g: Save, w: WorldDef, c: any) => string[])[] = [];
-// A couple that ends (sim/rel.ts setStatus calls these with store ids; sim/living.ts drops their couple tie).
-export const onCoupleEnd: ((g: Save, a: string, b: string) => void)[] = [];
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll: ((c: { skill: string; d20: number; other?: number; total: number; dc: number; grade: string }) => void)[] = [];

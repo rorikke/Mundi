@@ -8,8 +8,7 @@ import { nowAbs, cfg, type Save, type RelCfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
-import { onCoupleEnd } from './hooks.js';
-import type { TieType, TieTone } from './living.js';
+import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
 
 export const YOU = '__you';
@@ -188,7 +187,6 @@ export function setStatus(g: Save, a: string, b: string, status: Status | null, 
         const ended = p.status;
         if (ended && remember) p.was = { status: ended, until: g.day };
         delete p.status; delete p.since; delete p.low;
-        if (ended) for (const f of onCoupleEnd) f(g, a, b);
     }
     tidyPair(st, k);
 }
@@ -327,50 +325,28 @@ export function swapIds(g: Save, map: (id: string) => string) {
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 
-/* ---------- where relationships start (one table) ---------- */
+/* ---------- where relationships start ---------- */
 
-// The tone of a tie gives the starting friendship; its type gives the starting approval, the tone when none is
-// chosen, and romance for couples. Used wherever a relationship starts: a new game, the migration, "Play as".
-export const TONE_FRIENDSHIP: Record<TieTone, number> = { close: 75, good: 55, neutral: 30, tense: 0, hostile: -50 };
 export const COUPLE_ROMANCE = 70;
-export const TYPE_START: Record<TieType, { approval: number; tone: TieTone; couple?: true }> = {
-    bestfriend: { approval: 30, tone: 'close' }, friend: { approval: 15, tone: 'good' }, ally: { approval: 20, tone: 'good' },
-    colleague: { approval: 5, tone: 'neutral' }, dating: { approval: 25, tone: 'good', couple: true }, partner: { approval: 25, tone: 'close', couple: true },
-    spouse: { approval: 30, tone: 'close', couple: true }, parent: { approval: 20, tone: 'close' }, child: { approval: 20, tone: 'close' },
-    sibling: { approval: 15, tone: 'good' }, cousin: { approval: 10, tone: 'neutral' }, roommate: { approval: 5, tone: 'neutral' },
-    rival: { approval: -20, tone: 'tense' }, enemy: { approval: -50, tone: 'hostile' }, ex: { approval: -10, tone: 'tense' },
-    mentor: { approval: 25, tone: 'good' }, apprentice: { approval: 25, tone: 'good' },
-};
-const TONES: TieTone[] = ['hostile', 'tense', 'neutral', 'good', 'close'];
-// A couple starts at least on good terms.
-export const coupleTone = (t: TieTone): TieTone => (TONES.indexOf(t) < TONES.indexOf('good') ? 'good' : t);
-export const startFriendship = (tone: TieTone | undefined, type?: TieType) => TONE_FRIENDSHIP[tone ?? (type ? TYPE_START[type]?.tone : undefined) ?? 'neutral'] ?? 30;
-// Starting values from ties, for every direction that has none yet (a new game, the migration): friendship from the
-// tone (a's toward b; b's toward a from `back` when they see each other differently), and for couples (by tie type
-// or by status) romance and at least good terms. Toward you nothing is seeded
-// here (that comes from the game's start or the save); your own hidden feelings (`__you>x`) are. `skip(x, y)` leaves
-// a direction alone (the migration: people whose view of others was already stored).
-export function seedFromTies(g: Save, ties: { a: string; b: string; type: TieType; tone: TieTone; back?: TieTone }[], skip: (x: string, y: string) => boolean = () => false) {
+// Starting values for every direction that has none yet (a new game): family from its type (FAMILY_START in
+// core/feel.ts), couples as good friends and in love. Toward you nothing is seeded here (the game's start sets it);
+// your own hidden feelings (`__you>x`) are.
+export function seedFamily(g: Save, ties: { a: string; b: string; type: string }[]) {
     const st = relOf(g);
     const seed = (x: string, y: string, f: number, r?: number) => {
-        if (x === y || y === YOU || skip(x, y)) return;
+        if (x === y || y === YOU) return;
         const e = st.m[dk(x, y)];
         if (e?.f === undefined) setMeter(g, 'f', x, y, f);
         if (r !== undefined && e?.r === undefined) setMeter(g, 'r', x, y, r);
     };
     for (const t of ties) {
+        if (!isFamily(t.type)) continue;
         const a = idOf(g, t.a), b = idOf(g, t.b);
-        const couple = !!TYPE_START[t.type]?.couple || PARTNER.includes(statusOf(g, a, b) as Status);
-        const tone = t.tone ?? TYPE_START[t.type]?.tone ?? 'neutral', back = t.back ?? tone;
-        const f = (x: TieTone) => startFriendship(couple ? coupleTone(x) : x);
-        seed(a, b, f(tone), couple ? COUPLE_ROMANCE : undefined); seed(b, a, f(back), couple ? COUPLE_ROMANCE : undefined);
+        seed(a, b, FAMILY_START[t.type]); seed(b, a, FAMILY_START[t.type]);
     }
-    // couples without a tie between them
     for (const [k, p] of Object.entries(st.pairs)) {
         if (!p.status || !PARTNER.includes(p.status)) continue;
         const [a, b] = k.split('|');
-        seed(a, b, TONE_FRIENDSHIP.good, COUPLE_ROMANCE); seed(b, a, TONE_FRIENDSHIP.good, COUPLE_ROMANCE);
+        seed(a, b, FRIEND_START[COUPLE_FRIEND], COUPLE_ROMANCE); seed(b, a, FRIEND_START[COUPLE_FRIEND], COUPLE_ROMANCE);
     }
 }
-// "How each sees you" in cast presets (approval words) as a tone.
-export const toneOfApproval = (v: number): TieTone => (v >= 50 ? 'close' : v >= 15 ? 'good' : v > -15 ? 'neutral' : v > -50 ? 'tense' : 'hostile');

@@ -38,7 +38,6 @@ export function chemistry(x, y) {
 export const affinity = (x, y) => 0.6 * H(`aff|${[x, y].sort().join('|')}`) + 0.4 * H(`aff|${x}>${y}`);
 export const friendCap = (x, y) => 40 + 25 * affinity(x, y);
 /* ---------- time together ---------- */
-const RIVALS = ['rival', 'enemy'];
 const tieOf = (g, a, b) => ties(g).find(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
 // Free to start something new (R-9): nobody yet; or one partner when they and every partner they have are open
 // (you count as open only with the world's open relationships), two at most.
@@ -54,8 +53,7 @@ const romanceOn = (w) => systemOn(w, 'romance');
 // x spends an hour with y.
 function meet(g, w, x, y) {
     const f = fr(g, x, y);
-    const t = tieOf(g, x, y);
-    if ((t && RIVALS.includes(t.type)) || f < DISLIKES) {
+    if (f < DISLIKES) {
         if (f > HATES)
             lose(g, 'f', x, y, TOGETHER.drift);
     }
@@ -94,7 +92,7 @@ export function timeTogether(g, w) {
         for (let i = 0; i < list.length; i++)
             for (let j = i + 1; j < list.length; j++) {
                 const a = list[i], b = list[j];
-                if (crowd && !tieOf(g, a, b) && Math.abs(fr(g, a, b)) < 10 && Math.abs(fr(g, b, a)) < 10)
+                if (crowd && !tieOf(g, a, b) && !statusOf(g, a, b) && Math.abs(fr(g, a, b)) < 10 && Math.abs(fr(g, b, a)) < 10)
                     continue;
                 meet(g, w, a, b);
                 meet(g, w, b, a);
@@ -257,10 +255,9 @@ const BOTH = { hates: 'hate each other', dislikes: "can't stand each other", war
 const romTier = (v) => (v >= INFATUATED ? 'infatuated' : v >= CRUSH ? 'crush' : v >= ROMANCE_TIERS[1].lo ? 'interest' : '');
 const LOVE = { infatuated: ['is infatuated with', 'are infatuated with each other'], crush: ['has a crush on', 'have a crush on each other'], interest: ['is attracted to', 'are attracted to each other'] };
 // For the people in this scene: how each pair feels about each other (both directions when they differ by a tier),
-// crushes (and whether they're returned), and a partner who has fallen out of love.
+// crushes (and whether they're returned), and a partner who has fallen out of love. Also with "Relationships between
+// people" off: feelings then stay where they started, but they are still how these people get along.
 export function feelingsLine(g, w, present) {
-    if (!systemOn(w, 'relations'))
-        return '';
     const out = [];
     const people = present.filter(r => idOf(g, r.avatar) !== YOU);
     for (let i = 0; i < people.length; i++)

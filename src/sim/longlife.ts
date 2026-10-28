@@ -7,7 +7,7 @@ import { onDay } from './hooks.js';
 import { note } from './facts.js';
 import { npcCareer } from './work.js';
 import { lifeMoment } from './happenings.js';
-import { setTie, removeTie, liveTogether, homeKey, ties } from './living.js';
+import { liveTogether, homeKey } from './living.js';
 import { couplePairs, setStatus, statusOf, gain } from './rel.js';
 import { coupleOdds, feelOf, splitUp } from './relations.js';
 
@@ -38,8 +38,6 @@ function couplesMoveOn(g: Save, w: WorldDef): string[] {
         } else if (status === 'dating' && rnd(g, `engage|${k}`) < odds.up) { setStatus(g, a, b, 'engaged'); tell('{0} and {1} got engaged!', 'life'); }
         else if (status === 'engaged' && rnd(g, `marry|${k}`) < odds.up) {
             setStatus(g, a, b, 'married');
-            const old = ties(g).find(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
-            removeTie(g, a, b); setTie(g, { a, b, type: 'spouse', tone: old?.tone ?? 'close' });
             for (const [x, y] of [[a, b], [b, a]]) gain(g, 'f', x, y, 5, false);   // the wedding brings them closer
             // they move in together (unless one of them lives with you: then nobody moves)
             const withYou = (x: any) => x.homeWith === '__you';

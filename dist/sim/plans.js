@@ -143,8 +143,8 @@ export async function callOver(g, w, avatar, mine) {
     await textFrom(g, w, avatar, note, ans.ok ? 'On my way!' : 'I can\'t right now, sorry.', mine);
     return { ...ans, at: from };
 }
-// Someone who lives with you (your household, your family): going home is going to their home too.
-export const housemate = (g, avatar) => g.cast[avatar]?.homeWith === '__you' || (g.living?.ties ?? []).some((t) => (t.a === avatar && t.b === '__you' || t.b === avatar && t.a === '__you') && ['parent', 'child', 'sibling', 'spouse', 'partner', 'roommate'].includes(t.type));
+// Someone who lives with you (your household): going home is going to their home too.
+export const housemate = (g, avatar) => g.cast[avatar]?.homeWith === '__you';
 // "Come with me": she is here with you and goes along wherever you go, for a few hours.
 export function askAlong(g, w, avatar) {
     const r = g.cast[avatar];

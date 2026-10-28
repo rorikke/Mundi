@@ -7,7 +7,7 @@
 import { UI, saveSettings, saveGame, notify, game, TUT } from '../core/store.js';
 import { charOf, speakerOf, fullCharacter, fetchSprites, quiet, thumb, persona, personaThumb, personaName, personas } from '../st/bridge.js';
 import { ties, homeKey } from './living.js';
-import { couplePairs, YOU } from './rel.js';
+import { couplePairs, directedAbove, YOU } from './rel.js';
 import { swapOf, playing } from './playas.js';
 export const ME = '__you'; // your own character in `talk` (the one you play by default)
 const U = () => UI();
@@ -277,7 +277,8 @@ function everyone(g) {
     return [...new Set([ME, ...Object.keys(g.cast), ...want])];
 }
 const nameOf = (g, id) => (id === ME ? personaName(myPersona(g)) : g.cast[id]?.name ?? charOf(id)?.name ?? id);
-// Pairs often in a scene together: a household, a couple, family and other ties.
+const GOOD_FRIEND = 55; // where Good friend starts (FRIEND_TIERS in sim/romance.ts)
+// Pairs often in a scene together: a household, a couple, family, and good friends.
 function together(g) {
     const out = new Set(), me = (id) => (id === YOU ? (playing(g) || ME) : id);
     const add = (a, b) => { if (a !== b) {
@@ -298,6 +299,8 @@ function together(g) {
         add(me(p.a), me(p.b));
     for (const t of ties(g))
         add(me(t.a), me(t.b));
+    for (const { x, y } of directedAbove(g, 'f', GOOD_FRIEND))
+        add(me(x), me(y));
     return out;
 }
 // Gives everyone without a colour one: a spaced one at once, then your AI's choice when it answers.

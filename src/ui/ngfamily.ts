@@ -5,7 +5,7 @@ import { state, notify, esc, toast, busy } from '../core/store.js';
 import { getWorld, worldFile, isScenario, systemOn, type WorldDef } from '../core/world.js';
 import { characters, thumb, charOf, createCharacter } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
-import { TIE_TYPES, TIE_TONES, type TieType, type TieTone } from '../sim/living.js';
+import { OLD_TIE_TYPES as TIE_TYPES, OLD_TIE_TONES as TIE_TONES, type OldTieType as TieType, type OldTieTone as TieTone } from '../sim/living.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';

@@ -7,7 +7,7 @@
 import { UI, saveSettings, saveGame, notify, game, TUT, type Save } from '../core/store.js';
 import { charOf, speakerOf, fullCharacter, fetchSprites, quiet, thumb, persona, personaThumb, personaName, personas } from '../st/bridge.js';
 import { ties, homeKey } from './living.js';
-import { couplePairs, YOU } from './rel.js';
+import { couplePairs, directedAbove, YOU } from './rel.js';
 import { swapOf, playing } from './playas.js';
 
 export const ME = '__you';   // your own character in `talk` (the one you play by default)
@@ -235,7 +235,8 @@ function everyone(g: Save): string[] {
     return [...new Set([ME, ...Object.keys(g.cast), ...want])];
 }
 const nameOf = (g: Save, id: string) => (id === ME ? personaName(myPersona(g)) : g.cast[id]?.name ?? charOf(id)?.name ?? id);
-// Pairs often in a scene together: a household, a couple, family and other ties.
+const GOOD_FRIEND = 55;   // where Good friend starts (FRIEND_TIERS in sim/romance.ts)
+// Pairs often in a scene together: a household, a couple, family, and good friends.
 function together(g: Save): Set<string> {
     const out = new Set<string>(), me = (id: string) => (id === YOU ? (playing(g) || ME) : id);
     const add = (a: string, b: string) => { if (a !== b) { out.add(`${a}|${b}`); out.add(`${b}|${a}`); } };
@@ -245,6 +246,7 @@ function together(g: Save): Set<string> {
     for (const list of homes.values()) for (const a of list) for (const b of list) add(a, b);
     for (const p of couplePairs(g)) add(me(p.a), me(p.b));
     for (const t of ties(g)) add(me(t.a), me(t.b));
+    for (const { x, y } of directedAbove(g, 'f', GOOD_FRIEND)) add(me(x), me(y));
     return out;
 }
 

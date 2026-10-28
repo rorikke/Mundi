@@ -17,9 +17,11 @@ import { characters, charOf, createCharacter, createPersona, usePersona, createG
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
-import { liveTogether, setTie, normalizeHomes, startingStand, ties as tiesOfSave } from './living.js';
+import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
+import { addOldTie } from './startfeel.js';
+import { FRIEND_START, levelOfApproval } from '../core/feel.js';
 import { checkLeft } from './verdict.js';
-import { fr, setFr, setRo, setStatus, seedFromTies, toneOfApproval, startFriendship, relOf, TYPE_START, COUPLE_ROMANCE, YOU } from './rel.js';
+import { fr, setFr, seedFamily, relOf, YOU } from './rel.js';
 import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
 import { applyGameLore } from './lore.js';
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -245,7 +247,7 @@ export async function startNewGame(o) {
             continue;
         save.cast[f.avatar].met = true;
         liveTogether(save, '__you', f.avatar);
-        setTie(save, { a: f.avatar, b: '__you', type: f.type, tone: f.tone });
+        addOldTie(save, { a: f.avatar, b: '__you', type: f.type, tone: f.tone }, true);
     }
     for (const h of o.households ?? []) {
         const [head, ...rest] = h.members.filter(a => save.cast[a]);
@@ -259,9 +261,10 @@ export async function startNewGame(o) {
             liveTogether(save, head, a);
         for (const t of h.ties)
             if (save.cast[t.a] && save.cast[t.b])
-                setTie(save, t);
+                addOldTie(save, t, true);
     }
-    // relations: the world's own (between its example people) and the ones chosen for this game (anyone with anyone)
+    // relations: the world's own (between its example people) and the ones chosen for this game (anyone with anyone),
+    // which win over the world's: family becomes ties, the rest starting feelings (sim/startfeel.ts)
     const exAvatar = new Map();
     for (const a of Object.keys(save.cast)) {
         const tag = charOf(a)?.data?.extensions?.mundi?.example;
@@ -273,7 +276,7 @@ export async function startNewGame(o) {
         for (const t of ex.ties ?? []) {
             const a = exAvatar.get(ex.name), b = exAvatar.get(t.to);
             if (a && b && a !== b)
-                setTie(save, { a, b, type: t.type, tone: t.tone, ...(t.back ? { back: t.back } : {}) });
+                addOldTie(save, { a, b, type: t.type, tone: t.tone, back: t.back });
         }
     // the example people's ages (minors are left out of every romance)
     for (const ex of w.cast.examples) {
@@ -289,22 +292,10 @@ export async function startNewGame(o) {
     for (const t of o.ties ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;
-        setTie(save, t);
+        addOldTie(save, t, true); // with you: where you stand with them from day one
         const other = t.a === '__you' ? t.b : t.b === '__you' ? t.a : '';
-        const couple = TYPE_START[t.type]?.couple ? (t.type === 'spouse' ? 'married' : 'dating') : null;
-        if (other) { // with you: where you stand with them from day one (the one table in sim/rel.ts)
-            const st = startingStand(t.type, t.tone);
-            setFr(save, other, YOU, st.bond);
-            const liv = (save.living ??= {});
-            (liv.approval ??= {})[other] = st.approval;
+        if (other)
             save.cast[other].met = true;
-            if (couple) {
-                setStatus(save, other, YOU, couple);
-                setRo(save, other, YOU, COUPLE_ROMANCE);
-            }
-        }
-        else if (couple)
-            setStatus(save, t.a, t.b, couple);
     }
     // a scenario: how you fit in the house (you know everyone already, or nobody), unless a relation said otherwise
     const st0 = isScenario(w) && o.start ? SCENARIO_STARTS.find(s => s.id === o.start.id) : undefined;
@@ -329,17 +320,17 @@ export async function startNewGame(o) {
                 r.met = true;
             }
     }
-    // where each one stands with you, from a preset: approval as chosen, and friendship from the matching tone
+    // where each one stands with you, from a preset: approval as chosen, and friendship from the matching level
     for (const [a, v] of Object.entries(o.approval ?? {})) {
         if (!save.cast[a] || !Number.isFinite(v))
             continue;
         const liv = (save.living ??= {});
         (liv.approval ??= {})[a] = Math.max(-100, Math.min(100, v));
-        setFr(save, a, YOU, startFriendship(toneOfApproval(v)));
+        setFr(save, a, YOU, FRIEND_START[levelOfApproval(v)]);
         save.cast[a].met = true;
     }
-    // feelings between the people of the world (and your own, hidden while you play) start from their ties
-    seedFromTies(save, tiesOfSave(save));
+    // feelings in families and couples (and your own, hidden while you play) start where they usually do
+    seedFamily(save, tiesOfSave(save));
     delete save.rel?.day; // starting values aren't the first day's changes
     if (isScenario(w))
         shareRooms(save); // Home: more people than bedrooms share a room (no second flat in a house)

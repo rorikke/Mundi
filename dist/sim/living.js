@@ -2,15 +2,16 @@
 // the world, people's own lives moving on over the weeks, and rumors that travel between people.
 import { personaName } from '../st/bridge.js';
 import { nowAbs } from '../core/store.js';
-import { systemOn } from '../core/world.js';
-import { onDay, onCoupleEnd } from './hooks.js';
+import { systemOn, isScenario } from '../core/world.js';
+import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { weatherAt, regionOf, regionState } from './worldstate.js';
 import { period, isWeekend, seasonOf } from './time.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
-import { couplePairs, casualPairs, pastPairs, pastWords, TYPE_START, startFriendship } from './rel.js';
+import { couplePairs, casualPairs, pastPairs, pastWords } from './rel.js';
+import { placeOf } from './places.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -216,24 +217,21 @@ export function overhear(g, w, present) {
 export const heardRumors = (g) => L(g).rumors.filter(r => r.knownBy.includes(YOU)).sort((a, b) => (b.heard ?? b.at) - (a.heard ?? a.at));
 export const rumorSource = (r) => garble(r.hops?.[YOU] ?? 1).replace(/^ \(|\)$/g, '');
 onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
-export const TIE_TYPES = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['spouse', 'married to'], ['partner', 'partner of'], ['cousin', 'cousin of'], ['roommate', 'roommate of'], ['friend', 'friend of'], ['bestfriend', 'best friend of'], ['ally', 'ally of'], ['colleague', 'colleague of'], ['dating', 'dating'], ['rival', 'rival of'], ['enemy', 'enemy of'], ['ex', 'ex of'], ['mentor', 'mentor of'], ['apprentice', 'apprentice of']];
-export const TIE_TONES = [['close', 'Close'], ['good', 'Good'], ['neutral', 'Neutral'], ['tense', 'Tense'], ['hostile', 'Hostile']];
+export const TIE_TYPES = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['cousin', 'cousin of']];
+export const OLD_TIE_TYPES = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['spouse', 'married to'], ['partner', 'partner of'], ['cousin', 'cousin of'], ['roommate', 'roommate of'], ['friend', 'friend of'], ['bestfriend', 'best friend of'], ['ally', 'ally of'], ['colleague', 'colleague of'], ['dating', 'dating'], ['rival', 'rival of'], ['enemy', 'enemy of'], ['ex', 'ex of'], ['mentor', 'mentor of'], ['apprentice', 'apprentice of']];
+export const OLD_TIE_TONES = [['close', 'Close'], ['good', 'Good'], ['neutral', 'Neutral'], ['tense', 'Tense'], ['hostile', 'Hostile']];
 export const ties = (g) => (L(g).ties ??= []);
 export const tiesOf = (g, avatar) => ties(g).filter(t => t.a === avatar || t.b === avatar);
 export function setTie(g, t) {
     const list = ties(g);
     const i = list.findIndex(x => (x.a === t.a && x.b === t.b) || (x.a === t.b && x.b === t.a));
     if (i >= 0)
-        list.splice(i, 1, t);
+        list.splice(i, 1, { a: t.a, b: t.b, type: t.type });
     else
-        list.push(t);
+        list.push({ a: t.a, b: t.b, type: t.type });
 }
 export function removeTie(g, a, b) { const list = ties(g); const i = list.findIndex(x => (x.a === a && x.b === b) || (x.a === b && x.b === a)); if (i >= 0)
     list.splice(i, 1); }
-// A couple that ends takes its couple tie along: "married to" after a divorce would mislead the AI.
-const COUPLE_TIES = ['spouse', 'partner', 'dating'];
-onCoupleEnd.push((g, a, b) => { if (ties(g).some(t => ((t.a === a && t.b === b) || (t.a === b && t.b === a)) && COUPLE_TIES.includes(t.type)))
-    removeTie(g, a, b); });
 // Living together: the second person moves into the first one's home (the player's home for '__you').
 export function liveTogether(g, host, guest) {
     const r = g.cast[guest];
@@ -248,21 +246,41 @@ export function liveTogether(g, host, guest) {
 export { homeKey, normalizeHomes } from './homes.js';
 import { homeKey, normalizeHomes } from './homes.js';
 const nameOfId = (g, id) => (id === '__you' ? '{{user}}' : g.cast[id]?.name ?? id);
-const INVERSE = { parent: 'child of', child: 'parent of' };
-// For the AI: the ties of the people in this scene (only those, like the memories). How they get along comes from
-// their feelings (sim/relations.ts); only with "Relationships between people" off, when feelings never move, does the
-// starting tone still say it.
-export function tiesLine(g, present, tones = false) {
+// For the AI: the family of the people in this scene (only those, like the memories). How they get along is told by
+// their feelings (feelingsLine in sim/relations.ts).
+export function tiesLine(g, present) {
     const here = new Set(present.map(r => r.avatar));
     const list = ties(g).filter(t => here.has(t.a) || here.has(t.b));
     if (!list.length)
         return '';
-    return `Family and ties: ${list.map(t => `${nameOfId(g, t.a)} is ${TIE_TYPES.find(x => x[0] === t.type)?.[1] ?? t.type} ${nameOfId(g, t.b)}${tones && t.tone !== 'neutral' ? ` (${t.tone} relationship)` : ''}`).join('; ')}.`;
+    return `Family: ${list.map(t => `${nameOfId(g, t.a)} is ${TIE_TYPES.find(x => x[0] === t.type)?.[1] ?? t.type} ${nameOfId(g, t.b)}`).join('; ')}.`;
 }
-void INVERSE;
-// A tie to {{user}} set at the start also sets where you stand with them (friends start close, enemies far apart).
-// Where someone stands with you when a tie starts: friendship from the tone (or the type's usual tone), approval
-// from the type (the one table in sim/rel.ts).
-export function startingStand(type, tone) {
-    return { bond: startFriendship(tone, type), approval: TYPE_START[type]?.approval ?? 0 };
+const names = (list) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
+// For the AI: who among the people here shares a home (with {{user}} too). Not in a Home scenario, where everyone
+// lives in the house anyway.
+export function householdLine(g, w, present) {
+    if (isScenario(w))
+        return '';
+    const mine = homeKey(g.player.home), homes = new Map();
+    for (const r of present) {
+        const k = homeKey(r.home);
+        homes.set(k, [...(homes.get(k) ?? []), r.name]);
+    }
+    const out = [...homes].filter(([k, list]) => list.length > 1 || k === mine).map(([k, list]) => (k === mine ? `${names(list)} ${list.length > 1 ? 'live' : 'lives'} with {{user}}` : `${names(list)} live together`));
+    return out.length ? `Households: ${out.join('; ')}.` : '';
+}
+// For the AI: who among the people here works at the same place ({{user}} too), from their jobs, so it follows every
+// change of job.
+export function colleaguesLine(g, w, present) {
+    if (!systemOn(w, 'jobs') || isScenario(w))
+        return '';
+    const placeOfJob = (id) => (id ? w.occupations.find(o => o.id === id)?.place : undefined);
+    const at = new Map();
+    const add = (place, name) => { if (place)
+        at.set(place, [...(at.get(place) ?? []), name]); };
+    add(placeOfJob(g.player.job?.id), '{{user}}');
+    for (const r of present)
+        add(placeOfJob(r.occupation), r.name);
+    const out = [...at].filter(([, list]) => list.length > 1).map(([p, list]) => `${names(list)} work at ${placeOf(g, w, p)?.name ?? p}`);
+    return out.length ? `Colleagues: ${out.join('; ')}.` : '';
 }

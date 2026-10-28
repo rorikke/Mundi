@@ -5,6 +5,8 @@ export const ROM_START = { none: 0, interest: 25, crush: 50, infatuated: 75 };
 // Where someone stands with you at the start (approval) follows how they feel about you; a couple adds a little.
 export const APPROVAL_START = { hates: -50, dislikes: -25, wary: -10, stranger: 0, acquaintance: 5, friend: 15, good: 20, best: 30 };
 export const COUPLE_APPROVAL = 10;
+// The other way (a cast preset's "how each sees you"): the highest level whose approval it reaches.
+export const levelOfApproval = (v) => [...FRIEND_LEVELS].reverse().find(l => v >= APPROVAL_START[l]) ?? 'hates';
 // A couple starts as good friends and in love unless told otherwise.
 export const COUPLE_FRIEND = 'good';
 export const FAMILY_TYPES = ['parent', 'child', 'sibling', 'cousin'];

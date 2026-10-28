@@ -3,7 +3,7 @@ import { onDay } from './hooks.js';
 import { note } from './facts.js';
 import { book } from './ledger.js';
 import { bondOf, bump, addBond } from './social.js';
-import { approve, setTie } from './living.js';
+import { approve } from './living.js';
 import { addStatus } from './needs.js';
 import { isRpg, sheetOf, skillBonus, skillOf } from './rpg.js';
 import { traitsOf } from './work.js';
@@ -68,7 +68,6 @@ export function lesson(g, w, avatar, here) {
     if (m.progress < 100)
         return { text: `You teach ${r.name} ${areaName(w, m.area).toLowerCase()} (${m.progress}%).`, minutes: LESSON_MINUTES };
     m.done = true;
-    setTie(g, { a: '__you', b: avatar, type: 'mentor', tone: 'close' });
     social0(g, avatar);
     approve(g, avatar, 20);
     (r.learned ??= []).push(areaName(w, m.area));

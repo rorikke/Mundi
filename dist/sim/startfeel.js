@@ -1,7 +1,8 @@
-import { FRIEND_START, ROM_START, APPROVAL_START, COUPLE_APPROVAL, COUPLE_FRIEND } from '../core/feel.js';
+import { FRIEND_START, ROM_START, APPROVAL_START, COUPLE_APPROVAL, COUPLE_FRIEND, FAMILY_START, FAMILY_APPROVAL, fromOldTie } from '../core/feel.js';
 import { fr, ro, hasMeter, setFr, setRo, setStatus, statusOf, setPast, idOf, PARTNER, COUPLE_ROMANCE, YOU } from './rel.js';
 import { friendTier, ROMANCE_TIERS } from './romance.js';
 import { familyBlocked } from './family.js';
+import { setTie } from './living.js';
 export const friendLevelOf = (v) => friendTier(v).id;
 export const romLevelOf = (v) => (ROMANCE_TIERS.find(t => v >= t.lo && v < t.hi) ?? ROMANCE_TIERS[0]).id;
 // An editor's level picker: x's meter toward y goes to the level's starting value, unless it's already in that level
@@ -50,4 +51,25 @@ export function applyStartFeel(g, sf, overwrite = false) {
         if (overwrite || ap[a] === undefined)
             ap[a] = (f ? APPROVAL_START[f] : 0) + (couple ? COUPLE_APPROVAL : 0);
     }
+}
+// One relation in the old form ({ a, b, type, tone, back? }: the new game, cast presets, world files): family becomes
+// a tie (with you, also where they stand with you), anything else starting feelings (core/feel.ts fromOldTie).
+// `overwrite`: a choice made on purpose for this game (its relations with you).
+export function addOldTie(g, t, overwrite = false) {
+    if (!t.a || !t.b || t.a === t.b)
+        return;
+    const { family, feel } = fromOldTie(t);
+    if (family) {
+        setTie(g, { a: t.a, b: t.b, type: family });
+        const other = idOf(g, t.a) === YOU ? t.b : idOf(g, t.b) === YOU ? t.a : '';
+        if (other) { // a feeling of its own (a tone that isn't the usual one) comes below
+            const ap = ((g.living ??= {}).approval ??= {});
+            if (overwrite || ap[other] === undefined)
+                ap[other] = FAMILY_APPROVAL[family];
+            if (!feel?.f && (overwrite || !hasMeter(g, 'f', other, YOU)))
+                setFr(g, other, YOU, FAMILY_START[family]);
+        }
+    }
+    if (feel)
+        applyStartFeel(g, { a: t.a, b: t.b, ...feel }, overwrite);
 }

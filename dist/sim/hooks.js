@@ -12,7 +12,5 @@ export const decayMods = [];
 export const closedByEvents = [];
 // Things that react to the end of a fight (a quest step, the ecology…).
 export const afterFight = [];
-// A couple that ends (sim/rel.ts setStatus calls these with store ids; sim/living.ts drops their couple tie).
-export const onCoupleEnd = [];
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll = [];

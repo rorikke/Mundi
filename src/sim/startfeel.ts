@@ -1,11 +1,13 @@
 // Puts starting feelings (core/feel.ts) into a save: friendship and romance both ways, a couple's status, the couple
 // they used to be, and where someone stands with you. Also the levels the editors pick from: the tier a value is in,
-// and choosing a tier without moving a value already inside it.
+// and choosing a tier without moving a value already inside it; and relations in the old form, while editors still
+// write them.
 import type { Save } from '../core/store.js';
-import { FRIEND_START, ROM_START, APPROVAL_START, COUPLE_APPROVAL, COUPLE_FRIEND, type FriendLevel, type RomLevel, type StartFeel } from '../core/feel.js';
+import { FRIEND_START, ROM_START, APPROVAL_START, COUPLE_APPROVAL, COUPLE_FRIEND, FAMILY_START, FAMILY_APPROVAL, fromOldTie, type FriendLevel, type RomLevel, type StartFeel } from '../core/feel.js';
 import { fr, ro, hasMeter, setFr, setRo, setStatus, statusOf, setPast, idOf, PARTNER, COUPLE_ROMANCE, YOU, type Meter } from './rel.js';
 import { friendTier, ROMANCE_TIERS } from './romance.js';
 import { familyBlocked } from './family.js';
+import { setTie } from './living.js';
 
 export const friendLevelOf = (v: number) => friendTier(v).id as FriendLevel;
 export const romLevelOf = (v: number) => (ROMANCE_TIERS.find(t => v >= t.lo && v < t.hi) ?? ROMANCE_TIERS[0]).id as RomLevel;
@@ -40,4 +42,22 @@ export function applyStartFeel(g: Save, sf: StartFeel, overwrite = false) {
         const ap = ((((g as any).living ??= {}).approval ??= {}) as Record<string, number>);
         if (overwrite || ap[a] === undefined) ap[a] = (f ? APPROVAL_START[f] : 0) + (couple ? COUPLE_APPROVAL : 0);
     }
+}
+
+// One relation in the old form ({ a, b, type, tone, back? }: the new game, cast presets, world files): family becomes
+// a tie (with you, also where they stand with you), anything else starting feelings (core/feel.ts fromOldTie).
+// `overwrite`: a choice made on purpose for this game (its relations with you).
+export function addOldTie(g: Save, t: { a: string; b: string; type: string; tone?: string; back?: string }, overwrite = false) {
+    if (!t.a || !t.b || t.a === t.b) return;
+    const { family, feel } = fromOldTie(t);
+    if (family) {
+        setTie(g, { a: t.a, b: t.b, type: family });
+        const other = idOf(g, t.a) === YOU ? t.b : idOf(g, t.b) === YOU ? t.a : '';
+        if (other) {   // a feeling of its own (a tone that isn't the usual one) comes below
+            const ap = ((((g as any).living ??= {}).approval ??= {}) as Record<string, number>);
+            if (overwrite || ap[other] === undefined) ap[other] = FAMILY_APPROVAL[family];
+            if (!feel?.f && (overwrite || !hasMeter(g, 'f', other, YOU))) setFr(g, other, YOU, FAMILY_START[family]);
+        }
+    }
+    if (feel) applyStartFeel(g, { a: t.a, b: t.b, ...feel }, overwrite);
 }

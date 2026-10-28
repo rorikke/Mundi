@@ -18,7 +18,7 @@ import { feelings } from './needs.js';
 import { planLines } from './plans.js';
 import { memoryLines } from './facts.js';
 import { diaryLines } from './diary.js';
-import { tiesLine } from './living.js';
+import { tiesLine, householdLine, colleaguesLine } from './living.js';
 import { feelingsLine } from './relations.js';   // also runs feelings between people, hour by hour
 import { romanceLine } from './romance.js';
 import { genderLine } from './gender.js';
@@ -78,14 +78,14 @@ export const BLOCKS: Block[] = [
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
     { id: 'family', name: 'Your children', desc: 'Your children\'s age and how to treat them. Always sent when they are here.' },
     { id: 'gender', name: 'Gender and attraction', desc: 'The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.', cut: 6 },
-    { id: 'ties', name: 'Family and ties', desc: 'Who is whose sister, parent, roommate…, and how the people here feel about each other.', cut: 6 },
+    { id: 'ties', name: 'Family and ties', desc: 'Who is whose sister or parent, who lives or works together, and how the people here feel about each other.', cut: 6 },
     { id: 'needs', name: 'How you feel', desc: 'Hunger, tiredness… only what stands out.', cut: 6 },
     { id: 'diary', name: 'Diary', desc: 'The last two days of your diary.', cut: 5 },
     { id: 'lore', name: 'World lore', desc: 'World lore that switches on with weather, time or place.', cut: 5 },
     { id: 'feelings', name: 'Their feelings', desc: 'Feelings with an end date, like "upset: you stood them up".', cut: 4 },
     { id: 'you', name: 'About you', desc: 'How fit you look and your life goal (RPG: level, class, titles, hit points).', cut: 3 },
     { id: 'approval', name: 'Approval', desc: 'What people here think of how you behave.', cut: 2 },
-    { id: 'couples', name: 'Their relationships', desc: 'Who is dating whom among the people here.', cut: 2 },
+    { id: 'couples', name: 'Their relationships', desc: 'Who is dating whom among the people here, and who used to.', cut: 2 },
     { id: 'rumors', name: 'Rumors', desc: 'Gossip the people here have heard.', cut: 1 },
     { id: 'extra', name: 'Your own instructions', desc: 'Whatever you write here, sent with every reply (empty: nothing).' },
 ];
@@ -151,7 +151,7 @@ export function sceneBlocks(): Built[] {
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present)],
-        ties: [...factionLines(g, w, present), tiesLine(g, present, !systemOn(w, 'relations')), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
+        ties: [...factionLines(g, w, present), tiesLine(g, present), householdLine(g, w, present), colleaguesLine(g, w, present), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
         romance: [romanceLine(g, met)],
         gender: [genderLine(g, w, present)],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],

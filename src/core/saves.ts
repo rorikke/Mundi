@@ -11,10 +11,11 @@
 import { SAVE, toast, type Save } from './store.js';
 import { ctx } from '../st/bridge.js';
 import { getWorld, career, type WorldDef } from './world.js';
-import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, seedFromTies, YOU, type Status } from '../sim/rel.js';
+import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, setPast, pastOf, PARTNER, COUPLE_ROMANCE, YOU, type Status } from '../sim/rel.js';
+import { isFamily } from './feel.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 2;
+export const SCHEMA = 3;
 
 interface Migration { to: number; what: string; run: (g: any) => void }
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -24,13 +25,15 @@ const MIGRATIONS: Migration[] = [
     { to: 1, what: 'version stamp', run: () => { /* nothing to change */ } },
     // 2 (relationships work): friendship, romance and couples move to one store (`rel`, sim/rel.ts).
     { to: 2, what: 'relationships in one store', run: g => toRelStore(g) },
+    // 3 (family-only ties): ties are family only; couples, exes and the rest live in the relationships store.
+    { to: 3, what: 'family ties only', run: g => familyTiesOnly(g) },
 ];
 
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
 // directions toward you, the status (and the partner list) the pair's; each "Play as" copy (`swap.persp`) holds how
 // everyone felt about that person, so it fills the directions toward them; couples between characters
-// (`living.pairs`, `pairInfo`) become pairs. Then directions with no value yet start from ties (the one table in
-// sim/rel.ts), except toward you and toward people whose view was stored. The old keys are removed at the end, so a
+// (`living.pairs`, `pairInfo`) become pairs. Then directions with no value yet start from ties (seedFromOldTies
+// below), except toward you and toward people whose view was stored. The old keys are removed at the end, so a
 // second run finds nothing to move.
 function toRelStore(g: any) {
     relOf(g);
@@ -78,7 +81,7 @@ function toRelStore(g: any) {
         setStatus(g, a, b, asStatus(info?.stage) ?? 'dating', Number(info?.since) || g.day);
     }
     // 4. starting values from ties where nothing is stored
-    seedFromTies(g, Array.isArray(liv.ties) ? liv.ties : [], (_x, y) => viewed.has(y));
+    seedFromOldTies(g, Array.isArray(liv.ties) ? liv.ties : [], (_x, y) => viewed.has(y));
     // 5. the old keys
     for (const x of [soc, ...Object.values<any>(sw?.persp ?? {}).map(p => p?.social)]) if (x) { delete x.bond; delete x.today; delete x.partner; }
     delete g.romance;
@@ -86,6 +89,55 @@ function toRelStore(g: any) {
     delete liv.pairs; delete liv.pairInfo;
     if (g.cfg) delete g.cfg.bondCap;
     delete g.rel.day;   // moving values isn't a change of the day (the recap would show them all)
+}
+
+// Schema 2's starting values from ties, as they were then (any relation type, a tone per direction), for directions
+// with no value: friendship from the tone (or the type's usual one); couples by type or status at least on good terms,
+// with romance. Never toward you. Kept here unchanged: a migration must do the same on every old save.
+const OLD_TONE: Record<string, number> = { close: 75, good: 55, neutral: 30, tense: 0, hostile: -50 };
+const OLD_USUAL: Record<string, string> = { bestfriend: 'close', friend: 'good', ally: 'good', colleague: 'neutral', dating: 'good', partner: 'close', spouse: 'close', parent: 'close', child: 'close', sibling: 'good', cousin: 'neutral', roommate: 'neutral', rival: 'tense', enemy: 'hostile', ex: 'tense', mentor: 'good', apprentice: 'good' };
+const OLD_COUPLE = ['dating', 'partner', 'spouse'];
+function seedFromOldTies(g: any, ties: any[], skip: (x: string, y: string) => boolean) {
+    const seed = (x: string, y: string, f: number, r?: number) => {
+        if (x === y || y === YOU || skip(x, y)) return;
+        if (!hasMeter(g, 'f', x, y)) setFr(g, x, y, f);
+        if (r !== undefined && !hasMeter(g, 'r', x, y)) setRo(g, x, y, r);
+    };
+    const toneF = (t: string, couple: boolean) => Math.max(couple ? OLD_TONE.good : -100, OLD_TONE[t] ?? 30);
+    for (const t of ties) {
+        if (!t?.a || !t?.b) continue;
+        const a = idOf(g, t.a), b = idOf(g, t.b);
+        const couple = OLD_COUPLE.includes(t.type) || PARTNER.includes(statusOf(g, a, b) as Status);
+        const tone = t.tone ?? OLD_USUAL[t.type] ?? 'neutral', back = t.back ?? tone;
+        seed(a, b, toneF(tone, couple), couple ? COUPLE_ROMANCE : undefined); seed(b, a, toneF(back, couple), couple ? COUPLE_ROMANCE : undefined);
+    }
+    for (const [k, p] of Object.entries<any>(g.rel.pairs)) {
+        if (!p.status || !PARTNER.includes(p.status)) continue;
+        const [a, b] = k.split('|');
+        seed(a, b, OLD_TONE.good, COUPLE_ROMANCE); seed(b, a, OLD_TONE.good, COUPLE_ROMANCE);
+    }
+}
+
+// Schema 3. Ties keep only family (parent, child, sibling, cousin), without tones: feelings have been in the store
+// since schema 2. A couple tie between two characters with no status (the built-in House world's married couple
+// never got one) becomes that couple; with you it means the couple ended (new games always set the status, and a
+// divorce left the tie behind), so they become exes, as does an `ex` tie. Everything else is dropped: friendships and
+// rivalries are feelings, roommates share a home, apprentices have their own list. A second run finds only family.
+const OLD_STATUS: Record<string, Status> = { spouse: 'married', partner: 'dating', dating: 'dating' };
+function familyTiesOnly(g: any) {
+    const liv = g.living; if (!liv || !Array.isArray(liv.ties)) return;
+    relOf(g);
+    const known = (id: string) => id === YOU || !!g.cast?.[id];
+    const keep: { a: string; b: string; type: string }[] = [];
+    for (const t of liv.ties) {
+        if (!t?.a || !t?.b || t.a === t.b || !known(t.a) || !known(t.b)) continue;
+        if (isFamily(t.type)) { keep.push({ a: t.a, b: t.b, type: t.type }); continue; }
+        const st = OLD_STATUS[t.type], withYou = idOf(g, t.a) === YOU || idOf(g, t.b) === YOU;
+        if (st && !statusOf(g, t.a, t.b) && !withYou && !pastOf(g, t.a, t.b)) setStatus(g, t.a, t.b, st, g.day);
+        else if (st && !statusOf(g, t.a, t.b) && withYou) setPast(g, t.a, t.b, { status: st, until: g.day });
+        else if (t.type === 'ex' && !pastOf(g, t.a, t.b)) setPast(g, t.a, t.b, { until: g.day });
+    }
+    liv.ties = keep;
 }
 
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);

@@ -51,7 +51,6 @@ export const friendCap = (x: string, y: string) => 40 + 25 * affinity(x, y);
 
 /* ---------- time together ---------- */
 
-const RIVALS = ['rival', 'enemy'];
 const tieOf = (g: Save, a: string, b: string) => ties(g).find(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
 // Free to start something new (R-9): nobody yet; or one partner when they and every partner they have are open
 // (you count as open only with the world's open relationships), two at most.
@@ -66,8 +65,7 @@ const romanceOn = (w: WorldDef) => systemOn(w, 'romance');
 // x spends an hour with y.
 function meet(g: Save, w: WorldDef, x: string, y: string) {
     const f = fr(g, x, y);
-    const t = tieOf(g, x, y);
-    if ((t && RIVALS.includes(t.type)) || f < DISLIKES) { if (f > HATES) lose(g, 'f', x, y, TOGETHER.drift); }
+    if (f < DISLIKES) { if (f > HATES) lose(g, 'f', x, y, TOGETHER.drift); }
     else if (rivalsForYou(g, w, x, y)) { if (f > DISLIKES) lose(g, 'f', x, y, TOGETHER.drift); }   // both have a crush on you (A-5)
     else if (f < friendCap(x, y)) gain(g, 'f', x, y, TOGETHER.f);
     if (ro(g, x, y) > 0 || ro(g, y, x) > 0) touch(g, x, y);   // time together is contact (romance doesn't fade)
@@ -90,7 +88,7 @@ export function timeTogether(g: Save, w: WorldDef) {
         const crowd = list.length > TOGETHER.crowd;
         for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
             const a = list[i], b = list[j];
-            if (crowd && !tieOf(g, a, b) && Math.abs(fr(g, a, b)) < 10 && Math.abs(fr(g, b, a)) < 10) continue;
+            if (crowd && !tieOf(g, a, b) && !statusOf(g, a, b) && Math.abs(fr(g, a, b)) < 10 && Math.abs(fr(g, b, a)) < 10) continue;
             meet(g, w, a, b); meet(g, w, b, a);
         }
     }
@@ -231,9 +229,9 @@ const romTier = (v: number) => (v >= INFATUATED ? 'infatuated' : v >= CRUSH ? 'c
 const LOVE: Record<string, [string, string]> = { infatuated: ['is infatuated with', 'are infatuated with each other'], crush: ['has a crush on', 'have a crush on each other'], interest: ['is attracted to', 'are attracted to each other'] };
 
 // For the people in this scene: how each pair feels about each other (both directions when they differ by a tier),
-// crushes (and whether they're returned), and a partner who has fallen out of love.
+// crushes (and whether they're returned), and a partner who has fallen out of love. Also with "Relationships between
+// people" off: feelings then stay where they started, but they are still how these people get along.
 export function feelingsLine(g: Save, w: WorldDef, present: Resident[]): string {
-    if (!systemOn(w, 'relations')) return '';
     const out: string[] = [];
     const people = present.filter(r => idOf(g, r.avatar) !== YOU);
     for (let i = 0; i < people.length; i++) for (let j = i + 1; j < people.length; j++) {

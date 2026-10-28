@@ -14,7 +14,8 @@ import { resident, homeSpot, takenHomes, syncScene, currentEntry } from '../sim/
 import { social, bondLabel } from '../sim/social.js';
 import { romOf, friendTier } from '../sim/romance.js';
 import { romanceBlocked, familyBlocked, isMinor, kidOf } from '../sim/family.js';
-import { tiesOf, setTie, removeTie, liveTogether, normalizeHomes, TIE_TYPES, TIE_TONES, type TieType, type TieTone } from '../sim/living.js';
+import { tiesOf, removeTie, normalizeHomes, TIE_TYPES, type TieType } from '../sim/living.js';
+import { addOldTie } from '../sim/startfeel.js';
 import { freeSpots } from '../sim/work.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { facts } from '../sim/facts.js';
@@ -31,7 +32,7 @@ import { ACT, INPUT } from './reg.js';
 import { talkFieldHtml } from './talkcolors.js';
 import { ME } from '../sim/talkcolors.js';
 import { playing } from '../sim/playas.js';
-import { setFr, setMeter, meter, hasMeter, setStatus, statusOf, pastOf, forgetPast, seedFromTies, startFriendship, relOf, relCfg, idOf, YOU, type Meter, type Status } from '../sim/rel.js';
+import { setFr, setMeter, meter, setStatus, statusOf, pastOf, forgetPast, seedFamily, relOf, relCfg, idOf, YOU, type Meter, type Status } from '../sim/rel.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
@@ -311,8 +312,9 @@ const ctxGW = () => { const g = game(); const w = g && getWorld(g.world); return
 const changed = async () => { saveGame(); await syncScene(); refreshPrompt(); notify(); };
 const noteSave = () => { ctx().saveMetadataDebounced(); };
 
-// Family and ties (like The Sims): who is whose mother, sibling, spouse… and how they get along. '__you' is you.
-const TIE = { other: '', type: 'sibling' as TieType, tone: 'good' as TieTone, back: '' as TieTone | '', together: false };
+// Family (like The Sims): who is whose mother, sibling… '__you' is you. How they get along is their feelings, where
+// they live the Households tab.
+const TIE = { other: '', type: 'sibling' as TieType };
 // a tie told from this person's side ("Sadie is sibling of Aishah" on Sadie's page; parent and child swap)
 function viewTie(t: { a: string; b: string; type: TieType }, avatar: string) {
     if (t.a === avatar) return t;
@@ -323,16 +325,14 @@ function tiesHtml(g: Save, avatar: string) {
     const nm = (id: string) => (id === '__you' ? 'You' : g.cast[id]?.name ?? id);
     const others = [['__you', 'You'] as [string, string], ...Object.values(g.cast).filter(x => x.avatar !== avatar).map(x => [x.avatar, x.name] as [string, string])];
     const list = tiesOf(g, avatar);
-    return `<section class="mu-ties"><h4>Family and ties</h4>
-        ${list.length ? `<ul>${list.map(t => { const v = viewTie(t, avatar); const mine = t.a === avatar ? t.tone : t.back ?? t.tone, theirs = t.a === avatar ? t.back ?? t.tone : t.tone;
-            return `<li><span data-notr>${esc(nm(v.a))} · ${esc(TIE_TYPES.find(x => x[0] === v.type)?.[1] ?? v.type)} · ${esc(nm(v.b))}</span><em class="is-${mine}">${mine}</em>${theirs !== mine ? `<em class="is-${theirs}" title="${esc(nm(v.b))}">${theirs}</em>` : ''}<button class="mu-ibtn mu-ghost" data-act="wc-tie-del" data-a="${esc(t.a)}" data-b="${esc(t.b)}" title="Remove">${icon('x')}</button></li>`; }).join('')}</ul>` : '<p class="mu-muted">No family or ties yet.</p>'}
+    return `<section class="mu-ties"><h4>Family</h4>
+        ${list.length ? `<ul>${list.map(t => { const v = viewTie(t, avatar);
+            return `<li><span data-notr>${esc(nm(v.a))} · ${esc(TIE_TYPES.find(x => x[0] === v.type)?.[1] ?? v.type)} · ${esc(nm(v.b))}</span><button class="mu-ibtn mu-ghost" data-act="wc-tie-del" data-a="${esc(t.a)}" data-b="${esc(t.b)}" title="Remove">${icon('x')}</button></li>`; }).join('')}</ul>` : '<p class="mu-muted">No family yet.</p>'}
         <div class="mu-ties-add"><span data-notr>${esc(g.cast[avatar]?.name ?? '')} is</span>
-            <select data-input="wc-tie" data-k="type">${TIE_TYPES.map(([id, l]) => `<option value="${id}" ${TIE.type === id ? 'selected' : ''}>${l}</option>`).join('')}</select>
+            <select data-input="wc-tie" data-k="type">${TIE_TYPES.map(([id, l]) => opt(id, l, TIE.type === id)).join('')}</select>
             <select data-input="wc-tie" data-k="other"><option value="">who?</option>${others.map(([id, n]) => `<option value="${esc(id)}" ${TIE.other === id ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
-            <select data-input="wc-tie" data-k="tone" title="How they feel">${TIE_TONES.map(([id, l]) => `<option value="${id}" ${TIE.tone === id ? 'selected' : ''}>${l}</option>`).join('')}</select>
-            ${TIE.other && TIE.other !== '__you' ? `<span>and back:</span><select data-input="wc-tie" data-k="back">${opt('', 'the same', !TIE.back)}${TIE_TONES.map(([id, l]) => opt(id, l, TIE.back === id)).join('')}</select>` : ''}
-            <label class="mu-check"><input type="checkbox" data-input="wc-tie-together" ${TIE.together ? 'checked' : ''}><span>Lives with them</span></label>
             <button class="mu-primary" data-act="wc-tie-add" ${TIE.other ? '' : 'aria-disabled="true"'}>${icon('plus')}<span>Add</span></button></div>
+        <div class="mu-row"><small class="mu-muted">Friends, couples and exes are feelings (Advanced, below). Who lives together:</small><button class="mu-ghost" data-act="wc-tab" data-tab="homes">Households</button></div>
     </section>`;
 }
 
@@ -397,13 +397,9 @@ Object.assign(ACT, {
     'wc-clock': (el) => { const g = game(); if (!g) return; cfg(g).clock = el.dataset.v === 'live' ? 'live' : 'action'; if (cfg(g).clock === 'live' && !g.speed) g.speed = 60; saveGame(); notify(); },
     'wc-tie-add': async () => {
         const g = game(); if (!g || !TIE.other) return;
-        const t = { a: WC.who, b: TIE.other, type: TIE.type, tone: TIE.tone, ...(TIE.back && TIE.other !== YOU ? { back: TIE.back } : {}) };
-        setTie(g, t);
-        // a new relation starts where its tones say; feelings already there are kept (edit them below, in Advanced)
-        seedFromTies(g, [t]);
-        if (TIE.other === YOU && !hasMeter(g, 'f', WC.who, YOU)) setFr(g, WC.who, YOU, startFriendship(TIE.tone, TIE.type));
-        if (TIE.together) liveTogether(g, TIE.other, WC.who);
-        TIE.other = ''; TIE.back = ''; TIE.together = false; await changed();
+        const t = { a: WC.who, b: TIE.other, type: TIE.type };
+        addOldTie(g, t); seedFamily(g, [t]);   // feelings already there are kept (edit them below, in Advanced)
+        TIE.other = ''; await changed();
     },
     'wc-past-forget': async (el) => { const g = game(); if (!g) return; forgetPast(g, WC.who, el.dataset.b!); await changed(); },
     'wc-tie-del': async (el) => { const g = game(); if (!g) return; removeTie(g, el.dataset.a!, el.dataset.b!); await changed(); },
@@ -422,7 +418,6 @@ Object.assign(INPUT, {
     'wc-pair-who': (el) => { PAIR.other = el.value; notify(); },
     'wc-pair': (el) => { const g = game(); if (!g) return; setMeter(g, el.dataset.m as Meter, el.dataset.x!, el.dataset.y!, Number(el.value)); saveGame(); const b = el.previousElementSibling?.querySelector('b'); if (b) b.textContent = el.value; },
     'wc-pair-status': async (el) => { const g = game(); if (!g) return; setStatus(g, WC.who, el.dataset.b!, (el.value || null) as Status | null, g.day, false); await changed(); },
-    'wc-tie-together': (el) => { TIE.together = el.checked; },
     'wc-adv': (el) => { WC.adv = el.checked; notify(); },
     'wc-q': (el) => { WC.q = el.value; notify(); },
     'wc-job': async (el) => { const c = ctxGW(); const r = c?.g.cast[WC.who]; if (!r) return; r.occupation = el.value || null; await changed(); },
