@@ -7,10 +7,14 @@
 // may text you a date, and a casual partner a "come over tonight?". Romantic initiatives need the romance system,
 // attraction to your gender and no family or minor block; an exclusive person with a partner of their own keeps it
 // to themselves. And, for the AI, what each person here wants from you right now (A-7).
+// Festivals with a custom between people (E5) give moments chosen by each person's feelings toward you (Valentine's
+// chocolate, a partner expecting a date on Christmas Eve, an invitation to the New Year shrine visit or to hanami), and
+// a friend may introduce you to a good friend of theirs you haven't met, at that friend's standing appointment or at a
+// place their day takes them to (E30).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay, onLook } from './hooks.js';
-import { presentAt, residents } from './people.js';
+import { presentAt, residents, routineAt, workingAt } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
 import { social, bondOf, textFrom } from './social.js';
@@ -19,13 +23,17 @@ import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, 
 import { romanceBlocked } from './family.js';
 import { intimacyReady, needsOf, styleOf } from './intimacy.js';
 import { canDate } from './plans.js';
-import { attracted, partnersOf, idOf, relOf, fr, YOU } from './rel.js';
+import { attracted, partnersOf, idOf, relOf, fr, lose, statusOf, YOU } from './rel.js';
 import { grudgeOf } from './grudges.js';
 import { warning, lowFor } from './warnings.js';
 import { lookingOf } from './feed.js';
 import { confrontations } from './jealousy.js';
 import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, type Moment, type Asked } from './moments.js';
+import { festivalsOn } from './festivals.js';
+import { slotAt, adultOn } from './dayplan.js';
+import { ties } from './living.js';
 import { threadMomentFits } from './threads.js';
+import { isWith } from './social.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -236,6 +244,135 @@ export function wantsLine(g: Save, w: WorldDef, present: Resident[]): string {
     return parts.length ? `What they want from {{user}} right now: ${parts.join('; ')}.` : '';
 }
 
+/* ---------- E5: festival customs between you and them ---------- */
+
+// Who you are to them, for a custom: family (a tie with you, or living with you), a partner.
+const familyOf = (g: Save, a: string) => ties(g).some(t => (t.a === a && t.b === YOU) || (t.b === a && t.a === YOU)) || (g.cast[a] as any)?.homeWith === YOU;
+const partnerOf = (g: Save, a: string) => ['dating', 'engaged', 'married'].includes(statusOf(g, a, YOU) ?? '');
+interface CustomDone { day: Record<string, number>; late: Record<string, number>; gave?: { fest: string; day: number; who: string[] } }
+const customsDone = (g: Save) => { const c = ((seat(g) as any).customs ??= {}) as CustomDone; c.day ??= {}; c.late ??= {}; return c; };
+const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const whenText = (g: Save, at: number) => { const d = Math.floor(at / 1440); return `${hm(at % 1440)} ${d === g.day ? 'today' : d === g.day + 1 ? 'tomorrow' : `on ${WEEKDAY_NAMES[(d - 1) % 7]}`}`; };
+// A texted invitation (one waits at a time), with the plans system on. `note`: what they convey, for the AI.
+function textInvite(g: Save, w: WorldDef, r: Resident, place: string, from: number, note: string, fallback: string): boolean {
+    const s = social(g) as any;
+    if (!systemOn(w, 'plans') || s.invite || !placeOf(g, w, place)) return false;
+    s.invite = { avatar: r.avatar, place, from, kind: 'hangout' };
+    void textFrom(g, w, r.avatar, `${r.name} texts ${personaName()}: ${note} One or two short sentences, in their own voice.`, fallback)
+        .then(() => { s.unread[r.avatar] = (s.unread[r.avatar] ?? 0) + 1; })
+        .catch(() => { /* offline: the invitation card still shows */ });
+    return true;
+}
+/** On a festival day with a custom, each person's part in it, by their feelings toward you: `gift` (romance from
+ *  Interest gives the real thing, a friend a courtesy gift, nobody else anything), `return` (who gave you something
+ *  on the last gift day waits to see what you give back), `couples` (a partner expects the evening and is hurt when
+ *  nothing was planned by 21:00; a crush drops a hint), `family` (family, a partner or a best friend asks you along),
+ *  `group` (the closest friend invites you, friends here ask you to join). Moments for the day, and one texted
+ *  invitation to the festival's place. Once a festival day (and the evening's check), with the festivals system on. */
+export function festivalCustoms(g: Save, w: WorldDef): string[] {
+    const h = Math.floor(g.minutes / 60);
+    if (!systemOn(w, 'festivals') || !initiativeOn(g) || h < 8) return [];
+    const done = customsDone(g), romance = systemOn(w, 'romance');
+    const people = residents(g).filter(r => r.met && isMine(g, r.avatar)).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
+    const add = (r: Resident, tier: string, text: string, until = g.day) => queueMoment(g, { who: r.avatar, kind: 'custom', tier, text, until });
+    for (const f of festivalsOn(g, w)) {
+        const c = f.custom; if (!c || (f.adult && !adultOn(g))) continue;
+        const name = f.name;
+        if (c.kind === 'couples' && romance && h >= 21 && done.day[f.id] === g.day && done.late[f.id] !== g.day) {
+            done.late[f.id] = g.day;
+            for (const r of people.filter(x => partnerOf(g, x.avatar))) {
+                const plan = social(g).appts.some(a => a.avatar === r.avatar && Math.floor(a.from / 1440) === g.day && (a.state === 'set' || a.state === 'met'));
+                if (plan || isWith(g, r.avatar) || presentAt(g, w, g.player.loc).includes(r)) continue;
+                lose(g, 'r', r.avatar, YOU, 3);
+                add(r, `${f.id}:late`, `${r.name} is hurt that {{user}} made no plans with them on ${name}, the couples' night, and lets it show in this scene.`, g.day + 2);
+            }
+        }
+        if (done.day[f.id] === g.day) continue;
+        done.day[f.id] = g.day;
+        if (c.kind === 'gift') {
+            const gave: string[] = [];
+            for (const r of people) {
+                if (romance && romanticOk(g, w, r.avatar) && (romValue(g, r.avatar) >= ROMANCE_TIERS[1].lo || partnerOf(g, r.avatar))) add(r, f.id, `It's ${name}: ${r.name} has feelings for {{user}} and gives them chocolate, the real thing (handmade or carefully chosen), in this scene, in their own way.`);
+                else if (bondOf(g, r.avatar) >= FRIEND_TIERS[F.friend].lo) add(r, f.id, `It's ${name}: ${r.name} gives {{user}} a small box of courtesy chocolate, friendly and nothing more, in this scene.`);
+                else continue;
+                gave.push(r.avatar);
+            }
+            done.gave = { fest: name, day: g.day, who: gave };
+        } else if (c.kind === 'return') {
+            const gave = done.gave;   // the last gift day (a year back at most)
+            if (gave && g.day - gave.day <= 16 * 14) for (const r of people.filter(x => gave.who.includes(x.avatar))) add(r, f.id, `It's ${name}: ${r.name} gave {{user}} chocolate on ${gave.fest} and quietly waits to see whether {{user}} gives something back today.`);
+        } else if (c.kind === 'couples' && romance) {
+            for (const r of people) {
+                if (partnerOf(g, r.avatar)) add(r, f.id, `It's ${name}, the couples' night: ${r.name} hopes to spend the evening with {{user}} (dinner, the lights, a date) and brings it up if nothing is planned.`);
+                else if (romanticOk(g, w, r.avatar) && romValue(g, r.avatar) >= ROMANCE_TIERS[2].lo && !partnered(g, r.avatar)) add(r, f.id, `It's ${name}, the couples' night: ${r.name} has a crush on {{user}} and drops a hint about having no plans tonight.`);
+            }
+        } else if (c.kind === 'family' || c.kind === 'group') {
+            const close = c.kind === 'family'
+                ? people.filter(r => familyOf(g, r.avatar) || partnerOf(g, r.avatar) || bondOf(g, r.avatar) >= FRIEND_TIERS[F.best].lo)
+                : people.filter(r => bondOf(g, r.avatar) >= FRIEND_TIERS[F.friend].lo);
+            const asks = c.kind === 'family' ? `asks {{user}} to come along for ${name}` : `invites {{user}} to join them for ${name}`;
+            const now = nowAbs(g), hour = c.at !== undefined ? g.day * 1440 + Math.round(c.at * 60) : 0;
+            const from = hour >= now + 60 ? hour : now + 120 - (now % 30);
+            const [first, ...rest] = close;
+            const texted = !!first && !!f.place && Math.floor(from / 1440) === g.day
+                && textInvite(g, w, first, f.place, from, `${c.kind === 'family' ? 'come along' : 'come and join us'} for ${name} at ${placeOf(g, w, f.place)?.name ?? 'the festival'}, ${whenText(g, from)}.`, `Come along for ${name}? ${placeOf(g, w, f.place)?.name ?? ''}, ${hm(from % 1440)}.`);
+            for (const r of texted ? rest : close) add(r, f.id, `It's ${name}: ${r.name} ${asks}, in this scene.`);
+        }
+    }
+    return [];
+}
+
+/* ---------- E30: introductions through friends ---------- */
+
+const introsDone = (g: Save) => ((seat(g) as any).intros ??= {}) as Record<string, number>;
+// A friend's friend: someone they're close to (a good friend, or family).
+const closeTo = (g: Save, a: string, b: string) => fr(g, a, b) >= FRIEND_TIERS[F.good].lo || ties(g).some(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
+/** Where you could meet a friend's friend soon (from two hours on): their standing appointment in the next three days,
+ *  else a public place their day takes them to in the next two, at a time the friend isn't working. */
+export function meetSpot(g: Save, w: WorldDef, a: Resident, b: Resident): { place: string; from: number; why: string } | null {
+    const start = nowAbs(g) + 120 - (nowAbs(g) % 30);
+    const free = (at: number) => !workingAt(g, w, a, at);
+    const ok = (p: string) => !!p && !p.startsWith('home:') && w.places.some(x => x.id === p && (!x.adult || adultOn(g)));
+    for (let at = start; at < start + 3 * 1440; at += 30) {
+        const s = slotAt(g, w, b, at);
+        if (s?.kind === 'ritual' && ok(s.place) && free(at)) return { place: s.place, from: at, why: s.why };
+    }
+    for (let at = start; at < start + 2 * 1440; at += 60) {
+        const h = Math.floor((at % 1440) / 60);
+        if (h < 11 || h > 21) continue;
+        const p = routineAt(g, w, b, at);
+        if (ok(p) && free(at) && !workingAt(g, w, b, at)) return { place: p, from: at, why: 'one of their usual places' };
+    }
+    return null;
+}
+/** A friend who'd like you to meet a good friend of theirs you haven't met texts you to come along (or, here with you,
+ *  brings it up); once the three of you are together, they introduce you. Once per new person, within the initiative
+ *  budget, with the social system on. `force`: skip the hour's dice (tests). */
+export function introductions(g: Save, w: WorldDef, force = false): string[] {
+    const h = Math.floor(g.minutes / 60);
+    if (!systemOn(w, 'social') || !initiativeOn(g) || h < 10 || h > 19 || (!force && rnd(g, `intro|${h}`) > 0.06)) return [];
+    const done = introsDone(g);
+    const friends = residents(g).filter(r => r.met && isMine(g, r.avatar) && bondOf(g, r.avatar) >= FRIEND_TIERS[F.friend].lo && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar));
+    const strangers = residents(g).filter(r => !r.met && isMine(g, r.avatar) && done[r.avatar] === undefined);
+    const pairs = friends.flatMap(a => strangers.filter(b => b !== a && closeTo(g, a.avatar, b.avatar)).map(b => [a, b] as const))
+        .sort((x, y) => rnd(g, `introw|${x[0].avatar}|${x[1].avatar}`) - rnd(g, `introw|${y[0].avatar}|${y[1].avatar}`));
+    for (const [a, b] of pairs) {
+        const spot = meetSpot(g, w, a, b); if (!spot) continue;
+        const where = placeOf(g, w, spot.place)?.name ?? 'there', when = whenText(g, spot.from);
+        const texted = textInvite(g, w, a, spot.place, spot.from, `come to ${where} (${when}): ${b.name}, a good friend of ${a.name}'s, will be there (${spot.why}), and ${a.name} wants them to meet.`, `Come to ${where}, ${when}? I want you to meet ${b.name}.`);
+        if (!texted) {
+            if (!presentAt(g, w, g.player.loc).includes(a)) continue;
+            queueMoment(g, { who: a.avatar, kind: 'intro', tier: `tell:${b.avatar}`, text: `${a.name} tells {{user}} about ${b.name}, a good friend of theirs, and suggests coming along to ${where} some time (${spot.why}).` });
+        }
+        // when the three of you are together, the friend introduces you
+        queueMoment(g, { who: a.avatar, kind: 'intro', tier: b.avatar, text: `${a.name} introduces {{user}} to ${b.name}, their good friend, in this scene.`, until: Math.floor(spot.from / 1440) + 1 });
+        done[b.avatar] = g.day;
+        spend(g, a.avatar);
+        return [];
+    }
+    return [];
+}
+
 /* ---------- when it runs ---------- */
 
 // After anything that may have moved feelings (the prompt is refreshed), and every hour. The world's stories and
@@ -247,5 +384,5 @@ export function checkInitiative(g: Save, w: WorldDef) {
     confrontations(g, w, presentAt(g, w, g.player.loc));
     checkAsks(g, w);
 }
-onHour.push((g, w) => { if (!initiativeOn(g)) return []; checkInitiative(g, w); return textAsks(g, w); });
+onHour.push((g, w) => { if (!initiativeOn(g)) return []; checkInitiative(g, w); return [...textAsks(g, w), ...festivalCustoms(g, w), ...introductions(g, w)]; });
 onDay.push((g, w) => { if (initiativeOn(g)) tidyMoments(g, m => fits(g, w, m)); return []; });
