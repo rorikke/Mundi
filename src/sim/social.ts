@@ -5,7 +5,7 @@ import { notify, nowAbs, type Save, type Resident } from '../core/store.js';
 import { type WorldDef, type KeepsakeDef, messageKind, aiVoice, systemOn } from '../core/world.js';
 import { fr, ro, gain, lose, setFr, touch, statusOf, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
-import { whereNow, presentAt } from './people.js';
+import { whereNow, presentAt, workingAt } from './people.js';
 import { personNamed } from './when.js';
 import { romanceBlocked } from './family.js';
 import { CRUSH } from './romance.js';
@@ -77,11 +77,15 @@ export function appointmentNow(g: Save, avatar: string): Appointment | null {
 }
 export const isWith = (g: Save, avatar: string) => social(g).with.some(c => c.avatar === avatar);
 export const companions = (g: Save) => social(g).with.map(c => c.avatar).filter(a => g.cast[a]);
-// (E14) Who does something with you here: the people who came with you and are here, and the one you talk to alone.
+// (E14) Who does something with you here: the people who came with you and are here, and the one you talk to alone;
+// with neither, the one person you know here who isn't working (Chloe at the karaoke joins your hour of singing).
 export function withYou(g: Save, w: WorldDef): string[] {
-    const here = presentAt(g, w, g.player.loc).filter(r => r.met).map(r => r.avatar);
+    const met = presentAt(g, w, g.player.loc).filter(r => r.met);
     const solo = String((social(g) as any).solo ?? '');
-    return here.filter(a => isWith(g, a) || a === solo);
+    const mine = met.filter(r => isWith(g, r.avatar) || r.avatar === solo).map(r => r.avatar);
+    if (mine.length) return mine;
+    const free = met.filter(r => workingAt(g, w, r, nowAbs(g)) !== g.player.loc);
+    return free.length === 1 ? [free[0].avatar] : [];
 }
 
 /* ---------- things done together (E14) ---------- */
