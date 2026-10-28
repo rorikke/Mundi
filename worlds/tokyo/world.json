@@ -5981,7 +5981,8 @@
     }
    ],
    "fact": "{u} shared a couple's booth at {0}",
-   "place": "ak_mangacafe"
+   "place": "ak_mangacafe",
+   "private": true
   },
   {
    "id": "ak_myojin_omikuji",
@@ -18637,7 +18638,8 @@
    },
    "bg": "../modern/bg/park.jpg",
    "x": 70,
-   "y": 12
+   "y": 12,
+   "private": true
   },
   {
    "id": "sb_startup",
@@ -18808,7 +18810,8 @@
    "adult": true,
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "private": true
   },
   {
    "id": "sj_station",
@@ -34449,7 +34452,8 @@
       "to": "Shizuka",
       "f": "good",
       "r": "infatuated",
-      "status": "dating"
+      "status": "dating",
+      "secret": true
      }
     ],
     "attraction": {
