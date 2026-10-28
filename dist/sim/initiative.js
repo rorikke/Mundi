@@ -282,9 +282,18 @@ export function wantOf(g, w, a, n) {
 export function wantsLine(g, w, present) {
     if (!initiativeOn(g))
         return '';
-    const parts = present.filter(r => r.met && isMine(g, r.avatar)).map(r => wantOf(g, w, r.avatar, r.name)).filter(Boolean);
+    // people who want the same thing share it: "Mio, Ren and Chloe want to get closer to {{user}}"
+    const met = present.filter(r => r.met && isMine(g, r.avatar)), same = new Map();
+    for (const r of met) {
+        const want = wantOf(g, w, r.avatar, '').trim();
+        if (want)
+            (same.get(want) ?? same.set(want, []).get(want)).push(r.name);
+    }
+    const parts = [...same].map(([want, who]) => who.length === 1 ? `${who[0]} ${want}`
+        : `${who.length === met.length && met.length > 2 ? 'all of them' : names(who)} ${want.replace(/^is /, 'are ').replace(/^wants /, 'want ')}`);
     return parts.length ? `What they want from {{user}} right now: ${parts.join('; ')}.` : '';
 }
+const names = (list) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
 /* ---------- E5: festival customs between you and them ---------- */
 // Who you are to them, for a custom: family (a tie with you, or living with you), a partner.
 const familyOf = (g, a) => ties(g).some(t => (t.a === a && t.b === YOU) || (t.b === a && t.a === YOU)) || g.cast[a]?.homeWith === YOU;

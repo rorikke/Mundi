@@ -106,6 +106,9 @@ export function realmLine(g, w) {
     const r = w.realm;
     if (!r)
         return '';
+    const god = patronOf(g, w);
+    if (r.line !== undefined)
+        return [r.line, god ? `{{user}} worships ${god.name}.` : ''].filter(Boolean).join(' ');
     const gov = GOVERNMENTS.find(x => x[0] === r.government);
     const pw = POWERS.find(x => x[0] === realmPower(w));
     const parts = [];
@@ -117,7 +120,6 @@ export function realmLine(g, w) {
         parts.push(`The gods are real and answer prayers: ${r.pantheon.map(x => `${x.name} (${x.domain})`).join(', ')}.`);
     else
         parts.push('No gods answer prayers here: altars and shrines honor heroes, ancestors and old ideals.');
-    const god = patronOf(g, w);
     if (god)
         parts.push(`{{user}} worships ${god.name}.`);
     return parts.join(' ');

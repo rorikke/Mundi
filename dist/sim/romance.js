@@ -256,6 +256,7 @@ export function slowedDown(g, avatar) {
     return rateOf(g, 'f', avatar, YOU) < SLOW_RATE ? 'f' : null;
 }
 const SLOW_WORDS = { r: (n) => `${n} needs some time to take all this in`, f: (n) => `${n} needs a little time before getting any closer` };
+const nameList = (list) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
 // For the AI: where {{user}} stands with the people in this scene (friendship and romance, in words).
 export function romanceLine(g, present) {
     const parts = present.map(r => {
@@ -265,12 +266,27 @@ export function romanceLine(g, present) {
         const how = st !== 'none' ? (lab?.id === 'soulmates' || lab?.id === 'inlove' ? `, and ${lab.words}` : romValue(g, r.avatar) < CRUSH ? ', but no longer in love' : '')
             : lab && lab.id !== 'lovehate' ? ` (${lab.words})` : '';
         if (!coldWords(b))
-            return `${r.name}: ${friendTier(b).name.toLowerCase()}${love ? `, ${love}` : ''}${how}`;
+            return { name: r.name, how: `${friendTier(b).name.toLowerCase()}${love ? `, ${love}` : ''}${how}` };
         return `${r.name} ${coldWords(b)} {{user}}${love ? ` (yet romance: ${love}; ${r.name} is drawn to {{user}} despite resenting them)` : ''}${st !== 'none' ? how : ''}` +
             (b < HATES ? `: ${r.name} doesn't want {{user}} around, and leaves or tells {{user}} to leave` : '');
     });
     if (!parts.length)
         return '';
+    // people who stand the same with {{user}} share it ("Mio, Ren and Chloe: friend", or "all of them: friend")
+    const same = new Map();
+    for (const p of parts)
+        if (typeof p !== 'string')
+            (same.get(p.how) ?? same.set(p.how, []).get(p.how)).push(p.name);
+    const told = new Set(), all = same.size === 1 && parts.length > 2 && parts.every(p => typeof p !== 'string');
+    const said = [];
+    for (const p of parts) {
+        if (typeof p === 'string')
+            said.push(p);
+        else if (!told.has(p.how)) {
+            told.add(p.how);
+            said.push(`${all ? 'all of them' : nameList(same.get(p.how))}: ${p.how}`);
+        }
+    }
     const mine = partnersOf(g).map(a => g.cast[a]?.name ?? a);
     const exclusive = partnersOf(g).filter(a => styleOf(g, a) === 'exclusive').map(a => g.cast[a]?.name ?? a);
     const flings = casualsOf(g).map(a => g.cast[a]?.name ?? a);
@@ -283,5 +299,5 @@ export function romanceLine(g, present) {
     const hurt = present.filter(r => jl[r.avatar] && g.day - jl[r.avatar].day < 7).map(r => `${r.name} is still hurt that {{user}} is also with ${g.cast[jl[r.avatar].of]?.name ?? 'someone else'}`);
     const needs = sysOn(g, 'romance') ? intimacyLine(g, present, a => romanceBlocked(g, a)) : '';
     const slow = present.map(r => { const m = slowedDown(g, r.avatar); return m ? SLOW_WORDS[m](r.name) : ''; }).filter(Boolean);
-    return `How {{user}} stands with them: ${parts.join('; ')}.${love}${past.length ? ` ${past.join('; ')}.` : ''}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}${slow.length ? ` ${slow.join('; ')}.` : ''}`;
+    return `How {{user}} stands with them: ${said.join('; ')}.${love}${past.length ? ` ${past.join('; ')}.` : ''}${hurt.length ? ` ${hurt.join('; ')}.` : ''}${needs ? ` ${needs}` : ''}${slow.length ? ` ${slow.join('; ')}.` : ''}`;
 }

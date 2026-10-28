@@ -162,17 +162,29 @@ export function whyHereLines(g, w, present) {
     const loc = g.player.loc, now = nowAbs(g), out = [], told = new Set();
     const here = new Set(present.map(r => r.avatar));
     const names = (list) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
+    // people here for the same reason ("is at the Sanja festival") share one line, so a crowd costs one sentence
+    const same = new Map();
+    const say = (name, what) => {
+        if (!plural(what))
+            return void out.push(`${name} ${what}.`);
+        const x = same.get(what);
+        if (x)
+            return void x.who.push(name);
+        const y = { who: [name], what };
+        same.set(what, y);
+        out.push(y);
+    };
     for (const r of present) {
         if (told.has(r.avatar))
             continue;
         const b = breakNow(g, w, r);
         if (b) {
-            out.push(`${r.name} ${b.why}.`);
+            say(r.name, b.why);
             continue;
         }
         const story = broughtNow(g, r.avatar);
         if (story && story.place === loc) {
-            out.push(`${r.name} ${story.why}.`);
+            say(r.name, story.why);
             continue;
         }
         const s = slotAt(g, w, r, now);
@@ -189,7 +201,7 @@ export function whyHereLines(g, w, present) {
                 out.push(`${names(who)} ${who.length > 1 ? 'are' : 'is'} here for a standing appointment (${s.why}).`);
             }
             else
-                out.push(`${r.name} ${s.why}.`);
+                say(r.name, s.why);
             continue;
         }
         const job = workingAt(g, w, r, now);
@@ -200,11 +212,17 @@ export function whyHereLines(g, w, present) {
             continue;
         }
         if (onVacation(g, w, r, Math.floor(now / 1440)))
-            out.push(`${r.name} is on vacation (a few days off work).`);
+            say(r.name, 'is on vacation (a few days off work)');
         else if (waitingForTrain(g, w, r, now))
-            out.push(`${r.name} missed the last train home and is staying out until the first one.`);
+            say(r.name, 'missed the last train home and is staying out until the first one');
     }
-    return out;
+    return out.map(x => (typeof x === 'string' ? x : x.who.length > 1 ? `${names(x.who)} ${plural(x.what)}.` : `${x.who[0]} ${x.what}.`));
+}
+// A reason said of several people: "is …" and "has …" turn plural, a past tense ("came for the Tanabata festival")
+// stays; anything else (a world's own text in the present, "sweeps the steps") isn't shared.
+function plural(what) {
+    const [verb] = what.split(' ', 1);
+    return verb === 'is' ? `are${what.slice(2)}` : verb === 'has' ? `have${what.slice(3)}` : /^(came|went|[a-z]+ed)$/.test(verb) ? what : '';
 }
 // When the work step of a routine ends (for a job without a schedule).
 function endOfWork(r, at) {
