@@ -1,5 +1,6 @@
 // New game: first a scenario (one character card, straight into a chat) or a world;
-// a world goes: style and world → who lives in it → your character (the world's own sheet) → start.
+// a world goes: style and world → who lives in it (the world's own people, chosen one by one, and your cards; adult
+// content on or off) → your character (the world's own sheet, your start) → start.
 import { rpgOf } from '../core/rpgdef.js';
 import { defaultAttrs, pointsUsed, POINTS, POINT_COST, mod } from '../sim/rpg.js';
 import { listSaves, type SaveRow } from '../sim/game.js';
@@ -12,13 +13,15 @@ import { DIFFICULTIES } from '../sim/bills.js';
 import { slidesHtml, toneTag } from './slides.js';
 import { presetChipsHtml } from './castpresets.js';
 import { isScenario, SCENARIO_STARTS } from '../core/world.js';
-import { lorebooks, loadLore, quiet } from '../st/bridge.js';
+import { lorebooks, quiet } from '../st/bridge.js';
 import { worlds, getWorld, shortDesc, worldFile, isCustom, exampleTag, styleOf, GAME_MODES, worldLocked, lockedFor, hasTag, type WorldDef } from '../core/world.js';
 import { openCreatorNew, openCreatorEdit, importWorldFile } from './creator.js';
 import { setWorldDicts } from '../core/tr.js';
 import { characters, thumb, personas, personaThumb, persona, openCharacter, usePersona, charLorebooks, charOf, personaSheet } from '../st/bridge.js';
 import { startNewGame, type Hero } from '../sim/game.js';
-import { money } from '../sim/needs.js';
+import { startPickHtml, draftStart, loreText } from './startsui.js';
+import { findStart, defaultStart, CUSTOM_START } from '../sim/starts.js';
+import type { ExampleCharacter, StartDef } from '../core/world.js';
 import { ACT, INPUT } from './reg.js';
 import { styleName, inWorld, LOCKED_NOTE } from './styles.js';
 import { pickAndCrop, pickFile } from './cropper.js';
@@ -37,7 +40,7 @@ const W = (): WorldDef => getWorld(state.wizard.world)!;
 
 function freshHero(w: WorldDef): Hero {
     return {
-        name: '', age: w.sheet.age?.default ?? 24, appearance: {}, origin: w.catalogs.origins?.[0]?.id ?? '',
+        name: '', age: w.sheet.age?.default ?? 24, appearance: {}, origin: defaultStart(w)?.id ?? w.catalogs.origins?.[0]?.id ?? '',
         traits: Object.fromEntries((w.sheet.traits ?? []).map(t => [t.id, [] as string[]])), bio: '', portrait: null,
     };
 }
@@ -126,11 +129,39 @@ function roomEditHtml(w: WorldDef): string {
         ${anyw.length ? `<small class="mu-muted">Always possible anywhere: ${esc(anyw.map(a => a.label || a.name).join(', '))}.</small>` : ''}</section>`;
 }
 
+// (E18) The world's own people, chosen one by one (names). A world made with them in mind (portraits or households of
+// their own) starts with everyone chosen; other worlds with nobody, as before. Adult-only people only count with
+// adult content on.
+const wpOf = (): string[] => {
+    const wz = state.wizard, w = W();
+    if (wz.wpWorld !== w.id) { wz.wpWorld = w.id; wz.wp = w.cast.examples.some(e => e.avatar || e.household) ? w.cast.examples.map(e => e.name) : []; }
+    return wz.wp as string[];
+};
+const shownPeople = (): ExampleCharacter[] => W().cast.examples.filter(e => state.wizard.adult || !e.adult);
+export const wpChosen = (): string[] => { const on = wpOf(); return shownPeople().filter(e => on.includes(e.name)).map(e => e.name); };
+function worldPeopleHtml(): string {
+    const w = W(), on = wpOf(), list = shownPeople(); if (!list.length) return '';
+    const hidden = w.cast.examples.length - list.length;
+    const job = (e: ExampleCharacter) => w.occupations.find(o => o.id === e.occupation)?.name ?? '';
+    const mates = (e: ExampleCharacter) => (e.household ? list.filter(x => x !== e && x.household === e.household).map(x => x.name.split(/\s+/)[0]) : []);
+    const pic = (e: ExampleCharacter) => (e.avatar ? `<img src="${esc(worldFile(w, e.avatar))}" alt="" loading="lazy">` : `<em class="mu-castinit">${esc(e.name.split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase())}</em>`);
+    return `<section class="mu-ng-wp"><div class="mu-row"><h3>The people of <span data-notr>${esc(w.name)}</span></h3>
+            <span class="mu-right mu-row"><button class="mu-ghost" data-act="ng-wp-all" data-v="1">Everyone</button><button class="mu-ghost" data-act="ng-wp-all" data-v="">No one</button></span></div>
+        <p class="mu-muted">The world's own characters, with their jobs, homes and the people they know. Keep the ones you want: someone you leave out isn't made, and the others' family, feelings and homes with them are left out too.${hidden ? ` ${hidden} more ${hidden === 1 ? 'person comes' : 'people come'} only with adult content.` : ''}</p>
+        <div class="mu-castgrid">${list.map(e => `<button class="mu-castcard ${on.includes(e.name) ? 'is-on' : ''}" data-act="ng-wp" data-name="${esc(e.name)}" title="${esc([`${e.name}, ${e.age}`, job(e), mates(e).length ? `Lives with ${mates(e).join(', ')}` : ''].filter(Boolean).join(' · '))}">
+            ${pic(e)}<span data-notr>${esc(e.name)}</span><i>✓</i></button>`).join('')}</div></section>`;
+}
+// (E15) Adult content for this game, asked here because it decides who can be in it.
+function adultAskHtml(): string {
+    return `<section class="mu-panel mu-ng-adult"><label class="mu-check"><input type="checkbox" data-input="ng-adult" ${state.wizard.adult ? 'checked' : ''}><span>Adult content
+        <small>On: the places, jobs, things to do, lore and people a world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off (the default): all of it is left out. Change it any time in this game's settings (globe → Rules). Everyone in Mundi's worlds is an adult.</small></span></label></section>`;
+}
+
 // The cast: your characters, with folders or without, by tag, by name or only favorites.
 const castList = () => characters();
 function stepCast() {
     const wz = state.wizard;
-    return `
+    return `${adultAskHtml()}${worldPeopleHtml()}
         <h3>Your characters</h3>
         <p class="mu-muted">Pick cards from your SillyTavern to live in this world. Mundi gives each one a home, a routine and a job; the cards themselves are not changed.</p>
         ${presetChipsHtml()}
@@ -186,7 +217,7 @@ function memoriesHtml() {
 // How many people the world will have, and how alive that feels (neighbors and the rest need real cards).
 function castMeter() {
     const wz = state.wizard, w = W();
-    const n = (wz.examples ? w.cast.examples.length : 0) + wz.cast.length;
+    const n = wpChosen().length + wz.cast.length;
     if (isScenario(w)) {   // one house: a few people are enough, and there are no neighbors
         const lv = n < 2 ? ['too few', 'is-too', 'At least 2 people to share the house.'] : n <= 8 ? ['good', 'is-lively', 'A full house.'] : ['crowded', 'is-works', `More people than bedrooms is fine, but scenes get busy.`];
         return `<div class="mu-castmeter"><b class="${lv[1]}">${n} ${n === 1 ? 'person' : 'people'} in the house · ${lv[0]}</b><small class="mu-muted">${lv[2]}</small></div>`;
@@ -245,9 +276,7 @@ function stepHeroNew() {
 const asks = (w: WorldDef, k: 'portrait' | 'age' | 'appearance' | 'origin' | 'traits' | 'bio') => w.sheet.ask?.[k] !== false;
 function heroSheetHtml(persona: boolean) {
     const w = W(), h: Hero = state.wizard.hero, sh = w.sheet;
-    const origin = asks(w, 'origin') && !isScenario(w) ? (w.catalogs.origins ?? []) : [];
-    return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${origin.length ? `<section class="mu-origins"><h3>Origin</h3><div class="mu-cards small">${origin.map(o => `
-            <button class="mu-origin ${h.origin === o.id ? 'is-on' : ''}" data-act="ng-origin" data-id="${esc(o.id)}"><b>${esc(o.name)}</b><small>${money(w, o.money)}</small><p>${esc(o.desc ?? '')}</p></button>`).join('')}</div></section>` : ''}
+    return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${asks(w, 'origin') && !isScenario(w) ? startPickHtml(w, h.origin, !!state.wizard.adult) : ''}
         ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(sh.traits, h.traits, 'ng-trait')}</section>` : ''}
         ${asks(w, 'bio') ? `<section class="mu-bio"><label class="mu-field"><span>${persona ? 'About you in this world (optional; your persona\'s description is not changed)' : 'About you (optional)'}</span><textarea rows="4" data-input="ng-bio" data-focus="ngbio" placeholder="${persona ? 'What you do here, what people know about you' : 'Personality, quirks, what drives you'}">${esc(h.bio)}</textarea></label></section>` : ''}`;
 }
@@ -269,33 +298,32 @@ function situationHtml(): string {
             <div class="mu-row"><button class="mu-primary" data-act="ng-start-gen" ${st.books.length && !st.busy ? '' : 'aria-disabled="true"'}>${icon('sparkles')}<span>${st.busy ? 'Writing…' : st.text.trim() ? 'Write it again' : 'Write the premise'}</span></button>
                 <small class="mu-muted">${st.books.length} chosen</small></div></div>` : `<blockquote class="mu-premise" data-notr>${esc([w.scenario?.premise ?? '', SCENARIO_STARTS.find(s => s.id === st.id)?.you ?? ''].filter(Boolean).join(' '))}</blockquote>`}</section>`;
 }
-// The lorebooks' text, short enough for one request.
-async function loreText(names: string[], max = 9000): Promise<string> {
-    const out: string[] = [];
-    for (const n of names) {
-        const data = await loadLore(n);
-        for (const e of Object.values<any>(data?.entries ?? {})) if (!e?.disable && e?.content) out.push(`- ${(e.comment || (e.key ?? [])[0] || '').toString().slice(0, 60)}: ${String(e.content).replace(/\s+/g, ' ').trim()}`);
-    }
-    return out.join('\n').slice(0, max);
+// (E16) The start chosen: one of the world's or yours, the custom one being written, or the world's default.
+function chosenStart(): StartDef | undefined {
+    const wz = state.wizard, w = W(); if (isScenario(w)) return undefined;
+    if (wz.hero.origin === CUSTOM_START) { const d = wz.cstart; return d ? draftStart(d, d.savedId ?? CUSTOM_START) ?? undefined : undefined; }
+    return findStart(w, wz.hero.origin, !!wz.adult) ?? defaultStart(w, !!wz.adult);
 }
 
 function stepReview() {
     const wz = state.wizard, w = W(), h: Hero = wz.hero;
-    const origin = w.catalogs.origins?.find(o => o.id === h.origin);
-    const people = (wz.examples ? w.cast.examples.length : 0) + wz.cast.length;
+    const st = chosenStart();
+    const people = wpChosen().length + wz.cast.length;
     const home = isScenario(w);
     return `<div class="mu-review-wrap"><div class="mu-panel mu-review">
         <h4>Your game</h4>
         ${wz.heroMode === 'existing'
             ? `<p><b data-notr>${esc(personas().find(p => p.file === wz.persona)?.name ?? '')}</b> · your persona</p>`
-            : `<p><b>${esc(h.name)}</b>, ${h.age} · ${esc(origin?.name ?? '')}</p>`}
+            : `<p><b>${esc(h.name)}</b>, ${h.age}</p>`}
+        ${st ? `<p>Your start: <b data-notr>${esc(st.name)}</b></p>${st.premise?.trim() ? `<blockquote class="mu-premise" data-notr>${esc(st.premise)}</blockquote>` : ''}` : ''}
+        <p>Adult content: <b>${wz.adult ? 'on' : 'off'}</b></p>
         <p>${home ? 'Home' : 'World'}: <b>${esc(w.name)}</b> · ${people} ${people === 1 ? 'person lives' : 'people live'} here.</p>
         ${home ? (() => { const st = startOf(); const s = SCENARIO_STARTS.find(x => x.id === st.id); const t = st.id === 'custom' && st.text.trim() ? st.text.trim() : [w.scenario?.premise ?? '', s?.id === 'custom' ? '' : s?.you ?? ''].filter(Boolean).join(' ');
             return `<p>Your situation: <b>${esc(s?.name ?? '')}</b></p>${t ? `<blockquote class="mu-premise" data-notr>${esc(t)}</blockquote>` : ''}`; })() : ''}
         ${castMeter()}
         <p class="mu-muted">Mundi will create in your SillyTavern:</p>
         ${charLoreHtml()}
-        <ul class="mu-muted mu-review-list">${wz.examples ? '<li>the example characters\' cards</li>' : ''}${wz.heroMode === 'existing' ? '' : '<li>your persona</li>'}<li>the lorebook “Mundi - ${esc(w.name)}”</li><li>a group chat for this game (each save is a chat of that group)</li></ul>
+        <ul class="mu-muted mu-review-list">${wpChosen().length ? '<li>the cards of the world\'s people you chose (made once, used again by later games)</li>' : ''}${wz.heroMode === 'existing' ? '' : '<li>your persona</li>'}<li>the lorebook “Mundi - ${esc(w.name)}”</li><li>a group chat for this game (each save is a chat of that group)</li></ul>
     </div><div class="mu-panel mu-review">
         <h4>Difficulty</h4>
         <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${(wz.difficulty ?? 'normal') === d.id ? 'is-on' : ''}" data-act="ng-diff" data-v="${d.id}"><b>${d.name}</b><p>${home ? d.homeDesc : d.desc}</p></button>`).join('')}</div>
@@ -306,7 +334,8 @@ function stepReview() {
 // Characters of this game with lorebooks of their own: keep each lorebook always on in this world, or not.
 function gameCast(): string[] {
     const wz = state.wizard, w = W();
-    const ex = wz.examples ? characters().filter(c => w.cast.examples.some(e => exampleTag(w, e) === c.data?.extensions?.mundi?.example)).map(c => c.avatar) : [];
+    const names = wpChosen();
+    const ex = characters().filter(c => w.cast.examples.some(e => names.includes(e.name) && exampleTag(w, e) === c.data?.extensions?.mundi?.example)).map(c => c.avatar);
     return [...new Set([...ex, ...wz.cast])];
 }
 function charLoreHtml() {
@@ -322,7 +351,7 @@ const chosenLore = () => { const off: string[] = state.wizard.loreOff ?? []; ret
 
 function canGo(step: Step): string {
     const wz = state.wizard;
-    if (step === 'cast' && !wz.examples && !wz.cast.length) return 'Choose at least one person to live in the world.';
+    if (step === 'cast' && !wpChosen().length && !wz.cast.length) return 'Choose at least one person to live in the world.';
     if (step === 'hero') {
         if (!wz.heroMode) return 'Choose how you want to play.';
         if (wz.heroMode === 'existing') { if (!wz.persona) return 'Choose one of your personas.'; }
@@ -400,10 +429,10 @@ Object.assign(ACT, {
     'ng-persona': (el) => {
         const wz = state.wizard; wz.persona = el.dataset.file;
         const sheet = personaSheet(wz.persona!); const w = W();
-        if (sheet && sheet.world === w.id) { wz.hero.traits = JSON.parse(JSON.stringify(sheet.traits ?? {})); if (w.catalogs.origins?.some(o => o.id === sheet.origin)) wz.hero.origin = sheet.origin; wz.hero.bio = sheet.bio ?? ''; }
+        if (sheet && sheet.world === w.id) { wz.hero.traits = JSON.parse(JSON.stringify(sheet.traits ?? {})); if (findStart(w, sheet.origin, !!wz.adult)) wz.hero.origin = sheet.origin; wz.hero.bio = sheet.bio ?? ''; }
         notify();
     },
-    'ng-world': (el) => { if (worldLocked(getWorld(el.dataset.id!))) { toast(LOCKED_NOTE, 'info'); return; } state.wizard.world = el.dataset.id; state.wizard.hero = freshHero(W()); setWorldDicts(W().id, W().i18n ?? {}); notify(); },
+    'ng-world': (el) => { if (worldLocked(getWorld(el.dataset.id!))) { toast(LOCKED_NOTE, 'info'); return; } state.wizard.world = el.dataset.id; state.wizard.hero = freshHero(W()); delete state.wizard.cstart; setWorldDicts(W().id, W().i18n ?? {}); notify(); },
     'ng-next': () => { const i = STEPS.findIndex(s => s[0] === state.wizard.step); if (canGo(state.wizard.step)) return; state.wizard.step = STEPS[i + 1][0]; notify(); },
     'ng-back': () => { const i = STEPS.findIndex(s => s[0] === state.wizard.step); if (i <= 0) state.wizard.mode = null; else state.wizard.step = STEPS[i - 1][0]; notify(); },
     'ng-mode': (el) => { state.wizard.mode = el.dataset.v || null; notify(); },
@@ -470,7 +499,7 @@ Object.assign(ACT, {
         st.busy = true; notify();
         try {
             const lore = await loreText(st.books);
-            const people = [...(state.wizard.examples ? w.cast.examples.map(e => e.name) : []), ...state.wizard.cast.map((a: string) => charOf(a)?.name ?? '')].filter(Boolean);
+            const people = [...wpChosen(), ...state.wizard.cast.map((a: string) => charOf(a)?.name ?? '')].filter(Boolean);
             const prompt = `You are setting up a "scenario" for an interactive story game: one house (or mansion) is the whole stage, a few people live there, and the player ({{user}}) lives there too. Work, errands and nights out happen off-screen.\n\nThe house: ${w.name}. ${w.setting}\nThe people who live there: ${people.join(', ') || '(not chosen yet)'}.\n\nLorebook notes to adapt (use what fits; move it all into this house):\n${lore}\n\nWrite the premise: 3 to 6 sentences, present tense, plain prose, no lists or headings. Say why these people share the house, how {{user}} fits in, and the tension or situation the story starts with. Write {{user}} for the player. Reply with the premise only.`;
             const out = (await quiet(prompt, 500)).replace(/^\s*(premise\s*:)?\s*/i, '').trim();
             if (out) st.text = out.slice(0, 4000); else toast('Your AI sent nothing back. Try again.', 'error');
@@ -478,6 +507,8 @@ Object.assign(ACT, {
         st.busy = false; notify();
     },
     'ng-origin': (el) => { state.wizard.hero.origin = el.dataset.id; notify(); },
+    'ng-wp': (el) => { const l = wpOf(), n = el.dataset.name!; state.wizard.wp = l.includes(n) ? l.filter(x => x !== n) : [...l, n]; notify(); },
+    'ng-wp-all': (el) => { wpOf(); state.wizard.wp = el.dataset.v ? W().cast.examples.map(e => e.name) : []; notify(); },
     'ng-play': (el) => { state.wizard.play = el.dataset.v; notify(); },
     'ng-cls': (el) => { const x = rpgState(); if (!x) return; const c = x.r.classes.find(k => k.id === el.dataset.id); if (!c) return; x.wz.rpg = { cls: c.id, attrs: defaultAttrs(x.r, c), skills: c.skills.slice(0, 2) }; notify(); },
     'ng-attr': (el) => {
@@ -498,7 +529,7 @@ Object.assign(ACT, {
     'ng-start': async () => {
         const wz = state.wizard;
         try {
-            await startNewGame({ world: W(), cast: wz.cast, examples: wz.examples, hero: { ...wz.hero, name: wz.hero.name.trim() }, persona: wz.heroMode === 'existing' ? wz.persona : undefined, lore: chosenLore(),
+            await startNewGame({ world: W(), cast: wz.cast, examples: wpChosen().length > 0, worldPeople: wpChosen(), adult: !!wz.adult, worldStart: isScenario(W()) ? undefined : chosenStart(), hero: { ...wz.hero, name: wz.hero.name.trim() }, persona: wz.heroMode === 'existing' ? wz.persona : undefined, lore: chosenLore(),
                 households: (wz.hh ?? []).filter((h: any) => h.members.length), family: wz.family ?? [], home: wz.home ?? undefined, difficulty: wz.difficulty ?? 'normal',
                 approval: wz.approval ?? undefined, relations: (wz.rels ?? []).filter((t: any) => t.a !== t.b), mode: rpgOf(W()) ? playMode() as any : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined,
                 people: ngPeopleFor([...wz.cast, ...(wz.family ?? []).map((f: any) => f.avatar)]) });
@@ -511,7 +542,7 @@ Object.assign(ACT, {
 });
 
 Object.assign(INPUT, {
-    'ng-examples': (el) => { state.wizard.examples = el.checked; notify(); },
+    'ng-adult': (el) => { state.wizard.adult = el.checked; notify(); },
     'ng-mem': (el) => { state.wizard.memories = el.value; },
     'ng-q': (el) => { state.wizard.q = el.value; notify(); },
     'ng-pq': (el) => { state.wizard.pq = el.value; notify(); },

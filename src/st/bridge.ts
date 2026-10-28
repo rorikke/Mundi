@@ -637,6 +637,13 @@ export async function saveCardPerson(avatar: string, person: object | undefined)
     }
 }
 
+// Other Mundi data on a card (`data.extensions.mundi`): the given keys are merged in, the rest stays.
+export async function saveCardMundi(avatar: string, patch: Record<string, unknown>) {
+    const res = await fetch('/api/characters/merge-attributes', { method: 'POST', headers: headers(), body: JSON.stringify({ avatar, data: { extensions: { mundi: patch } } }) });
+    if (!res.ok) throw new Error('Could not save the character.');
+    const c = charOf(avatar);
+    if (c) { const ext = (c.data ??= {}).extensions ??= {}; ext.mundi = { ...(ext.mundi ?? {}), ...structuredClone(patch) }; }
+}
 // The colour of a person's dialogue on their card (`data.extensions.mundi.color`, "#rrggbb"); null removes it (sent
 // as null, which readers drop). The card's other Mundi data stays.
 export async function saveCardColor(avatar: string, color: string | null) {

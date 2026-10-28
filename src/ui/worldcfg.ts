@@ -2,7 +2,7 @@
 // the lorebooks the world uses, and the world's rules. "Advanced" shows the finer settings.
 import { castLevel, neighbors, NEIGHBORS_MIN, FRIEND_BOND } from '../sim/happenings.js';
 import { bondOf } from '../sim/social.js';
-import { state, notify, esc, game, toast, saveGame, cfg, type Save } from '../core/store.js';
+import { state, notify, esc, game, toast, saveGame, cfg, adultOn, type Save } from '../core/store.js';
 import { DIFFICULTIES, difficultyOf } from '../sim/bills.js';
 import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isScenario, type WorldDef } from '../core/world.js';
 import { dressHtml } from './dressui.js';
@@ -37,6 +37,7 @@ import { setMeter, meter, setStatus, statusOf, pastOf, forgetPast, seedFamily, C
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
+import { adultSettingHtml } from './adultui.js';
 import { gendersOf, cleanPerson } from '../sim/gender.js';
 
 type Tab = 'people' | 'homes' | 'house' | 'save' | 'lore' | 'ai' | 'rules';
@@ -92,6 +93,7 @@ SCOPES.save = {
     set: (id, p) => { const g = game(); if (!g) return; const people = relOf(g).people; const k = idOf(g, id); if (p) people[k] = p; else delete people[k]; saveGame(); refreshPrompt(); },
     genders: () => gendersOf(getWorld(game()?.world ?? '')),
     romance: () => systemOn(getWorld(game()?.world ?? ''), 'romance'),
+    adult: () => adultOn(game()),
     cards: () => { const g = game(); return g ? Object.values(g.cast).filter(r => idOf(g, r.avatar) !== YOU && charOf(r.avatar)).map(r => ({ id: r.avatar, avatar: r.avatar, name: r.name })) : []; },
 };
 
@@ -278,7 +280,7 @@ function tabRules(g: Save, w: WorldDef): string {
         `<label class="mu-field slider"><span>${label} · ${v}${unit}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-input="wc-cfg" data-k="${key}"></label>`;
     const live = (c.clock ?? 'action') === 'live';
     return `<section class="mu-wc-sec"><h4>${esc(w.name)}</h4><p>${esc(w.description)}</p><p class="mu-muted">Game mode: <b>${GAME_MODES.find(m => m.id === gameMode(w))!.name}</b> (change it in the world creator).</p></section>
-        ${isScenario(w) ? `${dressHtml(g, w)}${relSection(g, w)}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
+        ${isScenario(w) ? `${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
         <section class="mu-wc-sec"><h4>Time</h4>
             <div class="mu-heropick is-start">
                 <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>Only with actions</b><p>The clock moves only when you do something: eat, drink, sleep, work, travel, or let time pass. Talking does not spend time.</p></button>
@@ -286,6 +288,7 @@ function tabRules(g: Save, w: WorldDef): string {
         <section class="mu-wc-sec"><h4>Difficulty</h4><p class="mu-muted">Changes the economy: what work pays, what things cost and what bills are.</p>
             <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${difficultyOf(g).id === d.id ? 'is-on' : ''}" data-act="wc-diff" data-v="${d.id}"><b>${d.name}</b><p>${d.desc}</p></button>`).join('')}</div></section>
         ${relSection(g, w)}
+        ${adultSettingHtml(g)}
         ${lifeSection(g, w)}
         <section class="mu-wc-sec"><h4>Needs</h4>${list(activeStatuses(w).map(s => `${s.icon} ${s.name}`))}</section>
         <section class="mu-wc-sec"><h4>Places</h4>${list(w.places.map(p => p.name))}</section>

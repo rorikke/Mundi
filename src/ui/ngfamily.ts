@@ -84,6 +84,7 @@ SCOPES.ng = {
     set: (id, p) => { ngPeople()[id] = p ?? {}; },
     genders: () => gendersOf(getWorld(wz().world)),
     romance: () => !getWorld(wz().world) || systemOn(getWorld(wz().world), 'romance'),
+    adult: () => !!wz().adult,
     cards: () => [...new Set([...(wz().cast as string[]), ...familyOf().map(f => f.avatar)])].filter(a => charOf(a)).map(a => ({ id: a, avatar: a, name: nm(a) })),
 };
 // What the game starts with, for everyone chosen and you.
@@ -120,7 +121,7 @@ function jobsHtml(): string {
     return `<section class="mu-panel mu-ngjobs"><h3>Jobs</h3>
         <p class="mu-muted">What each one does for a living${isScenario(w) ? ' (outside the house, off-screen)' : ''}. "At random": the world picks one, or none.</p>
         <div class="mu-ngjobs-grid">${people.map(a => `<label class="mu-field"><span>${face(a)} <span data-notr>${esc(nm(a))}</span></span><select data-input="ngj-set" data-who="${esc(a)}">
-            ${opt('', 'At random', !jobs[a])}${opt('none', 'No job', jobs[a] === 'none')}${w.occupations.map(o => opt(o.id, `${o.name} · ${o.ranks[0]?.name ?? ''}`, jobs[a] === o.id)).join('')}</select></label>`).join('')}</div>
+            ${opt('', 'At random', !jobs[a])}${opt('none', 'No job', jobs[a] === 'none')}${w.occupations.filter(o => z.adult || !o.adult).map(o => opt(o.id, `${o.name} · ${o.ranks[0]?.name ?? ''}`, jobs[a] === o.id)).join('')}</select></label>`).join('')}</div>
     </section>`;
 }
 
