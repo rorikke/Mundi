@@ -2,8 +2,9 @@
 // cost, the mood of the streets, and how places and maps look.
 // · Opening hours: a place is closed in some parts of the day (place.closed: the ids of those parts). A place
 //   without a list closes like places of its kind do (shops at night, offices at dawn…); parks never close.
-//   (E19) A place can also keep hours by the clock (place.open, or openBySeason), close on some weekdays
-//   (closedDays), stay open all night on its festivals (festivalOpen), and charge to get in once a day (entry).
+//   (E19) A place can also keep hours by the clock (place.open, openBySeason, or openByDay for the nights a club
+//   stays open later), close on some weekdays (closedDays) and in some weather (closedIn: a valley on volcanic-gas
+//   days), stay open all night on its festivals (festivalOpen), and charge to get in once a day (entry).
 // · Prices: each part of the day can make things cost more or less (time.periods[].prices, × as listed).
 // · Pictures: a place, a home and a map can have a picture for each part of the day (bgs / images: { partId: url }),
 //   and (E7) for a kind of weather or a season, alone or with a part of the day (`rain-night`, `spring-day`, `snow`);
@@ -37,7 +38,7 @@ const CLOSED_BY_TAG: Record<string, string[]> = {
 // The parts of the day (the world's own period ids) a place is closed in.
 export function closedOf(w: WorldDef, p: Place): string[] {
     if (Array.isArray(p.closed)) return p.closed;
-    if (p.open || p.openBySeason) return [];   // hours by the clock say it better than its kind
+    if (p.open || p.openBySeason || p.openByDay) return [];   // hours by the clock say it better than its kind
     // tags that say nothing about hours (contracts, a tower…) do not count
     const kinds = (p.tags ?? []).filter(t => t in CLOSED_BY_TAG);
     const tags = kinds.length ? kinds : ['leisure'];
@@ -63,8 +64,11 @@ export function openAt(g: Save, w: WorldDef, placeId: string, at = nowAbs(g)): b
     const day = Math.floor(at / 1440), m = dayMinute(at);
     if (festivalNight(g, w, p, day, m)) return true;
     if (closedOf(w, p).includes(periodId(w, m))) return false;
+    // past midnight, the night before may still be going (its own hours: a club open until 5 only on Saturdays)
     let biz = day, h = hoursOf(g, p, day);
-    if (h && wraps(h) && m < toMinute(h[1])) { biz = day - 1; h = hoursOf(g, p, biz) ?? h; }
+    const before = hoursOf(g, p, day - 1);
+    if (before && wraps(before) && m < toMinute(before[1]) && !p.closedDays?.includes(weekdayOf(day - 1))) { biz = day - 1; h = before; }
+    else if (h && wraps(h) && m < toMinute(h[1])) { biz = day - 1; h = before ?? h; }
     if (h && !inHours(h, m)) return false;
     if (p.closedIn?.length && systemOn(w, 'living') && p.closedIn.some(v => weatherShuts(g, w, p, day, m, v))) return false;
     return !p.closedDays?.includes(weekdayOf(biz));
@@ -84,7 +88,7 @@ function inHours(h: [number, number], m: number) {
     return a < b ? m >= a && m < b : a > b ? m >= a || m < b : true;
 }
 const seasonAt = (g: Save, day: number) => SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].id;
-const hoursOf = (g: Save, p: Place, day: number) => p.openBySeason?.[seasonAt(g, day)] ?? p.open ?? null;
+const hoursOf = (g: Save, p: Place, day: number) => p.openByDay?.[weekdayOf(day)] ?? p.openBySeason?.[seasonAt(g, day)] ?? p.open ?? null;
 // One of its festivals today, or yesterday's still going until the first trains (New Year's Eve at the temple).
 function festivalNight(g: Save, w: WorldDef, p: Place, day: number, m: number) {
     if (!p.festivalOpen?.length) return false;
