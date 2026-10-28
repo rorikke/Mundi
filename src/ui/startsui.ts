@@ -35,7 +35,7 @@ export function startFacts(w: WorldDef, s: StartDef): string {
 /** The start cards of a world (its own, the ones you saved, Custom) and, for Custom, the editor. `on`: the id chosen. */
 export function startPickHtml(w: WorldDef, on: string, adult: boolean): string {
     const card = (s: StartDef, mine: boolean) => `<button class="mu-origin ${on === s.id ? 'is-on' : ''}" data-act="ng-origin" data-id="${esc(s.id)}"><b data-notr>${esc(s.name)}</b><small>${s.money !== undefined ? money(w, s.money) : ''}${mine ? ' · yours' : ''}</small>
-        ${startFacts(w, s) ? `<small class="mu-muted" data-notr>${esc(startFacts(w, s))}</small>` : ''}<p data-notr>${esc(s.desc ?? s.premise ?? '')}</p></button>`;
+        ${startFacts(w, s) ? `<small class="mu-muted" data-notr>${esc(startFacts(w, s))}</small>` : ''}<p data-notr>${esc(s.desc ?? (s.premise ?? '').replace(/\{\{user\}\}/gi, 'you'))}</p></button>`;
     return `<section class="mu-origins mu-starts"><h3>Your start</h3><p class="mu-muted">Who you are when the story begins: where you live, what you have, who you already know.</p>
         <div class="mu-cards small">${worldStarts(w, adult).map(s => card(s, false)).join('')}${savedStarts(w.id).filter(s => adult || !s.adult).map(s => card(s, true)).join('')}
             <button class="mu-origin ${on === CUSTOM_START ? 'is-on' : ''}" data-act="ng-origin" data-id="${CUSTOM_START}"><b>Custom</b><p>Write your own premise, or let your AI write it from lorebooks; then choose your home, your money and whom you know.</p></button></div>
