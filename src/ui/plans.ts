@@ -57,7 +57,7 @@ export function sceneCard(g: Save, w: WorldDef): string {
     if (!r || !featureOn(w, 'plans')) return '';
     const b = bondOf(g, r.avatar);
     const along = isWith(g, r.avatar);
-    const working = isWorking(w, r, nowAbs(g));
+    const working = isWorking(g, w, r, nowAbs(g));
     return `<div class="mu-pcard" role="dialog" aria-label="${esc(r.name)}">
         <header><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.met ? r.name : 'Someone')}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>
             <button class="mu-ibtn mu-ghost" data-act="pc-close" aria-label="Close">${icon('x')}</button></header>

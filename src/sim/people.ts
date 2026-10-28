@@ -1,5 +1,5 @@
 // The people of the world: where each one is right now, following their routine (unless she is with you,
-// or has plans with you).
+// or has plans with you). Shifts come from sim/dayplan.ts; the routine template fills the rest.
 import { homeJobOf, npcOut, onShift, SHIFTS } from './hometime.js';
 import { festivalSpot } from './festivals.js';
 import { eventSpot } from './cityevents.js';
@@ -12,8 +12,10 @@ import { weatherOn } from './weather.js';
 import { weatherAt } from './worldstate.js';
 import { breakNow } from './daylife.js';
 import { isOpen } from './daynight.js';
+import { festivalsOn } from './festivals.js';
 import { placeOn, extraRooms } from './places.js';
 import { partySpot } from './houseparty.js';
+import { stampOf, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, adultOn, adultPlaces, jobOf, type Stamp } from './dayplan.js';
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 
@@ -24,24 +26,52 @@ export const homeMapOf = (g: Save, w: WorldDef, r: Resident) => {
     const h = (r as any).homeWith === '__you' ? g.player.home : r.home;
     return w.homes.zones.find(z => z.id === h?.zone)?.map ?? '';
 };
-// Where she spends her free time. On weekdays she stays in her own neighborhood (her favorite spots there, or any
-// spot for leisure on her map); at the weekend her favorites anywhere, and now and then a day out in another town.
-function leisurePool(g: Save, w: WorldDef, r: Resident, day: number) {
+// Where she spends her free time. On a working day she stays around home or work (her favorite spots there, or any
+// spot for leisure on those maps), and right after a shift near work (drinks after work); on a day off her favorites
+// anywhere, and now and then a day out in another town (farther towns less often). On vacation, somewhere away. A
+// random hangout is never an adult place; adult places are only for games with adult content.
+function leisurePool(g: Save, w: WorldDef, r: Resident, day: number, stepHour: number, st?: Stamp) {
+    const adult = adultOn(g);
     const fun = (p: { tags?: string[]; link?: string }) => !p.link && !!p.tags?.includes('leisure');
-    const all = r.leisure.length ? r.leisure : w.places.filter(fun).map(p => p.id);
+    const wild = (p: { tags?: string[]; link?: string; adult?: boolean }) => fun(p) && !p.adult;
+    const banned = adult ? null : adultPlaces(w);
+    const pool = r.leisure.length ? r.leisure : w.places.filter(wild).map(p => p.id);
+    const all = banned?.size ? pool.filter(id => !banned.has(id)) : pool;
     const on = all.filter(id => placeOn(g, w, id));   // a scenario: only the rooms of this game
     const mine = on.length ? on : isScenario(w) ? w.places.filter(p => fun(p) && placeOn(g, w, p.id)).map(p => p.id) : all;
     if (isScenario(w)) mine.push(...extraRooms(g).filter(fun).map(p => p.id));   // rooms added for this game are used too
     const homeMap = homeMapOf(g, w, r);
     if (!homeMap || w.maps.length < 2) return mine;
     const mapOf = (id: string) => w.places.find(p => p.id === id)?.map;
-    const near = w.places.filter(p => fun(p) && p.map === homeMap).map(p => p.id);
-    if (!isWeekend(day)) { const own = mine.filter(id => mapOf(id) === homeMap); return own.length ? own : near.length ? near : mine; }
-    if (hash(`${r.avatar}|out|${day}`) % 3 === 0) { const away = w.places.filter(p => fun(p) && p.map !== homeMap).map(p => p.id); if (away.length) return [...mine, ...away]; }
+    const job = isScenario(w) ? null : jobOf(g, w, r);
+    const workMap = job ? mapOf(job.place) : undefined;
+    const near = (map?: string) => w.places.filter(p => wild(p) && p.map === map).map(p => p.id);
+    if (!st && !isScenario(w)) st = stampOf(g, w);
+    if (st && onVacation(g, w, r, day, st)) { const far = w.places.filter(p => wild(p) && p.map !== homeMap && p.map !== workMap).map(p => p.id); if (far.length) return far; }
+    if (!(st ? dayOff(g, w, r, day, st) : isWeekend(day))) {
+        if (workMap && workMap !== homeMap && afterWork(g, w, r, day, stepHour, st)) { const own = mine.filter(id => mapOf(id) === workMap); const n = near(workMap); if (own.length || n.length) return own.length ? own : n; }
+        const own = mine.filter(id => mapOf(id) === homeMap || (!!workMap && mapOf(id) === workMap));
+        return own.length ? own : near(homeMap).length ? near(homeMap) : mine;
+    }
+    // a day out: one in three days off (one in two on a holiday with no place of its own, like Golden Week)
+    const holiday = festivalsOn(g, w, day).some(f => !f.place && (!!f.audience?.length || f.crowd !== undefined));
+    if (hash(`${r.avatar}|out|${day}`) % (holiday ? 2 : 3) === 0) {
+        const trip = (id: string) => w.maps.find(m => m.id === mapOf(id))?.trip ?? 0;
+        const away = w.places.filter(p => wild(p) && p.map !== homeMap).map(p => p.id).filter(id => trip(id) <= 30 || hash(`${r.avatar}|far|${mapOf(id)}|${day}`) % 1000 < 30000 / trip(id));
+        if (away.length) return [...mine, ...away];
+    }
     return mine;
 }
-function leisureSpot(g: Save, w: WorldDef, r: Resident, day: number, stepHour: number) {
-    let list = leisurePool(g, w, r, day);
+// Within three hours after the end of her shift today (or of her routine's work hours).
+function afterWork(g: Save, w: WorldDef, r: Resident, day: number, stepHour: number, st?: Stamp) {
+    const at = day * 1440 + stepHour * 60;
+    if (st && scheduled(g, w, r)) { for (const d of [day, day - 1]) { const s = shiftOn(g, w, r, d, st); if (s && at >= s.to && at - s.to < 180) return true; } return false; }
+    const steps = isWeekend(day) ? r.routine.weekend : r.routine.weekday;
+    const i = steps.findIndex(x => x[0] === stepHour);
+    return i > 0 && steps[i - 1][1] === 'work';
+}
+function leisureSpot(g: Save, w: WorldDef, r: Resident, day: number, stepHour: number, st?: Stamp) {
+    let list = leisurePool(g, w, r, day, stepHour, st);
     // a place closed at that hour is out (the living world); with all of them closed, she stays home
     if (systemOn(w, 'living')) { list = list.filter(id => isOpen(w, id, stepHour * 60)); if (!list.length) return `home:${r.avatar}`; }
     // rain changes plans: outdoor spots are skipped for somewhere with a roof (or home)
@@ -51,7 +81,7 @@ function leisureSpot(g: Save, w: WorldDef, r: Resident, day: number, stepHour: n
     const raining = list.some(id => outdoors(w, id)) ? list.some(id => outdoors(w, id) && wet(id)) : weatherOn(g.world, day).rain;
     if (raining) {
         const dry = list.filter(id => !outdoors(w, id) || !wet(id));
-        list = dry.length ? dry : w.places.filter(p => (p.tags ?? []).some(t => t === 'food' || t === 'shop')).map(p => p.id);
+        list = dry.length ? dry : w.places.filter(p => !p.adult && (p.tags ?? []).some(t => t === 'food' || t === 'shop')).map(p => p.id);
         if (!list.length || hash(`${r.avatar}|rain|${day}`) % 3 === 0) return `home:${r.avatar}`;
     }
     return list[hash(`${r.avatar}|${day}|${stepHour}`) % list.length] ?? `home:${r.avatar}`;
@@ -68,14 +98,19 @@ export function routineStep(r: Resident, at: number): [number, string] {
 
 /** Out of the house, off-screen (a scenario): not at any place. */
 export const OUT = 'out';
-// Where her routine puts her at a given moment (plans and company left aside).
+// Where her routine puts her at a given moment (plans and company left aside): her shift, else her routine.
 export function routineAt(g: Save, w: WorldDef, r: Resident, at: number): string {
-    const [start, target] = routineStep(r, at);
+    return routineCore(g, w, r, at);
+}
+// Her shift or her routine template's step. With a job that has a schedule, the template only fills the rest: its
+// work hours are free time, and a day off follows its weekend steps.
+function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp): string {
     const day = Math.floor(at / 1440);
     // someone who lives with you (or with someone else) is at that home
     const homeId = (r as any).homeWith === '__you' ? 'home:player' : (r as any).homeWith ? `home:${(r as any).homeWith}` : `home:${r.avatar}`;
     // Home: a job you wrote for them has its shift (out of the house while it lasts); without one, their routine
     if (isScenario(w)) {
+        const [start, target] = routineStep(r, at);
         const j = homeJobOf(r), out = npcOut(g);
         if (out && onShift(j, at)) return OUT;
         const shifted = !!SHIFTS.find(x => x.id === j.shift && x.from !== undefined) || j.shift === 'off';
@@ -83,14 +118,30 @@ export function routineAt(g: Save, w: WorldDef, r: Resident, at: number): string
         if (target === 'home') return homeId;
         // work, errands and nights out happen off-screen (`OUT`), and they come back later (or they stay in)
         if (target === 'work' || target === 'out') return out ? OUT : leisureSpot(g, w, r, day, start);
+        if (target === 'leisure') return eventSpot(g, w, r.avatar, at) ?? festivalSpot(g, w, at, { map: homeMapOf(g, w, r) }) ?? leisureSpot(g, w, r, day, start);
+        return w.places.some(p => p.id === target) && placeOn(g, w, target) ? target : leisureSpot(g, w, r, day, start);
     }
+    st ??= stampOf(g, w);
+    const shift = scheduled(g, w, r) ? shiftAt(g, w, r, at, st) : null;
+    if (shift) return shift.place;
+    const step = dayStep(g, w, r, at, st), start = step[0];
+    const target = step[1] === 'work' && scheduled(g, w, r) ? 'leisure' : step[1];
     if (target === 'home') return homeId;
     if (target === 'work') {
-        const job = systemOn(w, 'jobs') ? w.occupations.find(o => o.id === r.occupation) : null;
-        return job ? job.place : leisureSpot(g, w, r, day, start);
+        const job = jobOf(g, w, r);
+        return job ? job.place : leisureSpot(g, w, r, day, start, st);
     }
-    if (target === 'leisure') return eventSpot(g, w, r.avatar, at) ?? festivalSpot(g, w, at, { map: homeMapOf(g, w, r) }) ?? leisureSpot(g, w, r, day, start);   // on a festival day, free time is spent there
-    return w.places.some(p => p.id === target) && placeOn(g, w, target) ? target : isScenario(w) ? leisureSpot(g, w, r, day, start) : homeId;
+    if (target === 'leisure') return eventSpot(g, w, r.avatar, at) ?? festivalSpot(g, w, at, { map: homeMapOf(g, w, r) }) ?? leisureSpot(g, w, r, day, start, st);   // on a festival day, free time is spent there
+    return w.places.some(p => p.id === target) && placeOn(g, w, target) && (adultOn(g) || !w.places.find(p => p.id === target)?.adult) ? target : homeId;
+}
+/** Where they work at that moment (their shift, their routine's work hours for a job without a schedule, or working
+ *  late), or null when they aren't working. */
+export function workingAt(g: Save, w: WorldDef, r: Resident, at: number): string | null {
+    const job = isScenario(w) ? (systemOn(w, 'jobs') ? w.occupations.find(o => o.id === r.occupation) : null) : jobOf(g, w, r);
+    if (!job) return null;
+    if (scheduled(g, w, r)) { const s = shiftAt(g, w, r, at); if (s) return s.place; }
+    else if (routineStep(r, at)[1] === 'work') return job.place;
+    return breakNow(g, w, r, at)?.kind === 'late' ? job.place : null;
 }
 
 export function whereNow(g: Save, w: WorldDef, r: Resident): string {
@@ -105,25 +156,29 @@ export function whereNow(g: Save, w: WorldDef, r: Resident): string {
     if (party) return party;
     const brk = breakNow(g, w, r);                     // something interrupted her routine today (an errand, a cold…)
     if (brk) return brk.place;
-    return routineNow(g, w, r);
+    return routineNow(g, w, r, isScenario(w) ? undefined : stampOf(g, w));
 }
 // Where everyone is gets asked many times in a game minute (every presentAt, each block of the prompt, the hourly
 // hooks), so each person's routine answer is kept for the minute. Company, a scene lock, plans, "Play as", a party
-// and breaks are checked before it, every time. The answer is worked out again when the clock moves, when the
-// person's job, home, leisure or routine changes, when the systems or rules it reads change, and after any click or
-// prompt refresh (changes() in core/store.ts), which covers the rest (a spell's weather, a Home's rooms, world edits).
+// and breaks are checked before it, every time. The answer is worked out
+// again when the clock moves, when the person's job, home, leisure or routine changes, when anyone's job changes
+// (shifts are spread across a team: the day plan's stamp), when the systems or rules it reads change, and after any
+// click or prompt refresh (changes() in core/store.ts), which covers the rest (a spell's weather, a Home's rooms, world
+// edits).
 interface Kept { r: Resident; routine: Routine; job: string | null; hw?: string; zone?: string; mine?: string; leisure: string[]; n: number; shift?: string; days?: string; loc: string }
-interface Minute { at: number; w: WorldDef; n: number; features: unknown; cfg: unknown; rules: string; by: Map<string, Kept> }
+interface Minute { at: number; w: WorldDef; n: number; features: unknown; cfg: unknown; rules: string; st?: Stamp; by: Map<string, Kept> }
 const kept = new WeakMap<Save, Minute>();
-function routineNow(g: Save, w: WorldDef, r: Resident): string {
+function routineNow(g: Save, w: WorldDef, r: Resident, st?: Stamp): string {
     const at = nowAbs(g), n = changes(), c = (g as any).cfg;
     let k = kept.get(g);
-    if (!k || k.at !== at || k.w !== w || k.n !== n || k.features !== w.features || k.cfg !== c || k.rules !== rulesOf(w, c)) kept.set(g, k = { at, w, n, features: w.features, cfg: c, rules: rulesOf(w, c), by: new Map() });
+    // (outside a Home, the day plan's stamp covers the rules: the systems, the length of the seasons)
+    const rules = st ? '' : rulesOf(w, c);
+    if (!k || k.at !== at || k.w !== w || k.n !== n || k.features !== w.features || k.cfg !== c || k.st !== st || k.rules !== rules) kept.set(g, k = { at, w, n, features: w.features, cfg: c, rules, st, by: new Map() });
     const hw = (r as any).homeWith as string | undefined, job = homeJobOf(r), mine = hw === '__you' ? g.player.home?.zone : undefined;
     const x = k.by.get(r.avatar);
     if (x && x.r === r && x.routine === r.routine && x.job === r.occupation && x.hw === hw && x.zone === r.home?.zone && x.mine === mine
         && x.leisure === r.leisure && x.n === r.leisure.length && x.shift === job.shift && x.days === job.days) return x.loc;
-    const loc = routineAt(g, w, r, at);
+    const loc = routineCore(g, w, r, at, st);
     k.by.set(r.avatar, { r, routine: r.routine, job: r.occupation, hw, zone: r.home?.zone, mine, leisure: r.leisure, n: r.leisure.length, shift: job.shift, days: job.days, loc });
     return loc;
 }
