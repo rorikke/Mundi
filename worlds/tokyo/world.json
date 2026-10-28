@@ -1212,9 +1212,9 @@
   },
   {
    "id": "x-paint",
-   "name": "Painting",
-   "label": "Paint something to sell",
-   "icon": "🎨",
+   "name": "Drawing",
+   "label": "Draw something to sell",
+   "icon": "🖊️",
    "cost": 0,
    "minutes": 120,
    "home": true,
@@ -1230,16 +1230,17 @@
      "Skilled with hands"
     ],
     "success": {
-     "text": "Your painting sold quickly.",
+     "text": "A commission came in for it.",
      "money": 11000
     },
     "fail": {
-     "text": "Nobody wanted this one.",
+     "text": "Nobody bit this time.",
      "effects": {
       "mood": -6
      }
     }
-   }
+   },
+   "trains": "drawing"
   },
   {
    "id": "x-guitar",
@@ -1272,6 +1273,37 @@
       "mood": -2
      }
     }
+   },
+   "trains": "music"
+  },
+  {
+   "id": "x-kotatsu",
+   "name": "Kotatsu",
+   "label": "Warm up under the kotatsu",
+   "icon": "🛋️",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "kotatsu",
+   "when": "season: winter",
+   "effects": {
+    "mood": 8,
+    "energy": 3
+   }
+  },
+  {
+   "id": "x-console",
+   "name": "Games",
+   "label": "Play games",
+   "icon": "🎮",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "console",
+   "trains": "gaming",
+   "effects": {
+    "mood": 6,
+    "energy": -4
    }
   },
   {
@@ -12612,17 +12644,31 @@
    },
    {
     "id": "easel",
-    "name": "Easel and paints",
-    "desc": "Paint at home; a good painting sells.",
-    "icon": "🎨",
-    "price": 9000
+    "name": "Drawing tablet",
+    "desc": "Draw at home; good work sells as a commission. Drawing goes up.",
+    "icon": "🖊️",
+    "price": 35000
    },
    {
     "id": "guitar",
     "name": "Acoustic guitar",
-    "desc": "Practice at home.",
+    "desc": "Practice at home. Music goes up.",
     "icon": "🎸",
     "price": 30000
+   },
+   {
+    "id": "kotatsu",
+    "name": "Kotatsu",
+    "desc": "A low heated table with a quilt: warm up under it in winter.",
+    "icon": "🛋️",
+    "price": 15000
+   },
+   {
+    "id": "console",
+    "name": "Game console",
+    "desc": "Play at home. Gaming goes up.",
+    "icon": "🎮",
+    "price": 40000
    }
   ]
  },
@@ -13750,11 +13796,212 @@
    "roles": []
   }
  ],
+ "habits": [
+  {
+   "id": "early",
+   "name": "Early riser",
+   "trait": "Early riser",
+   "desc": "Up and doing things before 8, five days in a week.",
+   "hours": [
+    5,
+    8
+   ],
+   "count": 5,
+   "days": 7,
+   "daily": {
+    "energy": 3
+   }
+  },
+  {
+   "id": "owl",
+   "name": "Night owl",
+   "trait": "Night owl",
+   "desc": "Out and about after midnight, four times in a week.",
+   "hours": [
+    0,
+    4
+   ],
+   "count": 4,
+   "days": 7
+  },
+  {
+   "id": "coffee",
+   "name": "Coffee addict",
+   "trait": "Coffee addict",
+   "desc": "Coffee eight times in a week.",
+   "actions": [
+    "coffee",
+    "x-coffee",
+    "ws_kissaten_coffee",
+    "ws_kissaten_morning",
+    "sb_omotesando_cafe"
+   ],
+   "count": 8,
+   "days": 7,
+   "daily": {
+    "mood": -2
+   }
+  },
+  {
+   "id": "fit",
+   "name": "Fitness buff",
+   "trait": "Athletic",
+   "desc": "Working out or running five times in ten days.",
+   "actions": [
+    "x-workout",
+    "x-run",
+    "mg_palace_loop",
+    "yk_batting_slow",
+    "yk_batting_fast"
+   ],
+   "count": 5,
+   "days": 10,
+   "daily": {
+    "mood": 2
+   }
+  },
+  {
+   "id": "party",
+   "name": "Party animal",
+   "trait": "Nightlife",
+   "desc": "Drinks out six times in a week.",
+   "actions": [
+    "ot_izakaya_evening",
+    "ot_izakaya_counter",
+    "mg_izakaya_course",
+    "mg_izakaya_quick",
+    "sj_goldengai_drink",
+    "sj_nichome_drink",
+    "ws_shimokita_barhop",
+    "rp_pub_pint",
+    "rp_lounge_drink",
+    "rp_club_bar"
+   ],
+   "count": 6,
+   "days": 7,
+   "daily": {
+    "energy": -3
+   }
+  },
+  {
+   "id": "chef",
+   "name": "Home chef",
+   "trait": "Good cook",
+   "desc": "Cooking at home five times in a week.",
+   "actions": [
+    "cook"
+   ],
+   "count": 5,
+   "days": 7
+  },
+  {
+   "id": "clean",
+   "name": "Neat freak",
+   "trait": "Tidy",
+   "desc": "Showering every day for a week.",
+   "actions": [
+    "shower",
+    "gymshower",
+    "ws_sento_bath"
+   ],
+   "count": 7,
+   "days": 7
+  },
+  {
+   "id": "sento",
+   "name": "Bath lover",
+   "trait": "Bath lover",
+   "desc": "A public bath, a sauna or a hot spring four times in ten days.",
+   "actions": [
+    "ws_sento_bath",
+    "ws_sento_sauna",
+    "sj_capsule_bath",
+    "hk_yumoto_daybath",
+    "hk_ryokan_bath"
+   ],
+   "count": 4,
+   "days": 10,
+   "daily": {
+    "mood": 2
+   }
+  },
+  {
+   "id": "karaoke",
+   "name": "Karaoke regular",
+   "trait": "Musical",
+   "desc": "Singing at karaoke three times in a week.",
+   "actions": [
+    "sb_karaoke_sing",
+    "sb_karaoke_duet",
+    "sb_karaoke_solo",
+    "sb_karaoke_allnight",
+    "sj_goldengai_sing"
+   ],
+   "count": 3,
+   "days": 7
+  },
+  {
+   "id": "shrine",
+   "name": "Shrine-goer",
+   "trait": "Shrine-goer",
+   "desc": "A prayer or a fortune at a shrine or temple three times in a week.",
+   "actions": [
+    "pray",
+    "sb_meiji_omikuji",
+    "ak_myojin_omikuji",
+    "ot_sensoji_omikuji",
+    "ot_sensoji_bell"
+   ],
+   "count": 3,
+   "days": 7,
+   "daily": {
+    "mood": 1
+   }
+  },
+  {
+   "id": "gambler",
+   "name": "Gambler",
+   "trait": "Gambler",
+   "desc": "Pachinko or mahjong four times in a week.",
+   "actions": [
+    "sb_pachinko_play",
+    "sb_pachinko_old",
+    "yk_mahjong_play"
+   ],
+   "count": 4,
+   "days": 7,
+   "daily": {
+    "mood": -2
+   }
+  }
+ ],
  "features": {
   "phone": true,
   "device": "Phone",
-  "family": false
+  "family": false,
+  "trade": false,
+  "auctions": false,
+  "farming": false,
+  "property": false,
+  "taxes": false,
+  "banks": false,
+  "crafting": false,
+  "trophies": false,
+  "ecology": false,
+  "elements": false,
+  "mounts": false,
+  "pets": false,
+  "factions": false,
+  "identity": false,
+  "letters": false,
+  "legends": false,
+  "mentors": false,
+  "prison": false
  },
+ "presetActions": true,
+ "presetEconomy": true,
+ "presetLife2": true,
+ "presetAdventure": true,
  "workPreset": "reduced",
  "address": {
   "friend": {
@@ -18924,6 +19171,9 @@
     "shrine",
     "birds",
     "cicadas"
+   ],
+   "roles": [
+    "shrine"
    ]
   },
   {
@@ -18987,7 +19237,8 @@
    "private": true,
    "sound": [
     "water"
-   ]
+   ],
+   "roles": []
   },
   {
    "id": "sj_station",
@@ -19641,7 +19892,8 @@
    "y": 12,
    "sound": [
     "arcade"
-   ]
+   ],
+   "roles": []
   },
   {
    "id": "ak_idol",
@@ -19733,6 +19985,9 @@
    "sound": [
     "shrine",
     "birds"
+   ],
+   "roles": [
+    "shrine"
    ]
   },
   {
@@ -19826,6 +20081,9 @@
    "sound": [
     "temple",
     "crowd"
+   ],
+   "roles": [
+    "shrine"
    ]
   },
   {
@@ -20021,6 +20279,9 @@
    "sound": [
     "shrine",
     "birds"
+   ],
+   "roles": [
+    "shrine"
    ]
   },
   {
@@ -20259,6 +20520,9 @@
    "y": 72,
    "sound": [
     "hospital"
+   ],
+   "roles": [
+    "healer"
    ]
   },
   {
