@@ -524,8 +524,9 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
 export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean }
 /** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
- *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). */
-export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult; when?: When }
+ *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). `minutes`:
+ *  the time it takes (missing: 15). */
+export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult; when?: When; minutes?: number }
 /** What a story's choice leads to: text, needs and money (a cost below 0), a keepsake, a rumor it starts, a fact, how
  *  some of the world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes
  *  you one (one of the world's people by name, or a stranger's id another story can ask about); `spend`: a favor it
