@@ -15,6 +15,7 @@ import { facts, note, placeName } from './facts.js';
 import { whenHolds, markDone } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, type TogetherGain } from './social.js';
 import { playerHomeId } from './places.js';
+import { startRumor } from './living.js';
 
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
@@ -64,6 +65,8 @@ export function doAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random):
         if (outcome.text) lines.push({ text: said, kind: 'success' });
     }
     feelsFrom(g, w, res?.feels); feelsFrom(g, w, outcome?.feels);
+    // (E31) a rumor it starts among the people here
+    for (const t of [res?.rumor, outcome?.rumor]) if (t) startRumor(g, w, t, loc, { you: true, id: `act:${a.id}:${t.slice(0, 24)}` });
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
     if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); }
     const together = doneTogether(g, w, mates, a.minutes);

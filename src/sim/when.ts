@@ -3,7 +3,9 @@
 // `When`): `period: evening or night; weekday: fri; feels: Kyōko friend`, parsed once and kept. Worlds from before
 // give an object (`LoreWhen`), read exactly as the old lore code read it (a period by its name, in the same order).
 // Keys whose data the engine doesn't keep yet hold false until their system writes it: `stayed` (E6 writes
-// `player.stayed`), `holds` (E14 writes `player.keepsakes`), region weather `fujiview` and `gas` (E2).
+// `player.stayed`), `holds` (E14 writes `player.keepsakes`), region weather `fujiview` and `gas` (E2). The story so
+// far is read straight from the save, so this file needs neither module: `knows` and `thread` (sim/threads.ts keeps
+// `g.threads`), `seen` and `favor` (sim/stories.ts keeps `g.stories`).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen } from '../core/world.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
@@ -19,7 +21,8 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
-    'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion'] as const;
+    'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
+    'knows', 'seen', 'thread', 'favor'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -60,8 +63,10 @@ function badValue(key: WhenKey, v: string): string {
         case 'clock': return CLOCK.test(v) ? '' : `"${v}" should be hours like 19:00-20:00`;
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
         case 'feels': return splitLevel(v)[0] ? '' : 'a name is missing';
-        case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds':
+        case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'knows':
             return ID.test(v) ? '' : `"${v}" should be one id`;
+        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id, or a story id and a choice like sb_startup_st_pitch:2`;
+        case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -196,6 +201,11 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'stayed': { const s = (g.player as any).stayed as { place: string; day: number } | undefined; return !!s && s.place === v && s.day === x.day; }
         case 'holds': return Number((g.player as any).keepsakes?.[v] ?? 0) > 0;
         case 'companion': return companions(g).some(a => v === 'yes' || levelHolds(g, w, a, v));
+        // the story so far (E22, E17, E28)
+        case 'knows': return !!threadState(g, v)?.known;
+        case 'thread': { const [id, how] = v.split(/\s+/); const t = threadState(g, id); return !!t?.ended && (!how || t.ended === how); }
+        case 'seen': { const [id, n] = v.split(':'); const s = (g as any).stories?.seen?.[id]; return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false)); }
+        case 'favor': return favorOwed(g, v) > 0;
         // the old object form's own keys
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
@@ -243,6 +253,17 @@ const isHere = (g: Save, w: WorldDef, r: Resident, x: Here) => (x.at === nowAbs(
 // one without, or working late).
 function atWork(g: Save, w: WorldDef, r: Resident, x: Here) {
     return systemOn(w, 'jobs') && workingAt(g, w, r, x.at) === x.place && isHere(g, w, r, x);
+}
+
+// A thread's state (sim/threads.ts): `known` the day the player learned it, `ended` how it ended.
+const threadState = (g: Save, id: string) => (g as any).threads?.[id] as { known?: number; ended?: string } | undefined;
+/** How many favors someone (a name of the world's people, or a stranger's id) owes you (sim/stories.ts keeps them,
+ *  by a person's avatar or the stranger's id). */
+export function favorOwed(g: Save, who: string): number {
+    const f = (g as any).stories?.favors as Record<string, number> | undefined;
+    if (!f) return 0;
+    const r = personNamed(g, who);
+    return (r ? f[r.avatar] : undefined) ?? f[who] ?? 0;
 }
 
 /* ---------- what was done today (`after`, `daily`) ---------- */

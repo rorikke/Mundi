@@ -26,6 +26,8 @@ import { genderLine } from './gender.js';
 import { rivalsLine } from './jealousy.js';
 import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
 import { markSent } from './moments.js';
+import { threadLines } from './threads.js';
+import { favorLines } from './stories.js';
 import { familyLine } from './family.js';
 import { social, livePlan, companions } from './social.js';
 import { personaName } from '../st/bridge.js';
@@ -81,6 +83,7 @@ export const BLOCKS: Block[] = [
     { id: 'moments', name: 'Their initiatives', desc: 'What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.', cut: 8 },
     { id: 'solo', name: 'Talking alone', desc: 'Who you are talking to when you talk only with one person.' },
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
+    { id: 'threads', name: 'Their stories', desc: 'The secrets and storylines of the people here (kept hidden until you learn them), and favors they owe you.', cut: 7 },
     { id: 'family', name: 'Your children', desc: 'Your children\'s age and how to treat them. Always sent when they are here.' },
     { id: 'gender', name: 'Gender and attraction', desc: 'The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.', cut: 6 },
     { id: 'intimate', name: 'Intimate profiles', desc: 'Adult content only: what the people here want and like in intimacy, in a private scene or when they are drawn to someone here. Their hard limits are sent even over the budget.', cut: 5 },
@@ -172,6 +175,7 @@ export function sceneBlocks(): Built[] {
         gender: [genderLine(g, w, present)],
         intimate: [...intimate.lines, intimate.limits],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
+        threads: [...threadLines(g, w, present), ...favorLines(g, present)],
         family: [familyLine(g, present)],
         rumors: rumorLines(g, met),
         lore: activeWorldLore(g, w, loreMax(w)),
