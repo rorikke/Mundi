@@ -3,7 +3,7 @@
 //   the town is tense. These come from the day itself (worked out, not stored), so every look gives the same answer.
 // · Places remember you: how often you come (a regular, a first time), who works there and who comes often, and
 //   where each person last saw you.
-// · Why each person is here, for the AI: a break, a shift, a vacation.
+// · Why each person is here, for the AI: a break, a shift, a standing appointment, a part in a festival, a date.
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour } from './hooks.js';
@@ -15,8 +15,9 @@ import { isOpen } from './daynight.js';
 import { overhear, couples } from './living.js';
 import { exesOf, fr } from './rel.js';
 import { lex } from '../core/lexicon.js';
-import { scheduled, shiftOn, shiftAt, stampOf, onVacation, rankName } from './dayplan.js';
+import { scheduled, shiftOn, shiftAt, slotAt, stampOf, broughtNow, onVacation, rankName, type Slot } from './dayplan.js';
 import { workingAt, routineStep } from './people.js';
+import { levelHolds } from './when.js';
 
 const FRIEND = 30;   // where Friend starts (FRIEND_TIERS in sim/romance.ts)
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -141,12 +142,33 @@ export function placeMemoryLines(g: Save, w: WorldDef, present: Resident[]): str
     }
     return out;
 }
-// For the AI: why the people here are here: a break in their routine, their shift (with its end), a vacation.
+// For the AI: why the people here are here: a break in their routine, a story, a standing appointment, a part in a
+// festival or event, a date, an event they came for, their shift (with its end), a vacation. A couple kept secret is
+// only "here together" unless {{user}} is close to one of them (a good friend).
 export function whyHereLines(g: Save, w: WorldDef, present: Resident[]): string[] {
-    const loc = g.player.loc, now = nowAbs(g), out: string[] = [];
+    const loc = g.player.loc, now = nowAbs(g), out: string[] = [], told = new Set<string>();
+    const here = new Set(present.map(r => r.avatar));
+    const names = (list: string[]) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
     for (const r of present) {
+        if (told.has(r.avatar)) continue;
         const b = breakNow(g, w, r);
         if (b) { out.push(`${r.name} ${b.why}.`); continue; }
+        const story = broughtNow(g, r.avatar);
+        if (story && story.place === loc) { out.push(`${r.name} ${story.why}.`); continue; }
+        const s: Slot | null = slotAt(g, w, r, now);
+        if (s && s.place === loc) {
+            const with_ = s.with.filter(a => here.has(a) && !told.has(a) && slotAt(g, w, g.cast[a], now)?.why === s.why);
+            if (s.kind === 'date' && s.partner && g.cast[s.partner]) {
+                const o = g.cast[s.partner], trusted = levelHolds(g, w, r.avatar, 'good') || levelHolds(g, w, o.avatar, 'good');
+                told.add(o.avatar);
+                out.push(s.secret && !trusted ? `${r.name} and ${o.name} are here together.` : `${r.name} is ${s.why} ${o.name}${s.secret ? ' (they keep their relationship secret from others)' : ''}.`);
+            } else if (s.kind === 'ritual') {
+                with_.forEach(a => told.add(a));
+                const who = [r.name, ...with_.map(a => g.cast[a].name)];
+                out.push(`${names(who)} ${who.length > 1 ? 'are' : 'is'} here for a standing appointment (${s.why}).`);
+            } else out.push(`${r.name} ${s.why}.`);
+            continue;
+        }
         const job = workingAt(g, w, r, now);
         if (job === loc) {
             const x = shiftAt(g, w, r, now), rank = rankName(g, w, r);

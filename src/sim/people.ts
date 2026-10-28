@@ -1,5 +1,6 @@
 // The people of the world: where each one is right now, following their routine (unless she is with you,
-// or has plans with you). Shifts come from sim/dayplan.ts; the routine template fills the rest.
+// or has plans with you). Shifts, standing appointments, parts in festivals, dates and outings come from
+// sim/dayplan.ts; the routine template fills the rest.
 import { homeJobOf, npcOut, onShift, SHIFTS } from './hometime.js';
 import { festivalSpot } from './festivals.js';
 import { eventSpot } from './cityevents.js';
@@ -15,7 +16,7 @@ import { isOpen } from './daynight.js';
 import { festivalsOn } from './festivals.js';
 import { placeOn, extraRooms } from './places.js';
 import { partySpot } from './houseparty.js';
-import { stampOf, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, adultOn, adultPlaces, jobOf, type Stamp } from './dayplan.js';
+import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, type Stamp } from './dayplan.js';
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 
@@ -98,9 +99,10 @@ export function routineStep(r: Resident, at: number): [number, string] {
 
 /** Out of the house, off-screen (a scenario): not at any place. */
 export const OUT = 'out';
-// Where her routine puts her at a given moment (plans and company left aside): her shift, else her routine.
+// Where her routine puts her at a given moment (plans and company left aside): a role, a standing appointment, a date
+// or an outing that day (sim/dayplan.ts), else her shift, else her routine.
 export function routineAt(g: Save, w: WorldDef, r: Resident, at: number): string {
-    return routineCore(g, w, r, at);
+    return slotAt(g, w, r, at)?.place ?? routineCore(g, w, r, at);
 }
 // Her shift or her routine template's step. With a job that has a schedule, the template only fills the rest: its
 // work hours are free time, and a day off follows its weekend steps.
@@ -154,13 +156,19 @@ export function whereNow(g: Save, w: WorldDef, r: Resident): string {
     if (left && nowAbs(g) < left.until) return left.loc;
     const party = partySpot(g, w, r.avatar);         // a scenario's house party: everyone in the common rooms
     if (party) return party;
+    const story = broughtNow(g, r.avatar);             // a street story has brought her to its place
+    if (story) return story.place;
     const brk = breakNow(g, w, r);                     // something interrupted her routine today (an errand, a cold…)
     if (brk) return brk.place;
-    return routineNow(g, w, r, isScenario(w) ? undefined : stampOf(g, w));
+    if (isScenario(w)) return routineNow(g, w, r);
+    const st = stampOf(g, w);
+    const slot = slotAt(g, w, r, nowAbs(g), st);       // a role, a standing appointment, a date, an outing
+    if (slot) return slot.place;
+    return routineNow(g, w, r, st);
 }
 // Where everyone is gets asked many times in a game minute (every presentAt, each block of the prompt, the hourly
-// hooks), so each person's routine answer is kept for the minute. Company, a scene lock, plans, "Play as", a party
-// and breaks are checked before it, every time. The answer is worked out
+// hooks), so each person's routine answer is kept for the minute. Company, a scene lock, plans, "Play as", a party,
+// a story, breaks and the day's plan (sim/dayplan.ts) are checked before it, every time. The answer is worked out
 // again when the clock moves, when the person's job, home, leisure or routine changes, when anyone's job changes
 // (shifts are spread across a team: the day plan's stamp), when the systems or rules it reads change, and after any
 // click or prompt refresh (changes() in core/store.ts), which covers the rest (a spell's weather, a Home's rooms, world
