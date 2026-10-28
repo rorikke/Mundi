@@ -348,6 +348,8 @@ function chosenStart() {
 function stepReview() {
     const wz = state.wizard, w = W(), h = wz.hero;
     const st = chosenStart();
+    // the premise is written for the AI ({{user}}): here it reads with your character's name
+    const you = (wz.heroMode === 'existing' ? personas().find(p => p.file === wz.persona)?.name : h.name.trim()) ?? '';
     const people = wpChosen().length + wz.cast.length;
     const home = isScenario(w);
     return `<div class="mu-review-wrap"><div class="mu-panel mu-review">
@@ -355,14 +357,14 @@ function stepReview() {
         ${wz.heroMode === 'existing'
         ? `<p><b data-notr>${esc(personas().find(p => p.file === wz.persona)?.name ?? '')}</b> · your persona</p>`
         : `<p><b>${esc(h.name)}</b>, ${h.age}</p>`}
-        ${st ? `<p>Your start: <b data-notr>${esc(st.name)}</b></p>${st.premise?.trim() ? `<blockquote class="mu-premise" data-notr>${esc(st.premise)}</blockquote>` : ''}` : ''}
+        ${st ? `<p>Your start: <b data-notr>${esc(st.name)}</b></p>${st.premise?.trim() ? `<blockquote class="mu-premise" data-notr>${esc(st.premise.replace(/\{\{user\}\}/gi, you || 'you'))}</blockquote>` : ''}` : ''}
         <p>Adult content: <b>${wz.adult ? 'on' : 'off'}</b></p>
         <p>${home ? 'Home' : 'World'}: <b>${esc(w.name)}</b> · ${people} ${people === 1 ? 'person lives' : 'people live'} here.</p>
         ${home ? (() => {
         const st = startOf();
         const s = SCENARIO_STARTS.find(x => x.id === st.id);
         const t = st.id === 'custom' && st.text.trim() ? st.text.trim() : [w.scenario?.premise ?? '', s?.id === 'custom' ? '' : s?.you ?? ''].filter(Boolean).join(' ');
-        return `<p>Your situation: <b>${esc(s?.name ?? '')}</b></p>${t ? `<blockquote class="mu-premise" data-notr>${esc(t)}</blockquote>` : ''}`;
+        return `<p>Your situation: <b>${esc(s?.name ?? '')}</b></p>${t ? `<blockquote class="mu-premise" data-notr>${esc(t.replace(/\{\{user\}\}/gi, you || 'you'))}</blockquote>` : ''}`;
     })() : ''}
         ${castMeter()}
         <p class="mu-muted">Mundi will create in your SillyTavern:</p>

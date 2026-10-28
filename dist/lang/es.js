@@ -3986,7 +3986,7 @@ const DICT = {
     "Their romance back": "Su romance de vuelta",
     "Adult content": "Contenido adulto",
     "Adult content in this game": "Contenido adulto en esta partida",
-    "On: the places, jobs, things to do, lore and people the world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off: all of it is left out (nothing is deleted: turning it on again brings it back). Everyone in Mundi's worlds is an adult.": "Activado: los lugares, empleos, cosas por hacer, lore y personas que el mundo marca como adultos forman parte del juego, y los perfiles íntimos de las personas se pueden ver y cambiar. Desactivado: todo eso queda fuera (no se borra nada: al activarlo de nuevo, vuelve). Todos en los mundos de Mundi son adultos.",
+    "On: the places, jobs, things to do, lore and people the world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off: all of it is left out (nothing is deleted: turning it on again brings it back). The world's adult-only people come only into a new game started with it on. Everyone in Mundi's worlds is an adult.": "Activado: los lugares, empleos, cosas por hacer, lore y personas que el mundo marca como adultos forman parte del juego, y los perfiles íntimos de las personas se pueden ver y cambiar. Desactivado: todo eso queda fuera (no se borra nada: al activarlo de nuevo, vuelve). Las personas solo para adultos del mundo solo llegan a una partida nueva empezada con esto activado. Todos en los mundos de Mundi son adultos.",
     "On: the places, jobs, things to do, lore and people a world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off (the default): all of it is left out. Change it any time in this game's settings (globe → Rules). Everyone in Mundi's worlds is an adult.": "Activado: los lugares, empleos, cosas por hacer, lore y personas que un mundo marca como adultos forman parte del juego, y los perfiles íntimos de las personas se pueden ver y cambiar. Desactivado (por defecto): todo eso queda fuera. Cámbialo cuando quieras en los ajustes de esta partida (globo → Reglas). Todos en los mundos de Mundi son adultos.",
     "The people of": "Las personas de",
     "The world's own characters, with their jobs, homes and the people they know. Keep the ones you want: someone you leave out isn't made, and the others' family, feelings and homes with them are left out too.": "Los personajes propios del mundo, con sus empleos, casas y las personas que conocen. Quédate con quien quieras: quien dejes fuera no se crea, y la familia, los sentimientos y las casas de los demás con esa persona quedan fuera también.",
@@ -4327,6 +4327,7 @@ const DICT = {
     "{u} asked {0} for a good word at {1}; {0} could not promise anything.": "{u} le pidió a {0} una buena palabra en {1}; {0} no pudo prometer nada.",
     "{u} called in the favor {0} owed them.": "{u} cobró el favor que {0} le debía.",
     "{u} was kept overnight at {0} after collapsing.": "{u} pasó la noche en {0} tras desmayarse.",
-    "{u} went for drinks after work with {0} at {1}.": "{u} fue a tomar algo después del trabajo con {0} en {1}."
+    "{u} went for drinks after work with {0} at {1}.": "{u} fue a tomar algo después del trabajo con {0} en {1}.",
+    "friendship with {0} ({1})": "amistad con {0} ({1})"
 };
 export default DICT;

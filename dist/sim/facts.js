@@ -24,6 +24,9 @@ export function note(g, t, a = [], who = [], place = g.player.loc, kind = 'event
         list.splice(0, list.length - MAX);
     return f;
 }
+// Text written for the player ("You nail the chorus") told to the AI: quoted, as what {{user}} was told, so the AI
+// never reads "you" as itself.
+export const toldAs = (t) => (/\b(you|your|yours|yourself)\b/i.test(t) ? `(as {{user}} was told: "${t.trim()}")` : t);
 export const fill = (t, a = [], u = 'You') => t.replace(/\{u\}/g, u).replace(/\{(\d)\}/g, (_, n) => a[Number(n)] ?? '');
 // someone else (an earlier character you played) did it: their name, not yours
 export const factText = (f, u = 'You') => fill(f.t, f.a, f.u && f.u !== personaName() ? f.u : u);

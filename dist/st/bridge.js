@@ -563,6 +563,10 @@ export async function writeLorebook(name, entries) {
         entry.content = e.content;
         entry.comment = e.comment ?? e.keys[0] ?? '';
         entry.constant = !!e.constant;
+        // one entry's text never sets off another: a city's places name each other, and with recursion one mention
+        // pulled half the book into every request
+        entry.preventRecursion = true;
+        entry.excludeRecursion = true;
     }
     await saveWorldInfo(name, data, true);
     await updateWorldInfoList();

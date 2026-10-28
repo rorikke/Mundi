@@ -18,11 +18,11 @@ import { addStatus, money } from './needs.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
 import { levelOf } from './hobbies.js';
-import { note, placeName } from './facts.js';
+import { note, placeName, toldAs } from './facts.js';
 import { feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { startRumor } from './living.js';
 import { revealThread } from './threads.js';
-import { seasonDays } from './time.js';
+import { seasonDays, advance } from './time.js';
 import { choicePractice } from './work.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -33,6 +33,8 @@ export const STORY_PROMPT = 'mundi_story';
 // How long a story goes on (minutes), how many a day at most, and how likely one starts: on the first look at a place
 // today, then once an hour while you stay. One that only happens on a festival or event day starts whenever it can.
 export const STORY = { minutes: 120, perDay: 2, first: 0.45, later: 0.1 };
+// What a choice takes when it doesn't say (a choice's own `minutes`: running a rickshaw loop is half an hour).
+export const CHOICE_MINUTES = 15;
 export function storyState(g) {
     const s = (g.stories ??= {});
     s.seen ??= {};
@@ -153,9 +155,15 @@ export function chooseStory(g, w, i, rand = Math.random) {
     }
     out.push(...applyResult(g, w, cur.s, res));
     out.push(...choicePractice(g, w, c.roll?.skill, c.roll ? ok : null, res.trains)); // trying something trains it
-    Object.assign(cur.now, { choice: i, ok, said: `${c.label.toLowerCase()}${c.roll ? (ok ? ' (and it worked)' : ' (and it did not work)') : ''}: ${res.text}` });
+    Object.assign(cur.now, { choice: i, ok, said: `${c.label.toLowerCase()}${c.roll ? (ok ? ' (and it worked)' : ' (and it did not work)') : ''}: ${toldAs(res.text)}` });
     storyState(g).seen[cur.s.id] = { day: storyState(g).seen[cur.s.id]?.day ?? g.day, choice: i, ok };
     setPrompt(STORY_PROMPT, storyLine(g, w));
+    // what you did took its time; the story stays on until you leave or it's over (its `until` covers it)
+    const mins = Math.max(0, c.minutes ?? CHOICE_MINUTES);
+    if (mins) {
+        cur.now.until = Math.max(cur.now.until, nowAbs(g) + mins + 30);
+        out.push(...advance(g, w, mins));
+    }
     return out;
 }
 /** You walk away from it (it's still seen). */

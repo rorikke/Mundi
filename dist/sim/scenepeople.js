@@ -14,6 +14,7 @@ import { doneToday } from './when.js';
 import { isHome } from './places.js';
 import { jobDef, colleaguesOf } from './work.js';
 import { npcRank } from './longlife.js';
+import { sharedWith, speaks, barrierOn, FLUENT } from './language.js';
 /* ---------- life around you (E1) ---------- */
 // A place with its own `staff`, or any place in a world that says so (`scene.background`), with the living world on.
 // Homes have no background people.
@@ -54,7 +55,8 @@ export function castSheet(w, r) {
     const ex = exampleOf(w, r);
     const look = ex?.look ? clip(ex.look, 70) : '', voice = ex?.voice ? clip(ex.voice, 42) : '';
     const low = (t) => t.charAt(0).toLowerCase() + t.slice(1);
-    return `- ${r.name}: ${[look && low(look), voice ? `voice ${low(voice)}` : ''].filter(Boolean).join('; ')}.`;
+    const line = [look && low(look), voice ? `voice ${low(voice)}` : ''].filter(Boolean).join('; ');
+    return `- ${r.name}: ${line}${line.endsWith('…') ? '' : '.'}`; // a clipped line ends with its "…" alone
 }
 /* ---------- how they address you (E8) ---------- */
 const ROM_ORDER = [['interest', INTEREST], ['crush', CRUSH], ['infatuated', INFATUATED]];
@@ -90,9 +92,13 @@ export function addressOf(g, w, r) {
 export function addressLine(g, w, met) {
     if (!w.address)
         return '';
+    // the address words are the local language's: someone who talks with {{user}} in another language they share (Chloe
+    // and a newcomer, in English) isn't given them
+    const local = w.language?.local;
+    const other = (r) => !!local && !!sharedWith(g, w, r) && (barrierOn(g, w) || speaks(w, r, local) < FLUENT);
     const by = new Map();
     for (const r of met) {
-        const a = addressOf(g, w, r);
+        const a = other(r) ? '' : addressOf(g, w, r);
         if (a)
             by.set(a, [...(by.get(a) ?? []), r.name]);
     }

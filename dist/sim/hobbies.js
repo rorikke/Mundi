@@ -93,5 +93,7 @@ export function hobbyNeed(g, w, o) {
 export function hobbyLine(g, w) {
     const list = skillsOf(w).map(h => [h, levelOf(g, h.id)]).filter(([, l]) => l >= 3);
     const what = w.skills?.length ? 'skills' : 'hobbies';
-    return list.length ? `{{user}}'s ${what}: ${list.map(([h, l]) => `${h.name.toLowerCase()} (${titleOf(l).toLowerCase()}, level ${l} of ${MAX_LEVEL})`).join(', ')}.` : '';
+    const langs = new Set([w.language?.local, ...(w.language?.others ?? [])]); // "English" keeps its capital
+    const named = (h) => (langs.has(h.id) ? h.name : h.name.toLowerCase());
+    return list.length ? `{{user}}'s ${what}: ${list.map(([h, l]) => `${named(h)} (${titleOf(l).toLowerCase()}, level ${l} of ${MAX_LEVEL})`).join(', ')}.` : '';
 }

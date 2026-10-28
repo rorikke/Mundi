@@ -16,7 +16,7 @@ import { settings, saveSettings, state, game, setGame, saveGame, notify, toast, 
 import { loadWorld, getWorld, exampleTag } from '../core/world.js';
 import { setWorldDicts } from '../core/tr.js';
 import { lang } from '../core/i18n.js';
-import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS, } from '../st/bridge.js';
+import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, lorebooks, loadLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS, } from '../st/bridge.js';
 import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
@@ -161,12 +161,29 @@ const adultOnlyCard = (w, avatar) => { const tag = charOf(avatar)?.data?.extensi
 // with adult content on, so the games with it off never share one with them.
 const hasAdultLore = (w) => w.lore.some(l => l.adult) || w.places.some(p => p.adult);
 export const loreBookName = (w, adult) => `Mundi - ${w.name}${adult && hasAdultLore(w) ? ' (adult)' : ''}`;
+// Which world made a book: its Setting entry says so ("Setting · tokyo"); a book from before that is this world's when
+// its setting is this world's. Null: no such book.
+const SETTING = 'Setting';
+async function bookOwner(name, w) {
+    if (!lorebooks().includes(name))
+        return null;
+    const set = Object.values((await loadLore(name))?.entries ?? {}).find((e) => String(e.comment ?? '').startsWith(SETTING));
+    const tag = /^Setting · (.+)$/.exec(String(set?.comment ?? ''))?.[1];
+    return tag ?? (set?.content === w.setting ? w.id : '?');
+}
+/** The name of this world's book: "Mundi - <name>", unless a book of that name belongs to another world (one with the
+ *  same name, or a world since renamed: its saves are still bound to it), then with this world's id too. */
+export async function worldBookName(w, adult) {
+    const base = loreBookName(w, adult), owner = await bookOwner(base, w);
+    return owner === null || owner === w.id ? base : `${base} · ${w.id}`;
+}
 export async function writeWorldLore(w, adult) {
     const ok = (x) => adult || !x.adult;
-    const name = loreBookName(w, adult);
+    const name = await worldBookName(w, adult);
     await writeLorebook(name, [
-        { keys: [w.name], content: w.setting, constant: true, comment: 'Setting' },
-        ...w.lore.filter(ok).map(l => ({ keys: l.keys, content: l.content, constant: !!l.constant })),
+        { keys: [w.name], content: w.setting, constant: true, comment: `${SETTING} · ${w.id}` },
+        // rows with a condition are Mundi's to send (the scene's lore, when they hold); in the book they'd have no keys
+        ...w.lore.filter(l => ok(l) && !l.when).map(l => ({ keys: l.keys, content: l.content, constant: !!l.constant })),
         ...w.places.filter(ok).map(p => ({ keys: [p.name], content: `${p.name}: ${p.desc ?? ''}`, comment: `Place: ${p.name}` })),
     ]);
     return name;
