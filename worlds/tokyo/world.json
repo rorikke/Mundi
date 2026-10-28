@@ -24421,6 +24421,9 @@
      },
      "when": "perf: 75"
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -24690,6 +24693,10 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai",
+    "sb_karaoke"
    ]
   },
   {
@@ -24884,6 +24891,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -25135,6 +25145,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -25284,6 +25297,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -25511,6 +25527,10 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "rp_pub",
+    "sb_centergai"
    ]
   },
   {
@@ -26370,6 +26390,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sj_omoide"
    ]
   },
   {
@@ -26506,6 +26529,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sj_omoide"
    ]
   },
   {
@@ -26691,6 +26717,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_koenji"
    ]
   },
   {
@@ -26919,6 +26948,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27122,6 +27154,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27415,6 +27450,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27570,6 +27608,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_koenji"
    ]
   },
   {
@@ -27737,6 +27778,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27954,6 +27998,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_koenji"
    ]
   },
   {
@@ -28207,7 +28254,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "maid",
@@ -28353,7 +28403,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "idol",
@@ -28594,7 +28647,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "juku",
@@ -28749,7 +28805,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "ramen",
@@ -28946,6 +29005,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29093,6 +29155,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29293,6 +29358,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29503,6 +29571,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29913,6 +29984,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -30150,6 +30224,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -30324,6 +30401,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sj_goldengai"
    ]
   },
   {
@@ -30597,6 +30677,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -30899,6 +30982,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -31089,6 +31175,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -31288,6 +31377,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "bay_mall"
    ]
   },
   {
@@ -31536,6 +31628,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "bay_mall"
    ]
   },
   {
@@ -31762,6 +31857,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "rp_pub"
    ]
   },
   {
@@ -32178,6 +32276,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "rp_crossing"
    ]
   },
   {
@@ -32609,6 +32710,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "yk_noge"
    ]
   },
   {
@@ -32743,6 +32847,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "yk_noge"
    ]
   },
   {
@@ -32953,6 +33060,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "yk_noge"
    ]
   },
   {
@@ -33192,6 +33302,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "hk_yumoto"
    ]
   },
   {
@@ -33811,6 +33924,30 @@
        "Camille"
       ],
       "text": "is dragged to the digital art museum by Camille"
+     },
+     {
+      "place": "ws_shimokita",
+      "days": [
+       "fri"
+      ],
+      "every": 2,
+      "from": 21.5,
+      "to": 24,
+      "with": [
+       "Camille"
+      ],
+      "text": "drinks with the studio after work"
+     },
+     {
+      "place": "ws_shimokita",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 21.5,
+      "to": 24.5,
+      "with": [
+       "Camille"
+      ],
+      "text": "the studio's year-end party"
      }
     ],
     "intimate": {
@@ -34080,6 +34217,31 @@
        "Kyōko"
       ],
       "text": "rings in the New Year with Kyōko at the midnight bell"
+     },
+     {
+      "place": "ot_izakaya",
+      "days": [
+       "sat"
+      ],
+      "every": 2,
+      "from": 21.5,
+      "to": 23.5,
+      "with": [
+       "Ayaka"
+      ],
+      "text": "a beer and yakitori with Ayaka after closing"
+     },
+     {
+      "place": "ot_izakaya",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 21.5,
+      "to": 24,
+      "with": [
+       "Ayaka",
+       "Yui"
+      ],
+      "text": "Kamejirō's year-end party"
      }
     ],
     "threads": [
@@ -34378,6 +34540,18 @@
        "Mei"
       ],
       "text": "drinks with her team after work"
+     },
+     {
+      "place": "mg_izakaya",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 19,
+      "to": 22,
+      "with": [
+       "Daisuke",
+       "Mei"
+      ],
+      "text": "the section's year-end party"
      }
     ],
     "threads": [
@@ -34965,6 +35139,17 @@
        "Haru"
       ],
       "text": "trades sketches over coffee"
+     },
+     {
+      "place": "ot_izakaya",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 20.5,
+      "to": 23,
+      "with": [
+       "Hannah"
+      ],
+      "text": "Mochi Byte's year-end party"
      }
     ],
     "intimate": {
@@ -35925,7 +36110,34 @@
       "nothing with a colleague's partner"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "rituals": [
+     {
+      "place": "sb_centergai",
+      "days": [
+       "fri"
+      ],
+      "every": "month",
+      "week": -1,
+      "from": 20.5,
+      "to": 23,
+      "with": [
+       "Rina"
+      ],
+      "text": "end-of-month drinks with the Hikari Labs team"
+     },
+     {
+      "place": "sb_centergai",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 20.5,
+      "to": 23.5,
+      "with": [
+       "Rina"
+      ],
+      "text": "Hikari Labs' year-end party"
+     }
+    ]
    },
    {
     "name": "Kanon",

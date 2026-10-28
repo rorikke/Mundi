@@ -6,7 +6,7 @@
 import { hobbyFits, hobbyNeed, levelOf, trainSkill, skillName } from './hobbies.js';
 import { addRep } from './standing.js';
 import { lex } from '../core/lexicon.js';
-import { bump, bondOf } from './social.js';
+import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } from './skills.js';
@@ -18,10 +18,14 @@ import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
-import { onHour, onDay } from './hooks.js';
+import { onHour, onDay, onLook } from './hooks.js';
+import { queueMoment } from './moments.js';
+import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
+import { festivalsOn } from './festivals.js';
+import { openAt } from './daynight.js';
 import { whenHolds, personNamed, parseWhen, favorOwed } from './when.js';
 import { callInFavor } from './stories.js';
-import { presentAt } from './people.js';
+import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
@@ -39,6 +43,8 @@ export interface JobState {
     perf?: number; since?: number; shift?: string; worked?: number[]; off?: Record<string, 'vacation' | 'sick'>;
     vac?: number; vacAt?: number; sickAt?: number; checked?: number; warn?: number; told?: number; bonus?: number; extraDay?: number; toldBranch?: number;
     event?: { id: string; day: number };
+    /** (E10) after-work drinks you were asked to (see Drinks) */
+    drinks?: Drinks;
 }
 // The job with what older code (a new game's job, "Play as") may not have set yet.
 function jobOf(g: Save): JobState | null {
@@ -503,6 +509,7 @@ export function workShift(g: Save, w: WorldDef, mode: WorkMode = 'normal', hours
     }
     out.push(...tryPromote(g, w, o));
     if (pendingBranch(g, o) && !j.toldBranch) { j.toldBranch = j.rank; out.push(lex(w, 'choosePath', o.name)); }
+    if (s) out.push(...askForDrinks(g, w, o, s.start, mates));
     return out;
 }
 // A promotion when everything it asks for is there (what's left over of the shifts counts toward the next rank).
@@ -685,16 +692,115 @@ export function workDay(g: Save, w: WorldDef): string[] {
 onHour.push(workHour);
 onDay.push(workDay);
 
+/* ---------- after-work drinks (E10) ---------- */
+
+// After a shift, the colleagues who worked that day may take you along for drinks: to their standing appointment right
+// after work (Reiko's team at the izakaya on Thursdays), or now and then (more on Fridays, nearly always on a year-end
+// party's day there) to one of the places the job's people drink (`drinks`). The most senior colleague you've met asks,
+// with the usual invitation card; once you accept, the others who worked that day come along if they're free. Being
+// there brings you closer to them, and a senior there notices. Jobs and plans systems on; a job without `drinks` and
+// colleagues without a standing appointment after work: nothing (Porto Alto).
+/** After-work drinks you were asked to: the day, where, when, who asked (the most senior colleague you've met) and the
+ *  colleagues who worked that day; `went` once you were there with them, `brought` once they came. */
+export interface Drinks { day: number; place: string; from: number; to: number; host: string; who: string[]; went?: boolean; brought?: boolean }
+export const DRINKS = { chance: 0.25, friday: 0.5, party: 0.9, minutes: 150 };
+const goneAway = (r: Resident) => !!(r as any).gone;
+// The colleagues who worked today: on shift with you, or with a shift today that overlapped yours.
+function workedToday(g: Save, w: WorldDef, o: Occupation, start: number, mates: Resident[]): Resident[] {
+    const out = new Set(mates), now = nowAbs(g);
+    for (const r of colleaguesOf(g, w, o)) for (const d of [g.day - 1, g.day]) { const s = npcShiftOn(g, w, r, d); if (s && s.from < now && s.to > start) out.add(r); }
+    const self = (g as any).swap?.avatar;
+    return [...out].filter(r => !goneAway(r) && r.avatar !== self);
+}
+const halfHour = (t: number) => t + ((30 - (t % 30)) % 30);
+// A hash spread evenly over [0, 1) (FNV-1a of strings that differ in a digit or two clusters).
+const mix = (h: number) => { h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+/** Where and when drinks after this shift would be (null: none today): a standing appointment of colleagues in the
+ *  next three hours away from work (with another of them, or at one of the job's drinking places), else (by the day's
+ *  dice) one of the job's drinking places open then. */
+export function drinksPlan(g: Save, w: WorldDef, o: Occupation, workers: Resident[]): { place: string; from: number; host?: Resident } | null {
+    const now = nowAbs(g), work = jobPlace(g, o);
+    for (let at = halfHour(now); at <= now + 180; at += 30) for (const r of workers) {
+        const s = slotAt(g, w, r, at);
+        const team = s?.kind === 'ritual' && (s.with.some(a => workers.some(x => x.avatar === a)) || !!o.drinks?.includes(s.place));
+        if (s && team && s.place !== work && !s.place.startsWith('home:') && placeOk(g, w, s.place)) return { place: s.place, from: Math.max(at, s.from), host: r };
+    }
+    const places = (o.drinks ?? []).filter(id => id !== work && placeOk(g, w, id));
+    if (!places.length) return null;
+    const from = halfHour(now + 30), wd = wdOf(g.day);
+    const party = festivalsOn(g, w).some(f => f.custom?.kind === 'group' && !!f.place && places.includes(f.place));
+    const chance = party ? DRINKS.party : wd === 4 ? DRINKS.friday : DRINKS.chance;
+    if (mix(H(`${g.world}|${g.day}|drinks|${o.id}`)) >= chance) return null;
+    const open = places.filter(id => openAt(g, w, id, from) && openAt(g, w, id, from + 90));
+    return open.length ? { place: open[H(`${g.world}|${g.day}|drinksat|${o.id}`) % open.length], from } : null;
+}
+// At the end of a shift: an invitation from the most senior colleague you've met who is free then.
+function askForDrinks(g: Save, w: WorldDef, o: Occupation, start: number, mates: Resident[]): string[] {
+    const j = jobOf(g), s = social(g) as any;
+    if (!j || !systemOn(w, 'jobs') || !systemOn(w, 'plans') || isScenario(w) || offScreen(w, o) || s.invite || j.drinks?.day === g.day) return [];
+    const workers = workedToday(g, w, o, start, mates);
+    if (!workers.length) return [];
+    const plan = drinksPlan(g, w, o, workers);
+    if (!plan) return [];
+    const free = workers.filter(r => !workingAt(g, w, r, plan.from));
+    const host = (plan.host?.met && free.includes(plan.host) ? plan.host : null) ?? free.filter(r => r.met).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar))[0];
+    if (!host) return [];
+    j.drinks = { day: g.day, place: plan.place, from: plan.from, to: plan.from + DRINKS.minutes, host: host.avatar, who: free.map(r => r.avatar) };
+    s.invite = { avatar: host.avatar, place: plan.place, from: plan.from, kind: 'hangout' };
+    const where = placeOf(g, w, plan.place)?.name ?? 'a bar nearby', at = hm(plan.from % 1440);
+    const others = free.filter(r => r !== host).map(r => r.name);
+    (s.threads[host.avatar] ??= []).push({ me: false, text: `Drinks after work? ${where}, ${at}.${others.length ? ` ${others.join(', ')} ${others.length > 1 ? 'are' : 'is'} coming.` : ''}`, at: nowAbs(g) });
+    s.unread[host.avatar] = (s.unread[host.avatar] ?? 0) + 1;
+    if (presentAt(g, w, g.player.loc).includes(host)) queueMoment(g, { who: host.avatar, kind: 'custom', tier: `drinks:${g.day}`, text: `As the shift ends, ${host.name} asks {{user}} to come along for drinks after work at ${where} (${at})${others.length ? `, with ${names(others)}` : ''}, in this scene.`, until: g.day });
+    return [`${host.name} asks if you'd like to come for drinks after work: ${where}, ${at}.`];
+}
+const names = (list: string[]) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
+/** Drinks you said yes to: the colleagues come along when it starts, and once you're there with them it counts (closer
+ *  to each, a senior notices, a fact, and a moment for the scene with who is senior to whom). After every change and
+ *  every hour. */
+export function drinksTick(g: Save, w: WorldDef): string[] {
+    const j = jobOf(g), d = j?.drinks, o = jobDef(w, j?.id);
+    if (!j || !d || !o || !systemOn(w, 'jobs')) return [];
+    const now = nowAbs(g);
+    if (now >= d.to || now < d.from) return [];
+    const plan = social(g).appts.find(a => a.avatar === d.host && a.place === d.place && a.from === d.from && (a.state === 'set' || a.state === 'met'));
+    if (!plan) return [];
+    if (!d.brought) {
+        d.brought = true;
+        for (const a of d.who) { const r = g.cast[a]; if (a !== d.host && r && !goneAway(r) && !workingAt(g, w, r, now)) bringTo(g, a, d.place, d.to, 'is out for drinks after work with their colleagues'); }
+    }
+    if (d.went || g.player.loc !== d.place) return [];
+    const here = presentAt(g, w, d.place).filter(r => d.who.includes(r.avatar) || r.avatar === d.host);
+    if (!here.length) return [];
+    d.went = true;
+    for (const r of here) if (r.avatar !== d.host) bump(g, r.avatar, 2);   // (the one who asked: the plan kept)
+    const seniors = seniorsOf(g, w, o, here), juniors = juniorsOf(g, w, o, here);
+    const out: string[] = [];
+    if (seniors.length) out.push(...addPerf(g, w, 2));
+    const where = placeOf(g, w, d.place)?.name ?? d.place;
+    note(g, '{u} went for drinks after work with {0} at {1}.', [names(here.map(r => r.name)), where], here.map(r => r.avatar), d.place, 'work');
+    const host = g.cast[d.host];
+    if (host) queueMoment(g, { who: d.host, kind: 'custom', tier: `drinks:at:${g.day}`, until: g.day,
+        text: `Drinks after work with colleagues: a first round together and a toast; the juniors pour for the seniors and keep the glasses full.${seniors.length ? ` ${names(seniors.map(r => r.name))} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} at work.` : ''}${juniors.length ? ` {{user}} is senior to ${names(juniors.map(r => r.name))}.` : ''} The talk drifts from work to life.` });
+    return out;
+}
+/** Juniors (kōhai): colleagues with your job a rank or more below you, among these people. */
+export const juniorsOf = (g: Save, w: WorldDef, o: Occupation, among: Resident[]) => among.filter(r => r.occupation === o.id && npcRank(g, r.avatar) < (jobOf(g)?.rank ?? 0));
+onHour.push(drinksTick);
+onLook.push((g, w) => { drinksTick(g, w); });
+
 /* ---------- for the AI ---------- */
 
-/** Your job, rank and shift, and which colleagues here are your seniors (J7). */
+/** Your job, rank and shift, which colleagues here are your seniors (J7), and, in a world whose people address juniors
+ *  at work in a way of their own (`address.junior`), your juniors (E10). */
 export function workLine(g: Save, w: WorldDef, present: Resident[]): string {
     const j = jobOf(g); const o = jobDef(w, j?.id);
     if (!j || !o || !systemOn(w, 'jobs') || isScenario(w)) return '';
     const c = careerOf(g, o);
     const seniors = seniorsOf(g, w, o, present);
+    const juniors = w.address?.junior ? juniorsOf(g, w, o, present) : [];
     const boss = bossOf(g, w, o);
-    return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}`;
+    return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}${juniors.length ? ` ${juniors.map(r => r.name).join(' and ')} ${juniors.length > 1 ? 'are' : 'is'} junior to {{user}} (kōhai).` : ''}`;
 }
 
 /* ---------- moving ---------- */

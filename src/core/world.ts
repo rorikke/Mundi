@@ -254,6 +254,9 @@ export interface Occupation {
     trains?: string[]; overtime?: boolean;
     /** (E15) Only with adult content on. */
     adult?: boolean;
+    /** (E10) Where colleagues go for drinks after work (place ids); missing: only to a team's standing appointment
+     *  right after work (sim/work.ts). */
+    drinks?: string[];
 }
 /** (J1) A weekly schedule: how many days a week (the engine picks which) or which weekdays, and a shift's hours
  *  [from, to) (`to` below `from` goes past midnight: 20–6). A job worked round the clock lists its `shifts` instead
