@@ -13595,6 +13595,26 @@
   "family": false
  },
  "workPreset": "reduced",
+ "address": {
+  "friend": {
+   "hates": "curtly by family name with no honorific, or not at all",
+   "dislikes": "stiffly by family name + -san, keeping their distance",
+   "wary": "family name + -san, guarded and polite",
+   "stranger": "family name + -san, in polite speech",
+   "acquaintance": "family name + -san, in polite speech",
+   "friend": "first name + -san (-kun or -chan if {{user}} is younger), casual speech",
+   "good": "first name + -kun or -chan, or a nickname, casual speech",
+   "best": "a nickname or the bare first name, completely casual"
+  },
+  "romance": {
+   "casual": "the bare first name, casually",
+   "dating": "the bare first name or a pet name, completely casual",
+   "engaged": "the bare first name or a pet name, completely casual",
+   "married": "the bare first name or a pet name"
+  },
+  "senior": "family name + -kun or -san, as a senpai speaks to a kōhai (and is called -senpai back)",
+  "junior": "family name + -senpai, in polite speech"
+ },
  "scene": {
   "lore": 4
  },

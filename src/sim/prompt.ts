@@ -3,7 +3,7 @@
 import { homeJobsLine } from './hometime.js';
 import { dressLine } from './dress.js';
 import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living.js';
-import { backgroundOn, backgroundLine, sheetPeople, castSheet, SHEETS_MAX } from './scenepeople.js';
+import { backgroundOn, backgroundLine, sheetPeople, castSheet, addressLine, SHEETS_MAX } from './scenepeople.js';
 import './longlife.js';
 import './fading.js';   // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
@@ -164,7 +164,7 @@ export function sceneBlocks(): Built[] {
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],
         ties: [...factionLines(g, w, present), tiesLine(g, present), householdLine(g, w, present), colleaguesLine(g, w, present), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
-        romance: [romanceLine(g, met)],
+        romance: [romanceLine(g, met), addressLine(g, w, met)],
         gender: [genderLine(g, w, present)],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
         family: [familyLine(g, present)],
