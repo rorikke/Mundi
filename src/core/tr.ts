@@ -56,6 +56,8 @@ export function tr(text: string): string {
     if (m && (m[1] || m[3]) && m[2]) { const core = look(m[2]); if (core !== null) return m[1] + core + m[3]; }
     // parts joined by " · " ("Cooking · 3 days · $120"): each part on its own, the ones it knows
     for (const sep of [' · ', ' / ']) if (t.includes(sep)) { const parts = t.split(sep); const outs = parts.map(p => tr(p)); if (outs.some((o, i) => o !== parts[i])) return outs.join(sep); }
+    // "Mon, Tue, Wed": a list in which every item is known
+    if (t.includes(', ')) { const parts = t.split(', '); const outs = parts.map(p => look(p)); if (outs.every(o => o !== null)) return outs.join(', '); }
     // "Hygiene: Fresh": both sides known
     { const i = t.indexOf(': '); if (i > 0) { const a = t.slice(0, i), b = t.slice(i + 2); const ta = look(a), tb = b && /[A-Za-z]/.test(b) ? look(b) : b; if (ta !== null && tb !== null) return `${ta}: ${tb}`; } }
     return text;
