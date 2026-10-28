@@ -4317,6 +4317,7 @@ const DICT: Record<string, string> = {
  "{u} asked {0} for a good word at {1}; {0} could not promise anything.": "{u} pediu a {0} uma boa palavra em {1}; {0} não pôde prometer nada.",
  "{u} called in the favor {0} owed them.": "{u} cobrou o favor que {0} devia.",
  "{u} was kept overnight at {0} after collapsing.": "{u} passou a noite em {0} depois de desmaiar.",
- "{u} went for drinks after work with {0} at {1}.": "{u} saiu para beber depois do trabalho com {0} em {1}."
+ "{u} went for drinks after work with {0} at {1}.": "{u} saiu para beber depois do trabalho com {0} em {1}.",
+ "friendship with {0} ({1})": "amizade com {0} ({1})"
 };
 export default DICT;

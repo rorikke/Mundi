@@ -345,8 +345,23 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     if (next.course && courseOf(w, next.course) && !hasCourse(g, next.course)) missing.push(courseOf(w, next.course)!.name);
     const rest = whenBesidesPerf(next.when);
     const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
-    if (when === false) missing.push('something more');
+    if (when === false) missing.push(...whenMissing(g, w, rest!, rankPlace(o, next)));
     return { rank: next, shifts, have: j.shifts, days, inRank, perf: want, skills, traits, course: next.course, when, ready: !missing.length, missing };
+}
+// What a rank's condition still asks, in words for the work screen: skills ("Logic 2 or Drawing 2") and friendships
+// ("friendship with Kyōko (Good friend)"); anything else is "something more".
+const FRIEND_WORDS: Record<string, string> = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
+function whenMissing(g: Save, w: WorldDef, when: When, place: string): string[] {
+    const out: string[] = [];
+    let other = false;
+    for (const c of parseWhen(when).conds) {
+        const text = `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
+        if (whenHolds(g, w, text, { place })) continue;
+        if (c.key === 'skill' && !c.not) out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
+        else if (c.key === 'feels' && !c.not && c.values.length === 1) { const [who, lvl] = c.values[0].split(/\s+/); out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`); }
+        else other = true;
+    }
+    return other || !out.length ? [...out, 'something more'] : out;
 }
 // Shifts still needed for the next rank. null: no next rank (or a path to choose).
 export function shiftsToPromote(g: Save, o: Occupation, _rank?: number): number | null {
