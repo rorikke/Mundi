@@ -92,7 +92,6 @@ export function withYou(g: Save, w: WorldDef): string[] {
 export const TOGETHER_GAIN = { per30: 1, min: 1, max: 5, date: 1.5 };
 export interface TogetherGain { avatar: string; f: number; r: number }
 export function doneTogether(g: Save, w: WorldDef, avatars: string[], minutes: number): TogetherGain[] {
-    if (!systemOn(w, 'social')) return [];
     const base = Math.max(TOGETHER_GAIN.min, Math.min(TOGETHER_GAIN.max, (minutes / 30) * TOGETHER_GAIN.per30));
     return avatars.filter(a => g.cast[a]).map(a => {
         const close = !!statusOf(g, a, YOU) || appointmentNow(g, a)?.kind === 'date';
@@ -107,7 +106,7 @@ export function doneTogether(g: Save, w: WorldDef, avatars: string[], minutes: n
 // A small change in how some of the world's people (by name) feel about you, from an outcome or a story: up paced,
 // down in full.
 export function feelsFrom(g: Save, w: WorldDef, feels: Record<string, number> | undefined) {
-    if (!feels || !systemOn(w, 'social')) return;
+    if (!feels) return;
     for (const [name, n] of Object.entries(feels)) {
         const r = personNamed(g, name); if (!r || !n) continue;
         if (n > 0) gain(g, 'f', r.avatar, YOU, n); else lose(g, 'f', r.avatar, YOU, n);
@@ -139,7 +138,7 @@ export const giftable = (g: Save, w: WorldDef) => Object.entries(keepsakesOf(g))
 export interface GiftResult { ok: boolean; text: string; fit?: GiftFit; first?: boolean; d?: number; ai?: string }
 export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): GiftResult {
     const r = g.cast[avatar], k = keepsakeDef(w, id);
-    if (!systemOn(w, 'social') || !r?.met) return { ok: false, text: '' };
+    if (!r?.met) return { ok: false, text: '' };
     if (!(keepsakesOf(g)[id] > 0) || k.gift === false) return { ok: false, text: 'You don\'t have that to give.' };
     if (!presentAt(g, w, g.player.loc).includes(r)) return { ok: false, text: `${r.name} isn't here.` };
     addKeepsake(g, id, -1);

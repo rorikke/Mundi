@@ -226,7 +226,6 @@ function innRows(g: Save, w: WorldDef, atHome: boolean): string[] {
 // (E35) Keepsakes you can give to someone you know who is here (one row; open it to pick what and to whom).
 let giveOpen = false;
 function giftRows(g: Save, w: WorldDef): string[] {
-    if (!systemOn(w, 'social')) return [];
     const have = giftable(g, w), people = presentAt(g, w, g.player.loc).filter(r => r.met);
     if (!have.length || !people.length) return [];
     return [`<button class="mh-act mh-glass" data-act="give-open"><i>🎁</i><b>Give a keepsake</b><small>${have.length} to give</small></button>`,
