@@ -10,7 +10,7 @@
 // kept until anything it reads changes (who works where, a click, the rules). A job without a schedule, a world
 // without rituals, roles or audiences: nothing here changes, the routine templates play as before.
 import { nowAbs, changes, type Save, type Resident, adultOn } from '../core/store.js';
-import { systemOn, isScenario, exampleTag, WEEKDAY_IDS, type WorldDef, type Occupation, type ExampleCharacter, type Ritual, type FestivalDef, type When } from '../core/world.js';
+import { systemOn, isScenario, offScreenWork, exampleTag, WEEKDAY_IDS, type WorldDef, type Occupation, type ExampleCharacter, type Ritual, type FestivalDef, type When } from '../core/world.js';
 import { charOf } from '../st/bridge.js';
 import { onDay } from './hooks.js';
 import { isWeekend, seasonDays } from './time.js';
@@ -18,7 +18,7 @@ import { isOpen } from './daynight.js';
 import { placeOn } from './places.js';
 import { festivalsOn, inTown } from './festivals.js';
 import { eventsOn } from './cityevents.js';
-import { routineStep, homeMapOf } from './people.js';
+import { routineStep, homeMapOf, OUT } from './people.js';
 import { whenHolds, personNamed } from './when.js';
 import { couplePairs, casualPairs, statusOf, idOf, YOU } from './rel.js';
 import { saveSeed } from './relations.js';
@@ -188,7 +188,7 @@ function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Se
         must.set(r.avatar, m); offs.set(r.avatar, off);
     });
     // fixed days first, for everyone, then the rest
-    const usual = usualWeek(s), daily = opensDaily(w, o.place);
+    const usual = usualWeek(s), daily = !offScreen(w, o) && opensDaily(w, o.place);
     const needed = (k: number) => daily ? !closed?.includes(WEEKDAY_IDS[k]) : usual.includes(k);
     for (const r of team) { const days = Array(7).fill(true); for (const k of offs.get(r.avatar)!) if (!must.get(r.avatar)!.has(k)) days[k] = false; work.set(r.avatar, days); days.forEach((on, k) => { if (on) cover[k]++; }); }
     const turns = [...team].sort((a, b) => H(`${a.avatar}|${o.id}|turn|${week}`) - H(`${b.avatar}|${o.id}|turn|${week}`));
@@ -268,7 +268,18 @@ export function shiftOn(g: Save, w: WorldDef, r: Resident, day: number, st = sta
         const cover = [...plans].find(([a, q]) => !away(a) && !q.fixed.has(wd)) ?? [...plans].find(([a]) => !away(a));
         if (cover?.[0] !== r.avatar) return null;
     }
-    return { from: day * 1440 + Math.round(p.from * 60), to: day * 1440 + Math.round(p.to * 60), place: o.place };
+    return { from: day * 1440 + Math.round(p.from * 60), to: day * 1440 + Math.round(p.to * 60), place: workPlace(g, w, r, o) };
+}
+// (E20) Worked off-screen (an AV actress's shoots, Home mode's jobs): away during a shift, on no map.
+const offScreen = (w: WorldDef, o: Occupation) => !!o.offScreen || offScreenWork(w);
+const careers = new WeakMap<Occupation, Map<string, ReturnType<typeof npcCareer>>>();
+/** Where someone works their job: away (`OUT`) for an off-screen job, else their rank's own place (an idol's top ranks
+ *  at the TV studio), else the job's. */
+export function workPlace(g: Save, w: WorldDef, r: Resident, o: Occupation): string {
+    if (offScreen(w, o)) return OUT;
+    let m = careers.get(o); if (!m) careers.set(o, m = new Map());
+    let c = m.get(r.avatar); if (!c) m.set(r.avatar, c = npcCareer(o, r.avatar));
+    return c.ranks[Math.min(npcRank(g, r.avatar), c.ranks.length - 1)]?.place || o.place || OUT;
 }
 /** The shift going on at that moment (one that started the day before may still be on), if any. */
 export function shiftAt(g: Save, w: WorldDef, r: Resident, at: number, st = stampOf(g, w)): Shift | null {

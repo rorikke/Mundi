@@ -9,9 +9,9 @@
 // chemistry (a seed in the save); the world's hints and starting feelings keep its own pairs' pull, and a large age gap
 // keeps pairs it didn't write from drifting together (E25).
 import type { Save, Resident } from '../core/store.js';
-import { systemOn, getWorld, type WorldDef } from '../core/world.js';
+import { systemOn, getWorld, isScenario, type WorldDef } from '../core/world.js';
 import { onHour, onDay } from './hooks.js';
-import { residents, whereNow } from './people.js';
+import { residents, whereNow, OUT } from './people.js';
 import { fr, ro, gain, lose, idOf, touch, statusOf, setStatus, partnersOf, casualsOf, couplePairs, casualPairs, directedAbove, attracted, PARTNER, YOU, type Status } from './rel.js';
 import { cfg } from '../core/store.js';
 import { styleOf, needsMetToward } from './intimacy.js';
@@ -130,6 +130,7 @@ export function timeTogether(g: Save, w: WorldDef) {
     for (const r of residents(g)) {
         if (idOf(g, r.avatar) === YOU) continue;   // the person you play: their feelings wait for you to leave
         const loc = whereNow(g, w, r);
+        if (loc === OUT && !isScenario(w)) continue;   // away at an off-screen job: on no map, with nobody
         const list = at.get(loc); if (list) list.push(r.avatar); else at.set(loc, [r.avatar]);
     }
     for (const list of at.values()) {

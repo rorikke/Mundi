@@ -16,7 +16,7 @@ import { openAt } from './daynight.js';
 import { festivalsOn } from './festivals.js';
 import { placeOn, extraRooms } from './places.js';
 import { partySpot } from './houseparty.js';
-import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, type Stamp } from './dayplan.js';
+import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace, type Stamp } from './dayplan.js';
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 
@@ -131,7 +131,7 @@ function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp):
     if (target === 'home') return homeId;
     if (target === 'work') {
         const job = jobOf(g, w, r);
-        return job ? job.place : leisureSpot(g, w, r, day, start, st);
+        return job ? workPlace(g, w, r, job) : leisureSpot(g, w, r, day, start, st);
     }
     if (target === 'leisure') return eventSpot(g, w, r.avatar, at) ?? festivalSpot(g, w, at, { map: homeMapOf(g, w, r) }) ?? leisureSpot(g, w, r, day, start, st);   // on a festival day, free time is spent there
     return w.places.some(p => p.id === target) && placeOn(g, w, target) && (adultOn(g) || !w.places.find(p => p.id === target)?.adult) ? target : homeId;
@@ -141,9 +141,10 @@ function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp):
 export function workingAt(g: Save, w: WorldDef, r: Resident, at: number): string | null {
     const job = isScenario(w) ? (systemOn(w, 'jobs') ? w.occupations.find(o => o.id === r.occupation) : null) : jobOf(g, w, r);
     if (!job) return null;
+    const place = isScenario(w) ? job.place : workPlace(g, w, r, job);
     if (scheduled(g, w, r)) { const s = shiftAt(g, w, r, at); if (s) return s.place; }
-    else if (routineStep(r, at)[1] === 'work') return job.place;
-    return breakNow(g, w, r, at)?.kind === 'late' ? job.place : null;
+    else if (routineStep(r, at)[1] === 'work') return place;
+    return breakNow(g, w, r, at)?.kind === 'late' ? place : null;
 }
 
 export function whereNow(g: Save, w: WorldDef, r: Resident): string {
