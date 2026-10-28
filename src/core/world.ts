@@ -71,13 +71,15 @@ export interface Place {
     /** (E6) You can sleep here (a capsule, a ryokan): see PlaceSleep. */
     sleep?: PlaceSleep;
     /** (E19) Opening hours by the clock, [from, to) in hours (17.5 = 17:30; `to` below `from` goes past midnight:
-     *  `[18, 5]`), on top of `closed`; `openBySeason` for hours that change through the year (`winter: [10, 18]`). */
+     *  `[18, 5]`, and the hours after midnight belong to the day before), on top of `closed` (without `closed`, they
+     *  replace the guess from its tags); `openBySeason` for hours that change through the year (`winter: [10, 18]`). */
     open?: [number, number]; openBySeason?: Partial<Record<SeasonId, [number, number]>>;
     /** (E19) Weekdays it's closed all day (`mon` … `sun`). */
     closedDays?: WeekdayId[];
-    /** (E19) Festival ids on whose days it never closes (a temple open all night on New Year's Eve). */
+    /** (E19) Festival ids on whose days it never closes, through the night after until the first trains (a temple
+     *  open all night on New Year's Eve). */
     festivalOpen?: string[];
-    /** (E19) What it costs to get in (a garden's gate), paid once a day. */
+    /** (E19) What it costs to get in (a garden's gate), paid once a day on the way in (not by guests staying the night). */
     entry?: number;
     /** (E33) A private place (a karaoke room, a love-hotel room): a private scene for the intimate profiles (E15). */
     private?: boolean;
@@ -85,9 +87,10 @@ export interface Place {
     adult?: boolean;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
- *  must leave (an hour, default the world's `sleep.until`), and actions included with the night (the ryokan's bath,
- *  dinner and breakfast, by action id). */
-export interface PlaceSleep { price: number; rest: 'poor' | 'fair' | 'good' | 'great'; until?: number; includes?: string[] }
+ *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
+ *  dinner and breakfast, by action id: free from booking the room until you leave the morning after), and who may
+ *  stay (`when`, see When: `feels: Haru friend or job: animator`). */
+export interface PlaceSleep { price: number; rest: 'poor' | 'fair' | 'good' | 'great'; until?: number; includes?: string[]; when?: When }
 // Roles a place can have. A place with its own list uses only that list; one without is guessed from its name, so
 // older worlds keep working and any world can set them in the map editor.
 export const PLACE_ROLES: { id: string; name: string; re: RegExp }[] = [
@@ -143,11 +146,13 @@ export interface ActionDef {
     /** (E14) When it's offered (see When): `period: afternoon; daily: yes; feels: Ayaka friend`. */
     when?: When;
     /** (E14) Done with the people with you (it counts as time together): `needed` when it can't be done alone;
-     *  `text`: what it means for you two, for the AI ("eating side by side at the counter"). */
+     *  `text`: what it means for you two, for the AI ("eating side by side at the counter"). With you: the people who
+     *  came with you and are here, and the one you talk to alone. */
     together?: { needed?: boolean; text?: string };
     /** (E14) Weighted outcomes (an omikuji's four results), one drawn after the roll if there is one. */
     outcomes?: ActionOutcome[];
-    /** (E14) A keepsake it leaves (an id from the world's `keepsakes`). */
+    /** (E14) A keepsake it always leaves (an id from the world's `keepsakes`); an outcome's or a roll result's own
+     *  keepsake only when that one comes out. */
     keepsake?: string;
     /** (E14) What's remembered and told to the AI ({u} the player, {0} the place): "{u} ate ramen at {0}". */
     fact?: string;
@@ -158,8 +163,9 @@ export interface ActionDef {
     /** (E15) Only with adult content on. */
     adult?: boolean;
 }
-/** A roll's result. `keepsake` and `fact` as on the action (E14). */
-export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string }
+/** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
+ *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little"). */
+export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number> }
 /** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`). */
 export interface ActionOutcome extends RollOutcome { weight: number; when?: When }
 export interface Attribute { id: string; name: string; desc?: string }
@@ -450,8 +456,9 @@ export interface StartDef { id: string; name: string; desc?: string; premise: st
 export interface StartKnown extends FeelParts { name: string; family?: FamilyType }
 /** (J3) A skill. */
 export interface SkillDef { id: string; name: string; icon?: string; desc?: string }
-/** (E14, E35) A keepsake: its kind (charm, photo, print…), whether it can be given, and who would love it (names of
- *  the world's people, or leisure and hobby tags). */
+/** (E14, E35) A keepsake: its kind (charm, photo, print…: a gift of each kind counts once per person), whether it can
+ *  be given (`gift: false`: it can't; missing: it can), and who would love it (names of the world's people, or words
+ *  matched against a person's job and the places, and kinds of place, where they spend their free time). */
 export interface KeepsakeDef { id: string; name: string; icon: string; kind?: string; desc?: string; gift?: boolean; loves?: string[]; adult?: boolean }
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
  *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
