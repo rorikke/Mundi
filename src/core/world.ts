@@ -169,6 +169,16 @@ export interface ActionDef {
     together?: { needed?: boolean; text?: string };
     /** (E14) Weighted outcomes (an omikuji's four results), one drawn after the roll if there is one. */
     outcomes?: ActionOutcome[];
+    /** (E14) Draws its outcome from one of the world's shared `tables` instead (an omikuji: one table for every shrine),
+     *  told in this action's own `words`: a result's id → its text here, or what it changes here (`{ text, effects: {},
+     *  fact }`: Meiji Jingū's poems carry no luck). A result without words keeps the table's. */
+    table?: string;
+    words?: Record<string, string | Partial<RollOutcome>>;
+    /** (E14.6) Played out in the scene instead of off-screen: it becomes the scene's focus while the clock runs (a
+     *  step with each of your lines, or the live clock), and ends with its results once its time is up. `false`:
+     *  never. Without it, a world with `scene.actions` plays out an action of 20 minutes or more when someone you've
+     *  met is here. */
+    scene?: boolean;
     /** (E14) A keepsake it always leaves (an id from the world's `keepsakes`); an outcome's or a roll result's own
      *  keepsake only when that one comes out. */
     keepsake?: string;
@@ -182,11 +192,14 @@ export interface ActionDef {
     adult?: boolean;
 }
 /** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
- *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little").
- *  (E31) `rumor`: a rumor it starts among the people here. */
-export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number>; rumor?: string }
+ *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little");
+ *  `feelsDaily`: those gains count once a game day per person and action (Kaito's "this one's due"), and the text is
+ *  still told after that. (E31) `rumor`: a rumor it starts among the people here. */
+export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number>; feelsDaily?: boolean; rumor?: string }
 /** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`). */
 export interface ActionOutcome extends RollOutcome { weight: number; when?: When }
+/** (E14) A row of a world's shared outcome table: an outcome with an id the actions' `words` name. */
+export interface TableRow extends ActionOutcome { id: string }
 export interface Attribute { id: string; name: string; desc?: string }
 export interface TraitGroup { id: string; label: string; max: number; options: string[] }
 export interface Origin {
@@ -463,6 +476,9 @@ export interface WorldDef {
     keepsakes?: KeepsakeDef[];
     /** (E17, E28) Street stories: short one-off stories that happen at a place (see StoryDef). */
     stories?: StoryDef[];
+    /** (E14) Outcome tables shared by several actions (Tokyo's `omikuji`: one table for every shrine and temple, each
+     *  action with its own `words`). */
+    tables?: Record<string, TableRow[]>;
     /** (E2) Weather by climate and season (a map's `climate` picks one; see ClimateDef). Missing: one table all year,
      *  as before. */
     climates?: Record<string, ClimateDef>;
@@ -538,8 +554,9 @@ export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; rom
 export interface LanguageDef { local: string; others?: string[]; level?: number }
 /** (E1, E32) Scene settings. `background`: the AI may describe unnamed background people (staff, regulars,
  *  passers-by) at every place, not only at places with `staff`; `lore`: at most this many conditional lore rows in a
- *  scene (missing or 0: no limit). */
-export interface SceneDef { background?: boolean; lore?: number }
+ *  scene (missing or 0: no limit). (E14.6) `actions`: things to do play out in the scene when someone you've met is
+ *  here (see ActionDef.scene). */
+export interface SceneDef { background?: boolean; lore?: number; actions?: boolean }
 /** (E4) Trains: the hour the last ones leave (0.5 = 0:30) and the first ones (5), the fare of a taxi (a base and per
  *  minute of the trip), and the walk to the station (minutes) added to trips between districts. Between the last and
  *  the first train, a trip between two maps is a taxi or a wait; the world's people out past the last train stay out
