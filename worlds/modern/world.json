@@ -2307,7 +2307,10 @@
      "Good cook"
     ],
     "icon": "🍳",
-    "desc": "Knife skills, sauces and timing. Your meals come out better."
+    "desc": "Knife skills, sauces and timing. Your meals come out better.",
+    "skills": {
+     "cooking": 2
+    }
    },
    {
     "id": "fitness",
@@ -2319,7 +2322,10 @@
      "Athletic"
     ],
     "icon": "🏋️",
-    "desc": "Training plans and nutrition. Workouts go better."
+    "desc": "Training plans and nutrition. Workouts go better.",
+    "skills": {
+     "fitness": 2
+    }
    },
    {
     "id": "firstaid",
@@ -2343,7 +2349,10 @@
      "Tech-savvy"
     ],
     "icon": "💻",
-    "desc": "Code, apps and the web. Needed for software jobs."
+    "desc": "Code, apps and the web. Needed for software jobs.",
+    "skills": {
+     "logic": 2
+    }
    },
    {
     "id": "finance",
@@ -2355,7 +2364,10 @@
      "Good with numbers"
     ],
     "icon": "📊",
-    "desc": "Budgets, markets and spreadsheets. Needed for finance jobs."
+    "desc": "Budgets, markets and spreadsheets. Needed for finance jobs.",
+    "skills": {
+     "logic": 2
+    }
    },
    {
     "id": "engineering",
@@ -2368,7 +2380,10 @@
      "Smart"
     ],
     "icon": "⚙️",
-    "desc": "Machines and structures. Needed to work as an engineer."
+    "desc": "Machines and structures. Needed to work as an engineer.",
+    "skills": {
+     "logic": 3
+    }
    },
    {
     "id": "medicine",
@@ -2380,7 +2395,10 @@
      "Smart"
     ],
     "icon": "🩺",
-    "desc": "Long and hard. Needed to work as a doctor."
+    "desc": "Long and hard. Needed to work as a doctor.",
+    "skills": {
+     "logic": 4
+    }
    },
    {
     "id": "nursing",
@@ -2392,7 +2410,11 @@
      "Kind"
     ],
     "icon": "💉",
-    "desc": "Patient care. Needed to work as a nurse."
+    "desc": "Patient care. Needed to work as a nurse.",
+    "skills": {
+     "logic": 2,
+     "charisma": 1
+    }
    },
    {
     "id": "education",
@@ -2404,7 +2426,10 @@
      "Kind"
     ],
     "icon": "🍎",
-    "desc": "How to teach. Needed to work as a teacher."
+    "desc": "How to teach. Needed to work as a teacher.",
+    "skills": {
+     "charisma": 2
+    }
    },
    {
     "id": "science",
@@ -2416,7 +2441,10 @@
      "Curious"
     ],
     "icon": "🔬",
-    "desc": "Experiments and papers. Needed to work as a researcher."
+    "desc": "Experiments and papers. Needed to work as a researcher.",
+    "skills": {
+     "logic": 3
+    }
    },
    {
     "id": "mechanics",
@@ -2428,7 +2456,10 @@
      "Handy"
     ],
     "icon": "🔧",
-    "desc": "Engines and repairs. Needed to work as a mechanic."
+    "desc": "Engines and repairs. Needed to work as a mechanic.",
+    "skills": {
+     "logic": 2
+    }
    },
    {
     "id": "publicadmin",
@@ -2440,7 +2471,11 @@
      "Serious"
     ],
     "icon": "🏛️",
-    "desc": "How the city works. Needed to work at City Hall."
+    "desc": "How the city works. Needed to work at City Hall.",
+    "skills": {
+     "logic": 2,
+     "charisma": 1
+    }
    },
    {
     "id": "hospitality",
@@ -2452,7 +2487,10 @@
      "Charming"
     ],
     "icon": "🛎️",
-    "desc": "Guests, customers and smiles. Helps in hotels, bars and shops."
+    "desc": "Guests, customers and smiles. Helps in hotels, bars and shops.",
+    "skills": {
+     "charisma": 1
+    }
    },
    {
     "id": "music",
@@ -2464,7 +2502,10 @@
      "Musical"
     ],
     "icon": "🎸",
-    "desc": "An instrument and some theory. Busking goes better."
+    "desc": "An instrument and some theory. Busking goes better.",
+    "skills": {
+     "music": 2
+    }
    },
    {
     "id": "art",
@@ -2476,7 +2517,10 @@
      "Creative"
     ],
     "icon": "🎨",
-    "desc": "Drawing, color and design. Paintings sell better."
+    "desc": "Drawing, color and design. Paintings sell better.",
+    "skills": {
+     "painting": 2
+    }
    },
    {
     "id": "speaking",
@@ -2488,7 +2532,10 @@
      "Outgoing"
     ],
     "icon": "🎤",
-    "desc": "Confidence in front of people. Helps in interviews."
+    "desc": "Confidence in front of people. Helps in interviews.",
+    "skills": {
+     "charisma": 2
+    }
    }
   ],
   "shop": [
@@ -2565,11 +2612,24 @@
     },
     {
      "name": "Barista",
-     "pay": 20
+     "pay": 20,
+     "needs": {
+      "cooking": 1
+     }
     },
     {
      "name": "Manager",
-     "pay": 25
+     "pay": 25,
+     "needs": {
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Area manager",
+     "pay": 30,
+     "needs": {
+      "charisma": 3
+     }
     }
    ],
    "shift": 6,
@@ -2591,7 +2651,78 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 19
+   },
+   "length": 0.5,
+   "trains": [
+    "cooking",
+    "charisma"
+   ],
+   "events": [
+    {
+     "id": "rush",
+     "setup": "The morning rush: a line out the door and the milk steamer hissing.",
+     "choices": [
+      {
+       "label": "Keep calm and pull shots",
+       "roll": {
+        "skill": "cooking",
+        "dc": 10
+       },
+       "perf": 2,
+       "text": "Every cup out on time.",
+       "fail": {
+        "perf": -1,
+        "text": "Two orders mixed up; a regular sighs."
+       }
+      },
+      {
+       "label": "Chat with each customer",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 1,
+       "effects": {
+        "mood": 4
+       },
+       "text": "Slow, but everyone leaves smiling.",
+       "fail": {
+        "perf": -1,
+        "text": "The line grows; the manager frowns."
+       }
+      },
+      {
+       "label": "Ask for a break",
+       "perf": -1,
+       "effects": {
+        "energy": 10
+       }
+      }
+     ]
+    },
+    {
+     "id": "spill",
+     "setup": "A customer knocks a full latte over their laptop.",
+     "choices": [
+      {
+       "label": "Help dry it and offer a free drink",
+       "perf": 1,
+       "money": -5,
+       "fact": "{u} helped a customer whose laptop got soaked at {0}."
+      },
+      {
+       "label": "Hand over napkins",
+       "perf": 0
+      }
+     ]
+    }
    ]
   },
   {
@@ -2605,7 +2736,24 @@
     },
     {
      "name": "Route lead",
-     "pay": 20
+     "pay": 20,
+     "needs": {
+      "fitness": 2
+     }
+    },
+    {
+     "name": "Dispatcher",
+     "pay": 24,
+     "needs": {
+      "logic": 2
+     }
+    },
+    {
+     "name": "Logistics manager",
+     "pay": 30,
+     "needs": {
+      "logic": 3
+     }
     }
    ],
    "shift": 5,
@@ -2625,7 +2773,18 @@
     20
    ],
    "promote": [
-    4
+    4,
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 8,
+    "to": 20
+   },
+   "length": 0.4,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -2639,15 +2798,41 @@
     },
     {
      "name": "Junior",
-     "pay": 35
+     "pay": 35,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Mid-level",
-     "pay": 55
+     "pay": 55,
+     "needs": {
+      "logic": 4
+     }
     },
     {
      "name": "Senior",
-     "pay": 80
+     "pay": 80,
+     "needs": {
+      "logic": 5,
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Vice president",
+     "pay": 110,
+     "needs": {
+      "logic": 7,
+      "charisma": 5
+     }
+    },
+    {
+     "name": "Partner",
+     "pay": 150,
+     "needs": {
+      "logic": 8,
+      "charisma": 6
+     }
     }
    ],
    "shift": 8,
@@ -2673,10 +2858,23 @@
    "promote": [
     4,
     8,
-    14
+    14,
+    18,
+    22
    ],
    "courses": [
     "finance"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 9,
+    "to": 18
+   },
+   "length": 1.2,
+   "overtime": true,
+   "trains": [
+    "logic",
+    "charisma"
    ]
   },
   {
@@ -2690,11 +2888,33 @@
     },
     {
      "name": "Engineer",
-     "pay": 45
+     "pay": 45,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Coordinator",
-     "pay": 70
+     "pay": 70,
+     "needs": {
+      "logic": 4,
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Chief engineer",
+     "pay": 95,
+     "needs": {
+      "logic": 6
+     }
+    },
+    {
+     "name": "Director of engineering",
+     "pay": 125,
+     "needs": {
+      "logic": 7,
+      "charisma": 4
+     }
     }
    ],
    "shift": 8,
@@ -2721,10 +2941,22 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12,
+    16
    ],
    "courses": [
     "engineering"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 8,
+    "to": 17
+   },
+   "length": 1.2,
+   "overtime": true,
+   "trains": [
+    "logic"
    ]
   },
   {
@@ -2738,11 +2970,26 @@
     },
     {
      "name": "Instructor",
-     "pay": 28
+     "pay": 28,
+     "needs": {
+      "fitness": 4
+     }
     },
     {
      "name": "Head coach",
-     "pay": 40
+     "pay": 40,
+     "needs": {
+      "fitness": 6,
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Gym manager",
+     "pay": 50,
+     "needs": {
+      "charisma": 4,
+      "fitness": 7
+     }
     }
    ],
    "shift": 6,
@@ -2763,12 +3010,23 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
    ],
    "hobby": {
     "id": "fitness",
     "level": 3
-   }
+   },
+   "schedule": {
+    "days": 4,
+    "from": 6,
+    "to": 22
+   },
+   "length": 0.7,
+   "trains": [
+    "fitness",
+    "charisma"
+   ]
   },
   {
    "id": "librarian",
@@ -2781,7 +3039,25 @@
     },
     {
      "name": "Librarian",
-     "pay": 28
+     "pay": 28,
+     "needs": {
+      "logic": 1
+     }
+    },
+    {
+     "name": "Senior librarian",
+     "pay": 34,
+     "needs": {
+      "logic": 3
+     }
+    },
+    {
+     "name": "Head librarian",
+     "pay": 42,
+     "needs": {
+      "logic": 5,
+      "charisma": 2
+     }
     }
    ],
    "shift": 6,
@@ -2802,7 +3078,18 @@
     20
    ],
    "promote": [
-    4
+    4,
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 8,
+    "to": 20
+   },
+   "length": 0.6,
+   "trains": [
+    "logic"
    ]
   },
   {
@@ -2816,7 +3103,25 @@
     },
     {
      "name": "Maître d'",
-     "pay": 45
+     "pay": 45,
+     "needs": {
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Restaurant manager",
+     "pay": 55,
+     "needs": {
+      "charisma": 5
+     }
+    },
+    {
+     "name": "Restaurant owner",
+     "pay": 70,
+     "needs": {
+      "charisma": 6,
+      "cooking": 4
+     }
     }
    ],
    "shift": 6,
@@ -2836,7 +3141,18 @@
     23
    ],
    "promote": [
-    4
+    4,
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 11,
+    "to": 23
+   },
+   "length": 0.5,
+   "trains": [
+    "charisma"
    ]
   },
   {
@@ -2850,7 +3166,25 @@
     },
     {
      "name": "Foreman",
-     "pay": 22
+     "pay": 22,
+     "needs": {
+      "fitness": 3
+     }
+    },
+    {
+     "name": "Farm manager",
+     "pay": 30,
+     "needs": {
+      "logic": 2
+     }
+    },
+    {
+     "name": "Farm owner",
+     "pay": 40,
+     "needs": {
+      "logic": 3,
+      "fitness": 5
+     }
     }
    ],
    "shift": 6,
@@ -2871,7 +3205,18 @@
     17
    ],
    "promote": [
-    6
+    6,
+    10,
+    14
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 5,
+    "to": 17
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -2885,11 +3230,34 @@
     },
     {
      "name": "Nurse",
-     "pay": 32
+     "pay": 32,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Head nurse",
-     "pay": 48
+     "pay": 48,
+     "needs": {
+      "logic": 4,
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Nurse manager",
+     "pay": 62,
+     "needs": {
+      "logic": 5,
+      "charisma": 4
+     }
+    },
+    {
+     "name": "Director of nursing",
+     "pay": 78,
+     "needs": {
+      "logic": 6,
+      "charisma": 5
+     }
     }
    ],
    "shift": 8,
@@ -2916,10 +3284,86 @@
    ],
    "promote": [
     5,
-    12
+    12,
+    16,
+    20
    ],
    "courses": [
     "nursing"
+   ],
+   "schedule": {
+    "days": 4,
+    "shifts": [
+     {
+      "id": "day",
+      "name": "Day",
+      "from": 7,
+      "to": 15
+     },
+     {
+      "id": "evening",
+      "name": "Evening",
+      "from": 15,
+      "to": 23
+     },
+     {
+      "id": "night",
+      "name": "Night",
+      "from": 23,
+      "to": 7
+     }
+    ]
+   },
+   "length": 1.3,
+   "overtime": true,
+   "trains": [
+    "logic",
+    "charisma"
+   ],
+   "nightPay": 0.25,
+   "events": [
+    {
+     "id": "double",
+     "setup": "A colleague calls in sick and the ward is short for the next shift.",
+     "choices": [
+      {
+       "label": "Cover for them",
+       "perf": 2,
+       "money": 60,
+       "effects": {
+        "energy": -25
+       },
+       "text": "A long night, but the ward is grateful."
+      },
+      {
+       "label": "Say you can't",
+       "perf": -1
+      }
+     ]
+    },
+    {
+     "id": "patient",
+     "setup": "An anxious patient refuses their medication.",
+     "choices": [
+      {
+       "label": "Sit and explain it calmly",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 2,
+       "text": "They take it, and thank you.",
+       "fail": {
+        "perf": 0,
+        "text": "They still refuse; the doctor will talk to them."
+       }
+      },
+      {
+       "label": "Call the doctor",
+       "perf": 0
+      }
+     ]
+    }
    ]
   },
   {
@@ -2933,11 +3377,26 @@
     },
     {
      "name": "Shift lead",
-     "pay": 20
+     "pay": 20,
+     "needs": {
+      "charisma": 1
+     }
     },
     {
      "name": "Store manager",
-     "pay": 30
+     "pay": 30,
+     "needs": {
+      "logic": 2,
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Regional manager",
+     "pay": 40,
+     "needs": {
+      "logic": 4,
+      "charisma": 4
+     }
     }
    ],
    "shift": 6,
@@ -2959,7 +3418,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 9,
+    "to": 22
+   },
+   "length": 0.5,
+   "trains": [
+    "charisma",
+    "logic"
    ]
   },
   {
@@ -2973,11 +3443,17 @@
     },
     {
      "name": "Cook",
-     "pay": 24
+     "pay": 24,
+     "needs": {
+      "cooking": 3
+     }
     },
     {
      "name": "Head chef",
-     "pay": 38
+     "pay": 38,
+     "needs": {
+      "cooking": 4
+     }
     }
    ],
    "shift": 6,
@@ -3019,15 +3495,24 @@
        "ranks": [
         {
          "name": "Sous chef",
-         "pay": 46
+         "pay": 46,
+         "needs": {
+          "cooking": 5
+         }
         },
         {
          "name": "Chef de cuisine",
-         "pay": 53
+         "pay": 53,
+         "needs": {
+          "cooking": 5
+         }
         },
         {
          "name": "Executive chef",
-         "pay": 62
+         "pay": 62,
+         "needs": {
+          "cooking": 6
+         }
         }
        ],
        "promote": [
@@ -3047,15 +3532,27 @@
        "ranks": [
         {
          "name": "Kitchen manager",
-         "pay": 44
+         "pay": 44,
+         "needs": {
+          "cooking": 5,
+          "charisma": 2
+         }
         },
         {
          "name": "Restaurant manager",
-         "pay": 51
+         "pay": 51,
+         "needs": {
+          "cooking": 5,
+          "charisma": 3
+         }
         },
         {
          "name": "Operations manager",
-         "pay": 59
+         "pay": 59,
+         "needs": {
+          "cooking": 6,
+          "charisma": 4
+         }
         }
        ],
        "promote": [
@@ -3080,15 +3577,24 @@
        "ranks": [
         {
          "name": "Starred chef",
-         "pay": 70
+         "pay": 70,
+         "needs": {
+          "cooking": 7
+         }
         },
         {
          "name": "Two-star chef",
-         "pay": 81
+         "pay": 81,
+         "needs": {
+          "cooking": 7
+         }
         },
         {
          "name": "Culinary icon",
-         "pay": 94
+         "pay": 94,
+         "needs": {
+          "cooking": 8
+         }
         }
        ],
        "promote": [
@@ -3111,15 +3617,24 @@
        "ranks": [
         {
          "name": "Pastry chef",
-         "pay": 66
+         "pay": 66,
+         "needs": {
+          "cooking": 7
+         }
         },
         {
          "name": "Head pastry chef",
-         "pay": 77
+         "pay": 77,
+         "needs": {
+          "cooking": 7
+         }
         },
         {
          "name": "Pastry master",
-         "pay": 89
+         "pay": 89,
+         "needs": {
+          "cooking": 8
+         }
         }
        ],
        "promote": [
@@ -3142,15 +3657,27 @@
        "ranks": [
         {
          "name": "Restaurant owner",
-         "pay": 68
+         "pay": 68,
+         "needs": {
+          "cooking": 7,
+          "charisma": 4
+         }
         },
         {
          "name": "Owner of two places",
-         "pay": 79
+         "pay": 79,
+         "needs": {
+          "cooking": 7,
+          "charisma": 5
+         }
         },
         {
          "name": "Restaurateur",
-         "pay": 92
+         "pay": 92,
+         "needs": {
+          "cooking": 8,
+          "charisma": 6
+         }
         }
        ],
        "promote": [
@@ -3173,15 +3700,27 @@
        "ranks": [
         {
          "name": "Food blogger",
-         "pay": 64
+         "pay": 64,
+         "needs": {
+          "cooking": 7,
+          "charisma": 4
+         }
         },
         {
          "name": "Cooking show host",
-         "pay": 74
+         "pay": 74,
+         "needs": {
+          "cooking": 7,
+          "charisma": 5
+         }
         },
         {
          "name": "Celebrity chef",
-         "pay": 86
+         "pay": 86,
+         "needs": {
+          "cooking": 8,
+          "charisma": 6
+         }
         }
        ],
        "promote": [
@@ -3207,7 +3746,11 @@
        "ranks": [
         {
          "name": "Legendary chef",
-         "pay": 120
+         "pay": 120,
+         "needs": {
+          "cooking": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3226,7 +3769,11 @@
        "ranks": [
         {
          "name": "Head of a restaurant group",
-         "pay": 125
+         "pay": 125,
+         "needs": {
+          "cooking": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3244,7 +3791,11 @@
        "ranks": [
         {
          "name": "Food star",
-         "pay": 115
+         "pay": 115,
+         "needs": {
+          "cooking": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3254,6 +3805,41 @@
         "cook_tv",
         "cook_owner"
        ]
+      }
+     ]
+    }
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 10,
+    "to": 23
+   },
+   "length": 1,
+   "overtime": true,
+   "trains": [
+    "cooking"
+   ],
+   "events": [
+    {
+     "id": "critic",
+     "setup": "Word in the kitchen: a food critic is at table six.",
+     "choices": [
+      {
+       "label": "Plate their dish yourself",
+       "roll": {
+        "skill": "cooking",
+        "dc": 12
+       },
+       "perf": 2,
+       "fact": "{u} cooked for a food critic at {0}.",
+       "fail": {
+        "perf": -1,
+        "text": "The sauce split. The critic says nothing, which is worse."
+       }
+      },
+      {
+       "label": "Keep to your station",
+       "perf": 0
       }
      ]
     }
@@ -3270,11 +3856,25 @@
     },
     {
      "name": "Stylist",
-     "pay": 24
+     "pay": 24,
+     "needs": {
+      "painting": 1
+     }
     },
     {
      "name": "Salon owner",
-     "pay": 38
+     "pay": 38,
+     "needs": {
+      "charisma": 3,
+      "painting": 3
+     }
+    },
+    {
+     "name": "Salon chain owner",
+     "pay": 55,
+     "needs": {
+      "charisma": 5
+     }
     }
    ],
    "shift": 6,
@@ -3296,7 +3896,18 @@
    ],
    "promote": [
     4,
-    9
+    9,
+    13
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 9,
+    "to": 20
+   },
+   "length": 0.9,
+   "trains": [
+    "painting",
+    "charisma"
    ]
   },
   {
@@ -3310,11 +3921,26 @@
     },
     {
      "name": "Concierge",
-     "pay": 26
+     "pay": 26,
+     "needs": {
+      "charisma": 2
+     }
     },
     {
      "name": "Hotel manager",
-     "pay": 42
+     "pay": 42,
+     "needs": {
+      "charisma": 4,
+      "logic": 2
+     }
+    },
+    {
+     "name": "Regional hotel director",
+     "pay": 60,
+     "needs": {
+      "charisma": 6,
+      "logic": 4
+     }
     }
    ],
    "shift": 8,
@@ -3336,7 +3962,29 @@
    ],
    "promote": [
     4,
-    9
+    9,
+    13
+   ],
+   "schedule": {
+    "days": 5,
+    "shifts": [
+     {
+      "id": "day",
+      "name": "Day",
+      "from": 6,
+      "to": 14
+     },
+     {
+      "id": "evening",
+      "name": "Evening",
+      "from": 14,
+      "to": 22
+     }
+    ]
+   },
+   "length": 0.9,
+   "trains": [
+    "charisma"
    ]
   },
   {
@@ -3350,11 +3998,25 @@
     },
     {
      "name": "Bartender",
-     "pay": 24
+     "pay": 24,
+     "needs": {
+      "charisma": 1
+     }
     },
     {
      "name": "Mixologist",
-     "pay": 35
+     "pay": 35,
+     "needs": {
+      "cooking": 3,
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Bar manager",
+     "pay": 45,
+     "needs": {
+      "charisma": 5
+     }
     }
    ],
    "shift": 6,
@@ -3376,8 +4038,21 @@
    ],
    "promote": [
     4,
-    8
-   ]
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 18,
+    "to": 4
+   },
+   "length": 0.7,
+   "overtime": true,
+   "trains": [
+    "charisma",
+    "cooking"
+   ],
+   "nightPay": 0.2
   },
   {
    "id": "lifeguard",
@@ -3390,7 +4065,26 @@
     },
     {
      "name": "Head lifeguard",
-     "pay": 26
+     "pay": 26,
+     "needs": {
+      "fitness": 4
+     }
+    },
+    {
+     "name": "Beach supervisor",
+     "pay": 34,
+     "needs": {
+      "fitness": 6,
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Coast rescue chief",
+     "pay": 42,
+     "needs": {
+      "fitness": 7,
+      "logic": 3
+     }
     }
    ],
    "shift": 6,
@@ -3411,7 +4105,9 @@
     19
    ],
    "promote": [
-    5
+    5,
+    9,
+    13
    ],
    "needs": [
     "Athletic",
@@ -3419,6 +4115,15 @@
    ],
    "courses": [
     "firstaid"
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 8,
+    "to": 19
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -3432,11 +4137,24 @@
     },
     {
      "name": "Head gardener",
-     "pay": 22
+     "pay": 22,
+     "needs": {
+      "fitness": 2
+     }
     },
     {
      "name": "Park ranger",
-     "pay": 30
+     "pay": 30,
+     "needs": {
+      "painting": 2
+     }
+    },
+    {
+     "name": "Parks director",
+     "pay": 40,
+     "needs": {
+      "logic": 3
+     }
     }
    ],
    "shift": 6,
@@ -3458,7 +4176,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 6,
+    "to": 18
+   },
+   "length": 0.6,
+   "trains": [
+    "fitness",
+    "painting"
    ]
   },
   {
@@ -3472,11 +4201,26 @@
     },
     {
      "name": "Shift supervisor",
-     "pay": 22
+     "pay": 22,
+     "needs": {
+      "charisma": 1
+     }
     },
     {
      "name": "Park manager",
-     "pay": 34
+     "pay": 34,
+     "needs": {
+      "charisma": 3,
+      "logic": 2
+     }
+    },
+    {
+     "name": "Entertainment director",
+     "pay": 44,
+     "needs": {
+      "charisma": 5,
+      "logic": 3
+     }
     }
    ],
    "shift": 6,
@@ -3498,7 +4242,17 @@
    ],
    "promote": [
     4,
-    9
+    9,
+    13
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 10,
+    "to": 23
+   },
+   "length": 0.5,
+   "trains": [
+    "charisma"
    ]
   },
   {
@@ -3512,11 +4266,25 @@
     },
     {
      "name": "Crane operator",
-     "pay": 28
+     "pay": 28,
+     "needs": {
+      "fitness": 4
+     }
     },
     {
      "name": "Harbor master",
-     "pay": 42
+     "pay": 42,
+     "needs": {
+      "logic": 3
+     }
+    },
+    {
+     "name": "Port director",
+     "pay": 60,
+     "needs": {
+      "logic": 5,
+      "charisma": 3
+     }
     }
    ],
    "shift": 8,
@@ -3538,11 +4306,22 @@
    ],
    "promote": [
     5,
-    10
+    10,
+    14
    ],
    "needs": [
     "Strong",
     "Handy"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 5,
+    "to": 17
+   },
+   "length": 0.8,
+   "overtime": true,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -3556,15 +4335,42 @@
     },
     {
      "name": "Officer",
-     "pay": 30
+     "pay": 30,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Department head",
-     "pay": 48
+     "pay": 48,
+     "needs": {
+      "logic": 4,
+      "charisma": 2
+     }
     },
     {
      "name": "Councilor",
-     "pay": 70
+     "pay": 70,
+     "needs": {
+      "charisma": 4,
+      "logic": 5
+     }
+    },
+    {
+     "name": "Deputy mayor",
+     "pay": 90,
+     "needs": {
+      "charisma": 6,
+      "logic": 6
+     }
+    },
+    {
+     "name": "Mayor",
+     "pay": 120,
+     "needs": {
+      "charisma": 8,
+      "logic": 6
+     }
     }
    ],
    "shift": 8,
@@ -3587,7 +4393,9 @@
    "promote": [
     4,
     8,
-    14
+    14,
+    18,
+    22
    ],
    "needs": [
     "Smart",
@@ -3596,6 +4404,16 @@
    ],
    "courses": [
     "publicadmin"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 8,
+    "to": 17
+   },
+   "length": 1.1,
+   "trains": [
+    "logic",
+    "charisma"
    ]
   },
   {
@@ -3609,11 +4427,17 @@
     },
     {
      "name": "Doctor",
-     "pay": 55
+     "pay": 55,
+     "needs": {
+      "logic": 4
+     }
     },
     {
      "name": "Surgeon",
-     "pay": 85
+     "pay": 85,
+     "needs": {
+      "logic": 5
+     }
     }
    ],
    "shift": 10,
@@ -3658,15 +4482,24 @@
        "ranks": [
         {
          "name": "Surgical fellow",
-         "pay": 100
+         "pay": 100,
+         "needs": {
+          "logic": 6
+         }
         },
         {
          "name": "Attending surgeon",
-         "pay": 116
+         "pay": 116,
+         "needs": {
+          "logic": 6
+         }
         },
         {
          "name": "Senior surgeon",
-         "pay": 135
+         "pay": 135,
+         "needs": {
+          "logic": 7
+         }
         }
        ],
        "promote": [
@@ -3686,15 +4519,27 @@
        "ranks": [
         {
          "name": "Family doctor",
-         "pay": 95
+         "pay": 95,
+         "needs": {
+          "logic": 6,
+          "charisma": 2
+         }
         },
         {
          "name": "Senior physician",
-         "pay": 110
+         "pay": 110,
+         "needs": {
+          "logic": 6,
+          "charisma": 3
+         }
         },
         {
          "name": "Clinic director",
-         "pay": 128
+         "pay": 128,
+         "needs": {
+          "logic": 7,
+          "charisma": 4
+         }
         }
        ],
        "promote": [
@@ -3719,15 +4564,24 @@
        "ranks": [
         {
          "name": "Neurosurgeon",
-         "pay": 160
+         "pay": 160,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Senior neurosurgeon",
-         "pay": 186
+         "pay": 186,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Head of neurosurgery",
-         "pay": 215
+         "pay": 215,
+         "needs": {
+          "logic": 8
+         }
         }
        ],
        "promote": [
@@ -3750,15 +4604,24 @@
        "ranks": [
         {
          "name": "Trauma surgeon",
-         "pay": 150
+         "pay": 150,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Head of trauma",
-         "pay": 174
+         "pay": 174,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Chief of emergency",
-         "pay": 202
+         "pay": 202,
+         "needs": {
+          "logic": 8
+         }
         }
        ],
        "promote": [
@@ -3781,15 +4644,24 @@
        "ranks": [
         {
          "name": "Pediatrician",
-         "pay": 140
+         "pay": 140,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Senior pediatrician",
-         "pay": 162
+         "pay": 162,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Head of pediatrics",
-         "pay": 188
+         "pay": 188,
+         "needs": {
+          "logic": 8
+         }
         }
        ],
        "promote": [
@@ -3812,15 +4684,24 @@
        "ranks": [
         {
          "name": "Clinical researcher",
-         "pay": 140
+         "pay": 140,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Research lead",
-         "pay": 162
+         "pay": 162,
+         "needs": {
+          "logic": 7
+         }
         },
         {
          "name": "Research director",
-         "pay": 188
+         "pay": 188,
+         "needs": {
+          "logic": 8
+         }
         }
        ],
        "promote": [
@@ -3845,7 +4726,11 @@
        "ranks": [
         {
          "name": "Chief of medicine",
-         "pay": 240
+         "pay": 240,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3865,7 +4750,11 @@
        "ranks": [
         {
          "name": "Renowned specialist",
-         "pay": 230
+         "pay": 230,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3884,7 +4773,11 @@
        "ranks": [
         {
          "name": "Humanitarian doctor",
-         "pay": 190
+         "pay": 190,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3903,7 +4796,11 @@
        "ranks": [
         {
          "name": "Professor of medicine",
-         "pay": 220
+         "pay": 220,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -3915,7 +4812,30 @@
       }
      ]
     }
-   ]
+   ],
+   "schedule": {
+    "days": 5,
+    "shifts": [
+     {
+      "id": "day",
+      "name": "Day",
+      "from": 7,
+      "to": 17
+     },
+     {
+      "id": "night",
+      "name": "Night",
+      "from": 19,
+      "to": 5
+     }
+    ]
+   },
+   "length": 2,
+   "overtime": true,
+   "trains": [
+    "logic"
+   ],
+   "nightPay": 0.2
   },
   {
    "id": "teacher",
@@ -3928,11 +4848,26 @@
     },
     {
      "name": "Teacher",
-     "pay": 28
+     "pay": 28,
+     "needs": {
+      "charisma": 2
+     }
     },
     {
      "name": "Principal",
-     "pay": 45
+     "pay": 45,
+     "needs": {
+      "charisma": 4,
+      "logic": 4
+     }
+    },
+    {
+     "name": "Superintendent",
+     "pay": 60,
+     "needs": {
+      "charisma": 6,
+      "logic": 5
+     }
     }
    ],
    "shift": 7,
@@ -3954,7 +4889,8 @@
    ],
    "promote": [
     5,
-    12
+    12,
+    16
    ],
    "needs": [
     "Smart",
@@ -3962,6 +4898,16 @@
    ],
    "courses": [
     "education"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 7,
+    "to": 17
+   },
+   "length": 1,
+   "trains": [
+    "charisma",
+    "logic"
    ]
   },
   {
@@ -3975,11 +4921,25 @@
     },
     {
      "name": "Conductor",
-     "pay": 25
+     "pay": 25,
+     "needs": {
+      "logic": 1
+     }
     },
     {
      "name": "Station manager",
-     "pay": 38
+     "pay": 38,
+     "needs": {
+      "charisma": 3,
+      "logic": 3
+     }
+    },
+    {
+     "name": "Line manager",
+     "pay": 48,
+     "needs": {
+      "logic": 4
+     }
     }
    ],
    "shift": 7,
@@ -4001,7 +4961,36 @@
    ],
    "promote": [
     4,
-    9
+    9,
+    13
+   ],
+   "schedule": {
+    "days": 4,
+    "shifts": [
+     {
+      "id": "early",
+      "name": "Early",
+      "from": 5,
+      "to": 12
+     },
+     {
+      "id": "late",
+      "name": "Late",
+      "from": 12,
+      "to": 19
+     },
+     {
+      "id": "evening",
+      "name": "Evening",
+      "from": 17,
+      "to": 24
+     }
+    ]
+   },
+   "length": 0.7,
+   "trains": [
+    "charisma",
+    "logic"
    ]
   },
   {
@@ -4015,11 +5004,25 @@
     },
     {
      "name": "Mechanic",
-     "pay": 26
+     "pay": 26,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Workshop owner",
-     "pay": 40
+     "pay": 40,
+     "needs": {
+      "logic": 4
+     }
+    },
+    {
+     "name": "Garage chain owner",
+     "pay": 55,
+     "needs": {
+      "logic": 5,
+      "charisma": 3
+     }
     }
    ],
    "shift": 7,
@@ -4041,13 +5044,25 @@
    ],
    "promote": [
     4,
-    9
+    9,
+    13
    ],
    "needs": [
     "Handy"
    ],
    "courses": [
     "mechanics"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 7,
+    "to": 19
+   },
+   "length": 0.9,
+   "overtime": true,
+   "trains": [
+    "logic",
+    "fitness"
    ]
   },
   {
@@ -4061,11 +5076,17 @@
     },
     {
      "name": "Developer",
-     "pay": 45
+     "pay": 45,
+     "needs": {
+      "logic": 3
+     }
     },
     {
      "name": "Lead developer",
-     "pay": 70
+     "pay": 70,
+     "needs": {
+      "logic": 5
+     }
     }
    ],
    "shift": 8,
@@ -4111,15 +5132,24 @@
        "ranks": [
         {
          "name": "Senior engineer",
-         "pay": 85
+         "pay": 85,
+         "needs": {
+          "logic": 6
+         }
         },
         {
          "name": "Staff engineer",
-         "pay": 99
+         "pay": 99,
+         "needs": {
+          "logic": 6
+         }
         },
         {
          "name": "Principal engineer",
-         "pay": 114
+         "pay": 114,
+         "needs": {
+          "logic": 7
+         }
         }
        ],
        "promote": [
@@ -4139,15 +5169,27 @@
        "ranks": [
         {
          "name": "Product owner",
-         "pay": 82
+         "pay": 82,
+         "needs": {
+          "logic": 6,
+          "charisma": 2
+         }
         },
         {
          "name": "Product manager",
-         "pay": 95
+         "pay": 95,
+         "needs": {
+          "logic": 6,
+          "charisma": 3
+         }
         },
         {
          "name": "Senior product manager",
-         "pay": 110
+         "pay": 110,
+         "needs": {
+          "logic": 7,
+          "charisma": 4
+         }
         }
        ],
        "promote": [
@@ -4172,15 +5214,24 @@
        "ranks": [
         {
          "name": "Software architect",
-         "pay": 135
+         "pay": 135,
+         "needs": {
+          "logic": 8
+         }
         },
         {
          "name": "Lead architect",
-         "pay": 157
+         "pay": 157,
+         "needs": {
+          "logic": 8
+         }
         },
         {
          "name": "Chief architect",
-         "pay": 182
+         "pay": 182,
+         "needs": {
+          "logic": 9
+         }
         }
        ],
        "promote": [
@@ -4203,15 +5254,24 @@
        "ranks": [
         {
          "name": "Security engineer",
-         "pay": 132
+         "pay": 132,
+         "needs": {
+          "logic": 8
+         }
         },
         {
          "name": "Security lead",
-         "pay": 153
+         "pay": 153,
+         "needs": {
+          "logic": 8
+         }
         },
         {
          "name": "Head of security",
-         "pay": 178
+         "pay": 178,
+         "needs": {
+          "logic": 9
+         }
         }
        ],
        "promote": [
@@ -4234,15 +5294,27 @@
        "ranks": [
         {
          "name": "Engineering manager",
-         "pay": 135
+         "pay": 135,
+         "needs": {
+          "logic": 8,
+          "charisma": 4
+         }
         },
         {
          "name": "Director of engineering",
-         "pay": 157
+         "pay": 157,
+         "needs": {
+          "logic": 8,
+          "charisma": 5
+         }
         },
         {
          "name": "VP of engineering",
-         "pay": 182
+         "pay": 182,
+         "needs": {
+          "logic": 9,
+          "charisma": 6
+         }
         }
        ],
        "promote": [
@@ -4265,15 +5337,27 @@
        "ranks": [
         {
          "name": "Growth lead",
-         "pay": 130
+         "pay": 130,
+         "needs": {
+          "logic": 8,
+          "charisma": 4
+         }
         },
         {
          "name": "Head of growth",
-         "pay": 151
+         "pay": 151,
+         "needs": {
+          "logic": 8,
+          "charisma": 5
+         }
         },
         {
          "name": "VP of product",
-         "pay": 175
+         "pay": 175,
+         "needs": {
+          "logic": 9,
+          "charisma": 6
+         }
         }
        ],
        "promote": [
@@ -4298,7 +5382,11 @@
        "ranks": [
         {
          "name": "Chief technology officer",
-         "pay": 215
+         "pay": 215,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -4317,7 +5405,11 @@
        "ranks": [
         {
          "name": "Distinguished fellow",
-         "pay": 205
+         "pay": 205,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -4336,7 +5428,11 @@
        "ranks": [
         {
          "name": "Chief security officer",
-         "pay": 210
+         "pay": 210,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -4354,7 +5450,11 @@
        "ranks": [
         {
          "name": "Chief product officer",
-         "pay": 215
+         "pay": 215,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -4373,7 +5473,11 @@
        "ranks": [
         {
          "name": "Startup founder",
-         "pay": 200
+         "pay": 200,
+         "needs": {
+          "logic": 9,
+          "performance": 80
+         }
         }
        ],
        "promote": [
@@ -4382,6 +5486,47 @@
        "after": [
         "dev_growth"
        ]
+      }
+     ]
+    }
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 9,
+    "to": 19
+   },
+   "length": 1.2,
+   "overtime": true,
+   "trains": [
+    "logic"
+   ],
+   "events": [
+    {
+     "id": "outage",
+     "setup": "The site goes down an hour before the end of your shift.",
+     "choices": [
+      {
+       "label": "Stay and fix it",
+       "roll": {
+        "skill": "logic",
+        "dc": 12
+       },
+       "perf": 2,
+       "effects": {
+        "energy": -15
+       },
+       "text": "Fixed before anyone noticed.",
+       "fail": {
+        "perf": 0,
+        "effects": {
+         "energy": -15
+        },
+        "text": "It takes until midnight, and someone else finds the bug."
+       }
+      },
+      {
+       "label": "Hand it to the on-call team",
+       "perf": -1
       }
      ]
     }
@@ -4398,11 +5543,33 @@
     },
     {
      "name": "Researcher",
-     "pay": 34
+     "pay": 34,
+     "needs": {
+      "logic": 3
+     }
     },
     {
      "name": "Professor",
-     "pay": 55
+     "pay": 55,
+     "needs": {
+      "logic": 5
+     }
+    },
+    {
+     "name": "Department chair",
+     "pay": 70,
+     "needs": {
+      "logic": 7,
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Dean",
+     "pay": 85,
+     "needs": {
+      "logic": 8,
+      "charisma": 5
+     }
     }
    ],
    "shift": 8,
@@ -4424,7 +5591,9 @@
    ],
    "promote": [
     5,
-    12
+    12,
+    16,
+    20
    ],
    "needs": [
     "Smart",
@@ -4432,6 +5601,15 @@
    ],
    "courses": [
     "science"
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 8,
+    "to": 20
+   },
+   "length": 1.3,
+   "trains": [
+    "logic"
    ]
   },
   {
@@ -4445,11 +5623,25 @@
     },
     {
      "name": "Senior operator",
-     "pay": 21
+     "pay": 21,
+     "needs": {
+      "fitness": 1
+     }
     },
     {
      "name": "Station chief",
-     "pay": 27
+     "pay": 27,
+     "needs": {
+      "logic": 2
+     }
+    },
+    {
+     "name": "Mountain resort manager",
+     "pay": 34,
+     "needs": {
+      "logic": 3,
+      "charisma": 2
+     }
     }
    ],
    "shift": 6,
@@ -4471,7 +5663,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 19
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -4485,11 +5687,25 @@
     },
     {
      "name": "Innkeeper",
-     "pay": 20
+     "pay": 20,
+     "needs": {
+      "charisma": 1
+     }
     },
     {
      "name": "Lodge manager",
-     "pay": 26
+     "pay": 26,
+     "needs": {
+      "cooking": 3
+     }
+    },
+    {
+     "name": "Lodge owner",
+     "pay": 34,
+     "needs": {
+      "charisma": 4,
+      "cooking": 4
+     }
     }
    ],
    "shift": 6,
@@ -4511,7 +5727,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 23
+   },
+   "length": 0.6,
+   "trains": [
+    "cooking",
+    "charisma"
    ]
   },
   {
@@ -4525,11 +5752,21 @@
     },
     {
      "name": "Shepherd",
-     "pay": 18
+     "pay": 18,
+     "needs": {
+      "fitness": 2
+     }
     },
     {
      "name": "Farm manager",
      "pay": 23
+    },
+    {
+     "name": "Farm owner",
+     "pay": 30,
+     "needs": {
+      "logic": 3
+     }
     }
    ],
    "shift": 6,
@@ -4551,7 +5788,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 6,
+    "to": 16
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -4565,11 +5812,22 @@
     },
     {
      "name": "Rider",
-     "pay": 19
+     "pay": 19,
+     "needs": {
+      "fitness": 3
+     }
     },
     {
      "name": "Ranch foreman",
      "pay": 25
+    },
+    {
+     "name": "Ranch owner",
+     "pay": 32,
+     "needs": {
+      "logic": 3,
+      "fitness": 5
+     }
     }
    ],
    "shift": 6,
@@ -4591,7 +5849,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 6,
+    "to": 16
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -4605,11 +5873,21 @@
     },
     {
      "name": "Shift lead",
-     "pay": 18
+     "pay": 18,
+     "needs": {
+      "charisma": 1
+     }
     },
     {
      "name": "Store owner",
      "pay": 24
+    },
+    {
+     "name": "Owner of two stores",
+     "pay": 30,
+     "needs": {
+      "logic": 4
+     }
     }
    ],
    "shift": 6,
@@ -4631,7 +5909,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 8,
+    "to": 20
+   },
+   "length": 0.5,
+   "trains": [
+    "charisma",
+    "logic"
    ]
   },
   {
@@ -4645,11 +5934,22 @@
     },
     {
      "name": "Bartender",
-     "pay": 19
+     "pay": 19,
+     "needs": {
+      "charisma": 1
+     }
     },
     {
      "name": "Saloon keeper",
      "pay": 25
+    },
+    {
+     "name": "Saloon owner",
+     "pay": 32,
+     "needs": {
+      "charisma": 4,
+      "music": 3
+     }
     }
    ],
    "shift": 6,
@@ -4671,7 +5971,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 11,
+    "to": 23
+   },
+   "length": 0.5,
+   "trains": [
+    "charisma",
+    "music"
    ]
   },
   {
@@ -4685,11 +5996,22 @@
     },
     {
      "name": "Department lead",
-     "pay": 19
+     "pay": 19,
+     "needs": {
+      "logic": 1
+     }
     },
     {
      "name": "Store manager",
      "pay": 26
+    },
+    {
+     "name": "Area manager",
+     "pay": 33,
+     "needs": {
+      "logic": 4,
+      "charisma": 3
+     }
     }
    ],
    "shift": 6,
@@ -4710,7 +6032,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 22
+   },
+   "length": 0.5,
+   "trains": [
+    "logic"
    ]
   },
   {
@@ -4724,11 +6056,22 @@
     },
     {
      "name": "Nurse",
-     "pay": 25
+     "pay": 25,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Head nurse",
      "pay": 32
+    },
+    {
+     "name": "Clinic manager",
+     "pay": 40,
+     "needs": {
+      "logic": 5,
+      "charisma": 3
+     }
     }
    ],
    "shift": 6,
@@ -4750,7 +6093,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 21
+   },
+   "length": 0.9,
+   "trains": [
+    "logic",
+    "charisma"
    ]
   },
   {
@@ -4764,11 +6118,22 @@
     },
     {
      "name": "Boat captain",
-     "pay": 22
+     "pay": 22,
+     "needs": {
+      "fitness": 3
+     }
     },
     {
      "name": "Harbor master",
      "pay": 28
+    },
+    {
+     "name": "Marina owner",
+     "pay": 36,
+     "needs": {
+      "logic": 3,
+      "charisma": 3
+     }
     }
    ],
    "shift": 6,
@@ -4790,7 +6155,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 19
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness"
    ]
   },
   {
@@ -4804,11 +6179,21 @@
     },
     {
      "name": "Concierge",
-     "pay": 21
+     "pay": 21,
+     "needs": {
+      "charisma": 2
+     }
     },
     {
      "name": "Resort manager",
      "pay": 30
+    },
+    {
+     "name": "Resort director",
+     "pay": 40,
+     "needs": {
+      "charisma": 5
+     }
     }
    ],
    "shift": 6,
@@ -4830,7 +6215,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 7,
+    "to": 23
+   },
+   "length": 0.6,
+   "trains": [
+    "charisma"
    ]
   },
   {
@@ -4844,11 +6239,21 @@
     },
     {
      "name": "Instructor",
-     "pay": 21
+     "pay": 21,
+     "needs": {
+      "fitness": 4
+     }
     },
     {
      "name": "Surf school owner",
      "pay": 28
+    },
+    {
+     "name": "Surf brand founder",
+     "pay": 36,
+     "needs": {
+      "charisma": 4
+     }
     }
    ],
    "shift": 6,
@@ -4870,7 +6275,18 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 4,
+    "from": 8,
+    "to": 18
+   },
+   "length": 0.5,
+   "trains": [
+    "fitness",
+    "charisma"
    ]
   },
   {
@@ -4884,11 +6300,21 @@
     },
     {
      "name": "Paralegal",
-     "pay": 26
+     "pay": 26,
+     "needs": {
+      "logic": 2
+     }
     },
     {
      "name": "Court administrator",
      "pay": 34
+    },
+    {
+     "name": "Chief clerk of the court",
+     "pay": 42,
+     "needs": {
+      "logic": 6
+     }
     }
    ],
    "shift": 6,
@@ -4910,7 +6336,17 @@
    ],
    "promote": [
     4,
-    8
+    8,
+    12
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 8,
+    "to": 18
+   },
+   "length": 0.8,
+   "trains": [
+    "logic"
    ]
   },
   {
@@ -4924,11 +6360,34 @@
     },
     {
      "name": "Associate",
-     "pay": 30
+     "pay": 30,
+     "needs": {
+      "logic": 3
+     }
     },
     {
      "name": "Partner",
-     "pay": 45
+     "pay": 45,
+     "needs": {
+      "logic": 5,
+      "charisma": 4
+     }
+    },
+    {
+     "name": "Senior partner",
+     "pay": 65,
+     "needs": {
+      "logic": 6,
+      "charisma": 6
+     }
+    },
+    {
+     "name": "Name partner",
+     "pay": 85,
+     "needs": {
+      "logic": 7,
+      "charisma": 7
+     }
     }
    ],
    "shift": 6,
@@ -4950,7 +6409,20 @@
    ],
    "promote": [
     6,
-    12
+    12,
+    16,
+    20
+   ],
+   "schedule": {
+    "days": 5,
+    "from": 9,
+    "to": 19
+   },
+   "length": 1.2,
+   "overtime": true,
+   "trains": [
+    "logic",
+    "charisma"
    ]
   },
   {
@@ -4964,11 +6436,26 @@
     },
     {
      "name": "House musician",
-     "pay": 34
+     "pay": 34,
+     "needs": {
+      "music": 5
+     }
     },
     {
      "name": "Headliner",
-     "pay": 55
+     "pay": 55,
+     "needs": {
+      "music": 7,
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Touring artist",
+     "pay": 80,
+     "needs": {
+      "music": 8,
+      "charisma": 5
+     }
     }
    ],
    "shift": 4,
@@ -4989,12 +6476,23 @@
    ],
    "promote": [
     6,
-    10
+    10,
+    14
    ],
    "hobby": {
     "id": "music",
     "level": 4
-   }
+   },
+   "schedule": {
+    "days": 3,
+    "from": 19,
+    "to": 24
+   },
+   "length": 0.8,
+   "trains": [
+    "music",
+    "charisma"
+   ]
   },
   {
    "id": "illustrator",
@@ -5007,11 +6505,26 @@
     },
     {
      "name": "Illustrator",
-     "pay": 32
+     "pay": 32,
+     "needs": {
+      "painting": 6
+     }
     },
     {
      "name": "Art director",
-     "pay": 52
+     "pay": 52,
+     "needs": {
+      "painting": 7,
+      "charisma": 3
+     }
+    },
+    {
+     "name": "Creative director",
+     "pay": 70,
+     "needs": {
+      "painting": 8,
+      "charisma": 4
+     }
     }
    ],
    "shift": 6,
@@ -5032,12 +6545,22 @@
    ],
    "promote": [
     6,
-    10
+    10,
+    14
    ],
    "hobby": {
     "id": "painting",
     "level": 5
-   }
+   },
+   "schedule": {
+    "days": 4,
+    "from": 9,
+    "to": 18
+   },
+   "length": 0.9,
+   "trains": [
+    "painting"
+   ]
   },
   {
    "id": "chef",
@@ -5050,11 +6573,25 @@
     },
     {
      "name": "Sous chef",
-     "pay": 36
+     "pay": 36,
+     "needs": {
+      "cooking": 7
+     }
     },
     {
      "name": "Head chef",
-     "pay": 58
+     "pay": 58,
+     "needs": {
+      "cooking": 8
+     }
+    },
+    {
+     "name": "Executive chef",
+     "pay": 75,
+     "needs": {
+      "cooking": 9,
+      "charisma": 3
+     }
     }
    ],
    "shift": 8,
@@ -5075,12 +6612,23 @@
    ],
    "promote": [
     6,
-    10
+    10,
+    14
    ],
    "hobby": {
     "id": "cooking",
     "level": 6
-   }
+   },
+   "schedule": {
+    "days": 5,
+    "from": 11,
+    "to": 23
+   },
+   "length": 1,
+   "overtime": true,
+   "trains": [
+    "cooking"
+   ]
   }
  ],
  "cast": {
@@ -7520,5 +9068,20 @@
     "cook"
    ]
   }
- ]
+ ],
+ "skills": [
+  {
+   "id": "charisma",
+   "name": "Charisma",
+   "icon": "💬",
+   "desc": "Talking to people: customers, patients, bosses. Trained at work and in some courses."
+  },
+  {
+   "id": "logic",
+   "name": "Logic",
+   "icon": "🧠",
+   "desc": "Numbers, plans and problems. Trained at work and in courses."
+  }
+ ],
+ "workPreset": "reduced"
 }
