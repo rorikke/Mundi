@@ -2,7 +2,8 @@
 // the world, people's own lives moving on over the weeks, and rumors that travel between people.
 import { personaName } from '../st/bridge.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, isScenario, type WorldDef, type LoreWhen } from '../core/world.js';
+import { systemOn, isScenario, type WorldDef, type LoreWhen, type Occupation } from '../core/world.js';
+import { exampleOf, adultOn } from './dayplan.js';
 import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { regionOf, regionState } from './worldstate.js';
@@ -44,17 +45,24 @@ export function activeWorldLore(g: Save, w: WorldDef): string[] {
 // Couples between people of the world (the pairs in the relationships store, sim/rel.ts). They form from feelings
 // (sim/relations.ts), not here.
 export const couples = (g: Save): [string, string][] => couplePairs(g).map(p => [p.a, p.b]);
+// The world's own people stay themselves (E25): their job and home change only through their stories or the player
+// (an example character with `anchored: false` may change by chance like anyone).
+const anchored = (w: WorldDef, r: Resident) => { const ex = exampleOf(w, r); return !!ex && ex.anchored !== false; };
+// A job someone could just take: one that asks for no training (courses, skills, a hobby level), that the world's
+// people can hold, and that this game has (adult jobs only with adult content on).
+const takeable = (g: Save, w: WorldDef, o: Occupation) => !o.courses?.length && !Object.keys(o.skills ?? {}).length && !o.hobby && !o.needs?.length && o.hireable !== false && (!o.adult || adultOn(g)) && w.places.some(p => p.id === o.place);
 function lifeGoesOn(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
-    const people = residents(g);
+    const people = residents(g).filter(r => !anchored(w, r));
     if (!people.length) return out;
     // about once a week someone's life changes: a new job or a new home
     if (rnd(g, 'life') > 0.15) return out;
     const r = people[Math.floor(rnd(g, 'who') * people.length)];
     const kind = rnd(g, 'kind');
     const tell = (t: string, a: string[]) => { if (r.met) out.push(a.reduce((s, x, i) => s.replace(`{${i}}`, x), t)); };
-    if (kind < 0.35 && w.occupations.length) {
-        const o = w.occupations[Math.floor(rnd(g, 'job') * w.occupations.length)];
+    const jobs = w.occupations.filter(o => takeable(g, w, o));
+    if (kind < 0.35 && jobs.length) {
+        const o = jobs[Math.floor(rnd(g, 'job') * jobs.length)];
         if (o.id !== r.occupation && systemOn(w, 'jobs')) {
             r.occupation = o.id; delete ((g as any).living?.ranks ?? {})[r.avatar];
             note(g, '{0} started a new job: {1}.', [r.name, o.name], [r.avatar], o.place, 'life'); tell('{0} started a new job: {1}.', [r.name, o.name]);
@@ -62,10 +70,11 @@ function lifeGoesOn(g: Save, w: WorldDef): string[] {
         }
     } else if (kind < 0.6) {
         const z = w.homes.zones[Math.floor(rnd(g, 'zone') * w.homes.zones.length)];
-        // the whole household moves together (someone who lives with you stays)
-        if (homeKey(r.home) !== homeKey(g.player.home)) {
+        // the whole household moves together (someone who lives with you stays; nobody moves away from one of the world's
+        // own people)
+        const house = residents(g).filter(x => homeKey(x.home) === homeKey(r.home));
+        if (homeKey(r.home) !== homeKey(g.player.home) && !house.some(x => anchored(w, x))) {
             const taken = takenHomes(g);
-            const house = people.filter(x => homeKey(x.home) === homeKey(r.home));
             const spot = homeSpot(w, z.id, taken, g.player.home);
             for (const x of house) x.home = { ...spot };
             normalizeHomes(g);
