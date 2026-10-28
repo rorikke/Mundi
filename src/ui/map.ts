@@ -10,17 +10,19 @@ import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNigh
 
 import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom } from '../core/store.js';
 import { runPlans } from './plans.js';
-import { maybeBump } from './bump.js';
+import { maybeBump, BUMP } from './bump.js';
 import { gradeName } from '../sim/dice.js';
 import { setPrompt } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
 import { getWorld, worldFile, systemOn, type WorldDef, isScenario } from '../core/world.js';
 import { openNow, pictureAt, entryDue, payEntry } from '../sim/daynight.js';
+import { looksAt } from '../sim/worldstate.js';
 import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import type { Save } from '../core/store.js';
 import { thumb } from '../st/bridge.js';
-import { pins, placeOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
+import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
+import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
@@ -34,7 +36,7 @@ import { refreshPrompt } from '../sim/prompt.js';
 import { canAfford, money, actionsHere, tooTired } from '../sim/needs.js';
 import { book } from '../sim/ledger.js';
 import { fits, hire, rankOf, pendingBranch, jobDef, jobPlace, openJobs, hourlyPay, weekText, perfOf, realDays, canWork, atWork } from '../sim/work.js';
-import { advance, weekday } from '../sim/time.js';
+import { advance, weekday, hm } from '../sim/time.js';
 import { syncScene } from '../sim/game.js';
 import { endVisit } from '../sim/visits.js';
 import { toolsHtml } from './tools.js';
@@ -172,7 +174,7 @@ function roomsHtml(g: Save, w: WorldDef) {
     const kindPic = (p: any) => { const k = p.home ? w.homes.kinds[p.id === playerHomeId ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[String(p.id).slice(5)]?.home.zone)?.kind ?? '')] : null; return k ? pictureAt(w, g.minutes, k.image, k.images) : ''; };
     const list = pins(g, w).filter(p => !p.link);
     const yours = list.filter(p => p.id === playerHomeId), rooms = list.filter(p => !p.home), beds = list.filter(p => p.home && p.id !== playerHomeId);
-    const card = (p: any) => { const pic = p.home ? kindPic(p) : pictureAt(w, g.minutes, p.bg, p.bgs); const here = presentAt(g, w, p.id); const you = p.id === g.player.loc;
+    const card = (p: any) => { const pic = p.home ? kindPic(p) : pictureAt(w, g.minutes, p.bg, p.bgs, looksAt(g, w, p.id)); const here = presentAt(g, w, p.id); const you = p.id === g.player.loc;
         return `<button class="mu-room ${you ? 'is-you' : ''}" data-act="go" data-loc="${esc(p.id)}" title="${you ? 'Back to this room' : 'Go here'}"><i style="${pic ? `background-image:url('${esc(worldFile(w, pic))}')` : ''}">${you ? `<em>${icon('pin')} You</em>` : ''}</i>
             <b data-notr>${esc(p.id === playerHomeId ? 'Your room' : String(p.name).replace(/'s home$/, "'s room"))}</b>${here.length ? `<span class="faces">${here.slice(0, 5).map(r => `<img src="${esc(thumb(r.avatar))}" alt="" title="${esc(r.met ? r.name : 'Someone')}">`).join('')}${here.length > 5 ? `<i>+${here.length - 5}</i>` : ''}</span>` : ''}</button>`; };
     const head = `<div class="mu-rooms-head"><h3 data-notr>${esc(w.name)}</h3></div>`;
@@ -234,7 +236,7 @@ export function mapHtml() {
         ${away ? `<button data-act="open-map" data-map="">${icon('pin')}<span>Back to where you are</span></button>` : ''}<b data-notr>${esc(map.name)}</b></div>` : '';
     return `<div class="mu-map">${nav}${mapsPicker ? mapsPickerHtml(g, w, map.id) : ''}
         <div class="mu-stage" data-stage>
-            <div class="mu-mapimg" style="--r:${map.ratio};background-image:url('${esc(worldFile(w, pictureAt(w, g.minutes, map.image, map.images)!))}')">${pinsHtml(g, w)}</div>
+            <div class="mu-mapimg" style="--r:${map.ratio};background-image:url('${esc(worldFile(w, pictureAt(w, g.minutes, map.image, map.images, looksAt(g, w, undefined, map.id))!))}')">${pinsHtml(g, w)}</div>
             <div class="mu-zoom">
                 <button data-act="zoom" data-d="in" title="Zoom in">+</button>
                 <button data-act="zoom" data-d="out" title="Zoom out">−</button>
@@ -365,14 +367,20 @@ export const mapInput = {
 
 // Moves the player: time passes, the scene follows (who is there now), and the screen goes to the scene.
 // A long journey (RPG, between regions): first, how you go (making camp, or pushing on).
+// (E4) After the last train, a trip to another map: first, a taxi or a wait for the first train (`late`).
 export const JOURNEY = { to: '', minutes: 0, camps: 0 };
-export async function travelTo(loc: string, road?: 'camp' | 'push') {
+export const LATE = { to: '', minutes: 0, fare: 0, wait: 0 };
+export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi' | 'wait') {
     const { g, w } = ctxW();
     if (loc === g.player.loc) return;
     if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; }   // nobody walks out mid-sentence
     const fee = entryDue(g, w, loc);   // (E19) a gate to pay at, once a day
     if (fee && g.player.money < fee) { toast(`Getting into ${placeOf(g, w, loc)?.name ?? 'there'} costs ${money(w, fee)}. Not enough money.`, 'info'); return; }
     const mins = travelMinutes(g, w, g.player.loc, loc);
+    if (!late && missedTrain(g, w, g.player.loc, loc)) { Object.assign(LATE, { to: loc, minutes: mins, fare: taxiFare(g, w, mins), wait: untilFirstTrain(w, g.minutes) }); notify(); return; }
+    const fare = late === 'taxi' ? taxiFare(g, w, mins) : 0;
+    if (fare && g.player.money < fare + fee) { toast(`A taxi there costs ${money(w, fare)}. Not enough money.`, 'info'); return; }
+    LATE.to = '';
     const trip = journeyOf(g, w, g.player.loc, loc, mins);
     if (trip && trip.camps > 0 && !road) { Object.assign(JOURNEY, { to: loc, minutes: mins, camps: trip.camps }); notify(); return; }
     // the scene you leave closes; the next one starts clean. Not in a Home: walking from room to room (often with
@@ -380,13 +388,20 @@ export async function travelTo(loc: string, road?: 'camp' | 'push') {
     if (!isScenario(w)) await endVisit(g, w);
     beforeTravel(g, w, loc).forEach(m => toast(m, 'info'));
     const from = g.player.loc;
+    const waited = late === 'wait' ? advance(g, w, untilFirstTrain(w, g.minutes)) : [];   // at the station until the first train
+    if (fare) { g.player.money -= fare; book(g, 'Taxi', -fare); toast(`The taxi cost ${money(w, fare)}.`, 'info'); }
+    // (E11) who is where as you leave: someone you know may be on the same train
+    const train = !fare && byTrain(g, w, from, loc) && systemOn(w, 'living') && !BUMP.who;
+    const departed = g.minutes;
+    const before = train ? new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)])) : null;
     (g as any).traveling = true;   // the trip itself costs no energy (only what you do does)
-    const msgs = road ? travelRoad(g, w, mins, road === 'camp') : advance(g, w, mins);
+    const msgs = [...waited, ...(road ? travelRoad(g, w, mins, road === 'camp') : advance(g, w, mins))];
     delete (g as any).traveling;
     JOURNEY.to = '';
     if (g.player.loc === from) g.player.loc = loc;   // unless something on the way moved you (passing out…)
     viewMap = null;
     msgs.forEach(m => toast(m, 'warn'));
+    if (before && g.player.loc === loc) meetOnTrain(g, w, before, from, loc, departed);
     if (g.player.loc === loc && openNow(g, w, loc)) {   // the gate is shut when it's closed: nothing to pay
         const paid = payEntry(g, w, loc);
         if (paid) { book(g, placeOf(g, w, loc)?.name ?? 'Entry', -paid); toast(`You paid ${money(w, paid)} to get in.`, 'info'); }
@@ -400,9 +415,23 @@ export async function travelTo(loc: string, road?: 'camp' | 'push') {
     notify();
 }
 
+// (E11) Someone you know made the same trip (or, at rush hour, left from the same station): now and then you run into
+// them on the way, and they can come along for a while (the encounter's own choices, ui/bump.ts).
+function meetOnTrain(g: Save, w: WorldDef, before: Map<string, string>, from: string, to: string, departed: number) {
+    const after = new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)]));
+    const list = fellowTravelers(g, w, before, after, from, to, departed);
+    if (!list.length) return;
+    const same = list.some(r => mapOf(g, w, after.get(r.avatar)!) === mapOf(g, w, to));
+    if (Math.random() >= meetOdds(same, departed)) return;
+    BUMP.who = list[Math.floor(Math.random() * list.length)].avatar;
+    BUMP.on = same ? 'train' : 'station';
+}
+
 // The journey dialog: the road takes hours; make camp at night, or push on without rest.
+// (E4) After the last train: a taxi, or a wait for the first train.
 export function journeyHtml(): string {
     const g = game(); const w = g && getWorld(g.world);
+    if (g && w && LATE.to) return lateHtml(g, w);
     if (!g || !w || !JOURNEY.to) return '';
     const p = placeOf(g, w, JOURNEY.to); const h = Math.round(JOURNEY.minutes / 60);
     return `<div class="mu-recap-veil"><section class="mu-recap mh-glass mu-journey" role="dialog" aria-label="Journey">
@@ -413,6 +442,18 @@ export function journeyHtml(): string {
             <button class="mu-work-mode" data-act="jr-road" data-v="push"><i>🌙</i><b>${esc(lex(w, 'pushOn'))}</b><small>Arrive sooner, but exhausted (no rest).</small></button>
         </div>
         <button class="mu-ghost" data-act="jr-cancel">Stay here</button></section></div>`;
+}
+function lateHtml(g: Save, w: WorldDef): string {
+    const p = placeOf(g, w, LATE.to);
+    const first = hm(g.minutes + LATE.wait);
+    return `<div class="mu-recap-veil"><section class="mu-recap mh-glass mu-journey" role="dialog" aria-label="The last train has gone">
+        <header><small>The last train has gone</small><h3 data-notr>${esc(p?.name ?? '')}</h3></header>
+        <p>${esc(`No trains run until ${first}.`)} <span class="mu-muted">You could also find somewhere to sleep around here.</span></p>
+        <div class="mu-work-modes">
+            ${LATE.fare ? `<button class="mu-work-mode" data-act="lt-go" data-v="taxi"><i>🚕</i><b>Take a taxi</b><small>${esc(`${money(w, LATE.fare)} · ${LATE.minutes} min`)}</small></button>` : ''}
+            <button class="mu-work-mode" data-act="lt-go" data-v="wait"><i>🚉</i><b>Wait for the first train</b><small>${esc(`At ${first}, then ${LATE.minutes} min`)}</small></button>
+        </div>
+        <button class="mu-ghost" data-act="lt-cancel">Stay here</button></section></div>`;
 }
 
 // Goes to a place and straight into its scene.
@@ -492,6 +533,8 @@ Object.assign(ACT, {
     'plan-floor': (el) => { PV.floor = el.dataset.id ?? ''; notify(); },
     'jr-road': async (el) => { const to = JOURNEY.to; if (!to) return; await travelTo(to, el.dataset.v as 'camp' | 'push'); },
     'jr-cancel': () => { JOURNEY.to = ''; notify(); },
+    'lt-go': async (el) => { const to = LATE.to; if (!to) return; await travelTo(to, undefined, el.dataset.v as 'taxi' | 'wait'); },
+    'lt-cancel': () => { LATE.to = ''; notify(); },
 });
 Object.assign(ACT, {
     work: async () => {

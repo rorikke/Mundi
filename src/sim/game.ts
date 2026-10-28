@@ -3,6 +3,7 @@
 // world's lorebook and a group chat. The save lives in that chat. Also where a game starts (E16 starts), the world's
 // own households (E18) and what adult content leaves out (E15).
 import { pictureAt } from './daynight.js';
+import { looksAt } from './worldstate.js';
 import { addXp, makeSheet, syncLife, type NewSheet } from './rpg.js';
 import { rpgOf } from '../core/rpgdef.js';
 import { SCHEMA } from '../core/saves.js';
@@ -574,8 +575,9 @@ function followBackground(g: Save, w: WorldDef) {
     if ((settings2() as any).bgFollow !== 'chat') return;
     const p = placeOf2(g, w, g.player.loc);
     if (!p) return;
-    let img = pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs) ?? '';
-    if (!img && p.home) { const k = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? '')]; img = (k && pictureAt(w, g.minutes, k.image, k.images)) ?? ''; }
+    const looks = looksAt(g, w, p.id);
+    let img = pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs, looks) ?? '';
+    if (!img && p.home) { const k = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? '')]; img = (k && pictureAt(w, g.minutes, k.image, k.images, looks)) ?? ''; }
     if (!img) return;
     const url = `url("${worldFile(w, img)}")`;
     const m = ctx().chatMetadata;

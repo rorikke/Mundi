@@ -9,12 +9,13 @@ import { nowAbs, changes, type Save, type Resident } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef, type Routine } from '../core/world.js';
 import { isWeekend } from './time.js';
 import { appointmentNow, isWith } from './social.js';
-import { weatherOn } from './weather.js';
+import { worldWeather } from './weather.js';
 import { weatherAt } from './worldstate.js';
 import { breakNow } from './daylife.js';
 import { openAt } from './daynight.js';
 import { festivalsOn } from './festivals.js';
-import { placeOn, extraRooms } from './places.js';
+import { placeOn, extraRooms, mapOf, tripMinutes } from './places.js';
+import { trainHours } from './transit.js';
 import { partySpot } from './houseparty.js';
 import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace, type Stamp } from './dayplan.js';
 
@@ -79,7 +80,7 @@ function leisureSpot(g: Save, w: WorldDef, r: Resident, day: number, stepHour: n
     // (a region with a weather of its own may be dry while it rains elsewhere)
     const wet = (id: string) => weatherAt(g, w, id, day).rain;
     // it rains on her plans: an outdoor spot of hers is wet (or, with none, it rains in the world)
-    const raining = list.some(id => outdoors(w, id)) ? list.some(id => outdoors(w, id) && wet(id)) : weatherOn(g.world, day).rain;
+    const raining = list.some(id => outdoors(w, id)) ? list.some(id => outdoors(w, id) && wet(id)) : worldWeather(g, w, day).rain;
     if (raining) {
         const dry = list.filter(id => !outdoors(w, id) || !wet(id));
         list = dry.length ? dry : w.places.filter(p => !p.adult && (p.tags ?? []).some(t => t === 'food' || t === 'shop')).map(p => p.id);
@@ -126,6 +127,8 @@ function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp):
     st ??= stampOf(g, w);
     const shift = scheduled(g, w, r) ? shiftAt(g, w, r, at, st) : null;
     if (shift) return shift.place;
+    const late = lateNight(g, w, r, at, homeId, st);
+    if (late) return late;
     const step = dayStep(g, w, r, at, st), start = step[0];
     const target = step[1] === 'work' && scheduled(g, w, r) ? 'leisure' : step[1];
     if (target === 'home') return homeId;
@@ -135,6 +138,44 @@ function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp):
     }
     if (target === 'leisure') return eventSpot(g, w, r.avatar, at) ?? festivalSpot(g, w, at, { map: homeMapOf(g, w, r) }) ?? leisureSpot(g, w, r, day, start, st);   // on a festival day, free time is spent there
     return w.places.some(p => p.id === target) && placeOn(g, w, target) && (adultOn(g) || !w.places.find(p => p.id === target)?.adult) ? target : homeId;
+}
+// (E36) A night out past the last train: where she was when it left (a standing appointment, a date, her free time)
+// and home is more than a short taxi ride away, so she stays out until the first train (there while it's open, else
+// somewhere open all night on that map) instead of going home or on somewhere else; after a night like that she sleeps
+// in until noon (work still comes first). Only in a world with trains, with the living world on.
+const NEAR = 20, LIE_IN = 12 * 60;
+function lateNight(g: Save, w: WorldDef, r: Resident, at: number, homeId: string, st: Stamp): string | null {
+    const t = trainHours(w);
+    if (!t || t.last === t.first || !systemOn(w, 'living')) return null;
+    const step = dayStep(g, w, r, at, st)[1];
+    if (step !== 'home' && step !== 'leisure' && !(step === 'work' && scheduled(g, w, r))) return null;
+    // the night `at` belongs to: the last train before it, the first one after that
+    const day = Math.floor(at / 1440);
+    let last = day * 1440 + t.last;
+    if (last > at) last -= 1440;
+    const first = last + ((t.first - t.last + 1440) % 1440);
+    if (at === last) return null;   // (where she is as the last train leaves: the night is worked out from it)
+    if (at < first) return stayOut(g, w, r, last, first, at, homeId, st);
+    if (at >= first - t.first + LIE_IN) return null;
+    return stayOut(g, w, r, last, first, first - 1, homeId, st) ? homeId : null;
+}
+/** (E36) Out past the last train right now, waiting for the first one (what the AI is told). */
+export function waitingForTrain(g: Save, w: WorldDef, r: Resident, at = nowAbs(g)): boolean {
+    if (isScenario(w) || !trainHours(w)) return false;
+    const homeId = (r as any).homeWith === '__you' ? 'home:player' : (r as any).homeWith ? `home:${(r as any).homeWith}` : `home:${r.avatar}`;
+    const x = lateNight(g, w, r, at, homeId, stampOf(g, w));
+    return !!x && x !== homeId;
+}
+// Where she waits for the first train, or null when she went home (nothing out past the last train, or home is near).
+function stayOut(g: Save, w: WorldDef, r: Resident, last: number, first: number, at: number, homeId: string, st: Stamp): string | null {
+    const s = slotAt(g, w, r, last, st);
+    let out = s && s.to > last && s.to < first ? s.place : null;
+    if (!out && !s && !shiftAt(g, w, r, last, st)) { const k = dayStep(g, w, r, last, st)[1]; if (k === 'leisure' || (k === 'work' && scheduled(g, w, r))) out = routineCore(g, w, r, last, st); }
+    if (!out || out.startsWith('home:') || out === OUT || mapOf(g, w, out) === mapOf(g, w, homeId) || tripMinutes(g, w, out, homeId) <= NEAR) return null;
+    if (openAt(g, w, out, at)) return out;
+    const adult = adultOn(g), map = mapOf(g, w, out);
+    const open = w.places.filter(p => p.map === map && !p.link && (!p.adult || adult) && (p.tags ?? []).some(x => x === 'leisure' || x === 'food') && placeOn(g, w, p.id) && openAt(g, w, p.id, at));
+    return open.length ? open[hash(`${r.avatar}|night|${last}`) % open.length].id : null;
 }
 /** Where they work at that moment (their shift, their routine's work hours for a job without a schedule, or working
  *  late), or null when they aren't working. */

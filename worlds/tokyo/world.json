@@ -67,101 +67,112 @@
    "name": "Tokyo",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "area": "Tokyo",
-   "town": true
+   "town": true,
+   "minutesPerUnit": 0.6
   },
   {
    "id": "shibuya",
    "name": "Shibuya & Harajuku",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "shinjuku",
    "name": "Shinjuku",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "westside",
    "name": "Shimokita & Kōenji",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 20
   },
   {
    "id": "akiba",
    "name": "Akihabara & Kanda",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "oldtown",
    "name": "Asakusa, Ueno & Yanaka",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 20
   },
   {
    "id": "marunouchi",
    "name": "Marunouchi & Ginza",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "bay",
    "name": "Odaiba & Toyosu",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 20
   },
   {
    "id": "roppongi",
    "name": "Roppongi & Azabu",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "yokohama",
    "name": "Yokohama",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "tokyo",
    "parent": "tokyo",
    "area": "Yokohama",
-   "trip": 40
+   "trip": 40,
+   "local": 20
   },
   {
    "id": "hakone",
    "name": "Hakone",
    "image": "../modern/midtown.jpg",
    "ratio": 1.7914,
-   "climate": "temperate",
+   "climate": "hakone",
    "parent": "tokyo",
    "area": "Hakone",
-   "trip": 90
+   "trip": 90,
+   "local": 30
   }
  ],
  "homes": {
@@ -18951,7 +18962,17 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "openByDay": {
+    "fri": [
+     19,
+     5
+    ],
+    "sat": [
+     19,
+     5
+    ]
+   }
   },
   {
    "id": "sj_tocho",
@@ -19776,11 +19797,9 @@
    "staff": "the master grills at the door; servers shout orders; office groups in loosened ties; a regular asleep in the corner",
    "crowd": 1.3,
    "closed": [
-    "latenight",
     "firsttrain",
     "rush",
-    "midmorning",
-    "afternoon"
+    "midmorning"
    ],
    "open": [
     17,
@@ -19789,7 +19808,17 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "openByDay": {
+    "fri": [
+     17,
+     1
+    ],
+    "sat": [
+     16,
+     23
+    ]
+   }
   },
   {
    "id": "mg_palace",
@@ -19918,7 +19947,10 @@
    },
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "closedIn": [
+    "storm"
+   ]
   },
   {
    "id": "bay_mall",
@@ -20079,7 +20111,7 @@
    ],
    "open": [
     22,
-    5
+    4
    ],
    "closedDays": [
     "mon",
@@ -20088,7 +20120,17 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "openByDay": {
+    "fri": [
+     22,
+     5
+    ],
+    "sat": [
+     22,
+     5
+    ]
+   }
   },
   {
    "id": "rp_sky",
@@ -20195,7 +20237,17 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "openByDay": {
+    "fri": [
+     18,
+     3
+    ],
+    "sat": [
+     18,
+     3
+    ]
+   }
   },
   {
    "id": "rp_pub",
@@ -20221,7 +20273,21 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 63,
-   "y": 72
+   "y": 72,
+   "openByDay": {
+    "fri": [
+     12,
+     2
+    ],
+    "sat": [
+     12,
+     2
+    ],
+    "sun": [
+     12,
+     24
+    ]
+   }
   },
   {
    "id": "rp_poleclub",
@@ -20546,7 +20612,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "closedIn": [
+    "gas"
+   ]
   },
   {
    "id": "hk_sculpture",
@@ -20580,8 +20649,8 @@
    "id": "link_shibuya",
    "name": "Shibuya & Harajuku",
    "map": "tokyo",
-   "x": 10,
-   "y": 12,
+   "x": 36,
+   "y": 62,
    "link": "shibuya",
    "tags": []
   },
@@ -20589,8 +20658,8 @@
    "id": "link_shinjuku",
    "name": "Shinjuku",
    "map": "tokyo",
-   "x": 37,
-   "y": 12,
+   "x": 35,
+   "y": 34,
    "link": "shinjuku",
    "tags": []
   },
@@ -20598,8 +20667,8 @@
    "id": "link_westside",
    "name": "Shimokita & Kōenji",
    "map": "tokyo",
-   "x": 63,
-   "y": 12,
+   "x": 16,
+   "y": 43,
    "link": "westside",
    "tags": []
   },
@@ -20607,8 +20676,8 @@
    "id": "link_akiba",
    "name": "Akihabara & Kanda",
    "map": "tokyo",
-   "x": 90,
-   "y": 12,
+   "x": 68,
+   "y": 29,
    "link": "akiba",
    "tags": []
   },
@@ -20616,8 +20685,8 @@
    "id": "link_oldtown",
    "name": "Asakusa, Ueno & Yanaka",
    "map": "tokyo",
-   "x": 10,
-   "y": 42,
+   "x": 73,
+   "y": 10,
    "link": "oldtown",
    "tags": []
   },
@@ -20625,8 +20694,8 @@
    "id": "link_marunouchi",
    "name": "Marunouchi & Ginza",
    "map": "tokyo",
-   "x": 37,
-   "y": 42,
+   "x": 65,
+   "y": 47,
    "link": "marunouchi",
    "tags": []
   },
@@ -20634,8 +20703,8 @@
    "id": "link_bay",
    "name": "Odaiba & Toyosu",
    "map": "tokyo",
-   "x": 63,
-   "y": 42,
+   "x": 74,
+   "y": 88,
    "link": "bay",
    "tags": []
   },
@@ -20643,8 +20712,8 @@
    "id": "link_roppongi",
    "name": "Roppongi & Azabu",
    "map": "tokyo",
-   "x": 90,
-   "y": 42,
+   "x": 49,
+   "y": 65,
    "link": "roppongi",
    "tags": []
   },
@@ -20652,8 +20721,8 @@
    "id": "link_yokohama",
    "name": "Yokohama",
    "map": "tokyo",
-   "x": 10,
-   "y": 72,
+   "x": 20,
+   "y": 92,
    "link": "yokohama",
    "tags": []
   },
@@ -20661,8 +20730,8 @@
    "id": "link_hakone",
    "name": "Hakone",
    "map": "tokyo",
-   "x": 37,
-   "y": 72,
+   "x": 5,
+   "y": 80,
    "link": "hakone",
    "tags": []
   }
@@ -36138,5 +36207,286 @@
    }
   ]
  },
- "cover": "../modern/cover.jpg"
+ "cover": "../modern/cover.jpg",
+ "transit": {
+  "last": 0.5,
+  "first": 5,
+  "taxi": {
+   "base": 500,
+   "perMinute": 250
+  },
+  "walk": 5
+ },
+ "climates": {
+  "tokyo": {
+   "seasons": {
+    "spring": {
+     "sunny": 22,
+     "fair": 22,
+     "partly": 16,
+     "cloudy": 16,
+     "rain": 20,
+     "heavyrain": 4
+    },
+    "summer": {
+     "sunny": 8,
+     "hot": 28,
+     "fair": 6,
+     "humid": 32,
+     "partly": 6,
+     "cloudy": 6,
+     "rain": 8,
+     "heavyrain": 4,
+     "storm": 2
+    },
+    "autumn": {
+     "sunny": 30,
+     "fair": 24,
+     "partly": 14,
+     "cloudy": 12,
+     "rain": 12,
+     "heavyrain": 3,
+     "storm": 5
+    },
+    "winter": {
+     "sunny": 46,
+     "fair": 24,
+     "partly": 10,
+     "cloudy": 12,
+     "rain": 6,
+     "snow": 2
+    }
+   },
+   "days": [
+    {
+     "season": "summer",
+     "from": 1,
+     "to": 5,
+     "odds": {
+      "fair": 6,
+      "humid": 4,
+      "partly": 8,
+      "cloudy": 30,
+      "rain": 42,
+      "heavyrain": 10
+     }
+    },
+    {
+     "season": "autumn",
+     "from": 1,
+     "to": 6,
+     "odds": {
+      "sunny": 14,
+      "fair": 14,
+      "humid": 12,
+      "partly": 10,
+      "cloudy": 14,
+      "rain": 16,
+      "heavyrain": 8,
+      "storm": 12
+     }
+    },
+    {
+     "season": "winter",
+     "from": 6,
+     "to": 14,
+     "odds": {
+      "sunny": 42,
+      "fair": 22,
+      "partly": 10,
+      "cloudy": 13,
+      "rain": 7,
+      "snow": 6
+     }
+    }
+   ],
+   "regional": {
+    "fujiview": {
+     "winter": 0.75,
+     "autumn": 0.35,
+     "spring": 0.25,
+     "summer": 0.1
+    }
+   },
+   "names": {
+    "storm": "Typhoon"
+   }
+  },
+  "hakone": {
+   "seasons": {
+    "spring": {
+     "sunny": 18,
+     "fair": 18,
+     "partly": 16,
+     "cloudy": 20,
+     "rain": 22,
+     "heavyrain": 6
+    },
+    "summer": {
+     "sunny": 8,
+     "hot": 10,
+     "fair": 8,
+     "humid": 18,
+     "partly": 10,
+     "cloudy": 16,
+     "rain": 18,
+     "heavyrain": 8,
+     "storm": 4
+    },
+    "autumn": {
+     "sunny": 24,
+     "fair": 20,
+     "partly": 14,
+     "cloudy": 18,
+     "rain": 16,
+     "heavyrain": 4,
+     "storm": 4
+    },
+    "winter": {
+     "sunny": 36,
+     "fair": 20,
+     "partly": 10,
+     "cloudy": 14,
+     "snow": 14,
+     "rain": 6
+    }
+   },
+   "days": [
+    {
+     "season": "summer",
+     "from": 1,
+     "to": 5,
+     "odds": {
+      "fair": 4,
+      "partly": 4,
+      "cloudy": 34,
+      "rain": 44,
+      "heavyrain": 14
+     }
+    },
+    {
+     "season": "autumn",
+     "from": 1,
+     "to": 6,
+     "odds": {
+      "sunny": 12,
+      "fair": 12,
+      "humid": 8,
+      "partly": 10,
+      "cloudy": 18,
+      "rain": 18,
+      "heavyrain": 10,
+      "storm": 12
+     }
+    },
+    {
+     "season": "winter",
+     "from": 6,
+     "to": 14,
+     "odds": {
+      "sunny": 32,
+      "fair": 18,
+      "partly": 10,
+      "cloudy": 14,
+      "snow": 20,
+      "rain": 6
+     }
+    }
+   ],
+   "regional": {
+    "fujiview": {
+     "winter": 0.85,
+     "autumn": 0.45,
+     "spring": 0.3,
+     "summer": 0.15
+    },
+    "gas": {
+     "spring": 0.06,
+     "summer": 0.05,
+     "autumn": 0.06,
+     "winter": 0.1
+    }
+   },
+   "names": {
+    "storm": "Typhoon"
+   }
+  }
+ },
+ "skies": {
+  "events": [],
+  "hazards": [
+   {
+    "id": "typhoon",
+    "name": "Typhoon",
+    "desc": "trains run slow or stop, shops pull down their shutters early, and everyone stays in",
+    "climate": "tokyo",
+    "weather": [
+     "storm"
+    ],
+    "chance": 1,
+    "drain": {
+     "mood": 1.3,
+     "energy": 1.2
+    },
+    "closes": true
+   },
+   {
+    "id": "heat",
+    "name": "Heatstroke alert",
+    "desc": "heat warnings on every screen; the asphalt shimmers and the konbini is the only cool place",
+    "climate": "tokyo",
+    "season": "summer",
+    "weather": [
+     "hot",
+     "humid"
+    ],
+    "chance": 0.4,
+    "drain": {
+     "thirst": 2,
+     "energy": 1.3
+    }
+   },
+   {
+    "id": "snowday",
+    "name": "Snow in the city",
+    "desc": "a rare snowfall: trains slow down, people slip on station steps, and the streets go quiet",
+    "climate": "tokyo",
+    "weather": [
+     "snow"
+    ],
+    "chance": 1,
+    "drain": {
+     "energy": 1.3
+    }
+   },
+   {
+    "id": "typhoon_hk",
+    "name": "Typhoon",
+    "desc": "the mountain railway stops, the ropeway is shut and the ryokan guests stay in",
+    "climate": "hakone",
+    "weather": [
+     "storm"
+    ],
+    "chance": 1,
+    "drain": {
+     "mood": 1.3,
+     "energy": 1.2
+    },
+    "closes": true
+   },
+   {
+    "id": "heavysnow",
+    "name": "Heavy snow",
+    "desc": "the roads over the pass close and the buses stop; the baths steam in the white",
+    "climate": "hakone",
+    "weather": [
+     "snow"
+    ],
+    "chance": 0.5,
+    "drain": {
+     "energy": 1.4
+    }
+   }
+  ]
+ }
 }

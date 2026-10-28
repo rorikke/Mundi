@@ -24,6 +24,7 @@ import { factUi, stamp } from './journal.js';
 import { applyGameLore } from '../sim/lore.js';
 import { icon } from './icons.js';
 import { weekday } from '../sim/time.js';
+import { LAST_TRAIN_RULES, lastTrainRule } from '../sim/transit.js';
 import { tabHouseholds } from './households.js';
 import { houseRoomsHtml } from './newgame.js';
 import { openCreatorEdit, CW as CREATOR } from './creator.js';
@@ -317,6 +318,7 @@ function tabRules(g: Save, w: WorldDef): string {
         <section class="mu-wc-sec"><h4>Jobs</h4><ul class="mu-lib-jobs">${w.occupations.map(o => `<li><b>${esc(o.name)}</b> <small>${o.ranks.map(r => esc(r.name)).join(' → ')}</small></li>`).join('')}</ul></section>
         ${WC.adv ? `<section class="mu-wc-sec"><h4>Advanced settings</h4>
             ${slider('Travel time', 'travel', c.travel ?? 1, 0.25, 3, 0.25, '×')}
+            ${w.transit?.last !== undefined ? `<div class="mu-field"><span>After the last train</span><div class="mu-heropick is-start">${LAST_TRAIN_RULES.map(x => `<button class="mu-herocard ${lastTrainRule(g) === x.id ? 'is-on' : ''}" data-act="wc-lasttrain" data-v="${x.id}"><b>${x.name}</b><p>${x.desc}</p></button>`).join('')}</div></div>` : ''}
             ${slider('How fast needs drop', 'decay', c.decay ?? 1, 0, 3, 0.25, '×')}
             ${slider('Days in each season', 'seasonDays', c.seasonDays ?? 14, 3, 60, 1, ' days')}
             ${systemOn(w, 'jobs') ? `<label class="mu-field slider"><span>Career speed · ${workRules(g, w).speed}× <small class="mu-muted">(2×: careers twice as fast)</small></span><input type="range" min="0.25" max="4" step="0.25" value="${workRules(g, w).speed}" data-input="wc-work" data-k="speed"></label>` : ''}
@@ -435,8 +437,9 @@ Object.assign(ACT, {
     },
     'wc-past-forget': async (el) => { const g = game(); if (!g) return; forgetPast(g, WC.who, el.dataset.b!); await changed(); },
     'wc-tie-del': async (el) => { const g = game(); if (!g) return; removeTie(g, el.dataset.a!, el.dataset.b!); await changed(); },
+    'wc-lasttrain': (el) => { const g = game(); if (!g) return; const v = el.dataset.v; if (v === 'on') delete (cfg(g) as any).lastTrain; else (cfg(g) as any).lastTrain = v; saveGame(); notify(); },
     'wc-diff': (el) => { const g = game(); if (!g) return; (cfg(g) as any).difficulty = el.dataset.v; saveGame(); notify(); },
-    'wc-cfg-reset': () => { const g = game(); if (!g) return; const c = cfg(g); delete c.travel; delete c.decay; delete c.seasonDays; delete c.rel; resetRules(g); saveGame(); notify(); },
+    'wc-cfg-reset': () => { const g = game(); if (!g) return; const c = cfg(g); delete c.travel; delete (c as any).lastTrain; delete c.decay; delete c.seasonDays; delete c.rel; resetRules(g); saveGame(); notify(); },
     'wc-work-preset': (el) => { const g = game(); if (!g) return; setPreset(g, el.dataset.v as PresetId); saveGame(); refreshPrompt(); notify(); },
     'wc-save-card': async () => {
         const g = game(); const r = g?.cast[WC.who]; if (!g || !r) return;

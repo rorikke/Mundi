@@ -79,9 +79,12 @@ export function pins(g: Save, w: WorldDef) {
 
 // Travel time, rounded to the world's steps (15, 20, 30…), so the clock stays readable. Between maps (two cities
 // on a region map), the trip goes through the link pins on the bigger map.
-// Travel takes a fixed time: 30 minutes inside a town (a local map), 2 hours between towns or across a region map
+// Travel takes a fixed time: 30 minutes inside a town (a local map, or its own `local`), 2 hours between towns or across a region map
 // (a map that other maps hang from), 10 hours between realms (in a world of realms: a top map whose maps have towns
-// of their own, like the Three Crowns). The world's "travel" rule (advanced settings) scales them all.
+// of their own, like the Three Crowns). A district or a village with its own `trip` takes that long from the town.
+// (E4) A town of districts on a rail map (`town` with `minutesPerUnit`): a trip between two districts takes the train's
+// time for the distance between their pins, plus the walk to the station (`transit.walk`); a getaway, its `trip`.
+// The world's "travel" rule (advanced settings) scales them all.
 export const LOCAL_TRIP = 30, GLOBAL_TRIP = 120, REALM_TRIP = 600;
 // The realm a map belongs to: the map right under the top one, when it has maps of its own ('' otherwise).
 export function realmOf(w: WorldDef, mapId?: string): string {
@@ -97,6 +100,11 @@ export function realmOf(w: WorldDef, mapId?: string): string {
 export function travelMinutes(g: Save, w: WorldDef, from: string, to: string): number {
     if (from === to) return 0;
     if (isScenario(w)) return 0;   // Home: from one room to another takes no time
+    return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) / 5) * 5);
+}
+/** The world's own time for a trip (minutes), before the "travel" rule and what you own (a car) change it. */
+export function tripMinutes(g: Save, w: WorldDef, from: string, to: string): number {
+    if (from === to || isScenario(w)) return 0;
     const a = placeOf(g, w, from), b = placeOf(g, w, to);
     const isRegion = (mapId?: string) => !!mapId && w.maps.some(m => m.parent === mapId) && !w.maps.find(m => m.id === mapId)?.town;
     const local = !!a && !!b && a.map === b.map && !isRegion(a.map);
@@ -105,9 +113,24 @@ export function travelMinutes(g: Save, w: WorldDef, from: string, to: string): n
         const ma = w.maps.find(m => m.id === a.map), mb = w.maps.find(m => m.id === b.map);
         const near = ma && mb && (ma.parent === mb.id || mb.parent === ma.id || (!!ma.parent && ma.parent === mb.parent));
         const t = near ? Math.max(ma.parent === mb.id || ma.parent === mb.parent ? ma.trip ?? 0 : 0, mb.parent === ma.id || ma.parent === mb.parent ? mb.trip ?? 0 : 0) : 0;
-        if (t) return Math.max(5, Math.round(t * (cfg(g).travel ?? 1) * travelFactor(g, w) / 5) * 5);
+        if (t) return t;
+        const rail = near ? railMinutes(w, a, b) : 0;
+        if (rail) return rail;
     }
     const ra = realmOf(w, a?.map), rb = realmOf(w, b?.map);
-    if (ra && rb && ra !== rb) return Math.max(5, Math.round(REALM_TRIP * (cfg(g).travel ?? 1) * travelFactor(g, w) / 5) * 5);
-    return Math.max(5, Math.round((local ? LOCAL_TRIP : GLOBAL_TRIP) * (cfg(g).travel ?? 1) * travelFactor(g, w) / 5) * 5);
+    if (ra && rb && ra !== rb) return REALM_TRIP;
+    return local ? (w.maps.find(m => m.id === a!.map)?.local ?? LOCAL_TRIP) : GLOBAL_TRIP;
+}
+// (E4) By train between two districts of a town on a rail map: the distance between their pins on it (a district's
+// link pin, or the place's own pin when it's on the town's map) × its minutes per unit, plus the walk to the station.
+// 0 when the town has no speed of its own.
+function railMinutes(w: WorldDef, a: Place, b: Place): number {
+    const ma = w.maps.find(m => m.id === a.map), mb = w.maps.find(m => m.id === b.map);
+    const town = ma?.parent === mb?.id ? mb : mb?.parent === ma?.id ? ma : w.maps.find(m => m.id === ma?.parent);
+    if (!town?.town || !(Number(town.minutesPerUnit) > 0)) return 0;
+    const pin = (p: Place) => (p.map === town.id ? p : w.places.find(x => x.map === town.id && x.link === p.map));
+    const pa = pin(a), pb = pin(b);
+    if (!pa || !pb) return 0;
+    const d = Math.hypot(pa.x - pb.x, (pa.y - pb.y) / (town.ratio || 1));
+    return d * Number(town.minutesPerUnit) + (w.transit?.walk ?? 0);
 }

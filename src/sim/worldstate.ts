@@ -11,9 +11,9 @@ import { systemOn, type WorldDef, type MapDef } from '../core/world.js';
 import { onDay, onHour } from './hooks.js';
 import { mapOf, isHome, playerHomeId } from './places.js';
 import { presentAt } from './people.js';
-import { isWeekend } from './time.js';
+import { isWeekend, seasonOf } from './time.js';
 import { partOf, openNow, periodPrice, partMood } from './daynight.js';
-import { weatherOn } from './weather.js';
+import { skyOn, regionalOn, isRegional, weatherMatches, type Weather } from './weather.js';
 import { facts } from './facts.js';
 import { lex } from '../core/lexicon.js';
 
@@ -38,18 +38,31 @@ export function regionState(g: Save, w: WorldDef, id: string): Region {
 
 /* ---------- weather ---------- */
 
-// The weather of a region: the world's own, unless the map has a weather of its own (a far island, the mountains).
-export function weatherAt(g: Save, w: WorldDef | null | undefined, place: string, day = g.day) {
-    const forced = weatherOverride(g, w, place, day); if (forced) return forced;   // a spell called rain or cleared the sky
-    const map = w && place ? regionDef(w, regionOf(g, w, place)) : undefined;
-    return weatherOn(map?.ownWeather ? `${g.world}:${map.id}` : g.world, day);
+// The weather of a region: the world's own, unless the map has a weather of its own (a far island, the mountains);
+// (E2) from the region's climate when the world has climates.
+export function weatherAt(g: Save, w: WorldDef | null | undefined, place: string, day = g.day): Weather {
+    const forced = weatherOverride(g, w, place, day); if (forced) return { id: forced.rain ? 'rain' : 'sunny', ...forced };   // a spell called rain or cleared the sky
+    return skyOn(g, w, w && place ? regionOf(g, w, place) : undefined, day);
+}
+/** (E2) Whether the weather at a place is `v` (a condition's `weather:`): a kind (see weatherMatches), or the region's
+ *  own weather (`fujiview`, `gas`; at that minute of the day, for a view). */
+export function weatherIs(g: Save, w: WorldDef | null | undefined, place: string, day: number, v: string, minutes?: number): boolean {
+    const s = v.toLowerCase();
+    if (isRegional(w, s)) return regionalOn(g, w, s, w && place ? regionOf(g, w, place) : undefined, day, minutes);
+    return weatherMatches(weatherAt(g, w, place, day), s);
 }
 
 // The weather where you are now (a moon at night when it is clear), for the HUD and the AI.
 export function weatherHere(g: Save, w: WorldDef | null | undefined) {
     const wx = weatherAt(g, w, g.player.loc);
     const night = g.minutes < 330 || g.minutes >= 1170;
-    return { ...wx, icon: night && !wx.rain ? '🌙' : wx.icon };
+    return { ...wx, icon: night && !wx.rain && !wx.snow ? '🌙' : wx.icon };
+}
+/** (E7) What a place's (or a map's) pictures can be picked by right now: the weather's kinds (heavy rain and storms are
+ *  rain too) and the season. */
+export function looksAt(g: Save, w: WorldDef | null | undefined, place?: string, map?: string): string[] {
+    const wx = place ? weatherAt(g, w, place) : skyOn(g, w, map, g.day);
+    return [wx.id, ...(wx.rain && wx.id !== 'rain' ? ['rain'] : []), seasonOf(g).id];
 }
 
 /* ---------- how busy a place is, right now ---------- */
@@ -78,7 +91,7 @@ export function crowdLevel(g: Save, w: WorldDef, place: string): number {
     const weekend = isWeekend(g.day);
     if (weekend) rhythm *= tags.some(t => t === 'leisure' || t === 'shop' || t === 'food') ? 1.3 : tags.some(t => t === 'work' || t === 'study' || t === 'service') ? 0.4 : 1;
     const outdoors = tags.includes('leisure') && !tags.some(t => ['food', 'shop', 'service', 'work', 'study'].includes(t));
-    if (outdoors && weatherAt(g, w, place).rain) rhythm *= 0.25;
+    if (outdoors) { const wx = weatherAt(g, w, place); rhythm *= wx.rain ? 0.25 : wx.snow ? 0.5 : 1; }
     const r = regionDef(w, p.map);
     const mood = moodNow(g, w, p.map);
     const own = p.crowd;   // a place can be quieter (0.5) or busier (1.5) than its kind
@@ -118,7 +131,7 @@ function dayInRegion(g: Save, w: WorldDef, id: string): string[] {
     const yesterday = (g.day - 1) * 1440;
     const here = facts(g).filter(f => f.at >= yesterday && f.at < g.day * 1440 && !isHome(f.place) && regionOf(g, w, f.place) === id);
     const good = here.filter(f => GOOD.includes(f.kind ?? '')).length, bad = here.filter(f => BAD.includes(f.kind ?? '')).length;
-    const wx = weatherOn(regionDef(w, id)?.ownWeather ? `${g.world}:${id}` : g.world, g.day);
+    const wx = skyOn(g, w, id, g.day);
     const out: string[] = [];
     const name = regionDef(w, id)?.name ?? id;
     // tension: back toward the usual, up with trouble; now and then something stirs people up
@@ -129,7 +142,7 @@ function dayInRegion(g: Save, w: WorldDef, id: string): string[] {
     if (t0 < 50 && r.tension >= 50) out.push(lex(w, 'tensionUp', name));
     if (t0 >= 50 && r.tension < 50) out.push(lex(w, 'tensionDown', name));
     // public mood: back toward the usual, lifted by sun, weekends and good times, pulled down by rain and tension
-    r.mood += (b.mood - r.mood) * 0.2 + (wx.rain ? -8 : wx.name === 'Sunny' ? 4 : 0) + (isWeekend(g.day) ? 5 : 0) + good * 2 - bad * 3 - r.tension / 12 + (rnd(g, `m|${id}`) - 0.5) * 12;
+    r.mood += (b.mood - r.mood) * 0.2 + (wx.rain ? (wx.id === 'storm' ? -12 : -8) : wx.id === 'sunny' ? 4 : wx.id === 'humid' ? -2 : 0) + (isWeekend(g.day) ? 5 : 0) + good * 2 - bad * 3 - r.tension / 12 + (rnd(g, `m|${id}`) - 0.5) * 12;
     r.mood = clamp(Math.round(r.mood), -100, 100);
     // prices drift a little each day around the region's usual, a bit up when times are good
     const p0 = r.price;
