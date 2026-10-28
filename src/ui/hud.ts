@@ -37,7 +37,9 @@ const stayHere = (g: Save) => { const s = stayOf(g); return !!s && s.where === g
 import { customActionRow, customModalHtml } from './custom.js';
 import { doingHtml } from './doing.js';
 import { apptActions, apptReminderHtml, conflictHtml } from './appts.js';
-import { social, isWith } from '../sim/social.js';
+import { social, isWith, withYou, giftable, giveKeepsake, keepsakesOf } from '../sim/social.js';
+import { sleepHere, bookedHere, nightPrice } from '../sim/stays.js';
+import { refreshPrompt } from '../sim/prompt.js';
 import { bumpHtml } from './bump.js';
 import { P as phone, phoneUnread } from './phone.js';
 import { PL, facePlanHtml } from './plans.js';
@@ -180,6 +182,7 @@ function hereBar(g: Save, w: WorldDef) {
 function actsColumn(g: Save, w: WorldDef) {
     if (state.view !== 'scene') return '';
     const acts = actionsHere(g, w);
+    const mates = acts.some(a => a.together) ? withYou(g, w) : [];
     const jobsOn = featureOn(w, 'jobs');
     const job = jobsOn && g.player.job && w.occupations.find(o => o.id === g.player.job!.id && (o.place === g.player.loc || offScreenWork(w)));
     const jobs = jobsOn && !g.player.job && !offScreenWork(w) ? w.occupations.filter(o => o.place === g.player.loc) : [];   // a scenario: apply on the phone
@@ -196,7 +199,9 @@ function actsColumn(g: Save, w: WorldDef) {
         ...jobs.map(o => `<button class="mh-act mh-glass" data-act="apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}><i>${icon('briefcase')}</i><b>Apply: ${esc(o.name)}</b><small>${missingCourses(g, w, o).length ? `${lex(w, 'needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}` : `${money(w, payOf(g, o.ranks[0].pay))}/h · interview 🎲 ${interviewChance(g, o, traitsOf(g))}%`}</small></button>`),
         ...(atHome && lockedOut(g) ? [`<button class="mh-act mh-glass is-warn" data-act="ph-open-homes"><i>${icon('home')}</i><b>${lex(w, 'lockedOutShort')}</b><small>${lex(w, 'lockedOutHint', appRef(w, 'homes'))}</small></button>`] : []),
         ...((atHome && !lockedOut(g)) || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
-        ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}</small></button>`),
+        ...innRows(g, w, atHome),
+        ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),
+        ...giftRows(g, w),
     ];
     { const cr = courseRow(g, w); if (cr) rows.splice(rows.length, 0, cr); }
     rows.push(customActionRow());   // an action you name yourself
@@ -205,6 +210,40 @@ function actsColumn(g: Save, w: WorldDef) {
         <button class="mh-acts-head mh-glass" data-act="dock-toggle">${icon(open ? 'up' : 'down')}<span>Things to do</span>${onPhone() ? `<em>${rows.length}</em>` : ''}</button>
         ${open ? `<div class="mh-acts-list" data-keep="dock">${rows.join('')}</div>` : ''}</aside>`;
 }
+
+// (E6) A place you can sleep at: book the night (when it includes things to do first) and sleep in your room.
+const REST_WORD: Record<string, string> = { poor: 'Poor rest', fair: 'Fair rest', good: 'Good rest', great: 'Great rest' };
+function innRows(g: Save, w: WorldDef, atHome: boolean): string[] {
+    const inn = !atHome && !stayHere(g) ? sleepHere(g, w) : null;
+    if (!inn) return [];
+    const booked = bookedHere(g, w), price = nightPrice(g, inn), poor = !booked && g.player.money < price;
+    const cost = price ? money(w, price) : 'Free';
+    return [
+        ...(!booked && inn.includes?.length ? [`<button class="mh-act mh-glass" data-act="book-night" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>🛎️</i><b>Book the night</b><small>${cost} · what the night includes is free</small></button>`] : []),
+        `<button class="mh-act mh-glass" data-act="sleep" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>${icon('moon')}</i><b>${booked ? 'Sleep until morning' : 'Sleep here'}</b><small>${booked ? 'Your night is booked' : cost} · ${REST_WORD[inn.rest] ?? REST_WORD.fair}</small></button>`,
+    ];
+}
+// (E35) Keepsakes you can give to someone you know who is here (one row; open it to pick what and to whom).
+let giveOpen = false;
+function giftRows(g: Save, w: WorldDef): string[] {
+    if (!systemOn(w, 'social')) return [];
+    const have = giftable(g, w), people = presentAt(g, w, g.player.loc).filter(r => r.met);
+    if (!have.length || !people.length) return [];
+    return [`<button class="mh-act mh-glass" data-act="give-open"><i>🎁</i><b>Give a keepsake</b><small>${have.length} to give</small></button>`,
+        ...(giveOpen ? have.flatMap(k => people.map(r => `<button class="mh-act mh-glass is-sub" data-act="give" data-id="${esc(k.id)}" data-who="${esc(r.avatar)}"><i>${esc(k.icon)}</i><b><span data-notr>${esc(k.name)}</span> → <span data-notr>${esc(r.name)}</span></b><small>× ${esc(String(keepsakesOf(g)[k.id] ?? 0))}</small></button>`)) : [])];
+}
+Object.assign(ACT, {
+    'give-open': () => { giveOpen = !giveOpen; notify(); },
+    give: (el) => {
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        const r = giveKeepsake(g, w, el.dataset.id!, el.dataset.who!);
+        giveOpen = false;
+        if (r.text) toast(r.text, r.ok && r.first && r.fit !== 'kind' ? 'success' : 'info');
+        if (r.ok && r.ai && state.view === 'scene') setPrompt('mundi_roll', r.ai);
+        if (r.ok) { saveGame(); refreshPrompt(); }
+        notify();
+    },
+});
 
 // On a phone the list is a sheet over the scene: closed until you open it, and it closes again after a choice.
 let actsPhone = false;

@@ -3,18 +3,19 @@
 import { lex, appRef } from '../core/lexicon.js';
 import { showTransition } from './lifeui.js';
 import { lockedOut } from '../sim/bills.js';
-import { afterAction, doorAnswer, sleepMood } from '../sim/life.js';
-import { hobbyNeed, practice } from '../sim/hobbies.js';
-import { afterEvent } from '../sim/cityevents.js';
+import { doorAnswer, sleepMood } from '../sim/life.js';
+import { hobbyNeed } from '../sim/hobbies.js';
+import { doAction } from '../sim/actions.js';
+import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
 
-import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom } from '../core/store.js';
+import { state, notify, esc, game, toast, saveGame, ROOT_ID, uiZoom } from '../core/store.js';
 import { runPlans } from './plans.js';
 import { maybeBump } from './bump.js';
-import { rollAction, gradeName } from '../sim/dice.js';
+import { gradeName } from '../sim/dice.js';
 import { setPrompt } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
 import { getWorld, worldFile, systemOn, type WorldDef, isScenario } from '../core/world.js';
-import { openNow, pictureAt } from '../sim/daynight.js';
+import { openNow, pictureAt, entryDue, payEntry } from '../sim/daynight.js';
 import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import type { Save } from '../core/store.js';
@@ -30,7 +31,8 @@ import { doing, isDoing } from './doing.js';
 import { stayOf } from './events.js';
 import { actionSound, lifeSound } from './sfx.js';
 import { refreshPrompt } from '../sim/prompt.js';
-import { applyAction, canAfford, money, actionsHere, addStatus, tooTired } from '../sim/needs.js';
+import { canAfford, money, actionsHere, tooTired } from '../sim/needs.js';
+import { book } from '../sim/ledger.js';
 import { shiftsToPromote, isOpen, fits, hire, rankOf, pendingBranch } from '../sim/work.js';
 import { advance, weekday } from '../sim/time.js';
 import { syncScene } from '../sim/game.js';
@@ -367,6 +369,8 @@ export async function travelTo(loc: string, road?: 'camp' | 'push') {
     const { g, w } = ctxW();
     if (loc === g.player.loc) return;
     if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; }   // nobody walks out mid-sentence
+    const fee = entryDue(g, w, loc);   // (E19) a gate to pay at, once a day
+    if (fee && g.player.money < fee) { toast(`Getting into ${placeOf(g, w, loc)?.name ?? 'there'} costs ${money(w, fee)}. Not enough money.`, 'info'); return; }
     const mins = travelMinutes(g, w, g.player.loc, loc);
     const trip = journeyOf(g, w, g.player.loc, loc, mins);
     if (trip && trip.camps > 0 && !road) { Object.assign(JOURNEY, { to: loc, minutes: mins, camps: trip.camps }); notify(); return; }
@@ -382,6 +386,10 @@ export async function travelTo(loc: string, road?: 'camp' | 'push') {
     if (g.player.loc === from) g.player.loc = loc;   // unless something on the way moved you (passing out…)
     viewMap = null;
     msgs.forEach(m => toast(m, 'warn'));
+    if (g.player.loc === loc && openNow(g, w, loc)) {   // the gate is shut when it's closed: nothing to pay
+        const paid = payEntry(g, w, loc);
+        if (paid) { book(g, placeOf(g, w, loc)?.name ?? 'Entry', -paid); toast(`You paid ${money(w, paid)} to get in.`, 'info'); }
+    }
     runPlans();
     state.sel = null;
     saveGame();
@@ -420,13 +428,23 @@ async function goTo(loc: string) {
     notify();
 }
 
+// (E6) The place's own bed (a capsule, a ryokan) when you sleep here and not at home or at someone's place.
+const innHere = (g: Save, w: WorldDef, away: boolean) => (g.player.loc !== playerHomeId && !away ? sleepHere(g, w) : null);
+const sleepMinutes = (g: Save, w: WorldDef, inn: ReturnType<typeof sleepHere>) => {
+    if (inn) return nightMinutes(g, w, inn);
+    const until = w.sleep.until;
+    return g.minutes < until ? until - g.minutes : 1440 - g.minutes + until;
+};
+
 async function sleep() {
     const { g, w } = ctxW();
     const stay = stayOf(g); const away = !!stay && stay.where === g.player.loc && g.player.loc !== playerHomeId;
-    if (w.sleep.homeOnly && g.player.loc !== playerHomeId && !away) { toast('You can only sleep at home.', 'info'); return; }
+    const inn = innHere(g, w, away);   // (E6) a capsule, a manga café, a ryokan…
+    if (w.sleep.homeOnly && g.player.loc !== playerHomeId && !away && !inn) { toast('You can only sleep at home.', 'info'); return; }
     if (g.player.loc === playerHomeId && !away && lockedOut(g)) { toast(lex(w, 'lockedOutGo', appRef(w, 'homes')), 'warn'); return; }
-    const until = w.sleep.until;
-    const mins = g.minutes < until ? until - g.minutes : 1440 - g.minutes + until;
+    if (inn && !bookedHere(g, w)) { const why = bookNight(g, w); if (why) { toast(why, 'info'); return; } }
+    const mins = sleepMinutes(g, w, inn);
+    const at = g.player.loc;
     const dayEnded = g.day;
     const judged = await endVisit(g, w);
     const start = daySnapshot(g, dayEnded);   // before the night: a change after midnight starts a new day
@@ -434,16 +452,10 @@ async function sleep() {
     g.asleep = true;
     const msgs = advance(g, w, mins);
     g.asleep = false;
-    for (const [id, v] of Object.entries(w.sleep.restore)) {
-        const d = w.statuses.find(s => s.id === id);
-        if (!d) continue;
-        g.player.stats[id] = Math.min(d.max, (id === 'energy' ? v : (g.player.stats[id] ?? d.start) + v));
-        if (d.decay?.awakeOnly) g.tick[`decay:${id}`] = nowAbs(g);   // the waking day starts counting now
-    }
+    // a bed away from home gives back part of a night at home (a capsule less than a ryokan)
+    const rest = inn ? wakeUpAt(g, w, at, inn) : null;
+    restAfterNight(g, w, rest, rest ? 0 : sleepMood(g, w));   // (a good bed at home lifts the mood)
     if (isRpg(w)) longRest(g, w);   // RPG: a long rest (hit points, focus, preparing spells)
-    // a night's sleep leaves you hungry, thirsty and in need of a wash; a good bed lifts the mood
-    for (const [id, v] of Object.entries({ hunger: -20, thirst: -25, hygiene: -25 })) addStatus(g, w, id, v);
-    { const m = sleepMood(g, w); if (m) addStatus(g, w, 'mood', m); }   // a good bed…
     msgs.forEach(m => toast(m, 'warn'));
     runPlans();
     saveGame();
@@ -511,8 +523,8 @@ Object.assign(ACT, {
     travel: (el) => goTo(el.dataset.loc!),
     sleep: () => {
         const { g, w } = ctxW();
-        const until = w.sleep.until;
-        const mins = g.minutes < until ? until - g.minutes : 1440 - g.minutes + until;
+        const stay = stayOf(g);
+        const mins = sleepMinutes(g, w, innHere(g, w, !!stay && stay.where === g.player.loc && g.player.loc !== playerHomeId));
         if (askAboutPlans(g, mins, 'sleep')) return;
         return sleep();
     },
@@ -526,25 +538,27 @@ Object.assign(ACT, {
         actionSound(a.effects, a.id);
         if (a.minutes >= 60) await verdictNow(g, w, 'a long action');   // an hour or more ends the scene
         await doing(a.label, a.icon ?? '⏳', a.minutes);   // a moment on screen while the time passes
-        applyAction(g, w, a);
-        advance(g, w, a.minutes).forEach(m => toast(m, 'warn'));
-        const roll = rollAction(g, w, a);
-        afterAction(g, w, a, roll ? roll.grade.includes('success') : null).forEach(m => toast(m, 'success'));
-        afterEvent(g, w, a);
-        practice(g, w, a, roll ? roll.grade.includes('success') : null, roll?.grade === 'critical-success').forEach(m => toast(m, 'success'));
+        // what it does (the roll, an outcome, a keepsake, time together, the fact) is decided in sim/actions.ts
+        const done = doAction(g, w, a);
+        done.lines.forEach(l => toast(l.text, l.kind));
         runPlans();
         saveGame();
         await syncScene();
-        if (roll) {
-            toast(`${gradeName(roll.grade)} — ${roll.text}`, roll.grade.includes('success') ? 'success' : 'warn');
-            // the AI only tells the story of the result the engine decided
-            if (state.view === 'scene') setPrompt('mundi_roll', `[Just now {{user}} tried to ${a.label.toLowerCase()}: ${gradeName(roll.grade).toLowerCase()}. ${roll.text} Narrate it in that light if it comes up.]`);
-        } else {
-            toast(`${a.name}: done.`, 'success');
-            if (isScenario(w) && state.view === 'scene') setPrompt('mundi_roll', `[Just now {{user}} chose to ${a.label.toLowerCase()}. Narrate how it goes, in the scene.]`);
-        }
+        const roll = done.roll;
+        if (roll) toast(`${gradeName(roll.grade)} — ${roll.text}`, roll.grade.includes('success') ? 'success' : 'warn');
+        else if (!done.outcome) toast(`${a.name}: done.`, 'success');
+        // the AI only tells the story of what the engine decided
+        if (state.view === 'scene') setPrompt('mundi_roll', done.ai);
         maybeBump(g, w);
         notify();
+    },
+    // (E6) Book the night here (to use what it includes before sleeping), then sleep when you like
+    'book-night': () => {
+        const { g, w } = ctxW();
+        const why = bookNight(g, w);
+        if (why) { toast(why, 'info'); return; }
+        toast('The night is booked: you can stay and sleep here.', 'success');
+        saveGame(); notify();
     },
     zoom: (el) => zoomBy(el.dataset.d === 'in' ? 1.3 : 1 / 1.3),
     'zoom-fit': () => applyMapView(true),
