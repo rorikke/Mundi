@@ -186,6 +186,8 @@ function owe(g: Save, who: string, n: number): string {
     if (!r) return n > 0 ? 'Someone owes you a favor.' : '';
     return n > 0 ? `${r.name} owes you a favor.` : `You called in a favor from ${r.name}.`;
 }
+/** Calls in a favor someone owes you (a plan they agree to, a good word at work): one fewer. */
+export const callInFavor = (g: Save, who: string) => owe(g, who, -1);
 /** Favors the world's people here owe you, for the AI. */
 export function favorLines(g: Save, present: Resident[]): string[] {
     const f = storyState(g).favors;

@@ -19,7 +19,8 @@ import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
 import { onHour, onDay } from './hooks.js';
-import { whenHolds, personNamed, parseWhen } from './when.js';
+import { whenHolds, personNamed, parseWhen, favorOwed } from './when.js';
+import { callInFavor } from './stories.js';
 import { presentAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
@@ -191,12 +192,13 @@ function nightMinutes(start: number, minutes: number) {
 
 /* ---------- a good word from someone high up (a referral) ---------- */
 
-// Someone you know who holds a high rank (3 or more) at their job can recommend you there, if they like you enough.
+// Someone you know who holds a high rank (3 or more) at their job can recommend you there, if they like you enough, or
+// if they owe you a favor (a street story's): then they say yes, and the favor is spent.
 export const REFER_RANK = 2, REFER_BOND = 40;
 export function canRefer(g: Save, w: WorldDef, avatar: string): Occupation | null {
     const r = g.cast[avatar]; const o = r && jobDef(w, r.occupation);
     if (!r || !o || !r.met || !systemOn(w, 'jobs') || g.player.job?.id === o.id || o.hireable === false) return null;
-    if (npcRank(g, avatar) < REFER_RANK || bondOf(g, avatar) < REFER_BOND) return null;
+    if (npcRank(g, avatar) < REFER_RANK || (bondOf(g, avatar) < REFER_BOND && !favorOwed(g, avatar))) return null;
     return o;
 }
 const asked = (g: Save) => (((g as any).living ??= {}).refAsked ??= {}) as Record<string, number>;
@@ -211,7 +213,9 @@ export function askReferral(g: Save, w: WorldDef, avatar: string): { ok: boolean
     if (askedThisWeek(g, avatar)) return { ok: false, text: `You already asked ${r.name} this week.` };
     asked(g)[avatar] = g.day;
     const chance = 0.35 + bondOf(g, avatar) / 200 + approvalOf(g, avatar) / 200;
-    if (Math.random() >= chance) { note(g, '{u} asked {0} for a good word at {1}; {0} could not promise anything.', [r.name, o.name], [avatar], g.player.loc, 'work'); return { ok: false, text: `${r.name} would rather not vouch for anyone at ${o.name} right now.` }; }
+    const no = bondOf(g, avatar) < REFER_BOND || Math.random() >= chance;
+    if (no && favorOwed(g, avatar) > 0) { callInFavor(g, avatar); note(g, '{u} called in the favor {0} owed them.', [r.name], [avatar], g.player.loc, 'work'); }
+    else if (no) { note(g, '{u} asked {0} for a good word at {1}; {0} could not promise anything.', [r.name, o.name], [avatar], g.player.loc, 'work'); return { ok: false, text: `${r.name} would rather not vouch for anyone at ${o.name} right now.` }; }
     (g as any).referral = { job: o.id, avatar, until: g.day + 14 };
     note(g, '{0} agreed to put in a good word for {u} at {1}.', [r.name, o.name], [avatar], g.player.loc, 'work');
     return { ok: true, text: `${r.name} will put in a good word for you at ${o.name}: apply within two weeks and you are in (if you have the courses it asks for).` };
