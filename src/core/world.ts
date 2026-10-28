@@ -180,9 +180,10 @@ export interface ActionDef {
     adult?: boolean;
 }
 /** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
- *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little").
- *  (E31) `rumor`: a rumor it starts among the people here. */
-export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number>; rumor?: string }
+ *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little");
+ *  `feelsDaily`: those gains count once a game day per person and action (Kaito's "this one's due"), and the text is
+ *  still told after that. (E31) `rumor`: a rumor it starts among the people here. */
+export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number>; feelsDaily?: boolean; rumor?: string }
 /** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`). */
 export interface ActionOutcome extends RollOutcome { weight: number; when?: When }
 /** (E14) A row of a world's shared outcome table: an outcome with an id the actions' `words` name. */

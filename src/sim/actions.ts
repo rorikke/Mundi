@@ -13,7 +13,7 @@ import { practice } from './hobbies.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
 import { facts, note, placeName } from './facts.js';
-import { whenHolds, markDone } from './when.js';
+import { whenHolds, markDone, doneToday } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, type TogetherGain } from './social.js';
 import { playerHomeId } from './places.js';
 import { startRumor } from './living.js';
@@ -45,6 +45,17 @@ function applyOutcome(g: Save, w: WorldDef, a: ActionDef, o: RollOutcome): numbe
     for (const [id, v] of Object.entries(o.effects ?? {})) addStatus(g, w, id, v);
     return cash;
 }
+// How a result changes some of the world's people's feelings. `feelsDaily`: a gain toward someone counts the first
+// time that day this action gives one (playing pachinko next to Kaito all afternoon is one "this one's due"); the
+// text is still told, and a loss always counts.
+function resultFeels(g: Save, w: WorldDef, a: ActionDef, o: RollOutcome | null | undefined, place: string) {
+    if (!o?.feels) return;
+    if (!o.feelsDaily) { feelsFrom(g, w, o.feels); return; }
+    const key = (name: string) => `feels:${a.id}:${name}`;
+    const now = Object.fromEntries(Object.entries(o.feels).filter(([name, n]) => n < 0 || !doneToday(g, key(name))));
+    for (const [name, n] of Object.entries(now)) if (n > 0) markDone(g, key(name), place);
+    feelsFrom(g, w, now);
+}
 const names = (g: Save, list: string[]) => { const n = list.map(a => g.cast[a]?.name ?? '').filter(Boolean); return n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n.at(-1)}` : n[0] ?? ''; };
 const cashText = (w: WorldDef, cash: number) => (cash ? ` (${cash > 0 ? '+' : '−'}${money(w, Math.abs(cash))})` : '');
 
@@ -70,7 +81,7 @@ export function doAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random):
         said = `${outcome.text}${cashText(w, cash)}`;
         if (outcome.text) lines.push({ text: said, kind: 'success' });
     }
-    feelsFrom(g, w, res?.feels); feelsFrom(g, w, outcome?.feels);
+    resultFeels(g, w, a, res, loc); resultFeels(g, w, a, outcome, loc);
     // (E31) a rumor it starts among the people here
     for (const t of [res?.rumor, outcome?.rumor]) if (t) startRumor(g, w, t, loc, { you: true, id: `act:${a.id}:${t.slice(0, 24)}` });
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;

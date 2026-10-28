@@ -1661,7 +1661,8 @@
      "feels": {
       "Kaito": 1
      },
-     "when": "present: Kaito"
+     "when": "present: Kaito",
+     "feelsDaily": true
     },
     {
      "weight": 30,
@@ -1824,7 +1825,8 @@
       "Mio": 1,
       "Chloe": 1
      },
-     "when": "present: Mio; present: Chloe"
+     "when": "present: Mio; present: Chloe",
+     "feelsDaily": true
     }
    ],
    "trains": "singing",
@@ -3016,7 +3018,8 @@
      },
      "feels": {
       "Shōta": 1
-     }
+     },
+     "feelsDaily": true
     },
     "fail": {
      "text": "He gives you a flawless hour. You leave charmed and slightly lonely.",
@@ -5107,7 +5110,8 @@
      "text": "Mio talks about the bus ride from Sendai and the winter coat she can't afford yet.",
      "feels": {
       "Mio": 1
-     }
+     },
+     "feelsDaily": true
     },
     {
      "weight": 30,
@@ -5117,7 +5121,8 @@
      },
      "feels": {
       "Mio": 1
-     }
+     },
+     "feelsDaily": true
     }
    ],
    "fact": "{u} chatted with Mio at {0}"
@@ -5157,7 +5162,8 @@
      },
      "feels": {
       "Haru": 1
-     }
+     },
+     "feelsDaily": true
     }
    ],
    "fact": "{u} watched the animators at {0}"
@@ -5218,7 +5224,8 @@
      },
      "feels": {
       "Haru": 1
-     }
+     },
+     "feelsDaily": true
     },
     "fail": {
      "text": "Haru erases it and shows you how.",
@@ -6867,7 +6874,8 @@
      "feels": {
       "Genzō": 1
      },
-     "when": "feels: Genzō good"
+     "when": "feels: Genzō good",
+     "feelsDaily": true
     }
    ],
    "fact": "{u} drank with Genzō Kamei in his corner at {0}",
@@ -9521,7 +9529,8 @@
      "text": "Lisa plays the lounge floor in her streetwear, trading English and Japanese into the mic; the room is hers by the second song.",
      "feels": {
       "Lisa": 1
-     }
+     },
+     "feelsDaily": true
     },
     {
      "weight": 40,
@@ -9531,7 +9540,8 @@
      },
      "feels": {
       "Lisa": 1
-     }
+     },
+     "feelsDaily": true
     }
    ],
    "fact": "{u} caught Lisa's set at {0}"
@@ -10289,7 +10299,8 @@
      },
      "feels": {
       "Lisa": 1
-     }
+     },
+     "feelsDaily": true
     }
    ],
    "fact": "{u} watched the show at {0}",
@@ -11000,7 +11011,8 @@
      },
      "feels": {
       "Sayuri": 1
-     }
+     },
+     "feelsDaily": true
     },
     "fail": {
      "text": "You are a beat behind; Sayuri laughs, fan raised, and carries you through.",
@@ -11031,7 +11043,8 @@
      "text": "A bottle with {u}'s name on a paper tag goes on the shelf.",
      "feels": {
       "Sayuri": 1
-     }
+     },
+     "feelsDaily": true
     }
    ],
    "fact": "{u} kept a bottle at {0}; the club's month looks a little better",
@@ -11210,7 +11223,8 @@
      },
      "feels": {
       "Akane": 1
-     }
+     },
+     "feelsDaily": true
     },
     "fail": {
      "text": "She yells 'Again!' and you do it again, and again, until it sounds right.",
