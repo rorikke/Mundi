@@ -33,8 +33,9 @@ export function maybeBump(g, w) {
     BUMP.on = '';
 }
 const MET_ON = { train: 'You run into each other on the train.', station: 'You run into each other at the station.' };
-// Where you met, for the fact: here, or on the way here.
-const metWhere = (g, w) => `${BUMP.on === 'train' ? 'on the train to ' : BUMP.on === 'station' ? 'at the station, on the way to ' : 'at '}${placeName(g, w, g.player.loc)}`;
+// The fact of meeting: where you met, here or on the way here, is part of the text so that it can be translated.
+const MET_AT = { '': 'at {1}', train: 'on the train to {1}', station: 'at the station, on the way to {1}' };
+const metNote = (g, w, r, end) => note(g, `{u} ran into {0} ${MET_AT[BUMP.on]} ${end}`, [r.name, placeName(g, w, g.player.loc)], [r.avatar], g.player.loc, 'meet');
 export function bumpHtml() {
     const g = game();
     const w = g && getWorld(g.world);
@@ -59,7 +60,7 @@ Object.assign(ACT, {
         // she stays a while with you, here (like "come with me", for an hour)
         social(g).with.push({ avatar: r.avatar, until: nowAbs(g) + TALK_MINUTES });
         markMet(g, r.avatar); // stopping to talk: now you know each other
-        note(g, '{u} ran into {0} {1} and stopped to talk.', [r.name, metWhere(g, w)], [r.avatar], g.player.loc, 'meet');
+        metNote(g, w, r, 'and stopped to talk.');
         BUMP.on = '';
         saveGame();
         await syncScene();
@@ -73,7 +74,7 @@ Object.assign(ACT, {
         if (g && w && r) {
             if (r.met) {
                 addBond(g, r.avatar, 2);
-                note(g, '{u} ran into {0} {1} and said hi.', [r.name, metWhere(g, w)], [r.avatar], g.player.loc, 'meet');
+                metNote(g, w, r, 'and said hi.');
             }
             else
                 markMet(g, r.avatar); // a hello is enough to know each other's name

@@ -1,4 +1,13 @@
-import { isScenario } from '../core/world.js';
+// Doing something at a place (E14): its price and needs, the time it takes, its roll, then one of its weighted
+// outcomes (its own, or a row of one of the world's shared tables told in its own words, like an omikuji), the keepsake
+// it leaves, the time together with whoever is with you, the fact that's remembered, and a line telling the AI what
+// just happened. ui/map.ts runs it once the waiting screen is done; the tests run it as is.
+// (E14.6) An action can also be played out in the scene: it starts at once (price and needs), becomes the scene's
+// focus while the clock runs (a step with each line you send, or the live clock), and ends once its time is up, with
+// the same results; its time passes once, whatever moved the clock. ui/sceneact.ts is its screen side.
+import { nowAbs, toast, clockMode } from '../core/store.js';
+import { isScenario, systemOn } from '../core/world.js';
+import { setPrompt } from '../st/bridge.js';
 import { applyAction, addStatus, money } from './needs.js';
 import { advance } from './time.js';
 import { rollAction, gradeName } from './dice.js';
@@ -8,13 +17,21 @@ import { practice } from './hobbies.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
 import { facts, note, placeName } from './facts.js';
-import { whenHolds, markDone } from './when.js';
+import { whenHolds, markDone, doneToday } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { playerHomeId } from './places.js';
+import { presentAt } from './people.js';
 import { startRumor } from './living.js';
+import { onLook } from './hooks.js';
+// The outcomes an action can draw from: its own, or (E14) a shared table's rows in this action's words.
+export function outcomesOf(w, a) {
+    if (!a.table)
+        return a.outcomes ?? [];
+    return (w.tables?.[a.table] ?? []).map(r => { const x = a.words?.[r.id]; return typeof x === 'string' ? { ...r, text: x } : x ? { ...r, ...x } : r; });
+}
 // One of the outcomes whose own condition holds, by weight.
 export function drawOutcome(g, w, a, place, rnd = Math.random) {
-    const list = (a.outcomes ?? []).filter((o, i) => !o.when || whenHolds(g, w, o.when, { place, id: a.id, key: `${a.id}#${i}` }));
+    const list = outcomesOf(w, a).filter((o, i) => !o.when || whenHolds(g, w, o.when, { place, id: a.id, key: `${a.id}#${i}` }));
     const total = list.reduce((s, o) => s + Math.max(0, o.weight ?? 0), 0);
     if (!list.length || !(total > 0))
         return null;
@@ -38,16 +55,40 @@ function applyOutcome(g, w, a, o) {
         addStatus(g, w, id, v);
     return cash;
 }
+// How a result changes some of the world's people's feelings. `feelsDaily`: a gain toward someone counts the first
+// time that day this action gives one (playing pachinko next to Kaito all afternoon is one "this one's due"); the
+// text is still told, and a loss always counts.
+function resultFeels(g, w, a, o, place) {
+    if (!o?.feels)
+        return;
+    if (!o.feelsDaily) {
+        feelsFrom(g, w, o.feels);
+        return;
+    }
+    const key = (name) => `feels:${a.id}:${name}`;
+    const now = Object.fromEntries(Object.entries(o.feels).filter(([name, n]) => n < 0 || !doneToday(g, key(name))));
+    for (const [name, n] of Object.entries(now))
+        if (n > 0)
+            markDone(g, key(name), place);
+    feelsFrom(g, w, now);
+}
 const names = (g, list) => { const n = list.map(a => g.cast[a]?.name ?? '').filter(Boolean); return n.length > 1 ? `${n.slice(0, -1).join(', ')} and ${n.at(-1)}` : n[0] ?? ''; };
 const cashText = (w, cash) => (cash ? ` (${cash > 0 ? '+' : '−'}${money(w, Math.abs(cash))})` : '');
 /** Does an action, everything after the waiting screen. `rnd` for the roll and the outcome (tests). */
 export function doAction(g, w, a, rnd = Math.random) {
-    const loc = g.player.loc, where = placeName(g, w, loc), home = loc === playerHomeId;
     const mates = a.together ? withYou(g, w) : [];
     const last = facts(g).at(-1)?.id;
     const lines = [];
     applyAction(g, w, a);
     advance(g, w, a.minutes).forEach(m => lines.push({ text: m, kind: 'warn' }));
+    return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd });
+}
+// What came of an action once its time has passed: the roll, an outcome, feelings, a rumor, a keepsake, the time
+// together, the fact and the AI's line. `last`: the newest fact before it began (a roll or an event that wrote its
+// own fact means no plain one); `ended`: it was played out in the scene.
+function results(g, w, a, o) {
+    const { place: loc, mates, last, lines, rnd } = o;
+    const where = placeName(g, w, loc), home = loc === playerHomeId;
     const roll = rollAction(g, w, a, rnd);
     const ok = roll ? roll.grade.includes('success') : null;
     afterAction(g, w, a, ok).forEach(m => lines.push({ text: m, kind: 'success' }));
@@ -63,8 +104,8 @@ export function doAction(g, w, a, rnd = Math.random) {
         if (outcome.text)
             lines.push({ text: said, kind: 'success' });
     }
-    feelsFrom(g, w, res?.feels);
-    feelsFrom(g, w, outcome?.feels);
+    resultFeels(g, w, a, res, loc);
+    resultFeels(g, w, a, outcome, loc);
     // (E31) a rumor it starts among the people here
     for (const t of [res?.rumor, outcome?.rumor])
         if (t)
@@ -86,14 +127,107 @@ export function doAction(g, w, a, rnd = Math.random) {
     if (t && !facts(g).some(f => f.place === loc && f.t === t && JSON.stringify(f.a) === JSON.stringify(args) && Math.floor(f.at / 1440) === g.day))
         note(g, t, args, mates, loc, 'action');
     markDone(g, a.id, loc);
-    return { lines, roll, outcome, keepsake: keep, with: mates, together, ai: actionLine(g, w, a, roll, said, mates) };
+    return { lines, roll, outcome, keepsake: keep, with: mates, together, ai: actionLine(g, w, a, roll, said, mates, o.ended) };
 }
-// What the AI is told just happened. It only tells the story of what the engine decided.
-export function actionLine(g, w, a, roll, said, mates) {
+// What the AI is told just happened. It only tells the story of what the engine decided. `ended`: an action played out
+// in the scene has just ended, so the reply tells how.
+export function actionLine(g, w, a, roll, said, mates, ended = false) {
     const label = a.label.toLowerCase();
     const who = mates.length ? `{{user}} and ${names(g, mates)}` : '{{user}}';
     const why = mates.length && a.together?.text ? ` (${a.together.text.replace(/[.\s]+$/, '')})` : '';
     const what = roll ? `${who} tried to ${label}${why}: ${gradeName(roll.grade).toLowerCase()}. ${roll.text}` : `${who} chose to ${label}${why}.`;
     const then = said ? ` ${said}` : '';
-    return `[Just now ${what}${then} ${isScenario(w) ? 'Narrate how it goes, in the scene.' : 'Narrate it in that light if it comes up.'}]`;
+    const tail = ended ? 'That is how it ended: narrate the end of it, in the scene; do not change the outcome.' : isScenario(w) ? 'Narrate how it goes, in the scene.' : 'Narrate it in that light if it comes up.';
+    return `[Just now ${what}${then} ${tail}]`;
 }
+export const sceneAct = (g) => g.act ?? undefined;
+// `min`: the shortest action a world's `scene.actions` plays out (a ten-minute omikuji is just done); `lines`: about
+// how many of your lines it lasts; `step`: the clock moves in steps of this many minutes.
+export const SCENE_ACT = { min: 20, lines: 3, step: 5 };
+/** Is this action played out in the scene? Its own `scene`, else the world's `scene.actions` when it takes a while and
+ *  someone you've met is here. Never an outing, never in a Home, and only with the living world on (off: everything is
+ *  done off-screen, as before). */
+export function playsInScene(g, w, a) {
+    if (a.scene === false || a.outing || isScenario(w) || !systemOn(w, 'living'))
+        return false;
+    if (a.scene)
+        return true;
+    return !!w.scene?.actions && a.minutes >= SCENE_ACT.min && presentAt(g, w, g.player.loc).some(r => r.met);
+}
+/** Starts an action in the scene: its price and needs now, then it's the scene's focus until its time is up. (The
+ *  screen finishes one that's going on first.) */
+export function startSceneAction(g, w, a) {
+    applyAction(g, w, a);
+    const now = nowAbs(g);
+    const act = { a, place: g.player.loc, start: now, until: now + Math.max(0, a.minutes), with: a.together ? withYou(g, w) : [], lines: [] };
+    g.act = act;
+    markDone(g, a.id, act.place); // done today (`daily`, `after`) from the moment it starts
+    setPrompt('mundi_roll', ''); // an earlier action's "just now" is over
+    return act;
+}
+/** Minutes left of the action going on. */
+export const sceneActLeft = (g) => { const act = sceneAct(g); return act ? Math.max(0, act.until - nowAbs(g)) : 0; };
+// How far one of your lines moves its clock: its time over about `lines` lines, in whole steps.
+export const stepOf = (a) => Math.max(SCENE_ACT.step, Math.round(a.minutes / SCENE_ACT.lines / SCENE_ACT.step) * SCENE_ACT.step);
+/** A line you sent while the action goes on (`fp`: its fingerprint): the clock moves one step (never past the
+ *  action's end, and not with the live clock, which runs by itself), and once its time is up it ends. A line already
+ *  counted moves nothing. Returns what the clock brought and how it ended, if it did. */
+export function sceneActStep(g, w, fp = '', rnd = Math.random) {
+    const act = sceneAct(g);
+    if (!act || g.player.loc !== act.place || (fp && act.lines.includes(fp)))
+        return null;
+    if (fp)
+        act.lines.push(fp);
+    const n = clockMode(g) === 'live' ? 0 : Math.min(stepOf(act.a), sceneActLeft(g));
+    const lines = n > 0 ? advance(g, w, n) : [];
+    lines.forEach(m => toast(m, 'warn'));
+    const done = sceneAct(g) === act && nowAbs(g) >= act.until ? finishSceneAction(g, w, { rnd }) : null;
+    return { lines, done };
+}
+/** Ends the action going on: what's left of its time passes (`rest`, while you're still there), then its results (the
+ *  roll, an outcome, the keepsake, time together with whoever is still with you, the fact), told on the screen and to
+ *  the AI. `judge`: the scene so far is judged once the reply that tells the end has come (sim/msglog.ts); leaving and
+ *  sleeping judge it themselves. */
+export function finishSceneAction(g, w, { rest = true, judge = true, rnd = Math.random } = {}) {
+    const act = sceneAct(g);
+    if (!act)
+        return null;
+    delete g.act; // first: the clock below may look at the scene again
+    const there = g.player.loc === act.place;
+    const last = facts(g).at(-1)?.id;
+    const lines = [];
+    const left = Math.max(0, act.until - nowAbs(g));
+    if (rest && there && left > 0)
+        advance(g, w, left).forEach(m => lines.push({ text: m, kind: 'warn' }));
+    const mates = there ? act.with.filter(a => withYou(g, w).includes(a)) : [];
+    const done = results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true });
+    done.lines.forEach(l => toast(l.text, l.kind));
+    if (done.roll)
+        toast(`${gradeName(done.roll.grade)} — ${done.roll.text}`, done.roll.grade.includes('success') ? 'success' : 'warn');
+    else if (!done.outcome)
+        toast(`${act.a.name}: done.`, 'success');
+    if (there)
+        setPrompt('mundi_roll', done.ai);
+    if (judge && there)
+        g.actJudge = nowAbs(g);
+    return done;
+}
+// The scene's focus while it goes on: what they're doing, for about how long, and that the game decides how it ends.
+export function sceneActLine(g, w) {
+    const act = sceneAct(g);
+    if (!act || g.player.loc !== act.place)
+        return '';
+    const mates = act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a));
+    const who = mates.length ? `{{user}} and ${names(g, mates)}` : '{{user}}';
+    const why = mates.length && act.a.together?.text ? ` (${act.a.together.text.replace(/[.\s]+$/, '')})` : '';
+    const left = sceneActLeft(g);
+    return `Scene focus: ${who} chose to ${act.a.label.toLowerCase()} and ${mates.length ? 'are' : 'is'} doing it now${why}${left ? `, for about ${left} more minutes` : ''}. Play the scene around it; the game decides how it turns out, so do not end it or tell how it went.`;
+}
+// After anything changed: an action whose time has passed (a time skip, the live clock) ends, with nothing more added
+// to the clock; so does one you're no longer at (you were moved away).
+export function lookSceneAction(g, w) {
+    const act = sceneAct(g);
+    if (act && (nowAbs(g) >= act.until || g.player.loc !== act.place))
+        finishSceneAction(g, w, { rest: false });
+}
+onLook.push((g, w) => lookSceneAction(g, w));

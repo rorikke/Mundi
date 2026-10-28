@@ -84,6 +84,13 @@ export function tr(text) {
             if (outs.some((o, i) => o !== parts[i]))
                 return outs.join(sep);
         }
+    // "Mon, Tue, Wed": a list in which every item is known
+    if (t.includes(', ')) {
+        const parts = t.split(', ');
+        const outs = parts.map(p => look(p));
+        if (outs.every(o => o !== null))
+            return outs.join(', ');
+    }
     // "Hygiene: Fresh": both sides known
     {
         const i = t.indexOf(': ');

@@ -109,6 +109,15 @@ function follow() {
         if (await homeTick())
             redraw();
     });
+    // (E14.6) an action played out in the scene: each line you send moves its clock, and it may end (ui/sceneact.ts)
+    on('MESSAGE_SENT', async (id) => {
+        const m = globalThis.SillyTavern?.getContext?.().chat?.[id];
+        if (!m?.is_user || m.is_system)
+            return;
+        const { sceneActTick } = await import('./ui/sceneact.js');
+        if (await sceneActTick(m))
+            redraw();
+    });
     // someone you did not know answered you in the scene: now you know them
     on('MESSAGE_RECEIVED', async (id) => {
         const { game, saveGame } = await import('./core/store.js');

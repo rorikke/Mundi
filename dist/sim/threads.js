@@ -95,8 +95,33 @@ function endThread(g, w, t, r) {
     note(g, e.text.replace(/\{\{user\}\}/g, '{u}'), [], [r.avatar], `home:${r.avatar}`, 'thread');
     if (e.fact)
         note(g, e.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
+    if (e.leaves)
+        return leaveMap(g, r, e.text);
     return [];
 }
+/** They leave the world's maps for good (the save keeps them): no more plans, company, invitations or placements. */
+export function leaveMap(g, r, why) {
+    const self = g.swap?.avatar;
+    if (r.avatar === self || r.gone)
+        return []; // (not the one you're playing as)
+    r.gone = { day: g.day, why };
+    const s = g.social;
+    if (s) {
+        s.with = (s.with ?? []).filter((c) => c.avatar !== r.avatar);
+        for (const a of s.appts ?? [])
+            if (a.avatar === r.avatar && a.state === 'set')
+                a.state = 'cancelled';
+        if (s.invite?.avatar === r.avatar)
+            s.invite = null;
+        if (s.solo === r.avatar)
+            s.solo = '';
+    }
+    if (g.brought)
+        delete g.brought[r.avatar];
+    return r.met ? [`${r.name}: ${why.replace(/\{\{user\}\}/g, 'you')}`] : [];
+}
+/** Has someone left the world's maps? */
+export const goneFromMap = (r) => !!r?.gone;
 /** Moves every thread on (once a day; also on first sight). */
 export function advanceThreads(g, w) {
     const list = systemOn(w, 'living') ? threadsOf(g, w) : [];

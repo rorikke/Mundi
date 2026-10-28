@@ -2,37 +2,49 @@
 // you book the night (its price), sleep there until its check-out hour, and use what the night includes (the ryokan's
 // dinner, baths and breakfast) from booking until you leave the next morning; a guest is never locked out. Waking up
 // there sets `player.stayed` (the `stayed` condition in sim/when.ts). How well you rest depends on the bed.
+// A collapse that takes you to a hospital (a need's crisis with `stay`) keeps you there for the night: a free bed until
+// the morning, and the shifts until then are sick days. You may still walk out; nothing waits for you.
 import { nowAbs } from '../core/store.js';
 import { addStatus } from './needs.js';
 import { isScenario } from '../core/world.js';
+import { onHour, onLook } from './hooks.js';
+import { sickLeave } from './work.js';
 import { priceOf } from './bills.js';
 import { whenHolds } from './when.js';
 import { note } from './facts.js';
 import { book } from './ledger.js';
+/** A hospital bed for the night after a collapse: free, a fair rest, out by ten. */
+export const WARD = { price: 0, rest: 'fair', until: 10 };
 /** What a night gives back of a night at home (energy, the world's other sleep restores), and the mood it leaves. */
 export const REST = {
     poor: { share: 0.45, mood: -4 }, fair: { share: 0.7, mood: 0 }, good: { share: 0.9, mood: 2 }, great: { share: 1, mood: 6 },
 };
-const placeSleep = (w, place) => w.places.find(p => p.id === place)?.sleep ?? null;
 const bookingOf = (g) => g.player.booked;
+// The place's own beds, or the ward's when you were kept there (that night, until the morning's check-out).
+const placeSleep = (w, place, g) => {
+    const b = g && bookingOf(g);
+    if (b?.ward && b.place === place && (b.day === g.day || (b.day === g.day - 1 && g.minutes < checkOut(w, WARD))))
+        return WARD;
+    return w.places.find(p => p.id === place)?.sleep ?? null;
+};
 const stayedOf = (g) => g.player.stayed;
 /** The hour you must leave in the morning (minutes after midnight). */
 export const checkOut = (w, s) => (s.until !== undefined ? Math.round(s.until * 60) : w.sleep.until);
 /** Can you sleep here (a place with `sleep` whose own condition holds)? Never in a Home: its rooms are the house's. */
 export function sleepHere(g, w, place = g.player.loc) {
-    const s = placeSleep(w, place);
+    const s = placeSleep(w, place, g);
     return s && !isScenario(w) && whenHolds(g, w, s.when, { place, key: `sleep|${place}` }) ? s : null;
 }
 /** What a night costs here now (after the difficulty). */
 export const nightPrice = (g, s) => Math.max(0, priceOf(g, s.price ?? 0));
 /** Is a night booked here (tonight's, not slept yet: booked today, or before midnight and still up)? */
 export function bookedHere(g, w, place = g.player.loc) {
-    const b = bookingOf(g), s = placeSleep(w, place);
+    const b = bookingOf(g), s = placeSleep(w, place, g);
     return !!b && !!s && b.place === place && (b.day === g.day || (b.day === g.day - 1 && g.minutes < checkOut(w, s)));
 }
 /** A guest here: booked tonight, or slept here and not yet past the check-out hour. */
 export function guestAt(g, w, place = g.player.loc) {
-    const s = placeSleep(w, place);
+    const s = placeSleep(w, place, g);
     if (!s)
         return false;
     if (bookedHere(g, w, place))
@@ -41,7 +53,7 @@ export function guestAt(g, w, place = g.player.loc) {
     return !!st && st.place === place && st.day === g.day && g.minutes < checkOut(w, s);
 }
 /** Actions this place's night includes, free for a guest. */
-export const includedHere = (g, w, place = g.player.loc) => (guestAt(g, w, place) ? placeSleep(w, place)?.includes ?? [] : []);
+export const includedHere = (g, w, place = g.player.loc) => (guestAt(g, w, place) ? placeSleep(w, place, g)?.includes ?? [] : []);
 /** Books tonight here: pays and remembers it. Returns '' when done, or why it can't be. */
 export function bookNight(g, w, place = g.player.loc) {
     const s = sleepHere(g, w, place);
@@ -72,6 +84,30 @@ export function wakeUpAt(g, w, place, s) {
     note(g, '{u} spent the night at {0}.', [name], [], place, 'stay');
     return REST[s.rest] ?? REST.fair;
 }
+/* ---------- kept in hospital after a collapse ---------- */
+/** Are you kept in a hospital bed tonight (here, or at `place`)? */
+export const inWard = (g, w, place = g.player.loc) => placeSleep(w, place, g) === WARD;
+/** You're kept for the night where the collapse took you: a free bed until the morning (sleep there as anywhere), and
+ *  the shifts until you're let out are sick days. */
+export function admit(g, w, place) {
+    g.player.booked = { place, day: g.minutes < WARD.until * 60 ? g.day - 1 : g.day, ward: true };
+    const out = (g.day + (g.minutes < WARD.until * 60 ? 0 : 1)) * 1440 + WARD.until * 60;
+    sickLeave(g, w, out);
+    note(g, '{u} was kept overnight at {0} after collapsing.', [w.places.find(p => p.id === place)?.name ?? place], [], place, 'crisis');
+}
+// After a crisis that takes you somewhere to stay (a collapse: the hospital), once, while you're there.
+export function lookCollapse(g, w) {
+    const c = g.lastCrisis;
+    if (!c || c.ward || nowAbs(g) - c.at > 120)
+        return;
+    const crisis = w.statuses.find(s => s.id === c.need)?.zero?.crisis;
+    if (!crisis?.stay || !crisis.place || crisis.place === 'home' || g.player.loc !== crisis.place || isScenario(w))
+        return;
+    c.ward = true;
+    admit(g, w, crisis.place);
+}
+onHour.push((g, w) => { lookCollapse(g, w); return []; });
+onLook.push(lookCollapse);
 /** The night's restores (the world's `sleep.restore`): in full at home (`rest` null), its share in a bed elsewhere
  *  (energy never drops below what you had). A night leaves you hungry, thirsty and in need of a wash; the bed sets
  *  the mood (`homeMood`: what your own bed gives). */

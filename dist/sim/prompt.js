@@ -28,6 +28,7 @@ import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiativ
 import { markSent } from './moments.js';
 import { threadLines } from './threads.js';
 import { favorLines } from './stories.js';
+import { sceneActLine } from './actions.js';
 import { familyLine } from './family.js';
 import { social, livePlan, companions } from './social.js';
 import { personaName } from '../st/bridge.js';
@@ -44,6 +45,7 @@ import { festivalLine } from './festivals.js';
 import { eventLine } from './cityevents.js';
 import { hobbyLine } from './hobbies.js';
 import { workLine } from './work.js';
+import { languageLines } from './language.js';
 import { realmLine } from './realm.js';
 import { legendLines } from './legends.js';
 import { skiesLine } from './skies.js';
@@ -73,6 +75,7 @@ export const BLOCKS = [
     { id: 'memories', name: 'Memories', desc: 'What the people here remember about you, and what happened earlier in this place.', cut: 9 },
     { id: 'plans', name: 'Plans', desc: 'Plans you made with the people here.', cut: 8 },
     { id: 'focus', name: 'Scene focus', desc: 'Why you are here: a date, a meet-up, someone who came along.', cut: 8 },
+    { id: 'language', name: 'Language', desc: 'When you don\'t speak the local language well yet (a newcomer in Tokyo): how much you follow, and with whom you share another language.', cut: 7 },
     { id: 'moments', name: 'Their initiatives', desc: 'What the people here bring up on their own this scene (opening up, a confession, asking you something), and what each one wants from you.', cut: 8 },
     { id: 'solo', name: 'Talking alone', desc: 'Who you are talking to when you talk only with one person.' },
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
@@ -161,6 +164,7 @@ export function sceneBlocks() {
         diary: diaryLines(g),
         memories: [...memoryLines(g, w, met, personaName()), ...placeMemoryLines(g, w, present)],
         plans: planLines(g, present, w),
+        language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
         you: [premiseLine(g), g.player.bio ? `About {{user}} in this world: ${g.player.bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g).name.toLowerCase()}.` : ''],
@@ -249,8 +253,13 @@ function hereLine(g, present, bg, sheets) {
     const also = mine.length ? present.filter(r => !mine.includes(r)) : [];
     return `Here with {{user}}: ${(mine.length ? mine : present).map(r => r.name).join(', ')}.${also.length ? ` Also here: ${also.map(r => r.name).join(', ')}.` : ''} Only they are characters in this scene${bg ? `.${extras}` : '; nobody else speaks or appears.'}`;
 }
-// The scene's focus (a short directive so the story does not wander): the plan or company that brought you here.
+// The scene's focus (a short directive so the story does not wander): the plan or company that brought you here, and
+// (E14.6) what you're doing together now, which says more than who came along.
 function focusLine(g, w, present, bg = false) {
+    const doing = sceneActLine(g, w), base = focusBase(g, w, present, bg);
+    return doing && (!base || base.includes(' came along with ')) ? doing : [base, doing].filter(Boolean).join('\n');
+}
+function focusBase(g, w, present, bg) {
     const now = nowAbs(g);
     const s = social(g);
     const here = new Set(present.map(r => r.avatar));

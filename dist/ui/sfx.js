@@ -148,7 +148,7 @@ export function installSfx() {
     }, true);
 }
 /* ---------- life sounds, made on the fly (no files): water, food, shower, work, sleep, rain ---------- */
-function noiseBuffer(a, seconds) {
+export function noiseBuffer(a, seconds) {
     const b = a.createBuffer(1, Math.floor(a.sampleRate * seconds), a.sampleRate);
     const d = b.getChannelData(0);
     let last2 = 0;
@@ -224,6 +224,22 @@ export function actionSound(effects = {}, id = '') {
         return lifeSound('food');
     if ((effects.thirst ?? 0) > 0)
         return lifeSound('water');
+}
+/** (E12) The shared output for the place sounds (ui/ambience.ts): the context and the master volume, once the browser
+ *  allows sound (after the first click); null before, or with sound off. */
+export function audioOut() {
+    try {
+        if (!on() || vol() <= 0)
+            return null;
+        const a = ctxAudio();
+        if (!a || a.state !== 'running' || !master)
+            return null;
+        master.gain.value = vol();
+        return { a, out: master };
+    }
+    catch {
+        return null;
+    }
 }
 // Rain: a quiet loop while it rains where you are (the map and scenes).
 let rainNode = null;

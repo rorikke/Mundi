@@ -1,7 +1,7 @@
 // Street stories (E17, E28): short stories that happen at a place now and then (a lost new hire at the station, a fan
 // following an idol home), written in the world's data (`stories`, core/world.ts): where, when, the setup the AI plays,
 // and two or three choices with a roll, each leading to money, needs, a keepsake, a rumor, a fact, how some of the
-// world's people feel about you, a favor owed (or called in), a thread learned. Each is seen once (`yearly`: once a
+// world's people feel about you, a favor owed (or called in), a thread learned, practice in a skill. Each is seen once (`yearly`: once a
 // year), at its place and when its condition holds, one at a time. The AI plays it with unnamed people around, or the
 // world's people by name; nobody new is made up. `brings`: one of the world's people is placed at the story's place
 // while it lasts (sim/dayplan.ts `bringTo`); `after`: another story was seen first. On screen it's a card like the
@@ -23,6 +23,7 @@ import { feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { startRumor } from './living.js';
 import { revealThread } from './threads.js';
 import { seasonDays } from './time.js';
+import { choicePractice } from './work.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -151,6 +152,7 @@ export function chooseStory(g, w, i, rand = Math.random) {
             res = c.fail ?? { text: 'It did not work out.' };
     }
     out.push(...applyResult(g, w, cur.s, res));
+    out.push(...choicePractice(g, w, c.roll?.skill, c.roll ? ok : null, res.trains)); // trying something trains it
     Object.assign(cur.now, { choice: i, ok, said: `${c.label.toLowerCase()}${c.roll ? (ok ? ' (and it worked)' : ' (and it did not work)') : ''}: ${res.text}` });
     storyState(g).seen[cur.s.id] = { day: storyState(g).seen[cur.s.id]?.day ?? g.day, choice: i, ok };
     setPrompt(STORY_PROMPT, storyLine(g, w));
@@ -208,6 +210,8 @@ function owe(g, who, n) {
         return n > 0 ? 'Someone owes you a favor.' : '';
     return n > 0 ? `${r.name} owes you a favor.` : `You called in a favor from ${r.name}.`;
 }
+/** Calls in a favor someone owes you (a plan they agree to, a good word at work): one fewer. */
+export const callInFavor = (g, who) => owe(g, who, -1);
 /** Favors the world's people here owe you, for the AI. */
 export function favorLines(g, present) {
     const f = storyState(g).favors;

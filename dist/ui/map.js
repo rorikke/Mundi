@@ -5,7 +5,8 @@ import { showTransition } from './lifeui.js';
 import { lockedOut } from '../sim/bills.js';
 import { doorAnswer, sleepMood } from '../sim/life.js';
 import { hobbyNeed } from '../sim/hobbies.js';
-import { doAction } from '../sim/actions.js';
+import { doAction, playsInScene } from '../sim/actions.js';
+import { startInScene, finishFirst } from './sceneact.js';
 import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
 import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom } from '../core/store.js';
 import { runPlans } from './plans.js';
@@ -426,6 +427,7 @@ export async function travelTo(loc, road, late) {
         toast('Wait until they finish speaking.', 'info');
         return;
     } // nobody walks out mid-sentence
+    finishFirst(g, w); // (E14.6) what you were doing in the scene ends first (the rest of its time passes)
     const fee = entryDue(g, w, loc); // (E19) a gate to pay at, once a day
     if (fee && g.player.money < fee) {
         toast(`Getting into ${placeOf(g, w, loc)?.name ?? 'there'} costs ${money(w, fee)}. Not enough money.`, 'info');
@@ -586,6 +588,7 @@ async function sleep() {
             return;
         }
     }
+    finishFirst(g, w); // (E14.6) what you were doing in the scene ends first
     const mins = sleepMinutes(g, w, inn);
     const at = g.player.loc;
     const dayEnded = g.day;
@@ -731,6 +734,10 @@ Object.assign(ACT, {
         if (isDoing())
             return;
         actionSound(a.effects, a.id);
+        // (E14.6) played out in the scene: it becomes the scene's focus while the clock runs (ui/sceneact.ts)
+        if (state.view === 'scene' && playsInScene(g, w, a))
+            return startInScene(g, w, a);
+        finishFirst(g, w, true); // one going on in the scene ends first
         if (a.minutes >= 60)
             await verdictNow(g, w, 'a long action'); // an hour or more ends the scene
         await doing(a.label, a.icon ?? '⏳', a.minutes); // a moment on screen while the time passes

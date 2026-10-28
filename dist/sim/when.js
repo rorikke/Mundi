@@ -5,7 +5,7 @@
 // Keys whose data the engine doesn't keep yet hold false until their system writes it: `stayed` (E6 writes
 // `player.stayed`), `holds` (E14 writes `player.keepsakes`). The story so far is read straight from the save, so this
 // file needs neither module: `knows` and `thread` (sim/threads.ts keeps `g.threads`), `seen` and `favor`
-// (sim/stories.ts keeps `g.stories`).
+// (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`).
 import { nowAbs } from '../core/store.js';
 import { systemOn, WEEKDAY_IDS } from '../core/world.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
@@ -21,7 +21,7 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
-    'knows', 'seen', 'thread', 'favor'];
+    'knows', 'seen', 'thread', 'favor', 'perf'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -45,6 +45,7 @@ function badValue(key, v) {
         case 'season': return SEASONS.some(s => s.id === v.toLowerCase()) ? '' : `"${v}" is not a season`;
         case 'seasonDays': return DAYS.test(v) ? '' : `"${v}" should be days like 3-6`;
         case 'regular': return /^\d+$/.test(v) && Number(v) >= 1 ? '' : `"${v}" should be a number of visits`;
+        case 'perf': return /^\d+$/.test(v) && Number(v) <= 100 ? '' : `"${v}" should be a performance from 0 to 100`;
         case 'skill': return /^\S+\s+\d+$/.test(v) ? '' : `"${v}" should be a skill and a level, like cooking 3`;
         case 'chance': {
             const p = chanceOf(v);
@@ -258,6 +259,11 @@ function holds(g, w, key, v, x) {
             return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false));
         }
         case 'favor': return favorOwed(g, v) > 0;
+        // the player's performance at their job, at least this (a rank that asks for a high performance)
+        case 'perf': {
+            const j = g.player.job;
+            return !!j && Math.round(j.perf ?? 50) >= Number(v);
+        }
         // the old object form's own keys
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);

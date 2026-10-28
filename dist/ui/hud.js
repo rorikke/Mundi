@@ -23,6 +23,8 @@ import { outingHtml } from './outing.js';
 import { residentsHtml } from './residents.js';
 import { isOuting } from '../sim/places.js';
 import { money, actionsHere, canAfford } from '../sim/needs.js';
+import { sceneAct } from '../sim/actions.js';
+import { sceneActRow } from './sceneact.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
 import { traitsOf, jobDef, openJobs, offScreen, jobPlace } from '../sim/work.js';
 import { presentAt } from '../sim/people.js';
@@ -175,12 +177,14 @@ function hereBar(g, w) {
 function actsColumn(g, w) {
     if (state.view !== 'scene')
         return '';
-    const acts = actionsHere(g, w);
+    const going = sceneAct(g)?.a.id; // (E14.6) an action going on in the scene has its own row
+    const acts = actionsHere(g, w).filter(a => a.id !== going);
     const mates = acts.some(a => a.together) ? withYou(g, w) : [];
     const jobsOn = featureOn(w, 'jobs');
     const jobs = jobsOn && !g.player.job && !offScreenWork(w) ? openJobs(g, w).filter(o => o.place === g.player.loc) : []; // a scenario: apply on the phone
     const atHome = g.player.loc === playerHomeId;
     const rows = [
+        sceneActRow(g, w),
         ...apptActions(g, w),
         lifeActs(g, w),
         schoolActs(g, w),

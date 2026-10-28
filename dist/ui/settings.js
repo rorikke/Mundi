@@ -54,7 +54,11 @@ function tabInterface() {
 `;
 }
 function tabSound() {
-    return `<section><h3>Interface sounds</h3>${check('Interface sounds', 'sound')}${slider('Volume', 'volume', 0, 100, '%')}<button data-act="sfx-test">▶ Test</button></section>`;
+    const amb = UI().ambience !== false, av = UI().ambienceVolume ?? 60;
+    return `<section><h3>Interface sounds</h3>${check('Interface sounds', 'sound')}${slider('Volume', 'volume', 0, 100, '%')}<button data-act="sfx-test">▶ Test</button></section>
+        <section><h3>Place sounds</h3>
+            <label class="mu-check"><input type="checkbox" data-input="ui-bool" data-key="ambience" ${amb ? 'checked' : ''}><span>Place sounds<small>What you hear where you are (a station's chimes, an izakaya's voices, cicadas in summer), in worlds whose places have them. Only with interface sounds on.</small></span></label>
+            <label class="mu-field slider"><span>Place sounds volume</span><input type="range" min="0" max="100" value="${esc(av)}" data-input="ui-num" data-key="ambienceVolume"><output>${esc(av)}%</output></label></section>`;
 }
 function tabGame() {
     const g = game();

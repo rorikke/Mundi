@@ -23,7 +23,7 @@ import { whenHolds, personNamed } from './when.js';
 import { couplePairs, casualPairs, statusOf, idOf, YOU } from './rel.js';
 import { saveSeed } from './relations.js';
 import { ties } from './living.js';
-import { npcCareer } from './work.js';
+import { npcCareer, npcPath, setNpcPath, pathTo } from './work.js';
 import { npcRank } from './longlife.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -77,8 +77,8 @@ export function ruleOn(w, id) {
         onKept.set(w, k = { code, on: Object.fromEntries(RULES.map(x => [x, systemOn(w, x)])) });
     return k.on[id];
 }
-const SIG = 7;
-const sigOf = (r, out, i) => { out[i] = r; out[i + 1] = r.occupation; out[i + 2] = r.name; out[i + 3] = r.routine; out[i + 4] = r.leisure; out[i + 5] = r.home?.zone; out[i + 6] = r.homeWith; };
+const SIG = 8;
+const sigOf = (r, out, i) => { out[i] = r; out[i + 1] = r.occupation; out[i + 2] = r.name; out[i + 3] = r.routine; out[i + 4] = r.leisure; out[i + 5] = r.home?.zone; out[i + 6] = r.homeWith; out[i + 7] = r.gone; };
 const checked = new WeakMap();
 export function stampOf(g, w) {
     const s = kept.get(g), code = codeOf(w), sd = seasonDays(g), adult = adultOn(g), swap = g.swap?.avatar ?? '';
@@ -90,7 +90,7 @@ export function stampOf(g, w) {
         let i = 0, same = true;
         for (const a in g.cast) {
             const r = g.cast[a], x = s.sig;
-            if (x[i] !== r || x[i + 1] !== r.occupation || x[i + 2] !== r.name || x[i + 3] !== r.routine || x[i + 4] !== r.leisure || x[i + 5] !== r.home?.zone || x[i + 6] !== r.homeWith) {
+            if (x[i] !== r || x[i + 1] !== r.occupation || x[i + 2] !== r.name || x[i + 3] !== r.routine || x[i + 4] !== r.leisure || x[i + 5] !== r.home?.zone || x[i + 6] !== r.homeWith || x[i + 7] !== r.gone) {
                 same = false;
                 break;
             }
@@ -164,7 +164,7 @@ function teamPlans(g, w, o, st, busy = new Set(), week = 0) {
     if (busy.has(o.id))
         return out; // a loop through rituals on each other's days off: no fixed days this time
     busy.add(o.id);
-    const team = st.list.filter(r => r.occupation === o.id).sort((a, b) => (a.avatar < b.avatar ? -1 : 1));
+    const team = st.list.filter(r => r.occupation === o.id && !r.gone).sort((a, b) => (a.avatar < b.avatar ? -1 : 1));
     const closed = w.places.find(p => p.id === o.place)?.closedDays;
     const work = new Map(), must = new Map(), offs = new Map();
     const cover = Array(7).fill(0);
@@ -338,9 +338,10 @@ export function workPlace(g, w, r, o) {
     let m = careers.get(o);
     if (!m)
         careers.set(o, m = new Map());
-    let c = m.get(r.avatar);
+    const k = `${r.avatar}|${npcPath(g, r.avatar, o)?.join('/') ?? ''}`;
+    let c = m.get(k);
     if (!c)
-        m.set(r.avatar, c = npcCareer(o, r.avatar));
+        m.set(k, c = npcCareer(o, r.avatar, g));
     return c.ranks[Math.min(npcRank(g, r.avatar), c.ranks.length - 1)]?.place || o.place || OUT;
 }
 /** The shift going on at that moment (one that started the day before may still be on), if any. */
@@ -356,7 +357,8 @@ export function shiftAt(g, w, r, at, st = stampOf(g, w)) {
 /** A day off for them: no shift that day (for a job with a schedule), or the weekend (anyone else). */
 export const dayOff = (g, w, r, day, st = stampOf(g, w)) => (scheduled(g, w, r) ? !shiftOn(g, w, r, day, st) : isWeekend(day));
 /* ---------- ranks (J5) ---------- */
-// The world's people start at the rank the world gives them (once, while they still hold that job).
+// The world's people start at the rank the world gives them (once, while they still hold that job). A rank given by
+// name that lies on a branch puts them on that branch (Reiko is a Sales section chief, on the sales path).
 export function seedRanks(g, w) {
     const l = (g.living ??= {});
     l.ranks ??= {};
@@ -370,8 +372,11 @@ export function seedRanks(g, w) {
         l.ranked.push(r.avatar);
         if (r.avatar in l.ranks)
             continue;
-        const ranks = npcCareer(o, r.avatar).ranks;
-        const n = typeof ex.rank === 'number' ? ex.rank : ranks.findIndex(x => x.name === ex.rank);
+        const to = typeof ex.rank === 'string' ? pathTo(o, ex.rank) : null;
+        if (to?.path.length)
+            setNpcPath(g, r.avatar, o, to.path);
+        const ranks = npcCareer(o, r.avatar, g).ranks;
+        const n = typeof ex.rank === 'number' ? ex.rank : to?.rank ?? -1;
         if (n > 0)
             l.ranks[r.avatar] = Math.min(n, Math.max(0, ranks.length - 1));
     }
@@ -384,7 +389,7 @@ export function rankName(g, w, r) {
     if (!o)
         return '';
     seedRanks(g, w);
-    const ranks = npcCareer(o, r.avatar).ranks;
+    const ranks = npcCareer(o, r.avatar, g).ranks;
     return ranks.length > 1 ? ranks[Math.min(npcRank(g, r.avatar), ranks.length - 1)]?.name ?? '' : '';
 }
 const ritKept = new WeakMap();
@@ -396,11 +401,13 @@ function ritualIndex(g, w, st) {
     m = new Map();
     if (systemOn(w, 'living') && !isScenario(w))
         for (const r of st.list) {
+            if (r.gone)
+                continue; // (someone who left: their appointments go with them, and they come to nobody's)
             const ex = exampleOf(w, r);
             (ex?.rituals ?? []).forEach((rit, i) => {
                 if (rit.adult && !adultOn(g))
                     return;
-                const who = [r.avatar, ...(rit.with ?? []).map(n => personNamed(g, n)?.avatar ?? '')].filter((a, k, all) => a && g.cast[a] && all.indexOf(a) === k);
+                const who = [r.avatar, ...(rit.with ?? []).map(n => personNamed(g, n)?.avatar ?? '')].filter((a, k, all) => a && g.cast[a] && !g.cast[a].gone && all.indexOf(a) === k);
                 const ref = { owner: r.avatar, i, rit, who };
                 for (const a of who) {
                     const list = m.get(a);
