@@ -163,7 +163,7 @@ export function sceneBlocks(): Built[] {
         plans: planLines(g, present, w),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
-        you: [(g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g)!.name.toLowerCase()}.` : ''],
+        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g)!.name.toLowerCase()}.` : ''],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],
@@ -224,6 +224,12 @@ export function refreshPrompt() {
 }
 export const clearPrompt = () => setPrompt(PROMPT_KEY, '');
 export const speakerName = (avatar: string) => nameOf(avatar);
+
+// (E16) The start's premise: until now only a persona made by the new game had it (in its description).
+function premiseLine(g: Save): string {
+    const p = (g.player.premise ?? '').replace(/\s+/g, ' ').trim();
+    return p ? `How {{user}}'s story began: ${p.length > 600 ? `${p.slice(0, 600).replace(/\s+\S*$/, '')}…` : p}` : '';
+}
 
 // Who is here with you. With background people (E1) or sheets (E27): only the people here are characters, and with
 // more than a few of them (more than get a sheet), those with you (who came along, who know you) come first, the
