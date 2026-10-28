@@ -418,6 +418,7 @@
 @keyframes mu-rb-up { 0% { width: var(--a); background: var(--c0); } 45% { width: 100%; background: var(--c0); filter: brightness(1.6); } 50% { width: 0; background: var(--c1); } 100% { width: var(--b); background: var(--c1); } }
 @keyframes mu-rb-down { 0% { width: var(--a); background: var(--c0); } 45% { width: 0; background: var(--c0); } 50% { width: 100%; background: var(--c1); filter: brightness(.6); } 100% { width: var(--b); background: var(--c1); } }
 #mundi-root .mu-work-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#mundi-root .mu-work-perf { display: grid; gap: 4px; margin: 0 0 12px; }
 #mundi-root .mu-work-mode { display: grid; justify-items: start; gap: 4px; text-align: left; padding: 14px !important; border-radius: 16px !important; min-height: 110px; }
 #mundi-root .mu-work-mode i { font-style: normal; font-size: 26px; }
 #mundi-root .mu-work-mode small { color: var(--hud-muted); font-weight: 600; line-height: 1.35; }

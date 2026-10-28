@@ -1,5 +1,6 @@
 // Difficulty and the bills of your home.
-// Difficulty changes the economy: how much work pays, what things cost and the money you start with.
+// Difficulty changes the economy: how much work pays, what things cost and the money you start with; and a little how
+// fast careers go (`career`, a speed that combines with the world's and the save's career speed, sim/work.ts).
 // Bills (rent, water, power) are due every week and paid by you, in the Homes app. A bill left unpaid for a week is
 // cut off: no water (no shower, no tap, no cooking), no power (no stove, TV, computer, coffee machine…), or, for the
 // rent, you are locked out of your home until you pay.
@@ -14,10 +15,10 @@ import { lex, appRef } from '../core/lexicon.js';
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 // In a Home (no money) the difficulty is how fast relationships grow (`bond`).
-export const DIFFICULTIES: { id: Difficulty; name: string; desc: string; homeDesc: string; pay: number; price: number; start: number; bond: number }[] = [
-    { id: 'easy', name: 'Easy', desc: 'Work pays more, things cost less, and you start with more money.', homeDesc: 'Friendship and love grow fast.', pay: 1.25, price: 0.8, start: 1.5, bond: 1.5 },
-    { id: 'normal', name: 'Normal', desc: 'The balance the world was made with.', homeDesc: 'Relationships grow at their usual pace.', pay: 1, price: 1, start: 1, bond: 1 },
-    { id: 'hard', name: 'Hard', desc: 'Work pays less, everything costs more, and you start with little. Every bill counts.', homeDesc: 'Trust is earned slowly: friendship and love take time.', pay: 0.8, price: 1.25, start: 0.6, bond: 0.6 },
+export const DIFFICULTIES: { id: Difficulty; name: string; desc: string; homeDesc: string; pay: number; price: number; start: number; bond: number; career: number }[] = [
+    { id: 'easy', name: 'Easy', desc: 'Work pays more, things cost less, you start with more money, and careers go a little faster.', homeDesc: 'Friendship and love grow fast.', pay: 1.25, price: 0.8, start: 1.5, bond: 1.5, career: 1.2 },
+    { id: 'normal', name: 'Normal', desc: 'The balance the world was made with.', homeDesc: 'Relationships grow at their usual pace.', pay: 1, price: 1, start: 1, bond: 1, career: 1 },
+    { id: 'hard', name: 'Hard', desc: 'Work pays less, everything costs more, you start with little, and careers go a little slower. Every bill counts.', homeDesc: 'Trust is earned slowly: friendship and love take time.', pay: 0.8, price: 1.25, start: 0.6, bond: 0.6, career: 0.85 },
 ];
 export const difficultyOf = (g: Save) => DIFFICULTIES.find(d => d.id === ((cfg(g) as any).difficulty ?? 'normal')) ?? DIFFICULTIES[1];
 // A price (what you pay) and an income (what you get), after the difficulty.

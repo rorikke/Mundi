@@ -177,7 +177,8 @@ export interface Origin {
     skills?: string[]; feature?: string;
 }
 /** A rank of a job: its name and pay per hour. (J3) What it takes to be promoted to it: skill levels (`needs`:
- *  `{ cooking: 4 }`), one of some traits, a course, or anything else as a condition (`when: feels: Genzō good`).
+ *  `{ cooking: 4 }`; `performance` there is the performance it asks for, 0–100, instead of the usual 60), one of some
+ *  traits, a course, or anything else as a condition (`when: feels: Genzō good`).
  *  (E20) `place`: where this rank works, when not the job's place (an idol's top ranks at the TV studio). */
 export interface Rank { name: string; pay: number; needs?: Record<string, number>; traits?: string[]; course?: string; when?: When; place?: string }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
@@ -247,9 +248,9 @@ export interface Schedule { days: number | WeekdayId[]; from?: number; to?: numb
 /** (J6) A thing that happens on a shift: a setup sentence and two or three choices. */
 export interface WorkEvent { id: string; setup: string; when?: When; choices: WorkChoice[]; adult?: boolean }
 /** A choice at work: an optional roll (a skill against `dc`), and what it does: performance up or down (`perf`,
- *  −2…2), money, how some of the world's people feel about you (`feels`: name → small change), a fact; `fail`: what
- *  happens instead when the roll fails. */
-export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult }
+ *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
+ *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
+export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When }
 export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }

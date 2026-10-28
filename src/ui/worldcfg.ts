@@ -17,7 +17,7 @@ import { familyBlocked, isMinor, kidOf } from '../sim/family.js';
 import { tiesOf, removeTie, normalizeHomes, TIE_TYPES, type TieType } from '../sim/living.js';
 import { addOldTie, pickLevel, friendLevelOf, romLevelOf } from '../sim/startfeel.js';
 import { ROM_START, type FriendLevel, type RomLevel } from '../core/feel.js';
-import { freeSpots } from '../sim/work.js';
+import { freeSpots, WORK_PRESETS, workRules, presetShown, worldPreset, setPreset, setRule, resetRules, type WorkRules, type PresetId } from '../sim/work.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { facts } from '../sim/facts.js';
 import { factUi, stamp } from './journal.js';
@@ -175,6 +175,27 @@ function addPicker(g: Save): string {
         <div class="mu-scpick-grid" data-keep="wcpick">${list.map(c => `<button data-act="wc-add" data-avatar="${esc(c.avatar)}"><img src="${esc(thumb(c.avatar))}" alt="" loading="lazy"><span data-notr>${esc(c.name)}</span></button>`).join('') || '<p class="mu-muted">No characters found.</p>'}</div></div>`;
 }
 
+// Work (J9): the presets set every rule at once; under Advanced, each rule and the career speed (changing one makes the
+// preset Custom).
+const WORK_RULES: { k: keyof WorkRules; label: string; opts: [string, string][] }[] = [
+    { k: 'days', label: 'Days a week', opts: [['1', 'As each job lists them'], ['0.75', 'About three quarters (pay raised to match)'], ['0.5', 'About half (pay raised to match)']] },
+    { k: 'missed', label: 'A missed shift', opts: [['10', 'Performance −10, the boss is told'], ['5', 'Performance −5'], ['0', 'No effect']] },
+    { k: 'grace', label: 'Lateness', opts: [['15', 'Counts after 15 minutes'], ['30', 'Counts after 30 minutes'], ['', 'Not counted']] },
+    { k: 'low', label: 'Low performance', opts: [['fire', 'Warning, demotion, then fired'], ['demote', 'Warning, then demotion'], ['warn', 'Warning only']] },
+    { k: 'vacation', label: 'Vacation days', opts: [['14', 'About one every two weeks'], ['7', 'About one a week'], ['0', 'As many as you like']] },
+    { k: 'sick', label: 'Sick days', opts: [['ill', 'Only when really ill'], ['sometimes', 'Now and then'], ['any', 'Any time']] },
+    { k: 'events', label: 'Things that happen at work', opts: [['0.35', 'Often'], ['0.2', 'Sometimes'], ['0.1', 'Rarely']] },
+    { k: 'gentle', label: 'How they turn out', opts: [['false', 'Well or badly'], ['true', 'Never badly']] },
+];
+function workSection(g: Save, w: WorldDef) {
+    if (!systemOn(w, 'jobs')) return '';
+    const r = workRules(g, w), shown = presetShown(g, w);
+    const val = (v: unknown) => (v === null ? '' : String(v));
+    return `<section class="mu-wc-sec"><h4>Work</h4><p class="mu-muted">How much pressure jobs put on you: days, absences, lateness, days off, how fast careers go. A preset sets them all; changing one rule makes it Custom.</p>
+        <div class="mu-heropick is-start mu-diff">${WORK_PRESETS.map(p => `<button class="mu-herocard ${shown === p.id ? 'is-on' : ''}" data-act="wc-work-preset" data-v="${p.id}"><b>${p.name}${p.id === worldPreset(w) ? ' <small>(default)</small>' : ''}</b><p>${esc(p.desc)}</p></button>`).join('')}${shown === 'custom' ? '<button class="mu-herocard is-on" aria-disabled="true"><b>Custom</b><p>Your own mix of the rules (Advanced).</p></button>' : ''}</div>
+        ${WC.adv ? `<div class="mu-row2">${WORK_RULES.map(x => `<label class="mu-field"><span>${esc(x.label)}</span><select data-input="wc-work" data-k="${x.k}">${(x.opts.some(([v]) => v === val(r[x.k])) ? x.opts : [[val(r[x.k]), val(r[x.k])] as [string, string], ...x.opts]).map(([v, l]) => `<option value="${esc(v)}" ${v === val(r[x.k]) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`).join('')}</div>` : ''}</section>`;
+}
+
 // Opens a person's page in People (from Households).
 // How alive this world is with the people in it, and which social systems are working (they need cards).
 function lifeSection(g: Save, w: WorldDef) {
@@ -285,6 +306,7 @@ function tabRules(g: Save, w: WorldDef): string {
                 <button class="mu-herocard ${live ? 'is-on' : ''}" data-act="wc-clock" data-v="live"><b>Running clock</b><p>Time also passes by itself while you play (1 real second = 1 game minute at ×1). For testing.</p></button></div></section>
         <section class="mu-wc-sec"><h4>Difficulty</h4><p class="mu-muted">Changes the economy: what work pays, what things cost and what bills are.</p>
             <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${difficultyOf(g).id === d.id ? 'is-on' : ''}" data-act="wc-diff" data-v="${d.id}"><b>${d.name}</b><p>${d.desc}</p></button>`).join('')}</div></section>
+        ${workSection(g, w)}
         ${relSection(g, w)}
         ${lifeSection(g, w)}
         <section class="mu-wc-sec"><h4>Needs</h4>${list(activeStatuses(w).map(s => `${s.icon} ${s.name}`))}</section>
@@ -294,6 +316,7 @@ function tabRules(g: Save, w: WorldDef): string {
             ${slider('Travel time', 'travel', c.travel ?? 1, 0.25, 3, 0.25, '×')}
             ${slider('How fast needs drop', 'decay', c.decay ?? 1, 0, 3, 0.25, '×')}
             ${slider('Days in each season', 'seasonDays', c.seasonDays ?? 14, 3, 60, 1, ' days')}
+            ${systemOn(w, 'jobs') ? `<label class="mu-field slider"><span>Career speed · ${workRules(g, w).speed}× <small class="mu-muted">(2×: careers twice as fast)</small></span><input type="range" min="0.25" max="4" step="0.25" value="${workRules(g, w).speed}" data-input="wc-work" data-k="speed"></label>` : ''}
             <button class="mu-ghost" data-act="wc-cfg-reset">${icon('undo')}<span>Back to the world's defaults</span></button></section>`
             : '<p class="mu-muted">Turn on "Advanced" for travel time, how fast needs drop and more.</p>'}`}`;
 }
@@ -410,7 +433,8 @@ Object.assign(ACT, {
     'wc-past-forget': async (el) => { const g = game(); if (!g) return; forgetPast(g, WC.who, el.dataset.b!); await changed(); },
     'wc-tie-del': async (el) => { const g = game(); if (!g) return; removeTie(g, el.dataset.a!, el.dataset.b!); await changed(); },
     'wc-diff': (el) => { const g = game(); if (!g) return; (cfg(g) as any).difficulty = el.dataset.v; saveGame(); notify(); },
-    'wc-cfg-reset': () => { const g = game(); if (!g) return; const c = cfg(g); delete c.travel; delete c.decay; delete c.seasonDays; delete c.rel; saveGame(); notify(); },
+    'wc-cfg-reset': () => { const g = game(); if (!g) return; const c = cfg(g); delete c.travel; delete c.decay; delete c.seasonDays; delete c.rel; resetRules(g); saveGame(); notify(); },
+    'wc-work-preset': (el) => { const g = game(); if (!g) return; setPreset(g, el.dataset.v as PresetId); saveGame(); refreshPrompt(); notify(); },
     'wc-save-card': async () => {
         const g = game(); const r = g?.cast[WC.who]; if (!g || !r) return;
         try { await saveCardPerson(r.avatar, cleanPerson(relOf(g).people[idOf(g, r.avatar)]) ?? {}); toast(`Saved to ${r.name}'s card.`, 'success'); }
@@ -463,6 +487,12 @@ Object.assign(INPUT, {
     },
     'wc-poly': (el) => { const g = game(); if (!g) return; cfg(g).poly = (el as HTMLInputElement).checked || undefined; saveGame(); notify(); },
     'wc-cfg': (el) => { const g = game(); if (!g) return; (cfg(g) as any)[el.dataset.k!] = Number(el.value); saveGame(); notify(); },
+    'wc-work': (el) => {
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        const k = el.dataset.k as keyof WorkRules, v = el.value;
+        setRule(g, w, k, (k === 'low' || k === 'sick' ? v : k === 'gentle' ? v === 'true' : k === 'grace' && v === '' ? null : Number(v)) as never);
+        saveGame(); notify();
+    },
     'wc-rel': (el) => {
         const g = game(); if (!g) return;
         const rc = (cfg(g).rel ??= {}); const k = el.dataset.k!; const v = Number(el.value);

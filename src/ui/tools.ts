@@ -41,7 +41,8 @@ Object.assign(ACT, {
         const g = game(); const w = g && getWorld(g.world); const o = g?.player.job && w?.occupations.find(x => x.id === g.player.job!.id);
         if (!g || !w || !o) return;
         if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; }
-        if (g.player.loc !== o.place) { const { travelTo } = await import('./map.js'); await travelTo(o.place); }
+        const { jobPlace } = await import('../sim/work.js');
+        if (g.player.loc !== jobPlace(g, o)) { const { travelTo } = await import('./map.js'); await travelTo(jobPlace(g, o)); }
         state.view = 'scene'; notify();
     },
     'open-settings': () => { state.backTo = state.view; state.view = 'settings'; notify(); },

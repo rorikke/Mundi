@@ -8,7 +8,7 @@ import { hobbyNeed } from '../sim/hobbies.js';
 import { doAction } from '../sim/actions.js';
 import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
 
-import { state, notify, esc, game, toast, saveGame, ROOT_ID, uiZoom } from '../core/store.js';
+import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom } from '../core/store.js';
 import { runPlans } from './plans.js';
 import { maybeBump } from './bump.js';
 import { gradeName } from '../sim/dice.js';
@@ -25,7 +25,7 @@ import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js'
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
 import { verdictNow, daySnapshot, dayChanges } from '../sim/verdict.js';
-import { openWork, diaryWaiting, diaryReady, showDayRecap } from './relui.js';
+import { openWork, diaryWaiting, diaryReady, showDayRecap, shiftLabel, nextRankLine, perfWord } from './relui.js';
 import { askAboutPlans } from './appts.js';
 import { doing, isDoing } from './doing.js';
 import { stayOf } from './events.js';
@@ -33,7 +33,7 @@ import { actionSound, lifeSound } from './sfx.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { canAfford, money, actionsHere, tooTired } from '../sim/needs.js';
 import { book } from '../sim/ledger.js';
-import { shiftsToPromote, isOpen, fits, hire, rankOf, pendingBranch } from '../sim/work.js';
+import { fits, hire, rankOf, pendingBranch, jobDef, jobPlace, openJobs, hourlyPay, weekText, perfOf, realDays, canWork, atWork } from '../sim/work.js';
 import { advance, weekday } from '../sim/time.js';
 import { syncScene } from '../sim/game.js';
 import { endVisit } from '../sim/visits.js';
@@ -64,20 +64,21 @@ function pinsHtml(g: Save, w: WorldDef) {
     }).join('');
 }
 
-// Jobs at this place: work a shift at yours, or apply for one.
+// Jobs at this place: work a shift at yours (your rank's place), or apply for one.
 function jobCard(g: Save, w: WorldDef, sel: string, you: boolean) {
     if (!featureOn(w, 'jobs')) return '';
-    const jobs = w.occupations.filter(o => o.place === sel);
-    if (!jobs.length) return '';
-    const mine = g.player.job && jobs.find(o => o.id === g.player.job!.id);
-    if (mine) {
-        const j = g.player.job!; const need = shiftsToPromote(g, mine, j.rank);
-        const open = isOpen(g, mine);
-        return `<div class="mu-card"><h4>Work</h4><p><b>${esc(rankOf(g, mine).name)}</b> · ${esc(mine.name)}</p>
-            <small class="mu-muted">${money(w, rankOf(g, mine).pay)}/h${pendingBranch(g, mine) ? ` · ${esc(lex(w, 'choosePathTitle'))}` : ''}${need !== null ? ` · ${Math.min(99, Math.floor(j.shifts / need * 100))}% to the next rank` : ''}</small>
-            ${you ? `<button class="mu-primary" data-act="work" ${open ? '' : 'aria-disabled="true"'}>Work a shift · ${mine.shift} h</button>${open ? '' : `<small class="mu-muted">Open ${String(mine.hours?.[0] ?? 0).padStart(2, '0')}:00–${String(mine.hours?.[1] ?? 24).padStart(2, '0')}:00</small>`}` : ''}</div>`;
+    const mine = jobDef(w, g.player.job?.id);
+    const here = mine && jobPlace(g, mine) === sel ? mine : null;
+    const jobs = openJobs(g, w).filter(o => o.place === sel && o.id !== mine?.id);
+    if (here) {
+        const l = shiftLabel(g, w, here), next = nextRankLine(g, w, here);
+        return `<div class="mu-card"><h4>Work</h4><p><b>${esc(rankOf(g, here).name)}</b> · ${esc(here.name)}</p>
+            <small class="mu-muted">${money(w, hourlyPay(g, w, here))}/h · ${esc(weekText(g, w, here))}${pendingBranch(g, here) ? ` · ${esc(lex(w, 'choosePathTitle'))}` : ''}</small>
+            <small class="mu-muted">Performance ${perfOf(g)} (${perfWord(perfOf(g))})${next ? ` · ${esc(next)}` : ''}</small>
+            ${you ? `<button class="mu-primary" data-act="work" ${l.ok ? '' : 'aria-disabled="true"'}>Work a shift · ${esc(l.text)}</button>` : ''}</div>`;
     }
-    return `<div class="mu-card"><h4>${lex(w, 'jobsHere')}</h4>${jobs.map(o => `<div class="mu-jobrow"><span><b>${esc(o.name)}</b><small>${money(w, o.ranks[0].pay)}/h · ${o.shift} h${o.needs?.length ? ` · ${esc(o.needs.join(' / '))}` : ''}${hobbyNeed(g, w, o) ? ` · ${esc(hobbyNeed(g, w, o))}` : ''}</small></span>
+    if (!jobs.length) return '';
+    return `<div class="mu-card"><h4>${lex(w, 'jobsHere')}</h4>${jobs.map(o => `<div class="mu-jobrow"><span><b>${esc(o.name)}</b><small>${money(w, o.ranks[0].pay)}/h · ${realDays(o)} days a week${o.needs?.length ? ` · ${esc(o.needs.join(' / '))}` : ''}${hobbyNeed(g, w, o) ? ` · ${esc(hobbyNeed(g, w, o))}` : ''}</small></span>
         ${you ? `<button data-act="apply" data-id="${esc(o.id)}" ${fits(g, o) ? '' : 'aria-disabled="true"'}>${lex(w, 'jobApply')}</button>` : ''}</div>`).join('')}
         ${you ? '' : `<small class="mu-muted">${lex(w, 'applyThere')}</small>`}</div>`;
 }
@@ -495,10 +496,13 @@ Object.assign(ACT, {
 Object.assign(ACT, {
     work: async () => {
         const { g, w } = ctxW();
-        const job = g.player.job && w.occupations.find(o => o.id === g.player.job!.id);
-        if (!job || !isOpen(g, job)) { toast('The place is closed now.', 'info'); return; }
+        const job = jobDef(w, g.player.job?.id);
+        if (!job || !atWork(g, w, job)) return;
+        const c = canWork(g, w, job);
+        if (c.kind === 'none') { toast(c.why ?? 'No shift now.', 'info'); return; }
         const tired = tooTired(g, w, job.cost ?? {}, 'work a shift'); if (tired) { toast(tired, 'warn'); return; }
-        if (askAboutPlans(g, job.shift * 60, 'work')) return;   // a plan during the shift: ask first
+        const mins = c.shift ? Math.max(0, c.shift.start - nowAbs(g)) + Math.min(c.shift.hours * 60, c.shift.end - Math.max(nowAbs(g), c.shift.start)) : job.shift * 60;
+        if (askAboutPlans(g, mins, 'work')) return;   // a plan during the shift: ask first
         openWork();   // the work screen: how you spend the shift (like The Sims)
     },
     apply: (el) => {

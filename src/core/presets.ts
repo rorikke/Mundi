@@ -1,7 +1,7 @@
 // Style presets: what a world of each style starts with, as data. The engine reads only the world; a style is just
 // the set of values a new world (or an older world that lacks a field) begins with. Everything here can be changed
 // per world in the world creator.
-import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef } from './world.js';
+import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule } from './world.js';
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 
@@ -291,6 +291,14 @@ function exampleRelations(w: WorldDef) {
         if (!e.ties.length) delete e.ties;
         if (feelings.length) e.feelings = feelings;
     }
+}
+/** (J1) A job's schedule, or one made from its opening hours for a job without one (older and custom worlds, Home's
+ *  off-screen jobs): five days a week (Monday to Friday) within the hours it's open, starting whenever you like as long
+ *  as the shift fits before closing. */
+export function scheduleOf(o: Occupation): Schedule {
+    if (o.schedule && (Array.isArray(o.schedule.days) ? o.schedule.days.length : o.schedule.days > 0)) return o.schedule;
+    const [a, b] = o.hours ?? [0, 24];
+    return { days: 5, from: a, to: a === b ? a + 24 : b };
 }
 export function upgradeWorld(w: WorldDef): WorldDef {
     const p = presetOf(w);

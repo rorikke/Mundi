@@ -25,7 +25,7 @@ import { residentsHtml } from './residents.js';
 import { isOuting } from '../sim/places.js';
 import { money, actionsHere, canAfford } from '../sim/needs.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
-import { traitsOf, jobDef, isOpen } from '../sim/work.js';
+import { traitsOf, jobDef, openJobs, offScreen, jobPlace } from '../sim/work.js';
 import { presentAt } from '../sim/people.js';
 import { period, weekday, seasonOf, toNextPeriod } from '../sim/time.js';
 import { icon } from './icons.js';
@@ -43,7 +43,7 @@ import { refreshPrompt } from '../sim/prompt.js';
 import { bumpHtml } from './bump.js';
 import { P as phone, phoneUnread } from './phone.js';
 import { PL, facePlanHtml } from './plans.js';
-import { relBar } from './relui.js';
+import { relBar, workButton } from './relui.js';
 import { openNow } from '../sim/daynight.js';
 import { questsHere, doStep } from '../sim/quests.js';
 import { weatherHere, crowdLevel, crowdWord, regionState, regionOf, moodWord, tensionWord } from '../sim/worldstate.js';
@@ -134,7 +134,7 @@ let lookOpen = false;
 function corner(g: Save, w: WorldDef) {
     return `<div class="mh-corner">
         <button class="mh-menu mh-glass ${menuOpen ? 'is-on' : ''}" data-act="hud-menu" title="Menu">${icon('menu')}</button>
-        ${g.player.job && featureOn(w, 'jobs') && !offScreenWork(w) && g.player.loc !== jobDef(w, g.player.job.id)?.place ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
+        ${g.player.job && featureOn(w, 'jobs') && jobDef(w, g.player.job.id) && !offScreen(w, jobDef(w, g.player.job.id)) && g.player.loc !== jobPlace(g, jobDef(w, g.player.job.id)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
         ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
         ${menuOpen ? `<nav class="mh-menu-pop mh-glass">
             ${clockMode(g) === 'live' ? `<button data-act="speed">${icon('pause')}<span>Clock speed: ${g.speed ? `×${g.speed / 60}` : 'paused'}</span></button>` : ''}
@@ -184,8 +184,7 @@ function actsColumn(g: Save, w: WorldDef) {
     const acts = actionsHere(g, w);
     const mates = acts.some(a => a.together) ? withYou(g, w) : [];
     const jobsOn = featureOn(w, 'jobs');
-    const job = jobsOn && g.player.job && w.occupations.find(o => o.id === g.player.job!.id && (o.place === g.player.loc || offScreenWork(w)));
-    const jobs = jobsOn && !g.player.job && !offScreenWork(w) ? w.occupations.filter(o => o.place === g.player.loc) : [];   // a scenario: apply on the phone
+    const jobs = jobsOn && !g.player.job && !offScreenWork(w) ? openJobs(g, w).filter(o => o.place === g.player.loc) : [];   // a scenario: apply on the phone
     const atHome = g.player.loc === playerHomeId;
     const rows = [
         ...apptActions(g, w),
@@ -195,7 +194,7 @@ function actsColumn(g: Save, w: WorldDef) {
         holdingsActs(g, w),
         adventureActs(g, w),
         ...questsHere(g).map(q => `<button class="mh-act is-quest mh-glass" data-act="quest-step" data-id="${esc(q.id)}"><i>📜</i><b>${esc(q.steps[q.step].what)}</b><small>${esc(q.title)}</small></button>`),
-        ...(job ? [`<button class="mh-act is-work mh-glass ${offScreenWork(w) ? 'is-outing' : ''}" data-act="work" ${isOpen(g, job) ? '' : 'aria-disabled="true"'}><i>${icon('briefcase')}</i><b>${offScreenWork(w) ? 'Go to work' : 'Work a shift'} · ${job.shift} h</b><small>${isOpen(g, job) ? `${money(w, payOf(g, job.ranks[g.player.job!.rank].pay * job.shift))}` : `Open ${String(job.hours?.[0] ?? 0).padStart(2, '0')}:00–${String(job.hours?.[1] ?? 24).padStart(2, '0')}:00`}</small></button>`] : []),
+        ...(jobsOn ? [workButton(g, w)] : []),
         ...jobs.map(o => `<button class="mh-act mh-glass" data-act="apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}><i>${icon('briefcase')}</i><b>Apply: ${esc(o.name)}</b><small>${missingCourses(g, w, o).length ? `${lex(w, 'needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}` : `${money(w, payOf(g, o.ranks[0].pay))}/h · interview 🎲 ${interviewChance(g, o, traitsOf(g))}%`}</small></button>`),
         ...(atHome && lockedOut(g) ? [`<button class="mh-act mh-glass is-warn" data-act="ph-open-homes"><i>${icon('home')}</i><b>${lex(w, 'lockedOutShort')}</b><small>${lex(w, 'lockedOutHint', appRef(w, 'homes'))}</small></button>`] : []),
         ...((atHome && !lockedOut(g)) || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
