@@ -16,6 +16,7 @@ import { setPrompt } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
 import { getWorld, worldFile, systemOn, type WorldDef, isScenario } from '../core/world.js';
 import { openNow, pictureAt, entryDue, payEntry } from '../sim/daynight.js';
+import { looksAt } from '../sim/worldstate.js';
 import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import type { Save } from '../core/store.js';
@@ -172,7 +173,7 @@ function roomsHtml(g: Save, w: WorldDef) {
     const kindPic = (p: any) => { const k = p.home ? w.homes.kinds[p.id === playerHomeId ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[String(p.id).slice(5)]?.home.zone)?.kind ?? '')] : null; return k ? pictureAt(w, g.minutes, k.image, k.images) : ''; };
     const list = pins(g, w).filter(p => !p.link);
     const yours = list.filter(p => p.id === playerHomeId), rooms = list.filter(p => !p.home), beds = list.filter(p => p.home && p.id !== playerHomeId);
-    const card = (p: any) => { const pic = p.home ? kindPic(p) : pictureAt(w, g.minutes, p.bg, p.bgs); const here = presentAt(g, w, p.id); const you = p.id === g.player.loc;
+    const card = (p: any) => { const pic = p.home ? kindPic(p) : pictureAt(w, g.minutes, p.bg, p.bgs, looksAt(g, w, p.id)); const here = presentAt(g, w, p.id); const you = p.id === g.player.loc;
         return `<button class="mu-room ${you ? 'is-you' : ''}" data-act="go" data-loc="${esc(p.id)}" title="${you ? 'Back to this room' : 'Go here'}"><i style="${pic ? `background-image:url('${esc(worldFile(w, pic))}')` : ''}">${you ? `<em>${icon('pin')} You</em>` : ''}</i>
             <b data-notr>${esc(p.id === playerHomeId ? 'Your room' : String(p.name).replace(/'s home$/, "'s room"))}</b>${here.length ? `<span class="faces">${here.slice(0, 5).map(r => `<img src="${esc(thumb(r.avatar))}" alt="" title="${esc(r.met ? r.name : 'Someone')}">`).join('')}${here.length > 5 ? `<i>+${here.length - 5}</i>` : ''}</span>` : ''}</button>`; };
     const head = `<div class="mu-rooms-head"><h3 data-notr>${esc(w.name)}</h3></div>`;
@@ -234,7 +235,7 @@ export function mapHtml() {
         ${away ? `<button data-act="open-map" data-map="">${icon('pin')}<span>Back to where you are</span></button>` : ''}<b data-notr>${esc(map.name)}</b></div>` : '';
     return `<div class="mu-map">${nav}${mapsPicker ? mapsPickerHtml(g, w, map.id) : ''}
         <div class="mu-stage" data-stage>
-            <div class="mu-mapimg" style="--r:${map.ratio};background-image:url('${esc(worldFile(w, pictureAt(w, g.minutes, map.image, map.images)!))}')">${pinsHtml(g, w)}</div>
+            <div class="mu-mapimg" style="--r:${map.ratio};background-image:url('${esc(worldFile(w, pictureAt(w, g.minutes, map.image, map.images, looksAt(g, w, undefined, map.id))!))}')">${pinsHtml(g, w)}</div>
             <div class="mu-zoom">
                 <button data-act="zoom" data-d="in" title="Zoom in">+</button>
                 <button data-act="zoom" data-d="out" title="Zoom out">−</button>

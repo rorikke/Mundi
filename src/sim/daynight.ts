@@ -5,7 +5,8 @@
 //   (E19) A place can also keep hours by the clock (place.open, or openBySeason), close on some weekdays
 //   (closedDays), stay open all night on its festivals (festivalOpen), and charge to get in once a day (entry).
 // · Prices: each part of the day can make things cost more or less (time.periods[].prices, × as listed).
-// · Pictures: a place, a home and a map can have a picture for each part of the day (bgs / images: { partId: url });
+// · Pictures: a place, a home and a map can have a picture for each part of the day (bgs / images: { partId: url }),
+//   and (E7) for a kind of weather or a season, alone or with a part of the day (`rain-night`, `spring-day`, `snow`);
 //   without one, the usual picture is used.
 import { closedByEvents } from './hooks.js';
 export { closedByEvents };
@@ -127,4 +128,13 @@ export const partMood = (w: WorldDef, minutes: number) => PART_MOOD[partOf(w, mi
 // 12:00–18:00, night 18:00–5:00. (Pictures saved under a period's id, before, still work.)
 export const TIME_SLOTS = [{ id: 'day', name: 'Day' }, { id: 'afternoon', name: 'Afternoon' }, { id: 'night', name: 'Night' }];
 export const slotAt = (minutes: number) => { const h = Math.floor((((minutes % 1440) + 1440) % 1440) / 60); return h >= 5 && h < 12 ? 'day' : h >= 12 && h < 18 ? 'afternoon' : 'night'; };
-export const pictureAt = (w: WorldDef, minutes: number, base: string | undefined, byPart?: Record<string, string>) => byPart?.[slotAt(minutes)] || byPart?.[periodId(w, minutes)] || base;
+// (E7) `looks`: the weather's kinds and the season right there (looksAt in worldstate.ts): a picture for one of them with
+// the part of the day first (`rain-night`, then `spring-night`), then one for it alone (`rain`), then the part of the day's.
+export function pictureAt(w: WorldDef, minutes: number, base: string | undefined, byPart?: Record<string, string>, looks?: string[]): string | undefined {
+    const slot = slotAt(minutes);
+    if (byPart && looks?.length) {
+        for (const l of looks) { const v = byPart[`${l}-${slot}`]; if (v) return v; }
+        for (const l of looks) { const v = byPart[l]; if (v) return v; }
+    }
+    return byPart?.[slot] || byPart?.[periodId(w, minutes)] || base;
+}
