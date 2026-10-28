@@ -36584,6 +36584,11 @@
         "when": "season: autumn",
         "tell": "hinted",
         "text": "The offer has a deadline, and Jake is distracted."
+       },
+       {
+        "when": "season: winter",
+        "tell": "hinted",
+        "text": "He has to answer by spring. He talks about home more than he used to, and about Rina's runway as if it were his own."
        }
       ],
       "endings": [
