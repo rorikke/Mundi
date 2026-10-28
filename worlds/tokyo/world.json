@@ -13783,7 +13783,8 @@
   "line": "Present-day Japan: no magic and no miracles, though shrines and temples are part of everyday life."
  },
  "scene": {
-  "lore": 4
+  "lore": 4,
+  "actions": true
  },
  "lore": [
   {

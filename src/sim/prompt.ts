@@ -28,6 +28,7 @@ import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiativ
 import { markSent } from './moments.js';
 import { threadLines } from './threads.js';
 import { favorLines } from './stories.js';
+import { sceneActLine } from './actions.js';
 import { familyLine } from './family.js';
 import { social, livePlan, companions } from './social.js';
 import { personaName } from '../st/bridge.js';
@@ -249,8 +250,13 @@ function hereLine(g: Save, present: Resident[], bg: boolean, sheets: boolean): s
     return `Here with {{user}}: ${(mine.length ? mine : present).map(r => r.name).join(', ')}.${also.length ? ` Also here: ${also.map(r => r.name).join(', ')}.` : ''} Only they are characters in this scene${bg ? `.${extras}` : '; nobody else speaks or appears.'}`;
 }
 
-// The scene's focus (a short directive so the story does not wander): the plan or company that brought you here.
+// The scene's focus (a short directive so the story does not wander): the plan or company that brought you here, and
+// (E14.6) what you're doing together now, which says more than who came along.
 function focusLine(g: Save, w: WorldDef, present: Resident[], bg = false): string {
+    const doing = sceneActLine(g, w), base = focusBase(g, w, present, bg);
+    return doing && (!base || base.includes(' came along with ')) ? doing : [base, doing].filter(Boolean).join('\n');
+}
+function focusBase(g: Save, w: WorldDef, present: Resident[], bg: boolean): string {
     const now = nowAbs(g);
     const s = social(g);
     const here = new Set(present.map(r => r.avatar));

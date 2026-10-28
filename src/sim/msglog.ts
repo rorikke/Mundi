@@ -194,6 +194,12 @@ export function reconcile() {
     if (changed) { saveGame(); notifyLater(); }
     // a long scene is judged in parts (every 30 messages): imported lazily, the verdict reads these records
     if (win.length >= LONG_SCENE) void import('./verdict.js').then(v => { const w = getWorld(g.world); if (w) void v.verdictNow(g, w, 'a long scene'); });
+    // (E14.6) an action played out in the scene has ended (sim/actions.ts): once the reply that tells how is in, the
+    // scene so far is judged, with the action's fact
+    else if ((g as any).actJudge && !win.at(-1)?.is_user) {
+        delete (g as any).actJudge;
+        void import('./verdict.js').then(v => { const w = getWorld(g.world); if (w) void v.verdictNow(g, w, 'an action ended'); });
+    }
 }
 const LONG_SCENE = 30;
 

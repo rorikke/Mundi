@@ -5,7 +5,8 @@ import { showTransition } from './lifeui.js';
 import { lockedOut } from '../sim/bills.js';
 import { doorAnswer, sleepMood } from '../sim/life.js';
 import { hobbyNeed } from '../sim/hobbies.js';
-import { doAction } from '../sim/actions.js';
+import { doAction, playsInScene } from '../sim/actions.js';
+import { startInScene, finishFirst } from './sceneact.js';
 import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
 
 import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom } from '../core/store.js';
@@ -374,6 +375,7 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     const { g, w } = ctxW();
     if (loc === g.player.loc) return;
     if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; }   // nobody walks out mid-sentence
+    finishFirst(g, w);   // (E14.6) what you were doing in the scene ends first (the rest of its time passes)
     const fee = entryDue(g, w, loc);   // (E19) a gate to pay at, once a day
     if (fee && g.player.money < fee) { toast(`Getting into ${placeOf(g, w, loc)?.name ?? 'there'} costs ${money(w, fee)}. Not enough money.`, 'info'); return; }
     const mins = travelMinutes(g, w, g.player.loc, loc);
@@ -485,6 +487,7 @@ async function sleep() {
     if (w.sleep.homeOnly && g.player.loc !== playerHomeId && !away && !inn) { toast('You can only sleep at home.', 'info'); return; }
     if (g.player.loc === playerHomeId && !away && lockedOut(g)) { toast(lex(w, 'lockedOutGo', appRef(w, 'homes')), 'warn'); return; }
     if (inn && !bookedHere(g, w)) { const why = bookNight(g, w); if (why) { toast(why, 'info'); return; } }
+    finishFirst(g, w);   // (E14.6) what you were doing in the scene ends first
     const mins = sleepMinutes(g, w, inn);
     const at = g.player.loc;
     const dayEnded = g.day;
@@ -583,6 +586,9 @@ Object.assign(ACT, {
         const tired = tooTired(g, w, Object.fromEntries(Object.entries(a.effects ?? {}).map(([k, v]) => [k, -v])), a.label.toLowerCase()); if (tired) { toast(tired, 'warn'); return; }
         if (isDoing()) return;
         actionSound(a.effects, a.id);
+        // (E14.6) played out in the scene: it becomes the scene's focus while the clock runs (ui/sceneact.ts)
+        if (state.view === 'scene' && playsInScene(g, w, a)) return startInScene(g, w, a);
+        finishFirst(g, w, true);   // one going on in the scene ends first
         if (a.minutes >= 60) await verdictNow(g, w, 'a long action');   // an hour or more ends the scene
         await doing(a.label, a.icon ?? '⏳', a.minutes);   // a moment on screen while the time passes
         // what it does (the roll, an outcome, a keepsake, time together, the fact) is decided in sim/actions.ts

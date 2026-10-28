@@ -167,6 +167,11 @@ export interface ActionDef {
      *  fact }`: Meiji Jingū's poems carry no luck). A result without words keeps the table's. */
     table?: string;
     words?: Record<string, string | Partial<RollOutcome>>;
+    /** (E14.6) Played out in the scene instead of off-screen: it becomes the scene's focus while the clock runs (a
+     *  step with each of your lines, or the live clock), and ends with its results once its time is up. `false`:
+     *  never. Without it, a world with `scene.actions` plays out an action of 20 minutes or more when someone you've
+     *  met is here. */
+    scene?: boolean;
     /** (E14) A keepsake it always leaves (an id from the world's `keepsakes`); an outcome's or a roll result's own
      *  keepsake only when that one comes out. */
     keepsake?: string;
@@ -520,8 +525,9 @@ export interface ClimateDef {
 export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
 /** (E1, E32) Scene settings. `background`: the AI may describe unnamed background people (staff, regulars,
  *  passers-by) at every place, not only at places with `staff`; `lore`: at most this many conditional lore rows in a
- *  scene (missing or 0: no limit). */
-export interface SceneDef { background?: boolean; lore?: number }
+ *  scene (missing or 0: no limit). (E14.6) `actions`: things to do play out in the scene when someone you've met is
+ *  here (see ActionDef.scene). */
+export interface SceneDef { background?: boolean; lore?: number; actions?: boolean }
 /** (E4) Trains: the hour the last ones leave (0.5 = 0:30) and the first ones (5), the fare of a taxi (a base and per
  *  minute of the trip), and the walk to the station (minutes) added to trips between districts. Between the last and
  *  the first train, a trip between two maps is a taxi or a wait; the world's people out past the last train stay out
