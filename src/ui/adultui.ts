@@ -6,7 +6,7 @@ import { INPUT } from './reg.js';
 export function adultSettingHtml(g: Save): string {
     return `<section class="mu-wc-sec"><h4>Adult content</h4>
         <label class="mu-check"><input type="checkbox" data-input="wc-adult" ${adultOn(g) ? 'checked' : ''}><span>Adult content in this game
-            <small>On: the places, jobs, things to do, lore and people the world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off: all of it is left out (nothing is deleted: turning it on again brings it back). Everyone in Mundi's worlds is an adult.</small></span></label></section>`;
+            <small>On: the places, jobs, things to do, lore and people the world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off: all of it is left out (nothing is deleted: turning it on again brings it back). The world's adult-only people come only into a new game started with it on. Everyone in Mundi's worlds is an adult.</small></span></label></section>`;
 }
 
 Object.assign(INPUT, {
