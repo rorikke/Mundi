@@ -1,9 +1,10 @@
 // Romance fades without contact, and partners who stopped loving you leave (requirements R-12, R-8). Each day without
 // contact (a scene or a text with you, a plan kept; between people, time together) romance fades toward a floor:
-// 0 after 2 days for anyone who isn't a partner (something casual included), 10 after 3 days for partners, a little
-// each day (a loss: never paced). A person's romance pace and the save's setting scale it; the feelings of the person
-// you play never fade. A partner whose romance toward you stays under 20, or whose friendship stays at Dislikes or
-// worse, for days in a row (casual 2, dating 3, engaged 5, married 7) ends it, and tells you.
+// 0 after 2 days for anyone who isn't a partner (something casual included), 10 after 3 days for partners (between two
+// of the world's people, after 5 days either way), a little each day (a loss: never paced). A person's romance pace and
+// the save's setting scale it; the feelings of the person you play never fade. A partner whose romance toward you stays
+// under 20, or whose friendship stays at Dislikes or worse, for days in a row (casual 2, dating 3, engaged 5, married
+// 7) ends it, and tells you.
 import { nowAbs, type Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
@@ -18,6 +19,9 @@ import { feel } from './life.js';
 export const FADE = {
     other: { grace: 2, rate: 3, floor: 0 },     // anyone who isn't a partner
     partner: { grace: 3, rate: 2, floor: 10 },  // dating, engaged, married: stays under 20, so an ignored partner leaves
+    // between two of the world's people, contact is only time together, which follows their weekly shifts: a feeling
+    // waits a few more days (a long weekend, days off apart, a short trip) before fading
+    between: 5,
 };
 export const LEAVE_AFTER: Record<Exclude<RomStatus, 'none'>, number> = { casual: 2, dating: 3, engaged: 5, married: 7 };
 
@@ -32,7 +36,7 @@ export function fadeRomance(g: Save, w: WorldDef) {
         const last = lastContact(g, x, y);
         if (last === undefined) { touch(g, x, y); continue; }   // first seen: start counting from today
         const f = PARTNER.includes(pairOf(g, x, y)?.status as Status) ? FADE.partner : FADE.other;
-        if (g.day - last <= f.grace || v <= f.floor) continue;
+        if (g.day - last <= (y === YOU ? f.grace : Math.max(f.grace, FADE.between)) || v <= f.floor) continue;
         lose(g, 'r', x, y, Math.min(v - f.floor, f.rate * k * (PACE[paceOf(g, x, 'r') ?? 'normal'] ?? 1)));
     }
     tidyContact(g);
