@@ -3,7 +3,7 @@
 //  - game(): the current save, stored INSIDE the open group chat's metadata (the save is the chat itself);
 //  - state: this session only (open screens, selection, drafts), never saved.
 import { ctx } from '../st/bridge.js';
-import type { Routine } from './world.js';
+import type { Routine, StartDef } from './world.js';
 import type { StartRel } from './feel.js';
 
 export const EXT = 'mundi';
@@ -45,6 +45,8 @@ export interface Settings {
     lib: LibPrefs;
     /** groups of people the player made in the Library (Presets): who, households, relations, how they see you */
     castPresets?: CastPreset[];
+    /** (E16) starts the player saved from a new game ("Save as a start"), by world id (Library → Starts) */
+    starts?: Record<string, StartDef[]>;
 }
 /** A preset of people. `hh[].ties`: family in each household; `rels`: starting relations (core/feel.ts). Presets saved
  *  before family-only ties have old relations there (any type and a tone): ui/castpresets.ts converts them on read. */
@@ -94,6 +96,8 @@ export interface Save {
         loc: string; home: { zone: string; kind: string; x: number; y: number; n?: number };
         stats: Record<string, number>; money: number; traits: Record<string, string[]>; attrs?: Record<string, number>; origin: string;
         job: { id: string; rank: number; shifts: number; path?: string[]; referral?: string } | null; rentPaidDay: number;
+        /** (E16) the start chosen at the new game (a world start's id, or 'custom'), and its premise for the AI */
+        start?: string; premise?: string;
     };
     cast: Record<string, Resident>;
     tick: Record<string, number>;   // last time (absolute minutes) each timed rule ran
@@ -102,7 +106,8 @@ export interface Save {
 
 // The open chat's save, or null when the open chat is not a Mundi game.
 // Per-save world settings (Globe → World → Advanced). Missing values mean the world's defaults.
-export interface WorldCfg { /** Home: minutes pass with each message (default on) */ perMessage?: boolean; /** Home: the housemates leave the house (work, errands, nights out; default on) */ npcOut?: boolean; travel?: number; decay?: number; seasonDays?: number; /** relationships (World → Rules → Relationships) */ rel?: RelCfg; lore?: string[]; clock?: 'action' | 'live'; /** open relationships: no jealousy, date several people freely */ poly?: boolean }
+export interface WorldCfg { /** Home: minutes pass with each message (default on) */ perMessage?: boolean; /** Home: the housemates leave the house (work, errands, nights out; default on) */ npcOut?: boolean; travel?: number; decay?: number; seasonDays?: number; /** relationships (World → Rules → Relationships) */ rel?: RelCfg; lore?: string[]; clock?: 'action' | 'live'; /** open relationships: no jealousy, date several people freely */ poly?: boolean;
+    /** (E15) adult content on (see adultOn) */ adult?: boolean }
 // Per-save relationship settings. Missing values mean the defaults (sim/pace.ts).
 export interface RelCfg {
     /** pacing per meter: E = points at full rate, H = points more until gains come at half rate */
@@ -124,6 +129,12 @@ export interface RelCfg {
     spread?: boolean;
 }
 export const cfg = (g: Save): WorldCfg => (((g as any).cfg ??= {}) as WorldCfg);
+// (E15) Adult content, per save: asked at the new game, changeable in the save's settings, off by default. Without it,
+// whatever a world marks `adult` (places, jobs, actions, lore, people, a feeling) is left out of the game.
+export const adultOn = (g: Save | null | undefined): boolean => !!g && cfg(g).adult === true;
+export const isAdultItem = (x: unknown): boolean => !!x && typeof x === 'object' && (x as { adult?: unknown }).adult === true;
+/** Is this world item part of this save's game (not adult, or adult content is on)? */
+export const adultOk = (g: Save | null | undefined, x: unknown): boolean => !isAdultItem(x) || adultOn(g);
 // How time passes: "action" (default) only what you do moves the clock (eating, sleeping, working, travelling);
 // "live" the clock also runs by itself in real time (World → Rules).
 export const clockMode = (g: Save) => cfg(g).clock ?? 'action';

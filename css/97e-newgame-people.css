@@ -1,0 +1,9 @@
+/* New game: the world's own people chosen one by one, adult content, starts; a person's intimate profile. */
+#mundi-root .mu-ng-wp { margin-bottom: 18px; }
+#mundi-root .mu-ng-wp .mu-castgrid { margin-top: 8px; }
+#mundi-root .mu-castcard .mu-castinit { width: 100%; aspect-ratio: 2 / 3; border-radius: 8px; display: grid; place-items: center; font-style: normal; font-size: 28px; font-weight: 800; color: rgba(255, 255, 255, .92); background: linear-gradient(135deg, #3b82f6, #6d28d9); }
+#mundi-root .mu-ng-wp .mu-castcard:not(.is-on) img, #mundi-root .mu-ng-wp .mu-castcard:not(.is-on) .mu-castinit { opacity: .55; }
+#mundi-root .mu-ng-adult { margin-bottom: 14px; }
+#mundi-root .mu-starts .mu-origin small.mu-muted { display: block; margin-top: 2px; }
+#mundi-root .mu-pp-intimate { margin-top: 10px; display: grid; gap: 8px; }
+#mundi-root .mu-pp-intimate > button { justify-self: start; display: inline-flex; gap: 6px; align-items: center; }

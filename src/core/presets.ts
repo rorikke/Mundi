@@ -382,5 +382,11 @@ export function upgradeWorld(w: WorldDef): WorldDef {
         }
         (w as any).presetCrises = true;
     }
+    // (E16) origins become the simplest starts, once (a world that has starts keeps its own; removed ones stay removed).
+    // Same id, money and home; no premise of its own: the origin's words are told as before.
+    if (!(w as any).presetStarts) {
+        if (!w.starts && w.catalogs?.origins?.length) w.starts = w.catalogs.origins.map(o => ({ id: o.id, name: o.name, ...(o.desc ? { desc: o.desc } : {}), premise: '', ...(o.home ? { home: o.home } : {}), money: o.money }));
+        (w as any).presetStarts = true;
+    }
     return w;
 }

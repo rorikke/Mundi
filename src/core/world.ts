@@ -265,7 +265,7 @@ export interface ExampleCharacter {
     ties?: { to: string; type: string; tone?: string; back?: string }[];
     /** How they start with the world's other people, in every game (`to`: the other person's name): friendship and
      *  romance levels each way, a couple's status, or the couple they used to be (core/feel.ts). */
-    feelings?: (FeelParts & { to: string })[];
+    feelings?: (FeelParts & { to: string; /** (E15) only with adult content on (an adult thread) */ adult?: boolean })[];
     /** Their own ways, from the start of every game (all optional: unset means the defaults). `gender`: one of the
      *  world's gender ids. `attraction`: per gender id, how much of the normal rate their friendship (`f`) and romance
      *  (`r`) grow toward people of that gender (0..1, missing = 1). */
@@ -452,8 +452,10 @@ export interface WorldDef {
 
 /** (E16) A start. `premise`: what the AI is told; `home`: a home zone id; `job`: a job id; `knows`: people you already
  *  know (by name) and how they feel about you (`f`, `r`, a couple's `status`, `was`), or what they are to you in the
- *  family (`family: 'cousin'`); `traits` and `skills` (levels) you begin with; `default`: picked first. */
-export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean }
+ *  family (`family: 'cousin'`); `traits` and `skills` (levels) you begin with; `default`: picked first. `household`:
+ *  you live with this household of the world's people (their `household` id), in your home. Made from an origin (an
+ *  older world), a start has the origin's id, and the origin still gives what only it has (RPG skills, "knows N"). */
+export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean; household?: string }
 export interface StartKnown extends FeelParts { name: string; family?: FamilyType }
 /** (J3) A skill. */
 export interface SkillDef { id: string; name: string; icon?: string; desc?: string }

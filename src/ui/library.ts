@@ -25,11 +25,12 @@ import { pickAndCrop, pickFile } from './cropper.js';
 import { toggleTrait } from './traits.js';
 import { nativeHost } from './native.js';
 import { presetsTabHtml } from './castpresets.js';
+import { startsTabHtml } from './startsui.js';
 
 const L = state.lib;
-type Tab = 'characters' | 'personas' | 'lorebooks' | 'backgrounds' | 'presets' | 'save' | 'world' | 'st-characters' | 'st-personas' | 'st-worldinfo';
+type Tab = 'characters' | 'personas' | 'lorebooks' | 'backgrounds' | 'presets' | 'starts' | 'save' | 'world' | 'st-characters' | 'st-personas' | 'st-worldinfo';
 type ListTab = 'characters' | 'personas' | 'lorebooks' | 'backgrounds';
-const TABS: [Tab, string][] = [['characters', 'Characters'], ['personas', 'Personas'], ['lorebooks', 'Lorebooks'], ['backgrounds', 'Backgrounds'], ['presets', 'Presets']];   // the save's and the world's settings live in the game (the globe button)
+const TABS: [Tab, string][] = [['characters', 'Characters'], ['personas', 'Personas'], ['lorebooks', 'Lorebooks'], ['backgrounds', 'Backgrounds'], ['presets', 'Presets'], ['starts', 'Starts']];   // the save's and the world's settings live in the game (the globe button)
 const ST_TABS: Tab[] = ['st-characters', 'st-personas', 'st-worldinfo'];
 const isList = (t: string): t is ListTab => t === 'characters' || t === 'personas' || t === 'lorebooks' || t === 'backgrounds';
 type Opt = [string | number, string];
@@ -706,6 +707,7 @@ export function libraryHtml() {
     if (tab === 'backgrounds' && !B()) loadBgs();
     if (isList(tab)) body = `<div class="mu-lib-body ${grid() ? 'is-grid' : ''}">${tab === 'backgrounds' && !B() ? '<p class="mu-muted mu-pad">Loading…</p>' : `${listPane(tab)}${detailPane(tab)}`}</div>`;
     else if (tab === 'presets') body = presetsTabHtml();
+    else if (tab === 'starts') body = startsTabHtml();
     else if (tab === 'save') body = `<div class="mu-lib-body is-single"><section class="mu-lib-detail mu-panel" data-keep="lib-detail">${saveTab()}</section></div>`;
     else if (tab === 'world') body = `<div class="mu-lib-body is-single"><section class="mu-lib-detail mu-panel" data-keep="lib-detail">${worldTab()}</section></div>`;
     else body = `<div class="mu-lib-body is-single">${nativeHost(tab, NOTES[tab] ?? '')}</div>`;
