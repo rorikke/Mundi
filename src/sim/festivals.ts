@@ -1,6 +1,6 @@
 // Festivals: fixed days of a season (the Harvest Festival, Midwinter, New Year…). While one lasts, prices change, the
 // people with free time gather at its place in the afternoon and evening, the AI knows, and you can celebrate there
-// once a day (mood, and a little reputation in town).
+// once a day (mood, and a little reputation in town). Several can fall on the same day, each at its own place.
 import { changes, type Save } from '../core/store.js';
 import { systemOn, type WorldDef, type FestivalDef } from '../core/world.js';
 import { seasonDays, SEASONS } from './time.js';
@@ -35,11 +35,19 @@ const mapOfPlace = (g: Save, w: WorldDef, id: string) => {
     return w.places.find(p => p.id === id)?.map;
 };
 const townOf = (w: WorldDef, mapId?: string) => { const m = w.maps.find(x => x.id === mapId); return m ? m.area ?? m.id : ''; };
-// The festival of a day for someone at a place (the player's place by default), or on a map (`{ map }`).
-export function festivalOn(g: Save, w: WorldDef, day = g.day, place: string | { map?: string } = g.player.loc): FestivalDef | null {
-    const list = festivalsOn(g, w, day); if (!list.length) return null;
+// (E19) The places a festival fills: its place and its `places`.
+const spotsOf = (f: FestivalDef) => [...(f.place ? [f.place] : []), ...(f.places ?? [])];
+// The festivals of a day that count for someone at a place (the player's place by default), or on a map (`{ map }`):
+// those of its town, and those for everyone. Several can fall on one day (hanami and the start of the work year).
+export function festivalsHere(g: Save, w: WorldDef, day = g.day, place: string | { map?: string } = g.player.loc): FestivalDef[] {
+    const list = festivalsOn(g, w, day); if (!list.length) return [];
     const here = townOf(w, typeof place === 'string' ? mapOfPlace(g, w, place) : place.map);
-    return list.find(f => !f.place || w.maps.length < 2 || townOf(w, mapOfPlace(g, w, f.place)) === here) ?? null;
+    return list.filter(f => !spotsOf(f).length || w.maps.length < 2 || spotsOf(f).some(id => townOf(w, mapOfPlace(g, w, id)) === here));
+}
+// The festival of a day for someone at a place: the one held at that very place, or else the town's first.
+export function festivalOn(g: Save, w: WorldDef, day = g.day, place: string | { map?: string } = g.player.loc): FestivalDef | null {
+    const list = festivalsHere(g, w, day, place);
+    return (typeof place === 'string' ? list.find(f => spotsOf(f).includes(place)) : undefined) ?? list[0] ?? null;
 }
 // Where people gather (afternoon and evening, from noon to 22h): the festival of their own town.
 export function festivalSpot(g: Save, w: WorldDef, at: number, home?: string | { map?: string }): string | null {
@@ -54,21 +62,26 @@ export function upcoming(g: Save, w: WorldDef, days = 28) {
     for (let d = g.day; d < g.day + days; d++) for (const f of festivalsOn(g, w, d)) if (!out.some(x => x.f.id === f.id && d - x.day < (f.days ?? 1))) out.push({ f, day: d });
     return out;
 }
+// Festivals celebrated ("id|day"; one string in older saves).
+const celebrated = (g: Save): string[] => { const c = (g as any).celebrated; return Array.isArray(c) ? c : c ? [String(c)] : []; };
+// A festival you can join here today: at its place (or one without a place), each once a day.
 export function canCelebrate(g: Save, w: WorldDef): FestivalDef | null {
-    const f = festivalOn(g, w);
-    if (!f || (g as any).celebrated === `${f.id}|${g.day}`) return null;
-    return !f.place || g.player.loc === f.place ? f : null;
+    const done = celebrated(g);
+    return festivalsHere(g, w).find(f => !done.includes(`${f.id}|${g.day}`) && (!spotsOf(f).length || spotsOf(f).includes(g.player.loc))) ?? null;
 }
 export function celebrate(g: Save, w: WorldDef, addRep: (d: number) => void): string {
     const f = canCelebrate(g, w); if (!f) return '';
-    (g as any).celebrated = `${f.id}|${g.day}`;
+    (g as any).celebrated = [...celebrated(g).filter(k => Number(k.split('|')[1]) >= g.day), `${f.id}|${g.day}`];
     addStatus(g, w, 'mood', f.mood ?? 15); addStatus(g, w, 'energy', -8);
     addRep(1);
     note(g, '{u} celebrated the {0}.', [f.name], [], g.player.loc, 'social');
     return `You join the ${f.name}!`;
 }
+// Every festival of the town today (the one held here first).
 export function festivalLine(g: Save, w: WorldDef): string {
-    const f = festivalOn(g, w); if (!f) return '';
-    const place = w.places.find(p => p.id === f.place)?.name;
-    return `Today is the ${f.name}${f.desc ? `: ${f.desc}` : ''}.${place ? ` People gather at ${place} in the afternoon and evening.` : ''}`;
+    const here = festivalOn(g, w); if (!here) return '';
+    return [here, ...festivalsHere(g, w).filter(f => f !== here)].map(f => {
+        const place = w.places.find(p => p.id === f.place)?.name;
+        return `Today is the ${f.name}${f.desc ? `: ${f.desc}` : ''}.${place ? ` People gather at ${place} in the afternoon and evening.` : ''}`;
+    }).join(' ');
 }
