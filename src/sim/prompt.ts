@@ -3,6 +3,7 @@
 import { homeJobsLine } from './hometime.js';
 import { dressLine } from './dress.js';
 import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living.js';
+import { backgroundOn, backgroundLine, sheetPeople, castSheet, SHEETS_MAX } from './scenepeople.js';
 import './longlife.js';
 import './fading.js';   // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
@@ -26,7 +27,7 @@ import { rivalsLine } from './jealousy.js';
 import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
 import { markSent } from './moments.js';
 import { familyLine } from './family.js';
-import { social, livePlan } from './social.js';
+import { social, livePlan, companions } from './social.js';
 import { personaName } from '../st/bridge.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { worldLine, weatherHere } from './worldstate.js';
@@ -72,6 +73,7 @@ export const PROMPT_KEY = 'mundi_scene';
 export interface Block { id: string; name: string; desc: string; cut?: number }
 export const BLOCKS: Block[] = [
     { id: 'core', name: 'Scene basics', desc: 'World, day and time, weather, place, who is here, and the rules of the scene.' },
+    { id: 'around', name: 'Who is around', desc: 'How the world\'s own people here look and sound, and the staff, regulars and passers-by the AI may describe in the background (in worlds that have them).', cut: 7 },
     { id: 'world', name: 'The mood around', desc: 'How busy it is here, the public mood and tension of the region, and its prices.', cut: 4 },
     { id: 'memories', name: 'Memories', desc: 'What the people here remember about you, and what happened earlier in this place.', cut: 9 },
     { id: 'plans', name: 'Plans', desc: 'Plans you made with the people here.', cut: 8 },
@@ -135,23 +137,27 @@ export function sceneBlocks(): Built[] {
     const here = placeOf(g, w, g.player.loc);
     const present = presentAt(g, w, g.player.loc);
     const met = present.filter(r => r.met);
-    const names = present.map(r => r.name);
     const pc = promptCfg();
+    // (E1) background people the AI may describe and (E27) short sheets for the world's people here, unless you
+    // switched that block off
+    const around = !pc.off.includes('around');
+    const bg = around && backgroundOn(w, here), sheets = around ? sheetPeople(g, w, present) : [];
     const raw: Record<string, string[]> = {
         core: [
             `[World state — ${w.name}]`,
             ...scenarioLines(g, w),
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
             `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
-            names.length ? `Here with {{user}}: ${names.join(', ')}. Only they are in this scene; nobody else speaks or appears.` : 'Nobody else is here right now.',
+            hereLine(g, present, bg, sheets.length > 0),
             ...(present.some(r => !r.met) ? [`Strangers to {{user}}: ${present.filter(r => !r.met).map(r => r.name).join(', ')}. They and {{user}} have never met: they do not know each other's names until they talk and introduce themselves.`] : []),
         ],
+        around: [...sheets.map(r => castSheet(w, r)), bg ? backgroundLine(g, w, here) : ''],
         // only the people in this scene and this place: nobody else's memories, nobody else's whereabouts
         world: [worldLine(g, w), festivalLine(g, w), realmLine(g, w), skiesLine(g, w), ...legendLines(g, w)],
         diary: diaryLines(g),
         memories: [...memoryLines(g, w, met, personaName()), ...placeMemoryLines(g, w, present)],
         plans: planLines(g, present, w),
-        focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present), ...whyHereLines(g, w, present), ...questLines(g)],
+        focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
         you: [(g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g)!.name.toLowerCase()}.` : ''],
         solo: [soloLine(g, present)],
@@ -210,8 +216,22 @@ export function refreshPrompt() {
 export const clearPrompt = () => setPrompt(PROMPT_KEY, '');
 export const speakerName = (avatar: string) => nameOf(avatar);
 
+// Who is here with you. With background people (E1) or sheets (E27): only the people here are characters, and with
+// more than a few of them (more than get a sheet), those with you (who came along, who know you) come first, the
+// others are "also here".
+function hereLine(g: Save, present: Resident[], bg: boolean, sheets: boolean): string {
+    const names = present.map(r => r.name);
+    if (!bg && !sheets) return names.length ? `Here with {{user}}: ${names.join(', ')}. Only they are in this scene; nobody else speaks or appears.` : 'Nobody else is here right now.';
+    const extras = bg ? ' Background people may be described and say a short line, but never join in or become characters.' : '';
+    if (!names.length) return `None of the world's characters is here right now.${extras}`;
+    const along = new Set(companions(g));
+    const mine = present.length > SHEETS_MAX && sheets ? present.filter(r => r.met || along.has(r.avatar)) : present;
+    const also = mine.length ? present.filter(r => !mine.includes(r)) : [];
+    return `Here with {{user}}: ${(mine.length ? mine : present).map(r => r.name).join(', ')}.${also.length ? ` Also here: ${also.map(r => r.name).join(', ')}.` : ''} Only they are characters in this scene${bg ? `.${extras}` : '; nobody else speaks or appears.'}`;
+}
+
 // The scene's focus (a short directive so the story does not wander): the plan or company that brought you here.
-function focusLine(g: Save, w: WorldDef, present: Resident[]): string {
+function focusLine(g: Save, w: WorldDef, present: Resident[], bg = false): string {
     const now = nowAbs(g);
     const s = social(g);
     const here = new Set(present.map(r => r.avatar));
@@ -219,7 +239,7 @@ function focusLine(g: Save, w: WorldDef, present: Resident[]): string {
     if (plan) return `Scene focus: ${plan.kind === 'date' ? 'a date' : plan.kind === 'party' ? "{{user}}'s party" : 'meeting up'} with ${g.cast[plan.avatar]?.name}${plan.title ? `: "${plan.title}" (play the scene around this)` : ''}.`;
     const along = s.with.map(c => g.cast[c.avatar]?.name).filter(Boolean);
     if (along.length) return `Scene focus: ${along.join(' and ')} came along with {{user}}.`;
-    if (!present.length) return `Scene focus: {{user}} is alone here. Describe the place, the passing moment and how {{user}} feels; nobody else appears.`;
+    if (!present.length) return `Scene focus: {{user}} is alone here. Describe the place, the passing moment and how {{user}} feels; ${bg ? 'nobody but the background people appears' : 'nobody else appears'}.`;
     void w;
     return '';
 }
