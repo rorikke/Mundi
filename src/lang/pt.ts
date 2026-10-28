@@ -3945,6 +3945,11 @@ const DICT: Record<string, string> = {
  "A color you choose is saved on their card.": "A cor que você escolher é salva no card da pessoa.",
  "Used to be: {0}, until day {1}": "Já foram: {0}, até o dia {1}",
  "A couple": "Um casal",
- "Forget": "Esquecer"
+ "Forget": "Esquecer",
+ "Family": "Família",
+ "No family yet.": "Nenhuma família ainda.",
+ "Feelings": "Sentimentos",
+ "you": "você",
+ "Friends, couples and exes are feelings (below). Who lives together:": "Amigos, casais e ex são sentimentos (abaixo). Quem mora junto:"
 };
 export default DICT;

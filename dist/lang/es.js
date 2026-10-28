@@ -3956,6 +3956,11 @@ const DICT = {
     "A color you choose is saved on their card.": "El color que elijas se guarda en su tarjeta.",
     "Used to be: {0}, until day {1}": "Fueron: {0}, hasta el día {1}",
     "A couple": "Una pareja",
-    "Forget": "Olvidar"
+    "Forget": "Olvidar",
+    "Family": "Familia",
+    "No family yet.": "Todavía no hay familia.",
+    "Feelings": "Sentimientos",
+    "you": "ti",
+    "Friends, couples and exes are feelings (below). Who lives together:": "Amigos, parejas y ex son sentimientos (abajo). Quién vive junto:"
 };
 export default DICT;

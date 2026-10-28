@@ -428,12 +428,11 @@
 #mundi-root .mu-ties h4 { margin: 0; }
 #mundi-root .mu-ties ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 #mundi-root .mu-ties li { display: flex; align-items: center; gap: 8px; }
-#mundi-root .mu-ties li em { font-style: normal; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: rgba(255, 255, 255, .1); text-transform: capitalize; }
-#mundi-root .mu-ties li em.is-close, #mundi-root .mu-ties li em.is-good { color: #7fe06a; }
-#mundi-root .mu-ties li em.is-tense, #mundi-root .mu-ties li em.is-hostile { color: #ff8a8a; }
 #mundi-root .mu-ties li button { margin-left: auto; }
 #mundi-root .mu-ties-add { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 #mundi-root .mu-ties-add select { width: auto; flex: 1 1 120px; }
+#mundi-root .mu-feel-side { display: grid; gap: 4px; }
+#mundi-root .mu-feel-side > b { font-size: 12px; opacity: .8; }
 #mundi-root .mu-skincolors { justify-self: start; margin: -4px 0 4px; font-size: 12px; padding: 4px 10px; }
 
 /* family: the expecting tag, a child's card, the birth */

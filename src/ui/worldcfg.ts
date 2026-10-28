@@ -11,11 +11,12 @@ import './homeui.js';
 import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, chatLore, bindChatLore, createLorebook, saveCardPerson } from '../st/bridge.js';
 import { homeAddress, placeOf } from '../sim/places.js';
 import { resident, homeSpot, takenHomes, syncScene, currentEntry } from '../sim/game.js';
-import { social, bondLabel } from '../sim/social.js';
-import { romOf, friendTier } from '../sim/romance.js';
-import { romanceBlocked, familyBlocked, isMinor, kidOf } from '../sim/family.js';
+import { social } from '../sim/social.js';
+import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
+import { familyBlocked, isMinor, kidOf } from '../sim/family.js';
 import { tiesOf, removeTie, normalizeHomes, TIE_TYPES, type TieType } from '../sim/living.js';
-import { addOldTie } from '../sim/startfeel.js';
+import { addOldTie, pickLevel, friendLevelOf, romLevelOf } from '../sim/startfeel.js';
+import { ROM_START, type FriendLevel, type RomLevel } from '../core/feel.js';
 import { freeSpots } from '../sim/work.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { facts } from '../sim/facts.js';
@@ -32,7 +33,7 @@ import { ACT, INPUT } from './reg.js';
 import { talkFieldHtml } from './talkcolors.js';
 import { ME } from '../sim/talkcolors.js';
 import { playing } from '../sim/playas.js';
-import { setFr, setMeter, meter, setStatus, statusOf, pastOf, forgetPast, seedFamily, relOf, relCfg, idOf, YOU, type Meter, type Status } from '../sim/rel.js';
+import { setMeter, meter, setStatus, statusOf, pastOf, forgetPast, seedFamily, COUPLE_ROMANCE, relOf, relCfg, idOf, YOU, type Meter, type Status } from '../sim/rel.js';
 import { CURVES, HALF_LIFE } from '../sim/pace.js';
 import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
@@ -52,7 +53,6 @@ function personForm(g: Save, w: WorldDef): string {
     const r = g.cast[WC.who];
     if (!r) return '<p class="mu-muted mu-pad">Choose someone on the left.</p>';
     const tpl = Object.entries(w.cast.routineTemplates).find(([, t]) => sameRoutine(t, r.routine))?.[0] ?? '';
-    const bond = bondOf(g, r.avatar);
     const leisure = w.places.filter(p => (p.tags ?? []).some(t => ['leisure', 'food', 'shop'].includes(t)));
     return `<header class="mu-wc-head"><img src="${esc(thumb(r.avatar))}" alt=""><div><h3 data-notr>${esc(r.name)}</h3><small>${esc(homeAddress(w, r.home))}</small></div></header>
         ${isScenario(w) ? (() => { const j = homeJobOf(r); const timed = !!SHIFTS.find(x => x.id === j.shift && x.from !== undefined);
@@ -66,17 +66,14 @@ function personForm(g: Save, w: WorldDef): string {
         ${talkFieldHtml(r.avatar)}
         ${personPanel('save', r.avatar, ['gender'])}
         ${tiesHtml(g, r.avatar)}
+        ${pairHtml(g, w, r.avatar)}
         ${WC.adv ? `<h4 class="mu-lib-advhead">Advanced settings</h4>
             <label class="mu-field"><span>Daily routine</span><select data-input="wc-routine">${tpl ? '' : opt('', 'Custom', true)}${Object.keys(w.cast.routineTemplates).map(k => opt(k, k, tpl === k)).join('')}</select></label>
             <div class="mu-field"><span>Where they go in their free time</span><div class="mu-chips">${leisure.map(p => `<button class="mu-chip ${r.leisure.includes(p.id) ? 'is-on' : ''}" data-act="wc-leisure" data-id="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
                 <small class="mu-muted">None chosen: any leisure place.</small></div>
-            <label class="mu-field slider"><span>Bond with you · ${bond}/100 (${bondLabel(g, r.avatar)})</span><input type="range" min="-100" max="100" value="${bond}" data-input="wc-bond"></label>
-            ${systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) ? `<label class="mu-field"><span>With you</span><select data-input="wc-status">${[['none', 'Not together'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, romOf(g, r.avatar).status === v)).join('')}</select></label>` : ''}
-            ${pastHtml(g, r.avatar, YOU)}
             ${personPanel('save', r.avatar, ['attraction', 'pace', 'ways'])}
             ${charOf(r.avatar) ? `<div class="mu-row"><button class="mu-ghost" data-act="wc-save-card">${icon('save')}<span>Save to card</span></button><small class="mu-muted">Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.</small></div>` : ''}
             ${minorHtml(g, r.avatar)}
-            ${pairHtml(g, w, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
             <small class="mu-muted">Their card stays in SillyTavern; they just stop living here.</small>` : ''}
         ${relNumbersHtml(g, r.avatar)}${relChangesHtml(g, r.avatar)}`;
@@ -103,27 +100,36 @@ function minorHtml(g: Save, avatar: string): string {
     const p = relOf(g).people[idOf(g, avatar)], fixed = !!kidOf(g, avatar) || (p?.age !== undefined && p.age < 18);
     return `<label class="mu-check"><input type="checkbox" data-input="wc-minor" ${isMinor(g, avatar) ? 'checked' : ''} ${fixed ? 'disabled' : ''}><span>A minor<small>${fixed && p?.age !== undefined ? `Age ${esc(p.age)}: never part of any romance.` : 'Never part of any romance.'}</small></span></label>`;
 }
-// How this person and another one feel about each other, both ways (friendship, romance), and whether they're a couple.
-const PAIR = { other: '' };
+// How this person and someone else (you, by default) feel about each other: a level per direction for friendship and,
+// where romance can be, for romance; whether they're a couple, or used to be. With you only their side is set: your
+// own feelings are played. The exact values are sliders under Advanced.
+const PAIR = { other: YOU as string };
 function pairHtml(g: Save, w: WorldDef, a: string): string {
     if (idOf(g, a) === YOU) return '';
     const others = Object.values(g.cast).filter(x => x.avatar !== a && idOf(g, x.avatar) !== YOU).sort((x, y) => x.name.localeCompare(y.name));
-    if (!others.length) return '';
-    const b = others.some(x => x.avatar === PAIR.other) ? PAIR.other : others[0].avatar;
-    const name = (x: string) => g.cast[x]?.name ?? x;
+    const b = PAIR.other === YOU || others.some(x => x.avatar === PAIR.other) ? PAIR.other : YOU;
+    const you = b === YOU;
+    const who = (x: string) => (x === YOU ? '<span>you</span>' : `<span data-notr>${esc(g.cast[x]?.name ?? x)}</span>`);   // names never translated
     const debug = !!relCfg(g).debug;
     const love = systemOn(w, 'romance') && !familyBlocked(g, a, b);
+    const level = (x: string, y: string, m: Meter) => {
+        const v = meter(g, m, x, y), cur = m === 'f' ? friendLevelOf(v) : romLevelOf(v);
+        const tiers = m === 'f' ? [...FRIEND_TIERS].reverse() : ROMANCE_TIERS;
+        return `<label class="mu-field"><span>${m === 'f' ? 'Friendship' : 'Romance'}</span><select data-input="wc-level" data-x="${esc(x)}" data-y="${esc(y)}" data-m="${m}">${tiers.map(t => opt(t.id, t.name, t.id === cur)).join('')}</select></label>`;
+    };
+    const side = (x: string, y: string) => `<div class="mu-feel-side"><b>${who(x)} → ${who(y)}</b><div class="mu-row2">${level(x, y, 'f')}${love ? level(x, y, 'r') : ''}</div></div>`;
     const slider = (x: string, y: string, m: Meter) => {
         const v = Math.round(meter(g, m, x, y));
-        return `<label class="mu-field slider"><span><span data-notr>${esc(name(x))} → ${esc(name(y))}</span> · ${m === 'f' ? 'Friendship' : 'Romance'} · <b>${v}</b>${m === 'f' ? ` (${esc(friendTier(v).name)})` : ''}${debug ? ` · ${meter(g, m, x, y).toFixed(2)}` : ''}</span><input type="range" min="${m === 'f' ? -100 : 0}" max="100" value="${v}" data-input="wc-pair" data-x="${esc(x)}" data-y="${esc(y)}" data-m="${m}"></label>`;
+        return `<label class="mu-field slider"><span>${who(x)} → ${who(y)} · ${m === 'f' ? 'Friendship' : 'Romance'} · <b>${v}</b>${debug ? ` · ${meter(g, m, x, y).toFixed(2)}` : ''}</span><input type="range" min="${m === 'f' ? -100 : 0}" max="100" value="${v}" data-input="wc-pair" data-x="${esc(x)}" data-y="${esc(y)}" data-m="${m}"></label>`;
     };
     const st = statusOf(g, a, b) ?? '';
-    return `<section class="mu-wc-pair"><h4>Feelings between two people</h4>
-        <label class="mu-field"><span>With</span><select data-input="wc-pair-who">${others.map(x => opt(x.avatar, x.name, x.avatar === b)).join('')}</select></label>
-        ${slider(a, b, 'f')}${slider(b, a, 'f')}
-        ${love ? `${slider(a, b, 'r')}${slider(b, a, 'r')}
-            <label class="mu-field"><span>Together</span><select data-input="wc-pair-status" data-b="${esc(b)}">${[['', 'Not a couple'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, st === v)).join('')}</select></label>` : ''}
+    const pairs: [string, string][] = you ? [[a, b]] : [[a, b], [b, a]];
+    return `<section class="mu-ties mu-wc-pair"><h4>Feelings</h4>
+        <label class="mu-field"><span>With</span><select data-input="wc-pair-who">${opt(YOU, 'You', you)}${others.map(x => opt(x.avatar, x.name, x.avatar === b)).join('')}</select></label>
+        ${pairs.map(([x, y]) => side(x, y)).join('')}
+        ${love ? `<label class="mu-field"><span>Together</span><select data-input="wc-pair-status" data-b="${esc(b)}">${[['', 'Not a couple'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([v, l]) => opt(v, l, st === v)).join('')}</select></label>` : ''}
         ${pastHtml(g, a, b)}
+        ${WC.adv ? pairs.flatMap(([x, y]) => [slider(x, y, 'f'), ...(love ? [slider(x, y, 'r')] : [])]).join('') : ''}
     </section>`;
 }
 
@@ -332,7 +338,7 @@ function tiesHtml(g: Save, avatar: string) {
             <select data-input="wc-tie" data-k="type">${TIE_TYPES.map(([id, l]) => opt(id, l, TIE.type === id)).join('')}</select>
             <select data-input="wc-tie" data-k="other"><option value="">who?</option>${others.map(([id, n]) => `<option value="${esc(id)}" ${TIE.other === id ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
             <button class="mu-primary" data-act="wc-tie-add" ${TIE.other ? '' : 'aria-disabled="true"'}>${icon('plus')}<span>Add</span></button></div>
-        <div class="mu-row"><small class="mu-muted">Friends, couples and exes are feelings (Advanced, below). Who lives together:</small><button class="mu-ghost" data-act="wc-tab" data-tab="homes">Households</button></div>
+        <div class="mu-row"><small class="mu-muted">Friends, couples and exes are feelings (below). Who lives together:</small><button class="mu-ghost" data-act="wc-tab" data-tab="homes">Households</button></div>
     </section>`;
 }
 
@@ -417,7 +423,17 @@ Object.assign(INPUT, {
     'wc-minor': async (el) => { const g = game(); if (!g) return; const id = idOf(g, WC.who); const ps = relOf(g).people; if (el.checked) (ps[id] ??= {}).minor = true; else if (ps[id]) delete ps[id].minor; await changed(); },
     'wc-pair-who': (el) => { PAIR.other = el.value; notify(); },
     'wc-pair': (el) => { const g = game(); if (!g) return; setMeter(g, el.dataset.m as Meter, el.dataset.x!, el.dataset.y!, Number(el.value)); saveGame(); const b = el.previousElementSibling?.querySelector('b'); if (b) b.textContent = el.value; },
-    'wc-pair-status': async (el) => { const g = game(); if (!g) return; setStatus(g, WC.who, el.dataset.b!, (el.value || null) as Status | null, g.day, false); await changed(); },
+    'wc-pair-status': async (el) => {
+        const g = game(); if (!g) return;
+        const a = WC.who, b = el.dataset.b!, status = (el.value || null) as Status | null;
+        if (status && familyBlocked(g, a, b)) { toast('Not possible with family or a child.', 'info'); notify(); return; }
+        setStatus(g, a, b, status, g.day, false);
+        // a couple set by hand starts with some romance where there was none (with you: only their side)
+        const floor = status === 'casual' ? ROM_START.interest : status ? COUPLE_ROMANCE : 0;
+        for (const [x, y] of idOf(g, b) === YOU ? [[a, b]] : [[a, b], [b, a]]) if (romLevelOf(meter(g, 'r', x, y)) === 'none' && floor) setMeter(g, 'r', x, y, floor);
+        await changed();
+    },
+    'wc-level': async (el) => { const g = game(); if (!g) return; pickLevel(g, el.dataset.m as Meter, el.dataset.x!, el.dataset.y!, el.value as FriendLevel | RomLevel); await changed(); },
     'wc-adv': (el) => { WC.adv = el.checked; notify(); },
     'wc-q': (el) => { WC.q = el.value; notify(); },
     'wc-job': async (el) => { const c = ctxGW(); const r = c?.g.cast[WC.who]; if (!r) return; r.occupation = el.value || null; await changed(); },
@@ -429,8 +445,6 @@ Object.assign(INPUT, {
     },
     'wc-met': async (el) => { const c = ctxGW(); const r = c?.g.cast[WC.who]; if (!r) return; r.met = el.checked; await changed(); },
     'wc-routine': async (el) => { const c = ctxGW(); const r = c?.g.cast[WC.who]; if (!c || !r || !el.value) return; r.routine = structuredClone(c.w.cast.routineTemplates[el.value]); await changed(); },
-    'wc-bond': (el) => { const g = game(); if (!g) return; setFr(g, WC.who, YOU, Number(el.value)); saveGame(); const s = el.previousElementSibling; if (s) s.textContent = `Bond with you · ${el.value}/100`; },
-    'wc-partner': (el) => { const g = game(); if (!g) return; if (el.checked && romanceBlocked(g, WC.who)) { el.checked = false; toast('Not possible with family or a child.', 'info'); return; } const was = romOf(g, WC.who).status; setStatus(g, WC.who, YOU, el.checked ? (was === 'none' ? 'dating' : was) : null, g.day, false); saveGame(); notify(); },
     'wc-note': (el) => { ctx().chatMetadata.note_prompt = el.value; noteSave(); const t = document.getElementById('extension_floating_prompt') as HTMLTextAreaElement | null; if (t) t.value = el.value; },
     'wc-note-num': (el) => { ctx().chatMetadata[el.dataset.k!] = Number(el.value); noteSave(); },
     'wc-lq': (el) => { WC.lq = el.value; notify(); },
@@ -462,9 +476,4 @@ Object.assign(INPUT, {
     'wc-rel-init': (el) => { const g = game(); if (!g) return; const rc = (cfg(g).rel ??= {}); if (el.value) rc.initiative = el.value as any; else delete rc.initiative; saveGame(); refreshPrompt(); notify(); },
     'wc-rel-playas': (el) => { const g = game(); if (!g) return; const rc = (cfg(g).rel ??= {}); if (el.value === 'keep') rc.playAs = 'keep'; else delete rc.playAs; saveGame(); notify(); },
     'wc-rel-debug': (el) => { const g = game(); if (!g) return; const rc = (cfg(g).rel ??= {}); if ((el as HTMLInputElement).checked) rc.debug = true; else delete rc.debug; saveGame(); notify(); },
-    'wc-status': (el) => {
-        const g = game(); if (!g) return;
-        if (el.value !== 'none' && romanceBlocked(g, WC.who)) { toast('Not possible with family or a child.', 'info'); notify(); return; }
-        setStatus(g, WC.who, YOU, el.value === 'none' ? null : el.value as Status, g.day, false); saveGame(); notify();
-    },
 });
