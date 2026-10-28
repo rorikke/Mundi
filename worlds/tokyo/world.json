@@ -34187,7 +34187,11 @@
       "nothing with a housemate who hasn't asked clearly"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 10,
+     "japanese": 6
+    }
    },
    {
     "name": "Haru",
@@ -34284,7 +34288,10 @@
       "no one who treats their gender as a curiosity"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 1
+    }
    },
    {
     "name": "Nanami",
@@ -34618,7 +34625,10 @@
       "nothing hidden, everything said plainly"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 0
+    }
    },
    {
     "name": "Ayaka",
@@ -34919,7 +34929,10 @@
       "no recordings"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 5
+    }
    },
    {
     "name": "Rina",
@@ -35057,7 +35070,10 @@
       "no ghosting"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 6
+    }
    },
    {
     "name": "Daisuke",
@@ -35392,7 +35408,10 @@
       "no lies, she is honest that she is not exclusive"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 1
+    }
    },
    {
     "name": "Natsuki",
@@ -35497,7 +35516,10 @@
       "no mocking her hobbies"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 3
+    }
    },
    {
     "name": "Lisa",
@@ -35562,7 +35584,10 @@
       "no recordings without consent"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 6
+    }
    },
    {
     "name": "Sayuri",
@@ -35892,7 +35917,11 @@
       "no pressure"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 4,
+     "japanese": 9
+    }
    },
    {
     "name": "Camille",
@@ -35976,7 +36005,11 @@
       "honesty with everyone"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 7,
+     "japanese": 3
+    }
    },
    {
     "name": "Lucas",
@@ -36065,7 +36098,11 @@
       "nobody who laughs at his family search"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 7,
+     "japanese": 5
+    }
    },
    {
     "name": "Linh",
@@ -36167,7 +36204,11 @@
       "no one who pities her debt"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 6,
+     "japanese": 6
+    }
    },
    {
     "name": "Mei",
@@ -36267,7 +36308,10 @@
       "no gossip"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 9
+    }
    },
    {
     "name": "Hannah",
@@ -36346,7 +36390,11 @@
       "no pushing in public"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 8,
+     "japanese": 6
+    }
    },
    {
     "name": "Jake",
@@ -36463,7 +36511,11 @@
       ],
       "text": "Hikari Labs' year-end party"
      }
-    ]
+    ],
+    "languages": {
+     "english": 10,
+     "japanese": 2
+    }
    },
    {
     "name": "Kanon",
@@ -37077,5 +37129,12 @@
   "water": "",
   "waves": "",
   "wind": ""
+ },
+ "language": {
+  "local": "japanese",
+  "others": [
+   "english"
+  ],
+  "level": 2
  }
 }

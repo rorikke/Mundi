@@ -317,6 +317,9 @@ export interface ExampleCharacter {
     intimate?: IntimateProfile;
     /** (E27) One short line on their looks and one on their voice, for scenes where they're present but not speaking. */
     look?: string; voice?: string;
+    /** (E13) How well they speak the world's languages (skill id → level 0–10: `{ english: 9 }`); missing: the world's
+     *  own language fluently and its other languages a little (see LanguageDef). */
+    languages?: Record<string, number>;
     /** (E25) The world's own people stay themselves: no random new job or home (only their threads or the player change
      *  that). Missing: they stay themselves; `false` lets one change by chance. */
     anchored?: boolean;
@@ -477,6 +480,8 @@ export interface WorldDef {
     /** (E12) Your own sound files for places' sound tags (tag → a file in the world's folder); a tag without a file (an
      *  empty slot) plays the engine's own sound, made on the fly. */
     sounds?: Record<string, string>;
+    /** (E13) The language people speak here, for a newcomer who doesn't (see LanguageDef). Missing: no barrier. */
+    language?: LanguageDef;
     /** What the world has: a phone (modern), a journal (medieval)… and which systems are on. */
     features?: { phone?: boolean; device?: string; apps?: AppDef[] } & Partial<Record<SystemId, boolean>>;
     /** Set by the loader: the folder URL the world's files live in. */
@@ -526,6 +531,11 @@ export interface ClimateDef {
 /** (E8) How people address you, by how close they are: a few words per friendship level and per romance level or
  *  couple status, and how a senior or junior at work does. Told to the AI. */
 export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
+/** (E13) Languages: `local` is the skill everyone here speaks (`japanese`); `others`, the skills of other languages
+ *  people may share with a newcomer (`english`). The world's people speak `local` fluently (10) and the others at
+ *  `level` (default 2) unless their `languages` say otherwise. The player's levels in those skills shape what the AI
+ *  is told; time spent with people who speak only `local` trains it (sim/language.ts). */
+export interface LanguageDef { local: string; others?: string[]; level?: number }
 /** (E1, E32) Scene settings. `background`: the AI may describe unnamed background people (staff, regulars,
  *  passers-by) at every place, not only at places with `staff`; `lore`: at most this many conditional lore rows in a
  *  scene (missing or 0: no limit). */
@@ -727,7 +737,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'letters', name: 'Letters from afar', desc: 'friends in other towns never write, and distance never cools a friendship.', apps: [], blocks: [] },
     { id: 'festivals', name: 'Festivals', desc: 'no festivals in the calendar.', apps: [], blocks: [] },
     { id: 'events', name: 'City events', desc: 'no shows, matches or fairs in the city calendar.', apps: [], blocks: [] },
-    { id: 'hobbies', name: 'Hobbies', desc: 'practice never levels up a hobby (guitar, painting…), and no job asks for one.', apps: [], blocks: [] },
+    { id: 'hobbies', name: 'Hobbies', desc: 'practice never levels up a hobby (guitar, painting…), and no job asks for one.', apps: [], blocks: ['language'] },
     { id: 'factions', name: 'Factions and guilds', desc: 'no guilds, orders, gangs or kingdoms to join or lead.', apps: ['factions'], blocks: [] },
     { id: 'legends', name: 'Legends', desc: 'your deeds never become tales that travel and grow.', apps: [], blocks: [] },
     { id: 'talents', name: 'Talent trees', desc: 'no talents to choose when you level up (RPG).', apps: [], blocks: [], tag: 'rpg' },
