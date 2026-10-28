@@ -28,6 +28,9 @@ export function note(g: Save, t: string, a: string[] = [], who: string[] = [], p
     return f;
 }
 
+// Text written for the player ("You nail the chorus") told to the AI: quoted, as what {{user}} was told, so the AI
+// never reads "you" as itself.
+export const toldAs = (t: string) => (/\b(you|your|yours|yourself)\b/i.test(t) ? `(as {{user}} was told: "${t.trim()}")` : t);
 export const fill = (t: string, a: string[] = [], u = 'You') => t.replace(/\{u\}/g, u).replace(/\{(\d)\}/g, (_, n) => a[Number(n)] ?? '');
 // someone else (an earlier character you played) did it: their name, not yours
 export const factText = (f: Fact, u = 'You') => fill(f.t, f.a, f.u && f.u !== personaName() ? f.u : u);

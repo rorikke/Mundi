@@ -16,7 +16,7 @@ import { afterEvent } from './cityevents.js';
 import { practice } from './hobbies.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
-import { facts, note, placeName } from './facts.js';
+import { facts, note, placeName, toldAs } from './facts.js';
 import { whenHolds, markDone, doneToday } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, type TogetherGain } from './social.js';
 import { playerHomeId } from './places.js';
@@ -119,8 +119,8 @@ export function actionLine(g: Save, w: WorldDef, a: ActionDef, roll: RollResult 
     const label = a.label.toLowerCase();
     const who = mates.length ? `{{user}} and ${names(g, mates)}` : '{{user}}';
     const why = mates.length && a.together?.text ? ` (${a.together.text.replace(/[.\s]+$/, '')})` : '';
-    const what = roll ? `${who} tried to ${label}${why}: ${gradeName(roll.grade).toLowerCase()}. ${roll.text}` : `${who} chose to ${label}${why}.`;
-    const then = said ? ` ${said}` : '';
+    const what = roll ? `${who} tried to ${label}${why}: ${gradeName(roll.grade).toLowerCase()}. ${toldAs(roll.text)}` : `${who} chose to ${label}${why}.`;
+    const then = said ? ` ${toldAs(said)}` : '';
     const tail = ended ? 'That is how it ended: narrate the end of it, in the scene; do not change the outcome.' : isScenario(w) ? 'Narrate how it goes, in the scene.' : 'Narrate it in that light if it comes up.';
     return `[Just now ${what}${then} ${tail}]`;
 }

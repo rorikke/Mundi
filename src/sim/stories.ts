@@ -18,7 +18,7 @@ import { addStatus, money } from './needs.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
 import { levelOf } from './hobbies.js';
-import { note, placeName } from './facts.js';
+import { note, placeName, toldAs } from './facts.js';
 import { feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { startRumor } from './living.js';
 import { revealThread } from './threads.js';
@@ -143,7 +143,7 @@ export function chooseStory(g: Save, w: WorldDef, i: number, rand = Math.random)
     }
     out.push(...applyResult(g, w, cur.s, res));
     out.push(...choicePractice(g, w, c.roll?.skill, c.roll ? ok : null, res.trains));   // trying something trains it
-    Object.assign(cur.now, { choice: i, ok, said: `${c.label.toLowerCase()}${c.roll ? (ok ? ' (and it worked)' : ' (and it did not work)') : ''}: ${res.text}` });
+    Object.assign(cur.now, { choice: i, ok, said: `${c.label.toLowerCase()}${c.roll ? (ok ? ' (and it worked)' : ' (and it did not work)') : ''}: ${toldAs(res.text)}` });
     storyState(g).seen[cur.s.id] = { day: storyState(g).seen[cur.s.id]?.day ?? g.day, choice: i, ok };
     setPrompt(STORY_PROMPT, storyLine(g, w));
     return out;
