@@ -31,15 +31,20 @@ export { scheduleOf } from '../core/presets.js';
  *  performance 0–100; `since`: when this rank began (absolute minutes); `shift`: the shift you work in a job worked
  *  round the clock; `worked`: recent days whose shift you worked (by the day it starts); `off`: days booked off
  *  (vacation or sick); `vac`: vacation days saved up; `checked`: the last day whose shift was looked at (missed or
- *  not); `warn`: steps taken for low performance; `event`: something that happened on the last shift, waiting for
- *  your choice. */
+ *  not); `warn`: steps taken for low performance; `extraDay`: the day of the last overtime shift; `event`: something
+ *  that happened on the last shift, waiting for your choice. */
 export interface JobState {
     id: string; rank: number; shifts: number; path?: string[]; referral?: string;
     perf?: number; since?: number; shift?: string; worked?: number[]; off?: Record<string, 'vacation' | 'sick'>;
-    vac?: number; vacAt?: number; sickAt?: number; checked?: number; warn?: number; told?: number; bonus?: number;
+    vac?: number; vacAt?: number; sickAt?: number; checked?: number; warn?: number; told?: number; bonus?: number; extraDay?: number; toldBranch?: number;
     event?: { id: string; day: number };
 }
-const jobOf = (g: Save) => g.player.job as JobState | null;
+// The job with what older code (a new game's job, "Play as") may not have set yet.
+function jobOf(g: Save): JobState | null {
+    const j = g.player.job as JobState | null;
+    if (j) { j.perf ??= 50; j.since ??= nowAbs(g); j.checked ??= g.day; }
+    return j;
+}
 export const jobDef = (w: WorldDef, id?: string | null) => w.occupations.find(o => o.id === id) ?? null;
 export const traitsOf = (g: Save) => Object.values(g.player.traits ?? {}).flat();
 export const fits = (g: Save, o: Occupation, w?: WorldDef | null) => (!o.needs?.length || o.needs.some(t => traitsOf(g).includes(t))) && hobbyFits(g, w ?? getWorld(g.world), o);
@@ -161,7 +166,7 @@ export function canWork(g: Save, w: WorldDef, o: Occupation): { kind: 'shift' | 
     const s = shiftNow(g, w, o), now = nowAbs(g), grace = workRules(g, w).grace;
     if (s) return { kind: 'shift', shift: s, early: now < s.start, late: grace !== null && now > s.latest + grace };
     const j = jobOf(g);
-    if (o.overtime && isOpen(g, o) && (j as any)?.extraDay !== g.day) return { kind: 'overtime' };   // one overtime shift a day
+    if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day) return { kind: 'overtime' };   // one overtime shift a day
     const n = nextShift(g, w, o);
     return { kind: 'none', why: n ? `Your next shift: ${whenText(g, n)}.` : 'No shift this week.' };
 }
@@ -424,7 +429,7 @@ export function workShift(g: Save, w: WorldDef, mode: WorkMode = 'normal', hours
     let perf = 0;
     if (s && can.late) { const lateBy = Math.round(nowAbs(g) - s.latest); perf -= rules.missed ? Math.max(2, Math.round(rules.missed / 2)) : 3; out.push(`You came in ${lateBy} minutes late.`); }
     if (s) { j.worked = [...(j.worked ?? []).filter(d => d > g.day - 15), s.day]; }   // before the time passes: a night shift goes past midnight
-    if (overtime) (j as any).extraDay = g.day;
+    if (overtime) j.extraDay = g.day;
     const start = nowAbs(g);
     const mates = onShiftWith(g, w, o);
     out.unshift(...advance(g, w, h * 60));
@@ -457,7 +462,7 @@ export function workShift(g: Save, w: WorldDef, mode: WorkMode = 'normal', hours
         rollWorkEvent(g, w, o);
     }
     out.push(...tryPromote(g, w, o));
-    if (pendingBranch(g, o) && !(j as any).toldBranch) { (j as any).toldBranch = j.rank; out.push(lex(w, 'choosePath', o.name)); }
+    if (pendingBranch(g, o) && !j.toldBranch) { j.toldBranch = j.rank; out.push(lex(w, 'choosePath', o.name)); }
     return out;
 }
 // A promotion when everything it asks for is there (what's left over of the shifts counts toward the next rank).
@@ -586,7 +591,8 @@ export function workHour(g: Save, w: WorldDef): string[] {
     const j = jobOf(g); const o = jobDef(w, j?.id);
     if (!j || !o || !systemOn(w, 'jobs')) return [];
     const out: string[] = [], now = nowAbs(g), rules = workRules(g, w);
-    for (let d = (j.checked ?? g.day) + 1; d <= g.day; d++) {
+    // (from yesterday at most: a job taken back after "Play as" doesn't count the days someone else lived)
+    for (let d = Math.max((j.checked ?? g.day) + 1, g.day - 1); d <= g.day; d++) {
         const s = shiftOn(g, w, o, d);
         if (s && s.end > now) break;
         j.checked = d;
