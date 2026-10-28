@@ -388,6 +388,7 @@ const DICT = {
     "You have lived in this house with the others for a long time; they all know you well, habits, history and all.": "Você mora nesta casa com os outros há muito tempo; todos te conhecem bem, manias, história e tudo.",
     "Write your own premise, or let your AI write it from one or more lorebooks.": "Escreva sua própria premissa, ou deixe sua IA escrever a partir de um ou mais lorebooks.",
     "RPG mode": "Modo RPG",
+    "In the works": "Em construção",
     "You": "Você",
     "(with {0})": "(com {0})",
     "this place": "este lugar",
