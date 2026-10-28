@@ -54,10 +54,10 @@ export function tabAiContext(): string {
                 <input type="range" min="0" max="${LORE_STEPS.length - 1}" step="1" value="${li}" data-input="aic-lore"></label>
             <small class="mu-muted">A busy place can match many lore rows: over the limit, the rows about the people here come first, then this place, then its area, then the season, weather and time.</small>
         </section>
-        <section class="mu-wc-sec"><h4>Blocks</h4><div class="mu-aic-list">${blocksOf(w).map(b => {
+        <section class="mu-wc-sec"><h4>Blocks</h4><div class="mu-aic-list">${blocksOf(w, g).map(b => {
             const x = blocks.find(y => y.id === b.id);
             const st = x?.state ?? 'empty';
-            const tag = st === 'sent' ? `≈ ${estTokens(x!.text)} tokens` : st === 'cut' ? 'left out: over the budget' : st === 'off' ? 'off' : 'nothing to send here';
+            const tag = st === 'sent' ? `≈ ${estTokens(x!.text)} tokens` : st === 'cut' ? (x?.keep ? 'over the budget: only the hard limits are sent' : 'left out: over the budget') : st === 'off' ? 'off' : 'nothing to send here';
             const own = b.id === 'core' || b.id === 'extra' ? '' : pc.text[b.id] ?? '';
             return `<div class="mu-aic-row is-${st}">
                 ${b.cut ? `<input type="checkbox" class="mu-toggle" data-input="aic-block" data-id="${b.id}" ${pc.off.includes(b.id) ? '' : 'checked'}>` : `<span class="mu-aic-lock" title="Always sent">${icon('pin')}</span>`}

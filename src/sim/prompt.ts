@@ -3,11 +3,11 @@
 import { homeJobsLine } from './hometime.js';
 import { dressLine } from './dress.js';
 import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living.js';
-import { backgroundOn, backgroundLine, sheetPeople, castSheet, addressLine, SHEETS_MAX } from './scenepeople.js';
+import { backgroundOn, backgroundLine, sheetPeople, castSheet, addressLine, profileLines, SHEETS_MAX } from './scenepeople.js';
 import './longlife.js';
 import './fading.js';   // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
-import { game, settings, changed } from '../core/store.js';
+import { game, settings, changed, adultOn } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
 import { setPrompt, nameOf, chat } from '../st/bridge.js';
@@ -83,6 +83,7 @@ export const BLOCKS: Block[] = [
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
     { id: 'family', name: 'Your children', desc: 'Your children\'s age and how to treat them. Always sent when they are here.' },
     { id: 'gender', name: 'Gender and attraction', desc: 'The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.', cut: 6 },
+    { id: 'intimate', name: 'Intimate profiles', desc: 'Adult content only: what the people here want and like in intimacy, in a private scene or when they are drawn to someone here. Their hard limits are sent even over the budget.', cut: 5 },
     { id: 'ties', name: 'Family and ties', desc: 'Who is whose sister or parent, who lives or works together, and how the people here feel about each other.', cut: 6 },
     { id: 'needs', name: 'How you feel', desc: 'Hunger, tiredness… only what stands out.', cut: 6 },
     { id: 'diary', name: 'Diary', desc: 'The last two days of your diary.', cut: 5 },
@@ -99,8 +100,9 @@ export const DEFAULT_RULES = 'Write only what happens in this place and at this 
 // A block's own text: `{text}` is where Mundi puts what it wrote for the block; without it, the text replaces it
 // (sent only when the block has something to say). SillyTavern's macros ({{user}}, {{char}}…) work as usual.
 export const applyTemplate = (tpl: string | undefined, text: string) => (!tpl?.trim() || !text.trim() ? text : tpl.includes('{text}') ? tpl.split('{text}').join(text) : tpl);
-// The blocks this world has: those of a system turned off in it are gone.
-export const blocksOf = (w: WorldDef | null | undefined) => BLOCKS.filter(b => !blockSystem(b.id) || systemOn(w, blockSystem(b.id)!));
+// The blocks this world has: those of a system turned off in it are gone, and so are intimate profiles in a game
+// without adult content.
+export const blocksOf = (w: WorldDef | null | undefined, g?: Save | null) => BLOCKS.filter(b => (!blockSystem(b.id) || systemOn(w, blockSystem(b.id)!)) && (b.id !== 'intimate' || adultOn(g)));
 // off: blocks switched off; budget: tokens (0 = no limit); text: each block's own text (see applyTemplate);
 // rules: the scene's rules (empty = DEFAULT_RULES); extra: your own instructions; lore: at most this many rows of
 // world lore (-1 = the world's own limit, 0 = no limit).
@@ -115,7 +117,8 @@ export const loreMax = (w: WorldDef | null | undefined) => { const n = promptCfg
 // A quick token estimate (about 3.6 characters per token in English); the screen shows SillyTavern's own count.
 export const estTokens = (t: string) => Math.ceil(t.length / 3.6);
 
-export interface Built { id: string; text: string; state: 'sent' | 'off' | 'cut' | 'empty' }
+// `keep`: what is still sent when the block is cut for the budget (hard limits).
+export interface Built { id: string; text: string; state: 'sent' | 'off' | 'cut' | 'empty'; keep?: string }
 // The premise of this game: your own (custom), or the scenario's with how you fit in it.
 export function scenarioPremise(g: any, w: WorldDef): string {
     const st = g?.cfg?.start; if (st?.text) return st.text;
@@ -138,6 +141,7 @@ export function sceneBlocks(): Built[] {
     const present = presentAt(g, w, g.player.loc);
     const met = present.filter(r => r.met);
     const pc = promptCfg();
+    const intimate = blocksOf(w, g).some(b => b.id === 'intimate') ? profileLines(g, w, here, present) : { lines: [], limits: '' };
     // (E1) background people the AI may describe and (E27) short sheets for the world's people here, unless you
     // switched that block off
     const around = !pc.off.includes('around');
@@ -166,6 +170,7 @@ export function sceneBlocks(): Built[] {
         ties: [...factionLines(g, w, present), tiesLine(g, present), householdLine(g, w, present), colleaguesLine(g, w, present), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
         romance: [romanceLine(g, met), addressLine(g, w, met)],
         gender: [genderLine(g, w, present)],
+        intimate: [...intimate.lines, intimate.limits],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
         family: [familyLine(g, present)],
         rumors: rumorLines(g, met),
@@ -175,15 +180,17 @@ export function sceneBlocks(): Built[] {
     };
     const tail = [pc.rules.trim() || DEFAULT_RULES, aiLangNote()].filter(Boolean).join('\n');
     // a block whose system is off in this world is not there at all (not even as "off")
-    const out: Built[] = blocksOf(w).map(b => {
+    const out: Built[] = blocksOf(w, g).map(b => {
         const own = (raw[b.id] ?? []).filter(Boolean).join('\n');
         const text = b.id === 'core' ? `${own}\n${tail}` : applyTemplate(pc.text[b.id], own);
-        return { id: b.id, text, state: !text.trim() ? 'empty' : b.cut && pc.off.includes(b.id) ? 'off' : 'sent' };
+        const x: Built = { id: b.id, text, state: !text.trim() ? 'empty' : b.cut && pc.off.includes(b.id) ? 'off' : 'sent' };
+        if (b.id === 'intimate' && intimate.limits) x.keep = intimate.limits;
+        return x;
     });
-    // over the budget: drop the least important blocks first
+    // over the budget: drop the least important blocks first (a block's `keep` stays)
     if (pc.budget > 0) {
-        const size = () => estTokens(out.filter(x => x.state === 'sent').map(x => x.text).join('\n'));
-        const order = blocksOf(w).filter(b => b.cut).sort((a, b) => a.cut! - b.cut!);
+        const size = () => estTokens(out.map(sentText).filter(Boolean).join('\n'));
+        const order = blocksOf(w, g).filter(b => b.cut).sort((a, b) => a.cut! - b.cut!);
         for (const b of order) {
             if (size() <= pc.budget) break;
             const x = out.find(o => o.id === b.id)!;
@@ -193,11 +200,13 @@ export function sceneBlocks(): Built[] {
     return out;
 }
 
+// What a block puts in the text: all of it when sent, its `keep` when cut for the budget.
+export const sentText = (b: Built) => (b.state === 'sent' ? b.text : b.state === 'cut' ? b.keep ?? '' : '');
 export function sceneText(): string {
     const list = sceneBlocks();
     const core = list.find(b => b.id === 'core');
     // the basics first and the scene's rules last, the rest in between (as before)
-    const mid = list.filter(b => b.id !== 'core' && b.state === 'sent').map(b => b.text);
+    const mid = list.filter(b => b.id !== 'core').map(sentText).filter(Boolean);
     if (!core) return '';
     const [head, ...rest] = core.text.split('\n');
     const basics = [head, ...rest.slice(0, 3)].join('\n'), rules = rest.slice(3).join('\n');

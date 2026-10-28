@@ -1,14 +1,16 @@
 // What the AI is told about the people in a scene besides the relationship blocks: the life around you (staff,
 // regulars, passers-by it may describe, E1), short sheets for the world's people who are here but not speaking (E27),
-// and how people address you as you get closer (E8). Worlds without `staff`, `scene`, `look`/`voice` or `address` are
-// told what they were.
-import type { Save, Resident } from '../core/store.js';
-import { systemOn, type WorldDef, type Place } from '../core/world.js';
+// how people address you as you get closer (E8), and intimate profiles in private or romantic scenes (E33, adult
+// content only). Worlds without `staff`, `scene`, `look`/`voice`, `address` or profiles are told what they were.
+import { adultOn, type Save, type Resident } from '../core/store.js';
+import { systemOn, type WorldDef, type Place, type IntimateProfile } from '../core/world.js';
 import { crowdLevel } from './worldstate.js';
 import { exampleOf } from './dayplan.js';
 import { companions } from './social.js';
-import { fr, ro, statusOf, YOU } from './rel.js';
+import { fr, ro, relOf, idOf, statusOf, YOU } from './rel.js';
 import { friendTier, INTEREST, CRUSH, INFATUATED } from './romance.js';
+import { familyBlocked, isMinor } from './family.js';
+import { doneToday } from './when.js';
 import { isHome } from './places.js';
 import { jobDef, colleaguesOf } from './work.js';
 import { npcRank } from './longlife.js';
@@ -92,4 +94,52 @@ export function addressLine(g: Save, w: WorldDef, met: Resident[]): string {
     if (!by.size) return '';
     if (by.size === 1) return `How they address {{user}}: ${[...by.keys()][0]}.`;
     return `How they address {{user}}: ${[...by].map(([a, names]) => `${list(names)} — ${a}`).join('; ')}.`;
+}
+
+/* ---------- intimate profiles (E33) ---------- */
+
+export const PROFILES_MAX = 3;
+/** A private scene: a private place, a home, or a private thing done here today (a karaoke room, the ryokan's bath). */
+export function privateScene(g: Save, w: WorldDef, here: (Place & { home?: boolean }) | null): boolean {
+    if (!here) return false;
+    if (here.private || here.home || isHome(here.id)) return true;
+    return (w.actions ?? []).some(a => a.private && doneToday(g, a.id, here.id));
+}
+// How much someone is drawn to anyone here ({{user}} included): their romance, or a couple (casual or more) with them.
+function drawnHere(g: Save, r: Resident, present: Resident[]): number {
+    let best = 0;
+    for (const o of [YOU, ...present.map(x => x.avatar)]) {
+        if (o === r.avatar || familyBlocked(g, r.avatar, o)) continue;
+        best = Math.max(best, statusOf(g, r.avatar, o) ? 100 : ro(g, r.avatar, o));
+    }
+    return best;
+}
+const profileOf = (g: Save, avatar: string): IntimateProfile | undefined => relOf(g).people[idOf(g, avatar)]?.intimate;
+/** Who the profile block is for: only with adult content and the romance system on, never with a minor here; in a
+ *  private scene everyone here with a profile, otherwise those whose romance toward someone here is Crush or more.
+ *  The most drawn come first; `full` are the ones whose whole profile fits (the rest get their hard limits only). */
+export function profilePeople(g: Save, w: WorldDef, here: Place | null, present: Resident[]): { full: Resident[]; limitsOnly: Resident[] } {
+    const none = { full: [], limitsOnly: [] };
+    if (!adultOn(g) || !systemOn(w, 'romance') || !present.length || present.some(r => isMinor(g, r.avatar))) return none;
+    const priv = privateScene(g, w, here);
+    const who = present.filter(r => profileOf(g, r.avatar) && (priv || drawnHere(g, r, present) >= CRUSH))
+        .sort((a, b) => drawnHere(g, b, present) - drawnHere(g, a, present));
+    return { full: who.slice(0, PROFILES_MAX), limitsOnly: who.slice(PROFILES_MAX).filter(r => profileOf(g, r.avatar)?.limits?.length) };
+}
+const PROFILE_WORDS: [keyof IntimateProfile, string][] = [['experience', 'experience'], ['wants', 'wants'], ['drawnTo', 'drawn to'], ['flirts', 'flirts'], ['dynamic', 'dynamic']];
+const tidyLine = (s: string) => s.replace(/\s+/g, ' ').trim().replace(/[.;\s]+$/, '');
+/** The block: each profile as a character sheet, then the hard limits on a line of their own (kept over the budget). */
+export function profileLines(g: Save, w: WorldDef, here: Place | null, present: Resident[]): { lines: string[]; limits: string } {
+    const { full, limitsOnly } = profilePeople(g, w, here, present);
+    if (!full.length && !limitsOnly.length) return { lines: [], limits: '' };
+    const lines = full.map(r => {
+        const p = profileOf(g, r.avatar)!;
+        const bits = PROFILE_WORDS.filter(([k]) => typeof p[k] === 'string' && (p[k] as string).trim()).map(([k, word]) => `${word}: ${tidyLine(p[k] as string)}`);
+        if (p.prefs?.length) bits.push(`likes: ${p.prefs.map(tidyLine).join(', ')}`);
+        return `- ${r.name}: ${bits.join('; ')}.`;
+    }).filter(l => !l.endsWith(': .'));
+    const lim = [...full, ...limitsOnly].map(r => ({ r, l: (profileOf(g, r.avatar)?.limits ?? []).map(tidyLine).filter(Boolean) })).filter(x => x.l.length);
+    const limits = lim.length ? `Hard limits, always respected by everyone: ${lim.map(x => `${x.r.name} — ${x.l.join(', ')}`).join('; ')}.` : '';
+    const head = lines.length ? ['Intimate profiles of the people here (adults; character notes for how each one acts in a romantic or private moment, not for narration):'] : [];
+    return { lines: [...head, ...lines], limits };
 }
