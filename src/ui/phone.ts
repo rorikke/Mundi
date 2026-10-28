@@ -14,7 +14,7 @@ import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, he
 import { PL } from './plans.js';
 import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
-import { relBar, relSubtitle } from './relui.js';
+import { relBar, relSubtitle, workWeekHtml, perfWord } from './relui.js';
 import { note } from '../sim/facts.js';
 import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
@@ -33,7 +33,7 @@ import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits } from '../sim/hobbies.js';
-import { jobDef, shiftsToPromote, likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, nextRankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek } from '../sim/work.js';
+import { jobDef, likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays } from '../sim/work.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
 import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, LOOKING, type Post } from '../sim/feed.js';
@@ -268,16 +268,20 @@ function branchPicker(g: Save, w: WorldDef, o: Occupation) {
 }
 function jobsApp(g: Save, w: WorldDef) {
     const j = g.player.job; const mine = jobDef(w, j?.id);
-    const need = mine && j ? shiftsToPromote(g, mine, j.rank) : null;
+    const p = mine && j ? promoNeeds(g, w, mine) : null;
+    const where = (o: Occupation) => (offScreen(w, o) ? 'off-screen' : placeOf(g, w, mine && o.id === mine.id ? jobPlace(g, o) : o.place)?.name ?? '');
+    const sched = systemOn(w, 'jobs');
     return `${head(appName('jobs'), 'home')}<div class="mu-ph-body">
-        ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)} · ${esc(isScenario(w) ? 'off-screen' : placeOf(g, w, mine.place)?.name ?? '')}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
-            <small>${money(w, rankOf(g, mine).pay)}/h · ${mine.shift} h shifts · ${String(mine.hours?.[0] ?? 0).padStart(2, '0')}:00–${String(mine.hours?.[1] ?? 24).padStart(2, '0')}:00 · rank ${j.rank + 1}</small>
-            ${need !== null ? `<small>Next rank: ${esc(nextRankOf(g, mine)?.name ?? '')}</small>${bar(Math.min(100, j.shifts / need * 100))}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
+        ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
+            <small>${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
+            ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
+            ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${esc(p.missing.join(', '))}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
             ${branchPicker(g, w, mine)}
             ${likes(g, mine).length ? `<small>Your traits help: ${esc(likes(g, mine).join(', '))}</small>` : ''}
-            <button class="mu-danger" data-act="ph-quit">Quit</button></section>` : `<p class="mu-muted">${T('noJob')}</p>`}
+            <button class="mu-danger" data-act="ph-quit">Quit</button></section>
+            ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
         <h4>${T('openings')}</h4>
-        ${w.occupations.filter(o => o.id !== j?.id).map(o => `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(isScenario(w) ? 'off-screen' : placeOf(g, w, o.place)?.name ?? '')} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h</small>
+        ${openJobs(g, w).filter(o => o.id !== j?.id).map(o => `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o)} days a week` : ''}</small>
             ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
