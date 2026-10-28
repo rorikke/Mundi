@@ -9,7 +9,7 @@ import { nowAbs, changes, type Save, type Resident } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef, type Routine } from '../core/world.js';
 import { isWeekend } from './time.js';
 import { appointmentNow, isWith } from './social.js';
-import { weatherOn } from './weather.js';
+import { worldWeather } from './weather.js';
 import { weatherAt } from './worldstate.js';
 import { breakNow } from './daylife.js';
 import { openAt } from './daynight.js';
@@ -79,7 +79,7 @@ function leisureSpot(g: Save, w: WorldDef, r: Resident, day: number, stepHour: n
     // (a region with a weather of its own may be dry while it rains elsewhere)
     const wet = (id: string) => weatherAt(g, w, id, day).rain;
     // it rains on her plans: an outdoor spot of hers is wet (or, with none, it rains in the world)
-    const raining = list.some(id => outdoors(w, id)) ? list.some(id => outdoors(w, id) && wet(id)) : weatherOn(g.world, day).rain;
+    const raining = list.some(id => outdoors(w, id)) ? list.some(id => outdoors(w, id) && wet(id)) : worldWeather(g, w, day).rain;
     if (raining) {
         const dry = list.filter(id => !outdoors(w, id) || !wet(id));
         list = dry.length ? dry : w.places.filter(p => !p.adult && (p.tags ?? []).some(t => t === 'food' || t === 'shop')).map(p => p.id);

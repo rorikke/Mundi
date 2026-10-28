@@ -40,7 +40,10 @@ export interface MapDef {
     town?: boolean;
     /** Minutes to get here from the map it is inside (a district of a city: 20-30; a village up the road: 60-90). */
     trip?: number;
-    /** temperate, cold, hot, coastal…: which extreme weather can strike here */
+    /** (E4) Minutes between two of its own places (a district crossed on foot: 15); missing: 30. */
+    local?: number;
+    /** temperate, cold, hot, coastal…: which extreme weather can strike here, and (E2) which of the world's `climates`
+     *  draws its weather (none of its own: the map it sits in). */
     climate?: string;
     /** Life in the region (the living world): usual public mood -100..100, tension 0..100, prices ×, crowds ×, own weather. */
     mood?: number; tension?: number; prices?: number; crowd?: number; ownWeather?: boolean;
@@ -76,6 +79,12 @@ export interface Place {
     open?: [number, number]; openBySeason?: Partial<Record<SeasonId, [number, number]>>;
     /** (E19) Weekdays it's closed all day (`mon` … `sun`). */
     closedDays?: WeekdayId[];
+    /** (E19) Hours on some weekdays (a club open until 5 on Fridays and Saturdays, a pub opening early on Sundays): the
+     *  weekday the evening starts on → [from, to), as `open` reads them; over `openBySeason` and `open` on those days. */
+    openByDay?: Partial<Record<WeekdayId, [number, number]>>;
+    /** (E2) Kinds of weather it's closed in, its region's own included (`gas`: a valley shut on volcanic-gas days;
+     *  `storm`: a walkway shut in strong wind). */
+    closedIn?: string[];
     /** (E19) Festival ids on whose days it never closes, through the night after until the first trains (a temple
      *  open all night on New Year's Eve). */
     festivalOpen?: string[];
@@ -474,13 +483,17 @@ export interface StoryChoice extends StoryResult { label: string; roll?: { skill
 /** What a story's choice leads to: text, needs and money, a keepsake, a rumor it starts, a fact, how some of the
  *  world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes you one. */
 export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string }
-/** (E2) A climate: per season, the odds of each kind of weather (`sunny`, `rain`, `storm`, `snow`, `hot`…); `days`: a
- *  stretch of a season with odds of its own (the rainy season, summer 1–5); `regional`: weather a region has on its own
- *  (`fujiview`, `gas`), with its odds per season. */
+/** (E2) A climate: per season, the odds of each kind of weather (weights: `sunny`, `hot`, `fair`, `humid`, `partly`,
+ *  `cloudy`, `snow`, `rain`, `heavyrain`, `storm`); `days`: a stretch of a season with odds of its own (the rainy season,
+ *  summer 1–5: days of the season as written, like festivals); `regional`: weather a region has on its own (`fujiview`,
+ *  `gas`), with its odds per season (one draw a day for the whole world; a view, a kind ending in `view`, only on a
+ *  clear day there, in the morning light). */
 export interface ClimateDef {
     seasons: Partial<Record<SeasonId, Record<string, number>>>;
     days?: { season: SeasonId; from: number; to: number; odds: Record<string, number> }[];
     regional?: Record<string, Partial<Record<SeasonId, number>>>;
+    /** The climate's own word for a kind (`storm: Typhoon`). */
+    names?: Record<string, string>;
 }
 /** (E8) How people address you, by how close they are: a few words per friendship level and per romance level or
  *  couple status, and how a senior or junior at work does. Told to the AI. */
@@ -622,7 +635,9 @@ export interface BladeDef { id: string; name: string; personality: string; likes
 export interface CropDef { id: string; name: string; icon: string; days: number; seed: number; good: string; yield: number }
 export interface BusinessDef { id: string; name: string; icon: string; cost: number; profit: number; staff: number; tags: string[] }
 export interface CelestialDef { id: string; name: string; desc?: string; every: number; days: number; effect: 'mana' | 'monsters' | 'omen'; amount?: number }
-export interface HazardDef { id: string; name: string; desc?: string; climate: string; season?: string; chance: number; drain?: Record<string, number>; blocksCamp?: boolean; closes?: boolean }
+/** Extreme weather. `weather` (E2): it only strikes on days of these kinds of weather in its region (a typhoon on a
+ *  storm day), and `chance` is then its odds on such a day. */
+export interface HazardDef { id: string; name: string; desc?: string; climate: string; season?: string; chance: number; drain?: Record<string, number>; blocksCamp?: boolean; closes?: boolean; weather?: string[] }
 export interface InstitutionDef { id: string; name: string; place: string; ranks: string[]; tuition?: number; skill?: string; trait?: string; examEvery?: number; clubs?: string[]; desc?: string }
 export interface FactionDef { id: string; name: string; kind: string; desc?: string; hq?: string; region?: string; ranks: string[]; allies?: string[]; rivals?: string[]; beats?: string; dues?: number; quota?: number; jobs?: string[]; secret?: boolean; joinRep?: number }
 export type Government = 'monarchy' | 'fractured' | 'empire' | 'republic' | 'theocracy' | 'council';

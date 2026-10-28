@@ -3,14 +3,16 @@
 //   twice as dangerous and shuts the shops in fear; an omen (an eclipse) darkens moods. Each comes back every so many
 //   days, for a day or two.
 //   Extreme weather by climate (blizzards in the cold, sandstorms and heatwaves in the heat, storms on the coast):
-//   needs drop faster, a night at camp gives no rest without camping gear, and some shut the town.
+//   needs drop faster, a night at camp gives no rest without camping gear, and some shut the town. (E2) One can come
+//   with the day's weather instead of by itself (a typhoon on a storm day, a heat warning on a hot one).
 //   Living ecology: each region has predators and prey. Win fights against wild beasts and the predators thin out;
 //   the next weeks the prey grows (meat and furs get cheaper, the roads safer); leave them be and the wolves return.
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type GoodDef, type HazardDef, type CelestialDef } from '../core/world.js';
 import { onDay, decayMods } from './hooks.js';
 import { regionOf } from './worldstate.js';
-import { seasonOf } from './time.js';
+import { seasonDays, SEASONS } from './time.js';
+import { skyOn } from './weather.js';
 import { isRpg, sheetOf, focusMax } from './rpg.js';
 import { addStatus } from './needs.js';
 import { afterFight, closedByEvents } from './hooks.js';
@@ -38,8 +40,10 @@ onDay.push((g, w) => {
 const climateOf = (w: WorldDef, region: string): string => { let m = w.maps.find(x => x.id === region); for (let i = 0; m && i < 5; i++) { if (m.climate) return m.climate; m = w.maps.find(x => x.id === m!.parent); } return 'temperate'; };
 export function hazardIn(g: Save, w: WorldDef, region: string, day = g.day): HazardDef | null {
     if (!skiesOn(w)) return null;
-    const c = climateOf(w, region); const season = seasonOf(g).id;
-    return (w.skies?.hazards ?? []).find(h => h.climate === c && (!h.season || h.season === season) && H(`${g.world}|${region}|${h.id}|${day}`) < h.chance) ?? null;
+    const c = climateOf(w, region); const season = SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].id;
+    let sky: string | undefined;
+    const weatherOk = (h: HazardDef) => !h.weather?.length || h.weather.includes(sky ??= skyOn(g, w, region, day).id);
+    return (w.skies?.hazards ?? []).find(h => h.climate === c && (!h.season || h.season === season) && weatherOk(h) && H(`${g.world}|${region}|${h.id}|${day}`) < h.chance) ?? null;
 }
 export const hazardHere = (g: Save, w: WorldDef) => hazardIn(g, w, regionOf(g, w, g.player.loc));
 decayMods.push((g, w, status) => hazardHere(g, w)?.drain?.[status] ?? 1);

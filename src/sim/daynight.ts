@@ -10,11 +10,12 @@
 import { closedByEvents } from './hooks.js';
 export { closedByEvents };
 import { nowAbs, type Save } from '../core/store.js';
-import { WEEKDAY_IDS, type WorldDef, type Place } from '../core/world.js';
+import { WEEKDAY_IDS, systemOn, type WorldDef, type Place } from '../core/world.js';
 import { period, seasonDays, SEASONS } from './time.js';
 import { festivalsOn } from './festivals.js';
 import { priceOf } from './bills.js';
 import { guestAt } from './stays.js';
+import { skyOn, regionalOn, isRegional, weatherMatches } from './weather.js';
 
 // The standard part of the day a world's period stands for (a "Vigil" from 0:00 counts as dawn…).
 export function partOf(w: WorldDef, minutes: number): 'dawn' | 'morning' | 'afternoon' | 'evening' | 'night' {
@@ -64,8 +65,12 @@ export function openAt(g: Save, w: WorldDef, placeId: string, at = nowAbs(g)): b
     let biz = day, h = hoursOf(g, p, day);
     if (h && wraps(h) && m < toMinute(h[1])) { biz = day - 1; h = hoursOf(g, p, biz) ?? h; }
     if (h && !inHours(h, m)) return false;
-    return !p.closedDays?.includes(WEEKDAY_IDS[(((biz - 1) % 7) + 7) % 7]);
+    if (p.closedIn?.length && systemOn(w, 'living') && p.closedIn.some(v => weatherShuts(g, w, p, day, m, v))) return false;
+    return !p.closedDays?.includes(weekdayOf(biz));
 }
+const weekdayOf = (day: number) => WEEKDAY_IDS[(((day - 1) % 7) + 7) % 7];
+// (E2) Its weather that day shuts it (a kind, or the region's own: volcanic gas).
+const weatherShuts = (g: Save, w: WorldDef, p: Place, day: number, m: number, v: string) => (isRegional(w, v) ? regionalOn(g, w, v, p.map, day, m) : weatherMatches(skyOn(g, w, p.map, day), v));
 // (a blood moon or a storm that shuts the town: shops stay closed)
 export const openNow = (g: Save, w: WorldDef, placeId: string) => openAt(g, w, placeId) && !closedByEvents.some(f => f(g, w, placeId));
 
