@@ -31,7 +31,9 @@ export interface LoreWhen {
     region?: string; season?: string; tensionAbove?: number; moodAbove?: number; moodBelow?: number;
     fromDay?: number; toDay?: number; chance?: number;
 }
-/** A map. `parent`: the bigger map it sits in (a city inside a region); `minutesPerUnit`: travel speed on it. */
+/** A map. `parent`: the bigger map it sits in (a city inside a region). `minutesPerUnit` (E4): on a town whose districts
+ *  are maps of their own (a city on a rail map), minutes of travel per unit of distance between the districts' pins on
+ *  it (a unit is 1% of the map's width); missing: every trip between its districts takes the usual time. */
 export interface MapDef {
     id: string; name: string; image: string; ratio: number; parent?: string; minutesPerUnit?: number;
     /** Where it is: its city, state or province (shown in the maps picker). */
@@ -499,7 +501,9 @@ export interface ClimateDef {
  *  couple status, and how a senior or junior at work does. Told to the AI. */
 export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
 /** (E4) Trains: the hour the last ones leave (0.5 = 0:30) and the first ones (5), the fare of a taxi (a base and per
- *  minute of the trip), and the walk to the station (minutes) added to trips between districts. */
+ *  minute of the trip), and the walk to the station (minutes) added to trips between districts. Between the last and
+ *  the first train, a trip between two maps is a taxi or a wait; the world's people out past the last train stay out
+ *  until the first one, unless home is near (E36). */
 export interface TransitDef { last?: number; first?: number; taxi?: { base: number; perMinute?: number }; walk?: number }
 
 // The phone's apps, as the Modern style has them (a world can rename them, change icons or turn them off).

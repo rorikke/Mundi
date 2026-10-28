@@ -69,7 +69,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "area": "Tokyo",
-   "town": true
+   "town": true,
+   "minutesPerUnit": 0.6
   },
   {
    "id": "shibuya",
@@ -78,7 +79,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "shinjuku",
@@ -87,7 +89,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "westside",
@@ -96,7 +99,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 20
   },
   {
    "id": "akiba",
@@ -105,7 +109,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "oldtown",
@@ -114,7 +119,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 20
   },
   {
    "id": "marunouchi",
@@ -123,7 +129,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "bay",
@@ -132,7 +139,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 20
   },
   {
    "id": "roppongi",
@@ -141,7 +149,8 @@
    "ratio": 1.7914,
    "climate": "tokyo",
    "parent": "tokyo",
-   "area": "Tokyo"
+   "area": "Tokyo",
+   "local": 15
   },
   {
    "id": "yokohama",
@@ -151,7 +160,8 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Yokohama",
-   "trip": 40
+   "trip": 40,
+   "local": 20
   },
   {
    "id": "hakone",
@@ -161,7 +171,8 @@
    "climate": "hakone",
    "parent": "tokyo",
    "area": "Hakone",
-   "trip": 90
+   "trip": 90,
+   "local": 30
   }
  ],
  "homes": {
@@ -20594,8 +20605,8 @@
    "id": "link_shibuya",
    "name": "Shibuya & Harajuku",
    "map": "tokyo",
-   "x": 10,
-   "y": 12,
+   "x": 36,
+   "y": 62,
    "link": "shibuya",
    "tags": []
   },
@@ -20603,8 +20614,8 @@
    "id": "link_shinjuku",
    "name": "Shinjuku",
    "map": "tokyo",
-   "x": 37,
-   "y": 12,
+   "x": 35,
+   "y": 34,
    "link": "shinjuku",
    "tags": []
   },
@@ -20612,8 +20623,8 @@
    "id": "link_westside",
    "name": "Shimokita & Kōenji",
    "map": "tokyo",
-   "x": 63,
-   "y": 12,
+   "x": 16,
+   "y": 43,
    "link": "westside",
    "tags": []
   },
@@ -20621,8 +20632,8 @@
    "id": "link_akiba",
    "name": "Akihabara & Kanda",
    "map": "tokyo",
-   "x": 90,
-   "y": 12,
+   "x": 68,
+   "y": 29,
    "link": "akiba",
    "tags": []
   },
@@ -20630,8 +20641,8 @@
    "id": "link_oldtown",
    "name": "Asakusa, Ueno & Yanaka",
    "map": "tokyo",
-   "x": 10,
-   "y": 42,
+   "x": 73,
+   "y": 10,
    "link": "oldtown",
    "tags": []
   },
@@ -20639,8 +20650,8 @@
    "id": "link_marunouchi",
    "name": "Marunouchi & Ginza",
    "map": "tokyo",
-   "x": 37,
-   "y": 42,
+   "x": 65,
+   "y": 47,
    "link": "marunouchi",
    "tags": []
   },
@@ -20648,8 +20659,8 @@
    "id": "link_bay",
    "name": "Odaiba & Toyosu",
    "map": "tokyo",
-   "x": 63,
-   "y": 42,
+   "x": 74,
+   "y": 88,
    "link": "bay",
    "tags": []
   },
@@ -20657,8 +20668,8 @@
    "id": "link_roppongi",
    "name": "Roppongi & Azabu",
    "map": "tokyo",
-   "x": 90,
-   "y": 42,
+   "x": 49,
+   "y": 65,
    "link": "roppongi",
    "tags": []
   },
@@ -20666,8 +20677,8 @@
    "id": "link_yokohama",
    "name": "Yokohama",
    "map": "tokyo",
-   "x": 10,
-   "y": 72,
+   "x": 20,
+   "y": 92,
    "link": "yokohama",
    "tags": []
   },
@@ -20675,8 +20686,8 @@
    "id": "link_hakone",
    "name": "Hakone",
    "map": "tokyo",
-   "x": 37,
-   "y": 72,
+   "x": 5,
+   "y": 80,
    "link": "hakone",
    "tags": []
   }
@@ -35872,6 +35883,15 @@
   ]
  },
  "cover": "../modern/cover.jpg",
+ "transit": {
+  "last": 0.5,
+  "first": 5,
+  "taxi": {
+   "base": 500,
+   "perMinute": 250
+  },
+  "walk": 5
+ },
  "climates": {
   "tokyo": {
    "seasons": {
