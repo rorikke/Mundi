@@ -49,11 +49,18 @@ export function festivalOn(g: Save, w: WorldDef, day = g.day, place: string | { 
     const list = festivalsHere(g, w, day, place);
     return (typeof place === 'string' ? list.find(f => spotsOf(f).includes(place)) : undefined) ?? list[0] ?? null;
 }
-// Where people gather (afternoon and evening, from noon to 22h): the festival of their own town.
+// Where people gather (afternoon and evening, from noon to 22h): the festival of their own town. A festival that says
+// who comes (`audience` or `crowd`, E23) doesn't gather everyone: people go one by one, for a few hours
+// (sim/dayplan.ts).
 export function festivalSpot(g: Save, w: WorldDef, at: number, home?: string | { map?: string }): string | null {
-    const f = festivalOn(g, w, Math.floor(at / 1440), home ?? g.player.loc); const h = Math.floor((at % 1440) / 60);
-    return f?.place && h >= 12 && h < 22 && w.places.some(p => p.id === f.place) ? f.place : null;
+    const day = Math.floor(at / 1440), h = Math.floor((at % 1440) / 60), where = home ?? g.player.loc;
+    if (h < 12 || h >= 22) return null;
+    const here = townOf(w, typeof where === 'string' ? mapOfPlace(g, w, where) : where.map);
+    const f = festivalsOn(g, w, day).find(x => !!x.place && !x.audience?.length && x.crowd === undefined && w.places.some(p => p.id === x.place) && (w.maps.length < 2 || townOf(w, mapOfPlace(g, w, x.place)) === here));
+    return f?.place ?? null;
 }
+/** Is a festival celebrated in the town of this map (one without a place: everywhere)? */
+export const inTown = (g: Save, w: WorldDef, f: FestivalDef, map?: string) => !f.place || w.maps.length < 2 || townOf(w, mapOfPlace(g, w, f.place)) === townOf(w, map);
 export const festivalPrice = (g: Save, w: WorldDef, place = g.player.loc) => festivalOn(g, w, g.day, place)?.prices ?? 1;
 // The next festivals (for the calendar).
 export function upcoming(g: Save, w: WorldDef, days = 28) {
