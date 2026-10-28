@@ -18574,7 +18574,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crossing",
+    "traffic"
+   ]
   },
   {
    "id": "sb_centergai",
@@ -18592,7 +18596,11 @@
    "closed": [],
    "bg": "../modern/bg/cafe.jpg",
    "x": 30,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "sb_pachinko",
@@ -18616,7 +18624,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 50,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "pachinko"
+   ]
   },
   {
    "id": "sb_karaoke",
@@ -18641,7 +18652,10 @@
    "bg": "../modern/bg/park.jpg",
    "x": 70,
    "y": 12,
-   "private": true
+   "private": true,
+   "sound": [
+    "karaoke"
+   ]
   },
   {
    "id": "sb_startup",
@@ -18661,7 +18675,10 @@
    "generic": false,
    "bg": "../modern/bg/finance.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "sb_eikaiwa",
@@ -18684,7 +18701,10 @@
    "generic": false,
    "bg": "../modern/bg/finance.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "sb_takeshita",
@@ -18706,7 +18726,10 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 30,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "sb_omotesando",
@@ -18727,7 +18750,11 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 50,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "sb_meiji",
@@ -18758,7 +18785,12 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 70,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "shrine",
+    "birds",
+    "cicadas"
+   ]
   },
   {
    "id": "sb_yoyogi",
@@ -18790,7 +18822,12 @@
    },
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "birds",
+    "cicadas",
+    "crowd"
+   ]
   },
   {
    "id": "sb_lovehotel",
@@ -18813,7 +18850,10 @@
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
    "y": 72,
-   "private": true
+   "private": true,
+   "sound": [
+    "water"
+   ]
   },
   {
    "id": "sj_station",
@@ -18830,7 +18870,10 @@
    "generic": false,
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "station"
+   ]
   },
   {
    "id": "sj_kabukicho",
@@ -18847,7 +18890,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "sj_hostclub",
@@ -18874,7 +18921,10 @@
    "adult": true,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "sj_hostess",
@@ -18900,7 +18950,10 @@
    "adult": true,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "sj_omoide",
@@ -18926,7 +18979,12 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "izakaya",
+    "kitchen",
+    "train"
+   ]
   },
   {
    "id": "sj_goldengai",
@@ -18951,7 +19009,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar",
+    "karaoke"
+   ]
   },
   {
    "id": "sj_nichome",
@@ -18985,7 +19047,10 @@
      19,
      5
     ]
-   }
+   },
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "sj_tocho",
@@ -19009,7 +19074,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "sj_gyoen",
@@ -19056,7 +19124,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "birds",
+    "cicadas"
+   ]
   },
   {
    "id": "sj_capsule",
@@ -19084,7 +19156,10 @@
    "generic": false,
    "bg": "../modern/bg/civic.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ws_shimokita",
@@ -19100,7 +19175,10 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ws_vintage",
@@ -19126,7 +19204,10 @@
    "generic": false,
    "bg": "../modern/bg/mall.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ws_livehouse",
@@ -19153,7 +19234,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "ws_theater",
@@ -19177,7 +19261,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ws_curry",
@@ -19203,7 +19290,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "kitchen",
+    "crowd"
+   ]
   },
   {
    "id": "ws_kissaten",
@@ -19229,7 +19320,10 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "ws_sento",
@@ -19258,7 +19352,10 @@
    "generic": false,
    "bg": "../modern/bg/civic.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "water"
+   ]
   },
   {
    "id": "ws_koenji",
@@ -19274,7 +19371,11 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd",
+    "market"
+   ]
   },
   {
    "id": "ws_konbini",
@@ -19291,7 +19392,10 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ws_studio",
@@ -19320,7 +19424,10 @@
    },
    "bg": "../modern/bg/finance.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_electric",
@@ -19340,7 +19447,12 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic",
+    "arcade"
+   ]
   },
   {
    "id": "ak_maid",
@@ -19365,7 +19477,10 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ak_arcade",
@@ -19389,7 +19504,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "arcade"
+   ]
   },
   {
    "id": "ak_idol",
@@ -19411,7 +19529,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "ak_gamedev",
@@ -19432,7 +19553,10 @@
    "generic": false,
    "bg": "../modern/bg/finance.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_mangacafe",
@@ -19453,7 +19577,10 @@
    },
    "bg": "../modern/bg/civic.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_myojin",
@@ -19468,7 +19595,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "shrine",
+    "birds"
+   ]
   },
   {
    "id": "ak_jinbocho",
@@ -19490,7 +19621,10 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "traffic"
+   ]
   },
   {
    "id": "ak_juku",
@@ -19511,7 +19645,10 @@
    "generic": false,
    "bg": "../modern/bg/campus.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_university",
@@ -19531,7 +19668,11 @@
    "generic": false,
    "bg": "../modern/bg/campus.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "crowd",
+    "birds"
+   ]
   },
   {
    "id": "ot_sensoji",
@@ -19547,7 +19688,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "temple",
+    "crowd"
+   ]
   },
   {
    "id": "ot_sumida",
@@ -19563,7 +19708,12 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "water",
+    "wind",
+    "cicadas"
+   ]
   },
   {
    "id": "ot_izakaya",
@@ -19584,7 +19734,10 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "izakaya"
+   ]
   },
   {
    "id": "ot_ueno",
@@ -19602,7 +19755,12 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "birds",
+    "cicadas",
+    "crowd"
+   ]
   },
   {
    "id": "ot_museum",
@@ -19629,7 +19787,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ot_ameyoko",
@@ -19651,7 +19812,11 @@
    "generic": false,
    "bg": "../modern/bg/mall.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "market",
+    "train"
+   ]
   },
   {
    "id": "ot_yanaka",
@@ -19667,7 +19832,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "birds",
+    "wind"
+   ]
   },
   {
    "id": "ot_ramen",
@@ -19688,7 +19857,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "kitchen",
+    "crowd"
+   ]
   },
   {
    "id": "ot_shrine",
@@ -19710,7 +19883,11 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "shrine",
+    "birds"
+   ]
   },
   {
    "id": "mg_station",
@@ -19729,7 +19906,10 @@
    ],
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "station"
+   ]
   },
   {
    "id": "mg_tower",
@@ -19747,7 +19927,10 @@
    ],
    "bg": "../modern/bg/finance.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "mg_depachika",
@@ -19774,7 +19957,10 @@
    "generic": false,
    "bg": "../modern/bg/mall.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "market"
+   ]
   },
   {
    "id": "mg_chuodori",
@@ -19796,7 +19982,11 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "mg_izakaya",
@@ -19831,7 +20021,11 @@
      16,
      23
     ]
-   }
+   },
+   "sound": [
+    "izakaya",
+    "train"
+   ]
   },
   {
    "id": "mg_palace",
@@ -19846,7 +20040,12 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "birds",
+    "wind",
+    "cicadas"
+   ]
   },
   {
    "id": "mg_kabuki",
@@ -19872,7 +20071,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "mg_tsukiji",
@@ -19900,7 +20102,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "market",
+    "kitchen"
+   ]
   },
   {
    "id": "mg_hospital",
@@ -19916,7 +20122,10 @@
    "closed": [],
    "bg": "../modern/bg/hospital.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "hospital"
+   ]
   },
   {
    "id": "bay_beach",
@@ -19930,7 +20139,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "wind"
+   ]
   },
   {
    "id": "bay_bridge",
@@ -19963,6 +20176,11 @@
    "y": 12,
    "closedIn": [
     "storm"
+   ],
+   "sound": [
+    "wind",
+    "traffic",
+    "waves"
    ]
   },
   {
@@ -19989,7 +20207,10 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "bay_art",
@@ -20013,7 +20234,10 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "bay_expo",
@@ -20040,7 +20264,10 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "bay_market",
@@ -20063,7 +20290,10 @@
    ],
    "bg": "../modern/bg/finance.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "market"
+   ]
   },
   {
    "id": "bay_tv",
@@ -20086,7 +20316,10 @@
    ],
    "bg": "../modern/bg/finance.jpg",
    "x": 63,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "rp_crossing",
@@ -20103,7 +20336,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "rp_club",
@@ -20143,7 +20380,10 @@
      22,
      5
     ]
-   }
+   },
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "rp_sky",
@@ -20171,7 +20411,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "rp_tower",
@@ -20195,7 +20438,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "rp_azabu",
@@ -20221,7 +20467,10 @@
    ],
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "rp_lounge",
@@ -20260,7 +20509,10 @@
      18,
      3
     ]
-   }
+   },
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "rp_pub",
@@ -20300,7 +20552,10 @@
      12,
      24
     ]
-   }
+   },
+   "sound": [
+    "izakaya"
+   ]
   },
   {
    "id": "rp_poleclub",
@@ -20330,7 +20585,10 @@
    "adult": true,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "yk_chinatown",
@@ -20352,7 +20610,11 @@
    ],
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "market",
+    "crowd"
+   ]
   },
   {
    "id": "yk_bay",
@@ -20368,7 +20630,12 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "wind",
+    "crowd"
+   ]
   },
   {
    "id": "yk_yamashita",
@@ -20383,7 +20650,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "birds"
+   ]
   },
   {
    "id": "yk_isezaki",
@@ -20400,7 +20671,10 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "yk_noge",
@@ -20421,7 +20695,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "izakaya",
+    "kitchen"
+   ]
   },
   {
    "id": "yk_hostess",
@@ -20453,7 +20731,10 @@
    "adult": true,
    "bg": "../modern/bg/civic.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "yk_batting",
@@ -20479,7 +20760,10 @@
    ],
    "bg": "../modern/bg/gym.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "yk_mahjong",
@@ -20508,7 +20792,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "yk_park",
@@ -20527,7 +20814,11 @@
    },
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "birds",
+    "cicadas"
+   ]
   },
   {
    "id": "hk_yumoto",
@@ -20548,7 +20839,11 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "water"
+   ]
   },
   {
    "id": "hk_ryokan",
@@ -20578,7 +20873,11 @@
    },
    "bg": "../modern/bg/civic.jpg",
    "x": 50,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "water",
+    "birds"
+   ]
   },
   {
    "id": "hk_ashi",
@@ -20592,7 +20891,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "wind"
+   ]
   },
   {
    "id": "hk_owakudani",
@@ -20628,6 +20931,9 @@
    "y": 72,
    "closedIn": [
     "gas"
+   ],
+   "sound": [
+    "wind"
    ]
   },
   {
@@ -20656,7 +20962,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 50,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "birds",
+    "wind"
+   ]
   },
   {
    "id": "link_shibuya",
@@ -36743,5 +37053,29 @@
     }
    }
   ]
+ },
+ "sounds": {
+  "arcade": "",
+  "bar": "",
+  "birds": "",
+  "cicadas": "",
+  "club": "",
+  "crossing": "",
+  "crowd": "",
+  "hospital": "",
+  "izakaya": "",
+  "karaoke": "",
+  "kitchen": "",
+  "market": "",
+  "office": "",
+  "pachinko": "",
+  "shrine": "",
+  "station": "",
+  "temple": "",
+  "traffic": "",
+  "train": "",
+  "water": "",
+  "waves": "",
+  "wind": ""
  }
 }

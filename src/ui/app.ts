@@ -4,6 +4,8 @@ import { deliverLetter } from '../sim/letters.js';
 import { isWith } from '../sim/social.js';
 import { lex } from '../core/lexicon.js';
 import { rainAmbience } from './sfx.js';
+import { syncAmbience } from './ambience.js';
+import { soundsAt } from '../sim/sound.js';
 import { tutorialHtml, placeTutorial, tutorialTick } from './tutorial.js';
 import { coursesHtml } from './courses.js';
 import { weatherHere } from '../sim/worldstate.js';
@@ -126,6 +128,7 @@ export function render() {
     // only what changed is redrawn (morph), so nothing else on screen "resets"
     morph(main, `${body()}${inGame() ? hudHtml() + phoneHtml() + helpHtml() + coursesHtml() + journeyHtml() + rpgOverlays() + combatHtml() + audienceHtml() + arrestHtml() + diceHtml() : ''}${updateHtml()}${whatsNewHtml()}${tutorialHtml()}${state.busy ? `<div class="mu-busy"><i></i><span>${state.busy}…</span></div>` : ''}`);
     { const g = game(); rainAmbience(!!g && inGame() && (state.view === 'map' || state.view === 'scene') && weatherHere(g, getWorld(g.world)).rain); }   // rain you can hear
+    { const g = game(), w = g && getWorld(g.world); syncAmbience(g && w && inGame() && (state.view === 'map' || state.view === 'scene') ? soundsAt(g, w) : [], w); }   // (E12) the place's sounds
     r.dataset.view = state.view;
     // the style of the world on screen (the medieval look, the modern one…)
     const g = game();
@@ -191,6 +194,7 @@ export function closeApp() {
     const r = root();
     state.open = false;
     rainAmbience(false);
+    syncAmbience([]);
     releaseNative();
     refreshList();
     if (r) r.hidden = true;

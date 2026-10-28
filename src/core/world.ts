@@ -97,6 +97,9 @@ export interface Place {
     private?: boolean;
     /** (E15) Only with adult content on: otherwise it's on no map and nobody's routine sends them there. */
     adult?: boolean;
+    /** (E12) What you hear there, as sound tags (`station`, `crowd`, `izakaya`, `cicadas`…): played as a quiet loop with
+     *  the sound setting on (ui/ambience.ts); the world's `sounds` may give a file of its own for a tag. */
+    sound?: string[];
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
@@ -471,6 +474,9 @@ export interface WorldDef {
     careerSpeed?: number;
     /** (E1, E32) What the AI is told in a scene (see SceneDef). Missing: as before. */
     scene?: SceneDef;
+    /** (E12) Your own sound files for places' sound tags (tag → a file in the world's folder); a tag without a file (an
+     *  empty slot) plays the engine's own sound, made on the fly. */
+    sounds?: Record<string, string>;
     /** What the world has: a phone (modern), a journal (medieval)… and which systems are on. */
     features?: { phone?: boolean; device?: string; apps?: AppDef[] } & Partial<Record<SystemId, boolean>>;
     /** Set by the loader: the folder URL the world's files live in. */
