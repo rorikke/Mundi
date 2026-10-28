@@ -1,5 +1,7 @@
 import { settings, game } from './store.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
+/** Days of the week as worlds write them (day 1 of a game is a Monday). */
+export const WEEKDAY_IDS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 // Roles a place can have. A place with its own list uses only that list; one without is guessed from its name, so
 // older worlds keep working and any world can set them in the map editor.
 export const PLACE_ROLES = [

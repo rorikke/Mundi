@@ -1,3 +1,7 @@
+// Festivals: fixed days of a season (the Harvest Festival, Midwinter, New Year…). While one lasts, prices change, the
+// people with free time gather at its place in the afternoon and evening, the AI knows, and you can celebrate there
+// once a day (mood, and a little reputation in town).
+import { changes } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { seasonDays, SEASONS } from './time.js';
 import { addStatus } from './needs.js';
@@ -5,12 +9,24 @@ import { note } from './facts.js';
 const on = (w) => systemOn(w, 'festivals') && !!w.festivals?.length;
 const seasonAt = (g, day) => SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].id;
 const daySeason = (g, day) => ((Math.max(1, day) - 1) % seasonDays(g)) + 1;
-// The festivals of a day (several towns can celebrate on the same day).
+// The festivals of a day (several towns can celebrate on the same day). Asked for each time someone's free time is
+// worked out, so each day's list is kept (it depends on the world's festivals and the length of the seasons; a world
+// edit comes with a click, changes() in core/store.ts).
+const kept = new WeakMap();
 export function festivalsOn(g, w, day = g.day) {
     if (!on(w))
         return [];
-    const s = seasonAt(g, day), d = daySeason(g, day);
-    return w.festivals.filter(f => f.season === s && d >= Math.min(f.day, seasonDays(g)) && d < Math.min(f.day, seasonDays(g)) + Math.max(1, f.days ?? 1));
+    const n = changes();
+    let k = kept.get(w);
+    if (!k || k.list !== w.festivals || k.len !== w.festivals.length || k.n !== n || k.by.size > 400)
+        kept.set(w, k = { list: w.festivals, len: w.festivals.length, n, by: new Map() });
+    const key = `${seasonDays(g)}|${day}`;
+    let list = k.by.get(key);
+    if (!list) {
+        const s = seasonAt(g, day), d = daySeason(g, day);
+        k.by.set(key, list = w.festivals.filter(f => f.season === s && d >= Math.min(f.day, seasonDays(g)) && d < Math.min(f.day, seasonDays(g)) + Math.max(1, f.days ?? 1)));
+    }
+    return list.slice();
 }
 // A festival belongs to the town of its place: the maps of the same city (the same "area"), or its own map. One
 // without a place is for everyone.

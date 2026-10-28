@@ -8,7 +8,7 @@ import { weatherOverride } from './elements.js';
 import { tradeMul } from './realm.js';
 import { systemOn } from '../core/world.js';
 import { onDay, onHour } from './hooks.js';
-import { placeOf, isHome, playerHomeId } from './places.js';
+import { mapOf, isHome, playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { isWeekend } from './time.js';
 import { partOf, openNow, periodPrice, partMood } from './daynight.js';
@@ -25,7 +25,7 @@ const on = (w) => systemOn(w, 'living');
 export const regionDef = (w, id) => w.maps.find(m => m.id === id);
 const base = (d) => ({ mood: clamp(d?.mood ?? 15, -100, 100), tension: clamp(d?.tension ?? 10, 0, 100), price: clamp(d?.prices ?? 1, 0.2, 5) });
 // The region a place is in: the map its pin is on (your home: the map of its area).
-export const regionOf = (g, w, place) => placeOf(g, w, place)?.map ?? w.maps[0]?.id ?? '';
+export const regionOf = (g, w, place) => mapOf(g, w, place) ?? w.maps[0]?.id ?? '';
 export function regionState(g, w, id) {
     const all = (g.regions ??= {});
     return (all[id] ??= base(regionDef(w, id)));

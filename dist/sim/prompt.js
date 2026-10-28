@@ -6,7 +6,7 @@ import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living
 import './longlife.js';
 import './fading.js'; // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
-import { game, settings } from '../core/store.js';
+import { game, settings, changed } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
 import { setPrompt, nameOf, chat } from '../st/bridge.js';
@@ -196,6 +196,7 @@ export function sceneText() {
 // Characters' initiatives are checked first (feelings may have just changed); the moments that went out with the
 // prompt are marked as sent (the verdict of that scene finishes them).
 export function refreshPrompt() {
+    changed(); // called after changes: where people are is worked out again
     const g = game(), w = g && getWorld(g.world);
     if (g && w)
         checkInitiative(g, w);

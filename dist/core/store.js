@@ -113,7 +113,13 @@ export const state = {
 let renderFn = null;
 let queued = false;
 export const onRender = (fn) => { renderFn = fn; };
+// Counted on every change outside the clock (each notify(), each prompt refresh): what the simulation keeps for the
+// current game minute or day (where people are, the day's events and festivals) is worked out again after one.
+let changeCount = 0;
+export const changes = () => changeCount;
+export const changed = () => { changeCount++; };
 export function notify() {
+    changed();
     if (queued)
         return;
     queued = true;

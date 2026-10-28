@@ -5,8 +5,8 @@ import { nowAbs } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
-import { weatherAt, regionOf, regionState } from './worldstate.js';
-import { period, isWeekend, seasonOf } from './time.js';
+import { regionOf, regionState } from './worldstate.js';
+import { whenHolds, whenPlace, whenRegionOk } from './when.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
@@ -29,48 +29,8 @@ export function approvalLine(g, present) {
     const p = present.filter(r => Math.abs(approvalOf(g, r.avatar)) >= 15);
     return p.length ? `What they think of how {{user}} behaves: ${p.map(r => `${r.name} — ${approvalWord(approvalOf(g, r.avatar)).toLowerCase()}`).join('; ')}.` : '';
 }
-// The day-wide conditions (no place or hour): also what decides when a world rumor starts going around.
-function dayHolds(g, w, c, key, place = g.player.loc) {
-    if (c.weather && !weatherAt(g, w, place).name.toLowerCase().includes(c.weather.toLowerCase()))
-        return false;
-    if (c.weekend !== undefined && c.weekend !== isWeekend(g.day))
-        return false;
-    if (c.season && c.season !== seasonOf(g).id)
-        return false;
-    if (c.fromDay && g.day < c.fromDay)
-        return false;
-    if (c.toDay && g.day > c.toDay)
-        return false;
-    const reg = c.region ?? regionOf(g, w, place);
-    if (c.tensionAbove !== undefined || c.moodAbove !== undefined || c.moodBelow !== undefined) {
-        if (!systemOn(w, 'living'))
-            return false;
-        const r = regionState(g, w, reg);
-        if (c.tensionAbove !== undefined && r.tension <= c.tensionAbove)
-            return false;
-        if (c.moodAbove !== undefined && r.mood <= c.moodAbove)
-            return false;
-        if (c.moodBelow !== undefined && r.mood >= c.moodBelow)
-            return false;
-    }
-    if (c.chance !== undefined && c.chance < 1 && rnd(g, `lore|${key}`) >= c.chance)
-        return false;
-    return true;
-}
 export function activeWorldLore(g, w) {
-    const per = period(w, g.minutes).name.toLowerCase();
-    return w.lore.filter((e, i) => {
-        const c = e.when;
-        if (!c || !e.content || e.rumor)
-            return false;
-        if (c.period && c.period.toLowerCase() !== per)
-            return false;
-        if (c.place && c.place !== g.player.loc)
-            return false;
-        if (c.region && c.region !== regionOf(g, w, g.player.loc))
-            return false;
-        return dayHolds(g, w, c, String(i));
-    }).map(e => e.content);
+    return w.lore.filter((e, i) => !!e.when && !!e.content && !e.rumor && whenHolds(g, w, e.when, { key: `lore|${i}` })).map(e => e.content);
 }
 /* ---------- people's own lives (76) ---------- */
 // Couples between people of the world (the pairs in the relationships store, sim/rel.ts). They form from feelings
@@ -172,10 +132,11 @@ function seedWorldRumors(g, w) {
         const id = `lore:${i}`;
         if (st.rumors.some(r => r.id === id))
             return;
+        // only what holds for the whole day counts (where the player is doesn't), and a quarter of the days by default
         const c = e.when ?? {};
-        if (!dayHolds(g, w, { ...c, chance: c.chance ?? 0.25 }, `rumor|${i}`, c.place ?? g.player.loc))
+        if (!whenHolds(g, w, c, { key: `lore|rumor|${i}`, day: true, place: whenPlace(c) ?? g.player.loc, chance: 0.25 }))
             return;
-        const pool = residents(g).filter(r => !c.region || regionOf(g, w, `home:${r.avatar}`) === c.region || regionOf(g, w, w.occupations.find(o => o.id === r.occupation)?.place ?? '') === c.region);
+        const pool = residents(g).filter(r => whenRegionOk(c, regionOf(g, w, `home:${r.avatar}`)) || whenRegionOk(c, regionOf(g, w, w.occupations.find(o => o.id === r.occupation)?.place ?? '')));
         if (!pool.length)
             return;
         const first = [...pool].sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2);

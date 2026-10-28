@@ -4,7 +4,7 @@ import { homeJobOf, npcOut, onShift, SHIFTS } from './hometime.js';
 import { festivalSpot } from './festivals.js';
 import { eventSpot } from './cityevents.js';
 import { lockedHere } from './life.js';
-import { nowAbs } from '../core/store.js';
+import { nowAbs, changes } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { isWeekend } from './time.js';
 import { appointmentNow, isWith } from './social.js';
@@ -131,8 +131,25 @@ export function whereNow(g, w, r) {
     const brk = breakNow(g, w, r); // something interrupted her routine today (an errand, a cold…)
     if (brk)
         return brk.place;
-    return routineAt(g, w, r, nowAbs(g));
+    return routineNow(g, w, r);
 }
+const kept = new WeakMap();
+function routineNow(g, w, r) {
+    const at = nowAbs(g), n = changes(), c = g.cfg;
+    let k = kept.get(g);
+    if (!k || k.at !== at || k.w !== w || k.n !== n || k.features !== w.features || k.cfg !== c || k.rules !== rulesOf(w, c))
+        kept.set(g, k = { at, w, n, features: w.features, cfg: c, rules: rulesOf(w, c), by: new Map() });
+    const hw = r.homeWith, job = homeJobOf(r), mine = hw === '__you' ? g.player.home?.zone : undefined;
+    const x = k.by.get(r.avatar);
+    if (x && x.r === r && x.routine === r.routine && x.job === r.occupation && x.hw === hw && x.zone === r.home?.zone && x.mine === mine
+        && x.leisure === r.leisure && x.n === r.leisure.length && x.shift === job.shift && x.days === job.days)
+        return x.loc;
+    const loc = routineAt(g, w, r, at);
+    k.by.set(r.avatar, { r, routine: r.routine, job: r.occupation, hw, zone: r.home?.zone, mine, leisure: r.leisure, n: r.leisure.length, shift: job.shift, days: job.days, loc });
+    return loc;
+}
+// The systems and save rules a routine reads (a Home's rooms, the length of the seasons for festivals).
+const rulesOf = (w, c) => `${systemOn(w, 'living')}|${systemOn(w, 'jobs')}|${systemOn(w, 'events')}|${systemOn(w, 'festivals')}|${c?.seasonDays}|${c?.npcOut}|${c?.rooms?.join(',')}|${c?.extraRooms?.length}`;
 export const residents = (g) => Object.values(g.cast);
 // (someone you are playing as is not "here": you are them)
 const selfOf = (g) => { const s = g.swap; return s ? (s.avatar || s.origCard || '') : ''; };
