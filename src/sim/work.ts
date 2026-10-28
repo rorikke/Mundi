@@ -631,6 +631,15 @@ export function sickNo(g: Save, w: WorldDef): string {
     if (rule === 'sometimes' && !ill && g.day - (j.sickAt ?? -99) < 14) return 'You called in sick not long ago.';
     return '';
 }
+/** Kept off work until `until` (absolute minutes: a night in hospital): every shift not yet over that starts before then
+ *  is a sick day, whatever the rules on calling in sick. */
+export function sickLeave(g: Save, w: WorldDef, until: number) {
+    const j = jobOf(g); const o = jobDef(w, j?.id); if (!j || !o) return;
+    for (let d = g.day - 1; d * 1440 < until; d++) {
+        const s = shiftOn(g, w, o, d);
+        if (s && s.start < until && s.end > nowAbs(g) && !worked(j, d) && !offOn(j, d)) (j.off ??= {})[d] = 'sick';
+    }
+}
 export function callSick(g: Save, w: WorldDef): string {
     const j = jobOf(g); const o = jobDef(w, j?.id); if (!j || !o) return '';
     const why = sickNo(g, w); if (why) return why;

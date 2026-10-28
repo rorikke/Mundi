@@ -799,12 +799,14 @@
    "max": 100,
    "hud": true,
    "zero": {
-    "text": "Exhausted, you fall asleep where you are and wake up at home.",
-    "place": "home",
-    "restore": 40,
     "crisis": {
      "after": 0,
-     "text": "",
+     "place": "mg_hospital",
+     "stay": true,
+     "cost": 8000,
+     "restore": 15,
+     "mood": -10,
+     "text": "You collapse from exhaustion. You come to in a bed at Seiwa General Hospital with a drip in your arm, and the nurse says they are keeping you overnight. The bill is {cost}.",
      "seen": "{u} collapsed from exhaustion at {0}."
     }
    }

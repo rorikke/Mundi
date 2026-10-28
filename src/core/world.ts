@@ -136,7 +136,10 @@ export interface StatusDef {
 // A crisis at zero: the message, where you end up ('home', a place, or '' to stay), what it costs, what the need
 // comes back to, your mood, how much the people who saw it think less of you, and the fact they remember
 // ({u} you, {0} the place).
-export interface Crisis { after: number; text: string; place?: string; cost?: number; restore?: number; mood?: number; shame?: number; seen?: string }
+export interface Crisis { after: number; text: string; place?: string; cost?: number; restore?: number; mood?: number; shame?: number; seen?: string;
+    /** (H) Kept there for the night (a hospital bed after a collapse): a free bed until the morning, and the shifts
+     *  until then are sick days (sim/stays.ts). */
+    stay?: boolean }
 export interface ActionDef {
     id: string; name: string; label: string; icon?: string; cost: number; minutes: number;
     tags?: string[]; place?: string; home?: boolean; anywhere?: boolean;
