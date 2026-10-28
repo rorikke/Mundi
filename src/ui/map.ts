@@ -10,7 +10,7 @@ import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNigh
 
 import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom } from '../core/store.js';
 import { runPlans } from './plans.js';
-import { maybeBump } from './bump.js';
+import { maybeBump, BUMP } from './bump.js';
 import { gradeName } from '../sim/dice.js';
 import { setPrompt } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
@@ -21,8 +21,8 @@ import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import type { Save } from '../core/store.js';
 import { thumb } from '../st/bridge.js';
-import { pins, placeOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
-import { missedTrain, taxiFare, untilFirstTrain } from '../sim/transit.js';
+import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
+import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
@@ -390,6 +390,10 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     const from = g.player.loc;
     const waited = late === 'wait' ? advance(g, w, untilFirstTrain(w, g.minutes)) : [];   // at the station until the first train
     if (fare) { g.player.money -= fare; book(g, 'Taxi', -fare); toast(`The taxi cost ${money(w, fare)}.`, 'info'); }
+    // (E11) who is where as you leave: someone you know may be on the same train
+    const train = !fare && byTrain(g, w, from, loc) && systemOn(w, 'living') && !BUMP.who;
+    const departed = g.minutes;
+    const before = train ? new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)])) : null;
     (g as any).traveling = true;   // the trip itself costs no energy (only what you do does)
     const msgs = [...waited, ...(road ? travelRoad(g, w, mins, road === 'camp') : advance(g, w, mins))];
     delete (g as any).traveling;
@@ -397,6 +401,7 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     if (g.player.loc === from) g.player.loc = loc;   // unless something on the way moved you (passing out…)
     viewMap = null;
     msgs.forEach(m => toast(m, 'warn'));
+    if (before && g.player.loc === loc) meetOnTrain(g, w, before, from, loc, departed);
     if (g.player.loc === loc && openNow(g, w, loc)) {   // the gate is shut when it's closed: nothing to pay
         const paid = payEntry(g, w, loc);
         if (paid) { book(g, placeOf(g, w, loc)?.name ?? 'Entry', -paid); toast(`You paid ${money(w, paid)} to get in.`, 'info'); }
@@ -408,6 +413,18 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     state.view = 'scene';   // arriving somewhere opens its scene (with its things to do), even when nobody is there
     // (the elevator ride on arriving at an apartment is gone: it only got in the way)
     notify();
+}
+
+// (E11) Someone you know made the same trip (or, at rush hour, left from the same station): now and then you run into
+// them on the way, and they can come along for a while (the encounter's own choices, ui/bump.ts).
+function meetOnTrain(g: Save, w: WorldDef, before: Map<string, string>, from: string, to: string, departed: number) {
+    const after = new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)]));
+    const list = fellowTravelers(g, w, before, after, from, to, departed);
+    if (!list.length) return;
+    const same = list.some(r => mapOf(g, w, after.get(r.avatar)!) === mapOf(g, w, to));
+    if (Math.random() >= meetOdds(same, departed)) return;
+    BUMP.who = list[Math.floor(Math.random() * list.length)].avatar;
+    BUMP.on = same ? 'train' : 'station';
 }
 
 // The journey dialog: the road takes hours; make camp at night, or push on without rest.
