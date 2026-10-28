@@ -2343,6 +2343,12 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-ph-wp-link { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
 #mundi-root .mu-ph-wp-link input { min-width: 0; width: 100%; }
 #mundi-root .mu-ph-wp-link button { padding: 0 12px; white-space: nowrap; }
+/* Street stories (E17): the card for what is happening where you are, like the happenings' card */
+#mundi-root .mh-story > .mh-story-ic { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; background: rgba(255, 255, 255, .08); }
+#mundi-root .mh-story p { max-height: 9.5em; overflow: auto; }
+#mundi-root .mh-story .mh-invite-btns { flex-direction: column; align-items: stretch; }
+#mundi-root .mh-story .mh-invite-btns button { text-align: left; white-space: normal; }
+#mundi-root .mh-story .mh-invite-btns button small { opacity: .7; margin-left: 6px; }
 /* ---------- the medieval journal: an open book over the game ---------- */
 #mundi-root .mu-bk-wrap {
     position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px 16px;

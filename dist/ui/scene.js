@@ -6,6 +6,7 @@ import { lex } from '../core/lexicon.js';
 import { setPrompt } from '../st/bridge.js';
 import { socialCheck } from '../sim/judge.js';
 import { pictureAt } from '../sim/daynight.js';
+import { looksAt } from '../sim/worldstate.js';
 import { nativeHost } from './native.js';
 import { lockScene } from '../sim/life.js';
 import { soloOf } from './lifeui.js';
@@ -136,16 +137,16 @@ function background(g, w) {
         return '';
     if (p.home) {
         const kind = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? 'apartment')];
-        const img = kind && pictureAt(w, g.minutes, kind.image, kind.images); // the picture of this part of the day, if it has one
+        const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id)); // the picture of this part of the day (and weather, season), if it has one
         if (img)
             return `background-image:url('${worldFile(w, img)}');background-size:cover;background-position:center`;
     }
     const pub = w.places.find(x => x.id === p.id);
-    const bg = pictureAt(w, g.minutes, p.bg, pub?.bgs);
+    const bg = pictureAt(w, g.minutes, p.bg, pub?.bgs, looksAt(g, w, p.id));
     if (bg)
         return `background-image:url('${worldFile(w, bg)}');background-size:cover;background-position:center`;
     const map = w.maps.find(m => m.id === p.map) ?? w.maps[0];
-    return `background-image:url('${worldFile(w, pictureAt(w, g.minutes, map.image, map.images))}');background-size:420% auto;background-position:${p.x}% ${p.y}%`;
+    return `background-image:url('${worldFile(w, pictureAt(w, g.minutes, map.image, map.images, looksAt(g, w, undefined, map.id)))}');background-size:420% auto;background-position:${p.x}% ${p.y}%`;
 }
 import { fullPicOf as fullPic, lineFile } from './chatlook.js';
 import { lineColor } from '../sim/talkcolors.js';

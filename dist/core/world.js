@@ -142,7 +142,7 @@ export const allTags = (w) => {
 export const madeFor = (w) => w.madeFor ?? (w.mode === 'rpg' ? 'rpg' : 'lifesim');
 export const hasTag = (w, t) => worldTags(w).includes(t);
 export const SYSTEMS = [
-    { id: 'living', name: 'Living world', desc: 'places are never busier or emptier, and no region changes its mood, tension or prices.', apps: [], blocks: ['world'] },
+    { id: 'living', name: 'Living world', desc: 'places are never busier or emptier, and no region changes its mood, tension or prices.', apps: [], blocks: ['world', 'threads'] },
     { id: 'needs', name: 'Needs', desc: 'no hunger, energy, thirst, mood or hygiene to look after (health, in RPG, stays).', apps: [], blocks: ['needs'] },
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
@@ -150,7 +150,7 @@ export const SYSTEMS = [
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },
     { id: 'breakdowns', name: 'Things break at home', desc: 'nothing at home ever breaks.', apps: [], blocks: [] },
     { id: 'plans', name: 'Plans', desc: 'no meet-ups, dates, "come with me" or invitations.', apps: ['plans'], blocks: ['plans'] },
-    { id: 'romance', name: 'Romance', desc: 'only friendship: no dating, love, engagement or marriage.', apps: ['dating'], blocks: ['couples'] },
+    { id: 'romance', name: 'Romance', desc: 'only friendship: no dating, love, engagement or marriage.', apps: ['dating'], blocks: ['couples', 'intimate'] },
     { id: 'relations', name: 'Relationships between people', desc: 'people\'s feelings for each other never change, and couples between them never form, move on or end by themselves.', apps: [], blocks: [] },
     { id: 'family', name: 'Children', desc: 'no babies (children already born stay).', apps: [], blocks: [], needs: 'romance' },
     { id: 'social', name: 'Social network', desc: 'no posts, likes or notices.', apps: ['social'], blocks: [] },

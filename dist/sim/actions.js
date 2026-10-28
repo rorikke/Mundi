@@ -11,6 +11,7 @@ import { facts, note, placeName } from './facts.js';
 import { whenHolds, markDone } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { playerHomeId } from './places.js';
+import { startRumor } from './living.js';
 // One of the outcomes whose own condition holds, by weight.
 export function drawOutcome(g, w, a, place, rnd = Math.random) {
     const list = (a.outcomes ?? []).filter((o, i) => !o.when || whenHolds(g, w, o.when, { place, id: a.id, key: `${a.id}#${i}` }));
@@ -64,6 +65,10 @@ export function doAction(g, w, a, rnd = Math.random) {
     }
     feelsFrom(g, w, res?.feels);
     feelsFrom(g, w, outcome?.feels);
+    // (E31) a rumor it starts among the people here
+    for (const t of [res?.rumor, outcome?.rumor])
+        if (t)
+            startRumor(g, w, t, loc, { you: true, id: `act:${a.id}:${t.slice(0, 24)}` });
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
     if (keep) {
         addKeepsake(g, keep);

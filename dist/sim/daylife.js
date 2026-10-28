@@ -16,7 +16,7 @@ import { overhear, couples } from './living.js';
 import { exesOf, fr } from './rel.js';
 import { lex } from '../core/lexicon.js';
 import { scheduled, shiftOn, shiftAt, slotAt, stampOf, broughtNow, onVacation, rankName } from './dayplan.js';
-import { workingAt, routineStep } from './people.js';
+import { workingAt, routineStep, waitingForTrain } from './people.js';
 import { levelHolds } from './when.js';
 const FRIEND = 30; // where Friend starts (FRIEND_TIERS in sim/romance.ts)
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
@@ -201,6 +201,8 @@ export function whyHereLines(g, w, present) {
         }
         if (onVacation(g, w, r, Math.floor(now / 1440)))
             out.push(`${r.name} is on vacation (a few days off work).`);
+        else if (waitingForTrain(g, w, r, now))
+            out.push(`${r.name} missed the last train home and is staying out until the first one.`);
     }
     return out;
 }

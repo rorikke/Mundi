@@ -51,10 +51,11 @@ export function queueMoment(g, m) {
     return out;
 }
 export function dropMoment(g, id) { const s = seat(g); s.moments = s.moments.filter(m => m.id !== id); }
-// Drops what no longer fits (the rule that queued it says so) and what waited 3 days unsent.
+// Drops what no longer fits (the rule that queued it says so) and what waited too long unsent (3 days, or its own
+// last day).
 export function tidyMoments(g, fits) {
     const s = seat(g);
-    s.moments = s.moments.filter(m => (m.sent !== undefined || g.day - m.day <= 3) && fits(m));
+    s.moments = s.moments.filter(m => (m.sent !== undefined || (m.until !== undefined ? g.day <= m.until : g.day - m.day <= 3)) && fits(m));
 }
 // The moments for this scene: the oldest one per person here, two at most (the oldest first).
 export function momentsHere(g, present, fits) {

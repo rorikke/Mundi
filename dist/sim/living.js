@@ -1,17 +1,17 @@
 // The living world: approval (what people think of how you behave), lore that switches on with the state of
 // the world, people's own lives moving on over the weeks, and rumors that travel between people.
 import { personaName } from '../st/bridge.js';
-import { nowAbs } from '../core/store.js';
+import { nowAbs, adultOk } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
-import { exampleOf, adultOn } from './dayplan.js';
+import { exampleOf, adultOn, secretCouple } from './dayplan.js';
 import { onDay } from './hooks.js';
-import { residents, whereNow } from './people.js';
+import { residents, whereNow, presentAt } from './people.js';
 import { regionOf, regionState } from './worldstate.js';
-import { whenHolds, whenPlace, whenRegionOk } from './when.js';
+import { whenHolds, whenPlace, whenRegionOk, parseWhen, levelHolds, personNamed } from './when.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
-import { couplePairs, casualPairs, pastPairs, pastWords } from './rel.js';
+import { couplePairs, casualPairs, pastPairs, pastWords, fr } from './rel.js';
 import { placeOf } from './places.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -30,9 +30,38 @@ export function approvalLine(g, present) {
     const p = present.filter(r => Math.abs(approvalOf(g, r.avatar)) >= 15);
     return p.length ? `What they think of how {{user}} behaves: ${p.map(r => `${r.name} — ${approvalWord(approvalOf(g, r.avatar)).toLowerCase()}`).join('; ')}.` : '';
 }
-export function activeWorldLore(g, w) {
-    return w.lore.filter((e, i) => !!e.when && !!e.content && !e.rumor && whenHolds(g, w, e.when, { key: `lore|${i}` })).map(e => e.content);
+export function activeWorldLore(g, w, max) { return worldLore(g, w, max).kept; }
+// (E32) A busy place can match many rows: with a limit (`max`, else the world's `scene.lore`; 0 = none) the rows
+// about people here come first, then this place, then its zone or region, then the rest (season, weather, time);
+// a row's `priority` puts it ahead of its kind. A sentence already said by a row kept is left out of the next ones.
+// `dropped`: what the limit left out (shown in AI context).
+export function worldLore(g, w, max = w.scene?.lore ?? 0) {
+    const rows = w.lore.map((e, i) => ({ e, i })).filter(({ e, i }) => !!e.when && !!e.content && !e.rumor && adultOk(g, e) && whenHolds(g, w, e.when, { key: `lore|${i}` }));
+    const ranked = max > 0 ? [...rows].sort((a, b) => (b.e.priority ?? 0) - (a.e.priority ?? 0) || loreKind(a.e.when) - loreKind(b.e.when) || a.i - b.i) : rows;
+    const kept = [], dropped = [], said = new Set();
+    for (const { e } of ranked) {
+        const parts = sentences(e.content);
+        const fresh = parts.filter(x => !said.has(sentenceKey(x)));
+        if (parts.some(sentenceKey) && !fresh.some(sentenceKey))
+            continue;
+        if (max > 0 && kept.length >= max) {
+            dropped.push(e.content);
+            continue;
+        }
+        fresh.forEach(x => { const k = sentenceKey(x); if (k)
+            said.add(k); });
+        kept.push(fresh.length === parts.length ? e.content : fresh.map(x => x.trim()).join(' '));
+    }
+    return { kept, dropped };
 }
+// 0: about someone present (`present`, `onShift`); 1: this place; 2: its zone or region; 3: anything else.
+function loreKind(when) {
+    const keys = parseWhen(when).conds.filter(c => !c.not).map(c => c.key);
+    return keys.some(k => k === 'present' || k === 'onShift') ? 0 : keys.includes('place') ? 1 : keys.some(k => k === 'zone' || k === 'region') ? 2 : 3;
+}
+// (a short piece, "Dr." or "Closed.", is never taken for a repeat)
+const sentenceKey = (x) => { const t = x.trim().toLowerCase(); return t.split(/\s+/).length >= 4 ? t : ''; };
+const sentences = (t) => t.match(/[^.!?]+(?:[.!?]+["'”’)]*|$)\s*/g)?.filter(x => x.trim()) ?? [t];
 /* ---------- people's own lives (76) ---------- */
 // Couples between people of the world (the pairs in the relationships store, sim/rel.ts). They form from feelings
 // (sim/relations.ts), not here.
@@ -83,15 +112,22 @@ function lifeGoesOn(g, w) {
     }
     return out;
 }
-export function couplesLine(g, present) {
+// A couple the world keeps secret (E29) is told only once {{user}} is a good friend of one of them (as in whyHereLines),
+// and then as a secret.
+export function couplesLine(g, present, w) {
     const here = new Set(present.map(r => r.avatar));
-    const c = couplePairs(g).filter(p => here.has(p.a) || here.has(p.b));
+    const hidden = (p) => !!w && secretCouple(g, w, p.a, p.b) && !levelHolds(g, w, p.a, 'good') && !levelHolds(g, w, p.b, 'good');
+    const secretly = (p) => (w && secretCouple(g, w, p.a, p.b) ? ' (in secret: they hide it from others)' : '');
+    const about = (list) => list.filter(p => (here.has(p.a) || here.has(p.b)) && !hidden(p));
+    const c = about(couplePairs(g));
     const word = { dating: 'are dating', engaged: 'are engaged', married: 'are married' };
-    const casual = casualPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} have something casual (not a couple)`);
-    const past = pastPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${pastWords(g, p.was)}`);
-    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`), ...casual, ...past];
+    const casual = about(casualPairs(g)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} have something casual (not a couple)${secretly(p)}`);
+    const past = about(pastPairs(g)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${pastWords(g, p.was)}`);
+    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}${secretly(p)}`), ...casual, ...past];
     return all.length ? `Relationships between people: ${all.join('; ')}.` : '';
 }
+// Close enough to keep a friend's secret: a good friend or closer.
+const LOYAL = 55;
 const GOSSIP = ['love', 'party', 'plan', 'life', 'goal', 'work', 'crisis'];
 export const YOU = '__you';
 export const rumorPool = (g) => L(g).rumors;
@@ -113,10 +149,12 @@ function spreadRumors(g, w) {
         const chance = Math.min(0.9, 0.4 * Math.min(1.2, heat / 100 + 0.2) * (1 + tension / 100));
         rumor.hops ??= {};
         for (const knower of people.filter(p => rumor.knownBy.includes(p.avatar))) {
+            if (rumor.secret && rumor.about?.some(a => fr(g, knower.avatar, a) >= LOYAL))
+                continue; // they keep it to themselves
             const ks = spots(knower);
             for (const other of people) {
-                if (rumor.knownBy.includes(other.avatar))
-                    continue;
+                if (rumor.knownBy.includes(other.avatar) || rumor.about?.includes(other.avatar))
+                    continue; // nobody tells you gossip about yourself
                 if ([...spots(other)].some(s => ks.has(s)) && rnd(g, `${rumor.id}|${other.avatar}`) < chance) {
                     rumor.knownBy.push(other.avatar);
                     rumor.hops[other.avatar] = (rumor.hops[knower.avatar] ?? 1) + 1;
@@ -125,18 +163,24 @@ function spreadRumors(g, w) {
         }
         rumor.heat = Math.max(0, heat - 8);
     }
-    // at most 40 going around: the hottest stay
+    // at most 40 going around: the hottest stay (what really happened outlives the world's own gossip)
     const live = st.rumors.filter(r => nowAbs(g) - r.at < 14 * 1440 && heatOf(g, r) > 0);
-    const keep = new Set([...live].sort((a, b) => heatOf(g, b) - heatOf(g, a) || b.at - a.at).slice(0, 40));
+    const rank = (r) => heatOf(g, r) - (r.world ? 25 : 0);
+    const keep = new Set([...live].sort((a, b) => rank(b) - rank(a) || b.at - a.at).slice(0, 40));
     st.rumors = live.filter(r => keep.has(r));
     return [];
 }
 // The world's lore marked as a rumor starts going around when its conditions hold (two people start it, in its
-// region if it has one); once it has died out it can start again another day.
+// region if it has one); once it has died out it can start again another day. A few a day at most (a world with many
+// would otherwise crowd out what really happens). One about someone (E31) is never started by them; adult ones only
+// with adult content on.
+const WORLD_RUMORS_A_DAY = 3;
 function seedWorldRumors(g, w) {
     const st = L(g);
-    w.lore.forEach((e, i) => {
-        if (!e.rumor || !e.content)
+    let n = 0;
+    const order = w.lore.map((e, i) => [e, i]).filter(([e]) => e.rumor).sort((a, b) => rnd(g, `seed|${a[1]}`) - rnd(g, `seed|${b[1]}`));
+    order.forEach(([e, i]) => {
+        if (n >= WORLD_RUMORS_A_DAY || !e.content || (e.adult && !adultOn(g)))
             return;
         const id = `lore:${i}`;
         if (st.rumors.some(r => r.id === id))
@@ -145,19 +189,47 @@ function seedWorldRumors(g, w) {
         const c = e.when ?? {};
         if (!whenHolds(g, w, c, { key: `lore|rumor|${i}`, day: true, place: whenPlace(c) ?? g.player.loc, chance: 0.25 }))
             return;
-        const pool = residents(g).filter(r => whenRegionOk(c, regionOf(g, w, `home:${r.avatar}`)) || whenRegionOk(c, regionOf(g, w, w.occupations.find(o => o.id === r.occupation)?.place ?? '')));
+        const about = aboutOf(g, e.about);
+        const pool = residents(g).filter(r => !about.includes(r.avatar) && (whenRegionOk(c, regionOf(g, w, `home:${r.avatar}`)) || whenRegionOk(c, regionOf(g, w, w.occupations.find(o => o.id === r.occupation)?.place ?? ''))));
         if (!pool.length)
             return;
         const first = [...pool].sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2);
-        st.rumors.push({ id, text: e.content, at: nowAbs(g), knownBy: first.map(r => r.avatar), heat: 100, hops: Object.fromEntries(first.map(r => [r.avatar, 1])), world: true });
+        st.rumors.push({ id, text: e.content, at: nowAbs(g), knownBy: first.map(r => r.avatar), heat: 100, hops: Object.fromEntries(first.map(r => [r.avatar, 1])), world: true, ...(about.length ? { about } : {}), ...(e.secret ? { secret: true } : {}) });
+        n++;
     });
+}
+// Who a rumor is about: names of the world's people (one, or several with commas), as avatars in this save.
+const aboutOf = (g, names) => (Array.isArray(names) ? names : (names ?? '').split(',')).map(n => personNamed(g, n.trim())?.avatar).filter((a) => !!a);
+/** (E31) Starts a rumor from something that just happened (an action's outcome, a work result, a story's choice, a
+ *  thread's stage): the people at `place` know it first (or two whose days pass through there), never the ones it's
+ *  about. `you`: the player was there (it isn't news to you). Returns it, or null when nobody is there to tell it or
+ *  the rumors system is off. */
+export function startRumor(g, w, text, place, o = {}) {
+    if (!systemOn(w, 'rumors') || !text.trim())
+        return null;
+    const st = L(g), id = o.id ?? `r${nowAbs(g)}|${text.slice(0, 24)}`;
+    if (st.rumors.some(r => r.id === id))
+        return null;
+    const about = aboutOf(g, o.about);
+    let first = presentAt(g, w, place).filter(r => !about.includes(r.avatar)).map(r => r.avatar);
+    if (!first.length) {
+        const there = (r) => r.leisure.includes(place) || w.occupations.find(x => x.id === r.occupation)?.place === place;
+        first = residents(g).filter(r => !about.includes(r.avatar) && there(r)).sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2).map(r => r.avatar);
+    }
+    if (!first.length)
+        return null;
+    const rumor = { id, text, at: nowAbs(g), knownBy: [...first, ...(o.you ? [YOU] : [])], heat: 100, hops: Object.fromEntries(first.map(a => [a, 1])), ...(about.length ? { about } : {}), ...(o.secret ? { secret: true } : {}), ...(o.thread ? { thread: o.thread } : {}) };
+    if (o.you)
+        rumor.hops[YOU] = 0;
+    st.rumors.push(rumor);
+    return rumor;
 }
 // How a rumor sounds after passing through some mouths.
 const garble = (hops) => (hops >= 4 ? ' (heard it fourth- or fifth-hand: details may be wrong or exaggerated)' : hops >= 2 ? ' (secondhand)' : '');
 export function rumorLines(g, present) {
     const out = [];
     for (const r of present) {
-        const heard = L(g).rumors.filter(x => x.knownBy.includes(r.avatar) && !facts(g).find(f => f.id === x.id)?.who.includes(r.avatar)).slice(-2);
+        const heard = L(g).rumors.filter(x => x.knownBy.includes(r.avatar) && !x.about?.includes(r.avatar) && !facts(g).find(f => f.id === x.id)?.who.includes(r.avatar)).slice(-2);
         if (heard.length)
             out.push(`${r.name} has heard around town: ${heard.map(h => `${h.text}${garble(h.hops?.[r.avatar] ?? 1)}`).join(' ')}`);
     }

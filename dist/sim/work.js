@@ -7,7 +7,7 @@ import { hobbyFits, hobbyNeed, levelOf, trainSkill, skillName } from './hobbies.
 import { addRep } from './standing.js';
 import { lex } from '../core/lexicon.js';
 import { bump, bondOf } from './social.js';
-import { approvalOf } from './living.js';
+import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } from './skills.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
@@ -622,6 +622,8 @@ function applyResult(g, w, o, r, gentle) {
     }
     if (r.fact)
         note(g, r.fact, [placeOf(g, w, jobPlace(g, o))?.name ?? o.name], [], jobPlace(g, o), 'work');
+    if (r.rumor)
+        startRumor(g, w, r.rumor, jobPlace(g, o), { you: true, id: `work:${o.id}:${r.rumor.slice(0, 24)}` }); // (E31) it goes round from work
     return out;
 }
 // Staying longer: the hours pass, paid as overtime.

@@ -6,7 +6,7 @@
 // (`audience`, E23) draws people one by one, for a few hours (sim/dayplan.ts), and may give someone a part in it.
 import { nowAbs, changes, adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
-import { weatherOn } from './weather.js';
+import { worldWeather } from './weather.js';
 import { note } from './facts.js';
 import { onHour, onDay } from './hooks.js';
 import { levelOf } from './hobbies.js';
@@ -45,7 +45,7 @@ function dayEvents(g, w, day) {
     const wd = (day - 1) % 7, week = Math.floor((day - 1) / 7);
     return w.cityEvents.filter(e => (e.weekday === wd || !!e.weekdays?.includes(wd)) && w.places.some(p => p.id === e.place) && week % Math.max(1, e.every ?? 1) === (e.week ?? 0) % Math.max(1, e.every ?? 1)
         && inSeason(g, e, day) && (!e.adult || adult(g)) && (!w.places.find(p => p.id === e.place)?.adult || adult(g)))
-        .map(e => { const from = day * 1440 + Math.round((e.from ?? 18) * 60); return { key: `${e.id}@${day}`, ev: e, day, from, to: from + Math.round((e.hours ?? 3) * 60), off: !!e.outdoor && weatherOn(g.world, day).rain }; });
+        .map(e => { const from = day * 1440 + Math.round((e.from ?? 18) * 60); return { key: `${e.id}@${day}`, ev: e, day, from, to: from + Math.round((e.hours ?? 3) * 60), off: !!e.outdoor && worldWeather(g, w, day).rain }; });
 }
 // What is on right now (or at `at`), anywhere or at one place.
 export function liveEvents(g, w, at = nowAbs(g)) {

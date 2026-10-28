@@ -1,7 +1,8 @@
 import { systemOn } from '../core/world.js';
 import { onDay, decayMods } from './hooks.js';
 import { regionOf } from './worldstate.js';
-import { seasonOf } from './time.js';
+import { seasonDays, SEASONS } from './time.js';
+import { skyOn } from './weather.js';
 import { isRpg, sheetOf, focusMax } from './rpg.js';
 import { addStatus } from './needs.js';
 import { afterFight, closedByEvents } from './hooks.js';
@@ -41,8 +42,10 @@ export function hazardIn(g, w, region, day = g.day) {
     if (!skiesOn(w))
         return null;
     const c = climateOf(w, region);
-    const season = seasonOf(g).id;
-    return (w.skies?.hazards ?? []).find(h => h.climate === c && (!h.season || h.season === season) && H(`${g.world}|${region}|${h.id}|${day}`) < h.chance) ?? null;
+    const season = SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].id;
+    let sky;
+    const weatherOk = (h) => !h.weather?.length || h.weather.includes(sky ??= skyOn(g, w, region, day).id);
+    return (w.skies?.hazards ?? []).find(h => h.climate === c && (!h.season || h.season === season) && weatherOk(h) && H(`${g.world}|${region}|${h.id}|${day}`) < h.chance) ?? null;
 }
 export const hazardHere = (g, w) => hazardIn(g, w, regionOf(g, w, g.player.loc));
 decayMods.push((g, w, status) => hazardHere(g, w)?.drain?.[status] ?? 1);

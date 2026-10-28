@@ -1,5 +1,8 @@
 export const onHour = [];
 export const onDay = [];
+// After anything changed (the prompt is refreshed: arriving somewhere, a click, the clock): the world's stories and
+// threads look at the scene (sim/stories.ts, sim/threads.ts).
+export const onLook = [];
 // After you do an action (habits, pets…).
 export const onAction = [];
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.
