@@ -6,21 +6,26 @@
 import { hobbyFits, hobbyNeed, levelOf, trainSkill, skillName } from './hobbies.js';
 import { addRep } from './standing.js';
 import { lex } from '../core/lexicon.js';
-import { bump, bondOf } from './social.js';
+import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } from './skills.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
-import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult } from '../core/world.js';
+import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult, type When } from '../core/world.js';
 import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
-import { onHour, onDay } from './hooks.js';
-import { whenHolds, personNamed } from './when.js';
-import { presentAt } from './people.js';
+import { onHour, onDay, onLook } from './hooks.js';
+import { queueMoment } from './moments.js';
+import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
+import { festivalsOn } from './festivals.js';
+import { openAt } from './daynight.js';
+import { whenHolds, personNamed, parseWhen, favorOwed } from './when.js';
+import { callInFavor } from './stories.js';
+import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
@@ -38,6 +43,8 @@ export interface JobState {
     perf?: number; since?: number; shift?: string; worked?: number[]; off?: Record<string, 'vacation' | 'sick'>;
     vac?: number; vacAt?: number; sickAt?: number; checked?: number; warn?: number; told?: number; bonus?: number; extraDay?: number; toldBranch?: number;
     event?: { id: string; day: number };
+    /** (E10) after-work drinks you were asked to (see Drinks) */
+    drinks?: Drinks;
 }
 // The job with what older code (a new game's job, "Play as") may not have set yet.
 function jobOf(g: Save): JobState | null {
@@ -191,12 +198,13 @@ function nightMinutes(start: number, minutes: number) {
 
 /* ---------- a good word from someone high up (a referral) ---------- */
 
-// Someone you know who holds a high rank (3 or more) at their job can recommend you there, if they like you enough.
+// Someone you know who holds a high rank (3 or more) at their job can recommend you there, if they like you enough, or
+// if they owe you a favor (a street story's): then they say yes, and the favor is spent.
 export const REFER_RANK = 2, REFER_BOND = 40;
 export function canRefer(g: Save, w: WorldDef, avatar: string): Occupation | null {
     const r = g.cast[avatar]; const o = r && jobDef(w, r.occupation);
     if (!r || !o || !r.met || !systemOn(w, 'jobs') || g.player.job?.id === o.id || o.hireable === false) return null;
-    if (npcRank(g, avatar) < REFER_RANK || bondOf(g, avatar) < REFER_BOND) return null;
+    if (npcRank(g, avatar) < REFER_RANK || (bondOf(g, avatar) < REFER_BOND && !favorOwed(g, avatar))) return null;
     return o;
 }
 const asked = (g: Save) => (((g as any).living ??= {}).refAsked ??= {}) as Record<string, number>;
@@ -211,7 +219,9 @@ export function askReferral(g: Save, w: WorldDef, avatar: string): { ok: boolean
     if (askedThisWeek(g, avatar)) return { ok: false, text: `You already asked ${r.name} this week.` };
     asked(g)[avatar] = g.day;
     const chance = 0.35 + bondOf(g, avatar) / 200 + approvalOf(g, avatar) / 200;
-    if (Math.random() >= chance) { note(g, '{u} asked {0} for a good word at {1}; {0} could not promise anything.', [r.name, o.name], [avatar], g.player.loc, 'work'); return { ok: false, text: `${r.name} would rather not vouch for anyone at ${o.name} right now.` }; }
+    const no = bondOf(g, avatar) < REFER_BOND || Math.random() >= chance;
+    if (no && favorOwed(g, avatar) > 0) { callInFavor(g, avatar); note(g, '{u} called in the favor {0} owed them.', [r.name], [avatar], g.player.loc, 'work'); }
+    else if (no) { note(g, '{u} asked {0} for a good word at {1}; {0} could not promise anything.', [r.name, o.name], [avatar], g.player.loc, 'work'); return { ok: false, text: `${r.name} would rather not vouch for anyone at ${o.name} right now.` }; }
     (g as any).referral = { job: o.id, avatar, until: g.day + 14 };
     note(g, '{0} agreed to put in a good word for {u} at {1}.', [r.name, o.name], [avatar], g.player.loc, 'work');
     return { ok: true, text: `${r.name} will put in a good word for you at ${o.name}: apply within two weeks and you are in (if you have the courses it asks for).` };
@@ -223,14 +233,38 @@ export { career, type Career } from '../core/world.js';
 const jobPath = (g: Save) => g.player.job?.path ?? [];
 // Your career in this job (for someone else's: a path picked for them, the same every time).
 export const careerOf = (g: Save, o: Occupation) => career(o, g.player.job?.id === o.id ? jobPath(g) : []);
-export function npcCareer(o: Occupation, avatar: string): Career {
-    const path: string[] = [];
-    for (let n = 0; n < 4; n++) {
+// With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`.
+export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
+    const path: string[] = [...((g && npcPath(g, avatar, o)) ?? [])];
+    for (let n = path.length; n < 4; n++) {
         const c = career(o, path);
         if (!c.open) return c;
         path.push(c.open.options[H(`${avatar}|${o.id}|${n}`) % c.open.options.length].id);
     }
     return career(o, path);
+}
+/** The path the save keeps for one of the world's people in this job (null: none, the picked one holds). */
+export function npcPath(g: Save, avatar: string, o: Occupation): string[] | null {
+    const p = (g as any).living?.paths?.[avatar] as { job: string; path: string[] } | undefined;
+    return p && p.job === o.id ? p.path : null;
+}
+export function setNpcPath(g: Save, avatar: string, o: Occupation, path: string[]) { (((g as any).living ??= {}).paths ??= {})[avatar] = { job: o.id, path }; }
+/** The path through a job's branches that reaches a rank of this name (the shortest), with its index; null when no
+ *  path does. */
+export function pathTo(o: Occupation, name: string): { path: string[]; rank: number } | null {
+    const want = name.trim().toLowerCase();
+    let paths: string[][] = [[]];
+    for (let depth = 0; depth < 5 && paths.length; depth++) {
+        const next: string[][] = [];
+        for (const p of paths) {
+            const c = career(o, p);
+            const i = c.ranks.findIndex(r => r.name.trim().toLowerCase() === want);
+            if (i >= 0) return { path: p, rank: i };
+            for (const x of c.open?.options ?? []) next.push([...p, x.id]);
+        }
+        paths = next;
+    }
+    return null;
 }
 // The whole career from a path: the paths not chosen yet taken as their first option (what the top is measured on).
 function fullCareer(o: Occupation, path: string[]): Career {
@@ -277,6 +311,18 @@ export function rankDays(g: Save, w: WorldDef, o: Occupation, rank: number, path
 // What a promotion asks of the performance, unless the rank says otherwise.
 export const PROMO_PERF = 60;
 export const perfOf = (g: Save) => Math.round(jobOf(g)?.perf ?? 50);
+/** The performance a rank asks for: `needs.performance`, or `perf` in its `when` ("a high performance": `perf: 80`),
+ *  the higher of them, else the usual 60. */
+export function perfWanted(r: Rank): number {
+    const said = parseWhen(r.when).conds.filter(c => c.key === 'perf' && !c.not).map(c => Number(c.values[0]));
+    return Math.max(r.needs?.performance ?? (said.length ? 0 : PROMO_PERF), ...said);
+}
+// A rank's condition without its `perf` parts (they're asked as the performance, and said as "performance 80").
+function whenBesidesPerf(when: When | undefined): When | undefined {
+    if (typeof when !== 'string') return when;
+    const rest = when.split(';').filter(p => !/^\s*`?perf\s*:/i.test(p)).join(';').trim();
+    return rest || undefined;
+}
 /** What the next promotion asks for, and where you stand: shifts in the rank (fewer with a high performance: played
  *  well, a full week of shifts is a week), the time in the rank (overtime can shorten it by half at most), the
  *  performance, skill levels, one of some traits, a course, a condition. null at the top, or with a path to choose. */
@@ -285,7 +331,7 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     const j = jobOf(g); const next = nextRankOf(g, o);
     if (!j || j.id !== o.id || !next || pendingBranch(g, o)) return null;
     const d = rankDays(g, w, o, j.rank);
-    const perf = perfOf(g), want = next.needs?.performance ?? PROMO_PERF;
+    const perf = perfOf(g), want = perfWanted(next);
     const shifts = (d * daysAWeek(g, w, o)) / 7 * (1.3 - (0.3 * perf) / 100);
     const days = d * 0.5, inRank = (nowAbs(g) - (j.since ?? nowAbs(g))) / 1440;
     const skills = Object.entries(next.needs ?? {}).filter(([id]) => id !== 'performance').map(([id, need]) => ({ id, name: skillName(w, id), need, have: levelOf(g, id) }));
@@ -297,7 +343,8 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     for (const s of skills) if (s.have < s.need) missing.push(`${s.name} ${s.need}`);
     if (traits.length && !traits.some(t => traitsOf(g).includes(t))) missing.push(traits.join(' or '));
     if (next.course && courseOf(w, next.course) && !hasCourse(g, next.course)) missing.push(courseOf(w, next.course)!.name);
-    const when = next.when ? whenHolds(g, w, next.when, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
+    const rest = whenBesidesPerf(next.when);
+    const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
     if (when === false) missing.push('something more');
     return { rank: next, shifts, have: j.shifts, days, inRank, perf: want, skills, traits, course: next.course, when, ready: !missing.length, missing };
 }
@@ -462,6 +509,7 @@ export function workShift(g: Save, w: WorldDef, mode: WorkMode = 'normal', hours
     }
     out.push(...tryPromote(g, w, o));
     if (pendingBranch(g, o) && !j.toldBranch) { j.toldBranch = j.rank; out.push(lex(w, 'choosePath', o.name)); }
+    if (s) out.push(...askForDrinks(g, w, o, s.start, mates));
     return out;
 }
 // A promotion when everything it asks for is there (what's left over of the shifts counts toward the next rank).
@@ -510,15 +558,25 @@ export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random):
     if (!j || !o || !p || !pick) return [];
     delete j.event;
     const c = pick.c, out: string[] = [];
-    let res: WorkResult = c;
+    let res: WorkResult = c, ok: boolean | null = null;
     if (c.roll) {
         const d20 = 1 + Math.floor(rnd() * 20), bonus = c.roll.skill ? Math.floor(levelOf(g, c.roll.skill) / 2) : 0;
-        const ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
+        ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
         out.push(`🎲 ${d20}${bonus ? ` + ${bonus}` : ''} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok) res = c.fail ?? { text: 'It did not work out.' };
     }
     out.push(...applyResult(g, w, o, res, workRules(g, w).gentle));
+    out.push(...choicePractice(g, w, c.roll?.skill, ok, res.trains));
     if (p.ev.id === OVERTIME_ASK.id && i === 0) out.push(...overtimeHours(g, w, o, 2));
+    return out;
+}
+/** Practice from a choice (at work, in a street story): trying a roll trains its skill (more when it works), and a
+ *  result's `trains` trains that one. Returns the level-up lines. */
+export const CHOICE_PRACTICE = { worked: 6, failed: 3, trains: 5 };
+export function choicePractice(g: Save, w: WorldDef, rolled: string | undefined, ok: boolean | null, trains?: string): string[] {
+    const out: string[] = [];
+    if (rolled && ok !== null) out.push(...trainSkill(g, w, rolled, ok ? CHOICE_PRACTICE.worked : CHOICE_PRACTICE.failed));
+    if (trains) out.push(...trainSkill(g, w, trains, CHOICE_PRACTICE.trains));
     return out;
 }
 function applyResult(g: Save, w: WorldDef, o: Occupation, r: WorkResult, gentle: boolean): string[] {
@@ -572,6 +630,15 @@ export function sickNo(g: Save, w: WorldDef): string {
     if (rule === 'ill' && !ill) return 'You are not ill enough to call in sick.';
     if (rule === 'sometimes' && !ill && g.day - (j.sickAt ?? -99) < 14) return 'You called in sick not long ago.';
     return '';
+}
+/** Kept off work until `until` (absolute minutes: a night in hospital): every shift not yet over that starts before then
+ *  is a sick day, whatever the rules on calling in sick. */
+export function sickLeave(g: Save, w: WorldDef, until: number) {
+    const j = jobOf(g); const o = jobDef(w, j?.id); if (!j || !o) return;
+    for (let d = g.day - 1; d * 1440 < until; d++) {
+        const s = shiftOn(g, w, o, d);
+        if (s && s.start < until && s.end > nowAbs(g) && !worked(j, d) && !offOn(j, d)) (j.off ??= {})[d] = 'sick';
+    }
 }
 export function callSick(g: Save, w: WorldDef): string {
     const j = jobOf(g); const o = jobDef(w, j?.id); if (!j || !o) return '';
@@ -634,16 +701,115 @@ export function workDay(g: Save, w: WorldDef): string[] {
 onHour.push(workHour);
 onDay.push(workDay);
 
+/* ---------- after-work drinks (E10) ---------- */
+
+// After a shift, the colleagues who worked that day may take you along for drinks: to their standing appointment right
+// after work (Reiko's team at the izakaya on Thursdays), or now and then (more on Fridays, nearly always on a year-end
+// party's day there) to one of the places the job's people drink (`drinks`). The most senior colleague you've met asks,
+// with the usual invitation card; once you accept, the others who worked that day come along if they're free. Being
+// there brings you closer to them, and a senior there notices. Jobs and plans systems on; a job without `drinks` and
+// colleagues without a standing appointment after work: nothing (Porto Alto).
+/** After-work drinks you were asked to: the day, where, when, who asked (the most senior colleague you've met) and the
+ *  colleagues who worked that day; `went` once you were there with them, `brought` once they came. */
+export interface Drinks { day: number; place: string; from: number; to: number; host: string; who: string[]; went?: boolean; brought?: boolean }
+export const DRINKS = { chance: 0.25, friday: 0.5, party: 0.9, minutes: 150 };
+const goneAway = (r: Resident) => !!(r as any).gone;
+// The colleagues who worked today: on shift with you, or with a shift today that overlapped yours.
+function workedToday(g: Save, w: WorldDef, o: Occupation, start: number, mates: Resident[]): Resident[] {
+    const out = new Set(mates), now = nowAbs(g);
+    for (const r of colleaguesOf(g, w, o)) for (const d of [g.day - 1, g.day]) { const s = npcShiftOn(g, w, r, d); if (s && s.from < now && s.to > start) out.add(r); }
+    const self = (g as any).swap?.avatar;
+    return [...out].filter(r => !goneAway(r) && r.avatar !== self);
+}
+const halfHour = (t: number) => t + ((30 - (t % 30)) % 30);
+// A hash spread evenly over [0, 1) (FNV-1a of strings that differ in a digit or two clusters).
+const mix = (h: number) => { h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+/** Where and when drinks after this shift would be (null: none today): a standing appointment of colleagues in the
+ *  next three hours away from work (with another of them, or at one of the job's drinking places), else (by the day's
+ *  dice) one of the job's drinking places open then. */
+export function drinksPlan(g: Save, w: WorldDef, o: Occupation, workers: Resident[]): { place: string; from: number; host?: Resident } | null {
+    const now = nowAbs(g), work = jobPlace(g, o);
+    for (let at = halfHour(now); at <= now + 180; at += 30) for (const r of workers) {
+        const s = slotAt(g, w, r, at);
+        const team = s?.kind === 'ritual' && (s.with.some(a => workers.some(x => x.avatar === a)) || !!o.drinks?.includes(s.place));
+        if (s && team && s.place !== work && !s.place.startsWith('home:') && placeOk(g, w, s.place)) return { place: s.place, from: Math.max(at, s.from), host: r };
+    }
+    const places = (o.drinks ?? []).filter(id => id !== work && placeOk(g, w, id));
+    if (!places.length) return null;
+    const from = halfHour(now + 30), wd = wdOf(g.day);
+    const party = festivalsOn(g, w).some(f => f.custom?.kind === 'group' && !!f.place && places.includes(f.place));
+    const chance = party ? DRINKS.party : wd === 4 ? DRINKS.friday : DRINKS.chance;
+    if (mix(H(`${g.world}|${g.day}|drinks|${o.id}`)) >= chance) return null;
+    const open = places.filter(id => openAt(g, w, id, from) && openAt(g, w, id, from + 90));
+    return open.length ? { place: open[H(`${g.world}|${g.day}|drinksat|${o.id}`) % open.length], from } : null;
+}
+// At the end of a shift: an invitation from the most senior colleague you've met who is free then.
+function askForDrinks(g: Save, w: WorldDef, o: Occupation, start: number, mates: Resident[]): string[] {
+    const j = jobOf(g), s = social(g) as any;
+    if (!j || !systemOn(w, 'jobs') || !systemOn(w, 'plans') || isScenario(w) || offScreen(w, o) || s.invite || j.drinks?.day === g.day) return [];
+    const workers = workedToday(g, w, o, start, mates);
+    if (!workers.length) return [];
+    const plan = drinksPlan(g, w, o, workers);
+    if (!plan) return [];
+    const free = workers.filter(r => !workingAt(g, w, r, plan.from));
+    const host = (plan.host?.met && free.includes(plan.host) ? plan.host : null) ?? free.filter(r => r.met).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar))[0];
+    if (!host) return [];
+    j.drinks = { day: g.day, place: plan.place, from: plan.from, to: plan.from + DRINKS.minutes, host: host.avatar, who: free.map(r => r.avatar) };
+    s.invite = { avatar: host.avatar, place: plan.place, from: plan.from, kind: 'hangout' };
+    const where = placeOf(g, w, plan.place)?.name ?? 'a bar nearby', at = hm(plan.from % 1440);
+    const others = free.filter(r => r !== host).map(r => r.name);
+    (s.threads[host.avatar] ??= []).push({ me: false, text: `Drinks after work? ${where}, ${at}.${others.length ? ` ${others.join(', ')} ${others.length > 1 ? 'are' : 'is'} coming.` : ''}`, at: nowAbs(g) });
+    s.unread[host.avatar] = (s.unread[host.avatar] ?? 0) + 1;
+    if (presentAt(g, w, g.player.loc).includes(host)) queueMoment(g, { who: host.avatar, kind: 'custom', tier: `drinks:${g.day}`, text: `As the shift ends, ${host.name} asks {{user}} to come along for drinks after work at ${where} (${at})${others.length ? `, with ${names(others)}` : ''}, in this scene.`, until: g.day });
+    return [`${host.name} asks if you'd like to come for drinks after work: ${where}, ${at}.`];
+}
+const names = (list: string[]) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
+/** Drinks you said yes to: the colleagues come along when it starts, and once you're there with them it counts (closer
+ *  to each, a senior notices, a fact, and a moment for the scene with who is senior to whom). After every change and
+ *  every hour. */
+export function drinksTick(g: Save, w: WorldDef): string[] {
+    const j = jobOf(g), d = j?.drinks, o = jobDef(w, j?.id);
+    if (!j || !d || !o || !systemOn(w, 'jobs')) return [];
+    const now = nowAbs(g);
+    if (now >= d.to || now < d.from) return [];
+    const plan = social(g).appts.find(a => a.avatar === d.host && a.place === d.place && a.from === d.from && (a.state === 'set' || a.state === 'met'));
+    if (!plan) return [];
+    if (!d.brought) {
+        d.brought = true;
+        for (const a of d.who) { const r = g.cast[a]; if (a !== d.host && r && !goneAway(r) && !workingAt(g, w, r, now)) bringTo(g, a, d.place, d.to, 'is out for drinks after work with their colleagues'); }
+    }
+    if (d.went || g.player.loc !== d.place) return [];
+    const here = presentAt(g, w, d.place).filter(r => d.who.includes(r.avatar) || r.avatar === d.host);
+    if (!here.length) return [];
+    d.went = true;
+    for (const r of here) if (r.avatar !== d.host) bump(g, r.avatar, 2);   // (the one who asked: the plan kept)
+    const seniors = seniorsOf(g, w, o, here), juniors = juniorsOf(g, w, o, here);
+    const out: string[] = [];
+    if (seniors.length) out.push(...addPerf(g, w, 2));
+    const where = placeOf(g, w, d.place)?.name ?? d.place;
+    note(g, '{u} went for drinks after work with {0} at {1}.', [names(here.map(r => r.name)), where], here.map(r => r.avatar), d.place, 'work');
+    const host = g.cast[d.host];
+    if (host) queueMoment(g, { who: d.host, kind: 'custom', tier: `drinks:at:${g.day}`, until: g.day,
+        text: `Drinks after work with colleagues: a first round together and a toast; the juniors pour for the seniors and keep the glasses full.${seniors.length ? ` ${names(seniors.map(r => r.name))} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} at work.` : ''}${juniors.length ? ` {{user}} is senior to ${names(juniors.map(r => r.name))}.` : ''} The talk drifts from work to life.` });
+    return out;
+}
+/** Juniors (kōhai): colleagues with your job a rank or more below you, among these people. */
+export const juniorsOf = (g: Save, w: WorldDef, o: Occupation, among: Resident[]) => among.filter(r => r.occupation === o.id && npcRank(g, r.avatar) < (jobOf(g)?.rank ?? 0));
+onHour.push(drinksTick);
+onLook.push((g, w) => { drinksTick(g, w); });
+
 /* ---------- for the AI ---------- */
 
-/** Your job, rank and shift, and which colleagues here are your seniors (J7). */
+/** Your job, rank and shift, which colleagues here are your seniors (J7), and, in a world whose people address juniors
+ *  at work in a way of their own (`address.junior`), your juniors (E10). */
 export function workLine(g: Save, w: WorldDef, present: Resident[]): string {
     const j = jobOf(g); const o = jobDef(w, j?.id);
     if (!j || !o || !systemOn(w, 'jobs') || isScenario(w)) return '';
     const c = careerOf(g, o);
     const seniors = seniorsOf(g, w, o, present);
+    const juniors = w.address?.junior ? juniorsOf(g, w, o, present) : [];
     const boss = bossOf(g, w, o);
-    return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}`;
+    return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}${juniors.length ? ` ${juniors.map(r => r.name).join(' and ')} ${juniors.length > 1 ? 'are' : 'is'} junior to {{user}} (kōhai).` : ''}`;
 }
 
 /* ---------- moving ---------- */

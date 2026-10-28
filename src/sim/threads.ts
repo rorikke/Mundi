@@ -8,6 +8,9 @@
 // (they don't hide it any more). The player learns a thread when its owner trusts them enough while they're together
 // (`reveal`, by default a good friend), from a street story's choice, or by overhearing a rumor one of its stages
 // started. It all belongs to the living world (`living`); nothing moves with it off.
+// An ending may take its person off the world's maps (`leaves`: Chloe goes back to Manchester): they stay in the save
+// (their card, your feelings, their messages: they can still text you) but are never anywhere again, and the plans,
+// company and standing appointments they had go with them.
 import { type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type Thread, type ThreadStage } from '../core/world.js';
 import { onDay, onLook } from './hooks.js';
@@ -95,8 +98,26 @@ function endThread(g: Save, w: WorldDef, t: Thread, r: Resident): string[] {
     }
     note(g, e.text.replace(/\{\{user\}\}/g, '{u}'), [], [r.avatar], `home:${r.avatar}`, 'thread');
     if (e.fact) note(g, e.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
+    if (e.leaves) return leaveMap(g, r, e.text);
     return [];
 }
+/** They leave the world's maps for good (the save keeps them): no more plans, company, invitations or placements. */
+export function leaveMap(g: Save, r: Resident, why: string): string[] {
+    const self = (g as any).swap?.avatar;
+    if (r.avatar === self || (r as any).gone) return [];   // (not the one you're playing as)
+    (r as any).gone = { day: g.day, why };
+    const s = (g as any).social;
+    if (s) {
+        s.with = (s.with ?? []).filter((c: { avatar: string }) => c.avatar !== r.avatar);
+        for (const a of s.appts ?? []) if (a.avatar === r.avatar && a.state === 'set') a.state = 'cancelled';
+        if (s.invite?.avatar === r.avatar) s.invite = null;
+        if (s.solo === r.avatar) s.solo = '';
+    }
+    if ((g as any).brought) delete (g as any).brought[r.avatar];
+    return r.met ? [`${r.name}: ${why.replace(/\{\{user\}\}/g, 'you')}`] : [];
+}
+/** Has someone left the world's maps? */
+export const goneFromMap = (r: Resident | undefined) => !!(r as any)?.gone;
 /** Moves every thread on (once a day; also on first sight). */
 export function advanceThreads(g: Save, w: WorldDef): string[] {
     const list = systemOn(w, 'living') ? threadsOf(g, w) : [];

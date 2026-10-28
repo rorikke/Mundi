@@ -27,6 +27,8 @@ export const onPhone = () => !!document.getElementById(ROOT_ID)?.dataset.mobile;
 export interface UiPrefs {
     theme: 'dark'; scale: number; sceneText: number;
     sound: boolean; volume: number; music: boolean; musicVolume: number;
+    /** (E12) place sounds (on unless false) and their volume, % of the interface volume (default 60) */
+    ambience?: boolean; ambienceVolume?: number;
     hudAutoHide: boolean; dialogOpacity: number; accent: string;
     layout: 'vn' | 'classic' | 'cards'; vn: 'box' | 'nobox' | 'subtitle';   // how the scene shows the conversation
     dialogPos?: 'center' | 'left'; spriteSize?: number; spriteY?: number; spriteW?: number; cardMode?: boolean;

@@ -799,12 +799,14 @@
    "max": 100,
    "hud": true,
    "zero": {
-    "text": "Exhausted, you fall asleep where you are and wake up at home.",
-    "place": "home",
-    "restore": 40,
     "crisis": {
      "after": 0,
-     "text": "",
+     "place": "mg_hospital",
+     "stay": true,
+     "cost": 8000,
+     "restore": 15,
+     "mood": -10,
+     "text": "You collapse from exhaustion. You come to in a bed at Seiwa General Hospital with a drip in your arm, and the nurse says they are keeping you overnight. The bill is {cost}.",
      "seen": "{u} collapsed from exhaustion at {0}."
     }
    }
@@ -18572,7 +18574,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crossing",
+    "traffic"
+   ]
   },
   {
    "id": "sb_centergai",
@@ -18590,7 +18596,11 @@
    "closed": [],
    "bg": "../modern/bg/cafe.jpg",
    "x": 30,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "sb_pachinko",
@@ -18614,7 +18624,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 50,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "pachinko"
+   ]
   },
   {
    "id": "sb_karaoke",
@@ -18639,7 +18652,10 @@
    "bg": "../modern/bg/park.jpg",
    "x": 70,
    "y": 12,
-   "private": true
+   "private": true,
+   "sound": [
+    "karaoke"
+   ]
   },
   {
    "id": "sb_startup",
@@ -18659,7 +18675,10 @@
    "generic": false,
    "bg": "../modern/bg/finance.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "sb_eikaiwa",
@@ -18682,7 +18701,10 @@
    "generic": false,
    "bg": "../modern/bg/finance.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "sb_takeshita",
@@ -18704,7 +18726,10 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 30,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "sb_omotesando",
@@ -18725,7 +18750,11 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 50,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "sb_meiji",
@@ -18756,7 +18785,12 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 70,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "shrine",
+    "birds",
+    "cicadas"
+   ]
   },
   {
    "id": "sb_yoyogi",
@@ -18788,7 +18822,12 @@
    },
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "birds",
+    "cicadas",
+    "crowd"
+   ]
   },
   {
    "id": "sb_lovehotel",
@@ -18811,7 +18850,10 @@
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
    "y": 72,
-   "private": true
+   "private": true,
+   "sound": [
+    "water"
+   ]
   },
   {
    "id": "sj_station",
@@ -18828,7 +18870,10 @@
    "generic": false,
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "station"
+   ]
   },
   {
    "id": "sj_kabukicho",
@@ -18845,7 +18890,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "sj_hostclub",
@@ -18872,7 +18921,10 @@
    "adult": true,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "sj_hostess",
@@ -18898,7 +18950,10 @@
    "adult": true,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "sj_omoide",
@@ -18924,7 +18979,12 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "izakaya",
+    "kitchen",
+    "train"
+   ]
   },
   {
    "id": "sj_goldengai",
@@ -18949,7 +19009,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar",
+    "karaoke"
+   ]
   },
   {
    "id": "sj_nichome",
@@ -18983,7 +19047,10 @@
      19,
      5
     ]
-   }
+   },
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "sj_tocho",
@@ -19007,7 +19074,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "sj_gyoen",
@@ -19054,7 +19124,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "birds",
+    "cicadas"
+   ]
   },
   {
    "id": "sj_capsule",
@@ -19082,7 +19156,10 @@
    "generic": false,
    "bg": "../modern/bg/civic.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ws_shimokita",
@@ -19098,7 +19175,10 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ws_vintage",
@@ -19124,7 +19204,10 @@
    "generic": false,
    "bg": "../modern/bg/mall.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ws_livehouse",
@@ -19151,7 +19234,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "ws_theater",
@@ -19175,7 +19261,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ws_curry",
@@ -19201,7 +19290,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "kitchen",
+    "crowd"
+   ]
   },
   {
    "id": "ws_kissaten",
@@ -19227,7 +19320,10 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "ws_sento",
@@ -19256,7 +19352,10 @@
    "generic": false,
    "bg": "../modern/bg/civic.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "water"
+   ]
   },
   {
    "id": "ws_koenji",
@@ -19272,7 +19371,11 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd",
+    "market"
+   ]
   },
   {
    "id": "ws_konbini",
@@ -19289,7 +19392,10 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ws_studio",
@@ -19318,7 +19424,10 @@
    },
    "bg": "../modern/bg/finance.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_electric",
@@ -19338,7 +19447,12 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic",
+    "arcade"
+   ]
   },
   {
    "id": "ak_maid",
@@ -19363,7 +19477,10 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "ak_arcade",
@@ -19387,7 +19504,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "arcade"
+   ]
   },
   {
    "id": "ak_idol",
@@ -19409,7 +19529,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "ak_gamedev",
@@ -19430,7 +19553,10 @@
    "generic": false,
    "bg": "../modern/bg/finance.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_mangacafe",
@@ -19451,7 +19577,10 @@
    },
    "bg": "../modern/bg/civic.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_myojin",
@@ -19466,7 +19595,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "shrine",
+    "birds"
+   ]
   },
   {
    "id": "ak_jinbocho",
@@ -19488,7 +19621,10 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "traffic"
+   ]
   },
   {
    "id": "ak_juku",
@@ -19509,7 +19645,10 @@
    "generic": false,
    "bg": "../modern/bg/campus.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ak_university",
@@ -19529,7 +19668,11 @@
    "generic": false,
    "bg": "../modern/bg/campus.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "crowd",
+    "birds"
+   ]
   },
   {
    "id": "ot_sensoji",
@@ -19545,7 +19688,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "temple",
+    "crowd"
+   ]
   },
   {
    "id": "ot_sumida",
@@ -19561,7 +19708,12 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "water",
+    "wind",
+    "cicadas"
+   ]
   },
   {
    "id": "ot_izakaya",
@@ -19582,7 +19734,10 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "izakaya"
+   ]
   },
   {
    "id": "ot_ueno",
@@ -19600,7 +19755,12 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "birds",
+    "cicadas",
+    "crowd"
+   ]
   },
   {
    "id": "ot_museum",
@@ -19627,7 +19787,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "ot_ameyoko",
@@ -19649,7 +19812,11 @@
    "generic": false,
    "bg": "../modern/bg/mall.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "market",
+    "train"
+   ]
   },
   {
    "id": "ot_yanaka",
@@ -19665,7 +19832,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "birds",
+    "wind"
+   ]
   },
   {
    "id": "ot_ramen",
@@ -19686,7 +19857,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "kitchen",
+    "crowd"
+   ]
   },
   {
    "id": "ot_shrine",
@@ -19708,7 +19883,11 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "shrine",
+    "birds"
+   ]
   },
   {
    "id": "mg_station",
@@ -19727,7 +19906,10 @@
    ],
    "bg": "../modern/bg/civic.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "station"
+   ]
   },
   {
    "id": "mg_tower",
@@ -19745,7 +19927,10 @@
    ],
    "bg": "../modern/bg/finance.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "mg_depachika",
@@ -19772,7 +19957,10 @@
    "generic": false,
    "bg": "../modern/bg/mall.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "market"
+   ]
   },
   {
    "id": "mg_chuodori",
@@ -19794,7 +19982,11 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "mg_izakaya",
@@ -19829,7 +20021,11 @@
      16,
      23
     ]
-   }
+   },
+   "sound": [
+    "izakaya",
+    "train"
+   ]
   },
   {
    "id": "mg_palace",
@@ -19844,7 +20040,12 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "birds",
+    "wind",
+    "cicadas"
+   ]
   },
   {
    "id": "mg_kabuki",
@@ -19870,7 +20071,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "mg_tsukiji",
@@ -19898,7 +20102,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "market",
+    "kitchen"
+   ]
   },
   {
    "id": "mg_hospital",
@@ -19914,7 +20122,10 @@
    "closed": [],
    "bg": "../modern/bg/hospital.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "hospital"
+   ]
   },
   {
    "id": "bay_beach",
@@ -19928,7 +20139,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "wind"
+   ]
   },
   {
    "id": "bay_bridge",
@@ -19961,6 +20176,11 @@
    "y": 12,
    "closedIn": [
     "storm"
+   ],
+   "sound": [
+    "wind",
+    "traffic",
+    "waves"
    ]
   },
   {
@@ -19987,7 +20207,10 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "bay_art",
@@ -20011,7 +20234,10 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "bay_expo",
@@ -20038,7 +20264,10 @@
    ],
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "bay_market",
@@ -20061,7 +20290,10 @@
    ],
    "bg": "../modern/bg/finance.jpg",
    "x": 37,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "market"
+   ]
   },
   {
    "id": "bay_tv",
@@ -20084,7 +20316,10 @@
    ],
    "bg": "../modern/bg/finance.jpg",
    "x": 63,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "office"
+   ]
   },
   {
    "id": "rp_crossing",
@@ -20101,7 +20336,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "traffic"
+   ]
   },
   {
    "id": "rp_club",
@@ -20141,7 +20380,10 @@
      22,
      5
     ]
-   }
+   },
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "rp_sky",
@@ -20169,7 +20411,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "rp_tower",
@@ -20193,7 +20438,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "wind"
+   ]
   },
   {
    "id": "rp_azabu",
@@ -20219,7 +20467,10 @@
    ],
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "rp_lounge",
@@ -20258,7 +20509,10 @@
      18,
      3
     ]
-   }
+   },
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "rp_pub",
@@ -20298,7 +20552,10 @@
      12,
      24
     ]
-   }
+   },
+   "sound": [
+    "izakaya"
+   ]
   },
   {
    "id": "rp_poleclub",
@@ -20328,7 +20585,10 @@
    "adult": true,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "club"
+   ]
   },
   {
    "id": "yk_chinatown",
@@ -20350,7 +20610,11 @@
    ],
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "market",
+    "crowd"
+   ]
   },
   {
    "id": "yk_bay",
@@ -20366,7 +20630,12 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 37,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "wind",
+    "crowd"
+   ]
   },
   {
    "id": "yk_yamashita",
@@ -20381,7 +20650,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 63,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "birds"
+   ]
   },
   {
    "id": "yk_isezaki",
@@ -20398,7 +20671,10 @@
    "closed": [],
    "bg": "../modern/bg/mall.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "yk_noge",
@@ -20419,7 +20695,11 @@
    "generic": false,
    "bg": "../modern/bg/cafe.jpg",
    "x": 10,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "izakaya",
+    "kitchen"
+   ]
   },
   {
    "id": "yk_hostess",
@@ -20451,7 +20731,10 @@
    "adult": true,
    "bg": "../modern/bg/civic.jpg",
    "x": 37,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "yk_batting",
@@ -20477,7 +20760,10 @@
    ],
    "bg": "../modern/bg/gym.jpg",
    "x": 63,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "crowd"
+   ]
   },
   {
    "id": "yk_mahjong",
@@ -20506,7 +20792,10 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 42
+   "y": 42,
+   "sound": [
+    "bar"
+   ]
   },
   {
    "id": "yk_park",
@@ -20525,7 +20814,11 @@
    },
    "bg": "../modern/bg/park.jpg",
    "x": 10,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "birds",
+    "cicadas"
+   ]
   },
   {
    "id": "hk_yumoto",
@@ -20546,7 +20839,11 @@
    ],
    "bg": "../modern/bg/mall.jpg",
    "x": 10,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "crowd",
+    "water"
+   ]
   },
   {
    "id": "hk_ryokan",
@@ -20576,7 +20873,11 @@
    },
    "bg": "../modern/bg/civic.jpg",
    "x": 50,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "water",
+    "birds"
+   ]
   },
   {
    "id": "hk_ashi",
@@ -20590,7 +20891,11 @@
    "closed": [],
    "bg": "../modern/bg/park.jpg",
    "x": 90,
-   "y": 12
+   "y": 12,
+   "sound": [
+    "waves",
+    "wind"
+   ]
   },
   {
    "id": "hk_owakudani",
@@ -20626,6 +20931,9 @@
    "y": 72,
    "closedIn": [
     "gas"
+   ],
+   "sound": [
+    "wind"
    ]
   },
   {
@@ -20654,7 +20962,11 @@
    "generic": false,
    "bg": "../modern/bg/park.jpg",
    "x": 50,
-   "y": 72
+   "y": 72,
+   "sound": [
+    "birds",
+    "wind"
+   ]
   },
   {
    "id": "link_shibuya",
@@ -24409,7 +24721,8 @@
      "pay": 1650,
      "needs": {
       "fitness": 3
-     }
+     },
+     "when": "perf: 60"
     },
     {
      "name": "Area captain",
@@ -24417,8 +24730,12 @@
      "needs": {
       "fitness": 4,
       "charisma": 2
-     }
+     },
+     "when": "perf: 75"
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -24688,6 +25005,10 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai",
+    "sb_karaoke"
    ]
   },
   {
@@ -24882,6 +25203,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -25133,6 +25457,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -25282,6 +25609,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sb_centergai"
    ]
   },
   {
@@ -25509,6 +25839,10 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "rp_pub",
+    "sb_centergai"
    ]
   },
   {
@@ -26368,6 +26702,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sj_omoide"
    ]
   },
   {
@@ -26504,6 +26841,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "sj_omoide"
    ]
   },
   {
@@ -26689,6 +27029,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_koenji"
    ]
   },
   {
@@ -26917,6 +27260,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27120,6 +27466,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27413,6 +27762,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27568,6 +27920,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_koenji"
    ]
   },
   {
@@ -27735,6 +28090,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_shimokita"
    ]
   },
   {
@@ -27952,6 +28310,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ws_koenji"
    ]
   },
   {
@@ -28167,7 +28528,8 @@
        "effects": {
         "energy": -15
        },
-       "perf": 1
+       "perf": 1,
+       "trains": "gaming"
       },
       {
        "label": "Ignore it",
@@ -28204,7 +28566,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "maid",
@@ -28350,7 +28715,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "idol",
@@ -28442,7 +28810,8 @@
           "singing": 6,
           "dance": 6,
           "charisma": 5
-         }
+         },
+         "when": "perf: 80"
         },
         {
          "name": "Group captain",
@@ -28590,7 +28959,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "juku",
@@ -28745,7 +29117,10 @@
      ]
     }
    ],
-   "adult": false
+   "adult": false,
+   "drinks": [
+    "ot_izakaya"
+   ]
   },
   {
    "id": "ramen",
@@ -28942,6 +29317,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29089,6 +29467,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29284,10 +29665,14 @@
        }
       },
       {
-       "label": "Share the gate"
+       "label": "Share the gate",
+       "trains": "charisma"
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29498,6 +29883,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "ot_izakaya"
    ]
   },
   {
@@ -29908,6 +30296,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -30145,6 +30536,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -30314,10 +30708,14 @@
       },
       {
        "label": "Ask what he wants",
-       "text": "he teaches you the order of the skewers"
+       "text": "he teaches you the order of the skewers",
+       "trains": "cooking"
       }
      ]
     }
+   ],
+   "drinks": [
+    "sj_goldengai"
    ]
   },
   {
@@ -30591,6 +30989,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -30893,6 +31294,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -31060,14 +31464,16 @@
      "choices": [
       {
        "label": "Quiz her for ten minutes",
-       "when": "onShift: not Linh"
+       "when": "onShift: not Linh",
+       "trains": "japanese"
       },
       {
        "label": "Quiz her for ten minutes",
        "when": "onShift: Linh",
        "feels": {
         "Linh": 2
-       }
+       },
+       "trains": "japanese"
       },
       {
        "label": "Take her calls so she can study",
@@ -31081,6 +31487,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "mg_izakaya"
    ]
   },
   {
@@ -31280,6 +31689,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "bay_mall"
    ]
   },
   {
@@ -31528,6 +31940,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "bay_mall"
    ]
   },
   {
@@ -31605,7 +32020,8 @@
          "needs": {
           "charisma": 6,
           "logic": 5
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       },
@@ -31635,7 +32051,8 @@
          "needs": {
           "music": 8,
           "charisma": 5
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       }
@@ -31752,6 +32169,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "rp_pub"
    ]
   },
   {
@@ -31840,7 +32260,8 @@
          "needs": {
           "dance": 9,
           "charisma": 6
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       },
@@ -31864,7 +32285,8 @@
           "dance": 8,
           "charisma": 5,
           "logic": 4
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       }
@@ -32046,7 +32468,8 @@
      "needs": {
       "charisma": 4,
       "logic": 4
-     }
+     },
+     "when": "perf: 80"
     }
    ],
    "overtime": true,
@@ -32165,6 +32588,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "rp_crossing"
    ]
   },
   {
@@ -32596,6 +33022,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "yk_noge"
    ]
   },
   {
@@ -32730,6 +33159,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "yk_noge"
    ]
   },
   {
@@ -32940,6 +33372,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "yk_noge"
    ]
   },
   {
@@ -33179,6 +33614,9 @@
       }
      ]
     }
+   ],
+   "drinks": [
+    "hk_yumoto"
    ]
   },
   {
@@ -33230,7 +33668,8 @@
      "pay": 3300,
      "needs": {
       "charisma": 4
-     }
+     },
+     "when": "perf: 80"
     },
     {
      "name": "Signing-event draw",
@@ -33254,7 +33693,8 @@
          "pay": 4800,
          "needs": {
           "charisma": 6
-         }
+         },
+         "when": "perf: 80"
         },
         {
          "name": "Household name",
@@ -33570,7 +34010,7 @@
     "age": 26,
     "gender": "man",
     "occupation": "livehouse",
-    "rank": 3,
+    "rank": "Assistant booker",
     "home": "hz_sharehouse",
     "household": "sharehouse",
     "leisure": [
@@ -33721,7 +34161,8 @@
        },
        {
         "id": "leaves_tokyo",
-        "text": "She leaves Tokyo at the start of spring, and writes from Manchester."
+        "text": "She leaves Tokyo at the start of spring, and writes from Manchester.",
+        "leaves": true
        }
       ]
      }
@@ -33746,14 +34187,18 @@
       "nothing with a housemate who hasn't asked clearly"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 10,
+     "japanese": 6
+    }
    },
    {
     "name": "Haru",
     "age": 24,
     "gender": "nonbinary",
     "occupation": "animator",
-    "rank": 4,
+    "rank": "Key animator",
     "home": "hz_sharehouse",
     "household": "sharehouse",
     "leisure": [
@@ -33796,6 +34241,30 @@
        "Camille"
       ],
       "text": "is dragged to the digital art museum by Camille"
+     },
+     {
+      "place": "ws_shimokita",
+      "days": [
+       "fri"
+      ],
+      "every": 2,
+      "from": 21.5,
+      "to": 24,
+      "with": [
+       "Camille"
+      ],
+      "text": "drinks with the studio after work"
+     },
+     {
+      "place": "ws_shimokita",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 21.5,
+      "to": 24.5,
+      "with": [
+       "Camille"
+      ],
+      "text": "the studio's year-end party"
      }
     ],
     "intimate": {
@@ -33819,7 +34288,10 @@
       "no one who treats their gender as a curiosity"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 1
+    }
    },
    {
     "name": "Nanami",
@@ -34023,7 +34495,7 @@
     "age": 55,
     "gender": "man",
     "occupation": "ramen",
-    "rank": 6,
+    "rank": "Ramen name",
     "home": "hz_yanaka",
     "household": "kamei",
     "leisure": [
@@ -34065,6 +34537,31 @@
        "Kyōko"
       ],
       "text": "rings in the New Year with Kyōko at the midnight bell"
+     },
+     {
+      "place": "ot_izakaya",
+      "days": [
+       "sat"
+      ],
+      "every": 2,
+      "from": 21.5,
+      "to": 23.5,
+      "with": [
+       "Ayaka"
+      ],
+      "text": "a beer and yakitori with Ayaka after closing"
+     },
+     {
+      "place": "ot_izakaya",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 21.5,
+      "to": 24,
+      "with": [
+       "Ayaka",
+       "Yui"
+      ],
+      "text": "Kamejirō's year-end party"
      }
     ],
     "threads": [
@@ -34128,14 +34625,17 @@
       "nothing hidden, everything said plainly"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 0
+    }
    },
    {
     "name": "Ayaka",
     "age": 25,
     "gender": "woman",
     "occupation": "ramen",
-    "rank": 4,
+    "rank": "Head cook",
     "home": "hz_yanaka",
     "household": "kamei",
     "leisure": [
@@ -34292,7 +34792,7 @@
     "age": 32,
     "gender": "woman",
     "occupation": "office",
-    "rank": 5,
+    "rank": "Sales section chief",
     "home": "hz_mansion",
     "leisure": [
      "sj_goldengai",
@@ -34363,6 +34863,18 @@
        "Mei"
       ],
       "text": "drinks with her team after work"
+     },
+     {
+      "place": "mg_izakaya",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 19,
+      "to": 22,
+      "with": [
+       "Daisuke",
+       "Mei"
+      ],
+      "text": "the section's year-end party"
      }
     ],
     "threads": [
@@ -34417,7 +34929,10 @@
       "no recordings"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 5
+    }
    },
    {
     "name": "Rina",
@@ -34555,7 +35070,10 @@
       "no ghosting"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 6
+    }
    },
    {
     "name": "Daisuke",
@@ -34694,6 +35212,18 @@
       "from": 13,
       "to": 16,
       "text": "a guest slot with Hanabira Signal at a TV taping"
+     },
+     {
+      "place": "home",
+      "days": [
+       "sun"
+      ],
+      "from": 17,
+      "to": 19.5,
+      "with": [
+       "Shōta"
+      ],
+      "text": "Sunday dinner at home with her brother Shōta"
      }
     ],
     "threads": [
@@ -34810,7 +35340,7 @@
     "age": 52,
     "gender": "woman",
     "occupation": "bartender",
-    "rank": 5,
+    "rank": "Owner (\"Mama\" or \"Master\")",
     "home": "hz_studio",
     "leisure": [
      "sj_omoide",
@@ -34878,14 +35408,17 @@
       "no lies, she is honest that she is not exclusive"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 1
+    }
    },
    {
     "name": "Natsuki",
     "age": 26,
     "gender": "woman",
     "occupation": "gamedev",
-    "rank": 4,
+    "rank": "Gameplay programmer",
     "home": "hz_studio",
     "leisure": [
      "ak_arcade",
@@ -34950,6 +35483,17 @@
        "Haru"
       ],
       "text": "trades sketches over coffee"
+     },
+     {
+      "place": "ot_izakaya",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 20.5,
+      "to": 23,
+      "with": [
+       "Hannah"
+      ],
+      "text": "Mochi Byte's year-end party"
      }
     ],
     "intimate": {
@@ -34972,7 +35516,10 @@
       "no mocking her hobbies"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 3
+    }
    },
    {
     "name": "Lisa",
@@ -35037,14 +35584,17 @@
       "no recordings without consent"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 6
+    }
    },
    {
     "name": "Sayuri",
     "age": 34,
     "gender": "woman",
     "occupation": "clubmama",
-    "rank": 6,
+    "rank": "Partner",
     "home": "hz_yokohama",
     "leisure": [
      "yk_noge",
@@ -35190,7 +35740,7 @@
     "age": 27,
     "gender": "woman",
     "occupation": "ryokan",
-    "rank": 4,
+    "rank": "Head of the floor",
     "home": "hz_hakone",
     "leisure": [
      "hk_ashi",
@@ -35367,7 +35917,11 @@
       "no pressure"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 4,
+     "japanese": 9
+    }
    },
    {
     "name": "Camille",
@@ -35451,7 +36005,11 @@
       "honesty with everyone"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 7,
+     "japanese": 3
+    }
    },
    {
     "name": "Lucas",
@@ -35540,7 +36098,11 @@
       "nobody who laughs at his family search"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 7,
+     "japanese": 5
+    }
    },
    {
     "name": "Linh",
@@ -35642,14 +36204,18 @@
       "no one who pities her debt"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 6,
+     "japanese": 6
+    }
    },
    {
     "name": "Mei",
     "age": 29,
     "gender": "woman",
     "occupation": "office",
-    "rank": 4,
+    "rank": "Planner",
     "home": "hz_mansion",
     "leisure": [
      "rp_sky",
@@ -35742,7 +36308,10 @@
       "no gossip"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 9
+    }
    },
    {
     "name": "Hannah",
@@ -35821,14 +36390,18 @@
       "no pushing in public"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "languages": {
+     "english": 8,
+     "japanese": 6
+    }
    },
    {
     "name": "Jake",
     "age": 31,
     "gender": "man",
     "occupation": "startup",
-    "rank": 6,
+    "rank": "Tech lead",
     "home": "hz_toyosu",
     "leisure": [
      "rp_pub",
@@ -35885,7 +36458,8 @@
        },
        {
         "id": "goes_home",
-        "text": "He goes home."
+        "text": "He goes home.",
+        "leaves": true
        }
       ]
      }
@@ -35910,7 +36484,38 @@
       "nothing with a colleague's partner"
      ]
     },
-    "anchored": true
+    "anchored": true,
+    "rituals": [
+     {
+      "place": "sb_centergai",
+      "days": [
+       "fri"
+      ],
+      "every": "month",
+      "week": -1,
+      "from": 20.5,
+      "to": 23,
+      "with": [
+       "Rina"
+      ],
+      "text": "end-of-month drinks with the Hikari Labs team"
+     },
+     {
+      "place": "sb_centergai",
+      "every": "year",
+      "festival": "bonenkai",
+      "from": 20.5,
+      "to": 23.5,
+      "with": [
+       "Rina"
+      ],
+      "text": "Hikari Labs' year-end party"
+     }
+    ],
+    "languages": {
+     "english": 10,
+     "japanese": 2
+    }
    },
    {
     "name": "Kanon",
@@ -36006,7 +36611,7 @@
     "age": 26,
     "gender": "woman",
     "occupation": "avactress",
-    "rank": 5,
+    "rank": "TV guest",
     "home": "hz_azabu",
     "leisure": [
      "sj_goldengai",
@@ -36500,5 +37105,36 @@
     }
    }
   ]
+ },
+ "sounds": {
+  "arcade": "",
+  "bar": "",
+  "birds": "",
+  "cicadas": "",
+  "club": "",
+  "crossing": "",
+  "crowd": "",
+  "hospital": "",
+  "izakaya": "",
+  "karaoke": "",
+  "kitchen": "",
+  "market": "",
+  "office": "",
+  "pachinko": "",
+  "shrine": "",
+  "station": "",
+  "temple": "",
+  "traffic": "",
+  "train": "",
+  "water": "",
+  "waves": "",
+  "wind": ""
+ },
+ "language": {
+  "local": "japanese",
+  "others": [
+   "english"
+  ],
+  "level": 2
  }
 }

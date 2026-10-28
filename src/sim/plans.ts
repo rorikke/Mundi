@@ -1,7 +1,9 @@
 // Plans with people: meet-ups and dates at a place and time you choose, "come over" (she comes to where you
 // are now) and "come with me" (she goes along with you from place to place). Each one depends on how close you
 // are and on her routine: she says no when she works or sleeps then, or already has plans.
-// Plans you keep raise the bond; standing her up lowers it (and she texts you about it).
+// Plans you keep raise the bond; standing her up lowers it (and she texts you about it). Someone who owes you a favor
+// (sim/stories.ts) says yes to meeting up or coming along when closeness alone wouldn't do, and the favor is spent; no
+// favor buys a date. Someone who has left the world's maps (a thread's ending) can't meet you any more.
 import { lex } from '../core/lexicon.js';
 import { approve, approveAll } from './living.js';
 import { addStatus } from './needs.js';
@@ -20,6 +22,8 @@ import { touch } from './rel.js';
 import { holdGrudge, grudgeOf } from './grudges.js';
 import { sawYou } from './warnings.js';
 import { personaName } from '../st/bridge.js';
+import { favorOwed } from './when.js';
+import { callInFavor } from './stories.js';
 
 export const HANGOUT_BOND = 15;   // acquaintance: you can hang out
 export const DATE_BOND = 50;      // a date needs a good bond, a Spark match or being together
@@ -28,18 +32,23 @@ export const ALONG_BOND = 15;     // "come with me"
 export const HOME_BOND = 50;      // your home is for close people
 const PLAN_LENGTH = 120, ALONG_LENGTH = 240, GRACE = 60;   // they wait an hour before giving up
 
-export interface Answer { ok: boolean; why: string }
+/** `favor`: they said yes because they owed you a favor (it's spent when the plan is made). */
+export interface Answer { ok: boolean; why: string; favor?: boolean }
 const yes: Answer = { ok: true, why: '' };
 const matched = (g: Save, avatar: string) => dating(g).matches.includes(avatar);
 const close = (g: Save, avatar: string, need: number) => isPartner(g, avatar) || bondOf(g, avatar) >= need;
+/** Do they owe you a favor (a street story's)? */
+export const owesYou = (g: Save, avatar: string) => favorOwed(g, avatar) > 0;
+// Gone from the world's maps (sim/threads.ts: an ending that takes them away).
+const goneAway = (g: Save, avatar: string) => !!(g.cast[avatar] as any)?.gone;
 // A date: close enough, a dating-app match, or a crush on you whatever the friendship (unless they hate you).
 export const canDate = (g: Save, avatar: string) => !shutOut(g, avatar, true) && (close(g, avatar, DATE_BOND) || (matched(g, avatar) && bondOf(g, avatar) >= 10) || crushOn(g, avatar));
 // Hanging out: close enough or a match, and not someone who doesn't want you around.
-export const canHang = (g: Save, avatar: string) => !shutOut(g, avatar) && (close(g, avatar, HANGOUT_BOND) || matched(g, avatar));
+export const canHang = (g: Save, avatar: string) => !shutOut(g, avatar) && !goneAway(g, avatar) && (close(g, avatar, HANGOUT_BOND) || matched(g, avatar) || owesYou(g, avatar));
 export const canPlan = (g: Save, avatar: string) => canHang(g, avatar) || canDate(g, avatar);
 // "Come with me": close enough, a match or someone you live with; not someone who doesn't want you around (with a
 // partner who has a crush on you, it's romantic).
-export const canAlong = (g: Save, avatar: string) => !shutOut(g, avatar, isPartner(g, avatar)) && (close(g, avatar, ALONG_BOND) || matched(g, avatar) || housemate(g, avatar));
+export const canAlong = (g: Save, avatar: string) => !shutOut(g, avatar, isPartner(g, avatar)) && (close(g, avatar, ALONG_BOND) || matched(g, avatar) || housemate(g, avatar) || owesYou(g, avatar));
 const NOT_YOU: Answer = { ok: false, why: 'They do not want to spend time with you.' };
 
 // At work then: their shift (a job with a schedule), their routine's work hours, or working late (sim/people.ts).
@@ -61,20 +70,31 @@ export function when(g: Save, at: number) {
 export function check(g: Save, w: WorldDef, avatar: string, place: string, from: number, to: number, kind: PlanKind, need: number): Answer {
     const r = g.cast[avatar];
     if (!r) return { ok: false, why: 'They are not in this world.' };
+    if (goneAway(g, avatar)) return { ok: false, why: 'They have moved away.' };
     const romantic = kind === 'date';
     if (shutOut(g, avatar, romantic)) return NOT_YOU;
     if (grudgeOf(g, avatar)) return { ok: false, why: 'They are still upset with you.' };
     if (romantic && !canDate(g, avatar)) return { ok: false, why: 'They are not ready for a date with you yet.' };
-    if (!close(g, avatar, need) && !matched(g, avatar) && !(romantic && crushOn(g, avatar))) return { ok: false, why: 'They do not know you well enough yet.' };
-    if (place === playerHomeId && !close(g, avatar, HOME_BOND)) return { ok: false, why: 'They are not comfortable going to your home yet.' };
+    // a favor they owe you stands in for closeness (never for a date)
+    const owed = !romantic && owesYou(g, avatar);
+    let favor = false;
+    if (!close(g, avatar, need) && !matched(g, avatar) && !(romantic && crushOn(g, avatar))) { if (!owed) return { ok: false, why: 'They do not know you well enough yet.' }; favor = true; }
+    if (place === playerHomeId && !close(g, avatar, HOME_BOND)) { if (!owed) return { ok: false, why: 'They are not comfortable going to your home yet.' }; favor = true; }
     for (let t = from; t < to; t += 30) {
         if (isWorking(g, w, r, t)) return { ok: false, why: 'They work at that time.' };
         if (isSleeping(r, t)) return { ok: false, why: 'It is too late (or too early) for them.' };
     }
     if (social(g).appts.some(a => a.avatar === avatar && livePlan(a) && overlaps(a, from, to)))
         return { ok: false, why: 'They already have plans with you then.' };
-    return yes;
+    return favor ? { ok: true, why: '', favor: true } : yes;
 }
+// A favor that made them say yes is spent, and remembered.
+function spendFavor(g: Save, ans: Answer, r: Resident) {
+    if (!ans.ok || !ans.favor) return;
+    callInFavor(g, r.avatar);
+    remember(g, '{u} called in the favor {0} owed them, and {0} said yes.', [r.name], [r.avatar], g.player.loc, 'plan');
+}
+const favorNote = (ans: Answer, r: Resident) => (ans.ok && ans.favor ? ` (${r.name} owes ${personaName()} a favor, and that is why they agree)` : '');
 
 export function add(g: Save, avatar: string, place: string, from: number, kind: PlanKind, come = false, title = ''): Appointment {
     const s = social(g);
@@ -98,10 +118,10 @@ export async function invite(g: Save, w: WorldDef, avatar: string, place: string
     const ans = check(g, w, avatar, place, from, from + PLAN_LENGTH, kind, HANGOUT_BOND);
     const where = place === playerHomeId ? `${personaName()}'s place` : placeOf(g, w, place)?.name ?? '';
     const at = `day ${Math.floor(from / 1440)} at ${hm(from % 1440)}`;
-    if (ans.ok) { add(g, avatar, place, from, kind, false, title); remember(g, inviteFact(kind, title), [r.name, where, at, title.trim()], [avatar], g.player.loc, 'plan'); }
+    if (ans.ok) { add(g, avatar, place, from, kind, false, title); remember(g, inviteFact(kind, title), [r.name, where, at, title.trim()], [avatar], g.player.loc, 'plan'); spendFavor(g, ans, r); }
     const what = (kind === 'date' ? 'a date' : 'hanging out') + (title.trim() ? ` ("${title.trim()}")` : '');
     const note = ans.ok
-        ? `${r.name} happily accepts ${what} at ${where}, ${when(g, from)}, in one short ${lex(w, 'msgNoun')}.`
+        ? `${r.name} ${ans.favor ? 'accepts' : 'happily accepts'} ${what} at ${where}, ${when(g, from)}${favorNote(ans, r)}, in one short ${lex(w, 'msgNoun')}.`
         : `${r.name} declines in one short, ${ans === NOT_YOU ? 'cold' : 'kind'} ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as any)[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
     await textFrom(g, w, avatar, note, ans.ok ? 'Sure! See you there.' : 'Sorry, I can\'t then.', mine);
     return ans;
@@ -113,7 +133,7 @@ export function inviteFace(g: Save, w: WorldDef, avatar: string, place: string, 
     const ans = check(g, w, avatar, place, from, from + PLAN_LENGTH, kind, HANGOUT_BOND);
     const where = place === playerHomeId ? `${personaName()}'s place` : placeOf(g, w, place)?.name ?? '';
     const at = `day ${Math.floor(from / 1440)} at ${hm(from % 1440)}`;
-    if (ans.ok) { add(g, avatar, place, from, kind, false, title); remember(g, inviteFact(kind, title), [r.name, where, at, title.trim()], [avatar], g.player.loc, 'plan'); }
+    if (ans.ok) { add(g, avatar, place, from, kind, false, title); remember(g, inviteFact(kind, title), [r.name, where, at, title.trim()], [avatar], g.player.loc, 'plan'); spendFavor(g, ans, r); }
     return { ...ans, where: place === playerHomeId ? 'my place' : where, when: when(g, from) };
 }
 
@@ -129,9 +149,9 @@ export async function callOver(g: Save, w: WorldDef, avatar: string, mine: strin
     let ans = check(g, w, avatar, here, now, from + PLAN_LENGTH, kind, COME_BOND);
     if (ans.ok && isWorking(g, w, r, now)) ans = { ok: false, why: 'They are at work right now.' };
     const where = here === playerHomeId ? `${personaName()}'s place (not ${r.name}'s home: ${r.name} has to come over)` : placeOf(g, w, here)?.name ?? '';
-    if (ans.ok) { social(g).appts = social(g).appts.filter(a => !(a.avatar === avatar && a.come && livePlan(a))); add(g, avatar, here, from, kind, true); }
+    if (ans.ok) { social(g).appts = social(g).appts.filter(a => !(a.avatar === avatar && a.come && livePlan(a))); add(g, avatar, here, from, kind, true); spendFavor(g, ans, r); }
     const note = ans.ok
-        ? `${r.name} agrees to come to ${where} now and says they will be there in about ${trip} minutes, in one short ${lex(w, 'msgNoun')}.`
+        ? `${r.name} agrees to come to ${where} now${favorNote(ans, r)} and says they will be there in about ${trip} minutes, in one short ${lex(w, 'msgNoun')}.`
         : `${r.name} says they can't come over to ${where} right now, in one short, ${ans === NOT_YOU ? 'cold' : 'kind'} ${lex(w, 'msgNoun')}. Reason: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v) => `${r.name} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as any)[v.split(' ')[0]] ?? v} `).replace(/^__never__/, `${r.name} `)}`;
     await textFrom(g, w, avatar, note, ans.ok ? 'On my way!' : 'I can\'t right now, sorry.', mine);
     return { ...ans, at: from };
@@ -149,7 +169,11 @@ export function askAlong(g: Save, w: WorldDef, avatar: string): Answer {
     if (!canAlong(g, avatar)) return { ok: false, why: 'They do not know you well enough yet.' };
     if (workingAt(g, w, r, now) === g.player.loc) return { ok: false, why: 'They are working.' };
     const s = social(g);
-    if (!s.with.some(c => c.avatar === avatar)) { s.with.push({ avatar, until: now + ALONG_LENGTH }); remember(g, '{0} went along with {u} for a while.', [r.name], [avatar]); }
+    const byFavor = !(close(g, avatar, ALONG_BOND) || matched(g, avatar) || housemate(g, avatar));
+    if (!s.with.some(c => c.avatar === avatar)) {
+        s.with.push({ avatar, until: now + ALONG_LENGTH }); remember(g, '{0} went along with {u} for a while.', [r.name], [avatar]);
+        if (byFavor) spendFavor(g, { ok: true, why: '', favor: true }, r);
+    }
     // a plan here is over: she is with you now
     for (const a of s.appts) if (a.avatar === avatar && livePlan(a) && a.from <= now) a.state = 'met', a.to = Math.min(a.to, now);
     return yes;
@@ -187,6 +211,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
     const placeName = (id: string) => (id === playerHomeId ? 'your home' : placeOf(g, w, id)?.name ?? '');
     for (const a of s.appts) {
         if (a.state !== 'set' || !g.cast[a.avatar]) continue;
+        if (goneAway(g, a.avatar)) { a.state = 'cancelled'; continue; }   // they moved away (nobody's fault)
         if (!a.warned && !a.come && a.from - now <= 60 && a.from > now) {
             a.warned = true;
             out.push({ text: `Soon: ${nameOf(a.avatar)} at ${placeName(a.place)}, ${hm(a.from % 1440)}.`, kind: 'info' });

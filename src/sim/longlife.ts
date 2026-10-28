@@ -64,7 +64,7 @@ function careersMoveOn(g: Save, w: WorldDef): string[] {
     const st = store(g);
     for (const r of Object.values(g.cast)) {
         const o = w.occupations.find(x => x.id === r.occupation);
-        const ranks = o ? npcCareer(o, r.avatar).ranks : [];
+        const ranks = o ? npcCareer(o, r.avatar, g).ranks : [];
         if (!o || ranks.length < 2) continue;
         const rank = st.ranks[r.avatar] ?? 0;
         if (rank >= ranks.length - 1 || rnd(g, `promo|${r.avatar}`) >= promoteOdds(g, w, o, ranks.length, r.avatar)) continue;

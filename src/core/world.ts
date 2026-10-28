@@ -21,7 +21,8 @@ export type WeekdayId = typeof WEEKDAY_IDS[number];
  *  (`Ayaka friend`: one of the world's people toward you, at that level or closer), `onShift` (someone at work here),
  *  `present` (someone here now), `after` (an action done here today), `job` (an id, or `here`), `start` (the player's
  *  start), `chance` (per day, `0.2`), `clock` (`19:00-20:00`), `stayed` (slept at that place last night), `holds` (a
- *  keepsake), `companion` (someone with you at that level or closer: `dating`). An outcome's own condition may be
+ *  keepsake), `companion` (someone with you at that level or closer: `dating`), `perf` (your performance at work, at
+ *  least: `80`; a rank's `when` reads it as the performance it asks for). An outcome's own condition may be
  *  written `when: present: Kaito`. Worlds made before conditions were text give an object (LoreWhen), read as before. */
 export type When = string | LoreWhen;
 /** The old form of a condition (lore before E26): the weather, a period by name, a place or region, weekends, a
@@ -96,6 +97,9 @@ export interface Place {
     private?: boolean;
     /** (E15) Only with adult content on: otherwise it's on no map and nobody's routine sends them there. */
     adult?: boolean;
+    /** (E12) What you hear there, as sound tags (`station`, `crowd`, `izakaya`, `cicadas`…): played as a quiet loop with
+     *  the sound setting on (ui/ambience.ts); the world's `sounds` may give a file of its own for a tag. */
+    sound?: string[];
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
@@ -135,7 +139,10 @@ export interface StatusDef {
 // A crisis at zero: the message, where you end up ('home', a place, or '' to stay), what it costs, what the need
 // comes back to, your mood, how much the people who saw it think less of you, and the fact they remember
 // ({u} you, {0} the place).
-export interface Crisis { after: number; text: string; place?: string; cost?: number; restore?: number; mood?: number; shame?: number; seen?: string }
+export interface Crisis { after: number; text: string; place?: string; cost?: number; restore?: number; mood?: number; shame?: number; seen?: string;
+    /** (H) Kept there for the night (a hospital bed after a collapse): a free bed until the morning, and the shifts
+     *  until then are sick days (sim/stays.ts). */
+    stay?: boolean }
 export interface ActionDef {
     id: string; name: string; label: string; icon?: string; cost: number; minutes: number;
     tags?: string[]; place?: string; home?: boolean; anywhere?: boolean;
@@ -190,7 +197,8 @@ export interface Origin {
 }
 /** A rank of a job: its name and pay per hour. (J3) What it takes to be promoted to it: skill levels (`needs`:
  *  `{ cooking: 4 }`; `performance` there is the performance it asks for, 0–100, instead of the usual 60), one of some
- *  traits, a course, or anything else as a condition (`when: feels: Genzō good`).
+ *  traits, a course, or anything else as a condition (`when: feels: Genzō good`; `perf: 80` there is the performance it
+ *  asks for).
  *  (E20) `place`: where this rank works, when not the job's place (an idol's top ranks at the TV studio). */
 export interface Rank { name: string; pay: number; needs?: Record<string, number>; traits?: string[]; course?: string; when?: When; place?: string }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
@@ -252,6 +260,9 @@ export interface Occupation {
     trains?: string[]; overtime?: boolean;
     /** (E15) Only with adult content on. */
     adult?: boolean;
+    /** (E10) Where colleagues go for drinks after work (place ids); missing: only to a team's standing appointment
+     *  right after work (sim/work.ts). */
+    drinks?: string[];
 }
 /** (J1) A weekly schedule: how many days a week (the engine picks which) or which weekdays, and a shift's hours
  *  [from, to) (`to` below `from` goes past midnight: 20–6). A job worked round the clock lists its `shifts` instead
@@ -263,7 +274,8 @@ export interface WorkEvent { id: string; setup: string; when?: When; choices: Wo
  *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
  *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
 export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When }
-export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string }
+export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string;
+    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
@@ -305,11 +317,15 @@ export interface ExampleCharacter {
     intimate?: IntimateProfile;
     /** (E27) One short line on their looks and one on their voice, for scenes where they're present but not speaking. */
     look?: string; voice?: string;
+    /** (E13) How well they speak the world's languages (skill id → level 0–10: `{ english: 9 }`); missing: the world's
+     *  own language fluently and its other languages a little (see LanguageDef). */
+    languages?: Record<string, number>;
     /** (E25) The world's own people stay themselves: no random new job or home (only their threads or the player change
      *  that). Missing: they stay themselves; `false` lets one change by chance. */
     anchored?: boolean;
 }
-/** (E21) A standing appointment: where, which weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
+/** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
+ *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
  *  month (the season's week `week`: 1 = the first, -1 = the last) or once a year; `festival` or `event`: only on those
  *  days. `places`: some weeks one of these instead. `with`: others who come (names of the world's people); `chance`:
@@ -330,7 +346,9 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
 /** How a thread ends, picked by what happened (`when`, asked once the last stage is over; the first that holds, the
  *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
-export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string }
+export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string;
+    /** (H) They leave the world's maps (Chloe goes back to Manchester): kept in the save, never seen around again. */
+    leaves?: boolean }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
 export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string; prefs?: string[]; limits?: string[] }
@@ -459,6 +477,11 @@ export interface WorldDef {
     careerSpeed?: number;
     /** (E1, E32) What the AI is told in a scene (see SceneDef). Missing: as before. */
     scene?: SceneDef;
+    /** (E12) Your own sound files for places' sound tags (tag → a file in the world's folder); a tag without a file (an
+     *  empty slot) plays the engine's own sound, made on the fly. */
+    sounds?: Record<string, string>;
+    /** (E13) The language people speak here, for a newcomer who doesn't (see LanguageDef). Missing: no barrier. */
+    language?: LanguageDef;
     /** What the world has: a phone (modern), a journal (medieval)… and which systems are on. */
     features?: { phone?: boolean; device?: string; apps?: AppDef[] } & Partial<Record<SystemId, boolean>>;
     /** Set by the loader: the folder URL the world's files live in. */
@@ -491,7 +514,8 @@ export interface StoryChoice extends StoryResult { label: string; roll?: { skill
  *  some of the world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes
  *  you one (one of the world's people by name, or a stranger's id another story can ask about); `spend`: a favor it
  *  calls in. (E22) `reveal`: a thread (by id) the player learns this way. */
-export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string }
+export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string;
+    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
 /** (E2) A climate: per season, the odds of each kind of weather (weights: `sunny`, `hot`, `fair`, `humid`, `partly`,
  *  `cloudy`, `snow`, `rain`, `heavyrain`, `storm`); `days`: a stretch of a season with odds of its own (the rainy season,
  *  summer 1–5: days of the season as written, like festivals); `regional`: weather a region has on its own (`fujiview`,
@@ -507,6 +531,11 @@ export interface ClimateDef {
 /** (E8) How people address you, by how close they are: a few words per friendship level and per romance level or
  *  couple status, and how a senior or junior at work does. Told to the AI. */
 export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
+/** (E13) Languages: `local` is the skill everyone here speaks (`japanese`); `others`, the skills of other languages
+ *  people may share with a newcomer (`english`). The world's people speak `local` fluently (10) and the others at
+ *  `level` (default 2) unless their `languages` say otherwise. The player's levels in those skills shape what the AI
+ *  is told; time spent with people who speak only `local` trains it (sim/language.ts). */
+export interface LanguageDef { local: string; others?: string[]; level?: number }
 /** (E1, E32) Scene settings. `background`: the AI may describe unnamed background people (staff, regulars,
  *  passers-by) at every place, not only at places with `staff`; `lore`: at most this many conditional lore rows in a
  *  scene (missing or 0: no limit). */
@@ -708,7 +737,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'letters', name: 'Letters from afar', desc: 'friends in other towns never write, and distance never cools a friendship.', apps: [], blocks: [] },
     { id: 'festivals', name: 'Festivals', desc: 'no festivals in the calendar.', apps: [], blocks: [] },
     { id: 'events', name: 'City events', desc: 'no shows, matches or fairs in the city calendar.', apps: [], blocks: [] },
-    { id: 'hobbies', name: 'Hobbies', desc: 'practice never levels up a hobby (guitar, painting…), and no job asks for one.', apps: [], blocks: [] },
+    { id: 'hobbies', name: 'Hobbies', desc: 'practice never levels up a hobby (guitar, painting…), and no job asks for one.', apps: [], blocks: ['language'] },
     { id: 'factions', name: 'Factions and guilds', desc: 'no guilds, orders, gangs or kingdoms to join or lead.', apps: ['factions'], blocks: [] },
     { id: 'legends', name: 'Legends', desc: 'your deeds never become tales that travel and grow.', apps: [], blocks: [] },
     { id: 'talents', name: 'Talent trees', desc: 'no talents to choose when you level up (RPG).', apps: [], blocks: [], tag: 'rpg' },
