@@ -12245,6 +12245,78 @@
    },
    "trains": "drawing",
    "fact": "{u} sketched a sculpture at {0}"
+  },
+  {
+   "id": "pray",
+   "name": "Pray",
+   "label": "Stop to pray",
+   "icon": "🙏",
+   "cost": 5,
+   "minutes": 10,
+   "effects": {
+    "mood": 3
+   },
+   "places": [
+    "sb_meiji",
+    "ak_myojin",
+    "ot_sensoji",
+    "ot_shrine",
+    "yk_chinatown",
+    "sj_kabukicho",
+    "hk_ashi"
+   ],
+   "together": {
+    "needed": false,
+    "text": "praying side by side"
+   },
+   "outcomes": [
+    {
+     "weight": 1,
+     "when": "place: sb_meiji",
+     "text": "At the torii you bow and keep to the side of the path, the middle being for the deity; at the hall, two bows, two claps, one bow, and a coin thrown gently, not tossed."
+    },
+    {
+     "weight": 1,
+     "when": "place: ak_myojin",
+     "text": "A bow at the gate, two bows, two claps and one bow at the hall, and a wish for work: a deal, a shipping date, a server that stays up."
+    },
+    {
+     "weight": 1,
+     "when": "place: ot_sensoji",
+     "text": "A coin into the offering box, a bow, a quiet prayer with palms together and another bow; no clapping at a temple. Incense smoke drifts over from the burner."
+    },
+    {
+     "weight": 1,
+     "when": "place: ot_shrine",
+     "text": "A bow at the red gate, then two bows, two claps and one bow more before the small hall; you leave a piece of fried tofu for the foxes, and a cat eyes it."
+    },
+    {
+     "weight": 80,
+     "when": "place: yk_chinatown",
+     "text": "Incense, a bow before the red-faced god of business and loyalty, a wish for work. The smoke stings pleasantly."
+    },
+    {
+     "weight": 20,
+     "when": "place: yk_chinatown",
+     "text": "An old woman shows you how to hold the incense and wishes you luck in two languages; you bow before the red-faced god of business and loyalty.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "weight": 1,
+     "when": "place: sj_kabukicho",
+     "text": "At Hanazono Shrine, at the edge of the quarter, you bow, clap twice and make a wish; a host in his best suit prays beside you before the month's ranking. The neon is a few steps and a long way off.",
+     "fact": "{u} prayed at Hanazono Shrine, at the edge of {0}"
+    },
+    {
+     "weight": 1,
+     "when": "place: hk_ashi",
+     "text": "At Hakone Shrine among the cedars above the lake: two bows, two claps, one bow. Below, the red gate stands in the water.",
+     "fact": "{u} prayed at Hakone Shrine by {0}"
+    }
+   ],
+   "fact": "{u} prayed at {0}"
   }
  ],
  "sleep": {
