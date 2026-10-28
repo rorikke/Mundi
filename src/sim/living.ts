@@ -3,11 +3,11 @@
 import { personaName } from '../st/bridge.js';
 import { nowAbs, adultOk, type Save, type Resident } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef, type LoreWhen, type LoreEntry, type Occupation } from '../core/world.js';
-import { exampleOf, adultOn } from './dayplan.js';
+import { exampleOf, adultOn, secretCouple } from './dayplan.js';
 import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { regionOf, regionState } from './worldstate.js';
-import { whenHolds, whenPlace, whenRegionOk, parseWhen } from './when.js';
+import { whenHolds, whenPlace, whenRegionOk, parseWhen, levelHolds } from './when.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
@@ -107,13 +107,18 @@ function lifeGoesOn(g: Save, w: WorldDef): string[] {
     }
     return out;
 }
-export function couplesLine(g: Save, present: Resident[]) {
+// A couple the world keeps secret (E29) is told only once {{user}} is a good friend of one of them (as in whyHereLines),
+// and then as a secret.
+export function couplesLine(g: Save, present: Resident[], w?: WorldDef | null) {
     const here = new Set(present.map(r => r.avatar));
-    const c = couplePairs(g).filter(p => here.has(p.a) || here.has(p.b));
+    const hidden = (p: { a: string; b: string }) => !!w && secretCouple(g, w, p.a, p.b) && !levelHolds(g, w, p.a, 'good') && !levelHolds(g, w, p.b, 'good');
+    const secretly = (p: { a: string; b: string }) => (w && secretCouple(g, w, p.a, p.b) ? ' (in secret: they hide it from others)' : '');
+    const about = <T extends { a: string; b: string }>(list: T[]) => list.filter(p => (here.has(p.a) || here.has(p.b)) && !hidden(p));
+    const c = about(couplePairs(g));
     const word: Record<string, string> = { dating: 'are dating', engaged: 'are engaged', married: 'are married' };
-    const casual = casualPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} have something casual (not a couple)`);
-    const past = pastPairs(g).filter(p => here.has(p.a) || here.has(p.b)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${pastWords(g, p.was)}`);
-    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}`), ...casual, ...past];
+    const casual = about(casualPairs(g)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} have something casual (not a couple)${secretly(p)}`);
+    const past = about(pastPairs(g)).map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${pastWords(g, p.was)}`);
+    const all = [...c.map(p => `${g.cast[p.a].name} and ${g.cast[p.b].name} ${word[p.status] ?? 'are dating'}${secretly(p)}`), ...casual, ...past];
     return all.length ? `Relationships between people: ${all.join('; ')}.` : '';
 }
 
