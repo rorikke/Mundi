@@ -186,23 +186,28 @@ function tabActions(w) {
     }, 'action');
 }
 function tabJobs(w) {
-    return master('jobs', 'occupations', o => `<b>${esc(o.name)}</b><small>${esc(w.places.find(p => p.id === o.place)?.name ?? '—')}</small>`, i => {
+    return `<div class="mu-row2">${num('Career speed (×; 2: twice as fast)', 'careerSpeed', 0.25, 0.25)}${sel('Work rules a new game starts with', 'workPreset', [['', 'Realistic (Relaxed in a Home)'], ['realistic', 'Realistic'], ['reduced', 'Reduced'], ['relaxed', 'Relaxed']], 'opt')}</div>
+        ${master('jobs', 'occupations', o => `<b>${esc(o.name)}</b><small>${esc(w.places.find(p => p.id === o.place)?.name ?? '—')}</small>`, i => {
         const p = `occupations.${i}`;
         const o = w.occupations[i];
         return `${txt('Name', `${p}.name`)}<button class="mu-ghost" data-act="cw-rnd-job" data-i="${i}">${icon('redo')}<span>Randomize hours, pay and promotions</span></button>
             ${sel('Works at', `${p}.place`, placeOpts(w, '(choose a place)'))}
             <div class="mu-row2">${num('Shift length (hours)', `${p}.shift`, 1)}${num('Energy per shift', `${p}.cost.energy`)}</div>
             <div class="mu-row2">${num('Opens at (hour)', `${p}.hours.0`, 0)}${num('Closes at (hour)', `${p}.hours.1`, 0)}</div>
+            <div class="mu-row2">${num('Days a week (empty: five)', `${p}.schedule.days`, 0)}${num('Career length (1: about a game year)', `${p}.length`, 0.1, 0.1)}</div>
+            <div class="mu-row2">${num('Shift from (hour; empty: when it opens)', `${p}.schedule.from`, 0)}${num('Shift to (hour)', `${p}.schedule.to`, 0)}</div>
+            <div class="mu-row2">${num('Extra pay at night (0.25: +25%)', `${p}.nightPay`, 0, 0.05)}${chk('The boss asks for overtime', `${p}.overtime`)}</div>
+            <div class="mu-row2">${chk('Worked off-screen', `${p}.offScreen`, 'Away from every map during the shift')}${chk('Open to the player', `${p}.hireable`, '', true)}</div>
             <h4>Ranks and pay per hour</h4>
             ${o.ranks.map((_r, k) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${p}.ranks.${k}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${p}.ranks.${k}.pay`)}
-                ${k < o.ranks.length - 1 ? num('Shifts to be promoted', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
+                ${k < o.ranks.length - 1 ? num('Time to the next rank (relative)', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
                 <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${p}.ranks">${icon('plus')}<span>Add a rank</span></button>
             ${branchEditor(w, o, p)}
             <h4>Traits that help (faster promotions)</h4>${chips(traitOptions(w), `${p}.likes`)}
             <h4>Required traits (one of them)</h4>${chips(traitOptions(w), `${p}.needs`)}
             ${(w.hobbies ?? []).length ? `<div class="mu-row2">${sel('Hobby it asks for', `${p}.hobby.id`, [['', '(none)'], ...(w.hobbies ?? []).map(h => [h.id, h.name])])}${num('Level', `${p}.hobby.level`, 0)}</div>` : ''}`;
-    }, 'job');
+    }, 'job')}`;
 }
 const ELEMENTS = [['', '(none)'], ['fire', 'Fire'], ['water', 'Water'], ['lightning', 'Lightning'], ['ice', 'Ice'], ['earth', 'Earth'], ['light', 'Light'], ['dark', 'Dark']];
 // Goods and their markets, crops, businesses, celestial events and extreme weather.
@@ -462,7 +467,7 @@ function branchEditor(w, o, p) {
         const q = `${p}.branches.${bi}.options.${k}`;
         return `<div class="mu-cw-path">
                 <div class="mu-row2">${txt('Path', `${q}.name`)}${txt('What it is', `${q}.desc`)}</div>
-                ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Shifts to reach it', `${q}.promote.${ri}`, 1)}
+                ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Time to reach it (relative)', `${q}.promote.${ri}`, 1)}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>`).join('')}
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>

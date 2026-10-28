@@ -2,7 +2,7 @@
 // milestone pop-up ("You and Samantha are now dating"), the end-of-day recap after sleeping (each person's bars
 // moving, a new tier filling the bar and changing its color), and the work screen with its choices.
 import { esc, game, notify, saveGame, toast, state, nowAbs } from '../core/store.js';
-import { getWorld } from '../core/world.js';
+import { getWorld, systemOn } from '../core/world.js';
 import { sysOn } from '../sim/romance.js';
 import { chat, quiet, sendCanned, setPrompt, thumb, speakerOf } from '../st/bridge.js';
 import { momentsOf, dropMoment } from '../sim/moments.js';
@@ -13,7 +13,10 @@ import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
-import { WORK_MODES, workShift, jobDef, rankOf } from '../sim/work.js';
+import { WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen } from '../sim/work.js';
+import { placeOf } from '../sim/places.js';
+import { skillName } from '../sim/hobbies.js';
+import { hm } from '../sim/time.js';
 import { tooTired } from '../sim/needs.js';
 import { note } from '../sim/facts.js';
 import { diaryTtsButton } from './addons.js';
@@ -352,19 +355,86 @@ function recapHtml() {
         <button class="mu-primary" data-act="recap-close">Continue</button></section></div>`;
 }
 /* ---------- the work screen ---------- */
+// How you spend a shift (like The Sims), with your shift's hours, your performance and what the next rank asks for.
+// After a shift, something that happened at work waits here for your choice.
 const WORK = { open: false };
 export const openWork = () => { WORK.open = true; notify(); };
+export const perfWord = (n) => (n >= 80 ? 'excellent' : n >= 60 ? 'good' : n >= 40 ? 'fair' : n >= 25 ? 'poor' : 'very poor');
+/** What the next promotion still asks for, in a line ('' at the top). */
+export function nextRankLine(g, w, o) {
+    const p = promoNeeds(g, w, o);
+    if (!p)
+        return '';
+    if (p.ready)
+        return `Next: ${p.rank.name} (ready after this shift)`;
+    const skills = p.skills.map(s => `${s.name} ${s.need} (you: ${s.have})`).join(', ');
+    return `Next: ${p.rank.name} · ${promoProgress(p)}% of the time${skills ? ` · ${skills}` : ''}${p.perf > perfOf(g) ? ` · performance ${p.perf}` : ''}${p.traits.length && p.missing.includes(p.traits.join(' or ')) ? ` · ${p.traits.join(' or ')}` : ''}`;
+}
+// The shift as the work button and the work screen say it.
+export function shiftLabel(g, w, o) {
+    const c = canWork(g, w, o);
+    if (c.kind === 'overtime')
+        return { ok: true, text: 'Overtime · +25% pay' };
+    if (c.kind === 'none')
+        return { ok: false, text: c.why ?? '' };
+    const s = c.shift, wait = s.start - nowAbs(g);
+    return { ok: true, text: `${hm(s.start % 1440)}–${hm(s.end % 1440)}${c.early ? ` · starts in ${wait} min` : c.late ? ' · you are late' : ''}` };
+}
+/** The work button where you can work (at your rank's place, or anywhere for an off-screen job). */
+export function workButton(g, w) {
+    const o = jobDef(w, g.player.job?.id);
+    if (!o || !systemOn(w, 'jobs') || !atWork(g, w, o))
+        return '';
+    const l = shiftLabel(g, w, o);
+    return `<button class="mh-act is-work mh-glass ${offScreen(w, o) ? 'is-outing' : ''}" data-act="work" ${l.ok ? '' : 'aria-disabled="true"'}><i>${icon('briefcase')}</i><b>${offScreen(w, o) ? 'Go to work' : 'Work a shift'}</b><small>${esc(l.text)}</small></button>`;
+}
+// Your shifts this week (also in the Calendar and the Jobs app): days off to book or give back, calling in sick, and
+// the shift you'd rather work in a job worked round the clock.
+export function workWeekHtml(g, w) {
+    const o = jobDef(w, g.player.job?.id);
+    if (!o || !systemOn(w, 'jobs'))
+        return '';
+    const j = g.player.job, now = nowAbs(g);
+    const list = [];
+    for (let d = g.day - 1; d <= g.day + 6; d++) {
+        const s = shiftOn(g, w, o, d);
+        if (s && s.end - 60 > now)
+            list.push(s);
+    }
+    const vac = vacationLeft(g, w), sick = sickNo(g, w), shifts = scheduleOf(o).shifts ?? [];
+    const mine = shiftHours(g, o);
+    const row = (s) => {
+        const off = j.off?.[s.day], done = (j.worked ?? []).includes(s.day);
+        return `<div class="mu-ph-job"><span><b>${esc(shiftWhen(g, s))}</b><small>${done ? 'Worked ✓' : off === 'vacation' ? 'Day off' : off === 'sick' ? 'Called in sick' : esc(placeOf(g, w, offScreen(w, o) ? '' : jobPlace(g, o))?.name ?? (offScreen(w, o) ? 'off-screen' : ''))}</small></span>
+            ${done || off === 'sick' ? '' : `<button class="mu-ghost" data-act="wk-off" data-day="${s.day}" ${off || (vac >= 1 && s.start > now) ? '' : 'aria-disabled="true"'}>${off ? 'Work it' : 'Take the day off'}</button>`}</div>`;
+    };
+    return `<section class="mu-workweek"><h4>${icon('briefcase')} Work this week</h4>
+        <small class="mu-muted">${esc(o.name)} · ${esc(weekText(g, w, o))}</small>
+        ${shifts.length > 1 ? `<div class="mu-chips">${shifts.map(x => `<button class="mu-chip ${x.id === mine.id ? 'is-on' : ''}" data-act="wk-shift" data-id="${esc(x.id)}">${esc(x.name ?? x.id)} ${hm(Math.round(x.from * 60) % 1440)}–${hm(Math.round(x.to * 60) % 1440)}</button>`).join('')}</div>` : ''}
+        ${list.map(row).join('') || '<p class="mu-muted">No shifts this week.</p>'}
+        <small class="mu-muted">Vacation days: ${vac === Infinity ? 'as many as you like' : vac}${workRules(g, w).vacation ? ` (one more every ${workRules(g, w).vacation} days)` : ''}</small>
+        <button data-act="wk-sick" ${sick ? `aria-disabled="true" title="${esc(sick)}"` : ''}>${icon('heart')}<span>Call in sick</span></button></section>`;
+}
 function workHtml() {
     const g = game();
     const w = g && getWorld(g.world);
-    if (!WORK.open || !g || !w)
+    if (!g || !w)
         return '';
     const job = jobDef(w, g.player.job?.id);
     if (!job)
         return '';
-    const rank = rankOf(g, job);
+    const ev = pendingEvent(g, w);
+    if (ev)
+        return `<div class="mu-recap-veil"><section class="mu-recap mu-workpick mh-glass" role="dialog" aria-label="At work">
+        <header><small>${esc(job.name)} · at work</small><h3>${esc(ev.ev.setup)}</h3></header>
+        <div class="mu-work-modes">${ev.choices.map(x => `<button class="mu-work-mode" data-act="work-ev" data-i="${x.i}"><b>${esc(x.c.label)}</b>${x.c.roll ? `<small>🎲 ${esc(x.c.roll.skill ? skillName(w, x.c.roll.skill) : 'Luck')} against ${esc(String(x.c.roll.dc))}</small>` : ''}</button>`).join('')}</div>
+        <button class="mu-ghost" data-act="work-ev-skip">Let it go</button></section></div>`;
+    if (!WORK.open)
+        return '';
+    const rank = rankOf(g, job), perf = perfOf(g), l = shiftLabel(g, w, job), next = nextRankLine(g, w, job);
     return `<div class="mu-recap-veil" data-act="work-cancel-bg"><section class="mu-recap mu-workpick mh-glass" role="dialog" aria-label="Work">
-        <header><small>${esc(job.name)} · ${esc(rank.name)} · ${job.shift} h</small><h3>How will you work today?</h3></header>
+        <header><small>${esc(job.name)} · ${esc(rank.name)} · ${esc(l.text)}</small><h3>How will you work today?</h3></header>
+        ${systemOn(w, 'jobs') ? `<div class="mu-work-perf"><small>Performance: ${perf} (${perfWord(perf)})</small><span class="mu-bond"><i style="width:${perf}%"></i></span>${next ? `<small class="mu-muted">${esc(next)}</small>` : ''}</div>` : ''}
         <div class="mu-work-modes">${WORK_MODES.map(m => `<button class="mu-work-mode" data-act="work-go" data-mode="${m.id}"><i>${m.icon}</i><b>${esc(m.name)}</b><small>${esc(m.desc)}</small></button>`).join('')}</div>
         <button class="mu-ghost" data-act="work-cancel">Not now</button></section></div>`;
 }
@@ -480,6 +550,29 @@ Object.assign(ACT, {
         const { finishWork } = await import('./map.js');
         await finishWork(workShift(g, w, el.dataset.mode), job.name);
     },
+    'work-ev': (el) => {
+        const g = game();
+        const w = g && getWorld(g.world);
+        if (!g || !w)
+            return;
+        chooseEvent(g, w, Number(el.dataset.i)).forEach((m, i) => toast(m, i ? 'success' : 'info'));
+        saveGame();
+        refreshPrompt();
+        notify();
+    },
+    'work-ev-skip': () => { const g = game(); if (g) {
+        dropEvent(g);
+        saveGame();
+    } notify(); },
+    'wk-off': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w)
+        return; const m = bookOff(g, w, Number(el.dataset.day)); if (m)
+        toast(m, 'info'); saveGame(); notify(); },
+    'wk-sick': () => { const g = game(); const w = g && getWorld(g.world); if (!g || !w)
+        return; const m = callSick(g, w); if (m)
+        toast(m, 'info'); saveGame(); refreshPrompt(); notify(); },
+    'wk-shift': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w)
+        return; const m = chooseShift(g, w, el.dataset.id); if (m)
+        toast(m, 'success'); saveGame(); notify(); },
 });
 // the confirmation for ending a relationship
 export function endConfirmHtml() {

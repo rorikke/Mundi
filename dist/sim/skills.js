@@ -1,12 +1,14 @@
-// Skills: courses you take (at home, online, or at the university) that teach you traits; the job interview, a
-// roll where the traits a job looks for are your bonus; and the counters some life goals are measured with.
-// The traits you have are what the d20 rolls use (each matching trait is +2), so learning one helps everywhere.
+// Courses you take (at home, online, or at the university) that teach you traits and skill levels; the job
+// interview, a roll where the traits a job looks for are your bonus; and the counters some life goals are measured
+// with. The traits you have are what the d20 rolls use (each matching trait is +2), so learning one helps everywhere.
+// (Skills themselves, with their levels, are in hobbies.ts.)
 import { nowAbs } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { note } from './facts.js';
 import { book } from './ledger.js';
 import { priceOf } from './bills.js';
 import { playerHomeId, placeOf } from './places.js';
+import { setSkillLevel, skillName } from './hobbies.js';
 export const coursesOf = (w) => (systemOn(w, 'courses') ? w.catalogs.courses ?? [] : []);
 export function learning(g) {
     const p = g.player;
@@ -71,9 +73,12 @@ export function studySession(g, w) {
         return [`${c.name}: day ${l.progress[c.id]} of ${c.days} done.`];
     l.done.push(c.id);
     l.current = undefined;
-    const got = c.grants.filter(t => gainTrait(g, t, 'course'));
+    const got = (c.grants ?? []).filter(t => gainTrait(g, t, 'course'));
+    for (const [id, n] of Object.entries(c.skills ?? {}))
+        setSkillLevel(g, id, n);
+    const taught = Object.entries(c.skills ?? {}).map(([id, n]) => `${skillName(w, id)} ${n}`);
     note(g, '{u} finished the course "{0}".', [c.name], [], g.player.loc, 'study');
-    return [`You finished ${c.name}!${got.length ? ` You are now ${got.join(' and ')}.` : ''}`];
+    return [`You finished ${c.name}!${got.length ? ` You are now ${got.join(' and ')}.` : ''}${taught.length ? ` Skills: ${taught.join(', ')}.` : ''}`];
 }
 /* ---------- the job interview ---------- */
 // (a course the world no longer offers is not asked for: the job would be out of reach forever)

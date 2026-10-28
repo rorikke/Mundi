@@ -2,13 +2,15 @@
 // the mall, an open mic at the bar). The world says the weekday, how often, where and when. They are in the calendar;
 // you go if you want ("I'll go" sets a reminder). While one lasts, people with free time gather there, the AI knows,
 // and there is something to do: enjoy it (a ticket, mood), and perform there if your hobby is good enough.
-// An outdoor one is called off when it rains.
-import { nowAbs, changes } from '../core/store.js';
+// An outdoor one is called off when it rains. Some are on only in some seasons (E9); one that says who comes
+// (`audience`, E23) draws people one by one, for a few hours (sim/dayplan.ts), and may give someone a part in it.
+import { nowAbs, changes, adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { weatherOn } from './weather.js';
 import { note } from './facts.js';
 import { onHour, onDay } from './hooks.js';
 import { levelOf } from './hobbies.js';
+import { seasonDays, SEASONS } from './time.js';
 const on = (w) => !!w && systemOn(w, 'events') && !!w.cityEvents?.length;
 const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -17,8 +19,8 @@ const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
 const hm = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 export const cityOf = (g) => { const c = (g.city ??= {}); c.going ??= []; c.went ??= []; c.told ??= []; return c; };
 // The events of a day (day 1 is a Monday). Asked for twice each time someone's free time is worked out, so each day's
-// list is kept: it depends only on the world's events and places and the day's weather (a world edit comes with a
-// click, changes() in core/store.ts).
+// list is kept: it depends only on the world's events and places, the day's weather, the length of the seasons and
+// adult content (a world edit comes with a click, changes() in core/store.ts).
 const kept = new WeakMap();
 export function eventsOn(g, w, day) {
     if (!on(w) || day < 1)
@@ -27,15 +29,22 @@ export function eventsOn(g, w, day) {
     let k = kept.get(w);
     if (!k || k.list !== w.cityEvents || k.len !== w.cityEvents.length || k.places !== w.places || k.n !== n || k.by.size > 400)
         kept.set(w, k = { list: w.cityEvents, len: w.cityEvents.length, places: w.places, n, by: new Map() });
-    const key = `${g.world}|${day}`;
+    const key = `${g.world}|${day}|${seasonDays(g)}|${adult(g)}`;
     let list = k.by.get(key);
     if (!list)
         k.by.set(key, list = dayEvents(g, w, day));
     return list.slice();
 }
+const adult = (g) => adultOn(g);
+// On that day of the year: its seasons and days of the season (E9), when it gives them.
+function inSeason(g, e, day) {
+    const sd = seasonDays(g), season = SEASONS[Math.floor((Math.max(1, day) - 1) / sd) % 4].id, ds = ((Math.max(1, day) - 1) % sd) + 1;
+    return (!e.seasons?.length || e.seasons.includes(season)) && (!e.seasonDays || (ds >= e.seasonDays[0] && ds <= e.seasonDays[1]));
+}
 function dayEvents(g, w, day) {
     const wd = (day - 1) % 7, week = Math.floor((day - 1) / 7);
-    return w.cityEvents.filter(e => e.weekday === wd && w.places.some(p => p.id === e.place) && week % Math.max(1, e.every ?? 1) === (e.week ?? 0) % Math.max(1, e.every ?? 1))
+    return w.cityEvents.filter(e => (e.weekday === wd || !!e.weekdays?.includes(wd)) && w.places.some(p => p.id === e.place) && week % Math.max(1, e.every ?? 1) === (e.week ?? 0) % Math.max(1, e.every ?? 1)
+        && inSeason(g, e, day) && (!e.adult || adult(g)) && (!w.places.find(p => p.id === e.place)?.adult || adult(g)))
         .map(e => { const from = day * 1440 + Math.round((e.from ?? 18) * 60); return { key: `${e.id}@${day}`, ev: e, day, from, to: from + Math.round((e.hours ?? 3) * 60), off: !!e.outdoor && weatherOn(g.world, day).rain }; });
 }
 // What is on right now (or at `at`), anywhere or at one place.
@@ -62,12 +71,13 @@ export function toggleGoing(g, key) {
     c.going.push(key);
     return true;
 }
-// Where someone with free time goes while an event is on (about half of them; `crowd` in 100).
+// Where someone with free time goes while an event is on (about half of them; `crowd` in 100). Events that say who
+// comes (`audience`) are planned per person instead (sim/dayplan.ts).
 export function eventSpot(g, w, avatar, at) {
     if (!on(w))
         return null;
     for (const x of liveEvents(g, w, at))
-        if (hash(`${avatar}|${x.key}`) % 100 < (x.ev.crowd ?? 50))
+        if (!x.ev.audience?.length && hash(`${avatar}|${x.key}`) % 100 < (x.ev.crowd ?? 50))
             return x.ev.place;
     return null;
 }

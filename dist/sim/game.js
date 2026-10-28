@@ -1,5 +1,7 @@
-// Games and saves. A new game creates native SillyTavern objects: the cast's cards (when the world's example
-// cast is used), the player's persona, the world's lorebook and a group chat. The save lives in that chat.
+// Games and saves. A new game creates native SillyTavern objects: the cast's cards (the world's own people chosen
+// for this game, made once with their portraits and sprites and reused by later games), the player's persona, the
+// world's lorebook and a group chat. The save lives in that chat. Also where a game starts (E16 starts), the world's
+// own households (E18) and what adult content leaves out (E15).
 import { pictureAt } from './daynight.js';
 import { addXp, makeSheet, syncLife } from './rpg.js';
 import { rpgOf } from '../core/rpgdef.js';
@@ -7,13 +9,14 @@ import { SCHEMA } from '../core/saves.js';
 import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES } from './bills.js';
 import { placeOf as placeOf2 } from './places.js';
-import { TUT, settings as settings2 } from '../core/store.js';
+import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
 import { settings, saveSettings, state, game, setGame, saveGame, notify, toast, } from '../core/store.js';
 import { loadWorld, getWorld, exampleTag } from '../core/world.js';
 import { setWorldDicts } from '../core/tr.js';
 import { lang } from '../core/i18n.js';
-import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, readChatMeta, } from '../st/bridge.js';
+import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS, } from '../st/bridge.js';
+import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
@@ -43,25 +46,31 @@ export function initialsAvatar(name, colors) {
     return new Promise(res => c.toBlob(b => res(b), 'image/png'));
 }
 const PALETTE = [['#ff7a9a', '#7a2e8f'], ['#3b82f6', '#6d28d9'], ['#f59e0b', '#b45309'], ['#10b981', '#065f46'], ['#ef4444', '#7f1d1d'], ['#8b5cf6', '#312e81'], ['#06b6d4', '#164e63'], ['#ec4899', '#831843']];
-export function heroDescription(w, h) {
+// `start`: the start chosen (by default the world's start with the origin's id); an origin's words are told as before.
+export function heroDescription(w, h, start) {
     const origin = w.catalogs.origins?.find(o => o.id === h.origin);
+    const st = start ?? findStart(w, h.origin, true);
+    const background = origin && (!start || start.id === origin.id) ? `Background: ${origin.name} — ${origin.desc ?? ''}`
+        : st ? `Background: ${st.name} — ${st.premise?.trim() || st.desc || ''}` : '';
     const look = (w.sheet.appearance ?? []).map(a => h.appearance[a.id] ? `${a.label.toLowerCase()}: ${h.appearance[a.id].toLowerCase()}` : '').filter(Boolean).join(', ');
     const traits = (w.sheet.traits ?? []).map(t => (h.traits?.[t.id]?.length ? `${t.label}: ${h.traits[t.id].map(x => x.toLowerCase()).join(', ')}.` : '')).filter(Boolean);
     return [
         `{{user}} is ${h.name}, ${h.age}.`,
         look ? `Appearance: ${look}.` : '',
-        origin ? `Background: ${origin.name} — ${origin.desc ?? ''}` : '',
+        background,
         ...traits,
         h.bio.trim(),
     ].filter(Boolean).join('\n');
 }
 export const sheetOf = (w, h) => ({ world: w.id, name: h.name, age: h.age, appearance: { ...h.appearance }, origin: h.origin, traits: JSON.parse(JSON.stringify(h.traits ?? {})), bio: h.bio });
 /* ---------- the cast ---------- */
-// The world's example characters become real cards (created once, reused by later games).
-async function exampleCards(w) {
+// The world's people chosen for this game become real cards (created once, reused by later games). (E3) A card is made
+// with its portrait from the world's folder (initials without one) and its expression sprites; a card made before the
+// world had them gets them once.
+async function exampleCards(w, list) {
     const out = [];
     let i = 0;
-    for (const ex of w.cast.examples) {
+    for (const ex of list) {
         const tag = exampleTag(w, ex);
         const slugName = ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
         const byFile = new RegExp(`^mundi_(?:${[ex.from, w.id].filter(Boolean).map(x => String(x).replace(/[^a-z0-9_-]/gi, '')).join('|')})_${slugName}(?:_?\\d+)?\\.png$`, 'i');
@@ -69,17 +78,113 @@ async function exampleCards(w) {
         if (found) {
             out.push(found.avatar);
             i++;
+            await examplePictures(w, ex, found.avatar);
             continue;
         }
         const file = `mundi_${w.id}_${ex.name.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
+        const pic = await worldPicture(w, ex.avatar);
         const avatar = await createCharacter({
             name: ex.name, description: ex.description, first_mes: ex.first_mes ?? '', personality: ex.personality ?? '',
             scenario: w.setting, tags: ['Mundi', w.name], file,
-            extensions: { mundi: { example: tag, world: w.id, occupation: ex.occupation, home: ex.home, routine: ex.routine, leisure: ex.leisure ?? [] } },
-        }, await initialsAvatar(ex.name, PALETTE[i++ % PALETTE.length]));
+            extensions: { mundi: { example: tag, world: w.id, occupation: ex.occupation, home: ex.home, routine: ex.routine, leisure: ex.leisure ?? [], ...(pic ? { portrait: ex.avatar } : {}) } },
+        }, pic ?? await initialsAvatar(ex.name, PALETTE[i % PALETTE.length]));
+        i++;
         out.push(avatar);
+        await examplePictures(w, ex, avatar);
     }
     return out;
+}
+// A picture from the world's folder, or null when there is none (or it can't be read).
+async function worldPicture(w, file) {
+    if (!file)
+        return null;
+    try {
+        const res = await fetch(worldFile(w, file));
+        if (!res.ok)
+            return null;
+        const b = await res.blob();
+        return b.size ? b : null;
+    }
+    catch {
+        return null;
+    }
+}
+// The sprites in a world's folder: the files its `sprites.json` lists (each file's name is its expression), or one
+// file per default expression (`joy.png`…).
+async function spriteFiles(w, folder) {
+    const base = folder.replace(/\/*$/, '/');
+    try {
+        const res = await fetch(worldFile(w, `${base}sprites.json`));
+        const list = res.ok ? await res.json() : null;
+        if (Array.isArray(list))
+            return list.filter(f => typeof f === 'string' && /^[\w .-]+\.(png|webp|gif|jpe?g)$/i.test(f)).map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f }));
+    }
+    catch { /* no list: the default names */ }
+    return DEFAULT_EXPRESSIONS.map(label => ({ label, file: `${base}${label}.png` }));
+}
+// What a card still lacks from the world (its portrait, its sprites), uploaded once: the card remembers what it got.
+async function examplePictures(w, ex, avatar) {
+    const card = charOf(avatar)?.data?.extensions?.mundi ?? {};
+    try {
+        if (ex.avatar && card.portrait !== ex.avatar) {
+            const pic = await worldPicture(w, ex.avatar);
+            if (pic) {
+                await setCharacterImage(avatar, pic);
+                await saveCardMundi(avatar, { portrait: ex.avatar });
+            }
+        }
+        if (ex.sprites && card.sprites !== ex.sprites) {
+            let n = 0;
+            for (const s of await spriteFiles(w, ex.sprites)) {
+                const b = await worldPicture(w, s.file);
+                if (!b)
+                    continue;
+                await uploadSprite(avatar, s.label, b);
+                n++;
+            }
+            if (n)
+                await saveCardMundi(avatar, { sprites: ex.sprites }); // none found: tried again next time
+        }
+    }
+    catch (e) {
+        console.warn('[Mundi] pictures of', ex.name, e);
+    }
+}
+/* ---------- adult content (E15) ---------- */
+// The world's people in a game: the ones chosen (all of them when none are named), without the adult-only ones when
+// adult content is off.
+export const worldPeopleFor = (w, names, adult) => w.cast.examples.filter(e => (adult || !e.adult) && (!names || names.includes(e.name)));
+// One of this world's adult-only people (a card made in a game with adult content on).
+const adultOnlyCard = (w, avatar) => { const tag = charOf(avatar)?.data?.extensions?.mundi?.example; return !!tag && w.cast.examples.some(e => e.adult && exampleTag(w, e) === tag); };
+// The world's lorebook: its setting, lore and places. A world with adult lore or places has a second book for games
+// with adult content on, so the games with it off never share one with them.
+const hasAdultLore = (w) => w.lore.some(l => l.adult) || w.places.some(p => p.adult);
+export const loreBookName = (w, adult) => `Mundi - ${w.name}${adult && hasAdultLore(w) ? ' (adult)' : ''}`;
+export async function writeWorldLore(w, adult) {
+    const ok = (x) => adult || !x.adult;
+    const name = loreBookName(w, adult);
+    await writeLorebook(name, [
+        { keys: [w.name], content: w.setting, constant: true, comment: 'Setting' },
+        ...w.lore.filter(ok).map(l => ({ keys: l.keys, content: l.content, constant: !!l.constant })),
+        ...w.places.filter(ok).map(p => ({ keys: [p.name], content: `${p.name}: ${p.desc ?? ''}`, comment: `Place: ${p.name}` })),
+    ]);
+    return name;
+}
+/** Turns adult content on or off for the open game (the save's settings): the lorebook follows and the AI is told
+ *  again. Nothing in the save is removed, so turning it back on brings everything back. */
+export async function setAdult(g, on) {
+    const w = getWorld(g.world);
+    if (!w)
+        return;
+    if (on)
+        cfgOf(g).adult = true;
+    else
+        delete cfgOf(g).adult;
+    if (hasAdultLore(w) && !TUT.save)
+        await bindChatLore(await writeWorldLore(w, on));
+    saveGame();
+    refreshPrompt();
+    notify();
 }
 export { spotKey, takenHomes, homeSpot } from './homes.js';
 import { spotKey, homeSpot, takenHomes } from './homes.js';
@@ -148,11 +253,17 @@ export function resident(w, avatar, taken, avoid) {
 }
 export async function startNewGame(o) {
     const w = o.world;
+    const adult = !!o.adult;
     state.busy = 'Creating the cast';
     notify();
-    const cast = [...new Set([...(o.examples ? await exampleCards(w) : []), ...o.cast])];
+    // without adult content, the world's adult-only people aren't made (nor brought along as cards made before)
+    const cast = [...new Set([...(o.examples ? await exampleCards(w, worldPeopleFor(w, o.worldPeople, adult)) : []), ...o.cast])].filter(a => adult || !adultOnlyCard(w, a));
     if (!cast.length)
         throw new Error('Choose at least one person to live in the world.');
+    // the start: what it gives your character (traits) is part of who you are from the persona on
+    const start = isScenario(w) ? undefined : o.worldStart ?? findStart(w, o.hero.origin, adult) ?? defaultStart(w, adult);
+    if (start)
+        o.hero = { ...o.hero, traits: withStartTraits(w, o.hero.traits, start) };
     // your character: a persona you already have, or a new one saved to your personas
     let personaFile = o.persona ?? '';
     if (personaFile) {
@@ -168,24 +279,20 @@ export async function startNewGame(o) {
         state.busy = 'Creating your character';
         notify();
         const portrait = o.hero.portrait ?? await initialsAvatar(o.hero.name, ['#22d3ee', '#4f46e5']);
-        personaFile = await createPersona(o.hero.name, heroDescription(w, o.hero), portrait);
+        personaFile = await createPersona(o.hero.name, heroDescription(w, o.hero, start), portrait);
         setPersonaSheet(personaFile, { ...sheetOf(w, o.hero), person: cleanPerson(o.people?.[YOU]) });
     }
     state.busy = 'Writing the world\'s lorebook';
     notify();
-    const loreName = `Mundi - ${w.name}`;
-    await writeLorebook(loreName, [
-        { keys: [w.name], content: w.setting, constant: true, comment: 'Setting' },
-        ...w.lore.map(l => ({ keys: l.keys, content: l.content, constant: !!l.constant })),
-        ...w.places.map(p => ({ keys: [p.name], content: `${p.name}: ${p.desc ?? ''}`, comment: `Place: ${p.name}` })),
-    ]);
+    const loreName = await writeWorldLore(w, adult);
     state.busy = 'Creating the world\'s group chat';
     notify();
     const groupId = await createGroup(`Mundi · ${w.name} · ${o.hero.name}`, cast);
     await openGame(groupId);
     clearGreetings();
     const taken = new Set();
-    const origin = w.catalogs.origins?.find(x => x.id === o.hero.origin) ?? w.catalogs.origins?.[0];
+    // an origin still gives what only it has (RPG skills and attributes, "knows N people"): the one the start came from
+    const origin = start ? w.catalogs.origins?.find(x => x.id === start.id) : w.catalogs.origins?.find(x => x.id === o.hero.origin) ?? w.catalogs.origins?.[0];
     const picked = o.home && w.homes.zones.find(z => z.id === o.home.zone);
     if (picked)
         taken.add(spotKey(o.home.zone, o.home.x, o.home.y));
@@ -193,17 +300,18 @@ export async function startNewGame(o) {
     for (const h of o.households ?? [])
         if (h.home && w.homes.zones.some(z => z.id === h.home.zone))
             taken.add(spotKey(h.home.zone, h.home.x, h.home.y));
-    const home = picked ? { zone: o.home.zone, x: o.home.x, y: o.home.y, n: o.home.n } : homeSpot(w, origin?.home ?? w.homes.zones[0].id, taken);
+    const area = [start?.home, origin?.home].find(z => z && w.homes.zones.some(x => x.id === z)) ?? origin?.home ?? w.homes.zones[0].id;
+    const home = picked ? { zone: o.home.zone, x: o.home.x, y: o.home.y, n: o.home.n } : homeSpot(w, area, taken);
     const zone = w.homes.zones.find(z => z.id === home.zone);
     const save = {
         v: 1, world: w.id, lang: lang(), day: w.time.startDay, minutes: w.time.startMinutes, speed: w.time.speed,
         player: {
             loc: playerHomeId, home: { ...home, kind: zone.kind },
             stats: Object.fromEntries(w.statuses.map(s => [s.id, s.start])),
-            money: Math.round((origin?.money ?? 0) * (DIFFICULTIES.find(d => d.id === (o.difficulty ?? 'normal'))?.start ?? 1)), traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), origin: origin?.id ?? '', job: null, rentPaidDay: w.time.startDay,
+            money: Math.round((start?.money ?? origin?.money ?? 0) * (DIFFICULTIES.find(d => d.id === (o.difficulty ?? 'normal'))?.start ?? 1)), traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), origin: origin?.id ?? '', job: null, rentPaidDay: w.time.startDay,
         },
         cast: {}, tick: {}, log: [],
-        ...{ cfg: { difficulty: o.difficulty ?? 'normal', ...(o.mode ? { mode: o.mode } : {}) }, schema: SCHEMA },
+        ...{ cfg: { difficulty: o.difficulty ?? 'normal', ...(o.mode ? { mode: o.mode } : {}), ...(adult ? { adult: true } : {}) }, schema: SCHEMA },
     };
     // a persona's words about you in this world (its own description stays as it is)
     if (o.persona && o.hero.bio?.trim())
@@ -241,7 +349,26 @@ export async function startNewGame(o) {
             console.warn('[Mundi] memories', e);
         }
     }
-    // your household moves in with you; each other household shares the home of its first member
+    // the world's own people in this game, by name (their ties, feelings and households only between those here)
+    const exAvatar = new Map();
+    for (const a of Object.keys(save.cast)) {
+        const tag = charOf(a)?.data?.extensions?.mundi?.example;
+        const ex = w.cast.examples.find(e => exampleTag(w, e) === tag);
+        if (ex)
+            exAvatar.set(ex.name, a);
+    }
+    // (E18) the world's households: everyone here with the same household id shares the home of the first one
+    const worldHh = new Map();
+    for (const ex of w.cast.examples) {
+        const a = exAvatar.get(ex.name);
+        if (a && ex.household)
+            worldHh.set(ex.household, [...(worldHh.get(ex.household) ?? []), a]);
+    }
+    for (const [head, ...rest] of worldHh.values())
+        for (const a of rest)
+            liveTogether(save, head, a);
+    // your household moves in with you; each other household shares the home of its first member (both win over the
+    // world's own households)
     for (const f of o.family ?? []) {
         if (!save.cast[f.avatar])
             continue;
@@ -266,13 +393,6 @@ export async function startNewGame(o) {
     }
     // relations: the world's own (between its example people) and the ones chosen for this game (anyone with anyone),
     // which win over the world's: family becomes ties, the rest starting feelings (sim/startfeel.ts)
-    const exAvatar = new Map();
-    for (const a of Object.keys(save.cast)) {
-        const tag = charOf(a)?.data?.extensions?.mundi?.example;
-        const ex = w.cast.examples.find(e => exampleTag(w, e) === tag);
-        if (ex)
-            exAvatar.set(ex.name, a);
-    }
     for (const ex of w.cast.examples)
         for (const t of ex.ties ?? []) {
             const a = exAvatar.get(ex.name), b = exAvatar.get(t.to);
@@ -290,16 +410,20 @@ export async function startNewGame(o) {
     for (const a of Object.keys(save.cast))
         applyPerson(save, a, o.people?.[a] ? cleanPerson(o.people[a]) : cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(exOf.get(a)));
     applyPerson(save, YOU, cleanPerson(o.people?.[YOU]));
-    // the world's own starting feelings (after ages and minors are known: no romance for them)
+    // the world's own starting feelings (after ages and minors are known: no romance for them; adult ones only with
+    // adult content on)
     for (const ex of w.cast.examples)
         for (const f of ex.feelings ?? []) {
             const a = exAvatar.get(ex.name), b = exAvatar.get(f.to);
-            if (a && b && a !== b) {
-                const { to, ...feel } = f;
+            if (a && b && a !== b && (adult || !f.adult)) {
+                const { to, adult: x, ...feel } = f;
                 void to;
+                void x;
                 applyStartFeel(save, { a, b, ...feel });
             }
         }
+    // (E16) the start: its job, skills, the people you already know, the household you live with
+    applyStart(save, w, start);
     for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;

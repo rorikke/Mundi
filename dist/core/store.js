@@ -52,6 +52,12 @@ export function settings() {
 export const UI = () => settings().ui;
 export const saveSettings = () => ctx().saveSettingsDebounced();
 export const cfg = (g) => (g.cfg ??= {});
+// (E15) Adult content, per save: asked at the new game, changeable in the save's settings, off by default. Without it,
+// whatever a world marks `adult` (places, jobs, actions, lore, people, a feeling) is left out of the game.
+export const adultOn = (g) => !!g && cfg(g).adult === true;
+export const isAdultItem = (x) => !!x && typeof x === 'object' && x.adult === true;
+/** Is this world item part of this save's game (not adult, or adult content is on)? */
+export const adultOk = (g, x) => !isAdultItem(x) || adultOn(g);
 // How time passes: "action" (default) only what you do moves the clock (eating, sleeping, working, travelling);
 // "live" the clock also runs by itself in real time (World → Rules).
 export const clockMode = (g) => cfg(g).clock ?? 'action';

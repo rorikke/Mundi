@@ -132,8 +132,9 @@ const topics = (w) => {
             items: [
                 ['Job interviews', lex(w, 'interviewHelp')],
                 [lex(w, 'courses'), `${lex(w, 'studyWhere').replace(/^./, c => c.toUpperCase())}: pay once, then study 2 h a day for a few days. You learn its traits for good, and some jobs need it first.`],
-                ['Shifts', 'Choose how hard you work. If you have plans, you can work part of the shift and then go.'],
-                ['Promotions', 'Each shift brings you closer to the next rank and a better salary.'],
+                ['Shifts', 'Each job has its days and hours: your week is in the Calendar, and you get a reminder before each shift. Choose how hard you work; if you have plans, you can work part of the shift and then go. Some jobs pay extra at night or for overtime.'],
+                ['Performance and days off', 'Good shifts raise your performance; missing a shift, coming in late and slacking lower it. Book vacation days or call in sick ahead. How strict all this is depends on the work rules (This world → World).'],
+                ['Promotions', 'The next rank asks for shifts and time in your rank, a good performance and sometimes skills: the work screen and the Jobs app show what is missing. The top of a career takes about a game year.'],
                 ['Quick gigs', 'Some places offer one-off work for quick money.'],
                 [`${app('bank')} and ${app('shop')}`, 'See where your money goes, and buy things that make life easier.'],
                 ['At home', lex(w, 'homeUnwind', app('shop'))],

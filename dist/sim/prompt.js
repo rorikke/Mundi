@@ -40,6 +40,7 @@ import { combatLine } from './combat.js';
 import { festivalLine } from './festivals.js';
 import { eventLine } from './cityevents.js';
 import { hobbyLine } from './hobbies.js';
+import { workLine } from './work.js';
 import { realmLine } from './realm.js';
 import { legendLines } from './legends.js';
 import { skiesLine } from './skies.js';
@@ -147,7 +148,7 @@ export function sceneBlocks() {
         plans: planLines(g, present, w),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
-        you: [g.player.bio ? `About {{user}} in this world: ${g.player.bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g).name.toLowerCase()}.` : ''],
+        you: [g.player.bio ? `About {{user}} in this world: ${g.player.bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g).name.toLowerCase()}.` : ''],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present)],

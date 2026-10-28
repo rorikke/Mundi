@@ -5,7 +5,7 @@ import { ACT } from './reg.js';
 import { money } from '../sim/needs.js';
 import { weekday } from '../sim/time.js';
 import { comingEvents, isGoing, toggleGoing, placeName, eventHere } from '../sim/cityevents.js';
-import { hobbiesOf, progressOf, titleOf, MAX_LEVEL } from '../sim/hobbies.js';
+import { hobbiesOf, skillsOf, progressOf, titleOf, MAX_LEVEL } from '../sim/hobbies.js';
 const hm = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 function when(g, x) {
     const now = nowAbs(g);
@@ -35,12 +35,12 @@ export function cityEventsHtml(g, w) {
 // The HUD chip while an event is on where you are.
 export const eventChip = (g, w) => { const x = eventHere(g, w); return x ? `<small class="mh-crowd mh-fest" title="${esc(x.ev.desc ?? '')}">${esc(x.ev.icon ?? '🎉')}<span>${esc(x.ev.name)}</span></small>` : ''; };
 export const cityBadge = (g, w) => comingEvents(g, w, 1).filter(x => isGoing(g, x.key) && !x.off && x.from - nowAbs(g) <= 120 && x.to > nowAbs(g)).length;
-// The Profile's hobbies: level, title and a bar to the next level.
+// The Profile's skills and hobbies: level, title and a bar to the next level.
 export function hobbiesHtml(g, w) {
-    const list = hobbiesOf(w);
+    const list = skillsOf(w);
     if (!list.length)
         return '';
-    return `<section class="mu-hobbies"><h4>🎯 Hobbies</h4><p class="mu-muted">Practice levels them up: each 2 levels are +1 on their rolls, each level pays more, and some jobs ask for them.</p>
+    return `<section class="mu-hobbies"><h4>🎯 ${w.skills?.length ? 'Skills' : 'Hobbies'}</h4><p class="mu-muted">Practice levels them up: each 2 levels are +1 on their rolls, each level pays more, and jobs and promotions ask for them.</p>
         ${list.map(h => {
         const p = progressOf(g, h.id);
         return `<div class="mu-pf-row mu-hobby"><b>${esc(h.icon ?? '⭐')} ${esc(h.name)} <em>Lv ${p.level}</em></b>

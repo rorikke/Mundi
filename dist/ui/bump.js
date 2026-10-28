@@ -23,7 +23,7 @@ export function maybeBump(g, w) {
         return;
     const now = nowAbs(g);
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
-    const free = residents(g).filter(r => !here.has(r.avatar) && !isWith(g, r.avatar) && !isWorking(w, r, now) && whereNow(g, w, r) !== playerHomeId);
+    const free = residents(g).filter(r => !here.has(r.avatar) && !isWith(g, r.avatar) && !isWorking(g, w, r, now) && whereNow(g, w, r) !== playerHomeId);
     if (!free.length)
         return;
     const fond = free.filter(r => r.leisure.includes(g.player.loc));

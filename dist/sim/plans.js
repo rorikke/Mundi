@@ -11,7 +11,7 @@ import { nowAbs } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { hm, weekday } from './time.js';
 import { placeOf, playerHomeId, travelMinutes } from './places.js';
-import { routineStep, routineAt, whereNow } from './people.js';
+import { routineStep, whereNow, workingAt } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom } from './social.js';
 import { dating } from './feed.js';
 import { shutOut, crushOn, addRomance } from './romance.js';
@@ -38,7 +38,8 @@ export const canPlan = (g, avatar) => canHang(g, avatar) || canDate(g, avatar);
 // partner who has a crush on you, it's romantic).
 export const canAlong = (g, avatar) => !shutOut(g, avatar, isPartner(g, avatar)) && (close(g, avatar, ALONG_BOND) || matched(g, avatar) || housemate(g, avatar));
 const NOT_YOU = { ok: false, why: 'They do not want to spend time with you.' };
-export const isWorking = (w, r, at) => routineStep(r, at)[1] === 'work' && !!w.occupations.find(o => o.id === r.occupation);
+// At work then: their shift (a job with a schedule), their routine's work hours, or working late (sim/people.ts).
+export const isWorking = (g, w, r, at) => !!workingAt(g, w, r, at);
 export function isSleeping(r, at) {
     const h = Math.floor((at % 1440) / 60);
     return routineStep(r, at)[1] === 'home' && (h < 7 || h >= 23);
@@ -67,7 +68,7 @@ export function check(g, w, avatar, place, from, to, kind, need) {
     if (place === playerHomeId && !close(g, avatar, HOME_BOND))
         return { ok: false, why: 'They are not comfortable going to your home yet.' };
     for (let t = from; t < to; t += 30) {
-        if (isWorking(w, r, t))
+        if (isWorking(g, w, r, t))
             return { ok: false, why: 'They work at that time.' };
         if (isSleeping(r, t))
             return { ok: false, why: 'It is too late (or too early) for them.' };
@@ -130,7 +131,7 @@ export async function callOver(g, w, avatar, mine) {
     const from = now + trip;
     const kind = isPartner(g, avatar) ? 'date' : 'hangout';
     let ans = check(g, w, avatar, here, now, from + PLAN_LENGTH, kind, COME_BOND);
-    if (ans.ok && isWorking(w, r, now))
+    if (ans.ok && isWorking(g, w, r, now))
         ans = { ok: false, why: 'They are at work right now.' };
     const where = here === playerHomeId ? `${personaName()}'s place (not ${r.name}'s home: ${r.name} has to come over)` : placeOf(g, w, here)?.name ?? '';
     if (ans.ok) {
@@ -155,7 +156,7 @@ export function askAlong(g, w, avatar) {
         return NOT_YOU;
     if (!canAlong(g, avatar))
         return { ok: false, why: 'They do not know you well enough yet.' };
-    if (isWorking(w, r, now) && routineAt(g, w, r, now) === g.player.loc)
+    if (workingAt(g, w, r, now) === g.player.loc)
         return { ok: false, why: 'They are working.' };
     const s = social(g);
     if (!s.with.some(c => c.avatar === avatar)) {

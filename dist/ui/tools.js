@@ -54,9 +54,10 @@ Object.assign(ACT, {
             toast('Wait until they finish speaking.', 'info');
             return;
         }
-        if (g.player.loc !== o.place) {
+        const { jobPlace } = await import('../sim/work.js');
+        if (g.player.loc !== jobPlace(g, o)) {
             const { travelTo } = await import('./map.js');
-            await travelTo(o.place);
+            await travelTo(jobPlace(g, o));
         }
         state.view = 'scene';
         notify();

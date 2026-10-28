@@ -16,8 +16,9 @@ import { pickAndCrop, pickFile } from './cropper.js';
 import { toggleTrait } from './traits.js';
 import { nativeHost } from './native.js';
 import { presetsTabHtml } from './castpresets.js';
+import { startsTabHtml } from './startsui.js';
 const L = state.lib;
-const TABS = [['characters', 'Characters'], ['personas', 'Personas'], ['lorebooks', 'Lorebooks'], ['backgrounds', 'Backgrounds'], ['presets', 'Presets']]; // the save's and the world's settings live in the game (the globe button)
+const TABS = [['characters', 'Characters'], ['personas', 'Personas'], ['lorebooks', 'Lorebooks'], ['backgrounds', 'Backgrounds'], ['presets', 'Presets'], ['starts', 'Starts']]; // the save's and the world's settings live in the game (the globe button)
 const ST_TABS = ['st-characters', 'st-personas', 'st-worldinfo'];
 const isList = (t) => t === 'characters' || t === 'personas' || t === 'lorebooks' || t === 'backgrounds';
 const ROLES = [[0, 'System'], [1, 'User'], [2, 'Assistant']];
@@ -830,6 +831,8 @@ export function libraryHtml() {
         body = `<div class="mu-lib-body ${grid() ? 'is-grid' : ''}">${tab === 'backgrounds' && !B() ? '<p class="mu-muted mu-pad">Loading…</p>' : `${listPane(tab)}${detailPane(tab)}`}</div>`;
     else if (tab === 'presets')
         body = presetsTabHtml();
+    else if (tab === 'starts')
+        body = startsTabHtml();
     else if (tab === 'save')
         body = `<div class="mu-lib-body is-single"><section class="mu-lib-detail mu-panel" data-keep="lib-detail">${saveTab()}</section></div>`;
     else if (tab === 'world')

@@ -14,7 +14,7 @@ import { getWorld, career } from './world.js';
 import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, setPast, pastOf, PARTNER, COUPLE_ROMANCE, YOU } from '../sim/rel.js';
 import { isFamily } from './feel.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 3;
+export const SCHEMA = 4;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
 const MIGRATIONS = [
     // 1 (Mundi 0.1.x): the first versioned format. Saves from before only get the stamp; every system already fills
@@ -24,6 +24,9 @@ const MIGRATIONS = [
     { to: 2, what: 'relationships in one store', run: g => toRelStore(g) },
     // 3 (family-only ties): ties are family only; couples, exes and the rest live in the relationships store.
     { to: 3, what: 'family ties only', run: g => familyTiesOnly(g) },
+    // 4 (jobs and careers): a job keeps its rank and shifts, with a performance and the time in the rank; hobbies'
+    // experience becomes the skills'.
+    { to: 4, what: 'jobs with performance, hobbies as skills', run: g => jobsAndSkills(g) },
 ];
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
 // directions toward you, the status (and the partner list) the pair's; each "Play as" copy (`swap.persp`) holds how
@@ -167,6 +170,34 @@ function familyTiesOnly(g) {
             setPast(g, t.a, t.b, { until: g.day });
     }
     liv.ties = keep;
+}
+// Schema 4. The player's job (and the jobs kept for "Play as") gets a performance in the middle (50), so a promotion
+// first asks for some good shifts; the shifts toward the next rank stay as shifts in the rank, and the time in the
+// rank counts from now, as do vacation days and the shifts already looked at (no absence is counted for the days
+// before). Hobbies' experience (`player.hobbies`) moves to `player.skills`, the same numbers, so every level stays.
+// A second run finds the fields set and no hobbies left.
+function jobsAndSkills(g) {
+    const day = Number(g.day) || 1, now = day * 1440 + (Number(g.minutes) || 0);
+    const job = (j) => {
+        if (!j || typeof j !== 'object')
+            return;
+        j.perf ??= 50;
+        j.since ??= now;
+        j.checked ??= day;
+        j.vac ??= 0;
+        j.vacAt ??= day;
+        j.shifts = Number(j.shifts) || 0;
+    };
+    job(g.player?.job);
+    for (const j of Object.values(g.swap?.jobs ?? {}))
+        job(j);
+    const p = g.player;
+    if (p?.hobbies && typeof p.hobbies === 'object') {
+        p.skills = p.skills && typeof p.skills === 'object' ? p.skills : {};
+        for (const [k, v] of Object.entries(p.hobbies))
+            p.skills[k] = Math.max(Number(p.skills[k]) || 0, Number(v) || 0);
+        delete p.hobbies;
+    }
 }
 export const schemaOf = (g) => Number(g.schema ?? 0);
 const KEEP = 3;

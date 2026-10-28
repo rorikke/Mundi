@@ -3251,6 +3251,7 @@ body.mundi-open #toast-container { display: none !important; }
 @keyframes mu-rb-up { 0% { width: var(--a); background: var(--c0); } 45% { width: 100%; background: var(--c0); filter: brightness(1.6); } 50% { width: 0; background: var(--c1); } 100% { width: var(--b); background: var(--c1); } }
 @keyframes mu-rb-down { 0% { width: var(--a); background: var(--c0); } 45% { width: 0; background: var(--c0); } 50% { width: 100%; background: var(--c1); filter: brightness(.6); } 100% { width: var(--b); background: var(--c1); } }
 #mundi-root .mu-work-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#mundi-root .mu-work-perf { display: grid; gap: 4px; margin: 0 0 12px; }
 #mundi-root .mu-work-mode { display: grid; justify-items: start; gap: 4px; text-align: left; padding: 14px !important; border-radius: 16px !important; min-height: 110px; }
 #mundi-root .mu-work-mode i { font-style: normal; font-size: 26px; }
 #mundi-root .mu-work-mode small { color: var(--hud-muted); font-weight: 600; line-height: 1.35; }
@@ -3742,6 +3743,15 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-sug { display: grid; gap: 8px; padding: 12px 14px; margin: 8px 0; }
 #mundi-root .mu-sug-row { display: grid; grid-template-columns: minmax(90px, 1fr) 3fr auto; align-items: center; gap: 10px; }
 #mundi-root .mu-sug-row small { color: var(--muted); }
+/* New game: the world's own people chosen one by one, adult content, starts; a person's intimate profile. */
+#mundi-root .mu-ng-wp { margin-bottom: 18px; }
+#mundi-root .mu-ng-wp .mu-castgrid { margin-top: 8px; }
+#mundi-root .mu-castcard .mu-castinit { width: 100%; aspect-ratio: 2 / 3; border-radius: 8px; display: grid; place-items: center; font-style: normal; font-size: 28px; font-weight: 800; color: rgba(255, 255, 255, .92); background: linear-gradient(135deg, #3b82f6, #6d28d9); }
+#mundi-root .mu-ng-wp .mu-castcard:not(.is-on) img, #mundi-root .mu-ng-wp .mu-castcard:not(.is-on) .mu-castinit { opacity: .55; }
+#mundi-root .mu-ng-adult { margin-bottom: 14px; }
+#mundi-root .mu-starts .mu-origin small.mu-muted { display: block; margin-top: 2px; }
+#mundi-root .mu-pp-intimate { margin-top: 10px; display: grid; gap: 8px; }
+#mundi-root .mu-pp-intimate > button { justify-self: start; display: inline-flex; gap: 6px; align-items: center; }
 /* ==========================================================================
    Phones, upright (#mundi-root[data-mobile], set in app.ts).
    The game HUD stacks in rows at the top, the dialogue box fills the bottom, and the panels become full-screen sheets.

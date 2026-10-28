@@ -1,6 +1,6 @@
 import { festivalsHtml } from './lifeplus.js';
 import { cityEventsHtml, cityBadge } from './cityui.js';
-import { romanceButtons, relBar, relSubtitle } from './relui.js';
+import { romanceButtons, relBar, relSubtitle, workWeekHtml } from './relui.js';
 import { lex } from '../core/lexicon.js';
 import { stayButton, tidyEvent } from './events.js';
 // Plans on screen: the card of a person in the scene ("come with me", "make plans"), the plan form and the
@@ -54,7 +54,7 @@ export function sceneCard(g, w) {
         return '';
     const b = bondOf(g, r.avatar);
     const along = isWith(g, r.avatar);
-    const working = isWorking(w, r, nowAbs(g));
+    const working = isWorking(g, w, r, nowAbs(g));
     return `<div class="mu-pcard" role="dialog" aria-label="${esc(r.name)}">
         <header><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.met ? r.name : 'Someone')}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>
             <button class="mu-ibtn mu-ghost" data-act="pc-close" aria-label="Close">${icon('x')}</button></header>
@@ -141,6 +141,7 @@ export function calendarApp(g, w, head) {
         ${cityEventsHtml(g, w)}
         ${festivalsHtml(g, w)}`}
         <section><h4>Coming up</h4>${list.length ? list.map(a => planRow(g, w, a)).join('') : '<p class="mu-muted">No plans. Open someone in People to invite them out.</p>'}</section>
+        ${workWeekHtml(g, w)}
         ${past.length ? `<section><h4>Missed</h4>${past.map(a => `<p class="mu-muted"><span data-notr>${esc(g.cast[a.avatar]?.name ?? '')}</span> · ${esc(placeName(g, w, a.place))} · ${esc(whenText(g, a.from))}</p>`).join('')}</section>` : ''}
     </div>`;
 }

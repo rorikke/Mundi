@@ -1,10 +1,15 @@
 // Relationships, meet-ups and text messages. Bond grows when you talk to someone (in a scene or by phone);
 // a meet-up puts her at a place you chose for two hours; at a high bond you can ask her to be your partner.
+// Things done together count as time together (E14), and keepsakes can be given as gifts (E35).
 import { notify, nowAbs } from '../core/store.js';
-import { messageKind, aiVoice } from '../core/world.js';
-import { fr, gain, lose, setFr, touch, YOU, isPartner as partnerOfYou } from './rel.js';
+import { messageKind, aiVoice, systemOn } from '../core/world.js';
+import { fr, ro, gain, lose, setFr, touch, statusOf, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
-import { whereNow } from './people.js';
+import { whereNow, presentAt } from './people.js';
+import { personNamed } from './when.js';
+import { romanceBlocked } from './family.js';
+import { CRUSH } from './romance.js';
+import { note } from './facts.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
@@ -64,6 +69,91 @@ export function appointmentNow(g, avatar) {
 }
 export const isWith = (g, avatar) => social(g).with.some(c => c.avatar === avatar);
 export const companions = (g) => social(g).with.map(c => c.avatar).filter(a => g.cast[a]);
+// (E14) Who does something with you here: the people who came with you and are here, and the one you talk to alone.
+export function withYou(g, w) {
+    const here = presentAt(g, w, g.player.loc).filter(r => r.met).map(r => r.avatar);
+    const solo = String(social(g).solo ?? '');
+    return here.filter(a => isWith(g, a) || a === solo);
+}
+/* ---------- things done together (E14) ---------- */
+// Time spent doing something together counts like the rest of everyday life: a paced gain (sim/rel.ts), worth more
+// the longer it lasts (`per30` raw points each half hour, between `min` and `max`), half again on a date or with
+// your partner. Romance grows too with a partner, on a date, or when they already have a crush on you (half then).
+export const TOGETHER_GAIN = { per30: 1, min: 1, max: 5, date: 1.5 };
+export function doneTogether(g, w, avatars, minutes) {
+    const base = Math.max(TOGETHER_GAIN.min, Math.min(TOGETHER_GAIN.max, (minutes / 30) * TOGETHER_GAIN.per30));
+    return avatars.filter(a => g.cast[a]).map(a => {
+        const close = !!statusOf(g, a, YOU) || appointmentNow(g, a)?.kind === 'date';
+        const raw = base * (close ? TOGETHER_GAIN.date : 1);
+        const f = gain(g, 'f', a, YOU, raw).d;
+        const romantic = systemOn(w, 'romance') && !romanceBlocked(g, a) && (close || ro(g, a, YOU) >= CRUSH);
+        const r = romantic ? gain(g, 'r', a, YOU, close ? raw : raw / 2).d : 0;
+        touch(g, a);
+        return { avatar: a, f, r };
+    });
+}
+// A small change in how some of the world's people (by name) feel about you, from an outcome or a story: up paced,
+// down in full.
+export function feelsFrom(g, w, feels) {
+    if (!feels)
+        return;
+    for (const [name, n] of Object.entries(feels)) {
+        const r = personNamed(g, name);
+        if (!r || !n)
+            continue;
+        if (n > 0)
+            gain(g, 'f', r.avatar, YOU, n);
+        else
+            lose(g, 'f', r.avatar, YOU, n);
+    }
+}
+/* ---------- gifts (E35) ---------- */
+// A keepsake given to someone means what it means to them: one they'd love (their name on it, `loves`), one that fits
+// what they do or where they spend their free time (a word of `loves` in their job or leisure places), or just a
+// kind thought. Friendship grows by that (paced), once per kind of keepsake per person; the AI is told how it landed.
+export const GIFT = { loves: 8, fits: 4, kind: 1.5 };
+export const keepsakesOf = (g) => (g.player.keepsakes ??= {});
+export const keepsakeDef = (w, id) => w.keepsakes?.find(k => k.id === id) ?? { id, name: id, icon: '🎁' };
+export function addKeepsake(g, id, n = 1) { const k = keepsakesOf(g); k[id] = (k[id] ?? 0) + n; if (k[id] <= 0)
+    delete k[id]; }
+const words = (s) => s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+export function giftFit(g, w, k, avatar) {
+    const r = g.cast[avatar];
+    if (!r)
+        return 'kind';
+    const loves = k.loves ?? [];
+    if (loves.some(l => personNamed(g, l)?.avatar === avatar))
+        return 'loves';
+    const job = w.occupations.find(o => o.id === r.occupation);
+    const spots = (r.leisure ?? []).map(id => w.places.find(p => p.id === id)).filter(Boolean);
+    const hay = new Set([...(r.occupation ? [r.occupation] : []), ...words(job?.name ?? ''), ...spots.flatMap(p => [p.id, ...words(p.name), ...(p.tags ?? [])])].map(s => s.toLowerCase()));
+    return loves.some(l => !personNamed(g, l) && hay.has(l.toLowerCase())) ? 'fits' : 'kind';
+}
+/** What you could give: keepsakes you hold that can be given. */
+export const giftable = (g, w) => Object.entries(keepsakesOf(g)).filter(([id, n]) => n > 0 && keepsakeDef(w, id).gift !== false).map(([id]) => keepsakeDef(w, id));
+export function giveKeepsake(g, w, id, avatar) {
+    const r = g.cast[avatar], k = keepsakeDef(w, id);
+    if (!r?.met)
+        return { ok: false, text: '' };
+    if (!(keepsakesOf(g)[id] > 0) || k.gift === false)
+        return { ok: false, text: 'You don\'t have that to give.' };
+    if (!presentAt(g, w, g.player.loc).includes(r))
+        return { ok: false, text: `${r.name} isn't here.` };
+    addKeepsake(g, id, -1);
+    const s = social(g);
+    const kinds = ((s.gifts ??= {})[avatar] ??= []), kind = k.kind ?? k.id, first = !kinds.includes(kind);
+    const fit = giftFit(g, w, k, avatar);
+    const d = first ? gain(g, 'f', avatar, YOU, GIFT[fit]).d : 0;
+    if (first)
+        kinds.push(kind);
+    touch(g, avatar);
+    sawYou(g, avatar);
+    note(g, '{u} gave {0} a gift: {1}.', [r.name, k.name], [avatar], g.player.loc, 'gift');
+    const how = fit === 'loves' ? 'loves it: it is exactly the kind of thing they treasure' : fit === 'fits' ? 'likes it: it fits what they enjoy' : 'takes it kindly, though it means little to them';
+    const text = !first ? `${r.name} already has something like it from you.` : fit === 'loves' ? `${r.name} loves the ${k.name}!` : fit === 'fits' ? `${r.name} likes the ${k.name}.` : `${r.name} thanks you for the ${k.name}.`;
+    const ai = `[Just now {{user}} gave ${r.name} a gift: ${k.name}. ${r.name} ${how}${first ? '' : ` (${r.name} already has something like it from {{user}})`}. Narrate how ${r.name} reacts.]`;
+    return { ok: true, text, fit, first, d, ai };
+}
 /* ---------- text messages ---------- */
 // A text reply: the chat so far as a transcript that ends with her name, so the model writes her next message.
 function textTranscript(g, w, r, note = '') {

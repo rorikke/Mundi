@@ -1,13 +1,15 @@
 // A person's own ways, the same panel in every editor (the in-game People tab, the new game, the World creator, the
-// Library cast presets): gender, attraction, how fast their feelings grow, and their intimacy and relationship styles.
+// Library cast presets): gender, attraction, how fast their feelings grow, their intimacy and relationship styles, and
+// (E15, only with adult content on) their intimate profile.
 // Each editor registers a scope that reads and writes its own copy (the save, the new-game draft, the world's example
 // cast); the panel only knows the `Person` shape. "Suggest from the cards" asks the AI about people without a gender
 // and shows what it read until the player applies or dismisses it.
 import { esc, notify } from '../core/store.js';
 import { PRESETS as INTIMACY, R_NAME, F_NAME } from '../sim/intimacy.js';
 import { ACT, INPUT } from './reg.js';
+import { icon } from './icons.js';
 import { fullCharacter } from '../st/bridge.js';
-import { suggestFromCard } from '../sim/gender.js';
+import { suggestFromCard, cleanIntimate, INTIMATE_LINES, INTIMATE_LISTS } from '../sim/gender.js';
 export const SCOPES = {};
 const opt = (v, label, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
 const PP = { custom: new Set() }; // attraction shown as sliders even when the values match a preset
@@ -69,6 +71,24 @@ function waysHtml(scope, id, p) {
         <label class="mu-check"><input type="checkbox" data-input="pp" data-k="partner" ${data(scope, id)} ${i.casual === false ? 'checked' : ''}><span>Only with a partner<small>Nothing casual and no night together that's more than a sleepover until you're a couple, however they feel.</small></span></label>
         <label class="mu-field"><span>Relationships</span><select data-input="pp" data-k="style" ${data(scope, id)}>${opt('', 'World default', !p?.style)}${opt('exclusive', 'Exclusive: one partner', p?.style === 'exclusive')}${opt('open', 'Open: fine with more than one', p?.style === 'open')}</select></label>`;
 }
+// (E15) Their intimate profile, character-sheet style: plain words about what they like, never a scene. Kept with the
+// person; the AI is only told it with adult content on.
+const INTIMATE_LABEL = {
+    experience: ['Experience', 'about three partners, one long relationship'], wants: ['What they want', 'someone who makes them laugh'],
+    drawnTo: ['What draws them', 'kindness, good listeners'], flirts: ['How they flirt', 'teasing, sharing snacks'], dynamic: ['Who leads', 'switch, shy at first'],
+    prefs: ['What they like (one per line)', 'slow and tender\nbeing asked what they want'], limits: ['Hard limits (one per line; always respected)', 'nothing without a clear yes'],
+};
+const OPEN = new Set(); // intimate profiles opened in the panel (scope|id)
+function intimateHtml(scope, id, p) {
+    const i = p?.intimate ?? {}, open = OPEN.has(key(scope, id));
+    const f = (k) => `data-input="pp-int" data-f="${k}" ${data(scope, id)} data-focus="ppi-${esc(scope)}-${esc(id)}-${k}"`;
+    const n = Object.keys(i).length;
+    return `<div class="mu-pp-intimate"><button class="mu-ghost" data-act="pp-int-open" ${data(scope, id)} aria-expanded="${open}">${icon(open ? 'x' : 'edit')}<span>Intimate profile</span><small class="mu-muted">${n ? '' : 'empty · '}adult</small></button>
+        ${open ? `<p class="mu-muted">Like a character sheet: experience, wishes and limits in plain words, between adults. Only told to the AI with adult content on.</p>
+        ${INTIMATE_LINES.map(k => `<label class="mu-field"><span>${INTIMATE_LABEL[k][0]}</span><input maxlength="400" ${f(k)} value="${esc(i[k] ?? '')}" placeholder="${esc(INTIMATE_LABEL[k][1])}"></label>`).join('')}
+        ${INTIMATE_LISTS.map(k => `<label class="mu-field"><span>${INTIMATE_LABEL[k][0]}</span><textarea rows="3" ${f(k)} placeholder="${esc(INTIMATE_LABEL[k][1])}">${esc((i[k] ?? []).join('\n'))}</textarea></label>`).join('')}` : ''}
+    </div>`;
+}
 // The parts asked for, for one person of a scope. `you`: the person you play (no pace or styles: you play them).
 export function personPanel(scope, id, parts, opts = {}) {
     const s = SCOPES[scope];
@@ -78,7 +98,7 @@ export function personPanel(scope, id, parts, opts = {}) {
     return parts.map(part => part === 'gender' ? genderHtml(scope, id, p, gs)
         : part === 'attraction' ? attractionHtml(scope, id, p, gs, romance, !!opts.you)
             : part === 'pace' ? paceHtml(scope, id, p, romance)
-                : romance ? waysHtml(scope, id, p) : '').join('');
+                : romance ? `${waysHtml(scope, id, p)}${s.adult?.() ? intimateHtml(scope, id, p) : ''}` : '').join('');
 }
 /* ---------- suggestions from the cards ---------- */
 // What the AI read in each card, waiting for the player to apply or dismiss it (nothing is set before that).
@@ -142,6 +162,13 @@ export function tidyPerson(p) {
         delete p.gender;
     if (!p.style)
         delete p.style;
+    if (p.intimate) {
+        const i = cleanIntimate(p.intimate);
+        if (i)
+            p.intimate = i;
+        else
+            delete p.intimate;
+    }
     return Object.keys(p).length ? p : undefined;
 }
 function edit(el, fn) {
@@ -155,6 +182,10 @@ function edit(el, fn) {
     notify();
 }
 Object.assign(ACT, {
+    'pp-int-open': (el) => { const k = key(el.dataset.scope, el.dataset.id); if (OPEN.has(k))
+        OPEN.delete(k);
+    else
+        OPEN.add(k); notify(); },
     'pp-suggest': async (el) => {
         const scope = el.dataset.scope, s = SCOPES[scope];
         if (!s || SUG.busy)
@@ -215,6 +246,22 @@ function applySuggestion(scope, id, p) {
     s.set(id, tidyPerson(cur));
 }
 Object.assign(INPUT, {
+    // an intimate profile's field: kept as typed (no redraw while typing), lists one per line
+    'pp-int': (el) => {
+        const s = SCOPES[el.dataset.scope];
+        const id = el.dataset.id;
+        if (!s)
+            return;
+        const p = structuredClone(s.get(id) ?? {});
+        const k = el.dataset.f, v = el.value;
+        const i = { ...(p.intimate ?? {}) };
+        if (INTIMATE_LISTS.includes(k))
+            i[k] = v.split(/\r?\n/);
+        else
+            i[k] = v;
+        p.intimate = i;
+        s.set(id, tidyPerson(p));
+    },
     pp: (el) => {
         const v = el.value, k = el.dataset.k, m = el.dataset.m;
         if (k === 'attp') {

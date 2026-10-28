@@ -11,8 +11,8 @@ import { period, isWeekend, seasonDays, SEASONS } from './time.js';
 import { weatherAt, regionOf, regionState } from './worldstate.js';
 import { festivalsOn } from './festivals.js';
 import { eventsOn, liveEvents } from './cityevents.js';
-import { presentAt, routineAt, routineStep } from './people.js';
-import { visitsTo, breakNow } from './daylife.js';
+import { presentAt, routineAt, workingAt } from './people.js';
+import { visitsTo } from './daylife.js';
 import { levelOf } from './hobbies.js';
 import { fr, ro, statusOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
@@ -301,12 +301,10 @@ export function levelHolds(g, w, avatar, level) {
 }
 // Here now (as everyone else sees it), or at another moment by their routine.
 const isHere = (g, w, r, x) => (x.at === nowAbs(g) ? presentAt(g, w, x.place).includes(r) : routineAt(g, w, r, x.at) === x.place);
-// At work here: here, this is their job's place, and their day says work (a shift, or working late). J5 makes shifts
-// follow the job's schedule.
+// At work here: here, and their day says work here (a shift of a job with a schedule, their routine's work hours for
+// one without, or working late).
 function atWork(g, w, r, x) {
-    if (!systemOn(w, 'jobs') || w.occupations.find(o => o.id === r.occupation)?.place !== x.place || !isHere(g, w, r, x))
-        return false;
-    return routineStep(r, x.at)[1] === 'work' || breakNow(g, w, r, x.at)?.kind === 'late';
+    return systemOn(w, 'jobs') && workingAt(g, w, r, x.at) === x.place && isHere(g, w, r, x);
 }
 /** Has `id` been done today (at `place`, or anywhere)? */
 export function doneToday(g, id, place, day = g.day) {

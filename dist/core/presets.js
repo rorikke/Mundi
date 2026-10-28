@@ -281,6 +281,15 @@ function exampleRelations(w) {
             e.feelings = feelings;
     }
 }
+/** (J1) A job's schedule, or one made from its opening hours for a job without one (older and custom worlds, Home's
+ *  off-screen jobs): five days a week (Monday to Friday) within the hours it's open, starting whenever you like as long
+ *  as the shift fits before closing. */
+export function scheduleOf(o) {
+    if (o.schedule && (Array.isArray(o.schedule.days) ? o.schedule.days.length : o.schedule.days > 0))
+        return o.schedule;
+    const [a, b] = o.hours ?? [0, 24];
+    return { days: 5, from: a, to: a === b ? a + 24 : b };
+}
 export function upgradeWorld(w) {
     const p = presetOf(w);
     const c = (w.catalogs ??= {});
@@ -421,6 +430,13 @@ export function upgradeWorld(w) {
             s.zero = { ...(s.zero ?? {}), crisis: structuredClone(c) };
         }
         w.presetCrises = true;
+    }
+    // (E16) origins become the simplest starts, once (a world that has starts keeps its own; removed ones stay removed).
+    // Same id, money and home; no premise of its own: the origin's words are told as before.
+    if (!w.presetStarts) {
+        if (!w.starts && w.catalogs?.origins?.length)
+            w.starts = w.catalogs.origins.map(o => ({ id: o.id, name: o.name, ...(o.desc ? { desc: o.desc } : {}), premise: '', ...(o.home ? { home: o.home } : {}), money: o.money }));
+        w.presetStarts = true;
     }
     return w;
 }
