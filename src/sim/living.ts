@@ -2,11 +2,11 @@
 // the world, people's own lives moving on over the weeks, and rumors that travel between people.
 import { personaName } from '../st/bridge.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, isScenario, type WorldDef, type LoreEntry, type LoreWhen } from '../core/world.js';
+import { systemOn, isScenario, type WorldDef, type LoreWhen } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
-import { weatherAt, regionOf, regionState } from './worldstate.js';
-import { period, isWeekend, seasonOf } from './time.js';
+import { regionOf, regionState } from './worldstate.js';
+import { whenHolds, whenPlace, whenRegionOk } from './when.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
@@ -31,38 +31,12 @@ export function approvalLine(g: Save, present: Resident[]) {
 
 /* ---------- lore that switches on with the world (75) ---------- */
 
-// A world's lore entry can have `when`: the weather, the part of the day, a place or a region, weekends, a season,
-// the public mood or tension of the region, a range of days, or a chance each day. `rumor: true` makes it a rumor
-// that goes around instead (people mention it; see the rumor pool below).
+// A world's lore entry can have `when` (a condition, sim/when.ts): sent with the scene while it holds. `rumor: true`
+// makes it a rumor that goes around instead (people mention it; see the rumor pool below). Each entry rolls its own
+// `chance` dice (salted with its index), so the same lore is on all day.
 export type { LoreWhen };
-type WhenLore = Omit<LoreEntry, 'when'> & { when?: LoreWhen };
-// The day-wide conditions (no place or hour): also what decides when a world rumor starts going around.
-function dayHolds(g: Save, w: WorldDef, c: LoreWhen, key: string, place = g.player.loc): boolean {
-    if (c.weather && !weatherAt(g, w, place).name.toLowerCase().includes(c.weather.toLowerCase())) return false;
-    if (c.weekend !== undefined && c.weekend !== isWeekend(g.day)) return false;
-    if (c.season && c.season !== seasonOf(g).id) return false;
-    if (c.fromDay && g.day < c.fromDay) return false;
-    if (c.toDay && g.day > c.toDay) return false;
-    const reg = c.region ?? regionOf(g, w, place);
-    if (c.tensionAbove !== undefined || c.moodAbove !== undefined || c.moodBelow !== undefined) {
-        if (!systemOn(w, 'living')) return false;
-        const r = regionState(g, w, reg);
-        if (c.tensionAbove !== undefined && r.tension <= c.tensionAbove) return false;
-        if (c.moodAbove !== undefined && r.mood <= c.moodAbove) return false;
-        if (c.moodBelow !== undefined && r.mood >= c.moodBelow) return false;
-    }
-    if (c.chance !== undefined && c.chance < 1 && rnd(g, `lore|${key}`) >= c.chance) return false;
-    return true;
-}
 export function activeWorldLore(g: Save, w: WorldDef): string[] {
-    const per = period(w, g.minutes).name.toLowerCase();
-    return (w.lore as WhenLore[]).filter((e, i) => {
-        const c = e.when; if (!c || !e.content || e.rumor) return false;
-        if (c.period && c.period.toLowerCase() !== per) return false;
-        if (c.place && c.place !== g.player.loc) return false;
-        if (c.region && c.region !== regionOf(g, w, g.player.loc)) return false;
-        return dayHolds(g, w, c, String(i));
-    }).map(e => e.content);
+    return w.lore.filter((e, i) => !!e.when && !!e.content && !e.rumor && whenHolds(g, w, e.when, { key: `lore|${i}` })).map(e => e.content);
 }
 
 /* ---------- people's own lives (76) ---------- */
@@ -158,13 +132,14 @@ function spreadRumors(g: Save, w: WorldDef): string[] {
 // region if it has one); once it has died out it can start again another day.
 function seedWorldRumors(g: Save, w: WorldDef) {
     const st = L(g);
-    (w.lore as WhenLore[]).forEach((e, i) => {
+    w.lore.forEach((e, i) => {
         if (!e.rumor || !e.content) return;
         const id = `lore:${i}`;
         if (st.rumors.some(r => r.id === id)) return;
+        // only what holds for the whole day counts (where the player is doesn't), and a quarter of the days by default
         const c = e.when ?? {};
-        if (!dayHolds(g, w, { ...c, chance: c.chance ?? 0.25 }, `rumor|${i}`, c.place ?? g.player.loc)) return;
-        const pool = residents(g).filter(r => !c.region || regionOf(g, w, `home:${r.avatar}`) === c.region || regionOf(g, w, w.occupations.find(o => o.id === r.occupation)?.place ?? '') === c.region);
+        if (!whenHolds(g, w, c, { key: `lore|rumor|${i}`, day: true, place: whenPlace(c) ?? g.player.loc, chance: 0.25 })) return;
+        const pool = residents(g).filter(r => whenRegionOk(c, regionOf(g, w, `home:${r.avatar}`)) || whenRegionOk(c, regionOf(g, w, w.occupations.find(o => o.id === r.occupation)?.place ?? '')));
         if (!pool.length) return;
         const first = [...pool].sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2);
         st.rumors.push({ id, text: e.content, at: nowAbs(g), knownBy: first.map(r => r.avatar), heat: 100, hops: Object.fromEntries(first.map(r => [r.avatar, 1])), world: true });
