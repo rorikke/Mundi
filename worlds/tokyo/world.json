@@ -2194,7 +2194,8 @@
      "text": "A fashion zine photographer asks nicely, takes ten frames and gives you a card; your photo might run.",
      "effects": {
       "mood": 10
-     }
+     },
+     "rumor": "Someone from Takeshita Street might be in the next fashion zine."
     },
     "fail": {
      "text": "He thanks you politely and moves on to someone in a bigger hat."
@@ -2768,7 +2769,8 @@
      "text": "You learn which doorways say the price first, and which don't.",
      "effects": {
       "mood": 3
-     }
+     },
+     "rumor": "Someone learned which bars in Kabukichō hide their table fee."
     },
     "fail": {
      "text": "A 'free first drink' arrives with a table fee nobody mentioned. A lesson, at a price.",
@@ -2814,7 +2816,8 @@
      "text": "A patrol volunteer at the next stool says which alley had a quiet night, and which didn't.",
      "effects": {
       "mood": 2
-     }
+     },
+     "rumor": "The neighborhood patrol keeps count of the quiet nights in Kabukichō."
     }
    ],
    "fact": "{u} had breakfast with the night shift in {0}",
@@ -3305,7 +3308,8 @@
      "effects": {
       "mood": -1
      },
-     "fact": "{u} owes Mama a favor"
+     "fact": "{u} owes Mama a favor",
+     "rumor": "Mama at Bar Kotori told someone something, and now they owe her a favor."
     }
    ],
    "fact": "{u} had \"the usual\" at {0}; Mama poured it without asking",
@@ -3812,7 +3816,8 @@
      "text": "A man who missed the last train tells you how many years he's been doing it. A backpacker shares the best ramen she found.",
      "effects": {
       "mood": 4
-     }
+     },
+     "rumor": "Someone at Nest Capsule shared a story after midnight."
     },
     "fail": {
      "text": "Everyone stays politely silent behind their phones."
@@ -3927,7 +3932,8 @@
      "text": "A stranger at the next stool tells you which band to see this week.",
      "effects": {
       "mood": 4
-     }
+     },
+     "rumor": "Someone at a Shimokita bar swears this week's best gig is in a basement nobody has heard of."
     }
    ],
    "fact": "{u} went bar-hopping in {0}"
@@ -4697,7 +4703,8 @@
      "text": "A regular tells you who is selling and who is moving out in the neighborhood.",
      "effects": {
       "mood": 2
-     }
+     },
+     "rumor": "A regular at the sentō knows who is moving out of the neighborhood."
     }
    ],
    "fact": "{u} soaked at {0}"
@@ -9169,7 +9176,8 @@
     {
      "weight": 20,
      "text": "Two producers at the next table argue about a show about to be axed.",
-     "effects": {}
+     "effects": {},
+     "rumor": "The late-night quiz show won't be renewed in spring."
     },
     {
      "weight": 10,
@@ -10023,7 +10031,8 @@
      "text": "A regular who owns half a block of buildings tells you a story and says your name to the bartender; you've been vouched for.",
      "effects": {
       "mood": 6
-     }
+     },
+     "rumor": "A lounge regular gave a stranger his card."
     },
     "fail": {
      "text": "A polite brush-off, a half bow and a changed subject.",
@@ -10826,7 +10835,8 @@
      "text": "Three bars, three snacks, two friends made and one number given.",
      "effects": {
       "mood": 4
-     }
+     },
+     "rumor": "Someone made friends bar-hopping in Noge."
     },
     "fail": {
      "text": "One bar too many: you lose a shoe, a stool and your sense of direction.",
@@ -12737,7 +12747,8 @@
    ],
    "custom": {
     "kind": "group",
-    "text": "Friends and colleagues spread out blue sheets under the cherry trees and picnic together; someone always arrives at dawn to save the spot."
+    "text": "Friends and colleagues spread out blue sheets under the cherry trees and picnic together; someone always arrives at dawn to save the spot.",
+    "at": 12
    },
    "mood": 15,
    "desc": "picnics under the cherry trees, blue sheets on every lawn",
@@ -13061,7 +13072,8 @@
    "place": "mg_izakaya",
    "custom": {
     "kind": "group",
-    "text": "Colleagues and friends gather for year-end parties to leave the year behind; the bosses pay, and everyone is a little too honest."
+    "text": "Colleagues and friends gather for year-end parties to leave the year behind; the bosses pay, and everyone is a little too honest.",
+    "at": 19
    },
    "mood": 12,
    "desc": "colleagues drink the year away",
@@ -13110,7 +13122,8 @@
    "place": "ot_sensoji",
    "custom": {
     "kind": "family",
-    "text": "People eat toshikoshi soba and visit a temple as the bells ring in the year, with family or close friends."
+    "text": "People eat toshikoshi soba and visit a temple as the bells ring in the year, with family or close friends.",
+    "at": 23
    },
    "mood": 20,
    "desc": "soba at the stroke of the year and temple bells at midnight",
@@ -13129,7 +13142,8 @@
    "place": "sb_meiji",
    "custom": {
     "kind": "family",
-    "text": "At New Year families and close friends go together on the first shrine visit of the year, to pray and draw fortunes."
+    "text": "At New Year families and close friends go together on the first shrine visit of the year, to pray and draw fortunes.",
+    "at": 10
    },
    "mood": 15,
    "desc": "the first shrine visit of the year: prayers, charms and fortunes",
@@ -14302,7 +14316,8 @@
    "keys": [],
    "content": "They say Kaname hasn't lost the number-one spot at Club Eternal in two years, and nobody has seen him laugh with a customer the way he laughs when his sister waits up for him.",
    "rumor": true,
-   "adult": true
+   "adult": true,
+   "about": "Shōta"
   },
   {
    "when": "region: shinjuku; chance: 0.1",
@@ -14421,13 +14436,15 @@
    "when": "region: shinjuku; chance: 0.2",
    "keys": [],
    "content": "They say Mama was the head hostess at Lounge Velvet in its great years, and she won't talk about her Velvet days.",
-   "rumor": true
+   "rumor": true,
+   "about": "Kyōko"
   },
   {
    "when": "region: shinjuku; chance: 0.15",
    "keys": [],
    "content": "People tell Mama things because she never repeats them, which is why the alley's secrets stay in the alley.",
-   "rumor": true
+   "rumor": true,
+   "about": "Kyōko"
   },
   {
    "when": "place: sj_nichome; period: evening",
@@ -15925,7 +15942,9 @@
    "keys": [],
    "content": "People say the web novelist \"Moon Fox\" lives somewhere in Yanaka, and every grandmother on the lane has her own theory.",
    "rumor": true,
-   "when": "region: oldtown; chance: 0.15"
+   "when": "region: oldtown; chance: 0.15",
+   "about": "Yui",
+   "secret": true
   },
   {
    "keys": [],
@@ -18162,7 +18181,9 @@
    "keys": [],
    "content": "Staff at the other inns say Shizuka has started taking the early express to Tokyo on her days off, always in jeans, and never says why.",
    "rumor": true,
-   "when": "region: hakone; chance: 0.15"
+   "when": "region: hakone; chance: 0.15",
+   "about": "Shizuka",
+   "secret": true
   },
   {
    "keys": [],
@@ -20690,7 +20711,28 @@
       "feels": {
        "Kaito": -1
       }
-     }
+     },
+     "when": "feels: not Kaito friend"
+    },
+    {
+     "label": "Tell him to stop for today",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "he pockets his last coins and walks out beside you",
+     "feels": {
+      "Kaito": 1
+     },
+     "fail": {
+      "text": "\"Next round,\" he says and sits",
+      "feels": {
+       "Kaito": -1
+      }
+     },
+     "when": "feels: Kaito friend",
+     "fact": "{u} learned Kaito borrowed from a loan app",
+     "reveal": "kaito_debt"
     },
     {
      "label": "Play the machine next to his",
@@ -20823,7 +20865,21 @@
     {
      "label": "Ask about the runway",
      "text": "she says \"long enough\" and starts the slide again",
-     "fact": "{u} asked Rina about money"
+     "fact": "{u} asked Rina about money",
+     "when": "feels: not Rina friend"
+    },
+    {
+     "label": "Ask about the runway",
+     "when": "feels: Rina friend",
+     "text": "she glances at the door and says it quietly: twelve weeks, if nobody tells payroll",
+     "effects": {
+      "mood": -2
+     },
+     "feels": {
+      "Rina": 1
+     },
+     "fact": "{u} learned Hikari Labs has about twelve weeks of money",
+     "reveal": "rina_runway"
     },
     {
      "label": "Cheer her on from the back row",
@@ -20834,6 +20890,17 @@
      "feels": {
       "Rina": 1
      }
+    },
+    {
+     "label": "Call in the favor from Hakone",
+     "when": "favor: Rina",
+     "spend": "Rina",
+     "text": "she owes you one and knows it, so she drops the act: twelve weeks of money, maybe less",
+     "feels": {
+      "Rina": 1
+     },
+     "fact": "{u} called in a favor and learned how short Hikari Labs' money is",
+     "reveal": "rina_runway"
     }
    ]
   },
@@ -21199,7 +21266,26 @@
       "effects": {
        "mood": -1
       }
-     }
+     },
+     "when": "present: Ren"
+    },
+    {
+     "label": "Hold the light for the engineer",
+     "roll": {
+      "skill": "logic",
+      "dc": 10
+     },
+     "text": "The right switch, power back in a minute, and the crowd roars.",
+     "effects": {
+      "mood": 5
+     },
+     "fail": {
+      "text": "Wrong switch; the bar fridges clatter and the engineer sighs.",
+      "effects": {
+       "mood": -1
+      }
+     },
+     "when": "present: not Ren"
     },
     {
      "label": "Start a clap-along",
@@ -21391,7 +21477,8 @@
       "feels": {
        "Mio": 1
       }
-     }
+     },
+     "favor": "Mio"
     },
     {
      "label": "Warn Mio quietly",
@@ -21428,14 +21515,14 @@
      "effects": {
       "mood": 6
      },
-     "money": 300,
+     "money": -300,
      "rumor": "someone saved a cosplayer's wing on car-free Sunday",
      "fail": {
       "text": "The wing hangs crooked; they laugh and call it battle damage.",
       "effects": {
        "mood": 2
       },
-      "money": 300
+      "money": -300
      }
     },
     {
@@ -21482,7 +21569,7 @@
       "effects": {
        "mood": -2
       },
-      "money": 300
+      "money": -300
      }
     },
     {
@@ -21517,7 +21604,7 @@
       "dc": 11
      },
      "text": "He grumbles, then laughs. Over a vending machine drink he admits the night has gone badly and leaves the bear alone.",
-     "money": 160,
+     "money": -160,
      "effects": {
       "mood": 3
      },
@@ -21538,13 +21625,13 @@
       "dc": 12
      },
      "text": "Two tries and the bear drops. Kaito whoops, hugs it, and tries to pay you back in coins.",
-     "money": 400,
+     "money": -400,
      "feels": {
       "Kaito": 2
      },
      "fail": {
       "text": "You miss twice. Kaito laughs for the first time tonight and takes over.",
-      "money": 400,
+      "money": -400,
       "effects": {
        "mood": 1
       }
@@ -21583,7 +21670,8 @@
       "effects": {
        "energy": -5
       }
-     }
+     },
+     "favor": "Hina"
     },
     {
      "label": "Tell the theater staff",
@@ -21616,11 +21704,11 @@
      "effects": {
       "mood": 5
      },
-     "money": 160,
+     "money": -160,
      "rumor": "a man at Comic Cocoon finally called home",
      "fail": {
       "text": "He thanks you stiffly and pulls the curtain shut.",
-      "money": 160
+      "money": -160
      }
     },
     {
@@ -21673,7 +21761,7 @@
     {
      "label": "Draw a second plaque and hang both low",
      "text": "You paint a quick wish beside hers and tie the two on the lowest hook. She says two wishes on one hook must count double.",
-     "money": 800,
+     "money": -800,
      "effects": {
       "mood": 4
      }
@@ -21737,7 +21825,7 @@
     {
      "label": "Hand over your spare tickets",
      "text": "The cook takes the strip, the line cheers, and you get a bowl for your trouble. Ten tickets won't feed everyone, but they buy the club twenty minutes.",
-     "money": 1000,
+     "money": -1000,
      "effects": {
       "hunger": 25,
       "mood": 4
@@ -21750,7 +21838,7 @@
       "dc": 9
      },
      "text": "You sprint across the quad to the library lobby and come back with a fat roll of tickets. The volunteer salutes; the line cheers.",
-     "money": 1000,
+     "money": -1000,
      "effects": {
       "mood": 5,
       "energy": -5
@@ -21998,7 +22086,8 @@
       "effects": {
        "mood": 2
       }
-     }
+     },
+     "reveal": "lucas_grandmother"
     },
     {
      "label": "Hold the photocopy while he asks",
@@ -22009,7 +22098,8 @@
      "feels": {
       "Lucas": 1
      },
-     "fact": "{u} stood by while Lucas asked an old stallholder about a village"
+     "fact": "{u} stood by while Lucas asked an old stallholder about a village",
+     "reveal": "lucas_grandmother"
     },
     {
      "label": "Buy squid and give them room",
@@ -22130,7 +22220,8 @@
      "effects": {
       "energy": -5
      },
-     "fact": "{u} walked a retirees' club to its bullet train at {0}"
+     "fact": "{u} walked a retirees' club to its bullet train at {0}",
+     "favor": "clubtrip_leader"
     }
    ]
   },
@@ -22150,7 +22241,8 @@
      "feels": {
       "Reiko": 2
      },
-     "fact": "{u} sat with Reiko on the steps below the Asahina tower at night"
+     "fact": "{u} sat with Reiko on the steps below the Asahina tower at night",
+     "reveal": "reiko_burnout"
     },
     {
      "label": "Ask the guard to wait five more minutes",
@@ -22258,7 +22350,21 @@
     },
     {
      "label": "Ask about the envelope",
-     "text": "he laughs it off too loudly and changes the subject"
+     "text": "he laughs it off too loudly and changes the subject",
+     "when": "feels: not Daisuke friend"
+    },
+    {
+     "label": "Ask about the envelope",
+     "when": "feels: Daisuke friend",
+     "text": "he whispers that it is a resignation letter, a year old, and begs you not to tell Reiko-san",
+     "effects": {
+      "mood": 2
+     },
+     "feels": {
+      "Daisuke": 2
+     },
+     "fact": "{u} knows that Daisuke carries a letter of resignation",
+     "reveal": "daisuke_letter"
     }
    ]
   },
@@ -22361,7 +22467,8 @@
      "feels": {
       "Linh": 2
      },
-     "fact": "{u} knows Linh still owes her recruitment broker"
+     "fact": "{u} knows Linh still owes her recruitment broker",
+     "reveal": "linh_debt"
     },
     {
      "label": "Say nothing and share her break",
@@ -22833,7 +22940,8 @@
       "feels": {
        "Hina": -1
       }
-     }
+     },
+     "favor": "Hina"
     },
     {
      "label": "Tell him to leave the gift",
@@ -22884,7 +22992,8 @@
      "feels": {
       "Chloe": 2
      },
-     "fact": "{u} gave Chloe a quiet place for a call from home at {0}"
+     "fact": "{u} gave Chloe a quiet place for a call from home at {0}",
+     "favor": "Chloe"
     },
     {
      "label": "Say hello on the call",
@@ -23245,7 +23354,8 @@
      "effects": {
       "mood": 3
      },
-     "fact": "{u} stayed to the end of the old performer's play in {0}"
+     "fact": "{u} stayed to the end of the old performer's play in {0}",
+     "favor": "noge_performer"
     }
    ]
   },
@@ -23464,7 +23574,8 @@
       "feels": {
        "Shizuka": -1
       }
-     }
+     },
+     "favor": "Rina"
     },
     {
      "label": "Sit down with them like old friends",
@@ -23473,7 +23584,8 @@
       "Rina": 2,
       "Shizuka": 1
      },
-     "fact": "{u} sat with Rina and Shizuka by the river at {0}"
+     "fact": "{u} sat with Rina and Shizuka by the river at {0}",
+     "favor": "Rina"
     },
     {
      "label": "Walk on",
@@ -23493,7 +23605,8 @@
      "feels": {
       "Shizuka": 1
      },
-     "fact": "{u} brought tea during Shizuka's meeting at {0}"
+     "fact": "{u} brought tea during Shizuka's meeting at {0}",
+     "reveal": "shizuka_marriage"
     },
     {
      "label": "Ask about the lake view",
@@ -23511,7 +23624,8 @@
       "feels": {
        "Shizuka": -1
       }
-     }
+     },
+     "reveal": "shizuka_marriage"
     },
     {
      "label": "Stay out of it",
@@ -23519,7 +23633,8 @@
      "feels": {
       "Shizuka": -1
      },
-     "fact": "{u} walked past Shizuka's meeting at {0}"
+     "fact": "{u} walked past Shizuka's meeting at {0}",
+     "reveal": "shizuka_marriage"
     }
    ]
   },
@@ -23667,6 +23782,151 @@
       "mood": -1
      },
      "fact": "{u} walked past a woman recording at {0}"
+    }
+   ]
+  },
+  {
+   "id": "rp_lounge_st_contract",
+   "place": "rp_lounge",
+   "brings": "Airi",
+   "adult": true,
+   "when": "present: Airi; feels: Airi friend; period: evening or night",
+   "setup": "At a corner table of Lounge Ninth Floor, Airi has a thick envelope from her agency open beside her glass: a renewal, a bigger fee and two more years. She has read the first page four times. She spots {{user}}, pats the seat beside her and slides the contract over: \"Read it with me? I trust you more than I trust them.\"",
+   "choices": [
+    {
+     "label": "Read it with her, line by line",
+     "roll": {
+      "skill": "logic",
+      "dc": 11
+     },
+     "text": "you find the clause that would make cancelling a shoot harder; she calls the agency on the spot, and they drop it",
+     "feels": {
+      "Airi": 2
+     },
+     "effects": {
+      "mood": 4
+     },
+     "fail": {
+      "text": "nothing stands out, and she signs it as it is",
+      "feels": {
+       "Airi": 1
+      },
+      "fact": "{u} read Airi's contract with her"
+     }
+    },
+    {
+     "label": "Tell her to take the money",
+     "text": "she signs on the spot and presses an envelope on you as a thank-you; she wanted advice, not a push",
+     "money": 3000,
+     "feels": {
+      "Airi": -1
+     }
+    },
+    {
+     "label": "Suggest she asks for a month to think",
+     "text": "the agency agrees, grudgingly, and she orders two more drinks",
+     "feels": {
+      "Airi": 1
+     },
+     "fact": "{u} helped Airi take time over her contract"
+    }
+   ]
+  },
+  {
+   "id": "ak_electric_st_signing",
+   "place": "ak_electric",
+   "brings": "Airi",
+   "adult": true,
+   "when": "present: Airi; feels: Airi friend; weekend: yes; period: afternoon",
+   "setup": "In the back room of a shop in Electric Town, Airi's signing event is over and the staff are folding the table. One fan has waited until the line is gone: a man in his fifties holding a handmade gift, his hands shaking. Airi smiles at him in a way {{user}} knows is tired, and glances at {{user}}.",
+   "choices": [
+    {
+     "label": "Stand beside her while she thanks him",
+     "text": "he leaves lighter, bowing at the door, and Airi squeezes your hand under the table",
+     "feels": {
+      "Airi": 2
+     },
+     "fact": "{u} stood by Airi at a signing"
+    },
+    {
+     "label": "Ask the staff to walk him out kindly",
+     "text": "it ends quickly and politely; he looks hurt on the way out",
+     "feels": {
+      "Airi": -1
+     },
+     "effects": {
+      "mood": -2
+     }
+    },
+    {
+     "label": "Buy him a coffee and talk",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "over a vending-machine coffee he says what her work has meant to him through a hard year, thanks you, and goes home happy",
+     "feels": {
+      "Airi": 2
+     },
+     "effects": {
+      "mood": 4
+     },
+     "rumor": "A fan at Airi's signing was treated kindly.",
+     "fail": {
+      "text": "he gets awkward and the staff step in",
+      "effects": {
+       "mood": -3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "sb_yoyogi_st_release",
+   "place": "sb_yoyogi",
+   "brings": "Momo",
+   "adult": true,
+   "when": "present: Momo; feels: Momo friend; period: midmorning or afternoon",
+   "setup": "On a bench near the fountain in Yoyogi Park, Momo sits with her phone in both hands and an untouched smoothie beside her. Her first release is dated next week; under the 2022 law she can still cancel it, and the agency's email asks her to confirm by Friday. She sees {{user}} and holds the phone out: \"What would you do?\"",
+   "choices": [
+    {
+     "label": "Help her write the cancellation",
+     "roll": {
+      "skill": "writing",
+      "dc": 9
+     },
+     "text": "the notice is accepted and the release is held; her pay will be smaller, and she looks lighter than she has in weeks",
+     "feels": {
+      "Momo": 2
+     },
+     "fact": "{u} helped Momo use her right to cancel",
+     "fail": {
+      "text": "the wording is rejected and she has to write it again tonight",
+      "feels": {
+       "Momo": 1
+      },
+      "effects": {
+       "energy": -10
+      }
+     }
+    },
+    {
+     "label": "Tell her it's her call",
+     "text": "she thinks it over in silence for a long time, then decides for herself",
+     "feels": {
+      "Momo": 1
+     },
+     "fact": "{u} told Momo the choice was hers"
+    },
+    {
+     "label": "Ask Airi what she would do",
+     "when": "feels: Airi acquaintance",
+     "text": "Airi picks up on the second ring and tells Momo about her own first release; Momo sits easier",
+     "feels": {
+      "Airi": 1,
+      "Momo": 2
+     },
+     "fact": "{u} brought Airi and Momo together over a contract"
     }
    ]
   }
@@ -25275,7 +25535,8 @@
         "effects": {
          "mood": -3
         }
-       }
+       },
+       "rumor": "The clerk at Coco Palace talked a woman out of a room she didn't want."
       },
       {
        "label": "Call the manager",
@@ -25498,7 +25759,8 @@
       },
       {
        "label": "Tell her to stop coming",
-       "perf": -1
+       "perf": -1,
+       "rumor": "A host at Club Eternal turned away a customer to save her money."
       },
       {
        "label": "Quietly give her the ward counseling card",
@@ -29766,7 +30028,8 @@
        "perf": 1,
        "effects": {
         "mood": 5
-       }
+       },
+       "rumor": "A clerk at Tsubakiya spent twenty minutes helping a woman count her coins."
       },
       {
        "label": "Point her to the cashier"
@@ -30220,7 +30483,8 @@
         "dc": 9
        },
        "text": "you notice the pattern",
-       "perf": 1
+       "perf": 1,
+       "rumor": "Another overworked patient on the fourth floor."
       }
      ]
     }
@@ -30479,7 +30743,8 @@
      "choices": [
       {
        "label": "Admit him for observation",
-       "perf": 1
+       "perf": 1,
+       "rumor": "A doctor kept a stubborn executive overnight."
       },
       {
        "label": "Send him home with advice",
@@ -33164,7 +33429,8 @@
       "endings": [
        {
         "id": "pulls_through",
-        "text": "She pulls through her exams."
+        "text": "She pulls through her exams.",
+        "when": "knows: mio_grades; feels: Mio friend"
        },
        {
         "id": "repeats_year",
@@ -33347,7 +33613,8 @@
       "endings": [
        {
         "id": "new_sponsor",
-        "text": "A new sponsor (Hikari Labs or Hijiri University) takes on her visa, and she stays in Tokyo for good."
+        "text": "A new sponsor (Hikari Labs or Hijiri University) takes on her visa, and she stays in Tokyo for good.",
+        "when": "knows: chloe_visa; feels: Chloe good"
        },
        {
         "id": "leaves_tokyo",
@@ -33499,11 +33766,13 @@
       "endings": [
        {
         "id": "signs_solo",
-        "text": "She signs solo, and Paper Lanterns ends."
+        "text": "She signs solo, and Paper Lanterns ends.",
+        "when": "thread: kaito_debt sells_drums"
        },
        {
         "id": "brings_band",
-        "text": "She brings the band along."
+        "text": "She brings the band along.",
+        "when": "knows: nanami_scout; feels: Nanami good"
        },
        {
         "id": "tears_card",
@@ -33607,13 +33876,15 @@
         "when": "season: summer",
         "tell": "known",
         "text": "A collector calls Nanami about the loan.",
-        "moment": "A collector phones Nanami about Kaito's loan."
+        "moment": "A collector phones Nanami about Kaito's loan.",
+        "rumor": "A loan app's collector has been phoning around about Kaito."
        }
       ],
       "endings": [
        {
         "id": "paid_off",
-        "text": "The debt is paid off with Nanami's help."
+        "text": "The debt is paid off with Nanami's help.",
+        "when": "knows: kaito_debt; feels: Kaito friend"
        },
        {
         "id": "sells_drums",
@@ -33707,7 +33978,8 @@
        {
         "when": "season: autumn or winter",
         "tell": "known",
-        "text": "Ayaka finds out about the lease, and father and daughter argue about it across the counter."
+        "text": "Ayaka finds out about the lease, and father and daughter argue about it across the counter.",
+        "rumor": "They say Kamejirō's lease runs out at the end of the year."
        },
        {
         "when": "season: winter; seasonDays: 14-14",
@@ -33718,11 +33990,13 @@
       "endings": [
        {
         "id": "new_lease",
-        "text": "A new lease is signed, thanks to Ayaka's contest win and the help of {{user}}."
+        "text": "A new lease is signed, thanks to Ayaka's contest win and the help of {{user}}.",
+        "when": "thread: ayaka_contest wins; knows: genzo_lease"
        },
        {
         "id": "smaller_place",
-        "text": "Kamejirō moves to a smaller place."
+        "text": "Kamejirō moves to a smaller place.",
+        "when": "feels: Genzō friend"
        },
        {
         "id": "closes",
@@ -33822,7 +34096,8 @@
       "endings": [
        {
         "id": "wins",
-        "text": "She wins the contest, and the prize helps save the lease."
+        "text": "She wins the contest, and the prize helps save the lease.",
+        "when": "knows: ayaka_contest; feels: Ayaka friend"
        },
        {
         "id": "loses_and_tells",
@@ -34001,13 +34276,15 @@
        {
         "when": "season: autumn",
         "tell": "known",
-        "text": "A crisis at work: she collapses at her desk."
+        "text": "A crisis at work: she collapses at her desk.",
+        "rumor": "Someone on the twenty-third floor of the Asahina tower collapsed at her desk."
        }
       ],
       "endings": [
        {
         "id": "takes_leave",
-        "text": "She takes leave and lets someone in."
+        "text": "She takes leave and lets someone in.",
+        "when": "knows: reiko_burnout; feels: Reiko good"
        },
        {
         "id": "pushes_on",
@@ -34144,7 +34421,8 @@
       "endings": [
        {
         "id": "funded",
-        "text": "The Mochi Byte deal closes with the help of {{user}}, Jake stays, and Hikari Labs survives."
+        "text": "The Mochi Byte deal closes with the help of {{user}}, Jake stays, and Hikari Labs survives.",
+        "when": "knows: rina_runway; feels: Rina friend"
        },
        {
         "id": "closed",
@@ -34231,11 +34509,13 @@
       "endings": [
        {
         "id": "confesses",
-        "text": "He confesses to Reiko."
+        "text": "He confesses to Reiko.",
+        "when": "knows: daisuke_letter; feels: Daisuke good"
        },
        {
         "id": "hands_in_letter",
-        "text": "He hands in the letter."
+        "text": "He hands in the letter.",
+        "when": "thread: reiko_burnout pushes_on"
        },
        {
         "id": "both",
@@ -34326,7 +34606,8 @@
        {
         "when": "season: autumn",
         "tell": "known",
-        "text": "Hina has to decide whether to graduate from Hanabira Signal."
+        "text": "Hina has to decide whether to graduate from Hanabira Signal.",
+        "rumor": "Fans whisper that Hanabira Signal's Hina might graduate."
        },
        {
         "when": "season: winter",
@@ -34337,7 +34618,8 @@
       "endings": [
        {
         "id": "graduates",
-        "text": "She graduates and lives an ordinary life."
+        "text": "She graduates and lives an ordinary life.",
+        "when": "knows: hina_graduation; feels: Hina friend"
        },
        {
         "id": "stays_her_way",
@@ -34715,13 +34997,15 @@
        {
         "when": "season: winter",
         "tell": "known",
-        "text": "The deadline is near."
+        "text": "The deadline is near.",
+        "rumor": "Club Hibiscus has until the new year to pay what it owes the Hamakaze Group."
        }
       ],
       "endings": [
        {
         "id": "club_saved",
-        "text": "The club is saved with the help of Akane, Kyōko and {{user}}."
+        "text": "The club is saved with the help of Akane, Kyōko and {{user}}.",
+        "when": "knows: sayuri_debt; feels: Sayuri good"
        },
        {
         "id": "club_sold",
@@ -34850,7 +35134,8 @@
       "endings": [
        {
         "id": "tells_family",
-        "text": "She tells her family about Rina, with Yui beside her."
+        "text": "She tells her family about Rina, with Yui beside her.",
+        "when": "knows: shizuka_marriage; feels: Shizuka friend"
        },
        {
         "id": "agrees",
@@ -34948,7 +35233,8 @@
       "endings": [
        {
         "id": "tells_parents",
-        "text": "She tells them about literature."
+        "text": "She tells them about literature.",
+        "when": "knows: seoyeon_parents; feels: Seo-yeon friend"
        },
        {
         "id": "keeps_pretending",
@@ -35030,7 +35316,8 @@
       "endings": [
        {
         "id": "renewed",
-        "text": "The scholarship is renewed."
+        "text": "The scholarship is renewed.",
+        "when": "knows: camille_scholarship; feels: Camille friend"
        },
        {
         "id": "own_money",
@@ -35108,13 +35395,20 @@
       "stages": [
        {
         "tell": "hidden",
-        "text": "He follows clues all year: a stall in Ameyoko, a temple register, a trip to Hakone."
+        "text": "He follows clues all year: a stall in Ameyoko, a temple register, a trip to Hakone.",
+        "when": "season: spring or summer or autumn"
+       },
+       {
+        "when": "season: winter",
+        "tell": "hinted",
+        "text": "A temple register gives him a name and a town at last, and he plans the trip."
        }
       ],
       "endings": [
        {
         "id": "finds_village",
-        "text": "He finds the village and a great-aunt."
+        "text": "He finds the village and a great-aunt.",
+        "when": "seen: ot_ameyoko_st_village:1"
        },
        {
         "id": "finds_grave",
@@ -35213,7 +35507,8 @@
       "endings": [
        {
         "id": "passes",
-        "text": "She passes the care exam and pays off the debt by winter."
+        "text": "She passes the care exam and pays off the debt by winter.",
+        "when": "knows: linh_debt; feels: Linh friend"
        },
        {
         "id": "fails",
@@ -35307,17 +35602,19 @@
        {
         "when": "season: summer",
         "tell": "hinted",
-        "text": "The rival firm makes an offer, and she has to choose."
+        "text": "The rival firm makes an offer, and she has to choose.",
+        "rumor": "Someone in Asahina Trading's sales team is talking to a rival firm."
        }
       ],
       "endings": [
        {
-        "id": "leaves_for_rival",
-        "text": "She leaves for the rival firm."
+        "id": "stays",
+        "text": "She stays when Reiko fights for her.",
+        "when": "knows: mei_interviews; feels: Mei good"
        },
        {
-        "id": "stays",
-        "text": "She stays when Reiko fights for her."
+        "id": "leaves_for_rival",
+        "text": "She leaves for the rival firm."
        }
       ]
      }
@@ -35391,7 +35688,8 @@
       "endings": [
        {
         "id": "recognized",
-        "text": "She is recognized and celebrated."
+        "text": "She is recognized and celebrated.",
+        "when": "knows: hannah_stream; feels: Hannah friend"
        },
        {
         "id": "stays_hidden",
@@ -35478,7 +35776,8 @@
       "endings": [
        {
         "id": "stays",
-        "text": "He stays, as long as Hikari Labs lives."
+        "text": "He stays, as long as Hikari Labs lives.",
+        "when": "thread: rina_runway funded"
        },
        {
         "id": "goes_home",
@@ -35565,7 +35864,8 @@
       "endings": [
        {
         "id": "starts_going_out",
-        "text": "She starts going out, with a friend or with {{user}}."
+        "text": "She starts going out, with a friend or with {{user}}.",
+        "when": "feels: Kanon friend"
        },
        {
         "id": "stays_in",
@@ -35681,7 +35981,8 @@
       "endings": [
        {
         "id": "retires_opens_bar",
-        "text": "She retires and opens a bar."
+        "text": "She retires and opens a bar.",
+        "when": "knows: airi_retirement; feels: Airi good"
        },
        {
         "id": "directs",
@@ -35778,7 +36079,8 @@
       "endings": [
        {
         "id": "family_comes_around",
-        "text": "Her family comes around."
+        "text": "Her family comes around.",
+        "when": "knows: momo_family; feels: Momo friend"
        },
        {
         "id": "cuts_contact",
