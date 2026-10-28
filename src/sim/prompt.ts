@@ -3,10 +3,11 @@
 import { homeJobsLine } from './hometime.js';
 import { dressLine } from './dress.js';
 import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living.js';
+import { backgroundOn, backgroundLine, sheetPeople, castSheet, addressLine, profileLines, SHEETS_MAX } from './scenepeople.js';
 import './longlife.js';
 import './fading.js';   // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
-import { game, settings, changed } from '../core/store.js';
+import { game, settings, changed, adultOn } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
 import { setPrompt, nameOf, chat } from '../st/bridge.js';
@@ -26,7 +27,7 @@ import { rivalsLine } from './jealousy.js';
 import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
 import { markSent } from './moments.js';
 import { familyLine } from './family.js';
-import { social, livePlan } from './social.js';
+import { social, livePlan, companions } from './social.js';
 import { personaName } from '../st/bridge.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { worldLine, weatherHere } from './worldstate.js';
@@ -66,10 +67,13 @@ import { systemOn, blockSystem, isScenario, SCENARIO_STARTS, type WorldDef } fro
 export const PROMPT_KEY = 'mundi_scene';
 
 // The blocks Mundi can send. `cut`: the order in which they are dropped when the text is over the token budget
-// (1 first); blocks without `cut` are always sent (where and when we are, who is here, safety lines).
+// (1 first); blocks without `cut` are always sent (where and when we are, who is here, safety lines). They are sent in
+// this order. A new block is one entry here and one line in `raw` (sceneBlocks); its system, if any, in SYSTEMS
+// (core/world.ts).
 export interface Block { id: string; name: string; desc: string; cut?: number }
 export const BLOCKS: Block[] = [
     { id: 'core', name: 'Scene basics', desc: 'World, day and time, weather, place, who is here, and the rules of the scene.' },
+    { id: 'around', name: 'Who is around', desc: 'How the world\'s own people here look and sound, and the staff, regulars and passers-by the AI may describe in the background (in worlds that have them).', cut: 7 },
     { id: 'world', name: 'The mood around', desc: 'How busy it is here, the public mood and tension of the region, and its prices.', cut: 4 },
     { id: 'memories', name: 'Memories', desc: 'What the people here remember about you, and what happened earlier in this place.', cut: 9 },
     { id: 'plans', name: 'Plans', desc: 'Plans you made with the people here.', cut: 8 },
@@ -79,6 +83,7 @@ export const BLOCKS: Block[] = [
     { id: 'romance', name: 'Friendship and romance', desc: 'Where you stand with each person here.', cut: 7 },
     { id: 'family', name: 'Your children', desc: 'Your children\'s age and how to treat them. Always sent when they are here.' },
     { id: 'gender', name: 'Gender and attraction', desc: 'The gender and pronouns of the people here (and yours), and who they are attracted to when it is not everyone.', cut: 6 },
+    { id: 'intimate', name: 'Intimate profiles', desc: 'Adult content only: what the people here want and like in intimacy, in a private scene or when they are drawn to someone here. Their hard limits are sent even over the budget.', cut: 5 },
     { id: 'ties', name: 'Family and ties', desc: 'Who is whose sister or parent, who lives or works together, and how the people here feel about each other.', cut: 6 },
     { id: 'needs', name: 'How you feel', desc: 'Hunger, tiredness… only what stands out.', cut: 6 },
     { id: 'diary', name: 'Diary', desc: 'The last two days of your diary.', cut: 5 },
@@ -95,20 +100,25 @@ export const DEFAULT_RULES = 'Write only what happens in this place and at this 
 // A block's own text: `{text}` is where Mundi puts what it wrote for the block; without it, the text replaces it
 // (sent only when the block has something to say). SillyTavern's macros ({{user}}, {{char}}…) work as usual.
 export const applyTemplate = (tpl: string | undefined, text: string) => (!tpl?.trim() || !text.trim() ? text : tpl.includes('{text}') ? tpl.split('{text}').join(text) : tpl);
-// The blocks this world has: those of a system turned off in it are gone.
-export const blocksOf = (w: WorldDef | null | undefined) => BLOCKS.filter(b => !blockSystem(b.id) || systemOn(w, blockSystem(b.id)!));
+// The blocks this world has: those of a system turned off in it are gone, and so are intimate profiles in a game
+// without adult content.
+export const blocksOf = (w: WorldDef | null | undefined, g?: Save | null) => BLOCKS.filter(b => (!blockSystem(b.id) || systemOn(w, blockSystem(b.id)!)) && (b.id !== 'intimate' || adultOn(g)));
 // off: blocks switched off; budget: tokens (0 = no limit); text: each block's own text (see applyTemplate);
-// rules: the scene's rules (empty = DEFAULT_RULES); extra: your own instructions.
-export interface PromptCfg { off: string[]; budget: number; text: Record<string, string>; rules: string; extra: string }
+// rules: the scene's rules (empty = DEFAULT_RULES); extra: your own instructions; lore: at most this many rows of
+// world lore (-1 = the world's own limit, 0 = no limit).
+export interface PromptCfg { off: string[]; budget: number; text: Record<string, string>; rules: string; extra: string; lore: number }
 export const promptCfg = (): PromptCfg => {
     const s = settings() as any; s.promptCfg ??= {};
-    const c = s.promptCfg; c.off ??= []; c.budget ??= 0; c.text ??= {}; c.rules ??= ''; c.extra ??= '';
+    const c = s.promptCfg; c.off ??= []; c.budget ??= 0; c.text ??= {}; c.rules ??= ''; c.extra ??= ''; c.lore ??= -1;
     return c;
 };
+/** (E32) How many rows of world lore a scene gets: yours, else the world's (`scene.lore`), else no limit (0). */
+export const loreMax = (w: WorldDef | null | undefined) => { const n = promptCfg().lore; return n >= 0 ? n : w?.scene?.lore ?? 0; };
 // A quick token estimate (about 3.6 characters per token in English); the screen shows SillyTavern's own count.
 export const estTokens = (t: string) => Math.ceil(t.length / 3.6);
 
-export interface Built { id: string; text: string; state: 'sent' | 'off' | 'cut' | 'empty' }
+// `keep`: what is still sent when the block is cut for the budget (hard limits).
+export interface Built { id: string; text: string; state: 'sent' | 'off' | 'cut' | 'empty'; keep?: string }
 // The premise of this game: your own (custom), or the scenario's with how you fit in it.
 export function scenarioPremise(g: any, w: WorldDef): string {
     const st = g?.cfg?.start; if (st?.text) return st.text;
@@ -130,49 +140,57 @@ export function sceneBlocks(): Built[] {
     const here = placeOf(g, w, g.player.loc);
     const present = presentAt(g, w, g.player.loc);
     const met = present.filter(r => r.met);
-    const names = present.map(r => r.name);
     const pc = promptCfg();
+    const intimate = blocksOf(w, g).some(b => b.id === 'intimate') ? profileLines(g, w, here, present) : { lines: [], limits: '' };
+    // (E1) background people the AI may describe and (E27) short sheets for the world's people here, unless you
+    // switched that block off
+    const around = !pc.off.includes('around');
+    const bg = around && backgroundOn(w, here), sheets = around ? sheetPeople(g, w, present) : [];
     const raw: Record<string, string[]> = {
         core: [
             `[World state — ${w.name}]`,
             ...scenarioLines(g, w),
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
             `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
-            names.length ? `Here with {{user}}: ${names.join(', ')}. Only they are in this scene; nobody else speaks or appears.` : 'Nobody else is here right now.',
+            hereLine(g, present, bg, sheets.length > 0),
             ...(present.some(r => !r.met) ? [`Strangers to {{user}}: ${present.filter(r => !r.met).map(r => r.name).join(', ')}. They and {{user}} have never met: they do not know each other's names until they talk and introduce themselves.`] : []),
         ],
+        around: [...sheets.map(r => castSheet(w, r)), bg ? backgroundLine(g, w, here) : ''],
         // only the people in this scene and this place: nobody else's memories, nobody else's whereabouts
         world: [worldLine(g, w), festivalLine(g, w), realmLine(g, w), skiesLine(g, w), ...legendLines(g, w)],
         diary: diaryLines(g),
         memories: [...memoryLines(g, w, met, personaName()), ...placeMemoryLines(g, w, present)],
         plans: planLines(g, present, w),
-        focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present), ...whyHereLines(g, w, present), ...questLines(g)],
+        focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
-        you: [(g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g)!.name.toLowerCase()}.` : ''],
+        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), habitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g)!.name.toLowerCase()}.` : ''],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
-        couples: [couplesLine(g, present)],
+        couples: [couplesLine(g, present, w)],
         ties: [...factionLines(g, w, present), tiesLine(g, present), householdLine(g, w, present), colleaguesLine(g, w, present), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
-        romance: [romanceLine(g, met)],
+        romance: [romanceLine(g, met), addressLine(g, w, met)],
         gender: [genderLine(g, w, present)],
+        intimate: [...intimate.lines, intimate.limits],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
         family: [familyLine(g, present)],
         rumors: rumorLines(g, met),
-        lore: activeWorldLore(g, w),
+        lore: activeWorldLore(g, w, loreMax(w)),
         needs: [feelings(g, w)],
         extra: [pc.extra],
     };
     const tail = [pc.rules.trim() || DEFAULT_RULES, aiLangNote()].filter(Boolean).join('\n');
     // a block whose system is off in this world is not there at all (not even as "off")
-    const out: Built[] = blocksOf(w).map(b => {
+    const out: Built[] = blocksOf(w, g).map(b => {
         const own = (raw[b.id] ?? []).filter(Boolean).join('\n');
         const text = b.id === 'core' ? `${own}\n${tail}` : applyTemplate(pc.text[b.id], own);
-        return { id: b.id, text, state: !text.trim() ? 'empty' : b.cut && pc.off.includes(b.id) ? 'off' : 'sent' };
+        const x: Built = { id: b.id, text, state: !text.trim() ? 'empty' : b.cut && pc.off.includes(b.id) ? 'off' : 'sent' };
+        if (b.id === 'intimate' && intimate.limits) x.keep = intimate.limits;
+        return x;
     });
-    // over the budget: drop the least important blocks first
+    // over the budget: drop the least important blocks first (a block's `keep` stays)
     if (pc.budget > 0) {
-        const size = () => estTokens(out.filter(x => x.state === 'sent').map(x => x.text).join('\n'));
-        const order = blocksOf(w).filter(b => b.cut).sort((a, b) => a.cut! - b.cut!);
+        const size = () => estTokens(out.map(sentText).filter(Boolean).join('\n'));
+        const order = blocksOf(w, g).filter(b => b.cut).sort((a, b) => a.cut! - b.cut!);
         for (const b of order) {
             if (size() <= pc.budget) break;
             const x = out.find(o => o.id === b.id)!;
@@ -182,11 +200,13 @@ export function sceneBlocks(): Built[] {
     return out;
 }
 
+// What a block puts in the text: all of it when sent, its `keep` when cut for the budget.
+export const sentText = (b: Built) => (b.state === 'sent' ? b.text : b.state === 'cut' ? b.keep ?? '' : '');
 export function sceneText(): string {
     const list = sceneBlocks();
     const core = list.find(b => b.id === 'core');
     // the basics first and the scene's rules last, the rest in between (as before)
-    const mid = list.filter(b => b.id !== 'core' && b.state === 'sent').map(b => b.text);
+    const mid = list.filter(b => b.id !== 'core').map(sentText).filter(Boolean);
     if (!core) return '';
     const [head, ...rest] = core.text.split('\n');
     const basics = [head, ...rest.slice(0, 3)].join('\n'), rules = rest.slice(3).join('\n');
@@ -205,8 +225,28 @@ export function refreshPrompt() {
 export const clearPrompt = () => setPrompt(PROMPT_KEY, '');
 export const speakerName = (avatar: string) => nameOf(avatar);
 
+// (E16) The start's premise: until now only a persona made by the new game had it (in its description).
+function premiseLine(g: Save): string {
+    const p = (g.player.premise ?? '').replace(/\s+/g, ' ').trim();
+    return p ? `How {{user}}'s story began: ${p.length > 600 ? `${p.slice(0, 600).replace(/\s+\S*$/, '')}…` : p}` : '';
+}
+
+// Who is here with you. With background people (E1) or sheets (E27): only the people here are characters, and with
+// more than a few of them (more than get a sheet), those with you (who came along, who know you) come first, the
+// others are "also here".
+function hereLine(g: Save, present: Resident[], bg: boolean, sheets: boolean): string {
+    const names = present.map(r => r.name);
+    if (!bg && !sheets) return names.length ? `Here with {{user}}: ${names.join(', ')}. Only they are in this scene; nobody else speaks or appears.` : 'Nobody else is here right now.';
+    const extras = bg ? ' Background people may be described and say a short line, but never join in or become characters.' : '';
+    if (!names.length) return `None of the world's characters is here right now.${extras}`;
+    const along = new Set(companions(g));
+    const mine = present.length > SHEETS_MAX && sheets ? present.filter(r => r.met || along.has(r.avatar)) : present;
+    const also = mine.length ? present.filter(r => !mine.includes(r)) : [];
+    return `Here with {{user}}: ${(mine.length ? mine : present).map(r => r.name).join(', ')}.${also.length ? ` Also here: ${also.map(r => r.name).join(', ')}.` : ''} Only they are characters in this scene${bg ? `.${extras}` : '; nobody else speaks or appears.'}`;
+}
+
 // The scene's focus (a short directive so the story does not wander): the plan or company that brought you here.
-function focusLine(g: Save, w: WorldDef, present: Resident[]): string {
+function focusLine(g: Save, w: WorldDef, present: Resident[], bg = false): string {
     const now = nowAbs(g);
     const s = social(g);
     const here = new Set(present.map(r => r.avatar));
@@ -214,7 +254,7 @@ function focusLine(g: Save, w: WorldDef, present: Resident[]): string {
     if (plan) return `Scene focus: ${plan.kind === 'date' ? 'a date' : plan.kind === 'party' ? "{{user}}'s party" : 'meeting up'} with ${g.cast[plan.avatar]?.name}${plan.title ? `: "${plan.title}" (play the scene around this)` : ''}.`;
     const along = s.with.map(c => g.cast[c.avatar]?.name).filter(Boolean);
     if (along.length) return `Scene focus: ${along.join(' and ')} came along with {{user}}.`;
-    if (!present.length) return `Scene focus: {{user}} is alone here. Describe the place, the passing moment and how {{user}} feels; nobody else appears.`;
+    if (!present.length) return `Scene focus: {{user}} is alone here. Describe the place, the passing moment and how {{user}} feels; ${bg ? 'nobody but the background people appears' : 'nobody else appears'}.`;
     void w;
     return '';
 }

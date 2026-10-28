@@ -443,6 +443,8 @@ export interface WorldDef {
     workPreset?: 'realistic' | 'reduced' | 'relaxed';
     /** (J4) How fast careers go in this world (2: twice as fast; 0.5: half as fast). Missing: 1. */
     careerSpeed?: number;
+    /** (E1, E32) What the AI is told in a scene (see SceneDef). Missing: as before. */
+    scene?: SceneDef;
     /** What the world has: a phone (modern), a journal (medieval)… and which systems are on. */
     features?: { phone?: boolean; device?: string; apps?: AppDef[] } & Partial<Record<SystemId, boolean>>;
     /** Set by the loader: the folder URL the world's files live in. */
@@ -485,6 +487,10 @@ export interface ClimateDef {
 /** (E8) How people address you, by how close they are: a few words per friendship level and per romance level or
  *  couple status, and how a senior or junior at work does. Told to the AI. */
 export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
+/** (E1, E32) Scene settings. `background`: the AI may describe unnamed background people (staff, regulars,
+ *  passers-by) at every place, not only at places with `staff`; `lore`: at most this many conditional lore rows in a
+ *  scene (missing or 0: no limit). */
+export interface SceneDef { background?: boolean; lore?: number }
 /** (E4) Trains: the hour the last ones leave (0.5 = 0:30) and the first ones (5), the fare of a taxi (a base and per
  *  minute of the trip), and the walk to the station (minutes) added to trips between districts. */
 export interface TransitDef { last?: number; first?: number; taxi?: { base: number; perMinute?: number }; walk?: number }
@@ -660,7 +666,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },
     { id: 'breakdowns', name: 'Things break at home', desc: 'nothing at home ever breaks.', apps: [], blocks: [] },
     { id: 'plans', name: 'Plans', desc: 'no meet-ups, dates, "come with me" or invitations.', apps: ['plans'], blocks: ['plans'] },
-    { id: 'romance', name: 'Romance', desc: 'only friendship: no dating, love, engagement or marriage.', apps: ['dating'], blocks: ['couples'] },
+    { id: 'romance', name: 'Romance', desc: 'only friendship: no dating, love, engagement or marriage.', apps: ['dating'], blocks: ['couples', 'intimate'] },
     { id: 'relations', name: 'Relationships between people', desc: 'people\'s feelings for each other never change, and couples between them never form, move on or end by themselves.', apps: [], blocks: [] },
     { id: 'family', name: 'Children', desc: 'no babies (children already born stay).', apps: [], blocks: [], needs: 'romance' },
     { id: 'social', name: 'Social network', desc: 'no posts, likes or notices.', apps: ['social'], blocks: [] },
