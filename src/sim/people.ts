@@ -4,8 +4,8 @@ import { homeJobOf, npcOut, onShift, SHIFTS } from './hometime.js';
 import { festivalSpot } from './festivals.js';
 import { eventSpot } from './cityevents.js';
 import { lockedHere } from './life.js';
-import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, isScenario, type WorldDef } from '../core/world.js';
+import { nowAbs, changes, type Save, type Resident } from '../core/store.js';
+import { systemOn, isScenario, type WorldDef, type Routine } from '../core/world.js';
 import { isWeekend } from './time.js';
 import { appointmentNow, isWith } from './social.js';
 import { weatherOn } from './weather.js';
@@ -105,8 +105,30 @@ export function whereNow(g: Save, w: WorldDef, r: Resident): string {
     if (party) return party;
     const brk = breakNow(g, w, r);                     // something interrupted her routine today (an errand, a cold…)
     if (brk) return brk.place;
-    return routineAt(g, w, r, nowAbs(g));
+    return routineNow(g, w, r);
 }
+// Where everyone is gets asked many times in a game minute (every presentAt, each block of the prompt, the hourly
+// hooks), so each person's routine answer is kept for the minute. Company, a scene lock, plans, "Play as", a party
+// and breaks are checked before it, every time. The answer is worked out again when the clock moves, when the
+// person's job, home, leisure or routine changes, when the systems or rules it reads change, and after any click or
+// prompt refresh (changes() in core/store.ts), which covers the rest (a spell's weather, a Home's rooms, world edits).
+interface Kept { r: Resident; routine: Routine; job: string | null; hw?: string; zone?: string; mine?: string; leisure: string[]; n: number; shift?: string; days?: string; loc: string }
+interface Minute { at: number; w: WorldDef; n: number; features: unknown; cfg: unknown; rules: string; by: Map<string, Kept> }
+const kept = new WeakMap<Save, Minute>();
+function routineNow(g: Save, w: WorldDef, r: Resident): string {
+    const at = nowAbs(g), n = changes(), c = (g as any).cfg;
+    let k = kept.get(g);
+    if (!k || k.at !== at || k.w !== w || k.n !== n || k.features !== w.features || k.cfg !== c || k.rules !== rulesOf(w, c)) kept.set(g, k = { at, w, n, features: w.features, cfg: c, rules: rulesOf(w, c), by: new Map() });
+    const hw = (r as any).homeWith as string | undefined, job = homeJobOf(r), mine = hw === '__you' ? g.player.home?.zone : undefined;
+    const x = k.by.get(r.avatar);
+    if (x && x.r === r && x.routine === r.routine && x.job === r.occupation && x.hw === hw && x.zone === r.home?.zone && x.mine === mine
+        && x.leisure === r.leisure && x.n === r.leisure.length && x.shift === job.shift && x.days === job.days) return x.loc;
+    const loc = routineAt(g, w, r, at);
+    k.by.set(r.avatar, { r, routine: r.routine, job: r.occupation, hw, zone: r.home?.zone, mine, leisure: r.leisure, n: r.leisure.length, shift: job.shift, days: job.days, loc });
+    return loc;
+}
+// The systems and save rules a routine reads (a Home's rooms, the length of the seasons for festivals).
+const rulesOf = (w: WorldDef, c: any) => `${systemOn(w, 'living')}|${systemOn(w, 'jobs')}|${systemOn(w, 'events')}|${systemOn(w, 'festivals')}|${c?.seasonDays}|${c?.npcOut}|${c?.rooms?.join(',')}|${c?.extraRooms?.length}`;
 
 export const residents = (g: Save) => Object.values(g.cast);
 // (someone you are playing as is not "here": you are them)

@@ -36,6 +36,21 @@ export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boo
     if (isOuting(id)) return { id, name: outingName(id), map: w.maps[0]?.id ?? '', x: 50, y: 50, tags: ['outing'], desc: `out of the house: ${outingName(id)}` };
     return w.places.find(p => p.id === id) ?? extraRooms(g).find(p => p.id === id) ?? null;
 }
+// The map a place is on: the same answer as placeOf(…)?.map without building a home's name (asked very often: the
+// region of everyone's home, every time someone's day is worked out).
+export function mapOf(g: Save, w: WorldDef, id: string): string | undefined {
+    if (id === playerHomeId) return w.homes.zones.find(z => z.id === g.player.home.zone)?.map ?? w.maps[0].id;
+    if (isHome(id)) {
+        const r = g.cast[id.slice(5)];
+        if (!r) return undefined;
+        const w2 = (r as any).homeWith as string | undefined;
+        if (w2 === '__you') return mapOf(g, w, playerHomeId);
+        if (w2 && w2 !== r.avatar && g.cast[w2]) return mapOf(g, w, `home:${w2}`);
+        return w.homes.zones.find(z => z.id === r.home.zone)?.map ?? w.maps[0].id;
+    }
+    if (isOuting(id)) return w.maps[0]?.id ?? '';
+    return (w.places.find(p => p.id === id) ?? extraRooms(g).find(p => p.id === id))?.map;
+}
 /** Home: a place out of the house, named by the player ("out:the beach"). Going out, or a plan made somewhere out. */
 export const OUTING = 'out:';
 export const isOuting = (id: string | null | undefined) => !!id && id.startsWith(OUTING);

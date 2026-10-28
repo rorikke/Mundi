@@ -3,7 +3,7 @@
 // you go if you want ("I'll go" sets a reminder). While one lasts, people with free time gather there, the AI knows,
 // and there is something to do: enjoy it (a ticket, mood), and perform there if your hobby is good enough.
 // An outdoor one is called off when it rains.
-import { nowAbs, type Save } from '../core/store.js';
+import { nowAbs, changes, type Save } from '../core/store.js';
 import { systemOn, type WorldDef, type CityEventDef, type ActionDef } from '../core/world.js';
 import { weatherOn } from './weather.js';
 import { note } from './facts.js';
@@ -18,9 +18,21 @@ const hm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:$
 interface CityState { going: string[]; went: string[]; told: string[] }
 export const cityOf = (g: Save): CityState => { const c = ((g as any).city ??= {}); c.going ??= []; c.went ??= []; c.told ??= []; return c as CityState; };
 
-// The events of a day (day 1 is a Monday).
+// The events of a day (day 1 is a Monday). Asked for twice each time someone's free time is worked out, so each day's
+// list is kept: it depends only on the world's events and places and the day's weather (a world edit comes with a
+// click, changes() in core/store.ts).
+const kept = new WeakMap<WorldDef, { list: CityEventDef[]; len: number; places: unknown; n: number; by: Map<string, EventTime[]> }>();
 export function eventsOn(g: Save, w: WorldDef, day: number): EventTime[] {
     if (!on(w) || day < 1) return [];
+    const n = changes();
+    let k = kept.get(w);
+    if (!k || k.list !== w.cityEvents || k.len !== w.cityEvents!.length || k.places !== w.places || k.n !== n || k.by.size > 400) kept.set(w, k = { list: w.cityEvents!, len: w.cityEvents!.length, places: w.places, n, by: new Map() });
+    const key = `${g.world}|${day}`;
+    let list = k.by.get(key);
+    if (!list) k.by.set(key, list = dayEvents(g, w, day));
+    return list.slice();
+}
+function dayEvents(g: Save, w: WorldDef, day: number): EventTime[] {
     const wd = (day - 1) % 7, week = Math.floor((day - 1) / 7);
     return w.cityEvents!.filter(e => e.weekday === wd && w.places.some(p => p.id === e.place) && week % Math.max(1, e.every ?? 1) === (e.week ?? 0) % Math.max(1, e.every ?? 1))
         .map(e => { const from = day * 1440 + Math.round((e.from ?? 18) * 60); return { key: `${e.id}@${day}`, ev: e, day, from, to: from + Math.round((e.hours ?? 3) * 60), off: !!e.outdoor && weatherOn(g.world, day).rain }; });

@@ -9,7 +9,7 @@ import { tradeMul } from './realm.js';
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type MapDef } from '../core/world.js';
 import { onDay, onHour } from './hooks.js';
-import { placeOf, isHome, playerHomeId } from './places.js';
+import { mapOf, isHome, playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { isWeekend } from './time.js';
 import { partOf, openNow, periodPrice, partMood } from './daynight.js';
@@ -30,7 +30,7 @@ const on = (w: WorldDef | null | undefined) => systemOn(w, 'living');
 export const regionDef = (w: WorldDef, id: string) => w.maps.find(m => m.id === id) as RegionDef | undefined;
 const base = (d?: RegionDef): Region => ({ mood: clamp(d?.mood ?? 15, -100, 100), tension: clamp(d?.tension ?? 10, 0, 100), price: clamp(d?.prices ?? 1, 0.2, 5) });
 // The region a place is in: the map its pin is on (your home: the map of its area).
-export const regionOf = (g: Save, w: WorldDef, place: string) => placeOf(g, w, place)?.map ?? w.maps[0]?.id ?? '';
+export const regionOf = (g: Save, w: WorldDef, place: string) => mapOf(g, w, place) ?? w.maps[0]?.id ?? '';
 export function regionState(g: Save, w: WorldDef, id: string): Region {
     const all = ((g as any).regions ??= {}) as Record<string, Region>;
     return (all[id] ??= base(regionDef(w, id)));
