@@ -12,7 +12,7 @@ import { npcRank } from './longlife.js';
 import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } from './skills.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
-import { cfg, nowAbs, type Save, type Resident } from '../core/store.js';
+import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
 import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult } from '../core/world.js';
 import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
@@ -52,7 +52,6 @@ export const likes = (g: Save, o: Occupation) => careerOf(g, o).likes.filter(t =
 // The job's opening hours (whether it is open at all now).
 export const isOpen = (g: Save, o: Occupation) => { const [a, b] = o.hours ?? [0, 24]; const h = hour(g); return a <= b ? h >= a && h < b : h >= a || h < b; };
 // Adult content (E15): its switch is the new game's; until then, a save setting.
-const adultOn = (g: Save) => !!(cfg(g) as any).adult;
 /** (E20) Jobs open to the player: not the ones only the world's people have, nor adult ones without adult content. */
 export const openJobs = (g: Save, w: WorldDef) => w.occupations.filter(o => o.hireable !== false && (!o.adult || adultOn(g)));
 /** (E20) Worked off-screen: every job in a Home, and jobs marked so (you go to work from anywhere). */
