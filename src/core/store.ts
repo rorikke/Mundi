@@ -4,6 +4,7 @@
 //  - state: this session only (open screens, selection, drafts), never saved.
 import { ctx } from '../st/bridge.js';
 import type { Routine } from './world.js';
+import type { StartRel } from './feel.js';
 
 export const EXT = 'mundi';
 export const ROOT_ID = 'mundi-root';
@@ -45,7 +46,9 @@ export interface Settings {
     /** groups of people the player made in the Library (Presets): who, households, relations, how they see you */
     castPresets?: CastPreset[];
 }
-export interface CastPreset { id: string; name: string; cast: string[]; hh: { members: string[]; ties: { a: string; b: string; type: string; tone: string }[] }[]; rels: { a: string; b: string; type: string; tone: string }[]; approval: Record<string, number>;
+/** A preset of people. `hh[].ties`: family in each household; `rels`: starting relations (core/feel.ts). Presets saved
+ *  before family-only ties have old relations there (any type and a tone): ui/castpresets.ts converts them on read. */
+export interface CastPreset { id: string; name: string; cast: string[]; hh: { members: string[]; ties: { a: string; b: string; type: string; tone?: string }[] }[]; rels: StartRel[]; approval: Record<string, number>;
     /** each one's own ways (gender, pace, styles…), where the preset sets them */ people?: Record<string, any> }
 // Favorites and folders for personas and lorebooks (SillyTavern only has them for characters, as folder tags).
 export interface LibFolder { id: string; name: string; items: string[] }

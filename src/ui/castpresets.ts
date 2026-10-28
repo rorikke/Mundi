@@ -4,10 +4,27 @@ import { state, notify, esc, toast, settings, saveSettings, type CastPreset } fr
 import { characters, charOf, thumb } from '../st/bridge.js';
 import { charPicker } from './charpick.js';
 import { stepHouseholds, ngEdited } from './ngfamily.js';
+import { toStartRels } from '../core/feel.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 
-export const castPresets = (): CastPreset[] => (settings().castPresets ??= []);
+export const castPresets = (): CastPreset[] => { const list: CastPreset[] = (settings().castPresets ??= []); for (const p of list) normPreset(p); return list; };
+const samePair = (r: { a: string; b: string }, t: { a: string; b: string }) => (r.a === t.a && r.b === t.b) || (r.a === t.b && r.b === t.a);
+// Presets saved before family-only ties: household ties keep only family, the rest of each tie becomes a relation
+// (unless the pair already has one), and old relations become starting relations. Running it again changes nothing.
+function normPreset(p: CastPreset) {
+    const rels = toStartRels(p.rels);
+    for (const h of p.hh ?? []) {
+        const fam: { a: string; b: string; type: string }[] = [];
+        for (const r of toStartRels(h.ties)) {
+            if (r.family) fam.push({ a: r.a, b: r.b, type: r.family });
+            const { family, ...rest } = r; void family;
+            if (Object.keys(rest).length > 2 && !rels.some(x => samePair(x, r))) rels.push(rest);
+        }
+        h.ties = fam;
+    }
+    p.rels = rels;
+}
 const P = { sel: '' };
 const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x));
 const nm = (a: string) => charOf(a)?.name ?? a;
@@ -95,7 +112,7 @@ export function usePreset(id: string, only?: string[]) {
     const ok = (t: { a: string; b: string }) => (t.a === '__you' || keep(t.a)) && (t.b === '__you' || keep(t.b));
     const same = (r: any, t: any) => (r.a === t.a && r.b === t.b) || (r.a === t.b && r.b === t.a);
     wz.rels = [...(wz.rels ?? [])]; for (const t of clone(p.rels).filter(ok)) if (!wz.rels.some((r: any) => same(r, t))) wz.rels.push(t);
-    if (scen) { wz.hh = []; for (const h of hh) for (const t of h.ties ?? []) if (ok(t) && !wz.rels.some((r: any) => same(r, t))) wz.rels.push(t); }   // one house: households become relations
+    if (scen) { wz.hh = []; for (const h of hh) for (const t of h.ties ?? []) if (ok(t)) { const r = wz.rels.find((x: any) => same(x, t)); if (r) r.family ??= t.type; else wz.rels.push({ a: t.a, b: t.b, family: t.type }); } }   // one house: household family becomes relations
     else { const taken = new Set(hh.flatMap(h => h.members)); wz.hh = [...(wz.hh ?? []).map((h: any) => ({ ...h, members: h.members.filter((a: string) => !taken.has(a)) })).filter((h: any) => h.members.length), ...hh]; }
     wz.approval = { ...(wz.approval ?? {}), ...Object.fromEntries(Object.entries(p.approval ?? {}).filter(([a]) => cast.includes(a))) };
     wz.presetPeople = { ...(wz.presetPeople ?? {}), ...Object.fromEntries(Object.entries(p.people ?? {}).filter(([a]) => cast.includes(a))) };   // after the card's own settings

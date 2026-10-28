@@ -65,3 +65,20 @@ export function fromOldTie(t: { type: string; tone?: string; back?: string }): {
     if (Object.keys(feel).length) out.feel = feel;
     return out;
 }
+
+/* ---------- relations as the new game and cast presets keep them ---------- */
+
+/** One relation chosen for a game: optionally family (`a` is the `family` of `b`), and how they start. */
+export interface StartRel extends StartFeel { family?: FamilyType }
+// Relations in either form, as starting relations: old ties ({ type, tone, back? }, cast presets saved before) go
+// through fromOldTie; new ones (no `type`) are kept. Pure, so it can run on saved presets and drafts alike.
+export function toStartRels(list: any[] | undefined): StartRel[] {
+    const out: StartRel[] = [];
+    for (const t of Array.isArray(list) ? list : []) {
+        if (!t?.a || !t?.b || t.a === t.b) continue;
+        if (!('type' in t)) { out.push(t); continue; }
+        const { family, feel } = fromOldTie(t);
+        if (family || feel) out.push({ a: t.a, b: t.b, ...(family ? { family } : {}), ...(feel ?? {}) });
+    }
+    return out;
+}

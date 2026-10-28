@@ -3950,6 +3950,21 @@ const DICT: Record<string, string> = {
  "No family yet.": "Nenhuma família ainda.",
  "Feelings": "Sentimentos",
  "you": "você",
- "Friends, couples and exes are feelings (below). Who lives together:": "Amigos, casais e ex são sentimentos (abaixo). Quem mora junto:"
+ "Friends, couples and exes are feelings (below). Who lives together:": "Amigos, casais e ex são sentimentos (abaixo). Quem mora junto:",
+ "Family in this household": "Família nesta casa",
+ "Add family": "Adicionar família",
+ "Friends, a couple or roommates sharing this home: say how they get along under Relations.": "Amigos, um casal ou colegas que dividem esta casa: diga como se dão em Relações.",
+ "A household is people who live in the same home: a family, a couple, roommates. Put together the people who live together and say who is family. Everyone you leave out gets a home of their own, at random. You can skip this.": "Uma casa é um grupo de pessoas que moram no mesmo lar: uma família, um casal, colegas de casa. Junte quem mora junto e diga quem é família. Quem ficar de fora ganha um lar próprio, ao acaso. Você pode pular isto.",
+ "Everyone lives in the same house: say who is family and how they get along.": "Todo mundo mora na mesma casa: diga quem é família e como se dão.",
+ "How you start with anyone in this world, not only who lives with you: family across town, a best friend, a rival, an old flame, someone you are dating.": "Como você começa com qualquer um neste mundo, não só com quem mora com você: família do outro lado da cidade, um melhor amigo, um rival, uma antiga paixão, alguém com quem você namora.",
+ "Between any two people of the house (or with you): family, friends, a couple, exes, people who can't stand each other…": "Entre quaisquer duas pessoas da casa (ou com você): família, amigos, um casal, ex, gente que não se suporta…",
+ "Between any two people, in any household (or with you): family elsewhere, friends, a couple, exes, people who can't stand each other…": "Entre quaisquer duas pessoas, de qualquer casa (ou com você): família em outro lugar, amigos, um casal, ex, gente que não se suporta…",
+ "\"As usual\": where they would start anyway.": "\"Como de costume\": onde começariam de qualquer jeito.",
+ "As usual": "Como de costume",
+ "feels about you": "sente por você",
+ "not family": "não é família",
+ "Used to be together": "Já estiveram juntos",
+ "housemate (not family)": "colega de casa (não é família)",
+ "The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later (\"Play as\"). A partner or a friend: say how you get along under Your relations.": "As pessoas que moram com você: família, um parceiro, colegas de casa. Elas dividem sua casa e sua carteira, e você pode jogar como qualquer uma delas depois (\"Jogar como\"). Um parceiro ou um amigo: diga como vocês se dão em Suas relações."
 };
 export default DICT;

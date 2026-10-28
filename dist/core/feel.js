@@ -51,3 +51,20 @@ export function fromOldTie(t) {
         out.feel = feel;
     return out;
 }
+// Relations in either form, as starting relations: old ties ({ type, tone, back? }, cast presets saved before) go
+// through fromOldTie; new ones (no `type`) are kept. Pure, so it can run on saved presets and drafts alike.
+export function toStartRels(list) {
+    const out = [];
+    for (const t of Array.isArray(list) ? list : []) {
+        if (!t?.a || !t?.b || t.a === t.b)
+            continue;
+        if (!('type' in t)) {
+            out.push(t);
+            continue;
+        }
+        const { family, feel } = fromOldTie(t);
+        if (family || feel)
+            out.push({ a: t.a, b: t.b, ...(family ? { family } : {}), ...(feel ?? {}) });
+    }
+    return out;
+}

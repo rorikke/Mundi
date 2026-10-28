@@ -4,9 +4,30 @@ import { state, notify, esc, toast, settings, saveSettings } from '../core/store
 import { characters, charOf, thumb } from '../st/bridge.js';
 import { charPicker } from './charpick.js';
 import { stepHouseholds, ngEdited } from './ngfamily.js';
+import { toStartRels } from '../core/feel.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-export const castPresets = () => (settings().castPresets ??= []);
+export const castPresets = () => { const list = (settings().castPresets ??= []); for (const p of list)
+    normPreset(p); return list; };
+const samePair = (r, t) => (r.a === t.a && r.b === t.b) || (r.a === t.b && r.b === t.a);
+// Presets saved before family-only ties: household ties keep only family, the rest of each tie becomes a relation
+// (unless the pair already has one), and old relations become starting relations. Running it again changes nothing.
+function normPreset(p) {
+    const rels = toStartRels(p.rels);
+    for (const h of p.hh ?? []) {
+        const fam = [];
+        for (const r of toStartRels(h.ties)) {
+            if (r.family)
+                fam.push({ a: r.a, b: r.b, type: r.family });
+            const { family, ...rest } = r;
+            void family;
+            if (Object.keys(rest).length > 2 && !rels.some(x => samePair(x, r)))
+                rels.push(rest);
+        }
+        h.ties = fam;
+    }
+    p.rels = rels;
+}
 const P = { sel: '' };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const nm = (a) => charOf(a)?.name ?? a;
@@ -120,9 +141,14 @@ export function usePreset(id, only) {
         wz.hh = [];
         for (const h of hh)
             for (const t of h.ties ?? [])
-                if (ok(t) && !wz.rels.some((r) => same(r, t)))
-                    wz.rels.push(t);
-    } // one house: households become relations
+                if (ok(t)) {
+                    const r = wz.rels.find((x) => same(x, t));
+                    if (r)
+                        r.family ??= t.type;
+                    else
+                        wz.rels.push({ a: t.a, b: t.b, family: t.type });
+                }
+    } // one house: household family becomes relations
     else {
         const taken = new Set(hh.flatMap(h => h.members));
         wz.hh = [...(wz.hh ?? []).map((h) => ({ ...h, members: h.members.filter((a) => !taken.has(a)) })).filter((h) => h.members.length), ...hh];

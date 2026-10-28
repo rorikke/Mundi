@@ -3448,6 +3448,8 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-ngrel .mu-ties-add { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 #mundi-root .mu-ngrel .mu-ties-add select { width: auto; min-width: 120px; flex: 0 1 auto; }
 #mundi-root .mu-ngrel img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: top; }
+#mundi-root .mu-ngrel-row { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; }
+#mundi-root .mu-ngrel-row .mu-right { margin-left: auto; }
 
 /* Chat look → Speakers' colors, and the colour field in a person's page */
 #mundi-root .mu-talk-list { display: grid; gap: 4px; max-height: 320px; overflow: auto; margin: 6px 0; }

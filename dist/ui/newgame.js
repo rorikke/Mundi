@@ -639,7 +639,7 @@ Object.assign(ACT, {
         try {
             await startNewGame({ world: W(), cast: wz.cast, examples: wz.examples, hero: { ...wz.hero, name: wz.hero.name.trim() }, persona: wz.heroMode === 'existing' ? wz.persona : undefined, lore: chosenLore(),
                 households: (wz.hh ?? []).filter((h) => h.members.length), family: wz.family ?? [], home: wz.home ?? undefined, difficulty: wz.difficulty ?? 'normal',
-                approval: wz.approval ?? undefined, ties: (wz.rels ?? []).filter((t) => t.a !== t.b), mode: rpgOf(W()) ? playMode() : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined,
+                approval: wz.approval ?? undefined, relations: (wz.rels ?? []).filter((t) => t.a !== t.b), mode: rpgOf(W()) ? playMode() : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined,
                 people: ngPeopleFor([...wz.cast, ...(wz.family ?? []).map((f) => f.avatar)]) });
             state.wizard = null;
         }

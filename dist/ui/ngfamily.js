@@ -1,11 +1,13 @@
-// New game, like The Sims: households (people who share a home, with how they are related), your own household
-// (who lives with you), and choosing your home on the map. Everyone left over gets a home of their own at random.
+// New game, like The Sims: households (people who share a home, and which of them are family), your own household
+// (who lives with you), relations (family elsewhere, and how anyone starts with anyone: friends, a couple, exes…), and
+// choosing your home on the map. Everyone left over gets a home of their own at random.
 import { homeKindName } from '../sim/places.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
 import { getWorld, worldFile, isScenario, systemOn } from '../core/world.js';
 import { characters, thumb, charOf, createCharacter } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
-import { OLD_TIE_TYPES as TIE_TYPES, OLD_TIE_TONES as TIE_TONES } from '../sim/living.js';
+import { TIE_TYPES } from '../sim/living.js';
+import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
@@ -19,21 +21,6 @@ export const familyOf = () => (wz().family ??= []);
 const inHousehold = (a) => hhs().some(h => h.members.includes(a)) || familyOf().some(f => f.avatar === a);
 const opt = (v, l, on) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
 const face = (a) => `<img src="${esc(thumb(a))}" alt="" title="${esc(nm(a))}">`;
-// How a tie starts, per direction: a's feeling for b, and b's back (the same by default). With you, only how they see
-// you (your own feelings are played, never set).
-function toneSelects(input, k, t, name) {
-    const tone = `<select data-input="${input}" data-k="${k}" data-f="tone">${TIE_TONES.map(([id, l]) => opt(id, l, t.tone === id)).join('')}</select>`;
-    if (t.a === '__you' || t.b === '__you')
-        return tone;
-    return `<span data-notr>· ${esc(name(t.a))}</span><span>feels</span>${tone}<span data-notr>· ${esc(name(t.b))}</span><span>feels</span>
-        <select data-input="${input}" data-k="${k}" data-f="back">${opt('', 'the same', !t.back)}${TIE_TONES.map(([id, l]) => opt(id, l, t.back === id)).join('')}</select>`;
-}
-// A select's value on a tie (an empty "back" is "the same": no field).
-const setTieField = (t, f, v) => { if (!t)
-    return; if (f === 'back' && !v)
-    delete t.back;
-else
-    t[f] = v; };
 /* ---------- step: households ---------- */
 export function stepHouseholds() {
     const z = wz();
@@ -43,10 +30,10 @@ export function stepHouseholds() {
     const h = list[sel];
     // a scenario: everyone lives in the same house, so only the relations
     if (isScenario(getWorld(z.world)))
-        return `<p class="mu-muted">Everyone lives in the same house: say how they are related.</p>${relationsHtml(false)}${jobsHtml()}
+        return `<p class="mu-muted">Everyone lives in the same house: say who is family and how they get along.</p>${relationsHtml(false)}${jobsHtml()}
         ${z.presetEdit || !z.cast.length ? '' : `<div class="mu-row"><button class="mu-ghost" data-act="cp-save-wizard">${icon('save')}<span>Save these people as a preset</span></button></div>`}`;
     return `<h3>Households</h3>
-        <p class="mu-muted">A household is people who live in the same home: a family, a couple, roommates. Put together the people who live together and say how they are related. Everyone you leave out gets a home of their own, at random. You can skip this.</p>
+        <p class="mu-muted">A household is people who live in the same home: a family, a couple, roommates. Put together the people who live together and say who is family. Everyone you leave out gets a home of their own, at random. You can skip this.</p>
         <div class="mu-ngh">
             <aside class="mu-ngh-list">${list.map((x, i) => `<button class="mu-ngh-card ${i === sel ? 'is-on' : ''}" data-act="ngh-sel" data-i="${i}"><b>Household ${i + 1}</b>
                 <span class="mu-hh-faces">${x.members.map(face).join('') || '<em>Empty</em>'}</span></button>`).join('')}
@@ -54,13 +41,14 @@ export function stepHouseholds() {
             <section class="mu-ngh-edit">${h ? `
                 <header class="mu-row"><h4>Household ${sel + 1}</h4><button class="mu-ghost mu-right" data-act="ngh-del" data-i="${sel}">${icon('trash')}<span>Remove</span></button></header>
                 <div class="mu-ngh-members">${h.members.map(a => `<span class="mu-chip is-on">${face(a)}<span data-notr>${esc(nm(a))}</span><button class="mu-ibtn mu-ghost" data-act="ngh-out" data-who="${esc(a)}" title="Take out">${icon('x')}</button></span>`).join('') || '<p class="mu-muted">Click people below to add them.</p>'}</div>
-                ${h.members.length >= 2 ? `<h5>How they are related</h5>
-                    ${h.ties.map((t, k) => `<div class="mu-ties-add"><span data-notr>${esc(nm(t.a))} is</span><select data-input="ngh-tie" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
-                        <span data-notr>${esc(nm(t.b))}</span>${toneSelects('ngh-tie', k, t, nm)}
+                ${h.members.length >= 2 ? `<h5>Family in this household</h5>
+                    ${h.ties.map((t, k) => `<div class="mu-ties-add"><span data-notr>${esc(nm(t.a))}</span><span>is</span><select data-input="ngh-tie" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
+                        <span data-notr>${esc(nm(t.b))}</span>
                         <button class="mu-ibtn mu-ghost" data-act="ngh-tie-del" data-k="${k}">${icon('x')}</button></div>`).join('')}
                     <div class="mu-ties-add"><select data-input="ngh-pair" data-f="a">${h.members.map(a => opt(a, nm(a), (h.members.includes(z.hhA) ? z.hhA : h.members[0]) === a)).join('')}</select><span>and</span>
                         <select data-input="ngh-pair" data-f="b">${h.members.map(a => opt(a, nm(a), (h.members.includes(z.hhB) ? z.hhB : h.members[1]) === a)).join('')}</select>
-                        <button data-act="ngh-tie-add">${icon('plus')}<span>Add a tie</span></button></div>` : ''}
+                        <button data-act="ngh-tie-add">${icon('plus')}<span>Add family</span></button></div>
+                    <small class="mu-muted">Friends, a couple or roommates sharing this home: say how they get along under Relations.</small>` : ''}
                 ${z.presetEdit ? '' : `<h5>Their home</h5>
                 ${homePicker(sel, 'hhMap')}
                 <div class="mu-row"><p class="mu-nghome-pick">${homeLine(h.home, 'No home chosen: one at random.')}</p>${h.home ? `<button class="mu-ghost" data-act="nghm-clear">${icon('x')}<span>At random</span></button>` : ''}</div>`}
@@ -136,23 +124,41 @@ function jobsHtml() {
     </section>`;
 }
 /* ---------- relations: anyone with anyone, in any household ---------- */
-// Friends, rivals, enemies, allies, a couple… between any two people of this game (or with you), whatever
-// household they live in. `mine`: only your relations (on the "Your character" step).
+// How any two people of this game (or someone and you) start, whatever household they live in: family, each one's
+// friendship and romance (levels, core/feel.ts), and whether they are a couple or used to be. `mine`: only your
+// relations (on the "Your character" step). With you only their side is set: your own feelings are played.
 const rels = () => (wz().rels ??= []);
 export const relationsOf = () => rels();
 const who = (a) => (a === '__you' ? 'You' : nm(a));
+const levelSel = (k, f, v, m, none) => {
+    const tiers = m === 'f' ? [...FRIEND_TIERS].reverse() : ROMANCE_TIERS;
+    return `<label class="mu-field"><span>${m === 'f' ? 'Friendship' : 'Romance'}</span><select data-input="ngr-set" data-k="${k}" data-f="${f}">${opt('', none, !v)}${tiers.map(t => opt(t.id, t.name, v === t.id)).join('')}</select></label>`;
+};
+const TOGETHER = [['', 'Not a couple'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married'], ['ex', 'Used to be together']];
+function relRow(t, k, love) {
+    const you = t.a === '__you' || t.b === '__you', them = t.a === '__you' ? t.b : t.a;
+    const side = (x, f, r, none) => `<div class="mu-feel-side"><b>${x === '__you' ? '' : `<span data-notr>${esc(nm(x))}</span> `}<span>${you ? 'feels about you' : 'feels'}</span></b>
+        <div class="mu-row2">${levelSel(k, f, t[f], 'f', none)}${love ? levelSel(k, r, t[r], 'r', none) : ''}</div></div>`;
+    const together = t.status ?? (t.was ? 'ex' : '');
+    return `<div class="mu-ngrel-row">
+        <div class="mu-ties-add">${t.a === '__you' ? '' : face(t.a)}<span data-notr>${esc(who(t.a))}</span><span>${t.a === '__you' ? 'are' : 'is'}</span>
+            <select data-input="ngr-set" data-k="${k}" data-f="family">${opt('', 'not family', !t.family)}${TIE_TYPES.map(([id, l]) => opt(id, l, t.family === id)).join('')}</select>
+            ${t.b === '__you' ? '' : face(t.b)}<span data-notr>${esc(who(t.b))}</span>
+            <button class="mu-ibtn mu-ghost mu-right" data-act="ngr-del" data-k="${k}" title="Remove">${icon('x')}</button></div>
+        ${you ? side(them, 'f', 'r', 'As usual') : `${side(t.a, 'f', 'r', 'As usual')}${side(t.b, 'back', 'rback', 'The same')}`}
+        ${love ? `<label class="mu-field"><span>Together</span><select data-input="ngr-set" data-k="${k}" data-f="together">${TOGETHER.map(([v, l]) => opt(v, l, together === v)).join('')}</select></label>` : ''}
+    </div>`;
+}
 function relationsHtml(mine) {
     const z = wz();
+    const w = getWorld(z.world);
+    const love = !w || systemOn(w, 'romance');
     const people = [...new Set([...z.cast, ...familyOf().map(f => f.avatar)])];
     const list = rels().map((t, k) => [t, k]).filter(([t]) => !mine || t.a === '__you' || t.b === '__you');
     const pick = (f, def, withYou) => `<select data-input="ngr-pair" data-f="${f}">${(withYou ? ['__you', ...people] : people).map(a => opt(a, who(a), (z[`rel${f}`] ?? def) === a)).join('')}</select>`;
     return `<section class="mu-panel mu-ngrel"><h3>${mine ? 'Your relations' : 'Relations'}</h3>
-        <p class="mu-muted">${mine ? 'How you start with anyone in this world, not only who lives with you: a best friend across town, a rival, an old enemy, someone you are dating.' : (isScenario(getWorld(z.world)) ? 'Between any two people of the house (or with you): siblings, friends, a couple, married, exes, rivals…' : 'Between any two people, in any household (or with you): friends, rivals, enemies, allies, a couple…')}</p>
-        ${list.map(([t, k]) => `<div class="mu-ties-add">${t.a === '__you' ? '' : face(t.a)}<span data-notr>${esc(who(t.a))} ${t.a === '__you' ? 'are' : 'is'}</span>
-            <select data-input="ngr-set" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
-            ${t.b === '__you' ? '' : face(t.b)}<span data-notr>${esc(who(t.b))}</span>
-            ${toneSelects('ngr-set', k, t, who)}
-            <button class="mu-ibtn mu-ghost" data-act="ngr-del" data-k="${k}">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">None yet.</p>'}
+        <p class="mu-muted">${mine ? 'How you start with anyone in this world, not only who lives with you: family across town, a best friend, a rival, an old flame, someone you are dating.' : (w && isScenario(w) ? 'Between any two people of the house (or with you): family, friends, a couple, exes, people who can\'t stand each other…' : 'Between any two people, in any household (or with you): family elsewhere, friends, a couple, exes, people who can\'t stand each other…')} <span>"As usual": where they would start anyway.</span></p>
+        ${list.map(([t, k]) => relRow(t, k, love)).join('') || '<p class="mu-muted">None yet.</p>'}
         ${people.length ? `<div class="mu-ties-add">${mine ? '<span>You and</span>' : pick('a', '__you', true)}${mine ? '' : '<span>and</span>'}${pick('b', people[0], false)}
             <button data-act="ngr-add" data-mine="${mine ? '1' : ''}">${icon('plus')}<span>Add a relation</span></button></div>` : '<p class="mu-muted">Choose the people of this world first.</p>'}
     </section>`;
@@ -166,10 +172,9 @@ export function yourHouseholdHtml() {
     const q = String(z.famQ ?? '').toLowerCase();
     const pool = characters().filter(c => !fam.some(f => f.avatar === c.avatar) && !hhs().some(h => h.members.includes(c.avatar)) && (!q || String(c.name).toLowerCase().includes(q))).slice(0, 40);
     return `<section class="mu-panel mu-ngfam"><h3>Your household</h3>
-        <p class="mu-muted">The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later ("Play as").</p>
+        <p class="mu-muted">The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later ("Play as"). A partner or a friend: say how you get along under Your relations.</p>
         ${fam.map((f, k) => `<div class="mu-ties-add">${face(f.avatar)}<b data-notr>${esc(nm(f.avatar))}</b><span>is your</span>
-            <select data-input="ngf-set" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l.replace(/ of$| to$/, ''), f.type === id)).join('')}</select>
-            <select data-input="ngf-set" data-k="${k}" data-f="tone">${TIE_TONES.map(([id, l]) => opt(id, l, f.tone === id)).join('')}</select>
+            <select data-input="ngf-set" data-k="${k}" data-f="type">${opt('', 'housemate (not family)', !f.type)}${TIE_TYPES.map(([id, l]) => opt(id, l.replace(/ of$/, ''), f.type === id)).join('')}</select>
             <button class="mu-ibtn mu-ghost" data-act="ngf-del" data-k="${k}">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">You live alone for now.</p>'}
         ${z.famNew ? newCharForm(z.famNew) : z.famOpen ? `<input class="mu-search" type="search" data-input="ngf-q" data-focus="ngfq" placeholder="Search your characters" value="${esc(z.famQ ?? '')}">
             <div class="mu-chips mu-ngfam-pool"><button class="mu-chip mu-ngfam-newchip" data-act="ngf-new">${icon('plus')}<span>Create a new character</span></button>${pool.map(c => `<button class="mu-chip" data-act="ngf-add" data-who="${esc(c.avatar)}">${face(c.avatar)}<span data-notr>${esc(c.name)}</span></button>`).join('') || '<p class="mu-muted">No characters found.</p>'}</div>`
@@ -244,7 +249,7 @@ Object.assign(ACT, {
             return;
         }
         h.ties = h.ties.filter(t => !((t.a === a && t.b === b) || (t.a === b && t.b === a)));
-        h.ties.push({ a, b, type: 'sibling', tone: 'good' });
+        h.ties.push({ a, b, type: 'sibling' });
         notify();
     },
     'ngh-tie-del': (el) => { const h = hhs()[wz().hhSel ?? 0]; if (h)
@@ -260,7 +265,7 @@ Object.assign(ACT, {
         }
         const list = rels();
         const i = list.findIndex(t => (t.a === a && t.b === b) || (t.a === b && t.b === a));
-        const t = { a, b, type: 'friend', tone: 'good' };
+        const t = { a, b, f: 'friend' };
         if (i >= 0)
             list.splice(i, 1, t);
         else
@@ -271,7 +276,7 @@ Object.assign(ACT, {
     'ngf-add': (el) => {
         const a = el.dataset.who;
         const z = wz();
-        familyOf().push({ avatar: a, type: 'sibling', tone: 'good' });
+        familyOf().push({ avatar: a, type: 'sibling' });
         if (!z.cast.includes(a))
             z.cast.push(a); // they live in this world, of course
         z.famOpen = false;
@@ -312,7 +317,7 @@ Object.assign(ACT, {
         }
         if (n.url)
             URL.revokeObjectURL(n.url);
-        familyOf().push({ avatar: a, type: 'sibling', tone: 'good' });
+        familyOf().push({ avatar: a, type: 'sibling' });
         if (!z.cast.includes(a))
             z.cast.push(a);
         z.famNew = null;
@@ -349,12 +354,34 @@ Object.assign(INPUT, {
         j[a] = el.value;
     else
         delete j[a]; },
-    'ngh-tie': (el) => { const h = hhs()[wz().hhSel ?? 0]; setTieField(h?.ties[Number(el.dataset.k)], el.dataset.f, el.value); notify(); },
+    'ngh-tie': (el) => { const t = hhs()[wz().hhSel ?? 0]?.ties[Number(el.dataset.k)]; if (t)
+        t.type = el.value; notify(); },
     'ngh-pair': (el) => { wz()[el.dataset.f === 'a' ? 'hhA' : 'hhB'] = el.value; },
-    'ngr-set': (el) => { setTieField(rels()[Number(el.dataset.k)], el.dataset.f, el.value); notify(); },
+    'ngr-set': (el) => {
+        const t = rels()[Number(el.dataset.k)];
+        if (!t)
+            return;
+        const f = el.dataset.f, v = el.value;
+        if (f === 'together') {
+            delete t.status;
+            delete t.was;
+            if (v === 'ex')
+                t.was = 'ex';
+            else if (v)
+                t.status = v;
+        }
+        else if (v)
+            t[f] = v;
+        else
+            delete t[f];
+        notify();
+    },
     'ngr-pair': (el) => { wz()[el.dataset.f === 'a' ? 'rela' : 'relb'] = el.value; },
-    'ngf-set': (el) => { const f = familyOf()[Number(el.dataset.k)]; if (f)
-        f[el.dataset.f] = el.value; },
+    'ngf-set': (el) => { const f = familyOf()[Number(el.dataset.k)]; if (!f)
+        return; if (el.value)
+        f.type = el.value;
+    else
+        delete f.type; },
     'ngf-new-f': (el) => { const n = wz().famNew; if (n)
         n[el.dataset.f] = el.value; },
     'ngf-q': (el) => { wz().famQ = el.value; notify(); },

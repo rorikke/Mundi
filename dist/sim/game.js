@@ -18,8 +18,8 @@ import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
-import { addOldTie } from './startfeel.js';
-import { FRIEND_START, levelOfApproval } from '../core/feel.js';
+import { addOldTie, applyStartFeel } from './startfeel.js';
+import { FRIEND_START, levelOfApproval, isFamily } from '../core/feel.js';
 import { checkLeft } from './verdict.js';
 import { fr, setFr, seedFamily, relOf, YOU } from './rel.js';
 import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
@@ -247,7 +247,8 @@ export async function startNewGame(o) {
             continue;
         save.cast[f.avatar].met = true;
         liveTogether(save, '__you', f.avatar);
-        addOldTie(save, { a: f.avatar, b: '__you', type: f.type, tone: f.tone }, true);
+        if (f.type && isFamily(f.type))
+            addOldTie(save, { a: f.avatar, b: '__you', type: f.type }, true);
     }
     for (const h of o.households ?? []) {
         const [head, ...rest] = h.members.filter(a => save.cast[a]);
@@ -260,8 +261,8 @@ export async function startNewGame(o) {
         for (const a of rest)
             liveTogether(save, head, a);
         for (const t of h.ties)
-            if (save.cast[t.a] && save.cast[t.b])
-                addOldTie(save, t, true);
+            if (save.cast[t.a] && save.cast[t.b] && isFamily(t.type))
+                addOldTie(save, { a: t.a, b: t.b, type: t.type }, true);
     }
     // relations: the world's own (between its example people) and the ones chosen for this game (anyone with anyone),
     // which win over the world's: family becomes ties, the rest starting feelings (sim/startfeel.ts)
@@ -289,10 +290,12 @@ export async function startNewGame(o) {
     for (const a of Object.keys(save.cast))
         applyPerson(save, a, o.people?.[a] ? cleanPerson(o.people[a]) : cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(exOf.get(a)));
     applyPerson(save, YOU, cleanPerson(o.people?.[YOU]));
-    for (const t of o.ties ?? []) {
+    for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;
-        addOldTie(save, t, true); // with you: where you stand with them from day one
+        if (t.family && isFamily(t.family))
+            addOldTie(save, { a: t.a, b: t.b, type: t.family }, true);
+        applyStartFeel(save, t, true); // with you: where you stand with them from day one
         const other = t.a === '__you' ? t.b : t.b === '__you' ? t.a : '';
         if (other)
             save.cast[other].met = true;
