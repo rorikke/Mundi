@@ -10,6 +10,7 @@ fade when you drift apart, and lead people to act on their own. This page descri
 - [Who people are](#who-people-are)
 - [People take the initiative](#people-take-the-initiative)
 - [Couples and feelings among the world's people](#couples-and-feelings-among-the-worlds-people)
+- [Family and feelings](#family-and-feelings)
 - [Where to change things](#where-to-change-things)
 - [Your existing games](#your-existing-games)
 
@@ -38,6 +39,8 @@ fade when you drift apart, and lead people to act on their own. This page descri
   partner you ignore for a long time slowly falls out of love.
 - **Partners can leave you.** A partner who no longer loves you, or has come to dislike you, ends it after a few days.
   They tell you themselves, and they warn you first (see below).
+- **Exes stay exes.** When a couple ends (you and someone, or two of the world's people), they're remembered as exes:
+  the AI knows they used to date, or were married, and exes don't drop by each other's homes.
 - **Something casual.** "Keep it casual?" starts a fling, or friends with benefits once you're friends. It isn't
   being a couple: no moving in, no baby, and other casual partners aren't jealous.
 - **Staying the night is always something you can ask.** Close friends can stay over as friends. A night together
@@ -118,23 +121,38 @@ Characters don't wait for you to drive every relationship.
 ## Couples and feelings among the world's people
 
 - **The world's people get to know each other.** Coworkers, neighbors and housemates grow closer from time spent
-  together. Rivals drift apart.
+  together. People who already dislike each other drift further apart.
 - **Couples form from real feelings,** when two people fall for each other, not at random. They get engaged and
   married when both love and like each other, and break up when the feelings fade. Two people can also keep things
   casual, which turns into dating or quietly ends.
 - **Attraction, family and age are respected.** Nobody pairs up against their attraction, family members never do,
   and minors are never part of any romance.
 - **You hear about it.** New couples, breakups and one-sided crushes reach you as news when you know the people.
-- In your starting relations (new game, World creator, cast presets), each person can feel differently about the
-  other: Kaho can see Saya as a close friend while Saya can't stand her.
+- **The AI knows who is who.** For the people in a scene it's told who is family, who lives together, who works at the
+  same place, who is a couple or used to be, and how each one feels about the others.
+
+## Family and feelings
+
+- **Family is its own thing.** Family ties are parent, child, sibling and cousin. They keep family out of romance, and
+  family visit each other. A husband or wife isn't a family tie: being married is the couple's own status.
+- **Everything else is feelings.** Friends, best friends, rivals, enemies, a couple, exes: you don't pick a relation
+  type, you say how they feel. In the new game, the World creator and your cast presets, each relation says whether
+  they're family, each one's friendship and romance level (Best friend, Good friend, Friend… down to Hates; Interest,
+  Crush, Infatuated), and whether they're a couple or used to be. Kaho can see Saya as a good friend while Saya can't
+  stand her.
+- **"As usual."** Leave a level on "As usual" and they start where they would anyway (family a little closer, a couple
+  in love).
+- **In a game.** A person's page in the People tab has their **Family** (parent, child, sibling, cousin) and their
+  **Feelings**: with you, or with anyone else, a level each way, and whether they're a couple. No need for the Advanced
+  settings; under *Advanced* you still get the exact numbers. Where people live is the Households tab.
 
 ## Where to change things
 
 - **World → Rules → Relationships** (the globe button in a game): judging scenes at their end, how often characters
   take the initiative (off, rarely, normal, often), whether opinions spread through friends, open relationships, what
   happens to feelings with "Play as", and, under *Advanced*, how fast feelings grow and fade.
-- **World → People**: each person's gender, attraction, intimacy, relationship style and pace; feelings between any
-  two people; "Suggest from the cards" and "Save to card".
+- **World → People**: each person's family and feelings (with you or anyone, without *Advanced*); their gender,
+  attraction, intimacy, relationship style and pace; "Suggest from the cards" and "Save to card".
 - **Show the numbers.** For the curious, a debug view (World → Rules → Relationships, Advanced) shows the exact values,
   how fast each relationship is growing right now, what each message changed (with undo), and what people are about
   to bring up.
@@ -148,5 +166,7 @@ request per card, only when you click it.
 
 Saves from the original Mundi open in this fork. They're upgraded once, automatically, with a backup kept in the save.
 Everyone keeps their friendship and romance with you, couples stay together, and the world's people start their
-feelings for each other from their existing ties. Nobody has a gender or special attraction until you set them, so
+feelings for each other from their existing relations. Family relations stay family; the others (friend, rival, married
+to, ex…) become feelings, couples and exes, and their feelings stay exactly as they were. Your cast presets and your own
+worlds are converted the same way when they're opened. Nobody has a gender or special attraction until you set them, so
 nothing changes behind your back.

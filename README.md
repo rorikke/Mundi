@@ -8,16 +8,27 @@ It is a SillyTavern **extension** (no server plugin). Everything is built on wha
 
 ## What this fork adds
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) focused on relationships. People in your world have feelings of their own, for you and for each other, and act on them.
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. So far it adds:
+
+### Relationships that feel alive
+
+People in your world have feelings of their own, for you and for each other, and act on them. **[Relationships in this fork](docs/relationships.md)** describes it all from a player's point of view.
 
 - **Feelings go both ways.** Everyone feels their own way about everyone else, and people can come to dislike or even hate you. A crush can still outweigh dislike, so enemies to lovers is possible.
-- **Friendship and romance are separate.** A best friend can stay just a friend; a stranger can flirt with you on the first night. Romance fades when you stop seeing each other, and partners can leave you. Something casual is possible too.
+- **Friendship and romance are separate.** A best friend can stay just a friend; a stranger can flirt with you on the first night. Romance fades when you stop seeing each other, partners can leave you, and something casual is possible too. Exes are remembered as exes.
 - **Scenes count.** Each scene is judged when it ends: kindness, flirting, a fight or an insult all change how people feel, right away. Swiping or editing replies no longer stacks changes.
-- **Who people are.** Everyone can have a gender, an attraction (who they can fall for), a way of being about intimacy (from free spirit to devoted) and an exclusive or open relationship style. Your AI can suggest them from the character cards.
+- **Who people are.** Everyone can have a gender, an attraction (who they can fall for), a way of being about intimacy (from free spirit to devoted) and an exclusive or open relationship style. Your AI can suggest them from the cards.
 - **People take the initiative.** They open up, confess their feelings, ask you out, text you, warn you before a breakup, hold grudges until you apologize, get jealous, and talk about you to their friends. How often is up to you.
-- **The world's people live their own love lives.** They make friends and rivals, fall for each other, date, marry and break up, from their own feelings.
+- **The world's people live their own lives.** They make friends, fall out, fall for each other, date, marry and break up, from their own feelings.
+- **Family is family, feelings are feelings.** Family ties (parent, child, sibling, cousin) are kept apart from how people feel; everything else, from best friends to exes, is set as feelings: in the new game, the World creator and the People tab, without needing the Advanced settings.
 
-Your existing Mundi saves open as they are, upgraded once with a backup. More details, from a player's point of view: **[Relationships in this fork](docs/relationships.md)**.
+### A color for each speaker's dialogue
+
+Turn on **Color each speaker's dialogue** in Chat look (the ☰ menu): the quotes in each line, and the speaker's name, take that person's color, so you can tell at a glance who says what.
+
+- **Colors that fit the characters.** Your AI picks them once (one short request in the background), from how each card describes the character and the colors of their avatar and sprites, and gives people who are often together (a household, a couple, family, good friends) colors that are easy to tell apart.
+- **Always readable.** Mundi checks every color against the dialogue box and keeps similar colors apart, and falls back to its own choice when your AI can't answer.
+- **Yours to change.** Set a color in Chat look or on a person's page in the People tab: a character's is saved on their card, yours is kept for your persona. "Pick colors again" asks your AI for a new set; colors you chose stay.
 
 ## What you can do
 
