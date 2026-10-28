@@ -14,6 +14,9 @@ import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
 import { book } from './ledger.js';
 import { extraActions, isBlocked, brokenThings, hasItem } from './life.js';
+import { whenHolds } from './when.js';
+import { withYou } from './social.js';
+import { guestAt, includedHere } from './stays.js';
 
 const clamp = (v: number, max: number) => Math.max(0, Math.min(max, Math.round(v)));
 export const statusDef = (w: WorldDef, id: string) => w.statuses.find(s => s.id === id);
@@ -103,25 +106,33 @@ export function crisisLine(g: Save): string {
     return c && c.text && nowAbs(g) - c.at < 180 ? `Just now: ${c.text} {{user}} is still shaken.` : '';
 }
 
-// Actions available where the player is (a café sells coffee; at home you can cook).
+// Actions available where the player is (a café sells coffee; at home you can cook). (E14) A place can add its own
+// (`actions`, or an action's `places`) and drop the ones its tags bring (`generic: false`); an action's `when` decides
+// when it's offered (sim/when.ts), and one that needs company only shows with someone with you. (E6) A guest staying
+// the night is never locked out, and what the night includes is free.
 export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
     const atHome = g.player.loc === playerHomeId;
+    const pl0 = w.places.find(p => p.id === g.player.loc);
     const tags = placeOf(g, w, g.player.loc)?.tags ?? [];
+    const own = (a: ActionDef) => !!pl0 && (!!a.places?.includes(pl0.id) || !!pl0.actions?.includes(a.id));
+    const generic = pl0?.generic !== false;
+    const guest = !atHome && guestAt(g, w, g.player.loc), free = includedHere(g, w);
     const on = new Set(activeStatuses(w).map(s => s.id));
     // an action only about needs that are not in play (seeing a doctor in Life-Sim) is left out
     // (a scenario keeps them all: in one house, what you do is part of the scene even with needs off)
     const useful = (a: ActionDef) => { const ids = Object.keys(a.effects ?? {}); return !!a.outing || isScenario(w) || !ids.length || ids.some(id => on.has(id)); };
     const broken = brokenThings(g, w).length > 0;
-    const closed = !atHome && systemOn(w, 'living') && !openNow(g, w, g.player.loc);   // a closed place: only what can be done anywhere
+    const closed = !atHome && !guest && systemOn(w, 'living') && !openNow(g, w, g.player.loc);   // a closed place: only what can be done anywhere
     // a scenario: the actions chosen for this room when the game started (instead of those its tags bring)
     const chosen: string[] | undefined = isScenario(w) ? (g as any).cfg?.roomActs?.[g.player.loc] : undefined;
     // Home: no money, so nothing to earn or pay, and going out has its own button (Go out)
     const homeMode = isScenario(w);
     const earns = (a: ActionDef) => a.cost < 0 || ((a.roll as any)?.success?.money ?? 0) > 0 || !!a.outing;
     const base = w.actions.filter(useful).filter(a => !homeMode || !earns(a)).filter(a => !isBlocked(g, a, w)).filter(a => a.id !== 'fix' || broken)
-        .filter(a => homeMode || !a.needsItem || hasItem(g, a.needsItem)).filter(a => chosen || !(a.notTags ?? []).some(t => tags.includes(t))).filter(a => chosen ? (a.anywhere || chosen.includes(a.id)) : (a.home && atHome)
-        || (a.place && a.place === g.player.loc)
-        || (!a.home && !a.place && (a.anywhere || (a.tags ?? []).some(t => tags.includes(t))))).filter(a => !closed || a.anywhere);
+        .filter(a => homeMode || !a.needsItem || hasItem(g, a.needsItem)).filter(a => chosen || own(a) || !(a.notTags ?? []).some(t => tags.includes(t))).filter(a => chosen ? (a.anywhere || chosen.includes(a.id)) : (a.home && atHome)
+        || (a.place && a.place === g.player.loc) || own(a)
+        || (!a.home && !a.place && !a.places && (a.anywhere || (generic && (a.tags ?? []).some(t => tags.includes(t)))))).filter(a => !closed || a.anywhere)
+        .filter(a => !a.when || whenHolds(g, w, a.when, { id: a.id, key: a.id })).filter(a => !a.together?.needed || withYou(g, w).length > 0);
     // prices after the difficulty; at home, what a cut-off service stops is left out
     // out and about, what you buy costs what it costs in this region now (the living world)
     const here = atHome ? 1 : priceHere(g, w);
@@ -131,7 +142,7 @@ export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
     const pl = placeOf(g, w, g.player.loc);
     const wet = homeMode && !!pl && /bath|shower|wash|toilet|restroom/i.test(`${pl.id} ${pl.name}`);
     if (homeMode) return all.filter(a => !earns(a)).filter(a => !wet || !a.anywhere || !!chosen?.includes(a.id)).map(a => (a.cost ? { ...a, cost: 0 } : a));
-    return all.map(a => (a.cost ? { ...a, cost: a.cost > 0 ? Math.round(priceOf(g, a.cost) * here) : priceOf(g, a.cost) } : a));
+    return all.map(a => (a.cost ? { ...a, cost: free.includes(a.id) && a.cost > 0 ? 0 : a.cost > 0 ? Math.round(priceOf(g, a.cost) * here) : priceOf(g, a.cost) } : a));
 }
 
 // Water, power… of a kind of home, paid with the rent.
