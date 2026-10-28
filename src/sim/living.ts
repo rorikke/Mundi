@@ -2,7 +2,7 @@
 // the world, people's own lives moving on over the weeks, and rumors that travel between people.
 import { personaName } from '../st/bridge.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, isScenario, type WorldDef, type LoreEntry } from '../core/world.js';
+import { systemOn, isScenario, type WorldDef, type LoreEntry, type LoreWhen } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { weatherAt, regionOf, regionState } from './worldstate.js';
@@ -34,12 +34,8 @@ export function approvalLine(g: Save, present: Resident[]) {
 // A world's lore entry can have `when`: the weather, the part of the day, a place or a region, weekends, a season,
 // the public mood or tension of the region, a range of days, or a chance each day. `rumor: true` makes it a rumor
 // that goes around instead (people mention it; see the rumor pool below).
-export interface LoreWhen {
-    weather?: string; period?: string; place?: string; weekend?: boolean;
-    region?: string; season?: string; tensionAbove?: number; moodAbove?: number; moodBelow?: number;
-    fromDay?: number; toDay?: number; chance?: number;
-}
-type WhenLore = LoreEntry & { when?: LoreWhen; rumor?: boolean };
+export type { LoreWhen };
+type WhenLore = Omit<LoreEntry, 'when'> & { when?: LoreWhen };
 // The day-wide conditions (no place or hour): also what decides when a world rumor starts going around.
 function dayHolds(g: Save, w: WorldDef, c: LoreWhen, key: string, place = g.player.loc): boolean {
     if (c.weather && !weatherAt(g, w, place).name.toLowerCase().includes(c.weather.toLowerCase())) return false;

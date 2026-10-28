@@ -1,12 +1,36 @@
 import { settings, game } from './store.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 import type { RpgDef } from './rpgdef.js';
-import type { FeelParts } from './feel.js';
+import type { FeelParts, FamilyType, FriendLevel } from './feel.js';
 // The world format. A world is pure data (worlds/<id>/world.json); Mundi's systems read it.
 // Everything a world can configure is declared here, so this file is also the format's documentation.
 
 /** A part of the day. `prices`: what things cost then (× as listed; 1 or none = as listed). */
 export interface Period { id: string; name: string; from: number; prices?: number }
+export type SeasonId = 'spring' | 'summer' | 'autumn' | 'winter';
+/** Days of the week as worlds write them (day 1 of a game is a Monday). */
+export const WEEKDAY_IDS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
+export type WeekdayId = typeof WEEKDAY_IDS[number];
+/** A condition, read by sim/when.ts: `key: value` with `;` between conditions that must all hold, `or` between
+ *  alternatives inside one, and `not` before them to exclude them all (`weekday: not sat or sun`). A key may repeat
+ *  (`present: Ren; present: Mio`: both are here). Example: `period: evening or night; weekday: fri; feels: Kyōko friend`.
+ *  Keys: `period` (an id; a name in older worlds), `weekday` (`mon` … `sun`), `weekend` (`yes`/`no`), `season`,
+ *  `seasonDays` (`3-6`: days of the season), `weather` (`rain`, `cloudy`…; region weather `fujiview`, `gas`),
+ *  `festival` (id, on today), `event` (a city event's id, on now), `place`, `zone` (the home zone of the place you're
+ *  at), `region` (a map id), `daily` (`yes`: once a day), `regular` (visits here: `8`), `skill` (`cooking 3`), `feels`
+ *  (`Ayaka friend`: one of the world's people toward you, at that level or closer), `onShift` (someone at work here),
+ *  `present` (someone here now), `after` (an action done here today), `job` (an id, or `here`), `start` (the player's
+ *  start), `chance` (per day, `0.2`), `clock` (`19:00-20:00`), `stayed` (slept at that place last night), `holds` (a
+ *  keepsake), `companion` (someone with you at that level or closer: `dating`). An outcome's own condition may be
+ *  written `when: present: Kaito`. Worlds made before conditions were text give an object (LoreWhen), read as before. */
+export type When = string | LoreWhen;
+/** The old form of a condition (lore before E26): the weather, a period by name, a place or region, weekends, a
+ *  season, the region's public mood or tension, a range of days, a chance each day. */
+export interface LoreWhen {
+    weather?: string; period?: string; place?: string; weekend?: boolean;
+    region?: string; season?: string; tensionAbove?: number; moodAbove?: number; moodBelow?: number;
+    fromDay?: number; toDay?: number; chance?: number;
+}
 /** A map. `parent`: the bigger map it sits in (a city inside a region); `minutesPerUnit`: travel speed on it. */
 export interface MapDef {
     id: string; name: string; image: string; ratio: number; parent?: string; minutesPerUnit?: number;
@@ -38,7 +62,32 @@ export interface Place {
     scenarioOff?: boolean;
     /** What the place is for the game (a healer, a jail, a contracts board…); none given: guessed from its name. */
     roles?: string[];
+    /** (E1) Who's around besides the world's people, 6–20 words ("the master works in silence; old men at the
+     *  counter"): background the AI may describe, never characters. */
+    staff?: string;
+    /** (E14) Ids of actions offered here besides those that name this place. `generic: false`: none of the actions its
+     *  tags bring (walk, coffee, meal…); missing: they're offered, as before. */
+    actions?: string[]; generic?: boolean;
+    /** (E6) You can sleep here (a capsule, a ryokan): see PlaceSleep. */
+    sleep?: PlaceSleep;
+    /** (E19) Opening hours by the clock, [from, to) in hours (17.5 = 17:30; `to` below `from` goes past midnight:
+     *  `[18, 5]`), on top of `closed`; `openBySeason` for hours that change through the year (`winter: [10, 18]`). */
+    open?: [number, number]; openBySeason?: Partial<Record<SeasonId, [number, number]>>;
+    /** (E19) Weekdays it's closed all day (`mon` … `sun`). */
+    closedDays?: WeekdayId[];
+    /** (E19) Festival ids on whose days it never closes (a temple open all night on New Year's Eve). */
+    festivalOpen?: string[];
+    /** (E19) What it costs to get in (a garden's gate), paid once a day. */
+    entry?: number;
+    /** (E33) A private place (a karaoke room, a love-hotel room): a private scene for the intimate profiles (E15). */
+    private?: boolean;
+    /** (E15) Only with adult content on: otherwise it's on no map and nobody's routine sends them there. */
+    adult?: boolean;
 }
+/** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
+ *  must leave (an hour, default the world's `sleep.until`), and actions included with the night (the ryokan's bath,
+ *  dinner and breakfast, by action id). */
+export interface PlaceSleep { price: number; rest: 'poor' | 'fair' | 'good' | 'great'; until?: number; includes?: string[] }
 // Roles a place can have. A place with its own list uses only that list; one without is guessed from its name, so
 // older worlds keep working and any world can set them in the map editor.
 export const PLACE_ROLES: { id: string; name: string; re: RegExp }[] = [
@@ -80,16 +129,39 @@ export interface ActionDef {
     outing?: boolean;
     effects: Record<string, number>;
     /** A one-click skill action (fishing, fixing something): an invisible d20 roll + trait bonuses against `dc`.
-     *  Time and the base effects always apply; then `success` or `fail` adds its own effects and money. */
-    roll?: { dc: number; traits?: string[]; success: RollOutcome; fail: RollOutcome };
+     *  Time and the base effects always apply; then `success` or `fail` adds its own effects and money.
+     *  `skill` (J3): a skill whose level adds to the roll. */
+    roll?: { dc: number; traits?: string[]; skill?: string; success: RollOutcome; fail: RollOutcome };
     /** Only shown when the player owns this shop item (a coffee machine, a loom…). */
     needsItem?: string;
     /** Not offered in places with any of these tags (a run is not for the gym). */
     notTags?: string[];
     /** The hobby this action trains (its level adds to the roll and raises what it pays). Set by the engine from `hobbies`. */
     hobby?: string;
+    /** (E14) More places that offer it (one action for three karaoke boxes), next to `place`. */
+    places?: string[];
+    /** (E14) When it's offered (see When): `period: afternoon; daily: yes; feels: Ayaka friend`. */
+    when?: When;
+    /** (E14) Done with the people with you (it counts as time together): `needed` when it can't be done alone;
+     *  `text`: what it means for you two, for the AI ("eating side by side at the counter"). */
+    together?: { needed?: boolean; text?: string };
+    /** (E14) Weighted outcomes (an omikuji's four results), one drawn after the roll if there is one. */
+    outcomes?: ActionOutcome[];
+    /** (E14) A keepsake it leaves (an id from the world's `keepsakes`). */
+    keepsake?: string;
+    /** (E14) What's remembered and told to the AI ({u} the player, {0} the place): "{u} ate ramen at {0}". */
+    fact?: string;
+    /** (J3) The skill it trains a little (an id from the world's `skills`). */
+    trains?: string;
+    /** (E33) Done in private (a room of your own, a private bath): a private scene for the intimate profiles. */
+    private?: boolean;
+    /** (E15) Only with adult content on. */
+    adult?: boolean;
 }
-export interface RollOutcome { text: string; money?: number; effects?: Record<string, number> }
+/** A roll's result. `keepsake` and `fact` as on the action (E14). */
+export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string }
+/** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`). */
+export interface ActionOutcome extends RollOutcome { weight: number; when?: When }
 export interface Attribute { id: string; name: string; desc?: string }
 export interface TraitGroup { id: string; label: string; max: number; options: string[] }
 export interface Origin {
@@ -98,7 +170,10 @@ export interface Origin {
     /** RPG: the skills this background is trained in, and what it gives you (like a BG3 background). */
     skills?: string[]; feature?: string;
 }
-export interface Rank { name: string; pay: number }
+/** A rank of a job: its name and pay per hour. (J3) What it takes to be promoted to it: skill levels (`needs`:
+ *  `{ cooking: 4 }`), one of some traits, a course, or anything else as a condition (`when: feels: Genzō good`).
+ *  (E20) `place`: where this rank works, when not the job's place (an idol's top ranks at the TV studio). */
+export interface Rank { name: string; pay: number; needs?: Record<string, number>; traits?: string[]; course?: string; when?: When; place?: string }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
 // `promote`: shifts to reach each of its ranks; `after`: the option is only offered after one of these paths.
 export interface BranchOption { id: string; name: string; desc?: string; ranks: Rank[]; promote?: number[]; likes?: string[]; after?: string[] }
@@ -139,7 +214,37 @@ export interface Occupation {
     hobby?: { id: string; level: number };
     /** Career branches: at some ranks you choose a path (see Branch). */
     branches?: Branch[];
+    /** Course ids needed to be hired (sim/skills.ts). (J3) `skills`: skill levels needed to be hired. */
+    courses?: string[]; skills?: Record<string, number>;
+    /** (J1) When it's worked; missing: whenever the place is open, as before (see Schedule). */
+    schedule?: Schedule;
+    /** (J4) How long the top takes compared with the average career (1: about a game year at 1×; a konbini clerk 0.5,
+     *  a doctor 2). Missing: 1. */
+    length?: number;
+    /** (E20) Extra pay for night hours (22:00–5:00), as a share of the hourly pay (0.25: +25%). */
+    nightPay?: number;
+    /** (E20) Worked off-screen, as Home mode's jobs are: during a shift the person is away, on no map. */
+    offScreen?: boolean;
+    /** (E20) false: not open to the player (only the world's people have it). */
+    hireable?: boolean;
+    /** (J6) Things that happen at work now and then (see WorkEvent). */
+    events?: WorkEvent[];
+    /** (J3) Skills the job trains a little each shift. (J1) `overtime`: the boss asks for extra hours now and then. */
+    trains?: string[]; overtime?: boolean;
+    /** (E15) Only with adult content on. */
+    adult?: boolean;
 }
+/** (J1) A weekly schedule: how many days a week (the engine picks which) or which weekdays, and a shift's hours
+ *  [from, to) (`to` below `from` goes past midnight: 20–6). A job worked round the clock lists its `shifts` instead
+ *  of from/to. The work preset (J9) scales the days. */
+export interface Schedule { days: number | WeekdayId[]; from?: number; to?: number; shifts?: { id: string; name?: string; from: number; to: number }[] }
+/** (J6) A thing that happens on a shift: a setup sentence and two or three choices. */
+export interface WorkEvent { id: string; setup: string; when?: When; choices: WorkChoice[]; adult?: boolean }
+/** A choice at work: an optional roll (a skill against `dc`), and what it does: performance up or down (`perf`,
+ *  −2…2), money, how some of the world's people feel about you (`feels`: name → small change), a fact; `fail`: what
+ *  happens instead when the roll fails. */
+export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult }
+export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
@@ -160,13 +265,63 @@ export interface ExampleCharacter {
     gender?: string; attraction?: Record<string, { f?: number; r?: number }>;
     pace?: { f?: 'slow' | 'normal' | 'fast'; r?: 'slow' | 'normal' | 'fast' }; style?: 'exclusive' | 'open';
     intimacy?: { preset?: string; r?: string; f?: string; casual?: false };
+    /** (E18) Everyone with the same household id shares one home in every game (like the new game's households). */
+    household?: string;
+    /** (E3) Their portrait (a picture in the world's folder) and a folder of expression sprites, uploaded when their
+     *  card is first made. */
+    avatar?: string; sprites?: string;
+    /** (J5) The rank they hold in their job: an index (0 = the first) or the rank's name. */
+    rank?: number | string;
+    /** (E21) Standing appointments (see Ritual). */
+    rituals?: Ritual[];
+    /** (E22) Their secrets and storylines (see Thread). */
+    threads?: Thread[];
+    /** (E25) Chemistry hints toward the world's other people (by name), 0..1: how strongly they're drawn. */
+    chemistry?: Record<string, number>;
+    /** (E15) Only with adult content on: otherwise their card isn't made, and ties, feelings and households with them
+     *  are left out. */
+    adult?: boolean;
+    /** (E15) Their intimate profile, sent to the AI only with adult content on (see IntimateProfile). */
+    intimate?: IntimateProfile;
+    /** (E27) One short line on their looks and one on their voice, for scenes where they're present but not speaking. */
+    look?: string; voice?: string;
+    /** (E25) Their life doesn't change by chance (no random new job or home); only their threads or the player change
+     *  it. Missing: it can change, as before. */
+    anchored?: boolean;
 }
+/** (E21) A standing appointment: where, which weekdays (none: any day), hours [from, to) (past 24 runs into the
+ *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
+ *  month (the season's week `week`: 1 = the first, -1 = the last) or once a year; `festival` or `event`: only on those
+ *  days. `places`: some weeks one of these instead. `with`: others who come (names of the world's people); `chance`:
+ *  how often it happens (1 = always); `text`: what they're doing, for the AI ("sings at Bar Kotori"). It wins over free
+ *  time, not over a work shift. */
+export interface Ritual {
+    place: string; days?: WeekdayId[]; from: number; to: number;
+    every?: 'week' | 'month' | 'year' | number; week?: number; festival?: string; event?: string;
+    places?: string[]; with?: string[]; chance?: number; text: string; when?: When; adult?: boolean;
+}
+/** (E22) A secret or storyline that moves in stages. `hidden`: what the character knows and doesn't say (told to the
+ *  AI as hidden); `known`: how it reads once the player knows ({{user}} knows …); `reveal`: what makes the player
+ *  know (a condition: `feels: Rina good`, a story, an overheard rumor). */
+export interface Thread { id: string; hidden: string; known?: string; reveal?: When; stages: ThreadStage[]; endings?: ThreadEnding[]; adult?: boolean }
+/** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
+ *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
+export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
+/** How a thread ends, picked by what happened (`when`): the text, and a life that changes (a new job or home). */
+export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string }
+/** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
+ *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
+export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string; prefs?: string[]; limits?: string[] }
 /** One of a world's genders: `pronouns` and the `plural` ("women") are what the AI is told. */
 export interface GenderDef { id: string; name: string; plural?: string; pronouns?: string }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
 /** A phone app: which one (`id`), and how it is called and looks in this world. */
 export interface AppDef { id: string; name: string; icon: string; color: string; on: boolean; rpg?: boolean }
-export interface LoreEntry { keys: string[]; content: string; constant?: boolean }
+/** A lore entry: keyed (in the lorebook, sent when a key word comes up), or with `when` (sent with the scene while the
+ *  condition holds, see When), or a `rumor` (goes around between people once its `when` holds, sim/living.ts).
+ *  (E15) `adult`: only with adult content on. (E31) `about`: who a rumor is about (by name; they never "hear" it);
+ *  `secret`: their close friends don't pass it on. (E32) `priority`: kept first when a busy scene has too much lore. */
+export interface LoreEntry { keys: string[]; content: string; constant?: boolean; when?: When; rumor?: boolean; adult?: boolean; about?: string; secret?: boolean; priority?: number }
 
 export interface WorldDef {
     format: 1;
@@ -260,6 +415,26 @@ export interface WorldDef {
     factions?: FactionDef[];
     /** How the realm is ruled, what power it leans on, and its gods (none: altars are only monuments). */
     realm?: RealmDef;
+    /** (E16) Ready-made starts: who you are when the game begins (see StartDef). Missing: the origins are the starts. */
+    starts?: StartDef[];
+    /** (J3) Skills with levels 0–10 (cooking, fitness, Japanese…), trained by actions, courses and jobs. */
+    skills?: SkillDef[];
+    /** (E14, E20, E35) Things you can keep, from actions and street stories (a goshuin stamp, a claw-machine plush). */
+    keepsakes?: KeepsakeDef[];
+    /** (E17, E28) Street stories: short one-off stories that happen at a place (see StoryDef). */
+    stories?: StoryDef[];
+    /** (E2) Weather by climate and season (a map's `climate` picks one; see ClimateDef). Missing: one table all year,
+     *  as before. */
+    climates?: Record<string, ClimateDef>;
+    /** (E8) How people address you as they get closer (see AddressDef). */
+    address?: AddressDef;
+    /** (E4) Trains: the last and first ones, taxis and the walk to the station (see TransitDef). Missing: no last
+     *  train, as before. */
+    transit?: TransitDef;
+    /** (J9) The work rules a new game starts with (Tokyo: `reduced`). Missing: the engine's default. */
+    workPreset?: 'realistic' | 'reduced' | 'relaxed';
+    /** (J4) How fast careers go in this world (2: twice as fast; 0.5: half as fast). Missing: 1. */
+    careerSpeed?: number;
     /** What the world has: a phone (modern), a journal (medieval)… and which systems are on. */
     features?: { phone?: boolean; device?: string; apps?: AppDef[] } & Partial<Record<SystemId, boolean>>;
     /** Set by the loader: the folder URL the world's files live in. */
@@ -267,6 +442,41 @@ export interface WorldDef {
     /** Set by the loader: the world's own interface translations (worlds/<id>/lang/<lang>.json). */
     i18n?: Record<string, Record<string, string>>;
 }
+
+/** (E16) A start. `premise`: what the AI is told; `home`: a home zone id; `job`: a job id; `knows`: people you already
+ *  know (by name) and how they feel about you (`f`, `r`, a couple's `status`, `was`), or what they are to you in the
+ *  family (`family: 'cousin'`); `traits` and `skills` (levels) you begin with; `default`: picked first. */
+export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean }
+export interface StartKnown extends FeelParts { name: string; family?: FamilyType }
+/** (J3) A skill. */
+export interface SkillDef { id: string; name: string; icon?: string; desc?: string }
+/** (E14, E35) A keepsake: its kind (charm, photo, print…), whether it can be given, and who would love it (names of
+ *  the world's people, or leisure and hobby tags). */
+export interface KeepsakeDef { id: string; name: string; icon: string; kind?: string; desc?: string; gift?: boolean; loves?: string[]; adult?: boolean }
+/** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
+ *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
+ *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
+export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean }
+/** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
+ *  roll fails. */
+export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult }
+/** What a story's choice leads to: text, needs and money, a keepsake, a rumor it starts, a fact, how some of the
+ *  world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes you one. */
+export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string }
+/** (E2) A climate: per season, the odds of each kind of weather (`sunny`, `rain`, `storm`, `snow`, `hot`…); `days`: a
+ *  stretch of a season with odds of its own (the rainy season, summer 1–5); `regional`: weather a region has on its own
+ *  (`fujiview`, `gas`), with its odds per season. */
+export interface ClimateDef {
+    seasons: Partial<Record<SeasonId, Record<string, number>>>;
+    days?: { season: SeasonId; from: number; to: number; odds: Record<string, number> }[];
+    regional?: Record<string, Partial<Record<SeasonId, number>>>;
+}
+/** (E8) How people address you, by how close they are: a few words per friendship level and per romance level or
+ *  couple status, and how a senior or junior at work does. Told to the AI. */
+export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
+/** (E4) Trains: the hour the last ones leave (0.5 = 0:30) and the first ones (5), the fare of a taxi (a base and per
+ *  minute of the trip), and the walk to the station (minutes) added to trips between districts. */
+export interface TransitDef { last?: number; first?: number; taxi?: { base: number; perMinute?: number }; walk?: number }
 
 // The phone's apps, as the Modern style has them (a world can rename them, change icons or turn them off).
 export const DEFAULT_APPS: AppDef[] = [
@@ -357,14 +567,41 @@ export interface CityEventDef {
     outdoor?: boolean; crowd?: number;
     /** Perform there with a hobby (an open mic, a stall at the fair): the level it needs, the button, the pay. */
     stage?: { hobby: string; level: number; label: string; pay: number };
+    /** (E19) More weekdays it's on, besides `weekday` (Friday and Saturday nights). */
+    weekdays?: number[];
+    /** (E9) Only in these seasons, and only on these days of the season [from, to] (summer days 1–11). */
+    seasons?: SeasonId[]; seasonDays?: [number, number];
+    /** (E23) Who comes and who has a part in it (see Audience, EventRole). */
+    audience?: Audience[]; roles?: EventRole[];
+    /** (E15) Only with adult content on. */
+    adult?: boolean;
 }
+/** (E23) Who a festival or event draws: `everyone`, `couples`, `friends` (of those taking part), `fans` (people who
+ *  spend their free time at the place), `colleagues` (people who work there), `neighbors` (who live on its map),
+ *  `students`; or `hobby:<id>`, `job:<id>`. */
+export type Audience = string;
+/** (E23) Someone's part in a festival or event (Kanon behind her convention table): who (a name of the world's people),
+ *  where (default the event's place), the hours [from, to) (default the event's), and what they do, for the AI. It wins
+ *  over their routine like a ritual. */
+export interface EventRole { who: string; place?: string; from?: number; to?: number; text: string }
 // A floor plan: floors (a picture each, optional) and where each room is on them. A room is a place of the world
 // (`id`) or a bedroom: `spot:<area>:<n>`, the n-th home spot of a housing area (whoever lives there in the game).
 export interface PlanFloor { id: string; name: string; image?: string; /** the plan at other parts of the day */ images?: Record<string, string>; ratio?: number }
 export interface PlanRoom { id: string; floor: string; x: number; y: number; w: number; h: number }
 export interface HousePlan { on?: boolean; floors: PlanFloor[]; rooms: PlanRoom[]; /** the color a room lights up with under the mouse */ glow?: string; /** false: names only under the mouse */ labels?: boolean }
 export interface HobbyDef { id: string; name: string; icon?: string; desc?: string; actions: string[]; /** extra pay per level, in % (default 12) */ pay?: number }
-export interface FestivalDef { id: string; name: string; season: string; day: number; days?: number; place?: string; prices?: number; mood?: number; desc?: string }
+/** A festival: a season's day(s), its place (none: everyone's), prices × and mood. (E19) `places`: more places it
+ *  fills (cherry blossoms in three parks). (E23) `crowd`: how many in 100 people with free time go; `audience`,
+ *  `roles` as for city events. (E5) `custom`: what it means between people (see FestivalCustom). (E15) `adult`. */
+export interface FestivalDef {
+    id: string; name: string; season: string; day: number; days?: number; place?: string; prices?: number; mood?: number; desc?: string;
+    places?: string[]; crowd?: number; audience?: Audience[]; roles?: EventRole[]; custom?: FestivalCustom; adult?: boolean;
+}
+/** (E5) A festival's custom between people, played as moments chosen by each person's feelings: `gift` (people who
+ *  like you give you something: Valentine's chocolate), `return` (the return gift: White Day), `couples` (partners
+ *  expect a date: Christmas Eve), `family` (family and close friends go together: the New Year shrine visit), `group`
+ *  (friends invite you along: hanami). `text`: the custom in a sentence, for the AI. */
+export interface FestivalCustom { kind: 'gift' | 'return' | 'couples' | 'family' | 'group'; text?: string }
 export interface GoodDef { id: string; name: string; icon: string; price: number; kind?: string; cheap?: string[]; dear?: string[]; illegal?: boolean; socket?: { slot: 'weapon' | 'armor'; kind: 'attack' | 'damage' | 'armor'; amount: number }; cures?: boolean }
 export interface RecipeDef { id: string; name: string; needs: Record<string, number>; makes: string; count?: number; skill?: string; dc?: number; at?: string[]; risky?: boolean; legendary?: boolean }
 export interface TowerDef { id: string; name: string; place: string; floors: number; tags?: string[]; desc?: string }
