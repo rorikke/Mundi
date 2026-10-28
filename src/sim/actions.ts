@@ -1,6 +1,7 @@
 // Doing something at a place (E14): its price and needs, the time it takes, its roll, then one of its weighted
-// outcomes, the keepsake it leaves, the time together with whoever is with you, the fact that's remembered, and a
-// line telling the AI what just happened. ui/map.ts runs it once the waiting screen is done; the tests run it as is.
+// outcomes (its own, or a row of one of the world's shared tables told in its own words, like an omikuji), the keepsake
+// it leaves, the time together with whoever is with you, the fact that's remembered, and a line telling the AI what
+// just happened. ui/map.ts runs it once the waiting screen is done; the tests run it as is.
 import type { Save } from '../core/store.js';
 import { isScenario, type WorldDef, type ActionDef, type ActionOutcome, type RollOutcome } from '../core/world.js';
 import { applyAction, addStatus, money } from './needs.js';
@@ -22,9 +23,14 @@ export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
  *  you and what it did between you, and the line for the AI. */
 export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outcome: ActionOutcome | null; keepsake: string | null; with: string[]; together: TogetherGain[]; ai: string }
 
+// The outcomes an action can draw from: its own, or (E14) a shared table's rows in this action's words.
+export function outcomesOf(w: WorldDef, a: ActionDef): ActionOutcome[] {
+    if (!a.table) return a.outcomes ?? [];
+    return (w.tables?.[a.table] ?? []).map(r => { const x = a.words?.[r.id]; return typeof x === 'string' ? { ...r, text: x } : x ? { ...r, ...x } : r; });
+}
 // One of the outcomes whose own condition holds, by weight.
 export function drawOutcome(g: Save, w: WorldDef, a: ActionDef, place: string, rnd = Math.random): ActionOutcome | null {
-    const list = (a.outcomes ?? []).filter((o, i) => !o.when || whenHolds(g, w, o.when, { place, id: a.id, key: `${a.id}#${i}` }));
+    const list = outcomesOf(w, a).filter((o, i) => !o.when || whenHolds(g, w, o.when, { place, id: a.id, key: `${a.id}#${i}` }));
     const total = list.reduce((s, o) => s + Math.max(0, o.weight ?? 0), 0);
     if (!list.length || !(total > 0)) return null;
     let x = rnd() * total;

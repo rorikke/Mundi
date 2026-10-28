@@ -2341,7 +2341,30 @@
     "text": "reading it together counts"
    },
    "fact": "{u} drew a poem at {0}",
-   "place": "sb_meiji"
+   "place": "sb_meiji",
+   "table": "omikuji",
+   "words": {
+    "great": {
+     "text": "The slip is a poem by Emperor Meiji, with an English note: may the heart be as wide as the clear blue sky. No luck to keep or tie up, only something to think about.",
+     "effects": {},
+     "fact": "{u} drew a poem at {0}"
+    },
+    "good": {
+     "text": "The slip is a poem by Empress Shōken: even a jewel only shines once it is polished, and so does a person. No luck, good or bad; just the poem.",
+     "effects": {},
+     "fact": "{u} drew a poem at {0}"
+    },
+    "small": {
+     "text": "The slip is a poem by Empress Shōken: water takes the shape of any cup it is poured into and stays itself. You fold it into your wallet.",
+     "effects": {},
+     "fact": "{u} drew a poem at {0}"
+    },
+    "bad": {
+     "text": "The slip is a poem by Emperor Meiji about doing each day's work with a sincere heart. There is no ranking and nothing to tie up.",
+     "effects": {},
+     "fact": "{u} drew a poem at {0}"
+    }
+   }
   },
   {
    "id": "sb_meiji_well",
@@ -5994,7 +6017,14 @@
    "effects": {},
    "when": "daily: yes",
    "fact": "{u} drew a fortune at {0}",
-   "place": "ak_myojin"
+   "place": "ak_myojin",
+   "table": "omikuji",
+   "words": {
+    "great": "Great blessing. Your deal closes and your build runs on the first try.",
+    "good": "Blessing. Steady work brings steady luck; mind the details.",
+    "small": "Small blessing. A good week for tools and tidy desks.",
+    "bad": "Bad fortune. Back up your files, and tie this slip to the rack."
+   }
   },
   {
    "id": "ak_myojin_it",
@@ -6428,7 +6458,14 @@
    "minutes": 10,
    "effects": {},
    "when": "daily: yes",
-   "place": "ot_sensoji"
+   "place": "ot_sensoji",
+   "table": "omikuji",
+   "words": {
+    "great": "Great blessing (dai-kichi).",
+    "good": "Blessing (kichi).",
+    "small": "Small blessing (shō-kichi).",
+    "bad": "Bad fortune (kyō). You tie the slip to the rack and leave it there; it can only get better."
+   }
   },
   {
    "id": "ot_sensoji_incense",
@@ -7339,7 +7376,17 @@
    "minutes": 10,
    "effects": {},
    "when": "daily: yes; period: midmorning or afternoon",
-   "place": "ot_shrine"
+   "place": "ot_shrine",
+   "table": "omikuji",
+   "words": {
+    "great": "Great blessing. A fox dances through the line: someone close is thinking of you.",
+    "good": "Blessing. The fox looks toward someone you know: say hello.",
+    "small": "Small blessing. The fox says to be patient with someone close.",
+    "bad": {
+     "text": "Bad fortune. The fox turns away: mind what you say to someone close. You tie it to the pine branch and bow.",
+     "fact": "{u} drew bad fortune at {0} and tied it to the pine branch"
+    }
+   }
   },
   {
    "id": "ot_shrine_charm",
@@ -36498,6 +36545,46 @@
     "drain": {
      "energy": 1.4
     }
+   }
+  ]
+ },
+ "tables": {
+  "omikuji": [
+   {
+    "id": "great",
+    "weight": 15,
+    "text": "Great blessing (dai-kichi): luck in work, love and travel. You fold the slip into your wallet.",
+    "effects": {
+     "mood": 8
+    },
+    "fact": "{u} drew a great blessing at {0}"
+   },
+   {
+    "id": "good",
+    "weight": 35,
+    "text": "Blessing (kichi): steady luck if you keep at it. You keep the slip.",
+    "effects": {
+     "mood": 4
+    },
+    "fact": "{u} drew a blessing at {0}"
+   },
+   {
+    "id": "small",
+    "weight": 30,
+    "text": "Small blessing (shō-kichi): a little luck, for small things. You keep the slip.",
+    "effects": {
+     "mood": 2
+    },
+    "fact": "{u} drew a small blessing at {0}"
+   },
+   {
+    "id": "bad",
+    "weight": 20,
+    "text": "Bad fortune (kyō). You tie the slip to the rack and leave the bad luck behind.",
+    "effects": {
+     "mood": -2
+    },
+    "fact": "{u} drew bad fortune at {0} and tied the slip to the rack"
    }
   ]
  }
