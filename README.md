@@ -22,13 +22,11 @@ People in your world have feelings of their own, for you and for each other, and
 - **The world's people live their own lives.** They make friends, fall out, fall for each other, date, marry and break up, from their own feelings.
 - **Family is family, feelings are feelings.** Family ties (parent, child, sibling, cousin) are kept apart from how people feel; everything else, from best friends to exes, is set as feelings: in the new game, the World creator and the People tab, without needing the Advanced settings.
 
-### A color for each speaker's dialogue
+### Other improvements
 
-Turn on **Color each speaker's dialogue** in Chat look (the ☰ menu): the quotes in each line, and the speaker's name, take that person's color, so you can tell at a glance who says what.
+More on each in **[Other improvements in this fork](docs/improvements.md)**.
 
-- **Colors that fit the characters.** Your AI picks them once (one short request in the background), from how each card describes the character and the colors of their avatar and sprites, and gives people who are often together (a household, a couple, family, good friends) colors that are easy to tell apart.
-- **Always readable.** Mundi checks every color against the dialogue box and keeps similar colors apart, and falls back to its own choice when your AI can't answer.
-- **Yours to change.** Set a color in Chat look or on a person's page in the People tab: a character's is saved on their card, yours is kept for your persona. "Pick colors again" asks your AI for a new set; colors you chose stay.
+- **A color for each speaker's dialogue.** The quotes in each line, and the speaker's name, take that person's color, chosen by your AI to fit the characters and kept readable (Chat look, ☰ menu).
 
 ## What you can do
 

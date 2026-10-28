@@ -2,7 +2,8 @@
 
 This fork of [Mundi](https://github.com/tjalis/Mundi) reworks how relationships feel to play. People in your world
 have feelings of their own: for you, and for each other. Those feelings grow with what really happens in your scenes,
-fade when you drift apart, and lead people to act on their own. This page describes it from a player's point of view.
+fade when you drift apart, and lead people to act on their own. This page describes it from a player's point of view. The fork's
+other additions are in [Other improvements in this fork](improvements.md).
 
 - [Feelings that go both ways](#feelings-that-go-both-ways)
 - [Friendship and romance are separate](#friendship-and-romance-are-separate)
