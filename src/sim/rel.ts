@@ -10,6 +10,7 @@ import { difficultyOf } from './bills.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
+import type { IntimateProfile } from '../core/world.js';
 
 export const YOU = '__you';
 export type Meter = 'f' | 'r';
@@ -21,8 +22,9 @@ export interface PairState { status?: Status; since?: number; cooldown?: number;
 export interface Past { status?: Status; until: number }
 export type Pace = PaceId;
 /** A person's own settings. `age` from the world's example cast; `minor` set in the People tab: minors are left out of
- *  every romance. `gender`: one of the world's gender ids (unset: nobody's attraction depends on it). */
-export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction }
+ *  every romance. `gender`: one of the world's gender ids (unset: nobody's attraction depends on it). `intimate`: their
+ *  intimate profile (E15), kept with them like their other ways; only shown and told with adult content on. */
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; intimate?: IntimateProfile }
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */
 export type Attraction = Record<string, { f?: number; r?: number }>;

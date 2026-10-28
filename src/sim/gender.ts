@@ -5,7 +5,7 @@
 // cleaned of anything a hand-edited file might hold; suggestions read from a card by the AI; and the AI's line about
 // the gender, pronouns and attraction of the people in the scene.
 import type { Save, Resident } from '../core/store.js';
-import { getWorld, systemOn, type WorldDef, type GenderDef, type ExampleCharacter } from '../core/world.js';
+import { getWorld, systemOn, type WorldDef, type GenderDef, type ExampleCharacter, type IntimateProfile } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
 import { relOf, idOf, YOU, type Person, type Attraction } from './rel.js';
 import { isMinor } from './family.js';
@@ -23,8 +23,8 @@ const PACES = ['slow', 'normal', 'fast'];
 const PRESETS = ['free', 'passionate', 'steady', 'slow', 'devoted', 'custom'];
 const RNEEDS = ['interest', 'crush', 'infatuated'], FNEEDS = ['none', 'friend', 'good', 'best'];
 const num01 = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : undefined);
-// Only the settings a person carries between games (gender, pace, relationship and intimacy styles), checked one by
-// one; `null` (how a card forgets a setting) and anything unknown are dropped. Undefined when nothing is left.
+// Only the settings a person carries between games (gender, pace, relationship and intimacy styles, an intimate
+// profile), checked one by one; `null` (how a card forgets a setting) and anything unknown are dropped. Undefined when nothing is left.
 export function cleanPerson(raw: any): Person | undefined {
     if (!raw || typeof raw !== 'object') return undefined;
     const p: Person = {};
@@ -46,6 +46,19 @@ export function cleanPerson(raw: any): Person | undefined {
         if (r !== undefined && r < 1) (att[k] ??= {}).r = r;
     }
     if (Object.keys(att).length) p.att = att;
+    const intimate = cleanIntimate(raw.intimate);
+    if (intimate) p.intimate = intimate;
+    return Object.keys(p).length ? p : undefined;
+}
+// (E15) An intimate profile: short lines and short lists of plain words, nothing else; undefined when empty.
+export const INTIMATE_LINES = ['experience', 'wants', 'drawnTo', 'flirts', 'dynamic'] as const;
+export const INTIMATE_LISTS = ['prefs', 'limits'] as const;
+export function cleanIntimate(raw: any): IntimateProfile | undefined {
+    if (!raw || typeof raw !== 'object') return undefined;
+    const line = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
+    const p: IntimateProfile = {};
+    for (const k of INTIMATE_LINES) { const v = line(raw[k], 400); if (v) p[k] = v; }
+    for (const k of INTIMATE_LISTS) { const v = (Array.isArray(raw[k]) ? raw[k] : []).map((x: unknown) => line(x, 120)).filter(Boolean).slice(0, 12); if (v.length) p[k] = v; }
     return Object.keys(p).length ? p : undefined;
 }
 export const exampleSettings = (ex: ExampleCharacter | undefined) => cleanPerson(ex);
