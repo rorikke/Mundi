@@ -146,15 +146,22 @@ export function placeMemoryLines(g: Save, w: WorldDef, present: Resident[]): str
 // festival or event, a date, an event they came for, their shift (with its end), a vacation. A couple kept secret is
 // only "here together" unless {{user}} is close to one of them (a good friend).
 export function whyHereLines(g: Save, w: WorldDef, present: Resident[]): string[] {
-    const loc = g.player.loc, now = nowAbs(g), out: string[] = [], told = new Set<string>();
+    const loc = g.player.loc, now = nowAbs(g), out: (string | { who: string[]; what: string })[] = [], told = new Set<string>();
     const here = new Set(present.map(r => r.avatar));
     const names = (list: string[]) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
+    // people here for the same reason ("is at the Sanja festival") share one line, so a crowd costs one sentence
+    const same = new Map<string, { who: string[]; what: string }>();
+    const say = (name: string, what: string) => {
+        if (!plural(what)) return void out.push(`${name} ${what}.`);
+        const x = same.get(what); if (x) return void x.who.push(name);
+        const y = { who: [name], what }; same.set(what, y); out.push(y);
+    };
     for (const r of present) {
         if (told.has(r.avatar)) continue;
         const b = breakNow(g, w, r);
-        if (b) { out.push(`${r.name} ${b.why}.`); continue; }
+        if (b) { say(r.name, b.why); continue; }
         const story = broughtNow(g, r.avatar);
-        if (story && story.place === loc) { out.push(`${r.name} ${story.why}.`); continue; }
+        if (story && story.place === loc) { say(r.name, story.why); continue; }
         const s: Slot | null = slotAt(g, w, r, now);
         if (s && s.place === loc) {
             const with_ = s.with.filter(a => here.has(a) && !told.has(a) && slotAt(g, w, g.cast[a], now)?.why === s.why);
@@ -166,7 +173,7 @@ export function whyHereLines(g: Save, w: WorldDef, present: Resident[]): string[
                 with_.forEach(a => told.add(a));
                 const who = [r.name, ...with_.map(a => g.cast[a].name)];
                 out.push(`${names(who)} ${who.length > 1 ? 'are' : 'is'} here for a standing appointment (${s.why}).`);
-            } else out.push(`${r.name} ${s.why}.`);
+            } else say(r.name, s.why);
             continue;
         }
         const job = workingAt(g, w, r, now);
@@ -176,10 +183,16 @@ export function whyHereLines(g: Save, w: WorldDef, present: Resident[]): string[
             out.push(`${r.name} is working${end ? ` (until ${hm(end % 1440)})` : ''}${rank ? `, as ${rank}` : ''}.`);
             continue;
         }
-        if (onVacation(g, w, r, Math.floor(now / 1440))) out.push(`${r.name} is on vacation (a few days off work).`);
-        else if (waitingForTrain(g, w, r, now)) out.push(`${r.name} missed the last train home and is staying out until the first one.`);
+        if (onVacation(g, w, r, Math.floor(now / 1440))) say(r.name, 'is on vacation (a few days off work)');
+        else if (waitingForTrain(g, w, r, now)) say(r.name, 'missed the last train home and is staying out until the first one');
     }
-    return out;
+    return out.map(x => (typeof x === 'string' ? x : x.who.length > 1 ? `${names(x.who)} ${plural(x.what)}.` : `${x.who[0]} ${x.what}.`));
+}
+// A reason said of several people: "is …" and "has …" turn plural, a past tense ("came for the Tanabata festival")
+// stays; anything else (a world's own text in the present, "sweeps the steps") isn't shared.
+function plural(what: string): string {
+    const [verb] = what.split(' ', 1);
+    return verb === 'is' ? `are${what.slice(2)}` : verb === 'has' ? `have${what.slice(3)}` : /^(came|went|[a-z]+ed)$/.test(verb) ? what : '';
 }
 // When the work step of a routine ends (for a job without a schedule).
 function endOfWork(r: Resident, at: number): number {

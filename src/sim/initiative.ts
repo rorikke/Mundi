@@ -240,9 +240,14 @@ export function wantOf(g: Save, w: WorldDef, a: string, n: string): string {
 }
 export function wantsLine(g: Save, w: WorldDef, present: Resident[]): string {
     if (!initiativeOn(g)) return '';
-    const parts = present.filter(r => r.met && isMine(g, r.avatar)).map(r => wantOf(g, w, r.avatar, r.name)).filter(Boolean);
+    // people who want the same thing share it: "Mio, Ren and Chloe want to get closer to {{user}}"
+    const met = present.filter(r => r.met && isMine(g, r.avatar)), same = new Map<string, string[]>();
+    for (const r of met) { const want = wantOf(g, w, r.avatar, '').trim(); if (want) (same.get(want) ?? same.set(want, []).get(want)!).push(r.name); }
+    const parts = [...same].map(([want, who]) => who.length === 1 ? `${who[0]} ${want}`
+        : `${who.length === met.length && met.length > 2 ? 'all of them' : names(who)} ${want.replace(/^is /, 'are ').replace(/^wants /, 'want ')}`);
     return parts.length ? `What they want from {{user}} right now: ${parts.join('; ')}.` : '';
 }
+const names = (list: string[]) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
 
 /* ---------- E5: festival customs between you and them ---------- */
 
