@@ -211,13 +211,6 @@ onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
 export type TieType = FamilyType;
 export interface Tie { a: string; b: string; type: TieType }
 export const TIE_TYPES: [TieType, string][] = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['cousin', 'cousin of']];
-// The old relation types and tones, still offered by the new game, cast presets and the World creator until they
-// move onto starting feelings: sim/startfeel.ts addOldTie() turns each into a family tie and starting feelings.
-export type OldTieType = TieType | 'spouse' | 'partner' | 'dating' | 'roommate' | 'friend' | 'bestfriend' | 'ally' | 'colleague' | 'rival' | 'enemy' | 'ex' | 'mentor' | 'apprentice';
-export type OldTieTone = 'close' | 'good' | 'neutral' | 'tense' | 'hostile';
-export interface OldTie { a: string; b: string; type: OldTieType; tone: OldTieTone; back?: OldTieTone }
-export const OLD_TIE_TYPES: [OldTieType, string][] = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['spouse', 'married to'], ['partner', 'partner of'], ['cousin', 'cousin of'], ['roommate', 'roommate of'], ['friend', 'friend of'], ['bestfriend', 'best friend of'], ['ally', 'ally of'], ['colleague', 'colleague of'], ['dating', 'dating'], ['rival', 'rival of'], ['enemy', 'enemy of'], ['ex', 'ex of'], ['mentor', 'mentor of'], ['apprentice', 'apprentice of']];
-export const OLD_TIE_TONES: [OldTieTone, string][] = [['close', 'Close'], ['good', 'Good'], ['neutral', 'Neutral'], ['tense', 'Tense'], ['hostile', 'Hostile']];
 export const ties = (g: Save): Tie[] => ((L(g) as any).ties ??= []);
 export const tiesOf = (g: Save, avatar: string) => ties(g).filter(t => t.a === avatar || t.b === avatar);
 export function setTie(g: Save, t: Tie) {

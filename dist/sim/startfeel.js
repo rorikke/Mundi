@@ -52,8 +52,9 @@ export function applyStartFeel(g, sf, overwrite = false) {
             ap[a] = (f ? APPROVAL_START[f] : 0) + (couple ? COUPLE_APPROVAL : 0);
     }
 }
-// One relation in the old form ({ a, b, type, tone, back? }: the new game, cast presets, world files): family becomes
-// a tie (with you, also where they stand with you), anything else starting feelings (core/feel.ts fromOldTie).
+// A family tie, or one relation in the old form ({ a, b, type, tone, back? }: world files made before family-only
+// ties): family becomes a tie (with you, also where they stand with you), anything else starting feelings (core/feel.ts
+// fromOldTie).
 // `overwrite`: a choice made on purpose for this game (its relations with you).
 export function addOldTie(g, t, overwrite = false) {
     if (!t.a || !t.b || t.a === t.b)

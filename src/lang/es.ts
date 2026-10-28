@@ -3976,6 +3976,12 @@ const DICT: Record<string, string> = {
  "not family": "no es familia",
  "Used to be together": "Estuvieron juntos",
  "housemate (not family)": "compañero de casa (no es familia)",
- "The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later (\"Play as\"). A partner or a friend: say how you get along under Your relations.": "Las personas que viven contigo: familia, una pareja, compañeros de piso. Comparten tu casa y tu cartera, y luego puedes jugar como cualquiera de ellas (\"Jugar como\"). Una pareja o un amigo: di cómo os lleváis en Tus relaciones."
+ "The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later (\"Play as\"). A partner or a friend: say how you get along under Your relations.": "Las personas que viven contigo: familia, una pareja, compañeros de piso. Comparten tu casa y tu cartera, y luego puedes jugar como cualquiera de ellas (\"Jugar como\"). Una pareja o un amigo: di cómo os lleváis en Tus relaciones.",
+ "How they start with others": "Cómo empiezan con los demás",
+ "From the start of every game: friendship and romance each way (\"As usual\": where they would start anyway), a couple, or exes.": "Desde el inicio de cada partida: amistad y romance de cada lado (\"Como siempre\": donde empezarían de todos modos), una pareja, o ex.",
+ "From the start of every game: friendship each way (\"As usual\": where they would start anyway).": "Desde el inicio de cada partida: amistad de cada lado (\"Como siempre\": donde empezarían de todos modos).",
+ "Who {0} is related to among the world's other people.": "Con quién está emparentado {0} entre las demás personas del mundo.",
+ "Their friendship back": "Su amistad de vuelta",
+ "Their romance back": "Su romance de vuelta"
 };
 export default DICT;

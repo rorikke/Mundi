@@ -8,7 +8,8 @@ import { lex, lexGroups, lexDefault } from '../core/lexicon.js';
 import { slidesHtml, toneTag } from './slides.js';
 import { houseMapsHtml } from './planedit.js';
 import { MEDIEVAL_RPG, MODERN_RPG, POWERS_RPG } from '../core/rpgdef.js';
-import { OLD_TIE_TYPES as TIE_TYPES, OLD_TIE_TONES as TIE_TONES } from '../sim/living.js';
+import { TIE_TYPES } from '../sim/living.js';
+import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
 import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked } from '../core/world.js';
@@ -627,8 +628,24 @@ function routineEditor(w) {
             <button class="mu-chip" data-act="cw-add" data-what="routine" title="New routine">${icon('plus')}</button><button class="mu-chip" data-act="cw-rnd-routine" title="New random routine">${icon('redo')}</button></div>
         ${r ? `${days('weekday', 'Weekdays')}${days('weekend', 'Weekends')}${ids.length > 1 ? `<button class="mu-ghost" data-act="cw-del" data-path="cast.routineTemplates.${id}">${icon('trash')}<span>Remove this routine</span></button>` : ''}` : ''}</section>`;
 }
+// One of a person's starting feelings (core/feel.ts) toward another of the world's people: levels each way ("As usual" /
+// "The same" leave it unset), and Together (a couple, or "Used to be together": `was`).
+const LEVELS = (none) => [['', none], ...[...FRIEND_TIERS].reverse().map(t => [t.id, t.name])];
+const ROMANCE = (none) => [['', none], ...ROMANCE_TIERS.map(t => [t.id, t.name])];
+const TOGETHER = [['', 'Not a couple'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married'], ['ex', 'Used to be together']];
+function feelRow(q, others, love) {
+    const f = getPath(q) ?? {};
+    const together = f.status ?? (f.was ? 'ex' : '');
+    return `<div class="mu-cw-feel"><div class="mu-row mu-cw-inline">${sel('With', `${q}.to`, others)}
+        ${love ? `<label class="mu-field"><span>Together</span><select data-input="cw-together" data-path="${esc(q)}">${TOGETHER.map(([v, l]) => `<option value="${v}" ${together === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>` : ''}
+        <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+        <div class="mu-row2">${sel('Friendship', `${q}.f`, LEVELS('As usual'), 'opt')}${love ? sel('Romance', `${q}.r`, ROMANCE('As usual'), 'opt') : ''}</div>
+        <div class="mu-row2">${sel('Their friendship back', `${q}.back`, LEVELS('The same'), 'opt')}${love ? sel('Their romance back', `${q}.rback`, ROMANCE('The same'), 'opt') : ''}</div></div>`;
+}
 // The world's own people: a character card is made from each when a game of this world starts (or reused).
 function peopleEditor(w) {
+    const others = (e) => w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name]);
+    const love = systemOn(w, 'romance');
     const jobs = [['', 'No job'], ...w.occupations.map(o => [o.id, o.name])];
     const routines = Object.keys(w.cast.routineTemplates).map(id => [id, id]);
     const spots = w.places.filter(p => !p.link).map(p => p.name).length;
@@ -645,10 +662,13 @@ function peopleEditor(w) {
                 ${area('Description (who they are; becomes the card\'s description)', `${p}.description`, 5)}
                 ${area('Personality (optional)', `${p}.personality`, 2)}
                 ${area('First message (optional; the card\'s greeting)', `${p}.first_mes`, 3)}
-                <h4>Relations</h4><p class="mu-muted">How ${esc(e.name)} relates to the world's other people (any of them, wherever they live), from the start of every game.</p>
-                ${(e.ties ?? []).map((t, k) => `<div class="mu-row mu-cw-inline">${sel('Is', `${p}.ties.${k}.type`, TIE_TYPES.map(([id, l]) => [id, l]))}${sel('Of', `${p}.ties.${k}.to`, w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name]))}${sel('Feeling', `${p}.ties.${k}.tone`, TIE_TONES.map(([id, l]) => [id, l]))}${sel('Their feeling back', `${p}.ties.${k}.back`, [['', 'The same'], ...TIE_TONES.map(([id, l]) => [id, l])])}
+                <h4>Family</h4><p class="mu-muted">Who ${esc(e.name)} is related to among the world's other people.</p>
+                ${(e.ties ?? []).map((t, k) => `<div class="mu-row mu-cw-inline">${sel('Is', `${p}.ties.${k}.type`, TIE_TYPES.map(([id, l]) => [id, l]))}${sel('Of', `${p}.ties.${k}.to`, others(e))}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ties.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
-                ${w.cast.examples.length > 1 ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-path="${p}.ties" data-i="${i}">${icon('plus')}<span>Add a relation</span></button>` : ''}
+                ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-i="${i}">${icon('plus')}<span>Add family</span></button>` : ''}
+                <h4>How they start with others</h4><p class="mu-muted">From the start of every game: friendship${love ? ' and romance' : ''} each way ("As usual": where they would start anyway)${love ? ', a couple, or exes' : ''}.</p>
+                ${(e.feelings ?? []).map((_f, k) => feelRow(`${p}.feelings.${k}`, others(e), love)).join('')}
+                ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${i}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${i}">${icon('redo')}<span>New job, home and routine</span></button></div>
@@ -993,12 +1013,15 @@ Object.assign(ACT, {
             notify();
             return;
         }
-        if (what === 'etie') {
+        if (what === 'etie' || what === 'efeel') {
             const e = w.cast.examples[Number(el.dataset.i)];
             const other = w.cast.examples.find(x => x.name !== e?.name);
             if (!e || !other)
                 return;
-            (e.ties ??= []).push({ to: other.name, type: 'friend', tone: 'good' });
+            if (what === 'etie')
+                (e.ties ??= []).push({ to: other.name, type: 'sibling' });
+            else
+                (e.feelings ??= []).push({ to: other.name, f: 'friend' });
             CW.dirty = true;
             notify();
             return;
@@ -1200,6 +1223,11 @@ export async function importWorldFile() {
 }
 Object.assign(INPUT, {
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
+    // a starting feeling's Together: a couple's status, or the couple they used to be
+    'cw-together': (el) => { const q = el.dataset.path; setPath(`${q}.status`, undefined); setPath(`${q}.was`, undefined); if (el.value === 'ex')
+        setPath(`${q}.was`, 'ex');
+    else if (el.value)
+        setPath(`${q}.status`, el.value); notify(); },
     'cw-alltabs': (el) => { CW.allTabs = el.checked; notify(); },
     cw: (el) => {
         const t = el.dataset.type;
@@ -1215,6 +1243,8 @@ Object.assign(INPUT, {
             v = el.value === '' ? undefined : el.value === 'true';
         else if (t === 'nullable')
             v = el.value === '' ? null : el.value; // a choice where empty means none (no job)
+        else if (t === 'opt')
+            v = el.value === '' ? undefined : el.value; // a choice where empty means unset (removed)
         else if (p.includes('.when.') && el.value === '')
             v = undefined;
         else if (t === 'time') {

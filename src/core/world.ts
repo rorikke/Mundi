@@ -1,6 +1,7 @@
 import { settings, game } from './store.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 import type { RpgDef } from './rpgdef.js';
+import type { FeelParts } from './feel.js';
 // The world format. A world is pure data (worlds/<id>/world.json); Mundi's systems read it.
 // Everything a world can configure is declared here, so this file is also the format's documentation.
 
@@ -146,8 +147,13 @@ export interface ExampleCharacter {
     description: string; first_mes?: string; personality?: string;
     /** The world whose card this is (a copied world reuses the original's cards instead of making new ones). */
     from?: string;
-    /** How they relate to the world's other people (`to`: the other person's name), from the start of every game. */
-    ties?: { to: string; type: string; tone: string; /** how the other one feels back (missing: the same) */ back?: string }[];
+    /** Their family among the world's other people: they are the `type` (parent, child, sibling, cousin) of `to` (the
+     *  other person's name). Worlds made before family-only ties may have any relation type and a tone here (`back`: how
+     *  the other feels back): upgradeWorld() moves those into `feelings`. */
+    ties?: { to: string; type: string; tone?: string; back?: string }[];
+    /** How they start with the world's other people, in every game (`to`: the other person's name): friendship and
+     *  romance levels each way, a couple's status, or the couple they used to be (core/feel.ts). */
+    feelings?: (FeelParts & { to: string })[];
     /** Their own ways, from the start of every game (all optional: unset means the defaults). `gender`: one of the
      *  world's gender ids. `attraction`: per gender id, how much of the normal rate their friendship (`f`) and romance
      *  (`r`) grow toward people of that gender (0..1, missing = 1). */

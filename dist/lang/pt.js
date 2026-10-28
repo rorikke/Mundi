@@ -3965,6 +3965,12 @@ const DICT = {
     "not family": "não é família",
     "Used to be together": "Já estiveram juntos",
     "housemate (not family)": "colega de casa (não é família)",
-    "The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later (\"Play as\"). A partner or a friend: say how you get along under Your relations.": "As pessoas que moram com você: família, um parceiro, colegas de casa. Elas dividem sua casa e sua carteira, e você pode jogar como qualquer uma delas depois (\"Jogar como\"). Um parceiro ou um amigo: diga como vocês se dão em Suas relações."
+    "The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later (\"Play as\"). A partner or a friend: say how you get along under Your relations.": "As pessoas que moram com você: família, um parceiro, colegas de casa. Elas dividem sua casa e sua carteira, e você pode jogar como qualquer uma delas depois (\"Jogar como\"). Um parceiro ou um amigo: diga como vocês se dão em Suas relações.",
+    "How they start with others": "Como começam com os outros",
+    "From the start of every game: friendship and romance each way (\"As usual\": where they would start anyway), a couple, or exes.": "Desde o início de cada jogo: amizade e romance de cada lado (\"Como de costume\": onde começariam de qualquer jeito), um casal, ou ex.",
+    "From the start of every game: friendship each way (\"As usual\": where they would start anyway).": "Desde o início de cada jogo: amizade de cada lado (\"Como de costume\": onde começariam de qualquer jeito).",
+    "Who {0} is related to among the world's other people.": "De quem {0} é parente entre as outras pessoas do mundo.",
+    "Their friendship back": "A amizade de volta",
+    "Their romance back": "O romance de volta"
 };
 export default DICT;

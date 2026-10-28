@@ -404,7 +404,7 @@ Object.assign(ACT, {
     'wc-tie-add': async () => {
         const g = game(); if (!g || !TIE.other) return;
         const t = { a: WC.who, b: TIE.other, type: TIE.type };
-        addOldTie(g, t); seedFamily(g, [t]);   // feelings already there are kept (edit them below, in Advanced)
+        addOldTie(g, t); seedFamily(g, [t]);   // feelings already there are kept (edit them below)
         TIE.other = ''; await changed();
     },
     'wc-past-forget': async (el) => { const g = game(); if (!g) return; forgetPast(g, WC.who, el.dataset.b!); await changed(); },

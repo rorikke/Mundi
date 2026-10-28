@@ -218,8 +218,6 @@ export const heardRumors = (g) => L(g).rumors.filter(r => r.knownBy.includes(YOU
 export const rumorSource = (r) => garble(r.hops?.[YOU] ?? 1).replace(/^ \(|\)$/g, '');
 onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
 export const TIE_TYPES = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['cousin', 'cousin of']];
-export const OLD_TIE_TYPES = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['spouse', 'married to'], ['partner', 'partner of'], ['cousin', 'cousin of'], ['roommate', 'roommate of'], ['friend', 'friend of'], ['bestfriend', 'best friend of'], ['ally', 'ally of'], ['colleague', 'colleague of'], ['dating', 'dating'], ['rival', 'rival of'], ['enemy', 'enemy of'], ['ex', 'ex of'], ['mentor', 'mentor of'], ['apprentice', 'apprentice of']];
-export const OLD_TIE_TONES = [['close', 'Close'], ['good', 'Good'], ['neutral', 'Neutral'], ['tense', 'Tense'], ['hostile', 'Hostile']];
 export const ties = (g) => (L(g).ties ??= []);
 export const tiesOf = (g, avatar) => ties(g).filter(t => t.a === avatar || t.b === avatar);
 export function setTie(g, t) {

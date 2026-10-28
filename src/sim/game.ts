@@ -274,6 +274,8 @@ export async function startNewGame(o: NewGame) {
     const exOf = new Map([...exAvatar].map(([name, a]) => [a, w.cast.examples.find(e => e.name === name)]));
     for (const a of Object.keys(save.cast)) applyPerson(save, a, o.people?.[a] ? cleanPerson(o.people[a]) : cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(exOf.get(a)));
     applyPerson(save, YOU, cleanPerson(o.people?.[YOU]));
+    // the world's own starting feelings (after ages and minors are known: no romance for them)
+    for (const ex of w.cast.examples) for (const f of ex.feelings ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(f.to); if (a && b && a !== b) { const { to, ...feel } = f; void to; applyStartFeel(save, { a, b, ...feel }); } }
     for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b) continue;
         if (t.family && isFamily(t.family)) addOldTie(save, { a: t.a, b: t.b, type: t.family }, true);

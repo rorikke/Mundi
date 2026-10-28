@@ -437,7 +437,7 @@ Object.assign(ACT, {
             return;
         const t = { a: WC.who, b: TIE.other, type: TIE.type };
         addOldTie(g, t);
-        seedFamily(g, [t]); // feelings already there are kept (edit them below, in Advanced)
+        seedFamily(g, [t]); // feelings already there are kept (edit them below)
         TIE.other = '';
         await changed();
     },

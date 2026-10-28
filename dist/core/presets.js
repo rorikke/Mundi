@@ -1,4 +1,5 @@
 import { MEDIEVAL_RPG, MODERN_RPG } from './rpgdef.js';
+import { fromOldTie, isFamily } from './feel.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -260,6 +261,26 @@ const styleId = (w) => (w.style ?? ((w.kind || '').toLowerCase().includes('moder
 export const presetOf = (w) => PRESETS[styleId(w)] ?? PRESETS.modern;
 // Fills what a world lacks from its style's preset (older worlds, and worlds made before these were editable).
 // Safe to run again: only what is missing is added; nothing the world has is changed.
+// The world's people's relations from before family-only ties: family stays a tie, everything else (and a family tie's
+// own tone) becomes a starting feeling, unless they already have one with that person (core/feel.ts fromOldTie). A
+// world whose ties are all plain family is left alone, so this runs once.
+function exampleRelations(w) {
+    for (const e of w.cast?.examples ?? []) {
+        if (!e.ties?.some(t => !isFamily(t.type) || t.tone || t.back))
+            continue;
+        const feelings = e.feelings ?? [];
+        e.ties = e.ties.flatMap(t => {
+            const { family, feel } = fromOldTie(t);
+            if (feel && !feelings.some(f => f.to === t.to))
+                feelings.push({ to: t.to, ...feel });
+            return family ? [{ to: t.to, type: family }] : [];
+        });
+        if (!e.ties.length)
+            delete e.ties;
+        if (feelings.length)
+            e.feelings = feelings;
+    }
+}
 export function upgradeWorld(w) {
     const p = presetOf(w);
     const c = (w.catalogs ??= {});
@@ -279,6 +300,7 @@ export function upgradeWorld(w) {
         w.presetActions = true;
     }
     w.genders ??= structuredClone(DEFAULT_GENDERS); // an older world gets the list once (an emptied list stays empty)
+    exampleRelations(w);
     const h = w.homes;
     h.breakables ??= structuredClone(p.breakables);
     h.repairCost ??= p.repairCost;
