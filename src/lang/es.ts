@@ -390,6 +390,7 @@ const DICT: Record<string, string> = {
  "You have lived in this house with the others for a long time; they all know you well, habits, history and all.": "Vives en esta casa con los demás desde hace mucho; todos te conocen bien, manías, historia y todo.",
  "Write your own premise, or let your AI write it from one or more lorebooks.": "Escribe tu propia premisa, o deja que tu IA la escriba a partir de uno o más lorebooks.",
  "RPG mode": "Modo RPG",
+ "In the works": "En construcción",
  "You": "Tú",
  "(with {0})": "(con {0})",
  "this place": "este lugar",
@@ -3953,7 +3954,8 @@ const DICT: Record<string, string> = {
  "Choose a color of your own": "Elegir un color propio",
  "Back to a color your AI chooses": "Volver a un color que elige tu IA",
  "Dialogue color": "Color del diálogo",
- "A color you choose is saved on their card.": "El color que elijas se guarda en su tarjeta.",
+ "A color you choose is saved on their card.": "El color que elijas se guarda en su tarjeta."
+,
  "Used to be: {0}, until day {1}": "Fueron: {0}, hasta el día {1}",
  "A couple": "Una pareja",
  "Forget": "Olvidar",

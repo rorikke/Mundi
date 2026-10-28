@@ -535,7 +535,7 @@ export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'craftin
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
-export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor'];
+export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';
 // The RPG mode waits for a later update: while this is on, nothing of it can be chosen, made or played. Worlds made
 // for it are shown locked, any other world plays as Life-Sim, and its systems stay off. Turn it off to bring it back.
@@ -543,6 +543,8 @@ export const RPG_LOCKED: boolean = !(globalThis as any).__MUNDI_RPG;   // the te
 export const RPG_NOTE = 'The RPG mode comes in a later update.';
 // The medieval style is locked for this release too: its worlds show "Soon" and it cannot be picked in the creator.
 export const MEDIEVAL_LOCKED: boolean = !(globalThis as any).__MUNDI_MEDIEVAL;   // the tests turn it on (tests/env.mjs)
+// Tokyo is being built (its pictures and the engine work it needs come first): it shows "Soon" until it's ready.
+export const TOKYO_LOCKED: boolean = !(globalThis as any).__MUNDI_TOKYO;
 export const GAME_MODES: { id: GameMode; name: string; desc: string; soon?: boolean }[] = [
     { id: 'lifesim', name: 'Life-Sim', desc: 'Daily life: work, home and bills, friends and love. Needs: energy, hunger, thirst, mood and hygiene.' },
     { id: 'rpg', soon: RPG_LOCKED, name: 'RPG', desc: 'Life-Sim plus a character sheet: level, hit points, focus, attributes, a class and subclass, d20 checks, quests, titles, magic and long journeys. Needs the world\'s RPG (RPG tab).' },
@@ -780,7 +782,7 @@ export const socialKind = (w: WorldDef | null | undefined): 'feed' | 'board' => 
 export const messageKind = (w: WorldDef | null | undefined): 'texts' | 'letters' => ((w?.features as any)?.messageKind ?? kinds(w).messageKind);
 export const aiVoice = (w: WorldDef | null | undefined): string => String((w as any)?.ai?.voice ?? kinds(w).voice);
 // A world that cannot be played yet (RPG worlds wait for the next update).
-export const worldLocked = (w: WorldDef | null | undefined) => !!w && ((MEDIEVAL_LOCKED && styleOf(w) === 'medieval')
+export const worldLocked = (w: WorldDef | null | undefined) => !!w && ((MEDIEVAL_LOCKED && styleOf(w) === 'medieval') || (TOKYO_LOCKED && w.id === 'tokyo')
     || (((w.mode ?? 'lifesim') === 'rpg' || (RPG_LOCKED && w.madeFor === 'rpg')) && (RPG_LOCKED || !w.rpg?.classes?.length)));   // an RPG world without its RPG, or a style coming later
 // What a locked world is waiting for (its "Soon" badge).
-export const lockedFor = (w: WorldDef | null | undefined) => (MEDIEVAL_LOCKED && styleOf(w) === 'medieval' ? 'Medieval' : 'RPG mode');
+export const lockedFor = (w: WorldDef | null | undefined) => (TOKYO_LOCKED && w?.id === 'tokyo' ? 'In the works' : MEDIEVAL_LOCKED && styleOf(w) === 'medieval' ? 'Medieval' : 'RPG mode');
