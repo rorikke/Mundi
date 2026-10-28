@@ -659,7 +659,7 @@ export interface FactionDef { id: string; name: string; kind: string; desc?: str
 export type Government = 'monarchy' | 'fractured' | 'empire' | 'republic' | 'theocracy' | 'council';
 export type PowerAffinity = 'balanced' | 'military' | 'arcane' | 'trade' | 'faith';
 export interface God { id: string; name: string; domain: string; symbol?: string; card?: string }
-export interface RealmDef { /** the country (or kingdom) the world's cities belong to */ name?: string; government?: Government; leadership?: string; power?: PowerAffinity; pantheon?: God[]; tax?: number }
+export interface RealmDef { /** the country (or kingdom) the world's cities belong to */ name?: string; government?: Government; leadership?: string; power?: PowerAffinity; pantheon?: God[]; tax?: number; /** what the AI is told about the realm, in place of the sentences made from the rest ('' for nothing) */ line?: string }
 export interface PetDef { id: string; name: string; icon: string; price: number; desc?: string; follows?: boolean; familiar?: boolean; mood?: number; skill?: string; bonus?: number; where?: string[]; mount?: boolean; speed?: number; carry?: number }
 export type WorldTag = 'lifesim' | 'rpg' | 'realistic' | 'fantasy';
 export const WORLD_TAGS: { id: WorldTag; name: string; desc: string }[] = [

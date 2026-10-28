@@ -13640,6 +13640,14 @@
   "senior": "family name + -kun or -san, as a senpai speaks to a kōhai (and is called -senpai back)",
   "junior": "family name + -senpai, in polite speech"
  },
+ "realm": {
+  "name": "Japan",
+  "government": "republic",
+  "leadership": "An elected prime minister and parliament; Tokyo has an elected governor",
+  "power": "balanced",
+  "pantheon": [],
+  "line": "Present-day Japan: no magic and no miracles, though shrines and temples are part of everyday life."
+ },
  "scene": {
   "lore": 4
  },
