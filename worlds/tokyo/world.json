@@ -33851,7 +33851,8 @@
        },
        {
         "id": "leaves_tokyo",
-        "text": "She leaves Tokyo at the start of spring, and writes from Manchester."
+        "text": "She leaves Tokyo at the start of spring, and writes from Manchester.",
+        "leaves": true
        }
       ]
      }
@@ -36099,7 +36100,8 @@
        },
        {
         "id": "goes_home",
-        "text": "He goes home."
+        "text": "He goes home.",
+        "leaves": true
        }
       ]
      }

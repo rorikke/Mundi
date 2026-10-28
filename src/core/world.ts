@@ -340,7 +340,9 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
 /** How a thread ends, picked by what happened (`when`, asked once the last stage is over; the first that holds, the
  *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
-export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string }
+export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string;
+    /** (H) They leave the world's maps (Chloe goes back to Manchester): kept in the save, never seen around again. */
+    leaves?: boolean }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
 export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string; prefs?: string[]; limits?: string[] }

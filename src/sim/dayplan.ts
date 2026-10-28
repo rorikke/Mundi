@@ -80,8 +80,8 @@ export function ruleOn(w: WorldDef, id: typeof RULES[number]): boolean {
     if (!k || k.code !== code) onKept.set(w, k = { code, on: Object.fromEntries(RULES.map(x => [x, systemOn(w, x)])) });
     return k.on[id];
 }
-const SIG = 7;
-const sigOf = (r: Resident, out: unknown[], i: number) => { out[i] = r; out[i + 1] = r.occupation; out[i + 2] = r.name; out[i + 3] = r.routine; out[i + 4] = r.leisure; out[i + 5] = r.home?.zone; out[i + 6] = (r as any).homeWith; };
+const SIG = 8;
+const sigOf = (r: Resident, out: unknown[], i: number) => { out[i] = r; out[i + 1] = r.occupation; out[i + 2] = r.name; out[i + 3] = r.routine; out[i + 4] = r.leisure; out[i + 5] = r.home?.zone; out[i + 6] = (r as any).homeWith; out[i + 7] = (r as any).gone; };
 const checked = new WeakMap<Save, { at: number; n: number }>();
 export function stampOf(g: Save, w: WorldDef): Stamp {
     const s = kept.get(g), code = codeOf(w), sd = seasonDays(g), adult = adultOn(g), swap = (g as any).swap?.avatar ?? '';
@@ -92,7 +92,7 @@ export function stampOf(g: Save, w: WorldDef): Stamp {
         let i = 0, same = true;
         for (const a in g.cast) {
             const r = g.cast[a], x = s.sig;
-            if (x[i] !== r || x[i + 1] !== r.occupation || x[i + 2] !== r.name || x[i + 3] !== r.routine || x[i + 4] !== r.leisure || x[i + 5] !== r.home?.zone || x[i + 6] !== (r as any).homeWith) { same = false; break; }
+            if (x[i] !== r || x[i + 1] !== r.occupation || x[i + 2] !== r.name || x[i + 3] !== r.routine || x[i + 4] !== r.leisure || x[i + 5] !== r.home?.zone || x[i + 6] !== (r as any).homeWith || x[i + 7] !== (r as any).gone) { same = false; break; }
             i += SIG;
         }
         if (same && i === s.sig.length) return s;
@@ -158,7 +158,7 @@ function teamPlans(g: Save, w: WorldDef, o: Occupation, st: Stamp, busy = new Se
     const s = scheduleOf(o); if (!s) return out;
     if (busy.has(o.id)) return out;   // a loop through rituals on each other's days off: no fixed days this time
     busy.add(o.id);
-    const team = st.list.filter(r => r.occupation === o.id).sort((a, b) => (a.avatar < b.avatar ? -1 : 1));
+    const team = st.list.filter(r => r.occupation === o.id && !(r as any).gone).sort((a, b) => (a.avatar < b.avatar ? -1 : 1));
     const closed = (w.places.find(p => p.id === o.place) as any)?.closedDays as string[] | undefined;
     const work = new Map<string, boolean[]>(), must = new Map<string, Set<number>>(), offs = new Map<string, Set<number>>();
     const cover = Array(7).fill(0);
@@ -329,10 +329,11 @@ function ritualIndex(g: Save, w: WorldDef, st: Stamp): Map<string, RitualRef[]> 
     let m = ritKept.get(st); if (m) return m;
     m = new Map();
     if (systemOn(w, 'living') && !isScenario(w)) for (const r of st.list) {
+        if ((r as any).gone) continue;   // (someone who left: their appointments go with them, and they come to nobody's)
         const ex = exampleOf(w, r);
         (ex?.rituals ?? []).forEach((rit, i) => {
             if (rit.adult && !adultOn(g)) return;
-            const who = [r.avatar, ...(rit.with ?? []).map(n => personNamed(g, n)?.avatar ?? '')].filter((a, k, all) => a && g.cast[a] && all.indexOf(a) === k);
+            const who = [r.avatar, ...(rit.with ?? []).map(n => personNamed(g, n)?.avatar ?? '')].filter((a, k, all) => a && g.cast[a] && !(g.cast[a] as any).gone && all.indexOf(a) === k);
             const ref: RitualRef = { owner: r.avatar, i, rit, who };
             for (const a of who) { const list = m!.get(a); if (list) list.push(ref); else m!.set(a, [ref]); }
         });

@@ -103,6 +103,7 @@ export const OUT = 'out';
 // Where her routine puts her at a given moment (plans and company left aside): a role, a standing appointment, a date
 // or an outing that day (sim/dayplan.ts), else her shift, else her routine.
 export function routineAt(g: Save, w: WorldDef, r: Resident, at: number): string {
+    if ((r as any).gone) return OUT;   // left the world's maps (a thread's ending, sim/threads.ts)
     return slotAt(g, w, r, at)?.place ?? routineCore(g, w, r, at);
 }
 // Her shift or her routine template's step. With a job that has a schedule, the template only fills the rest: its
@@ -189,6 +190,7 @@ export function workingAt(g: Save, w: WorldDef, r: Resident, at: number): string
 }
 
 export function whereNow(g: Save, w: WorldDef, r: Resident): string {
+    if ((r as any).gone) return OUT;                   // she left the world's maps (a thread's ending): kept, never seen
     if (isWith(g, r.avatar)) return g.player.loc;      // she came along with you
     const locked = lockedHere(g, r.avatar);            // in the middle of a conversation with you
     if (locked) return locked;
