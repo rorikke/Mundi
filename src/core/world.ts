@@ -315,7 +315,8 @@ export interface ExampleCharacter {
      *  that). Missing: they stay themselves; `false` lets one change by chance. */
     anchored?: boolean;
 }
-/** (E21) A standing appointment: where, which weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
+/** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
+ *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
  *  month (the season's week `week`: 1 = the first, -1 = the last) or once a year; `festival` or `event`: only on those
  *  days. `places`: some weeks one of these instead. `with`: others who come (names of the world's people); `chance`:
