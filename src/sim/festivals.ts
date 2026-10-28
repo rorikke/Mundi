@@ -89,6 +89,7 @@ export function festivalLine(g: Save, w: WorldDef): string {
     const here = festivalOn(g, w); if (!here) return '';
     return [here, ...festivalsHere(g, w).filter(f => f !== here)].map(f => {
         const place = w.places.find(p => p.id === f.place)?.name;
-        return `Today is the ${f.name}${f.desc ? `: ${f.desc}` : ''}.${place ? ` People gather at ${place} in the afternoon and evening.` : ''}`;
+        // "Today: Cherry Blossoms" reads for any name ("Today is the Cherry Blossoms" didn't)
+        return `Today: ${f.name}${f.desc ? ` (${f.desc.replace(/[.\s]+$/, '')})` : ''}.${place ? ` People gather at ${place} in the afternoon and evening.` : ''}`;
     }).join(' ');
 }
