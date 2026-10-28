@@ -164,8 +164,9 @@ export interface ActionDef {
     adult?: boolean;
 }
 /** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
- *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little"). */
-export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number> }
+ *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little").
+ *  (E31) `rumor`: a rumor it starts among the people here. */
+export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number>; rumor?: string }
 /** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`). */
 export interface ActionOutcome extends RollOutcome { weight: number; when?: When }
 export interface Attribute { id: string; name: string; desc?: string }
@@ -251,7 +252,7 @@ export interface WorkEvent { id: string; setup: string; when?: When; choices: Wo
  *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
  *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
 export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When }
-export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string }
+export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
@@ -309,13 +310,15 @@ export interface Ritual {
     places?: string[]; with?: string[]; chance?: number; text: string; when?: When; adult?: boolean;
 }
 /** (E22) A secret or storyline that moves in stages. `hidden`: what the character knows and doesn't say (told to the
- *  AI as hidden); `known`: how it reads once the player knows ({{user}} knows …); `reveal`: what makes the player
- *  know (a condition: `feels: Rina good`, a story, an overheard rumor). */
+ *  AI as hidden); `known`: how it reads once the player knows ({{user}} knows …); `reveal`: when the character tells
+ *  the player, asked while the two are together (a condition; missing: `feels: <them> good`). A story's choice
+ *  (`reveal` on its result) or an overheard rumor of one of its stages also tells it (sim/threads.ts). */
 export interface Thread { id: string; hidden: string; known?: string; reveal?: When; stages: ThreadStage[]; endings?: ThreadEnding[]; adult?: boolean }
 /** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
  *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
-/** How a thread ends, picked by what happened (`when`): the text, and a life that changes (a new job or home). */
+/** How a thread ends, picked by what happened (`when`, asked once the last stage is over; the first that holds, the
+ *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
 export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
@@ -469,11 +472,13 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
 export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean }
 /** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
- *  roll fails. */
-export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult }
-/** What a story's choice leads to: text, needs and money, a keepsake, a rumor it starts, a fact, how some of the
- *  world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes you one. */
-export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string }
+ *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). */
+export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult; when?: When }
+/** What a story's choice leads to: text, needs and money (a cost below 0), a keepsake, a rumor it starts, a fact, how
+ *  some of the world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes
+ *  you one (one of the world's people by name, or a stranger's id another story can ask about); `spend`: a favor it
+ *  calls in. (E22) `reveal`: a thread (by id) the player learns this way. */
+export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string }
 /** (E2) A climate: per season, the odds of each kind of weather (`sunny`, `rain`, `storm`, `snow`, `hot`…); `days`: a
  *  stretch of a season with odds of its own (the rainy season, summer 1–5); `regional`: weather a region has on its own
  *  (`fujiview`, `gas`), with its odds per season. */
@@ -613,8 +618,9 @@ export interface FestivalDef {
 /** (E5) A festival's custom between people, played as moments chosen by each person's feelings: `gift` (people who
  *  like you give you something: Valentine's chocolate), `return` (the return gift: White Day), `couples` (partners
  *  expect a date: Christmas Eve), `family` (family and close friends go together: the New Year shrine visit), `group`
- *  (friends invite you along: hanami). `text`: the custom in a sentence, for the AI. */
-export interface FestivalCustom { kind: 'gift' | 'return' | 'couples' | 'family' | 'group'; text?: string }
+ *  (friends invite you along: hanami). `text`: the custom in a sentence, for the AI. `at`: the hour it's done (23: the
+ *  temple bells; 10: the shrine visit), for an invitation; missing: a couple of hours from when they ask. */
+export interface FestivalCustom { kind: 'gift' | 'return' | 'couples' | 'family' | 'group'; text?: string; at?: number }
 export interface GoodDef { id: string; name: string; icon: string; price: number; kind?: string; cheap?: string[]; dear?: string[]; illegal?: boolean; socket?: { slot: 'weapon' | 'armor'; kind: 'attack' | 'damage' | 'armor'; amount: number }; cures?: boolean }
 export interface RecipeDef { id: string; name: string; needs: Record<string, number>; makes: string; count?: number; skill?: string; dc?: number; at?: string[]; risky?: boolean; legendary?: boolean }
 export interface TowerDef { id: string; name: string; place: string; floors: number; tags?: string[]; desc?: string }
@@ -652,7 +658,7 @@ export const madeFor = (w: WorldDef): 'lifesim' | 'rpg' => w.madeFor ?? (w.mode 
 export const hasTag = (w: WorldDef | null | undefined, t: WorldTag) => worldTags(w).includes(t);
 export interface SystemDef { id: SystemId; name: string; desc: string; apps: string[]; blocks: string[]; needs?: SystemId; /** only in worlds with this tag */ tag?: WorldTag }
 export const SYSTEMS: SystemDef[] = [
-    { id: 'living', name: 'Living world', desc: 'places are never busier or emptier, and no region changes its mood, tension or prices.', apps: [], blocks: ['world'] },
+    { id: 'living', name: 'Living world', desc: 'places are never busier or emptier, and no region changes its mood, tension or prices.', apps: [], blocks: ['world', 'threads'] },
     { id: 'needs', name: 'Needs', desc: 'no hunger, energy, thirst, mood or hygiene to look after (health, in RPG, stays).', apps: [], blocks: ['needs'] },
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
