@@ -9,7 +9,7 @@
 // It all comes from the day itself (nothing stored but a story's placement), worked out once per day for everyone and
 // kept until anything it reads changes (who works where, a click, the rules). A job without a schedule, a world
 // without rituals, roles or audiences: nothing here changes, the routine templates play as before.
-import { nowAbs, changes, cfg, type Save, type Resident } from '../core/store.js';
+import { nowAbs, changes, type Save, type Resident, adultOn } from '../core/store.js';
 import { systemOn, isScenario, exampleTag, WEEKDAY_IDS, type WorldDef, type Occupation, type ExampleCharacter, type Ritual, type FestivalDef, type When } from '../core/world.js';
 import { charOf } from '../st/bridge.js';
 import { onDay } from './hooks.js';
@@ -45,7 +45,7 @@ export function exampleOf(w: WorldDef, r: Resident): ExampleCharacter | null {
     return ex;
 }
 /** (E15) Adult content for this save (off unless the save turns it on). */
-export const adultOn = (g: Save) => (cfg(g) as any).adult === true;
+export { adultOn };
 const adultKept = new WeakMap<WorldDef, { list: unknown; n: number; ids: Set<string> }>();
 /** The world's adult places (kept while its places stay the same). */
 export function adultPlaces(w: WorldDef): Set<string> {

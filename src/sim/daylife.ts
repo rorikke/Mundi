@@ -11,7 +11,7 @@ import { isWeekend, hm } from './time.js';
 import { isHome, placeOf, playerHomeId } from './places.js';
 import { regionOf, regionState } from './worldstate.js';
 import { presentAt } from './people.js';
-import { isOpen } from './daynight.js';
+import { openAt } from './daynight.js';
 import { overhear, couples } from './living.js';
 import { exesOf, fr } from './rel.js';
 import { lex } from '../core/lexicon.js';
@@ -55,7 +55,7 @@ function work(g: Save, w: WorldDef, r: Resident, day: number, tense: boolean): B
         const spots = w.places.filter(p => !p.link && (p.tags ?? []).some(t => t === 'shop' || t === 'service') && p.map === regionOf(g, w, home));
         const list = spots.length ? spots : w.places.filter(p => !p.link && (p.tags ?? []).some(t => t === 'shop' || t === 'service'));
         const h = 9 + Math.floor(H(`${k}|when`) * 8);
-        const open = list.filter(p => isOpen(w, p.id, h * 60));   // somewhere open at that hour
+        const open = list.filter(p => openAt(g, w, p.id, day * 1440 + h * 60));   // somewhere open at that hour
         if (open.length && !onJob(at(h), at(h) + 120)) {
             const p = open[Math.floor(H(`${k}|where`) * open.length)];
             return { kind: 'errand', from: at(h), to: at(h) + 60 + Math.floor(H(`${k}|long`) * 2) * 30, place: p.id, why: 'is running errands' };

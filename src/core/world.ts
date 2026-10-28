@@ -265,7 +265,8 @@ export interface ExampleCharacter {
     ties?: { to: string; type: string; tone?: string; back?: string }[];
     /** How they start with the world's other people, in every game (`to`: the other person's name): friendship and
      *  romance levels each way, a couple's status, or the couple they used to be (core/feel.ts). */
-    feelings?: (FeelParts & { to: string; /** (E15) only with adult content on (an adult thread) */ adult?: boolean })[];
+    feelings?: (FeelParts & { to: string; /** (E15) only with adult content on (an adult thread) */ adult?: boolean;
+        /** (E29) a couple that keeps it secret: seen together only by people they trust */ secret?: boolean })[];
     /** Their own ways, from the start of every game (all optional: unset means the defaults). `gender`: one of the
      *  world's gender ids. `attraction`: per gender id, how much of the normal rate their friendship (`f`) and romance
      *  (`r`) grow toward people of that gender (0..1, missing = 1). */
@@ -292,11 +293,11 @@ export interface ExampleCharacter {
     intimate?: IntimateProfile;
     /** (E27) One short line on their looks and one on their voice, for scenes where they're present but not speaking. */
     look?: string; voice?: string;
-    /** (E25) Their life doesn't change by chance (no random new job or home); only their threads or the player change
-     *  it. Missing: it can change, as before. */
+    /** (E25) The world's own people stay themselves: no random new job or home (only their threads or the player change
+     *  that). Missing: they stay themselves; `false` lets one change by chance. */
     anchored?: boolean;
 }
-/** (E21) A standing appointment: where, which weekdays (none: any day), hours [from, to) (past 24 runs into the
+/** (E21) A standing appointment: where, which weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
  *  month (the season's week `week`: 1 = the first, -1 = the last) or once a year; `festival` or `event`: only on those
  *  days. `places`: some weeks one of these instead. `with`: others who come (names of the world's people); `chance`:

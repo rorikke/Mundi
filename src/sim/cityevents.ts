@@ -4,7 +4,7 @@
 // and there is something to do: enjoy it (a ticket, mood), and perform there if your hobby is good enough.
 // An outdoor one is called off when it rains. Some are on only in some seasons (E9); one that says who comes
 // (`audience`, E23) draws people one by one, for a few hours (sim/dayplan.ts), and may give someone a part in it.
-import { nowAbs, changes, cfg, type Save } from '../core/store.js';
+import { nowAbs, changes, type Save, adultOn } from '../core/store.js';
 import { systemOn, type WorldDef, type CityEventDef, type ActionDef } from '../core/world.js';
 import { weatherOn } from './weather.js';
 import { note } from './facts.js';
@@ -34,7 +34,7 @@ export function eventsOn(g: Save, w: WorldDef, day: number): EventTime[] {
     if (!list) k.by.set(key, list = dayEvents(g, w, day));
     return list.slice();
 }
-const adult = (g: Save) => (cfg(g) as any).adult === true;
+const adult = (g: Save) => adultOn(g);
 // On that day of the year: its seasons and days of the season (E9), when it gives them.
 function inSeason(g: Save, e: CityEventDef, day: number) {
     const sd = seasonDays(g), season = SEASONS[Math.floor((Math.max(1, day) - 1) / sd) % 4].id, ds = ((Math.max(1, day) - 1) % sd) + 1;

@@ -12,7 +12,7 @@ import { appointmentNow, isWith } from './social.js';
 import { weatherOn } from './weather.js';
 import { weatherAt } from './worldstate.js';
 import { breakNow } from './daylife.js';
-import { isOpen } from './daynight.js';
+import { openAt } from './daynight.js';
 import { festivalsOn } from './festivals.js';
 import { placeOn, extraRooms } from './places.js';
 import { partySpot } from './houseparty.js';
@@ -74,7 +74,7 @@ function afterWork(g: Save, w: WorldDef, r: Resident, day: number, stepHour: num
 function leisureSpot(g: Save, w: WorldDef, r: Resident, day: number, stepHour: number, st?: Stamp) {
     let list = leisurePool(g, w, r, day, stepHour, st);
     // a place closed at that hour is out (the living world); with all of them closed, she stays home
-    if (systemOn(w, 'living')) { list = list.filter(id => isOpen(w, id, stepHour * 60)); if (!list.length) return `home:${r.avatar}`; }
+    if (systemOn(w, 'living')) { list = list.filter(id => openAt(g, w, id, day * 1440 + stepHour * 60)); if (!list.length) return `home:${r.avatar}`; }
     // rain changes plans: outdoor spots are skipped for somewhere with a roof (or home)
     // (a region with a weather of its own may be dry while it rains elsewhere)
     const wet = (id: string) => weatherAt(g, w, id, day).rain;
