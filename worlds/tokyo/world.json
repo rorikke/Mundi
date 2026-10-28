@@ -24409,7 +24409,8 @@
      "pay": 1650,
      "needs": {
       "fitness": 3
-     }
+     },
+     "when": "perf: 60"
     },
     {
      "name": "Area captain",
@@ -24417,7 +24418,8 @@
      "needs": {
       "fitness": 4,
       "charisma": 2
-     }
+     },
+     "when": "perf: 75"
     }
    ]
   },
@@ -28167,7 +28169,8 @@
        "effects": {
         "energy": -15
        },
-       "perf": 1
+       "perf": 1,
+       "trains": "gaming"
       },
       {
        "label": "Ignore it",
@@ -28442,7 +28445,8 @@
           "singing": 6,
           "dance": 6,
           "charisma": 5
-         }
+         },
+         "when": "perf: 80"
         },
         {
          "name": "Group captain",
@@ -29284,7 +29288,8 @@
        }
       },
       {
-       "label": "Share the gate"
+       "label": "Share the gate",
+       "trains": "charisma"
       }
      ]
     }
@@ -30314,7 +30319,8 @@
       },
       {
        "label": "Ask what he wants",
-       "text": "he teaches you the order of the skewers"
+       "text": "he teaches you the order of the skewers",
+       "trains": "cooking"
       }
      ]
     }
@@ -31060,14 +31066,16 @@
      "choices": [
       {
        "label": "Quiz her for ten minutes",
-       "when": "onShift: not Linh"
+       "when": "onShift: not Linh",
+       "trains": "japanese"
       },
       {
        "label": "Quiz her for ten minutes",
        "when": "onShift: Linh",
        "feels": {
         "Linh": 2
-       }
+       },
+       "trains": "japanese"
       },
       {
        "label": "Take her calls so she can study",
@@ -31605,7 +31613,8 @@
          "needs": {
           "charisma": 6,
           "logic": 5
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       },
@@ -31635,7 +31644,8 @@
          "needs": {
           "music": 8,
           "charisma": 5
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       }
@@ -31840,7 +31850,8 @@
          "needs": {
           "dance": 9,
           "charisma": 6
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       },
@@ -31864,7 +31875,8 @@
           "dance": 8,
           "charisma": 5,
           "logic": 4
-         }
+         },
+         "when": "perf: 80"
         }
        ]
       }
@@ -32046,7 +32058,8 @@
      "needs": {
       "charisma": 4,
       "logic": 4
-     }
+     },
+     "when": "perf: 80"
     }
    ],
    "overtime": true,
@@ -33230,7 +33243,8 @@
      "pay": 3300,
      "needs": {
       "charisma": 4
-     }
+     },
+     "when": "perf: 80"
     },
     {
      "name": "Signing-event draw",
@@ -33254,7 +33268,8 @@
          "pay": 4800,
          "needs": {
           "charisma": 6
-         }
+         },
+         "when": "perf: 80"
         },
         {
          "name": "Household name",
@@ -33570,7 +33585,7 @@
     "age": 26,
     "gender": "man",
     "occupation": "livehouse",
-    "rank": 3,
+    "rank": "Assistant booker",
     "home": "hz_sharehouse",
     "household": "sharehouse",
     "leisure": [
@@ -33753,7 +33768,7 @@
     "age": 24,
     "gender": "nonbinary",
     "occupation": "animator",
-    "rank": 4,
+    "rank": "Key animator",
     "home": "hz_sharehouse",
     "household": "sharehouse",
     "leisure": [
@@ -34023,7 +34038,7 @@
     "age": 55,
     "gender": "man",
     "occupation": "ramen",
-    "rank": 6,
+    "rank": "Ramen name",
     "home": "hz_yanaka",
     "household": "kamei",
     "leisure": [
@@ -34135,7 +34150,7 @@
     "age": 25,
     "gender": "woman",
     "occupation": "ramen",
-    "rank": 4,
+    "rank": "Head cook",
     "home": "hz_yanaka",
     "household": "kamei",
     "leisure": [
@@ -34292,7 +34307,7 @@
     "age": 32,
     "gender": "woman",
     "occupation": "office",
-    "rank": 5,
+    "rank": "Sales section chief",
     "home": "hz_mansion",
     "leisure": [
      "sj_goldengai",
@@ -34810,7 +34825,7 @@
     "age": 52,
     "gender": "woman",
     "occupation": "bartender",
-    "rank": 5,
+    "rank": "Owner (\"Mama\" or \"Master\")",
     "home": "hz_studio",
     "leisure": [
      "sj_omoide",
@@ -34885,7 +34900,7 @@
     "age": 26,
     "gender": "woman",
     "occupation": "gamedev",
-    "rank": 4,
+    "rank": "Gameplay programmer",
     "home": "hz_studio",
     "leisure": [
      "ak_arcade",
@@ -35044,7 +35059,7 @@
     "age": 34,
     "gender": "woman",
     "occupation": "clubmama",
-    "rank": 6,
+    "rank": "Partner",
     "home": "hz_yokohama",
     "leisure": [
      "yk_noge",
@@ -35190,7 +35205,7 @@
     "age": 27,
     "gender": "woman",
     "occupation": "ryokan",
-    "rank": 4,
+    "rank": "Head of the floor",
     "home": "hz_hakone",
     "leisure": [
      "hk_ashi",
@@ -35649,7 +35664,7 @@
     "age": 29,
     "gender": "woman",
     "occupation": "office",
-    "rank": 4,
+    "rank": "Planner",
     "home": "hz_mansion",
     "leisure": [
      "rp_sky",
@@ -35828,7 +35843,7 @@
     "age": 31,
     "gender": "man",
     "occupation": "startup",
-    "rank": 6,
+    "rank": "Tech lead",
     "home": "hz_toyosu",
     "leisure": [
      "rp_pub",
@@ -36006,7 +36021,7 @@
     "age": 26,
     "gender": "woman",
     "occupation": "avactress",
-    "rank": 5,
+    "rank": "TV guest",
     "home": "hz_azabu",
     "leisure": [
      "sj_goldengai",

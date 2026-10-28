@@ -23,7 +23,7 @@ import { whenHolds, personNamed } from './when.js';
 import { couplePairs, casualPairs, statusOf, idOf, YOU } from './rel.js';
 import { saveSeed } from './relations.js';
 import { ties } from './living.js';
-import { npcCareer } from './work.js';
+import { npcCareer, npcPath, setNpcPath, pathTo } from './work.js';
 import { npcRank } from './longlife.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -278,7 +278,8 @@ const careers = new WeakMap<Occupation, Map<string, ReturnType<typeof npcCareer>
 export function workPlace(g: Save, w: WorldDef, r: Resident, o: Occupation): string {
     if (offScreen(w, o)) return OUT;
     let m = careers.get(o); if (!m) careers.set(o, m = new Map());
-    let c = m.get(r.avatar); if (!c) m.set(r.avatar, c = npcCareer(o, r.avatar));
+    const k = `${r.avatar}|${npcPath(g, r.avatar, o)?.join('/') ?? ''}`;
+    let c = m.get(k); if (!c) m.set(k, c = npcCareer(o, r.avatar, g));
     return c.ranks[Math.min(npcRank(g, r.avatar), c.ranks.length - 1)]?.place || o.place || OUT;
 }
 /** The shift going on at that moment (one that started the day before may still be on), if any. */
@@ -292,7 +293,8 @@ export const dayOff = (g: Save, w: WorldDef, r: Resident, day: number, st = stam
 
 /* ---------- ranks (J5) ---------- */
 
-// The world's people start at the rank the world gives them (once, while they still hold that job).
+// The world's people start at the rank the world gives them (once, while they still hold that job). A rank given by
+// name that lies on a branch puts them on that branch (Reiko is a Sales section chief, on the sales path).
 export function seedRanks(g: Save, w: WorldDef) {
     const l = ((g as any).living ??= {}); l.ranks ??= {}; l.ranked ??= [];
     for (const r of Object.values(g.cast)) {
@@ -301,8 +303,10 @@ export function seedRanks(g: Save, w: WorldDef) {
         if (!ex || ex.rank === undefined || !o || ex.occupation !== o.id) continue;
         l.ranked.push(r.avatar);
         if (r.avatar in l.ranks) continue;
-        const ranks = npcCareer(o, r.avatar).ranks;
-        const n = typeof ex.rank === 'number' ? ex.rank : ranks.findIndex(x => x.name === ex.rank);
+        const to = typeof ex.rank === 'string' ? pathTo(o, ex.rank) : null;
+        if (to?.path.length) setNpcPath(g, r.avatar, o, to.path);
+        const ranks = npcCareer(o, r.avatar, g).ranks;
+        const n = typeof ex.rank === 'number' ? ex.rank : to?.rank ?? -1;
         if (n > 0) l.ranks[r.avatar] = Math.min(n, Math.max(0, ranks.length - 1));
     }
 }
@@ -311,7 +315,7 @@ onDay.push((g, w) => { if (systemOn(w, 'jobs')) seedRanks(g, w); dropStories(g);
 export function rankName(g: Save, w: WorldDef, r: Resident): string {
     const o = jobOf(g, w, r); if (!o) return '';
     seedRanks(g, w);
-    const ranks = npcCareer(o, r.avatar).ranks;
+    const ranks = npcCareer(o, r.avatar, g).ranks;
     return ranks.length > 1 ? ranks[Math.min(npcRank(g, r.avatar), ranks.length - 1)]?.name ?? '' : '';
 }
 

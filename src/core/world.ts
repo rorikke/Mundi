@@ -21,7 +21,8 @@ export type WeekdayId = typeof WEEKDAY_IDS[number];
  *  (`Ayaka friend`: one of the world's people toward you, at that level or closer), `onShift` (someone at work here),
  *  `present` (someone here now), `after` (an action done here today), `job` (an id, or `here`), `start` (the player's
  *  start), `chance` (per day, `0.2`), `clock` (`19:00-20:00`), `stayed` (slept at that place last night), `holds` (a
- *  keepsake), `companion` (someone with you at that level or closer: `dating`). An outcome's own condition may be
+ *  keepsake), `companion` (someone with you at that level or closer: `dating`), `perf` (your performance at work, at
+ *  least: `80`; a rank's `when` reads it as the performance it asks for). An outcome's own condition may be
  *  written `when: present: Kaito`. Worlds made before conditions were text give an object (LoreWhen), read as before. */
 export type When = string | LoreWhen;
 /** The old form of a condition (lore before E26): the weather, a period by name, a place or region, weekends, a
@@ -190,7 +191,8 @@ export interface Origin {
 }
 /** A rank of a job: its name and pay per hour. (J3) What it takes to be promoted to it: skill levels (`needs`:
  *  `{ cooking: 4 }`; `performance` there is the performance it asks for, 0–100, instead of the usual 60), one of some
- *  traits, a course, or anything else as a condition (`when: feels: Genzō good`).
+ *  traits, a course, or anything else as a condition (`when: feels: Genzō good`; `perf: 80` there is the performance it
+ *  asks for).
  *  (E20) `place`: where this rank works, when not the job's place (an idol's top ranks at the TV studio). */
 export interface Rank { name: string; pay: number; needs?: Record<string, number>; traits?: string[]; course?: string; when?: When; place?: string }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
@@ -263,7 +265,8 @@ export interface WorkEvent { id: string; setup: string; when?: When; choices: Wo
  *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
  *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
 export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When }
-export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string }
+export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string;
+    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
@@ -491,7 +494,8 @@ export interface StoryChoice extends StoryResult { label: string; roll?: { skill
  *  some of the world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes
  *  you one (one of the world's people by name, or a stranger's id another story can ask about); `spend`: a favor it
  *  calls in. (E22) `reveal`: a thread (by id) the player learns this way. */
-export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string }
+export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string;
+    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
 /** (E2) A climate: per season, the odds of each kind of weather (weights: `sunny`, `hot`, `fair`, `humid`, `partly`,
  *  `cloudy`, `snow`, `rain`, `heavyrain`, `storm`); `days`: a stretch of a season with odds of its own (the rainy season,
  *  summer 1–5: days of the season as written, like festivals); `regional`: weather a region has on its own (`fujiview`,

@@ -13,13 +13,13 @@ import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } f
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
-import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult } from '../core/world.js';
+import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult, type When } from '../core/world.js';
 import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
 import { onHour, onDay } from './hooks.js';
-import { whenHolds, personNamed } from './when.js';
+import { whenHolds, personNamed, parseWhen } from './when.js';
 import { presentAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
@@ -223,14 +223,38 @@ export { career, type Career } from '../core/world.js';
 const jobPath = (g: Save) => g.player.job?.path ?? [];
 // Your career in this job (for someone else's: a path picked for them, the same every time).
 export const careerOf = (g: Save, o: Occupation) => career(o, g.player.job?.id === o.id ? jobPath(g) : []);
-export function npcCareer(o: Occupation, avatar: string): Career {
-    const path: string[] = [];
-    for (let n = 0; n < 4; n++) {
+// With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`.
+export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
+    const path: string[] = [...((g && npcPath(g, avatar, o)) ?? [])];
+    for (let n = path.length; n < 4; n++) {
         const c = career(o, path);
         if (!c.open) return c;
         path.push(c.open.options[H(`${avatar}|${o.id}|${n}`) % c.open.options.length].id);
     }
     return career(o, path);
+}
+/** The path the save keeps for one of the world's people in this job (null: none, the picked one holds). */
+export function npcPath(g: Save, avatar: string, o: Occupation): string[] | null {
+    const p = (g as any).living?.paths?.[avatar] as { job: string; path: string[] } | undefined;
+    return p && p.job === o.id ? p.path : null;
+}
+export function setNpcPath(g: Save, avatar: string, o: Occupation, path: string[]) { (((g as any).living ??= {}).paths ??= {})[avatar] = { job: o.id, path }; }
+/** The path through a job's branches that reaches a rank of this name (the shortest), with its index; null when no
+ *  path does. */
+export function pathTo(o: Occupation, name: string): { path: string[]; rank: number } | null {
+    const want = name.trim().toLowerCase();
+    let paths: string[][] = [[]];
+    for (let depth = 0; depth < 5 && paths.length; depth++) {
+        const next: string[][] = [];
+        for (const p of paths) {
+            const c = career(o, p);
+            const i = c.ranks.findIndex(r => r.name.trim().toLowerCase() === want);
+            if (i >= 0) return { path: p, rank: i };
+            for (const x of c.open?.options ?? []) next.push([...p, x.id]);
+        }
+        paths = next;
+    }
+    return null;
 }
 // The whole career from a path: the paths not chosen yet taken as their first option (what the top is measured on).
 function fullCareer(o: Occupation, path: string[]): Career {
@@ -277,6 +301,18 @@ export function rankDays(g: Save, w: WorldDef, o: Occupation, rank: number, path
 // What a promotion asks of the performance, unless the rank says otherwise.
 export const PROMO_PERF = 60;
 export const perfOf = (g: Save) => Math.round(jobOf(g)?.perf ?? 50);
+/** The performance a rank asks for: `needs.performance`, or `perf` in its `when` ("a high performance": `perf: 80`),
+ *  the higher of them, else the usual 60. */
+export function perfWanted(r: Rank): number {
+    const said = parseWhen(r.when).conds.filter(c => c.key === 'perf' && !c.not).map(c => Number(c.values[0]));
+    return Math.max(r.needs?.performance ?? (said.length ? 0 : PROMO_PERF), ...said);
+}
+// A rank's condition without its `perf` parts (they're asked as the performance, and said as "performance 80").
+function whenBesidesPerf(when: When | undefined): When | undefined {
+    if (typeof when !== 'string') return when;
+    const rest = when.split(';').filter(p => !/^\s*`?perf\s*:/i.test(p)).join(';').trim();
+    return rest || undefined;
+}
 /** What the next promotion asks for, and where you stand: shifts in the rank (fewer with a high performance: played
  *  well, a full week of shifts is a week), the time in the rank (overtime can shorten it by half at most), the
  *  performance, skill levels, one of some traits, a course, a condition. null at the top, or with a path to choose. */
@@ -285,7 +321,7 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     const j = jobOf(g); const next = nextRankOf(g, o);
     if (!j || j.id !== o.id || !next || pendingBranch(g, o)) return null;
     const d = rankDays(g, w, o, j.rank);
-    const perf = perfOf(g), want = next.needs?.performance ?? PROMO_PERF;
+    const perf = perfOf(g), want = perfWanted(next);
     const shifts = (d * daysAWeek(g, w, o)) / 7 * (1.3 - (0.3 * perf) / 100);
     const days = d * 0.5, inRank = (nowAbs(g) - (j.since ?? nowAbs(g))) / 1440;
     const skills = Object.entries(next.needs ?? {}).filter(([id]) => id !== 'performance').map(([id, need]) => ({ id, name: skillName(w, id), need, have: levelOf(g, id) }));
@@ -297,7 +333,8 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     for (const s of skills) if (s.have < s.need) missing.push(`${s.name} ${s.need}`);
     if (traits.length && !traits.some(t => traitsOf(g).includes(t))) missing.push(traits.join(' or '));
     if (next.course && courseOf(w, next.course) && !hasCourse(g, next.course)) missing.push(courseOf(w, next.course)!.name);
-    const when = next.when ? whenHolds(g, w, next.when, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
+    const rest = whenBesidesPerf(next.when);
+    const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
     if (when === false) missing.push('something more');
     return { rank: next, shifts, have: j.shifts, days, inRank, perf: want, skills, traits, course: next.course, when, ready: !missing.length, missing };
 }
@@ -510,15 +547,25 @@ export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random):
     if (!j || !o || !p || !pick) return [];
     delete j.event;
     const c = pick.c, out: string[] = [];
-    let res: WorkResult = c;
+    let res: WorkResult = c, ok: boolean | null = null;
     if (c.roll) {
         const d20 = 1 + Math.floor(rnd() * 20), bonus = c.roll.skill ? Math.floor(levelOf(g, c.roll.skill) / 2) : 0;
-        const ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
+        ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
         out.push(`🎲 ${d20}${bonus ? ` + ${bonus}` : ''} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok) res = c.fail ?? { text: 'It did not work out.' };
     }
     out.push(...applyResult(g, w, o, res, workRules(g, w).gentle));
+    out.push(...choicePractice(g, w, c.roll?.skill, ok, res.trains));
     if (p.ev.id === OVERTIME_ASK.id && i === 0) out.push(...overtimeHours(g, w, o, 2));
+    return out;
+}
+/** Practice from a choice (at work, in a street story): trying a roll trains its skill (more when it works), and a
+ *  result's `trains` trains that one. Returns the level-up lines. */
+export const CHOICE_PRACTICE = { worked: 6, failed: 3, trains: 5 };
+export function choicePractice(g: Save, w: WorldDef, rolled: string | undefined, ok: boolean | null, trains?: string): string[] {
+    const out: string[] = [];
+    if (rolled && ok !== null) out.push(...trainSkill(g, w, rolled, ok ? CHOICE_PRACTICE.worked : CHOICE_PRACTICE.failed));
+    if (trains) out.push(...trainSkill(g, w, trains, CHOICE_PRACTICE.trains));
     return out;
 }
 function applyResult(g: Save, w: WorldDef, o: Occupation, r: WorkResult, gentle: boolean): string[] {
