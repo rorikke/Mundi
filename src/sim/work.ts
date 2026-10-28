@@ -80,7 +80,7 @@ export const WORK_PRESETS: { id: PresetId; name: string; desc: string; rules: Wo
 interface WorkCfg { preset?: PresetId; custom?: Partial<WorkRules> }
 const workCfg = (g: Save): WorkCfg => (((cfg(g) as any).work ??= {}) as WorkCfg);
 /** The preset a world starts with: its own, or Relaxed in a Home (work is off-screen there), Realistic elsewhere. */
-export const worldPreset = (w: WorldDef | null | undefined): PresetId => w?.workPreset ?? (isScenario(w) ? 'relaxed' : 'realistic');
+export const worldPreset = (w: WorldDef | null | undefined): PresetId => w?.workPreset || (isScenario(w) ? 'relaxed' : 'realistic');
 export const presetOf = (g: Save, w: WorldDef) => WORK_PRESETS.find(p => p.id === (workCfg(g).preset ?? worldPreset(w))) ?? WORK_PRESETS[0];
 /** The preset shown: 'custom' once one of its rules was changed. */
 export const presetShown = (g: Save, w: WorldDef): PresetId | 'custom' => (Object.keys(workCfg(g).custom ?? {}).length ? 'custom' : presetOf(g, w).id);
