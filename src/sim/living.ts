@@ -1,13 +1,13 @@
 // The living world: approval (what people think of how you behave), lore that switches on with the state of
 // the world, people's own lives moving on over the weeks, and rumors that travel between people.
 import { personaName } from '../st/bridge.js';
-import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, isScenario, type WorldDef, type LoreWhen, type Occupation } from '../core/world.js';
+import { nowAbs, adultOk, type Save, type Resident } from '../core/store.js';
+import { systemOn, isScenario, type WorldDef, type LoreWhen, type LoreEntry, type Occupation } from '../core/world.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { onDay } from './hooks.js';
 import { residents, whereNow } from './people.js';
 import { regionOf, regionState } from './worldstate.js';
-import { whenHolds, whenPlace, whenRegionOk } from './when.js';
+import { whenHolds, whenPlace, whenRegionOk, parseWhen } from './when.js';
 import { note, facts, factText } from './facts.js';
 import { homeSpot, takenHomes } from './homes.js';
 import { lifeMoment } from './happenings.js';
@@ -34,11 +34,35 @@ export function approvalLine(g: Save, present: Resident[]) {
 
 // A world's lore entry can have `when` (a condition, sim/when.ts): sent with the scene while it holds. `rumor: true`
 // makes it a rumor that goes around instead (people mention it; see the rumor pool below). Each entry rolls its own
-// `chance` dice (salted with its index), so the same lore is on all day.
+// `chance` dice (salted with its index), so the same lore is on all day. Adult lore only with adult content on.
 export type { LoreWhen };
-export function activeWorldLore(g: Save, w: WorldDef): string[] {
-    return w.lore.filter((e, i) => !!e.when && !!e.content && !e.rumor && whenHolds(g, w, e.when, { key: `lore|${i}` })).map(e => e.content);
+export function activeWorldLore(g: Save, w: WorldDef, max?: number): string[] { return worldLore(g, w, max).kept; }
+// (E32) A busy place can match many rows: with a limit (`max`, else the world's `scene.lore`; 0 = none) the rows
+// about people here come first, then this place, then its zone or region, then the rest (season, weather, time);
+// a row's `priority` puts it ahead of its kind. A sentence already said by a row kept is left out of the next ones.
+// `dropped`: what the limit left out (shown in AI context).
+export function worldLore(g: Save, w: WorldDef, max = w.scene?.lore ?? 0): { kept: string[]; dropped: string[] } {
+    const rows = w.lore.map((e, i) => ({ e, i })).filter(({ e, i }) => !!e.when && !!e.content && !e.rumor && adultOk(g, e) && whenHolds(g, w, e.when, { key: `lore|${i}` }));
+    const ranked = max > 0 ? [...rows].sort((a, b) => (b.e.priority ?? 0) - (a.e.priority ?? 0) || loreKind(a.e.when) - loreKind(b.e.when) || a.i - b.i) : rows;
+    const kept: string[] = [], dropped: string[] = [], said = new Set<string>();
+    for (const { e } of ranked) {
+        const parts = sentences(e.content);
+        const fresh = parts.filter(x => !said.has(sentenceKey(x)));
+        if (parts.some(sentenceKey) && !fresh.some(sentenceKey)) continue;
+        if (max > 0 && kept.length >= max) { dropped.push(e.content); continue; }
+        fresh.forEach(x => { const k = sentenceKey(x); if (k) said.add(k); });
+        kept.push(fresh.length === parts.length ? e.content : fresh.map(x => x.trim()).join(' '));
+    }
+    return { kept, dropped };
 }
+// 0: about someone present (`present`, `onShift`); 1: this place; 2: its zone or region; 3: anything else.
+function loreKind(when: LoreEntry['when']): number {
+    const keys = parseWhen(when).conds.filter(c => !c.not).map(c => c.key);
+    return keys.some(k => k === 'present' || k === 'onShift') ? 0 : keys.includes('place') ? 1 : keys.some(k => k === 'zone' || k === 'region') ? 2 : 3;
+}
+// (a short piece, "Dr." or "Closed.", is never taken for a repeat)
+const sentenceKey = (x: string) => { const t = x.trim().toLowerCase(); return t.split(/\s+/).length >= 4 ? t : ''; };
+const sentences = (t: string) => t.match(/[^.!?]+(?:[.!?]+["'”’)]*|$)\s*/g)?.filter(x => x.trim()) ?? [t];
 
 /* ---------- people's own lives (76) ---------- */
 

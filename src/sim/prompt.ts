@@ -66,7 +66,9 @@ import { systemOn, blockSystem, isScenario, SCENARIO_STARTS, type WorldDef } fro
 export const PROMPT_KEY = 'mundi_scene';
 
 // The blocks Mundi can send. `cut`: the order in which they are dropped when the text is over the token budget
-// (1 first); blocks without `cut` are always sent (where and when we are, who is here, safety lines).
+// (1 first); blocks without `cut` are always sent (where and when we are, who is here, safety lines). They are sent in
+// this order. A new block is one entry here and one line in `raw` (sceneBlocks); its system, if any, in SYSTEMS
+// (core/world.ts).
 export interface Block { id: string; name: string; desc: string; cut?: number }
 export const BLOCKS: Block[] = [
     { id: 'core', name: 'Scene basics', desc: 'World, day and time, weather, place, who is here, and the rules of the scene.' },
@@ -98,13 +100,16 @@ export const applyTemplate = (tpl: string | undefined, text: string) => (!tpl?.t
 // The blocks this world has: those of a system turned off in it are gone.
 export const blocksOf = (w: WorldDef | null | undefined) => BLOCKS.filter(b => !blockSystem(b.id) || systemOn(w, blockSystem(b.id)!));
 // off: blocks switched off; budget: tokens (0 = no limit); text: each block's own text (see applyTemplate);
-// rules: the scene's rules (empty = DEFAULT_RULES); extra: your own instructions.
-export interface PromptCfg { off: string[]; budget: number; text: Record<string, string>; rules: string; extra: string }
+// rules: the scene's rules (empty = DEFAULT_RULES); extra: your own instructions; lore: at most this many rows of
+// world lore (-1 = the world's own limit, 0 = no limit).
+export interface PromptCfg { off: string[]; budget: number; text: Record<string, string>; rules: string; extra: string; lore: number }
 export const promptCfg = (): PromptCfg => {
     const s = settings() as any; s.promptCfg ??= {};
-    const c = s.promptCfg; c.off ??= []; c.budget ??= 0; c.text ??= {}; c.rules ??= ''; c.extra ??= '';
+    const c = s.promptCfg; c.off ??= []; c.budget ??= 0; c.text ??= {}; c.rules ??= ''; c.extra ??= ''; c.lore ??= -1;
     return c;
 };
+/** (E32) How many rows of world lore a scene gets: yours, else the world's (`scene.lore`), else no limit (0). */
+export const loreMax = (w: WorldDef | null | undefined) => { const n = promptCfg().lore; return n >= 0 ? n : w?.scene?.lore ?? 0; };
 // A quick token estimate (about 3.6 characters per token in English); the screen shows SillyTavern's own count.
 export const estTokens = (t: string) => Math.ceil(t.length / 3.6);
 
@@ -158,7 +163,7 @@ export function sceneBlocks(): Built[] {
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
         family: [familyLine(g, present)],
         rumors: rumorLines(g, met),
-        lore: activeWorldLore(g, w),
+        lore: activeWorldLore(g, w, loreMax(w)),
         needs: [feelings(g, w)],
         extra: [pc.extra],
     };

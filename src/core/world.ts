@@ -443,6 +443,8 @@ export interface WorldDef {
     workPreset?: 'realistic' | 'reduced' | 'relaxed';
     /** (J4) How fast careers go in this world (2: twice as fast; 0.5: half as fast). Missing: 1. */
     careerSpeed?: number;
+    /** (E1, E32) What the AI is told in a scene (see SceneDef). Missing: as before. */
+    scene?: SceneDef;
     /** What the world has: a phone (modern), a journal (medieval)… and which systems are on. */
     features?: { phone?: boolean; device?: string; apps?: AppDef[] } & Partial<Record<SystemId, boolean>>;
     /** Set by the loader: the folder URL the world's files live in. */
@@ -485,6 +487,10 @@ export interface ClimateDef {
 /** (E8) How people address you, by how close they are: a few words per friendship level and per romance level or
  *  couple status, and how a senior or junior at work does. Told to the AI. */
 export interface AddressDef { friend?: Partial<Record<FriendLevel, string>>; romance?: Record<string, string>; senior?: string; junior?: string }
+/** (E1, E32) Scene settings. `background`: the AI may describe unnamed background people (staff, regulars,
+ *  passers-by) at every place, not only at places with `staff`; `lore`: at most this many conditional lore rows in a
+ *  scene (missing or 0: no limit). */
+export interface SceneDef { background?: boolean; lore?: number }
 /** (E4) Trains: the hour the last ones leave (0.5 = 0:30) and the first ones (5), the fare of a taxi (a base and per
  *  minute of the trip), and the walk to the station (minutes) added to trips between districts. */
 export interface TransitDef { last?: number; first?: number; taxi?: { base: number; perMinute?: number }; walk?: number }
