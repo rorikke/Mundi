@@ -4511,6 +4511,8 @@ const DICT: Record<string, string> = {
  "Saves · {0}": "Partidas · {0}",
  "Character greetings · {0}": "Saludos de los personajes · {0}",
  "The pictures in your characters' greetings show up here.": "Las imágenes de los saludos de tus personajes aparecen aquí.",
- "Images made in a chat (Image Generation, attached, or written as links) show up here.": "Las imágenes hechas en un chat (Generación de Imágenes, adjuntas o escritas como enlaces) aparecen aquí."
+ "Images made in a chat (Image Generation, attached, or written as links) show up here.": "Las imágenes hechas en un chat (Generación de Imágenes, adjuntas o escritas como enlaces) aparecen aquí.",
+ "When someone speaks for the first time in a game, one call picks their color from how they look (Chat look has the rest).": "Cuando alguien habla por primera vez en una partida, una llamada elige su color según su aspecto (el resto está en Aspecto del chat).",
+ "Always on, because the game's numbers depend on them: a short question when a scene ends (how it changed what people feel), and when someone answers something you asked them, or something they meant to ask you.": "Siempre activas, porque los números del juego dependen de ellas: una pregunta corta cuando termina una escena (cómo cambió lo que sienten las personas) y cuando alguien responde a algo que le preguntaste, o algo que quería preguntarte.",
 };
 export default DICT;

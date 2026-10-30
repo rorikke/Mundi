@@ -4,6 +4,7 @@
 // has a limit of rows of its own (E32), and the rows it left out are listed under it.
 import { esc, notify, saveSettings, game, settings, UI } from '../core/store.js';
 import { feedPrefs } from '../sim/feed.js';
+import { talkOn } from '../sim/talkcolors.js';
 import { getWorld } from '../core/world.js';
 import { ctx } from '../st/bridge.js';
 import { blocksOf, promptCfg, sceneBlocks, sceneText, estTokens, refreshPrompt, loreMax, DEFAULT_RULES } from '../sim/prompt.js';
@@ -144,5 +145,7 @@ function aiCallsHtml() {
             ${chk('ui-bool', UI().aiTexts !== false, 'Characters write their own texts', 'Answers to your invitations, being stood up, asking your advice, letters from far away. Off: short ready-made replies.', 'aiTexts')}
             <label class="mu-field"><span>Who posts on Chirp</span><select data-input="set-feed">${[['button', 'Only when you tap "New posts"'], ['open', 'New posts each time you open the app'], ['auto', 'The characters, on their own as time passes'], ['react', 'Only you post; they reply']].map(([v, l]) => `<option value="${v}" ${fp.mode === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
             ${chk('set-feedimg', fp.images, 'Pictures in posts', 'Made with SillyTavern\'s Image Generation extension, when it is set up.')}
+            ${chk('talk-on', talkOn(), 'Color each speaker\'s dialogue', 'When someone speaks for the first time in a game, one call picks their color from how they look (Chat look has the rest).')}
+            <p class="mu-muted">Always on, because the game's numbers depend on them: a short question when a scene ends (how it changed what people feel), and when someone answers something you asked them, or something they meant to ask you.</p>
         </section>`;
 }
