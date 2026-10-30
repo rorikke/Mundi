@@ -6,7 +6,7 @@ export function traitsHtml(groups, picked, act) {
         return `<div class="mu-field mu-traits"><span>${esc(g.label)} <small>${mine.length}/${g.max}</small></span>
             <div class="mu-chips">${g.options.map(o => {
             const on = mine.includes(o);
-            return `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${act}" data-k="${esc(g.id)}" data-v="${esc(o)}" ${!on && mine.length >= g.max ? 'aria-disabled="true"' : ''}>${esc(o)}</button>`;
+            return `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${esc(act)}" data-k="${esc(g.id)}" data-v="${esc(o)}" ${!on && mine.length >= g.max ? 'aria-disabled="true"' : ''}>${esc(o)}</button>`;
         }).join('')}</div></div>`;
     }).join('');
 }

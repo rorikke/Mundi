@@ -5,10 +5,10 @@ import { markMet } from '../sim/game.js';
 import { state, notify, esc, game, saveGame, nowAbs } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { tr } from '../core/tr.js';
-import { residents, whereNow, presentAt } from '../sim/people.js';
+import { residents, whereNow, presentAt, stayHere } from '../sim/people.js';
 import { playerHomeId } from '../sim/places.js';
 import { isWorking } from '../sim/plans.js';
-import { social, bump as addBond, isWith } from '../sim/social.js';
+import { bump as addBond, isWith } from '../sim/social.js';
 import { note, placeName } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
 import { thumb } from '../st/bridge.js';
@@ -57,8 +57,8 @@ Object.assign(ACT, {
             BUMP.on = '';
             return notify();
         }
-        // she stays a while with you, here (like "come with me", for an hour)
-        social(g).with.push({ avatar: r.avatar, until: nowAbs(g) + TALK_MINUTES });
+        // they stay here a while to talk (an hour), but do not follow you: leave, and they are still here
+        stayHere(g, r.avatar, g.player.loc, TALK_MINUTES);
         markMet(g, r.avatar); // stopping to talk: now you know each other
         metNote(g, w, r, 'and stopped to talk.');
         BUMP.on = '';

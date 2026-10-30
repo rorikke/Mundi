@@ -3,6 +3,7 @@
 // both always edit the same settings. Nothing is copied or rebuilt.
 // @ts-ignore
 import { getUserAvatars } from '../../../../../personas.js';
+import { esc } from '../core/store.js';
 export const NATIVE = {
     'st-ai': { id: 'left-nav-panel', label: 'AI Response Configuration' },
     'st-api': { id: 'rm_api_block', label: 'API Connections' },
@@ -24,8 +25,8 @@ export const nativeHost = (tab, note = '') => {
     if (!n)
         return '';
     const side = SIDE[tab];
-    const main = `<div class="mu-native-wrap" data-keep="native-${tab}">${note ? `<p class="mu-muted mu-native-note">${note}</p>` : ''}<div class="mu-native-host" data-native="${n.id}"></div></div>`;
-    return side ? `<div class="mu-native-cols">${main}<div class="mu-native-wrap mu-native-side" data-keep="native-${tab}-side"><div class="mu-native-host" data-native="${side}" data-part></div></div></div>` : main;
+    const main = `<div class="mu-native-wrap" data-keep="native-${tab}">${note ? `<p class="mu-muted mu-native-note">${note}</p>` : ''}<div class="mu-native-host" data-native="${esc(n.id)}"></div></div>`;
+    return side ? `<div class="mu-native-cols">${main}<div class="mu-native-wrap mu-native-side" data-keep="native-${tab}-side"><div class="mu-native-host" data-native="${esc(side)}" data-part></div></div></div>` : main;
 };
 // Called after every redraw: panels whose host is on screen move in, the others go home.
 export function syncNative(main) {

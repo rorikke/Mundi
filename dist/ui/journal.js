@@ -73,7 +73,7 @@ export function journalApp(g, w, head) {
     for (let d = first; d <= last; d++) {
         const cls = [d === day ? 'is-sel' : '', d === g.day ? 'is-today' : '', d > g.day ? 'is-future' : '', p[d] ? 'has-entry' : noted.has(d) ? 'has-notes' : ''].filter(Boolean).join(' ');
         cells.push(d > g.day ? `<span class="mu-jc-cell ${cls}"><b>${num(d)}</b></span>`
-            : `<button class="mu-jc-cell ${cls}" data-act="jr-day" data-day="${d}" title="${esc(weekday(d))} · Day ${d}"><b>${num(d)}</b><i></i></button>`);
+            : `<button class="mu-jc-cell ${cls}" data-act="jr-day" data-day="${esc(d)}" title="${esc(weekday(d))} · Day ${d}"><b>${num(d)}</b><i></i></button>`);
     }
     const items = list.filter(f => dayOf(f) === day);
     const dOn = systemOn(w, 'diary'); // diary off: only the notes of what happened
@@ -94,7 +94,7 @@ export function journalApp(g, w, head) {
         <section class="mu-jr-day">
             <h4>${esc(weekday(day))} · <span>${book ? `Day ${roman(day)}` : `Day ${day}`}</span>${day === g.day ? ' <small class="mu-muted">today</small>' : ''}</h4>
             ${text ? `<blockquote class="mu-jr-prose" data-notr>${esc(text)}</blockquote>${diaryTtsButton(day)}` : !dOn ? (items.length ? '' : '<p class="mu-muted">Nothing happened this day.</p>') : `<p class="mu-muted">${day === g.day ? 'Today\'s entry is written when you go to sleep.' : items.length ? 'No diary entry for this day.' : 'Nothing happened this day.'}</p>`}
-            ${canWrite ? `<button class="mu-ghost mu-jr-btn" data-act="jr-prose" data-day="${day}" ${busy >= 0 ? 'disabled' : ''}>${icon('pen')}<span>${busy === day ? 'Writing…' : esc(writeLabel)}</span></button>` : ''}
+            ${canWrite ? `<button class="mu-ghost mu-jr-btn" data-act="jr-prose" data-day="${esc(day)}" ${busy >= 0 ? 'disabled' : ''}>${icon('pen')}<span>${busy === day ? 'Writing…' : esc(writeLabel)}</span></button>` : ''}
             ${items.length ? `${dOn ? `<button class="mu-ghost mu-jr-notes-btn" data-act="jr-notes">${icon(J.notes ? 'up' : 'down')}<span>What happened (${items.length})</span></button>` : ''}
             ${open ? `<ol class="mu-jr-list">${items.map(f => `<li><small>${hm(f.at % 1440)} · ${esc(tr(placeName(g, w, f.place)))}</small><span data-notr>${esc(factUi(f))}</span></li>`).join('')}</ol>` : ''}` : ''}
         </section>

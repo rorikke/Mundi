@@ -1,0 +1,1363 @@
+{
+ "v": 1,
+ "world": "medieval",
+ "lang": "en",
+ "day": 17,
+ "minutes": 1380,
+ "speed": 60,
+ "player": {
+  "loc": "home:player",
+  "home": {
+   "zone": "low",
+   "kind": "cottage",
+   "x": 38,
+   "y": 73,
+   "n": 1
+  },
+  "stats": {
+   "life": 0,
+   "energy": 40,
+   "hunger": 0,
+   "thirst": 0,
+   "mood": 0,
+   "hygiene": 0
+  },
+  "money": 478,
+  "traits": {
+   "proficiency": [
+    "Strong",
+    "Literate"
+   ],
+   "personality": [
+    "Kind",
+    "Calm"
+   ]
+  },
+  "origin": "traveler",
+  "job": {
+   "id": "smith",
+   "rank": 2,
+   "shifts": 1
+  },
+  "rentPaidDay": 1,
+  "learning": {
+   "progress": {},
+   "lastDay": {},
+   "done": [],
+   "count": {
+    "shifts": 14
+   },
+   "interviews": {
+    "smith": 3
+   },
+   "earned": []
+  },
+  "items": [
+   "bed"
+  ],
+  "broken": [],
+  "fitness": 0,
+  "study": {
+   "enrolled": false,
+   "classes": 0,
+   "passed": 0,
+   "degree": false
+  }
+ },
+ "cast": {
+  "ex0.png": {
+   "avatar": "ex0.png",
+   "name": "Elara",
+   "occupation": "scribe",
+   "home": {
+    "zone": "port",
+    "x": 50,
+    "y": 25,
+    "n": 5
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "square",
+    "docks"
+   ],
+   "met": true
+  },
+  "ex1.png": {
+   "avatar": "ex1.png",
+   "name": "Brienne",
+   "occupation": "guard",
+   "home": {
+    "zone": "merchant",
+    "x": 80,
+    "y": 58,
+    "n": 3
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "work"
+     ],
+     [
+      18,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      16,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "tavern",
+    "gardens"
+   ],
+   "met": true
+  },
+  "ex2.png": {
+   "avatar": "ex2.png",
+   "name": "Isolde",
+   "occupation": "scribe",
+   "home": {
+    "zone": "castle",
+    "x": 40,
+    "y": 26,
+    "n": 4
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "work"
+     ],
+     [
+      18,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      16,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "gardens",
+    "monastery"
+   ],
+   "met": true
+  },
+  "ex3.png": {
+   "avatar": "ex3.png",
+   "name": "Mira",
+   "occupation": "healer",
+   "home": {
+    "zone": "low",
+    "x": 48,
+    "y": 82,
+    "n": 5
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "chapel",
+    "square"
+   ],
+   "met": true
+  },
+  "ex4.png": {
+   "avatar": "ex4.png",
+   "name": "Rowena",
+   "occupation": "smith",
+   "home": {
+    "zone": "low",
+    "x": 56,
+    "y": 83,
+    "n": 6
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "tavern",
+    "docks"
+   ],
+   "met": true
+  },
+  "ex5.png": {
+   "avatar": "ex5.png",
+   "name": "Liesel",
+   "occupation": "merchant",
+   "home": {
+    "zone": "merchant",
+    "x": 67,
+    "y": 62,
+    "n": 7
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "work"
+     ],
+     [
+      18,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      16,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "square",
+    "tavern"
+   ],
+   "met": true
+  },
+  "ex6.png": {
+   "avatar": "ex6.png",
+   "name": "Ysolde",
+   "occupation": "groom",
+   "home": {
+    "zone": "low",
+    "x": 60,
+    "y": 78,
+    "n": 8
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "stables",
+    "green"
+   ],
+   "met": true
+  },
+  "ex7.png": {
+   "avatar": "ex7.png",
+   "name": "Catrin",
+   "occupation": "fisher",
+   "home": {
+    "zone": "low",
+    "x": 30,
+    "y": 76,
+    "n": 9
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "docks",
+    "tavern"
+   ],
+   "met": true
+  }
+ },
+ "tick": {
+  "decay:energy": 25830,
+  "decay:hunger": 25830,
+  "decay:thirst": 25800,
+  "decay:mood": 25710,
+  "decay:hygiene": 25830,
+  "drain:thirst": 25860,
+  "zero:thirst": 2760,
+  "drain:hunger": 25830,
+  "drain:hygiene": 25830,
+  "zero:hygiene": 3450,
+  "zero:hunger": 25350
+ },
+ "log": [],
+ "cfg": {
+  "difficulty": "normal"
+ },
+ "facts": [
+  {
+   "id": "f1920_0",
+   "at": 1920,
+   "place": "smithy",
+   "who": [],
+   "t": "{u} had a job interview for {0}, but did not get it.",
+   "a": [
+    "Blacksmith"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f3420_1",
+   "at": 3420,
+   "place": "smithy",
+   "who": [],
+   "t": "{u} had a job interview for {0}, but did not get it.",
+   "a": [
+    "Blacksmith"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f4320_2",
+   "at": 4320,
+   "place": "home:ex0.png",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{0} moved to {1}.",
+   "a": [
+    "Elara",
+    "Castle Ward"
+   ],
+   "kind": "life",
+   "u": "Tester"
+  },
+  {
+   "id": "f4860_3",
+   "at": 4860,
+   "place": "smithy",
+   "who": [],
+   "t": "{u} got hired: {0} at {1}.",
+   "a": [
+    "Apprentice",
+    "Blacksmith"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f5760_4",
+   "at": 5760,
+   "place": "home:ex0.png",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{0} moved to {1}.",
+   "a": [
+    "Elara",
+    "Harbor Houses"
+   ],
+   "kind": "life",
+   "u": "Tester"
+  },
+  {
+   "id": "f6600_5",
+   "at": 6600,
+   "place": "home:player",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Elara"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f8040_6",
+   "at": 8040,
+   "place": "smithy",
+   "who": [
+    "ex1.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Brienne"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f9480_7",
+   "at": 9480,
+   "place": "smithy",
+   "who": [
+    "ex2.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Isolde"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f10080_8",
+   "at": 10080,
+   "place": "chapel",
+   "who": [
+    "ex3.png",
+    "ex4.png"
+   ],
+   "t": "{0} and {1} started dating.",
+   "a": [
+    "Mira",
+    "Rowena"
+   ],
+   "kind": "life",
+   "u": "Tester"
+  },
+  {
+   "id": "f10920_9",
+   "at": 10920,
+   "place": "smithy",
+   "who": [],
+   "t": "{u} got promoted to {0}.",
+   "a": [
+    "Journeyman"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f10920_10",
+   "at": 10920,
+   "place": "smithy",
+   "who": [],
+   "t": "{u} bought: {0}.",
+   "a": [
+    "Feather bed"
+   ],
+   "kind": "shop",
+   "u": "Tester"
+  },
+  {
+   "id": "f10920_11",
+   "at": 10920,
+   "place": "smithy",
+   "who": [
+    "ex3.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Mira"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f11520_12",
+   "at": 11520,
+   "place": "guildhall",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{0} started a new job: {1}.",
+   "a": [
+    "Elara",
+    "Scribe"
+   ],
+   "kind": "life",
+   "u": "Tester"
+  },
+  {
+   "id": "f12360_13",
+   "at": 12360,
+   "place": "smithy",
+   "who": [
+    "ex4.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Rowena"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f12960_14",
+   "at": 12960,
+   "place": "square",
+   "who": [
+    "ex0.png",
+    "ex2.png"
+   ],
+   "t": "{0} and {1} started dating.",
+   "a": [
+    "Elara",
+    "Isolde"
+   ],
+   "kind": "life",
+   "u": "Tester"
+  },
+  {
+   "id": "f13800_15",
+   "at": 13800,
+   "place": "smithy",
+   "who": [
+    "ex5.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Liesel"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f15240_16",
+   "at": 15240,
+   "place": "smithy",
+   "who": [
+    "ex6.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Ysolde"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f16680_17",
+   "at": 16680,
+   "place": "smithy",
+   "who": [
+    "ex7.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Catrin"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f18120_18",
+   "at": 18120,
+   "place": "smithy",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Elara"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f19560_19",
+   "at": 19560,
+   "place": "smithy",
+   "who": [
+    "ex1.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Brienne"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f21000_20",
+   "at": 21000,
+   "place": "smithy",
+   "who": [
+    "ex2.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Isolde"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f22440_21",
+   "at": 22440,
+   "place": "smithy",
+   "who": [
+    "ex3.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Mira"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f23880_22",
+   "at": 23880,
+   "place": "smithy",
+   "who": [],
+   "t": "{u} got promoted to {0}.",
+   "a": [
+    "Master smith"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f23880_23",
+   "at": 23880,
+   "place": "smithy",
+   "who": [
+    "ex4.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Rowena"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f25320_24",
+   "at": 25320,
+   "place": "smithy",
+   "who": [
+    "ex5.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Liesel"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  }
+ ],
+ "bills": {
+  "rent": {
+   "due": 22,
+   "told": 15
+  },
+  "water": {
+   "due": 22,
+   "told": 15
+  },
+  "power": {
+   "due": 22
+  }
+ },
+ "social": {
+  "bond": {
+   "ex0.png": 16,
+   "ex1.png": 16,
+   "ex2.png": 16,
+   "ex3.png": 16,
+   "ex4.png": 16,
+   "ex5.png": 16,
+   "ex6.png": 8,
+   "ex7.png": 8
+  },
+  "today": {
+   "ex5.png|17": 8
+  },
+  "partner": [],
+  "threads": {
+   "ex0.png": [
+    {
+     "me": true,
+     "text": "Day 0: hi Elara!",
+     "at": 6600
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 6602
+    },
+    {
+     "me": true,
+     "text": "Day 8: hi Elara!",
+     "at": 18120
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 18122
+    }
+   ],
+   "ex1.png": [
+    {
+     "me": true,
+     "text": "Day 1: hi Brienne!",
+     "at": 8040
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 8042
+    },
+    {
+     "me": true,
+     "text": "Day 9: hi Brienne!",
+     "at": 19560
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 19562
+    }
+   ],
+   "ex2.png": [
+    {
+     "me": true,
+     "text": "Day 2: hi Isolde!",
+     "at": 9480
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 9482
+    },
+    {
+     "me": true,
+     "text": "Day 10: hi Isolde!",
+     "at": 21000
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 21002
+    }
+   ],
+   "ex3.png": [
+    {
+     "me": true,
+     "text": "Day 3: hi Mira!",
+     "at": 10920
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 10922
+    },
+    {
+     "me": true,
+     "text": "Day 11: hi Mira!",
+     "at": 22440
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 22442
+    }
+   ],
+   "ex4.png": [
+    {
+     "me": true,
+     "text": "Day 4: hi Rowena!",
+     "at": 12360
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 12362
+    },
+    {
+     "me": true,
+     "text": "Day 12: hi Rowena!",
+     "at": 23880
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 23882
+    }
+   ],
+   "ex5.png": [
+    {
+     "me": true,
+     "text": "Day 5: hi Liesel!",
+     "at": 13800
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 13802
+    },
+    {
+     "me": true,
+     "text": "Day 13: hi Liesel!",
+     "at": 25320
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 25322
+    }
+   ],
+   "ex6.png": [
+    {
+     "me": true,
+     "text": "Day 6: hi Ysolde!",
+     "at": 15240
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 15242
+    }
+   ],
+   "ex7.png": [
+    {
+     "me": true,
+     "text": "Day 7: hi Catrin!",
+     "at": 16680
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 16682
+    }
+   ]
+  },
+  "unread": {},
+  "appts": [
+   {
+    "id": "a13800elk0",
+    "avatar": "ex5.png",
+    "place": "monastery",
+    "from": 16680,
+    "to": 16800,
+    "kind": "hangout",
+    "state": "set",
+    "come": false
+   }
+  ],
+  "with": [],
+  "feel": []
+ },
+ "family": {
+  "kids": [],
+  "pregnancy": null,
+  "tries": {}
+ },
+ "living": {
+  "approval": {},
+  "rumors": [
+   {
+    "id": "f4860_3",
+    "text": "Tester got hired: Apprentice at Blacksmith.",
+    "at": 4860,
+    "knownBy": []
+   },
+   {
+    "id": "f5760_4",
+    "text": "Elara moved to Harbor Houses.",
+    "at": 5760,
+    "knownBy": [
+     "ex0.png",
+     "ex1.png",
+     "ex7.png",
+     "ex3.png",
+     "ex4.png",
+     "ex2.png",
+     "ex5.png"
+    ]
+   },
+   {
+    "id": "f10080_8",
+    "text": "Mira and Rowena started dating.",
+    "at": 10080,
+    "knownBy": [
+     "ex3.png",
+     "ex4.png",
+     "ex5.png",
+     "ex7.png",
+     "ex0.png",
+     "ex1.png",
+     "ex2.png"
+    ]
+   },
+   {
+    "id": "f10920_9",
+    "text": "Tester got promoted to Journeyman.",
+    "at": 10920,
+    "knownBy": []
+   },
+   {
+    "id": "f11520_12",
+    "text": "Elara started a new job: Scribe.",
+    "at": 11520,
+    "knownBy": [
+     "ex0.png",
+     "ex2.png",
+     "ex3.png",
+     "ex4.png",
+     "ex7.png",
+     "ex1.png",
+     "ex5.png"
+    ]
+   },
+   {
+    "id": "f12960_14",
+    "text": "Elara and Isolde started dating.",
+    "at": 12960,
+    "knownBy": [
+     "ex0.png",
+     "ex2.png",
+     "ex7.png",
+     "ex1.png",
+     "ex3.png",
+     "ex4.png",
+     "ex5.png"
+    ]
+   },
+   {
+    "id": "f23880_22",
+    "text": "Tester got promoted to Master smith.",
+    "at": 23880,
+    "knownBy": []
+   }
+  ],
+  "pairs": [
+   [
+    "ex3.png",
+    "ex4.png"
+   ],
+   [
+    "ex0.png",
+    "ex2.png"
+   ]
+  ]
+ },
+ "ledger": [
+  {
+   "at": 25320,
+   "text": "Master smith: 6 h",
+   "amount": 66
+  },
+  {
+   "at": 24960,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 23880,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 23520,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 22440,
+   "text": "Water",
+   "amount": -1
+  },
+  {
+   "at": 22440,
+   "text": "Rent",
+   "amount": -40
+  },
+  {
+   "at": 22440,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 22080,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 21000,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 20640,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 19560,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 19200,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 18120,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 17760,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 16680,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 16320,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 15240,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 14880,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 13800,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 13440,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 12360,
+   "text": "Water",
+   "amount": -1
+  },
+  {
+   "at": 12360,
+   "text": "Rent",
+   "amount": -40
+  },
+  {
+   "at": 12360,
+   "text": "Journeyman: 6 h",
+   "amount": 42
+  },
+  {
+   "at": 12000,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 10920,
+   "text": "Feather bed",
+   "amount": -60
+  },
+  {
+   "at": 10920,
+   "text": "Apprentice: 6 h",
+   "amount": 24
+  },
+  {
+   "at": 10560,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 9480,
+   "text": "Apprentice: 6 h",
+   "amount": 24
+  },
+  {
+   "at": 9120,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 8040,
+   "text": "Apprentice: 6 h",
+   "amount": 24
+  },
+  {
+   "at": 7680,
+   "text": "Cooking",
+   "amount": -5
+  },
+  {
+   "at": 6600,
+   "text": "Apprentice: 6 h",
+   "amount": 24
+  },
+  {
+   "at": 6240,
+   "text": "Cooking",
+   "amount": -5
+  }
+ ],
+ "romance": {
+  "ex0.png": {
+   "value": 2,
+   "status": "none"
+  },
+  "ex1.png": {
+   "value": 1,
+   "status": "none"
+  },
+  "ex2.png": {
+   "value": 3,
+   "status": "none"
+  },
+  "ex3.png": {
+   "value": 2,
+   "status": "none"
+  },
+  "ex4.png": {
+   "value": 1,
+   "status": "none"
+  },
+  "ex5.png": {
+   "value": 3,
+   "status": "none"
+  },
+  "ex6.png": {
+   "value": 0,
+   "status": "none"
+  },
+  "ex7.png": {
+   "value": 1,
+   "status": "none"
+  }
+ }
+}

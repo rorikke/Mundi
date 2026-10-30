@@ -14,6 +14,10 @@ node tests/systems.test.mjs > /tmp/mundi-systems-test.log 2>&1 || { grep -v "^\[
 echo "systems: $(tail -1 /tmp/mundi-systems-test.log)"
 node tests/prompt.test.mjs > /tmp/mundi-prompt-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-prompt-test.log; echo "PROMPT TESTS FAILED"; exit 1; }
 echo "prompt: $(tail -1 /tmp/mundi-prompt-test.log)"
+node tests/guests.test.mjs > /tmp/mundi-guests-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-guests-test.log; echo "GUEST TESTS FAILED"; exit 1; }
+echo "guests: $(tail -1 /tmp/mundi-guests-test.log)"
+node tests/security.test.mjs > /tmp/mundi-security-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-security-test.log; echo "SECURITY TESTS FAILED"; exit 1; }
+echo "$(tail -1 /tmp/mundi-security-test.log)"
 node tests/world.test.mjs > /tmp/mundi-world-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-world-test.log; echo "WORLD TESTS FAILED"; exit 1; }
 echo "world: $(tail -1 /tmp/mundi-world-test.log)"
 node tests/daylife.test.mjs > /tmp/mundi-daylife-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-daylife-test.log; echo "DAY LIFE TESTS FAILED"; exit 1; }

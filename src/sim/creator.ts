@@ -60,6 +60,13 @@ export async function newWorldFrom(baseId: string, mode: 'copy' | 'empty', name:
 }
 
 // Saves the world (a new version of its file) and lists it in Mundi's settings.
+// Writes a world's file again without touching what is loaded (used when a world is brought up to date as it opens).
+export async function saveWorldFile(w: WorldDef): Promise<void> {
+    const c = customWorlds().find(x => x.id === w.id);
+    if (!c) return;
+    const file = await uploadUserFile(`mundi-world-${w.id}.json`, JSON.stringify({ ...w, base: undefined, i18n: undefined }, null, 1));
+    c.file = file; c.updated = Date.now(); saveSettings();
+}
 export async function saveWorld(w: WorldDef): Promise<void> {
     const list = customWorlds();
     const old = list.find(c => c.id === w.id);
@@ -78,7 +85,7 @@ export async function deleteWorld(id: string) {
     if (!c) return;
     const w = getWorld(id);
     // its own pictures go too (only files Mundi uploaded for it)
-    const files = w ? assetsOf(w).filter(f => f.startsWith(`/user/files/mundi-${id}`)) : [];
+    const files = w ? assetsOf(w).filter(f => f.startsWith(`/user/files/mundi-${id}`) && !/\.\.|[\\?#]/.test(f)) : [];
     for (const f of [c.file, ...files.map(f => f.slice(1))]) await deleteUserFile(f);
     (settings() as any).customWorlds = list.filter(x => x.id !== id);
     saveSettings();
@@ -101,14 +108,16 @@ function assetsOf(w: WorldDef): string[] {
 /* ---------- export and import ---------- */
 
 const toDataUrl = async (url: string) => {
-    const b = await (await fetch(url)).blob();
+    const r = await fetch(url); const b = await r.blob();
+    if (!r.ok || !/^(image|audio|video)\//.test(b.type)) throw new Error('not a picture');   // a missing file
     return await new Promise<string>((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result)); r.onerror = () => bad(r.error); r.readAsDataURL(b); });
 };
-// One JSON file with everything inside: the world's own pictures are embedded (built-in ones stay as links).
+// One JSON file with everything inside: the world's own pictures (uploaded ones, and backgrounds from your
+// SillyTavern) are embedded; Mundi's built-in ones stay as links (everyone has them).
 export async function exportWorld(w: WorldDef): Promise<Blob> {
     const out = structuredClone({ ...w, base: undefined, i18n: undefined }) as any;
     const files: Record<string, string> = {};
-    for (const f of assetsOf(w)) if (f.startsWith('/user/files/') && !files[f]) { try { files[f] = await toDataUrl(f); } catch { /* missing picture */ } }
+    for (const f of assetsOf(w)) if (/^\/(user\/files|backgrounds)\//.test(f) && !files[f]) { try { files[f] = await toDataUrl(f); } catch { /* missing picture */ } }
     out.mundiFiles = files;
     return new Blob([JSON.stringify(out)], { type: 'application/json' });
 }
@@ -122,12 +131,20 @@ export async function importWorld(text: string): Promise<WorldDef> {
     w.id = newId(`w_${slug(w.name)}`);
     let json = JSON.stringify(w);
     for (const [path, url] of Object.entries(files)) {
+        // only the file's own pictures and sounds, embedded in it: nothing fetched from elsewhere, and only paths
+        // of the world's own files are replaced
+        if (typeof url !== 'string' || !/^data:(image|audio|video)\/[a-z0-9.+-]+[;,]/i.test(url) || !/^\/(user\/files|backgrounds)\/[^"\\]+$/.test(path)) continue;
         const blob = await (await fetch(url)).blob();
-        const name = path.split('/').pop()!.replace(`mundi-${oldId}`, `mundi-${w.id}`);
+        let name = (() => { const n = path.split('/').pop()!; try { return decodeURIComponent(n); } catch { return n; } })().replace(`mundi-${oldId}`, `mundi-${w.id}`);
+        if (path.startsWith('/backgrounds/')) name = `mundi-${w.id}-${name}`;   // someone's background: kept with the world's files
         const saved = `/${await uploadUserFile(name, blob)}`;
         json = json.split(JSON.stringify(path).slice(1, -1)).join(saved);
     }
     const out = JSON.parse(json) as WorldDef;
-    await saveWorld(out);
-    return out;
+    // pictures from other sites are not loaded (they would tell that site you opened the world): only this
+    // SillyTavern's own files and the embedded ones
+    for (const f of new Set(assetsOf(out))) if ((/^[a-z][a-z0-9+.-]*:/i.test(f) && !/^data:(image|audio)\//i.test(f)) || f.startsWith('//')) json = json.split(JSON.stringify(f)).join('""');
+    const clean = JSON.parse(json) as WorldDef;
+    await saveWorld(clean);
+    return clean;
 }

@@ -23,7 +23,7 @@ export function uiZoom() {
 }
 export const onPhone = () => !!document.getElementById(ROOT_ID)?.dataset.mobile;
 const UI_DEFAULTS = {
-    theme: 'dark', scale: 100, sceneText: 100, sound: true, volume: 50, music: true, musicVolume: 35,
+    theme: 'dark', scale: 100, sceneText: 100, sound: true, volume: 50, music: true, musicVolume: 35, weatherSound: true, weatherVolume: 60, narrateActions: true, aiTexts: true,
     hudAutoHide: false, dialogOpacity: 80, accent: 'blue', layout: 'vn', vn: 'box',
     dialogPos: 'center', spriteSize: 100, spriteW: 100, spriteY: 0, cardMode: true, font: 'default', avatarShape: 'rect', imgLayout: 'left', dialogBlur: 12, dateFormat: 'DD/MM/YYYY', timeFormat: '24',
     scalePhone: 85, scaleLand: 80, hudPhone: 85, hudLand: 80,

@@ -1,4 +1,5 @@
 // The phone (Modern world): messages, people, jobs, bank and homes. Opens over the map or the scene.
+import { safeUrl } from '../core/safe.js';
 import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
 import { missingCourses, interviewChance, triedToday } from '../sim/skills.js';
@@ -107,7 +108,7 @@ function hd(app, title) {
         return head(title ?? name(app), 'home');
     if (list.length < 2)
         return head(esc(s.name), 'home');
-    return head(esc(s.name), 'home').replace(/<\/div>$/, `<nav class="mu-sec-tabs">${list.map(a => `<button class="${a === app ? 'is-on' : ''}" data-act="ph-go" data-app="${a}">${name(a)}</button>`).join('')}</nav></div>`);
+    return head(esc(s.name), 'home').replace(/<\/div>$/, `<nav class="mu-sec-tabs">${list.map(a => `<button class="${a === app ? 'is-on' : ''}" data-act="ph-go" data-app="${esc(a)}">${name(a)}</button>`).join('')}</nav></div>`);
 }
 const appName = (id) => { const g = game(); const w = g && getWorld(g.world); return esc(w ? appsOf(w).find(a => a.id === id)?.name ?? id : id); };
 // Words that change with the world's style: the medieval journal speaks of letters, notices and the matchmaker.
@@ -119,11 +120,11 @@ const bar = (v) => `<span class="mu-bond"><i style="width:${Math.max(0, Math.min
 // Signal bars (always full), like a real phone's status bar.
 const SIGNAL = '<svg class="mu-ic" viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><rect x="3" y="15" width="3" height="5" rx="1"/><rect x="8" y="11" width="3" height="9" rx="1"/><rect x="13" y="7" width="3" height="13" rx="1"/><rect x="18" y="3" width="3" height="17" rx="1"/></svg>';
 function head(title, back) {
-    return `<div class="mu-ph-head">${back ? `<button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="${back}" aria-label="Back">${icon('back')}</button>` : '<span></span>'}<b>${title}</b><span></span></div>`;
+    return `<div class="mu-ph-head">${back ? `<button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="${esc(back)}" aria-label="Back">${icon('back')}</button>` : '<span></span>'}<b>${title}</b><span></span></div>`;
 }
 function homeApp(g, w) {
     const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
-    return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color]) => `<button class="mu-ph-app" data-act="ph-go" data-app="${id}">
+    return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color]) => `<button class="mu-ph-app" data-act="ph-go" data-app="${esc(id)}">
         <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : ''}</button>`).join('')}
         <button class="mu-ph-app" data-act="ph-go" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
         <button class="mu-ph-app" data-act="ph-help"><i style="--c:#30b0c7">${icon('help')}</i><span>${T('help')}</span></button></div>`;
@@ -163,7 +164,7 @@ Object.assign(ACT, {
 });
 Object.assign(INPUT, { 'ph-nick': (el) => { NICK.text = el.value; } });
 const wallpaper = () => String(settings().phoneBg ?? '');
-const cssUrl = (u) => `url("${u.replace(/["\\\n]/g, '')}")`;
+const cssUrl = (u) => `url("${safeUrl(u)}")`;
 // The pictures of the chat being played (Image Generation, attachments, links), newest first.
 const chatPictures = () => [...new Set(chat().flatMap((m, i) => photosOf(m, i).map(p => p.url)))].reverse();
 function settingsApp() {
@@ -252,7 +253,7 @@ function threadApp(g) {
                 <button class="mu-ibtn mu-ghost mu-ph-pen" data-act="ph-nick-edit" data-who="${esc(r.avatar)}" title="${esc(T('editThread'))}" aria-label="Edit">${icon('pen')}</button>`}</div>
         ${NICK.who === r.avatar ? `<p class="mu-ph-editnote">${icon('trash')} ${T('deleteMsgHint')}</p>` : ''}
         <div class="mu-ph-thread ${NICK.who === r.avatar ? 'is-editing' : ''}" data-keep="ph-thread" data-bottom>${t.map((m, i) => NICK.who === r.avatar
-        ? `<button class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr data-act="ph-msg-del" data-i="${i}" title="${esc(T('deleteMsg'))}">${esc(m.text)}<small>${day(g, m.at)}</small><i class="mu-ph-del">${icon('trash')}</i></button>`
+        ? `<button class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr data-act="ph-msg-del" data-i="${esc(i)}" title="${esc(T('deleteMsg'))}">${esc(m.text)}<small>${day(g, m.at)}</small><i class="mu-ph-del">${icon('trash')}</i></button>`
         : `<div class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr>${esc(m.text)}<small>${day(g, m.at)}</small></div>`).join('')}
             ${P.typing === r.avatar ? '<div class="mu-ph-msg is-typing"><i></i><i></i><i></i></div>' : ''}
             ${t.length ? '' : `<p class="mu-muted mu-pad">${T('emptyThread')}</p>`}</div>
@@ -346,7 +347,7 @@ function bankApp(g, w) {
 }
 const HF = { city: '' }; // Homes: the city whose homes are shown ('' all)
 function homesApp(g, w) {
-    const pic = (kind) => { const im = w.homes.kinds[kind]?.image; return im ? `style="background-image:url('${esc(worldFile(w, im))}')"` : ''; };
+    const pic = (kind) => { const im = w.homes.kinds[kind]?.image; return im ? `style="background-image:url('${safeUrl(worldFile(w, im))}')"` : ''; };
     const mine = w.homes.zones.find(z => z.id === g.player.home.zone);
     const billBtn = (b) => {
         const amount = billAmount(g, w, b.id);
@@ -354,7 +355,7 @@ function homesApp(g, w) {
             return '';
         const n = owed(g, b.id), cut = isCut(g, b.id), left = daysLeft(g, b.id);
         const state = cut ? (b.id === 'rent' ? T('lockedOutShort') : T('cutOff')) : n ? 'Due now' : left <= 1 ? 'Due tomorrow' : `Paid · due in ${left} days`;
-        return `<button class="mu-bill ${n ? 'is-due' : 'is-paid'} ${cut ? 'is-cut' : ''}" data-act="ph-bill" data-id="${b.id}" ${n ? '' : 'aria-disabled="true"'} title="${n ? `Pay ${money(w, amount * n)}` : 'Paid'}">
+        return `<button class="mu-bill ${n ? 'is-due' : 'is-paid'} ${cut ? 'is-cut' : ''}" data-act="ph-bill" data-id="${esc(b.id)}" ${n ? '' : 'aria-disabled="true"'} title="${n ? `Pay ${money(w, amount * n)}` : 'Paid'}">
             <i>${icon(b.icon)}</i><b>${esc(billName(w, b.id))}</b><span>${money(w, amount * Math.max(1, n))}${n > 1 ? ` (${n} wk)` : ''}</span><small>${state}</small></button>`;
     };
     return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">
@@ -459,7 +460,7 @@ function postApp(g) {
 }
 /* ---------- Spark: the dating app ---------- */
 function chips(list, on, act) {
-    return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="${act}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
+    return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="${esc(act)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
 }
 function datingProfileApp(g, w) {
     const d = dating(g);
@@ -548,7 +549,9 @@ export function phoneHtml() {
     if (BOOK)
         return bookHtml(g, w, body);
     const unread = phoneUnread();
-    return `<div class="mu-phone ${P.closing ? 'is-closing' : ''}" role="dialog" aria-label="Phone"><div class="mu-ph-status">
+    // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never
+    // taken for it, which rebuilt the phone and replayed its slide-in)
+    return `<div class="mu-phone ${P.closing ? 'is-closing' : ''}" data-keep="phone" role="dialog" aria-label="Phone"><div class="mu-ph-status">
             <span class="mu-ph-left"><b>${hm(g.minutes)}</b>${unread ? `<i class="mu-ph-notif" title="${unread}">${icon('chat')}</i>` : ''}</span>
             <span class="mu-ph-right">${SIGNAL}${icon('wifi')}<span class="mu-ph-batt"><small>100%</small><i><b></b></i></span></span></div>
         <div class="mu-ph-screen ${wallpaper() ? 'has-bg' : ''}" data-keep="ph-screen" style="${wallpaper() ? `--ph-bg:${esc(cssUrl(wallpaper()))}` : ''}">${body}</div>
@@ -584,13 +587,13 @@ function bookHtml(g, w, body) {
     const left = `<header class="mu-bk-title"><small>${esc(w.features?.device ?? 'Journal')}</small><b data-notr>${esc(personaName())}</b>
             <span>${esc(weekday(g.day))} · Day ${g.day + 1} · ${hm(g.minutes % 1440)}</span><span class="mu-bk-purse">${icon('wallet')}${money(w, g.player.money)}</span></header>
         <h4 class="mu-bk-h">Contents</h4>
-        <ol class="mu-bk-toc">${apps.map(([id, name, ic, , key]) => `<li><button class="${sec === key ? 'is-here' : ''}" data-act="ph-go" data-app="${id}">${icon(ic)}<span>${esc(name)}</span><i></i>${badge(id)}</button></li>`).join('')}
+        <ol class="mu-bk-toc">${apps.map(([id, name, ic, , key]) => `<li><button class="${sec === key ? 'is-here' : ''}" data-act="ph-go" data-app="${esc(id)}">${icon(ic)}<span>${esc(name)}</span><i></i>${badge(id)}</button></li>`).join('')}
             <li><button data-act="ph-help">${icon('help')}<span>${esc(T('help'))}</span><i></i></button></li></ol>`;
     return `<div class="mu-bk-wrap${opening}" data-act="bk-bg"><div class="mu-book ${P.app === 'home' ? 'is-home' : ''}" role="dialog" aria-label="${esc(w.features?.device ?? 'Journal')}">
         <div class="mu-bk-page is-left" data-keep="bk-left">${left}</div>
         <div class="mu-bk-page is-right mu-ph-screen ${t < TURN_MS ? 'is-turning' : ''}" data-keep="ph-screen" style="--turn-delay:-${Math.min(t, TURN_MS)}ms">${body}</div>
         ${leaf}
-        <nav class="mu-bk-ribbons">${apps.slice(0, RIBBONS.length).map(([id, name, ic], i) => `<button class="mu-bk-ribbon ${sec === id ? 'is-here' : ''}" style="top:${RIBBONS[i]}%" data-act="ph-go" data-app="${id}" title="${esc(name)}">${icon(ic)}<span>${esc(name)}</span>${badge(id)}</button>`).join('')}</nav>
+        <nav class="mu-bk-ribbons">${apps.slice(0, RIBBONS.length).map(([id, name, ic], i) => `<button class="mu-bk-ribbon ${sec === id ? 'is-here' : ''}" style="top:${RIBBONS[i]}%" data-act="ph-go" data-app="${esc(id)}" title="${esc(name)}">${icon(ic)}<span>${esc(name)}</span>${badge(id)}</button>`).join('')}</nav>
         <button class="mu-bk-close" data-act="ph-close" aria-label="Close the journal" title="Close">${icon('x')}</button>
     </div></div>`;
 }

@@ -2,3 +2,6 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+
+# real saves used by the save tests (your own story: never published)
+tests/fixtures/private/

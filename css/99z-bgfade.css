@@ -1,0 +1,2 @@
+/* The scene's background fading from one time of day to the next (ui/bgfade.ts): the old picture, on top, fading out. */
+#mundi-root .mu-scene-bg-old { position: absolute; inset: 0; background-color: #10141f; background-repeat: no-repeat; pointer-events: none; }

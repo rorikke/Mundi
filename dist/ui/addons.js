@@ -1,6 +1,7 @@
 // Add-ons: SillyTavern extensions Mundi knows how to use. Mundi finds out by itself whether each one is
 // installed (and turned on); when it is, its button shows up in Mundi's scene. Each can be hidden in Settings.
 import { state, notify, esc, settings, saveSettings, toast, ROOT_ID } from '../core/store.js';
+import { scriptText } from '../core/safe.js';
 import { ctx, chat } from '../st/bridge.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
@@ -77,7 +78,7 @@ export function addonsTab() {
                 <p>${esc(a.desc)}</p>
                 ${found && !ready ? `<p class="mu-muted">${esc(a.off)}</p>` : ''}
                 ${a.id === 'tts' ? `<label class="mu-check ${ttsQuiet() ? '' : 'is-danger'}"><input type="checkbox" data-input="tts-quiet" ${ttsQuiet() ? 'checked' : ''}><span>Silence notices about characters without a voice${ttsQuiet() ? '' : ' <em>(not recommended to turn off)</em>'}<small>TTS warns about each character with no voice, a disabled voice or one missing from the voice map. On: those notices are not shown.</small></span></label>` : ''}
-                <div class="mu-row"><label class="mu-check"><input type="checkbox" data-input="addon" data-id="${a.id}" ${prefs()[a.id] !== false ? 'checked' : ''} ${ready ? '' : 'disabled'}><span>Show its button in Mundi</span></label>
+                <div class="mu-row"><label class="mu-check"><input type="checkbox" data-input="addon" data-id="${esc(a.id)}" ${prefs()[a.id] !== false ? 'checked' : ''} ${ready ? '' : 'disabled'}><span>Show its button in Mundi</span></label>
                     ${found ? `<button class="mu-ghost mu-addon-cfg" data-act="ext-config" data-title="${esc(a.cfg)}">${icon('gear')}<span>Configure</span></button>` : ''}
                     <a class="mu-addon-link" href="${esc(a.url)}" target="_blank" rel="noopener">${icon('globe')}<span>${a.native ? 'Documentation' : 'Get it on GitHub'}</span></a></div></article>`;
     }).join('')}</div></section>`;
@@ -90,7 +91,7 @@ export function sdButton() {
     if (!addonOn('sd'))
         return '';
     return `<span class="mu-sdwrap"><button class="${SD.open ? 'is-on' : ''}" data-act="sd-menu" title="Generate a picture" aria-expanded="${SD.open}">${icon('image')}</button>${SD.open
-        ? `<div class="mu-sdmenu mh-glass" role="menu">${SD_MODES.map(([v, l]) => `<button class="mu-ghost" role="menuitem" data-act="sd-gen" data-v="${v}">${l}</button>`).join('')}</div>` : ''}</span>`;
+        ? `<div class="mu-sdmenu mh-glass" role="menu">${SD_MODES.map(([v, l]) => `<button class="mu-ghost" role="menuitem" data-act="sd-gen" data-v="${esc(v)}">${l}</button>`).join('')}</div>` : ''}</span>`;
 }
 // a click anywhere else closes the menu
 document.addEventListener('pointerdown', (e) => { if (SD.open && !e.target?.closest?.('.mu-sdwrap')) {
@@ -142,11 +143,11 @@ const focusComposer = () => document.getElementById(ROOT_ID)?.querySelector('[da
 /* ---------- TTS: read a line aloud ---------- */
 // Reads any text aloud (the diary): in your persona's voice, or TTS's default voice when you have none.
 export async function speakText(text, voice = '') {
-    const t = text.replace(/<[^>]+>/g, '').replace(/\|/g, '/').replace(/\s+/g, ' ').trim();
+    const t = scriptText(text.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
     if (!t)
         return;
     try {
-        await ctx().executeSlashCommandsWithOptions(voice ? `/speak voice="${voice.replace(/"/g, '')}" ${t}` : `/speak ${t}`);
+        await ctx().executeSlashCommandsWithOptions(voice ? `/speak voice="${scriptText(voice.replace(/"/g, ''))}" ${t}` : `/speak ${t}`);
     }
     catch {
         if (voice) {
@@ -160,15 +161,15 @@ export async function speakText(text, voice = '') {
     }
 }
 // The "read aloud" button for a diary entry (shown only when TTS is installed and on).
-export const diaryTtsButton = (day) => (addonOn('tts') ? `<button class="mu-ghost mu-tts-diary" data-act="diary-say" data-day="${day}" title="Read it aloud">${icon('speaker')}<span>Read aloud</span></button>` : '');
-export const ttsButton = (i) => (addonOn('tts') ? `<button data-act="addon-say" data-i="${i}" title="Read aloud">${icon('speaker')}</button>` : '');
+export const diaryTtsButton = (day) => (addonOn('tts') ? `<button class="mu-ghost mu-tts-diary" data-act="diary-say" data-day="${esc(day)}" title="Read it aloud">${icon('speaker')}<span>Read aloud</span></button>` : '');
+export const ttsButton = (i) => (addonOn('tts') ? `<button data-act="addon-say" data-i="${esc(i)}" title="Read aloud">${icon('speaker')}</button>` : '');
 Object.assign(ACT, {
     'sd-menu': () => { SD.open = !SD.open; notify(); },
     'sd-gen': async (el) => {
         SD.open = false;
         notify();
         try {
-            await ctx().executeSlashCommandsWithOptions(`/sd ${el.dataset.v}`);
+            await ctx().executeSlashCommandsWithOptions(`/sd ${scriptText(el.dataset.v)}`);
         }
         catch (e) {
             toast(String(e?.message ?? e), 'error');
@@ -192,11 +193,11 @@ Object.assign(ACT, {
         const m = chat()[Number(el.dataset.i)];
         if (!m)
             return;
-        const text = String(m.mes ?? '').replace(/<[^>]+>/g, '').replace(/\|/g, '/').trim();
+        const text = scriptText(String(m.mes ?? '').replace(/<[^>]+>/g, '').trim());
         if (!text)
             return;
         try {
-            await ctx().executeSlashCommandsWithOptions(`/speak voice="${String(m.name ?? '').replace(/"/g, '')}" ${text}`);
+            await ctx().executeSlashCommandsWithOptions(`/speak voice="${scriptText(String(m.name ?? '').replace(/"/g, ''))}" ${text}`);
         }
         catch (e) {
             toast(String(e?.message ?? e), 'error');

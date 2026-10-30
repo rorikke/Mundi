@@ -1,4 +1,5 @@
 import { fmtDateTime } from '../core/fmt.js';
+import { safeUrl } from '../core/safe.js';
 // Main menu: continue, new game, load, settings and back to SillyTavern. "Load" lists every save
 // (each save is a chat of a game's group).
 import { VERSION } from '../core/version.js';
@@ -41,7 +42,7 @@ function slideshow() {
         return '';
     const T = n * SLIDE, fade = (2.5 / T) * 100, show = 100 / n;
     const kf = `@keyframes mu-slide-${n}{0%{opacity:0;transform:scale(1.04)}${fade.toFixed(2)}%{opacity:1}${show.toFixed(2)}%{opacity:1}${(show + fade).toFixed(2)}%{opacity:0;transform:scale(1.12)}100%{opacity:0;transform:scale(1.12)}}`;
-    return `<style>${kf}</style>${pics.map((src, i) => `<div class="mu-menu-bg mu-menu-slide" style="background-image:url('${src}');animation:mu-slide-${n} ${T}s linear ${i * SLIDE - fade / 100 * T}s infinite"></div>`).join('')}`;
+    return `<style>${kf}</style>${pics.map((src, i) => `<div class="mu-menu-bg mu-menu-slide" style="background-image:url('${safeUrl(src)}');animation:mu-slide-${n} ${T}s linear ${i * SLIDE - fade / 100 * T}s infinite"></div>`).join('')}`;
 }
 function cover() {
     const w = getWorld('modern') ?? worlds()[0];
@@ -75,15 +76,15 @@ function saveRow(r, i) {
     const persona = r.kind === 'world' ? gameEntry(r.groupId)?.persona : '';
     const img = r.kind === 'chat' ? (r.avatar ? thumb(r.avatar) : groupOf(r.groupId)?.avatar_url || '') : persona ? personaThumb(persona) : '';
     const sel = LOAD.sel.has(i);
-    return `<li class="mu-save ${r.current ? 'is-current' : ''} ${sel ? 'is-sel' : ''}" data-act="save-pick" data-i="${i}">
-        <label class="mu-save-check" title="Select (or Ctrl + click the row)"><input type="checkbox" data-input="save-sel" data-i="${i}" ${sel ? 'checked' : ''}></label>
+    return `<li class="mu-save ${r.current ? 'is-current' : ''} ${sel ? 'is-sel' : ''}" data-act="save-pick" data-i="${esc(i)}">
+        <label class="mu-save-check" title="Select (or Ctrl + click the row)"><input type="checkbox" data-input="save-sel" data-i="${esc(i)}" ${sel ? 'checked' : ''}></label>
         ${img ? `<span class="mu-save-imgw"><img class="mu-save-img" src="${esc(img)}" alt="">${r.kind === 'world' ? `<i class="mu-save-badge">${icon('globe')}</i>` : ''}</span>` : r.kind === 'chat' ? `<i class="mu-save-img">${icon('users')}</i>` : `<i class="mu-save-img is-world">${icon('globe')}</i>`}
         <div class="mu-save-txt"><b><span class="mu-save-kind is-${kindOf(r)}">${KIND_NAME[kindOf(r)]}</span> <span data-notr>${esc(r.title)}</span></b>
             <small><span data-notr>${esc(r.chatId)}</span> · ${r.count} messages · ${esc(when(r.last))}</small>
             ${r.preview ? `<small class="mu-save-prev" data-notr>${esc(r.preview.slice(0, 140))}</small>` : ''}</div>
         ${confirm
-        ? `<div class="mu-row"><span class="mu-warn">${r.kind === 'world' ? 'Delete this save?' : 'Delete this chat?'}</span><button class="mu-danger" data-act="save-del-yes" data-i="${i}">Delete</button><button data-act="save-del-no">Cancel</button></div>`
-        : `<div class="mu-row"><button class="mu-ghost mu-star ${isFav(r) ? 'is-on' : ''}" data-act="save-fav" data-i="${i}" title="${isFav(r) ? 'Remove from favorites' : 'Favorite'}">${icon(isFav(r) ? 'starFill' : 'star')}</button><button class="mu-primary" data-act="save-load" data-i="${i}">Load</button><button class="mu-ghost" data-act="save-del" data-i="${i}" title="${r.kind === 'world' ? 'Delete this save' : 'Delete this chat'}">✕</button></div>`}
+        ? `<div class="mu-row"><span class="mu-warn">${r.kind === 'world' ? 'Delete this save?' : 'Delete this chat?'}</span><button class="mu-danger" data-act="save-del-yes" data-i="${esc(i)}">Delete</button><button data-act="save-del-no">Cancel</button></div>`
+        : `<div class="mu-row"><button class="mu-ghost mu-star ${isFav(r) ? 'is-on' : ''}" data-act="save-fav" data-i="${esc(i)}" title="${isFav(r) ? 'Remove from favorites' : 'Favorite'}">${icon(isFav(r) ? 'starFill' : 'star')}</button><button class="mu-primary" data-act="save-load" data-i="${esc(i)}">Load</button><button class="mu-ghost" data-act="save-del" data-i="${esc(i)}" title="${r.kind === 'world' ? 'Delete this save' : 'Delete this chat'}">✕</button></div>`}
     </li>`;
 }
 const LOAD = { kind: 'all', q: '', fav: false, sel: new Set(), confirmBulk: false };
@@ -97,7 +98,7 @@ function loadView() {
     const shown = all.map((r, i) => [r, i]).filter(([r]) => (LOAD.kind === 'all' || kindOf(r) === LOAD.kind) && (!LOAD.fav || isFav(r)) && (!q || `${r.title} ${r.chatId}`.toLowerCase().includes(q)));
     const n = (k) => all.filter(r => k === 'all' || kindOf(r) === k).length;
     return `${subHead('Load')}<div class="mu-panel mu-saves">
-        <div class="mu-saves-bar"><div class="mu-chips">${[['all', 'All'], ['world', 'Worlds'], ['scenario', 'Homes'], ['chat', 'Chats']].map(([k, l]) => `<button class="mu-chip ${LOAD.kind === k ? 'is-on' : ''}" data-act="load-kind" data-v="${k}">${l} · ${n(k)}</button>`).join('')}</div>
+        <div class="mu-saves-bar"><div class="mu-chips">${[['all', 'All'], ['world', 'Worlds'], ['scenario', 'Homes'], ['chat', 'Chats']].map(([k, l]) => `<button class="mu-chip ${LOAD.kind === k ? 'is-on' : ''}" data-act="load-kind" data-v="${esc(k)}">${l} · ${n(k)}</button>`).join('')}</div>
             <button class="mu-chip ${LOAD.fav ? 'is-on' : ''}" data-act="load-fav" title="Only favorites">${icon(LOAD.fav ? 'starFill' : 'star')}<span>Favorites · ${all.filter(isFav).length}</span></button>
             <input class="mu-search" type="search" data-input="load-q" data-focus="loadq" placeholder="Search" value="${esc(LOAD.q)}"></div>
         ${LOAD.sel.size ? `<div class="mu-saves-bulk"><b>${LOAD.sel.size} selected</b>
@@ -112,7 +113,7 @@ const subHead = (title) => `<div class="mu-subhead"><button data-act="menu-view"
 export function menuHtml() {
     const tab = state.menuTab;
     return `<div class="mu-menu">
-        <div class="mu-menu-bg" style="background-image:url('${cover()}')"></div>${slideshow()}
+        <div class="mu-menu-bg" style="background-image:url('${safeUrl(cover())}')"></div>${slideshow()}
         <div class="mu-menu-shade"></div>
         <header class="mu-brand"><h1>Mundi</h1><p>Open worlds inside SillyTavern</p></header>
         <div class="mu-menu-body">${tab === 'load' ? loadView() : mainView()}</div>

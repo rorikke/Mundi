@@ -45,7 +45,7 @@ export function workshopApp(g, w, head) {
     return body(head, `<section><h4>Make here</h4>${recipes.length ? recipes.map(r => `<div class="mu-lp-row"><b>${esc(goodDef(w, r.makes)?.icon ?? '')} ${esc(r.name)}${r.legendary ? ' ⭐' : ''}</b><small>${esc(need(r))}${r.skill && isRpg(w) ? ` · ${esc(r.skill)} DC ${r.dc ?? 12}` : ''}${r.risky ? ' · risky' : ''}</small>
             ${r.legendary ? `<input type="text" maxlength="40" placeholder="Name your artifact" data-input="av-name" value="${esc(UIA.name)}">` : ''}<button class="mu-primary" data-act="av-craft" data-id="${esc(r.id)}" ${haveFor(g, r) ? '' : 'aria-disabled="true"'}>Make</button></div>`).join('') : '<p class="mu-muted">Nothing can be made here. Forges, alchemists\' benches and workshops each have their recipes.</p>'}
         ${all.length > recipes.length ? `<small class="mu-muted">Elsewhere: ${all.filter(r => !recipes.includes(r)).map(r => esc(r.name)).join(', ')}</small>` : ''}</section>
-        <section><h4>Gems and runes</h4>${['weapon', 'armor'].map(slot => `<div class="mu-lp-row"><b>${slot === 'weapon' ? 'Weapon' : 'Armor'}</b><small>${sock[slot].map(id => esc(goodDef(w, id)?.name ?? id)).join(', ') || 'empty'} (${sock[slot].length}/2)</small>${sock[slot].length ? `<button class="mu-ghost" data-act="av-unset" data-v="${slot}">Pry them out</button>` : ''}</div>`).join('')}
+        <section><h4>Gems and runes</h4>${['weapon', 'armor'].map(slot => `<div class="mu-lp-row"><b>${slot === 'weapon' ? 'Weapon' : 'Armor'}</b><small>${sock[slot].map(id => esc(goodDef(w, id)?.name ?? id)).join(', ') || 'empty'} (${sock[slot].length}/2)</small>${sock[slot].length ? `<button class="mu-ghost" data-act="av-unset" data-v="${esc(slot)}">Pry them out</button>` : ''}</div>`).join('')}
         ${gems.map(x => `<button class="mu-ghost" data-act="av-set" data-id="${esc(x.id)}">Set ${esc(x.icon)} ${esc(x.name)} (+${x.socket.amount} ${x.socket.kind})</button>`).join('')}</section>`);
 }
 export function trophiesApp(g, w, head) {
@@ -73,7 +73,7 @@ export function soulApp(g, w, head) {
             <small class="mu-muted">It grows with fights and nights at camp. It awakens at levels ${AWAKEN.join(', ')}: ${t.kind === 'blade' ? 'it hits harder and whispers advice' : petDef(w, e?.kind)?.mount ? 'it runs faster' : 'it fights at your side'}.</small></section>`);
     }
     const options = [...pets.map(p => ({ kind: 'pet', id: p.id, name: p.name, icon: petDef(w, p.kind)?.icon ?? '🐾', need: `affection ${p.love}/75` })), ...(b ? [{ kind: 'blade', id: b.id, name: b.name, icon: '🗡️', need: `approval ${b.approval}/75` }] : [])];
-    return body(head, `<p class="mu-muted">Bind your soul to one companion creature, mount or sentient weapon. Only one, and for good.</p>${options.map(o => `<div class="mu-lp-row"><b>${esc(o.icon)} ${esc(o.name)}</b><small>${esc(o.need)}</small><button class="mu-primary" data-act="av-bind" data-k="${o.kind}" data-id="${esc(o.id)}">Bind</button></div>`).join('') || '<p class="mu-muted">You have nobody to bind to yet.</p>'}`);
+    return body(head, `<p class="mu-muted">Bind your soul to one companion creature, mount or sentient weapon. Only one, and for good.</p>${options.map(o => `<div class="mu-lp-row"><b>${esc(o.icon)} ${esc(o.name)}</b><small>${esc(o.need)}</small><button class="mu-primary" data-act="av-bind" data-k="${esc(o.kind)}" data-id="${esc(o.id)}">Bind</button></div>`).join('') || '<p class="mu-muted">You have nobody to bind to yet.</p>'}`);
 }
 export function healthApp(g, w, head) {
     const a = ailOf(g);

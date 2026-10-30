@@ -13,8 +13,9 @@ import { stayButton } from './events.js';
 import { romanceButtons } from './relui.js';
 import { outfitOf, wearOutfit, charOf } from '../st/bridge.js';
 import { outfitsOf, outfitLabel } from './outfits.js';
+import { guestButtons } from './guestsui.js';
 export const RAD = { who: '' };
-const btn = (act, who, ic, label, extra = '') => `<button data-act="${act}" data-who="${esc(who)}" ${extra}>${icon(ic)}<span>${esc(label)}</span></button>`;
+const btn = (act, who, ic, label, extra = '') => `<button data-act="${esc(act)}" data-who="${esc(who)}" ${extra}>${icon(ic)}<span>${esc(label)}</span></button>`;
 // The buttons of an HTML snippet (romance, stay), so they sit on the arc like the others.
 const buttonsIn = (html) => html.match(/<button[\s\S]*?<\/button>/g) ?? [];
 function actions(g, w, r) {
@@ -28,7 +29,7 @@ function actions(g, w, r) {
         : btn('pc-along', r.avatar, 'users', 'Come with me', canAlong(g, r.avatar) ? '' : `aria-disabled="true" title="${shutOut(g, r.avatar, isPartner(g, r.avatar)) ? 'They do not want to go anywhere with you.' : `Get closer first (${b}/${ALONG_BOND})`}"`));
     out.push(btn('pc-plan', r.avatar, 'pin', 'Make plans'));
     out.push(solo ? `<button data-act="solo-off">${icon('users')}<span>Talk with everyone</span></button>` : btn('solo-on', r.avatar, 'chat', 'Talk only with them'));
-    out.push(...buttonsIn(stayButton(r.avatar)), ...buttonsIn(romanceButtons(r.avatar)));
+    out.push(...buttonsIn(stayButton(r.avatar)), ...guestButtons(g, r.avatar), ...buttonsIn(romanceButtons(r.avatar)));
     out.push(btn('pc-open', r.avatar, 'user', 'Their card'));
     return out;
 }
@@ -43,7 +44,7 @@ function outfits(avatar) {
 // Puts the buttons on an arc: angle from top to bottom on each side.
 const arc = (items, side) => {
     const n = items.length, step = n > 1 ? Math.min(17, 100 / (n - 1)) : 0;
-    return items.map((h, k) => h.replace('<button', `<button style="--a:${((k - (n - 1) / 2) * step).toFixed(1)}deg;--k:${k}" data-rad="${side}"`)).join('');
+    return items.map((h, k) => h.replace('<button', `<button style="--a:${((k - (n - 1) / 2) * step).toFixed(1)}deg;--k:${k}" data-rad="${esc(side)}"`)).join('');
 };
 // The menu for one sprite (empty when closed). `r` is null for someone who is not one of the world's people (a scenario's card).
 export function radialHtml(avatar, r) {

@@ -2,6 +2,7 @@
 // A world starts from a base (a copy of Porto Alto, or the Modern rules with an empty map) and is saved as a
 // JSON file in SillyTavern's user files. Inputs bind to the draft by path: data-path="statuses.2.name".
 import { TIME_SLOTS } from '../sim/daynight.js';
+import { safeUrl } from '../core/safe.js';
 import { money } from '../sim/needs.js';
 import { DEFAULT_EXPENSES } from '../sim/bills.js';
 import { lex, lexGroups, lexDefault } from '../core/lexicon.js';
@@ -41,6 +42,8 @@ export function getPath(path) { return path.split('.').reduce((o, k) => (o == nu
 export function setPath(path, v) {
     const keys = path.split('.');
     const last = keys.pop();
+    if ([...keys, last].some(k => k === '__proto__' || k === 'constructor' || k === 'prototype'))
+        return; // (an id from a file can't reach the built-in objects)
     let o = CW.w;
     for (const k of keys) {
         o[k] ??= /^\d+$/.test(last) ? [] : {};
@@ -53,23 +56,23 @@ export function setPath(path, v) {
     CW.dirty = true;
 }
 const val = (p) => esc(getPath(p) ?? '');
-export const txt = (label, p, ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-path="${p}" data-focus="${p}" value="${val(p)}" placeholder="${esc(ph)}"></label>`;
-export const area = (label, p, rows = 3, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-path="${p}" data-focus="${p}" placeholder="${esc(ph)}">${val(p)}</textarea></label>`;
-export const num = (label, p, min = 0, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${min}" step="${step}" data-input="cw" data-type="num" data-path="${p}" data-focus="${p}" value="${val(p)}"></label>`;
-export const chk = (label, p, hint = '', inverse = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="${inverse ? 'nbool' : 'bool'}" data-path="${p}" ${(inverse ? getPath(p) !== false : !!getPath(p)) ? 'checked' : ''}><span>${label}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
-export const sel = (label, p, opts, type = '') => `<label class="mu-field"><span>${label}</span><select data-input="cw" data-path="${p}" ${type ? `data-type="${type}"` : ''}>${opts.map(([v, l]) => `<option value="${esc(v)}" ${String(getPath(p) ?? '') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
-const time = (label, p) => `<label class="mu-field"><span>${label}</span><input type="time" data-input="cw" data-type="time" data-path="${p}" value="${hm(Number(getPath(p) ?? 0))}"></label>`;
-const csv = (label, p, hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="csv" data-path="${p}" data-focus="${p}" value="${esc((getPath(p) ?? []).join(', '))}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
-const color = (label, p) => `<label class="mu-field mu-cw-color"><span>${label}</span><input type="color" data-input="cw" data-path="${p}" value="${val(p) || '#888888'}"></label>`;
-const chips = (list, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${p}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`; };
+export const txt = (label, p, ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}"></label>`;
+export const area = (label, p, rows = 3, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${val(p)}</textarea></label>`;
+export const num = (label, p, min = 0, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${min}" step="${step}" data-input="cw" data-type="num" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
+export const chk = (label, p, hint = '', inverse = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="${inverse ? 'nbool' : 'bool'}" data-path="${esc(p)}" ${(inverse ? getPath(p) !== false : !!getPath(p)) ? 'checked' : ''}><span>${label}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
+export const sel = (label, p, opts, type = '') => `<label class="mu-field"><span>${label}</span><select data-input="cw" data-path="${esc(p)}" ${type ? `data-type="${esc(type)}"` : ''}>${opts.map(([v, l]) => `<option value="${esc(v)}" ${String(getPath(p) ?? '') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+const time = (label, p) => `<label class="mu-field"><span>${label}</span><input type="time" data-input="cw" data-type="time" data-path="${esc(p)}" value="${hm(Number(getPath(p) ?? 0))}"></label>`;
+const csv = (label, p, hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="csv" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+const color = (label, p) => `<label class="mu-field mu-cw-color"><span>${label}</span><input type="color" data-input="cw" data-path="${esc(p)}" value="${val(p) || '#888888'}"></label>`;
+const chips = (list, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`; };
 // A list on the left (pick, add, remove) and the picked item's form on the right.
 function master(key, path, label, form, add, empty = 'Nothing here yet.') {
     const list = getPath(path) ?? [];
     const i = Math.min(CW.sel[key] ?? 0, Math.max(0, list.length - 1));
     CW.sel[key] = i;
     return `<div class="mu-cw-master">
-        <aside class="mu-cw-list" data-keep="cw-${key}">${list.map((x, k) => `<button class="mu-cw-row ${k === i ? 'is-on' : ''}" data-act="cw-pick" data-k="${key}" data-i="${k}">${label(x, k)}</button>`).join('') || `<p class="mu-muted">${empty}</p>`}
-            <button class="mu-primary" data-act="cw-add" data-what="${add}">${icon('plus')}<span>Add</span></button></aside>
+        <aside class="mu-cw-list" data-keep="cw-${key}">${list.map((x, k) => `<button class="mu-cw-row ${k === i ? 'is-on' : ''}" data-act="cw-pick" data-k="${esc(key)}" data-i="${esc(k)}">${label(x, k)}</button>`).join('') || `<p class="mu-muted">${empty}</p>`}
+            <button class="mu-primary" data-act="cw-add" data-what="${esc(add)}">${icon('plus')}<span>Add</span></button></aside>
         <section class="mu-cw-form">${list.length ? `${form(i)}<button class="mu-danger mu-cw-del" data-act="cw-del" data-path="${path}.${i}">${icon('trash')}<span>Remove</span></button>` : ''}</section></div>`;
 }
 const placeOpts = (w, none = '') => [...(none ? [['', none]] : []), ...w.places.filter(p => !p.link).map(p => [p.id, p.name])];
@@ -83,10 +86,10 @@ function tabGeneral(w) {
             ${area('Setting (what the AI always knows about this world)', 'setting', 5)}
             ${isScenario(w) ? `${area('Premise (how the story starts: shown when the game begins, and told to the AI)', 'scenario.premise', 5)}
                 <label class="mu-check"><input type="checkbox" data-input="cw-alltabs" ${CW.allTabs ? 'checked' : ''}><span>Show every tab<small>A Home hides Realm, Economy and RPG (a Home is always Life-Sim). Jobs and courses happen off-screen.</small></span></label>` : ''}</section>
-        <section class="mu-cw-sec"><h4>Cover</h4><div class="mu-cw-cover" style="${w.cover ? `background-image:url('${esc(worldFile(w, w.cover))}')` : ''}">${w.cover ? '' : '<span>No cover</span>'}</div>
+        <section class="mu-cw-sec"><h4>Cover</h4><div class="mu-cw-cover" style="${w.cover ? `background-image:url('${safeUrl(worldFile(w, w.cover))}')` : ''}">${w.cover ? '' : '<span>No cover</span>'}</div>
             <div class="mu-row"><button data-act="cw-cover">${icon('upload')}<span>Choose a picture</span></button>${!isScenario(w) && w.maps[0] ? `<button class="mu-ghost" data-act="cw-cover-map">Use the first map</button>` : ''}${w.cover ? `<button class="mu-ghost" data-act="cw-cover-clear">${icon('x')}<span>Remove</span></button>` : ''}</div>
             <small class="mu-muted">The picture on the ${isScenario(w) ? 'Home' : 'world'}'s card. Best at 16:9 (1400 × 782).</small>
-            ${isScenario(w) ? (() => { const pics = [...new Set(w.places.filter(p => !p.link && p.bg).map(p => p.bg))]; return pics.length ? `<span class="mu-cw-sub">Or use a room's picture</span><div class="mu-cw-coverpick">${pics.map(f => `<button class="${w.cover === f ? 'is-on' : ''}" data-act="cw-cover-room" data-file="${esc(f)}" title="${esc(w.places.find(p => p.bg === f)?.name ?? '')}" style="background-image:url('${esc(worldFile(w, f))}')"></button>`).join('')}</div>` : ''; })() : ''}</section>
+            ${isScenario(w) ? (() => { const pics = [...new Set(w.places.filter(p => !p.link && p.bg).map(p => p.bg))]; return pics.length ? `<span class="mu-cw-sub">Or use a room's picture</span><div class="mu-cw-coverpick">${pics.map(f => `<button class="${w.cover === f ? 'is-on' : ''}" data-act="cw-cover-room" data-file="${esc(f)}" title="${esc(w.places.find(p => p.bg === f)?.name ?? '')}" style="background-image:url('${safeUrl(worldFile(w, f))}')"></button>`).join('')}</div>` : ''; })() : ''}</section>
         <section class="mu-cw-sec"><h4>Look: style and skin</h4>
             ${sel('Style (the words of the game and the device)', 'style', STYLES.filter(x => x.ready).map(x => [x.id, x.name]))}
             ${sel('Skin (colors of the HUD)', 'skin', (SKINS[styleOf(w)] ?? []).map(k => [k.id, k.name]))}
@@ -177,12 +180,12 @@ function tabActions(w) {
         return `<div class="mu-row2">${txt('Button text', `${p}.label`, 'Have a coffee')}${txt('Short name', `${p}.name`, 'Coffee')}</div>
             <div class="mu-row2">${txt('Icon (an emoji)', `${p}.icon`)}${num('Takes … minutes', `${p}.minutes`, 0)}</div>
             ${num(`Costs (${esc(w.currency.symbol)})`, `${p}.cost`)}
-            <label class="mu-field"><span>Where</span><select data-act-input="cw-where" data-input="cw-where" data-i="${i}">${WHERE.map(([v, l]) => `<option value="${v}" ${where === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+            <label class="mu-field"><span>Where</span><select data-act-input="cw-where" data-input="cw-where" data-i="${esc(i)}">${WHERE.map(([v, l]) => `<option value="${v}" ${where === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
             ${where === 'tags' ? chips(tags, `${p}.tags`) : where === 'place' ? sel('Place', `${p}.place`, placeOpts(w)) : ''}
             ${where === 'tags' ? `<h4>But not in places tagged</h4>${chips(tags, `${p}.notTags`)}` : ''}
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'], ...(w.catalogs.shop ?? []).map(it => [it.id, `${it.icon ?? ''} ${it.name}`])])}
-            <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(`${s.icon} ${s.name}`, `${p}.effects.${s.id}`, -1000)).join('')}</div>`;
+            <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>`;
     }, 'action');
 }
 function tabJobs(w) {
@@ -190,7 +193,7 @@ function tabJobs(w) {
         ${master('jobs', 'occupations', o => `<b>${esc(o.name)}</b><small>${esc(w.places.find(p => p.id === o.place)?.name ?? '—')}</small>`, i => {
         const p = `occupations.${i}`;
         const o = w.occupations[i];
-        return `${txt('Name', `${p}.name`)}<button class="mu-ghost" data-act="cw-rnd-job" data-i="${i}">${icon('redo')}<span>Randomize hours, pay and promotions</span></button>
+        return `${txt('Name', `${p}.name`)}<button class="mu-ghost" data-act="cw-rnd-job" data-i="${esc(i)}">${icon('redo')}<span>Randomize hours, pay and promotions</span></button>
             ${sel('Works at', `${p}.place`, placeOpts(w, '(choose a place)'))}
             <div class="mu-row2">${num('Shift length (hours)', `${p}.shift`, 1)}${num('Energy per shift', `${p}.cost.energy`)}</div>
             <div class="mu-row2">${num('Opens at (hour)', `${p}.hours.0`, 0)}${num('Closes at (hour)', `${p}.hours.1`, 0)}</div>
@@ -472,14 +475,14 @@ function branchEditor(w, o, p) {
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>
                 ${earlier(b.at).length ? `<div class="mu-field"><span>Only after (empty: after any)</span>${pairChips(earlier(b.at), `${q}.after`)}</div>` : ''}
-                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${q}">${icon('x')}<span>Remove this path</span></button></div>`;
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>Remove this path</span></button></div>`;
     }).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="boption" data-path="${p}.branches.${bi}.options">${icon('plus')}<span>Add a path</span></button></section>`).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="branch" data-path="${p}.branches">${icon('plus')}<span>Add a choice of paths</span></button>`;
 }
 // What a bill or a broken thing can stop at home: the world's home actions.
 const homeActionOpts = (w) => w.actions.filter(a => a.home).map(a => [a.id, a.label || a.name]);
-const pairChips = (opts, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${p}" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div>`; };
+const pairChips = (opts, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div>`; };
 // A world made before free expenses gets its water and power written out, so they can be edited like any other.
 function ensureExpenses(w) {
     if (w.homes.expenses)
@@ -506,7 +509,7 @@ function tabCourses(w) {
         const c = list[i];
         const g = c.grants ?? [];
         const has = (l) => g.length > 0 && g.every(t => (l ?? []).includes(t));
-        const rel = (kind, id, on, label) => `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="cw-crel" data-kind="${kind}" data-id="${esc(id)}" data-i="${i}" ${kind !== 'req' && !g.length ? 'aria-disabled="true" title="Give the course a trait to teach first"' : ''}>${esc(label)}</button>`;
+        const rel = (kind, id, on, label) => `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="cw-crel" data-kind="${esc(kind)}" data-id="${esc(id)}" data-i="${esc(i)}" ${kind !== 'req' && !g.length ? 'aria-disabled="true" title="Give the course a trait to teach first"' : ''}>${esc(label)}</button>`;
         return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '📚')}</div>
                 <div class="mu-row2">${txt('Area', `${p}.area`, 'Health')}${num('Days of study', `${p}.days`, 1)}</div>
                 <div class="mu-row2">${num(`Price (${esc(w.currency.symbol)})`, `${p}.cost`)}</div>
@@ -560,16 +563,16 @@ function tabHomes(w) {
                     <div class="mu-row2">${sel('Kind of home', `${p}.kind`, kinds.map(([id, k]) => [id, k.name]))}${num(`Rent (${esc(w.currency.symbol)})`, `${p}.rent`)}</div>
                     ${sel('On the map', `${p}.map`, w.maps.map(m => [m.id, m.name]))}
                     <p class="mu-muted">${z.spots.length} homes placed. They are numbered (House 1, House 2…).</p>
-                    <button data-act="cw-homes-map" data-i="${i}">${icon('map')}<span>Place the homes on the map</span></button>`;
+                    <button data-act="cw-homes-map" data-i="${esc(i)}">${icon('map')}<span>Place the homes on the map</span></button>`;
     }, 'zone', 'No housing areas yet.')}</section>
         <section class="mu-cw-sec"><h4>Kinds of home</h4>
-            ${kinds.map(([id, k]) => `<div class="mu-cw-kind"><div class="mu-cw-cover is-small" style="${k.image ? `background-image:url('${esc(worldFile(w, k.image))}')` : ''}"></div>
+            ${kinds.map(([id, k]) => `<div class="mu-cw-kind"><div class="mu-cw-cover is-small" style="${k.image ? `background-image:url('${safeUrl(worldFile(w, k.image))}')` : ''}"></div>
                 <div>${txt('Name', `homes.kinds.${id}.name`)}${area('Description', `homes.kinds.${id}.desc`, 2)}
                 ${exps.length ? `<div class="mu-row2">${exps.map(e => num(`${esc(e.name)} a week (${esc(w.currency.symbol)})`, `homes.kinds.${id}.bills.${e.id}`)).join('')}</div>` : ''}
                 <details class="mu-me-times" ${Object.keys(k.images ?? {}).length ? 'open' : ''}><summary>Inside at other times of the day</summary>
                     ${TIME_SLOTS.map(per => {
         const b = k.images?.[per.id] ? worldFile(w, k.images[per.id]) : '';
-        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${esc(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
+        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${safeUrl(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
                         <button class="mu-ghost mu-ibtn" data-act="cw-kind-img" data-id="${esc(id)}" data-period="${esc(per.id)}" title="Upload">${icon('upload')}</button>${b ? `<button class="mu-ghost mu-ibtn" data-act="cw-kind-img-clear" data-id="${esc(id)}" data-period="${esc(per.id)}" title="Use the usual one">${icon('x')}</button>` : ''}</div>`;
     }).join('')}</details>
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-kind-img" data-id="${esc(id)}">${icon('image')}<span>Inside picture (scene)</span></button>
@@ -670,13 +673,13 @@ function peopleEditor(w) {
                 <h4>Family</h4><p class="mu-muted">Who ${esc(e.name)} is related to among the world's other people.</p>
                 ${(e.ties ?? []).map((t, k) => `<div class="mu-row mu-cw-inline">${sel('Is', `${p}.ties.${k}.type`, TIE_TYPES.map(([id, l]) => [id, l]))}${sel('Of', `${p}.ties.${k}.to`, others(e))}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ties.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
-                ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-i="${i}">${icon('plus')}<span>Add family</span></button>` : ''}
+                ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="etie" data-i="${esc(i)}">${icon('plus')}<span>Add family</span></button>` : ''}
                 <h4>How they start with others</h4><p class="mu-muted">From the start of every game: friendship${love ? ' and romance' : ''} each way ("As usual": where they would start anyway)${love ? ', a couple, or exes' : ''}.</p>
                 ${(e.feelings ?? []).map((_f, k) => feelRow(`${p}.feelings.${k}`, others(e), love)).join('')}
-                ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${i}">${icon('plus')}<span>Add a relation</span></button>` : ''}
+                ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${esc(i)}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
-                <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${i}">${icon('redo')}<span>New job, home and routine</span></button></div>
+                <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
     }, 'person', 'Nobody lives here yet.')}
         <button class="mu-ghost" data-act="cw-rnd-all">${icon('redo')}<span>Shuffle everyone's job, home and routine</span></button></section>`;
@@ -785,7 +788,7 @@ function randomizePerson(w, e) {
 /* ---------- the screen ---------- */
 // A new world: its style (what the game is like), then where it starts from: a ready world (a preset) to change, or nothing.
 // Life-Sim / RPG / Custom, as three cards.
-const modeCards = (on, act) => `<div class="mu-heropick is-start mu-modes">${GAME_MODES.map(m => `<button class="mu-herocard ${m.id === on ? 'is-on' : ''} ${m.soon ? 'is-soon' : ''}" data-act="${act}" data-v="${m.id}" ${m.soon ? 'aria-disabled="true"' : ''}><b>${m.name}${m.soon ? ' <em class="mu-soon-tag">Soon</em>' : ''}</b><p>${m.desc}</p></button>`).join('')}</div>`;
+const modeCards = (on, act) => `<div class="mu-heropick is-start mu-modes">${GAME_MODES.map(m => `<button class="mu-herocard ${m.id === on ? 'is-on' : ''} ${m.soon ? 'is-soon' : ''}" data-act="${esc(act)}" data-v="${esc(m.id)}" ${m.soon ? 'aria-disabled="true"' : ''}><b>${m.name}${m.soon ? ' <em class="mu-soon-tag">Soon</em>' : ''}</b><p>${m.desc}</p></button>`).join('')}</div>`;
 const presetsOf = (style, scenario = false) => worlds().filter(w => !worldLocked(w) && isScenario(w) === scenario && (scenario || styleOf(w) === style)).sort((a, b) => Number(isCustom(a.id)) - Number(isCustom(b.id)));
 function startPage() {
     const s = CW.start;
@@ -799,7 +802,7 @@ function startPage() {
             <label class="mu-field mu-cw-new-name ${CW.nameMiss ? 'is-missing' : ''}"><span>Name of your ${s.scenario ? 'Home' : 'world'}</span><input data-input="cw-start-name" data-focus="cwname" value="${esc(s.name)}" placeholder="${s.scenario ? 'My Home' : 'My world'}">${CW.nameMiss ? `<small class="mu-miss-note">Give your ${s.scenario ? 'Home' : 'world'} a name first.</small>` : ''}</label>
             <h3>Style</h3>
             <p class="mu-muted">Every style has the same parts (needs, a device to talk to people, trades, homes, people with routines), dressed for its time. The style decides how they look and what they are called.</p>
-            <div class="mu-styles">${STYLES.map(x => `<button class="mu-style ${x.id === st.id ? 'is-on' : ''} ${x.ready ? '' : 'is-soon'}" data-act="cw-start-style" data-id="${x.id}" ${x.ready ? '' : 'aria-disabled="true"'}>
+            <div class="mu-styles">${STYLES.map(x => `<button class="mu-style ${x.id === st.id ? 'is-on' : ''} ${x.ready ? '' : 'is-soon'}" data-act="cw-start-style" data-id="${esc(x.id)}" ${x.ready ? '' : 'aria-disabled="true"'}>
                 <b>${x.name}</b><small>${x.ready ? x.tagline : x.soon ?? 'Coming later.'}</small></button>`).join('')}</div>
             <section class="mu-panel mu-style-info"><h4>What this style brings</h4><ul>${st.changes.map(c => `<li>${c}</li>`).join('')}</ul></section></section>
             <section class="mu-cw-new-b">${s.scenario ? '<p class="mu-muted">A Home is always Life-Sim (realistic or fantasy), made for role-play: no work, money or courses.</p>' : `<h3>Game mode</h3>
@@ -829,7 +832,7 @@ export function creatorHtml() {
         <div class="mu-subhead"><button data-act="cw-close" data-sfx="back">← Back</button><h2>${isScenario(w) ? 'Home creator' : 'World creator'}</h2><small data-notr>${esc(w.name)}${CW.dirty ? ' •' : ''}</small>
 </div>
         <div class="mu-settings-layout mu-cw-layout">
-            <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${id}">${l}</button>`).join('')}</nav>
+            <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
             <div class="mu-settings-body mu-panel ${CW.tab === 'maps' ? 'is-maps' : ''}" data-keep="cw-body">${body}</div>
         </div>
         <div class="mu-row mu-cw-new-go mu-cw-foot">

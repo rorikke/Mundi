@@ -19,6 +19,8 @@ import { add, check, earliest, HANGOUT_BOND } from '../sim/plans.js';
 import { note } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
 import { houseParty, partyRooms, throwHouseParty, cancelHouseParty, PARTY_HOURS } from '../sim/houseparty.js';
+import { partyExtraHtml, partyCardExtra, partyCardButtons } from './guestsui.js';
+import { rememberOutingBg } from '../sim/outing.js';
 import { shopPrice, shopItems, hasItem, buy, ASPIRATIONS, aspirationOf, setAspiration, lifeOf, pendingInvite, clearInvite, activeFeelings } from '../sim/life.js';
 import { thumb, charOf, personaName, personaThumb } from '../st/bridge.js';
 import { swapOf, switchTo, roster } from '../sim/playas.js';
@@ -43,7 +45,7 @@ function elevatorHtml() {
     return `<div class="mh-modal-veil"><div class="mh-elev mh-glass" role="dialog" aria-label="Elevator">
         <header>${icon('up')}<b>Elevator</b><small>Floor ${ELEV.at}</small></header>
         <p>Apartment ${ELEV.door} is on floor ${ELEV.floor}.</p>
-        <div class="mh-elev-btns">${Array.from({ length: ELEV.floors }, (_, i) => ELEV.floors - i).map(f => `<button class="${f === ELEV.at ? 'is-on' : ''}" data-act="elev" data-f="${f}">${f}</button>`).join('')}</div>
+        <div class="mh-elev-btns">${Array.from({ length: ELEV.floors }, (_, i) => ELEV.floors - i).map(f => `<button class="${f === ELEV.at ? 'is-on' : ''}" data-act="elev" data-f="${esc(f)}">${f}</button>`).join('')}</div>
         <button class="mu-ghost" data-act="elev-skip">Take the stairs</button></div></div>`;
 }
 
@@ -102,7 +104,7 @@ export function goalsApp(g: Save, w: WorldDef, head: string) {
     return `${head}<div class="mu-ph-body">
         ${cur ? (() => { const [h, n] = cur.check(g, w); const done = (l.aspDone ?? []).includes(cur.id); return `<section class="mu-ph-card"><small>Your life goal</small><b>${cur.icon} ${esc(cur.name)}</b><small>${esc(cur.desc)}</small>${bar(h, n)}<small>${done ? 'Reached!' : `${Math.min(h, n).toLocaleString('en-US')} / ${n.toLocaleString('en-US')}`}</small></section>`; })() : '<p class="mu-muted">Pick a life goal. It guides your days, and the story knows about it.</p>'}
         <h4>Life goals</h4>
-        ${ASPIRATIONS.map(a => `<button class="mu-goal ${cur?.id === a.id ? 'is-on' : ''}" data-act="goal-set" data-id="${a.id}"><i class="mu-goal-ic">${a.icon}</i><b>${esc(a.name)}</b><small>${esc(a.desc)}</small>${(l.aspDone ?? []).includes(a.id) ? '<em>✓</em>' : ''}</button>`).join('')}
+        ${ASPIRATIONS.map(a => `<button class="mu-goal ${cur?.id === a.id ? 'is-on' : ''}" data-act="goal-set" data-id="${esc(a.id)}"><i class="mu-goal-ic">${a.icon}</i><b>${esc(a.name)}</b><small>${esc(a.desc)}</small>${(l.aspDone ?? []).includes(a.id) ? '<em>✓</em>' : ''}</button>`).join('')}
         <section class="mu-ph-card"><small>You</small><small>Fitness: ${l.fitness}/100${l.study.degree ? ' · Graduated' : l.study.enrolled ? ` · Studying (${l.study.passed}/3 exams)` : ''}</small></section>
     </div>`;
 }
@@ -129,20 +131,22 @@ export function partyForm(g: Save, w: WorldDef) {
 /* ---------- a scenario's house party ---------- */
 
 // Everyone in the house is there: while it lasts they leave their rooms and routines for the common rooms.
-const HP = { day: 0, time: 21 * 60, title: '' };
+// guests: people from outside invited to it; where: at home or out of the house (place, background, who of the house comes)
+export const HP = { day: 0, time: 21 * 60, title: '', guests: [] as string[], where: 'home' as 'home' | 'out', place: '', bg: '', people: [] as string[] };
 export function housePartyHtml(g: Save, w: WorldDef): string {
     const p = houseParty(g); const now = nowAbs(g);
     const old = styleOf(w) === 'medieval';   // a medieval Home holds a feast
     const rooms = partyRooms(g, w).map(id => placeOf(g, w, id)?.name).filter(Boolean);
     if (p && p.until > now) return `<section class="mu-ph-card mu-party"><h4>🎉 ${esc(p.title || (old ? 'A feast' : 'House party'))}</h4>
         <small>${now >= p.from ? 'Going on now' : `${p.from - now < 1440 && Math.floor(p.from / 1440) === g.day ? 'Today' : weekday(Math.floor(p.from / 1440))} at ${hm(p.from % 1440)}`} · ${PARTY_HOURS} hours</small>
-        <small>Everyone in the house comes out of their rooms: ${esc(rooms.join(', '))}.</small>
-        ${now < p.from ? '<button class="mu-ghost" data-act="hp-cancel">Call it off</button>' : ''}</section>`;
+        ${p.out ? '' : `<small>Everyone in the house comes out of their rooms: ${esc(rooms.join(', '))}.</small>`}
+        ${partyCardExtra(g, w)}
+        ${partyCardButtons(now < p.from)}</section>`;
     return `<section class="mu-ph-card mu-party"><h4>🎉 ${old ? 'A feast in the house' : 'A party at home'}</h4>
-        <small>${old ? 'The house can hold a feast' : 'The house can throw a party'}: everyone comes out of their rooms and routines, into ${esc(rooms.join(', ') || 'the common rooms')}.</small>
         <label class="mu-field"><span>Name (optional)</span><input type="text" maxlength="80" data-input="hp-title" data-focus="hptitle" placeholder="${old ? 'e.g. Harvest feast, a name day' : 'e.g. Welcome party, Pool night'}" value="${esc(HP.title)}"></label>
         <div class="mu-row"><select data-input="hp-day">${[0, 1, 2, 3].map(d => `<option value="${d}" ${HP.day === d ? 'selected' : ''}>${d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : weekday(g.day + d)}</option>`).join('')}</select>
             <select data-input="hp-time">${[18, 19, 20, 21, 22].map(h => `<option value="${h * 60}" ${HP.time === h * 60 ? 'selected' : ''}>${h}:00</option>`).join('')}</select></div>
+        ${partyExtraHtml(g, w)}
         <button class="mu-primary" data-act="hp-go">${icon('users')}<span>${old ? 'Hold the feast' : 'Throw the party'}</span></button></section>`;
 }
 
@@ -232,8 +236,10 @@ Object.assign(ACT, {
     'hp-go': () => {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
         const from = Math.max(nowAbs(g), (g.day + HP.day) * 1440 + HP.time);
-        const err = throwHouseParty(g, w, from, HP.title); if (err) { toast(err, 'info'); return; }
-        countUp(g, 'parties'); HP.title = ''; saveGame();
+        if (HP.where === 'out' && !HP.place.trim()) { toast('Write where the party is first.', 'warn'); return; }
+        const err = throwHouseParty(g, w, from, HP.title, { guests: HP.guests, out: HP.where === 'out' ? { place: HP.place, bg: HP.bg, people: HP.people.filter(a => g.cast[a]) } : undefined }); if (err) { toast(err, 'info'); return; }
+        if (HP.where === 'out') rememberOutingBg(g, HP.place, HP.bg);
+        countUp(g, 'parties'); Object.assign(HP, { title: '', guests: [], where: 'home', place: '', bg: '', people: [] }); saveGame();
         toast('The house knows: party on!', 'success'); notify();
     },
     'hp-cancel': () => { const g = game(); if (!g) return; cancelHouseParty(g); saveGame(); notify(); },

@@ -66,7 +66,7 @@ export function romanceButtons(avatar) {
     const end = r.status === 'married' ? 'Ask for a divorce' : r.status === 'casual' ? 'Stop seeing each other' : r.status !== 'none' ? (r.status === 'engaged' ? 'Call off the engagement' : 'Break up') : '';
     const busy = !!ASK.avatar;
     return `<div class="mu-pc-love">
-        ${kinds.map(k => `<button data-act="rm-ask" data-who="${esc(avatar)}" data-k="${k}" ${busy ? 'aria-disabled="true"' : ''}>${icon('heart')}<span>${ASKS[k].label}</span></button>`).join('')}
+        ${kinds.map(k => `<button data-act="rm-ask" data-who="${esc(avatar)}" data-k="${esc(k)}" ${busy ? 'aria-disabled="true"' : ''}>${icon('heart')}<span>${ASKS[k].label}</span></button>`).join('')}
         ${end ? `<button class="mu-ghost mu-danger-text" data-act="rm-end" data-who="${esc(avatar)}">${icon('x')}<span>${end}</span></button>` : ''}
         ${p && p.partner === avatar ? `<small class="mu-pc-baby">👶 Expecting a baby · ${daysLeft(g) ? `${daysLeft(g)} day${daysLeft(g) === 1 ? '' : 's'} left` : 'any moment now'}</small>` : ''}
         ${coolingDown(g, avatar) ? '<small class="mu-muted">They need some time before you ask again.</small>' : ''}
@@ -435,7 +435,7 @@ function workHtml() {
     return `<div class="mu-recap-veil" data-act="work-cancel-bg"><section class="mu-recap mu-workpick mh-glass" role="dialog" aria-label="Work">
         <header><small>${esc(job.name)} · ${esc(rank.name)} · ${esc(l.text)}</small><h3>How will you work today?</h3></header>
         ${systemOn(w, 'jobs') ? `<div class="mu-work-perf"><small>Performance: ${perf} (${perfWord(perf)})</small><span class="mu-bond"><i style="width:${perf}%"></i></span>${next ? `<small class="mu-muted">${esc(next)}</small>` : ''}</div>` : ''}
-        <div class="mu-work-modes">${WORK_MODES.map(m => `<button class="mu-work-mode" data-act="work-go" data-mode="${m.id}"><i>${m.icon}</i><b>${esc(m.name)}</b><small>${esc(m.desc)}</small></button>`).join('')}</div>
+        <div class="mu-work-modes">${WORK_MODES.map(m => `<button class="mu-work-mode" data-act="work-go" data-mode="${esc(m.id)}"><i>${m.icon}</i><b>${esc(m.name)}</b><small>${esc(m.desc)}</small></button>`).join('')}</div>
         <button class="mu-ghost" data-act="work-cancel">Not now</button></section></div>`;
 }
 /* ---------- the birth ---------- */

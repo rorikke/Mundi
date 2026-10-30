@@ -6,6 +6,9 @@ import { stayButton, tidyEvent } from './events.js';
 // Plans on screen: the card of a person in the scene ("come with me", "make plans"), the plan form and the
 // Calendar app on the phone, and the toasts the clock produces (reminders, arrivals, missed plans).
 import { housePartyHtml, partyForm } from './lifeui.js';
+import { CAL, calendarTabs, visitsTab, bgButton, guestButtons } from './guestsui.js';
+import { rememberOutingBg } from '../sim/outing.js';
+import { guestTick } from '../sim/guests.js';
 import { notify, esc, game, toast, saveGame, nowAbs, state } from '../core/store.js';
 import { getWorld, isScenario, styleOf } from '../core/world.js';
 import { outingId } from '../sim/places.js';
@@ -22,7 +25,7 @@ import { icon } from './icons.js';
 import { featureOn } from '../sim/creator.js';
 import { ACT, INPUT } from './reg.js';
 import { relNumbersHtml } from './reldebug.js';
-export const PL = { card: '', kind: 'hangout', place: '', day: 0, time: 0, busy: '', face: '', title: '', out: '' };
+export const PL = { card: '', kind: 'hangout', place: '', day: 0, time: 0, busy: '', face: '', title: '', out: '', bg: '' }; // bg: the background of a plan out of the house (Home)
 // Home: a plan can be somewhere out of the house, in your words ("__out" in the list, then the place you type)
 const OUT_PICK = '__out';
 const planPlace = () => (PL.place === OUT_PICK ? (PL.out.trim() ? outingId(PL.out) : '') : PL.place);
@@ -39,7 +42,7 @@ export function runPlans() {
     const w = g && getWorld(g.world);
     if (!g || !w)
         return false;
-    const news = planTick(g, w);
+    const news = [...planTick(g, w), ...guestTick(g, w).map(text => ({ text, kind: /door/.test(text) ? 'success' : 'info' }))]; // visitors: on time, like plans
     tidyEvent(g);
     news.forEach(n => toast(n.text, n.kind));
     if (news.length)
@@ -68,6 +71,7 @@ export function sceneCard(g, w) {
         : `<button data-act="solo-on" data-who="${esc(r.avatar)}">${icon('chat')}<span>Talk only with them</span></button>`}
         ${stayButton(r.avatar)}
         ${relNumbersHtml(g, r.avatar)}
+        ${guestButtons(g, r.avatar).join('')}
         ${romanceButtons(r.avatar)}
         ${!isScenario(getWorld(g.world)) && (along || isPartner(g, r.avatar) || b >= 60) ? `<button class="mu-ghost" data-act="swap-to" data-who="${esc(r.avatar)}">${icon('user')}<span>Play as them</span></button>` : ''}
     </div>`;
@@ -112,7 +116,7 @@ export function planForm(g, w, avatar, face = false) {
                 <button class="mu-chip ${PL.kind === 'date' ? 'is-on' : ''}" data-act="pl-kind" data-v="date" ${dateOk ? '' : `aria-disabled="true" title="${esc(lex(w, 'dateNeeds', String(b), String(DATE_BOND)))}"`}>Date</button></div>
             <label class="mu-field"><span>Name (optional)</span><input type="text" maxlength="80" data-input="pl-title" data-focus="pltitle" placeholder="${esc(tr(lex(w, 'planTitleEg')))}" value="${esc(PL.title)}"><small class="mu-muted">Tells the story what this event is about.</small></label>
             <label class="mu-field"><span>Where</span><select data-input="pl-place">${places.map(p => `<option value="${esc(p.id)}" ${PL.place === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></label>
-            ${PL.place === OUT_PICK ? `<label class="mu-field"><span>Where out</span><input type="text" maxlength="80" data-input="pl-out" data-focus="plout" placeholder="${styleOf(w) === 'medieval' ? 'the market square, the village tavern, the riverbank…' : 'the beach, a café downtown, the cinema…'}" value="${esc(PL.out)}"></label>` : ''}
+            ${PL.place === OUT_PICK ? `<label class="mu-field"><span>Where out</span><input type="text" maxlength="80" data-input="pl-out" data-focus="plout" placeholder="${styleOf(w) === 'medieval' ? 'the market square, the village tavern, the riverbank…' : 'the beach, a café downtown, the cinema…'}" value="${esc(PL.out)}"></label>${bgButton('date', PL.bg)}` : ''}
             <div class="mu-row2"><label class="mu-field"><span>Day</span><select data-input="pl-day">${[0, 1, 2, 3, 4, 5, 6].map(d => `<option value="${d}" ${PL.day === d ? 'selected' : ''}>${d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : weekday(g.day + d)}</option>`).join('')}</select></label>
                 <label class="mu-field"><span>Time</span><select data-input="pl-time">${times.map(t => `<option value="${t % 1440}" ${PL.time === t % 1440 ? 'selected' : ''}>${hm(t % 1440)}</option>`).join('') || '<option>—</option>'}</select></label></div>
             <button class="mu-primary" data-act="${face ? 'pl-invite-face' : 'pl-invite'}" data-who="${esc(avatar)}" ${PL.busy || !times.length ? 'disabled' : ''}>${icon(face ? 'chat' : 'send')}<span>${face ? 'Ask them' : 'Invite'}</span></button>
@@ -134,8 +138,10 @@ export function calendarApp(g, w, head) {
     const list = upcoming(g);
     const s = social(g);
     const past = s.appts.filter(a => a.state === 'missed').slice(-3).reverse();
-    return `${head}<div class="mu-ph-body">
-        ${s.with.length ? `<section><h4>With you</h4>${s.with.map(c => `<div class="mu-ph-job mu-plan-row"><img src="${esc(thumb(c.avatar))}" alt=""><span><b data-notr>${esc(g.cast[c.avatar]?.name ?? '')}</b><small>${esc(fmt('Until {0}', hm(c.until % 1440)))}</small></span>
+    if (isScenario(w) && CAL.tab === 'visits')
+        return `${head}${visitsTab(g, w, calendarTabs(w))}`;
+    return `${head}<div class="mu-ph-body">${calendarTabs(w)}
+        ${s.with.length ? `<section><h4>With you</h4>${s.with.map(c => `<div class="mu-ph-job mu-plan-row"><img src="${esc(thumb(c.avatar))}" alt=""><span><b data-notr>${esc(g.cast[c.avatar]?.name ?? '')}</b>${isScenario(getWorld(g.world)) ? '' : `<small>${esc(fmt('Until {0}', hm(c.until % 1440)))}</small>`}</span>
             <button class="mu-ghost" data-act="pc-bye" data-who="${esc(c.avatar)}">Say goodbye</button></div>`).join('')}</section>` : ''}
         ${isScenario(w) ? housePartyHtml(g, w) : `${partyForm(g, w)}
         ${cityEventsHtml(g, w)}
@@ -213,6 +219,8 @@ Object.assign(ACT, {
         const c = gw();
         if (!c || PL.busy)
             return;
+        if (PL.place === OUT_PICK && PL.out.trim() && PL.bg)
+            rememberOutingBg(c.g, PL.out, PL.bg);
         const who = el.dataset.who;
         const r = c.g.cast[who];
         if (!r)
@@ -245,6 +253,8 @@ Object.assign(ACT, {
         const c = gw();
         if (!c || PL.busy)
             return;
+        if (PL.place === OUT_PICK && PL.out.trim() && PL.bg)
+            rememberOutingBg(c.g, PL.out, PL.bg);
         const who = el.dataset.who;
         const at = (c.g.day + PL.day) * 1440 + PL.time;
         if (at < earliest(c.g)) {

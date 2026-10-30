@@ -2,6 +2,7 @@
 // (who lives with you), relations (family elsewhere, and how anyone starts with anyone: friends, a couple, exes…), and
 // choosing your home on the map. Everyone left over gets a home of their own at random.
 import { homeKindName } from '../sim/places.js';
+import { safeUrl } from '../core/safe.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
 import { getWorld, worldFile, isScenario, systemOn, type WorldDef } from '../core/world.js';
 import { characters, thumb, charOf, createCharacter } from '../st/bridge.js';
@@ -43,16 +44,16 @@ export function stepHouseholds(): string {
     return `<h3>Households</h3>
         <p class="mu-muted">A household is people who live in the same home: a family, a couple, roommates. Put together the people who live together and say who is family. Everyone you leave out gets a home of their own, at random. You can skip this.</p>
         <div class="mu-ngh">
-            <aside class="mu-ngh-list">${list.map((x, i) => `<button class="mu-ngh-card ${i === sel ? 'is-on' : ''}" data-act="ngh-sel" data-i="${i}"><b>Household ${i + 1}</b>
+            <aside class="mu-ngh-list">${list.map((x, i) => `<button class="mu-ngh-card ${i === sel ? 'is-on' : ''}" data-act="ngh-sel" data-i="${esc(i)}"><b>Household ${i + 1}</b>
                 <span class="mu-hh-faces">${x.members.map(face).join('') || '<em>Empty</em>'}</span></button>`).join('')}
                 <button class="mu-primary" data-act="ngh-new">${icon('plus')}<span>New household</span></button></aside>
             <section class="mu-ngh-edit">${h ? `
-                <header class="mu-row"><h4>Household ${sel + 1}</h4><button class="mu-ghost mu-right" data-act="ngh-del" data-i="${sel}">${icon('trash')}<span>Remove</span></button></header>
+                <header class="mu-row"><h4>Household ${sel + 1}</h4><button class="mu-ghost mu-right" data-act="ngh-del" data-i="${esc(sel)}">${icon('trash')}<span>Remove</span></button></header>
                 <div class="mu-ngh-members">${h.members.map(a => `<span class="mu-chip is-on">${face(a)}<span data-notr>${esc(nm(a))}</span><button class="mu-ibtn mu-ghost" data-act="ngh-out" data-who="${esc(a)}" title="Take out">${icon('x')}</button></span>`).join('') || '<p class="mu-muted">Click people below to add them.</p>'}</div>
                 ${h.members.length >= 2 ? `<h5>Family in this household</h5>
-                    ${h.ties.map((t, k) => `<div class="mu-ties-add"><span data-notr>${esc(nm(t.a))}</span><span>is</span><select data-input="ngh-tie" data-k="${k}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
+                    ${h.ties.map((t, k) => `<div class="mu-ties-add"><span data-notr>${esc(nm(t.a))}</span><span>is</span><select data-input="ngh-tie" data-k="${esc(k)}" data-f="type">${TIE_TYPES.map(([id, l]) => opt(id, l, t.type === id)).join('')}</select>
                         <span data-notr>${esc(nm(t.b))}</span>
-                        <button class="mu-ibtn mu-ghost" data-act="ngh-tie-del" data-k="${k}">${icon('x')}</button></div>`).join('')}
+                        <button class="mu-ibtn mu-ghost" data-act="ngh-tie-del" data-k="${esc(k)}">${icon('x')}</button></div>`).join('')}
                     <div class="mu-ties-add"><select data-input="ngh-pair" data-f="a">${h.members.map(a => opt(a, nm(a), (h.members.includes(z.hhA) ? z.hhA : h.members[0]) === a)).join('')}</select><span>and</span>
                         <select data-input="ngh-pair" data-f="b">${h.members.map(a => opt(a, nm(a), (h.members.includes(z.hhB) ? z.hhB : h.members[1]) === a)).join('')}</select>
                         <button data-act="ngh-tie-add">${icon('plus')}<span>Add family</span></button></div>
@@ -157,7 +158,7 @@ function relationsHtml(mine: boolean): string {
     const love = !w || systemOn(w, 'romance');
     const people: string[] = [...new Set([...(z.cast as string[]), ...familyOf().map(f => f.avatar)])];
     const list = rels().map((t, k) => [t, k] as const).filter(([t]) => !mine || t.a === '__you' || t.b === '__you');
-    const pick = (f: 'a' | 'b', def: string, withYou: boolean) => `<select data-input="ngr-pair" data-f="${f}">${(withYou ? ['__you', ...people] : people).map(a => opt(a, who(a), (z[`rel${f}`] ?? def) === a)).join('')}</select>`;
+    const pick = (f: 'a' | 'b', def: string, withYou: boolean) => `<select data-input="ngr-pair" data-f="${esc(f)}">${(withYou ? ['__you', ...people] : people).map(a => opt(a, who(a), (z[`rel${f}`] ?? def) === a)).join('')}</select>`;
     return `<section class="mu-panel mu-ngrel"><h3>${mine ? 'Your relations' : 'Relations'}</h3>
         <p class="mu-muted">${mine ? 'How you start with anyone in this world, not only who lives with you: family across town, a best friend, a rival, an old flame, someone you are dating.' : (w && isScenario(w) ? 'Between any two people of the house (or with you): family, friends, a couple, exes, people who can\'t stand each other…' : 'Between any two people, in any household (or with you): family elsewhere, friends, a couple, exes, people who can\'t stand each other…')} <span>"As usual": where they would start anyway.</span></p>
         ${list.map(([t, k]) => relRow(t, k, love)).join('') || '<p class="mu-muted">None yet.</p>'}
@@ -176,8 +177,8 @@ export function yourHouseholdHtml(): string {
     return `<section class="mu-panel mu-ngfam"><h3>Your household</h3>
         <p class="mu-muted">The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later ("Play as"). A partner or a friend: say how you get along under Your relations.</p>
         ${fam.map((f, k) => `<div class="mu-ties-add">${face(f.avatar)}<b data-notr>${esc(nm(f.avatar))}</b><span>is your</span>
-            <select data-input="ngf-set" data-k="${k}" data-f="type">${opt('', 'housemate (not family)', !f.type)}${TIE_TYPES.map(([id, l]) => opt(id, l.replace(/ of$/, ''), f.type === id)).join('')}</select>
-            <button class="mu-ibtn mu-ghost" data-act="ngf-del" data-k="${k}">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">You live alone for now.</p>'}
+            <select data-input="ngf-set" data-k="${esc(k)}" data-f="type">${opt('', 'housemate (not family)', !f.type)}${TIE_TYPES.map(([id, l]) => opt(id, l.replace(/ of$/, ''), f.type === id)).join('')}</select>
+            <button class="mu-ibtn mu-ghost" data-act="ngf-del" data-k="${esc(k)}">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">You live alone for now.</p>'}
         ${z.famNew ? newCharForm(z.famNew) : z.famOpen ? `<input class="mu-search" type="search" data-input="ngf-q" data-focus="ngfq" placeholder="Search your characters" value="${esc(z.famQ ?? '')}">
             <div class="mu-chips mu-ngfam-pool"><button class="mu-chip mu-ngfam-newchip" data-act="ngf-new">${icon('plus')}<span>Create a new character</span></button>${pool.map(c => `<button class="mu-chip" data-act="ngf-add" data-who="${esc(c.avatar)}">${face(c.avatar)}<span data-notr>${esc(c.name)}</span></button>`).join('') || '<p class="mu-muted">No characters found.</p>'}</div>`
             : `<div class="mu-row mu-ngfam-btns"><button data-act="ngf-open">${icon('plus')}<span>Add someone to your household</span></button><button data-act="ngf-new">${icon('user')}<span>Create a new character</span></button></div>`}
@@ -188,7 +189,7 @@ export function yourHouseholdHtml(): string {
 interface NewChar { name: string; desc: string; url?: string; blob?: Blob }
 function newCharForm(n: NewChar): string {
     return `<div class="mu-ngfam-new">
-        <button class="mu-ngfam-pic" data-act="ngf-new-pic" title="Choose a picture" style="${n.url ? `background-image:url('${esc(n.url)}')` : ''}">${n.url ? '' : `${icon('image')}<small>Picture</small>`}</button>
+        <button class="mu-ngfam-pic" data-act="ngf-new-pic" title="Choose a picture" style="${n.url ? `background-image:url('${safeUrl(n.url)}')` : ''}">${n.url ? '' : `${icon('image')}<small>Picture</small>`}</button>
         <div class="mu-ngfam-newf">
             <input type="text" data-input="ngf-new-f" data-f="name" data-focus="ngfnew-name" maxlength="40" placeholder="Name" value="${esc(n.name)}">
             <textarea rows="3" data-input="ngf-new-f" data-f="desc" data-focus="ngfnew-desc" placeholder="Who they are: looks, personality, what they do (optional)">${esc(n.desc)}</textarea>
@@ -209,10 +210,10 @@ function homePicker(who: 'you' | number, mapKey: 'homeMap' | 'hhMap'): string {
     const others: NgHome[] = [...(who === 'you' ? [] : [z.home]), ...hhs().filter((_h, i) => i !== who).map(h => h.home)].filter(Boolean) as NgHome[];
     const act = who === 'you' ? 'ngm' : 'nghm';
     return `${maps.length > 1 ? `<div class="mu-chips">${maps.map(x => `<button class="mu-chip ${x.id === mapId ? 'is-on' : ''}" data-act="${act}-map" data-id="${esc(x.id)}">${esc(x.name)}</button>`).join('')}</div>` : ''}
-        ${m ? `<div class="mu-nghome-map" style="aspect-ratio:${m.ratio};width:min(100%, calc(64vh * ${m.ratio}));background-image:url('${esc(worldFile(w, m.image))}')">
+        ${m ? `<div class="mu-nghome-map" style="aspect-ratio:${m.ratio};width:min(100%, calc(64vh * ${m.ratio}));background-image:url('${safeUrl(worldFile(w, m.image))}')">
             ${w.homes.zones.filter(zn => zn.map === m.id).map(zn => zn.spots.map(([x, y], k) => {
                 const on = sameHome(mine, zn.id, x, y), taken = others.some(o => sameHome(o, zn.id, x, y));
-                return `<button class="mu-nghome-spot ${on ? 'is-on' : ''} ${taken ? 'is-taken' : ''}" style="left:${x}%;top:${y}%" data-act="${act}-pick" data-zone="${esc(zn.id)}" data-k="${k}" ${taken ? 'aria-disabled="true"' : ''} title="${esc(zn.name)} · ${zn.kind === 'house' ? 'House' : 'Apartment'} ${k + 1} · rent ${zn.rent}${taken ? ' · taken' : ''}">${icon('home')}</button>`;
+                return `<button class="mu-nghome-spot ${on ? 'is-on' : ''} ${taken ? 'is-taken' : ''}" style="left:${x}%;top:${y}%" data-act="${act}-pick" data-zone="${esc(zn.id)}" data-k="${esc(k)}" ${taken ? 'aria-disabled="true"' : ''} title="${esc(zn.name)} · ${zn.kind === 'house' ? 'House' : 'Apartment'} ${k + 1} · rent ${zn.rent}${taken ? ' · taken' : ''}">${icon('home')}</button>`;
             }).join('')).join('')}</div>` : ''}`;
 }
 const homeLine = (h: NgHome | null | undefined, none: string) => { const w = W(); const zone = h && w.homes.zones.find(zn => zn.id === h.zone); return zone && h ? `${icon('home')} <b>${esc(zone.name)}, ${esc(homeKindName(w, zone.kind))} ${h.n}</b> · ${esc(w.homes.kinds[zone.kind]?.name ?? zone.kind)} · rent ${zone.rent}` : `<span class="mu-muted">${none}</span>`; };
@@ -225,7 +226,7 @@ export function stepHome(): string {
         const cur = wz().home;
         return `<h3>Choose your room</h3><p class="mu-muted">Your bedroom in ${esc(w.name)}. Not choosing: one is given to you.</p>
             <div class="mu-rooms-grid">${w.homes.zones.map(zn => { const k = w.homes.kinds[zn.kind]; const pic = k?.image ? worldFile(w, k.image) : '';
-                return `<button class="mu-room ${cur?.zone === zn.id ? 'is-you' : ''}" data-act="ngm-pick" data-zone="${esc(zn.id)}" data-k="0"><i style="${pic ? `background-image:url('${esc(pic)}')` : ''}">${cur?.zone === zn.id ? `<em>${icon('pin')} Yours</em>` : ''}</i>
+                return `<button class="mu-room ${cur?.zone === zn.id ? 'is-you' : ''}" data-act="ngm-pick" data-zone="${esc(zn.id)}" data-k="0"><i style="${pic ? `background-image:url('${safeUrl(pic)}')` : ''}">${cur?.zone === zn.id ? `<em>${icon('pin')} Yours</em>` : ''}</i>
                     <b data-notr>${esc(k?.name ?? zn.name)}</b><small class="mu-muted" data-notr>${esc(k?.desc ?? zn.desc ?? '')}</small></button>`; }).join('')}</div>`;
     }
     return `<h3>Choose your home</h3>

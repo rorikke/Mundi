@@ -13,6 +13,7 @@ import { showTransition } from './lifeui.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { verdictNow } from '../sim/verdict.js';
+import { houseParty, partyRooms } from '../sim/houseparty.js';
 
 const GRACE = 60;
 const live = (g: Save) => social(g).appts.filter(a => a.state === 'set' && !a.come && g.cast[a.avatar]);
@@ -57,23 +58,44 @@ export function conflictWith(g: Save, mins: number): Appointment | null {
     const now = nowAbs(g);
     return live(g).find(a => a.from + GRACE > now && a.from < now + mins && a.place !== g.player.loc) ?? null;
 }
+// A house party (Home) planned, or going on, that the shift or the night's sleep would run over.
+const PARTY = '__party';
+export function partyConflict(g: Save, mins: number): boolean {
+    const p = houseParty(g) as any; const now = nowAbs(g);
+    return !!p && !p.okToSkip && p.until > now && p.from < now + mins;
+}
 // returns true when a question was opened (the caller stops; the answer continues it)
 export function askAboutPlans(g: Save, mins: number, then: 'work' | 'sleep'): boolean {
+    if (partyConflict(g, mins)) { Object.assign(CF, { id: PARTY, then }); notify(); return true; }
     const a = conflictWith(g, mins);
     if (!a || (a as any).okToSkip) return false;
     Object.assign(CF, { id: a.id, then }); notify();
     return true;
 }
 export function conflictHtml(g: Save, w: WorldDef): string {
+    if (CF.id === PARTY) {
+        const p = houseParty(g); if (!p) return '';
+        const on = nowAbs(g) >= p.from;
+        const t = hm(p.from % 1440);
+        // whole sentences (so each one is translated whole)
+        const when = on ? (p.out ? `The party is going on at ${p.out.place}.` : 'The party is going on at home.') : (p.out ? `The party starts at ${t}, at ${p.out.place}.` : `The party starts at ${t}, at home.`);
+        return `<div class="mu-recap-veil"><section class="mu-recap mu-conflict mh-glass" role="dialog"><div class="mu-conflict-party">🎉</div>
+            <h3>${p.title ? `<span data-notr>${esc(p.title)}</span>` : 'Your party'}</h3>
+            <p><span>${esc(when)}</span> <span>${CF.then === 'work' ? 'The shift would run over it.' : 'You would sleep through it.'}</span></p>
+            <div class="mu-row"><button class="mu-primary" data-act="cf-party">${on ? 'Join the party' : 'Wait for the party'}</button>${CF.then === 'sleep' && !on && p.from - nowAbs(g) >= 30 ? '<button class="mu-primary" data-act="cf-sleep-until">Sleep until the party</button>' : ''}<button data-act="cf-skip">${CF.then === 'work' ? 'Work anyway' : 'Sleep anyway'}</button><button class="mu-ghost" data-act="cf-close">Cancel</button></div></section></div>`;
+    }
     const a = CF.id ? social(g).appts.find(x => x.id === CF.id) : null;
     if (!a) return '';
     const r = g.cast[a.avatar];
     return `<div class="mu-recap-veil"><section class="mu-recap mu-conflict mh-glass" role="dialog"><img src="${esc(thumb(r.avatar))}" alt="">
         <h3>You have plans with ${esc(r.name)}</h3>
         <p>${what(a)} at ${esc(where(g, w, a.place))}, ${hm(a.from % 1440)}. ${CF.then === 'work' ? 'The shift would run over it.' : 'You would sleep through it.'} Do you want to go?</p>
-        <div class="mu-row"><button class="mu-primary" data-act="cf-go">Go meet ${esc(r.name)}</button>${CF.then === 'work' && partHours(g, w, a) >= 1 ? `<button data-act="cf-part">Work ${partHours(g, w, a)} h, then go</button>` : ''}<button data-act="cf-skip">${CF.then === 'work' ? 'Work anyway' : 'Sleep anyway'}</button></div>
+        <div class="mu-row">${CF.then === 'sleep' && napUntil(g, w, a) - nowAbs(g) >= 30 ? `<button class="mu-primary" data-act="cf-sleep-until">${a.kind === 'date' ? 'Sleep until the date' : 'Sleep until the plan'}</button>` : ''}<button class="mu-primary" data-act="cf-go">Go meet ${esc(r.name)}</button>${CF.then === 'work' && partHours(g, w, a) >= 1 ? `<button data-act="cf-part">Work ${partHours(g, w, a)} h, then go</button>` : ''}<button data-act="cf-skip">${CF.then === 'work' ? 'Work anyway' : 'Sleep anyway'}</button></div>
         <small class="mu-muted">If you don't go, ${esc(r.name)} will wait an hour and won't be happy about it.</small></section></div>`;
 }
+
+// When to wake up to get to a plan on time (what the trip there takes, from where you sleep).
+const napUntil = (g: Save, w: WorldDef, a: Appointment) => a.from - travelMinutes(g, w, g.player.loc, a.place);
 
 // Whole hours you can work and still get to the plan on time.
 function partHours(g: Save, w: WorldDef, a: Appointment) {
@@ -129,8 +151,40 @@ Object.assign(ACT, {
         await travelTo(a.place);
         if (a.state === 'set' && g.player.loc === a.place) await waitFor(g, w, a);
     },
+    'cf-close': () => { CF.id = ''; notify(); },
+    // sleep until it is time (the party, or leaving for the plan), then off you go
+    'cf-sleep-until': async () => {
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        const id = CF.id; const party = id === PARTY; const a = party ? null : find(g, id); const p = houseParty(g);
+        const at = party ? p?.from ?? 0 : a ? napUntil(g, w, a) : 0;
+        CF.id = ''; notify();
+        if (!at || at <= nowAbs(g)) return;
+        const before = nowAbs(g);
+        const { sleepUntil } = await import('./map.js');
+        await sleepUntil(at);
+        if (nowAbs(g) === before) return;   // you could not sleep here
+        await new Promise(r => setTimeout(r, 2600));   // the night passes on screen first
+        CF.id = id;
+        await ACT[party ? 'cf-party' : 'cf-go']?.(document.body, new Event('click'));
+    },
+    // the party: time passes until it starts, then you are there (the common rooms at home, or the place out)
+    'cf-party': async () => {
+        const g = game(); const w = g && getWorld(g.world); const p = g && (houseParty(g) as any);
+        CF.id = ''; if (!g || !w || !p) { notify(); return; }
+        const mins = p.from - nowAbs(g);
+        if (mins > 0) advance(g, w, mins).forEach(m => toast(m, 'warn'));
+        runPlans(); saveGame();
+        if (p.out) { await ACT['hp-goout']?.(document.body, new Event('click')); return; }
+        const room = partyRooms(g, w)[0];
+        if (room && room !== g.player.loc) { const { travelTo } = await import('./map.js'); await travelTo(room); }
+        await syncScene();
+        showTransition(p.title || 'The party', `${hm(p.from % 1440)}`, 'time');
+        state.view = 'scene';
+        notify();
+    },
     'cf-skip': () => {
-        const g = game(); const a = g && find(g, CF.id); const then = CF.then;
+        const g = game(); const a = g && CF.id !== PARTY ? find(g, CF.id) : null; const then = CF.then;
+        if (g && CF.id === PARTY) { const p = houseParty(g) as any; if (p) p.okToSkip = true; }   // asked once: not again for this party
         CF.id = ''; if (a) (a as any).okToSkip = true;
         notify();
         ACT[then]?.(document.body, new Event('click'));   // carry on with the shift or the sleep

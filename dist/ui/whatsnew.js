@@ -2,7 +2,7 @@
 // small note at the top right when a newer Mundi is out (from the manifest on GitHub; quiet when offline).
 import { state, notify, settings, saveSettings, toast } from '../core/store.js';
 import { VERSION, CHANGELOG, newer } from '../core/version.js';
-import { tutorialOn, startTutorial } from './tutorial.js';
+import { tutorialOn, startTutorial, TOUR_VERSION } from './tutorial.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 const S = () => settings();
@@ -18,17 +18,26 @@ function seenVersion() {
     }
     return s.lastVersion;
 }
+// opened by hand (Settings → Game → What's new): this version's changelog, anywhere, with only "Got it"
+let asked = false;
 export function whatsNewHtml() {
+    if (asked && !tutorialOn())
+        return changelogHtml(false);
     if (state.view !== 'menu' || tutorialOn() || !S().tourSeen)
         return '';
     if (!newer(VERSION, seenVersion()))
         return '';
+    return changelogHtml(newer(TOUR_VERSION, seenVersion()));
+}
+function changelogHtml(offerTour) {
     const r = CHANGELOG[0];
     return `<div class="mu-recap-veil mu-wn-veil"><section class="mu-recap mh-glass mu-wn" role="dialog" aria-label="What's new">
         <header><small>Mundi ${r.v.replace(/\.0$/, '')}</small><h3>${r.title}</h3></header>
         <ul class="mu-wn-list">${r.items.map(([ic, t]) => `<li>${icon(ic)}<span>${t}</span></li>`).join('')}</ul>
-        <footer><p>Want a quick look at what's new? Stella shows only the new things.</p>
-            <div class="mu-row"><button class="mu-ghost" data-act="wn-close">Not now</button><button class="mu-primary" data-act="wn-tour">${icon('forward')}<span>Show me</span></button></div></footer></section></div>`;
+        ${offerTour // Stella's tour of what's new: only for someone coming from before it
+        ? `<footer><p>Want a quick look at what's new? Stella shows only the new things.</p>
+            <div class="mu-row"><button class="mu-ghost" data-act="wn-close">Not now</button><button class="mu-primary" data-act="wn-tour">${icon('forward')}<span>Show me</span></button></div></footer>`
+        : `<footer><div class="mu-row"><button class="mu-primary" data-act="wn-close">Got it</button></div></footer>`}</section></div>`;
 }
 function seen() { S().lastVersion = VERSION; saveSettings(); }
 /* ---------- a newer version on GitHub ---------- */
@@ -40,7 +49,7 @@ async function check() {
         if (!r.ok)
             return;
         const v = String((await r.json())?.version ?? '');
-        if (v && newer(v, VERSION)) {
+        if (/^\d+(\.\d+){0,3}$/.test(v) && newer(v, VERSION)) {
             U.remote = v;
             notify();
         }
@@ -61,6 +70,8 @@ export function updateHtml() {
         <button class="mu-ibtn mu-ghost" data-act="upd-x" aria-label="Dismiss" title="Not now">${icon('x')}</button></aside>`;
 }
 // SillyTavern's own extension update (a git pull); Mundi can be installed for one user or for all of them.
+// (the folder it was installed in: "Mundi" from the URL, but a zip can be "Mundi-main")
+const FOLDER = decodeURIComponent(/\/third-party\/([^/]+)\//.exec(import.meta.url)?.[1] ?? 'Mundi');
 async function update() {
     if (U.busy)
         return;
@@ -70,7 +81,7 @@ async function update() {
     let ok = false;
     for (const global of [false, true]) {
         try {
-            const r = await fetch('/api/extensions/update', { method: 'POST', headers, body: JSON.stringify({ extensionName: 'Mundi', global }) });
+            const r = await fetch('/api/extensions/update', { method: 'POST', headers, body: JSON.stringify({ extensionName: FOLDER, global }) });
             if (r.ok) {
                 ok = true;
                 break;
@@ -92,7 +103,8 @@ async function update() {
     notify();
 }
 Object.assign(ACT, {
-    'wn-close': () => { seen(); notify(); },
+    'wn-close': () => { asked = false; seen(); notify(); },
+    'wn-open': () => { asked = true; notify(); },
     'wn-tour': () => { seen(); startTutorial('new'); },
     'upd-go': () => { void update(); },
     'upd-x': () => { S().updateDismissed = U.remote; saveSettings(); notify(); },

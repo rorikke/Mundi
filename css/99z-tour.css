@@ -1,0 +1,35 @@
+/* The tour box: always fixed in the middle of the screen, with Stella (from the waist up) big and fitting inside it */
+#mundi-root .mu-tut-box img { width: 200px; height: 300px; object-fit: cover; object-position: top center; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box {
+    left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%);
+    width: min(680px, calc(100vw - 32px)); min-height: 300px; grid-template-columns: 220px minmax(0, 1fr); align-items: center; padding: 18px 22px 18px 8px;
+}
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { width: 220px; height: 330px; margin: -34px 0 -18px -8px; align-self: end; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk p { font-size: 16px; line-height: 1.5; }
+@media (max-width: 760px) { #mundi-root .mu-tut-box { grid-template-columns: 96px 1fr; } #mundi-root .mu-tut-box img, #mundi-root .mu-tut-box.is-wide img { width: 110px; height: 165px; margin: -50px 0 -12px -12px; } }
+/* Same place and same size on every step: the box never moves, and the buttons stay at its bottom. */
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box {
+    top: calc(50% - 175px); transform: translateX(-50%); height: 350px; min-height: 0; align-items: stretch; animation: none;
+}
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk { display: flex; flex-direction: column; gap: 10px; min-height: 0; padding-top: 6px; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk p { font-size: 18px; line-height: 1.5; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk b { font-size: 17px; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk > p:first-of-type { flex: 0 1 auto; overflow-y: auto; min-height: 0; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-btns { margin-top: auto; flex-wrap: nowrap; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-btns .mu-primary { min-width: 110px; }
+@media (max-width: 760px) { #mundi-root .mu-tut-talk p { font-size: 16px; } }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-task { font-size: 15px !important; }
+/* The first time Mundi opens: only the language, before Stella */
+#mundi-root .mu-lang-pick { width: min(440px, 100%); display: grid !important; grid-template-rows: auto !important; gap: 10px; text-align: center; padding: 26px 26px 28px !important; }
+#mundi-root .mu-lang-pick h3 { margin: 0; font-size: 26px; letter-spacing: .5px; }
+#mundi-root .mu-lang-pick p { margin: 0 0 8px; color: var(--hud-muted, rgba(235, 242, 255, .72)); line-height: 1.5; }
+#mundi-root .mu-lang-list { display: grid; gap: 10px; }
+#mundi-root .mu-lang-list button { justify-content: center; min-height: 52px; font-size: 18px; font-weight: 700; border-radius: 14px; }
+#mundi-root .mu-lang-list button:hover { background: color-mix(in srgb, var(--accent) 35%, transparent); border-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+/* Stella a bit more to the right, whole from the waist up (nothing cut at the sides); the step count sits with the buttons */
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box { grid-template-columns: 262px minmax(0, 1fr); width: min(720px, calc(100vw - 32px)); }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { width: 250px; height: 338px; object-fit: contain; object-position: bottom center; margin: 0 0 -9px 14px; align-self: end; }
+#mundi-root .mu-tut-btns small { margin-right: 6px; margin-left: auto; }
+/* Stella's picture sits exactly on the box's bottom line */
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { position: absolute; left: 22px; bottom: 0; margin: 0; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box .mu-tut-talk { grid-column: 2; }

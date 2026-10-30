@@ -2,6 +2,7 @@
 // The conversation IS the group chat: generation, streaming, swipes, regenerate, continue, impersonate,
 // editing and deleting all use SillyTavern's own functions.
 import { isRpg } from '../sim/rpg.js';
+import { setHtml } from '../core/safe.js';
 import { lex } from '../core/lexicon.js';
 import { setPrompt } from '../st/bridge.js';
 import { socialCheck } from '../sim/judge.js';
@@ -36,6 +37,7 @@ import { micButton, sdButton, ttsButton } from './addons.js';
 import { isWith } from '../sim/social.js';
 import { sceneText } from '../sim/prompt.js';
 import { aiLangNote } from '../core/i18n.js';
+import './bgfade.js';   // the background fades softly when the time of day changes
 import { tr } from '../core/tr.js';
 import { stFormat, avatarHtml, cardPicHtml, portraitHtml, lightboxHtml, lookPanelHtml, lookConfirmHtml } from './chatlook.js';
 import { avatarUrl } from '../st/bridge.js';
@@ -53,11 +55,11 @@ export function cleanText(t: string) {
         .trim();
 }
 // Pictures in a line: Markdown ![…](url) and <img src="…"> written by the character (anything else stays text).
-const safeUrl = (u: string) => (/^(?:https?:\/\/|data:image\/|\/|[\w%.~-]+\/)/i.test(u) && !/^\s*javascript:/i.test(u) ? u : '');
+const linkUrl = (u: string) => (/^(?:https?:\/\/|data:image\/|\/|[\w%.~-]+\/)/i.test(u) && !/^\s*javascript:/i.test(u) ? u : '');
 function pictures(html: string) {
     return html
-        .replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;[^)]*&quot;)?\)/g, (all, alt, url) => (safeUrl(url) ? `<img class="mu-line-img" src="${url}" alt="${alt}" loading="lazy">` : all))
-        .replace(/&lt;img\b[\s\S]*?\bsrc=(?:&quot;|&#39;)([^&]+?)(?:&quot;|&#39;)[\s\S]*?\/?&gt;/gi, (all, url) => (safeUrl(url) ? `<img class="mu-line-img" src="${url}" alt="" loading="lazy">` : all));
+        .replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;[^)]*&quot;)?\)/g, (all, alt, url) => (linkUrl(url) ? `<img class="mu-line-img" src="${url}" alt="${alt}" loading="lazy">` : all))
+        .replace(/&lt;img\b[\s\S]*?\bsrc=(?:&quot;|&#39;)([^&]+?)(?:&quot;|&#39;)[\s\S]*?\/?&gt;/gi, (all, url) => (linkUrl(url) ? `<img class="mu-line-img" src="${url}" alt="" loading="lazy">` : all));
 }
 // Pictures and videos attached to a line (SillyTavern keeps them in the message's "extra").
 // A system line that carries a picture made by SillyTavern (not a hidden line of the story).
@@ -79,7 +81,7 @@ function attachments(m: any) {
     for (const md of Array.isArray(x.media) ? x.media : []) if (md?.url) list.push({ url: String(md.url), video: md.type === 'video' });
     if (own('video')) list.push({ url: x.video, video: true });
     const seen = new Set<string>();
-    return list.filter(a => safeUrl(a.url) && !seen.has(a.url) && seen.add(a.url)).map(a => (a.video
+    return list.filter(a => linkUrl(a.url) && !seen.has(a.url) && seen.add(a.url)).map(a => (a.video
         ? `<video class="mu-line-img" src="${esc(a.url)}" controls preload="metadata"></video>`
         : `<img class="mu-line-img" data-act="lightbox" src="${esc(a.url)}" alt="" loading="lazy">`)).join('');
 }
@@ -142,7 +144,7 @@ function background(g: Save, w: WorldDef) {
     const p = placeOf(g, w, g.player.loc);
     if (!p) return '';
     if (p.home) {
-        const kind = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? 'apartment')];
+        const kind = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === (g.cast[p.id.slice(5)]?.home.zone ?? (g as any).vacated?.home?.zone))?.kind ?? 'apartment')]   // (a room a guest just left keeps its picture);
         const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id));   // the picture of this part of the day (and weather, season), if it has one
         if (img) return `background-image:url('${worldFile(w, img)}');background-size:cover;background-position:center`;
     }
@@ -167,13 +169,13 @@ function lineHtml(m: any, i: number, last: boolean, lastChar: number) {
     const swipes = !m.is_user && i === lastChar && Array.isArray(m.swipes) && m.swipes.length > 0
         ? `<span class="mu-swipes"><button data-act="swipe" data-d="-1" title="Previous answer" ${(m.swipe_id ?? 0) <= 0 ? 'disabled' : ''}>‹</button><small>${(m.swipe_id ?? 0) + 1}/${m.swipes.length}</small><button data-act="swipe" data-d="1" title="Next answer (generates a new one at the end)">›</button></span>` : '';
     const tint = pic ? '' : lineColor(m, lineFile);   // the speaker's dialogue colour (Chat look), if on
-    return `<div class="mu-line ${m.is_user ? 'is-user' : ''} ${narr ? 'is-narrator' : ''} ${last && state.generating && !m.is_user ? 'is-live' : ''} ${tint ? 'has-who' : ''}" data-i="${i}"${tint ? ` style="--mu-who:${esc(tint)}"` : ''}>${narr ? '' : cardPicHtml(m)}<div class="mu-line-body">
+    return `<div class="mu-line ${m.is_user ? 'is-user' : ''} ${narr ? 'is-narrator' : ''} ${last && state.generating && !m.is_user ? 'is-live' : ''} ${tint ? 'has-who' : ''}" data-i="${esc(i)}"${tint ? ` style="--mu-who:${esc(tint)}"` : ''}>${narr ? '' : cardPicHtml(m)}<div class="mu-line-body">
         <div class="mu-line-head">${narr ? '' : avatarHtml(m)}<b ${narr ? '' : `data-act="portrait" data-src="${esc(fullPic(m))}" data-name="${esc(who)}"`}>${esc(who)}</b>${swipes}
             ${state.modal?.type === 'delete' && state.modal.i === i
-                ? `<span class="mu-line-ask">Delete this line? <button class="mu-danger" data-act="delete-yes" data-i="${i}">Delete</button><button data-act="edit-cancel">Cancel</button></span>`
-                : `<span class="mu-line-tools">${m.is_user ? '' : ttsButton(i)}${game() && systemOn(getWorld(game()!.world), 'pins') ? `<button data-act="remember-line" data-i="${i}" title="Remember this (Journal)">${icon('book')}</button>` : ''}<button data-act="edit" data-i="${i}" title="Edit">${icon('edit')}</button><button data-act="delete" data-i="${i}" title="Delete">${icon('trash')}</button></span>`}</div>
+                ? `<span class="mu-line-ask">Delete this line? <button class="mu-danger" data-act="delete-yes" data-i="${esc(i)}">Delete</button><button data-act="edit-cancel">Cancel</button></span>`
+                : `<span class="mu-line-tools">${m.is_user ? '' : ttsButton(i)}${game() && systemOn(getWorld(game()!.world), 'pins') ? `<button data-act="remember-line" data-i="${esc(i)}" title="Remember this (Journal)">${icon('book')}</button>` : ''}<button data-act="edit" data-i="${esc(i)}" title="Edit">${icon('edit')}</button><button data-act="delete" data-i="${esc(i)}" title="Delete">${icon('trash')}</button></span>`}</div>
         ${editing
-            ? `<textarea class="mu-msgedit" data-focus="edit" rows="4">${esc(m.mes)}</textarea><div class="mu-row"><button class="mu-primary" data-act="edit-save" data-i="${i}">Save</button><button data-act="edit-cancel">Cancel</button></div>`
+            ? `<textarea class="mu-msgedit" data-focus="edit" rows="4">${esc(m.mes)}</textarea><div class="mu-row"><button class="mu-primary" data-act="edit-save" data-i="${esc(i)}">Save</button><button data-act="edit-cancel">Cancel</button></div>`
             : `<div class="mu-line-text mes_text">${lineText(m, i)}${attachments(m)}</div>`}
     </div></div>`;
 }
@@ -197,7 +199,13 @@ function stageVars(list: string[], hasSprite: (a: string) => boolean): Map<strin
     const order = [...list].sort((a, b) => (last.get(a) ?? -1) - (last.get(b) ?? -1));
     const shown = list.filter(hasSprite);
     const out = new Map<string, string>();
-    list.forEach((a, k) => out.set(a, `--p:${k};--n:${list.length};--ps:${Math.max(0, shown.indexOf(a))};--ns:${Math.max(1, shown.length)};--z:${order.indexOf(a) + 1}`));
+    // Classic and Cards: the sprites stand beside the conversation; with two or more they split between the left
+    // side (the 1st, 3rd…) and the right side (the 2nd, 4th…). --side 0/1, --pk: place on that side, --nk: how many there.
+    const ns = shown.length, nl = Math.ceil(ns / 2), nr = Math.floor(ns / 2);
+    list.forEach((a, k) => {
+        const ps = Math.max(0, shown.indexOf(a)); const side = ns >= 2 ? ps % 2 : 0;
+        out.set(a, `--p:${k};--n:${list.length};--ps:${ps};--ns:${Math.max(1, ns)};--side:${side};--pk:${Math.floor(ps / 2)};--nk:${Math.max(1, side ? nr : nl)};--z:${order.indexOf(a) + 1}`);
+    });
     return out;
 }
 
@@ -216,7 +224,7 @@ export function sceneHtml() {
         return `<figure class="mu-sprite ${isWith(g, r.avatar) ? 'is-with' : ''} ${RAD.who === r.avatar ? 'is-menu' : ''}" style="--i:${k};${sv.get(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}" data-act="spr-menu" data-who="${esc(r.avatar)}">${src ? `<img src="${esc(src)}" alt="">` : `<span class="is-avatar mu-zoomable"><img src="${esc(avatarUrl(r.avatar))}" alt="" draggable="false"></span>`}<figcaption>${esc(r.met ? r.name : 'Someone')}</figcaption>${radialHtml(r.avatar, r)}</figure>`;
     }).join('');
     return `<div class="mu-scene">
-        <div class="mu-scene-bg" style="${background(g, w)}"></div>
+        <div class="mu-scene-bg" data-morph-skip data-keep="scene-bg" data-place="${esc(g.player.loc)}" style="${background(g, w)}"></div>
         <div class="mu-sprites">${sprites}</div>
         
         <section class="mu-dialog">
@@ -300,7 +308,7 @@ export function chatHtml() {
     const bg = locked || (bgEl ? (bgEl.style.backgroundImage || getComputedStyle(bgEl).backgroundImage) : 'none');
     const group = !currentCharacter();
     return `<div class="mu-scene is-chat">
-        <div class="mu-scene-bg" style="${bg && bg !== 'none' ? `background-image:${esc(bg)};background-size:cover;background-position:center` : ''}"></div>
+        <div class="mu-scene-bg" data-morph-skip data-keep="scene-bg" data-place="chat" style="${bg && bg !== 'none' ? `background-image:${esc(bg)};background-size:cover;background-position:center` : ''}"></div>
         <div class="mu-sprites">${sprites}</div>
         ${group ? `<nav class="mu-people" aria-label="People here">${cast.map(a => `<span class="mu-person"><img src="${esc(thumb(a))}" alt=""><b data-notr>${esc(charOf(a)?.name ?? '')}</b>${cast.length > 1 ? `<button class="mu-ghost" data-act="sc-remove" data-avatar="${esc(a)}" title="Remove from the scene">${icon('x')}</button>` : ''}</span>`).join('')}</nav>` : ''}
         <section class="mu-dialog">
@@ -342,9 +350,9 @@ export function patchLastLine() {
     if (!log) return;
     const list = chat();
     const i = list.length - 1;
-    const el = log.querySelector<HTMLElement>(`.mu-line[data-i="${i}"] .mu-line-text`);
+    const el = log.querySelector<HTMLElement>(`.mu-line[data-i="${esc(i)}"] .mu-line-text`);
     if (!el) { notify(); return; }
-    el.innerHTML = lineText(list[i], i);
+    setHtml(el, lineText(list[i], i));
     if (STICK.get(log) !== false) log.scrollTop = log.scrollHeight;   // you scrolled up to read: the reply streams in without pulling you down
 }
 
@@ -460,7 +468,7 @@ export type InputMode = 'say' | 'do' | 'story' | 'see';
 const MODES: [InputMode, string, string][] = [['say', 'Say', 'chat'], ['do', 'Do', 'forward'], ['story', 'Story', 'book'], ['see', 'See', 'search']];
 export const INPUT_MODE = { v: 'say' as InputMode };
 function modesHtml() {
-    return `<div class="mh-modes">${MODES.map(([id, label, ic]) => `<button class="${INPUT_MODE.v === id ? 'is-on' : ''}" data-act="input-mode" data-v="${id}" title="${({ say: 'What you say out loud', do: 'What you do', story: 'Steer the story (a direction for the narrator)', see: 'Look at something: the AI describes what you see' } as any)[id]}">${icon(ic)}<span>${label}</span></button>`).join('')}</div>`;
+    return `<div class="mh-modes">${MODES.map(([id, label, ic]) => `<button class="${INPUT_MODE.v === id ? 'is-on' : ''}" data-act="input-mode" data-v="${esc(id)}" title="${({ say: 'What you say out loud', do: 'What you do', story: 'Steer the story (a direction for the narrator)', see: 'Look at something: the AI describes what you see' } as any)[id]}">${icon(ic)}<span>${label}</span></button>`).join('')}</div>`;
 }
 // How a line is sent in each mode.
 export function shapeLine(text: string): string {

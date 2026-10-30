@@ -50,14 +50,16 @@ function periods(g: Save, key: string, every: number): number {
 // Runs after every slice of time: decay, damage at zero, passing out, rent.
 export function applyTimedRules(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
-    for (const s of activeStatuses(w)) {
+    g.tick ??= {};   // (a Home game that never had needs on)
+    for (const s of activeStatuses(w, g)) {
         if (s.decay) {
             const n = periods(g, `decay:${s.id}`, s.decay.everyMinutes);
             // (walking the map costs no energy)
             if (n > 0 && !(s.decay.awakeOnly && g.asleep) && !(s.id === 'energy' && (g as any).traveling)) addStatus(g, w, s.id, -s.decay.amount * n * (cfg(g).decay ?? 1) * decayMods.reduce((m, f) => m * f(g, w, s.id), 1));
         }
         const v = g.player.stats[s.id] ?? s.start;
-        if (v > 0 || !s.zero) { delete g.tick[`zero:${s.id}`]; delete g.tick[`crisis0:${s.id}`]; continue; }
+        // (Home: an empty need only shows, and the AI is told; nobody faints)
+        if (v > 0 || !s.zero || isScenario(w)) { delete g.tick[`zero:${s.id}`]; delete g.tick[`crisis0:${s.id}`]; continue; }
         out.push(...crisisCheck(g, w, s));
         if (s.zero.drain) {
             const n = periods(g, `drain:${s.id}`, s.zero.drain.everyMinutes);
@@ -117,7 +119,7 @@ export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
     const own = (a: ActionDef) => !!pl0 && (!!a.places?.includes(pl0.id) || !!pl0.actions?.includes(a.id));
     const generic = pl0?.generic !== false;
     const guest = !atHome && guestAt(g, w, g.player.loc), free = includedHere(g, w);
-    const on = new Set(activeStatuses(w).map(s => s.id));
+    const on = new Set(activeStatuses(w, g).map(s => s.id));
     // an action only about needs that are not in play (seeing a doctor in Life-Sim) is left out
     // (a scenario keeps them all: in one house, what you do is part of the scene even with needs off)
     const useful = (a: ActionDef) => { const ids = Object.keys(a.effects ?? {}); return !!a.outing || isScenario(w) || !ids.length || ids.some(id => on.has(id)); };
@@ -140,8 +142,12 @@ export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
     // Home: a bathroom or a shower room is not where you grab a snack (what can be done anywhere stays out of it,
     // unless it was chosen for that room)
     const pl = placeOf(g, w, g.player.loc);
-    const wet = homeMode && !!pl && /bath|shower|wash|toilet|restroom/i.test(`${pl.id} ${pl.name}`);
-    if (homeMode) return all.filter(a => !earns(a)).filter(a => !wet || !a.anywhere || !!chosen?.includes(a.id)).map(a => (a.cost ? { ...a, cost: 0 } : a));
+    const wet = homeMode && !!pl && /bath|shower|wash|toilet|restroom|banheiro|lavabo|chuveiro|ba[nñ]o|aseo|ducha/i.test(`${pl.id} ${pl.name}`);
+    if (homeMode) {
+        const list = all.filter(a => !earns(a)).filter(a => !wet || !a.anywhere || !!chosen?.includes(a.id));
+        const pool = w.actions.filter(useful).filter(a => !earns(a)).filter(a => !isBlocked(g, a, w));
+        return homeRoomActions(pl, list, pool, chosen, wet).map(a => (a.cost ? { ...a, cost: 0 } : a));
+    }
     return all.map(a => (a.cost ? { ...a, cost: free.includes(a.id) && a.cost > 0 ? 0 : a.cost > 0 ? Math.round(priceOf(g, a.cost) * here) : priceOf(g, a.cost) } : a));
 }
 
@@ -159,16 +165,47 @@ export function applyAction(g: Save, w: WorldDef, a: ActionDef) {
 
 // A short line for the AI about how the player feels (only what stands out).
 export function feelings(g: Save, w: WorldDef): string {
-    const low = activeStatuses(w).filter(s => (g.player.stats[s.id] ?? s.start) <= 25).map(s => `${s.name.toLowerCase()} is low (${g.player.stats[s.id]}/${s.max})`);
+    const low = activeStatuses(w, g).filter(s => (g.player.stats[s.id] ?? s.start) <= 25).map(s => `${s.name.toLowerCase()} is low (${g.player.stats[s.id]}/${s.max})`);
     return [low.length ? `How {{user}} feels: ${low.join(', ')}.` : '', crisisLine(g)].filter(Boolean).join('\n');
 }
 
 // Is there enough energy for this? `drain` is how much each need goes down (positive numbers). Returns the reason
 // it cannot be done, or '' when it can. Only energy stops you; the other needs simply drop.
 export function tooTired(g: Save, w: WorldDef, drain: Record<string, number>, what: string): string {
-    const s = activeStatuses(w).find(x => x.id === 'energy');
+    const s = activeStatuses(w, g).find(x => x.id === 'energy');
     const need = s ? drain[s.id] ?? 0 : 0;
     if (!s || need <= 0) return '';
     const have = Math.round(g.player.stats[s.id] ?? s.start);
     return have < need ? `Not enough ${s.name.toLowerCase()} to ${what} (it takes ${Math.round(need)}, you have ${have}). Sleep or rest first.` : '';
+}
+
+// Home: what fits each room. Eating and drinking happen in the kitchen (everything) and the dining room (a meal, a
+// coffee, a drink, a snack: not cooking); the TV and video games are in the living room; washing up (a shower,
+// brushing your teeth…) is in the bathrooms; working out (the treadmill too) is in the gym. What you chose for a room
+// in the Home creator stays as you chose it.
+const FOODY = (a: ActionDef) => (a.effects?.hunger ?? 0) > 0 || (a.effects?.thirst ?? 0) > 0;
+const SCREEN = (a: ActionDef) => /^x-(tv|games)$/.test(a.id) || /\b(tv|video ?games?)\b/i.test(a.label ?? '');
+const WASHY = (a: ActionDef) => (a.effects?.hygiene ?? 0) > 0;
+// Home: an action made for one room of a Home (the pool, the garage…) also fits the same kind of room in any other
+// Home, by its name (a pool you added and called "Piscina" gets swimming and sunbathing too).
+const ROOM_KINDS = [/pool|piscina/i, /garage|garagem|garaje/i, /laundry|lavander/i, /front ?yard|porch|varanda|porche|jard[ií]n?|garden|quintal|yard/i, /storage|dep[oó]sito|trastero|despensa|attic|s[oó]t[aã]o/i, /dining|jantar|comedor/i, /gym|academia|gimnasio/i, /kitchen|cozinha|cocina/i, /living|sala de estar|sal[oó]n|lounge/i, /bath|banheiro|ba[nñ]o|shower|chuveiro|lavabo|toilet|washroom/i];
+export function placeFits(place: string, room: { id: string; name?: string } | null | undefined): boolean {
+    if (!room) return false;
+    if (place === room.id) return true;
+    const who = `${room.id} ${room.name ?? ''}`;
+    return ROOM_KINDS.some(re => re.test(place) && re.test(who));
+}
+const SPORTY = (a: ActionDef) => (!WASHY(a) && (a.tags ?? []).includes('sport')) || a.id === 'x-treadmill';
+const KITCHEN_ONLY = new Set(['cook', 'water', 'x-coffee']);
+function homeRoomActions(pl: { id: string; name: string; tags?: string[] } | null | undefined, list: ActionDef[], pool: ActionDef[], chosen: string[] | undefined, wet: boolean): ActionDef[] {
+    const who = `${pl?.id ?? ''} ${pl?.name ?? ''}`;
+    const food = (pl?.tags ?? []).includes('food');
+    const kitchen = /kitchen|cozinha|cocina/i.test(who);
+    const living = /living|lounge|family room|tv room|sala de estar|sal[oó]n/i.test(who);
+    const gym = /gym|academia|gimnasio/i.test(who);
+    const fits = (a: ActionDef) => (SPORTY(a) ? gym : WASHY(a) ? wet : FOODY(a) ? food && (kitchen || !KITCHEN_ONLY.has(a.id)) : SCREEN(a) ? living : true);
+    const keep = list.filter(a => !!chosen?.includes(a.id) || fits(a));
+    const have = new Set(keep.map(a => a.id));
+    const add = chosen ? [] : pool.filter(a => !have.has(a.id) && (FOODY(a) || SCREEN(a) || WASHY(a) || SPORTY(a) || (!!a.place && placeFits(a.place, pl))) && fits(a) && (!!a.place || a.home || a.anywhere || !a.tags?.length || a.tags.some(t => (pl?.tags ?? []).includes(t))) && (!a.place || placeFits(a.place, pl)));
+    return [...keep, ...add];
 }

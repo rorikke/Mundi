@@ -4,6 +4,7 @@
 // (Paths are relative to dist/st/bridge.js inside public/scripts/extensions/third-party/Mundi.)
 // @ts-ignore
 import { getContext } from '../../../../../st-context.js';
+import { safeUrl, scriptText } from '../core/safe.js';
 // @ts-ignore
 import { getCurrentChatId, deleteMessage, updateMessageBlock, saveChatDebounced, getCharacters, setUserName, printCharacters, doNewChat, processDroppedFiles, deleteCharacterChatByName, is_send_press } from '../../../../../../script.js';
 // @ts-ignore
@@ -167,7 +168,7 @@ export async function removeFromScenario(avatar) {
 }
 // The chat's own background (SillyTavern's "lock background to this chat").
 export function setChatBackground(file) {
-    const url = file.includes('/') ? `url("${file}")` : `url("backgrounds/${encodeURIComponent(file)}")`; // a Mundi picture: its path
+    const url = file.includes('/') ? `url("${safeUrl(file)}")` : `url("backgrounds/${encodeURIComponent(file)}")`; // a Mundi picture: its path
     ctx().chatMetadata['custom_background'] = url;
     ctx().saveMetadataDebounced();
     const bg = document.getElementById('bg1');
@@ -423,8 +424,8 @@ export const deleteMessageAt = (index) => deleteMessage(index, undefined, false)
 // Writes a line as a character (a greeting when you first meet her). Marked as Mundi's own.
 export async function sendAs(name, text) {
     const before = chat().length;
-    const clean = String(text).replace(/\|/g, '/');
-    await ctx().executeSlashCommandsWithOptions(`/sendas name="${name.replace(/"/g, '')}" ${clean}`);
+    const clean = scriptText(text);
+    await ctx().executeSlashCommandsWithOptions(`/sendas name="${scriptText(name.replace(/"/g, ''))}" ${clean}`);
     for (let i = before; i < chat().length; i++)
         chat()[i].extra = { ...(chat()[i].extra ?? {}), mundi: true };
     saveChatDebounced();
@@ -438,11 +439,11 @@ export async function replyAs(avatar) {
     await ctx().generate('normal', { force_chid: i });
 }
 export async function addUserLine(text) {
-    await ctx().executeSlashCommandsWithOptions(`/send ${String(text).replace(/\|/g, '/')}`);
+    await ctx().executeSlashCommandsWithOptions(`/send ${scriptText(text)}`);
 }
 export async function narratorLine(text) {
     const before = chat().length;
-    await ctx().executeSlashCommandsWithOptions(`/sys ${String(text).replace(/\|/g, '/')}`);
+    await ctx().executeSlashCommandsWithOptions(`/sys ${scriptText(text)}`);
     for (let i = before; i < chat().length; i++)
         chat()[i].extra = { ...(chat()[i].extra ?? {}), mundi: true, mundi_narrator: true };
     saveChatDebounced();
@@ -638,6 +639,9 @@ export function wearOutfit(avatar, outfit) {
 }
 // `outfit`: left out, what they wear now; '' their usual sprites; a name, that outfit.
 export async function fetchSprites(avatar, outfit) {
+    // the tour's people have one sprite of their own, used as their "neutral" expression
+    if (avatar?.startsWith('__tut:'))
+        return outfit ? [] : [{ label: 'neutral', path: new URL(`../../assets/tutorial/${avatar.slice(6)}.png`, import.meta.url).href }];
     const name = outfit === undefined ? spriteFolder(avatar) : outfit ? `${baseSpriteFolder(avatar)}/${outfit}` : baseSpriteFolder(avatar);
     try {
         const r = await fetch(`/api/sprites/get?name=${encodeURIComponent(name)}`, { headers: headers() });
@@ -879,7 +883,7 @@ export async function setGlobalLore(name, on) {
     if (globalLore().includes(name) === on)
         return;
     try {
-        await ctx().executeSlashCommandsWithOptions(`/world state=${on ? 'on' : 'off'} silent=true ${name.replace(/\|/g, ' ')}`);
+        await ctx().executeSlashCommandsWithOptions(`/world state=${on ? 'on' : 'off'} silent=true ${scriptText(name.replace(/\|/g, ' '))}`);
     }
     catch (e) {
         console.warn('[Mundi] world info', e);

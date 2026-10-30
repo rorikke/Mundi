@@ -1,5 +1,5 @@
 // The phone's Help app: a window in the middle of the screen that explains each part of the game, topic by topic.
-import { notify, game } from '../core/store.js';
+import { notify, game, esc } from '../core/store.js';
 import { getWorld, appsOf, styleOf, isScenario, type WorldDef } from '../core/world.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { billList as bills } from '../sim/bills.js';
@@ -33,7 +33,7 @@ const homeTopics = (w: WorldDef): Topic[] => {
             ['Each message', 'A few minutes go by with every message you send (☰ → This Home → Home sets how many, or turns it off).'],
             ['Let time pass', 'Click the clock: time jumps to the next part of the day.'],
             ['Sleep', 'In your bedroom. You wake up in the morning, back where you went to bed, and the diary of the day is written.'],
-            ['Their days', 'People get up, eat, go to bed, and (if you turned it on in This Home) go out or to work for a while. A job and its shift are written in This Home → People.'],
+            ['Their days', 'People get up, eat, go to bed, and (if you turned it on in This Home) go out or to work for a while. A job and its shift are written in This Home → Home.'],
         ] },
     { id: 'house', icon: 'users', title: 'The house', intro: 'Who lives where, who comes and goes, and what people wear.',
         items: [
@@ -190,7 +190,7 @@ export function helpHtml(): string {
     return `<div class="mu-recap-veil mu-help-veil" data-act="help-bg"><section class="mu-recap mh-glass mu-help" role="dialog" aria-label="${lex(w, 'help')}">
         <header class="mu-row"><div><small>${lex(w, 'help')}</small><h3>How Mundi works</h3></div><button class="mu-ibtn mu-ghost mu-right" data-act="help-close" aria-label="Close">${icon('x')}</button></header>
         <div class="mu-help-body">
-            <nav class="mu-help-nav">${TOPICS.map(x => `<button class="${x.id === t.id ? 'is-on' : ''}" data-act="help-topic" data-id="${x.id}">${icon(x.icon)}<span>${x.title}</span></button>`).join('')}</nav>
+            <nav class="mu-help-nav">${TOPICS.map(x => `<button class="${x.id === t.id ? 'is-on' : ''}" data-act="help-topic" data-id="${esc(x.id)}">${icon(x.icon)}<span>${x.title}</span></button>`).join('')}</nav>
             <article class="mu-help-page" data-keep="help-page">
                 <h4>${icon(t.icon)} ${t.title}</h4>
                 <p class="mu-help-intro">${t.intro}</p>

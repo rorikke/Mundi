@@ -1,7 +1,6 @@
 // Settings, the same screen from the menu and from the game: interface, sound and (in game) the clock.
 import { UI_LANGS } from '../core/i18n.js';
 import { setLang } from '../core/tr.js';
-import { homeSettingsHtml } from './homeui.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { state, notify, settings, saveSettings, UI, esc, game, saveGame, clockMode, deviceMode, SAVE, toast } from '../core/store.js';
 import { backups, restoreBackup } from '../core/saves.js';
@@ -25,8 +24,8 @@ const SECONDARY = [['green', 'Green', '#43b51b'], ['blue', 'Blue', '#1e88e5'], [
 const TABS = [['game', 'Game'], ['sound', 'Sound'], ['interface', 'Interface'], ['addons', 'Add-ons']];
 // SillyTavern's own settings panels, shown here as they are (same texts and translations as in SillyTavern).
 const ST_TABS = ['st-api', 'st-ai', 'st-format', 'st-user', 'st-ext'];
-const slider = (label, key, min, max, unit = '') => `<label class="mu-field slider"><span>${label}</span><input type="range" min="${min}" max="${max}" value="${UI()[key]}" data-input="ui-num" data-key="${key}"><output>${UI()[key]}${unit}</output></label>`;
-const check = (label, key) => `<label class="mu-check"><input type="checkbox" data-input="ui-bool" data-key="${key}" ${UI()[key] ? 'checked' : ''}><span>${label}</span></label>`;
+const slider = (label, key, min, max, unit = '') => `<label class="mu-field slider"><span>${label}</span><input type="range" min="${min}" max="${max}" value="${UI()[key]}" data-input="ui-num" data-key="${esc(key)}"><output>${UI()[key]}${unit}</output></label>`;
+const check = (label, key) => `<label class="mu-check"><input type="checkbox" data-input="ui-bool" data-key="${esc(key)}" ${UI()[key] ? 'checked' : ''}><span>${label}</span></label>`;
 function tabInterface() {
     const cur = settings().uiLang ?? 'en';
     return `<section><h3>Language</h3><label class="mu-field"><span>Mundi's screens</span><select data-input="set-uilang">${UI_LANGS.map(l => `<option value="${l.id}" ${cur === l.id ? 'selected' : ''} data-notr>${l.name}</option>`).join('')}</select></label>
@@ -35,9 +34,9 @@ function tabInterface() {
             <label class="mu-field"><span>Date format · ${esc(fmtDate(Date.now()))}</span><select data-input="ui-str" data-key="dateFormat">${DATE_FORMATS.map(([id, ex]) => `<option value="${id}" ${(UI().dateFormat || 'DD/MM/YYYY') === id ? 'selected' : ''}>${id} — ${ex}</option>`).join('')}</select></label>
             <label class="mu-field"><span>Clock · ${esc(fmtClock(new Date().getHours() * 60 + new Date().getMinutes()))}</span><select data-input="ui-str" data-key="timeFormat">${[['24', '24 hours (18:30)'], ['12', '12 hours (6:30 PM)']].map(([id, l]) => `<option value="${id}" ${(UI().timeFormat || '24') === id ? 'selected' : ''}>${l}</option>`).join('')}</select></label></div></section>
         <section><h3>Look</h3>
-            <div class="mu-field"><span>Theme color</span><div class="mu-swatches">${ACCENTS.map(([id, label, c]) => `<button class="mu-swatch ${UI().accentLocked && (UI().accent || 'blue') === id ? 'is-sel' : ''}" data-act="set-accent" data-v="${id}" title="${label}" aria-label="${label}" style="--c:${c}"></button>`).join('')}</div></div>
+            <div class="mu-field"><span>Theme color</span><div class="mu-swatches">${ACCENTS.map(([id, label, c]) => `<button class="mu-swatch ${UI().accentLocked && (UI().accent || 'blue') === id ? 'is-sel' : ''}" data-act="set-accent" data-v="${esc(id)}" title="${label}" aria-label="${label}" style="--c:${c}"></button>`).join('')}</div></div>
             ${UI().accentLocked || UI().secondary ? `<button class="mu-ghost mu-skincolors" data-act="set-skincolors">${'↺'} Use the skin's own colors</button>` : `<small class="mu-muted">Now using the skin's own colors. Pick a color to use yours.</small>`}
-            <div class="mu-field"><span>Secondary color</span><div class="mu-swatches">${SECONDARY.map(([id, label, c]) => `<button class="mu-swatch ${UI().secondary === c ? 'is-sel' : ''}" data-act="set-secondary" data-v="${c}" title="${label}" aria-label="${label}" style="--c:${c}"></button>`).join('')}</div></div>
+            <div class="mu-field"><span>Secondary color</span><div class="mu-swatches">${SECONDARY.map(([id, label, c]) => `<button class="mu-swatch ${UI().secondary === c ? 'is-sel' : ''}" data-act="set-secondary" data-v="${esc(c)}" title="${label}" aria-label="${label}" style="--c:${c}"></button>`).join('')}</div></div>
             <label class="mu-field"><span>Font</span><select data-input="ui-font">${FONTS.map(([id, label]) => `<option value="${id}" ${(UI().font || 'default') === id ? 'selected' : ''}>${esc(label)}</option>`).join('')}</select></label>
             ${deviceMode() === 'port' ? slider('Overall scale (on this phone)', 'scalePhone', 60, 120, '%') + slider('Game HUD size (on this phone)', 'hudPhone', 60, 120, '%') : deviceMode() === 'land' ? slider('Overall scale (phone sideways)', 'scaleLand', 50, 110, '%') + slider('Game HUD size (phone sideways)', 'hudLand', 50, 120, '%') : slider('Overall scale', 'scale', 70, 140, '%')}${slider('Scene text', 'sceneText', 70, 160, '%')}${slider('Dialogue box blur', 'dialogBlur', 0, 40, 'px')}</section>
         <section><h3>Scene</h3>
@@ -46,7 +45,7 @@ function tabInterface() {
                 <button class="mu-layout ${UI().layout === 'classic' ? 'is-on' : ''}" data-act="set-layout" data-v="classic"><i class="is-classic"><b></b><u></u></i><b>Classic SillyTavern</b><small>The conversation fills the middle of the screen, the character beside it.</small></button>
                 <button class="mu-layout ${UI().layout === 'cards' ? 'is-on' : ''}" data-act="set-layout" data-v="cards"><i class="is-cards"><b></b><u></u><s></s></i><b>Cards</b><small>Each message with a big rounded picture of who speaks beside it.</small></button>
             </div>
-            <div class="mu-field"><span>Dialogue box</span><div class="mu-chips">${[['center', 'Centered'], ['left', 'Left']].map(([id, label]) => `<button class="mu-chip ${(UI().dialogPos || 'center') === id ? 'is-on' : ''}" data-act="set-dialogpos" data-v="${id}">${label}</button>`).join('')}</div></div>
+            ${(UI().layout ?? 'vn') === 'vn' ? `<div class="mu-field"><span>Dialogue box</span><div class="mu-chips">${[['center', 'Centered'], ['left', 'Left']].map(([id, label]) => `<button class="mu-chip ${(UI().dialogPos || 'center') === id ? 'is-on' : ''}" data-act="set-dialogpos" data-v="${esc(id)}">${label}</button>`).join('')}</div></div>` : ''}
             ${slider('Character size', 'spriteSize', 50, 160, '%')}${slider('Character width', 'spriteW', 60, 140, '%')}${slider('Character height (move up or down)', 'spriteY', -30, 30, 'vh')}
             ${check('Show the character card when there are no expression sprites', 'cardMode')}
         </section>
@@ -56,6 +55,8 @@ function tabInterface() {
 function tabSound() {
     const amb = UI().ambience !== false, av = UI().ambienceVolume ?? 60;
     return `<section><h3>Interface sounds</h3>${check('Interface sounds', 'sound')}${slider('Volume', 'volume', 0, 100, '%')}<button data-act="sfx-test">▶ Test</button></section>
+        <section><h3>Weather sounds</h3><p class="mu-muted">The rain you hear in the scenes and on the map. Apart from the interface sounds: you can turn off only the rain, or only the clicks.</p>
+            ${check('Weather sounds (rain)', 'weatherSound')}${slider('Volume', 'weatherVolume', 0, 100, '%')}</section>
         <section><h3>Place sounds</h3>
             <label class="mu-check"><input type="checkbox" data-input="ui-bool" data-key="ambience" ${amb ? 'checked' : ''}><span>Place sounds<small>What you hear where you are (a station's chimes, an izakaya's voices, cicadas in summer), in worlds whose places have them. Only with interface sounds on.</small></span></label>
             <label class="mu-field slider"><span>Place sounds volume</span><input type="range" min="0" max="100" value="${esc(av)}" data-input="ui-num" data-key="ambienceVolume"><output>${esc(av)}%</output></label></section>`;
@@ -64,16 +65,11 @@ function tabGame() {
     const g = game();
     return `<section><h3>General</h3>
             <label class="mu-check"><input type="checkbox" data-input="set-openstart" ${settings().openOnStart ? 'checked' : ''}><span>Open Mundi when SillyTavern starts</span></label></section>
-        <section><h3>Diary</h3>
-            <label class="mu-check"><input type="checkbox" data-input="set-diary" ${settings().diaryOnSleep !== false ? 'checked' : ''}><span>Write the day in the diary when you sleep<small>One AI call per night: the day's facts and conversations become a short first-person entry in the Journal, and the story remembers the past days through it.</small></span></label></section>
+        <section><h3>AI calls</h3><p class="mu-muted">What makes Mundi call the AI (the diary, Chirp, characters' texts, narrating what you do) is now in the game: ☰ → This world → AI context.</p></section>
         <section><h3>Background</h3>
             <label class="mu-field"><span>When you move between places</span><select data-input="set-bgfollow">${[['mundi', 'Only Mundi\'s scene changes picture'], ['chat', 'SillyTavern\'s chat background follows the place too']].map(([v, l]) => `<option value="${v}" ${(settings().bgFollow ?? 'mundi') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></section>
-        <section><h3>Phone</h3>
-            <label class="mu-field"><span>Who posts on Chirp</span><select data-input="set-feed">${[['button', 'Only when you tap "New posts"'], ['open', 'New posts each time you open the app'], ['auto', 'The characters, on their own as time passes'], ['react', 'Only you post; they reply']].map(([v, l]) => `<option value="${v}" ${feedPrefs().mode === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
-            <label class="mu-check"><input type="checkbox" data-input="set-feedimg" ${feedPrefs().images ? 'checked' : ''}><span>Pictures in posts<small>Made with SillyTavern's Image Generation extension, when it is set up.</small></span></label></section>
         ${g ? `<section><h3>This save</h3>
             ${clockMode(g) === 'live' ? `<label class="mu-field"><span>Clock speed</span><select data-input="set-speed">${[0, 30, 60, 120].map(s => `<option value="${s}" ${g.speed === s ? 'selected' : ''}>${s ? `×${s / 60} (1 real second = ${s / 60} game minute${s === 60 ? '' : 's'})` : 'Paused'}</option>`).join('')}</select></label>` : (isScenario(getWorld(g.world)) ? '' : '<p class="mu-muted">Time passes only with what you do. To have a running clock, change it in This world → Rules.</p>')}
-            ${homeSettingsHtml(g)}
             <div class="mu-row"><button data-act="save-branch">Make a branch</button></div>
             <p class="mu-muted">A copy of this save as it is now (the story, the diary, everything), saved next to it. You keep playing here; open the branch from Load when you want to try the other path.</p>
             ${backupsHtml()}</section>` : ''}`;
@@ -86,7 +82,7 @@ function backupsHtml() {
     if (!list.length)
         return ro;
     return `${ro}<h4>Backups</h4><p class="mu-muted">Kept automatically before an update or a repair changed this save (the last ${list.length}).</p>
-        ${list.map((b, i) => `<div class="mu-row"><span>${esc(fmtDateTime(b.at))} · ${esc(b.reason)}</span><button class="${RESTORE.i === i ? 'mu-danger' : ''}" data-act="save-restore" data-i="${i}" ${SAVE.readOnly ? 'aria-disabled="true"' : ''}>${RESTORE.i === i ? 'Tap again to restore' : 'Restore'}</button></div>`).reverse().join('')}`;
+        ${list.map((b, i) => `<div class="mu-row"><span>${esc(fmtDateTime(b.at))} · ${esc(b.reason)}</span><button class="${RESTORE.i === i ? 'mu-danger' : ''}" data-act="save-restore" data-i="${esc(i)}" ${SAVE.readOnly ? 'aria-disabled="true"' : ''}>${RESTORE.i === i ? 'Tap again to restore' : 'Restore'}</button></div>`).reverse().join('')}`;
 }
 export function settingsHtml() {
     const tab = state.settingsTab;
@@ -98,9 +94,9 @@ export function settingsHtml() {
         <div class="mu-subhead"><button data-act="settings-back" data-sfx="back">← Back</button><h2>Settings</h2></div>
         ${warningsBanner()}
         <div class="mu-settings-layout">
-            <nav class="mu-tabs">${TABS.map(([id, l]) => `<button class="${state.settingsTab === id ? 'is-on' : ''}" data-act="settings-tab" data-tab="${id}">${l}</button>`).join('')}
+            <nav class="mu-tabs">${TABS.map(([id, l]) => `<button class="${state.settingsTab === id ? 'is-on' : ''}" data-act="settings-tab" data-tab="${esc(id)}">${l}</button>`).join('')}
                 <div class="mu-tabs-st"><h4 class="mu-tabs-group">SillyTavern</h4>
-                ${ST_TABS.map(id => `<button class="${state.settingsTab === id ? 'is-on' : ''}" data-act="settings-tab" data-tab="${id}" title="${esc(NATIVE[id].label)}">${NATIVE[id].label}</button>`).join('')}</div></nav>
+                ${ST_TABS.map(id => `<button class="${state.settingsTab === id ? 'is-on' : ''}" data-act="settings-tab" data-tab="${esc(id)}" title="${esc(NATIVE[id].label)}">${NATIVE[id].label}</button>`).join('')}</div></nav>
             <div class="mu-settings-body mu-panel ${native ? 'is-native' : ''}" data-keep="settings">${body}</div>
         </div>${lookConfirmHtml()}
     </div>`;
@@ -140,10 +136,12 @@ Object.assign(ACT, {
 Object.assign(INPUT, {
     'set-uilang': async (el) => { settings().uiLang = el.value; saveSettings(); await setLang(el.value); notify(); },
     'ui-num': (el) => { UI()[el.dataset.key] = Number(el.value); const o = el.nextElementSibling; if (o)
-        o.textContent = `${el.value}${o.textContent.replace(/[-\d.]/g, '')}`; saveSettings(); applyLook(); },
+        o.textContent = `${el.value}${o.textContent.replace(/[-\d.]/g, '')}`; saveSettings(); applyLook(); if (el.dataset.key.startsWith('weather'))
+        notify(); },
     'ui-str': (el) => { UI()[el.dataset.key] = el.value; saveSettings(); notify(); },
     'ui-font': (el) => { UI().font = el.value; saveSettings(); applyLook(); },
-    'ui-bool': (el) => { UI()[el.dataset.key] = el.checked; saveSettings(); applyLook(); },
+    'ui-bool': (el) => { UI()[el.dataset.key] = el.checked; saveSettings(); applyLook(); if (el.dataset.key.startsWith('weather'))
+        notify(); }, // (the rain follows at once)
     'set-bgfollow': (el) => { settings().bgFollow = el.value; saveSettings(); },
     'set-feed': (el) => { feedPrefs().mode = el.value; saveSettings(); },
     'set-feedimg': (el) => { feedPrefs().images = el.checked; saveSettings(); },

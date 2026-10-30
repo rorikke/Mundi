@@ -32,7 +32,7 @@ export function customModalHtml() {
         <div class="mu-ca-body">
             <input type="text" placeholder="Go skateboarding, read a book, call my mom…" maxlength="80" value="${esc(C.text)}" data-input="ca-text" data-focus="ca-text">
             <small class="mu-muted">For how long?</small>
-            <div class="mh-ca-lens">${LENGTHS.map(l => `<button class="${C.len === l.id ? 'is-on' : ''}" data-act="ca-len" data-v="${l.id}"><b>${l.name}</b><small>${l.mins < 60 ? `${l.mins} min` : `${l.mins / 60} h`}</small></button>`).join('')}</div>
+            <div class="mh-ca-lens">${LENGTHS.map(l => `<button class="${C.len === l.id ? 'is-on' : ''}" data-act="ca-len" data-v="${esc(l.id)}"><b>${l.name}</b><small>${l.mins < 60 ? `${l.mins} min` : `${l.mins / 60} h`}</small></button>`).join('')}</div>
             <small class="mu-muted">A one-time thing: it passes the time, lifts your mood a little, and goes into your journal.</small>
         </div>
         <footer class="mh-ca-row"><button class="mu-ghost" data-act="ca-close">Cancel</button><button class="mu-primary" data-act="ca-go" ${C.text.trim() ? '' : 'aria-disabled="true"'}>${icon('check')}<span>Do it</span></button></footer>

@@ -23,8 +23,8 @@ const ST_TABS = ['st-characters', 'st-personas', 'st-worldinfo'];
 const isList = (t) => t === 'characters' || t === 'personas' || t === 'lorebooks' || t === 'backgrounds';
 const ROLES = [[0, 'System'], [1, 'User'], [2, 'Assistant']];
 const ROLE_NAMES = [['system', 'System'], ['user', 'User'], ['assistant', 'Assistant']];
-const btn = (act, ic, label, cls = '', extra = '') => `<button class="${cls}" data-act="${act}" ${extra}>${icon(ic)}<span>${label}</span></button>`;
-const ibtn = (act, ic, title, cls = '', extra = '') => `<button class="mu-ibtn ${cls}" data-act="${act}" title="${title}" aria-label="${title}" ${extra}>${icon(ic)}</button>`;
+const btn = (act, ic, label, cls = '', extra = '') => `<button class="${cls}" data-act="${esc(act)}" ${extra}>${icon(ic)}<span>${label}</span></button>`;
+const ibtn = (act, ic, title, cls = '', extra = '') => `<button class="mu-ibtn ${cls}" data-act="${esc(act)}" title="${title}" aria-label="${title}" ${extra}>${icon(ic)}</button>`;
 const LP = () => settings().lib;
 const mundiFolders = (tab) => (LP().folders[tab] ??= []);
 // Backgrounds: SillyTavern's own list and folders, loaded on demand.
@@ -183,7 +183,7 @@ function sortItems(tab, list) {
     return list.sort((a, b) => Number(b.fav) - Number(a.fav) || cmp(a, b));
 }
 const sortBtn = (tab) => `<span class="mu-exp-wrap mu-sort-wrap mu-right">${ibtn('lib-sort-open', 'sort', `Sort: ${SORTS[tab].find(([k]) => k === sortOf(tab))[1]}`, SO.open ? 'is-on' : '')}
-    ${SO.open ? `<span class="mu-exp-pop mu-panel"><small>Sort by</small>${SORTS[tab].map(([k, l]) => `<button class="mu-ghost ${sortOf(tab) === k ? 'is-on' : ''}" data-act="lib-sort" data-v="${k}">${sortOf(tab) === k ? icon('check') : '<i class="mu-sort-sp"></i>'}<span>${l}</span></button>`).join('')}</span>` : ''}</span>`;
+    ${SO.open ? `<span class="mu-exp-pop mu-panel"><small>Sort by</small>${SORTS[tab].map(([k, l]) => `<button class="mu-ghost ${sortOf(tab) === k ? 'is-on' : ''}" data-act="lib-sort" data-v="${esc(k)}">${sortOf(tab) === k ? icon('check') : '<i class="mu-sort-sp"></i>'}<span>${l}</span></button>`).join('')}</span>` : ''}</span>`;
 /* ---------- fields: text to read, or a form while editing ---------- */
 const dv = (k, v) => (k in L.draft ? L.draft[k] : v);
 const read = (label, value, pre = true) => {
@@ -192,7 +192,7 @@ const read = (label, value, pre = true) => {
 };
 function field(label, key, value, kind = 'text', o = {}) {
     const v = dv(key, value);
-    const attrs = `data-input="lib-f" data-k="${esc(key)}" data-kind="${kind}" data-focus="lib-${esc(key)}"`;
+    const attrs = `data-input="lib-f" data-k="${esc(key)}" data-kind="${esc(kind)}" data-focus="lib-${esc(key)}"`;
     const hint = o.hint ? `<small>${o.hint}</small>` : '';
     if (kind === 'check')
         return `<label class="mu-check"><input type="checkbox" ${attrs} ${v ? 'checked' : ''}><span>${label}${hint}</span></label>`;
@@ -293,8 +293,8 @@ function altGreetingsHtml(c) {
     const list = altOf(c);
     return `<section class="mu-field mu-altg"><span>Other greetings (${list.length})</span>
         <small class="mu-muted">SillyTavern lets you swipe between them at the start of a chat, and "Start with this" opens a chat with one of them.</small>
-        ${list.map((t, k) => `<div class="mu-altg-item"><header><b>#${k + 2}</b><button class="mu-ibtn mu-ghost" data-act="lib-alt-del" data-k="${k}" title="Remove this greeting">${icon('trash')}</button></header>
-            <textarea rows="4" data-input="lib-alt" data-k="${k}" data-focus="lib-alt-${k}" placeholder="Another way the story can begin…">${esc(t)}</textarea></div>`).join('')}
+        ${list.map((t, k) => `<div class="mu-altg-item"><header><b>#${k + 2}</b><button class="mu-ibtn mu-ghost" data-act="lib-alt-del" data-k="${esc(k)}" title="Remove this greeting">${icon('trash')}</button></header>
+            <textarea rows="4" data-input="lib-alt" data-k="${esc(k)}" data-focus="lib-alt-${k}" placeholder="Another way the story can begin…">${esc(t)}</textarea></div>`).join('')}
         ${btn('lib-alt-add', 'plus', 'Add a greeting', 'mu-ghost')}</section>`;
 }
 // All the greetings of the card, side by side; one can start a new chat (32).
@@ -302,7 +302,7 @@ function greetingsHtml(c, avatar) {
     const list = [c.first_mes, ...(c.data?.alternate_greetings ?? [])].filter((x) => String(x ?? '').trim());
     if (list.length < 2)
         return read('Greeting', c.first_mes);
-    return `<section class="mu-lib-read"><h4>Greetings (${list.length})</h4><div class="mu-greets">${list.map((t, k) => `<article class="mu-greet"><header><b>#${k + 1}</b>${btn('lib-greet', 'chat', 'Start with this', 'mu-ghost', `data-k="${k}" data-avatar="${esc(avatar)}"`)}</header><p data-notr>${esc(String(t).slice(0, 420))}${String(t).length > 420 ? '…' : ''}</p></article>`).join('')}</div></section>`;
+    return `<section class="mu-lib-read"><h4>Greetings (${list.length})</h4><div class="mu-greets">${list.map((t, k) => `<article class="mu-greet"><header><b>#${k + 1}</b>${btn('lib-greet', 'chat', 'Start with this', 'mu-ghost', `data-k="${esc(k)}" data-avatar="${esc(avatar)}"`)}</header><p data-notr>${esc(String(t).slice(0, 420))}${String(t).length > 420 ? '…' : ''}</p></article>`).join('')}</div></section>`;
 }
 // Her lorebooks: the first is the card's own, the others SillyTavern's "additional" lorebooks for her.
 // Tags: SillyTavern's own (its tag manager and filters see the same ones). They are saved at once.
@@ -514,7 +514,7 @@ function loreDetail(name) {
     return `${head}<p class="mu-muted">${list.length} entries</p><ul class="mu-entries">${list.map(e => {
         const open = L.entry === String(e.uid);
         return `<li class="mu-entry ${open ? 'is-open' : ''} ${e.disable ? 'is-off' : ''}">
-            <button class="mu-entry-head" data-act="lib-entry" data-uid="${e.uid}"><b data-notr>${esc(entryTitle(e))}</b>
+            <button class="mu-entry-head" data-act="lib-entry" data-uid="${esc(e.uid)}"><b data-notr>${esc(entryTitle(e))}</b>
                 <small>${e.constant ? '<span class="mu-tag">Always on</span>' : ''}${e.disable ? '<span class="mu-tag is-off">Off</span>' : ''}<span data-notr>${esc((e.key ?? []).join(', '))}</span></small></button>
             ${open ? (L.edit ? entryForm(e) : `<div class="mu-entry-body" data-notr>${esc(e.content ?? '')}</div>`) : ''}
         </li>`;
@@ -845,12 +845,12 @@ export function libraryHtml() {
                 ${switchHtml('lib-edit', 'Edit', L.edit)}
                 ${L.edit ? switchHtml('lib-adv', 'Advanced settings', L.adv) : ''}
             </div></div>
-        <nav class="mu-lib-tabs">${tabs.map(([id, l]) => `<button class="${L.tab === id ? 'is-on' : ''} ${id.startsWith('st-') ? 'is-st' : ''}" data-act="lib-tab" data-tab="${id}">${l}</button>`).join('')}</nav>
+        <nav class="mu-lib-tabs">${tabs.map(([id, l]) => `<button class="${L.tab === id ? 'is-on' : ''} ${id.startsWith('st-') ? 'is-st' : ''}" data-act="lib-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
         ${body}
         ${dialogHtml()}
     </div>`;
 }
-const switchHtml = (act, label, on) => `<button class="mu-switch ${on ? 'is-on' : ''}" role="switch" aria-checked="${on}" data-act="${act}"><i></i><span>${label}</span></button>`;
+const switchHtml = (act, label, on) => `<button class="mu-switch ${on ? 'is-on' : ''}" role="switch" aria-checked="${on}" data-act="${esc(act)}"><i></i><span>${label}</span></button>`;
 /* ---------- actions ---------- */
 // Leaving a card with changes not saved asks first (save, discard or stay); the click that tried to leave runs after.
 let lastClick = null;

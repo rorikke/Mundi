@@ -11,7 +11,9 @@ import { advance } from '../sim/time.js';
 import { travelMinutes, playerHomeId } from '../sim/places.js';
 import { actionsHere, applyAction } from '../sim/needs.js';
 import { ACT } from './reg.js';
-import { tr } from '../core/tr.js';
+import { tr, setLang } from '../core/tr.js';
+import { UI_LANGS } from '../core/i18n.js';
+import { VERSION } from '../core/version.js';
 import { icon } from './icons.js';
 import { setFr, YOU } from '../sim/rel.js';
 const STELLA = '__tut:stella';
@@ -238,12 +240,21 @@ function travel(loc) {
 export function welcomeHtml() {
     if (T.on || settings().tourSeen || state.view !== 'menu')
         return '';
+    if (!settings().uiLang)
+        return langPickHtml();
     return `<div class="mu-recap-veil mu-tut-veil"><section class="mu-recap mh-glass mu-tut-welcome" role="dialog">
         <img class="mu-tut-welcome-pic" src="${pic('stella.png')}" alt="">
         <div><small>Welcome to Mundi</small><h3>New around here?</h3>
             <p>I'm Stella. Want the quick tour? About five minutes, and no AI connection needed.</p>
             <div class="mu-row"><button class="mu-primary" data-act="tut-start" data-v="all">${icon('forward')}<span>Take the tour</span></button><button class="mu-ghost" data-act="tut-skip">Skip</button></div>
             <small class="mu-muted">You can take it later in Settings → Game.</small></div></section></div>`;
+}
+// Before Stella says anything: which language Mundi's screens use. Only the names, each in its own language.
+function langPickHtml() {
+    return `<div class="mu-recap-veil mu-tut-veil"><section class="mu-recap mh-glass mu-lang-pick" role="dialog" data-notr>
+        <h3>Mundi</h3><p>Choose your language · Escolha seu idioma · Elige tu idioma</p>
+        <div class="mu-lang-list">${UI_LANGS.map(l => `<button data-act="first-lang" data-v="${esc(l.id)}">${esc(l.name)}</button>`).join('')}</div>
+        </section></div>`;
 }
 export function tutorialHtml() {
     if (!T.on)
@@ -254,7 +265,7 @@ export function tutorialHtml() {
         <i class="mu-tut-shade is-t"></i><i class="mu-tut-shade is-l"></i><i class="mu-tut-shade is-r"></i><i class="mu-tut-shade is-b"></i>
         ${s.target ? `<i class="mu-tut-ring"></i>${s.task ? '' : '<i class="mu-tut-block"></i>'}` : '<i class="mu-tut-shade is-all"></i>'}
         <aside class="mu-tut-box mh-glass ${s.wide ? 'is-wide' : ''}">
-            <img src="${pic('stella.png')}" alt="Stella">
+            <img src="${pic('stella-portrait.png')}" alt="Stella">
             <div class="mu-tut-talk"><b>Stella</b><p>${touch(s.text)}</p>${s.task ? `<p class="mu-tut-task">${icon('pin')} ${touch(onPhone() && s.phoneTask || s.task)}</p>` : ''}
                 <div class="mu-tut-btns"><small>${n} / ${of}</small>
                     <button class="mu-ghost" data-act="tut-skip">Skip tour</button>
@@ -287,6 +298,7 @@ export function placeTutorial(main) {
     el.classList.toggle('box-left', r.left + r.width / 2 > window.innerWidth * 0.5);
 }
 Object.assign(ACT, {
+    'first-lang': async (el) => { settings().uiLang = el.dataset.v || 'en'; saveSettings(); await setLang(settings().uiLang); notify(); },
     'tut-start': (el) => startTutorial(el.dataset.v || 'all'),
     'tut-next': () => go(1),
     'tut-back': () => go(-1),
@@ -303,5 +315,5 @@ export function tutorialSettingsHtml() {
     return `<section class="mu-tut-settings"><h3>Tutorial</h3><p class="mu-muted">Stella's tour, again. No AI needed and nothing is saved.</p>
         <div class="mu-row"><button class="mu-primary" data-act="tut-start" data-v="all">${icon('forward')}<span>The whole tour</span></button>
             <button data-act="tut-start" data-v="menu">Menu</button><button data-act="tut-start" data-v="scene">Scene</button><button data-act="tut-start" data-v="world">World</button><button data-act="tut-start" data-v="home">Home</button>
-            <button class="mu-ghost" data-act="tut-start" data-v="new">${icon('star')}<span>What's new in ${TOUR_VERSION}</span></button></div></section>`;
+            <button class="mu-ghost" data-act="wn-open">${icon('star')}<span>What's new in ${VERSION}</span></button></div></section>`;
 }

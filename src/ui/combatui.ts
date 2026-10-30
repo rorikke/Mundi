@@ -1,5 +1,6 @@
 // Combat on screen: the fight screen (monster-battle style) and the Party app (formation, companions, sellswords).
 import { lex } from '../core/lexicon.js';
+import { safeUrl } from '../core/safe.js';
 import { esc, game, notify, saveGame, toast, type Save } from '../core/store.js';
 import { getWorld, worldFile, type WorldDef } from '../core/world.js';
 import { rpgOf } from '../core/rpgdef.js';
@@ -32,7 +33,7 @@ function backdrop(g: Save, w: WorldDef, where: string): string {
     let img = p ? pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs) ?? '' : '';
     if (!img && p?.home) { const k = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? '')]; img = (k && pictureAt(w, g.minutes, k.image, k.images)) ?? ''; }
     if (!img && p) { const m = w.maps.find(x => x.id === p.map); img = m ? pictureAt(w, g.minutes, m.image, m.images) ?? '' : ''; }
-    return img ? `background-image:url('${esc(worldFile(w, img))}')` : '';
+    return img ? `background-image:url('${safeUrl(worldFile(w, img))}')` : '';
 }
 function sprite(g: Save, w: WorldDef, c: Combat, f: Fighter, hp: number, hit: boolean, targets: Set<string>): string {
     const foe = f.who === 'foe' ? rpgOf(w)?.bestiary?.find(x => x.id === f.ref) : null;
@@ -81,7 +82,7 @@ export function combatHtml(): string {
         ${c.mode ? `<small class="mu-pkb-round">Round ${c.round}</small>` : ''}</div>`;
     // the text box and the menu
     const s = sheetOf(g)!; const focusName = rpgOf(w)?.focusName ?? 'Focus';
-    const B = (act: string, label: string, extra = '', sub = '') => `<button data-act="${act}" ${extra}>${label}${sub ? `<small>${sub}</small>` : ''}</button>`;
+    const B = (act: string, label: string, extra = '', sub = '') => `<button data-act="${esc(act)}" ${extra}>${label}${sub ? `<small>${sub}</small>` : ''}</button>`;
     let text = ''; let menu = '';
     if (shown) {
         text = `<p>${esc(shown.text)}</p><button class="mu-pkb-next" data-act="pkb-next" title="Next">▼</button>`;

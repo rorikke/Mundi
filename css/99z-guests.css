@@ -1,0 +1,39 @@
+/* Home guests (ui/guestsui.ts): the people chosen (a small round picture and a × to take them off), the Calendar's tabs. */
+#mundi-root .mu-guest-chips { margin: 4px 0; }
+#mundi-root .mu-guest-chips .mu-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 3px; }
+#mundi-root .mu-guest-chips .mu-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex: none; }
+#mundi-root .mu-guest-chips .mu-chip .mu-ibtn { width: 22px; height: 22px; min-width: 0; padding: 0 !important; }
+#mundi-root .mu-guest-chips .mu-chip .mu-ibtn svg { width: 12px; height: 12px; }
+#mundi-root .mu-cal-tabs { padding: 0; }
+#mundi-root .mu-plan-bg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the Visits tab: one row per guest (picture, name, when, where they sleep, a button) */
+#mundi-root .mu-guest-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-guest-row:last-child { border-bottom: 0; }
+#mundi-root .mu-guest-row > img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+#mundi-root .mu-guest-row > div { display: grid; gap: 2px; min-width: 0; }
+#mundi-root .mu-guest-row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-guest-row small { color: var(--muted); }
+#mundi-root .mu-guest-bed { grid-column: 2 / -1; display: flex; align-items: center; gap: 6px; margin-top: -2px; }
+#mundi-root .mu-guest-row > button { padding: 6px 10px; font-size: 12px; }
+#mundi-root .mu-guest-bed > span { display: grid; place-items: center; color: var(--muted); }
+#mundi-root .mu-guest-bed > span .mu-ic { width: 14px; height: 14px; }
+#mundi-root .mu-guest-bed select { flex: 1; min-width: 0; padding: 4px 8px; font-size: 12px; }
+#mundi-root .mu-visit-new { display: grid; gap: 8px; }
+/* Go out: people from your library (a × to take them off) and the button to add them */
+#mundi-root .mu-out-lib .mu-ic { width: 12px; height: 12px; opacity: .75; }
+#mundi-root .mu-out-libbtn { border-style: dashed !important; }
+#mundi-root .mu-out-libbtn .mu-ic { width: 14px; height: 14px; }
+/* the doorbell: who is at the door, and two ways to answer */
+#mundi-root .mu-doorbell { position: fixed; left: 50%; top: 50%; translate: -50% -50%; z-index: 60; width: min(380px, calc(100vw - 32px)); justify-items: center; text-align: center; gap: 12px; padding: 22px; }
+#mundi-root .mu-doorbell h3 { margin: 0; }
+#mundi-root .mu-doorbell-ring { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); animation: mu-ring 1.2s ease-in-out infinite; }
+#mundi-root .mu-doorbell-ring .mu-ic { width: 24px; height: 24px; }
+#mundi-root .mu-doorbell-face { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px var(--accent), 0 8px 24px rgba(0, 0, 0, .45); }
+#mundi-root .mu-doorbell .mu-dlg-btns { justify-content: center; flex-wrap: wrap; }
+@keyframes mu-ring { 0%, 60%, 100% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { #mundi-root .mu-doorbell-ring { animation: none; } }
+/* the planned party: "Call it off" (red) on the left, "Edit guests" (blue) on the right */
+#mundi-root .mu-party-btns { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+#mundi-root .mu-party-btns .mu-party-edit { margin-left: auto; }
+/* sleeping (or a shift) would run over the party: the question */
+#mundi-root .mu-conflict-party { font-size: 40px; line-height: 1; text-align: center; }

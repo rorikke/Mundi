@@ -1,6 +1,7 @@
 // "@" in the message box: a list of the people in the scene to pick from. A line that names someone with "@" is
 // answered by that person (SillyTavern is told who speaks next), so the AI never makes someone else reply.
-import { state, game } from '../core/store.js';
+import { state, game, esc } from '../core/store.js';
+import { setHtml } from '../core/safe.js';
 import { getWorld } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
 import { presentAt } from '../sim/people.js';
@@ -42,7 +43,7 @@ function draw(ta: HTMLTextAreaElement) {
         });
     }
     if (!M.open || !M.items.length) { close(); return; }
-    box.innerHTML = `<small>Who should answer?</small>${M.items.map((p, k) => `<button type="button" data-k="${k}" class="${k === M.sel ? 'is-on' : ''}"><img src="${thumb(p.avatar)}" alt=""><span>${p.name.replace(/</g, '&lt;')}</span></button>`).join('')}`;
+    setHtml(box, `<small>Who should answer?</small>${M.items.map((p, k) => `<button type="button" data-k="${esc(k)}" class="${k === M.sel ? 'is-on' : ''}"><img src="${thumb(p.avatar)}" alt=""><span>${p.name.replace(/</g, '&lt;')}</span></button>`).join('')}`);
     const r = ta.getBoundingClientRect();
     box.style.display = 'grid';
     box.style.left = `${Math.round(r.left)}px`;

@@ -2,6 +2,7 @@
 // plan. The plan has floors (each with a picture of the plan, optional); every room of the house and every bedroom
 // is drawn as a box on a floor: drag it to move it, drag its corner to resize it. A room on no floor shows a red "!".
 import { notify, esc, toast, ROOT_ID } from '../core/store.js';
+import { safeUrl } from '../core/safe.js';
 import { worldFile } from '../core/world.js';
 import { planSlots } from '../sim/plan.js';
 import { uploadWorldPicture, imageRatio, newId } from '../sim/creator.js';
@@ -42,7 +43,7 @@ function planEditorHtml(w) {
             ${chk('Use the floors in the game', 'plan.on', 'With a picture of the plan, the house map is the plan, floor by floor. Without one, the room pictures are listed floor by floor. Off: the room pictures, as always.')}
         </div>
         <div class="mu-pe-main">
-            <div class="mu-pe-stage"><div class="mu-pe-plan ${floor.image ? 'has-pic' : ''}" data-pe-plan style="--r:${floor.ratio ?? 1.6};${floor.image ? `background-image:url('${esc(worldFile(w, floor.image))}')` : ''}">${boxes}
+            <div class="mu-pe-stage"><div class="mu-pe-plan ${floor.image ? 'has-pic' : ''}" data-pe-plan style="--r:${floor.ratio ?? 1.6};${floor.image ? `background-image:url('${safeUrl(worldFile(w, floor.image))}')` : ''}">${boxes}
                 ${boxes ? '' : '<p class="mu-pe-hint">Click a room on the right to put it on this floor.</p>'}</div></div>
             <aside class="mu-pe-side">
                 <section class="mu-pe-card"><h4>This floor</h4>
@@ -51,7 +52,7 @@ function planEditorHtml(w) {
                     ${floor.image ? `<details class="mu-me-times" ${Object.keys(floor.images ?? {}).length ? 'open' : ''}><summary>At other times of the day</summary>
                         ${TIME_SLOTS.map(per => {
         const b = floor.images?.[per.id] ? worldFile(w, floor.images[per.id]) : '';
-        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${esc(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
+        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${safeUrl(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
                             <button class="mu-ghost mu-ibtn" data-act="pe-floor-pic" data-period="${esc(per.id)}" title="Upload">${icon('upload')}</button>${b ? `<button class="mu-ghost mu-ibtn" data-act="pe-floor-pic-clear" data-period="${esc(per.id)}" title="Use the usual one">${icon('x')}</button>` : ''}</div>`;
     }).join('')}
                         <small class="mu-muted">The same plan by day, in the afternoon and at night (same size).</small></details>` : ''}

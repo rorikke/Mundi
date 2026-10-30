@@ -37,7 +37,7 @@ export function factionsApp(g, w, head) {
     const ownHtml = own ? `<section class="mu-ph-card"><h4>${esc(own.name)} · level ${own.level}</h4>
             <small>${esc(own.kind)}${own.hq ? ` · headquarters: ${esc(placeName(w, own.hq))}` : ''} · treasury ${esc(money(w, own.treasury))} · ${own.members.length} member${own.members.length === 1 ? '' : 's'}${own.assistant ? ' + an assistant' : ''}</small>
             ${own.level < 5 ? `<small class="mu-muted">Next level: ${esc(LEVEL_NEEDS[own.level])}</small>` : ''}
-            <div class="mu-row"><button class="mu-primary" data-act="fc-audience" data-id="${OWN}">Hold audience</button><button class="mu-ghost" data-act="fc-skip" data-id="${OWN}">Skip the shift</button></div>
+            <div class="mu-row"><button class="mu-primary" data-act="fc-audience" data-id="${esc(OWN)}">Hold audience</button><button class="mu-ghost" data-act="fc-skip" data-id="${esc(OWN)}">Skip the shift</button></div>
             <div class="mu-row">${own.assistant ? '' : `<button class="mu-ghost" data-act="fc-assistant">Hire an assistant (60)</button>`}${own.hq ? '' : `<button class="mu-ghost" data-act="fc-hq" ${placeOf(g, w, g.player.loc)?.home ? 'aria-disabled="true"' : ''}>Make ${esc(placeName(w, g.player.loc) || 'this place')} the headquarters (300)</button>`}</div>
             <div class="mu-row"><input type="number" min="1" data-input="fc-amount" value="${UIF.amount}"><button class="mu-ghost" data-act="fc-deposit">Put into the treasury</button></div>
             ${recruitable(g).length ? `<h4>Recruit</h4>${recruitable(g).map(r => `<div class="mu-ph-job"><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.name)}</b></span><button class="mu-ghost" data-act="fc-recruit" data-who="${esc(r.avatar)}">Invite</button></div>`).join('')}` : ''}</section>`
@@ -69,7 +69,7 @@ function realmHtml(g, w) {
             ${systemOn(w, 'faith') && god?.id !== x.id ? `<button class="mu-ghost" data-act="fc-patron" data-id="${esc(x.id)}">Choose as patron</button>` : ''}</div>`).join('')}
         ${god && systemOn(w, 'faith') ? `<small>Devotion to ${esc(god.name)}: ${f.devotion}/${need}</small>${bar((f.devotion / need) * 100, 'is-faith')}
             <div class="mu-row"><button class="mu-primary" data-act="fc-pray" ${shrine ? '' : 'aria-disabled="true" title="At a temple or shrine"'}>Pray</button><button class="mu-ghost" data-act="fc-offer" ${shrine ? '' : 'aria-disabled="true"'}>Offer 10</button></div>
-            ${f.devotion >= need ? `<div class="mu-row">${['heal', 'ward', 'fortune'].map(k => `<button class="mu-primary" data-act="fc-miracle" data-v="${k}">${k === 'heal' ? '✨ Healing' : k === 'ward' ? '🛡️ A ward' : '💰 Fortune'}</button>`).join('')}</div>` : ''}${f.ward ? '<small class="mu-good">A divine ward protects you.</small>' : ''}` : ''}</section>`;
+            ${f.devotion >= need ? `<div class="mu-row">${['heal', 'ward', 'fortune'].map(k => `<button class="mu-primary" data-act="fc-miracle" data-v="${esc(k)}">${k === 'heal' ? '✨ Healing' : k === 'ward' ? '🛡️ A ward' : '💰 Fortune'}</button>`).join('')}</div>` : ''}${f.ward ? '<small class="mu-good">A divine ward protects you.</small>' : ''}` : ''}</section>`;
 }
 // The leader's audience: a petition, and your choice.
 export function audienceHtml() {

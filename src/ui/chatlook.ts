@@ -2,6 +2,7 @@
 // the chat styles (visual novel, classic, cards), avatars by the names, the character's picture opened on the
 // side (full resolution, zoom under the mouse), pictures in focus, text colors, and look presets.
 import { esc, notify, toast, UI, saveSettings, state, onPhone } from '../core/store.js';
+import { stripControls } from '../core/safe.js';
 import { ctx, chat, speakerOf, thumb, avatarUrl, persona, personaThumb } from '../st/bridge.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
@@ -17,10 +18,11 @@ export function stFormat(text: string, m: any, i: number, fallback: (t: string) 
     try {
         const f = ctx().messageFormatting;
         if (typeof f !== 'function') return fallback(text);
-        let html = String(f(text, m?.name ?? '', !!m?.is_system, !!m?.is_user, i));
+        let html = stripControls(String(f(text, m?.name ?? '', !!m?.is_system, !!m?.is_user, i)));   // no Mundi controls from a message
         // Pictures written as links (![](https://…) or <img src="https://…">): SillyTavern removes them when its
-        // "Forbid external media" is on; Mundi shows them anyway unless you turn it off in Chat look.
-        if (U().linkPics !== false) {
+        // "Forbid external media" is on (a picture from another site tells that site you are reading). Mundi does
+        // the same, unless you turn "Show pictures from links" on in Chat look.
+        if (U().linkPics === true) {
             const missing = linkedPics(text).filter(u => !html.includes(u) && !html.includes(esc(u)));
             if (missing.length) {
                 html += missing.map(u => `<img class="mu-line-img" data-act="lightbox" src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer">`).join('');
@@ -194,27 +196,28 @@ async function loadPresets() {
 
 /* ---------- the look panel (scenario drawer, and the HUD's menu) ---------- */
 
-const chips = (key: string, opts: [string, string][], def: string) => `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${String(U()[key] ?? def) === v ? 'is-on' : ''}" data-act="look-set" data-k="${key}" data-v="${v}">${l}</button>`).join('')}</div>`;
-const range = (label: string, key: string, min: number, max: number, def: number, unit = '') => `<label class="mu-field slider"><span>${label} · ${U()[key] ?? def}${unit}</span><input type="range" min="${min}" max="${max}" value="${U()[key] ?? def}" data-input="look-num" data-k="${key}"></label>`;
+const chips = (key: string, opts: [string, string][], def: string) => `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${String(U()[key] ?? def) === v ? 'is-on' : ''}" data-act="look-set" data-k="${esc(key)}" data-v="${esc(v)}">${l}</button>`).join('')}</div>`;
+const range = (label: string, key: string, min: number, max: number, def: number, unit = '') => `<label class="mu-field slider"><span>${label} · ${U()[key] ?? def}${unit}</span><input type="range" min="${min}" max="${max}" value="${U()[key] ?? def}" data-input="look-num" data-k="${esc(key)}"></label>`;
 // Each part of the panel folds (the choice is remembered).
 const FOLD_KEY = 'mundi-look-folds';
 let folds: Record<string, boolean> = (() => { try { return JSON.parse(localStorage.getItem(FOLD_KEY) || '{}'); } catch { return {}; } })();
 const CLOSED_FIRST = ['themes', 'quality'];
 const folded = (id: string) => folds[id] ?? CLOSED_FIRST.includes(id);
-const sec = (id: string, title: string, body: string, extra = '') => `<details class="mu-look-sec" ${folded(id) ? '' : 'open'}><summary data-act="look-fold" data-id="${id}"><span>${title}</span>${extra}</summary><div class="mu-look-body">${body}</div></details>`;
+const sec = (id: string, title: string, body: string, extra = '') => `<details class="mu-look-sec" ${folded(id) ? '' : 'open'}><summary data-act="look-fold" data-id="${esc(id)}"><span>${title}</span>${extra}</summary><div class="mu-look-body">${body}</div></details>`;
 export function lookPanelHtml() {
     if (presets === null) loadPresets();
     const c = (U().colors ?? {}) as Record<string, string>;
     const themes = (stThemes ?? []).filter((t: any) => !String(t.name).startsWith(PREFIX));
     return `<div class="mu-look">
         ${sec('style', 'Chat style', `${chips('layout', [['vn', 'Visual novel'], ['classic', 'Classic'], ['cards', 'Cards']], 'vn')}
-            ${U().layout === 'cards' ? `<label class="mu-check"><input type="checkbox" data-input="look-bool" data-k="chatSwap" ${U().chatSwap ? 'checked' : ''}><span>Swap the sides of the AI and you</span></label>` : ''}`)}
+            ${U().layout === 'cards' ? `<label class="mu-check"><input type="checkbox" data-input="look-bool" data-k="chatSwap" ${U().chatSwap ? 'checked' : ''}><span>Swap the sides of the AI and you</span></label>` : ''}
+            ${(U().layout ?? 'vn') === 'vn' && !onPhone() ? `<div class="mu-field"><span>Dialogue box</span>${chips('dialogPos', [['center', 'Centered'], ['left', 'Left']], 'center')}</div>` : ''}`)}
         ${sec('avatar', 'Picture by the name', chips('avatarShape', [['none', 'Hidden'], ['circle', 'Circle'], ['square', 'Square'], ['rect', 'Rectangle']], 'rect'))}
-        ${sec('pics', 'Pictures in messages', `<label class="mu-check"><input type="checkbox" data-input="look-bool" data-k="linkPics" ${U().linkPics !== false ? 'checked' : ''}><span>Show pictures from links (internet addresses), even when SillyTavern's "Forbid external media" is on</span></label>${chips('imgLayout', [['left', 'Below, left'], ['center', 'Below, centered'], ['right', 'Below, right'], ['wrap', 'Beside the text']], 'left')}`)}
+        ${sec('pics', 'Pictures in messages', `<label class="mu-check"><input type="checkbox" data-input="look-bool" data-k="linkPics" ${U().linkPics === true ? 'checked' : ''}><span>Show pictures from links (internet addresses), even when SillyTavern's "Forbid external media" is on</span></label>${chips('imgLayout', [['left', 'Below, left'], ['center', 'Below, centered'], ['right', 'Below, right'], ['wrap', 'Beside the text']], 'left')}`)}
         ${sec('quality', 'Picture quality', chips('picQuality', [['full', 'Original resolution'], ['thumb', 'Thumbnails (faster)']], 'full'))}
         ${sec('sizes', 'Sizes', `<div class="mu-row mu-look-resetrow"><button class="mu-ghost mu-look-reset" data-act="look-reset" title="Put the sliders back to their default values">${icon('undo')}<span>Reset sizes</span></button></div>${range('Text', 'sceneText', 70, 160, 100, '%')}${onPhone() ? '' : range('Dialogue box width', 'dialogW', 60, 160, 100, '%')}${range('Dialogue box height', 'dialogH', 60, 200, 100, '%')}${range('Dialogue box blur', 'dialogBlur', 0, 40, 12, 'px')}${range('Character size', 'spriteSize', 50, 160, 100, '%')}`)}
-        ${sec('colors', 'Colors', `<div class="mu-look-colors">${COLOR_KEYS.map(([k, l]) => `<label class="mu-look-color"><input type="color" value="${esc(rgbaToHex(c[k] || '#ffffff'))}" data-input="look-color" data-k="${k}" title="${esc(l)}"><button class="mu-ghost mu-ibtn" data-act="look-color-reset" data-k="${k}" title="Default" ${c[k] ? '' : 'aria-disabled="true"'}>${icon('undo')}</button><span>${l}</span>
-                <span class="mu-look-alpha" title="Transparency"><input type="range" min="0" max="100" step="1" value="${Math.round((parseColor(c[k])?.a ?? 1) * 100)}" data-input="look-alpha" data-k="${k}" ${c[k] ? '' : 'disabled'}><small>${c[k] ? `${Math.round((parseColor(c[k])?.a ?? 1) * 100)}%` : '—'}</small></span></label>`).join('')}</div>
+        ${sec('colors', 'Colors', `<div class="mu-look-colors">${COLOR_KEYS.map(([k, l]) => `<label class="mu-look-color"><input type="color" value="${esc(rgbaToHex(c[k] || '#ffffff'))}" data-input="look-color" data-k="${esc(k)}" title="${esc(l)}"><button class="mu-ghost mu-ibtn" data-act="look-color-reset" data-k="${esc(k)}" title="Default" ${c[k] ? '' : 'aria-disabled="true"'}>${icon('undo')}</button><span>${l}</span>
+                <span class="mu-look-alpha" title="Transparency"><input type="range" min="0" max="100" step="1" value="${Math.round((parseColor(c[k])?.a ?? 1) * 100)}" data-input="look-alpha" data-k="${esc(k)}" ${c[k] ? '' : 'disabled'}><small>${c[k] ? `${Math.round((parseColor(c[k])?.a ?? 1) * 100)}%` : '—'}</small></span></label>`).join('')}</div>
             <div class="mu-row"><button class="mu-ghost" data-act="look-import-st">${icon('upload')}<span>Use SillyTavern's current colors</span></button>
                 <button class="mu-ghost" data-act="look-colors-default" ${Object.keys(c).length ? '' : 'aria-disabled="true"'}>${icon('undo')}<span>Default colors</span></button></div>`)}
         ${sec('talk', "Speakers' colors", talkLookHtml())}

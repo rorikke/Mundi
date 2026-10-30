@@ -1,0 +1,20 @@
+/* Classic and Cards: the characters with Expressions sprites stand beside the conversation, in the space left free
+   on each side of it. One: on the left. Two or more: the 1st, 3rd… on the left and the 2nd, 4th… on the right (see
+   stageVars in ui/scene.ts: --side, --pk, --nk).
+   Someone without sprites shows no picture here (Cards already shows it beside each message). */
+@media (min-width: 761px) {
+    #mundi-root[data-layout="classic"]:not([data-mobile]) .mu-sprites { --dw: min(calc(760px * var(--mu-dlg-w, 1)), calc(100% - 24px)); }
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprites { --dw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px)); }
+    #mundi-root[data-layout="classic"]:not([data-mobile]) .mu-sprites,
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprites {
+        display: block !important; inset: 0 !important; width: auto !important; padding: 0 !important;
+        --gl: calc((100% - var(--dw)) / 2); --gr: calc((100% - var(--dw)) / 2); }
+    #mundi-root[data-layout="classic"]:not([data-mobile]) .mu-sprite,
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprite {
+        --g: calc(var(--gl) * (1 - var(--side, 0)) + var(--gr) * var(--side, 0));
+        width: min(var(--g), calc(60vh * var(--mu-sprite-size, 1)));
+        --step: calc(min(var(--g), calc(60vh * var(--mu-sprite-size, 1))) * .55);
+        --cx: calc(var(--gl) / 2 * (1 - var(--side, 0)) + (100% - var(--gr) / 2) * var(--side, 0));
+        left: calc(var(--cx) + (var(--pk, 0) - (var(--nk, 1) - 1) / 2) * var(--step)); translate: -50% 0; }
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprite:has(> .is-avatar) { display: none; }
+}

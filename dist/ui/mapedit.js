@@ -2,6 +2,7 @@
 // the region map) or homes. Pins can be dragged. A place gets a name, a description, tags and a background
 // (one of SillyTavern's backgrounds, or a picture you upload).
 import { TIME_SLOTS } from '../sim/daynight.js';
+import { safeUrl, num as toNum } from '../core/safe.js';
 import { notify, esc, toast, ROOT_ID } from '../core/store.js';
 import { worldFile, isScenario, PLACE_ROLES, placeIs, guessRoles, getWorld, builtInIds } from '../core/world.js';
 import { bgHead, bgGrid, bgHref } from './bgpick.js';
@@ -39,7 +40,7 @@ function pinHtml(w, p) {
         <span class="dot">${p.link ? icon('map') : ''}</span><span class="label">${esc(p.name)}${target ? ` → ${esc(target.name)}` : ''}</span></div>`;
 }
 function homesHtml(w, m) {
-    return w.homes.zones.filter(z => z.map === m.id).map(z => z.spots.map((s, k) => `<div class="mu-me-home ${ME.mode === 'homes' && z.id === ME.zone ? 'is-zone' : ''}" data-zone="${esc(z.id)}" data-k="${k}" style="left:${s[0]}%;top:${s[1]}%" title="${esc(z.name)} · ${k + 1}">${k + 1}</div>`).join('')).join('');
+    return w.homes.zones.filter(z => z.map === m.id).map(z => z.spots.map((s, k) => `<div class="mu-me-home ${ME.mode === 'homes' && z.id === ME.zone ? 'is-zone' : ''}" data-zone="${esc(z.id)}" data-k="${esc(k)}" style="left:${s[0]}%;top:${s[1]}%" title="${esc(z.name)} · ${k + 1}">${k + 1}</div>`).join('')).join('');
 }
 function placeForm(w) {
     const i = placeIdx(w, ME.pin);
@@ -55,21 +56,21 @@ function placeForm(w) {
     }
     const bg = p.bg ? worldFile(w, p.bg) : '';
     return `<h4>Place</h4><div class="mu-me-pf"><div class="mu-me-pfcol">${txt('Name', `${path}.name`)}${area('What it is (the AI and the map card use it)', `${path}.desc`, 3)}${txt('What is going on there (optional)', `${path}.event`, 'Always busy at lunch.')}</div>
-        <div class="mu-me-pfcol"><div class="mu-field"><span>Tags</span><div class="mu-chips">${TAGS.map(t => `<button class="mu-chip ${(p.tags ?? []).includes(t) ? 'is-on' : ''}" data-act="cw-chip" data-path="${path}.tags" data-v="${t}">${TAG_NAMES[t]}</button>`).join('')}</div>
+        <div class="mu-me-pfcol"><div class="mu-field"><span>Tags</span><div class="mu-chips">${TAGS.map(t => `<button class="mu-chip ${(p.tags ?? []).includes(t) ? 'is-on' : ''}" data-act="cw-chip" data-path="${path}.tags" data-v="${esc(t)}">${TAG_NAMES[t]}</button>`).join('')}</div>
             <small class="mu-muted">Leisure: people spend free time here. Food and Shopping: what can be bought. Work: jobs can be here.</small></div>
-            <div class="mu-field"><span>What it is for the game</span><div class="mu-chips">${PLACE_ROLES.map(r => `<button class="mu-chip ${placeIs(p, r.id) ? 'is-on' : ''}" data-act="me-role" data-v="${r.id}">${esc(r.name)}</button>`).join('')}</div>
+            <div class="mu-field"><span>What it is for the game</span><div class="mu-chips">${PLACE_ROLES.map(r => `<button class="mu-chip ${placeIs(p, r.id) ? 'is-on' : ''}" data-act="me-role" data-v="${esc(r.id)}">${esc(r.name)}</button>`).join('')}</div>
                 <small class="mu-muted">${p.roles ? 'Set by you.' : 'Guessed from its name; click to set them yourself.'}</small></div>
             ${isScenario(w) ? chk('Off unless the player picks it', `${path}.scenarioOff`, 'A Home: when starting a game, the player chooses which rooms the house has.') : ''}
             ${num('How busy (× its kind; 0.5 quiet, 1.5 lively)', `${path}.crowd`, 0, 0.1)}
             <div class="mu-field"><span>Closed at</span><div class="mu-chips">${w.time.periods.map(per => `<button class="mu-chip ${closedOf(w, p).includes(per.id) ? 'is-on' : ''}" data-act="me-closed" data-period="${esc(per.id)}">${esc(per.name)}</button>`).join('')}</div>
                 <small class="mu-muted">${Array.isArray(p.closed) ? 'Its own hours.' : 'Like places of its kind (shops close at night, offices at dawn…). Click to set its own hours.'} Closed: nothing to do there, nobody comes for leisure.</small></div></div>
         <div class="mu-me-pfcol"><div class="mu-field"><span>Background of the scene</span>
-            <div class="mu-cw-cover is-small" style="${bg ? `background-image:url('${esc(bg)}')` : ''}">${bg ? '' : '<span>The map around it</span>'}</div>
+            <div class="mu-cw-cover is-small" style="${bg ? `background-image:url('${safeUrl(bg)}')` : ''}">${bg ? '' : '<span>The map around it</span>'}</div>
             <div class="mu-row"><button data-act="me-bg-pick">${icon('image')}<span>From Backgrounds</span></button><button class="mu-ghost" data-act="me-bg-upload">${icon('upload')}<span>Upload</span></button>${bg ? `<button class="mu-ghost" data-act="me-bg-clear">${icon('x')}</button>` : ''}</div></div>
             <details class="mu-me-times" ${Object.keys(p.bgs ?? {}).length ? 'open' : ''}><summary>At other times of the day</summary>
                 ${TIME_SLOTS.map(per => {
         const b = p.bgs?.[per.id] ? worldFile(w, p.bgs[per.id]) : '';
-        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${esc(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
+        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${safeUrl(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
                     <button class="mu-ghost mu-ibtn" data-act="me-bg-pick" data-period="${esc(per.id)}" title="From Backgrounds">${icon('image')}</button><button class="mu-ghost mu-ibtn" data-act="me-bg-upload" data-period="${esc(per.id)}" title="Upload">${icon('upload')}</button>${b ? `<button class="mu-ghost mu-ibtn" data-act="me-bg-clear" data-period="${esc(per.id)}" title="Use the usual one">${icon('x')}</button>` : ''}</div>`;
     }).join('')}
                 <small class="mu-muted">Day 5–12 h, afternoon 12–18 h, night 18–5 h. Empty: the usual one.</small></details>
@@ -109,7 +110,7 @@ export function mapEditorHtml(w) {
     const maps = `<aside class="mu-me-maps">
         <h4>Maps</h4>${w.maps.map(x => `<button class="mu-cw-row ${x.id === m?.id ? 'is-on' : ''}" data-act="me-map" data-id="${esc(x.id)}"><b>${esc(x.name)}</b><small>${x.parent ? `in ${esc(w.maps.find(y => y.id === x.parent)?.name ?? '')}` : 'Top map'}</small></button>`).join('')}
         <button class="mu-primary" data-act="me-add-map">${icon('plus')}<span>Add a map</span></button>
-        <details class="mu-me-lib"><summary>Add one of Mundi's maps</summary><div class="mu-me-libgrid">${libraryMaps().map(x => `<button data-act="me-add-lib" data-url="${esc(x.url)}" data-ratio="${x.ratio}" data-name="${esc(x.name.replace(/ \(.*\)$/, ''))}" title="${esc(x.name)}"><i style="background-image:url('${esc(x.url)}')"></i><span>${esc(x.name)}</span></button>`).join('')}</div></details>
+        <details class="mu-me-lib"><summary>Add one of Mundi's maps</summary><div class="mu-me-libgrid">${libraryMaps().map(x => `<button data-act="me-add-lib" data-url="${esc(x.url)}" data-ratio="${toNum(x.ratio, 1)}" data-name="${esc(x.name.replace(/ \(.*\)$/, ''))}" title="${esc(x.name)}"><i style="background-image:url('${safeUrl(x.url)}')"></i><span>${esc(x.name)}</span></button>`).join('')}</div></details>
         ${m ? `<div class="mu-me-mapform">${txt('Name', `maps.${mi}.name`)}
             ${txt('Where it is (its city, state or province)', `maps.${mi}.area`, 'Porto Alto')}
             ${sel('It is inside', `maps.${mi}.parent`, [['', '(nothing: a top map)'], ...w.maps.filter(x => x.id !== m.id).map(x => [x.id, x.name])])}
@@ -124,11 +125,11 @@ export function mapEditorHtml(w) {
             <details class="mu-me-times" ${Object.keys(m.images ?? {}).length ? 'open' : ''}><summary>Picture at other times of the day</summary>
                 ${TIME_SLOTS.map(per => {
         const b = m.images?.[per.id] ? worldFile(w, m.images[per.id]) : '';
-        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${esc(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
+        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${safeUrl(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
                     <button class="mu-ghost mu-ibtn" data-act="me-map-img" data-period="${esc(per.id)}" title="Upload">${icon('upload')}</button>${b ? `<button class="mu-ghost mu-ibtn" data-act="me-map-img-clear" data-period="${esc(per.id)}" title="Use the usual one">${icon('x')}</button>` : ''}</div>`;
     }).join('')}
                 <small class="mu-muted">Day 5–12 h, afternoon 12–18 h, night 18–5 h (same size as the usual picture, so pins stay in place).</small></details>
-            <details class="mu-me-lib"><summary>Use one of Mundi's maps</summary><div class="mu-me-libgrid">${libraryMaps().map(x => `<button class="${m.image === x.url ? 'is-on' : ''}" data-act="me-map-lib" data-url="${esc(x.url)}" data-ratio="${x.ratio}" title="${esc(x.name)}"><i style="background-image:url('${esc(x.url)}')"></i><span>${esc(x.name)}</span></button>`).join('')}</div>
+            <details class="mu-me-lib"><summary>Use one of Mundi's maps</summary><div class="mu-me-libgrid">${libraryMaps().map(x => `<button class="${m.image === x.url ? 'is-on' : ''}" data-act="me-map-lib" data-url="${esc(x.url)}" data-ratio="${toNum(x.ratio, 1)}" title="${esc(x.name)}"><i style="background-image:url('${safeUrl(x.url)}')"></i><span>${esc(x.name)}</span></button>`).join('')}</div>
                 <small class="mu-muted">The pictures of the ready worlds: pick one for this map (the original stays in its world).</small></details>
             <div class="mu-row"><button class="mu-ghost" data-act="me-map-img">${icon('image')}<span>Change picture</span></button><button class="mu-ghost" data-act="me-del-map">${icon('trash')}</button></div></div>` : ''}
         <p class="mu-muted">One map per city or area. On a bigger map (a region, a kingdom), add a link where each city is: in the game it opens that city's map.</p></aside>`;
@@ -136,12 +137,12 @@ export function mapEditorHtml(w) {
         return `<div class="mu-me">${maps}<div class="mu-me-empty"><p>Add a map: a picture of your city, region or kingdom.</p></div></div>`;
     const zones = w.homes.zones.filter(z => z.map === m.id);
     const tools = `<div class="mu-me-tools">
-        ${[['move', 'Select / move', 'select'], ['place', 'Add a place', 'pin'], ['link', 'Link to a map', 'map'], ['homes', 'Homes', 'home']].map(([id, l, ic]) => `<button class="${ME.mode === id ? 'is-on' : ''}" data-act="me-mode" data-v="${id}">${icon(ic)}<span>${l}</span></button>`).join('')}
+        ${[['move', 'Select / move', 'select'], ['place', 'Add a place', 'pin'], ['link', 'Link to a map', 'map'], ['homes', 'Homes', 'home']].map(([id, l, ic]) => `<button class="${ME.mode === id ? 'is-on' : ''}" data-act="me-mode" data-v="${esc(id)}">${icon(ic)}<span>${l}</span></button>`).join('')}
         ${ME.mode === 'homes' ? `<select data-input="me-zone">${zones.map(z => `<option value="${esc(z.id)}" ${z.id === ME.zone ? 'selected' : ''}>${esc(z.name)} (${z.spots.length})</option>`).join('') || '<option value="">(no area on this map)</option>'}</select><button class="mu-ghost" data-act="me-new-zone">${icon('plus')}<span>New area</span></button>` : ''}
         <span class="mu-me-zoom"><button data-act="me-zoom" data-d="-1">−</button><button data-act="me-zoom" data-d="1">+</button></span></div>`;
     return `<div class="mu-me">${maps}
         <div class="mu-me-center">${tools}
-            <div class="mu-me-stage is-${ME.mode}" data-keep="me-stage"><div class="mu-me-img" data-me-img style="width:${ME.zoom * 100}%;aspect-ratio:${m.ratio};background-image:url('${esc(worldFile(w, m.image))}')">
+            <div class="mu-me-stage is-${ME.mode}" data-keep="me-stage"><div class="mu-me-img" data-me-img style="width:${ME.zoom * 100}%;aspect-ratio:${m.ratio};background-image:url('${safeUrl(worldFile(w, m.image))}')">
                 ${homesHtml(w, m)}${w.places.filter(p => p.map === m.id).map(p => pinHtml(w, p)).join('')}</div></div></div>
         <aside class="mu-me-side" data-keep="me-side">${placeForm(w)}</aside></div>${bgPicker()}`;
 }

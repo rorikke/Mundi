@@ -2,6 +2,7 @@
 // scroll positions, open menus, the phone and pictures already loaded stay as they are.
 // SillyTavern's own panels shown inside Mundi ([data-native] hosts) are left alone.
 import { translateTree, settle } from '../core/tr.js';
+import { cleanTree } from '../core/safe.js';
 const SKIP_CHILDREN = (el) => el.hasAttribute('data-native') || el.hasAttribute('data-morph-skip');
 function sameNode(a, b) {
     if (a.nodeType !== b.nodeType)
@@ -14,6 +15,10 @@ function sameNode(a, b) {
     // elements with an identity must keep it: the same line, id, scroll area or SillyTavern panel host
     const key = (e) => `${e.getAttribute('data-i') ?? ''}|${e.id}|${e.getAttribute('data-keep') ?? ''}|${e.getAttribute('data-native') ?? ''}`;
     if (key(x) !== key(y))
+        return false;
+    // an element whose inside is left alone (data-morph-skip) is never made from another one, nor another from it:
+    // what was inside would stay there (the floors of the house plan stuck in the scene's background)
+    if (x.hasAttribute('data-morph-skip') !== y.hasAttribute('data-morph-skip'))
         return false;
     // a host of SillyTavern's panels is never reused for something else
     if (x.className !== y.className && (x.hasAttribute('data-native') || x.querySelector('[data-native]')))
@@ -112,6 +117,7 @@ export function morphChildren(from, to) {
 export function morph(host, html) {
     const t = document.createElement('template');
     t.innerHTML = html;
+    cleanTree(t.content); // nothing that runs code (a value from someone's file that slipped through)
     const wrap = document.createElement('div');
     wrap.appendChild(t.content);
     translateTree(wrap); // the interface in the chosen language, before it reaches the screen

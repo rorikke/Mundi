@@ -7,6 +7,10 @@ import { isOuting, outingId, outingName, playerHomeId } from './places.js';
 export const outingOf = (g) => (g?.outing ?? null);
 export const isOut = (g) => isOuting(g.player.loc);
 const LONG = 24 * 60; // the people with you stay with you until you come back
+// The background chosen for a place out of the house when a plan was made there (a date, a party): used when you go.
+export const outingBgs = (g) => (g.outingBgs ??= {});
+export function rememberOutingBg(g, place, bg) { const k = outingName(outingId(place)); if (k && bg)
+    outingBgs(g)[k] = bg; }
 export function startOuting(g, w, place, people, bg = '') {
     void w;
     const id = outingId(place);

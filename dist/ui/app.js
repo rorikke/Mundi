@@ -1,4 +1,5 @@
 import { drawThumbs } from './thumbs.js';
+import { htmlText } from '../core/safe.js';
 import { deliverAsk } from '../sim/happenings.js';
 import { deliverLetter } from '../sim/letters.js';
 import { isWith } from '../sim/social.js';
@@ -19,7 +20,7 @@ import { applyColors, setLookApplier } from './chatlook.js';
 // inputs, and runs the game clock.
 import { FONTS } from './settings.js';
 import { needWord } from '../sim/life.js';
-import { state, notify, onRender, ROOT_ID, game, saveGame, UI, toast, settings, clockMode, deviceMode, uiZoom } from '../core/store.js';
+import { state, notify, onRender, ROOT_ID, game, saveGame, UI, toast, settings, clockMode, deviceMode, uiZoom, esc } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { installTranslator } from '../core/tr.js';
 import { ACT, INPUT } from './reg.js';
@@ -82,7 +83,7 @@ export function applyUi() {
     r.dataset.avshape = u.avatarShape || 'rect';
     r.dataset.imglayout = u.imgLayout || 'left';
     applyColors(r);
-    r.dataset.dialogpos = u.dialogPos || 'center';
+    r.dataset.dialogpos = (u.layout || 'vn') === 'vn' ? u.dialogPos || 'center' : 'center'; // on the left (bottom): only in Visual novel
     r.style.setProperty('--mu-sprite-size', String((u.spriteSize ?? 100) / 100));
     r.style.setProperty('--mu-sprite-w', String((u.spriteW ?? 100) / 100));
     r.style.setProperty('--mu-sprite-y', `${u.spriteY ?? 0}vh`);
@@ -179,7 +180,7 @@ export function render() {
             el.scrollTop = was.top;
     });
     if (focusKey) {
-        const el = main.querySelector(`[data-focus="${focusKey}"]`);
+        const el = main.querySelector(`[data-focus="${esc(focusKey)}"]`);
         if (el) {
             el.focus();
             try {
@@ -376,7 +377,7 @@ function hookSillyTavernToasts() {
             if (state.open && /temporar(il)?y (chosen|persona)|persona locked|is locked to in this chat|persona.*(unlocked|lock)/i.test(`${String(title ?? '')} ${String(message ?? '')}`))
                 return undefined;
             if (state.open) {
-                const plain = (v) => { const d = document.createElement('div'); d.innerHTML = String(v ?? ''); return (d.textContent ?? '').trim(); };
+                const plain = htmlText; // (a template: an <img> in the message never loads)
                 const text = plain(message), head = plain(title);
                 if (text || head)
                     toast(text, kind, { source: 'SillyTavern', title: head, ms: kind === 'error' ? 9000 : kind === 'warn' ? 6000 : 4000 });

@@ -18,6 +18,7 @@ import { placeOn, extraRooms, mapOf, tripMinutes } from './places.js';
 import { trainHours } from './transit.js';
 import { partySpot } from './houseparty.js';
 import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace, type Stamp } from './dayplan.js';
+import { guestSpot } from './guests.js';
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 
@@ -194,6 +195,8 @@ export function whereNow(g: Save, w: WorldDef, r: Resident): string {
     if (isWith(g, r.avatar)) return g.player.loc;      // she came along with you
     const locked = lockedHere(g, r.avatar);            // in the middle of a conversation with you
     if (locked) return locked;
+    const stay = stayingAt(g, r.avatar);               // stopped to talk with you somewhere: stays there a while
+    if (stay) return stay;
     const appt = appointmentNow(g, r.avatar);          // plans with you win over the routine
     if (appt) return appt.place;
     const left = (g as any).swap?.left?.[r.avatar];    // the one you played until now stays where you left them for a while
@@ -202,6 +205,8 @@ export function whereNow(g: Save, w: WorldDef, r: Resident): string {
     if (party) return party;
     const story = broughtNow(g, r.avatar);             // a street story has brought her to its place
     if (story) return story.place;
+    const guest = guestSpot(g, w, r);                  // Home: a guest stays in the house (common rooms; at night, their bed)
+    if (guest) return guest;
     const brk = breakNow(g, w, r);                     // something interrupted her routine today (an errand, a cold…)
     if (brk) return brk.place;
     if (isScenario(w)) return routineNow(g, w, r);
@@ -241,3 +246,17 @@ export const residents = (g: Save) => Object.values(g.cast);
 // (someone you are playing as is not "here": you are them)
 const selfOf = (g: Save) => { const s = (g as any).swap; return s ? (s.avatar || s.origCard || '') : ''; };
 export const presentAt = (g: Save, w: WorldDef, loc: string) => residents(g).filter(r => r.avatar !== selfOf(g) && whereNow(g, w, r) === loc);
+
+// Someone who stopped to talk with you (a chance encounter) stays where you met for a while, without following you.
+export function stayingAt(g: Save, avatar: string): string | null {
+    const list = ((g as any).social?.stays ?? []) as { avatar: string; loc: string; until: number }[];
+    const now = nowAbs(g);
+    const s = list.find(x => x.avatar === avatar && now < x.until);
+    return s ? s.loc : null;
+}
+export function stayHere(g: Save, avatar: string, loc: string, minutes: number) {
+    const soc = ((g as any).social ??= {});
+    const now = nowAbs(g);
+    soc.stays = ((soc.stays ?? []) as { avatar: string; loc: string; until: number }[]).filter(x => x.avatar !== avatar && now < x.until);
+    soc.stays.push({ avatar, loc, until: now + minutes });
+}

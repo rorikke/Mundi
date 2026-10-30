@@ -1,0 +1,1263 @@
+{
+ "v": 1,
+ "world": "modern",
+ "lang": "en",
+ "day": 17,
+ "minutes": 1380,
+ "speed": 60,
+ "player": {
+  "loc": "home:player",
+  "home": {
+   "zone": "downtown",
+   "kind": "apartment",
+   "x": 45.4,
+   "y": 13.5,
+   "n": 1
+  },
+  "stats": {
+   "life": 0,
+   "energy": 40,
+   "hunger": 0,
+   "thirst": 0,
+   "mood": 0,
+   "hygiene": 0
+  },
+  "money": 2908,
+  "traits": {
+   "proficiency": [
+    "Strong",
+    "Smart"
+   ],
+   "personality": [
+    "Kind",
+    "Calm"
+   ]
+  },
+  "origin": "newcomer",
+  "job": {
+   "id": "barista",
+   "rank": 2,
+   "shifts": 4
+  },
+  "rentPaidDay": 1,
+  "learning": {
+   "progress": {
+    "cooking": 0
+   },
+   "lastDay": {},
+   "done": [],
+   "count": {
+    "shifts": 14
+   },
+   "interviews": {
+    "barista": 3
+   },
+   "earned": [],
+   "current": "cooking"
+  },
+  "items": [
+   "coffee"
+  ],
+  "broken": [],
+  "fitness": 0,
+  "study": {
+   "enrolled": false,
+   "classes": 0,
+   "passed": 0,
+   "degree": false
+  }
+ },
+ "cast": {
+  "ex0.png": {
+   "avatar": "ex0.png",
+   "name": "Bianca",
+   "occupation": "barista",
+   "home": {
+    "zone": "downtown",
+    "x": 52.3,
+    "y": 6.3,
+    "n": 2
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "beach",
+    "downtown"
+   ],
+   "met": true
+  },
+  "ex1.png": {
+   "avatar": "ex1.png",
+   "name": "Helena",
+   "occupation": "engineer",
+   "home": {
+    "zone": "waterfront",
+    "x": 98,
+    "y": 34.8,
+    "n": 3
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "work"
+     ],
+     [
+      18,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      16,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "waterfront"
+   ],
+   "met": true
+  },
+  "ex2.png": {
+   "avatar": "ex2.png",
+   "name": "Yumi",
+   "occupation": null,
+   "home": {
+    "zone": "north",
+    "x": 1.7,
+    "y": 68.8,
+    "n": 4
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "campus"
+     ],
+     [
+      15,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      17,
+      "leisure"
+     ],
+     [
+      22,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "ferris",
+    "park"
+   ],
+   "met": true
+  },
+  "ex3.png": {
+   "avatar": "ex3.png",
+   "name": "Carla",
+   "occupation": "trainer",
+   "home": {
+    "zone": "east",
+    "x": 79.5,
+    "y": 76.4,
+    "n": 2
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "park",
+    "beach"
+   ],
+   "met": true
+  },
+  "ex4.png": {
+   "avatar": "ex4.png",
+   "name": "Marina",
+   "occupation": null,
+   "home": {
+    "zone": "south",
+    "x": 4.9,
+    "y": 86.5,
+    "n": 6
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      6,
+      "work"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      9,
+      "leisure"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      20,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "docks"
+   ],
+   "met": true
+  },
+  "ex5.png": {
+   "avatar": "ex5.png",
+   "name": "Lia",
+   "occupation": "engineer",
+   "home": {
+    "zone": "east",
+    "x": 83.8,
+    "y": 72.3,
+    "n": 1
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "work"
+     ],
+     [
+      18,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      16,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "mall"
+   ],
+   "met": true
+  },
+  "ex6.png": {
+   "avatar": "ex6.png",
+   "name": "Sofia",
+   "occupation": "librarian",
+   "home": {
+    "zone": "north",
+    "x": 14.4,
+    "y": 72,
+    "n": 8
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "home"
+     ],
+     [
+      8,
+      "work"
+     ],
+     [
+      18,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "home"
+     ],
+     [
+      11,
+      "leisure"
+     ],
+     [
+      16,
+      "leisure"
+     ],
+     [
+      21,
+      "home"
+     ]
+    ]
+   },
+   "leisure": [
+    "downtown",
+    "park"
+   ],
+   "met": true
+  },
+  "ex7.png": {
+   "avatar": "ex7.png",
+   "name": "Jade",
+   "occupation": "waiter",
+   "home": {
+    "zone": "south",
+    "x": 25.2,
+    "y": 87.5,
+    "n": 9
+   },
+   "routine": {
+    "weekday": [
+     [
+      0,
+      "work"
+     ],
+     [
+      2,
+      "home"
+     ],
+     [
+      14,
+      "leisure"
+     ],
+     [
+      18,
+      "work"
+     ]
+    ],
+    "weekend": [
+     [
+      0,
+      "work"
+     ],
+     [
+      3,
+      "home"
+     ],
+     [
+      15,
+      "leisure"
+     ],
+     [
+      19,
+      "work"
+     ]
+    ]
+   },
+   "leisure": [
+    "beach"
+   ],
+   "met": true
+  }
+ },
+ "tick": {
+  "decay:energy": 25830,
+  "decay:hunger": 25830,
+  "decay:thirst": 25830,
+  "decay:mood": 25830,
+  "decay:hygiene": 25830,
+  "drain:thirst": 25860,
+  "zero:thirst": 2880,
+  "drain:hunger": 25830,
+  "drain:hygiene": 25830,
+  "zero:hygiene": 3570,
+  "zero:hunger": 25350
+ },
+ "log": [],
+ "cfg": {
+  "difficulty": "normal"
+ },
+ "facts": [
+  {
+   "id": "f2040_0",
+   "at": 2040,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} had a job interview for {0}, but did not get it.",
+   "a": [
+    "Barista"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f2880_1",
+   "at": 2880,
+   "place": "industrial",
+   "who": [
+    "ex1.png"
+   ],
+   "t": "{0} started a new job: {1}.",
+   "a": [
+    "Helena",
+    "Engineer"
+   ],
+   "kind": "life",
+   "u": "Tester"
+  },
+  {
+   "id": "f3420_2",
+   "at": 3420,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} had a job interview for {0}, but did not get it.",
+   "a": [
+    "Barista"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f4860_3",
+   "at": 4860,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} got hired: {0} at {1}.",
+   "a": [
+    "Attendant",
+    "Barista"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f6600_4",
+   "at": 6600,
+   "place": "cafe",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Bianca"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f8040_5",
+   "at": 8040,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} got promoted to {0}.",
+   "a": [
+    "Barista"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f8040_6",
+   "at": 8040,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} enrolled in a course: {0}.",
+   "a": [
+    "Cooking class"
+   ],
+   "kind": "study",
+   "u": "Tester"
+  },
+  {
+   "id": "f8040_7",
+   "at": 8040,
+   "place": "cafe",
+   "who": [
+    "ex1.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Helena"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f9480_8",
+   "at": 9480,
+   "place": "cafe",
+   "who": [
+    "ex2.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Yumi"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f10920_9",
+   "at": 10920,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} bought: {0}.",
+   "a": [
+    "Coffee machine"
+   ],
+   "kind": "shop",
+   "u": "Tester"
+  },
+  {
+   "id": "f10920_10",
+   "at": 10920,
+   "place": "cafe",
+   "who": [
+    "ex3.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Carla"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f12360_11",
+   "at": 12360,
+   "place": "cafe",
+   "who": [
+    "ex4.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Marina"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f13800_12",
+   "at": 13800,
+   "place": "cafe",
+   "who": [
+    "ex5.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Lia"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f15240_13",
+   "at": 15240,
+   "place": "cafe",
+   "who": [
+    "ex6.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Sofia"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f16680_14",
+   "at": 16680,
+   "place": "cafe",
+   "who": [
+    "ex7.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Jade"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f18120_15",
+   "at": 18120,
+   "place": "cafe",
+   "who": [
+    "ex0.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Bianca"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f19560_16",
+   "at": 19560,
+   "place": "cafe",
+   "who": [],
+   "t": "{u} got promoted to {0}.",
+   "a": [
+    "Manager"
+   ],
+   "kind": "work",
+   "u": "Tester"
+  },
+  {
+   "id": "f19560_17",
+   "at": 19560,
+   "place": "cafe",
+   "who": [
+    "ex1.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Helena"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f21000_18",
+   "at": 21000,
+   "place": "cafe",
+   "who": [
+    "ex2.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Yumi"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f22440_19",
+   "at": 22440,
+   "place": "cafe",
+   "who": [
+    "ex3.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Carla"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f23880_20",
+   "at": 23880,
+   "place": "cafe",
+   "who": [
+    "ex4.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Marina"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  },
+  {
+   "id": "f25320_21",
+   "at": 25320,
+   "place": "cafe",
+   "who": [
+    "ex5.png"
+   ],
+   "t": "{u} spent time with {0}.",
+   "a": [
+    "Lia"
+   ],
+   "kind": "social",
+   "u": "Tester"
+  }
+ ],
+ "bills": {
+  "rent": {
+   "due": 22,
+   "told": 15
+  },
+  "water": {
+   "due": 22,
+   "told": 15
+  },
+  "power": {
+   "due": 22,
+   "told": 15
+  }
+ },
+ "social": {
+  "bond": {
+   "ex0.png": 16,
+   "ex1.png": 16,
+   "ex2.png": 16,
+   "ex3.png": 16,
+   "ex4.png": 16,
+   "ex5.png": 16,
+   "ex6.png": 8,
+   "ex7.png": 8
+  },
+  "today": {
+   "ex5.png|17": 8
+  },
+  "partner": [],
+  "threads": {
+   "ex0.png": [
+    {
+     "me": true,
+     "text": "Day 0: hi Bianca!",
+     "at": 6600
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 6602
+    },
+    {
+     "me": true,
+     "text": "Day 8: hi Bianca!",
+     "at": 18120
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 18122
+    }
+   ],
+   "ex1.png": [
+    {
+     "me": true,
+     "text": "Day 1: hi Helena!",
+     "at": 8040
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 8042
+    },
+    {
+     "me": true,
+     "text": "Day 9: hi Helena!",
+     "at": 19560
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 19562
+    }
+   ],
+   "ex2.png": [
+    {
+     "me": true,
+     "text": "Day 2: hi Yumi!",
+     "at": 9480
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 9482
+    },
+    {
+     "me": true,
+     "text": "Day 10: hi Yumi!",
+     "at": 21000
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 21002
+    }
+   ],
+   "ex3.png": [
+    {
+     "me": true,
+     "text": "Day 3: hi Carla!",
+     "at": 10920
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 10922
+    },
+    {
+     "me": true,
+     "text": "Day 11: hi Carla!",
+     "at": 22440
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 22442
+    }
+   ],
+   "ex4.png": [
+    {
+     "me": true,
+     "text": "Day 4: hi Marina!",
+     "at": 12360
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 12362
+    },
+    {
+     "me": true,
+     "text": "Day 12: hi Marina!",
+     "at": 23880
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 23882
+    }
+   ],
+   "ex5.png": [
+    {
+     "me": true,
+     "text": "Day 5: hi Lia!",
+     "at": 13800
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 13802
+    },
+    {
+     "me": true,
+     "text": "Day 13: hi Lia!",
+     "at": 25320
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 25322
+    }
+   ],
+   "ex6.png": [
+    {
+     "me": true,
+     "text": "Day 6: hi Sofia!",
+     "at": 15240
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 15242
+    }
+   ],
+   "ex7.png": [
+    {
+     "me": true,
+     "text": "Day 7: hi Jade!",
+     "at": 16680
+    },
+    {
+     "me": false,
+     "text": "Hey!",
+     "at": 16682
+    }
+   ]
+  },
+  "unread": {},
+  "appts": [
+   {
+    "id": "a13800p5xv",
+    "avatar": "ex5.png",
+    "place": "downtown",
+    "from": 16680,
+    "to": 16800,
+    "kind": "hangout",
+    "state": "set",
+    "come": false
+   }
+  ],
+  "with": [],
+  "feel": []
+ },
+ "family": {
+  "kids": [],
+  "pregnancy": null,
+  "tries": {}
+ },
+ "living": {
+  "approval": {},
+  "rumors": [
+   {
+    "id": "f4860_3",
+    "text": "Tester got hired: Attendant at Barista.",
+    "at": 4860,
+    "knownBy": []
+   },
+   {
+    "id": "f8040_5",
+    "text": "Tester got promoted to Barista.",
+    "at": 8040,
+    "knownBy": []
+   },
+   {
+    "id": "f19560_16",
+    "text": "Tester got promoted to Manager.",
+    "at": 19560,
+    "knownBy": []
+   }
+  ],
+  "pairs": []
+ },
+ "ledger": [
+  {
+   "at": 25320,
+   "text": "Manager: 6 h",
+   "amount": 150
+  },
+  {
+   "at": 24960,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 23880,
+   "text": "Manager: 6 h",
+   "amount": 150
+  },
+  {
+   "at": 23520,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 22440,
+   "text": "Power",
+   "amount": -25
+  },
+  {
+   "at": 22440,
+   "text": "Water",
+   "amount": -15
+  },
+  {
+   "at": 22440,
+   "text": "Rent",
+   "amount": -120
+  },
+  {
+   "at": 22440,
+   "text": "Manager: 6 h",
+   "amount": 150
+  },
+  {
+   "at": 22080,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 21000,
+   "text": "Manager: 6 h",
+   "amount": 150
+  },
+  {
+   "at": 20640,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 19560,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 19200,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 18120,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 17760,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 16680,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 16320,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 15240,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 14880,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 13800,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 13440,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 12360,
+   "text": "Power",
+   "amount": -25
+  },
+  {
+   "at": 12360,
+   "text": "Water",
+   "amount": -15
+  },
+  {
+   "at": 12360,
+   "text": "Rent",
+   "amount": -120
+  },
+  {
+   "at": 12360,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 12000,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 10920,
+   "text": "Coffee machine",
+   "amount": -250
+  },
+  {
+   "at": 10920,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 10560,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 9480,
+   "text": "Barista: 6 h",
+   "amount": 120
+  },
+  {
+   "at": 9120,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 8040,
+   "text": "Course: Cooking class",
+   "amount": -150
+  },
+  {
+   "at": 8040,
+   "text": "Attendant: 6 h",
+   "amount": 90
+  },
+  {
+   "at": 7680,
+   "text": "Cook",
+   "amount": -8
+  },
+  {
+   "at": 6600,
+   "text": "Attendant: 6 h",
+   "amount": 90
+  },
+  {
+   "at": 6240,
+   "text": "Cook",
+   "amount": -8
+  }
+ ],
+ "romance": {
+  "ex0.png": {
+   "value": 2,
+   "status": "none"
+  },
+  "ex1.png": {
+   "value": 1,
+   "status": "none"
+  },
+  "ex2.png": {
+   "value": 3,
+   "status": "none"
+  },
+  "ex3.png": {
+   "value": 2,
+   "status": "none"
+  },
+  "ex4.png": {
+   "value": 1,
+   "status": "none"
+  },
+  "ex5.png": {
+   "value": 3,
+   "status": "none"
+  },
+  "ex6.png": {
+   "value": 0,
+   "status": "none"
+  },
+  "ex7.png": {
+   "value": 1,
+   "status": "none"
+  }
+ }
+}

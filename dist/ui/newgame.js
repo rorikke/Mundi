@@ -2,6 +2,8 @@
 // a world goes: style and world → who lives in it (the world's own people, chosen one by one, and your cards; adult
 // content on or off) → your character (the world's own sheet, your start) → start.
 import { rpgOf } from '../core/rpgdef.js';
+import { placeFits } from '../sim/needs.js';
+import { safeUrl } from '../core/safe.js';
 import { defaultAttrs, pointsUsed, POINTS, POINT_COST, mod } from '../sim/rpg.js';
 import { listSaves } from '../sim/game.js';
 import { castLevel, NEIGHBORS_MIN } from '../sim/happenings.js';
@@ -100,7 +102,7 @@ const roomsOf = () => {
 const ROOM_TAGS = [['leisure', 'Free time'], ['outdoor', 'Outdoors'], ['food', 'Food'], ['sport', 'Sport'], ['service', 'Chores'], ['study', 'Study']];
 const extraOf = () => (store().extraRooms ??= []);
 // The actions a room offers by default (its tags, or actions made for it); `anywhere` ones are everywhere anyway.
-const roomActsDefault = (w, p) => w.actions.filter(a => !a.home && !a.anywhere && ((a.place && a.place === p.id) || (!a.place && (a.tags ?? []).some(t => (p.tags ?? []).includes(t)) && !(a.notTags ?? []).some(t => (p.tags ?? []).includes(t))))).map(a => a.id);
+const roomActsDefault = (w, p) => w.actions.filter(a => !a.home && !a.anywhere && ((a.place && placeFits(a.place, p)) || (!a.place && (a.tags ?? []).some(t => (p.tags ?? []).includes(t)) && !(a.notTags ?? []).some(t => (p.tags ?? []).includes(t))))).map(a => a.id);
 const roomActs = (w, p) => (store().roomActs ?? {})[p.id] ?? roomActsDefault(w, p);
 // Which one a click is about: inside This Home (.mu-house-rooms) it is the game going on.
 const at = (el) => { HT = el.closest('.mu-house-rooms') ? 'game' : 'wizard'; };
@@ -118,7 +120,7 @@ function roomsPickHtml() {
     const on = roomsOf(), extra = extraOf();
     // Clicking a room opens what can be done in it; only its round button adds or removes it.
     const tile = (p, isOn, extraRoom) => `<div class="mu-ng-room-w"><button class="mu-ng-room ${isOn ? 'is-on' : ''} ${ui().roomEdit === p.id ? 'is-edit' : ''}" data-act="ng-room-edit" data-id="${esc(p.id)}" title="${esc(p.desc ? `${p.desc} · ` : '')}Click: what can be done here">
-            <i style="${p.bg ? `background-image:url('${esc(extraRoom ? p.bg : worldFile(w, p.bg))}')` : ''}">${p.bg ? '' : icon('home')}</i><b data-notr>${esc(p.name)}</b></button>
+            <i style="${p.bg ? `background-image:url('${safeUrl(extraRoom ? p.bg : worldFile(w, p.bg))}')` : ''}">${p.bg ? '' : icon('home')}</i><b data-notr>${esc(p.name)}</b></button>
             <button class="mu-ng-room-tick ${isOn ? 'is-on' : ''} ${extraRoom ? 'is-x' : ''}" data-act="${extraRoom ? 'ng-room-x' : 'ng-room'}" data-id="${esc(p.id)}" title="${extraRoom ? 'Remove this room' : isOn ? 'Take this room out of the house' : 'Put this room in the house'}" aria-pressed="${isOn}">${extraRoom ? '×' : isOn ? '✓' : ''}</button></div>`;
     const edit = roomEditHtml(w);
     return `<h3>Rooms</h3><p class="mu-muted">Which rooms this house has (the bedrooms are always there). The round button adds or removes a room; click a room to choose what can be done in it.</p>
@@ -129,10 +131,10 @@ function roomsPickHtml() {
 function roomFormHtml() {
     const f = ui().roomForm;
     return `<section class="mu-panel mu-ng-roomform"><h4>A new room</h4>
-        <div class="mu-row"><span class="mu-ng-roompic" style="${f.bg ? `background-image:url('${esc(f.bg)}')` : ''}">${f.bg ? '' : icon('image')}</span><button data-act="ng-room-pic">${icon('upload')}<span>${f.bg ? 'Change picture' : 'Picture (optional)'}</span></button></div>
+        <div class="mu-row"><span class="mu-ng-roompic" style="${f.bg ? `background-image:url('${safeUrl(f.bg)}')` : ''}">${f.bg ? '' : icon('image')}</span><button data-act="ng-room-pic">${icon('upload')}<span>${f.bg ? 'Change picture' : 'Picture (optional)'}</span></button></div>
         <label class="mu-field"><span>Name</span><input data-input="ng-room-f" data-k="name" data-focus="ngroomname" maxlength="60" value="${esc(f.name)}" placeholder="Home cinema"></label>
         <label class="mu-field"><span>What it is like (the AI reads this)</span><textarea rows="2" data-input="ng-room-f" data-k="desc" data-focus="ngroomdesc" placeholder="a dark room with a projector and big beanbags">${esc(f.desc)}</textarea></label>
-        <div class="mu-field"><span>What it is for</span><div class="mu-chips">${ROOM_TAGS.map(([t, l]) => `<button class="mu-chip ${f.tags.includes(t) ? 'is-on' : ''}" data-act="ng-room-tag" data-v="${t}">${l}</button>`).join('')}</div></div>
+        <div class="mu-field"><span>What it is for</span><div class="mu-chips">${ROOM_TAGS.map(([t, l]) => `<button class="mu-chip ${f.tags.includes(t) ? 'is-on' : ''}" data-act="ng-room-tag" data-v="${esc(t)}">${l}</button>`).join('')}</div></div>
         <div class="mu-row"><button class="mu-primary" data-act="ng-room-save" ${f.name.trim() ? '' : 'aria-disabled="true"'}>Add the room</button><button class="mu-ghost" data-act="ng-room-cancel">Cancel</button></div></section>`;
 }
 function roomEditHtml(w) {
@@ -201,7 +203,7 @@ function playModeHtml() {
     if (playable(w).length < 2)
         return '';
     const m = playMode();
-    return `<h3>How do you want to play?</h3><div class="mu-heropick is-start">${playable(w).map(x => `<button class="mu-herocard ${m === x.id ? 'is-on' : ''}" data-act="ng-play" data-v="${x.id}"><b>${esc(x.name)}</b><p>${esc(x.desc)}</p></button>`).join('')}</div>`;
+    return `<h3>How do you want to play?</h3><div class="mu-heropick is-start">${playable(w).map(x => `<button class="mu-herocard ${m === x.id ? 'is-on' : ''}" data-act="ng-play" data-v="${esc(x.id)}"><b>${esc(x.name)}</b><p>${esc(x.desc)}</p></button>`).join('')}</div>`;
 }
 // RPG: class, attributes (point buy) and two trained skills. The background (origin) adds its skills and +1s.
 function rpgState() {
@@ -292,7 +294,7 @@ function stepHeroNew() {
     const h = state.wizard.hero, sh = W().sheet;
     return `<div class="mu-creator ${asks(W(), 'portrait') ? '' : 'no-portrait'}">
         <section class="mu-portrait" ${asks(W(), 'portrait') ? '' : 'hidden'}>
-            <div class="mu-portrait-img" style="${state.wizard.portraitUrl ? `background-image:url('${state.wizard.portraitUrl}')` : ''}">${state.wizard.portraitUrl ? '' : `<span>${esc((h.name || '?').slice(0, 2).toUpperCase())}</span>`}</div>
+            <div class="mu-portrait-img" style="${state.wizard.portraitUrl ? `background-image:url('${safeUrl(state.wizard.portraitUrl)}')` : ''}">${state.wizard.portraitUrl ? '' : `<span>${esc((h.name || '?').slice(0, 2).toUpperCase())}</span>`}</div>
             <button data-act="ng-portrait">Choose an image</button>
             ${state.wizard.portraitUrl ? '<button class="mu-ghost" data-act="ng-portrait-clear">Use initials</button>' : '<small class="mu-muted">Without an image, your initials are used.</small>'}
         </section>
@@ -324,7 +326,7 @@ function situationHtml() {
     const st = startOf(), w = W();
     const books = lorebooks().filter(b => !st.bq || b.toLowerCase().includes(String(st.bq).toLowerCase())).sort((a, b) => a.localeCompare(b));
     return `<section class="mu-origins mu-situation"><h3>Your situation</h3><p class="mu-muted">How you fit in ${esc(w.name)}.</p><div class="mu-cards small">${SCENARIO_STARTS.map(s => `
-            <button class="mu-origin ${st.id === s.id ? 'is-on' : ''}" data-act="ng-situation" data-id="${s.id}"><b>${esc(s.name)}</b><p>${esc(s.desc)}</p></button>`).join('')}</div>
+            <button class="mu-origin ${st.id === s.id ? 'is-on' : ''}" data-act="ng-situation" data-id="${esc(s.id)}"><b>${esc(s.name)}</b><p>${esc(s.desc)}</p></button>`).join('')}</div>
         ${st.id === 'custom' ? `<div class="mu-panel mu-situation-custom">
             <label class="mu-field"><span>Premise (how the story starts; the AI is told this instead of the Home's own)</span><textarea rows="6" data-input="ng-start-text" data-focus="ngstart" placeholder="${esc(w.scenario?.premise ?? 'Who you are in this house, and how it all begins')}">${esc(st.text)}</textarea></label>
             <h4>Or let your AI write it from lorebooks</h4>
@@ -372,7 +374,7 @@ function stepReview() {
         <ul class="mu-muted mu-review-list">${wpChosen().length ? '<li>the cards of the world\'s people you chose (made once, used again by later games)</li>' : ''}${wz.heroMode === 'existing' ? '' : '<li>your persona</li>'}<li>the lorebook “Mundi - ${esc(w.name)}”</li><li>a group chat for this game (each save is a chat of that group)</li></ul>
     </div><div class="mu-panel mu-review">
         <h4>Difficulty</h4>
-        <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${(wz.difficulty ?? 'normal') === d.id ? 'is-on' : ''}" data-act="ng-diff" data-v="${d.id}"><b>${d.name}</b><p>${home ? d.homeDesc : d.desc}</p></button>`).join('')}</div>
+        <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${(wz.difficulty ?? 'normal') === d.id ? 'is-on' : ''}" data-act="ng-diff" data-v="${esc(d.id)}"><b>${d.name}</b><p>${home ? d.homeDesc : d.desc}</p></button>`).join('')}</div>
         ${memoriesHtml()}
     </div></div>`;
 }

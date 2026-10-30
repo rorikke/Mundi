@@ -1,0 +1,20 @@
+/* Visual novel on a computer: the dialogue box is placed by `left` alone (no transform), so moving it between
+   Centered and Left (or making room for the phone) is one smooth glide. Animating the transform of a glass box
+   (backdrop-filter) makes Chrome draw its buttons for a moment where the box no longer is.
+   --dlg-cw: the box's width; centered, its left edge is the middle minus half of it. The width slider
+   (Chat look › Sizes, 60% to 160% of 980px) gives the same width in both positions; on the left it grows to the right. */
+@media (min-width: 900px) {
+    #mundi-root[data-layout="vn"]:not([data-mobile]) .mu-dialog {
+        --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px));
+        width: var(--dlg-cw); transform: none; left: calc(50% - var(--dlg-cw) / 2);
+        transition: left .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1); }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 28px)); left: 14px; }
+}
+/* the phone open on the right: the box makes room for it (centered in what is left, or still on the left) */
+@media (min-width: 1100px) {
+    #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 440px)); left: calc(50% - 200px - var(--dlg-cw) / 2); }
+    #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px)); left: calc(50% - var(--dlg-cw) / 2); }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 454px)); left: 14px; }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 28px)); left: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { #mundi-root .mu-dialog { transition: none !important; } }

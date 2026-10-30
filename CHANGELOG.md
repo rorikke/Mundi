@@ -1,5 +1,114 @@
 # Changelog
 
+## 0.2.1 · 2026-10-28
+
+Fixes and improvements for Home mode.
+
+### Security
+
+Thanks to **coldasblues**, whose fork found these.
+
+- **World files can no longer run code.** Picture addresses, numbers and colors from a world file (yours or one
+  you imported) went into the page's styles as they were, and a crafted file could run code inside SillyTavern.
+  Now a picture can only be a picture, numbers stay numbers and colors stay colors, and everything Mundi draws
+  is cleaned of anything that could run code.
+- **Slash commands:** text sent through SillyTavern's commands (lines, narration, read aloud, pictures) can no
+  longer carry an STscript `{: … :}` block.
+- **Importing a world** only uses the pictures inside the file: nothing is downloaded from other sites.
+- **Messages can't press Mundi's buttons:** a reply (or a card, or a shared chat) with HTML that copied Mundi's
+  controls could make a click do something in Mundi. Those controls are now removed from what messages show.
+- **Pictures from links in messages** now follow SillyTavern's "Forbid external media" (a picture from another
+  site tells that site you are reading). To show them anyway: Chat look → Show pictures from links.
+- **Every attribute filled from a world, a card or a save is escaped**, also in the world creator's fields, and a
+  currency symbol or an icon can't carry HTML.
+
+### Visitors (Home)
+
+- **Invite people over** from the Calendar (a new Visits tab). They arrive about an hour later and stay until
+  you say goodbye.
+- **The doorbell:** when they arrive, it rings. Open the door yourself, or someone else answers after a while.
+  If you are out, they are let in.
+- **Where they sleep:** a free bedroom, your room or a housemate's room, chosen for each guest (and changeable
+  while they stay).
+- **Guests' rooms** are always open to you, and saying goodbye in their room no longer leaves you in the dark.
+
+### Parties and going out
+
+- **Guests from outside:** a party can invite people who don't live in the house. They come at the start and go
+  home at the end, unless you ask them to stay after the party.
+- **A party out of the house:** pick the place and its background.
+- **Edit the guests** of a planned party on its card (Edit guests), next to Call it off.
+- **Go out** with anyone from your cast or your library, and pick the background. A date "somewhere out" can
+  have its own background too.
+- **Sleeping through plans:** going to sleep when a party or a date is coming asks first. "Sleep until the
+  party" (or the date) wakes you up just in time.
+
+### Looks and sound
+
+- **The AI narrates what you do right away** (Things to do, in a scene). On by default.
+- **AI calls in one place:** This world → AI context lists everything that makes Mundi call the AI (narrating what
+  you do, the diary, characters' texts, Chirp posts and pictures), each with its own switch. New: characters' texts
+  can use short ready-made replies instead of the AI.
+- **Rain and storm sounds**, with their own switch and volume (Settings → Weather sounds).
+- **Cards layout:** sprites on the left or the right.
+- **Visual novel:** the dialog box on the left, with an adjustable width.
+- **Backgrounds** fade into each other when you move.
+- **Character picker:** folders keep their color.
+
+### Home
+
+- **This Home** comes first in the menu and holds the Home settings.
+- **Company stays:** someone who comes along with you stays until you part (no timer), and can go to your room
+  with you.
+- **More kinds of family ties.**
+- **Bedroom doors:** someone's room when they're not in is locked (no more ringing a doorbell inside the house); when
+  they're in, you knock.
+- **The menu** no longer repeats "Go to my room" and "Go out" (they're on the top bar).
+- **What you can do fits the room:** eating and drinking in the kitchen (everything) and the dining room (a meal, a
+  coffee, a drink, a snack); the TV and the new **Play video games** in the living room; washing up (a shower, the
+  new **Brush your teeth**) in the bathrooms. Rooms you set up yourself in the Home creator keep your choice.
+- **Things to do in each room:** swim, sunbathe or relax by the pool; do the laundry; tinker or wash the car in the
+  garage; sit on the porch or water the plants; tidy up the storage room; set the table; read in bed. Working out
+  (the treadmill too) is in the gym.
+  Your own Homes get the same: a room called "Piscina", "Garage", "Banheiro"… gets the actions of that kind of room
+  (by its name, in English, Portuguese or Spanish).
+- **Homes you made before** are brought up to date when they open: they get the actions added since and lose built-in
+  ones that no longer exist. Actions you made yourself are never touched, and one you remove stays removed.
+- **Go out** from the garage and the entrance too, not only from the floor plan.
+- **Go somewhere else:** when you are out, go on to another place (the cinema, then the mall, then a restaurant…)
+  with its own name and background; who is with you comes along.
+- **Running into someone:** stopping to talk no longer makes them follow you. They stay where you met for a while.
+- **New pictures** for Stella and Seraphina in the tour.
+- **Needs, if you want them:** This Home → Needs turns on hunger, thirst, mood and hygiene for this game (off by
+  default). Their icons show under the clock, they drop with time, and the AI is told when one is low. No energy, and
+  nothing bad happens when one runs out.
+- **The Advanced switch** at the top of This Home is easier to see.
+
+### First steps, tour and gallery
+
+- **Choose your language first:** the first time Mundi opens, before Stella shows up, a window asks only for the
+  language (English, Português (Brasil), Español). The welcome and the tour then come in that language.
+- **Stella's tour box** stays in the same place and the same size on every step, so the buttons (Skip tour, back,
+  Next) never move. The text is bigger, the step count sits next to the buttons, and Stella is shown whole from the
+  waist up, standing on the box's bottom line.
+- **Gallery:** two tabs, **Saves** and **Character greetings**. Saves are one grid, newest first, with the game's
+  name under each album (before, every game had its own row, so it looked like a list).
+- **Settings → Game → What's new** opens this version's changelog instead of the tour.
+- **The Old Manor** has a cover picture.
+
+### Fixes
+
+- **Playful slaps and teasing** no longer cost bond: a harsh line only counts if the character takes it badly (the
+  emotion of their reply, or, without the Expressions extension, the words of it: they laugh, or they pull away in
+  tears). Said with a grin, "de leve", "playfully"… it doesn't count at all.
+- **Family and ties:** someone added later as your spouse (or fiancé, or partner) shows as Married (Engaged,
+  Dating) and is no longer a stranger. Before, this only worked when set while creating the game.
+- **Rooms off the floor plan:** a guest sleeping in a shared room no longer creates a room that isn't on the plan.
+- **Scene background:** the floor plan no longer gets stuck in the background after you move.
+- **The phone** no longer slides in again when a dialog opens.
+- **Exporting a world** now takes along the backgrounds you picked from your own SillyTavern (My backgrounds),
+  so the person who imports it sees them too.
+
 ## 0.2.0 · 2026-10-25
 
 Everything since 0.1.0 (the last version on GitHub, commit `33837e1`).

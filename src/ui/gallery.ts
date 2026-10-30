@@ -74,7 +74,7 @@ function cover(a: Album) {
 // Favorite pictures (a star in the picture viewer), kept in Mundi's settings.
 const favPics = () => ((settings() as any).favPics ??= []) as string[];
 const isFavPic = (u: string) => favPics().includes(u);
-const GF = { q: '', favChars: false };
+const GF = { q: '', favChars: false, tab: 'saves' as 'saves' | 'greet' };
 // All favorite pictures, as one album.
 function favAlbum(): Album | null {
     const seen = new Set<string>(); const photos: Photo[] = [];
@@ -87,29 +87,32 @@ function shelf() {
     const q = GF.q.toLowerCase();
     const match = (a: Album) => !q || `${a.row.chatId} ${a.row.title}`.toLowerCase().includes(q);
     // characters whose greetings have pictures: only the card picture and the name (the pictures load when opened)
-    const chars = list.filter(a => a.key.startsWith('char/') && a.photos.length && match(a) && (!GF.favChars || isFav(charOf(a.row.avatar!))));
-    const saves = GF.favChars ? [] : list.filter(a => !a.key.startsWith('char/') && a.photos.length && match(a));
+    const allChars = list.filter(a => a.key.startsWith('char/') && a.photos.length);
+    const allSaves = list.filter(a => !a.key.startsWith('char/') && a.photos.length);
+    const chars = allChars.filter(a => match(a) && (!GF.favChars || isFav(charOf(a.row.avatar!))));
+    const saves = allSaves.filter(match).sort((a, b) => (b.row.last || 0) - (a.row.last || 0));
     const nFav = favAlbum()!.photos.length;
+    const greet = GF.tab === 'greet';
+    // two tabs: the pictures of your saves, and the pictures in your characters' greetings
+    const tabs = `<nav class="mu-tabs mu-gal-tabs"><button class="${greet ? '' : 'is-on'}" data-act="gal-tab" data-tab="saves">${icon('image')}<span>Saves · ${allSaves.length}</span></button>
+        <button class="${greet ? 'is-on' : ''}" data-act="gal-tab" data-tab="greet">${icon('users')}<span>Character greetings · ${allChars.length}</span></button></nav>`;
     const bar = `<div class="mu-gal-bar"><input class="mu-search" type="search" data-input="gal-q" data-focus="galq" placeholder="Search by name" value="${esc(GF.q)}">
-        <button class="mu-chip ${GF.favChars ? 'is-on' : ''}" data-act="gal-favchars">${icon(GF.favChars ? 'starFill' : 'star')}<span>Favorite characters</span></button>
+        ${greet ? `<button class="mu-chip ${GF.favChars ? 'is-on' : ''}" data-act="gal-favchars">${icon(GF.favChars ? 'starFill' : 'star')}<span>Favorite characters</span></button>` : ''}
         <button class="mu-chip" data-act="gal-album" data-key="__fav" ${nFav ? '' : 'aria-disabled="true"'}>${icon('heart')}<span>Favorite pictures · ${nFav}</span></button></div>`;
-    if (!chars.length && !saves.length) return `${bar}<div class="mu-gal-empty mu-panel"><i>${icon('image')}</i><h3>${q || GF.favChars ? 'Nothing found' : 'No pictures yet'}</h3>
-        <p class="mu-muted">Images made in a chat (Image Generation, attached, or written as links) and the pictures in your characters' greetings show up here.</p></div>`;
-    const games = new Map<string, Album[]>();
-    for (const a of saves) { const k = a.row.groupId; if (!games.has(k)) games.set(k, []); games.get(k)!.push(a); }
-    return bar + (chars.length ? `<section class="mu-gal-game"><h3>Character greetings</h3>
-        <div class="mu-gal-chars">${chars.map(a => `<button class="mu-gal-char" data-act="gal-album" data-key="${esc(a.key)}"><img src="${esc(smallCard(a.row.avatar!))}" alt="" loading="lazy" decoding="async">
-            <span><b data-notr>${esc(a.row.chatId)}</b><small>${a.photos.length === 1 ? '1 picture' : `${a.photos.length} pictures`}</small></span>${isFav(charOf(a.row.avatar!)) ? `<em>${icon('starFill')}</em>` : ''}</button>`).join('')}</div></section>` : '')
-        + [...games.values()].map(group => `<section class="mu-gal-game"><h3 data-notr>${esc(group[0].row.title)}</h3>
-        <div class="mu-albums">${group.map(a => `<button class="mu-album" data-act="gal-album" data-key="${esc(a.key)}">${cover(a)}
-            <b data-notr>${esc(a.row.chatId)}</b><small>${a.photos.length === 1 ? '1 picture' : `${a.photos.length} pictures`} · ${esc(when(a.row.last))}</small></button>`).join('')}</div>
-    </section>`).join('');
+    const shown = greet ? chars.length : saves.length;
+    if (!shown) return `${tabs}${bar}<div class="mu-gal-empty mu-panel"><i>${icon('image')}</i><h3>${q || (greet && GF.favChars) ? 'Nothing found' : 'No pictures yet'}</h3>
+        <p class="mu-muted">${greet ? "The pictures in your characters' greetings show up here." : 'Images made in a chat (Image Generation, attached, or written as links) show up here.'}</p></div>`;
+    if (greet) return tabs + bar + `<div class="mu-gal-chars">${chars.map(a => `<button class="mu-gal-char" data-act="gal-album" data-key="${esc(a.key)}"><img src="${esc(smallCard(a.row.avatar!))}" alt="" loading="lazy" decoding="async">
+            <span><b data-notr>${esc(a.row.chatId)}</b><small>${a.photos.length === 1 ? '1 picture' : `${a.photos.length} pictures`}</small></span>${isFav(charOf(a.row.avatar!)) ? `<em>${icon('starFill')}</em>` : ''}</button>`).join('')}</div>`;
+    // every save in one grid, newest first; the game's name goes under each album
+    return tabs + bar + `<div class="mu-albums">${saves.map(a => `<button class="mu-album" data-act="gal-album" data-key="${esc(a.key)}">${cover(a)}
+            <b data-notr>${esc(a.row.chatId)}</b><small><span data-notr>${esc(a.row.title)}</span></small><small>${a.photos.length === 1 ? '1 picture' : `${a.photos.length} pictures`} · ${esc(when(a.row.last))}</small></button>`).join('')}</div>`;
 }
 
 function albumView(a: Album) {
     return `<div class="mu-gal-albumhead"><button data-act="gal-shelf" data-sfx="back">← Albums</button>
             <div><h3 data-notr>${esc(a.row.chatId)}</h3><small data-notr>${esc(a.row.title)}</small></div></div>
-        <div class="mu-photos">${a.photos.map((p, i) => `<button class="mu-photo" data-act="gal-photo" data-i="${i}" title="${esc(p.caption)}" data-notr>${thumbCanvas(esc(p.url))}${isFavPic(p.url) ? `<em class="mu-photo-fav">${icon('heart')}</em>` : ''}</button>`).join('')}</div>`;
+        <div class="mu-photos">${a.photos.map((p, i) => `<button class="mu-photo" data-act="gal-photo" data-i="${esc(i)}" title="${esc(p.caption)}" data-notr>${thumbCanvas(esc(p.url))}${isFavPic(p.url) ? `<em class="mu-photo-fav">${icon('heart')}</em>` : ''}</button>`).join('')}</div>`;
 }
 
 function lightbox(a: Album, i: number) {
@@ -161,6 +164,7 @@ Object.assign(ACT, {
     // only a click on the dark background itself closes it
     'gal-close-bg': (el, e) => { if (e.target === el) closeLightbox(); },
     'gal-fav': () => { const a = current(); const p = a && G.photo !== null ? a.photos[G.photo] : null; if (!p) return; const f = favPics(); const k = f.indexOf(p.url); if (k >= 0) f.splice(k, 1); else f.push(p.url); saveSettings(); if (G.album === '__fav' && k >= 0) { const n = favAlbum()!.photos.length; G.photo = n ? Math.min(G.photo!, n - 1) : null; } notify(); },
+    'gal-tab': (el) => { GF.tab = el.dataset.tab === 'greet' ? 'greet' : 'saves'; notify(); },
     'gal-favchars': () => { GF.favChars = !GF.favChars; notify(); },
 });
 

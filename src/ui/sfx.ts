@@ -186,20 +186,23 @@ export function audioOut(): { a: AudioContext; out: GainNode } | null {
         return { a, out: master };
     } catch { return null; }
 }
-// Rain: a quiet loop while it rains where you are (the map and scenes).
-let rainNode: { src: AudioBufferSourceNode; g: GainNode } | null = null;
+// Rain: a quiet loop while it rains where you are (the map and scenes). Weather sounds have their own switch and
+// volume (Settings › Sound › Weather sounds), apart from the interface sounds: turn off only the rain, or only the clicks.
+const weatherOn = () => { try { return UI().weatherSound !== false; } catch { return true; } };
+const weatherVol = () => { try { return Math.max(0, Math.min(100, UI().weatherVolume ?? 60)) / 100; } catch { return 0.6; } };
+let rainNode: { src: AudioBufferSourceNode; g: GainNode; level: number } | null = null;
 export function rainAmbience(raining: boolean) {
     try {
-        const want = raining && on() && vol() > 0;
+        const level = 0.16 * weatherVol();
+        const want = raining && weatherOn() && level > 0;
         if (!want) { if (rainNode) { const n = rainNode; rainNode = null; n.g.gain.setTargetAtTime(0.0001, n.src.context.currentTime, 0.4); setTimeout(() => { try { n.src.stop(); } catch { /* gone */ } }, 1500); } return; }
-        if (rainNode) return;
+        if (rainNode) { if (rainNode.level !== level) { rainNode.level = level; rainNode.g.gain.setTargetAtTime(level, rainNode.src.context.currentTime, 0.2); } return; }   // the volume slider moved
         const a = ctxAudio(); if (!a || a.state !== 'running') return;   // only after the first click (browsers' rule)
-        master!.gain.value = vol();
         const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
         src.buffer = noiseBuffer(a, 4); src.loop = true;
         f.type = 'lowpass'; f.frequency.value = 2400;
-        g.gain.setValueAtTime(0.0001, a.currentTime); g.gain.setTargetAtTime(0.16, a.currentTime, 0.8);
-        src.connect(f); f.connect(g); g.connect(master!); src.start();
-        rainNode = { src, g };
+        g.gain.setValueAtTime(0.0001, a.currentTime); g.gain.setTargetAtTime(level, a.currentTime, 0.8);
+        src.connect(f); f.connect(g); g.connect(a.destination); src.start();   // its own volume, not the interface's
+        rainNode = { src, g, level };
     } catch { /* sound is only an extra */ }
 }

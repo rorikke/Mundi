@@ -14,13 +14,14 @@ import { payOf, lockedOut } from '../sim/bills.js';
 import { needWord } from '../sim/life.js';
 import { lifeOverlays, soloOf } from './lifeui.js';
 import { game, esc, state, UI, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
-import { getWorld, activeStatuses, systemOn, deviceLook, offScreenWork, isScenario } from '../core/world.js';
+import { getWorld, activeStatuses, systemOn, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
 import { levelChip } from './rpgui.js';
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 import { personaThumb, personaName, thumb, setPrompt } from '../st/bridge.js';
 import { personaPickHtml } from './scene.js';
 import { outingHtml } from './outing.js';
 import { residentsHtml } from './residents.js';
+import { guestDialogsHtml } from './guestsui.js';
 import { isOuting } from '../sim/places.js';
 import { money, actionsHere, canAfford } from '../sim/needs.js';
 import { sceneAct } from '../sim/actions.js';
@@ -62,7 +63,7 @@ const NEED_ICON = { life: 'pulse', health: 'pulse', energy: 'bolt', hunger: 'ute
 const needIcon = (s) => (NEED_ICON[s.id] ? icon(NEED_ICON[s.id]) : `<i>${esc(s.icon)}</i>`);
 function personaCard(g, w) {
     const img = personaThumb();
-    const shown = activeStatuses(w).filter(s => s.hud);
+    const shown = activeStatuses(w, g).filter(s => s.hud);
     const v = (s) => Math.round(g.player.stats[s.id] ?? s.start);
     // the card keeps one size: more bars (or more needs) only make the round badges smaller
     // RPG: the focus (mana, chakra…: the world names it) is a bar too, under health and energy
@@ -79,7 +80,7 @@ function personaCard(g, w) {
     return `<aside class="mh-persona mh-glass ${size} ${bare ? 'no-needs' : ''}" aria-label="${esc(personaName())}">
         <button class="mh-face" data-act="pa-open" title="Play as…">${img ? `<img src="${esc(img)}" alt="">` : icon('user')}<i class="mh-face-swap">${icon('users')}</i></button>
         <div class="mh-needs">
-            <div class="mh-who"><b>${esc(personaName())}</b>${levelChip()}<span class="mu-cash">${esc(money(w, g.player.money))}</span></div>
+            <div class="mh-who"><b>${esc(personaName())}</b>${levelChip()}${isScenario(w) ? '' : `<span class="mu-cash">${esc(money(w, g.player.money))}</span>`}</div>
             ${shown.filter(isBar).map(s => `<div class="mh-bar ${v(s) <= 20 ? 'is-low' : ''}" data-stat="${esc(s.id)}" data-word="${esc(sh && (s.id === 'life' || s.id === 'health') ? `${sh.hp}/${hpMax(w, sh)} HP` : needWord(s, v(s)))}" style="--c:${esc(s.color)};--v:${v(s)}">
                 <span class="mh-bar-ic">${needIcon(s)}</span><span class="mh-bar-name">${esc(s.name)}</span><span class="mh-bar-track"><i></i></span></div>`).join('')}${focusBar}
             <div class="mh-rings">${shown.filter(s => !isBar(s)).map(s => `<div class="mh-ring ${v(s) <= 20 ? 'is-low' : ''}" data-stat="${esc(s.id)}" data-word="${esc(`${s.name}: ${needWord(s, v(s))}`)}" aria-label="${esc(s.name)}" style="--c:${esc(s.color)};--v:${v(s)}">
@@ -112,6 +113,7 @@ function clockCard(g, w) {
         <div class="mh-clock-top"><div class="mh-time"><b data-clock>${clock12(g.minutes)}</b><small data-ampm>${ampm(g.minutes)}</small></div><span class="mh-sky"><span class="mh-weather" title="${esc(wx.name)}">${wx.icon}</span></span></div>
         <div class="mh-clock-row"><span class="mh-weekday" data-weekday>${esc(weekday(g.day))}</span><small class="mh-season" title="Season">${se.name} ${se.icon}</small></div>
         <div class="mh-clock-strip"><span data-period>${esc(period(w, g.minutes).name)}</span><span>Day ${g.day}</span></div>
+        ${isScenario(w) && homeNeedsOn(g) ? clockNeeds(g, w) : ''}
     </div>
     <div class="mh-where ${home}">${icon('pin')}<span>${where}</span>${crowd}${festivalChip(g, w)}</div>`;
 }
@@ -132,14 +134,14 @@ function corner(g, w) {
     return `<div class="mh-corner">
         <button class="mh-menu mh-glass ${menuOpen ? 'is-on' : ''}" data-act="hud-menu" title="Menu">${icon('menu')}</button>
         ${g.player.job && featureOn(w, 'jobs') && jobDef(w, g.player.job.id) && !offScreen(w, jobDef(w, g.player.job.id)) && g.player.loc !== jobPlace(g, jobDef(w, g.player.job.id)) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
-        ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
+        ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-move" title="Go on to another place">${icon('map')}<span>Go somewhere else</span></button><button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>${isScenario(w) && exitRoom(g, w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
         ${menuOpen ? `<nav class="mh-menu-pop mh-glass">
+            <button data-act="open-world">${icon('globe')}<span>${isScenario(w) ? 'This Home' : 'This world'}</span></button>
             ${clockMode(g) === 'live' ? `<button data-act="speed">${icon('pause')}<span>Clock speed: ${g.speed ? `×${g.speed / 60}` : 'paused'}</span></button>` : ''}
-            ${g.player.loc !== playerHomeId && !isOuting(g.player.loc) ? `<button data-act="go-home">${icon('home')}<span>${isScenario(w) ? 'Go to my room' : 'Go home'}</span></button>` : ''}
-            ${isScenario(w) ? (isOuting(g.player.loc) ? `<button data-act="out-bg-open">${icon('image')}<span>Background</span></button>` : `<button data-act="out-open">${icon('map')}<span>Go out</span></button>`) : ''}
+            ${!isScenario(w) && g.player.loc !== playerHomeId ? `<button data-act="go-home">${icon('home')}<span>Go home</span></button>` : ''}
+            ${isScenario(w) && isOuting(g.player.loc) ? `<button data-act="out-bg-open">${icon('image')}<span>Background</span></button>` : ''}
             ${isScenario(w) ? `<button data-act="res-open">${icon('users')}<span>Who lives here</span></button>` : ''}
             ${isScenario(w) ? `<button data-act="sc-open" data-v="persona"><span class="mh-drawer-mew"><img class="mh-drawer-me" src="${esc(personaThumb())}" alt=""></span><span>Your persona<small data-notr>${esc(personaName())}</small></span></button>` : ''}
-            <button data-act="open-world">${icon('globe')}<span>${isScenario(w) ? 'This Home' : 'This world'}</span></button>
             <button data-act="hud-look">${icon('palette')}<span>Chat look</span></button>
             <button data-act="open-settings">${icon('gear')}<span>Settings</span></button>
             <button data-act="to-menu" data-sfx="back">${icon('back')}<span>Main menu</span></button></nav>` : ''}
@@ -150,14 +152,13 @@ function corner(g, w) {
 // Your party: the people who came along with you (in the scene and on the map). Who is simply in this place is
 // shown at the top ("Here").
 function peopleColumn(g, w) {
-    void w;
     const list = Object.values(g.cast).filter(r => isWith(g, r.avatar));
     if (!list.length)
         return '';
     const now = nowAbs(g);
     return `<aside class="mh-people mh-glass" aria-label="With you">${list.map(r => {
         const c = social(g).with.find(x => x.avatar === r.avatar);
-        const left = c ? Math.max(0, Math.min(100, ((c.until - now) / 240) * 100)) : null;
+        const left = c && !isScenario(w) ? Math.max(0, Math.min(100, ((c.until - now) / 240) * 100)) : null; // Home: no timer
         return `<button class="mh-person ${PL.card === r.avatar ? 'is-on' : ''} ${c ? 'is-with' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}">
             <img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b>
             <span class="mh-mini-rel">${relBar(r.avatar, false)}</span>
@@ -273,7 +274,7 @@ export function hudHtml() {
     if (!g || !w)
         return '';
     // Home: no card of your own (no money, no needs); your persona is in the menu, as in a chat
-    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}` : ''}${doingHtml()}${lifeOverlays()}`;
+    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}`;
 }
 Object.assign(ACT, {
     'quest-step': (el) => {
@@ -321,3 +322,14 @@ document.addEventListener('click', (e) => {
     menuOpen = false;
     setTimeout(notify, 0);
 }, true);
+// Home: the garage and the front door are where you leave the house from (Go out there too, not only on the plan).
+function exitRoom(g, w) {
+    const p = placeOf(g, w, g.player.loc);
+    return !!p && !p.link && /garage|garagem|garaje|entrance|entry|front ?yard|foyer|porch|vestib|entrada|recibidor/i.test(`${p.id} ${p.name}`);
+}
+// Home with needs on: their icons under the clock, each a ring that empties as it drops (the word on hover).
+function clockNeeds(g, w) {
+    const list = activeStatuses(w, g).filter(s => HOME_NEEDS.includes(s.id));
+    return `<div class="mh-clock-needs" data-act="needs-info">${list.map(s => { const v = Math.round(g.player.stats[s.id] ?? s.start); return `<span class="mh-cneed ${v <= 20 ? 'is-low' : ''}" title="${esc(`${s.name}: ${needWord(s, v)}`)}" style="--c:${esc(s.color)};--v:${Math.max(0, Math.min(100, v))}">${needIcon(s)}</span>`; }).join('')}</div>`;
+}
+Object.assign(ACT, { 'needs-info': () => { } });

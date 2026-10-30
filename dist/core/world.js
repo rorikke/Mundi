@@ -1,4 +1,5 @@
 import { settings, game } from './store.js';
+import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 /** Days of the week as worlds write them (day 1 of a game is a Monday). */
 export const WEEKDAY_IDS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
@@ -117,7 +118,13 @@ export const gameMode = (w) => {
 };
 // The needs in play: RPG-only ones (health) stay out of Life-Sim; a Custom world can turn any of them off, and with
 // the needs system off only the RPG ones (health) are left.
-export const activeStatuses = (w) => w.statuses.filter(s => !s.off && !(s.rpg && gameMode(w) === 'lifesim') && (s.rpg || systemOn(w, 'needs')));
+// Home: the needs are off, unless turned on for this game (This Home → Needs): then hunger, thirst, mood and hygiene
+// (no energy, and no health at stake). `g` is the game, when the caller has it.
+export const HOME_NEEDS = ['hunger', 'thirst', 'mood', 'hygiene'];
+export const homeNeedsOn = (g) => !!g?.cfg?.needs;
+export const activeStatuses = (w, g) => (isScenario(w) && g !== undefined
+    ? (homeNeedsOn(g) ? w.statuses.filter(s => !s.off && HOME_NEEDS.includes(s.id)) : [])
+    : w.statuses.filter(s => !s.off && !(s.rpg && gameMode(w) === 'lifesim') && (s.rpg || systemOn(w, 'needs'))));
 export const WORLD_TAGS = [
     { id: 'lifesim', name: 'Life-Sim', desc: 'can be played as a life: needs, work, home, people.' },
     { id: 'rpg', name: 'RPG', desc: 'can be played as an adventure: a class, checks, fights and quests.' },
@@ -218,7 +225,7 @@ export const styleOf = (w) => (w?.style ?? ((w?.kind || '').toLowerCase().includ
 export const customWorlds = () => (settings().customWorlds ??= []);
 export const isCustom = (id) => customWorlds().some(c => c.id === id);
 export const builtInIds = () => BUILT_IN;
-export function registerWorld(w) { registry.set(w.id, upgradeWorld(w)); }
+export function registerWorld(w) { registry.set(w.id, upgradeWorld(cleanData(w))); } // numbers stay numbers, colors stay colors
 export function forgetWorld(id) { registry.delete(id); }
 // Loads a world: a bundled one (worlds/<id>/world.json, next to the extension) or one made with the creator.
 export async function loadWorld(id) {
@@ -232,8 +239,9 @@ export async function loadWorld(id) {
             throw new Error(`World "${custom.name}" could not be loaded.`);
         const w = (await res.json());
         w.base = new URL('/', location.href).href;
+        await syncHomeActions(w);
         w.i18n = {};
-        registry.set(id, upgradeWorld(w));
+        registry.set(id, upgradeWorld(cleanData(w)));
         return w;
     }
     const base = new URL(`../../worlds/${id}/`, import.meta.url).href;
@@ -243,7 +251,7 @@ export async function loadWorld(id) {
     const w = (await res.json());
     w.base = base;
     w.i18n = {};
-    registry.set(id, upgradeWorld(w));
+    registry.set(id, upgradeWorld(cleanData(w)));
     return w;
 }
 export const worlds = () => [...registry.values()];
@@ -261,7 +269,14 @@ export const getWorld = (id) => registry.get(id) ?? null;
 // A world's short description is only for choosing it (it is never sent to the AI): kept short so the cards line up.
 export const WORLD_DESC_MAX = 160;
 export const shortDesc = (s) => { const t = String(s ?? '').trim(); return t.length <= WORLD_DESC_MAX ? t : `${t.slice(0, WORLD_DESC_MAX - 1).trimEnd()}…`; };
-export const worldFile = (w, file) => (file ? new URL(file, w.base).href : '');
+// a world's picture or sound: always a safe address (it goes into style="" and url('…'))
+export const worldFile = (w, file) => { if (!file)
+    return ''; try {
+    return safeUrl(new URL(file, w.base).href);
+}
+catch {
+    return '';
+} };
 // How this world's device, social app and messages work, and how its people write (from the world; its style's
 // preset fills them in when missing, see core/presets.ts).
 const kinds = (w) => (w ? presetOf(w) : PRESETS.modern).kinds;
@@ -274,3 +289,35 @@ export const worldLocked = (w) => !!w && ((MEDIEVAL_LOCKED && styleOf(w) === 'me
     || (((w.mode ?? 'lifesim') === 'rpg' || (RPG_LOCKED && w.madeFor === 'rpg')) && (RPG_LOCKED || !w.rpg?.classes?.length))); // an RPG world without its RPG, or a style coming later
 // What a locked world is waiting for (its "Soon" badge).
 export const lockedFor = (w) => (TOKYO_LOCKED && w?.id === 'tokyo' ? 'In the works' : MEDIEVAL_LOCKED && styleOf(w) === 'medieval' ? 'Medieval' : 'RPG mode');
+// A Home made with the creator copied the built-in Home's actions when it was made. When it opens, it gets the ones
+// added since (swimming at the pool, washing the car…) and loses built-in ones that no longer exist. Actions you made
+// yourself (ids "act_…") are never touched, and a built-in one you removed stays removed (homeSync remembers what
+// was already offered). The file is saved again only when something changed.
+export async function syncHomeActions(w) {
+    if (!isScenario(w))
+        return;
+    try {
+        const base = await loadWorld(styleOf(w) === 'medieval' ? 'manor' : 'house');
+        const known = new Set();
+        for (const id of BUILT_IN) {
+            try {
+                (await loadWorld(id)).actions.forEach(a => known.add(a.id));
+            }
+            catch { /* missing */ }
+        }
+        const offered = new Set(w.homeSync ?? []);
+        const before = JSON.stringify(w.actions.map(a => a.id));
+        w.actions = w.actions.filter(a => /^act_/.test(a.id) || known.has(a.id));
+        const have = new Set(w.actions.map(a => a.id));
+        for (const a of base.actions)
+            if (!have.has(a.id) && !offered.has(a.id))
+                w.actions.push(structuredClone(a));
+        const firstTime = !w.homeSync;
+        w.homeSync = base.actions.map(a => a.id);
+        if (firstTime || JSON.stringify(w.actions.map(a => a.id)) !== before) {
+            const copy = structuredClone({ ...w, base: undefined, i18n: undefined });
+            void import('../sim/creator.js').then(m => m.saveWorldFile(copy)).catch(() => { });
+        }
+    }
+    catch { /* the built-in Home could not be read: leave it as it is */ }
+}

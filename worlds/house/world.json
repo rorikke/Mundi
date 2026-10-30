@@ -926,6 +926,31 @@
    }
   },
   {
+   "id": "x-games",
+   "name": "Video games",
+   "label": "Play video games",
+   "icon": "🎮",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 7,
+    "energy": -3
+   }
+  },
+  {
+   "id": "x-teeth",
+   "name": "Teeth",
+   "label": "Brush your teeth",
+   "icon": "🪥",
+   "cost": 0,
+   "minutes": 5,
+   "home": true,
+   "effects": {
+    "hygiene": 8
+   }
+  },
+  {
    "id": "x-coffee",
    "name": "Coffee",
    "label": "Make coffee",
@@ -1143,6 +1168,142 @@
    "effects": {
     "mood": 15,
     "hygiene": -10
+   }
+  },
+  {
+   "id": "x-swim",
+   "name": "Swim",
+   "label": "Swim in the pool",
+   "icon": "🏊",
+   "cost": 0,
+   "minutes": 40,
+   "place": "pool",
+   "effects": {
+    "mood": 7,
+    "energy": -4
+   }
+  },
+  {
+   "id": "x-sunbathe",
+   "name": "Sun",
+   "label": "Sunbathe",
+   "icon": "☀️",
+   "cost": 0,
+   "minutes": 45,
+   "place": "pool",
+   "effects": {
+    "mood": 6
+   }
+  },
+  {
+   "id": "x-poolrelax",
+   "name": "Pool",
+   "label": "Relax by the pool",
+   "icon": "🍹",
+   "cost": 0,
+   "minutes": 30,
+   "place": "pool",
+   "effects": {
+    "mood": 5
+   }
+  },
+  {
+   "id": "x-laundry",
+   "name": "Laundry",
+   "label": "Do the laundry",
+   "icon": "🧺",
+   "cost": 0,
+   "minutes": 40,
+   "place": "laundry",
+   "effects": {
+    "mood": 2
+   }
+  },
+  {
+   "id": "x-tinker",
+   "name": "Workbench",
+   "label": "Tinker at the workbench",
+   "icon": "🔧",
+   "cost": 0,
+   "minutes": 45,
+   "place": "garage",
+   "effects": {
+    "mood": 4,
+    "energy": -2
+   }
+  },
+  {
+   "id": "x-carwash",
+   "name": "Car",
+   "label": "Wash the car",
+   "icon": "🚗",
+   "cost": 0,
+   "minutes": 40,
+   "place": "garage",
+   "effects": {
+    "mood": 3,
+    "energy": -3
+   }
+  },
+  {
+   "id": "x-porch",
+   "name": "Porch",
+   "label": "Sit on the porch",
+   "icon": "🪑",
+   "cost": 0,
+   "minutes": 30,
+   "place": "frontyard",
+   "effects": {
+    "mood": 5
+   }
+  },
+  {
+   "id": "x-plants",
+   "name": "Plants",
+   "label": "Water the plants",
+   "icon": "🌱",
+   "cost": 0,
+   "minutes": 15,
+   "place": "frontyard",
+   "effects": {
+    "mood": 3
+   }
+  },
+  {
+   "id": "x-tidy",
+   "name": "Tidy up",
+   "label": "Tidy up the storage room",
+   "icon": "📦",
+   "cost": 0,
+   "minutes": 30,
+   "place": "storage",
+   "effects": {
+    "mood": 2,
+    "energy": -2
+   }
+  },
+  {
+   "id": "x-dinner",
+   "name": "Table",
+   "label": "Set the table",
+   "icon": "🍽️",
+   "cost": 0,
+   "minutes": 10,
+   "place": "dining",
+   "effects": {
+    "mood": 2
+   }
+  },
+  {
+   "id": "x-read",
+   "name": "Book",
+   "label": "Read in bed",
+   "icon": "📖",
+   "cost": 0,
+   "minutes": 40,
+   "home": true,
+   "effects": {
+    "mood": 5
    }
   }
  ],

@@ -111,15 +111,17 @@ onLook.push(lookCollapse);
 /** The night's restores (the world's `sleep.restore`): in full at home (`rest` null), its share in a bed elsewhere
  *  (energy never drops below what you had). A night leaves you hungry, thirsty and in need of a wash; the bed sets
  *  the mood (`homeMood`: what your own bed gives). */
-export function restAfterNight(g: Save, w: WorldDef, rest: { share: number; mood: number } | null, homeMood = 0) {
+export function restAfterNight(g: Save, w: WorldDef, rest: { share: number; mood: number } | null, homeMood = 0, part = 1) {
     for (const [id, v] of Object.entries(w.sleep.restore)) {
         const d = w.statuses.find(s => s.id === id);
         if (!d) continue;
         const cur = g.player.stats[id] ?? d.start, got = rest ? Math.round(v * rest.share) : v;
-        g.player.stats[id] = Math.min(d.max, (id === 'energy' ? (rest ? Math.max(cur, got) : v) : cur + got));
+        const night = id === 'energy' ? (rest ? Math.max(cur, got) : v) : cur + got;
+        // a nap (`part` of a full night, "Sleep until the party") gives back that part of it
+        g.player.stats[id] = Math.min(d.max, part >= 1 ? night : id === 'energy' ? Math.max(cur, cur + (night - cur) * part) : cur + got * part);
         if (d.decay?.awakeOnly) g.tick[`decay:${id}`] = nowAbs(g);   // the waking day starts counting now
     }
-    for (const [id, v] of Object.entries({ hunger: -20, thirst: -25, hygiene: -25 })) addStatus(g, w, id, v);
+    for (const [id, v] of Object.entries({ hunger: -20, thirst: -25, hygiene: -25 })) addStatus(g, w, id, Math.round(v * part));
     const m = rest ? rest.mood : homeMood;
-    if (m) addStatus(g, w, 'mood', m);
+    if (m && part >= 0.5) addStatus(g, w, 'mood', m);
 }

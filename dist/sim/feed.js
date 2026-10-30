@@ -3,6 +3,7 @@
 import { romanceBlocked } from './family.js';
 import { relOf, idOf, attraction, YOU } from './rel.js';
 import { needsOf } from './intimacy.js';
+import { scriptText } from '../core/safe.js';
 import { nowAbs, settings, saveSettings } from '../core/store.js';
 import { appsOf, socialKind, aiVoice, systemOn } from '../core/world.js';
 import { ctx, charOf, personaName, sayLine } from '../st/bridge.js';
@@ -44,7 +45,7 @@ async function picture(prompt) {
     if (!feedPrefs().images)
         return undefined;
     try {
-        const r = await ctx().executeSlashCommandsWithOptions(`/sd quiet=true ${prompt.replace(/\|/g, ' ')}`);
+        const r = await ctx().executeSlashCommandsWithOptions(`/sd quiet=true ${scriptText(prompt.replace(/\|/g, ' '))}`);
         const url = String(r?.pipe ?? '').trim();
         return url && !url.startsWith('Error') ? url : undefined;
     }

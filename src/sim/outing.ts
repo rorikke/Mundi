@@ -10,6 +10,9 @@ export interface Outing { place: string; bg?: string; from: string; with: string
 export const outingOf = (g: Save | null | undefined): Outing | null => ((g as any)?.outing ?? null) as Outing | null;
 export const isOut = (g: Save) => isOuting(g.player.loc);
 const LONG = 24 * 60;   // the people with you stay with you until you come back
+// The background chosen for a place out of the house when a plan was made there (a date, a party): used when you go.
+export const outingBgs = (g: Save): Record<string, string> => ((g as any).outingBgs ??= {});
+export function rememberOutingBg(g: Save, place: string, bg: string) { const k = outingName(outingId(place)); if (k && bg) outingBgs(g)[k] = bg; }
 
 export function startOuting(g: Save, w: WorldDef, place: string, people: string[], bg = ''): string {
     void w;

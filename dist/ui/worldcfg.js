@@ -4,10 +4,10 @@ import { castLevel, neighbors, NEIGHBORS_MIN, FRIEND_BOND } from '../sim/happeni
 import { bondOf } from '../sim/social.js';
 import { state, notify, esc, game, toast, saveGame, cfg, adultOn } from '../core/store.js';
 import { DIFFICULTIES, difficultyOf } from '../sim/bills.js';
-import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isScenario } from '../core/world.js';
+import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isScenario, homeNeedsOn } from '../core/world.js';
 import { dressHtml } from './dressui.js';
 import { homeJobOf, SHIFTS, DAYS } from '../sim/hometime.js';
-import './homeui.js';
+import { homeSettingsHtml } from './homeui.js';
 import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, chatLore, bindChatLore, createLorebook, saveCardPerson } from '../st/bridge.js';
 import { homeAddress, placeOf } from '../sim/places.js';
 import { resident, homeSpot, takenHomes, syncScene, currentEntry } from '../sim/game.js';
@@ -40,7 +40,7 @@ import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
 import { adultSettingHtml } from './adultui.js';
 import { gendersOf, cleanPerson } from '../sim/gender.js';
-const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
+const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['needs', 'Needs'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
 const WC = { tab: 'people', adv: false, who: '', adding: false, q: '', lq: '', back: 'map' };
 const opt = (v, label, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
 const sameRoutine = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -269,7 +269,7 @@ function memoryByDay() {
         return '<p class="mu-muted">Nothing yet.</p>';
     const days = [...new Set(list.map(f => Math.floor(f.at / 1440)))].sort((a, b) => b - a);
     const open = (d) => (MEMDAYS.has(d) ? MEMDAYS.get(d) : d === days[0]);
-    return days.map(d => `<div class="mu-wc-day"><button class="mu-ghost mu-wc-dayhead" data-act="wc-memday" data-d="${d}">${icon(open(d) ? 'up' : 'down')}<span>${esc(weekday(d))} · Day ${d}</span><small>${list.filter(f => Math.floor(f.at / 1440) === d).length}</small></button>
+    return days.map(d => `<div class="mu-wc-day"><button class="mu-ghost mu-wc-dayhead" data-act="wc-memday" data-d="${esc(d)}">${icon(open(d) ? 'up' : 'down')}<span>${esc(weekday(d))} · Day ${d}</span><small>${list.filter(f => Math.floor(f.at / 1440) === d).length}</small></button>
         ${open(d) ? list.filter(f => Math.floor(f.at / 1440) === d).reverse().map(f => `<div class="mu-wc-recap"><span><small>${esc(stamp(g, w, f))}</small><p data-notr>${esc(factUi(f))}</p></span><button class="mu-ghost mu-ibtn" data-act="wc-fact-del" data-id="${esc(f.id)}" title="Forget this">${icon('trash')}</button></div>`).join('') : ''}</div>`).join('');
 }
 /* ---------- lorebooks ---------- */
@@ -293,16 +293,16 @@ function tabLore(g) {
 function tabRules(g, w) {
     const c = cfg(g);
     const list = (items) => `<div class="mu-chips">${items.map(x => `<span class="mu-chip">${esc(x)}</span>`).join('')}</div>`;
-    const slider = (label, key, v, min, max, step, unit) => `<label class="mu-field slider"><span>${label} · ${v}${unit}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-input="wc-cfg" data-k="${key}"></label>`;
+    const slider = (label, key, v, min, max, step, unit) => `<label class="mu-field slider"><span>${label} · ${v}${unit}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-input="wc-cfg" data-k="${esc(key)}"></label>`;
     const live = (c.clock ?? 'action') === 'live';
     return `<section class="mu-wc-sec"><h4>${esc(w.name)}</h4><p>${esc(w.description)}</p><p class="mu-muted">Game mode: <b>${GAME_MODES.find(m => m.id === gameMode(w)).name}</b> (change it in the world creator).</p></section>
-        ${isScenario(w) ? `${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
+        ${isScenario(w) ? `<section class="mu-wc-sec">${homeSettingsHtml(g)}</section>${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
         <section class="mu-wc-sec"><h4>Time</h4>
             <div class="mu-heropick is-start">
                 <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>Only with actions</b><p>The clock moves only when you do something: eat, drink, sleep, work, travel, or let time pass. Talking does not spend time.</p></button>
                 <button class="mu-herocard ${live ? 'is-on' : ''}" data-act="wc-clock" data-v="live"><b>Running clock</b><p>Time also passes by itself while you play (1 real second = 1 game minute at ×1). For testing.</p></button></div></section>
         <section class="mu-wc-sec"><h4>Difficulty</h4><p class="mu-muted">Changes the economy: what work pays, what things cost and what bills are.</p>
-            <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${difficultyOf(g).id === d.id ? 'is-on' : ''}" data-act="wc-diff" data-v="${d.id}"><b>${d.name}</b><p>${d.desc}</p></button>`).join('')}</div></section>
+            <div class="mu-heropick is-start mu-diff">${DIFFICULTIES.map(d => `<button class="mu-herocard ${difficultyOf(g).id === d.id ? 'is-on' : ''}" data-act="wc-diff" data-v="${esc(d.id)}"><b>${d.name}</b><p>${d.desc}</p></button>`).join('')}</div></section>
         ${workSection(g, w)}
         ${relSection(g, w)}
         ${adultSettingHtml(g)}
@@ -324,13 +324,13 @@ export function worldCfgHtml() {
     const w = g && getWorld(g.world);
     if (!g || !w)
         return '';
-    const body = WC.tab === 'people' ? tabPeople(g, w) : WC.tab === 'homes' ? tabHouseholds(g, w) : WC.tab === 'house' ? tabHouse(w) : WC.tab === 'ai' ? tabAiContext() : WC.tab === 'save' ? tabSave() : WC.tab === 'lore' ? tabLore(g) : tabRules(g, w);
+    const body = WC.tab === 'people' ? tabPeople(g, w) : WC.tab === 'homes' ? tabHouseholds(g, w) : WC.tab === 'house' ? tabHouse(w) : WC.tab === 'needs' ? tabNeeds(g, w) : WC.tab === 'ai' ? tabAiContext() : WC.tab === 'save' ? tabSave() : WC.tab === 'lore' ? tabLore(g) : tabRules(g, w);
     return `<div class="mu-settings mu-worldcfg">
         <div class="mu-subhead"><button data-act="wc-back" data-sfx="back">← Back</button><h2>${isScenario(w) ? 'This Home' : 'This world'}</h2><small data-notr>${esc(currentEntry()?.title ?? w.name)}</small>
-            <label class="mu-switch-row"><span>Advanced</span><input type="checkbox" class="mu-toggle" data-input="wc-adv" ${WC.adv ? 'checked' : ''}></label></div>
+            <label class="mu-switch-row"><span>Advanced</span><span class="mu-xswitch"><input type="checkbox" class="mu-toggle" data-input="wc-adv" ${WC.adv ? 'checked' : ''}><i></i></span></label></div>
         ${warningsBanner()}
         <div class="mu-settings-layout">
-            <nav class="mu-tabs">${TABS.filter(([id]) => id !== 'house' || isScenario(w)).map(([id, l]) => `<button class="${WC.tab === id ? 'is-on' : ''}" data-act="wc-tab" data-tab="${id}">${isScenario(w) && id === 'rules' ? 'Home' : isScenario(w) && id === 'homes' ? 'Bedrooms' : l}</button>`).join('')}</nav>
+            <nav class="mu-tabs">${TABS.filter(([id]) => (id !== 'house' && id !== 'needs') || isScenario(w)).map(([id, l]) => `<button class="${WC.tab === id ? 'is-on' : ''}" data-act="wc-tab" data-tab="${esc(id)}">${isScenario(w) && id === 'rules' ? 'Home' : isScenario(w) && id === 'homes' ? 'Bedrooms' : l}</button>`).join('')}</nav>
             <div class="mu-settings-body mu-panel" data-keep="worldcfg">${body}</div>
         </div></div>`;
 }
@@ -587,6 +587,8 @@ Object.assign(INPUT, {
     },
     'wc-poly': (el) => { const g = game(); if (!g)
         return; cfg(g).poly = el.checked || undefined; saveGame(); notify(); },
+    'wc-needs': (el) => { const g = game(); if (!g)
+        return; cfg(g).needs = el.checked; saveGame(); refreshPrompt(); notify(); },
     'wc-cfg': (el) => { const g = game(); if (!g)
         return; cfg(g)[el.dataset.k] = Number(el.value); saveGame(); notify(); },
     'wc-work': (el) => {
@@ -647,3 +649,16 @@ Object.assign(INPUT, {
     else
         delete rc.debug; saveGame(); notify(); },
 });
+// Home: needs, if you want them (off by default): hunger, thirst, mood and hygiene drop with time, and you look after
+// them around the house. No energy, and nothing bad happens when one runs out: the AI is told how you feel.
+function tabNeeds(g, w) {
+    const c = cfg(g);
+    const on = homeNeedsOn(g);
+    const list = activeStatuses(w, g);
+    return `<section class="mu-wc-sec"><h4>Needs</h4>
+            <label class="mu-switch-row mu-needs-switch"><span>${on ? 'On' : 'Off'}</span><span class="mu-xswitch"><input type="checkbox" class="mu-toggle" data-input="wc-needs" ${on ? 'checked' : ''}><i></i></span></label>
+            <p class="mu-muted">Hunger, thirst, mood and hygiene drop as time passes, and you look after them around the house: eat in the kitchen, wash up in the bathroom, watch TV in the living room… They show under the clock, and the AI is told when one is low. There is no energy to look after, and nothing bad happens when one runs out.</p>
+            ${on ? `<div class="mu-chips">${list.map(s => `<span class="mu-chip">${esc(s.icon)} ${esc(s.name)} · ${Math.round(g.player.stats[s.id] ?? s.start)}</span>`).join('')}</div>
+            <label class="mu-field slider"><span>How fast needs drop · ${c.decay ?? 1}×</span><input type="range" min="0.25" max="3" step="0.25" value="${c.decay ?? 1}" data-input="wc-cfg" data-k="decay"></label>` : ''}
+        </section>`;
+}

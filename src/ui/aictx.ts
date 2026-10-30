@@ -2,7 +2,8 @@
 // budget drops the least important blocks first, and the count shows how much of the model's context it takes.
 // The texts are yours to change: each block's own text, the scene's rules, and instructions of your own. World lore
 // has a limit of rows of its own (E32), and the rows it left out are listed under it.
-import { esc, notify, saveSettings, game } from '../core/store.js';
+import { esc, notify, saveSettings, game, settings, UI } from '../core/store.js';
+import { feedPrefs } from '../sim/feed.js';
 import { getWorld } from '../core/world.js';
 import { ctx } from '../st/bridge.js';
 import { blocksOf, promptCfg, sceneBlocks, sceneText, estTokens, refreshPrompt, loreMax, DEFAULT_RULES } from '../sim/prompt.js';
@@ -41,7 +42,7 @@ export function tabAiContext(): string {
     const li = Math.max(0, LORE_STEPS.indexOf(pc.lore));
     const worldMax = w?.scene?.lore ?? 0;
     const dropped = g && w ? worldLore(g, w, loreMax(w)).dropped : [];
-    return `<section class="mu-wc-sec mu-aic">
+    return `${aiCallsHtml()}<section class="mu-wc-sec mu-aic">
             <h4>What Mundi sends to the AI</h4>
             <p class="mu-muted">Sent with every reply, on top of your preset, the character cards and the chat. Only what is about this place and the people here.</p>
             <div class="mu-aic-meter"><b>${A.count >= 0 ? '' : '≈ '}${n.toLocaleString('en-US')} tokens</b>
@@ -60,9 +61,9 @@ export function tabAiContext(): string {
             const tag = st === 'sent' ? `≈ ${estTokens(x!.text)} tokens` : st === 'cut' ? (x?.keep ? 'over the budget: only the hard limits are sent' : 'left out: over the budget') : st === 'off' ? 'off' : 'nothing to send here';
             const own = b.id === 'core' || b.id === 'extra' ? '' : pc.text[b.id] ?? '';
             return `<div class="mu-aic-row is-${st}">
-                ${b.cut ? `<input type="checkbox" class="mu-toggle" data-input="aic-block" data-id="${b.id}" ${pc.off.includes(b.id) ? '' : 'checked'}>` : `<span class="mu-aic-lock" title="Always sent">${icon('pin')}</span>`}
+                ${b.cut ? `<input type="checkbox" class="mu-toggle" data-input="aic-block" data-id="${esc(b.id)}" ${pc.off.includes(b.id) ? '' : 'checked'}>` : `<span class="mu-aic-lock" title="Always sent">${icon('pin')}</span>`}
                 <span><b>${esc(b.name)}${own.trim() ? ' <small class="mu-aic-own">your text</small>' : ''}</b><small>${esc(b.desc)}</small></span><em>${tag}</em>
-                ${b.id === 'core' ? '' : `<button class="mu-ghost mu-ibtn" data-act="aic-edit" data-id="${b.id}" title="Change the text">${icon(A.edit === b.id ? 'up' : 'pen')}</button>`}</div>
+                ${b.id === 'core' ? '' : `<button class="mu-ghost mu-ibtn" data-act="aic-edit" data-id="${esc(b.id)}" title="Change the text">${icon(A.edit === b.id ? 'up' : 'pen')}</button>`}</div>
                 ${b.id === 'lore' && dropped.length ? droppedLore(dropped) : ''}
                 ${A.edit === b.id ? editor(b.id, own, x?.text ?? '') : ''}`;
         }).join('')}</div></section>
@@ -86,10 +87,10 @@ function editor(id: string, own: string, now: string) {
         <textarea class="mu-aic-text" rows="4" data-input="aic-extra" data-focus="aic-extra" placeholder="For example: Keep replies under 150 words. {{user}} is never described doing things they did not do.">${esc(promptCfg().extra)}</textarea>
         <small class="mu-muted">Sent with every reply, before the rules of the scene. SillyTavern's macros ({{user}}, {{char}}…) work here.</small></div>`;
     return `<div class="mu-aic-edit">
-        <textarea class="mu-aic-text" rows="3" data-input="aic-text" data-id="${id}" data-focus="aic-text-${id}" placeholder="{text}">${esc(own)}</textarea>
+        <textarea class="mu-aic-text" rows="3" data-input="aic-text" data-id="${esc(id)}" data-focus="aic-text-${id}" placeholder="{text}">${esc(own)}</textarea>
         <small class="mu-muted"><b>{text}</b> is what Mundi writes for this block; write around it (for example <i>[Feelings] {text}</i>), or leave it out to send only your words. Your text is sent only when the block has something to say. Empty: Mundi's own text.</small>
         ${now ? `<small class="mu-muted">Now: <span data-notr>${esc(now.length > 240 ? `${now.slice(0, 240)}…` : now)}</span></small>` : ''}
-        ${own.trim() ? `<button class="mu-ghost" data-act="aic-reset" data-id="${id}">${icon('undo')}<span>Back to Mundi's text</span></button>` : ''}</div>`;
+        ${own.trim() ? `<button class="mu-ghost" data-act="aic-reset" data-id="${esc(id)}">${icon('undo')}<span>Back to Mundi's text</span></button>` : ''}</div>`;
 }
 
 Object.assign(ACT, {
@@ -115,3 +116,18 @@ Object.assign(INPUT, {
         saveSettings(); refreshPrompt(); notify();
     },
 });
+
+// What makes Mundi call the AI, besides your own messages: each can be turned off (for all your games).
+function aiCallsHtml(): string {
+    const st = settings() as any; const fp = feedPrefs();
+    const chk = (input: string, on: boolean, label: string, hint: string, key = '') => `<label class="mu-check"><input type="checkbox" data-input="${input}" ${key ? `data-key="${key}"` : ''} ${on ? 'checked' : ''}><span>${label}<small>${hint}</small></span></label>`;
+    return `<section class="mu-wc-sec mu-aic">
+            <h4>AI calls</h4>
+            <p class="mu-muted">Besides the replies to your messages, these are the times Mundi asks the AI for something. Turn off what you don't want (it applies to all your games).</p>
+            ${chk('ui-bool', UI().narrateActions !== false, 'Narrate what you do right away', 'Things to do in a scene (a shower, cooking…): the AI answers with how it goes. One reply each time.', 'narrateActions')}
+            ${chk('set-diary', st.diaryOnSleep !== false, 'Write the day in the diary when you sleep', 'One call per night: the day becomes a short first-person entry, and the story remembers past days through it.')}
+            ${chk('ui-bool', UI().aiTexts !== false, 'Characters write their own texts', 'Answers to your invitations, being stood up, asking your advice, letters from far away. Off: short ready-made replies.', 'aiTexts')}
+            <label class="mu-field"><span>Who posts on Chirp</span><select data-input="set-feed">${([['button', 'Only when you tap "New posts"'], ['open', 'New posts each time you open the app'], ['auto', 'The characters, on their own as time passes'], ['react', 'Only you post; they reply']] as const).map(([v, l]) => `<option value="${v}" ${fp.mode === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+            ${chk('set-feedimg', fp.images, 'Pictures in posts', 'Made with SillyTavern\'s Image Generation extension, when it is set up.')}
+        </section>`;
+}

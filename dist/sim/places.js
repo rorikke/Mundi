@@ -22,8 +22,14 @@ export function placeOf(g, w, id) {
     }
     if (isHome(id)) {
         const r = g.cast[id.slice(5)];
-        if (!r)
-            return null;
+        if (!r) {
+            // a guest who just left the room you are in (you said goodbye there): it stays, empty, until you walk out
+            const v = g.vacated;
+            if (!v || v.id !== id || g.player.loc !== id)
+                return null;
+            const zone = w.homes.zones.find(z => z.id === v.home.zone);
+            return { id, name: 'Empty bedroom', map: zone?.map ?? w.maps[0].id, x: v.home.x, y: v.home.y, tags: ['home'], desc: zone?.desc ?? '', home: true };
+        }
         // someone who lives with another person is at that person's home (or yours)
         const w2 = r.homeWith;
         if (w2 === '__you')
@@ -81,8 +87,9 @@ export function pins(g, w) {
     const mine = placeOf(g, w, playerHomeId);
     if (mine)
         out.push(mine);
+    // (a guest with no bedroom of their own, zone '__guest', has no room to show)
     for (const r of Object.values(g.cast))
-        if (r.met) {
+        if (r.met && r.home.zone !== '__guest') {
             const p = placeOf(g, w, `home:${r.avatar}`);
             if (p && !out.some(x => x.id === p.id))
                 out.push(p);

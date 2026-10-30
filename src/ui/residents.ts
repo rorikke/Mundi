@@ -7,6 +7,7 @@ import { addResident, moveToRoom, removeResident } from '../sim/game.js';
 import { normalizeHomes } from '../sim/living.js';
 import { planSlots, spotOf } from '../sim/plan.js';
 import { refreshPrompt } from '../sim/prompt.js';
+import { housemates } from '../sim/guests.js';
 import { charPicker } from './charpick.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
@@ -32,8 +33,8 @@ export function residentsHtml(): string {
     const roomName = (id: string) => { const f = floorOfSpot(id); return `${f ? `${f} · ` : ''}${beds.find(b => b.id === id)?.name ?? id}`; };
     const mine = spotOf(w, g.player.home);
     // who is in each bedroom now
-    const inRoom = (id: string) => [...(mine === id ? ['You'] : []), ...Object.values(g.cast).filter(r => spotOf(w, r.home) === id).map(r => r.name)];
-    const people = Object.values(g.cast).sort((a, b) => a.name.localeCompare(b.name));
+    const inRoom = (id: string) => [...(mine === id ? ['You'] : []), ...housemates(g).filter(r => spotOf(w, r.home) === id).map(r => r.name)];
+    const people = housemates(g).sort((a, b) => a.name.localeCompare(b.name));   // guests are not housemates (Calendar › Visits)
     const opts = (cur: string, who: string) => beds.map(b => { const there = inRoom(b.id).filter(n => (who ? n !== g.cast[who]?.name : n !== 'You')); return `<option value="${esc(b.id)}" ${b.id === cur ? 'selected' : ''}>${esc(roomName(b.id))}${there.length ? ` (with ${esc(there.join(', '))})` : ''}</option>`; }).join('');
     return `<div class="mu-dlg-veil" data-act="res-close"></div><div class="mu-panel mu-glassdlg mu-residents" role="dialog"><header class="mu-row"><h3>${icon('users')} Who lives here</h3><button class="mu-ibtn mu-ghost mu-right" data-act="res-close" aria-label="Close">${icon('x')}</button></header>
         <p class="mu-muted">Choose each one's bedroom. Two people in the same bedroom share it (the AI knows). Someone can move in or move out at any time.</p>

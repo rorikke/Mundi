@@ -3978,3 +3978,149 @@ body.mundi-open #completion_prompt_manager_popup {
    can make the click land outside it, like on the gallery's arrows). */
 @keyframes mu-press { 0% { filter: brightness(1); } 35% { filter: brightness(1.32); } 100% { filter: brightness(1); } }
 #mundi-root button:active:not(:disabled):not([aria-disabled="true"]) { animation: mu-press .28s ease-out; }
+/* The "Advanced" switch at the top of This world / This Home (and Needs): a switch in a pill, easy to see. */
+#mundi-root .mu-switch-row { padding: 6px 8px 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, .18); border: 1px solid rgba(255, 255, 255, .5); box-shadow: 0 2px 8px rgba(0, 0, 0, .18); transition: background .2s; }
+#mundi-root .mu-switch-row:hover { background: rgba(255, 255, 255, .3); }
+#mundi-root .mu-switch-row .mu-xswitch { width: 42px; height: 24px; }
+#mundi-root .mu-switch-row .mu-xswitch i { background: rgba(0, 0, 0, .35); border: 2px solid rgba(255, 255, 255, .85); }
+#mundi-root .mu-switch-row .mu-xswitch i::after { top: 2px; left: 2px; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+#mundi-root .mu-switch-row .mu-xswitch input:checked + i { background: #34c759; border-color: #fff; }
+#mundi-root .mu-switch-row .mu-xswitch input:focus-visible + i { outline: 2px solid #fff; outline-offset: 2px; }
+#mundi-root .mu-needs-switch { display: inline-flex; margin: 4px 0 10px; }
+/* Home with needs on: their icons under the clock, each in a ring that empties as the need drops */
+#mundi-root .mh-clock-needs { display: flex; justify-content: center; gap: 10px; padding: 8px 10px 9px; border-top: 1px solid rgba(255, 255, 255, .1); cursor: default; }
+#mundi-root .mh-cneed { position: relative; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c, #4da3ff) calc(var(--v, 100) * 1%), rgba(255, 255, 255, .14) 0); }
+#mundi-root .mh-cneed::before { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: rgba(15, 20, 32, .85); }
+#mundi-root .mh-cneed .mu-ic, #mundi-root .mh-cneed i { position: relative; width: 15px; height: 15px; color: var(--c, #fff); font-style: normal; font-size: 13px; line-height: 1; }
+#mundi-root .mh-cneed.is-low { animation: mh-cneed-low 1.6s ease-in-out infinite; }
+@keyframes mh-cneed-low { 50% { box-shadow: 0 0 0 3px rgba(255, 80, 80, .45); } }
+/* The scene's background fading from one time of day to the next (ui/bgfade.ts): the old picture, on top, fading out. */
+#mundi-root .mu-scene-bg-old { position: absolute; inset: 0; background-color: #10141f; background-repeat: no-repeat; pointer-events: none; }
+/* The character picker's folders (new game, someone moves in, guests…): the same size as a character's card (the
+   icon takes the picture's place, 2:3), and the folder's color from the Library (--fc), like the Library's tiles. */
+#mundi-root .mu-castcard.is-folder { display: flex !important; flex-direction: column; align-items: stretch; justify-content: flex-start; place-items: initial; gap: 6px; padding: 8px; text-align: center; }
+#mundi-root .mu-castcard.is-folder .mu-castfolder-ic { flex: none; width: 100%; height: auto; aspect-ratio: 2 / 3; display: grid; place-items: center; border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 14%, var(--bh, rgba(255, 255, 255, .06))); color: var(--accent); }
+#mundi-root .mu-castcard.is-folder[style*="--fc"] .mu-castfolder-ic { background: var(--fc); color: color-mix(in srgb, var(--fc) 25%, #fff);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 2px 8px color-mix(in srgb, var(--fc) 35%, transparent); }
+#mundi-root .mu-castcard.is-folder .mu-castfolder-ic .mu-ic { width: 38%; height: auto; max-width: 56px; aspect-ratio: 1; }
+#mundi-root .mu-castcard.is-folder > span, #mundi-root .mu-castcard.is-folder > small { align-self: center; max-width: 100%; }
+/* Visual novel on a computer: the dialogue box is placed by `left` alone (no transform), so moving it between
+   Centered and Left (or making room for the phone) is one smooth glide. Animating the transform of a glass box
+   (backdrop-filter) makes Chrome draw its buttons for a moment where the box no longer is.
+   --dlg-cw: the box's width; centered, its left edge is the middle minus half of it. The width slider
+   (Chat look › Sizes, 60% to 160% of 980px) gives the same width in both positions; on the left it grows to the right. */
+@media (min-width: 900px) {
+    #mundi-root[data-layout="vn"]:not([data-mobile]) .mu-dialog {
+        --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px));
+        width: var(--dlg-cw); transform: none; left: calc(50% - var(--dlg-cw) / 2);
+        transition: left .45s cubic-bezier(.22, 1, .36, 1), width .45s cubic-bezier(.22, 1, .36, 1); }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 28px)); left: 14px; }
+}
+/* the phone open on the right: the box makes room for it (centered in what is left, or still on the left) */
+@media (min-width: 1100px) {
+    #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 440px)); left: calc(50% - 200px - var(--dlg-cw) / 2); }
+    #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px)); left: calc(50% - var(--dlg-cw) / 2); }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 454px)); left: 14px; }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 28px)); left: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { #mundi-root .mu-dialog { transition: none !important; } }
+/* Gallery: the two tabs (Saves / Character greetings) side by side, like pills */
+#mundi-root .mu-gal-tabs { display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 0; border: 0; background: none; width: auto; }
+#mundi-root .mu-gal-tabs button { flex: 0 0 auto; width: auto !important; display: inline-flex !important; flex-direction: row !important; align-items: center; gap: 8px; padding: 9px 16px !important; border-radius: 999px !important; min-height: 0; font-size: 14px; }
+#mundi-root .mu-gal-tabs button .mu-ic, #mundi-root .mu-gal-tabs button svg { width: 16px; height: 16px; }
+#mundi-root .mu-album small span { opacity: .85; }
+/* Home guests (ui/guestsui.ts): the people chosen (a small round picture and a × to take them off), the Calendar's tabs. */
+#mundi-root .mu-guest-chips { margin: 4px 0; }
+#mundi-root .mu-guest-chips .mu-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 3px; }
+#mundi-root .mu-guest-chips .mu-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex: none; }
+#mundi-root .mu-guest-chips .mu-chip .mu-ibtn { width: 22px; height: 22px; min-width: 0; padding: 0 !important; }
+#mundi-root .mu-guest-chips .mu-chip .mu-ibtn svg { width: 12px; height: 12px; }
+#mundi-root .mu-cal-tabs { padding: 0; }
+#mundi-root .mu-plan-bg span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the Visits tab: one row per guest (picture, name, when, where they sleep, a button) */
+#mundi-root .mu-guest-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-guest-row:last-child { border-bottom: 0; }
+#mundi-root .mu-guest-row > img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+#mundi-root .mu-guest-row > div { display: grid; gap: 2px; min-width: 0; }
+#mundi-root .mu-guest-row b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-guest-row small { color: var(--muted); }
+#mundi-root .mu-guest-bed { grid-column: 2 / -1; display: flex; align-items: center; gap: 6px; margin-top: -2px; }
+#mundi-root .mu-guest-row > button { padding: 6px 10px; font-size: 12px; }
+#mundi-root .mu-guest-bed > span { display: grid; place-items: center; color: var(--muted); }
+#mundi-root .mu-guest-bed > span .mu-ic { width: 14px; height: 14px; }
+#mundi-root .mu-guest-bed select { flex: 1; min-width: 0; padding: 4px 8px; font-size: 12px; }
+#mundi-root .mu-visit-new { display: grid; gap: 8px; }
+/* Go out: people from your library (a × to take them off) and the button to add them */
+#mundi-root .mu-out-lib .mu-ic { width: 12px; height: 12px; opacity: .75; }
+#mundi-root .mu-out-libbtn { border-style: dashed !important; }
+#mundi-root .mu-out-libbtn .mu-ic { width: 14px; height: 14px; }
+/* the doorbell: who is at the door, and two ways to answer */
+#mundi-root .mu-doorbell { position: fixed; left: 50%; top: 50%; translate: -50% -50%; z-index: 60; width: min(380px, calc(100vw - 32px)); justify-items: center; text-align: center; gap: 12px; padding: 22px; }
+#mundi-root .mu-doorbell h3 { margin: 0; }
+#mundi-root .mu-doorbell-ring { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); animation: mu-ring 1.2s ease-in-out infinite; }
+#mundi-root .mu-doorbell-ring .mu-ic { width: 24px; height: 24px; }
+#mundi-root .mu-doorbell-face { width: 112px; height: 112px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 3px var(--accent), 0 8px 24px rgba(0, 0, 0, .45); }
+#mundi-root .mu-doorbell .mu-dlg-btns { justify-content: center; flex-wrap: wrap; }
+@keyframes mu-ring { 0%, 60%, 100% { transform: rotate(0); } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { #mundi-root .mu-doorbell-ring { animation: none; } }
+/* the planned party: "Call it off" (red) on the left, "Edit guests" (blue) on the right */
+#mundi-root .mu-party-btns { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+#mundi-root .mu-party-btns .mu-party-edit { margin-left: auto; }
+/* sleeping (or a shift) would run over the party: the question */
+#mundi-root .mu-conflict-party { font-size: 40px; line-height: 1; text-align: center; }
+/* Classic and Cards: the characters with Expressions sprites stand beside the conversation, in the space left free
+   on each side of it. One: on the left. Two or more: the 1st, 3rd… on the left and the 2nd, 4th… on the right (see
+   stageVars in ui/scene.ts: --side, --pk, --nk).
+   Someone without sprites shows no picture here (Cards already shows it beside each message). */
+@media (min-width: 761px) {
+    #mundi-root[data-layout="classic"]:not([data-mobile]) .mu-sprites { --dw: min(calc(760px * var(--mu-dlg-w, 1)), calc(100% - 24px)); }
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprites { --dw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px)); }
+    #mundi-root[data-layout="classic"]:not([data-mobile]) .mu-sprites,
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprites {
+        display: block !important; inset: 0 !important; width: auto !important; padding: 0 !important;
+        --gl: calc((100% - var(--dw)) / 2); --gr: calc((100% - var(--dw)) / 2); }
+    #mundi-root[data-layout="classic"]:not([data-mobile]) .mu-sprite,
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprite {
+        --g: calc(var(--gl) * (1 - var(--side, 0)) + var(--gr) * var(--side, 0));
+        width: min(var(--g), calc(60vh * var(--mu-sprite-size, 1)));
+        --step: calc(min(var(--g), calc(60vh * var(--mu-sprite-size, 1))) * .55);
+        --cx: calc(var(--gl) / 2 * (1 - var(--side, 0)) + (100% - var(--gr) / 2) * var(--side, 0));
+        left: calc(var(--cx) + (var(--pk, 0) - (var(--nk, 1) - 1) / 2) * var(--step)); translate: -50% 0; }
+    #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprite:has(> .is-avatar) { display: none; }
+}
+/* The tour box: always fixed in the middle of the screen, with Stella (from the waist up) big and fitting inside it */
+#mundi-root .mu-tut-box img { width: 200px; height: 300px; object-fit: cover; object-position: top center; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box {
+    left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%);
+    width: min(680px, calc(100vw - 32px)); min-height: 300px; grid-template-columns: 220px minmax(0, 1fr); align-items: center; padding: 18px 22px 18px 8px;
+}
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { width: 220px; height: 330px; margin: -34px 0 -18px -8px; align-self: end; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk p { font-size: 16px; line-height: 1.5; }
+@media (max-width: 760px) { #mundi-root .mu-tut-box { grid-template-columns: 96px 1fr; } #mundi-root .mu-tut-box img, #mundi-root .mu-tut-box.is-wide img { width: 110px; height: 165px; margin: -50px 0 -12px -12px; } }
+/* Same place and same size on every step: the box never moves, and the buttons stay at its bottom. */
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box {
+    top: calc(50% - 175px); transform: translateX(-50%); height: 350px; min-height: 0; align-items: stretch; animation: none;
+}
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk { display: flex; flex-direction: column; gap: 10px; min-height: 0; padding-top: 6px; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk p { font-size: 18px; line-height: 1.5; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk b { font-size: 17px; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-talk > p:first-of-type { flex: 0 1 auto; overflow-y: auto; min-height: 0; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-btns { margin-top: auto; flex-wrap: nowrap; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-btns .mu-primary { min-width: 110px; }
+@media (max-width: 760px) { #mundi-root .mu-tut-talk p { font-size: 16px; } }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-task { font-size: 15px !important; }
+/* The first time Mundi opens: only the language, before Stella */
+#mundi-root .mu-lang-pick { width: min(440px, 100%); display: grid !important; grid-template-rows: auto !important; gap: 10px; text-align: center; padding: 26px 26px 28px !important; }
+#mundi-root .mu-lang-pick h3 { margin: 0; font-size: 26px; letter-spacing: .5px; }
+#mundi-root .mu-lang-pick p { margin: 0 0 8px; color: var(--hud-muted, rgba(235, 242, 255, .72)); line-height: 1.5; }
+#mundi-root .mu-lang-list { display: grid; gap: 10px; }
+#mundi-root .mu-lang-list button { justify-content: center; min-height: 52px; font-size: 18px; font-weight: 700; border-radius: 14px; }
+#mundi-root .mu-lang-list button:hover { background: color-mix(in srgb, var(--accent) 35%, transparent); border-color: color-mix(in srgb, var(--accent) 70%, transparent); }
+/* Stella a bit more to the right, whole from the waist up (nothing cut at the sides); the step count sits with the buttons */
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box { grid-template-columns: 262px minmax(0, 1fr); width: min(720px, calc(100vw - 32px)); }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { width: 250px; height: 338px; object-fit: contain; object-position: bottom center; margin: 0 0 -9px 14px; align-self: end; }
+#mundi-root .mu-tut-btns small { margin-right: 6px; margin-left: auto; }
+/* Stella's picture sits exactly on the box's bottom line */
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { position: absolute; left: 22px; bottom: 0; margin: 0; }
+#mundi-root:not([data-mobile]) .mu-tut .mu-tut-box .mu-tut-talk { grid-column: 2; }

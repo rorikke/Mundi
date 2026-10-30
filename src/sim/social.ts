@@ -1,7 +1,7 @@
 // Relationships, meet-ups and text messages. Bond grows when you talk to someone (in a scene or by phone);
 // a meet-up puts her at a place you chose for two hours; at a high bond you can ask her to be your partner.
 // Things done together count as time together (E14), and keepsakes can be given as gifts (E35).
-import { notify, nowAbs, type Save, type Resident } from '../core/store.js';
+import { notify, nowAbs, type Save, type Resident, UI } from '../core/store.js';
 import { type WorldDef, type KeepsakeDef, messageKind, aiVoice, systemOn } from '../core/world.js';
 import { fr, ro, gain, lose, setFr, touch, statusOf, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
@@ -207,7 +207,7 @@ export async function textFrom(g: Save, w: WorldDef, avatar: string, note: strin
     const t = (s.threads[avatar] ??= []);
     if (mine) { mine = await translateTo(mine); t.push({ me: true, text: mine, at: nowAbs(g) }); notify(); }   // your message shows right away (in the chat's language)
     let reply = '';
-    try { reply = await sayLine(textTranscript(g, w, r, note), r.name, [r.name, personaName()], 320, 120, 'now'); } catch { /* offline */ }
+    if (UI().aiTexts !== false) { try { reply = await sayLine(textTranscript(g, w, r, note), r.name, [r.name, personaName()], 320, 120, 'now'); } catch { /* offline */ } }   // off (This world → AI context): the ready-made reply
     t.push({ me: false, text: reply || fallback, at: nowAbs(g) });
     return reply || fallback;
 }

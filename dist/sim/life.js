@@ -4,7 +4,7 @@
 import { nowAbs } from '../core/store.js';
 import { courseOf, learning, canStudyHere, studiedToday, studySession, countUp, countOf, gainTrait } from './skills.js';
 import { priceOf } from './bills.js';
-import { systemOn } from '../core/world.js';
+import { systemOn, isScenario } from '../core/world.js';
 import { careerOf } from './work.js';
 import { priceHere } from './worldstate.js';
 import { lex } from '../core/lexicon.js';
@@ -185,9 +185,21 @@ export function doorAnswer(g, w, loc) {
     const r = g.cast[loc.slice(5)];
     if (!r)
         return { ok: true, text: '' };
+    // a guest's room is a room of your house: you can always go in (whoever is staying there, however close you are)
+    if (r.guest)
+        return { ok: true, text: '' };
     const home = whereNow(g, w, r) === loc;
     if (shutOut(g, r.avatar))
         return { ok: false, text: lex(w, home ? 'doorOut' : 'doorNobody', r.name) }; // they dislike you: no key, no way in
+    if (isScenario(w)) { // Home: a bedroom down the hall, not a house across town
+        if (isPartner(g, r.avatar) || bondOf(g, r.avatar) >= 50)
+            return { ok: true, text: home ? '' : `${r.name} is not in, but the door is not locked.` };
+        if (!home)
+            return { ok: false, text: `${r.name}'s room is locked, and you don't know where the key is.` };
+        if (bondOf(g, r.avatar) >= 15)
+            return { ok: true, text: `You knock on ${r.name}'s door and they let you in.` };
+        return { ok: false, text: `You knock on ${r.name}'s door. They talk to you through it, but don't let you in.` };
+    }
     if (isPartner(g, r.avatar) || bondOf(g, r.avatar) >= 50)
         return { ok: true, text: home ? '' : `${r.name} is out, but you know where the key is.` };
     if (!home)

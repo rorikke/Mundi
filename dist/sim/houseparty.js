@@ -4,6 +4,7 @@ import { nowAbs } from '../core/store.js';
 import { isScenario } from '../core/world.js';
 import { roomsOn, extraRooms } from './places.js';
 import { note } from './facts.js';
+import { charOf } from '../st/bridge.js';
 export const PARTY_HOURS = 4;
 export const houseParty = (g) => g.houseParty ?? null;
 export const partyNow = (g, w, at = nowAbs(g)) => { const p = houseParty(g); return !!p && isScenario(w) && at >= p.from && at < p.until; };
@@ -17,6 +18,10 @@ export function partyRooms(g, w) {
 export function partySpot(g, w, avatar, at = nowAbs(g)) {
     if (!partyNow(g, w, at))
         return null;
+    // a party out of the house: who goes is out there (off-screen, until you join them); the others keep their day
+    const o = houseParty(g).out;
+    if (o)
+        return o.people.includes(avatar) || (houseParty(g).guests ?? []).includes(avatar) ? 'out' : null;
     const rooms = partyRooms(g, w);
     if (!rooms.length)
         return null;
@@ -25,14 +30,17 @@ export function partySpot(g, w, avatar, at = nowAbs(g)) {
         h = (h * 33 + c.charCodeAt(0)) >>> 0;
     return rooms[h % rooms.length];
 }
-export function throwHouseParty(g, w, from, title = '') {
+export function throwHouseParty(g, w, from, title = '', extra = {}) {
     if (!isScenario(w))
         return 'Parties at home are for scenarios.';
     const cur = houseParty(g);
     if (cur && cur.until > nowAbs(g))
         return 'A party is already planned.';
-    g.houseParty = { from, until: from + PARTY_HOURS * 60, ...(title.trim() ? { title: title.trim().slice(0, 80) } : {}) };
-    note(g, title.trim() ? '{u} is throwing a house party: "{0}".' : '{u} is throwing a house party.', [title.trim()], [], g.player.loc, 'event');
+    const out = extra.out && extra.out.place.trim() ? { place: extra.out.place.trim().slice(0, 80), ...(extra.out.bg ? { bg: extra.out.bg } : {}), people: [...new Set(extra.out.people)] } : undefined;
+    const guests = [...new Set(extra.guests ?? [])].filter(a => !g.cast[a]);
+    g.houseParty = { from, until: from + PARTY_HOURS * 60, ...(title.trim() ? { title: title.trim().slice(0, 80) } : {}), ...(guests.length ? { guests } : {}), ...(out ? { out } : {}) };
+    const t = title.trim();
+    note(g, out ? (t ? '{u} is throwing a party at {1}: "{0}".' : '{u} is throwing a party at {1}.') : (t ? '{u} is throwing a house party: "{0}".' : '{u} is throwing a house party.'), [t, out?.place ?? ''], [], g.player.loc, 'event');
     return '';
 }
 export const cancelHouseParty = (g) => { delete g.houseParty; };
@@ -41,9 +49,18 @@ export function partyLine(g, w) {
     if (!p || !isScenario(w))
         return '';
     const now = nowAbs(g);
+    const guests = (p.guests ?? []).map(a => g.cast[a]?.name ?? String(charOf(a)?.name ?? '')).filter(Boolean);
+    const who = guests.length ? ` Guests from outside the house: ${guests.join(', ')}.` : '';
+    if (p.out) {
+        if (now >= p.from && now < p.until)
+            return `{{user}}'s party${p.title ? ` ("${p.title}")` : ''} is going on out of the house, at ${p.out.place}.${who}`;
+        if (now < p.from && p.from - now < 1440)
+            return `{{user}} is throwing a party later today${p.title ? ` ("${p.title}")` : ''}, out of the house at ${p.out.place}; the people invited know.${who}`;
+        return '';
+    }
     if (now >= p.from && now < p.until)
-        return `A house party is going on${p.title ? ` ("${p.title}")` : ''}: the housemates are out of their rooms, all over the living spaces, music on, drinks out.`;
+        return `A house party is going on${p.title ? ` ("${p.title}")` : ''}: the housemates are out of their rooms, all over the living spaces, music on, drinks out.${who}`;
     if (now < p.from && p.from - now < 1440)
-        return `{{user}} is throwing a house party later today${p.title ? ` ("${p.title}")` : ''}; everyone in the house knows.`;
+        return `{{user}} is throwing a house party later today${p.title ? ` ("${p.title}")` : ''}; everyone in the house knows.${who}`;
     return '';
 }

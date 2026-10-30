@@ -1,5 +1,6 @@
 // Combat on screen: the fight screen (monster-battle style) and the Party app (formation, companions, sellswords).
 import { lex } from '../core/lexicon.js';
+import { safeUrl } from '../core/safe.js';
 import { esc, game, notify, saveGame, toast } from '../core/store.js';
 import { getWorld, worldFile } from '../core/world.js';
 import { rpgOf } from '../core/rpgdef.js';
@@ -27,7 +28,7 @@ function backdrop(g, w, where) {
         const m = w.maps.find(x => x.id === p.map);
         img = m ? pictureAt(w, g.minutes, m.image, m.images) ?? '' : '';
     }
-    return img ? `background-image:url('${esc(worldFile(w, img))}')` : '';
+    return img ? `background-image:url('${safeUrl(worldFile(w, img))}')` : '';
 }
 function sprite(g, w, c, f, hp, hit, targets) {
     const foe = f.who === 'foe' ? rpgOf(w)?.bestiary?.find(x => x.id === f.ref) : null;
@@ -87,7 +88,7 @@ export function combatHtml() {
     // the text box and the menu
     const s = sheetOf(g);
     const focusName = rpgOf(w)?.focusName ?? 'Focus';
-    const B = (act, label, extra = '', sub = '') => `<button data-act="${act}" ${extra}>${label}${sub ? `<small>${sub}</small>` : ''}</button>`;
+    const B = (act, label, extra = '', sub = '') => `<button data-act="${esc(act)}" ${extra}>${label}${sub ? `<small>${sub}</small>` : ''}</button>`;
     let text = '';
     let menu = '';
     if (shown) {

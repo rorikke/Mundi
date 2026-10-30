@@ -1,0 +1,5 @@
+/* Gallery: the two tabs (Saves / Character greetings) side by side, like pills */
+#mundi-root .mu-gal-tabs { display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 0; border: 0; background: none; width: auto; }
+#mundi-root .mu-gal-tabs button { flex: 0 0 auto; width: auto !important; display: inline-flex !important; flex-direction: row !important; align-items: center; gap: 8px; padding: 9px 16px !important; border-radius: 999px !important; min-height: 0; font-size: 14px; }
+#mundi-root .mu-gal-tabs button .mu-ic, #mundi-root .mu-gal-tabs button svg { width: 16px; height: 16px; }
+#mundi-root .mu-album small span { opacity: .85; }

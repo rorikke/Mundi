@@ -8,7 +8,7 @@ import './longlife.js';
 import './fading.js'; // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
 import { feelingLine, physiqueLine, aspirationOf } from './life.js';
 import { game, settings, changed, adultOn } from '../core/store.js';
-import { getWorld } from '../core/world.js';
+import { getWorld, homeNeedsOn } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
 import { setPrompt, nameOf, chat } from '../st/bridge.js';
 import { weekday, hm, period, seasonOf } from './time.js';
@@ -50,6 +50,7 @@ import { realmLine } from './realm.js';
 import { legendLines } from './legends.js';
 import { skiesLine } from './skies.js';
 import { bountyLine } from './crime.js';
+import { guestLine } from './guests.js';
 import { tradeLine } from './economy.js';
 import { holdingsLine } from './holdings.js';
 import { afflictionLine } from './afflictions.js';
@@ -99,9 +100,9 @@ export const DEFAULT_RULES = 'Write only what happens in this place and at this 
 // A block's own text: `{text}` is where Mundi puts what it wrote for the block; without it, the text replaces it
 // (sent only when the block has something to say). SillyTavern's macros ({{user}}, {{char}}…) work as usual.
 export const applyTemplate = (tpl, text) => (!tpl?.trim() || !text.trim() ? text : tpl.includes('{text}') ? tpl.split('{text}').join(text) : tpl);
-// The blocks this world has: those of a system turned off in it are gone, and so are intimate profiles in a game
-// without adult content.
-export const blocksOf = (w, g) => BLOCKS.filter(b => (!blockSystem(b.id) || systemOn(w, blockSystem(b.id))) && (b.id !== 'intimate' || adultOn(g)));
+// The blocks this world has: those of a system turned off in it are gone (Home: needs turned on for this game count),
+// and so are intimate profiles in a game without adult content.
+export const blocksOf = (w, g) => BLOCKS.filter(b => (!blockSystem(b.id) || systemOn(w, blockSystem(b.id)) || (b.id === 'needs' && !!w && isScenario(w) && homeNeedsOn(g))) && (b.id !== 'intimate' || adultOn(g)));
 export const promptCfg = () => {
     const s = settings();
     s.promptCfg ??= {};
@@ -156,6 +157,7 @@ export function sceneBlocks() {
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
             `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
             hereLine(g, present, bg, sheets.length > 0),
+            ...(guestLine(g, present) ? [guestLine(g, present)] : []),
             ...(present.some(r => !r.met) ? [`Strangers to {{user}}: ${present.filter(r => !r.met).map(r => r.name).join(', ')}. They and {{user}} have never met: they do not know each other's names until they talk and introduce themselves.`] : []),
         ],
         around: [...sheets.map(r => castSheet(w, r)), bg ? backgroundLine(g, w, here) : ''],

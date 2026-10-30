@@ -1,0 +1,16 @@
+/* The "Advanced" switch at the top of This world / This Home (and Needs): a switch in a pill, easy to see. */
+#mundi-root .mu-switch-row { padding: 6px 8px 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, .18); border: 1px solid rgba(255, 255, 255, .5); box-shadow: 0 2px 8px rgba(0, 0, 0, .18); transition: background .2s; }
+#mundi-root .mu-switch-row:hover { background: rgba(255, 255, 255, .3); }
+#mundi-root .mu-switch-row .mu-xswitch { width: 42px; height: 24px; }
+#mundi-root .mu-switch-row .mu-xswitch i { background: rgba(0, 0, 0, .35); border: 2px solid rgba(255, 255, 255, .85); }
+#mundi-root .mu-switch-row .mu-xswitch i::after { top: 2px; left: 2px; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+#mundi-root .mu-switch-row .mu-xswitch input:checked + i { background: #34c759; border-color: #fff; }
+#mundi-root .mu-switch-row .mu-xswitch input:focus-visible + i { outline: 2px solid #fff; outline-offset: 2px; }
+#mundi-root .mu-needs-switch { display: inline-flex; margin: 4px 0 10px; }
+/* Home with needs on: their icons under the clock, each in a ring that empties as the need drops */
+#mundi-root .mh-clock-needs { display: flex; justify-content: center; gap: 10px; padding: 8px 10px 9px; border-top: 1px solid rgba(255, 255, 255, .1); cursor: default; }
+#mundi-root .mh-cneed { position: relative; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c, #4da3ff) calc(var(--v, 100) * 1%), rgba(255, 255, 255, .14) 0); }
+#mundi-root .mh-cneed::before { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: rgba(15, 20, 32, .85); }
+#mundi-root .mh-cneed .mu-ic, #mundi-root .mh-cneed i { position: relative; width: 15px; height: 15px; color: var(--c, #fff); font-style: normal; font-size: 13px; line-height: 1; }
+#mundi-root .mh-cneed.is-low { animation: mh-cneed-low 1.6s ease-in-out infinite; }
+@keyframes mh-cneed-low { 50% { box-shadow: 0 0 0 3px rgba(255, 80, 80, .45); } }
