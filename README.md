@@ -8,7 +8,7 @@ It is a SillyTavern **extension** (no server plugin). Everything is built on wha
 
 ## What this fork adds
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. So far it adds:
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) (currently on its 0.2.1) with features of its own on top. Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. So far it adds:
 
 ### Relationships that feel alive
 
@@ -21,6 +21,15 @@ People in your world have feelings of their own, for you and for each other, and
 - **People take the initiative.** They open up, confess their feelings, ask you out, text you, warn you before a breakup, hold grudges until you apologize, get jealous, and talk about you to their friends. How often is up to you.
 - **The world's people live their own lives.** They make friends, fall out, fall for each other, date, marry and break up, from their own feelings.
 - **Family is family, feelings are feelings.** Family ties (parents, children, siblings and half-siblings, grandparents, aunts and uncles, cousins, step-family, in-laws, godparents, guardians) are kept apart from how people feel; everything else, from best friends to exes, is set as feelings: in the new game, the World creator and the People tab, without needing the Advanced settings.
+
+### Living and working
+
+- **Jobs with a working week.** Each job has its shifts and days off, and you see them in the Calendar and the Jobs app. How well you work builds your performance, and a promotion says what it still needs ("Logic 2 or Drawing 2"). A career takes about a game year to reach the top. Sick days, vacations and lateness follow work rules you can ease (Realistic, Reduced, Relaxed), and you can set the career speed.
+- **The world's people work too.** They keep their own shifts, with days off spread across the team and vacations, so you find them at work when they're on. The world's own people keep the jobs and homes the world gave them.
+- **Skills.** Hobbies became skills that level up, the world's own skills included. Things you do and courses can train them.
+- **Couples go out.** Couples among the world's people go on dates a couple of evenings a week, at places they both like.
+- **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
+- **The AI knows the scene better.** In a crowded place it hears once what the people there share (why they're here, where they stand with you), and results written for you ("You nail the chorus") reach it as what you were told. The world's lorebook stays small in every request.
 
 ### Other improvements
 
