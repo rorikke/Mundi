@@ -259,7 +259,12 @@ export function overhear(g, w, present) {
 export const heardRumors = (g) => L(g).rumors.filter(r => r.knownBy.includes(YOU)).sort((a, b) => (b.heard ?? b.at) - (a.heard ?? a.at));
 export const rumorSource = (r) => garble(r.hops?.[YOU] ?? 1).replace(/^ \(|\)$/g, '');
 onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
-export const TIE_TYPES = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['cousin', 'cousin of']];
+export const TIE_TYPES = [
+    ['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['halfsibling', 'half-sibling of'], ['grandparent', 'grandparent of'], ['grandchild', 'grandchild of'],
+    ['uncle', 'aunt/uncle of'], ['nephew', 'niece/nephew of'], ['cousin', 'cousin of'],
+    ['stepparent', 'stepparent of'], ['stepchild', 'stepchild of'], ['stepsibling', 'stepsibling of'], ['parentinlaw', 'parent-in-law of'], ['childinlaw', 'son/daughter-in-law of'], ['siblinginlaw', 'brother/sister-in-law of'],
+    ['godparent', 'godparent of'], ['godchild', 'godchild of'], ['guardian', 'guardian of'], ['ward', 'ward of']
+];
 export const ties = (g) => (L(g).ties ??= []);
 export const tiesOf = (g, avatar) => ties(g).filter(t => t.a === avatar || t.b === avatar);
 export function setTie(g, t) {

@@ -23,7 +23,10 @@ const SC: Record<string, { draft(): StartDraft | null; world(): WorldDef | null;
 const opt = (v: string, l: string, on: boolean) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
 const zoneName = (w: WorldDef, id: string | undefined) => w.homes.zones.find(z => z.id === id)?.name ?? '';
 const TOGETHER: [string, string][] = [['', 'Not a couple'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married'], ['ex', 'Used to be together']];
-const FAMILY_NAME: Record<string, string> = { parent: 'your parent', child: 'your child', sibling: 'your sibling', cousin: 'your cousin' };
+const FAMILY_NAME: Record<string, string> = { parent: 'your parent', child: 'your child', sibling: 'your sibling', halfsibling: 'your half-sibling', grandparent: 'your grandparent',
+    grandchild: 'your grandchild', uncle: 'your aunt or uncle', nephew: 'your niece or nephew', cousin: 'your cousin', stepparent: 'your stepparent', stepchild: 'your stepchild',
+    stepsibling: 'your stepsibling', parentinlaw: 'your parent-in-law', childinlaw: 'your son- or daughter-in-law', siblinginlaw: 'your brother- or sister-in-law',
+    godparent: 'your godparent', godchild: 'your godchild', guardian: 'your guardian', ward: 'your ward' };
 
 /* ---------- choosing a start (new game) ---------- */
 

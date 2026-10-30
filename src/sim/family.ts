@@ -8,6 +8,7 @@ import { note } from './facts.js';
 import { romOf } from './romance.js';
 import { bump } from './social.js';
 import { setTie, liveTogether, ties } from './living.js';
+import { BLOOD_TIES } from '../core/feel.js';
 import { playerHomeId } from './places.js';
 import { relOf, idOf, YOU } from './rel.js';
 
@@ -42,14 +43,15 @@ export function isMinor(g: Save, avatar: string) {
     return !!p?.minor || (p?.age !== undefined && p.age < 18);
 }
 
-// No romance between family (parent, child, sibling: between any two people, you included), with your own children
-// at any age, or with any minor.
+// No romance between close blood relatives (parents, children, siblings and half-siblings, grandparents and grandchildren,
+// aunts and uncles, nieces and nephews: between any two people, you included), with your own children at any age, or
+// with any minor.
 export function familyBlocked(g: Save, a: string, b: string) {
     a = idOf(g, a); b = idOf(g, b);
     if (isMinor(g, a) || isMinor(g, b)) return true;
     const kid = (x: string, y: string) => { const k = kidOf(g, x); return !!k && (y === YOU || k.parent === y); };
     if (kid(a, b) || kid(b, a)) return true;
-    return ties(g).some(t => ((t.a === a && t.b === b) || (t.a === b && t.b === a)) && (t.type === 'parent' || t.type === 'child' || t.type === 'sibling'));
+    return ties(g).some(t => ((t.a === a && t.b === b) || (t.a === b && t.b === a)) && BLOOD_TIES.includes(t.type));
 }
 export const romanceBlocked = (g: Save, avatar: string) => familyBlocked(g, avatar, YOU);
 

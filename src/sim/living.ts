@@ -255,7 +255,11 @@ onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
 // `a` is the <type> of `b`; '__you' is the player.
 export type TieType = FamilyType;
 export interface Tie { a: string; b: string; type: TieType }
-export const TIE_TYPES: [TieType, string][] = [['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['cousin', 'cousin of']];
+export const TIE_TYPES: [TieType, string][] = [
+    ['parent', 'parent of'], ['child', 'child of'], ['sibling', 'sibling of'], ['halfsibling', 'half-sibling of'], ['grandparent', 'grandparent of'], ['grandchild', 'grandchild of'],
+    ['uncle', 'aunt/uncle of'], ['nephew', 'niece/nephew of'], ['cousin', 'cousin of'],
+    ['stepparent', 'stepparent of'], ['stepchild', 'stepchild of'], ['stepsibling', 'stepsibling of'], ['parentinlaw', 'parent-in-law of'], ['childinlaw', 'son/daughter-in-law of'], ['siblinginlaw', 'brother/sister-in-law of'],
+    ['godparent', 'godparent of'], ['godchild', 'godchild of'], ['guardian', 'guardian of'], ['ward', 'ward of']];
 export const ties = (g: Save): Tie[] => ((L(g) as any).ties ??= []);
 export const tiesOf = (g: Save, avatar: string) => ties(g).filter(t => t.a === avatar || t.b === avatar);
 export function setTie(g: Save, t: Tie) {

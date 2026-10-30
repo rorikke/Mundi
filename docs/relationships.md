@@ -134,8 +134,10 @@ Characters don't wait for you to drive every relationship.
 
 ## Family and feelings
 
-- **Family is its own thing.** Family ties are parent, child, sibling and cousin. They keep family out of romance, and
-  family visit each other. A husband or wife isn't a family tie: being married is the couple's own status.
+- **Family is its own thing.** Family ties are parents and children, siblings and half-siblings, grandparents and
+  grandchildren, aunts, uncles, nieces and nephews, cousins, step-family, in-laws, godparents and godchildren, and
+  guardians and wards. Close blood relatives (everyone in that list up to nieces and nephews) never fall for each other,
+  and family visit each other. A husband or wife isn't a family tie: being married is the couple's own status.
 - **Everything else is feelings.** Friends, best friends, rivals, enemies, a couple, exes: you don't pick a relation
   type, you say how they feel. In the new game, the World creator and your cast presets, each relation says whether
   they're family, each one's friendship and romance level (Best friend, Good friend, Friend… down to Hates; Interest,
@@ -143,7 +145,7 @@ Characters don't wait for you to drive every relationship.
   stand her.
 - **"As usual."** Leave a level on "As usual" and they start where they would anyway (family a little closer, a couple
   in love).
-- **In a game.** A person's page in the People tab has their **Family** (parent, child, sibling, cousin) and their
+- **In a game.** A person's page in the People tab has their **Family** (any of those kinds) and their
   **Feelings**: with you, or with anyone else, a level each way, and whether they're a couple. No need for the Advanced
   settings; under *Advanced* you still get the exact numbers. Where people live is the Households tab.
 

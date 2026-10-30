@@ -16,7 +16,7 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { familyBlocked, isMinor, kidOf } from '../sim/family.js';
 import { tiesOf, removeTie, normalizeHomes, TIE_TYPES } from '../sim/living.js';
 import { addOldTie, pickLevel, friendLevelOf, romLevelOf } from '../sim/startfeel.js';
-import { ROM_START } from '../core/feel.js';
+import { ROM_START, FAMILY_FLIP } from '../core/feel.js';
 import { freeSpots, WORK_PRESETS, workRules, presetShown, worldPreset, setPreset, setRule, resetRules } from '../sim/work.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { facts } from '../sim/facts.js';
@@ -341,12 +341,11 @@ const noteSave = () => { ctx().saveMetadataDebounced(); };
 // Family (like The Sims): who is whose mother, sibling… '__you' is you. How they get along is their feelings, where
 // they live the Households tab.
 const TIE = { other: '', type: 'sibling' };
-// a tie told from this person's side ("Sadie is sibling of Aishah" on Sadie's page; parent and child swap)
+// a tie told from this person's side ("Sadie is sibling of Aishah" on Sadie's page; parent and child, grandparent and grandchild… swap)
 function viewTie(t, avatar) {
     if (t.a === avatar)
         return t;
-    const flip = { parent: 'child', child: 'parent' };
-    return { a: t.b, b: t.a, type: flip[t.type] ?? t.type };
+    return { a: t.b, b: t.a, type: FAMILY_FLIP[t.type] ?? t.type };
 }
 function tiesHtml(g, avatar) {
     const nm = (id) => (id === '__you' ? 'You' : g.cast[id]?.name ?? id);
