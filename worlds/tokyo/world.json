@@ -648,7 +648,11 @@
      "water": 800,
      "power": 1500
     },
-    "image": "../modern/bg/home-apartment_small.jpg"
+    "image": "bg/home-studio.avif",
+    "images": {
+     "afternoon": "bg/home-studio-afternoon.avif",
+     "night": "bg/home-studio-night.avif"
+    }
    },
    "apaato": {
     "name": "Wooden apartment",
@@ -657,7 +661,11 @@
      "water": 700,
      "power": 1300
     },
-    "image": "../modern/bg/home-apartment_small.jpg"
+    "image": "bg/home-apaato.avif",
+    "images": {
+     "afternoon": "bg/home-apaato-afternoon.avif",
+     "night": "bg/home-apaato-night.avif"
+    }
    },
    "sharehouse": {
     "name": "Share house room",
@@ -666,7 +674,11 @@
      "water": 500,
      "power": 900
     },
-    "image": "../modern/bg/home-apartment.jpg"
+    "image": "bg/home-sharehouse.avif",
+    "images": {
+     "afternoon": "bg/home-sharehouse-afternoon.avif",
+     "night": "bg/home-sharehouse-night.avif"
+    }
    },
    "mansion": {
     "name": "Apartment (1LDK)",
@@ -675,7 +687,11 @@
      "water": 1100,
      "power": 2000
     },
-    "image": "../modern/bg/home-apartment.jpg"
+    "image": "bg/home-mansion.avif",
+    "images": {
+     "afternoon": "bg/home-mansion-afternoon.avif",
+     "night": "bg/home-mansion-night.avif"
+    }
    },
    "family": {
     "name": "Family house",
@@ -684,7 +700,11 @@
      "water": 1500,
      "power": 2800
     },
-    "image": "../modern/bg/home-house.jpg"
+    "image": "bg/home-family.avif",
+    "images": {
+     "afternoon": "bg/home-family-afternoon.avif",
+     "night": "bg/home-family-night.avif"
+    }
    },
    "oldhouse": {
     "name": "Old wooden house",
@@ -693,7 +713,11 @@
      "water": 1300,
      "power": 2200
     },
-    "image": "../modern/bg/home-house_small.jpg"
+    "image": "bg/home-oldhouse.avif",
+    "images": {
+     "afternoon": "bg/home-oldhouse-afternoon.avif",
+     "night": "bg/home-oldhouse-night.avif"
+    }
    },
    "tower": {
     "name": "Bayside tower flat",
@@ -702,7 +726,11 @@
      "water": 1800,
      "power": 3200
     },
-    "image": "../modern/bg/home-apartment_lux.jpg"
+    "image": "bg/home-tower.avif",
+    "images": {
+     "afternoon": "bg/home-tower-afternoon.avif",
+     "night": "bg/home-tower-night.avif"
+    }
    },
    "luxury": {
     "name": "Azabu residence",
@@ -711,7 +739,11 @@
      "water": 2800,
      "power": 5000
     },
-    "image": "../modern/bg/home-apartment_lux.jpg"
+    "image": "bg/home-luxury.avif",
+    "images": {
+     "afternoon": "bg/home-luxury-afternoon.avif",
+     "night": "bg/home-luxury-night.avif"
+    }
    },
    "dorm": {
     "name": "Dorm room",
@@ -720,7 +752,11 @@
      "water": 300,
      "power": 600
     },
-    "image": "../modern/bg/home-apartment_small.jpg"
+    "image": "bg/home-dorm.avif",
+    "images": {
+     "afternoon": "bg/home-dorm-afternoon.avif",
+     "night": "bg/home-dorm-night.avif"
+    }
    }
   },
   "expenses": [
@@ -18953,7 +18989,11 @@
    "staff": "crowds in every direction, station staff with whistles, buskers, people checking phones under the dog, tourists filming from the corners",
    "crowd": 1.5,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sb_crossing.avif",
+   "bgs": {
+    "afternoon": "bg/sb_crossing-afternoon.avif",
+    "night": "bg/sb_crossing-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -18975,7 +19015,11 @@
    "staff": "touts in black jackets, arcade clerks, noodle cooks, flyer handers, delivery riders waiting on their bikes by the gate",
    "crowd": 1.3,
    "closed": [],
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/sb_centergai.avif",
+   "bgs": {
+    "afternoon": "bg/sb_centergai-afternoon.avif",
+    "night": "bg/sb_centergai-night.avif"
+   },
    "x": 30,
    "y": 12,
    "sound": [
@@ -19003,7 +19047,7 @@
     23
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sb_pachinko.avif",
    "x": 50,
    "y": 12,
    "sound": [
@@ -19030,7 +19074,7 @@
      "sb_karaoke_allnight"
     ]
    },
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sb_karaoke.avif",
    "x": 70,
    "y": 12,
    "private": true,
@@ -19054,7 +19098,11 @@
     "rush"
    ],
    "generic": false,
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/sb_startup.avif",
+   "bgs": {
+    "afternoon": "bg/sb_startup-afternoon.avif",
+    "night": "bg/sb_startup-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -19080,7 +19128,10 @@
     "night"
    ],
    "generic": false,
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/sb_eikaiwa.avif",
+   "bgs": {
+    "night": "bg/sb_eikaiwa-night.avif"
+   },
    "x": 10,
    "y": 42,
    "sound": [
@@ -19105,7 +19156,11 @@
     "rush",
     "night"
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/sb_takeshita.avif",
+   "bgs": {
+    "afternoon": "bg/sb_takeshita-afternoon.avif",
+    "night": "bg/sb_takeshita-night.avif"
+   },
    "x": 30,
    "y": 42,
    "sound": [
@@ -19129,7 +19184,11 @@
     "firsttrain",
     "night"
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/sb_omotesando.avif",
+   "bgs": {
+    "afternoon": "bg/sb_omotesando-afternoon.avif",
+    "night": "bg/sb_omotesando-night.avif"
+   },
    "x": 50,
    "y": 42,
    "sound": [
@@ -19164,7 +19223,10 @@
    "festivalOpen": [
     "hatsumode"
    ],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sb_meiji.avif",
+   "bgs": {
+    "afternoon": "bg/sb_meiji-afternoon.avif"
+   },
    "x": 70,
    "y": 42,
    "sound": [
@@ -19204,7 +19266,11 @@
      17
     ]
    },
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sb_yoyogi.avif",
+   "bgs": {
+    "afternoon": "bg/sb_yoyogi-afternoon.avif",
+    "night": "bg/sb_yoyogi-night.avif"
+   },
    "x": 90,
    "y": 42,
    "sound": [
@@ -19231,7 +19297,7 @@
     "rest": "good"
    },
    "adult": true,
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/sb_lovehotel.avif",
    "x": 10,
    "y": 72,
    "private": true,
@@ -19253,7 +19319,11 @@
    "crowd": 1.5,
    "closed": [],
    "generic": false,
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/sj_station.avif",
+   "bgs": {
+    "afternoon": "bg/sj_station-afternoon.avif",
+    "night": "bg/sj_station-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -19273,7 +19343,11 @@
    "staff": "touts with quotas; hosts and hostesses heading to work; delivery riders; neighborhood patrols in vests; crows at the garbage",
    "crowd": 1.3,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_kabukicho.avif",
+   "bgs": {
+    "afternoon": "bg/sj_kabukicho-afternoon.avif",
+    "night": "bg/sj_kabukicho-night.avif"
+   },
    "x": 37,
    "y": 12,
    "sound": [
@@ -19304,7 +19378,7 @@
    ],
    "generic": false,
    "adult": true,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_hostclub.avif",
    "x": 63,
    "y": 12,
    "sound": [
@@ -19333,7 +19407,7 @@
    ],
    "generic": false,
    "adult": true,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_hostess.avif",
    "x": 90,
    "y": 12,
    "sound": [
@@ -19362,7 +19436,10 @@
     24
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/sj_omoide.avif",
+   "bgs": {
+    "night": "bg/sj_omoide-night.avif"
+   },
    "x": 10,
    "y": 42,
    "sound": [
@@ -19392,7 +19469,7 @@
     5
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_goldengai.avif",
    "x": 37,
    "y": 42,
    "sound": [
@@ -19420,7 +19497,7 @@
     3
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_nichome.avif",
    "x": 63,
    "y": 42,
    "openByDay": {
@@ -19457,7 +19534,11 @@
     22
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_tocho.avif",
+   "bgs": {
+    "afternoon": "bg/sj_tocho-afternoon.avif",
+    "night": "bg/sj_tocho-night.avif"
+   },
    "x": 90,
    "y": 42,
    "sound": [
@@ -19507,7 +19588,10 @@
    ],
    "entry": 500,
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/sj_gyoen.avif",
+   "bgs": {
+    "afternoon": "bg/sj_gyoen-afternoon.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -19539,7 +19623,7 @@
     "rest": "fair"
    },
    "generic": false,
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/sj_capsule.avif",
    "x": 37,
    "y": 72,
    "sound": [
@@ -19558,7 +19642,11 @@
    "staff": "shopkeepers hauling clothes racks, buskers with an open guitar case, university students in thrifted coats, bar touts handing out flyers",
    "crowd": 1.1,
    "closed": [],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ws_shimokita.avif",
+   "bgs": {
+    "afternoon": "bg/ws_shimokita-afternoon.avif",
+    "night": "bg/ws_shimokita-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -19587,7 +19675,10 @@
     20
    ],
    "generic": false,
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ws_vintage.avif",
+   "bgs": {
+    "night": "bg/ws_vintage-night.avif"
+   },
    "x": 37,
    "y": 12,
    "sound": [
@@ -19617,7 +19708,7 @@
     24
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ws_livehouse.avif",
    "x": 63,
    "y": 12,
    "sound": [
@@ -19644,7 +19735,10 @@
     23
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ws_theater.avif",
+   "bgs": {
+    "night": "bg/ws_theater-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -19673,7 +19767,11 @@
     21
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/ws_curry.avif",
+   "bgs": {
+    "afternoon": "bg/ws_curry-afternoon.avif",
+    "night": "bg/ws_curry-night.avif"
+   },
    "x": 10,
    "y": 42,
    "sound": [
@@ -19703,7 +19801,10 @@
     17
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/ws_kissaten.avif",
+   "bgs": {
+    "afternoon": "bg/ws_kissaten-afternoon.avif"
+   },
    "x": 37,
    "y": 42,
    "sound": [
@@ -19735,7 +19836,10 @@
     "tue"
    ],
    "generic": false,
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/ws_sento.avif",
+   "bgs": {
+    "night": "bg/ws_sento-night.avif"
+   },
    "x": 63,
    "y": 42,
    "sound": [
@@ -19754,7 +19858,11 @@
    "staff": "shopkeepers calling out, aunties with shopping carts, a man tuning a guitar by the bicycles, bar touts",
    "crowd": 1.1,
    "closed": [],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ws_koenji.avif",
+   "bgs": {
+    "afternoon": "bg/ws_koenji-afternoon.avif",
+    "night": "bg/ws_koenji-night.avif"
+   },
    "x": 90,
    "y": 42,
    "sound": [
@@ -19775,7 +19883,11 @@
    "staff": "a clerk greeting each customer, a stocker filling the lunch shelf, late-night regulars, a salaryman buying a sports drink",
    "crowd": 1.1,
    "closed": [],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ws_konbini.avif",
+   "bgs": {
+    "afternoon": "bg/ws_konbini-afternoon.avif",
+    "night": "bg/ws_konbini-night.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -19807,7 +19919,11 @@
     "price": 0,
     "rest": "poor"
    },
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/ws_studio.avif",
+   "bgs": {
+    "afternoon": "bg/ws_studio-afternoon.avif",
+    "night": "bg/ws_studio-night.avif"
+   },
    "x": 37,
    "y": 72,
    "sound": [
@@ -19830,7 +19946,11 @@
     "firsttrain",
     "rush"
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ak_electric.avif",
+   "bgs": {
+    "afternoon": "bg/ak_electric-afternoon.avif",
+    "night": "bg/ak_electric-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -19860,7 +19980,11 @@
     22
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/ak_maid.avif",
+   "bgs": {
+    "afternoon": "bg/ak_maid-afternoon.avif",
+    "night": "bg/ak_maid-night.avif"
+   },
    "x": 37,
    "y": 12,
    "sound": [
@@ -19887,7 +20011,7 @@
     23
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ak_arcade.avif",
    "x": 63,
    "y": 12,
    "sound": [
@@ -19913,7 +20037,7 @@
     "midmorning"
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ak_idol.avif",
    "x": 90,
    "y": 12,
    "sound": [
@@ -19937,7 +20061,11 @@
     "night"
    ],
    "generic": false,
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/ak_gamedev.avif",
+   "bgs": {
+    "afternoon": "bg/ak_gamedev-afternoon.avif",
+    "night": "bg/ak_gamedev-night.avif"
+   },
    "x": 10,
    "y": 42,
    "sound": [
@@ -19961,7 +20089,7 @@
     "price": 2500,
     "rest": "fair"
    },
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/ak_mangacafe.avif",
    "x": 37,
    "y": 42,
    "sound": [
@@ -19979,7 +20107,11 @@
    "staff": "priests and miko at the charm office, fans photographing the ema, office workers praying for a deal, neighbors sweeping leaves",
    "crowd": 0.8,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ak_myojin.avif",
+   "bgs": {
+    "afternoon": "bg/ak_myojin-afternoon.avif",
+    "night": "bg/ak_myojin-night.avif"
+   },
    "x": 63,
    "y": 42,
    "sound": [
@@ -20008,7 +20140,11 @@
     "rush",
     "night"
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ak_jinbocho.avif",
+   "bgs": {
+    "afternoon": "bg/ak_jinbocho-afternoon.avif",
+    "night": "bg/ak_jinbocho-night.avif"
+   },
    "x": 90,
    "y": 42,
    "sound": [
@@ -20032,7 +20168,11 @@
     "rush"
    ],
    "generic": false,
-   "bg": "../modern/bg/campus.jpg",
+   "bg": "bg/ak_juku.avif",
+   "bgs": {
+    "afternoon": "bg/ak_juku-afternoon.avif",
+    "night": "bg/ak_juku-night.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -20055,7 +20195,11 @@
     "firsttrain"
    ],
    "generic": false,
-   "bg": "../modern/bg/campus.jpg",
+   "bg": "bg/ak_university.avif",
+   "bgs": {
+    "afternoon": "bg/ak_university-afternoon.avif",
+    "night": "bg/ak_university-night.avif"
+   },
    "x": 37,
    "y": 72,
    "sound": [
@@ -20075,7 +20219,11 @@
    "staff": "stall keepers calling out sweets, a monk sweeping, a company outing behind a flag, pullers in happi coats",
    "crowd": 1.5,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ot_sensoji.avif",
+   "bgs": {
+    "afternoon": "bg/ot_sensoji-afternoon.avif",
+    "night": "bg/ot_sensoji-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -20098,7 +20246,11 @@
    "staff": "joggers, an old man feeding pigeons, couples on the benches, a water-bus conductor, street sketchers",
    "crowd": 0.8,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ot_sumida.avif",
+   "bgs": {
+    "afternoon": "bg/ot_sumida-afternoon.avif",
+    "night": "bg/ot_sumida-night.avif"
+   },
    "x": 37,
    "y": 12,
    "sound": [
@@ -20124,7 +20276,10 @@
     "midmorning"
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/ot_izakaya.avif",
+   "bgs": {
+    "night": "bg/ot_izakaya-night.avif"
+   },
    "x": 63,
    "y": 12,
    "sound": [
@@ -20145,7 +20300,11 @@
    "closed": [
     "latenight"
    ],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ot_ueno.avif",
+   "bgs": {
+    "afternoon": "bg/ot_ueno-afternoon.avif",
+    "night": "bg/ot_ueno-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -20177,7 +20336,10 @@
     "mon"
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ot_museum.avif",
+   "bgs": {
+    "afternoon": "bg/ot_museum-afternoon.avif"
+   },
    "x": 10,
    "y": 42,
    "sound": [
@@ -20202,7 +20364,11 @@
     "night"
    ],
    "generic": false,
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/ot_ameyoko.avif",
+   "bgs": {
+    "afternoon": "bg/ot_ameyoko-afternoon.avif",
+    "night": "bg/ot_ameyoko-night.avif"
+   },
    "x": 37,
    "y": 42,
    "sound": [
@@ -20222,7 +20388,11 @@
    "staff": "an old woman sweeping her doorstep, a croquette seller, a photographer whispering, cats on walls and roofs",
    "crowd": 0.7,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ot_yanaka.avif",
+   "bgs": {
+    "afternoon": "bg/ot_yanaka-afternoon.avif",
+    "night": "bg/ot_yanaka-night.avif"
+   },
    "x": 63,
    "y": 42,
    "sound": [
@@ -20247,7 +20417,11 @@
     "rush"
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/ot_ramen.avif",
+   "bgs": {
+    "afternoon": "bg/ot_ramen-afternoon.avif",
+    "night": "bg/ot_ramen-night.avif"
+   },
    "x": 90,
    "y": 42,
    "sound": [
@@ -20273,7 +20447,11 @@
    "festivalOpen": [
     "omisoka"
    ],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/ot_shrine.avif",
+   "bgs": {
+    "afternoon": "bg/ot_shrine-afternoon.avif",
+    "night": "bg/ot_shrine-night.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -20299,7 +20477,11 @@
    "closed": [
     "latenight"
    ],
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/mg_station.avif",
+   "bgs": {
+    "afternoon": "bg/mg_station-afternoon.avif",
+    "night": "bg/mg_station-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -20320,7 +20502,11 @@
     "latenight",
     "firsttrain"
    ],
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/mg_tower.avif",
+   "bgs": {
+    "afternoon": "bg/mg_tower-afternoon.avif",
+    "night": "bg/mg_tower-night.avif"
+   },
    "x": 37,
    "y": 12,
    "sound": [
@@ -20350,7 +20536,7 @@
     20
    ],
    "generic": false,
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/mg_depachika.avif",
    "x": 63,
    "y": 12,
    "sound": [
@@ -20375,7 +20561,11 @@
     11,
     20
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/mg_chuodori.avif",
+   "bgs": {
+    "afternoon": "bg/mg_chuodori-afternoon.avif",
+    "night": "bg/mg_chuodori-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -20404,7 +20594,10 @@
     24
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/mg_izakaya.avif",
+   "bgs": {
+    "night": "bg/mg_izakaya-night.avif"
+   },
    "x": 10,
    "y": 42,
    "openByDay": {
@@ -20433,7 +20626,11 @@
    "desc": "old Edo Castle's moat and stone walls, with the free East Gardens inside: broad lawns, a pond garden, the base of a vanished tower, and outside, the running loop around the whole palace",
    "staff": "runners in bright gear, guards handing out tokens, a cycling club resting by the moat, a gardener raking gravel",
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/mg_palace.avif",
+   "bgs": {
+    "afternoon": "bg/mg_palace-afternoon.avif",
+    "night": "bg/mg_palace-night.avif"
+   },
    "x": 37,
    "y": 42,
    "sound": [
@@ -20464,7 +20661,7 @@
     21
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/mg_kabuki.avif",
    "x": 63,
    "y": 42,
    "sound": [
@@ -20495,7 +20692,10 @@
     "sun"
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/mg_tsukiji.avif",
+   "bgs": {
+    "afternoon": "bg/mg_tsukiji-afternoon.avif"
+   },
    "x": 90,
    "y": 42,
    "sound": [
@@ -20515,7 +20715,11 @@
    "staff": "nurses in pastel scrubs moving fast, doctors with juniors trailing, patients with drip stands, old people holding numbered tickets",
    "crowd": 1.2,
    "closed": [],
-   "bg": "../modern/bg/hospital.jpg",
+   "bg": "bg/mg_hospital.avif",
+   "bgs": {
+    "afternoon": "bg/mg_hospital-afternoon.avif",
+    "night": "bg/mg_hospital-night.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -20535,7 +20739,11 @@
    "desc": "a long man-made beach facing the bay, with Rainbow Bridge and the skyline across the water: a boardwalk, a small copy of a famous statue, windsurfers offshore, and signs that say no swimming",
    "staff": "joggers and dog walkers on the boardwalk, couples on the sand, windsurf instructors, a photographer with a tripod",
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/bay_beach.avif",
+   "bgs": {
+    "afternoon": "bg/bay_beach-afternoon.avif",
+    "night": "bg/bay_beach-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -20569,7 +20777,11 @@
      18
     ]
    },
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/bay_bridge.avif",
+   "bgs": {
+    "afternoon": "bg/bay_bridge-afternoon.avif",
+    "night": "bg/bay_bridge-night.avif"
+   },
    "x": 37,
    "y": 12,
    "closedIn": [
@@ -20603,7 +20815,11 @@
     10,
     21
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/bay_mall.avif",
+   "bgs": {
+    "afternoon": "bg/bay_mall-afternoon.avif",
+    "night": "bg/bay_mall-night.avif"
+   },
    "x": 63,
    "y": 12,
    "sound": [
@@ -20630,7 +20846,7 @@
     10,
     19
    ],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/bay_art.avif",
    "x": 90,
    "y": 12,
    "sound": [
@@ -20660,7 +20876,10 @@
     10,
     17
    ],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/bay_expo.avif",
+   "bgs": {
+    "afternoon": "bg/bay_expo-afternoon.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -20686,7 +20905,11 @@
     4,
     17
    ],
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/bay_market.avif",
+   "bgs": {
+    "afternoon": "bg/bay_market-afternoon.avif",
+    "night": "bg/bay_market-night.avif"
+   },
    "x": 37,
    "y": 72,
    "sound": [
@@ -20712,7 +20935,11 @@
     10,
     22
    ],
-   "bg": "../modern/bg/finance.jpg",
+   "bg": "bg/bay_tv.avif",
+   "bgs": {
+    "afternoon": "bg/bay_tv-afternoon.avif",
+    "night": "bg/bay_tv-night.avif"
+   },
    "x": 63,
    "y": 72,
    "sound": [
@@ -20732,7 +20959,11 @@
    "crowd": 1.4,
    "closed": [],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/rp_crossing.avif",
+   "bgs": {
+    "afternoon": "bg/rp_crossing-afternoon.avif",
+    "night": "bg/rp_crossing-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -20766,7 +20997,7 @@
     "tue"
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/rp_club.avif",
    "x": 37,
    "y": 12,
    "openByDay": {
@@ -20807,7 +21038,11 @@
     "tue"
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/rp_sky.avif",
+   "bgs": {
+    "afternoon": "bg/rp_sky-afternoon.avif",
+    "night": "bg/rp_sky-night.avif"
+   },
    "x": 63,
    "y": 12,
    "sound": [
@@ -20834,7 +21069,11 @@
     23
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/rp_tower.avif",
+   "bgs": {
+    "afternoon": "bg/rp_tower-afternoon.avif",
+    "night": "bg/rp_tower-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -20863,7 +21102,11 @@
    "festivalOpen": [
     "noryo"
    ],
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/rp_azabu.avif",
+   "bgs": {
+    "afternoon": "bg/rp_azabu-afternoon.avif",
+    "night": "bg/rp_azabu-night.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -20895,7 +21138,7 @@
     "sun"
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/rp_lounge.avif",
    "x": 37,
    "y": 72,
    "openByDay": {
@@ -20934,7 +21177,10 @@
     1
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/rp_pub.avif",
+   "bgs": {
+    "night": "bg/rp_pub-night.avif"
+   },
    "x": 63,
    "y": 72,
    "openByDay": {
@@ -20981,7 +21227,7 @@
    ],
    "generic": false,
    "adult": true,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/rp_poleclub.avif",
    "x": 90,
    "y": 72,
    "sound": [
@@ -21006,7 +21252,11 @@
     "firsttrain",
     "rush"
    ],
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/yk_chinatown.avif",
+   "bgs": {
+    "afternoon": "bg/yk_chinatown-afternoon.avif",
+    "night": "bg/yk_chinatown-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -21026,7 +21276,11 @@
    "staff": "couples on benches, photographers with tripods, warehouse shop clerks, joggers, a busker with a keyboard, office workers on break",
    "crowd": 1.2,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/yk_bay.avif",
+   "bgs": {
+    "afternoon": "bg/yk_bay-afternoon.avif",
+    "night": "bg/yk_bay-night.avif"
+   },
    "x": 37,
    "y": 12,
    "sound": [
@@ -21046,7 +21300,11 @@
    "staff": "couples walking, dog walkers, wedding photographers, a volunteer guide at the liner, joggers, a man selling roasted chestnuts",
    "crowd": 0.9,
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/yk_yamashita.avif",
+   "bgs": {
+    "afternoon": "bg/yk_yamashita-afternoon.avif",
+    "night": "bg/yk_yamashita-night.avif"
+   },
    "x": 63,
    "y": 12,
    "sound": [
@@ -21067,7 +21325,11 @@
    "staff": "shopkeepers sweeping doorsteps, buskers on corners, pawnbrokers behind glass, pachinko regulars, delivery bikes, old men on benches",
    "crowd": 1.2,
    "closed": [],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/yk_isezaki.avif",
+   "bgs": {
+    "afternoon": "bg/yk_isezaki-afternoon.avif",
+    "night": "bg/yk_isezaki-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -21091,7 +21353,10 @@
     "midmorning"
    ],
    "generic": false,
-   "bg": "../modern/bg/cafe.jpg",
+   "bg": "bg/yk_noge.avif",
+   "bgs": {
+    "night": "bg/yk_noge-night.avif"
+   },
    "x": 10,
    "y": 42,
    "sound": [
@@ -21127,7 +21392,7 @@
    ],
    "generic": false,
    "adult": true,
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/yk_hostess.avif",
    "x": 37,
    "y": 42,
    "sound": [
@@ -21156,7 +21421,10 @@
     12,
     24
    ],
-   "bg": "../modern/bg/gym.jpg",
+   "bg": "bg/yk_batting.avif",
+   "bgs": {
+    "night": "bg/yk_batting-night.avif"
+   },
    "x": 63,
    "y": 42,
    "sound": [
@@ -21188,7 +21456,7 @@
     "mon"
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/yk_mahjong.avif",
    "x": 90,
    "y": 42,
    "sound": [
@@ -21210,7 +21478,11 @@
     "price": 0,
     "rest": "poor"
    },
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/yk_park.avif",
+   "bgs": {
+    "afternoon": "bg/yk_park-afternoon.avif",
+    "night": "bg/yk_park-night.avif"
+   },
    "x": 10,
    "y": 72,
    "sound": [
@@ -21235,7 +21507,11 @@
     "firsttrain",
     "night"
    ],
-   "bg": "../modern/bg/mall.jpg",
+   "bg": "bg/hk_yumoto.avif",
+   "bgs": {
+    "afternoon": "bg/hk_yumoto-afternoon.avif",
+    "night": "bg/hk_yumoto-night.avif"
+   },
    "x": 10,
    "y": 12,
    "sound": [
@@ -21269,7 +21545,11 @@
      "hk_ryokan_breakfast"
     ]
    },
-   "bg": "../modern/bg/civic.jpg",
+   "bg": "bg/hk_ryokan.avif",
+   "bgs": {
+    "afternoon": "bg/hk_ryokan-afternoon.avif",
+    "night": "bg/hk_ryokan-night.avif"
+   },
    "x": 50,
    "y": 12,
    "sound": [
@@ -21287,7 +21567,11 @@
    "desc": "an old volcanic crater filled with water: the red shrine gate standing in the lake at Moto-Hakone, cruise boats dressed as pirate galleons, cedars on the shore, Mt. Fuji beyond the hills on clear days",
    "staff": "a boat attendant at the pier, retirees on a club trip, a rowboat man in a straw hat by the dock, couples on benches",
    "closed": [],
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/hk_ashi.avif",
+   "bgs": {
+    "afternoon": "bg/hk_ashi-afternoon.avif",
+    "night": "bg/hk_ashi-night.avif"
+   },
    "x": 90,
    "y": 12,
    "sound": [
@@ -21324,7 +21608,10 @@
     ]
    },
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/hk_owakudani.avif",
+   "bgs": {
+    "afternoon": "bg/hk_owakudani-afternoon.avif"
+   },
    "x": 10,
    "y": 72,
    "closedIn": [
@@ -21358,7 +21645,10 @@
     16.5
    ],
    "generic": false,
-   "bg": "../modern/bg/park.jpg",
+   "bg": "bg/hk_sculpture.avif",
+   "bgs": {
+    "afternoon": "bg/hk_sculpture-afternoon.avif"
+   },
    "x": 50,
    "y": 72,
    "sound": [
