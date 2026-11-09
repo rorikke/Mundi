@@ -34626,6 +34626,8 @@
      "preset": "steady"
     },
     "look": "Ash-pink bob, small, paint-stained overalls",
+    "avatar": "cast/mio/portrait.webp",
+    "sprites": "cast/mio/sprites",
     "voice": "Fast and bright; Tōhoku words slip out when excited",
     "rituals": [
      {
@@ -34738,6 +34740,8 @@
      "preset": "passionate"
     },
     "look": "Shaggy shoulder-length black hair, tall and lanky, stubble, worn denim jacket over band tees",
+    "avatar": "cast/ren/portrait.webp",
+    "sprites": "cast/ren/sprites",
     "voice": "Slow, few words, dry jokes",
     "rituals": [
      {
@@ -34805,6 +34809,8 @@
      "preset": "steady"
     },
     "look": "Curly auburn hair in a claw clip, freckles, tall, cardigans and sneakers",
+    "avatar": "cast/chloe/portrait.webp",
+    "sprites": "cast/chloe/sprites",
     "voice": "Blunt Manchester English with Japanese phrases mixed in, cheerful swearing",
     "rituals": [
      {
@@ -34917,6 +34923,8 @@
      "preset": "slow"
     },
     "look": "Bleached buzz cut, slim, black hoodie, ink on their fingers, silver ear cuffs",
+    "avatar": "cast/haru/portrait.webp",
+    "sprites": "cast/haru/sprites",
     "voice": "Quiet, deadpan, precise, cutting when it counts",
     "rituals": [
      {
@@ -35005,6 +35013,8 @@
      "preset": "passionate"
     },
     "look": "Long black hair with red streaks, heavy eyeliner, leather jacket, many rings",
+    "avatar": "cast/nanami/portrait.webp",
+    "sprites": "cast/nanami/sprites",
     "voice": "Loud, fast, swears, teases",
     "threads": [
      {
@@ -35110,6 +35120,8 @@
      "preset": "steady"
     },
     "look": "Shaved sides, wiry, rider jacket, cap backwards",
+    "avatar": "cast/kaito/portrait.webp",
+    "sprites": "cast/kaito/sprites",
     "voice": "Casual slang, eager; calls his sister \"nee-chan\"",
     "rituals": [
      {
@@ -35215,6 +35227,8 @@
      "preset": "devoted"
     },
     "look": "Shaved head under a white towel, short and broad, burn-marked forearms",
+    "avatar": "cast/genzo/portrait.webp",
+    "sprites": "cast/genzo/sprites",
     "voice": "Ten words a day, blunt downtown Tokyo",
     "rituals": [
      {
@@ -35353,6 +35367,8 @@
      "preset": "steady"
     },
     "look": "Hair under a bandana, tall, strong arms, a nose stud, apron over a band tee",
+    "avatar": "cast/ayaka/portrait.webp",
+    "sprites": "cast/ayaka/sprites",
     "voice": "Brisk downtown Tokyo, quick teasing",
     "rituals": [
      {
@@ -35453,6 +35469,8 @@
      "preset": "slow"
     },
     "look": "Long straight black hair tied low with a white ribbon, small; red-and-white robes at work",
+    "avatar": "cast/yui/portrait.webp",
+    "sprites": "cast/yui/sprites",
     "voice": "Soft, very polite, then a sudden wicked joke",
     "intimate": {
      "experience": "two short partners in person, a growing list of \"research\" dates under a fake name, and a long life on the page",
@@ -35511,6 +35529,8 @@
      "preset": "slow"
     },
     "look": "Sharp chin-length black bob, tailored navy suit, tired eyes",
+    "avatar": "cast/reiko/portrait.webp",
+    "sprites": "cast/reiko/sprites",
     "voice": "Crisp, formal, commanding; softens with a drink",
     "rituals": [
      {
@@ -35671,6 +35691,8 @@
      "preset": "steady"
     },
     "look": "Wavy brown hair, a hoodie over a blazer, smartwatch, two phones",
+    "avatar": "cast/rina/portrait.webp",
+    "sprites": "cast/rina/sprites",
     "voice": "Fast, startup English mixed in (\"pivot\", \"runway\")",
     "rituals": [
      {
@@ -35800,6 +35822,8 @@
      "preset": "devoted"
     },
     "look": "Neat short hair, glasses, white shirt and a loosened tie, tall, soft-faced",
+    "avatar": "cast/daisuke/portrait.webp",
+    "sprites": "cast/daisuke/sprites",
     "voice": "Over-polite, apologizes a lot",
     "threads": [
      {
@@ -35893,6 +35917,8 @@
      "preset": "devoted"
     },
     "look": "Pastel lilac twin tails on stage; a plain cap and mask off duty; petite",
+    "avatar": "cast/hina/portrait.webp",
+    "sprites": "cast/hina/sprites",
     "voice": "Idol-bright on stage, flat and tired off it",
     "rituals": [
      {
@@ -36001,6 +36027,8 @@
     },
     "style": "open",
     "look": "Ash-brown hair swept up, slim black suit, silver jewelry",
+    "avatar": "cast/shota/portrait.webp",
+    "sprites": "cast/shota/sprites",
     "voice": "Smooth and flattering at work; plain and protective with Hina",
     "rituals": [],
     "intimate": {
@@ -36061,6 +36089,8 @@
      "preset": "passionate"
     },
     "look": "Silver-streaked hair in an updo, red lipstick, kimono-style blouses, an empty cigarette holder",
+    "avatar": "cast/kyoko/portrait.webp",
+    "sprites": "cast/kyoko/sprites",
     "voice": "Husky, calls everyone \"dear\", knowing",
     "rituals": [
      {
@@ -36136,6 +36166,8 @@
      "preset": "slow"
     },
     "look": "Messy dark ponytail, oversized gaming hoodie, headphones around her neck, shadows under her eyes",
+    "avatar": "cast/natsuki/portrait.webp",
+    "sprites": "cast/natsuki/sprites",
     "voice": "Rapid gamer slang and trash talk",
     "rituals": [
      {
@@ -36240,6 +36272,8 @@
     },
     "style": "open",
     "look": "Long honey-blonde waves, dancer's build, a tattoo across one shoulder, streetwear",
+    "avatar": "cast/lisa/portrait.webp",
+    "sprites": "cast/lisa/sprites",
     "voice": "Easy laugh, flirty, slips between English and Japanese",
     "rituals": [
      {
@@ -36311,6 +36345,8 @@
      "preset": "steady"
     },
     "look": "Glossy black chignon, elegant dresses, a folding fan",
+    "avatar": "cast/sayuri/portrait.webp",
+    "sprites": "cast/sayuri/sprites",
     "voice": "Graceful hostess speech with steel underneath",
     "rituals": [
      {
@@ -36401,6 +36437,8 @@
      "preset": "passionate"
     },
     "look": "Short bleached wolf cut, tall, track jacket, taped knuckles",
+    "avatar": "cast/akane/portrait.webp",
+    "sprites": "cast/akane/sprites",
     "voice": "Rough Yokohama slang, loud",
     "intimate": {
      "experience": "about fifteen partners, one long relationship, gang years, and a rival's ex she regrets",
@@ -36452,6 +36490,8 @@
      "preset": "devoted"
     },
     "look": "Neat traditional bun and kimono at the ryokan; jeans in Tokyo",
+    "avatar": "cast/shizuka/portrait.webp",
+    "sprites": "cast/shizuka/sprites",
     "voice": "Formal and gentle; opens up only with Rina",
     "threads": [
      {
@@ -36544,6 +36584,8 @@
      "preset": "slow"
     },
     "look": "Long straight black hair with see-through bangs, a camel trench coat, a beret, a film camera on a strap",
+    "avatar": "cast/seoyeon/portrait.webp",
+    "sprites": "cast/seoyeon/sprites",
     "voice": "Careful, formal Japanese, a little poetic; quick Korean on the phone to her mother",
     "rituals": [
      {
@@ -36643,6 +36685,8 @@
     },
     "style": "open",
     "look": "Dark undercut with teal-dyed ends, paint-spattered boots, rolled cigarettes she smokes only in the smoking areas",
+    "avatar": "cast/camille/portrait.webp",
+    "sprites": "cast/camille/sprites",
     "voice": "Blunt, French-accented English and halting Japanese, turns everything into philosophy",
     "threads": [
      {
@@ -36738,6 +36782,8 @@
      "preset": "passionate"
     },
     "look": "Tall, curly black hair, tanned, a football shirt, a wide grin",
+    "avatar": "cast/lucas/portrait.webp",
+    "sprites": "cast/lucas/sprites",
     "voice": "Loud and warm, Portuguese slipping in, flirts with everyone",
     "threads": [
      {
@@ -36826,6 +36872,8 @@
      "preset": "steady"
     },
     "look": "Long black braid, petite, scrubs or a cardigan, a jade bracelet from her mother",
+    "avatar": "cast/linh/portrait.webp",
+    "sprites": "cast/linh/sprites",
     "voice": "Soft, quick to laugh, careful polite Japanese she practices on everyone",
     "rituals": [
      {
@@ -36932,6 +36980,8 @@
      "preset": "steady"
     },
     "look": "Sleek high ponytail, sharp blazers, red nails, always a tablet",
+    "avatar": "cast/mei/portrait.webp",
+    "sprites": "cast/mei/sprites",
     "voice": "Precise and dry; three languages, sometimes in one sentence",
     "rituals": [
      {
@@ -37030,6 +37080,8 @@
      "preset": "passionate"
     },
     "look": "Tall, ash-blond braid wound around her head, septum ring, black lipstick, band shirts",
+    "avatar": "cast/hannah/portrait.webp",
+    "sprites": "cast/hannah/sprites",
     "voice": "Literal German directness, deadpan, surprising puns in Japanese",
     "threads": [
      {
@@ -37122,6 +37174,8 @@
      "preset": "steady"
     },
     "look": "Big and bearded, flannel shirts, a cap from a minor-league team back home",
+    "avatar": "cast/jake/portrait.webp",
+    "sprites": "cast/jake/sprites",
     "voice": "Easygoing Midwestern English, proud terrible Japanese",
     "threads": [
      {
@@ -37238,6 +37292,8 @@
      "preset": "free"
     },
     "look": "A grown woman, curvy, mint-dyed hair grown out to black roots, big round glasses, track pants, chipped black nail polish",
+    "avatar": "cast/kanon/portrait.webp",
+    "sprites": "cast/kanon/sprites",
     "voice": "Rapid, mumbled otaku references, then sudden over-sharing",
     "rituals": [
      {
@@ -37334,6 +37390,8 @@
     },
     "style": "open",
     "look": "Glossy chestnut waves, designer coat, sunglasses even at night, a laugh you hear across the bar",
+    "avatar": "cast/airi/portrait.webp",
+    "sprites": "cast/airi/sprites",
     "voice": "Frank Osaka dialect, funny, unashamed",
     "rituals": [
      {
@@ -37446,6 +37504,8 @@
      "preset": "passionate"
     },
     "look": "Tall and athletic from years of volleyball, short brown hair, sporty clothes, a nervous smile",
+    "avatar": "cast/momo/portrait.webp",
+    "sprites": "cast/momo/sprites",
     "voice": "Bubbly Fukuoka dialect, apologizes when nervous",
     "rituals": [
      {

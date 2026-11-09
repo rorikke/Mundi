@@ -118,7 +118,7 @@ async function spriteFiles(w, folder) {
         const res = await fetch(worldFile(w, `${base}sprites.json`));
         const list = res.ok ? await res.json() : null;
         if (Array.isArray(list))
-            return list.filter(f => typeof f === 'string' && /^[\w .-]+\.(png|webp|gif|jpe?g)$/i.test(f)).map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f }));
+            return list.filter(f => typeof f === 'string' && /^[\w .-]+\.(png|webp|avif|gif|jpe?g)$/i.test(f)).map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f }));
     }
     catch { /* no list: the default names */ }
     return DEFAULT_EXPRESSIONS.map(label => ({ label, file: `${base}${label}.png` }));

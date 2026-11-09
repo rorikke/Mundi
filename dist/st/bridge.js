@@ -1275,11 +1275,26 @@ export async function bgFolderPut(id, files, on) {
 /* ---------- expression sprites ---------- */
 export const DEFAULT_EXPRESSIONS = ['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement', 'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise', 'neutral'];
 export const expressionLabels = () => [...new Set([...DEFAULT_EXPRESSIONS, ...(ctx().extensionSettings?.expressions?.custom ?? [])])];
+// A picture's file type from its first bytes (png when unknown).
+async function imageExt(file) {
+    const b = new Uint8Array(await file.slice(0, 12).arrayBuffer()), s = (from, to) => String.fromCharCode(...b.slice(from, to));
+    if (s(0, 4) === 'RIFF' && s(8, 12) === 'WEBP')
+        return 'webp';
+    if (s(4, 8) === 'ftyp' && /^avi[fs]$/.test(s(8, 12)))
+        return 'avif';
+    if (s(0, 4) === 'GIF8')
+        return 'gif';
+    if (b[0] === 0xff && b[1] === 0xd8)
+        return 'jpg';
+    return 'png';
+}
 export async function uploadSprite(avatar, label, file, spriteName = label, outfit) {
     const form = new FormData();
     form.append('name', outfit === undefined ? spriteFolder(avatar) : outfit ? `${baseSpriteFolder(avatar)}/${outfit}` : baseSpriteFolder(avatar));
     form.append('label', label);
-    form.append('avatar', file, `${spriteName}.png`);
+    // SillyTavern names the file after the upload's extension, so it must be the real one (an AVIF sent as ".png" would
+    // be saved as one); read from the file's first bytes, since SillyTavern serves .avif with no image type
+    form.append('avatar', file, `${spriteName}.${await imageExt(file)}`);
     form.append('spriteName', spriteName);
     const res = await fetch('/api/sprites/upload', { method: 'POST', headers: headers(false), body: form });
     if (!res.ok)
