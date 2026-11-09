@@ -18992,7 +18992,10 @@
    "bg": "bg/sb_crossing.avif",
    "bgs": {
     "afternoon": "bg/sb_crossing-afternoon.avif",
-    "night": "bg/sb_crossing-night.avif"
+    "night": "bg/sb_crossing-night.avif",
+    "rain-day": "bg/sb_crossing-rain-day.avif",
+    "rain-afternoon": "bg/sb_crossing-rain-afternoon.avif",
+    "rain-night": "bg/sb_crossing-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -19018,7 +19021,10 @@
    "bg": "bg/sb_centergai.avif",
    "bgs": {
     "afternoon": "bg/sb_centergai-afternoon.avif",
-    "night": "bg/sb_centergai-night.avif"
+    "night": "bg/sb_centergai-night.avif",
+    "rain-day": "bg/sb_centergai-rain-day.avif",
+    "rain-afternoon": "bg/sb_centergai-rain-afternoon.avif",
+    "rain-night": "bg/sb_centergai-rain-night.avif"
    },
    "x": 30,
    "y": 12,
@@ -19159,7 +19165,10 @@
    "bg": "bg/sb_takeshita.avif",
    "bgs": {
     "afternoon": "bg/sb_takeshita-afternoon.avif",
-    "night": "bg/sb_takeshita-night.avif"
+    "night": "bg/sb_takeshita-night.avif",
+    "rain-day": "bg/sb_takeshita-rain-day.avif",
+    "rain-afternoon": "bg/sb_takeshita-rain-afternoon.avif",
+    "rain-night": "bg/sb_takeshita-rain-night.avif"
    },
    "x": 30,
    "y": 42,
@@ -19187,7 +19196,10 @@
    "bg": "bg/sb_omotesando.avif",
    "bgs": {
     "afternoon": "bg/sb_omotesando-afternoon.avif",
-    "night": "bg/sb_omotesando-night.avif"
+    "night": "bg/sb_omotesando-night.avif",
+    "rain-day": "bg/sb_omotesando-rain-day.avif",
+    "rain-afternoon": "bg/sb_omotesando-rain-afternoon.avif",
+    "rain-night": "bg/sb_omotesando-rain-night.avif"
    },
    "x": 50,
    "y": 42,
@@ -19225,7 +19237,13 @@
    ],
    "bg": "bg/sb_meiji.avif",
    "bgs": {
-    "afternoon": "bg/sb_meiji-afternoon.avif"
+    "afternoon": "bg/sb_meiji-afternoon.avif",
+    "autumn-day": "bg/sb_meiji-autumn-day.avif",
+    "autumn-afternoon": "bg/sb_meiji-autumn-afternoon.avif",
+    "snow-day": "bg/sb_meiji-snow-day.avif",
+    "snow-afternoon": "bg/sb_meiji-snow-afternoon.avif",
+    "rain-day": "bg/sb_meiji-rain-day.avif",
+    "rain-afternoon": "bg/sb_meiji-rain-afternoon.avif"
    },
    "x": 70,
    "y": 42,
@@ -19269,7 +19287,10 @@
    "bg": "bg/sb_yoyogi.avif",
    "bgs": {
     "afternoon": "bg/sb_yoyogi-afternoon.avif",
-    "night": "bg/sb_yoyogi-night.avif"
+    "night": "bg/sb_yoyogi-night.avif",
+    "rain-day": "bg/sb_yoyogi-rain-day.avif",
+    "rain-afternoon": "bg/sb_yoyogi-rain-afternoon.avif",
+    "rain-night": "bg/sb_yoyogi-rain-night.avif"
    },
    "x": 90,
    "y": 42,
@@ -19322,7 +19343,10 @@
    "bg": "bg/sj_station.avif",
    "bgs": {
     "afternoon": "bg/sj_station-afternoon.avif",
-    "night": "bg/sj_station-night.avif"
+    "night": "bg/sj_station-night.avif",
+    "rain-day": "bg/sj_station-rain-day.avif",
+    "rain-afternoon": "bg/sj_station-rain-afternoon.avif",
+    "rain-night": "bg/sj_station-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -19346,7 +19370,10 @@
    "bg": "bg/sj_kabukicho.avif",
    "bgs": {
     "afternoon": "bg/sj_kabukicho-afternoon.avif",
-    "night": "bg/sj_kabukicho-night.avif"
+    "night": "bg/sj_kabukicho-night.avif",
+    "rain-day": "bg/sj_kabukicho-rain-day.avif",
+    "rain-afternoon": "bg/sj_kabukicho-rain-afternoon.avif",
+    "rain-night": "bg/sj_kabukicho-rain-night.avif"
    },
    "x": 37,
    "y": 12,
@@ -19438,7 +19465,9 @@
    "generic": false,
    "bg": "bg/sj_omoide.avif",
    "bgs": {
-    "night": "bg/sj_omoide-night.avif"
+    "night": "bg/sj_omoide-night.avif",
+    "rain-afternoon": "bg/sj_omoide-rain-afternoon.avif",
+    "rain-night": "bg/sj_omoide-rain-night.avif"
    },
    "x": 10,
    "y": 42,
@@ -19590,7 +19619,15 @@
    "generic": false,
    "bg": "bg/sj_gyoen.avif",
    "bgs": {
-    "afternoon": "bg/sj_gyoen-afternoon.avif"
+    "afternoon": "bg/sj_gyoen-afternoon.avif",
+    "summer-day": "bg/sj_gyoen-green-day.avif",
+    "summer-afternoon": "bg/sj_gyoen-green-afternoon.avif",
+    "autumn-day": "bg/sj_gyoen-autumn-day.avif",
+    "autumn-afternoon": "bg/sj_gyoen-autumn-afternoon.avif",
+    "winter-day": "bg/sj_gyoen-bare-day.avif",
+    "winter-afternoon": "bg/sj_gyoen-bare-afternoon.avif",
+    "rain-day": "bg/sj_gyoen-rain-day.avif",
+    "rain-afternoon": "bg/sj_gyoen-rain-afternoon.avif"
    },
    "x": 10,
    "y": 72,
@@ -19645,7 +19682,10 @@
    "bg": "bg/ws_shimokita.avif",
    "bgs": {
     "afternoon": "bg/ws_shimokita-afternoon.avif",
-    "night": "bg/ws_shimokita-night.avif"
+    "night": "bg/ws_shimokita-night.avif",
+    "rain-day": "bg/ws_shimokita-rain-day.avif",
+    "rain-afternoon": "bg/ws_shimokita-rain-afternoon.avif",
+    "rain-night": "bg/ws_shimokita-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -19861,7 +19901,10 @@
    "bg": "bg/ws_koenji.avif",
    "bgs": {
     "afternoon": "bg/ws_koenji-afternoon.avif",
-    "night": "bg/ws_koenji-night.avif"
+    "night": "bg/ws_koenji-night.avif",
+    "rain-day": "bg/ws_koenji-rain-day.avif",
+    "rain-afternoon": "bg/ws_koenji-rain-afternoon.avif",
+    "rain-night": "bg/ws_koenji-rain-night.avif"
    },
    "x": 90,
    "y": 42,
@@ -19949,7 +19992,10 @@
    "bg": "bg/ak_electric.avif",
    "bgs": {
     "afternoon": "bg/ak_electric-afternoon.avif",
-    "night": "bg/ak_electric-night.avif"
+    "night": "bg/ak_electric-night.avif",
+    "rain-day": "bg/ak_electric-rain-day.avif",
+    "rain-afternoon": "bg/ak_electric-rain-afternoon.avif",
+    "rain-night": "bg/ak_electric-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -20110,7 +20156,13 @@
    "bg": "bg/ak_myojin.avif",
    "bgs": {
     "afternoon": "bg/ak_myojin-afternoon.avif",
-    "night": "bg/ak_myojin-night.avif"
+    "night": "bg/ak_myojin-night.avif",
+    "snow-day": "bg/ak_myojin-snow-day.avif",
+    "snow-afternoon": "bg/ak_myojin-snow-afternoon.avif",
+    "snow-night": "bg/ak_myojin-snow-night.avif",
+    "rain-day": "bg/ak_myojin-rain-day.avif",
+    "rain-afternoon": "bg/ak_myojin-rain-afternoon.avif",
+    "rain-night": "bg/ak_myojin-rain-night.avif"
    },
    "x": 63,
    "y": 42,
@@ -20143,7 +20195,10 @@
    "bg": "bg/ak_jinbocho.avif",
    "bgs": {
     "afternoon": "bg/ak_jinbocho-afternoon.avif",
-    "night": "bg/ak_jinbocho-night.avif"
+    "night": "bg/ak_jinbocho-night.avif",
+    "rain-day": "bg/ak_jinbocho-rain-day.avif",
+    "rain-afternoon": "bg/ak_jinbocho-rain-afternoon.avif",
+    "rain-night": "bg/ak_jinbocho-rain-night.avif"
    },
    "x": 90,
    "y": 42,
@@ -20198,7 +20253,10 @@
    "bg": "bg/ak_university.avif",
    "bgs": {
     "afternoon": "bg/ak_university-afternoon.avif",
-    "night": "bg/ak_university-night.avif"
+    "night": "bg/ak_university-night.avif",
+    "rain-day": "bg/ak_university-rain-day.avif",
+    "rain-afternoon": "bg/ak_university-rain-afternoon.avif",
+    "rain-night": "bg/ak_university-rain-night.avif"
    },
    "x": 37,
    "y": 72,
@@ -20222,7 +20280,13 @@
    "bg": "bg/ot_sensoji.avif",
    "bgs": {
     "afternoon": "bg/ot_sensoji-afternoon.avif",
-    "night": "bg/ot_sensoji-night.avif"
+    "night": "bg/ot_sensoji-night.avif",
+    "spring-day": "bg/ot_sensoji-blossom-day.avif",
+    "spring-afternoon": "bg/ot_sensoji-blossom-afternoon.avif",
+    "spring-night": "bg/ot_sensoji-blossom-night.avif",
+    "rain-day": "bg/ot_sensoji-rain-day.avif",
+    "rain-afternoon": "bg/ot_sensoji-rain-afternoon.avif",
+    "rain-night": "bg/ot_sensoji-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -20249,7 +20313,19 @@
    "bg": "bg/ot_sumida.avif",
    "bgs": {
     "afternoon": "bg/ot_sumida-afternoon.avif",
-    "night": "bg/ot_sumida-night.avif"
+    "night": "bg/ot_sumida-night.avif",
+    "summer-day": "bg/ot_sumida-green-day.avif",
+    "summer-afternoon": "bg/ot_sumida-green-afternoon.avif",
+    "summer-night": "bg/ot_sumida-green-night.avif",
+    "autumn-day": "bg/ot_sumida-autumn-day.avif",
+    "autumn-afternoon": "bg/ot_sumida-autumn-afternoon.avif",
+    "autumn-night": "bg/ot_sumida-autumn-night.avif",
+    "winter-day": "bg/ot_sumida-bare-day.avif",
+    "winter-afternoon": "bg/ot_sumida-bare-afternoon.avif",
+    "winter-night": "bg/ot_sumida-bare-night.avif",
+    "rain-day": "bg/ot_sumida-rain-day.avif",
+    "rain-afternoon": "bg/ot_sumida-rain-afternoon.avif",
+    "rain-night": "bg/ot_sumida-rain-night.avif"
    },
    "x": 37,
    "y": 12,
@@ -20303,7 +20379,19 @@
    "bg": "bg/ot_ueno.avif",
    "bgs": {
     "afternoon": "bg/ot_ueno-afternoon.avif",
-    "night": "bg/ot_ueno-night.avif"
+    "night": "bg/ot_ueno-night.avif",
+    "summer-day": "bg/ot_ueno-green-day.avif",
+    "summer-afternoon": "bg/ot_ueno-green-afternoon.avif",
+    "summer-night": "bg/ot_ueno-green-night.avif",
+    "autumn-day": "bg/ot_ueno-autumn-day.avif",
+    "autumn-afternoon": "bg/ot_ueno-autumn-afternoon.avif",
+    "autumn-night": "bg/ot_ueno-autumn-night.avif",
+    "winter-day": "bg/ot_ueno-bare-day.avif",
+    "winter-afternoon": "bg/ot_ueno-bare-afternoon.avif",
+    "winter-night": "bg/ot_ueno-bare-night.avif",
+    "rain-day": "bg/ot_ueno-rain-day.avif",
+    "rain-afternoon": "bg/ot_ueno-rain-afternoon.avif",
+    "rain-night": "bg/ot_ueno-rain-night.avif"
    },
    "x": 90,
    "y": 12,
@@ -20367,7 +20455,10 @@
    "bg": "bg/ot_ameyoko.avif",
    "bgs": {
     "afternoon": "bg/ot_ameyoko-afternoon.avif",
-    "night": "bg/ot_ameyoko-night.avif"
+    "night": "bg/ot_ameyoko-night.avif",
+    "rain-day": "bg/ot_ameyoko-rain-day.avif",
+    "rain-afternoon": "bg/ot_ameyoko-rain-afternoon.avif",
+    "rain-night": "bg/ot_ameyoko-rain-night.avif"
    },
    "x": 37,
    "y": 42,
@@ -20391,7 +20482,13 @@
    "bg": "bg/ot_yanaka.avif",
    "bgs": {
     "afternoon": "bg/ot_yanaka-afternoon.avif",
-    "night": "bg/ot_yanaka-night.avif"
+    "night": "bg/ot_yanaka-night.avif",
+    "spring-day": "bg/ot_yanaka-blossom-day.avif",
+    "spring-afternoon": "bg/ot_yanaka-blossom-afternoon.avif",
+    "spring-night": "bg/ot_yanaka-blossom-night.avif",
+    "rain-day": "bg/ot_yanaka-rain-day.avif",
+    "rain-afternoon": "bg/ot_yanaka-rain-afternoon.avif",
+    "rain-night": "bg/ot_yanaka-rain-night.avif"
    },
    "x": 63,
    "y": 42,
@@ -20450,7 +20547,13 @@
    "bg": "bg/ot_shrine.avif",
    "bgs": {
     "afternoon": "bg/ot_shrine-afternoon.avif",
-    "night": "bg/ot_shrine-night.avif"
+    "night": "bg/ot_shrine-night.avif",
+    "snow-day": "bg/ot_shrine-snow-day.avif",
+    "snow-afternoon": "bg/ot_shrine-snow-afternoon.avif",
+    "snow-night": "bg/ot_shrine-snow-night.avif",
+    "rain-day": "bg/ot_shrine-rain-day.avif",
+    "rain-afternoon": "bg/ot_shrine-rain-afternoon.avif",
+    "rain-night": "bg/ot_shrine-rain-night.avif"
    },
    "x": 10,
    "y": 72,
@@ -20480,7 +20583,10 @@
    "bg": "bg/mg_station.avif",
    "bgs": {
     "afternoon": "bg/mg_station-afternoon.avif",
-    "night": "bg/mg_station-night.avif"
+    "night": "bg/mg_station-night.avif",
+    "rain-day": "bg/mg_station-rain-day.avif",
+    "rain-afternoon": "bg/mg_station-rain-afternoon.avif",
+    "rain-night": "bg/mg_station-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -20564,7 +20670,10 @@
    "bg": "bg/mg_chuodori.avif",
    "bgs": {
     "afternoon": "bg/mg_chuodori-afternoon.avif",
-    "night": "bg/mg_chuodori-night.avif"
+    "night": "bg/mg_chuodori-night.avif",
+    "rain-day": "bg/mg_chuodori-rain-day.avif",
+    "rain-afternoon": "bg/mg_chuodori-rain-afternoon.avif",
+    "rain-night": "bg/mg_chuodori-rain-night.avif"
    },
    "x": 90,
    "y": 12,
@@ -20596,7 +20705,9 @@
    "generic": false,
    "bg": "bg/mg_izakaya.avif",
    "bgs": {
-    "night": "bg/mg_izakaya-night.avif"
+    "night": "bg/mg_izakaya-night.avif",
+    "rain-afternoon": "bg/mg_izakaya-rain-afternoon.avif",
+    "rain-night": "bg/mg_izakaya-rain-night.avif"
    },
    "x": 10,
    "y": 42,
@@ -20629,7 +20740,13 @@
    "bg": "bg/mg_palace.avif",
    "bgs": {
     "afternoon": "bg/mg_palace-afternoon.avif",
-    "night": "bg/mg_palace-night.avif"
+    "night": "bg/mg_palace-night.avif",
+    "spring-day": "bg/mg_palace-blossom-day.avif",
+    "spring-afternoon": "bg/mg_palace-blossom-afternoon.avif",
+    "spring-night": "bg/mg_palace-blossom-night.avif",
+    "rain-day": "bg/mg_palace-rain-day.avif",
+    "rain-afternoon": "bg/mg_palace-rain-afternoon.avif",
+    "rain-night": "bg/mg_palace-rain-night.avif"
    },
    "x": 37,
    "y": 42,
@@ -20694,7 +20811,9 @@
    "generic": false,
    "bg": "bg/mg_tsukiji.avif",
    "bgs": {
-    "afternoon": "bg/mg_tsukiji-afternoon.avif"
+    "afternoon": "bg/mg_tsukiji-afternoon.avif",
+    "rain-day": "bg/mg_tsukiji-rain-day.avif",
+    "rain-afternoon": "bg/mg_tsukiji-rain-afternoon.avif"
    },
    "x": 90,
    "y": 42,
@@ -20742,7 +20861,10 @@
    "bg": "bg/bay_beach.avif",
    "bgs": {
     "afternoon": "bg/bay_beach-afternoon.avif",
-    "night": "bg/bay_beach-night.avif"
+    "night": "bg/bay_beach-night.avif",
+    "rain-day": "bg/bay_beach-rain-day.avif",
+    "rain-afternoon": "bg/bay_beach-rain-afternoon.avif",
+    "rain-night": "bg/bay_beach-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -20780,7 +20902,10 @@
    "bg": "bg/bay_bridge.avif",
    "bgs": {
     "afternoon": "bg/bay_bridge-afternoon.avif",
-    "night": "bg/bay_bridge-night.avif"
+    "night": "bg/bay_bridge-night.avif",
+    "rain-day": "bg/bay_bridge-rain-day.avif",
+    "rain-afternoon": "bg/bay_bridge-rain-afternoon.avif",
+    "rain-night": "bg/bay_bridge-rain-night.avif"
    },
    "x": 37,
    "y": 12,
@@ -20818,7 +20943,10 @@
    "bg": "bg/bay_mall.avif",
    "bgs": {
     "afternoon": "bg/bay_mall-afternoon.avif",
-    "night": "bg/bay_mall-night.avif"
+    "night": "bg/bay_mall-night.avif",
+    "rain-day": "bg/bay_mall-rain-day.avif",
+    "rain-afternoon": "bg/bay_mall-rain-afternoon.avif",
+    "rain-night": "bg/bay_mall-rain-night.avif"
    },
    "x": 63,
    "y": 12,
@@ -20962,7 +21090,10 @@
    "bg": "bg/rp_crossing.avif",
    "bgs": {
     "afternoon": "bg/rp_crossing-afternoon.avif",
-    "night": "bg/rp_crossing-night.avif"
+    "night": "bg/rp_crossing-night.avif",
+    "rain-day": "bg/rp_crossing-rain-day.avif",
+    "rain-afternoon": "bg/rp_crossing-rain-afternoon.avif",
+    "rain-night": "bg/rp_crossing-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -21105,7 +21236,10 @@
    "bg": "bg/rp_azabu.avif",
    "bgs": {
     "afternoon": "bg/rp_azabu-afternoon.avif",
-    "night": "bg/rp_azabu-night.avif"
+    "night": "bg/rp_azabu-night.avif",
+    "rain-day": "bg/rp_azabu-rain-day.avif",
+    "rain-afternoon": "bg/rp_azabu-rain-afternoon.avif",
+    "rain-night": "bg/rp_azabu-rain-night.avif"
    },
    "x": 10,
    "y": 72,
@@ -21255,7 +21389,10 @@
    "bg": "bg/yk_chinatown.avif",
    "bgs": {
     "afternoon": "bg/yk_chinatown-afternoon.avif",
-    "night": "bg/yk_chinatown-night.avif"
+    "night": "bg/yk_chinatown-night.avif",
+    "rain-day": "bg/yk_chinatown-rain-day.avif",
+    "rain-afternoon": "bg/yk_chinatown-rain-afternoon.avif",
+    "rain-night": "bg/yk_chinatown-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -21279,7 +21416,10 @@
    "bg": "bg/yk_bay.avif",
    "bgs": {
     "afternoon": "bg/yk_bay-afternoon.avif",
-    "night": "bg/yk_bay-night.avif"
+    "night": "bg/yk_bay-night.avif",
+    "rain-day": "bg/yk_bay-rain-day.avif",
+    "rain-afternoon": "bg/yk_bay-rain-afternoon.avif",
+    "rain-night": "bg/yk_bay-rain-night.avif"
    },
    "x": 37,
    "y": 12,
@@ -21303,7 +21443,10 @@
    "bg": "bg/yk_yamashita.avif",
    "bgs": {
     "afternoon": "bg/yk_yamashita-afternoon.avif",
-    "night": "bg/yk_yamashita-night.avif"
+    "night": "bg/yk_yamashita-night.avif",
+    "rain-day": "bg/yk_yamashita-rain-day.avif",
+    "rain-afternoon": "bg/yk_yamashita-rain-afternoon.avif",
+    "rain-night": "bg/yk_yamashita-rain-night.avif"
    },
    "x": 63,
    "y": 12,
@@ -21328,7 +21471,10 @@
    "bg": "bg/yk_isezaki.avif",
    "bgs": {
     "afternoon": "bg/yk_isezaki-afternoon.avif",
-    "night": "bg/yk_isezaki-night.avif"
+    "night": "bg/yk_isezaki-night.avif",
+    "rain-day": "bg/yk_isezaki-rain-day.avif",
+    "rain-afternoon": "bg/yk_isezaki-rain-afternoon.avif",
+    "rain-night": "bg/yk_isezaki-rain-night.avif"
    },
    "x": 90,
    "y": 12,
@@ -21355,7 +21501,9 @@
    "generic": false,
    "bg": "bg/yk_noge.avif",
    "bgs": {
-    "night": "bg/yk_noge-night.avif"
+    "night": "bg/yk_noge-night.avif",
+    "rain-afternoon": "bg/yk_noge-rain-afternoon.avif",
+    "rain-night": "bg/yk_noge-rain-night.avif"
    },
    "x": 10,
    "y": 42,
@@ -21423,7 +21571,9 @@
    ],
    "bg": "bg/yk_batting.avif",
    "bgs": {
-    "night": "bg/yk_batting-night.avif"
+    "night": "bg/yk_batting-night.avif",
+    "rain-afternoon": "bg/yk_batting-rain-afternoon.avif",
+    "rain-night": "bg/yk_batting-rain-night.avif"
    },
    "x": 63,
    "y": 42,
@@ -21481,7 +21631,19 @@
    "bg": "bg/yk_park.avif",
    "bgs": {
     "afternoon": "bg/yk_park-afternoon.avif",
-    "night": "bg/yk_park-night.avif"
+    "night": "bg/yk_park-night.avif",
+    "winter-day": "bg/yk_park-bare-day.avif",
+    "winter-afternoon": "bg/yk_park-bare-afternoon.avif",
+    "winter-night": "bg/yk_park-bare-night.avif",
+    "spring-day": "bg/yk_park-greenboth-day.avif",
+    "summer-day": "bg/yk_park-greenboth-day.avif",
+    "spring-afternoon": "bg/yk_park-greenboth-afternoon.avif",
+    "summer-afternoon": "bg/yk_park-greenboth-afternoon.avif",
+    "spring-night": "bg/yk_park-greenboth-night.avif",
+    "summer-night": "bg/yk_park-greenboth-night.avif",
+    "rain-day": "bg/yk_park-rain-day.avif",
+    "rain-afternoon": "bg/yk_park-rain-afternoon.avif",
+    "rain-night": "bg/yk_park-rain-night.avif"
    },
    "x": 10,
    "y": 72,
@@ -21510,7 +21672,16 @@
    "bg": "bg/hk_yumoto.avif",
    "bgs": {
     "afternoon": "bg/hk_yumoto-afternoon.avif",
-    "night": "bg/hk_yumoto-night.avif"
+    "night": "bg/hk_yumoto-night.avif",
+    "autumn-day": "bg/hk_yumoto-autumn-day.avif",
+    "autumn-afternoon": "bg/hk_yumoto-autumn-afternoon.avif",
+    "autumn-night": "bg/hk_yumoto-autumn-night.avif",
+    "snow-day": "bg/hk_yumoto-snow-day.avif",
+    "snow-afternoon": "bg/hk_yumoto-snow-afternoon.avif",
+    "snow-night": "bg/hk_yumoto-snow-night.avif",
+    "rain-day": "bg/hk_yumoto-rain-day.avif",
+    "rain-afternoon": "bg/hk_yumoto-rain-afternoon.avif",
+    "rain-night": "bg/hk_yumoto-rain-night.avif"
    },
    "x": 10,
    "y": 12,
@@ -21548,7 +21719,19 @@
    "bg": "bg/hk_ryokan.avif",
    "bgs": {
     "afternoon": "bg/hk_ryokan-afternoon.avif",
-    "night": "bg/hk_ryokan-night.avif"
+    "night": "bg/hk_ryokan-night.avif",
+    "spring-day": "bg/hk_ryokan-greenboth-day.avif",
+    "summer-day": "bg/hk_ryokan-greenboth-day.avif",
+    "spring-afternoon": "bg/hk_ryokan-greenboth-afternoon.avif",
+    "summer-afternoon": "bg/hk_ryokan-greenboth-afternoon.avif",
+    "spring-night": "bg/hk_ryokan-greenboth-night.avif",
+    "summer-night": "bg/hk_ryokan-greenboth-night.avif",
+    "winter-day": "bg/hk_ryokan-wintersnow-day.avif",
+    "snow-day": "bg/hk_ryokan-wintersnow-day.avif",
+    "winter-afternoon": "bg/hk_ryokan-wintersnow-afternoon.avif",
+    "snow-afternoon": "bg/hk_ryokan-wintersnow-afternoon.avif",
+    "winter-night": "bg/hk_ryokan-wintersnow-night.avif",
+    "snow-night": "bg/hk_ryokan-wintersnow-night.avif"
    },
    "x": 50,
    "y": 12,
@@ -21570,7 +21753,16 @@
    "bg": "bg/hk_ashi.avif",
    "bgs": {
     "afternoon": "bg/hk_ashi-afternoon.avif",
-    "night": "bg/hk_ashi-night.avif"
+    "night": "bg/hk_ashi-night.avif",
+    "autumn-day": "bg/hk_ashi-autumn-day.avif",
+    "autumn-afternoon": "bg/hk_ashi-autumn-afternoon.avif",
+    "autumn-night": "bg/hk_ashi-autumn-night.avif",
+    "snow-day": "bg/hk_ashi-snow-day.avif",
+    "snow-afternoon": "bg/hk_ashi-snow-afternoon.avif",
+    "snow-night": "bg/hk_ashi-snow-night.avif",
+    "rain-day": "bg/hk_ashi-rain-day.avif",
+    "rain-afternoon": "bg/hk_ashi-rain-afternoon.avif",
+    "rain-night": "bg/hk_ashi-rain-night.avif"
    },
    "x": 90,
    "y": 12,
@@ -21610,7 +21802,13 @@
    "generic": false,
    "bg": "bg/hk_owakudani.avif",
    "bgs": {
-    "afternoon": "bg/hk_owakudani-afternoon.avif"
+    "afternoon": "bg/hk_owakudani-afternoon.avif",
+    "autumn-day": "bg/hk_owakudani-autumn-day.avif",
+    "autumn-afternoon": "bg/hk_owakudani-autumn-afternoon.avif",
+    "snow-day": "bg/hk_owakudani-snow-day.avif",
+    "snow-afternoon": "bg/hk_owakudani-snow-afternoon.avif",
+    "rain-day": "bg/hk_owakudani-rain-day.avif",
+    "rain-afternoon": "bg/hk_owakudani-rain-afternoon.avif"
    },
    "x": 10,
    "y": 72,
@@ -21647,7 +21845,13 @@
    "generic": false,
    "bg": "bg/hk_sculpture.avif",
    "bgs": {
-    "afternoon": "bg/hk_sculpture-afternoon.avif"
+    "afternoon": "bg/hk_sculpture-afternoon.avif",
+    "autumn-day": "bg/hk_sculpture-autumn-day.avif",
+    "autumn-afternoon": "bg/hk_sculpture-autumn-afternoon.avif",
+    "snow-day": "bg/hk_sculpture-snow-day.avif",
+    "snow-afternoon": "bg/hk_sculpture-snow-afternoon.avif",
+    "rain-day": "bg/hk_sculpture-rain-day.avif",
+    "rain-afternoon": "bg/hk_sculpture-rain-afternoon.avif"
    },
    "x": 50,
    "y": 72,
