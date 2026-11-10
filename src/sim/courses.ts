@@ -122,6 +122,8 @@ export function planFor(g: Save, w: WorldDef, c: Course): { span: number; n: num
     }
     return { span, n: Math.max(1, Math.round(span * PACE)), sched: false };
 }
+/** "1 class", "3 classes". */
+export const classWord = (n: number) => `${n} class${n === 1 ? '' : 'es'}`;
 /** Misses allowed without a penalty (10% of the classes, at least one), and make-up classes allowed (20%, at least two). */
 export const freeOf = (n: number) => Math.max(1, Math.floor(n * 0.1 + 1e-9));
 export const capOf = (n: number) => Math.max(2, Math.floor(n * 0.2 + 1e-9));
@@ -535,5 +537,5 @@ export const whereWords = (g: Save, w: WorldDef, c: Course) => (c.at ? `at ${pla
 /** What a course is, as the engine says it (the boss's message, the window): classes, days, where, when, fee, aid. */
 export function factsOf(g: Save, w: WorldDef, c: Course): string {
     const p = planFor(g, w, c), when = scheduleWords(c), fee = money(w, feeOf(g, c)), aid = aidText(g, w, c);
-    return `${c.name}: ${p.n} classes over about ${p.span} days, ${whereWords(g, w, c)}${when ? `, ${when}` : ''}. Fee ${fee}${perSeason(g, w, c) ? ' a season' : ''}.${aid ? ` ${aid}` : ''}`;
+    return `${c.name}: ${classWord(p.n)} over about ${p.span} day${p.span === 1 ? '' : 's'}, ${whereWords(g, w, c)}${when ? `, ${when}` : ''}. Fee ${fee}${perSeason(g, w, c) ? ' a season' : ''}.${aid ? ` ${aid}` : ''}`;
 }

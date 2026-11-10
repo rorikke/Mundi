@@ -9,7 +9,7 @@ import { money } from '../sim/needs.js';
 import { priceOf } from '../sim/bills.js';
 import { weekday } from '../sim/time.js';
 import { skillName } from '../sim/hobbies.js';
-import { offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, takingNow, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, type CourseState } from '../sim/courses.js';
+import { offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, takingNow, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, classWord, type CourseState } from '../sim/courses.js';
 import { nudgesFor, aheadCourse } from '../sim/coursenudge.js';
 import { countOf } from '../sim/skills.js';
 import { jobDef, traitsOf, rankOf } from '../sim/work.js';
@@ -50,7 +50,7 @@ function takingCard(g: Save, w: WorldDef, c: Course, s: CourseState): string {
         <small>Missed ${esc(String(s.missed))}${s.behind ? ` (and ${esc(String(s.behind))} more that won't fit in the ${esc(String(s.daysLeft))} days left)` : ''}: ${esc(String(s.freeLeft))} free left · make-up classes ${esc(String(s.makeups))} of ${esc(String(s.cap))}</small>
         ${warn ? `<small class="mu-bad">${esc(warn)}</small>` : ''}
         ${s.paused ? `<small class="mu-bad">On hold: ${esc(money(w, s.due))} is unpaid. ${g.player.money >= s.due ? '' : 'Earn it first.'}</small><button class="mu-primary" data-act="course-pay" data-id="${esc(c.id)}" ${g.player.money >= s.due ? '' : 'aria-disabled="true"'}>Pay ${esc(money(w, s.due))}</button>` : ''}
-        ${l.taking.length > 1 ? `<small class="mu-muted">While you take two, each class counts ${esc(String(Math.round(s.worth * 100) / 100))}${s.extra ? ` (+${esc(String(s.extra))} classes)` : ''}.</small>` : ''}
+        ${l.taking.length > 1 ? `<small class="mu-muted">While you take two, each class counts ${esc(String(Math.round(s.worth * 100) / 100))}${s.extra ? ` (+${esc(classWord(s.extra))})` : ''}.</small>` : ''}
         ${a ? `<small class="mu-good">${esc(a.name)}: ${esc(String(Math.round(a.share * 100)))}% ${a.pays === 'finish' ? 'back at the end' : 'paid for you'}${a.stay ? ', and you stay a season after' : ''}.</small>` : ''}
         ${CS.drop === c.id ? `<small class="mu-bad">Drop it? What you paid is gone. Enroll again within a year and half your classes count (once).</small><div class="mu-row"><button class="mu-danger" data-act="course-drop" data-id="${esc(c.id)}">Yes, drop it</button><button class="mu-ghost" data-act="course-keep">Keep it</button></div>`
             : `<button class="mu-ghost" data-act="course-ask-drop" data-id="${esc(c.id)}">Drop it</button>`}
@@ -77,13 +77,13 @@ export function coursesHtml(): string {
             const needs = needsText(g, w, c), clash = clashCount(g, w, c), aid = aidText(g, w, c), when = scheduleWords(c);
             const block = on ? '' : l.taking.length >= 2 ? 'You can take two courses at most. Finish or drop one first.' : needs ? `Asks for ${needs} first.` : g.player.money < price ? 'Not enough money' : '';
             return `<article class="mu-course ${done ? 'is-done' : ''} ${on ? 'is-on' : ''}">
-                <header><i>${esc(c.icon)}</i><span><b>${esc(c.name)}</b><small>${esc(c.area)} · ${esc(String(p.n))} classes · about ${esc(String(p.span))} day${p.span === 1 ? '' : 's'} · ${esc(money(w, price))}${seasonal ? ' a season' : ''}</small></span></header>
+                <header><i>${esc(c.icon)}</i><span><b>${esc(c.name)}</b><small>${esc(c.area)} · ${esc(classWord(p.n))} · about ${esc(String(p.span))} day${p.span === 1 ? '' : 's'} · ${esc(money(w, price))}${seasonal ? ' a season' : ''}</small></span></header>
                 <p>${esc(c.desc)}</p>
                 <small>${esc(whereWords(g, w, c))}${when ? ` · ${esc(when)}` : ' · any five days a week'}</small>
                 ${seasonal ? '<small class="mu-muted">Paid when you enroll and at the start of each season; unpaid, the course waits.</small>' : ''}
                 ${c.needs ? `<small class="${needs ? 'mu-bad' : 'mu-good'}">Needs: ${esc(needs || 'you have it')}${needs ? '' : ' ✓'}</small>` : ''}
                 ${clash.clashes ? `<small class="mu-bad">${esc(String(clash.clashes))} of ${esc(String(clash.of))} classes clash with your shifts (a missed class: no excuse for work).</small>` : ''}
-                <small class="mu-muted">With two courses at once, each class counts less: about ${esc(String(extraWhileTwo(g, w, p.n)))} more classes.</small>
+                <small class="mu-muted">With two courses at once, each class counts less: about ${esc(classWord(extraWhileTwo(g, w, p.n)))} more.</small>
                 ${aid ? `<small class="mu-good">${esc(aid)}</small>` : ''}
                 ${jobs.length ? `<small class="mu-muted">${lex(w, 'neededFor')}: ${esc(jobs.join(', '))}</small>` : ''}
                 <div class="mu-chips">${skillChips(w, c)}${(c.grants ?? []).map(t => `<span class="mu-chip is-on">+ ${esc(t)}</span>`).join('')}</div>
@@ -157,7 +157,7 @@ Object.assign(ACT, {
         const id = el.dataset.id!, err = enroll(g, w, id);
         if (err) { toast(err, 'warn'); return; }
         const c = courseOf(w, id)!, p = learning(g).plan[id];
-        toast(`Enrolled: ${c.name}. ${p ? `${p.n} classes over about ${p.span} days. ` : ''}One class a day at most, ${p?.sched ? scheduleWords(c) : lex(w, 'studyWhere')}.`, 'success');
+        toast(`Enrolled: ${c.name}. ${p ? `${classWord(p.n)} over about ${p.span} day${p.span === 1 ? '' : 's'}. ` : ''}One class a day at most, ${p?.sched ? scheduleWords(c) : lex(w, 'studyWhere')}.`, 'success');
         saveGame(); notify();
     },
     'course-ask-drop': (el) => { CS.drop = el.dataset.id ?? ''; notify(); },
