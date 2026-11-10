@@ -227,36 +227,36 @@
     "rent": 12000,
     "spots": [
      [
-      5,
-      82
+      8.9,
+      52.68
      ],
      [
-      4,
-      92
+      12.63,
+      59.6
      ],
      [
-      11,
-      76
+      35.44,
+      55.64
      ],
      [
-      13,
-      86
+      40.39,
+      50.3
      ],
      [
-      37,
-      96
+      44.34,
+      46.84
      ],
      [
-      47,
-      93
+      35.38,
+      39.42
      ],
      [
-      50,
-      78
+      47.79,
+      87
      ],
      [
-      56,
-      80
+      57.8,
+      82.94
      ]
     ],
     "desc": "an old wooden block down a lane by the tracks: iron outside stairs, thin walls, bicycles chained to the rail, a coin laundry in the yard"
@@ -273,28 +273,28 @@
       77
      ],
      [
-      66,
-      88
+      67.82,
+      87.39
      ],
      [
-      60,
-      96
+      64.87,
+      93.82
      ],
      [
-      76,
-      95
+      78.83,
+      96.1
      ],
      [
       82,
       84
      ],
      [
-      90,
-      93
+      91.4,
+      93.33
      ],
      [
-      94,
-      68
+      93.96,
+      72.56
      ],
      [
       98,
@@ -315,32 +315,32 @@
       16
      ],
      [
-      6,
-      27
+      22.2,
+      3.82
      ],
      [
-      4,
-      37
+      2.84,
+      30.42
      ],
      [
       47,
       10
      ],
      [
-      76,
-      14
+      75.52,
+      17.37
      ],
      [
-      82,
-      6
+      80.97,
+      7.08
      ],
      [
-      92,
-      94
+      81.42,
+      63.16
      ],
      [
-      98,
-      88
+      86.2,
+      16.97
      ]
     ],
     "desc": "side streets behind the station: concrete one-room blocks, bike racks, a convenience store on every corner and the station's roar a few streets away"
@@ -353,36 +353,36 @@
     "rent": 30000,
     "spots": [
      [
-      2,
-      42
+      2.56,
+      45.26
      ],
      [
-      2,
-      52
+      3.12,
+      51.59
      ],
      [
-      6,
-      44
+      7.01,
+      48.03
      ],
      [
-      6,
-      55
+      7.68,
+      55.25
      ],
      [
-      3,
-      14
+      3.89,
+      10.05
      ],
      [
-      11,
-      10
+      11.07,
+      9.36
      ],
      [
-      64,
-      10
+      64.59,
+      10.74
      ],
      [
-      69,
-      22
+      69.93,
+      18.16
      ]
     ],
     "desc": "quiet back streets behind Kanda Station: concrete mid-rises, bike racks, a vending machine on every corner, the river a few minutes away"
@@ -395,36 +395,36 @@
     "rent": 28000,
     "spots": [
      [
-      77,
-      53
+      3.3,
+      52.35
      ],
      [
-      66,
-      72
+      8.04,
+      45.48
      ],
      [
-      76,
-      64
+      8.79,
+      39.17
      ],
      [
-      82,
-      66
+      15.45,
+      39.61
      ],
      [
-      86,
-      74
+      14.46,
+      44.93
      ],
      [
-      86,
-      80
+      11.03,
+      50.36
      ],
      [
-      89,
-      88
+      6.6,
+      56.56
      ],
      [
-      93,
-      95
+      2.93,
+      60.55
      ]
     ],
     "desc": "narrow lanes of wooden houses behind the temples: sliding doors, tiled roofs, a potted plant on every doorstep, cats on most walls"
@@ -437,36 +437,36 @@
     "rent": 60000,
     "spots": [
      [
-      94,
-      24
+      27.97,
+      73.73
      ],
      [
-      98,
-      27
+      33.14,
+      73.62
      ],
      [
-      96,
-      32
+      28.03,
+      78.6
      ],
      [
-      98,
-      9
+      33.2,
+      78.05
      ],
      [
-      62,
-      88
+      28.16,
+      83.15
      ],
      [
-      54,
-      94
+      33.14,
+      82.92
      ],
      [
-      98,
-      86
+      28.28,
+      87.8
      ],
      [
-      94,
-      96
+      33.2,
+      87.58
      ]
     ],
     "desc": "fifty-story glass towers on the Toyosu canals: concierge desks, gyms and sky lounges downstairs, wide quiet promenades, and fish trucks rumbling by before dawn"
@@ -479,36 +479,36 @@
     "rent": 110000,
     "spots": [
      [
-      74,
-      76
+      71.39,
+      77.74
      ],
      [
-      80,
-      64
+      74.53,
+      78.86
      ],
      [
-      87,
-      62
+      72.37,
+      82.21
      ],
      [
-      79,
-      82
+      76.42,
+      67.69
      ],
      [
-      86,
-      77
+      79.49,
+      70.3
      ],
      [
-      92,
-      93
+      85.35,
+      66.82
      ],
      [
-      67,
-      92
+      88.35,
+      68.19
      ],
      [
-      73,
-      95
+      85.63,
+      72.4
      ]
     ],
     "desc": "quiet embassy-lined streets above the shopping street: stone-fronted residences with concierge desks, planted entrances, and Tokyo Tower in every window"
@@ -521,36 +521,36 @@
     "rent": 12000,
     "spots": [
      [
-      86,
-      44
+      79.49,
+      45.73
      ],
      [
-      92,
-      45
+      82.35,
+      42.38
      ],
      [
-      95,
-      53
+      84.58,
+      37.91
      ],
      [
-      93,
-      35
+      87.02,
+      34.56
      ],
      [
-      97,
-      40
+      88.98,
+      30.72
      ],
      [
-      98,
-      61
+      87.02,
+      47.22
      ],
      [
-      96,
-      71
+      90.02,
+      40.77
      ],
      [
-      98,
-      77
+      92.61,
+      35.06
      ]
     ],
     "desc": "narrow lanes of old wooden apartments and 1960s walk-ups behind the arcade: laundry on every balcony, a corner pawn shop, a cat asleep on a rice shop's counter"
@@ -567,32 +567,16 @@
       62
      ],
      [
-      64,
-      72
+      68.18,
+      52.06
      ],
      [
-      66,
-      51
+      83.88,
+      55.28
      ],
      [
-      71,
-      48
-     ],
-     [
-      91,
-      57
-     ],
-     [
-      95,
-      68
-     ],
-     [
-      91,
-      80
-     ],
-     [
-      80,
-      88
+      92.75,
+      57.39
      ]
     ],
     "desc": "steep lanes of old wooden houses above the Hayakawa river: tiled roofs, persimmon trees, a hot-spring pipe steaming at a gate, and neighbors who know everyone's business"
@@ -605,36 +589,36 @@
     "rent": 9000,
     "spots": [
      [
-      98,
-      6
+      83.76,
+      53.61
      ],
      [
-      91,
-      8
+      87.82,
+      55.35
      ],
      [
-      96,
-      12
+      83.42,
+      57.57
      ],
      [
-      86,
-      47
+      87.2,
+      59.25
      ],
      [
-      91,
-      46
+      83.25,
+      60.83
      ],
      [
-      89,
-      58
+      86.65,
+      62.81
      ],
      [
-      97,
-      55
+      82.87,
+      64.1
      ],
      [
-      97,
-      65
+      86.15,
+      65.88
      ]
     ],
     "desc": "an international dorm behind the Ochanomizu bridges: narrow corridors, a shared kitchen smelling of five cuisines, a laundry room that doubles as a lounge"
@@ -20206,8 +20190,8 @@
     "rain-afternoon": "bg/ak_jinbocho-rain-afternoon.avif",
     "rain-night": "bg/ak_jinbocho-rain-night.avif"
    },
-   "x": 80,
-   "y": 56,
+   "x": 75.91,
+   "y": 56.14,
    "sound": [
     "traffic"
    ]
@@ -21092,8 +21076,8 @@
     "afternoon": "bg/bay_tv-afternoon.avif",
     "night": "bg/bay_tv-night.avif"
    },
-   "x": 30,
-   "y": 66,
+   "x": 30.15,
+   "y": 67.19,
    "sound": [
     "office"
    ]
