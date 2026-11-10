@@ -237,7 +237,12 @@ export interface CourseState {
 const ensure = (g: Save, w: WorldDef, c: Course) => {
     const l = learning(g);
     // a course taken before the plan existed starts from today with the world's numbers
-    if (!l.plan[c.id]) { l.plan[c.id] = planFor(g, w, c); l.start[c.id] ??= g.day; l.settled[c.id] ??= g.day - 1; }
+    // (and one with as many sessions done as the new plan has classes, an old short one, still has its last class to go)
+    if (!l.plan[c.id]) {
+        const p = planFor(g, w, c), done = l.progress[c.id] ?? 0;
+        l.plan[c.id] = done >= p.n ? { ...p, n: Math.floor(done) + 1 } : p;
+        l.start[c.id] ??= g.day; l.settled[c.id] ??= g.day - 1;
+    }
     l.start[c.id] ??= g.day; l.settled[c.id] ??= g.day - 1;
     l.progress[c.id] ??= 0; l.attended[c.id] ??= Math.floor(l.progress[c.id]); l.missed[c.id] ??= 0; l.makeups[c.id] ??= 0;
     return l.plan[c.id];
