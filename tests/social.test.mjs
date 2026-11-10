@@ -34,7 +34,8 @@ const med = world(ext, 'medieval'); W.registerWorld(med);
     ok(work.career(dev, ['dev_eng', 'dev_growth']).ranks.length === 6, 'a path that does not follow is not taken');
     for (const wd of [w, med]) for (const o of wd.occupations.filter(o => o.branches)) {
         const all = []; const walk = (p) => { const k = work.career(o, p); if (!k.open) { all.push(k.ranks.length); return; } for (const x of k.open.options) walk([...p, x.id]); };
-        walk([]); ok(all.every(n => n === 10), `${wd.id}/${o.id}: every way up has 10 ranks (${[...new Set(all)].join(',')})`);
+        walk([]); const top = o.shifted?.length ? 11 : 10;   // a new bottom rank (a student rank) comes before the ten
+        ok(all.every(n => n === top), `${wd.id}/${o.id}: every way up has ${top} ranks (${[...new Set(all)].join(',')})`);
     }
     const g = open(fixture('v0.1.0-modern.json'));
     g.player.job = { id: 'developer', rank: 2, shifts: 50 }; g.player.loc = 'downtown';

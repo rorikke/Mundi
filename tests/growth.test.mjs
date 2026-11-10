@@ -78,7 +78,7 @@ const modern = world(ext, 'modern'); W.registerWorld(modern);
     const s = fixture('v0.1.0-modern.json'); s.schema = 1; const g = open(s); g.player.money = 1000; g.player.loc = 'campus';
     ok(/Freshman/.test(IN.enroll(g, modern, 'uni')), 'a university in the modern world');
     for (let i = 0; i < 6; i++) { g.day++; IN.attend(g, modern, 'uni'); }
-    ok(Object.values(g.player.traits).flat().includes('Smart'), 'studying gives its trait');
+    ok((g.player.skills?.logic ?? 0) > 0 && !Object.values(g.player.traits).flat().includes('Smart'), 'studying trains the school\'s skill (Logic), not a trait');
     IN.joinClub(g, modern, 'uni', 'Chess club');
     ok(IN.clubMeeting(g, modern, 'uni').minutes === 60, 'a club meeting');
     Math.random = () => 0.999;
