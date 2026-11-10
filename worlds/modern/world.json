@@ -2333,241 +2333,229 @@
     "id": "cooking",
     "name": "Cooking class",
     "area": "Cooking",
-    "days": 3,
+    "days": 7,
     "cost": 150,
-    "grants": [
-     "Good cook"
-    ],
+    "grants": [],
     "icon": "🍳",
     "desc": "Knife skills, sauces and timing. Your meals come out better.",
     "skills": {
      "cooking": 2
-    }
+    },
+    "length": 0.125
    },
    {
     "id": "fitness",
     "name": "Fitness coach certificate",
     "area": "Sports",
-    "days": 4,
+    "days": 14,
     "cost": 250,
-    "grants": [
-     "Athletic"
-    ],
+    "grants": [],
     "icon": "🏋️",
     "desc": "Training plans and nutrition. Workouts go better.",
     "skills": {
      "fitness": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "firstaid",
     "name": "Lifeguard & first aid",
     "area": "Health",
-    "days": 2,
+    "days": 7,
     "cost": 150,
-    "grants": [
-     "Calm"
-    ],
+    "grants": [],
     "icon": "🛟",
-    "desc": "Rescue and first aid. Needed to work as a lifeguard."
+    "desc": "Rescue and first aid. Needed to work as a lifeguard.",
+    "length": 0.125,
+    "skills": {
+     "fitness": 1
+    }
    },
    {
     "id": "programming",
     "name": "Programming bootcamp",
     "area": "Technology",
-    "days": 5,
+    "days": 14,
     "cost": 600,
-    "grants": [
-     "Tech-savvy"
-    ],
+    "grants": [],
     "icon": "💻",
     "desc": "Code, apps and the web. Needed for software jobs.",
     "skills": {
      "logic": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "finance",
     "name": "Finance & accounting",
     "area": "Business",
-    "days": 5,
+    "days": 14,
     "cost": 500,
-    "grants": [
-     "Good with numbers"
-    ],
+    "grants": [],
     "icon": "📊",
     "desc": "Budgets, markets and spreadsheets. Needed for finance jobs.",
     "skills": {
      "logic": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "engineering",
     "name": "Engineering degree",
     "area": "Technology",
-    "days": 7,
-    "cost": 900,
-    "grants": [
-     "Handy",
-     "Smart"
-    ],
+    "days": 21,
+    "cost": 450,
+    "grants": [],
     "icon": "⚙️",
     "desc": "Machines and structures. Needed to work as an engineer.",
     "skills": {
      "logic": 3
-    }
+    },
+    "length": 0.375,
+    "perSeason": true
    },
    {
     "id": "medicine",
     "name": "Medical school",
     "area": "Health",
-    "days": 10,
-    "cost": 2000,
-    "grants": [
-     "Smart"
-    ],
+    "days": 30,
+    "cost": 670,
+    "grants": [],
     "icon": "🩺",
     "desc": "Long and hard. Needed to work as a doctor.",
     "skills": {
      "logic": 4
-    }
+    },
+    "length": 0.54,
+    "perSeason": true
    },
    {
     "id": "nursing",
     "name": "Nursing course",
     "area": "Health",
-    "days": 5,
+    "days": 14,
     "cost": 600,
-    "grants": [
-     "Kind"
-    ],
+    "grants": [],
     "icon": "💉",
     "desc": "Patient care. Needed to work as a nurse.",
     "skills": {
      "logic": 2,
      "charisma": 1
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "education",
     "name": "Teaching certificate",
     "area": "Education",
-    "days": 4,
+    "days": 14,
     "cost": 400,
-    "grants": [
-     "Kind"
-    ],
+    "grants": [],
     "icon": "🍎",
     "desc": "How to teach. Needed to work as a teacher.",
     "skills": {
      "charisma": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "science",
     "name": "Research methods",
     "area": "Science",
-    "days": 6,
+    "days": 14,
     "cost": 700,
-    "grants": [
-     "Curious"
-    ],
+    "grants": [],
     "icon": "🔬",
     "desc": "Experiments and papers. Needed to work as a researcher.",
     "skills": {
      "logic": 3
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "mechanics",
     "name": "Auto mechanics",
     "area": "Trades",
-    "days": 4,
+    "days": 14,
     "cost": 350,
-    "grants": [
-     "Handy"
-    ],
+    "grants": [],
     "icon": "🔧",
     "desc": "Engines and repairs. Needed to work as a mechanic.",
     "skills": {
      "logic": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "publicadmin",
     "name": "Public administration",
     "area": "Business",
-    "days": 5,
+    "days": 14,
     "cost": 500,
-    "grants": [
-     "Serious"
-    ],
+    "grants": [],
     "icon": "🏛️",
     "desc": "How the city works. Needed to work at City Hall.",
     "skills": {
      "logic": 2,
      "charisma": 1
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "hospitality",
     "name": "Hospitality & service",
     "area": "Service",
-    "days": 2,
+    "days": 7,
     "cost": 120,
-    "grants": [
-     "Charming"
-    ],
+    "grants": [],
     "icon": "🛎️",
     "desc": "Guests, customers and smiles. Helps in hotels, bars and shops.",
     "skills": {
      "charisma": 1
-    }
+    },
+    "length": 0.125
    },
    {
     "id": "music",
     "name": "Music lessons",
     "area": "Arts",
-    "days": 4,
+    "days": 14,
     "cost": 300,
-    "grants": [
-     "Musical"
-    ],
+    "grants": [],
     "icon": "🎸",
     "desc": "An instrument and some theory. Busking goes better.",
     "skills": {
      "music": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "art",
     "name": "Art & design",
     "area": "Arts",
-    "days": 4,
+    "days": 14,
     "cost": 300,
-    "grants": [
-     "Creative"
-    ],
+    "grants": [],
     "icon": "🎨",
     "desc": "Drawing, color and design. Paintings sell better.",
     "skills": {
      "painting": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "speaking",
     "name": "Public speaking",
     "area": "Social",
-    "days": 3,
+    "days": 7,
     "cost": 200,
-    "grants": [
-     "Outgoing"
-    ],
+    "grants": [],
     "icon": "🎤",
     "desc": "Confidence in front of people. Helps in interviews.",
     "skills": {
      "charisma": 2
-    }
+    },
+    "length": 0.125
    }
   ],
   "shop": [
@@ -2910,6 +2898,11 @@
    "place": "industrial",
    "ranks": [
     {
+     "name": "Engineering intern",
+     "pay": 17,
+     "student": true
+    },
+    {
      "name": "Technician",
      "pay": 25
     },
@@ -2961,6 +2954,7 @@
     19
    ],
    "promote": [
+    18,
     4,
     8,
     12,
@@ -2978,6 +2972,9 @@
    "overtime": true,
    "trains": [
     "logic"
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -3244,6 +3241,11 @@
    "place": "hospital",
    "ranks": [
     {
+     "name": "Nursing student",
+     "pay": 14,
+     "student": true
+    },
+    {
      "name": "Nursing assistant",
      "pay": 18
     },
@@ -3297,6 +3299,7 @@
     24
    ],
    "promote": [
+    13,
     5,
     12,
     16,
@@ -3378,6 +3381,9 @@
       }
      ]
     }
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -4428,6 +4434,11 @@
    "place": "hospital",
    "ranks": [
     {
+     "name": "Medical student",
+     "pay": 22,
+     "student": true
+    },
+    {
      "name": "Resident",
      "pay": 30
     },
@@ -4464,6 +4475,7 @@
     24
    ],
    "promote": [
+    46,
     6,
     14
    ],
@@ -4472,7 +4484,7 @@
    ],
    "branches": [
     {
-     "at": 3,
+     "at": 4,
      "options": [
       {
        "id": "doc_surg",
@@ -4554,7 +4566,7 @@
      ]
     },
     {
-     "at": 6,
+     "at": 7,
      "options": [
       {
        "id": "doc_neuro",
@@ -4718,7 +4730,7 @@
      ]
     },
     {
-     "at": 9,
+     "at": 10,
      "options": [
       {
        "id": "doc_chief",
@@ -4837,13 +4849,21 @@
    "trains": [
     "logic"
    ],
-   "nightPay": 0.2
+   "nightPay": 0.2,
+   "shifted": [
+    "student-rank"
+   ]
   },
   {
    "id": "teacher",
    "name": "Teacher",
    "place": "school",
    "ranks": [
+    {
+     "name": "Student teacher",
+     "pay": 12,
+     "student": true
+    },
     {
      "name": "Teaching assistant",
      "pay": 16
@@ -4890,6 +4910,7 @@
     17
    ],
    "promote": [
+    11,
     5,
     12,
     16
@@ -4906,6 +4927,9 @@
    "trains": [
     "charisma",
     "logic"
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -6847,7 +6871,8 @@
      "mall"
     ],
     "description": "{{char}} is Lia, 26, an engineer at a factory in the Industrial Zone. Hair always under a cap, grease on her sleeve, a calculator brain. Introverted, precise and quietly funny once she trusts you.",
-    "first_mes": "*Lia pulls out an earbud.* Sorry, were you talking to me? I was in the middle of a podcast about bridges. ...That sounds worse out loud."
+    "first_mes": "*Lia pulls out an earbud.* Sorry, were you talking to me? I was in the middle of a podcast about bridges. ...That sounds worse out loud.",
+    "rank": 1
    },
    {
     "name": "Sofia",
@@ -7373,14 +7398,14 @@
     "Dean"
    ],
    "tuition": 120,
-   "trait": "Smart",
    "examEvery": 7,
    "clubs": [
     "Chess club",
     "Theater club",
     "Debate society"
    ],
-   "desc": "lecture halls, labs and a famous library"
+   "desc": "lecture halls, labs and a famous library",
+   "skill": "logic"
   },
   {
    "id": "high",
@@ -7393,13 +7418,13 @@
     "Principal"
    ],
    "tuition": 0,
-   "trait": "Curious",
    "examEvery": 7,
    "clubs": [
     "School band",
     "Science club",
     "Football team"
-   ]
+   ],
+   "skill": "logic"
   }
  ],
  "presetSchools": true,
