@@ -88,14 +88,24 @@ export function spanOf(g: Save, w: WorldDef, c: Course): number {
 /** Without a schedule a course asks for five classes in every seven days, any days. */
 const PACE = 5 / 7;
 const STEP = 30;
+// A day's window is worked out by looking at every half hour of it, and the screens ask for many days at a time, so each
+// answer is kept per save (a schedule is about the calendar and the clock, which don't change within a day).
+const windows = new WeakMap<object, Map<string, { from: number; to: number } | null>>();
 /** The hours of a scheduled class on a day (minutes of the day), or null when there's none (or no schedule). */
 export function classWindow(g: Save, w: WorldDef, c: Course, day: number): { from: number; to: number } | null {
     if (!c.when || parseWhen(c.when).error) return null;
-    const place = c.at ?? g.player.loc;
-    if (!whenHolds(g, w, c.when, { place, at: day * 1440, day: true })) return null;
-    let from = -1, to = -1;
-    for (let m = 0; m < 1440; m += STEP) if (whenHolds(g, w, c.when, { place, at: day * 1440 + m })) { if (from < 0) from = m; to = m + STEP; }
-    return from < 0 ? null : { from, to };
+    const place = c.at ?? g.player.loc, memo = windows.get(g) ?? windows.set(g, new Map()).get(g)!;
+    const key = `${c.id}|${typeof c.when === 'string' ? c.when : JSON.stringify(c.when)}|${place}|${day}`;
+    if (memo.has(key)) return memo.get(key)!;
+    let win: { from: number; to: number } | null = null;
+    if (whenHolds(g, w, c.when, { place, at: day * 1440, day: true })) {
+        let from = -1, to = -1;
+        for (let m = 0; m < 1440; m += STEP) if (whenHolds(g, w, c.when, { place, at: day * 1440 + m })) { if (from < 0) from = m; to = m + STEP; }
+        if (from >= 0) win = { from, to };
+    }
+    if (memo.size > 600) memo.clear();
+    memo.set(key, win);
+    return win;
 }
 /** A class's hours as words ("19:00–21:00"). */
 export const windowText = (win: { from: number; to: number }) => `${hm(win.from)}–${hm(win.to % 1440)}`;
