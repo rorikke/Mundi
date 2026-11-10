@@ -2820,7 +2820,8 @@
      "pay": 35,
      "needs": {
       "logic": 2
-     }
+     },
+     "course": "finance"
     },
     {
      "name": "Mid-level",
@@ -2904,7 +2905,8 @@
     },
     {
      "name": "Technician",
-     "pay": 25
+     "pay": 25,
+     "course": "engineering"
     },
     {
      "name": "Engineer",
@@ -3247,7 +3249,8 @@
     },
     {
      "name": "Nursing assistant",
-     "pay": 18
+     "pay": 18,
+     "course": "nursing"
     },
     {
      "name": "Nurse",
@@ -4087,7 +4090,8 @@
      "pay": 26,
      "needs": {
       "fitness": 4
-     }
+     },
+     "course": "firstaid"
     },
     {
      "name": "Beach supervisor",
@@ -4355,7 +4359,8 @@
      "pay": 30,
      "needs": {
       "logic": 2
-     }
+     },
+     "course": "publicadmin"
     },
     {
      "name": "Department head",
@@ -4440,7 +4445,8 @@
     },
     {
      "name": "Resident",
-     "pay": 30
+     "pay": 30,
+     "course": "medicine"
     },
     {
      "name": "Doctor",
@@ -4866,7 +4872,8 @@
     },
     {
      "name": "Teaching assistant",
-     "pay": 16
+     "pay": 16,
+     "course": "education"
     },
     {
      "name": "Teacher",
@@ -5029,7 +5036,8 @@
      "pay": 26,
      "needs": {
       "logic": 2
-     }
+     },
+     "course": "mechanics"
     },
     {
      "name": "Workshop owner",
@@ -5097,7 +5105,8 @@
      "pay": 45,
      "needs": {
       "logic": 3
-     }
+     },
+     "course": "programming"
     },
     {
      "name": "Lead developer",
@@ -5560,7 +5569,8 @@
      "pay": 34,
      "needs": {
       "logic": 3
-     }
+     },
+     "course": "science"
     },
     {
      "name": "Professor",
