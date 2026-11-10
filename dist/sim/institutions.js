@@ -5,6 +5,7 @@ import { book } from './ledger.js';
 import { addStatus } from './needs.js';
 import { isRpg, sheetOf, rollCheck, checkWon, addXp, skillOf } from './rpg.js';
 import { traitsOf } from './work.js';
+import { skillDef, levelOf, trainSkill } from './hobbies.js';
 import { npcRank } from './longlife.js';
 import { presentAt } from './people.js';
 import { addBond } from './social.js';
@@ -14,6 +15,8 @@ export const instDef = (w, id) => w.institutions?.find(i => i.id === id) ?? null
 export const instAt = (w, place) => (on(w) ? w.institutions.filter(i => i.place === place) : []);
 const week = (g) => Math.floor((g.day - 1) / 7);
 export const LESSON_MINUTES = 120;
+/** Experience a lesson gives in the school's skill (a study session of a course gives about 12). */
+export const LESSON_XP = 8;
 // The ladder for students: passed exams needed for each rank (the top ones, professor and head, come later).
 const NEED = [0, 2, 5, 9, 14];
 export function enroll(g, w, id) {
@@ -58,6 +61,9 @@ export function attend(g, w, id) {
             note(g, '{u} learned {0} at {1}.', [skillOf(w, d.skill).name, d.name], [], d.place, 'study');
         }
     }
+    else if (d.skill && skillDef(w, d.skill)) {
+        msgs.push(...trainSkill(g, w, d.skill, LESSON_XP));
+    }
     else if (d.trait && e.lessons >= 6 && !traitsOf(g).includes(d.trait)) {
         ((g.player.traits ??= {}).school ??= []).push(d.trait);
         msgs.push(`New trait from your studies: ${d.trait}.`);
@@ -87,7 +93,7 @@ export function sitExam(g, w, id) {
         detail = ` (${skillOf(w, d.skill).name} ${c.total} vs ${c.dc})`;
     }
     else {
-        const chance = Math.min(0.92, 0.3 + 0.1 * e.since + (d.trait && traitsOf(g).includes(d.trait) ? 0.15 : 0));
+        const chance = Math.min(0.92, 0.3 + 0.1 * e.since + ((d.skill && skillDef(w, d.skill) ? levelOf(g, d.skill) >= 3 : !!d.trait && traitsOf(g).includes(d.trait)) ? 0.15 : 0));
         passed = Math.random() < chance;
     }
     e.exam = g.day;

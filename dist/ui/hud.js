@@ -1,8 +1,8 @@
 import { lookPanelHtml } from './chatlook.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { fmtClock, is12h } from '../core/fmt.js';
-import { interviewChance, triedToday } from '../sim/skills.js';
-import { missingCourses } from '../sim/courses.js';
+import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
+import { skillName } from '../sim/hobbies.js';
 import { courseRow } from './courses.js';
 import { payOf, lockedOut } from '../sim/bills.js';
 // The in-game HUD (the same layout for every style; skins only tint it). Glass panels around the scene:
@@ -28,6 +28,7 @@ import { money, actionsHere, canAfford } from '../sim/needs.js';
 import { sceneAct } from '../sim/actions.js';
 import { sceneActRow } from './sceneact.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
+import { missingCourses } from '../sim/courses.js';
 import { traitsOf, jobDef, openJobs, offScreen, jobPlace } from '../sim/work.js';
 import { presentAt } from '../sim/people.js';
 import { period, weekday, seasonOf, toNextPeriod } from '../sim/time.js';
@@ -195,7 +196,7 @@ function actsColumn(g, w) {
         adventureActs(g, w),
         ...questsHere(g).map(q => `<button class="mh-act is-quest mh-glass" data-act="quest-step" data-id="${esc(q.id)}"><i>📜</i><b>${esc(q.steps[q.step].what)}</b><small>${esc(q.title)}</small></button>`),
         ...(jobsOn ? [workButton(g, w)] : []),
-        ...jobs.map(o => `<button class="mh-act mh-glass" data-act="apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}><i>${icon('briefcase')}</i><b>Apply: ${esc(o.name)}</b><small>${missingCourses(g, w, o).length ? `${lex(w, 'needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}` : `${money(w, payOf(g, o.ranks[0].pay))}/h · interview 🎲 ${interviewChance(g, o, traitsOf(g))}%`}</small></button>`),
+        ...jobs.map(o => `<button class="mh-act mh-glass" data-act="apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}><i>${icon('briefcase')}</i><b>Apply: ${esc(o.name)}</b><small>${missingCourses(g, w, o).length ? `${lex(w, 'needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}` : `${money(w, payOf(g, o.ranks[0].pay))}/h · interview 🎲 ${interviewChance(g, o, traitsOf(g))}%${(() => { const s = interviewSkill(g, o); return s ? ` · ${esc(skillName(w, s.id))} ${s.level} helps` : ''; })()}`}</small></button>`),
         ...(atHome && lockedOut(g) ? [`<button class="mh-act mh-glass is-warn" data-act="ph-open-homes"><i>${icon('home')}</i><b>${lex(w, 'lockedOutShort')}</b><small>${lex(w, 'lockedOutHint', appRef(w, 'homes'))}</small></button>`] : []),
         ...((atHome && !lockedOut(g)) || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
         ...innRows(g, w, atHome),

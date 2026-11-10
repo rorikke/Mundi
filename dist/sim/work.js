@@ -11,6 +11,7 @@ import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { triedToday, interview, countUp } from './skills.js';
 import { missingCourses, hasCourse, courseOf } from './courses.js';
+import { needCourseText } from './coursenudge.js';
 import { rollBonus, bonusLabel } from './dice.js';
 import { effectMul } from './effects.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
@@ -48,6 +49,11 @@ export const jobDef = (w, id) => w.occupations.find(o => o.id === id) ?? null;
 export const traitsOf = (g) => Object.values(g.player.traits ?? {}).flat();
 export const fits = (g, o, w) => (!o.needs?.length || o.needs.some(t => traitsOf(g).includes(t))) && hobbyFits(g, w ?? getWorld(g.world), o);
 export const likes = (g, o) => careerOf(g, o).likes.filter(t => traitsOf(g).includes(t));
+/** The courses a job asks for that you haven't finished (ones the world no longer has, or has retired, aren't asked
+ *  for). Applying goes through `missingCourses` (sim/courses.ts), which also lets a student rank take you while enrolled. */
+const askedCourses = (g, w, o) => (o.courses ?? []).filter(id => { const c = courseOf(w, id); return !!c && !c.retired && !hasCourse(g, id); });
+/** At a job's student rank while its course isn't finished: leaving the rank asks for it. */
+export const studentGap = (g, w, o) => (rankOf(g, o)?.student ? askedCourses(g, w, o).map(id => courseOf(w, id).name) : []);
 // The job's opening hours (whether it is open at all now).
 export const isOpen = (g, o) => { const [a, b] = o.hours ?? [0, 24]; const h = hour(g); return a <= b ? h >= a && h < b : h >= a || h < b; };
 // Adult content (E15): its switch is the new game's; until then, a save setting.
@@ -370,6 +376,9 @@ export function promoNeeds(g, w, o) {
         missing.push(traits.join(' or '));
     if (next.course && courseOf(w, next.course) && !hasCourse(g, next.course))
         missing.push(courseOf(w, next.course).name);
+    for (const c of studentGap(g, w, o))
+        if (!missing.includes(c))
+            missing.push(c); // the way out of the student rank
     const rest = whenBesidesPerf(next.when);
     const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
     if (when === false)
@@ -413,7 +422,7 @@ export function hire(g, w, id) {
         return { ok: false, text: o ? 'They are not hiring.' : '' };
     const miss = missingCourses(g, w, o);
     if (miss.length)
-        return { ok: false, text: lex(w, 'needCourse', miss.join('", "')) };
+        return { ok: false, text: needCourseText(g, w, o, miss) };
     if (!hobbyFits(g, w, o))
         return { ok: false, text: `They are looking for someone better at it: ${hobbyNeed(g, w, o)}.` };
     if (triedToday(g, id))

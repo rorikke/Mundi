@@ -2350,6 +2350,12 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mh-story .mh-invite-btns { flex-direction: column; align-items: stretch; }
 #mundi-root .mh-story .mh-invite-btns button { text-align: left; white-space: normal; }
 #mundi-root .mh-story .mh-invite-btns button small { opacity: .7; margin-left: 6px; }
+/* Courses window: the courses you take sit above the list (several cards), so the top block scrolls on its own */
+#mundi-root .mu-course-top { display: grid; gap: 8px; max-height: 46vh; overflow: auto; }
+#mundi-root .mu-course-top > p { margin: 0; line-height: 1.45; }
+#mundi-root .mu-course-top .mu-course-grid { overflow: visible; padding: 0; }
+#mundi-root .mu-course > small { line-height: 1.35; }
+#mundi-root .mu-course .mu-row { display: flex; gap: 8px; flex-wrap: wrap; }
 /* ---------- the medieval journal: an open book over the game ---------- */
 #mundi-root .mu-bk-wrap {
     position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px 16px;

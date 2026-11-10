@@ -13,7 +13,7 @@ import { icon } from './icons.js';
 import { makeZip, uniqueName, download } from '../core/zip.js';
 import { outfitsOf, outfitLabel, savedOutfits, addOutfit, removeOutfit, forgetOutfits } from './outfits.js';
 import { pickAndCrop, pickFile } from './cropper.js';
-import { toggleTrait } from './traits.js';
+import { toggleTrait, chipText } from './traits.js';
 import { nativeHost } from './native.js';
 import { presetsTabHtml } from './castpresets.js';
 import { startsTabHtml } from './startsui.js';
@@ -407,12 +407,13 @@ function bgDetail(file) {
 /* ---------- personas ---------- */
 const POSITIONS = [[0, 'In the prompt, with the character'], [2, 'Top of the Author\'s Note'], [3, 'Bottom of the Author\'s Note'], [4, 'In the chat, at a depth'], [9, 'Not sent']];
 // Every trait the worlds offer, for the persona's dropdown (28).
+// (a strength says its skill: "Good cook · Cooking 3")
 const allTraits = () => { const seen = new Set(); const out = []; for (const w of worlds())
     for (const t of w.sheet.traits ?? [])
         for (const o of t.options)
             if (!seen.has(o)) {
                 seen.add(o);
-                out.push([t.label, o]);
+                out.push([t.label, o, chipText(w, t, o)]);
             } return out; };
 function personaDetail(file) {
     const p = personas().find(x => x.file === file);
@@ -424,7 +425,7 @@ function personaDetail(file) {
     const sheet = personaSheet(file);
     const w = sheet ? getWorld(sheet.world) : null;
     const bar = actionBar({ dup: 'lib-dup', del: 'lib-del-one' });
-    const sheetRead = sheet && w?.sheet.traits ? `<section class="mu-lib-read"><h4>Character sheet</h4><div class="mu-chips">${w.sheet.traits.flatMap(t => (sheet.traits?.[t.id] ?? []).map((x) => `<span class="mu-chip"><small>${esc(t.label)}</small> ${esc(x)}</span>`)).join('') || '<span class="mu-muted">—</span>'}</div></section>` : '';
+    const sheetRead = sheet && w?.sheet.traits ? `<section class="mu-lib-read"><h4>Character sheet</h4><div class="mu-chips">${w.sheet.traits.flatMap(t => (sheet.traits?.[t.id] ?? []).map((x) => `<span class="mu-chip"><small>${esc(t.label)}</small> ${esc(chipText(w, t, x))}</span>`)).join('') || '<span class="mu-muted">—</span>'}</div></section>` : '';
     // the character sheet only exists to write a new character quickly (new game): the Library shows the persona itself
     void sheetRead;
     if (!L.edit)
@@ -432,7 +433,7 @@ function personaDetail(file) {
     const pos = POSITIONS.some(o => o[0] === p.position) ? POSITIONS : [...POSITIONS, [p.position, `#${p.position}`]];
     return `${head}<div class="mu-lib-form">
         ${field('Name', 'name', p.name)}
-        <div class="mu-lib-grid"><label class="mu-field"><span>Add a trait to the description</span><select data-input="lib-ptrait"><option value="">Choose a trait…</option>${allTraits().map(([g, t]) => `<option value="${esc(t)}">${esc(g)}: ${esc(t)}</option>`).join('')}</select></label>
+        <div class="mu-lib-grid"><label class="mu-field"><span>Add a trait to the description</span><select data-input="lib-ptrait"><option value="">Choose a trait…</option>${allTraits().map(([g, t, text]) => `<option value="${esc(t)}">${esc(g)}: ${esc(text)}</option>`).join('')}</select></label>
             <label class="mu-field"><span>Persona lorebook</span><select data-input="lib-plore"><option value="">None</option>${lorebooks().map(n => `<option value="${esc(n)}" ${personaLore(file) === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label></div>
         ${field('Description', 'description', p.description, 'area', { rows: 9, hint: 'Who you are. The characters read this.' })}
         ${L.adv ? `${advHead()}

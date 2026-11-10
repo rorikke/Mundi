@@ -2,7 +2,7 @@
 // gear for working at home), quick gigs, the gym, college, things at home that break, scene lock, NPCs who
 // invite you, and who lets you into their home. All decided by the engine; the AI only narrates.
 import { nowAbs } from '../core/store.js';
-import { courseOf, learning, canStudyHere, studiedToday, studySession } from './courses.js';
+import { takingNow, studyBlock, studySession, payDue, learning } from './courses.js';
 import { countUp, countOf, gainTrait } from './skills.js';
 import { priceOf } from './bills.js';
 import { systemOn, isScenario } from '../core/world.js';
@@ -128,9 +128,14 @@ export function extraActions(g, w) {
     if (g.player.loc === playerHomeId)
         for (const b of life(g).broken)
             out.push(x({ id: `x-repair-${b}`, label: `Pay someone to fix ${thing(w, b)}`, icon: '🧰', minutes: 60, cost: Number(w.homes.repairCost ?? 0), effects: {} }));
-    const cur = courseOf(w, learning(g).current);
-    if (cur && canStudyHere(g, w) && !studiedToday(g, cur.id))
-        out.push(x({ id: 'x-study', label: `Study: ${cur.name}`, icon: cur.icon || '📚', minutes: 120, effects: { energy: -12, mood: -2, hunger: -6 } }));
+    // one class a day for each course you take (a scheduled one only in its hours), and paying a fee that holds one back
+    for (const cur of takingNow(g, w)) {
+        if (!studyBlock(g, w, cur))
+            out.push(x({ id: `x-study-${cur.id}`, label: `Study: ${cur.name}`, icon: cur.icon || '📚', minutes: 120, effects: { energy: -12, mood: -2, hunger: -6 } }));
+        const due = learning(g).due[cur.id] ?? 0;
+        if (due > 0 && g.player.money >= due)
+            out.push(x({ id: `x-coursefee-${cur.id}`, label: `Pay what you owe for ${cur.name}`, icon: '💳', minutes: 5, effects: {} }));
+    }
     return out;
 }
 // Which world actions are blocked by something broken at home.
@@ -150,8 +155,13 @@ export function afterAction(g, w, a, success) {
         const b = l.broken.shift();
         out.push(`You fixed ${thing(w, b)}.`);
     }
-    if (a.id === 'x-study')
-        out.push(...studySession(g, w));
+    if (a.id.startsWith('x-study-'))
+        out.push(...studySession(g, w, a.id.slice(8)));
+    if (a.id.startsWith('x-coursefee-')) {
+        const t = payDue(g, w, a.id.slice(12));
+        if (t)
+            out.push(t);
+    }
     if (a.id === 'cook')
         countUp(g, 'meals');
     if ((a.id === 'x-workout' || a.id === 'x-treadmill') && success)
