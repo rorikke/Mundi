@@ -31,6 +31,18 @@ People in your world have feelings of their own, for you and for each other, and
 - **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
 - **The AI knows the scene better.** In a crowded place it hears once what the people there share (why they're here, where they stand with you), and results written for you ("You nail the chorus") reach it as what you were told. The world's lorebook stays small in every request.
 
+### A new world: Tokyo
+
+<p align="center"><img src="docs/map-tokyo.jpg" alt="The map of Tokyo"></p>
+
+Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and Kōenji, Akihabara, Asakusa and Ueno, Marunouchi and Ginza, Odaiba, Roppongi) and two getaways (Yokohama and Hakone), with 88 places and 30 people who live there.
+
+- **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map.
+- **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 30 people have a portrait and 28 expressions.
+- **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
+- **Life there.** 43 jobs with their ranks, drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner.
+- **Seven starts** to begin from, and 70 small stories at the places.
+
 ### Other improvements
 
 More on each in **[Other improvements in this fork](docs/improvements.md)**.
@@ -52,7 +64,7 @@ More on each in **[Other improvements in this fork](docs/improvements.md)**.
 - **Home mode.** A more role-play focused way to play: one house, the characters you choose, no work or bills. Pick the rooms, draw a floor plan, go out and come back.
 - **In your language.** The interface is in English, Português (Brasil) and Español (Settings → Interface → Language).
 
-It comes with **Porto Alto**, a modern coastal state with five cities (Midtown, Palm Coast, Maple Heights, Pinecrest and Green Valley), and **The Shared House** for Home mode. The medieval style (Valdoria) and the RPG mode are coming in a later update.
+It comes with **Porto Alto**, a modern coastal state with five cities (Midtown, Palm Coast, Maple Heights, Pinecrest and Green Valley), **Tokyo** (this fork's), and **The Shared House** for Home mode. The medieval style (Valdoria) and the RPG mode are coming in a later update.
 
 See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 

@@ -5,6 +5,7 @@ Besides its work on relationships ([Relationships in this fork](relationships.md
 point of view, and grows as new ones arrive.
 
 - [A color for each speaker's dialogue](#a-color-for-each-speakers-dialogue)
+- [Pictures that follow the weather and the season](#pictures-that-follow-the-weather-and-the-season)
 
 ## A color for each speaker's dialogue
 
@@ -28,3 +29,19 @@ In a busy scene it's easy to lose track of who said what. With this on, what eac
 
 A note on AI usage: choosing colors is one short background request when people need them (a new game, someone new,
 or "Pick colors again").
+
+## Pictures that follow the weather and the season
+
+A place's picture changes with the time of day, the weather and the season, where the world has a picture for them.
+Tokyo has one for every outdoor place in the rain, at every time of day, plus snow in Hakone and at the shrines,
+cherry blossom and autumn leaves in the parks, and bare trees in winter.
+
+- **The best match wins.** Mundi looks for a picture of the weather and the season together first (rain in autumn),
+  then the weather at that time of day (rain at night), then the season (autumn by day), then the usual picture. So a
+  park whose usual picture is in blossom shows green leaves in summer, red ones in autumn, and the right leaves in the
+  rain too.
+- **For world makers.** In a place's `bgs`, a key is the time of day (`day`, `afternoon`, `night`), a look and the time
+  (`rain-night`, `autumn-day`), or two looks and the time (`rain-autumn-day`). Looks are the weather's kinds (`rain`
+  covers heavy rain and storms too, `snow`…) and the seasons. A home kind's `images` work the same way.
+- **Expression sprites in any format.** A world's sprites can be PNG, WebP or AVIF (Tokyo's are AVIF, about half the
+  size); each is saved to the card under its own type.

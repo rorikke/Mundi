@@ -869,10 +869,10 @@ export const socialKind = (w: WorldDef | null | undefined): 'feed' | 'board' => 
 export const messageKind = (w: WorldDef | null | undefined): 'texts' | 'letters' => ((w?.features as any)?.messageKind ?? kinds(w).messageKind);
 export const aiVoice = (w: WorldDef | null | undefined): string => String((w as any)?.ai?.voice ?? kinds(w).voice);
 // A world that cannot be played yet (RPG worlds wait for the next update).
-export const worldLocked = (w: WorldDef | null | undefined) => !!w && ((MEDIEVAL_LOCKED && styleOf(w) === 'medieval') || (TOKYO_LOCKED && w.id === 'tokyo')
+export const worldLocked = (w: WorldDef | null | undefined) => !!w && ((MEDIEVAL_LOCKED && styleOf(w) === 'medieval')
     || (((w.mode ?? 'lifesim') === 'rpg' || (RPG_LOCKED && w.madeFor === 'rpg')) && (RPG_LOCKED || !w.rpg?.classes?.length)));   // an RPG world without its RPG, or a style coming later
 // What a locked world is waiting for (its "Soon" badge).
-export const lockedFor = (w: WorldDef | null | undefined) => (TOKYO_LOCKED && w?.id === 'tokyo' ? 'In the works' : MEDIEVAL_LOCKED && styleOf(w) === 'medieval' ? 'Medieval' : 'RPG mode');
+export const lockedFor = (w: WorldDef | null | undefined) => (MEDIEVAL_LOCKED && styleOf(w) === 'medieval' ? 'Medieval' : 'RPG mode');
 
 // A Home made with the creator copied the built-in Home's actions when it was made. When it opens, it gets the ones
 // added since (swimming at the pool, washing the car…) and loses built-in ones that no longer exist. Actions you made
