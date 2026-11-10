@@ -2,7 +2,8 @@
 import { safeUrl } from '../core/safe.js';
 import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
-import { missingCourses, interviewChance, triedToday } from '../sim/skills.js';
+import { interviewChance, triedToday } from '../sim/skills.js';
+import { missingCourses } from '../sim/courses.js';
 import { profileApp } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, type BillId } from '../sim/bills.js';
 import { shopApp, goalsApp, feelingsHtml } from './lifeui.js';

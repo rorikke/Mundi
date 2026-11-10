@@ -136,7 +136,7 @@ const medieval = world(ext, 'medieval'); W.registerWorld(medieval);
     ok(PE.whereNow(g, house, g.cast.rafa) === PE.OUT, 'at work hours he is out of the house');
     ok(!PE.presentAt(g, house, 'living').length, 'someone who is out is in no scene');
     ok(!needs.actionsHere(g, house).some(a => a.outing || a.cost < 0) && needs.actionsHere(g, house).every(a => !a.cost), 'Home: no outings (Go out instead), nothing to earn, nothing costs money');
-    { const SK = await D('sim/skills.js'); ok(SK.canStudyHere(g, house), 'courses can be followed from anywhere in the house (classes are off-screen)'); }
+    { const SK = await D('sim/courses.js'); ok(SK.canStudyHere(g, house), 'courses can be followed from anywhere in the house (classes are off-screen)'); }
     const lines = P.scenarioLines(g, house).join(' ');
     ok(lines.includes('Premise:') && lines.includes('Out of the house right now') && lines.includes('Rafa'), 'the prompt has the premise and who is out');
     ok(!P.scenarioLines(g, modern).length, 'no scenario lines in a world');

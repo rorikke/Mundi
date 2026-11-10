@@ -13,7 +13,7 @@ const meta = {}; browser(meta);
 const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const bills = await D('sim/bills.js');
-const prompt = await D('sim/prompt.js'); const skills = await D('sim/skills.js'); const life = await D('sim/life.js');
+const prompt = await D('sim/prompt.js'); const skills = await D('sim/courses.js'); const life = await D('sim/life.js');
 const romance = await D('sim/romance.js');
 let ui = null;
 try { ui = { hud: await D('ui/hud.js'), phone: await D('ui/phone.js'), creator: await D('ui/creator.js') }; } catch (e) { console.log('note: screens not drawn in Node:', e.message); }

@@ -2,7 +2,8 @@
 // gear for working at home), quick gigs, the gym, college, things at home that break, scene lock, NPCs who
 // invite you, and who lets you into their home. All decided by the engine; the AI only narrates.
 import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { courseOf, learning, canStudyHere, studiedToday, studySession, countUp, countOf, gainTrait } from './skills.js';
+import { courseOf, learning, canStudyHere, studiedToday, studySession } from './courses.js';
+import { countUp, countOf, gainTrait } from './skills.js';
 import { priceOf } from './bills.js';
 import type { WorldDef, ActionDef, StatusDef } from '../core/world.js';
 import { systemOn, isScenario } from '../core/world.js';

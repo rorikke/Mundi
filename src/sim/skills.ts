@@ -1,26 +1,11 @@
-// Courses you take (at home, online, or at the university) that teach you traits and skill levels; the job
-// interview, a roll where the traits a job looks for are your bonus; and the counters some life goals are measured
-// with. The traits you have are what the d20 rolls use (each matching trait is +2), so learning one helps everywhere.
-// (Skills themselves, with their levels, are in hobbies.ts.)
+// The job interview, a roll where the traits a job looks for are your bonus; the traits you gain from courses and life
+// goals; and the counters some life goals are measured with. The traits you have are what the d20 rolls use (each
+// matching trait is +2), so learning one helps everywhere. (Courses themselves are in courses.ts, skills with their
+// levels in hobbies.ts.)
 import { nowAbs, type Save } from '../core/store.js';
-import type { WorldDef, Occupation } from '../core/world.js';
-import { systemOn, isScenario } from '../core/world.js';
-import { note } from './facts.js';
-import { book } from './ledger.js';
-import { priceOf } from './bills.js';
-import { playerHomeId, placeOf } from './places.js';
-import { setSkillLevel, skillName } from './hobbies.js';
+import type { Occupation } from '../core/world.js';
+import { learning } from './courses.js';
 
-/** A course. `skills`: the levels it teaches (`{ english: 3 }`: at least English 3 when you finish). */
-export interface Course { id: string; name: string; area: string; days: number; cost: number; grants: string[]; icon: string; desc: string; skills?: Record<string, number> }
-export const coursesOf = (w: WorldDef): Course[] => (systemOn(w, 'courses') ? (w.catalogs as any).courses ?? [] : []) as Course[];
-interface Learning { current?: string; progress: Record<string, number>; lastDay: Record<string, number>; done: string[]; count: Record<string, number>; interviews: Record<string, number>; earned: string[] }
-export function learning(g: Save): Learning {
-    const p = g.player as any;
-    const s = (p.learning ??= {});
-    s.progress ??= {}; s.lastDay ??= {}; s.done ??= []; s.count ??= {}; s.interviews ??= {}; s.earned ??= [];
-    return s as Learning;
-}
 // Counters for life goals (meals cooked, workouts, shifts…).
 export const countUp = (g: Save, key: string, n = 1) => { const c = learning(g).count; c[key] = (c[key] ?? 0) + n; };
 export const countOf = (g: Save, key: string) => learning(g).count[key] ?? 0;
@@ -36,45 +21,8 @@ export function gainTrait(g: Save, trait: string, from: 'course' | 'goal'): bool
     return true;
 }
 
-/* ---------- courses ---------- */
-
-export const courseOf = (w: WorldDef, id?: string) => coursesOf(w).find(c => c.id === id);
-export const hasCourse = (g: Save, id: string) => learning(g).done.includes(id);
-export const canStudyHere = (g: Save, w: WorldDef) => isScenario(w) || g.player.loc === playerHomeId || (placeOf(g, w, g.player.loc)?.tags ?? []).includes('study');
-export const studiedToday = (g: Save, id: string) => learning(g).lastDay[id] === g.day;
-
-export function enroll(g: Save, w: WorldDef, id: string): string {
-    const c = courseOf(w, id); if (!c) return '';
-    const l = learning(g);
-    if (l.current) return 'Finish the course you are taking first.';
-    if (l.done.includes(id)) return 'You already finished this course.';
-    const price = priceOf(g, c.cost);
-    if (g.player.money < price) return 'Not enough money.';
-    g.player.money -= price; book(g, `Course: ${c.name}`, -price);
-    l.current = id; l.progress[id] ??= 0;
-    note(g, '{u} enrolled in a course: {0}.', [c.name], [], g.player.loc, 'study');
-    return '';
-}
-export function dropCourse(g: Save) { learning(g).current = undefined; }
-// One study session (once a day): a day of the course. The last one finishes it and teaches its traits.
-export function studySession(g: Save, w: WorldDef): string[] {
-    const l = learning(g); const c = courseOf(w, l.current); if (!c) return [];
-    if (studiedToday(g, c.id)) return ['You already studied today. Come back tomorrow.'];
-    l.lastDay[c.id] = g.day;
-    l.progress[c.id] = (l.progress[c.id] ?? 0) + 1;
-    if (l.progress[c.id] < c.days) return [`${c.name}: day ${l.progress[c.id]} of ${c.days} done.`];
-    l.done.push(c.id); l.current = undefined;
-    const got = (c.grants ?? []).filter(t => gainTrait(g, t, 'course'));
-    for (const [id, n] of Object.entries(c.skills ?? {})) setSkillLevel(g, id, n);
-    const taught = Object.entries(c.skills ?? {}).map(([id, n]) => `${skillName(w, id)} ${n}`);
-    note(g, '{u} finished the course "{0}".', [c.name], [], g.player.loc, 'study');
-    return [`You finished ${c.name}!${got.length ? ` You are now ${got.join(' and ')}.` : ''}${taught.length ? ` Skills: ${taught.join(', ')}.` : ''}`];
-}
-
 /* ---------- the job interview ---------- */
 
-// (a course the world no longer offers is not asked for: the job would be out of reach forever)
-export const missingCourses = (g: Save, w: WorldDef, o: Occupation) => ((o as any).courses ?? []).filter((id: string) => !!courseOf(w, id) && !hasCourse(g, id)).map((id: string) => courseOf(w, id)?.name ?? id);
 export function interviewDc(o: Occupation) { const top = o.ranks.at(-1)?.pay ?? 0; return 9 + (o.needs?.length ? 3 : 0) + (top >= 50 ? 2 : 0); }
 export function interviewBonus(g: Save, o: Occupation, traits: string[]) {
     let b = 0;
