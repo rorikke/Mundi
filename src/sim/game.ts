@@ -127,17 +127,29 @@ async function worldPicture(w: WorldDef, file: string | undefined): Promise<Blob
     try { const res = await fetch(worldFile(w, file)); if (!res.ok) return null; const b = await res.blob(); return b.size ? b : null; } catch { return null; }
 }
 // The sprites in a world's folder: the files its `sprites.json` lists (each file's name is its expression), or one
-// file per default expression (`joy.png`…).
-async function spriteFiles(w: WorldDef, folder: string): Promise<{ label: string; file: string }[]> {
+// file per default expression (`joy.png`…). The list is an array of file names, or `{ v, files }`: `v` is the set's
+// version (a hash of its pictures), so a card that got an older version of the same folder gets the new one.
+export function readSpriteList(raw: unknown): { files: string[]; v: string } | null {
+    const o = raw as { v?: unknown; files?: unknown } | null;
+    const list = Array.isArray(raw) ? raw : Array.isArray(o?.files) ? o!.files as unknown[] : null;
+    if (!list) return null;
+    const v = !Array.isArray(raw) && (typeof o?.v === 'string' || typeof o?.v === 'number') ? String(o!.v).slice(0, 64) : '';
+    return { files: list.filter((f): f is string => typeof f === 'string' && /^[\w .-]+\.(png|webp|avif|gif|jpe?g)$/i.test(f)), v };
+}
+async function spriteFiles(w: WorldDef, folder: string): Promise<{ list: { label: string; file: string }[]; key: string }> {
     const base = folder.replace(/\/*$/, '/');
     try {
-        const res = await fetch(worldFile(w, `${base}sprites.json`));
-        const list = res.ok ? await res.json() : null;
-        if (Array.isArray(list)) return list.filter(f => typeof f === 'string' && /^[\w .-]+\.(png|webp|avif|gif|jpe?g)$/i.test(f)).map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f }));
+        const res = await fetch(worldFile(w, `${base}sprites.json`), { cache: 'no-cache' });
+        const set = readSpriteList(res.ok ? await res.json() : null);
+        if (set) return { list: set.files.map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f })), key: spriteKey(folder, set.v) };
     } catch { /* no list: the default names */ }
-    return DEFAULT_EXPRESSIONS.map(label => ({ label, file: `${base}${label}.png` }));
+    return { list: DEFAULT_EXPRESSIONS.map(label => ({ label, file: `${base}${label}.png` })), key: folder };
 }
-// What a card still lacks from the world (its portrait, its sprites), uploaded once: the card remembers what it got.
+// what a card remembers it got: the folder, and its version when the list has one
+export const spriteKey = (folder: string, v = '') => (v ? `${folder}#${v}` : folder);
+
+// What a card still lacks from the world (its portrait, its sprites, its outfits), uploaded once: the card remembers
+// what it got (a sprite folder with its version), so a folder whose pictures changed is uploaded again.
 async function examplePictures(w: WorldDef, ex: ExampleCharacter, avatar: string) {
     const card = charOf(avatar)?.data?.extensions?.mundi ?? {};
     try {
@@ -145,25 +157,30 @@ async function examplePictures(w: WorldDef, ex: ExampleCharacter, avatar: string
             const pic = await worldPicture(w, ex.avatar);
             if (pic) { await setCharacterImage(avatar, pic); await saveCardMundi(avatar, { portrait: ex.avatar }); }
         }
-        if (ex.sprites && card.sprites !== ex.sprites) {
-            let n = 0;
-            for (const s of await spriteFiles(w, ex.sprites)) {
-                const b = await worldPicture(w, s.file); if (!b) continue;
-                await uploadSprite(avatar, s.label, b); n++;
+        if (ex.sprites) {
+            const set = await spriteFiles(w, ex.sprites);
+            if (card.sprites !== set.key) {
+                let n = 0;
+                for (const s of set.list) {
+                    const b = await worldPicture(w, s.file); if (!b) continue;
+                    await uploadSprite(avatar, s.label, b); n++;
+                }
+                if (n) await saveCardMundi(avatar, { sprites: set.key });   // none found: tried again next time
             }
-            if (n) await saveCardMundi(avatar, { sprites: ex.sprites });   // none found: tried again next time
         }
-        // each outfit into its subfolder of their Expressions, once per folder
+        // each outfit into its subfolder of their Expressions, once per folder and version
         const had: Record<string, string> = { ...(card.outfits ?? {}) };
         for (const [name, folder] of Object.entries(ex.outfits ?? {})) {
             const outfit = String(name).trim().replace(/[\\/:*?"<>|]+/g, '');
-            if (!outfit || typeof folder !== 'string' || had[outfit] === folder) continue;
+            if (!outfit || typeof folder !== 'string') continue;
+            const set = await spriteFiles(w, folder);
+            if (had[outfit] === set.key) continue;
             let n = 0;
-            for (const s of await spriteFiles(w, folder)) {
+            for (const s of set.list) {
                 const b = await worldPicture(w, s.file); if (!b) continue;
                 await uploadSprite(avatar, s.label, b, s.label, outfit); n++;
             }
-            if (n) { had[outfit] = folder; await saveCardMundi(avatar, { outfits: had }); }
+            if (n) { had[outfit] = set.key; await saveCardMundi(avatar, { outfits: had }); }
         }
     } catch (e) { console.warn('[Mundi] pictures of', ex.name, e); }
 }

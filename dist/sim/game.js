@@ -16,8 +16,9 @@ import { settings, saveSettings, state, game, setGame, saveGame, notify, toast, 
 import { loadWorld, getWorld, exampleTag } from '../core/world.js';
 import { setWorldDicts } from '../core/tr.js';
 import { lang } from '../core/i18n.js';
-import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, lorebooks, loadLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS, } from '../st/bridge.js';
+import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, lorebooks, loadLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, persona, savePersona, readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS, } from '../st/bridge.js';
 import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
+import { withoutStrengths, applyStrengths } from './traits.js';
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
@@ -63,6 +64,20 @@ export function heroDescription(w, h, start) {
         ...traits,
         h.bio.trim(),
     ].filter(Boolean).join('\n');
+}
+/** After a trait changed (life goals' "Change a trait"): the persona card says who you are again, through the same
+ *  words the new game and the Library use. Only for the persona you play in this world; false when there's nothing to
+ *  refresh (no sheet, another world). */
+export async function refreshPersona(g, w, groupId) {
+    const file = persona(), sheet = file ? personaSheet(file) : null;
+    if (!sheet || sheet.world !== w.id)
+        return false;
+    const traits = JSON.parse(JSON.stringify(sheet.traits ?? {}));
+    traits[groupId] = [...((g.player.traits ?? {})[groupId] ?? [])];
+    const next = { ...sheet, traits };
+    setPersonaSheet(file, next);
+    await savePersona(file, { description: heroDescription(w, { ...next, portrait: null }) });
+    return true;
 }
 export const sheetOf = (w, h) => ({ world: w.id, name: h.name, age: h.age, appearance: { ...h.appearance }, origin: h.origin, traits: JSON.parse(JSON.stringify(h.traits ?? {})), bio: h.bio });
 /* ---------- the cast ---------- */
@@ -112,19 +127,31 @@ async function worldPicture(w, file) {
     }
 }
 // The sprites in a world's folder: the files its `sprites.json` lists (each file's name is its expression), or one
-// file per default expression (`joy.png`…).
+// file per default expression (`joy.png`…). The list is an array of file names, or `{ v, files }`: `v` is the set's
+// version (a hash of its pictures), so a card that got an older version of the same folder gets the new one.
+export function readSpriteList(raw) {
+    const o = raw;
+    const list = Array.isArray(raw) ? raw : Array.isArray(o?.files) ? o.files : null;
+    if (!list)
+        return null;
+    const v = !Array.isArray(raw) && (typeof o?.v === 'string' || typeof o?.v === 'number') ? String(o.v).slice(0, 64) : '';
+    return { files: list.filter((f) => typeof f === 'string' && /^[\w .-]+\.(png|webp|avif|gif|jpe?g)$/i.test(f)), v };
+}
 async function spriteFiles(w, folder) {
     const base = folder.replace(/\/*$/, '/');
     try {
-        const res = await fetch(worldFile(w, `${base}sprites.json`));
-        const list = res.ok ? await res.json() : null;
-        if (Array.isArray(list))
-            return list.filter(f => typeof f === 'string' && /^[\w .-]+\.(png|webp|avif|gif|jpe?g)$/i.test(f)).map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f }));
+        const res = await fetch(worldFile(w, `${base}sprites.json`), { cache: 'no-cache' });
+        const set = readSpriteList(res.ok ? await res.json() : null);
+        if (set)
+            return { list: set.files.map(f => ({ label: f.replace(/\.[^.]+$/, '').toLowerCase(), file: base + f })), key: spriteKey(folder, set.v) };
     }
     catch { /* no list: the default names */ }
-    return DEFAULT_EXPRESSIONS.map(label => ({ label, file: `${base}${label}.png` }));
+    return { list: DEFAULT_EXPRESSIONS.map(label => ({ label, file: `${base}${label}.png` })), key: folder };
 }
-// What a card still lacks from the world (its portrait, its sprites), uploaded once: the card remembers what it got.
+// what a card remembers it got: the folder, and its version when the list has one
+export const spriteKey = (folder, v = '') => (v ? `${folder}#${v}` : folder);
+// What a card still lacks from the world (its portrait, its sprites, its outfits), uploaded once: the card remembers
+// what it got (a sprite folder with its version), so a folder whose pictures changed is uploaded again.
 async function examplePictures(w, ex, avatar) {
     const card = charOf(avatar)?.data?.extensions?.mundi ?? {};
     try {
@@ -135,26 +162,32 @@ async function examplePictures(w, ex, avatar) {
                 await saveCardMundi(avatar, { portrait: ex.avatar });
             }
         }
-        if (ex.sprites && card.sprites !== ex.sprites) {
-            let n = 0;
-            for (const s of await spriteFiles(w, ex.sprites)) {
-                const b = await worldPicture(w, s.file);
-                if (!b)
-                    continue;
-                await uploadSprite(avatar, s.label, b);
-                n++;
+        if (ex.sprites) {
+            const set = await spriteFiles(w, ex.sprites);
+            if (card.sprites !== set.key) {
+                let n = 0;
+                for (const s of set.list) {
+                    const b = await worldPicture(w, s.file);
+                    if (!b)
+                        continue;
+                    await uploadSprite(avatar, s.label, b);
+                    n++;
+                }
+                if (n)
+                    await saveCardMundi(avatar, { sprites: set.key }); // none found: tried again next time
             }
-            if (n)
-                await saveCardMundi(avatar, { sprites: ex.sprites }); // none found: tried again next time
         }
-        // each outfit into its subfolder of their Expressions, once per folder
+        // each outfit into its subfolder of their Expressions, once per folder and version
         const had = { ...(card.outfits ?? {}) };
         for (const [name, folder] of Object.entries(ex.outfits ?? {})) {
             const outfit = String(name).trim().replace(/[\\/:*?"<>|]+/g, '');
-            if (!outfit || typeof folder !== 'string' || had[outfit] === folder)
+            if (!outfit || typeof folder !== 'string')
+                continue;
+            const set = await spriteFiles(w, folder);
+            if (had[outfit] === set.key)
                 continue;
             let n = 0;
-            for (const s of await spriteFiles(w, folder)) {
+            for (const s of set.list) {
                 const b = await worldPicture(w, s.file);
                 if (!b)
                     continue;
@@ -162,7 +195,7 @@ async function examplePictures(w, ex, avatar) {
                 n++;
             }
             if (n) {
-                had[outfit] = folder;
+                had[outfit] = set.key;
                 await saveCardMundi(avatar, { outfits: had });
             }
         }
@@ -346,7 +379,9 @@ export async function startNewGame(o) {
         player: {
             loc: playerHomeId, home: { ...home, kind: zone.kind },
             stats: Object.fromEntries(w.statuses.map(s => [s.id, s.start])),
-            money: Math.round((start?.money ?? origin?.money ?? 0) * (DIFFICULTIES.find(d => d.id === (o.difficulty ?? 'normal'))?.start ?? 1)), traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), origin: origin?.id ?? '', job: null, rentPaidDay: w.time.startDay,
+            money: Math.round((start?.money ?? origin?.money ?? 0) * (DIFFICULTIES.find(d => d.id === (o.difficulty ?? 'normal'))?.start ?? 1)), traits: withoutStrengths(w, o.hero.traits), origin: origin?.id ?? '', job: null, rentPaidDay: w.time.startDay,
+            // the ranks jobs were given a new bottom rank for are already counted in a new game (see settleShifts)
+            ...{ shifts: w.occupations.flatMap(x => (x.shifted ?? []).map(s => `${x.id}:${s}`)) },
         },
         cast: {}, tick: {}, log: [],
         ...{ cfg: { difficulty: o.difficulty ?? 'normal', ...(o.mode ? { mode: o.mode } : {}), ...(adult ? { adult: true } : {}) }, schema: SCHEMA },
@@ -462,6 +497,8 @@ export async function startNewGame(o) {
         }
     // (E16) the start: its job, skills, the people you already know, the household you live with
     applyStart(save, w, start);
+    // what you're good at: the strengths picked become skill levels, at least, after the start's own skills
+    applyStrengths(save, w, o.hero.traits);
     for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;
