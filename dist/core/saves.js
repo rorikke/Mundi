@@ -428,13 +428,16 @@ export function checkSave(g) {
                 later(() => toast(`This world changed since your last visit. ${notes.join(' ')} A backup of the save was kept (Settings → Game → This save).`, 'info'));
         }
         // the traits of a save from before schema 5, and ranks moved by a new bottom rank, once the world is known
-        const settled = structuredClone(g);
+        const settled = structuredClone(g), first = !!g.player.traitsTodo;
         settleTraits(settled, w);
         if (JSON.stringify(settled) !== JSON.stringify(g)) {
             if (!backedUp)
                 backup(g, 'before settling your traits and courses');
-            settleTraits(g, w);
+            const said = settleTraits(g, w);
             changed = true;
+            // the first time an old save meets the new traits and courses, the player is told what moved
+            if (first)
+                later(() => toast(`Your game now plays by the new traits and courses: strengths are skill levels, your personality and interests do small things, and courses take weeks. ${said.join(' ')} A backup of the save was kept (Settings → Game → This save).`.replace(/\s+/g, ' '), 'info'));
         }
     }
     if (changed)

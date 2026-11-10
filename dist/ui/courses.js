@@ -9,7 +9,7 @@ import { money } from '../sim/needs.js';
 import { priceOf } from '../sim/bills.js';
 import { weekday } from '../sim/time.js';
 import { skillName } from '../sim/hobbies.js';
-import { offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, takingNow, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, classWord } from '../sim/courses.js';
+import { freeOf, capOf, offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, takingNow, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, classWord } from '../sim/courses.js';
 import { nudgesFor, aheadCourse } from '../sim/coursenudge.js';
 import { countOf } from '../sim/skills.js';
 import { jobDef, traitsOf, rankOf } from '../sim/work.js';
@@ -81,7 +81,7 @@ export function coursesHtml() {
                 <small>${esc(whereWords(g, w, c))}${when ? ` · ${esc(when)}` : ' · any five days a week'}</small>
                 ${seasonal ? '<small class="mu-muted">Paid when you enroll and at the start of each season; unpaid, the course waits.</small>' : ''}
                 ${c.needs ? `<small class="${needs ? 'mu-bad' : 'mu-good'}">Needs: ${esc(needs || 'you have it')}${needs ? '' : ' ✓'}</small>` : ''}
-                ${clash.clashes ? `<small class="mu-bad">${esc(String(clash.clashes))} of ${esc(String(clash.of))} classes clash with your shifts (a missed class: no excuse for work).</small>` : ''}
+                ${clash.clashes ? `<small class="mu-bad">${esc(String(clash.clashes))} of ${esc(String(clash.of))} classes clash with your shifts (a missed class: no excuse for work).${clash.clashes > freeOf(clash.of) + capOf(clash.of) ? ' That is more than it lets you miss: with these shifts you would fail it. Take days off, or pick a course at another time.' : ''}</small>` : ''}
                 <small class="mu-muted">With two courses at once, each class counts less: about ${esc(classWord(extraWhileTwo(g, w, p.n)))} more.</small>
                 ${aid ? `<small class="mu-good">${esc(aid)}</small>` : ''}
                 ${jobs.length ? `<small class="mu-muted">${lex(w, 'neededFor')}: ${esc(jobs.join(', '))}</small>` : ''}

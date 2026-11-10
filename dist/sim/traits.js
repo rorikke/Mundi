@@ -135,6 +135,13 @@ export function swapTrait(g, w, groupId, from, to) {
 // The twelve old life goals' rewards, as they were when traits were handed out for them (a migration must do the same
 // on every old save, so this stays here even when the goals change): their perks are the reward now (TC-8).
 const OLD_GOAL_REWARDS = { rich: 'Good with numbers', romance: 'Romantic', career: 'Ambitious', worker: 'Serious', social: 'Charming', host: 'Outgoing', home: 'Calm', scholar: 'Smart', chef: 'Good cook', athlete: 'Athletic', fit: 'Strong', artist: 'Creative' };
+// What the built-in worlds' courses taught as traits before courses taught skills (TC-3), by world and course: a save
+// that finished one of them loses the trait (courses teach skills now; a credential is the finished course itself).
+// The ones their strengths group maps (Smart, Charming…) have become skill levels already.
+const OLD_COURSE_TRAITS = {
+    tokyo: { care: ['Kind'], japanese: ['Speaks Japanese'], english: ['Speaks English'], teaching: ['Patient'], beauty: ['Stylish'], nursing: ['Kind'], medicine: ['Smart'], museum: ['Curious'], mixology: ['Charming'] },
+    modern: { cooking: ['Good cook'], fitness: ['Athletic'], firstaid: ['Calm'], programming: ['Tech-savvy'], finance: ['Good with numbers'], engineering: ['Handy', 'Smart'], medicine: ['Smart'], nursing: ['Kind'], education: ['Kind'], science: ['Curious'], mechanics: ['Handy'], publicadmin: ['Serious'], hospitality: ['Charming'], music: ['Musical'], art: ['Creative'], speaking: ['Outgoing'] },
+};
 /** Rank numbers move up by one, once, for each job the world says got a new bottom rank (`Occupation.shifted`), in the
  *  save and in the jobs kept for "Play as". `player.shifts` remembers what was done ("job:shift"); a save without that
  *  list isn't one that came through the migration (or a new game), so nothing moves. */
@@ -190,6 +197,12 @@ export function settleTraits(g, w) {
                 for (const [id, lv] of Object.entries(strengthOf(w, n) ?? {}))
                     setSkillLevel(g, id, lv);
             t[key] = splitStrengths(w, mine).rest;
+        }
+        // 3b. what a finished course taught as a trait in the built-in worlds' old data
+        const old = OLD_COURSE_TRAITS[w.id] ?? {}, gone = names(p.learning?.done).flatMap(id => old[id] ?? []);
+        if (Array.isArray(t.learned) && t.learned.some(x => gone.includes(x))) {
+            notes.push(`${t.learned.filter(x => gone.includes(x)).join(', ')}, from your courses, ${t.learned.filter(x => gone.includes(x)).length === 1 ? 'is' : 'are'} gone: courses teach skills now.`);
+            t.learned = t.learned.filter(x => !gone.includes(x));
         }
         // 4. the courses you finished teach their levels
         const courses = (w.catalogs?.courses ?? []);
