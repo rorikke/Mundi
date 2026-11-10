@@ -398,9 +398,14 @@ export function hire(g: Save, w: WorldDef, id: string): { ok: boolean; text: str
     if (!r.ok) { note(g, '{u} had a job interview for {0}, but did not get it.', [o.name], [], o.place, 'work'); return { ok: false, text: r.text }; }
     // today's shift counts if it hasn't started yet
     const today = shiftOn(g, w, o, g.day);
-    const j: JobState = { id, rank: 0, shifts: 0, perf: r.crit ? 65 : 50, since: nowAbs(g), checked: today && today.start > nowAbs(g) ? g.day - 1 : g.day, vac: 0, vacAt: g.day };
+    // a bottom rank added for students (the job's ranks were shifted for it: Medical student) is for those still taking
+    // the course: with it finished you start at the rank after it. (A student rank that is the job's own first rank, a
+    // lifeguard's, is where everyone starts.)
+    let rank = 0;
+    if ((o.shifted ?? []).length && !askedCourses(g, w, o).length) while (o.ranks[rank]?.student && rank < o.ranks.length - 1) rank++;
+    const j: JobState = { id, rank, shifts: 0, perf: r.crit ? 65 : 50, since: nowAbs(g), checked: today && today.start > nowAbs(g) ? g.day - 1 : g.day, vac: 0, vacAt: g.day };
     g.player.job = j as any;
-    note(g, '{u} got hired: {0} at {1}.', [o.ranks[0].name, o.name], [], o.place, 'work');
+    note(g, '{u} got hired: {0} at {1}.', [o.ranks[rank].name, o.name], [], o.place, 'work');
     const s = nextShift(g, w, o);
     return { ok: true, text: `You got the job! ${r.text}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
 }

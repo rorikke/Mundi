@@ -122,6 +122,8 @@ export function planFor(g: Save, w: WorldDef, c: Course): { span: number; n: num
     }
     return { span, n: Math.max(1, Math.round(span * PACE)), sched: false };
 }
+/** "1 class", "3 classes". */
+export const classWord = (n: number) => `${n} class${n === 1 ? '' : 'es'}`;
 /** Misses allowed without a penalty (10% of the classes, at least one), and make-up classes allowed (20%, at least two). */
 export const freeOf = (n: number) => Math.max(1, Math.floor(n * 0.1 + 1e-9));
 export const capOf = (n: number) => Math.max(2, Math.floor(n * 0.2 + 1e-9));
@@ -150,6 +152,8 @@ export function clashCount(g: Save, w: WorldDef, c: Course): { clashes: number; 
     for (let d = g.day; d < g.day + p.span; d++) if (!overToday(g, w, c, d) && clashOn(g, w, c, d)) k++;
     return { clashes: k, of: p.n };
 }
+/** A class takes two hours (the study action's length). */
+export const CLASS_MINUTES = 120;
 /** Why you can't study this course right now ('' when you can). */
 export function studyBlock(g: Save, w: WorldDef, c: Course): string {
     const l = learning(g);
@@ -157,6 +161,9 @@ export function studyBlock(g: Save, w: WorldDef, c: Course): string {
     if (studiedToday(g, c.id)) return 'You already studied today. Come back tomorrow.';
     if (dueOf(l, c.id) > 0) return `The fee for ${c.name} is unpaid (${money(w, dueOf(l, c.id))}): the course is on hold.`;
     if (c.at ? g.player.loc !== c.at : !canStudyHere(g, w)) return c.at ? `${c.name} is taught at ${placeOf(g, w, c.at)?.name ?? 'its own place'}.` : 'You can study at home or at a place for it.';
+    // a class ends before midnight: one that ran into the next day would count for tomorrow (taking tomorrow's class) after
+    // today had been counted without it
+    if (g.minutes + CLASS_MINUTES >= 1440) return 'Too late for a class today: a class takes two hours and must end before midnight.';
     const p = l.plan[c.id];
     if (p?.sched) {
         const win = classWindow(g, w, c, g.day);
@@ -228,11 +235,20 @@ export interface CourseState {
     id: string; n: number; span: number; start: number; endDay: number; sched: boolean; attended: number; credit: number; missed: number;
     free: number; freeLeft: number; makeups: number; cap: number; extra: number; toGo: number; worth: number;
     paused: boolean; due: number; warn: '' | 'half' | 'all' | 'edge'; studied: boolean; next: number | null;
+    /** A course without a schedule: classes you are behind by more than the days left in its span (they will be missed). */
+    behind: number; daysLeft: number;
+    /** The classes to attend in all, as the screens count them: more than `n` while two are taken (each counts 0.85). */
+    of: number;
 }
 const ensure = (g: Save, w: WorldDef, c: Course) => {
     const l = learning(g);
     // a course taken before the plan existed starts from today with the world's numbers
-    if (!l.plan[c.id]) { l.plan[c.id] = planFor(g, w, c); l.start[c.id] ??= g.day; l.settled[c.id] ??= g.day - 1; }
+    // (and one with as many sessions done as the new plan has classes, an old short one, still has its last class to go)
+    if (!l.plan[c.id]) {
+        const p = planFor(g, w, c), done = l.progress[c.id] ?? 0;
+        l.plan[c.id] = done >= p.n ? { ...p, n: Math.floor(done) + 1 } : p;
+        l.start[c.id] ??= g.day; l.settled[c.id] ??= g.day - 1;
+    }
     l.start[c.id] ??= g.day; l.settled[c.id] ??= g.day - 1;
     l.progress[c.id] ??= 0; l.attended[c.id] ??= Math.floor(l.progress[c.id]); l.missed[c.id] ??= 0; l.makeups[c.id] ??= 0;
     return l.plan[c.id];
@@ -249,14 +265,27 @@ export function stateOf(g: Save, w: WorldDef, c: Course): CourseState | null {
     const p = ensure(g, w, c), n = p.n, free = freeOf(n), cap = capOf(n);
     const credit = l.progress[c.id] ?? 0, worth = classWorth(g, w), missed = l.missed[c.id] ?? 0, makeups = l.makeups[c.id] ?? 0;
     const endDay = l.start[c.id] + p.span + (l.held[c.id] ?? 0) - 1;
-    const w2 = warnLevel(missed, free, makeups, cap);
-    return { id: c.id, n, span: p.span, start: l.start[c.id], endDay, sched: p.sched, attended: l.attended[c.id] ?? 0, credit, missed, free, freeLeft: Math.max(0, free - missed), makeups, cap,
-        extra: extraWhileTwo(g, w, n), toGo: Math.max(0, Math.ceil((n - credit) / worth - 1e-9)), worth, paused: dueOf(l, c.id) > 0, due: dueOf(l, c.id),
-        warn: (['', 'half', 'all', 'edge'] as const)[w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c) };
+    // a course without a schedule counts its misses at the end of its span, but what no longer fits before then (one class
+    // a day) is missed already: the warnings say so while there is still time, not on the last day
+    const attended = l.attended[c.id] ?? 0, open = !p.sched && g.day <= endDay;
+    const daysLeft = open ? endDay - g.day + (studiedToday(g, c.id) ? 0 : 1) : 0;
+    const behind = open ? Math.max(0, n - attended - daysLeft) : 0;
+    const w2 = warnLevel(missed + behind, free, Math.max(makeups, missed + behind - free), cap);
+    const toGo = Math.max(0, Math.ceil((n - credit) / worth - 1e-9));
+    return { id: c.id, n, span: p.span, start: l.start[c.id], endDay, sched: p.sched, attended, credit, missed, free, freeLeft: Math.max(0, free - missed - behind), makeups, cap,
+        extra: extraWhileTwo(g, w, n), toGo, worth, paused: dueOf(l, c.id) > 0, due: dueOf(l, c.id),
+        warn: (['', 'half', 'all', 'edge'] as const)[w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c), behind, daysLeft, of: Math.max(n, attended + toGo) };
 }
 /** The warning in words ('' when there's none), for the phone and the day's messages. */
 export function warningText(g: Save, w: WorldDef, c: Course, s: CourseState): string {
     const cost = perSeason(g, w, c) ? 'a make-up class (charged by the class if it runs into a new season)' : `a make-up class, ${money(w, Math.round(feeOf(g, c) / s.n))}`;
+    if (s.behind) {
+        const late = `you are ${s.behind} class${s.behind === 1 ? '' : 'es'} behind with ${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left (one class a day)`;
+        if (s.missed + s.behind - s.free > s.cap) return `${c.name}: ${late}: too many to make up. The course will fail when it ends.`;
+        if (s.warn === 'edge') return `${c.name}: ${late}. One more day without a class and you fail the course.`;
+        if (s.warn === 'all') return `${c.name}: ${late}: that uses all ${s.free} free missed class${s.free === 1 ? '' : 'es'}${s.missed + s.behind > s.free ? ' and adds make-up classes' : ''}. Each further one adds ${cost}.`;
+        return `${c.name}: ${late}: that uses ${s.missed + s.behind} of ${s.free} free missed classes.`;
+    }
     if (s.warn === 'edge') return `${c.name}: one more missed class and you fail the course (${s.makeups} of ${s.cap} make-up classes used).`;
     if (s.warn === 'all') return `${c.name}: you have used all ${s.free} free missed class${s.free === 1 ? '' : 'es'}. The next one adds ${cost}.`;
     if (s.warn === 'half') return `${c.name}: you have missed ${s.missed} of ${s.free} free classes.`;
@@ -342,7 +371,7 @@ function finish(g: Save, w: WorldDef, c: Course, out: string[]) {
     if (taken) {
         if (taken.pays === 'finish') {
             const back = Math.round(fees * taken.share);
-            if (back > 0) { g.player.money += back; book(g, `Refund: ${taken.name}`, back); extra += ` ${taken.name} paid back ${back}.`; }
+            if (back > 0) { g.player.money += back; book(g, `Refund: ${taken.name}`, back); extra += ` ${taken.name} paid back ${money(w, back)}.`; }
             taken.got += back;
         }
         if (taken.stay && taken.job && taken.got > 0) {
@@ -381,7 +410,7 @@ export function studySession(g: Save, w: WorldDef, id?: string): string[] {
     }
     if (l.progress[c.id] >= p.n - 1e-6) { finish(g, w, c, out); return out; }
     const s = stateOf(g, w, c)!;
-    out.unshift(`${c.name}: class ${s.attended} of ${s.n} done.${s.freeLeft ? ` You can still miss ${s.freeLeft} without a penalty.` : ''}`);
+    out.unshift(`${c.name}: class ${s.attended} of ${s.of} done.${s.freeLeft ? ` You can still miss ${s.freeLeft} without a penalty.` : ''}`);
     return out;
 }
 
@@ -392,7 +421,9 @@ export function studySession(g: Save, w: WorldDef, id?: string): string[] {
 function miss(g: Save, w: WorldDef, c: Course, out: string[]): 'done' | 'failed' | null {
     const l = learning(g), p = l.plan[c.id];
     l.missed[c.id] = (l.missed[c.id] ?? 0) + 1;
-    if (l.missed[c.id] <= freeOf(p.n)) {
+    // (a free miss never finishes a course you haven't been to once: a one-class course isn't passed by skipping it)
+    const last = !(l.attended[c.id] ?? 0) && (l.progress[c.id] ?? 0) + classWorth(g, w) >= p.n - 1e-6;
+    if (l.missed[c.id] <= freeOf(p.n) && !last) {
         l.progress[c.id] = (l.progress[c.id] ?? 0) + classWorth(g, w);
         if (l.progress[c.id] >= p.n - 1e-6) { finish(g, w, c, out); return 'done'; }
         return null;
@@ -506,5 +537,5 @@ export const whereWords = (g: Save, w: WorldDef, c: Course) => (c.at ? `at ${pla
 /** What a course is, as the engine says it (the boss's message, the window): classes, days, where, when, fee, aid. */
 export function factsOf(g: Save, w: WorldDef, c: Course): string {
     const p = planFor(g, w, c), when = scheduleWords(c), fee = money(w, feeOf(g, c)), aid = aidText(g, w, c);
-    return `${c.name}: ${p.n} classes over about ${p.span} days, ${whereWords(g, w, c)}${when ? `, ${when}` : ''}. Fee ${fee}${perSeason(g, w, c) ? ' a season' : ''}.${aid ? ` ${aid}` : ''}`;
+    return `${c.name}: ${classWord(p.n)} over about ${p.span} day${p.span === 1 ? '' : 's'}, ${whereWords(g, w, c)}${when ? `, ${when}` : ''}. Fee ${fee}${perSeason(g, w, c) ? ' a season' : ''}.${aid ? ` ${aid}` : ''}`;
 }
