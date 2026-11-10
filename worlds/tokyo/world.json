@@ -12564,7 +12564,7 @@
       "kind": "public",
       "share": 0.2,
       "pays": "finish",
-      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+      "held": 1
      }
     ]
    },
@@ -12619,7 +12619,7 @@
       "kind": "public",
       "share": 0.2,
       "pays": "finish",
-      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+      "held": 1
      }
     ]
    },
@@ -12675,7 +12675,7 @@
       "kind": "public",
       "share": 1,
       "pays": "enroll",
-      "when": "job: not rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+      "jobless": true
      }
     ]
    },
@@ -12873,7 +12873,7 @@
       "kind": "public",
       "share": 0.5,
       "pays": "finish",
-      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+      "held": 1
      }
     ]
    },
@@ -12906,7 +12906,7 @@
       "kind": "public",
       "share": 0.2,
       "pays": "finish",
-      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+      "held": 1
      }
     ]
    },
