@@ -5,7 +5,8 @@
 // Keys whose data the engine doesn't keep yet hold false until their system writes it: `stayed` (E6 writes
 // `player.stayed`), `holds` (E14 writes `player.keepsakes`). The story so far is read straight from the save, so this
 // file needs neither module: `knows` and `thread` (sim/threads.ts keeps `g.threads`), `seen` and `favor`
-// (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`).
+// (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`); `course`
+// reads the courses finished (sim/courses.ts keeps `player.learning.done`).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen } from '../core/world.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
@@ -22,7 +23,7 @@ import { companions } from './social.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
-    'knows', 'seen', 'thread', 'favor', 'perf', 'gave'] as const;
+    'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -62,6 +63,7 @@ function badValue(key: WhenKey, v: string): string {
         case 'clock': return CLOCK.test(v) ? '' : `"${v}" should be hours like 19:00-20:00`;
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
         case 'feels': return splitLevel(v)[0] ? '' : 'a name is missing';
+        case 'course': return ID.test(v) ? '' : `"${v}" should be a course id, or a number of courses`;
         case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'gave': case 'knows':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id, or a story id and a choice like sb_startup_st_pitch:2`;
@@ -208,6 +210,8 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'thread': { const [id, how] = v.split(/\s+/); const t = threadState(g, id); return !!t?.ended && (!how || t.ended === how); }
         case 'seen': { const [id, n] = v.split(':'); const s = (g as any).stories?.seen?.[id]; return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false)); }
         case 'favor': return favorOwed(g, v) > 0;
+        // a course finished (its id), or at least this many courses (a number)
+        case 'course': { if (!systemOn(w, 'courses')) return false; const done: string[] = (g.player as any).learning?.done ?? []; return /^\d+$/.test(v) ? done.length >= Number(v) : done.includes(v); }
         // the player's performance at their job, at least this (a rank that asks for a high performance)
         case 'perf': { const j = g.player.job as { perf?: number } | null; return !!j && Math.round(j.perf ?? 50) >= Number(v); }
         // the old object form's own keys
