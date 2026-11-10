@@ -150,6 +150,8 @@ export function clashCount(g: Save, w: WorldDef, c: Course): { clashes: number; 
     for (let d = g.day; d < g.day + p.span; d++) if (!overToday(g, w, c, d) && clashOn(g, w, c, d)) k++;
     return { clashes: k, of: p.n };
 }
+/** A class takes two hours (the study action's length). */
+export const CLASS_MINUTES = 120;
 /** Why you can't study this course right now ('' when you can). */
 export function studyBlock(g: Save, w: WorldDef, c: Course): string {
     const l = learning(g);
@@ -157,6 +159,9 @@ export function studyBlock(g: Save, w: WorldDef, c: Course): string {
     if (studiedToday(g, c.id)) return 'You already studied today. Come back tomorrow.';
     if (dueOf(l, c.id) > 0) return `The fee for ${c.name} is unpaid (${money(w, dueOf(l, c.id))}): the course is on hold.`;
     if (c.at ? g.player.loc !== c.at : !canStudyHere(g, w)) return c.at ? `${c.name} is taught at ${placeOf(g, w, c.at)?.name ?? 'its own place'}.` : 'You can study at home or at a place for it.';
+    // a class ends before midnight: one that ran into the next day would count for tomorrow (taking tomorrow's class) after
+    // today had been counted without it
+    if (g.minutes + CLASS_MINUTES >= 1440) return 'Too late for a class today: a class takes two hours and must end before midnight.';
     const p = l.plan[c.id];
     if (p?.sched) {
         const win = classWindow(g, w, c, g.day);
