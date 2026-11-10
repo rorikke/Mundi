@@ -2173,7 +2173,7 @@
   "traits": [
    {
     "id": "proficiency",
-    "label": "Proficiency",
+    "label": "Strengths",
     "max": 2,
     "options": [
      "Strong",
@@ -2186,7 +2186,39 @@
      "Good with numbers",
      "Good cook",
      "Tech-savvy"
-    ]
+    ],
+    "skills": {
+     "Strong": {
+      "fitness": 3
+     },
+     "Smart": {
+      "logic": 3
+     },
+     "Charming": {
+      "charisma": 3
+     },
+     "Creative": {
+      "painting": 3
+     },
+     "Athletic": {
+      "fitness": 3
+     },
+     "Handy": {
+      "logic": 3
+     },
+     "Musical": {
+      "music": 3
+     },
+     "Good with numbers": {
+      "logic": 3
+     },
+     "Good cook": {
+      "cooking": 3
+     },
+     "Tech-savvy": {
+      "logic": 3
+     }
+    }
    },
    {
     "id": "personality",
@@ -2301,241 +2333,229 @@
     "id": "cooking",
     "name": "Cooking class",
     "area": "Cooking",
-    "days": 3,
+    "days": 7,
     "cost": 150,
-    "grants": [
-     "Good cook"
-    ],
+    "grants": [],
     "icon": "🍳",
     "desc": "Knife skills, sauces and timing. Your meals come out better.",
     "skills": {
      "cooking": 2
-    }
+    },
+    "length": 0.125
    },
    {
     "id": "fitness",
     "name": "Fitness coach certificate",
     "area": "Sports",
-    "days": 4,
+    "days": 14,
     "cost": 250,
-    "grants": [
-     "Athletic"
-    ],
+    "grants": [],
     "icon": "🏋️",
     "desc": "Training plans and nutrition. Workouts go better.",
     "skills": {
      "fitness": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "firstaid",
     "name": "Lifeguard & first aid",
     "area": "Health",
-    "days": 2,
+    "days": 7,
     "cost": 150,
-    "grants": [
-     "Calm"
-    ],
+    "grants": [],
     "icon": "🛟",
-    "desc": "Rescue and first aid. Needed to work as a lifeguard."
+    "desc": "Rescue and first aid. Needed to work as a lifeguard.",
+    "length": 0.125,
+    "skills": {
+     "fitness": 1
+    }
    },
    {
     "id": "programming",
     "name": "Programming bootcamp",
     "area": "Technology",
-    "days": 5,
+    "days": 14,
     "cost": 600,
-    "grants": [
-     "Tech-savvy"
-    ],
+    "grants": [],
     "icon": "💻",
     "desc": "Code, apps and the web. Needed for software jobs.",
     "skills": {
      "logic": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "finance",
     "name": "Finance & accounting",
     "area": "Business",
-    "days": 5,
+    "days": 14,
     "cost": 500,
-    "grants": [
-     "Good with numbers"
-    ],
+    "grants": [],
     "icon": "📊",
     "desc": "Budgets, markets and spreadsheets. Needed for finance jobs.",
     "skills": {
      "logic": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "engineering",
     "name": "Engineering degree",
     "area": "Technology",
-    "days": 7,
-    "cost": 900,
-    "grants": [
-     "Handy",
-     "Smart"
-    ],
+    "days": 21,
+    "cost": 450,
+    "grants": [],
     "icon": "⚙️",
     "desc": "Machines and structures. Needed to work as an engineer.",
     "skills": {
      "logic": 3
-    }
+    },
+    "length": 0.375,
+    "perSeason": true
    },
    {
     "id": "medicine",
     "name": "Medical school",
     "area": "Health",
-    "days": 10,
-    "cost": 2000,
-    "grants": [
-     "Smart"
-    ],
+    "days": 30,
+    "cost": 670,
+    "grants": [],
     "icon": "🩺",
     "desc": "Long and hard. Needed to work as a doctor.",
     "skills": {
      "logic": 4
-    }
+    },
+    "length": 0.54,
+    "perSeason": true
    },
    {
     "id": "nursing",
     "name": "Nursing course",
     "area": "Health",
-    "days": 5,
+    "days": 14,
     "cost": 600,
-    "grants": [
-     "Kind"
-    ],
+    "grants": [],
     "icon": "💉",
     "desc": "Patient care. Needed to work as a nurse.",
     "skills": {
      "logic": 2,
      "charisma": 1
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "education",
     "name": "Teaching certificate",
     "area": "Education",
-    "days": 4,
+    "days": 14,
     "cost": 400,
-    "grants": [
-     "Kind"
-    ],
+    "grants": [],
     "icon": "🍎",
     "desc": "How to teach. Needed to work as a teacher.",
     "skills": {
      "charisma": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "science",
     "name": "Research methods",
     "area": "Science",
-    "days": 6,
+    "days": 14,
     "cost": 700,
-    "grants": [
-     "Curious"
-    ],
+    "grants": [],
     "icon": "🔬",
     "desc": "Experiments and papers. Needed to work as a researcher.",
     "skills": {
      "logic": 3
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "mechanics",
     "name": "Auto mechanics",
     "area": "Trades",
-    "days": 4,
+    "days": 14,
     "cost": 350,
-    "grants": [
-     "Handy"
-    ],
+    "grants": [],
     "icon": "🔧",
     "desc": "Engines and repairs. Needed to work as a mechanic.",
     "skills": {
      "logic": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "publicadmin",
     "name": "Public administration",
     "area": "Business",
-    "days": 5,
+    "days": 14,
     "cost": 500,
-    "grants": [
-     "Serious"
-    ],
+    "grants": [],
     "icon": "🏛️",
     "desc": "How the city works. Needed to work at City Hall.",
     "skills": {
      "logic": 2,
      "charisma": 1
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "hospitality",
     "name": "Hospitality & service",
     "area": "Service",
-    "days": 2,
+    "days": 7,
     "cost": 120,
-    "grants": [
-     "Charming"
-    ],
+    "grants": [],
     "icon": "🛎️",
     "desc": "Guests, customers and smiles. Helps in hotels, bars and shops.",
     "skills": {
      "charisma": 1
-    }
+    },
+    "length": 0.125
    },
    {
     "id": "music",
     "name": "Music lessons",
     "area": "Arts",
-    "days": 4,
+    "days": 14,
     "cost": 300,
-    "grants": [
-     "Musical"
-    ],
+    "grants": [],
     "icon": "🎸",
     "desc": "An instrument and some theory. Busking goes better.",
     "skills": {
      "music": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "art",
     "name": "Art & design",
     "area": "Arts",
-    "days": 4,
+    "days": 14,
     "cost": 300,
-    "grants": [
-     "Creative"
-    ],
+    "grants": [],
     "icon": "🎨",
     "desc": "Drawing, color and design. Paintings sell better.",
     "skills": {
      "painting": 2
-    }
+    },
+    "length": 0.25
    },
    {
     "id": "speaking",
     "name": "Public speaking",
     "area": "Social",
-    "days": 3,
+    "days": 7,
     "cost": 200,
-    "grants": [
-     "Outgoing"
-    ],
+    "grants": [],
     "icon": "🎤",
     "desc": "Confidence in front of people. Helps in interviews.",
     "skills": {
      "charisma": 2
-    }
+    },
+    "length": 0.125
    }
   ],
   "shop": [
@@ -2641,8 +2661,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Good cook",
-    "Charming",
+    "Cooking",
+    "Cheerful",
     "Outgoing"
    ],
    "hours": [
@@ -2765,8 +2785,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
-    "Strong"
+    "Sports"
    ],
    "hours": [
     8,
@@ -2794,14 +2813,16 @@
    "ranks": [
     {
      "name": "Intern",
-     "pay": 20
+     "pay": 20,
+     "student": true
     },
     {
      "name": "Junior",
      "pay": 35,
      "needs": {
       "logic": 2
-     }
+     },
+     "course": "finance"
     },
     {
      "name": "Mid-level",
@@ -2844,19 +2865,15 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
-    "Good with numbers"
-   ],
-   "needs": [
-    "Smart",
-    "Good with numbers"
+    "Curious",
+    "Serious"
    ],
    "hours": [
     8,
     19
    ],
    "promote": [
-    4,
+    16,
     8,
     14,
     18,
@@ -2883,8 +2900,14 @@
    "place": "industrial",
    "ranks": [
     {
+     "name": "Engineering intern",
+     "pay": 17,
+     "student": true
+    },
+    {
      "name": "Technician",
-     "pay": 25
+     "pay": 25,
+     "course": "engineering"
     },
     {
      "name": "Engineer",
@@ -2926,20 +2949,15 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
-    "Handy",
-    "Tech-savvy"
-   ],
-   "needs": [
-    "Smart",
-    "Handy",
-    "Tech-savvy"
+    "Curious",
+    "Technology"
    ],
    "hours": [
     7,
     19
    ],
    "promote": [
+    18,
     4,
     8,
     12,
@@ -2957,6 +2975,9 @@
    "overtime": true,
    "trains": [
     "logic"
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -3001,8 +3022,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
-    "Strong"
+    "Sports"
    ],
    "hours": [
     6,
@@ -3069,7 +3089,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Calm",
     "Books"
    ],
@@ -3133,7 +3153,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Charming",
+    "Cheerful",
     "Outgoing"
    ],
    "hours": [
@@ -3196,8 +3216,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
-    "Athletic",
+    "Sports",
     "Nature"
    ],
    "hours": [
@@ -3225,8 +3244,14 @@
    "place": "hospital",
    "ranks": [
     {
+     "name": "Nursing student",
+     "pay": 14,
+     "student": true
+    },
+    {
      "name": "Nursing assistant",
-     "pay": 18
+     "pay": 18,
+     "course": "nursing"
     },
     {
      "name": "Nurse",
@@ -3271,18 +3296,14 @@
    "likes": [
     "Kind",
     "Calm",
-    "Smart"
-   ],
-   "needs": [
-    "Kind",
-    "Calm",
-    "Smart"
+    "Curious"
    ],
    "hours": [
     0,
     24
    ],
    "promote": [
+    13,
     5,
     12,
     16,
@@ -3364,6 +3385,9 @@
       }
      ]
     }
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -3410,7 +3434,7 @@
    "likes": [
     "Outgoing",
     "Kind",
-    "Good with numbers"
+    "Serious"
    ],
    "hours": [
     9,
@@ -3465,9 +3489,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Good cook",
-    "Creative",
-    "Cooking"
+    "Cooking",
+    "Art"
    ],
    "hours": [
     10,
@@ -3476,9 +3499,6 @@
    "promote": [
     4,
     9
-   ],
-   "needs": [
-    "Good cook"
    ],
    "branches": [
     {
@@ -3489,8 +3509,8 @@
        "name": "Fine dining",
        "desc": "Tasting menus and perfect plates.",
        "likes": [
-        "Creative",
-        "Good cook"
+        "Art",
+        "Cooking"
        ],
        "ranks": [
         {
@@ -3526,7 +3546,7 @@
        "name": "Restaurant business",
        "desc": "Run the kitchen and the books.",
        "likes": [
-        "Good with numbers",
+        "Serious",
         "Ambitious"
        ],
        "ranks": [
@@ -3571,7 +3591,7 @@
        "name": "Star cuisine",
        "desc": "Chase the stars of the guide.",
        "likes": [
-        "Creative",
+        "Art",
         "Serious"
        ],
        "ranks": [
@@ -3611,7 +3631,7 @@
        "name": "Pastry",
        "desc": "Desserts people talk about.",
        "likes": [
-        "Creative",
+        "Art",
         "Cheerful"
        ],
        "ranks": [
@@ -3694,7 +3714,7 @@
        "name": "Food media",
        "desc": "Cameras, books and fans.",
        "likes": [
-        "Charming",
+        "Cheerful",
         "Outgoing"
        ],
        "ranks": [
@@ -3843,7 +3863,10 @@
       }
      ]
     }
-   ]
+   ],
+   "skills": {
+    "cooking": 1
+   }
   },
   {
    "id": "stylist",
@@ -3887,8 +3910,8 @@
    },
    "likes": [
     "Fashion",
-    "Creative",
-    "Charming"
+    "Art",
+    "Cheerful"
    ],
    "hours": [
     9,
@@ -3952,7 +3975,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Charming",
+    "Cheerful",
     "Outgoing",
     "Calm"
    ],
@@ -4029,7 +4052,7 @@
    },
    "likes": [
     "Outgoing",
-    "Charming",
+    "Cheerful",
     "Nightlife"
    ],
    "hours": [
@@ -4061,14 +4084,16 @@
    "ranks": [
     {
      "name": "Lifeguard",
-     "pay": 17
+     "pay": 17,
+     "student": true
     },
     {
      "name": "Head lifeguard",
      "pay": 26,
      "needs": {
       "fitness": 4
-     }
+     },
+     "course": "firstaid"
     },
     {
      "name": "Beach supervisor",
@@ -4096,7 +4121,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
+    "Sports",
     "Nature",
     "Calm"
    ],
@@ -4105,13 +4130,9 @@
     19
    ],
    "promote": [
-    5,
+    8,
     9,
     13
-   ],
-   "needs": [
-    "Athletic",
-    "Strong"
    ],
    "courses": [
     "firstaid"
@@ -4124,7 +4145,10 @@
    "length": 0.5,
    "trains": [
     "fitness"
-   ]
+   ],
+   "skills": {
+    "fitness": 1
+   }
   },
   {
    "id": "gardener",
@@ -4168,7 +4192,7 @@
    "likes": [
     "Nature",
     "Calm",
-    "Handy"
+    "Technology"
    ],
    "hours": [
     6,
@@ -4296,8 +4320,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
-    "Handy",
+    "Sports",
+    "Technology",
     "Calm"
    ],
    "hours": [
@@ -4309,10 +4333,6 @@
     10,
     14
    ],
-   "needs": [
-    "Strong",
-    "Handy"
-   ],
    "schedule": {
     "days": 5,
     "from": 5,
@@ -4322,7 +4342,10 @@
    "overtime": true,
    "trains": [
     "fitness"
-   ]
+   ],
+   "skills": {
+    "fitness": 1
+   }
   },
   {
    "id": "clerk",
@@ -4331,14 +4354,16 @@
    "ranks": [
     {
      "name": "Clerk",
-     "pay": 18
+     "pay": 18,
+     "student": true
     },
     {
      "name": "Officer",
      "pay": 30,
      "needs": {
       "logic": 2
-     }
+     },
+     "course": "publicadmin"
     },
     {
      "name": "Department head",
@@ -4382,7 +4407,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Serious",
     "Ambitious"
    ],
@@ -4391,16 +4416,11 @@
     17
    ],
    "promote": [
-    4,
+    18,
     8,
     14,
     18,
     22
-   ],
-   "needs": [
-    "Smart",
-    "Good with numbers",
-    "Kind"
    ],
    "courses": [
     "publicadmin"
@@ -4422,8 +4442,14 @@
    "place": "hospital",
    "ranks": [
     {
+     "name": "Medical student",
+     "pay": 22,
+     "student": true
+    },
+    {
      "name": "Resident",
-     "pay": 30
+     "pay": 30,
+     "course": "medicine"
     },
     {
      "name": "Doctor",
@@ -4449,7 +4475,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Calm",
     "Kind"
    ],
@@ -4458,18 +4484,16 @@
     24
    ],
    "promote": [
+    46,
     6,
     14
-   ],
-   "needs": [
-    "Smart"
    ],
    "courses": [
     "medicine"
    ],
    "branches": [
     {
-     "at": 3,
+     "at": 4,
      "options": [
       {
        "id": "doc_surg",
@@ -4477,7 +4501,7 @@
        "desc": "The operating room: long hours, steady hands.",
        "likes": [
         "Calm",
-        "Strong"
+        "Sports"
        ],
        "ranks": [
         {
@@ -4514,7 +4538,7 @@
        "desc": "Know your patients for years.",
        "likes": [
         "Kind",
-        "Charming"
+        "Cheerful"
        ],
        "ranks": [
         {
@@ -4551,14 +4575,14 @@
      ]
     },
     {
-     "at": 6,
+     "at": 7,
      "options": [
       {
        "id": "doc_neuro",
        "name": "Neurosurgery",
        "desc": "The hardest operations there are.",
        "likes": [
-        "Smart",
+        "Curious",
         "Calm"
        ],
        "ranks": [
@@ -4599,7 +4623,7 @@
        "desc": "The emergency room is yours.",
        "likes": [
         "Calm",
-        "Athletic"
+        "Sports"
        ],
        "ranks": [
         {
@@ -4678,8 +4702,7 @@
        "name": "Research",
        "desc": "Find the cures of tomorrow.",
        "likes": [
-        "Curious",
-        "Smart"
+        "Curious"
        ],
        "ranks": [
         {
@@ -4716,7 +4739,7 @@
      ]
     },
     {
-     "at": 9,
+     "at": 10,
      "options": [
       {
        "id": "doc_chief",
@@ -4835,7 +4858,10 @@
    "trains": [
     "logic"
    ],
-   "nightPay": 0.2
+   "nightPay": 0.2,
+   "shifted": [
+    "student-rank"
+   ]
   },
   {
    "id": "teacher",
@@ -4843,8 +4869,14 @@
    "place": "school",
    "ranks": [
     {
+     "name": "Student teacher",
+     "pay": 12,
+     "student": true
+    },
+    {
      "name": "Teaching assistant",
-     "pay": 16
+     "pay": 16,
+     "course": "education"
     },
     {
      "name": "Teacher",
@@ -4888,13 +4920,10 @@
     17
    ],
    "promote": [
+    11,
     5,
     12,
     16
-   ],
-   "needs": [
-    "Smart",
-    "Kind"
    ],
    "courses": [
     "education"
@@ -4908,6 +4937,9 @@
    "trains": [
     "charisma",
     "logic"
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -5000,14 +5032,16 @@
    "ranks": [
     {
      "name": "Apprentice",
-     "pay": 15
+     "pay": 15,
+     "student": true
     },
     {
      "name": "Mechanic",
      "pay": 26,
      "needs": {
       "logic": 2
-     }
+     },
+     "course": "mechanics"
     },
     {
      "name": "Workshop owner",
@@ -5034,21 +5068,17 @@
     "hygiene": 15
    },
    "likes": [
-    "Handy",
-    "Strong",
-    "Tech-savvy"
+    "Technology",
+    "Sports"
    ],
    "hours": [
     7,
     19
    ],
    "promote": [
-    4,
+    8,
     9,
     13
-   ],
-   "needs": [
-    "Handy"
    ],
    "courses": [
     "mechanics"
@@ -5072,14 +5102,16 @@
    "ranks": [
     {
      "name": "Junior developer",
-     "pay": 26
+     "pay": 26,
+     "student": true
     },
     {
      "name": "Developer",
      "pay": 45,
      "needs": {
       "logic": 3
-     }
+     },
+     "course": "programming"
     },
     {
      "name": "Lead developer",
@@ -5098,8 +5130,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Tech-savvy",
-    "Smart",
+    "Technology",
+    "Curious",
     "Games"
    ],
    "hours": [
@@ -5107,12 +5139,8 @@
     19
    ],
    "promote": [
-    4,
+    27,
     10
-   ],
-   "needs": [
-    "Tech-savvy",
-    "Smart"
    ],
    "courses": [
     "programming"
@@ -5126,8 +5154,8 @@
        "name": "Engineering",
        "desc": "Build the hard parts: systems, code reviews, mentoring.",
        "likes": [
-        "Smart",
-        "Tech-savvy"
+        "Curious",
+        "Technology"
        ],
        "ranks": [
         {
@@ -5163,7 +5191,7 @@
        "name": "Product",
        "desc": "Decide what gets built: users, roadmaps, meetings.",
        "likes": [
-        "Charming",
+        "Cheerful",
         "Ambitious"
        ],
        "ranks": [
@@ -5208,7 +5236,7 @@
        "name": "Architecture",
        "desc": "Design how everything fits together.",
        "likes": [
-        "Smart",
+        "Curious",
         "Serious"
        ],
        "ranks": [
@@ -5248,7 +5276,7 @@
        "name": "Security",
        "desc": "Keep the company safe from attacks.",
        "likes": [
-        "Tech-savvy",
+        "Technology",
         "Calm"
        ],
        "ranks": [
@@ -5288,7 +5316,7 @@
        "name": "Leadership",
        "desc": "Lead teams of engineers.",
        "likes": [
-        "Charming",
+        "Cheerful",
         "Outgoing"
        ],
        "ranks": [
@@ -5332,7 +5360,7 @@
        "desc": "Make the product grow and earn.",
        "likes": [
         "Ambitious",
-        "Good with numbers"
+        "Serious"
        ],
        "ranks": [
         {
@@ -5539,14 +5567,16 @@
    "ranks": [
     {
      "name": "Lab assistant",
-     "pay": 18
+     "pay": 18,
+     "student": true
     },
     {
      "name": "Researcher",
      "pay": 34,
      "needs": {
       "logic": 3
-     }
+     },
+     "course": "science"
     },
     {
      "name": "Professor",
@@ -5581,7 +5611,6 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
     "Curious",
     "Books"
    ],
@@ -5590,14 +5619,10 @@
     20
    ],
    "promote": [
-    5,
+    11,
     12,
     16,
     20
-   ],
-   "needs": [
-    "Smart",
-    "Curious"
    ],
    "courses": [
     "science"
@@ -5654,8 +5679,8 @@
    },
    "likes": [
     "Calm",
-    "Handy",
-    "Athletic"
+    "Technology",
+    "Sports"
    ],
    "hours": [
     7,
@@ -5718,7 +5743,7 @@
    },
    "likes": [
     "Outgoing",
-    "Good cook",
+    "Cooking",
     "Kind"
    ],
    "hours": [
@@ -5778,7 +5803,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
+    "Sports",
     "Nature",
     "Calm"
    ],
@@ -5839,9 +5864,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
-    "Nature",
-    "Athletic"
+    "Sports",
+    "Nature"
    ],
    "hours": [
     6,
@@ -5899,7 +5923,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Good with numbers",
+    "Serious",
     "Kind",
     "Outgoing"
    ],
@@ -5962,8 +5986,8 @@
    },
    "likes": [
     "Outgoing",
-    "Charming",
-    "Musical"
+    "Cheerful",
+    "Music"
    ],
    "hours": [
     11,
@@ -6023,7 +6047,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Good with numbers",
+    "Serious",
     "Kind"
    ],
    "hours": [
@@ -6085,7 +6109,7 @@
    "likes": [
     "Calm",
     "Kind",
-    "Smart"
+    "Curious"
    ],
    "hours": [
     7,
@@ -6145,9 +6169,9 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
+    "Sports",
     "Nature",
-    "Handy"
+    "Technology"
    ],
    "hours": [
     7,
@@ -6205,7 +6229,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Charming",
+    "Cheerful",
     "Outgoing",
     "Fashion"
    ],
@@ -6265,7 +6289,6 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
     "Sports",
     "Outgoing"
    ],
@@ -6326,9 +6349,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
-    "Serious",
-    "Good with numbers"
+    "Curious",
+    "Serious"
    ],
    "hours": [
     8,
@@ -6399,9 +6421,9 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Ambitious",
-    "Charming"
+    "Cheerful"
    ],
    "hours": [
     9,
@@ -6467,8 +6489,8 @@
     "hygiene": 10
    },
    "likes": [
-    "Musical",
-    "Charming"
+    "Music",
+    "Cheerful"
    ],
    "hours": [
     19,
@@ -6536,8 +6558,7 @@
     "hygiene": 5
    },
    "likes": [
-    "Creative",
-    "Skilled with hands"
+    "Art"
    ],
    "hours": [
     9,
@@ -6603,8 +6624,8 @@
     "hygiene": 20
    },
    "likes": [
-    "Good cook",
-    "Creative"
+    "Cooking",
+    "Art"
    ],
    "hours": [
     11,
@@ -6866,7 +6887,8 @@
      "mall"
     ],
     "description": "{{char}} is Lia, 26, an engineer at a factory in the Industrial Zone. Hair always under a cap, grease on her sleeve, a calculator brain. Introverted, precise and quietly funny once she trusts you.",
-    "first_mes": "*Lia pulls out an earbud.* Sorry, were you talking to me? I was in the middle of a podcast about bridges. ...That sounds worse out loud."
+    "first_mes": "*Lia pulls out an earbud.* Sorry, were you talking to me? I was in the middle of a podcast about bridges. ...That sounds worse out loud.",
+    "rank": 1
    },
    {
     "name": "Sofia",
@@ -7056,7 +7078,7 @@
   {
    "id": "fit",
    "name": "Fitness buff",
-   "trait": "Athletic",
+   "trait": "Gym regular",
    "desc": "Working out or running five times in ten days.",
    "actions": [
     "x-workout",
@@ -7067,12 +7089,13 @@
    "days": 10,
    "daily": {
     "mood": 2
-   }
+   },
+   "learn": "fitness"
   },
   {
    "id": "party",
    "name": "Party animal",
-   "trait": "Nightlife",
+   "trait": "Bar regular",
    "desc": "Drinks out six times in a week.",
    "actions": [
     "drink"
@@ -7086,13 +7109,14 @@
   {
    "id": "chef",
    "name": "Home chef",
-   "trait": "Good cook",
+   "trait": "Home cook",
    "desc": "Cooking at home five times in a week.",
    "actions": [
     "cook"
    ],
    "count": 5,
-   "days": 7
+   "days": 7,
+   "learn": "cooking"
   },
   {
    "id": "clean",
@@ -7390,14 +7414,14 @@
     "Dean"
    ],
    "tuition": 120,
-   "trait": "Smart",
    "examEvery": 7,
    "clubs": [
     "Chess club",
     "Theater club",
     "Debate society"
    ],
-   "desc": "lecture halls, labs and a famous library"
+   "desc": "lecture halls, labs and a famous library",
+   "skill": "logic"
   },
   {
    "id": "high",
@@ -7410,13 +7434,13 @@
     "Principal"
    ],
    "tuition": 0,
-   "trait": "Curious",
    "examEvery": 7,
    "clubs": [
     "School band",
     "Science club",
     "Football team"
-   ]
+   ],
+   "skill": "logic"
   }
  ],
  "presetSchools": true,

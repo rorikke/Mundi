@@ -1015,11 +1015,7 @@
    },
    "roll": {
     "dc": 9,
-    "traits": [
-     "Good cook",
-     "Creative",
-     "Cooking"
-    ],
+    "traits": [],
     "success": {
      "text": "It came out really good.",
      "effects": {
@@ -1031,8 +1027,10 @@
      "effects": {
       "mood": -3
      }
-    }
-   }
+    },
+    "skill": "cooking"
+   },
+   "trains": "cooking"
   },
   {
    "id": "water",
@@ -1119,10 +1117,7 @@
    },
    "roll": {
     "dc": 13,
-    "traits": [
-     "Handy",
-     "Smart"
-    ],
+    "traits": [],
     "success": {
      "text": "You fixed the loose door rail yourself.",
      "effects": {
@@ -1135,8 +1130,10 @@
      "effects": {
       "mood": -8
      }
-    }
-   }
+    },
+    "skill": "logic"
+   },
+   "trains": "logic"
   },
   {
    "id": "busk",
@@ -1153,11 +1150,7 @@
    },
    "roll": {
     "dc": 14,
-    "traits": [
-     "Musical",
-     "Charming",
-     "Outgoing"
-    ],
+    "traits": [],
     "success": {
      "text": "A small crowd gathered and tipped well.",
      "money": 3500,
@@ -1170,8 +1163,10 @@
      "effects": {
       "mood": -6
      }
-    }
-   }
+    },
+    "skill": "music"
+   },
+   "trains": "music"
   },
   {
    "id": "gymshower",
@@ -1245,10 +1240,7 @@
    },
    "roll": {
     "dc": 13,
-    "traits": [
-     "Creative",
-     "Skilled with hands"
-    ],
+    "traits": [],
     "success": {
      "text": "A commission came in for it.",
      "money": 11000
@@ -1258,7 +1250,8 @@
      "effects": {
       "mood": -6
      }
-    }
+    },
+    "skill": "drawing"
    },
    "trains": "drawing"
   },
@@ -1277,10 +1270,7 @@
    },
    "roll": {
     "dc": 10,
-    "traits": [
-     "Musical",
-     "Creative"
-    ],
+    "traits": [],
     "success": {
      "text": "You nailed a tricky song.",
      "effects": {
@@ -1292,7 +1282,8 @@
      "effects": {
       "mood": -2
      }
-    }
+    },
+    "skill": "music"
    },
    "trains": "music"
   },
@@ -1360,11 +1351,7 @@
    },
    "roll": {
     "dc": 9,
-    "traits": [
-     "Athletic",
-     "Strong",
-     "Sports"
-    ],
+    "traits": [],
     "success": {
      "text": "A great workout.",
      "effects": {
@@ -1376,8 +1363,10 @@
      "effects": {
       "mood": -2
      }
-    }
-   }
+    },
+    "skill": "fitness"
+   },
+   "trains": "fitness"
   },
   {
    "id": "x-run",
@@ -1397,7 +1386,8 @@
     "hygiene": -20,
     "mood": 6,
     "thirst": -10
-   }
+   },
+   "trains": "fitness"
   },
   {
    "id": "sb_crossing_cross",
@@ -3297,7 +3287,7 @@
    "roll": {
     "dc": 9,
     "traits": [],
-    "skill": "charisma",
+    "skill": "japanese",
     "success": {
      "text": "A regular tells how the alley burned in 1999 and was rebuilt beam for beam. At the end he shakes your hand.",
      "effects": {
@@ -9045,7 +9035,7 @@
    },
    "roll": {
     "dc": 10,
-    "skill": "charisma",
+    "skill": "fashion",
     "traits": [],
     "success": {
      "text": "A ring of photographers forms; you strike the pose of an invented hero and are asked for another.",
@@ -12465,7 +12455,7 @@
   "traits": [
    {
     "id": "proficiency",
-    "label": "Proficiency",
+    "label": "Strengths",
     "max": 2,
     "options": [
      "Strong",
@@ -12478,7 +12468,39 @@
      "Good with numbers",
      "Good cook",
      "Tech-savvy"
-    ]
+    ],
+    "skills": {
+     "Strong": {
+      "fitness": 3
+     },
+     "Smart": {
+      "logic": 3
+     },
+     "Charming": {
+      "charisma": 3
+     },
+     "Creative": {
+      "drawing": 3
+     },
+     "Athletic": {
+      "fitness": 3
+     },
+     "Handy": {
+      "logic": 3
+     },
+     "Musical": {
+      "music": 3
+     },
+     "Good with numbers": {
+      "logic": 3
+     },
+     "Good cook": {
+      "cooking": 3
+     },
+     "Tech-savvy": {
+      "gaming": 3
+     }
+    }
    },
    {
     "id": "personality",
@@ -12523,112 +12545,399 @@
  "catalogs": {
   "courses": [
    {
-    "id": "care",
-    "name": "Care worker certificate",
-    "area": "Health",
-    "days": 5,
-    "cost": 50000,
-    "grants": [
-     "Kind"
-    ],
-    "icon": "🤝",
-    "desc": "The national care certificate: helping people wash, move and eat, and talking with them while you do. Needed to move up as a care worker."
+    "id": "japanese",
+    "name": "Japanese for beginners",
+    "area": "Language",
+    "days": 14,
+    "cost": 60000,
+    "grants": [],
+    "icon": "🗾",
+    "desc": "Daily Japanese from the basics: greetings, shopping, trains and the polite forms, online or at Hijiri University's language center. Jobs that ask for Japanese open up.",
+    "skills": {
+     "japanese": 4
+    },
+    "length": 0.25,
+    "aid": [
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work education and training benefit",
+      "kind": "public",
+      "share": 0.2,
+      "pays": "finish",
+      "held": 1
+     }
+    ]
    },
    {
-    "id": "japanese",
-    "name": "Japanese language course",
+    "id": "japanese2",
+    "name": "Business Japanese, JLPT N2 prep",
     "area": "Language",
-    "days": 6,
+    "days": 21,
     "cost": 40000,
-    "grants": [
-     "Speaks Japanese"
-    ],
-    "icon": "🗾",
-    "desc": "Japanese at Hijiri University's language center, from daily speech to business manners. Jobs that ask for it open up."
+    "grants": [],
+    "icon": "📘",
+    "desc": "Keigo, business email and the written language, aimed at the N2 exam. Evening classes in the language center's annex; builds on the beginners' course.",
+    "skills": {
+     "japanese": 6,
+     "writing": 1
+    },
+    "length": 0.375,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: mon or wed or fri; clock: 18:30-20:30",
+    "needs": "skill: japanese 4",
+    "aid": [
+     {
+      "id": "study-in-japan",
+      "name": "Study-in-Japan scholarship",
+      "kind": "merit",
+      "share": 0.5,
+      "pays": "enroll",
+      "when": "start: foreigner; skill: japanese 4"
+     }
+    ]
    },
    {
     "id": "english",
-    "name": "English course",
+    "name": "English conversation",
     "area": "Language",
-    "days": 4,
-    "cost": 35000,
-    "grants": [
-     "Speaks English"
-    ],
+    "days": 14,
+    "cost": 50000,
+    "grants": [],
     "icon": "💬",
-    "desc": "Fluent English: conversation, email and phone calls. Needed to teach English; helps with foreign clients."
+    "desc": "Conversation, email and phone English in small evening groups at Hello Bridge English. Gets you to the level teaching asks for, and helps with foreign clients.",
+    "skills": {
+     "english": 5
+    },
+    "length": 0.25,
+    "at": "sb_eikaiwa",
+    "when": "weekday: mon or wed or fri; clock: 19:00-21:00",
+    "aid": [
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work education and training benefit",
+      "kind": "public",
+      "share": 0.2,
+      "pays": "finish",
+      "held": 1
+     }
+    ]
    },
    {
     "id": "teaching",
-    "name": "Teaching certificate",
+    "name": "TEFL certificate",
     "area": "Education",
-    "days": 4,
-    "cost": 40000,
-    "grants": [
-     "Patient"
-    ],
+    "days": 14,
+    "cost": 60000,
+    "grants": [],
     "icon": "🍎",
-    "desc": "Lesson plans, patience and how to keep adult learners coming back. Needed to teach."
+    "desc": "Lesson plans, classroom management and how to keep adult learners coming back, in weekend classes at Hello Bridge English. Needed to teach business English; asks for English 5 first.",
+    "skills": {
+     "charisma": 2,
+     "writing": 2
+    },
+    "length": 0.25,
+    "at": "sb_eikaiwa",
+    "when": "weekday: sat or sun; clock: 12:30-15:30",
+    "needs": "skill: english 5",
+    "aid": [
+     {
+      "id": "hello-bridge",
+      "name": "Hello Bridge English pays for its teachers",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "stay": true,
+      "when": "job: eikaiwa; perf: 70"
+     }
+    ]
    },
    {
-    "id": "beauty",
-    "name": "Beauty license",
-    "area": "Service",
-    "days": 6,
-    "cost": 70000,
-    "grants": [
-     "Stylish"
-    ],
-    "icon": "💇",
-    "desc": "Cutting, coloring and salon manners, with the exam at the end. Needed to work as a hair stylist."
+    "id": "care",
+    "name": "Care worker initial training",
+    "area": "Health",
+    "days": 14,
+    "cost": 75000,
+    "grants": [],
+    "icon": "🤝",
+    "desc": "The initial training for care work: helping people wash, move and eat, and talking with them while you do. Weekend classes at Seiwa General Hospital. Needed to move up as a care worker.",
+    "skills": {
+     "japanese": 4,
+     "charisma": 2
+    },
+    "length": 0.25,
+    "at": "mg_hospital",
+    "when": "weekday: sat or sun; clock: 9:00-12:00",
+    "aid": [
+     {
+      "id": "hellowork-training",
+      "name": "Hello Work public vocational training",
+      "kind": "public",
+      "share": 1,
+      "pays": "enroll",
+      "jobless": true
+     }
+    ]
    },
    {
     "id": "nursing",
-    "name": "Nursing course",
+    "name": "Nursing school",
     "area": "Health",
-    "days": 5,
-    "cost": 60000,
-    "grants": [
-     "Kind"
-    ],
+    "days": 25,
+    "cost": 45000,
+    "grants": [],
     "icon": "💉",
-    "desc": "Patient care and night shifts on the ward. Needed to work as a nurse."
+    "desc": "Evening classes toward the nursing license, with ward practice at Seiwa General; most students work as nursing assistants meanwhile. Needed to work as a nurse.",
+    "skills": {
+     "logic": 3,
+     "charisma": 2,
+     "fitness": 1
+    },
+    "length": 0.45,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: tue or thu or sat; clock: 18:30-21:00",
+    "aid": [
+     {
+      "id": "seiwa-nursing",
+      "name": "Seiwa General nursing scholarship",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "stay": true,
+      "when": "job: nurse; perf: 70"
+     }
+    ]
    },
    {
     "id": "medicine",
     "name": "Medical school",
     "area": "Health",
-    "days": 10,
-    "cost": 250000,
-    "grants": [
-     "Smart"
-    ],
+    "days": 30,
+    "cost": 125000,
+    "grants": [],
     "icon": "🩺",
-    "desc": "Long and hard. Needed to work as a doctor."
+    "desc": "Long and hard: evening lectures at Hijiri University beside the clinical clerkship hours. Needed to work as a doctor.",
+    "skills": {
+     "logic": 4,
+     "writing": 2
+    },
+    "length": 0.54,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: mon or wed or fri; clock: 18:30-21:00",
+    "aid": [
+     {
+      "id": "hijiri-merit",
+      "name": "Hijiri University merit scholarship",
+      "kind": "merit",
+      "share": 0.5,
+      "pays": "enroll",
+      "when": "skill: logic 4"
+     },
+     {
+      "id": "seiwa-grant",
+      "name": "Seiwa General hospital scholarship",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "stay": true,
+      "when": "job: doctor; perf: 70"
+     }
+    ]
+   },
+   {
+    "id": "beauty",
+    "name": "Beauty school",
+    "area": "Service",
+    "days": 21,
+    "cost": 50000,
+    "grants": [],
+    "icon": "💇",
+    "desc": "Cutting, coloring and salon manners: theory online, practice at home on a mannequin head, and the license exam at the end. Needed to work as a hair stylist.",
+    "skills": {
+     "fashion": 3,
+     "charisma": 1
+    },
+    "length": 0.375,
+    "perSeason": true,
+    "aid": [
+     {
+      "id": "salon-sponsor",
+      "name": "Your salon's sponsorship",
+      "kind": "employer",
+      "share": 0.5,
+      "pays": "enroll",
+      "when": "job: stylist; perf: 70"
+     }
+    ]
    },
    {
     "id": "museum",
-    "name": "Museum studies",
+    "name": "Curator certificate",
     "area": "Arts",
-    "days": 4,
-    "cost": 40000,
-    "grants": [
-     "Curious"
-    ],
+    "days": 14,
+    "cost": 50000,
+    "grants": [],
     "icon": "🖼️",
-    "desc": "Collections, exhibits and guiding visitors. Needed to rise at a museum."
+    "desc": "Collections, exhibits and writing the labels visitors read, in weekend classes at Ueno Hall of Art. Needed to rise at a museum.",
+    "skills": {
+     "writing": 3,
+     "japanese": 3
+    },
+    "length": 0.25,
+    "at": "ot_museum",
+    "when": "weekday: sat or sun; clock: 13:00-16:00"
    },
    {
     "id": "mixology",
-    "name": "Mixology course",
+    "name": "Bartending school",
     "area": "Service",
-    "days": 3,
-    "cost": 35000,
-    "grants": [
-     "Charming"
-    ],
+    "days": 7,
+    "cost": 40000,
+    "grants": [],
     "icon": "🍸",
-    "desc": "Classic cocktails and bar craft. Helps behind any bar."
+    "desc": "Classic cocktails and bar craft in short evening classes. Helps behind any bar.",
+    "skills": {
+     "mixology": 3
+    },
+    "length": 0.125,
+    "when": "weekday: tue or thu; clock: 19:30-21:30"
+   },
+   {
+    "id": "cooking",
+    "name": "Culinary course",
+    "area": "Cooking",
+    "days": 14,
+    "cost": 70000,
+    "grants": [],
+    "icon": "🍳",
+    "desc": "Knife work, broth and timing, from video lessons and cooking at home. Kitchens hire people who cook well.",
+    "skills": {
+     "cooking": 4
+    },
+    "length": 0.25
+   },
+   {
+    "id": "idol",
+    "name": "Idol academy lessons",
+    "area": "Arts",
+    "days": 14,
+    "cost": 60000,
+    "grants": [],
+    "icon": "🎤",
+    "desc": "Voice and dance lessons in Stage Starlight's lesson room, on weekday afternoons. The first step for a trainee.",
+    "skills": {
+     "singing": 3,
+     "dance": 3
+    },
+    "length": 0.25,
+    "at": "ak_idol",
+    "when": "weekday: mon or wed or fri; clock: 14:00-16:00"
+   },
+   {
+    "id": "manga",
+    "name": "Manga and illustration class",
+    "area": "Arts",
+    "days": 14,
+    "cost": 50000,
+    "grants": [],
+    "icon": "✏️",
+    "desc": "Line, color and story, in evening classes at Studio Tsubame. Studios hire people who can draw.",
+    "skills": {
+     "drawing": 3,
+     "writing": 1
+    },
+    "length": 0.25,
+    "at": "ws_studio",
+    "when": "weekday: tue or thu; clock: 19:00-21:00"
+   },
+   {
+    "id": "programming",
+    "name": "Programming school",
+    "area": "Technology",
+    "days": 14,
+    "cost": 120000,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Code, apps and the web, mostly online with projects at home. Opens game and startup jobs.",
+    "skills": {
+     "logic": 3,
+     "gaming": 2
+    },
+    "length": 0.25,
+    "aid": [
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work reskilling benefit",
+      "kind": "public",
+      "share": 0.5,
+      "pays": "finish",
+      "held": 1
+     }
+    ]
+   },
+   {
+    "id": "boki",
+    "name": "Bookkeeping, boki level 2",
+    "area": "Business",
+    "days": 14,
+    "cost": 40000,
+    "grants": [],
+    "icon": "📊",
+    "desc": "The bookkeeping exam, level 2: ledgers, balance sheets and careful habits. Online. Office jobs rise faster with it.",
+    "skills": {
+     "logic": 3,
+     "writing": 1
+    },
+    "length": 0.25,
+    "aid": [
+     {
+      "id": "asahina-pays",
+      "name": "Asahina Trading pays for its staff",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "when": "job: office"
+     },
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work education and training benefit",
+      "kind": "public",
+      "share": 0.2,
+      "pays": "finish",
+      "held": 1
+     }
+    ]
+   },
+   {
+    "id": "omotenashi",
+    "name": "Omotenashi hospitality course",
+    "area": "Service",
+    "days": 7,
+    "cost": 35000,
+    "grants": [],
+    "icon": "🛎️",
+    "desc": "The art of welcoming guests: bowing, noticing what is needed and keeping a calm face. A short online course that ryokan, hotels and department stores value.",
+    "skills": {
+     "charisma": 3,
+     "japanese": 1
+    },
+    "length": 0.125
+   },
+   {
+    "id": "guitar",
+    "name": "Guitar lessons",
+    "area": "Arts",
+    "days": 7,
+    "cost": 30000,
+    "grants": [],
+    "icon": "🎸",
+    "desc": "Chords, rhythm and a few songs, from online lessons and practice at home. Busking and live houses go better.",
+    "skills": {
+     "music": 3
+    },
+    "length": 0.125
    }
   ],
   "shop": [
@@ -12702,7 +13011,9 @@
    "money": 250000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "cooking": 2,
+    "fitness": 2
    },
    "default": true
   },
@@ -12715,7 +13026,9 @@
    "money": 150000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "logic": 2,
+    "writing": 2
    },
    "knows": [
     {
@@ -12745,7 +13058,9 @@
    "money": 120000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "charisma": 2,
+    "fashion": 1
    },
    "knows": [
     {
@@ -12767,7 +13082,8 @@
    "money": 300000,
    "skills": {
     "japanese": 2,
-    "english": 6
+    "english": 6,
+    "logic": 2
    },
    "knows": [
     {
@@ -12785,7 +13101,9 @@
    "money": 3000000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "fashion": 2,
+    "charisma": 2
    },
    "knows": [
     {
@@ -12803,7 +13121,8 @@
    "money": 180000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "music": 3
    },
    "knows": [
     {
@@ -12834,7 +13153,9 @@
    "money": 40000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "fitness": 2,
+    "charisma": 1
    },
    "knows": [
     {
@@ -13865,7 +14186,7 @@
   {
    "id": "fit",
    "name": "Fitness buff",
-   "trait": "Athletic",
+   "trait": "Gym regular",
    "desc": "Working out or running five times in ten days.",
    "actions": [
     "x-workout",
@@ -13878,12 +14199,13 @@
    "days": 10,
    "daily": {
     "mood": 2
-   }
+   },
+   "learn": "fitness"
   },
   {
    "id": "party",
    "name": "Party animal",
-   "trait": "Nightlife",
+   "trait": "Izakaya regular",
    "desc": "Drinks out six times in a week.",
    "actions": [
     "ot_izakaya_evening",
@@ -13906,13 +14228,14 @@
   {
    "id": "chef",
    "name": "Home chef",
-   "trait": "Good cook",
+   "trait": "Home cook",
    "desc": "Cooking at home five times in a week.",
    "actions": [
     "cook"
    ],
    "count": 5,
-   "days": 7
+   "days": 7,
+   "learn": "cooking"
   },
   {
    "id": "clean",
@@ -13948,7 +14271,7 @@
   {
    "id": "karaoke",
    "name": "Karaoke regular",
-   "trait": "Musical",
+   "trait": "Karaoke regular",
    "desc": "Singing at karaoke three times in a week.",
    "actions": [
     "sb_karaoke_sing",
@@ -13958,7 +14281,8 @@
     "sj_goldengai_sing"
    ],
    "count": 3,
-   "days": 7
+   "days": 7,
+   "learn": "singing"
   },
   {
    "id": "shrine",
@@ -25608,9 +25932,9 @@
     "japanese": 4
    },
    "likes": [
-    "Athletic",
-    "Calm",
-    "Cheerful"
+    "Hot-headed",
+    "Cheerful",
+    "Sports"
    ],
    "trains": [
     "fitness"
@@ -25661,9 +25985,9 @@
    "shift": 10,
    "length": 1.2,
    "likes": [
-    "Tech-savvy",
     "Ambitious",
-    "Curious"
+    "Curious",
+    "Technology"
    ],
    "trains": [
     "logic",
@@ -25957,7 +26281,7 @@
    "likes": [
     "Outgoing",
     "Cheerful",
-    "Musical"
+    "Karaoke"
    ],
    "trains": [
     "singing",
@@ -26134,9 +26458,9 @@
     "japanese": 5
    },
    "likes": [
-    "Creative",
-    "Charming",
-    "Outgoing"
+    "Ambitious",
+    "Curious",
+    "Fashion"
    ],
    "trains": [
     "fashion",
@@ -26371,6 +26695,11 @@
    ],
    "drinks": [
     "sb_centergai"
+   ],
+   "promote": [
+    7,
+    49,
+    13
    ]
   },
   {
@@ -26388,9 +26717,9 @@
     "japanese": 4
    },
    "likes": [
-    "Cheerful",
-    "Creative",
-    "Outgoing"
+    "Sarcastic",
+    "Fashion",
+    "Music"
    ],
    "trains": [
     "fashion",
@@ -26539,13 +26868,10 @@
    "skills": {
     "english": 5
    },
-   "courses": [
-    "english"
-   ],
    "likes": [
     "Outgoing",
-    "Kind",
-    "Calm"
+    "Curious",
+    "Travel"
    ],
    "trains": [
     "english",
@@ -26754,6 +27080,11 @@
    "drinks": [
     "rp_pub",
     "sb_centergai"
+   ],
+   "promote": [
+    7,
+    22,
+    13
    ]
   },
   {
@@ -26771,9 +27102,9 @@
     "japanese": 4
    },
    "likes": [
-    "Calm",
-    "Kind",
-    "Serious"
+    "Shy",
+    "Serious",
+    "Romantic"
    ],
    "trains": [
     "japanese",
@@ -26787,9 +27118,9 @@
     {
      "name": "Front desk",
      "pay": 1450,
-     "traits": [
-      "Calm"
-     ]
+     "needs": {
+      "logic": 1
+     }
     },
     {
      "name": "Night manager",
@@ -26936,16 +27267,13 @@
     3
    ],
    "length": 1,
-   "needs": [
-    "Charming",
-    "Outgoing"
-   ],
    "skills": {
-    "fashion": 1
+    "fashion": 1,
+    "charisma": 1
    },
    "likes": [
-    "Charming",
     "Outgoing",
+    "Romantic",
     "Ambitious"
    ],
    "trains": [
@@ -27141,18 +27469,14 @@
     1.5
    ],
    "length": 1,
-   "needs": [
-    "Charming",
-    "Kind",
-    "Outgoing"
-   ],
    "skills": {
-    "japanese": 3
+    "japanese": 3,
+    "charisma": 1
    },
    "likes": [
-    "Charming",
     "Kind",
-    "Outgoing"
+    "Romantic",
+    "Nightlife"
    ],
    "trains": [
     "charisma",
@@ -27398,14 +27722,10 @@
     5
    ],
    "length": 0.9,
-   "needs": [
-    "Calm",
-    "Kind"
-   ],
    "likes": [
     "Calm",
-    "Kind",
-    "Curious"
+    "Sarcastic",
+    "Nightlife"
    ],
    "trains": [
     "mixology",
@@ -27616,7 +27936,10 @@
    ],
    "drinks": [
     "sj_omoide"
-   ]
+   ],
+   "skills": {
+    "charisma": 1
+   }
   },
   {
    "id": "capsule",
@@ -27634,9 +27957,9 @@
    ],
    "length": 0.5,
    "likes": [
-    "Calm",
-    "Kind",
-    "Serious"
+    "Shy",
+    "Lazy",
+    "Travel"
    ],
    "trains": [
     "japanese",
@@ -27793,9 +28116,9 @@
    "nightPay": 0.25,
    "overtime": true,
    "likes": [
-    "Calm",
+    "Lazy",
     "Kind",
-    "Cheerful"
+    "Anime & manga"
    ],
    "trains": [
     "charisma"
@@ -27962,9 +28285,9 @@
    "length": 0.8,
    "overtime": true,
    "likes": [
-    "Musical",
+    "Sarcastic",
     "Outgoing",
-    "Calm"
+    "Music"
    ],
    "trains": [
     "music",
@@ -28192,9 +28515,9 @@
    "shift": 8,
    "length": 0.7,
    "likes": [
-    "Creative",
-    "Charming",
-    "Curious"
+    "Curious",
+    "Sarcastic",
+    "Fashion"
    ],
    "trains": [
     "fashion",
@@ -28402,9 +28725,9 @@
    },
    "overtime": true,
    "likes": [
-    "Creative",
-    "Serious",
-    "Calm"
+    "Shy",
+    "Anime & manga",
+    "Art"
    ],
    "trains": [
     "drawing",
@@ -28695,8 +29018,8 @@
    "length": 0.5,
    "likes": [
     "Calm",
-    "Kind",
-    "Strong"
+    "Lazy",
+    "Kind"
    ],
    "trains": [
     "fitness",
@@ -28853,8 +29176,8 @@
    "length": 0.5,
    "likes": [
     "Calm",
-    "Kind",
-    "Serious"
+    "Shy",
+    "Books"
    ],
    "trains": [
     "cooking",
@@ -29023,9 +29346,9 @@
    "length": 0.8,
    "overtime": true,
    "likes": [
-    "Good cook",
-    "Strong",
-    "Calm"
+    "Calm",
+    "Serious",
+    "Cooking"
    ],
    "trains": [
     "cooking",
@@ -29245,8 +29568,8 @@
     "gaming": 2
    },
    "likes": [
-    "Tech-savvy",
-    "Creative",
+    "Curious",
+    "Shy",
     "Games"
    ],
    "trains": [
@@ -29500,7 +29823,7 @@
    "likes": [
     "Cheerful",
     "Kind",
-    "Outgoing"
+    "Anime & manga"
    ],
    "trains": [
     "charisma",
@@ -29651,9 +29974,9 @@
     "dance": 2
    },
    "likes": [
-    "Musical",
-    "Charming",
-    "Cheerful"
+    "Cheerful",
+    "Ambitious",
+    "Music"
    ],
    "trains": [
     "singing",
@@ -29891,9 +30214,9 @@
    "shift": 7,
    "length": 0.9,
    "likes": [
-    "Smart",
-    "Calm",
-    "Serious"
+    "Serious",
+    "Curious",
+    "Books"
    ],
    "trains": [
     "logic",
@@ -30049,9 +30372,9 @@
    "shift": 10,
    "length": 1,
    "likes": [
-    "Good cook",
-    "Calm",
-    "Strong"
+    "Hot-headed",
+    "Serious",
+    "Cooking"
    ],
    "trains": [
     "cooking"
@@ -30250,8 +30573,8 @@
    "length": 0.6,
    "likes": [
     "Calm",
-    "Kind",
-    "Serious"
+    "Romantic",
+    "Travel"
    ],
    "trains": [
     "japanese",
@@ -30402,9 +30725,9 @@
     "fitness": 2
    },
    "likes": [
-    "Athletic",
-    "Strong",
-    "Cheerful"
+    "Cheerful",
+    "Sports",
+    "Travel"
    ],
    "trains": [
     "fitness",
@@ -30607,7 +30930,7 @@
    "likes": [
     "Curious",
     "Calm",
-    "Kind"
+    "Art"
    ],
    "trains": [
     "japanese",
@@ -30670,6 +30993,11 @@
           "charisma": 4
          }
         }
+       ],
+       "promote": [
+        17,
+        16,
+        19
        ]
       },
       {
@@ -30702,6 +31030,11 @@
           "logic": 3
          }
         }
+       ],
+       "promote": [
+        17,
+        16,
+        19
        ]
       }
      ]
@@ -30817,7 +31150,7 @@
    "likes": [
     "Serious",
     "Ambitious",
-    "Good with numbers"
+    "Technology"
    ],
    "trains": [
     "logic",
@@ -30903,9 +31236,7 @@
           "charisma": 9,
           "logic": 7
          },
-         "traits": [
-          "Ambitious"
-         ]
+         "when": "perf: 70"
         },
         {
          "name": "Head of Sales",
@@ -30962,9 +31293,7 @@
           "logic": 9,
           "charisma": 6
          },
-         "traits": [
-          "Ambitious"
-         ]
+         "when": "perf: 70"
         },
         {
          "name": "Head of Planning",
@@ -31231,9 +31560,9 @@
     "japanese": 2
    },
    "likes": [
-    "Kind",
-    "Charming",
-    "Calm"
+    "Cheerful",
+    "Serious",
+    "Fashion"
    ],
    "trains": [
     "charisma",
@@ -31469,8 +31798,8 @@
    "length": 0.6,
    "likes": [
     "Outgoing",
-    "Cheerful",
-    "Strong"
+    "Hot-headed",
+    "Nightlife"
    ],
    "trains": [
     "charisma",
@@ -31664,7 +31993,7 @@
    "likes": [
     "Kind",
     "Calm",
-    "Strong"
+    "Serious"
    ],
    "trains": [
     "logic",
@@ -31673,6 +32002,11 @@
     "japanese"
    ],
    "ranks": [
+    {
+     "name": "Nursing assistant (kango joshu)",
+     "pay": 1150,
+     "student": true
+    },
     {
      "name": "New nurse",
      "pay": 1700,
@@ -31706,7 +32040,7 @@
    ],
    "branches": [
     {
-     "at": 4,
+     "at": 5,
      "options": [
       {
        "id": "leadership",
@@ -31903,6 +32237,15 @@
    ],
    "drinks": [
     "mg_izakaya"
+   ],
+   "promote": [
+    59,
+    7,
+    10,
+    13
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -31932,9 +32275,9 @@
     "medicine"
    ],
    "likes": [
-    "Smart",
-    "Calm",
-    "Serious"
+    "Serious",
+    "Ambitious",
+    "Curious"
    ],
    "trains": [
     "logic",
@@ -31944,6 +32287,11 @@
     "fitness"
    ],
    "ranks": [
+    {
+     "name": "Medical student (clinical clerkship)",
+     "pay": 1100,
+     "student": true
+    },
     {
      "name": "Junior resident",
      "pay": 1900,
@@ -31976,7 +32324,7 @@
    ],
    "branches": [
     {
-     "at": 4,
+     "at": 5,
      "options": [
       {
        "id": "internal",
@@ -32208,6 +32556,15 @@
    ],
    "drinks": [
     "mg_izakaya"
+   ],
+   "promote": [
+    63,
+    7,
+    10,
+    13
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -32245,7 +32602,7 @@
    "likes": [
     "Kind",
     "Calm",
-    "Strong"
+    "Cooking"
    ],
    "trains": [
     "charisma",
@@ -32401,6 +32758,12 @@
    ],
    "drinks": [
     "mg_izakaya"
+   ],
+   "promote": [
+    7,
+    14,
+    13,
+    16
    ]
   },
   {
@@ -32425,9 +32788,9 @@
    ],
    "length": 0.9,
    "likes": [
-    "Strong",
-    "Athletic",
-    "Calm"
+    "Hot-headed",
+    "Cooking",
+    "Sports"
    ],
    "trains": [
     "fitness",
@@ -32621,9 +32984,9 @@
    ],
    "length": 1.2,
    "likes": [
-    "Creative",
-    "Outgoing",
-    "Ambitious"
+    "Ambitious",
+    "Sarcastic",
+    "Art"
    ],
    "trains": [
     "charisma",
@@ -32872,9 +33235,9 @@
    "shift": 7,
    "length": 0.8,
    "likes": [
+    "Hot-headed",
     "Outgoing",
-    "Athletic",
-    "Cheerful"
+    "Nightlife"
    ],
    "trains": [
     "mixology",
@@ -33106,9 +33469,9 @@
     "fitness": 2
    },
    "likes": [
-    "Athletic",
-    "Strong",
-    "Outgoing"
+    "Hot-headed",
+    "Cheerful",
+    "Music"
    ],
    "trains": [
     "dance",
@@ -33336,8 +33699,8 @@
    "length": 0.6,
    "likes": [
     "Outgoing",
-    "Cheerful",
-    "Calm"
+    "Sarcastic",
+    "Travel"
    ],
    "trains": [
     "english",
@@ -33523,9 +33886,9 @@
     "japanese": 3
    },
    "likes": [
-    "Charming",
     "Kind",
-    "Outgoing",
+    "Romantic",
+    "Karaoke",
     "Nightlife"
    ],
    "trains": [
@@ -33804,7 +34167,7 @@
    "shift": 6,
    "length": 0.5,
    "likes": [
-    "Athletic",
+    "Hot-headed",
     "Cheerful",
     "Sports"
    ],
@@ -33954,8 +34317,8 @@
    "shift": 10,
    "length": 0.6,
    "likes": [
-    "Smart",
-    "Calm",
+    "Sarcastic",
+    "Lazy",
     "Games"
    ],
    "trains": [
@@ -34091,9 +34454,9 @@
    "shift": 11,
    "length": 1,
    "likes": [
-    "Good cook",
-    "Strong",
-    "Calm"
+    "Hot-headed",
+    "Lazy",
+    "Cooking"
    ],
    "trains": [
     "cooking",
@@ -34303,9 +34666,9 @@
     "japanese": 2
    },
    "likes": [
-    "Calm",
     "Kind",
-    "Serious"
+    "Romantic",
+    "Travel"
    ],
    "trains": [
     "japanese",
@@ -34543,9 +34906,9 @@
    "shift": 8,
    "length": 1,
    "likes": [
-    "Charming",
     "Outgoing",
-    "Calm"
+    "Romantic",
+    "Ambitious"
    ],
    "trains": [
     "charisma",
@@ -34657,7 +35020,6 @@
    ],
    "tuition": 6000,
    "skill": "logic",
-   "trait": "Smart",
    "examEvery": 7,
    "clubs": [
     "Photography club",
@@ -38152,5 +38514,35 @@
     "fact": "{u} drew bad fortune at {0} and tied the slip to the rack"
    }
   ]
+ },
+ "traitInfo": {
+  "Anime & manga": {
+   "desc": "Anime, manga and the Akihabara scene.",
+   "covers": {
+    "skills": [
+     "drawing",
+     "writing",
+     "gaming"
+    ]
+   }
+  },
+  "Karaoke": {
+   "desc": "Singing for fun: karaoke rooms, snacks and Golden Gai.",
+   "covers": {
+    "skills": [
+     "singing",
+     "music"
+    ]
+   }
+  },
+  "Nightlife": {
+   "desc": "Bars, clubs and the last train missed on purpose.",
+   "covers": {
+    "skills": [
+     "mixology",
+     "dance"
+    ]
+   }
+  }
  }
 }
