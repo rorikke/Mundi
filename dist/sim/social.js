@@ -15,6 +15,7 @@ import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { sawYou } from './warnings.js';
 import { book } from './ledger.js';
+import { effectMul } from './effects.js';
 export function social(g) {
     const s = (g.social ??= {});
     s.threads ??= {};
@@ -186,10 +187,11 @@ export function giveKeepsake(g, w, id, avatar) {
     if (!given.includes(id))
         given.push(id);
     const fit = giftFit(g, w, k, avatar);
-    const d = first ? gain(g, 'f', avatar, YOU, GIFT[fit]).d : 0;
+    const worth = GIFT[fit] * effectMul(g, w, 'gain', 'gifts');
+    const d = first ? gain(g, 'f', avatar, YOU, worth).d : 0;
     const loving = !!(k.romantic || k.intimate) && drawn;
     if (first && loving)
-        gain(g, 'r', avatar, YOU, GIFT[fit]);
+        gain(g, 'r', avatar, YOU, worth);
     if (first)
         kinds.push(kind);
     touch(g, avatar);

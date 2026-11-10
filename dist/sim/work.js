@@ -9,7 +9,10 @@ import { lex } from '../core/lexicon.js';
 import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
-import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } from './skills.js';
+import { triedToday, interview, countUp } from './skills.js';
+import { missingCourses, hasCourse, courseOf } from './courses.js';
+import { rollBonus, bonusLabel } from './dice.js';
+import { effectMul } from './effects.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, adultOn } from '../core/store.js';
@@ -324,7 +327,7 @@ export function rankDays(g, w, o, rank, path = jobPath(g), traits = traitsOf(g))
     if (!sum || rank >= weights.length)
         return 0;
     const liked = Math.min(3, c.likes.filter(t => traits.includes(t)).length);
-    return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (1 - 0.05 * liked);
+    return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (1 - 0.05 * liked) * effectMul(g, w, 'career', 'rank');
 }
 // What a promotion asks of the performance, unless the rank says otherwise.
 export const PROMO_PERF = 60;
@@ -452,6 +455,8 @@ export function addPerf(g, w, n) {
     const o = jobDef(w, j?.id);
     if (!j || !o)
         return [];
+    if (n > 0)
+        n *= effectMul(g, w, 'perf', 'gain');
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
     const low = workRules(g, w).low, out = [];
     if (j.perf >= 60)
@@ -649,7 +654,7 @@ export function pendingEvent(g, w) {
 }
 export const dropEvent = (g) => { const j = jobOf(g); if (j)
     delete j.event; };
-/** Your choice: a roll if it has one (d20 + half your skill level against its difficulty), then what it does:
+/** Your choice: a roll if it has one (d20 + the roll bonus against its difficulty), then what it does:
  *  performance, money, needs, how people feel about you, a fact. With the gentle rules nothing turns out badly. */
 export function chooseEvent(g, w, i, rnd = Math.random) {
     const j = jobOf(g);
@@ -662,9 +667,9 @@ export function chooseEvent(g, w, i, rnd = Math.random) {
     const c = pick.c, out = [];
     let res = c, ok = null;
     if (c.roll) {
-        const d20 = 1 + Math.floor(rnd() * 20), bonus = c.roll.skill ? Math.floor(levelOf(g, c.roll.skill) / 2) : 0;
+        const d20 = 1 + Math.floor(rnd() * 20), bonus = rollBonus(g, w, { skill: c.roll.skill });
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
-        out.push(`🎲 ${d20}${bonus ? ` + ${bonus}` : ''} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
+        out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok)
             res = c.fail ?? { text: 'It did not work out.' };
     }

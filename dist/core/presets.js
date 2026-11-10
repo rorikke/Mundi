@@ -1,5 +1,6 @@
 import { MEDIEVAL_RPG, MODERN_RPG } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
+import { upgradeTraitInfo } from './traits.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -438,5 +439,10 @@ export function upgradeWorld(w) {
             w.starts = w.catalogs.origins.map(o => ({ id: o.id, name: o.name, ...(o.desc ? { desc: o.desc } : {}), premise: '', ...(o.home ? { home: o.home } : {}), money: o.money }));
         w.presetStarts = true;
     }
+    // what traits mean (core/traits.ts): bad effects dropped, values inside the bounds, the standard names' info added
+    // for the names the sheet offers; a world with none of it is left as it is
+    const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => t.options ?? []));
+    if (info)
+        w.traitInfo = info;
     return w;
 }

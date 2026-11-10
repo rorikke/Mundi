@@ -5,7 +5,8 @@
 // Keys whose data the engine doesn't keep yet hold false until their system writes it: `stayed` (E6 writes
 // `player.stayed`), `holds` (E14 writes `player.keepsakes`). The story so far is read straight from the save, so this
 // file needs neither module: `knows` and `thread` (sim/threads.ts keeps `g.threads`), `seen` and `favor`
-// (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`).
+// (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`); `course`
+// reads the courses finished (sim/courses.ts keeps `player.learning.done`).
 import { nowAbs } from '../core/store.js';
 import { systemOn, WEEKDAY_IDS } from '../core/world.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
@@ -21,7 +22,7 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
-    'knows', 'seen', 'thread', 'favor', 'perf', 'gave'];
+    'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -54,6 +55,7 @@ function badValue(key, v) {
         case 'clock': return CLOCK.test(v) ? '' : `"${v}" should be hours like 19:00-20:00`;
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
         case 'feels': return splitLevel(v)[0] ? '' : 'a name is missing';
+        case 'course': return ID.test(v) ? '' : `"${v}" should be a course id, or a number of courses`;
         case 'festival':
         case 'event':
         case 'place':
@@ -262,6 +264,13 @@ function holds(g, w, key, v, x) {
             return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false));
         }
         case 'favor': return favorOwed(g, v) > 0;
+        // a course finished (its id), or at least this many courses (a number)
+        case 'course': {
+            if (!systemOn(w, 'courses'))
+                return false;
+            const done = g.player.learning?.done ?? [];
+            return /^\d+$/.test(v) ? done.length >= Number(v) : done.includes(v);
+        }
         // the player's performance at their job, at least this (a rank that asks for a high performance)
         case 'perf': {
             const j = g.player.job;

@@ -1,7 +1,8 @@
 import { lookPanelHtml } from './chatlook.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { fmtClock, is12h } from '../core/fmt.js';
-import { missingCourses, interviewChance, triedToday } from '../sim/skills.js';
+import { interviewChance, triedToday } from '../sim/skills.js';
+import { missingCourses } from '../sim/courses.js';
 import { courseRow } from './courses.js';
 import { payOf, lockedOut } from '../sim/bills.js';
 // The in-game HUD (the same layout for every style; skins only tint it). Glass panels around the scene:

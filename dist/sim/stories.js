@@ -17,7 +17,7 @@ import { openNow } from './daynight.js';
 import { addStatus, money } from './needs.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
-import { levelOf } from './hobbies.js';
+import { rollBonus, bonusLabel } from './dice.js';
 import { note, placeName, toldAs } from './facts.js';
 import { feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { startRumor } from './living.js';
@@ -135,7 +135,7 @@ export function storyChoices(g, w, s) {
     return s.choices.map((c, i) => ({ c, i })).filter(({ c, i }) => (!c.when || whenHolds(g, w, c.when, { place: s.place, key: `story|${s.id}|${i}` })) && (!c.spend || favorOwed(g, c.spend) > 0));
 }
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
-/** Your choice: a roll if it has one (d20 + half your skill level against its difficulty, as at work), then what it
+/** Your choice: a roll if it has one (d20 + the roll bonus against its difficulty, as for actions and at work), then what it
  *  leads to. Returns the lines for the screen. */
 export function chooseStory(g, w, i, rand = Math.random) {
     const cur = currentStory(g, w);
@@ -147,9 +147,9 @@ export function chooseStory(g, w, i, rand = Math.random) {
     const c = pick.c, out = [];
     let res = c, ok = true;
     if (c.roll) {
-        const d20 = 1 + Math.floor(rand() * 20), bonus = c.roll.skill ? Math.floor(levelOf(g, c.roll.skill) / 2) : 0;
+        const d20 = 1 + Math.floor(rand() * 20), bonus = rollBonus(g, w, { skill: c.roll.skill });
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
-        out.push(`🎲 ${d20}${bonus ? ` + ${bonus}` : ''} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
+        out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok)
             res = c.fail ?? { text: 'It did not work out.' };
     }

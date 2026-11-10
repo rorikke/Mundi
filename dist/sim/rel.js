@@ -7,6 +7,7 @@
 import { nowAbs, cfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
+import { effectMul } from './effects.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt } from './pace.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 export const YOU = '__you';
@@ -110,6 +111,7 @@ function addFatigue(g, m, x, y, delta) {
     else
         st.fat[k] = next;
 }
+const GOOD_FRIENDS = 55; // where friendship becomes "Good friend" (the tiers are in sim/romance.ts)
 const NONE = { d: 0, fat: 0 };
 // How much of a gain x feels toward y: x's attraction for y's gender, per meter (0..1; 1 when y has no gender or x
 // set nothing for it). Starting values and losses never read it.
@@ -131,6 +133,8 @@ export function gain(g, m, x, y, raw, isPaced = true) {
     if (!x || !y || x === YOU || x === y || !(raw > 0))
         return NONE;
     raw *= attraction(g, x, y, m) * homeMult(g);
+    if (y === YOU)
+        raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? 'romance' : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
     if (!(raw > 0))
         return NONE;
     const before = meter(g, m, x, y);
