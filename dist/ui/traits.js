@@ -19,7 +19,7 @@ export function traitsHtml(groups, picked, act, w) {
             const on = mine.includes(o), desc = w?.traitInfo?.[o]?.desc;
             return `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${esc(act)}" data-k="${esc(g.id)}" data-v="${esc(o)}" ${desc ? `title="${esc(desc)}"` : ''} ${!on && mine.length >= g.max ? 'aria-disabled="true"' : ''}>${esc(chipText(w, g, o))}</button>`;
         }).join('')}</div>
-            ${said.map(([o, d]) => `<small class="mu-muted"><b>${esc(o)}</b>: ${esc(d)}</small>`).join('')}</div>`;
+            ${said.map(([o, d]) => `<small class="mu-muted"><b data-notr>${esc(o)}:</b> ${esc(d)}</small>`).join('')}</div>`;
     }).join('');
 }
 export function toggleTrait(groups, picked, id, value) {

@@ -26,7 +26,7 @@ export function courseRow(g, w) {
     if (!canStudyHere(g, w) && !mine.some(c => c.at === g.player.loc))
         return '';
     if (mine.length) {
-        const lines = mine.map(c => { const s = stateOf(g, w, c); return `${esc(c.name)}: class ${s.attended} of ${s.of}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}`; });
+        const lines = mine.map(c => { const s = stateOf(g, w, c); return `<span data-notr>${esc(c.name)}</span>: class ${s.attended} of ${s.of}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}`; });
         return `<button class="mh-act mh-glass ${courseWarnings(g, w).length ? 'is-warn' : ''}" data-act="course-open"><i>${esc(mine[0].icon || '🎓')}</i><b>${lex(w, 'courses')} · ${mine.length} of 2</b><small>${lines.join(' · ')}</small></button>`;
     }
     return `<button class="mh-act mh-glass" data-act="course-open"><i>🎓</i><b>${lex(w, 'takeCourse')}</b><small>Learn a skill over a few weeks</small></button>`;
@@ -113,7 +113,6 @@ export function jobCourseHtml(g, w, jobId) {
 const TRAIT_GROUPS = (w) => [['personality', 'Personality'], ['interests', 'Interests'], ['habits', 'Habits'],
     ...(w.sheet?.traits ?? []).filter(x => !['personality', 'interests'].includes(x.id)).map(x => [x.id, x.label]),
     ['learned', lex(w, 'learnedIn')], ['earned', 'Earned with life goals'], ['school', 'From school'], ['education', 'Education']];
-// How many classes a course has (until the courses' own lengths are in, its days).
 // What a finished course taught: its skills ("Japanese 4"), or the traits an older world's course grants.
 const taught = (w, c) => Object.entries(c.skills ?? {}).map(([id, n]) => `${skillName(w, id)} ${n}`).join(', ') || (c.grants ?? []).join(', ');
 export function profileApp(g, w, head) {
@@ -135,7 +134,7 @@ export function profileApp(g, w, head) {
         <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j.rank + 1} of ${o.ranks.length}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
         <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are on the skills list below.</p>
             ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}" ${w.traitInfo?.[x]?.desc ? `title="${esc(w.traitInfo[x].desc)}"` : ''}>${esc(x)}</span>`).join('')}</div>
-                ${(t[k] ?? []).filter(x => w.traitInfo?.[x]?.desc).map(x => `<small class="mu-muted"><b>${esc(x)}</b>: ${esc(w.traitInfo[x].desc)}</small>`).join('')}</div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
+                ${(t[k] ?? []).filter(x => w.traitInfo?.[x]?.desc).map(x => `<small class="mu-muted"><b data-notr>${esc(x)}:</b> ${esc(w.traitInfo[x].desc)}</small>`).join('')}</div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
         </section>
         <section><h4>${icon('book')} ${lex(w, 'courses')}</h4>
             ${taking}
