@@ -347,7 +347,7 @@ function finish(g: Save, w: WorldDef, c: Course, out: string[]) {
     if (taken) {
         if (taken.pays === 'finish') {
             const back = Math.round(fees * taken.share);
-            if (back > 0) { g.player.money += back; book(g, `Refund: ${taken.name}`, back); extra += ` ${taken.name} paid back ${back}.`; }
+            if (back > 0) { g.player.money += back; book(g, `Refund: ${taken.name}`, back); extra += ` ${taken.name} paid back ${money(w, back)}.`; }
             taken.got += back;
         }
         if (taken.stay && taken.job && taken.got > 0) {
