@@ -8,7 +8,23 @@ It is a SillyTavern **extension** (no server plugin). Everything is built on wha
 
 ## What this fork adds
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) (currently on its 0.2.1) with features of its own on top. Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. So far it adds:
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.0**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
+
+### A new world: Tokyo
+
+<p align="center"><img src="docs/map-tokyo.jpg" alt="The map of Tokyo"></p>
+
+Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and Kōenji, Akihabara, Asakusa and Ueno, Marunouchi and Ginza, Odaiba, Roppongi) and two getaways (Yokohama and Hakone), with 88 places and 30 people who live there.
+
+- **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map.
+- **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 30 people have a portrait and 28 expressions.
+- **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
+- **Life there.** 43 jobs with their ranks, drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner.
+- **Seven starts** to begin from, and 70 small stories at the places.
+
+| | | |
+|---|---|---|
+| ![The scramble crossing at night](docs/tokyo-crossing.jpg) | ![Ueno Park in autumn](docs/tokyo-ueno-autumn.jpg) | ![Hakone-Yumoto in the snow](docs/tokyo-hakone-snow.jpg) |
 
 ### Relationships that feel alive
 
@@ -30,18 +46,6 @@ People in your world have feelings of their own, for you and for each other, and
 - **Couples go out.** Couples among the world's people go on dates a couple of evenings a week, at places they both like.
 - **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
 - **The AI knows the scene better.** In a crowded place it hears once what the people there share (why they're here, where they stand with you), and results written for you ("You nail the chorus") reach it as what you were told. The world's lorebook stays small in every request.
-
-### A new world: Tokyo
-
-<p align="center"><img src="docs/map-tokyo.jpg" alt="The map of Tokyo"></p>
-
-Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and Kōenji, Akihabara, Asakusa and Ueno, Marunouchi and Ginza, Odaiba, Roppongi) and two getaways (Yokohama and Hakone), with 88 places and 30 people who live there.
-
-- **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map.
-- **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 30 people have a portrait and 28 expressions.
-- **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
-- **Life there.** 43 jobs with their ranks, drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner.
-- **Seven starts** to begin from, and 70 small stories at the places.
 
 ### Other improvements
 

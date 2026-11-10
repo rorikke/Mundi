@@ -1,5 +1,62 @@
 # Changelog
 
+## 0.3.0 · 2026-11-10
+
+This fork's first release, on top of Mundi 0.2.1: a new world, Tokyo, and relationships, work and daily life
+reworked. Your saves open as they are, upgraded once with a backup kept in the save.
+
+### Tokyo, a new world
+
+- **Eight districts and two getaways:** Shibuya, Shinjuku, Shimokita and Kōenji, Akihabara, Asakusa and Ueno,
+  Marunouchi and Ginza, Odaiba, Roppongi, and trips to Yokohama and Hakone. 88 places and 30 people with their own
+  homes, jobs, routines, secrets and storylines.
+- **Getting around:** trips between districts take the train's time for the distance. After the last train it's a
+  taxi or a wait for the first one, and people out late miss it too.
+- **Pictures:** every place has its own anime background for morning, afternoon and night, a rainy one, and snow,
+  cherry blossom or autumn leaves where they belong. All 30 people have a portrait and 28 expressions, and each
+  district has an illustrated map.
+- **Tokyo's year:** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida
+  fireworks, Bon Odori, New Year's at the shrine…), typhoons that stop the city, heat waves and the odd snow day.
+- **Life there:** 43 jobs with their ranks, drinks with colleagues after work, senpai and kōhai, names that change as
+  you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, place
+  sounds, a language barrier if you start as a foreigner, seven starts and 70 small stories at the places.
+
+### Relationships
+
+- **Feelings go both ways.** Everyone feels their own way about everyone else; people can come to dislike or hate
+  you, and a crush can still outweigh it.
+- **Friendship and romance are separate.** Romance fades when you stop seeing each other, partners can leave you,
+  something casual is possible, and exes are remembered as exes.
+- **Scenes count.** Each scene is judged when it ends; swiping or editing replies no longer stacks changes.
+- **Who people are:** a gender, an attraction, a way of being about intimacy and an exclusive or open style, which
+  your AI can suggest from the cards.
+- **People take the initiative:** they open up, confess, ask you out, text you, warn you before a breakup, hold
+  grudges until you apologize, get jealous and talk about you. The world's people make friends, date, marry and break
+  up among themselves.
+- **Family is family:** many more family ties (half-siblings, grandparents, aunts and uncles, cousins, step-family,
+  in-laws, godparents, guardians), kept apart from feelings. See [Relationships in this fork](docs/relationships.md).
+
+### Living and working
+
+- **Jobs with a working week:** shifts and days off in the Calendar and the Jobs app, performance, and promotions that
+  say what they still need. Sick days, vacations and lateness follow work rules you can ease (Realistic, Reduced,
+  Relaxed), and you can set the career speed.
+- **The world's people work too,** with their own shifts, days off and vacations.
+- **Skills:** hobbies became skills that level up; things you do and courses train them.
+- **Couples go out** on dates a couple of evenings a week.
+- **A new game your way:** choose the world's people one by one, begin from a start (who you are, your home, money,
+  job and who you know) or write your own, and one switch for adult content.
+- **The AI knows the scene better:** what the people in a crowded place share is said once, and results written for
+  you reach it as what you were told. The world's lorebook stays small in every request.
+
+### Other
+
+- **A color for each speaker's dialogue,** chosen by your AI to fit the characters (Chat look, ☰ menu).
+- **Pictures that follow the weather and the season:** a place can have a picture for a weather in a season
+  (`rain-autumn-day`), tried before the others. See [Other improvements](docs/improvements.md).
+- **Expression sprites in any format:** a world's WebP or AVIF sprites are saved to the card under their own type
+  (they used to be saved as .png).
+
 ## 0.2.1 · 2026-10-28
 
 Fixes and improvements for Home mode.

@@ -1,7 +1,17 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.2.1';
+export const VERSION = '0.3.0';
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG = [
+    { v: '0.3.0', title: 'Tokyo, and relationships that feel alive', items: [
+            ['map', "Tokyo, a new world: eight districts and two getaways, 88 places, 30 people with lives of their own, and trains with a last train home."],
+            ['image', "Tokyo in pictures: every place by morning, afternoon and night, in the rain, the snow and each season; a portrait and 28 expressions for everyone, and an illustrated map for each district."],
+            ['calendar', "Tokyo's year: 31 festivals and events, typhoons and heat waves; drinks after work, senpai and kōhai, prayers and omikuji at the shrines."],
+            ['heart', "Feelings go both ways, friendship and romance are separate, and every scene counts when it ends. People can come to dislike you, and a crush can outweigh it."],
+            ['users', "People take the initiative: they confess, ask you out, text you and hold grudges. The world's people date, marry and break up among themselves."],
+            ['briefcase', "Jobs with a working week: shifts and days off, performance, promotions that say what they still need, and work rules you can ease."],
+            ['star', "Skills that level up, couples who go out, and a new game your way: pick the people, choose a start, one switch for adult content."],
+            ['palette', "A color for each speaker's dialogue, chosen by your AI (Chat look, ☰ menu)."],
+        ] },
     { v: '0.2.1', title: 'Fixes and improvements for Home mode', items: [
             ['bell', "Visitors: invite people over from the Calendar. They arrive about an hour later, ring the doorbell and stay until you say goodbye. You choose where each one sleeps."],
             ['users', "Parties can have guests from outside, or happen somewhere out. Edit the guests on the party card, and ask someone to stay after the party."],
