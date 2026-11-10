@@ -4,7 +4,7 @@ import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 import { applyOverlay, overlayFile } from './overlay.js';
 import type { RpgDef } from './rpgdef.js';
 import type { FeelParts, FamilyType, FriendLevel } from './feel.js';
-import type { TraitInfo } from './traits.js';
+import type { TraitInfo, EffectDef } from './traits.js';
 // The world format. A world is pure data (worlds/<id>/world.json); Mundi's systems read it.
 // Everything a world can configure is declared here, so this file is also the format's documentation.
 
@@ -407,7 +407,9 @@ export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hint
  *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
 export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string;
     /** (H) They leave the world's maps (Chloe goes back to Manchester): kept in the save, never seen around again. */
-    leaves?: boolean }
+    leaves?: boolean;
+    /** A good ending: a thread you knew that ends this way counts as one you helped (the `helped` condition, life goals). */
+    good?: boolean }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
 export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string;
@@ -426,6 +428,41 @@ export interface AppDef { id: string; name: string; icon: string; color: string;
  *  (E15) `adult`: only with adult content on. (E31) `about`: who a rumor is about (by name; they never "hear" it);
  *  `secret`: their close friends don't pass it on. (E32) `priority`: kept first when a busy scene has too much lore. */
 export interface LoreEntry { keys: string[]; content: string; constant?: boolean; when?: When; rumor?: boolean; adult?: boolean; about?: string; secret?: boolean; priority?: number }
+
+/** A life goal: the player follows one at a time (the `goals` system). Its steps are done in order, each when all its
+ *  objectives hold; finishing the last gives the perk for good. The engine's general goals are in core/goals.ts; a
+ *  world turns some off, renames them and adds its own (`WorldDef.goals`). `category`: one of `GOAL_CATEGORIES`
+ *  (core/goals.ts) or a new one. `starts`: the starts it suits (suggested first). `needs`: systems (`jobs`,
+ *  `romance`…) and needs (`energy`…) it can't do without: with one off, it isn't offered. `adult`: only with adult
+ *  content on. No step may depend on one of the world's people or a thread alone: name them only as one option
+ *  (`or`) among others that don't (a person may be left out of a game). */
+export interface GoalDef { id: string; name: string; icon?: string; category: string; desc?: string; starts?: string[]; steps: GoalStep[]; perk?: PerkDef; needs?: string[]; adult?: boolean }
+/** A step: what it says (`name`, "Cook 15 meals"), its objectives as one condition (`when`: `did: meal 15; skill:
+ *  cooking 3`), how long they must keep holding (`hold`: days, or `season`: "together a season"), and what it gives at
+ *  once (`reward`). Counted objectives (`did`, `attended`) count only while the goal is active: sim/when.ts reads them
+ *  through the asker's own counts; everything else is a state and counts at once. */
+export interface GoalStep { name: string; when: string; hold?: number | 'season'; reward?: StepReward }
+/** What finishing a step gives: a keepsake (an id of the world's), mood, money (built-in goals give none), life points
+ *  (default: the engine's amount per step). */
+export interface StepReward { keepsake?: string; mood?: number; money?: number; points?: number }
+/** A goal's perk: a name, a few words on what it does, and one or two effects from the fixed list (core/traits.ts),
+ *  each held inside the perk limits (`PERK_LIMITS` in core/goals.ts). Kept by the finished goal's id, never a trait. */
+export interface PerkDef { name: string; desc?: string; effects: EffectDef[] }
+/** Something life points buy in the rewards shop. `kind`: what it does: a timed `boost` (its `effects` for `days`, 1–7,
+ *  each held inside `BOOST_LIMITS` in core/goals.ts), `refill` (a need full now: `need`), or one of the one-off kinds the
+ *  engine has (`REWARD_KINDS` in core/goals.ts: the nudge, clearing the air, insight…), re-themed with its own name and
+ *  text. `limit`: how often (`n` times, default 1, `per` day, week, season, year, goal, or `ever`; `person`: counted
+ *  for each person apart, "once per person per season"). `roles`: only at a place with one of these roles (a shrine).
+ *  `when`: only while this holds. `needs`, `adult`: as for goals. */
+export interface RewardDef { id: string; name: string; icon?: string; desc?: string; price: number; kind: string; effects?: EffectDef[]; days?: number; need?: string;
+    limit?: RewardLimit; roles?: string[]; when?: string; needs?: string[]; adult?: boolean }
+export interface RewardLimit { per?: 'day' | 'week' | 'season' | 'year' | 'goal' | 'ever'; n?: number; person?: boolean }
+/** A world's life goals beside the general ones: `off` (general goals it doesn't offer), `names` (general goals renamed:
+ *  id → name; the rest of the goal still comes from the engine), `add` (its own goals; one with a general goal's id
+ *  takes its place). A private overlay adds to `add` by id and to `off` with `off+`. */
+export interface WorldGoals { off?: string[]; names?: Record<string, string>; add?: GoalDef[] }
+/** The world's rewards shop beside the general items: `off`, `names`, `add` as for goals, and `prices` (id → points). */
+export interface WorldRewards { off?: string[]; names?: Record<string, string>; prices?: Record<string, number>; add?: RewardDef[] }
 
 export interface WorldDef {
     format: 1;
@@ -495,6 +532,11 @@ export interface WorldDef {
     /** What a trait means here, by name: a description, effects from the fixed list (core/traits.ts) and, for an
      *  interest, what it covers. The standard names get theirs from `upgradeWorld()` unless an entry is here. */
     traitInfo?: Record<string, TraitInfo>;
+    /** Life goals: the general ones (core/goals.ts) turned off or renamed, and the world's own (see WorldGoals). */
+    goals?: WorldGoals;
+    /** The rewards shop for life points: the general items turned off, renamed or re-priced, and the world's own
+     *  (see WorldRewards). Not `catalogs.shop`, which is the lifestyle shop bought with money. */
+    rewards?: WorldRewards;
     /** The calendar's festivals (fixed days of a season: prices, crowds at a place, a celebration). */
     festivals?: FestivalDef[];
     /** City events of the week: shows, matches, fairs (a weekday, every N weeks, at a place; in the calendar, you go if you want). */
