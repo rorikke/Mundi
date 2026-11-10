@@ -2,7 +2,7 @@
 // which statuses exist, how fast they drop, what happens at zero and what each action costs and gives.
 import { eventActions } from './cityevents.js';
 import { onAction, decayMods } from './hooks.js';
-import { nowAbs, cfg } from '../core/store.js';
+import { nowAbs, cfg, adultOk } from '../core/store.js';
 import { billNews, cutReason, priceOf } from './bills.js';
 import { priceHere } from './worldstate.js';
 import { openNow } from './daynight.js';
@@ -155,7 +155,8 @@ export function actionsHere(g, w) {
     // Home: no money, so nothing to earn or pay, and going out has its own button (Go out)
     const homeMode = isScenario(w);
     const earns = (a) => a.cost < 0 || (a.roll?.success?.money ?? 0) > 0 || !!a.outing;
-    const base = w.actions.filter(useful).filter(a => !homeMode || !earns(a)).filter(a => !isBlocked(g, a, w)).filter(a => a.id !== 'fix' || broken)
+    // (E15) adult actions only with adult content on (not only those at adult places: a private bath, a night at home)
+    const base = w.actions.filter(useful).filter(a => adultOk(g, a)).filter(a => !homeMode || !earns(a)).filter(a => !isBlocked(g, a, w)).filter(a => a.id !== 'fix' || broken)
         .filter(a => homeMode || !a.needsItem || hasItem(g, a.needsItem)).filter(a => chosen || own(a) || !(a.notTags ?? []).some(t => tags.includes(t))).filter(a => chosen ? (a.anywhere || chosen.includes(a.id)) : (a.home && atHome)
         || (a.place && a.place === g.player.loc) || own(a)
         || (!a.home && !a.place && !a.places && (a.anywhere || (generic && (a.tags ?? []).some(t => tags.includes(t)))))).filter(a => !closed || a.anywhere)

@@ -54,8 +54,10 @@ function work(g, w, r, day, tense) {
     if (roll < 0.03)
         return { kind: 'sick', from: at(0), to: at(24), place: home, why: 'is home sick today' };
     if (roll < 0.15) {
-        const spots = w.places.filter(p => !p.link && (p.tags ?? []).some(t => t === 'shop' || t === 'service') && p.map === regionOf(g, w, home));
-        const list = spots.length ? spots : w.places.filter(p => !p.link && (p.tags ?? []).some(t => t === 'shop' || t === 'service'));
+        // (E15) an errand is never at an adult place (a love hotel is a 'service', an adult store a 'shop')
+        const errandAt = (p) => !p.link && !p.adult && (p.tags ?? []).some(t => t === 'shop' || t === 'service');
+        const spots = w.places.filter(p => errandAt(p) && p.map === regionOf(g, w, home));
+        const list = spots.length ? spots : w.places.filter(errandAt);
         const h = 9 + Math.floor(H(`${k}|when`) * 8);
         const open = list.filter(p => openAt(g, w, p.id, day * 1440 + h * 60)); // somewhere open at that hour
         if (open.length && !onJob(at(h), at(h) + 120)) {
