@@ -2173,7 +2173,7 @@
   "traits": [
    {
     "id": "proficiency",
-    "label": "Proficiency",
+    "label": "Strengths",
     "max": 2,
     "options": [
      "Strong",
@@ -2186,7 +2186,39 @@
      "Good with numbers",
      "Good cook",
      "Tech-savvy"
-    ]
+    ],
+    "skills": {
+     "Strong": {
+      "fitness": 3
+     },
+     "Smart": {
+      "logic": 3
+     },
+     "Charming": {
+      "charisma": 3
+     },
+     "Creative": {
+      "painting": 3
+     },
+     "Athletic": {
+      "fitness": 3
+     },
+     "Handy": {
+      "logic": 3
+     },
+     "Musical": {
+      "music": 3
+     },
+     "Good with numbers": {
+      "logic": 3
+     },
+     "Good cook": {
+      "cooking": 3
+     },
+     "Tech-savvy": {
+      "logic": 3
+     }
+    }
    },
    {
     "id": "personality",
@@ -2641,8 +2673,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Good cook",
-    "Charming",
+    "Cooking",
+    "Cheerful",
     "Outgoing"
    ],
    "hours": [
@@ -2765,8 +2797,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
-    "Strong"
+    "Sports"
    ],
    "hours": [
     8,
@@ -2844,12 +2875,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
-    "Good with numbers"
-   ],
-   "needs": [
-    "Smart",
-    "Good with numbers"
+    "Curious",
+    "Serious"
    ],
    "hours": [
     8,
@@ -2926,14 +2953,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
-    "Handy",
-    "Tech-savvy"
-   ],
-   "needs": [
-    "Smart",
-    "Handy",
-    "Tech-savvy"
+    "Curious",
+    "Technology"
    ],
    "hours": [
     7,
@@ -3001,8 +3022,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
-    "Strong"
+    "Sports"
    ],
    "hours": [
     6,
@@ -3069,7 +3089,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Calm",
     "Books"
    ],
@@ -3133,7 +3153,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Charming",
+    "Cheerful",
     "Outgoing"
    ],
    "hours": [
@@ -3196,8 +3216,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
-    "Athletic",
+    "Sports",
     "Nature"
    ],
    "hours": [
@@ -3271,12 +3290,7 @@
    "likes": [
     "Kind",
     "Calm",
-    "Smart"
-   ],
-   "needs": [
-    "Kind",
-    "Calm",
-    "Smart"
+    "Curious"
    ],
    "hours": [
     0,
@@ -3410,7 +3424,7 @@
    "likes": [
     "Outgoing",
     "Kind",
-    "Good with numbers"
+    "Serious"
    ],
    "hours": [
     9,
@@ -3465,9 +3479,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Good cook",
-    "Creative",
-    "Cooking"
+    "Cooking",
+    "Art"
    ],
    "hours": [
     10,
@@ -3476,9 +3489,6 @@
    "promote": [
     4,
     9
-   ],
-   "needs": [
-    "Good cook"
    ],
    "branches": [
     {
@@ -3489,8 +3499,8 @@
        "name": "Fine dining",
        "desc": "Tasting menus and perfect plates.",
        "likes": [
-        "Creative",
-        "Good cook"
+        "Art",
+        "Cooking"
        ],
        "ranks": [
         {
@@ -3526,7 +3536,7 @@
        "name": "Restaurant business",
        "desc": "Run the kitchen and the books.",
        "likes": [
-        "Good with numbers",
+        "Serious",
         "Ambitious"
        ],
        "ranks": [
@@ -3571,7 +3581,7 @@
        "name": "Star cuisine",
        "desc": "Chase the stars of the guide.",
        "likes": [
-        "Creative",
+        "Art",
         "Serious"
        ],
        "ranks": [
@@ -3611,7 +3621,7 @@
        "name": "Pastry",
        "desc": "Desserts people talk about.",
        "likes": [
-        "Creative",
+        "Art",
         "Cheerful"
        ],
        "ranks": [
@@ -3694,7 +3704,7 @@
        "name": "Food media",
        "desc": "Cameras, books and fans.",
        "likes": [
-        "Charming",
+        "Cheerful",
         "Outgoing"
        ],
        "ranks": [
@@ -3843,7 +3853,10 @@
       }
      ]
     }
-   ]
+   ],
+   "skills": {
+    "cooking": 1
+   }
   },
   {
    "id": "stylist",
@@ -3887,8 +3900,8 @@
    },
    "likes": [
     "Fashion",
-    "Creative",
-    "Charming"
+    "Art",
+    "Cheerful"
    ],
    "hours": [
     9,
@@ -3952,7 +3965,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Charming",
+    "Cheerful",
     "Outgoing",
     "Calm"
    ],
@@ -4029,7 +4042,7 @@
    },
    "likes": [
     "Outgoing",
-    "Charming",
+    "Cheerful",
     "Nightlife"
    ],
    "hours": [
@@ -4096,7 +4109,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
+    "Sports",
     "Nature",
     "Calm"
    ],
@@ -4109,10 +4122,6 @@
     9,
     13
    ],
-   "needs": [
-    "Athletic",
-    "Strong"
-   ],
    "courses": [
     "firstaid"
    ],
@@ -4124,7 +4133,10 @@
    "length": 0.5,
    "trains": [
     "fitness"
-   ]
+   ],
+   "skills": {
+    "fitness": 1
+   }
   },
   {
    "id": "gardener",
@@ -4168,7 +4180,7 @@
    "likes": [
     "Nature",
     "Calm",
-    "Handy"
+    "Technology"
    ],
    "hours": [
     6,
@@ -4296,8 +4308,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
-    "Handy",
+    "Sports",
+    "Technology",
     "Calm"
    ],
    "hours": [
@@ -4309,10 +4321,6 @@
     10,
     14
    ],
-   "needs": [
-    "Strong",
-    "Handy"
-   ],
    "schedule": {
     "days": 5,
     "from": 5,
@@ -4322,7 +4330,10 @@
    "overtime": true,
    "trains": [
     "fitness"
-   ]
+   ],
+   "skills": {
+    "fitness": 1
+   }
   },
   {
    "id": "clerk",
@@ -4382,7 +4393,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Serious",
     "Ambitious"
    ],
@@ -4396,11 +4407,6 @@
     14,
     18,
     22
-   ],
-   "needs": [
-    "Smart",
-    "Good with numbers",
-    "Kind"
    ],
    "courses": [
     "publicadmin"
@@ -4449,7 +4455,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Calm",
     "Kind"
    ],
@@ -4460,9 +4466,6 @@
    "promote": [
     6,
     14
-   ],
-   "needs": [
-    "Smart"
    ],
    "courses": [
     "medicine"
@@ -4477,7 +4480,7 @@
        "desc": "The operating room: long hours, steady hands.",
        "likes": [
         "Calm",
-        "Strong"
+        "Sports"
        ],
        "ranks": [
         {
@@ -4514,7 +4517,7 @@
        "desc": "Know your patients for years.",
        "likes": [
         "Kind",
-        "Charming"
+        "Cheerful"
        ],
        "ranks": [
         {
@@ -4558,7 +4561,7 @@
        "name": "Neurosurgery",
        "desc": "The hardest operations there are.",
        "likes": [
-        "Smart",
+        "Curious",
         "Calm"
        ],
        "ranks": [
@@ -4599,7 +4602,7 @@
        "desc": "The emergency room is yours.",
        "likes": [
         "Calm",
-        "Athletic"
+        "Sports"
        ],
        "ranks": [
         {
@@ -4678,8 +4681,7 @@
        "name": "Research",
        "desc": "Find the cures of tomorrow.",
        "likes": [
-        "Curious",
-        "Smart"
+        "Curious"
        ],
        "ranks": [
         {
@@ -4892,10 +4894,6 @@
     12,
     16
    ],
-   "needs": [
-    "Smart",
-    "Kind"
-   ],
    "courses": [
     "education"
    ],
@@ -5034,9 +5032,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Handy",
-    "Strong",
-    "Tech-savvy"
+    "Technology",
+    "Sports"
    ],
    "hours": [
     7,
@@ -5046,9 +5043,6 @@
     4,
     9,
     13
-   ],
-   "needs": [
-    "Handy"
    ],
    "courses": [
     "mechanics"
@@ -5098,8 +5092,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Tech-savvy",
-    "Smart",
+    "Technology",
+    "Curious",
     "Games"
    ],
    "hours": [
@@ -5109,10 +5103,6 @@
    "promote": [
     4,
     10
-   ],
-   "needs": [
-    "Tech-savvy",
-    "Smart"
    ],
    "courses": [
     "programming"
@@ -5126,8 +5116,8 @@
        "name": "Engineering",
        "desc": "Build the hard parts: systems, code reviews, mentoring.",
        "likes": [
-        "Smart",
-        "Tech-savvy"
+        "Curious",
+        "Technology"
        ],
        "ranks": [
         {
@@ -5163,7 +5153,7 @@
        "name": "Product",
        "desc": "Decide what gets built: users, roadmaps, meetings.",
        "likes": [
-        "Charming",
+        "Cheerful",
         "Ambitious"
        ],
        "ranks": [
@@ -5208,7 +5198,7 @@
        "name": "Architecture",
        "desc": "Design how everything fits together.",
        "likes": [
-        "Smart",
+        "Curious",
         "Serious"
        ],
        "ranks": [
@@ -5248,7 +5238,7 @@
        "name": "Security",
        "desc": "Keep the company safe from attacks.",
        "likes": [
-        "Tech-savvy",
+        "Technology",
         "Calm"
        ],
        "ranks": [
@@ -5288,7 +5278,7 @@
        "name": "Leadership",
        "desc": "Lead teams of engineers.",
        "likes": [
-        "Charming",
+        "Cheerful",
         "Outgoing"
        ],
        "ranks": [
@@ -5332,7 +5322,7 @@
        "desc": "Make the product grow and earn.",
        "likes": [
         "Ambitious",
-        "Good with numbers"
+        "Serious"
        ],
        "ranks": [
         {
@@ -5581,7 +5571,6 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
     "Curious",
     "Books"
    ],
@@ -5594,10 +5583,6 @@
     12,
     16,
     20
-   ],
-   "needs": [
-    "Smart",
-    "Curious"
    ],
    "courses": [
     "science"
@@ -5654,8 +5639,8 @@
    },
    "likes": [
     "Calm",
-    "Handy",
-    "Athletic"
+    "Technology",
+    "Sports"
    ],
    "hours": [
     7,
@@ -5718,7 +5703,7 @@
    },
    "likes": [
     "Outgoing",
-    "Good cook",
+    "Cooking",
     "Kind"
    ],
    "hours": [
@@ -5778,7 +5763,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
+    "Sports",
     "Nature",
     "Calm"
    ],
@@ -5839,9 +5824,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Strong",
-    "Nature",
-    "Athletic"
+    "Sports",
+    "Nature"
    ],
    "hours": [
     6,
@@ -5899,7 +5883,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Good with numbers",
+    "Serious",
     "Kind",
     "Outgoing"
    ],
@@ -5962,8 +5946,8 @@
    },
    "likes": [
     "Outgoing",
-    "Charming",
-    "Musical"
+    "Cheerful",
+    "Music"
    ],
    "hours": [
     11,
@@ -6023,7 +6007,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Good with numbers",
+    "Serious",
     "Kind"
    ],
    "hours": [
@@ -6085,7 +6069,7 @@
    "likes": [
     "Calm",
     "Kind",
-    "Smart"
+    "Curious"
    ],
    "hours": [
     7,
@@ -6145,9 +6129,9 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
+    "Sports",
     "Nature",
-    "Handy"
+    "Technology"
    ],
    "hours": [
     7,
@@ -6205,7 +6189,7 @@
     "hygiene": 15
    },
    "likes": [
-    "Charming",
+    "Cheerful",
     "Outgoing",
     "Fashion"
    ],
@@ -6265,7 +6249,6 @@
     "hygiene": 15
    },
    "likes": [
-    "Athletic",
     "Sports",
     "Outgoing"
    ],
@@ -6326,9 +6309,8 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
-    "Serious",
-    "Good with numbers"
+    "Curious",
+    "Serious"
    ],
    "hours": [
     8,
@@ -6399,9 +6381,9 @@
     "hygiene": 15
    },
    "likes": [
-    "Smart",
+    "Curious",
     "Ambitious",
-    "Charming"
+    "Cheerful"
    ],
    "hours": [
     9,
@@ -6467,8 +6449,8 @@
     "hygiene": 10
    },
    "likes": [
-    "Musical",
-    "Charming"
+    "Music",
+    "Cheerful"
    ],
    "hours": [
     19,
@@ -6536,8 +6518,7 @@
     "hygiene": 5
    },
    "likes": [
-    "Creative",
-    "Skilled with hands"
+    "Art"
    ],
    "hours": [
     9,
@@ -6603,8 +6584,8 @@
     "hygiene": 20
    },
    "likes": [
-    "Good cook",
-    "Creative"
+    "Cooking",
+    "Art"
    ],
    "hours": [
     11,
@@ -7056,7 +7037,7 @@
   {
    "id": "fit",
    "name": "Fitness buff",
-   "trait": "Athletic",
+   "trait": "Gym regular",
    "desc": "Working out or running five times in ten days.",
    "actions": [
     "x-workout",
@@ -7067,12 +7048,13 @@
    "days": 10,
    "daily": {
     "mood": 2
-   }
+   },
+   "learn": "fitness"
   },
   {
    "id": "party",
    "name": "Party animal",
-   "trait": "Nightlife",
+   "trait": "Bar regular",
    "desc": "Drinks out six times in a week.",
    "actions": [
     "drink"
@@ -7086,13 +7068,14 @@
   {
    "id": "chef",
    "name": "Home chef",
-   "trait": "Good cook",
+   "trait": "Home cook",
    "desc": "Cooking at home five times in a week.",
    "actions": [
     "cook"
    ],
    "count": 5,
-   "days": 7
+   "days": 7,
+   "learn": "cooking"
   },
   {
    "id": "clean",
