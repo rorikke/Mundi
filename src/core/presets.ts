@@ -4,6 +4,7 @@
 import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule } from './world.js';
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
+import { upgradeTraitInfo } from './traits.js';
 
 export interface ShopItem { id: string; name: string; desc: string; icon: string; price: number;
     /** trips take this share of the time (0.5 = half); the best vehicle you own counts */ travel?: number;
@@ -388,5 +389,9 @@ export function upgradeWorld(w: WorldDef): WorldDef {
         if (!w.starts && w.catalogs?.origins?.length) w.starts = w.catalogs.origins.map(o => ({ id: o.id, name: o.name, ...(o.desc ? { desc: o.desc } : {}), premise: '', ...(o.home ? { home: o.home } : {}), money: o.money }));
         (w as any).presetStarts = true;
     }
+    // what traits mean (core/traits.ts): bad effects dropped, values inside the bounds, the standard names' info added
+    // for the names the sheet offers; a world with none of it is left as it is
+    const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => t.options ?? []));
+    if (info) w.traitInfo = info;
     return w;
 }
