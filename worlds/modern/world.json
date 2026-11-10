@@ -1662,11 +1662,7 @@
    },
    "roll": {
     "dc": 9,
-    "traits": [
-     "Good cook",
-     "Creative",
-     "Cooking"
-    ],
+    "traits": [],
     "success": {
      "text": "It came out really good.",
      "effects": {
@@ -1678,7 +1674,8 @@
      "effects": {
       "mood": -3
      }
-    }
+    },
+    "skill": "cooking"
    }
   },
   {
@@ -1798,10 +1795,7 @@
    },
    "roll": {
     "dc": 13,
-    "traits": [
-     "Handy",
-     "Smart"
-    ],
+    "traits": [],
     "success": {
      "text": "You fixed the leaky faucet yourself.",
      "effects": {
@@ -1814,7 +1808,8 @@
      "effects": {
       "mood": -8
      }
-    }
+    },
+    "skill": "logic"
    }
   },
   {
@@ -1832,11 +1827,7 @@
    },
    "roll": {
     "dc": 14,
-    "traits": [
-     "Musical",
-     "Charming",
-     "Outgoing"
-    ],
+    "traits": [],
     "success": {
      "text": "A small crowd gathered and tipped well.",
      "money": 35,
@@ -1849,7 +1840,8 @@
      "effects": {
       "mood": -6
      }
-    }
+    },
+    "skill": "music"
    }
   },
   {
@@ -1937,10 +1929,7 @@
    },
    "roll": {
     "dc": 13,
-    "traits": [
-     "Creative",
-     "Skilled with hands"
-    ],
+    "traits": [],
     "success": {
      "text": "Your painting sold quickly.",
      "money": 110
@@ -1950,7 +1939,8 @@
      "effects": {
       "mood": -6
      }
-    }
+    },
+    "skill": "painting"
    }
   },
   {
@@ -1968,10 +1958,7 @@
    },
    "roll": {
     "dc": 10,
-    "traits": [
-     "Musical",
-     "Creative"
-    ],
+    "traits": [],
     "success": {
      "text": "You nailed a tricky song.",
      "effects": {
@@ -1983,7 +1970,8 @@
      "effects": {
       "mood": -2
      }
-    }
+    },
+    "skill": "music"
    }
   },
   {
@@ -2055,11 +2043,7 @@
    },
    "roll": {
     "dc": 9,
-    "traits": [
-     "Athletic",
-     "Strong",
-     "Sports"
-    ],
+    "traits": [],
     "success": {
      "text": "A great workout.",
      "effects": {
@@ -2071,7 +2055,8 @@
      "effects": {
       "mood": -2
      }
-    }
+    },
+    "skill": "fitness"
    }
   },
   {
