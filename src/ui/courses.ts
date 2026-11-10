@@ -47,7 +47,7 @@ function takingCard(g: Save, w: WorldDef, c: Course, s: CourseState): string {
         <header><i>${esc(c.icon)}</i><span><b>${esc(c.name)}</b><small>${esc(c.area)} · class ${esc(String(s.attended))} of ${esc(String(s.n))}${s.toGo ? ` · about ${esc(String(s.toGo))} to go` : ''}</small></span></header>
         <span class="mu-bond"><i style="width:${pctOf(s)}%"></i></span>
         <small>${s.sched ? `${s.next !== null ? `Next class: ${esc(dayWords(g, s.next))}${win ? `, ${esc(windowText(win))}` : ''}.` : 'No class coming up.'} ${esc(scheduleWords(c))}` : `Five classes a week, any days, one a day (${esc(whereWords(g, w, c))}).`}</small>
-        <small>Missed ${esc(String(s.missed))}: ${esc(String(s.freeLeft))} free left · make-up classes ${esc(String(s.makeups))} of ${esc(String(s.cap))}</small>
+        <small>Missed ${esc(String(s.missed))}${s.behind ? ` (and ${esc(String(s.behind))} more that won't fit in the ${esc(String(s.daysLeft))} days left)` : ''}: ${esc(String(s.freeLeft))} free left · make-up classes ${esc(String(s.makeups))} of ${esc(String(s.cap))}</small>
         ${warn ? `<small class="mu-bad">${esc(warn)}</small>` : ''}
         ${s.paused ? `<small class="mu-bad">On hold: ${esc(money(w, s.due))} is unpaid. ${g.player.money >= s.due ? '' : 'Earn it first.'}</small><button class="mu-primary" data-act="course-pay" data-id="${esc(c.id)}" ${g.player.money >= s.due ? '' : 'aria-disabled="true"'}>Pay ${esc(money(w, s.due))}</button>` : ''}
         ${l.taking.length > 1 ? `<small class="mu-muted">While you take two, each class counts ${esc(String(Math.round(s.worth * 100) / 100))}${s.extra ? ` (+${esc(String(s.extra))} classes)` : ''}.</small>` : ''}

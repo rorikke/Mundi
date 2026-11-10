@@ -233,6 +233,8 @@ export interface CourseState {
     id: string; n: number; span: number; start: number; endDay: number; sched: boolean; attended: number; credit: number; missed: number;
     free: number; freeLeft: number; makeups: number; cap: number; extra: number; toGo: number; worth: number;
     paused: boolean; due: number; warn: '' | 'half' | 'all' | 'edge'; studied: boolean; next: number | null;
+    /** A course without a schedule: classes you are behind by more than the days left in its span (they will be missed). */
+    behind: number; daysLeft: number;
 }
 const ensure = (g: Save, w: WorldDef, c: Course) => {
     const l = learning(g);
@@ -259,14 +261,26 @@ export function stateOf(g: Save, w: WorldDef, c: Course): CourseState | null {
     const p = ensure(g, w, c), n = p.n, free = freeOf(n), cap = capOf(n);
     const credit = l.progress[c.id] ?? 0, worth = classWorth(g, w), missed = l.missed[c.id] ?? 0, makeups = l.makeups[c.id] ?? 0;
     const endDay = l.start[c.id] + p.span + (l.held[c.id] ?? 0) - 1;
-    const w2 = warnLevel(missed, free, makeups, cap);
-    return { id: c.id, n, span: p.span, start: l.start[c.id], endDay, sched: p.sched, attended: l.attended[c.id] ?? 0, credit, missed, free, freeLeft: Math.max(0, free - missed), makeups, cap,
+    // a course without a schedule counts its misses at the end of its span, but what no longer fits before then (one class
+    // a day) is missed already: the warnings say so while there is still time, not on the last day
+    const attended = l.attended[c.id] ?? 0, open = !p.sched && g.day <= endDay;
+    const daysLeft = open ? endDay - g.day + (studiedToday(g, c.id) ? 0 : 1) : 0;
+    const behind = open ? Math.max(0, n - attended - daysLeft) : 0;
+    const w2 = warnLevel(missed + behind, free, Math.max(makeups, missed + behind - free), cap);
+    return { id: c.id, n, span: p.span, start: l.start[c.id], endDay, sched: p.sched, attended, credit, missed, free, freeLeft: Math.max(0, free - missed - behind), makeups, cap,
         extra: extraWhileTwo(g, w, n), toGo: Math.max(0, Math.ceil((n - credit) / worth - 1e-9)), worth, paused: dueOf(l, c.id) > 0, due: dueOf(l, c.id),
-        warn: (['', 'half', 'all', 'edge'] as const)[w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c) };
+        warn: (['', 'half', 'all', 'edge'] as const)[w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c), behind, daysLeft };
 }
 /** The warning in words ('' when there's none), for the phone and the day's messages. */
 export function warningText(g: Save, w: WorldDef, c: Course, s: CourseState): string {
     const cost = perSeason(g, w, c) ? 'a make-up class (charged by the class if it runs into a new season)' : `a make-up class, ${money(w, Math.round(feeOf(g, c) / s.n))}`;
+    if (s.behind) {
+        const late = `you are ${s.behind} class${s.behind === 1 ? '' : 'es'} behind with ${s.daysLeft} day${s.daysLeft === 1 ? '' : 's'} left (one class a day)`;
+        if (s.missed + s.behind - s.free > s.cap) return `${c.name}: ${late}: too many to make up. The course will fail when it ends.`;
+        if (s.warn === 'edge') return `${c.name}: ${late}. One more day without a class and you fail the course.`;
+        if (s.warn === 'all') return `${c.name}: ${late}: that uses all ${s.free} free missed class${s.free === 1 ? '' : 'es'}${s.missed + s.behind > s.free ? ' and adds make-up classes' : ''}. Each further one adds ${cost}.`;
+        return `${c.name}: ${late}: that uses ${s.missed + s.behind} of ${s.free} free missed classes.`;
+    }
     if (s.warn === 'edge') return `${c.name}: one more missed class and you fail the course (${s.makeups} of ${s.cap} make-up classes used).`;
     if (s.warn === 'all') return `${c.name}: you have used all ${s.free} free missed class${s.free === 1 ? '' : 'es'}. The next one adds ${cost}.`;
     if (s.warn === 'half') return `${c.name}: you have missed ${s.missed} of ${s.free} free classes.`;
