@@ -31983,6 +31983,11 @@
    ],
    "ranks": [
     {
+     "name": "Nursing assistant (kango joshu)",
+     "pay": 1150,
+     "student": true
+    },
+    {
      "name": "New nurse",
      "pay": 1700,
      "course": "nursing"
@@ -32015,7 +32020,7 @@
    ],
    "branches": [
     {
-     "at": 4,
+     "at": 5,
      "options": [
       {
        "id": "leadership",
@@ -32212,6 +32217,15 @@
    ],
    "drinks": [
     "mg_izakaya"
+   ],
+   "promote": [
+    59,
+    7,
+    10,
+    13
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
@@ -32254,6 +32268,11 @@
    ],
    "ranks": [
     {
+     "name": "Medical student (clinical clerkship)",
+     "pay": 1100,
+     "student": true
+    },
+    {
      "name": "Junior resident",
      "pay": 1900,
      "course": "medicine"
@@ -32285,7 +32304,7 @@
    ],
    "branches": [
     {
-     "at": 4,
+     "at": 5,
      "options": [
       {
        "id": "internal",
@@ -32517,6 +32536,15 @@
    ],
    "drinks": [
     "mg_izakaya"
+   ],
+   "promote": [
+    63,
+    7,
+    10,
+    13
+   ],
+   "shifted": [
+    "student-rank"
    ]
   },
   {
