@@ -1,6 +1,7 @@
 import { settings, game } from './store.js';
 import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
+import { applyOverlay, overlayFile } from './overlay.js';
 import type { RpgDef } from './rpgdef.js';
 import type { FeelParts, FamilyType, FriendLevel } from './feel.js';
 // The world format. A world is pure data (worlds/<id>/world.json); Mundi's systems read it.
@@ -833,11 +834,24 @@ export async function loadWorld(id: string): Promise<WorldDef> {
     const base = new URL(`../../worlds/${id}/`, import.meta.url).href;
     const res = await fetch(`${base}world.json`);
     if (!res.ok) throw new Error(`World "${id}" could not be loaded.`);
-    const w = (await res.json()) as WorldDef;
+    let w = (await res.json()) as WorldDef;
     w.base = base;
     w.i18n = {};
+    w = await withOverlay(w);
     registry.set(id, upgradeWorld(cleanData(w)));
     return w;
+}
+
+// The player's private overlay for a bundled world, if they have one (see core/overlay.ts): a file in SillyTavern's
+// user files, so it never reaches the repository. No file is the usual case; a broken one is left out, with a warning.
+async function withOverlay(w: WorldDef): Promise<WorldDef> {
+    try {
+        const res = await fetch(`/${overlayFile(w.id)}`, { cache: 'no-cache' });
+        if (!res.ok) return w;
+        const r = applyOverlay(w, await res.json());
+        console.info(`[Mundi] private overlay for ${w.id}: ${r.added} added, ${r.changed} changed`);
+        return r.world;
+    } catch (e) { console.warn(`[Mundi] the private overlay for ${w.id} was left out:`, e); return w; }
 }
 
 export const worlds = () => [...registry.values()];

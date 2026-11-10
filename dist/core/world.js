@@ -1,6 +1,7 @@
 import { settings, game } from './store.js';
 import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
+import { applyOverlay, overlayFile } from './overlay.js';
 /** Days of the week as worlds write them (day 1 of a game is a Monday). */
 export const WEEKDAY_IDS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 // Roles a place can have. A place with its own list uses only that list; one without is guessed from its name, so
@@ -248,11 +249,28 @@ export async function loadWorld(id) {
     const res = await fetch(`${base}world.json`);
     if (!res.ok)
         throw new Error(`World "${id}" could not be loaded.`);
-    const w = (await res.json());
+    let w = (await res.json());
     w.base = base;
     w.i18n = {};
+    w = await withOverlay(w);
     registry.set(id, upgradeWorld(cleanData(w)));
     return w;
+}
+// The player's private overlay for a bundled world, if they have one (see core/overlay.ts): a file in SillyTavern's
+// user files, so it never reaches the repository. No file is the usual case; a broken one is left out, with a warning.
+async function withOverlay(w) {
+    try {
+        const res = await fetch(`/${overlayFile(w.id)}`, { cache: 'no-cache' });
+        if (!res.ok)
+            return w;
+        const r = applyOverlay(w, await res.json());
+        console.info(`[Mundi] private overlay for ${w.id}: ${r.added} added, ${r.changed} changed`);
+        return r.world;
+    }
+    catch (e) {
+        console.warn(`[Mundi] the private overlay for ${w.id} was left out:`, e);
+        return w;
+    }
 }
 export const worlds = () => [...registry.values()];
 export const SCENARIO_STARTS = [
