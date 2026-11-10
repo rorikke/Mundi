@@ -18981,8 +18981,8 @@
     "rain-afternoon": "bg/sb_crossing-rain-afternoon.avif",
     "rain-night": "bg/sb_crossing-rain-night.avif"
    },
-   "x": 70,
-   "y": 78,
+   "x": 71.67,
+   "y": 71.16,
    "sound": [
     "crossing",
     "traffic"
@@ -19010,8 +19010,8 @@
     "rain-afternoon": "bg/sb_centergai-rain-afternoon.avif",
     "rain-night": "bg/sb_centergai-rain-night.avif"
    },
-   "x": 60,
-   "y": 40,
+   "x": 60.92,
+   "y": 31.84,
    "sound": [
     "crowd",
     "traffic"
@@ -19038,8 +19038,8 @@
    ],
    "generic": false,
    "bg": "bg/sb_pachinko.avif",
-   "x": 66,
-   "y": 48,
+   "x": 70.07,
+   "y": 41.39,
    "sound": [
     "pachinko"
    ]
@@ -19065,8 +19065,8 @@
     ]
    },
    "bg": "bg/sb_karaoke.avif",
-   "x": 71,
-   "y": 30,
+   "x": 70.2,
+   "y": 31.09,
    "private": true,
    "sound": [
     "karaoke"
@@ -19122,8 +19122,8 @@
    "bgs": {
     "night": "bg/sb_eikaiwa-night.avif"
    },
-   "x": 86,
-   "y": 64,
+   "x": 47.94,
+   "y": 74.76,
    "sound": [
     "office"
    ]
@@ -19154,8 +19154,8 @@
     "rain-afternoon": "bg/sb_takeshita-rain-afternoon.avif",
     "rain-night": "bg/sb_takeshita-rain-night.avif"
    },
-   "x": 34,
-   "y": 60,
+   "x": 34.47,
+   "y": 59.25,
    "sound": [
     "crowd"
    ]
@@ -19185,8 +19185,8 @@
     "rain-afternoon": "bg/sb_omotesando-rain-afternoon.avif",
     "rain-night": "bg/sb_omotesando-rain-night.avif"
    },
-   "x": 48,
-   "y": 88,
+   "x": 46.83,
+   "y": 85.93,
    "sound": [
     "crowd",
     "traffic"
@@ -19303,8 +19303,8 @@
    },
    "adult": true,
    "bg": "bg/sb_lovehotel.avif",
-   "x": 47,
-   "y": 15,
+   "x": 73.21,
+   "y": 12.98,
    "private": true,
    "sound": [
     "water"
@@ -19359,8 +19359,8 @@
     "rain-afternoon": "bg/sj_kabukicho-rain-afternoon.avif",
     "rain-night": "bg/sj_kabukicho-rain-night.avif"
    },
-   "x": 87,
-   "y": 49,
+   "x": 88.42,
+   "y": 64.59,
    "sound": [
     "crowd",
     "traffic"
@@ -19390,8 +19390,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/sj_hostclub.avif",
-   "x": 76,
-   "y": 57,
+   "x": 71.25,
+   "y": 46.97,
    "sound": [
     "club"
    ]
@@ -19419,8 +19419,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/sj_hostess.avif",
-   "x": 70,
-   "y": 45,
+   "x": 87.16,
+   "y": 37.91,
    "sound": [
     "bar"
    ]
@@ -19453,8 +19453,8 @@
     "rain-afternoon": "bg/sj_omoide-rain-afternoon.avif",
     "rain-night": "bg/sj_omoide-rain-night.avif"
    },
-   "x": 55,
-   "y": 53,
+   "x": 55.06,
+   "y": 54.04,
    "sound": [
     "izakaya",
     "kitchen",
@@ -19483,8 +19483,8 @@
    ],
    "generic": false,
    "bg": "bg/sj_goldengai.avif",
-   "x": 81,
-   "y": 34,
+   "x": 83.19,
+   "y": 27.99,
    "sound": [
     "bar",
     "karaoke"
@@ -19511,8 +19511,8 @@
    ],
    "generic": false,
    "bg": "bg/sj_nichome.avif",
-   "x": 87,
-   "y": 82,
+   "x": 74.04,
+   "y": 69.92,
    "openByDay": {
     "fri": [
      19,
@@ -19552,8 +19552,8 @@
     "afternoon": "bg/sj_tocho-afternoon.avif",
     "night": "bg/sj_tocho-night.avif"
    },
-   "x": 14,
-   "y": 25,
+   "x": 17.38,
+   "y": 37.79,
    "sound": [
     "wind"
    ]
@@ -19651,8 +19651,8 @@
    },
    "generic": false,
    "bg": "bg/sj_capsule.avif",
-   "x": 33,
-   "y": 19,
+   "x": 32.24,
+   "y": 28.73,
    "sound": [
     "office"
    ]
@@ -19677,8 +19677,8 @@
     "rain-afternoon": "bg/ws_shimokita-rain-afternoon.avif",
     "rain-night": "bg/ws_shimokita-rain-night.avif"
    },
-   "x": 25,
-   "y": 45,
+   "x": 16.47,
+   "y": 53.05,
    "sound": [
     "crowd"
    ]
@@ -19709,8 +19709,8 @@
    "bgs": {
     "night": "bg/ws_vintage-night.avif"
    },
-   "x": 28,
-   "y": 58,
+   "x": 19.05,
+   "y": 73.89,
    "sound": [
     "crowd"
    ]
@@ -19739,8 +19739,8 @@
    ],
    "generic": false,
    "bg": "bg/ws_livehouse.avif",
-   "x": 15,
-   "y": 69,
+   "x": 27.98,
+   "y": 16.7,
    "sound": [
     "club"
    ]
@@ -19769,8 +19769,8 @@
    "bgs": {
     "night": "bg/ws_theater-night.avif"
    },
-   "x": 9,
-   "y": 44,
+   "x": 81.37,
+   "y": 10,
    "sound": [
     "crowd"
    ]
@@ -19802,8 +19802,8 @@
     "afternoon": "bg/ws_curry-afternoon.avif",
     "night": "bg/ws_curry-night.avif"
    },
-   "x": 80,
-   "y": 65,
+   "x": 71.67,
+   "y": 54.91,
    "sound": [
     "kitchen",
     "crowd"
@@ -19835,8 +19835,8 @@
    "bgs": {
     "afternoon": "bg/ws_kissaten-afternoon.avif"
    },
-   "x": 87,
-   "y": 57,
+   "x": 83.39,
+   "y": 39.53,
    "sound": [
     "bar"
    ]
@@ -19921,8 +19921,8 @@
     "afternoon": "bg/ws_konbini-afternoon.avif",
     "night": "bg/ws_konbini-night.avif"
    },
-   "x": 66,
-   "y": 50,
+   "x": 81.16,
+   "y": 65.58,
    "sound": [
     "office"
    ]
@@ -20021,8 +20021,8 @@
     "afternoon": "bg/ak_maid-afternoon.avif",
     "night": "bg/ak_maid-night.avif"
    },
-   "x": 27,
-   "y": 48,
+   "x": 14.38,
+   "y": 59.01,
    "sound": [
     "crowd"
    ]
@@ -20048,8 +20048,8 @@
    ],
    "generic": false,
    "bg": "bg/ak_arcade.avif",
-   "x": 17,
-   "y": 40,
+   "x": 22.68,
+   "y": 46.23,
    "sound": [
     "arcade"
    ],
@@ -20074,8 +20074,8 @@
    ],
    "generic": false,
    "bg": "bg/ak_idol.avif",
-   "x": 33,
-   "y": 40,
+   "x": 32.87,
+   "y": 36.18,
    "sound": [
     "club"
    ]
@@ -20102,8 +20102,8 @@
     "afternoon": "bg/ak_gamedev-afternoon.avif",
     "night": "bg/ak_gamedev-night.avif"
    },
-   "x": 60,
-   "y": 22,
+   "x": 40.48,
+   "y": 19.43,
    "sound": [
     "office"
    ]
@@ -20126,8 +20126,8 @@
     "rest": "fair"
    },
    "bg": "bg/ak_mangacafe.avif",
-   "x": 40,
-   "y": 26,
+   "x": 57.99,
+   "y": 29.6,
    "sound": [
     "office"
    ]
@@ -20190,8 +20190,8 @@
     "rain-afternoon": "bg/ak_jinbocho-rain-afternoon.avif",
     "rain-night": "bg/ak_jinbocho-rain-night.avif"
    },
-   "x": 75.91,
-   "y": 56.14,
+   "x": 73.07,
+   "y": 57.76,
    "sound": [
     "traffic"
    ]
@@ -20248,8 +20248,8 @@
     "rain-afternoon": "bg/ak_university-rain-afternoon.avif",
     "rain-night": "bg/ak_university-rain-night.avif"
    },
-   "x": 88,
-   "y": 20,
+   "x": 86.81,
+   "y": 38.04,
    "sound": [
     "crowd",
     "birds"
@@ -20278,8 +20278,8 @@
     "rain-afternoon": "bg/ot_sensoji-rain-afternoon.avif",
     "rain-night": "bg/ot_sensoji-rain-night.avif"
    },
-   "x": 50,
-   "y": 31,
+   "x": 49.76,
+   "y": 45.48,
    "sound": [
     "temple",
     "crowd"
@@ -20355,8 +20355,8 @@
    "bgs": {
     "night": "bg/ot_izakaya-night.avif"
    },
-   "x": 20,
-   "y": 78,
+   "x": 10.4,
+   "y": 82.58,
    "sound": [
     "izakaya"
    ]
@@ -20468,8 +20468,8 @@
     "rain-afternoon": "bg/ot_ameyoko-rain-afternoon.avif",
     "rain-night": "bg/ot_ameyoko-rain-night.avif"
    },
-   "x": 28,
-   "y": 58,
+   "x": 31.61,
+   "y": 54.79,
    "sound": [
     "market",
     "train"
@@ -20498,8 +20498,8 @@
     "rain-afternoon": "bg/ot_yanaka-rain-afternoon.avif",
     "rain-night": "bg/ot_yanaka-rain-night.avif"
    },
-   "x": 70,
-   "y": 60,
+   "x": 67.34,
+   "y": 62.36,
    "sound": [
     "birds",
     "wind"
@@ -20527,8 +20527,8 @@
     "afternoon": "bg/ot_ramen-afternoon.avif",
     "night": "bg/ot_ramen-night.avif"
    },
-   "x": 59,
-   "y": 81,
+   "x": 68.74,
+   "y": 40.15,
    "sound": [
     "kitchen",
     "crowd"
@@ -20596,8 +20596,8 @@
     "rain-afternoon": "bg/mg_station-rain-afternoon.avif",
     "rain-night": "bg/mg_station-rain-night.avif"
    },
-   "x": 47,
-   "y": 53,
+   "x": 45.57,
+   "y": 51.93,
    "sound": [
     "station"
    ]
@@ -20621,8 +20621,8 @@
     "afternoon": "bg/mg_tower-afternoon.avif",
     "night": "bg/mg_tower-night.avif"
    },
-   "x": 55,
-   "y": 14,
+   "x": 53.25,
+   "y": 10,
    "sound": [
     "office"
    ]
@@ -20683,8 +20683,8 @@
     "rain-afternoon": "bg/mg_chuodori-rain-afternoon.avif",
     "rain-night": "bg/mg_chuodori-rain-night.avif"
    },
-   "x": 80,
-   "y": 60,
+   "x": 77.67,
+   "y": 58.14,
    "sound": [
     "crowd",
     "traffic"
@@ -20717,8 +20717,8 @@
     "rain-afternoon": "bg/mg_izakaya-rain-afternoon.avif",
     "rain-night": "bg/mg_izakaya-rain-night.avif"
    },
-   "x": 52,
-   "y": 32,
+   "x": 8.51,
+   "y": 24.64,
    "openByDay": {
     "fri": [
      17,
@@ -20756,8 +20756,8 @@
     "rain-afternoon": "bg/mg_palace-rain-afternoon.avif",
     "rain-night": "bg/mg_palace-rain-night.avif"
    },
-   "x": 23,
-   "y": 70,
+   "x": 27.91,
+   "y": 80.1,
    "sound": [
     "birds",
     "wind",
@@ -20847,8 +20847,8 @@
     "afternoon": "bg/mg_hospital-afternoon.avif",
     "night": "bg/mg_hospital-night.avif"
    },
-   "x": 86,
-   "y": 49,
+   "x": 90.58,
+   "y": 55.16,
    "sound": [
     "hospital"
    ],
@@ -20874,8 +20874,8 @@
     "rain-afternoon": "bg/bay_beach-rain-afternoon.avif",
     "rain-night": "bg/bay_beach-rain-night.avif"
    },
-   "x": 23,
-   "y": 56,
+   "x": 26.03,
+   "y": 54.54,
    "sound": [
     "waves",
     "wind"
@@ -20956,8 +20956,8 @@
     "rain-afternoon": "bg/bay_mall-rain-afternoon.avif",
     "rain-night": "bg/bay_mall-rain-night.avif"
    },
-   "x": 48,
-   "y": 62,
+   "x": 52.48,
+   "y": 69.43,
    "sound": [
     "crowd"
    ]
@@ -20983,8 +20983,8 @@
     19
    ],
    "bg": "bg/bay_art.avif",
-   "x": 10,
-   "y": 80,
+   "x": 72.44,
+   "y": 18.68,
    "sound": [
     "wind"
    ]
@@ -21046,8 +21046,8 @@
     "afternoon": "bg/bay_market-afternoon.avif",
     "night": "bg/bay_market-night.avif"
    },
-   "x": 78,
-   "y": 80,
+   "x": 91.14,
+   "y": 59.25,
    "sound": [
     "market"
    ]
@@ -21076,8 +21076,8 @@
     "afternoon": "bg/bay_tv-afternoon.avif",
     "night": "bg/bay_tv-night.avif"
    },
-   "x": 30.15,
-   "y": 67.19,
+   "x": 56.95,
+   "y": 19.68,
    "sound": [
     "office"
    ]
@@ -21137,8 +21137,8 @@
    ],
    "generic": false,
    "bg": "bg/rp_club.avif",
-   "x": 26,
-   "y": 61,
+   "x": 28.61,
+   "y": 65.95,
    "openByDay": {
     "fri": [
      22,
@@ -21182,8 +21182,8 @@
     "afternoon": "bg/rp_sky-afternoon.avif",
     "night": "bg/rp_sky-night.avif"
    },
-   "x": 54,
-   "y": 22,
+   "x": 55.27,
+   "y": 16.08,
    "sound": [
     "wind"
    ]
@@ -21213,8 +21213,8 @@
     "afternoon": "bg/rp_tower-afternoon.avif",
     "night": "bg/rp_tower-night.avif"
    },
-   "x": 74,
-   "y": 36,
+   "x": 74.39,
+   "y": 42.38,
    "sound": [
     "wind"
    ]
@@ -21249,8 +21249,8 @@
     "rain-afternoon": "bg/rp_azabu-rain-afternoon.avif",
     "rain-night": "bg/rp_azabu-rain-night.avif"
    },
-   "x": 51,
-   "y": 83,
+   "x": 65.32,
+   "y": 84.81,
    "sound": [
     "crowd"
    ]
@@ -21281,8 +21281,8 @@
    ],
    "generic": false,
    "bg": "bg/rp_lounge.avif",
-   "x": 83,
-   "y": 40,
+   "x": 86.67,
+   "y": 46.97,
    "openByDay": {
     "fri": [
      18,
@@ -21323,8 +21323,8 @@
    "bgs": {
     "night": "bg/rp_pub-night.avif"
    },
-   "x": 36,
-   "y": 50,
+   "x": 9.7,
+   "y": 59.75,
    "openByDay": {
     "fri": [
      12,
@@ -21370,8 +21370,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/rp_poleclub.avif",
-   "x": 63,
-   "y": 66,
+   "x": 40.06,
+   "y": 76.62,
    "sound": [
     "club"
    ]
@@ -21402,8 +21402,8 @@
     "rain-afternoon": "bg/yk_chinatown-rain-afternoon.avif",
     "rain-night": "bg/yk_chinatown-rain-night.avif"
    },
-   "x": 37,
-   "y": 69,
+   "x": 38.87,
+   "y": 72.16,
    "sound": [
     "market",
     "crowd"
@@ -21429,8 +21429,8 @@
     "rain-afternoon": "bg/yk_bay-rain-afternoon.avif",
     "rain-night": "bg/yk_bay-rain-night.avif"
    },
-   "x": 50,
-   "y": 37,
+   "x": 49.48,
+   "y": 54.66,
    "sound": [
     "waves",
     "wind",
@@ -21456,8 +21456,8 @@
     "rain-afternoon": "bg/yk_yamashita-rain-afternoon.avif",
     "rain-night": "bg/yk_yamashita-rain-night.avif"
    },
-   "x": 20,
-   "y": 66,
+   "x": 21.01,
+   "y": 72.03,
    "sound": [
     "waves",
     "birds"
@@ -21484,8 +21484,8 @@
     "rain-afternoon": "bg/yk_isezaki-rain-afternoon.avif",
     "rain-night": "bg/yk_isezaki-rain-night.avif"
    },
-   "x": 75,
-   "y": 62,
+   "x": 74.88,
+   "y": 57.14,
    "sound": [
     "crowd"
    ]
@@ -21513,8 +21513,8 @@
     "rain-afternoon": "bg/yk_noge-rain-afternoon.avif",
     "rain-night": "bg/yk_noge-rain-night.avif"
    },
-   "x": 59,
-   "y": 69,
+   "x": 53.94,
+   "y": 77.24,
    "sound": [
     "izakaya",
     "kitchen"
@@ -21549,8 +21549,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/yk_hostess.avif",
-   "x": 70,
-   "y": 52,
+   "x": 54.99,
+   "y": 64.71,
    "sound": [
     "bar"
    ]
@@ -21583,8 +21583,8 @@
     "rain-afternoon": "bg/yk_batting-rain-afternoon.avif",
     "rain-night": "bg/yk_batting-rain-night.avif"
    },
-   "x": 82,
-   "y": 72,
+   "x": 83.19,
+   "y": 73.27,
    "sound": [
     "crowd"
    ]
@@ -21615,8 +21615,8 @@
    ],
    "generic": false,
    "bg": "bg/yk_mahjong.avif",
-   "x": 64,
-   "y": 58,
+   "x": 65.53,
+   "y": 72.03,
    "sound": [
     "bar"
    ]
@@ -21662,8 +21662,8 @@
     "rain-winter-afternoon": "bg/yk_park-bare-afternoon.avif",
     "rain-winter-night": "bg/yk_park-bare-night.avif"
    },
-   "x": 89,
-   "y": 86,
+   "x": 93.23,
+   "y": 89.65,
    "sound": [
     "birds",
     "cicadas"
@@ -21700,8 +21700,8 @@
     "rain-afternoon": "bg/hk_yumoto-rain-afternoon.avif",
     "rain-night": "bg/hk_yumoto-rain-night.avif"
    },
-   "x": 74,
-   "y": 62,
+   "x": 81.72,
+   "y": 74.39,
    "sound": [
     "crowd",
     "water"
@@ -21750,8 +21750,8 @@
     "winter-night": "bg/hk_ryokan-wintersnow-night.avif",
     "snow-night": "bg/hk_ryokan-wintersnow-night.avif"
    },
-   "x": 68,
-   "y": 27,
+   "x": 72.3,
+   "y": 59.63,
    "sound": [
     "water",
     "birds"
@@ -21781,8 +21781,8 @@
     "rain-afternoon": "bg/hk_ashi-rain-afternoon.avif",
     "rain-night": "bg/hk_ashi-rain-night.avif"
    },
-   "x": 41,
-   "y": 80,
+   "x": 33.22,
+   "y": 81.96,
    "sound": [
     "waves",
     "wind"
@@ -21827,8 +21827,8 @@
     "rain-day": "bg/hk_owakudani-rain-day.avif",
     "rain-afternoon": "bg/hk_owakudani-rain-afternoon.avif"
    },
-   "x": 46,
-   "y": 51,
+   "x": 54.43,
+   "y": 44.61,
    "closedIn": [
     "gas"
    ],
@@ -21870,8 +21870,8 @@
     "rain-day": "bg/hk_sculpture-rain-day.avif",
     "rain-afternoon": "bg/hk_sculpture-rain-afternoon.avif"
    },
-   "x": 83,
-   "y": 36,
+   "x": 85.7,
+   "y": 38.29,
    "sound": [
     "birds",
     "wind"
