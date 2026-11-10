@@ -1015,11 +1015,7 @@
    },
    "roll": {
     "dc": 9,
-    "traits": [
-     "Good cook",
-     "Creative",
-     "Cooking"
-    ],
+    "traits": [],
     "success": {
      "text": "It came out really good.",
      "effects": {
@@ -1031,8 +1027,10 @@
      "effects": {
       "mood": -3
      }
-    }
-   }
+    },
+    "skill": "cooking"
+   },
+   "trains": "cooking"
   },
   {
    "id": "water",
@@ -1119,10 +1117,7 @@
    },
    "roll": {
     "dc": 13,
-    "traits": [
-     "Handy",
-     "Smart"
-    ],
+    "traits": [],
     "success": {
      "text": "You fixed the loose door rail yourself.",
      "effects": {
@@ -1135,8 +1130,10 @@
      "effects": {
       "mood": -8
      }
-    }
-   }
+    },
+    "skill": "logic"
+   },
+   "trains": "logic"
   },
   {
    "id": "busk",
@@ -1153,11 +1150,7 @@
    },
    "roll": {
     "dc": 14,
-    "traits": [
-     "Musical",
-     "Charming",
-     "Outgoing"
-    ],
+    "traits": [],
     "success": {
      "text": "A small crowd gathered and tipped well.",
      "money": 3500,
@@ -1170,8 +1163,10 @@
      "effects": {
       "mood": -6
      }
-    }
-   }
+    },
+    "skill": "music"
+   },
+   "trains": "music"
   },
   {
    "id": "gymshower",
@@ -1245,10 +1240,7 @@
    },
    "roll": {
     "dc": 13,
-    "traits": [
-     "Creative",
-     "Skilled with hands"
-    ],
+    "traits": [],
     "success": {
      "text": "A commission came in for it.",
      "money": 11000
@@ -1258,7 +1250,8 @@
      "effects": {
       "mood": -6
      }
-    }
+    },
+    "skill": "drawing"
    },
    "trains": "drawing"
   },
@@ -1277,10 +1270,7 @@
    },
    "roll": {
     "dc": 10,
-    "traits": [
-     "Musical",
-     "Creative"
-    ],
+    "traits": [],
     "success": {
      "text": "You nailed a tricky song.",
      "effects": {
@@ -1292,7 +1282,8 @@
      "effects": {
       "mood": -2
      }
-    }
+    },
+    "skill": "music"
    },
    "trains": "music"
   },
@@ -1360,11 +1351,7 @@
    },
    "roll": {
     "dc": 9,
-    "traits": [
-     "Athletic",
-     "Strong",
-     "Sports"
-    ],
+    "traits": [],
     "success": {
      "text": "A great workout.",
      "effects": {
@@ -1376,8 +1363,10 @@
      "effects": {
       "mood": -2
      }
-    }
-   }
+    },
+    "skill": "fitness"
+   },
+   "trains": "fitness"
   },
   {
    "id": "x-run",
@@ -1397,7 +1386,8 @@
     "hygiene": -20,
     "mood": 6,
     "thirst": -10
-   }
+   },
+   "trains": "fitness"
   },
   {
    "id": "sb_crossing_cross",
@@ -3297,7 +3287,7 @@
    "roll": {
     "dc": 9,
     "traits": [],
-    "skill": "charisma",
+    "skill": "japanese",
     "success": {
      "text": "A regular tells how the alley burned in 1999 and was rebuilt beam for beam. At the end he shakes your hand.",
      "effects": {
@@ -9045,7 +9035,7 @@
    },
    "roll": {
     "dc": 10,
-    "skill": "charisma",
+    "skill": "fashion",
     "traits": [],
     "success": {
      "text": "A ring of photographers forms; you strike the pose of an invented hero and are asked for another.",
