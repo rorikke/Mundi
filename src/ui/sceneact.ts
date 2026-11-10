@@ -20,6 +20,7 @@ export async function startInScene(g: Save, w: WorldDef, a: ActionDef) {
     saveGame();
     refreshPrompt();   // the scene's focus
     notify();
+    void syncScene().then(notify);   // what people wear for it (a private action: sim/dress.ts)
 }
 
 /** The row at the top of the things to do while an action goes on. */

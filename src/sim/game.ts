@@ -138,6 +138,18 @@ async function examplePictures(w: WorldDef, ex: ExampleCharacter, avatar: string
             }
             if (n) await saveCardMundi(avatar, { sprites: ex.sprites });   // none found: tried again next time
         }
+        // each outfit into its subfolder of their Expressions, once per folder
+        const had: Record<string, string> = { ...(card.outfits ?? {}) };
+        for (const [name, folder] of Object.entries(ex.outfits ?? {})) {
+            const outfit = String(name).trim().replace(/[\\/:*?"<>|]+/g, '');
+            if (!outfit || typeof folder !== 'string' || had[outfit] === folder) continue;
+            let n = 0;
+            for (const s of await spriteFiles(w, folder)) {
+                const b = await worldPicture(w, s.file); if (!b) continue;
+                await uploadSprite(avatar, s.label, b, s.label, outfit); n++;
+            }
+            if (n) { had[outfit] = folder; await saveCardMundi(avatar, { outfits: had }); }
+        }
     } catch (e) { console.warn('[Mundi] pictures of', ex.name, e); }
 }
 
@@ -522,9 +534,10 @@ export function syncScene(): Promise<void> {
         if (solo && !here.some(r => r.avatar === solo)) { (g as any).social.solo = ''; solo = ''; }
         const talking = solo ? [solo] : here.map(r => r.avatar);
         await setPresent(gid, Object.keys(g.cast), talking);
-        // Home: the room's dress code (the outfits are looked up in the background; the next sync catches up)
-        { const { applyDress, dressAt } = await import('./dress.js'); const { outfitsOf, hasOutfit } = await import('../ui/outfits.js'); const code = dressAt(g, g.player.loc);
-          applyDress(g, w, a => { const l = outfitsOf(a); if (!code) return l; const h = hasOutfit(a, code); return h === null ? null : h ? [...(l ?? []), code] : (l ?? []); }); }
+        // what people wear: a Home's dress code, or "naked" during a private action (the outfits are looked up in the
+        // background; the next sync catches up)
+        { const { applyDress } = await import('./dress.js'); const { outfitsOf, hasOutfit } = await import('../ui/outfits.js');
+          applyDress(g, w, (a, code) => { const l = outfitsOf(a); const h = hasOutfit(a, code); return h === null ? null : h ? [...(l ?? []), code] : (l ?? []); }); }
         followBackground(g, w);
         refreshPrompt();
         saveGame();

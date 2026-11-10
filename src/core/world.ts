@@ -318,6 +318,9 @@ export interface ExampleCharacter {
     /** (E3) Their portrait (a picture in the world's folder) and a folder of expression sprites, uploaded when their
      *  card is first made. */
     avatar?: string; sprites?: string;
+    /** Outfits: a name → a folder of sprites like `sprites` (it may have only some expressions), uploaded once into
+     *  that outfit of their Expressions ("naked" is worn during a private action, sim/dress.ts). */
+    outfits?: Record<string, string>;
     /** (J5) The rank they hold in their job: an index (0 = the first) or the rank's name. */
     rank?: number | string;
     /** (E21) Standing appointments (see Ritual). */

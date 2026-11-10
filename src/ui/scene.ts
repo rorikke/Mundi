@@ -103,6 +103,14 @@ export function formatText(t: string) {
 
 /* ---------- sprites ---------- */
 
+// A set with only some of the expressions (an outfit drawn in five): the nearest one it has, before neutral.
+const NEAR: Record<string, string[]> = {
+    excitement: ['desire', 'joy'], curiosity: ['surprise', 'embarrassment'], admiration: ['love', 'joy'],
+    nervousness: ['embarrassment', 'fear'], fear: ['nervousness', 'embarrassment'], surprise: ['embarrassment', 'joy'],
+    confusion: ['embarrassment', 'surprise'], realization: ['surprise', 'embarrassment'], remorse: ['sadness', 'embarrassment'],
+    caring: ['love'], gratitude: ['love', 'joy'], relief: ['love', 'joy'], approval: ['love', 'joy'], optimism: ['joy', 'love'],
+    amusement: ['joy'], pride: ['joy'], desire: ['love'], love: ['desire', 'caring'], embarrassment: ['nervousness'],
+};
 function spriteFor(avatar: string, label: string | null): string {
     const list = state.sprites[avatar];
     if (list === undefined) {
@@ -112,7 +120,8 @@ function spriteFor(avatar: string, label: string | null): string {
     }
     if (!list?.length) return '';
     const want = (label ?? 'neutral').toLowerCase();
-    const hit = list.find(s => String(s.label).toLowerCase() === want) ?? list.find(s => String(s.label).toLowerCase() === 'neutral') ?? list[0];
+    const find = (l: string) => list.find(s => String(s.label).toLowerCase() === l);
+    const hit = [want, ...(NEAR[want] ?? []), 'neutral'].map(find).find(Boolean) ?? list[0];
     return String(hit?.path ?? '');
 }
 
