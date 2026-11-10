@@ -1,6 +1,7 @@
 // Schools, academies and universities with a ladder (students, prefects or class presidents, professors, the
 // headmaster or dean), in Life-Sim and RPG alike. Enroll (weekly tuition), attend lessons at the place (time and
-// energy; in the RPG experience, and after a few lessons the school's skill becomes trained; in Life-Sim its trait),
+// energy; in the RPG experience, and after a few lessons the school's skill becomes trained; in Life-Sim each lesson
+// trains the school's skill where the world has it, else after six lessons its trait),
 // pass exams (a d20 check in the RPG, attendance and talent in Life-Sim) to climb the ladder; fail two in a row, or
 // stop paying, and you are expelled. Join a club for a weekly meeting with the others. The school's staff (the people
 // who work there) form the faculty: the highest-ranked one leads it.
@@ -12,6 +13,7 @@ import { book } from './ledger.js';
 import { addStatus } from './needs.js';
 import { isRpg, sheetOf, rollCheck, checkWon, addXp, skillOf } from './rpg.js';
 import { traitsOf } from './work.js';
+import { skillDef, levelOf, trainSkill } from './hobbies.js';
 import { npcRank } from './longlife.js';
 import { presentAt } from './people.js';
 import { addBond } from './social.js';
@@ -23,6 +25,8 @@ export const instDef = (w: WorldDef, id: string) => w.institutions?.find(i => i.
 export const instAt = (w: WorldDef, place: string) => (on(w) ? w.institutions!.filter(i => i.place === place) : []);
 const week = (g: Save) => Math.floor((g.day - 1) / 7);
 export const LESSON_MINUTES = 120;
+/** Experience a lesson gives in the school's skill (a study session of a course gives about 12). */
+export const LESSON_XP = 8;
 // The ladder for students: passed exams needed for each rank (the top ones, professor and head, come later).
 const NEED = [0, 2, 5, 9, 14];
 
@@ -48,6 +52,8 @@ export function attend(g: Save, w: WorldDef, id: string): { text: string; minute
     if (s) {
         msgs.push(...addXp(g, w, 10, d.name));
         if (d.skill && e.lessons >= 5 && !s.skills.includes(d.skill) && skillOf(w, d.skill)) { s.skills.push(d.skill); msgs.push(`You are now trained in ${skillOf(w, d.skill)!.name}.`); note(g, '{u} learned {0} at {1}.', [skillOf(w, d.skill)!.name, d.name], [], d.place, 'study'); }
+    } else if (d.skill && skillDef(w, d.skill)) {
+        msgs.push(...trainSkill(g, w, d.skill, LESSON_XP));
     } else if (d.trait && e.lessons >= 6 && !traitsOf(g).includes(d.trait)) {
         (((g.player.traits ??= {}) as any).school ??= []).push(d.trait); msgs.push(`New trait from your studies: ${d.trait}.`);
     }
@@ -64,7 +70,7 @@ export function sitExam(g: Save, w: WorldDef, id: string): { text: string; passe
     let passed: boolean; let detail = '';
     const s = isRpg(w) ? sheetOf(g) : null;
     if (s && d.skill && skillOf(w, d.skill)) { const c = rollCheck(g, w, d.skill, 11 + e.rank * 2, Math.min(4, e.since)); passed = checkWon(c); detail = ` (${skillOf(w, d.skill)!.name} ${c.total} vs ${c.dc})`; }
-    else { const chance = Math.min(0.92, 0.3 + 0.1 * e.since + (d.trait && traitsOf(g).includes(d.trait) ? 0.15 : 0)); passed = Math.random() < chance; }
+    else { const chance = Math.min(0.92, 0.3 + 0.1 * e.since + ((d.skill && skillDef(w, d.skill) ? levelOf(g, d.skill) >= 3 : !!d.trait && traitsOf(g).includes(d.trait)) ? 0.15 : 0)); passed = Math.random() < chance; }
     e.exam = g.day; e.since = 0;
     if (!passed) {
         e.fails++;
