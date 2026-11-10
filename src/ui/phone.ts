@@ -4,7 +4,7 @@ import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
 import { interviewChance, triedToday } from '../sim/skills.js';
 import { missingCourses } from '../sim/courses.js';
-import { profileApp } from './courses.js';
+import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, type BillId } from '../sim/bills.js';
 import { shopApp, goalsApp, feelingsHtml } from './lifeui.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
@@ -279,6 +279,7 @@ function jobsApp(g: Save, w: WorldDef) {
             ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
             ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${p.missing.map(m => `<span>${esc(m)}</span>`).join(', ')}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
             ${branchPicker(g, w, mine)}
+            ${jobCourseHtml(g, w, mine.id)}
             ${likes(g, mine).length ? `<small>Your traits help: ${esc(likes(g, mine).join(', '))}</small>` : ''}
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
             ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
