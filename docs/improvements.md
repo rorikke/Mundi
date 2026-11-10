@@ -139,7 +139,7 @@ Each trait's line is shown when you pick it and on your profile ("Who you are").
 
 They're converted once, with a backup kept in the save (Settings → Game → This save). Strengths you picked become
 their skill levels, and the courses you finished give their new skills (the old Japanese course gives Japanese 4).
-The traits finished life goals gave you are taken away (life goals are to give rewards of their own; until then a goal
+The traits old courses taught (Kind, Curious, Speaks Japanese…) and the ones finished life goals gave you are taken away (life goals are to give rewards of their own; until then a goal
 you finish still gives its trait). A course you were taking goes on under its new length, usually with more classes to
 go. If you work as a doctor or a nurse in Tokyo, or as a doctor, engineer, nurse or teacher in Porto Alto, your rank
-moves up one, since those careers have a new first rank. Your old trait lists are kept in the save.
+moves up one, since those careers have a new first rank. Your old trait lists are kept in the save, and the game tells you once what moved. A custom world keeps its traits as they were.

@@ -1,7 +1,17 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.3.0';
+export const VERSION = '0.3.1';
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG = [
+    { v: '0.3.1', title: 'Who you are, and courses that take weeks', items: [
+            ['star', "Who you are matters: your strengths start your skills (Good cook · Cooking 3), and each personality trait and interest does something small. Habits have names of their own and make their skill train faster."],
+            ['book', "Courses take weeks: classes on a schedule, a few you can miss, make-up classes, two courses at once, fees by the season and help with the fee. Tokyo has 17."],
+            ['briefcase', "Start a job while you study for it, and your boss tells you when your next rank needs a course. No job is closed to your personality, and every roll gets the same bonus from your skill."],
+            ['heart', "Gifts: buy them where they're sold. A romantic gift warms a crush, and an intimate one only lands with someone drawn to you."],
+            ['image', "With adult content on, people undress for private moments and dress again after, and a world's people can bring outfits of their own. With it off, adult actions stay hidden everywhere."],
+            ['map', "Tokyo's places and homes sit where they belong on each map, and characters get their new pictures when a world updates them."],
+            ['folder', "Add to a built-in world with a file of your own: places, people, actions, lore and pictures, kept in SillyTavern's user files."],
+            ['globe', "Everything new in Portuguese and Spanish. Your games move to the new traits and courses once, with a backup kept in the save."],
+        ] },
     { v: '0.3.0', title: 'Tokyo, and relationships that feel alive', items: [
             ['map', "Tokyo, a new world: eight districts and two getaways, 88 places, 30 people with lives of their own, and trains with a last train home."],
             ['image', "Tokyo in pictures: every place by morning, afternoon and night, in the rain, the snow and each season; a portrait and 28 expressions for everyone, and an illustrated map for each district."],

@@ -1,5 +1,69 @@
 # Changelog
 
+## 0.3.1 · 2026-11-11
+
+Who you are, and courses that take weeks; gifts, private moments and your own additions to a world. Your saves open as
+they are, moved once to the new traits and courses with a backup kept in the save.
+
+### Who you are
+
+- **Strengths start your skills.** In Tokyo and Porto Alto each strength you pick names the skill it starts ("Good
+  cook · Cooking 3"); two on the same skill add only one more level. A persona made before converts too.
+- **Personality does something small.** Each personality trait nudges one number, some with a cost: a calm person's
+  mood drains slower, a shy one makes a cooler first impression but holds on to love, a serious one gains performance
+  faster but enjoys parties less. The profile and the new game say what each one does.
+- **Interests and habits.** Doing something that fits an interest lifts your mood a little more. Habits have names of
+  their own (Gym regular, Home cook…) and make their skill train faster while you keep them.
+- **The AI knows you** as you are now: your personality, interests and habits are told every turn.
+- **No job is closed to your personality.** Jobs like who you are and ask for skills; interviews count your best skill
+  for the job, the traits it likes and a course it asks for.
+- **One roll bonus.** Actions, street stories and choices at work count the same thing: the roll's skill, and −2 each
+  for very low energy or mood (street stories and work choices didn't have that before). Tokyo's cooking, workouts,
+  running, busking and repairs train their skill, as Porto Alto's do.
+
+### Courses that take weeks
+
+- **Classes on a calendar.** A course lasts a share of the game year (a season course is about two weeks), with classes
+  on its schedule or five days a week, one a day at most. Each class teaches a little of its skills; finishing gives
+  you at least their levels, and the certificate jobs ask for.
+- **Missing classes:** about one in ten is free; more add make-up classes that cost part of the fee, and too many fail
+  the course (what you learned stays). A class during your shift counts as missed, and the window says before you
+  enroll how many clash, and when they're more than the course lets you miss.
+- **Two at once,** each a little slower. Long programs are paid by the season and wait when you can't pay; some have
+  help with the fee from an employer, a school or the government.
+- **Study while you work.** Jobs that ask for a course take you at a student rank while you study (a medical student,
+  a nursing assistant), and your boss writes when your next rank needs a course.
+- **Tokyo has 17 courses,** from Japanese for beginners to medical school, at their own places and times. Porto Alto's
+  16 take weeks too. The World creator edits all of it, and a strengths group's skills and what each trait does.
+
+### Gifts and private moments
+
+- **Gifts:** buy them where they're sold. A romantic gift warms a crush or a partner; an intimate one only lands with
+  someone drawn to you (handed back otherwise, refused past their limits, loved when it fits their profile). Things
+  to do can use a gift you gave, and intimate profiles say how someone looks and how they are in bed.
+- **Outfits from the game:** with adult content on, the people in a private moment wear their "naked" outfit and dress
+  again after. A world's people can bring outfits of their own, and an outfit drawn with only a few expressions shows
+  the nearest one.
+- **Adult content stays hidden when it's off,** everywhere: adult actions are left out at any place, and people never
+  run errands to an adult place.
+
+### Worlds
+
+- **Your own additions to a built-in world:** a file in SillyTavern's user files (`mundi-overlay-<world id>.json`)
+  adds places, people, actions, lore and pictures when the world loads, marked adult if you want, never touching the
+  world's own ids. The format is described at the top of `src/core/overlay.ts`.
+- **Tokyo's maps:** every place and home sits where it belongs on its district's map.
+- **New pictures reach your cards:** a world's sprite set can carry a version, and a card made before it changed gets
+  the new expressions and outfits (Hannah's are fixed).
+- **Translations:** everything new in Portuguese and Spanish.
+
+### Your existing games
+
+Converted once, with a backup kept in the save, and a message the first time you open one: strengths you picked
+become skill levels, finished courses give their new skills, the traits old courses and finished life goals gave
+are taken away (your old lists are kept), a course you were taking goes on under its new length, and a doctor's or
+nurse's rank moves up one where those careers have a new student rank. Custom worlds keep their traits as they were.
+
 ## 0.3.0 · 2026-11-10
 
 This fork's first release, on top of Mundi 0.2.1: a new world, Tokyo, and relationships, work and daily life

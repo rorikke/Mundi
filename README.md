@@ -8,7 +8,7 @@ It is a SillyTavern **extension** (no server plugin). Everything is built on wha
 
 ## What this fork adds
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.0**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.1**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
 
 ### A new world: Tokyo
 
@@ -45,6 +45,7 @@ People in your world have feelings of their own, for you and for each other, and
 - **Skills.** Hobbies became skills that level up, the world's own skills included. Things you do and courses can train them.
 - **Who you are matters.** Your strengths start your skills ("Good cook · Cooking 3"); your personality and interests each do something small, help with the jobs that like them and are told to the AI; habits have names of their own and make their skill train faster. No job is closed to your personality, and every roll gets the same bonus from your skill.
 - **Courses that take weeks.** Classes on a schedule or five days a week, a few you can miss (more cost make-up classes), two courses at once, long programs paid by the season, help with the fee, jobs you can start while you study for them, and a word from your boss when your next rank needs a course. Tokyo has 17. [More on it](docs/improvements.md#who-you-are-and-courses-that-take-weeks).
+- **Gifts that mean something.** Buy them where they're sold. A romantic gift warms a crush or a partner; an intimate one only lands with someone drawn to you, and is loved when it fits their intimate profile.
 - **Couples go out.** Couples among the world's people go on dates a couple of evenings a week, at places they both like.
 - **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
 - **The AI knows the scene better.** In a crowded place it hears once what the people there share (why they're here, where they stand with you), and results written for you ("You nail the chorus") reach it as what you were told. The world's lorebook stays small in every request.
@@ -54,6 +55,10 @@ People in your world have feelings of their own, for you and for each other, and
 More on each in **[Other improvements in this fork](docs/improvements.md)**.
 
 - **A color for each speaker's dialogue.** The quotes in each line, and the speaker's name, take that person's color, chosen by your AI to fit the characters and kept readable (Chat look, ☰ menu).
+- **Outfits from the game.** With adult content on, the people in a private moment wear their "naked" outfit and dress again after; a world's people can bring outfits of their own. With it off, adult actions stay hidden everywhere.
+- **Your own additions to a built-in world.** A file in SillyTavern's user files (`mundi-overlay-<world id>.json`) adds places, people, actions, lore and pictures to a built-in world when it loads, without touching the world itself (the format is at the top of `src/core/overlay.ts`).
+- **New pictures reach your cards.** When a world updates a character's expressions or outfits, cards made before get them too.
+- **Pictures that follow the weather and the season,** expression sprites in any format, and everything in Portuguese and Spanish.
 
 ## What you can do
 
