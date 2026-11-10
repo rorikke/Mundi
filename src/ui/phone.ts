@@ -2,8 +2,7 @@
 import { safeUrl } from '../core/safe.js';
 import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
-import { interviewChance, triedToday } from '../sim/skills.js';
-import { missingCourses } from '../sim/courses.js';
+import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
 import { profileApp } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, type BillId } from '../sim/bills.js';
 import { shopApp, goalsApp, feelingsHtml } from './lifeui.js';
@@ -34,8 +33,8 @@ import { whereNow, residents } from '../sim/people.js';
 import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
-import { hobbyNeed, hobbyFits } from '../sim/hobbies.js';
-import { jobDef, likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays } from '../sim/work.js';
+import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
+import { jobDef, likes, traitsOf, applyGap, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays } from '../sim/work.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
 import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, LOOKING, type Post } from '../sim/feed.js';
@@ -268,6 +267,11 @@ function branchPicker(g: Save, w: WorldDef, o: Occupation) {
         ${b.options.map(x => `<button class="mu-branch-opt" data-act="ph-path" data-id="${esc(x.id)}"><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}
             <small class="mu-muted">${x.ranks.map(r => `${esc(r.name)} (${money(w, r.pay)}/h)`).join(' › ')}</small>${x.likes?.length ? `<small>Good for: ${esc(x.likes.join(', '))}</small>` : ''}</button>`).join('')}</div>`;
 }
+// What helps an interview: your best skill for the job (about +1 for every two levels) and the traits it likes (+2 each).
+function interviewHelp(g: Save, w: WorldDef, o: Occupation): string {
+    const s = interviewSkill(g, o), liked = (o.likes ?? []).filter(t => traitsOf(g).includes(t));
+    return `${s ? `<small class="mu-good">Your ${esc(skillName(w, s.id))} (level ${s.level}) helps: +${s.bonus}</small>` : ''}${liked.length ? `<small class="mu-good">Your traits help: ${esc(liked.join(', '))}</small>` : ''}`;
+}
 function jobsApp(g: Save, w: WorldDef) {
     const j = g.player.job; const mine = jobDef(w, j?.id);
     const p = mine && j ? promoNeeds(g, w, mine) : null;
@@ -284,11 +288,11 @@ function jobsApp(g: Save, w: WorldDef) {
             ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
         <h4>${T('openings')}</h4>
         ${openJobs(g, w).filter(o => o.id !== j?.id).map(o => `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o)} days a week` : ''}</small>
-            ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${T('courseDone')}</small>` : ''}
+            ${applyGap(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(applyGap(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
-            ${missingCourses(g, w, o).length ? '' : `<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ' · try again tomorrow' : ''}</small>`}</span>
-            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`).join('')}
+            ${applyGap(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ' · try again tomorrow' : ''}</small>`}</span>
+            <button data-act="ph-apply" data-id="${esc(o.id)}" ${applyGap(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`).join('')}
     </div>`;
 }
 

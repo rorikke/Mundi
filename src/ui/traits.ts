@@ -1,15 +1,28 @@
-// Traits: ready-made descriptions picked as chips (e.g. Proficiency: strong, smart), up to a limit per group.
+// Traits: ready-made descriptions picked as chips (e.g. Personality: calm, kind), up to a limit per group. A strengths
+// group (the world maps its options to skills) names the skill on each chip ("Good cook · Cooking 3"), and what a trait
+// does is its description, shown under the group for the ones picked.
 import { esc } from '../core/store.js';
-import type { TraitGroup } from '../core/world.js';
+import type { TraitGroup, WorldDef } from '../core/world.js';
+import { strengthText } from '../sim/traits.js';
 
-export function traitsHtml(groups: TraitGroup[], picked: Record<string, string[]>, act: string) {
+/** The chip's words: the option, and for a strength the skill it starts. */
+export function chipText(w: WorldDef | null | undefined, g: TraitGroup, option: string): string {
+    const skills = g.skills && w ? strengthText(w, option) : '';
+    return skills ? `${option} · ${skills}` : option;
+}
+
+export function traitsHtml(groups: TraitGroup[], picked: Record<string, string[]>, act: string, w?: WorldDef | null) {
     return groups.map(g => {
         const mine = picked?.[g.id] ?? [];
+        const strengths = !!(g.skills && w && g.options.some(o => strengthText(w, o)));
+        const said = mine.map(o => [o, w?.traitInfo?.[o]?.desc] as const).filter(([, d]) => !!d);
         return `<div class="mu-field mu-traits"><span>${esc(g.label)} <small>${mine.length}/${g.max}</small></span>
+            ${strengths ? `<small class="mu-muted">Pick ${g.max}: each starts its skill at the level shown. Two on one skill add only 1 more.</small>` : ''}
             <div class="mu-chips">${g.options.map(o => {
-                const on = mine.includes(o);
-                return `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${esc(act)}" data-k="${esc(g.id)}" data-v="${esc(o)}" ${!on && mine.length >= g.max ? 'aria-disabled="true"' : ''}>${esc(o)}</button>`;
-            }).join('')}</div></div>`;
+                const on = mine.includes(o), desc = w?.traitInfo?.[o]?.desc;
+                return `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${esc(act)}" data-k="${esc(g.id)}" data-v="${esc(o)}" ${desc ? `title="${esc(desc)}"` : ''} ${!on && mine.length >= g.max ? 'aria-disabled="true"' : ''}>${esc(chipText(w, g, o))}</button>`;
+            }).join('')}</div>
+            ${said.map(([o, d]) => `<small class="mu-muted"><b>${esc(o)}</b>: ${esc(d!)}</small>`).join('')}</div>`;
     }).join('');
 }
 

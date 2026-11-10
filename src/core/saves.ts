@@ -13,9 +13,10 @@ import { ctx } from '../st/bridge.js';
 import { getWorld, career, type WorldDef } from './world.js';
 import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, setPast, pastOf, PARTNER, COUPLE_ROMANCE, YOU, type Status } from '../sim/rel.js';
 import { isFamily } from './feel.js';
+import { settleTraits } from '../sim/traits.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 4;
+export const SCHEMA = 5;
 
 interface Migration { to: number; what: string; run: (g: any) => void }
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -30,6 +31,9 @@ const MIGRATIONS: Migration[] = [
     // 4 (jobs and careers): a job keeps its rank and shifts, with a performance and the time in the rank; hobbies'
     // experience becomes the skills'.
     { to: 4, what: 'jobs with performance, hobbies as skills', run: g => jobsAndSkills(g) },
+    // 5 (traits and courses): the course you take moves into a list, the old trait lists are kept, and the traits are
+    // settled once the world is known (settleTraits, sim/traits.ts).
+    { to: 5, what: 'courses in a list, traits made skills', run: g => traitsAndCourses(g) },
 ];
 
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
@@ -165,6 +169,21 @@ function jobsAndSkills(g: any) {
     }
 }
 
+// Schema 5. Strengths, what courses and schools taught and the old life goals' rewards stop being traits, but what they
+// become depends on the world (Good cook is Cooking 3 where there is a Cooking skill), and the world isn't known here:
+// the lists are kept as they were (`player.traitsBefore`), a flag asks `settleTraits` to do the rest when the world is
+// loaded (a custom world that isn't there yet waits, nothing lost), and `player.shifts` starts empty so the jobs the
+// world gave a new bottom rank get their ranks moved up once. The course being taken (`learning.current`) becomes a
+// list, since two can be taken at once. A second run finds the copy and the list there and changes nothing.
+function traitsAndCourses(g: any) {
+    const p = g.player;
+    if (!p || typeof p !== 'object') return;
+    const l = p.learning;
+    if (l && typeof l === 'object' && !Array.isArray(l.taking)) { l.taking = l.current ? [String(l.current)] : []; delete l.current; }
+    if (!p.traitsBefore) { p.traitsBefore = structuredClone(p.traits ?? {}); p.traitsTodo = true; }
+    if (!Array.isArray(p.shifts)) p.shifts = [];
+}
+
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);
 
 /* ---------- backups ---------- */
@@ -242,6 +261,8 @@ export function repair(g: Save, w: WorldDef): string[] {
     const l = (p as any).learning;
     const courses = ((w.catalogs as any).courses ?? []) as { id: string }[];
     if (l?.current && !courses.some(c => c.id === l.current)) { l.current = ''; notes.push('The course you were taking is not offered anymore.'); }
+    // (a course the world retired is still in its list, so one being taken can be finished)
+    if (Array.isArray(l?.taking) && l.taking.some((id: string) => !courses.some(c => c.id === id))) { l.taking = l.taking.filter((id: string) => courses.some(c => c.id === id)); notes.push('A course you were taking is not offered anymore.'); }
     // the people
     for (const r of Object.values(g.cast)) {
         if (r.occupation && !w.occupations.some(o => o.id === r.occupation)) r.occupation = null;
@@ -293,15 +314,25 @@ export function checkSave(g: Save) {
     let changed = false;
     const did = migrate(g);
     if (did) changed = true;
+    let backedUp = !!did;   // (the migration's backup holds everything as it was)
     const w = getWorld(g.world);
     if (w) {
         const probe = structuredClone(g);
         const notes = repair(probe, w);   // first on a copy: back up only if something will change
         if (JSON.stringify(probe) !== JSON.stringify(g)) {
-            if (!did) backup(g, 'before repairing links to the world');
+            if (!backedUp) backup(g, 'before repairing links to the world');
+            backedUp = true;
             repair(g, w);
             changed = true;
             if (notes.length) later(() => toast(`This world changed since your last visit. ${notes.join(' ')} A backup of the save was kept (Settings → Game → This save).`, 'info'));
+        }
+        // the traits of a save from before schema 5, and ranks moved by a new bottom rank, once the world is known
+        const settled = structuredClone(g);
+        settleTraits(settled, w);
+        if (JSON.stringify(settled) !== JSON.stringify(g)) {
+            if (!backedUp) backup(g, 'before settling your traits and courses');
+            settleTraits(g, w);
+            changed = true;
         }
     }
     if (changed) ctx().saveMetadataDebounced();

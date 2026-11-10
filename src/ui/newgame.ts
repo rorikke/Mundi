@@ -279,7 +279,7 @@ const asks = (w: WorldDef, k: 'portrait' | 'age' | 'appearance' | 'origin' | 'tr
 function heroSheetHtml(persona: boolean) {
     const w = W(), h: Hero = state.wizard.hero, sh = w.sheet;
     return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${asks(w, 'origin') && !isScenario(w) ? startPickHtml(w, h.origin, !!state.wizard.adult) : ''}
-        ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(sh.traits, h.traits, 'ng-trait')}</section>` : ''}
+        ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(sh.traits, h.traits, 'ng-trait', w)}</section>` : ''}
         ${asks(w, 'bio') ? `<section class="mu-bio"><label class="mu-field"><span>${persona ? 'About you in this world (optional; your persona\'s description is not changed)' : 'About you (optional)'}</span><textarea rows="4" data-input="ng-bio" data-focus="ngbio" placeholder="${persona ? 'What you do here, what people know about you' : 'Personality, quirks, what drives you'}">${esc(h.bio)}</textarea></label></section>` : ''}`;
 }
 

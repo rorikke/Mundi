@@ -53,8 +53,10 @@ for (const f of fixtures) {
         const g = open(structuredClone(orig));
         ok(saves.schemaOf(g) === saves.SCHEMA, `migrated to format ${saves.SCHEMA}`);
         // a redrawn map of homes moves where a home sits (its area stays), and a retired map's region data moves to its heir
-        const moved = (x) => /\.home\.(x|y|n)$/.test(x.split(':')[0]) || /^\.(regions|bounty|rep)\.city/.test(x);
+        // (schema 5: the course being taken moves into `taking`, and the trait lists are settled once the world is known; the old lists stay whole in `traitsBefore`)
+        const moved = (x) => /\.home\.(x|y|n)$/.test(x.split(':')[0]) || /^\.(regions|bounty|rep)\.city/.test(x) || /^\.player\.(learning\.current|traits\.)/.test(x);
         const lost = kept(orig, g).filter(x => !moved(x)); ok(!lost.length, `nothing lost (${lost.slice(0, 3).join('; ')})`);
+        if (saves.schemaOf(orig) < 5) ok(JSON.stringify(g.player.traitsBefore) === JSON.stringify(orig.player.traits ?? {}) && (!orig.player.learning?.current || g.player.learning.taking?.includes(orig.player.learning.current)), 'the old traits (traitsBefore) and the course being taken (taking) are kept');
         ok(g.player.home.zone === orig.player.home.zone && Object.keys(orig.cast).every(a => g.cast[a].home.zone === orig.cast[a].home.zone), 'everyone keeps their neighborhood');
         const key = (h) => `${h.zone}:${h.x},${h.y}`;
         const pairs = Object.keys(orig.cast).flatMap(a => Object.keys(orig.cast).filter(b => b > a && key(orig.cast[a].home) === key(orig.cast[b].home)).map(b => [a, b]));

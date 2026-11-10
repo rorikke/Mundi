@@ -9,7 +9,8 @@ import { money } from '../sim/needs.js';
 import { priceOf } from '../sim/bills.js';
 import { coursesOf, courseOf, learning, enroll, dropCourse, canStudyHere, studiedToday } from '../sim/courses.js';
 import { countOf } from '../sim/skills.js';
-import { jobDef, traitsOf, rankOf } from '../sim/work.js';
+import { jobDef, traitsOf, rankOf, takingNow } from '../sim/work.js';
+import { skillName } from '../sim/hobbies.js';
 import { ASPIRATIONS, lifeOf } from '../sim/life.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
@@ -55,27 +56,36 @@ export function coursesHtml(): string {
 
 /* ---------- the Profile app ---------- */
 
-const TRAIT_GROUPS = (w: WorldDef): [string, string][] => [['proficiency', 'Skills'], ['personality', 'Personality'], ['interests', 'Interests'], ['learned', lex(w, 'learnedIn')], ['earned', 'Earned with life goals'], ['education', 'Education']];
+// Who you are, then what a world's other groups hold (a proficiency its world didn't turn into skills, what courses or schools gave).
+const TRAIT_GROUPS = (w: WorldDef): [string, string][] => [['personality', 'Personality'], ['interests', 'Interests'], ['habits', 'Habits'],
+    ...(w.sheet?.traits ?? []).filter(x => !['personality', 'interests'].includes(x.id)).map(x => [x.id, x.label] as [string, string]),
+    ['learned', lex(w, 'learnedIn')], ['earned', 'Earned with life goals'], ['school', 'From school'], ['education', 'Education']];
+// How many classes a course has (until the courses' own lengths are in, its days).
+const classesOf = (c: { days: number }) => c.days;
+// What a finished course taught: its skills ("Japanese 4"), or the traits an older world's course grants.
+const taught = (w: WorldDef, c: { skills?: Record<string, number>; grants?: string[] }) => Object.entries(c.skills ?? {}).map(([id, n]) => `${skillName(w, id)} ${n}`).join(', ') || (c.grants ?? []).join(', ');
 export function profileApp(g: Save, w: WorldDef, head: string): string {
     const l = learning(g); const life = lifeOf(g);
     const t = (g.player.traits ?? {}) as Record<string, string[]>;
     const j = g.player.job; const o = j && jobDef(w, j.id);
-    const groups = TRAIT_GROUPS(w).filter(([k]) => (t[k] ?? []).length);
-    const other = Object.keys(t).filter(k => !TRAIT_GROUPS(w).some(([x]) => x === k) && (t[k] ?? []).length);
+    const seen = new Set<string>();
+    const groups = TRAIT_GROUPS(w).filter(([k]) => { if (seen.has(k)) return false; seen.add(k); return (t[k] ?? []).length > 0; });
+    const other = Object.keys(t).filter(k => !seen.has(k) && (t[k] ?? []).length);
     const goals = ASPIRATIONS.filter(a => (life.aspDone ?? []).includes(a.id));
-    const cur = courseOf(w, l.current);
+    const taking = takingNow(g).map(id => courseOf(w, id)).filter((c): c is NonNullable<typeof c> => !!c);
     return `${head}<div class="mu-ph-body mu-profile">
         <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
             <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
             <span class="mu-pf-stats"><span><b>${traitsOf(g).length}</b><small>traits</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span><span><b>${goals.length}</b><small>goals</small></span><span><b>${Math.round(countOf(g, 'shifts'))}</b><small>shifts</small></span></span></section>
         <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j!.rank + 1} of ${o.ranks.length}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
-        <section><h4>${icon('star')} Skills and traits</h4><p class="mu-muted">Each trait that fits what you do is +2 on its roll (interviews, cooking, workouts…).</p>
-            ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)] as [string, string])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}">${esc(x)}</span>`).join('')}</div></div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
+        <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are on the skills list below.</p>
+            ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)] as [string, string])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}" ${w.traitInfo?.[x]?.desc ? `title="${esc(w.traitInfo[x].desc!)}"` : ''}>${esc(x)}</span>`).join('')}</div>
+                ${(t[k] ?? []).filter(x => w.traitInfo?.[x]?.desc).map(x => `<small class="mu-muted"><b>${esc(x)}</b>: ${esc(w.traitInfo![x].desc!)}</small>`).join('')}</div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
         </section>
         <section><h4>${icon('book')} ${lex(w, 'courses')}</h4>
-            ${cur ? `<div class="mu-pf-row"><b>${cur.icon} ${esc(cur.name)}</b><small>In progress · day ${l.progress[cur.id] ?? 0} of ${cur.days}${studiedToday(g, cur.id) ? ' · studied today' : ''}</small><span class="mu-bond"><i style="width:${Math.round(((l.progress[cur.id] ?? 0) / cur.days) * 100)}%"></i></span></div>` : ''}
-            ${l.done.map(id => courseOf(w, id)).filter(Boolean).map(c => `<div class="mu-pf-row"><b>${c!.icon} ${esc(c!.name)}</b><small>✓ Finished · ${esc(c!.grants.join(', '))}</small></div>`).join('')}
-            ${!cur && !l.done.length ? `<p class="mu-muted">${lex(w, 'noCourses')}</p>` : ''}
+            ${taking.map(c => `<div class="mu-pf-row"><b>${c.icon} ${esc(c.name)}</b><small>In progress · class ${l.progress[c.id] ?? 0} of ${classesOf(c)}${studiedToday(g, c.id) ? ' · studied today' : ''}</small><span class="mu-bond"><i style="width:${Math.round(((l.progress[c.id] ?? 0) / classesOf(c)) * 100)}%"></i></span></div>`).join('')}
+            ${l.done.map(id => courseOf(w, id)).filter(Boolean).map(c => `<div class="mu-pf-row"><b>${c!.icon} ${esc(c!.name)}</b><small>✓ Finished${taught(w, c!) ? ` · ${esc(taught(w, c!))}` : ''}</small></div>`).join('')}
+            ${!taking.length && !l.done.length ? `<p class="mu-muted">${lex(w, 'noCourses')}</p>` : ''}
             <button class="mu-primary" data-act="course-open">${icon('plus')}<span>${lex(w, 'browseCourses')}</span></button></section>
         <section><h4>${icon('heart')} Life goals reached</h4>${goals.map(a => `<div class="mu-pf-row"><b>${esc(a.name)}</b><small>${a.reward ? `Earned: ${esc(a.reward)}` : esc(a.desc)}</small></div>`).join('') || `<p class="mu-muted">${lex(w, 'noGoalYet', appRef(w, 'goals'))}</p>`}</section>
         ${hobbiesHtml(g, w)}

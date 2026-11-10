@@ -22,10 +22,11 @@ import {
     characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings,
     writeLorebook, bindChatLore, lorebooks, loadLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats,
     deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat,
-    saveName, copyGroupChat, groupChatId,
+    saveName, copyGroupChat, groupChatId, persona, savePersona,
     readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS,
 } from '../st/bridge.js';
 import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
+import { withoutStrengths, applyStrengths } from './traits.js';
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
@@ -78,6 +79,19 @@ export function heroDescription(w: WorldDef, h: Hero, start?: StartDef): string 
 
 // What the persona was made from, kept inside the persona itself so the Library can show and edit it.
 export interface PersonaSheet { world: string; name: string; age: number; appearance: Record<string, string>; origin: string; traits: Record<string, string[]>; bio: string; /** your gender and attraction, for the next game */ person?: Person }
+/** After a trait changed (life goals' "Change a trait"): the persona card says who you are again, through the same
+ *  words the new game and the Library use. Only for the persona you play in this world; false when there's nothing to
+ *  refresh (no sheet, another world). */
+export async function refreshPersona(g: Save, w: WorldDef, groupId: string): Promise<boolean> {
+    const file = persona(), sheet = file ? personaSheet(file) : null;
+    if (!sheet || sheet.world !== w.id) return false;
+    const traits = JSON.parse(JSON.stringify(sheet.traits ?? {}));
+    traits[groupId] = [...(((g.player.traits ?? {}) as Record<string, string[]>)[groupId] ?? [])];
+    const next = { ...sheet, traits };
+    setPersonaSheet(file, next);
+    await savePersona(file, { description: heroDescription(w, { ...next, portrait: null }) });
+    return true;
+}
 export const sheetOf = (w: WorldDef, h: Hero): PersonaSheet => ({ world: w.id, name: h.name, age: h.age, appearance: { ...h.appearance }, origin: h.origin, traits: JSON.parse(JSON.stringify(h.traits ?? {})), bio: h.bio });
 
 /* ---------- the cast ---------- */
@@ -340,7 +354,9 @@ export async function startNewGame(o: NewGame) {
         player: {
             loc: playerHomeId, home: { ...home, kind: zone.kind },
             stats: Object.fromEntries(w.statuses.map(s => [s.id, s.start])),
-            money: Math.round((start?.money ?? origin?.money ?? 0) * (DIFFICULTIES.find(d => d.id === (o.difficulty ?? 'normal'))?.start ?? 1)), traits: JSON.parse(JSON.stringify(o.hero.traits ?? {})), origin: origin?.id ?? '', job: null, rentPaidDay: w.time.startDay,
+            money: Math.round((start?.money ?? origin?.money ?? 0) * (DIFFICULTIES.find(d => d.id === (o.difficulty ?? 'normal'))?.start ?? 1)), traits: withoutStrengths(w, o.hero.traits), origin: origin?.id ?? '', job: null, rentPaidDay: w.time.startDay,
+            // the ranks jobs were given a new bottom rank for are already counted in a new game (see settleShifts)
+            ...({ shifts: w.occupations.flatMap(x => (x.shifted ?? []).map(s => `${x.id}:${s}`)) } as any),
         },
         cast: {}, tick: {}, log: [],
         ...({ cfg: { difficulty: o.difficulty ?? 'normal', ...(o.mode ? { mode: o.mode } : {}), ...(adult ? { adult: true } : {}) }, schema: SCHEMA } as any),
@@ -400,6 +416,8 @@ export async function startNewGame(o: NewGame) {
     for (const ex of w.cast.examples) for (const f of ex.feelings ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(f.to); if (a && b && a !== b && (adult || !f.adult)) { const { to, adult: x, ...feel } = f; void to; void x; applyStartFeel(save, { a, b, ...feel }); } }
     // (E16) the start: its job, skills, the people you already know, the household you live with
     applyStart(save, w, start);
+    // what you're good at: the strengths picked become skill levels, at least, after the start's own skills
+    applyStrengths(save, w, o.hero.traits);
     for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b) continue;
         if (t.family && isFamily(t.family)) addOldTie(save, { a: t.a, b: t.b, type: t.family }, true);
