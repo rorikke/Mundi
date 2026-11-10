@@ -13909,7 +13909,7 @@
   {
    "id": "fit",
    "name": "Fitness buff",
-   "trait": "Athletic",
+   "trait": "Gym regular",
    "desc": "Working out or running five times in ten days.",
    "actions": [
     "x-workout",
@@ -13922,12 +13922,13 @@
    "days": 10,
    "daily": {
     "mood": 2
-   }
+   },
+   "learn": "fitness"
   },
   {
    "id": "party",
    "name": "Party animal",
-   "trait": "Nightlife",
+   "trait": "Izakaya regular",
    "desc": "Drinks out six times in a week.",
    "actions": [
     "ot_izakaya_evening",
@@ -13950,13 +13951,14 @@
   {
    "id": "chef",
    "name": "Home chef",
-   "trait": "Good cook",
+   "trait": "Home cook",
    "desc": "Cooking at home five times in a week.",
    "actions": [
     "cook"
    ],
    "count": 5,
-   "days": 7
+   "days": 7,
+   "learn": "cooking"
   },
   {
    "id": "clean",
@@ -13992,7 +13994,7 @@
   {
    "id": "karaoke",
    "name": "Karaoke regular",
-   "trait": "Musical",
+   "trait": "Karaoke regular",
    "desc": "Singing at karaoke three times in a week.",
    "actions": [
     "sb_karaoke_sing",
@@ -14002,7 +14004,8 @@
     "sj_goldengai_sing"
    ],
    "count": 3,
-   "days": 7
+   "days": 7,
+   "learn": "singing"
   },
   {
    "id": "shrine",
