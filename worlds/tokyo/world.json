@@ -12465,7 +12465,7 @@
   "traits": [
    {
     "id": "proficiency",
-    "label": "Proficiency",
+    "label": "Strengths",
     "max": 2,
     "options": [
      "Strong",
@@ -12478,7 +12478,39 @@
      "Good with numbers",
      "Good cook",
      "Tech-savvy"
-    ]
+    ],
+    "skills": {
+     "Strong": {
+      "fitness": 3
+     },
+     "Smart": {
+      "logic": 3
+     },
+     "Charming": {
+      "charisma": 3
+     },
+     "Creative": {
+      "drawing": 3
+     },
+     "Athletic": {
+      "fitness": 3
+     },
+     "Handy": {
+      "logic": 3
+     },
+     "Musical": {
+      "music": 3
+     },
+     "Good with numbers": {
+      "logic": 3
+     },
+     "Good cook": {
+      "cooking": 3
+     },
+     "Tech-savvy": {
+      "gaming": 3
+     }
+    }
    },
    {
     "id": "personality",
@@ -12702,7 +12734,9 @@
    "money": 250000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "cooking": 2,
+    "fitness": 2
    },
    "default": true
   },
@@ -12715,7 +12749,9 @@
    "money": 150000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "logic": 2,
+    "writing": 2
    },
    "knows": [
     {
@@ -12745,7 +12781,9 @@
    "money": 120000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "charisma": 2,
+    "fashion": 1
    },
    "knows": [
     {
@@ -12767,7 +12805,8 @@
    "money": 300000,
    "skills": {
     "japanese": 2,
-    "english": 6
+    "english": 6,
+    "logic": 2
    },
    "knows": [
     {
@@ -12785,7 +12824,9 @@
    "money": 3000000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "fashion": 2,
+    "charisma": 2
    },
    "knows": [
     {
@@ -12803,7 +12844,8 @@
    "money": 180000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "music": 3
    },
    "knows": [
     {
@@ -12834,7 +12876,9 @@
    "money": 40000,
    "skills": {
     "japanese": 8,
-    "english": 2
+    "english": 2,
+    "fitness": 2,
+    "charisma": 1
    },
    "knows": [
     {
@@ -38152,5 +38196,35 @@
     "fact": "{u} drew bad fortune at {0} and tied the slip to the rack"
    }
   ]
+ },
+ "traitInfo": {
+  "Anime & manga": {
+   "desc": "Anime, manga and the Akihabara scene.",
+   "covers": {
+    "skills": [
+     "drawing",
+     "writing",
+     "gaming"
+    ]
+   }
+  },
+  "Karaoke": {
+   "desc": "Singing for fun: karaoke rooms, snacks and Golden Gai.",
+   "covers": {
+    "skills": [
+     "singing",
+     "music"
+    ]
+   }
+  },
+  "Nightlife": {
+   "desc": "Bars, clubs and the last train missed on purpose.",
+   "covers": {
+    "skills": [
+     "mixology",
+     "dance"
+    ]
+   }
+  }
  }
 }
