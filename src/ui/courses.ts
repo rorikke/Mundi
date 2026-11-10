@@ -26,7 +26,7 @@ export function courseRow(g: Save, w: WorldDef): string {
     if (!offeredOf(w).length && !mine.length) return '';
     if (!canStudyHere(g, w) && !mine.some(c => c.at === g.player.loc)) return '';
     if (mine.length) {
-        const lines = mine.map(c => { const s = stateOf(g, w, c)!; return `${esc(c.name)}: class ${s.attended} of ${s.n}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}`; });
+        const lines = mine.map(c => { const s = stateOf(g, w, c)!; return `${esc(c.name)}: class ${s.attended} of ${s.of}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}`; });
         return `<button class="mh-act mh-glass ${courseWarnings(g, w).length ? 'is-warn' : ''}" data-act="course-open"><i>${esc(mine[0].icon || '🎓')}</i><b>${lex(w, 'courses')} · ${mine.length} of 2</b><small>${lines.join(' · ')}</small></button>`;
     }
     return `<button class="mh-act mh-glass" data-act="course-open"><i>🎓</i><b>${lex(w, 'takeCourse')}</b><small>Learn a skill over a few weeks</small></button>`;
@@ -44,7 +44,7 @@ function takingCard(g: Save, w: WorldDef, c: Course, s: CourseState): string {
     const win = s.next !== null ? classWindow(g, w, c, s.next) : null;
     const warn = warnOf(g, w, c, s);
     return `<article class="mu-course is-on">
-        <header><i>${esc(c.icon)}</i><span><b>${esc(c.name)}</b><small>${esc(c.area)} · class ${esc(String(s.attended))} of ${esc(String(s.n))}${s.toGo ? ` · about ${esc(String(s.toGo))} to go` : ''}</small></span></header>
+        <header><i>${esc(c.icon)}</i><span><b>${esc(c.name)}</b><small>${esc(c.area)} · class ${esc(String(s.attended))} of ${esc(String(s.of))}${s.toGo ? ` · about ${esc(String(s.toGo))} to go` : ''}</small></span></header>
         <span class="mu-bond"><i style="width:${pctOf(s)}%"></i></span>
         <small>${s.sched ? `${s.next !== null ? `Next class: ${esc(dayWords(g, s.next))}${win ? `, ${esc(windowText(win))}` : ''}.` : 'No class coming up.'} ${esc(scheduleWords(c))}` : `Five classes a week, any days, one a day (${esc(whereWords(g, w, c))}).`}</small>
         <small>Missed ${esc(String(s.missed))}${s.behind ? ` (and ${esc(String(s.behind))} more that won't fit in the ${esc(String(s.daysLeft))} days left)` : ''}: ${esc(String(s.freeLeft))} free left · make-up classes ${esc(String(s.makeups))} of ${esc(String(s.cap))}</small>
@@ -98,7 +98,7 @@ export function coursesHtml(): string {
 export function takingRows(g: Save, w: WorldDef): string {
     return takingNow(g, w).map(c => {
         const s = stateOf(g, w, c)!, warn = warnOf(g, w, c, s);
-        return `<div class="mu-pf-row"><b>${esc(c.icon)} ${esc(c.name)}</b><small>In progress · class ${esc(String(s.attended))} of ${esc(String(s.n))}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}</small><span class="mu-bond"><i style="width:${pctOf(s)}%"></i></span>${warn ? `<small class="mu-bad">${esc(warn)}</small>` : ''}</div>`;
+        return `<div class="mu-pf-row"><b>${esc(c.icon)} ${esc(c.name)}</b><small>In progress · class ${esc(String(s.attended))} of ${esc(String(s.of))}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}</small><span class="mu-bond"><i style="width:${pctOf(s)}%"></i></span>${warn ? `<small class="mu-bad">${esc(warn)}</small>` : ''}</div>`;
     }).join('');
 }
 // The job page's course lines: the boss's message, and a course two ranks ahead.

@@ -235,6 +235,8 @@ export interface CourseState {
     paused: boolean; due: number; warn: '' | 'half' | 'all' | 'edge'; studied: boolean; next: number | null;
     /** A course without a schedule: classes you are behind by more than the days left in its span (they will be missed). */
     behind: number; daysLeft: number;
+    /** The classes to attend in all, as the screens count them: more than `n` while two are taken (each counts 0.85). */
+    of: number;
 }
 const ensure = (g: Save, w: WorldDef, c: Course) => {
     const l = learning(g);
@@ -267,9 +269,10 @@ export function stateOf(g: Save, w: WorldDef, c: Course): CourseState | null {
     const daysLeft = open ? endDay - g.day + (studiedToday(g, c.id) ? 0 : 1) : 0;
     const behind = open ? Math.max(0, n - attended - daysLeft) : 0;
     const w2 = warnLevel(missed + behind, free, Math.max(makeups, missed + behind - free), cap);
+    const toGo = Math.max(0, Math.ceil((n - credit) / worth - 1e-9));
     return { id: c.id, n, span: p.span, start: l.start[c.id], endDay, sched: p.sched, attended, credit, missed, free, freeLeft: Math.max(0, free - missed - behind), makeups, cap,
-        extra: extraWhileTwo(g, w, n), toGo: Math.max(0, Math.ceil((n - credit) / worth - 1e-9)), worth, paused: dueOf(l, c.id) > 0, due: dueOf(l, c.id),
-        warn: (['', 'half', 'all', 'edge'] as const)[w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c), behind, daysLeft };
+        extra: extraWhileTwo(g, w, n), toGo, worth, paused: dueOf(l, c.id) > 0, due: dueOf(l, c.id),
+        warn: (['', 'half', 'all', 'edge'] as const)[w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c), behind, daysLeft, of: Math.max(n, attended + toGo) };
 }
 /** The warning in words ('' when there's none), for the phone and the day's messages. */
 export function warningText(g: Save, w: WorldDef, c: Course, s: CourseState): string {
@@ -405,7 +408,7 @@ export function studySession(g: Save, w: WorldDef, id?: string): string[] {
     }
     if (l.progress[c.id] >= p.n - 1e-6) { finish(g, w, c, out); return out; }
     const s = stateOf(g, w, c)!;
-    out.unshift(`${c.name}: class ${s.attended} of ${s.n} done.${s.freeLeft ? ` You can still miss ${s.freeLeft} without a penalty.` : ''}`);
+    out.unshift(`${c.name}: class ${s.attended} of ${s.of} done.${s.freeLeft ? ` You can still miss ${s.freeLeft} without a penalty.` : ''}`);
     return out;
 }
 
