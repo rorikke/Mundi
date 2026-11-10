@@ -43,9 +43,10 @@ export const levelOf = (g, id) => levelFor(skillXp(g)[id] ?? 0);
 export const titleOf = (level) => TITLES[Math.max(0, Math.min(MAX_LEVEL, level))];
 export function progressOf(g, id) {
     const xp = skillXp(g)[id] ?? 0, l = levelFor(xp);
+    // (experience can be a fraction, from classes and learning effects: shown in whole points, never rounded up to the next level)
     if (l >= MAX_LEVEL)
-        return { level: l, xp, next: 0, pct: 100 };
-    return { level: l, xp, next: LEVELS[l + 1], pct: Math.round(((xp - LEVELS[l]) / (LEVELS[l + 1] - LEVELS[l])) * 100) };
+        return { level: l, xp: Math.floor(xp), next: 0, pct: 100 };
+    return { level: l, xp: Math.floor(xp), next: LEVELS[l + 1], pct: Math.round(((xp - LEVELS[l]) / (LEVELS[l + 1] - LEVELS[l])) * 100) };
 }
 /** At least this level (a start's skills, a course's): never lowers one. */
 export function setSkillLevel(g, id, level) {
