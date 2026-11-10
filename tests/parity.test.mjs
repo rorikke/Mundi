@@ -33,6 +33,7 @@ const TOOLS = {
     'actions.*.home': 'Where', 'actions.*.anywhere': 'Where', 'actions.*.place': 'Where', 'actions.*.tags': 'Where',
     'actions.*.roll': 'a d20 roll is part of the action system (not edited, by design)',
     'features.apps': 'the apps list (Features)', 'time.periods.*.id': 'set by the creator',
+    'traitInfo.*': 'what the engine gives the standard trait names (upgradeWorld); the creator gets fields for a trait\'s effects with the traits work for it',
     'occupations.*.courses': 'Courses tab: Required for these jobs', 'occupations.*.likes': 'Jobs tab / Courses tab', 'cast.routineTemplates.*': 'Routines tab',
 };
 const covered = (leaf, shown) => shown.some(s => leaf === s || leaf.startsWith(`${s}.`)) || Object.keys(TOOLS).some(t => leaf === t || leaf.startsWith(`${t.replace(/\.\*$/, '')}.`) || leaf === t.replace(/\.\*$/, ''));
