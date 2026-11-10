@@ -5,7 +5,7 @@
 // under the old rules (every trait a flat bonus, courses and goals handing out traits) onto the new ones once its
 // world is known.
 import type { Save } from '../core/store.js';
-import { systemOn, type WorldDef, type TraitGroup } from '../core/world.js';
+import { systemOn, activeStatuses, type WorldDef, type TraitGroup } from '../core/world.js';
 import { clampEffect, TRAIT_LIMITS, OUT_OF_WORK, type EffectDef } from '../core/traits.js';
 import { effectSources } from './effects.js';
 import { onAction } from './hooks.js';
@@ -86,7 +86,7 @@ effectSources.push((g, w) => {
 
 // Interests: an action that fits one (a skill it trains or rolls, a tag of the action or of the place) lifts mood a little more.
 onAction.push((g, w, a) => {
-    const info = w.traitInfo; if (!info) return;
+    const info = w.traitInfo; if (!info || !activeStatuses(w, g).some(x => x.id === 'mood')) return;   // (no mood in play: nothing to lift)
     const x = a as { id: string; tags?: string[]; hobby?: string; trains?: string; roll?: { skill?: string } };
     const skills = new Set([hobbyFor(w, x)?.id, x.roll?.skill, x.trains, x.hobby].filter((s): s is string => !!s));
     const tags = new Set([...(x.tags ?? []), ...(placeOf(g, w, g.player.loc)?.tags ?? [])]);
