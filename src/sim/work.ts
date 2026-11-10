@@ -10,7 +10,7 @@ import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { triedToday, interview, countUp } from './skills.js';
-import { missingCourses, hasCourse, courseOf } from './courses.js';
+import { hasCourse, courseOf, learning } from './courses.js';
 import { rollBonus, bonusLabel } from './dice.js';
 import { effectMul } from './effects.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
@@ -59,6 +59,18 @@ export const jobDef = (w: WorldDef, id?: string | null) => w.occupations.find(o 
 export const traitsOf = (g: Save) => Object.values(g.player.traits ?? {}).flat();
 export const fits = (g: Save, o: Occupation, w?: WorldDef | null) => (!o.needs?.length || o.needs.some(t => traitsOf(g).includes(t))) && hobbyFits(g, w ?? getWorld(g.world), o);
 export const likes = (g: Save, o: Occupation) => careerOf(g, o).likes.filter(t => traitsOf(g).includes(t));
+/** The courses you are taking (two at most). A save that hasn't met the new courses yet has the one in `current`. */
+export const takingNow = (g: Save): string[] => { const l = learning(g); return Array.isArray(l.taking) ? l.taking : l.current ? [l.current] : []; };
+/** The courses a job asks for that you haven't finished (ones the world no longer has aren't asked for). */
+const askedCourses = (g: Save, w: WorldDef, o: Occupation): string[] => (((o as any).courses ?? []) as string[]).filter(id => !!courseOf(w, id) && !hasCourse(g, id));
+/** What still stands between you and applying: the names of the courses to take first. A job whose first rank is for
+ *  students (`Rank.student`) takes you while you are enrolled in its course, so the courses you are taking don't count. */
+export function applyGap(g: Save, w: WorldDef, o: Occupation): string[] {
+    const studentRank = !!o.ranks[0]?.student, taking = takingNow(g);
+    return askedCourses(g, w, o).filter(id => !(studentRank && taking.includes(id))).map(id => courseOf(w, id)!.name);
+}
+/** At a job's student rank while its course isn't finished: leaving the rank asks for it. */
+export const studentGap = (g: Save, w: WorldDef, o: Occupation): string[] => (rankOf(g, o)?.student ? askedCourses(g, w, o).map(id => courseOf(w, id)!.name) : []);
 // The job's opening hours (whether it is open at all now).
 export const isOpen = (g: Save, o: Occupation) => { const [a, b] = o.hours ?? [0, 24]; const h = hour(g); return a <= b ? h >= a && h < b : h >= a || h < b; };
 // Adult content (E15): its switch is the new game's; until then, a save setting.
@@ -346,6 +358,7 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     for (const s of skills) if (s.have < s.need) missing.push(`${s.name} ${s.need}`);
     if (traits.length && !traits.some(t => traitsOf(g).includes(t))) missing.push(traits.join(' or '));
     if (next.course && courseOf(w, next.course) && !hasCourse(g, next.course)) missing.push(courseOf(w, next.course)!.name);
+    for (const c of studentGap(g, w, o)) if (!missing.includes(c)) missing.push(c);   // the way out of the student rank
     const rest = whenBesidesPerf(next.when);
     const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
     if (when === false) missing.push(...whenMissing(g, w, rest!, rankPlace(o, next)));
@@ -380,7 +393,7 @@ export function promoProgress(p: PromoNeeds) { return Math.max(0, Math.min(100, 
 export function hire(g: Save, w: WorldDef, id: string): { ok: boolean; text: string } {
     const o = jobDef(w, id);
     if (!o || o.hireable === false || (o.adult && !adultOn(g))) return { ok: false, text: o ? 'They are not hiring.' : '' };
-    const miss = missingCourses(g, w, o);
+    const miss = applyGap(g, w, o);
     if (miss.length) return { ok: false, text: lex(w, 'needCourse', miss.join('", "')) };
     if (!hobbyFits(g, w, o)) return { ok: false, text: `They are looking for someone better at it: ${hobbyNeed(g, w, o)}.` };
     if (triedToday(g, id)) return { ok: false, text: 'You already had an interview there today. Try again tomorrow.' };
