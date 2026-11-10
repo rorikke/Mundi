@@ -11,6 +11,7 @@ import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { triedToday, interview, countUp } from './skills.js';
 import { missingCourses, hasCourse, courseOf } from './courses.js';
+import { needCourseText } from './coursenudge.js';
 import { rollBonus, bonusLabel } from './dice.js';
 import { effectMul } from './effects.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
@@ -381,7 +382,7 @@ export function hire(g: Save, w: WorldDef, id: string): { ok: boolean; text: str
     const o = jobDef(w, id);
     if (!o || o.hireable === false || (o.adult && !adultOn(g))) return { ok: false, text: o ? 'They are not hiring.' : '' };
     const miss = missingCourses(g, w, o);
-    if (miss.length) return { ok: false, text: lex(w, 'needCourse', miss.join('", "')) };
+    if (miss.length) return { ok: false, text: needCourseText(g, w, o, miss) };
     if (!hobbyFits(g, w, o)) return { ok: false, text: `They are looking for someone better at it: ${hobbyNeed(g, w, o)}.` };
     if (triedToday(g, id)) return { ok: false, text: 'You already had an interview there today. Try again tomorrow.' };
     // a word from someone high up there gets you in without the interview
