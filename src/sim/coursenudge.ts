@@ -43,14 +43,16 @@ export function nudgeFor(g: Save, w: WorldDef): Nudge | null {
 const fallbackText = (n: Nudge) => `I have been pleased with your work. The next step, ${n.rank}, asks for "${n.course.name}". If you want to go further, think about taking it.`;
 // What the AI is told to say: who writes, about what, and that the numbers are not its to give.
 function brief(n: Nudge, from: string, me: string): string {
-    return `${from} thinks well of ${me}'s work at ${n.job.name} and writes to suggest the course "${n.course.name}", which the next step, ${n.rank}, asks for. A short, warm message in their own voice: they appreciate ${me}'s work and suggest the course if ${me} wants to go further. Do not give any numbers, prices or dates: those are shown to ${me} separately.`;
+    return `${from} thinks well of ${me}'s work at ${n.job.name} and writes to suggest the course "${n.course.name}", which the next step, ${n.rank}, asks for. A short, warm message in their own voice: they appreciate ${me}'s work and suggest the course if ${me} wants to go further. Do not give any numbers, prices or dates: those are shown to ${me} separately. It is a direct message, not a post: no hashtags.`;
 }
+// (some models sign off a work message like a social post anyway: hashtags at the end are dropped)
+const noTags = (t: string) => t.replace(/(\s*#[\p{L}\p{N}_]+)+[\s.!]*$/u, '').trim();
 // The manager has no card: one quiet line from the AI in a made-up voice, or the engine's words.
 async function managerWords(g: Save, w: WorldDef, n: Nudge, fallback: string): Promise<string> {
     const me = personaName();
     const prompt = [`[The work app of ${n.job.name} in ${w.name}. The manager writes ${me} a short message (one to three sentences), ${aiVoice(w)}, written in ${aiLangName(g.lang)}.]`,
         `[${brief(n, 'The manager', me)}]`, 'The manager:'].join('\n');
-    try { const t = await sayLine(prompt, 'The manager', ['The manager', me], 320, 120, 'later'); return t || fallback; } catch { return fallback; }
+    try { const t = noTags(await sayLine(prompt, 'The manager', ['The manager', me], 320, 120, 'later')); return t || fallback; } catch { return fallback; }
 }
 
 /** Writes the message now: to the boss's thread when there is a boss in the world (and a phone), else the work app. */
