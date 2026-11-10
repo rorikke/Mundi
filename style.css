@@ -3765,6 +3765,14 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-starts .mu-origin small.mu-muted { display: block; margin-top: 2px; }
 #mundi-root .mu-pp-intimate { margin-top: 10px; display: grid; gap: 8px; }
 #mundi-root .mu-pp-intimate > button { justify-self: start; display: inline-flex; gap: 6px; align-items: center; }
+/* World creator: courses (schedules, aid), strengths that start skills, and what traits do. */
+#mundi-root .mu-cw-err { display: block; color: var(--bad); font-size: 12px; font-weight: 600; }
+#mundi-root .mu-cw-err[hidden] { display: none; }
+#mundi-root .mu-cw-strengths { display: grid; gap: 6px; }
+#mundi-root .mu-cw-strengths .mu-cw-sub { margin-top: 4px; }
+#mundi-root .mu-cw-strength > .mu-cw-sname { flex: 0 0 34%; min-width: 0; align-self: center; overflow-wrap: anywhere; }
+#mundi-root .mu-cw-strength > .mu-cw-sname small { display: block; font-size: 11px; }
+#mundi-root .mu-cw-list > .mu-cw-sub:first-child { margin-top: 0; }
 /* ==========================================================================
    Phones, upright (#mundi-root[data-mobile], set in app.ts).
    The game HUD stacks in rows at the top, the dialogue box fills the bottom, and the panels become full-screen sheets.

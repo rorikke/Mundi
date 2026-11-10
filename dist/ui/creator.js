@@ -26,13 +26,17 @@ import { icon, ICON_NAMES } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { personPanel, SCOPES } from './personui.js';
 import { cleanPerson } from '../sim/gender.js';
+import { whenError } from '../sim/when.js';
+import { skillsOf } from '../sim/hobbies.js';
+import { WORK_PRESETS, worldPreset } from '../sim/work.js';
+import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind } from '../core/traits.js';
 const TABS = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
     ['actions', 'Things to do'], ['jobs', 'Jobs'], ['courses', 'Courses'], ['shop', 'Shop'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
 // A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them).
 const SCENARIO_HIDES = ['realm', 'economy', 'rpg'];
 export const CW = {
     w: null, tab: 'general', dirty: false, saving: false, confirmDel: false, leaveAsk: false, nameMiss: false,
-    sel: { courses: 0, needs: 0, actions: 0, jobs: 0, zones: 0, kinds: '', traits: 0, origins: 0, people: 0, routine: '', lore: 0 },
+    sel: { courses: 0, needs: 0, actions: 0, jobs: 0, zones: 0, kinds: '', traits: 0, origins: 0, people: 0, routine: '', lore: 0, tinfo: '' },
     start: null,
     allTabs: false,
 };
@@ -65,6 +69,28 @@ const time = (label, p) => `<label class="mu-field"><span>${label}</span><input 
 const csv = (label, p, hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="csv" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
 const color = (label, p) => `<label class="mu-field mu-cw-color"><span>${label}</span><input type="color" data-input="cw" data-path="${esc(p)}" value="${val(p) || '#888888'}"></label>`;
 const chips = (list, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`; };
+// A number held between two bounds as it is typed (a skill level 1–10, a share 0–1).
+const bounded = (label, p, lo, hi, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
+// A condition in the grammar of sim/when.ts, checked as it is typed: what can't be read shows under it (such a condition
+// never holds in a game). `ok`: a value the reader of this field takes besides the grammar.
+const cond = (label, p, ph = '', hint = '', ok = '') => {
+    const v = getPath(p);
+    const err = typeof v === 'string' && v !== ok ? whenError(v) : '';
+    return `<label class="mu-field"><span>${label}</span><input data-input="cw-when" data-path="${esc(p)}" data-focus="${esc(p)}" ${ok ? `data-ok="${esc(ok)}"` : ''} value="${typeof v === 'string' ? esc(v) : ''}" placeholder="${esc(ph)}">
+        <small class="mu-cw-err" ${err ? '' : 'hidden'}>${esc(err)}</small>${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+};
+// The header's "•" once something changed, without drawing the screen again (typing keeps its place).
+function dirtyMark() {
+    if (typeof document === 'undefined')
+        return;
+    const top = document.querySelector('.mu-creator-ed .mu-subhead small');
+    if (top && !top.textContent?.endsWith('•'))
+        top.textContent = `${W().name} •`;
+}
+// Every skill of the world (its skills, then its hobbies), as the engine counts them.
+const skillOpts = (w) => skillsOf(w).map(s => [s.id, s.name]);
+const BAD_KEYS = ['__proto__', 'constructor', 'prototype'];
+const own = (o, k) => (o && !BAD_KEYS.includes(k) && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
 // A list on the left (pick, add, remove) and the picked item's form on the right.
 function master(key, path, label, form, add, empty = 'Nothing here yet.') {
     const list = getPath(path) ?? [];
@@ -206,6 +232,8 @@ function tabJobs(w) {
                 ${k < o.ranks.length - 1 ? num('Time to the next rank (relative)', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
                 <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${p}.ranks">${icon('plus')}<span>Add a rank</span></button>
+            ${o.ranks.map((r, k) => (k === 0 && (o.courses ?? []).length) || r.student ? chk(k ? `${esc(r.name)} is a student rank` : 'The first rank is a student rank', `${p}.ranks.${k}.student`, 'You can be hired at it while you take the course this job asks for; the next rank needs the course finished.') : '').join('')}
+            ${csv('New bottom ranks added (ids)', `${p}.shifted`, 'Added a rank below the first one after people played this job? Add a new id here once: saved games holding this job move up one rank, so they keep the rank they had.')}
             ${branchEditor(w, o, p)}
             <h4>Traits that help (faster promotions)</h4>${chips(traitOptions(w), `${p}.likes`)}
             <h4>Required traits (one of them)</h4>${chips(traitOptions(w), `${p}.needs`)}
@@ -325,6 +353,7 @@ function tabCustoms(w) {
                 <div class="mu-row2">${num('Only between (hour)', `${p}.hours.0`, 0)}${num('and (hour)', `${p}.hours.1`, 0)}</div>
                 <div class="mu-row2">${num('Times', `${p}.count`, 1)}${num('In how many days', `${p}.days`, 1)}</div>
                 ${num('Fades after days without it (empty: twice the days above)', `${p}.lose`, 1)}
+                ${skillOpts(w).length ? sel('A skill it trains a little faster while you have it', `${p}.learn`, [['', '(none)'], ...skillOpts(w)], 'opt') : ''}
                 <h4>Every morning while you have it</h4><div class="mu-row2">${w.statuses.map(st => num(esc(st.name), `${p}.daily.${st.id}`, -50)).join('')}</div>`;
     }, 'habit')}</section>
         <section class="mu-cw-sec"><h4>Festivals</h4>${master('festival', 'festivals', f => `<b>${esc(f.name)}</b><small>${esc(f.season)} ${f.day}</small>`, i => {
@@ -496,29 +525,90 @@ function ensureExpenses(w) {
         }
     }
 }
-// Courses: what each teaches (traits), and where that helps. Traits drive every bonus in the engine, so the links are
-// written where the engine reads them: a job that requires the course (occupation.courses), a job it favors (the
-// course's traits in occupation.likes: faster promotions), a skill it improves (its traits in the action's roll).
+// What a course's length means in days, as the game counts it (sim/courses.ts, spanOf): a share of a year of four
+// seasons, 14 days each unless a game changes it (World → Rules), shortened by the work rules' career speed. Shown for
+// Realistic and for this world's default work rules.
+const SEASON_DAYS = 14;
+const spanAt = (length, speed) => Math.max(1, Math.round((4 * SEASON_DAYS * length) / Math.max(0.05, speed)));
+const defaultRules = (w) => WORK_PRESETS.find(x => x.id === worldPreset(w)) ?? WORK_PRESETS[0];
+const courseDays = (w, c) => (Number(c?.length) > 0 ? spanAt(Number(c.length), defaultRules(w).rules.speed) : Math.max(1, Math.round(Number(c?.days) || 1)));
+// Paid each season: when it says so, else when it lasts longer than a season (sim/courses.ts, perSeason).
+const seasonal = (w, c) => (typeof c?.perSeason === 'boolean' ? c.perSeason : courseDays(w, c) > SEASON_DAYS);
+function lengthNote(w, c) {
+    if (!c)
+        return '';
+    const len = Number(c.length);
+    if (!(len > 0))
+        return esc(`No length: it lasts ${courseDays(w, c)} days. A length (a share of a year) follows the season length and the work rules, as careers do.`);
+    const def = defaultRules(w);
+    const real = spanAt(len, 1);
+    const days = def.id === 'realistic' ? `About ${real} days with ${SEASON_DAYS}-day seasons (Realistic work rules, this world's default)`
+        : `About ${real} days with ${SEASON_DAYS}-day seasons and Realistic work rules; ${spanAt(len, def.rules.speed)} with ${def.name} (this world's default)`;
+    return esc(`${days}. Its classes: the days its schedule meets in that time; without a schedule, five a week (about ${Math.round(courseDays(w, c) * 5 / 7)}).`);
+}
+// Lines that say what a number means, drawn again as it is typed without drawing the form again.
+const NOTES = { clen: i => lengthNote(W(), (W().catalogs.courses ?? [])[i]) };
+function refreshNotes() {
+    if (typeof document === 'undefined')
+        return;
+    document.querySelectorAll('.mu-creator-ed [data-cw-note]').forEach(el => { const f = NOTES[el.dataset.cwNote ?? '']; if (f)
+        el.innerHTML = f(Number(el.dataset.i)); });
+}
+const AID_KINDS = [['employer', 'An employer (sponsorship)'], ['merit', 'A school (merit scholarship)'], ['public', 'The government (public benefit)']];
+// Courses: what each teaches (skill levels in a world with skills, traits in one without), how long it takes, where
+// and when its classes are, what it asks first, what it costs and who may help pay. A course is also a credential:
+// jobs that require it are linked here. Traits drive the bonuses of worlds without skills, so those links are written
+// where the engine reads them: a job it favors (the course's traits in occupation.likes: faster promotions), a roll it
+// improves (its traits in the action's roll).
 function tabCourses(w) {
     const list = (w.catalogs.courses ?? []);
     const rolls = w.actions.filter(a => a.roll);
+    const skilled = !!skillOpts(w).length;
     return `<section class="mu-cw-sec"><h4>Courses</h4>
-        <p class="mu-muted">Players pay once, then study a little each day (at home or where a place is tagged "study"). When they finish, they learn the course's traits for good.</p>
-        ${master('courses', 'catalogs.courses', c => `<b>${esc(c.icon ?? '')} ${esc(c.name)}</b><small>${c.days} days · ${esc(money(w, c.cost ?? 0))}</small>`, i => {
+        <p class="mu-muted">${skilled ? 'Players enroll, pay and go to its classes (at its place, or at home or where a place is tagged "study"). Each class teaches a little of its skills, and finishing it gives at least their levels. A finished course is a credential jobs and ranks can ask for.'
+        : 'Players pay once, then study a little each day (at home or where a place is tagged "study"). When they finish, they learn the course\'s traits for good.'}</p>
+        ${master('courses', 'catalogs.courses', c => `<b>${esc(c.icon ?? '')} ${esc(c.name)}</b><small>${esc(courseDays(w, c))} days · ${esc(money(w, c.cost ?? 0))}${seasonal(w, c) ? ' a season' : ''}${c.retired ? ' · retired' : ''}</small>`, i => {
         const p = `catalogs.courses.${i}`;
         const c = list[i];
         const g = c.grants ?? [];
         const has = (l) => g.length > 0 && g.every(t => (l ?? []).includes(t));
         const rel = (kind, id, on, label) => `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="cw-crel" data-kind="${esc(kind)}" data-id="${esc(id)}" data-i="${esc(i)}" ${kind !== 'req' && !g.length ? 'aria-disabled="true" title="Give the course a trait to teach first"' : ''}>${esc(label)}</button>`;
+        const taught = Object.entries((c.skills ?? {}));
+        const free = skillOpts(w).filter(([id]) => !taught.some(([s]) => s === id));
         return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '📚')}</div>
-                <div class="mu-row2">${txt('Area', `${p}.area`, 'Health')}${num('Days of study', `${p}.days`, 1)}</div>
-                <div class="mu-row2">${num(`Price (${esc(w.currency.symbol)})`, `${p}.cost`)}</div>
+                <div class="mu-row2">${txt('Area', `${p}.area`, 'Health')}${num(`${seasonal(w, c) ? 'Fee each season' : 'Price'} (${esc(w.currency.symbol)})`, `${p}.cost`)}</div>
                 ${area('Description', `${p}.desc`, 2)}
-                ${csv('Teaches these traits', `${p}.grants`, 'Separated by commas. A trait can be new; it helps wherever it is asked for.')}
+                ${skilled || taught.length ? `<h4>Skills it teaches</h4>
+                    ${taught.map(([s]) => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Skill</span><select data-input="cw-cskill" data-i="${esc(i)}" data-from="${esc(s)}">${[...skillOpts(w).filter(([id]) => id === s || free.some(([f]) => f === id)), ...(skillOpts(w).some(([id]) => id === s) ? [] : [[s, s]])].map(([id, n]) => `<option value="${esc(id)}" ${id === s ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+                        ${bounded('Level at the end (1–10)', `${p}.skills.${s}`, 1, 10)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.skills.${s}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+                    ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="cskill" data-i="${esc(i)}">${icon('plus')}<span>Add a skill</span></button>` : ''}` : ''}
+                ${csv(skilled ? 'Also teaches these traits (optional)' : 'Teaches these traits', `${p}.grants`, 'Separated by commas. A trait can be new; it helps wherever it is asked for.')}
                 ${traitOptions(w).length ? `<small class="mu-muted">Traits of this world: ${esc(traitOptions(w).join(', '))}</small>` : ''}
+                <h4>How long</h4>
+                <div class="mu-row2">${num('Length (a share of a game year: 0.25 is a season)', `${p}.length`, 0, 0.05)}${num('Days (when it has no length)', `${p}.days`, 1)}</div>
+                <small class="mu-muted" data-cw-note="clen" data-i="${esc(i)}">${lengthNote(w, c)}</small>
+                <h4>Where and when</h4>
+                ${sel('Taught at', `${p}.at`, placeOpts(w, '(anywhere you can study: home or a place tagged "study")'), 'opt')}
+                ${cond('Schedule (when its classes are)', `${p}.when`, 'weekday: tue or thu; clock: 19:00-21:00', 'Empty: any five days a week, one class a day at most. The words of conditions (weekday, clock…), as in Things to do.')}
+                <h4>Enrolling and paying</h4>
+                ${cond('It asks first (a condition)', `${p}.needs`, 'skill: japanese 4', 'Empty: anyone can enroll. A finished course: course: its id.')}
+                ${sel('The fee is paid', `${p}.perSeason`, [['', 'By its length (each season when it lasts longer than one)'], ['true', 'Every season while you take it'], ['false', 'Once, when you enroll']], 'tri')}
+                ${chk('Retired', `${p}.retired`, 'No longer offered. A game taking it can finish it, and jobs still accept it. A course is never removed once games may have taken it.')}
+                <h4>Help paying (aid)</h4><p class="mu-muted">Only the best one a player qualifies for counts.</p>
+                ${(c.aid ?? []).map((ad, k) => {
+            const q = `${p}.aid.${k}`;
+            return `<div class="mu-cw-path">
+                    <div class="mu-row2">${txt('Name', `${q}.name`, 'Hospital scholarship')}${sel('Who pays', `${q}.kind`, AID_KINDS)}</div>
+                    <div class="mu-row2">${bounded('Share of the fee (0.5: half, 1: all)', `${q}.share`, 0, 1, 0.05)}${sel('When it pays', `${q}.pays`, [['', 'As usual (employer and merit: at enrollment; public: at the end)'], ['enroll', 'Off the fee when you enroll'], ['finish', 'Back when you finish']], 'opt')}</div>
+                    ${cond('Who qualifies (a condition)', `${q}.when`, 'job: nurse; perf: 70')}
+                    <div class="mu-row2">${ad.jobless ? '' : num('Only after holding a job for (seasons)', `${q}.held`, 0)}${ad.held ? '' : chk('Only while out of work', `${q}.jobless`)}</div>
+                    ${chk('Stay a season after finishing', `${q}.stay`, 'Leaving that job before then pays back the share of the season left.')}
+                    <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>Remove this aid</span></button></div>`;
+        }).join('')}
+                <button class="mu-ghost" data-act="cw-add" data-what="aid" data-path="${esc(`${p}.aid`)}">${icon('plus')}<span>Add aid</span></button>
                 <h4>Required for these jobs</h4><div class="mu-chips">${w.occupations.map(o => rel('req', o.id, (o.courses ?? []).includes(c.id), o.name)).join('') || '<small class="mu-muted">No jobs yet.</small>'}</div>
-                <h4>Helps in these jobs (faster promotions)</h4><div class="mu-chips">${w.occupations.map(o => rel('job', o.id, has(o.likes), o.name)).join('') || '<small class="mu-muted">No jobs yet.</small>'}</div>
-                <h4>Improves these skills (+2 on their roll)</h4><div class="mu-chips">${rolls.map(a => rel('act', a.id, has(a.roll?.traits), a.label || a.name)).join('') || '<small class="mu-muted">No things to do with a roll yet (Things to do → a roll).</small>'}</div>`;
+                ${skilled && !g.length ? '' : `<h4>Helps in these jobs (faster promotions)</h4><div class="mu-chips">${w.occupations.map(o => rel('job', o.id, has(o.likes), o.name)).join('') || '<small class="mu-muted">No jobs yet.</small>'}</div>
+                <h4>Improves these skills (+2 on their roll)</h4><div class="mu-chips">${rolls.map(a => rel('act', a.id, has(a.roll?.traits), a.label || a.name)).join('') || '<small class="mu-muted">No things to do with a roll yet (Things to do → a roll).</small>'}</div>`}`;
     }, 'course', 'No courses yet.')}</section>`;
 }
 // The shop: things to buy once. A vehicle shortens trips, a good bed lifts the mood each morning, and an item can
@@ -597,6 +687,160 @@ function tabHomes(w) {
     }, 'breakable', 'Nothing breaks.')}</section>
     </div>`;
 }
+// A strengths group (`TraitGroup.skills`): each option starts a skill at a level, so a pick becomes skill levels
+// instead of a trait. Options no longer offered can keep theirs (`formerly`), so old saves and persona sheets that
+// picked them still convert. Fields name the trait in data-path for the parity check but are bound by name (a trait's
+// name may hold a dot).
+function strengthsEditor(w, k) {
+    const t = w.sheet.traits?.[k];
+    if (!t)
+        return '';
+    if (!t.skills)
+        return skillOpts(w).length ? `<label class="mu-check"><input type="checkbox" data-input="cw-strengths" data-k="${esc(k)}"><span>Strengths: each option starts a skill<small>A pick becomes skill levels instead of a trait (Good cook: Cooking 3).</small></span></label>` : '';
+    const p = `sheet.traits.${k}`;
+    const map = t.skills;
+    const names = [...new Set([...t.options, ...(t.formerly ?? []), ...Object.keys(map)])].filter(n => !BAD_KEYS.includes(n));
+    const row = (n) => {
+        const has = Object.entries(own(map, n) ?? {});
+        const status = t.options.includes(n) ? '' : (t.formerly ?? []).includes(n) ? 'former option' : 'no longer offered: kept as a former option when saved';
+        const pick = (s) => `<label class="mu-field"><span>Skill</span><select data-input="cw-strength" data-k="${esc(k)}" data-name="${esc(n)}" data-from="${esc(s)}">${[['', '(none: stays a trait)'], ...skillOpts(w).filter(([id]) => id === s || !has.some(([x]) => x === id)), ...(s && !skillOpts(w).some(([id]) => id === s) ? [[s, s]] : [])].map(([id, l]) => `<option value="${esc(id)}" ${id === s ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+        const level = (s, lv) => `<label class="mu-field"><span>Level</span><input type="number" min="1" max="10" step="1" data-input="cw-strength-lv" data-k="${esc(k)}" data-name="${esc(n)}" data-skill="${esc(s)}" data-path="${esc(`${p}.skills.${n}.${s}`)}" value="${esc(lv)}"></label>`;
+        return (has.length ? has : [['', 0]]).map(([s, lv], j) => `<div class="mu-row mu-cw-inline mu-cw-strength"><span class="mu-cw-sname">${j ? '' : `${esc(n)}${status ? ` <small class="mu-muted">${esc(status)}</small>` : ''}`}</span>${pick(s)}${s ? level(s, lv) : '<span class="mu-cw-spacer"></span>'}</div>`).join('');
+    };
+    return `<div class="mu-cw-strengths"><span class="mu-cw-sub">Skill each option starts</span>${names.map(row).join('')}
+        ${csv('Former options (no longer offered; old saves and persona sheets still convert)', `${p}.formerly`)}
+        <label class="mu-check"><input type="checkbox" data-input="cw-strengths" data-k="${esc(k)}" checked><span>Strengths: each option starts a skill<small>Off: the options are traits again, and their skills are forgotten.</small></span></label></div>`;
+}
+// What each trait does in this world (`traitInfo`): a line for the creation screen and the profile, small effects
+// from the engine's fixed list, held inside a trait's bounds (±15%, flat ±1), and for an interest, what it covers.
+// The standard names (Calm, Shy, Music…) come with the engine's own; a world keeps only what it changed (ownTraitInfo).
+// Strengths groups are skills, not effects, so they are left out.
+const GOAL_KINDS = ['price', 'pay', 'travel', 'rest', 'reroll', 'points']; // life goals' perks only
+const TRAIT_KINDS = Object.keys(EFFECT_KINDS).filter(k => !GOAL_KINDS.includes(k));
+const KIND_NAMES = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth' };
+function targetOpts(w, kind, cur = '') {
+    const tags = [...new Set([...w.places.flatMap(p => p.tags ?? []), ...w.actions.flatMap(a => a.tags ?? [])])];
+    const list = kind === 'drain' ? [['', 'Every need'], ...w.statuses.map(s => [s.id, `${s.icon} ${s.name}`])]
+        : kind === 'learn' ? [['all', 'Every skill'], ['upto:3', 'Every skill, up to level 3'], ['upto:5', 'Every skill, up to level 5'], ...skillOpts(w)]
+            : kind === 'roll' ? [['', 'Every roll'], ...skillOpts(w), ...tags.map(t => [t, `Tag: ${t}`])]
+                : kind === 'perf' ? [['gain', 'Performance gains']] : kind === 'career' ? [['rank', 'Days a rank takes']] : kind === 'warm' ? [['new', 'Someone you first meet (points)']]
+                    : kind === 'gain' ? [['friend', 'Friendship'], ['romance', 'Romance'], ['dates', 'Romance from dates'], ['gifts', 'Gifts'], ['good friends', 'Friendship with good friends']]
+                        : kind === 'fade' ? [['romance', 'Romance'], ['friend', 'Friendship']] : kind === 'morning' || kind === 'party' ? [['mood', 'Mood']] : [['', 'Every class']];
+    return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
+}
+const hasStd = (n) => !!own(STANDARD_TRAIT_INFO, n);
+// Same content, whatever the order of its keys (an entry edited back to what the engine says is not the world's own).
+const canon = (x) => JSON.stringify(x, (_k, v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : v));
+const isStd = (n, info) => hasStd(n) && (!info || canon(info) === canon(STANDARD_TRAIT_INFO[n]));
+/** The trait info a world file keeps: its own entries, without the standard names' entries that still say what the
+ *  engine says (upgradeWorld gives those to every world as it loads, so later tuning of the standard names reaches it). */
+export function ownTraitInfo(all) {
+    const out = {};
+    for (const [n, info] of Object.entries(all ?? {}))
+        if (!BAD_KEYS.includes(n) && !isStd(n, info))
+            out[n] = structuredClone(info);
+    return Object.keys(out).length ? out : undefined;
+}
+/** The world as its file is written: everything, with only its own trait info. An entry taken over from a standard
+ *  name may name skills this world doesn't have (Music covers singing): they could never match, so they go. An option
+ *  taken out of a strengths group that still has its skill becomes a former option, so old saves still convert. */
+export function forSaving(w) {
+    const out = structuredClone(w);
+    const mine = ownTraitInfo(w.traitInfo);
+    const known = new Set([...(w.skills ?? []), ...(w.hobbies ?? [])].map(s => s.id));
+    for (const info of Object.values(mine ?? {})) {
+        if (info.covers?.skills)
+            info.covers.skills = info.covers.skills.filter(s => known.has(s));
+        if (info.effects)
+            info.effects = info.effects.filter(e => e.kind !== 'learn' || !e.target || e.target === 'all' || e.target.startsWith('upto:') || known.has(e.target));
+        tidyInfo(info);
+    }
+    if (mine)
+        out.traitInfo = mine;
+    else
+        delete out.traitInfo;
+    for (const g of out.sheet?.traits ?? []) {
+        const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.formerly ?? []).includes(n));
+        if (left.length)
+            g.formerly = [...(g.formerly ?? []), ...left];
+    }
+    return out;
+}
+// The entry being edited: the world's own, made from the standard one the first time it changes.
+function infoOf(name, make = false) {
+    if (BAD_KEYS.includes(name))
+        return undefined;
+    const w = W();
+    const mine = own(w.traitInfo, name);
+    if (mine || !make)
+        return mine ?? (hasStd(name) ? STANDARD_TRAIT_INFO[name] : undefined);
+    return ((w.traitInfo ??= {})[name] = structuredClone(hasStd(name) ? STANDARD_TRAIT_INFO[name] : {}));
+}
+// Empty parts go, so a trait edited back to nothing says nothing (and one edited back to the standard is the standard).
+function tidyInfo(info) {
+    if (!info.desc)
+        delete info.desc;
+    if (!info.effects?.length)
+        delete info.effects;
+    if (info.covers) {
+        if (!info.covers.skills?.length)
+            delete info.covers.skills;
+        if (!info.covers.tags?.length)
+            delete info.covers.tags;
+        if (!Object.keys(info.covers).length)
+            delete info.covers;
+    }
+}
+const pctOf = (k) => EFFECT_KINDS[k].mode === 'mul';
+function traitInfoEditor(w) {
+    const groups = (w.sheet.traits ?? []).filter(t => !t.skills && t.options.length).map(t => [t.label, t.options]);
+    if ((w.habits ?? []).length)
+        groups.push(['Habits', [...new Set((w.habits ?? []).map(h => h.trait).filter(Boolean))]]);
+    const listed = new Set(groups.flatMap(g => g[1]));
+    const others = Object.keys(w.traitInfo ?? {}).filter(n => !listed.has(n) && !BAD_KEYS.includes(n));
+    if (others.length)
+        groups.push(['Others with info', others]);
+    const names = [...new Set(groups.flatMap(g => g[1]))].filter(n => !BAD_KEYS.includes(n));
+    if (!names.includes(CW.sel.tinfo))
+        CW.sel.tinfo = names[0] ?? '';
+    const n = CW.sel.tinfo;
+    const info = n ? infoOf(n) : undefined;
+    const p = `traitInfo.${n}`;
+    const label = (x) => {
+        const i = infoOf(x);
+        const fx = i?.effects?.length ?? 0;
+        return `${isStd(x, own(w.traitInfo, x)) ? 'standard' : hasStd(x) ? 'changed' : i ? 'this world' : 'nothing yet'}${fx ? ` · ${fx} effect${fx === 1 ? '' : 's'}` : ''}`;
+    };
+    const at = (f, extra = '') => `data-name="${esc(n)}" data-f="${esc(f)}" data-path="${esc(`${p}.${f}`)}" ${extra}`;
+    const effect = (e, j) => {
+        const kind = isEffectKind(e.kind) ? e.kind : 'drain';
+        const pct = pctOf(kind);
+        const lim = pct ? TRAIT_LIMITS.pct * 100 : TRAIT_LIMITS.flat;
+        const shown = pct ? Math.round(Number(e.value) * 1000) / 10 : Number(e.value);
+        const kinds = TRAIT_KINDS.includes(kind) ? TRAIT_KINDS : [...TRAIT_KINDS, kind];
+        const whenErr = typeof e.when === 'string' && e.when !== OUT_OF_WORK ? whenError(e.when) : '';
+        return `<div class="mu-cw-path"><div class="mu-row2">
+            <label class="mu-field"><span>What it changes</span><select data-input="cw-ti" ${at(`effects.${j}.kind`)}>${kinds.map(k => `<option value="${esc(k)}" ${k === kind ? 'selected' : ''}>${esc(KIND_NAMES[k] ?? k)}</option>`).join('')}</select></label>
+            <label class="mu-field"><span>Of</span><select data-input="cw-ti" ${at(`effects.${j}.target`)}>${targetOpts(w, kind, e.target ?? '').map(([v, l]) => `<option value="${esc(v)}" ${v === (e.target ?? '') ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>
+            <div class="mu-row2"><label class="mu-field"><span>${pct ? `By (%; −${lim} … +${lim})` : `By (−${lim} … +${lim})`}</span><input type="number" min="${-lim}" max="${lim}" step="${pct ? 1 : 0.5}" data-input="cw-ti" ${at(`effects.${j}.value`)} data-focus="${esc(`${p}.effects.${j}.value`)}" value="${esc(shown)}"></label>
+            <label class="mu-field"><span>Only while (optional)</span><input data-input="cw-ti" ${at(`effects.${j}.when`)} data-focus="${esc(`${p}.effects.${j}.when`)}" value="${esc(typeof e.when === 'string' ? e.when : '')}" placeholder="period: night · out of work">
+                <small class="mu-cw-err" ${whenErr ? '' : 'hidden'}>${esc(whenErr)}</small></label></div>
+            <button class="mu-ghost mu-danger-text" data-act="cw-ti-del" data-name="${esc(n)}" data-j="${esc(j)}">${icon('x')}<span>Remove this effect</span></button></div>`;
+    };
+    const covered = info?.covers?.skills ?? [];
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>What traits do</h4>
+        <p class="mu-muted">A line about each trait (shown when picking it and on the profile) and small effects from a fixed list, each within ±${TRAIT_LIMITS.pct * 100}% (a flat amount within ±${TRAIT_LIMITS.flat}). An interest also says what it covers: doing something that fits it lifts the mood a little more. Standard traits (Calm, Shy, Music…) come with the game's own; change them here, or leave them to get the game's later tuning.</p>
+        ${names.length ? `<div class="mu-cw-master"><aside class="mu-cw-list" data-keep="cw-tinfo">${groups.map(([g, l]) => `<span class="mu-cw-sub">${esc(g)}</span>${l.filter(x => !BAD_KEYS.includes(x)).map(x => `<button class="mu-cw-row ${x === n ? 'is-on' : ''}" data-act="cw-tinfo" data-name="${esc(x)}"><b>${esc(x)}</b><small>${esc(label(x))}</small></button>`).join('')}`).join('')}</aside>
+        <section class="mu-cw-form"><h4>${esc(n)}</h4>
+            <label class="mu-field"><span>Description (when picking it, and on the profile)</span><input data-input="cw-ti" ${at('desc')} data-focus="${esc(`${p}.desc`)}" value="${esc(info?.desc ?? '')}"></label>
+            <h4>Effects</h4>${(info?.effects ?? []).map(effect).join('') || '<p class="mu-muted">No effects: it only colors how the AI plays you (and job fit, when jobs like it).</p>'}
+            <button class="mu-ghost" data-act="cw-ti-add" data-name="${esc(n)}">${icon('plus')}<span>Add an effect</span></button>
+            <h4>An interest covers</h4>
+            ${skillOpts(w).length || covered.length ? `<div class="mu-field"><span>Skills</span><div class="mu-chips">${[...skillOpts(w), ...covered.filter(s => !skillOpts(w).some(([id]) => id === s)).map(s => [s, s])].map(([id, l]) => `<button class="mu-chip ${covered.includes(id) ? 'is-on' : ''}" data-act="cw-ti-chip" data-name="${esc(n)}" data-v="${esc(id)}" data-path="${esc(`${p}.covers.skills`)}">${esc(l)}</button>`).join('')}</div></div>` : ''}
+            <label class="mu-field"><span>Tags of actions and places (comma separated)</span><input data-input="cw-ti" ${at('covers.tags')} data-focus="${esc(`${p}.covers.tags`)}" value="${esc((info?.covers?.tags ?? []).join(', '))}" placeholder="bar, club"></label>
+            ${hasStd(n) && !isStd(n, own(w.traitInfo, n)) ? `<button class="mu-ghost" data-act="cw-ti-reset" data-name="${esc(n)}">${icon('redo')}<span>Back to the standard</span></button>` : !hasStd(n) && own(w.traitInfo, n) ? `<button class="mu-ghost mu-danger-text" data-act="cw-ti-reset" data-name="${esc(n)}">${icon('x')}<span>Clear what it does</span></button>` : ''}
+        </section></div>` : '<p class="mu-muted">No traits to describe yet: add a group above.</p>'}</section>`;
+}
 function tabCharacter(w) {
     const s = w.sheet;
     return `<div class="mu-cw-grid">
@@ -607,8 +851,9 @@ function tabCharacter(w) {
             ${(s.appearance ?? []).map((_a, k) => `<div class="mu-row mu-cw-inline">${txt('Trait', `sheet.appearance.${k}.label`)}${csv('Options (comma separated)', `sheet.appearance.${k}.options`)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="sheet.appearance.${k}">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="look">${icon('plus')}<span>Add</span></button></section>
         <section class="mu-cw-sec"><h4>Traits the player picks</h4>
-            ${(s.traits ?? []).map((_t, k) => `<div class="mu-cw-trait"><div class="mu-row2">${txt('Group', `sheet.traits.${k}.label`)}${num('Pick up to', `sheet.traits.${k}.max`, 1)}</div>${csv('Options (comma separated)', `sheet.traits.${k}.options`)}<button class="mu-ghost" data-act="cw-del" data-path="sheet.traits.${k}">${icon('trash')}<span>Remove</span></button></div>`).join('')}
+            ${(s.traits ?? []).map((_t, k) => `<div class="mu-cw-trait"><div class="mu-row2">${txt('Group', `sheet.traits.${k}.label`)}${num('Pick up to', `sheet.traits.${k}.max`, 1)}</div>${csv('Options (comma separated)', `sheet.traits.${k}.options`)}${strengthsEditor(w, k)}<button class="mu-ghost" data-act="cw-del" data-path="sheet.traits.${k}">${icon('trash')}<span>Remove</span></button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="trait">${icon('plus')}<span>Add a group</span></button></section>
+        ${traitInfoEditor(w)}
         <section class="mu-cw-sec mu-cw-wide"><h4>Origins (how you start)</h4>
             ${master('origins', 'catalogs.origins', o => `<b>${esc(o.name)}</b><small>${esc(money(w, o.money))}</small>`, i => {
         const p = `catalogs.origins.${i}`;
@@ -985,7 +1230,7 @@ Object.assign(ACT, {
             const copy = await busy('Duplicating', () => newWorldFrom(w.id, 'copy', `${w.name} (copy)`));
             copy.mode = w.mode;
             copy.madeFor = w.madeFor;
-            await saveWorld(copy);
+            await saveWorld(forSaving(copy));
             CW.w = copy;
             CW.tab = 'general';
             CW.dirty = false;
@@ -1056,6 +1301,25 @@ Object.assign(ACT, {
         }
         if (what === 'step') {
             getPath(el.dataset.path).push([12, 'leisure']);
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'cskill') {
+            const c = (w.catalogs.courses ?? [])[Number(el.dataset.i)];
+            if (!c)
+                return;
+            const free = skillOpts(w).find(([id]) => !own(c.skills, id));
+            if (!free)
+                return;
+            (c.skills ??= {})[free[0]] = 3;
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'aid') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push({ id: newId('aid'), name: 'New aid', kind: 'public', share: 0.2 });
             CW.dirty = true;
             notify();
             return;
@@ -1137,6 +1401,36 @@ Object.assign(ACT, {
         setPath(el.dataset.path, l);
         notify();
     },
+    // what traits do (traitInfoEditor)
+    'cw-tinfo': (el) => { CW.sel.tinfo = el.dataset.name ?? ''; notify(); },
+    'cw-ti-add': (el) => { const info = infoOf(el.dataset.name, true); if (!info)
+        return; (info.effects ??= []).push({ kind: 'drain', ...(W().statuses[0] ? { target: W().statuses[0].id } : {}), value: -0.1 }); CW.dirty = true; notify(); },
+    'cw-ti-del': (el) => { const info = infoOf(el.dataset.name, true); if (!info?.effects)
+        return; info.effects.splice(Number(el.dataset.j), 1); tidyInfo(info); CW.dirty = true; notify(); },
+    'cw-ti-chip': (el) => {
+        const info = infoOf(el.dataset.name, true);
+        if (!info)
+            return;
+        const v = el.dataset.v;
+        const l = (info.covers ??= {}).skills ?? [];
+        info.covers.skills = l.includes(v) ? l.filter(x => x !== v) : [...l, v];
+        tidyInfo(info);
+        CW.dirty = true;
+        notify();
+    },
+    // a standard name goes back to the engine's own; any other loses what it does
+    'cw-ti-reset': (el) => {
+        const n = el.dataset.name;
+        const w = W();
+        if (BAD_KEYS.includes(n) || !w.traitInfo)
+            return;
+        if (hasStd(n))
+            w.traitInfo[n] = structuredClone(STANDARD_TRAIT_INFO[n]);
+        else
+            delete w.traitInfo[n];
+        CW.dirty = true;
+        notify();
+    },
     'cw-cover': async () => { const f = await pickFile('image/*'); if (!f)
         return; try {
         W().cover = await uploadWorldPicture(W(), f, 'cover');
@@ -1182,7 +1476,7 @@ Object.assign(ACT, {
     'cw-export': async () => {
         const w = W();
         try {
-            const blob = await busy('Exporting', () => exportWorld(w));
+            const blob = await busy('Exporting', () => exportWorld(forSaving(w)));
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = `${slug(w.name)}.mundi-world.json`;
@@ -1204,7 +1498,7 @@ async function saveDraft() {
     CW.saving = true;
     notify();
     try {
-        await saveWorld(w);
+        await saveWorld(forSaving(w));
         CW.dirty = false;
         toast('World saved.', 'success');
     }
@@ -1241,8 +1535,13 @@ Object.assign(INPUT, {
         const t = el.dataset.type;
         const p = el.dataset.path;
         let v = el.value;
-        if (t === 'num')
-            v = el.value === '' ? undefined : Number(el.value);
+        if (t === 'num') {
+            v = el.value === '' || !Number.isFinite(Number(el.value)) ? undefined : Number(el.value);
+            if (v !== undefined && el.dataset.clamp) {
+                const [lo, hi] = el.dataset.clamp.split(',').map(Number);
+                v = Math.max(lo, Math.min(hi, v));
+            }
+        }
         else if (t === 'bool')
             v = el.checked;
         else if (t === 'nbool')
@@ -1281,10 +1580,149 @@ Object.assign(INPUT, {
         if (el.tagName !== 'INPUT' || ['checkbox', 'color', 'time'].includes(el.type))
             notify();
         else {
-            const top = document.querySelector('.mu-creator-ed .mu-subhead small');
-            if (top && !top.textContent?.endsWith('•'))
-                top.textContent = `${W().name} •`;
+            dirtyMark();
+            refreshNotes();
         }
+    },
+    // a condition: kept as typed, and what can't be read is said under it (see cond)
+    'cw-when': (el) => {
+        const v = el.value.trim();
+        setPath(el.dataset.path, v || undefined);
+        const err = v && v !== el.dataset.ok ? whenError(v) : '';
+        const s = el.parentElement?.querySelector('.mu-cw-err');
+        if (s) {
+            s.textContent = err;
+            s.hidden = !err;
+        }
+        dirtyMark();
+    },
+    // a skill a course teaches, changed for another (its level kept, its place in the list too)
+    'cw-cskill': (el) => {
+        const c = (W().catalogs.courses ?? [])[Number(el.dataset.i)];
+        const from = el.dataset.from, to = el.value;
+        if (!c?.skills || !to || to === from || own(c.skills, to) !== undefined || BAD_KEYS.includes(to))
+            return;
+        c.skills = Object.fromEntries(Object.entries(c.skills).map(([s, l]) => [s === from ? to : s, l]));
+        CW.dirty = true;
+        notify();
+    },
+    // a strengths group on or off (strengthsEditor)
+    'cw-strengths': (el) => {
+        const t = W().sheet.traits?.[Number(el.dataset.k)];
+        if (!t)
+            return;
+        if (el.checked)
+            t.skills ??= {};
+        else {
+            delete t.skills;
+            delete t.formerly;
+        }
+        CW.dirty = true;
+        notify();
+    },
+    // the skill an option starts ('' : none, it stays a trait); its level is kept when the skill changes
+    'cw-strength': (el) => {
+        const t = W().sheet.traits?.[Number(el.dataset.k)];
+        const n = el.dataset.name, from = el.dataset.from ?? '', to = el.value;
+        if (!t?.skills || BAD_KEYS.includes(n) || BAD_KEYS.includes(to))
+            return;
+        const map = own(t.skills, n) ?? {};
+        const out = {};
+        for (const [s, l] of Object.entries(map)) {
+            if (s !== from)
+                out[s] = l;
+            else if (to && !(to in map))
+                out[to] = l;
+        }
+        if (!from && to)
+            out[to] = 3;
+        if (Object.keys(out).length)
+            t.skills[n] = out;
+        else
+            delete t.skills[n];
+        CW.dirty = true;
+        notify();
+    },
+    'cw-strength-lv': (el) => {
+        const t = W().sheet.traits?.[Number(el.dataset.k)];
+        const map = own(t?.skills, el.dataset.name);
+        const s = el.dataset.skill;
+        const lv = Number(el.value);
+        if (!map || own(map, s) === undefined || el.value === '' || !Number.isFinite(lv))
+            return;
+        map[s] = Math.max(1, Math.min(10, Math.round(lv)));
+        CW.dirty = true;
+        dirtyMark();
+    },
+    // a field of what a trait does (traitInfoEditor); values held inside a trait's bounds as they are typed
+    'cw-ti': (el) => {
+        const w = W();
+        const info = infoOf(el.dataset.name, true);
+        const f = el.dataset.f ?? '';
+        if (!info)
+            return;
+        const redraw = el.tagName === 'SELECT';
+        if (f === 'desc')
+            info.desc = el.value.trim() ? el.value : '';
+        else if (f === 'covers.tags')
+            (info.covers ??= {}).tags = el.value.split(',').map(x => x.trim()).filter(Boolean);
+        else {
+            const m = f.match(/^effects\.(\d+)\.(kind|target|value|when)$/);
+            const e = m ? info.effects?.[Number(m[1])] : undefined;
+            if (!m || !e)
+                return;
+            if (m[2] === 'kind') {
+                if (!isEffectKind(el.value))
+                    return;
+                const was = pctOf(e.kind);
+                e.kind = el.value;
+                const opts = targetOpts(w, e.kind);
+                if (!opts.some(([v]) => v === (e.target ?? ''))) {
+                    if (opts[0]?.[0])
+                        e.target = opts[0][0];
+                    else
+                        delete e.target;
+                }
+                if (pctOf(e.kind) !== was)
+                    e.value = (e.value < 0 ? -1 : 1) * (pctOf(e.kind) ? 0.1 : 1);
+                Object.assign(e, clampEffect(e, TRAIT_LIMITS));
+            }
+            else if (m[2] === 'target') {
+                if (el.value)
+                    e.target = el.value;
+                else
+                    delete e.target;
+            }
+            else if (m[2] === 'value') {
+                const x = Number(el.value);
+                if (el.value === '' || !Number.isFinite(x))
+                    return;
+                const kept = clampEffect({ ...e, value: pctOf(e.kind) ? x / 100 : x }, TRAIT_LIMITS).value;
+                e.value = kept;
+                const shown = pctOf(e.kind) ? Math.round(kept * 1000) / 10 : kept;
+                if (Number(el.value) !== shown)
+                    el.value = String(shown);
+            }
+            else {
+                const v = el.value.trim();
+                if (v)
+                    e.when = v;
+                else
+                    delete e.when;
+                const err = v && v !== OUT_OF_WORK ? whenError(v) : '';
+                const s = el.parentElement?.querySelector('.mu-cw-err');
+                if (s) {
+                    s.textContent = err;
+                    s.hidden = !err;
+                }
+            }
+        }
+        tidyInfo(info);
+        CW.dirty = true;
+        if (redraw)
+            notify();
+        else
+            dirtyMark();
     },
     'cw-where': (el) => {
         const a = W().actions[Number(el.dataset.i)];
