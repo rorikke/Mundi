@@ -26,7 +26,8 @@ export type WeekdayId = typeof WEEKDAY_IDS[number];
  *  start), `chance` (per day, `0.2`), `clock` (`19:00-20:00`), `stayed` (slept at that place last night), `holds` (a
  *  keepsake), `gave` (someone here has that keepsake from you, a gift), `companion` (someone with you at that level or
  *  closer: `dating`), `perf` (your performance at work, at
- *  least: `80`; a rank's `when` reads it as the performance it asks for). An outcome's own condition may be
+ *  least: `80`; a rank's `when` reads it as the performance it asks for), `course` (a course id: finished; a number:
+ *  at least that many courses finished). An outcome's own condition may be
  *  written `when: present: Kaito`. Worlds made before conditions were text give an object (LoreWhen), read as before. */
 export type When = string | LoreWhen;
 /** The old form of a condition (lore before E26): the weather, a period by name, a place or region, weekends, a
@@ -153,15 +154,18 @@ export interface ActionDef {
     /** An outing (a scenario): you leave the house off-screen for a while (work, errands, a night out) and come back. */
     outing?: boolean;
     effects: Record<string, number>;
-    /** A one-click skill action (fishing, fixing something): an invisible d20 roll + trait bonuses against `dc`.
-     *  Time and the base effects always apply; then `success` or `fail` adds its own effects and money.
-     *  `skill` (J3): a skill whose level adds to the roll. */
+    /** A one-click skill action (fishing, fixing something): an invisible d20 roll + the one roll bonus against `dc`
+     *  (`rollBonus()` in sim/dice.ts: +1 for every two levels of the roll's skill, −2 each for very low energy and mood,
+     *  and what effects add). Time and the base effects always apply; then `success` or `fail` adds its own effects and
+     *  money. `skill` (J3): the skill whose level counts (without it, the skill the action trains). `traits`: +2 for
+     *  each one the player has (kept for custom worlds; being good at something belongs in `skill`). */
     roll?: { dc: number; traits?: string[]; skill?: string; success: RollOutcome; fail: RollOutcome };
     /** Only shown when the player owns this shop item (a coffee machine, a loom…). */
     needsItem?: string;
     /** Not offered in places with any of these tags (a run is not for the gym). */
     notTags?: string[];
-    /** The hobby this action trains (its level adds to the roll and raises what it pays). Set by the engine from `hobbies`. */
+    /** The hobby this action trains (its level counts in the roll when `roll.skill` names none, and raises what it
+     *  pays). Set by the engine from `hobbies`. */
     hobby?: string;
     /** (E14) More places that offer it (one action for three karaoke boxes), next to `place`. */
     places?: string[];
@@ -210,17 +214,23 @@ export interface Attribute { id: string; name: string; desc?: string }
  *  options no longer offered that keep their mapping in `skills`, so old saves and persona sheets still convert. */
 export interface TraitGroup { id: string; label: string; max: number; options: string[]; skills?: Record<string, Record<string, number>>; formerly?: string[] }
 /** Who pays part of a course (`Course.aid`): an employer, a school's merit scholarship or the public benefit. Only the
- *  best one a player qualifies for counts. `share`: 0–1 of the fee; `when`: who qualifies; `pays`: off the fee at
- *  enrollment or refunded when it's finished; `stay`: a season with that employer after finishing, or the share of it
+ *  best one a player qualifies for counts (the biggest share; never two). `share`: 0–1 of the fee; `when`: who
+ *  qualifies, checked at each fee (`employer` aid also needs a job; `merit` aid is decided at enrollment and kept);
+ *  `pays`: off the fee at enrollment (the default for employer and merit aid) or that share of the fees paid back when
+ *  it's finished (the default for public aid); `stay`: a season with that employer after finishing, or the share of it
  *  left is paid back. */
 export interface CourseAid { id: string; name: string; kind: 'employer' | 'merit' | 'public'; share: number; when?: When; pays?: 'enroll' | 'finish'; stay?: boolean;
     /** The player has held a job (any) for at least this many seasons; `jobless`: only while out of work. */
     held?: number; jobless?: boolean }
-/** A course (`catalogs.courses`). `skills`: the levels it teaches (at least these when you finish). `days`: its length
- *  in sessions; `length` (a share of a game year, like a career's) replaces it where given. `at`: only at this place;
- *  `when`: the schedule of its classes (a condition: `weekday: tue or thu; clock: 19:00-21:00`); `needs`: a condition
- *  to enroll (`skill: japanese 4`, `course: japanese`); `perSeason`: the fee is charged every season; `retired`: not
- *  offered any more, but a save taking it can finish it and jobs still accept it; `aid`: who may pay part of it. */
+/** A course (`catalogs.courses`), taken in classes (sim/courses.ts). `skills`: the levels it teaches (each class gives
+ *  experience toward them, and finishing gives at least these). `grants`: traits it gives when finished (for custom
+ *  worlds; a trait the world maps to a skill gives that skill's levels instead). `length`: how long it lasts, as a share
+ *  of a game year (like a career's: it follows the season length and the work preset's speed); without it, `days` is
+ *  its length in days. Its classes are the days of that span its schedule (`when`, a condition: `weekday: tue or thu;
+ *  clock: 19:00-21:00`) meets, else five in every seven days. `at`: only at this place (else at home or a `study`
+ *  place); `needs`: a condition to enroll (`skill: japanese 4`, `course: japanese`); `perSeason`: the fee is charged
+ *  every season (missing: when it lasts longer than a season); `retired`: not offered any more, but a save taking it
+ *  can finish it, and jobs that list it in `courses` stop asking for it; `aid`: who may pay part of it. */
 export interface Course {
     id: string; name: string; area: string; days: number; cost: number; grants: string[]; icon: string; desc: string; skills?: Record<string, number>;
     length?: number; at?: string; when?: When; needs?: When; perSeason?: boolean; retired?: boolean; aid?: CourseAid[];
@@ -233,11 +243,13 @@ export interface Origin {
 }
 /** A rank of a job: its name and pay per hour. (J3) What it takes to be promoted to it: skill levels (`needs`:
  *  `{ cooking: 4 }`; `performance` there is the performance it asks for, 0–100, instead of the usual 60), one of some
- *  traits, a course, or anything else as a condition (`when: feels: Genzō good`; `perf: 80` there is the performance it
+ *  traits (`traits`, for custom worlds: who you are no longer gates a rank in the built-in ones), a course, or anything
+ *  else as a condition (`when: feels: Genzō good`; `perf: 80` there is the performance it
  *  asks for).
  *  (E20) `place`: where this rank works, when not the job's place (an idol's top ranks at the TV studio). */
 export interface Rank { name: string; pay: number; needs?: Record<string, number>; traits?: string[]; course?: string; when?: When; place?: string;
-    /** The rank you can hold while you take the job's course (a medical student, a nursing assistant): leaving it needs the course finished. */
+    /** The rank you can hold while you take the job's course (a medical student, a nursing assistant): on a job's first
+     *  rank, the job hires you while you take a course it lists in `courses`, and leaving the rank needs it finished. */
     student?: boolean }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
 // `promote`: shifts to reach each of its ranks; `after`: the option is only offered after one of these paths.
@@ -271,7 +283,9 @@ export function career(o: Occupation, path: string[] = []): Career {
 export interface Occupation {
     id: string; name: string; place: string; ranks: Rank[]; shift: number;
     cost?: Record<string, number>; requires?: Record<string, number>;
-    /** Traits that make promotions faster; `needs`: one of these traits is required to be hired. */
+    /** Traits it likes (personality and interests): each makes every rank 5% shorter (up to three) and adds +2 to the
+     *  interview (up to +4). `needs`: traits the job asks for (the map's apply button wants one; having one adds +4 to
+     *  the interview, which is then harder), for custom worlds: who you are no longer gates a job in the built-in ones. */
     likes?: string[]; needs?: string[];
     /** Opening hours [from, to) and shifts needed at each rank before the next. */
     hours?: [number, number]; promote?: number[];
@@ -279,7 +293,8 @@ export interface Occupation {
     hobby?: { id: string; level: number };
     /** Career branches: at some ranks you choose a path (see Branch). */
     branches?: Branch[];
-    /** Course ids needed to be hired (sim/courses.ts). (J3) `skills`: skill levels needed to be hired. */
+    /** Course ids needed to be hired (sim/courses.ts): finished, or being taken when the first rank is a `student` one.
+     *  (J3) `skills`: skill levels needed to be hired. */
     courses?: string[]; skills?: Record<string, number>;
     /** (J1) When it's worked; missing: whenever the place is open, as before (see Schedule). */
     schedule?: Schedule;
@@ -474,7 +489,8 @@ export interface WorldDef {
     note?: { text: string; depth?: number; interval?: number; position?: number };
     /** The RPG of the world (attributes, classes, magic…): needed for the RPG mode. */
     rpg?: RpgDef;
-    /** Habits that become traits (do something often enough and it sticks; stop and it fades). */
+    /** Habits that become traits (do something often enough and it sticks; stop and it fades), each under a name of its
+     *  own (`trait`), never one a player can choose. */
     habits?: HabitDef[];
     /** What a trait means here, by name: a description, effects from the fixed list (core/traits.ts) and, for an
      *  interest, what it covers. The standard names get theirs from `upgradeWorld()` unless an entry is here. */
@@ -694,6 +710,8 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
     | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies';
+/** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
+ *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number> }
 export interface CityEventDef {
     id: string; name: string; icon?: string; desc?: string; place: string;
@@ -753,6 +771,9 @@ export interface CelestialDef { id: string; name: string; desc?: string; every: 
 /** Extreme weather. `weather` (E2): it only strikes on days of these kinds of weather in its region (a typhoon on a
  *  storm day), and `chance` is then its odds on such a day. */
 export interface HazardDef { id: string; name: string; desc?: string; climate: string; season?: string; chance: number; drain?: Record<string, number>; blocksCamp?: boolean; closes?: boolean; weather?: string[] }
+/** A school with a ladder (sim/institutions.ts). `skill`: in Life-Sim, what each lesson trains a little, where the
+ *  world has that skill; in the RPG, what five lessons make you trained in. `trait`: what six lessons give in Life-Sim
+ *  when the world has no such skill. */
 export interface InstitutionDef { id: string; name: string; place: string; ranks: string[]; tuition?: number; skill?: string; trait?: string; examEvery?: number; clubs?: string[]; desc?: string }
 export interface FactionDef { id: string; name: string; kind: string; desc?: string; hq?: string; region?: string; ranks: string[]; allies?: string[]; rivals?: string[]; beats?: string; dues?: number; quota?: number; jobs?: string[]; secret?: boolean; joinRep?: number }
 export type Government = 'monarchy' | 'fractured' | 'empire' | 'republic' | 'theocracy' | 'council';
