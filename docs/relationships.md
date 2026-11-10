@@ -49,6 +49,10 @@ other additions are in [Other improvements in this fork](improvements.md).
   scene, not a fixed rule.
 - **Commitment still needs friendship.** Dating, getting engaged and getting married need both romance and real
   friendship.
+- **Your personality plays a small part.** Outgoing people make a warmer first impression and make friends a little
+  faster; shy and sarcastic ones a cooler first impression (but a shy person's romances fade more slowly, and a
+  sarcastic one grows closer to good friends faster); a romantic gets more from dates, and a kind one from gifts. See
+  [Who you are](improvements.md#who-you-are-and-courses-that-take-weeks).
 
 ## Scenes that count
 
