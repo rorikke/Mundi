@@ -419,7 +419,9 @@ export function studySession(g: Save, w: WorldDef, id?: string): string[] {
 function miss(g: Save, w: WorldDef, c: Course, out: string[]): 'done' | 'failed' | null {
     const l = learning(g), p = l.plan[c.id];
     l.missed[c.id] = (l.missed[c.id] ?? 0) + 1;
-    if (l.missed[c.id] <= freeOf(p.n)) {
+    // (a free miss never finishes a course you haven't been to once: a one-class course isn't passed by skipping it)
+    const last = !(l.attended[c.id] ?? 0) && (l.progress[c.id] ?? 0) + classWorth(g, w) >= p.n - 1e-6;
+    if (l.missed[c.id] <= freeOf(p.n) && !last) {
         l.progress[c.id] = (l.progress[c.id] ?? 0) + classWorth(g, w);
         if (l.progress[c.id] >= p.n - 1e-6) { finish(g, w, c, out); return 'done'; }
         return null;
