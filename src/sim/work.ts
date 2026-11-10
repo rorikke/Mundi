@@ -351,7 +351,8 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
     if (perf < want) missing.push(`performance ${want}`);
     for (const s of skills) if (s.have < s.need) missing.push(`${s.name} ${s.need}`);
     if (traits.length && !traits.some(t => traitsOf(g).includes(t))) missing.push(traits.join(' or '));
-    if (next.course && courseOf(w, next.course) && !hasCourse(g, next.course)) missing.push(courseOf(w, next.course)!.name);
+    // (a retired course nobody can take any more isn't asked for: the rank would be out of reach forever)
+    if (next.course && courseOf(w, next.course) && !courseOf(w, next.course)!.retired && !hasCourse(g, next.course)) missing.push(courseOf(w, next.course)!.name);
     for (const c of studentGap(g, w, o)) if (!missing.includes(c)) missing.push(c);   // the way out of the student rank
     const rest = whenBesidesPerf(next.when);
     const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
