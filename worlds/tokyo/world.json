@@ -37816,7 +37816,7 @@
    }
   ]
  },
- "cover": "../modern/cover.jpg",
+ "cover": "cover.jpg",
  "transit": {
   "last": 0.5,
   "first": 5,
