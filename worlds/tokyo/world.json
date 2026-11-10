@@ -65,18 +65,18 @@
   {
    "id": "tokyo",
    "name": "Tokyo",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/tokyo.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "area": "Tokyo",
    "town": true,
-   "minutesPerUnit": 0.6
+   "minutesPerUnit": 0.56
   },
   {
    "id": "shibuya",
    "name": "Shibuya & Harajuku",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/shibuya.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -85,8 +85,8 @@
   {
    "id": "shinjuku",
    "name": "Shinjuku",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/shinjuku.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -95,8 +95,8 @@
   {
    "id": "westside",
    "name": "Shimokita & Kōenji",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/westside.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -105,8 +105,8 @@
   {
    "id": "akiba",
    "name": "Akihabara & Kanda",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/akiba.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -115,8 +115,8 @@
   {
    "id": "oldtown",
    "name": "Asakusa, Ueno & Yanaka",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/oldtown.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -125,8 +125,8 @@
   {
    "id": "marunouchi",
    "name": "Marunouchi & Ginza",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/marunouchi.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -135,8 +135,8 @@
   {
    "id": "bay",
    "name": "Odaiba & Toyosu",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/bay.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -145,8 +145,8 @@
   {
    "id": "roppongi",
    "name": "Roppongi & Azabu",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/roppongi.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
@@ -155,8 +155,8 @@
   {
    "id": "yokohama",
    "name": "Yokohama",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/yokohama.avif",
+   "ratio": 1.7778,
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Yokohama",
@@ -166,8 +166,8 @@
   {
    "id": "hakone",
    "name": "Hakone",
-   "image": "../modern/midtown.jpg",
-   "ratio": 1.7914,
+   "image": "maps/hakone.avif",
+   "ratio": 1.7778,
    "climate": "hakone",
    "parent": "tokyo",
    "area": "Hakone",
@@ -185,36 +185,36 @@
     "rent": 14000,
     "spots": [
      [
-      8,
-      82
+      5,
+      12
      ],
      [
-      14,
-      82
+      11,
+      15
      ],
      [
-      20,
-      82
-     ],
-     [
-      26,
-      82
+      17,
+      12
      ],
      [
       8,
-      90
+      22
      ],
      [
       14,
-      90
+      25
      ],
      [
       20,
-      90
+      20
      ],
      [
-      26,
-      90
+      25,
+      13
+     ],
+     [
+      24,
+      28
      ]
     ],
     "desc": "a converted two-story house: a heap of shoes at the door, a shared kitchen with labeled shelves, a bath rota taped to the wall"
@@ -227,35 +227,35 @@
     "rent": 12000,
     "spots": [
      [
-      38,
+      34,
       82
      ],
      [
-      44,
-      82
+      40,
+      86
      ],
      [
-      50,
-      82
-     ],
-     [
-      56,
-      82
+      46,
+      80
      ],
      [
       38,
-      90
+      92
      ],
      [
       44,
-      90
+      94
      ],
      [
       50,
-      90
+      88
      ],
      [
       56,
+      92
+     ],
+     [
+      30,
       90
      ]
     ],
@@ -269,36 +269,36 @@
     "rent": 40000,
     "spots": [
      [
-      68,
-      82
+      72,
+      80
      ],
      [
-      74,
-      82
+      78,
+      84
      ],
      [
-      80,
-      82
+      84,
+      80
      ],
      [
-      86,
-      82
+      90,
+      84
      ],
      [
-      68,
-      90
+      96,
+      80
      ],
      [
-      74,
-      90
+      75,
+      92
      ],
      [
-      80,
-      90
+      82,
+      93
      ],
      [
-      86,
-      90
+      90,
+      93
      ]
     ],
     "desc": "quiet lanes of narrow two-story houses with tiny gardens: plant pots by the door, bicycles with baskets, a persimmon tree over a wall"
@@ -311,36 +311,36 @@
     "rent": 18000,
     "spots": [
      [
-      8,
-      82
+      6,
+      62
      ],
      [
-      14,
-      82
+      11,
+      66
      ],
      [
-      20,
-      82
+      16,
+      70
      ],
      [
-      26,
-      82
+      6,
+      74
      ],
      [
-      8,
-      90
+      11,
+      79
      ],
      [
-      14,
-      90
+      3,
+      68
      ],
      [
-      20,
-      90
+      15,
+      60
      ],
      [
-      26,
-      90
+      19,
+      65
      ]
     ],
     "desc": "side streets behind the station: concrete one-room blocks, bike racks, a convenience store on every corner and the station's roar a few streets away"
@@ -353,36 +353,36 @@
     "rent": 30000,
     "spots": [
      [
-      8,
-      82
+      3,
+      40
      ],
      [
-      14,
-      82
+      7,
+      44
      ],
      [
-      20,
-      82
+      3,
+      50
      ],
      [
-      26,
-      82
+      7,
+      54
      ],
      [
-      8,
-      90
+      3,
+      60
      ],
      [
-      14,
-      90
+      10,
+      58
      ],
      [
-      20,
-      90
+      11,
+      50
      ],
      [
-      26,
-      90
+      9,
+      36
      ]
     ],
     "desc": "quiet back streets behind Kanda Station: concrete mid-rises, bike racks, a vending machine on every corner, the river a few minutes away"
@@ -395,36 +395,36 @@
     "rent": 28000,
     "spots": [
      [
-      8,
-      82
+      84,
+      64
      ],
      [
-      14,
-      82
+      88,
+      70
      ],
      [
-      20,
-      82
+      92,
+      76
      ],
      [
-      26,
-      82
+      86,
+      80
      ],
      [
-      8,
+      90,
+      86
+     ],
+     [
+      95,
       90
      ],
      [
-      14,
-      90
+      82,
+      74
      ],
      [
-      20,
-      90
-     ],
-     [
-      26,
-      90
+      96,
+      82
      ]
     ],
     "desc": "narrow lanes of wooden houses behind the temples: sliding doors, tiled roofs, a potted plant on every doorstep, cats on most walls"
@@ -437,36 +437,36 @@
     "rent": 60000,
     "spots": [
      [
-      8,
-      82
+      60,
+      22
      ],
      [
-      14,
-      82
+      66,
+      19
      ],
      [
-      20,
-      82
+      72,
+      24
      ],
      [
-      26,
-      82
+      78,
+      21
      ],
      [
-      8,
-      90
+      84,
+      17
      ],
      [
-      14,
-      90
+      70,
+      15
      ],
      [
-      20,
-      90
+      64,
+      28
      ],
      [
-      26,
-      90
+      76,
+      29
      ]
     ],
     "desc": "fifty-story glass towers on the Toyosu canals: concierge desks, gyms and sky lounges downstairs, wide quiet promenades, and fish trucks rumbling by before dawn"
@@ -479,36 +479,36 @@
     "rent": 110000,
     "spots": [
      [
-      8,
+      68,
+      80
+     ],
+     [
+      74,
+      76
+     ],
+     [
+      80,
+      78
+     ],
+     [
+      86,
       82
      ],
      [
-      14,
-      82
+      72,
+      88
      ],
      [
-      20,
-      82
-     ],
-     [
-      26,
-      82
-     ],
-     [
-      8,
+      78,
       90
      ],
      [
-      14,
-      90
+      84,
+      92
      ],
      [
-      20,
-      90
-     ],
-     [
-      26,
-      90
+      90,
+      88
      ]
     ],
     "desc": "quiet embassy-lined streets above the shopping street: stone-fronted residences with concierge desks, planted entrances, and Tokyo Tower in every window"
@@ -521,36 +521,36 @@
     "rent": 12000,
     "spots": [
      [
-      8,
-      82
+      88,
+      40
      ],
      [
-      14,
-      82
+      92,
+      44
      ],
      [
-      20,
-      82
+      96,
+      40
      ],
      [
-      26,
-      82
+      90,
+      50
      ],
      [
-      8,
-      90
+      95,
+      52
      ],
      [
-      14,
-      90
+      86,
+      48
      ],
      [
-      20,
-      90
+      98,
+      48
      ],
      [
-      26,
-      90
+      93,
+      35
      ]
     ],
     "desc": "narrow lanes of old wooden apartments and 1960s walk-ups behind the arcade: laundry on every balcony, a corner pawn shop, a cat asleep on a rice shop's counter"
@@ -564,35 +564,35 @@
     "spots": [
      [
       8,
-      82
+      57
      ],
      [
-      14,
-      82
+      15,
+      57
      ],
      [
-      20,
-      82
+      18,
+      62
      ],
      [
-      26,
-      82
+      13,
+      62
      ],
      [
-      8,
-      90
+      40,
+      67
      ],
      [
-      14,
-      90
+      37,
+      71
      ],
      [
-      20,
-      90
+      5,
+      63
      ],
      [
-      26,
-      90
+      22,
+      58
      ]
     ],
     "desc": "steep lanes of old wooden houses above the Hayakawa river: tiled roofs, persimmon trees, a hot-spring pipe steaming at a gate, and neighbors who know everyone's business"
@@ -605,36 +605,36 @@
     "rent": 9000,
     "spots": [
      [
-      38,
-      82
+      83,
+      30
      ],
      [
-      44,
-      82
+      88,
+      34
      ],
      [
-      50,
-      82
+      93,
+      33
      ],
      [
-      56,
-      82
+      97,
+      29
      ],
      [
-      38,
-      90
+      80,
+      36
      ],
      [
-      44,
-      90
+      86,
+      40
      ],
      [
-      50,
-      90
+      92,
+      41
      ],
      [
-      56,
-      90
+      97,
+      38
      ]
     ],
     "desc": "an international dorm behind the Ochanomizu bridges: narrow corridors, a shared kitchen smelling of five cuisines, a laundry room that doubles as a lounge"
@@ -18997,8 +18997,8 @@
     "rain-afternoon": "bg/sb_crossing-rain-afternoon.avif",
     "rain-night": "bg/sb_crossing-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 70,
+   "y": 78,
    "sound": [
     "crossing",
     "traffic"
@@ -19026,8 +19026,8 @@
     "rain-afternoon": "bg/sb_centergai-rain-afternoon.avif",
     "rain-night": "bg/sb_centergai-rain-night.avif"
    },
-   "x": 30,
-   "y": 12,
+   "x": 60,
+   "y": 40,
    "sound": [
     "crowd",
     "traffic"
@@ -19054,8 +19054,8 @@
    ],
    "generic": false,
    "bg": "bg/sb_pachinko.avif",
-   "x": 50,
-   "y": 12,
+   "x": 66,
+   "y": 48,
    "sound": [
     "pachinko"
    ]
@@ -19081,8 +19081,8 @@
     ]
    },
    "bg": "bg/sb_karaoke.avif",
-   "x": 70,
-   "y": 12,
+   "x": 71,
+   "y": 30,
    "private": true,
    "sound": [
     "karaoke"
@@ -19109,8 +19109,8 @@
     "afternoon": "bg/sb_startup-afternoon.avif",
     "night": "bg/sb_startup-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 83,
+   "y": 38,
    "sound": [
     "office"
    ]
@@ -19138,8 +19138,8 @@
    "bgs": {
     "night": "bg/sb_eikaiwa-night.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 86,
+   "y": 64,
    "sound": [
     "office"
    ]
@@ -19170,8 +19170,8 @@
     "rain-afternoon": "bg/sb_takeshita-rain-afternoon.avif",
     "rain-night": "bg/sb_takeshita-rain-night.avif"
    },
-   "x": 30,
-   "y": 42,
+   "x": 34,
+   "y": 60,
    "sound": [
     "crowd"
    ]
@@ -19201,8 +19201,8 @@
     "rain-afternoon": "bg/sb_omotesando-rain-afternoon.avif",
     "rain-night": "bg/sb_omotesando-rain-night.avif"
    },
-   "x": 50,
-   "y": 42,
+   "x": 48,
+   "y": 88,
    "sound": [
     "crowd",
     "traffic"
@@ -19245,8 +19245,8 @@
     "rain-day": "bg/sb_meiji-rain-day.avif",
     "rain-afternoon": "bg/sb_meiji-rain-afternoon.avif"
    },
-   "x": 70,
-   "y": 42,
+   "x": 23,
+   "y": 24,
    "sound": [
     "shrine",
     "birds",
@@ -19292,8 +19292,8 @@
     "rain-afternoon": "bg/sb_yoyogi-rain-afternoon.avif",
     "rain-night": "bg/sb_yoyogi-rain-night.avif"
    },
-   "x": 90,
-   "y": 42,
+   "x": 18,
+   "y": 49,
    "sound": [
     "birds",
     "cicadas",
@@ -19319,8 +19319,8 @@
    },
    "adult": true,
    "bg": "bg/sb_lovehotel.avif",
-   "x": 10,
-   "y": 72,
+   "x": 47,
+   "y": 15,
    "private": true,
    "sound": [
     "water"
@@ -19348,8 +19348,8 @@
     "rain-afternoon": "bg/sj_station-rain-afternoon.avif",
     "rain-night": "bg/sj_station-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 56,
+   "y": 25,
    "sound": [
     "station"
    ]
@@ -19375,8 +19375,8 @@
     "rain-afternoon": "bg/sj_kabukicho-rain-afternoon.avif",
     "rain-night": "bg/sj_kabukicho-rain-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 87,
+   "y": 49,
    "sound": [
     "crowd",
     "traffic"
@@ -19406,8 +19406,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/sj_hostclub.avif",
-   "x": 63,
-   "y": 12,
+   "x": 76,
+   "y": 57,
    "sound": [
     "club"
    ]
@@ -19435,8 +19435,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/sj_hostess.avif",
-   "x": 90,
-   "y": 12,
+   "x": 70,
+   "y": 45,
    "sound": [
     "bar"
    ]
@@ -19469,8 +19469,8 @@
     "rain-afternoon": "bg/sj_omoide-rain-afternoon.avif",
     "rain-night": "bg/sj_omoide-rain-night.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 55,
+   "y": 53,
    "sound": [
     "izakaya",
     "kitchen",
@@ -19499,8 +19499,8 @@
    ],
    "generic": false,
    "bg": "bg/sj_goldengai.avif",
-   "x": 37,
-   "y": 42,
+   "x": 81,
+   "y": 34,
    "sound": [
     "bar",
     "karaoke"
@@ -19527,8 +19527,8 @@
    ],
    "generic": false,
    "bg": "bg/sj_nichome.avif",
-   "x": 63,
-   "y": 42,
+   "x": 87,
+   "y": 82,
    "openByDay": {
     "fri": [
      19,
@@ -19568,8 +19568,8 @@
     "afternoon": "bg/sj_tocho-afternoon.avif",
     "night": "bg/sj_tocho-night.avif"
    },
-   "x": 90,
-   "y": 42,
+   "x": 14,
+   "y": 25,
    "sound": [
     "wind"
    ]
@@ -19635,8 +19635,8 @@
     "rain-winter-day": "bg/sj_gyoen-bare-day.avif",
     "rain-winter-afternoon": "bg/sj_gyoen-bare-afternoon.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 55,
+   "y": 86,
    "sound": [
     "birds",
     "cicadas"
@@ -19667,8 +19667,8 @@
    },
    "generic": false,
    "bg": "bg/sj_capsule.avif",
-   "x": 37,
-   "y": 72,
+   "x": 33,
+   "y": 19,
    "sound": [
     "office"
    ]
@@ -19693,8 +19693,8 @@
     "rain-afternoon": "bg/ws_shimokita-rain-afternoon.avif",
     "rain-night": "bg/ws_shimokita-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 25,
+   "y": 45,
    "sound": [
     "crowd"
    ]
@@ -19725,8 +19725,8 @@
    "bgs": {
     "night": "bg/ws_vintage-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 28,
+   "y": 58,
    "sound": [
     "crowd"
    ]
@@ -19755,8 +19755,8 @@
    ],
    "generic": false,
    "bg": "bg/ws_livehouse.avif",
-   "x": 63,
-   "y": 12,
+   "x": 15,
+   "y": 69,
    "sound": [
     "club"
    ]
@@ -19785,8 +19785,8 @@
    "bgs": {
     "night": "bg/ws_theater-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 9,
+   "y": 44,
    "sound": [
     "crowd"
    ]
@@ -19818,8 +19818,8 @@
     "afternoon": "bg/ws_curry-afternoon.avif",
     "night": "bg/ws_curry-night.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 80,
+   "y": 65,
    "sound": [
     "kitchen",
     "crowd"
@@ -19851,8 +19851,8 @@
    "bgs": {
     "afternoon": "bg/ws_kissaten-afternoon.avif"
    },
-   "x": 37,
-   "y": 42,
+   "x": 87,
+   "y": 57,
    "sound": [
     "bar"
    ]
@@ -19886,8 +19886,8 @@
    "bgs": {
     "night": "bg/ws_sento-night.avif"
    },
-   "x": 63,
-   "y": 42,
+   "x": 56,
+   "y": 20,
    "sound": [
     "water"
    ]
@@ -19912,8 +19912,8 @@
     "rain-afternoon": "bg/ws_koenji-rain-afternoon.avif",
     "rain-night": "bg/ws_koenji-rain-night.avif"
    },
-   "x": 90,
-   "y": 42,
+   "x": 40,
+   "y": 22,
    "sound": [
     "crowd",
     "market"
@@ -19937,8 +19937,8 @@
     "afternoon": "bg/ws_konbini-afternoon.avif",
     "night": "bg/ws_konbini-night.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 66,
+   "y": 50,
    "sound": [
     "office"
    ]
@@ -19973,8 +19973,8 @@
     "afternoon": "bg/ws_studio-afternoon.avif",
     "night": "bg/ws_studio-night.avif"
    },
-   "x": 37,
-   "y": 72,
+   "x": 61,
+   "y": 66,
    "sound": [
     "office"
    ]
@@ -20003,8 +20003,8 @@
     "rain-afternoon": "bg/ak_electric-rain-afternoon.avif",
     "rain-night": "bg/ak_electric-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 50,
+   "y": 32,
    "sound": [
     "crowd",
     "traffic",
@@ -20037,8 +20037,8 @@
     "afternoon": "bg/ak_maid-afternoon.avif",
     "night": "bg/ak_maid-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 27,
+   "y": 48,
    "sound": [
     "crowd"
    ]
@@ -20064,8 +20064,8 @@
    ],
    "generic": false,
    "bg": "bg/ak_arcade.avif",
-   "x": 63,
-   "y": 12,
+   "x": 17,
+   "y": 40,
    "sound": [
     "arcade"
    ],
@@ -20090,8 +20090,8 @@
    ],
    "generic": false,
    "bg": "bg/ak_idol.avif",
-   "x": 90,
-   "y": 12,
+   "x": 33,
+   "y": 40,
    "sound": [
     "club"
    ]
@@ -20118,8 +20118,8 @@
     "afternoon": "bg/ak_gamedev-afternoon.avif",
     "night": "bg/ak_gamedev-night.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 60,
+   "y": 22,
    "sound": [
     "office"
    ]
@@ -20142,8 +20142,8 @@
     "rest": "fair"
    },
    "bg": "bg/ak_mangacafe.avif",
-   "x": 37,
-   "y": 42,
+   "x": 40,
+   "y": 26,
    "sound": [
     "office"
    ]
@@ -20170,8 +20170,8 @@
     "rain-afternoon": "bg/ak_myojin-rain-afternoon.avif",
     "rain-night": "bg/ak_myojin-rain-night.avif"
    },
-   "x": 63,
-   "y": 42,
+   "x": 50,
+   "y": 70,
    "sound": [
     "shrine",
     "birds"
@@ -20206,8 +20206,8 @@
     "rain-afternoon": "bg/ak_jinbocho-rain-afternoon.avif",
     "rain-night": "bg/ak_jinbocho-rain-night.avif"
    },
-   "x": 90,
-   "y": 42,
+   "x": 80,
+   "y": 56,
    "sound": [
     "traffic"
    ]
@@ -20234,8 +20234,8 @@
     "afternoon": "bg/ak_juku-afternoon.avif",
     "night": "bg/ak_juku-night.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 73,
+   "y": 11,
    "sound": [
     "office"
    ]
@@ -20264,8 +20264,8 @@
     "rain-afternoon": "bg/ak_university-rain-afternoon.avif",
     "rain-night": "bg/ak_university-rain-night.avif"
    },
-   "x": 37,
-   "y": 72,
+   "x": 88,
+   "y": 20,
    "sound": [
     "crowd",
     "birds"
@@ -20294,8 +20294,8 @@
     "rain-afternoon": "bg/ot_sensoji-rain-afternoon.avif",
     "rain-night": "bg/ot_sensoji-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 50,
+   "y": 31,
    "sound": [
     "temple",
     "crowd"
@@ -20342,8 +20342,8 @@
     "rain-winter-afternoon": "bg/ot_sumida-bare-afternoon.avif",
     "rain-winter-night": "bg/ot_sumida-bare-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 86,
+   "y": 52,
    "sound": [
     "water",
     "wind",
@@ -20371,8 +20371,8 @@
    "bgs": {
     "night": "bg/ot_izakaya-night.avif"
    },
-   "x": 63,
-   "y": 12,
+   "x": 20,
+   "y": 78,
    "sound": [
     "izakaya"
    ]
@@ -20417,8 +20417,8 @@
     "rain-winter-afternoon": "bg/ot_ueno-bare-afternoon.avif",
     "rain-winter-night": "bg/ot_ueno-bare-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 20,
+   "y": 24,
    "sound": [
     "birds",
     "cicadas",
@@ -20452,8 +20452,8 @@
    "bgs": {
     "afternoon": "bg/ot_museum-afternoon.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 12,
+   "y": 9,
    "sound": [
     "office"
    ]
@@ -20484,8 +20484,8 @@
     "rain-afternoon": "bg/ot_ameyoko-rain-afternoon.avif",
     "rain-night": "bg/ot_ameyoko-rain-night.avif"
    },
-   "x": 37,
-   "y": 42,
+   "x": 28,
+   "y": 58,
    "sound": [
     "market",
     "train"
@@ -20514,8 +20514,8 @@
     "rain-afternoon": "bg/ot_yanaka-rain-afternoon.avif",
     "rain-night": "bg/ot_yanaka-rain-night.avif"
    },
-   "x": 63,
-   "y": 42,
+   "x": 70,
+   "y": 60,
    "sound": [
     "birds",
     "wind"
@@ -20543,8 +20543,8 @@
     "afternoon": "bg/ot_ramen-afternoon.avif",
     "night": "bg/ot_ramen-night.avif"
    },
-   "x": 90,
-   "y": 42,
+   "x": 59,
+   "y": 81,
    "sound": [
     "kitchen",
     "crowd"
@@ -20579,8 +20579,8 @@
     "rain-afternoon": "bg/ot_shrine-rain-afternoon.avif",
     "rain-night": "bg/ot_shrine-rain-night.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 79,
+   "y": 88,
    "sound": [
     "shrine",
     "birds"
@@ -20612,8 +20612,8 @@
     "rain-afternoon": "bg/mg_station-rain-afternoon.avif",
     "rain-night": "bg/mg_station-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 47,
+   "y": 53,
    "sound": [
     "station"
    ]
@@ -20637,8 +20637,8 @@
     "afternoon": "bg/mg_tower-afternoon.avif",
     "night": "bg/mg_tower-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 55,
+   "y": 14,
    "sound": [
     "office"
    ]
@@ -20667,8 +20667,8 @@
    ],
    "generic": false,
    "bg": "bg/mg_depachika.avif",
-   "x": 63,
-   "y": 12,
+   "x": 76,
+   "y": 44,
    "sound": [
     "market"
    ]
@@ -20699,8 +20699,8 @@
     "rain-afternoon": "bg/mg_chuodori-rain-afternoon.avif",
     "rain-night": "bg/mg_chuodori-rain-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 80,
+   "y": 60,
    "sound": [
     "crowd",
     "traffic"
@@ -20733,8 +20733,8 @@
     "rain-afternoon": "bg/mg_izakaya-rain-afternoon.avif",
     "rain-night": "bg/mg_izakaya-rain-night.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 52,
+   "y": 32,
    "openByDay": {
     "fri": [
      17,
@@ -20772,8 +20772,8 @@
     "rain-afternoon": "bg/mg_palace-rain-afternoon.avif",
     "rain-night": "bg/mg_palace-rain-night.avif"
    },
-   "x": 37,
-   "y": 42,
+   "x": 23,
+   "y": 70,
    "sound": [
     "birds",
     "wind",
@@ -20803,8 +20803,8 @@
    ],
    "generic": false,
    "bg": "bg/mg_kabuki.avif",
-   "x": 63,
-   "y": 42,
+   "x": 79,
+   "y": 24,
    "sound": [
     "crowd"
    ]
@@ -20839,8 +20839,8 @@
     "rain-day": "bg/mg_tsukiji-rain-day.avif",
     "rain-afternoon": "bg/mg_tsukiji-rain-afternoon.avif"
    },
-   "x": 90,
-   "y": 42,
+   "x": 84,
+   "y": 86,
    "sound": [
     "market",
     "kitchen"
@@ -20863,8 +20863,8 @@
     "afternoon": "bg/mg_hospital-afternoon.avif",
     "night": "bg/mg_hospital-night.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 86,
+   "y": 49,
    "sound": [
     "hospital"
    ],
@@ -20890,8 +20890,8 @@
     "rain-afternoon": "bg/bay_beach-rain-afternoon.avif",
     "rain-night": "bg/bay_beach-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 23,
+   "y": 56,
    "sound": [
     "waves",
     "wind"
@@ -20931,8 +20931,8 @@
     "rain-afternoon": "bg/bay_bridge-rain-afternoon.avif",
     "rain-night": "bg/bay_bridge-rain-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 35,
+   "y": 25,
    "closedIn": [
     "storm"
    ],
@@ -20972,8 +20972,8 @@
     "rain-afternoon": "bg/bay_mall-rain-afternoon.avif",
     "rain-night": "bg/bay_mall-rain-night.avif"
    },
-   "x": 63,
-   "y": 12,
+   "x": 48,
+   "y": 62,
    "sound": [
     "crowd"
    ]
@@ -20999,8 +20999,8 @@
     19
    ],
    "bg": "bg/bay_art.avif",
-   "x": 90,
-   "y": 12,
+   "x": 10,
+   "y": 80,
    "sound": [
     "wind"
    ]
@@ -21032,8 +21032,8 @@
    "bgs": {
     "afternoon": "bg/bay_expo-afternoon.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 73,
+   "y": 50,
    "sound": [
     "crowd"
    ]
@@ -21062,8 +21062,8 @@
     "afternoon": "bg/bay_market-afternoon.avif",
     "night": "bg/bay_market-night.avif"
    },
-   "x": 37,
-   "y": 72,
+   "x": 78,
+   "y": 80,
    "sound": [
     "market"
    ]
@@ -21092,8 +21092,8 @@
     "afternoon": "bg/bay_tv-afternoon.avif",
     "night": "bg/bay_tv-night.avif"
    },
-   "x": 63,
-   "y": 72,
+   "x": 30,
+   "y": 66,
    "sound": [
     "office"
    ]
@@ -21119,8 +21119,8 @@
     "rain-afternoon": "bg/rp_crossing-rain-afternoon.avif",
     "rain-night": "bg/rp_crossing-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 50,
+   "y": 64,
    "sound": [
     "crowd",
     "traffic"
@@ -21153,8 +21153,8 @@
    ],
    "generic": false,
    "bg": "bg/rp_club.avif",
-   "x": 37,
-   "y": 12,
+   "x": 26,
+   "y": 61,
    "openByDay": {
     "fri": [
      22,
@@ -21198,8 +21198,8 @@
     "afternoon": "bg/rp_sky-afternoon.avif",
     "night": "bg/rp_sky-night.avif"
    },
-   "x": 63,
-   "y": 12,
+   "x": 54,
+   "y": 22,
    "sound": [
     "wind"
    ]
@@ -21229,8 +21229,8 @@
     "afternoon": "bg/rp_tower-afternoon.avif",
     "night": "bg/rp_tower-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 74,
+   "y": 36,
    "sound": [
     "wind"
    ]
@@ -21265,8 +21265,8 @@
     "rain-afternoon": "bg/rp_azabu-rain-afternoon.avif",
     "rain-night": "bg/rp_azabu-rain-night.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 51,
+   "y": 83,
    "sound": [
     "crowd"
    ]
@@ -21297,8 +21297,8 @@
    ],
    "generic": false,
    "bg": "bg/rp_lounge.avif",
-   "x": 37,
-   "y": 72,
+   "x": 83,
+   "y": 40,
    "openByDay": {
     "fri": [
      18,
@@ -21339,8 +21339,8 @@
    "bgs": {
     "night": "bg/rp_pub-night.avif"
    },
-   "x": 63,
-   "y": 72,
+   "x": 36,
+   "y": 50,
    "openByDay": {
     "fri": [
      12,
@@ -21386,8 +21386,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/rp_poleclub.avif",
-   "x": 90,
-   "y": 72,
+   "x": 63,
+   "y": 66,
    "sound": [
     "club"
    ]
@@ -21418,8 +21418,8 @@
     "rain-afternoon": "bg/yk_chinatown-rain-afternoon.avif",
     "rain-night": "bg/yk_chinatown-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 37,
+   "y": 69,
    "sound": [
     "market",
     "crowd"
@@ -21445,8 +21445,8 @@
     "rain-afternoon": "bg/yk_bay-rain-afternoon.avif",
     "rain-night": "bg/yk_bay-rain-night.avif"
    },
-   "x": 37,
-   "y": 12,
+   "x": 50,
+   "y": 37,
    "sound": [
     "waves",
     "wind",
@@ -21472,8 +21472,8 @@
     "rain-afternoon": "bg/yk_yamashita-rain-afternoon.avif",
     "rain-night": "bg/yk_yamashita-rain-night.avif"
    },
-   "x": 63,
-   "y": 12,
+   "x": 20,
+   "y": 66,
    "sound": [
     "waves",
     "birds"
@@ -21500,8 +21500,8 @@
     "rain-afternoon": "bg/yk_isezaki-rain-afternoon.avif",
     "rain-night": "bg/yk_isezaki-rain-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 75,
+   "y": 62,
    "sound": [
     "crowd"
    ]
@@ -21529,8 +21529,8 @@
     "rain-afternoon": "bg/yk_noge-rain-afternoon.avif",
     "rain-night": "bg/yk_noge-rain-night.avif"
    },
-   "x": 10,
-   "y": 42,
+   "x": 59,
+   "y": 69,
    "sound": [
     "izakaya",
     "kitchen"
@@ -21565,8 +21565,8 @@
    "generic": false,
    "adult": true,
    "bg": "bg/yk_hostess.avif",
-   "x": 37,
-   "y": 42,
+   "x": 70,
+   "y": 52,
    "sound": [
     "bar"
    ]
@@ -21599,8 +21599,8 @@
     "rain-afternoon": "bg/yk_batting-rain-afternoon.avif",
     "rain-night": "bg/yk_batting-rain-night.avif"
    },
-   "x": 63,
-   "y": 42,
+   "x": 82,
+   "y": 72,
    "sound": [
     "crowd"
    ]
@@ -21631,8 +21631,8 @@
    ],
    "generic": false,
    "bg": "bg/yk_mahjong.avif",
-   "x": 90,
-   "y": 42,
+   "x": 64,
+   "y": 58,
    "sound": [
     "bar"
    ]
@@ -21678,8 +21678,8 @@
     "rain-winter-afternoon": "bg/yk_park-bare-afternoon.avif",
     "rain-winter-night": "bg/yk_park-bare-night.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 89,
+   "y": 86,
    "sound": [
     "birds",
     "cicadas"
@@ -21716,8 +21716,8 @@
     "rain-afternoon": "bg/hk_yumoto-rain-afternoon.avif",
     "rain-night": "bg/hk_yumoto-rain-night.avif"
    },
-   "x": 10,
-   "y": 12,
+   "x": 74,
+   "y": 62,
    "sound": [
     "crowd",
     "water"
@@ -21766,8 +21766,8 @@
     "winter-night": "bg/hk_ryokan-wintersnow-night.avif",
     "snow-night": "bg/hk_ryokan-wintersnow-night.avif"
    },
-   "x": 50,
-   "y": 12,
+   "x": 68,
+   "y": 27,
    "sound": [
     "water",
     "birds"
@@ -21797,8 +21797,8 @@
     "rain-afternoon": "bg/hk_ashi-rain-afternoon.avif",
     "rain-night": "bg/hk_ashi-rain-night.avif"
    },
-   "x": 90,
-   "y": 12,
+   "x": 41,
+   "y": 80,
    "sound": [
     "waves",
     "wind"
@@ -21843,8 +21843,8 @@
     "rain-day": "bg/hk_owakudani-rain-day.avif",
     "rain-afternoon": "bg/hk_owakudani-rain-afternoon.avif"
    },
-   "x": 10,
-   "y": 72,
+   "x": 46,
+   "y": 51,
    "closedIn": [
     "gas"
    ],
@@ -21886,8 +21886,8 @@
     "rain-day": "bg/hk_sculpture-rain-day.avif",
     "rain-afternoon": "bg/hk_sculpture-rain-afternoon.avif"
    },
-   "x": 50,
-   "y": 72,
+   "x": 83,
+   "y": 36,
    "sound": [
     "birds",
     "wind"
@@ -21906,8 +21906,8 @@
    "id": "link_shinjuku",
    "name": "Shinjuku",
    "map": "tokyo",
-   "x": 35,
-   "y": 34,
+   "x": 48,
+   "y": 22,
    "link": "shinjuku",
    "tags": []
   },
@@ -21925,7 +21925,7 @@
    "name": "Akihabara & Kanda",
    "map": "tokyo",
    "x": 68,
-   "y": 29,
+   "y": 34,
    "link": "akiba",
    "tags": []
   },
@@ -21933,8 +21933,8 @@
    "id": "link_oldtown",
    "name": "Asakusa, Ueno & Yanaka",
    "map": "tokyo",
-   "x": 73,
-   "y": 10,
+   "x": 85,
+   "y": 15,
    "link": "oldtown",
    "tags": []
   },
@@ -21942,8 +21942,8 @@
    "id": "link_marunouchi",
    "name": "Marunouchi & Ginza",
    "map": "tokyo",
-   "x": 65,
-   "y": 47,
+   "x": 81,
+   "y": 50,
    "link": "marunouchi",
    "tags": []
   },
@@ -21951,8 +21951,8 @@
    "id": "link_bay",
    "name": "Odaiba & Toyosu",
    "map": "tokyo",
-   "x": 74,
-   "y": 88,
+   "x": 70,
+   "y": 84,
    "link": "bay",
    "tags": []
   },
@@ -21960,8 +21960,8 @@
    "id": "link_roppongi",
    "name": "Roppongi & Azabu",
    "map": "tokyo",
-   "x": 49,
-   "y": 65,
+   "x": 51,
+   "y": 56,
    "link": "roppongi",
    "tags": []
   },
@@ -21969,8 +21969,8 @@
    "id": "link_yokohama",
    "name": "Yokohama",
    "map": "tokyo",
-   "x": 20,
-   "y": 92,
+   "x": 32,
+   "y": 90,
    "link": "yokohama",
    "tags": []
   },
@@ -21978,8 +21978,8 @@
    "id": "link_hakone",
    "name": "Hakone",
    "map": "tokyo",
-   "x": 5,
-   "y": 80,
+   "x": 8,
+   "y": 18,
    "link": "hakone",
    "tags": []
   }
