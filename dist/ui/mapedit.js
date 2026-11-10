@@ -1,6 +1,7 @@
 // The world creator's maps: upload a map picture, then click on it to add places, links to other maps (a city on
 // the region map) or homes. Pins can be dragged. A place gets a name, a description, tags and a background
-// (one of SillyTavern's backgrounds, or a picture you upload).
+// (one of SillyTavern's backgrounds, or a picture you upload); a home shows its area (shared by all its homes) and
+// who lives there.
 import { TIME_SLOTS } from '../sim/daynight.js';
 import { safeUrl, num as toNum } from '../core/safe.js';
 import { notify, esc, toast, ROOT_ID } from '../core/store.js';
@@ -12,7 +13,8 @@ import { pickFile } from './cropper.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { CW, W, txt, area, sel, num, chk } from './creator.js';
-export const ME = { map: '', mode: 'move', zone: '', pin: '', zoom: 1, bgPick: false, bgq: '', bgs: null, bgPeriod: '' };
+// `home`: the chosen home, "<area id>:<index in its spots>" ('' for none; a pin and a home are never both chosen)
+export const ME = { map: '', mode: 'move', zone: '', pin: '', home: '', zoom: 1, bgPick: false, bgq: '', bgs: null, bgPeriod: '' };
 const TAGS = ['leisure', 'food', 'shop', 'work', 'study', 'service', 'health'];
 const TAG_NAMES = { leisure: 'Leisure', food: 'Food', shop: 'Shopping', work: 'Work', study: 'Study', service: 'Services', health: 'Health' };
 // A place's background: the usual one, or the one of a part of the day ('' removes it).
@@ -40,12 +42,38 @@ function pinHtml(w, p) {
         <span class="dot">${p.link ? icon('map') : ''}</span><span class="label">${esc(p.name)}${target ? ` → ${esc(target.name)}` : ''}</span></div>`;
 }
 function homesHtml(w, m) {
-    return w.homes.zones.filter(z => z.map === m.id).map(z => z.spots.map((s, k) => `<div class="mu-me-home ${ME.mode === 'homes' && z.id === ME.zone ? 'is-zone' : ''}" data-zone="${esc(z.id)}" data-k="${esc(k)}" style="left:${s[0]}%;top:${s[1]}%" title="${esc(z.name)} · ${k + 1}">${k + 1}</div>`).join('')).join('');
+    return w.homes.zones.filter(z => z.map === m.id).map(z => z.spots.map((s, k) => `<div class="mu-me-home ${ME.mode === 'homes' && z.id === ME.zone ? 'is-zone' : ''} ${ME.home === `${z.id}:${k}` ? 'is-sel' : ''}" data-zone="${esc(z.id)}" data-k="${esc(k)}" style="left:${s[0]}%;top:${s[1]}%" title="${esc(z.name)} · ${k + 1}">${k + 1}</div>`).join('')).join('');
+}
+// The chosen home: its area's index and the home's index in it, or null.
+function chosenHome(w) {
+    if (!ME.home)
+        return null;
+    const cut = ME.home.lastIndexOf(':'), zi = w.homes.zones.findIndex(z => z.id === ME.home.slice(0, cut)), k = Number(ME.home.slice(cut + 1));
+    return zi >= 0 && k >= 0 && k < w.homes.zones[zi].spots.length ? { zi, k } : null;
+}
+// A home: which one it is, its area's settings (shared by every home in the area) and the world's people who live there.
+function homeForm(w, zi, k) {
+    const z = w.homes.zones[zi], p = `homes.zones.${zi}`, kind = w.homes.kinds[z.kind];
+    const pic = kind?.image ? worldFile(w, kind.image) : '';
+    const people = w.cast.examples.filter(e => e.home === z.id).map(e => e.name);
+    return `<h4>Home</h4><p>House ${k + 1} of ${z.spots.length} in ${esc(z.name)}</p>
+        <div class="mu-me-pf"><div class="mu-me-pfcol"><div class="mu-field"><span>The area (shared by all its homes)</span></div>
+            ${txt('Name', `${p}.name`)}${area('Description', `${p}.desc`, 3)}
+            <div class="mu-row2">${sel('Kind of home', `${p}.kind`, Object.entries(w.homes.kinds).map(([id, x]) => [id, x.name]))}${num(`Rent (${esc(w.currency.symbol)})`, `${p}.rent`)}</div></div>
+        <div class="mu-me-pfcol"><div class="mu-field"><span>Inside</span>
+            <div class="mu-cw-cover is-small" style="${pic ? `background-image:url('${safeUrl(pic)}')` : ''}">${pic ? '' : '<span>No picture</span>'}</div>
+            <small class="mu-muted">${esc(kind?.name ?? '')}${kind?.desc ? `: ${esc(kind.desc)}` : ''}</small></div>
+            <div class="mu-field"><span>The world's people who live in this area</span><small class="mu-muted">${people.length ? esc(people.join(', ')) : 'Nobody from the world lives here yet.'}</small></div>
+            <small class="mu-muted">Drag it on the map to move it. Kinds of home and their pictures are in the Homes tab.</small>
+            <button class="mu-danger" data-act="me-del-home">${icon('trash')}<span>Remove this home</span></button></div></div>`;
 }
 function placeForm(w) {
+    const h = chosenHome(w);
+    if (h)
+        return homeForm(w, h.zi, h.k);
     const i = placeIdx(w, ME.pin);
     if (i < 0)
-        return `<p class="mu-muted">${ME.mode === 'place' ? 'Click on the map to add a place.' : ME.mode === 'link' ? 'Click on the map where the other map is (a city on the region map, say).' : ME.mode === 'homes' ? 'Click on the map to add a home to the chosen area; click a home to remove it.' : 'Click a pin to edit it. Drag pins to move them.'}</p>`;
+        return `<p class="mu-muted">${ME.mode === 'place' ? 'Click on the map to add a place.' : ME.mode === 'link' ? 'Click on the map where the other map is (a city on the region map, say).' : ME.mode === 'homes' ? 'Click on the map to add a home to the chosen area; click a home to see or change it, drag it to move it.' : 'Click a pin or a home to edit it. Drag them to move them.'}</p>`;
     const p = w.places[i];
     const path = `places.${i}`;
     if (p.link) {
@@ -174,7 +202,7 @@ document.addEventListener('pointerdown', (e) => {
     const home = t.closest('.mu-me-home');
     if (pin)
         drag = { id: pin.dataset.pin, el: pin, sx: e.clientX, sy: e.clientY, moved: false };
-    else if (home && ME.mode !== 'homes')
+    else if (home)
         drag = { id: '', el: home, sx: e.clientX, sy: e.clientY, moved: false, home: { zone: home.dataset.zone, k: Number(home.dataset.k) } };
     else
         return;
@@ -219,10 +247,17 @@ document.addEventListener('pointerup', (e) => {
             notify();
             return;
         }
-        if (!d.home) {
-            ME.pin = d.id;
-            notify();
+        // a click (no drag): a pin or a home is chosen and its form shows
+        if (d.home) {
+            ME.home = `${d.home.zone}:${d.home.k}`;
+            ME.zone = d.home.zone;
+            ME.pin = '';
         }
+        else {
+            ME.pin = d.id;
+            ME.home = '';
+        }
+        notify();
         return;
     }
     const img = t.closest?.(`#${ROOT_ID} [data-me-img]`);
@@ -233,17 +268,15 @@ document.addEventListener('pointerup', (e) => {
     const m = curMap(w);
     if (!m)
         return;
-    const homeEl = t.closest('.mu-me-home');
     if (ME.mode === 'homes') {
         const z = w.homes.zones.find(z => z.id === ME.zone);
         if (!z) {
             toast('Create a housing area first (New area).', 'info');
             return;
         }
-        if (homeEl && homeEl.dataset.zone === z.id)
-            z.spots.splice(Number(homeEl.dataset.k), 1);
-        else
-            z.spots.push([x, y]);
+        z.spots.push([x, y]);
+        ME.home = `${z.id}:${z.spots.length - 1}`;
+        ME.pin = '';
         CW.dirty = true;
         notify();
         return;
@@ -252,6 +285,7 @@ document.addEventListener('pointerup', (e) => {
         const p = { id: newId('place'), name: 'New place', map: m.id, x, y, tags: ['leisure'], desc: '' };
         w.places.push(p);
         ME.pin = p.id;
+        ME.home = '';
         ME.mode = 'move';
         CW.dirty = true;
         notify();
@@ -269,6 +303,7 @@ document.addEventListener('pointerup', (e) => {
             other.parent = m.id;
         w.places.push(p);
         ME.pin = p.id;
+        ME.home = '';
         ME.mode = 'move';
         CW.dirty = true;
         notify();
@@ -276,6 +311,7 @@ document.addEventListener('pointerup', (e) => {
     }
     if (!t.closest('.mu-me-pin')) {
         ME.pin = '';
+        ME.home = '';
         notify();
     }
 });
@@ -294,7 +330,7 @@ async function addMapPicture() {
     }
 }
 Object.assign(ACT, {
-    'me-map': (el) => { ME.map = el.dataset.id; ME.pin = ''; notify(); },
+    'me-map': (el) => { ME.map = el.dataset.id; ME.pin = ''; ME.home = ''; notify(); },
     'me-mode': (el) => { ME.mode = el.dataset.v; notify(); },
     'me-zoom': (el) => { ME.zoom = Math.max(0.5, Math.min(4, ME.zoom * (el.dataset.d === '1' ? 1.25 : 0.8))); notify(); },
     'me-add-map': async () => {
@@ -395,6 +431,7 @@ Object.assign(ACT, {
             delete x.parent; });
         ME.map = w.maps[0]?.id ?? '';
         ME.pin = '';
+        ME.home = '';
         CW.dirty = true;
         notify();
     },
@@ -408,6 +445,15 @@ Object.assign(ACT, {
             return;
         w.places.splice(i, 1);
         ME.pin = '';
+        CW.dirty = true;
+        notify();
+    },
+    'me-del-home': () => {
+        const w = W(), h = chosenHome(w);
+        if (!h)
+            return;
+        w.homes.zones[h.zi].spots.splice(h.k, 1);
+        ME.home = '';
         CW.dirty = true;
         notify();
     },
