@@ -16,7 +16,7 @@ store.state.view = 'creator';
 // Keys that are names chosen by the world, not fields: they become "*".
 const DYNAMIC = [/^homes\.kinds\.[^.]+/, /^cast\.routineTemplates\.[^.]+/, /^lexicon\.[^.]+/, /^music\.[^.]+/, /^sleep\.restore\.[^.]+/,
     /^actions\.\*\.effects\.[^.]+/, /^occupations\.\*\.cost\.[^.]+/, /^occupations\.\*\.requires\.[^.]+/, /^homes\.kinds\.\*\.bills\.[^.]+/, /^catalogs\.origins\.\*\.attributes\.[^.]+/,
-    /^actions\.\*\.roll\.(success|fail)\.effects\.[^.]+/, /^cast\.routineTemplates\.\*\.(weekday|weekend)/];
+    /^actions\.\*\.roll\.(success|fail)\.effects\.[^.]+/, /^cast\.routineTemplates\.\*\.(weekday|weekend)/, /^traitInfo\.[^.]+/];
 const norm = (p) => { let s = p.replace(/\.\d+(?=\.|$)/g, '.*'); for (const re of DYNAMIC) s = s.replace(re, m => m.replace(/[^.]+$/, '*')); return s; };
 const leaves = (o, at = '') => (o === null || typeof o !== 'object' ? [at] : Array.isArray(o) ? o.flatMap((x, i) => leaves(x, `${at}.${i}`)) : Object.keys(o).length ? Object.entries(o).flatMap(([k, v]) => leaves(v, at ? `${at}.${k}` : k)) : [at]);
 
@@ -33,7 +33,6 @@ const TOOLS = {
     'actions.*.home': 'Where', 'actions.*.anywhere': 'Where', 'actions.*.place': 'Where', 'actions.*.tags': 'Where',
     'actions.*.roll': 'a d20 roll is part of the action system (not edited, by design)',
     'features.apps': 'the apps list (Features)', 'time.periods.*.id': 'set by the creator',
-    'traitInfo.*': 'what the engine gives the standard trait names (upgradeWorld); the creator gets fields for a trait\'s effects with the traits work for it',
     'occupations.*.courses': 'Courses tab: Required for these jobs', 'occupations.*.likes': 'Jobs tab / Courses tab', 'cast.routineTemplates.*': 'Routines tab',
 };
 const covered = (leaf, shown) => shown.some(s => leaf === s || leaf.startsWith(`${s}.`)) || Object.keys(TOOLS).some(t => leaf === t || leaf.startsWith(`${t.replace(/\.\*$/, '')}.`) || leaf === t.replace(/\.\*$/, ''));
@@ -49,6 +48,7 @@ for (const id of ['modern', 'urban', 'medieval', 'house']) {
         cw.CW.tab = tab; grab();
         for (const [key, p] of Object.entries(lists)) { const n = (p.split('.').reduce((o, k) => o?.[k], cw.CW.w) ?? []).length; for (let i = 0; i < n; i++) { cw.CW.sel[key] = i; grab(); } cw.CW.sel[key] = 0; }
         for (const r of Object.keys(cw.CW.w.cast.routineTemplates)) { cw.CW.sel.routine = r; grab(); }
+        if (tab === 'character') for (const n of Object.keys(cw.CW.w.traitInfo ?? {})) { cw.CW.sel.tinfo = n; grab(); }   // what each trait does
     }
     const all = [...new Set(leaves(cw.CW.w).map(norm))].filter(Boolean).sort();
     const miss = all.filter(l => !covered(l, [...shown]));
