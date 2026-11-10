@@ -39,7 +39,7 @@ const stayHere = (g) => { const s = stayOf(g); return !!s && s.where === g.playe
 import { customActionRow, customModalHtml } from './custom.js';
 import { doingHtml } from './doing.js';
 import { apptActions, apptReminderHtml, conflictHtml } from './appts.js';
-import { social, isWith, withYou, giftable, giveKeepsake, keepsakesOf } from '../sim/social.js';
+import { social, isWith, withYou, giftable, giveKeepsake, keepsakesOf, giftsForSale, buyKeepsake } from '../sim/social.js';
 import { sleepHere, bookedHere, nightPrice } from '../sim/stays.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { bumpHtml } from './bump.js';
@@ -199,6 +199,7 @@ function actsColumn(g, w) {
         ...((atHome && !lockedOut(g)) || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
         ...innRows(g, w, atHome),
         ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),
+        ...buyRows(g, w),
         ...giftRows(g, w),
     ];
     {
@@ -234,7 +235,28 @@ function giftRows(g, w) {
     return [`<button class="mh-act mh-glass" data-act="give-open"><i>🎁</i><b>Give a keepsake</b><small>${have.length} to give</small></button>`,
         ...(giveOpen ? have.flatMap(k => people.map(r => `<button class="mh-act mh-glass is-sub" data-act="give" data-id="${esc(k.id)}" data-who="${esc(r.avatar)}"><i>${esc(k.icon)}</i><b><span data-notr>${esc(k.name)}</span> → <span data-notr>${esc(r.name)}</span></b><small>× ${esc(String(keepsakesOf(g)[k.id] ?? 0))}</small></button>`)) : [])];
 }
+// Gifts sold here (a keepsake's `at` and `price`): one row; open it to see them with their prices.
+let buyOpen = false;
+function buyRows(g, w) {
+    const list = giftsForSale(g, w);
+    if (!list.length)
+        return [];
+    return [`<button class="mh-act mh-glass" data-act="buy-open"><i>🛍️</i><b>Buy a gift</b><small>${list.length} for sale</small></button>`,
+        ...(buyOpen ? list.map(k => { const poor = g.player.money < (k.price ?? 0); return `<button class="mh-act mh-glass is-sub" data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>${esc(k.icon)}</i><b data-notr>${esc(k.name)}</b><small>${esc(money(w, Math.round(k.price ?? 0)))}${k.desc ? ` · <span data-notr>${esc(k.desc)}</span>` : ''}</small></button>`; }) : [])];
+}
 Object.assign(ACT, {
+    'buy-open': () => { buyOpen = !buyOpen; notify(); },
+    'buy-gift': (el) => {
+        const g = game();
+        const w = g && getWorld(g.world);
+        if (!g || !w)
+            return;
+        const r = buyKeepsake(g, w, el.dataset.id);
+        toast(r.text, r.ok ? 'success' : 'info');
+        if (r.ok)
+            saveGame();
+        notify();
+    },
     'give-open': () => { giveOpen = !giveOpen; notify(); },
     give: (el) => {
         const g = game();
@@ -244,7 +266,7 @@ Object.assign(ACT, {
         const r = giveKeepsake(g, w, el.dataset.id, el.dataset.who);
         giveOpen = false;
         if (r.text)
-            toast(r.text, r.ok && r.first && r.fit !== 'kind' ? 'success' : 'info');
+            toast(r.text, r.ok && !r.back && r.first && r.fit !== 'kind' ? 'success' : 'info');
         if (r.ok && r.ai && state.view === 'scene')
             setPrompt('mundi_roll', r.ai);
         if (r.ok) {

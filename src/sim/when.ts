@@ -22,7 +22,7 @@ import { companions } from './social.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
-    'knows', 'seen', 'thread', 'favor', 'perf'] as const;
+    'knows', 'seen', 'thread', 'favor', 'perf', 'gave'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -62,7 +62,7 @@ function badValue(key: WhenKey, v: string): string {
         case 'clock': return CLOCK.test(v) ? '' : `"${v}" should be hours like 19:00-20:00`;
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
         case 'feels': return splitLevel(v)[0] ? '' : 'a name is missing';
-        case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'knows':
+        case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'gave': case 'knows':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id, or a story id and a choice like sb_startup_st_pitch:2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
@@ -200,6 +200,8 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'clock': return inClock(x.minutes, v);
         case 'stayed': { const s = (g.player as any).stayed as { place: string; day: number } | undefined; return !!s && s.place === v && s.day === x.day; }
         case 'holds': return Number((g.player as any).keepsakes?.[v] ?? 0) > 0;
+        // someone here has this keepsake from you (a gift)
+        case 'gave': return Object.entries<string[]>((g as any).social?.given ?? {}).some(([a, ids]) => ids.includes(v) && !!g.cast[a] && isHere(g, w, g.cast[a], x));
         case 'companion': return companions(g).some(a => v === 'yes' || levelHolds(g, w, a, v));
         // the story so far (E22, E17, E28)
         case 'knows': return !!threadState(g, v)?.known;

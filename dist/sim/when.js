@@ -21,7 +21,7 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
-    'knows', 'seen', 'thread', 'favor', 'perf'];
+    'knows', 'seen', 'thread', 'favor', 'perf', 'gave'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -64,6 +64,7 @@ function badValue(key, v) {
         case 'start':
         case 'stayed':
         case 'holds':
+        case 'gave':
         case 'knows':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id, or a story id and a choice like sb_startup_st_pitch:2`;
@@ -245,6 +246,8 @@ function holds(g, w, key, v, x) {
             return !!s && s.place === v && s.day === x.day;
         }
         case 'holds': return Number(g.player.keepsakes?.[v] ?? 0) > 0;
+        // someone here has this keepsake from you (a gift)
+        case 'gave': return Object.entries(g.social?.given ?? {}).some(([a, ids]) => ids.includes(v) && !!g.cast[a] && isHere(g, w, g.cast[a], x));
         case 'companion': return companions(g).some(a => v === 'yes' || levelHolds(g, w, a, v));
         // the story so far (E22, E17, E28)
         case 'knows': return !!threadState(g, v)?.known;

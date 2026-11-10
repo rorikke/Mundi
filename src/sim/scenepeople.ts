@@ -6,7 +6,7 @@ import { adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type Place, type IntimateProfile } from '../core/world.js';
 import { crowdLevel } from './worldstate.js';
 import { exampleOf } from './dayplan.js';
-import { companions } from './social.js';
+import { companions, giftsGiven } from './social.js';
 import { fr, ro, relOf, idOf, statusOf, YOU } from './rel.js';
 import { friendTier, INTEREST, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked, isMinor } from './family.js';
@@ -132,7 +132,9 @@ export function profilePeople(g: Save, w: WorldDef, here: Place | null, present:
         .sort((a, b) => drawnHere(g, b, present) - drawnHere(g, a, present));
     return { full: who.slice(0, PROFILES_MAX), limitsOnly: who.slice(PROFILES_MAX).filter(r => profileOf(g, r.avatar)?.limits?.length) };
 }
-const PROFILE_WORDS: [keyof IntimateProfile, string][] = [['experience', 'experience'], ['wants', 'wants'], ['drawnTo', 'drawn to'], ['flirts', 'flirts'], ['dynamic', 'dynamic']];
+const PROFILE_WORDS: [keyof IntimateProfile, string][] = [['experience', 'experience'], ['wants', 'wants'], ['drawnTo', 'drawn to'], ['flirts', 'flirts'], ['dynamic', 'dynamic'], ['body', 'body'], ['inBed', 'in bed']];
+// the intimate gifts someone has from you, by name (so the AI can bring them out)
+const intimateGifts = (g: Save, w: WorldDef, avatar: string) => (giftsGiven(g)[avatar] ?? []).map(id => w.keepsakes?.find(k => k.id === id)).filter(k => !!k?.intimate).map(k => k!.name);
 const tidyLine = (s: string) => s.replace(/\s+/g, ' ').trim().replace(/[.;\s]+$/, '');
 /** The block: each profile as a character sheet, then the hard limits on a line of their own (kept over the budget). */
 export function profileLines(g: Save, w: WorldDef, here: Place | null, present: Resident[]): { lines: string[]; limits: string } {
@@ -142,6 +144,8 @@ export function profileLines(g: Save, w: WorldDef, here: Place | null, present: 
         const p = profileOf(g, r.avatar)!;
         const bits = PROFILE_WORDS.filter(([k]) => typeof p[k] === 'string' && (p[k] as string).trim()).map(([k, word]) => `${word}: ${tidyLine(p[k] as string)}`);
         if (p.prefs?.length) bits.push(`likes: ${p.prefs.map(tidyLine).join(', ')}`);
+        const gifts = intimateGifts(g, w, r.avatar);
+        if (gifts.length) bits.push(`has from {{user}}: ${gifts.join(', ')}`);
         return `- ${r.name}: ${bits.join('; ')}.`;
     }).filter(l => !l.endsWith(': .'));
     const lim = [...full, ...limitsOnly].map(r => ({ r, l: (profileOf(g, r.avatar)?.limits ?? []).map(tidyLine).filter(Boolean) })).filter(x => x.l.length);

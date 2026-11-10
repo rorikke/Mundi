@@ -52,12 +52,16 @@ export function cleanPerson(raw: any): Person | undefined {
 }
 // (E15) An intimate profile: short lines and short lists of plain words, nothing else; undefined when empty.
 export const INTIMATE_LINES = ['experience', 'wants', 'drawnTo', 'flirts', 'dynamic'] as const;
+// their body and how they are in bed take more words than a line
+export const INTIMATE_LONG = ['body', 'inBed'] as const;
+export const INTIMATE_LONG_MAX = 800;
 export const INTIMATE_LISTS = ['prefs', 'limits'] as const;
 export function cleanIntimate(raw: any): IntimateProfile | undefined {
     if (!raw || typeof raw !== 'object') return undefined;
     const line = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
     const p: IntimateProfile = {};
     for (const k of INTIMATE_LINES) { const v = line(raw[k], 400); if (v) p[k] = v; }
+    for (const k of INTIMATE_LONG) { const v = line(raw[k], INTIMATE_LONG_MAX); if (v) p[k] = v; }
     for (const k of INTIMATE_LISTS) { const v = (Array.isArray(raw[k]) ? raw[k] : []).map((x: unknown) => line(x, 120)).filter(Boolean).slice(0, 12); if (v.length) p[k] = v; }
     return Object.keys(p).length ? p : undefined;
 }

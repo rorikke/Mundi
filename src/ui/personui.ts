@@ -11,7 +11,7 @@ import { PRESETS as INTIMACY, R_NAME, F_NAME, type RNeed, type FNeed } from '../
 import { ACT, INPUT } from './reg.js';
 import { icon } from './icons.js';
 import { fullCharacter } from '../st/bridge.js';
-import { suggestFromCard, cleanIntimate, INTIMATE_LINES, INTIMATE_LISTS } from '../sim/gender.js';
+import { suggestFromCard, cleanIntimate, INTIMATE_LINES, INTIMATE_LISTS, INTIMATE_LONG, INTIMATE_LONG_MAX } from '../sim/gender.js';
 
 export interface PersonScope {
     get(id: string): Person | undefined;
@@ -90,6 +90,7 @@ function waysHtml(scope: string, id: string, p: Person | undefined): string {
 const INTIMATE_LABEL: Record<string, [string, string]> = {
     experience: ['Experience', 'about three partners, one long relationship'], wants: ['What they want', 'someone who makes them laugh'],
     drawnTo: ['What draws them', 'kindness, good listeners'], flirts: ['How they flirt', 'teasing, sharing snacks'], dynamic: ['Who leads', 'switch, shy at first'],
+    body: ['Their body', 'how they look and feel to a partner'], inBed: ['In bed', 'how they are in bed, what they ask for, what comes after'],
     prefs: ['What they like (one per line)', 'slow and tender\nbeing asked what they want'], limits: ['Hard limits (one per line; always respected)', 'nothing without a clear yes'],
 };
 const OPEN = new Set<string>();   // intimate profiles opened in the panel (scope|id)
@@ -100,6 +101,7 @@ function intimateHtml(scope: string, id: string, p: Person | undefined): string 
     return `<div class="mu-pp-intimate"><button class="mu-ghost" data-act="pp-int-open" ${data(scope, id)} aria-expanded="${open}">${icon(open ? 'x' : 'edit')}<span>Intimate profile</span><small class="mu-muted">${n ? '' : 'empty · '}adult</small></button>
         ${open ? `<p class="mu-muted">Like a character sheet: experience, wishes and limits in plain words, between adults. Only told to the AI with adult content on.</p>
         ${INTIMATE_LINES.map(k => `<label class="mu-field"><span>${INTIMATE_LABEL[k][0]}</span><input maxlength="400" ${f(k)} value="${esc((i as any)[k] ?? '')}" placeholder="${esc(INTIMATE_LABEL[k][1])}"></label>`).join('')}
+        ${INTIMATE_LONG.map(k => `<label class="mu-field"><span>${INTIMATE_LABEL[k][0]}</span><textarea rows="4" maxlength="${INTIMATE_LONG_MAX}" ${f(k)} placeholder="${esc(INTIMATE_LABEL[k][1])}">${esc((i as any)[k] ?? '')}</textarea></label>`).join('')}
         ${INTIMATE_LISTS.map(k => `<label class="mu-field"><span>${INTIMATE_LABEL[k][0]}</span><textarea rows="3" ${f(k)} placeholder="${esc(INTIMATE_LABEL[k][1])}">${esc(((i as any)[k] ?? []).join('\n'))}</textarea></label>`).join('')}` : ''}
     </div>`;
 }

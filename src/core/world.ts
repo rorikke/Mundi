@@ -23,7 +23,8 @@ export type WeekdayId = typeof WEEKDAY_IDS[number];
  *  (`Ayaka friend`: one of the world's people toward you, at that level or closer), `onShift` (someone at work here),
  *  `present` (someone here now), `after` (an action done here today), `job` (an id, or `here`), `start` (the player's
  *  start), `chance` (per day, `0.2`), `clock` (`19:00-20:00`), `stayed` (slept at that place last night), `holds` (a
- *  keepsake), `companion` (someone with you at that level or closer: `dating`), `perf` (your performance at work, at
+ *  keepsake), `gave` (someone here has that keepsake from you, a gift), `companion` (someone with you at that level or
+ *  closer: `dating`), `perf` (your performance at work, at
  *  least: `80`; a rank's `when` reads it as the performance it asks for). An outcome's own condition may be
  *  written `when: present: Kaito`. Worlds made before conditions were text give an object (LoreWhen), read as before. */
 export type When = string | LoreWhen;
@@ -366,7 +367,12 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
     leaves?: boolean }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
-export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string; prefs?: string[]; limits?: string[] }
+export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string;
+    /** Their body, as a partner knows it (longer than the other lines). */
+    body?: string;
+    /** How they are in bed (longer than the other lines). */
+    inBed?: string;
+    prefs?: string[]; limits?: string[] }
 /** One of a world's genders: `pronouns` and the `plural` ("women") are what the AI is told. */
 export interface GenderDef { id: string; name: string; plural?: string; pronouns?: string }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
@@ -520,7 +526,14 @@ export interface SkillDef { id: string; name: string; icon?: string; desc?: stri
 /** (E14, E35) A keepsake: its kind (charm, photo, print…: a gift of each kind counts once per person), whether it can
  *  be given (`gift: false`: it can't; missing: it can), and who would love it (names of the world's people, or words
  *  matched against a person's job and the places, and kinds of place, where they spend their free time). */
-export interface KeepsakeDef { id: string; name: string; icon: string; kind?: string; desc?: string; gift?: boolean; loves?: string[]; adult?: boolean }
+export interface KeepsakeDef { id: string; name: string; icon: string; kind?: string; desc?: string; gift?: boolean; loves?: string[]; adult?: boolean;
+    /** Sold at these places (place ids) for `price`: a "Buy a gift" row there. */
+    at?: string[]; price?: number;
+    /** A romantic gift (flowers, jewelry): with someone drawn to you (a partner, or a Crush and up) romance grows too. */
+    romantic?: boolean;
+    /** An intimate gift: welcome only from a partner or someone with a Crush on you and up (anyone else hands it back);
+     *  refused when a word of `loves` is in their hard limits, loved when one is in their intimate profile. */
+    intimate?: boolean }
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
  *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */

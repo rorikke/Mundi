@@ -57,6 +57,9 @@ export function cleanPerson(raw) {
 }
 // (E15) An intimate profile: short lines and short lists of plain words, nothing else; undefined when empty.
 export const INTIMATE_LINES = ['experience', 'wants', 'drawnTo', 'flirts', 'dynamic'];
+// their body and how they are in bed take more words than a line
+export const INTIMATE_LONG = ['body', 'inBed'];
+export const INTIMATE_LONG_MAX = 800;
 export const INTIMATE_LISTS = ['prefs', 'limits'];
 export function cleanIntimate(raw) {
     if (!raw || typeof raw !== 'object')
@@ -65,6 +68,11 @@ export function cleanIntimate(raw) {
     const p = {};
     for (const k of INTIMATE_LINES) {
         const v = line(raw[k], 400);
+        if (v)
+            p[k] = v;
+    }
+    for (const k of INTIMATE_LONG) {
+        const v = line(raw[k], INTIMATE_LONG_MAX);
         if (v)
             p[k] = v;
     }

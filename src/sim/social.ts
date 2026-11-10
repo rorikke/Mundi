@@ -1,9 +1,9 @@
 // Relationships, meet-ups and text messages. Bond grows when you talk to someone (in a scene or by phone);
 // a meet-up puts her at a place you chose for two hours; at a high bond you can ask her to be your partner.
 // Things done together count as time together (E14), and keepsakes can be given as gifts (E35).
-import { notify, nowAbs, type Save, type Resident, UI } from '../core/store.js';
-import { type WorldDef, type KeepsakeDef, messageKind, aiVoice, systemOn } from '../core/world.js';
-import { fr, ro, gain, lose, setFr, touch, statusOf, YOU, isPartner as partnerOfYou } from './rel.js';
+import { notify, nowAbs, adultOk, type Save, type Resident, UI } from '../core/store.js';
+import { type WorldDef, type KeepsakeDef, type IntimateProfile, messageKind, aiVoice, systemOn } from '../core/world.js';
+import { fr, ro, gain, lose, setFr, touch, statusOf, relOf, idOf, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
 import { whereNow, presentAt, workingAt } from './people.js';
 import { personNamed } from './when.js';
@@ -14,6 +14,7 @@ import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { sawYou } from './warnings.js';
+import { book } from './ledger.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
@@ -122,41 +123,88 @@ export function feelsFrom(g: Save, w: WorldDef, feels: Record<string, number> | 
 // A keepsake given to someone means what it means to them: one they'd love (their name on it, `loves`), one that fits
 // what they do or where they spend their free time (a word of `loves` in their job or leisure places), or just a
 // kind thought. Friendship grows by that (paced), once per kind of keepsake per person; the AI is told how it landed.
+// A romantic gift moves romance too with someone drawn to you. An intimate one only lands with them: anyone else hands
+// it back (a little awkward), and one that touches someone's hard limits is refused; one that matches what they like
+// in their intimate profile is loved.
 export const GIFT = { loves: 8, fits: 4, kind: 1.5 };
+export const GIFT_AWKWARD = 3;   // friendship lost when an intimate gift is handed back (twice that when refused)
 export type GiftFit = keyof typeof GIFT;
 export const keepsakesOf = (g: Save): Record<string, number> => ((g.player as any).keepsakes ??= {});
 export const keepsakeDef = (w: WorldDef, id: string): KeepsakeDef => w.keepsakes?.find(k => k.id === id) ?? { id, name: id, icon: '🎁' };
 export function addKeepsake(g: Save, id: string, n = 1) { const k = keepsakesOf(g); k[id] = (k[id] ?? 0) + n; if (k[id] <= 0) delete k[id]; }
+/** The gifts each person has from you (keepsake ids, in the order given). */
+export const giftsGiven = (g: Save): Record<string, string[]> => (((social(g) as any).given ??= {}) as Record<string, string[]>);
 const words = (s: string) => s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+// one of the gift's words (people's names aside) in a text: a whole word, or a whole phrase
+function wordsIn(g: Save, k: KeepsakeDef, text: string): boolean {
+    const hay = ` ${words(text).join(' ')} `;
+    return (k.loves ?? []).filter(l => !personNamed(g, l)).some(l => { const p = words(l).join(' '); return !!p && hay.includes(` ${p} `); });
+}
+// what they like (not their body: a body line names parts, not wishes)
+const profileText = (p: IntimateProfile | undefined) => !p ? '' : [p.experience, p.wants, p.drawnTo, p.flirts, p.dynamic, p.inBed, ...(p.prefs ?? [])].filter(Boolean).join(' . ');
+const intimateOf = (g: Save, avatar: string): IntimateProfile | undefined => relOf(g).people[idOf(g, avatar)]?.intimate;
+// drawn to you: a couple with you, or romance at Crush and up (and romance possible between you)
+const drawnToYou = (g: Save, w: WorldDef, avatar: string) => !!statusOf(g, avatar, YOU) || (systemOn(w, 'romance') && !romanceBlocked(g, avatar) && ro(g, avatar, YOU) >= CRUSH);
 export function giftFit(g: Save, w: WorldDef, k: KeepsakeDef, avatar: string): GiftFit {
     const r = g.cast[avatar]; if (!r) return 'kind';
     const loves = k.loves ?? [];
     if (loves.some(l => personNamed(g, l)?.avatar === avatar)) return 'loves';
+    if (k.intimate && wordsIn(g, k, profileText(intimateOf(g, avatar)))) return 'loves';
     const job = w.occupations.find(o => o.id === r.occupation);
     const spots = (r.leisure ?? []).map(id => w.places.find(p => p.id === id)).filter(Boolean) as WorldDef['places'];
     const hay = new Set([...(r.occupation ? [r.occupation] : []), ...words(job?.name ?? ''), ...spots.flatMap(p => [p.id, ...words(p.name), ...(p.tags ?? [])])].map(s => s.toLowerCase()));
     return loves.some(l => !personNamed(g, l) && hay.has(l.toLowerCase())) ? 'fits' : 'kind';
 }
 /** What you could give: keepsakes you hold that can be given. */
-export const giftable = (g: Save, w: WorldDef) => Object.entries(keepsakesOf(g)).filter(([id, n]) => n > 0 && keepsakeDef(w, id).gift !== false).map(([id]) => keepsakeDef(w, id));
-export interface GiftResult { ok: boolean; text: string; fit?: GiftFit; first?: boolean; d?: number; ai?: string }
+export const giftable = (g: Save, w: WorldDef) => Object.entries(keepsakesOf(g)).filter(([id, n]) => n > 0 && keepsakeDef(w, id).gift !== false && adultOk(g, keepsakeDef(w, id))).map(([id]) => keepsakeDef(w, id));
+export interface GiftResult { ok: boolean; text: string; fit?: GiftFit; first?: boolean; d?: number; ai?: string; back?: boolean }
 export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): GiftResult {
     const r = g.cast[avatar], k = keepsakeDef(w, id);
     if (!r?.met) return { ok: false, text: '' };
-    if (!(keepsakesOf(g)[id] > 0) || k.gift === false) return { ok: false, text: 'You don\'t have that to give.' };
+    if (!(keepsakesOf(g)[id] > 0) || k.gift === false || !adultOk(g, k)) return { ok: false, text: 'You don\'t have that to give.' };
     if (!presentAt(g, w, g.player.loc).includes(r)) return { ok: false, text: `${r.name} isn't here.` };
+    const drawn = drawnToYou(g, w, avatar);
+    // an intimate gift from someone they aren't drawn to, or one past their limits, comes back to you
+    if (k.intimate) {
+        const limits = (intimateOf(g, avatar)?.limits ?? []).join(' . ');
+        const refused = !!limits && wordsIn(g, k, limits);
+        if (refused || !drawn) {
+            lose(g, 'f', avatar, YOU, -(refused ? 2 * GIFT_AWKWARD : GIFT_AWKWARD));
+            touch(g, avatar); sawYou(g, avatar);
+            note(g, '{u} offered {0} an intimate gift: {1}. It was handed back.', [r.name, k.name], [avatar], g.player.loc, 'gift');
+            const ai = refused
+                ? `[Just now {{user}} offered ${r.name} an intimate gift: ${k.name}. It goes against one of ${r.name}'s hard limits: ${r.name} refuses it and hands it back. Narrate how ${r.name} reacts.]`
+                : `[Just now {{user}} offered ${r.name} an intimate gift: ${k.name}. ${r.name} isn't drawn to {{user}} that way, so it feels too intimate coming from {{user}}: ${r.name} hands it back, embarrassed or put off as fits them. Narrate how ${r.name} reacts.]`;
+            return { ok: true, back: true, text: refused ? `${r.name} won't take the ${k.name}.` : `${r.name} hands the ${k.name} back, embarrassed.`, ai };
+        }
+    }
     addKeepsake(g, id, -1);
     const s = social(g) as Social & { gifts?: Record<string, string[]> };
     const kinds = ((s.gifts ??= {})[avatar] ??= []), kind = k.kind ?? k.id, first = !kinds.includes(kind);
+    const given = (giftsGiven(g)[avatar] ??= []); if (!given.includes(id)) given.push(id);
     const fit = giftFit(g, w, k, avatar);
     const d = first ? gain(g, 'f', avatar, YOU, GIFT[fit]).d : 0;
+    const loving = !!(k.romantic || k.intimate) && drawn;
+    if (first && loving) gain(g, 'r', avatar, YOU, GIFT[fit]);
     if (first) kinds.push(kind);
     touch(g, avatar); sawYou(g, avatar);
     note(g, '{u} gave {0} a gift: {1}.', [r.name, k.name], [avatar], g.player.loc, 'gift');
-    const how = fit === 'loves' ? 'loves it: it is exactly the kind of thing they treasure' : fit === 'fits' ? 'likes it: it fits what they enjoy' : 'takes it kindly, though it means little to them';
-    const text = !first ? `${r.name} already has something like it from you.` : fit === 'loves' ? `${r.name} loves the ${k.name}!` : fit === 'fits' ? `${r.name} likes the ${k.name}.` : `${r.name} thanks you for the ${k.name}.`;
-    const ai = `[Just now {{user}} gave ${r.name} a gift: ${k.name}. ${r.name} ${how}${first ? '' : ` (${r.name} already has something like it from {{user}})`}. Narrate how ${r.name} reacts.]`;
+    const how = fit === 'loves' ? 'loves it: it is exactly the kind of thing they treasure' : fit === 'fits' ? 'likes it: it fits what they enjoy' : loving ? 'is touched by it' : 'takes it kindly, though it means little to them';
+    const why = loving ? ` It's ${k.intimate ? 'an intimate' : 'a romantic'} gift from someone ${r.name} is drawn to${k.intimate ? ', and it reads as an invitation' : ''}.` : '';
+    const text = !first ? `${r.name} already has something like it from you.` : fit === 'loves' ? `${r.name} loves the ${k.name}!` : fit === 'fits' ? `${r.name} likes the ${k.name}.` : loving ? `${r.name} blushes at the ${k.name}.` : `${r.name} thanks you for the ${k.name}.`;
+    const ai = `[Just now {{user}} gave ${r.name} a gift: ${k.name}. ${r.name} ${how}${first ? '' : ` (${r.name} already has something like it from {{user}})`}.${why} Narrate how ${r.name} reacts.]`;
     return { ok: true, text, fit, first, d, ai };
+}
+/** Gifts sold where you are (adult ones only with adult content on). */
+export const giftsForSale = (g: Save, w: WorldDef, place = g.player.loc) => (w.keepsakes ?? []).filter(k => (k.price ?? 0) > 0 && (k.at ?? []).includes(place) && adultOk(g, k));
+export function buyKeepsake(g: Save, w: WorldDef, id: string): { ok: boolean; text: string } {
+    const k = giftsForSale(g, w).find(x => x.id === id);
+    if (!k) return { ok: false, text: 'That isn\'t sold here.' };
+    const price = Math.round(k.price ?? 0);
+    if (g.player.money < price) return { ok: false, text: 'Not enough money.' };
+    g.player.money -= price; book(g, k.name, -price);
+    addKeepsake(g, id);
+    return { ok: true, text: `You bought the ${k.name}.` };
 }
 
 /* ---------- text messages ---------- */
