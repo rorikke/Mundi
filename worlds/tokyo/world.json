@@ -25652,9 +25652,9 @@
     "japanese": 4
    },
    "likes": [
-    "Athletic",
-    "Calm",
-    "Cheerful"
+    "Hot-headed",
+    "Cheerful",
+    "Sports"
    ],
    "trains": [
     "fitness"
@@ -25705,9 +25705,9 @@
    "shift": 10,
    "length": 1.2,
    "likes": [
-    "Tech-savvy",
     "Ambitious",
-    "Curious"
+    "Curious",
+    "Technology"
    ],
    "trains": [
     "logic",
@@ -26001,7 +26001,7 @@
    "likes": [
     "Outgoing",
     "Cheerful",
-    "Musical"
+    "Karaoke"
    ],
    "trains": [
     "singing",
@@ -26178,9 +26178,9 @@
     "japanese": 5
    },
    "likes": [
-    "Creative",
-    "Charming",
-    "Outgoing"
+    "Ambitious",
+    "Curious",
+    "Fashion"
    ],
    "trains": [
     "fashion",
@@ -26432,9 +26432,9 @@
     "japanese": 4
    },
    "likes": [
-    "Cheerful",
-    "Creative",
-    "Outgoing"
+    "Sarcastic",
+    "Fashion",
+    "Music"
    ],
    "trains": [
     "fashion",
@@ -26588,8 +26588,8 @@
    ],
    "likes": [
     "Outgoing",
-    "Kind",
-    "Calm"
+    "Curious",
+    "Travel"
    ],
    "trains": [
     "english",
@@ -26815,9 +26815,9 @@
     "japanese": 4
    },
    "likes": [
-    "Calm",
-    "Kind",
-    "Serious"
+    "Shy",
+    "Serious",
+    "Romantic"
    ],
    "trains": [
     "japanese",
@@ -26831,9 +26831,9 @@
     {
      "name": "Front desk",
      "pay": 1450,
-     "traits": [
-      "Calm"
-     ]
+     "needs": {
+      "logic": 1
+     }
     },
     {
      "name": "Night manager",
@@ -26980,16 +26980,13 @@
     3
    ],
    "length": 1,
-   "needs": [
-    "Charming",
-    "Outgoing"
-   ],
    "skills": {
-    "fashion": 1
+    "fashion": 1,
+    "charisma": 1
    },
    "likes": [
-    "Charming",
     "Outgoing",
+    "Romantic",
     "Ambitious"
    ],
    "trains": [
@@ -27185,18 +27182,14 @@
     1.5
    ],
    "length": 1,
-   "needs": [
-    "Charming",
-    "Kind",
-    "Outgoing"
-   ],
    "skills": {
-    "japanese": 3
+    "japanese": 3,
+    "charisma": 1
    },
    "likes": [
-    "Charming",
     "Kind",
-    "Outgoing"
+    "Romantic",
+    "Nightlife"
    ],
    "trains": [
     "charisma",
@@ -27442,14 +27435,10 @@
     5
    ],
    "length": 0.9,
-   "needs": [
-    "Calm",
-    "Kind"
-   ],
    "likes": [
     "Calm",
-    "Kind",
-    "Curious"
+    "Sarcastic",
+    "Nightlife"
    ],
    "trains": [
     "mixology",
@@ -27660,7 +27649,10 @@
    ],
    "drinks": [
     "sj_omoide"
-   ]
+   ],
+   "skills": {
+    "charisma": 1
+   }
   },
   {
    "id": "capsule",
@@ -27678,9 +27670,9 @@
    ],
    "length": 0.5,
    "likes": [
-    "Calm",
-    "Kind",
-    "Serious"
+    "Shy",
+    "Lazy",
+    "Travel"
    ],
    "trains": [
     "japanese",
@@ -27837,9 +27829,9 @@
    "nightPay": 0.25,
    "overtime": true,
    "likes": [
-    "Calm",
+    "Lazy",
     "Kind",
-    "Cheerful"
+    "Anime & manga"
    ],
    "trains": [
     "charisma"
@@ -28006,9 +27998,9 @@
    "length": 0.8,
    "overtime": true,
    "likes": [
-    "Musical",
+    "Sarcastic",
     "Outgoing",
-    "Calm"
+    "Music"
    ],
    "trains": [
     "music",
@@ -28236,9 +28228,9 @@
    "shift": 8,
    "length": 0.7,
    "likes": [
-    "Creative",
-    "Charming",
-    "Curious"
+    "Curious",
+    "Sarcastic",
+    "Fashion"
    ],
    "trains": [
     "fashion",
@@ -28446,9 +28438,9 @@
    },
    "overtime": true,
    "likes": [
-    "Creative",
-    "Serious",
-    "Calm"
+    "Shy",
+    "Anime & manga",
+    "Art"
    ],
    "trains": [
     "drawing",
@@ -28739,8 +28731,8 @@
    "length": 0.5,
    "likes": [
     "Calm",
-    "Kind",
-    "Strong"
+    "Lazy",
+    "Kind"
    ],
    "trains": [
     "fitness",
@@ -28897,8 +28889,8 @@
    "length": 0.5,
    "likes": [
     "Calm",
-    "Kind",
-    "Serious"
+    "Shy",
+    "Books"
    ],
    "trains": [
     "cooking",
@@ -29067,9 +29059,9 @@
    "length": 0.8,
    "overtime": true,
    "likes": [
-    "Good cook",
-    "Strong",
-    "Calm"
+    "Calm",
+    "Serious",
+    "Cooking"
    ],
    "trains": [
     "cooking",
@@ -29289,8 +29281,8 @@
     "gaming": 2
    },
    "likes": [
-    "Tech-savvy",
-    "Creative",
+    "Curious",
+    "Shy",
     "Games"
    ],
    "trains": [
@@ -29544,7 +29536,7 @@
    "likes": [
     "Cheerful",
     "Kind",
-    "Outgoing"
+    "Anime & manga"
    ],
    "trains": [
     "charisma",
@@ -29695,9 +29687,9 @@
     "dance": 2
    },
    "likes": [
-    "Musical",
-    "Charming",
-    "Cheerful"
+    "Cheerful",
+    "Ambitious",
+    "Music"
    ],
    "trains": [
     "singing",
@@ -29935,9 +29927,9 @@
    "shift": 7,
    "length": 0.9,
    "likes": [
-    "Smart",
-    "Calm",
-    "Serious"
+    "Serious",
+    "Curious",
+    "Books"
    ],
    "trains": [
     "logic",
@@ -30093,9 +30085,9 @@
    "shift": 10,
    "length": 1,
    "likes": [
-    "Good cook",
-    "Calm",
-    "Strong"
+    "Hot-headed",
+    "Serious",
+    "Cooking"
    ],
    "trains": [
     "cooking"
@@ -30294,8 +30286,8 @@
    "length": 0.6,
    "likes": [
     "Calm",
-    "Kind",
-    "Serious"
+    "Romantic",
+    "Travel"
    ],
    "trains": [
     "japanese",
@@ -30446,9 +30438,9 @@
     "fitness": 2
    },
    "likes": [
-    "Athletic",
-    "Strong",
-    "Cheerful"
+    "Cheerful",
+    "Sports",
+    "Travel"
    ],
    "trains": [
     "fitness",
@@ -30651,7 +30643,7 @@
    "likes": [
     "Curious",
     "Calm",
-    "Kind"
+    "Art"
    ],
    "trains": [
     "japanese",
@@ -30861,7 +30853,7 @@
    "likes": [
     "Serious",
     "Ambitious",
-    "Good with numbers"
+    "Technology"
    ],
    "trains": [
     "logic",
@@ -30947,9 +30939,7 @@
           "charisma": 9,
           "logic": 7
          },
-         "traits": [
-          "Ambitious"
-         ]
+         "when": "perf: 70"
         },
         {
          "name": "Head of Sales",
@@ -31006,9 +30996,7 @@
           "logic": 9,
           "charisma": 6
          },
-         "traits": [
-          "Ambitious"
-         ]
+         "when": "perf: 70"
         },
         {
          "name": "Head of Planning",
@@ -31275,9 +31263,9 @@
     "japanese": 2
    },
    "likes": [
-    "Kind",
-    "Charming",
-    "Calm"
+    "Cheerful",
+    "Serious",
+    "Fashion"
    ],
    "trains": [
     "charisma",
@@ -31513,8 +31501,8 @@
    "length": 0.6,
    "likes": [
     "Outgoing",
-    "Cheerful",
-    "Strong"
+    "Hot-headed",
+    "Nightlife"
    ],
    "trains": [
     "charisma",
@@ -31708,7 +31696,7 @@
    "likes": [
     "Kind",
     "Calm",
-    "Strong"
+    "Serious"
    ],
    "trains": [
     "logic",
@@ -31976,9 +31964,9 @@
     "medicine"
    ],
    "likes": [
-    "Smart",
-    "Calm",
-    "Serious"
+    "Serious",
+    "Ambitious",
+    "Curious"
    ],
    "trains": [
     "logic",
@@ -32289,7 +32277,7 @@
    "likes": [
     "Kind",
     "Calm",
-    "Strong"
+    "Cooking"
    ],
    "trains": [
     "charisma",
@@ -32469,9 +32457,9 @@
    ],
    "length": 0.9,
    "likes": [
-    "Strong",
-    "Athletic",
-    "Calm"
+    "Hot-headed",
+    "Cooking",
+    "Sports"
    ],
    "trains": [
     "fitness",
@@ -32665,9 +32653,9 @@
    ],
    "length": 1.2,
    "likes": [
-    "Creative",
-    "Outgoing",
-    "Ambitious"
+    "Ambitious",
+    "Sarcastic",
+    "Art"
    ],
    "trains": [
     "charisma",
@@ -32916,9 +32904,9 @@
    "shift": 7,
    "length": 0.8,
    "likes": [
+    "Hot-headed",
     "Outgoing",
-    "Athletic",
-    "Cheerful"
+    "Nightlife"
    ],
    "trains": [
     "mixology",
@@ -33150,9 +33138,9 @@
     "fitness": 2
    },
    "likes": [
-    "Athletic",
-    "Strong",
-    "Outgoing"
+    "Hot-headed",
+    "Cheerful",
+    "Music"
    ],
    "trains": [
     "dance",
@@ -33380,8 +33368,8 @@
    "length": 0.6,
    "likes": [
     "Outgoing",
-    "Cheerful",
-    "Calm"
+    "Sarcastic",
+    "Travel"
    ],
    "trains": [
     "english",
@@ -33567,9 +33555,9 @@
     "japanese": 3
    },
    "likes": [
-    "Charming",
     "Kind",
-    "Outgoing",
+    "Romantic",
+    "Karaoke",
     "Nightlife"
    ],
    "trains": [
@@ -33848,7 +33836,7 @@
    "shift": 6,
    "length": 0.5,
    "likes": [
-    "Athletic",
+    "Hot-headed",
     "Cheerful",
     "Sports"
    ],
@@ -33998,8 +33986,8 @@
    "shift": 10,
    "length": 0.6,
    "likes": [
-    "Smart",
-    "Calm",
+    "Sarcastic",
+    "Lazy",
     "Games"
    ],
    "trains": [
@@ -34135,9 +34123,9 @@
    "shift": 11,
    "length": 1,
    "likes": [
-    "Good cook",
-    "Strong",
-    "Calm"
+    "Hot-headed",
+    "Lazy",
+    "Cooking"
    ],
    "trains": [
     "cooking",
@@ -34347,9 +34335,9 @@
     "japanese": 2
    },
    "likes": [
-    "Calm",
     "Kind",
-    "Serious"
+    "Romantic",
+    "Travel"
    ],
    "trains": [
     "japanese",
@@ -34587,9 +34575,9 @@
    "shift": 8,
    "length": 1,
    "likes": [
-    "Charming",
     "Outgoing",
-    "Calm"
+    "Romantic",
+    "Ambitious"
    ],
    "trains": [
     "charisma",
