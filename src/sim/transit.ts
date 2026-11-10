@@ -7,6 +7,7 @@ import { cfg, type Save, type Resident } from '../core/store.js';
 import { isScenario, type WorldDef } from '../core/world.js';
 import { mapOf } from './places.js';
 import { priceOf } from './bills.js';
+import { tallyEvent } from './tally.js';
 
 export type LastTrain = 'on' | 'cheap' | 'off';
 export const LAST_TRAIN_RULES: { id: LastTrain; name: string; desc: string }[] = [
@@ -39,6 +40,8 @@ export function untilFirstTrain(w: WorldDef, minutes: number): number {
 export const byTrain = (g: Save, w: WorldDef, from: string, to: string) => !!w.transit && !isScenario(w) && from !== to && mapOf(g, w, from) !== mapOf(g, w, to);
 /** The player's trip now finds no train (and the rule keeps the last train). */
 export const missedTrain = (g: Save, w: WorldDef, from: string, to: string) => lastTrainRule(g) !== 'off' && byTrain(g, w, from, to) && !trainsRun(w, g.minutes);
+/** You set off after the last train (a taxi, or a wait for the first one): counted for life goals (sim/tally.ts). */
+export const tookLateTrip = (g: Save) => tallyEvent(g, 'missed_train');
 /** A taxi for a trip of that many minutes: the world's fare (a base and per minute), with the difficulty's prices. */
 export function taxiFare(g: Save, w: WorldDef, minutes: number): number {
     const t = w.transit?.taxi;

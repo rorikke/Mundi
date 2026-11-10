@@ -9,6 +9,7 @@ import { systemOn, type WorldDef, type CityEventDef, type ActionDef } from '../c
 import { worldWeather } from './weather.js';
 import { note } from './facts.js';
 import { onHour, onDay } from './hooks.js';
+import { tallyAttend } from './tally.js';
 import { levelOf } from './hobbies.js';
 import { seasonDays, SEASONS } from './time.js';
 
@@ -90,6 +91,7 @@ export function afterEvent(g: Save, w: WorldDef, a: { id: string }): string[] {
     const c = cityOf(g);
     if (a.id === `x-ev-${x.ev.id}`) {
         c.went.push(x.key);
+        tallyAttend(g, 'cityevent', x.ev.id);
         const s = (g.player as any).learning; if (s?.count) s.count.events = (s.count.events ?? 0) + 1;
         note(g, '{u} went to the {0}.', [x.ev.name], [], g.player.loc, 'social');
     }

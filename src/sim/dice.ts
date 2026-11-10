@@ -11,6 +11,9 @@ import { note } from './facts.js';
 import { addXp } from './rpg.js';
 import { hobbyFor, hobbyPay, levelOf } from './hobbies.js';
 import { effectAdd } from './effects.js';
+import { groupsOf } from '../core/goals.js';
+import { useReroll } from './perks.js';
+import { tallyRoll } from './tally.js';
 import { getWorld, isScenario } from '../core/world.js';
 
 export type Grade = 'critical-fail' | 'fail' | 'success' | 'critical-success';
@@ -20,15 +23,21 @@ export interface RollResult { d20: number; bonus: number; total: number; dc: num
 export interface RollSpec { skill?: string; traits?: string[]; tags?: string[] }
 // The one bonus every roll gets (an action, a street story's choice, a choice at work): +1 for every 2 levels of its
 // skill, −2 each for very low energy and very low mood, the traits a custom world lists (+2 each), and what the
-// effects add (traits now, perks later).
+// effects add (traits, life goals' perks, boosts: aimed at the skill, its group such as `creative`, or a tag).
 export function rollBonus(g: Save, w: WorldDef | null | undefined, r: RollSpec): number {
     const mine = traitsOf(g);
     let bonus = (r.traits ?? []).filter(t => mine.includes(t)).length * 2;
     if (r.skill) bonus += Math.floor(levelOf(g, r.skill) / 2);
-    bonus += effectAdd(g, w, 'roll', [r.skill, ...(r.tags ?? [])]);
+    bonus += effectAdd(g, w, 'roll', [r.skill, ...groupsOf(r.skill), ...(r.tags ?? [])]);
     if ((g.player.stats.energy ?? 100) <= 20) bonus -= 2;
     if ((g.player.stats.mood ?? 100) <= 20) bonus -= 2;
     return bonus;
+}
+/** The die of a roll against `dc` with `bonus`: a natural 20 always works, a natural 1 always fails. A failed one is
+ *  rolled again once a day per `reroll` effect (the second die stands); with none, one die is rolled, as always. */
+export function rollD20(g: Save, w: WorldDef | null | undefined, bonus: number, dc: number, rnd: () => number = Math.random): number {
+    const d = 1 + Math.floor(rnd() * 20);
+    return d === 20 || (d > 1 && d + bonus >= dc) || !useReroll(g, w) ? d : 1 + Math.floor(rnd() * 20);
 }
 /** " + 3" / " − 2" after the die on the screen ('' for nothing). */
 export const bonusLabel = (b: number) => (b ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b)}` : '');
@@ -46,11 +55,12 @@ export function chanceOf(g: Save, a: ActionDef): number {
 export function rollAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random): RollResult | null {
     const r = a.roll;
     if (!r || isScenario(w)) return null;   // Home: no checks, what you do just happens (the AI tells how)
-    const d20 = 1 + Math.floor(rnd() * 20);
     const bonus = bonusFor(g, a);
+    const d20 = rollD20(g, w, bonus, r.dc, rnd);
     const total = d20 + bonus;
     const grade: Grade = d20 === 1 ? 'critical-fail' : d20 === 20 ? 'critical-success' : total >= r.dc ? 'success' : 'fail';
     const ok = grade === 'success' || grade === 'critical-success';
+    if (ok) tallyRoll(g, actionRoll(w, a).skill, a.id);
     const out = ok ? r.success : r.fail;
     const mult = grade === 'critical-success' || grade === 'critical-fail' ? 2 : 1;
     const raw = Math.round((out.money ?? 0) * (grade === 'critical-success' ? 2 : 1) * ((out.money ?? 0) > 0 ? hobbyPay(g, w, a) : 1));

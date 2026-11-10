@@ -12,6 +12,8 @@ import { approve } from './living.js';
 import { addStatus } from './needs.js';
 import { isRpg, sheetOf, skillBonus, skillOf } from './rpg.js';
 import { traitsOf } from './work.js';
+import { effectMul } from './effects.js';
+import { tallyEvent } from './tally.js';
 
 export interface Mentee { avatar: string; area: string; progress: number; since: number; last: number; done?: boolean }
 export const MAX_MENTEES = 2, MENTOR_BOND = 50, LESSON_MINUTES = 60, LESSON_COST = 3;
@@ -39,6 +41,7 @@ export function takeApprentice(g: Save, w: WorldDef, avatar: string, area: strin
     const why = canMentor(g, w, avatar); if (why) return why;
     if (!teachable(g, w).some(([id]) => id === area)) return 'You cannot teach that.';
     menteesOf(g).push({ avatar, area, progress: 0, since: g.day, last: g.day });
+    tallyEvent(g, 'apprentice', 1, avatar);
     note(g, '{u} took {0} as an apprentice, to teach them {1}.', [g.cast[avatar].name, areaName(w, area)], [avatar], g.player.loc, 'meet');
     return `${g.cast[avatar].name} is your apprentice now.`;
 }
@@ -54,10 +57,14 @@ export function lesson(g: Save, w: WorldDef, avatar: string, here: boolean): { t
     addStatus(g, w, 'energy', -10);
     const s = isRpg(w) ? sheetOf(g) : null;
     const skill = s ? Math.max(0, skillBonus(w, s, m.area)) * 2 : traitsOf(g).includes(m.area) ? 5 : 0;
-    m.progress = Math.min(100, m.progress + 10 + skill); m.last = g.day;
+    // (what effects add to a lesson you give: a `study` effect aimed at `teach`, a life goal's perk)
+    const k = effectMul(g, w, 'study', 'teach');
+    m.progress = Math.min(100, m.progress + (k === 1 ? 10 + skill : Math.round((10 + skill) * k))); m.last = g.day;
+    tallyEvent(g, 'lesson');
     addBond(g, avatar, 2);
     if (m.progress < 100) return { text: `You teach ${r.name} ${areaName(w, m.area).toLowerCase()} (${m.progress}%).`, minutes: LESSON_MINUTES };
     m.done = true;
+    tallyEvent(g, 'taught', 1, avatar);
     social0(g, avatar); approve(g, avatar, 20);
     ((r as any).learned ??= []).push(areaName(w, m.area));
     note(g, '{0} finished learning {1} from {u}: a bond for life.', [r.name, areaName(w, m.area).toLowerCase()], [avatar], g.player.loc, 'goal');

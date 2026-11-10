@@ -10,6 +10,7 @@ import { systemOn, getWorld, gameMode } from '../core/world.js';
 import { book } from './ledger.js';
 import { money } from './needs.js';
 import { lex, appRef } from '../core/lexicon.js';
+import { effectMul } from './effects.js';
 
 /* ---------- difficulty ---------- */
 
@@ -69,7 +70,8 @@ export function billAmount(g: Save, w: WorldDef, id: BillId): number {
     const own = (w.homes.kinds[kind]?.bills ?? {}) as Record<string, number>;
     // older medieval worlds call their Power bill "firewood"
     const base = id === 'rent' ? zone?.rent ?? 0 : Number(own[id] ?? (id === 'power' ? own.firewood : undefined) ?? 0);
-    return priceOf(g, base);
+    // what effects (life goals' perks) take off: the rent counts as a price, the other bills only as bills
+    return priceOf(g, base * effectMul(g, w, 'price', id === 'rent' ? ['prices', 'rent'] : ['bills', id]));
 }
 // How many weeks are owed (0 = paid up), whether it is due, and whether it was cut off (a week overdue).
 export const owed = (g: Save, id: BillId) => { const b = billOf(g, id); return g.day >= b.due ? Math.floor((g.day - b.due) / EVERY) + 1 : 0; };

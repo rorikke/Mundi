@@ -2,6 +2,7 @@
 import { travelFactor } from './life.js';
 import { cfg, type Save } from '../core/store.js';
 import { isScenario, type WorldDef, type Place } from '../core/world.js';
+import { effectMul } from './effects.js';
 
 export const playerHomeId = 'home:player';
 export const isHome = (id: string) => id.startsWith('home:');
@@ -107,7 +108,8 @@ export function realmOf(w: WorldDef, mapId?: string): string {
 export function travelMinutes(g: Save, w: WorldDef, from: string, to: string): number {
     if (from === to) return 0;
     if (isScenario(w)) return 0;   // Home: from one room to another takes no time
-    return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) / 5) * 5);
+    // (what effects take off: life goals' perks, boosts)
+    return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) * effectMul(g, w, 'travel') / 5) * 5);
 }
 /** The world's own time for a trip (minutes), before the "travel" rule and what you own (a car) change it. */
 export function tripMinutes(g: Save, w: WorldDef, from: string, to: string): number {

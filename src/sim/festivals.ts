@@ -6,6 +6,7 @@ import { systemOn, type WorldDef, type FestivalDef } from '../core/world.js';
 import { seasonDays, SEASONS } from './time.js';
 import { addStatus } from './needs.js';
 import { note } from './facts.js';
+import { tallyAttend } from './tally.js';
 
 const on = (w: WorldDef) => systemOn(w, 'festivals') && !!w.festivals?.length;
 const seasonAt = (g: Save, day: number) => SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].id;
@@ -80,6 +81,7 @@ export function celebrate(g: Save, w: WorldDef, addRep: (d: number) => void): st
     const f = canCelebrate(g, w); if (!f) return '';
     (g as any).celebrated = [...celebrated(g).filter(k => Number(k.split('|')[1]) >= g.day), `${f.id}|${g.day}`];
     addStatus(g, w, 'mood', f.mood ?? 15); addStatus(g, w, 'energy', -8);
+    tallyAttend(g, 'festival', f.id);
     addRep(1);
     note(g, '{u} celebrated the {0}.', [f.name], [], g.player.loc, 'social');
     return `You join the ${f.name}!`;

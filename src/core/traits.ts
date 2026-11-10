@@ -10,8 +10,8 @@
  *  and timed boosts. */
 export type EffectKind =
     | 'drain'    // how fast a need drops (target: a need id; a `when` of `period: night` for night only)
-    | 'learn'    // skill training (target: a skill id, `all`, or `upto:3`: only while the skill is below level 3)
-    | 'roll'     // a flat bonus on rolls (target: a skill id, an action tag, `work` for a choice at work; none: every roll)
+    | 'learn'    // skill training (target: a skill id, a group of skills such as `creative`, `all`, or `upto:3`: only while the skill is below level 3)
+    | 'roll'     // a flat bonus on rolls (target: a skill id or its group (`creative`), an action tag, `work` for a choice at work; none: every roll)
     | 'perf'     // performance gains at work
     | 'career'   // days a rank takes
     | 'warm'     // friendship points you start with someone you first meet (target: `new`; negative: a cooler first impression)
@@ -19,7 +19,7 @@ export type EffectKind =
     | 'fade'     // how fast romance toward you fades (target: `romance`; `partner`: only your partners')
     | 'morning'  // a flat mood change each morning (a `when` can limit it: out of work)
     | 'party'    // the mood a party gives
-    | 'study'    // what a study session is worth
+    | 'study'    // what a study session is worth (target: `class`, a course's class; `teach`, a lesson you give an apprentice)
     // the rest: life goals' perks and timed boosts
     | 'price'    // what things cost (target: `prices` for what places and actions charge, a place id or tag, a map id or area, `regular` where you're a regular; `rent`, `bills`)
     | 'pay'      // what work pays (target: `wage`, `bonus` for the seasonal bonuses, `tips` for money from a choice at work; a job id, its place id or tag)

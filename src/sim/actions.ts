@@ -8,7 +8,8 @@
 import { nowAbs, toast, clockMode, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type ActionDef, type ActionOutcome, type RollOutcome } from '../core/world.js';
 import { setPrompt } from '../st/bridge.js';
-import { applyAction, addStatus, money } from './needs.js';
+import { applyAction, addStatus, money, restGain } from './needs.js';
+import { tallyTogether } from './tally.js';
 import { advance } from './time.js';
 import { rollAction, gradeName, type RollResult } from './dice.js';
 import { afterAction } from './life.js';
@@ -48,7 +49,7 @@ function applyOutcome(g: Save, w: WorldDef, a: ActionDef, o: RollOutcome): numbe
     const raw = o.money ?? 0;
     const cash = raw > 0 ? payOf(g, raw) : -priceOf(g, -raw);
     if (cash) { g.player.money = Math.max(0, g.player.money + cash); book(g, a.name, cash); }
-    for (const [id, v] of Object.entries(o.effects ?? {})) addStatus(g, w, id, v);
+    for (const [id, v] of Object.entries(o.effects ?? {})) addStatus(g, w, id, v > 0 ? restGain(g, w, a, id, v) : v);
     return cash;
 }
 // How a result changes some of the world's people's feelings. `feelsDaily`: a gain toward someone counts the first
@@ -101,6 +102,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
     if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); }
     const together = doneTogether(g, w, mates, a.minutes);
+    if (mates.length || withYou(g, w).length) tallyTogether(g, a.id);   // (cooking for a friend: someone with you counts)
     // remembered: its own fact (the outcome's, the roll's, the action's), or a plain one when nothing else wrote one
     const own = outcome?.fact ?? res?.fact ?? a.fact;
     const withWho = mates.length ? names(g, mates) : '';
