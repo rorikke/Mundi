@@ -213,7 +213,9 @@ export interface TraitGroup { id: string; label: string; max: number; options: s
  *  best one a player qualifies for counts. `share`: 0–1 of the fee; `when`: who qualifies; `pays`: off the fee at
  *  enrollment or refunded when it's finished; `stay`: a season with that employer after finishing, or the share of it
  *  left is paid back. */
-export interface CourseAid { id: string; name: string; kind: 'employer' | 'merit' | 'public'; share: number; when?: When; pays?: 'enroll' | 'finish'; stay?: boolean }
+export interface CourseAid { id: string; name: string; kind: 'employer' | 'merit' | 'public'; share: number; when?: When; pays?: 'enroll' | 'finish'; stay?: boolean;
+    /** The player has held a job (any) for at least this many seasons; `jobless`: only while out of work. */
+    held?: number; jobless?: boolean }
 /** A course (`catalogs.courses`). `skills`: the levels it teaches (at least these when you finish). `days`: its length
  *  in sessions; `length` (a share of a game year, like a career's) replaces it where given. `at`: only at this place;
  *  `when`: the schedule of its classes (a condition: `weekday: tue or thu; clock: 19:00-21:00`); `needs`: a condition
