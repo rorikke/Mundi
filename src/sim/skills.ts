@@ -36,7 +36,7 @@ export function interviewSkills(o: Occupation): string[] {
     const ids = new Set<string>([...Object.keys(o.skills ?? {}), ...(o.hobby?.id ? [o.hobby.id] : [])]);
     for (const r of o.ranks.slice(0, 2)) {
         for (const id of Object.keys(r.needs ?? {})) if (id !== 'performance') ids.add(id);
-        for (const c of parseWhen(r.when).conds) if (c.key === 'skill' && !c.not) for (const v of c.values) ids.add(v.split(/s+/)[0]);
+        for (const c of parseWhen(r.when).conds) if (c.key === 'skill' && !c.not) for (const v of c.values) ids.add(v.split(/\s+/)[0]);
     }
     return [...ids];
 }
