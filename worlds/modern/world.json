@@ -2813,7 +2813,8 @@
    "ranks": [
     {
      "name": "Intern",
-     "pay": 20
+     "pay": 20,
+     "student": true
     },
     {
      "name": "Junior",
@@ -4083,7 +4084,8 @@
    "ranks": [
     {
      "name": "Lifeguard",
-     "pay": 17
+     "pay": 17,
+     "student": true
     },
     {
      "name": "Head lifeguard",
@@ -4352,7 +4354,8 @@
    "ranks": [
     {
      "name": "Clerk",
-     "pay": 18
+     "pay": 18,
+     "student": true
     },
     {
      "name": "Officer",
@@ -5029,7 +5032,8 @@
    "ranks": [
     {
      "name": "Apprentice",
-     "pay": 15
+     "pay": 15,
+     "student": true
     },
     {
      "name": "Mechanic",
@@ -5098,7 +5102,8 @@
    "ranks": [
     {
      "name": "Junior developer",
-     "pay": 26
+     "pay": 26,
+     "student": true
     },
     {
      "name": "Developer",
@@ -5562,7 +5567,8 @@
    "ranks": [
     {
      "name": "Lab assistant",
-     "pay": 18
+     "pay": 18,
+     "student": true
     },
     {
      "name": "Researcher",
