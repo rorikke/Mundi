@@ -4,3 +4,6 @@
 #mundi-root .mu-course-top .mu-course-grid { overflow: visible; padding: 0; }
 #mundi-root .mu-course > small { line-height: 1.35; }
 #mundi-root .mu-course .mu-row { display: flex; gap: 8px; flex-wrap: wrap; }
+/* Each row as tall as its card: with "auto" rows the grid (a scroll box) kept every row at the cards' 210px minimum, so a
+   longer card spilled under the next one and its Enroll button couldn't be clicked */
+#mundi-root .mu-course-grid { grid-auto-rows: max-content; }
