@@ -7,6 +7,7 @@
 import { nowAbs, cfg, type Save, type RelCfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
+import { effectMul } from './effects.js';
 import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
@@ -122,6 +123,7 @@ function addFatigue(g: Save, m: Meter, x: string, y: string, delta: number) {
     if (next.f === undefined && next.r === undefined) delete st.fat[k]; else st.fat[k] = next;
 }
 
+const GOOD_FRIENDS = 55;   // where friendship becomes "Good friend" (the tiers are in sim/romance.ts)
 /** What a gain or loss actually changed: the meter by `d`, the pacing weight by `fat` (so it can be undone). */
 export interface Applied { d: number; fat: number }
 const NONE: Applied = { d: 0, fat: 0 };
@@ -144,6 +146,7 @@ export function gain(g: Save, m: Meter, x: string, y: string, raw: number, isPac
     x = idOf(g, x); y = idOf(g, y);
     if (!x || !y || x === YOU || x === y || !(raw > 0)) return NONE;
     raw *= attraction(g, x, y, m) * homeMult(g);
+    if (y === YOU) raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? 'romance' : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
     if (!(raw > 0)) return NONE;
     const before = meter(g, m, x, y);
     const add = isPaced ? paced(raw, fatigue(g, m, x, y), curveOf(g, x, m)) : raw;

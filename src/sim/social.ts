@@ -15,6 +15,7 @@ import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { sawYou } from './warnings.js';
 import { book } from './ledger.js';
+import { effectMul } from './effects.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
@@ -183,9 +184,10 @@ export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): 
     const kinds = ((s.gifts ??= {})[avatar] ??= []), kind = k.kind ?? k.id, first = !kinds.includes(kind);
     const given = (giftsGiven(g)[avatar] ??= []); if (!given.includes(id)) given.push(id);
     const fit = giftFit(g, w, k, avatar);
-    const d = first ? gain(g, 'f', avatar, YOU, GIFT[fit]).d : 0;
+    const worth = GIFT[fit] * effectMul(g, w, 'gain', 'gifts');
+    const d = first ? gain(g, 'f', avatar, YOU, worth).d : 0;
     const loving = !!(k.romantic || k.intimate) && drawn;
-    if (first && loving) gain(g, 'r', avatar, YOU, GIFT[fit]);
+    if (first && loving) gain(g, 'r', avatar, YOU, worth);
     if (first) kinds.push(kind);
     touch(g, avatar); sawYou(g, avatar);
     note(g, '{u} gave {0} a gift: {1}.', [r.name, k.name], [avatar], g.player.loc, 'gift');

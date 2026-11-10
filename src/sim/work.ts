@@ -10,6 +10,8 @@ import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
 import { missingCourses, triedToday, interview, countUp, hasCourse, courseOf } from './skills.js';
+import { rollBonus, bonusLabel } from './dice.js';
+import { effectMul } from './effects.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
@@ -306,7 +308,7 @@ export function rankDays(g: Save, w: WorldDef, o: Occupation, rank: number, path
     const sum = weights.reduce((a, b) => a + Math.max(0.1, b), 0);
     if (!sum || rank >= weights.length) return 0;
     const liked = Math.min(3, c.likes.filter(t => traits.includes(t)).length);
-    return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (1 - 0.05 * liked);
+    return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (1 - 0.05 * liked) * effectMul(g, w, 'career', 'rank');
 }
 // What a promotion asks of the performance, unless the rank says otherwise.
 export const PROMO_PERF = 60;
@@ -409,6 +411,7 @@ export function chooseShift(g: Save, w: WorldDef, id: string): string {
  *  the work rules go. Returns what happened. */
 export function addPerf(g: Save, w: WorldDef, n: number): string[] {
     const j = jobOf(g); const o = jobDef(w, j?.id); if (!j || !o) return [];
+    if (n > 0) n *= effectMul(g, w, 'perf', 'gain');
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
     const low = workRules(g, w).low, out: string[] = [];
     if (j.perf >= 60) delete j.warn;
@@ -565,7 +568,7 @@ export function pendingEvent(g: Save, w: WorldDef): { ev: WorkEvent; choices: { 
     return choices.length ? { ev: e, choices } : null;
 }
 export const dropEvent = (g: Save) => { const j = jobOf(g); if (j) delete j.event; };
-/** Your choice: a roll if it has one (d20 + half your skill level against its difficulty), then what it does:
+/** Your choice: a roll if it has one (d20 + the roll bonus against its difficulty), then what it does:
  *  performance, money, needs, how people feel about you, a fact. With the gentle rules nothing turns out badly. */
 export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random): string[] {
     const j = jobOf(g); const o = jobDef(w, j?.id); const p = pendingEvent(g, w);
@@ -575,9 +578,9 @@ export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random):
     const c = pick.c, out: string[] = [];
     let res: WorkResult = c, ok: boolean | null = null;
     if (c.roll) {
-        const d20 = 1 + Math.floor(rnd() * 20), bonus = c.roll.skill ? Math.floor(levelOf(g, c.roll.skill) / 2) : 0;
+        const d20 = 1 + Math.floor(rnd() * 20), bonus = rollBonus(g, w, { skill: c.roll.skill });
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
-        out.push(`🎲 ${d20}${bonus ? ` + ${bonus}` : ''} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
+        out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok) res = c.fail ?? { text: 'It did not work out.' };
     }
     out.push(...applyResult(g, w, o, res, workRules(g, w).gentle));

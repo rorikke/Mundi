@@ -9,21 +9,32 @@ import { book } from './ledger.js';
 import { traitsOf } from './work.js';
 import { note } from './facts.js';
 import { addXp } from './rpg.js';
-import { hobbyBonus, hobbyPay } from './hobbies.js';
+import { hobbyFor, hobbyPay, levelOf } from './hobbies.js';
+import { effectAdd } from './effects.js';
 import { getWorld, isScenario } from '../core/world.js';
 
 export type Grade = 'critical-fail' | 'fail' | 'success' | 'critical-success';
 export interface RollResult { d20: number; bonus: number; total: number; dc: number; grade: Grade; text: string }
 
-// Each trait the action likes gives +2; very low energy or mood gives −2 each.
-export function bonusFor(g: Save, a: ActionDef): number {
+/** What a roll is worked out from: its `skill`, `traits` (custom worlds: +2 each) and `tags` (what effects aimed at a kind of roll look at). */
+export interface RollSpec { skill?: string; traits?: string[]; tags?: string[] }
+// The one bonus every roll gets (an action, a street story's choice, a choice at work): +1 for every 2 levels of its
+// skill, −2 each for very low energy and very low mood, the traits a custom world lists (+2 each), and what the
+// effects add (traits now, perks later).
+export function rollBonus(g: Save, w: WorldDef | null | undefined, r: RollSpec): number {
     const mine = traitsOf(g);
-    let bonus = (a.roll?.traits ?? []).filter(t => mine.includes(t)).length * 2;
-    bonus += hobbyBonus(g, getWorld(g.world), a);   // a hobby you are good at
+    let bonus = (r.traits ?? []).filter(t => mine.includes(t)).length * 2;
+    if (r.skill) bonus += Math.floor(levelOf(g, r.skill) / 2);
+    bonus += effectAdd(g, w, 'roll', [r.skill, ...(r.tags ?? [])]);
     if ((g.player.stats.energy ?? 100) <= 20) bonus -= 2;
     if ((g.player.stats.mood ?? 100) <= 20) bonus -= 2;
     return bonus;
 }
+/** " + 3" / " − 2" after the die on the screen ('' for nothing). */
+export const bonusLabel = (b: number) => (b ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b)}` : '');
+// An action's roll: the skill it names, else the one it trains (the hobby it belongs to, or `trains`).
+export const actionRoll = (w: WorldDef | null | undefined, a: ActionDef): RollSpec => ({ skill: a.roll?.skill ?? hobbyFor(w, a)?.id, traits: a.roll?.traits, tags: a.tags });
+export const bonusFor = (g: Save, a: ActionDef): number => { const w = getWorld(g.world); return rollBonus(g, w, actionRoll(w, a)); };
 // The chance of success shown before trying (a natural 1 always fails, a natural 20 always works).
 export function chanceOf(g: Save, a: ActionDef): number {
     if (!a.roll) return 100;

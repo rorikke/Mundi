@@ -33,7 +33,8 @@ import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
 import { addOldTie, applyStartFeel } from './startfeel.js';
 import { FRIEND_START, levelOfApproval, isFamily, type StartRel } from '../core/feel.js';
 import { checkLeft } from './verdict.js';
-import { fr, setFr, seedFamily, relOf, YOU, type Person } from './rel.js';
+import { fr, setFr, seedFamily, relOf, gain, lose, YOU, type Person } from './rel.js';
+import { effectAdd } from './effects.js';
 import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
 import { applyGameLore } from './lore.js';
 
@@ -518,6 +519,7 @@ export function markMet(g: Save, avatar: string): boolean {
     r.met = true;
     note(g, '{u} met {0} for the first time, at {1}.', [r.name, placeName(g, w, g.player.loc)], [r.avatar], g.player.loc, 'meet');
     addXp(g, w, 10, 'met someone');   // RPG: meeting people is experience too
+    const warm = effectAdd(g, w, 'warm', 'new'); if (warm) { if (warm > 0) gain(g, 'f', avatar, YOU, warm, false); else lose(g, 'f', avatar, YOU, -warm); }   // a first impression
     return true;
 }
 export function syncScene(): Promise<void> {

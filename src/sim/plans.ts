@@ -7,6 +7,7 @@
 import { lex } from '../core/lexicon.js';
 import { approve, approveAll } from './living.js';
 import { addStatus } from './needs.js';
+import { effectMul } from './effects.js';
 import { feel } from './life.js';
 import { note as remember } from './facts.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
@@ -221,9 +222,9 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
             // the event starts: they join you (and follow you) until it is over, and the HUD shows it
             const cw = s.with.find(x => x.avatar === a.avatar);
             if (cw) cw.until = Math.max(cw.until, a.to); else s.with.push({ avatar: a.avatar, until: a.to });
-            if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', a.kind === 'date' || a.kind === 'party' ? 15 : 10); }
+            if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', (a.kind === 'date' || a.kind === 'party' ? 15 : 10) * (a.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1)); }
             bump(g, a.avatar, a.kind === 'date' ? 8 : 5); touch(g, a.avatar); sawYou(g, a.avatar);
-            if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar)) addRomance(g, a.avatar, 5);   // a date kept is romantic too (a milestone)
+            if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar)) addRomance(g, a.avatar, 5 * effectMul(g, w, 'gain', 'dates'));   // a date kept is romantic too (a milestone)
             approve(g, a.avatar, 5);
             feel(g, a.avatar, a.kind === 'party' ? 'Had a great time at your party' : a.kind === 'date' ? 'Happy about the date' : 'Glad you kept your word', 1);
             remember(g, a.kind === 'date' ? '{u} and {0} had a date at {1}, as planned.' : '{u} and {0} met up at {1}, as planned.', [nameOf(a.avatar), placeName(a.place)], [a.avatar], a.place, 'plan');
@@ -248,7 +249,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
     if (ev && s.with.some(c => c.avatar === ev.avatar)) {
         const hrs = Math.floor((now - (ev.moodAt ?? now)) / 60);
         if (ev.moodAt === undefined) ev.moodAt = now;
-        else if (hrs > 0) { addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6)); ev.moodAt += hrs * 60; }
+        else if (hrs > 0) { addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6) * (ev.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1)); ev.moodAt += hrs * 60; }
     }
     // old plans are forgotten after a few days
     s.appts = s.appts.filter(a => a.to > now - 3 * 1440).slice(-40);

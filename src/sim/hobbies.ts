@@ -8,6 +8,7 @@
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type HobbyDef, type ActionDef, type Occupation } from '../core/world.js';
 import { note } from './facts.js';
+import { effectMul } from './effects.js';
 
 // Experience needed for each level (level 10 is the top, and the cap).
 export const LEVELS = [0, 20, 50, 100, 170, 260, 380, 530, 720, 950, 1250];
@@ -54,8 +55,6 @@ export function setSkillLevel(g: Save, id: string, level: number) {
 // The hobby an action trains (from the world's list, or set on the action itself), or the skill it names (`trains`).
 export const hobbyFor = (w: WorldDef | null | undefined, a: { id: string; hobby?: string; trains?: string }): HobbyDef | null =>
     hobbiesOf(w).find(h => h.id === a.hobby || h.actions.includes(a.id)) ?? (a.trains ? skillDef(w, a.trains) : null);
-// On its roll: +1 every 2 levels.
-export const hobbyBonus = (g: Save, w: WorldDef | null | undefined, a: ActionDef) => { const h = hobbyFor(w, a); return h ? Math.floor(levelOf(g, h.id) / 2) : 0; };
 // On what it pays: +12% a level (or the hobby's own rate).
 export const hobbyPay = (g: Save, w: WorldDef | null | undefined, a: ActionDef) => { const h = hobbyFor(w, a); return h ? 1 + (levelOf(g, h.id) * (h.pay ?? 12)) / 100 : 1; };
 
@@ -63,7 +62,7 @@ export const hobbyPay = (g: Save, w: WorldDef | null | undefined, a: ActionDef) 
 export function trainSkill(g: Save, w: WorldDef, id: string, amount: number): string[] {
     const xp = skillXp(g);
     const before = levelFor(xp[id] ?? 0);
-    xp[id] = Math.min(LEVELS[MAX_LEVEL], (xp[id] ?? 0) + amount);
+    xp[id] = Math.min(LEVELS[MAX_LEVEL], (xp[id] ?? 0) + amount * effectMul(g, w, 'learn', id, { level: before }));
     const after = levelFor(xp[id]);
     if (after <= before) return [];
     const h = skillDef(w, id), name = skillName(w, id);
