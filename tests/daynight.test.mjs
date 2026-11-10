@@ -79,6 +79,10 @@ ok(DN.isOpen(w, 'park', night) && DN.isOpen(w, 'hospital', night), 'parks and th
     ok(DN.slotAt(6 * 60) === 'day' && DN.slotAt(13 * 60) === 'afternoon' && DN.slotAt(20 * 60) === 'night' && DN.slotAt(2 * 60) === 'night', 'day 5–12, afternoon 12–18, night 18–5');
     ok(DN.pictureAt(w0, 21 * 60, 'base.jpg', { night: 'n.jpg' }) === 'n.jpg' && DN.pictureAt(w0, 9 * 60, 'base.jpg', { night: 'n.jpg' }) === 'base.jpg', 'the night picture at night, the usual one by day');
     ok(DN.pictureAt(w0, 7 * 60, 'base.jpg', { morning: 'm.jpg' }) === 'm.jpg', 'a picture saved under a period id still shows');
+    // weather and season: rain in autumn takes the autumn rain picture, rain in another season the plain rain one
+    const bgs = { 'rain-day': 'rain.jpg', 'rain-autumn-day': 'rain-autumn.jpg', 'autumn-day': 'autumn.jpg' };
+    ok(DN.pictureAt(w0, 9 * 60, 'base.jpg', bgs, ['rain', 'autumn']) === 'rain-autumn.jpg' && DN.pictureAt(w0, 9 * 60, 'base.jpg', bgs, ['heavyrain', 'rain', 'autumn']) === 'rain-autumn.jpg', 'rain in autumn: the picture for both');
+    ok(DN.pictureAt(w0, 9 * 60, 'base.jpg', bgs, ['rain', 'spring']) === 'rain.jpg' && DN.pictureAt(w0, 9 * 60, 'base.jpg', bgs, ['sunny', 'autumn']) === 'autumn.jpg', 'rain in spring: the plain rain one; a dry autumn day: the autumn one');
 }
 console.log(`\n${passes} passed, ${fails} failed`);
 process.exit(fails ? 1 : 0);

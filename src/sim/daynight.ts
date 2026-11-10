@@ -134,9 +134,12 @@ export const TIME_SLOTS = [{ id: 'day', name: 'Day' }, { id: 'afternoon', name: 
 export const slotAt = (minutes: number) => { const h = Math.floor((((minutes % 1440) + 1440) % 1440) / 60); return h >= 5 && h < 12 ? 'day' : h >= 12 && h < 18 ? 'afternoon' : 'night'; };
 // (E7) `looks`: the weather's kinds and the season right there (looksAt in worldstate.ts): a picture for one of them with
 // the part of the day first (`rain-night`, then `spring-night`), then one for it alone (`rain`), then the part of the day's.
+// Before all of them, a picture for two looks together (`rain-autumn-day`): rain in a place whose usual picture shows
+// a season (cherry blossom) would otherwise bring that season along.
 export function pictureAt(w: WorldDef, minutes: number, base: string | undefined, byPart?: Record<string, string>, looks?: string[]): string | undefined {
     const slot = slotAt(minutes);
     if (byPart && looks?.length) {
+        for (const a of looks) for (const b of looks) { if (a === b) continue; const v = byPart[`${a}-${b}-${slot}`]; if (v) return v; }
         for (const l of looks) { const v = byPart[`${l}-${slot}`]; if (v) return v; }
         for (const l of looks) { const v = byPart[l]; if (v) return v; }
     }
