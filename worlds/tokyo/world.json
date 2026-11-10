@@ -12611,7 +12611,7 @@
     },
     "length": 0.25,
     "at": "sb_eikaiwa",
-    "when": "weekday: mon or wed or fri; clock: 19:00-21:00",
+    "when": "weekday: mon or tue or wed or fri; clock: 19:00-21:00",
     "aid": [
      {
       "id": "hellowork-benefit",
@@ -12631,14 +12631,12 @@
     "cost": 60000,
     "grants": [],
     "icon": "🍎",
-    "desc": "Lesson plans, classroom management and how to keep adult learners coming back, in weekend classes at Hello Bridge English. Needed to teach business English; asks for English 5 first.",
+    "desc": "Lesson plans, classroom management and how to keep adult learners coming back, studied online with practice lessons you record at home. Needed to teach business English; asks for English 5 first.",
     "skills": {
      "charisma": 2,
      "writing": 2
     },
     "length": 0.25,
-    "at": "sb_eikaiwa",
-    "when": "weekday: sat or sun; clock: 12:30-15:30",
     "needs": "skill: english 5",
     "aid": [
      {
@@ -12660,14 +12658,14 @@
     "cost": 75000,
     "grants": [],
     "icon": "🤝",
-    "desc": "The initial training for care work: helping people wash, move and eat, and talking with them while you do. Weekend classes at Seiwa General Hospital. Needed to move up as a care worker.",
+    "desc": "The initial training for care work: helping people wash, move and eat, and talking with them while you do. Evening classes at Seiwa General Hospital, four days a week, after the day shift. Needed to move up as a care worker.",
     "skills": {
      "japanese": 4,
      "charisma": 2
     },
     "length": 0.25,
     "at": "mg_hospital",
-    "when": "weekday: sat or sun; clock: 9:00-12:00",
+    "when": "weekday: tue or thu or sat or sun; clock: 18:00-20:00",
     "aid": [
      {
       "id": "hellowork-training",
@@ -12780,14 +12778,14 @@
     "cost": 50000,
     "grants": [],
     "icon": "🖼️",
-    "desc": "Collections, exhibits and writing the labels visitors read, in weekend classes at Ueno Hall of Art. Needed to rise at a museum.",
+    "desc": "Collections, exhibits and writing the labels visitors read: the curator program in evening classes at Hijiri University. Needed to rise at a museum.",
     "skills": {
      "writing": 3,
      "japanese": 3
     },
     "length": 0.25,
-    "at": "ot_museum",
-    "when": "weekday: sat or sun; clock: 13:00-16:00"
+    "at": "ak_university",
+    "when": "weekday: mon or tue or thu or fri; clock: 18:30-20:30"
    },
    {
     "id": "mixology",
@@ -12797,12 +12795,12 @@
     "cost": 40000,
     "grants": [],
     "icon": "🍸",
-    "desc": "Classic cocktails and bar craft in short evening classes. Helps behind any bar.",
+    "desc": "Classic cocktails and bar craft in short early-evening classes every day, before the bars open. Helps behind any bar.",
     "skills": {
      "mixology": 3
     },
     "length": 0.125,
-    "when": "weekday: tue or thu; clock: 19:30-21:30"
+    "when": "clock: 17:30-19:30"
    },
    {
     "id": "cooking",
@@ -12826,14 +12824,14 @@
     "cost": 60000,
     "grants": [],
     "icon": "🎤",
-    "desc": "Voice and dance lessons in Stage Starlight's lesson room, on weekday afternoons. The first step for a trainee.",
+    "desc": "Voice and dance lessons in Stage Starlight's lesson room, at midday before the shows. The first step for a trainee.",
     "skills": {
      "singing": 3,
      "dance": 3
     },
     "length": 0.25,
     "at": "ak_idol",
-    "when": "weekday: mon or wed or fri; clock: 14:00-16:00"
+    "when": "weekday: mon or tue or thu or fri; clock: 12:00-14:00"
    },
    {
     "id": "manga",
@@ -12850,7 +12848,7 @@
     },
     "length": 0.25,
     "at": "ws_studio",
-    "when": "weekday: tue or thu; clock: 19:00-21:00"
+    "when": "weekday: tue or wed or thu or sat; clock: 19:00-21:00"
    },
    {
     "id": "programming",
