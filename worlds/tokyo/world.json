@@ -12545,112 +12545,399 @@
  "catalogs": {
   "courses": [
    {
-    "id": "care",
-    "name": "Care worker certificate",
-    "area": "Health",
-    "days": 5,
-    "cost": 50000,
-    "grants": [
-     "Kind"
-    ],
-    "icon": "🤝",
-    "desc": "The national care certificate: helping people wash, move and eat, and talking with them while you do. Needed to move up as a care worker."
+    "id": "japanese",
+    "name": "Japanese for beginners",
+    "area": "Language",
+    "days": 14,
+    "cost": 60000,
+    "grants": [],
+    "icon": "🗾",
+    "desc": "Daily Japanese from the basics: greetings, shopping, trains and the polite forms, online or at Hijiri University's language center. Jobs that ask for Japanese open up.",
+    "skills": {
+     "japanese": 4
+    },
+    "length": 0.25,
+    "aid": [
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work education and training benefit",
+      "kind": "public",
+      "share": 0.2,
+      "pays": "finish",
+      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+     }
+    ]
    },
    {
-    "id": "japanese",
-    "name": "Japanese language course",
+    "id": "japanese2",
+    "name": "Business Japanese, JLPT N2 prep",
     "area": "Language",
-    "days": 6,
+    "days": 21,
     "cost": 40000,
-    "grants": [
-     "Speaks Japanese"
-    ],
-    "icon": "🗾",
-    "desc": "Japanese at Hijiri University's language center, from daily speech to business manners. Jobs that ask for it open up."
+    "grants": [],
+    "icon": "📘",
+    "desc": "Keigo, business email and the written language, aimed at the N2 exam. Evening classes in the language center's annex; builds on the beginners' course.",
+    "skills": {
+     "japanese": 6,
+     "writing": 1
+    },
+    "length": 0.375,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: mon or wed or fri; clock: 18:30-20:30",
+    "needs": "skill: japanese 4",
+    "aid": [
+     {
+      "id": "study-in-japan",
+      "name": "Study-in-Japan scholarship",
+      "kind": "merit",
+      "share": 0.5,
+      "pays": "enroll",
+      "when": "start: foreigner; skill: japanese 4"
+     }
+    ]
    },
    {
     "id": "english",
-    "name": "English course",
+    "name": "English conversation",
     "area": "Language",
-    "days": 4,
-    "cost": 35000,
-    "grants": [
-     "Speaks English"
-    ],
+    "days": 14,
+    "cost": 50000,
+    "grants": [],
     "icon": "💬",
-    "desc": "Fluent English: conversation, email and phone calls. Needed to teach English; helps with foreign clients."
+    "desc": "Conversation, email and phone English in small evening groups at Hello Bridge English. Gets you to the level teaching asks for, and helps with foreign clients.",
+    "skills": {
+     "english": 5
+    },
+    "length": 0.25,
+    "at": "sb_eikaiwa",
+    "when": "weekday: mon or wed or fri; clock: 19:00-21:00",
+    "aid": [
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work education and training benefit",
+      "kind": "public",
+      "share": 0.2,
+      "pays": "finish",
+      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+     }
+    ]
    },
    {
     "id": "teaching",
-    "name": "Teaching certificate",
+    "name": "TEFL certificate",
     "area": "Education",
-    "days": 4,
-    "cost": 40000,
-    "grants": [
-     "Patient"
-    ],
+    "days": 14,
+    "cost": 60000,
+    "grants": [],
     "icon": "🍎",
-    "desc": "Lesson plans, patience and how to keep adult learners coming back. Needed to teach."
+    "desc": "Lesson plans, classroom management and how to keep adult learners coming back, in weekend classes at Hello Bridge English. Needed to teach business English; asks for English 5 first.",
+    "skills": {
+     "charisma": 2,
+     "writing": 2
+    },
+    "length": 0.25,
+    "at": "sb_eikaiwa",
+    "when": "weekday: sat or sun; clock: 12:30-15:30",
+    "needs": "skill: english 5",
+    "aid": [
+     {
+      "id": "hello-bridge",
+      "name": "Hello Bridge English pays for its teachers",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "stay": true,
+      "when": "job: eikaiwa; perf: 70"
+     }
+    ]
    },
    {
-    "id": "beauty",
-    "name": "Beauty license",
-    "area": "Service",
-    "days": 6,
-    "cost": 70000,
-    "grants": [
-     "Stylish"
-    ],
-    "icon": "💇",
-    "desc": "Cutting, coloring and salon manners, with the exam at the end. Needed to work as a hair stylist."
+    "id": "care",
+    "name": "Care worker initial training",
+    "area": "Health",
+    "days": 14,
+    "cost": 75000,
+    "grants": [],
+    "icon": "🤝",
+    "desc": "The initial training for care work: helping people wash, move and eat, and talking with them while you do. Weekend classes at Seiwa General Hospital. Needed to move up as a care worker.",
+    "skills": {
+     "japanese": 4,
+     "charisma": 2
+    },
+    "length": 0.25,
+    "at": "mg_hospital",
+    "when": "weekday: sat or sun; clock: 9:00-12:00",
+    "aid": [
+     {
+      "id": "hellowork-training",
+      "name": "Hello Work public vocational training",
+      "kind": "public",
+      "share": 1,
+      "pays": "enroll",
+      "when": "job: not rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+     }
+    ]
    },
    {
     "id": "nursing",
-    "name": "Nursing course",
+    "name": "Nursing school",
     "area": "Health",
-    "days": 5,
-    "cost": 60000,
-    "grants": [
-     "Kind"
-    ],
+    "days": 25,
+    "cost": 45000,
+    "grants": [],
     "icon": "💉",
-    "desc": "Patient care and night shifts on the ward. Needed to work as a nurse."
+    "desc": "Evening classes toward the nursing license, with ward practice at Seiwa General; most students work as nursing assistants meanwhile. Needed to work as a nurse.",
+    "skills": {
+     "logic": 3,
+     "charisma": 2,
+     "fitness": 1
+    },
+    "length": 0.45,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: tue or thu or sat; clock: 18:30-21:00",
+    "aid": [
+     {
+      "id": "seiwa-nursing",
+      "name": "Seiwa General nursing scholarship",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "stay": true,
+      "when": "job: nurse; perf: 70"
+     }
+    ]
    },
    {
     "id": "medicine",
     "name": "Medical school",
     "area": "Health",
-    "days": 10,
-    "cost": 250000,
-    "grants": [
-     "Smart"
-    ],
+    "days": 30,
+    "cost": 125000,
+    "grants": [],
     "icon": "🩺",
-    "desc": "Long and hard. Needed to work as a doctor."
+    "desc": "Long and hard: evening lectures at Hijiri University beside the clinical clerkship hours. Needed to work as a doctor.",
+    "skills": {
+     "logic": 4,
+     "writing": 2
+    },
+    "length": 0.54,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: mon or wed or fri; clock: 18:30-21:00",
+    "aid": [
+     {
+      "id": "hijiri-merit",
+      "name": "Hijiri University merit scholarship",
+      "kind": "merit",
+      "share": 0.5,
+      "pays": "enroll",
+      "when": "skill: logic 4"
+     },
+     {
+      "id": "seiwa-grant",
+      "name": "Seiwa General hospital scholarship",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "stay": true,
+      "when": "job: doctor; perf: 70"
+     }
+    ]
+   },
+   {
+    "id": "beauty",
+    "name": "Beauty school",
+    "area": "Service",
+    "days": 21,
+    "cost": 50000,
+    "grants": [],
+    "icon": "💇",
+    "desc": "Cutting, coloring and salon manners: theory online, practice at home on a mannequin head, and the license exam at the end. Needed to work as a hair stylist.",
+    "skills": {
+     "fashion": 3,
+     "charisma": 1
+    },
+    "length": 0.375,
+    "perSeason": true,
+    "aid": [
+     {
+      "id": "salon-sponsor",
+      "name": "Your salon's sponsorship",
+      "kind": "employer",
+      "share": 0.5,
+      "pays": "enroll",
+      "when": "job: stylist; perf: 70"
+     }
+    ]
    },
    {
     "id": "museum",
-    "name": "Museum studies",
+    "name": "Curator certificate",
     "area": "Arts",
-    "days": 4,
-    "cost": 40000,
-    "grants": [
-     "Curious"
-    ],
+    "days": 14,
+    "cost": 50000,
+    "grants": [],
     "icon": "🖼️",
-    "desc": "Collections, exhibits and guiding visitors. Needed to rise at a museum."
+    "desc": "Collections, exhibits and writing the labels visitors read, in weekend classes at Ueno Hall of Art. Needed to rise at a museum.",
+    "skills": {
+     "writing": 3,
+     "japanese": 3
+    },
+    "length": 0.25,
+    "at": "ot_museum",
+    "when": "weekday: sat or sun; clock: 13:00-16:00"
    },
    {
     "id": "mixology",
-    "name": "Mixology course",
+    "name": "Bartending school",
     "area": "Service",
-    "days": 3,
-    "cost": 35000,
-    "grants": [
-     "Charming"
-    ],
+    "days": 7,
+    "cost": 40000,
+    "grants": [],
     "icon": "🍸",
-    "desc": "Classic cocktails and bar craft. Helps behind any bar."
+    "desc": "Classic cocktails and bar craft in short evening classes. Helps behind any bar.",
+    "skills": {
+     "mixology": 3
+    },
+    "length": 0.125,
+    "when": "weekday: tue or thu; clock: 19:30-21:30"
+   },
+   {
+    "id": "cooking",
+    "name": "Culinary course",
+    "area": "Cooking",
+    "days": 14,
+    "cost": 70000,
+    "grants": [],
+    "icon": "🍳",
+    "desc": "Knife work, broth and timing, from video lessons and cooking at home. Kitchens hire people who cook well.",
+    "skills": {
+     "cooking": 4
+    },
+    "length": 0.25
+   },
+   {
+    "id": "idol",
+    "name": "Idol academy lessons",
+    "area": "Arts",
+    "days": 14,
+    "cost": 60000,
+    "grants": [],
+    "icon": "🎤",
+    "desc": "Voice and dance lessons in Stage Starlight's lesson room, on weekday afternoons. The first step for a trainee.",
+    "skills": {
+     "singing": 3,
+     "dance": 3
+    },
+    "length": 0.25,
+    "at": "ak_idol",
+    "when": "weekday: mon or wed or fri; clock: 14:00-16:00"
+   },
+   {
+    "id": "manga",
+    "name": "Manga and illustration class",
+    "area": "Arts",
+    "days": 14,
+    "cost": 50000,
+    "grants": [],
+    "icon": "✏️",
+    "desc": "Line, color and story, in evening classes at Studio Tsubame. Studios hire people who can draw.",
+    "skills": {
+     "drawing": 3,
+     "writing": 1
+    },
+    "length": 0.25,
+    "at": "ws_studio",
+    "when": "weekday: tue or thu; clock: 19:00-21:00"
+   },
+   {
+    "id": "programming",
+    "name": "Programming school",
+    "area": "Technology",
+    "days": 14,
+    "cost": 120000,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Code, apps and the web, mostly online with projects at home. Opens game and startup jobs.",
+    "skills": {
+     "logic": 3,
+     "gaming": 2
+    },
+    "length": 0.25,
+    "aid": [
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work reskilling benefit",
+      "kind": "public",
+      "share": 0.5,
+      "pays": "finish",
+      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+     }
+    ]
+   },
+   {
+    "id": "boki",
+    "name": "Bookkeeping, boki level 2",
+    "area": "Business",
+    "days": 14,
+    "cost": 40000,
+    "grants": [],
+    "icon": "📊",
+    "desc": "The bookkeeping exam, level 2: ledgers, balance sheets and careful habits. Online. Office jobs rise faster with it.",
+    "skills": {
+     "logic": 3,
+     "writing": 1
+    },
+    "length": 0.25,
+    "aid": [
+     {
+      "id": "asahina-pays",
+      "name": "Asahina Trading pays for its staff",
+      "kind": "employer",
+      "share": 1,
+      "pays": "enroll",
+      "when": "job: office"
+     },
+     {
+      "id": "hellowork-benefit",
+      "name": "Hello Work education and training benefit",
+      "kind": "public",
+      "share": 0.2,
+      "pays": "finish",
+      "when": "job: rider or startup or karaoke or stylist or fashion or eikaiwa or lovehotel or host or hostess or bartender or capsule or konbini or livehouse or vintage or animator or sentoattendant or kissaten or curry or gamedev or maid or idol or juku or ramen or miko or rickshaw or museum or office or deptstore or izakaya or nurse or doctor or caregiver or fishmonger or tv or clubstaff or dancer or pubstaff or clubmama or batting or mahjong or chinatown or ryokan or avactress"
+     }
+    ]
+   },
+   {
+    "id": "omotenashi",
+    "name": "Omotenashi hospitality course",
+    "area": "Service",
+    "days": 7,
+    "cost": 35000,
+    "grants": [],
+    "icon": "🛎️",
+    "desc": "The art of welcoming guests: bowing, noticing what is needed and keeping a calm face. A short online course that ryokan, hotels and department stores value.",
+    "skills": {
+     "charisma": 3,
+     "japanese": 1
+    },
+    "length": 0.125
+   },
+   {
+    "id": "guitar",
+    "name": "Guitar lessons",
+    "area": "Arts",
+    "days": 7,
+    "cost": 30000,
+    "grants": [],
+    "icon": "🎸",
+    "desc": "Chords, rhythm and a few songs, from online lessons and practice at home. Busking and live houses go better.",
+    "skills": {
+     "music": 3
+    },
+    "length": 0.125
    }
   ],
   "shop": [
@@ -26576,9 +26863,6 @@
    "skills": {
     "english": 5
    },
-   "courses": [
-    "english"
-   ],
    "likes": [
     "Outgoing",
     "Curious",
@@ -34682,7 +34966,6 @@
    ],
    "tuition": 6000,
    "skill": "logic",
-   "trait": "Smart",
    "examEvery": 7,
    "clubs": [
     "Photography club",
