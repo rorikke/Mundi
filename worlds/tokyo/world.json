@@ -185,36 +185,36 @@
     "rent": 14000,
     "spots": [
      [
-      5,
-      12
+      4,
+      16
      ],
      [
       11,
-      15
+      8
      ],
      [
-      17,
-      12
-     ],
-     [
-      8,
-      22
-     ],
-     [
-      14,
-      25
-     ],
-     [
-      20,
-      20
-     ],
-     [
-      25,
+      15,
       13
      ],
      [
-      24,
+      21,
+      5
+     ],
+     [
+      21,
+      22
+     ],
+     [
+      13,
+      30
+     ],
+     [
+      2,
       28
+     ],
+     [
+      4,
+      38
      ]
     ],
     "desc": "a converted two-story house: a heap of shoes at the door, a shared kitchen with labeled shelves, a bath rota taped to the wall"
@@ -227,36 +227,36 @@
     "rent": 12000,
     "spots": [
      [
-      34,
+      5,
       82
      ],
      [
-      40,
+      4,
+      92
+     ],
+     [
+      11,
+      76
+     ],
+     [
+      13,
       86
      ],
      [
-      46,
-      80
+      37,
+      96
      ],
      [
-      38,
-      92
-     ],
-     [
-      44,
-      94
+      47,
+      93
      ],
      [
       50,
-      88
+      78
      ],
      [
       56,
-      92
-     ],
-     [
-      30,
-      90
+      80
      ]
     ],
     "desc": "an old wooden block down a lane by the tracks: iron outside stairs, thin walls, bicycles chained to the rail, a coin laundry in the yard"
@@ -270,35 +270,35 @@
     "spots": [
      [
       72,
-      80
+      77
      ],
      [
-      78,
-      84
+      66,
+      88
      ],
      [
-      84,
-      80
+      60,
+      96
      ],
      [
-      90,
-      84
-     ],
-     [
-      96,
-      80
-     ],
-     [
-      75,
-      92
+      76,
+      95
      ],
      [
       82,
-      93
+      84
      ],
      [
       90,
       93
+     ],
+     [
+      94,
+      68
+     ],
+     [
+      98,
+      78
      ]
     ],
     "desc": "quiet lanes of narrow two-story houses with tiny gardens: plant pots by the door, bicycles with baskets, a persimmon tree over a wall"
@@ -311,36 +311,36 @@
     "rent": 18000,
     "spots": [
      [
-      6,
-      62
-     ],
-     [
-      11,
-      66
-     ],
-     [
-      16,
-      70
+      4,
+      16
      ],
      [
       6,
-      74
+      27
      ],
      [
-      11,
-      79
+      4,
+      37
      ],
      [
-      3,
-      68
+      47,
+      10
      ],
      [
-      15,
-      60
+      76,
+      14
      ],
      [
-      19,
-      65
+      82,
+      6
+     ],
+     [
+      92,
+      94
+     ],
+     [
+      98,
+      88
      ]
     ],
     "desc": "side streets behind the station: concrete one-room blocks, bike racks, a convenience store on every corner and the station's roar a few streets away"
@@ -353,36 +353,36 @@
     "rent": 30000,
     "spots": [
      [
-      3,
-      40
+      2,
+      42
      ],
      [
-      7,
+      2,
+      52
+     ],
+     [
+      6,
       44
      ],
      [
-      3,
-      50
-     ],
-     [
-      7,
-      54
+      6,
+      55
      ],
      [
       3,
-      60
-     ],
-     [
-      10,
-      58
+      14
      ],
      [
       11,
-      50
+      10
      ],
      [
-      9,
-      36
+      64,
+      10
+     ],
+     [
+      69,
+      22
      ]
     ],
     "desc": "quiet back streets behind Kanda Station: concrete mid-rises, bike racks, a vending machine on every corner, the river a few minutes away"
@@ -395,36 +395,36 @@
     "rent": 28000,
     "spots": [
      [
-      84,
+      77,
+      53
+     ],
+     [
+      66,
+      72
+     ],
+     [
+      76,
       64
      ],
      [
-      88,
-      70
+      82,
+      66
      ],
      [
-      92,
-      76
+      86,
+      74
      ],
      [
       86,
       80
      ],
      [
-      90,
-      86
+      89,
+      88
      ],
      [
-      95,
-      90
-     ],
-     [
-      82,
-      74
-     ],
-     [
-      96,
-      82
+      93,
+      95
      ]
     ],
     "desc": "narrow lanes of wooden houses behind the temples: sliding doors, tiled roofs, a potted plant on every doorstep, cats on most walls"
@@ -437,36 +437,36 @@
     "rent": 60000,
     "spots": [
      [
-      60,
-      22
-     ],
-     [
-      66,
-      19
-     ],
-     [
-      72,
+      94,
       24
      ],
      [
-      78,
-      21
+      98,
+      27
      ],
      [
-      84,
-      17
+      96,
+      32
      ],
      [
-      70,
-      15
+      98,
+      9
      ],
      [
-      64,
-      28
+      62,
+      88
      ],
      [
-      76,
-      29
+      54,
+      94
+     ],
+     [
+      98,
+      86
+     ],
+     [
+      94,
+      96
      ]
     ],
     "desc": "fifty-story glass towers on the Toyosu canals: concierge desks, gyms and sky lounges downstairs, wide quiet promenades, and fish trucks rumbling by before dawn"
@@ -479,36 +479,36 @@
     "rent": 110000,
     "spots": [
      [
-      68,
-      80
-     ],
-     [
       74,
       76
      ],
      [
       80,
-      78
+      64
      ],
      [
-      86,
+      87,
+      62
+     ],
+     [
+      79,
       82
      ],
      [
-      72,
-      88
+      86,
+      77
      ],
      [
-      78,
-      90
+      92,
+      93
      ],
      [
-      84,
+      67,
       92
      ],
      [
-      90,
-      88
+      73,
+      95
      ]
     ],
     "desc": "quiet embassy-lined streets above the shopping street: stone-fronted residences with concierge desks, planted entrances, and Tokyo Tower in every window"
@@ -521,36 +521,36 @@
     "rent": 12000,
     "spots": [
      [
-      88,
-      40
-     ],
-     [
-      92,
+      86,
       44
      ],
      [
-      96,
-      40
-     ],
-     [
-      90,
-      50
+      92,
+      45
      ],
      [
       95,
-      52
-     ],
-     [
-      86,
-      48
-     ],
-     [
-      98,
-      48
+      53
      ],
      [
       93,
       35
+     ],
+     [
+      97,
+      40
+     ],
+     [
+      98,
+      61
+     ],
+     [
+      96,
+      71
+     ],
+     [
+      98,
+      77
      ]
     ],
     "desc": "narrow lanes of old wooden apartments and 1960s walk-ups behind the arcade: laundry on every balcony, a corner pawn shop, a cat asleep on a rice shop's counter"
@@ -563,36 +563,36 @@
     "rent": 28000,
     "spots": [
      [
-      8,
-      57
-     ],
-     [
-      15,
-      57
-     ],
-     [
-      18,
+      62,
       62
      ],
      [
-      13,
-      62
+      64,
+      72
      ],
      [
-      40,
-      67
+      66,
+      51
      ],
      [
-      37,
-      71
+      71,
+      48
      ],
      [
-      5,
-      63
+      91,
+      57
      ],
      [
-      22,
-      58
+      95,
+      68
+     ],
+     [
+      91,
+      80
+     ],
+     [
+      80,
+      88
      ]
     ],
     "desc": "steep lanes of old wooden houses above the Hayakawa river: tiled roofs, persimmon trees, a hot-spring pipe steaming at a gate, and neighbors who know everyone's business"
@@ -605,36 +605,36 @@
     "rent": 9000,
     "spots": [
      [
-      83,
-      30
+      98,
+      6
      ],
      [
-      88,
-      34
+      91,
+      8
      ],
      [
-      93,
-      33
-     ],
-     [
-      97,
-      29
-     ],
-     [
-      80,
-      36
+      96,
+      12
      ],
      [
       86,
-      40
+      47
      ],
      [
-      92,
-      41
+      91,
+      46
+     ],
+     [
+      89,
+      58
      ],
      [
       97,
-      38
+      55
+     ],
+     [
+      97,
+      65
      ]
     ],
     "desc": "an international dorm behind the Ochanomizu bridges: narrow corridors, a shared kitchen smelling of five cuisines, a laundry room that doubles as a lounge"
