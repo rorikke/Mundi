@@ -3,7 +3,8 @@ import { safeUrl } from '../core/safe.js';
 import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
 import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
-import { profileApp } from './courses.js';
+import { missingCourses, isTaking } from '../sim/courses.js';
+import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, type BillId } from '../sim/bills.js';
 import { shopApp, goalsApp, feelingsHtml } from './lifeui.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
@@ -34,7 +35,7 @@ import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { jobDef, likes, traitsOf, applyGap, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays } from '../sim/work.js';
+import { jobDef, likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays } from '../sim/work.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
 import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, LOOKING, type Post } from '../sim/feed.js';
@@ -283,16 +284,17 @@ function jobsApp(g: Save, w: WorldDef) {
             ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
             ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${p.missing.map(m => `<span>${esc(m)}</span>`).join(', ')}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
             ${branchPicker(g, w, mine)}
+            ${jobCourseHtml(g, w, mine.id)}
             ${likes(g, mine).length ? `<small>Your traits help: ${esc(likes(g, mine).join(', '))}</small>` : ''}
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
             ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
         <h4>${T('openings')}</h4>
         ${openJobs(g, w).filter(o => o.id !== j?.id).map(o => `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o)} days a week` : ''}</small>
-            ${applyGap(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(applyGap(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${T('courseDone')}</small>` : ''}
+            ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${((o as any).courses as string[]).some(id => isTaking(g, id)) ? 'You can start while you study for it' : T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
-            ${applyGap(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ' · try again tomorrow' : ''}</small>`}</span>
-            <button data-act="ph-apply" data-id="${esc(o.id)}" ${applyGap(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`).join('')}
+            ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ' · try again tomorrow' : ''}</small>`}</span>
+            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`).join('')}
     </div>`;
 }
 
