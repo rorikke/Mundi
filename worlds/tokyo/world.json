@@ -34485,10 +34485,6 @@
    "courses": [
     "massage"
    ],
-   "skills": {
-    "sensuality": 2,
-    "charisma": 1
-   },
    "likes": [
     "Nightlife",
     "Sports",
@@ -34641,7 +34637,7 @@
           "effects": [
            {
             "kind": "pay",
-            "target": "wage",
+            "target": "esthe",
             "value": 0.15
            }
           ],
@@ -36440,6 +36436,9 @@
           "dc": 11
          },
          "perf": 2,
+         "feels": {
+          "{who}": 2
+         },
          "text": "She laughs, pleased, and tells the studio so twice.",
          "fail": {
           "text": "You get the words wrong and she waves it off kindly.",
