@@ -1533,7 +1533,8 @@
    "priv_home_three",
    "priv_office_late",
    "priv_park_night",
-   "priv_ryokan_rotenburo"
+   "priv_ryokan_rotenburo",
+   "sb_lovehotel_night"
   ],
   "occupations": [
    "rider",
@@ -1708,7 +1709,12 @@
    "tk_romance",
    "tk_isezaki",
    "tk_secrets",
-   "tk_kabukicho"
+   "tk_kabukicho",
+   "tk_adultstar",
+   "tk_pleasure",
+   "tk_spark",
+   "tk_openhearts",
+   "tk_thrill"
   ],
   "rewards": [
    "omikuji",
@@ -1717,7 +1723,10 @@
    "omamori_health",
    "omamori_work",
    "daruma",
-   "ema"
+   "ema",
+   "tk_pillowtalk",
+   "tk_mamushi",
+   "tk_kanamara"
   ]
  }
 }
