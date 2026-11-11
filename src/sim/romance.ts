@@ -13,6 +13,7 @@ import { note } from './facts.js';
 import { romanceBlocked, canTryForBaby } from './family.js';
 import { getWorld, systemOn, type SystemId } from '../core/world.js';
 import { effectMul } from './effects.js';
+import { tallyEvent } from './tally.js';
 // Is a system on in this save's world (romance, children)?
 export const sysOn = (g: Save, id: SystemId) => systemOn(getWorld(g.world), id);
 
@@ -169,6 +170,7 @@ function jealousy(g: Save, avatar: string, name: string): string[] {
         const who = g.cast[other]?.name ?? other;
         addRomance(g, other, -hurt(20)); bump(g, other, -hurt(12)); approve(g, other, -hurt(15));
         ((g as any).jealous ??= {})[other] = { of: avatar, day: g.day };
+        tallyEvent(g, 'jealous', 1, other);   // (life goals: Open hearts asks for a season without it)
         note(g, '{0} found out that {u} is also with {1}, and is hurt.', [who, name], [other, avatar], g.player.loc, 'love');
         out.push(`${who} found out about ${name}: romance −${hurt(20)}, bond −${hurt(12)}.`);
     }
