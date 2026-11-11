@@ -1829,7 +1829,10 @@
    },
    "trains": "singing",
    "fact": "{u} sang karaoke at {0}",
-   "place": "sb_karaoke"
+   "place": "sb_karaoke",
+   "tags": [
+    "karaoke"
+   ]
   },
   {
    "id": "sb_karaoke_duet",
@@ -1875,7 +1878,10 @@
    ],
    "trains": "singing",
    "fact": "{u} sang a duet at {0}",
-   "place": "sb_karaoke"
+   "place": "sb_karaoke",
+   "tags": [
+    "karaoke"
+   ]
   },
   {
    "id": "sb_karaoke_solo",
@@ -1904,7 +1910,10 @@
    },
    "trains": "singing",
    "fact": "{u} practiced alone in a karaoke room at {0}",
-   "place": "sb_karaoke"
+   "place": "sb_karaoke",
+   "tags": [
+    "karaoke"
+   ]
   },
   {
    "id": "sb_karaoke_allnight",
@@ -1939,7 +1948,10 @@
    ],
    "trains": "singing",
    "fact": "{u} sang all night at {0} and took the first train",
-   "place": "sb_karaoke"
+   "place": "sb_karaoke",
+   "tags": [
+    "karaoke"
+   ]
   },
   {
    "id": "sb_startup_test",
@@ -3430,7 +3442,10 @@
    },
    "trains": "singing",
    "fact": "{u} sang at {0}",
-   "place": "sj_goldengai"
+   "place": "sj_goldengai",
+   "tags": [
+    "karaoke"
+   ]
   },
   {
    "id": "sj_goldengai_dawn",
@@ -3831,7 +3846,10 @@
     }
    ],
    "fact": "{u} took a bath at {0}",
-   "place": "sj_capsule"
+   "place": "sj_capsule",
+   "tags": [
+    "bath"
+   ]
   },
   {
    "id": "sj_capsule_snack",
@@ -4788,7 +4806,10 @@
      "rumor": "A regular at the sentō knows who is moving out of the neighborhood."
     }
    ],
-   "fact": "{u} soaked at {0}"
+   "fact": "{u} soaked at {0}",
+   "tags": [
+    "bath"
+   ]
   },
   {
    "id": "ws_sento_milk",
@@ -4853,7 +4874,10 @@
     }
    },
    "trains": "fitness",
-   "fact": "{u} tried the sauna at {0}"
+   "fact": "{u} tried the sauna at {0}",
+   "tags": [
+    "bath"
+   ]
   },
   {
    "id": "ws_sento_chat",
@@ -10997,7 +11021,10 @@
     }
    },
    "trains": "singing",
-   "fact": "{u} sang karaoke in {0}"
+   "fact": "{u} sang karaoke in {0}",
+   "tags": [
+    "karaoke"
+   ]
   },
   {
    "id": "yk_hostess_sit",
@@ -11670,7 +11697,10 @@
      }
     }
    ],
-   "fact": "{u} soaked in a town bathhouse at {0}"
+   "fact": "{u} soaked in a town bathhouse at {0}",
+   "tags": [
+    "bath"
+   ]
   },
   {
    "id": "hk_yumoto_souvenir",
@@ -11778,7 +11808,10 @@
      }
     }
    ],
-   "fact": "{u} soaked in the outdoor bath at {0}"
+   "fact": "{u} soaked in the outdoor bath at {0}",
+   "tags": [
+    "bath"
+   ]
   },
   {
    "id": "hk_ryokan_dinner",
@@ -11850,7 +11883,10 @@
      }
     }
    ],
-   "fact": "{u} booked the private bath at {0}"
+   "fact": "{u} booked the private bath at {0}",
+   "tags": [
+    "bath"
+   ]
   },
   {
    "id": "hk_ryokan_breakfast",
@@ -19372,7 +19408,8 @@
    "map": "shibuya",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "music"
    ],
    "desc": "a ten-floor karaoke tower with a neon front, lobby touchscreens and corridors of padded private rooms; a drink bar on every floor and a night staff who have heard every song",
    "staff": "a front-desk clerk with a timer, room attendants with trays, office groups in the corridors, muffled singing behind every door",
@@ -20043,7 +20080,8 @@
    "map": "westside",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "music"
    ],
    "desc": "a basement stage down a steep stair: black walls papered with stickers and flyers, room for a hundred, a bar by the door, a sound desk on a platform at the back",
    "staff": "a bartender handing out drink tickets, a sound engineer at the desk, bands hauling amps through the crowd",
@@ -20072,7 +20110,8 @@
    "name": "Theater Komorebi",
    "map": "westside",
    "tags": [
-    "leisure"
+    "leisure",
+    "music"
    ],
    "desc": "a tiny fringe theater up an outside stair above a bar: sixty folding seats, a stage the size of a living room, a skylight that drops a patch of sun on the boards",
    "staff": "a stage manager with a clipboard, actors tearing tickets in costume, the bar owner pouring downstairs",
@@ -20383,7 +20422,8 @@
    "map": "akiba",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "music"
    ],
    "desc": "a small idol theater in a basement: a stage a step above the floor, a ceiling of fairy lights, a merch table by the door, a hundred seats and a cheki corner",
    "staff": "the theater's manager at the door, a sound engineer behind the desk, trainers in the rehearsal room, front-row regulars, new fans in rows",
@@ -21438,7 +21478,8 @@
    "map": "roppongi",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "music"
    ],
    "desc": "three floors of a former printing works: a basement main floor under a wall of speakers, a lounge bar on the ground floor, a roof terrace to cool off on",
    "staff": "door staff checking IDs; bartenders pouring fast; DJs in the booth; security in black tees; clubbers speaking five languages",
@@ -35246,7 +35287,8 @@
        {
         "id": "pulls_through",
         "text": "She pulls through her exams.",
-        "when": "knows: mio_grades; feels: Mio friend"
+        "when": "knows: mio_grades; feels: Mio friend",
+        "good": true
        },
        {
         "id": "repeats_year",
@@ -35434,7 +35476,8 @@
        {
         "id": "new_sponsor",
         "text": "A new sponsor (Hikari Labs or Hijiri University) takes on her visa, and she stays in Tokyo for good.",
-        "when": "knows: chloe_visa; feels: Chloe good"
+        "when": "knows: chloe_visa; feels: Chloe good",
+        "good": true
        },
        {
         "id": "leaves_tokyo",
@@ -35628,7 +35671,8 @@
        {
         "id": "brings_band",
         "text": "She brings the band along.",
-        "when": "knows: nanami_scout; feels: Nanami good"
+        "when": "knows: nanami_scout; feels: Nanami good",
+        "good": true
        },
        {
         "id": "tears_card",
@@ -35742,7 +35786,8 @@
        {
         "id": "paid_off",
         "text": "The debt is paid off with Nanami's help.",
-        "when": "knows: kaito_debt; feels: Kaito friend"
+        "when": "knows: kaito_debt; feels: Kaito friend",
+        "good": true
        },
        {
         "id": "sells_drums",
@@ -35876,7 +35921,8 @@
        {
         "id": "new_lease",
         "text": "A new lease is signed, thanks to Ayaka's contest win and the help of {{user}}.",
-        "when": "thread: ayaka_contest wins; knows: genzo_lease"
+        "when": "thread: ayaka_contest wins; knows: genzo_lease",
+        "good": true
        },
        {
         "id": "smaller_place",
@@ -35987,7 +36033,8 @@
        {
         "id": "wins",
         "text": "She wins the contest, and the prize helps save the lease.",
-        "when": "knows: ayaka_contest; feels: Ayaka friend"
+        "when": "knows: ayaka_contest; feels: Ayaka friend",
+        "good": true
        },
        {
         "id": "loses_and_tells",
@@ -36190,7 +36237,8 @@
        {
         "id": "takes_leave",
         "text": "She takes leave and lets someone in.",
-        "when": "knows: reiko_burnout; feels: Reiko good"
+        "when": "knows: reiko_burnout; feels: Reiko good",
+        "good": true
        },
        {
         "id": "pushes_on",
@@ -36334,7 +36382,8 @@
        {
         "id": "funded",
         "text": "The Mochi Byte deal closes with the help of {{user}}, Jake stays, and Hikari Labs survives.",
-        "when": "knows: rina_runway; feels: Rina friend"
+        "when": "knows: rina_runway; feels: Rina friend",
+        "good": true
        },
        {
         "id": "closed",
@@ -36427,7 +36476,8 @@
        {
         "id": "confesses",
         "text": "He confesses to Reiko.",
-        "when": "knows: daisuke_letter; feels: Daisuke good"
+        "when": "knows: daisuke_letter; feels: Daisuke good",
+        "good": true
        },
        {
         "id": "hands_in_letter",
@@ -36550,7 +36600,8 @@
        {
         "id": "graduates",
         "text": "She graduates and lives an ordinary life.",
-        "when": "knows: hina_graduation; feels: Hina friend"
+        "when": "knows: hina_graduation; feels: Hina friend",
+        "good": true
        },
        {
         "id": "stays_her_way",
@@ -36966,7 +37017,8 @@
        {
         "id": "club_saved",
         "text": "The club is saved with the help of Akane, Kyōko and {{user}}.",
-        "when": "knows: sayuri_debt; feels: Sayuri good"
+        "when": "knows: sayuri_debt; feels: Sayuri good",
+        "good": true
        },
        {
         "id": "club_sold",
@@ -37100,7 +37152,8 @@
        {
         "id": "tells_family",
         "text": "She tells her family about Rina, with Yui beside her.",
-        "when": "knows: shizuka_marriage; feels: Shizuka friend"
+        "when": "knows: shizuka_marriage; feels: Shizuka friend",
+        "good": true
        },
        {
         "id": "agrees",
@@ -37201,7 +37254,8 @@
        {
         "id": "tells_parents",
         "text": "She tells them about literature.",
-        "when": "knows: seoyeon_parents; feels: Seo-yeon friend"
+        "when": "knows: seoyeon_parents; feels: Seo-yeon friend",
+        "good": true
        },
        {
         "id": "keeps_pretending",
@@ -37290,7 +37344,8 @@
        {
         "id": "renewed",
         "text": "The scholarship is renewed.",
-        "when": "knows: camille_scholarship; feels: Camille friend"
+        "when": "knows: camille_scholarship; feels: Camille friend",
+        "good": true
        },
        {
         "id": "own_money",
@@ -37387,7 +37442,8 @@
        {
         "id": "finds_village",
         "text": "He finds the village and a great-aunt.",
-        "when": "seen: ot_ameyoko_st_village:1"
+        "when": "seen: ot_ameyoko_st_village:1",
+        "good": true
        },
        {
         "id": "finds_grave",
@@ -37493,7 +37549,8 @@
        {
         "id": "passes",
         "text": "She passes the care exam and pays off the debt by winter.",
-        "when": "knows: linh_debt; feels: Linh friend"
+        "when": "knows: linh_debt; feels: Linh friend",
+        "good": true
        },
        {
         "id": "fails",
@@ -37601,7 +37658,8 @@
        {
         "id": "stays",
         "text": "She stays when Reiko fights for her.",
-        "when": "knows: mei_interviews; feels: Mei good"
+        "when": "knows: mei_interviews; feels: Mei good",
+        "good": true
        },
        {
         "id": "leaves_for_rival",
@@ -37685,7 +37743,8 @@
        {
         "id": "recognized",
         "text": "She is recognized and celebrated.",
-        "when": "knows: hannah_stream; feels: Hannah friend"
+        "when": "knows: hannah_stream; feels: Hannah friend",
+        "good": true
        },
        {
         "id": "stays_hidden",
@@ -37784,7 +37843,8 @@
        {
         "id": "stays",
         "text": "He stays, as long as Hikari Labs lives.",
-        "when": "thread: rina_runway funded"
+        "when": "thread: rina_runway funded",
+        "good": true
        },
        {
         "id": "goes_home",
@@ -37906,7 +37966,8 @@
        {
         "id": "starts_going_out",
         "text": "She starts going out, with a friend or with {{user}}.",
-        "when": "feels: Kanon friend"
+        "when": "feels: Kanon friend",
+        "good": true
        },
        {
         "id": "stays_in",
@@ -38025,7 +38086,8 @@
        {
         "id": "retires_opens_bar",
         "text": "She retires and opens a bar.",
-        "when": "knows: airi_retirement; feels: Airi good"
+        "when": "knows: airi_retirement; feels: Airi good",
+        "good": true
        },
        {
         "id": "directs",
@@ -38125,7 +38187,8 @@
        {
         "id": "family_comes_around",
         "text": "Her family comes around.",
-        "when": "knows: momo_family; feels: Momo friend"
+        "when": "knows: momo_family; feels: Momo friend",
+        "good": true
        },
        {
         "id": "cuts_contact",
@@ -38542,5 +38605,1344 @@
     ]
    }
   }
+ },
+ "goals": {
+  "off": [
+   "renown"
+  ],
+  "add": [
+   {
+    "id": "tk_makeit",
+    "name": "Make it in Tokyo",
+    "icon": "🗼",
+    "category": "social",
+    "starts": [
+     "countryside"
+    ],
+    "needs": [
+     "jobs",
+     "living",
+     "festivals"
+    ],
+    "desc": "Find your feet in a city that never stops: work, a spot of your own, friends, and the first shrine visit of the year.",
+    "steps": [
+     {
+      "name": "A job held for two weeks",
+      "when": "job: any",
+      "hold": 14,
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A regular at a spot of your own",
+      "when": "visited: 1 regular",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Five friends",
+      "when": "friends: 5 friend",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "New Year at Meiji Jingū with a friend",
+      "when": "did: with:sb_meiji_hatsumode",
+      "reward": {
+       "mood": 10,
+       "keepsake": "lucky_cat"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Settled in",
+     "desc": "Rent and bills 10% lower.",
+     "effects": [
+      {
+       "kind": "price",
+       "target": "rent",
+       "value": -0.1
+      },
+      {
+       "kind": "price",
+       "target": "bills",
+       "value": -0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_nihongo",
+    "name": "Nihongo jōzu",
+    "icon": "🈶",
+    "category": "knowledge",
+    "starts": [
+     "foreigner"
+    ],
+    "needs": [
+     "hobbies",
+     "jobs"
+    ],
+    "desc": "Go from phrasebook to conversation, and from conversation to a job done in Japanese.",
+    "steps": [
+     {
+      "name": "Japanese 4",
+      "when": "skill: japanese 4",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Japanese 6 and a job that asks for it",
+      "when": "skill: japanese 6; job: rider or karaoke or stylist or fashion or museum or office or deptstore or caregiver or ryokan",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A Japanese conversation that goes well",
+      "when": "did: roll:japanese",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Japanese 8",
+      "when": "skill: japanese 8",
+      "reward": {
+       "mood": 10,
+       "keepsake": "thank_you_note"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Fluent",
+     "desc": "Japanese trains 20% faster, and +3 at job interviews.",
+     "effects": [
+      {
+       "kind": "learn",
+       "target": "japanese",
+       "value": 0.2
+      },
+      {
+       "kind": "interview",
+       "value": 3
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_bookworm",
+    "name": "Bookworm",
+    "icon": "📚",
+    "category": "knowledge",
+    "needs": [
+     "hobbies",
+     "festivals"
+    ],
+    "desc": "Lose an afternoon in the used-book towns, and come out of it writing.",
+    "steps": [
+     {
+      "name": "Browse Jinbōchō three times and keep an old paperback",
+      "when": "did: ak_jinbocho_browse 3; holds: old_paperback",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Five afternoons with books at the university library or the Isezaki shops",
+      "when": "did: ak_university_library 5",
+      "or": [
+       "did: yk_isezaki_books 5"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The used-book festival",
+      "when": "attended: bookfair",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Writing 5",
+      "when": "skill: writing 5",
+      "reward": {
+       "mood": 10,
+       "keepsake": "exhibition_postcard"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Well read",
+     "desc": "A class counts for a third more, so courses take about a quarter fewer days.",
+     "effects": [
+      {
+       "kind": "study",
+       "target": "class",
+       "value": 0.33
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_strategist",
+    "name": "Strategist",
+    "icon": "🀄",
+    "category": "knowledge",
+    "needs": [
+     "hobbies",
+     "events"
+    ],
+    "desc": "Learn the old board games and the way they make you think.",
+    "steps": [
+     {
+      "name": "Learn mahjong at Parlor Tenpai",
+      "when": "did: yk_mahjong_learn",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Win a game of shogi or a friendly mahjong table",
+      "when": "did: win:yk_park_shogi",
+      "or": [
+       "did: win:yk_mahjong_play"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Enter the Friday mahjong tournament",
+      "when": "attended: mahjong_night",
+      "or": [
+       "did: yk_mahjong_enter"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Logic 7, or win the tournament",
+      "when": "skill: logic 7",
+      "or": [
+       "did: win:yk_mahjong_enter"
+      ],
+      "reward": {
+       "mood": 10,
+       "keepsake": "lucky_arrow"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Sharp mind",
+     "desc": "Once a day, a failed roll is rolled again.",
+     "effects": [
+      {
+       "kind": "reroll",
+       "value": 1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_idol",
+    "name": "Idol dream",
+    "icon": "🎤",
+    "category": "career",
+    "needs": [
+     "jobs",
+     "hobbies",
+     "events"
+    ],
+    "desc": "Sing, dance, and make it from the back row to the front.",
+    "steps": [
+     {
+      "name": "Singing 3 and Dance 3",
+      "when": "skill: singing 3; skill: dance 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Hired as an idol at Stage Starlight",
+      "when": "job: idol",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A show and a cheki with fans",
+      "when": "attended: idol_show; did: ak_idol_cheki",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Variety regular on TV, or group captain",
+      "when": "job: idol; rank: 7",
+      "reward": {
+       "mood": 10,
+       "keepsake": "troupe_towel"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Star quality",
+     "desc": "Charisma +2 on rolls, and idols are paid 10% more.",
+     "effects": [
+      {
+       "kind": "roll",
+       "target": "charisma",
+       "value": 2
+      },
+      {
+       "kind": "pay",
+       "target": "idol",
+       "value": 0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_shimokita",
+    "name": "The Shimokita sound",
+    "icon": "🎸",
+    "category": "creativity",
+    "starts": [
+     "back"
+    ],
+    "needs": [
+     "hobbies",
+     "events"
+    ],
+    "desc": "Find your sound in the little live houses of Shimokitazawa.",
+    "steps": [
+     {
+      "name": "Music 4",
+      "when": "skill: music 4",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Play the open mic at Basement Moon",
+      "when": "did: ws_livehouse_openmic",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A weekend gig at Basement Moon",
+      "when": "attended: livehouse_gig",
+      "or": [
+       "did: ws_livehouse_gig 3"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A set with a musician friend, or Music 7",
+      "when": "did: with:ws_livehouse_openmic",
+      "or": [
+       "skill: music 7"
+      ],
+      "reward": {
+       "mood": 10,
+       "keepsake": "demo_disc"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Scene regular",
+     "desc": "Half-price entry at live houses and music venues, and people there start out warmer.",
+     "effects": [
+      {
+       "kind": "warm",
+       "target": "music",
+       "value": 3
+      },
+      {
+       "kind": "price",
+       "target": "entry:music",
+       "value": -0.5
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_corporate",
+    "name": "Up the corporate ladder",
+    "icon": "🏢",
+    "category": "career",
+    "needs": [
+     "jobs",
+     "festivals"
+    ],
+    "desc": "Suit, desk and a long road up through Asahina Trading.",
+    "steps": [
+     {
+      "name": "Hired at Asahina Trading",
+      "when": "job: office",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The year-end party",
+      "when": "attended: bonenkai",
+      "or": [
+       "did: mg_izakaya_bonenkai"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Rank 5",
+      "when": "job: office; rank: 5",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Section chief or above",
+      "when": "job: office; rank: 6",
+      "reward": {
+       "mood": 10,
+       "keepsake": "kabuki_program"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Company person",
+     "desc": "Summer and winter bonuses 25% bigger.",
+     "effects": [
+      {
+       "kind": "pay",
+       "target": "bonus",
+       "value": 0.25
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_founder",
+    "name": "Founder",
+    "icon": "💡",
+    "category": "career",
+    "starts": [
+     "heir"
+    ],
+    "needs": [
+     "jobs",
+     "events"
+    ],
+    "desc": "Join a young company and grow with it, from the demo night to the top.",
+    "steps": [
+     {
+      "name": "Work at Hikari Labs",
+      "when": "job: startup",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Pitch at demo night",
+      "when": "did: sb_startup_demo",
+      "or": [
+       "attended: startup_demo"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Rank 5 at Hikari Labs",
+      "when": "job: startup; rank: 5",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Partner, the top of either branch",
+      "when": "job: startup; rank: top",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tower_keychain"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Visionary",
+     "desc": "+2 on any roll at a work event.",
+     "effects": [
+      {
+       "kind": "roll",
+       "target": "work",
+       "value": 2
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_taste",
+    "name": "Taste of Tokyo",
+    "icon": "🍜",
+    "category": "food",
+    "needs": [
+     "hobbies",
+     "festivals"
+    ],
+    "desc": "Eat your way through the city, one counter at a time.",
+    "steps": [
+     {
+      "name": "Ramen at Kamejirō, yakitori at Omoide Yokochō, breakfast at Tsukiji",
+      "when": "did: ot_ramen_eat; did: sj_omoide_yakitori; did: mg_tsukiji_sushi or mg_tsukiji_tamago",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Curry at Curry Hanabi, the depachika, buns in Chinatown",
+      "when": "did: ws_curry_eat; did: mg_depachika_samples or mg_depachika_bento; did: yk_chinatown_bun",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Cooking 5",
+      "when": "skill: cooking 5",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The ramen contest",
+      "when": "attended: ramen_contest",
+      "reward": {
+       "mood": 10,
+       "keepsake": "hand_honed_kitchen_knife"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Foodie",
+     "desc": "Food restores 20% more, and places that serve food are 10% cheaper.",
+     "effects": [
+      {
+       "kind": "rest",
+       "target": "food",
+       "value": 0.2
+      },
+      {
+       "kind": "price",
+       "target": "food",
+       "value": -0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_lasttrain",
+    "name": "After the last train",
+    "icon": "🌃",
+    "category": "explorer",
+    "needs": [
+     "events"
+    ],
+    "desc": "The city is a different place when the trains stop.",
+    "steps": [
+     {
+      "name": "Miss the last train",
+      "when": "did: missed_train",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A night in a capsule or a manga café",
+      "when": "did: night_away",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Make a late-night bar in Golden Gai or Ni-chōme your own",
+      "when": "did: sj_goldengai_drink 6",
+      "or": [
+       "did: sj_nichome_drink 6"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Stay at a club until the first train",
+      "when": "did: rp_club_bignight",
+      "reward": {
+       "mood": 10,
+       "keepsake": "light_tunnel_photo"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Nocturnal",
+     "desc": "Energy drains 20% slower at night.",
+     "effects": [
+      {
+       "kind": "drain",
+       "target": "energy",
+       "value": -0.2,
+       "when": "period: night or latenight"
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_seasons",
+    "name": "Seasons of Japan",
+    "icon": "🎑",
+    "category": "explorer",
+    "starts": [
+     "native"
+    ],
+    "needs": [
+     "festivals"
+    ],
+    "desc": "Follow the year the way Tokyo does, from blossoms to the first shrine visit.",
+    "steps": [
+     {
+      "name": "Cherry blossoms",
+      "when": "attended: hanami",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The Sumida fireworks",
+      "when": "attended: fireworks",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Moon viewing or autumn leaves",
+      "when": "attended: tsukimi or koyo",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The New Year shrine visit, and an omikuji",
+      "when": "attended: hatsumode; did: sb_meiji_omikuji or ak_myojin_omikuji or ot_sensoji_omikuji",
+      "reward": {
+       "mood": 10,
+       "keepsake": "new_years_feast_box"
+      }
+     }
+    ],
+    "perk": {
+     "name": "In tune with the seasons",
+     "desc": "A better mood on festival days, and festivals give 50% more life points.",
+     "effects": [
+      {
+       "kind": "morning",
+       "target": "mood",
+       "value": 2,
+       "when": "festival: any"
+      },
+      {
+       "kind": "points",
+       "target": "festival",
+       "value": 0.5
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_akiba",
+    "name": "Akiba legend",
+    "icon": "🕹️",
+    "category": "explorer",
+    "needs": [
+     "hobbies",
+     "festivals"
+    ],
+    "desc": "Make Akihabara your second home, arcade first.",
+    "steps": [
+     {
+      "name": "Gaming 4 and a plush from the claw machine",
+      "when": "skill: gaming 4; holds: claw_machine_plush",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Become a regular at Pixel Castle",
+      "when": "did: ak_arcade_rhythm 5",
+      "or": [
+       "did: ak_arcade_prize 5"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Win a rhythm-game battle",
+      "when": "did: win:ak_arcade_rhythm",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The fan convention",
+      "when": "attended: fancon",
+      "reward": {
+       "mood": 10,
+       "keepsake": "it_charm"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Otaku cred",
+     "desc": "Gaming +2 on rolls, and people in Akihabara start out warmer.",
+     "effects": [
+      {
+       "kind": "roll",
+       "target": "gaming",
+       "value": 2
+      },
+      {
+       "kind": "warm",
+       "target": "akiba",
+       "value": 3
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_doujin",
+    "name": "Doujin artist",
+    "icon": "✏️",
+    "category": "creativity",
+    "needs": [
+     "hobbies",
+     "festivals"
+    ],
+    "desc": "Draw, write, and put your own pages in front of people.",
+    "steps": [
+     {
+      "name": "Drawing 4",
+      "when": "skill: drawing 4",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Writing 3",
+      "when": "skill: writing 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A self-published book from the fan convention",
+      "when": "attended: fancon; holds: fan_book",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Hired at Studio Tsubame, or Drawing 8",
+      "when": "job: animator",
+      "or": [
+       "skill: drawing 8"
+      ],
+      "reward": {
+       "mood": 10,
+       "keepsake": "portrait_sketch"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Prolific",
+     "desc": "Drawing and writing train 20% faster.",
+     "effects": [
+      {
+       "kind": "learn",
+       "target": "drawing",
+       "value": 0.2
+      },
+      {
+       "kind": "learn",
+       "target": "writing",
+       "value": 0.2
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_onsen",
+    "name": "Hot springs and getaways",
+    "icon": "♨️",
+    "category": "health",
+    "desc": "Soak, slow down, and get out of the city for a day or two.",
+    "steps": [
+     {
+      "name": "A bath at Matsu-no-yu",
+      "when": "did: ws_sento_bath",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A day in Yokohama",
+      "when": "visited: 3 in yokohama",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A night at Ryokan Kasumi-sō",
+      "when": "did: night_away; visited: hk_ryokan",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Fuji from Lake Ashi and a black egg at Ōwakudani",
+      "when": "did: hk_ashi_fuji; did: hk_owakudani_eggs",
+      "reward": {
+       "mood": 10,
+       "keepsake": "photo_at_the_water_gate"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Unwound",
+     "desc": "Baths and nights away restore 20% more.",
+     "effects": [
+      {
+       "kind": "rest",
+       "target": "bath",
+       "value": 0.2
+      },
+      {
+       "kind": "rest",
+       "target": "sleep away",
+       "value": 0.2
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_oldtokyo",
+    "name": "Old Tokyo heart",
+    "icon": "⛩️",
+    "category": "social",
+    "needs": [
+     "festivals",
+     "living"
+    ],
+    "desc": "Belong to the old town: its streets, its counters and its bells.",
+    "steps": [
+     {
+      "name": "Live in Yanaka, or get to know the old town",
+      "when": "home: oldhouse",
+      "or": [
+       "visited: 5 in oldtown"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A regular at the old town's ramen shop and izakaya",
+      "when": "did: ot_ramen_regular; did: ot_izakaya_counter",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A good friend from the old town",
+      "when": "friends: 1 good in oldtown",
+      "or": [
+       "friends: 2 good"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Ring in the New Year at Sensō-ji with a friend",
+      "when": "did: with:ot_sensoji_bell",
+      "reward": {
+       "mood": 10,
+       "keepsake": "fox_charm"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Neighbor",
+     "desc": "Prices 10% lower in the old town, and its people start out warmer.",
+     "effects": [
+      {
+       "kind": "price",
+       "target": "oldtown",
+       "value": -0.1
+      },
+      {
+       "kind": "warm",
+       "target": "oldtown",
+       "value": 3
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_karaoke",
+    "name": "Karaoke king or queen",
+    "icon": "🎶",
+    "category": "creativity",
+    "needs": [
+     "hobbies"
+    ],
+    "desc": "Take the microphone and keep it, from a back room to an all-nighter.",
+    "steps": [
+     {
+      "name": "Singing 3",
+      "when": "skill: singing 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "An all-nighter at Echo Box",
+      "when": "did: sb_karaoke_allnight",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Sing at Bar Kotori",
+      "when": "did: sj_goldengai_sing",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Singing 7",
+      "when": "skill: singing 7",
+      "reward": {
+       "mood": 10,
+       "keepsake": "old_record"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Showstopper",
+     "desc": "Singing +2 on rolls, and karaoke gives 25% more mood.",
+     "effects": [
+      {
+       "kind": "roll",
+       "target": "singing",
+       "value": 2
+      },
+      {
+       "kind": "rest",
+       "target": "karaoke",
+       "value": 0.25
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_romance",
+    "name": "A Tokyo romance",
+    "icon": "🌸",
+    "category": "love",
+    "needs": [
+     "romance",
+     "festivals"
+    ],
+    "desc": "The city's season of couples: blossoms, fireworks, lights and chocolate.",
+    "steps": [
+     {
+      "name": "A picnic under the blossoms with someone you like",
+      "when": "friends: 1 interest; did: with:sb_yoyogi_hanami or with:sj_gyoen_hanami or with:ot_ueno_hanami",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The fireworks with someone you love",
+      "when": "friends: 1 crush; did: with:ot_sumida_fireworks",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Christmas Eve at Odaiba with your partner",
+      "when": "partner: dating or engaged or married; did: with:bay_beach_christmas",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Valentine's Day and White Day",
+      "when": "attended: valentine; attended: whiteday",
+      "reward": {
+       "mood": 10,
+       "keepsake": "shadow_portrait"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Sweetheart",
+     "desc": "Romance from dates grows 10% faster.",
+     "effects": [
+      {
+       "kind": "gain",
+       "target": "dates",
+       "value": 0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_isezaki",
+    "name": "Up from Isezaki",
+    "icon": "🌉",
+    "category": "fortune",
+    "starts": [
+     "yokohama"
+    ],
+    "needs": [
+     "jobs",
+     "hunger"
+    ],
+    "desc": "Start from the bottom in Yokohama and build something steady.",
+    "steps": [
+     {
+      "name": "¥200,000 saved",
+      "when": "money: 200000",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Two good friends in Yokohama",
+      "when": "friends: 2 good in yokohama",
+      "or": [
+       "friends: 4 good"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A job held for a season",
+      "when": "job: any",
+      "hold": "season",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "¥1,000,000 saved, or a better home",
+      "when": "money: 1000000",
+      "or": [
+       "home: better"
+      ],
+      "reward": {
+       "mood": 10,
+       "keepsake": "vintage_piece"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Survivor",
+     "desc": "Hunger and thirst drain 15% slower.",
+     "effects": [
+      {
+       "kind": "drain",
+       "target": "hunger",
+       "value": -0.15
+      },
+      {
+       "kind": "drain",
+       "target": "thirst",
+       "value": -0.15
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_secrets",
+    "name": "Keeper of secrets",
+    "icon": "🗝️",
+    "category": "social",
+    "needs": [
+     "living"
+    ],
+    "desc": "People tell you things. Learn what they carry, and help it end well.",
+    "steps": [
+     {
+      "name": "Learn a hidden secret",
+      "when": "secrets: 1",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Help one storyline to a good ending",
+      "when": "helped: 1",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Three good endings",
+      "when": "helped: 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Five good endings",
+      "when": "helped: 5",
+      "reward": {
+       "mood": 10,
+       "keepsake": "glass_float"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Trusted",
+     "desc": "Secrets and storylines that end give 50% more life points.",
+     "effects": [
+      {
+       "kind": "points",
+       "target": "secret",
+       "value": 0.5
+      },
+      {
+       "kind": "points",
+       "target": "thread",
+       "value": 0.5
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_kabukicho",
+    "name": "King or queen of Kabukichō",
+    "icon": "👑",
+    "category": "career",
+    "adult": true,
+    "needs": [
+     "jobs",
+     "hobbies"
+    ],
+    "desc": "The neon district has its own ladder, and its own top.",
+    "steps": [
+     {
+      "name": "Hired as a host or hostess",
+      "when": "job: host or hostess",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Charisma 4",
+      "when": "skill: charisma 4",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Rank 4",
+      "when": "job: host or hostess; rank: 4",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The top: Club manager, or Table lead for a hostess",
+      "when": "job: host; rank: top",
+      "or": [
+       "job: hostess; rank: 5"
+      ],
+      "reward": {
+       "mood": 10,
+       "keepsake": "wrapped_sweets_box"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Silver tongue",
+     "desc": "Hosts and hostesses are paid 15% more.",
+     "effects": [
+      {
+       "kind": "pay",
+       "target": "host",
+       "value": 0.15
+      },
+      {
+       "kind": "pay",
+       "target": "hostess",
+       "value": 0.15
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "rewards": {
+  "add": [
+   {
+    "id": "omikuji",
+    "name": "Omikuji, great blessing",
+    "icon": "📜",
+    "desc": "A slip that promises luck: +2 on every roll for a week.",
+    "price": 500,
+    "kind": "boost",
+    "effects": [
+     {
+      "kind": "roll",
+      "value": 2
+     }
+    ],
+    "days": 7,
+    "limit": {
+     "per": "season"
+    },
+    "roles": [
+     "shrine"
+    ]
+   },
+   {
+    "id": "omamori_love",
+    "name": "Omamori for love",
+    "icon": "💗",
+    "desc": "A love charm: romance toward you grows 10% faster for a week.",
+    "price": 300,
+    "kind": "boost",
+    "effects": [
+     {
+      "kind": "gain",
+      "target": "romance",
+      "value": 0.1
+     }
+    ],
+    "days": 7,
+    "limit": {
+     "per": "week"
+    },
+    "roles": [
+     "shrine"
+    ]
+   },
+   {
+    "id": "omamori_study",
+    "name": "Omamori for study",
+    "icon": "🎓",
+    "desc": "A study charm: skills train 25% faster for a week.",
+    "price": 300,
+    "kind": "boost",
+    "effects": [
+     {
+      "kind": "learn",
+      "value": 0.25
+     }
+    ],
+    "days": 7,
+    "limit": {
+     "per": "week"
+    },
+    "roles": [
+     "shrine"
+    ]
+   },
+   {
+    "id": "omamori_health",
+    "name": "Omamori for health",
+    "icon": "🍀",
+    "desc": "A health charm: needs drain 15% slower for a week.",
+    "price": 300,
+    "kind": "boost",
+    "effects": [
+     {
+      "kind": "drain",
+      "value": -0.15
+     }
+    ],
+    "days": 7,
+    "limit": {
+     "per": "week"
+    },
+    "roles": [
+     "shrine"
+    ]
+   },
+   {
+    "id": "omamori_work",
+    "name": "Omamori for success at work",
+    "icon": "💼",
+    "desc": "A work charm: performance grows 25% faster for a week.",
+    "price": 300,
+    "kind": "boost",
+    "effects": [
+     {
+      "kind": "perf",
+      "target": "gain",
+      "value": 0.25
+     }
+    ],
+    "days": 7,
+    "limit": {
+     "per": "week"
+    },
+    "roles": [
+     "shrine"
+    ]
+   },
+   {
+    "id": "daruma",
+    "name": "Daruma",
+    "icon": "🎎",
+    "desc": "Paint one eye when you pick a goal; finishing it paints the other and doubles its finishing life points.",
+    "price": 300,
+    "kind": "double",
+    "limit": {
+     "per": "goal"
+    },
+    "roles": [
+     "shrine"
+    ]
+   },
+   {
+    "id": "ema",
+    "name": "Ema",
+    "icon": "🪧",
+    "desc": "Write a wish for someone you know; within days an invitation brings you together.",
+    "price": 150,
+    "kind": "invite",
+    "needs": [
+     "plans"
+    ],
+    "roles": [
+     "shrine"
+    ]
+   }
+  ]
  }
 }
