@@ -886,7 +886,8 @@ function targetOpts(w: WorldDef, kind: EffectKind, cur = '', wide = false): [str
     const jobTags = [...new Set(w.occupations.flatMap(o => o.tags ?? []))].map(t => [t, `Kind of job: ${t}`] as [string, string]);
     const list: [string, string][] = kind === 'drain' ? [['', 'Every need'], ...w.statuses.map(s => [s.id, `${s.icon} ${s.name}`] as [string, string])]
         : kind === 'learn' ? [['all', 'Every skill'], ['upto:3', 'Every skill, up to level 3'], ['upto:5', 'Every skill, up to level 5'], ...skillOpts(w), ...groups]
-        : kind === 'roll' ? [['', 'Every roll'], ...(wide ? [['work', 'Any roll at work'] as [string, string]] : []), ...skillOpts(w), ...groups, ...tagged(tags)]
+        // (a work choice rolls with its job's tags too: a tag both an action and a job have is listed once)
+        : kind === 'roll' ? [['', 'Every roll'], ...(wide ? [['work', 'Any roll at work'] as [string, string]] : []), ...skillOpts(w), ...groups, ...tagged(tags), ...jobTags.filter(([t]) => !tags.includes(t))]
         : kind === 'perf' ? [['gain', 'Performance gains'], ...jobs, ...jobTags] : kind === 'career' ? [['rank', 'Days a rank takes'], ...(wide ? [['hire', 'A new job starts on the way to the next rank (−50%: halfway)'] as [string, string]] : [])]
         : kind === 'warm' ? [['new', 'Someone you first meet (points)'], ...(wide ? [...maps, ...areas, ...tagged(placeTags), ...places] : [])]
         : kind === 'gain' ? [['friend', 'Friendship'], ['romance', 'Romance'], ['dates', 'Romance from dates'], ['gifts', 'Gifts'], ['good friends', 'Friendship with good friends'], ['romance:early', 'Romance until a Crush'],
@@ -962,6 +963,7 @@ function infoOf(name: string, make = false): TraitInfo | undefined {
 // Empty parts go, so a trait edited back to nothing says nothing (and one edited back to the standard is the standard).
 function tidyInfo(info: TraitInfo) {
     if (!info.desc) delete info.desc;
+    if (!info.ai) delete info.ai;
     if (!info.effects?.length) delete info.effects;
     if (info.covers) { if (!info.covers.skills?.length) delete info.covers.skills; if (!info.covers.tags?.length) delete info.covers.tags; if (!Object.keys(info.covers).length) delete info.covers; }
 }
@@ -997,6 +999,8 @@ function traitInfoEditor(w: WorldDef) {
         ${names.length ? `<div class="mu-cw-master"><aside class="mu-cw-list" data-keep="cw-tinfo">${groups.map(([g, l]) => `<span class="mu-cw-sub">${esc(g)}</span>${l.filter(x => !BAD_KEYS.includes(x)).map(x => `<button class="mu-cw-row ${x === n ? 'is-on' : ''}" data-act="cw-tinfo" data-name="${esc(x)}"><b>${esc(x)}</b><small>${esc(label(x))}</small></button>`).join('')}`).join('')}</aside>
         <section class="mu-cw-form"><h4>${esc(n)}</h4>
             <label class="mu-field"><span>Description (when picking it, and on the profile)</span><input data-input="cw-ti" ${at('desc')} data-focus="${esc(`${p}.desc`)}" value="${esc(info?.desc ?? '')}"></label>
+            <label class="mu-field"><span>What the AI is told while the player has it (optional)</span><input data-input="cw-ti" ${at('ai')} data-focus="${esc(`${p}.ai`)}" value="${esc(info?.ai ?? '')}" placeholder="{{user}} likes to take the lead.">
+                <small class="mu-muted">{{user}} is the player. Empty: no line of its own (a drive keeps the game's). An adult trait's line only with adult content on.</small></label>
             <h4>Effects</h4>${(info?.effects ?? []).map(effect).join('') || '<p class="mu-muted">No effects: it only colors how the AI plays you (and job fit, when jobs like it).</p>'}
             <button class="mu-ghost" data-act="cw-ti-add" data-name="${esc(n)}">${icon('plus')}<span>Add an effect</span></button>
             <h4>An interest covers</h4>
@@ -1988,7 +1992,7 @@ Object.assign(INPUT, {
     'cw-ti': (el) => {
         const w = W(); const info = infoOf(el.dataset.name!, true); const f = el.dataset.f ?? ''; if (!info) return;
         const redraw = el.tagName === 'SELECT';
-        if (f === 'desc') info.desc = el.value.trim() ? el.value : '';
+        if (f === 'desc' || f === 'ai') info[f] = el.value.trim() ? el.value : '';
         else if (f === 'covers.tags') (info.covers ??= {}).tags = el.value.split(',').map(x => x.trim()).filter(Boolean);
         else {
             const m = f.match(/^effects\.(\d+)\.(kind|target|value|when)$/); const e = m ? info.effects?.[Number(m[1])] : undefined; if (!m || !e) return;
