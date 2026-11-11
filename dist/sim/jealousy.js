@@ -1,3 +1,11 @@
+// Jealousy they act on (requirement A-5). A partner who is in the scene while someone else warms up to you
+// romantically confronts you there (a moment; the scene verdict judges how it went). A partner who hears through the
+// rumor mill that you went on a date or started something with someone else texts you about it. Two people who both
+// have a crush on you become rivals: their friendship for each other drifts down (sim/relations.ts) and the AI is told
+// when both are here. People who are fine with open relationships skip the confrontation and the text. (Adult
+// content) A partner who hears you were caught being intimate with someone else is hurt as by news of someone new.
+// Part of "Characters take the initiative" (its budget, and nothing at all when it's off).
+import { adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { social, textFrom } from './social.js';
@@ -7,7 +15,7 @@ import { facts, factText } from './facts.js';
 import { rumorPool } from './living.js';
 import { styleOf } from './intimacy.js';
 import { ro, pairOf, partnersOf, idOf, YOU } from './rel.js';
-import { CRUSH } from './romance.js';
+import { CRUSH, jealousHurt } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { initiativeOn, canSpend, spend, queueMoment, seat } from './moments.js';
 const exclusive = (g, a) => styleOf(g, a) === 'exclusive';
@@ -58,6 +66,37 @@ export function rumorTexts(g, w) {
         told.splice(0, told.length - 60);
     return [];
 }
+export function caughtNews(g, w) {
+    if (!adultOn(g) || !systemOn(w, 'romance') || !systemOn(w, 'rumors'))
+        return [];
+    const seen = (seat(g).caught ??= []);
+    const out = [], s = social(g), me = personaName();
+    const texts = initiativeOn(g) && systemOn(w, 'plans');
+    for (const rumor of rumorPool(g)) {
+        if (!rumor.adult || !rumor.caught)
+            continue;
+        const others = (rumor.about ?? []).filter(a => a !== YOU && idOf(g, a) !== YOU && g.cast[a]);
+        if (!others.length)
+            continue;
+        const names = others.map(a => g.cast[a].name).join(' and ');
+        for (const p of myPartners(g)) {
+            const k = `${rumor.id}|${p}`;
+            if (others.includes(p) || seen.includes(k) || !rumor.knownBy.includes(p) || !exclusive(g, p) || Math.floor(rumor.at / 1440) < (pairOf(g, p, YOU)?.since ?? 0))
+                continue;
+            seen.push(k);
+            out.push(jealousHurt(g, p, others[0], names, '{0} heard that {u} was caught being intimate with {1}, and is hurt.'));
+            if (!texts || !canSpend(g, p))
+                continue;
+            spend(g, p);
+            const P = g.cast[p].name;
+            void textFrom(g, w, p, `${P} heard around town that ${rumor.text} ${P} is ${me}'s partner and expected to be the only one: a short, hurt and angry message asking ${me} whether it's true.`, 'I heard what happened. Is it true?')
+                .then(() => { s.unread[p] = (s.unread[p] ?? 0) + 1; }).catch(() => { });
+        }
+    }
+    if (seen.length > 60)
+        seen.splice(0, seen.length - 60);
+    return out;
+}
 // Rivals: both have a crush on you (and may have romance at all).
 export const rivalsForYou = (g, w, a, b) => systemOn(w, 'romance') && !romanceBlocked(g, a) && !romanceBlocked(g, b) && ro(g, a, YOU) >= CRUSH && ro(g, b, YOU) >= CRUSH;
 export function rivalsLine(g, w, present) {
@@ -69,3 +108,4 @@ export function rivalsLine(g, w, present) {
     return out.length ? `Rivals for {{user}}'s affection (both have feelings for {{user}}, and it shows between them): ${out.join('; ')}.` : '';
 }
 onDay.push((g, w) => rumorTexts(g, w));
+onDay.push((g, w) => caughtNews(g, w));

@@ -1,10 +1,19 @@
-import { systemOn } from '../core/world.js';
+// Life points (save key `points`): what the rewards shop (sim/rewards.ts) spends. The active goal pays the most: each
+// step (the step's own `reward.points`, else 100) and finishing it (200, twice that with a daruma bought for it), through
+// the `onGoalStep` hook sim/goals.ts calls. Second sources pay a little, so goals stay the main way: a festival or a city
+// event the first time each year (10), a street story finished (15), a secret learned (20), a thread you knew reaching
+// its end (40), a keepsake you never had before (10), a like or a hard limit of someone's learned (10, once each: adult
+// content only, from `learn()` through `onLearned`); at most 60 a day from these together, so nothing can be farmed.
+// Every gain goes through `pointsFor()` (sim/perks.ts), so perks with a `points` effect add their share. All of it
+// belongs to the `goals` system: with it off nothing is earned. Read with `??=` (no new schema).
+import { toast, adultOn } from '../core/store.js';
+import { systemOn, getWorld } from '../core/world.js';
 import { goalOf, GOAL_POINTS } from '../core/goals.js';
 import { pointsFor } from './perks.js';
 import { seasonDays } from './time.js';
-import { onGoalStep } from './hooks.js';
+import { onGoalStep, onLearned } from './hooks.js';
 /** What a second source pays (before perks), and how much of them a day counts at most. */
-export const SECOND_POINTS = { festival: 10, event: 10, story: 15, secret: 20, thread: 40, keepsake: 10 };
+export const SECOND_POINTS = { festival: 10, event: 10, story: 15, secret: 20, thread: 40, keepsake: 10, learned: 10 };
 export const DAILY_CAP = 60;
 export function pointsState(g) {
     const p = (g.points ??= {});
@@ -17,6 +26,7 @@ export function pointsState(g) {
     p.double ??= [];
     p.log ??= [];
     p.told ??= {};
+    p.learned ??= [];
     return p;
 }
 /** Points you have to spend (0 without a ledger yet; reading doesn't make one). */
@@ -76,6 +86,16 @@ export function payStep(g, w, goal, step, last) {
 }
 onGoalStep.push(payStep);
 /* ---------- second sources ---------- */
+// A like or a hard limit of someone's learned (sim/intimacy.ts `learn()`, whoever called it: a great night, a limit met,
+// Pillow talk the action or the item): once each, and only with adult content on. Said as a toast: the caller's own lines
+// don't know about it.
+onLearned.push((g, who, what, value) => {
+    if (!adultOn(g))
+        return;
+    const line = earn(g, getWorld(g.world), 'learned', `${who}>${what}:${value}`);
+    if (line)
+        toast(line, 'success');
+});
 // What the line says where the source isn't plain from what came before it (a secret, an ending in the day's news).
 const SAID = { secret: ' (a secret learned)', thread: ' (a story you followed came to its end)' };
 /** Points from a second source, once each where the source says so (`key`: a festival or event id, a keepsake id),
@@ -95,11 +115,18 @@ export function earn(g, w, source, key = '') {
             return '';
         p.kinds.push(key);
     }
+    if (source === 'learned') {
+        if (!key || p.learned.includes(key))
+            return '';
+        p.learned.push(key);
+    } // (counted even when the day's cap left nothing)
     if (p.today.day !== g.day)
         p.today = { day: g.day, n: 0 };
     const n = Math.min(pointsFor(g, w, source, SECOND_POINTS[source]), DAILY_CAP - p.today.n);
     if (!(n > 0))
         return '';
     p.today.n += n;
-    return `${pointsLine(credit(g, n, key ? `${source}:${key}` : source))}${SAID[source] ?? ''}`;
+    // (the log says whom a learned like was about, never the words)
+    const why = source === 'learned' ? `learned:${key.split('>')[0]}` : key ? `${source}:${key}` : source;
+    return `${pointsLine(credit(g, n, why))}${SAID[source] ?? ''}`;
 }

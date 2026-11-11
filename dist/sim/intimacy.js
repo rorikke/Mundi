@@ -9,6 +9,7 @@ import { cfg, nowAbs } from '../core/store.js';
 import { relOf, idOf, ro, fr, isPartner, attracted, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
+import { onLearned } from './hooks.js';
 export const PRESETS = {
     free: { name: 'Free spirit', r: 'interest', f: 'none' },
     passionate: { name: 'Passionate', r: 'crush', f: 'none' },
@@ -133,6 +134,8 @@ export function learn(g, a, what, value = '', by = YOU) {
     if (list.includes(value))
         return false;
     list.push(value);
+    for (const f of onLearned)
+        f(g, a, what, value); // (life points for it, sim/points.ts)
     return true;
 }
 /** Someone's role in bed and drive, from their intimate profile (a drive not set is average; a role not set is none). */

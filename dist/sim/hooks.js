@@ -41,3 +41,6 @@ export const zeroDrainMods = [];
 // What an action (or its outcome) gives back of a need, after its `rest` effects (`restGain` in sim/needs.ts): being
 // alone and a private action's mood, by drive.
 export const gainMods = [];
+// You learned a like or a hard limit of someone's (`learn()` in sim/intimacy.ts, only when it's new): the points ledger pays
+// for it (sim/points.ts). `value`: its words, as in their profile.
+export const onLearned = [];

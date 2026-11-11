@@ -224,12 +224,29 @@ export function startRumor(g, w, text, place, o = {}) {
     st.rumors.push(rumor);
     return rumor;
 }
+/** (adult) A rumor that you were caught somewhere (`text`: who and where), about you and the people `with` you: they never
+ *  hear it, but anyone else can, their partners too. `seen`: someone was there to see who it was (false: no rumor); nothing
+ *  starts with adult content off or the rumors system off. `caught`: the place a ban came from, so Quiet a rumor can lift
+ *  it. */
+export function startCaughtRumor(g, w, text, place, o) {
+    if (!adultOn(g) || !systemOn(w, 'rumors') || o.seen === false)
+        return null;
+    const mates = o.with ?? [];
+    const r = startRumor(g, w, text, place, { about: mates.map(a => g.cast[a]?.name ?? '').filter(Boolean), you: true, id: o.id });
+    if (!r)
+        return null;
+    r.adult = true;
+    r.about = [...new Set([...mates, YOU])];
+    if (o.caught)
+        r.caught = o.caught;
+    return r;
+}
 // How a rumor sounds after passing through some mouths.
 const garble = (hops) => (hops >= 4 ? ' (heard it fourth- or fifth-hand: details may be wrong or exaggerated)' : hops >= 2 ? ' (secondhand)' : '');
 export function rumorLines(g, present) {
     const out = [];
     for (const r of present) {
-        const heard = L(g).rumors.filter(x => x.knownBy.includes(r.avatar) && !x.about?.includes(r.avatar) && !facts(g).find(f => f.id === x.id)?.who.includes(r.avatar)).slice(-2);
+        const heard = L(g).rumors.filter(x => (!x.adult || adultOn(g)) && x.knownBy.includes(r.avatar) && !x.about?.includes(r.avatar) && !facts(g).find(f => f.id === x.id)?.who.includes(r.avatar)).slice(-2);
         if (heard.length)
             out.push(`${r.name} has heard around town: ${heard.map(h => `${h.text}${garble(h.hops?.[r.avatar] ?? 1)}`).join(' ')}`);
     }
@@ -241,7 +258,7 @@ export function overhear(g, w, present) {
         return [];
     const got = [];
     for (const rumor of L(g).rumors) {
-        if (rumor.knownBy.includes(YOU))
+        if (rumor.knownBy.includes(YOU) || (rumor.adult && !adultOn(g)))
             continue;
         const teller = present.find(r => rumor.knownBy.includes(r.avatar));
         if (!teller || rnd(g, `hear|${rumor.id}|${g.minutes}`) > 0.3)
@@ -257,12 +274,12 @@ export function overhear(g, w, present) {
 }
 /** Rumors about you still going round (from something you did: their fact names you), for the rewards shop's "Quiet a
  *  rumor". */
-export const rumorsAboutYou = (g) => L(g).rumors.filter(r => !r.quiet && heatOf(g, r) > 0 && (r.about?.includes(YOU) || !!facts(g).find(f => f.id === r.id)?.t.includes('{u}')));
+export const rumorsAboutYou = (g) => L(g).rumors.filter(r => !r.quiet && (!r.adult || adultOn(g)) && heatOf(g, r) > 0 && (r.about?.includes(YOU) || !!facts(g).find(f => f.id === r.id)?.t.includes('{u}')));
 /** Stops a rumor from spreading further (the people who know it still do). */
 export function quietRumor(g, id) { const r = L(g).rumors.find(x => x.id === id); if (!r || r.quiet)
     return false; r.quiet = true; return true; }
 // What you have heard (newest first), for the Journal.
-export const heardRumors = (g) => L(g).rumors.filter(r => r.knownBy.includes(YOU)).sort((a, b) => (b.heard ?? b.at) - (a.heard ?? a.at));
+export const heardRumors = (g) => L(g).rumors.filter(r => r.knownBy.includes(YOU) && (!r.adult || adultOn(g))).sort((a, b) => (b.heard ?? b.at) - (a.heard ?? a.at));
 export const rumorSource = (r) => garble(r.hops?.[YOU] ?? 1).replace(/^ \(|\)$/g, '');
 onDay.push((g, w) => [...lifeGoesOn(g, w), ...spreadRumors(g, w)]);
 export const TIE_TYPES = [

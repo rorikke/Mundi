@@ -11,6 +11,7 @@
 import { adultOn } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { privateChecks, privateResults, actionGates, intimateLines, onRoll } from './hooks.js';
+import { isPillowTalk } from './actions.js';
 import { relOf, idOf, fr, ro, gain, lose, statusOf, attracted, YOU } from './rel.js';
 import { intimacyReady, noteIntimate, knownOf, learn, roleOf, intimateCount } from './intimacy.js';
 import { wordsIn, withYou } from './social.js';
@@ -36,7 +37,6 @@ export const PRIVATE = {
 /** A private moment the scene verdict saw (no action clicked): less than an action's. */
 export const VERDICT_INTIMATE = { desire: 25, xp: 3 };
 const DESIRE = 'desire';
-const PILLOW = 'pillow-talk';
 const THREESOME = ['threesome', 'threesomes'];
 // The prompt's budget for what you know of each other (X24): per person, at most this many likes and limits.
 export const KNOWN_MAX = { likes: 4, limits: 2 };
@@ -175,7 +175,6 @@ export function awkwardOutcome(w, rnd = Math.random) {
     return list[list.length - 1];
 }
 export const notesOf = (x) => x.notes.a;
-const isPillow = (a) => !!a.tags?.includes(PILLOW);
 // A hard limit of someone taking part: it doesn't happen. They say no kindly and you talk instead; romance a little
 // down, and you know that limit now (the action isn't offered with them again).
 function limitStop(g, w, a, who, limit) {
@@ -196,10 +195,6 @@ privateChecks.push((g, w, x) => {
     x.notes.a = notes;
     if (!who.length)
         return; // nobody ready for it: it plays as any action
-    if (isPillow(x.a)) {
-        notes.talk = true;
-        return;
-    }
     for (const p of who) {
         const l = matchIn(g, x.a.matches, limitsOf(g, p));
         if (l) {
@@ -238,14 +233,14 @@ function pillowTalk(g, done, who) {
     done.ai = done.ai.replace(/\]$/, ` In the talk ${name} tells {{user}} ${u.what === 'like' ? 'something they love' : 'something they never want'}: ${tidy(u.value)}.]`);
 }
 privateResults.push((g, w, x, done) => {
+    if (isPillowTalk(g, x.a)) {
+        pillowTalk(g, done, whoJoins(g, w, x.with));
+        return;
+    } // (no check ran for it)
     const n = notesOf(x);
     if (!n?.who.length)
         return;
     const who = n.who;
-    if (n.talk) {
-        pillowTalk(g, done, who);
-        return;
-    }
     const tier = n.tier ?? 'good';
     const names = who.map(a => nameOf(g, a));
     const says = [];
@@ -309,11 +304,9 @@ privateResults.push((g, w, x, done) => {
 });
 /* ---------- what's offered: past a known limit, never; pillow talk only with something to learn ---------- */
 actionGates.push((g, w, a) => {
-    if (!adultOn(g) || !(a.private || (a.risk ?? 0) > 0))
-        return '';
-    if (isPillow(a))
+    if (isPillowTalk(g, a))
         return a.together && !withYou(g, w).some(p => canTalk(g, w, p)) ? 'There is nothing to talk about yet.' : '';
-    if (!a.matches?.length || !a.together)
+    if (!adultOn(g) || !(a.private || (a.risk ?? 0) > 0) || !a.matches?.length || !a.together)
         return '';
     for (const p of withYou(g, w))
         if (matchIn(g, a.matches, knownOf(g, p).limits))

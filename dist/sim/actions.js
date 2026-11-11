@@ -27,16 +27,23 @@ import { onLook, privateChecks, privateResults } from './hooks.js';
 import { earn } from './points.js';
 /** Is this a private action the hooks look at (done in private, or with a risk of being caught; adult content on)? */
 export const isPrivateAct = (g, a) => adultOn(g) && (!!a.private || (a.risk ?? 0) > 0);
-/** Before a private action plays: each check in turn, until one stops it. Null for any other action. */
+/** (adult) Pillow talk (an action tagged `pillow-talk`): talking about what you each like after a private moment. Not a
+ *  private moment itself: no check runs for it (no "not tonight", no roll, no risk), but its result hooks do
+ *  (sim/private.ts teaches a like or a limit). */
+export const isPillowTalk = (g, a) => adultOn(g) && !!a.tags?.includes('pillow-talk');
+/** Before a private action plays: each check in turn, until one stops it. Null for any other action (pillow talk gets
+ *  a context with no check, for its result). */
 export function privateCheck(g, w, a, place, mates, rnd, scene = false) {
-    if (!isPrivateAct(g, a))
+    const talk = isPillowTalk(g, a);
+    if (!talk && !isPrivateAct(g, a))
         return null;
     const x = { a, place, with: mates, rnd, scene, notes: {} };
-    for (const f of privateChecks) {
-        f(g, w, x);
-        if (x.stop)
-            break;
-    }
+    if (!talk)
+        for (const f of privateChecks) {
+            f(g, w, x);
+            if (x.stop)
+                break;
+        }
     return x;
 }
 /** After a private action's results: each result hook adds to what came of it (romance, learning, the lines). */

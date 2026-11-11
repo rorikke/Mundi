@@ -11,18 +11,21 @@
 // (sim/goals.ts through `goalLink`), Rent holiday (sim/bills.ts), Clean slate at work (sim/work.ts) and Tokyo's daruma
 // (the active goal's finishing points doubled). What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
-import { nowAbs, adultOk } from '../core/store.js';
+import { nowAbs, adultOk, adultOn } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs } from '../core/world.js';
 import { rewardsOf, isOwnReward, isSystemNeed, PERSON_KINDS } from '../core/goals.js';
 import { goalLink } from './hooks.js';
 import { pointsState, pointsOf, spendPoints, yearOf, whileSkipping } from './points.js';
+import { liftBan } from './caught.js';
+import { knownOf, learn, driveOf } from './intimacy.js';
+import { tallyEvent } from './tally.js';
 import { addBoost, boostsOf } from './perks.js';
 import { addStatus } from './needs.js';
 import { placeOf } from './places.js';
 import { seasonDays } from './time.js';
 import { whenHolds, levelHolds } from './when.js';
 import { note, fill, forgetFacts } from './facts.js';
-import { gain, fr, ro, setFr, setRo, forgetPast, pastOf, statusOf, rateOf, attraction, touch, holdFade, directedAbove, idOf, SOURCES, YOU } from './rel.js';
+import { gain, fr, ro, setFr, setRo, forgetPast, pastOf, statusOf, rateOf, attraction, touch, holdFade, directedAbove, idOf, relOf, SOURCES, YOU } from './rel.js';
 import { bondOf, social } from './social.js';
 import { romanceBlocked } from './family.js';
 import { SLOW_RATE, CRUSH, INFATUATED, DISLIKES } from './romance.js';
@@ -33,7 +36,7 @@ import { inviteSoon, invitesDue, wantOf } from './initiative.js';
 import { approvalOf, approve, rumorsAboutYou, quietRumor } from './living.js';
 import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap } from './threads.js';
 import { exampleOf, secretCouple } from './dayplan.js';
-import { swapTrait, traitNames, strengthGroups } from './traits.js';
+import { swapTrait, traitNames, strengthGroups, groupOptions, isAdultTrait } from './traits.js';
 import { habitsOf, resetHabit } from './habits.js';
 import { refreshPersona } from './game.js';
 import { skipBills, billsToPay } from './bills.js';
@@ -153,7 +156,7 @@ function personWhy(g, w, def, r) {
         case 'forgive': return { why: grudgeOf(g, a) ? null : 'No grudge to forgive' };
         case 'invite': return { why: goneFromMap(r) ? 'Not around any more' : bondOf(g, a) < DISLIKES ? 'They dislike you' : grudgeOf(g, a) ? 'Still upset with you' : a in invitesDue(g) ? 'Already on its way' : null };
         case 'insight': {
-            const questions = insightQuestions(g, w, a);
+            const questions = insightQuestions(g, w, a, def.questions);
             return { why: questions.length ? null : 'Nothing to learn', questions };
         }
     }
@@ -182,7 +185,12 @@ function clearFeelings(g, a) {
     const s = seat(g);
     s.moments = s.moments.filter(m => !(m.who === a && ['grudge', 'jealous', 'down', 'talk'].includes(m.kind)));
 }
-const QUESTIONS = [{ id: 'heart', name: 'Their heart' }, { id: 'view', name: 'How they see you' }, { id: 'secret', name: 'Their secret' }];
+// The `bed` questions (adult content): one like, one hard limit or the drive of someone, you pick which. An item that lists
+// `questions` keeps to the ones it names, or to a group of them (`bed`).
+const QUESTIONS = [{ id: 'heart', name: 'Their heart' }, { id: 'view', name: 'How they see you' }, { id: 'secret', name: 'Their secret' },
+    { id: 'bed_like', name: 'Something they like' }, { id: 'bed_limit', name: "Something they won't do" }, { id: 'bed_drive', name: 'Their drive' }];
+const groupOf = (q) => q.split('_')[0];
+const askable = (only, q) => !only?.length || only.includes(q) || only.includes(groupOf(q));
 const told = (g, a) => pointsState(g).told[a] ?? [];
 const trimEnd = (s) => s.trim().replace(/[.\s]+$/, '');
 // Their heart: who they have feelings for (a crush or love; you included), strongest first; a couple everyone knows of
@@ -240,12 +248,38 @@ function secretAnswer(g, w, a) {
     }
     return null;
 }
-const ANSWERS = { heart: heartAnswer, view: viewAnswer, secret: secretAnswer };
-/** The questions Insight can ask about someone now: each only when there's something you don't know yet. */
-export function insightQuestions(g, w, a) {
+// What they like, won't do, or how strong their drive is: only for someone with a Crush on you or more (their feelings are the
+// door; the item never opens one), only something you don't know yet, only with adult content and romance on.
+const crushOrMore = (g, a) => ro(g, a, YOU) >= CRUSH || togetherWith(g, a);
+const bedOpen = (g, w, a) => adultOn(g) && systemOn(w, 'romance') && !romanceBlocked(g, a) && attraction(g, a, YOU, 'r') > 0 && crushOrMore(g, a);
+const profileOf = (g, a) => relOf(g).people[idOf(g, a)]?.intimate;
+const tidy = (s) => s.replace(/\s+/g, ' ').trim().replace(/[.;\s]+$/, '');
+function bedAnswer(what) {
+    return (g, w, a) => {
+        if (!bedOpen(g, w, a))
+            return null;
+        const name = g.cast[a]?.name ?? '', k = knownOf(g, a);
+        if (what === 'drive') {
+            if (k.drive || !profileOf(g, a))
+                return null;
+            return { key: 'bed:drive', t: "{u} learned that {0}'s drive is {1}.", a: [name, driveOf(g, a)], then: () => { learn(g, a, 'drive'); } };
+        }
+        const mine = what === 'like' ? k.likes : k.limits, list = (what === 'like' ? profileOf(g, a)?.prefs : profileOf(g, a)?.limits) ?? [];
+        const value = list.find(s => typeof s === 'string' && s.trim() && !mine.includes(s));
+        if (!value)
+            return null;
+        return { key: `bed:${what}:${value}`, t: what === 'like' ? '{u} learned that {0} likes {1}.' : "{u} learned that {0} won't do {1}.", a: [name, tidy(value)], then: () => { if (learn(g, a, what, value))
+                tallyEvent(g, 'learned', 1, a); } };
+    };
+}
+const ANSWERS = { heart: heartAnswer, view: viewAnswer, secret: secretAnswer,
+    bed_like: bedAnswer('like'), bed_limit: bedAnswer('limit'), bed_drive: bedAnswer('drive') };
+/** The questions Insight can ask about someone now: each only when there's something you don't know yet. `only`: the ones an
+ *  item keeps to (`RewardDef.questions`). */
+export function insightQuestions(g, w, a, only) {
     if (!w || !g.cast[a])
         return [];
-    return QUESTIONS.filter(q => !!ANSWERS[q.id](g, w, a));
+    return QUESTIONS.filter(q => askable(only, q.id) && !!ANSWERS[q.id](g, w, a));
 }
 /* ---------- Change a trait ---------- */
 const SWAPPABLE = { personality: 'Personality', interests: 'Interests' };
@@ -255,9 +289,10 @@ export function traitChoices(g, w) {
     if (!w)
         return { groups: [], habits: [] };
     const strengths = strengthGroups(w), mine = traitNames(g);
+    // (adult traits and habits only with adult content on: what you have stays, and isn't listed while it's off)
     const groups = (w.sheet?.traits ?? []).filter(t => SWAPPABLE[t.id] && !strengths.includes(t)).map(t => ({ id: t.id, name: SWAPPABLE[t.id],
-        have: [...((g.player.traits ?? {})[t.id] ?? [])], can: t.options.filter(o => !mine.includes(o)) })).filter(x => x.have.length && x.can.length);
-    const habits = systemOn(w, 'habits') ? habitsOf(g).has.map(id => w.habits?.find(h => h.id === id)).filter(h => !!h).map(h => ({ id: h.id, name: h.trait || h.name })) : [];
+        have: [...((g.player.traits ?? {})[t.id] ?? [])].filter(o => adultOn(g) || !isAdultTrait(w, o)), can: groupOptions(g, t).filter(o => !mine.includes(o)) })).filter(x => x.have.length && x.can.length);
+    const habits = systemOn(w, 'habits') ? habitsOf(g).has.map(id => w.habits?.find(h => h.id === id)).filter(h => !!h && (!h.adult || adultOn(g))).map(h => ({ id: h.id, name: h.trait || h.name })) : [];
     return { groups, habits };
 }
 /** Rumors about you that Quiet a rumor can stop. */
@@ -319,14 +354,18 @@ function act(g, w, def, c) {
         case 'invite':
             inviteSoon(g, a);
             return { lines: [`${name} will invite you out in the next days.`] };
-        case 'quiet':
-            if (!c.rumor || !rumorsAboutYou(g).some(x => x.id === c.rumor) || !quietRumor(g, c.rumor))
+        case 'quiet': {
+            const ru = c.rumor ? rumorsAboutYou(g).find(x => x.id === c.rumor) : undefined;
+            if (!ru || !quietRumor(g, ru.id))
                 return 'Pick a rumor about you';
-            return { lines: ['That rumor stops here.'] };
+            // a rumor about getting caught somewhere also takes back the place's ban (sim/caught.ts)
+            return { lines: ['That rumor stops here.', ...(ru.caught && liftBan(g, ru.caught) ? ['And they will serve you there again.'] : [])] };
+        }
         case 'insight': {
-            const q = c.question && ANSWERS[c.question] ? c.question : null, ans = q ? ANSWERS[q](g, w, a) : null;
+            const q = c.question && ANSWERS[c.question] && askable(def.questions, c.question) ? c.question : null, ans = q ? ANSWERS[q](g, w, a) : null;
             if (!ans)
                 return 'Nothing to learn there';
+            ans.then?.();
             if (ans.thread)
                 revealThread(g, w, ans.thread, 'insight');
             (pointsState(g).told[a] ??= []).push(ans.key);

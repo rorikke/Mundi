@@ -21,7 +21,7 @@ export function dressFor(g, w, avatar) {
         return dressAt(g, g.player.loc);
     const act = g.act;
     const who = act?.priv?.notes?.a?.who ?? act?.with;
-    return adultOn(g) && act?.a?.private && act.place === g.player.loc && who?.includes(avatar) ? UNDRESSED : '';
+    return adultOn(g) && act?.a?.private && !act.a.tags?.includes('pillow-talk') && act.place === g.player.loc && who?.includes(avatar) ? UNDRESSED : '';
 }
 // Puts on (or takes off) the coded outfit for the people in the scene, and takes it off whoever it was put on who
 // isn't here now. `has`: the outfits someone has, given the code (null while still looking: nothing changes yet).

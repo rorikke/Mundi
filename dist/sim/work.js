@@ -38,6 +38,7 @@ import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
 import { trackOf, playerTrack, layTrack, trackName } from './tracks.js';
+import { workRisk } from './caught.js'; // (adult) a choice with a risk of a raid
 export { ledger, book } from './ledger.js';
 export { trackOf, jobTrack, playerTrack, layTrack, needsPick, tracksOf, trackName } from './tracks.js';
 export { scheduleOf } from '../core/presets.js';
@@ -869,7 +870,7 @@ export function chooseEvent(g, w, i, rnd = Math.random) {
         if (!ok)
             res = c.fail ?? { text: 'It did not work out.' };
     }
-    out.push(...applyResult(g, w, o, res, workRules(g, w).gentle, p.ev.id));
+    out.push(...applyResult(g, w, o, res, workRules(g, w).gentle, p.ev.id, rnd));
     out.push(...choicePractice(g, w, c.roll?.skill, ok, res.trains));
     if (p.ev.id !== OVERTIME_ASK.id)
         (j.seen ??= {})[p.ev.id] = ok === null ? { choice: i } : { choice: i, ok };
@@ -888,7 +889,7 @@ export function choicePractice(g, w, rolled, ok, trains) {
         out.push(...trainSkill(g, w, trains, CHOICE_PRACTICE.trains));
     return out;
 }
-function applyResult(g, w, o, r, gentle, from = '') {
+function applyResult(g, w, o, r, gentle, from = '', rnd = Math.random) {
     const out = [];
     const ok = (n) => (n === undefined ? 0 : gentle ? Math.max(0, n) : n);
     if (r.text)
@@ -917,6 +918,8 @@ function applyResult(g, w, o, r, gentle, from = '') {
     const fx = r.boost ? cleanEffects(r.boost.effects, BOOST_LIMITS).filter(e => !gentle || e.value >= 0) : [];
     if (fx.length)
         addBoost(g, `work:${o.id}:${from}`, fx, r.boost.days);
+    if (r.risk && !gentle)
+        out.push(...workRisk(g, w, o, r, rnd)); // (adult) caught: a raid
     return out;
 }
 // Staying longer: the hours pass, paid as overtime.
