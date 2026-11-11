@@ -1120,7 +1120,8 @@
    "link_bay",
    "link_roppongi",
    "link_yokohama",
-   "link_hakone"
+   "link_hakone",
+   "sj_esthe"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1156,7 +1157,8 @@
    "hunger",
    "thirst",
    "mood",
-   "hygiene"
+   "hygiene",
+   "desire"
   ],
   "actions": [
    "coffee",
@@ -1523,7 +1525,15 @@
    "hk_sculpture_hunt",
    "hk_sculpture_cafe",
    "hk_sculpture_sketch",
-   "pray"
+   "pray",
+   "priv_talk_likes",
+   "priv_home_solo",
+   "priv_home_lapdance",
+   "priv_massage_full",
+   "priv_home_three",
+   "priv_office_late",
+   "priv_park_night",
+   "priv_ryokan_rotenburo"
   ],
   "occupations": [
    "rider",
@@ -1568,7 +1578,8 @@
    "mahjong",
    "chinatown",
    "ryokan",
-   "avactress"
+   "avactress",
+   "esthe"
   ],
   "courses": [
    "japanese",
@@ -1587,7 +1598,9 @@
    "programming",
    "boki",
    "omotenashi",
-   "guitar"
+   "guitar",
+   "pole",
+   "massage"
   ],
   "origins": [],
   "routines": [
@@ -1665,14 +1678,15 @@
    "fishmonger": 4,
    "tv": 4,
    "clubstaff": 3,
-   "dancer": 4,
+   "dancer": 5,
    "pubstaff": 5,
    "clubmama": 4,
    "batting": 4,
    "mahjong": 4,
    "chinatown": 4,
    "ryokan": 4,
-   "avactress": 5
+   "avactress": 5,
+   "esthe": 4
   },
   "goals": [
    "tk_makeit",
