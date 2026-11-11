@@ -2,7 +2,8 @@ import { systemOn } from '../core/world.js';
 import { onDay, onLook } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { presentAt, residents } from './people.js';
-import { whenHolds } from './when.js';
+import { whenHolds, levelHolds } from './when.js';
+import { effectAdd } from './effects.js';
 import { startRumor, rumorPool, YOU } from './living.js';
 import { queueMoment } from './moments.js';
 import { note } from './facts.js';
@@ -199,6 +200,9 @@ export function threadLines(g, w, present) {
     if (!systemOn(w, 'living'))
         return [];
     const here = new Set(present.map(r => r.avatar)), all = threadStates(g), out = [];
+    // a `hint` effect (Trusted, a life goal's perk): a friend's hidden stage shows in small signs too
+    let h;
+    const hint = () => (h ??= effectAdd(g, w, 'hint') >= 1);
     for (const { t, r } of threadsOf(g, w)) {
         const st = all[t.id];
         if (!here.has(r.avatar) || !st)
@@ -220,7 +224,7 @@ export function threadLines(g, w, present) {
         }
         else if (s.tell === 'known')
             out.push(`${n} no longer hides it: ${trim(t.hidden)}.${now} ${n} tells {{user}} if it comes up.`);
-        else if (s.tell === 'hinted')
+        else if (s.tell === 'hinted' || (hint() && levelHolds(g, w, r.avatar, 'friend')))
             out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);
         else
             out.push(`${n} keeps a secret, and nothing gives it away: ${trim(t.hidden)}.${now} {{user}} doesn't know it; ${n} doesn't tell.`);

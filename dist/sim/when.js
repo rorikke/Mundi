@@ -51,7 +51,9 @@ const MONEY = /^(\d+(?:\.\d+)?)(?:\s+(weeks?|months?|years?))?$|^fortune$/i;
 const FRIENDS = /^(\d+)\s+(\S+)(?:\s+(?:in\s+(\S+)|at\s+(regular)))?$/i; // 3 good · 2 good in yokohama · 1 good at regular
 const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/; // meal 15 · tag:karaoke 3 · ramen_contest
 const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i; // overnight 2 with best: only with someone at that level now
-const VISITED = /^(?:(\d+)(?:\s+(regular)|\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;
+const VISITED = /^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i; // 3 regular in home
+/** `visited: pk_arcade regular`: a regular at that place. */
+export const PLACE_REGULAR = /^([^\s,;]+)\s+regular$/i;
 export const PARTNER_VALUES = ['any', 'none', 'home', 'casual', 'dating', 'engaged', 'married'];
 /** The money `money: 2 weeks` means: weeks of the world's usual pay (40 hours), or the old aspiration's fortune. */
 export function moneyAmount(w, v) {
@@ -111,7 +113,7 @@ function badValue(key, v) {
                 : `"${v}" should be an action, a tag:…, a moment (meal, party…) and how many times (and "with" a level: overnight with best)`;
         }
         case 'attended': return COUNTED.test(v) && !v.includes(':') ? '' : `"${v}" should be a festival or an event, and how many times`;
-        case 'visited': return VISITED.test(v) || ID.test(v) ? '' : `"${v}" should be a place, a number of places, all, map or maps`;
+        case 'visited': return VISITED.test(v) || ID.test(v) || PLACE_REGULAR.test(v) ? '' : `"${v}" should be a place (or a place and regular), a number of places (3 in a map, 3 regular in home), all, map or maps`;
         case 'secrets': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets`;
         case 'helped': return ID.test(v) ? '' : `"${v}" should be a number of storylines, or a storyline's id`;
         case 'goal': return /^[^\s,;]+(\s+\d+)?$/.test(v) ? '' : `"${v}" should be a goal, a goal and a step (idol 3), or a number of goals`;
@@ -484,23 +486,29 @@ function friendsHold(g, w, v) {
 }
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 const visitable = (w) => w.places.filter(p => !p.link && !p.private && !p.adult);
-const onMapOf = (w, p, map) => p.map === map || w.maps.find(m => m.id === p.map)?.area === map;
-// Places you've been: one by id, a number of them, a number or all on a map, every place on some map (`map`), a
-// place on every map (`maps`), every place (`all`), a number where you're a regular.
+const onMapOf = (w, p, map) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
+/** The map `in home` means: the map your home is on ('' with no home). */
+export const homeMap = (g, w) => w.homes.zones.find(z => z.id === g.player.home?.zone)?.map ?? '';
+const mapArg = (g, w, a) => (a.toLowerCase() === 'home' ? homeMap(g, w) : a);
+// Places you've been: one by id, a number of them, a number or all on a map (or your home's map), every place on some
+// map (`map`), a place on every map (`maps`), every place (`all`); a regular at a place, or at a number of them
+// (anywhere, or on a map).
 function visitedHolds(g, w, v) {
     const m = v.match(VISITED);
-    if (!m)
-        return beenTo(g, v);
+    if (!m) {
+        const r = v.match(PLACE_REGULAR);
+        return r ? systemOn(w, 'living') && isRegular(g, r[1]) : beenTo(g, v);
+    }
     const places = visitable(w), been = (id) => beenTo(g, id);
-    const s = v.toLowerCase();
+    const s = v.toLowerCase(), map = m[3] && mapArg(g, w, m[3]);
     if (m[1] && m[2])
-        return systemOn(w, 'living') && places.filter(p => isRegular(g, p.id)).length >= Number(m[1]);
+        return systemOn(w, 'living') && places.filter(p => (!m[3] || onMapOf(w, p, map)) && isRegular(g, p.id)).length >= Number(m[1]);
     if (m[1] && m[3])
-        return places.filter(p => onMapOf(w, p, m[3]) && been(p.id)).length >= Number(m[1]);
+        return places.filter(p => onMapOf(w, p, map) && been(p.id)).length >= Number(m[1]);
     if (m[1])
         return placesBeen(g).length >= Number(m[1]);
     if (m[4]) {
-        const on = places.filter(p => onMapOf(w, p, m[4]));
+        const on = places.filter(p => onMapOf(w, p, mapArg(g, w, m[4])));
         return on.length > 0 && on.every(p => been(p.id));
     }
     const maps = [...new Set(places.map(p => p.map))];

@@ -1,6 +1,6 @@
 import { relOverlays, endConfirmHtml } from './relui.js';
-// Screens for the Life-Sim systems: the elevator of apartment buildings, invitations from people, the shop and
-// goals apps, throwing a party, talking with only one person, and playing as someone else.
+// Screens for the Life-Sim systems: the elevator of apartment buildings, invitations from people, the shop app (the
+// Goals app is ui/goalsui.ts), throwing a party, talking with only one person, and playing as someone else.
 import { currentHappening, answer } from '../sim/happenings.js';
 import { storyHtml } from './storyui.js';
 import { esc, game, toast, notify, saveGame, nowAbs, state } from '../core/store.js';
@@ -21,7 +21,7 @@ import { syncScene } from '../sim/game.js';
 import { houseParty, partyRooms, throwHouseParty, cancelHouseParty, PARTY_HOURS } from '../sim/houseparty.js';
 import { partyExtraHtml, partyCardExtra, partyCardButtons } from './guestsui.js';
 import { rememberOutingBg } from '../sim/outing.js';
-import { shopPrice, shopItems, hasItem, buy, ASPIRATIONS, aspirationOf, setAspiration, lifeOf, pendingInvite, clearInvite, activeFeelings } from '../sim/life.js';
+import { shopPrice, shopItems, hasItem, buy, pendingInvite, clearInvite, activeFeelings } from '../sim/life.js';
 import { thumb, charOf, personaName, personaThumb } from '../st/bridge.js';
 import { swapOf, switchTo, roster } from '../sim/playas.js';
 import { refreshPrompt } from '../sim/prompt.js';
@@ -90,22 +90,11 @@ export function lifeOverlays() {
         return '';
     return `${elevatorHtml()}${storyHtml(g, w) || inviteHtml(g, w) || happeningHtml(g)}${playAsHtml(g)}${transitionHtml()}${relOverlays()}${endConfirmHtml()}`;
 }
-/* ---------- phone apps: shop and goals ---------- */
+/* ---------- phone app: the shop ---------- */
 export function shopApp(g, w, head) {
     return `${head}<div class="mu-ph-body mu-shop">${shopItems(w).map(it => `<article class="mu-shop-item">
         <i>${it.icon}</i><span><b>${esc(it.name)}</b><small>${esc(it.desc)}</small><small class="mu-shop-price">${money(w, shopPrice(g, w, it))}</small></span>
         ${hasItem(g, it.id) ? '<em>Owned</em>' : `<button data-act="shop-buy" data-id="${esc(it.id)}" ${g.player.money >= shopPrice(g, w, it) ? '' : 'aria-disabled="true"'}>Buy</button>`}</article>`).join('')}</div>`;
-}
-export function goalsApp(g, w, head) {
-    const cur = aspirationOf(g);
-    const l = lifeOf(g);
-    const bar = (have, need) => `<span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, (have / need) * 100))}%"></i></span>`;
-    return `${head}<div class="mu-ph-body">
-        ${cur ? (() => { const [h, n] = cur.check(g, w); const done = (l.aspDone ?? []).includes(cur.id); return `<section class="mu-ph-card"><small>Your life goal</small><b>${cur.icon} ${esc(cur.name)}</b><small>${esc(cur.desc)}</small>${bar(h, n)}<small>${done ? 'Reached!' : `${Math.min(h, n).toLocaleString('en-US')} / ${n.toLocaleString('en-US')}`}</small></section>`; })() : '<p class="mu-muted">Pick a life goal. It guides your days, and the story knows about it.</p>'}
-        <h4>Life goals</h4>
-        ${ASPIRATIONS.map(a => `<button class="mu-goal ${cur?.id === a.id ? 'is-on' : ''}" data-act="goal-set" data-id="${esc(a.id)}"><i class="mu-goal-ic">${a.icon}</i><b>${esc(a.name)}</b><small>${esc(a.desc)}</small>${(l.aspDone ?? []).includes(a.id) ? '<em>✓</em>' : ''}</button>`).join('')}
-        <section class="mu-ph-card"><small>You</small><small>Fitness: ${l.fitness}/100${l.study.degree ? ' · Graduated' : l.study.enrolled ? ` · Studying (${l.study.passed}/3 exams)` : ''}</small></section>
-    </div>`;
 }
 // feelings someone has toward you, for her page in People
 export const feelingsHtml = (g, avatar) => { const f = activeFeelings(g, avatar); return f.length ? `<div class="mu-chips">${f.map(x => `<span class="mu-chip">${esc(x.tag)}</span>`).join('')}</div>` : ''; };
@@ -261,8 +250,6 @@ Object.assign(ACT, {
         saveGame();
         notify();
     },
-    'goal-set': (el) => { const g = game(); if (!g)
-        return; setAspiration(g, el.dataset.id); saveGame(); notify(); },
     'hp-go': () => {
         const g = game();
         const w = g && getWorld(g.world);

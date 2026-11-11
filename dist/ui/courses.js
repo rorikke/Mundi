@@ -3,7 +3,7 @@
 import { hobbiesHtml } from './cityui.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { esc, game, notify, saveGame, toast } from '../core/store.js';
-import { getWorld } from '../core/world.js';
+import { getWorld, systemOn } from '../core/world.js';
 import { personaName, personaThumb } from '../st/bridge.js';
 import { money } from '../sim/needs.js';
 import { priceOf } from '../sim/bills.js';
@@ -13,7 +13,9 @@ import { freeOf, capOf, offeredOf, courseOf, learning, enroll, dropCourse, payDu
 import { nudgesFor, aheadCourse } from '../sim/coursenudge.js';
 import { countOf } from '../sim/skills.js';
 import { jobDef, traitsOf, rankOf } from '../sim/work.js';
-import { ASPIRATIONS, lifeOf } from '../sim/life.js';
+import { lifeOf } from '../sim/life.js';
+import { goalsState } from '../sim/goals.js';
+import { perksListHtml } from './goalsui.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 const CS = { open: false, area: '', drop: '' };
@@ -125,23 +127,24 @@ export function profileApp(g, w, head) {
     const groups = TRAIT_GROUPS(w).filter(([k]) => { if (seen.has(k))
         return false; seen.add(k); return (t[k] ?? []).length > 0; });
     const other = Object.keys(t).filter(k => !seen.has(k) && (t[k] ?? []).length);
-    const goals = ASPIRATIONS.filter(a => (life.aspDone ?? []).includes(a.id));
+    // life goals finished (old saves' aspirations were carried over into this list); nothing with the `goals` system off
+    const goalsOn = systemOn(w, 'goals'), goals = goalsOn ? goalsState(g).done.length : 0;
     const taking = takingRows(g, w);
     return `${head}<div class="mu-ph-body mu-profile">
         <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
             <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
-            <span class="mu-pf-stats"><span><b>${traitsOf(g).length}</b><small>traits</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span><span><b>${goals.length}</b><small>goals</small></span><span><b>${Math.round(countOf(g, 'shifts'))}</b><small>shifts</small></span></span></section>
+            <span class="mu-pf-stats"><span><b>${traitsOf(g).length}</b><small>traits</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span>${goalsOn ? `<span><b>${esc(String(goals))}</b><small>goals</small></span>` : ''}<span><b>${Math.round(countOf(g, 'shifts'))}</b><small>shifts</small></span></span></section>
         <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j.rank + 1} of ${o.ranks.length}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
         <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are on the skills list below.</p>
             ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}" ${w.traitInfo?.[x]?.desc ? `title="${esc(w.traitInfo[x].desc)}"` : ''}>${esc(x)}</span>`).join('')}</div>
                 ${(t[k] ?? []).filter(x => w.traitInfo?.[x]?.desc).map(x => `<small class="mu-muted"><b data-notr>${esc(x)}:</b> ${esc(w.traitInfo[x].desc)}</small>`).join('')}</div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
         </section>
+        ${goalsOn ? `<section class="mu-pf-perks"><h4>${icon('heart')} Your perks</h4><p class="mu-muted">What your finished life goals give you, for good. A perk is not a trait: it changes numbers in the game.</p>${perksListHtml(g, w)}</section>` : ''}
         <section><h4>${icon('book')} ${lex(w, 'courses')}</h4>
             ${taking}
             ${l.done.map(id => courseOf(w, id)).filter(Boolean).map(c => `<div class="mu-pf-row"><b>${esc(c.icon)} ${esc(c.name)}</b><small>✓ Finished${taught(w, c) ? ` · ${esc(taught(w, c))}` : ''}</small></div>`).join('')}
             ${!taking && !l.done.length ? `<p class="mu-muted">${lex(w, 'noCourses')}</p>` : ''}
             <button class="mu-primary" data-act="course-open">${icon('plus')}<span>${lex(w, 'browseCourses')}</span></button></section>
-        <section><h4>${icon('heart')} Life goals reached</h4>${goals.map(a => `<div class="mu-pf-row"><b>${esc(a.name)}</b><small>${a.reward ? `Earned: ${esc(a.reward)}` : esc(a.desc)}</small></div>`).join('') || `<p class="mu-muted">${lex(w, 'noGoalYet', appRef(w, 'goals'))}</p>`}</section>
         ${hobbiesHtml(g, w)}
         <section><h4>${icon('bolt')} Activity</h4><small class="mu-muted">Fitness ${life.fitness}/100 · ${countOf(g, 'meals')} meals cooked · ${countOf(g, 'workouts')} good workouts · ${countOf(g, 'parties')} parties</small></section>
     </div>`;
