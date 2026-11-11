@@ -17,9 +17,10 @@ import { placeOf, playerHomeId, travelMinutes } from './places.js';
 import { routineStep, whereNow, workingAt } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom, type Appointment, type PlanKind } from './social.js';
 import { dating } from './feed.js';
-import { shutOut, crushOn, addRomance } from './romance.js';
+import { shutOut, crushOn, addRomance, sysOn } from './romance.js';
 import { romanceBlocked } from './family.js';
-import { touch } from './rel.js';
+import { touch, statusOf, YOU } from './rel.js';
+import { intimacyReady } from './intimacy.js';
 import { holdGrudge, grudgeOf } from './grudges.js';
 import { sawYou } from './warnings.js';
 import { personaName } from '../st/bridge.js';
@@ -253,6 +254,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
         if (ev.moodAt === undefined) ev.moodAt = now;
         else if (hrs > 0) { addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6) * (ev.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1)); ev.moodAt += hrs * 60; }
     }
+    judgeParties(g, s.appts, now);
     // old plans are forgotten after a few days
     s.appts = s.appts.filter(a => a.to > now - 3 * 1440).slice(-40);
     for (const c of [...s.with]) {
@@ -261,6 +263,26 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
         out.push({ text: `${nameOf(c.avatar)} had to go.`, kind: 'info' });
     }
     return out;
+}
+
+// A party at home, once it's over (life goals): how many came (8 or more: a big party), and whether everyone who said
+// yes came (a party everyone loved, 3 guests at least). Its plans are marked (`judged`), so it counts once.
+function judgeParties(g: Save, appts: Appointment[], now: number) {
+    const parties = new Map<number, Appointment[]>();
+    for (const a of appts) if (a.kind === 'party' && a.place === playerHomeId && !(a as any).judged) { const l = parties.get(a.from) ?? []; l.push(a); parties.set(a.from, l); }
+    for (const list of parties.values()) {
+        if (list.some(a => a.state === 'set') || now < Math.max(...list.map(a => a.to))) continue;
+        const came = list.filter(a => a.state === 'met').length, missed = list.some(a => a.state === 'missed');
+        for (const a of list) (a as any).judged = true;
+        if (came >= 8) tallyEvent(g, 'big_party');
+        if (came >= 3 && !missed) tallyEvent(g, 'loved_party');
+    }
+}
+// A night that's more than a sleepover (life goals): with someone you're a couple with, or who is ready to get
+// intimate with you. The AI plays the night; this only says what it could be.
+function nightTogether(g: Save, a: string): boolean {
+    if (!sysOn(g, 'romance') || romanceBlocked(g, a)) return false;
+    return !!statusOf(g, a, YOU) || intimacyReady(g, a, g.cast[a]?.name ?? '').lean === 'yes';
 }
 
 // Before you travel: who comes along (and who stays, like when you head home and she is not that close).
@@ -278,8 +300,12 @@ export function beforeSleep(g: Save): string[] {
     const out: string[] = [];
     const stay = (social(g) as any).stay as { avatar: string; where: string } | null;
     for (const c of [...social(g).with]) {
-        if (stay && stay.avatar === c.avatar && stay.where === g.player.loc) { c.until = Math.max(c.until, nowAbs(g) + 14 * 60); tallyEvent(g, 'overnight', 1, c.avatar); continue; }   // staying the night together
-        if (isPartner(g, c.avatar) && g.player.loc === playerHomeId) { c.until = nowAbs(g) + 12 * 60; continue; }
+        if (stay && stay.avatar === c.avatar && stay.where === g.player.loc) {   // staying the night together
+            c.until = Math.max(c.until, nowAbs(g) + 14 * 60); tallyEvent(g, 'overnight', 1, c.avatar);
+            if (nightTogether(g, c.avatar)) tallyEvent(g, 'night_together', 1, c.avatar);
+            continue;
+        }
+        if (isPartner(g, c.avatar) && g.player.loc === playerHomeId) { c.until = nowAbs(g) + 12 * 60; if (nightTogether(g, c.avatar)) tallyEvent(g, 'night_together', 1, c.avatar); continue; }
         letGo(g, c.avatar);
         out.push(`${g.cast[c.avatar]?.name ?? ''} went home.`);
     }
