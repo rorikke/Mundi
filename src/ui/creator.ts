@@ -13,7 +13,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, INTIMATE_ROLES, INTIMATE_DRIVES } from '../core/world.js';
+import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank } from '../core/world.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
 
@@ -1415,19 +1415,10 @@ function peopleEditor(w: WorldDef) {
                 ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${esc(i)}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
-                ${love ? intimFields(i, e) : ''}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
         }, 'person', 'Nobody lives here yet.')}
         <button class="mu-ghost" data-act="cw-rnd-all">${icon('redo')}<span>Shuffle everyone's job, home and routine</span></button></section>`;
-}
-// (adult) Who leads in bed and how often they want it, on a person's intimate profile (matched against the player's In
-// bed trait; when they're ready again, start wanting you, or get frustrated). Unset: no role, an average drive.
-const ROLE_NAMES: Record<string, string> = { lead: 'Leads', follow: 'Follows', switch: 'Either (switch)' };
-const DRIVE_NAMES: Record<string, string> = { low: 'Low', average: 'Average', high: 'High' };
-function intimFields(i: number, e: WorldDef['cast']['examples'][number]) {
-    const one = (f: 'role' | 'drive', label: string, opts: Opt[]) => `<label class="mu-field"><span>${label}</span><select data-input="cw-intim" data-i="${esc(i)}" data-f="${f}" data-path="${esc(`cast.examples.${i}.intimate.${f}`)}">${opts.map(([v, l]) => `<option value="${esc(v)}" ${(e.intimate?.[f] ?? '') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
-    return `<div class="mu-row2 mu-cw-intim">${one('role', `In bed ${ADULT}`, [['', '(not said)'], ...INTIMATE_ROLES.map(r => [r, ROLE_NAMES[r] ?? r] as Opt)])}${one('drive', `Drive ${ADULT}`, [['', '(not said: average)'], ...INTIMATE_DRIVES.map(d => [d, DRIVE_NAMES[d] ?? d] as Opt)])}</div>`;
 }
 // (adult) The plain likes and hard limits people made in the game draw their intimate profiles from (a private overlay
 // replaces each list with its own).
@@ -1463,7 +1454,8 @@ SCOPES.cw = {
         if (p?.pace) e.pace = p.pace;
         if (p?.style) e.style = p.style;
         if (p?.intimacy) e.intimacy = p.intimacy;
-        // (adult) the intimate profile only when the panel changed it: one never opened stays exactly as the file has it
+        // (adult) the intimate profile (and the panel's role and drive) only when the panel changed it: one never touched stays
+        // exactly as the file has it
         if (canon(cleanIntimate(e.intimate)) !== canon(p?.intimate)) { if (p?.intimate) e.intimate = p.intimate; else delete e.intimate; }
         CW.dirty = true;
     },
@@ -1969,13 +1961,6 @@ Object.assign(INPUT, {
         const t = getPath(el.dataset.path!), o = getPath(el.dataset.job!); if (!t || !o) return;
         if ((el as HTMLInputElement).checked) { t.ranks = structuredClone(o.ranks ?? []); if (o.promote) t.promote = structuredClone(o.promote); if (o.branches) t.branches = structuredClone(o.branches); }
         else { delete t.ranks; delete t.promote; delete t.branches; }
-        CW.dirty = true; notify();
-    },
-    // (adult) who leads and how often they want it, on a person's intimate profile (an emptied profile goes)
-    'cw-intim': (el) => {
-        const e: any = W().cast.examples[Number(el.dataset.i)]; const f = el.dataset.f!; if (!e || !['role', 'drive'].includes(f)) return;
-        const i = { ...(e.intimate ?? {}) }; if (el.value) i[f] = el.value; else delete i[f];
-        if (Object.keys(i).length) e.intimate = i; else delete e.intimate;
         CW.dirty = true; notify();
     },
     // a strengths group on or off (strengthsEditor)
