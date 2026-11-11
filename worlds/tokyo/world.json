@@ -940,6 +940,28 @@
      "seen": "People at {0} kept away from {u}, who badly needed a wash."
     }
    }
+  },
+  {
+   "id": "desire",
+   "name": "Desire",
+   "icon": "🔥",
+   "color": "#e0457b",
+   "start": 60,
+   "max": 100,
+   "hud": true,
+   "adult": true,
+   "decay": {
+    "amount": 1,
+    "everyMinutes": 72
+   },
+   "zero": {
+    "text": "You are restless and distracted; your thoughts keep drifting.",
+    "drain": {
+     "status": "mood",
+     "amount": 2,
+     "everyMinutes": 180
+    }
+   }
   }
  ],
  "actions": [
@@ -2675,7 +2697,10 @@
    ],
    "fact": "{u} took a room for a rest at {0}",
    "place": "sb_lovehotel",
-   "adult": true
+   "adult": true,
+   "tags": [
+    "lovehotel"
+   ]
   },
   {
    "id": "sb_lovehotel_movie",
@@ -2709,7 +2734,10 @@
    ],
    "fact": "{u} had a movie night with friends at {0}",
    "place": "sb_lovehotel",
-   "adult": true
+   "adult": true,
+   "tags": [
+    "lovehotel"
+   ]
   },
   {
    "id": "sj_station_bento",
@@ -6073,7 +6101,8 @@
    "minutes": 120,
    "effects": {
     "mood": 10,
-    "energy": 5
+    "energy": 5,
+    "desire": 50
    },
    "together": {
     "needed": true,
@@ -6081,11 +6110,13 @@
    },
    "outcomes": [
     {
+     "id": "shoulder",
      "weight": 90,
      "text": "Shoulder to shoulder over the same volume.",
      "effects": {}
     },
     {
+     "id": "doze",
      "weight": 10,
      "text": "You both doze off and wake to a polite knock.",
      "effects": {
@@ -6096,7 +6127,22 @@
    ],
    "fact": "{u} shared a couple's booth at {0}",
    "place": "ak_mangacafe",
-   "private": true
+   "private": true,
+   "adult": true,
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "trains": "sensuality",
+   "tags": [
+    "private",
+    "exhib"
+   ]
   },
   {
    "id": "ak_myojin_omikuji",
@@ -10358,7 +10404,8 @@
    "place": "rp_poleclub",
    "effects": {
     "mood": 8,
-    "energy": -3
+    "energy": -3,
+    "desire": 10
    },
    "when": "period: night or latenight",
    "together": {
@@ -11887,6 +11934,7 @@
    },
    "outcomes": [
     {
+     "id": "cedar",
      "weight": 80,
      "text": "A cedar tub, a window onto the dark garden and the quiet to talk or not talk.",
      "effects": {
@@ -11894,17 +11942,26 @@
      }
     },
     {
+     "id": "latch",
      "weight": 20,
      "text": "Nobody comes for fifty minutes; the latch stays on, and what happens in the bath stays in the bath.",
-     "when": "companion: dating",
      "effects": {
       "mood": 8
-     }
+     },
+     "when": "companion: dating"
     }
    ],
    "fact": "{u} booked the private bath at {0}",
    "tags": [
-    "bath"
+    "bath",
+    "private"
+   ],
+   "dc": 11,
+   "matches": [
+    "bath",
+    "baths",
+    "hot-spring",
+    "yukata"
    ]
   },
   {
@@ -12430,6 +12487,387 @@
     }
    ],
    "fact": "{u} prayed at {0}"
+  },
+  {
+   "id": "priv_talk_likes",
+   "name": "Pillow talk",
+   "label": "Talk quietly afterward",
+   "icon": "💬",
+   "cost": 0,
+   "minutes": 20,
+   "anywhere": true,
+   "effects": {
+    "mood": 3
+   },
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo; companion: crush or casual",
+   "together": {
+    "needed": true,
+    "text": "a few quiet minutes together afterward, talking about what each of you likes"
+   },
+   "outcomes": [
+    {
+     "id": "talk",
+     "weight": 60,
+     "text": "You talk in low voices about what you like, and what you would rather not."
+    },
+    {
+     "id": "laugh",
+     "weight": 40,
+     "text": "Neither of you can keep a straight face, and you learn more than you meant to.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} talked quietly with someone afterward at {0}",
+   "adult": true,
+   "tags": [
+    "pillow-talk"
+   ]
+  },
+  {
+   "id": "priv_home_solo",
+   "name": "Alone",
+   "label": "Take time to yourself",
+   "icon": "🛋️",
+   "cost": 0,
+   "minutes": 20,
+   "home": true,
+   "effects": {
+    "mood": 3,
+    "desire": 30
+   },
+   "when": "period: evening or night or latenight; companion: not yes",
+   "outcomes": [
+    {
+     "id": "quiet",
+     "weight": 100,
+     "text": "You take your time; nobody is watching, and the evening settles."
+    }
+   ],
+   "fact": "{u} spent some time alone at home",
+   "adult": true,
+   "tags": [
+    "solo"
+   ]
+  },
+  {
+   "id": "priv_home_lapdance",
+   "name": "Lap dance",
+   "label": "Dance for them",
+   "icon": "💃",
+   "cost": 0,
+   "minutes": 30,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": -8,
+    "desire": 50
+   },
+   "when": "skill: dance 3; companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 12,
+   "matches": [
+    "dancing",
+    "lap dances",
+    "being watched",
+    "costumes"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a private dance at home for someone you trust, the lights low"
+   },
+   "outcomes": [
+    {
+     "id": "slow",
+     "weight": 60,
+     "text": "The music is low and the room is small; you dance as if only the two of you existed."
+    },
+    {
+     "id": "laugh",
+     "weight": 25,
+     "text": "You lose the beat, and both of you laugh until the song ends.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "close",
+     "weight": 15,
+     "text": "They watch without a word, and the song is over before either of you notices.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} danced for someone at home",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_massage_full",
+   "name": "Full oil massage",
+   "label": "Give a full oil massage",
+   "icon": "💆",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "places": [
+    "sb_lovehotel",
+    "hk_ryokan"
+   ],
+   "effects": {
+    "mood": 10,
+    "energy": 10,
+    "desire": 50
+   },
+   "when": "course: massage; companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "massage",
+    "pampered",
+    "being taken care of",
+    "being cared for"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a long oil massage for someone close, from the shoulders down, slow and unhurried"
+   },
+   "outcomes": [
+    {
+     "id": "long",
+     "weight": 60,
+     "text": "Shoulders, back, the knots from a week at a desk; the hour goes by without either of you noticing."
+    },
+    {
+     "id": "asleep",
+     "weight": 40,
+     "text": "They fall asleep halfway through, warm and relaxed, and you let them.",
+     "effects": {
+      "mood": 3,
+      "energy": 8
+     }
+    }
+   ],
+   "fact": "{u} gave someone a full oil massage at {0}",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "massage"
+   ]
+  },
+  {
+   "id": "priv_home_three",
+   "name": "Three of you",
+   "label": "Spend the night with two lovers",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -12,
+    "desire": 50
+   },
+   "when": "companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 12,
+   "matches": [
+    "two lovers",
+    "a third person",
+    "sharing"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a night at home with two lovers who are both comfortable with it"
+   },
+   "outcomes": [
+    {
+     "id": "night",
+     "weight": 70,
+     "text": "The three of you spend the night together, and the apartment is quiet and warm by morning."
+    },
+    {
+     "id": "laugh",
+     "weight": 30,
+     "text": "Nobody quite knows where to sit at first; by midnight nobody remembers why that mattered.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent a night with two lovers at home",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_office_late",
+   "name": "After hours",
+   "label": "Stay late together at your desk",
+   "icon": "🏢",
+   "cost": 0,
+   "minutes": 40,
+   "place": "mg_tower",
+   "places": [
+    "sb_startup"
+   ],
+   "effects": {
+    "mood": 12,
+    "energy": -8,
+    "desire": 50
+   },
+   "when": "job: here; period: night or latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "risk": 0.2,
+   "dc": 13,
+   "matches": [
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a colleague you are close to, an office after hours, and a cleaner who may come by"
+   },
+   "outcomes": [
+    {
+     "id": "quiet",
+     "weight": 70,
+     "text": "The floor is dark except for your desk lamp, and every sound in the corridor makes you both freeze."
+    },
+    {
+     "id": "close",
+     "weight": 30,
+     "text": "A lift chimes somewhere below; you wait, breathing, until it goes quiet again.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} stayed late at the office with someone",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "priv_park_night",
+   "name": "Park after dark",
+   "label": "Slip into the park after dark",
+   "icon": "🌳",
+   "cost": 0,
+   "minutes": 40,
+   "place": "sb_yoyogi",
+   "effects": {
+    "mood": 12,
+    "energy": -8,
+    "desire": 50
+   },
+   "when": "season: summer; period: night or latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a dark corner of the park on a warm night, with a patrol that may pass"
+   },
+   "outcomes": [
+    {
+     "id": "dark",
+     "weight": 70,
+     "text": "Cicadas, a distant torch and a bench in the dark; you keep your voices low and your hands to yourselves for as long as you can."
+    },
+    {
+     "id": "wait",
+     "weight": 30,
+     "text": "A jogger passes and you both hold still, grinning, until the footsteps fade.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} slipped into a park after dark with someone",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "priv_ryokan_rotenburo",
+   "name": "The shared bath",
+   "label": "Share the open-air bath",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 50,
+   "place": "hk_ryokan",
+   "effects": {
+    "hygiene": 40,
+    "energy": 5,
+    "mood": 12,
+    "desire": 50
+   },
+   "when": "period: latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "risk": 0.1,
+   "dc": 13,
+   "matches": [
+    "bath",
+    "baths",
+    "hot-spring",
+    "yukata",
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the ryokan's open-air bath after midnight, steam, a bamboo fence and a staff member who may walk by"
+   },
+   "outcomes": [
+    {
+     "id": "steam",
+     "weight": 70,
+     "text": "Steam, a bamboo fence and stars between the clouds; you keep quiet because a door could open at any time."
+    },
+    {
+     "id": "door",
+     "weight": 30,
+     "text": "A sliding door rattles somewhere; you both go still in the water, and then laugh at yourselves.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} shared the open-air bath at {0} after midnight",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "exhib"
+   ]
   }
  ],
  "sleep": {
@@ -12554,8 +12992,14 @@
      },
      "Tech-savvy": {
       "gaming": 3
+     },
+     "Good in bed": {
+      "sensuality": 3
      }
-    }
+    },
+    "adultOptions": [
+     "Good in bed"
+    ]
    },
    {
     "id": "personality",
@@ -12573,7 +13017,11 @@
      "Lazy",
      "Curious",
      "Sarcastic",
-     "Kind"
+     "Kind",
+     "Flirtatious"
+    ],
+    "adultOptions": [
+     "Shameless"
     ]
    },
    {
@@ -12593,7 +13041,32 @@
      "Karaoke",
      "Sports",
      "Travel"
+    ],
+    "adultOptions": [
+     "Kink"
     ]
+   },
+   {
+    "id": "inbed",
+    "label": "In bed",
+    "max": 1,
+    "options": [
+     "Leads",
+     "Follows",
+     "Switch"
+    ],
+    "adult": true
+   },
+   {
+    "id": "drive",
+    "label": "Drive",
+    "max": 1,
+    "options": [
+     "Low drive",
+     "Average drive",
+     "High drive"
+    ],
+    "adult": true
    }
   ]
  },
@@ -12841,6 +13314,41 @@
     "length": 0.25,
     "at": "ak_university",
     "when": "weekday: mon or tue or thu or fri; clock: 18:30-20:30"
+   },
+   {
+    "id": "pole",
+    "name": "Pole dance classes",
+    "area": "Arts",
+    "days": 14,
+    "cost": 55000,
+    "grants": [],
+    "icon": "🧘",
+    "desc": "A season of classes at Pole Star in the afternoons before it opens: spins, climbs and holds, taught as a sport. The dancer job asks for it, and it opens a private dance at home.",
+    "skills": {
+     "dance": 3,
+     "fitness": 2,
+     "sensuality": 1
+    },
+    "length": 0.25,
+    "at": "rp_poleclub",
+    "when": "weekday: tue or thu or fri or sat; clock: 14:00-16:00",
+    "adult": true
+   },
+   {
+    "id": "massage",
+    "name": "Sensual massage course",
+    "area": "Service",
+    "days": 14,
+    "cost": 65000,
+    "grants": [],
+    "icon": "💆",
+    "desc": "Theory online and practice at home: oils, touch and listening to a body. The esthe job asks for it, and it opens a full oil massage for someone close.",
+    "skills": {
+     "sensuality": 2,
+     "charisma": 1
+    },
+    "length": 0.25,
+    "adult": true
    },
    {
     "id": "mixology",
@@ -13306,6 +13814,13 @@
    "name": "Gaming",
    "icon": "🎮",
    "desc": "Reflexes, strategy and patience with a controller."
+  },
+  {
+   "id": "sensuality",
+   "name": "Sensuality",
+   "icon": "🕯️",
+   "desc": "Ease and attentiveness with a partner: reading them, patience and confidence. It makes private moments go better.",
+   "adult": true
   }
  ],
  "festivals": [
@@ -14370,6 +14885,57 @@
    "daily": {
     "mood": -2
    }
+  },
+  {
+   "id": "h_lover",
+   "name": "An active love life",
+   "trait": "Active love life",
+   "desc": "A private moment with someone five times in a week.",
+   "actions": [
+    "ak_mangacafe_couple",
+    "hk_ryokan_private",
+    "priv_home_lapdance",
+    "priv_massage_full",
+    "priv_home_three",
+    "priv_office_late",
+    "priv_park_night",
+    "priv_ryokan_rotenburo"
+   ],
+   "count": 5,
+   "days": 7,
+   "daily": {
+    "mood": 2
+   },
+   "learn": "sensuality",
+   "adult": true
+  },
+  {
+   "id": "h_nightworld",
+   "name": "Kabukichō regular",
+   "trait": "Night-world regular",
+   "desc": "A night at a host club, hostess lounge or other night club four times in a week.",
+   "actions": [
+    "sj_hostclub_first",
+    "sj_hostclub_nominate",
+    "sj_hostclub_bottle",
+    "sj_hostclub_kaname",
+    "sj_hostess_set",
+    "sj_hostess_sing",
+    "sj_hostess_bottle",
+    "sj_hostess_mama",
+    "yk_hostess_sit",
+    "yk_hostess_duet",
+    "yk_hostess_bottle",
+    "rp_poleclub_show",
+    "rp_poleclub_tip"
+   ],
+   "count": 4,
+   "days": 7,
+   "daily": {
+    "energy": -3
+   },
+   "learn": "charisma",
+   "adult": true
   }
  ],
  "features": {
@@ -14524,6 +15090,7 @@
    "content": "Karaoke in Tokyo is a private room by the hour, not a stage: a touchscreen, a tambourine, a drink bar, food ordered by phone. \"Free time\" is an open-ended slot; the all-night pack runs from about 23:00 to the first train. Hitokara, singing alone, is normal. Nobody listens through the door."
   },
   {
+   "id": "lovehotel_general",
    "keys": [
     "love hotel",
     "love hotels",
@@ -14889,48 +15456,56 @@
    "rumor": true
   },
   {
+   "id": "lovehotel_afternoon",
    "when": "place: sb_lovehotel; period: afternoon",
    "content": "Afternoon \"rest\" hours are busy: cleaners turn rooms in minutes, couples slip in and out at staggered times, and the discretion is the whole service.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_night",
    "when": "place: sb_lovehotel; period: night",
    "content": "The \"stay\" rate starts around 22:00 and runs to eleven next morning; lit room photos on the panel go dark one by one as the rooms fill.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_queue",
    "when": "place: sb_lovehotel; weekend: yes; period: evening",
    "content": "On Fridays and Saturdays there's a short queue in the lobby of people not looking at each other; the staff keep it quiet and quick.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_woke",
    "when": "stayed: sb_lovehotel",
    "content": "{{user}} woke in a quiet room behind thick curtains; check-out isn't until eleven, so there is no hurry to get up.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_theme",
    "when": "stayed: sb_lovehotel",
    "content": "The themed room {{user}} slept in has a starlit ceiling, and {{user}} lay looking up at it for a long time this morning.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_breakfast",
    "when": "stayed: sb_lovehotel",
    "content": "Breakfast came through a hatch in the door this morning; {{user}} and anyone with {{user}} never saw a face.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_rain",
    "when": "place: sb_lovehotel; weather: rain",
    "content": "Rainy nights fill up fast, since missed last trains push couples and friends in. The staff leave a basket of umbrellas by the door.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_movie",
    "when": "place: sb_lovehotel; weekend: yes; period: evening or night",
    "content": "Groups of friends also book rooms for movie nights: a big screen, a large bath, take-out and a karaoke set. The staff don't mind, and nothing romantic is expected.",
    "keys": [],
@@ -18412,18 +18987,21 @@
    "adult": true
   },
   {
+   "id": "pole_class",
    "when": "place: rp_poleclub; weekday: wed or sat; period: afternoon",
    "content": "Class afternoons: the poles are chalked, the music is a metronome, and office workers, a retired ballet teacher and friends in borrowed shorts all take turns at the first spin. The class is part of the club, so it is adult only.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "pole_momo",
    "when": "place: rp_poleclub; weekday: wed; period: afternoon; present: Momo",
    "content": "Momo Sakuraba, tall and athletic from years of volleyball, is in the front row of the class, apologizing every time she slips and getting back up grinning. Lisa Morimoto cheers her on by name.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "pole_lisa",
    "when": "place: rp_poleclub; weekday: wed or sat; period: afternoon; present: Lisa",
    "content": "Lisa Morimoto runs the pole-fitness class herself on class afternoons: chalk on her hands, a loud count, and no mercy for anyone who skips the warm-up.",
    "keys": [],
@@ -19314,6 +19892,7 @@
    "adult": true
   },
   {
+   "id": "av_airi",
    "keys": [
     "Airi",
     "Airi Mizusawa"
@@ -19330,12 +19909,60 @@
    "adult": true
   },
   {
+   "id": "av_momo",
    "keys": [
     "Momo",
     "Momo Sakuraba"
    ],
    "content": "She works as an AV actress: contracts, shoots away from any map, the stigma, the fear of her family finding out. All of it is off-screen.",
    "adult": true
+  },
+  {
+   "id": "esthe_general",
+   "keys": [
+    "esthe",
+    "men's esthe",
+    "aroma massage",
+    "Aroma Room Lily",
+    "therapist"
+   ],
+   "adult": true,
+   "content": "Men's esthe is aroma-oil massage for men, given by women therapists in rooms in ordinary apartment buildings and sold as relaxation. Its mirror, women's services, books male therapists who go out to hotels. Both live on review sites and rankings, and in a gray zone: whether a shop keeps to treatment alone is the manager's choice."
+  },
+  {
+   "id": "esthe_room",
+   "when": "place: sj_esthe; period: afternoon or evening",
+   "keys": [],
+   "adult": true,
+   "content": "Aroma Room Lily has one treatment room behind a curtain and a bell on the door. The manager keeps a wall chart of therapists' names and bookings, and a ranking printout from the review site is pinned beside it."
+  },
+  {
+   "id": "esthe_night",
+   "when": "place: sj_esthe; period: night",
+   "keys": [],
+   "adult": true,
+   "content": "Late bookings are the busiest: customers off the last shift, a therapist changing the towels between rooms, the diffuser running whatever the hour. Nobody speaks above a murmur in the corridor."
+  },
+  {
+   "id": "massage_course",
+   "keys": [
+    "massage course",
+    "oil massage",
+    "sensual massage"
+   ],
+   "adult": true,
+   "content": "The massage course is a season of theory online and practice at home: oils, pressure, posture and listening to a body. Spas and aroma salons ask for it, and without it a shop may charge a newcomer a \"training fee\"."
+  },
+  {
+   "id": "av_actors",
+   "keys": [
+    "AV actor",
+    "male performers",
+    "extra",
+    "casting director"
+   ],
+   "adult": true,
+   "content": "In the video industry actresses are scouted and in demand, while male performers are few. Most start as barely paid extras, wait for hours between takes and are called back only if they are reliable on cue. Studios hire men by introduction, and the pay is a fraction of an actress's."
   }
  ],
  "places": [
@@ -19668,7 +20295,8 @@
    "map": "shibuya",
    "tags": [
     "service",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a pastel-lit hotel on the hill behind Center Gai, with an anonymous entrance, a panel of lit room photos in the lobby and a small window where the clerk speaks but is never seen",
    "staff": "a clerk watching a screen and speaking through the window, cleaners with carts, couples who don't meet anyone's eyes",
@@ -19750,7 +20378,8 @@
    "map": "shinjuku",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a host club behind a black glass door: portrait boards of smiling men in suits out front; inside mirrors, chandeliers, deep sofas and champagne calls that stop the room",
    "staff": "hosts in dark suits rotating between tables; a floor captain; a doorman; women guests alone or in pairs",
@@ -19780,7 +20409,8 @@
    "map": "shinjuku",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a hostess lounge on a fourth floor: low lights, deep sofas, bottles with name tags on the shelves, hostesses in evening dresses pouring drinks for company men",
    "staff": "hostesses in evening dresses; the mama circulating between tables; a bartender; company men in loosened ties",
@@ -19801,6 +20431,35 @@
    "y": 37.91,
    "sound": [
     "bar"
+   ]
+  },
+  {
+   "id": "sj_esthe",
+   "name": "Aroma Room Lily",
+   "map": "shinjuku",
+   "tags": [
+    "service",
+    "work"
+   ],
+   "desc": "a one-room aroma massage salon on the sixth floor of an ordinary apartment building: a reception sofa, a treatment bed behind a curtain, oil bottles on a shelf and a hand-lettered price list",
+   "staff": "the manager at a small desk; a therapist between bookings; customers who come and go without meeting anyone's eye",
+   "crowd": 0.6,
+   "closed": [
+    "firsttrain",
+    "rush",
+    "midmorning"
+   ],
+   "open": [
+    12,
+    24
+   ],
+   "generic": false,
+   "adult": true,
+   "bg": "bg/sj_esthe.avif",
+   "x": 66.4,
+   "y": 34.2,
+   "sound": [
+    "water"
    ]
   },
   {
@@ -21731,7 +22390,8 @@
    "map": "roppongi",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a basement stage with three chrome poles under blue light, a bar and low tables, and house rules posted by the door: watch, tip, don't touch; dancers here are athletes in sport costumes",
    "staff": "a bouncer at the door; a bartender; the house manager; dancers off stage with towels and water bottles; quiet regulars",
@@ -21909,7 +22569,8 @@
    "tags": [
     "service",
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a hostess club on the second floor of an Isezaki building: eight velvet sofas, a faded hibiscus mural, a karaoke screen, and a mama who greets every guest by name",
    "staff": "a young bartender, four hostesses on a quiet night, a doorman in a vest, a regular nursing one bottle",
@@ -22783,6 +23444,46 @@
       "mood": -2
      },
      "fact": "{u} walked past a crying woman in {0}"
+    }
+   ]
+  },
+  {
+   "id": "sj_av_scout",
+   "place": "sj_kabukicho",
+   "when": "skill: sensuality 3; period: evening or night or latenight",
+   "adult": true,
+   "setup": "Under the red neon gate a man in a black jacket with a lanyard looks over the passers-by, a stack of cards in his hand. He is a casting director for an adult video studio, short of male performers, and he picks people out by how they stand and what their eyes do. He is looking at {{user}} now.",
+   "choices": [
+    {
+     "id": "card",
+     "label": "Take his card",
+     "text": "He gives a short nod: \"Call if you are serious. We pay little at first, and we are patient.\" The card is plain, with a studio name and a number.",
+     "keepsake": "av_director_card",
+     "effects": {
+      "mood": 2
+     },
+     "fact": "{u} took a casting director's card in {0}"
+    },
+    {
+     "id": "ask",
+     "label": "Ask what the work involves",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "He answers plainly: long waits, being on cue, small pay at the start. He leaves you a card anyway.",
+     "keepsake": "av_director_card",
+     "fail": {
+      "text": "He gives a polite, practiced answer that tells you nothing, then smiles and moves on to the next person."
+     }
+    },
+    {
+     "id": "walk",
+     "label": "Walk on",
+     "text": "You shake your head and keep walking. He is already looking past you at the next person, the cards fanned in his hand.",
+     "effects": {
+      "mood": 1
+     }
     }
    ]
   },
@@ -25972,6 +26673,15 @@
     "Ren",
     "Haru"
    ]
+  },
+  {
+   "id": "av_director_card",
+   "name": "A director's card",
+   "icon": "🪪",
+   "kind": "card",
+   "gift": false,
+   "adult": true,
+   "desc": "A plain card with a studio name and a phone number: an introduction to the video industry for a man who can perform on cue."
   }
  ],
  "occupations": [
@@ -27332,7 +28042,9 @@
    "likes": [
     "Outgoing",
     "Romantic",
-    "Ambitious"
+    "Ambitious",
+    "Flirtatious",
+    "Shameless"
    ],
    "trains": [
     "charisma",
@@ -27510,7 +28222,10 @@
      ]
     }
    ],
-   "adult": true
+   "adult": true,
+   "tags": [
+    "nightwork"
+   ]
   },
   {
    "id": "hostess",
@@ -27534,7 +28249,8 @@
    "likes": [
     "Kind",
     "Romantic",
-    "Nightlife"
+    "Nightlife",
+    "Flirtatious"
    ],
    "trains": [
     "charisma",
@@ -27763,7 +28479,10 @@
      ]
     }
    ],
-   "adult": true
+   "adult": true,
+   "tags": [
+    "nightwork"
+   ]
   },
   {
    "id": "bartender",
@@ -27783,7 +28502,8 @@
    "likes": [
     "Calm",
     "Sarcastic",
-    "Nightlife"
+    "Nightlife",
+    "Flirtatious"
    ],
    "trains": [
     "mixology",
@@ -33295,7 +34015,8 @@
    "likes": [
     "Hot-headed",
     "Outgoing",
-    "Nightlife"
+    "Nightlife",
+    "Flirtatious"
    ],
    "trains": [
     "mixology",
@@ -33529,21 +34250,29 @@
    "likes": [
     "Hot-headed",
     "Cheerful",
-    "Music"
+    "Music",
+    "Shameless"
    ],
    "trains": [
     "dance",
     "fitness",
-    "charisma"
+    "charisma",
+    "sensuality"
    ],
    "ranks": [
+    {
+     "name": "Pole class student",
+     "pay": 1200,
+     "student": true
+    },
     {
      "name": "Trainee",
      "pay": 1500,
      "needs": {
       "dance": 2,
       "fitness": 2
-     }
+     },
+     "course": "pole"
     },
     {
      "name": "Stage dancer",
@@ -33565,13 +34294,14 @@
      "pay": 2700,
      "needs": {
       "dance": 5,
-      "charisma": 3
+      "charisma": 3,
+      "sensuality": 2
      }
     }
    ],
    "branches": [
     {
-     "at": 4,
+     "at": 5,
      "options": [
       {
        "id": "headliner",
@@ -33738,7 +34468,389 @@
       }
      ]
     }
+   ],
+   "tags": [
+    "adult-stage"
+   ],
+   "promote": [
+    25,
+    7,
+    10,
+    13
+   ],
+   "shifted": [
+    "student-rank"
+   ],
+   "courses": [
+    "pole"
    ]
+  },
+  {
+   "id": "esthe",
+   "name": "Esthe therapist",
+   "place": "sj_esthe",
+   "adult": true,
+   "schedule": {
+    "days": 4,
+    "from": 12,
+    "to": 24
+   },
+   "hours": [
+    12,
+    24
+   ],
+   "shift": 6,
+   "length": 0.8,
+   "courses": [
+    "massage"
+   ],
+   "likes": [
+    "Nightlife",
+    "Sports",
+    "Shameless"
+   ],
+   "trains": [
+    "sensuality",
+    "charisma"
+   ],
+   "ranks": [
+    {
+     "name": "Trainee therapist",
+     "pay": 1800,
+     "student": true
+    },
+    {
+     "name": "Therapist",
+     "pay": 2300,
+     "course": "massage",
+     "needs": {
+      "sensuality": 2,
+      "charisma": 1
+     }
+    },
+    {
+     "name": "Popular therapist",
+     "pay": 2900,
+     "needs": {
+      "sensuality": 3,
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Ranked therapist",
+     "pay": 3600,
+     "needs": {
+      "sensuality": 5,
+      "charisma": 3
+     }
+    }
+   ],
+   "promote": [
+    8,
+    7,
+    10
+   ],
+   "shifted": [
+    "student-rank"
+   ],
+   "events": [
+    {
+     "id": "esthe_ev_line",
+     "setup": "A regular customer asks, quietly, whether there is an \"option\" the shop does not list.",
+     "choices": [
+      {
+       "id": "clean",
+       "label": "Keep it clean",
+       "money": 1000,
+       "perf": 0,
+       "text": "He tips a little, and sometimes leaves a bad review."
+      },
+      {
+       "id": "more",
+       "label": "Offer a little more",
+       "roll": {
+        "skill": "sensuality",
+        "dc": 12
+       },
+       "money": 15000,
+       "perf": 2,
+       "text": "He pays well and the review glows. The manager pretends not to notice.",
+       "fact": "{u} offered a customer an unlisted option at work",
+       "fail": {
+        "text": "A manager's phone buzzes: someone says a check is coming this week. You keep your head down.",
+        "perf": -2,
+        "effects": {
+         "mood": -5
+        }
+       }
+      },
+      {
+       "id": "refuse",
+       "label": "Refuse firmly",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 1,
+       "text": "He apologizes, a little ashamed, and books again.",
+       "fail": {
+        "text": "He complains to the front desk, and the manager takes his side.",
+        "perf": -2
+       }
+      }
+     ]
+    },
+    {
+     "id": "esthe_ev_regular",
+     "setup": "Someone books you every week and asks for you by name.",
+     "choices": [
+      {
+       "id": "glad",
+       "label": "Be glad of it",
+       "money": 3000,
+       "perf": 2,
+       "text": "A steady booking and a steady tip: the shop notices."
+      },
+      {
+       "id": "pass",
+       "label": "Suggest another therapist",
+       "perf": -1,
+       "text": "He nods, a little hurt, and books somebody else."
+      },
+      {
+       "id": "raise",
+       "label": "Ask the manager for more",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "money": 2000,
+       "perf": 1,
+       "text": "The manager adds a small bonus for the repeat customer.",
+       "fail": {
+        "text": "The manager says the bookings are the shop's, not yours.",
+        "perf": 0
+       }
+      }
+     ]
+    }
+   ],
+   "tracks": {
+    "woman": {
+     "name": "Men's esthe",
+     "events": [
+      {
+       "id": "esthe_ev_ranking",
+       "setup": "The review site posts its monthly ranking, and the shop wants a photo diary from each therapist.",
+       "choices": [
+        {
+         "id": "diary",
+         "label": "Post a careful diary",
+         "roll": {
+          "skill": "charisma",
+          "dc": 12
+         },
+         "perf": 2,
+         "text": "Your diary climbs the ranking, and bookings follow for a week.",
+         "boost": {
+          "effects": [
+           {
+            "kind": "pay",
+            "target": "esthe",
+            "value": 0.15
+           }
+          ],
+          "days": 7
+         },
+         "fail": {
+          "text": "The diary sinks without a trace.",
+          "perf": 0
+         }
+        },
+        {
+         "id": "simple",
+         "label": "Post one plain photo",
+         "perf": 0,
+         "text": "Nobody notices, and nobody minds."
+        },
+        {
+         "id": "skip",
+         "label": "Skip it this month",
+         "perf": -1,
+         "text": "The manager marks it down."
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_stalker",
+       "setup": "A customer is waiting by the building door after your shift, pretending to read his phone.",
+       "choices": [
+        {
+         "id": "manager",
+         "label": "Ask the manager to ban him",
+         "perf": 0,
+         "text": "The manager walks him off the property and he does not come back."
+        },
+        {
+         "id": "talk",
+         "label": "Talk to him calmly",
+         "roll": {
+          "skill": "charisma",
+          "dc": 13
+         },
+         "perf": 1,
+         "text": "He apologizes and leaves.",
+         "fail": {
+          "text": "He follows you to the station before he gives up.",
+          "effects": {
+           "mood": -5
+          }
+         }
+        },
+        {
+         "id": "exit",
+         "label": "Leave by the back stairs",
+         "perf": 0,
+         "text": "You are on the train before he looks up."
+        }
+       ]
+      }
+     ]
+    },
+    "man": {
+     "name": "Women's services",
+     "ranks": [
+      {
+       "name": "Newcomer",
+       "pay": 1000,
+       "days": 2,
+       "student": true,
+       "needs": {
+        "sensuality": 3,
+        "charisma": 2
+       }
+      },
+      {
+       "name": "Therapist",
+       "pay": 1600,
+       "days": 3,
+       "course": "massage",
+       "needs": {
+        "sensuality": 5,
+        "charisma": 3
+       }
+      },
+      {
+       "name": "Popular therapist",
+       "pay": 2400,
+       "days": 4,
+       "needs": {
+        "sensuality": 6,
+        "charisma": 4
+       },
+       "when": "perf: 70; seen: esthe_ev_regular"
+      },
+      {
+       "name": "Ranked therapist",
+       "pay": 3400,
+       "days": 4,
+       "needs": {
+        "sensuality": 7,
+        "charisma": 5
+       }
+      }
+     ],
+     "promote": [
+      8,
+      7,
+      10
+     ],
+     "place": "",
+     "offScreen": true,
+     "schedule": {
+      "days": 3,
+      "from": 18,
+      "to": 2
+     },
+     "shift": 6,
+     "pace": 1.4,
+     "fee": 30000,
+     "skills": {
+      "sensuality": 3,
+      "charisma": 2
+     },
+     "likes": [
+      "Nightlife",
+      "Sports",
+      "Flirtatious"
+     ],
+     "trains": [
+      "sensuality",
+      "charisma",
+      "english"
+     ],
+     "events": [
+      {
+       "id": "esthe_ev_firsttime",
+       "setup": "A nervous woman is booked for the first time. She holds her bag in her lap and does not say why she came.",
+       "choices": [
+        {
+         "id": "talk",
+         "label": "Talk her through it",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 2,
+         "text": "She relaxes and books again for next week.",
+         "fail": {
+          "text": "She leaves early but thanks you at the door.",
+          "perf": 0
+         }
+        },
+        {
+         "id": "light",
+         "label": "Offer a lighter treatment",
+         "perf": 1,
+         "text": "Shoulders and a cup of tea: she says it was exactly enough."
+        },
+        {
+         "id": "manager",
+         "label": "Hand her to the manager",
+         "perf": 0,
+         "text": "The manager takes over, a little puzzled."
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_fee",
+       "setup": "The shop wants another ¥20,000 for \"advanced training\", and says without it no one will book you.",
+       "when": "course: not massage",
+       "choices": [
+        {
+         "id": "pay",
+         "label": "Pay it",
+         "money": -20000,
+         "perf": 1,
+         "text": "You pay; the shop sends you a certificate with a stamp."
+        },
+        {
+         "id": "refuse",
+         "label": "Refuse",
+         "perf": -2,
+         "text": "The manager shrugs and the bookings thin out."
+        },
+        {
+         "id": "quit",
+         "label": "Walk out and keep your money",
+         "perf": -2,
+         "text": "You leave; nobody stops you."
+        }
+       ]
+      }
+     ]
+    }
+   }
   },
   {
    "id": "pubstaff",
@@ -33758,7 +34870,8 @@
    "likes": [
     "Outgoing",
     "Sarcastic",
-    "Travel"
+    "Travel",
+    "Flirtatious"
    ],
    "trains": [
     "english",
@@ -34966,11 +36079,13 @@
    "likes": [
     "Outgoing",
     "Romantic",
-    "Ambitious"
+    "Ambitious",
+    "Shameless"
    ],
    "trains": [
     "charisma",
-    "fitness"
+    "fitness",
+    "sensuality"
    ],
    "ranks": [
     {
@@ -34984,7 +36099,8 @@
      "name": "Exclusive contract",
      "pay": 2000,
      "needs": {
-      "charisma": 2
+      "charisma": 2,
+      "sensuality": 1
      }
     },
     {
@@ -34992,14 +36108,16 @@
      "pay": 2600,
      "needs": {
       "charisma": 3,
-      "fitness": 2
+      "fitness": 2,
+      "sensuality": 2
      }
     },
     {
      "name": "Popular name",
      "pay": 3300,
      "needs": {
-      "charisma": 4
+      "charisma": 4,
+      "sensuality": 4
      },
      "when": "perf: 80"
     },
@@ -35007,7 +36125,8 @@
      "name": "Signing-event draw",
      "pay": 4000,
      "needs": {
-      "charisma": 5
+      "charisma": 5,
+      "sensuality": 5
      }
     }
    ],
@@ -35024,7 +36143,8 @@
          "name": "TV guest",
          "pay": 4800,
          "needs": {
-          "charisma": 6
+          "charisma": 6,
+          "sensuality": 5
          },
          "when": "perf: 80"
         },
@@ -35033,7 +36153,8 @@
          "pay": 5800,
          "needs": {
           "charisma": 7,
-          "logic": 3
+          "logic": 3,
+          "sensuality": 6
          }
         }
        ]
@@ -35048,7 +36169,8 @@
          "pay": 4200,
          "needs": {
           "charisma": 5,
-          "logic": 4
+          "logic": 4,
+          "sensuality": 5
          }
         },
         {
@@ -35056,14 +36178,310 @@
          "pay": 5200,
          "needs": {
           "logic": 6,
-          "charisma": 6
+          "charisma": 6,
+          "sensuality": 6
          }
         }
        ]
       }
      ]
     }
-   ]
+   ],
+   "tags": [
+    "adult-stage"
+   ],
+   "tracks": {
+    "woman": {
+     "name": "Actress"
+    },
+    "man": {
+     "name": "Actor",
+     "hireable": true,
+     "hire": [
+      "holds: av_director_card",
+      "feels: Airi friend or Momo friend",
+      "job: lovehotel"
+     ],
+     "skills": {
+      "fitness": 2,
+      "sensuality": 2
+     },
+     "ranks": [
+      {
+       "name": "Extra",
+       "pay": 800,
+       "days": 1,
+       "needs": {
+        "fitness": 2,
+        "sensuality": 2
+       }
+      },
+      {
+       "name": "Supporting actor",
+       "pay": 1200,
+       "days": 2,
+       "needs": {
+        "sensuality": 4,
+        "fitness": 3
+       }
+      },
+      {
+       "name": "Regular actor",
+       "pay": 1800,
+       "days": 3,
+       "needs": {
+        "sensuality": 6,
+        "fitness": 4
+       },
+       "when": "seen: av_ev_callback"
+      },
+      {
+       "name": "Popular actor",
+       "pay": 2400,
+       "days": 3,
+       "needs": {
+        "sensuality": 7,
+        "charisma": 3
+       },
+       "when": "seen: av_ev_request"
+      },
+      {
+       "name": "Top actor",
+       "pay": 3000,
+       "days": 3,
+       "needs": {
+        "sensuality": 8,
+        "fitness": 5
+       },
+       "when": "perf: 80"
+      }
+     ],
+     "promote": [
+      8,
+      10,
+      13,
+      16
+     ],
+     "branches": [
+      {
+       "at": 5,
+       "options": [
+        {
+         "id": "tvbooks",
+         "name": "TV and books",
+         "desc": "famous actors write books and do variety television",
+         "ranks": [
+          {
+           "name": "TV guest",
+           "pay": 3600,
+           "days": 3,
+           "needs": {
+            "charisma": 5,
+            "sensuality": 5
+           },
+           "when": "perf: 80"
+          },
+          {
+           "name": "Author and TV name",
+           "pay": 4400,
+           "days": 3,
+           "needs": {
+            "charisma": 6,
+            "writing": 2
+           }
+          }
+         ]
+        },
+        {
+         "id": "director",
+         "name": "Behind the camera",
+         "desc": "retire from the screen and direct or produce",
+         "ranks": [
+          {
+           "name": "Assistant director",
+           "pay": 4200,
+           "days": 3,
+           "needs": {
+            "charisma": 5,
+            "logic": 4
+           }
+          },
+          {
+           "name": "Director",
+           "pay": 5200,
+           "days": 3,
+           "needs": {
+            "logic": 6,
+            "charisma": 6
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "schedule": {
+      "days": 3,
+      "from": 8,
+      "to": 18
+     },
+     "shift": 10,
+     "pace": 1.5,
+     "trains": [
+      "sensuality",
+      "fitness"
+     ],
+     "events": [
+      {
+       "id": "av_m_ev_cue",
+       "setup": "You have waited four hours in a corridor with a coffee going cold. The assistant director leans in: \"Ready in two minutes.\"",
+       "choices": [
+        {
+         "id": "breathe",
+         "label": "Stay calm and breathe",
+         "roll": {
+          "skill": "sensuality",
+          "dc": 12
+         },
+         "perf": 2,
+         "effects": {
+          "desire": 15
+         },
+         "text": "You are on cue and steady; the director nods and calls it in one take.",
+         "fail": {
+          "text": "It does not come. The director calls a break, and your co-star is kind about it.",
+          "perf": -2
+         }
+        },
+        {
+         "id": "walk",
+         "label": "Walk it off first",
+         "roll": {
+          "skill": "fitness",
+          "dc": 11
+         },
+         "perf": 1,
+         "effects": {
+          "desire": 15
+         },
+         "text": "A lap of the corridor clears your head and the body follows.",
+         "fail": {
+          "text": "You stiffen up. The break is called, and you make up the time afterward.",
+          "perf": -1
+         }
+        },
+        {
+         "id": "time",
+         "label": "Ask for more time",
+         "perf": -1,
+         "text": "The director sighs and moves the shoot back by an hour."
+        }
+       ]
+      },
+      {
+       "id": "av_m_ev_double",
+       "setup": "A face actor needs a stand-in for part of a scene. It pays double today, and nobody will ever know it was you.",
+       "choices": [
+        {
+         "id": "take",
+         "label": "Take the double pay",
+         "money": 8000,
+         "perf": 0,
+         "text": "You stand where you are told, out of frame, and collect a thick envelope.",
+         "fact": "{u} worked as a body double at a shoot"
+        },
+        {
+         "id": "ask",
+         "label": "Ask who will see it",
+         "roll": {
+          "skill": "charisma",
+          "dc": 10
+         },
+         "perf": 1,
+         "text": "The director answers plainly, and trusts you for asking.",
+         "fail": {
+          "text": "The question lands badly: \"Do you want the work or not?\"",
+          "perf": -1
+         }
+        },
+        {
+         "id": "decline",
+         "label": "Decline politely",
+         "perf": 0,
+         "text": "The director shrugs and calls somebody else."
+        }
+       ]
+      },
+      {
+       "id": "av_ev_callback",
+       "setup": "A director you worked with last week asks for you by name for the next shoot.",
+       "when": "perf: 60",
+       "choices": [
+        {
+         "id": "yes",
+         "label": "Say yes at once",
+         "perf": 2,
+         "text": "He writes your name in the schedule in pen."
+        },
+        {
+         "id": "schedule",
+         "label": "Ask about the schedule first",
+         "perf": 1,
+         "text": "He gives you the dates and adds that he likes a man who plans."
+        },
+        {
+         "id": "pass",
+         "label": "Pass this time",
+         "perf": -1,
+         "text": "He nods, a little cooler: there are always others."
+        }
+       ]
+      },
+      {
+       "id": "av_ev_request",
+       "setup": "{who} has told the studio she wants to work with you again.",
+       "when": "perf: 70",
+       "from": {
+        "level": "friend",
+        "fallback": "An actress",
+        "odds": 0.5
+       },
+       "choices": [
+        {
+         "id": "thank",
+         "label": "Thank her in person",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 2,
+         "feels": {
+          "{who}": 2
+         },
+         "text": "She laughs, pleased, and tells the studio so twice.",
+         "fail": {
+          "text": "You get the words wrong and she waves it off kindly.",
+          "perf": 0
+         }
+        },
+        {
+         "id": "quiet",
+         "label": "Keep it professional",
+         "perf": 1,
+         "text": "You do the next shoot and leave it at that."
+        },
+        {
+         "id": "turn",
+         "label": "Say you are booked",
+         "perf": -1,
+         "text": "The studio notes it. Requests do not come twice."
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "startAfter": 1
   }
  ],
  "institutions": [
@@ -35335,7 +36753,9 @@
       "nothing without a clear, sober yes",
       "no one who teases her about money",
       "no secrets about other partners"
-     ]
+     ],
+     "role": "switch",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -35419,7 +36839,9 @@
      "limits": [
       "no secrets from a partner",
       "nothing casual with anyone in the band"
-     ]
+     ],
+     "role": "follow",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -35524,7 +36946,9 @@
       "nobody who sees her as a novelty",
       "no being strung along",
       "nothing with a housemate who hasn't asked clearly"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -35627,7 +37051,9 @@
       "no assumptions about their body or pronouns",
       "nothing rushed",
       "no one who treats their gender as a curiosity"
-     ]
+     ],
+     "role": "switch",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -35719,7 +37145,9 @@
       "no one who wants her smaller",
       "nothing in front of the band",
       "no one who goes to the press"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -35833,7 +37261,9 @@
       "no teasing about money",
       "no pressure",
       "nothing with anyone his sister is close to"
-     ]
+     ],
+     "role": "follow",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -35973,7 +37403,9 @@
      "limits": [
       "nothing flashy",
       "nothing hidden, everything said plainly"
-     ]
+     ],
+     "role": "lead",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -36080,7 +37512,9 @@
      "limits": [
       "no one who wants her smaller or out of the shop",
       "nothing without talking first"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -36138,7 +37572,9 @@
       "nobody who would out her pen name",
       "nothing at the shrine",
       "everything agreed beforehand"
-     ]
+     ],
+     "role": "switch",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -36285,7 +37721,9 @@
       "nothing that could reach her office",
       "no talk about work",
       "no recordings"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -36429,7 +37867,9 @@
      "limits": [
       "nothing that could expose Shizuka",
       "no ghosting"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -36528,7 +37968,9 @@
      "limits": [
       "nothing with someone drunk or sad",
       "nothing behind anyone's back"
-     ]
+     ],
+     "role": "follow",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -36646,7 +38088,9 @@
      "limits": [
       "no photos or recordings",
       "no one who treats her as a product"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true
    },
@@ -36700,7 +38144,9 @@
       "no one who knows him only as Kaname",
       "nothing that involves Hina",
       "no one who can't accept his job"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true
    },
@@ -36777,7 +38223,9 @@
      "limits": [
       "no one who wants to own her",
       "no lies, she is honest that she is not exclusive"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -36887,7 +38335,9 @@
       "no photos",
       "nothing rushed",
       "no mocking her hobbies"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -36899,7 +38349,7 @@
     "age": 28,
     "gender": "woman",
     "occupation": "dancer",
-    "rank": 3,
+    "rank": 4,
     "home": "hz_studio",
     "leisure": [
      "rp_pub",
@@ -36957,7 +38407,9 @@
       "no pressure for exclusivity she hasn't offered",
       "nobody tells her family",
       "no recordings without consent"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -37065,7 +38517,9 @@
       "no one tied to the Hamakaze Group",
       "no clients",
       "no pity"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -37111,7 +38565,9 @@
       "no liars or games",
       "no cheating",
       "no one who wants her quieter"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -37200,7 +38656,9 @@
       "nothing that could expose them before she is ready",
       "no hurrying",
       "no other suitors"
-     ]
+     ],
+     "role": "follow",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -37301,7 +38759,9 @@
       "nobody who treats her as a novelty",
       "nothing before she trusts",
       "no pressure"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -37392,7 +38852,9 @@
       "no jealousy scenes",
       "no one who wants to control her outside the bedroom",
       "honesty with everyone"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -37488,7 +38950,9 @@
      "limits": [
       "no cheating",
       "nobody who laughs at his family search"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -37597,7 +39061,9 @@
       "nothing casual",
       "nothing that risks her job",
       "no one who pities her debt"
-     ]
+     ],
+     "role": "switch",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -37704,7 +39170,9 @@
      "limits": [
       "no one from the office",
       "no gossip"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "anchored": true,
     "languages": {
@@ -37789,7 +39257,9 @@
      "limits": [
       "no outing her streaming identity",
       "no pushing in public"
-     ]
+     ],
+     "role": "switch",
+     "drive": "average"
     },
     "anchored": true,
     "languages": {
@@ -37891,7 +39361,9 @@
      "limits": [
       "no drama or deceit",
       "nothing with a colleague's partner"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "anchored": true,
     "rituals": [
@@ -38013,7 +39485,9 @@
       "no mocking her work or body",
       "nothing not agreed beforehand",
       "nothing shared with anyone"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "adult": true,
     "anchored": true
@@ -38133,7 +39607,9 @@
       "nobody who treats her as a product",
       "no recording",
       "no questions about her work"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "adult": true,
     "anchored": true
@@ -38235,7 +39711,9 @@
       "nobody from home",
       "no recordings",
       "nothing she hasn't said yes to"
-     ]
+     ],
+     "role": "follow",
+     "drive": "high"
     },
     "adult": true,
     "anchored": true
@@ -38593,6 +40071,28 @@
     },
     "fact": "{u} drew bad fortune at {0} and tied the slip to the rack"
    }
+  ],
+  "awkward": [
+   {
+    "id": "cramp",
+    "weight": 30,
+    "text": "A cramp at the worst moment; you both end up laughing on the floor."
+   },
+   {
+    "id": "neighbour",
+    "weight": 25,
+    "text": "The neighbour bangs on the wall twice; you freeze, then lose it completely."
+   },
+   {
+    "id": "giggle",
+    "weight": 25,
+    "text": "A giggle fit takes over and nothing else happens; it is still a good night."
+   },
+   {
+    "id": "blanket",
+    "weight": 20,
+    "text": "The blanket slides off the bed, then the pillow, then you; you give up and order food."
+   }
   ]
  },
  "traitInfo": {
@@ -38623,6 +40123,90 @@
      "dance"
     ]
    }
+  },
+  "Good in bed": {
+   "desc": "Confident and attentive with a partner. Starts with Sensuality 3."
+  },
+  "Leads": {
+   "desc": "Takes the lead in intimacy: sets the pace and likes a partner who lets go. With someone who likes to be led, romance from private moments grows 10% faster and the roll is a little easier; with someone who also leads, harder.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "intimate:follow",
+     "value": 0.1
+    }
+   ]
+  },
+  "Follows": {
+   "desc": "Likes to be led in intimacy: told what to do and praised for it. With someone who likes to lead, romance from private moments grows 10% faster and the roll is a little easier; with someone who also follows, harder.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "intimate:lead",
+     "value": 0.1
+    }
+   ]
+  },
+  "Switch": {
+   "desc": "Leads or follows depending on the partner and the night. Romance from private moments grows 5% faster with anyone, and it never clashes.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "intimate",
+     "value": 0.05
+    }
+   ]
+  },
+  "Low drive": {
+   "desc": "Does not think about intimacy much; when it happens it is nice, not urgent. Desire drains slowly, and each night counts for a little less."
+  },
+  "Average drive": {
+   "desc": "Neither high nor low: Desire drains at the usual pace, and a night counts for what it is."
+  },
+  "High drive": {
+   "desc": "Thinks about intimacy a lot and wants it often. Desire drains fast and a night counts for more, but a partner with a lower drive will turn you down a lot."
+  },
+  "Flirtatious": {
+   "desc": "Flirts with everyone and means some of it. Romance with a new person grows 10% faster until a crush, but your partners' jealousy hurts 15% more.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "romance:early",
+     "value": 0.1
+    },
+    {
+     "kind": "jealousy",
+     "value": 0.15
+    }
+   ]
+  },
+  "Shameless": {
+   "desc": "No shame about their body or their appetites: happy to be watched and says what they want. +1 on rolls where being seen is part of it, but 10% more likely to be caught.",
+   "effects": [
+    {
+     "kind": "roll",
+     "target": "exhib",
+     "value": 1
+    },
+    {
+     "kind": "risk",
+     "value": 0.1
+    }
+   ]
+  },
+  "Kink": {
+   "desc": "Interested in rope, blindfolds and play with power and control. Doing something that fits it lifts your mood a little more.",
+   "covers": {
+    "tags": [
+     "kink"
+    ]
+   }
+  },
+  "Active love life": {
+   "desc": "A busy love life: Sensuality trains 10% faster and mornings start in a better mood."
+  },
+  "Night-world regular": {
+   "desc": "A regular at the city's night clubs: Charisma trains 10% faster, but the late nights cost energy, and the people close to you hear about it."
   }
  },
  "goals": {
@@ -39961,6 +41545,54 @@
      "shrine"
     ]
    }
+  ]
+ },
+ "intimatePool": {
+  "prefs": [
+   "slow and tender",
+   "being led",
+   "likes to be in charge",
+   "being praised",
+   "playful teasing",
+   "being teased",
+   "a bath together",
+   "hot-spring baths",
+   "mornings in bed",
+   "a massage first",
+   "being pampered",
+   "being cooked for",
+   "cuddling afterward",
+   "tea brought afterward",
+   "long kissing",
+   "whispered words",
+   "hand-holding",
+   "candlelit hotel stays",
+   "a weekend away",
+   "dancing close",
+   "costumes for fun",
+   "roleplay scenarios",
+   "a thrill of near-discovery",
+   "semi-public places",
+   "being surprised",
+   "being asked what they want",
+   "curious about a blindfold",
+   "curious about rope",
+   "playful competition",
+   "late-night messages"
+  ],
+  "limits": [
+   "nothing without a clear yes",
+   "nothing rushed",
+   "no pressure",
+   "no photos or recordings",
+   "no secrets about other partners",
+   "no one who treats them as a novelty",
+   "nothing in public",
+   "nothing that could reach their workplace",
+   "no teasing about money",
+   "no cheating",
+   "nothing when either of you has been drinking",
+   "nothing hidden behind anyone's back"
   ]
  }
 }
