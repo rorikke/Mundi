@@ -1,11 +1,13 @@
 // A person's own ways, the same panel in every editor (the in-game People tab, the new game, the World creator, the
 // Library cast presets): gender, attraction, how fast their feelings grow, their intimacy and relationship styles, and
-// (E15, only with adult content on) their intimate profile.
+// (E15, only with adult content on) their role and drive in bed and their intimate profile. In game, `knownHtml` says
+// what you have learned of someone in bed.
 // Each editor registers a scope that reads and writes its own copy (the save, the new-game draft, the world's example
 // cast); the panel only knows the `Person` shape. "Suggest from the cards" asks the AI about people without a gender
 // and shows what it read until the player applies or dismisses it.
-import { esc, notify } from '../core/store.js';
-import { PRESETS as INTIMACY, R_NAME, F_NAME } from '../sim/intimacy.js';
+import { esc, notify, adultOn } from '../core/store.js';
+import { INTIMATE_ROLES, INTIMATE_DRIVES, systemOn } from '../core/world.js';
+import { PRESETS as INTIMACY, R_NAME, F_NAME, knownOf, intimateCount, roleOf, driveOf } from '../sim/intimacy.js';
 import { ACT, INPUT } from './reg.js';
 import { icon } from './icons.js';
 import { fullCharacter } from '../st/bridge.js';
@@ -79,6 +81,15 @@ const INTIMATE_LABEL = {
     body: ['Their body', 'how they look and feel to a partner'], inBed: ['In bed', 'how they are in bed, what they ask for, what comes after'],
     prefs: ['What they like (one per line)', 'slow and tender\nbeing asked what they want'], limits: ['Hard limits (one per line; always respected)', 'nothing without a clear yes'],
 };
+// (adult) Who leads in bed and how often they want it (the private roll and their drive read them). "Not set" is offered
+// only while it is: a world's own people get theirs back from the world when a game opens, so it can't be cleared.
+export const ROLE_NAME = { lead: 'Leads', follow: 'Follows', switch: 'Switches' };
+export const DRIVE_NAME = { low: 'Low', average: 'Average', high: 'High' };
+function bedHtml(scope, id, p) {
+    const i = p?.intimate ?? {};
+    const sel = (k, label, names, unset) => `<label class="mu-field"><span>${label}</span><select data-input="pp-bed" data-f="${k}" ${data(scope, id)}>${i[k] ? '' : opt('', unset, true)}${Object.entries(names).map(([v, l]) => opt(v, l, i[k] === v)).join('')}</select></label>`;
+    return `<div class="mu-row2 mu-pp-bed">${sel('role', 'In bed', ROLE_NAME, 'Not set')}${sel('drive', 'Drive', DRIVE_NAME, 'Not set (average)')}</div>`;
+}
 const OPEN = new Set(); // intimate profiles opened in the panel (scope|id)
 function intimateHtml(scope, id, p) {
     const i = p?.intimate ?? {}, open = OPEN.has(key(scope, id));
@@ -100,7 +111,22 @@ export function personPanel(scope, id, parts, opts = {}) {
     return parts.map(part => part === 'gender' ? genderHtml(scope, id, p, gs)
         : part === 'attraction' ? attractionHtml(scope, id, p, gs, romance, !!opts.you)
             : part === 'pace' ? paceHtml(scope, id, p, romance)
-                : romance ? `${waysHtml(scope, id, p)}${s.adult?.() ? intimateHtml(scope, id, p) : ''}` : '').join('');
+                : romance ? `${waysHtml(scope, id, p)}${s.adult?.() ? `${bedHtml(scope, id, p)}${intimateHtml(scope, id, p)}` : ''}` : '').join('');
+}
+/* ---------- (adult) what you know of them, in game ---------- */
+// Their likes and hard limits you've learned, their drive once you know it, and who leads once you've been together:
+// nothing with adult content or romance off, and nothing at all until something is known.
+export function knownHtml(g, w, a) {
+    if (!adultOn(g) || !systemOn(w, 'romance'))
+        return '';
+    const k = knownOf(g, a), role = intimateCount(g, a) > 0 ? roleOf(g, a) : undefined;
+    const rows = [
+        k.likes.length ? `<small><b>Likes:</b> <span data-notr>${esc(k.likes.join(', '))}</span></small>` : '',
+        k.limits.length ? `<small><b>Won't:</b> <span data-notr>${esc(k.limits.join(', '))}</span></small>` : '',
+        k.drive ? `<small><b>Drive:</b> ${esc(DRIVE_NAME[driveOf(g, a)])}</small>` : '',
+        role ? `<small><b>In bed:</b> ${esc(ROLE_NAME[role])}</small>` : '',
+    ].filter(Boolean);
+    return rows.length ? `<section class="mu-pp-known"><h5>${icon('heart')}<span>In bed</span></h5>${rows.join('')}</section>` : '';
 }
 /* ---------- suggestions from the cards ---------- */
 // What the AI read in each card, waiting for the player to apply or dismiss it (nothing is set before that).
@@ -123,6 +149,13 @@ function sugWords(p, gs) {
         out.push(INTIMACY[preset]?.name ?? preset);
     if (p.intimacy?.casual === false)
         out.push('only with a partner');
+    if (p.intimate?.role)
+        out.push(`in bed: ${ROLE_NAME[p.intimate.role].toLowerCase()}`);
+    if (p.intimate?.drive)
+        out.push(`drive: ${DRIVE_NAME[p.intimate.drive].toLowerCase()}`);
+    const n = (p.intimate?.prefs?.length ?? 0) + (p.intimate?.limits?.length ?? 0);
+    if (n)
+        out.push(n === 1 ? '1 like or limit' : `${n} likes and limits`);
     return out.join(' · ');
 }
 // The button (for people with no gender yet) and the suggestions waiting for an answer.
@@ -201,7 +234,7 @@ Object.assign(ACT, {
                 const card = [ch?.description, ch?.personality, ch?.scenario].filter(Boolean).join('\n').replace(/{{char}}/g, c.name);
                 let p;
                 try {
-                    p = card.trim() ? await suggestFromCard(c.name, card, s.genders()) : undefined;
+                    p = card.trim() ? await suggestFromCard(c.name, card, s.genders(), !!s.adult?.()) : undefined;
                 }
                 catch (e) {
                     console.warn('[Mundi] suggest', e);
@@ -245,6 +278,17 @@ function applySuggestion(scope, id, p) {
         cur.att = structuredClone(p.att);
     if (p.intimacy)
         cur.intimacy = { ...(cur.intimacy ?? {}), ...p.intimacy };
+    // (adult) what the card says of their role, drive, likes and limits, only where they have none yet
+    if (p.intimate && s.adult?.()) {
+        const i = { ...(cur.intimate ?? {}) };
+        for (const k of ['role', 'drive'])
+            if (p.intimate[k] && !i[k])
+                i[k] = p.intimate[k];
+        for (const k of ['prefs', 'limits'])
+            if (p.intimate[k]?.length && !i[k]?.length)
+                i[k] = [...p.intimate[k]];
+        cur.intimate = i;
+    }
     s.set(id, tidyPerson(cur));
 }
 Object.assign(INPUT, {
@@ -263,6 +307,18 @@ Object.assign(INPUT, {
             i[k] = v;
         p.intimate = i;
         s.set(id, tidyPerson(p));
+    },
+    // (adult) role and drive: written as chosen (an Average drive too, so the world's pool doesn't fill it again)
+    'pp-bed': (el) => {
+        const v = el.value, k = el.dataset.f;
+        edit(el, (p) => {
+            const i = { ...(p.intimate ?? {}) };
+            if (k === 'role' && INTIMATE_ROLES.includes(v))
+                i.role = v;
+            if (k === 'drive' && INTIMATE_DRIVES.includes(v))
+                i.drive = v;
+            p.intimate = i;
+        });
     },
     pp: (el) => {
         const v = el.value, k = el.dataset.k, m = el.dataset.m;

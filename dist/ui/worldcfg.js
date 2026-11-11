@@ -40,6 +40,7 @@ import { relNumbersHtml, relChangesHtml } from './reldebug.js';
 import { personPanel, suggestHtml, SCOPES } from './personui.js';
 import { adultSettingHtml } from './adultui.js';
 import { gendersOf, cleanPerson } from '../sim/gender.js';
+import { ensureProfile } from '../sim/profiles.js';
 const TABS = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['needs', 'Needs'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
 const WC = { tab: 'people', adv: false, who: '', adding: false, q: '', lq: '', back: 'map' };
 const opt = (v, label, sel) => `<option value="${esc(v)}" ${sel ? 'selected' : ''}>${esc(label)}</option>`;
@@ -74,7 +75,7 @@ function personForm(g, w) {
             <div class="mu-field"><span>Where they go in their free time</span><div class="mu-chips">${leisure.map(p => `<button class="mu-chip ${r.leisure.includes(p.id) ? 'is-on' : ''}" data-act="wc-leisure" data-id="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
                 <small class="mu-muted">None chosen: any leisure place.</small></div>
             ${personPanel('save', r.avatar, ['attraction', 'pace', 'ways'])}
-            ${charOf(r.avatar) ? `<div class="mu-row"><button class="mu-ghost" data-act="wc-save-card">${icon('save')}<span>Save to card</span></button><small class="mu-muted">Their gender, attraction, pace and styles go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.</small></div>` : ''}
+            ${charOf(r.avatar) ? `<div class="mu-row"><button class="mu-ghost" data-act="wc-save-card">${icon('save')}<span>Save to card</span></button><small class="mu-muted">Their gender, attraction, pace and styles${adultOn(g) ? ' (and their intimate profile)' : ''} go to their card's Mundi settings, so new games with them start from these. Nothing else on the card changes.</small></div>` : ''}
             ${minorHtml(g, r.avatar)}
             <button class="mu-danger" data-act="wc-remove">${icon('trash')}<span>Remove from this world</span></button>
             <small class="mu-muted">Their card stays in SillyTavern; they just stop living here.</small>` : ''}
@@ -307,7 +308,7 @@ function tabRules(g, w) {
         ${relSection(g, w)}
         ${adultSettingHtml(g)}
         ${lifeSection(g, w)}
-        <section class="mu-wc-sec"><h4>Needs</h4>${list(activeStatuses(w).map(s => `${s.icon} ${s.name}`))}</section>
+        <section class="mu-wc-sec"><h4>Needs</h4>${list(activeStatuses(w, g).map(s => `${s.icon} ${s.name}`))}</section>
         <section class="mu-wc-sec"><h4>Places</h4>${list(w.places.map(p => p.name))}</section>
         <section class="mu-wc-sec"><h4>Jobs</h4><ul class="mu-lib-jobs">${w.occupations.map(o => `<li><b>${esc(o.name)}</b> <small>${o.ranks.map(r => esc(r.name)).join(' → ')}</small></li>`).join('')}</ul></section>
         ${WC.adv ? `<section class="mu-wc-sec"><h4>Advanced settings</h4>
@@ -381,6 +382,7 @@ Object.assign(ACT, {
         const taken = new Set(Object.values(c.g.cast).map(r => `${r.home.x},${r.home.y}`));
         taken.add(`${c.g.player.home.x},${c.g.player.home.y}`);
         c.g.cast[a] = resident(c.w, a, taken, c.g.player.home);
+        ensureProfile(c.g, c.w, a); // (adult) likes, limits, role and drive from the world's pool, as for anyone made in the game
         WC.adding = false;
         WC.who = a;
         toast(`${charOf(a)?.name ?? ''} now lives in ${c.w.name}.`, 'success');

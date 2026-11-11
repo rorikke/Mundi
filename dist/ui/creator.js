@@ -25,7 +25,7 @@ import { pickFile } from './cropper.js';
 import { icon, ICON_NAMES } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { personPanel, SCOPES } from './personui.js';
-import { cleanPerson } from '../sim/gender.js';
+import { cleanPerson, cleanIntimate, gendersOf } from '../sim/gender.js';
 import { whenError, namedIn, PARTNER_VALUES } from '../sim/when.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
@@ -72,9 +72,25 @@ export const sel = (label, p, opts, type = '') => `<label class="mu-field"><span
 const time = (label, p) => `<label class="mu-field"><span>${label}</span><input type="time" data-input="cw" data-type="time" data-path="${esc(p)}" value="${hm(Number(getPath(p) ?? 0))}"></label>`;
 const csv = (label, p, hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="csv" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
 const color = (label, p) => `<label class="mu-field mu-cw-color"><span>${label}</span><input type="color" data-input="cw" data-path="${esc(p)}" value="${val(p) || '#888888'}"></label>`;
-const chips = (list, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`; };
-// A number held between two bounds as it is typed (a skill level 1–10, a share 0–1).
-const bounded = (label, p, lo, hi, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
+// `drop`: none picked leaves nothing in the file (a track's list left to the job's)
+const chips = (list, p, drop = false) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(x)}" ${drop ? 'data-drop="1"' : ''}>${esc(x)}</button>`).join('')}</div>`; };
+// A number held between two bounds as it is typed (a skill level 1–10, a share 0–1); a whole number when it steps by 1.
+const bounded = (label, p, lo, hi, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" ${step === 1 ? 'data-int="1"' : ''} data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
+// (adult) The mark on what only plays with adult content on, so it's plain which parts of a world need it.
+const ADULT = '<em class="mu-cw-adult" title="Only with adult content on">Adult</em>';
+// A switch whose "off" leaves nothing in the file (no `false`), for the newer marks: a world that never had them gains none.
+const flag = (label, p, hint = '', adult = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="flag" data-path="${esc(p)}" ${getPath(p) ? 'checked' : ''}><span>${label}${adult ? ` ${ADULT}` : ''}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
+// Words separated by commas, or a text, where nothing typed leaves nothing in the file (an optional id, a job's tags).
+const words = (label, p, hint = '', ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+const optTxt = (label, p, ph = '', hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+// One per line (likes, limits), kept as typed while typing; nothing typed leaves nothing in the file.
+const lines = (label, p, rows = 4, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-type="lines" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${esc((getPath(p) ?? []).join('\n'))}</textarea></label>`;
+// A choice that may be left to something else (a track's field left to the job's): `*` is "as the job", '' a value.
+const inherit = (label, p, opts, from) => {
+    const v = getPath(p);
+    const on = v === undefined ? '*' : String(v);
+    return `<label class="mu-field"><span>${label}</span><select data-input="cw" data-type="inherit" data-path="${esc(p)}">${[['*', from], ...opts].map(([x, l]) => `<option value="${esc(x)}" ${on === x ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+};
 // A condition in the grammar of sim/when.ts, checked as it is typed: what can't be read shows under it (such a condition
 // never holds in a game). `ok`: a value the reader of this field takes besides the grammar.
 const cond = (label, p, ph = '', hint = '', ok = '') => {
@@ -108,7 +124,8 @@ function master(key, path, label, form, add, empty = 'Nothing here yet.') {
 const placeOpts = (w, none = '') => [...(none ? [['', none]] : []), ...w.places.filter(p => !p.link).map(p => [p.id, p.name])];
 const statusOpts = (w) => w.statuses.map(s => [s.id, `${s.icon} ${s.name}`]);
 const zoneOpts = (w, none = '') => [...(none ? [['', none]] : []), ...w.homes.zones.map(z => [z.id, z.name])];
-const traitOptions = (w) => (w.sheet.traits ?? []).flatMap(t => t.options);
+// (adult options too: a job may like Shameless)
+const traitOptions = (w) => (w.sheet.traits ?? []).flatMap(t => [...t.options, ...(t.adultOptions ?? [])]);
 /* ---------- tabs ---------- */
 function tabGeneral(w) {
     return `<div class="mu-cw-grid">
@@ -177,12 +194,13 @@ function tabFeatures(w) {
     </div>`;
 }
 function tabNeeds(w) {
-    return master('needs', 'statuses', s => `<b>${esc(s.icon)} ${esc(s.name)}</b><small>${s.hud ? 'On the HUD' : ''}</small>`, i => {
+    return master('needs', 'statuses', s => `<b>${esc(s.icon)} ${esc(s.name)}</b><small>${s.hud ? 'On the HUD' : ''}${s.adult ? ' · adult' : ''}</small>`, i => {
         const p = `statuses.${i}`;
         const s = w.statuses[i];
         return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`)}</div>
             <div class="mu-row2">${color('Color', `${p}.color`)}${chk('Show on the HUD', `${p}.hud`)}</div>
             <div class="mu-row2">${RPG_LOCKED ? '' : chk('Only in the RPG mode', `${p}.rpg`, 'Like health: out of Life-Sim worlds.')}${gameMode(w) === 'custom' ? chk('Turned off in this world', `${p}.off`) : ''}</div>
+            ${flag('Only with adult content on', `${p}.adult`, 'Like Desire: out of play otherwise, and nothing changes it.', true)}
             <div class="mu-row2">${num('Starts at', `${p}.start`)}${num('Maximum', `${p}.max`, 1)}</div>
             <h4>Drops over time</h4>${chk('It drops by itself', `${p}.decay`)}
             ${s.decay ? `<div class="mu-row2">${num('By', `${p}.decay.amount`, 0, 0.5)}${num('Every … game minutes', `${p}.decay.everyMinutes`, 1)}</div>${chk('Only while awake', `${p}.decay.awakeOnly`)}` : ''}
@@ -203,7 +221,7 @@ function tabNeeds(w) {
 const WHERE = [['tags', 'At places with a tag'], ['place', 'At one place'], ['home', 'At home'], ['anywhere', 'Anywhere']];
 function tabActions(w) {
     const tags = [...new Set(w.places.flatMap(p => p.tags ?? []))];
-    return master('actions', 'actions', a => `<b>${esc(a.icon ?? '')} ${esc(a.label || a.name)}</b><small>${a.cost ? `${esc(money(w, a.cost))} · ` : ''}${a.minutes} min</small>`, i => {
+    return `${master('actions', 'actions', a => `<b>${esc(a.icon ?? '')} ${esc(a.label || a.name)}</b><small>${a.cost ? `${esc(money(w, a.cost))} · ` : ''}${a.minutes} min</small>`, i => {
         const p = `actions.${i}`;
         const a = w.actions[i];
         const where = a.anywhere ? 'anywhere' : a.home ? 'home' : a.place ? 'place' : 'tags';
@@ -215,8 +233,40 @@ function tabActions(w) {
             ${where === 'tags' ? `<h4>But not in places tagged</h4>${chips(tags, `${p}.notTags`)}` : ''}
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'], ...(w.catalogs.shop ?? []).map(it => [it.id, `${it.icon ?? ''} ${it.name}`])])}
-            <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>`;
-    }, 'action');
+            <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>
+            ${privateBox(w, p, a)}${outcomesList(a)}`;
+    }, 'action')}${storiesList(w)}`;
+}
+// (adult) A private moment: done in private, only with adult content on, how hard it is (the private roll), the words it
+// matches against someone's likes and hard limits, and the chance of being caught where it's done (with what that costs).
+// Folded in a world whose action has none of it.
+function privateBox(w, p, a) {
+    const set = a.private || a.adult || a.risk !== undefined || a.fee !== undefined || a.dc !== undefined || !!a.matches?.length;
+    return `<details class="mu-cw-adultbox" ${set ? 'open' : ''}><summary>Private moments ${ADULT}</summary>
+        <div class="mu-row2">${flag('Done in private', `${p}.private`, 'A room of its own, a private bath: a private scene, where intimate profiles count.')}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        <div class="mu-row2">${bounded('How hard it is (the private roll: 1–30)', `${p}.dc`, 1, 30)}${words('Words it matches (likes and hard limits)', `${p}.matches`, 'Matched against what someone likes, and their hard limits (a limit stops it).', 'massage, bath together')}</div>
+        <div class="mu-row2">${bounded('Chance of being caught (0 … 1)', `${p}.risk`, 0, 1, 0.05)}${num(`Getting caught costs (${esc(w.currency.symbol)})`, `${p}.fee`)}</div>
+        <small class="mu-muted">Empty: the roll is the game's (10, 13 with a chance of being caught); no chance of being caught. Caught, it doesn't happen: a fee, a week's ban there, and maybe a rumor.</small></details>`;
+}
+// Outcomes and story choices aren't edited here: they're kept as the world file has them. Their ids (a name a private
+// overlay rewrites them by) are shown, never changed or renumbered.
+const idTag = (id) => (typeof id === 'string' && id ? `<code data-notr>${esc(id)}</code>` : '<small class="mu-muted">(no id)</small>');
+const clip = (t, n = 70) => { const x = String(t ?? ''); return esc(x.length > n ? `${x.slice(0, n - 1)}…` : x); };
+function outcomesList(a) {
+    const l = a.outcomes ?? [];
+    if (!l.length)
+        return '';
+    return `<details class="mu-cw-kept"><summary>Outcomes · ${l.length} (kept as the world file has them)</summary>
+        ${l.map(o => `<div class="mu-cw-keptrow">${idTag(o.id)}<small class="mu-muted">weight ${esc(o.weight)}</small><span data-notr>${clip(o.text)}</span></div>`).join('')}</details>`;
+}
+function storiesList(w) {
+    const l = w.stories ?? [];
+    if (!l.length)
+        return '';
+    return `<section class="mu-cw-sec mu-cw-wide"><details class="mu-cw-kept"><summary>Street stories · ${l.length} (kept as the world file has them)</summary>
+        <p class="mu-muted">Seen once at a place. Their choices keep their order (\`seen: story:2\` counts by position) and their ids, which a private overlay rewrites them by.</p>
+        ${l.map(x => `<div class="mu-cw-keptstory"><div class="mu-cw-keptrow">${idTag(x.id)}${x.adult ? ADULT : ''}<span data-notr>${clip(x.setup, 90)}</span></div>
+            ${(x.choices ?? []).map((c, k) => `<div class="mu-cw-keptrow is-sub"><small class="mu-muted">${k + 1}</small>${idTag(c.id)}<span data-notr>${clip(c.label)}</span></div>`).join('')}</div>`).join('')}</details></section>`;
 }
 function tabJobs(w) {
     return `<div class="mu-row2">${num('Career speed (×; 2: twice as fast)', 'careerSpeed', 0.25, 0.25)}${sel('Work rules a new game starts with', 'workPreset', [['', 'Realistic (Relaxed in a Home)'], ['realistic', 'Realistic'], ['reduced', 'Reduced'], ['relaxed', 'Relaxed']], 'opt')}</div>
@@ -231,18 +281,154 @@ function tabJobs(w) {
             <div class="mu-row2">${num('Shift from (hour; empty: when it opens)', `${p}.schedule.from`, 0)}${num('Shift to (hour)', `${p}.schedule.to`, 0)}</div>
             <div class="mu-row2">${num('Extra pay at night (0.25: +25%)', `${p}.nightPay`, 0, 0.05)}${chk('The boss asks for overtime', `${p}.overtime`)}</div>
             <div class="mu-row2">${chk('Worked off-screen', `${p}.offScreen`, 'Away from every map during the shift')}${chk('Open to the player', `${p}.hireable`, '', true)}</div>
+            <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, '', true)}${bounded('Months before the first shift (0–12; empty: from the next shift)', `${p}.startAfter`, 0, 12, 0.5)}</div>
+            ${words('Kinds of job (tags, comma separated)', `${p}.tags`, 'Effects can aim at them: pay and performance in every job of a kind (adult-stage, nightwork).', 'nightwork')}
             <h4>Ranks and pay per hour</h4>
-            ${o.ranks.map((_r, k) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${p}.ranks.${k}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${p}.ranks.${k}.pay`)}
-                ${k < o.ranks.length - 1 ? num('Time to the next rank (relative)', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
-                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
-            <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${p}.ranks">${icon('plus')}<span>Add a rank</span></button>
-            ${o.ranks.map((r, k) => (k === 0 && (o.courses ?? []).length) || r.student ? chk(k ? `${esc(r.name)} is a student rank` : 'The first rank is a student rank', `${p}.ranks.${k}.student`, 'You can be hired at it while you take the course this job asks for; the next rank needs the course finished.') : '').join('')}
+            ${rankRows(w, p, o)}
             ${csv('New bottom ranks added (ids)', `${p}.shifted`, 'Added a rank below the first one after people played this job? Add a new id here once: saved games holding this job move up one rank, so they keep the rank they had.')}
             ${branchEditor(w, o, p)}
             <h4>Traits that help (faster promotions)</h4>${chips(traitOptions(w), `${p}.likes`)}
             <h4>Required traits (one of them)</h4>${chips(traitOptions(w), `${p}.needs`)}
-            ${(w.hobbies ?? []).length ? `<div class="mu-row2">${sel('Hobby it asks for', `${p}.hobby.id`, [['', '(none)'], ...(w.hobbies ?? []).map(h => [h.id, h.name])])}${num('Level', `${p}.hobby.level`, 0)}</div>` : ''}`;
+            ${(w.hobbies ?? []).length ? `<div class="mu-row2">${sel('Hobby it asks for', `${p}.hobby.id`, [['', '(none)'], ...(w.hobbies ?? []).map(h => [h.id, h.name])])}${num('Level', `${p}.hobby.level`, 0)}</div>` : ''}
+            ${skillOpts(w).length || o.skills || o.trains ? `<h4>Skills</h4>${skillLevels(w, `${p}.skills`, 'Skill levels it asks to be hired')}
+                <div class="mu-field"><span>Skills it trains a little each shift</span>${pairChips(skillOpts(w), `${p}.trains`, true)}</div>` : ''}
+            ${eventsEditor(w, `${p}.events`, o.events ?? [], 'Things that happen on a shift now and then: a setup and two or three choices.')}
+            ${trackEditor(w, o, p)}`;
     }, 'job')}`;
+}
+// A job's (or a track's) ranks: name, pay per hour, time to the next, days a week at that rank (an extra called once a
+// week), and the student rank when it asks for a course.
+function rankRows(w, p, o, courses = o.courses) {
+    const ranks = o.ranks ?? [];
+    return `${ranks.map((_r, k) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${p}.ranks.${k}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${p}.ranks.${k}.pay`)}
+            ${k < ranks.length - 1 ? num('Time to the next rank (relative)', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
+            ${bounded('Days a week (empty: the schedule\'s)', `${p}.ranks.${k}.days`, 1, 7)}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${p}.ranks">${icon('plus')}<span>Add a rank</span></button>
+        ${ranks.map((r, k) => (k === 0 && (courses ?? []).length) || r.student ? chk(k ? `${esc(r.name)} is a student rank` : 'The first rank is a student rank', `${p}.ranks.${k}.student`, 'You can be hired at it while you take the course this job asks for; the next rank needs the course finished.') : '').join('')}`;
+}
+// Skill levels by skill (a job's or a track's levels to be hired): a row each, the skill changed in place (its level
+// kept, never two of one skill), "Add a skill" adding the next one of the world at level 3.
+function skillLevels(w, p, label) {
+    const map = (getPath(p) ?? {});
+    const all = skillOpts(w);
+    const has = Object.keys(map).filter(s => !BAD_KEYS.includes(s));
+    const free = all.filter(([id]) => !has.includes(id));
+    return `<span class="mu-cw-sub">${label}</span>${has.map(s => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Skill</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(s)}">${[...all.filter(([id]) => id === s || free.some(([f]) => f === id)), ...(all.some(([id]) => id === s) ? [] : [[s, s]])].map(([id, n]) => `<option value="${esc(id)}" ${id === s ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+            ${bounded('Level (1–10)', `${p}.${s}`, 1, 10)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${s}`)}" title="Remove">${icon('x')}</button></div>`).join('') || '<small class="mu-muted">None.</small>'}
+        ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="skills" data-v="3" data-path="${esc(p)}">${icon('plus')}<span>Add a skill</span></button>` : ''}`;
+}
+// How some of the world's people feel about you after a choice (a name → friendship points, 2–5 "a little"); in an event
+// from a colleague, "{who}" is them.
+function feelsRows(w, p, who) {
+    const map = (getPath(p) ?? {});
+    const names = [...(who ? ['{who}'] : []), ...w.cast.examples.map(e => e.name)];
+    const has = Object.keys(map).filter(n => !BAD_KEYS.includes(n));
+    const free = names.filter(n => !has.includes(n));
+    const label = (n) => (n === '{who}' ? 'The colleague ({who})' : n);
+    return `<span class="mu-cw-sub">How people feel about you after it</span>${has.map(n => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Who</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(n)}">${[...names.filter(x => x === n || free.includes(x)), ...(names.includes(n) ? [] : [n])].map(x => `<option value="${esc(x)}" ${x === n ? 'selected' : ''}>${esc(label(x))}</option>`).join('')}</select></label>
+            ${num('Friendship (points; 2–5: a little)', `${p}.${n}`, -100)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${n}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="${who ? 'who' : 'people'}" data-v="3" data-path="${esc(p)}">${icon('plus')}<span>Add someone</span></button>` : ''}`;
+}
+/* ---------- work events and job tracks ---------- */
+// Who an event may come from (`WorkEvent.from.level`): a friendship level, a romance level or a couple's.
+const FROM_LEVELS = () => [...FRIEND_TIERS.filter(t => t.lo >= 10).map(t => [t.id, t.name]), ...ROMANCE_TIERS.filter(t => t.lo > 0).map(t => [t.id, `${t.name} (romance)`]),
+    ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']];
+// What a choice (or its failed roll) does: what happens, performance (−2 … 2), money, needs, how people feel, a fact, a
+// rumor, a skill it trains, (adult) a chance of a raid, and a boost for some days held inside the boost limits.
+function resultForm(w, q, who) {
+    const boost = getPath(`${q}.boost`);
+    return `${area('What happens (told to the AI)', `${q}.text`, 2)}
+        <div class="mu-row2">${bounded('Performance (−2 … 2)', `${q}.perf`, -2, 2)}${num(`Money (${esc(w.currency.symbol)}; below 0: it costs)`, `${q}.money`, -1000000)}</div>
+        <div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${q}.effects.${s.id}`, -100)).join('')}</div>
+        ${feelsRows(w, `${q}.feels`, who)}
+        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you)', `${q}.fact`, '{u} covered a shift for a colleague')}${optTxt('A rumor it starts at work', `${q}.rumor`)}</div>
+        <div class="mu-row2">${skillOpts(w).length ? sel('A skill it trains a little', `${q}.trains`, [['', '(none)'], ...skillOpts(w)], 'opt') : '<span></span>'}${bounded(`Chance of a raid over it (0 … 1) ${ADULT}`, `${q}.risk`, 0, 1, 0.05)}</div>
+        ${boost ? `<div class="mu-cw-path"><span class="mu-cw-sub">A boost for some days</span>${bounded(`For how many days (${BOOST_DAYS.min}–${BOOST_DAYS.max})`, `${q}.boost.days`, BOOST_DAYS.min, BOOST_DAYS.max)}
+            <p class="mu-muted">One or two effects, each within ±${BOOST_LIMITS.pct * 100}% (a flat amount within ±${BOOST_LIMITS.flat}) and the range the game allows for its kind (a ranking's +15% pay for a week).</p>
+            ${fxEditor(w, `${q}.boost.effects`, 'boost', 2)}<button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${q}.boost`)}">${icon('x')}<span>No boost</span></button></div>`
+        : `<button class="mu-ghost" data-act="cw-add" data-what="wboost" data-path="${esc(`${q}.boost`)}">${icon('plus')}<span>A boost for some days</span></button>`}`;
+}
+const ROLL_NONE = '-', ROLL_PLAIN = '*';
+function choiceForm(w, q, k, c, who) {
+    const roll = c.roll ? (c.roll.skill ?? ROLL_PLAIN) : ROLL_NONE;
+    const rolls = [[ROLL_NONE, 'No roll'], [ROLL_PLAIN, 'A roll (no skill)'], ...skillOpts(w)];
+    if (!rolls.some(([v]) => v === roll))
+        rolls.push([roll, roll]);
+    return `<div class="mu-cw-path mu-cw-choice"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Choice ${k + 1}</b>${idTag(c.id)}<span class="mu-cw-spacer"></span>
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove this choice">${icon('x')}</button></div>
+        <div class="mu-row2">${txt('What you choose (the button)', `${q}.label`, 'Cover for them')}${cond('Only offered while (optional)', `${q}.when`, 'present: Mio')}</div>
+        <div class="mu-row2"><label class="mu-field"><span>A roll</span><select data-input="cw-roll" data-path="${esc(q)}">${rolls.map(([v, l]) => `<option value="${esc(v)}" ${v === roll ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${c.roll ? bounded('Against (1–30)', `${q}.roll.dc`, 1, 30) : '<span></span>'}</div>
+        ${resultForm(w, q, who)}
+        ${c.roll ? (c.fail ? `<div class="mu-cw-path"><span class="mu-cw-sub">When the roll fails, instead</span>${resultForm(w, `${q}.fail`, who)}
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${q}.fail`)}">${icon('x')}<span>Remove: a failed roll only “did not work out”</span></button></div>`
+        : `<button class="mu-ghost" data-act="cw-add" data-what="wfail" data-path="${esc(`${q}.fail`)}">${icon('plus')}<span>What happens when the roll fails</span></button>`) : ''}</div>`;
+}
+// A job's (or a track's) work events: a list, the one picked open below it. Choices keep their order and their ids (a
+// private overlay rewrites them by id): ids are shown, never changed; a new choice gets one when the others have them.
+function eventsEditor(w, p, list, intro) {
+    const open = list.findIndex((_e, k) => CW.sel.wev === `${p}.${k}`);
+    const e = open >= 0 ? list[open] : undefined, q = `${p}.${open}`, who = !!e?.from;
+    return `<h4>Work events</h4><p class="mu-muted">${esc(intro)}</p>
+        <div class="mu-cw-evs">${list.map((x, k) => `<button class="mu-cw-row ${k === open ? 'is-on' : ''}" data-act="cw-wev" data-k="${esc(`${p}.${k}`)}"><b data-notr>${clip(x.setup, 60)}</b><small>${esc(x.id)} · ${(x.choices ?? []).length} choices${x.from ? ' · from a colleague' : ''}${x.adult ? ' · adult' : ''}</small></button>`).join('') || '<small class="mu-muted">No work events.</small>'}
+            <button class="mu-ghost" data-act="cw-add" data-what="wevent" data-path="${esc(p)}">${icon('plus')}<span>Add a work event</span></button></div>
+        ${e ? `<div class="mu-cw-path mu-cw-event"><div class="mu-row mu-cw-inline">${idTag(e.id)}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this event</span></button></div>
+            ${area('What happens (the setup)', `${q}.setup`, 2, 'A colleague asks you to cover their shift.')}
+            <div class="mu-row2">${cond('Only while (optional)', `${q}.when`, 'track: woman')}${flag('Only with adult content on', `${q}.adult`, '', true)}</div>
+            <label class="mu-check"><input type="checkbox" data-input="cw-from" data-path="${esc(`${q}.from`)}" ${e.from ? 'checked' : ''}><span>It comes from a colleague<small>One of the world's people in this job whom you know well enough: {who} in its texts is their name.</small></span></label>
+            ${e.from ? `<div class="mu-row2">${sel('Known at least as', `${q}.from.level`, [['', 'Friend (as usual)'], ...FROM_LEVELS().filter(([v]) => v !== 'friend')], 'opt')}${optTxt('With nobody like that, someone unnamed', `${q}.from.fallback`, 'another actress', 'Empty: the event waits for such a colleague.')}</div>
+                ${bounded('…at this share of the usual chance (0 … 1; empty: 0.5)', `${q}.from.odds`, 0, 1, 0.05)}` : ''}
+            ${(e.choices ?? []).map((c, k) => choiceForm(w, `${q}.choices.${k}`, k, c, who)).join('')}
+            ${(e.choices ?? []).length < 4 ? `<button class="mu-ghost" data-act="cw-add" data-what="wchoice" data-path="${esc(`${q}.choices`)}">${icon('plus')}<span>Add a choice</span></button>` : ''}</div>` : ''}`;
+}
+// A job's tracks by gender (`Occupation.tracks`): one job, one listing, with its own ranks, pay, hours and gates for a
+// gender. What a track leaves empty is the job's own; its work events come on top of the job's.
+function trackEditor(w, o, p) {
+    const tracks = o.tracks ?? {};
+    const gs = gendersOf(w);
+    const ids = Object.keys(tracks).filter(k => !BAD_KEYS.includes(k));
+    if (!ids.includes(CW.sel.track))
+        CW.sel.track = ids[0] ?? '';
+    const g = CW.sel.track;
+    const t = g ? tracks[g] : undefined;
+    const q = `${p}.tracks.${g}`;
+    const gname = (id) => gs.find(x => x.id === id)?.name ?? id;
+    const free = gs.filter(x => !ids.includes(x.id));
+    const yes = (b, d) => ((b ?? d) ? 'yes' : 'no');
+    const courses = (w.catalogs.courses ?? []).map(c => [c.id, c.name]);
+    const placeName = o.place ? (w.places.find(x => x.id === o.place)?.name ?? o.place) : '(none)';
+    const hire = t?.hire === undefined ? [] : Array.isArray(t.hire) ? t.hire : [t.hire];
+    return `<h4>Tracks by gender</h4><p class="mu-muted">One job and one listing, with its own ranks, pay, hours and gates for a gender (the AV actor's track beside the actresses'). What a track leaves empty is the job's own; its work events come on top of the job's. A player whose gender has no track picks one of the open tracks once, when hired. Write a track for every gender that has one, even when it is the job as written.</p>
+        <div class="mu-row mu-cw-inline mu-cw-tracks">${ids.map(id => `<button class="mu-chip ${id === g ? 'is-on' : ''}" data-act="cw-track" data-id="${esc(id)}">${esc(tracks[id]?.name || o.name)} <small>${esc(gname(id))}</small></button>`).join('') || '<small class="mu-muted">No tracks: the job is the same for everyone.</small>'}
+            ${free.length ? `<label class="mu-field"><span>Add a track for</span><select data-input="cw-track-add" data-path="${esc(`${p}.tracks`)}"><option value="">(choose)</option>${free.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></label>` : ''}</div>
+        ${t ? `<div class="mu-cw-path mu-cw-track">
+            <div class="mu-row mu-cw-inline">${optTxt(`Name of this track (${esc(gname(g))}; empty: the job's)`, `${q}.name`, o.name)}<button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this track</span></button></div>
+            <span class="mu-cw-sub">Being hired</span>
+            <div class="mu-row2">${sel('Open to the player', `${q}.hireable`, [['', `As the job (${yes(o.hireable, true)})`], ['true', 'Yes'], ['false', 'No']], 'tri')}${num(`A fee when hired (${esc(w.currency.symbol)}; waived by one of its courses)`, `${q}.fee`)}</div>
+            <span class="mu-cw-sub">Hired only with (one of these is enough; none: anyone)</span>
+            ${hire.map((_h, k) => `<div class="mu-row mu-cw-inline">${wayField(`Condition ${k + 1}`, Array.isArray(t.hire) ? `${q}.hire.${k}` : `${q}.hire`, 'holds: av_director_card')}<button class="mu-ghost mu-ibtn" data-act="cw-hire-del" data-path="${esc(q)}" data-k="${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="hire" data-path="${esc(q)}">${icon('plus')}<span>Add a condition</span></button>
+            ${courses.length ? `<div class="mu-field"><span>Courses it asks for (none picked: the job's)</span>${pairChips(courses, `${q}.courses`, true)}</div>` : ''}
+            ${bounded('Months before the first shift (0–12; empty: the job\'s)', `${q}.startAfter`, 0, 12, 0.5)}
+            <span class="mu-cw-sub">The work (empty: as the job)</span>
+            ${inherit('Works at', `${q}.place`, [['', '(no place: off-screen)'], ...placeOpts(w)], `As the job (${placeName})`)}
+            <div class="mu-row2">${num('Shift length (hours)', `${q}.shift`, 1)}${num('Energy per shift', `${q}.cost.energy`)}</div>
+            <div class="mu-row2">${num('Opens at (hour)', `${q}.hours.0`, 0)}${num('Closes at (hour)', `${q}.hours.1`, 0)}</div>
+            <div class="mu-row2">${num('Days a week', `${q}.schedule.days`, 0)}${num('Career length (1: about a game year)', `${q}.length`, 0.1, 0.1)}</div>
+            <div class="mu-row2">${num('Shift from (hour)', `${q}.schedule.from`, 0)}${num('Shift to (hour)', `${q}.schedule.to`, 0)}</div>
+            <div class="mu-row2">${num('Extra pay at night (0.25: +25%)', `${q}.nightPay`, 0, 0.05)}${bounded('Pace (its ranks take this many times as long: 0.1–4)', `${q}.pace`, 0.1, 4, 0.1)}</div>
+            <div class="mu-row2">${sel('Worked off-screen', `${q}.offScreen`, [['', `As the job (${yes(o.offScreen, false)})`], ['true', 'Yes'], ['false', 'No']], 'tri')}${sel('The boss asks for overtime', `${q}.overtime`, [['', `As the job (${yes(o.overtime, false)})`], ['true', 'Yes'], ['false', 'No']], 'tri')}</div>
+            <span class="mu-cw-sub">Ranks and pay per hour</span>
+            <label class="mu-check"><input type="checkbox" data-input="cw-track-ranks" data-path="${esc(q)}" data-job="${esc(p)}" ${t.ranks ? 'checked' : ''}><span>Ranks of its own<small>${t.ranks ? 'Off: the job\'s ranks, paths and promotions again.' : 'Starts from a copy of the job\'s ranks, paths and promotions.'}</small></span></label>
+            ${t.ranks ? `${rankRows(w, q, t, t.courses ?? o.courses)}${branchEditor(w, t, q)}` : ''}
+            <span class="mu-cw-sub">What it likes, asks and trains</span>
+            <div class="mu-field"><span>Traits that help (none picked: the job's)</span>${chips(traitOptions(w), `${q}.likes`, true)}</div>
+            ${skillOpts(w).length || t.skills || t.trains ? `${skillLevels(w, `${q}.skills`, 'Skill levels it asks to be hired (none: the job\'s)')}
+                <div class="mu-field"><span>Skills it trains (none picked: the job's)</span>${pairChips(skillOpts(w), `${q}.trains`, true)}</div>` : ''}
+            ${eventsEditor(w, `${q}.events`, t.events ?? [], 'On top of the job\'s (one with the id of one of the job\'s takes its place).')}
+            </div>` : ''}`;
 }
 const ELEMENTS = [['', '(none)'], ['fire', 'Fire'], ['water', 'Water'], ['lightning', 'Lightning'], ['ice', 'Ice'], ['earth', 'Earth'], ['light', 'Light'], ['dark', 'Dark']];
 // Goods and their markets, crops, businesses, celestial events and extreme weather.
@@ -358,6 +544,7 @@ function tabCustoms(w) {
                 <div class="mu-row2">${num('Times', `${p}.count`, 1)}${num('In how many days', `${p}.days`, 1)}</div>
                 ${num('Fades after days without it (empty: twice the days above)', `${p}.lose`, 1)}
                 ${skillOpts(w).length ? sel('A skill it trains a little faster while you have it', `${p}.learn`, [['', '(none)'], ...skillOpts(w)], 'opt') : ''}
+                ${flag('Only with adult content on', `${p}.adult`, "Otherwise it isn't gained, named, counted or felt.", true)}
                 <h4>Every morning while you have it</h4><div class="mu-row2">${w.statuses.map(st => num(esc(st.name), `${p}.daily.${st.id}`, -50)).join('')}</div>`;
     }, 'habit')}</section>
         <section class="mu-cw-sec"><h4>Festivals</h4>${master('festival', 'festivals', f => `<b>${esc(f.name)}</b><small>${esc(f.season)} ${f.day}</small>`, i => {
@@ -504,6 +691,7 @@ function branchEditor(w, o, p) {
         return `<div class="mu-cw-path">
                 <div class="mu-row2">${txt('Path', `${q}.name`)}${txt('What it is', `${q}.desc`)}</div>
                 ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Time to reach it (relative)', `${q}.promote.${ri}`, 1)}
+                    ${bounded('Days a week (empty: the schedule\'s)', `${q}.ranks.${ri}.days`, 1, 7)}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>`).join('')}
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>
@@ -515,7 +703,7 @@ function branchEditor(w, o, p) {
 }
 // What a bill or a broken thing can stop at home: the world's home actions.
 const homeActionOpts = (w) => w.actions.filter(a => a.home).map(a => [a.id, a.label || a.name]);
-const pairChips = (opts, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div>`; };
+const pairChips = (opts, p, drop = false) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" ${drop ? 'data-drop="1"' : ''}>${esc(l)}</button>`).join('')}</div>`; };
 // A world made before free expenses gets its water and power written out, so they can be edited like any other.
 function ensureExpenses(w) {
     if (w.homes.expenses)
@@ -571,7 +759,7 @@ function tabCourses(w) {
     return `<section class="mu-cw-sec"><h4>Courses</h4>
         <p class="mu-muted">${skilled ? 'Players enroll, pay and go to its classes (at its place, or at home or where a place is tagged "study"). Each class teaches a little of its skills, and finishing it gives at least their levels. A finished course is a credential jobs and ranks can ask for.'
         : 'Players pay once, then study a little each day (at home or where a place is tagged "study"). When they finish, they learn the course\'s traits for good.'}</p>
-        ${master('courses', 'catalogs.courses', c => `<b>${esc(c.icon ?? '')} ${esc(c.name)}</b><small>${esc(courseDays(w, c))} days · ${esc(money(w, c.cost ?? 0))}${seasonal(w, c) ? ' a season' : ''}${c.retired ? ' · retired' : ''}</small>`, i => {
+        ${master('courses', 'catalogs.courses', c => `<b>${esc(c.icon ?? '')} ${esc(c.name)}</b><small>${esc(courseDays(w, c))} days · ${esc(money(w, c.cost ?? 0))}${seasonal(w, c) ? ' a season' : ''}${c.retired ? ' · retired' : ''}${c.adult ? ' · adult' : ''}</small>`, i => {
         const p = `catalogs.courses.${i}`;
         const c = list[i];
         const g = c.grants ?? [];
@@ -598,6 +786,7 @@ function tabCourses(w) {
                 ${cond('It asks first (a condition)', `${p}.needs`, 'skill: japanese 4', 'Empty: anyone can enroll. A finished course: course: its id.')}
                 ${sel('The fee is paid', `${p}.perSeason`, [['', 'By its length (each season when it lasts longer than one)'], ['true', 'Every season while you take it'], ['false', 'Once, when you enroll']], 'tri')}
                 ${chk('Retired', `${p}.retired`, 'No longer offered. A game taking it can finish it, and jobs still accept it. A course is never removed once games may have taken it.')}
+                ${flag('Only with adult content on', `${p}.adult`, "Otherwise not offered, no aid and no boss's message; one being taken waits.", true)}
                 <h4>Help paying (aid)</h4><p class="mu-muted">Only the best one a player qualifies for counts.</p>
                 ${(c.aid ?? []).map((ad, k) => {
             const q = `${p}.aid.${k}`;
@@ -703,10 +892,10 @@ function strengthsEditor(w, k) {
         return skillOpts(w).length ? `<label class="mu-check"><input type="checkbox" data-input="cw-strengths" data-k="${esc(k)}"><span>Strengths: each option starts a skill<small>A pick becomes skill levels instead of a trait (Good cook: Cooking 3).</small></span></label>` : '';
     const p = `sheet.traits.${k}`;
     const map = t.skills;
-    const names = [...new Set([...t.options, ...(t.formerly ?? []), ...Object.keys(map)])].filter(n => !BAD_KEYS.includes(n));
+    const names = [...new Set([...t.options, ...(t.adultOptions ?? []), ...(t.formerly ?? []), ...Object.keys(map)])].filter(n => !BAD_KEYS.includes(n));
     const row = (n) => {
         const has = Object.entries(own(map, n) ?? {});
-        const status = t.options.includes(n) ? '' : (t.formerly ?? []).includes(n) ? 'former option' : 'no longer offered: kept as a former option when saved';
+        const status = t.options.includes(n) ? '' : (t.adultOptions ?? []).includes(n) ? 'adult option' : (t.formerly ?? []).includes(n) ? 'former option' : 'no longer offered: kept as a former option when saved';
         const pick = (s) => `<label class="mu-field"><span>Skill</span><select data-input="cw-strength" data-k="${esc(k)}" data-name="${esc(n)}" data-from="${esc(s)}">${[['', '(none: stays a trait)'], ...skillOpts(w).filter(([id]) => id === s || !has.some(([x]) => x === id)), ...(s && !skillOpts(w).some(([id]) => id === s) ? [[s, s]] : [])].map(([id, l]) => `<option value="${esc(id)}" ${id === s ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
         const level = (s, lv) => `<label class="mu-field"><span>Level</span><input type="number" min="1" max="10" step="1" data-input="cw-strength-lv" data-k="${esc(k)}" data-name="${esc(n)}" data-skill="${esc(s)}" data-path="${esc(`${p}.skills.${n}.${s}`)}" value="${esc(lv)}"></label>`;
         return (has.length ? has : [['', 0]]).map(([s, lv], j) => `<div class="mu-row mu-cw-inline mu-cw-strength"><span class="mu-cw-sname">${j ? '' : `${esc(n)}${status ? ` <small class="mu-muted">${esc(status)}</small>` : ''}`}</span>${pick(s)}${s ? level(s, lv) : '<span class="mu-cw-spacer"></span>'}</div>`).join('');
@@ -721,9 +910,11 @@ function strengthsEditor(w, k) {
 // Strengths groups are skills, not effects, so they are left out.
 // The kinds a trait may use: the rest of `EFFECT_KINDS` (prices, pay, trips, rest, rerolls, life points, interviews, and
 // whatever the engine adds later) are for life goals' perks and the shop's boosts.
-const TRAIT_KINDS = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study'];
+// (adult) `jealousy` and `risk` too: a Flirtatious trait minds a partner's other dates less, Shameless takes more chances.
+const TRAIT_KINDS = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study', 'jealousy', 'risk'];
 const KIND_NAMES = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
-    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)' };
+    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)',
+    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)' };
 // The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
 // first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
 function targetOpts(w, kind, cur = '', wide = false) {
@@ -735,23 +926,28 @@ function targetOpts(w, kind, cur = '', wide = false) {
     const places = placeOpts(w).map(([id, n]) => [id, `Place: ${n}`]);
     const tagged = (l) => l.map(t => [t, `Tag: ${t}`]);
     const jobs = w.occupations.map(o => [o.id, `Job: ${o.name}`]);
+    const jobTags = [...new Set(w.occupations.flatMap(o => o.tags ?? []))].map(t => [t, `Kind of job: ${t}`]);
     const list = kind === 'drain' ? [['', 'Every need'], ...w.statuses.map(s => [s.id, `${s.icon} ${s.name}`])]
         : kind === 'learn' ? [['all', 'Every skill'], ['upto:3', 'Every skill, up to level 3'], ['upto:5', 'Every skill, up to level 5'], ...skillOpts(w), ...groups]
             : kind === 'roll' ? [['', 'Every roll'], ...(wide ? [['work', 'Any roll at work']] : []), ...skillOpts(w), ...groups, ...tagged(tags)]
-                : kind === 'perf' ? [['gain', 'Performance gains']] : kind === 'career' ? [['rank', 'Days a rank takes'], ...(wide ? [['hire', 'A new job starts on the way to the next rank (−50%: halfway)']] : [])]
+                : kind === 'perf' ? [['gain', 'Performance gains'], ...jobs, ...jobTags] : kind === 'career' ? [['rank', 'Days a rank takes'], ...(wide ? [['hire', 'A new job starts on the way to the next rank (−50%: halfway)']] : [])]
                     : kind === 'warm' ? [['new', 'Someone you first meet (points)'], ...(wide ? [...maps, ...areas, ...tagged(placeTags), ...places] : [])]
-                        : kind === 'gain' ? [['friend', 'Friendship'], ['romance', 'Romance'], ['dates', 'Romance from dates'], ['gifts', 'Gifts'], ['good friends', 'Friendship with good friends']]
+                        : kind === 'gain' ? [['friend', 'Friendship'], ['romance', 'Romance'], ['dates', 'Romance from dates'], ['gifts', 'Gifts'], ['good friends', 'Friendship with good friends'], ['romance:early', 'Romance until a Crush'],
+                            ['intimate', 'Romance from private moments (adult)'], ['intimate:lead', 'Romance from private moments with someone who leads (adult)'],
+                            ['intimate:follow', 'Romance from private moments with someone who follows (adult)'], ['intimate:switch', 'Romance from private moments with someone who switches (adult)']]
                             : kind === 'fade' ? [['romance', 'Romance'], ...(wide ? [['partner', 'Your partner\'s romance']] : []), ['friend', 'Friendship']] : kind === 'morning' || kind === 'party' ? [['mood', 'Mood']]
                                 : kind === 'study' ? (wide ? [['', 'Every class and lesson'], ['class', 'A course\'s classes'], ['teach', 'Lessons you give an apprentice']] : [['', 'Every class']])
                                     : kind === 'price' ? [['prices', 'What places and actions charge'], ['regular', 'Where you\'re a regular'], ['rent', 'Rent'], ['bills', 'Bills'], ['entry', 'Entry fees'],
                                         ...placeTags.map(t => [`entry:${t}`, `Entry fees at places tagged ${t}`]), ...tagged(placeTags), ...maps, ...areas, ...places]
-                                        : kind === 'pay' ? [['', 'All pay'], ['wage', 'Wages'], ['bonus', 'Seasonal bonuses'], ['tips', 'Money from choices at work'], ...jobs, ...tagged(placeTags)]
-                                            : kind === 'rest' ? [['sleep', 'A night\'s sleep'], ['sleep home', 'A night at home'], ['sleep away', 'A night away'], ['bath', 'Baths'], ['food', 'Food and drink'], ...tagged(actTags)]
+                                        : kind === 'pay' ? [['', 'All pay'], ['wage', 'Wages'], ['bonus', 'Seasonal bonuses'], ['tips', 'Money from choices at work'], ...jobs, ...jobTags, ...tagged(placeTags)]
+                                            : kind === 'rest' ? [['sleep', 'A night\'s sleep'], ['sleep home', 'A night at home'], ['sleep away', 'A night away'], ['sleep together', 'A night spent together'], ['bath', 'Baths'], ['food', 'Food and drink'], ...tagged(actTags)]
                                                 : kind === 'points' ? [['', 'All life points'], ['active', 'From goals (steps and finishing)'], ['passive', 'From everything else'],
-                                                    ...[...Object.keys(GOAL_POINTS), ...Object.keys(SECOND_POINTS)].map(s => [s, `From: ${s}`]),
+                                                    ...[...Object.keys(GOAL_POINTS), ...Object.keys(SECOND_POINTS)].map(s => [s, s === 'learned' ? 'From likes and limits you learn of someone (adult)' : `From: ${s}`]),
                                                     ['festivals', 'From festivals and city events'], ['secrets', 'From secrets, street stories and storylines']]
                                                     : kind === 'interview' ? [['', 'Every job'], ...jobs]
-                                                        : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
+                                                        : kind === 'risk' ? [['', 'Every risky action'], ...w.actions.filter(a => a.risk !== undefined).map(a => [a.id, `Action: ${a.label || a.name}`]), ...tagged(actTags)]
+                                                            : kind === 'jealousy' ? [['', 'Every partner']]
+                                                                : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
 }
 const hasStd = (n) => !!own(STANDARD_TRAIT_INFO, n);
@@ -786,12 +982,45 @@ export function forSaving(w) {
     else
         delete out.traitInfo;
     tidyGoals(out);
+    tidyAdult(out);
     for (const g of out.sheet?.traits ?? []) {
-        const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.formerly ?? []).includes(n));
+        const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length)
             g.formerly = [...(g.formerly ?? []), ...left];
     }
     return out;
+}
+// What the newer editors can leave that the engine would refuse: a track's hiring condition left empty, a boost whose
+// effects were all removed, an emptied pool of likes and limits. Nothing else is touched (an untouched world saves as it was).
+function tidyAdult(w) {
+    for (const o of w.occupations ?? []) {
+        for (const t of Object.values(o.tracks ?? {})) {
+            if (!t || t.hire === undefined)
+                continue;
+            if (Array.isArray(t.hire)) {
+                const l = t.hire.filter(h => typeof h !== 'string' || h.trim());
+                if (l.length)
+                    t.hire = l;
+                else
+                    delete t.hire;
+            }
+            else if (typeof t.hire === 'string' && !t.hire.trim())
+                delete t.hire;
+        }
+        for (const e of [...(o.events ?? []), ...Object.values(o.tracks ?? {}).flatMap(t => t?.events ?? [])])
+            for (const c of e.choices ?? [])
+                for (const r of [c, c.fail])
+                    if (r?.boost && !r.boost.effects?.length)
+                        delete r.boost;
+    }
+    const pool = w.intimatePool;
+    if (pool) {
+        for (const k of ['prefs', 'limits'])
+            if (Array.isArray(pool[k]) && !pool[k].length)
+                delete pool[k];
+        if (!Object.keys(pool).length)
+            delete w.intimatePool;
+    }
 }
 // The entry being edited: the world's own, made from the standard one the first time it changes.
 function infoOf(name, make = false) {
@@ -820,7 +1049,7 @@ function tidyInfo(info) {
 }
 const pctOf = (k) => EFFECT_KINDS[k].mode === 'mul';
 function traitInfoEditor(w) {
-    const groups = (w.sheet.traits ?? []).filter(t => !t.skills && t.options.length).map(t => [t.label, t.options]);
+    const groups = (w.sheet.traits ?? []).filter(t => !t.skills && (t.options.length || t.adultOptions?.length)).map(t => [t.label, [...t.options, ...(t.adultOptions ?? [])]]);
     if ((w.habits ?? []).length)
         groups.push(['Habits', [...new Set((w.habits ?? []).map(h => h.trait).filter(Boolean))]]);
     const listed = new Set(groups.flatMap(g => g[1]));
@@ -868,6 +1097,18 @@ function traitInfoEditor(w) {
             ${hasStd(n) && !isStd(n, own(w.traitInfo, n)) ? `<button class="mu-ghost" data-act="cw-ti-reset" data-name="${esc(n)}">${icon('redo')}<span>Back to the standard</span></button>` : !hasStd(n) && own(w.traitInfo, n) ? `<button class="mu-ghost mu-danger-text" data-act="cw-ti-reset" data-name="${esc(n)}">${icon('x')}<span>Clear what it does</span></button>` : ''}
         </section></div>` : '<p class="mu-muted">No traits to describe yet: add a group above.</p>'}</section>`;
 }
+// The world's skills (what you can do: levels 1–10 that jobs, courses and rolls ask for). Only in a world on the skills
+// model (one that has a list); an adult one (Sensuality) is out of the profile, the AI and conditions without adult content.
+function skillsEditor(w) {
+    if (!Array.isArray(w.skills))
+        return '';
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Skills</h4><p class="mu-muted">What a character can do, in levels 1–10: jobs, ranks, courses and rolls ask for them, and strengths start them. Hobbies (Customs & calendar) count as skills too.</p>
+        ${master('skill', 'skills', k => `<b>${esc(k.icon ?? '')} ${esc(k.name)}</b><small>${k.adult ? 'adult' : ''}</small>`, i => {
+        const p = `skills.${i}`;
+        return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎯')}</div>${txt('Description', `${p}.desc`)}
+                ${flag('Only with adult content on', `${p}.adult`, 'Like Sensuality: hidden from the profile, the AI and conditions otherwise. Whatever asks for it or trains it must be adult too.', true)}`;
+    }, 'skill', 'No skills yet.')}</section>`;
+}
 function tabCharacter(w) {
     const s = w.sheet;
     return `<div class="mu-cw-grid">
@@ -878,9 +1119,12 @@ function tabCharacter(w) {
             ${(s.appearance ?? []).map((_a, k) => `<div class="mu-row mu-cw-inline">${txt('Trait', `sheet.appearance.${k}.label`)}${csv('Options (comma separated)', `sheet.appearance.${k}.options`)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="sheet.appearance.${k}">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="look">${icon('plus')}<span>Add</span></button></section>
         <section class="mu-cw-sec"><h4>Traits the player picks</h4>
-            ${(s.traits ?? []).map((_t, k) => `<div class="mu-cw-trait"><div class="mu-row2">${txt('Group', `sheet.traits.${k}.label`)}${num('Pick up to', `sheet.traits.${k}.max`, 1)}</div>${csv('Options (comma separated)', `sheet.traits.${k}.options`)}${strengthsEditor(w, k)}<button class="mu-ghost" data-act="cw-del" data-path="sheet.traits.${k}">${icon('trash')}<span>Remove</span></button></div>`).join('')}
+            ${(s.traits ?? []).map((_t, k) => `<div class="mu-cw-trait"><div class="mu-row2">${txt('Group', `sheet.traits.${k}.label`)}${num('Pick up to', `sheet.traits.${k}.max`, 1)}</div>${csv('Options (comma separated)', `sheet.traits.${k}.options`)}
+                ${words(`Adult options (comma separated) ${ADULT}`, `sheet.traits.${k}.adultOptions`, 'Offered after the others, only with adult content on (Good in bed, Shameless).')}
+                ${flag('The whole group only with adult content on', `sheet.traits.${k}.adult`, 'Like In bed or Drive.', true)}${strengthsEditor(w, k)}<button class="mu-ghost" data-act="cw-del" data-path="sheet.traits.${k}">${icon('trash')}<span>Remove</span></button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="trait">${icon('plus')}<span>Add a group</span></button></section>
         ${traitInfoEditor(w)}
+        ${skillsEditor(w)}
         <section class="mu-cw-sec mu-cw-wide"><h4>Origins (how you start)</h4>
             ${master('origins', 'catalogs.origins', o => `<b>${esc(o.name)}</b><small>${esc(money(w, o.money))}</small>`, i => {
         const p = `catalogs.origins.${i}`;
@@ -971,6 +1215,8 @@ export function savedNote(w) {
 const REWARD_KIND_NAMES = { boost: 'A boost for a few days', refill: 'A need full now', nudge: 'Nudge: one person\'s feelings for you grow', clear: 'Clear the air: one person\'s feelings start over',
     fresh: 'A fresh start: one person forgets you', forgive: 'Forgive and forget: a grudge ends', invite: 'An invitation: someone asks you out soon', quiet: 'Quiet a rumor about you', insight: 'Insight: one true thing about someone',
     retrait: 'Change a trait, or drop a habit', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal' };
+// What an Insight item can tell (sim/rewards.ts): `bed` stands for the three adult ones.
+const INSIGHT_QUESTIONS = [['heart', 'Their heart'], ['view', 'How they see you'], ['secret', 'Their secret'], ['bed_like', 'Something they like (adult)'], ['bed_limit', "Something they won't do (adult)"], ['bed_drive', 'Their drive (adult)'], ['bed', 'Anything about them in bed (adult)']];
 const LIMIT_PER = [['', 'No limit'], ['day', 'A day'], ['week', 'A week'], ['season', 'A season'], ['year', 'A year'], ['goal', 'For each goal you follow'], ['ever', 'Ever']];
 // Systems and needs a goal or a reward can't do without (with one off, a game doesn't offer it): the world's systems that
 // are on, its needs, and whatever the entry already names.
@@ -990,8 +1236,11 @@ const roleOpts = (w, cur = []) => {
 // grammar doesn't read yet is left out (a regular at one place: `visited: <place> regular`).
 const MOMENT_NAMES = { meal: 'Cook a meal', workout: 'Work out', painting: 'Paint', shift: 'Work a shift', party: 'Throw a party', missed_shift: 'Miss a shift', missed_train: 'Miss the last train', date: 'Go on a date',
     overnight: 'Someone stays the night', night_away: 'A night away from home', crisis: 'A crisis (a need at zero)', collapse: 'Collapse from exhaustion', apprentice: 'Take an apprentice', lesson: 'Teach a lesson', taught: 'An apprentice finishes',
-    baby: 'Have a baby', business: 'Open a business', big_party: 'A party with five guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00' };
-const PARTNER_NAMES = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married' };
+    baby: 'Have a baby', business: 'Open a business', big_party: 'A party with five guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00',
+    // (adult)
+    intimate: 'A private moment with someone (adult)', learned: 'Learn something someone likes or won\'t do (adult)', risky: 'Get away with something risky (adult)', caught: 'Get caught (adult)',
+    threesome: 'A night for three (adult)', jealous: 'Make a partner jealous', gift_loved: 'A gift someone loved' };
+const PARTNER_NAMES = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married', open: 'A partner fine with more than one' };
 const realPlaces = (w) => w.places.filter(p => !p.link);
 // (an area named with a space can't be written in a condition)
 const areasOf = (w) => [...new Set(w.maps.map(m => m.area).filter((a) => !!a && /^[^\s,;]+$/.test(a) && !w.maps.some(m => m.id === a)))];
@@ -1031,6 +1280,27 @@ export const QUICK = {
     holds: { name: 'A keepsake', ok: w => (w.keepsakes ?? []).length > 0, opts: w => [['#', 'A number of different keepsakes'], ...(w.keepsakes ?? []).map(k => [k.id, `${k.icon ?? ''} ${k.name}`.trim()])], n: 'How many', make: (x, n) => (x === '#' ? `holds: ${n}` : `holds: ${x}`) },
     course: { name: 'A course finished', ok: w => (w.catalogs.courses ?? []).length > 0, opts: w => [['#', 'A number of courses'], ...(w.catalogs.courses ?? []).map((c) => [c.id, c.name])], n: 'How many', make: (x, n) => (x === '#' ? `course: ${n}` : `course: ${x}`) },
     partner: { name: 'A partner', ok: w => systemOn(w, 'romance'), opts: () => PARTNER_VALUES.map(v => [v, PARTNER_NAMES[v] ?? v]), make: x => `partner: ${x}` },
+    partners: { name: 'Partners at once', ok: w => systemOn(w, 'romance'), opts: () => [['', 'Casual ones included']], n: 'How many', make: (_x, n) => `partner: ${Math.max(1, n)}` },
+    track: { name: 'A job on a track', ok: w => w.occupations.some(o => Object.keys(o.tracks ?? {}).length), opts: w => trackOpts(w), make: x => { const [j, t] = x.split('|'); return `job: ${j}; track: ${t}`; } },
+    seen: { name: 'A choice made at work', ok: w => workEvents(w).length > 0, opts: w => workEvents(w).map(([o, e]) => [e.id, `${o.name}: ${e.setup.length > 50 ? `${e.setup.slice(0, 49)}…` : e.setup}`]),
+        extra: (w, id) => { const e = workEvents(w).find(([, x]) => x.id === id)?.[1]; return [['', 'Any choice'], ...(e?.choices ?? []).map((c, k) => [String(k + 1), c.label])]; },
+        make: (id, _n, c) => `seen: ${id}${c ? `:${c}` : ''}` },
+};
+// The world's work events (a job's and its tracks'), with their job, each once by id.
+function workEvents(w) {
+    const out = [];
+    const seen = new Set();
+    for (const o of w.occupations)
+        for (const e of [...(o.events ?? []), ...Object.values(o.tracks ?? {}).flatMap(t => t?.events ?? [])])
+            if (e?.id && !seen.has(e.id) && /^[^\s,;:]+$/.test(e.id)) {
+                seen.add(e.id);
+                out.push([o, e]);
+            }
+    return out;
+}
+const trackOpts = (w) => {
+    const gs = gendersOf(w);
+    return w.occupations.flatMap(o => Object.entries(o.tracks ?? {}).filter(([g]) => /^[^\s,;:]+$/.test(g) && /^[^\s,;:]+$/.test(o.id)).map(([g, t]) => [`${o.id}|${g}`, `${o.name}: ${t?.name || o.name} (${gs.find(x => x.id === g)?.name ?? g})`]));
 };
 // What each step's quick-add row has picked (by the step's path; kept while the form is drawn again).
 const QA = {};
@@ -1127,6 +1397,8 @@ function rewardForm(w, i) {
             <p class="mu-muted">One or two effects, each within ±${BOOST_LIMITS.pct * 100}% (a flat amount within ±${BOOST_LIMITS.flat}) and the range the game allows for its kind. While it runs, the same item isn't for sale.</p>${fxEditor(w, `${p}.effects`, 'boost', 2)}`
         : kind === 'refill' || r.need ? sel('The need it fills', `${p}.need`, statusOpts(w), 'opt')
             : `<p class="mu-muted">${PERSON_KINDS.includes(kind) ? 'The player picks a person you know when buying it. ' : ''}It works as the general item of this kind does, under this item's own name and words.</p>`}
+        ${kind === 'insight' || r.questions ? `<div class="mu-field"><span>What it can tell (none picked: everything Insight asks)</span>${pairChips(INSIGHT_QUESTIONS.filter(([v]) => v !== 'bed' || (r.questions ?? []).includes('bed')), `${p}.questions`, true)}</div>
+            ${(r.questions ?? []).some(q => q.startsWith('bed')) && !r.adult ? '<p class="mu-warn">A question about someone in bed is adult: mark the item adult below.</p>' : ''}` : ''}
         <h4>How often</h4>
         <div class="mu-row2"><label class="mu-field"><span>At most once</span><select data-input="cw-rlimit" data-path="${esc(`${p}.limit.per`)}">${LIMIT_PER.map(([v, l]) => `<option value="${v}" ${(r.limit ? r.limit.per ?? 'ever' : '') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
             ${r.limit ? num('Times (empty: once)', `${p}.limit.n`, 1) : '<span></span>'}</div>
@@ -1285,6 +1557,14 @@ function peopleEditor(w) {
     }, 'person', 'Nobody lives here yet.')}
         <button class="mu-ghost" data-act="cw-rnd-all">${icon('redo')}<span>Shuffle everyone's job, home and routine</span></button></section>`;
 }
+// (adult) The plain likes and hard limits people made in the game draw their intimate profiles from (a private overlay
+// replaces each list with its own).
+function poolEditor(w) {
+    if (!systemOn(w, 'romance'))
+        return '';
+    return `<section class="mu-cw-sec"><h4>Likes and limits for new people ${ADULT}</h4><p class="mu-muted">People made in a game (residents, guests) draw an intimate profile from these: a few likes, a hard limit or two, who leads and their drive. Plain words, one per line. Empty: they have none.</p>
+        ${lines('Likes (one per line)', 'intimatePool.prefs', 6, 'slow and tender')}${lines('Hard limits (one per line)', 'intimatePool.limits', 4, 'nothing in public')}</section>`;
+}
 // The genders people can have in this world (the AI is told the pronouns; the plural is for sentences like "attracted
 // to women").
 function gendersEditor(w) {
@@ -1297,6 +1577,7 @@ function tabPeople(w) {
     return `<div class="mu-cw-grid">
         ${peopleEditor(w)}
         ${gendersEditor(w)}
+        ${poolEditor(w)}
         ${routineEditor(w)}
     </div>`;
 }
@@ -1319,15 +1600,26 @@ SCOPES.cw = {
             e.style = p.style;
         if (p?.intimacy)
             e.intimacy = p.intimacy;
+        // (adult) the intimate profile (and the panel's role and drive) only when the panel changed it: one never touched stays
+        // exactly as the file has it
+        if (canon(cleanIntimate(e.intimate)) !== canon(p?.intimate)) {
+            if (p?.intimate)
+                e.intimate = p.intimate;
+            else
+                delete e.intimate;
+        }
         CW.dirty = true;
     },
     genders: () => CW.w?.genders ?? [],
     romance: () => systemOn(CW.w, 'romance'),
+    // a world's people carry their intimate profiles whatever a game's adult switch will say (it's marked adult)
+    adult: () => true,
 };
 function tabLore(w) {
-    return master('lore', 'lore', (l, k) => `<b>${esc((l.keys ?? []).join(', ') || `#${k + 1}`)}</b><small>${l.constant ? 'Always on' : ''}</small>`, i => {
+    return master('lore', 'lore', (l, k) => `<b>${esc((l.keys ?? []).join(', ') || `#${k + 1}`)}</b><small>${l.constant ? 'Always on' : ''}${l.id ? ` · ${esc(l.id)}` : ''}</small>`, i => {
         const p = `lore.${i}`;
         return `${csv('Keywords (comma separated)', `${p}.keys`, 'The entry is used when one of these comes up in the chat.')}${chk('Always on', `${p}.constant`)}
+            ${optTxt('Id (optional)', `${p}.id`, 'tk_lore_hotel', 'A name a private overlay can replace this entry by: its entry with the same id is used instead of this one. Keep it once games may use the overlay.')}
             <h4>Only when… (optional: the entry switches on by itself when the world is like this)</h4>
             <div class="mu-row2">${sel('Weather', `${p}.when.weather`, [['', 'Any'], ['Sunny', 'Sunny'], ['Fair', 'Fair'], ['Partly cloudy', 'Partly cloudy'], ['Cloudy', 'Cloudy'], ['Rain', 'Rain']])}${sel('Part of the day', `${p}.when.period`, [['', 'Any'], ...w.time.periods.map(x => [x.name, x.name])])}</div>
             <div class="mu-row2">${sel('Place', `${p}.when.place`, [['', 'Anywhere'], ...placeOpts(w)])}${sel('Days', `${p}.when.weekend`, [['', 'Any day'], ['true', 'Weekends'], ['false', 'Weekdays']], 'tri')}</div>
@@ -1520,10 +1812,11 @@ const NEW = {
     period: () => ['time.periods', { id: newId('p'), name: 'New period', from: 720 }],
     look: () => ['sheet.appearance', { id: newId('look'), label: 'New trait', options: [] }],
     trait: () => ['sheet.traits', { id: newId('trait'), label: 'New group', max: 2, options: [] }],
+    skill: () => ['skills', { id: newId('skill'), name: 'New skill', icon: '🎯' }],
     goal: () => ['goals.add', { id: newId('goal'), name: 'New goal', icon: '⭐', category: 'social', desc: '', steps: [{ name: 'Step 1', when: '' }], perk: { name: 'New perk', desc: '', effects: [{ kind: 'learn', value: 0.1 }] } }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward' };
+const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },
@@ -1711,6 +2004,55 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        // a key of a small map (a skill level to be hired, how someone feels after a choice): the next one not there yet
+        if (what === 'mapkey') {
+            const p = el.dataset.path;
+            const m = (getPath(p) ?? {});
+            const keys = el.dataset.keys === 'skills' ? skillOpts(w).map(([id]) => id) : [...(el.dataset.keys === 'who' ? ['{who}'] : []), ...w.cast.examples.map(e => e.name)];
+            const k = keys.find(x => !BAD_KEYS.includes(x) && own(m, x) === undefined);
+            if (!k)
+                return;
+            setPath(p, { ...m, [k]: Number(el.dataset.v) || 3 });
+            notify();
+            return;
+        }
+        // work events, their choices, a failed roll's own result, a boost; a track's hiring conditions
+        if (what === 'wevent') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push({ id: newId('ev'), setup: '', choices: [{ id: newId('c'), label: 'Choice A', text: '', perf: 1 }, { id: newId('c'), label: 'Choice B', text: '', perf: 0 }] });
+            CW.sel.wev = `${el.dataset.path}.${list.length - 1}`;
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'wchoice') {
+            const list = getPath(el.dataset.path);
+            if (!Array.isArray(list) || list.length >= 4)
+                return;
+            list.push({ ...(list.length && list.every(c => typeof c.id === 'string' && c.id) ? { id: newId('c') } : {}), label: `Choice ${String.fromCharCode(65 + list.length)}`, text: '', perf: 0 });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'wfail') {
+            setPath(el.dataset.path, { text: '' });
+            notify();
+            return;
+        }
+        if (what === 'wboost') {
+            setPath(el.dataset.path, { effects: [{ kind: 'pay', value: 0.1 }], days: 7 });
+            notify();
+            return;
+        }
+        if (what === 'hire') {
+            const t = getPath(el.dataset.path);
+            if (!t)
+                return;
+            t.hire = t.hire === undefined ? '' : [...(Array.isArray(t.hire) ? t.hire : [t.hire]), ''];
+            CW.dirty = true;
+            notify();
+            return;
+        }
         const [path, item] = NEW[what]();
         const list = (getPath(path) ?? (setPath(path, []), getPath(path)));
         list.push(item);
@@ -1786,6 +2128,22 @@ Object.assign(ACT, {
         CW.dirty = true;
         notify();
     },
+    // the work event open below its list (another click closes it), the track shown
+    'cw-wev': (el) => { CW.sel.wev = CW.sel.wev === el.dataset.k ? '' : el.dataset.k; notify(); },
+    'cw-track': (el) => { CW.sel.track = el.dataset.id; notify(); },
+    // one of a track's hiring conditions; one left stays a list of one (an emptied list goes)
+    'cw-hire-del': (el) => {
+        const t = getPath(el.dataset.path);
+        if (!t || t.hire === undefined)
+            return;
+        const l = (Array.isArray(t.hire) ? t.hire : [t.hire]).filter((_x, k) => k !== Number(el.dataset.k));
+        if (l.length)
+            t.hire = Array.isArray(t.hire) ? l : l[0];
+        else
+            delete t.hire;
+        CW.dirty = true;
+        notify();
+    },
     // what a step's quick-add row has picked, added to its objectives (or to one of its other ways)
     'cw-qa-add': (el) => {
         const k = el.dataset.k;
@@ -1807,7 +2165,7 @@ Object.assign(ACT, {
         const v = el.dataset.v;
         const i = l.indexOf(v);
         i >= 0 ? l.splice(i, 1) : l.push(v);
-        setPath(el.dataset.path, l);
+        setPath(el.dataset.path, l.length || !el.dataset.drop ? l : undefined);
         notify();
     },
     // what traits do (traitInfoEditor)
@@ -1948,11 +2306,25 @@ Object.assign(INPUT, {
             v = el.value === '' || !Number.isFinite(Number(el.value)) ? undefined : Number(el.value);
             if (v !== undefined && el.dataset.clamp) {
                 const [lo, hi] = el.dataset.clamp.split(',').map(Number);
-                v = Math.max(lo, Math.min(hi, v));
+                v = Math.max(lo, Math.min(hi, el.dataset.int ? Math.round(v) : v));
             }
         }
         else if (t === 'bool')
             v = el.checked;
+        else if (t === 'flag')
+            v = el.checked ? true : undefined;
+        else if (t === 'inherit')
+            v = el.value === '*' ? undefined : el.value;
+        else if (t === 'words') {
+            const l = el.value.split(',').map((x) => x.trim()).filter(Boolean);
+            v = l.length ? l : undefined;
+        }
+        else if (t === 'lines') {
+            const l = el.value.split(/\r?\n/).map((x) => x.trim()).filter(Boolean);
+            setPath(p, l.length ? l : undefined);
+            dirtyMark();
+            return;
+        }
         else if (t === 'nbool')
             v = el.checked ? undefined : false;
         else if (t === 'tri')
@@ -2012,6 +2384,64 @@ Object.assign(INPUT, {
         if (!c?.skills || !to || to === from || own(c.skills, to) !== undefined || BAD_KEYS.includes(to))
             return;
         c.skills = Object.fromEntries(Object.entries(c.skills).map(([s, l]) => [s === from ? to : s, l]));
+        CW.dirty = true;
+        notify();
+    },
+    // a key of a small map changed for another (a skill to be hired, who feels something): its value and place kept
+    'cw-rekey': (el) => {
+        const p = el.dataset.path;
+        const m = getPath(p);
+        const from = el.dataset.from, to = el.value;
+        if (!m || !to || to === from || own(m, to) !== undefined || BAD_KEYS.includes(to) || own(m, from) === undefined)
+            return;
+        setPath(p, Object.fromEntries(Object.entries(m).map(([k, v]) => [k === from ? to : k, v])));
+        notify();
+    },
+    // a work choice's roll: none, one with no skill, or a skill's (its difficulty kept)
+    'cw-roll': (el) => {
+        const c = getPath(el.dataset.path);
+        if (!c)
+            return;
+        const v = el.value;
+        if (v === ROLL_NONE)
+            delete c.roll;
+        else
+            c.roll = { ...(v === ROLL_PLAIN ? {} : { skill: v }), dc: c.roll?.dc ?? 12 };
+        CW.dirty = true;
+        notify();
+    },
+    // an event that comes from a colleague (as Friend, at half the usual chance with an unnamed fallback), or not
+    'cw-from': (el) => { setPath(el.dataset.path, el.checked ? {} : undefined); notify(); },
+    // a track for one of the world's genders: the job as written until something is set
+    'cw-track-add': (el) => {
+        const g = el.value;
+        if (!g || BAD_KEYS.includes(g))
+            return;
+        const m = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, {}), getPath(el.dataset.path)));
+        if (own(m, g))
+            return;
+        m[g] = {};
+        CW.sel.track = g;
+        CW.dirty = true;
+        notify();
+    },
+    // a track's own ranks (a copy of the job's ranks, paths and promotions to start from), or the job's again
+    'cw-track-ranks': (el) => {
+        const t = getPath(el.dataset.path), o = getPath(el.dataset.job);
+        if (!t || !o)
+            return;
+        if (el.checked) {
+            t.ranks = structuredClone(o.ranks ?? []);
+            if (o.promote)
+                t.promote = structuredClone(o.promote);
+            if (o.branches)
+                t.branches = structuredClone(o.branches);
+        }
+        else {
+            delete t.ranks;
+            delete t.promote;
+            delete t.branches;
+        }
         CW.dirty = true;
         notify();
     },

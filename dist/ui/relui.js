@@ -13,11 +13,13 @@ import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
-import { WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen } from '../sim/work.js';
+import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen } from '../sim/work.js';
 import { placeOf } from '../sim/places.js';
 import { skillName } from '../sim/hobbies.js';
 import { hm } from '../sim/time.js';
-import { tooTired } from '../sim/needs.js';
+import { tooTired, money } from '../sim/needs.js';
+import { payOf } from '../sim/bills.js';
+import { layTrack } from '../sim/tracks.js';
 import { note } from '../sim/facts.js';
 import { diaryTtsButton } from './addons.js';
 import { INPUT } from './reg.js';
@@ -382,7 +384,7 @@ export function shiftLabel(g, w, o) {
 }
 /** The work button where you can work (at your rank's place, or anywhere for an off-screen job). */
 export function workButton(g, w) {
-    const o = jobDef(w, g.player.job?.id);
+    const o = myJob(g, w);
     if (!o || !systemOn(w, 'jobs') || !atWork(g, w, o))
         return '';
     const l = shiftLabel(g, w, o);
@@ -391,7 +393,7 @@ export function workButton(g, w) {
 // Your shifts this week (also in the Calendar and the Jobs app): days off to book or give back, calling in sick, and
 // the shift you'd rather work in a job worked round the clock.
 export function workWeekHtml(g, w) {
-    const o = jobDef(w, g.player.job?.id);
+    const o = myJob(g, w);
     if (!o || !systemOn(w, 'jobs'))
         return '';
     const j = g.player.job, now = nowAbs(g);
@@ -405,8 +407,9 @@ export function workWeekHtml(g, w) {
     const mine = shiftHours(g, o);
     const row = (s) => {
         const off = j.off?.[s.day], done = (j.worked ?? []).includes(s.day);
-        return `<div class="mu-ph-job"><span><b>${esc(shiftWhen(g, s))}</b><small>${done ? 'Worked ✓' : off === 'vacation' ? 'Day off' : off === 'sick' ? 'Called in sick' : esc(placeOf(g, w, offScreen(w, o) ? '' : jobPlace(g, o))?.name ?? (offScreen(w, o) ? 'off-screen' : ''))}</small></span>
-            ${done || off === 'sick' ? '' : `<button class="mu-ghost" data-act="wk-off" data-day="${s.day}" ${off || (vac >= 1 && s.start > now) ? '' : 'aria-disabled="true"'}>${off ? 'Work it' : 'Take the day off'}</button>`}</div>`;
+        // (adult) a raid shut the place for the week: nothing to work or take off
+        return `<div class="mu-ph-job"><span><b>${esc(shiftWhen(g, s))}</b><small>${done ? 'Worked ✓' : off === 'vacation' ? 'Day off' : off === 'sick' ? 'Called in sick' : off === 'closed' ? 'Closed (raid)' : esc(placeOf(g, w, offScreen(w, o) ? '' : jobPlace(g, o))?.name ?? (offScreen(w, o) ? 'off-screen' : ''))}</small></span>
+            ${done || off === 'sick' || off === 'closed' ? '' : `<button class="mu-ghost" data-act="wk-off" data-day="${s.day}" ${off || (vac >= 1 && s.start > now) ? '' : 'aria-disabled="true"'}>${off ? 'Work it' : 'Take the day off'}</button>`}</div>`;
     };
     return `<section class="mu-workweek"><h4>${icon('briefcase')} Work this week</h4>
         <small class="mu-muted">${esc(o.name)} · ${esc(weekText(g, w, o))}</small>
@@ -452,7 +455,48 @@ function birthHtml() {
         <small class="mu-muted">They become a person of this world and live with you. You can give them a picture in the Library.</small>
         <button class="mu-primary" data-act="birth-go" ${BIRTH.name.trim() && !BIRTH.busy ? '' : 'aria-disabled="true"'}>${BIRTH.busy ? 'One moment…' : 'Welcome them'}</button></section></div>`;
 }
-export function relOverlays() { return `${workHtml()}${waitHtml()}${recapHtml()}${birthHtml()}${milestoneHtml()}`; }
+/* ---------- (job tracks) the track you'll work on, picked once when hired ---------- */
+const PICK = { job: '', list: [] };
+/** `hire()` asked for a pick (`pick`): the choice opens over the screen, and hiring runs again with it. */
+export function askTrack(job, list) { PICK.job = job; PICK.list = list; notify(); }
+function trackPickHtml() {
+    const g = game();
+    const w = g && getWorld(g.world);
+    const o = g && w && PICK.job ? jobDef(w, PICK.job) : null;
+    if (!g || !w || !o)
+        return '';
+    const line = (id) => {
+        const t = layTrack(o, id), fee = feeOf(g, w, t), wait = waitDays(g, t);
+        return `${money(w, payOf(g, t.ranks[0].pay))}–${money(w, payOf(g, t.ranks.at(-1).pay))}/h · ${realDays(t, t.ranks[0])} ${realDays(t, t.ranks[0]) === 1 ? 'day' : 'days'} a week to start${fee ? ` · a fee of ${money(w, fee)}` : ''}${wait ? ` · first shift ${wait} ${wait === 1 ? 'day' : 'days'} after signing` : ''}`;
+    };
+    return `<div class="mu-recap-veil" data-act="tp-cancel-bg"><section class="mu-recap mu-workpick mu-trackpick mh-glass" role="dialog" aria-label="Choose a track">
+        <header><small>${esc(o.name)}</small><h3>Which track will you work on?</h3></header>
+        <p class="mu-muted">Each has its own ranks, pay and hours. It can't be changed later.</p>
+        <div class="mu-work-modes">${PICK.list.map(t => `<button class="mu-work-mode" data-act="tp-pick" data-id="${esc(t.id)}"><b>${esc(t.name)}</b><small>${esc(line(t.id))}</small></button>`).join('')}</div>
+        <button class="mu-ghost" data-act="tp-cancel">Not now</button></section></div>`;
+}
+Object.assign(ACT, {
+    'tp-cancel': () => { PICK.job = ''; notify(); },
+    'tp-cancel-bg': (el, e) => { if (e.target === el) {
+        PICK.job = '';
+        notify();
+    } },
+    'tp-pick': (el) => {
+        const g = game();
+        const w = g && getWorld(g.world);
+        const job = PICK.job;
+        PICK.job = '';
+        if (!g || !w || !job) {
+            notify();
+            return;
+        }
+        const r = hire(g, w, job, el.dataset.id);
+        toast(r.text, r.ok ? 'success' : 'warn');
+        saveGame();
+        notify();
+    },
+});
+export function relOverlays() { return `${trackPickHtml()}${workHtml()}${waitHtml()}${recapHtml()}${birthHtml()}${milestoneHtml()}`; }
 Object.assign(INPUT, { 'birth-name': (el) => { BIRTH.name = el.value; notify(); } });
 Object.assign(ACT, {
     'rm-ask': (el) => ask(el.dataset.who, el.dataset.k),

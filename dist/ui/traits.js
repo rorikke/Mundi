@@ -2,7 +2,7 @@
 // group (the world maps its options to skills) names the skill on each chip ("Good cook · Cooking 3"), and what a trait
 // does is its description, shown under the group for the ones picked.
 import { esc } from '../core/store.js';
-import { strengthText } from '../sim/traits.js';
+import { strengthText, DRIVE_GROUP } from '../sim/traits.js';
 /** The chip's words: the option, and for a strength the skill it starts. */
 export function chipText(w, g, option) {
     const skills = g.skills && w ? strengthText(w, option) : '';
@@ -15,6 +15,7 @@ export function traitsHtml(groups, picked, act, w) {
         const said = mine.map(o => [o, w?.traitInfo?.[o]?.desc]).filter(([, d]) => !!d);
         return `<div class="mu-field mu-traits"><span>${esc(g.label)} <small>${mine.length}/${g.max}</small></span>
             ${strengths ? `<small class="mu-muted">Pick ${g.max}: each starts its skill at the level shown. Two on one skill add only 1 more.</small>` : ''}
+            ${g.adult && g.id === DRIVE_GROUP ? '<small class="mu-muted">How often you want someone: Desire drains faster with a higher drive. No pick: average.</small>' : ''}
             <div class="mu-chips">${g.options.map(o => {
             const on = mine.includes(o), desc = w?.traitInfo?.[o]?.desc;
             return `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${esc(act)}" data-k="${esc(g.id)}" data-v="${esc(o)}" ${desc ? `title="${esc(desc)}"` : ''} ${!on && mine.length >= g.max ? 'aria-disabled="true"' : ''}>${esc(chipText(w, g, o))}</button>`;

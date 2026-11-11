@@ -2,7 +2,7 @@
 // you took, your life goals and your career, like a professional profile page.
 import { hobbiesHtml } from './cityui.js';
 import { lex, appRef } from '../core/lexicon.js';
-import { esc, game, notify, saveGame, toast } from '../core/store.js';
+import { esc, game, notify, saveGame, toast, adultOn } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { personaName, personaThumb } from '../st/bridge.js';
 import { money } from '../sim/needs.js';
@@ -12,12 +12,15 @@ import { skillName } from '../sim/hobbies.js';
 import { freeOf, capOf, offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, takingNow, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, classWord } from '../sim/courses.js';
 import { nudgesFor, aheadCourse } from '../sim/coursenudge.js';
 import { countOf } from '../sim/skills.js';
-import { jobDef, traitsOf, rankOf } from '../sim/work.js';
+import { jobDef, rankOf, careerOf } from '../sim/work.js';
+import { isAdultTrait } from '../sim/traits.js';
+import { yourLikes, yourNotInto, setYourLikes } from '../sim/private.js';
+import { refreshPrompt } from '../sim/prompt.js';
 import { lifeOf } from '../sim/life.js';
 import { goalsState } from '../sim/goals.js';
 import { perksListHtml } from './goalsui.js';
 import { icon } from './icons.js';
-import { ACT } from './reg.js';
+import { ACT, INPUT } from './reg.js';
 const CS = { open: false, area: '', drop: '' };
 export const openCourses = () => { CS.open = true; CS.drop = ''; notify(); };
 // "Things to do": take a course, or how the ones you take are going (the study buttons are in the list).
@@ -120,7 +123,8 @@ const taught = (w, c) => Object.entries(c.skills ?? {}).map(([id, n]) => `${skil
 export function profileApp(g, w, head) {
     const l = learning(g);
     const life = lifeOf(g);
-    const t = (g.player.traits ?? {});
+    // the traits that count in this game: adult ones (In bed, the Drive…) only with adult content on
+    const t = Object.fromEntries(Object.entries((g.player.traits ?? {})).map(([k, v]) => [k, (v ?? []).filter(x => adultOn(g) || !isAdultTrait(w, x))]));
     const j = g.player.job;
     const o = j && jobDef(w, j.id);
     const seen = new Set();
@@ -129,17 +133,18 @@ export function profileApp(g, w, head) {
     const other = Object.keys(t).filter(k => !seen.has(k) && (t[k] ?? []).length);
     // life goals finished (old saves' aspirations were carried over into this list); nothing with the `goals` system off
     const goalsOn = systemOn(w, 'goals'), goals = goalsOn ? goalsState(g).done.length : 0;
-    const nTraits = traitsOf(g).length, nShifts = Math.round(countOf(g, 'shifts'));
+    const nTraits = Object.values(t).flat().length, nShifts = Math.round(countOf(g, 'shifts'));
     const taking = takingRows(g, w);
     return `${head}<div class="mu-ph-body mu-profile">
         <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
             <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
             <span class="mu-pf-stats"><span><b>${nTraits}</b><small>${nTraits === 1 ? 'trait' : 'traits'}</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span>${goalsOn ? `<span><b>${esc(String(goals))}</b><small>${goals === 1 ? 'goal' : 'goals'}</small></span>` : ''}<span><b>${nShifts}</b><small>${nShifts === 1 ? 'shift' : 'shifts'}</small></span></span></section>
-        <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j.rank + 1} of ${o.ranks.length}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
+        <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j.rank + 1} of ${careerOf(g, o).ranks.length + (careerOf(g, o).open ? 1 : 0)}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
         <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are on the skills list below.</p>
             ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}" ${w.traitInfo?.[x]?.desc ? `title="${esc(w.traitInfo[x].desc)}"` : ''}>${esc(x)}</span>`).join('')}</div>
                 ${(t[k] ?? []).filter(x => w.traitInfo?.[x]?.desc).map(x => `<small class="mu-muted"><b data-notr>${esc(x)}:</b> ${esc(w.traitInfo[x].desc)}</small>`).join('')}</div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
         </section>
+        ${yourLikesHtml(g)}
         ${goalsOn ? `<section class="mu-pf-perks"><h4>${icon('heart')} Your perks</h4><p class="mu-muted">What your finished life goals give you, for good. A perk is not a trait: it changes numbers in the game.</p>${perksListHtml(g, w)}</section>` : ''}
         <section><h4>${icon('book')} ${lex(w, 'courses')}</h4>
             ${taking}
@@ -150,6 +155,32 @@ export function profileApp(g, w, head) {
         <section><h4>${icon('bolt')} Activity</h4><small class="mu-muted">Fitness ${life.fitness}/100 · ${countOf(g, 'meals')} meals cooked · ${countOf(g, 'workouts')} good workouts · ${countOf(g, 'parties')} parties</small></section>
     </div>`;
 }
+// (adult) Your own likes and things you're not into, for your character only: they never hide, block or filter anything,
+// and the AI isn't told them as limits. A like you share with someone helps a private moment that matches it and counts
+// on the dating app; one you're not into gives less mood; people who've been with you know your likes.
+function yourLikesHtml(g) {
+    if (!adultOn(g))
+        return '';
+    const box = (k, label, v, hint) => `<label class="mu-field"><span>${label}</span><textarea rows="3" data-input="pf-likes" data-k="${k}" data-focus="pf-likes-${k}" placeholder="${esc(hint)}">${esc(v.join('\n'))}</textarea></label>`;
+    return `<section class="mu-pf-likes"><h4>${icon('flame')} In bed</h4><p class="mu-muted">One per line. Only for your character: nothing is ever hidden or stopped because of these. A like you share helps when a moment matches it; one you're not into gives you less of a lift.</p>
+        ${box('likes', 'What you like', yourLikes(g), 'slow and tender\nbeing teased')}
+        ${box('not', "What you're not into", yourNotInto(g), 'being filmed')}</section>`;
+}
+Object.assign(INPUT, {
+    // kept as typed (no redraw while typing)
+    'pf-likes': (el) => {
+        const g = game();
+        if (!g)
+            return;
+        const lines = el.value.split(/\r?\n/).map(x => x.trim()).filter(Boolean).slice(0, 12);
+        if (el.dataset.k === 'likes')
+            setYourLikes(g, lines, yourNotInto(g));
+        else
+            setYourLikes(g, yourLikes(g), lines);
+        saveGame();
+        refreshPrompt();
+    },
+});
 Object.assign(ACT, {
     'course-open': () => openCourses(),
     'course-close': () => { CS.open = false; notify(); },
