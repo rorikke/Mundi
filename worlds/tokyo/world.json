@@ -13662,10 +13662,11 @@
   {
    "id": "native",
    "name": "Tokyo born",
-   "desc": "You grew up here and still live with your family in Setagaya.",
+   "desc": "You grew up here and still live with your family in Setagaya, chipping in toward the house.",
    "premise": "{{user}} grew up in Tokyo and still lives with family in a Setagaya house; Kyōko, who knew {{user}}'s parents, and Ayaka, an old friend, are already part of {{user}}'s life.",
    "home": "hz_setagaya",
    "money": 120000,
+   "rent": 10000,
    "skills": {
     "japanese": 8,
     "english": 2,

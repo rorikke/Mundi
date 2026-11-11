@@ -110,7 +110,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['Actions take time', 'Each action shows its cost and how long it takes. The clock moves forward when you do it.'],
             ['Sleep', 'At home (or where you stay the night). The night ends the day: your diary is written and you see how the day went with everyone.'],
             ['Let time pass', 'Click the clock: time jumps to the next part of the day.'],
-            ...(billList ? [<[string, string]>['Rent and bills', `${billList} are weekly bills: pay them ${appRef(w, 'homes')} (they turn red when due). One left unpaid for a week stops (or, for the rent, you are locked out of your home).`]] : []),
+            ...(billList ? [<[string, string]>['Rent and bills', `${billList} are weekly bills: pay them ${appRef(w, 'homes')} (they turn red when due). One left unpaid for a week stops (or, for the rent, you are locked out of your home) until you pay what is overdue; you can pay part of a bill, and one that stopped owes no more weeks.`]] : []),
             ['Difficulty', 'Easy, Normal or Hard (chosen when you start, changeable in ☰ → This world): it changes what work pays and what things cost.'],
             ['Events lift your mood', 'Being on a date or at a party raises your mood and keeps it up while it lasts.'],
         ] },

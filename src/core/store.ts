@@ -98,7 +98,8 @@ export interface Resident {
 export interface Save {
     v: 1; world: string; lang: string; day: number; minutes: number; speed: number; asleep?: boolean;
     player: {
-        loc: string; home: { zone: string; kind: string; x: number; y: number; n?: number };
+        /** `rent`: the weekly rent your start asks in this home instead of the home's (StartDef.rent); gone when you move */
+        loc: string; home: { zone: string; kind: string; x: number; y: number; n?: number; rent?: number };
         stats: Record<string, number>; money: number; traits: Record<string, string[]>; attrs?: Record<string, number>; origin: string;
         job: { id: string; rank: number; shifts: number; path?: string[]; referral?: string } | null; rentPaidDay: number;
         /** (E16) the start chosen at the new game (a world start's id, or 'custom'), and its premise for the AI */

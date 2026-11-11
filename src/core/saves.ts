@@ -16,6 +16,7 @@ import { isFamily } from './feel.js';
 import { settleTraits } from '../sim/traits.js';
 import { trackOf } from '../sim/tracks.js';
 import { repairProfiles } from '../sim/profiles.js';
+import { settleStartRent } from '../sim/bills.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 5;
@@ -274,6 +275,8 @@ export function repair(g: Save, w: WorldDef): string[] {
     // the world's own people get the role and drive their world gives them; with adult content on, the others draw a
     // profile from the world's pool (sim/profiles.ts: never over a value already there, the same every time)
     repairProfiles(g, w);
+    // a start's own rent, for a save begun before starts had one (sim/bills.ts)
+    { const n = settleStartRent(g, w); if (n) notes.push(n); }
     // maps the world retired: what saves kept per region moves to the map that took its place
     for (const [from, to] of Object.entries(w.retired?.maps ?? {})) {
         if (w.maps.some(m => m.id === from) || !w.maps.some(m => m.id === to)) continue;

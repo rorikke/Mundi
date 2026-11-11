@@ -5,7 +5,7 @@ import { approvalOf, approvalWord } from '../sim/living.js';
 import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
 import { missingCourses, isTaking } from '../sim/courses.js';
 import { profileApp, jobCourseHtml } from './courses.js';
-import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, type BillId } from '../sim/bills.js';
+import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, type BillId } from '../sim/bills.js';
 import { shopApp, feelingsHtml } from './lifeui.js';
 import { goalsApp, goalsBadge } from './goalsui.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
@@ -328,16 +328,24 @@ function homesApp(g: Save, w: WorldDef) {
     const mine = w.homes.zones.find(z => z.id === g.player.home.zone);
     const billBtn = (b: ReturnType<typeof billList>[number]) => {
         const amount = billAmount(g, w, b.id); if (!amount) return '';
-        const n = owed(g, b.id), cut = isCut(g, b.id), left = daysLeft(g, b.id);
+        const n = owed(g, b.id), cut = isCut(g, b.id), left = daysLeft(g, b.id), paid = paidToward(g, b.id), plan = payPlan(g, w, b.id), toCut = daysToCut(g, b.id);
         const state = cut ? (b.id === 'rent' ? T('lockedOutShort') : T('cutOff')) : n ? 'Due now' : left <= 1 ? 'Due tomorrow' : `Paid · due in ${left} days`;
-        return `<button class="mu-bill ${n ? 'is-due' : 'is-paid'} ${cut ? 'is-cut' : ''}" data-act="ph-bill" data-id="${esc(b.id)}" ${n ? '' : 'aria-disabled="true"'} title="${n ? `Pay ${money(w, amount * n)}` : 'Paid'}">
-            <i>${icon(b.icon)}</i><b>${esc(billName(w, b.id))}</b><span>${money(w, amount * Math.max(1, n))}${n > 1 ? ` (${n} wk)` : ''}</span><small>${state}</small></button>`;
+        // when it's cut off, what's paid of it already, and what the button pays when it isn't everything
+        const soon = n && !cut ? (toCut <= 1 ? (b.id === 'rent' ? 'Locked out tomorrow' : 'Cut off tomorrow') : b.id === 'rent' ? `Locked out in ${toCut} days` : `Cut off in ${toCut} days`) : '';
+        const how = plan.how === 'back' ? (b.id === 'rent' ? `${money(w, plan.amount)} gets you back in` : `${money(w, plan.amount)} gets it back`)
+            : plan.how === 'part' ? `Pay ${money(w, plan.amount)} toward it` : n && plan.how === 'none' ? 'Not enough money' : '';
+        return `<button class="mu-bill ${n ? 'is-due' : 'is-paid'} ${cut ? 'is-cut' : ''}" data-act="ph-bill" data-id="${esc(b.id)}" ${n ? '' : 'aria-disabled="true"'} title="${n ? (plan.how === 'none' ? 'Not enough money' : `Pay ${money(w, plan.amount)}`) : 'Paid'}">
+            <i>${icon(b.icon)}</i><b>${esc(billName(w, b.id))}</b><span>${money(w, n ? owedAmount(g, w, b.id) : amount)}${n > 1 ? ` (${n} wk)` : ''}</span><small>${state}</small>
+            ${soon ? `<small>${soon}</small>` : ''}${paid ? `<small>${money(w, paid)} paid so far</small>` : ''}${how ? `<small><strong>${how}</strong></small>` : ''}</button>`;
     };
+    // locked out: the cheapest home you could move to instead, when it costs less than getting back in
+    const cheaper = isCut(g, 'rent') && billAmount(g, w, 'rent') ? cheapestHome(g, w, z => freeSpots(g, w, z).length) : null;
     return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">
         <section><h4>${T('myHome')}</h4>
         <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span>
             <div class="mu-home-info"><span><b>${esc(homeAddress(w, g.player.home))}</b><small>${esc(w.homes.kinds[g.player.home.kind ?? mine?.kind ?? '']?.name ?? '')} · ${T('yourHome')}</small></span></div></article>
         ${billList(w).length ? `<div class="mu-bills">${billList(w).map(billBtn).join('')}</div>
+        ${cheaper && cheaper.rent < toGetBackIn(g, w, 'rent') ? `<p class="mu-bad">${esc(`Or move somewhere cheaper: ${cheaper.name}, ${money(w, cheaper.rent)} a week, paid one week in advance.`)}</p>` : ''}
         <small class="mu-muted">${T('billsNote')}</small>` : ''}
         ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}
         </section>
@@ -360,8 +368,15 @@ function homesApp(g: Save, w: WorldDef) {
 Object.assign(ACT, {
     'ph-refer': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; const r = askReferral(g, w, el.dataset.who!); if (r.text) toast(r.text, r.ok ? 'success' : 'info'); saveGame(); notify(); },
     'ph-path': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; const m = choosePath(g, w, el.dataset.id!); if (m) toast(m, 'success'); saveGame(); notify(); },
-    'ph-bill': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; const before = owed(g, el.dataset.id as BillId); const msg = payBill(g, w, el.dataset.id as BillId); if (owed(g, el.dataset.id as BillId) < before) { toast(msg || 'Paid.', 'success'); saveGame(); } else toast(msg, 'warn'); notify(); },
-    'ph-bill-all': () => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; for (const b of billList(w)) if (owed(g, b.id)) { const m = payBill(g, w, b.id); if (m && owed(g, b.id)) { toast(m, 'warn'); break; } } saveGame(); notify(); },
+    'ph-bill': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; const before = g.player.money; const msg = payBill(g, w, el.dataset.id as BillId); if (g.player.money < before) { toast(msg || 'Paid.', 'success'); saveGame(); } else toast(msg, 'warn'); notify(); },
+    // the rent first, then the other bills, each as far as the money goes (part payments included)
+    'ph-bill-all': () => {
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        const start = g.player.money; let said = '', failed = '';
+        for (const b of billList(w)) if (owed(g, b.id)) { const before = g.player.money, m = payBill(g, w, b.id); if (g.player.money < before) said ||= m; else failed ||= m; }
+        if (g.player.money < start) { if (said) toast(said, 'success'); saveGame(); } else if (failed) toast(failed, 'warn');
+        notify();
+    },
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
 });

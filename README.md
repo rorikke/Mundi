@@ -67,7 +67,7 @@ More on each in **[Other improvements in this fork](docs/improvements.md)**.
 - **Live in a world.** A map of places, time that moves when you act, weather and seasons. Energy, hunger, thirst, mood and hygiene drop over time.
 - **Talk.** A visual-novel scene with Say / Do / Story / See. Type `@` to pick who answers. The engine keeps the numbers (time, money, relationships); the AI writes the scene.
 - **Relationships.** Friendship and romance bars with levels, approval, feelings that fade, dates, proposals, marriage, a baby. People keep their own routines: find them, or text them.
-- **Work and money.** Job interviews (a d20 roll with your skills and the traits the job likes as bonus), shifts, promotions, quick gigs, courses that teach skills, weekly rent, water and power that get cut off if you don't pay. Easy / Normal / Hard.
+- **Work and money.** Job interviews (a d20 roll with your skills and the traits the job likes as bonus), shifts, promotions, quick gigs, courses that teach skills, weekly rent, water and power that get cut off if you don't pay (you can pay part of what you owe, and a bill cut off owes no more weeks). Easy / Normal / Hard.
 - **A phone.** Messages, People, Jobs, Bank, Homes, Chirp (social), Spark (dating), Calendar, Journal, Shop, Goals, Profile and Help.
 - **Households and "Play as".** Live with family or roommates, then switch to playing any of them.
 - **A diary.** Each night the day is written as a short entry, so the story remembers what happened.

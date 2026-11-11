@@ -682,9 +682,10 @@ export interface WorldDef {
 /** (E16) A start. `premise`: what the AI is told; `home`: a home zone id; `job`: a job id; `knows`: people you already
  *  know (by name) and how they feel about you (`f`, `r`, a couple's `status`, `was`), or what they are to you in the
  *  family (`family: 'cousin'`); `traits` and `skills` (levels) you begin with; `default`: picked first. `household`:
- *  you live with this household of the world's people (their `household` id), in your home. Made from an origin (an
+ *  you live with this household of the world's people (their `household` id), in your home. `rent`: the weekly rent you
+ *  pay in the start's home instead of the home's own (a share of a family house), until you move. Made from an origin (an
  *  older world), a start has the origin's id, and the origin still gives what only it has (RPG skills, "knows N"). */
-export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean; household?: string }
+export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; rent?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean; household?: string }
 export interface StartKnown extends FeelParts { name: string; family?: FamilyType }
 /** (J3) A skill. */
 export interface SkillDef { id: string; name: string; icon?: string; desc?: string;
