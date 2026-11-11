@@ -6,7 +6,8 @@ import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
 import { missingCourses, isTaking } from '../sim/courses.js';
 import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, type BillId } from '../sim/bills.js';
-import { shopApp, goalsApp, feelingsHtml } from './lifeui.js';
+import { shopApp, feelingsHtml } from './lifeui.js';
+import { goalsApp, goalsBadge } from './goalsui.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
 import { partyApp } from './combatui.js';
 import { standingApp, petsApp, apprenticeBtn, helpBtn } from './lifeplus.js';
@@ -90,7 +91,9 @@ function hd(app: App, title?: string) {
     const list = s && w ? secApps(w, s) : [];
     if (!s) return head(title ?? name(app), 'home');
     if (list.length < 2) return head(esc(s.name), 'home');
-    return head(esc(s.name), 'home').replace(/<\/div>$/, `<nav class="mu-sec-tabs">${list.map(a => `<button class="${a === app ? 'is-on' : ''}" data-act="ph-go" data-app="${esc(a)}">${name(a)}</button>`).join('')}</nav></div>`);
+    // the Goals tab carries the "pick a life goal" badge (D-7)
+    const mark = (a: App) => (a === 'goals' && g && w && goalsBadge(g, w) ? ' <em class="mu-sec-badge">!</em>' : '');
+    return head(esc(s.name), 'home').replace(/<\/div>$/, `<nav class="mu-sec-tabs">${list.map(a => `<button class="${a === app ? 'is-on' : ''}" data-act="ph-go" data-app="${esc(a)}">${name(a)}${mark(a)}</button>`).join('')}</nav></div>`);
 }
 const appName = (id: string) => { const g = game(); const w = g && getWorld(g.world); return esc(w ? appsOf(w).find(a => a.id === id)?.name ?? id : id); };
 // Words that change with the world's style: the medieval journal speaks of letters, notices and the matchmaker.
@@ -108,8 +111,8 @@ function head(title: string, back: App | null) {
 
 function homeApp(g: Save, w: WorldDef) {
     const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
-    return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color]) => `<button class="mu-ph-app" data-act="ph-go" data-app="${esc(id)}">
-        <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : ''}</button>`).join('')}
+    return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-app="${esc(id)}">
+        <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : ''}</button>`).join('')}
         <button class="mu-ph-app" data-act="ph-go" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
         <button class="mu-ph-app" data-act="ph-help"><i style="--c:#30b0c7">${icon('help')}</i><span>${T('help')}</span></button></div>`;
 }
@@ -499,17 +502,17 @@ function bookHtml(g: Save, w: WorldDef, body: string): string {
     const t = Date.now() - turn.at;
     const leaf = t < TURN_MS ? `<i class="mu-bk-leaf ${turn.back ? 'is-back' : ''}" style="animation-delay:-${t}ms"></i>` : '';
     const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
-    const badge = (id: string) => (id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : '');
+    const badge = (id: string, key = id) => (id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : '');
     const left = `<header class="mu-bk-title"><small>${esc(w.features?.device ?? 'Journal')}</small><b data-notr>${esc(personaName())}</b>
             <span>${esc(weekday(g.day))} · Day ${g.day + 1} · ${hm(g.minutes % 1440)}</span><span class="mu-bk-purse">${icon('wallet')}${money(w, g.player.money)}</span></header>
         <h4 class="mu-bk-h">Contents</h4>
-        <ol class="mu-bk-toc">${apps.map(([id, name, ic, , key]) => `<li><button class="${sec === key ? 'is-here' : ''}" data-act="ph-go" data-app="${esc(id)}">${icon(ic)}<span>${esc(name)}</span><i></i>${badge(id)}</button></li>`).join('')}
+        <ol class="mu-bk-toc">${apps.map(([id, name, ic, , key]) => `<li><button class="${sec === key ? 'is-here' : ''}" data-act="ph-go" data-app="${esc(id)}">${icon(ic)}<span>${esc(name)}</span><i></i>${badge(id, key)}</button></li>`).join('')}
             <li><button data-act="ph-help">${icon('help')}<span>${esc(T('help'))}</span><i></i></button></li></ol>`;
     return `<div class="mu-bk-wrap${opening}" data-act="bk-bg"><div class="mu-book ${P.app === 'home' ? 'is-home' : ''}" role="dialog" aria-label="${esc(w.features?.device ?? 'Journal')}">
         <div class="mu-bk-page is-left" data-keep="bk-left">${left}</div>
         <div class="mu-bk-page is-right mu-ph-screen ${t < TURN_MS ? 'is-turning' : ''}" data-keep="ph-screen" style="--turn-delay:-${Math.min(t, TURN_MS)}ms">${body}</div>
         ${leaf}
-        <nav class="mu-bk-ribbons">${apps.slice(0, RIBBONS.length).map(([id, name, ic], i) => `<button class="mu-bk-ribbon ${sec === id ? 'is-here' : ''}" style="top:${RIBBONS[i]}%" data-act="ph-go" data-app="${esc(id)}" title="${esc(name)}">${icon(ic)}<span>${esc(name)}</span>${badge(id)}</button>`).join('')}</nav>
+        <nav class="mu-bk-ribbons">${apps.slice(0, RIBBONS.length).map(([id, name, ic, , key], i) => `<button class="mu-bk-ribbon ${sec === id ? 'is-here' : ''}" style="top:${RIBBONS[i]}%" data-act="ph-go" data-app="${esc(id)}" title="${esc(name)}">${icon(ic)}<span>${esc(name)}</span>${badge(id, key)}</button>`).join('')}</nav>
         <button class="mu-bk-close" data-act="ph-close" aria-label="Close the journal" title="Close">${icon('x')}</button>
     </div></div>`;
 }
