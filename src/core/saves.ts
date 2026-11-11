@@ -15,6 +15,7 @@ import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, 
 import { isFamily } from './feel.js';
 import { settleTraits } from '../sim/traits.js';
 import { trackOf } from '../sim/tracks.js';
+import { repairProfiles } from '../sim/profiles.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 5;
@@ -270,6 +271,9 @@ export function repair(g: Save, w: WorldDef): string[] {
         if (zones.length && !zones.some(z => z.id === r.home?.zone)) r.home = { zone: zones[0].id, ...firstSpot(w, zones[0].id) };
         if (Array.isArray(r.leisure)) r.leisure = r.leisure.filter(id => isPlace(g, w, id));
     }
+    // the world's own people get the role and drive their world gives them; with adult content on, the others draw a
+    // profile from the world's pool (sim/profiles.ts: never over a value already there, the same every time)
+    repairProfiles(g, w);
     // maps the world retired: what saves kept per region moves to the map that took its place
     for (const [from, to] of Object.entries(w.retired?.maps ?? {})) {
         if (w.maps.some(m => m.id === from) || !w.maps.some(m => m.id === to)) continue;

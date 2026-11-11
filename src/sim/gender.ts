@@ -4,8 +4,8 @@
 // person's own settings come from at a new game (their card's Mundi data, a cast preset, the world's example cast),
 // cleaned of anything a hand-edited file might hold; suggestions read from a card by the AI; and the AI's line about
 // the gender, pronouns and attraction of the people in the scene.
-import type { Save, Resident } from '../core/store.js';
-import { getWorld, systemOn, type WorldDef, type GenderDef, type ExampleCharacter, type IntimateProfile } from '../core/world.js';
+import { adultOn, game, type Save, type Resident } from '../core/store.js';
+import { getWorld, systemOn, INTIMATE_ROLES, INTIMATE_DRIVES, type WorldDef, type GenderDef, type ExampleCharacter, type IntimateProfile } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
 import { relOf, idOf, YOU, type Person, type Attraction } from './rel.js';
 import { isMinor } from './family.js';
@@ -63,6 +63,9 @@ export function cleanIntimate(raw: any): IntimateProfile | undefined {
     for (const k of INTIMATE_LINES) { const v = line(raw[k], 400); if (v) p[k] = v; }
     for (const k of INTIMATE_LONG) { const v = line(raw[k], INTIMATE_LONG_MAX); if (v) p[k] = v; }
     for (const k of INTIMATE_LISTS) { const v = (Array.isArray(raw[k]) ? raw[k] : []).map((x: unknown) => line(x, 120)).filter(Boolean).slice(0, 12); if (v.length) p[k] = v; }
+    // who leads and how often they want it: one of the known words, nothing else
+    if (INTIMATE_ROLES.includes(raw.role)) p.role = raw.role;
+    if (INTIMATE_DRIVES.includes(raw.drive)) p.drive = raw.drive;
     return Object.keys(p).length ? p : undefined;
 }
 export const exampleSettings = (ex: ExampleCharacter | undefined) => cleanPerson(ex);
@@ -76,10 +79,12 @@ export function applyPerson(g: Save, a: string, p: Person | undefined) {
 /* ---------- suggestions from a card (nothing is set until the player confirms) ---------- */
 
 const INTIMACY_WORDS: [RegExp, string][] = [[/free/, 'free'], [/passion/, 'passionate'], [/steady/, 'steady'], [/slow/, 'slow'], [/devot/, 'devoted']];
-// The AI's four lines read back: a gender of the world, who they're attracted to, an intimacy style, "only with a
-// partner". Anything unknown or unreadable is left out; undefined when nothing is left.
-export function parseSuggestion(text: string, gs: GenderDef[]): Person | undefined {
-    const line = (label: string) => (new RegExp(`^\\W*${label}\\W*:\\s*(.+)$`, 'im').exec(text)?.[1] ?? '').trim().toLowerCase().replace(/[.*_]+$/g, '');
+// The AI's lines read back: a gender of the world, who they're attracted to, an intimacy style, "only with a partner"
+// (and, with adult content, a role, a drive, likes and limits). Anything unknown or unreadable is left out; undefined
+// when nothing is left.
+export function parseSuggestion(text: string, gs: GenderDef[], adult = false): Person | undefined {
+    const raw = (label: string) => (new RegExp(`^\\W*${label}\\W*:[\\s*_]*(.+)$`, 'im').exec(text)?.[1] ?? '').trim();
+    const line = (label: string) => raw(label).toLowerCase().replace(/[.*_]+$/g, '');
     const find = (s: string) => gs.find(d => [d.id, d.name, d.plural ?? '', pluralOf(d)].some(n => n && s.replace(/[^a-z-]/g, '') === n.toLowerCase().replace(/[^a-z-]/g, '')));
     const p: Person = {};
     const gender = line('gender');
@@ -96,16 +101,34 @@ export function parseSuggestion(text: string, gs: GenderDef[]): Person | undefin
     const preset = INTIMACY_WORDS.find(([re]) => re.test(intim))?.[1];
     if (preset && preset !== 'steady') p.intimacy = { preset: preset as any };
     if (/^yes/.test(line('only with a partner'))) p.intimacy = { ...(p.intimacy ?? {}), casual: false };
+    if (adult) {
+        // only what the card says is kept here; sim/profiles.ts fills the rest from the world's pool
+        const i: any = {}, rl = line('role in bed'), dl = line('drive');
+        const role = INTIMATE_ROLES.find(r => new RegExp(`^${r}\\b`).test(rl)) ?? (/^(versatile|either)/.test(rl) ? 'switch' : undefined);
+        if (role) i.role = role;
+        const drive = INTIMATE_DRIVES.find(d => new RegExp(`^${d}\\b`).test(dl));
+        if (drive) i.drive = drive;
+        const items = (label: string, max: number) => raw(label).replace(/[.*_]+$/g, '').split(/;|,/).map(x => x.trim()).filter(x => x && x.length <= 80 && !/^(unknown|none|nothing|n\/a|not said)\.?$/i.test(x)).slice(0, max);
+        const likes = items('likes', 5), limits = items('limits', 3).filter(l => !likes.some(k => k.toLowerCase() === l.toLowerCase()));
+        if (likes.length) i.prefs = likes;
+        if (limits.length) i.limits = limits;
+        const clean = cleanIntimate(i);
+        if (clean) p.intimate = clean;
+    }
     return Object.keys(p).length ? p : undefined;
 }
-// One quiet AI call about one card (the "later" lane: it waits for anything the player is waiting on).
-export async function suggestFromCard(name: string, card: string, gs: GenderDef[]): Promise<Person | undefined> {
+// One quiet AI call about one card (the "later" lane: it waits for anything the player is waiting on). With adult
+// content on (`adult`; by default the open game's) it asks four more lines: their role in bed, their drive, what they
+// like and what they won't do.
+export async function suggestFromCard(name: string, card: string, gs: GenderDef[], adult: boolean = adultOn(game())): Promise<Person | undefined> {
     const names = gs.map(d => d.name.toLowerCase()), plurals = gs.map(pluralOf);
-    const out = await quiet(`This is a character card for ${name}:\n"""\n${card.slice(0, 3000)}\n"""\n\nFrom what the card says (and only that), answer about ${name} in exactly these four lines, with "unknown" wherever the card doesn't say:\n` +
+    const out = await quiet(`This is a character card for ${name}:\n"""\n${card.slice(0, 3000)}\n"""\n\nFrom what the card says (and only that), answer about ${name} in exactly these ${adult ? 'eight' : 'four'} lines, with "unknown" wherever the card doesn't say:\n` +
         `Gender: ${names.join(', ')}, or unknown\nAttracted to: a list of ${plurals.join(', ')}; or everyone, no one, or unknown\n` +
         'Intimacy: free spirit (a spark is enough), passionate (real attraction, no friendship needed), steady, slow to trust (only with close friends), devoted (only when deeply in love), or unknown\n' +
-        'Only with a partner: yes (no casual intimacy at all), no, or unknown', 120, 'You read character cards and answer in the exact format asked, with no other words.');
-    return parseSuggestion(out, gs);
+        'Only with a partner: yes (no casual intimacy at all), no, or unknown' +
+        (adult ? '\nRole in bed: lead (takes charge), follow (likes being led), switch (either), or unknown\nDrive: low, average, high (how often they want sex), or unknown\nLikes: up to five things they enjoy in intimacy, separated by semicolons, or unknown\nLimits: up to three things they will not do, separated by semicolons, or unknown' : ''),
+        adult ? 260 : 120, 'You read character cards and answer in the exact format asked, with no other words.');
+    return parseSuggestion(out, gs, adult);
 }
 
 /* ---------- for the AI ---------- */
