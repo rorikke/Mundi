@@ -33,6 +33,8 @@ export function cleanStart(raw) {
         s.home = home;
     if (Number.isFinite(Number(raw.money)) && raw.money !== '' && raw.money !== null)
         s.money = Math.max(0, Math.round(Number(raw.money)));
+    if (Number.isFinite(Number(raw.rent)) && raw.rent !== '' && raw.rent !== null && raw.rent !== undefined)
+        s.rent = Math.max(0, Math.round(Number(raw.rent)));
     const job = line(raw.job, 80);
     if (job)
         s.job = job;
@@ -126,6 +128,11 @@ export function applyStart(g, w, start) {
     g.player.start = start.id;
     if (start.premise?.trim())
         g.player.premise = start.premise.trim().slice(0, 4000);
+    // the start's rent, only in its own home (a home picked in the new game pays its own)
+    if (start.rent !== undefined && start.home === g.player.home.zone)
+        g.player.home.rent = start.rent;
+    if (start.rent !== undefined)
+        g.player.startRent = true; // (settleStartRent: nothing to repair)
     const job = start.job ? w.occupations.find(o => o.id === start.job) : undefined;
     if (job && systemOn(w, 'jobs') && adultOk(g, job))
         g.player.job = { id: job.id, rank: 0, shifts: 0 };

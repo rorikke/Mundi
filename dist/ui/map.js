@@ -3,7 +3,7 @@
 import { lex, appRef } from '../core/lexicon.js';
 import { safeUrl, setHtml } from '../core/safe.js';
 import { showTransition } from './lifeui.js';
-import { lockedOut } from '../sim/bills.js';
+import { lockedOut, toGetBackIn } from '../sim/bills.js';
 import { doorAnswer, sleepMood } from '../sim/life.js';
 import { hobbyNeed } from '../sim/hobbies.js';
 import { doAction, playsInScene, isPrivateAct } from '../sim/actions.js';
@@ -591,7 +591,7 @@ async function sleep(wakeAt) {
         return;
     }
     if (g.player.loc === playerHomeId && !away && lockedOut(g)) {
-        toast(lex(w, 'lockedOutGo', appRef(w, 'homes')), 'warn');
+        toast(lex(w, 'lockedOutGo', appRef(w, 'homes'), money(w, toGetBackIn(g, w, 'rent'))), 'warn');
         return;
     }
     if (inn && !bookedHere(g, w)) {

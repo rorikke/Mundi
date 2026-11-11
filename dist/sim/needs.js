@@ -191,7 +191,9 @@ export function actionsHere(g, w) {
     // prices after the difficulty; at home, what a cut-off service stops is left out
     // out and about, what you buy costs what it costs in this region now (the living world)
     const here = atHome ? 1 : priceHere(g, w);
-    const all = [...base, ...(closed ? [] : extraActions(g, w)), ...eventActions(g, w)].filter(a => !atHome || !cutReason(g, a.id, w));
+    // (a closed place still lets in a course's class held there: the pole club and the rope bar teach before they open)
+    const extra = extraActions(g, w).filter(a => !closed || (a.id.startsWith('x-study-') && (w.catalogs?.courses ?? []).some((c) => `x-study-${c.id}` === a.id && c.at === g.player.loc)));
+    const all = [...base, ...extra, ...eventActions(g, w)].filter(a => !atHome || !cutReason(g, a.id, w));
     // Home: a bathroom or a shower room is not where you grab a snack (what can be done anywhere stays out of it,
     // unless it was chosen for that room)
     const pl = placeOf(g, w, g.player.loc);

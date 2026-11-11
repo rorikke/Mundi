@@ -143,6 +143,7 @@ function valueWords(w, key, v) {
         }
         case 'course': return /^\d+$/.test(v) ? 'Courses finished' : `The course ${courseOf(w, v)?.name ?? humanize(v)}`;
         case 'secrets': return 'Secrets learned';
+        case 'known': return 'Likes and limits you know of your lovers';
         case 'helped': return /^\d+$/.test(v) ? `${v} storyline${v === '1' ? '' : 's'} helped to a good ending` : 'A storyline helped to a good ending';
         case 'holds': return /^\d+$/.test(v) ? `${v} different keepsakes` : v === 'kind:any' ? 'Every keepsake of one kind' : v.startsWith('kind:') ? `Every ${v.slice(5)} keepsake` : `Keep ${keepsakeName(w, v)}`;
         case 'need': {

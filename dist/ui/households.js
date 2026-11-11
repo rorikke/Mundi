@@ -82,8 +82,10 @@ function moveTo(g, w, who, key) {
         return;
     const home = { zone: s.zone, x: s.x, y: s.y, n: s.n, unit: s.unit };
     for (const a of who) {
-        if (a === '__you')
-            g.player.home = { ...g.player.home, ...home, kind: s.kind };
+        if (a === '__you') {
+            const { rent, ...was } = g.player.home;
+            g.player.home = { ...was, ...home, kind: s.kind, ...(rent !== undefined && s.zone === was.zone ? { rent } : {}) };
+        } // a start's rent stays with its home
         else if (g.cast[a]) {
             g.cast[a].home = { ...home };
             delete g.cast[a].homeWith;

@@ -116,6 +116,11 @@ export function knownOf(g, a, by = YOU) {
     const k = relOf(g).knows?.[`${idOf(g, by)}>${idOf(g, a)}`];
     return { likes: [...(k?.likes ?? [])], limits: [...(k?.limits ?? [])], drive: !!k?.drive };
 }
+/** (adult) How many likes and hard limits `by` (you) knows of anyone, in all: the `known:` condition (The art of pleasure). */
+export function knownCount(g, by = YOU) {
+    const me = `${idOf(g, by)}>`;
+    return Object.entries(relOf(g).knows ?? {}).filter(([k]) => k.startsWith(me)).reduce((n, [, e]) => n + (e?.likes?.length ?? 0) + (e?.limits?.length ?? 0), 0);
+}
 /** `by` (you) learns one of a's likes or hard limits (`value`: its words, as in their profile), or a's drive. True when
  *  it's new. */
 export function learn(g, a, what, value = '', by = YOU) {

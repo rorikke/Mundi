@@ -62,6 +62,7 @@ export function startEditorHtml(scope) {
         <label class="mu-field"><span>Premise (how the story starts; the AI is told this)</span><textarea rows="5" ${f('premise')} placeholder="Who you are, why you're here, and what's going on as the story begins. Write {{user}} for yourself.">${esc(d.premise)}</textarea></label>
         ${w ? `<div class="mu-row2"><label class="mu-field"><span>Where you live</span><select ${f('home')}>${w.homes.zones.map(z => opt(z.id, z.name, d.home === z.id)).join('')}</select></label>
             <label class="mu-field"><span>Money</span><input type="number" min="0" step="1" ${f('money')} value="${esc(d.money ?? '')}"></label></div>
+        ${systemOn(w, 'bills') && w.rent ? `<label class="mu-field"><span>Rent you pay there, a week (empty: the home's own, ${esc(money(w, w.homes.zones.find(z => z.id === d.home)?.rent ?? 0))}; until you move)</span><input type="number" min="0" step="1" ${f('rent')} value="${esc(d.rent ?? '')}"></label>` : ''}
         ${jobs.length ? `<label class="mu-field"><span>A job to start with</span><select ${f('job')}>${opt('', 'None', !d.job)}${jobs.map(o => opt(o.id, o.name, d.job === o.id)).join('')}</select></label>` : ''}
         <h4>Whom you already know</h4><p class="mu-muted">The world's people who know you from the start, and how (only those in the game; your own characters are under "Your relations").</p>
         ${d.knows.map(known).join('') || '<p class="mu-muted">Nobody yet.</p>'}
@@ -186,8 +187,8 @@ Object.assign(INPUT, {
         if (!d)
             return;
         const k = el.dataset.k, v = el.value;
-        if (k === 'money')
-            d.money = v === '' ? undefined : Math.max(0, Math.round(Number(v) || 0));
+        if (k === 'money' || k === 'rent')
+            d[k] = v === '' ? undefined : Math.max(0, Math.round(Number(v) || 0));
         else
             d[k] = v;
         if (k === 'home' || k === 'job')

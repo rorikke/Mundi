@@ -29,13 +29,13 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
 import { careerOf, trackOf, playerTrack } from './work.js';
-import { styleOf } from './intimacy.js';
+import { styleOf, knownCount } from './intimacy.js';
 import { usualPay } from './needs.js';
 import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'track', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep'];
+    'rank', 'track', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -118,6 +118,7 @@ function badValue(key, v) {
         case 'attended': return COUNTED.test(v) && !v.includes(':') ? '' : `"${v}" should be a festival or an event, and how many times`;
         case 'visited': return VISITED.test(v) || ID.test(v) || PLACE_REGULAR.test(v) ? '' : `"${v}" should be a place (or a place and regular), a number of places (3 in a map, 3 regular in home), all, map or maps`;
         case 'secrets': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets`;
+        case 'known': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of likes and limits you know`;
         case 'helped': return ID.test(v) ? '' : `"${v}" should be a number of storylines, or a storyline's id`;
         case 'goal': return /^[^\s,;]+(\s+\d+)?$/.test(v) ? '' : `"${v}" should be a goal, a goal and a step (idol 3), or a number of goals`;
         case 'need': return /^\S+\s+\d+$/.test(v) ? '' : `"${v}" should be a need (or all) and a value, like mood 50`;
@@ -391,6 +392,8 @@ function holds(g, w, key, v, x) {
             return have >= c.n;
         }
         case 'visited': return visitedHolds(g, w, v);
+        // (adult) how many likes and hard limits you know of your lovers, in all (a state: counted at once, as skill: is)
+        case 'known': return adultOn(g) && knownCount(g) >= Number(v);
         case 'secrets': return Object.values(g.threads ?? {}).filter(t => t?.known !== undefined).length >= Number(v);
         case 'helped': return /^\d+$/.test(v) ? helpedThreads(g, w).length >= Number(v) : helpedThreads(g, w).includes(v);
         case 'goal': return goalHolds(g, w, v);
