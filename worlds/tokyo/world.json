@@ -2693,7 +2693,10 @@
    ],
    "fact": "{u} took a room for a rest at {0}",
    "place": "sb_lovehotel",
-   "adult": true
+   "adult": true,
+   "tags": [
+    "lovehotel"
+   ]
   },
   {
    "id": "sb_lovehotel_movie",
@@ -2727,7 +2730,10 @@
    ],
    "fact": "{u} had a movie night with friends at {0}",
    "place": "sb_lovehotel",
-   "adult": true
+   "adult": true,
+   "tags": [
+    "lovehotel"
+   ]
   },
   {
    "id": "sj_station_bento",
@@ -6079,7 +6085,8 @@
    "minutes": 120,
    "effects": {
     "mood": 10,
-    "energy": 5
+    "energy": 5,
+    "desire": 50
    },
    "together": {
     "needed": true,
@@ -6087,11 +6094,13 @@
    },
    "outcomes": [
     {
+     "id": "shoulder",
      "weight": 90,
      "text": "Shoulder to shoulder over the same volume.",
      "effects": {}
     },
     {
+     "id": "doze",
      "weight": 10,
      "text": "You both doze off and wake to a polite knock.",
      "effects": {
@@ -6102,7 +6111,22 @@
    ],
    "fact": "{u} shared a couple's booth at {0}",
    "place": "ak_mangacafe",
-   "private": true
+   "private": true,
+   "adult": true,
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "trains": "sensuality",
+   "tags": [
+    "private",
+    "exhib"
+   ]
   },
   {
    "id": "ak_myojin_omikuji",
@@ -10361,7 +10385,8 @@
    "place": "rp_poleclub",
    "effects": {
     "mood": 8,
-    "energy": -3
+    "energy": -3,
+    "desire": 10
    },
    "when": "period: night or latenight",
    "together": {
@@ -11890,6 +11915,7 @@
    },
    "outcomes": [
     {
+     "id": "cedar",
      "weight": 80,
      "text": "A cedar tub, a window onto the dark garden and the quiet to talk or not talk.",
      "effects": {
@@ -11897,17 +11923,26 @@
      }
     },
     {
+     "id": "latch",
      "weight": 20,
      "text": "Nobody comes for fifty minutes; the latch stays on, and what happens in the bath stays in the bath.",
-     "when": "companion: dating",
      "effects": {
       "mood": 8
-     }
+     },
+     "when": "companion: dating"
     }
    ],
    "fact": "{u} booked the private bath at {0}",
    "tags": [
-    "bath"
+    "bath",
+    "private"
+   ],
+   "dc": 11,
+   "matches": [
+    "bath",
+    "baths",
+    "hot-spring",
+    "yukata"
    ]
   },
   {
@@ -12433,6 +12468,387 @@
     }
    ],
    "fact": "{u} prayed at {0}"
+  },
+  {
+   "id": "priv_talk_likes",
+   "name": "Pillow talk",
+   "label": "Talk quietly afterward",
+   "icon": "💬",
+   "cost": 0,
+   "minutes": 20,
+   "anywhere": true,
+   "effects": {
+    "mood": 3
+   },
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo; companion: crush or casual",
+   "together": {
+    "needed": true,
+    "text": "a few quiet minutes together afterward, talking about what each of you likes"
+   },
+   "outcomes": [
+    {
+     "id": "talk",
+     "weight": 60,
+     "text": "You talk in low voices about what you like, and what you would rather not."
+    },
+    {
+     "id": "laugh",
+     "weight": 40,
+     "text": "Neither of you can keep a straight face, and you learn more than you meant to.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} talked quietly with someone afterward at {0}",
+   "adult": true,
+   "tags": [
+    "pillowtalk"
+   ]
+  },
+  {
+   "id": "priv_home_solo",
+   "name": "Alone",
+   "label": "Take time to yourself",
+   "icon": "🛋️",
+   "cost": 0,
+   "minutes": 20,
+   "home": true,
+   "effects": {
+    "mood": 3,
+    "desire": 30
+   },
+   "when": "period: evening or night or latenight; companion: not yes",
+   "outcomes": [
+    {
+     "id": "quiet",
+     "weight": 100,
+     "text": "You take your time; nobody is watching, and the evening settles."
+    }
+   ],
+   "fact": "{u} spent some time alone at home",
+   "adult": true,
+   "tags": [
+    "solo"
+   ]
+  },
+  {
+   "id": "priv_home_lapdance",
+   "name": "Lap dance",
+   "label": "Dance for them",
+   "icon": "💃",
+   "cost": 0,
+   "minutes": 30,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": -8,
+    "desire": 50
+   },
+   "when": "skill: dance 3; companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 12,
+   "matches": [
+    "dancing",
+    "lap dances",
+    "being watched",
+    "costumes"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a private dance at home for someone you trust, the lights low"
+   },
+   "outcomes": [
+    {
+     "id": "slow",
+     "weight": 60,
+     "text": "The music is low and the room is small; you dance as if only the two of you existed."
+    },
+    {
+     "id": "laugh",
+     "weight": 25,
+     "text": "You lose the beat, and both of you laugh until the song ends.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "close",
+     "weight": 15,
+     "text": "They watch without a word, and the song is over before either of you notices.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} danced for someone at home",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_massage_full",
+   "name": "Full oil massage",
+   "label": "Give a full oil massage",
+   "icon": "💆",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "places": [
+    "sb_lovehotel",
+    "hk_ryokan"
+   ],
+   "effects": {
+    "mood": 10,
+    "energy": 10,
+    "desire": 50
+   },
+   "when": "course: massage; companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "massage",
+    "pampered",
+    "being taken care of",
+    "being cared for"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a long oil massage for someone close, from the shoulders down, slow and unhurried"
+   },
+   "outcomes": [
+    {
+     "id": "long",
+     "weight": 60,
+     "text": "Shoulders, back, the knots from a week at a desk; the hour goes by without either of you noticing."
+    },
+    {
+     "id": "asleep",
+     "weight": 40,
+     "text": "They fall asleep halfway through, warm and relaxed, and you let them.",
+     "effects": {
+      "mood": 3,
+      "energy": 8
+     }
+    }
+   ],
+   "fact": "{u} gave someone a full oil massage at {0}",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "massage"
+   ]
+  },
+  {
+   "id": "priv_home_three",
+   "name": "Three of you",
+   "label": "Spend the night with two lovers",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -12,
+    "desire": 50
+   },
+   "when": "companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 12,
+   "matches": [
+    "two lovers",
+    "a third person",
+    "sharing"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a night at home with two lovers who are both comfortable with it"
+   },
+   "outcomes": [
+    {
+     "id": "night",
+     "weight": 70,
+     "text": "The three of you spend the night together, and the apartment is quiet and warm by morning."
+    },
+    {
+     "id": "laugh",
+     "weight": 30,
+     "text": "Nobody quite knows where to sit at first; by midnight nobody remembers why that mattered.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent a night with two lovers at home",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_office_late",
+   "name": "After hours",
+   "label": "Stay late together at your desk",
+   "icon": "🏢",
+   "cost": 0,
+   "minutes": 40,
+   "place": "mg_tower",
+   "places": [
+    "sb_startup"
+   ],
+   "effects": {
+    "mood": 12,
+    "energy": -8,
+    "desire": 50
+   },
+   "when": "job: here; period: night or latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "risk": 0.2,
+   "dc": 13,
+   "matches": [
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a colleague you are close to, an office after hours, and a cleaner who may come by"
+   },
+   "outcomes": [
+    {
+     "id": "quiet",
+     "weight": 70,
+     "text": "The floor is dark except for your desk lamp, and every sound in the corridor makes you both freeze."
+    },
+    {
+     "id": "close",
+     "weight": 30,
+     "text": "A lift chimes somewhere below; you wait, breathing, until it goes quiet again.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} stayed late at the office with someone",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "priv_park_night",
+   "name": "Park after dark",
+   "label": "Slip into the park after dark",
+   "icon": "🌳",
+   "cost": 0,
+   "minutes": 40,
+   "place": "sb_yoyogi",
+   "effects": {
+    "mood": 12,
+    "energy": -8,
+    "desire": 50
+   },
+   "when": "season: summer; period: night or latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a dark corner of the park on a warm night, with a patrol that may pass"
+   },
+   "outcomes": [
+    {
+     "id": "dark",
+     "weight": 70,
+     "text": "Cicadas, a distant torch and a bench in the dark; you keep your voices low and your hands to yourselves for as long as you can."
+    },
+    {
+     "id": "wait",
+     "weight": 30,
+     "text": "A jogger passes and you both hold still, grinning, until the footsteps fade.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} slipped into a park after dark with someone",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "priv_ryokan_rotenburo",
+   "name": "The shared bath",
+   "label": "Share the open-air bath",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 50,
+   "place": "hk_ryokan",
+   "effects": {
+    "hygiene": 40,
+    "energy": 5,
+    "mood": 12,
+    "desire": 50
+   },
+   "when": "period: latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "risk": 0.1,
+   "dc": 13,
+   "matches": [
+    "bath",
+    "baths",
+    "hot-spring",
+    "yukata",
+    "public",
+    "semi-public",
+    "thrill",
+    "near-discovery",
+    "nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the ryokan's open-air bath after midnight, steam, a bamboo fence and a staff member who may walk by"
+   },
+   "outcomes": [
+    {
+     "id": "steam",
+     "weight": 70,
+     "text": "Steam, a bamboo fence and stars between the clouds; you keep quiet because a door could open at any time."
+    },
+    {
+     "id": "door",
+     "weight": 30,
+     "text": "A sliding door rattles somewhere; you both go still in the water, and then laugh at yourselves.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} shared the open-air bath at {0} after midnight",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "exhib"
+   ]
   }
  ],
  "sleep": {
@@ -14655,6 +15071,7 @@
    "content": "Karaoke in Tokyo is a private room by the hour, not a stage: a touchscreen, a tambourine, a drink bar, food ordered by phone. \"Free time\" is an open-ended slot; the all-night pack runs from about 23:00 to the first train. Hitokara, singing alone, is normal. Nobody listens through the door."
   },
   {
+   "id": "lovehotel_general",
    "keys": [
     "love hotel",
     "love hotels",
@@ -15020,48 +15437,56 @@
    "rumor": true
   },
   {
+   "id": "lovehotel_afternoon",
    "when": "place: sb_lovehotel; period: afternoon",
    "content": "Afternoon \"rest\" hours are busy: cleaners turn rooms in minutes, couples slip in and out at staggered times, and the discretion is the whole service.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_night",
    "when": "place: sb_lovehotel; period: night",
    "content": "The \"stay\" rate starts around 22:00 and runs to eleven next morning; lit room photos on the panel go dark one by one as the rooms fill.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_queue",
    "when": "place: sb_lovehotel; weekend: yes; period: evening",
    "content": "On Fridays and Saturdays there's a short queue in the lobby of people not looking at each other; the staff keep it quiet and quick.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_woke",
    "when": "stayed: sb_lovehotel",
    "content": "{{user}} woke in a quiet room behind thick curtains; check-out isn't until eleven, so there is no hurry to get up.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_theme",
    "when": "stayed: sb_lovehotel",
    "content": "The themed room {{user}} slept in has a starlit ceiling, and {{user}} lay looking up at it for a long time this morning.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_breakfast",
    "when": "stayed: sb_lovehotel",
    "content": "Breakfast came through a hatch in the door this morning; {{user}} and anyone with {{user}} never saw a face.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_rain",
    "when": "place: sb_lovehotel; weather: rain",
    "content": "Rainy nights fill up fast, since missed last trains push couples and friends in. The staff leave a basket of umbrellas by the door.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "lovehotel_movie",
    "when": "place: sb_lovehotel; weekend: yes; period: evening or night",
    "content": "Groups of friends also book rooms for movie nights: a big screen, a large bath, take-out and a karaoke set. The staff don't mind, and nothing romantic is expected.",
    "keys": [],
@@ -18543,18 +18968,21 @@
    "adult": true
   },
   {
+   "id": "pole_class",
    "when": "place: rp_poleclub; weekday: wed or sat; period: afternoon",
    "content": "Class afternoons: the poles are chalked, the music is a metronome, and office workers, a retired ballet teacher and friends in borrowed shorts all take turns at the first spin. The class is part of the club, so it is adult only.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "pole_momo",
    "when": "place: rp_poleclub; weekday: wed; period: afternoon; present: Momo",
    "content": "Momo Sakuraba, tall and athletic from years of volleyball, is in the front row of the class, apologizing every time she slips and getting back up grinning. Lisa Morimoto cheers her on by name.",
    "keys": [],
    "adult": true
   },
   {
+   "id": "pole_lisa",
    "when": "place: rp_poleclub; weekday: wed or sat; period: afternoon; present: Lisa",
    "content": "Lisa Morimoto runs the pole-fitness class herself on class afternoons: chalk on her hands, a loud count, and no mercy for anyone who skips the warm-up.",
    "keys": [],
@@ -19445,6 +19873,7 @@
    "adult": true
   },
   {
+   "id": "av_airi",
    "keys": [
     "Airi",
     "Airi Mizusawa"
@@ -19461,12 +19890,49 @@
    "adult": true
   },
   {
+   "id": "av_momo",
    "keys": [
     "Momo",
     "Momo Sakuraba"
    ],
    "content": "She works as an AV actress: contracts, shoots away from any map, the stigma, the fear of her family finding out. All of it is off-screen.",
    "adult": true
+  },
+  {
+   "id": "esthe_general",
+   "keys": [
+    "esthe",
+    "men's esthe",
+    "aroma massage",
+    "Aroma Room Lily",
+    "therapist"
+   ],
+   "adult": true,
+   "content": "Men's esthe is aroma-oil massage for men, given by women therapists in rooms in ordinary apartment buildings and sold as relaxation. Its mirror, women's services, books male therapists who go out to hotels. Both live on review sites and rankings, and in a gray zone: whether a shop keeps to treatment alone is the manager's choice."
+  },
+  {
+   "id": "esthe_room",
+   "when": "place: sj_esthe; period: afternoon or evening",
+   "keys": [],
+   "adult": true,
+   "content": "Aroma Room Lily has one treatment room behind a curtain and a bell on the door. The manager keeps a wall chart of therapists' names and bookings, and a ranking printout from the review site is pinned beside it."
+  },
+  {
+   "id": "esthe_night",
+   "when": "place: sj_esthe; period: night",
+   "keys": [],
+   "adult": true,
+   "content": "Late bookings are the busiest: customers off the last shift, a therapist changing the towels between rooms, the diffuser running whatever the hour. Nobody speaks above a murmur in the corridor."
+  },
+  {
+   "id": "massage_course",
+   "keys": [
+    "massage course",
+    "oil massage",
+    "sensual massage"
+   ],
+   "adult": true,
+   "content": "The massage course is a season of theory online and practice at home: oils, pressure, posture and listening to a body. Spas and aroma salons ask for it, and without it a shop may charge a newcomer a \"training fee\"."
   }
  ],
  "places": [
@@ -19799,7 +20265,8 @@
    "map": "shibuya",
    "tags": [
     "service",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a pastel-lit hotel on the hill behind Center Gai, with an anonymous entrance, a panel of lit room photos in the lobby and a small window where the clerk speaks but is never seen",
    "staff": "a clerk watching a screen and speaking through the window, cleaners with carts, couples who don't meet anyone's eyes",
@@ -19881,7 +20348,8 @@
    "map": "shinjuku",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a host club behind a black glass door: portrait boards of smiling men in suits out front; inside mirrors, chandeliers, deep sofas and champagne calls that stop the room",
    "staff": "hosts in dark suits rotating between tables; a floor captain; a doorman; women guests alone or in pairs",
@@ -19911,7 +20379,8 @@
    "map": "shinjuku",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a hostess lounge on a fourth floor: low lights, deep sofas, bottles with name tags on the shelves, hostesses in evening dresses pouring drinks for company men",
    "staff": "hostesses in evening dresses; the mama circulating between tables; a bartender; company men in loosened ties",
@@ -21891,7 +22360,8 @@
    "map": "roppongi",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a basement stage with three chrome poles under blue light, a bar and low tables, and house rules posted by the door: watch, tip, don't touch; dancers here are athletes in sport costumes",
    "staff": "a bouncer at the door; a bartender; the house manager; dancers off stage with towels and water bottles; quiet regulars",
@@ -22069,7 +22539,8 @@
    "tags": [
     "service",
     "leisure",
-    "work"
+    "work",
+    "nightworld"
    ],
    "desc": "a hostess club on the second floor of an Isezaki building: eight velvet sofas, a faded hibiscus mural, a karaoke screen, and a mama who greets every guest by name",
    "staff": "a young bartender, four hostesses on a quiet night, a doorman in a vest, a regular nursing one bottle",
@@ -36483,7 +36954,9 @@
       "nothing without a clear, sober yes",
       "no one who teases her about money",
       "no secrets about other partners"
-     ]
+     ],
+     "role": "switch",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -36567,7 +37040,9 @@
      "limits": [
       "no secrets from a partner",
       "nothing casual with anyone in the band"
-     ]
+     ],
+     "role": "follow",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -36672,7 +37147,9 @@
       "nobody who sees her as a novelty",
       "no being strung along",
       "nothing with a housemate who hasn't asked clearly"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -36775,7 +37252,9 @@
       "no assumptions about their body or pronouns",
       "nothing rushed",
       "no one who treats their gender as a curiosity"
-     ]
+     ],
+     "role": "switch",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -36867,7 +37346,9 @@
       "no one who wants her smaller",
       "nothing in front of the band",
       "no one who goes to the press"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -36981,7 +37462,9 @@
       "no teasing about money",
       "no pressure",
       "nothing with anyone his sister is close to"
-     ]
+     ],
+     "role": "follow",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -37121,7 +37604,9 @@
      "limits": [
       "nothing flashy",
       "nothing hidden, everything said plainly"
-     ]
+     ],
+     "role": "lead",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -37228,7 +37713,9 @@
      "limits": [
       "no one who wants her smaller or out of the shop",
       "nothing without talking first"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -37286,7 +37773,9 @@
       "nobody who would out her pen name",
       "nothing at the shrine",
       "everything agreed beforehand"
-     ]
+     ],
+     "role": "switch",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -37433,7 +37922,9 @@
       "nothing that could reach her office",
       "no talk about work",
       "no recordings"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -37577,7 +38068,9 @@
      "limits": [
       "nothing that could expose Shizuka",
       "no ghosting"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -37676,7 +38169,9 @@
      "limits": [
       "nothing with someone drunk or sad",
       "nothing behind anyone's back"
-     ]
+     ],
+     "role": "follow",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -37794,7 +38289,9 @@
      "limits": [
       "no photos or recordings",
       "no one who treats her as a product"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true
    },
@@ -37848,7 +38345,9 @@
       "no one who knows him only as Kaname",
       "nothing that involves Hina",
       "no one who can't accept his job"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true
    },
@@ -37925,7 +38424,9 @@
      "limits": [
       "no one who wants to own her",
       "no lies, she is honest that she is not exclusive"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -38035,7 +38536,9 @@
       "no photos",
       "nothing rushed",
       "no mocking her hobbies"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -38105,7 +38608,9 @@
       "no pressure for exclusivity she hasn't offered",
       "nobody tells her family",
       "no recordings without consent"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -38213,7 +38718,9 @@
       "no one tied to the Hamakaze Group",
       "no clients",
       "no pity"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -38259,7 +38766,9 @@
       "no liars or games",
       "no cheating",
       "no one who wants her quieter"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true
    },
@@ -38348,7 +38857,9 @@
       "nothing that could expose them before she is ready",
       "no hurrying",
       "no other suitors"
-     ]
+     ],
+     "role": "follow",
+     "drive": "average"
     },
     "anchored": true
    },
@@ -38449,7 +38960,9 @@
       "nobody who treats her as a novelty",
       "nothing before she trusts",
       "no pressure"
-     ]
+     ],
+     "role": "follow",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -38540,7 +39053,9 @@
       "no jealousy scenes",
       "no one who wants to control her outside the bedroom",
       "honesty with everyone"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -38636,7 +39151,9 @@
      "limits": [
       "no cheating",
       "nobody who laughs at his family search"
-     ]
+     ],
+     "role": "lead",
+     "drive": "high"
     },
     "anchored": true,
     "languages": {
@@ -38745,7 +39262,9 @@
       "nothing casual",
       "nothing that risks her job",
       "no one who pities her debt"
-     ]
+     ],
+     "role": "switch",
+     "drive": "low"
     },
     "anchored": true,
     "languages": {
@@ -38852,7 +39371,9 @@
      "limits": [
       "no one from the office",
       "no gossip"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "anchored": true,
     "languages": {
@@ -38937,7 +39458,9 @@
      "limits": [
       "no outing her streaming identity",
       "no pushing in public"
-     ]
+     ],
+     "role": "switch",
+     "drive": "average"
     },
     "anchored": true,
     "languages": {
@@ -39039,7 +39562,9 @@
      "limits": [
       "no drama or deceit",
       "nothing with a colleague's partner"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "anchored": true,
     "rituals": [
@@ -39161,7 +39686,9 @@
       "no mocking her work or body",
       "nothing not agreed beforehand",
       "nothing shared with anyone"
-     ]
+     ],
+     "role": "switch",
+     "drive": "high"
     },
     "adult": true,
     "anchored": true
@@ -39281,7 +39808,9 @@
       "nobody who treats her as a product",
       "no recording",
       "no questions about her work"
-     ]
+     ],
+     "role": "lead",
+     "drive": "average"
     },
     "adult": true,
     "anchored": true
@@ -39383,7 +39912,9 @@
       "nobody from home",
       "no recordings",
       "nothing she hasn't said yes to"
-     ]
+     ],
+     "role": "follow",
+     "drive": "high"
     },
     "adult": true,
     "anchored": true
@@ -41192,6 +41723,54 @@
      "shrine"
     ]
    }
+  ]
+ },
+ "intimatePool": {
+  "prefs": [
+   "slow and tender",
+   "being led",
+   "likes to be in charge",
+   "being praised",
+   "playful teasing",
+   "being teased",
+   "a bath together",
+   "hot-spring baths",
+   "mornings in bed",
+   "a massage first",
+   "being pampered",
+   "being cooked for",
+   "cuddling afterward",
+   "tea brought afterward",
+   "long kissing",
+   "whispered words",
+   "hand-holding",
+   "candlelit hotel stays",
+   "a weekend away",
+   "dancing close",
+   "costumes for fun",
+   "roleplay scenarios",
+   "a thrill of near-discovery",
+   "semi-public places",
+   "being surprised",
+   "being asked what they want",
+   "curious about a blindfold",
+   "curious about rope",
+   "playful competition",
+   "late-night messages"
+  ],
+  "limits": [
+   "nothing without a clear yes",
+   "nothing rushed",
+   "no pressure",
+   "no photos or recordings",
+   "no secrets about other partners",
+   "no one who treats them as a novelty",
+   "nothing in public",
+   "nothing that could reach their workplace",
+   "no teasing about money",
+   "no cheating",
+   "nothing when either of you has been drinking",
+   "nothing hidden behind anyone's back"
   ]
  }
 }
