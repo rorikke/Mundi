@@ -1,6 +1,6 @@
 // Places other systems hook into time (kept apart, with no imports, so no module waits on another).
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, ActionDef, Place } from '../core/world.js';
+import type { WorldDef, ActionDef, Place, StatusDef } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
 export const onDay: ((g: Save, w: WorldDef) => string[])[] = [];
@@ -45,3 +45,9 @@ export const privateResults: ((g: Save, w: WorldDef, x: PrivateCtx, done: Action
 // More lines for the intimate block (sim/scenepeople.ts), for the people here: what you know of them, their drive,
 // their wanting you… (`who`: whose profiles the block tells, as `profilePeople` chose them).
 export const intimateLines: ((g: Save, w: WorldDef, here: Place | null, present: Resident[], who: { full: Resident[]; limitsOnly: Resident[] }) => string[])[] = [];
+// An adult need's empty-need drain (Desire's restlessness at zero) as the player's drive makes it (sim/drive.ts): each
+// gets the world's rule and returns the one to use. Asked by the timed rules in sim/needs.ts.
+export const zeroDrainMods: ((g: Save, w: WorldDef, s: StatusDef, z: { status: string; amount: number; everyMinutes: number }) => { status: string; amount: number; everyMinutes: number })[] = [];
+// What an action (or its outcome) gives back of a need, after its `rest` effects (`restGain` in sim/needs.ts): being
+// alone and a private action's mood, by drive.
+export const gainMods: ((g: Save, w: WorldDef, a: { id: string; tags?: string[] }, id: string, v: number) => number)[] = [];

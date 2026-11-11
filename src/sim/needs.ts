@@ -1,7 +1,7 @@
 // Statuses (life, energy, hunger…) and the actions that change them. Everything comes from the world's data:
 // which statuses exist, how fast they drop, what happens at zero and what each action costs and gives.
 import { eventActions } from './cityevents.js';
-import { onAction, decayMods, actionGates } from './hooks.js';
+import { onAction, decayMods, actionGates, zeroDrainMods, gainMods } from './hooks.js';
 import { nowAbs, cfg, adultOk, adultOn, type Save } from '../core/store.js';
 import { billNews, cutReason, priceOf } from './bills.js';
 import { priceHere } from './worldstate.js';
@@ -52,6 +52,16 @@ function periods(g: Save, key: string, every: number): number {
     return n;
 }
 
+/* ---------- adult needs (Desire): sim/drive.ts changes them through `zeroDrainMods` and `gainMods` (sim/hooks.ts) ---------- */
+// An adult need's decay keeps its fractions (Desire at Low drive loses half a point a step), so the drive's rate is
+// what it says; other needs round as they always have.
+function decayBy(g: Save, w: WorldDef, s: StatusDef, n: number) {
+    if (!s.adult) { addStatus(g, w, s.id, n); return; }
+    const key = `carry:${s.id}`, total = n + (g.tick[key] ?? 0), whole = Math.trunc(total);
+    g.tick[key] = total - whole;
+    if (whole) addStatus(g, w, s.id, whole);
+}
+
 // Runs after every slice of time: decay, damage at zero, passing out, rent.
 export function applyTimedRules(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
@@ -60,15 +70,16 @@ export function applyTimedRules(g: Save, w: WorldDef): string[] {
         if (s.decay) {
             const n = periods(g, `decay:${s.id}`, s.decay.everyMinutes);
             // (walking the map costs no energy)
-            if (n > 0 && !(s.decay.awakeOnly && g.asleep) && !(s.id === 'energy' && (g as any).traveling)) addStatus(g, w, s.id, -s.decay.amount * n * (cfg(g).decay ?? 1) * decayMods.reduce((m, f) => m * f(g, w, s.id), 1));
+            if (n > 0 && !(s.decay.awakeOnly && g.asleep) && !(s.id === 'energy' && (g as any).traveling)) decayBy(g, w, s, -s.decay.amount * n * (cfg(g).decay ?? 1) * decayMods.reduce((m, f) => m * f(g, w, s.id), 1));
         }
         const v = g.player.stats[s.id] ?? s.start;
         // (Home: an empty need only shows, and the AI is told; nobody faints)
         if (v > 0 || !s.zero || isScenario(w)) { delete g.tick[`zero:${s.id}`]; delete g.tick[`crisis0:${s.id}`]; continue; }
         out.push(...crisisCheck(g, w, s));
         if (s.zero.drain) {
-            const n = periods(g, `drain:${s.id}`, s.zero.drain.everyMinutes);
-            if (n > 0) addStatus(g, w, s.zero.drain.status, -s.zero.drain.amount * n);
+            const z = s.adult ? zeroDrainMods.reduce((z, f) => f(g, w, s, z), s.zero.drain) : s.zero.drain;
+            const n = periods(g, `drain:${s.id}`, z.everyMinutes);
+            if (n > 0) addStatus(g, w, z.status, -z.amount * n);
         }
         if ((s.zero.place || s.zero.text) && g.tick[`zero:${s.id}`] === undefined) {
             g.tick[`zero:${s.id}`] = nowAbs(g);
@@ -187,7 +198,8 @@ export function applyAction(g: Save, w: WorldDef, a: ActionDef) {
 export function restGain(g: Save, w: WorldDef, a: { id: string; tags?: string[] }, id: string, v: number): number {
     const food = id === 'hunger' || id === 'thirst', bath = !food && (a.tags ?? []).includes('bath');
     const k = food || bath ? effectMul(g, w, 'rest', [food ? 'food' : 'bath', a.id, ...(a.tags ?? [])]) : effectMul(g, w, 'rest', [a.id, ...(a.tags ?? [])].filter(t => t !== 'food' && t !== 'bath'), { exact: true });
-    return k === 1 ? v : Math.round(v * k);
+    const out = k === 1 ? v : Math.round(v * k);
+    return gainMods.length ? gainMods.reduce((x, f) => f(g, w, a, id, x), out) : out;
 }
 
 // A short line for the AI about how the player feels (only what stands out).

@@ -1,11 +1,12 @@
 // Who you are: strengths (what you're good at when a game starts: they become skill levels), personality (small effects
 // on the game's numbers, through the effects engine), interests (doing something that fits one lifts your mood a
-// little more) and habits (their skill trains a little faster while you keep them). Also what the AI is told about
+// little more), habits (their skill trains a little faster while you keep them) and, with adult content and Desire in
+// play, the Drive (how fast Desire drains and what a night gives: sim/drive.ts uses it). Also what the AI is told about
 // you every turn, swapping a trait later (life goals' "Change a trait"), and `settleTraits`, which brings a save made
 // under the old rules (every trait a flat bonus, courses and goals handing out traits) onto the new ones once its
 // world is known.
 import { adultOn, type Save } from '../core/store.js';
-import { systemOn, activeStatuses, type WorldDef, type TraitGroup } from '../core/world.js';
+import { systemOn, activeStatuses, getWorld, type WorldDef, type TraitGroup } from '../core/world.js';
 import { clampEffect, TRAIT_LIMITS, OUT_OF_WORK, type EffectDef } from '../core/traits.js';
 import { effectSources } from './effects.js';
 import { onAction } from './hooks.js';
@@ -32,11 +33,13 @@ const adultNames = (w: WorldDef): Set<string> => new Set((w.sheet?.traits ?? [])
 /** Is this trait name one only adult content offers? */
 export const isAdultTrait = (w: WorldDef | null | undefined, name: string) => !!w && adultNames(w).has(name);
 /** The character sheet's groups as a game shows them: with adult content on, adult groups too and each group's adult
- *  options after its own; with it off, neither (the groups given back as they are). */
-export const sheetGroups = (w: WorldDef | null | undefined, adult: boolean): TraitGroup[] =>
-    (w?.sheet?.traits ?? []).filter(t => adult || !t.adult).map(t => (adult && t.adultOptions?.length ? { ...t, options: [...t.options, ...t.adultOptions.filter(o => !t.options.includes(o))] } : t));
-/** The options of a group you can have in this game (adult ones only with adult content on). */
-export const groupOptions = (g: Save, t: TraitGroup): string[] => (adultOn(g) ? [...t.options, ...names(t.adultOptions).filter(o => !t.options.includes(o))] : t.adult ? [] : t.options);
+ *  options after its own; with it off, neither (the groups given back as they are). `desire` false: Desire won't be in
+ *  play (a new game with the need switched off), so no Drive group either (`desireOffered`). */
+export const sheetGroups = (w: WorldDef | null | undefined, adult: boolean, desire = true): TraitGroup[] =>
+    (w?.sheet?.traits ?? []).filter(t => (adult || !t.adult) && (desire || !isDriveGroup(t))).map(t => (adult && t.adultOptions?.length ? { ...t, options: [...t.options, ...t.adultOptions.filter(o => !t.options.includes(o))] } : t));
+/** The options of a group you can have in this game (adult ones only with adult content on; the Drive's only with Desire
+ *  in play). */
+export const groupOptions = (g: Save, t: TraitGroup): string[] => (isDriveGroup(t) && !desireOn(g, getWorld(g.world)) ? [] : adultOn(g) ? [...t.options, ...names(t.adultOptions).filter(o => !t.options.includes(o))] : t.adult ? [] : t.options);
 /** The trait names the player has that count in this game: adult ones only with adult content on (a game can switch it
  *  off later; what you have stays, and counts again when it's back on). */
 export const traitsInPlay = (g: Save, w: WorldDef): string[] => { const all = traitNames(g), s = adultNames(w); return !s.size || adultOn(g) ? all : all.filter(t => !s.has(t)); };
@@ -88,15 +91,53 @@ export function applyStrengths(g: Save, w: WorldDef, picks: string[] | Record<st
     for (const [id, n] of Object.entries(strengthLevels(w, picks))) setSkillLevel(g, id, n);
 }
 
+/* ---------- the Drive (adult content, with Desire in play) ---------- */
+
+/** How much Desire the player has (design 2c): the adult trait group `drive`, one pick, Average without one. */
+export type Drive = 'low' | 'average' | 'high';
+export const DRIVE_GROUP = 'drive';
+/** What each drive does. `drain`: Desire's drain (×); `restless`: the world's empty-Desire mood drain, its amount and its
+ *  period (×); `afterglow`: how much slower mood drains while Desire is 70 or more; `alone`: what being alone (an action
+ *  tagged `solo`) gives back of Desire (×; the world writes Average's); `mood` and `romance`: a private action's mood (×)
+ *  and the romance it gives (a `gain` effect aimed at `intimate`). `ai`: what the AI is told. Every drive has a cost:
+ *  per night, the afterglow comes out about the same (72 h × 5%, 36 h × 10%, 22 h × 15%). */
+export const PLAYER_DRIVE: Record<Drive, { drain: number; restless: { amount: number; every: number }; afterglow: number; alone: number; mood: number; romance: number; ai: string }> = {
+    low: { drain: 0.5, restless: { amount: 0.5, every: 1 }, afterglow: 0.05, alone: 4 / 3, mood: 0.8, romance: -0.1, ai: "{{user}} doesn't think about sex much; when it happens it's nice, not urgent." },
+    average: { drain: 1, restless: { amount: 1, every: 1 }, afterglow: 0.1, alone: 1, mood: 1, romance: 0, ai: '' },
+    high: { drain: 1.6, restless: { amount: 1, every: 2 / 3 }, afterglow: 0.15, alone: 2 / 3, mood: 1.25, romance: 0.1, ai: '{{user}} has a high sex drive: thinks about it a lot, wants it often, ready again soon.' },
+};
+/** Is Desire in play in this game (adult content on, the need on)? Without it there is no Drive and no afterglow. */
+export const desireOn = (g: Save, w: WorldDef | null | undefined): boolean => !!w && adultOn(g) && activeStatuses(w, g).some(s => s.id === 'desire');
+/** Will Desire be in play in a new game of this world (for the new game's sheet, before there's a save)? */
+export const desireOffered = (w: WorldDef | null | undefined, adult: boolean): boolean => !!w && adult && activeStatuses(w, { cfg: { adult: true } }).some(s => s.id === 'desire');
+const isDriveGroup = (t: TraitGroup) => t.id === DRIVE_GROUP && !!t.adult;
+const driveGroup = (w: WorldDef) => (w.sheet?.traits ?? []).find(isDriveGroup);
+/** The player's drive, or null while Desire isn't in play. A pick is read by its words (Low drive, High…), else by its
+ *  place among the group's three options; no pick (or no such group) is Average. */
+export function playerDrive(g: Save, w: WorldDef | null | undefined): Drive | null {
+    if (!desireOn(g, w)) return null;
+    const grp = driveGroup(w!), pick = grp ? names((g.player.traits as Record<string, unknown> | undefined)?.[grp.id])[0] : undefined;
+    if (!grp || !pick) return 'average';
+    const word = (['low', 'average', 'high'] as Drive[]).find(d => new RegExp(`\\b${d}\\b`, 'i').test(pick));
+    if (word) return word;
+    const i = grp.options.indexOf(pick);
+    return grp.options.length === 3 && i >= 0 ? (['low', 'average', 'high'] as Drive[])[i] : 'average';
+}
+// The Drive's own options, kept out of trait info's effects: the drive's numbers come from one place (design 8).
+const driveNames = (w: WorldDef) => new Set(driveGroup(w)?.options ?? []);
+
 /* ---------- the trait source for the effects engine ---------- */
 
 const holds = (g: Save, w: WorldDef, e: EffectDef) => !e.when || (e.when === OUT_OF_WORK ? systemOn(w, 'jobs') && !g.player.job : whenHolds(g, w, e.when, { key: `trait|${e.kind}|${e.target ?? ''}` }));
-// Personality's effects (from the world's `traitInfo`) and the habits' faster learning, while they hold.
+// Personality's effects (from the world's `traitInfo`), the habits' faster learning while they hold, and the Drive's
+// Desire drain and romance from private actions (a choice with a cost each way: past a trait's ±15%).
 effectSources.push((g, w) => {
     const out: EffectDef[] = [];
-    const info = w.traitInfo;
-    if (info) for (const t of traitsInPlay(g, w)) for (const e of info[t]?.effects ?? []) if (holds(g, w, e)) out.push(clampEffect(e, TRAIT_LIMITS));
-    if (systemOn(w, 'habits')) for (const id of habitsOf(g).has) { const skill = w.habits?.find(h => h.id === id)?.learn; if (skill) out.push({ kind: 'learn', target: skill, value: HABIT_LEARN }); }
+    const info = w.traitInfo, drives = driveNames(w);
+    if (info) for (const t of traitsInPlay(g, w)) if (!drives.has(t)) for (const e of info[t]?.effects ?? []) if (holds(g, w, e)) out.push(clampEffect(e, TRAIT_LIMITS));
+    if (systemOn(w, 'habits')) for (const id of habitsOf(g).has) { const h = w.habits?.find(x => x.id === id); if (h?.learn && (!h.adult || adultOn(g))) out.push({ kind: 'learn', target: h.learn, value: HABIT_LEARN }); }
+    const d = playerDrive(g, w);
+    if (d && d !== 'average') out.push({ kind: 'drain', target: 'desire', value: PLAYER_DRIVE[d].drain - 1 }, { kind: 'gain', target: 'intimate', value: PLAYER_DRIVE[d].romance });
     return out;
 });
 
@@ -121,7 +162,8 @@ export function traitLine(g: Save, w: WorldDef): string {
     const lower = (l: string[]) => l.map(x => x.toLowerCase()).join(', ');
     const on = adultOn(g), shown = (l: string[]) => (on ? l : l.filter(x => !isAdultTrait(w, x)));
     const per = shown(names(t.personality)), fun = shown(names(t.interests)), habits = habitTraits(g, w);
-    const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', habits.length ? `Habits: ${lower(habits)}.` : ''].filter(Boolean);
+    const drive = playerDrive(g, w);
+    const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', habits.length ? `Habits: ${lower(habits)}.` : '', drive ? PLAYER_DRIVE[drive].ai : ''].filter(Boolean);
     return parts.join(' ');
 }
 
