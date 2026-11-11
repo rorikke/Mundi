@@ -41,12 +41,13 @@ export { scheduleOf } from '../core/presets.js';
  *  performance 0–100; `since`: when this rank began (absolute minutes); `shift`: the shift you work in a job worked
  *  round the clock; `worked`: recent days whose shift you worked (by the day it starts); `off`: days booked off
  *  (vacation or sick); `vac`: vacation days saved up; `checked`: the last day whose shift was looked at (missed or
- *  not); `warn`: steps taken for low performance; `extraDay`: the day of the last overtime shift; `event`: something
- *  that happened on the last shift, waiting for your choice. */
+ *  not); `missed`: the day of the last missed shift that cost performance; `warn`: steps taken for low performance;
+ *  `extraDay`: the day of the last overtime shift; `event`: something that happened on the last shift, waiting for your
+ *  choice. */
 export interface JobState {
     id: string; rank: number; shifts: number; path?: string[]; referral?: string;
     perf?: number; since?: number; shift?: string; worked?: number[]; off?: Record<string, 'vacation' | 'sick'>;
-    vac?: number; vacAt?: number; sickAt?: number; checked?: number; warn?: number; told?: number; bonus?: number; extraDay?: number; toldBranch?: number;
+    vac?: number; vacAt?: number; sickAt?: number; checked?: number; missed?: number; warn?: number; told?: number; bonus?: number; extraDay?: number; toldBranch?: number;
     event?: { id: string; day: number };
     /** (E10) after-work drinks you were asked to (see Drinks) */
     drinks?: Drinks;
@@ -451,6 +452,17 @@ export function addPerf(g: Save, w: WorldDef, n: number): string[] {
     }
     return out;
 }
+/** Is there something for the rewards shop's "Clean slate at work" to forget (a warning, a missed shift)? */
+export const slateToClean = (g: Save, w: WorldDef) => { const j = jobOf(g); return !!j && !!jobDef(w, j.id) && (!!j.warn || j.missed !== undefined); };
+/** "Clean slate at work": one warning and the last missed shift are forgotten (its performance comes back). Null when
+ *  there's nothing to forget. */
+export function cleanSlate(g: Save, w: WorldDef): string[] | null {
+    const j = jobOf(g), o = jobDef(w, j?.id);
+    if (!j || !o || !slateToClean(g, w)) return null;
+    if (j.warn) { if (j.warn > 1) j.warn--; else delete j.warn; }
+    if (j.missed !== undefined) { j.perf = Math.min(100, (j.perf ?? 50) + workRules(g, w).missed); delete j.missed; }
+    return [`At ${o.name}, it's as if it never happened: a clean slate.`];
+}
 // What a shift does to your performance: how you worked, how you came in (rested, fed, clean, in a good mood), whether
 // you have the skills your rank asks for, and how the boss feels about you (J7).
 const MODE_PERF: Record<WorkMode, number> = { normal: 4, hard: 8, social: 2, easy: -4 };
@@ -706,6 +718,7 @@ export function workHour(g: Save, w: WorldDef): string[] {
         if (rules.missed) {
             out.push(`You missed your shift at ${o.name} (${WEEKDAYS[wdOf(d)]}).${rules.low === 'fire' ? ' Your boss is not happy.' : ''}`);
             note(g, '{u} missed a shift at work ({0}).', [o.name], [], o.place, 'work');
+            j.missed = d;
             out.push(...addPerf(g, w, -rules.missed));
             if (!g.player.job) return out;
         }

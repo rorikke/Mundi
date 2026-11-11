@@ -11,7 +11,7 @@ import { personaName } from '../st/bridge.js';
 import { seenAs } from './hooks.js';
 export { seenAs };
 
-export interface Fact { id: string; at: number; place: string; who: string[]; t: string; a?: string[]; kind?: string; u?: string }   // u: who "{u}" was (the one being played then)
+export interface Fact { id: string; at: number; place: string; who: string[]; t: string; a?: string[]; kind?: string; u?: string; forgot?: string[] }   // u: who "{u}" was (the one being played then); forgot: who no longer remembers it (A fresh start)
 
 const MAX = 500;
 export const facts = (g: Save): Fact[] => (((g as any).facts ??= []) as Fact[]);
@@ -36,8 +36,13 @@ export const fill = (t: string, a: string[] = [], u = 'You') => t.replace(/\{u\}
 export const factText = (f: Fact, u = 'You') => fill(f.t, f.a, f.u && f.u !== personaName() ? f.u : u);
 export const placeName = (g: Save, w: WorldDef, id: string) => (id === playerHomeId ? 'home' : id === 'out' ? 'out of the house' : placeOf(g, w, id)?.name ?? id);
 
-export const factsOf = (g: Save, avatar: string, n = 6) => facts(g).filter(f => f.who.includes(avatar)).slice(-n);
-export const factsAt = (g: Save, place: string, n = 3) => facts(g).filter(f => f.place === place).slice(-n);
+// What the AI may be told: a fact everyone in it has forgotten (the rewards shop's "A fresh start") isn't; the journal keeps it.
+const remembered = (f: Fact, avatar?: string) => !f.forgot?.length || (avatar ? !f.forgot.includes(avatar) : f.who.some(a => !f.forgot!.includes(a)));
+export const factsOf = (g: Save, avatar: string, n = 6) => facts(g).filter(f => f.who.includes(avatar) && remembered(f, avatar)).slice(-n);
+export const factsAt = (g: Save, place: string, n = 3) => facts(g).filter(f => f.place === place && remembered(f)).slice(-n);
+/** Someone forgets everything they were part of ("A fresh start"): the AI is no longer told it as theirs; the journal
+ *  keeps it. */
+export function forgetFacts(g: Save, avatar: string) { for (const f of facts(g)) if (f.who.includes(avatar) && !f.forgot?.includes(avatar)) f.forgot = [...(f.forgot ?? []), avatar]; }
 
 // For the AI: only the people in this scene, and this place (surgical injection).
 export function memoryLines(g: Save, w: WorldDef, present: { avatar: string; name: string }[], me: string): string[] {

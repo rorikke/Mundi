@@ -35,6 +35,7 @@ export interface RelStore {
     pairs: Record<string, PairState>;                          // "a|b", sorted
     people: Record<string, Person>;
     contact?: Record<string, number>;                          // "a|b": the last day they had contact (romance fading)
+    hold?: Record<string, number>;                             // "a|b": romance doesn't fade until this day (the rewards shop's Nudge)
     log?: unknown;                                             // records per message (sim/msglog.ts)
     day?: DaySnap;                                             // today's start values toward you (the recap)
 }
@@ -160,6 +161,7 @@ export function gain(g: Save, m: Meter, x: string, y: string, raw: number, isPac
 export const SOURCES = {
     talk: 0.5,      // each line you say, to each resident present who has spoken in the scene
     verdict: 2,     // each step of a scene verdict (−3..+3), friendship and romance (sim/verdict.ts)
+    nudge: 15,      // the rewards shop's Nudge: one person's friendship or romance for you, a milestone (not paced; sim/rewards.ts)
 };
 // A loss: in full, never paced. Returns how much it went down.
 export function lose(g: Save, m: Meter, x: string, y: string, n: number): number {
@@ -305,6 +307,14 @@ export function touch(g: Save, a: string, b = YOU) {
     if (c[k] !== g.day) c[k] = g.day;
 }
 export const lastContact = (g: Save, a: string, b = YOU): number | undefined => relOf(g).contact?.[pk(idOf(g, a), idOf(g, b))];
+// Romance between a and b doesn't fade until `day` (the Nudge holds it off for a week); a later hold wins.
+export function holdFade(g: Save, a: string, b: string, day: number) {
+    a = idOf(g, a); b = idOf(g, b);
+    if (!a || !b || a === b) return;
+    const h = (relOf(g).hold ??= {}); const k = pk(a, b);
+    h[k] = Math.max(h[k] ?? 0, day);
+}
+export const fadeHeld = (g: Save, a: string, b = YOU) => (relOf(g).hold?.[pk(idOf(g, a), idOf(g, b))] ?? -1) >= g.day;
 // Forgets contact days of pairs with no romance either way and no status (nothing would fade).
 export function tidyContact(g: Save) {
     const st = relOf(g); if (!st.contact) return;
@@ -313,6 +323,7 @@ export function tidyContact(g: Save) {
         if (!st.m[dk(a, b)]?.r && !st.m[dk(b, a)]?.r && !st.pairs[k]?.status) delete st.contact[k];
     }
     if (!Object.keys(st.contact).length) delete st.contact;
+    if (st.hold) { for (const [k, d] of Object.entries(st.hold)) if (d < g.day) delete st.hold[k]; if (!Object.keys(st.hold).length) delete st.hold; }
 }
 
 /* ---------- "Play as": the store follows the people ---------- */
@@ -327,6 +338,7 @@ export function swapIds(g: Save, map: (id: string) => string) {
     };
     st.m = re(st.m, '>', false); st.fat = re(st.fat, '>', false); st.pairs = re(st.pairs, '|', true);
     if (st.contact) st.contact = re(st.contact, '|', true);
+    if (st.hold) st.hold = re(st.hold, '|', true);
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 
