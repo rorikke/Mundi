@@ -125,6 +125,9 @@ privateChecks.unshift((g, w, x) => {
         return;
     }
     if (mates.some(a => wantingYou(g, w, a))) x.notes.eager = 1;
+    // what A's result adds to mood follows your drive too (the action's own mood already did, through `gainMods`)
+    const mul = driveMoodMul(g, w);
+    if (mul !== 1) x.notes.moodMul = mul;
 });
 
 // You learn someone's drive after three nights together (from any path that counts one: actions, the verdict).
