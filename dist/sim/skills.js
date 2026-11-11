@@ -8,8 +8,12 @@ import { learning, courseOf } from './courses.js';
 import { levelOf, setSkillLevel } from './hobbies.js';
 import { strengthOf } from './traits.js';
 import { parseWhen } from './when.js';
-// Counters for life goals (meals cooked, workouts, shifts…).
-export const countUp = (g, key, n = 1) => { const c = learning(g).count; c[key] = (c[key] ?? 0) + n; };
+import { effectAdd } from './effects.js';
+import { tallyEvent } from './tally.js';
+// Counters for life goals (meals cooked, workouts, shifts…); each is also one of the tally's moments (sim/tally.ts).
+const MOMENT = { meals: 'meal', workouts: 'workout', paintings: 'painting', shifts: 'shift', parties: 'party' };
+export const countUp = (g, key, n = 1) => { const c = learning(g).count; c[key] = (c[key] ?? 0) + n; if (MOMENT[key])
+    tallyEvent(g, MOMENT[key], n); };
 export const countOf = (g, key) => learning(g).count[key] ?? 0;
 /* ---------- traits you gain ---------- */
 // A trait learned in a course or earned with a life goal: kept apart from the ones you chose, so the profile can say where it came from.
@@ -64,6 +68,7 @@ export function interviewBonus(g, o, traits) {
     const w = getWorld(g.world), asked = (o.courses ?? []).filter(id => !w || !!courseOf(w, id)); // (a course the world dropped isn't asked for)
     if (asked.length && asked.every(id => learning(g).done.includes(id)))
         b += 2; // you have the course they ask for (not just taking it)
+    b += effectAdd(g, w, 'interview', o.id); // what effects add (life goals' perks)
     const s = g.player.stats;
     if ((s.hygiene ?? 100) < 30)
         b -= 3; // nobody hires someone who smells

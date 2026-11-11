@@ -120,9 +120,9 @@ export const freeOf = (n) => Math.max(1, Math.floor(n * 0.1 + 1e-9));
 export const capOf = (n) => Math.max(2, Math.floor(n * 0.2 + 1e-9));
 /** Taking two courses makes each class count 0.85; *Well read* and the like multiply it. */
 export const TWO_AT_ONCE = 0.85;
-export const classWorth = (g, w, taking = learning(g).taking.length) => (taking >= 2 ? TWO_AT_ONCE : 1) * effectMul(g, w, 'study');
+export const classWorth = (g, w, taking = learning(g).taking.length) => (taking >= 2 ? TWO_AT_ONCE : 1) * effectMul(g, w, 'study', 'class');
 /** Classes a course runs over its plan while two are taken (14 become 17), shown from enrollment. */
-export const extraWhileTwo = (g, w, n) => Math.max(0, Math.ceil(n / (TWO_AT_ONCE * effectMul(g, w, 'study')) - 1e-9) - n);
+export const extraWhileTwo = (g, w, n) => Math.max(0, Math.ceil(n / (TWO_AT_ONCE * effectMul(g, w, 'study', 'class')) - 1e-9) - n);
 /* ---------- shifts, places and hours ---------- */
 /** A scheduled class that falls in your shift that day (a day off, a vacation, takes the clash away). */
 export function clashOn(g, w, c, day) {

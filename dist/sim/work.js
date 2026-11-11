@@ -12,7 +12,8 @@ import { npcRank } from './longlife.js';
 import { triedToday, interview, countUp } from './skills.js';
 import { missingCourses, hasCourse, courseOf } from './courses.js';
 import { needCourseText } from './coursenudge.js';
-import { rollBonus, bonusLabel } from './dice.js';
+import { rollBonus, rollD20, bonusLabel } from './dice.js';
+import { tallyRoll, tallyEvent } from './tally.js';
 import { effectMul } from './effects.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
@@ -187,6 +188,9 @@ export function weekText(g, w, o) {
     const sh = shiftHours(g, o);
     return `${workdays(g, w, o).map(i => WEEKDAYS[i].slice(0, 3)).join(', ')} · ${hm(Math.round(sh.from * 60) % 1440)}–${hm(Math.round(sh.to * 60) % 1440)}`;
 }
+/** What effects (life goals' perks, boosts) do to what this job pays: `wage` (shifts and overtime), `bonus` (the
+ *  seasonal bonuses), `tips` (money from a choice at work); also aimed at the job, its place or the place's tags. */
+export const payMul = (g, w, o, what) => effectMul(g, w, 'pay', [what, o.id, o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]);
 /** Pay per hour for this rank: the rank's pay, raised so a week earns the same with fewer days (J9). */
 export const payFactor = (g, w, o) => realDays(o) / daysAWeek(g, w, o);
 export const hourlyPay = (g, w, o) => rankOf(g, o).pay * payFactor(g, w, o);
@@ -586,7 +590,7 @@ export function workShift(g, w, mode = 'normal', hours) {
     const rk = rankOf(g, o);
     const night = nightMinutes(start, h * 60) / 60;
     const base = rk.pay * payFactor(g, w, o) * (overtime ? 1 + OVERTIME_PAY : 1);
-    let pay = payOf(g, base * h + base * night * (o.nightPay ?? 0));
+    let pay = payOf(g, (base * h + base * night * (o.nightPay ?? 0)) * payMul(g, w, o, 'wage'));
     countUp(g, 'shifts', part);
     const bonus = mode === 'hard' && Math.random() < 0.3 ? Math.round(pay * 0.25) : 0;
     pay += bonus;
@@ -684,8 +688,11 @@ export function chooseEvent(g, w, i, rnd = Math.random) {
     const c = pick.c, out = [];
     let res = c, ok = null;
     if (c.roll) {
-        const d20 = 1 + Math.floor(rnd() * 20), bonus = rollBonus(g, w, { skill: c.roll.skill });
+        // (a choice at work is a `work` roll: what effects aimed at work add counts here, not on actions or stories)
+        const bonus = rollBonus(g, w, { skill: c.roll.skill, tags: ['work'] }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
+        if (ok)
+            tallyRoll(g, c.roll.skill);
         out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok)
             res = c.fail ?? { text: 'It did not work out.' };
@@ -715,7 +722,7 @@ function applyResult(g, w, o, r, gentle) {
     if (ok(r.perf))
         out.push(...addPerf(g, w, ok(r.perf) * 5));
     if (ok(r.money)) {
-        const m = ok(r.money) > 0 ? payOf(g, ok(r.money)) : -priceOf(g, -ok(r.money));
+        const m = ok(r.money) > 0 ? payOf(g, ok(r.money) * payMul(g, w, o, 'tips')) : -priceOf(g, -ok(r.money));
         g.player.money += m;
         book(g, o.name, m);
         out.push(m > 0 ? `+${money(w, m)}` : `−${money(w, -m)}`);
@@ -740,7 +747,7 @@ function overtimeHours(g, w, o, h) {
     const out = advance(g, w, h * 60);
     addStatus(g, w, 'energy', -((o.cost?.energy ?? 20) / o.shift) * h);
     const base = rankOf(g, o).pay * payFactor(g, w, o) * (1 + OVERTIME_PAY);
-    const pay = payOf(g, base * h + base * (nightMinutes(start, h * 60) / 60) * (o.nightPay ?? 0));
+    const pay = payOf(g, (base * h + base * (nightMinutes(start, h * 60) / 60) * (o.nightPay ?? 0)) * payMul(g, w, o, 'wage'));
     g.player.money += pay;
     book(g, `${rankOf(g, o).name}: ${h} h (overtime)`, pay);
     return [`You worked ${h} more hours and earned ${money(w, pay)}.`, ...out];
@@ -834,6 +841,7 @@ export function workHour(g, w) {
         j.checked = d;
         if (!s || worked(j, d) || offOn(j, d))
             continue;
+        tallyEvent(g, 'missed_shift');
         if (rules.missed) {
             out.push(`You missed your shift at ${o.name} (${WEEKDAYS[wdOf(d)]}).${rules.low === 'fire' ? ' Your boss is not happy.' : ''}`);
             note(g, '{u} missed a shift at work ({0}).', [o.name], [], o.place, 'work');
@@ -875,7 +883,7 @@ export function workDay(g, w) {
     const sd = seasonDays(g), season = Math.floor((g.day - 1) / sd) % 4, first = (g.day - 1) % sd === 0;
     if (first && (season === 1 || season === 3) && realDays(o) >= 5 && j.bonus !== g.day && g.day - Math.floor((j.since ?? 0) / 1440) >= 7) {
         j.bonus = g.day;
-        const pay = payOf(g, rankOf(g, o).pay * o.shift * realDays(o) * (0.5 + perfOf(g) / 100));
+        const pay = payOf(g, rankOf(g, o).pay * o.shift * realDays(o) * (0.5 + perfOf(g) / 100) * payMul(g, w, o, 'bonus'));
         g.player.money += pay;
         book(g, `${o.name}: ${season === 1 ? 'summer' : 'winter'} bonus`, pay);
         note(g, '{u} got the {0} bonus at work.', [season === 1 ? 'summer' : 'winter'], [], o.place, 'work');

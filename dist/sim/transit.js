@@ -7,6 +7,7 @@ import { cfg } from '../core/store.js';
 import { isScenario } from '../core/world.js';
 import { mapOf } from './places.js';
 import { priceOf } from './bills.js';
+import { tallyEvent } from './tally.js';
 export const LAST_TRAIN_RULES = [
     { id: 'on', name: 'Last train', desc: 'After the last train, a taxi or a wait for the first one.' },
     { id: 'cheap', name: 'Cheap taxis', desc: 'After the last train, taxis cost a quarter.' },
@@ -39,6 +40,8 @@ export function untilFirstTrain(w, minutes) {
 export const byTrain = (g, w, from, to) => !!w.transit && !isScenario(w) && from !== to && mapOf(g, w, from) !== mapOf(g, w, to);
 /** The player's trip now finds no train (and the rule keeps the last train). */
 export const missedTrain = (g, w, from, to) => lastTrainRule(g) !== 'off' && byTrain(g, w, from, to) && !trainsRun(w, g.minutes);
+/** You set off after the last train (a taxi, or a wait for the first one): counted for life goals (sim/tally.ts). */
+export const tookLateTrip = (g) => tallyEvent(g, 'missed_train');
 /** A taxi for a trip of that many minutes: the world's fare (a base and per minute), with the difficulty's prices. */
 export function taxiFare(g, w, minutes) {
     const t = w.transit?.taxi;

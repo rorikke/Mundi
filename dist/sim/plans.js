@@ -25,6 +25,7 @@ import { sawYou } from './warnings.js';
 import { personaName } from '../st/bridge.js';
 import { favorOwed } from './when.js';
 import { callInFavor } from './stories.js';
+import { tallyEvent } from './tally.js';
 export const HANGOUT_BOND = 15; // acquaintance: you can hang out
 export const DATE_BOND = 50; // a date needs a good bond, a Spark match or being together
 export const COME_BOND = 25; // "come over now"
@@ -261,6 +262,8 @@ export function planTick(g, w) {
             sawYou(g, a.avatar);
             if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar))
                 addRomance(g, a.avatar, 5 * effectMul(g, w, 'gain', 'dates')); // a date kept is romantic too (a milestone)
+            if (a.kind === 'date')
+                tallyEvent(g, 'date', 1, a.avatar);
             approve(g, a.avatar, 5);
             feel(g, a.avatar, a.kind === 'party' ? 'Had a great time at your party' : a.kind === 'date' ? 'Happy about the date' : 'Glad you kept your word', 1);
             remember(g, a.kind === 'date' ? '{u} and {0} had a date at {1}, as planned.' : '{u} and {0} met up at {1}, as planned.', [nameOf(a.avatar), placeName(a.place)], [a.avatar], a.place, 'plan');
@@ -326,6 +329,7 @@ export function beforeSleep(g) {
     for (const c of [...social(g).with]) {
         if (stay && stay.avatar === c.avatar && stay.where === g.player.loc) {
             c.until = Math.max(c.until, nowAbs(g) + 14 * 60);
+            tallyEvent(g, 'overnight', 1, c.avatar);
             continue;
         } // staying the night together
         if (isPartner(g, c.avatar) && g.player.loc === playerHomeId) {

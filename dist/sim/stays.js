@@ -13,6 +13,8 @@ import { priceOf } from './bills.js';
 import { whenHolds } from './when.js';
 import { note } from './facts.js';
 import { book } from './ledger.js';
+import { effectMul } from './effects.js';
+import { tallyEvent } from './tally.js';
 /** A hospital bed for the night after a collapse: free, a fair rest, out by ten. */
 export const WARD = { price: 0, rest: 'fair', until: 10 };
 /** What a night gives back of a night at home (energy, the world's other sleep restores), and the mood it leaves. */
@@ -82,6 +84,7 @@ export function wakeUpAt(g, w, place, s) {
     g.player.stayed = { place, day: g.day };
     const name = w.places.find(p => p.id === place)?.name ?? place;
     note(g, '{u} spent the night at {0}.', [name], [], place, 'stay');
+    tallyEvent(g, 'night_away');
     return REST[s.rest] ?? REST.fair;
 }
 /* ---------- kept in hospital after a collapse ---------- */
@@ -112,10 +115,13 @@ onLook.push(lookCollapse);
  *  (energy never drops below what you had). A night leaves you hungry, thirsty and in need of a wash; the bed sets
  *  the mood (`homeMood`: what your own bed gives). */
 export function restAfterNight(g, w, rest, homeMood = 0, part = 1) {
-    for (const [id, v] of Object.entries(w.sleep.restore)) {
+    // what effects add to a night (life goals' perks, boosts): every night, or at home, or away
+    const k = effectMul(g, w, 'rest', ['sleep', rest ? 'sleep away' : 'sleep home']);
+    for (const [id, v0] of Object.entries(w.sleep.restore)) {
         const d = w.statuses.find(s => s.id === id);
         if (!d)
             continue;
+        const v = k === 1 ? v0 : Math.round(v0 * k);
         const cur = g.player.stats[id] ?? d.start, got = rest ? Math.round(v * rest.share) : v;
         const night = id === 'energy' ? (rest ? Math.max(cur, got) : v) : cur + got;
         // a nap (`part` of a full night, "Sleep until the party") gives back that part of it

@@ -17,7 +17,8 @@ import { openNow } from './daynight.js';
 import { addStatus, money } from './needs.js';
 import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
-import { rollBonus, bonusLabel } from './dice.js';
+import { rollBonus, rollD20, bonusLabel } from './dice.js';
+import { tallyRoll } from './tally.js';
 import { note, placeName, toldAs } from './facts.js';
 import { feelsFrom, addKeepsake, keepsakeDef } from './social.js';
 import { startRumor } from './living.js';
@@ -147,8 +148,10 @@ export function chooseStory(g, w, i, rand = Math.random) {
     const c = pick.c, out = [];
     let res = c, ok = true;
     if (c.roll) {
-        const d20 = 1 + Math.floor(rand() * 20), bonus = rollBonus(g, w, { skill: c.roll.skill });
+        const bonus = rollBonus(g, w, { skill: c.roll.skill }), d20 = rollD20(g, w, bonus, c.roll.dc, rand);
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
+        if (ok)
+            tallyRoll(g, c.roll.skill);
         out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok)
             res = c.fail ?? { text: 'It did not work out.' };

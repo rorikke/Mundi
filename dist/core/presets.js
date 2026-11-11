@@ -1,6 +1,7 @@
 import { MEDIEVAL_RPG, MODERN_RPG } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo } from './traits.js';
+import { upgradeGoals, upgradeRewards } from './goals.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -444,5 +445,16 @@ export function upgradeWorld(w) {
     const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => t.options ?? []));
     if (info)
         w.traitInfo = info;
+    // life goals and the rewards shop (core/goals.ts): a world's own made safe, perks and boosts inside their limits; the
+    // general ones stay in the engine (so a world gets their later changes), and a world without either gets no key
+    const goals = upgradeGoals(w.goals), rewards = upgradeRewards(w.rewards);
+    if (goals)
+        w.goals = goals;
+    else
+        delete w.goals;
+    if (rewards)
+        w.rewards = rewards;
+    else
+        delete w.rewards;
     return w;
 }

@@ -22,7 +22,7 @@ import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import { thumb } from '../st/bridge.js';
 import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
-import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds } from '../sim/transit.js';
+import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
@@ -457,6 +457,8 @@ export async function travelTo(loc, road, late) {
     if (!isScenario(w))
         await endVisit(g, w);
     beforeTravel(g, w, loc).forEach(m => toast(m, 'info'));
+    if (late)
+        tookLateTrip(g);
     const from = g.player.loc;
     const waited = late === 'wait' ? advance(g, w, untilFirstTrain(w, g.minutes)) : []; // at the station until the first train
     if (fare) {

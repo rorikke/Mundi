@@ -42,7 +42,7 @@ export function fadeRomance(g, w) {
         const f = PARTNER.includes(pairOf(g, x, y)?.status) ? FADE.partner : FADE.other;
         if (g.day - last <= (y === YOU ? f.grace : Math.max(f.grace, FADE.between)) || v <= f.floor)
             continue;
-        lose(g, 'r', x, y, Math.min(v - f.floor, f.rate * k * (PACE[paceOf(g, x, 'r') ?? 'normal'] ?? 1) * (y === YOU ? effectMul(g, w, 'fade', 'romance') : 1)));
+        lose(g, 'r', x, y, Math.min(v - f.floor, f.rate * k * (PACE[paceOf(g, x, 'r') ?? 'normal'] ?? 1) * (y === YOU ? effectMul(g, w, 'fade', ['romance', f === FADE.partner ? 'partner' : undefined]) : 1)));
     }
     tidyContact(g);
 }

@@ -9,6 +9,7 @@ import { systemOn } from '../core/world.js';
 import { worldWeather } from './weather.js';
 import { note } from './facts.js';
 import { onHour, onDay } from './hooks.js';
+import { tallyAttend } from './tally.js';
 import { levelOf } from './hobbies.js';
 import { seasonDays, SEASONS } from './time.js';
 const on = (w) => !!w && systemOn(w, 'events') && !!w.cityEvents?.length;
@@ -105,6 +106,7 @@ export function afterEvent(g, w, a) {
     const c = cityOf(g);
     if (a.id === `x-ev-${x.ev.id}`) {
         c.went.push(x.key);
+        tallyAttend(g, 'cityevent', x.ev.id);
         const s = g.player.learning;
         if (s?.count)
             s.count.events = (s.count.events ?? 0) + 1;

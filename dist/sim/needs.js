@@ -17,6 +17,8 @@ import { extraActions, isBlocked, brokenThings, hasItem } from './life.js';
 import { whenHolds } from './when.js';
 import { withYou } from './social.js';
 import { guestAt, includedHere } from './stays.js';
+import { effectMul } from './effects.js';
+import { tallyEvent } from './tally.js';
 const clamp = (v, max) => Math.max(0, Math.min(max, Math.round(v)));
 export const statusDef = (w, id) => w.statuses.find(s => s.id === id);
 // One currency per world: "$120", "40 g", "300 Berries". (Coins of several metals were dropped: an old world that still
@@ -77,6 +79,8 @@ export function applyTimedRules(g, w) {
         }
         if ((s.zero.place || s.zero.text) && g.tick[`zero:${s.id}`] === undefined) {
             g.tick[`zero:${s.id}`] = nowAbs(g);
+            if (s.id === 'energy')
+                tallyEvent(g, 'collapse'); // passing out from exhaustion
             const cost = s.zero.cost ?? 0;
             if (cost)
                 g.player.money = Math.max(0, g.player.money - cost);
@@ -109,6 +113,7 @@ function crisisCheck(g, w, s) {
         return []; // a crisis about what people think (the smell) needs someone to see it
     g.tick[`crisisDone:${s.id}`] = start;
     g.tick[`crisisDay:${s.id}`] = g.day;
+    tallyEvent(g, 'crisis');
     const cost = priceOf(g, c.cost ?? 0);
     if (cost) {
         g.player.money = Math.max(0, g.player.money - cost);
@@ -184,9 +189,18 @@ export function applyAction(g, w, a) {
     if (a.cost)
         book(g, a.name, -a.cost);
     for (const [id, v] of Object.entries(a.effects))
-        addStatus(g, w, id, v);
+        addStatus(g, w, id, v > 0 ? restGain(g, w, a, id, v) : v);
     for (const f of onAction)
         f(g, w, a);
+}
+/** What effects (life goals' perks, boosts) add to what an action gives back: food (its hunger and thirst), a bath (an
+ *  action tagged `bath`: all it gives); aimed at `food` or `bath`, the action, or its tags. The same with none. */
+export function restGain(g, w, a, id, v) {
+    const food = id === 'hunger' || id === 'thirst', bath = !food && (a.tags ?? []).includes('bath');
+    if (!food && !bath)
+        return v;
+    const k = effectMul(g, w, 'rest', [food ? 'food' : 'bath', a.id, ...(a.tags ?? [])]);
+    return k === 1 ? v : Math.round(v * k);
 }
 // A short line for the AI about how the player feels (only what stands out).
 export function feelings(g, w) {

@@ -2,6 +2,7 @@
 import { travelFactor } from './life.js';
 import { cfg } from '../core/store.js';
 import { isScenario } from '../core/world.js';
+import { effectMul } from './effects.js';
 export const playerHomeId = 'home:player';
 export const isHome = (id) => id.startsWith('home:');
 // "North Suburbs, House 4": every home spot of the map has a fixed number.
@@ -123,7 +124,8 @@ export function travelMinutes(g, w, from, to) {
         return 0;
     if (isScenario(w))
         return 0; // Home: from one room to another takes no time
-    return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) / 5) * 5);
+    // (what effects take off: life goals' perks, boosts)
+    return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) * effectMul(g, w, 'travel') / 5) * 5);
 }
 /** The world's own time for a trip (minutes), before the "travel" rule and what you own (a car) change it. */
 export function tripMinutes(g, w, from, to) {

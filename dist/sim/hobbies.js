@@ -1,6 +1,7 @@
 import { systemOn } from '../core/world.js';
 import { note } from './facts.js';
 import { effectMul } from './effects.js';
+import { groupsOf } from '../core/goals.js';
 // Experience needed for each level (level 10 is the top, and the cap).
 export const LEVELS = [0, 20, 50, 100, 170, 260, 380, 530, 720, 950, 1250];
 export const MAX_LEVEL = LEVELS.length - 1;
@@ -62,7 +63,8 @@ export const hobbyPay = (g, w, a) => { const h = hobbyFor(w, a); return h ? 1 + 
 export function trainSkill(g, w, id, amount) {
     const xp = skillXp(g);
     const before = levelFor(xp[id] ?? 0);
-    xp[id] = Math.min(LEVELS[MAX_LEVEL], (xp[id] ?? 0) + amount * effectMul(g, w, 'learn', id, { level: before }));
+    // (effects aimed at the skill or at its group, `creative`)
+    xp[id] = Math.min(LEVELS[MAX_LEVEL], (xp[id] ?? 0) + amount * effectMul(g, w, 'learn', [id, ...groupsOf(id)], { level: before }));
     const after = levelFor(xp[id]);
     if (after <= before)
         return [];

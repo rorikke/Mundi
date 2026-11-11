@@ -61,8 +61,15 @@ export function applyOverlay(world, overlay) {
                 continue;
             }
             const p = path ? `${path}.${k}` : k;
+            // an object the world doesn't have yet is merged into an empty one, so its "+" lists add and what its lists
+            // add is marked adult as anywhere else (`goals: { "add": […], "off+": […] }` on a world without goals)
             if (!(k in base) || base[k] === null || base[k] === undefined) {
-                base[k] = Array.isArray(over[k]) ? freshList(over[k]) : copy(over[k]);
+                if (isObj(over[k])) {
+                    base[k] = {};
+                    mergeObject(base[k], over[k], p);
+                }
+                else
+                    base[k] = Array.isArray(over[k]) ? freshList(over[k]) : copy(over[k]);
                 continue;
             }
             base[k] = mergeValue(base[k], over[k], p);

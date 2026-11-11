@@ -10,7 +10,7 @@ export const EFFECT_KINDS = {
     gain: { mode: 'mul', min: 0.5, max: 2 }, fade: { mode: 'mul', min: 0.3, max: 2 }, morning: { mode: 'add', min: -10, max: 10 },
     party: { mode: 'mul', min: 0.5, max: 2 }, study: { mode: 'mul', min: 0.5, max: 2 }, price: { mode: 'mul', min: 0.5, max: 1.5 },
     pay: { mode: 'mul', min: 0.75, max: 1.5 }, travel: { mode: 'mul', min: 0.5, max: 1.5 }, rest: { mode: 'mul', min: 0.5, max: 2 },
-    reroll: { mode: 'add', min: 0, max: 3 }, points: { mode: 'mul', min: 0.5, max: 2 },
+    reroll: { mode: 'add', min: 0, max: 3 }, points: { mode: 'mul', min: 0.5, max: 2 }, interview: { mode: 'add', min: -4, max: 6 },
 };
 export const isEffectKind = (k) => typeof k === 'string' && Object.prototype.hasOwnProperty.call(EFFECT_KINDS, k);
 export const TRAIT_LIMITS = { pct: 0.15, flat: 1 };

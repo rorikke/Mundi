@@ -15,6 +15,8 @@ import { partOf, openNow, periodPrice, partMood } from './daynight.js';
 import { skyOn, regionalOn, isRegional, weatherMatches } from './weather.js';
 import { facts } from './facts.js';
 import { lex } from '../core/lexicon.js';
+import { effectMul } from './effects.js';
+import { isRegular } from './tally.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -106,8 +108,16 @@ export const priceWord = (v, b = 1) => { const r = v / b; return r >= 1.12 ? 'hi
 // The public mood right now: the region's, a little lower at dawn and higher in the evening.
 export const moodNow = (g, w, id) => clamp(regionState(g, w, id).mood + partMood(w, g.minutes), -100, 100);
 // What the price of something is where you are: the region's prices, and out and about, the part of the day's
-// (late at night costs more). 1 when the system is off.
-export const priceHere = (g, w, place = g.player.loc) => (w && on(w) ? regionState(g, w, regionOf(g, w, place)).price * (isHome(place) ? 1 : periodPrice(w, g.minutes)) : 1) * (w && !isHome(place) ? festivalPrice(g, w, place) * tradeMul(w) : 1);
+// (late at night costs more). 1 when the system is off. Then what effects (life goals' perks, boosts) take off.
+export const priceHere = (g, w, place = g.player.loc) => (w && on(w) ? regionState(g, w, regionOf(g, w, place)).price * (isHome(place) ? 1 : periodPrice(w, g.minutes)) : 1) * (w && !isHome(place) ? festivalPrice(g, w, place) * tradeMul(w) : 1) * pricePerk(g, w, place);
+/** What effects do to prices at a place: those aimed at `prices` (everything a place or an action charges), the place,
+ *  its tags, its map or area, and `regular` where you're a regular. ×1 with none. */
+export function pricePerk(g, w, place = g.player.loc) {
+    if (!w)
+        return 1;
+    const p = w.places.find(x => x.id === place), area = p ? w.maps.find(m => m.id === p.map)?.area : undefined;
+    return effectMul(g, w, 'price', ['prices', place, ...(p?.tags ?? []), p?.map, area, isRegular(g, place) ? 'regular' : undefined]);
+}
 // For the AI: what it is like around here.
 export function worldLine(g, w) {
     if (!on(w))

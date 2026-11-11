@@ -11,6 +11,7 @@ import { setTie, liveTogether, ties } from './living.js';
 import { BLOOD_TIES } from '../core/feel.js';
 import { playerHomeId } from './places.js';
 import { relOf, idOf, YOU } from './rel.js';
+import { tallyEvent } from './tally.js';
 export const PREGNANCY_DAYS = 10;
 export const BIRTHDAY_EVERY = 7;
 export const STAGES = [
@@ -84,6 +85,7 @@ export function welcomeBaby(g, w, avatar, name, base) {
     const kid = { avatar, name, parent: p.partner, born: g.day, stage: 0, lastBirthday: g.day };
     f.kids.push(kid);
     f.pregnancy = null;
+    tallyEvent(g, 'baby');
     g.cast[avatar] = { ...base, avatar, name, occupation: null, leisure: [], met: true, routine: kidRoutine(w, kid) };
     liveTogether(g, '__you', avatar);
     setTie(g, { a: '__you', b: avatar, type: 'parent' });

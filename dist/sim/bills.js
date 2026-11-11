@@ -9,6 +9,7 @@ import { systemOn, getWorld, gameMode } from '../core/world.js';
 import { book } from './ledger.js';
 import { money } from './needs.js';
 import { lex, appRef } from '../core/lexicon.js';
+import { effectMul } from './effects.js';
 // In a Home (no money) the difficulty is how fast relationships grow (`bond`).
 export const DIFFICULTIES = [
     { id: 'easy', name: 'Easy', desc: 'Work pays more, things cost less, you start with more money, and careers go a little faster.', homeDesc: 'Friendship and love grow fast.', pay: 1.25, price: 0.8, start: 1.5, bond: 1.5, career: 1.2 },
@@ -52,7 +53,8 @@ export function billAmount(g, w, id) {
     const own = (w.homes.kinds[kind]?.bills ?? {});
     // older medieval worlds call their Power bill "firewood"
     const base = id === 'rent' ? zone?.rent ?? 0 : Number(own[id] ?? (id === 'power' ? own.firewood : undefined) ?? 0);
-    return priceOf(g, base);
+    // what effects (life goals' perks) take off: the rent counts as a price, the other bills only as bills
+    return priceOf(g, base * effectMul(g, w, 'price', id === 'rent' ? ['prices', 'rent'] : ['bills', id]));
 }
 // How many weeks are owed (0 = paid up), whether it is due, and whether it was cut off (a week overdue).
 export const owed = (g, id) => { const b = billOf(g, id); return g.day >= b.due ? Math.floor((g.day - b.due) / EVERY) + 1 : 0; };
