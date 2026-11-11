@@ -39412,7 +39412,10 @@
      },
      {
       "name": "A night at Ryokan Kasumi-sō",
-      "when": "did: night_away; visited: hk_ryokan",
+      "when": "stayed: hk_ryokan",
+      "or": [
+       "did: night_away; visited: hk_ryokan"
+      ],
       "reward": {
        "mood": 6
       }
