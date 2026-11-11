@@ -71,7 +71,7 @@ export function trainSkill(g: Save, w: WorldDef, id: string, amount: number): st
     if (after <= before) return [];
     const h = skillDef(w, id), name = skillName(w, id);
     note(g, '{u} got better at {0} (level {1}).', [name.toLowerCase(), String(after)], [], g.player.loc, 'skill');
-    const jobs = w.occupations.filter(o => o.hireable !== false && ((o.hobby?.id === id && o.hobby.level === after) || o.skills?.[id] === after)).map(o => o.name);
+    const jobs = w.occupations.filter(o => o.hireable !== false && (!o.adult || adultOn(g)) && ((o.hobby?.id === id && o.hobby.level === after) || o.skills?.[id] === after)).map(o => o.name);
     return [`${h?.icon ?? '⭐'} ${name}: level ${after} (${titleOf(after).toLowerCase()}).${jobs.length ? ` New job you can apply for: ${jobs.join(', ')}.` : ''}`];
 }
 

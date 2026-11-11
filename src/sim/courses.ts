@@ -21,6 +21,7 @@ import { seasonDays, hm } from './time.js';
 import { money } from './needs.js';
 import { lex } from '../core/lexicon.js';
 import { workRules, jobDef, shiftOn } from './work.js';
+import { trackOf } from './tracks.js';
 
 export const coursesOf = (w: WorldDef): Course[] => (systemOn(w, 'courses') ? (w.catalogs as any).courses ?? [] : []) as Course[];
 /** What a world offers now: its courses except the retired ones (a save taking a retired one can still finish it). With
@@ -525,9 +526,9 @@ function courseDay(g: Save, w: WorldDef): string[] {
 onDay.push(courseDay);
 
 // (a course the world no longer offers is not asked for: the job would be out of reach forever; a course being taken
-// counts for a job whose first rank is a student's, which you leave by finishing it)
-export const missingCourses = (g: Save, w: WorldDef, o: Occupation) =>
-    ((o as any).courses ?? []).filter((id: string) => { const c = courseOf(w, id); return !!c && !c.retired && !hasCourse(g, id) && !(o.ranks[0]?.student && isTaking(g, id)); }).map((id: string) => courseOf(w, id)?.name ?? id);
+// counts for a job whose first rank is a student's, which you leave by finishing it; on your track of the job)
+export const missingCourses = (g: Save, w: WorldDef, o: Occupation) => (o = trackOf(g, o),
+    ((o as any).courses ?? []).filter((id: string) => { const c = courseOf(w, id); return !!c && !c.retired && !hasCourse(g, id) && !(o.ranks[0]?.student && isTaking(g, id)); }).map((id: string) => courseOf(w, id)?.name ?? id));
 
 /* ---------- words for the screens and the boss's message ---------- */
 

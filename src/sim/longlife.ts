@@ -2,12 +2,12 @@
 // together, or break up, by how they feel about each other (sim/relations.ts); people get promoted at work. What
 // happens to someone you know reaches you as news. Everything is the engine's, day by day, the same for the same days.
 import { cfg, type Save } from '../core/store.js';
-import { systemOn, type WorldDef, type Occupation } from '../core/world.js';
+import { systemOn, type WorldDef } from '../core/world.js';
 import { seasonDays } from './time.js';
 import { exampleOf, seedRanks } from './dayplan.js';
 import { onDay } from './hooks.js';
 import { note } from './facts.js';
-import { npcCareer } from './work.js';
+import { npcCareer, trackOf, type TrackedJob } from './work.js';
 import { lifeMoment } from './happenings.js';
 import { liveTogether, homeKey } from './living.js';
 import { couplePairs, setStatus, statusOf, gain } from './rel.js';
@@ -53,8 +53,8 @@ function couplesMoveOn(g: Save, w: WorldDef): string[] {
 // Promotions come at a pace like yours (J5): the top of a career in about a game year (four seasons) × the job's
 // length, faster with the world's and the save's career speed. The world's own people climb at a quarter of that pace,
 // so the people it wrote stay who they are for a while.
-function promoteOdds(g: Save, w: WorldDef, o: Occupation, ranks: number, avatar: string): number {
-    const year = 4 * seasonDays(g) * (o.length ?? 1) / ((w.careerSpeed ?? 1) * ((cfg(g) as any).careerSpeed ?? 1));
+function promoteOdds(g: Save, w: WorldDef, o: TrackedJob, ranks: number, avatar: string): number {
+    const year = 4 * seasonDays(g) * (o.length ?? 1) * (o.pace ?? 1) / ((w.careerSpeed ?? 1) * ((cfg(g) as any).careerSpeed ?? 1));
     const r = g.cast[avatar];
     return Math.min(0.5, (ranks - 1) / Math.max(1, year)) * (r && exampleOf(w, r) ? 0.25 : 1);
 }
@@ -63,7 +63,7 @@ function careersMoveOn(g: Save, w: WorldDef): string[] {
     seedRanks(g, w);
     const st = store(g);
     for (const r of Object.values(g.cast)) {
-        const o = w.occupations.find(x => x.id === r.occupation);
+        const job = w.occupations.find(x => x.id === r.occupation), o = job && trackOf(g, job, r.avatar);   // (their gender's track)
         const ranks = o ? npcCareer(o, r.avatar, g).ranks : [];
         if (!o || ranks.length < 2) continue;
         const rank = st.ranks[r.avatar] ?? 0;

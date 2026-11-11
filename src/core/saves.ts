@@ -14,6 +14,7 @@ import { getWorld, career, type WorldDef } from './world.js';
 import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, setPast, pastOf, PARTNER, COUPLE_ROMANCE, YOU, type Status } from '../sim/rel.js';
 import { isFamily } from './feel.js';
 import { settleTraits } from '../sim/traits.js';
+import { trackOf } from '../sim/tracks.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 5;
@@ -242,7 +243,7 @@ export function repair(g: Save, w: WorldDef): string[] {
     if (p.loc && !isPlace(g, w, p.loc)) { p.loc = HOME; notes.push('The place you were in is not in this world anymore: you are back home.'); }
     // your job and rank
     if (p.job) {
-        const o = w.occupations.find(x => x.id === p.job!.id);
+        const job = w.occupations.find(x => x.id === p.job!.id), o = job && trackOf(g, job);   // (on your track: its own ranks and paths)
         if (!o) { notes.push(`Your job (${p.job.id}) is not in this world anymore: you are free to look for a new one.`); p.job = null; }
         else if (!o.ranks?.length) p.job = null;
         else {
