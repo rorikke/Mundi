@@ -71,8 +71,12 @@ export function useReroll(g: Save, w: WorldDef | null | undefined): boolean {
 }
 /** Where life points come from: a step or a finished goal (the active goal's gains), or a second source. */
 export type PointSource = 'step' | 'goal' | 'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake';
-/** Life points from a source, with what perks add (`points` effects aimed at the source, or at `active` / `passive`). */
+// The groups a `points` effect may name instead of one source: festivals and city events; secrets, street stories and
+// threads.
+const POINT_GROUPS: Partial<Record<PointSource, string>> = { festival: 'festivals', event: 'festivals', secret: 'secrets', story: 'secrets', thread: 'secrets' };
+/** Life points from a source, with what perks add (`points` effects aimed at the source, its group, or at `active` /
+ *  `passive`). */
 export function pointsFor(g: Save, w: WorldDef | null | undefined, source: PointSource, n: number): number {
-    const k = effectMul(g, w, 'points', [source, source === 'step' || source === 'goal' ? 'active' : 'passive']);
+    const k = effectMul(g, w, 'points', [source, POINT_GROUPS[source], source === 'step' || source === 'goal' ? 'active' : 'passive']);
     return k === 1 ? n : Math.round(n * k);
 }

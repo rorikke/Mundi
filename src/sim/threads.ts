@@ -5,9 +5,10 @@
 // bring it up with you), a rumor about them, a fact.
 // What the AI is told, for the people present only: a secret not yet known to the player is told as hidden (they
 // keep it) or hinted (small signs show), never as something {{user}} knows; a stage told `known` is out in the open
-// (they don't hide it any more). The player learns a thread when its owner trusts them enough while they're together
-// (`reveal`, by default a good friend), from a street story's choice, or by overhearing a rumor one of its stages
-// started. It all belongs to the living world (`living`); nothing moves with it off.
+// (they don't hide it any more). With a `hint` effect (the Trusted perk), a hidden stage of someone at friend level or
+// closer toward you is told as hinted. The player learns a thread when its owner trusts them enough while they're
+// together (`reveal`, by default a good friend), from a street story's choice, or by overhearing a rumor one of its
+// stages started. It all belongs to the living world (`living`); nothing moves with it off.
 // An ending may take its person off the world's maps (`leaves`: Chloe goes back to Manchester): they stay in the save
 // (their card, your feelings, their messages: they can still text you) but are never anywhere again, and the plans,
 // company and standing appointments they had go with them.
@@ -16,7 +17,8 @@ import { systemOn, type WorldDef, type Thread, type ThreadStage } from '../core/
 import { onDay, onLook } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { presentAt, residents } from './people.js';
-import { whenHolds } from './when.js';
+import { whenHolds, levelHolds } from './when.js';
+import { effectAdd } from './effects.js';
 import { startRumor, rumorPool, YOU } from './living.js';
 import { queueMoment } from './moments.js';
 import { note } from './facts.js';
@@ -181,6 +183,9 @@ const trim = (s: string) => s.trim().replace(/[.\s]+$/, '');
 export function threadLines(g: Save, w: WorldDef, present: Resident[]): string[] {
     if (!systemOn(w, 'living')) return [];
     const here = new Set(present.map(r => r.avatar)), all = threadStates(g), out: string[] = [];
+    // a `hint` effect (Trusted, a life goal's perk): a friend's hidden stage shows in small signs too
+    let h: boolean | undefined;
+    const hint = () => (h ??= effectAdd(g, w, 'hint') >= 1);
     for (const { t, r } of threadsOf(g, w)) {
         const st = all[t.id];
         if (!here.has(r.avatar) || !st) continue;
@@ -197,7 +202,7 @@ export function threadLines(g: Save, w: WorldDef, present: Resident[]): string[]
             const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' || st.how === 'insight' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : '';
             out.push(`${trim(t.known ?? `{{user}} knows: ${t.hidden}`)}${from}.${now}`);
         } else if (s.tell === 'known') out.push(`${n} no longer hides it: ${trim(t.hidden)}.${now} ${n} tells {{user}} if it comes up.`);
-        else if (s.tell === 'hinted') out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);
+        else if (s.tell === 'hinted' || (hint() && levelHolds(g, w, r.avatar, 'friend'))) out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);
         else out.push(`${n} keeps a secret, and nothing gives it away: ${trim(t.hidden)}.${now} {{user}} doesn't know it; ${n} doesn't tell.`);
     }
     return out;

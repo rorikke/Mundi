@@ -12,8 +12,8 @@ import { nowAbs, adultOk, type Save } from '../core/store.js';
 import { systemOn, activeStatuses, getWorld, type WorldDef, type GoalDef, type GoalStep, type When } from '../core/world.js';
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
 import type { EffectDef } from '../core/traits.js';
-import { whenHolds, parseWhen, namedIn, personNamed, countKey, countedOf, moneyAmount } from './when.js';
-import { tally, tallyOf, placesBeen } from './tally.js';
+import { whenHolds, parseWhen, namedIn, personNamed, countKey, countedOf, moneyAmount, homeMap, PLACE_REGULAR } from './when.js';
+import { tally, tallyOf, placesBeen, isRegular } from './tally.js';
 import { onHour, onGoalStep, goalLink } from './hooks.js';
 import { addStatus } from './needs.js';
 import { addKeepsake } from './social.js';
@@ -23,6 +23,7 @@ import { seasonDays } from './time.js';
 import { skillsOf, levelOf } from './hobbies.js';
 import { offeredOf } from './courses.js';
 import { threadsOf } from './threads.js';
+import { placeOk } from './dayplan.js';
 
 /** The mood a step gives when it says nothing of its own reward (the general goals' steps), and the mood a finished
  *  goal gives on top. */
@@ -118,8 +119,14 @@ function threadsHere(g: Save, w: WorldDef) {
         .every(c => namedIn(c).people.every(n => { const p = personNamed(g, n); return !!p && !(p as any).gone; })));
 }
 const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;
+const VISITED_N = /^(\d+)(\s+regular)?(?:\s+in\s+(\S+))?$/i;
+// Places a `visited` count can be about, on a map or area (`home`: whichever map has homes), and a place one can be
+// at in this game (not a pin to another map, not private, its adult content on).
+const countable = (w: WorldDef, map?: string) => w.places.filter(p => !p.link && !p.private && !p.adult && (!map || p.map === map || w.maps.find(x => x.id === p.map)?.area === map));
+const reachable = (g: Save, w: WorldDef, id: string) => { const p = w.places.find(x => x.id === id); return !!p && !p.link && !p.private && placeOk(g, w, id); };
 // Could this value of a condition ever hold in this game? (A course count beyond the world's courses, a skill it lacks,
-// a need off in this game, more keepsakes or places than it has, more secrets than its threads can give.)
+// a need off in this game, more keepsakes or places than it has, a place it doesn't have or can't reach, regulars with
+// the living world off, more secrets than its threads can give.)
 function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<string>): boolean {
     switch (key) {
         case 'course': return /^\d+$/.test(v) ? offeredOf(w).length >= Number(v) : offeredOf(w).some(c => c.id === v);
@@ -134,9 +141,15 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
         // more keepsakes, or places, than the world has
         case 'holds': { const ks = w.keepsakes ?? []; return /^\d+$/.test(v) ? ks.length >= Number(v) : v.startsWith('kind:') ? ks.some(k => !!k.kind && (v === 'kind:any' || k.kind === v.slice(5))) : ks.some(k => k.id === v); }
         case 'visited': {
-            const m = v.match(/^(\d+)(?:\s+in\s+(\S+))?$/); if (!m) return true;
-            const places = w.places.filter(p => !p.link && !p.private && !p.adult && (!m[2] || p.map === m[2] || w.maps.find(x => x.id === p.map)?.area === m[2]));
-            return places.length >= Number(m[1]);
+            const m = v.match(VISITED_N);
+            if (m) {
+                if (m[2] && !systemOn(w, 'living')) return false;
+                const maps = !m[3] ? [undefined] : m[3].toLowerCase() === 'home' ? [...new Set(w.homes.zones.map(z => z.map))] : [m[3]];
+                return maps.some(map => countable(w, map).length >= Number(m[1]));
+            }
+            if (/^(all(\s+in\s+\S+)?|map|maps)$/i.test(v)) return true;
+            const r = v.match(PLACE_REGULAR);
+            return (!r || systemOn(w, 'living')) && reachable(g, w, r ? r[1] : v);
         }
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {
@@ -146,13 +159,15 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
         default: return true;
     }
 }
-// One way of doing a step: possible here unless it names someone or a thread not in this game (D-4), or asks for
-// something this game can't give.
+// One way of doing a step: possible here unless it can't be read (or says nothing: it would hold at once), names
+// someone or a thread not in this game (D-4), or asks for something this game can't give.
 function wayPossible(g: Save, w: WorldDef, way: When | undefined, inPlay: Set<string>): boolean {
+    const p = parseWhen(way);
+    if (p.error || !p.conds.length) return false;
     const named = namedIn(way);
     if (named.people.some(n => { const p = personNamed(g, n); return !p || !!(p as any).gone; })) return false;
     if (named.threads.length) { const here = new Set(threadsHere(g, w).map(x => x.t.id)); if (named.threads.some(t => !here.has(t))) return false; }
-    return parseWhen(way).conds.every(c => c.not || c.values.some(v => canHold(g, w, c.key, v, inPlay)));
+    return p.conds.every(c => c.not || c.values.some(v => canHold(g, w, c.key, v, inPlay)));
 }
 /** Does this game offer the goal? Adult goals only with adult content on; a need it can't do without must be in play
  *  in this game; and every step must have a way that can be done here. (Systems the world has off: `goalsOf`.) */
@@ -316,6 +331,10 @@ export function stepProgress(g: Save, w: WorldDef, id: string, step?: number): {
             if (m && m[1] !== 'any' && !SKILL_GROUPS[m[1]]) { o.have = levelOf(g, m[1]); o.need = Number(m[2]); }
         } else if (c.key === 'money' && !c.not) { o.have = g.player.money; o.need = moneyAmount(w, v); }
         else if (c.key === 'visited' && /^\d+$/.test(v)) { o.have = placesBeen(g).length; o.need = Number(v); }
+        else if (c.key === 'visited' && !c.not && c.values.length === 1) {
+            const m = v.match(VISITED_N), map = m?.[3] ? (m[3].toLowerCase() === 'home' ? homeMap(g, w) : m[3]) : undefined;
+            if (m && (m[2] || m[3])) { const on = map === '' ? [] : countable(w, map); o.have = on.filter(p => (m[2] ? isRegular(g, p.id) : placesBeen(g).includes(p.id))).length; o.need = Number(m[1]); }
+        }
         return o;
     }));
     const h = st.hold ? { days: s.hold && s.hold.goal === goal.id && s.hold.step === i ? Math.floor((nowAbs(g) - s.hold.from) / 1440) : 0, need: st.hold === 'season' ? seasonDays(g) : st.hold } : undefined;
