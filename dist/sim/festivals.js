@@ -7,6 +7,7 @@ import { seasonDays, SEASONS } from './time.js';
 import { addStatus } from './needs.js';
 import { note } from './facts.js';
 import { tallyAttend } from './tally.js';
+import { earn } from './points.js';
 const on = (w) => systemOn(w, 'festivals') && !!w.festivals?.length;
 const seasonAt = (g, day) => SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].id;
 const daySeason = (g, day) => ((Math.max(1, day) - 1) % seasonDays(g)) + 1;
@@ -98,9 +99,10 @@ export function celebrate(g, w, addRep) {
     addStatus(g, w, 'mood', f.mood ?? 15);
     addStatus(g, w, 'energy', -8);
     tallyAttend(g, 'festival', f.id);
+    const paid = earn(g, w, 'festival', f.id); // the first time this year: life points
     addRep(1);
     note(g, '{u} celebrated the {0}.', [f.name], [], g.player.loc, 'social');
-    return `You join the ${f.name}!`;
+    return `You join the ${f.name}!${paid ? ` ${paid}.` : ''}`;
 }
 // Every festival of the town today (the one held here first).
 export function festivalLine(g, w) {

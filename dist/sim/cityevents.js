@@ -10,6 +10,7 @@ import { worldWeather } from './weather.js';
 import { note } from './facts.js';
 import { onHour, onDay } from './hooks.js';
 import { tallyAttend } from './tally.js';
+import { earn } from './points.js';
 import { levelOf } from './hobbies.js';
 import { seasonDays, SEASONS } from './time.js';
 const on = (w) => !!w && systemOn(w, 'events') && !!w.cityEvents?.length;
@@ -103,10 +104,13 @@ export function afterEvent(g, w, a) {
     const x = eventHere(g, w);
     if (!x)
         return [];
-    const c = cityOf(g);
+    const c = cityOf(g), out = [];
     if (a.id === `x-ev-${x.ev.id}`) {
         c.went.push(x.key);
         tallyAttend(g, 'cityevent', x.ev.id);
+        const paid = earn(g, w, 'event', x.ev.id);
+        if (paid)
+            out.push(paid); // the first time this year: life points
         const s = g.player.learning;
         if (s?.count)
             s.count.events = (s.count.events ?? 0) + 1;
@@ -116,7 +120,7 @@ export function afterEvent(g, w, a) {
         c.went.push(`${x.key}#stage`);
         note(g, '{u} performed at the {0}.', [x.ev.name], [], g.player.loc, 'social');
     }
-    return [];
+    return out;
 }
 // For the AI: what is going on here.
 export function eventLine(g, w) {

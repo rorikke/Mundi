@@ -7,7 +7,7 @@ export const effectSources = [];
 function matches(e, targets, ctx) {
     const t = e.target;
     if (!t || t === 'all')
-        return true;
+        return !ctx.exact;
     if (t.startsWith('upto:'))
         return ctx.level !== undefined && ctx.level < Number(t.slice(5));
     return targets.includes(t);

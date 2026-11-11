@@ -17,6 +17,7 @@ import { period, seasonDays, SEASONS } from './time.js';
 import { festivalsOn } from './festivals.js';
 import { priceOf } from './bills.js';
 import { guestAt } from './stays.js';
+import { pricePerk } from './worldstate.js';
 import { skyOn, regionalOn, isRegional, weatherMatches } from './weather.js';
 // The standard part of the day a world's period stands for (a "Vigil" from 0:00 counts as dawn…).
 export function partOf(w, minutes) {
@@ -109,11 +110,15 @@ function festivalNight(g, w, p, day, m) {
 }
 // What getting in costs today: 0 when it's free, already paid today, or you're staying the night (a Home has no money).
 export function entryDue(g, w, placeId) {
-    const fee = w.places.find(p => p.id === placeId)?.entry ?? 0;
+    const p = w.places.find(x => x.id === placeId), fee = p?.entry ?? 0;
     if (!(fee > 0) || w.scenario || guestAt(g, w, placeId))
         return 0;
     const paid = g.entry;
-    return paid?.day === g.day && paid.list.includes(placeId) ? 0 : priceOf(g, fee);
+    if (paid?.day === g.day && paid.list.includes(placeId))
+        return 0;
+    // what effects do to prices here, and to entry fees (`entry`, `entry:<tag>`: half price at music venues)
+    const k = pricePerk(g, w, placeId, ['entry', ...(p?.tags ?? []).map(t => `entry:${t}`)]);
+    return k === 1 ? priceOf(g, fee) : Math.round(priceOf(g, fee) * k);
 }
 // Pays it (once a day); returns what it cost.
 export function payEntry(g, w, placeId) {

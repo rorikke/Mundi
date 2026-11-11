@@ -150,6 +150,7 @@ export function gain(g, m, x, y, raw, isPaced = true) {
 export const SOURCES = {
     talk: 0.5, // each line you say, to each resident present who has spoken in the scene
     verdict: 2, // each step of a scene verdict (−3..+3), friendship and romance (sim/verdict.ts)
+    nudge: 15, // the rewards shop's Nudge: one person's friendship or romance for you, a milestone (not paced; sim/rewards.ts)
 };
 // A loss: in full, never paced. Returns how much it went down.
 export function lose(g, m, x, y, n) {
@@ -348,6 +349,17 @@ export function touch(g, a, b = YOU) {
         c[k] = g.day;
 }
 export const lastContact = (g, a, b = YOU) => relOf(g).contact?.[pk(idOf(g, a), idOf(g, b))];
+// Romance between a and b doesn't fade until `day` (the Nudge holds it off for a week); a later hold wins.
+export function holdFade(g, a, b, day) {
+    a = idOf(g, a);
+    b = idOf(g, b);
+    if (!a || !b || a === b)
+        return;
+    const h = (relOf(g).hold ??= {});
+    const k = pk(a, b);
+    h[k] = Math.max(h[k] ?? 0, day);
+}
+export const fadeHeld = (g, a, b = YOU) => (relOf(g).hold?.[pk(idOf(g, a), idOf(g, b))] ?? -1) >= g.day;
 // Forgets contact days of pairs with no romance either way and no status (nothing would fade).
 export function tidyContact(g) {
     const st = relOf(g);
@@ -360,6 +372,13 @@ export function tidyContact(g) {
     }
     if (!Object.keys(st.contact).length)
         delete st.contact;
+    if (st.hold) {
+        for (const [k, d] of Object.entries(st.hold))
+            if (d < g.day)
+                delete st.hold[k];
+        if (!Object.keys(st.hold).length)
+            delete st.hold;
+    }
 }
 /* ---------- "Play as": the store follows the people ---------- */
 // Rewrites every id in the store (the same mapping "Play as" applies to ties and households).
@@ -378,6 +397,8 @@ export function swapIds(g, map) {
     st.pairs = re(st.pairs, '|', true);
     if (st.contact)
         st.contact = re(st.contact, '|', true);
+    if (st.hold)
+        st.hold = re(st.hold, '|', true);
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 /* ---------- where relationships start ---------- */

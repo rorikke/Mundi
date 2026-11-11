@@ -64,13 +64,13 @@ export const GENERAL_GOALS = [
     { id: 'jack', name: 'Jack of all trades', icon: '🧰', category: 'career', desc: 'Try your hand at many jobs.', needs: ['jobs'], steps: [
             s('Two different jobs', 'rank: 1 in 2 jobs'), s('Three different jobs', 'rank: 1 in 3 jobs'), s('Rank 2 in three jobs', 'rank: 2 in 3 jobs'), s('Three skills at 5', 'skill: any 5 x3')
         ],
-        perk: perk('Adaptable', '+3 at job interviews.', { kind: 'interview', value: 3 }) },
+        perk: perk('Adaptable', '+3 at job interviews, and a new job starts halfway to the next rank.', { kind: 'interview', value: 3 }, { kind: 'career', target: 'hire', value: -0.5 }) },
     { id: 'romance', name: 'Find love', icon: '💞', category: 'love', desc: 'Fall in love and build a life together.', needs: ['romance'], steps: [
             s('A date', 'did: date'), s('Someone in love with you', 'friends: 1 crush'), s('Together a season', 'partner: dating or engaged or married', 'season'), s('Living together', 'partner: home')
         ],
         perk: perk('Devoted', 'Your partner\'s romance fades half as fast.', { kind: 'fade', target: 'partner', value: -0.5 }) },
     { id: 'freespirit', name: 'Free spirit', icon: '🕊️', category: 'love', desc: 'Love freely, with no strings.', needs: ['romance'], steps: [
-            s('Dates with three people', 'did: people:date 3'), s('A casual relationship', 'partner: casual'), s('A night together', 'did: overnight'), s('Single and happy for a season', 'partner: none; need: mood 60', 'season')
+            s('Dates with three people', 'did: people:date 3'), s('A casual relationship', 'partner: casual'), s('A night together', 'did: night_together'), s('Single and happy for a season', 'partner: none; need: mood 60', 'season')
         ],
         perk: perk('Easy charm', '+3 friendship when you first meet someone.', { kind: 'warm', target: 'new', value: 3 }) },
     { id: 'social', name: 'Social butterfly', icon: '🦋', category: 'social', desc: 'Have many good friends.', steps: [
@@ -78,11 +78,11 @@ export const GENERAL_GOALS = [
         ],
         perk: perk('Magnetic', 'Friendship toward you grows 10% faster.', { kind: 'gain', target: 'friend', value: 0.1 }) },
     { id: 'bff', name: 'Best friends', icon: '🤝', category: 'social', desc: 'One friend for life.', steps: [
-            s('A best friend', 'friends: 1 best'), s('Something done together', 'friends: 1 best; did: with:any'), s('Stay at each other\'s place', 'friends: 1 best; did: overnight'), s('A season as best friends', 'friends: 1 best', 'season')
+            s('A best friend', 'friends: 1 best'), s('A day trip together', 'friends: 1 best; did: trip with best'), s('A night at each other\'s place', 'friends: 1 best; did: overnight with best'), s('A season as best friends', 'friends: 1 best', 'season')
         ],
         perk: perk('Loyal', 'Friendship with good friends grows 15% faster.', { kind: 'gain', target: 'good friends', value: 0.15 }) },
     { id: 'host', name: 'Party host', icon: '🎉', category: 'social', desc: 'Throw the parties people talk about.', steps: [
-            s('Throw a party', 'did: party'), s('Three parties', 'did: party 3'), s('Five parties', 'did: party 5'), s('Eight parties', 'did: party 8')
+            s('Throw a party', 'did: party'), s('Three parties', 'did: party 3'), s('A party with eight guests', 'did: big_party'), s('A party everyone loved', 'did: loved_party')
         ],
         perk: perk('Life of the party', 'Parties give 25% more mood.', { kind: 'party', target: 'mood', value: 0.25 }) },
     { id: 'scholar', name: 'Lifelong learner', icon: '🎓', category: 'knowledge', desc: 'Never stop learning.', needs: ['courses'], steps: [
@@ -114,7 +114,7 @@ export const GENERAL_GOALS = [
         ],
         perk: perk('Lucky', '+1 on every roll.', { kind: 'roll', value: 1 }) },
     { id: 'balance', name: 'Balanced life', icon: '☯️', category: 'health', desc: 'Look after yourself.', needs: ['needs'], steps: [
-            s('A week with every need above 30', 'need: all 30', 7), s('A season without collapsing', 'did: not collapse', 'season'), s('Rested and in a good mood for two weeks', 'need: energy 50; need: mood 50', 14), s('Every need high on a festival day', 'need: all 70; festival: any')
+            s('A week with every need above 30', 'need: all 30', 7), s('A season without collapsing', 'did: not collapse', 'season'), s('Asleep before 1:00 for two weeks', 'did: not late_night', 14), s('Every need high on a festival day', 'need: all 70; festival: any')
         ],
         perk: perk('Steady', 'Mood drains 20% slower.', { kind: 'drain', target: 'mood', value: -0.2 }) },
     { id: 'mentor', name: 'Mentor', icon: '🧑‍🏫', category: 'social', desc: 'Pass on what you know.', needs: ['mentors'], steps: [
@@ -142,8 +142,8 @@ export const GENERAL_REWARDS = [
     { id: 'luckyday', name: 'Lucky day', icon: '🍀', desc: '+2 on every roll for a day.', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 2 }], days: 1, limit: { per: 'day' } },
     { id: 'secondwind', name: 'Second wind', icon: '⚡', desc: 'Energy full now.', price: 150, kind: 'refill', need: 'energy', limit: { per: 'day' } },
     { id: 'clearhead', name: 'Clear head', icon: '🌤️', desc: 'Mood full now.', price: 150, kind: 'refill', need: 'mood', limit: { per: 'day' } },
-    { id: 'workboost', name: 'Work boost', icon: '🚀', desc: 'Performance gains doubled for three days.', price: 250, kind: 'boost', effects: [{ kind: 'perf', target: 'gain', value: 1 }], days: 3, limit: { per: 'week' }, needs: ['jobs'] },
-    { id: 'cleanslate', name: 'Clean slate at work', icon: '🧽', desc: 'A warning and the last missed shift are forgotten.', price: 300, kind: 'cleanslate', limit: { per: 'season' }, needs: ['jobs'] },
+    { id: 'workboost', name: 'Work boost', icon: '🚀', desc: 'Performance gains doubled for three days.', price: 250, kind: 'boost', effects: [{ kind: 'perf', target: 'gain', value: 1 }], days: 3, limit: { per: 'week' }, needs: ['jobs'], when: 'job: any' },
+    { id: 'cleanslate', name: 'Clean slate at work', icon: '🧽', desc: 'A warning and the last missed shift are forgotten.', price: 300, kind: 'cleanslate', limit: { per: 'season' }, needs: ['jobs'], when: 'job: any' },
     { id: 'rentholiday', name: 'Rent holiday', icon: '🗝️', desc: 'Skip the next rent or bills payment.', price: 300, kind: 'rentfree', limit: { per: 'season' }, needs: ['bills'] },
     { id: 'nudge', name: 'Nudge', icon: '💝', desc: 'One person\'s friendship or romance for you grows (never past what the rules allow).', price: 400, kind: 'nudge', limit: { per: 'season', person: true } },
     { id: 'cleartheair', name: 'Clear the air', icon: '🌬️', desc: 'One person\'s feelings for you start over from nothing; they still remember what happened.', price: 400, kind: 'clear' },

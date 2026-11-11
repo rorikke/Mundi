@@ -10,11 +10,13 @@ import { goalOf, PERK_LIMITS, BOOST_LIMITS, BOOST_DAYS } from '../core/goals.js'
 import { effectSources, effectAdd, effectMul } from './effects.js';
 import { whenHolds } from './when.js';
 import { onDay } from './hooks.js';
-/** The goals whose perks you have, by id (the finished ones). Life goals' state (sim/goals.ts) fills this in; until it
- *  does, nobody has a perk. */
-export function perkGoalIds(g, w) { void g; void w; return []; }
-// A perk on a need that isn't in play here does nothing (a goal that needs it isn't offered either).
-const needOff = (g, w, e) => e.kind === 'drain' && !!e.target && !activeStatuses(w, g).some(s => s.id === e.target);
+import { goalsState } from './goals.js';
+/** The goals whose perks you have, by id: the finished ones (sim/goals.ts; old saves' finished aspirations included,
+ *  In top shape as Athlete). Never from a trait's name: a habit called "Athletic" gives nothing (D-12). */
+export function perkGoalIds(g, w) { void w; return goalsState(g).done; }
+// A perk on a need that isn't in play here does nothing (a drain, a morning's mood: a goal that needs it isn't offered
+// either).
+const needOff = (g, w, e) => !!e.target && (e.kind === 'drain' || e.kind === 'morning') && w.statuses.some(s => s.id === e.target) && !activeStatuses(w, g).some(s => s.id === e.target);
 const holdsNow = (g, w, e, key) => !e.when || whenHolds(g, w, e.when, { key });
 /** The effects these goals' perks give right now: each held inside the perk limits, its condition holding. */
 export function perkEffects(g, w, ids) {

@@ -25,6 +25,7 @@ import { startRumor } from './living.js';
 import { revealThread } from './threads.js';
 import { seasonDays, advance } from './time.js';
 import { choicePractice } from './work.js';
+import { earn } from './points.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -160,6 +161,9 @@ export function chooseStory(g, w, i, rand = Math.random) {
     out.push(...choicePractice(g, w, c.roll?.skill, c.roll ? ok : null, res.trains)); // trying something trains it
     Object.assign(cur.now, { choice: i, ok, said: `${c.label.toLowerCase()}${c.roll ? (ok ? ' (and it worked)' : ' (and it did not work)') : ''}: ${toldAs(res.text)}` });
     storyState(g).seen[cur.s.id] = { day: storyState(g).seen[cur.s.id]?.day ?? g.day, choice: i, ok };
+    const paid = earn(g, w, 'story', cur.s.id);
+    if (paid)
+        out.push(paid); // a street story finished: life points
     setPrompt(STORY_PROMPT, storyLine(g, w));
     // what you did took its time; the story stays on until you leave or it's over (its `until` covers it)
     const mins = Math.max(0, c.minutes ?? CHOICE_MINUTES);

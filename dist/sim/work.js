@@ -452,9 +452,20 @@ export function hire(g, w, id) {
             rank++;
     const j = { id, rank, shifts: 0, perf: r.crit ? 65 : 50, since: nowAbs(g), checked: today && today.start > nowAbs(g) ? g.day - 1 : g.day, vac: 0, vacAt: g.day };
     g.player.job = j;
+    headStart(g, w, o, j);
     note(g, '{u} got hired: {0} at {1}.', [o.ranks[rank].name, o.name], [], o.place, 'work');
     const s = nextShift(g, w, o);
     return { ok: true, text: `You got the job! ${r.text}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
+}
+// A new job can start part of the way to the next rank (life goals' Adaptable: a `career` effect aimed at `hire`, −50%
+// is halfway): that share of the shifts and of the time the rank asks for counts as done.
+function headStart(g, w, o, j) {
+    const share = Math.min(0.5, Math.max(0, 1 - effectMul(g, w, 'career', 'hire', { exact: true })));
+    const p = share > 0 ? promoNeeds(g, w, o) : null;
+    if (!p)
+        return;
+    j.shifts = Math.round(p.shifts * share * 100) / 100;
+    j.since = nowAbs(g) - Math.round(p.days * share * 1440);
 }
 export function quitJob(g, w) { const o = w && jobDef(w, g.player.job?.id); if (o)
     note(g, '{u} quit the job ({0}).', [o.name], [], g.player.loc, 'work'); g.player.job = null; }
@@ -510,6 +521,26 @@ export function addPerf(g, w, n) {
         }
     }
     return out;
+}
+/** Is there something for the rewards shop's "Clean slate at work" to forget (a warning, a missed shift)? */
+export const slateToClean = (g, w) => { const j = jobOf(g); return !!j && !!jobDef(w, j.id) && (!!j.warn || j.missed !== undefined); };
+/** "Clean slate at work": one warning and the last missed shift are forgotten (its performance comes back). Null when
+ *  there's nothing to forget. */
+export function cleanSlate(g, w) {
+    const j = jobOf(g), o = jobDef(w, j?.id);
+    if (!j || !o || !slateToClean(g, w))
+        return null;
+    if (j.warn) {
+        if (j.warn > 1)
+            j.warn--;
+        else
+            delete j.warn;
+    }
+    if (j.missed !== undefined) {
+        j.perf = Math.min(100, (j.perf ?? 50) + workRules(g, w).missed);
+        delete j.missed;
+    }
+    return [`At ${o.name}, it's as if it never happened: a clean slate.`];
 }
 // What a shift does to your performance: how you worked, how you came in (rested, fed, clean, in a good mood), whether
 // you have the skills your rank asks for, and how the boss feels about you (J7).
@@ -845,6 +876,7 @@ export function workHour(g, w) {
         if (rules.missed) {
             out.push(`You missed your shift at ${o.name} (${WEEKDAYS[wdOf(d)]}).${rules.low === 'fire' ? ' Your boss is not happy.' : ''}`);
             note(g, '{u} missed a shift at work ({0}).', [o.name], [], o.place, 'work');
+            j.missed = d;
             out.push(...addPerf(g, w, -rules.missed));
             if (!g.player.job)
                 return out;

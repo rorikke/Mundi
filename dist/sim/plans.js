@@ -17,9 +17,10 @@ import { placeOf, playerHomeId, travelMinutes } from './places.js';
 import { routineStep, whereNow, workingAt } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom } from './social.js';
 import { dating } from './feed.js';
-import { shutOut, crushOn, addRomance } from './romance.js';
+import { shutOut, crushOn, addRomance, sysOn } from './romance.js';
 import { romanceBlocked } from './family.js';
-import { touch } from './rel.js';
+import { touch, statusOf, YOU } from './rel.js';
+import { intimacyReady } from './intimacy.js';
 import { holdGrudge, grudgeOf } from './grudges.js';
 import { sawYou } from './warnings.js';
 import { personaName } from '../st/bridge.js';
@@ -296,6 +297,7 @@ export function planTick(g, w) {
             ev.moodAt += hrs * 60;
         }
     }
+    judgeParties(g, s.appts, now);
     // old plans are forgotten after a few days
     s.appts = s.appts.filter(a => a.to > now - 3 * 1440).slice(-40);
     for (const c of [...s.with]) {
@@ -305,6 +307,35 @@ export function planTick(g, w) {
         out.push({ text: `${nameOf(c.avatar)} had to go.`, kind: 'info' });
     }
     return out;
+}
+// A party at home, once it's over (life goals): how many came (8 or more: a big party), and whether everyone who said
+// yes came (a party everyone loved, 3 guests at least). Its plans are marked (`judged`), so it counts once.
+function judgeParties(g, appts, now) {
+    const parties = new Map();
+    for (const a of appts)
+        if (a.kind === 'party' && a.place === playerHomeId && !a.judged) {
+            const l = parties.get(a.from) ?? [];
+            l.push(a);
+            parties.set(a.from, l);
+        }
+    for (const list of parties.values()) {
+        if (list.some(a => a.state === 'set') || now < Math.max(...list.map(a => a.to)))
+            continue;
+        const came = list.filter(a => a.state === 'met').length, missed = list.some(a => a.state === 'missed');
+        for (const a of list)
+            a.judged = true;
+        if (came >= 8)
+            tallyEvent(g, 'big_party');
+        if (came >= 3 && !missed)
+            tallyEvent(g, 'loved_party');
+    }
+}
+// A night that's more than a sleepover (life goals): with someone you're a couple with, or who is ready to get
+// intimate with you. The AI plays the night; this only says what it could be.
+function nightTogether(g, a) {
+    if (!sysOn(g, 'romance') || romanceBlocked(g, a))
+        return false;
+    return !!statusOf(g, a, YOU) || intimacyReady(g, a, g.cast[a]?.name ?? '').lean === 'yes';
 }
 // Before you travel: who comes along (and who stays, like when you head home and she is not that close).
 export function beforeTravel(g, w, to) {
@@ -327,13 +358,17 @@ export function beforeSleep(g) {
     const out = [];
     const stay = social(g).stay;
     for (const c of [...social(g).with]) {
-        if (stay && stay.avatar === c.avatar && stay.where === g.player.loc) {
+        if (stay && stay.avatar === c.avatar && stay.where === g.player.loc) { // staying the night together
             c.until = Math.max(c.until, nowAbs(g) + 14 * 60);
             tallyEvent(g, 'overnight', 1, c.avatar);
+            if (nightTogether(g, c.avatar))
+                tallyEvent(g, 'night_together', 1, c.avatar);
             continue;
-        } // staying the night together
+        }
         if (isPartner(g, c.avatar) && g.player.loc === playerHomeId) {
             c.until = nowAbs(g) + 12 * 60;
+            if (nightTogether(g, c.avatar))
+                tallyEvent(g, 'night_together', 1, c.avatar);
             continue;
         }
         letGo(g, c.avatar);

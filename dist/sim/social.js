@@ -16,6 +16,7 @@ import { placeOf } from './places.js';
 import { sawYou } from './warnings.js';
 import { book } from './ledger.js';
 import { effectMul } from './effects.js';
+import { pricePerk } from './worldstate.js';
 export function social(g) {
     const s = (g.social ??= {});
     s.threads ??= {};
@@ -205,11 +206,13 @@ export function giveKeepsake(g, w, id, avatar) {
 }
 /** Gifts sold where you are (adult ones only with adult content on). */
 export const giftsForSale = (g, w, place = g.player.loc) => (w.keepsakes ?? []).filter(k => (k.price ?? 0) > 0 && (k.at ?? []).includes(place) && adultOk(g, k));
+/** What a gift costs here (what effects do to prices at the place). */
+export const giftPrice = (g, w, k, place = g.player.loc) => Math.round((k.price ?? 0) * pricePerk(g, w, place));
 export function buyKeepsake(g, w, id) {
     const k = giftsForSale(g, w).find(x => x.id === id);
     if (!k)
         return { ok: false, text: 'That isn\'t sold here.' };
-    const price = Math.round(k.price ?? 0);
+    const price = giftPrice(g, w, k);
     if (g.player.money < price)
         return { ok: false, text: 'Not enough money.' };
     g.player.money -= price;

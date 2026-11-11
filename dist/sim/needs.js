@@ -38,6 +38,10 @@ export function addStatus(g, w, id, delta) {
         changeHp(g, w, (delta / d.max) * hpMax(w, sheetOf(g)));
         return;
     }
+    // a need that never drops with time (energy, in the built-in worlds) drops only through what you do: what slows its
+    // drain (a perk, a trait: Fit, Lazy) makes those drops smaller
+    if (delta < 0 && !d.decay && !d.rpg)
+        delta *= effectMul(g, w, 'drain', id);
     g.player.stats[id] = clamp((g.player.stats[id] ?? d.start) + delta, d.max);
 }
 // How many whole periods of `every` minutes passed since the rule last ran (and moves its mark forward).
@@ -194,12 +198,12 @@ export function applyAction(g, w, a) {
         f(g, w, a);
 }
 /** What effects (life goals' perks, boosts) add to what an action gives back: food (its hunger and thirst), a bath (an
- *  action tagged `bath`: all it gives); aimed at `food` or `bath`, the action, or its tags. The same with none. */
+ *  action tagged `bath`: all it gives); aimed at `food` or `bath`, the action, or its tags. An effect aimed at the action
+ *  itself (its id or one of its tags but `food` and `bath`: karaoke) adds to everything it gives, mood included. The
+ *  same with none. */
 export function restGain(g, w, a, id, v) {
     const food = id === 'hunger' || id === 'thirst', bath = !food && (a.tags ?? []).includes('bath');
-    if (!food && !bath)
-        return v;
-    const k = effectMul(g, w, 'rest', [food ? 'food' : 'bath', a.id, ...(a.tags ?? [])]);
+    const k = food || bath ? effectMul(g, w, 'rest', [food ? 'food' : 'bath', a.id, ...(a.tags ?? [])]) : effectMul(g, w, 'rest', [a.id, ...(a.tags ?? [])].filter(t => t !== 'food' && t !== 'bath'), { exact: true });
     return k === 1 ? v : Math.round(v * k);
 }
 // A short line for the AI about how the player feels (only what stands out).

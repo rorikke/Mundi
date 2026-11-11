@@ -9,7 +9,7 @@ import { nowAbs } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { effectMul } from './effects.js';
-import { directedAbove, lose, lastContact, touch, tidyContact, pairOf, setStatus, setLow, relCfg, paceOf, relOf, idOf, PARTNER, YOU } from './rel.js';
+import { directedAbove, lose, lastContact, touch, tidyContact, fadeHeld, pairOf, setStatus, setLow, relCfg, paceOf, relOf, idOf, PARTNER, YOU } from './rel.js';
 import { PACE } from './pace.js';
 import { romValue, addRomance, DISLIKES } from './romance.js';
 import { bondOf, bump, social } from './social.js';
@@ -39,6 +39,8 @@ export function fadeRomance(g, w) {
             touch(g, x, y);
             continue;
         } // first seen: start counting from today
+        if (fadeHeld(g, x, y))
+            continue; // held off for a while (the Nudge)
         const f = PARTNER.includes(pairOf(g, x, y)?.status) ? FADE.partner : FADE.other;
         if (g.day - last <= (y === YOU ? f.grace : Math.max(f.grace, FADE.between)) || v <= f.floor)
             continue;

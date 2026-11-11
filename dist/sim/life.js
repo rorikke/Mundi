@@ -1,22 +1,20 @@
-// Life-Sim systems: needs in words, aspirations, feelings that fade, the lifestyle shop (vehicles, furniture,
+// Life-Sim systems: needs in words, feelings that fade, the lifestyle shop (vehicles, furniture,
 // gear for working at home), quick gigs, the gym, college, things at home that break, scene lock, NPCs who
 // invite you, and who lets you into their home. All decided by the engine; the AI only narrates.
 import { nowAbs } from '../core/store.js';
 import { takingNow, studyBlock, studySession, payDue, learning, CLASS_MINUTES } from './courses.js';
-import { countUp, countOf, gainTrait } from './skills.js';
+import { countUp } from './skills.js';
 import { priceOf } from './bills.js';
 import { systemOn, isScenario } from '../core/world.js';
-import { careerOf } from './work.js';
 import { priceHere } from './worldstate.js';
 import { lex } from '../core/lexicon.js';
 import { onDay, onHour } from './hooks.js';
-import { addStatus, money, usualPay } from './needs.js';
+import { money } from './needs.js';
 import { book } from './ledger.js';
 import { social, bondOf, isPartner } from './social.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
 import { whereNow, residents } from './people.js';
-import { partnersOf, YOU } from './rel.js';
 import { shutOut } from './romance.js';
 import { grudgeOf } from './grudges.js';
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -59,36 +57,9 @@ export function feelingLine(g, present) {
     const parts = present.map(r => { const f = activeFeelings(g, r.avatar); return f.length ? `${r.name}: ${f.map(x => `${x.tag} (for ${Math.max(1, Math.ceil((x.until - nowAbs(g)) / 1440))} more day${Math.ceil((x.until - nowAbs(g)) / 1440) > 1 ? 's' : ''})`).join(', ')}` : ''; }).filter(Boolean);
     return parts.length ? `Current feelings toward {{user}} — ${parts.join('; ')}. Let them color the tone, whatever the overall bond.` : '';
 }
-export const ASPIRATIONS = [
-    { id: 'rich', name: 'Get rich', icon: '💰', desc: 'Save up a fortune.', reward: 'Good with numbers', check: (g, w) => [g.player.money, usualPay(w) * 3125] },
-    { id: 'romance', name: 'Find love', icon: '💞', desc: 'Be in a relationship.', reward: 'Romantic', check: g => [partnersOf(g, YOU).length ? 1 : 0, 1] },
-    { id: 'career', name: 'Top of the career', icon: '🏆', desc: 'Reach the highest rank of a job.', reward: 'Ambitious', check: (g, w) => { const j = g.player.job; const o = j && w.occupations.find(x => x.id === j.id); const c = o && careerOf(g, o); return [o ? j.rank + 1 : 0, c ? (c.open ? c.ranks.length + 1 : c.ranks.length) : 1]; } },
-    { id: 'worker', name: 'Hard worker', icon: '💼', desc: 'Work 20 shifts.', reward: 'Serious', check: g => [countOf(g, 'shifts'), 20] },
-    { id: 'social', name: 'Social butterfly', icon: '🦋', desc: 'Have five good friends.', reward: 'Charming', check: g => [Object.keys(g.cast).filter(a => bondOf(g, a) >= 60).length, 5] },
-    { id: 'host', name: 'Party host', icon: '🎉', desc: 'Throw three parties.', reward: 'Outgoing', check: g => [countOf(g, 'parties'), 3] },
-    { id: 'home', name: 'A home of your own', icon: '🏡', desc: 'Live in a house of your own, not in a small rented place.', reward: 'Calm', check: g => [['house', 'manor'].includes(g.player.home.kind) ? 1 : 0, 1] },
-    { id: 'scholar', name: 'Lifelong learner', icon: '🎓', desc: 'Finish three courses.', reward: 'Smart', check: g => [learning(g).done.length, 3] },
-    { id: 'chef', name: 'Home chef', icon: '🍳', desc: 'Cook 15 meals at home.', reward: 'Good cook', check: g => [countOf(g, 'meals'), 15] },
-    { id: 'athlete', name: 'Athlete', icon: '🏃', desc: 'Have 15 good workouts.', reward: 'Athletic', check: g => [countOf(g, 'workouts'), 15] },
-    { id: 'fit', name: 'In top shape', icon: '💪', desc: 'Get really fit.', reward: 'Strong', check: g => [life(g).fitness, 80] },
-    { id: 'artist', name: 'Artist', icon: '🎨', desc: 'Sell five paintings.', reward: 'Creative', check: g => [countOf(g, 'paintings'), 5] },
-];
-export const aspirationOf = (g) => ASPIRATIONS.find(a => a.id === life(g).aspiration) ?? null;
-export function setAspiration(g, id) { life(g).aspiration = id; note(g, '{u} set a life goal: {0}.', [ASPIRATIONS.find(a => a.id === id)?.name ?? id], [], g.player.loc, 'goal'); }
-function checkAspiration(g, w) {
-    const a = aspirationOf(g);
-    const l = life(g);
-    if (!a || !systemOn(w, 'goals') || (l.aspDone ??= []).includes(a.id))
-        return [];
-    const [have, need] = a.check(g, w);
-    if (have < need)
-        return [];
-    l.aspDone.push(a.id);
-    addStatus(g, w, 'mood', 30);
-    note(g, '{u} reached a life goal: {0}!', [a.name], [], g.player.loc, 'goal');
-    const got = a.reward && gainTrait(g, a.reward, 'goal');
-    return [`Life goal reached: ${a.name}!${got ? ` You are now ${a.reward}.` : ''}`];
-}
+/* ---------- life goals ---------- */
+// Life goals live in sim/goals.ts; these names stay for the screens that still read them.
+export { ASPIRATIONS, aspirationOf, setAspiration } from './goals.js';
 export const shopItems = (w) => (systemOn(w, 'shop') ? w.catalogs.shop ?? [] : []);
 export const hasItem = (g, id) => life(g).items.includes(id);
 // What an item costs now: the difficulty, then the prices where you live (the living world).
@@ -264,12 +235,11 @@ onDay.push((g, w) => {
     }
     // fitness fades a little if you never train
     l.fitness = Math.max(0, l.fitness - 1);
-    out.push(...checkAspiration(g, w));
     // feelings that ran out are forgotten
     social(g).feel = feelingsOf(g).filter(f => f.until > nowAbs(g));
     return out;
 });
-onHour.push((g, w) => [...maybeInvite(g, w), ...checkAspiration(g, w)]);
+onHour.push((g, w) => maybeInvite(g, w));
 // How the player looks, for the AI.
 export const physiqueLine = (g) => { const f = life(g).fitness; return f >= 70 ? '{{user}} is visibly fit and athletic.' : f >= 40 ? '{{user}} is in good shape.' : ''; };
 export const moneyText = money;

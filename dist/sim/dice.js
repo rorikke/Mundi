@@ -1,5 +1,5 @@
 import { payOf, priceOf } from './bills.js';
-import { addStatus, money } from './needs.js';
+import { addStatus, money, restGain } from './needs.js';
 import { book } from './ledger.js';
 import { traitsOf } from './work.js';
 import { note } from './facts.js';
@@ -66,8 +66,10 @@ export function rollAction(g, w, a, rnd = Math.random) {
         g.player.money = Math.max(0, g.player.money + cash);
         book(g, a.name, cash);
     }
-    for (const [id, v] of Object.entries(out.effects ?? {}))
-        addStatus(g, w, id, v * ((v < 0 && grade === 'critical-fail') || (v > 0 && grade === 'critical-success') ? mult : 1));
+    for (const [id, v] of Object.entries(out.effects ?? {})) {
+        const x = v * ((v < 0 && grade === 'critical-fail') || (v > 0 && grade === 'critical-success') ? mult : 1);
+        addStatus(g, w, id, x > 0 ? restGain(g, w, a, id, x) : x);
+    }
     const text = `${out.text}${cash ? ` (${cash > 0 ? '+' : '−'}${money(w, Math.abs(cash))})` : ''}`;
     if (ok)
         addXp(g, w, grade === 'critical-success' ? 20 : 10, a.name); // RPG: experience for what you do well

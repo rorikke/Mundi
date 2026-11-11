@@ -24,6 +24,7 @@ import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { startRumor } from './living.js';
 import { onLook } from './hooks.js';
+import { earn } from './points.js';
 // The outcomes an action can draw from: its own, or (E14) a shared table's rows in this action's words.
 export function outcomesOf(w, a) {
     if (!a.table)
@@ -93,7 +94,7 @@ function results(g, w, a, o) {
     const roll = rollAction(g, w, a, rnd);
     const ok = roll ? roll.grade.includes('success') : null;
     afterAction(g, w, a, ok).forEach(m => lines.push({ text: m, kind: 'success' }));
-    afterEvent(g, w, a);
+    afterEvent(g, w, a).forEach(m => lines.push({ text: m, kind: 'success' }));
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
@@ -116,6 +117,9 @@ function results(g, w, a, o) {
         addKeepsake(g, keep);
         const k = keepsakeDef(w, keep);
         lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' });
+        const p = earn(g, w, 'keepsake', keep);
+        if (p)
+            lines.push({ text: p, kind: 'success' });
     }
     const together = doneTogether(g, w, mates, a.minutes);
     if (mates.length || withYou(g, w).length)

@@ -10,7 +10,8 @@
 // Life goals' keys (their steps are conditions, and actions, jobs and stories can ask for a goal): states, true as soon
 // as they hold (`rank`, `money`, `home`, `partner`, `friends`, `visited`, `secrets`, `helped`, `goal`, `need`, `rep`),
 // and counts (`did`, `attended`) read from sim/tally.ts's lifetime counters, or from the asker's own counts
-// (`WhenCtx.count`: a goal counts only while it's active). `goal` reads `g.goals` (sim/goals.ts keeps it) and the old
+// (`WhenCtx.count`: a goal counts only while it's active); `did: overnight with best` counts only what was done with
+// someone at that level toward you now. `goal` reads `g.goals` (sim/goals.ts keeps it) and the old
 // aspirations finished (`player.aspDone`).
 import { nowAbs } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS } from '../core/world.js';
@@ -49,6 +50,7 @@ const RANK = /^(\d+|top|middle|top-\d+)(?:\s+in\s+(\d+)\s+jobs?)?$/i; // 2 · mi
 const MONEY = /^(\d+(?:\.\d+)?)(?:\s+(weeks?|months?|years?))?$|^fortune$/i;
 const FRIENDS = /^(\d+)\s+(\S+)(?:\s+(?:in\s+(\S+)|at\s+(regular)))?$/i; // 3 good · 2 good in yokohama · 1 good at regular
 const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/; // meal 15 · tag:karaoke 3 · ramen_contest
+const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i; // overnight 2 with best: only with someone at that level now
 const VISITED = /^(?:(\d+)(?:\s+(regular)|\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;
 export const PARTNER_VALUES = ['any', 'none', 'home', 'casual', 'dating', 'engaged', 'married'];
 /** The money `money: 2 weeks` means: weeks of the world's usual pay (40 hours), or the old aspiration's fortune. */
@@ -69,6 +71,12 @@ export function countKey(w, key, what) {
     if (what.indexOf(':') > 0)
         return what;
     return TALLY_EVENTS.includes(what) ? `event:${what}` : `action:${what}`;
+}
+/** A counted value read into its parts: what is counted, how many times, and (`did` only) the level toward you of the
+ *  people it must have been done with (`did: overnight with best`: counted per person, sim/tally.ts). */
+export function countedOf(key, v) {
+    const m = v.match(key === 'did' ? DID : COUNTED);
+    return m ? { what: m[1], n: Number(m[2] ?? 1), ...(m[3] ? { with: m[3].toLowerCase() } : {}) } : null;
 }
 /* ---------- reading the text ---------- */
 const keyOf = (k) => WHEN_KEYS.find(x => x.toLowerCase() === k.toLowerCase());
@@ -98,8 +106,9 @@ function badValue(key, v) {
             return m && LEVELS.includes(m[2].toLowerCase()) ? '' : `"${v}" should be a number and a level, like 3 good (or 2 good in a map)`;
         }
         case 'did': {
-            const m = v.match(COUNTED), p = m && m[1].includes(':') ? m[1].slice(0, m[1].indexOf(':')) : '';
-            return m && (!p || TALLY_PREFIXES.includes(p)) ? '' : `"${v}" should be an action, a tag:…, a moment (meal, party…) and how many times`;
+            const m = v.match(DID), p = m && m[1].includes(':') ? m[1].slice(0, m[1].indexOf(':')) : '';
+            return m && (!p || TALLY_PREFIXES.includes(p)) && (!m[3] || LEVELS.includes(m[3].toLowerCase())) ? ''
+                : `"${v}" should be an action, a tag:…, a moment (meal, party…) and how many times (and "with" a level: overnight with best)`;
         }
         case 'attended': return COUNTED.test(v) && !v.includes(':') ? '' : `"${v}" should be a festival or an event, and how many times`;
         case 'visited': return VISITED.test(v) || ID.test(v) ? '' : `"${v}" should be a place, a number of places, all, map or maps`;
@@ -364,8 +373,10 @@ function holds(g, w, key, v, x) {
         case 'friends': return friendsHold(g, w, v);
         case 'did':
         case 'attended': {
-            const m = v.match(COUNTED), k = countKey(w, key, m[1]);
-            return (x.count ? x.count(k) : tallyOf(g, k)) >= Number(m[2] ?? 1);
+            const c = countedOf(key, v), k = countKey(w, key, c.what), n = (id) => (x.count ? x.count(id) : tallyOf(g, id));
+            // with someone at a level: what was counted with each of them (`<key>|<avatar>`), for those at it now
+            const have = c.with ? Object.values(g.cast).filter(r => r.met && levelHolds(g, w, r.avatar, c.with)).reduce((a, r) => a + n(`${k}|${r.avatar}`), 0) : n(k);
+            return have >= c.n;
         }
         case 'visited': return visitedHolds(g, w, v);
         case 'secrets': return Object.values(g.threads ?? {}).filter(t => t?.known !== undefined).length >= Number(v);

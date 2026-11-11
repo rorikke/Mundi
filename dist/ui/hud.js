@@ -41,7 +41,7 @@ const stayHere = (g) => { const s = stayOf(g); return !!s && s.where === g.playe
 import { customActionRow, customModalHtml } from './custom.js';
 import { doingHtml } from './doing.js';
 import { apptActions, apptReminderHtml, conflictHtml } from './appts.js';
-import { social, isWith, withYou, giftable, giveKeepsake, keepsakesOf, giftsForSale, buyKeepsake } from '../sim/social.js';
+import { social, isWith, withYou, giftable, giveKeepsake, keepsakesOf, giftsForSale, buyKeepsake, giftPrice } from '../sim/social.js';
 import { sleepHere, bookedHere, nightPrice } from '../sim/stays.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { bumpHtml } from './bump.js';
@@ -221,7 +221,7 @@ function innRows(g, w, atHome) {
     const inn = !atHome && !stayHere(g) ? sleepHere(g, w) : null;
     if (!inn)
         return [];
-    const booked = bookedHere(g, w), price = nightPrice(g, inn), poor = !booked && g.player.money < price;
+    const booked = bookedHere(g, w), price = nightPrice(g, inn, w), poor = !booked && g.player.money < price;
     const cost = price ? money(w, price) : 'Free';
     return [
         ...(!booked && inn.includes?.length ? [`<button class="mh-act mh-glass" data-act="book-night" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>🛎️</i><b>Book the night</b><small>${cost} · what the night includes is free</small></button>`] : []),
@@ -244,7 +244,7 @@ function buyRows(g, w) {
     if (!list.length)
         return [];
     return [`<button class="mh-act mh-glass" data-act="buy-open"><i>🛍️</i><b>Buy a gift</b><small>${list.length} for sale</small></button>`,
-        ...(buyOpen ? list.map(k => { const poor = g.player.money < (k.price ?? 0); return `<button class="mh-act mh-glass is-sub" data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>${esc(k.icon)}</i><b data-notr>${esc(k.name)}</b><small>${esc(money(w, Math.round(k.price ?? 0)))}${k.desc ? ` · <span data-notr>${esc(k.desc)}</span>` : ''}</small></button>`; }) : [])];
+        ...(buyOpen ? list.map(k => { const poor = g.player.money < giftPrice(g, w, k); return `<button class="mh-act mh-glass is-sub" data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>${esc(k.icon)}</i><b data-notr>${esc(k.name)}</b><small>${esc(money(w, giftPrice(g, w, k)))}${k.desc ? ` · <span data-notr>${esc(k.desc)}</span>` : ''}</small></button>`; }) : [])];
 }
 Object.assign(ACT, {
     'buy-open': () => { buyOpen = !buyOpen; notify(); },

@@ -31,8 +31,15 @@ export const fill = (t, a = [], u = 'You') => t.replace(/\{u\}/g, u).replace(/\{
 // someone else (an earlier character you played) did it: their name, not yours
 export const factText = (f, u = 'You') => fill(f.t, f.a, f.u && f.u !== personaName() ? f.u : u);
 export const placeName = (g, w, id) => (id === playerHomeId ? 'home' : id === 'out' ? 'out of the house' : placeOf(g, w, id)?.name ?? id);
-export const factsOf = (g, avatar, n = 6) => facts(g).filter(f => f.who.includes(avatar)).slice(-n);
-export const factsAt = (g, place, n = 3) => facts(g).filter(f => f.place === place).slice(-n);
+// What the AI may be told: a fact everyone in it has forgotten (the rewards shop's "A fresh start") isn't; the journal keeps it.
+const remembered = (f, avatar) => !f.forgot?.length || (avatar ? !f.forgot.includes(avatar) : f.who.some(a => !f.forgot.includes(a)));
+export const factsOf = (g, avatar, n = 6) => facts(g).filter(f => f.who.includes(avatar) && remembered(f, avatar)).slice(-n);
+export const factsAt = (g, place, n = 3) => facts(g).filter(f => f.place === place && remembered(f)).slice(-n);
+/** Someone forgets everything they were part of ("A fresh start"): the AI is no longer told it as theirs; the journal
+ *  keeps it. */
+export function forgetFacts(g, avatar) { for (const f of facts(g))
+    if (f.who.includes(avatar) && !f.forgot?.includes(avatar))
+        f.forgot = [...(f.forgot ?? []), avatar]; }
 // For the AI: only the people in this scene, and this place (surgical injection).
 export function memoryLines(g, w, present, me) {
     const day = (f) => `day ${Math.floor(f.at / 1440)}`;

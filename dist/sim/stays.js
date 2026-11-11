@@ -15,6 +15,7 @@ import { note } from './facts.js';
 import { book } from './ledger.js';
 import { effectMul } from './effects.js';
 import { tallyEvent } from './tally.js';
+import { pricePerk } from './worldstate.js';
 /** A hospital bed for the night after a collapse: free, a fair rest, out by ten. */
 export const WARD = { price: 0, rest: 'fair', until: 10 };
 /** What a night gives back of a night at home (energy, the world's other sleep restores), and the mood it leaves. */
@@ -38,7 +39,7 @@ export function sleepHere(g, w, place = g.player.loc) {
     return s && !isScenario(w) && whenHolds(g, w, s.when, { place, key: `sleep|${place}` }) ? s : null;
 }
 /** What a night costs here now (after the difficulty). */
-export const nightPrice = (g, s) => Math.max(0, priceOf(g, s.price ?? 0));
+export const nightPrice = (g, s, w, place = g.player.loc) => Math.max(0, Math.round(priceOf(g, s.price ?? 0) * pricePerk(g, w, place)));
 /** Is a night booked here (tonight's, not slept yet: booked today, or before midnight and still up)? */
 export function bookedHere(g, w, place = g.player.loc) {
     const b = bookingOf(g), s = placeSleep(w, place, g);
@@ -63,7 +64,7 @@ export function bookNight(g, w, place = g.player.loc) {
         return 'You can\'t stay the night here.';
     if (bookedHere(g, w, place))
         return '';
-    const cost = nightPrice(g, s);
+    const cost = nightPrice(g, s, w, place);
     if (g.player.money < cost)
         return 'Not enough money for the night.';
     g.player.money -= cost;
@@ -129,8 +130,9 @@ export function restAfterNight(g, w, rest, homeMood = 0, part = 1) {
         if (d.decay?.awakeOnly)
             g.tick[`decay:${id}`] = nowAbs(g); // the waking day starts counting now
     }
+    // a better night (a perk) also leaves you less hungry, thirsty and grubby (at home energy is full anyway)
     for (const [id, v] of Object.entries({ hunger: -20, thirst: -25, hygiene: -25 }))
-        addStatus(g, w, id, Math.round(v * part));
+        addStatus(g, w, id, Math.round((k > 1 ? v / k : v) * part));
     const m = rest ? rest.mood : homeMood;
     if (m && part >= 0.5)
         addStatus(g, w, 'mood', m);

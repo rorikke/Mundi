@@ -9,7 +9,7 @@ import { rpgOf } from '../core/rpgdef.js';
 import { SCHEMA } from '../core/saves.js';
 import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES } from './bills.js';
-import { placeOf as placeOf2 } from './places.js';
+import { placeOf as placeOf2, mapOf } from './places.js';
 import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
 import { settings, saveSettings, state, game, setGame, saveGame, notify, toast, } from '../core/store.js';
@@ -643,13 +643,15 @@ export function markMet(g, avatar) {
     r.met = true;
     note(g, '{u} met {0} for the first time, at {1}.', [r.name, placeName(g, w, g.player.loc)], [r.avatar], g.player.loc, 'meet');
     addXp(g, w, 10, 'met someone'); // RPG: meeting people is experience too
-    const warm = effectAdd(g, w, 'warm', 'new');
+    // a first impression: effects for everyone new, or for people met at this place, its kind (tags), its map or area
+    const at = g.player.loc, p = placeOf2(g, w, at), map = mapOf(g, w, at);
+    const warm = effectAdd(g, w, 'warm', ['new', at, ...(p && !p.home ? p.tags ?? [] : []), map, w.maps.find(m => m.id === map)?.area]);
     if (warm) {
         if (warm > 0)
             gain(g, 'f', avatar, YOU, warm, false);
         else
             lose(g, 'f', avatar, YOU, -warm);
-    } // a first impression
+    }
     return true;
 }
 export function syncScene() {
