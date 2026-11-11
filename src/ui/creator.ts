@@ -693,7 +693,7 @@ function strengthsEditor(w: WorldDef, k: number) {
 // whatever the engine adds later) are for life goals' perks and the shop's boosts.
 const TRAIT_KINDS: EffectKind[] = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study'];
 const KIND_NAMES: Record<string, string> = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
-    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews' };
+    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)' };
 // The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
 // first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
 function targetOpts(w: WorldDef, kind: EffectKind, cur = '', wide = false): [string, string][] {
@@ -718,7 +718,8 @@ function targetOpts(w: WorldDef, kind: EffectKind, cur = '', wide = false): [str
         : kind === 'pay' ? [['', 'All pay'], ['wage', 'Wages'], ['bonus', 'Seasonal bonuses'], ['tips', 'Money from choices at work'], ...jobs, ...tagged(placeTags)]
         : kind === 'rest' ? [['sleep', 'A night\'s sleep'], ['sleep home', 'A night at home'], ['sleep away', 'A night away'], ['bath', 'Baths'], ['food', 'Food and drink'], ...tagged(actTags)]
         : kind === 'points' ? [['', 'All life points'], ['active', 'From goals (steps and finishing)'], ['passive', 'From everything else'],
-            ...[...Object.keys(GOAL_POINTS), ...Object.keys(SECOND_POINTS)].map(s => [s, `From: ${s}`] as [string, string])]
+            ...[...Object.keys(GOAL_POINTS), ...Object.keys(SECOND_POINTS)].map(s => [s, `From: ${s}`] as [string, string]),
+            ['festivals', 'From festivals and city events'], ['secrets', 'From secrets, street stories and storylines']]
         : kind === 'interview' ? [['', 'Every job'], ...jobs]
         : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
@@ -938,13 +939,17 @@ function rankOpts(w: WorldDef, job: string): Opt[] {
     const o = w.occupations.find(x => x.id === job); const n = o ? o.ranks.length : Math.max(0, ...w.occupations.map(x => x.ranks.length));
     return [['', 'Any rank'], ...Array.from({ length: Math.max(0, n - 1) }, (_x, k) => [String(k + 2), o ? `Rank ${k + 2}: ${o.ranks[k + 1]?.name ?? ''}` : `Rank ${k + 2}`] as Opt), ['middle', 'The middle rank'], ['top-1', 'One below the top'], ['top', 'The top']];
 }
+// (forms the grammar reads only since D-19: a regular at one place, and regulars on a map or near home; asked, not assumed)
 function visitOpts(w: WorldDef): Opt[] {
     const ps = realPlaces(w); const regular = !!ps[0] && !whenError(`visited: ${ps[0].id} regular`);
-    return [['n', 'A number of places'], ['regular', 'A regular at a number of places'], ...w.maps.map(m => [`in:${m.id}`, `A number of places on ${m.name}`] as Opt), ...areasOf(w).map(a => [`in:${a}`, `A number of places in ${a}`] as Opt),
+    const where = [...w.maps.map(m => [m.id, `on ${m.name}`] as Opt), ...areasOf(w).map(a => [a, `in ${a}`] as Opt)];
+    const regIn = !!w.maps[0] && !whenError(`visited: 2 regular in ${w.maps[0].id}`);
+    return [['n', 'A number of places'], ['regular', 'A regular at a number of places'], ...where.map(([id, l]) => [`in:${id}`, `A number of places ${l}`] as Opt),
+        ...(regIn ? [['in:home', 'A number of places near home'] as Opt, ...where.map(([id, l]) => [`rin:${id}`, `A regular at a number of places ${l}`] as Opt), ['rin:home', 'A regular at a number of places near home'] as Opt] : []),
         ...w.maps.map(m => [`all:${m.id}`, `Every place on ${m.name}`] as Opt), ['map', 'Every place on one map'], ['maps', 'A place on every map'], ['all', 'Every place'],
         ...ps.map(p => [`at:${p.id}`, `Been to ${p.name}`] as Opt), ...(regular ? ps.map(p => [`reg:${p.id}`, `A regular at ${p.name}`] as Opt) : [])];
 }
-const visitMake = (x: string, n: number) => (x === 'n' ? `visited: ${n}` : x === 'regular' ? `visited: ${n} regular` : x.startsWith('in:') ? `visited: ${n} in ${x.slice(3)}`
+const visitMake = (x: string, n: number) => (x === 'n' ? `visited: ${n}` : x === 'regular' ? `visited: ${n} regular` : x.startsWith('in:') ? `visited: ${n} in ${x.slice(3)}` : x.startsWith('rin:') ? `visited: ${n} regular in ${x.slice(4)}`
     : x.startsWith('all:') ? `visited: all in ${x.slice(4)}` : x.startsWith('at:') ? `visited: ${x.slice(3)}` : x.startsWith('reg:') ? `visited: ${x.slice(4)} regular` : `visited: ${x}`);
 const tierOpts = (): Opt[] => [...[...FRIEND_TIERS].reverse().filter(t => t.lo >= 10).map(t => [t.id, `${t.name} (friendship)`] as Opt), ...ROMANCE_TIERS.filter(t => t.lo > 0).map(t => [t.id, `${t.name} (romance)`] as Opt)];
 const times = (n: number) => (n > 1 ? ` ${n}` : '');
