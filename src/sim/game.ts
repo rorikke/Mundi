@@ -37,6 +37,7 @@ import { checkLeft } from './verdict.js';
 import { fr, setFr, seedFamily, relOf, gain, lose, YOU, type Person } from './rel.js';
 import { effectAdd } from './effects.js';
 import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
+import { ensureProfile, ensureProfiles } from './profiles.js';
 import { applyGameLore } from './lore.js';
 
 const pick = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
@@ -228,6 +229,7 @@ export async function writeWorldLore(w: WorldDef, adult: boolean): Promise<strin
 export async function setAdult(g: Save, on: boolean) {
     const w = getWorld(g.world); if (!w) return;
     if (on) cfgOf(g).adult = true; else delete cfgOf(g).adult;
+    if (on) ensureProfiles(g, w);   // people made before have none yet
     if (hasAdultLore(w) && !TUT.save) await bindChatLore(await writeWorldLore(w, on));
     saveGame(); refreshPrompt(); notify();
 }
@@ -245,6 +247,7 @@ export async function addResident(g: Save, w: WorldDef, avatar: string): Promise
     const st = SCENARIO_STARTS.find(s => s.id === (g as any).cfg?.start?.id);
     r.met = !!st?.met;
     g.cast[avatar] = r;
+    ensureProfile(g, w, avatar);
     normalizeHomes(g);
     note(g, '{0} moved into the house.', [r.name], [avatar], g.player.loc, 'event');
     await syncScene();
@@ -428,6 +431,7 @@ export async function startNewGame(o: NewGame) {
     const exOf = new Map([...exAvatar].map(([name, a]) => [a, w.cast.examples.find(e => e.name === name)]));
     for (const a of Object.keys(save.cast)) applyPerson(save, a, o.people?.[a] ? cleanPerson(o.people[a]) : cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(exOf.get(a)));
     applyPerson(save, YOU, cleanPerson(o.people?.[YOU]));
+    ensureProfiles(save, w);   // adult content: a profile from the world's pool for whoever has none
     // the world's own starting feelings (after ages and minors are known: no romance for them; adult ones only with
     // adult content on)
     for (const ex of w.cast.examples) for (const f of ex.feelings ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(f.to); if (a && b && a !== b && (adult || !f.adult)) { const { to, adult: x, ...feel } = f; void to; void x; applyStartFeel(save, { a, b, ...feel }); } }
