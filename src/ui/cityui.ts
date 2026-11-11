@@ -38,7 +38,7 @@ export const cityBadge = (g: Save, w: WorldDef) => comingEvents(g, w, 1).filter(
 
 // The Profile's skills and hobbies: level, title and a bar to the next level.
 export function hobbiesHtml(g: Save, w: WorldDef): string {
-    const list = skillsOf(w); if (!list.length) return '';
+    const list = skillsOf(w, g); if (!list.length) return '';
     return `<section class="mu-hobbies"><h4>🎯 ${w.skills?.length ? 'Skills' : 'Hobbies'}</h4><p class="mu-muted">Practice levels them up: each 2 levels are +1 on their rolls, each level pays more, and jobs and promotions ask for them.</p>
         ${list.map(h => { const p = progressOf(g, h.id); return `<div class="mu-pf-row mu-hobby"><b>${esc(h.icon ?? '⭐')} ${esc(h.name)} <em>Lv ${p.level}</em></b>
             <small>${esc(titleOf(p.level))}${p.level < MAX_LEVEL ? ` · ${p.xp}/${p.next} xp` : ' · top level'}${h.desc ? ` · ${esc(h.desc)}` : ''}</small>
