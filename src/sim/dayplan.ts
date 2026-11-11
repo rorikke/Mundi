@@ -23,7 +23,7 @@ import { whenHolds, personNamed } from './when.js';
 import { couplePairs, casualPairs, statusOf, idOf, YOU } from './rel.js';
 import { saveSeed } from './relations.js';
 import { ties } from './living.js';
-import { npcCareer, npcPath, setNpcPath, pathTo } from './work.js';
+import { npcCareer, npcPath, setNpcPath, pathTo, trackOf } from './work.js';
 import { npcRank } from './longlife.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -135,7 +135,7 @@ export function jobOf(g: Save, w: WorldDef, r: Resident): Occupation | null {
     let k = jobsKept.get(w);
     if (!k || k.list !== w.occupations || k.n !== w.occupations.length) jobsKept.set(w, k = { list: w.occupations, n: w.occupations.length, by: new Map(w.occupations.map(o => [o.id, o])) });
     const o = k.by.get(r.occupation) ?? null;
-    return o && (adultOn(g) || (!o.adult && !adultPlace(w, o.place))) ? o : null;
+    return o && (adultOn(g) || (!o.adult && !adultPlace(w, o.place))) ? trackOf(g, o, r.avatar) : null;   // (on their gender's track)
 }
 /** Does this person's job follow a weekly schedule (their shifts come from it, not from their routine)? */
 export const scheduled = (g: Save, w: WorldDef, r: Resident) => !isScenario(w) && !!scheduleOf(jobOf(g, w, r));

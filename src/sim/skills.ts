@@ -10,6 +10,7 @@ import { strengthOf } from './traits.js';
 import { parseWhen } from './when.js';
 import { effectAdd } from './effects.js';
 import { tallyEvent, type TallyEvent } from './tally.js';
+import { trackOf } from './tracks.js';
 
 // Counters for life goals (meals cooked, workouts, shifts…); each is also one of the tally's moments (sim/tally.ts).
 const MOMENT: Record<string, TallyEvent> = { meals: 'meal', workouts: 'workout', paintings: 'painting', shifts: 'shift', parties: 'party' };
@@ -32,6 +33,8 @@ export function gainTrait(g: Save, trait: string, from: 'course' | 'goal'): bool
 
 /* ---------- the job interview ---------- */
 
+// (with a save, on your track of the job: its ranks, likes, courses and skills)
+
 export function interviewDc(o: Occupation) { const top = o.ranks.at(-1)?.pay ?? 0; return 9 + (o.needs?.length ? 3 : 0) + (top >= 50 ? 2 : 0); }
 /** The skills a job's interview looks at: the ones it needs to be hired, its hobby, and what its first two ranks ask for
  *  (a rank's skill needs, or the skills in its condition). */
@@ -45,11 +48,13 @@ export function interviewSkills(o: Occupation): string[] {
 }
 /** What you're best at for this job: the skill, your level in it, and what it adds (about +1 per two levels, up to +4). */
 export function interviewSkill(g: Save, o: Occupation): { id: string; level: number; bonus: number } | null {
+    o = trackOf(g, o);
     let best: { id: string; level: number; bonus: number } | null = null;
     for (const id of interviewSkills(o)) { const level = levelOf(g, id); if (!best || level > best.level) best = { id, level, bonus: Math.min(4, Math.floor(level / 2)) }; }
     return best && best.bonus > 0 ? best : null;
 }
 export function interviewBonus(g: Save, o: Occupation, traits: string[]) {
+    o = trackOf(g, o);
     let b = 0;
     if ((o.needs ?? []).some(t => traits.includes(t))) b += 4;
     b += Math.min(4, (o.likes ?? []).filter(t => traits.includes(t)).length * 2);
@@ -63,10 +68,11 @@ export function interviewBonus(g: Save, o: Occupation, traits: string[]) {
     if ((s.mood ?? 100) < 25) b -= 2;
     return b;
 }
-export const interviewChance = (g: Save, o: Occupation, traits: string[]) => { const b = interviewBonus(g, o, traits), dc = interviewDc(o); let ok = 0; for (let d = 1; d <= 20; d++) if (d === 20 || (d > 1 && d + b >= dc)) ok++; return ok * 5; };
+export const interviewChance = (g: Save, o: Occupation, traits: string[]) => { o = trackOf(g, o); const b = interviewBonus(g, o, traits), dc = interviewDc(o); let ok = 0; for (let d = 1; d <= 20; d++) if (d === 20 || (d > 1 && d + b >= dc)) ok++; return ok * 5; };
 export const triedToday = (g: Save, id: string) => learning(g).interviews[id] === g.day;
 export function interview(g: Save, o: Occupation, traits: string[], rnd = Math.random): { ok: boolean; crit: boolean; text: string } {
     learning(g).interviews[o.id] = g.day;
+    o = trackOf(g, o);
     const d20 = 1 + Math.floor(rnd() * 20), bonus = interviewBonus(g, o, traits), dc = interviewDc(o);
     const ok = d20 === 20 || (d20 > 1 && d20 + bonus >= dc);
     const crit = d20 === 20;

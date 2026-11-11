@@ -14,7 +14,7 @@ import { onDay } from './hooks.js';
 import { seasonDays } from './time.js';
 import { textFrom, social } from './social.js';
 import { whenHolds } from './when.js';
-import { jobDef, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF } from './work.js';
+import { myJob, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF, trackOf } from './work.js';
 import { courseOf, adultHeld, hasCourse, isTaking, learning, spanOf, factsOf, whereWords, type WorkMsg } from './courses.js';
 import type { Resident } from '../core/store.js';
 
@@ -25,7 +25,7 @@ const KEEP = 8;
 export interface Nudge { course: Course; job: Occupation; rank: string; key: string }
 export function nudgeFor(g: Save, w: WorldDef): Nudge | null {
     if (!systemOn(w, 'courses') || !systemOn(w, 'jobs')) return null;
-    const j = g.player.job as { id: string; rank: number; perf?: number; since?: number } | null, o = jobDef(w, j?.id);
+    const j = g.player.job as { id: string; rank: number; perf?: number; since?: number } | null, o = myJob(g, w);   // (on your track)
     if (!j || !o) return null;
     const next = nextRankOf(g, o), c = next?.course ? courseOf(w, next.course) : undefined;
     if (!next || !c || c.retired || adultHeld(g, c) || hasCourse(g, c.id) || isTaking(g, c.id)) return null;
@@ -85,6 +85,7 @@ export function aheadCourse(g: Save, w: WorldDef, o: Occupation): { rank: string
 
 /** What the work screen says when a job turns you away for a course: the way in, if its first rank is a student's. */
 export function needCourseText(g: Save, w: WorldDef, o: Occupation, missing: string[]): string {
+    o = trackOf(g, o);
     const base = lex(w, 'needCourse', missing.join('", "'));
     const ids = ((o as any).courses ?? []) as string[];
     const open = ids.map(id => courseOf(w, id)).find(c => c && !c.retired && !hasCourse(g, c.id) && (!c.needs || whenHolds(g, w, c.needs)));
