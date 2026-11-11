@@ -14,7 +14,7 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const bills = await D('sim/bills.js');
 const prompt = await D('sim/prompt.js'); const skills = await D('sim/courses.js'); const life = await D('sim/life.js');
-const romance = await D('sim/romance.js');
+const romance = await D('sim/romance.js'); const goals = await D('sim/goals.js');
 let ui = null;
 try { ui = { hud: await D('ui/hud.js'), phone: await D('ui/phone.js'), creator: await D('ui/creator.js') }; } catch (e) { console.log('note: screens not drawn in Node:', e.message); }
 
@@ -63,7 +63,7 @@ for (const [id, file] of [['modern', 'v0.1.0-modern.json'], ['medieval', 'v0.1.0
             }
             if (sys.id === 'romance') ok(!W.systemOn(w, 'family'), 'children need romance');
             if (sys.id === 'rumors') ok(JSON.stringify(g.living?.rumors ?? []) === JSON.stringify(before.living?.rumors ?? []), 'no new rumors');
-            if (sys.id === 'goals') { life.setAspiration(g, 'rich'); g.player.money = 1e9; time.advance(g, w, 120); ok(!(life.lifeOf(g).aspDone ?? []).includes('rich'), 'a life goal is never reached'); }
+            if (sys.id === 'goals') { goals.pickGoal(g, w, 'rich'); g.player.money = 1e9; time.advance(g, w, 120); const gs = goals.goalsState(g); ok(!gs.done.includes('rich') && !(gs.steps.rich > 0) && gs.active === null, 'a life goal is never reached'); }
             // nothing in the save was lost while it was off
             for (const k of Object.keys(before)) ok(k in g, `the save still has ${k}`);
             if (ui) { ok(ui.creator !== null, 'creator loads'); }

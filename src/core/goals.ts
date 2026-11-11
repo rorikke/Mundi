@@ -68,21 +68,21 @@ export const GENERAL_GOALS: GoalDef[] = [
         perk: perk('Reliable', 'Performance grows 25% faster, and steps give 25% more life points.', { kind: 'perf', target: 'gain', value: 0.25 }, { kind: 'points', target: 'step', value: 0.25 }) },
     { id: 'jack', name: 'Jack of all trades', icon: '🧰', category: 'career', desc: 'Try your hand at many jobs.', needs: ['jobs'], steps: [
         s('Two different jobs', 'rank: 1 in 2 jobs'), s('Three different jobs', 'rank: 1 in 3 jobs'), s('Rank 2 in three jobs', 'rank: 2 in 3 jobs'), s('Three skills at 5', 'skill: any 5 x3')],
-        perk: perk('Adaptable', '+3 at job interviews.', { kind: 'interview', value: 3 }) },
+        perk: perk('Adaptable', '+3 at job interviews, and a new job starts halfway to the next rank.', { kind: 'interview', value: 3 }, { kind: 'career', target: 'hire', value: -0.5 }) },
     { id: 'romance', name: 'Find love', icon: '💞', category: 'love', desc: 'Fall in love and build a life together.', needs: ['romance'], steps: [
         s('A date', 'did: date'), s('Someone in love with you', 'friends: 1 crush'), s('Together a season', 'partner: dating or engaged or married', 'season'), s('Living together', 'partner: home')],
         perk: perk('Devoted', 'Your partner\'s romance fades half as fast.', { kind: 'fade', target: 'partner', value: -0.5 }) },
     { id: 'freespirit', name: 'Free spirit', icon: '🕊️', category: 'love', desc: 'Love freely, with no strings.', needs: ['romance'], steps: [
-        s('Dates with three people', 'did: people:date 3'), s('A casual relationship', 'partner: casual'), s('A night together', 'did: overnight'), s('Single and happy for a season', 'partner: none; need: mood 60', 'season')],
+        s('Dates with three people', 'did: people:date 3'), s('A casual relationship', 'partner: casual'), s('A night together', 'did: night_together'), s('Single and happy for a season', 'partner: none; need: mood 60', 'season')],
         perk: perk('Easy charm', '+3 friendship when you first meet someone.', { kind: 'warm', target: 'new', value: 3 }) },
     { id: 'social', name: 'Social butterfly', icon: '🦋', category: 'social', desc: 'Have many good friends.', steps: [
         s('A good friend', 'friends: 1 good'), s('Three good friends', 'friends: 3 good'), s('Five good friends', 'friends: 5 good'), s('Ten good friends', 'friends: 10 good')],
         perk: perk('Magnetic', 'Friendship toward you grows 10% faster.', { kind: 'gain', target: 'friend', value: 0.1 }) },
     { id: 'bff', name: 'Best friends', icon: '🤝', category: 'social', desc: 'One friend for life.', steps: [
-        s('A best friend', 'friends: 1 best'), s('Something done together', 'friends: 1 best; did: with:any'), s('Stay at each other\'s place', 'friends: 1 best; did: overnight'), s('A season as best friends', 'friends: 1 best', 'season')],
+        s('A best friend', 'friends: 1 best'), s('A day trip together', 'friends: 1 best; did: trip with best'), s('A night at each other\'s place', 'friends: 1 best; did: overnight with best'), s('A season as best friends', 'friends: 1 best', 'season')],
         perk: perk('Loyal', 'Friendship with good friends grows 15% faster.', { kind: 'gain', target: 'good friends', value: 0.15 }) },
     { id: 'host', name: 'Party host', icon: '🎉', category: 'social', desc: 'Throw the parties people talk about.', steps: [
-        s('Throw a party', 'did: party'), s('Three parties', 'did: party 3'), s('Five parties', 'did: party 5'), s('Eight parties', 'did: party 8')],
+        s('Throw a party', 'did: party'), s('Three parties', 'did: party 3'), s('A party with eight guests', 'did: big_party'), s('A party everyone loved', 'did: loved_party')],
         perk: perk('Life of the party', 'Parties give 25% more mood.', { kind: 'party', target: 'mood', value: 0.25 }) },
     { id: 'scholar', name: 'Lifelong learner', icon: '🎓', category: 'knowledge', desc: 'Never stop learning.', needs: ['courses'], steps: [
         s('A course', 'course: 1'), s('Three courses', 'course: 3'), s('Three skills at 5', 'skill: any 5 x3'), s('A skill at 10', 'skill: any 10')],
@@ -106,7 +106,7 @@ export const GENERAL_GOALS: GoalDef[] = [
         s('Five different keepsakes', 'holds: 5'), s('Ten keepsakes', 'holds: 10'), s('Twenty keepsakes', 'holds: 20'), s('Every keepsake of one kind', 'holds: kind:any')],
         perk: perk('Lucky', '+1 on every roll.', { kind: 'roll', value: 1 }) },
     { id: 'balance', name: 'Balanced life', icon: '☯️', category: 'health', desc: 'Look after yourself.', needs: ['needs'], steps: [
-        s('A week with every need above 30', 'need: all 30', 7), s('A season without collapsing', 'did: not collapse', 'season'), s('Rested and in a good mood for two weeks', 'need: energy 50; need: mood 50', 14), s('Every need high on a festival day', 'need: all 70; festival: any')],
+        s('A week with every need above 30', 'need: all 30', 7), s('A season without collapsing', 'did: not collapse', 'season'), s('Asleep before 1:00 for two weeks', 'did: not late_night', 14), s('Every need high on a festival day', 'need: all 70; festival: any')],
         perk: perk('Steady', 'Mood drains 20% slower.', { kind: 'drain', target: 'mood', value: -0.2 }) },
     { id: 'mentor', name: 'Mentor', icon: '🧑‍🏫', category: 'social', desc: 'Pass on what you know.', needs: ['mentors'], steps: [
         s('Take an apprentice', 'did: apprentice'), s('Teach 10 lessons', 'did: lesson 10'), s('An apprentice who finishes', 'did: taught'), s('Two who finish', 'did: taught 2')],

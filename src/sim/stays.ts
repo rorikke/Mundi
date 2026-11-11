@@ -15,6 +15,7 @@ import { note } from './facts.js';
 import { book } from './ledger.js';
 import { effectMul } from './effects.js';
 import { tallyEvent } from './tally.js';
+import { pricePerk } from './worldstate.js';
 
 /** A night booked at a place: `day` is the evening it starts. `stayed` (on the player) is the morning after. `ward`:
  *  kept in a hospital bed after a collapse (the place needs no `sleep` of its own). */
@@ -43,7 +44,7 @@ export function sleepHere(g: Save, w: WorldDef, place = g.player.loc): PlaceSlee
     return s && !isScenario(w) && whenHolds(g, w, s.when, { place, key: `sleep|${place}` }) ? s : null;
 }
 /** What a night costs here now (after the difficulty). */
-export const nightPrice = (g: Save, s: PlaceSleep) => Math.max(0, priceOf(g, s.price ?? 0));
+export const nightPrice = (g: Save, s: PlaceSleep, w?: WorldDef, place = g.player.loc) => Math.max(0, Math.round(priceOf(g, s.price ?? 0) * pricePerk(g, w, place)));
 /** Is a night booked here (tonight's, not slept yet: booked today, or before midnight and still up)? */
 export function bookedHere(g: Save, w: WorldDef, place = g.player.loc): boolean {
     const b = bookingOf(g), s = placeSleep(w, place, g);
@@ -65,7 +66,7 @@ export function bookNight(g: Save, w: WorldDef, place = g.player.loc): string {
     const s = sleepHere(g, w, place);
     if (!s) return 'You can\'t stay the night here.';
     if (bookedHere(g, w, place)) return '';
-    const cost = nightPrice(g, s);
+    const cost = nightPrice(g, s, w, place);
     if (g.player.money < cost) return 'Not enough money for the night.';
     g.player.money -= cost;
     if (cost) book(g, w.places.find(p => p.id === place)?.name ?? 'A night away', -cost);
@@ -127,7 +128,8 @@ export function restAfterNight(g: Save, w: WorldDef, rest: { share: number; mood
         g.player.stats[id] = Math.min(d.max, part >= 1 ? night : id === 'energy' ? Math.max(cur, cur + (night - cur) * part) : cur + got * part);
         if (d.decay?.awakeOnly) g.tick[`decay:${id}`] = nowAbs(g);   // the waking day starts counting now
     }
-    for (const [id, v] of Object.entries({ hunger: -20, thirst: -25, hygiene: -25 })) addStatus(g, w, id, Math.round(v * part));
+    // a better night (a perk) also leaves you less hungry, thirsty and grubby (at home energy is full anyway)
+    for (const [id, v] of Object.entries({ hunger: -20, thirst: -25, hygiene: -25 })) addStatus(g, w, id, Math.round((k > 1 ? v / k : v) * part));
     const m = rest ? rest.mood : homeMood;
     if (m && part >= 0.5) addStatus(g, w, 'mood', m);
 }

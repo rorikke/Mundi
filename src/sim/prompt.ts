@@ -6,7 +6,8 @@ import { approvalLine, couplesLine, rumorLines, activeWorldLore } from './living
 import { backgroundOn, backgroundLine, sheetPeople, castSheet, addressLine, profileLines, SHEETS_MAX } from './scenepeople.js';
 import './longlife.js';
 import './fading.js';   // romance fades without contact, partners may leave (day by day)   // people's lives over the weeks (runs by itself, day by day)
-import { feelingLine, physiqueLine, aspirationOf } from './life.js';
+import { feelingLine, physiqueLine } from './life.js';
+import { goalLine } from './goals.js';
 import { game, settings, changed, adultOn } from '../core/store.js';
 import { getWorld, homeNeedsOn } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
@@ -172,7 +173,7 @@ export function sceneBlocks(): Built[] {
         language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
-        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), traitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), aspirationOf(g) && systemOn(w, 'goals') ? `{{user}}'s life goal: ${aspirationOf(g)!.name.toLowerCase()}.` : ''],
+        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), traitLine(g, w), hobbyLine(g, w), workLine(g, w, met), petLine(g, w), mentorLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],
