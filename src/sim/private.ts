@@ -143,8 +143,9 @@ export function privateBonus(g: Save, w: WorldDef, a: ActionDef, who: string[]):
     return own + Math.trunc(theirs);
 }
 export interface PrivateRoll { d20: number; bonus: number; total: number; dc: number; tier: Tier }
-export function rollPrivate(g: Save, w: WorldDef, a: ActionDef, who: string[], rnd: () => number = Math.random): PrivateRoll {
-    const bonus = privateBonus(g, w, a, who), dc = privateDc(a);
+/** `extra`: what another check added (sim/drive.ts: +1 when someone here has been wanting you, `notes.eager`). */
+export function rollPrivate(g: Save, w: WorldDef, a: ActionDef, who: string[], rnd: () => number = Math.random, extra = 0): PrivateRoll {
+    const bonus = privateBonus(g, w, a, who) + extra, dc = privateDc(a);
     const d20 = rollD20(g, w, bonus, dc, rnd), total = d20 + bonus;
     const tier: Tier = d20 === 20 || (d20 !== 1 && total >= dc + PRIVATE.beatBy) ? 'great' : d20 !== 1 && total >= dc ? 'good' : 'awkward';
     const skill = privateSkill(w, a);
@@ -196,7 +197,8 @@ privateChecks.push((g, w, x) => {
     if (isPillow(x.a)) { notes.talk = true; return; }
     for (const p of who) { const l = matchIn(g, x.a.matches, limitsOf(g, p)); if (l) { x.stop = limitStop(g, w, x.a, p, l); return; } }
     if (isScenario(w)) { notes.tier = 'good'; return; }   // Home: no rolls, as for every action
-    notes.roll = rollPrivate(g, w, x.a, who, x.rnd);
+    // (sim/drive.ts, whose check runs first: +1 when someone here has been wanting you, once however many)
+    notes.roll = rollPrivate(g, w, x.a, who, x.rnd, Math.min(1, Math.max(0, Number(x.notes.eager ?? 0) || 0)));
     notes.tier = notes.roll.tier;
     if (notes.tier === 'awkward') x.outcome = awkwardOutcome(w, x.rnd);
 });
@@ -246,12 +248,14 @@ privateResults.push((g, w, x, done) => {
         if (fit < 0) says.push(`${nameOf(g, p)} and {{user}} both want to ${roleOf(g, p) === 'lead' ? 'lead' : 'be led'}, and it shows.`);
     }
     if (who.length > 1) tallyEvent(g, 'threesome', 1, who[0]);
-    // mood: more on a great night, a little on an awkward one; less from something you're not into
-    if (tier === 'great') addStatus(g, w, 'mood', PRIVATE.mood.great);
-    if (tier === 'awkward') addStatus(g, w, 'mood', PRIVATE.mood.awkward);
+    // mood: more on a great night, a little on an awkward one; less from something you're not into. Scaled by your
+    // drive as the action's own mood is (sim/drive.ts sets `notes.moodMul` in its check; ×1 without it)
+    const mul = Number(x.notes.moodMul ?? 1) || 1;
+    if (tier === 'great') addStatus(g, w, 'mood', Math.round(PRIVATE.mood.great * mul));
+    if (tier === 'awkward') addStatus(g, w, 'mood', Math.round(PRIVATE.mood.awkward * mul));
     if (matchIn(g, x.a.matches, yourNotInto(g))) {
         const m = Math.max(0, x.a.effects?.mood ?? 0) + Math.max(0, done.outcome?.effects?.mood ?? 0);
-        if (m > 0) addStatus(g, w, 'mood', -Math.round(m * PRIVATE.notInto));
+        if (m > 0) addStatus(g, w, 'mood', -Math.round(m * mul * PRIVATE.notInto));
     }
     if (tier === 'great') { const d = statusDef(w, DESIRE); if (d) addStatus(g, w, DESIRE, d.max); }
     // the skill, by how it went (an action that trains it already gave its practice)
