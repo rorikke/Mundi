@@ -9092,5 +9092,10 @@
    "desc": "Numbers, plans and problems. Trained at work and in courses."
   }
  ],
- "workPreset": "reduced"
+ "workPreset": "reduced",
+ "goals": {
+  "off": [
+   "collector"
+  ]
+ }
 }
