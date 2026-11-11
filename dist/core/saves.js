@@ -14,6 +14,8 @@ import { getWorld, career } from './world.js';
 import { relOf, idOf, setFr, setRo, setStatus, setCooldown, statusOf, hasMeter, setPast, pastOf, PARTNER, COUPLE_ROMANCE, YOU } from '../sim/rel.js';
 import { isFamily } from './feel.js';
 import { settleTraits } from '../sim/traits.js';
+import { trackOf } from '../sim/tracks.js';
+import { repairProfiles } from '../sim/profiles.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 5;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -291,7 +293,7 @@ export function repair(g, w) {
     }
     // your job and rank
     if (p.job) {
-        const o = w.occupations.find(x => x.id === p.job.id);
+        const job = w.occupations.find(x => x.id === p.job.id), o = job && trackOf(g, job); // (on your track: its own ranks and paths)
         if (!o) {
             notes.push(`Your job (${p.job.id}) is not in this world anymore: you are free to look for a new one.`);
             p.job = null;
@@ -345,6 +347,9 @@ export function repair(g, w) {
         if (Array.isArray(r.leisure))
             r.leisure = r.leisure.filter(id => isPlace(g, w, id));
     }
+    // the world's own people get the role and drive their world gives them; with adult content on, the others draw a
+    // profile from the world's pool (sim/profiles.ts: never over a value already there, the same every time)
+    repairProfiles(g, w);
     // maps the world retired: what saves kept per region moves to the map that took its place
     for (const [from, to] of Object.entries(w.retired?.maps ?? {})) {
         if (w.maps.some(m => m.id === from) || !w.maps.some(m => m.id === to))

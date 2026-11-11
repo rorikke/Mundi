@@ -15,6 +15,9 @@ import { needCourseText } from './coursenudge.js';
 import { rollBonus, rollD20, bonusLabel } from './dice.js';
 import { tallyRoll, tallyEvent } from './tally.js';
 import { effectMul } from './effects.js';
+import { addBoost } from './perks.js';
+import { cleanEffects } from '../core/traits.js';
+import { BOOST_LIMITS } from '../core/goals.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, adultOn } from '../core/store.js';
@@ -28,14 +31,15 @@ import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
 import { openAt } from './daynight.js';
-import { whenHolds, personNamed, parseWhen, favorOwed } from './when.js';
+import { whenHolds, personNamed, parseWhen, favorOwed, levelHolds } from './when.js';
 import { callInFavor } from './stories.js';
 import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
-import { genderOf } from './gender.js';
+import { trackOf, playerTrack, layTrack, trackName } from './tracks.js';
 export { ledger, book } from './ledger.js';
+export { trackOf, jobTrack, playerTrack, layTrack, needsPick, tracksOf, trackName } from './tracks.js';
 export { scheduleOf } from '../core/presets.js';
 // The job with what older code (a new game's job, "Play as") may not have set yet.
 function jobOf(g) {
@@ -48,27 +52,38 @@ function jobOf(g) {
     return j;
 }
 export const jobDef = (w, id) => w.occupations.find(o => o.id === id) ?? null;
+/** The job you hold as you work it (your track laid over it). */
+export const myJob = (g, w) => { const o = jobDef(w, g.player.job?.id); return o ? trackOf(g, o) : null; };
 export const traitsOf = (g) => Object.values(g.player.traits ?? {}).flat();
-export const fits = (g, o, w) => (!o.needs?.length || o.needs.some(t => traitsOf(g).includes(t))) && hobbyFits(g, w ?? getWorld(g.world), o);
+export const fits = (g, o, w) => { o = trackOf(g, o); return (!o.needs?.length || o.needs.some(t => traitsOf(g).includes(t))) && hobbyFits(g, w ?? getWorld(g.world), o); };
 export const likes = (g, o) => careerOf(g, o).likes.filter(t => traitsOf(g).includes(t));
 /** The courses a job asks for that you haven't finished (ones the world no longer has, or has retired, aren't asked
  *  for). Applying goes through `missingCourses` (sim/courses.ts), which also lets a student rank take you while enrolled. */
 const askedCourses = (g, w, o) => (o.courses ?? []).filter(id => { const c = courseOf(w, id); return !!c && !c.retired && !hasCourse(g, id); });
 /** At a job's student rank while its course isn't finished: leaving the rank asks for it. */
-export const studentGap = (g, w, o) => (rankOf(g, o)?.student ? askedCourses(g, w, o).map(id => courseOf(w, id).name) : []);
+export const studentGap = (g, w, o) => { o = trackOf(g, o); return rankOf(g, o)?.student ? askedCourses(g, w, o).map(id => courseOf(w, id).name) : []; };
 // The job's opening hours (whether it is open at all now).
 export const isOpen = (g, o) => { const [a, b] = o.hours ?? [0, 24]; const h = hour(g); return a <= b ? h >= a && h < b : h >= a || h < b; };
 // Adult content (E15): its switch is the new game's; until then, a save setting.
-/** (E20) Jobs open to the player: not the ones only the world's people have, nor adult ones without adult content. */
-export const openJobs = (g, w) => w.occupations.filter(o => o.hireable !== false && (!o.adult || adultOn(g)));
+/** (E20) Jobs open to the player: not the ones only the world's people have, nor adult ones without adult content. A job
+ *  with tracks: open on your track (its `hireable` and `hire`), or, with a track to pick, on one of them. */
+export const openJobs = (g, w) => w.occupations.filter(o => (!o.adult || adultOn(g)) && (o.tracks ? trackOpen(g, w, o) : o.hireable !== false));
+/** Open to you on this track: hireable, and its `hire` condition (an introduction) holds. */
+const openOn = (g, w, o) => o.hireable !== false && (!o.hire || (Array.isArray(o.hire) ? o.hire : [o.hire]).some((h, i) => whenHolds(g, w, h, { place: o.place, key: `hire|${o.id}|${o.track ?? ''}|${i}` })));
+/** The tracks you could be hired on: yours, or with none of your own, every one open to you (the pick). */
+export function openTracks(g, w, o) {
+    const mine = playerTrack(g, o);
+    return (mine !== undefined ? [mine] : Object.keys(o.tracks ?? {})).filter(id => openOn(g, w, layTrack(o, id)));
+}
+const trackOpen = (g, w, o) => (playerTrack(g, o) === undefined && !Object.keys(o.tracks ?? {}).length ? o.hireable !== false : openTracks(g, w, o).length > 0);
 /** (E20) Worked off-screen: every job in a Home, and jobs marked so (you go to work from anywhere). */
 export const offScreen = (w, o) => offScreenWork(w) || !!o?.offScreen;
 /** (E20) Where a rank works: its own place (an idol's top ranks at the TV studio), or the job's. */
 export const rankPlace = (o, rank) => rank?.place || o.place;
 /** Where you work now (your rank's place). */
-export const jobPlace = (g, o) => rankPlace(o, rankOf(g, o));
+export const jobPlace = (g, o) => { o = trackOf(g, o); return rankPlace(o, rankOf(g, o)); };
 /** At the place where you can work your shift (anywhere for an off-screen job). */
-export const atWork = (g, w, o) => offScreen(w, o) || g.player.loc === jobPlace(g, o);
+export const atWork = (g, w, o) => offScreen(w, trackOf(g, o)) || g.player.loc === jobPlace(g, o);
 export const WORK_PRESETS = [
     { id: 'realistic', name: 'Realistic', desc: 'Every job keeps its real days. A missed shift costs you, lateness counts after 15 minutes, and low performance can get you fired.',
         rules: { days: 1, missed: 10, grace: 15, low: 'fire', vacation: 14, sick: 'ill', events: 0.35, gentle: false, speed: 1 } },
@@ -105,25 +120,29 @@ const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h = Math.imul(h, 16777619);
 } return h >>> 0; };
 const wdOf = (day) => (((day - 1) % 7) + 7) % 7; // 0 Monday … 6 Sunday
-/** The days a week the job lists (the realistic ones). */
-export const realDays = (o) => { const d = scheduleOf(o).days; return Math.max(1, Math.min(7, Array.isArray(d) ? d.length : Math.round(d))); };
+/** The days a week the job lists (the realistic ones), or a rank's own (`Rank.days`: an extra called once a week). */
+export const realDays = (o, rank) => { const d = rank?.days ?? scheduleOf(o).days; return Math.max(1, Math.min(7, Array.isArray(d) ? d.length : Math.round(d))); };
+// The days a week of the job at the rank you hold in it (the job's own when it isn't yours).
+const weekDays = (g, o) => realDays(o, g.player.job?.id === o.id ? rankOf(g, o) : null);
 /** The days a week you work it under the work rules (at least one). */
-export const daysAWeek = (g, w, o) => Math.max(1, Math.min(realDays(o), Math.round(realDays(o) * workRules(g, w).days)));
+export const daysAWeek = (g, w, o) => { o = trackOf(g, o); return Math.max(1, Math.min(weekDays(g, o), Math.round(weekDays(g, o) * workRules(g, w).days))); };
 /** Your working weekdays (0 Monday … 6 Sunday): the job's own weekdays, the first ones when you work fewer; for a
  *  number of days, an office week (Monday on) for a full-time job worked four days or more, and otherwise the days
  *  spread over the week (from Monday for a full-time job; shops and restaurants work weekends), the same for the same
  *  job. */
 export function workdays(g, w, o) {
+    o = trackOf(g, o);
     const s = scheduleOf(o), n = daysAWeek(g, w, o);
     if (Array.isArray(s.days))
         return s.days.map(d => WEEKDAY_IDS.indexOf(d)).filter(i => i >= 0).slice(0, n).sort((a, b) => a - b);
-    if (realDays(o) >= 5 && n >= 4)
+    if (weekDays(g, o) >= 5 && n >= 4)
         return [0, 1, 2, 3, 4, 5, 6].slice(0, n);
-    const off = realDays(o) >= 5 ? 0 : H(o.id) % 7;
+    const off = weekDays(g, o) >= 5 ? 0 : H(o.id) % 7;
     return [...new Set(Array.from({ length: n }, (_, k) => (off + Math.floor((k * 7) / n)) % 7))].sort((a, b) => a - b);
 }
 /** The hours of your shift [from, to): the shift you work in a job worked round the clock, or the schedule's. */
 export function shiftHours(g, o) {
+    o = trackOf(g, o);
     const s = scheduleOf(o);
     if (s.shifts?.length)
         return s.shifts.find(x => x.id === jobOf(g)?.shift) ?? s.shifts[0];
@@ -132,8 +151,12 @@ export function shiftHours(g, o) {
 }
 const span = (from, to) => (((to - from) % 24) + 24) % 24 || 24;
 export function shiftOn(g, w, o, day) {
+    o = trackOf(g, o);
     if (!workdays(g, w, o).includes(wdOf(day)))
         return null;
+    const j = g.player.job;
+    if (j?.id === o.id && j.start !== undefined && day < j.start)
+        return null; // (signed, not working yet)
     const sh = shiftHours(g, o), long = span(sh.from, sh.to);
     const hours = Math.max(1, Math.min(o.shift, long));
     const start = day * 1440 + Math.round(sh.from * 60), end = start + long * 60;
@@ -147,6 +170,7 @@ export function shiftNow(g, w, o) {
     const j = jobOf(g);
     if (!j)
         return null;
+    o = trackOf(g, o);
     const now = nowAbs(g);
     for (const d of [g.day, g.day - 1, g.day + 1]) {
         const s = shiftOn(g, w, o, d);
@@ -160,6 +184,9 @@ export function nextShift(g, w, o, from = nowAbs(g)) {
     const j = jobOf(g);
     if (!j)
         return null;
+    o = trackOf(g, o);
+    if (j.id === o.id && j.start !== undefined)
+        from = Math.max(from, j.start * 1440);
     for (let d = Math.floor(from / 1440) - 1; d <= Math.floor(from / 1440) + 8; d++) {
         const s = shiftOn(g, w, o, d);
         if (s && s.end - 60 > from && !worked(j, d) && !offOn(j, d))
@@ -170,11 +197,12 @@ export function nextShift(g, w, o, from = nowAbs(g)) {
 /** What the work button can do now: work your shift (`early`: waiting for it to start; `late`: past the grace),
  *  overtime outside it (the job allows it and the place is open), or nothing (`why`). */
 export function canWork(g, w, o) {
+    o = trackOf(g, o);
     const s = shiftNow(g, w, o), now = nowAbs(g), grace = workRules(g, w).grace;
     if (s)
         return { kind: 'shift', shift: s, early: now < s.start, late: grace !== null && now > s.latest + grace };
     const j = jobOf(g);
-    if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day)
+    if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day && !(j?.start !== undefined && g.day < j.start))
         return { kind: 'overtime' }; // one overtime shift a day
     const n = nextShift(g, w, o);
     return { kind: 'none', why: n ? `Your next shift: ${whenText(g, n)}.` : 'No shift this week.' };
@@ -186,14 +214,15 @@ export function whenText(g, s) {
 }
 /** Your week: each working weekday with its hours. */
 export function weekText(g, w, o) {
+    o = trackOf(g, o);
     const sh = shiftHours(g, o);
     return `${workdays(g, w, o).map(i => WEEKDAYS[i].slice(0, 3)).join(', ')} · ${hm(Math.round(sh.from * 60) % 1440)}–${hm(Math.round(sh.to * 60) % 1440)}`;
 }
 /** What effects (life goals' perks, boosts) do to what this job pays: `wage` (shifts and overtime), `bonus` (the
  *  seasonal bonuses), `tips` (money from a choice at work); also aimed at the job, its place or the place's tags. */
-export const payMul = (g, w, o, what) => effectMul(g, w, 'pay', [what, o.id, ...(o.tags ?? []), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]);
+export const payMul = (g, w, o, what) => { o = trackOf(g, o); return effectMul(g, w, 'pay', [what, o.id, ...(o.tags ?? []), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]); };
 /** Pay per hour for this rank: the rank's pay, raised so a week earns the same with fewer days (J9). */
-export const payFactor = (g, w, o) => realDays(o) / daysAWeek(g, w, o);
+export const payFactor = (g, w, o) => weekDays(g, trackOf(g, o)) / daysAWeek(g, w, o);
 export const hourlyPay = (g, w, o) => rankOf(g, o).pay * payFactor(g, w, o);
 // Minutes of a stretch of time that fall in the night (22:00–5:00), for night pay (E20).
 function nightMinutes(start, minutes) {
@@ -211,7 +240,7 @@ function nightMinutes(start, minutes) {
 export const REFER_RANK = 2, REFER_BOND = 40;
 export function canRefer(g, w, avatar) {
     const r = g.cast[avatar];
-    const o = r && jobDef(w, r.occupation);
+    const job = r && jobDef(w, r.occupation), o = job && trackOf(g, job);
     if (!r || !o || !r.met || !systemOn(w, 'jobs') || g.player.job?.id === o.id || o.hireable === false)
         return null;
     if (npcRank(g, avatar) < REFER_RANK || (bondOf(g, avatar) < REFER_BOND && !favorOwed(g, avatar)))
@@ -250,14 +279,13 @@ export function askReferral(g, w, avatar) {
 export { career } from '../core/world.js';
 const jobPath = (g) => g.player.job?.path ?? [];
 // Your career in this job (for someone else's: a path picked for them, the same every time).
-export const careerOf = (g, o) => career(o, g.player.job?.id === o.id ? jobPath(g) : []);
-/** The track of a job the player is on: what `JobState.track` says, else their gender ('' with none). */
-export const jobTrack = (g) => g.player.job?.track ?? genderOf(g, YOU) ?? '';
-/** A job as someone works it: its track for them (`Occupation.tracks`) laid over it. The player by default, or one of
- *  the world's people (their gender's track). Until tracks are in play, the job as written. */
-export const trackOf = (g, o, avatar = YOU) => { void g; void avatar; return o; };
-// With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`.
+// (on your track: sim/tracks.ts)
+export const careerOf = (g, o) => career(trackOf(g, o), g.player.job?.id === o.id ? jobPath(g) : []);
+// With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`; and
+// their own track (their gender's).
 export function npcCareer(o, avatar, g) {
+    if (g)
+        o = trackOf(g, o, avatar);
     const path = [...((g && npcPath(g, avatar, o)) ?? [])];
     for (let n = path.length; n < 4; n++) {
         const c = career(o, path);
@@ -317,7 +345,7 @@ export function pendingBranch(g, o) {
 // Choosing a path: it decides the ranks that come next.
 export function choosePath(g, w, optionId) {
     const j = g.player.job;
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o)
         return '';
     const b = pendingBranch(g, o);
@@ -332,11 +360,12 @@ export function choosePath(g, w, optionId) {
 /* ---------- how long a career takes (J4) ---------- */
 /** A game year in days (four seasons), so a career follows the season length. */
 export const yearDays = (g) => 4 * seasonDays(g);
-/** Days to reach the top, played well: a year × the job's length, at the career speed. */
-export const topDays = (g, w, o) => (yearDays(g) * (o.length ?? 1)) / careerSpeed(g, w);
+/** Days to reach the top, played well: a year × the job's length (× its track's pace), at the career speed. */
+export const topDays = (g, w, o) => { const t = trackOf(g, o); return (yearDays(g) * (t.length ?? 1) * (t.pace ?? 1)) / careerSpeed(g, w); };
 /** The days a rank takes, played well: the career's time shared out by its promotion weights (`promote`: entry ranks
  *  short, the last ones long). Liked traits make each a little shorter. */
 export function rankDays(g, w, o, rank, path = jobPath(g), traits = traitsOf(g)) {
+    o = trackOf(g, o);
     const c = fullCareer(o, path);
     const weights = c.promote.slice(0, Math.max(0, c.ranks.length - 1));
     const sum = weights.reduce((a, b) => a + Math.max(0.1, b), 0);
@@ -362,6 +391,7 @@ function whenBesidesPerf(when) {
     return rest || undefined;
 }
 export function promoNeeds(g, w, o) {
+    o = trackOf(g, o);
     const j = jobOf(g);
     const next = nextRankOf(g, o);
     if (!j || j.id !== o.id || !next || pendingBranch(g, o))
@@ -427,10 +457,29 @@ export function shiftsToPromote(g, o, _rank) {
 export function promoProgress(p) { return Math.max(0, Math.min(100, Math.floor(Math.min(p.have / Math.max(0.01, p.shifts), p.inRank / Math.max(0.01, p.days)) * 100))); }
 /* ---------- getting hired, quitting ---------- */
 // Applying is a job interview: a d20 where the traits the job looks for are your bonus. Some jobs need a course first.
-export function hire(g, w, id) {
-    const o = jobDef(w, id);
-    if (!o || o.hireable === false || (o.adult && !adultOn(g)))
-        return { ok: false, text: o ? 'They are not hiring.' : '' };
+// A job with tracks takes you on yours; with none of your own you pick one (`track`), once: without it, `pick` lists the
+// tracks open to you (one alone is taken). A track can ask for an introduction (`hire`) and a fee when you start, which a
+// course it lists, finished, waives.
+export function hire(g, w, id, track) {
+    const job = jobDef(w, id);
+    if (!job || (job.adult && !adultOn(g)))
+        return { ok: false, text: job ? 'They are not hiring.' : '' };
+    let key;
+    if (job.tracks && Object.keys(job.tracks).length) {
+        const open = openTracks(g, w, job), mine = playerTrack(g, job);
+        key = track !== undefined && mine === undefined ? track : mine;
+        if (key === undefined && open.length === 1)
+            key = open[0];
+        if (key === undefined && open.length > 1)
+            return { ok: false, text: `${job.name}: choose the track you'll work on (${open.map(t => trackName(w, job, t)).join(' or ')}). It can't be changed later.`, pick: open.map(t => ({ id: t, name: trackName(w, job, t) })) };
+        if (key === undefined || !job.tracks[key])
+            return { ok: false, text: 'They are not hiring.' };
+        if (!open.includes(key))
+            return { ok: false, text: layTrack(job, key).hireable === false ? 'They are not hiring.' : `${job.name} only takes people who come with an introduction.` };
+    }
+    const o = key !== undefined ? layTrack(job, key) : job;
+    if (o.hireable === false)
+        return { ok: false, text: 'They are not hiring.' };
     const miss = missingCourses(g, w, o);
     if (miss.length)
         return { ok: false, text: needCourseText(g, w, o, miss) };
@@ -438,6 +487,9 @@ export function hire(g, w, id) {
         return { ok: false, text: `They are looking for someone better at it: ${hobbyNeed(g, w, o)}.` };
     if (triedToday(g, id))
         return { ok: false, text: 'You already had an interview there today. Try again tomorrow.' };
+    const fee = feeOf(g, w, o);
+    if (fee > g.player.money)
+        return { ok: false, text: `They ask a fee of ${money(w, fee)} when you start, and you don't have it.` };
     // a word from someone high up there gets you in without the interview
     const ref = referralFor(g, id);
     const r = ref ? { ok: true, crit: false, text: `${g.cast[ref]?.name ?? 'Someone'} put in a good word for you.` } : interview(g, o, traitsOf(g));
@@ -457,11 +509,36 @@ export function hire(g, w, id) {
         while (o.ranks[rank]?.student && rank < o.ranks.length - 1)
             rank++;
     const j = { id, rank, shifts: 0, perf: r.crit ? 65 : 50, since: nowAbs(g), checked: today && today.start > nowAbs(g) ? g.day - 1 : g.day, vac: 0, vacAt: g.day };
+    if (key !== undefined)
+        j.track = key;
+    // a job that waits after signing (a month before the first shoot): no shift, no absence and no time in the rank till then
+    const wait = waitDays(g, o);
+    if (wait) {
+        j.start = g.day + wait;
+        j.since = j.start * 1440;
+        j.checked = j.start - 1;
+    }
     g.player.job = j;
+    if (fee) {
+        g.player.money -= fee;
+        book(g, `${o.name}: fee`, -fee);
+    }
     headStart(g, w, o, j);
     note(g, '{u} got hired: {0} at {1}.', [o.ranks[rank].name, o.name], [], o.place, 'work');
     const s = nextShift(g, w, o);
-    return { ok: true, text: `You got the job! ${r.text}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
+    return { ok: true, text: `You got the job! ${r.text}${fee ? ` You paid the fee (${money(w, fee)}).` : ''}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${wait ? ` You start in ${wait} day${wait === 1 ? '' : 's'}.` : ''}${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
+}
+/** The fee a job (its track) takes when you're hired: none once you've finished one of the courses it lists. */
+export function feeOf(g, w, o) {
+    const t = trackOf(g, o), fee = Math.max(0, Math.round(t.fee ?? 0));
+    if (!fee || (t.courses ?? []).some(id => hasCourse(g, id)))
+        return 0;
+    return priceOf(g, fee);
+}
+/** Days between signing and the first shift: `startAfter` months, a month being a third of a season (at least a day). */
+export function waitDays(g, o) {
+    const m = trackOf(g, o).startAfter ?? 0;
+    return m > 0 ? Math.max(1, Math.round((m * seasonDays(g)) / 3)) : 0;
 }
 // A new job can start part of the way to the next rank (life goals' Adaptable: a `career` effect aimed at `hire`, −50%
 // is halfway): that share of the shifts and of the time the rank asks for counts as done.
@@ -478,7 +555,7 @@ export function quitJob(g, w) { const o = w && jobDef(w, g.player.job?.id); if (
 // Round the clock: the shift you'd rather work (from your next one on).
 export function chooseShift(g, w, id) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     const s = o && scheduleOf(o).shifts?.find(x => x.id === id);
     if (!j || !o || !s)
         return '';
@@ -490,7 +567,7 @@ export function chooseShift(g, w, id) {
  *  the work rules go. Returns what happened. */
 export function addPerf(g, w, n) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o)
         return [];
     if (n > 0)
@@ -533,7 +610,7 @@ export const slateToClean = (g, w) => { const j = jobOf(g); return !!j && !!jobD
 /** "Clean slate at work": one warning and the last missed shift are forgotten (its performance comes back). Null when
  *  there's nothing to forget. */
 export function cleanSlate(g, w) {
-    const j = jobOf(g), o = jobDef(w, j?.id);
+    const j = jobOf(g), o = myJob(g, w);
     if (!j || !o || !slateToClean(g, w))
         return null;
     if (j.warn) {
@@ -568,9 +645,12 @@ function shiftPerf(g, w, o, mode, part) {
 }
 /* ---------- colleagues (J7) ---------- */
 /** The world's people with your job (or working at your place), by rank. */
-export const colleaguesOf = (g, w, o) => Object.values(g.cast).filter(r => r.occupation && (r.occupation === o.id || jobDef(w, r.occupation)?.place === o.place)).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar));
+export const colleaguesOf = (g, w, o) => {
+    o = trackOf(g, o);
+    return Object.values(g.cast).filter(r => r.occupation && (r.occupation === o.id || jobDef(w, r.occupation)?.place === o.place)).sort((a, b) => npcRank(g, b.avatar) - npcRank(g, a.avatar));
+};
 /** Colleagues on shift with you: here, at the place you work, now (an off-screen job has none you can see). */
-export const onShiftWith = (g, w, o) => (offScreen(w, o) ? [] : presentAt(g, w, jobPlace(g, o)).filter(r => colleaguesOf(g, w, o).includes(r)));
+export const onShiftWith = (g, w, o) => (offScreen(w, trackOf(g, o)) ? [] : presentAt(g, w, jobPlace(g, o)).filter(r => colleaguesOf(g, w, o).includes(r)));
 /** The boss: the colleague with your job who ranks highest, above you. */
 export function bossOf(g, w, o) {
     const mine = jobOf(g)?.rank ?? 0;
@@ -588,7 +668,7 @@ const OVERTIME_PAY = 0.25;
 // `hours`: a shorter shift (leaving early for a date): pay, tiredness and progress are for the hours worked.
 export function workShift(g, w, mode = 'normal', hours) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o)
         return [];
     const rules = workRules(g, w), sched = systemOn(w, 'jobs');
@@ -683,6 +763,40 @@ const OVERTIME_ASK = { id: '_overtime', setup: 'Your boss asks if you can stay t
         { label: 'Go home on time', perf: -1, text: 'You left on time. The boss did not say anything.' },
     ] };
 const eventDef = (o, id) => (id === OVERTIME_ASK.id ? OVERTIME_ASK : (o.events ?? []).find(e => e.id === id) ?? null);
+/** The colleague a work event comes from (`WorkEvent.from`): the closest of the world's people in your job whom you've
+ *  met, at its level or closer; null when nobody is. */
+export function colleagueFor(g, w, o, e) {
+    if (!e.from)
+        return null;
+    const lvl = e.from.level || 'friend', self = g.swap?.avatar;
+    return Object.values(g.cast).filter(r => r.occupation === o.id && r.met && !r.gone && r.avatar !== self && levelHolds(g, w, r.avatar, lvl))
+        .sort((a, b) => fr(g, b.avatar, YOU) - fr(g, a.avatar, YOU))[0] ?? null;
+}
+// A work event as it is told: {who} is the colleague it comes from (or the unnamed one); a `feels` key "{who}" is them.
+const NAMED = ['text', 'fact', 'rumor'];
+function told(x, name, avatar) {
+    const y = { ...x };
+    for (const k of [...NAMED, 'label'])
+        if (typeof y[k] === 'string')
+            y[k] = y[k].split('{who}').join(name);
+    if (y.feels && '{who}' in y.feels) {
+        const f = { ...y.feels };
+        const v = f['{who}'];
+        delete f['{who}'];
+        if (avatar)
+            f[name] = v;
+        y.feels = f;
+    }
+    if (y.fail)
+        y.fail = told(y.fail, name, avatar);
+    return y;
+}
+function namedEvent(g, e, who) {
+    if (!e.from || who === undefined)
+        return e;
+    const name = who ? g.cast[who]?.name ?? e.from.fallback ?? 'A colleague' : e.from.fallback ?? 'A colleague';
+    return { ...e, setup: e.setup.split('{who}').join(name), choices: e.choices.map(c => told(c, name, who)) };
+}
 const choiceOk = (g, w, o, c, i) => !c.when || whenHolds(g, w, c.when, { place: jobPlace(g, o), key: `workc|${o.id}|${i}` });
 // After a shift, now and then (as often as the work rules say): one of the job's events whose condition holds, or the
 // boss asking for overtime. It waits for your choice on the work screen.
@@ -693,18 +807,39 @@ function rollWorkEvent(g, w, o) {
     if (Math.random() >= chance)
         return;
     const list = (o.events ?? []).filter(e => (!e.adult || adultOn(g)) && e.choices?.length && (!e.when || whenHolds(g, w, e.when, { place: jobPlace(g, o), key: `work|${e.id}` })));
-    if (o.overtime && Math.random() < (list.length ? 0.3 : 0.6)) {
+    // an event from a colleague: theirs when one is close enough, else the unnamed one's at lower odds (or none)
+    const who = new Map();
+    const ready = list.filter(e => {
+        if (!e.from)
+            return true;
+        const r = colleagueFor(g, w, o, e);
+        if (r) {
+            who.set(e.id, r.avatar);
+            return true;
+        }
+        if (e.from.fallback && Math.random() < Math.max(0, Math.min(1, e.from.odds ?? 0.5))) {
+            who.set(e.id, '');
+            return true;
+        }
+        return false;
+    });
+    if (o.overtime && Math.random() < (ready.length ? 0.3 : 0.6)) {
         j.event = { id: OVERTIME_ASK.id, day: g.day };
         return;
     }
-    if (list.length)
-        j.event = { id: list[Math.floor(Math.random() * list.length)].id, day: g.day };
+    if (ready.length) {
+        const e = ready[Math.floor(Math.random() * ready.length)];
+        j.event = { id: e.id, day: g.day };
+        if (who.has(e.id))
+            j.event.who = who.get(e.id);
+    }
 }
 /** The event waiting for your choice (with the choices you can make now), if any. */
 export function pendingEvent(g, w) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
-    const e = j?.event && o ? eventDef(o, j.event.id) : null;
+    const o = myJob(g, w);
+    const def = j?.event && o ? eventDef(o, j.event.id) : null;
+    const e = def && namedEvent(g, def, j.event.who);
     if (!j || !o || !e || j.event.day < g.day - 1)
         return null;
     const choices = e.choices.map((c, i) => ({ c, i })).filter(x => choiceOk(g, w, o, x.c, x.i));
@@ -716,7 +851,7 @@ export const dropEvent = (g) => { const j = jobOf(g); if (j)
  *  performance, money, needs, how people feel about you, a fact. With the gentle rules nothing turns out badly. */
 export function chooseEvent(g, w, i, rnd = Math.random) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     const p = pendingEvent(g, w);
     const pick = p?.choices.find(x => x.i === i);
     if (!j || !o || !p || !pick)
@@ -734,8 +869,10 @@ export function chooseEvent(g, w, i, rnd = Math.random) {
         if (!ok)
             res = c.fail ?? { text: 'It did not work out.' };
     }
-    out.push(...applyResult(g, w, o, res, workRules(g, w).gentle));
+    out.push(...applyResult(g, w, o, res, workRules(g, w).gentle, p.ev.id));
     out.push(...choicePractice(g, w, c.roll?.skill, ok, res.trains));
+    if (p.ev.id !== OVERTIME_ASK.id)
+        (j.seen ??= {})[p.ev.id] = ok === null ? { choice: i } : { choice: i, ok };
     if (p.ev.id === OVERTIME_ASK.id && i === 0)
         out.push(...overtimeHours(g, w, o, 2));
     return out;
@@ -751,7 +888,7 @@ export function choicePractice(g, w, rolled, ok, trains) {
         out.push(...trainSkill(g, w, trains, CHOICE_PRACTICE.trains));
     return out;
 }
-function applyResult(g, w, o, r, gentle) {
+function applyResult(g, w, o, r, gentle, from = '') {
     const out = [];
     const ok = (n) => (n === undefined ? 0 : gentle ? Math.max(0, n) : n);
     if (r.text)
@@ -776,6 +913,10 @@ function applyResult(g, w, o, r, gentle) {
         note(g, r.fact, [placeOf(g, w, jobPlace(g, o))?.name ?? o.name], [], jobPlace(g, o), 'work');
     if (r.rumor)
         startRumor(g, w, r.rumor, jobPlace(g, o), { you: true, id: `work:${o.id}:${r.rumor.slice(0, 24)}` }); // (E31) it goes round from work
+    // a timed effect (a ranking's better pay for a week), kept as a boost
+    const fx = r.boost ? cleanEffects(r.boost.effects, BOOST_LIMITS).filter(e => !gentle || e.value >= 0) : [];
+    if (fx.length)
+        addBoost(g, `work:${o.id}:${from}`, fx, r.boost.days);
     return out;
 }
 // Staying longer: the hours pass, paid as overtime.
@@ -794,7 +935,7 @@ export const vacationLeft = (g, w) => (workRules(g, w).vacation ? Math.floor(job
 /** Book a day off (a vacation day) for a shift today (not started) or later this week, or give it back. */
 export function bookOff(g, w, day) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o)
         return '';
     const off = (j.off ??= {});
@@ -836,7 +977,7 @@ export function sickNo(g, w) {
  *  is a sick day, whatever the rules on calling in sick. */
 export function sickLeave(g, w, until) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o)
         return;
     for (let d = g.day - 1; d * 1440 < until; d++) {
@@ -847,7 +988,7 @@ export function sickLeave(g, w, until) {
 }
 export function callSick(g, w) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o)
         return '';
     const why = sickNo(g, w);
@@ -866,7 +1007,7 @@ export function callSick(g, w) {
 // (with the trip there: living far away means leaving earlier).
 export function workHour(g, w) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o || !systemOn(w, 'jobs'))
         return [];
     const out = [], now = nowAbs(g), rules = workRules(g, w);
@@ -906,7 +1047,7 @@ export function workHour(g, w) {
 // paid on the first day of summer and of winter: a week's pay, more with a good performance.
 export function workDay(g, w) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o || !systemOn(w, 'jobs'))
         return [];
     const rules = workRules(g, w), out = [];
@@ -919,9 +1060,9 @@ export function workDay(g, w) {
     else
         j.vacAt = g.day;
     const sd = seasonDays(g), season = Math.floor((g.day - 1) / sd) % 4, first = (g.day - 1) % sd === 0;
-    if (first && (season === 1 || season === 3) && realDays(o) >= 5 && j.bonus !== g.day && g.day - Math.floor((j.since ?? 0) / 1440) >= 7) {
+    if (first && (season === 1 || season === 3) && weekDays(g, o) >= 5 && j.bonus !== g.day && g.day - Math.floor((j.since ?? 0) / 1440) >= 7) {
         j.bonus = g.day;
-        const pay = payOf(g, rankOf(g, o).pay * o.shift * realDays(o) * (0.5 + perfOf(g) / 100) * payMul(g, w, o, 'bonus'));
+        const pay = payOf(g, rankOf(g, o).pay * o.shift * weekDays(g, o) * (0.5 + perfOf(g) / 100) * payMul(g, w, o, 'bonus'));
         g.player.money += pay;
         book(g, `${o.name}: ${season === 1 ? 'summer' : 'winter'} bonus`, pay);
         note(g, '{u} got the {0} bonus at work.', [season === 1 ? 'summer' : 'winter'], [], o.place, 'work');
@@ -1001,7 +1142,7 @@ const names = (list) => (list.length < 3 ? list.join(' and ') : `${list.slice(0,
  *  to each, a senior notices, a fact, and a moment for the scene with who is senior to whom). After every change and
  *  every hour. */
 export function drinksTick(g, w) {
-    const j = jobOf(g), d = j?.drinks, o = jobDef(w, j?.id);
+    const j = jobOf(g), d = j?.drinks, o = myJob(g, w);
     if (!j || !d || !o || !systemOn(w, 'jobs'))
         return [];
     const now = nowAbs(g);
@@ -1048,7 +1189,7 @@ onLook.push((g, w) => { drinksTick(g, w); });
  *  at work in a way of their own (`address.junior`), your juniors (E10). */
 export function workLine(g, w, present) {
     const j = jobOf(g);
-    const o = jobDef(w, j?.id);
+    const o = myJob(g, w);
     if (!j || !o || !systemOn(w, 'jobs') || isScenario(w))
         return '';
     const c = careerOf(g, o);

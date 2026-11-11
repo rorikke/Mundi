@@ -12,6 +12,7 @@ import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { whereNow, residents } from './people.js';
 import { social, addBond, standsWith, isPartner, bondAtLeast } from './social.js';
+import { sharedLikes } from './private.js';
 export function feed(g) {
     const s = social(g);
     const f = (s.feed ??= {});
@@ -172,7 +173,8 @@ export function candidates(g, w) {
     return residents(g).sort((a, b) => mine(b) - mine(a) || hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`))
         .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && mine(r) > 0);
 }
-// A like matches when you have enough in common (what you both look for, shared interests) and a bit of luck.
+// A like matches when you have enough in common (what you both look for, shared interests and, with adult content on,
+// likes in bed you share: two at most) and a bit of luck.
 export function swipe(g, w, avatar, like) {
     const d = dating(g);
     d.seen[avatar] = like ? 'like' : 'pass';
@@ -183,7 +185,7 @@ export function swipe(g, w, avatar, like) {
     let chance = 35;
     if (d.profile.looking.includes(p.looking))
         chance += 30;
-    chance += 15 * p.interests.filter(i => d.profile.interests.includes(i)).length;
+    chance += 15 * (p.interests.filter(i => d.profile.interests.includes(i)).length + Math.min(2, sharedLikes(g, avatar).length));
     chance *= attraction(g, avatar, YOU, 'r'); // less attracted to your gender: fewer matches
     const match = hash(`${avatar}|${g.day}|${d.profile.bio.length}`) % 100 < chance;
     if (match) {

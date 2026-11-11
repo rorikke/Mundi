@@ -12,6 +12,7 @@ import { onHour } from './hooks.js';
 import { resident } from './game.js';
 import { normalizeHomes } from './homes.js';
 import { note } from './facts.js';
+import { ensureProfile } from './profiles.js';
 import { houseParty, partyRooms } from './houseparty.js';
 import { placeOf, isOuting, placeOn, outingId } from './places.js';
 import { charOf } from '../st/bridge.js';
@@ -68,6 +69,7 @@ export function arrive(g, w, avatar, kind, sleep) {
     r.met = true; // you invited them: you know each other
     r.guest = { kind, since: g.day, sleep };
     g.cast[avatar] = r;
+    ensureProfile(g, w, avatar);
     putToBed(g, r, sleep);
     if (kind !== 'outing')
         note(g, kind === 'party' ? '{0} came over for {u}\'s party.' : '{0} arrived to stay at the house for a while, as {u}\'s guest.', [r.name], [avatar], g.player.loc, 'event');

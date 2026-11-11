@@ -14,14 +14,14 @@ import { onDay } from './hooks.js';
 import { seasonDays } from './time.js';
 import { textFrom, social } from './social.js';
 import { whenHolds } from './when.js';
-import { jobDef, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF } from './work.js';
+import { myJob, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF, trackOf } from './work.js';
 import { courseOf, adultHeld, hasCourse, isTaking, learning, spanOf, factsOf, whereWords } from './courses.js';
 /** Messages kept in the work app per save (the newest). */
 const KEEP = 8;
 export function nudgeFor(g, w) {
     if (!systemOn(w, 'courses') || !systemOn(w, 'jobs'))
         return null;
-    const j = g.player.job, o = jobDef(w, j?.id);
+    const j = g.player.job, o = myJob(g, w); // (on your track)
     if (!j || !o)
         return null;
     const next = nextRankOf(g, o), c = next?.course ? courseOf(w, next.course) : undefined;
@@ -94,6 +94,7 @@ export function aheadCourse(g, w, o) {
 }
 /** What the work screen says when a job turns you away for a course: the way in, if its first rank is a student's. */
 export function needCourseText(g, w, o, missing) {
+    o = trackOf(g, o);
     const base = lex(w, 'needCourse', missing.join('", "'));
     const ids = (o.courses ?? []);
     const open = ids.map(id => courseOf(w, id)).find(c => c && !c.retired && !hasCourse(g, c.id) && (!c.needs || whenHolds(g, w, c.needs)));

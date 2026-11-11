@@ -1,3 +1,9 @@
+// Habits become traits: what you do often enough sticks ("Early riser", "Heavy drinker", "Devout"…) and fades when
+// you stop. The world says which habits exist (actions, tags or hours that count, how many times in how many days).
+// A habit is a trait like any other: jobs like it, the AI knows it (`traitLine`, sim/traits.ts); some also nudge your
+// needs every morning, and its skill (`learn`) trains a little faster while you keep it. The habits you have are
+// `habits.has` (ids); `player.traits.habits` is only their names, rebuilt from it so a renamed habit never goes stale.
+import { adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onAction, onDay } from './hooks.js';
 import { addStatus } from './needs.js';
@@ -5,6 +11,8 @@ import { note } from './facts.js';
 import { placeOf } from './places.js';
 export const habitsOf = (g) => (g.habits ??= { log: {}, has: [] });
 const on = (w) => systemOn(w, 'habits') && !!w.habits?.length;
+// An adult habit (Active love life) only with adult content on: off, it isn't gained, named or felt, and stays as it was.
+const inPlay = (g, h) => !!h && (!h.adult || adultOn(g));
 /** Rebuilds `traits.habits` from `habits.has`, with the habits' own names. A habit named like a trait you have from
  *  another group (a chosen one) adds nothing, as it never did. Returns whether the list changed. */
 export function syncHabitTraits(g, w) {
@@ -56,6 +64,8 @@ export function habitDay(g, w) {
     const hs = habitsOf(g);
     const out = [];
     for (const h of w.habits) {
+        if (!inPlay(g, h))
+            continue;
         const l = (hs.log[h.id] ?? []).filter(d => g.day - d < Math.max(h.days, h.lose ?? h.days * 2));
         hs.log[h.id] = l;
         const recent = l.filter(d => g.day - d < h.days).length;
@@ -78,11 +88,11 @@ export function habitDay(g, w) {
     return out;
 }
 onDay.push(habitDay);
-export const habitTraits = (g, w) => (on(w) ? habitsOf(g).has.map(id => w.habits.find(h => h.id === id)?.trait).filter(Boolean) : []);
+export const habitTraits = (g, w) => (on(w) ? habitsOf(g).has.map(id => w.habits.find(h => h.id === id)).filter(h => inPlay(g, h)).map(h => h.trait).filter(Boolean) : []);
 // How close you are to each habit (for the Reputation app).
 export function habitProgress(g, w) {
     if (!on(w))
         return [];
     const hs = habitsOf(g);
-    return w.habits.map(h => ({ h, n: (hs.log[h.id] ?? []).filter(d => g.day - d < h.days).length, has: hs.has.includes(h.id) }));
+    return w.habits.filter(h => inPlay(g, h)).map(h => ({ h, n: (hs.log[h.id] ?? []).filter(d => g.day - d < h.days).length, has: hs.has.includes(h.id) }));
 }

@@ -3,10 +3,12 @@
 // resident who spoke feels about you, in a fixed format (`Name | friendship ±n | romance ±n | why`). It judges what
 // the in-scene sources missed (it's told what they already counted), so the same warmth isn't counted twice. With
 // "Relationships between people" on, it also says how the scene changed what two residents who both spoke feel about
-// each other (`A > B | …`).
+// each other (`A > B | …`). With adult content on, where a private moment could have happened (a private place, with
+// someone ready for it), a line may end with `| intimate`: it counts as one, for less than a private action
+// (sim/private.ts).
 // Capture, settle, then ask: the scene is read and its messages settled at once (so swiping or hiding lines later
 // can't race with it), and the answer is applied when it comes back. A failure applies nothing and isn't retried.
-import { saveGame, nowAbs, notify, TUT } from '../core/store.js';
+import { saveGame, nowAbs, notify, TUT, adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { quiet, personaName, speakerOf } from '../st/bridge.js';
 import { openMessages, openTotals, openSince, readyToSettle, settleNow, addSettled, textOf } from './msglog.js';
@@ -15,9 +17,12 @@ import { facts, factText, placeName } from './facts.js';
 import { romanceBlocked, familyBlocked } from './family.js';
 import { finishMoments } from './moments.js';
 import { grudgeOf, holdGrudge, makeUp, GRUDGE } from './grudges.js';
+import { verdictCould, verdictIntimate } from './private.js';
+import { privateScene } from './scenepeople.js';
+import { placeOf } from './places.js';
 export const MIN_MESSAGES = 4; // passing through a place (a greeting, a word) costs no AI call
 export const verdictOn = (g) => relCfg(g).verdict !== false;
-const LINE = /^\s*[-*•]?\s*([^|\n>]+?)\s*(?:>\s*([^|\n]+?)\s*)?\|\s*friendship\s*([+-]?\s*\d)\s*\|\s*romance\s*([+-]?\s*\d)\s*\|\s*([^|\n]+?)\s*(?:\|\s*(made\s*up)\s*)?$/i;
+const LINE = /^\s*[-*•]?\s*([^|\n>]+?)\s*(?:>\s*([^|\n]+?)\s*)?\|\s*friendship\s*([+-]?\s*\d)\s*\|\s*romance\s*([+-]?\s*\d)\s*\|\s*([^|\n]+?)\s*((?:\|\s*(?:made\s*up|intimate)\s*)*)$/i;
 const step = (v) => Math.max(-3, Math.min(3, Number(v.replace(/\s+/g, '')) || 0));
 export function parseVerdict(text) {
     const out = [];
@@ -25,7 +30,8 @@ export function parseVerdict(text) {
         const m = LINE.exec(raw.replace(/\*\*/g, ''));
         if (!m)
             continue;
-        out.push({ name: m[1].trim(), ...(m[2] ? { to: m[2].trim() } : {}), f: step(m[3]), r: step(m[4]), why: m[5].trim().slice(0, 160), madeUp: !!m[6] });
+        const marks = (m[6] ?? '').toLowerCase();
+        out.push({ name: m[1].trim(), ...(m[2] ? { to: m[2].trim() } : {}), f: step(m[3]), r: step(m[4]), why: m[5].trim().slice(0, 160), madeUp: /made\s*up/.test(marks), ...(marks.includes('intimate') ? { intimate: true } : {}) });
     }
     return out;
 }
@@ -66,6 +72,9 @@ export async function verdictNow(g, w, reason, { end = false } = {}) {
         console.debug('[Mundi] scene verdict queued:', reason, `${msgs.length} messages`);
         const romance = systemOn(w, 'romance');
         const between = systemOn(w, 'relations') && people.length >= 2;
+        // (adult) who a private moment could have happened with here: the verdict may say it did
+        const privateHere = adultOn(g) && romance && privateScene(g, w, placeOf(g, w, g.player.loc));
+        const could = people.filter(p => verdictCould(g, w, p.avatar, privateHere)).map(p => p.avatar);
         const hurt = people.map(p => { const gr = grudgeOf(g, p.avatar); return gr ? `${p.name} (${gr.tag.replace(/^Hurt: /, '')})` : ''; }).filter(Boolean);
         const already = people.map(p => { const c = counted[p.avatar]; return c && (c.f || c.r) ? `${p.name}: friendship ${c.f >= 0 ? '+' : ''}${c.f.toFixed(1)}${c.r ? `, romance ${c.r >= 0 ? '+' : ''}${c.r.toFixed(1)}` : ''}` : ''; }).filter(Boolean);
         const prompt = `A scene in ${w.name} between ${me} and ${people.map(p => p.name).join(', ')} has just ended.\n\n` +
@@ -77,12 +86,13 @@ export async function verdictNow(g, w, reason, { end = false } = {}) {
             `Friendship${romance ? ' and romance go' : ' goes'} from -3 to +3; 0 when nothing changed. ${romance ? 'Romance only moves with flirting, a date or intimacy. ' : 'Always write romance 0. '}` +
             `Insults, fights, cruelty or broken promises are negative. Be honest, not generous. ` +
             (hurt.length ? `Still hurt by ${me}: ${hurt.join('; ')}. If ${me} sincerely apologized or made amends to one of them in this scene, end that person's line with: | made up. ` : '') +
+            (could.length ? `If ${me} and ${could.length > 1 ? 'one of them' : people.find(p => p.avatar === could[0]).name} clearly had sex in this scene (more than flirting or kissing), end that person's line with: | intimate. ` : '') +
             (between ? `When the scene clearly changed how one of them feels about another of them (not about ${me}), add a line for that too, like this:
 ${people[0].name} > ${people[1].name} | friendship -1 | romance 0 | a short reason
 ` : '') +
             `Write only the lines.`;
         const done = quiet(prompt, 400, 'You judge how a scene changed relationships. You answer only with lines in the given format.')
-            .then(out => apply(g, w, out, people, playing, day))
+            .then(out => apply(g, w, out, people, playing, day, could))
             .catch(e => { console.warn('[Mundi] scene verdict', e); return null; });
         return { done };
     }
@@ -91,7 +101,8 @@ ${people[0].name} > ${people[1].name} | friendship -1 | romance 0 | a short reas
     }
 }
 // Applies an answer to the values as they are now. Each step is worth 2 points; gains are paced, losses in full.
-function apply(g, w, out, people, playing, day) {
+// `could`: (adult) who a private moment could have happened with when the scene was captured.
+function apply(g, w, out, people, playing, day, could = []) {
     const lines = parseVerdict(out);
     if (!lines.length) {
         console.debug('[Mundi] scene verdict: no usable lines');
@@ -129,6 +140,9 @@ function apply(g, w, out, people, playing, day) {
             else if (l.f <= -2)
                 holdGrudge(g, p.avatar, l.why, l.f <= -3 ? GRUDGE.worse : GRUDGE.days);
         }
+        // (adult) a private moment the scene was, where one could have happened
+        if (l.intimate && to === YOU && could.includes(p.avatar) && adultOn(g))
+            verdictIntimate(g, w, p.avatar);
         if (st.day?.day === day)
             (st.day.why[p.avatar] ??= []).push(l.why);
     }

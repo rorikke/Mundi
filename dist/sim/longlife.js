@@ -7,7 +7,7 @@ import { seasonDays } from './time.js';
 import { exampleOf, seedRanks } from './dayplan.js';
 import { onDay } from './hooks.js';
 import { note } from './facts.js';
-import { npcCareer } from './work.js';
+import { npcCareer, trackOf } from './work.js';
 import { lifeMoment } from './happenings.js';
 import { liveTogether, homeKey } from './living.js';
 import { couplePairs, setStatus, statusOf, gain } from './rel.js';
@@ -61,7 +61,7 @@ function couplesMoveOn(g, w) {
 // length, faster with the world's and the save's career speed. The world's own people climb at a quarter of that pace,
 // so the people it wrote stay who they are for a while.
 function promoteOdds(g, w, o, ranks, avatar) {
-    const year = 4 * seasonDays(g) * (o.length ?? 1) / ((w.careerSpeed ?? 1) * (cfg(g).careerSpeed ?? 1));
+    const year = 4 * seasonDays(g) * (o.length ?? 1) * (o.pace ?? 1) / ((w.careerSpeed ?? 1) * (cfg(g).careerSpeed ?? 1));
     const r = g.cast[avatar];
     return Math.min(0.5, (ranks - 1) / Math.max(1, year)) * (r && exampleOf(w, r) ? 0.25 : 1);
 }
@@ -70,7 +70,7 @@ function careersMoveOn(g, w) {
     seedRanks(g, w);
     const st = store(g);
     for (const r of Object.values(g.cast)) {
-        const o = w.occupations.find(x => x.id === r.occupation);
+        const job = w.occupations.find(x => x.id === r.occupation), o = job && trackOf(g, job, r.avatar); // (their gender's track)
         const ranks = o ? npcCareer(o, r.avatar, g).ranks : [];
         if (!o || ranks.length < 2)
             continue;

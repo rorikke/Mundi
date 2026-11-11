@@ -28,14 +28,14 @@ import { fr, ro, statusOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
-import { careerOf, trackOf } from './work.js';
+import { careerOf, trackOf, playerTrack } from './work.js';
 import { styleOf } from './intimacy.js';
 import { usualPay } from './needs.js';
 import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep'];
+    'rank', 'track', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -142,8 +142,9 @@ function badValue(key, v) {
         case 'holds':
         case 'gave':
         case 'knows':
+        case 'track':
             return ID.test(v) ? '' : `"${v}" should be one id`;
-        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id, or a story id and a choice like sb_startup_st_pitch:2`;
+        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         default: return ''; // period (a name may have spaces in older worlds), weather, present, onShift
     }
@@ -332,7 +333,13 @@ function holds(g, w, key, v, x) {
         case 'after': return doneToday(g, v, x.place, x.day);
         case 'job': {
             const j = g.player.job;
-            return !!j && (v === 'here' ? w.occupations.find(o => o.id === j.id)?.place === x.place : v === 'any' || j.id === v);
+            const o = j && w.occupations.find(o => o.id === j.id);
+            return !!j && (v === 'here' ? !!o && trackOf(g, o).place === x.place : v === 'any' || j.id === v);
+        }
+        // the track you work your job on (a job with tracks: sim/tracks.ts)
+        case 'track': {
+            const j = g.player.job, o = j && w.occupations.find(o => o.id === j.id);
+            return !!o && playerTrack(g, o) === v;
         }
         case 'start': return (g.player.start ?? g.player.origin) === v;
         case 'clock': return inClock(x.minutes, v);
@@ -354,7 +361,7 @@ function holds(g, w, key, v, x) {
         }
         case 'seen': {
             const [id, n] = v.split(':');
-            const s = g.stories?.seen?.[id];
+            const s = g.stories?.seen?.[id] ?? g.player.job?.seen?.[id];
             return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false));
         }
         case 'favor': return favorOwed(g, v) > 0;

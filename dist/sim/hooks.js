@@ -35,3 +35,9 @@ export const privateResults = [];
 // More lines for the intimate block (sim/scenepeople.ts), for the people here: what you know of them, their drive,
 // their wanting you… (`who`: whose profiles the block tells, as `profilePeople` chose them).
 export const intimateLines = [];
+// An adult need's empty-need drain (Desire's restlessness at zero) as the player's drive makes it (sim/drive.ts): each
+// gets the world's rule and returns the one to use. Asked by the timed rules in sim/needs.ts.
+export const zeroDrainMods = [];
+// What an action (or its outcome) gives back of a need, after its `rest` effects (`restGain` in sim/needs.ts): being
+// alone and a private action's mood, by drive.
+export const gainMods = [];
