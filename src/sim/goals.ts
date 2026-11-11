@@ -159,13 +159,15 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
         default: return true;
     }
 }
-// One way of doing a step: possible here unless it names someone or a thread not in this game (D-4), or asks for
-// something this game can't give.
+// One way of doing a step: possible here unless it can't be read (or says nothing: it would hold at once), names
+// someone or a thread not in this game (D-4), or asks for something this game can't give.
 function wayPossible(g: Save, w: WorldDef, way: When | undefined, inPlay: Set<string>): boolean {
+    const p = parseWhen(way);
+    if (p.error || !p.conds.length) return false;
     const named = namedIn(way);
     if (named.people.some(n => { const p = personNamed(g, n); return !p || !!(p as any).gone; })) return false;
     if (named.threads.length) { const here = new Set(threadsHere(g, w).map(x => x.t.id)); if (named.threads.some(t => !here.has(t))) return false; }
-    return parseWhen(way).conds.every(c => c.not || c.values.some(v => canHold(g, w, c.key, v, inPlay)));
+    return p.conds.every(c => c.not || c.values.some(v => canHold(g, w, c.key, v, inPlay)));
 }
 /** Does this game offer the goal? Adult goals only with adult content on; a need it can't do without must be in play
  *  in this game; and every step must have a way that can be done here. (Systems the world has off: `goalsOf`.) */
