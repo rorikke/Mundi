@@ -34861,7 +34861,7 @@
         "sensuality": 6,
         "charisma": 4
        },
-       "when": "perf: 70; seen: esthe_ev_regular or esthe_ev_firsttime:1"
+       "when": "perf: 70; seen: esthe_ev_regular or esthe_ev_line or esthe_ev_firsttime:1"
       },
       {
        "name": "Ranked therapist",
