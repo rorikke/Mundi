@@ -15,12 +15,14 @@ const dressed = (g: Save): Record<string, string> => (((g as any).dressed ??= {}
 /** The outfit worn during a private action (sim/actions.ts plays it out in the scene). */
 export const UNDRESSED = 'naked';
 
-// The code for one person here: the room's in a Home; otherwise "naked" for those in the private action going on.
-// (The action is read from the save as sim/actions.ts keeps it, so this file needs nothing from there.)
+// The code for one person here: the room's in a Home; otherwise "naked" for those in the private action going on: the
+// ones taking part in it (sim/private.ts: one or two people ready for it), or, when its check didn't say, everyone doing
+// it with you. (The action is read from the save as sim/actions.ts keeps it, so this file needs nothing from there.)
 export function dressFor(g: Save, w: WorldDef, avatar: string): string {
     if (isScenario(w)) return dressAt(g, g.player.loc);
-    const act = (g as any).act as { a?: { private?: boolean }; place?: string; with?: string[] } | undefined;
-    return adultOn(g) && act?.a?.private && act.place === g.player.loc && act.with?.includes(avatar) ? UNDRESSED : '';
+    const act = (g as any).act as { a?: { private?: boolean }; place?: string; with?: string[]; priv?: { notes?: { a?: { who?: string[] } } } } | undefined;
+    const who = act?.priv?.notes?.a?.who ?? act?.with;
+    return adultOn(g) && act?.a?.private && act.place === g.player.loc && who?.includes(avatar) ? UNDRESSED : '';
 }
 
 // Puts on (or takes off) the coded outfit for the people in the scene, and takes it off whoever it was put on who

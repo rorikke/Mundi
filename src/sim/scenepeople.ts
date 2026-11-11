@@ -16,6 +16,7 @@ import { jobDef, colleaguesOf } from './work.js';
 import { npcRank } from './longlife.js';
 import { sharedWith, speaks, barrierOn, FLUENT } from './language.js';
 import { intimateLines } from './hooks.js';
+import './private.js';   // (private moments: what you know of each other comes into this block through intimateLines)
 
 /* ---------- life around you (E1) ---------- */
 
@@ -137,12 +138,24 @@ const PROFILE_WORDS: [keyof IntimateProfile, string][] = [['experience', 'experi
 // the intimate gifts someone has from you, by name (so the AI can bring them out)
 const intimateGifts = (g: Save, w: WorldDef, avatar: string) => (giftsGiven(g)[avatar] ?? []).map(id => w.keepsakes?.find(k => k.id === id)).filter(k => !!k?.intimate).map(k => k!.name);
 const tidyLine = (s: string) => s.replace(/\s+/g, ' ').trim().replace(/[.;\s]+$/, '');
+// The providers' lines, one per person (X24's budget): lines that start with the same "- Name: " become one line.
+function onePerPerson(lines: string[]): string[] {
+    const out: string[] = [], at = new Map<string, number>();
+    for (const l of lines) {
+        const m = /^- ([^:]+): (.*)$/s.exec(l);
+        if (!m) { out.push(l); continue; }
+        const i = at.get(m[1]);
+        if (i === undefined) { at.set(m[1], out.length); out.push(`- ${m[1]}: ${tidyLine(m[2])}.`); }
+        else out[i] = `${out[i].replace(/\.$/, '')}; ${tidyLine(m[2])}.`;
+    }
+    return out;
+}
 /** The block: each profile as a character sheet, then the hard limits on a line of their own (kept over the budget). */
 export function profileLines(g: Save, w: WorldDef, here: Place | null, present: Resident[]): { lines: string[]; limits: string } {
     const { full, limitsOnly } = profilePeople(g, w, here, present);
     // what the hooks add (known likes and limits, drive…), under the block's own rules: adult content, romance, no minor
     const ok = intimateLines.length && adultOn(g) && systemOn(w, 'romance') && present.length && !present.some(r => isMinor(g, r.avatar));
-    const extra = ok ? intimateLines.flatMap(f => f(g, w, here, present, { full, limitsOnly })).filter(Boolean) : [];
+    const extra = ok ? onePerPerson(intimateLines.flatMap(f => f(g, w, here, present, { full, limitsOnly })).filter(Boolean)) : [];
     if (!full.length && !limitsOnly.length) return { lines: extra, limits: '' };
     const lines = full.map(r => {
         const p = profileOf(g, r.avatar)!;
