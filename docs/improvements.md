@@ -8,6 +8,7 @@ point of view, and grows as new ones arrive.
 - [Pictures that follow the weather and the season](#pictures-that-follow-the-weather-and-the-season)
 - [Who you are, and courses that take weeks](#who-you-are-and-courses-that-take-weeks)
 - [Life goals and life points](#life-goals-and-life-points)
+- [Tokyo's adult progression](#tokyos-adult-progression)
 
 ## A color for each speaker's dialogue
 
@@ -192,8 +193,9 @@ on *Mentor*, *A family of your own*, *A good name* and *Your own business*.
 *Strategist*, *Idol dream*, *The Shimokita sound*, *Up the corporate ladder*, *Founder*, *Taste of Tokyo*, *After the last
 train*, *Seasons of Japan*, *Akiba legend*, *Doujin artist*, *Hot springs and getaways*, *Old Tokyo heart*, *Karaoke king
 or queen*, *A Tokyo romance*, *Up from Isezaki*, *Keeper of secrets*, and with adult content on *King or queen of
-Kabukichō*. A world's own goals are marked ✦. Mentors, businesses and reputation are off in Tokyo, so those goals aren't
-there.
+Kabukichō*. Five more come with adult content on: *Adult star*, *The art of pleasure*, *Keeping the spark*, *Open hearts*
+and *Thrill seeker* (see [Tokyo's adult progression](#tokyos-adult-progression)). A world's own goals are marked ✦. Mentors,
+businesses and reputation are off in Tokyo, so those goals aren't there.
 
 ### Life points and the shop
 
@@ -233,3 +235,185 @@ there.
   perks (held inside limits so a custom perk can't break the game) and shop items.
 - **Your existing games** keep what they had: an old life goal you were following or had finished carries over, and a
   finished one gives you its perk.
+
+## Tokyo's adult progression
+
+Tokyo's night world and love life used to be scenery. With **adult content on**, they now have a skill, a way to learn
+what someone likes, a need that sets a rhythm, risks, careers with ranks of their own, courses, traits, goals and shop
+items. It's all between adults who want to, and it never gets past a hard limit or a "not tonight".
+
+### What turns it on
+
+- **One switch:** *Adult content* in the new game, or in a game's settings (🌐 → Rules → Adult content). With it off none
+  of this exists: no skill, traits, courses, jobs or need, nothing on the HUD, profile or phone, and nothing told to
+  the AI. What you picked stays in the save and counts again when you turn it back on.
+- Parts of it also need a system: private moments, drive and getting caught need **relationships**, the careers need
+  **jobs**, Desire needs **needs**, the goals and shop need **goals**.
+- Any world can use it (see the end of this section). Tokyo has all of it.
+
+### Sensuality
+
+A skill like the others (levels 0–10), only there with adult content on. It grows from private moments, from the two
+adult courses and from some adult work (a dancer's or an AV shift), and it's what the adult careers ask for. The
+strength **Good in bed** starts you at Sensuality 3.
+
+### Private moments
+
+A private moment is something done in private with someone who's ready for it: a night at a love hotel, a bath for two,
+a lap dance at home, a massage.
+
+- **They have a roll.** Sensuality helps, so do the usual things (a lucky day, a charm, how you feel), and so does
+  how well you and the other person suit each other. It comes out **great** (romance from them grows more, a mood
+  lift, Desire back to full, and the AI is told it was a night to remember), **good**, or **awkward** (a funny
+  mishap: a little mood, nothing lost, never a punishment).
+- **Who leads.** The **In bed** traits are *Leads*, *Follows* and *Switch*. *Leads* with someone who likes to be led (or
+  the other way round) helps the roll and makes romance grow faster; two who both lead, or both follow, make it a bit
+  harder. *Switch* works with anyone and never clashes. It's not a personality pick, so it costs nothing against
+  your three.
+- **What someone likes.** Every person has likes and hard limits. A like the action fits helps the roll, and on a good or
+  great night you learn it. A hard limit stops the action: they say no kindly, you talk instead, romance dips a little,
+  and you now know the limit, so that action is hidden with them from then on.
+- **Not tonight.** Someone who isn't ready (see their drive, below) turns it down before anything happens: no time
+  passes, nothing is lost.
+- **Pillow talk** is a short talk after a private moment, with someone at Crush or more, and teaches you one like or
+  limit you didn't know. The shop sells a version of it (below).
+- **A night you played in the chat** counts too, for a little less. When the game judges a private scene, it also asks
+  whether it went all the way; the AI only answers yes or no, and the game decides what that's worth (Desire, a little
+  Sensuality, the goals' counts; no roll and no like learned).
+- **Two companions.** Some actions (*The three of you*) take two people, if both are at Crush or more with you, and each
+  is fine with the other.
+- **Your own likes.** *Profile → In bed* has two boxes: what you like and what you're not into. They never hide or stop
+  anything. A like you share with a partner helps the roll, something you're not into gives you a bit less mood, and the
+  dating app counts likes you share. People you've been with know your likes, and the AI is told.
+
+### What you know of someone
+
+Their phone page (People app) lists what you've learned: likes, limits, their drive once you know it and who leads once
+you've been together. Nothing shows until you know something. The AI hears what you know ("Mio knows you like being led"
+and the like), a few lines a person at most, so the prompt stays small. Each like or limit you learn also gives 10 life
+points (once each, inside the daily cap).
+
+### Desire and Drive
+
+- **Desire** is a need (🔥 on the HUD) from 0 to 100. It starts at 60 and, at an average drive, empties in about five
+  days. At zero you're restless and your mood drains. While it's 70 or more you're in **afterglow**, and your mood
+  drains more slowly. A private moment refills it (a great one: full), so does time alone, watching a show, or a risky
+  moment you get away with.
+- **Drive** is a trait you pick at the start (*Low drive*, *Average drive*, *High drive*; *Change a trait* can swap it):
+
+| | Low | Average | High |
+|---|---|---|---|
+| Desire drains | half as fast | normal | 1.6 times as fast |
+| Restless at zero | mood −1 every 3 hours | −2 every 3 hours | −2 every 2 hours |
+| Afterglow (mood drains slower) | 5% | 10% | 15% |
+| Time alone refills | +40 | +30 | +20 |
+| Mood from a private moment | ×0.8 | ×1 | ×1.25 |
+| Romance from a private moment | −10% | ±0 | +10% |
+
+  No drive is best. The afterglow a night gives is about the same, so a drive changes how *often* you need someone,
+  not how much a night is worth. Turn Desire off for a game and there's no Drive and no afterglow either.
+
+### Other people's drive
+
+- **Everyone has a drive too,** from their profile (people made in the game get one). It decides what happens after a
+  night together: **ready again** (2 hours for a high drive, 12 hours average, 2 days low), **wanting you** (casual
+  partners and partners, after 2, 4 or 8 days: they text you more, you roll a little better, the AI is told) and, for
+  partners only, **frustrated** (after 6, 12 or 24 days, only while you keep seeing each other: romance toward you slips
+  a point a day and the People app says they want more nights together). The next night together ends it.
+- **You learn a drive** after three nights together, or from Pillow talk.
+- **Making the move.** Someone who wants you, alone with you where it could happen, may pull you closer: a card with
+  **Yes** (the private moment starts) or **Not tonight** (nothing lost, no grudge). It uses the same budget as other
+  initiative, so it stays occasional.
+- Casual flings between the world's people form more often when both have a high drive, less with a low one.
+- **Jealousy.** *Flirtatious* (in the Personality list, not an adult trait) makes romance with new people grow 10% faster
+  until a Crush, and your partners' jealousy hurts 15% more; the perk *Compersion* makes it hurt 40% less. A partner who
+  hears that you were caught with someone else is hurt the same way, once (a partner with an open style doesn't mind).
+
+### Getting caught
+
+Some private moments happen where they shouldn't: the manga café's couple booth (15% to be caught), after hours at the
+office (20%), the park after dark (15%), the ryokan's shared bath after midnight (10%).
+
+- **Not caught:** it plays as usual, with a thrill (mood up, Desire full).
+- **Caught:** you leave at once and nothing else happens, your mood drops, there may be a fee (¥5,000 "cleaning" at the
+  manga café), the place won't serve you what's private, risky or paid for **for a week** (the map and the things to do say
+  so, and for how many days more), and if someone from the world was there, a rumor about you and who was with you
+  starts. At your own workplace your boss gives you a warning.
+- *Shameless* makes it 10% more likely, the *Blind spots* perk half as likely, and *Quiet a rumor* in the shop also
+  lifts the ban when the rumor is about getting caught.
+- **Work can be risky too:** at the esthe, "a little more" has a 10% chance of a raid. The shop shuts for a week (no
+  shifts, no pay), you get a warning, and a second raid within a year lets you go.
+
+### Careers
+
+- **Sensuality** is asked by the AV and the dancer's higher ranks, and trained on the job. Hosts, hostesses and club staff
+  sell talk and company, so they still ask for Charisma. Adult jobs stay closed with adult content off.
+- **One job, a track for each gender.** The AV job and the esthe have the same name and listing for everyone, but ranks,
+  pay, hours, pace and needs differ by track, as they do in real life. Your track comes from your gender (in Tokyo, a
+  woman is an actress and works the men's esthe, a man is an actor and works women's services); if your gender has
+  none, you pick one when you're hired, once, and it can't be changed later. The world's people use their own.
+- **AV.** *Actress* is the job as before (scouted, from the listings). *Actor* has no listing: you need an introduction
+  (a director's card from a street story in Kabukichō, a friend in the business, or work at a love hotel), Fitness and
+  Sensuality to start, and the pay is lower (¥800 to ¥3,000 an hour against ¥1,500 to ¥4,000). Ranks take half again as
+  long, you're called one day a week to begin with, and some ranks wait for a work event: a director calling you back,
+  an actress asking for you (a friend of yours first, otherwise someone unnamed). Both tracks wait a month between
+  signing and the first shoot.
+- **Esthe therapist.** A new job at *Aroma Room Lily* in Shinjuku, the way on from the massage course (finishing it starts
+  you past the trainee rank). *Men's esthe* works at the room, *Women's services* works outcalls off screen: slower ranks
+  (×1.4), and a ¥30,000 training fee unless you've finished the massage course. Its main event is "Is there an option?":
+  keep it clean, offer a little more (better tip and performance, but it's risky), or refuse. On the room's ranking day, a
+  good photo diary gives +15% pay for a week.
+- **Dancer** lists the pole classes: finishing them starts you past the new bottom rank, *Pole class student*.
+
+### Adult courses
+
+Both are adult, run on a schedule like Tokyo's others, and teach Sensuality:
+
+- **Pole dance classes** (¥55,000 a season, at Pole Star) teach Dance, Fitness and a little Sensuality, and unlock
+  *Lap dance* at home.
+- **Sensual massage course** (¥65,000 a season, online and at home) teaches Sensuality and Charisma, and unlocks *Full oil
+  massage* and the way into the esthe job.
+
+### Traits and habits
+
+- **Strengths:** *Good in bed* (Sensuality 3).
+- **Personality:** *Flirtatious* (above) and *Shameless* (+1 on rolls where being seen is part of it, but 10% more likely
+  to be caught).
+- **Interests:** *Kink*, a little more mood from what fits it; on the dating app it shows on people whose likes fit.
+- **In bed** and **Drive:** one pick each (above).
+- **Habits** come from doing: *An active love life* (five private moments in a week: Sensuality trains 10% faster, +2
+  mood each morning) and *Kabukichō regular* (four nights at a host club, hostess lounge or Pole Star in a week:
+  Charisma trains 10% faster, but −3 energy each morning).
+
+### Goals and the shop
+
+Six adult goals, only with adult content on:
+
+| Goal | The idea | Perk |
+|---|---|---|
+| *King or queen of Kabukichō* | work up as a host or hostess | *Silver tongue*: hosts and hostesses are paid 15% more |
+| *Adult star* | an AV career, to the top of your track | *Fan service*: performance in stage and screen work grows 20% faster |
+| *The art of pleasure* | Sensuality 3, a class, eight things learned about your lovers, Sensuality 8 | *Attentive lover*: romance from private moments grows 15% faster |
+| *Keeping the spark* | ten moments with a partner, a night away, a gift they love, then a season | *Sleeping in their arms*: a night together rests you 25% better |
+| *Open hearts* | a partner with an open style and a second partner, a night for three, a season without jealousy | *Compersion* |
+| *Thrill seeker* | get away with it, then the ryokan's bath, the office or the park, then five times | *Blind spots* |
+
+Three shop items join the shrine charms, all adult:
+
+- **Pillow talk** (200 points): one thing a close someone likes, one hard limit, or their drive, for the person you pick
+  (Crush or more, once a season each). The general *Insight* can ask about someone's likes, limits or drive too.
+- **Mamushi drink** (200): for a day, private moments give half as much again and energy drains slower.
+- **Kanamara charm** (250, bought anywhere): +2 on private moments for a week.
+
+Nothing in the shop gets past a hard limit, a "not tonight", a lack of attraction, or family.
+
+### World makers and older games
+
+- **The World creator** edits every part: a skill marked adult, adult trait options and groups, adult courses, needs and
+  habits, a private action's difficulty, the words it matches and its chance of being caught, jobs' kinds and tracks (a
+  track editor beside the ranks, hiring conditions, fees, days a week per rank, who a work event comes from, a choice's
+  boost or risk), the pool of likes and limits for people made in the game, each person's role and drive, and the
+  questions an insight item can answer. What a world doesn't use stays out of its file.
+- **Your existing games** open as they were. A person of the world whose profile had no role or drive gets it from the
+  world once, never over a value you set; people made in the game and people from your own cards get a profile from the
+  world's pool (only with adult content on). Desire starts at 60, and Drive at Average.
