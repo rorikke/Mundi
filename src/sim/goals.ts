@@ -126,7 +126,7 @@ const countable = (w: WorldDef, map?: string) => w.places.filter(p => !p.link &&
 const reachable = (g: Save, w: WorldDef, id: string) => { const p = w.places.find(x => x.id === id); return !!p && !p.link && !p.private && placeOk(g, w, id); };
 // Could this value of a condition ever hold in this game? (A course count beyond the world's courses, a skill it lacks,
 // a need off in this game, more keepsakes or places than it has, a place it doesn't have or can't reach, regulars with
-// the living world off, more secrets than its threads can give.)
+// the living world off, more secrets than its threads can give, a better home than a first one in the dearest area.)
 function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<string>): boolean {
     switch (key) {
         case 'course': return /^\d+$/.test(v) ? offeredOf(w).length >= Number(v) : offeredOf(w).some(c => c.id === v);
@@ -150,6 +150,13 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
             if (/^(all(\s+in\s+\S+)?|map|maps)$/i.test(v)) return true;
             const r = v.match(PLACE_REGULAR);
             return (!r || systemOn(w, 'living')) && reachable(g, w, r ? r[1] : v);
+        }
+        // a better home than your first: not when the first was already in the dearest area (Porto Alto's heir)
+        case 'home': {
+            if (v.toLowerCase() !== 'better') return true;
+            const rent = (zone: string | undefined) => w.homes.zones.find(z => z.id === zone)?.rent ?? 0;
+            const first = tally(g).home?.first ?? g.player.home?.zone;
+            return w.homes.zones.some(z => (z.rent ?? 0) > rent(first));
         }
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {
