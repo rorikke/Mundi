@@ -1820,7 +1820,8 @@
    "cost": 0,
    "minutes": 60,
    "tags": [
-    "leisure"
+    "leisure",
+    "art"
    ],
    "effects": {
     "energy": -8
