@@ -3,7 +3,7 @@
 // settings" (shown only while editing) adds the fields most players never touch and SillyTavern's own panels.
 // Every change is saved into the native SillyTavern object (card, persona, lorebook, chat).
 import { state, notify, esc, game, toast, busy, settings, saveSettings, type LibFolder } from '../core/store.js';
-import { getWorld, loadWorld, BUILT_IN, activeStatuses, worlds } from '../core/world.js';
+import { getWorld, loadWorld, BUILT_IN, activeStatuses, worlds, isScenario, type WorldDef } from '../core/world.js';
 import {
     ctx, characters, charOf, thumb, fullCharacter, saveCharacter, personas, savePersona, personaThumb, persona,
     lorebooks, loadLore, saveLore, newLoreEntry, chatLore, groupOf, selectedGroup, bindChatLore, type CardPatch,
@@ -504,6 +504,12 @@ async function saveSaveTab() {
 
 /* ---------- the world's rules (read only for now) ---------- */
 
+// The world's needs; an adult one (Desire) only while the open game is in this world with adult content on.
+function needsOf(w: WorldDef) {
+    const g = game();
+    return [...activeStatuses(w), ...(g && g.world === w.id && !isScenario(w) ? activeStatuses(w, g).filter(s => s.adult) : [])];
+}
+
 function worldTab() {
     const id = game()?.world ?? BUILT_IN[0];
     const w = getWorld(id);
@@ -512,7 +518,7 @@ function worldTab() {
     const sec = (title: string, body: string) => `<section class="mu-lib-read"><h4>${title}</h4>${body}</section>`;
     return `<header class="mu-lib-head"><div><h2>${esc(w.name)}</h2><small>${esc(w.setting)}</small></div></header>
         <p>${esc(w.description)}</p>
-        ${sec('Needs', list(activeStatuses(w).map(s => `${s.icon} ${s.name}`)))}
+        ${sec('Needs', list(needsOf(w).map(s => `${s.icon} ${s.name}`)))}
         ${sec('Places', list(w.places.map(p => p.name)))}
         ${sec('Jobs', `<ul class="mu-lib-jobs">${w.occupations.map(o => `<li><b>${esc(o.name)}</b> <small>${o.ranks.map(r => esc(r.name)).join(' → ')}</small></li>`).join('')}</ul>`)}
         ${sec('Origins', list((w.catalogs.origins ?? []).map(o => o.name)))}
