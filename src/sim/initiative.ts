@@ -10,7 +10,9 @@
 // Festivals with a custom between people (E5) give moments chosen by each person's feelings toward you (Valentine's
 // chocolate, a partner expecting a date on Christmas Eve, an invitation to the New Year shrine visit or to hanami), and
 // a friend may introduce you to a good friend of theirs you haven't met, at that friend's standing appointment or at a
-// place their day takes them to (E30).
+// place their day takes them to (E30). With adult content, someone who has been wanting you (their drive, sim/drive.ts)
+// texts more often, a frustrated partner wants more nights together, and someone alone with you may make the move
+// (X23: a card with Yes and Not tonight, within the budget).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay, onLook } from './hooks.js';
@@ -33,7 +35,12 @@ import { festivalsOn } from './festivals.js';
 import { slotAt, adultOn } from './dayplan.js';
 import { ties } from './living.js';
 import { threadMomentFits, goneFromMap } from './threads.js';
-import { isWith } from './social.js';
+import { isWith, withYou } from './social.js';
+import { wantingYou, driveWant, CHAR_DRIVE } from './drive.js';
+import { driveOf } from './intimacy.js';
+import { actionsHere } from './needs.js';
+import { isPrivateAct, sceneAct } from './actions.js';
+import type { ActionDef } from '../core/world.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -155,22 +162,30 @@ export function checkAsks(g: Save, w: WorldDef) {
 /* ---------- R-13: an invitation by text ---------- */
 
 export interface TextAsk { kind: 'date' | 'casual' }
-// Someone away from you with a crush texts you a date; a casual partner, a "come over tonight?". Answered on the
-// invitation card (Accept, Decline, Not yet).
+/** How much likelier someone who has been wanting you is to text (adult content, sim/drive.ts). */
+export const WANT_INVITE = 2;
+// Someone away from you with a crush texts you a date; a casual partner, a "come over tonight?" (with adult content, a
+// partner who has been wanting you too, unless you live together). Answered on the invitation card (Accept, Decline,
+// Not yet). The hour's chance is 5% for each person who could text, twice that for someone wanting you.
 export function textAsks(g: Save, w: WorldDef): string[] {
-    const h = Math.floor(g.minutes / 60), s = social(g) as any;
-    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || rnd(g, `textask|${h}`) > 0.05) return [];
+    const h = Math.floor(g.minutes / 60), s = social(g) as any, roll = rnd(g, `textask|${h}`);
+    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE) return [];
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
     const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar));
     const pick = (r: Resident): TextAsk | null => {
         const st = romOf(g, r.avatar).status;
         if (st === 'casual' && intimacyReady(g, r.avatar, '').lean === 'yes') return { kind: 'casual' };
         if (st === 'none' && romValue(g, r.avatar) >= ROMANCE_TIERS[2].lo && canDate(g, r.avatar) && r.leisure.length) return { kind: 'date' };
+        if (partnered(g, r.avatar) && homeOf(g, r.avatar) !== playerHomeId && wantingYou(g, w, r.avatar)) return { kind: 'casual' };
         return null;
     };
     const list = pool.map(r => [r, pick(r)] as const).filter((x): x is readonly [Resident, TextAsk] => !!x[1]);
     if (!list.length) return [];
-    const [r, t] = list[Math.floor(rnd(g, 'textaskwho') * list.length)];
+    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1)), total = ws.reduce((a, b) => a + b, 0);
+    if (roll > 0.05 * total / list.length) return [];
+    let x = rnd(g, 'textaskwho') * total, i = 0;
+    while (i < list.length - 1 && (x -= ws[i]) >= 0) i++;
+    const [r, t] = list[i];
     const now = nowAbs(g);
     const base = t.kind === 'casual' ? Math.max(now + 60, g.day * 1440 + 21 * 60) : now + 120, from = base - (base % 30);
     const place = t.kind === 'casual' ? homeOf(g, r.avatar) : r.leisure[Math.floor(rnd(g, 'textaskwhere') * r.leisure.length)];
@@ -231,6 +246,7 @@ export function wantOf(g: Save, w: WorldDef, a: string, n: string): string {
     const day = relOf(g).day, lost = day?.day === g.day && (day.snap[a]?.[0] ?? f) - fr(g, a, YOU) >= 3;
     if (grudgeOf(g, a)) return `${n} is waiting for an apology from {{user}}`;
     if (warning(g, a)) return `${n} is worried about their relationship with {{user}}`;
+    const drive = driveWant(g, w, a, n); if (drive) return drive;
     const love = romanticOk(g, w, a);
     if (love && st === 'none' && r >= ROMANCE_TIERS[2].lo && !coolingDown(g, a)) return `${n} is hoping {{user}} will ask them out`;
     if (love && st === 'none' && r >= ROMANCE_TIERS[1].lo && !needsOf(g, a).partnerOnly && (lookingOf(g, a) === 'Something casual' || ['free', 'passionate'].includes(needsOf(g, a).preset))) return `${n} would like to keep things casual with {{user}}`;
@@ -248,6 +264,71 @@ export function wantsLine(g: Save, w: WorldDef, present: Resident[]): string {
     return parts.length ? `What they want from {{user}} right now: ${parts.join('; ')}.` : '';
 }
 const names = (list: string[]) => (list.length < 3 ? list.join(' and ') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`);
+
+/* ---------- X23: they make the move (adult content) ---------- */
+
+/** Someone who has been wanting you, alone with you where a private action can happen, makes the move: a card with Yes
+ *  (the private action starts, as if you'd picked it) and Not tonight (nothing lost, no grudge). `action`: the one they
+ *  have in mind. One at a time; it goes when it no longer fits (you left, someone came, two hours went by). */
+export interface MoveOffer { who: string; action: string; day: number; at: number }
+const moveOf = (g: Save) => (seat(g) as any).move as MoveOffer | undefined;
+/** How long a move waits for an answer (minutes). */
+export const MOVE_WAIT = 120;
+// An action whose words one of their own hard limits names: they'd never suggest it.
+const pastLimit = (g: Save, a: string, x: ActionDef) => {
+    const lim = (relOf(g).people[idOf(g, a)]?.intimate?.limits ?? []).join(' ').toLowerCase();
+    return !!lim && (x.matches ?? []).some(m => !!m.trim() && lim.includes(m.trim().toLowerCase()));
+};
+/** The private actions someone could start with you here and now: offered here (its place and time, the adult switch, a
+ *  place that won't serve you…), done together, not risky, not alone, nothing past their own limits. */
+export function moveActions(g: Save, w: WorldDef, a: string): ActionDef[] {
+    return actionsHere(g, w).filter(x => isPrivateAct(g, x) && !!x.together && !((x.risk ?? 0) > 0) && !(x.tags ?? []).includes('solo') && !pastLimit(g, a, x));
+}
+// Everything both sides' rules ask: adult content and the initiative setting on, romance may come from them (attraction,
+// no family or minor block, not exclusive elsewhere), no grudge or cooldown, wanting you (a casual partner or a partner,
+// their intimacy needs met, ready again), the two of you alone (nobody else of the world here), awake, nothing going on.
+function canMove(g: Save, w: WorldDef, a: string): boolean {
+    if (!adultOn(g) || !initiativeOn(g) || g.asleep || sceneAct(g) || !isMine(g, a)) return false;
+    const here = presentAt(g, w, g.player.loc);
+    if (here.length !== 1 || here[0].avatar !== a || !here[0].met || !withYou(g, w).includes(a)) return false;
+    return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a);
+}
+/** Maybe someone here makes the move now: a chance a day per person by their drive (high often, low rarely), within the
+ *  initiative budget. `force`: skip the day's dice (tests). */
+export function checkMove(g: Save, w: WorldDef, force = false): MoveOffer | null {
+    if (!adultOn(g)) return null;
+    const open = moveOffer(g, w); if (open) return open;
+    const here = presentAt(g, w, g.player.loc); if (here.length !== 1) return null;
+    const a = here[0].avatar;
+    if (!canMove(g, w, a) || (!force && rnd(g, `move|${a}`) >= CHAR_DRIVE[driveOf(g, a)].move) || !canSpend(g, a)) return null;
+    const acts = moveActions(g, w, a); if (!acts.length) return null;
+    const m: MoveOffer = { who: a, action: acts[Math.floor(rnd(g, `movewhat|${a}`) * acts.length)].id, day: g.day, at: nowAbs(g) };
+    (seat(g) as any).move = m;
+    spend(g, a);
+    return m;
+}
+/** The move waiting for your answer, if it still fits (else it's dropped). */
+export function moveOffer(g: Save, w: WorldDef): MoveOffer | null {
+    const m = moveOf(g); if (!m) return null;
+    if (nowAbs(g) - m.at <= MOVE_WAIT && canMove(g, w, m.who) && moveActions(g, w, m.who).some(x => x.id === m.action)) return m;
+    delete (seat(g) as any).move;
+    return null;
+}
+/** For the card (ui/events.ts): who, the action they have in mind, and the words. Null when there's none. */
+export function moveCard(g: Save, w: WorldDef): { who: string; name: string; action: ActionDef; text: string } | null {
+    const m = moveOffer(g, w); if (!m) return null;
+    const action = moveActions(g, w, m.who).find(x => x.id === m.action)!, name = g.cast[m.who]?.name ?? m.who;
+    return { who: m.who, name, action, text: `${name} pulls you closer: ${action.label.replace(/[.\s]+$/, '').toLowerCase()}?` };
+}
+/** Yes: the action they had in mind, for the screen to start exactly as if you'd picked it (its price and time, in the
+ *  scene or not); null when it no longer fits. The card goes either way. */
+export function acceptMove(g: Save, w: WorldDef): ActionDef | null {
+    const card = moveCard(g, w);
+    delete (seat(g) as any).move;
+    return card?.action ?? null;
+}
+/** Not tonight: the card goes, and nothing else happens (no romance lost, no cooldown, no grudge). */
+export function declineMove(g: Save) { delete (seat(g) as any).move; }
 
 /* ---------- E5: festival customs between you and them ---------- */
 
@@ -418,6 +499,7 @@ export function checkInitiative(g: Save, w: WorldDef) {
     checkTiers(g, w);
     confrontations(g, w, presentAt(g, w, g.player.loc));
     checkAsks(g, w);
+    checkMove(g, w);
 }
 onHour.push((g, w) => { if (!initiativeOn(g)) return []; checkInitiative(g, w); return [...textAsks(g, w), ...festivalCustoms(g, w), ...introductions(g, w)]; });
 onDay.push((g, w) => { if (initiativeOn(g)) tidyMoments(g, m => fits(g, w, m)); return []; });
