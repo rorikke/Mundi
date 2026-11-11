@@ -80,12 +80,15 @@ export function heroDescription(w: WorldDef, h: Hero, start?: StartDef): string 
 
 // What the persona was made from, kept inside the persona itself so the Library can show and edit it.
 export interface PersonaSheet { world: string; name: string; age: number; appearance: Record<string, string>; origin: string; traits: Record<string, string[]>; bio: string; /** your gender and attraction, for the next game */ person?: Person }
+/** Mundi wrote this persona's description from the sheet (a new character), so it may write it again. A ready persona's
+ *  sheet keeps only what a game chose (no age, no looks): its own description is never replaced. */
+export const sheetWritten = (s: Partial<PersonaSheet> | null | undefined): s is PersonaSheet => !!s && Number.isFinite(s.age);
 /** After a trait changed (life goals' "Change a trait"): the persona card says who you are again, through the same
  *  words the new game and the Library use. Only for the persona you play in this world; false when there's nothing to
- *  refresh (no sheet, another world). */
+ *  refresh (no sheet, a ready persona's own description, another world). */
 export async function refreshPersona(g: Save, w: WorldDef, groupId: string): Promise<boolean> {
     const file = persona(), sheet = file ? personaSheet(file) : null;
-    if (!sheet || sheet.world !== w.id) return false;
+    if (!sheetWritten(sheet) || sheet.world !== w.id) return false;
     const traits = JSON.parse(JSON.stringify(sheet.traits ?? {}));
     traits[groupId] = [...(((g.player.traits ?? {}) as Record<string, string[]>)[groupId] ?? [])];
     const next = { ...sheet, traits };

@@ -66,12 +66,15 @@ export function heroDescription(w, h, start) {
         h.bio.trim(),
     ].filter(Boolean).join('\n');
 }
+/** Mundi wrote this persona's description from the sheet (a new character), so it may write it again. A ready persona's
+ *  sheet keeps only what a game chose (no age, no looks): its own description is never replaced. */
+export const sheetWritten = (s) => !!s && Number.isFinite(s.age);
 /** After a trait changed (life goals' "Change a trait"): the persona card says who you are again, through the same
  *  words the new game and the Library use. Only for the persona you play in this world; false when there's nothing to
- *  refresh (no sheet, another world). */
+ *  refresh (no sheet, a ready persona's own description, another world). */
 export async function refreshPersona(g, w, groupId) {
     const file = persona(), sheet = file ? personaSheet(file) : null;
-    if (!sheet || sheet.world !== w.id)
+    if (!sheetWritten(sheet) || sheet.world !== w.id)
         return false;
     const traits = JSON.parse(JSON.stringify(sheet.traits ?? {}));
     traits[groupId] = [...((g.player.traits ?? {})[groupId] ?? [])];

@@ -5,7 +5,7 @@
 import { state, notify, esc, game, toast, busy, settings, saveSettings } from '../core/store.js';
 import { getWorld, loadWorld, BUILT_IN, activeStatuses, worlds, isScenario } from '../core/world.js';
 import { ctx, characters, charOf, thumb, fullCharacter, saveCharacter, personas, savePersona, personaThumb, persona, lorebooks, loadLore, saveLore, newLoreEntry, chatLore, groupOf, selectedGroup, bindChatLore, charLorebooks, setCharLorebooks, importCharacterFiles, importLorebookFiles, importPersonaPictures, folders, tagIdsOf, newFolder, putInFolder, isFav, setFavorite, deleteCharacters, deletePersonas, deleteLorebooks, createCharacter, createPersona, createLorebook, duplicateCharacter, duplicatePersona, duplicateLorebook, setCharacterImage, setPersonaImage, defaultPersona, setDefaultPersona, personaSheet, setPersonaSheet, fetchSprites, uploadSprite, deleteSprite, expressionLabels, bgList, bgThumb, bgUrl, bgUpload, bgRename, bgDelete, bgFolderCreate, bgFolderPut, refreshList, folderColor, setFolderColor, deleteFolder, personaLore, setPersonaLore, exportCharacter, cardFile, fileNameOf, baseSpriteFolder, loreCount, charTags, tagColor, tagCharacter, untagCharacter, allTags, cardTokens, cachedTokens, folderMade, renameFolder, characterChats, useGreeting, openCharacter, } from '../st/bridge.js';
-import { gameEntry, heroDescription, initialsAvatar } from '../sim/game.js';
+import { gameEntry, heroDescription, initialsAvatar, sheetWritten } from '../sim/game.js';
 import { sceneText } from '../sim/prompt.js';
 import { ACT, INPUT } from './reg.js';
 import { leaveHtml } from './creator.js';
@@ -460,7 +460,7 @@ async function savePersonaDraft(file) {
         const next = { ...sheet, traits: L.draft.__traits ?? sheet.traits, name: out.name ?? sheet.name };
         setPersonaSheet(file, next);
         const w = getWorld(next.world);
-        if (w && !has('description'))
+        if (w && sheetWritten(next) && !has('description'))
             out.description = heroDescription(w, { ...next, portrait: null });
     }
     await savePersona(file, out);

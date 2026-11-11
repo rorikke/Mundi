@@ -14,7 +14,7 @@ import {
     bgList, bgThumb, bgUrl, bgUpload, bgRename, bgDelete, bgFolderCreate, bgFolderPut, type Bgs,
     refreshList, folderColor, setFolderColor, deleteFolder, personaLore, setPersonaLore, exportCharacter, cardFile, fileNameOf, baseSpriteFolder, loreCount, charTags, tagColor, tagCharacter, untagCharacter, allTags, cardTokens, cachedTokens, folderMade, renameFolder, characterChats, useGreeting, openCharacter,
 } from '../st/bridge.js';
-import { gameEntry, heroDescription, initialsAvatar } from '../sim/game.js';
+import { gameEntry, heroDescription, initialsAvatar, sheetWritten } from '../sim/game.js';
 import { sceneText } from '../sim/prompt.js';
 import { ACT, INPUT } from './reg.js';
 import { leaveHtml } from './creator.js';
@@ -384,7 +384,7 @@ async function savePersonaDraft(file: string) {
         const next = { ...sheet, traits: L.draft.__traits ?? sheet.traits, name: out.name ?? sheet.name };
         setPersonaSheet(file, next);
         const w = getWorld(next.world);
-        if (w && !has('description')) out.description = heroDescription(w, { ...next, portrait: null });
+        if (w && sheetWritten(next) && !has('description')) out.description = heroDescription(w, { ...next, portrait: null });
     }
     await savePersona(file, out);
 }
