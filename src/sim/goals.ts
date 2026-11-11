@@ -119,7 +119,7 @@ function threadsHere(g: Save, w: WorldDef) {
 }
 const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;
 // Could this value of a condition ever hold in this game? (A course count beyond the world's courses, a skill it lacks,
-// a need off in this game, more secrets than its threads can give.)
+// a need off in this game, more keepsakes or places than it has, more secrets than its threads can give.)
 function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<string>): boolean {
     switch (key) {
         case 'course': return /^\d+$/.test(v) ? offeredOf(w).length >= Number(v) : offeredOf(w).some(c => c.id === v);
@@ -131,6 +131,13 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
             return have.has(m[1]);
         }
         case 'need': { const id = v.split(/\s+/)[0]; return id === 'all' ? inPlay.size > 0 : inPlay.has(id); }
+        // more keepsakes, or places, than the world has
+        case 'holds': { const ks = w.keepsakes ?? []; return /^\d+$/.test(v) ? ks.length >= Number(v) : v.startsWith('kind:') ? ks.some(k => !!k.kind && (v === 'kind:any' || k.kind === v.slice(5))) : ks.some(k => k.id === v); }
+        case 'visited': {
+            const m = v.match(/^(\d+)(?:\s+in\s+(\S+))?$/); if (!m) return true;
+            const places = w.places.filter(p => !p.link && !p.private && !p.adult && (!m[2] || p.map === m[2] || w.maps.find(x => x.id === p.map)?.area === m[2]));
+            return places.length >= Number(m[1]);
+        }
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {
             const good = threadsHere(g, w).filter(({ t }) => (t.endings ?? []).some(e => e.good));
