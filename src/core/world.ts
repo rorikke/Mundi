@@ -270,7 +270,9 @@ export interface Origin {
 export interface Rank { name: string; pay: number; needs?: Record<string, number>; traits?: string[]; course?: string; when?: When; place?: string;
     /** The rank you can hold while you take the job's course (a medical student, a nursing assistant): on a job's first
      *  rank, the job hires you while you take a course it lists in `courses`, and leaving the rank needs it finished. */
-    student?: boolean }
+    student?: boolean;
+    /** Days a week at this rank, in place of the job's (an AV extra is called once a week, a regular three times). */
+    days?: number }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
 // `promote`: shifts to reach each of its ranks; `after`: the option is only offered after one of these paths.
 export interface BranchOption { id: string; name: string; desc?: string; ranks: Rank[]; promote?: number[]; likes?: string[]; after?: string[] }
@@ -346,28 +348,40 @@ export interface Occupation {
      *  from their gender, else is picked once when hired (`JobState.track`); the world's people use their own gender's.
      *  Missing, or no track for a gender: the job as written. */
     tracks?: Record<string, JobTrack>;
+    /** Months between signing and the first shift (1: a month, a third of a season; Japan's AV law). Missing: from the
+     *  next shift, as before. A track can set its own. */
+    startAfter?: number;
 }
 /** What a job's track changes (see Occupation.tracks); what it doesn't set is the job's own. `hire`: a condition to be
- *  hired on it (an introduction); `fee`: money the job takes when you're hired (a training fee); `pace`: its ranks take
- *  this many times as long (1.5). */
+ *  hired on it, or a list of them where one is enough (an introduction); `fee`: money the job takes when you're hired
+ *  (a training fee), waived once you've finished one of the track's `courses`; `pace`: its ranks take this many times
+ *  as long (1.5). Its `events` come on top of the job's (one with the id of one of the job's replaces it); every other
+ *  field replaces the job's (sim/tracks.ts). */
 export interface JobTrack {
     name?: string; ranks?: Rank[]; branches?: Branch[]; promote?: number[]; schedule?: Schedule; length?: number; place?: string; hireable?: boolean;
     courses?: string[]; skills?: Record<string, number>; likes?: string[]; trains?: string[]; events?: WorkEvent[];
-    hire?: When; fee?: number; pace?: number;
+    hire?: When | When[]; fee?: number; pace?: number;
+    shift?: number; hours?: [number, number]; offScreen?: boolean; nightPay?: number; cost?: Record<string, number>; overtime?: boolean; startAfter?: number;
 }
 /** (J1) A weekly schedule: how many days a week (the engine picks which) or which weekdays, and a shift's hours
  *  [from, to) (`to` below `from` goes past midnight: 20–6). A job worked round the clock lists its `shifts` instead
  *  of from/to. The work preset (J9) scales the days. */
 export interface Schedule { days: number | WeekdayId[]; from?: number; to?: number; shifts?: { id: string; name?: string; from: number; to: number }[] }
 /** (J6) A thing that happens on a shift: a setup sentence and two or three choices. */
-export interface WorkEvent { id: string; setup: string; when?: When; choices: WorkChoice[]; adult?: boolean }
+export interface WorkEvent { id: string; setup: string; when?: When; choices: WorkChoice[]; adult?: boolean;
+    /** It comes from a colleague: one of the world's people in the same job, met, at `level` or closer with you (a
+     *  friendship level, `friend` when missing), whose name stands for {who} in its texts (and a `feels` key "{who}").
+     *  Without one, `fallback` stands for them ("another actress"), at `odds` of the usual chance (0.5); with no
+     *  fallback the event waits for such a colleague. */
+    from?: { level?: string; fallback?: string; odds?: number } }
 /** A choice at work: an optional roll (a skill against `dc`), and what it does: performance up or down (`perf`,
  *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
  *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
 export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When;
     /** (optional) a name a private overlay can rewrite it by, keeping its numbers (as an outcome's `id`) */ id?: string }
 export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string;
-    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
+    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string;
+    /** effects for some days (1–7), as a boost: a ranking's +15% pay for a week (`addBoost` in sim/perks.ts) */ boost?: { effects: EffectDef[]; days: number } }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
