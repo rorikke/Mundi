@@ -318,7 +318,7 @@ points (once each, inside the daily cap).
 - **Everyone has a drive too,** from their profile (people made in the game get one). It decides what happens after a
   night together: **ready again** (2 hours for a high drive, 12 hours average, 2 days low), **wanting you** (casual
   partners and partners, after 2, 4 or 8 days: they text you more, you roll a little better, the AI is told) and, for
-  partners only, **frustrated** (after 6, 12 or 24 days, only while you keep seeing each other: romance toward you slips
+  partners only, **frustrated** (after 8, 12 or 24 days, so meeting weekly is enough even for a high drive, only while you keep seeing each other: romance toward you slips
   a point a day and the People app says they want more nights together). The next night together ends it.
 - **You learn a drive** after three nights together, or from Pillow talk.
 - **Making the move.** Someone who wants you, alone with you where it could happen, may pull you closer: a card with
@@ -332,7 +332,7 @@ points (once each, inside the daily cap).
 ### Getting caught
 
 Some private moments happen where they shouldn't: the manga café's couple booth (15% to be caught), after hours at the
-office (20%), the park after dark (15%), the ryokan's shared bath after midnight (10%).
+office (20%), Ueno Park after dark (15%), the ryokan's shared bath after midnight (10%).
 
 - **Not caught:** it plays as usual, with a thrill (mood up, Desire full).
 - **Caught:** you leave at once and nothing else happens, your mood drops, there may be a fee (¥5,000 "cleaning" at the
@@ -379,7 +379,7 @@ Both are adult, run on a schedule like Tokyo's others, and teach Sensuality:
 - **Strengths:** *Good in bed* (Sensuality 3).
 - **Personality:** *Flirtatious* (above) and *Shameless* (+1 on rolls where being seen is part of it, but 10% more likely
   to be caught).
-- **Interests:** *Kink*, a little more mood from what fits it; on the dating app it shows on people whose likes fit.
+- **Interests:** *Kink*, a little more mood from what fits it; on the dating app it shows on people whose likes fit, and counts as an interest you share with them.
 - **In bed** and **Drive:** one pick each (above).
 - **Habits** come from doing: *An active love life* (five private moments in a week: Sensuality trains 10% faster, +2
   mood each morning) and *Kabukichō regular* (four nights at a host club, hostess lounge or Pole Star in a week:
