@@ -19,5 +19,15 @@ export const decayMods: ((g: Save, w: WorldDef, status: string) => number)[] = [
 export const closedByEvents: ((g: Save, w: WorldDef, placeId: string) => boolean)[] = [];
 // Things that react to the end of a fight (a quest step, the ecology…).
 export const afterFight: ((g: Save, w: WorldDef, c: any) => string[])[] = [];
+// Life goals and life points meet here, so neither waits on the other (sim/goals.ts on one side, sim/points.ts and
+// sim/rewards.ts on the other). A step of the active goal was done (`step`: its index; `last`: the goal is finished):
+// the points ledger pays for it. Returns lines to show.
+export const onGoalStep: ((g: Save, w: WorldDef, goal: string, step: number, last: boolean) => string[])[] = [];
+// What the rewards shop asks of life goals; sim/goals.ts fills these in (until then: no goal, nothing to skip).
+export const goalLink: {
+    active: (g: Save) => string | null;
+    canSkip: (g: Save, w: WorldDef) => boolean;
+    skip: (g: Save, w: WorldDef) => string[];
+} = { active: () => null, canSkip: () => false, skip: () => [] };
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll: ((c: { skill: string; d20: number; other?: number; total: number; dc: number; grade: string }) => void)[] = [];

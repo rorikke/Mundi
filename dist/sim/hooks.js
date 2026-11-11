@@ -15,5 +15,11 @@ export const decayMods = [];
 export const closedByEvents = [];
 // Things that react to the end of a fight (a quest step, the ecology…).
 export const afterFight = [];
+// Life goals and life points meet here, so neither waits on the other (sim/goals.ts on one side, sim/points.ts and
+// sim/rewards.ts on the other). A step of the active goal was done (`step`: its index; `last`: the goal is finished):
+// the points ledger pays for it. Returns lines to show.
+export const onGoalStep = [];
+// What the rewards shop asks of life goals; sim/goals.ts fills these in (until then: no goal, nothing to skip).
+export const goalLink = { active: () => null, canSkip: () => false, skip: () => [] };
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll = [];
