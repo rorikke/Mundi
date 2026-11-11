@@ -1,4 +1,4 @@
-import { settings, game } from './store.js';
+import { settings, game, adultOn, type Save } from './store.js';
 import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 import { applyOverlay, overlayFile } from './overlay.js';
@@ -133,6 +133,8 @@ export interface StatusDef {
     id: string; name: string; icon: string; color: string; start: number; max: number; hud?: boolean;
     /** `rpg`: only in the RPG game mode (health…); `off`: turned off in a Custom world. */
     rpg?: boolean; off?: boolean;
+    /** Only with adult content on (Desire): otherwise it isn't in play (activeStatuses) and nothing changes it. */
+    adult?: boolean;
     decay?: { amount: number; everyMinutes: number; awakeOnly?: boolean };
     zero?: {
         text?: string; place?: string; cost?: number; restore?: number;
@@ -198,21 +200,37 @@ export interface ActionDef {
     private?: boolean;
     /** (E15) Only with adult content on. */
     adult?: boolean;
+    /** (adult) A chance of being caught, 0–1 (a karaoke corner room 0.15), for a private action done where you
+     *  shouldn't: rolled with the `risk` effects (`riskRoll` in sim/dice.ts). Missing: none. */
+    risk?: number;
+    /** (adult) Words a private action matches against someone's intimate likes and hard limits (`prefs`, `limits`), by
+     *  the same word test gifts use: "rope", "being led", "bath together". */
+    matches?: string[];
+    /** (adult) A private action's difficulty for its roll (a lazy morning 8, bed 10, toys or a costume 12); missing:
+     *  the engine's default. */
+    dc?: number;
 }
 /** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
  *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little");
  *  `feelsDaily`: those gains count once a game day per person and action (Kaito's "this one's due"), and the text is
  *  still told after that. (E31) `rumor`: a rumor it starts among the people here. */
 export interface RollOutcome { text: string; money?: number; effects?: Record<string, number>; keepsake?: string; fact?: string; feels?: Record<string, number>; feelsDaily?: boolean; rumor?: string }
-/** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`). */
-export interface ActionOutcome extends RollOutcome { weight: number; when?: When }
+/** (E14) One of an action's outcomes: drawn by `weight` among those whose own condition holds (`when: present: Kaito`).
+ *  `id` (optional): a name a private overlay can rewrite it by (`{ id, text }`), keeping its weight and effects; when
+ *  every outcome of the action has one, the overlay's are merged into them by id. */
+export interface ActionOutcome extends RollOutcome { weight: number; when?: When; id?: string }
 /** (E14) A row of a world's shared outcome table: an outcome with an id the actions' `words` name. */
 export interface TableRow extends ActionOutcome { id: string }
 export interface Attribute { id: string; name: string; desc?: string }
 /** A group of traits the player picks from when making a character. `skills` (new, optional) makes it a strengths
  *  group: each option stands for skill levels the pick starts with (`{ "Good cook": { cooking: 3 } }`). `formerly`:
  *  options no longer offered that keep their mapping in `skills`, so old saves and persona sheets still convert. */
-export interface TraitGroup { id: string; label: string; max: number; options: string[]; skills?: Record<string, Record<string, number>>; formerly?: string[] }
+export interface TraitGroup { id: string; label: string; max: number; options: string[]; skills?: Record<string, Record<string, number>>; formerly?: string[];
+    /** The whole group only with adult content on (In bed, Drive). */
+    adult?: boolean;
+    /** More options offered only with adult content on (Good in bed in the strengths group, Shameless in personality),
+     *  after `options`. A private overlay marked adult that adds `options+` adds them here instead. */
+    adultOptions?: string[] }
 /** Who pays part of a course (`Course.aid`): an employer, a school's merit scholarship or the public benefit. Only the
  *  best one a player qualifies for counts (the biggest share; never two). `share`: 0–1 of the fee; `when`: who
  *  qualifies, checked at each fee (`employer` aid also needs a job; `merit` aid is decided at enrollment and kept);
@@ -234,6 +252,8 @@ export interface CourseAid { id: string; name: string; kind: 'employer' | 'merit
 export interface Course {
     id: string; name: string; area: string; days: number; cost: number; grants: string[]; icon: string; desc: string; skills?: Record<string, number>;
     length?: number; at?: string; when?: When; needs?: When; perSeason?: boolean; retired?: boolean; aid?: CourseAid[];
+    /** Only with adult content on: otherwise not offered, no aid and no boss's message, and one being taken is on hold. */
+    adult?: boolean;
 }
 export interface Origin {
     id: string; name: string; desc?: string; money: number; home?: string; knows?: number;
@@ -319,6 +339,21 @@ export interface Occupation {
     /** Ids of changes that moved this job's ranks up (a new bottom rank was added): a save's rank for this job moves
      *  up once for each id it hasn't seen (`player.shifts`). */
     shifted?: string[];
+    /** Kinds of job it is (`adult-stage`, `nightwork`): effects can aim at them (`perf`, `pay`). */
+    tags?: string[];
+    /** Tracks by gender (a gender id → what that track does differently): one job, one listing, with its own ranks,
+     *  pay, hours and gates for each track (the AV actor's track, men's and women's esthe). The player's track comes
+     *  from their gender, else is picked once when hired (`JobState.track`); the world's people use their own gender's.
+     *  Missing, or no track for a gender: the job as written. */
+    tracks?: Record<string, JobTrack>;
+}
+/** What a job's track changes (see Occupation.tracks); what it doesn't set is the job's own. `hire`: a condition to be
+ *  hired on it (an introduction); `fee`: money the job takes when you're hired (a training fee); `pace`: its ranks take
+ *  this many times as long (1.5). */
+export interface JobTrack {
+    name?: string; ranks?: Rank[]; branches?: Branch[]; promote?: number[]; schedule?: Schedule; length?: number; place?: string; hireable?: boolean;
+    courses?: string[]; skills?: Record<string, number>; likes?: string[]; trains?: string[]; events?: WorkEvent[];
+    hire?: When; fee?: number; pace?: number;
 }
 /** (J1) A weekly schedule: how many days a week (the engine picks which) or which weekdays, and a shift's hours
  *  [from, to) (`to` below `from` goes past midnight: 20–6). A job worked round the clock lists its `shifts` instead
@@ -329,7 +364,8 @@ export interface WorkEvent { id: string; setup: string; when?: When; choices: Wo
 /** A choice at work: an optional roll (a skill against `dc`), and what it does: performance up or down (`perf`,
  *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
  *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
-export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When }
+export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When;
+    /** (optional) a name a private overlay can rewrite it by, keeping its numbers (as an outcome's `id`) */ id?: string }
 export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string;
     /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
@@ -417,7 +453,18 @@ export interface IntimateProfile { experience?: string; wants?: string; drawnTo?
     body?: string;
     /** How they are in bed (longer than the other lines). */
     inBed?: string;
-    prefs?: string[]; limits?: string[] }
+    prefs?: string[]; limits?: string[];
+    /** Who leads in bed, as a field (from `dynamic`): matched against the player's In bed trait. */
+    role?: IntimateRole;
+    /** How often they want it (unset: average): when they're ready again, start wanting you, or get frustrated. */
+    drive?: IntimateDrive }
+export type IntimateRole = 'lead' | 'follow' | 'switch';
+export type IntimateDrive = 'low' | 'average' | 'high';
+export const INTIMATE_ROLES: IntimateRole[] = ['lead', 'follow', 'switch'];
+export const INTIMATE_DRIVES: IntimateDrive[] = ['low', 'average', 'high'];
+/** (adult) A world's plain likes and hard limits that people made in the game draw an intimate profile from (a private
+ *  overlay replaces the lists with its own). */
+export interface IntimatePool { prefs?: string[]; limits?: string[] }
 /** One of a world's genders: `pronouns` and the `plural` ("women") are what the AI is told. */
 export interface GenderDef { id: string; name: string; plural?: string; pronouns?: string }
 export const exampleTag = (w: WorldDef, ex: ExampleCharacter) => `${ex.from ?? w.id}:${ex.name}`;
@@ -427,7 +474,10 @@ export interface AppDef { id: string; name: string; icon: string; color: string;
  *  condition holds, see When), or a `rumor` (goes around between people once its `when` holds, sim/living.ts).
  *  (E15) `adult`: only with adult content on. (E31) `about`: who a rumor is about (by name; they never "hear" it);
  *  `secret`: their close friends don't pass it on. (E32) `priority`: kept first when a busy scene has too much lore. */
-export interface LoreEntry { keys: string[]; content: string; constant?: boolean; when?: When; rumor?: boolean; adult?: boolean; about?: string; secret?: boolean; priority?: number }
+export interface LoreEntry { keys: string[]; content: string; constant?: boolean; when?: When; rumor?: boolean; adult?: boolean; about?: string; secret?: boolean; priority?: number;
+    /** (optional) a name a private overlay can replace it by: an overlay entry with the same id changes this one
+     *  instead of being sent next to it. */
+    id?: string }
 
 /** A life goal: the player follows one at a time (the `goals` system). Its steps are done in order, each when all its
  *  objectives hold; finishing the last gives the perk for good. The engine's general goals are in core/goals.ts; a
@@ -457,7 +507,9 @@ export interface PerkDef { name: string; desc?: string; effects: EffectDef[] }
  *  for each person apart, "once per person per season"). `roles`: only at a place with one of these roles (a shrine).
  *  `when`: only while this holds. `needs`, `adult`: as for goals. */
 export interface RewardDef { id: string; name: string; icon?: string; desc?: string; price: number; kind: string; effects?: EffectDef[]; days?: number; need?: string;
-    limit?: RewardLimit; roles?: string[]; when?: string; needs?: string[]; adult?: boolean }
+    limit?: RewardLimit; roles?: string[]; when?: string; needs?: string[]; adult?: boolean;
+    /** An `insight` item kept to these questions (`heart`, `view`, `secret`, `bed`); missing: all of them. */
+    questions?: string[] }
 export interface RewardLimit { per?: 'day' | 'week' | 'season' | 'year' | 'goal' | 'ever'; n?: number; person?: boolean }
 /** A world's life goals beside the general ones: `off` (general goals it doesn't offer), `names` (general goals renamed:
  *  id → name; the rest of the goal still comes from the engine), `add` (its own goals; one with a general goal's id
@@ -592,6 +644,8 @@ export interface WorldDef {
     careerSpeed?: number;
     /** (E1, E32) What the AI is told in a scene (see SceneDef). Missing: as before. */
     scene?: SceneDef;
+    /** (adult) Plain likes and limits for intimate profiles of people made in the game (see IntimatePool). */
+    intimatePool?: IntimatePool;
     /** (E12) Your own sound files for places' sound tags (tag → a file in the world's folder); a tag without a file (an
      *  empty slot) plays the engine's own sound, made on the fly. */
     sounds?: Record<string, string>;
@@ -613,7 +667,9 @@ export interface WorldDef {
 export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean; household?: string }
 export interface StartKnown extends FeelParts { name: string; family?: FamilyType }
 /** (J3) A skill. */
-export interface SkillDef { id: string; name: string; icon?: string; desc?: string }
+export interface SkillDef { id: string; name: string; icon?: string; desc?: string;
+    /** Only with adult content on (Sensuality): hidden from the profile, the AI and conditions otherwise. */
+    adult?: boolean }
 /** (E14, E35) A keepsake: its kind (charm, photo, print…: a gift of each kind counts once per person), whether it can
  *  be given (`gift: false`: it can't; missing: it can), and who would love it (names of the world's people, or words
  *  matched against a person's job and the places, and kinds of place, where they spend their free time). */
@@ -632,7 +688,9 @@ export interface StoryDef { id: string; place: string; when?: When; setup: strin
 /** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
  *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). `minutes`:
  *  the time it takes (missing: 15). */
-export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult; when?: When; minutes?: number }
+export interface StoryChoice extends StoryResult { label: string; roll?: { skill?: string; dc: number }; fail?: StoryResult; when?: When; minutes?: number;
+    /** (optional) a name a private overlay can rewrite it by, keeping its numbers; choices keep their order (`seen:
+     *  story:2` counts by position) */ id?: string }
 /** What a story's choice leads to: text, needs and money (a cost below 0), a keepsake, a rumor it starts, a fact, how
  *  some of the world's people feel about you (`feels`: name → small change), and (E28) `favor`: someone who now owes
  *  you one (one of the world's people by name, or a stranger's id another story can ask about); `spend`: a favor it
@@ -745,9 +803,10 @@ export const gameMode = (w: WorldDef | null | undefined): GameMode => {
 // (no energy, and no health at stake). `g` is the game, when the caller has it.
 export const HOME_NEEDS = ['hunger', 'thirst', 'mood', 'hygiene'];
 export const homeNeedsOn = (g: unknown) => !!(g as any)?.cfg?.needs;
+// An adult need (Desire) is in play only with the game's adult content on (so never without the game).
 export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g !== undefined
     ? (homeNeedsOn(g) ? w.statuses.filter(s => !s.off && HOME_NEEDS.includes(s.id)) : [])
-    : w.statuses.filter(s => !s.off && !(s.rpg && gameMode(w) === 'lifesim') && (s.rpg || systemOn(w, 'needs'))));
+    : w.statuses.filter(s => !s.off && !(s.rpg && gameMode(w) === 'lifesim') && (s.rpg || systemOn(w, 'needs')) && (!s.adult || adultOn(g as Save | undefined))));
 
 // The game's systems. Each one can be turned off in a world (features.<id> = false): then it is gone from the HUD,
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so

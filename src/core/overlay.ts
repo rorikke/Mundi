@@ -7,11 +7,12 @@
 // · nothing is ever removed or renamed: an item with an id the world already has is changed, any other is added;
 // · in an object, the overlay's fields are merged into the world's, nested objects included; a list of items with
 //   ids (places, actions, jobs, a person's threads…) is merged item by item; any other list replaces the world's;
-// · `lore` entries and `cast.examples` (matched by `name`) are the two lists without ids: lore is added to, people
-//   are matched by name;
+// · `lore` entries and `cast.examples` (matched by `name`) are the two lists without ids: lore is added to (an entry
+//   with the `id` of one of the world's replaces it instead, its fields merged), people are matched by name;
 // · a field ending in "+" adds to a list instead of replacing it ("threads+", "outcomes+"), without ids too;
 // · `"adult": true` at the top: everything the file adds counts as adult content (shown only with the save's adult
-//   switch on) unless the item says `"adult": false`;
+//   switch on) unless the item says `"adult": false`; options it adds to a trait group (`options+`) become the group's
+//   `adultOptions`;
 // · the world's id, format and base can't be changed.
 import type { WorldDef } from './world.js';
 
@@ -65,6 +66,12 @@ export function applyOverlay(world: WorldDef, overlay: unknown): OverlayResult {
             if (k.endsWith('+') && k.length > 1 && Array.isArray(over[k])) {
                 const t = k.slice(0, -1);
                 if (UNSAFE.has(t)) continue;
+                // an adult file's options for a trait group are adult options (strings can't carry the mark)
+                if (adult && t === 'options' && path === 'sheet.traits' && over[k].every((x: unknown) => typeof x === 'string')) {
+                    base.adultOptions = [...(Array.isArray(base.adultOptions) ? base.adultOptions : []), ...copy(over[k])];
+                    added += over[k].length;
+                    continue;
+                }
                 base[t] = [...(Array.isArray(base[t]) ? base[t] : []), ...freshList(over[k])];
                 continue;
             }
@@ -76,11 +83,19 @@ export function applyOverlay(world: WorldDef, overlay: unknown): OverlayResult {
         }
     }
 
-    // lore has no ids: what the overlay has is added (it can't change an entry, only add)
+    // lore is added to; an entry with the id of one of the world's replaces that one (its fields merged), so the world's
+    // plain line isn't sent next to the overlay's
     const lore = Array.isArray(overlay.lore) ? overlay.lore : null;
     const rest = { ...overlay }; if (lore) delete rest.lore;
     mergeObject(w, rest, '');
-    if (lore) { w.lore = [...(Array.isArray(w.lore) ? w.lore : []), ...freshList(lore)]; }
+    if (lore) {
+        const list: any[] = Array.isArray(w.lore) ? w.lore : [];
+        for (const item of lore) {
+            const hit = hasStr(item, 'id') ? list.find(b => isObj(b) && b.id === item.id) : null;
+            if (hit) { mergeObject(hit, item, 'lore'); changed++; } else list.push(fresh(item));
+        }
+        w.lore = list;
+    }
     w.base = world.base; w.i18n = world.i18n;
     return { world: w as WorldDef, added, changed };
 }
