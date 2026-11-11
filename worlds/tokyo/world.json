@@ -38635,8 +38635,8 @@
       }
      },
      {
-      "name": "A regular at a spot of your own",
-      "when": "visited: 1 regular",
+      "name": "A regular at a spot near home",
+      "when": "visited: 1 regular in home",
       "reward": {
        "mood": 6
       }
@@ -39156,7 +39156,8 @@
     "icon": "🌃",
     "category": "explorer",
     "needs": [
-     "events"
+     "events",
+     "living"
     ],
     "desc": "The city is a different place when the trains stop.",
     "steps": [
@@ -39175,11 +39176,8 @@
       }
      },
      {
-      "name": "Make a late-night bar in Golden Gai or Ni-chōme your own",
-      "when": "did: sj_goldengai_drink 6",
-      "or": [
-       "did: sj_nichome_drink 6"
-      ],
+      "name": "A regular at a Golden Gai or Ni-chōme bar",
+      "when": "visited: sj_goldengai regular or sj_nichome regular",
       "reward": {
        "mood": 6
       }
@@ -39251,7 +39249,7 @@
     ],
     "perk": {
      "name": "In tune with the seasons",
-     "desc": "A better mood on festival days, and festivals give 50% more life points.",
+     "desc": "A better mood on festival days, and festivals and city events give 50% more life points.",
      "effects": [
       {
        "kind": "morning",
@@ -39261,7 +39259,7 @@
       },
       {
        "kind": "points",
-       "target": "festival",
+       "target": "festivals",
        "value": 0.5
       }
      ]
@@ -39274,7 +39272,8 @@
     "category": "explorer",
     "needs": [
      "hobbies",
-     "festivals"
+     "festivals",
+     "living"
     ],
     "desc": "Make Akihabara your second home, arcade first.",
     "steps": [
@@ -39287,10 +39286,7 @@
      },
      {
       "name": "Become a regular at Pixel Castle",
-      "when": "did: ak_arcade_rhythm 5",
-      "or": [
-       "did: ak_arcade_prize 5"
-      ],
+      "when": "visited: ak_arcade regular",
       "reward": {
        "mood": 6
       }
@@ -39468,8 +39464,8 @@
       }
      },
      {
-      "name": "A regular at the old town's ramen shop and izakaya",
-      "when": "did: ot_ramen_regular; did: ot_izakaya_counter",
+      "name": "A regular at three old-town places",
+      "when": "visited: 3 regular in oldtown",
       "reward": {
        "mood": 6
       }
@@ -39730,17 +39726,16 @@
     ],
     "perk": {
      "name": "Trusted",
-     "desc": "Secrets and storylines that end give 50% more life points.",
+     "desc": "Friends' secrets show in small signs, and secrets, street stories and storylines that end give 50% more life points.",
      "effects": [
       {
        "kind": "points",
-       "target": "secret",
+       "target": "secrets",
        "value": 0.5
       },
       {
-       "kind": "points",
-       "target": "thread",
-       "value": 0.5
+       "kind": "hint",
+       "value": 1
       }
      ]
     }
