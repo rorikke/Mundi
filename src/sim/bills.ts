@@ -94,6 +94,16 @@ export function payBill(g: Save, w: WorldDef, id: BillId): string {
     if (!wasCut) return '';
     return def?.back || (LEX_BACK[id] && def && defaultName(w, def) ? lex(w, LEX_BACK[id]) : lex(w, 'backGeneric', billName(w, id)));
 }
+/** The bills of your home that cost something (the rent only where the world charges rent). */
+export const billsToPay = (g: Save, w: WorldDef): BillDef[] => billList(w).filter(b => billAmount(g, w, b.id) > 0 && (b.id !== 'rent' || !!w.rent));
+/** The rewards shop's "Rent holiday": the next payment of the rent and of each bill of your home is skipped (each falls
+ *  due a week later; one already owed is a week less). Null when there's nothing to pay. */
+export function skipBills(g: Save, w: WorldDef): string[] | null {
+    const list = billsToPay(g, w);
+    if (!list.length) return null;
+    for (const b of list) billOf(g, b.id).due += EVERY;
+    return [`No ${list.map(b => b.name.toLowerCase()).join(', ')} to pay this week.`];
+}
 // Moving in: the first week is paid with the deposit, so everything starts fresh.
 export function resetBills(g: Save, w?: WorldDef | null) {
     const ids = new Set([...Object.keys((g as any).bills ?? {}), ...allBills(w).map(b => b.id)]);

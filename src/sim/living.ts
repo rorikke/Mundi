@@ -131,7 +131,7 @@ export function couplesLine(g: Save, present: Resident[], w?: WorldDef | null) {
 // (E31) `about`: the people it's about (avatars): they never hear it, and when it's `secret` their close friends
 // (good friends or closer) don't pass it on. `thread`: a thread's stage started it (overhearing it tells you the
 // thread, sim/threads.ts).
-export interface Rumor { id: string; text: string; at: number; knownBy: string[]; heat?: number; hops?: Record<string, number>; world?: boolean; heard?: number; about?: string[]; secret?: boolean; thread?: string }
+export interface Rumor { id: string; text: string; at: number; knownBy: string[]; heat?: number; hops?: Record<string, number>; world?: boolean; heard?: number; about?: string[]; secret?: boolean; thread?: string; quiet?: boolean }
 // Close enough to keep a friend's secret: a good friend or closer.
 const LOYAL = 55;
 const GOSSIP = ['love', 'party', 'plan', 'life', 'goal', 'work', 'crisis'];
@@ -153,7 +153,7 @@ function spreadRumors(g: Save, w: WorldDef): string[] {
         const tension = systemOn(w, 'living') ? regionState(g, w, regionOf(g, w, rumor.knownBy.find(a => g.cast[a]) ? `home:${rumor.knownBy.find(a => g.cast[a])}` : g.player.loc)).tension : 0;
         const chance = Math.min(0.9, 0.4 * Math.min(1.2, heat / 100 + 0.2) * (1 + tension / 100));
         rumor.hops ??= {};
-        for (const knower of people.filter(p => rumor.knownBy.includes(p.avatar))) {
+        for (const knower of people.filter(p => !rumor.quiet && rumor.knownBy.includes(p.avatar))) {   // a quieted one goes no further
             if (rumor.secret && rumor.about?.some(a => fr(g, knower.avatar, a) >= LOYAL)) continue;   // they keep it to themselves
             const ks = spots(knower);
             for (const other of people) {
@@ -243,6 +243,11 @@ export function overhear(g: Save, w: WorldDef, present: Resident[]): Rumor[] {
     }
     return got;
 }
+/** Rumors about you still going round (from something you did: their fact names you), for the rewards shop's "Quiet a
+ *  rumor". */
+export const rumorsAboutYou = (g: Save): Rumor[] => L(g).rumors.filter(r => !r.quiet && heatOf(g, r) > 0 && (r.about?.includes(YOU) || !!facts(g).find(f => f.id === r.id)?.t.includes('{u}')));
+/** Stops a rumor from spreading further (the people who know it still do). */
+export function quietRumor(g: Save, id: string): boolean { const r = L(g).rumors.find(x => x.id === id); if (!r || r.quiet) return false; r.quiet = true; return true; }
 // What you have heard (newest first), for the Journal.
 export const heardRumors = (g: Save) => L(g).rumors.filter(r => r.knownBy.includes(YOU)).sort((a, b) => (b.heard ?? b.at) - (a.heard ?? a.at));
 export const rumorSource = (r: Rumor) => garble(r.hops?.[YOU] ?? 1).replace(/^ \(|\)$/g, '');

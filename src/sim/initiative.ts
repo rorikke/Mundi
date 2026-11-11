@@ -19,7 +19,7 @@ import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
 import { social, bondOf, textFrom } from './social.js';
 import { personaName } from '../st/bridge.js';
-import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, shutOut, HATES, ASKS, type AskKind } from './romance.js';
+import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, shutOut, HATES, DISLIKES, ASKS, type AskKind } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { intimacyReady, needsOf, styleOf } from './intimacy.js';
 import { canDate } from './plans.js';
@@ -32,7 +32,7 @@ import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, s
 import { festivalsOn } from './festivals.js';
 import { slotAt, adultOn } from './dayplan.js';
 import { ties } from './living.js';
-import { threadMomentFits } from './threads.js';
+import { threadMomentFits, goneFromMap } from './threads.js';
 import { isWith } from './social.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -268,6 +268,36 @@ function textInvite(g: Save, w: WorldDef, r: Resident, place: string, from: numb
         .catch(() => { /* offline: the invitation card still shows */ });
     return true;
 }
+/* ---------- an invitation bought with life points ---------- */
+
+// The rewards shop's "An invitation" (sim/rewards.ts): within a few days the person texts you to meet at one of their
+// usual places. It was paid for, so it spends no initiative budget and comes whatever the setting; it waits while
+// another invitation is open, while they're upset with you or dislike you, and is dropped after a week.
+const INVITE = { chance: 0.08, sure: 2, drop: 7 };
+const boughtInvites = (g: Save) => ((seat(g) as any).bought ??= {}) as Record<string, number>;
+/** Someone will invite you out soon (bought). */
+export function inviteSoon(g: Save, a: string) { boughtInvites(g)[a] = g.day; }
+/** Who has a bought invitation still to send (avatar → the day it was bought). */
+export const invitesDue = (g: Save): Record<string, number> => ({ ...((seat(g) as any).bought ?? {}) });
+export function sendBoughtInvites(g: Save, w: WorldDef): string[] {
+    const list = (seat(g) as any).bought as Record<string, number> | undefined, h = Math.floor(g.minutes / 60);
+    if (!list || !Object.keys(list).length || h < 10 || h > 19) return [];
+    for (const [a, day] of Object.entries(list)) {
+        const r = g.cast[a];
+        if (!r || goneFromMap(r) || g.day - day > INVITE.drop || !systemOn(w, 'plans')) { delete list[a]; continue; }
+        if ((social(g) as any).invite || grudgeOf(g, a) || bondOf(g, a) < DISLIKES) continue;
+        if (g.day - day < INVITE.sure && rnd(g, `bought|${a}|${h}`) > INVITE.chance) continue;
+        const ok = (p: string) => !!p && !p.startsWith('home:') && w.places.some(x => x.id === p && (!x.adult || adultOn(g)));
+        const spots = [...r.leisure, w.occupations.find(o => o.id === r.occupation)?.place ?? ''].filter(ok);
+        if (!spots.length) continue;
+        const place = spots[Math.floor(rnd(g, `boughtwhere|${a}`) * spots.length)], now = nowAbs(g), from = now + 120 - (now % 30);
+        const where = placeOf(g, w, place)?.name ?? 'somewhere';
+        if (textInvite(g, w, r, place, from, `${r.name} would like to meet up at ${where}, ${whenText(g, from)}.`, `Want to meet up? ${where}, ${hm(from % 1440)}?`)) { delete list[a]; return []; }
+    }
+    return [];
+}
+onHour.push((g, w) => sendBoughtInvites(g, w));
+
 /** On a festival day with a custom, each person's part in it, by their feelings toward you: `gift` (romance from
  *  Interest gives the real thing, a friend a courtesy gift, nobody else anything), `return` (who gave you something
  *  on the last gift day waits to see what you give back), `couples` (a partner expects the evening and is hurt when

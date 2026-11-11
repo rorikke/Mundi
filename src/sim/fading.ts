@@ -9,7 +9,7 @@ import { nowAbs, type Save } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onDay } from './hooks.js';
 import { effectMul } from './effects.js';
-import { directedAbove, lose, lastContact, touch, tidyContact, pairOf, setStatus, setLow, relCfg, paceOf, relOf, idOf, PARTNER, YOU, type Status } from './rel.js';
+import { directedAbove, lose, lastContact, touch, tidyContact, fadeHeld, pairOf, setStatus, setLow, relCfg, paceOf, relOf, idOf, PARTNER, YOU, type Status } from './rel.js';
 import { PACE } from './pace.js';
 import { romValue, addRomance, DISLIKES, type RomStatus } from './romance.js';
 import { bondOf, bump, social } from './social.js';
@@ -36,6 +36,7 @@ export function fadeRomance(g: Save, w: WorldDef) {
         if (x === YOU || !g.cast[x] || (y !== YOU && (!between || !g.cast[y]))) continue;
         const last = lastContact(g, x, y);
         if (last === undefined) { touch(g, x, y); continue; }   // first seen: start counting from today
+        if (fadeHeld(g, x, y)) continue;   // held off for a while (the Nudge)
         const f = PARTNER.includes(pairOf(g, x, y)?.status as Status) ? FADE.partner : FADE.other;
         if (g.day - last <= (y === YOU ? f.grace : Math.max(f.grace, FADE.between)) || v <= f.floor) continue;
         lose(g, 'r', x, y, Math.min(v - f.floor, f.rate * k * (PACE[paceOf(g, x, 'r') ?? 'normal'] ?? 1) * (y === YOU ? effectMul(g, w, 'fade', ['romance', f === FADE.partner ? 'partner' : undefined]) : 1)));
