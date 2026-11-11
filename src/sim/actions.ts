@@ -41,11 +41,17 @@ export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outc
 export interface PrivateCtx { a: ActionDef; place: string; with: string[]; rnd: () => number; scene: boolean; stop?: ActionDone; outcome?: ActionOutcome | null; notes: Record<string, unknown> }
 /** Is this a private action the hooks look at (done in private, or with a risk of being caught; adult content on)? */
 export const isPrivateAct = (g: Save, a: ActionDef) => adultOn(g) && (!!a.private || (a.risk ?? 0) > 0);
-/** Before a private action plays: each check in turn, until one stops it. Null for any other action. */
+/** (adult) Pillow talk (an action tagged `pillow-talk`): talking about what you each like after a private moment. Not a
+ *  private moment itself: no check runs for it (no "not tonight", no roll, no risk), but its result hooks do
+ *  (sim/private.ts teaches a like or a limit). */
+export const isPillowTalk = (g: Save, a: ActionDef) => adultOn(g) && !!a.tags?.includes('pillow-talk');
+/** Before a private action plays: each check in turn, until one stops it. Null for any other action (pillow talk gets
+ *  a context with no check, for its result). */
 export function privateCheck(g: Save, w: WorldDef, a: ActionDef, place: string, mates: string[], rnd: () => number, scene = false): PrivateCtx | null {
-    if (!isPrivateAct(g, a)) return null;
+    const talk = isPillowTalk(g, a);
+    if (!talk && !isPrivateAct(g, a)) return null;
     const x: PrivateCtx = { a, place, with: mates, rnd, scene, notes: {} };
-    for (const f of privateChecks) { f(g, w, x); if (x.stop) break; }
+    if (!talk) for (const f of privateChecks) { f(g, w, x); if (x.stop) break; }
     return x;
 }
 /** After a private action's results: each result hook adds to what came of it (romance, learning, the lines). */

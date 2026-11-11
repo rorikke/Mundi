@@ -11,7 +11,7 @@
 import { adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef, type ActionDef, type ActionOutcome, type IntimateRole, type Place } from '../core/world.js';
 import { privateChecks, privateResults, actionGates, intimateLines, onRoll } from './hooks.js';
-import type { PrivateCtx, ActionDone } from './actions.js';
+import { isPillowTalk, type PrivateCtx, type ActionDone } from './actions.js';
 import { relOf, idOf, fr, ro, gain, lose, statusOf, attracted, YOU } from './rel.js';
 import { intimacyReady, noteIntimate, knownOf, learn, roleOf, intimateCount } from './intimacy.js';
 import { wordsIn, withYou } from './social.js';
@@ -39,7 +39,6 @@ export const PRIVATE = {
 export const VERDICT_INTIMATE = { desire: 25, xp: 3 };
 export type Tier = 'great' | 'good' | 'awkward';
 const DESIRE = 'desire';
-const PILLOW = 'pillow-talk';
 const THREESOME = ['threesome', 'threesomes'];
 // The prompt's budget for what you know of each other (X24): per person, at most this many likes and limits.
 export const KNOWN_MAX = { likes: 4, limits: 2 };
@@ -172,9 +171,8 @@ export function awkwardOutcome(w: WorldDef, rnd: () => number = Math.random): Ac
 /* ---------- before it plays: who, a hard limit, the roll ---------- */
 
 /** What the check decided, kept on the action until its result (`PrivateCtx.notes.a`). */
-export interface PrivateNotes { who: string[]; tier?: Tier; roll?: PrivateRoll; talk?: boolean }
+export interface PrivateNotes { who: string[]; tier?: Tier; roll?: PrivateRoll }
 export const notesOf = (x: PrivateCtx): PrivateNotes | undefined => x.notes.a as PrivateNotes | undefined;
-const isPillow = (a: ActionDef) => !!a.tags?.includes(PILLOW);
 
 // A hard limit of someone taking part: it doesn't happen. They say no kindly and you talk instead; romance a little
 // down, and you know that limit now (the action isn't offered with them again).
@@ -194,7 +192,6 @@ privateChecks.push((g, w, x) => {
     const notes: PrivateNotes = { who };
     x.notes.a = notes;
     if (!who.length) return;   // nobody ready for it: it plays as any action
-    if (isPillow(x.a)) { notes.talk = true; return; }
     for (const p of who) { const l = matchIn(g, x.a.matches, limitsOf(g, p)); if (l) { x.stop = limitStop(g, w, x.a, p, l); return; } }
     if (isScenario(w)) { notes.tier = 'good'; return; }   // Home: no rolls, as for every action
     // (sim/drive.ts, whose check runs first: +1 when someone here has been wanting you, once however many)
@@ -225,10 +222,10 @@ function pillowTalk(g: Save, done: ActionDone, who: string[]) {
 }
 
 privateResults.push((g, w, x, done) => {
+    if (isPillowTalk(g, x.a)) { pillowTalk(g, done, whoJoins(g, w, x.with)); return; }   // (no check ran for it)
     const n = notesOf(x);
     if (!n?.who.length) return;
     const who = n.who;
-    if (n.talk) { pillowTalk(g, done, who); return; }
     const tier = n.tier ?? 'good';
     const names = who.map(a => nameOf(g, a));
     const says: string[] = [];
@@ -277,9 +274,8 @@ privateResults.push((g, w, x, done) => {
 /* ---------- what's offered: past a known limit, never; pillow talk only with something to learn ---------- */
 
 actionGates.push((g, w, a) => {
-    if (!adultOn(g) || !(a.private || (a.risk ?? 0) > 0)) return '';
-    if (isPillow(a)) return a.together && !withYou(g, w).some(p => canTalk(g, w, p)) ? 'There is nothing to talk about yet.' : '';
-    if (!a.matches?.length || !a.together) return '';
+    if (isPillowTalk(g, a)) return a.together && !withYou(g, w).some(p => canTalk(g, w, p)) ? 'There is nothing to talk about yet.' : '';
+    if (!adultOn(g) || !(a.private || (a.risk ?? 0) > 0) || !a.matches?.length || !a.together) return '';
     for (const p of withYou(g, w)) if (matchIn(g, a.matches, knownOf(g, p).limits)) return `${nameOf(g, p)} won't do that.`;
     return '';
 });
