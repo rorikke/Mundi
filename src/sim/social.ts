@@ -17,6 +17,7 @@ import { sawYou } from './warnings.js';
 import { book } from './ledger.js';
 import { effectMul } from './effects.js';
 import { pricePerk } from './worldstate.js';
+import { tallyEvent } from './tally.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
@@ -137,10 +138,11 @@ export function addKeepsake(g: Save, id: string, n = 1) { const k = keepsakesOf(
 /** The gifts each person has from you (keepsake ids, in the order given). */
 export const giftsGiven = (g: Save): Record<string, string[]> => (((social(g) as any).given ??= {}) as Record<string, string[]>);
 const words = (s: string) => s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-// one of the gift's words (people's names aside) in a text: a whole word, or a whole phrase
-function wordsIn(g: Save, k: KeepsakeDef, text: string): boolean {
+/** One of these words (people's names aside) in a text: a whole word, or a whole phrase. The test gifts use against a
+ *  profile, and private actions' `matches` against someone's likes and limits (sim/private.ts). */
+export function wordsIn(g: Save, list: string[] | undefined, text: string): boolean {
     const hay = ` ${words(text).join(' ')} `;
-    return (k.loves ?? []).filter(l => !personNamed(g, l)).some(l => { const p = words(l).join(' '); return !!p && hay.includes(` ${p} `); });
+    return (list ?? []).filter(l => !personNamed(g, l)).some(l => { const p = words(l).join(' '); return !!p && hay.includes(` ${p} `); });
 }
 // what they like (not their body: a body line names parts, not wishes)
 const profileText = (p: IntimateProfile | undefined) => !p ? '' : [p.experience, p.wants, p.drawnTo, p.flirts, p.dynamic, p.inBed, ...(p.prefs ?? [])].filter(Boolean).join(' . ');
@@ -151,7 +153,7 @@ export function giftFit(g: Save, w: WorldDef, k: KeepsakeDef, avatar: string): G
     const r = g.cast[avatar]; if (!r) return 'kind';
     const loves = k.loves ?? [];
     if (loves.some(l => personNamed(g, l)?.avatar === avatar)) return 'loves';
-    if (k.intimate && wordsIn(g, k, profileText(intimateOf(g, avatar)))) return 'loves';
+    if (k.intimate && wordsIn(g, k.loves, profileText(intimateOf(g, avatar)))) return 'loves';
     const job = w.occupations.find(o => o.id === r.occupation);
     const spots = (r.leisure ?? []).map(id => w.places.find(p => p.id === id)).filter(Boolean) as WorldDef['places'];
     const hay = new Set([...(r.occupation ? [r.occupation] : []), ...words(job?.name ?? ''), ...spots.flatMap(p => [p.id, ...words(p.name), ...(p.tags ?? [])])].map(s => s.toLowerCase()));
@@ -169,7 +171,7 @@ export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): 
     // an intimate gift from someone they aren't drawn to, or one past their limits, comes back to you
     if (k.intimate) {
         const limits = (intimateOf(g, avatar)?.limits ?? []).join(' . ');
-        const refused = !!limits && wordsIn(g, k, limits);
+        const refused = !!limits && wordsIn(g, k.loves, limits);
         if (refused || !drawn) {
             lose(g, 'f', avatar, YOU, -(refused ? 2 * GIFT_AWKWARD : GIFT_AWKWARD));
             touch(g, avatar); sawYou(g, avatar);
@@ -190,6 +192,7 @@ export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): 
     const loving = !!(k.romantic || k.intimate) && drawn;
     if (first && loving) gain(g, 'r', avatar, YOU, worth);
     if (first) kinds.push(kind);
+    if (first && fit === 'loves') tallyEvent(g, 'gift_loved', 1, avatar);
     touch(g, avatar); sawYou(g, avatar);
     note(g, '{u} gave {0} a gift: {1}.', [r.name, k.name], [avatar], g.player.loc, 'gift');
     const how = fit === 'loves' ? 'loves it: it is exactly the kind of thing they treasure' : fit === 'fits' ? 'likes it: it fits what they enjoy' : loving ? 'is touched by it' : 'takes it kindly, though it means little to them';
