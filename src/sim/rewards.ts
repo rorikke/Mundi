@@ -11,18 +11,21 @@
 // (sim/goals.ts through `goalLink`), Rent holiday (sim/bills.ts), Clean slate at work (sim/work.ts) and Tokyo's daruma
 // (the active goal's finishing points doubled). What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
-import { nowAbs, adultOk, type Save, type Resident } from '../core/store.js';
+import { nowAbs, adultOk, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs, type WorldDef, type RewardDef } from '../core/world.js';
 import { rewardsOf, isOwnReward, isSystemNeed, PERSON_KINDS } from '../core/goals.js';
 import { goalLink } from './hooks.js';
 import { pointsState, pointsOf, spendPoints, yearOf, whileSkipping, type Bought } from './points.js';
+import { liftBan } from './caught.js';
+import { knownOf, learn, driveOf } from './intimacy.js';
+import { tallyEvent } from './tally.js';
 import { addBoost, boostsOf } from './perks.js';
 import { addStatus } from './needs.js';
 import { placeOf } from './places.js';
 import { seasonDays } from './time.js';
 import { whenHolds, levelHolds } from './when.js';
 import { note, fill, forgetFacts } from './facts.js';
-import { gain, fr, ro, setFr, setRo, forgetPast, pastOf, statusOf, rateOf, attraction, touch, holdFade, directedAbove, idOf, SOURCES, YOU, type Meter } from './rel.js';
+import { gain, fr, ro, setFr, setRo, forgetPast, pastOf, statusOf, rateOf, attraction, touch, holdFade, directedAbove, idOf, relOf, SOURCES, YOU, type Meter } from './rel.js';
 import { bondOf, social } from './social.js';
 import { romanceBlocked } from './family.js';
 import { SLOW_RATE, CRUSH, INFATUATED, DISLIKES } from './romance.js';
@@ -33,7 +36,7 @@ import { inviteSoon, invitesDue, wantOf } from './initiative.js';
 import { approvalOf, approve, rumorsAboutYou, quietRumor, type Rumor } from './living.js';
 import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap } from './threads.js';
 import { exampleOf, secretCouple } from './dayplan.js';
-import { swapTrait, traitNames, strengthGroups } from './traits.js';
+import { swapTrait, traitNames, strengthGroups, groupOptions, isAdultTrait } from './traits.js';
 import { habitsOf, resetHabit } from './habits.js';
 import { refreshPersona } from './game.js';
 import { skipBills, billsToPay } from './bills.js';
@@ -144,7 +147,7 @@ function personWhy(g: Save, w: WorldDef, def: RewardDef, r: Resident): { why: st
         case 'fresh': return { why: togetherWith(g, a) ? 'You are together' : null };
         case 'forgive': return { why: grudgeOf(g, a) ? null : 'No grudge to forgive' };
         case 'invite': return { why: goneFromMap(r) ? 'Not around any more' : bondOf(g, a) < DISLIKES ? 'They dislike you' : grudgeOf(g, a) ? 'Still upset with you' : a in invitesDue(g) ? 'Already on its way' : null };
-        case 'insight': { const questions = insightQuestions(g, w, a); return { why: questions.length ? null : 'Nothing to learn', questions }; }
+        case 'insight': { const questions = insightQuestions(g, w, a, def.questions); return { why: questions.length ? null : 'Nothing to learn', questions }; }
     }
     return { why: null };
 }
@@ -171,11 +174,17 @@ function clearFeelings(g: Save, a: string) {
 
 /* ---------- Insight ---------- */
 
-export type InsightId = 'heart' | 'view' | 'secret';
+export type InsightId = 'heart' | 'view' | 'secret' | 'bed_like' | 'bed_limit' | 'bed_drive';
 export interface InsightQuestion { id: InsightId; name: string }
-const QUESTIONS: InsightQuestion[] = [{ id: 'heart', name: 'Their heart' }, { id: 'view', name: 'How they see you' }, { id: 'secret', name: 'Their secret' }];
-/** One answer the engine can give: what Insight remembers having told (`key`), the fact, what it reveals. */
-interface Answer { key: string; t: string; a: string[]; thread?: string }
+// The `bed` questions (adult content): one like, one hard limit or the drive of someone, you pick which. An item that lists
+// `questions` keeps to the ones it names, or to a group of them (`bed`).
+const QUESTIONS: InsightQuestion[] = [{ id: 'heart', name: 'Their heart' }, { id: 'view', name: 'How they see you' }, { id: 'secret', name: 'Their secret' },
+    { id: 'bed_like', name: 'Something they like' }, { id: 'bed_limit', name: "Something they won't do" }, { id: 'bed_drive', name: 'Their drive' }];
+const groupOf = (q: string) => q.split('_')[0];
+const askable = (only: string[] | undefined, q: string) => !only?.length || only.includes(q) || only.includes(groupOf(q));
+/** One answer the engine can give: what Insight remembers having told (`key`), the fact, what it reveals; `then`: what else
+ *  it does (the `bed` answers teach you something). */
+interface Answer { key: string; t: string; a: string[]; thread?: string; then?: () => void }
 const told = (g: Save, a: string) => pointsState(g).told[a] ?? [];
 const trimEnd = (s: string) => s.trim().replace(/[.\s]+$/, '');
 // Their heart: who they have feelings for (a crush or love; you included), strongest first; a couple everyone knows of
@@ -224,11 +233,33 @@ function secretAnswer(g: Save, w: WorldDef, a: string): Answer | null {
     }
     return null;
 }
-const ANSWERS: Record<InsightId, (g: Save, w: WorldDef, a: string) => Answer | null> = { heart: heartAnswer, view: viewAnswer, secret: secretAnswer };
-/** The questions Insight can ask about someone now: each only when there's something you don't know yet. */
-export function insightQuestions(g: Save, w: WorldDef | null | undefined, a: string): InsightQuestion[] {
+// What they like, won't do, or how strong their drive is: only for someone with a Crush on you or more (their feelings are the
+// door; the item never opens one), only something you don't know yet, only with adult content and romance on.
+const crushOrMore = (g: Save, a: string) => ro(g, a, YOU) >= CRUSH || togetherWith(g, a);
+const bedOpen = (g: Save, w: WorldDef, a: string) => adultOn(g) && systemOn(w, 'romance') && !romanceBlocked(g, a) && attraction(g, a, YOU, 'r') > 0 && crushOrMore(g, a);
+const profileOf = (g: Save, a: string) => relOf(g).people[idOf(g, a)]?.intimate;
+const tidy = (s: string) => s.replace(/\s+/g, ' ').trim().replace(/[.;\s]+$/, '');
+function bedAnswer(what: 'like' | 'limit' | 'drive') {
+    return (g: Save, w: WorldDef, a: string): Answer | null => {
+        if (!bedOpen(g, w, a)) return null;
+        const name = g.cast[a]?.name ?? '', k = knownOf(g, a);
+        if (what === 'drive') {
+            if (k.drive || !profileOf(g, a)) return null;
+            return { key: 'bed:drive', t: "{u} learned that {0}'s drive is {1}.", a: [name, driveOf(g, a)], then: () => { learn(g, a, 'drive'); } };
+        }
+        const mine = what === 'like' ? k.likes : k.limits, list = (what === 'like' ? profileOf(g, a)?.prefs : profileOf(g, a)?.limits) ?? [];
+        const value = list.find(s => typeof s === 'string' && s.trim() && !mine.includes(s));
+        if (!value) return null;
+        return { key: `bed:${what}:${value}`, t: what === 'like' ? '{u} learned that {0} likes {1}.' : "{u} learned that {0} won't do {1}.", a: [name, tidy(value)], then: () => { if (learn(g, a, what, value)) tallyEvent(g, 'learned', 1, a); } };
+    };
+}
+const ANSWERS: Record<InsightId, (g: Save, w: WorldDef, a: string) => Answer | null> = { heart: heartAnswer, view: viewAnswer, secret: secretAnswer,
+    bed_like: bedAnswer('like'), bed_limit: bedAnswer('limit'), bed_drive: bedAnswer('drive') };
+/** The questions Insight can ask about someone now: each only when there's something you don't know yet. `only`: the ones an
+ *  item keeps to (`RewardDef.questions`). */
+export function insightQuestions(g: Save, w: WorldDef | null | undefined, a: string, only?: string[]): InsightQuestion[] {
     if (!w || !g.cast[a]) return [];
-    return QUESTIONS.filter(q => !!ANSWERS[q.id](g, w, a));
+    return QUESTIONS.filter(q => askable(only, q.id) && !!ANSWERS[q.id](g, w, a));
 }
 
 /* ---------- Change a trait ---------- */
@@ -239,9 +270,10 @@ const SWAPPABLE: Record<string, string> = { personality: 'Personality', interest
 export function traitChoices(g: Save, w: WorldDef | null | undefined): { groups: { id: string; name: string; have: string[]; can: string[] }[]; habits: { id: string; name: string }[] } {
     if (!w) return { groups: [], habits: [] };
     const strengths = strengthGroups(w), mine = traitNames(g);
+    // (adult traits and habits only with adult content on: what you have stays, and isn't listed while it's off)
     const groups = (w.sheet?.traits ?? []).filter(t => SWAPPABLE[t.id] && !strengths.includes(t)).map(t => ({ id: t.id, name: SWAPPABLE[t.id],
-        have: [...(((g.player.traits ?? {}) as Record<string, string[]>)[t.id] ?? [])], can: t.options.filter(o => !mine.includes(o)) })).filter(x => x.have.length && x.can.length);
-    const habits = systemOn(w, 'habits') ? habitsOf(g).has.map(id => w.habits?.find(h => h.id === id)).filter(h => !!h).map(h => ({ id: h!.id, name: h!.trait || h!.name })) : [];
+        have: [...(((g.player.traits ?? {}) as Record<string, string[]>)[t.id] ?? [])].filter(o => adultOn(g) || !isAdultTrait(w, o)), can: groupOptions(g, t).filter(o => !mine.includes(o)) })).filter(x => x.have.length && x.can.length);
+    const habits = systemOn(w, 'habits') ? habitsOf(g).has.map(id => w.habits?.find(h => h.id === id)).filter(h => !!h && (!h.adult || adultOn(g))).map(h => ({ id: h!.id, name: h!.trait || h!.name })) : [];
     return { groups, habits };
 }
 
@@ -281,10 +313,16 @@ function act(g: Save, w: WorldDef, def: RewardDef, c: RewardChoice): string | { 
         }
         case 'forgive': if (!makeUp(g, a)) return 'No grudge to forgive'; note(g, '{0} forgave {u} and let it go.', [name], [a], home, 'reward'); return { lines: [`${name} isn't upset with you any more.`] };
         case 'invite': inviteSoon(g, a); return { lines: [`${name} will invite you out in the next days.`] };
-        case 'quiet': if (!c.rumor || !rumorsAboutYou(g).some(x => x.id === c.rumor) || !quietRumor(g, c.rumor)) return 'Pick a rumor about you'; return { lines: ['That rumor stops here.'] };
+        case 'quiet': {
+            const ru = c.rumor ? rumorsAboutYou(g).find(x => x.id === c.rumor) : undefined;
+            if (!ru || !quietRumor(g, ru.id)) return 'Pick a rumor about you';
+            // a rumor about getting caught somewhere also takes back the place's ban (sim/caught.ts)
+            return { lines: ['That rumor stops here.', ...(ru.caught && liftBan(g, ru.caught) ? ['And they will serve you there again.'] : [])] };
+        }
         case 'insight': {
-            const q = c.question && ANSWERS[c.question] ? c.question : null, ans = q ? ANSWERS[q](g, w, a) : null;
+            const q = c.question && ANSWERS[c.question] && askable(def.questions, c.question) ? c.question : null, ans = q ? ANSWERS[q](g, w, a) : null;
             if (!ans) return 'Nothing to learn there';
+            ans.then?.();
             if (ans.thread) revealThread(g, w, ans.thread, 'insight');
             (pointsState(g).told[a] ??= []).push(ans.key);
             note(g, ans.t, ans.a, [a], home, 'reward');
