@@ -134,7 +134,8 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
     if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); const p = earn(g, w, 'keepsake', keep); if (p) lines.push({ text: p, kind: 'success' }); }
     const together = doneTogether(g, w, mates, a.minutes);
-    if (mates.length || withYou(g, w).length) tallyTogether(g, a.id);   // (cooking for a friend: someone with you counts)
+    const company = mates.length ? mates : withYou(g, w);
+    if (company.length) tallyTogether(g, a.id, company);   // (cooking for a friend: someone with you counts)
     // remembered: its own fact (the outcome's, the roll's, the action's), or a plain one when nothing else wrote one
     const own = outcome?.fact ?? res?.fact ?? a.fact;
     const withWho = mates.length ? names(g, mates) : '';
