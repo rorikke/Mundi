@@ -24,7 +24,7 @@ import { skillsOf, levelOf } from './hobbies.js';
 import { offeredOf } from './courses.js';
 import { threadsOf } from './threads.js';
 import { placeOk } from './dayplan.js';
-import { styleOf } from './intimacy.js';
+import { styleOf, knownCount } from './intimacy.js';
 
 /** The mood a step gives when it says nothing of its own reward (the general goals' steps), and the mood a finished
  *  goal gives on top. */
@@ -177,6 +177,7 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
             const first = tally(g).home?.first ?? g.player.home?.zone;
             return w.homes.zones.some(z => (z.rent ?? 0) > rent(first));
         }
+        case 'known': return systemOn(w, 'romance');   // (adult: the goals that ask for it are adult)
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {
             const good = threadsHere(g, w).filter(({ t }) => (t.endings ?? []).some(e => e.good));
@@ -374,6 +375,7 @@ export function stepProgress(g: Save, w: WorldDef, id: string, step?: number): {
             if (m && m[1] !== 'any' && !SKILL_GROUPS[m[1]]) { o.have = levelOf(g, m[1]); o.need = Number(m[2]); }
         } else if (c.key === 'money' && !c.not) { o.have = g.player.money; o.need = moneyAmount(w, v); }
         else if (c.key === 'visited' && /^\d+$/.test(v)) { o.have = placesBeen(g).length; o.need = Number(v); }
+        else if (c.key === 'known' && !c.not) { o.have = knownCount(g); o.need = Number(v); }
         else if (c.key === 'visited' && !c.not && c.values.length === 1) {
             const m = v.match(VISITED_N), map = m?.[3] ? (m[3].toLowerCase() === 'home' ? homeMap(g, w) : m[3]) : undefined;
             if (m && (m[2] || m[3])) { const on = map === '' ? [] : countable(w, map); o.have = on.filter(p => (m[2] ? isRegular(g, p.id) : placesBeen(g).includes(p.id))).length; o.need = Number(m[1]); }

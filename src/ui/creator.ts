@@ -1192,6 +1192,7 @@ export const QUICK: Record<string, Quick> = {
     course: { name: 'A course finished', ok: w => ((w.catalogs as any).courses ?? []).length > 0, opts: w => [['#', 'A number of courses'], ...((w.catalogs as any).courses ?? []).map((c: any) => [c.id, c.name] as Opt)], n: 'How many', make: (x, n) => (x === '#' ? `course: ${n}` : `course: ${x}`) },
     partner: { name: 'A partner', ok: w => systemOn(w, 'romance'), opts: () => PARTNER_VALUES.map(v => [v, PARTNER_NAMES[v] ?? v] as Opt), make: x => `partner: ${x}` },
     partners: { name: 'Partners at once', ok: w => systemOn(w, 'romance'), opts: () => [['', 'Casual ones included']], n: 'How many', make: (_x, n) => `partner: ${Math.max(1, n)}` },
+    known: { name: 'Likes and limits you know (adult)', ok: w => systemOn(w, 'romance'), opts: () => [['', 'Of your lovers, in all']], n: 'How many', make: (_x, n) => `known: ${Math.max(1, n)}` },
     track: { name: 'A job on a track', ok: w => w.occupations.some(o => Object.keys(o.tracks ?? {}).length), opts: w => trackOpts(w), make: x => { const [j, t] = x.split('|'); return `job: ${j}; track: ${t}`; } },
     seen: { name: 'A choice made at work', ok: w => workEvents(w).length > 0, opts: w => workEvents(w).map(([o, e]) => [e.id, `${o.name}: ${e.setup.length > 50 ? `${e.setup.slice(0, 49)}…` : e.setup}`] as Opt),
         extra: (w, id) => { const e = workEvents(w).find(([, x]) => x.id === id)?.[1]; return [['', 'Any choice'], ...(e?.choices ?? []).map((c, k) => [String(k + 1), c.label] as Opt)]; },
