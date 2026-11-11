@@ -484,9 +484,10 @@ export interface LoreEntry { keys: string[]; content: string; constant?: boolean
  *  world turns some off, renames them and adds its own (`WorldDef.goals`). `category`: one of `GOAL_CATEGORIES`
  *  (core/goals.ts) or a new one. `starts`: the starts it suits (suggested first). `needs`: systems (`jobs`,
  *  `romance`…) and needs (`energy`…) it can't do without: with one off, it isn't offered. `adult`: only with adult
- *  content on. No step may depend on one of the world's people or a thread alone: name them only as one option
- *  (`or`) among others that don't (a person may be left out of a game). */
-export interface GoalDef { id: string; name: string; icon?: string; category: string; desc?: string; starts?: string[]; steps: GoalStep[]; perk?: PerkDef; needs?: string[]; adult?: boolean }
+ *  content on. `offer`: offered only while this condition holds (Nihongo jōzu: while Japanese is below 4); a goal you
+ *  have started or finished stays. No step may depend on one of the world's people or a thread alone: name them only as
+ *  one option (`or`) among others that don't (a person may be left out of a game). */
+export interface GoalDef { id: string; name: string; icon?: string; category: string; desc?: string; starts?: string[]; steps: GoalStep[]; perk?: PerkDef; needs?: string[]; adult?: boolean; offer?: When }
 /** A step: what it says (`name`, "Cook 15 meals"), its objectives as one condition (`when`: `did: meal 15; skill:
  *  cooking 3`), other ways to do it (`or`: conditions, any one of which also does it: "a set with a musician friend, or
  *  Music 7"; a step that names one of the world's people or a thread needs one that names neither), how long they must

@@ -1143,7 +1143,8 @@
    "cost": 0,
    "minutes": 60,
    "tags": [
-    "leisure"
+    "leisure",
+    "art"
    ],
    "effects": {
     "energy": -8
@@ -2272,7 +2273,10 @@
    },
    "trains": "fashion",
    "fact": "{u} was photographed for a street snap on Takeshita Street",
-   "place": "sb_takeshita"
+   "place": "sb_takeshita",
+   "tags": [
+    "art"
+   ]
   },
   {
    "id": "sb_omotesando_browse",
@@ -4196,7 +4200,10 @@
     }
    },
    "trains": "fashion",
-   "fact": "{u} dressed the window at {0}"
+   "fact": "{u} dressed the window at {0}",
+   "tags": [
+    "art"
+   ]
   },
   {
    "id": "ws_vintage_window_staff",
@@ -4229,7 +4236,10 @@
     }
    },
    "trains": "fashion",
-   "fact": "{u} dressed the window at {0}"
+   "fact": "{u} dressed the window at {0}",
+   "tags": [
+    "art"
+   ]
   },
   {
    "id": "ws_livehouse_gig",
@@ -4311,7 +4321,10 @@
     }
    },
    "trains": "music",
-   "fact": "{u} played an open mic at {0}"
+   "fact": "{u} played an open mic at {0}",
+   "tags": [
+    "art"
+   ]
   },
   {
    "id": "ws_livehouse_demo",
@@ -5075,7 +5088,10 @@
     }
    },
    "trains": "dance",
-   "fact": "{u} danced with a troupe at the Awa Odori in {0}"
+   "fact": "{u} danced with a troupe at the Awa Odori in {0}",
+   "tags": [
+    "art"
+   ]
   },
   {
    "id": "ws_konbini_onigiri",
@@ -9075,7 +9091,10 @@
     }
    },
    "trains": "fashion",
-   "fact": "{u} wore a costume at the fan convention at {0}"
+   "fact": "{u} wore a costume at the fan convention at {0}",
+   "tags": [
+    "art"
+   ]
   },
   {
    "id": "bay_market_auction",
@@ -38686,6 +38705,7 @@
      "hobbies",
      "jobs"
     ],
+    "offer": "skill: not japanese 4",
     "desc": "Go from phrasebook to conversation, and from conversation to a job done in Japanese.",
     "steps": [
      {
@@ -39709,15 +39729,15 @@
       }
      },
      {
-      "name": "Three good endings",
-      "when": "helped: 3",
+      "name": "Two good endings",
+      "when": "helped: 2",
       "reward": {
        "mood": 6
       }
      },
      {
-      "name": "Five good endings",
-      "when": "helped: 5",
+      "name": "Three good endings",
+      "when": "helped: 3",
       "reward": {
        "mood": 10,
        "keepsake": "glass_float"

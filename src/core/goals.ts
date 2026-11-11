@@ -64,7 +64,7 @@ export const GENERAL_GOALS: GoalDef[] = [
         s('Rank 2', 'rank: 2'), s('The middle rank', 'rank: middle'), s('One below the top', 'rank: top-1'), s('The top', 'rank: top')],
         perk: perk('Go-getter', 'Ranks take 10% less time.', { kind: 'career', target: 'rank', value: -0.1 }) },
     { id: 'worker', name: 'Hard worker', icon: '💼', category: 'career', desc: 'Show up, shift after shift.', needs: ['jobs'], steps: [
-        s('20 shifts', 'did: shift 20'), s('60 shifts', 'did: shift 60'), s('120 shifts', 'did: shift 120'), s('A season without a missed shift', 'rank: 1; did: not missed_shift', 'season')],
+        s('10 shifts', 'did: shift 10'), s('30 shifts', 'did: shift 30'), s('60 shifts', 'did: shift 60'), s('A season without a missed shift', 'rank: 1; did: not missed_shift', 'season')],
         perk: perk('Reliable', 'Performance grows 25% faster, and steps give 25% more life points.', { kind: 'perf', target: 'gain', value: 0.25 }, { kind: 'points', target: 'step', value: 0.25 }) },
     { id: 'jack', name: 'Jack of all trades', icon: '🧰', category: 'career', desc: 'Try your hand at many jobs.', needs: ['jobs'], steps: [
         s('Two different jobs', 'rank: 1 in 2 jobs'), s('Three different jobs', 'rank: 1 in 3 jobs'), s('Rank 2 in three jobs', 'rank: 2 in 3 jobs'), s('Three skills at 5', 'skill: any 5 x3')],
@@ -82,7 +82,7 @@ export const GENERAL_GOALS: GoalDef[] = [
         s('A best friend', 'friends: 1 best'), s('A day trip together', 'friends: 1 best; did: trip with best'), s('A night at each other\'s place', 'friends: 1 best; did: overnight with best'), s('A season as best friends', 'friends: 1 best', 'season')],
         perk: perk('Loyal', 'Friendship with good friends grows 15% faster.', { kind: 'gain', target: 'good friends', value: 0.15 }) },
     { id: 'host', name: 'Party host', icon: '🎉', category: 'social', desc: 'Throw the parties people talk about.', steps: [
-        s('Throw a party', 'did: party'), s('Three parties', 'did: party 3'), s('A party with eight guests', 'did: big_party'), s('A party everyone loved', 'did: loved_party')],
+        s('Throw a party', 'did: party'), s('Three parties', 'did: party 3'), s('A party with five guests', 'did: big_party'), s('A party everyone loved', 'did: loved_party')],
         perk: perk('Life of the party', 'Parties give 25% more mood.', { kind: 'party', target: 'mood', value: 0.25 }) },
     { id: 'scholar', name: 'Lifelong learner', icon: '🎓', category: 'knowledge', desc: 'Never stop learning.', needs: ['courses'], steps: [
         s('A course', 'course: 1'), s('Three courses', 'course: 3'), s('Three skills at 5', 'skill: any 5 x3'), s('A skill at 10', 'skill: any 10')],
@@ -116,7 +116,7 @@ export const GENERAL_GOALS: GoalDef[] = [
         s('A partner', 'partner: dating or engaged or married'), s('Living together', 'partner: home'), s('A child', 'did: baby'), s('Two children', 'did: baby 2')],
         perk: perk('Warm home', '+2 mood each morning while you live with your partner.', { kind: 'morning', target: 'mood', value: 2, when: 'partner: home' }) },
     { id: 'renown', name: 'A good name', icon: '⭐', category: 'social', desc: 'Be known, then respected, then renowned.', needs: ['reputation'], steps: [
-        s('Known in town', 'rep: known'), s('Respected', 'rep: respected'), s('Renowned', 'rep: renowned'), s('Renowned for a season', 'rep: renowned', 'season')],
+        s('Known in town', 'rep: known'), s('Respected', 'rep: respected'), s('Respected for a season', 'rep: respected', 'season'), s('Renowned', 'rep: renowned')],
         perk: perk('Good name', '+2 friendship when you first meet someone.', { kind: 'warm', target: 'new', value: 2 }) },
     { id: 'business', name: 'Your own business', icon: '🏪', category: 'fortune', desc: 'Open a business and keep it going.', needs: ['property'], steps: [
         s('Open a business', 'did: business'), s('Run it a season', 'did: business', 'season'), s('A second business', 'did: business 2'), s('Two for a season', 'did: business 2', 'season')],
@@ -200,7 +200,7 @@ function cleanGoal(x: any): GoalDef | null {
     const steps = (Array.isArray(x.steps) ? x.steps : []).map(cleanStep).filter((y: GoalStep | null): y is GoalStep => !!y);
     if (!steps.length) return null;
     const p = isObj(x.perk) && str(x.perk.name) ? clean({ name: x.perk.name, desc: str(x.perk.desc), effects: cleanEffects(x.perk.effects, PERK_LIMITS) }) as PerkDef : undefined;
-    return clean({ ...x, category: str(x.category) ?? 'social', starts: strs(x.starts), needs: strs(x.needs), steps, perk: p, adult: x.adult === true ? true : undefined }) as GoalDef;
+    return clean({ ...x, category: str(x.category) ?? 'social', starts: strs(x.starts), needs: strs(x.needs), steps, perk: p, adult: x.adult === true ? true : undefined, offer: str(x.offer) }) as GoalDef;
 }
 function cleanReward(x: any): RewardDef | null {
     if (!isObj(x) || !str(x.id) || !str(x.name) || !(REWARD_KINDS as readonly string[]).includes(x.kind)) return null;

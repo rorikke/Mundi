@@ -18,7 +18,7 @@ import { onAction, onHour, onLook } from './hooks.js';
  *  with you, or you with them): sim/plans.ts; `night_away` (a night at a hotel, a capsule, a ryokan): sim/stays.ts;
  *  `crisis` and `collapse` (a need at zero too long; collapse: energy): sim/needs.ts; `apprentice`, `lesson`, `taught`
  *  (an apprentice who finished): sim/mentors.ts; `baby`: sim/family.ts; `business` (one opened): sim/holdings.ts;
- *  `big_party` (a party at home with 8 guests or more) and `loved_party` (one where every guest who said yes came, 3 at
+ *  `big_party` (a party at home with 5 guests or more: `BIG_PARTY` in sim/plans.ts) and `loved_party` (one where every guest who said yes came, 3 at
  *  least): sim/plans.ts; `night_together` (a night someone stays with you, or you with them, that's more than a
  *  sleepover: a partner, or someone ready to get intimate with you): sim/plans.ts; `trip` (a day out in another area than
  *  your home's, with whoever is with you: once a day each) and `late_night` (still up at 1:00): here.

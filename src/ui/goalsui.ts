@@ -46,7 +46,7 @@ const EVENT_WORDS: Record<string, string> = {
     meal: 'Meals cooked', workout: 'Workouts', painting: 'Paintings sold', shift: 'Shifts worked', party: 'Parties thrown', missed_shift: 'Missed shifts',
     missed_train: 'Last trains missed', date: 'Dates', overnight: 'Nights over', night_away: 'Nights away', crisis: 'Crises', collapse: 'Collapses',
     apprentice: 'Apprentices taken', lesson: 'Lessons given', taught: 'Apprentices who finished', baby: 'Children', business: 'Businesses opened',
-    big_party: 'Parties with eight guests', loved_party: 'Parties everyone loved', night_together: 'Nights together', trip: 'Day trips', late_night: 'Late nights',
+    big_party: 'Parties with five guests', loved_party: 'Parties everyone loved', night_together: 'Nights together', trip: 'Day trips', late_night: 'Late nights',
 };
 // Friendship and romance levels as people ("3 good friends", "someone with a crush on you").
 const LEVEL_WORDS: Record<string, [string, string]> = {
@@ -164,8 +164,10 @@ function objectiveHtml(g: Save, w: WorldDef, o: Objective): string {
     const num = x.have !== undefined && x.need !== undefined
         ? ` <span class="mu-gl-num">${o.key === 'money' ? `${esc(money(w, Math.min(x.have, x.need)))} / ${esc(money(w, x.need))}` : `${n(Math.min(x.have, x.need))}/${n(x.need)}`}</span>` : '';
     const bar = x.have !== undefined && x.need ? `<span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, Math.round((x.have / x.need) * 100)))}%"></i></span>` : '';
-    return `<li class="${o.ok ? 'is-ok' : ''}"><i>${o.ok ? '✓' : '○'}</i><span><span class="mu-gl-otext">${esc(x.text)}${num}</span>${bar}</span></li>`;
+    return `<li class="${o.ok ? 'is-ok' : ''}"><i>${o.ok ? '✓' : '○'}</i><span><span class="mu-gl-otext">${esc(x.text)}${num}</span>${bar}${o.ok ? '' : hintOf(o)}</span></li>`;
 }
+// How to do an objective the game has no button for in a scene: living together is set in This world → Households.
+const hintOf = (o: Objective) => (o.key === 'partner' && !o.not && o.text.slice(o.text.indexOf(':') + 1).split(' or ').map(v => v.trim()).includes('home') ? `<small class="mu-gl-hint">${esc('To live together, move your partner into your household: This world → Households.')}</small>` : '');
 // A step's ways of being done, each a list of objectives (several ways read "or").
 function waysHtml(g: Save, w: WorldDef, goal: GoalDef, step: number): string {
     const p = stepProgress(g, w, goal.id, step);
