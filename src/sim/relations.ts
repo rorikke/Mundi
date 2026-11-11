@@ -25,6 +25,7 @@ import { lifeMoment } from './happenings.js';
 import { rivalsForYou } from './jealousy.js';
 import { exampleOf } from './dayplan.js';
 import { seasonDays } from './time.js';
+import { casualOdds } from './drive.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -231,13 +232,14 @@ const FRIEND_AT = 30, KNOWN_WELL = 55;
 const knowWell = (g: Save, a: string, b: string) => g.cast[a]?.met && bondOf(g, a) >= KNOWN_WELL || g.cast[b]?.met && bondOf(g, b) >= KNOWN_WELL;
 // Two people whose intimacy needs are met toward each other (neither keeping it for a partner) may start something
 // casual: a small chance each day, never against attraction, family or minors; free to pair (R-9), and one casual
-// relationship at a time.
+// relationship at a time. With adult content on, their drives change the chance (sim/drive.ts: ×1.5 when both are
+// high, ×0.5 with a low one).
 function casualForm(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     for (const { x, y } of directedAbove(g, 'r', ROMANCE_TIERS[1].lo)) {
         if (x > y || !isPerson(g, x) || !isPerson(g, y) || statusOf(g, x, y) || !attracted(g, x, y) || !attracted(g, y, x)) continue;
         if (!needsMetToward(g, x, y) || !needsMetToward(g, y, x) || familyBlocked(g, x, y)) continue;
-        if (!freeToPair(g, x) || !freeToPair(g, y) || casualsOf(g, x).length || casualsOf(g, y).length || rnd(g, salted(saveSeed(g, w), `casual|${x}|${y}`)) >= 0.05) continue;
+        if (!freeToPair(g, x) || !freeToPair(g, y) || casualsOf(g, x).length || casualsOf(g, y).length || rnd(g, salted(saveSeed(g, w), `casual|${x}|${y}`)) >= 0.05 * casualOdds(g, x, y)) continue;
         setStatus(g, x, y, 'casual');
         const X = g.cast[x], Y = g.cast[y];
         note(g, '{0} and {1} started something casual.', [X.name, Y.name], [x, y], `home:${x}`, 'love');
