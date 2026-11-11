@@ -8,7 +8,7 @@
 // Points are the ledger's (sim/points.ts listens to `onGoalStep`); the screens are ui/'s. Everything belongs to the
 // `goals` system: with it off nothing moves. Old saves: the old aspiration and the ones finished (`player.aspiration`,
 // `player.aspDone`) are read once into this state and left where they are.
-import { nowAbs, adultOk, type Save } from '../core/store.js';
+import { nowAbs, adultOk, adultOn, type Save } from '../core/store.js';
 import { systemOn, activeStatuses, getWorld, type WorldDef, type GoalDef, type GoalStep, type When } from '../core/world.js';
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
 import type { EffectDef } from '../core/traits.js';
@@ -113,10 +113,19 @@ function pause(g: Save, s: GoalsState) {
 /* ---------- what a game offers ---------- */
 
 // Threads in this game whose people are all in it (the owner and everyone their conditions name), with the living world on.
+// What a game offers is asked every game hour and at every redraw of the phone (the badge), and finding each person a
+// storyline's conditions name is the slow part, so the answer is kept until something it depends on changes: the day,
+// the living world, adult content, or who is in the game, by which name, and who has left the maps.
+const keptThreads = new WeakMap<Save, { w: WorldDef; key: string; list: ReturnType<typeof threadsOf> }>();
 function threadsHere(g: Save, w: WorldDef) {
     if (!systemOn(w, 'living')) return [];
-    return threadsOf(g, w).filter(({ t, r }) => !(r as any).gone && [t.reveal, ...t.stages.map(x => x.when), ...(t.endings ?? []).map(x => x.when)]
+    const key = `${g.day}|${adultOn(g)}|${Object.values(g.cast).map(r => `${r.avatar}:${r.name}:${(r as any).gone ? 1 : 0}`).join(',')}`;
+    const k = keptThreads.get(g);
+    if (k && k.w === w && k.key === key) return k.list;
+    const list = threadsOf(g, w).filter(({ t, r }) => !(r as any).gone && [t.reveal, ...t.stages.map(x => x.when), ...(t.endings ?? []).map(x => x.when)]
         .every(c => namedIn(c).people.every(n => { const p = personNamed(g, n); return !!p && !(p as any).gone; })));
+    keptThreads.set(g, { w, key, list });
+    return list;
 }
 const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;
 const VISITED_N = /^(\d+)(\s+regular)?(?:\s+in\s+(\S+))?$/i;
