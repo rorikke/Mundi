@@ -10,6 +10,7 @@ import type { IntimateRole, IntimateDrive } from '../core/world.js';
 import { relOf, idOf, ro, fr, isPartner, attracted, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
+import { onLearned } from './hooks.js';
 
 export type IntimacyPreset = 'free' | 'passionate' | 'steady' | 'slow' | 'devoted' | 'custom';
 export type RNeed = 'interest' | 'crush' | 'infatuated';
@@ -131,6 +132,7 @@ export function learn(g: Save, a: string, what: 'like' | 'limit' | 'drive', valu
     const list = (what === 'like' ? (e.likes ??= []) : (e.limits ??= []));
     if (list.includes(value)) return false;
     list.push(value);
+    for (const f of onLearned) f(g, a, what, value);   // (life points for it, sim/points.ts)
     return true;
 }
 /** Someone's role in bed and drive, from their intimate profile (a drive not set is average; a role not set is none). */

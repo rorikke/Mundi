@@ -70,7 +70,7 @@ export function useReroll(g: Save, w: WorldDef | null | undefined): boolean {
     return true;
 }
 /** Where life points come from: a step or a finished goal (the active goal's gains), or a second source. */
-export type PointSource = 'step' | 'goal' | 'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake';
+export type PointSource = 'step' | 'goal' | 'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned';
 // The groups a `points` effect may name instead of one source: festivals and city events; secrets, street stories and
 // threads.
 const POINT_GROUPS: Partial<Record<PointSource, string>> = { festival: 'festivals', event: 'festivals', secret: 'secrets', story: 'secrets', thread: 'secrets' };

@@ -26,7 +26,7 @@ export type EffectKind =
     | 'travel'   // how long trips take
     | 'rest'     // what a night, a bath or food gives back (target: `sleep`, `sleep home`, `sleep away`, `sleep together` after a night together; `bath`; `food`; an action id or tag)
     | 'reroll'   // failed rolls rolled again, this many a day
-    | 'points'   // life points (target: where they come from: `step`, `goal`, `festival`, `event`, `story`, `secret`, `thread`, `keepsake`; a group: `festivals` (festival, event), `secrets` (secret, story, thread); or `active`, `passive`)
+    | 'points'   // life points (target: where they come from: `step`, `goal`, `festival`, `event`, `story`, `secret`, `thread`, `keepsake`, `learned` (a like or limit learned of someone); a group: `festivals` (festival, event), `secrets` (secret, story, thread); or `active`, `passive`)
     | 'interview'   // a flat bonus on job interviews (target: a job id)
     | 'hint'     // on at 1 or more: a friend's hidden secret shows in small signs (told to the AI as hinted; no target)
     // adult content (Tokyo's adult progression): kinds that traits (Flirtatious, Shameless) and perks use
