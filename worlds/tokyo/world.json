@@ -38686,6 +38686,7 @@
      "hobbies",
      "jobs"
     ],
+    "offer": "skill: not japanese 4",
     "desc": "Go from phrasebook to conversation, and from conversation to a job done in Japanese.",
     "steps": [
      {
@@ -39709,15 +39710,15 @@
       }
      },
      {
-      "name": "Three good endings",
-      "when": "helped: 3",
+      "name": "Two good endings",
+      "when": "helped: 2",
       "reward": {
        "mood": 6
       }
      },
      {
-      "name": "Five good endings",
-      "when": "helped: 5",
+      "name": "Three good endings",
+      "when": "helped: 3",
       "reward": {
        "mood": 10,
        "keepsake": "glass_float"

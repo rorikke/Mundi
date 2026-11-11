@@ -43,6 +43,8 @@ export interface GoalsState {
     counts: Record<string, Record<string, number>>; snap: Record<string, number>; bases: string[];
     hold: { goal: string; step: number; from: number; snap: Record<string, number>; bases: string[] } | null;
     told: string; notice?: { text: string; day: number }; read?: boolean;
+    /** When you were last seen asleep (absolute minutes): a need's hold isn't started over in the night or just after. */
+    slept?: number;
 }
 export function goalsState(g: Save): GoalsState {
     const s = ((g as any).goals ??= {}) as GoalsState;
@@ -193,10 +195,12 @@ function wayPossible(g: Save, w: WorldDef, way: When | undefined, inPlay: Set<st
     if (named.threads.length) { const here = new Set(threadsHere(g, w).map(x => x.t.id)); if (named.threads.some(t => !here.has(t))) return false; }
     return p.conds.every(c => c.not || c.values.some(v => canHold(g, w, c.key, v, inPlay)));
 }
-/** Does this game offer the goal? Adult goals only with adult content on; a need it can't do without must be in play
- *  in this game; and every step must have a way that can be done here. (Systems the world has off: `goalsOf`.) */
+/** Does this game offer the goal? Adult goals only with adult content on; its `offer` condition while you haven't
+ *  started it (D-23: a goal begun or finished stays); a need it can't do without must be in play in this game; and every
+ *  step must have a way that can be done here. (Systems the world has off: `goalsOf`.) */
 export function goalFits(g: Save, w: WorldDef, goal: GoalDef): boolean {
     if (!adultOk(g, goal)) return false;
+    if (goal.offer && !begun(g, goal.id) && !whenHolds(g, w, goal.offer, { key: `offer|${goal.id}` })) return false;
     const inPlay = new Set(activeStatuses(w, g).filter(x => !x.rpg).map(x => x.id));
     if ((goal.needs ?? []).some(id => !isSystemNeed(id) && !inPlay.has(id))) return false;
     return goal.steps.every(st => waysOf(st).some(way => wayPossible(g, w, way, inPlay)));
@@ -205,6 +209,8 @@ export function goalFits(g: Save, w: WorldDef, goal: GoalDef): boolean {
 export function offeredGoals(g: Save, w: WorldDef): GoalDef[] {
     return goalsOf(w).filter(x => goalFits(g, w, x));
 }
+// A goal you follow, finished, or paused with something done or counted.
+const begun = (g: Save, id: string) => { const s = goalsState(g); return s.active === id || s.done.includes(id) || !!s.steps[id] || !!s.counts[id]; };
 const offered = (g: Save, w: WorldDef, id: string | null) => (id ? offeredGoals(g, w).find(x => x.id === id) ?? null : null);
 /** Can this goal be picked now (offered, not finished, not the one you follow)? */
 export function canPick(g: Save, w: WorldDef, id: string): boolean {
@@ -230,6 +236,13 @@ export function pickGoal(g: Save, w: WorldDef, id: string): string[] {
     return checkGoals(g, w);
 }
 const holdMinutes = (g: Save, h: number | 'season') => (h === 'season' ? seasonDays(g) : h) * 1440;
+/** After waking, how long a need may stay low before a hold on it starts over (breakfast, a drink: every night empties
+ *  hunger and thirst). */
+export const WAKE_GRACE = 120;
+// While you sleep and in the first hours after you wake, a held step's `need` objectives don't start it over (D-22): the
+// way still has to hold without them.
+const needGrace = (g: Save, s: GoalsState) => !!g.asleep || (s.slept !== undefined && nowAbs(g) - s.slept <= WAKE_GRACE);
+const withoutNeeds = (way: When | undefined): string => parseWhen(way).conds.filter(c => c.key !== 'need').map(c => `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`).join('; ');
 // What a held step's way reads: counts it says `not` of from when the hold began (0 before it begins), the rest as the
 // goal counts them.
 function heldCount(g: Save, s: GoalsState, id: string, not: string[]) {
@@ -248,8 +261,13 @@ function stepDone(g: Save, w: WorldDef, s: GoalsState, goal: GoalDef): boolean {
     const key = `goal|${goal.id}|${i}`;
     if (!st.hold) return waysOf(st).some(way => whenHolds(g, w, way, { key, count: k => goalCount(g, goal.id, k) }));
     if (s.hold && (s.hold.goal !== goal.id || s.hold.step !== i)) s.hold = null;
-    const ok = waysOf(st).some(way => whenHolds(g, w, way, { key, count: heldCount(g, s, goal.id, readsOf(w, way).not) }));
-    if (!ok) { s.hold = null; return false; }
+    const holds = (way: When | undefined) => whenHolds(g, w, way, { key, count: heldCount(g, s, goal.id, readsOf(w, way).not) });
+    const ok = waysOf(st).some(holds);
+    if (!ok) {
+        // a hold already going on: in the night and just after waking, its needs may be low (the rest must hold)
+        if (s.hold && needGrace(g, s) && waysOf(st).some(way => parseWhen(way).conds.some(c => c.key === 'need') && holds(withoutNeeds(way)))) return false;
+        s.hold = null; return false;
+    }
     if (!s.hold) {
         s.hold = { goal: goal.id, step: i, from: nowAbs(g), snap: {}, bases: [] };
         for (const way of waysOf(st)) for (const k of readsOf(w, way).not) noteBase(g, s.hold.snap, s.hold.bases, k);
@@ -288,6 +306,7 @@ function finishStep(g: Save, w: WorldDef, s: GoalsState, goal: GoalDef): string[
 export function checkGoals(g: Save, w: WorldDef): string[] {
     if (!systemOn(w, 'goals')) return [];
     const s = goalsState(g), out: string[] = [];
+    if (g.asleep) s.slept = nowAbs(g);
     const goal = activeGoal(g, w);
     for (let n = 0; goal && s.active === goal.id && n < goal.steps.length && stepDone(g, w, s, goal); n++) out.push(...finishStep(g, w, s, goal));
     out.push(...pickNotice(g, w));
