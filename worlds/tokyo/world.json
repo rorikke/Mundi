@@ -12582,7 +12582,11 @@
      "Lazy",
      "Curious",
      "Sarcastic",
-     "Kind"
+     "Kind",
+     "Flirtatious"
+    ],
+    "adultOptions": [
+     "Shameless"
     ]
    },
    {
@@ -12875,6 +12879,41 @@
     "length": 0.25,
     "at": "ak_university",
     "when": "weekday: mon or tue or thu or fri; clock: 18:30-20:30"
+   },
+   {
+    "id": "pole",
+    "name": "Pole dance classes",
+    "area": "Arts",
+    "days": 14,
+    "cost": 55000,
+    "grants": [],
+    "icon": "🧘",
+    "desc": "A season of classes at Pole Star in the afternoons before it opens: spins, climbs and holds, taught as a sport. The dancer job asks for it, and it opens a private dance at home.",
+    "skills": {
+     "dance": 3,
+     "fitness": 2,
+     "sensuality": 1
+    },
+    "length": 0.25,
+    "at": "rp_poleclub",
+    "when": "weekday: tue or thu or fri or sat; clock: 14:00-16:00",
+    "adult": true
+   },
+   {
+    "id": "massage",
+    "name": "Sensual massage course",
+    "area": "Service",
+    "days": 14,
+    "cost": 65000,
+    "grants": [],
+    "icon": "💆",
+    "desc": "Theory online and practice at home: oils, touch and listening to a body. The esthe job asks for it, and it opens a full oil massage for someone close.",
+    "skills": {
+     "sensuality": 2,
+     "charisma": 1
+    },
+    "length": 0.25,
+    "adult": true
    },
    {
     "id": "mixology",
@@ -19896,6 +19935,35 @@
    ]
   },
   {
+   "id": "sj_esthe",
+   "name": "Aroma Room Lily",
+   "map": "shinjuku",
+   "tags": [
+    "service",
+    "work"
+   ],
+   "desc": "a one-room aroma massage salon on the sixth floor of an ordinary apartment building: a reception sofa, a treatment bed behind a curtain, oil bottles on a shelf and a hand-lettered price list",
+   "staff": "the manager at a small desk; a therapist between bookings; customers who come and go without meeting anyone's eye",
+   "crowd": 0.6,
+   "closed": [
+    "firsttrain",
+    "rush",
+    "midmorning"
+   ],
+   "open": [
+    12,
+    24
+   ],
+   "generic": false,
+   "adult": true,
+   "bg": "bg/sj_esthe.avif",
+   "x": 66.4,
+   "y": 34.2,
+   "sound": [
+    "water"
+   ]
+  },
+  {
    "id": "sj_omoide",
    "name": "Omoide Yokochō",
    "map": "shinjuku",
@@ -22875,6 +22943,46 @@
       "mood": -2
      },
      "fact": "{u} walked past a crying woman in {0}"
+    }
+   ]
+  },
+  {
+   "id": "sj_av_scout",
+   "place": "sj_kabukicho",
+   "when": "skill: sensuality 3; period: evening or night or latenight",
+   "adult": true,
+   "setup": "Under the red neon gate a man in a black jacket with a lanyard looks over the passers-by, a stack of cards in his hand. He is a casting director for an adult video studio, short of male performers, and he picks people out by how they stand and what their eyes do. He is looking at {{user}} now.",
+   "choices": [
+    {
+     "id": "card",
+     "label": "Take his card",
+     "text": "He gives a short nod: \"Call if you are serious. We pay little at first, and we are patient.\" The card is plain, with a studio name and a number.",
+     "keepsake": "av_director_card",
+     "effects": {
+      "mood": 2
+     },
+     "fact": "{u} took a casting director's card in {0}"
+    },
+    {
+     "id": "ask",
+     "label": "Ask what the work involves",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "He answers plainly: long waits, being on cue, small pay at the start. He leaves you a card anyway.",
+     "keepsake": "av_director_card",
+     "fail": {
+      "text": "He gives a polite, practiced answer that tells you nothing, then smiles and moves on to the next person."
+     }
+    },
+    {
+     "id": "walk",
+     "label": "Walk on",
+     "text": "You shake your head and keep walking. He is already looking past you at the next person, the cards fanned in his hand.",
+     "effects": {
+      "mood": 1
+     }
     }
    ]
   },
@@ -26064,6 +26172,15 @@
     "Ren",
     "Haru"
    ]
+  },
+  {
+   "id": "av_director_card",
+   "name": "A director's card",
+   "icon": "🪪",
+   "kind": "card",
+   "gift": false,
+   "adult": true,
+   "desc": "A plain card with a studio name and a phone number: an introduction to the video industry for a man who can perform on cue."
   }
  ],
  "occupations": [
@@ -27424,7 +27541,9 @@
    "likes": [
     "Outgoing",
     "Romantic",
-    "Ambitious"
+    "Ambitious",
+    "Flirtatious",
+    "Shameless"
    ],
    "trains": [
     "charisma",
@@ -27602,7 +27721,10 @@
      ]
     }
    ],
-   "adult": true
+   "adult": true,
+   "tags": [
+    "nightwork"
+   ]
   },
   {
    "id": "hostess",
@@ -27626,7 +27748,8 @@
    "likes": [
     "Kind",
     "Romantic",
-    "Nightlife"
+    "Nightlife",
+    "Flirtatious"
    ],
    "trains": [
     "charisma",
@@ -27855,7 +27978,10 @@
      ]
     }
    ],
-   "adult": true
+   "adult": true,
+   "tags": [
+    "nightwork"
+   ]
   },
   {
    "id": "bartender",
@@ -27875,7 +28001,8 @@
    "likes": [
     "Calm",
     "Sarcastic",
-    "Nightlife"
+    "Nightlife",
+    "Flirtatious"
    ],
    "trains": [
     "mixology",
@@ -33387,7 +33514,8 @@
    "likes": [
     "Hot-headed",
     "Outgoing",
-    "Nightlife"
+    "Nightlife",
+    "Flirtatious"
    ],
    "trains": [
     "mixology",
@@ -33621,21 +33749,29 @@
    "likes": [
     "Hot-headed",
     "Cheerful",
-    "Music"
+    "Music",
+    "Shameless"
    ],
    "trains": [
     "dance",
     "fitness",
-    "charisma"
+    "charisma",
+    "sensuality"
    ],
    "ranks": [
+    {
+     "name": "Pole class student",
+     "pay": 1200,
+     "student": true
+    },
     {
      "name": "Trainee",
      "pay": 1500,
      "needs": {
       "dance": 2,
       "fitness": 2
-     }
+     },
+     "course": "pole"
     },
     {
      "name": "Stage dancer",
@@ -33657,13 +33793,14 @@
      "pay": 2700,
      "needs": {
       "dance": 5,
-      "charisma": 3
+      "charisma": 3,
+      "sensuality": 2
      }
     }
    ],
    "branches": [
     {
-     "at": 4,
+     "at": 5,
      "options": [
       {
        "id": "headliner",
@@ -33830,7 +33967,645 @@
       }
      ]
     }
+   ],
+   "tags": [
+    "adult-stage"
+   ],
+   "promote": [
+    25,
+    7,
+    10,
+    13
+   ],
+   "shifted": [
+    "student-rank"
+   ],
+   "courses": [
+    "pole"
    ]
+  },
+  {
+   "id": "esthe",
+   "name": "Esthe therapist",
+   "place": "sj_esthe",
+   "adult": true,
+   "schedule": {
+    "days": 4,
+    "from": 12,
+    "to": 24
+   },
+   "hours": [
+    12,
+    24
+   ],
+   "shift": 6,
+   "length": 0.8,
+   "courses": [
+    "massage"
+   ],
+   "skills": {
+    "sensuality": 2,
+    "charisma": 1
+   },
+   "likes": [
+    "Nightlife",
+    "Sports",
+    "Shameless"
+   ],
+   "trains": [
+    "sensuality",
+    "charisma"
+   ],
+   "ranks": [
+    {
+     "name": "Trainee therapist",
+     "pay": 1800,
+     "student": true
+    },
+    {
+     "name": "Therapist",
+     "pay": 2300,
+     "course": "massage",
+     "needs": {
+      "sensuality": 2,
+      "charisma": 1
+     }
+    },
+    {
+     "name": "Popular therapist",
+     "pay": 2900,
+     "needs": {
+      "sensuality": 3,
+      "charisma": 2
+     }
+    },
+    {
+     "name": "Ranked therapist",
+     "pay": 3600,
+     "needs": {
+      "sensuality": 5,
+      "charisma": 3
+     }
+    }
+   ],
+   "promote": [
+    8,
+    7,
+    10
+   ],
+   "shifted": [
+    "student-rank"
+   ],
+   "events": [
+    {
+     "id": "esthe_ev_line",
+     "setup": "A regular customer asks, quietly, whether there is an \"option\" the shop does not list.",
+     "choices": [
+      {
+       "id": "clean",
+       "label": "Keep it clean",
+       "money": 1000,
+       "perf": 0,
+       "text": "He tips a little, and sometimes leaves a bad review."
+      },
+      {
+       "id": "more",
+       "label": "Offer a little more",
+       "roll": {
+        "skill": "sensuality",
+        "dc": 12
+       },
+       "money": 15000,
+       "perf": 2,
+       "text": "He pays well and the review glows. The manager pretends not to notice.",
+       "fact": "{u} offered a customer an unlisted option at work",
+       "fail": {
+        "text": "A manager's phone buzzes: someone says a check is coming this week. You keep your head down.",
+        "perf": -2,
+        "effects": {
+         "mood": -5
+        }
+       }
+      },
+      {
+       "id": "refuse",
+       "label": "Refuse firmly",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 1,
+       "text": "He apologizes, a little ashamed, and books again.",
+       "fail": {
+        "text": "He complains to the front desk, and the manager takes his side.",
+        "perf": -2
+       }
+      }
+     ]
+    },
+    {
+     "id": "esthe_ev_regular",
+     "setup": "Someone books you every week and asks for you by name.",
+     "choices": [
+      {
+       "id": "glad",
+       "label": "Be glad of it",
+       "money": 3000,
+       "perf": 2,
+       "text": "A steady booking and a steady tip: the shop notices."
+      },
+      {
+       "id": "pass",
+       "label": "Suggest another therapist",
+       "perf": -1,
+       "text": "He nods, a little hurt, and books somebody else."
+      },
+      {
+       "id": "raise",
+       "label": "Ask the manager for more",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "money": 2000,
+       "perf": 1,
+       "text": "The manager adds a small bonus for the repeat customer.",
+       "fail": {
+        "text": "The manager says the bookings are the shop's, not yours.",
+        "perf": 0
+       }
+      }
+     ]
+    },
+    {
+     "id": "esthe_ev_ranking",
+     "setup": "The review site posts its monthly ranking, and the shop wants a photo diary from each therapist.",
+     "choices": [
+      {
+       "id": "diary",
+       "label": "Post a careful diary",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 2,
+       "text": "Your diary climbs the ranking, and bookings follow.",
+       "fail": {
+        "text": "The diary sinks without a trace.",
+        "perf": 0
+       }
+      },
+      {
+       "id": "simple",
+       "label": "Post one plain photo",
+       "perf": 0,
+       "text": "Nobody notices, and nobody minds."
+      },
+      {
+       "id": "skip",
+       "label": "Skip it this month",
+       "perf": -1,
+       "text": "The manager marks it down."
+      }
+     ]
+    },
+    {
+     "id": "esthe_ev_stalker",
+     "setup": "A customer is waiting by the building door after your shift, pretending to read his phone.",
+     "choices": [
+      {
+       "id": "manager",
+       "label": "Ask the manager to ban him",
+       "perf": 0,
+       "text": "The manager walks him off the property and he does not come back."
+      },
+      {
+       "id": "talk",
+       "label": "Talk to him calmly",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "perf": 1,
+       "text": "He apologizes and leaves.",
+       "fail": {
+        "text": "He follows you to the station before he gives up.",
+        "effects": {
+         "mood": -5
+        }
+       }
+      },
+      {
+       "id": "exit",
+       "label": "Leave by the back stairs",
+       "perf": 0,
+       "text": "You are on the train before he looks up."
+      }
+     ]
+    }
+   ],
+   "tracks": {
+    "woman": {
+     "name": "Men's esthe",
+     "ranks": [
+      {
+       "name": "Trainee therapist",
+       "pay": 1800,
+       "student": true
+      },
+      {
+       "name": "Therapist",
+       "pay": 2300,
+       "course": "massage",
+       "needs": {
+        "sensuality": 2,
+        "charisma": 1
+       }
+      },
+      {
+       "name": "Popular therapist",
+       "pay": 2900,
+       "needs": {
+        "sensuality": 3,
+        "charisma": 2
+       }
+      },
+      {
+       "name": "Ranked therapist",
+       "pay": 3600,
+       "needs": {
+        "sensuality": 5,
+        "charisma": 3
+       }
+      }
+     ],
+     "promote": [
+      8,
+      7,
+      10
+     ],
+     "likes": [
+      "Nightlife",
+      "Sports",
+      "Shameless"
+     ],
+     "events": [
+      {
+       "id": "esthe_ev_line",
+       "setup": "A regular customer asks, quietly, whether there is an \"option\" the shop does not list.",
+       "choices": [
+        {
+         "id": "clean",
+         "label": "Keep it clean",
+         "money": 1000,
+         "perf": 0,
+         "text": "He tips a little, and sometimes leaves a bad review."
+        },
+        {
+         "id": "more",
+         "label": "Offer a little more",
+         "roll": {
+          "skill": "sensuality",
+          "dc": 12
+         },
+         "money": 15000,
+         "perf": 2,
+         "text": "He pays well and the review glows. The manager pretends not to notice.",
+         "fact": "{u} offered a customer an unlisted option at work",
+         "fail": {
+          "text": "A manager's phone buzzes: someone says a check is coming this week. You keep your head down.",
+          "perf": -2,
+          "effects": {
+           "mood": -5
+          }
+         }
+        },
+        {
+         "id": "refuse",
+         "label": "Refuse firmly",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 1,
+         "text": "He apologizes, a little ashamed, and books again.",
+         "fail": {
+          "text": "He complains to the front desk, and the manager takes his side.",
+          "perf": -2
+         }
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_regular",
+       "setup": "Someone books you every week and asks for you by name.",
+       "choices": [
+        {
+         "id": "glad",
+         "label": "Be glad of it",
+         "money": 3000,
+         "perf": 2,
+         "text": "A steady booking and a steady tip: the shop notices."
+        },
+        {
+         "id": "pass",
+         "label": "Suggest another therapist",
+         "perf": -1,
+         "text": "He nods, a little hurt, and books somebody else."
+        },
+        {
+         "id": "raise",
+         "label": "Ask the manager for more",
+         "roll": {
+          "skill": "charisma",
+          "dc": 12
+         },
+         "money": 2000,
+         "perf": 1,
+         "text": "The manager adds a small bonus for the repeat customer.",
+         "fail": {
+          "text": "The manager says the bookings are the shop's, not yours.",
+          "perf": 0
+         }
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_ranking",
+       "setup": "The review site posts its monthly ranking, and the shop wants a photo diary from each therapist.",
+       "choices": [
+        {
+         "id": "diary",
+         "label": "Post a careful diary",
+         "roll": {
+          "skill": "charisma",
+          "dc": 12
+         },
+         "perf": 2,
+         "text": "Your diary climbs the ranking, and bookings follow.",
+         "fail": {
+          "text": "The diary sinks without a trace.",
+          "perf": 0
+         }
+        },
+        {
+         "id": "simple",
+         "label": "Post one plain photo",
+         "perf": 0,
+         "text": "Nobody notices, and nobody minds."
+        },
+        {
+         "id": "skip",
+         "label": "Skip it this month",
+         "perf": -1,
+         "text": "The manager marks it down."
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_stalker",
+       "setup": "A customer is waiting by the building door after your shift, pretending to read his phone.",
+       "choices": [
+        {
+         "id": "manager",
+         "label": "Ask the manager to ban him",
+         "perf": 0,
+         "text": "The manager walks him off the property and he does not come back."
+        },
+        {
+         "id": "talk",
+         "label": "Talk to him calmly",
+         "roll": {
+          "skill": "charisma",
+          "dc": 13
+         },
+         "perf": 1,
+         "text": "He apologizes and leaves.",
+         "fail": {
+          "text": "He follows you to the station before he gives up.",
+          "effects": {
+           "mood": -5
+          }
+         }
+        },
+        {
+         "id": "exit",
+         "label": "Leave by the back stairs",
+         "perf": 0,
+         "text": "You are on the train before he looks up."
+        }
+       ]
+      }
+     ]
+    },
+    "man": {
+     "name": "Women's services",
+     "ranks": [
+      {
+       "name": "Newcomer",
+       "pay": 1000,
+       "student": true,
+       "needs": {
+        "sensuality": 3,
+        "charisma": 2
+       }
+      },
+      {
+       "name": "Therapist",
+       "pay": 1600,
+       "course": "massage",
+       "needs": {
+        "sensuality": 5,
+        "charisma": 3
+       }
+      },
+      {
+       "name": "Popular therapist",
+       "pay": 2400,
+       "needs": {
+        "sensuality": 6,
+        "charisma": 4
+       },
+       "when": "perf: 70"
+      },
+      {
+       "name": "Ranked therapist",
+       "pay": 3400,
+       "needs": {
+        "sensuality": 7,
+        "charisma": 5
+       }
+      }
+     ],
+     "promote": [
+      8,
+      7,
+      10
+     ],
+     "place": "",
+     "schedule": {
+      "days": 3,
+      "from": 18,
+      "to": 2
+     },
+     "pace": 1.4,
+     "fee": 30000,
+     "skills": {
+      "sensuality": 3,
+      "charisma": 2
+     },
+     "likes": [
+      "Nightlife",
+      "Sports",
+      "Flirtatious"
+     ],
+     "trains": [
+      "sensuality",
+      "charisma",
+      "english"
+     ],
+     "events": [
+      {
+       "id": "esthe_ev_line",
+       "setup": "A regular customer asks, quietly, whether there is an \"option\" the shop does not list.",
+       "choices": [
+        {
+         "id": "clean",
+         "label": "Keep it clean",
+         "money": 1000,
+         "perf": 0,
+         "text": "He tips a little, and sometimes leaves a bad review."
+        },
+        {
+         "id": "more",
+         "label": "Offer a little more",
+         "roll": {
+          "skill": "sensuality",
+          "dc": 12
+         },
+         "money": 15000,
+         "perf": 2,
+         "text": "He pays well and the review glows. The manager pretends not to notice.",
+         "fact": "{u} offered a customer an unlisted option at work",
+         "fail": {
+          "text": "A manager's phone buzzes: someone says a check is coming this week. You keep your head down.",
+          "perf": -2,
+          "effects": {
+           "mood": -5
+          }
+         }
+        },
+        {
+         "id": "refuse",
+         "label": "Refuse firmly",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 1,
+         "text": "He apologizes, a little ashamed, and books again.",
+         "fail": {
+          "text": "He complains to the front desk, and the manager takes his side.",
+          "perf": -2
+         }
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_regular",
+       "setup": "Someone books you every week and asks for you by name.",
+       "choices": [
+        {
+         "id": "glad",
+         "label": "Be glad of it",
+         "money": 3000,
+         "perf": 2,
+         "text": "A steady booking and a steady tip: the shop notices."
+        },
+        {
+         "id": "pass",
+         "label": "Suggest another therapist",
+         "perf": -1,
+         "text": "He nods, a little hurt, and books somebody else."
+        },
+        {
+         "id": "raise",
+         "label": "Ask the manager for more",
+         "roll": {
+          "skill": "charisma",
+          "dc": 12
+         },
+         "money": 2000,
+         "perf": 1,
+         "text": "The manager adds a small bonus for the repeat customer.",
+         "fail": {
+          "text": "The manager says the bookings are the shop's, not yours.",
+          "perf": 0
+         }
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_firsttime",
+       "setup": "A nervous woman is booked for the first time. She holds her bag in her lap and does not say why she came.",
+       "choices": [
+        {
+         "id": "talk",
+         "label": "Talk her through it",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 2,
+         "text": "She relaxes and books again for next week.",
+         "fail": {
+          "text": "She leaves early but thanks you at the door.",
+          "perf": 0
+         }
+        },
+        {
+         "id": "light",
+         "label": "Offer a lighter treatment",
+         "perf": 1,
+         "text": "Shoulders and a cup of tea: she says it was exactly enough."
+        },
+        {
+         "id": "manager",
+         "label": "Hand her to the manager",
+         "perf": 0,
+         "text": "The manager takes over, a little puzzled."
+        }
+       ]
+      },
+      {
+       "id": "esthe_ev_fee",
+       "setup": "The shop wants another ¥20,000 for \"advanced training\", and says without it no one will book you.",
+       "when": "course: not massage",
+       "choices": [
+        {
+         "id": "pay",
+         "label": "Pay it",
+         "money": -20000,
+         "perf": 1,
+         "text": "You pay; the shop sends you a certificate with a stamp."
+        },
+        {
+         "id": "refuse",
+         "label": "Refuse",
+         "perf": -2,
+         "text": "The manager shrugs and the bookings thin out."
+        },
+        {
+         "id": "quit",
+         "label": "Walk out and keep your money",
+         "perf": -2,
+         "text": "You leave; nobody stops you."
+        }
+       ]
+      }
+     ]
+    }
+   }
   },
   {
    "id": "pubstaff",
@@ -33850,7 +34625,8 @@
    "likes": [
     "Outgoing",
     "Sarcastic",
-    "Travel"
+    "Travel",
+    "Flirtatious"
    ],
    "trains": [
     "english",
@@ -35058,11 +35834,13 @@
    "likes": [
     "Outgoing",
     "Romantic",
-    "Ambitious"
+    "Ambitious",
+    "Shameless"
    ],
    "trains": [
     "charisma",
-    "fitness"
+    "fitness",
+    "sensuality"
    ],
    "ranks": [
     {
@@ -35076,7 +35854,8 @@
      "name": "Exclusive contract",
      "pay": 2000,
      "needs": {
-      "charisma": 2
+      "charisma": 2,
+      "sensuality": 1
      }
     },
     {
@@ -35084,14 +35863,16 @@
      "pay": 2600,
      "needs": {
       "charisma": 3,
-      "fitness": 2
+      "fitness": 2,
+      "sensuality": 2
      }
     },
     {
      "name": "Popular name",
      "pay": 3300,
      "needs": {
-      "charisma": 4
+      "charisma": 4,
+      "sensuality": 4
      },
      "when": "perf: 80"
     },
@@ -35099,7 +35880,8 @@
      "name": "Signing-event draw",
      "pay": 4000,
      "needs": {
-      "charisma": 5
+      "charisma": 5,
+      "sensuality": 5
      }
     }
    ],
@@ -35116,7 +35898,8 @@
          "name": "TV guest",
          "pay": 4800,
          "needs": {
-          "charisma": 6
+          "charisma": 6,
+          "sensuality": 5
          },
          "when": "perf: 80"
         },
@@ -35125,7 +35908,8 @@
          "pay": 5800,
          "needs": {
           "charisma": 7,
-          "logic": 3
+          "logic": 3,
+          "sensuality": 6
          }
         }
        ]
@@ -35140,7 +35924,8 @@
          "pay": 4200,
          "needs": {
           "charisma": 5,
-          "logic": 4
+          "logic": 4,
+          "sensuality": 5
          }
         },
         {
@@ -35148,14 +35933,285 @@
          "pay": 5200,
          "needs": {
           "logic": 6,
-          "charisma": 6
+          "charisma": 6,
+          "sensuality": 6
          }
         }
        ]
       }
      ]
     }
-   ]
+   ],
+   "tags": [
+    "adult-stage"
+   ],
+   "tracks": {
+    "woman": {
+     "name": "Actress"
+    },
+    "man": {
+     "name": "Actor",
+     "hireable": true,
+     "hire": "holds: av_director_card",
+     "skills": {
+      "fitness": 2,
+      "sensuality": 2
+     },
+     "ranks": [
+      {
+       "name": "Extra",
+       "pay": 800,
+       "needs": {
+        "fitness": 2,
+        "sensuality": 2
+       }
+      },
+      {
+       "name": "Supporting actor",
+       "pay": 1200,
+       "needs": {
+        "sensuality": 4,
+        "fitness": 3
+       }
+      },
+      {
+       "name": "Regular actor",
+       "pay": 1800,
+       "needs": {
+        "sensuality": 6,
+        "fitness": 4
+       }
+      },
+      {
+       "name": "Popular actor",
+       "pay": 2400,
+       "needs": {
+        "sensuality": 7,
+        "charisma": 3
+       }
+      },
+      {
+       "name": "Top actor",
+       "pay": 3000,
+       "needs": {
+        "sensuality": 8,
+        "fitness": 5
+       },
+       "when": "perf: 80"
+      }
+     ],
+     "promote": [
+      8,
+      10,
+      13,
+      16
+     ],
+     "branches": [
+      {
+       "at": 5,
+       "options": [
+        {
+         "id": "tvbooks",
+         "name": "TV and books",
+         "desc": "famous actors write books and do variety television",
+         "ranks": [
+          {
+           "name": "TV guest",
+           "pay": 3600,
+           "needs": {
+            "charisma": 5,
+            "sensuality": 5
+           },
+           "when": "perf: 80"
+          },
+          {
+           "name": "Author and TV name",
+           "pay": 4400,
+           "needs": {
+            "charisma": 6,
+            "writing": 2
+           }
+          }
+         ]
+        },
+        {
+         "id": "director",
+         "name": "Behind the camera",
+         "desc": "retire from the screen and direct or produce",
+         "ranks": [
+          {
+           "name": "Assistant director",
+           "pay": 4200,
+           "needs": {
+            "charisma": 5,
+            "logic": 4
+           }
+          },
+          {
+           "name": "Director",
+           "pay": 5200,
+           "needs": {
+            "logic": 6,
+            "charisma": 6
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "schedule": {
+      "days": 2,
+      "from": 8,
+      "to": 18
+     },
+     "pace": 1.5,
+     "trains": [
+      "sensuality",
+      "fitness"
+     ],
+     "events": [
+      {
+       "id": "av_m_ev_cue",
+       "setup": "You have waited four hours in a corridor with a coffee going cold. The assistant director leans in: \"Ready in two minutes.\"",
+       "choices": [
+        {
+         "id": "breathe",
+         "label": "Stay calm and breathe",
+         "roll": {
+          "skill": "sensuality",
+          "dc": 12
+         },
+         "perf": 2,
+         "effects": {
+          "desire": 15
+         },
+         "text": "You are on cue and steady; the director nods and calls it in one take.",
+         "fail": {
+          "text": "It does not come. The director calls a break, and your co-star is kind about it.",
+          "perf": -2
+         }
+        },
+        {
+         "id": "walk",
+         "label": "Walk it off first",
+         "roll": {
+          "skill": "fitness",
+          "dc": 11
+         },
+         "perf": 1,
+         "effects": {
+          "desire": 15
+         },
+         "text": "A lap of the corridor clears your head and the body follows.",
+         "fail": {
+          "text": "You stiffen up. The break is called, and you make up the time afterward.",
+          "perf": -1
+         }
+        },
+        {
+         "id": "time",
+         "label": "Ask for more time",
+         "perf": -1,
+         "text": "The director sighs and moves the shoot back by an hour."
+        }
+       ]
+      },
+      {
+       "id": "av_m_ev_double",
+       "setup": "A face actor needs a stand-in for part of a scene. It pays double today, and nobody will ever know it was you.",
+       "choices": [
+        {
+         "id": "take",
+         "label": "Take the double pay",
+         "money": 8000,
+         "perf": 0,
+         "text": "You stand where you are told, out of frame, and collect a thick envelope.",
+         "fact": "{u} worked as a body double at a shoot"
+        },
+        {
+         "id": "ask",
+         "label": "Ask who will see it",
+         "roll": {
+          "skill": "charisma",
+          "dc": 10
+         },
+         "perf": 1,
+         "text": "The director answers plainly, and trusts you for asking.",
+         "fail": {
+          "text": "The question lands badly: \"Do you want the work or not?\"",
+          "perf": -1
+         }
+        },
+        {
+         "id": "decline",
+         "label": "Decline politely",
+         "perf": 0,
+         "text": "The director shrugs and calls somebody else."
+        }
+       ]
+      },
+      {
+       "id": "av_ev_callback",
+       "setup": "A director you worked with last week asks for you by name for the next shoot.",
+       "when": "perf: 60",
+       "choices": [
+        {
+         "id": "yes",
+         "label": "Say yes at once",
+         "perf": 2,
+         "text": "He writes your name in the schedule in pen."
+        },
+        {
+         "id": "schedule",
+         "label": "Ask about the schedule first",
+         "perf": 1,
+         "text": "He gives you the dates and adds that he likes a man who plans."
+        },
+        {
+         "id": "pass",
+         "label": "Pass this time",
+         "perf": -1,
+         "text": "He nods, a little cooler: there are always others."
+        }
+       ]
+      },
+      {
+       "id": "av_ev_request",
+       "setup": "An actress has told the studio she wants to work with you again.",
+       "when": "perf: 70",
+       "choices": [
+        {
+         "id": "thank",
+         "label": "Thank her in person",
+         "roll": {
+          "skill": "charisma",
+          "dc": 11
+         },
+         "perf": 2,
+         "text": "She laughs, pleased, and tells the studio so twice.",
+         "fail": {
+          "text": "You get the words wrong and she waves it off kindly.",
+          "perf": 0
+         }
+        },
+        {
+         "id": "quiet",
+         "label": "Keep it professional",
+         "perf": 1,
+         "text": "You do the next shoot and leave it at that."
+        },
+        {
+         "id": "turn",
+         "label": "Say you are booked",
+         "perf": -1,
+         "text": "The studio notes it. Requests do not come twice."
+        }
+       ]
+      }
+     ]
+    }
+   }
   }
  ],
  "institutions": [
@@ -36991,7 +38047,7 @@
     "age": 28,
     "gender": "woman",
     "occupation": "dancer",
-    "rank": 3,
+    "rank": 4,
     "home": "hz_studio",
     "leisure": [
      "rp_pub",
