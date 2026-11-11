@@ -39454,10 +39454,10 @@
     "desc": "Belong to the old town: its streets, its counters and its bells.",
     "steps": [
      {
-      "name": "Live in Yanaka, or get to know the old town",
+      "name": "Live in Yanaka, or be a regular in the old town",
       "when": "home: oldhouse",
       "or": [
-       "visited: 5 in oldtown"
+       "visited: 1 regular in oldtown"
       ],
       "reward": {
        "mood": 6
