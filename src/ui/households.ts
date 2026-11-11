@@ -80,7 +80,7 @@ function moveTo(g: Save, w: WorldDef, who: string[], key: string) {
     const s = spots(g, w).find(x => x.key === key); if (!s) return;
     const home = { zone: s.zone, x: s.x, y: s.y, n: s.n, unit: s.unit };
     for (const a of who) {
-        if (a === '__you') g.player.home = { ...g.player.home, ...home, kind: s.kind };
+        if (a === '__you') { const { rent, ...was } = g.player.home; g.player.home = { ...was, ...home, kind: s.kind, ...(rent !== undefined && s.zone === was.zone ? { rent } : {}) }; }   // a start's rent stays with its home
         else if (g.cast[a]) { g.cast[a].home = { ...home }; delete (g.cast[a] as any).homeWith; }
     }
     normalizeHomes(g);

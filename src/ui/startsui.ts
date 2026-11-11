@@ -12,7 +12,7 @@ import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 
 /** A start being written: the start's own fields, and (new game) the lorebooks its premise is written from. */
-export interface StartDraft { id?: string; name: string; premise: string; home?: string; money?: number | string; job?: string; knows: StartKnown[]; books?: string[]; bq?: string; busy?: boolean; savedId?: string }
+export interface StartDraft { id?: string; name: string; premise: string; home?: string; money?: number | string; rent?: number | string; job?: string; knows: StartKnown[]; books?: string[]; bq?: string; busy?: boolean; savedId?: string }
 export const blankStart = (w: WorldDef | null): StartDraft => ({ name: '', premise: '', home: w?.homes.zones[0]?.id ?? '', money: w?.starts?.find(s => s.default)?.money ?? w?.starts?.[0]?.money ?? w?.catalogs.origins?.[0]?.money ?? 0, knows: [] });
 // Each editor's draft and world: the new game's custom start, or the start open in the Library.
 const LIB = { world: '', sel: '', draft: null as StartDraft | null };
@@ -67,6 +67,7 @@ export function startEditorHtml(scope: 'ng' | 'lib'): string {
         <label class="mu-field"><span>Premise (how the story starts; the AI is told this)</span><textarea rows="5" ${f('premise')} placeholder="Who you are, why you're here, and what's going on as the story begins. Write {{user}} for yourself.">${esc(d.premise)}</textarea></label>
         ${w ? `<div class="mu-row2"><label class="mu-field"><span>Where you live</span><select ${f('home')}>${w.homes.zones.map(z => opt(z.id, z.name, d.home === z.id)).join('')}</select></label>
             <label class="mu-field"><span>Money</span><input type="number" min="0" step="1" ${f('money')} value="${esc(d.money ?? '')}"></label></div>
+        ${systemOn(w, 'bills') && w.rent ? `<label class="mu-field"><span>Rent you pay there, a week (empty: the home's own, ${esc(money(w, w.homes.zones.find(z => z.id === d.home)?.rent ?? 0))}; until you move)</span><input type="number" min="0" step="1" ${f('rent')} value="${esc(d.rent ?? '')}"></label>` : ''}
         ${jobs.length ? `<label class="mu-field"><span>A job to start with</span><select ${f('job')}>${opt('', 'None', !d.job)}${jobs.map(o => opt(o.id, o.name, d.job === o.id)).join('')}</select></label>` : ''}
         <h4>Whom you already know</h4><p class="mu-muted">The world's people who know you from the start, and how (only those in the game; your own characters are under "Your relations").</p>
         ${d.knows.map(known).join('') || '<p class="mu-muted">Nobody yet.</p>'}
@@ -148,7 +149,7 @@ Object.assign(INPUT, {
     // text fields don't redraw while you type
     'st-f': (el) => {
         const d = SC[el.dataset.scope!]?.draft(); if (!d) return; const k = el.dataset.k!, v = el.value;
-        if (k === 'money') d.money = v === '' ? undefined : Math.max(0, Math.round(Number(v) || 0));
+        if (k === 'money' || k === 'rent') d[k] = v === '' ? undefined : Math.max(0, Math.round(Number(v) || 0));
         else (d as any)[k] = v;
         if (k === 'home' || k === 'job') notify();
     },

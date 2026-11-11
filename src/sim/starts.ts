@@ -30,6 +30,7 @@ export function cleanStart(raw: any): StartDef | null {
     const desc = line(raw.desc, 300); if (desc) s.desc = desc;
     const home = line(raw.home, 80); if (home) s.home = home;
     if (Number.isFinite(Number(raw.money)) && raw.money !== '' && raw.money !== null) s.money = Math.max(0, Math.round(Number(raw.money)));
+    if (Number.isFinite(Number(raw.rent)) && raw.rent !== '' && raw.rent !== null && raw.rent !== undefined) s.rent = Math.max(0, Math.round(Number(raw.rent)));
     const job = line(raw.job, 80); if (job) s.job = job;
     const household = line(raw.household, 80); if (household) s.household = household;
     const knows = (Array.isArray(raw.knows) ? raw.knows : []).map(cleanKnown).filter(Boolean) as StartKnown[];
@@ -97,6 +98,9 @@ export function applyStart(g: Save, w: WorldDef, start: StartDef | undefined) {
     if (!start) return;
     g.player.start = start.id;
     if (start.premise?.trim()) g.player.premise = start.premise.trim().slice(0, 4000);
+    // the start's rent, only in its own home (a home picked in the new game pays its own)
+    if (start.rent !== undefined && start.home === g.player.home.zone) g.player.home.rent = start.rent;
+    if (start.rent !== undefined) (g.player as any).startRent = true;   // (settleStartRent: nothing to repair)
     const job = start.job ? w.occupations.find(o => o.id === start.job) : undefined;
     if (job && systemOn(w, 'jobs') && adultOk(g, job)) g.player.job = { id: job.id, rank: 0, shifts: 0 };
     // skill levels (J3): kept where levelOf() reads them

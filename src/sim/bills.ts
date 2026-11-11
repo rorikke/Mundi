@@ -83,7 +83,8 @@ export function billAmount(g: Save, w: WorldDef, id: BillId): number {
     const kind = g.player.home.kind ?? zone?.kind ?? '';
     const own = (w.homes.kinds[kind]?.bills ?? {}) as Record<string, number>;
     // older medieval worlds call their Power bill "firewood"
-    const base = id === 'rent' ? zone?.rent ?? 0 : Number(own[id] ?? (id === 'power' ? own.firewood : undefined) ?? 0);
+    // the rent: what your start asks of you in this home (Tokyo born: a share of the family's house), else the home's
+    const base = id === 'rent' ? g.player.home.rent ?? zone?.rent ?? 0 : Number(own[id] ?? (id === 'power' ? own.firewood : undefined) ?? 0);
     // what effects (life goals' perks) take off: the rent counts as a price, the other bills only as bills
     return priceOf(g, base * effectMul(g, w, 'price', id === 'rent' ? ['prices', 'rent'] : ['bills', id]));
 }
@@ -148,6 +149,16 @@ export function skipBills(g: Save, w: WorldDef): string[] | null {
     if (!list.length) return null;
     for (const b of list) billOf(g, b.id).due += EVERY;
     return [`No ${list.map(b => b.name.toLowerCase()).join(', ')} to pay this week.`];
+}
+/** A save begun before starts had a rent of their own (Tokyo born, living with the family): the start's rent from now
+ *  on, while you still live in its home. Checked once per save (`startRent`), so moving back later pays the home's rent. */
+export function settleStartRent(g: Save, w: WorldDef): string {
+    const p = g.player as any, st = (w.starts ?? []).find(s => s.id === p.start);
+    if (st?.rent === undefined || p.startRent) return '';
+    p.startRent = true;
+    if (p.home.rent !== undefined || p.home.zone !== st.home || !systemOn(w, 'bills') || !w.rent) return '';
+    p.home.rent = st.rent;
+    return `Your rent at home is now ${money(w, priceOf(g, st.rent))} a week (${st.name}).`;
 }
 // Moving in: the first week is paid with the deposit, so everything starts fresh (what the old home was still owed
 // stays behind, with its deposit).
