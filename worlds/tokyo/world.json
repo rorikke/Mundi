@@ -6142,7 +6142,8 @@
    "tags": [
     "private",
     "exhib"
-   ]
+   ],
+   "fee": 5000
   },
   {
    "id": "ak_myojin_omikuji",
@@ -12499,7 +12500,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -12867,6 +12868,54 @@
    "tags": [
     "private",
     "exhib"
+   ]
+  },
+  {
+   "id": "sb_lovehotel_night",
+   "name": "The stay",
+   "label": "Spend the night together",
+   "icon": "🌙",
+   "cost": 11000,
+   "minutes": 480,
+   "place": "sb_lovehotel",
+   "effects": {
+    "energy": 40,
+    "mood": 16,
+    "hygiene": 20,
+    "hunger": -15,
+    "desire": 50
+   },
+   "when": "period: night or latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "hotel"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a whole night in a love-hotel room: the bath, room-service noodles and sleeping in each other's arms until check-out"
+   },
+   "outcomes": [
+    {
+     "id": "night",
+     "weight": 70,
+     "text": "The room is quiet and warm; breakfast comes through the hatch at nine, and neither of you gets up for it."
+    },
+    {
+     "id": "late",
+     "weight": 30,
+     "text": "You talk until three about nothing, then sleep like stones until check-out comes far too soon.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} spent the night at {0} with someone",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "lovehotel"
    ]
   }
  ],
@@ -14899,7 +14948,8 @@
     "priv_home_three",
     "priv_office_late",
     "priv_park_night",
-    "priv_ryokan_rotenburo"
+    "priv_ryokan_rotenburo",
+    "sb_lovehotel_night"
    ],
    "count": 5,
    "days": 7,
@@ -26682,6 +26732,67 @@
    "gift": false,
    "adult": true,
    "desc": "A plain card with a studio name and a phone number: an introduction to the video industry for a man who can perform on cue."
+  },
+  {
+   "gift": true,
+   "id": "own_photo_book",
+   "name": "Your own photo book",
+   "icon": "📸",
+   "kind": "book",
+   "loves": [
+    "Lisa",
+    "Camille"
+   ],
+   "adult": true
+  },
+  {
+   "gift": true,
+   "id": "shunga_print",
+   "name": "A shunga print",
+   "icon": "🖼️",
+   "kind": "print",
+   "loves": [
+    "Yui",
+    "Kanon"
+   ],
+   "desc": "A reprint of an Edo woodblock print, from a Jinbōchō print shop.",
+   "adult": true
+  },
+  {
+   "gift": true,
+   "id": "pair_yukata",
+   "name": "Pair of yukata",
+   "icon": "👘",
+   "kind": "clothing",
+   "loves": [
+    "Shizuka",
+    "Rina"
+   ],
+   "adult": true
+  },
+  {
+   "gift": true,
+   "id": "three_keys_ring",
+   "name": "Three keys on one ring",
+   "icon": "🔑",
+   "kind": "charm",
+   "loves": [
+    "Kyōko",
+    "Camille"
+   ],
+   "adult": true
+  },
+  {
+   "gift": true,
+   "id": "staff_key_tag",
+   "name": "A \"staff only\" key tag",
+   "icon": "🏷️",
+   "kind": "charm",
+   "loves": [
+    "Yui",
+    "Rina"
+   ],
+   "adult": true
   }
  ],
  "occupations": [
@@ -34574,6 +34685,7 @@
        },
        "money": 15000,
        "perf": 2,
+       "risk": 0.1,
        "text": "He pays well and the review glows. The manager pretends not to notice.",
        "fact": "{u} offered a customer an unlisted option at work",
        "fail": {
@@ -36069,7 +36181,7 @@
    "name": "AV actress",
    "place": "",
    "offScreen": true,
-   "hireable": false,
+   "hireable": true,
    "adult": true,
    "schedule": {
     "days": 3
@@ -36196,7 +36308,6 @@
     },
     "man": {
      "name": "Actor",
-     "hireable": true,
      "hire": [
       "holds: av_director_card",
       "feels: Airi friend or Momo friend",
@@ -41405,6 +41516,276 @@
       }
      ]
     }
+   },
+   {
+    "id": "tk_adultstar",
+    "name": "Adult star",
+    "icon": "🌟",
+    "category": "career",
+    "adult": true,
+    "needs": [
+     "jobs",
+     "hobbies"
+    ],
+    "desc": "Sign with a studio and climb to the top of the video industry, on screen and off.",
+    "steps": [
+     {
+      "name": "Signed with a studio",
+      "when": "job: avactress",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Rank 3, and Sensuality 3",
+      "when": "job: avactress; rank: 3; skill: sensuality 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Rank 5",
+      "when": "job: avactress; rank: 5",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The top of your track",
+      "when": "job: avactress; rank: top",
+      "reward": {
+       "mood": 10,
+       "keepsake": "own_photo_book"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Fan service",
+     "desc": "Performance in stage and screen work grows 20% faster.",
+     "effects": [
+      {
+       "kind": "perf",
+       "target": "adult-stage",
+       "value": 0.2
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_pleasure",
+    "name": "The art of pleasure",
+    "icon": "🌹",
+    "category": "knowledge",
+    "adult": true,
+    "needs": [
+     "hobbies",
+     "romance"
+    ],
+    "desc": "Build your Sensuality and learn what the people close to you like.",
+    "steps": [
+     {
+      "name": "Sensuality 3",
+      "when": "skill: sensuality 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A class in pole or massage, or Sensuality 5",
+      "when": "course: pole or massage",
+      "or": [
+       "skill: sensuality 5"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Learn eight things about your lovers",
+      "when": "did: learned 8",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Sensuality 8",
+      "when": "skill: sensuality 8",
+      "reward": {
+       "mood": 10,
+       "keepsake": "shunga_print"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Attentive lover",
+     "desc": "Romance from private moments grows 15% faster.",
+     "effects": [
+      {
+       "kind": "gain",
+       "target": "intimate",
+       "value": 0.15
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_spark",
+    "name": "Keeping the spark",
+    "icon": "✨",
+    "category": "love",
+    "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "desc": "Stay interesting to the same person: nights, trips, gifts they love, and a season of keeping it up.",
+    "steps": [
+     {
+      "name": "Ten private moments with a partner",
+      "when": "did: intimate 10 with dating",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The ryokan's private bath, or a night at the hotel, with a partner",
+      "when": "did: hk_ryokan_private with dating",
+      "or": [
+       "did: sb_lovehotel_night with dating"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A gift they love",
+      "when": "did: gift_loved with dating",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A partner, twenty-five private moments, and a season of it",
+      "when": "partner: dating or engaged or married; did: intimate 25",
+      "hold": "season",
+      "reward": {
+       "mood": 10,
+       "keepsake": "pair_yukata"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Sleeping in their arms",
+     "desc": "A night with someone in your bed rests you 25% better.",
+     "effects": [
+      {
+       "kind": "rest",
+       "target": "sleep together",
+       "value": 0.25
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_openhearts",
+    "name": "Open hearts",
+    "icon": "💞",
+    "category": "love",
+    "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "desc": "More than one partner, with everyone knowing and everyone fine with it.",
+    "steps": [
+     {
+      "name": "Two people who are head over heels",
+      "when": "friends: 2 infatuated",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A partner with an open style, and a second partner",
+      "when": "partner: open; partner: 2",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A night with two lovers",
+      "when": "did: threesome",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Two partners and a season without jealousy",
+      "when": "partner: 2; did: not jealous",
+      "hold": "season",
+      "reward": {
+       "mood": 10,
+       "keepsake": "three_keys_ring"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Compersion",
+     "desc": "Your partners' jealousy hurts 40% less.",
+     "effects": [
+      {
+       "kind": "jealousy",
+       "value": -0.4
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_thrill",
+    "name": "Thrill seeker",
+    "icon": "🗝️",
+    "category": "explorer",
+    "adult": true,
+    "desc": "Some places aren't made for what you do there, and that is the point.",
+    "steps": [
+     {
+      "name": "A thrill and not caught",
+      "when": "did: risky",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The ryokan's bath after midnight",
+      "when": "did: priv_ryokan_rotenburo",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The office after hours, or the park after dark",
+      "when": "did: priv_office_late or priv_park_night",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Five times not caught",
+      "when": "did: risky 5",
+      "reward": {
+       "mood": 10,
+       "keepsake": "staff_key_tag"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Blind spots",
+     "desc": "You are half as likely to be caught.",
+     "effects": [
+      {
+       "kind": "risk",
+       "value": -0.5
+      }
+     ]
+    }
    }
   ]
  },
@@ -41544,6 +41925,70 @@
     "roles": [
      "shrine"
     ]
+   },
+   {
+    "id": "tk_pillowtalk",
+    "name": "Pillow talk",
+    "icon": "💬",
+    "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "kind": "insight",
+    "questions": [
+     "bed"
+    ],
+    "price": 200,
+    "limit": {
+     "per": "season",
+     "person": true
+    },
+    "desc": "Learn one thing someone close likes, one hard limit or their drive, before any night together."
+   },
+   {
+    "id": "tk_mamushi",
+    "name": "Mamushi drink",
+    "icon": "🍶",
+    "adult": true,
+    "kind": "boost",
+    "price": 200,
+    "days": 1,
+    "limit": {
+     "per": "day"
+    },
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "private",
+      "value": 0.5
+     },
+     {
+      "kind": "drain",
+      "target": "energy",
+      "value": -0.3
+     }
+    ],
+    "desc": "A pit-viper tonic from a Shinjuku drugstore: private moments give half as much again, and energy drains slower for a day."
+   },
+   {
+    "id": "tk_kanamara",
+    "name": "Kanamara charm",
+    "icon": "🧧",
+    "adult": true,
+    "kind": "boost",
+    "price": 250,
+    "days": 7,
+    "limit": {
+     "per": "week"
+    },
+    "effects": [
+     {
+      "kind": "roll",
+      "target": "private",
+      "value": 2
+     }
+    ],
+    "desc": "A charm from Kanayama Shrine in Kawasaki, known for its spring festival: +2 on private moments for a week."
    }
   ]
  },
