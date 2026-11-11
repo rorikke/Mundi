@@ -7,6 +7,7 @@ point of view, and grows as new ones arrive.
 - [A color for each speaker's dialogue](#a-color-for-each-speakers-dialogue)
 - [Pictures that follow the weather and the season](#pictures-that-follow-the-weather-and-the-season)
 - [Who you are, and courses that take weeks](#who-you-are-and-courses-that-take-weeks)
+- [Life goals and life points](#life-goals-and-life-points)
 
 ## A color for each speaker's dialogue
 
@@ -139,7 +140,96 @@ Each trait's line is shown when you pick it and on your profile ("Who you are").
 
 They're converted once, with a backup kept in the save (Settings → Game → This save). Strengths you picked become
 their skill levels, and the courses you finished give their new skills (the old Japanese course gives Japanese 4).
-The traits old courses taught (Kind, Curious, Speaks Japanese…) and the ones finished life goals gave you are taken away (life goals are to give rewards of their own; until then a goal
-you finish still gives its trait). A course you were taking goes on under its new length, usually with more classes to
-go. If you work as a doctor or a nurse in Tokyo, or as a doctor, engineer, nurse or teacher in Porto Alto, your rank
+The traits old courses taught (Kind, Curious, Speaks Japanese…) and the ones finished life goals gave you are taken away:
+a finished goal gives you its perk instead (see [Life goals and life points](#life-goals-and-life-points)). A course
+you were taking goes on under its new length, usually with more classes to go. If you work as a doctor or a nurse in Tokyo, or as a doctor, engineer, nurse or teacher in Porto Alto, your rank
 moves up one, since those careers have a new first rank. Your old trait lists are kept in the save, and the game tells you once what moved. A custom world keeps its traits as they were.
+
+## Life goals and life points
+
+A life goal is something you work toward over a few weeks of play: get rich, find love, become a regular, make it in
+Tokyo. You follow one at a time, it moves in steps, and finishing it gives you a **perk** that stays with you for good.
+Steps and goals also earn **life points**, which you spend in a small shop.
+
+### Following a goal
+
+- **The Goals app** (on the phone, under Profile) shows the goal you follow: its perk first, its steps as a row of dots,
+  and what the current step still needs ("Meals cooked 6/15", "Cooking 3/5", "Held 3 of 14 days"). Below it, a few
+  **suggested** goals (the ones made for your start first), then **every goal** in nine groups: Fortune, Career, Love,
+  Social, Knowledge, Creativity, Food, Health and Explorer. Tap a goal to see all its steps and what each gives.
+- **Picking one.** With no goal followed, the app shows a badge and the game tells you once. Nothing is ever blocked:
+  it's a guide, not a quest.
+- **Switching loses nothing.** Pick another goal any time; the one you leave is paused, keeping its finished steps and
+  its counts, and carries on from there when you pick it again. Things you count (meals cooked, shifts worked, festivals
+  attended) count only while the goal is the one you follow; things that are a state (a skill level, money saved, a rank)
+  count at once. So a goal whose first steps you've already done moves on the moment you pick it.
+- **Some steps must hold for a while** ("a season as best friends", "two weeks asleep before 1:00"). Your needs aren't
+  held against you overnight: a night empties hunger and thirst, so a step about needs gives you until two hours after
+  you wake.
+- **Only goals you can do here.** A goal whose system is off, that needs someone left out of your game, or that asks for
+  more than the world has (more courses, a skill it lacks) isn't listed. Adult goals only show with adult content on.
+
+### Perks
+
+- **A perk changes numbers in the game**: prices 5% lower everywhere (*Get rich*), energy draining 20% slower
+  (*Athlete*), ranks taking 10% less time (*Top of the career*), +3 friendship when you first meet someone (*Free
+  spirit*), one failed roll a day rolled again (Tokyo's *Strategist*). Your perks are listed in the Goals app and on your
+  profile, after who you are.
+- **A perk is not a trait.** It isn't told to the AI as who you are, and jobs and rolls that look at traits don't count
+  it. The AI does hear what you did ("reached a life goal…") and the goal you're working toward.
+- **Perks add up**, with your personality and habits: percentages multiply (two −20% make −36%, never reaching zero) and
+  flat bonuses add, and every kind has a limit for the whole pile, so collecting goals makes you stronger without breaking
+  the game.
+
+### The goals
+
+Every world has the same general goals where they fit: *Get rich*, *A place of your own*, *Top of the career*, *Hard
+worker*, *Jack of all trades*, *Find love*, *Free spirit*, *Social butterfly*, *Best friends*, *Party host*, *Lifelong
+learner*, *Home chef*, *Athlete*, *Artist*, *Regular*, *Explorer*, *Collector*, *Balanced life*, and with their systems
+on *Mentor*, *A family of your own*, *A good name* and *Your own business*.
+
+**Tokyo** has twenty of its own: *Make it in Tokyo*, *Nihongo jōzu* (for those still learning Japanese), *Bookworm*,
+*Strategist*, *Idol dream*, *The Shimokita sound*, *Up the corporate ladder*, *Founder*, *Taste of Tokyo*, *After the last
+train*, *Seasons of Japan*, *Akiba legend*, *Doujin artist*, *Hot springs and getaways*, *Old Tokyo heart*, *Karaoke king
+or queen*, *A Tokyo romance*, *Up from Isezaki*, *Keeper of secrets*, and with adult content on *King or queen of
+Kabukichō*. A world's own goals are marked ✦. Mentors, businesses and reputation are off in Tokyo, so those goals aren't
+there.
+
+### Life points and the shop
+
+- **Earning them.** Each step of the goal you follow gives 100, finishing it 200 more. A little comes from living too:
+  a festival or city event the first time each year (10), a street story finished (15), a secret learned (20), a story you
+  followed reaching its end (40), a new kind of keepsake (10), at most 60 a day. Some perks raise these.
+- **Spending them** in the Goals app's **Rewards** tab:
+
+| Item | What it does | Points |
+|---|---|---|
+| Focused | skills train 50% faster for a day | 250 |
+| Lucky day | +2 on every roll for a day | 200 |
+| Second wind / Clear head | energy / mood full now | 150 |
+| Work boost | performance gains doubled for three days (once a week) | 250 |
+| Clean slate at work | a warning and the last missed shift forgotten (once a season) | 300 |
+| Rent holiday | the next rent and bills a week later (once a season) | 300 |
+| Nudge | one person's friendship or romance for you +15, never past what the rules allow (once per person a season) | 400 |
+| Clear the air | one person's feelings for you start over; they still remember what happened | 400 |
+| A fresh start | one person forgets you, as if you never met (your journal keeps it) | 900 |
+| Forgive and forget | a grudge against you ends | 200 |
+| An invitation | someone you know asks you out in the next days | 150 |
+| Quiet a rumor | a rumor about you stops spreading | 200 |
+| Insight | one true thing about someone: who they have feelings for, how they see you, or their secret | 250 |
+| Change a trait | swap a personality or interest trait, or drop a habit (your persona card is updated) | 500 |
+| Skip a step | the current step counts as done; never the last one, once per goal, and it pays no points | 400 |
+
+- **Tokyo's shrines** sell their own, at Sensō-ji, Meiji Jingū, Kanda Myōjin and Tsukimi Inari: an *omikuji* (a lucky
+  week, 500), four *omamori* charms for love, study, health and work (a week each, 300), a *daruma* that doubles the
+  finishing points of the goal you follow (300) and an *ema* that brings someone you know to invite you out (150).
+- Items you can't use right now stay in the list with the reason ("Only at a shrine", "Already full", "Nobody to use it
+  on"). A boost can't be bought again while it's running.
+
+### World makers and older games
+
+- **The World creator** has a **Goals & rewards** tab: turn general goals and items off, rename or re-price them, and
+  write your world's own goals (steps as conditions, checked as you type, with quick-add buttons for the common ones),
+  perks (held inside limits so a custom perk can't break the game) and shop items.
+- **Your existing games** keep what they had: an old life goal you were following or had finished carries over, and a
+  finished one gives you its perk.
