@@ -438,10 +438,12 @@ export interface LoreEntry { keys: string[]; content: string; constant?: boolean
  *  (`or`) among others that don't (a person may be left out of a game). */
 export interface GoalDef { id: string; name: string; icon?: string; category: string; desc?: string; starts?: string[]; steps: GoalStep[]; perk?: PerkDef; needs?: string[]; adult?: boolean }
 /** A step: what it says (`name`, "Cook 15 meals"), its objectives as one condition (`when`: `did: meal 15; skill:
- *  cooking 3`), how long they must keep holding (`hold`: days, or `season`: "together a season"), and what it gives at
- *  once (`reward`). Counted objectives (`did`, `attended`) count only while the goal is active: sim/when.ts reads them
- *  through the asker's own counts; everything else is a state and counts at once. */
-export interface GoalStep { name: string; when: string; hold?: number | 'season'; reward?: StepReward }
+ *  cooking 3`), other ways to do it (`or`: conditions, any one of which also does it: "a set with a musician friend, or
+ *  Music 7"; a step that names one of the world's people or a thread needs one that names neither), how long they must
+ *  keep holding (`hold`: days, or `season`: "together a season"), and what it gives at once (`reward`). Counted
+ *  objectives (`did`, `attended`) count only while the goal is active: sim/when.ts reads them through the asker's own
+ *  counts; everything else is a state and counts at once. */
+export interface GoalStep { name: string; when: string; or?: string[]; hold?: number | 'season'; reward?: StepReward }
 /** What finishing a step gives: a keepsake (an id of the world's), mood, money (built-in goals give none), life points
  *  (default: the engine's amount per step). */
 export interface StepReward { keepsake?: string; mood?: number; money?: number; points?: number }

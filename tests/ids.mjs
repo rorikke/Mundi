@@ -14,6 +14,8 @@ const ids = (w) => ({
     courses: (w.catalogs.courses ?? []).map(c => c.id), origins: (w.catalogs.origins ?? []).map(o => o.id),
     routines: Object.keys(w.cast.routineTemplates), people: w.cast.examples.map(e => e.name), apps: (w.features?.apps ?? []).map(a => a.id),
     ranks: Object.fromEntries(w.occupations.map(o => [o.id, o.ranks.length])),
+    // a world's own life goals and rewards (saves keep the goals you finished and the items you bought by id)
+    goals: (w.goals?.add ?? []).map(g => g.id), rewards: (w.rewards?.add ?? []).map(r => r.id),
 });
 const lock = fs.existsSync(lockFile) ? JSON.parse(fs.readFileSync(lockFile, 'utf8')) : {};
 const problems = [];

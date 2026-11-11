@@ -192,7 +192,8 @@ function cleanStep(x: any): GoalStep | null {
     if (!isObj(x) || typeof x.when !== 'string') return null;
     const r = isObj(x.reward) ? clean({ keepsake: str(x.reward.keepsake), mood: nums(x.reward.mood), money: nums(x.reward.money), points: nums(x.reward.points) }) : undefined;
     const hold = x.hold === 'season' ? 'season' : nums(x.hold) !== undefined && x.hold > 0 ? x.hold : undefined;
-    return clean({ name: str(x.name) ?? x.when, when: x.when, hold, reward: r && Object.keys(r).length ? r : undefined }) as GoalStep;
+    const or = strs(x.or);
+    return clean({ name: str(x.name) ?? x.when, when: x.when, or: or?.length ? or : undefined, hold, reward: r && Object.keys(r).length ? r : undefined }) as GoalStep;
 }
 function cleanGoal(x: any): GoalDef | null {
     if (!isObj(x) || !str(x.id) || !str(x.name)) return null;

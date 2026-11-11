@@ -172,6 +172,18 @@ export function parseWhen(when: When | null | undefined): ParsedWhen {
     if (!p) { p = parseText(when); cache.set(when, p); }
     return p;
 }
+/** The world's people and threads a condition names (`feels`, `present`, `onShift`, `favor`; `knows`, `thread`,
+ *  `helped` with an id): a life goal's step that names any needs another way to be done (D-4), and isn't offered in a
+ *  game without them. */
+export function namedIn(when: When | null | undefined): { people: string[]; threads: string[] } {
+    const people: string[] = [], threads: string[] = [];
+    for (const c of parseWhen(when).conds) for (const v of c.values) {
+        if (c.key === 'feels') people.push(splitLevel(v)[0]);
+        else if (c.key === 'present' || c.key === 'onShift' || c.key === 'favor') people.push(v);
+        else if (c.key === 'knows' || c.key === 'thread' || (c.key === 'helped' && !/^\d+$/.test(v))) threads.push(v.split(/\s+/)[0]);
+    }
+    return { people, threads };
+}
 /** Why a condition can't be read ('' when it can): for the world creator and the world checks. */
 export const whenError = (when: When | null | undefined) => parseWhen(when).error ?? '';
 

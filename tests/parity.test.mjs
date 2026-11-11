@@ -34,6 +34,9 @@ const TOOLS = {
     'actions.*.roll': 'a d20 roll is part of the action system (not edited, by design)',
     'features.apps': 'the apps list (Features)', 'time.periods.*.id': 'set by the creator',
     'occupations.*.courses': 'Courses tab: Required for these jobs', 'occupations.*.likes': 'Jobs tab / Courses tab', 'cast.routineTemplates.*': 'Routines tab',
+    // life goals: the world file until the creator's "Goals & rewards" tab exists (plans/life-goals.md, session E removes these two)
+    'goals.*': 'life goals (the Goals & rewards tab to come)', 'rewards.*': 'the rewards shop (the Goals & rewards tab to come)',
+    'cast.examples.*.threads.*.endings.*.good': 'a storyline's good ending (the creator does not edit storylines)',
 };
 const covered = (leaf, shown) => shown.some(s => leaf === s || leaf.startsWith(`${s}.`)) || Object.keys(TOOLS).some(t => leaf === t || leaf.startsWith(`${t.replace(/\.\*$/, '')}.`) || leaf === t.replace(/\.\*$/, ''));
 
