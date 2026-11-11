@@ -6142,7 +6142,8 @@
    "tags": [
     "private",
     "exhib"
-   ]
+   ],
+   "fee": 5000
   },
   {
    "id": "ak_myojin_omikuji",
@@ -34684,6 +34685,7 @@
        },
        "money": 15000,
        "perf": 2,
+       "risk": 0.1,
        "text": "He pays well and the review glows. The manager pretends not to notice.",
        "fact": "{u} offered a customer an unlisted option at work",
        "fail": {
