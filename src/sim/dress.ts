@@ -20,9 +20,9 @@ export const UNDRESSED = 'naked';
 // it with you. (The action is read from the save as sim/actions.ts keeps it, so this file needs nothing from there.)
 export function dressFor(g: Save, w: WorldDef, avatar: string): string {
     if (isScenario(w)) return dressAt(g, g.player.loc);
-    const act = (g as any).act as { a?: { private?: boolean }; place?: string; with?: string[]; priv?: { notes?: { a?: { who?: string[] } } } } | undefined;
+    const act = (g as any).act as { a?: { private?: boolean; tags?: string[] }; place?: string; with?: string[]; priv?: { notes?: { a?: { who?: string[] } } } } | undefined;
     const who = act?.priv?.notes?.a?.who ?? act?.with;
-    return adultOn(g) && act?.a?.private && act.place === g.player.loc && who?.includes(avatar) ? UNDRESSED : '';
+    return adultOn(g) && act?.a?.private && !act.a.tags?.includes('pillow-talk') && act.place === g.player.loc && who?.includes(avatar) ? UNDRESSED : '';
 }
 
 // Puts on (or takes off) the coded outfit for the people in the scene, and takes it off whoever it was put on who
