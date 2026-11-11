@@ -1,0 +1,18 @@
+/* World creator: the adult marks, private moments on things to do, work events, job tracks by gender, and outcomes and street stories kept as the world file has them. */
+#mundi-root .mu-cw-adult { display: inline-block; width: fit-content; align-self: flex-start; justify-self: start; margin-left: 4px; padding: 0 6px; border-radius: 999px; font-size: 10px; font-style: normal; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; vertical-align: 1px; color: #fff; background: #c2417a; }
+#mundi-root .mu-cw-adultbox, #mundi-root .mu-cw-kept { margin-top: 10px; padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--fg) 3%, transparent); }
+#mundi-root .mu-cw-adultbox { border-left: 3px solid #c2417a; }
+#mundi-root .mu-cw-adultbox > summary, #mundi-root .mu-cw-kept > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); padding: 2px 0; }
+#mundi-root .mu-cw-adultbox[open] > summary, #mundi-root .mu-cw-kept[open] > summary { margin-bottom: 6px; }
+#mundi-root .mu-cw-keptrow { display: flex; align-items: baseline; gap: 8px; padding: 2px 0; font-size: 12px; min-width: 0; }
+#mundi-root .mu-cw-keptrow > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+#mundi-root .mu-cw-keptrow.is-sub { padding-left: 18px; }
+#mundi-root .mu-cw-keptrow code, #mundi-root .mu-cw-choice code, #mundi-root .mu-cw-event code { font-size: 11px; padding: 0 4px; border-radius: 4px; background: color-mix(in srgb, var(--fg) 8%, transparent); }
+#mundi-root .mu-cw-keptstory { padding: 4px 0; border-top: 1px solid color-mix(in srgb, var(--fg) 8%, transparent); }
+#mundi-root .mu-cw-evs { display: grid; gap: 4px; margin-bottom: 8px; }
+#mundi-root .mu-cw-evs > .mu-cw-row { text-align: left; }
+#mundi-root .mu-cw-event, #mundi-root .mu-cw-track { gap: 8px; }
+#mundi-root .mu-cw-choice { border-left-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+#mundi-root .mu-cw-tracks { flex-wrap: wrap; align-items: end; gap: 6px; }
+#mundi-root .mu-cw-tracks .mu-chip small { opacity: 0.7; margin-left: 4px; }
+#mundi-root .mu-cw-tracks .mu-field { flex: 0 1 200px; margin: 0; }
