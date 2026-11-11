@@ -203,6 +203,9 @@ export interface ActionDef {
     /** (adult) A chance of being caught, 0–1 (a karaoke corner room 0.15), for a private action done where you
      *  shouldn't: rolled with the `risk` effects (`riskRoll` in sim/dice.ts). Missing: none. */
     risk?: number;
+    /** (adult) What getting caught costs on the spot (a cleaning fee at a karaoke box or a manga café), in the world's
+     *  money, through the usual prices; missing: nothing. Only read with a `risk`. */
+    fee?: number;
     /** (adult) Words a private action matches against someone's intimate likes and hard limits (`prefs`, `limits`), by
      *  the same word test gifts use: "rope", "being led", "bath together". */
     matches?: string[];
@@ -381,6 +384,8 @@ export interface WorkChoice extends WorkResult { label: string; roll?: { skill?:
     /** (optional) a name a private overlay can rewrite it by, keeping its numbers (as an outcome's `id`) */ id?: string }
 export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string;
     /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string;
+    /** (adult) a chance (0–1) the job gets raided over this, rolled with the `risk` effects as an action's is: the job's
+     *  place shuts for 7 days (no shifts, no pay), a warning, a rumor, and the second time you're let go (sim/caught.ts) */ risk?: number;
     /** effects for some days (1–7), as a boost: a ranking's +15% pay for a week (`addBoost` in sim/perks.ts) */ boost?: { effects: EffectDef[]; days: number } }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
