@@ -13,7 +13,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, type WorldDef, type GameMode } from '../core/world.js';
+import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef } from '../core/world.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
 
@@ -27,16 +27,20 @@ import { icon, ICON_NAMES } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { personPanel, SCOPES } from './personui.js';
 import { cleanPerson } from '../sim/gender.js';
-import { whenError } from '../sim/when.js';
+import { whenError, namedIn, PARTNER_VALUES } from '../sim/when.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
-import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind, type EffectKind, type TraitInfo } from '../core/traits.js';
+import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind, type EffectKind, type EffectDef, type EffectLimits, type TraitInfo } from '../core/traits.js';
+import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIMITS, BOOST_DAYS, GOAL_POINTS, REWARD_KINDS, PERSON_KINDS, SKILL_GROUPS, isSystemNeed } from '../core/goals.js';
+import { TALLY_EVENTS } from '../sim/tally.js';
+import { SECOND_POINTS } from '../sim/points.js';
 
-type Tab = 'economy' | 'realm' | 'customs' | 'rpg' | 'general' | 'features' | 'needs' | 'maps' | 'homes' | 'actions' | 'jobs' | 'courses' | 'shop' | 'words' | 'character' | 'people' | 'lore' | 'books';
+type Tab = 'economy' | 'realm' | 'customs' | 'rpg' | 'general' | 'features' | 'needs' | 'maps' | 'homes' | 'actions' | 'jobs' | 'goals' | 'courses' | 'shop' | 'words' | 'character' | 'people' | 'lore' | 'books';
 const TABS: [Tab, string][] = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
-    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['courses', 'Courses'], ['shop', 'Shop'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
-// A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them).
-const SCENARIO_HIDES: Tab[] = ['realm', 'economy', 'rpg'];
+    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['goals', 'Goals & rewards'], ['courses', 'Courses'], ['shop', 'Shop'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
+// A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them), and
+// life goals (a Home has them off).
+const SCENARIO_HIDES: Tab[] = ['realm', 'economy', 'rpg', 'goals'];
 export const CW = {
     w: null as WorldDef | null, tab: 'general' as Tab, dirty: false, saving: false, confirmDel: false, leaveAsk: false, nameMiss: false,
     sel: { courses: 0, needs: 0, actions: 0, jobs: 0, zones: 0, kinds: '', traits: 0, origins: 0, people: 0, routine: '', lore: 0, tinfo: '' } as Record<string, any>,
@@ -106,7 +110,7 @@ function tabGeneral(w: WorldDef) {
         <section class="mu-cw-sec"><h4>About this ${isScenario(w) ? 'Home' : 'world'}</h4>${txt('Name', 'name')}${sel('Made for (the tag on its card)', 'madeFor', RPG_LOCKED ? [['lifesim', 'Life-Sim']] : [['lifesim', 'Life-Sim'], ['rpg', 'RPG']])}<label class="mu-field"><span>Short description (shown when choosing a world)</span><textarea rows="3" maxlength="${WORLD_DESC_MAX}" data-input="cw" data-path="description" data-focus="description">${val('description')}</textarea><small class="mu-muted">Up to ${WORLD_DESC_MAX} characters. Only you see it: it is not sent to the AI (the setting below is).</small></label>
             ${area('Setting (what the AI always knows about this world)', 'setting', 5)}
             ${isScenario(w) ? `${area('Premise (how the story starts: shown when the game begins, and told to the AI)', 'scenario.premise', 5)}
-                <label class="mu-check"><input type="checkbox" data-input="cw-alltabs" ${CW.allTabs ? 'checked' : ''}><span>Show every tab<small>A Home hides Realm, Economy and RPG (a Home is always Life-Sim). Jobs and courses happen off-screen.</small></span></label>` : ''}</section>
+                <label class="mu-check"><input type="checkbox" data-input="cw-alltabs" ${CW.allTabs ? 'checked' : ''}><span>Show every tab<small>A Home hides Realm, Economy, RPG and Goals & rewards (a Home is always Life-Sim, with life goals off). Jobs and courses happen off-screen.</small></span></label>` : ''}</section>
         <section class="mu-cw-sec"><h4>Cover</h4><div class="mu-cw-cover" style="${w.cover ? `background-image:url('${safeUrl(worldFile(w, w.cover))}')` : ''}">${w.cover ? '' : '<span>No cover</span>'}</div>
             <div class="mu-row"><button data-act="cw-cover">${icon('upload')}<span>Choose a picture</span></button>${!isScenario(w) && w.maps[0] ? `<button class="mu-ghost" data-act="cw-cover-map">Use the first map</button>` : ''}${w.cover ? `<button class="mu-ghost" data-act="cw-cover-clear">${icon('x')}<span>Remove</span></button>` : ''}</div>
             <small class="mu-muted">The picture on the ${isScenario(w) ? 'Home' : 'world'}'s card. Best at 16:9 (1400 × 782).</small>
@@ -685,17 +689,39 @@ function strengthsEditor(w: WorldDef, k: number) {
 // from the engine's fixed list, held inside a trait's bounds (±15%, flat ±1), and for an interest, what it covers.
 // The standard names (Calm, Shy, Music…) come with the engine's own; a world keeps only what it changed (ownTraitInfo).
 // Strengths groups are skills, not effects, so they are left out.
-const GOAL_KINDS: EffectKind[] = ['price', 'pay', 'travel', 'rest', 'reroll', 'points'];   // life goals' perks only
-const TRAIT_KINDS = (Object.keys(EFFECT_KINDS) as EffectKind[]).filter(k => !GOAL_KINDS.includes(k));
-const KIND_NAMES: Record<string, string> = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth' };
-function targetOpts(w: WorldDef, kind: EffectKind, cur = ''): [string, string][] {
-    const tags = [...new Set([...w.places.flatMap(p => p.tags ?? []), ...w.actions.flatMap(a => a.tags ?? [])])];
+// The kinds a trait may use: the rest of `EFFECT_KINDS` (prices, pay, trips, rest, rerolls, life points, interviews, and
+// whatever the engine adds later) are for life goals' perks and the shop's boosts.
+const TRAIT_KINDS: EffectKind[] = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study'];
+const KIND_NAMES: Record<string, string> = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
+    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)' };
+// The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
+// first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
+function targetOpts(w: WorldDef, kind: EffectKind, cur = '', wide = false): [string, string][] {
+    const placeTags = [...new Set(w.places.flatMap(p => p.tags ?? []))], actTags = [...new Set(w.actions.flatMap(a => a.tags ?? []))];
+    const tags = [...new Set([...placeTags, ...actTags])];
+    const groups = wide ? Object.keys(SKILL_GROUPS).map(g => [g, `Group: ${g}`] as [string, string]) : [];
+    const maps = w.maps.map(m => [m.id, `Map: ${m.name}`] as [string, string]);
+    const areas = [...new Set(w.maps.map(m => m.area).filter((a): a is string => !!a && !w.maps.some(m => m.id === a)))].map(a => [a, `Area: ${a}`] as [string, string]);
+    const places = placeOpts(w).map(([id, n]) => [id, `Place: ${n}`] as [string, string]);
+    const tagged = (l: string[]) => l.map(t => [t, `Tag: ${t}`] as [string, string]);
+    const jobs = w.occupations.map(o => [o.id, `Job: ${o.name}`] as [string, string]);
     const list: [string, string][] = kind === 'drain' ? [['', 'Every need'], ...w.statuses.map(s => [s.id, `${s.icon} ${s.name}`] as [string, string])]
-        : kind === 'learn' ? [['all', 'Every skill'], ['upto:3', 'Every skill, up to level 3'], ['upto:5', 'Every skill, up to level 5'], ...skillOpts(w)]
-        : kind === 'roll' ? [['', 'Every roll'], ...skillOpts(w), ...tags.map(t => [t, `Tag: ${t}`] as [string, string])]
-        : kind === 'perf' ? [['gain', 'Performance gains']] : kind === 'career' ? [['rank', 'Days a rank takes']] : kind === 'warm' ? [['new', 'Someone you first meet (points)']]
+        : kind === 'learn' ? [['all', 'Every skill'], ['upto:3', 'Every skill, up to level 3'], ['upto:5', 'Every skill, up to level 5'], ...skillOpts(w), ...groups]
+        : kind === 'roll' ? [['', 'Every roll'], ...(wide ? [['work', 'Any roll at work'] as [string, string]] : []), ...skillOpts(w), ...groups, ...tagged(tags)]
+        : kind === 'perf' ? [['gain', 'Performance gains']] : kind === 'career' ? [['rank', 'Days a rank takes'], ...(wide ? [['hire', 'A new job starts on the way to the next rank (−50%: halfway)'] as [string, string]] : [])]
+        : kind === 'warm' ? [['new', 'Someone you first meet (points)'], ...(wide ? [...maps, ...areas, ...tagged(placeTags), ...places] : [])]
         : kind === 'gain' ? [['friend', 'Friendship'], ['romance', 'Romance'], ['dates', 'Romance from dates'], ['gifts', 'Gifts'], ['good friends', 'Friendship with good friends']]
-        : kind === 'fade' ? [['romance', 'Romance'], ['friend', 'Friendship']] : kind === 'morning' || kind === 'party' ? [['mood', 'Mood']] : [['', 'Every class']];
+        : kind === 'fade' ? [['romance', 'Romance'], ...(wide ? [['partner', 'Your partner\'s romance'] as [string, string]] : []), ['friend', 'Friendship']] : kind === 'morning' || kind === 'party' ? [['mood', 'Mood']]
+        : kind === 'study' ? (wide ? [['', 'Every class and lesson'], ['class', 'A course\'s classes'], ['teach', 'Lessons you give an apprentice']] : [['', 'Every class']])
+        : kind === 'price' ? [['prices', 'What places and actions charge'], ['regular', 'Where you\'re a regular'], ['rent', 'Rent'], ['bills', 'Bills'], ['entry', 'Entry fees'],
+            ...placeTags.map(t => [`entry:${t}`, `Entry fees at places tagged ${t}`] as [string, string]), ...tagged(placeTags), ...maps, ...areas, ...places]
+        : kind === 'pay' ? [['', 'All pay'], ['wage', 'Wages'], ['bonus', 'Seasonal bonuses'], ['tips', 'Money from choices at work'], ...jobs, ...tagged(placeTags)]
+        : kind === 'rest' ? [['sleep', 'A night\'s sleep'], ['sleep home', 'A night at home'], ['sleep away', 'A night away'], ['bath', 'Baths'], ['food', 'Food and drink'], ...tagged(actTags)]
+        : kind === 'points' ? [['', 'All life points'], ['active', 'From goals (steps and finishing)'], ['passive', 'From everything else'],
+            ...[...Object.keys(GOAL_POINTS), ...Object.keys(SECOND_POINTS)].map(s => [s, `From: ${s}`] as [string, string]),
+            ['festivals', 'From festivals and city events'], ['secrets', 'From secrets, street stories and storylines']]
+        : kind === 'interview' ? [['', 'Every job'], ...jobs]
+        : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
 }
 const hasStd = (n: string) => !!own(STANDARD_TRAIT_INFO, n);
@@ -721,6 +747,7 @@ export function forSaving(w: WorldDef): WorldDef {
         tidyInfo(info);
     }
     if (mine) out.traitInfo = mine; else delete out.traitInfo;
+    tidyGoals(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length) g.formerly = [...(g.formerly ?? []), ...left];
@@ -805,6 +832,299 @@ function tabCharacter(w: WorldDef) {
                         <div class="mu-row2">${w.rpg.attributes.map(a => num(`+ ${esc(a.short)}`, `${p}.attributes.${a.id}`, 0)).join('')}</div>` : ''}`;
             }, 'origin')}</section>
     </div>`;
+}
+
+/* ---------- life goals and the rewards shop (Goals & rewards) ---------- */
+
+// Life goals (D-11): the engine's general goals on or off and renamed (a rename is kept apart, so the engine's later
+// changes to the goal still reach the world), the world's own goals with their steps, step rewards and perk, the general
+// rewards on or off, renamed and re-priced, and the world's own rewards. Perk and boost values are held inside the
+// limits the engine sets (core/goals.ts) and each kind's own range (core/traits.ts), so a custom goal can't break the
+// game. Steps are conditions (sim/when.ts), checked as they are typed; quick-add buttons write the common ones with the
+// world's own ids. Kinds, targets, tiers and moments come from the engine's lists, so what it learns later shows here.
+type Opt = [string, string];
+const round4 = (x: number) => Math.round(x * 10000) / 10000;
+const FX_LIMITS: Record<string, EffectLimits> = { perk: PERK_LIMITS, boost: BOOST_LIMITS };
+/** What one effect may be: its source's limits (a perk ±50%, a boost ±100%; flat ±3) and its kind's own range for the
+ *  whole pile (a price no lower than ×0.5, pay no lower than ×0.75, rerolls 0 to 3…): one perk can't do it alone. */
+export function fxRange(kind: EffectKind, lim: EffectLimits): [number, number] {
+    const k = EFFECT_KINDS[kind], m = k.mode === 'mul' ? lim.pct : lim.flat;
+    return [Math.max(-m, round4(k.mode === 'mul' ? k.min - 1 : k.min)), Math.min(m, round4(k.mode === 'mul' ? k.max - 1 : k.max))];
+}
+export function holdEffect(e: EffectDef, lim: EffectLimits): EffectDef { const [lo, hi] = fxRange(e.kind, lim); return { ...e, value: round4(Math.max(lo, Math.min(hi, Number(e.value) || 0))) }; }
+const signed = (x: number) => (x > 0 ? `+${x}` : x < 0 ? `−${-x}` : '0');
+// A perk's or a boost's effects (`p`: the list's path), edited as "what traits do" edits a trait's: every kind the engine
+// has, the targets its hook asks for, a value held inside the limits as it is typed, and an optional condition.
+function fxEditor(w: WorldDef, p: string, which: 'perk' | 'boost', max = 2) {
+    const lim = FX_LIMITS[which]; const list: EffectDef[] = getPath(p) ?? [];
+    const row = (e: EffectDef, j: number) => {
+        const kind: EffectKind = isEffectKind(e.kind) ? e.kind : 'learn'; const pct = pctOf(kind); const [lo, hi] = fxRange(kind, lim);
+        const sh = (x: number) => (pct ? Math.round(x * 1000) / 10 : x);
+        const q = `${p}.${j}`; const at = (f: string) => `data-input="cw-fx" data-lim="${which}" data-path="${esc(`${q}.${f}`)}"`;
+        const err = typeof e.when === 'string' ? whenError(e.when) : '';
+        const kinds = (Object.keys(EFFECT_KINDS) as EffectKind[]);
+        return `<div class="mu-cw-path"><div class="mu-row2">
+            <label class="mu-field"><span>What it changes</span><select ${at('kind')}>${kinds.map(k => `<option value="${esc(k)}" ${k === kind ? 'selected' : ''}>${esc(KIND_NAMES[k] ?? k)}</option>`).join('')}</select></label>
+            <label class="mu-field"><span>Of</span><select ${at('target')}>${targetOpts(w, kind, e.target ?? '', true).map(([v, l]) => `<option value="${esc(v)}" ${v === (e.target ?? '') ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>
+            <div class="mu-row2"><label class="mu-field"><span>${pct ? `By (%; ${signed(sh(lo))} … ${signed(sh(hi))})` : `By (${signed(lo)} … ${signed(hi)})`}</span><input type="number" min="${esc(sh(lo))}" max="${esc(sh(hi))}" step="1" ${at('value')} data-focus="${esc(`${q}.value`)}" value="${esc(sh(Number(e.value) || 0))}"></label>
+            <label class="mu-field"><span>Only while (optional)</span><input ${at('when')} data-focus="${esc(`${q}.when`)}" value="${esc(typeof e.when === 'string' ? e.when : '')}" placeholder="period: night">
+                <small class="mu-cw-err" ${err ? '' : 'hidden'}>${esc(err)}</small></label></div>
+            <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>Remove this effect</span></button></div>`;
+    };
+    return `${list.map(row).join('') || '<p class="mu-muted">No effects yet.</p>'}${list.length < max ? `<button class="mu-ghost" data-act="cw-fx-add" data-path="${esc(p)}">${icon('plus')}<span>Add an effect</span></button>` : ''}`;
+}
+
+/** What keeps a step from working: a condition that can't be read (it never holds), no objectives (it would be done at
+ *  once), or (D-4) every way of doing it names one of the world's people or a storyline (a game can leave them out, and
+ *  then doesn't offer the goal). `bad`: it can't work as it is; `warn`: it may not be offered. */
+export function stepIssues(st: GoalStep | undefined): { bad: string[]; warn: string[] } {
+    const bad: string[] = [], warn: string[] = [];
+    if (!st) return { bad, warn };
+    const ways = [st.when, ...(st.or ?? [])].filter((x): x is string => typeof x === 'string' && !!x.trim());
+    if (typeof st.when !== 'string' || !st.when.trim()) bad.push('No objectives: it would be done at once.');
+    for (const x of ways) { const e = whenError(x); if (e) bad.push(`A condition can't be read (${e}): it never holds.`); }
+    const named = ways.map(x => namedIn(x));
+    if (named.length && named.every(n => n.people.length || n.threads.length))
+        warn.push(`It names ${[...new Set(named.flatMap(n => [...n.people, ...n.threads]))].join(', ')} in every way: add another way that names nobody, or a game without them won't offer this goal.`);
+    return { bad, warn };
+}
+export function goalIssues(goal: GoalDef): { bad: string[]; warn: string[] } {
+    const steps = goal.steps ?? []; const bad: string[] = [], warn: string[] = [];
+    if (!steps.length) bad.push('It has no steps.');
+    if (steps.length > 6) bad.push('More than six steps.');
+    steps.forEach((st, k) => { const r = stepIssues(st); bad.push(...r.bad.map(x => `Step ${k + 1}: ${x}`)); warn.push(...r.warn.map(x => `Step ${k + 1}: ${x}`)); });
+    if ((goal.perk?.effects ?? []).length > 2) bad.push('A perk has one or two effects.');
+    return { bad, warn };
+}
+/** The world's own goals that can't work as they are (shown in the tab, and said when the world is saved). */
+export const goalsToFix = (w: WorldDef) => (w.goals?.add ?? []).filter(x => goalIssues(x).bad.length);
+/** What Save says. A world is saved as it is; a goal of its own that can't work yet is named (in a game it would stay
+ *  stuck at that step until it's fixed). */
+export function savedNote(w: WorldDef): [string, 'success' | 'warn'] {
+    const fix = goalsToFix(w);
+    return fix.length ? [`World saved. Not working yet (Goals & rewards): ${fix.map(x => x.name).join(', ')}.`, 'warn'] : ['World saved.', 'success'];
+}
+
+// What a reward does, by kind (REWARD_KINDS in core/goals.ts; a kind the engine adds later shows by its id).
+const REWARD_KIND_NAMES: Record<string, string> = { boost: 'A boost for a few days', refill: 'A need full now', nudge: 'Nudge: one person\'s feelings for you grow', clear: 'Clear the air: one person\'s feelings start over',
+    fresh: 'A fresh start: one person forgets you', forgive: 'Forgive and forget: a grudge ends', invite: 'An invitation: someone asks you out soon', quiet: 'Quiet a rumor about you', insight: 'Insight: one true thing about someone',
+    retrait: 'Change a trait, or drop a habit', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal' };
+const LIMIT_PER: Opt[] = [['', 'No limit'], ['day', 'A day'], ['week', 'A week'], ['season', 'A season'], ['year', 'A year'], ['goal', 'For each goal you follow'], ['ever', 'Ever']];
+// Systems and needs a goal or a reward can't do without (with one off, a game doesn't offer it): the world's systems that
+// are on, its needs, and whatever the entry already names.
+const needOpts = (w: WorldDef, cur: string[] = []): Opt[] => {
+    const l: Opt[] = [...SYSTEMS.filter(s => systemOn(w, s.id)).map(s => [s.id, s.name] as Opt), ...w.statuses.filter(s => !s.rpg).map(s => [s.id, `${s.icon} ${s.name}`] as Opt)];
+    return [...l, ...cur.filter(c => !l.some(([v]) => v === c)).map(c => [c, c] as Opt)];
+};
+// folded, since a world has many systems: its summary says what is picked
+const needsBox = (w: WorldDef, cur: string[] | undefined, p: string, why: string) => `<details class="mu-cw-needs"><summary>It can't do without: ${esc((cur ?? []).map(id => SYSTEMS.find(s => s.id === id)?.name ?? w.statuses.find(s => s.id === id)?.name ?? id).join(', ') || 'nothing in particular')}</summary><small class="mu-muted">${esc(why)}.</small>${pairChips(needOpts(w, cur), p)}</details>`;
+const roleOpts = (w: WorldDef, cur: string[] = []): Opt[] => {
+    const l: Opt[] = [...PLACE_ROLES.map(r => [r.id, r.name] as Opt), ...[...new Set(w.places.flatMap(p => p.roles ?? []))].filter(r => !PLACE_ROLES.some(x => x.id === r)).map(r => [r, r] as Opt)];
+    return [...l, ...cur.filter(c => !l.some(([v]) => v === c)).map(c => [c, c] as Opt)];
+};
+
+// Quick-add: the common objectives, written with the world's own ids so nobody has to remember them. Every kind lists its
+// choices from the world and the engine (skills and their groups, jobs and ranks, the engine's moments, festivals and
+// events, places, maps and areas, friendship and romance tiers, keepsakes, courses, partners); a form the condition
+// grammar doesn't read yet is left out (a regular at one place: `visited: <place> regular`).
+const MOMENT_NAMES: Record<string, string> = { meal: 'Cook a meal', workout: 'Work out', painting: 'Paint', shift: 'Work a shift', party: 'Throw a party', missed_shift: 'Miss a shift', missed_train: 'Miss the last train', date: 'Go on a date',
+    overnight: 'Someone stays the night', night_away: 'A night away from home', crisis: 'A crisis (a need at zero)', collapse: 'Collapse from exhaustion', apprentice: 'Take an apprentice', lesson: 'Teach a lesson', taught: 'An apprentice finishes',
+    baby: 'Have a baby', business: 'Open a business', big_party: 'A party with eight guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00' };
+const PARTNER_NAMES: Record<string, string> = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married' };
+interface Quick { name: string; ok: (w: WorldDef) => boolean; opts: (w: WorldDef) => Opt[]; n?: string; extra?: (w: WorldDef, what: string) => Opt[]; make: (what: string, n: number, extra: string) => string }
+const realPlaces = (w: WorldDef) => w.places.filter(p => !p.link);
+// (an area named with a space can't be written in a condition)
+const areasOf = (w: WorldDef) => [...new Set(w.maps.map(m => m.area).filter((a): a is string => !!a && /^[^\s,;]+$/.test(a) && !w.maps.some(m => m.id === a)))];
+function rankOpts(w: WorldDef, job: string): Opt[] {
+    const o = w.occupations.find(x => x.id === job); const n = o ? o.ranks.length : Math.max(0, ...w.occupations.map(x => x.ranks.length));
+    return [['', 'Any rank'], ...Array.from({ length: Math.max(0, n - 1) }, (_x, k) => [String(k + 2), o ? `Rank ${k + 2}: ${o.ranks[k + 1]?.name ?? ''}` : `Rank ${k + 2}`] as Opt), ['middle', 'The middle rank'], ['top-1', 'One below the top'], ['top', 'The top']];
+}
+// (forms the grammar reads only since D-19: a regular at one place, and regulars on a map or near home; asked, not assumed)
+function visitOpts(w: WorldDef): Opt[] {
+    const ps = realPlaces(w); const regular = !!ps[0] && !whenError(`visited: ${ps[0].id} regular`);
+    const where = [...w.maps.map(m => [m.id, `on ${m.name}`] as Opt), ...areasOf(w).map(a => [a, `in ${a}`] as Opt)];
+    const regIn = !!w.maps[0] && !whenError(`visited: 2 regular in ${w.maps[0].id}`);
+    return [['n', 'A number of places'], ['regular', 'A regular at a number of places'], ...where.map(([id, l]) => [`in:${id}`, `A number of places ${l}`] as Opt),
+        ...(regIn ? [['in:home', 'A number of places near home'] as Opt, ...where.map(([id, l]) => [`rin:${id}`, `A regular at a number of places ${l}`] as Opt), ['rin:home', 'A regular at a number of places near home'] as Opt] : []),
+        ...w.maps.map(m => [`all:${m.id}`, `Every place on ${m.name}`] as Opt), ['map', 'Every place on one map'], ['maps', 'A place on every map'], ['all', 'Every place'],
+        ...ps.map(p => [`at:${p.id}`, `Been to ${p.name}`] as Opt), ...(regular ? ps.map(p => [`reg:${p.id}`, `A regular at ${p.name}`] as Opt) : [])];
+}
+const visitMake = (x: string, n: number) => (x === 'n' ? `visited: ${n}` : x === 'regular' ? `visited: ${n} regular` : x.startsWith('in:') ? `visited: ${n} in ${x.slice(3)}` : x.startsWith('rin:') ? `visited: ${n} regular in ${x.slice(4)}`
+    : x.startsWith('all:') ? `visited: all in ${x.slice(4)}` : x.startsWith('at:') ? `visited: ${x.slice(3)}` : x.startsWith('reg:') ? `visited: ${x.slice(4)} regular` : `visited: ${x}`);
+const tierOpts = (): Opt[] => [...[...FRIEND_TIERS].reverse().filter(t => t.lo >= 10).map(t => [t.id, `${t.name} (friendship)`] as Opt), ...ROMANCE_TIERS.filter(t => t.lo > 0).map(t => [t.id, `${t.name} (romance)`] as Opt)];
+const times = (n: number) => (n > 1 ? ` ${n}` : '');
+export const QUICK: Record<string, Quick> = {
+    skill: { name: 'A skill level', ok: w => skillOpts(w).length > 0, opts: w => [...skillOpts(w), ['any', 'Any skill'], ...Object.keys(SKILL_GROUPS).map(g => [g, `Any ${g} skill`] as Opt)], n: 'Level', make: (s, n) => `skill: ${s} ${Math.min(10, n)}` },
+    job: { name: 'A job and rank', ok: w => w.occupations.length > 0, opts: w => [['any', 'Any job'], ...w.occupations.map(o => [o.id, o.name] as Opt)], extra: rankOpts, make: (j, _n, r) => `job: ${j}${r ? `; rank: ${r}` : ''}` },
+    money: { name: 'Money saved', ok: () => true, opts: () => [['', 'An amount'], ['weeks', 'Weeks of the usual pay'], ['months', 'Months of the usual pay'], ['years', 'Years of the usual pay'], ['fortune', 'A fortune']], n: 'How much',
+        make: (u, n) => (u === 'fortune' ? 'money: fortune' : `money: ${n}${u ? ` ${u}` : ''}`) },
+    did: { name: 'Did something N times', ok: () => true, n: 'Times', make: (x, n) => `did: ${x}${times(n)}`,
+        opts: w => [...TALLY_EVENTS.map(m => [m, MOMENT_NAMES[m] ?? m] as Opt), ['with:any', 'Anything, with someone'], ...w.actions.map(a => [a.id, a.label || a.name] as Opt),
+            ...[...new Set(w.actions.flatMap(a => a.tags ?? []))].map(t => [`tag:${t}`, `Anything tagged ${t}`] as Opt), ...skillOpts(w).map(([id, n]) => [`roll:${id}`, `A ${n} roll that goes well`] as Opt)] },
+    attended: { name: 'Went to a festival or event', ok: w => !!((w.festivals ?? []).length || (w.cityEvents ?? []).length), n: 'Times', make: (x, n) => `attended: ${x}${times(n)}`,
+        opts: w => [['any', 'Any festival or event'], ...(w.festivals ?? []).map(f => [f.id, f.name] as Opt), ...(w.cityEvents ?? []).map(e => [e.id, e.name] as Opt)] },
+    visited: { name: 'Visited places', ok: w => realPlaces(w).length > 0, opts: visitOpts, n: 'How many', make: visitMake },
+    friends: { name: 'Friends at a tier', ok: () => true, opts: tierOpts, n: 'How many', extra: w => [['', 'Anywhere'], ...w.maps.map(m => [m.id, `Living on ${m.name}`] as Opt), ...areasOf(w).map(a => [a, `Living in ${a}`] as Opt), ['regular', 'Working where you\'re a regular']],
+        make: (t, n, x) => `friends: ${n} ${t}${x === 'regular' ? ' at regular' : x ? ` in ${x}` : ''}` },
+    holds: { name: 'A keepsake', ok: w => (w.keepsakes ?? []).length > 0, opts: w => [['#', 'A number of different keepsakes'], ...(w.keepsakes ?? []).map(k => [k.id, `${k.icon ?? ''} ${k.name}`.trim()] as Opt)], n: 'How many', make: (x, n) => (x === '#' ? `holds: ${n}` : `holds: ${x}`) },
+    course: { name: 'A course finished', ok: w => ((w.catalogs as any).courses ?? []).length > 0, opts: w => [['#', 'A number of courses'], ...((w.catalogs as any).courses ?? []).map((c: any) => [c.id, c.name] as Opt)], n: 'How many', make: (x, n) => (x === '#' ? `course: ${n}` : `course: ${x}`) },
+    partner: { name: 'A partner', ok: w => systemOn(w, 'romance'), opts: () => PARTNER_VALUES.map(v => [v, PARTNER_NAMES[v] ?? v] as Opt), make: x => `partner: ${x}` },
+};
+// What each step's quick-add row has picked (by the step's path; kept while the form is drawn again).
+const QA: Record<string, { kind: string; what: string; n: number; extra: string; to: string }> = {};
+const qaOf = (k: string) => (QA[k] ??= { kind: '', what: '', n: 1, extra: '', to: 'when' });
+const pickIn = (opts: Opt[], v: string) => (opts.some(([x]) => x === v) ? v : opts[0]?.[0] ?? '');
+/** The condition a step's quick-add row writes now (or '' with nothing picked). */
+export function quickMade(w: WorldDef, k: string): string {
+    const q = qaOf(k), qk = QUICK[q.kind]; if (!qk || !qk.ok(w)) return '';
+    const what = pickIn(qk.opts(w), q.what);
+    return qk.make(what, Math.max(1, Math.round(Number(q.n) || 1)), qk.extra ? pickIn(qk.extra(w, what), q.extra) : '');
+}
+function quickAdd(w: WorldDef, sp: string, st: GoalStep) {
+    const q = qaOf(sp), qk = QUICK[q.kind]; const at = (f: string) => `data-input="cw-qa" data-k="${esc(sp)}" data-f="${f}"`;
+    const opt = (v: string, l: string, on: string) => `<option value="${esc(v)}" ${v === on ? 'selected' : ''}>${esc(l)}</option>`;
+    const choose = (label: string, f: string, opts: Opt[], on: string) => `<label class="mu-field"><span>${label}</span><select ${at(f)}>${opts.map(([v, l]) => opt(v, l, on)).join('')}</select></label>`;
+    const what = qk ? pickIn(qk.opts(w), q.what) : '';
+    const ways: Opt[] = [['when', 'The objectives'], ...(st.or ?? []).map((_x, j) => [`or.${j}`, `Way ${j + 2}`] as Opt)];
+    return `<div class="mu-cw-quick"><div class="mu-row mu-cw-inline">${choose('Quick add', 'kind', [['', '(choose)'], ...Object.entries(QUICK).filter(([, x]) => x.ok(w)).map(([id, x]) => [id, x.name] as Opt)], q.kind)}
+        ${qk ? `${choose('Which', 'what', qk.opts(w), what)}${qk.extra ? choose('And', 'extra', qk.extra(w, what), pickIn(qk.extra(w, what), q.extra)) : ''}
+            ${qk.n ? `<label class="mu-field mu-cw-qn"><span>${esc(qk.n)}</span><input type="number" min="1" step="1" ${at('n')} value="${esc(q.n)}"></label>` : ''}
+            ${ways.length > 1 ? choose('Into', 'to', ways, pickIn(ways, q.to)) : ''}
+            <button class="mu-ghost" data-act="cw-qa-add" data-k="${esc(sp)}">${icon('plus')}<span>Add</span></button>` : ''}</div>
+        ${qk ? `<small class="mu-muted">Adds <code data-notr>${esc(quickMade(w, sp))}</code></small>` : ''}</div>`;
+}
+// A way of doing a step, kept as typed (an empty one stays until it is removed) and checked like any condition.
+const wayField = (label: string, p: string, ph: string) => {
+    const v = getPath(p); const err = typeof v === 'string' ? whenError(v) : '';
+    return `<label class="mu-field"><span>${label}</span><input data-input="cw-way" data-path="${esc(p)}" data-focus="${esc(p)}" value="${typeof v === 'string' ? esc(v) : ''}" placeholder="${esc(ph)}">
+        <small class="mu-cw-err" ${err ? '' : 'hidden'}>${esc(err)}</small></label>`;
+};
+function stepForm(w: WorldDef, p: string, k: number, st: GoalStep, n: number) {
+    const sp = `${p}.steps.${k}`; const r = stepIssues(st); const hold = st.hold;
+    const ks: Opt[] = (w.keepsakes ?? []).map(x => [x.id, `${x.icon ?? ''} ${x.name}`.trim()] as Opt);
+    const kept = st.reward?.keepsake; if (kept && !ks.some(([v]) => v === kept)) ks.push([kept, kept]);
+    return `<div class="mu-cw-path mu-cw-step"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Step ${k + 1}</b><span class="mu-cw-spacer"></span>
+            ${k > 0 ? `<button class="mu-ghost mu-ibtn" data-act="cw-move" data-path="${esc(`${p}.steps`)}" data-i="${k}" data-d="-1" title="Move up">${icon('up')}</button>` : ''}
+            ${k < n - 1 ? `<button class="mu-ghost mu-ibtn" data-act="cw-move" data-path="${esc(`${p}.steps`)}" data-i="${k}" data-d="1" title="Move down">${icon('down')}</button>` : ''}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(sp)}" title="Remove this step">${icon('x')}</button></div>
+        ${txt('What it says (in the Goals app)', `${sp}.name`, 'Cook 15 meals')}
+        ${wayField('Objectives (all of them, separated by ;)', `${sp}.when`, 'did: meal 15; skill: cooking 3')}
+        ${(st.or ?? []).map((_x, j) => `<div class="mu-row mu-cw-inline">${wayField(`Or instead (way ${j + 2})`, `${sp}.or.${j}`, 'skill: cooking 6')}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${sp}.or.${j}`)}" title="Remove this way">${icon('x')}</button></div>`).join('')}
+        ${quickAdd(w, sp, st)}
+        <button class="mu-ghost" data-act="cw-add" data-what="gor" data-path="${esc(`${sp}.or`)}">${icon('plus')}<span>Add another way to do it</span></button>
+        ${r.bad.filter(x => x.startsWith('No objectives')).map(x => `<p class="mu-cw-bad">${esc(x)}</p>`).join('')}${r.warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}
+        <div class="mu-row2"><label class="mu-field"><span>The objectives must keep holding</span><select data-input="cw-hold" data-path="${esc(`${sp}.hold`)}">${([['', 'No: once is enough'], ['days', 'For some days'], ['season', 'For a season']] as Opt[]).map(([v, l]) => `<option value="${v}" ${(typeof hold === 'number' ? 'days' : hold === 'season' ? 'season' : '') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${typeof hold === 'number' ? num('Days', `${sp}.hold`, 1) : '<span></span>'}</div>
+        <span class="mu-cw-sub">When it's done, it gives</span>
+        <div class="mu-row2">${ks.length ? sel('A keepsake', `${sp}.reward.keepsake`, [['', '(none)'], ...ks], 'opt') : ''}${num('Mood (empty: a little)', `${sp}.reward.mood`, -100)}
+            ${num(`Money (${esc(w.currency.symbol)})`, `${sp}.reward.money`, 0)}${num(`Life points (empty: ${GOAL_POINTS.step})`, `${sp}.reward.points`, 0)}</div></div>`;
+}
+function goalForm(w: WorldDef, i: number) {
+    const p = `goals.add.${i}`; const goal = w.goals!.add![i]; const steps = goal.steps ?? [];
+    const known = GOAL_CATEGORIES.some(c => c.id === goal.category); const issues = goalIssues(goal);
+    return `${issues.bad.length ? `<div class="mu-cw-bad"><b>Can't work yet</b>${issues.bad.map(x => `<small>${esc(x)}</small>`).join('')}</div>` : ''}
+        ${issues.warn.length ? `<div class="mu-warn"><b>May not be offered</b>${issues.warn.map(x => `<small>${esc(x)}</small>`).join('')}</div>` : ''}
+        <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '⭐')}</div>
+        <div class="mu-row2"><label class="mu-field"><span>Category</span><select data-input="cw-gcat" data-path="${esc(`${p}.category`)}">${[...GOAL_CATEGORIES.map(c => [c.id, `${c.icon} ${c.name}`] as Opt), ['', 'A category of its own…'] as Opt].map(([v, l]) => `<option value="${esc(v)}" ${(known ? goal.category === v : !v) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${known ? '<span></span>' : txt('Its own category (a group of its own in the Goals app)', `${p}.category`, 'Night life')}</div>
+        ${area('Description', `${p}.desc`, 2)}
+        ${(w.starts ?? []).length ? `<div class="mu-field"><span>Starts it suits (suggested first to players who start so)</span>${pairChips((w.starts ?? []).map(s => [s.id, s.name] as Opt), `${p}.starts`)}</div>` : ''}
+        ${needsBox(w, goal.needs, `${p}.needs`, 'A game with one of these off doesn\'t offer it')}
+        ${chk('Adult (only with adult content on)', `${p}.adult`)}
+        <h4>Steps</h4><p class="mu-muted">Done in order, each when all its objectives hold (or one of its other ways does). Three or four are best; one to six work. Counted objectives (did, attended) count only while the goal is the one followed; the rest count at once.</p>
+        ${steps.map((st, k) => stepForm(w, p, k, st, steps.length)).join('')}
+        ${steps.length < 6 ? `<button class="mu-ghost" data-act="cw-add" data-what="gstep" data-path="${esc(`${p}.steps`)}">${icon('plus')}<span>Add a step</span></button>` : ''}
+        <h4>Its perk (for finishing it)</h4>
+        ${goal.perk ? `<div class="mu-row2">${txt('Name', `${p}.perk.name`, 'Shrewd')}${txt('What it does, in a few words', `${p}.perk.desc`, 'Prices 5% lower everywhere.')}</div>
+            <p class="mu-muted">One or two effects, each within ±${PERK_LIMITS.pct * 100}% (a flat amount within ±${PERK_LIMITS.flat}) and the range the game allows for its kind. A perk is not a trait: it is kept with the goal and never told to the AI.</p>
+            ${fxEditor(w, `${p}.perk.effects`, 'perk', 2)}
+            <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${p}.perk`)}">${icon('x')}<span>No perk</span></button>`
+        : `<p class="mu-muted">No perk: finishing it gives its life points and a good mood only.</p><button class="mu-ghost" data-act="cw-add" data-what="perk" data-path="${esc(`${p}.perk`)}">${icon('plus')}<span>Give it a perk</span></button>`}`;
+}
+function rewardForm(w: WorldDef, i: number) {
+    const p = `rewards.add.${i}`; const r = w.rewards!.add![i]; const kind = r.kind;
+    const kinds = [...REWARD_KINDS as readonly string[], ...((REWARD_KINDS as readonly string[]).includes(kind) ? [] : [kind])];
+    return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎁')}</div>
+        ${area('Description (what the player reads in the shop)', `${p}.desc`, 2)}
+        <div class="mu-row2">${num('Price (life points)', `${p}.price`, 0, 10)}<label class="mu-field"><span>What it does</span><select data-input="cw-rkind" data-path="${esc(`${p}.kind`)}">${kinds.map(k => `<option value="${esc(k)}" ${k === kind ? 'selected' : ''}>${esc(REWARD_KIND_NAMES[k] ?? k)}</option>`).join('')}</select></label></div>
+        ${kind === 'boost' ? `${bounded(`For how many days (${BOOST_DAYS.min}–${BOOST_DAYS.max})`, `${p}.days`, BOOST_DAYS.min, BOOST_DAYS.max)}
+            <p class="mu-muted">One or two effects, each within ±${BOOST_LIMITS.pct * 100}% (a flat amount within ±${BOOST_LIMITS.flat}) and the range the game allows for its kind. While it runs, the same item isn't for sale.</p>${fxEditor(w, `${p}.effects`, 'boost', 2)}`
+        : kind === 'refill' || r.need ? sel('The need it fills', `${p}.need`, statusOpts(w), 'opt')
+        : `<p class="mu-muted">${(PERSON_KINDS as string[]).includes(kind) ? 'The player picks a person you know when buying it. ' : ''}It works as the general item of this kind does, under this item's own name and words.</p>`}
+        <h4>How often</h4>
+        <div class="mu-row2"><label class="mu-field"><span>At most once</span><select data-input="cw-rlimit" data-path="${esc(`${p}.limit.per`)}">${LIMIT_PER.map(([v, l]) => `<option value="${v}" ${(r.limit ? r.limit.per ?? 'ever' : '') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${r.limit ? num('Times (empty: once)', `${p}.limit.n`, 1) : '<span></span>'}</div>
+        ${r.limit && ((PERSON_KINDS as string[]).includes(kind) || r.limit.person) ? chk('Counted for each person apart', `${p}.limit.person`, 'Once per person per season, say.') : ''}
+        <h4>Where and when</h4>
+        <div class="mu-field"><span>Only at places with one of these roles (none: anywhere)</span>${pairChips(roleOpts(w, r.roles), `${p}.roles`)}</div>
+        ${cond('Only while (a condition)', `${p}.when`, 'job: any')}
+        ${needsBox(w, r.needs, `${p}.needs`, 'A game with one of these off doesn\'t sell it')}
+        ${chk('Adult (only with adult content on)', `${p}.adult`)}`;
+}
+function tabGoals(w: WorldDef) {
+    const gs = w.goals ?? {}, rs = w.rewards ?? {};
+    const sysOff = (needs: string[] = []) => needs.filter(n => isSystemNeed(n) && !systemOn(w, n as any)).map(n => SYSTEMS.find(s => s.id === n)?.name ?? n);
+    const cat = (id: string) => GOAL_CATEGORIES.find(c => c.id === id)?.name ?? id;
+    const general = GENERAL_GOALS.map(x => {
+        const on = !(gs.off ?? []).includes(x.id), mine = (gs.add ?? []).some(a => a.id === x.id), off = sysOff(x.needs);
+        return `<div class="mu-cw-gen ${on && !mine && !off.length ? '' : 'is-off'}" title="${esc(x.steps.map(s => s.name).join(' · '))}">
+            <label class="mu-check"><input type="checkbox" data-input="cw-off" data-path="goals.off" data-id="${esc(x.id)}" ${on ? 'checked' : ''}><span>${esc(x.icon ?? '')}</span></label>
+            <label class="mu-field"><span>${esc(cat(x.category))} · ${esc(x.perk?.name ?? '')}</span><input data-input="cw-rename" data-path="goals.names.${esc(x.id)}" data-focus="goals.names.${esc(x.id)}" value="${esc(own(gs.names, x.id) ?? '')}" placeholder="${esc(x.name)}"></label>
+            <small class="mu-muted">${esc(x.perk?.desc ?? '')}${off.length ? ` Not offered here: needs ${esc(off.join(', '))} on.` : ''}${mine ? ' This world\'s own goal with the same id takes its place.' : ''}</small></div>`;
+    }).join('');
+    const rewards = GENERAL_REWARDS.map(x => {
+        const on = !(rs.off ?? []).includes(x.id), mine = (rs.add ?? []).some(a => a.id === x.id), off = sysOff(x.needs);
+        return `<div class="mu-cw-gen is-priced ${on && !mine && !off.length ? '' : 'is-off'}">
+            <label class="mu-check"><input type="checkbox" data-input="cw-off" data-path="rewards.off" data-id="${esc(x.id)}" ${on ? 'checked' : ''}><span>${esc(x.icon ?? '')}</span></label>
+            <label class="mu-field"><span>Name</span><input data-input="cw-rename" data-path="rewards.names.${esc(x.id)}" data-focus="rewards.names.${esc(x.id)}" value="${esc(own(rs.names, x.id) ?? '')}" placeholder="${esc(x.name)}"></label>
+            <label class="mu-field"><span>Price</span><input type="number" min="0" step="10" data-input="cw-reprice" data-path="rewards.prices.${esc(x.id)}" data-focus="rewards.prices.${esc(x.id)}" value="${esc(own(rs.prices, x.id) ?? '')}" placeholder="${esc(x.price)}"></label>
+            <small class="mu-muted">${esc(x.desc ?? '')}${off.length ? ` Not sold here: needs ${esc(off.join(', '))} on.` : ''}${mine ? ' This world\'s own item with the same id takes its place.' : ''}</small></div>`;
+    }).join('');
+    const goalRow = (x: GoalDef) => { const is = goalIssues(x); return `<b>${esc(x.icon ?? '')} ${esc(x.name)}</b><small>${esc(cat(x.category))} · ${esc((x.steps ?? []).length)} steps${is.bad.length ? ' · can\'t work yet' : is.warn.length ? ' · may not be offered' : ''}</small>`; };
+    return `<div class="mu-cw-grid mu-cw-goals">
+        ${systemOn(w, 'goals') ? '' : '<section class="mu-cw-sec mu-cw-wide"><p class="mu-warn">Life goals are off in this world (Features → Systems): nothing here is offered in a game until they are on.</p></section>'}
+        <section class="mu-cw-sec mu-cw-wide"><h4>General goals</h4>
+            <p class="mu-muted">The game's own goals, offered in every world whose systems they need. Untick one this world can't do; give it a name of your own (empty: the game's name). A renamed goal keeps the game's steps and perk, so later changes to them still reach this world.</p>
+            <div class="mu-cw-gens">${general}</div></section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>This world's own goals</h4>
+            <p class="mu-muted">Goals of this world, shown with the general ones in their categories. A step that names one of the world's people or a storyline needs another way that names nobody: a game can leave them out. A goal removed after games picked it is gone from them, perk included.</p>
+            ${master('goal', 'goals.add', goalRow, i => goalForm(w, i), 'goal', 'No goals of its own yet.')}</section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>General rewards</h4>
+            <p class="mu-muted">What life points buy in every world. Untick one, rename it, or give it a price of its own (empty: the game's).</p>
+            <div class="mu-cw-gens">${rewards}</div></section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>This world's own rewards</h4>
+            <p class="mu-muted">A boost for a few days, a need full now, or one of the game's one-off kinds under a name of this world's (as Tokyo's omikuji is a lucky week).</p>
+            ${master('reward', 'rewards.add', x => `<b>${esc(x.icon ?? '')} ${esc(x.name)}</b><small>${esc(x.price)} points · ${esc(REWARD_KIND_NAMES[x.kind] ?? x.kind)}</small>`, i => rewardForm(w, i), 'reward', 'No rewards of its own yet.')}</section>
+    </div>`;
+}
+// A world's goals and rewards as its file keeps them: empty parts go (an untouched world saves what it had); a step keeps
+// its condition even when empty (the tab says it can't work yet), and its other ways only when they say something.
+function tidyGoals(w: WorldDef) {
+    const blank = (o: any, keys: string[]) => { for (const k of keys) if (o[k] === '' || o[k] === undefined || o[k] === false || (Array.isArray(o[k]) && !o[k].length)) delete o[k]; };
+    const g = w.goals as any;
+    if (g) {
+        blank(g, ['off', 'add']); if (g.names && !Object.keys(g.names).length) delete g.names;
+        for (const x of g.add ?? []) {
+            blank(x, ['icon', 'desc', 'starts', 'needs', 'adult']);
+            for (const st of x.steps ?? []) {
+                if (typeof st.when !== 'string') st.when = '';
+                if (Array.isArray(st.or)) st.or = st.or.filter((v: unknown) => typeof v === 'string' && v.trim());
+                blank(st, ['or']);
+                if (st.reward) { blank(st.reward, Object.keys(st.reward)); if (!Object.keys(st.reward).length) delete st.reward; }
+            }
+            if (x.perk) blank(x.perk, ['desc']);
+        }
+        if (!Object.keys(g).length) delete w.goals;
+    }
+    const r = w.rewards as any;
+    if (r) {
+        blank(r, ['off', 'add']); for (const k of ['names', 'prices']) if (r[k] && !Object.keys(r[k]).length) delete r[k];
+        for (const x of r.add ?? []) {
+            blank(x, ['icon', 'desc', 'roles', 'needs', 'when', 'adult']);
+            if (x.limit) { blank(x.limit, ['person']); if (!Object.keys(x.limit).length) delete x.limit; }
+        }
+        if (!Object.keys(r).length) delete w.rewards;
+    }
 }
 
 const TARGETS = (w: WorldDef): [string, string][] => [['home', 'Home'], ['work', 'Work'], ['leisure', 'Free time'], ...placeOpts(w)];
@@ -1002,7 +1322,7 @@ export function creatorHtml(): string {
     if (CW.start && !CW.w) return startPage();
     const w = CW.w; if (!w) return '';
     const body = CW.tab === 'general' ? tabGeneral(w) : CW.tab === 'features' ? tabFeatures(w) : CW.tab === 'needs' ? tabNeeds(w) : CW.tab === 'maps' ? (isScenario(w) ? houseMapsHtml(w) : mapEditorHtml(w))
-        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
+        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
         : CW.tab === 'people' ? tabPeople(w) : CW.tab === 'books' ? tabBooks(w) : tabLore(w);
     return `<div class="mu-settings mu-creator-ed">
         <div class="mu-subhead"><button data-act="cw-close" data-sfx="back">← Back</button><h2>${isScenario(w) ? 'Home creator' : 'World creator'}</h2><small data-notr>${esc(w.name)}${CW.dirty ? ' •' : ''}</small>
@@ -1081,8 +1401,10 @@ const NEW: Record<string, () => [string, any]> = {
     period: () => ['time.periods', { id: newId('p'), name: 'New period', from: 720 }],
     look: () => ['sheet.appearance', { id: newId('look'), label: 'New trait', options: [] }],
     trait: () => ['sheet.traits', { id: newId('trait'), label: 'New group', max: 2, options: [] }],
+    goal: () => ['goals.add', { id: newId('goal'), name: 'New goal', icon: '⭐', category: 'social', desc: '', steps: [{ name: 'Step 1', when: '' }], perk: { name: 'New perk', desc: '', effects: [{ kind: 'learn', value: 0.1 }] } }],
+    reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey: Record<string, string> = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore' };
+const listKey: Record<string, string> = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward' };
 
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
@@ -1160,6 +1482,13 @@ Object.assign(ACT, {
         }
         if (what === 'routine') { const id = `routine${Object.keys(w.cast.routineTemplates).length + 1}`; w.cast.routineTemplates[id] = { weekday: [[0, 'home'], [9, 'work'], [18, 'leisure'], [22, 'home']], weekend: [[0, 'home'], [11, 'leisure'], [22, 'home']] }; CW.sel.routine = id; CW.dirty = true; notify(); return; }
         if (what === 'kind') { w.homes.kinds[newId('kind')] = { name: 'New kind', desc: '' }; CW.dirty = true; notify(); return; }
+        // a goal's step (six at most), another way to do a step, a perk
+        if (what === 'gstep' || what === 'gor') {
+            const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[];
+            if (what === 'gstep' && list.length >= 6) return;
+            list.push(what === 'gstep' ? { name: `Step ${list.length + 1}`, when: '' } : ''); CW.dirty = true; notify(); return;
+        }
+        if (what === 'perk') { setPath(el.dataset.path!, { name: 'New perk', desc: '', effects: [{ kind: 'learn', value: 0.1 }] }); notify(); return; }
         const [path, item] = NEW[what]();
         const list = (getPath(path) ?? (setPath(path, []), getPath(path))) as any[];
         list.push(item);
@@ -1182,6 +1511,26 @@ Object.assign(ACT, {
         else if (el.dataset.kind === 'job') { const o = w.occupations.find(x => x.id === id); if (!o) return; const on = !g.every(t => (o.likes ?? []).includes(t)); o.likes = toggle(o.likes ?? [], g, on); }
         else { const a = w.actions.find(x => x.id === id); if (!a?.roll) return; const on = !g.every(t => (a.roll!.traits ?? []).includes(t)); a.roll.traits = toggle(a.roll.traits ?? [], g, on); }
         CW.dirty = true; notify();
+    },
+    // a goal's step up or down
+    'cw-move': (el) => {
+        const l = getPath(el.dataset.path!); const i = Number(el.dataset.i), j = i + Number(el.dataset.d);
+        if (!Array.isArray(l) || !(i >= 0 && i < l.length) || !(j >= 0 && j < l.length)) return;
+        [l[i], l[j]] = [l[j], l[i]]; CW.dirty = true; notify();
+    },
+    // a perk's or a boost's effect (one or two)
+    'cw-fx-add': (el) => {
+        const p = el.dataset.path!; const l = (getPath(p) ?? (setPath(p, []), getPath(p))) as EffectDef[];
+        if (l.length >= 2) return;
+        l.push({ kind: 'learn', value: 0.1 }); CW.dirty = true; notify();
+    },
+    // what a step's quick-add row has picked, added to its objectives (or to one of its other ways)
+    'cw-qa-add': (el) => {
+        const k = el.dataset.k!; const made = quickMade(W(), k); if (!made) return;
+        if (whenError(made)) { toast(`Can't add "${made}": ${whenError(made)}`, 'warn'); return; }
+        const to = qaOf(k).to; const path = `${k}.${to.startsWith('or.') && typeof getPath(`${k}.${to}`) === 'string' ? to : 'when'}`;
+        const cur = String(getPath(path) ?? '').trim();
+        setPath(path, cur ? `${cur}; ${made}` : made); notify();
     },
     'cw-chip': (el) => {
         const l: string[] = getPath(el.dataset.path!) ?? []; const v = el.dataset.v!; const i = l.indexOf(v);
@@ -1237,7 +1586,10 @@ Object.assign(ACT, {
 async function saveDraft() {
     const w = CW.w; if (!w || CW.saving) return;
     CW.saving = true; notify();
-    try { await saveWorld(forSaving(w)); CW.dirty = false; toast('World saved.', 'success'); }
+    try {
+        await saveWorld(forSaving(w)); CW.dirty = false;
+        toast(...savedNote(w));
+    }
     catch (e: any) { toast(String(e?.message ?? e), 'error'); }
     CW.saving = false; notify();
 }
@@ -1344,6 +1696,75 @@ Object.assign(INPUT, {
         }
         tidyInfo(info); CW.dirty = true;
         if (redraw) notify(); else dirtyMark();
+    },
+    // Goals & rewards: a general goal or reward offered or not (`off` lists the ones that aren't)
+    'cw-off': (el) => {
+        const p = el.dataset.path!, id = el.dataset.id!; if (BAD_KEYS.includes(id)) return;
+        const l: string[] = ((getPath(p) ?? []) as string[]).filter(x => x !== id);
+        if (!(el as HTMLInputElement).checked) l.push(id);
+        setPath(p, l.length ? l : undefined); notify();
+    },
+    // a general goal's or reward's own name in this world; empty, or the game's own name, is the game's name again
+    'cw-rename': (el) => {
+        const p = el.dataset.path!; const [part, , id] = p.split('.'); if (!id || BAD_KEYS.includes(id)) return;
+        const base = (part === 'goals' ? GENERAL_GOALS : GENERAL_REWARDS).find(x => x.id === id)?.name; const v = el.value.trim();
+        setPath(p, v && v !== base ? v : undefined); dirtyMark();
+    },
+    // a general reward's price in this world; empty, or the game's own price, is the game's price again
+    'cw-reprice': (el) => {
+        const p = el.dataset.path!; const id = p.split('.')[2]; if (!id || BAD_KEYS.includes(id)) return;
+        const x = Number(el.value), base = GENERAL_REWARDS.find(r => r.id === id)?.price;
+        setPath(p, el.value === '' || !Number.isFinite(x) || Math.max(0, Math.round(x)) === base ? undefined : Math.max(0, Math.round(x))); dirtyMark();
+    },
+    // a step's way of being done: kept as typed (an empty one stays until removed), what can't be read said under it
+    'cw-way': (el) => {
+        const v = el.value.trim(); setPath(el.dataset.path!, v);
+        const err = v ? whenError(v) : ''; const s = el.parentElement?.querySelector('.mu-cw-err'); if (s) { s.textContent = err; s.hidden = !err; }
+        dirtyMark();
+    },
+    'cw-hold': (el) => { const p = el.dataset.path!; const cur = getPath(p); setPath(p, el.value === 'season' ? 'season' : el.value === 'days' ? (typeof cur === 'number' ? cur : 7) : undefined); notify(); },
+    // a goal's category: one of the nine, or one of its own (typed in the field that shows then)
+    'cw-gcat': (el) => { const p = el.dataset.path!; if (el.value) setPath(p, el.value); else if (GOAL_CATEGORIES.some(c => c.id === getPath(p))) setPath(p, 'other'); notify(); },
+    'cw-qa': (el) => {
+        const q = qaOf(el.dataset.k!); const f = el.dataset.f as 'kind' | 'what' | 'n' | 'extra' | 'to';
+        if (f === 'n') q.n = Math.max(1, Math.round(Number(el.value) || 1)); else if (f in q) (q as any)[f] = el.value;
+        if (f === 'kind') { q.what = ''; q.extra = ''; } if (f === 'what') q.extra = '';
+        if (el.tagName === 'SELECT') notify();
+        else { const c = el.closest?.('.mu-cw-quick')?.querySelector('code'); if (c) c.textContent = quickMade(W(), el.dataset.k!); }
+    },
+    // what a reward does: a boost gets an effect and days, a refill a need; the rest act once
+    'cw-rkind': (el) => {
+        const base = el.dataset.path!.replace(/\.kind$/, ''); const r = getPath(base) as RewardDef | undefined;
+        if (!r || !(REWARD_KINDS as readonly string[]).includes(el.value)) return;
+        r.kind = el.value;
+        if (r.kind === 'boost') { if (!r.effects?.length) r.effects = [{ kind: 'learn', value: 0.1 }]; r.days ??= 1; } else { delete r.effects; delete r.days; }
+        if (r.kind === 'refill') r.need ??= W().statuses.find(s => !s.rpg)?.id; else delete r.need;
+        if (r.limit?.person && !(PERSON_KINDS as string[]).includes(r.kind)) delete r.limit.person;
+        CW.dirty = true; notify();
+    },
+    'cw-rlimit': (el) => { const p = el.dataset.path!; if (el.value) setPath(p, el.value); else setPath(p.replace(/\.per$/, ''), undefined); notify(); },
+    // a field of a perk's or a boost's effect, held inside its limits and its kind's range as it is typed (see fxEditor)
+    'cw-fx': (el) => {
+        const m = el.dataset.path!.match(/^(.*)\.(\d+)\.(kind|target|value|when)$/); if (!m) return;
+        const list = getPath(m[1]); const e: EffectDef | undefined = Array.isArray(list) ? list[Number(m[2])] : undefined; if (!e) return;
+        const lim = FX_LIMITS[el.dataset.lim ?? 'perk'] ?? PERK_LIMITS;
+        if (m[3] === 'kind') {
+            if (!isEffectKind(el.value)) return;
+            const was = pctOf(e.kind); e.kind = el.value;
+            const opts = targetOpts(W(), e.kind, '', true); if (!opts.some(([v]) => v === (e.target ?? ''))) { if (opts[0]?.[0]) e.target = opts[0][0]; else delete e.target; }
+            if (pctOf(e.kind) !== was) e.value = (e.value < 0 ? -1 : 1) * (pctOf(e.kind) ? 0.1 : 1);
+            Object.assign(e, holdEffect(e, lim));
+        } else if (m[3] === 'target') { if (el.value) e.target = el.value; else delete e.target; }
+        else if (m[3] === 'value') {
+            const x = Number(el.value); if (el.value === '' || !Number.isFinite(x)) return;
+            e.value = holdEffect({ ...e, value: pctOf(e.kind) ? x / 100 : x }, lim).value;
+            const shown = pctOf(e.kind) ? Math.round(e.value * 1000) / 10 : e.value; if (Number(el.value) !== shown) el.value = String(shown);
+        } else {
+            const v = el.value.trim(); if (v) e.when = v; else delete e.when;
+            const err = v ? whenError(v) : ''; const s = el.parentElement?.querySelector('.mu-cw-err'); if (s) { s.textContent = err; s.hidden = !err; }
+        }
+        CW.dirty = true;
+        if (el.tagName === 'SELECT') notify(); else dirtyMark();
     },
     'cw-where': (el) => {
         const a = W().actions[Number(el.dataset.i)]; if (!a) return;

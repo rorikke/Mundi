@@ -16,7 +16,8 @@ store.state.view = 'creator';
 // Keys that are names chosen by the world, not fields: they become "*".
 const DYNAMIC = [/^homes\.kinds\.[^.]+/, /^cast\.routineTemplates\.[^.]+/, /^lexicon\.[^.]+/, /^music\.[^.]+/, /^sleep\.restore\.[^.]+/,
     /^actions\.\*\.effects\.[^.]+/, /^occupations\.\*\.cost\.[^.]+/, /^occupations\.\*\.requires\.[^.]+/, /^homes\.kinds\.\*\.bills\.[^.]+/, /^catalogs\.origins\.\*\.attributes\.[^.]+/,
-    /^actions\.\*\.roll\.(success|fail)\.effects\.[^.]+/, /^cast\.routineTemplates\.\*\.(weekday|weekend)/, /^traitInfo\.[^.]+/];
+    /^actions\.\*\.roll\.(success|fail)\.effects\.[^.]+/, /^cast\.routineTemplates\.\*\.(weekday|weekend)/, /^traitInfo\.[^.]+/,
+    /^goals\.names\.[^.]+/, /^rewards\.(names|prices)\.[^.]+/];
 const norm = (p) => { let s = p.replace(/\.\d+(?=\.|$)/g, '.*'); for (const re of DYNAMIC) s = s.replace(re, m => m.replace(/[^.]+$/, '*')); return s; };
 const leaves = (o, at = '') => (o === null || typeof o !== 'object' ? [at] : Array.isArray(o) ? o.flatMap((x, i) => leaves(x, `${at}.${i}`)) : Object.keys(o).length ? Object.entries(o).flatMap(([k, v]) => leaves(v, at ? `${at}.${k}` : k)) : [at]);
 
@@ -34,8 +35,7 @@ const TOOLS = {
     'actions.*.roll': 'a d20 roll is part of the action system (not edited, by design)',
     'features.apps': 'the apps list (Features)', 'time.periods.*.id': 'set by the creator',
     'occupations.*.courses': 'Courses tab: Required for these jobs', 'occupations.*.likes': 'Jobs tab / Courses tab', 'cast.routineTemplates.*': 'Routines tab',
-    // life goals: edited in the world file until the creator has a "Goals & rewards" tab (then these two go)
-    'goals.*': 'life goals (the Goals & rewards tab to come)', 'rewards.*': 'the rewards shop (the Goals & rewards tab to come)',
+    'goals.add.*.id': 'set by the creator', 'rewards.add.*.id': 'set by the creator',
     'cast.examples.*.threads.*.endings.*.good': 'the good ending of a storyline (the creator does not edit storylines)',
 };
 const covered = (leaf, shown) => shown.some(s => leaf === s || leaf.startsWith(`${s}.`)) || Object.keys(TOOLS).some(t => leaf === t || leaf.startsWith(`${t.replace(/\.\*$/, '')}.`) || leaf === t.replace(/\.\*$/, ''));
@@ -46,8 +46,8 @@ for (const id of ['modern', 'urban', 'medieval', 'house']) {
     cw.CW.w = structuredClone(w);
     const shown = new Set();
     const grab = () => { for (const m of cw.creatorHtml().matchAll(/data-path="([^"]+)"/g)) shown.add(norm(m[1])); };
-    const lists = { needs: 'statuses', actions: 'actions', jobs: 'occupations', zones: 'homes.zones', origins: 'catalogs.origins', people: 'cast.examples', lore: 'lore', courses: 'catalogs.courses', shop: 'catalogs.shop', expenses: 'homes.expenses', breakables: 'homes.breakables', rattr: 'rpg.attributes', rskill: 'rpg.skills', rclass: 'rpg.classes', rschool: 'rpg.schools', rspell: 'rpg.spells', rtitle: 'rpg.titles', rfoe: 'rpg.bestiary', habit: 'habits', festival: 'festivals', cevent: 'cityEvents', hobby: 'hobbies', pet: 'pets', god: 'realm.pantheon', faction: 'factions', inst: 'institutions', rtal: 'rpg.talents', good: 'goods', recipe: 'recipes', tower: 'towers', blade: 'blades', crop: 'crops', biz: 'businesses', sky: 'skies.events', hazard: 'skies.hazards' };
-    for (const tab of ['general', 'features', 'needs', 'maps', 'homes', 'actions', 'jobs', 'courses', 'shop', 'words', 'character', 'rpg', 'customs', 'realm', 'economy', 'people', 'lore', 'books']) {
+    const lists = { needs: 'statuses', actions: 'actions', jobs: 'occupations', zones: 'homes.zones', origins: 'catalogs.origins', people: 'cast.examples', lore: 'lore', courses: 'catalogs.courses', shop: 'catalogs.shop', expenses: 'homes.expenses', breakables: 'homes.breakables', rattr: 'rpg.attributes', rskill: 'rpg.skills', rclass: 'rpg.classes', rschool: 'rpg.schools', rspell: 'rpg.spells', rtitle: 'rpg.titles', rfoe: 'rpg.bestiary', habit: 'habits', festival: 'festivals', cevent: 'cityEvents', hobby: 'hobbies', pet: 'pets', god: 'realm.pantheon', faction: 'factions', inst: 'institutions', rtal: 'rpg.talents', good: 'goods', recipe: 'recipes', tower: 'towers', blade: 'blades', crop: 'crops', biz: 'businesses', sky: 'skies.events', hazard: 'skies.hazards', goal: 'goals.add', reward: 'rewards.add' };
+    for (const tab of ['general', 'features', 'needs', 'maps', 'homes', 'actions', 'jobs', 'goals', 'courses', 'shop', 'words', 'character', 'rpg', 'customs', 'realm', 'economy', 'people', 'lore', 'books']) {
         cw.CW.tab = tab; grab();
         for (const [key, p] of Object.entries(lists)) { const n = (p.split('.').reduce((o, k) => o?.[k], cw.CW.w) ?? []).length; for (let i = 0; i < n; i++) { cw.CW.sel[key] = i; grab(); } cw.CW.sel[key] = 0; }
         for (const r of Object.keys(cw.CW.w.cast.routineTemplates)) { cw.CW.sel.routine = r; grab(); }
