@@ -608,11 +608,11 @@ Object.assign(ACT, {
         if (a.minutes >= 60) await verdictNow(g, w, 'a long action');   // an hour or more ends the scene
         // (adult) a private action can be stopped before it plays (not in the mood, a hard limit, getting caught): the
         // engine decides first, and a stopped one (no time spent) skips the wait and shows what happened instead
-        const priv = isPrivateAct(g, a), t0 = nowAbs(g);
+        const priv = isPrivateAct(g, a);
         if (!priv) await doing(a.label, a.icon ?? '⏳', a.minutes);   // a moment on screen while the time passes
         // what it does (the roll, an outcome, a keepsake, time together, the fact) is decided in sim/actions.ts
         const done = doAction(g, w, a);
-        const stopped = priv && nowAbs(g) === t0 && !!done.outcome;
+        const stopped = !!done.stopped;
         if (priv && !stopped) await doing(a.label, a.icon ?? '⏳', a.minutes);
         done.lines.forEach(l => toast(l.text, l.kind));   // a stopped one's notice (getting caught: its fee, the ban, the word going round)
         runPlans();

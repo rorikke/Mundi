@@ -29,7 +29,8 @@ import { earn } from './points.js';
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
  *  you and what it did between you, and the line for the AI. */
-export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outcome: ActionOutcome | null; keepsake: string | null; with: string[]; together: TogetherGain[]; ai: string }
+export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outcome: ActionOutcome | null; keepsake: string | null; with: string[]; together: TogetherGain[]; ai: string;
+    /** (adult) a private check stopped it: it didn't play, and took no time (the screen skips its wait and "done") */ stopped?: boolean }
 
 /* ---------- private actions: the hooks (Tokyo's adult progression) ---------- */
 
@@ -51,7 +52,7 @@ export function privateCheck(g: Save, w: WorldDef, a: ActionDef, place: string, 
     const talk = isPillowTalk(g, a);
     if (!talk && !isPrivateAct(g, a)) return null;
     const x: PrivateCtx = { a, place, with: mates, rnd, scene, notes: {} };
-    if (!talk) for (const f of privateChecks) { f(g, w, x); if (x.stop) break; }
+    if (!talk) for (const f of privateChecks) { f(g, w, x); if (x.stop) { x.stop.stopped = true; break; } }
     return x;
 }
 /** After a private action's results: each result hook adds to what came of it (romance, learning, the lines). */
