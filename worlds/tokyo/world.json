@@ -940,6 +940,28 @@
      "seen": "People at {0} kept away from {u}, who badly needed a wash."
     }
    }
+  },
+  {
+   "id": "desire",
+   "name": "Desire",
+   "icon": "🔥",
+   "color": "#e0457b",
+   "start": 60,
+   "max": 100,
+   "hud": true,
+   "adult": true,
+   "decay": {
+    "amount": 5,
+    "everyMinutes": 360
+   },
+   "zero": {
+    "text": "You are restless and distracted; your thoughts keep drifting.",
+    "drain": {
+     "status": "mood",
+     "amount": 2,
+     "everyMinutes": 180
+    }
+   }
   }
  ],
  "actions": [
@@ -12535,8 +12557,14 @@
      },
      "Tech-savvy": {
       "gaming": 3
+     },
+     "Good in bed": {
+      "sensuality": 3
      }
-    }
+    },
+    "adultOptions": [
+     "Good in bed"
+    ]
    },
    {
     "id": "personality",
@@ -12574,7 +12602,32 @@
      "Karaoke",
      "Sports",
      "Travel"
+    ],
+    "adultOptions": [
+     "Kink"
     ]
+   },
+   {
+    "id": "inbed",
+    "label": "In bed",
+    "max": 1,
+    "options": [
+     "Leads",
+     "Follows",
+     "Switch"
+    ],
+    "adult": true
+   },
+   {
+    "id": "drive",
+    "label": "Drive",
+    "max": 1,
+    "options": [
+     "Low drive",
+     "Average drive",
+     "High drive"
+    ],
+    "adult": true
    }
   ]
  },
@@ -13287,6 +13340,13 @@
    "name": "Gaming",
    "icon": "🎮",
    "desc": "Reflexes, strategy and patience with a controller."
+  },
+  {
+   "id": "sensuality",
+   "name": "Sensuality",
+   "icon": "🕯️",
+   "desc": "Ease and attentiveness with a partner: reading them, patience and confidence. It makes private moments go better.",
+   "adult": true
   }
  ],
  "festivals": [
@@ -14351,6 +14411,57 @@
    "daily": {
     "mood": -2
    }
+  },
+  {
+   "id": "h_lover",
+   "name": "An active love life",
+   "trait": "Active love life",
+   "desc": "A private moment with someone five times in a week.",
+   "actions": [
+    "ak_mangacafe_couple",
+    "hk_ryokan_private",
+    "priv_home_lapdance",
+    "priv_massage_full",
+    "priv_home_three",
+    "priv_office_late",
+    "priv_park_night",
+    "priv_ryokan_rotenburo"
+   ],
+   "count": 5,
+   "days": 7,
+   "daily": {
+    "mood": 2
+   },
+   "learn": "sensuality",
+   "adult": true
+  },
+  {
+   "id": "h_nightworld",
+   "name": "Kabukichō regular",
+   "trait": "Night-world regular",
+   "desc": "A night at a host club, hostess lounge or other night club four times in a week.",
+   "actions": [
+    "sj_hostclub_first",
+    "sj_hostclub_nominate",
+    "sj_hostclub_bottle",
+    "sj_hostclub_kaname",
+    "sj_hostess_set",
+    "sj_hostess_sing",
+    "sj_hostess_bottle",
+    "sj_hostess_mama",
+    "yk_hostess_sit",
+    "yk_hostess_duet",
+    "yk_hostess_bottle",
+    "rp_poleclub_show",
+    "rp_poleclub_tip"
+   ],
+   "count": 4,
+   "days": 7,
+   "daily": {
+    "energy": -3
+   },
+   "learn": "charisma",
+   "adult": true
   }
  ],
  "features": {
@@ -38604,6 +38715,90 @@
      "dance"
     ]
    }
+  },
+  "Good in bed": {
+   "desc": "Confident and attentive with a partner. Starts with Sensuality 3."
+  },
+  "Leads": {
+   "desc": "Takes the lead in intimacy: sets the pace and likes a partner who lets go. With someone who likes to be led, romance from private moments grows 10% faster and the roll is a little easier; with someone who also leads, harder.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "intimate:follow",
+     "value": 0.1
+    }
+   ]
+  },
+  "Follows": {
+   "desc": "Likes to be led in intimacy: told what to do and praised for it. With someone who likes to lead, romance from private moments grows 10% faster and the roll is a little easier; with someone who also follows, harder.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "intimate:lead",
+     "value": 0.1
+    }
+   ]
+  },
+  "Switch": {
+   "desc": "Leads or follows depending on the partner and the night. Romance from private moments grows 5% faster with anyone, and it never clashes.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "intimate",
+     "value": 0.05
+    }
+   ]
+  },
+  "Low drive": {
+   "desc": "Does not think about intimacy much; when it happens it is nice, not urgent. Desire drains slowly, and each night counts for a little less."
+  },
+  "Average drive": {
+   "desc": "Neither high nor low: Desire drains at the usual pace, and a night counts for what it is."
+  },
+  "High drive": {
+   "desc": "Thinks about intimacy a lot and wants it often. Desire drains fast and a night counts for more, but a partner with a lower drive will turn you down a lot."
+  },
+  "Flirtatious": {
+   "desc": "Flirts with everyone and means some of it. Romance with a new person grows 10% faster until a crush, but your partners' jealousy hurts 15% more.",
+   "effects": [
+    {
+     "kind": "gain",
+     "target": "romance:early",
+     "value": 0.1
+    },
+    {
+     "kind": "jealousy",
+     "value": 0.15
+    }
+   ]
+  },
+  "Shameless": {
+   "desc": "No shame about their body or their appetites: happy to be watched and says what they want. +1 on rolls where being seen is part of it, but 10% more likely to be caught.",
+   "effects": [
+    {
+     "kind": "roll",
+     "target": "exhib",
+     "value": 1
+    },
+    {
+     "kind": "risk",
+     "value": 0.1
+    }
+   ]
+  },
+  "Kink": {
+   "desc": "Interested in rope, blindfolds and play with power and control. Doing something that fits it lifts your mood a little more.",
+   "covers": {
+    "tags": [
+     "kink"
+    ]
+   }
+  },
+  "Active love life": {
+   "desc": "A busy love life: Sensuality trains 10% faster and mornings start in a better mood."
+  },
+  "Night-world regular": {
+   "desc": "A regular at the city's night clubs: Charisma trains 10% faster, but the late nights cost energy, and the people close to you hear about it."
   }
  },
  "goals": {
