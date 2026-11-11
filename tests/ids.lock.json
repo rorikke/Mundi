@@ -283,7 +283,9 @@
    "miner": 3,
    "scout": 3,
    "seamage": 3
-  }
+  },
+  "goals": [],
+  "rewards": []
  },
  "modern": {
   "maps": [
@@ -530,7 +532,9 @@
    "musician": 4,
    "illustrator": 4,
    "chef": 4
-  }
+  },
+  "goals": [],
+  "rewards": []
  },
  "urban": {
   "maps": [
@@ -770,7 +774,9 @@
    "musician": 3,
    "illustrator": 3,
    "chef": 3
-  }
+  },
+  "goals": [],
+  "rewards": []
  },
  "house": {
   "maps": [
@@ -912,7 +918,9 @@
    "trainer": 3,
    "studio": 3,
    "office": 3
-  }
+  },
+  "goals": [],
+  "rewards": []
  },
  "manor": {
   "maps": [
@@ -996,7 +1004,9 @@
    "journal",
    "pets"
   ],
-  "ranks": {}
+  "ranks": {},
+  "goals": [],
+  "rewards": []
  },
  "tokyo": {
   "maps": [
@@ -1663,6 +1673,37 @@
    "chinatown": 4,
    "ryokan": 4,
    "avactress": 5
-  }
+  },
+  "goals": [
+   "tk_makeit",
+   "tk_nihongo",
+   "tk_bookworm",
+   "tk_strategist",
+   "tk_idol",
+   "tk_shimokita",
+   "tk_corporate",
+   "tk_founder",
+   "tk_taste",
+   "tk_lasttrain",
+   "tk_seasons",
+   "tk_akiba",
+   "tk_doujin",
+   "tk_onsen",
+   "tk_oldtokyo",
+   "tk_karaoke",
+   "tk_romance",
+   "tk_isezaki",
+   "tk_secrets",
+   "tk_kabukicho"
+  ],
+  "rewards": [
+   "omikuji",
+   "omamori_love",
+   "omamori_study",
+   "omamori_health",
+   "omamori_work",
+   "daruma",
+   "ema"
+  ]
  }
 }
