@@ -164,17 +164,23 @@ export const casualsOf = (g: Save) => casualsOfId(g, YOU);
 // How much it hurts follows the `jealousy` effects (Flirtatious hurts more, a perk less): ×1 with none.
 function jealousy(g: Save, avatar: string, name: string): string[] {
     const out: string[] = [];
-    const k = effectMul(g, getWorld(g.world), 'jealousy'), hurt = (n: number) => Math.round(n * k);
     for (const other of partnersOf(g)) {
         if (other === avatar || styleOf(g, other) === 'open') continue;
-        const who = g.cast[other]?.name ?? other;
-        addRomance(g, other, -hurt(20)); bump(g, other, -hurt(12)); approve(g, other, -hurt(15));
-        ((g as any).jealous ??= {})[other] = { of: avatar, day: g.day };
-        tallyEvent(g, 'jealous', 1, other);   // (life goals: Open hearts asks for a season without it)
-        note(g, '{0} found out that {u} is also with {1}, and is hurt.', [who, name], [other, avatar], g.player.loc, 'love');
-        out.push(`${who} found out about ${name}: romance −${hurt(20)}, bond −${hurt(12)}.`);
+        out.push(jealousHurt(g, other, avatar, name, '{0} found out that {u} is also with {1}, and is hurt.'));
     }
     return out;
+}
+/** A partner (`other`) hurt by what they learned of you and `avatar`: romance −20, bond −12, approval −15 × the
+ *  `jealousy` effects, remembered as jealousy (the AI is told), a fact (`fact`: {0} them, {1} the other, {u} you) and a
+ *  jealous moment counted. Returns the line for the screen. The caller decides who minds (an open style doesn't). */
+export function jealousHurt(g: Save, other: string, avatar: string, name: string, fact: string): string {
+    const k = effectMul(g, getWorld(g.world), 'jealousy'), hurt = (n: number) => Math.round(n * k);
+    const who = g.cast[other]?.name ?? other;
+    addRomance(g, other, -hurt(20)); bump(g, other, -hurt(12)); approve(g, other, -hurt(15));
+    ((g as any).jealous ??= {})[other] = { of: avatar, day: g.day };
+    tallyEvent(g, 'jealous', 1, other);   // (life goals: Open hearts asks for a season without it)
+    note(g, fact, [who, name], [other, avatar], g.player.loc, 'love');
+    return `${who} found out about ${name}: romance −${hurt(20)}, bond −${hurt(12)}.`;
 }
 
 // After the reply: the engine applies the answer.
