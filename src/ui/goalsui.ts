@@ -14,6 +14,8 @@ import { pointsOf } from '../sim/points.js';
 import { shopItems, peopleFor, traitChoices, rumorsToQuiet, buyReward, type ShopItem, type RewardChoice, type InsightId } from '../sim/rewards.js';
 import { countedOf } from '../sim/when.js';
 import { placesBeen, beenTo, isRegular } from '../sim/tally.js';
+import { placeOf } from '../sim/places.js';
+import { bannedUntil } from '../sim/caught.js';
 import { courseOf } from '../sim/courses.js';
 import { money } from '../sim/needs.js';
 import { skillName } from '../sim/hobbies.js';
@@ -294,9 +296,12 @@ function logWords(g: Save, w: WorldDef, why: string, items: ShopItem[]): string 
         case 'secret': return 'A secret learned';
         case 'thread': return 'A story you followed came to its end';
         case 'keepsake': return a ? `A new keepsake: ${keepsakeName(w, a)}` : 'A new keepsake';
+        case 'learned': return g.cast[a] ? `Something you learned about ${g.cast[a].name}` : 'Something you learned about someone';   // (adult) never the words
     }
     return items.find(x => x.id === why)?.name ?? humanize(why);
 }
+// (adult) A rumor about getting caught: quieting it also lifts that place's ban while it lasts (the place's name, or '').
+const caughtAt = (g: Save, w: WorldDef, r: { caught?: string }) => (r.caught && bannedUntil(g, r.caught) !== null ? placeOf(g, w, r.caught)?.name ?? '' : '');
 function pointsHtml(g: Save, w: WorldDef, items: ShopItem[]): string {
     const log = [...(((g as any).points?.log ?? []) as { day: number; n: number; why: string }[])].reverse().slice(0, 5);
     return `<section class="mu-ph-card mu-rw-points"><small>Life points</small><b>${n(pointsOf(g))}</b>
@@ -341,7 +346,7 @@ function pickerHtml(g: Save, w: WorldDef, it: ShopItem): string {
     }
     if (it.pick === 'rumor') {
         const rumors = rumorsToQuiet(g, w);
-        return `<div class="mu-rw-pick"><small>Which rumor?</small><div class="mu-rw-rumors">${rumors.map(r => `<button class="mu-chip ${GS.rumor === r.id ? 'is-on' : ''}" data-act="rw-rumor" data-v="${esc(r.id)}"><span data-notr>${esc(r.text)}</span></button>`).join('')}</div>
+        return `<div class="mu-rw-pick"><small>Which rumor?</small><div class="mu-rw-rumors">${rumors.map(r => `<button class="mu-chip ${GS.rumor === r.id ? 'is-on' : ''}" data-act="rw-rumor" data-v="${esc(r.id)}"><span data-notr>${esc(r.text)}</span>${caughtAt(g, w, r) ? ` <small class="mu-rw-ban">Also lifts the ban at <span data-notr>${esc(caughtAt(g, w, r))}</span></small>` : ''}</button>`).join('')}</div>
             ${buy(rumors.some(r => r.id === GS.rumor))}</div>`;
     }
     return '';
