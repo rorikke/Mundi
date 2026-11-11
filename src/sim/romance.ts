@@ -12,6 +12,7 @@ import { approvalOf, approve } from './living.js';
 import { note } from './facts.js';
 import { romanceBlocked, canTryForBaby } from './family.js';
 import { getWorld, systemOn, type SystemId } from '../core/world.js';
+import { effectMul } from './effects.js';
 // Is a system on in this save's world (romance, children)?
 export const sysOn = (g: Save, id: SystemId) => systemOn(getWorld(g.world), id);
 
@@ -159,15 +160,17 @@ export const partnersOf = (g: Save) => partnersOfId(g, YOU);
 export const casualsOf = (g: Save) => casualsOfId(g, YOU);
 // A new romance (or something casual) while you are with someone: each partner whose own style is exclusive is hurt
 // when they learn of it. Casual partners are never hurt.
+// How much it hurts follows the `jealousy` effects (Flirtatious hurts more, a perk less): ×1 with none.
 function jealousy(g: Save, avatar: string, name: string): string[] {
     const out: string[] = [];
+    const k = effectMul(g, getWorld(g.world), 'jealousy'), hurt = (n: number) => Math.round(n * k);
     for (const other of partnersOf(g)) {
         if (other === avatar || styleOf(g, other) === 'open') continue;
         const who = g.cast[other]?.name ?? other;
-        addRomance(g, other, -20); bump(g, other, -12); approve(g, other, -15);
+        addRomance(g, other, -hurt(20)); bump(g, other, -hurt(12)); approve(g, other, -hurt(15));
         ((g as any).jealous ??= {})[other] = { of: avatar, day: g.day };
         note(g, '{0} found out that {u} is also with {1}, and is hurt.', [who, name], [other, avatar], g.player.loc, 'love');
-        out.push(`${who} found out about ${name}: romance −20, bond −12.`);
+        out.push(`${who} found out about ${name}: romance −${hurt(20)}, bond −${hurt(12)}.`);
     }
     return out;
 }

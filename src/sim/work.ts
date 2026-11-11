@@ -34,6 +34,7 @@ import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
+import { genderOf } from './gender.js';
 export { ledger, book } from './ledger.js';
 export { scheduleOf } from '../core/presets.js';
 
@@ -51,6 +52,9 @@ export interface JobState {
     event?: { id: string; day: number };
     /** (E10) after-work drinks you were asked to (see Drinks) */
     drinks?: Drinks;
+    /** The job's track you're on (a gender id, `Occupation.tracks`), picked once when hired if your gender has none of
+     *  its own; read through `jobTrack` (missing: your gender's). */
+    track?: string;
 }
 // The job with what older code (a new game's job, "Play as") may not have set yet.
 function jobOf(g: Save): JobState | null {
@@ -199,7 +203,7 @@ export function weekText(g: Save, w: WorldDef, o: Occupation) {
 }
 /** What effects (life goals' perks, boosts) do to what this job pays: `wage` (shifts and overtime), `bonus` (the
  *  seasonal bonuses), `tips` (money from a choice at work); also aimed at the job, its place or the place's tags. */
-export const payMul = (g: Save, w: WorldDef, o: Occupation, what: 'wage' | 'bonus' | 'tips') => effectMul(g, w, 'pay', [what, o.id, o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]);
+export const payMul = (g: Save, w: WorldDef, o: Occupation, what: 'wage' | 'bonus' | 'tips') => effectMul(g, w, 'pay', [what, o.id, ...(o.tags ?? []), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]);
 /** Pay per hour for this rank: the rank's pay, raised so a week earns the same with fewer days (J9). */
 export const payFactor = (g: Save, w: WorldDef, o: Occupation) => realDays(o) / daysAWeek(g, w, o);
 export const hourlyPay = (g: Save, w: WorldDef, o: Occupation) => rankOf(g, o).pay * payFactor(g, w, o);
@@ -247,6 +251,11 @@ export { career, type Career } from '../core/world.js';
 const jobPath = (g: Save) => g.player.job?.path ?? [];
 // Your career in this job (for someone else's: a path picked for them, the same every time).
 export const careerOf = (g: Save, o: Occupation) => career(o, g.player.job?.id === o.id ? jobPath(g) : []);
+/** The track of a job the player is on: what `JobState.track` says, else their gender ('' with none). */
+export const jobTrack = (g: Save): string => (g.player.job as JobState | null)?.track ?? genderOf(g, YOU) ?? '';
+/** A job as someone works it: its track for them (`Occupation.tracks`) laid over it. The player by default, or one of
+ *  the world's people (their gender's track). Until tracks are in play, the job as written. */
+export const trackOf = (g: Save, o: Occupation, avatar: string = YOU): Occupation => { void g; void avatar; return o; };
 // With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`.
 export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
     const path: string[] = [...((g && npcPath(g, avatar, o)) ?? [])];
@@ -440,7 +449,7 @@ export function chooseShift(g: Save, w: WorldDef, id: string): string {
  *  the work rules go. Returns what happened. */
 export function addPerf(g: Save, w: WorldDef, n: number): string[] {
     const j = jobOf(g); const o = jobDef(w, j?.id); if (!j || !o) return [];
-    if (n > 0) n *= effectMul(g, w, 'perf', 'gain');
+    if (n > 0) n *= effectMul(g, w, 'perf', ['gain', o.id, ...(o.tags ?? [])]);
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
     const low = workRules(g, w).low, out: string[] = [];
     if (j.perf >= 60) delete j.warn;

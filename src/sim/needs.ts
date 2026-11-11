@@ -1,8 +1,8 @@
 // Statuses (life, energy, hunger…) and the actions that change them. Everything comes from the world's data:
 // which statuses exist, how fast they drop, what happens at zero and what each action costs and gives.
 import { eventActions } from './cityevents.js';
-import { onAction, decayMods } from './hooks.js';
-import { nowAbs, cfg, adultOk, type Save } from '../core/store.js';
+import { onAction, decayMods, actionGates } from './hooks.js';
+import { nowAbs, cfg, adultOk, adultOn, type Save } from '../core/store.js';
 import { billNews, cutReason, priceOf } from './bills.js';
 import { priceHere } from './worldstate.js';
 import { openNow } from './daynight.js';
@@ -33,7 +33,7 @@ export const usualPay = (w: WorldDef) => { const p = w.occupations.map(o => o.ra
 
 export function addStatus(g: Save, w: WorldDef, id: string, delta: number) {
     const d = statusDef(w, id);
-    if (!d) return;
+    if (!d || (d.adult && !adultOn(g))) return;   // (an adult need, Desire, stays as it was while adult content is off)
     // in the RPG, "life" is your hit points (the need shows the share left): a change goes to the hit points
     if ((id === 'life' || id === 'health') && sheetOf(g) && isRpg(w)) { changeHp(g, w, (delta / d.max) * hpMax(w, sheetOf(g)!)); return; }
     // a need that never drops with time (energy, in the built-in worlds) drops only through what you do: what slows its
@@ -142,7 +142,8 @@ export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
         .filter(a => homeMode || !a.needsItem || hasItem(g, a.needsItem)).filter(a => chosen || own(a) || !(a.notTags ?? []).some(t => tags.includes(t))).filter(a => chosen ? (a.anywhere || chosen.includes(a.id)) : (a.home && atHome)
         || (a.place && a.place === g.player.loc) || own(a)
         || (!a.home && !a.place && !a.places && (a.anywhere || (generic && (a.tags ?? []).some(t => tags.includes(t)))))).filter(a => !closed || a.anywhere)
-        .filter(a => !a.when || whenHolds(g, w, a.when, { id: a.id, key: a.id })).filter(a => !a.together?.needed || withYou(g, w).length > 0);
+        .filter(a => !a.when || whenHolds(g, w, a.when, { id: a.id, key: a.id })).filter(a => !a.together?.needed || withYou(g, w).length > 0)
+        .filter(a => !actionGates.length || canDo(g, w, a));
     // prices after the difficulty; at home, what a cut-off service stops is left out
     // out and about, what you buy costs what it costs in this region now (the living world)
     const here = atHome ? 1 : priceHere(g, w);
@@ -158,6 +159,15 @@ export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
     }
     return all.map(a => (a.cost ? { ...a, cost: free.includes(a.id) && a.cost > 0 ? 0 : a.cost > 0 ? Math.round(priceOf(g, a.cost) * here) : priceOf(g, a.cost) } : a));
 }
+
+/** Why this action can't be done here now ('' when it can): what the `actionGates` hooks say (a place that won't serve
+ *  you after you were caught there). With none: always ''. */
+export function whyNot(g: Save, w: WorldDef, a: ActionDef): string {
+    for (const f of actionGates) { const why = f(g, w, a); if (why) return why; }
+    return '';
+}
+/** Can this action be done here now (no gate says no)? `actionsHere` leaves out the ones that can't. */
+export const canDo = (g: Save, w: WorldDef, a: ActionDef) => !whyNot(g, w, a);
 
 // Water, power… of a kind of home, paid with the rent.
 export const billsOf = (w: WorldDef, kind: string) => Object.values(w.homes.kinds[kind]?.bills ?? {}).reduce((a, b) => a + b, 0);

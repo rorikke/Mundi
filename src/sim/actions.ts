@@ -5,7 +5,7 @@
 // (E14.6) An action can also be played out in the scene: it starts at once (price and needs), becomes the scene's
 // focus while the clock runs (a step with each line you send, or the live clock), and ends once its time is up, with
 // the same results; its time passes once, whatever moved the clock. ui/sceneact.ts is its screen side.
-import { nowAbs, toast, clockMode, type Save } from '../core/store.js';
+import { nowAbs, toast, clockMode, adultOn, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type ActionDef, type ActionOutcome, type RollOutcome } from '../core/world.js';
 import { setPrompt } from '../st/bridge.js';
 import { applyAction, addStatus, money, restGain } from './needs.js';
@@ -23,13 +23,35 @@ import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, type Togeth
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { startRumor } from './living.js';
-import { onLook } from './hooks.js';
+import { onLook, privateChecks, privateResults } from './hooks.js';
 import { earn } from './points.js';
 
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
  *  you and what it did between you, and the line for the AI. */
 export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outcome: ActionOutcome | null; keepsake: string | null; with: string[]; together: TogetherGain[]; ai: string }
+
+/* ---------- private actions: the hooks (Tokyo's adult progression) ---------- */
+
+/** One private action (adult content on) from its check to its result, for the hooks in sim/hooks.ts (`privateChecks`,
+ *  `privateResults`): the action, where, who is with you, the dice. A check may set `stop` (it doesn't play: a "not
+ *  tonight", a hard limit, getting caught; this is what came of it instead, its own price and time included) or
+ *  `outcome` (the outcome to use instead of drawing one; null: none); `notes` carries what a session decided from its
+ *  check to its result (its roll's tier, a risk taken). Nobody hooked in: it plays exactly as any action. */
+export interface PrivateCtx { a: ActionDef; place: string; with: string[]; rnd: () => number; scene: boolean; stop?: ActionDone; outcome?: ActionOutcome | null; notes: Record<string, unknown> }
+/** Is this a private action the hooks look at (done in private, or with a risk of being caught; adult content on)? */
+export const isPrivateAct = (g: Save, a: ActionDef) => adultOn(g) && (!!a.private || (a.risk ?? 0) > 0);
+/** Before a private action plays: each check in turn, until one stops it. Null for any other action. */
+export function privateCheck(g: Save, w: WorldDef, a: ActionDef, place: string, mates: string[], rnd: () => number, scene = false): PrivateCtx | null {
+    if (!isPrivateAct(g, a)) return null;
+    const x: PrivateCtx = { a, place, with: mates, rnd, scene, notes: {} };
+    for (const f of privateChecks) { f(g, w, x); if (x.stop) break; }
+    return x;
+}
+/** After a private action's results: each result hook adds to what came of it (romance, learning, the lines). */
+export function privateResult(g: Save, w: WorldDef, x: PrivateCtx | null | undefined, done: ActionDone) {
+    if (x) for (const f of privateResults) f(g, w, x, done);
+}
 
 // The outcomes an action can draw from: its own, or (E14) a shared table's rows in this action's words.
 export function outcomesOf(w: WorldDef, a: ActionDef): ActionOutcome[] {
@@ -71,16 +93,18 @@ const cashText = (w: WorldDef, cash: number) => (cash ? ` (${cash > 0 ? '+' : 'â
 export function doAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random): ActionDone {
     const mates = a.together ? withYou(g, w) : [];
     const last = facts(g).at(-1)?.id;
+    const priv = privateCheck(g, w, a, g.player.loc, mates, rnd);
+    if (priv?.stop) return priv.stop;
     const lines: ActionLine[] = [];
     applyAction(g, w, a);
     advance(g, w, a.minutes).forEach(m => lines.push({ text: m, kind: 'warn' }));
-    return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd });
+    return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd, priv });
 }
 
 // What came of an action once its time has passed: the roll, an outcome, feelings, a rumor, a keepsake, the time
 // together, the fact and the AI's line. `last`: the newest fact before it began (a roll or an event that wrote its
 // own fact means no plain one); `ended`: it was played out in the scene.
-function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: string[]; last?: string; lines: ActionLine[]; rnd: () => number; ended?: boolean }): ActionDone {
+function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: string[]; last?: string; lines: ActionLine[]; rnd: () => number; ended?: boolean; priv?: PrivateCtx | null }): ActionDone {
     const { place: loc, mates, last, lines, rnd } = o;
     const where = placeName(g, w, loc), home = loc === playerHomeId;
     const roll = rollAction(g, w, a, rnd);
@@ -90,7 +114,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
-    const outcome = drawOutcome(g, w, a, loc, rnd);
+    const outcome = o.priv && o.priv.outcome !== undefined ? o.priv.outcome : drawOutcome(g, w, a, loc, rnd);
     let said = '';
     if (outcome) {
         const cash = applyOutcome(g, w, a, outcome);
@@ -113,7 +137,9 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     // (the same thing twice in a day at the same place is one fact)
     if (t && !facts(g).some(f => f.place === loc && f.t === t && JSON.stringify(f.a) === JSON.stringify(args) && Math.floor(f.at / 1440) === g.day)) note(g, t, args, mates, loc, 'action');
     markDone(g, a.id, loc);
-    return { lines, roll, outcome, keepsake: keep, with: mates, together, ai: actionLine(g, w, a, roll, said, mates, o.ended) };
+    const done: ActionDone = { lines, roll, outcome, keepsake: keep, with: mates, together, ai: actionLine(g, w, a, roll, said, mates, o.ended) };
+    privateResult(g, w, o.priv, done);
+    return done;
 }
 
 // What the AI is told just happened. It only tells the story of what the engine decided. `ended`: an action played out
@@ -133,7 +159,9 @@ export function actionLine(g: Save, w: WorldDef, a: ActionDef, roll: RollResult 
 /** An action going on in the scene: the action as it was offered (its price already paid), where, from when until
  *  when (absolute game minutes), who was with you, and the lines you sent while it ran (fingerprints, sim/msglog.ts:
  *  a line moves its clock once). */
-export interface SceneAct { a: ActionDef; place: string; start: number; until: number; with: string[]; lines: string[] }
+export interface SceneAct { a: ActionDef; place: string; start: number; until: number; with: string[]; lines: string[];
+    /** (adult) a private action's check, kept for its result; `priv.stop`: it didn't play (it ends at once with that) */
+    priv?: PrivateCtx }
 export const sceneAct = (g: Save): SceneAct | undefined => (g as any).act ?? undefined;
 // `min`: the shortest action a world's `scene.actions` plays out (a ten-minute omikuji is just done); `lines`: about
 // how many of your lines it lasts; `step`: the clock moves in steps of this many minutes.
@@ -150,12 +178,15 @@ export function playsInScene(g: Save, w: WorldDef, a: ActionDef): boolean {
 
 /** Starts an action in the scene: its price and needs now, then it's the scene's focus until its time is up. (The
  *  screen finishes one that's going on first.) */
-export function startSceneAction(g: Save, w: WorldDef, a: ActionDef): SceneAct {
-    applyAction(g, w, a);
-    const now = nowAbs(g);
-    const act: SceneAct = { a, place: g.player.loc, start: now, until: now + Math.max(0, a.minutes), with: a.together ? withYou(g, w) : [], lines: [] };
+export function startSceneAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random): SceneAct {
+    const now = nowAbs(g), mates = a.together ? withYou(g, w) : [];
+    // a private action that a check stops never plays: it ends at once with what the check made of it
+    const priv = privateCheck(g, w, a, g.player.loc, mates, rnd, true);
+    if (!priv?.stop) applyAction(g, w, a);
+    const hooked = !!priv && (!!priv.stop || privateResults.length > 0);   // (kept in the save only when someone reads it)
+    const act: SceneAct = { a, place: g.player.loc, start: now, until: priv?.stop ? now : now + Math.max(0, a.minutes), with: mates, lines: [], ...(hooked ? { priv } : {}) };
     (g as any).act = act;
-    markDone(g, a.id, act.place);   // done today (`daily`, `after`) from the moment it starts
+    if (!priv?.stop) markDone(g, a.id, act.place);   // done today (`daily`, `after`) from the moment it starts
     setPrompt('mundi_roll', '');   // an earlier action's "just now" is over
     return act;
 }
@@ -193,10 +224,11 @@ export function finishSceneAction(g: Save, w: WorldDef, { rest = true, judge = t
     const left = Math.max(0, act.until - nowAbs(g));
     if (rest && there && left > 0) advance(g, w, left).forEach(m => lines.push({ text: m, kind: 'warn' }));
     const mates = there ? act.with.filter(a => withYou(g, w).includes(a)) : [];
-    const done = results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true });
+    if (act.priv) Object.assign(act.priv, { a: act.a, rnd });   // (the dice don't survive a save)
+    const done = act.priv?.stop ?? results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true, priv: act.priv });
     done.lines.forEach(l => toast(l.text, l.kind));
     if (done.roll) toast(`${gradeName(done.roll.grade)} â€” ${done.roll.text}`, done.roll.grade.includes('success') ? 'success' : 'warn');
-    else if (!done.outcome) toast(`${act.a.name}: done.`, 'success');
+    else if (!done.outcome && !act.priv?.stop) toast(`${act.a.name}: done.`, 'success');
     if (there) setPrompt('mundi_roll', done.ai);
     if (judge && there) (g as any).actJudge = nowAbs(g);
     return done;
