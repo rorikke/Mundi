@@ -15,7 +15,7 @@ import { seasonDays } from './time.js';
 import { textFrom, social } from './social.js';
 import { whenHolds } from './when.js';
 import { jobDef, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF } from './work.js';
-import { courseOf, hasCourse, isTaking, learning, spanOf, factsOf, whereWords } from './courses.js';
+import { courseOf, adultHeld, hasCourse, isTaking, learning, spanOf, factsOf, whereWords } from './courses.js';
 /** Messages kept in the work app per save (the newest). */
 const KEEP = 8;
 export function nudgeFor(g, w) {
@@ -25,7 +25,7 @@ export function nudgeFor(g, w) {
     if (!j || !o)
         return null;
     const next = nextRankOf(g, o), c = next?.course ? courseOf(w, next.course) : undefined;
-    if (!next || !c || c.retired || hasCourse(g, c.id) || isTaking(g, c.id))
+    if (!next || !c || c.retired || adultHeld(g, c) || hasCourse(g, c.id) || isTaking(g, c.id))
         return null;
     if (c.needs && !whenHolds(g, w, c.needs))
         return null;
@@ -90,7 +90,7 @@ export function aheadCourse(g, w, o) {
     if (!j || j.id !== o.id || !systemOn(w, 'courses'))
         return null;
     const r = careerOf(g, o).ranks[j.rank + 2], c = r?.course ? courseOf(w, r.course) : undefined;
-    return r && c && !c.retired && !hasCourse(g, c.id) ? { rank: r.name, course: c } : null;
+    return r && c && !c.retired && !adultHeld(g, c) && !hasCourse(g, c.id) ? { rank: r.name, course: c } : null;
 }
 /** What the work screen says when a job turns you away for a course: the way in, if its first rank is a student's. */
 export function needCourseText(g, w, o, missing) {

@@ -112,6 +112,7 @@ function addFatigue(g, m, x, y, delta) {
         st.fat[k] = next;
 }
 const GOOD_FRIENDS = 55; // where friendship becomes "Good friend" (the tiers are in sim/romance.ts)
+const CRUSH_AT = 40; // where romance becomes a Crush (`romance:early`: gains below it)
 const NONE = { d: 0, fat: 0 };
 // How much of a gain x feels toward y: x's attraction for y's gender, per meter (0..1; 1 when y has no gender or x
 // set nothing for it). Starting values and losses never read it.
@@ -134,7 +135,7 @@ export function gain(g, m, x, y, raw, isPaced = true) {
         return NONE;
     raw *= attraction(g, x, y, m) * homeMult(g);
     if (y === YOU)
-        raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? 'romance' : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
+        raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? (meter(g, m, x, y) < CRUSH_AT ? ['romance', 'romance:early'] : 'romance') : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
     if (!(raw > 0))
         return NONE;
     const before = meter(g, m, x, y);
@@ -399,6 +400,10 @@ export function swapIds(g, map) {
         st.contact = re(st.contact, '|', true);
     if (st.hold)
         st.hold = re(st.hold, '|', true);
+    if (st.close)
+        st.close = re(st.close, '|', true);
+    if (st.knows)
+        st.knows = re(st.knows, '>', false);
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 /* ---------- where relationships start ---------- */

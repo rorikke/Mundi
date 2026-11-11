@@ -57,6 +57,12 @@ export function applyOverlay(world, overlay) {
                 const t = k.slice(0, -1);
                 if (UNSAFE.has(t))
                     continue;
+                // an adult file's options for a trait group are adult options (strings can't carry the mark)
+                if (adult && t === 'options' && path === 'sheet.traits' && over[k].every((x) => typeof x === 'string')) {
+                    base.adultOptions = [...(Array.isArray(base.adultOptions) ? base.adultOptions : []), ...copy(over[k])];
+                    added += over[k].length;
+                    continue;
+                }
                 base[t] = [...(Array.isArray(base[t]) ? base[t] : []), ...freshList(over[k])];
                 continue;
             }
@@ -75,14 +81,25 @@ export function applyOverlay(world, overlay) {
             base[k] = mergeValue(base[k], over[k], p);
         }
     }
-    // lore has no ids: what the overlay has is added (it can't change an entry, only add)
+    // lore is added to; an entry with the id of one of the world's replaces that one (its fields merged), so the world's
+    // plain line isn't sent next to the overlay's
     const lore = Array.isArray(overlay.lore) ? overlay.lore : null;
     const rest = { ...overlay };
     if (lore)
         delete rest.lore;
     mergeObject(w, rest, '');
     if (lore) {
-        w.lore = [...(Array.isArray(w.lore) ? w.lore : []), ...freshList(lore)];
+        const list = Array.isArray(w.lore) ? w.lore : [];
+        for (const item of lore) {
+            const hit = hasStr(item, 'id') ? list.find(b => isObj(b) && b.id === item.id) : null;
+            if (hit) {
+                mergeObject(hit, item, 'lore');
+                changed++;
+            }
+            else
+                list.push(fresh(item));
+        }
+        w.lore = list;
     }
     w.base = world.base;
     w.i18n = world.i18n;

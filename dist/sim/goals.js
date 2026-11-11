@@ -23,6 +23,7 @@ import { skillsOf, levelOf } from './hobbies.js';
 import { offeredOf } from './courses.js';
 import { threadsOf } from './threads.js';
 import { placeOk } from './dayplan.js';
+import { styleOf } from './intimacy.js';
 /** The mood a step gives when it says nothing of its own reward (the general goals' steps), and the mood a finished
  *  goal gives on top. */
 export const STEP_MOOD = 10, GOAL_MOOD = 30;
@@ -145,12 +146,12 @@ const reachable = (g, w, id) => { const p = w.places.find(x => x.id === id); ret
 // the living world off, more secrets than its threads can give.)
 function canHold(g, w, key, v, inPlay) {
     switch (key) {
-        case 'course': return /^\d+$/.test(v) ? offeredOf(w).length >= Number(v) : offeredOf(w).some(c => c.id === v);
+        case 'course': return /^\d+$/.test(v) ? offeredOf(w, g).length >= Number(v) : offeredOf(w, g).some(c => c.id === v);
         case 'skill': {
             const m = v.match(SKILL);
             if (!m)
                 return true;
-            const have = new Set(skillsOf(w).map(x => x.id)), many = Number(m[3] ?? 1);
+            const have = new Set(skillsOf(w, g).map(x => x.id)), many = Number(m[3] ?? 1);
             if (m[1] === 'any')
                 return have.size >= many;
             if (SKILL_GROUPS[m[1]])
@@ -178,6 +179,17 @@ function canHold(g, w, key, v, inPlay) {
                 return true;
             const r = v.match(PLACE_REGULAR);
             return (!r || systemOn(w, 'living')) && reachable(g, w, r ? r[1] : v);
+        }
+        // (adult) a partner with an open style needs someone who has one (or the world's open relationships); two
+        // partners need two people; getting caught needs an action with a risk
+        case 'partner': {
+            if (v === 'open')
+                return systemOn(w, 'romance') && Object.keys(g.cast).some(a => styleOf(g, a) === 'open');
+            return !/^\d+$/.test(v) || (systemOn(w, 'romance') && Object.keys(g.cast).length >= Number(v));
+        }
+        case 'did': {
+            const c = countedOf('did', v);
+            return !c || !['risky', 'caught'].includes(c.what) || (w.actions ?? []).some(a => (a.risk ?? 0) > 0);
         }
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {

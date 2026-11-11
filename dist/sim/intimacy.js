@@ -3,8 +3,9 @@
 // tier, from presets (Free spirit … Devoted) or custom; and a switch for those who only get intimate with a partner.
 // Relationship style: exclusive or open (unset: the world's setting). Stored per person in the relationships store
 // (`rel.people`); the engine turns them into readiness hints and words for the AI, and forces a "no" only where the
-// switch says so.
-import { cfg } from '../core/store.js';
+// switch says so. Also (adult content) the record of private moments between people and what each has learned of the
+// other's likes, limits and drive (at the bottom).
+import { cfg, nowAbs } from '../core/store.js';
 import { relOf, idOf, ro, fr, isPartner, attracted, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
@@ -88,3 +89,52 @@ export function intimacyLine(g, present, blocked) {
     }
     return out.length ? `Intimacy: ${out.join('. ')}.` : '';
 }
+/* ---------- private moments, and what you've learned of each other (Tokyo's adult progression) ---------- */
+// Kept in the relationships store, so "Play as" moves it with the people (`swapIds`): per pair (`rel.close`, "a|b") the
+// time of their last private moment together and how many; per direction (`rel.knows`, "x>y") the likes and hard limits
+// x has learned of y, and whether x knows y's drive. Nothing is written until something happens, and nothing reads it
+// to change a number yet: sim/private.ts, sim/drive.ts and the rest call these.
+const pairKey = (a, b) => [a, b].sort().join('|');
+/** A private moment between a and b (you, by default) just happened (`at`: absolute minutes, default now). */
+export function noteIntimate(g, a, b = YOU, at = nowAbs(g)) {
+    a = idOf(g, a);
+    b = idOf(g, b);
+    if (!a || !b || a === b)
+        return;
+    const c = (relOf(g).close ??= {}), k = pairKey(a, b);
+    const e = (c[k] ??= { last: at, n: 0 });
+    e.last = Math.max(e.last, at);
+    e.n += 1;
+}
+/** When a and b (you) last had a private moment (absolute minutes), or undefined when never. */
+export const lastIntimate = (g, a, b = YOU) => relOf(g).close?.[pairKey(idOf(g, a), idOf(g, b))]?.last;
+/** How many private moments a and b (you) have had. */
+export const intimateCount = (g, a, b = YOU) => relOf(g).close?.[pairKey(idOf(g, a), idOf(g, b))]?.n ?? 0;
+/** What `by` (you) has learned of a (copies). */
+export function knownOf(g, a, by = YOU) {
+    const k = relOf(g).knows?.[`${idOf(g, by)}>${idOf(g, a)}`];
+    return { likes: [...(k?.likes ?? [])], limits: [...(k?.limits ?? [])], drive: !!k?.drive };
+}
+/** `by` (you) learns one of a's likes or hard limits (`value`: its words, as in their profile), or a's drive. True when
+ *  it's new. */
+export function learn(g, a, what, value = '', by = YOU) {
+    a = idOf(g, a);
+    by = idOf(g, by);
+    if (!a || !by || a === by || (what !== 'drive' && !value.trim()))
+        return false;
+    const all = (relOf(g).knows ??= {}), k = `${by}>${a}`, e = (all[k] ??= {});
+    if (what === 'drive') {
+        if (e.drive)
+            return false;
+        e.drive = true;
+        return true;
+    }
+    const list = (what === 'like' ? (e.likes ??= []) : (e.limits ??= []));
+    if (list.includes(value))
+        return false;
+    list.push(value);
+    return true;
+}
+/** Someone's role in bed and drive, from their intimate profile (a drive not set is average; a role not set is none). */
+export const roleOf = (g, a) => relOf(g).people[idOf(g, a)]?.intimate?.role;
+export const driveOf = (g, a) => relOf(g).people[idOf(g, a)]?.intimate?.drive ?? 'average';

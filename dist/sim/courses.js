@@ -1,3 +1,11 @@
+// Courses you take (at home, online, or at the university). A course lasts as long as the calendar says (a share of a
+// game year, or its days), has classes inside that span (its schedule, else five a week), teaches its skills a little
+// with every class you attend and gives their levels for good when it's finished. Up to two at once. Missing classes
+// is allowed up to a point (10% free), then they cost make-up classes and, past a cap, the course fails. Long programs
+// are paid by the season, and aid (an employer, a school, the public benefit) can pay part of a fee. What the save
+// keeps is `player.learning` (see `Learning`). (Skills themselves, with their levels, are in hobbies.ts; the job
+// interview and the traits you gain are in skills.ts; the boss's message about a course is in coursenudge.ts.)
+import { adultOn } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { note } from './facts.js';
 import { book } from './ledger.js';
@@ -13,8 +21,12 @@ import { money } from './needs.js';
 import { lex } from '../core/lexicon.js';
 import { workRules, jobDef, shiftOn } from './work.js';
 export const coursesOf = (w) => (systemOn(w, 'courses') ? w.catalogs.courses ?? [] : []);
-/** What a world offers now: its courses except the retired ones (a save taking a retired one can still finish it). */
-export const offeredOf = (w) => coursesOf(w).filter(c => !c.retired);
+/** What a world offers now: its courses except the retired ones (a save taking a retired one can still finish it). With
+ *  a game (`g`), adult courses only when its adult content is on. */
+export const offeredOf = (w, g) => coursesOf(w).filter(c => !c.retired && !(g && adultHeld(g, c)));
+/** An adult course in a game with adult content off: not offered, no aid, and one being taken waits (no class, no miss,
+ *  no fee) until it's back on. */
+export const adultHeld = (g, c) => !!c.adult && !adultOn(g);
 export function learning(g) {
     const p = g.player;
     const s = (p.learning ??= {});
@@ -52,8 +64,8 @@ export function learning(g) {
 export const courseOf = (w, id) => coursesOf(w).find(c => c.id === id);
 export const hasCourse = (g, id) => learning(g).done.includes(id);
 export const isTaking = (g, id) => learning(g).taking.includes(id);
-/** The courses you are taking that the world still has (retired ones too). */
-export const takingNow = (g, w) => learning(g).taking.map(id => courseOf(w, id)).filter((c) => !!c);
+/** The courses you are taking that the world still has (retired ones too; not an adult one while adult content is off). */
+export const takingNow = (g, w) => learning(g).taking.map(id => courseOf(w, id)).filter((c) => !!c && !adultHeld(g, c));
 export const canStudyHere = (g, w) => isScenario(w) || g.player.loc === playerHomeId || (placeOf(g, w, g.player.loc)?.tags ?? []).includes('study');
 export const studiedToday = (g, id) => learning(g).lastDay[id] === g.day;
 /* ---------- how long a course is, and its classes ---------- */
@@ -160,6 +172,8 @@ export function studyBlock(g, w, c) {
         return 'You already studied today. Come back tomorrow.';
     if (dueOf(l, c.id) > 0)
         return `The fee for ${c.name} is unpaid (${money(w, dueOf(l, c.id))}): the course is on hold.`;
+    if (adultHeld(g, c))
+        return `${c.name} is on hold while adult content is off.`;
     if (c.at ? g.player.loc !== c.at : !canStudyHere(g, w))
         return c.at ? `${c.name} is taught at ${placeOf(g, w, c.at)?.name ?? 'its own place'}.` : 'You can study at home or at a place for it.';
     // a class ends before midnight: one that ran into the next day would count for tomorrow (taking tomorrow's class) after
@@ -216,6 +230,8 @@ function qualifies(g, w, c, a, enrolling) {
 const paysAt = (a) => a.pays ?? (a.kind === 'public' ? 'finish' : 'enroll');
 /** The one aid that helps most (the biggest share; paid at enrollment before one refunded at the end); never two. */
 export function bestAid(g, w, c, enrolling = false) {
+    if (adultHeld(g, c))
+        return null;
     const list = (c.aid ?? []).filter(a => a.share > 0 && qualifies(g, w, c, a, enrolling));
     list.sort((a, b) => b.share - a.share || (paysAt(a) === 'enroll' ? -1 : 1) - (paysAt(b) === 'enroll' ? -1 : 1));
     return list[0] ?? null;
@@ -338,7 +354,7 @@ export function enroll(g, w, id) {
     const c = courseOf(w, id);
     if (!c)
         return '';
-    if (c.retired)
+    if (c.retired || adultHeld(g, c))
         return 'This course is not offered any more.';
     const l = learning(g);
     if (l.taking.includes(id))
@@ -510,7 +526,7 @@ function settle(g, w, c, out) {
     const l = learning(g), p = ensure(g, w, c);
     for (let d = (l.settled[c.id] ?? g.day - 1) + 1; d <= g.day - 1; d++) {
         l.settled[c.id] = d;
-        if (dueOf(l, c.id) > 0) {
+        if (dueOf(l, c.id) > 0 || adultHeld(g, c)) {
             l.held[c.id] = (l.held[c.id] ?? 0) + 1;
             continue;
         }
@@ -533,6 +549,10 @@ function seasonFees(g, w, c) {
     const l = learning(g), p = ensure(g, w, c);
     if (!perSeason(g, w, c))
         return;
+    if (adultHeld(g, c)) {
+        l.paid[c.id] = Math.max(l.paid[c.id] ?? 0, seasonNo(g, g.day));
+        return;
+    } // (no fee for a season it waits)
     const end = l.start[c.id] + p.span + (l.held[c.id] ?? 0) - 1;
     for (let s = (l.paid[c.id] ?? seasonNo(g, g.day)) + 1; s <= seasonNo(g, g.day); s++) {
         if (s * seasonDays(g) + 1 > end)
@@ -617,6 +637,8 @@ function courseDay(g, w) {
     for (const id of [...l.taking]) {
         const c = courseOf(w, id);
         seasonFees(g, w, c);
+        if (adultHeld(g, c))
+            continue; // (nothing said about it while adult content is off)
         const s = stateOf(g, w, c), lvl = ['', 'half', 'all', 'edge'].indexOf(s.warn);
         if (lvl > (l.warned[id] ?? 0)) {
             l.warned[id] = lvl;

@@ -1,3 +1,11 @@
+// Skills that level up: cooking, fitness, charisma, guitar, painting… A world lists its skills (`skills`) and its
+// hobbies (`hobbies`, skills with the actions that train them); both are kept in one place, by id, from 0 to 10.
+// Practice gives experience (more when it goes well): actions train their hobby or the skill they name (`trains`),
+// jobs train theirs a little each shift, and courses can teach levels. Each level adds to that skill's rolls (+1
+// every 2 levels), raises what it pays (busking tips, a painting's price), and opens jobs and promotions that ask for
+// it (a bar musician needs Guitar 4, a sales chief Charisma 6). The AI is told what you are good at, and a new level
+// is remembered like anything else you do.
+import { adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { note } from './facts.js';
 import { effectMul } from './effects.js';
@@ -8,8 +16,9 @@ export const MAX_LEVEL = LEVELS.length - 1;
 const TITLES = ['New to it', 'Beginner', 'Beginner', 'Getting there', 'Decent', 'Good', 'Good', 'Very good', 'Very good', 'Excellent', 'A master'];
 const on = (w) => !!w && systemOn(w, 'hobbies') && !!w.hobbies?.length;
 export const hobbiesOf = (w) => (on(w) ? w.hobbies : []);
-/** Every skill of a world: its own skills, then its hobbies (with the hobbies system on), one per id. */
-export function skillsOf(w) {
+/** Every skill of a world: its own skills, then its hobbies (with the hobbies system on), one per id. With a game (`g`),
+ *  an adult skill (Sensuality) only when its adult content is on: the profile, the AI and conditions pass the game. */
+export function skillsOf(w, g) {
     const out = (w?.skills ?? []).map(s => ({ ...s, actions: [] }));
     for (const h of hobbiesOf(w)) {
         const i = out.findIndex(s => s.id === h.id);
@@ -18,7 +27,7 @@ export function skillsOf(w) {
         else
             out[i] = { ...out[i], ...h, name: out[i].name };
     }
-    return out;
+    return g && !adultOn(g) && w?.skills?.some(s => s.adult) ? out.filter(s => !s.adult) : out;
 }
 export const skillDef = (w, id) => skillsOf(w).find(s => s.id === id) ?? null;
 export const skillName = (w, id) => skillDef(w, id)?.name ?? id.charAt(0).toUpperCase() + id.slice(1);
@@ -93,7 +102,7 @@ export function hobbyNeed(g, w, o) {
 }
 // For the AI: what you are good at (level 3 and up).
 export function hobbyLine(g, w) {
-    const list = skillsOf(w).map(h => [h, levelOf(g, h.id)]).filter(([, l]) => l >= 3);
+    const list = skillsOf(w, g).map(h => [h, levelOf(g, h.id)]).filter(([, l]) => l >= 3);
     const what = w.skills?.length ? 'skills' : 'hobbies';
     const langs = new Set([w.language?.local, ...(w.language?.others ?? [])]); // "English" keeps its capital
     const named = (h) => (langs.has(h.id) ? h.name : h.name.toLowerCase());

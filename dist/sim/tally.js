@@ -1,3 +1,13 @@
+// Lifetime counters: what you've done, been to and been good at, kept for life goals' objectives and for conditions
+// that ask how often something happened (`did`, `attended`, `visited`, `rank: 2 in 3 jobs`, `home: better` in
+// sim/when.ts). Kept in the save under `tally` and only ever added to; a goal that counts only while it's active (D-8)
+// keeps its own snapshot of these numbers (sim/goals.ts). No module of the engine reads them to change a number.
+//
+// `count` holds one number per key: `action:<id>` and `tag:<tag>` (an action done, from onAction), `event:<name>` (the
+// engine's own moments: TALLY_EVENTS), `people:<name>` (that moment with someone for the first time: dates with three
+// people), `with:<id>` and `with:any` (an action done with someone), `roll:<skill>` and `win:<action id>` (rolls that
+// went well), `festival:<id>`, `cityevent:<id>` and `attended:any` (festivals celebrated and city events gone to).
+import { nowAbs } from '../core/store.js';
 import { onAction, onHour, onLook } from './hooks.js';
 /** The engine's own moments, counted by name (`did: meal 15`). Where each is counted:
  *  `meal` (cooking at home), `workout`, `painting` (a painting sold), `shift` (a shift worked; part shifts count their
@@ -10,9 +20,15 @@ import { onAction, onHour, onLook } from './hooks.js';
  *  least): sim/plans.ts; `night_together` (a night someone stays with you, or you with them, that's more than a
  *  sleepover: a partner, or someone ready to get intimate with you): sim/plans.ts; `trip` (a day out in another area than
  *  your home's, with whoever is with you: once a day each) and `late_night` (still up at 1:00): here.
+ *  Adult content's moments (Tokyo's adult progression; named here, counted by the sessions that make them happen):
+ *  `intimate` (a private moment with someone: a private action, or one the scene verdict saw), `learned` (a like or a
+ *  limit of someone's learned), `threesome` (a private moment with two people), `gift_loved` (a gift someone loved):
+ *  sim/private.ts and sim/social.ts; `jealous` (a partner jealous of a new partner of yours): sim/romance.ts; `risky` (a
+ *  risky moment not caught) and `caught`: sim/caught.ts.
  *  A moment with someone is also counted for that person (`event:<name>|<avatar>`: `did: overnight with best`). */
 export const TALLY_EVENTS = ['meal', 'workout', 'painting', 'shift', 'party', 'missed_shift', 'missed_train', 'date', 'overnight', 'night_away', 'crisis', 'collapse', 'apprentice', 'lesson', 'taught', 'baby', 'business',
-    'big_party', 'loved_party', 'night_together', 'trip', 'late_night'];
+    'big_party', 'loved_party', 'night_together', 'trip', 'late_night',
+    'intimate', 'learned', 'risky', 'caught', 'threesome', 'jealous', 'gift_loved'];
 /** The prefixes a counted key can have in a condition (`did: tag:karaoke 3`); with none it's an event name or an action id. */
 export const TALLY_PREFIXES = ['tag', 'roll', 'win', 'with', 'people'];
 export function tally(g) {
@@ -31,7 +47,11 @@ export function tallyEvent(g, name, n = 1, who) {
     add(g, `event:${name}`, n);
     if (who)
         tallyWith(g, name, who, n);
+    if (name === 'night_together')
+        tally(g).together = nowAbs(g);
 }
+/** Was the night just slept a night together (one counted in the last 16 hours)? */
+export const nightTogetherJust = (g) => nowAbs(g) - (g.tally?.together ?? -Infinity) <= 16 * 60;
 // The moment with this person: counted for them, and once for `people:<name>`.
 function tallyWith(g, name, who, n = 1) {
     add(g, `event:${name}|${who}`, n);

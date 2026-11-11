@@ -37,7 +37,7 @@ export const eventChip = (g, w) => { const x = eventHere(g, w); return x ? `<sma
 export const cityBadge = (g, w) => comingEvents(g, w, 1).filter(x => isGoing(g, x.key) && !x.off && x.from - nowAbs(g) <= 120 && x.to > nowAbs(g)).length;
 // The Profile's skills and hobbies: level, title and a bar to the next level.
 export function hobbiesHtml(g, w) {
-    const list = skillsOf(w);
+    const list = skillsOf(w, g);
     if (!list.length)
         return '';
     return `<section class="mu-hobbies"><h4>🎯 ${w.skills?.length ? 'Skills' : 'Hobbies'}</h4><p class="mu-muted">Practice levels them up: each 2 levels are +1 on their rolls, each level pays more, and jobs and promotions ask for them.</p>

@@ -14,7 +14,7 @@ import { whenHolds } from './when.js';
 import { note } from './facts.js';
 import { book } from './ledger.js';
 import { effectMul } from './effects.js';
-import { tallyEvent } from './tally.js';
+import { tallyEvent, nightTogetherJust } from './tally.js';
 import { pricePerk } from './worldstate.js';
 /** A hospital bed for the night after a collapse: free, a fair rest, out by ten. */
 export const WARD = { price: 0, rest: 'fair', until: 10 };
@@ -116,8 +116,8 @@ onLook.push(lookCollapse);
  *  (energy never drops below what you had). A night leaves you hungry, thirsty and in need of a wash; the bed sets
  *  the mood (`homeMood`: what your own bed gives). */
 export function restAfterNight(g, w, rest, homeMood = 0, part = 1) {
-    // what effects add to a night (life goals' perks, boosts): every night, or at home, or away
-    const k = effectMul(g, w, 'rest', ['sleep', rest ? 'sleep away' : 'sleep home']);
+    // what effects add to a night (life goals' perks, boosts): every night, or at home, or away, or after a night together
+    const k = effectMul(g, w, 'rest', ['sleep', rest ? 'sleep away' : 'sleep home', ...(nightTogetherJust(g) ? ['sleep together'] : [])]);
     for (const [id, v0] of Object.entries(w.sleep.restore)) {
         const d = w.statuses.find(s => s.id === id);
         if (!d)

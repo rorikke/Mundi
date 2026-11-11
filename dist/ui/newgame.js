@@ -30,6 +30,7 @@ import { uploadWorldPicture } from '../sim/creator.js';
 import { icon } from './icons.js';
 import { stepHouseholds, yourHouseholdHtml, stepHome, ngPeopleFor, youWaysHtml } from './ngfamily.js';
 import { traitsHtml, toggleTrait } from './traits.js';
+import { sheetGroups } from '../sim/traits.js';
 import { charPicker, shownChars, resetPick } from './charpick.js';
 const STEPS_ALL = [['world', 'World'], ['cast', 'People'], ['homes', 'Households'], ['hero', 'Your character'], ['house', 'Home'], ['review', 'Start']];
 // A scenario: the same steps, named for a house (everyone lives under one roof; your room instead of a home).
@@ -316,7 +317,7 @@ const asks = (w, k) => w.sheet.ask?.[k] !== false;
 function heroSheetHtml(persona) {
     const w = W(), h = state.wizard.hero, sh = w.sheet;
     return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${asks(w, 'origin') && !isScenario(w) ? startPickHtml(w, h.origin, !!state.wizard.adult) : ''}
-        ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(sh.traits, h.traits, 'ng-trait', w)}</section>` : ''}
+        ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(sheetGroups(w, !!state.wizard.adult), h.traits, 'ng-trait', w)}</section>` : ''}
         ${asks(w, 'bio') ? `<section class="mu-bio"><label class="mu-field"><span>${persona ? 'About you in this world (optional; your persona\'s description is not changed)' : 'About you (optional)'}</span><textarea rows="4" data-input="ng-bio" data-focus="ngbio" placeholder="${persona ? 'What you do here, what people know about you' : 'Personality, quirks, what drives you'}">${esc(h.bio)}</textarea></label></section>` : ''}`;
 }
 // A scenario: how you fit in the house, instead of an origin. Custom: your own premise, written by you, or by your

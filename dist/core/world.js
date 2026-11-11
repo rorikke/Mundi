@@ -1,4 +1,4 @@
-import { settings, game } from './store.js';
+import { settings, game, adultOn } from './store.js';
 import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 import { applyOverlay, overlayFile } from './overlay.js';
@@ -47,6 +47,8 @@ export function career(o, path = []) {
     }
     return { ranks, promote, likes: likesOf, open: null, options: [] };
 }
+export const INTIMATE_ROLES = ['lead', 'follow', 'switch'];
+export const INTIMATE_DRIVES = ['low', 'average', 'high'];
 export const exampleTag = (w, ex) => `${ex.from ?? w.id}:${ex.name}`;
 // The phone's apps, as the Modern style has them (a world can rename them, change icons or turn them off).
 export const DEFAULT_APPS = [
@@ -123,9 +125,10 @@ export const gameMode = (w) => {
 // (no energy, and no health at stake). `g` is the game, when the caller has it.
 export const HOME_NEEDS = ['hunger', 'thirst', 'mood', 'hygiene'];
 export const homeNeedsOn = (g) => !!g?.cfg?.needs;
+// An adult need (Desire) is in play only with the game's adult content on (so never without the game).
 export const activeStatuses = (w, g) => (isScenario(w) && g !== undefined
     ? (homeNeedsOn(g) ? w.statuses.filter(s => !s.off && HOME_NEEDS.includes(s.id)) : [])
-    : w.statuses.filter(s => !s.off && !(s.rpg && gameMode(w) === 'lifesim') && (s.rpg || systemOn(w, 'needs'))));
+    : w.statuses.filter(s => !s.off && !(s.rpg && gameMode(w) === 'lifesim') && (s.rpg || systemOn(w, 'needs')) && (!s.adult || adultOn(g))));
 export const WORLD_TAGS = [
     { id: 'lifesim', name: 'Life-Sim', desc: 'can be played as a life: needs, work, home, people.' },
     { id: 'rpg', name: 'RPG', desc: 'can be played as an adventure: a class, checks, fights and quests.' },

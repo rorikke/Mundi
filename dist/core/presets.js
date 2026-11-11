@@ -292,6 +292,61 @@ export function scheduleOf(o) {
     const [a, b] = o.hours ?? [0, 24];
     return { days: 5, from: a, to: a === b ? a + 24 : b };
 }
+// The adult progression's fields (Tokyo) made safe, adding no key to a world without them: a job's tags and tracks, an
+// action's risk (0–1), words and difficulty, a person's role and drive, the intimate pool, a trait group's adult options.
+// (Kept here rather than read from world.ts, which imports this file.)
+const ROLES = ['lead', 'follow', 'switch'], DRIVES = ['low', 'average', 'high'];
+const strList = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string' && !!x) : []);
+const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
+function upgradeAdult(w) {
+    for (const o of w.occupations ?? []) {
+        if (o.tags !== undefined)
+            o.tags = strList(o.tags);
+        if (o.tracks !== undefined) {
+            if (!isObj(o.tracks))
+                delete o.tracks;
+            else
+                for (const [k, t] of Object.entries(o.tracks))
+                    if (!isObj(t))
+                        delete o.tracks[k];
+        }
+    }
+    for (const a of w.actions ?? []) {
+        if (a.risk !== undefined) {
+            if (typeof a.risk === 'number' && Number.isFinite(a.risk))
+                a.risk = Math.max(0, Math.min(1, a.risk));
+            else
+                delete a.risk;
+        }
+        if (a.matches !== undefined)
+            a.matches = strList(a.matches);
+        if (a.dc !== undefined && !(typeof a.dc === 'number' && Number.isFinite(a.dc)))
+            delete a.dc;
+    }
+    for (const e of w.cast?.examples ?? []) {
+        const p = e.intimate;
+        if (!isObj(p))
+            continue;
+        if (p.role !== undefined && !ROLES.includes(p.role))
+            delete p.role;
+        if (p.drive !== undefined && !DRIVES.includes(p.drive))
+            delete p.drive;
+    }
+    if (w.intimatePool !== undefined) {
+        const p = w.intimatePool;
+        if (!isObj(p))
+            delete w.intimatePool;
+        else {
+            if (p.prefs !== undefined)
+                p.prefs = strList(p.prefs);
+            if (p.limits !== undefined)
+                p.limits = strList(p.limits);
+        }
+    }
+    for (const t of w.sheet?.traits ?? [])
+        if (t.adultOptions !== undefined)
+            t.adultOptions = strList(t.adultOptions);
+}
 export function upgradeWorld(w) {
     const p = presetOf(w);
     const c = (w.catalogs ??= {});
@@ -442,9 +497,10 @@ export function upgradeWorld(w) {
     }
     // what traits mean (core/traits.ts): bad effects dropped, values inside the bounds, the standard names' info added
     // for the names the sheet offers; a world with none of it is left as it is
-    const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => t.options ?? []));
+    const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => [...(t.options ?? []), ...(t.adultOptions ?? [])]));
     if (info)
         w.traitInfo = info;
+    upgradeAdult(w);
     // life goals and the rewards shop (core/goals.ts): a world's own made safe, perks and boosts inside their limits; the
     // general ones stay in the engine (so a world gets their later changes), and a world without either gets no key
     const goals = upgradeGoals(w.goals), rewards = upgradeRewards(w.rewards);

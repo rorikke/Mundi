@@ -23,7 +23,7 @@ export const openCourses = () => { CS.open = true; CS.drop = ''; notify(); };
 // "Things to do": take a course, or how the ones you take are going (the study buttons are in the list).
 export function courseRow(g, w) {
     const mine = takingNow(g, w);
-    if (!offeredOf(w).length && !mine.length)
+    if (!offeredOf(w, g).length && !mine.length)
         return '';
     if (!canStudyHere(g, w) && !mine.some(c => c.at === g.player.loc))
         return '';
@@ -61,7 +61,7 @@ export function coursesHtml() {
     const w = g && getWorld(g.world);
     if (!CS.open || !g || !w)
         return '';
-    const l = learning(g), all = offeredOf(w), mine = takingNow(g, w);
+    const l = learning(g), all = offeredOf(w, g), mine = takingNow(g, w);
     const areas = [...new Set(all.map(c => c.area))];
     const list = all.filter(c => !CS.area || c.area === CS.area);
     const forJobs = (id) => w.occupations.filter(o => (o.courses ?? []).includes(id) || [...o.ranks, ...(o.branches ?? []).flatMap(b => b.options.flatMap(x => x.ranks))].some(r => r.course === id)).map(o => o.name);

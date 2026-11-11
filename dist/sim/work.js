@@ -34,6 +34,7 @@ import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
+import { genderOf } from './gender.js';
 export { ledger, book } from './ledger.js';
 export { scheduleOf } from '../core/presets.js';
 // The job with what older code (a new game's job, "Play as") may not have set yet.
@@ -190,7 +191,7 @@ export function weekText(g, w, o) {
 }
 /** What effects (life goals' perks, boosts) do to what this job pays: `wage` (shifts and overtime), `bonus` (the
  *  seasonal bonuses), `tips` (money from a choice at work); also aimed at the job, its place or the place's tags. */
-export const payMul = (g, w, o, what) => effectMul(g, w, 'pay', [what, o.id, o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]);
+export const payMul = (g, w, o, what) => effectMul(g, w, 'pay', [what, o.id, ...(o.tags ?? []), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]);
 /** Pay per hour for this rank: the rank's pay, raised so a week earns the same with fewer days (J9). */
 export const payFactor = (g, w, o) => realDays(o) / daysAWeek(g, w, o);
 export const hourlyPay = (g, w, o) => rankOf(g, o).pay * payFactor(g, w, o);
@@ -250,6 +251,11 @@ export { career } from '../core/world.js';
 const jobPath = (g) => g.player.job?.path ?? [];
 // Your career in this job (for someone else's: a path picked for them, the same every time).
 export const careerOf = (g, o) => career(o, g.player.job?.id === o.id ? jobPath(g) : []);
+/** The track of a job the player is on: what `JobState.track` says, else their gender ('' with none). */
+export const jobTrack = (g) => g.player.job?.track ?? genderOf(g, YOU) ?? '';
+/** A job as someone works it: its track for them (`Occupation.tracks`) laid over it. The player by default, or one of
+ *  the world's people (their gender's track). Until tracks are in play, the job as written. */
+export const trackOf = (g, o, avatar = YOU) => { void g; void avatar; return o; };
 // With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`.
 export function npcCareer(o, avatar, g) {
     const path = [...((g && npcPath(g, avatar, o)) ?? [])];
@@ -488,7 +494,7 @@ export function addPerf(g, w, n) {
     if (!j || !o)
         return [];
     if (n > 0)
-        n *= effectMul(g, w, 'perf', 'gain');
+        n *= effectMul(g, w, 'perf', ['gain', o.id, ...(o.tags ?? [])]);
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
     const low = workRules(g, w).low, out = [];
     if (j.perf >= 60)

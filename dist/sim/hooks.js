@@ -23,3 +23,15 @@ export const onGoalStep = [];
 export const goalLink = { active: () => null, canSkip: () => false, skip: () => [] };
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll = [];
+// Adult content's private moments (Tokyo's adult progression) meet here, so the sessions that fill them never wait on
+// each other; empty, nothing changes.
+// Before an action is offered or done: why it can't be ('' when it can): a place that won't serve you after you were
+// caught there. Asked by `canDo` in sim/needs.ts.
+export const actionGates = [];
+// A private action about to play (adult content on), and the same one once its result is in: see `PrivateCtx` in
+// sim/actions.ts. A check may stop it (`x.stop`) or choose its outcome; a result adds to what came of it.
+export const privateChecks = [];
+export const privateResults = [];
+// More lines for the intimate block (sim/scenepeople.ts), for the people here: what you know of them, their drive,
+// their wanting you… (`who`: whose profiles the block tells, as `profilePeople` chose them).
+export const intimateLines = [];
