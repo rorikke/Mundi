@@ -21,12 +21,13 @@ import { startRumor, rumorPool, YOU } from './living.js';
 import { queueMoment } from './moments.js';
 import { note } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
+import { earn } from './points.js';
 
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 
 /** A thread's state in the save (`g.threads`, by thread id): the stage it's at (-1: not begun), since which day,
  *  the day the player learned it (`known`) and how (`how`), how it ended and when. */
-export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open'; ended?: string; endDay?: number }
+export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight'; ended?: string; endDay?: number }
 export const threadStates = (g: Save) => ((g as any).threads ??= {}) as Record<string, ThreadState>;
 // How long an ending is still news for the AI.
 const NEWS_DAYS = 14;
@@ -85,7 +86,8 @@ function endThread(g: Save, w: WorldDef, t: Thread, r: Resident): string[] {
     const list = t.endings ?? [];
     const e = list.find((x, i) => !!x.when && whenHolds(g, w, x.when, { day: true, key: `thread|${t.id}|end|${i}` })) ?? [...list].reverse().find(x => !x.when) ?? list.at(-1);
     st.ended = e?.id ?? 'over'; st.endDay = g.day;
-    if (!e) return [];
+    const paid = st.known ? earn(g, w, 'thread', t.id) : '';   // a thread you knew reaching its end: life points
+    if (!e) return paid ? [paid] : [];
     // a life that changes: the world's people keep their jobs and homes otherwise (E25), their stories may move them
     if (e.job && systemOn(w, 'jobs') && w.occupations.some(o => o.id === e.job) && r.occupation !== e.job) {
         r.occupation = e.job;
@@ -98,8 +100,8 @@ function endThread(g: Save, w: WorldDef, t: Thread, r: Resident): string[] {
     }
     note(g, e.text.replace(/\{\{user\}\}/g, '{u}'), [], [r.avatar], `home:${r.avatar}`, 'thread');
     if (e.fact) note(g, e.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
-    if (e.leaves) return leaveMap(g, r, e.text);
-    return [];
+    if (e.leaves) return [...leaveMap(g, r, e.text), ...(paid ? [paid] : [])];
+    return paid ? [paid] : [];
 }
 /** They leave the world's maps for good (the save keeps them): no more plans, company, invitations or placements. */
 export function leaveMap(g: Save, r: Resident, why: string): string[] {
@@ -138,6 +140,7 @@ export function revealThread(g: Save, w: WorldDef, id: string, how: ThreadState[
     const st = threadStates(g)[id];
     if (st.known) return false;
     st.known = g.day; st.how = how;
+    if (how !== 'insight') earn(g, w, 'secret', id);   // a secret learned: life points (not one bought with them)
     return true;
 }
 export const knowsThread = (g: Save, id: string) => !!threadStates(g)[id]?.known;
@@ -191,7 +194,7 @@ export function threadLines(g: Save, w: WorldDef, present: Resident[]): string[]
         if (!s) continue;
         const now = ` Right now: ${trim(s.text)}.`;
         if (st.known) {
-            const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : '';
+            const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' || st.how === 'insight' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : '';
             out.push(`${trim(t.known ?? `{{user}} knows: ${t.hidden}`)}${from}.${now}`);
         } else if (s.tell === 'known') out.push(`${n} no longer hides it: ${trim(t.hidden)}.${now} ${n} tells {{user}} if it comes up.`);
         else if (s.tell === 'hinted') out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);

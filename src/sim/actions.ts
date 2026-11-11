@@ -24,6 +24,7 @@ import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { startRumor } from './living.js';
 import { onLook } from './hooks.js';
+import { earn } from './points.js';
 
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
@@ -85,7 +86,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     const roll = rollAction(g, w, a, rnd);
     const ok = roll ? roll.grade.includes('success') : null;
     afterAction(g, w, a, ok).forEach(m => lines.push({ text: m, kind: 'success' }));
-    afterEvent(g, w, a);
+    afterEvent(g, w, a).forEach(m => lines.push({ text: m, kind: 'success' }));
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
@@ -100,7 +101,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     // (E31) a rumor it starts among the people here
     for (const t of [res?.rumor, outcome?.rumor]) if (t) startRumor(g, w, t, loc, { you: true, id: `act:${a.id}:${t.slice(0, 24)}` });
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
-    if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); }
+    if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); const p = earn(g, w, 'keepsake', keep); if (p) lines.push({ text: p, kind: 'success' }); }
     const together = doneTogether(g, w, mates, a.minutes);
     if (mates.length || withYou(g, w).length) tallyTogether(g, a.id);   // (cooking for a friend: someone with you counts)
     // remembered: its own fact (the outcome's, the roll's, the action's), or a plain one when nothing else wrote one

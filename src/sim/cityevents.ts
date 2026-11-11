@@ -10,6 +10,7 @@ import { worldWeather } from './weather.js';
 import { note } from './facts.js';
 import { onHour, onDay } from './hooks.js';
 import { tallyAttend } from './tally.js';
+import { earn } from './points.js';
 import { levelOf } from './hobbies.js';
 import { seasonDays, SEASONS } from './time.js';
 
@@ -88,15 +89,16 @@ export function eventActions(g: Save, w: WorldDef): ActionDef[] {
 // After one of those: you were there (once per event), and it is remembered.
 export function afterEvent(g: Save, w: WorldDef, a: { id: string }): string[] {
     const x = eventHere(g, w); if (!x) return [];
-    const c = cityOf(g);
+    const c = cityOf(g), out: string[] = [];
     if (a.id === `x-ev-${x.ev.id}`) {
         c.went.push(x.key);
         tallyAttend(g, 'cityevent', x.ev.id);
+        const paid = earn(g, w, 'event', x.ev.id); if (paid) out.push(paid);   // the first time this year: life points
         const s = (g.player as any).learning; if (s?.count) s.count.events = (s.count.events ?? 0) + 1;
         note(g, '{u} went to the {0}.', [x.ev.name], [], g.player.loc, 'social');
     }
     if (a.id === `x-evs-${x.ev.id}`) { c.went.push(`${x.key}#stage`); note(g, '{u} performed at the {0}.', [x.ev.name], [], g.player.loc, 'social'); }
-    return [];
+    return out;
 }
 // For the AI: what is going on here.
 export function eventLine(g: Save, w: WorldDef): string {
