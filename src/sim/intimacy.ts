@@ -3,8 +3,10 @@
 // tier, from presets (Free spirit … Devoted) or custom; and a switch for those who only get intimate with a partner.
 // Relationship style: exclusive or open (unset: the world's setting). Stored per person in the relationships store
 // (`rel.people`); the engine turns them into readiness hints and words for the AI, and forces a "no" only where the
-// switch says so.
-import { cfg, type Save } from '../core/store.js';
+// switch says so. Also (adult content) the record of private moments between people and what each has learned of the
+// other's likes, limits and drive (at the bottom).
+import { cfg, nowAbs, type Save } from '../core/store.js';
+import type { IntimateRole, IntimateDrive } from '../core/world.js';
 import { relOf, idOf, ro, fr, isPartner, attracted, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
@@ -93,3 +95,44 @@ export function intimacyLine(g: Save, present: { avatar: string; name: string }[
     }
     return out.length ? `Intimacy: ${out.join('. ')}.` : '';
 }
+
+/* ---------- private moments, and what you've learned of each other (Tokyo's adult progression) ---------- */
+// Kept in the relationships store, so "Play as" moves it with the people (`swapIds`): per pair (`rel.close`, "a|b") the
+// time of their last private moment together and how many; per direction (`rel.knows`, "x>y") the likes and hard limits
+// x has learned of y, and whether x knows y's drive. Nothing is written until something happens, and nothing reads it
+// to change a number yet: sim/private.ts, sim/drive.ts and the rest call these.
+const pairKey = (a: string, b: string) => [a, b].sort().join('|');
+/** What someone has learned of a person in bed: likes and hard limits (words from their profile), and their drive. */
+export interface Known { likes: string[]; limits: string[]; drive: boolean }
+/** A private moment between a and b (you, by default) just happened (`at`: absolute minutes, default now). */
+export function noteIntimate(g: Save, a: string, b: string = YOU, at = nowAbs(g)) {
+    a = idOf(g, a); b = idOf(g, b);
+    if (!a || !b || a === b) return;
+    const c = (relOf(g).close ??= {}), k = pairKey(a, b);
+    const e = (c[k] ??= { last: at, n: 0 });
+    e.last = Math.max(e.last, at); e.n += 1;
+}
+/** When a and b (you) last had a private moment (absolute minutes), or undefined when never. */
+export const lastIntimate = (g: Save, a: string, b: string = YOU): number | undefined => relOf(g).close?.[pairKey(idOf(g, a), idOf(g, b))]?.last;
+/** How many private moments a and b (you) have had. */
+export const intimateCount = (g: Save, a: string, b: string = YOU): number => relOf(g).close?.[pairKey(idOf(g, a), idOf(g, b))]?.n ?? 0;
+/** What `by` (you) has learned of a (copies). */
+export function knownOf(g: Save, a: string, by: string = YOU): Known {
+    const k = relOf(g).knows?.[`${idOf(g, by)}>${idOf(g, a)}`];
+    return { likes: [...(k?.likes ?? [])], limits: [...(k?.limits ?? [])], drive: !!k?.drive };
+}
+/** `by` (you) learns one of a's likes or hard limits (`value`: its words, as in their profile), or a's drive. True when
+ *  it's new. */
+export function learn(g: Save, a: string, what: 'like' | 'limit' | 'drive', value = '', by: string = YOU): boolean {
+    a = idOf(g, a); by = idOf(g, by);
+    if (!a || !by || a === by || (what !== 'drive' && !value.trim())) return false;
+    const all = (relOf(g).knows ??= {}), k = `${by}>${a}`, e = (all[k] ??= {});
+    if (what === 'drive') { if (e.drive) return false; e.drive = true; return true; }
+    const list = (what === 'like' ? (e.likes ??= []) : (e.limits ??= []));
+    if (list.includes(value)) return false;
+    list.push(value);
+    return true;
+}
+/** Someone's role in bed and drive, from their intimate profile (a drive not set is average; a role not set is none). */
+export const roleOf = (g: Save, a: string): IntimateRole | undefined => relOf(g).people[idOf(g, a)]?.intimate?.role;
+export const driveOf = (g: Save, a: string): IntimateDrive => relOf(g).people[idOf(g, a)]?.intimate?.drive ?? 'average';
