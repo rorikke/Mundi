@@ -990,7 +990,7 @@ const roleOpts = (w, cur = []) => {
 // grammar doesn't read yet is left out (a regular at one place: `visited: <place> regular`).
 const MOMENT_NAMES = { meal: 'Cook a meal', workout: 'Work out', painting: 'Paint', shift: 'Work a shift', party: 'Throw a party', missed_shift: 'Miss a shift', missed_train: 'Miss the last train', date: 'Go on a date',
     overnight: 'Someone stays the night', night_away: 'A night away from home', crisis: 'A crisis (a need at zero)', collapse: 'Collapse from exhaustion', apprentice: 'Take an apprentice', lesson: 'Teach a lesson', taught: 'An apprentice finishes',
-    baby: 'Have a baby', business: 'Open a business', big_party: 'A party with eight guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00' };
+    baby: 'Have a baby', business: 'Open a business', big_party: 'A party with five guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00' };
 const PARTNER_NAMES = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married' };
 const realPlaces = (w) => w.places.filter(p => !p.link);
 // (an area named with a space can't be written in a condition)
@@ -1104,6 +1104,7 @@ function goalForm(w, i) {
         ${(w.starts ?? []).length ? `<div class="mu-field"><span>Starts it suits (suggested first to players who start so)</span>${pairChips((w.starts ?? []).map(s => [s.id, s.name]), `${p}.starts`)}</div>` : ''}
         ${needsBox(w, goal.needs, `${p}.needs`, 'A game with one of these off doesn\'t offer it')}
         ${chk('Adult (only with adult content on)', `${p}.adult`)}
+        ${cond('Offered while (empty: always)', `${p}.offer`, 'skill: not japanese 4', 'A goal already started stays.')}
         <h4>Steps</h4><p class="mu-muted">Done in order, each when all its objectives hold (or one of its other ways does). Three or four are best; one to six work. Counted objectives (did, attended) count only while the goal is the one followed; the rest count at once.</p>
         ${steps.map((st, k) => stepForm(w, p, k, st, steps.length)).join('')}
         ${steps.length < 6 ? `<button class="mu-ghost" data-act="cw-add" data-what="gstep" data-path="${esc(`${p}.steps`)}">${icon('plus')}<span>Add a step</span></button>` : ''}
@@ -1184,7 +1185,7 @@ function tidyGoals(w) {
         if (g.names && !Object.keys(g.names).length)
             delete g.names;
         for (const x of g.add ?? []) {
-            blank(x, ['icon', 'desc', 'starts', 'needs', 'adult']);
+            blank(x, ['icon', 'desc', 'starts', 'needs', 'adult', 'offer']);
             for (const st of x.steps ?? []) {
                 if (typeof st.when !== 'string')
                     st.when = '';

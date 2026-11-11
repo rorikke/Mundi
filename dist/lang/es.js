@@ -6763,5 +6763,16 @@ const DICT = {
     "Skip the current step of your goal": "Saltar el paso actual de tu meta",
     "Rent holiday: the next rent and bills a week later": "Vacaciones del alquiler: el próximo alquiler y las facturas, una semana después",
     "Double the finishing points of your goal": "Duplicar los puntos de finalización de tu meta",
+    "10 shifts": "10 turnos",
+    "30 shifts": "30 turnos",
+    "A party with five guests": "Una fiesta con cinco invitados",
+    "Parties with five guests": "Fiestas con cinco invitados",
+    "Respected for a season": "Respetado durante una estación",
+    "Offered while (empty: always)": "Ofrecida mientras (vacío: siempre)",
+    "A goal already started stays.": "Una meta ya empezada se queda.",
+    "To live together, move your partner into your household: This world → Households.": "Para vivir juntos, trae a tu pareja a tu hogar: Este mundo → Hogares.",
+    "10 shifts · 30 shifts · 60 shifts · A season without a missed shift": "10 turnos · 30 turnos · 60 turnos · Una estación sin perder un turno",
+    "Throw a party · Three parties · A party with five guests · A party everyone loved": "Dar una fiesta · Tres fiestas · Una fiesta con cinco invitados · Una fiesta que encantó a todos",
+    "Known in town · Respected · Respected for a season · Renowned": "Conocido en la ciudad · Respetado · Respetado durante una estación · Famoso",
 };
 export default DICT;

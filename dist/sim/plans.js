@@ -32,6 +32,7 @@ export const DATE_BOND = 50; // a date needs a good bond, a Spark match or being
 export const COME_BOND = 25; // "come over now"
 export const ALONG_BOND = 15; // "come with me"
 export const HOME_BOND = 50; // your home is for close people
+export const BIG_PARTY = 5; // guests who came to a party at home for it to count as a big one (life goals' Party host)
 const PLAN_LENGTH = 120, ALONG_LENGTH = 240, GRACE = 60; // they wait an hour before giving up
 const yes = { ok: true, why: '' };
 const matched = (g, avatar) => dating(g).matches.includes(avatar);
@@ -324,7 +325,7 @@ function judgeParties(g, appts, now) {
         const came = list.filter(a => a.state === 'met').length, missed = list.some(a => a.state === 'missed');
         for (const a of list)
             a.judged = true;
-        if (came >= 8)
+        if (came >= BIG_PARTY)
             tallyEvent(g, 'big_party');
         if (came >= 3 && !missed)
             tallyEvent(g, 'loved_party');
