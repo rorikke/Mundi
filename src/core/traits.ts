@@ -4,22 +4,30 @@
 // bottom. Life goals' perks use the same `EffectDef`, with bounds of their own in core/goals.ts.
 
 /** What an effect changes. `mul` kinds are percentages that multiply (+0.1 is +10%); `add` kinds are flat amounts that
- *  add (`roll`, `warm`, `morning`, `reroll`). `target` says which one: a need for `drain`, a skill for `learn`/`roll`,
- *  `friend`/`romance` for `gain`… A world's `traitInfo` may use the kinds the traits need (all but the last six); the rest are
- *  for life goals' perks. */
+ *  add (`roll`, `warm`, `morning`, `reroll`, `interview`). `target` says which one: a need for `drain`, a skill for
+ *  `learn`/`roll`, `friend`/`romance` for `gain`… An effect with no target (or `all`) counts everywhere its kind is asked.
+ *  A world's `traitInfo` may use the kinds the traits need (all but the last seven); the rest are for life goals' perks
+ *  and timed boosts. */
 export type EffectKind =
     | 'drain'    // how fast a need drops (target: a need id; a `when` of `period: night` for night only)
-    | 'learn'    // skill training (target: a skill id, `all`, or `upto:3`: only while the skill is below level 3)
-    | 'roll'     // a flat bonus on rolls (target: a skill id or an action tag; none: every roll)
+    | 'learn'    // skill training (target: a skill id, a group of skills such as `creative`, `all`, or `upto:3`: only while the skill is below level 3)
+    | 'roll'     // a flat bonus on rolls (target: a skill id or its group (`creative`), an action tag, `work` for a choice at work; none: every roll)
     | 'perf'     // performance gains at work
     | 'career'   // days a rank takes
     | 'warm'     // friendship points you start with someone you first meet (target: `new`; negative: a cooler first impression)
     | 'gain'     // friendship or romance gains toward you (target: `friend`, `romance`, `dates`, `gifts`, `good friends`)
-    | 'fade'     // how fast friendship or romance fades (target: `friend`, `romance`)
+    | 'fade'     // how fast romance toward you fades (target: `romance`; `partner`: only your partners')
     | 'morning'  // a flat mood change each morning (a `when` can limit it: out of work)
     | 'party'    // the mood a party gives
-    | 'study'    // what a study session is worth
-    | 'price' | 'pay' | 'travel' | 'rest' | 'reroll' | 'points';   // life goals' perks fill in the last six
+    | 'study'    // what a study session is worth (target: `class`, a course's class; `teach`, a lesson you give an apprentice)
+    // the rest: life goals' perks and timed boosts
+    | 'price'    // what things cost (target: `prices` for what places and actions charge, a place id or tag, a map id or area, `regular` where you're a regular; `rent`, `bills`)
+    | 'pay'      // what work pays (target: `wage`, `bonus` for the seasonal bonuses, `tips` for money from a choice at work; a job id, its place id or tag)
+    | 'travel'   // how long trips take
+    | 'rest'     // what a night, a bath or food gives back (target: `sleep`, `sleep home`, `sleep away`; `bath`; `food`; an action id or tag)
+    | 'reroll'   // failed rolls rolled again, this many a day
+    | 'points'   // life points (target: where they come from: `step`, `goal`, `festival`, `event`, `story`, `secret`, `thread`, `keepsake`; or `active`, `passive`)
+    | 'interview';   // a flat bonus on job interviews (target: a job id)
 
 export interface EffectDef {
     kind: EffectKind;
@@ -39,7 +47,7 @@ export const EFFECT_KINDS: Record<EffectKind, Kind> = {
     gain: { mode: 'mul', min: 0.5, max: 2 }, fade: { mode: 'mul', min: 0.3, max: 2 }, morning: { mode: 'add', min: -10, max: 10 },
     party: { mode: 'mul', min: 0.5, max: 2 }, study: { mode: 'mul', min: 0.5, max: 2 }, price: { mode: 'mul', min: 0.5, max: 1.5 },
     pay: { mode: 'mul', min: 0.75, max: 1.5 }, travel: { mode: 'mul', min: 0.5, max: 1.5 }, rest: { mode: 'mul', min: 0.5, max: 2 },
-    reroll: { mode: 'add', min: 0, max: 3 }, points: { mode: 'mul', min: 0.5, max: 2 },
+    reroll: { mode: 'add', min: 0, max: 3 }, points: { mode: 'mul', min: 0.5, max: 2 }, interview: { mode: 'add', min: -4, max: 6 },
 };
 export const isEffectKind = (k: unknown): k is EffectKind => typeof k === 'string' && Object.prototype.hasOwnProperty.call(EFFECT_KINDS, k);
 

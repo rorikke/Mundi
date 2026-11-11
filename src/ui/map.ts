@@ -24,7 +24,7 @@ import { journeyOf, travelRoad } from '../sim/journey.js';
 import type { Save } from '../core/store.js';
 import { thumb } from '../st/bridge.js';
 import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
-import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds } from '../sim/transit.js';
+import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
@@ -390,6 +390,7 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     // the same people) is one long scene, and closing it made them forget what was just said.
     if (!isScenario(w)) await endVisit(g, w);
     beforeTravel(g, w, loc).forEach(m => toast(m, 'info'));
+    if (late) tookLateTrip(g);
     const from = g.player.loc;
     const waited = late === 'wait' ? advance(g, w, untilFirstTrain(w, g.minutes)) : [];   // at the station until the first train
     if (fare) { g.player.money -= fare; book(g, 'Taxi', -fare); toast(`The taxi cost ${money(w, fare)}.`, 'info'); }

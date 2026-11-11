@@ -18,6 +18,7 @@ import { placeOf, homeAddress } from './places.js';
 import { regionState, regionOf } from './worldstate.js';
 import { addRep } from './standing.js';
 import { addBounty } from './crime.js';
+import { tallyEvent } from './tally.js';
 import { addGood, goodDef } from './economy.js';
 import { baseTax } from './realm.js';
 import { isRpg, sheetOf } from './rpg.js';
@@ -73,6 +74,7 @@ export function openBusiness(g: Save, w: WorldDef, kind: string, name: string): 
     const n = name.trim().slice(0, 40) || `${d.name} at ${placeOf(g, w, g.player.loc)?.name}`;
     h.biz.push({ id: `biz${g.day}_${h.biz.length}`, kind, place: g.player.loc, name: n, staff: 0, friends: [], till: 0, opened: g.day, week: 0 });
     note(g, '{u} opened a business: {0}.', [n], [], g.player.loc, 'work');
+    tallyEvent(g, 'business');
     return `${n} is open for business.`;
 }
 export const WAGE = 4;

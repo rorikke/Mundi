@@ -5,6 +5,7 @@ import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, Pet
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo } from './traits.js';
+import { upgradeGoals, upgradeRewards } from './goals.js';
 
 export interface ShopItem { id: string; name: string; desc: string; icon: string; price: number;
     /** trips take this share of the time (0.5 = half); the best vehicle you own counts */ travel?: number;
@@ -393,5 +394,10 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     // for the names the sheet offers; a world with none of it is left as it is
     const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => t.options ?? []));
     if (info) w.traitInfo = info;
+    // life goals and the rewards shop (core/goals.ts): a world's own made safe, perks and boosts inside their limits; the
+    // general ones stay in the engine (so a world gets their later changes), and a world without either gets no key
+    const goals = upgradeGoals(w.goals), rewards = upgradeRewards(w.rewards);
+    if (goals) w.goals = goals; else delete w.goals;
+    if (rewards) w.rewards = rewards; else delete w.rewards;
     return w;
 }

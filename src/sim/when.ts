@@ -7,8 +7,14 @@
 // file needs neither module: `knows` and `thread` (sim/threads.ts keeps `g.threads`), `seen` and `favor`
 // (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`); `course`
 // reads the courses finished (sim/courses.ts keeps `player.learning.done`).
+// Life goals' keys (their steps are conditions, and actions, jobs and stories can ask for a goal): states, true as soon
+// as they hold (`rank`, `money`, `home`, `partner`, `friends`, `visited`, `secrets`, `helped`, `goal`, `need`, `rep`),
+// and counts (`did`, `attended`) read from sim/tally.ts's lifetime counters, or from the asker's own counts
+// (`WhenCtx.count`: a goal counts only while it's active). `goal` reads `g.goals` (sim/goals.ts keeps it) and the old
+// aspirations finished (`player.aspDone`).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen } from '../core/world.js';
+import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
+import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
 import { period, isWeekend, seasonDays, SEASONS } from './time.js';
 import { weatherIs, regionOf, regionState } from './worldstate.js';
@@ -16,14 +22,19 @@ import { festivalsOn } from './festivals.js';
 import { eventsOn, liveEvents } from './cityevents.js';
 import { presentAt, routineAt, workingAt } from './people.js';
 import { visitsTo } from './daylife.js';
-import { levelOf } from './hobbies.js';
+import { levelOf, skillsOf } from './hobbies.js';
 import { fr, ro, statusOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
+import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
+import { careerOf } from './work.js';
+import { usualPay } from './needs.js';
+import { REP_WORDS } from './standing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
-    'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course'] as const;
+    'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
+    'rank', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -42,6 +53,28 @@ const ID = /^[^\s,;]+$/;
 const DAYS = /^(\d+)(?:\s*[-–]\s*(\d+))?$/;
 const CLOCK = /^(\d{1,2})(?::(\d{2}))?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?$/;
 const YES = ['yes', 'true'], NO = ['no', 'false'];
+// life goals' values (sim/tally.ts, core/goals.ts)
+const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;                            // cooking 3 · any 5 x3 · creative 5 x2
+const RANK = /^(\d+|top|middle|top-\d+)(?:\s+in\s+(\d+)\s+jobs?)?$/i;       // 2 · middle · top-1 · top · 2 in 3 jobs
+const MONEY = /^(\d+(?:\.\d+)?)(?:\s+(weeks?|months?|years?))?$|^fortune$/i;
+const FRIENDS = /^(\d+)\s+(\S+)(?:\s+(?:in\s+(\S+)|at\s+(regular)))?$/i;    // 3 good · 2 good in yokohama · 1 good at regular
+const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/;                      // meal 15 · tag:karaoke 3 · ramen_contest
+const VISITED = /^(?:(\d+)(?:\s+(regular)|\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;
+export const PARTNER_VALUES = ['any', 'none', 'home', 'casual', 'dating', 'engaged', 'married'];
+/** The money `money: 2 weeks` means: weeks of the world's usual pay (40 hours), or the old aspiration's fortune. */
+export function moneyAmount(w: WorldDef, v: string): number {
+    if (v.toLowerCase() === 'fortune') return usualPay(w) * 3125;
+    const m = v.match(MONEY); if (!m) return Infinity;
+    const n = Number(m[1]), u = (m[2] ?? '').toLowerCase().replace(/s$/, '');
+    return u === 'week' ? n * usualPay(w) * 40 : u === 'month' ? n * usualPay(w) * 40 * 52 / 12 : u === 'year' ? n * usualPay(w) * 40 * 52 : n;
+}
+/** The counter a counted value reads (`did: tag:karaoke 3` → `tag:karaoke`; an engine moment's name → `event:…`, any
+ *  other name → `action:…`; `attended` → `festival:…` or `cityevent:…`, `any` → both). */
+export function countKey(w: WorldDef | null | undefined, key: 'did' | 'attended', what: string): string {
+    if (key === 'attended') return what === 'any' ? 'attended:any' : w?.festivals?.some(f => f.id === what) ? `festival:${what}` : `cityevent:${what}`;
+    if (what.indexOf(':') > 0) return what;
+    return (TALLY_EVENTS as readonly string[]).includes(what) ? `event:${what}` : `action:${what}`;
+}
 
 /* ---------- reading the text ---------- */
 
@@ -58,7 +91,23 @@ function badValue(key: WhenKey, v: string): string {
         case 'seasonDays': return DAYS.test(v) ? '' : `"${v}" should be days like 3-6`;
         case 'regular': return /^\d+$/.test(v) && Number(v) >= 1 ? '' : `"${v}" should be a number of visits`;
         case 'perf': return /^\d+$/.test(v) && Number(v) <= 100 ? '' : `"${v}" should be a performance from 0 to 100`;
-        case 'skill': return /^\S+\s+\d+$/.test(v) ? '' : `"${v}" should be a skill and a level, like cooking 3`;
+        case 'skill': return SKILL.test(v) ? '' : `"${v}" should be a skill and a level, like cooking 3 (or any 5 x3: three skills at 5)`;
+        case 'rank': { const m = v.match(RANK); return m && (!m[2] || /^\d+$/.test(m[1])) ? '' : `"${v}" should be a rank (2, middle, top-1, top), or a rank in a number of jobs (2 in 3 jobs)`; }
+        case 'money': return MONEY.test(v) ? '' : `"${v}" should be an amount, a time of the usual pay (2 weeks, 6 months) or fortune`;
+        case 'home': return ID.test(v) ? '' : `"${v}" should be a kind of home, alone, better, top, season or a number of days`;
+        case 'partner': return PARTNER_VALUES.includes(v.toLowerCase()) ? '' : `"${v}" should be any, none, home, casual, dating, engaged or married`;
+        case 'friends': { const m = v.match(FRIENDS); return m && LEVELS.includes(m[2].toLowerCase()) ? '' : `"${v}" should be a number and a level, like 3 good (or 2 good in a map)`; }
+        case 'did': {
+            const m = v.match(COUNTED), p = m && m[1].includes(':') ? m[1].slice(0, m[1].indexOf(':')) : '';
+            return m && (!p || (TALLY_PREFIXES as readonly string[]).includes(p)) ? '' : `"${v}" should be an action, a tag:…, a moment (meal, party…) and how many times`;
+        }
+        case 'attended': return COUNTED.test(v) && !v.includes(':') ? '' : `"${v}" should be a festival or an event, and how many times`;
+        case 'visited': return VISITED.test(v) || ID.test(v) ? '' : `"${v}" should be a place, a number of places, all, map or maps`;
+        case 'secrets': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets`;
+        case 'helped': return ID.test(v) ? '' : `"${v}" should be a number of storylines, or a storyline's id`;
+        case 'goal': return /^[^\s,;]+(\s+\d+)?$/.test(v) ? '' : `"${v}" should be a goal, a goal and a step (idol 3), or a number of goals`;
+        case 'need': return /^\S+\s+\d+$/.test(v) ? '' : `"${v}" should be a need (or all) and a value, like mood 50`;
+        case 'rep': return /^-?\d+$/.test(v) || REP_WORDS.some(([, n]) => n === v.toLowerCase()) ? '' : `"${v}" should be a reputation (known, respected, renowned…) or a number`;
         case 'chance': { const p = chanceOf(v); return Number.isFinite(p) && p >= 0 && p <= 1 ? '' : `"${v}" should be between 0 and 1`; }
         case 'clock': return CLOCK.test(v) ? '' : `"${v}" should be hours like 19:00-20:00`;
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
@@ -71,7 +120,7 @@ function badValue(key: WhenKey, v: string): string {
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
-const tidy = (key: WhenKey, v: string) => (key === 'weekday' ? weekdayOf(v)! : ['weekend', 'daily'].includes(key) ? (YES.includes(v.toLowerCase()) ? 'yes' : 'no') : key === 'season' || key === 'companion' ? v.toLowerCase() : v);
+const tidy = (key: WhenKey, v: string) => (key === 'weekday' ? weekdayOf(v)! : ['weekend', 'daily'].includes(key) ? (YES.includes(v.toLowerCase()) ? 'yes' : 'no') : ['season', 'companion', 'partner', 'rep', 'rank', 'money'].includes(key) ? v.toLowerCase() : v);
 
 function parseText(text: string): ParsedWhen {
     // backticks from design tables; an outcome's own condition may be written `when: present: Kaito`
@@ -123,6 +172,18 @@ export function parseWhen(when: When | null | undefined): ParsedWhen {
     if (!p) { p = parseText(when); cache.set(when, p); }
     return p;
 }
+/** The world's people and threads a condition names (`feels`, `present`, `onShift`, `favor`; `knows`, `thread`,
+ *  `helped` with an id): a life goal's step that names any needs another way to be done (D-4), and isn't offered in a
+ *  game without them. */
+export function namedIn(when: When | null | undefined): { people: string[]; threads: string[] } {
+    const people: string[] = [], threads: string[] = [];
+    for (const c of parseWhen(when).conds) for (const v of c.values) {
+        if (c.key === 'feels') people.push(splitLevel(v)[0]);
+        else if (c.key === 'present' || c.key === 'onShift' || c.key === 'favor') people.push(v);
+        else if (c.key === 'knows' || c.key === 'thread' || (c.key === 'helped' && !/^\d+$/.test(v))) threads.push(v.split(/\s+/)[0]);
+    }
+    return { people, threads };
+}
 /** Why a condition can't be read ('' when it can): for the world creator and the world checks. */
 export const whenError = (when: When | null | undefined) => parseWhen(when).error ?? '';
 
@@ -131,10 +192,12 @@ export const whenError = (when: When | null | undefined) => parseWhen(when).erro
 /** Where and when a condition is asked about. `place`: default where the player is; `at`: absolute game minutes,
  *  default now. `key`: a salt of the asker's own for `chance` (each entry rolls its own dice, the same all day).
  *  `id`: what asks (an action), for `daily`. `day`: only what holds for the whole day (a rumor starting): the moment's
- *  and the place's keys are left out. `chance`: the chance when the condition gives none (world rumors: 0.25). */
-export interface WhenCtx { place?: string; at?: number; key?: string; id?: string; day?: boolean; chance?: number }
+ *  and the place's keys are left out. `chance`: the chance when the condition gives none (world rumors: 0.25).
+ *  `count`: what a counted key (`did`, `attended`) reads for a counter of sim/tally.ts (`event:meal`, `tag:karaoke`…;
+ *  `countKey()` makes the key): a life goal passes the counts it has made while active; missing: the lifetime count. */
+export interface WhenCtx { place?: string; at?: number; key?: string; id?: string; day?: boolean; chance?: number; count?: (key: string) => number }
 const MOMENT_KEYS = new Set<Cond['key']>(['period', 'clock', 'place', 'zone', 'region', 'present', 'onShift', 'companion', 'after', 'daily', 'regular']);
-interface Here { place: string; at: number; day: number; minutes: number; key: string; id?: string; whole: boolean; old: boolean; conds: Cond[] }
+interface Here { place: string; at: number; day: number; minutes: number; key: string; id?: string; whole: boolean; old: boolean; conds: Cond[]; count?: (key: string) => number }
 
 const warned = new Set<string>();
 /** Does the condition hold? None (or an empty one) always holds; one that can't be read never does. */
@@ -145,7 +208,7 @@ export function whenHolds(g: Save, w: WorldDef, when: When | null | undefined, c
         return false;
     }
     const at = ctx.at ?? nowAbs(g);
-    const x: Here = { place: ctx.place ?? g.player.loc, at, day: Math.floor(at / 1440), minutes: ((at % 1440) + 1440) % 1440, key: ctx.key ?? '', id: ctx.id, whole: !!ctx.day, old: !!p.old, conds: p.conds };
+    const x: Here = { place: ctx.place ?? g.player.loc, at, day: Math.floor(at / 1440), minutes: ((at % 1440) + 1440) % 1440, key: ctx.key ?? '', id: ctx.id, whole: !!ctx.day, old: !!p.old, conds: p.conds, count: ctx.count };
     let rolls = 0;
     for (const c of p.conds) {
         if (ctx.day && MOMENT_KEYS.has(c.key)) continue;
@@ -184,24 +247,30 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'seasonDays': return inDays(((Math.max(1, x.day) - 1) % seasonDays(g)) + 1, v);
         // a kind of weather, or the region's own (a view of Mt. Fuji: the same for every place that day, in the morning light)
         case 'weather': return weatherIs(g, w, x.place, x.day, v, x.whole ? undefined : x.minutes);
-        case 'festival': return festivalsOn(g, w, x.day).some(f => f.id === v);
-        // a city event going on now (or, for the whole day, on today and not called off)
-        case 'event': return x.whole ? eventsOn(g, w, x.day).some(e => e.ev.id === v && !e.off) : liveEvents(g, w, x.at).some(e => e.ev.id === v);
+        case 'festival': return festivalsOn(g, w, x.day).some(f => v === 'any' || f.id === v);
+        // a city event going on now (or, for the whole day, on today and not called off); `any`: whichever
+        case 'event': return x.whole ? eventsOn(g, w, x.day).some(e => (v === 'any' || e.ev.id === v) && !e.off) : liveEvents(g, w, x.at).some(e => v === 'any' || e.ev.id === v);
         case 'place': return x.place === v;
         case 'zone': return zoneOf(g, x.place) === v;
         case 'region': return regionOf(g, w, x.place) === v;
         case 'daily': return v === 'no' || (!!x.id && !doneToday(g, x.id, undefined, x.day));
         case 'regular': return (visitsTo(g, x.place)?.n ?? 0) >= Number(v);
-        case 'skill': { const [id, n] = v.split(/\s+/); return levelOf(g, id) >= Number(n); }
+        // a skill at a level; `any` or a group (`creative`) for whichever of them, `x3` for that many of them
+        case 'skill': {
+            const m = v.match(SKILL)!, id = m[1], n = Number(m[2]), many = Number(m[3] ?? 1);
+            if (id !== 'any' && !SKILL_GROUPS[id]) return many <= 1 && levelOf(g, id) >= n;
+            return skillIds(g, w, id).filter(s => levelOf(g, s) >= n).length >= many;
+        }
         case 'feels': { const [name, level] = splitLevel(v); const r = personNamed(g, name); return !!r && (level ? levelHolds(g, w, r.avatar, level) : !!r.met); }
         case 'present': { const r = personNamed(g, v); return !!r && isHere(g, w, r, x); }
         case 'onShift': { const r = personNamed(g, v); return !!r && atWork(g, w, r, x); }
         case 'after': return doneToday(g, v, x.place, x.day);
-        case 'job': { const j = g.player.job; return !!j && (v === 'here' ? w.occupations.find(o => o.id === j.id)?.place === x.place : j.id === v); }
+        case 'job': { const j = g.player.job; return !!j && (v === 'here' ? w.occupations.find(o => o.id === j.id)?.place === x.place : v === 'any' || j.id === v); }
         case 'start': return ((g.player as any).start ?? g.player.origin) === v;
         case 'clock': return inClock(x.minutes, v);
         case 'stayed': { const s = (g.player as any).stayed as { place: string; day: number } | undefined; return !!s && s.place === v && s.day === x.day; }
-        case 'holds': return Number((g.player as any).keepsakes?.[v] ?? 0) > 0;
+        // a keepsake you have; a number: that many different ones; `kind:<kind>` (`kind:any`): every keepsake of that kind
+        case 'holds': return /^\d+$/.test(v) ? heldIds(g).length >= Number(v) : v.startsWith('kind:') ? fullSet(g, w, v.slice(5)) : Number((g.player as any).keepsakes?.[v] ?? 0) > 0;
         // someone here has this keepsake from you (a gift)
         case 'gave': return Object.entries<string[]>((g as any).social?.given ?? {}).some(([a, ids]) => ids.includes(v) && !!g.cast[a] && isHere(g, w, g.cast[a], x));
         case 'companion': return companions(g).some(a => v === 'yes' || levelHolds(g, w, a, v));
@@ -214,6 +283,24 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'course': { if (!systemOn(w, 'courses')) return false; const done: string[] = (g.player as any).learning?.done ?? []; return /^\d+$/.test(v) ? done.length >= Number(v) : done.includes(v); }
         // the player's performance at their job, at least this (a rank that asks for a high performance)
         case 'perf': { const j = g.player.job as { perf?: number } | null; return !!j && Math.round(j.perf ?? 50) >= Number(v); }
+        // life goals (see the top of the file)
+        case 'rank': return rankHolds(g, w, v);
+        case 'money': return g.player.money >= moneyAmount(w, v);
+        case 'home': return homeHolds(g, w, v);
+        case 'partner': return partnerHolds(g, w, v);
+        case 'friends': return friendsHold(g, w, v);
+        case 'did': case 'attended': {
+            const m = v.match(COUNTED)!, k = countKey(w, key, m[1]);
+            return (x.count ? x.count(k) : tallyOf(g, k)) >= Number(m[2] ?? 1);
+        }
+        case 'visited': return visitedHolds(g, w, v);
+        case 'secrets': return Object.values<{ known?: number }>((g as any).threads ?? {}).filter(t => t?.known !== undefined).length >= Number(v);
+        case 'helped': return /^\d+$/.test(v) ? helpedThreads(g, w).length >= Number(v) : helpedThreads(g, w).includes(v);
+        case 'goal': return goalHolds(g, w, v);
+        case 'need': { const [id, n] = v.split(/\s+/); const on = activeStatuses(w, g).filter(s => !s.rpg); const val = (sid: string) => g.player.stats[sid] ?? on.find(s => s.id === sid)!.start;
+            return id === 'all' ? on.length > 0 && on.every(s => val(s.id) >= Number(n)) : on.some(s => s.id === id) && val(id) >= Number(n); }
+        case 'rep': { if (!systemOn(w, 'reputation')) return false; const min = /^-?\d+$/.test(v) ? Number(v) : REP_WORDS.find(([, n]) => n === v)![0];
+            return Object.values<{ v: number }>((g as any).rep ?? {}).some(r => r.v >= min); }
         // the old object form's own keys
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
@@ -225,6 +312,103 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
 }
 
 /* ---------- the pieces the keys read ---------- */
+
+// (life goals) The skills a `skill: any …` or `skill: creative …` looks at.
+const skillIds = (g: Save, w: WorldDef, id: string) => (id === 'any' ? skillsOf(w).map(s => s.id) : SKILL_GROUPS[id] ?? []);
+// Keepsakes you hold (different ids), and whether you hold every keepsake of a kind (`any`: of some kind).
+const heldIds = (g: Save) => Object.entries<number>((g.player as any).keepsakes ?? {}).filter(([, n]) => Number(n) > 0).map(([id]) => id);
+function fullSet(g: Save, w: WorldDef, kind: string): boolean {
+    const held = new Set(heldIds(g)), kinds = new Set((w.keepsakes ?? []).map(k => k.kind).filter((k): k is string => !!k));
+    const full = (k: string) => { const all = (w.keepsakes ?? []).filter(x => x.kind === k); return all.length > 0 && all.every(x => held.has(x.id)); };
+    return kind === 'any' ? [...kinds].some(full) : full(kind);
+}
+// Your rank in your job (1 is the first): at least a number, the middle, one (or N) below the top, the top; with
+// "in N jobs", the best rank reached in that many different jobs (sim/tally.ts).
+function rankHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'jobs')) return false;
+    const m = v.match(RANK)!, what = m[1];
+    if (m[2]) return Object.values(bestRanks(g)).filter(r => r >= Number(what)).length >= Number(m[2]);
+    const j = g.player.job, o = j && w.occupations.find(x => x.id === j.id);
+    if (!j || !o) return false;
+    const c = careerOf(g, o), total = c.open ? c.ranks.length + 1 : c.ranks.length;
+    const need = what === 'top' ? total : what === 'middle' ? Math.ceil(total / 2) : what.startsWith('top-') ? total - Number(what.slice(4)) : Number(what);
+    return j.rank + 1 >= Math.max(1, need);
+}
+// The world's best kinds of home: the two whose dearest area costs most (one in a world with two kinds or fewer).
+function topKinds(w: WorldDef): string[] {
+    const rent = (k: string) => Math.max(0, ...w.homes.zones.filter(z => z.kind === k).map(z => z.rent ?? 0));
+    const kinds = Object.keys(w.homes.kinds ?? {}).sort((a, b) => rent(b) - rent(a));
+    return kinds.slice(0, kinds.length > 2 ? 2 : 1);
+}
+// Your home: a kind, nobody living with you (`alone`), dearer than your first (`better`), one of the best kinds
+// (`top`), lived in a season or a number of days.
+function homeHolds(g: Save, w: WorldDef, v: string): boolean {
+    const h = g.player.home, t = tally(g).home;
+    if (!h) return false;
+    const rent = (zone: string) => w.homes.zones.find(z => z.id === zone)?.rent ?? 0;
+    switch (v.toLowerCase()) {
+        case 'alone': return !Object.values(g.cast).some(r => (r as any).homeWith === '__you');
+        case 'better': return !!t && rent(h.zone) > rent(t.first);
+        case 'top': return topKinds(w).includes(h.kind);
+        case 'season': return !!t && g.day - t.since >= seasonDays(g);
+        default: return /^\d+$/.test(v) ? !!t && g.day - t.since >= Number(v) : h.kind === v;
+    }
+}
+// Someone with you as a couple: anyone (`any`), nobody (`none`), one who lives with you (`home`), or that status.
+function partnerHolds(g: Save, w: WorldDef, v: string): boolean {
+    const on = systemOn(w, 'romance');
+    const list = on ? Object.keys(g.cast).filter(a => !!statusOf(g, a, YOU)) : [];
+    if (v === 'none') return !list.length;
+    if (v === 'any') return list.length > 0;
+    if (v === 'home') return list.some(a => (g.cast[a] as any).homeWith === '__you');
+    return list.some(a => statusOf(g, a, YOU) === v);
+}
+// How many of the people you know are at a level toward you (or closer), living on a map (or in an area), or working
+// at a place where you're a regular.
+function friendsHold(g: Save, w: WorldDef, v: string): boolean {
+    const m = v.match(FRIENDS)!, n = Number(m[1]), level = m[2].toLowerCase(), map = m[3], atRegular = !!m[4];
+    const onMap = (r: Resident) => {
+        const zone = (r as any).homeWith === '__you' ? g.player.home?.zone : r.home?.zone;
+        const id = w.homes.zones.find(z => z.id === zone)?.map;
+        return !!id && (id === map || w.maps.find(x => x.id === id)?.area === map);
+    };
+    const works = (r: Resident) => { const p = w.occupations.find(o => o.id === r.occupation)?.place; return !!p && isRegular(g, p); };
+    return Object.values(g.cast).filter(r => r.met && levelHolds(g, w, r.avatar, level) && (!map || onMap(r)) && (!atRegular || works(r))).length >= n;
+}
+// The places a `visited` counts: real places (not a pin to another map, not private, not adult).
+const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult);
+const onMapOf = (w: WorldDef, p: { map: string }, map: string) => p.map === map || w.maps.find(m => m.id === p.map)?.area === map;
+// Places you've been: one by id, a number of them, a number or all on a map, every place on some map (`map`), a
+// place on every map (`maps`), every place (`all`), a number where you're a regular.
+function visitedHolds(g: Save, w: WorldDef, v: string): boolean {
+    const m = v.match(VISITED);
+    if (!m) return beenTo(g, v);
+    const places = visitable(w), been = (id: string) => beenTo(g, id);
+    const s = v.toLowerCase();
+    if (m[1] && m[2]) return systemOn(w, 'living') && places.filter(p => isRegular(g, p.id)).length >= Number(m[1]);
+    if (m[1] && m[3]) return places.filter(p => onMapOf(w, p, m[3]) && been(p.id)).length >= Number(m[1]);
+    if (m[1]) return placesBeen(g).length >= Number(m[1]);
+    if (m[4]) { const on = places.filter(p => onMapOf(w, p, m[4])); return on.length > 0 && on.every(p => been(p.id)); }
+    const maps = [...new Set(places.map(p => p.map))];
+    if (s === 'map') return maps.some(id => places.filter(p => p.map === id).every(p => been(p.id)));
+    if (s === 'maps') return maps.length > 0 && maps.every(id => places.some(p => p.map === id && been(p.id)));
+    return places.length > 0 && places.every(p => been(p.id));   // all
+}
+// The world's threads (the people's storylines), and the ones you knew that ended well.
+const threadsOf = (w: WorldDef): Thread[] => w.cast.examples.flatMap(e => e.threads ?? []);
+function helpedThreads(g: Save, w: WorldDef): string[] {
+    return threadsOf(w).filter(t => { const s = threadState(g, t.id); return s?.known !== undefined && !!s.ended && !!t.endings?.find(e => e.id === s.ended)?.good; }).map(t => t.id);
+}
+// A life goal finished (its id; an old aspiration's too), one of its steps done (`idol 3`), or a number of goals
+// finished. sim/goals.ts keeps `g.goals.done` (ids) and `g.goals.steps` (steps done per goal).
+function goalHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'goals')) return false;
+    const st = (g as any).goals as { done?: string[]; steps?: Record<string, number> } | undefined;
+    const done = new Set([...(st?.done ?? []), ...(((g.player as any).aspDone ?? []) as string[]).map(id => FOLDED_GOALS[id] ?? id)]);
+    if (/^\d+$/.test(v)) return done.size >= Number(v);
+    const [raw, n] = v.split(/\s+/), id = FOLDED_GOALS[raw] ?? raw;
+    return done.has(id) || (n !== undefined && (st?.steps?.[id] ?? 0) >= Number(n));
+}
 
 // The home zone of a place: your home's, or the home of the person whose home it is (someone living with another
 // person is at that person's home); '' for a place that isn't a home.

@@ -17,6 +17,8 @@ import { extraActions, isBlocked, brokenThings, hasItem } from './life.js';
 import { whenHolds } from './when.js';
 import { withYou } from './social.js';
 import { guestAt, includedHere } from './stays.js';
+import { effectMul } from './effects.js';
+import { tallyEvent } from './tally.js';
 
 const clamp = (v: number, max: number) => Math.max(0, Math.min(max, Math.round(v)));
 export const statusDef = (w: WorldDef, id: string) => w.statuses.find(s => s.id === id);
@@ -67,6 +69,7 @@ export function applyTimedRules(g: Save, w: WorldDef): string[] {
         }
         if ((s.zero.place || s.zero.text) && g.tick[`zero:${s.id}`] === undefined) {
             g.tick[`zero:${s.id}`] = nowAbs(g);
+            if (s.id === 'energy') tallyEvent(g, 'collapse');   // passing out from exhaustion
             const cost = s.zero.cost ?? 0;
             if (cost) g.player.money = Math.max(0, g.player.money - cost);
             if (s.zero.place) g.player.loc = s.zero.place === 'home' ? playerHomeId : s.zero.place;
@@ -92,6 +95,7 @@ function crisisCheck(g: Save, w: WorldDef, s: StatusDef): string[] {
     const saw = presentAt(g, w, where).filter(r => r.met);
     if (c.shame && !saw.length) return [];   // a crisis about what people think (the smell) needs someone to see it
     g.tick[`crisisDone:${s.id}`] = start; g.tick[`crisisDay:${s.id}`] = g.day;
+    tallyEvent(g, 'crisis');
     const cost = priceOf(g, c.cost ?? 0);
     if (cost) { g.player.money = Math.max(0, g.player.money - cost); book(g, s.name, -cost); }
     if (c.restore) addStatus(g, w, s.id, c.restore);
@@ -160,8 +164,16 @@ export function canAfford(g: Save, a: ActionDef) { return g.player.money >= a.co
 export function applyAction(g: Save, w: WorldDef, a: ActionDef) {
     g.player.money -= a.cost;
     if (a.cost) book(g, a.name, -a.cost);
-    for (const [id, v] of Object.entries(a.effects)) addStatus(g, w, id, v);
+    for (const [id, v] of Object.entries(a.effects)) addStatus(g, w, id, v > 0 ? restGain(g, w, a, id, v) : v);
     for (const f of onAction) f(g, w, a);
+}
+/** What effects (life goals' perks, boosts) add to what an action gives back: food (its hunger and thirst), a bath (an
+ *  action tagged `bath`: all it gives); aimed at `food` or `bath`, the action, or its tags. The same with none. */
+export function restGain(g: Save, w: WorldDef, a: { id: string; tags?: string[] }, id: string, v: number): number {
+    const food = id === 'hunger' || id === 'thirst', bath = !food && (a.tags ?? []).includes('bath');
+    if (!food && !bath) return v;
+    const k = effectMul(g, w, 'rest', [food ? 'food' : 'bath', a.id, ...(a.tags ?? [])]);
+    return k === 1 ? v : Math.round(v * k);
 }
 
 // A short line for the AI about how the player feels (only what stands out).
