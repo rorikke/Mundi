@@ -1,13 +1,14 @@
 // A person's own ways, the same panel in every editor (the in-game People tab, the new game, the World creator, the
 // Library cast presets): gender, attraction, how fast their feelings grow, their intimacy and relationship styles, and
-// (E15, only with adult content on) their intimate profile.
+// (E15, only with adult content on) their role and drive in bed and their intimate profile. In game, `knownHtml` says
+// what you have learned of someone in bed.
 // Each editor registers a scope that reads and writes its own copy (the save, the new-game draft, the world's example
 // cast); the panel only knows the `Person` shape. "Suggest from the cards" asks the AI about people without a gender
 // and shows what it read until the player applies or dismisses it.
-import { esc, notify } from '../core/store.js';
-import type { GenderDef } from '../core/world.js';
+import { esc, notify, adultOn, type Save } from '../core/store.js';
+import { INTIMATE_ROLES, INTIMATE_DRIVES, systemOn, type WorldDef, type GenderDef, type IntimateRole, type IntimateDrive } from '../core/world.js';
 import type { Person, Pace } from '../sim/rel.js';
-import { PRESETS as INTIMACY, R_NAME, F_NAME, type RNeed, type FNeed } from '../sim/intimacy.js';
+import { PRESETS as INTIMACY, R_NAME, F_NAME, knownOf, intimateCount, roleOf, driveOf, type RNeed, type FNeed } from '../sim/intimacy.js';
 import { ACT, INPUT } from './reg.js';
 import { icon } from './icons.js';
 import { fullCharacter } from '../st/bridge.js';
@@ -93,6 +94,15 @@ const INTIMATE_LABEL: Record<string, [string, string]> = {
     body: ['Their body', 'how they look and feel to a partner'], inBed: ['In bed', 'how they are in bed, what they ask for, what comes after'],
     prefs: ['What they like (one per line)', 'slow and tender\nbeing asked what they want'], limits: ['Hard limits (one per line; always respected)', 'nothing without a clear yes'],
 };
+// (adult) Who leads in bed and how often they want it (the private roll and their drive read them). "Not set" is offered
+// only while it is: a world's own people get theirs back from the world when a game opens, so it can't be cleared.
+export const ROLE_NAME: Record<IntimateRole, string> = { lead: 'Leads', follow: 'Follows', switch: 'Switches' };
+export const DRIVE_NAME: Record<IntimateDrive, string> = { low: 'Low', average: 'Average', high: 'High' };
+function bedHtml(scope: string, id: string, p: Person | undefined): string {
+    const i = p?.intimate ?? {};
+    const sel = (k: 'role' | 'drive', label: string, names: Record<string, string>, unset: string) => `<label class="mu-field"><span>${label}</span><select data-input="pp-bed" data-f="${k}" ${data(scope, id)}>${i[k] ? '' : opt('', unset, true)}${Object.entries(names).map(([v, l]) => opt(v, l, i[k] === v)).join('')}</select></label>`;
+    return `<div class="mu-row2 mu-pp-bed">${sel('role', 'In bed', ROLE_NAME, 'Not set')}${sel('drive', 'Drive', DRIVE_NAME, 'Not set (average)')}</div>`;
+}
 const OPEN = new Set<string>();   // intimate profiles opened in the panel (scope|id)
 function intimateHtml(scope: string, id: string, p: Person | undefined): string {
     const i = p?.intimate ?? {}, open = OPEN.has(key(scope, id));
@@ -112,7 +122,23 @@ export function personPanel(scope: string, id: string, parts: Part[], opts: { yo
     return parts.map(part => part === 'gender' ? genderHtml(scope, id, p, gs)
         : part === 'attraction' ? attractionHtml(scope, id, p, gs, romance, !!opts.you)
         : part === 'pace' ? paceHtml(scope, id, p, romance)
-        : romance ? `${waysHtml(scope, id, p)}${s.adult?.() ? intimateHtml(scope, id, p) : ''}` : '').join('');
+        : romance ? `${waysHtml(scope, id, p)}${s.adult?.() ? `${bedHtml(scope, id, p)}${intimateHtml(scope, id, p)}` : ''}` : '').join('');
+}
+
+/* ---------- (adult) what you know of them, in game ---------- */
+
+// Their likes and hard limits you've learned, their drive once you know it, and who leads once you've been together:
+// nothing with adult content or romance off, and nothing at all until something is known.
+export function knownHtml(g: Save, w: WorldDef, a: string): string {
+    if (!adultOn(g) || !systemOn(w, 'romance')) return '';
+    const k = knownOf(g, a), role = intimateCount(g, a) > 0 ? roleOf(g, a) : undefined;
+    const rows = [
+        k.likes.length ? `<small><b>Likes:</b> <span data-notr>${esc(k.likes.join(', '))}</span></small>` : '',
+        k.limits.length ? `<small><b>Won't:</b> <span data-notr>${esc(k.limits.join(', '))}</span></small>` : '',
+        k.drive ? `<small><b>Drive:</b> ${esc(DRIVE_NAME[driveOf(g, a)])}</small>` : '',
+        role ? `<small><b>In bed:</b> ${esc(ROLE_NAME[role])}</small>` : '',
+    ].filter(Boolean);
+    return rows.length ? `<section class="mu-pp-known"><h5>${icon('heart')}<span>In bed</span></h5>${rows.join('')}</section>` : '';
 }
 
 /* ---------- suggestions from the cards ---------- */
@@ -128,6 +154,9 @@ function sugWords(p: Person | undefined, gs: GenderDef[]): string {
     if (p.att) { const yes = gs.filter(x => (p.att?.[x.id]?.r ?? 1) > 0); out.push(yes.length ? `attracted to: ${yes.map(x => x.name).join(', ')}` : 'attracted to no one'); }
     const preset = p.intimacy?.preset; if (preset && preset !== 'custom') out.push(INTIMACY[preset as keyof typeof INTIMACY]?.name ?? preset);
     if (p.intimacy?.casual === false) out.push('only with a partner');
+    if (p.intimate?.role) out.push(`in bed: ${ROLE_NAME[p.intimate.role].toLowerCase()}`);
+    if (p.intimate?.drive) out.push(`drive: ${DRIVE_NAME[p.intimate.drive].toLowerCase()}`);
+    const n = (p.intimate?.prefs?.length ?? 0) + (p.intimate?.limits?.length ?? 0); if (n) out.push(n === 1 ? '1 like or limit' : `${n} likes and limits`);
     return out.join(' · ');
 }
 // The button (for people with no gender yet) and the suggestions waiting for an answer.
@@ -178,7 +207,7 @@ Object.assign(ACT, {
                 const ch = await fullCharacter(c.avatar);
                 const card = [ch?.description, ch?.personality, ch?.scenario].filter(Boolean).join('\n').replace(/{{char}}/g, c.name);
                 let p: Person | undefined;
-                try { p = card.trim() ? await suggestFromCard(c.name, card, s.genders()) : undefined; } catch (e) { console.warn('[Mundi] suggest', e); }
+                try { p = card.trim() ? await suggestFromCard(c.name, card, s.genders(), !!s.adult?.()) : undefined; } catch (e) { console.warn('[Mundi] suggest', e); }
                 SUG.list[key(scope, c.id)] = { scope, id: c.id, name: c.name, p };
                 notify();
             }
@@ -202,6 +231,13 @@ function applySuggestion(scope: string, id: string, p: Person | undefined) {
     if (p.gender) cur.gender = p.gender;
     if (p.att) cur.att = structuredClone(p.att);
     if (p.intimacy) cur.intimacy = { ...(cur.intimacy ?? {}), ...p.intimacy };
+    // (adult) what the card says of their role, drive, likes and limits, only where they have none yet
+    if (p.intimate && s.adult?.()) {
+        const i: any = { ...(cur.intimate ?? {}) };
+        for (const k of ['role', 'drive'] as const) if (p.intimate[k] && !i[k]) i[k] = p.intimate[k];
+        for (const k of ['prefs', 'limits'] as const) if (p.intimate[k]?.length && !i[k]?.length) i[k] = [...p.intimate[k]!];
+        cur.intimate = i;
+    }
     s.set(id, tidyPerson(cur));
 }
 
@@ -214,6 +250,16 @@ Object.assign(INPUT, {
         if ((INTIMATE_LISTS as readonly string[]).includes(k)) i[k] = v.split(/\r?\n/); else i[k] = v;
         p.intimate = i;
         s.set(id, tidyPerson(p));
+    },
+    // (adult) role and drive: written as chosen (an Average drive too, so the world's pool doesn't fill it again)
+    'pp-bed': (el) => {
+        const v = (el as HTMLSelectElement).value, k = el.dataset.f as 'role' | 'drive';
+        edit(el, (p) => {
+            const i: any = { ...(p.intimate ?? {}) };
+            if (k === 'role' && (INTIMATE_ROLES as string[]).includes(v)) i.role = v;
+            if (k === 'drive' && (INTIMATE_DRIVES as string[]).includes(v)) i.drive = v;
+            p.intimate = i;
+        });
     },
     pp: (el) => {
         const v = (el as HTMLInputElement).value, k = el.dataset.k, m = el.dataset.m as 'f' | 'r';

@@ -17,9 +17,9 @@ import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, he
 import { PL } from './plans.js';
 import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
-import { relBar, relSubtitle, workWeekHtml, perfWord } from './relui.js';
+import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack } from './relui.js';
 import { note } from '../sim/facts.js';
-import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
+import { notify, esc, game, toast, saveGame, settings, saveSettings, adultOn } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, socialKind, messageKind, appsShown, systemOn, type WorldDef, type Occupation, isScenario } from '../core/world.js';
 import { upcoming } from '../sim/plans.js';
@@ -36,7 +36,8 @@ import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { jobDef, likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays } from '../sim/work.js';
+import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays } from '../sim/work.js';
+import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
 import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, LOOKING, type Post } from '../sim/feed.js';
@@ -46,6 +47,10 @@ import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, YOU } from '../sim/rel.js';
 import { crushOn, canAsk } from '../sim/romance.js';
+import { knownHtml } from './personui.js';
+import { groupOptions } from '../sim/traits.js';
+import { likesOf, sharedLikes } from '../sim/private.js';
+import { wordsIn } from '../sim/social.js';
 
 type App = 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
@@ -247,6 +252,7 @@ function personApp(g: Save, w: WorldDef) {
     const partner = isPartner(g, r.avatar);
     return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body">
         <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
+        ${knownHtml(g, w, r.avatar)}
         <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
         ${featureOn(w, 'plans') ? planForm(g, w, r.avatar) : ''}
         ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? '<button data-act="ph-partner">Ask to be together</button>' : ''}
@@ -277,13 +283,17 @@ function interviewHelp(g: Save, w: WorldDef, o: Occupation): string {
     return `${s ? `<small class="mu-good">Your ${esc(skillName(w, s.id))} (level ${s.level}) helps: +${s.bonus}</small>` : ''}${liked.length ? `<small class="mu-good">Your traits help: ${esc(liked.join(', '))}</small>` : ''}`;
 }
 function jobsApp(g: Save, w: WorldDef) {
-    const j = g.player.job; const mine = jobDef(w, j?.id);
+    const j = g.player.job; const mine = myJob(g, w);   // the job you hold, on your track
     const p = mine && j ? promoNeeds(g, w, mine) : null;
     const where = (o: Occupation) => (offScreen(w, o) ? 'off-screen' : placeOf(g, w, mine && o.id === mine.id ? jobPlace(g, o) : o.place)?.name ?? '');
     const sched = systemOn(w, 'jobs');
+    // (job tracks) the track you work it on, and the days still to wait before the first shift
+    const track = mine?.track !== undefined ? mine.trackName ?? trackName(w, mine, mine.track) : '';
+    const wait = j && (j as any).start > g.day ? (j as any).start - g.day : 0;
     return `${head(appName('jobs'), 'home')}<div class="mu-ph-body">
-        ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
+        ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
             <small>${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
+            ${wait ? `<small class="mu-good">Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.</small>` : ''}
             ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
             ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${p.missing.map(m => `<span>${esc(m)}</span>`).join(', ')}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
             ${branchPicker(g, w, mine)}
@@ -292,12 +302,15 @@ function jobsApp(g: Save, w: WorldDef) {
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
             ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
         <h4>${T('openings')}</h4>
-        ${openJobs(g, w).filter(o => o.id !== j?.id).map(o => `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o)} days a week` : ''}</small>
+        ${openJobs(g, w).filter(o => o.id !== j?.id).map(job => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
+            return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}</small>
+            ${picks.length > 1 ? `<small>${esc(picks.length === 2 ? 'Two tracks' : `${picks.length} tracks`)}: ${esc(picks.map(t => trackName(w, job, t)).join(' or '))} (you choose when hired)</small>` : o.track !== undefined && o.trackName ? `<small>Your track: ${esc(o.trackName)}</small>` : ''}
+            ${fee ? `<small>A fee of ${money(w, fee)} when you start</small>` : ''}${days ? `<small>First shift ${days} ${days === 1 ? 'day' : 'days'} after signing</small>` : ''}
             ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${((o as any).courses as string[]).some(id => isTaking(g, id)) ? 'You can start while you study for it' : T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
             ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ' · try again tomorrow' : ''}</small>`}</span>
-            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`).join('')}
+            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}
     </div>`;
 }
 
@@ -407,9 +420,18 @@ function postApp(g: Save) {
 function chips(list: string[], on: string[], act: string) {
     return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="${esc(act)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
 }
+// (adult, design 3d) The adult interest (Kink) shows on someone's card when their likes in bed mention what it covers, so
+// a match on it means something. It's only shown and highlighted here: the match chance counts the other interests.
+const KINK_WORDS = ['rope', 'tied', 'tied up', 'shibari', 'bondage', 'cuffs', 'restraints', 'spanking', 'spanked', 'paddle', 'flogger', 'orders', 'being led', 'pinned down', 'blindfold', 'edging', 'wax', 'collar'];
+const interestsOf = (g: Save, w: WorldDef): string[] => { const t = w.sheet.traits?.find(x => x.id === 'interests'); return t ? groupOptions(g, t) : []; };
+const kinkOf = (g: Save, w: WorldDef): string => (adultOn(g) ? interestsOf(g, w).find(o => /kink/i.test(o) && !(w.sheet.traits?.find(x => x.id === 'interests')?.options ?? []).includes(o)) ?? '' : '');
+function cardInterests(g: Save, w: WorldDef, a: string, own: string[]): string[] {
+    const k = kinkOf(g, w);
+    return k && !own.includes(k) && likesOf(g, a).some(l => wordsIn(g, KINK_WORDS, l)) ? [...own, k] : own;
+}
 function datingProfileApp(g: Save, w: WorldDef) {
     const d = dating(g);
-    const interests = w.sheet.traits?.find(t => t.id === 'interests')?.options ?? [];
+    const interests = interestsOf(g, w);
     return `${head(T('yourProfile'), d.profile.ready ? 'dating' : 'home')}<div class="mu-ph-body">
         <div class="mu-ph-profile"><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b><small>${g.player.traits ? '' : ''}</small></div>
         <label class="mu-field"><span>${T('profileAbout')}</span><textarea rows="3" data-input="sp-bio" data-focus="sp-bio" placeholder="A line or two about you">${esc(d.profile.bio)}</textarea></label>
@@ -434,12 +456,13 @@ function datingApp(g: Save, w: WorldDef) {
     const top = `<div class="mu-ph-head"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="home" aria-label="Back">${icon('back')}</button><b>${appName('dating')}</b>
         <span class="mu-row"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="matches" aria-label="${T('matches')}" title="${T('matches')}">${icon('chat')}</button><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="dprofile" aria-label="${T('yourProfile')}" title="${T('yourProfile')}">${icon('user')}</button></span></div>`;
     if (!r) return `${top}<p class="mu-muted mu-pad">${T('noCandidates')}</p>`;
-    const p = theirProfile(g, w, r);
-    const shared = p.interests.filter(i => d.profile.interests.includes(i));
+    const p = theirProfile(g, w, r), interests = cardInterests(g, w, r.avatar, p.interests);
+    const shared = interests.filter(i => d.profile.interests.includes(i)), both = sharedLikes(g, r.avatar).slice(0, 2);   // (adult) likes in bed you share
     return `${top}<div class="mu-sp-card"><img src="${esc(thumb(r.avatar))}" alt="">
             <div class="mu-sp-info"><h3 data-notr>${esc(r.name)}</h3><small>${esc(p.looking)}</small>
                 <p data-notr>${esc(p.bio)}</p>
-                <div class="mu-chips">${p.interests.map(i => `<span class="mu-chip ${shared.includes(i) ? 'is-on' : ''}">${esc(i)}</span>`).join('')}</div></div></div>
+                <div class="mu-chips">${interests.map(i => `<span class="mu-chip ${shared.includes(i) ? 'is-on' : ''}">${esc(i)}</span>`).join('')}</div>
+                ${both.length ? `<small class="mu-sp-both">${icon('flame')}<span>In bed, you both like:</span> <span data-notr>${esc(both.join(', '))}</span></small>` : ''}</div></div>
         <div class="mu-sp-btns"><button class="mu-sp-no" data-act="sp-swipe" data-who="${esc(r.avatar)}" data-like="0" aria-label="${T('pass')}" title="${T('pass')}">${icon('x')}</button>
             <button class="mu-sp-yes" data-act="sp-swipe" data-who="${esc(r.avatar)}" data-like="1" aria-label="${T('like')}" title="${T('like')}">${icon('heart')}</button></div>`;
 }
@@ -612,6 +635,7 @@ Object.assign(ACT, {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
         if (g.player.job) { toast('Quit your current job first.', 'info'); return; }
         const r = hire(g, w, el.dataset.id!);
+        if (r.pick) { askTrack(el.dataset.id!, r.pick); return; }   // (job tracks) pick yours first
         toast(r.text, r.ok ? 'success' : 'warn'); saveGame(); notify();
     },
     'ph-quit': () => { const g = game(); if (!g) return; quitJob(g, getWorld(g.world) ?? undefined); toast('You quit your job.', 'info'); saveGame(); notify(); },

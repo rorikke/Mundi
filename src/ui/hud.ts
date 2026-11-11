@@ -30,14 +30,15 @@ import { sceneAct } from '../sim/actions.js';
 import { sceneActRow } from './sceneact.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
 import { missingCourses } from '../sim/courses.js';
-import { traitsOf, jobDef, openJobs, offScreen, jobPlace } from '../sim/work.js';
+import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf } from '../sim/work.js';
+import { banHere } from '../sim/caught.js';
 import { presentAt } from '../sim/people.js';
 import { period, weekday, seasonOf, toNextPeriod } from '../sim/time.js';
 import { icon } from './icons.js';
 import { featureOn } from '../sim/creator.js';
 import { ACT } from './reg.js';
 import { houseBar } from './house.js';
-import { eventPanelHtml, stayOf } from './events.js';
+import { eventPanelHtml, moveCardHtml, stayOf } from './events.js';
 const stayHere = (g: Save) => { const s = stayOf(g); return !!s && s.where === g.player.loc && s.where !== 'home:player'; };
 import { customActionRow, customModalHtml } from './custom.js';
 import { doingHtml } from './doing.js';
@@ -59,13 +60,17 @@ import { factionActs } from './factionsui.js';
 import { holdingsActs } from './holdingsui.js';
 import { adventureActs } from './adventureui.js';
 import { rpgOf } from '../core/rpgdef.js';
+import { afterglow, DESIRE } from '../sim/drive.js';
 
 /* ---------- you ---------- */
 
 // Health and energy are bars; the other needs are round badges. A world can choose with `hudKind`.
 const isBar = (s: StatusDef) => ((s as any).hudKind ? (s as any).hudKind === 'bar' : ['life', 'health', 'energy'].includes(s.id));
-const NEED_ICON: Record<string, string> = { life: 'pulse', health: 'pulse', energy: 'bolt', hunger: 'utensils', thirst: 'drop', mood: 'happy', hygiene: 'sparkles' };
+const NEED_ICON: Record<string, string> = { life: 'pulse', health: 'pulse', energy: 'bolt', hunger: 'utensils', thirst: 'drop', mood: 'happy', hygiene: 'sparkles', desire: 'flame' };
 const needIcon = (s: StatusDef) => (NEED_ICON[s.id] ? icon(NEED_ICON[s.id]) : `<i>${esc(s.icon)}</i>`);
+
+// (adult) Desire at 70 or more: the afterglow (mood drains more slowly), shown on its ring.
+const glowOn = (g: Save, w: WorldDef, s: StatusDef) => s.id === DESIRE && afterglow(g, w) > 0;
 
 function personaCard(g: Save, w: WorldDef) {
     const img = personaThumb();
@@ -86,7 +91,7 @@ function personaCard(g: Save, w: WorldDef) {
             <div class="mh-who"><b>${esc(personaName())}</b>${levelChip()}${isScenario(w) ? '' : `<span class="mu-cash">${esc(money(w, g.player.money))}</span>`}</div>
             ${shown.filter(isBar).map(s => `<div class="mh-bar ${v(s) <= 20 ? 'is-low' : ''}" data-stat="${esc(s.id)}" data-word="${esc(sh && (s.id === 'life' || s.id === 'health') ? `${sh.hp}/${hpMax(w, sh)} HP` : needWord(s, v(s)))}" style="--c:${esc(s.color)};--v:${v(s)}">
                 <span class="mh-bar-ic">${needIcon(s)}</span><span class="mh-bar-name">${esc(s.name)}</span><span class="mh-bar-track"><i></i></span></div>`).join('')}${focusBar}
-            <div class="mh-rings">${shown.filter(s => !isBar(s)).map(s => `<div class="mh-ring ${v(s) <= 20 ? 'is-low' : ''}" data-stat="${esc(s.id)}" data-word="${esc(`${s.name}: ${needWord(s, v(s))}`)}" aria-label="${esc(s.name)}" style="--c:${esc(s.color)};--v:${v(s)}">
+            <div class="mh-rings">${shown.filter(s => !isBar(s)).map(s => `<div class="mh-ring ${v(s) <= 20 ? 'is-low' : ''} ${glowOn(g, w, s) ? 'is-glow' : ''}" data-stat="${esc(s.id)}" data-word="${esc(`${s.name}: ${needWord(s, v(s))}${glowOn(g, w, s) ? ' · Afterglow' : ''}`)}" aria-label="${esc(s.name)}" style="--c:${esc(s.color)};--v:${v(s)}">
                 <span class="mh-ring-ic">${needIcon(s)}</span><small>${esc(s.name)}</small></div>`).join('')}</div>
         </div></aside>`;
 }
@@ -140,7 +145,7 @@ let lookOpen = false;
 function corner(g: Save, w: WorldDef) {
     return `<div class="mh-corner">
         <button class="mh-menu mh-glass ${menuOpen ? 'is-on' : ''}" data-act="hud-menu" title="Menu">${icon('menu')}</button>
-        ${g.player.job && featureOn(w, 'jobs') && jobDef(w, g.player.job.id) && !offScreen(w, jobDef(w, g.player.job.id)) && g.player.loc !== jobPlace(g, jobDef(w, g.player.job.id)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
+        ${g.player.job && featureOn(w, 'jobs') && myJob(g, w) && !offScreen(w, myJob(g, w)) && g.player.loc !== jobPlace(g, myJob(g, w)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
         ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-move" title="Go on to another place">${icon('map')}<span>Go somewhere else</span></button><button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>${isScenario(w) && exitRoom(g, w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
         ${menuOpen ? `<nav class="mh-menu-pop mh-glass">
             <button data-act="open-world">${icon('globe')}<span>${isScenario(w) ? 'This Home' : 'This world'}</span></button>
@@ -190,9 +195,11 @@ function actsColumn(g: Save, w: WorldDef) {
     const acts = actionsHere(g, w).filter(a => a.id !== going);
     const mates = acts.some(a => a.together) ? withYou(g, w) : [];
     const jobsOn = featureOn(w, 'jobs');
-    const jobs = jobsOn && !g.player.job && !offScreenWork(w) ? openJobs(g, w).filter(o => o.place === g.player.loc) : [];   // a scenario: apply on the phone
+    const jobs = jobsOn && !g.player.job && !offScreenWork(w) ? openJobs(g, w).filter(o => o.place === g.player.loc).map(o => trackOf(g, o)) : [];   // a scenario: apply on the phone; on your track
     const atHome = g.player.loc === playerHomeId;
+    const ban = banHere(g);   // (adult) caught here: what's private, risky or paid for is left out, and this says why
     const rows = [
+        ...(ban ? [`<div class="mh-act mh-glass is-warn mh-ban" role="note"><i>${icon('lock')}</i><b>${esc(ban.text)}</b><small>${esc(ban.days === 1 ? '1 more day' : `${ban.days} more days`)}</small></div>`] : []),
         sceneActRow(g, w),
         ...apptActions(g, w),
         lifeActs(g, w),
@@ -282,11 +289,12 @@ function phoneButton(w: WorldDef) {
         <i style="--c:#9be7c4">${icon('wallet')}</i><i style="--c:#ffc58a">${icon('calendar')}</i><i style="--c:#ffd36e">${icon('briefcase')}</i></span>${n ? `<em>${n}</em>` : ''}</button>`;
 }
 
+// (adult) Someone making the move: their card stands in for the event's panel until you answer.
 export function hudHtml() {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w) return '';
     // Home: no card of your own (no money, no needs); your persona is in the menu, as in a chat
-    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}`;
+    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}`;
 }
 
 Object.assign(ACT, {

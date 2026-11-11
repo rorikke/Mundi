@@ -1,0 +1,34 @@
+/* Tokyo's adult progression on screen (only drawn with adult content on): Desire's afterglow on its ring, a place that
+   won't serve you, what you know of someone in bed, your own likes, someone making the move, the track you pick. */
+
+/* Desire at 70 or more: its ring glows softly */
+#mundi-root .mh-ring.is-glow .mh-ring-ic { animation: mu-glow 2.6s ease-in-out infinite; }
+@keyframes mu-glow { 50% { box-shadow: 0 0 14px 2px var(--c); } }
+
+/* caught at this place: the reason, above the things to do (not a button) and on the map's card */
+#mundi-root .mh-act.mh-ban { cursor: default; }
+#mundi-root .mu-ban { display: flex; align-items: center; gap: 6px; color: #ffb3a8; }
+#mundi-root .mu-ban .mu-ic { width: 14px; height: 14px; flex: none; }
+
+/* the person's card: what you know of them in bed */
+#mundi-root .mu-pp-known { display: grid; gap: 3px; margin: 8px 0; padding: 10px 12px; border-radius: 14px; background: rgba(255, 122, 176, .08); border: 1px solid rgba(255, 122, 176, .22); }
+#mundi-root .mu-pp-known h5 { display: flex; align-items: center; gap: 6px; margin: 0 0 2px; font-size: 13px; }
+#mundi-root .mu-pp-known h5 .mu-ic { width: 14px; height: 14px; color: #ff7ab0; }
+#mundi-root .mu-pp-known small b { font-weight: 700; }
+
+/* your profile: your own likes */
+#mundi-root .mu-pf-likes textarea { width: 100%; resize: vertical; }
+
+/* the Rewards tab: a rumor about getting caught also lifts that ban */
+#mundi-root .mu-rw-ban { display: block; opacity: .8; font-size: 11px; }
+
+/* the dating card: likes in bed you share */
+#mundi-root .mu-sp-both { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; }
+#mundi-root .mu-sp-both .mu-ic { width: 14px; height: 14px; color: #ff7ab0; }
+
+/* someone making the move: the event panel's place, a warmer edge */
+#mundi-root .mh-event.mh-move { border: 1px solid rgba(255, 122, 176, .45); }
+#mundi-root .mh-move .mh-event-btns { grid-template-columns: 1fr 1fr; }
+
+/* the track pick: one choice per row */
+#mundi-root .mu-trackpick .mu-work-modes { grid-template-columns: 1fr; }
