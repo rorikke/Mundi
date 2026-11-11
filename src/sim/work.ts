@@ -38,6 +38,7 @@ import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
 import { trackOf, playerTrack, layTrack, trackName, type TrackedJob } from './tracks.js';
+import { workRisk } from './caught.js';   // (adult) a choice with a risk of a raid
 export { ledger, book } from './ledger.js';
 export { trackOf, jobTrack, playerTrack, layTrack, needsPick, tracksOf, trackName, type TrackedJob } from './tracks.js';
 export { scheduleOf } from '../core/presets.js';
@@ -51,7 +52,7 @@ export { scheduleOf } from '../core/presets.js';
  *  choice. */
 export interface JobState {
     id: string; rank: number; shifts: number; path?: string[]; referral?: string;
-    perf?: number; since?: number; shift?: string; worked?: number[]; off?: Record<string, 'vacation' | 'sick'>;
+    perf?: number; since?: number; shift?: string; worked?: number[]; off?: Record<string, 'vacation' | 'sick' | 'closed'>;
     vac?: number; vacAt?: number; sickAt?: number; checked?: number; missed?: number; warn?: number; told?: number; bonus?: number; extraDay?: number; toldBranch?: number;
     event?: { id: string; day: number; /** the colleague it comes from (WorkEvent.from): an avatar, '' for the unnamed one */ who?: string };
     /** (E10) after-work drinks you were asked to (see Drinks) */
@@ -731,7 +732,7 @@ export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random):
         out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
         if (!ok) res = c.fail ?? { text: 'It did not work out.' };
     }
-    out.push(...applyResult(g, w, o, res, workRules(g, w).gentle, p.ev.id));
+    out.push(...applyResult(g, w, o, res, workRules(g, w).gentle, p.ev.id, rnd));
     out.push(...choicePractice(g, w, c.roll?.skill, ok, res.trains));
     if (p.ev.id !== OVERTIME_ASK.id) (j.seen ??= {})[p.ev.id] = ok === null ? { choice: i } : { choice: i, ok };
     if (p.ev.id === OVERTIME_ASK.id && i === 0) out.push(...overtimeHours(g, w, o, 2));
@@ -746,7 +747,7 @@ export function choicePractice(g: Save, w: WorldDef, rolled: string | undefined,
     if (trains) out.push(...trainSkill(g, w, trains, CHOICE_PRACTICE.trains));
     return out;
 }
-function applyResult(g: Save, w: WorldDef, o: Occupation, r: WorkResult, gentle: boolean, from = ''): string[] {
+function applyResult(g: Save, w: WorldDef, o: Occupation, r: WorkResult, gentle: boolean, from = '', rnd = Math.random): string[] {
     const out: string[] = [];
     const ok = (n: number | undefined) => (n === undefined ? 0 : gentle ? Math.max(0, n) : n);
     if (r.text) out.push(r.text);
@@ -759,6 +760,7 @@ function applyResult(g: Save, w: WorldDef, o: Occupation, r: WorkResult, gentle:
     // a timed effect (a ranking's better pay for a week), kept as a boost
     const fx = r.boost ? cleanEffects(r.boost.effects, BOOST_LIMITS).filter(e => !gentle || e.value >= 0) : [];
     if (fx.length) addBoost(g, `work:${o.id}:${from}`, fx, r.boost!.days);
+    if (r.risk && !gentle) out.push(...workRisk(g, w, o, r, rnd));   // (adult) caught: a raid
     return out;
 }
 // Staying longer: the hours pass, paid as overtime.
