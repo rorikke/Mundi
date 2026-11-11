@@ -6,7 +6,7 @@
 // the pickers an item needs (a person, the Nudge's meter, Insight's question, a trait, a rumor). The engine owns every
 // number (sim/goals.ts, sim/points.ts, sim/rewards.ts); this file only draws and calls. With the `goals` system off
 // there is nothing here, no badge and nothing on the profile.
-import { esc, game, toast, notify, saveGame, type Save } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, SAVE, type Save } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type GoalDef, type GoalStep } from '../core/world.js';
 import { GOAL_CATEGORIES, GOAL_POINTS, isOwnGoal } from '../core/goals.js';
 import { goalsState, offeredGoals, activeGoal, canPick, pickGoal, goalProgress, stepProgress, suggestedGoals, perksOf, needsPick, type Objective } from '../sim/goals.js';
@@ -29,6 +29,8 @@ export const GS = {
     said: [] as string[],
 };
 const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', habit: '', rumor: '' });
+// What the app shows belongs to one game: a game opened starts again on the Goals tab, with nothing open or picked.
+SAVE.hooks.push(() => { Object.assign(GS, { tab: 'goals', open: [], detail: '' }); clearPick(); });
 
 /** The Goals app's badge (D-7): no goal followed and one to pick. Never with the `goals` system off. */
 export const goalsBadge = (g: Save, w: WorldDef): boolean => systemOn(w, 'goals') && needsPick(g, w);
@@ -194,11 +196,13 @@ function activeHtml(g: Save, w: WorldDef): string {
         <small>Step ${n(i + 1)} of ${n(p.total)}: <b>${esc(st.name)}</b></small>
         ${waysHtml(g, w, goal, i)}</section>`;
 }
+// The small mark a world's own goal carries in a list (Suggested and the categories).
+const ownMark = (w: WorldDef, goal: GoalDef) => (isOwnGoal(goal.id) ? ` <span class="mu-gl-own" title="${esc(`${w.name}'s own`)}">✦</span>` : '');
 function suggestedHtml(g: Save, w: WorldDef): string {
     const list = suggestedGoals(g, w, 3);
     if (!list.length) return '';
     return `<section class="mu-gl-suggest"><h4>Suggested</h4>${list.map(x => `<div class="mu-gl-sug">
-        <button class="mu-gl-row" data-act="gl-open" data-id="${esc(x.id)}"><i>${esc(x.icon ?? '⭐')}</i><b>${esc(x.name)}</b><small>${esc(perkLine(x))}</small></button>
+        <button class="mu-gl-row" data-act="gl-open" data-id="${esc(x.id)}"><i>${esc(x.icon ?? '⭐')}</i><b>${esc(x.name)}${ownMark(w, x)}</b><small>${esc(perkLine(x))}</small></button>
         <button class="mu-primary" data-act="gl-pick" data-id="${esc(x.id)}">Pick</button></div>`).join('')}</section>`;
 }
 // Categories: the nine in their order, then any new one a world's own goals use (its own group).
@@ -210,7 +214,7 @@ function rowHtml(g: Save, w: WorldDef, goal: GoalDef): string {
     const p = goalProgress(g, w, goal.id);
     const state = p.finished ? '<em class="mu-gl-check" aria-label="Finished">✓</em>' : p.active ? '<em class="mu-gl-now">Now</em>' : p.done ? `<em class="mu-gl-step">${n(p.done)}/${n(p.total)}</em>` : '';
     return `<button class="mu-gl-row ${p.active ? 'is-on' : ''} ${p.finished ? 'is-done' : ''}" data-act="gl-open" data-id="${esc(goal.id)}"><i>${esc(goal.icon ?? '⭐')}</i>
-        <b>${esc(goal.name)}${isOwnGoal(goal.id) ? ` <span class="mu-gl-own" title="${esc(`${w.name}'s own`)}">✦</span>` : ''}</b><small>${esc(perkLine(goal))}</small>${state}</button>`;
+        <b>${esc(goal.name)}${ownMark(w, goal)}</b><small>${esc(perkLine(goal))}</small>${state}</button>`;
 }
 function allGoalsHtml(g: Save, w: WorldDef): string {
     const goals = offeredGoals(g, w), s = goalsState(g);

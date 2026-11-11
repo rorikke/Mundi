@@ -8,7 +8,7 @@
 // Points are the ledger's (sim/points.ts listens to `onGoalStep`); the screens are ui/'s. Everything belongs to the
 // `goals` system: with it off nothing moves. Old saves: the old aspiration and the ones finished (`player.aspiration`,
 // `player.aspDone`) are read once into this state and left where they are.
-import { nowAbs, adultOk, type Save } from '../core/store.js';
+import { nowAbs, adultOk, adultOn, type Save } from '../core/store.js';
 import { systemOn, activeStatuses, getWorld, type WorldDef, type GoalDef, type GoalStep, type When } from '../core/world.js';
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
 import type { EffectDef } from '../core/traits.js';
@@ -114,10 +114,19 @@ function pause(g: Save, s: GoalsState) {
 /* ---------- what a game offers ---------- */
 
 // Threads in this game whose people are all in it (the owner and everyone their conditions name), with the living world on.
+// What a game offers is asked every game hour and at every redraw of the phone (the badge), and finding each person a
+// storyline's conditions name is the slow part, so the answer is kept until something it depends on changes: the day,
+// the living world, adult content, or who is in the game, by which name, and who has left the maps.
+const keptThreads = new WeakMap<Save, { w: WorldDef; key: string; list: ReturnType<typeof threadsOf> }>();
 function threadsHere(g: Save, w: WorldDef) {
     if (!systemOn(w, 'living')) return [];
-    return threadsOf(g, w).filter(({ t, r }) => !(r as any).gone && [t.reveal, ...t.stages.map(x => x.when), ...(t.endings ?? []).map(x => x.when)]
+    const key = `${g.day}|${adultOn(g)}|${Object.values(g.cast).map(r => `${r.avatar}:${r.name}:${(r as any).gone ? 1 : 0}`).join(',')}`;
+    const k = keptThreads.get(g);
+    if (k && k.w === w && k.key === key) return k.list;
+    const list = threadsOf(g, w).filter(({ t, r }) => !(r as any).gone && [t.reveal, ...t.stages.map(x => x.when), ...(t.endings ?? []).map(x => x.when)]
         .every(c => namedIn(c).people.every(n => { const p = personNamed(g, n); return !!p && !(p as any).gone; })));
+    keptThreads.set(g, { w, key, list });
+    return list;
 }
 const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;
 const VISITED_N = /^(\d+)(\s+regular)?(?:\s+in\s+(\S+))?$/i;
@@ -127,7 +136,7 @@ const countable = (w: WorldDef, map?: string) => w.places.filter(p => !p.link &&
 const reachable = (g: Save, w: WorldDef, id: string) => { const p = w.places.find(x => x.id === id); return !!p && !p.link && !p.private && placeOk(g, w, id); };
 // Could this value of a condition ever hold in this game? (A course count beyond the world's courses, a skill it lacks,
 // a need off in this game, more keepsakes or places than it has, a place it doesn't have or can't reach, regulars with
-// the living world off, more secrets than its threads can give.)
+// the living world off, more secrets than its threads can give, a better home than a first one in the dearest area.)
 function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<string>): boolean {
     switch (key) {
         case 'course': return /^\d+$/.test(v) ? offeredOf(w, g).length >= Number(v) : offeredOf(w, g).some(c => c.id === v);
@@ -159,6 +168,13 @@ function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<strin
             return !/^\d+$/.test(v) || (systemOn(w, 'romance') && Object.keys(g.cast).length >= Number(v));
         }
         case 'did': { const c = countedOf('did', v); return !c || !['risky', 'caught'].includes(c.what) || (w.actions ?? []).some(a => (a.risk ?? 0) > 0); }
+        // a better home than your first: not when the first was already in the dearest area (Porto Alto's heir)
+        case 'home': {
+            if (v.toLowerCase() !== 'better') return true;
+            const rent = (zone: string | undefined) => w.homes.zones.find(z => z.id === zone)?.rent ?? 0;
+            const first = tally(g).home?.first ?? g.player.home?.zone;
+            return w.homes.zones.some(z => (z.rent ?? 0) > rent(first));
+        }
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {
             const good = threadsHere(g, w).filter(({ t }) => (t.endings ?? []).some(e => e.good));
