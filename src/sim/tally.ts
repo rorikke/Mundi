@@ -7,7 +7,7 @@
 // engine's own moments: TALLY_EVENTS), `people:<name>` (that moment with someone for the first time: dates with three
 // people), `with:<id>` and `with:any` (an action done with someone), `roll:<skill>` and `win:<action id>` (rolls that
 // went well), `festival:<id>`, `cityevent:<id>` and `attended:any` (festivals celebrated and city events gone to).
-import type { Save } from '../core/store.js';
+import { nowAbs, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { onAction, onHour, onLook } from './hooks.js';
 
@@ -22,9 +22,15 @@ import { onAction, onHour, onLook } from './hooks.js';
  *  least): sim/plans.ts; `night_together` (a night someone stays with you, or you with them, that's more than a
  *  sleepover: a partner, or someone ready to get intimate with you): sim/plans.ts; `trip` (a day out in another area than
  *  your home's, with whoever is with you: once a day each) and `late_night` (still up at 1:00): here.
+ *  Adult content's moments (Tokyo's adult progression; named here, counted by the sessions that make them happen):
+ *  `intimate` (a private moment with someone: a private action, or one the scene verdict saw), `learned` (a like or a
+ *  limit of someone's learned), `threesome` (a private moment with two people), `gift_loved` (a gift someone loved):
+ *  sim/private.ts and sim/social.ts; `jealous` (a partner jealous of a new partner of yours): sim/romance.ts; `risky` (a
+ *  risky moment not caught) and `caught`: sim/caught.ts.
  *  A moment with someone is also counted for that person (`event:<name>|<avatar>`: `did: overnight with best`). */
 export const TALLY_EVENTS = ['meal', 'workout', 'painting', 'shift', 'party', 'missed_shift', 'missed_train', 'date', 'overnight', 'night_away', 'crisis', 'collapse', 'apprentice', 'lesson', 'taught', 'baby', 'business',
-    'big_party', 'loved_party', 'night_together', 'trip', 'late_night'] as const;
+    'big_party', 'loved_party', 'night_together', 'trip', 'late_night',
+    'intimate', 'learned', 'risky', 'caught', 'threesome', 'jealous', 'gift_loved'] as const;
 export type TallyEvent = typeof TALLY_EVENTS[number];
 /** The prefixes a counted key can have in a condition (`did: tag:karaoke 3`); with none it's an event name or an action id. */
 export const TALLY_PREFIXES = ['tag', 'roll', 'win', 'with', 'people'] as const;
@@ -32,8 +38,9 @@ export const TALLY_PREFIXES = ['tag', 'roll', 'win', 'with', 'people'] as const;
 /** `count`: the counters (see the top of the file). `visited`: places you've been to (place id → the day you first
  *  were). `best`: the highest rank you reached in each job (1 is the first rank). `home`: where you live now and since
  *  when (a day), and the zone of the first home seen (`home: better`). `met`: who you've had each moment with once.
- *  `trip`: today's day out (the day, and who it was counted with). */
-export interface Tally { count: Record<string, number>; visited: Record<string, number>; best: Record<string, number>; home?: { at: string; since: number; first: string }; met: Record<string, string[]>; trip?: { day: number; with: string[] } }
+ *  `trip`: today's day out (the day, and who it was counted with). `together`: when the last night together was counted
+ *  (absolute minutes: a night's rest after it is `rest` `sleep together`). */
+export interface Tally { count: Record<string, number>; visited: Record<string, number>; best: Record<string, number>; home?: { at: string; since: number; first: string }; met: Record<string, string[]>; trip?: { day: number; with: string[] }; together?: number }
 export function tally(g: Save): Tally {
     const t = ((g as any).tally ??= {}) as Tally;
     t.count ??= {}; t.visited ??= {}; t.best ??= {}; t.met ??= {};
@@ -47,7 +54,10 @@ const add = (g: Save, key: string, n = 1) => { const c = tally(g).count; c[key] 
 export function tallyEvent(g: Save, name: TallyEvent, n = 1, who?: string) {
     add(g, `event:${name}`, n);
     if (who) tallyWith(g, name, who, n);
+    if (name === 'night_together') tally(g).together = nowAbs(g);
 }
+/** Was the night just slept a night together (one counted in the last 16 hours)? */
+export const nightTogetherJust = (g: Save) => nowAbs(g) - (((g as any).tally?.together as number | undefined) ?? -Infinity) <= 16 * 60;
 // The moment with this person: counted for them, and once for `people:<name>`.
 function tallyWith(g: Save, name: TallyEvent, who: string, n = 1) {
     add(g, `event:${name}|${who}`, n);

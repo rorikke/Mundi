@@ -15,6 +15,7 @@ import { isHome } from './places.js';
 import { jobDef, colleaguesOf } from './work.js';
 import { npcRank } from './longlife.js';
 import { sharedWith, speaks, barrierOn, FLUENT } from './language.js';
+import { intimateLines } from './hooks.js';
 
 /* ---------- life around you (E1) ---------- */
 
@@ -139,7 +140,10 @@ const tidyLine = (s: string) => s.replace(/\s+/g, ' ').trim().replace(/[.;\s]+$/
 /** The block: each profile as a character sheet, then the hard limits on a line of their own (kept over the budget). */
 export function profileLines(g: Save, w: WorldDef, here: Place | null, present: Resident[]): { lines: string[]; limits: string } {
     const { full, limitsOnly } = profilePeople(g, w, here, present);
-    if (!full.length && !limitsOnly.length) return { lines: [], limits: '' };
+    // what the hooks add (known likes and limits, drive…), under the block's own rules: adult content, romance, no minor
+    const ok = intimateLines.length && adultOn(g) && systemOn(w, 'romance') && present.length && !present.some(r => isMinor(g, r.avatar));
+    const extra = ok ? intimateLines.flatMap(f => f(g, w, here, present, { full, limitsOnly })).filter(Boolean) : [];
+    if (!full.length && !limitsOnly.length) return { lines: extra, limits: '' };
     const lines = full.map(r => {
         const p = profileOf(g, r.avatar)!;
         const bits = PROFILE_WORDS.filter(([k]) => typeof p[k] === 'string' && (p[k] as string).trim()).map(([k, word]) => `${word}: ${tidyLine(p[k] as string)}`);
@@ -151,5 +155,5 @@ export function profileLines(g: Save, w: WorldDef, here: Place | null, present: 
     const lim = [...full, ...limitsOnly].map(r => ({ r, l: (profileOf(g, r.avatar)?.limits ?? []).map(tidyLine).filter(Boolean) })).filter(x => x.l.length);
     const limits = lim.length ? `Hard limits, always respected by everyone: ${lim.map(x => `${x.r.name} — ${x.l.join(', ')}`).join('; ')}.` : '';
     const head = lines.length ? ['Intimate profiles of the people here (adults; character notes for how each one acts in a romantic or private moment, not for narration):'] : [];
-    return { lines: [...head, ...lines], limits };
+    return { lines: [...head, ...lines, ...extra], limits };
 }

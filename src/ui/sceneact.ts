@@ -16,7 +16,8 @@ const names = (g: Save, list: string[]) => list.map(a => g.cast[a]?.name ?? '').
 export async function startInScene(g: Save, w: WorldDef, a: ActionDef) {
     if (sceneAct(g)) finishSceneAction(g, w);
     const act = startSceneAction(g, w, a);
-    toast(`${a.label}${act.with.length ? ` with ${names(g, act.with)}` : ''}: it plays out here, about ${a.minutes} min. Keep talking; it ends when its time is up.`, 'info');
+    if (act.priv?.stop) finishSceneAction(g, w);   // (adult) a private action a check stopped ends at once with that
+    else toast(`${a.label}${act.with.length ? ` with ${names(g, act.with)}` : ''}: it plays out here, about ${a.minutes} min. Keep talking; it ends when its time is up.`, 'info');
     saveGame();
     refreshPrompt();   // the scene's focus
     notify();

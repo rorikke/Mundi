@@ -4,7 +4,7 @@
 // you every turn, swapping a trait later (life goals' "Change a trait"), and `settleTraits`, which brings a save made
 // under the old rules (every trait a flat bonus, courses and goals handing out traits) onto the new ones once its
 // world is known.
-import type { Save } from '../core/store.js';
+import { adultOn, type Save } from '../core/store.js';
 import { systemOn, activeStatuses, type WorldDef, type TraitGroup } from '../core/world.js';
 import { clampEffect, TRAIT_LIMITS, OUT_OF_WORK, type EffectDef } from '../core/traits.js';
 import { effectSources } from './effects.js';
@@ -24,6 +24,22 @@ export const HABIT_LEARN = 0.1;
 const names = (list: unknown): string[] => (Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : []);
 /** Every trait name the player has, once each, whatever the group. */
 export const traitNames = (g: Save): string[] => [...new Set(Object.values(g.player.traits ?? {}).flatMap(names))];
+
+/* ---------- adult groups and options ---------- */
+
+// The trait names only adult content offers: an adult group's options, every group's `adultOptions`.
+const adultNames = (w: WorldDef): Set<string> => new Set((w.sheet?.traits ?? []).flatMap(t => [...(t.adult ? t.options ?? [] : []), ...names(t.adultOptions)]));
+/** Is this trait name one only adult content offers? */
+export const isAdultTrait = (w: WorldDef | null | undefined, name: string) => !!w && adultNames(w).has(name);
+/** The character sheet's groups as a game shows them: with adult content on, adult groups too and each group's adult
+ *  options after its own; with it off, neither (the groups given back as they are). */
+export const sheetGroups = (w: WorldDef | null | undefined, adult: boolean): TraitGroup[] =>
+    (w?.sheet?.traits ?? []).filter(t => adult || !t.adult).map(t => (adult && t.adultOptions?.length ? { ...t, options: [...t.options, ...t.adultOptions.filter(o => !t.options.includes(o))] } : t));
+/** The options of a group you can have in this game (adult ones only with adult content on). */
+export const groupOptions = (g: Save, t: TraitGroup): string[] => (adultOn(g) ? [...t.options, ...names(t.adultOptions).filter(o => !t.options.includes(o))] : t.adult ? [] : t.options);
+/** The trait names the player has that count in this game: adult ones only with adult content on (a game can switch it
+ *  off later; what you have stays, and counts again when it's back on). */
+export const traitsInPlay = (g: Save, w: WorldDef): string[] => { const all = traitNames(g), s = adultNames(w); return !s.size || adultOn(g) ? all : all.filter(t => !s.has(t)); };
 
 /* ---------- strengths: picks that become skill levels ---------- */
 
@@ -79,7 +95,7 @@ const holds = (g: Save, w: WorldDef, e: EffectDef) => !e.when || (e.when === OUT
 effectSources.push((g, w) => {
     const out: EffectDef[] = [];
     const info = w.traitInfo;
-    if (info) for (const t of traitNames(g)) for (const e of info[t]?.effects ?? []) if (holds(g, w, e)) out.push(clampEffect(e, TRAIT_LIMITS));
+    if (info) for (const t of traitsInPlay(g, w)) for (const e of info[t]?.effects ?? []) if (holds(g, w, e)) out.push(clampEffect(e, TRAIT_LIMITS));
     if (systemOn(w, 'habits')) for (const id of habitsOf(g).has) { const skill = w.habits?.find(h => h.id === id)?.learn; if (skill) out.push({ kind: 'learn', target: skill, value: HABIT_LEARN }); }
     return out;
 });
@@ -90,7 +106,7 @@ onAction.push((g, w, a) => {
     const x = a as { id: string; tags?: string[]; hobby?: string; trains?: string; roll?: { skill?: string } };
     const skills = new Set([hobbyFor(w, x)?.id, x.roll?.skill, x.trains, x.hobby].filter((s): s is string => !!s));
     const tags = new Set([...(x.tags ?? []), ...(placeOf(g, w, g.player.loc)?.tags ?? [])]);
-    for (const t of traitNames(g)) {
+    for (const t of traitsInPlay(g, w)) {
         const c = info[t]?.covers;
         if (c && (c.skills?.some(s => skills.has(s)) || c.tags?.some(s => tags.has(s)))) { addStatus(g, w, 'mood', INTEREST_MOOD); return; }
     }
@@ -103,7 +119,8 @@ onAction.push((g, w, a) => {
 export function traitLine(g: Save, w: WorldDef): string {
     const t = (g.player.traits ?? {}) as Record<string, unknown>;
     const lower = (l: string[]) => l.map(x => x.toLowerCase()).join(', ');
-    const per = names(t.personality), fun = names(t.interests), habits = habitTraits(g, w);
+    const on = adultOn(g), shown = (l: string[]) => (on ? l : l.filter(x => !isAdultTrait(w, x)));
+    const per = shown(names(t.personality)), fun = shown(names(t.interests)), habits = habitTraits(g, w);
     const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', habits.length ? `Habits: ${lower(habits)}.` : ''].filter(Boolean);
     return parts.join(' ');
 }
@@ -119,7 +136,7 @@ export function swapTrait(g: Save, w: WorldDef, groupId: string, from: string, t
     const mine = ((g.player.traits ??= {}) as Record<string, string[]>)[groupId];
     const i = Array.isArray(mine) ? mine.indexOf(from) : -1;
     if (i < 0) return { ok: false, text: `You are not ${from.toLowerCase()}.` };
-    if (!grp.options.includes(to)) return { ok: false, text: `${to} is not something you can become.` };
+    if (!groupOptions(g, grp).includes(to)) return { ok: false, text: `${to} is not something you can become.` };
     if (traitNames(g).includes(to)) return { ok: false, text: `You already are ${to.toLowerCase()}.` };
     mine[i] = to;
     note(g, '{u} changed: no longer {0}, now {1}.', [from.toLowerCase(), to.toLowerCase()], [], g.player.loc, 'skill');

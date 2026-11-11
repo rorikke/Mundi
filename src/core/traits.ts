@@ -6,29 +6,32 @@
 /** What an effect changes. `mul` kinds are percentages that multiply (+0.1 is +10%); `add` kinds are flat amounts that
  *  add (`roll`, `warm`, `morning`, `reroll`, `interview`). `target` says which one: a need for `drain`, a skill for
  *  `learn`/`roll`, `friend`/`romance` for `gain`… An effect with no target (or `all`) counts everywhere its kind is asked.
- *  A world's `traitInfo` may use the kinds the traits need (all but the last eight); the rest are for life goals' perks
- *  and timed boosts. */
+ *  A world's `traitInfo` may use the kinds the traits need (the first eleven, and the two adult ones at the end); the
+ *  others are for life goals' perks and timed boosts. */
 export type EffectKind =
     | 'drain'    // how fast a need drops (target: a need id; a `when` of `period: night` for night only)
     | 'learn'    // skill training (target: a skill id, a group of skills such as `creative`, `all`, or `upto:3`: only while the skill is below level 3)
     | 'roll'     // a flat bonus on rolls (target: a skill id or its group (`creative`), an action tag, `work` for a choice at work; none: every roll)
-    | 'perf'     // performance gains at work
+    | 'perf'     // performance gains at work (target: `gain`; the job's id or one of its tags, `adult-stage`)
     | 'career'   // days a rank takes
     | 'warm'     // friendship points you start with someone you first meet (target: `new`; negative: a cooler first impression)
-    | 'gain'     // friendship or romance gains toward you (target: `friend`, `romance`, `dates`, `gifts`, `good friends`)
+    | 'gain'     // friendship or romance gains toward you (target: `friend`, `romance`, `dates`, `gifts`, `good friends`; `romance:early` while their romance is below Crush; `intimate` and `intimate:<their role>` for a private moment's romance)
     | 'fade'     // how fast romance toward you fades (target: `romance`; `partner`: only your partners')
     | 'morning'  // a flat mood change each morning (a `when` can limit it: out of work)
     | 'party'    // the mood a party gives
     | 'study'    // what a study session is worth (target: `class`, a course's class; `teach`, a lesson you give an apprentice)
     // the rest: life goals' perks and timed boosts
     | 'price'    // what things cost (target: `prices` for what places and actions charge, a place id or tag, a map id or area, `regular` where you're a regular; `rent`, `bills`)
-    | 'pay'      // what work pays (target: `wage`, `bonus` for the seasonal bonuses, `tips` for money from a choice at work; a job id, its place id or tag)
+    | 'pay'      // what work pays (target: `wage`, `bonus` for the seasonal bonuses, `tips` for money from a choice at work; a job id or one of its tags, its place id or tag)
     | 'travel'   // how long trips take
-    | 'rest'     // what a night, a bath or food gives back (target: `sleep`, `sleep home`, `sleep away`; `bath`; `food`; an action id or tag)
+    | 'rest'     // what a night, a bath or food gives back (target: `sleep`, `sleep home`, `sleep away`, `sleep together` after a night together; `bath`; `food`; an action id or tag)
     | 'reroll'   // failed rolls rolled again, this many a day
     | 'points'   // life points (target: where they come from: `step`, `goal`, `festival`, `event`, `story`, `secret`, `thread`, `keepsake`; a group: `festivals` (festival, event), `secrets` (secret, story, thread); or `active`, `passive`)
     | 'interview'   // a flat bonus on job interviews (target: a job id)
-    | 'hint';   // on at 1 or more: a friend's hidden secret shows in small signs (told to the AI as hinted; no target)
+    | 'hint'     // on at 1 or more: a friend's hidden secret shows in small signs (told to the AI as hinted; no target)
+    // adult content (Tokyo's adult progression): kinds that traits (Flirtatious, Shameless) and perks use
+    | 'jealousy' // how much a new partner of yours hurts your partners (no target)
+    | 'risk';    // the chance of being caught in a risky private action (no target; or the action's id or tags)
 
 export interface EffectDef {
     kind: EffectKind;
@@ -49,7 +52,7 @@ export const EFFECT_KINDS: Record<EffectKind, Kind> = {
     party: { mode: 'mul', min: 0.5, max: 2 }, study: { mode: 'mul', min: 0.5, max: 2 }, price: { mode: 'mul', min: 0.5, max: 1.5 },
     pay: { mode: 'mul', min: 0.75, max: 1.5 }, travel: { mode: 'mul', min: 0.5, max: 1.5 }, rest: { mode: 'mul', min: 0.5, max: 2 },
     reroll: { mode: 'add', min: 0, max: 3 }, points: { mode: 'mul', min: 0.5, max: 2 }, interview: { mode: 'add', min: -4, max: 6 },
-    hint: { mode: 'add', min: 0, max: 1 },
+    hint: { mode: 'add', min: 0, max: 1 }, jealousy: { mode: 'mul', min: 0.3, max: 2 }, risk: { mode: 'mul', min: 0.3, max: 2 },
 };
 export const isEffectKind = (k: unknown): k is EffectKind => typeof k === 'string' && Object.prototype.hasOwnProperty.call(EFFECT_KINDS, k);
 

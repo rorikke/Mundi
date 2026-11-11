@@ -13,7 +13,7 @@
 // (`WhenCtx.count`: a goal counts only while it's active); `did: overnight with best` counts only what was done with
 // someone at that level toward you now. `goal` reads `g.goals` (sim/goals.ts keeps it) and the old
 // aspirations finished (`player.aspDone`).
-import { nowAbs, type Save, type Resident } from '../core/store.js';
+import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
 import { FRIEND_LEVELS, ROM_LEVELS } from '../core/feel.js';
@@ -28,7 +28,8 @@ import { fr, ro, statusOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
-import { careerOf } from './work.js';
+import { careerOf, trackOf } from './work.js';
+import { styleOf } from './intimacy.js';
 import { usualPay } from './needs.js';
 import { REP_WORDS } from './standing.js';
 
@@ -64,7 +65,9 @@ const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i;      // 
 const VISITED = /^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;   // 3 regular in home
 /** `visited: pk_arcade regular`: a regular at that place. */
 export const PLACE_REGULAR = /^([^\s,;]+)\s+regular$/i;
-export const PARTNER_VALUES = ['any', 'none', 'home', 'casual', 'dating', 'engaged', 'married'];
+/** `partner:` values besides a number (`partner: 2`: two partners or more, casual ones included). `open`: a partner
+ *  whose relationship style is open (their own, else the world's open relationships). */
+export const PARTNER_VALUES = ['any', 'none', 'home', 'casual', 'dating', 'engaged', 'married', 'open'];
 /** The money `money: 2 weeks` means: weeks of the world's usual pay (40 hours), or the old aspiration's fortune. */
 export function moneyAmount(w: WorldDef, v: string): number {
     if (v.toLowerCase() === 'fortune') return usualPay(w) * 3125;
@@ -106,7 +109,7 @@ function badValue(key: WhenKey, v: string): string {
         case 'rank': { const m = v.match(RANK); return m && (!m[2] || /^\d+$/.test(m[1])) ? '' : `"${v}" should be a rank (2, middle, top-1, top), or a rank in a number of jobs (2 in 3 jobs)`; }
         case 'money': return MONEY.test(v) ? '' : `"${v}" should be an amount, a time of the usual pay (2 weeks, 6 months) or fortune`;
         case 'home': return ID.test(v) ? '' : `"${v}" should be a kind of home, alone, better, top, season or a number of days`;
-        case 'partner': return PARTNER_VALUES.includes(v.toLowerCase()) ? '' : `"${v}" should be any, none, home, casual, dating, engaged or married`;
+        case 'partner': return PARTNER_VALUES.includes(v.toLowerCase()) || /^\d+$/.test(v) ? '' : `"${v}" should be any, none, home, casual, dating, engaged, married, open or a number of partners`;
         case 'friends': { const m = v.match(FRIENDS); return m && LEVELS.includes(m[2].toLowerCase()) ? '' : `"${v}" should be a number and a level, like 3 good (or 2 good in a map)`; }
         case 'did': {
             const m = v.match(DID), p = m && m[1].includes(':') ? m[1].slice(0, m[1].indexOf(':')) : '';
@@ -270,7 +273,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         // a skill at a level; `any` or a group (`creative`) for whichever of them, `x3` for that many of them
         case 'skill': {
             const m = v.match(SKILL)!, id = m[1], n = Number(m[2]), many = Number(m[3] ?? 1);
-            if (id !== 'any' && !SKILL_GROUPS[id]) return many <= 1 && levelOf(g, id) >= n;
+            if (id !== 'any' && !SKILL_GROUPS[id]) return many <= 1 && skillOn(g, w, id) && levelOf(g, id) >= n;
             return skillIds(g, w, id).filter(s => levelOf(g, s) >= n).length >= many;
         }
         case 'feels': { const [name, level] = splitLevel(v); const r = personNamed(g, name); return !!r && (level ? levelHolds(g, w, r.avatar, level) : !!r.met); }
@@ -328,7 +331,9 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
 /* ---------- the pieces the keys read ---------- */
 
 // (life goals) The skills a `skill: any …` or `skill: creative …` looks at.
-const skillIds = (g: Save, w: WorldDef, id: string) => (id === 'any' ? skillsOf(w).map(s => s.id) : SKILL_GROUPS[id] ?? []);
+const skillIds = (g: Save, w: WorldDef, id: string) => (id === 'any' ? skillsOf(w, g).map(s => s.id) : SKILL_GROUPS[id] ?? []);
+// An adult skill (Sensuality) counts only with adult content on.
+const skillOn = (g: Save, w: WorldDef, id: string) => !w.skills?.some(s => s.id === id && s.adult) || adultOn(g);
 // Keepsakes you hold (different ids), and whether you hold every keepsake of a kind (`any`: of some kind).
 const heldIds = (g: Save) => Object.entries<number>((g.player as any).keepsakes ?? {}).filter(([, n]) => Number(n) > 0).map(([id]) => id);
 function fullSet(g: Save, w: WorldDef, kind: string): boolean {
@@ -344,7 +349,7 @@ function rankHolds(g: Save, w: WorldDef, v: string): boolean {
     if (m[2]) return Object.values(bestRanks(g)).filter(r => r >= Number(what)).length >= Number(m[2]);
     const j = g.player.job, o = j && w.occupations.find(x => x.id === j.id);
     if (!j || !o) return false;
-    const c = careerOf(g, o), total = c.open ? c.ranks.length + 1 : c.ranks.length;
+    const c = careerOf(g, trackOf(g, o)), total = c.open ? c.ranks.length + 1 : c.ranks.length;   // (your track's top)
     const need = what === 'top' ? total : what === 'middle' ? Math.ceil(total / 2) : what.startsWith('top-') ? total - Number(what.slice(4)) : Number(what);
     return j.rank + 1 >= Math.max(1, need);
 }
@@ -375,6 +380,8 @@ function partnerHolds(g: Save, w: WorldDef, v: string): boolean {
     if (v === 'none') return !list.length;
     if (v === 'any') return list.length > 0;
     if (v === 'home') return list.some(a => (g.cast[a] as any).homeWith === '__you');
+    if (v === 'open') return list.some(a => styleOf(g, a) === 'open');
+    if (/^\d+$/.test(v)) return list.length >= Number(v);
     return list.some(a => statusOf(g, a, YOU) === v);
 }
 // How many of the people you know are at a level toward you (or closer), living on a map (or in an area), or working

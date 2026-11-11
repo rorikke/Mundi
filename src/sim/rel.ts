@@ -36,6 +36,8 @@ export interface RelStore {
     people: Record<string, Person>;
     contact?: Record<string, number>;                          // "a|b": the last day they had contact (romance fading)
     hold?: Record<string, number>;                             // "a|b": romance doesn't fade until this day (the rewards shop's Nudge)
+    close?: Record<string, { last: number; n: number }>;       // "a|b": their last private moment together, and how many (sim/intimacy.ts)
+    knows?: Record<string, { likes?: string[]; limits?: string[]; drive?: boolean }>;   // "x>y": what x has learned of y in bed (sim/intimacy.ts)
     log?: unknown;                                             // records per message (sim/msglog.ts)
     day?: DaySnap;                                             // today's start values toward you (the recap)
 }
@@ -125,6 +127,7 @@ function addFatigue(g: Save, m: Meter, x: string, y: string, delta: number) {
 }
 
 const GOOD_FRIENDS = 55;   // where friendship becomes "Good friend" (the tiers are in sim/romance.ts)
+const CRUSH_AT = 40;       // where romance becomes a Crush (`romance:early`: gains below it)
 /** What a gain or loss actually changed: the meter by `d`, the pacing weight by `fat` (so it can be undone). */
 export interface Applied { d: number; fat: number }
 const NONE: Applied = { d: 0, fat: 0 };
@@ -147,7 +150,7 @@ export function gain(g: Save, m: Meter, x: string, y: string, raw: number, isPac
     x = idOf(g, x); y = idOf(g, y);
     if (!x || !y || x === YOU || x === y || !(raw > 0)) return NONE;
     raw *= attraction(g, x, y, m) * homeMult(g);
-    if (y === YOU) raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? 'romance' : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
+    if (y === YOU) raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? (meter(g, m, x, y) < CRUSH_AT ? ['romance', 'romance:early'] : 'romance') : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
     if (!(raw > 0)) return NONE;
     const before = meter(g, m, x, y);
     const add = isPaced ? paced(raw, fatigue(g, m, x, y), curveOf(g, x, m)) : raw;
@@ -339,6 +342,8 @@ export function swapIds(g: Save, map: (id: string) => string) {
     st.m = re(st.m, '>', false); st.fat = re(st.fat, '>', false); st.pairs = re(st.pairs, '|', true);
     if (st.contact) st.contact = re(st.contact, '|', true);
     if (st.hold) st.hold = re(st.hold, '|', true);
+    if (st.close) st.close = re(st.close, '|', true);
+    if (st.knows) st.knows = re(st.knows, '>', false);
     st.people = Object.fromEntries(Object.entries(st.people).map(([k, v]) => [map(k), v]));
 }
 

@@ -10,7 +10,7 @@ import { traitsOf } from './work.js';
 import { note } from './facts.js';
 import { addXp } from './rpg.js';
 import { hobbyFor, hobbyPay, levelOf } from './hobbies.js';
-import { effectAdd } from './effects.js';
+import { effectAdd, effectMul } from './effects.js';
 import { groupsOf } from '../core/goals.js';
 import { useReroll } from './perks.js';
 import { tallyRoll } from './tally.js';
@@ -38,6 +38,14 @@ export function rollBonus(g: Save, w: WorldDef | null | undefined, r: RollSpec):
 export function rollD20(g: Save, w: WorldDef | null | undefined, bonus: number, dc: number, rnd: () => number = Math.random): number {
     const d = 1 + Math.floor(rnd() * 20);
     return d === 20 || (d > 1 && d + bonus >= dc) || !useReroll(g, w) ? d : 1 + Math.floor(rnd() * 20);
+}
+/** (adult) Is a risky private action caught? Its `risk` (a chance, 0–1) times the `risk` effects (Shameless more, a perk
+ *  less; aimed at nothing, the action or its tags), held to 0–1. Nothing at stake (no risk): never, and no die is used. */
+export function riskRoll(g: Save, w: WorldDef | null | undefined, a: { id: string; tags?: string[]; risk?: number }, rnd: () => number = Math.random): { chance: number; caught: boolean } {
+    const base = a.risk ?? 0;
+    if (!(base > 0)) return { chance: 0, caught: false };
+    const chance = Math.max(0, Math.min(1, base * effectMul(g, w, 'risk', [a.id, ...(a.tags ?? [])])));
+    return { chance, caught: rnd() < chance };
 }
 /** " + 3" / " − 2" after the die on the screen ('' for nothing). */
 export const bonusLabel = (b: number) => (b ? ` ${b > 0 ? '+' : '−'} ${Math.abs(b)}` : '');

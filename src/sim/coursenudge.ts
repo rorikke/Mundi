@@ -15,7 +15,7 @@ import { seasonDays } from './time.js';
 import { textFrom, social } from './social.js';
 import { whenHolds } from './when.js';
 import { jobDef, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF } from './work.js';
-import { courseOf, hasCourse, isTaking, learning, spanOf, factsOf, whereWords, type WorkMsg } from './courses.js';
+import { courseOf, adultHeld, hasCourse, isTaking, learning, spanOf, factsOf, whereWords, type WorkMsg } from './courses.js';
 import type { Resident } from '../core/store.js';
 
 /** Messages kept in the work app per save (the newest). */
@@ -28,7 +28,7 @@ export function nudgeFor(g: Save, w: WorldDef): Nudge | null {
     const j = g.player.job as { id: string; rank: number; perf?: number; since?: number } | null, o = jobDef(w, j?.id);
     if (!j || !o) return null;
     const next = nextRankOf(g, o), c = next?.course ? courseOf(w, next.course) : undefined;
-    if (!next || !c || c.retired || hasCourse(g, c.id) || isTaking(g, c.id)) return null;
+    if (!next || !c || c.retired || adultHeld(g, c) || hasCourse(g, c.id) || isTaking(g, c.id)) return null;
     if (c.needs && !whenHolds(g, w, c.needs)) return null;
     if (Math.round(j.perf ?? 50) < PROMO_PERF) return null;
     // about halfway through the rank, at once when the rank is shorter than the course
@@ -80,7 +80,7 @@ export const nudgesFor = (g: Save, jobId: string): WorkMsg[] => learning(g).inbo
 export function aheadCourse(g: Save, w: WorldDef, o: Occupation): { rank: string; course: Course } | null {
     const j = g.player.job; if (!j || j.id !== o.id || !systemOn(w, 'courses')) return null;
     const r = careerOf(g, o).ranks[j.rank + 2], c = r?.course ? courseOf(w, r.course) : undefined;
-    return r && c && !c.retired && !hasCourse(g, c.id) ? { rank: r.name, course: c } : null;
+    return r && c && !c.retired && !adultHeld(g, c) && !hasCourse(g, c.id) ? { rank: r.name, course: c } : null;
 }
 
 /** What the work screen says when a job turns you away for a course: the way in, if its first rank is a student's. */
