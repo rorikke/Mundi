@@ -55,6 +55,12 @@ export function bansNow(g: Save): { place: string; until: number; days: number }
     return Object.entries((g as any).caught?.bans ?? {}).filter(([p]) => bannedUntil(g, p) !== null)
         .map(([place, until]) => ({ place, until: until as number, days: Math.max(1, Math.ceil(((until as number) - nowAbs(g)) / 1440)) }));
 }
+/** The ban where you are now, for the screen that shows a place's actions: the words, until when, the days left; null when
+ *  the place serves you (or with adult content off). */
+export function banHere(g: Save): { text: string; until: number; days: number } | null {
+    const b = bansNow(g).find(x => x.place === g.player.loc);
+    return b ? { text: BAN_WORDS, until: b.until, days: b.days } : null;
+}
 /** Lifts a ban (Quiet a rumor about it does): true when there was one. */
 export function liftBan(g: Save, place: string): boolean {
     const c = state(g);

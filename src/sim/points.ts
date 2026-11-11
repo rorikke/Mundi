@@ -104,5 +104,7 @@ export function earn(g: Save, w: WorldDef | null | undefined, source: Exclude<Po
     const n = Math.min(pointsFor(g, w, source, SECOND_POINTS[source]), DAILY_CAP - p.today.n);
     if (!(n > 0)) return '';
     p.today.n += n;
-    return `${pointsLine(credit(g, n, key ? `${source}:${key}` : source))}${SAID[source] ?? ''}`;
+    // (the log says whom a learned like was about, never the words)
+    const why = source === 'learned' ? `learned:${key.split('>')[0]}` : key ? `${source}:${key}` : source;
+    return `${pointsLine(credit(g, n, why))}${SAID[source] ?? ''}`;
 }
