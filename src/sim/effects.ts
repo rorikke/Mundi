@@ -14,14 +14,15 @@ import { addStatus } from './needs.js';
 export type EffectSource = (g: Save, w: WorldDef) => EffectDef[];
 export const effectSources: EffectSource[] = [];
 
-/** What a hook call says about the moment: `level` is the level of the skill being trained (for `upto:3`). */
-export interface EffectCtx { level?: number }
+/** What a hook call says about the moment: `level` is the level of the skill being trained (for `upto:3`). `exact`: only
+ *  effects that name one of the targets count (not those for everything): an effect aimed at one action, a new job. */
+export interface EffectCtx { level?: number; exact?: boolean }
 
 // An effect applies when it names nothing (or `all`) or one of the targets asked about; `upto:N` applies while the
 // skill being trained is below level N.
 function matches(e: EffectDef, targets: string[], ctx: EffectCtx): boolean {
     const t = e.target;
-    if (!t || t === 'all') return true;
+    if (!t || t === 'all') return !ctx.exact;
     if (t.startsWith('upto:')) return ctx.level !== undefined && ctx.level < Number(t.slice(5));
     return targets.includes(t);
 }

@@ -410,9 +410,19 @@ export function hire(g: Save, w: WorldDef, id: string): { ok: boolean; text: str
     if ((o.shifted ?? []).length && !askedCourses(g, w, o).length) while (o.ranks[rank]?.student && rank < o.ranks.length - 1) rank++;
     const j: JobState = { id, rank, shifts: 0, perf: r.crit ? 65 : 50, since: nowAbs(g), checked: today && today.start > nowAbs(g) ? g.day - 1 : g.day, vac: 0, vacAt: g.day };
     g.player.job = j as any;
+    headStart(g, w, o, j);
     note(g, '{u} got hired: {0} at {1}.', [o.ranks[rank].name, o.name], [], o.place, 'work');
     const s = nextShift(g, w, o);
     return { ok: true, text: `You got the job! ${r.text}${systemOn(w, 'jobs') ? ` Your week: ${weekText(g, w, o)}.${s ? ` First shift: ${whenText(g, s)}.` : ''}` : ''}` };
+}
+// A new job can start part of the way to the next rank (life goals' Adaptable: a `career` effect aimed at `hire`, −50%
+// is halfway): that share of the shifts and of the time the rank asks for counts as done.
+function headStart(g: Save, w: WorldDef, o: Occupation, j: JobState) {
+    const share = Math.min(0.5, Math.max(0, 1 - effectMul(g, w, 'career', 'hire', { exact: true })));
+    const p = share > 0 ? promoNeeds(g, w, o) : null;
+    if (!p) return;
+    j.shifts = Math.round(p.shifts * share * 100) / 100;
+    j.since = nowAbs(g) - Math.round(p.days * share * 1440);
 }
 export function quitJob(g: Save, w?: WorldDef) { const o = w && jobDef(w, g.player.job?.id); if (o) note(g, '{u} quit the job ({0}).', [o.name], [], g.player.loc, 'work'); g.player.job = null; }
 // Round the clock: the shift you'd rather work (from your next one on).

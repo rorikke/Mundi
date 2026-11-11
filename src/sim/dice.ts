@@ -4,7 +4,7 @@
 import type { Save } from '../core/store.js';
 import { payOf, priceOf } from './bills.js';
 import type { WorldDef, ActionDef } from '../core/world.js';
-import { addStatus, money } from './needs.js';
+import { addStatus, money, restGain } from './needs.js';
 import { book } from './ledger.js';
 import { traitsOf } from './work.js';
 import { note } from './facts.js';
@@ -66,7 +66,7 @@ export function rollAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random
     const raw = Math.round((out.money ?? 0) * (grade === 'critical-success' ? 2 : 1) * ((out.money ?? 0) > 0 ? hobbyPay(g, w, a) : 1));
     const cash = raw > 0 ? payOf(g, raw) : -priceOf(g, -raw);   // the difficulty
     if (cash) { g.player.money = Math.max(0, g.player.money + cash); book(g, a.name, cash); }
-    for (const [id, v] of Object.entries(out.effects ?? {})) addStatus(g, w, id, v * ((v < 0 && grade === 'critical-fail') || (v > 0 && grade === 'critical-success') ? mult : 1));
+    for (const [id, v] of Object.entries(out.effects ?? {})) { const x = v * ((v < 0 && grade === 'critical-fail') || (v > 0 && grade === 'critical-success') ? mult : 1); addStatus(g, w, id, x > 0 ? restGain(g, w, a, id, x) : x); }
     const text = `${out.text}${cash ? ` (${cash > 0 ? '+' : '−'}${money(w, Math.abs(cash))})` : ''}`;
     if (ok) addXp(g, w, grade === 'critical-success' ? 20 : 10, a.name);   // RPG: experience for what you do well
     note(g, ok ? '{u} tried to {0} — it worked. {1}' : '{u} tried to {0} — it did not work. {1}', [a.label.toLowerCase(), out.text], [], g.player.loc, 'skill');

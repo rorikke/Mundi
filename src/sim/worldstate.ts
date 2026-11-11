@@ -114,11 +114,12 @@ export const moodNow = (g: Save, w: WorldDef, id: string) => clamp(regionState(g
 // (late at night costs more). 1 when the system is off. Then what effects (life goals' perks, boosts) take off.
 export const priceHere = (g: Save, w: WorldDef | null | undefined, place = g.player.loc) => (w && on(w) ? regionState(g, w, regionOf(g, w, place)).price * (isHome(place) ? 1 : periodPrice(w, g.minutes)) : 1) * (w && !isHome(place) ? festivalPrice(g, w, place) * tradeMul(w) : 1) * pricePerk(g, w, place);
 /** What effects do to prices at a place: those aimed at `prices` (everything a place or an action charges), the place,
- *  its tags, its map or area, and `regular` where you're a regular. ×1 with none. */
-export function pricePerk(g: Save, w: WorldDef | null | undefined, place = g.player.loc): number {
+ *  its tags, its map or area, and `regular` where you're a regular; `extra`: more targets for this price (an entry fee:
+ *  `entry`, `entry:<tag>`). ×1 with none. */
+export function pricePerk(g: Save, w: WorldDef | null | undefined, place = g.player.loc, extra: string[] = []): number {
     if (!w) return 1;
     const p = w.places.find(x => x.id === place), area = p ? w.maps.find(m => m.id === p.map)?.area : undefined;
-    return effectMul(g, w, 'price', ['prices', place, ...(p?.tags ?? []), p?.map, area, isRegular(g, place) ? 'regular' : undefined]);
+    return effectMul(g, w, 'price', ['prices', place, ...(p?.tags ?? []), p?.map, area, isRegular(g, place) ? 'regular' : undefined, ...extra]);
 }
 
 // For the AI: what it is like around here.
