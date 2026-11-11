@@ -3978,7 +3978,7 @@
    "effects": {
     "mood": 5
    },
-   "when": "period: midmorning or afternoon; weather: sunny or fair or cloudy",
+   "when": "period: midmorning or afternoon; weather: not rain or snow or storm",
    "together": {
     "needed": false
    },
@@ -4048,7 +4048,7 @@
    "effects": {
     "mood": 6
    },
-   "when": "weather: sunny or fair or cloudy",
+   "when": "weather: not rain or snow or storm",
    "together": {
     "needed": false
    },
@@ -6585,7 +6585,7 @@
     "mood": 12,
     "energy": 3
    },
-   "when": "period: midmorning or afternoon or evening; weather: sunny or fair or cloudy",
+   "when": "period: midmorning or afternoon or evening; weather: not rain or snow or storm",
    "together": {
     "needed": false,
     "text": "a date; counts as a big shared outing"
@@ -6691,7 +6691,7 @@
    "effects": {
     "mood": 8
    },
-   "when": "period: midmorning or afternoon or evening; weather: sunny or fair or cloudy",
+   "when": "period: midmorning or afternoon or evening; weather: not rain or snow or storm",
    "together": {
     "needed": false,
     "text": "a date"
@@ -6768,7 +6768,7 @@
     "mood": 20,
     "energy": -5
    },
-   "when": "festival: fireworks; period: evening; weather: sunny or fair or cloudy",
+   "when": "festival: fireworks; period: evening; weather: not rain or snow or storm",
    "together": {
     "needed": false,
     "text": "the summer's big date night; counts for more"
@@ -6993,7 +6993,7 @@
     "mood": 9,
     "energy": -5
    },
-   "when": "period: midmorning or afternoon; weather: sunny or fair or cloudy",
+   "when": "period: midmorning or afternoon; weather: not rain or snow or storm",
    "together": {
     "needed": false,
     "text": "a date"
@@ -7263,7 +7263,7 @@
    "effects": {
     "mood": 8
    },
-   "when": "period: evening; weather: sunny or fair or cloudy",
+   "when": "period: evening; weather: not rain or snow or storm",
    "together": {
     "needed": false,
     "text": "counts as time together"
@@ -8572,7 +8572,7 @@
     "hygiene": -10,
     "mood": 8
    },
-   "when": "season: spring or summer or autumn; period: midmorning or afternoon; weather: sunny or fair or cloudy",
+   "when": "season: spring or summer or autumn; period: midmorning or afternoon; weather: not rain or snow or storm",
    "together": {
     "needed": false,
     "text": "one of you learns while the other watches"
