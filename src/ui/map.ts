@@ -6,7 +6,8 @@ import { showTransition } from './lifeui.js';
 import { lockedOut } from '../sim/bills.js';
 import { doorAnswer, sleepMood } from '../sim/life.js';
 import { hobbyNeed } from '../sim/hobbies.js';
-import { doAction, playsInScene } from '../sim/actions.js';
+import { doAction, playsInScene, isPrivateAct } from '../sim/actions.js';
+import { bansNow, BAN_WORDS } from '../sim/caught.js';
 import { startInScene, finishFirst } from './sceneact.js';
 import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
 
@@ -29,7 +30,7 @@ import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js'
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
 import { verdictNow, daySnapshot, dayChanges } from '../sim/verdict.js';
-import { openWork, diaryWaiting, diaryReady, showDayRecap, shiftLabel, nextRankLine, perfWord } from './relui.js';
+import { openWork, diaryWaiting, diaryReady, showDayRecap, shiftLabel, nextRankLine, perfWord, askTrack } from './relui.js';
 import { askAboutPlans } from './appts.js';
 import { doing, isDoing } from './doing.js';
 import { stayOf } from './events.js';
@@ -37,7 +38,7 @@ import { actionSound, lifeSound } from './sfx.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { canAfford, money, actionsHere, tooTired } from '../sim/needs.js';
 import { book } from '../sim/ledger.js';
-import { fits, hire, rankOf, pendingBranch, jobDef, jobPlace, openJobs, hourlyPay, weekText, perfOf, realDays, canWork, atWork } from '../sim/work.js';
+import { fits, hire, trackOf, rankOf, pendingBranch, jobDef, jobPlace, openJobs, hourlyPay, weekText, perfOf, realDays, canWork, atWork } from '../sim/work.js';
 import { advance, weekday, hm } from '../sim/time.js';
 import { syncScene } from '../sim/game.js';
 import { endVisit } from '../sim/visits.js';
@@ -82,7 +83,7 @@ function jobCard(g: Save, w: WorldDef, sel: string, you: boolean) {
             ${you ? `<button class="mu-primary" data-act="work" ${l.ok ? '' : 'aria-disabled="true"'}>Work a shift · ${esc(l.text)}</button>` : ''}</div>`;
     }
     if (!jobs.length) return '';
-    return `<div class="mu-card"><h4>${lex(w, 'jobsHere')}</h4>${jobs.map(o => `<div class="mu-jobrow"><span><b>${esc(o.name)}</b><small>${money(w, o.ranks[0].pay)}/h · ${realDays(o)} days a week${o.needs?.length ? ` · ${esc(o.needs.join(' / '))}` : ''}${hobbyNeed(g, w, o) ? ` · ${esc(hobbyNeed(g, w, o))}` : ''}</small></span>
+    return `<div class="mu-card"><h4>${lex(w, 'jobsHere')}</h4>${jobs.map(job => trackOf(g, job)).map(o => `<div class="mu-jobrow"><span><b>${esc(o.name)}</b><small>${money(w, o.ranks[0].pay)}/h · ${realDays(o, o.ranks[0])} days a week${o.needs?.length ? ` · ${esc(o.needs.join(' / '))}` : ''}${hobbyNeed(g, w, o) ? ` · ${esc(hobbyNeed(g, w, o))}` : ''}</small></span>
         ${you ? `<button data-act="apply" data-id="${esc(o.id)}" ${fits(g, o) ? '' : 'aria-disabled="true"'}>${lex(w, 'jobApply')}</button>` : ''}</div>`).join('')}
         ${you ? '' : `<small class="mu-muted">${lex(w, 'applyThere')}</small>`}</div>`;
 }
@@ -104,7 +105,13 @@ function popHtml(g: Save, w: WorldDef, loc: string, touch: boolean) {
         ${people}
         ${you ? `<span class="mu-badge">You are here</span>` : `<small class="mu-muted">${travelMinutes(g, w, g.player.loc, loc)} min away · click to go</small>`}
         ${touch || you ? `<button class="mu-primary" data-act="go" data-loc="${esc(loc)}" data-sfx="open">${you ? 'Enter the scene' : 'Go here'}</button>` : ''}
+        ${banLine(g, loc)}
         ${you ? '' : jobCard(g, w, loc, false)}`;
+}
+// (adult) A place that won't serve you after you were caught there: why, and for how long.
+function banLine(g: Save, loc: string): string {
+    const b = bansNow(g).find(x => x.place === loc);
+    return b ? `<small class="mu-ban">${icon('lock')}<span>${esc(BAN_WORDS)} ${esc(b.days === 1 ? '1 more day.' : `${b.days} more days.`)}</span></small>` : '';
 }
 
 // Shows the card above the pin (or below, when there is no room), kept inside the screen.
@@ -563,6 +570,7 @@ Object.assign(ACT, {
         const { g, w } = ctxW();
         if (g.player.job && !el.dataset.force) { toast(lex(w, 'quitFirst'), 'info'); return; }
         const r = hire(g, w, el.dataset.id!);
+        if (r.pick) { askTrack(el.dataset.id!, r.pick); return; }   // (job tracks) pick yours first
         toast(r.text, r.ok ? 'success' : 'warn'); saveGame(); notify();
     },
     // a click goes to the place (on a touch screen the first tap shows its card, with a "Go here" button)
@@ -598,10 +606,15 @@ Object.assign(ACT, {
         if (state.view === 'scene' && playsInScene(g, w, a)) return startInScene(g, w, a);
         finishFirst(g, w, true);   // one going on in the scene ends first
         if (a.minutes >= 60) await verdictNow(g, w, 'a long action');   // an hour or more ends the scene
-        await doing(a.label, a.icon ?? '⏳', a.minutes);   // a moment on screen while the time passes
+        // (adult) a private action can be stopped before it plays (not in the mood, a hard limit, getting caught): the
+        // engine decides first, and a stopped one (no time spent) skips the wait and shows what happened instead
+        const priv = isPrivateAct(g, a), t0 = nowAbs(g);
+        if (!priv) await doing(a.label, a.icon ?? '⏳', a.minutes);   // a moment on screen while the time passes
         // what it does (the roll, an outcome, a keepsake, time together, the fact) is decided in sim/actions.ts
         const done = doAction(g, w, a);
-        done.lines.forEach(l => toast(l.text, l.kind));
+        const stopped = priv && nowAbs(g) === t0 && !!done.outcome;
+        if (priv && !stopped) await doing(a.label, a.icon ?? '⏳', a.minutes);
+        done.lines.forEach(l => toast(l.text, l.kind));   // a stopped one's notice (getting caught: its fee, the ban, the word going round)
         runPlans();
         saveGame();
         await syncScene();

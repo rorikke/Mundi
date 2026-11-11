@@ -1,7 +1,9 @@
 // Events (a date, a meet-up, a party): when it starts, the people join you; a panel on the HUD shows it, with a
-// way to end it (they say goodbye and tell you what they thought) and, at a home, to spend the night together.
+// way to end it (they say goodbye and tell you what they thought) and, at a home, to spend the night together. And
+// (adult) the card of someone making the move.
 import { esc, game, notify, saveGame, toast, nowAbs, state, type Save } from '../core/store.js';
-import type { WorldDef } from '../core/world.js';
+import { getWorld, type WorldDef } from '../core/world.js';
+import { moveCard, acceptMove, declineMove } from '../sim/initiative.js';
 import { setPrompt, sendCanned, chat, setAsk } from '../st/bridge.js';
 import { social, isWith } from '../sim/social.js';
 import { letGo } from '../sim/plans.js';
@@ -67,6 +69,27 @@ export function eventPanelHtml(g: Save, w: WorldDef): string {
             <button data-act="ev-end">${icon('x')}<span>End the ${e.kind === 'date' ? 'date' : e.kind === 'party' ? 'party' : 'meet-up'}</span></button>
             ${stayButton(e.avatar)}</div>`}</aside>`;
 }
+
+/* ---------- (adult) someone who wants you makes the move ---------- */
+
+// Alone with you, someone who has been wanting you suggests a private moment (sim/initiative.ts decides when): Yes
+// starts it as if you'd picked it from the things to do; Not tonight costs nothing.
+export function moveCardHtml(g: Save, w: WorldDef): string {
+    if (state.view !== 'scene') return '';
+    const c = moveCard(g, w); if (!c) return '';
+    return `<aside class="mh-event mh-move mh-glass" role="dialog" aria-label="${esc(c.name)}"><b>${icon('heart')} <span data-notr>${esc(c.name)}</span> <span>pulls you closer</span></b>
+        <small class="mh-event-name" data-notr>${esc(c.action.label)}</small>
+        <div class="mh-event-btns"><button class="mu-primary" data-act="mv-yes">${icon('heart')}<span>Yes</span></button><button data-act="mv-no">${icon('x')}<span>Not tonight</span></button></div></aside>`;
+}
+
+Object.assign(ACT, {
+    'mv-yes': async () => {
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w || state.generating) return;
+        const a = acceptMove(g, w); saveGame(); notify();
+        if (a) await ACT.do?.({ dataset: { id: a.id } } as unknown as HTMLElement, undefined as any);   // ui/map.ts: its price, its time, in the scene or not
+    },
+    'mv-no': () => { const g = game(); if (!g) return; declineMove(g); saveGame(); notify(); },
+});
 
 Object.assign(ACT, {
     // they say goodbye in the scene (what they thought of it), then leave
