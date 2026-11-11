@@ -861,8 +861,9 @@ export function chooseEvent(g, w, i, rnd = Math.random) {
     const c = pick.c, out = [];
     let res = c, ok = null;
     if (c.roll) {
-        // (a choice at work is a `work` roll: what effects aimed at work add counts here, not on actions or stories)
-        const bonus = rollBonus(g, w, { skill: c.roll.skill, tags: ['work'] }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
+        // (a choice at work is a `work` roll: what effects aimed at work add counts here, not on actions or stories; and
+        // the job's id and tags, as `perf` and `pay` take them, so a trait aimed at stage work (`adult-stage`) reaches it)
+        const bonus = rollBonus(g, w, { skill: c.roll.skill, tags: ['work', o.id, ...(o.tags ?? [])] }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
         if (ok)
             tallyRoll(g, c.roll.skill);

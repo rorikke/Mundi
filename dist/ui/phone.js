@@ -19,7 +19,7 @@ import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
 import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack } from './relui.js';
 import { note } from '../sim/facts.js';
-import { notify, esc, game, toast, saveGame, settings, saveSettings, adultOn } from '../core/store.js';
+import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, socialKind, messageKind, appsShown, systemOn, isScenario } from '../core/world.js';
 import { upcoming } from '../sim/plans.js';
@@ -39,7 +39,7 @@ import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pend
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
-import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, LOOKING } from '../sim/feed.js';
+import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, appInterests, LOOKING } from '../sim/feed.js';
 import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
@@ -47,9 +47,7 @@ import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, YOU } from '../sim/rel.js';
 import { crushOn, canAsk } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
-import { groupOptions } from '../sim/traits.js';
-import { likesOf, sharedLikes } from '../sim/private.js';
-import { wordsIn } from '../sim/social.js';
+import { sharedLikes } from '../sim/private.js';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -487,18 +485,9 @@ function postApp(g) {
 function chips(list, on, act) {
     return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="${esc(act)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
 }
-// (adult, design 3d) The adult interest (Kink) shows on someone's card when their likes in bed mention what it covers, so
-// a match on it means something. It's only shown and highlighted here: the match chance counts the other interests.
-const KINK_WORDS = ['rope', 'tied', 'tied up', 'shibari', 'bondage', 'cuffs', 'restraints', 'spanking', 'spanked', 'paddle', 'flogger', 'orders', 'being led', 'pinned down', 'blindfold', 'edging', 'wax', 'collar'];
-const interestsOf = (g, w) => { const t = w.sheet.traits?.find(x => x.id === 'interests'); return t ? groupOptions(g, t) : []; };
-const kinkOf = (g, w) => (adultOn(g) ? interestsOf(g, w).find(o => /kink/i.test(o) && !(w.sheet.traits?.find(x => x.id === 'interests')?.options ?? []).includes(o)) ?? '' : '');
-function cardInterests(g, w, a, own) {
-    const k = kinkOf(g, w);
-    return k && !own.includes(k) && likesOf(g, a).some(l => wordsIn(g, KINK_WORDS, l)) ? [...own, k] : own;
-}
 function datingProfileApp(g, w) {
     const d = dating(g);
-    const interests = interestsOf(g, w);
+    const interests = appInterests(g, w);
     return `${head(T('yourProfile'), d.profile.ready ? 'dating' : 'home')}<div class="mu-ph-body">
         <div class="mu-ph-profile"><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b><small>${g.player.traits ? '' : ''}</small></div>
         <label class="mu-field"><span>${T('profileAbout')}</span><textarea rows="3" data-input="sp-bio" data-focus="sp-bio" placeholder="A line or two about you">${esc(d.profile.bio)}</textarea></label>
@@ -525,7 +514,7 @@ function datingApp(g, w) {
         <span class="mu-row"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="matches" aria-label="${T('matches')}" title="${T('matches')}">${icon('chat')}</button><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="dprofile" aria-label="${T('yourProfile')}" title="${T('yourProfile')}">${icon('user')}</button></span></div>`;
     if (!r)
         return `${top}<p class="mu-muted mu-pad">${T('noCandidates')}</p>`;
-    const p = theirProfile(g, w, r), interests = cardInterests(g, w, r.avatar, p.interests);
+    const p = theirProfile(g, w, r), interests = p.interests;
     const shared = interests.filter(i => d.profile.interests.includes(i)), both = sharedLikes(g, r.avatar).slice(0, 2); // (adult) likes in bed you share
     return `${top}<div class="mu-sp-card"><img src="${esc(thumb(r.avatar))}" alt="">
             <div class="mu-sp-info"><h3 data-notr>${esc(r.name)}</h3><small>${esc(p.looking)}</small>

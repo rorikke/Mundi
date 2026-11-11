@@ -4,15 +4,16 @@ import { romanceBlocked } from './family.js';
 import { relOf, idOf, attraction, YOU } from './rel.js';
 import { needsOf } from './intimacy.js';
 import { scriptText } from '../core/safe.js';
-import { nowAbs, settings, saveSettings } from '../core/store.js';
+import { nowAbs, settings, saveSettings, adultOn } from '../core/store.js';
 import { appsOf, socialKind, aiVoice, systemOn } from '../core/world.js';
 import { ctx, charOf, personaName, sayLine } from '../st/bridge.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { whereNow, residents } from './people.js';
-import { social, addBond, standsWith, isPartner, bondAtLeast } from './social.js';
-import { sharedLikes } from './private.js';
+import { social, addBond, standsWith, isPartner, bondAtLeast, wordsIn } from './social.js';
+import { sharedLikes, likesOf } from './private.js';
+import { groupOptions } from './traits.js';
 export function feed(g) {
     const s = social(g);
     const f = (s.feed ??= {});
@@ -152,13 +153,22 @@ export function lookingOf(g, avatar) {
         return 'Something casual';
     return LOOKING[hash(avatar) % LOOKING.length];
 }
+// (adult, design 3d) The adult interest (Kink) is someone's when their likes in bed mention what it covers, so a match on
+// it means something: it shows on their card and counts as a shared interest like the others.
+export const KINK_WORDS = ['rope', 'tied', 'tied up', 'shibari', 'bondage', 'cuffs', 'restraints', 'spanking', 'spanked', 'paddle', 'flogger', 'orders', 'being led', 'pinned down', 'blindfold', 'edging', 'wax', 'collar'];
+// The interests a player can pick on the app (adult options with adult content on).
+export const appInterests = (g, w) => { const t = w.sheet.traits?.find(x => x.id === 'interests'); return t ? groupOptions(g, t) : []; };
+// The world's adult interest named Kink, with adult content on.
+export const kinkInterest = (g, w) => (adultOn(g) ? appInterests(g, w).find(o => /kink/i.test(o) && !(w.sheet.traits?.find(x => x.id === 'interests')?.options ?? []).includes(o)) ?? '' : '');
 // Her profile on the app: who she is, what she looks for and a few interests.
 export function theirProfile(g, w, r) {
     const h = hash(r.avatar);
     const interests = (w.sheet.traits?.find(t => t.id === 'interests')?.options ?? []);
+    const own = [interests[h % interests.length], interests[(h >> 3) % interests.length]].filter((x, i, a) => x && a.indexOf(x) === i);
+    const kink = kinkInterest(g, w);
     return {
         looking: lookingOf(g, r.avatar),
-        interests: [interests[h % interests.length], interests[(h >> 3) % interests.length]].filter((x, i, a) => x && a.indexOf(x) === i),
+        interests: kink && likesOf(g, r.avatar).some(l => wordsIn(g, KINK_WORDS, l)) ? [...own, kink] : own,
         bio: about(r).split(/(?<=[.!?])\s/).slice(0, 2).join(' '),
         onApp: h % 10 < 8,
     };
@@ -173,8 +183,8 @@ export function candidates(g, w) {
     return residents(g).sort((a, b) => mine(b) - mine(a) || hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`))
         .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && mine(r) > 0);
 }
-// A like matches when you have enough in common (what you both look for, shared interests and, with adult content on,
-// likes in bed you share: two at most) and a bit of luck.
+// A like matches when you have enough in common (what you both look for, shared interests, Kink included, and, with adult
+// content on, likes in bed you share: two at most) and a bit of luck.
 export function swipe(g, w, avatar, like) {
     const d = dating(g);
     d.seen[avatar] = like ? 'like' : 'pass';

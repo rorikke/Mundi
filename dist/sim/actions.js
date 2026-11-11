@@ -41,8 +41,10 @@ export function privateCheck(g, w, a, place, mates, rnd, scene = false) {
     if (!talk)
         for (const f of privateChecks) {
             f(g, w, x);
-            if (x.stop)
+            if (x.stop) {
+                x.stop.stopped = true;
                 break;
+            }
         }
     return x;
 }
@@ -152,8 +154,9 @@ function results(g, w, a, o) {
             lines.push({ text: p, kind: 'success' });
     }
     const together = doneTogether(g, w, mates, a.minutes);
-    if (mates.length || withYou(g, w).length)
-        tallyTogether(g, a.id); // (cooking for a friend: someone with you counts)
+    const company = mates.length ? mates : withYou(g, w);
+    if (company.length)
+        tallyTogether(g, a.id, company); // (cooking for a friend: someone with you counts)
     // remembered: its own fact (the outcome's, the roll's, the action's), or a plain one when nothing else wrote one
     const own = outcome?.fact ?? res?.fact ?? a.fact;
     const withWho = mates.length ? names(g, mates) : '';

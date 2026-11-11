@@ -5,7 +5,7 @@
 //
 // `count` holds one number per key: `action:<id>` and `tag:<tag>` (an action done, from onAction), `event:<name>` (the
 // engine's own moments: TALLY_EVENTS), `people:<name>` (that moment with someone for the first time: dates with three
-// people), `with:<id>` and `with:any` (an action done with someone), `roll:<skill>` and `win:<action id>` (rolls that
+// people), `with:<id>` and `with:any` (an action done with someone; `action:<id>|<avatar>` with each of them), `roll:<skill>` and `win:<action id>` (rolls that
 // went well), `festival:<id>`, `cityevent:<id>` and `attended:any` (festivals celebrated and city events gone to).
 import { nowAbs } from '../core/store.js';
 import { onAction, onHour, onLook } from './hooks.js';
@@ -67,8 +67,10 @@ export function tallyAttend(g, kind, id) { add(g, `${kind}:${id}`); add(g, 'atte
 export function tallyRoll(g, skill, action) { if (skill)
     add(g, `roll:${skill}`); if (action)
     add(g, `win:${action}`); }
-/** An action done with someone (time together). */
-export function tallyTogether(g, action) { add(g, `with:${action}`); add(g, 'with:any'); }
+/** An action done with someone (time together); and with each of them (`action:<id>|<avatar>`), so `did: <action> with
+ *  <level>` counts it for whoever was there (a night at the hotel with a partner). */
+export function tallyTogether(g, action, who = []) { add(g, `with:${action}`); add(g, 'with:any'); for (const a of new Set(who))
+    add(g, `action:${action}|${a}`); }
 /* ---------- where you've been, your best ranks, your home ---------- */
 /** Have you been to this place? */
 export const beenTo = (g, place) => g.tally?.visited?.[place] !== undefined;

@@ -94,6 +94,8 @@ export function upgradeTraitInfo(own, offered) {
         const x = {};
         if (typeof info.desc === 'string')
             x.desc = info.desc;
+        if (typeof info.ai === 'string' && info.ai.trim())
+            x.ai = info.ai.trim();
         if (info.effects !== undefined)
             x.effects = cleanEffects(info.effects);
         if (info.covers && typeof info.covers === 'object')

@@ -83,9 +83,12 @@ export function applyTimedRules(g, w) {
         }
         const v = g.player.stats[s.id] ?? s.start;
         // (Home: an empty need only shows, and the AI is told; nobody faints)
+        // (above zero, the drain's clock stops too: the next time it empties, the drain starts from then, not from the
+        // last time it was empty days ago, all those hours at once)
         if (v > 0 || !s.zero || isScenario(w)) {
             delete g.tick[`zero:${s.id}`];
             delete g.tick[`crisis0:${s.id}`];
+            delete g.tick[`drain:${s.id}`];
             continue;
         }
         out.push(...crisisCheck(g, w, s));
