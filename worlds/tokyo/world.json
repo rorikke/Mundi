@@ -12770,7 +12770,7 @@
    "icon": "🌳",
    "cost": 0,
    "minutes": 40,
-   "place": "sb_yoyogi",
+   "place": "ot_ueno",
    "effects": {
     "mood": 12,
     "energy": -8,
@@ -34581,7 +34581,8 @@
     }
    ],
    "tags": [
-    "adult-stage"
+    "adult-stage",
+    "exhib"
    ],
    "promote": [
     25,
@@ -36300,7 +36301,8 @@
     }
    ],
    "tags": [
-    "adult-stage"
+    "adult-stage",
+    "exhib"
    ],
    "tracks": {
     "woman": {
@@ -40246,7 +40248,8 @@
      "target": "intimate:follow",
      "value": 0.1
     }
-   ]
+   ],
+   "ai": "{{user}} takes the lead in intimacy: sets the pace and likes a partner who lets go."
   },
   "Follows": {
    "desc": "Likes to be led in intimacy: told what to do and praised for it. With someone who likes to lead, romance from private moments grows 10% faster and the roll is a little easier; with someone who also follows, harder.",
@@ -40256,7 +40259,8 @@
      "target": "intimate:lead",
      "value": 0.1
     }
-   ]
+   ],
+   "ai": "{{user}} likes to be led in intimacy: told what to do, and praised for it."
   },
   "Switch": {
    "desc": "Leads or follows depending on the partner and the night. Romance from private moments grows 5% faster with anyone, and it never clashes.",
@@ -40266,7 +40270,8 @@
      "target": "intimate",
      "value": 0.05
     }
-   ]
+   ],
+   "ai": "{{user}} leads or follows in intimacy, depending on the partner and the night."
   },
   "Low drive": {
    "desc": "Does not think about intimacy much; when it happens it is nice, not urgent. Desire drains slowly, and each night counts for a little less."
@@ -40303,7 +40308,8 @@
      "kind": "risk",
      "value": 0.1
     }
-   ]
+   ],
+   "ai": "{{user}} has no shame about their body or their appetites: happy to be watched, and says what they want."
   },
   "Kink": {
    "desc": "Interested in rope, blindfolds and play with power and control. Doing something that fits it lifts your mood a little more.",

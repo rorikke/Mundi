@@ -82,7 +82,10 @@ export function cleanEffects(list: unknown, lim: EffectLimits = TRAIT_LIMITS): E
  *  action or its place). */
 export interface TraitCovers { skills?: string[]; tags?: string[] }
 /** A trait's meaning in a world (`WorldDef.traitInfo`, by trait name). */
-export interface TraitInfo { desc?: string; effects?: EffectDef[]; covers?: TraitCovers }
+export interface TraitInfo { desc?: string; effects?: EffectDef[]; covers?: TraitCovers;
+    /** (optional) What the AI is told while you have it, `{{user}}` for you (an adult trait's only with adult content on):
+     *  In bed's "{{user}} takes the lead…", a drive's own words in place of the engine's. `desc` is the player's. */
+    ai?: string }
 
 /** The standard names' info (Calm, Shy, Music…), given to every world that has those names unless its own `traitInfo`
  *  has an entry for the name. Small on purpose: a trait's effect is about half a life-goal perk. Where a number in the
@@ -144,6 +147,7 @@ export function upgradeTraitInfo(own: Record<string, TraitInfo> | undefined, off
         if (!info || typeof info !== 'object') continue;
         const x: TraitInfo = {};
         if (typeof info.desc === 'string') x.desc = info.desc;
+        if (typeof info.ai === 'string' && info.ai.trim()) x.ai = info.ai.trim();
         if (info.effects !== undefined) x.effects = cleanEffects(info.effects);
         if (info.covers && typeof info.covers === 'object') x.covers = { ...(Array.isArray(info.covers.skills) ? { skills: info.covers.skills.filter(s => typeof s === 'string') } : {}), ...(Array.isArray(info.covers.tags) ? { tags: info.covers.tags.filter(s => typeof s === 'string') } : {}) };
         out[name] = x;

@@ -29,7 +29,8 @@ import { earn } from './points.js';
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
  *  you and what it did between you, and the line for the AI. */
-export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outcome: ActionOutcome | null; keepsake: string | null; with: string[]; together: TogetherGain[]; ai: string }
+export interface ActionDone { lines: ActionLine[]; roll: RollResult | null; outcome: ActionOutcome | null; keepsake: string | null; with: string[]; together: TogetherGain[]; ai: string;
+    /** (adult) a private check stopped it: it didn't play, and took no time (the screen skips its wait and "done") */ stopped?: boolean }
 
 /* ---------- private actions: the hooks (Tokyo's adult progression) ---------- */
 
@@ -51,7 +52,7 @@ export function privateCheck(g: Save, w: WorldDef, a: ActionDef, place: string, 
     const talk = isPillowTalk(g, a);
     if (!talk && !isPrivateAct(g, a)) return null;
     const x: PrivateCtx = { a, place, with: mates, rnd, scene, notes: {} };
-    if (!talk) for (const f of privateChecks) { f(g, w, x); if (x.stop) break; }
+    if (!talk) for (const f of privateChecks) { f(g, w, x); if (x.stop) { x.stop.stopped = true; break; } }
     return x;
 }
 /** After a private action's results: each result hook adds to what came of it (romance, learning, the lines). */
@@ -133,7 +134,8 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
     if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); const p = earn(g, w, 'keepsake', keep); if (p) lines.push({ text: p, kind: 'success' }); }
     const together = doneTogether(g, w, mates, a.minutes);
-    if (mates.length || withYou(g, w).length) tallyTogether(g, a.id);   // (cooking for a friend: someone with you counts)
+    const company = mates.length ? mates : withYou(g, w);
+    if (company.length) tallyTogether(g, a.id, company);   // (cooking for a friend: someone with you counts)
     // remembered: its own fact (the outcome's, the roll's, the action's), or a plain one when nothing else wrote one
     const own = outcome?.fact ?? res?.fact ?? a.fact;
     const withWho = mates.length ? names(g, mates) : '';

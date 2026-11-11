@@ -5,7 +5,7 @@
 //
 // `count` holds one number per key: `action:<id>` and `tag:<tag>` (an action done, from onAction), `event:<name>` (the
 // engine's own moments: TALLY_EVENTS), `people:<name>` (that moment with someone for the first time: dates with three
-// people), `with:<id>` and `with:any` (an action done with someone), `roll:<skill>` and `win:<action id>` (rolls that
+// people), `with:<id>` and `with:any` (an action done with someone; `action:<id>|<avatar>` with each of them), `roll:<skill>` and `win:<action id>` (rolls that
 // went well), `festival:<id>`, `cityevent:<id>` and `attended:any` (festivals celebrated and city events gone to).
 import { nowAbs, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
@@ -67,8 +67,9 @@ function tallyWith(g: Save, name: TallyEvent, who: string, n = 1) {
 export function tallyAttend(g: Save, kind: 'festival' | 'cityevent', id: string) { add(g, `${kind}:${id}`); add(g, 'attended:any'); }
 /** A roll that went well: by its skill (an action's, a story's or a work choice's) and, for an action, by its id. */
 export function tallyRoll(g: Save, skill: string | undefined, action?: string) { if (skill) add(g, `roll:${skill}`); if (action) add(g, `win:${action}`); }
-/** An action done with someone (time together). */
-export function tallyTogether(g: Save, action: string) { add(g, `with:${action}`); add(g, 'with:any'); }
+/** An action done with someone (time together); and with each of them (`action:<id>|<avatar>`), so `did: <action> with
+ *  <level>` counts it for whoever was there (a night at the hotel with a partner). */
+export function tallyTogether(g: Save, action: string, who: string[] = []) { add(g, `with:${action}`); add(g, 'with:any'); for (const a of new Set(who)) add(g, `action:${action}|${a}`); }
 
 /* ---------- where you've been, your best ranks, your home ---------- */
 

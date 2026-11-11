@@ -155,15 +155,19 @@ onAction.push((g, w, a) => {
 
 /* ---------- what the AI is told ---------- */
 
-/** One short line every turn: personality, interests, habits (the persona card says them once at the new game and goes
- *  stale; this stays true). Empty when there's nothing to say. */
+/** One short line every turn: personality, interests, habits, the lines a world gives its traits for the AI (`ai`) and
+ *  the drive (the persona card says them once at the new game and goes stale; this stays true). Empty when there's
+ *  nothing to say. */
 export function traitLine(g: Save, w: WorldDef): string {
     const t = (g.player.traits ?? {}) as Record<string, unknown>;
     const lower = (l: string[]) => l.map(x => x.toLowerCase()).join(', ');
     const on = adultOn(g), shown = (l: string[]) => (on ? l : l.filter(x => !isAdultTrait(w, x)));
     const per = shown(names(t.personality)), fun = shown(names(t.interests)), habits = habitTraits(g, w);
-    const drive = playerDrive(g, w);
-    const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', habits.length ? `Habits: ${lower(habits)}.` : '', drive ? PLAYER_DRIVE[drive].ai : ''].filter(Boolean);
+    const drive = playerDrive(g, w), drives = driveNames(w), ai = (n: string) => w.traitInfo?.[n]?.ai ?? '';
+    // a trait's own line for the AI (the world's words: In bed's, an overlay's), a drive's in place of the engine's
+    const pick = drive ? names(t[DRIVE_GROUP]).find(x => drives.has(x)) : undefined;
+    const lines = [...new Set([...traitsInPlay(g, w), ...habits])].filter(x => !drives.has(x)).map(ai).filter(Boolean);
+    const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', habits.length ? `Habits: ${lower(habits)}.` : '', ...lines, drive ? (pick && ai(pick)) || PLAYER_DRIVE[drive].ai : ''].filter(Boolean);
     return parts.join(' ');
 }
 

@@ -68,7 +68,7 @@ export function glowHour(g: Save, w: WorldDef) {
 export const CHAR_DRIVE: Record<IntimateDrive, { ready: number; wanting: number; frustrated: number; move: number }> = {
     low: { ready: 2 * D, wanting: 8 * D, frustrated: 24 * D, move: 0.15 },
     average: { ready: 12 * H, wanting: 4 * D, frustrated: 12 * D, move: 0.35 },
-    high: { ready: 2 * H, wanting: 2 * D, frustrated: 6 * D, move: 0.6 },
+    high: { ready: 2 * H, wanting: 2 * D, frustrated: 8 * D, move: 0.6 },   // (8 days, not the design's 6: a partner you meet weekly isn't frustrated by it; the long run, design 13.8)
 };
 /** After this many nights together you know someone's drive. */
 export const LEARN_AFTER = 3;
