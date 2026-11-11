@@ -129,11 +129,12 @@ export function profileApp(g, w, head) {
     const other = Object.keys(t).filter(k => !seen.has(k) && (t[k] ?? []).length);
     // life goals finished (old saves' aspirations were carried over into this list); nothing with the `goals` system off
     const goalsOn = systemOn(w, 'goals'), goals = goalsOn ? goalsState(g).done.length : 0;
+    const nTraits = traitsOf(g).length, nShifts = Math.round(countOf(g, 'shifts'));
     const taking = takingRows(g, w);
     return `${head}<div class="mu-ph-body mu-profile">
         <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
             <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
-            <span class="mu-pf-stats"><span><b>${traitsOf(g).length}</b><small>traits</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span>${goalsOn ? `<span><b>${esc(String(goals))}</b><small>goals</small></span>` : ''}<span><b>${Math.round(countOf(g, 'shifts'))}</b><small>shifts</small></span></span></section>
+            <span class="mu-pf-stats"><span><b>${nTraits}</b><small>${nTraits === 1 ? 'trait' : 'traits'}</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span>${goalsOn ? `<span><b>${esc(String(goals))}</b><small>${goals === 1 ? 'goal' : 'goals'}</small></span>` : ''}<span><b>${nShifts}</b><small>${nShifts === 1 ? 'shift' : 'shifts'}</small></span></span></section>
         <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j.rank + 1} of ${o.ranks.length}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
         <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are on the skills list below.</p>
             ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}" ${w.traitInfo?.[x]?.desc ? `title="${esc(w.traitInfo[x].desc)}"` : ''}>${esc(x)}</span>`).join('')}</div>

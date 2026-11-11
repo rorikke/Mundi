@@ -99,9 +99,13 @@ export function eventActions(g, w) {
             effects: { energy: -10 }, roll: { dc: 12, traits: [], success: { text: 'The crowd loved it.', money: st.pay, effects: { mood: 10 } }, fail: { text: 'A rough set; only a few people clapped.', effects: { mood: -4 } } } });
     return out;
 }
-// After one of those: you were there (once per event), and it is remembered.
+// After one of those: you were there (once per event), and it is remembered. It's asked once the time has passed, so the
+// event is the one on here now or when it began: a two-hour show watched to its end is over by then.
 export function afterEvent(g, w, a) {
-    const x = eventHere(g, w);
+    const id = a.id.replace(/^x-evs?-/, '');
+    if (id === a.id)
+        return [];
+    const x = [eventHere(g, w), eventHere(g, w, g.player.loc, nowAbs(g) - (a.minutes ?? 0))].find(e => e?.ev.id === id);
     if (!x)
         return [];
     const c = cityOf(g), out = [];
