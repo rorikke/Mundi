@@ -3,7 +3,8 @@
 // fast careers go (`career`, a speed that combines with the world's and the save's career speed, sim/work.ts).
 // Bills (rent, water, power) are due every week and paid by you, in the Homes app. A bill left unpaid for a week is
 // cut off: no water (no shower, no tap, no cooking), no power (no stove, TV, computer, coffee machine…), or, for the
-// rent, you are locked out of your home until you pay.
+// rent, you are locked out of your home until you pay what's overdue. You can pay part of a bill (toward its oldest
+// week), and a bill that's cut off owes no more weeks, so a debt never grows past what you can pay back.
 import { cfg, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { systemOn, getWorld, gameMode } from '../core/world.js';
@@ -50,7 +51,9 @@ const allBills = (w: WorldDef | null | undefined): BillDef[] => [
     ...expensesOf(w).filter(e => e.id && e.id !== 'rent').map(e => ({ icon: 'wallet', ...e, blocks: e.blocks ?? [] })),
 ];
 export const billName = (w: WorldDef | null | undefined, id: BillId) => allBills(w).find(b => b.id === id)?.name ?? id;
-interface Bill { due: number; told?: number; cutTold?: number }
+// `paid`: money already paid toward the oldest week owed (part payments); `warned`: the due date the last day's
+// warning was for.
+interface Bill { due: number; told?: number; cutTold?: number; warned?: number; paid?: number }
 const EVERY = 7;
 export function bills(g: Save): Record<BillId, Bill> {
     const x = g as any;
@@ -62,7 +65,18 @@ export function bills(g: Save): Record<BillId, Bill> {
     return x.bills;
 }
 // One bill's state; an expense the world added later starts a week from now.
-const billOf = (g: Save, id: BillId): Bill => (bills(g)[id] ??= { due: g.day + EVERY });
+const billOf = (g: Save, id: BillId): Bill => held(g, (bills(g)[id] ??= { due: g.day + EVERY }));
+// A bill cut off owes no more weeks (nobody charges rent for a door they locked): at most the week that was cut off and
+// the current one. Done wherever a bill is read, so a save from before this rule owes two weeks as soon as it's opened.
+function held(g: Save, b: Bill): Bill {
+    while (g.day >= b.due + 2 * EVERY) {
+        const was = b.due; b.due += EVERY;
+        if (b.told === was) b.told = b.due;
+        if (b.cutTold === was) b.cutTold = b.due;
+        if (b.warned === was) b.warned = b.due;
+    }
+    return b;
+}
 const zoneOf = (g: Save, w: WorldDef) => w.homes.zones.find(z => z.id === g.player.home.zone);
 export function billAmount(g: Save, w: WorldDef, id: BillId): number {
     const zone = zoneOf(g, w);
@@ -78,20 +92,51 @@ export const owed = (g: Save, id: BillId) => { const b = billOf(g, id); return g
 export const isDue = (g: Save, id: BillId) => owed(g, id) > 0;
 export const isCut = (g: Save, id: BillId) => g.day >= billOf(g, id).due + EVERY;
 export const daysLeft = (g: Save, id: BillId) => billOf(g, id).due - g.day;
+/** Already paid toward the oldest week owed. */
+export const paidToward = (g: Save, id: BillId) => (owed(g, id) ? billOf(g, id).paid ?? 0 : 0);
+/** What's left to pay of a bill: every week owed, less what was already paid toward the oldest one. */
+export const owedAmount = (g: Save, w: WorldDef, id: BillId) => Math.max(0, billAmount(g, w, id) * owed(g, id) - paidToward(g, id));
+/** What ends a cut-off: the overdue weeks (all but the current one), less what was paid toward them; 0 when not cut off. */
+export const toGetBackIn = (g: Save, w: WorldDef, id: BillId) => (isCut(g, id) ? Math.max(0, billAmount(g, w, id) * (owed(g, id) - 1) - paidToward(g, id)) : 0);
+/** Days until a bill that's due is cut off (0: it is). */
+export const daysToCut = (g: Save, id: BillId) => Math.max(0, billOf(g, id).due + EVERY - g.day);
+// What paying a bill does now: everything when you have it; else, cut off, what ends the cut-off; else what you have
+// toward it, keeping a day of food, so paying never leaves you with nothing to eat.
+export type PayPlan = { how: 'all' | 'back' | 'part' | 'none'; amount: number };
+export function payPlan(g: Save, w: WorldDef, id: BillId): PayPlan {
+    const total = owedAmount(g, w, id), have = Math.max(0, g.player.money);
+    if (!total) return { how: 'none', amount: 0 };
+    if (have >= total) return { how: 'all', amount: total };
+    const back = toGetBackIn(g, w, id);
+    if (back && have >= back) return { how: 'back', amount: back };
+    const part = Math.min(total, have - foodKeep(g, w));
+    return part > 0 ? { how: 'part', amount: part } : { how: 'none', amount: 0 };
+}
+// A day of food: three of the cheapest things to eat anywhere (a snack), at today's prices.
+export function foodKeep(g: Save, w: WorldDef): number {
+    const eats = (w.actions ?? []).filter(a => a.anywhere && a.cost > 0 && (a.effects?.hunger ?? 0) > 0).map(a => a.cost);
+    return eats.length ? priceOf(g, Math.min(...eats)) * 3 : 0;
+}
 
 const LEX_CUT: Record<string, string> = { rent: 'cutRent', water: 'cutWater', power: 'cutPower' };
 const LEX_BACK: Record<string, string> = { rent: 'backRent', water: 'backWater', power: 'backPower' };
 const LEX_NO: Record<string, string> = { water: 'noWater', power: 'noPower' };
+// Pays what `payPlan` says, the oldest week first: each week paid in full moves the due date on a week, and what's
+// paid of a week stays toward it. Returns what to tell the player ('' for a plain payment).
 export function payBill(g: Save, w: WorldDef, id: BillId): string {
     const n = owed(g, id); if (!n) return '';
-    const amount = billAmount(g, w, id) * n;
-    if (g.player.money < amount) return `Not enough money (${money(w, amount)}).`;
+    const plan = payPlan(g, w, id);
+    if (plan.how === 'none') return `Not enough money (${money(w, toGetBackIn(g, w, id) || owedAmount(g, w, id))}).`;
     const wasCut = isCut(g, id);
     const def = billList(w).find(b => b.id === id);
-    g.player.money -= amount;
-    book(g, `${billName(w, id)}${n > 1 ? ` (${n} weeks)` : ''}`, -amount);
-    billOf(g, id).due += EVERY * n;
-    if (!wasCut) return '';
+    const b = billOf(g, id), week = billAmount(g, w, id);
+    g.player.money -= plan.amount;
+    let credit = (b.paid ?? 0) + plan.amount, weeks = 0;
+    while (week > 0 && credit >= week && owed(g, id) > 0) { credit -= week; b.due += EVERY; weeks++; }
+    if (credit > 0 && owed(g, id) > 0) b.paid = credit; else delete b.paid;
+    book(g, `${billName(w, id)}${plan.how === 'all' ? (n > 1 ? ` (${n} weeks)` : '') : ` (part: ${weeks ? `${weeks} ${weeks > 1 ? 'weeks' : 'week'}` : 'toward a week'})`}`, -plan.amount);
+    const left = owedAmount(g, w, id);
+    if (!wasCut || isCut(g, id)) return left ? `Paid ${money(w, plan.amount)}: ${money(w, left)} still to pay.` : '';
     return def?.back || (LEX_BACK[id] && def && defaultName(w, def) ? lex(w, LEX_BACK[id]) : lex(w, 'backGeneric', billName(w, id)));
 }
 /** The bills of your home that cost something (the rent only where the world charges rent). */
@@ -104,7 +149,8 @@ export function skipBills(g: Save, w: WorldDef): string[] | null {
     for (const b of list) billOf(g, b.id).due += EVERY;
     return [`No ${list.map(b => b.name.toLowerCase()).join(', ')} to pay this week.`];
 }
-// Moving in: the first week is paid with the deposit, so everything starts fresh.
+// Moving in: the first week is paid with the deposit, so everything starts fresh (what the old home was still owed
+// stays behind, with its deposit).
 export function resetBills(g: Save, w?: WorldDef | null) {
     const ids = new Set([...Object.keys((g as any).bills ?? {}), ...allBills(w).map(b => b.id)]);
     (g as any).bills = Object.fromEntries([...ids].map(id => [id, { due: g.day + EVERY }]));
@@ -120,6 +166,10 @@ export function billNews(g: Save, w: WorldDef): string[] {
         if (isCut(g, def.id) && b.cutTold !== b.due) {
             b.cutTold = b.due;
             out.push(def.cut ? def.cut.replace('{app}', appRef(w, 'homes')) : LEX_CUT[def.id] && defaultName(w, def) ? lex(w, LEX_CUT[def.id], appRef(w, 'homes')) : lex(w, 'cutGeneric', def.name, appRef(w, 'homes')));
+        } else if (isDue(g, def.id) && g.day >= b.due + EVERY - 1 && b.warned !== b.due) {
+            // the last day before it's cut off
+            b.warned = b.due; b.told = b.due;
+            out.push(lex(w, def.id === 'rent' ? 'lastRent' : 'lastBill', def.name, money(w, owedAmount(g, w, def.id)), appRef(w, 'homes')));
         } else if (isDue(g, def.id) && b.told !== b.due) {
             b.told = b.due;
             out.push(lex(w, 'billDue', def.name, money(w, billAmount(g, w, def.id)), appRef(w, 'homes')));
@@ -142,3 +192,10 @@ export function cutReason(g: Save, id: string, w?: WorldDef | null): string {
     return '';
 }
 export const lockedOut = (g: Save) => systemOn(getWorld(g.world), 'bills') && isCut(g, 'rent');
+/** For the AI: you can't go home. */
+export const lockedOutLine = (g: Save, w: WorldDef) => (systemOn(w, 'bills') && isCut(g, 'rent') ? '{{user}} is locked out of home over unpaid rent until it is paid, and cannot sleep or do anything there.' : '');
+/** The cheapest home elsewhere with a free spot (`free`: its free spots), at the rent you'd pay there. */
+export function cheapestHome(g: Save, w: WorldDef, free: (zone: string) => number): { name: string; rent: number } | null {
+    const z = w.homes.zones.filter(x => x.id !== g.player.home.zone && free(x.id) > 0).sort((a, b) => (a.rent ?? 0) - (b.rent ?? 0))[0];
+    return z ? { name: z.name, rent: priceOf(g, z.rent ?? 0) } : null;
+}
