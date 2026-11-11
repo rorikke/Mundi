@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.3.2 · 2026-11-11
+
+Life goals with perks and life points to spend; and with adult content on, Tokyo's love life and night world have
+something to play. Rent you can pay in part, and fixes for every world. Your saves open as they are: no save format
+change, and your old aspirations carry over as life goals.
+
+### Life goals and life points
+
+- **Follow one life goal at a time** through its three or four steps. Switching pauses a goal and keeps what it had
+  counted, so nothing is lost. Finishing one gives a **perk** that changes a number in the game for good (prices,
+  energy, how fast skills train, a reroll a day…). There are 22 general goals, and Tokyo has 25 of its own, six of
+  them adult. Your old aspirations and what you finished carry over.
+- **Life points** come from steps and finished goals, and a little from small things (a first festival each year, a
+  street story, a secret, a storyline you followed ending, a new keepsake, something you learn of a lover), at most 60
+  a day from small things.
+- **The rewards shop** (the Goals app's Rewards tab): a focused or lucky day, a second wind, a nudge to someone's
+  feelings, clearing the air or a fresh start, forgiveness, an invitation, quieting a rumor, insight into someone,
+  changing a trait, skipping a step, a rent holiday and a clean slate at work. Tokyo adds its shrine charms: the
+  omikuji, four omamori, the daruma and the ema.
+- **The Goals app** shows your goal's progress step by step, a few suggested goals and every goal by category; your
+  perks are on your profile. The World creator writes a world's own goals, perks and rewards.
+
+### Tokyo's adult progression (adult content only)
+
+- **Private moments play.** A new skill, Sensuality, rolls each private moment: it can go great, good or awkward, and
+  an awkward night costs nothing. You learn what someone likes and what they won't do; a hard limit stops the moment
+  kindly, and you remember it. *Pillow talk* after a night, two lovers at once, and a night that happens only in the
+  chat counts too.
+- **Desire, and a drive for everyone.** A Desire need you pick the pace of (Low, Average or High drive, each with its
+  trade-offs), and a drive for every character: when they're ready again, when they've been wanting you, when a
+  partner gets frustrated. Someone who wants you may make the move in a scene; saying no costs nothing.
+- **Who you are in bed:** *Leads*, *Follows* or *Switch*, the *Good in bed* strength, Shameless, the Kink interest
+  (it counts on the dating app), and two habits. Flirtatious is a new personality trait for everyone.
+- **Getting caught.** Some places are risky: a fee, a week's ban, a rumor, a partner who hears about it, and a raid
+  at work.
+- **Careers with a track for each gender.** The video industry opens to the player: actresses are scouted, actors
+  need an introduction and start as extras. A new job, the esthe therapist at *Aroma Room Lily* in Shinjuku, works the
+  men's esthe or women's services. Pole dance classes and a massage course lead into them.
+- **Five adult goals and three shop items,** a profile of likes and limits for everyone, people you make and your own
+  cards included, and the World creator edits all of it. Nothing of it exists with adult content off.
+
+### Rent and fixes
+
+- **Rent can be paid in part,** oldest week first. A bill that's cut off owes no more weeks, you're warned the day
+  before the lock, and the Homes app says what gets you back in or where a cheaper home is. The *Tokyo born* start
+  pays a family share of ¥10,000 a week instead of the whole house's rent.
+- **A need that empties again drains from then,** not all the hours since it was last empty (hunger no longer takes
+  days of health at once). Every world.
+- **Things done with someone count for each of them** in life goals' steps.
+- **A city event watched to its end counts as attended.** Tokyo's fireworks, beach, boats and street music go on in hot
+  and humid weather. Club Hibiscus opens at 20:00 as its hours say, so helping Sayuri before the guests come is offered.
+  A course's class is held at its place even before the place opens to the public.
+- **A ready persona keeps its own description:** renaming it in the Library works, and changing a trait no longer
+  touches it.
+- Everything new in Portuguese and Spanish.
+
 ## 0.3.1 · 2026-11-11
 
 Who you are, and courses that take weeks; gifts, private moments and your own additions to a world. Your saves open as

@@ -1,9 +1,19 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.3.1';
+export const VERSION = '0.3.2';
 
 export interface Release { v: string; title: string; items: [string, string][] }
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG: Release[] = [
+    { v: '0.3.2', title: 'Life goals, and Tokyo after dark', items: [
+        ['star', "Life goals: follow one through its steps, switch any time without losing what it counted, and finishing it gives a perk for good. Tokyo has 25 of its own."],
+        ['sparkles', "Life points from steps and small moments buy a lucky day, a nudge, an invitation, insight into someone and Tokyo's shrine charms."],
+        ['heart', "With adult content on, Tokyo's love life plays: private moments go great, good or awkward, and you learn what someone likes and won't do."],
+        ['flame', "Desire, and a drive for you and everyone: some want you often, some rarely, and someone who wants you may make the move."],
+        ['moon', "Risky places can get you caught: a fee, a week's ban, a rumor and a partner who hears about it."],
+        ['briefcase', "Careers with a track for each gender: the video industry and the new esthe therapist at Aroma Room Lily, with pole and massage classes."],
+        ['wallet', "Rent can be paid in part, you're warned the day before the lock, and the Homes app shows the way back in."],
+        ['globe', "Everything new in Portuguese and Spanish, and fixes for every world: a need that empties no longer hits all at once."],
+    ] },
     { v: '0.3.1', title: 'Who you are, and courses that take weeks', items: [
         ['star', "Who you are matters: your strengths start your skills (Good cook · Cooking 3), and each personality trait and interest does something small. Habits have names of their own and make their skill train faster."],
         ['book', "Courses take weeks: classes on a schedule, a few you can miss, make-up classes, two courses at once, fees by the season and help with the fee. Tokyo has 17."],

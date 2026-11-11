@@ -9,6 +9,7 @@ point of view, and grows as new ones arrive.
 - [Who you are, and courses that take weeks](#who-you-are-and-courses-that-take-weeks)
 - [Life goals and life points](#life-goals-and-life-points)
 - [Tokyo's adult progression](#tokyos-adult-progression)
+- [Owing rent](#owing-rent)
 
 ## A color for each speaker's dialogue
 
@@ -393,7 +394,7 @@ Six adult goals, only with adult content on:
 |---|---|---|
 | *King or queen of Kabukichō* | work up as a host or hostess | *Silver tongue*: hosts and hostesses are paid 15% more |
 | *Adult star* | an AV career, to the top of your track | *Fan service*: performance in stage and screen work grows 20% faster |
-| *The art of pleasure* | Sensuality 3, a class, eight things learned about your lovers, Sensuality 8 | *Attentive lover*: romance from private moments grows 15% faster |
+| *The art of pleasure* | Sensuality 3, a class, eight things you know your lovers like or won't do (what you learned before the goal counts), Sensuality 8 | *Attentive lover*: romance from private moments grows 15% faster |
 | *Keeping the spark* | ten moments with a partner, a night away, a gift they love, then a season | *Sleeping in their arms*: a night together rests you 25% better |
 | *Open hearts* | a partner with an open style and a second partner, a night for three, a season without jealousy | *Compersion* |
 | *Thrill seeker* | get away with it, then the ryokan's bath, the office or the park, then five times | *Blind spots* |
@@ -417,3 +418,19 @@ Nothing in the shop gets past a hard limit, a "not tonight", a lack of attractio
 - **Your existing games** open as they were. A person of the world whose profile had no role or drive gets it from the
   world once, never over a value you set; people made in the game and people from your own cards get a profile from the
   world's pool (only with adult content on). Desire starts at 60, and Drive at Average.
+
+## Owing rent
+
+Rent, water and power are paid weekly, and a bill you don't pay gets cut off: your home is locked, or the water or
+power stops. Owing more than you have used to lock you out for good. Now:
+
+- **You can pay part of what you owe,** oldest week first. Each bill in the Homes app has one button that says what it
+  does: pay everything, pay what gets you back in, or pay what you can toward it (it always leaves you a day of food).
+  You're back in once nothing is more than a week overdue.
+- **A bill that's cut off owes no more weeks** while it stays cut off, so the debt stays something you can pay off.
+- **You're warned the day before** a bill would be cut off, with what to pay.
+- **The Homes app says what's owed**: the total, the weeks, what you've already paid toward it and when it will be cut
+  off; while you're locked out, the cheapest home you could move to. The HUD's "Locked out" button says how much gets
+  you back in. Moving out leaves the old debt behind.
+- **Tokyo born pays a family share** of ¥10,000 a week while living in the family home, instead of the whole house's
+  rent. A game already started as Tokyo born, still in the family home, moves to the share once.

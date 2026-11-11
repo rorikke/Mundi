@@ -7060,5 +7060,14 @@ const DICT: Record<string, string> = {
  "Or move somewhere cheaper: {0}, {1} a week, paid one week in advance.": "O múdate a un sitio más barato: {0}, {1} a la semana, con una semana por adelantado.",
  "Your rent at home is now {0} a week ({1}).": "Tu alquiler en casa ahora es {0} a la semana ({1}).",
  "Rent you pay there, a week (empty: the home's own, {0}; until you move)": "Alquiler que pagas allí, a la semana (vacío: el de la propia casa, {0}; hasta que te mudes)",
+ "Life goals, and Tokyo after dark": "Metas de vida, y Tokio al caer la noche",
+ "Life goals: follow one through its steps, switch any time without losing what it counted, and finishing it gives a perk for good. Tokyo has 25 of its own.": "Metas de vida: sigue una por sus pasos, cambia cuando quieras sin perder lo que contó, y terminarla te da una ventaja para siempre. Tokio tiene 25 propias.",
+ "Life points from steps and small moments buy a lucky day, a nudge, an invitation, insight into someone and Tokyo's shrine charms.": "Los puntos de vida de los pasos y de pequeños momentos compran un día de suerte, un empujoncito, una invitación, una mirada a alguien y los amuletos de los santuarios de Tokio.",
+ "With adult content on, Tokyo's love life plays: private moments go great, good or awkward, and you learn what someone likes and won't do.": "Con el contenido adulto activado, la vida amorosa de Tokio se juega: los momentos privados salen geniales, bien o incómodos, y descubres lo que a alguien le gusta y lo que no hace.",
+ "Desire, and a drive for you and everyone: some want you often, some rarely, and someone who wants you may make the move.": "Deseo, y una libido para ti y para todos: algunos te quieren a menudo, otros rara vez, y quien te desea puede dar el primer paso.",
+ "Risky places can get you caught: a fee, a week's ban, a rumor and a partner who hears about it.": "Los lugares arriesgados pueden hacer que te pillen: una multa, una semana vetado, un rumor y una pareja que se entera.",
+ "Careers with a track for each gender: the video industry and the new esthe therapist at Aroma Room Lily, with pole and massage classes.": "Carreras con un camino para cada género: la industria del vídeo y la nueva terapeuta de estética en Aroma Room Lily, con clases de pole dance y de masaje.",
+ "Rent can be paid in part, you're warned the day before the lock, and the Homes app shows the way back in.": "El alquiler se puede pagar en parte, te avisan el día antes del bloqueo, y la app Casas muestra cómo volver a entrar.",
+ "Everything new in Portuguese and Spanish, and fixes for every world: a need that empties no longer hits all at once.": "Todo lo nuevo en portugués y español, y arreglos para todos los mundos: una necesidad que se vacía ya no golpea de una vez.",
 };
 export default DICT;
