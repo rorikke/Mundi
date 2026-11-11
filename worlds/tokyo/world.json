@@ -41607,8 +41607,8 @@
       }
      },
      {
-      "name": "Learn eight things about your lovers",
-      "when": "did: learned 8",
+      "name": "Know eight things about your lovers",
+      "when": "known: 8",
       "reward": {
        "mood": 6
       }
