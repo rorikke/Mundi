@@ -1,7 +1,9 @@
 // The phone's Help app: a window in the middle of the screen that explains each part of the game, topic by topic.
 import { notify, game, esc } from '../core/store.js';
-import { getWorld, appsOf, styleOf, isScenario, type WorldDef } from '../core/world.js';
+import { getWorld, appsOf, styleOf, isScenario, systemOn, type WorldDef } from '../core/world.js';
 import { lex, appRef } from '../core/lexicon.js';
+import { GOAL_POINTS } from '../core/goals.js';
+import { DAILY_CAP } from '../sim/points.js';
 import { billList as bills } from '../sim/bills.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
@@ -85,6 +87,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     const dev = lex(w, 'device'); const devl = dev.toLowerCase();
     const billList = bills(w).map(b => b.name).join(', ').replace(/, ([^,]*)$/, ' and $1');
     const modern = styleOf(w) === 'modern';
+    const goalsOn = !w || systemOn(w, 'goals');
     return [
     { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
         items: [
@@ -146,9 +149,18 @@ const topics = (w: WorldDef | null): Topic[] => {
             [app('plans'), 'Your plans, who is with you, and parties.'],
             [app('journal'), 'A calendar of your days, with each day\'s diary and what happened.'],
             [lex(w, 'profile'), lex(w, 'profileHelp')],
-            [app('goals'), 'Pick a life goal. Reaching it gives you a trait for good.'],
+            ...(goalsOn ? [[app('goals'), 'Your life goal, its steps and the goals you could follow; its Rewards tab spends your life points.'] as [string, string]] : []),
             ...(modern ? [['Settings', 'Change the wallpaper: a picture from your computer, a link, or your gallery.'] as [string, string]] : []),
         ] },
+    ...(goalsOn ? [<Topic>{ id: 'goals', icon: 'star', title: 'Life goals and life points', intro: `Like in The Sims: follow one life goal at a time, ${appRef(w, 'goals')}. Nothing is required; a goal gives your days a direction, and finishing it gives you something for good.`,
+        items: [
+            ['A life goal', 'A few steps toward something you want (cooking for friends, the top of a career, every corner of the city). The goals suggested first suit how you started. The AI knows the goal you follow.'],
+            ['Steps', 'Each step lists what it asks for and how far you are ("Meals cooked 6/15"). Steps are done in order, as soon as everything they ask for holds; some must keep holding for a few days. What you do counts for the goal you follow, from when you picked it.'],
+            ['Switching', 'Switch whenever you like: the goal you leave is paused and keeps its finished steps and what it counted, for when you pick it again.'],
+            ['A perk', 'Finishing a goal gives a perk: a small change to the game\'s numbers that lasts for good (lower prices, energy that lasts longer, a bonus on rolls). A goal gives a perk, not a trait: traits are who you are. Your perks are in the Goals app and on your profile; when two touch the same thing, percentages multiply and flat bonuses add.'],
+            ['Life points', `Each step of your goal gives life points (${GOAL_POINTS.step}), and finishing it more (${GOAL_POINTS.goal}). Festivals and city events (the first time each year), street stories, secrets and storylines you followed give a few too, up to ${DAILY_CAP} a day.`],
+            ['Rewards', 'Spend life points in the Goals app\'s Rewards tab: a lucky day, energy full now, a nudge in how someone feels about you, a fresh start with someone, a trait swapped… Each shows its price and how often it can be used; some only work in certain places, and a world may have its own.'],
+        ] }] : []),
     { id: 'journal', icon: 'book', title: 'Memory and the diary', intro: 'Mundi remembers in short facts ("You met Bianca at the café"). The AI gets only the facts of the people in the scene.',
         items: [
             ['The diary', 'Written when you sleep, from the day\'s facts and conversations. It tells the AI what happened on the days before.'],
