@@ -479,6 +479,9 @@ export const INPUT_MODE = { v: 'say' as InputMode };
 function modesHtml() {
     return `<div class="mh-modes">${MODES.map(([id, label, ic]) => `<button class="${INPUT_MODE.v === id ? 'is-on' : ''}" data-act="input-mode" data-v="${esc(id)}" title="${({ say: 'What you say out loud', do: 'What you do', story: 'Steer the story (a direction for the narrator)', see: 'Look at something: the AI describes what you see' } as any)[id]}">${icon(ic)}<span>${label}</span></button>`).join('')}</div>`;
 }
+// A line that already quotes what's said (a pair of quote marks anywhere: "…", “…”, 「…」), with narration around it or
+// not: Say sends it as written instead of wrapping it all in quotes. One lone mark (5'10") doesn't count.
+export const quotesSpeech = (t: string) => (t.match(/["“”]/g) ?? []).length >= 2 || /「[^」]*」/.test(t);
 // How a line is sent in each mode.
 export function shapeLine(text: string): string {
     const t = text.trim();
@@ -486,7 +489,7 @@ export function shapeLine(text: string): string {
         case 'do': return /^\*.*\*$/s.test(t) ? t : `*${t.replace(/^\*|\*$/g, '')}*`;
         case 'story': return `[Story direction: ${t}]`;
         case 'see': return `*looks at ${t.replace(/^(at|the)\s+/i, (m) => m.toLowerCase() === 'at ' ? '' : m)}* [Describe what {{user}} sees.]`;
-        default: return /^["“*]/.test(t) ? t : `"${t}"`;
+        default: return /^["“*]/.test(t) || quotesSpeech(t) ? t : `"${t}"`;
     }
 }
 
