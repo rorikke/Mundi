@@ -285,7 +285,8 @@
    "seamage": 3
   },
   "goals": [],
-  "rewards": []
+  "rewards": [],
+  "degrees": []
  },
  "modern": {
   "maps": [
@@ -534,7 +535,8 @@
    "chef": 4
   },
   "goals": [],
-  "rewards": []
+  "rewards": [],
+  "degrees": []
  },
  "urban": {
   "maps": [
@@ -776,7 +778,8 @@
    "chef": 3
   },
   "goals": [],
-  "rewards": []
+  "rewards": [],
+  "degrees": []
  },
  "house": {
   "maps": [
@@ -920,7 +923,8 @@
    "office": 3
   },
   "goals": [],
-  "rewards": []
+  "rewards": [],
+  "degrees": []
  },
  "manor": {
   "maps": [
@@ -1006,7 +1010,8 @@
   ],
   "ranks": {},
   "goals": [],
-  "rewards": []
+  "rewards": [],
+  "degrees": []
  },
  "tokyo": {
   "maps": [
@@ -1601,7 +1606,47 @@
    "omotenashi",
    "guitar",
    "pole",
-   "massage"
+   "massage",
+   "m_econ_principles",
+   "m_econ_stats",
+   "m_econ_writing",
+   "m_econ_macro",
+   "m_econ_accounting",
+   "m_econ_japan",
+   "m_econ_finance",
+   "m_econ_marketing",
+   "m_econ_seminar",
+   "m_econ_business",
+   "m_jpen_english",
+   "m_jpen_literature",
+   "m_jpen_japanese",
+   "m_jpen_english2",
+   "m_jpen_translation",
+   "m_jpen_media",
+   "m_jpen_linguistics",
+   "m_jpen_teaching",
+   "m_jpen_seminar",
+   "m_jpen_heritage",
+   "m_cs_programming",
+   "m_cs_math",
+   "m_cs_gamedesign",
+   "m_cs_programming2",
+   "m_cs_data",
+   "m_cs_graphics",
+   "m_cs_systems",
+   "m_cs_gamestudio",
+   "m_cs_project",
+   "m_cs_ml",
+   "m_arts_drawing",
+   "m_arts_history",
+   "m_arts_color",
+   "m_arts_illustration",
+   "m_arts_fashion",
+   "m_arts_photo",
+   "m_arts_animation",
+   "m_arts_textiles",
+   "m_arts_portfolio",
+   "m_arts_curating"
   ],
   "origins": [],
   "routines": [
@@ -1727,6 +1772,12 @@
    "tk_pillowtalk",
    "tk_mamushi",
    "tk_kanamara"
+  ],
+  "degrees": [
+   "deg_econ",
+   "deg_jpen",
+   "deg_cs",
+   "deg_arts"
   ]
  }
 }

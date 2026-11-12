@@ -217,7 +217,8 @@
       38
      ]
     ],
-    "desc": "a converted two-story house: a heap of shoes at the door, a shared kitchen with labeled shelves, a bath rota taped to the wall"
+    "desc": "a converted two-story house: a heap of shoes at the door, a shared kitchen with labeled shelves, a bath rota taped to the wall",
+    "student": true
    },
    {
     "id": "hz_apaato",
@@ -259,7 +260,8 @@
       82.94
      ]
     ],
-    "desc": "an old wooden block down a lane by the tracks: iron outside stairs, thin walls, bicycles chained to the rail, a coin laundry in the yard"
+    "desc": "an old wooden block down a lane by the tracks: iron outside stairs, thin walls, bicycles chained to the rail, a coin laundry in the yard",
+    "student": true
    },
    {
     "id": "hz_setagaya",
@@ -553,7 +555,8 @@
       35.06
      ]
     ],
-    "desc": "narrow lanes of old wooden apartments and 1960s walk-ups behind the arcade: laundry on every balcony, a corner pawn shop, a cat asleep on a rice shop's counter"
+    "desc": "narrow lanes of old wooden apartments and 1960s walk-ups behind the arcade: laundry on every balcony, a corner pawn shop, a cat asleep on a rice shop's counter",
+    "student": true
    },
    {
     "id": "hz_hakone",
@@ -621,7 +624,8 @@
       65.88
      ]
     ],
-    "desc": "an international dorm behind the Ochanomizu bridges: narrow corridors, a shared kitchen smelling of five cuisines, a laundry room that doubles as a lounge"
+    "desc": "an international dorm behind the Ochanomizu bridges: narrow corridors, a shared kitchen smelling of five cuisines, a laundry room that doubles as a lounge",
+    "student": true
    }
   ],
   "kinds": {
@@ -6372,7 +6376,10 @@
    },
    "trains": "logic",
    "fact": "{u} studied in the quiet room at {0}",
-   "place": "ak_juku"
+   "place": "ak_juku",
+   "tags": [
+    "study"
+   ]
   },
   {
    "id": "ak_juku_mock",
@@ -6543,7 +6550,10 @@
    },
    "trains": "writing",
    "fact": "{u} studied in the library of {0}",
-   "place": "ak_university"
+   "place": "ak_university",
+   "tags": [
+    "study"
+   ]
   },
   {
    "id": "ak_university_club",
@@ -13548,6 +13558,758 @@
      "music": 3
     },
     "length": 0.125
+   },
+   {
+    "id": "m_econ_principles",
+    "name": "Principles of Economics",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Supply, demand and why the konbini prices what it does.",
+    "skills": {
+     "logic": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_econ",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_econ_stats",
+    "name": "Statistics I",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Averages, spreads and lying with graphs.",
+    "skills": {
+     "logic": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_econ",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_econ_writing",
+    "name": "Academic Writing",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Essays with an argument and sources.",
+    "skills": {
+     "writing": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_econ",
+    "term": 1,
+    "study": 2
+   },
+   {
+    "id": "m_econ_macro",
+    "name": "Macroeconomics",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Growth, inflation and the Bank of Japan.",
+    "skills": {
+     "logic": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_econ",
+    "term": 2,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_econ_accounting",
+    "name": "Accounting",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Balance sheets, the way boki teaches them.",
+    "skills": {
+     "logic": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_econ",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_econ_japan",
+    "name": "The Japanese Economy",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Keiretsu, lost decades and lifetime employment.",
+    "skills": {
+     "writing": 3,
+     "logic": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_econ",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_econ_finance",
+    "name": "Corporate Finance",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "What a company is worth and how it borrows.",
+    "skills": {
+     "logic": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_econ",
+    "term": 3,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_econ_marketing",
+    "name": "Marketing",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Brands, campaigns and the people who buy.",
+    "skills": {
+     "charisma": 3,
+     "writing": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_econ",
+    "term": 3,
+    "study": 2
+   },
+   {
+    "id": "m_econ_seminar",
+    "name": "Economics Seminar (thesis)",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "A zemi with a professor and a thesis at the end.",
+    "skills": {
+     "logic": 5,
+     "writing": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_econ",
+    "term": 4,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_econ_business",
+    "name": "Business Presentations",
+    "area": "Economics",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📈",
+    "desc": "Keigo, slides and standing in front of a room.",
+    "skills": {
+     "charisma": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_econ",
+    "term": 4,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_english",
+    "name": "English Communication I",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Speaking, listening and saying what you mean.",
+    "skills": {
+     "english": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_jpen",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_literature",
+    "name": "Introduction to Literature",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Sōseki to Shakespeare, read closely.",
+    "skills": {
+     "writing": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_jpen",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_japanese",
+    "name": "Japanese for International Students",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Reading, keigo and kanji for those who came from abroad.",
+    "skills": {
+     "japanese": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_jpen",
+    "term": 1,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_english2",
+    "name": "English Communication II",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Debate, presentations and the news in English.",
+    "skills": {
+     "english": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_jpen",
+    "term": 2,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_translation",
+    "name": "Translation Workshop",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Subtitles, menus and novels, both ways.",
+    "skills": {
+     "english": 5,
+     "writing": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_jpen",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_media",
+    "name": "Media and Culture",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Anime, television and what they say about us.",
+    "skills": {
+     "writing": 3,
+     "charisma": 2
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_jpen",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_linguistics",
+    "name": "Linguistics",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Sounds, grammar and why languages change.",
+    "skills": {
+     "writing": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_jpen",
+    "term": 3,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_jpen_teaching",
+    "name": "Teaching English",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Lesson plans and a room of nervous learners.",
+    "skills": {
+     "english": 6,
+     "charisma": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_jpen",
+    "term": 3,
+    "study": 2
+   },
+   {
+    "id": "m_jpen_seminar",
+    "name": "Thesis Seminar",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "A thesis in two languages, defended at the end.",
+    "skills": {
+     "writing": 5,
+     "english": 6
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_jpen",
+    "term": 4,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_jpen_heritage",
+    "name": "Museums and Heritage",
+    "area": "Languages",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "📖",
+    "desc": "Labels, guides and telling a collection's story.",
+    "skills": {
+     "writing": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_jpen",
+    "term": 4,
+    "study": 2
+   },
+   {
+    "id": "m_cs_programming",
+    "name": "Programming I",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Variables, loops and your first bugs.",
+    "skills": {
+     "logic": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_cs",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_cs_math",
+    "name": "Discrete Mathematics",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Logic, sets and proofs for programmers.",
+    "skills": {
+     "logic": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_cs",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_cs_gamedesign",
+    "name": "Introduction to Game Design",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Rules, play and why a game is fun.",
+    "skills": {
+     "gaming": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_cs",
+    "term": 1,
+    "study": 2
+   },
+   {
+    "id": "m_cs_programming2",
+    "name": "Programming II",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Objects, tests and code others can read.",
+    "skills": {
+     "logic": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_cs",
+    "term": 2,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_cs_data",
+    "name": "Data Structures",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Lists, trees and how fast things run.",
+    "skills": {
+     "logic": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_cs",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_cs_graphics",
+    "name": "Computer Graphics",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Pixels, shaders and drawing with numbers.",
+    "skills": {
+     "gaming": 3,
+     "drawing": 2
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_cs",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_cs_systems",
+    "name": "Operating Systems",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "What happens between the keyboard and the chip.",
+    "skills": {
+     "logic": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_cs",
+    "term": 3,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_cs_gamestudio",
+    "name": "Game Development Studio",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "A small team, a small game, a real deadline.",
+    "skills": {
+     "gaming": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_cs",
+    "term": 3,
+    "study": 2
+   },
+   {
+    "id": "m_cs_project",
+    "name": "Graduation Project",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "A program of your own, shown to the faculty.",
+    "skills": {
+     "logic": 5,
+     "gaming": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_cs",
+    "term": 4,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_cs_ml",
+    "name": "Machine Learning",
+    "area": "Computing",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "💻",
+    "desc": "Models that learn, and the data they learn from.",
+    "skills": {
+     "logic": 6
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_cs",
+    "term": 4,
+    "study": 2
+   },
+   {
+    "id": "m_arts_drawing",
+    "name": "Drawing Foundations",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Line, proportion and a hundred quick sketches.",
+    "skills": {
+     "drawing": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_arts",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_arts_history",
+    "name": "Art History",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "From ukiyo-e to the present.",
+    "skills": {
+     "writing": 2,
+     "drawing": 2
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_arts",
+    "term": 1,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_arts_color",
+    "name": "Color and Form",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Color wheels, shapes and composition.",
+    "skills": {
+     "drawing": 2,
+     "fashion": 2
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_arts",
+    "term": 1,
+    "study": 2
+   },
+   {
+    "id": "m_arts_illustration",
+    "name": "Illustration",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Characters, covers and a style of your own.",
+    "skills": {
+     "drawing": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_arts",
+    "term": 2,
+    "core": true,
+    "study": 2
+   },
+   {
+    "id": "m_arts_fashion",
+    "name": "Fashion Design",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Sketches, patterns and a first garment.",
+    "skills": {
+     "fashion": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_arts",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_arts_photo",
+    "name": "Photography",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Light, framing and the darkroom.",
+    "skills": {
+     "drawing": 3
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_arts",
+    "term": 2,
+    "study": 2
+   },
+   {
+    "id": "m_arts_animation",
+    "name": "Animation",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Keyframes, in-betweens and timing.",
+    "skills": {
+     "drawing": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 13:00-15:00",
+    "degree": "deg_arts",
+    "term": 3,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_arts_textiles",
+    "name": "Textiles and Styling",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Fabric, dye and dressing a shoot.",
+    "skills": {
+     "fashion": 5
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 10:00-12:00",
+    "degree": "deg_arts",
+    "term": 3,
+    "study": 2
+   },
+   {
+    "id": "m_arts_portfolio",
+    "name": "Graduation Portfolio",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Your best work, bound and shown.",
+    "skills": {
+     "drawing": 5,
+     "fashion": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: mon or thu; clock: 10:00-12:00",
+    "degree": "deg_arts",
+    "term": 4,
+    "core": true,
+    "study": 3
+   },
+   {
+    "id": "m_arts_curating",
+    "name": "Curating",
+    "area": "Arts",
+    "days": 14,
+    "cost": 0,
+    "grants": [],
+    "icon": "🎨",
+    "desc": "Putting on a show, from walls to labels.",
+    "skills": {
+     "writing": 4
+    },
+    "at": "ak_university",
+    "when": "weekday: tue or fri; clock: 13:00-15:00",
+    "degree": "deg_arts",
+    "term": 4,
+    "study": 2
    }
   ],
   "shop": [
@@ -13630,8 +14392,8 @@
   {
    "id": "student",
    "name": "University student",
-   "desc": "You came for university and took the last room in a Kōenji share house.",
-   "premise": "{{user}} came to Tokyo for university and has just taken the last free room in a Kōenji share house; the four housemates barely know {{user}} yet.",
+   "desc": "You came for university, a scholarship pays your tuition, and you took the last room in a Kōenji share house.",
+   "premise": "{{user}} came to Tokyo to study at Hijiri University on a scholarship and has just taken the last free room in a Kōenji share house; the four housemates barely know {{user}} yet.",
    "home": "hz_sharehouse",
    "household": "sharehouse",
    "money": 70000,
@@ -13658,7 +14420,9 @@
      "name": "Haru",
      "f": "acquaintance"
     }
-   ]
+   ],
+   "degree": "deg_jpen",
+   "scholarship": true
   },
   {
    "id": "native",
@@ -13722,7 +14486,8 @@
      "name": "Rina",
      "f": "acquaintance"
     }
-   ]
+   ],
+   "anyHome": true
   },
   {
    "id": "back",
@@ -26896,7 +27661,8 @@
      "pay": 2000,
      "needs": {
       "logic": 3
-     }
+     },
+     "when": "course: deg_econ or deg_cs"
     }
    ],
    "branches": [
@@ -31137,7 +31903,8 @@
      "needs": {
       "logic": 4,
       "charisma": 2
-     }
+     },
+     "when": "course: deg_econ or deg_jpen or deg_cs or deg_arts"
     },
     {
      "name": "Senior teacher",
@@ -31850,7 +32617,8 @@
      "needs": {
       "japanese": 4,
       "writing": 2
-     }
+     },
+     "when": "course: deg_jpen or deg_arts"
     }
    ],
    "branches": [
@@ -32434,6 +33202,12 @@
    ],
    "drinks": [
     "mg_izakaya"
+   ],
+   "degree": [
+    "deg_econ",
+    "deg_jpen",
+    "deg_cs",
+    "deg_arts"
    ]
   },
   {
@@ -33907,7 +34681,8 @@
      "needs": {
       "charisma": 3,
       "logic": 3
-     }
+     },
+     "when": "course: deg_econ or deg_jpen or deg_cs or deg_arts"
     },
     {
      "name": "Associate director",
@@ -36639,7 +37414,172 @@
     "Futsal club",
     "Illustration circle"
    ],
-   "desc": "a campus of brick lecture halls and a language center, where exchange students and third-years share one library"
+   "desc": "a campus of brick lecture halls and a language center, where exchange students and third-years share one library",
+   "degrees": [
+    {
+     "id": "deg_econ",
+     "name": "Economics",
+     "desc": "Markets, money and the Japanese firm: statistics, accounting and a seminar thesis. What offices and startups hire.",
+     "skills": [
+      "logic",
+      "writing"
+     ],
+     "gives": {
+      "jobs": [
+       "office",
+       "startup"
+      ]
+     },
+     "terms": 4,
+     "perTerm": [
+      2,
+      3
+     ],
+     "credits": 8,
+     "minGpa": 2,
+     "tuition": 40000,
+     "aid": [
+      {
+       "id": "jasso",
+       "name": "JASSO student grant",
+       "kind": "public",
+       "share": 0.3,
+       "pays": "finish"
+      },
+      {
+       "id": "hijiri_merit",
+       "name": "Hijiri merit scholarship",
+       "kind": "merit",
+       "share": 0.5,
+       "when": "skill: logic 4 or writing 4 or drawing 4 or english 6"
+      }
+     ],
+     "workCap": 3
+    },
+    {
+     "id": "deg_jpen",
+     "name": "Japanese and English studies",
+     "desc": "Two languages and what is written in them: literature, translation, teaching and a thesis seminar.",
+     "skills": [
+      "english",
+      "writing",
+      "japanese"
+     ],
+     "gives": {
+      "jobs": [
+       "eikaiwa",
+       "museum",
+       "tv"
+      ]
+     },
+     "terms": 4,
+     "perTerm": [
+      2,
+      3
+     ],
+     "credits": 8,
+     "minGpa": 2,
+     "tuition": 40000,
+     "aid": [
+      {
+       "id": "jasso",
+       "name": "JASSO student grant",
+       "kind": "public",
+       "share": 0.3,
+       "pays": "finish"
+      },
+      {
+       "id": "hijiri_merit",
+       "name": "Hijiri merit scholarship",
+       "kind": "merit",
+       "share": 0.5,
+       "when": "skill: logic 4 or writing 4 or drawing 4 or english 6"
+      }
+     ],
+     "workCap": 3
+    },
+    {
+     "id": "deg_cs",
+     "name": "Computer science",
+     "desc": "Programming from the first line to operating systems, game design and a graduation project.",
+     "skills": [
+      "logic",
+      "gaming"
+     ],
+     "gives": {
+      "jobs": [
+       "startup",
+       "gamedev"
+      ]
+     },
+     "terms": 4,
+     "perTerm": [
+      2,
+      3
+     ],
+     "credits": 8,
+     "minGpa": 2,
+     "tuition": 40000,
+     "aid": [
+      {
+       "id": "jasso",
+       "name": "JASSO student grant",
+       "kind": "public",
+       "share": 0.3,
+       "pays": "finish"
+      },
+      {
+       "id": "hijiri_merit",
+       "name": "Hijiri merit scholarship",
+       "kind": "merit",
+       "share": 0.5,
+       "when": "skill: logic 4 or writing 4 or drawing 4 or english 6"
+      }
+     ],
+     "workCap": 3
+    },
+    {
+     "id": "deg_arts",
+     "name": "Arts and design",
+     "desc": "Drawing, color, illustration and fashion in the studios of the art building, and a graduation portfolio.",
+     "skills": [
+      "drawing",
+      "fashion"
+     ],
+     "gives": {
+      "jobs": [
+       "animator",
+       "stylist",
+       "museum"
+      ]
+     },
+     "terms": 4,
+     "perTerm": [
+      2,
+      3
+     ],
+     "credits": 8,
+     "minGpa": 2,
+     "tuition": 40000,
+     "aid": [
+      {
+       "id": "jasso",
+       "name": "JASSO student grant",
+       "kind": "public",
+       "share": 0.3,
+       "pays": "finish"
+      },
+      {
+       "id": "hijiri_merit",
+       "name": "Hijiri merit scholarship",
+       "kind": "merit",
+       "share": 0.5,
+       "when": "skill: logic 4 or writing 4 or drawing 4 or english 6"
+      }
+     ],
+     "workCap": 3
+    }
+   ]
   }
  ],
  "cast": {

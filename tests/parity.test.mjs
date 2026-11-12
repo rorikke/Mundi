@@ -42,7 +42,7 @@ const TOOLS = {
     'presetStarts': 'set when the origins become the first starts (upgradeWorld)',
     'genders.*.id': 'set by the creator', 'sheet.appearance.*.id': 'set by the creator', 'sheet.traits.*.id': 'set by the creator', 'skills.*.id': 'set by the creator',
     'starts.*.id': 'set by the creator', 'stories.*.id': 'set by the creator', 'keepsakes.*.id': 'set by the creator', 'tables.*.*.id': 'set by the creator',
-    'occupations.*.events.*.id': 'set by the creator', 'occupations.*.schedule.shifts.*.id': 'set by the creator', 'catalogs.courses.*.aid.*.id': 'set by the creator',
+    'occupations.*.events.*.id': 'set by the creator', 'occupations.*.schedule.shifts.*.id': 'set by the creator', 'catalogs.courses.*.aid.*.id': 'set by the creator', 'institutions.*.degrees.*.id': 'set by the creator', 'institutions.*.degrees.*.aid.*.id': 'set by the creator',
     'cast.examples.*.threads.*.id': 'set by the creator', 'cast.examples.*.threads.*.endings.*.id': 'set by the creator',
     'homes.kinds.*.images': 'Homes & rent › a kind of home: Inside picture at other times of the day (upload)',
     // the shared person panel (ui/personui.ts) writes a person's ways whole through its scope, not field by field

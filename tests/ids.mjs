@@ -16,6 +16,8 @@ const ids = (w) => ({
     ranks: Object.fromEntries(w.occupations.map(o => [o.id, o.ranks.length])),
     // a world's own life goals and rewards (saves keep the goals you finished and the items you bought by id)
     goals: (w.goals?.add ?? []).map(g => g.id), rewards: (w.rewards?.add ?? []).map(r => r.id),
+    // degrees (the one you study for and the ones you hold are kept by id; their modules are courses, above)
+    degrees: (w.institutions ?? []).flatMap(i => (i.degrees ?? []).map(d => d.id)),
 });
 const lock = fs.existsSync(lockFile) ? JSON.parse(fs.readFileSync(lockFile, 'utf8')) : {};
 const problems = [];
