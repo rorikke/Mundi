@@ -487,9 +487,21 @@ function rankRows(w: WorldDef, p: string, o: { ranks?: Rank[]; courses?: string[
     return `${ranks.map((_r, k) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${p}.ranks.${k}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${p}.ranks.${k}.pay`)}
             ${k < ranks.length - 1 ? num('Time to the next rank (relative)', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
             ${bounded('Days a week (empty: the schedule\'s)', `${p}.ranks.${k}.days`, 1, 7)}
-            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>${rankMore(w, `${p}.ranks.${k}`, ranks[k])}`).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${p}.ranks">${icon('plus')}<span>Add a rank</span></button>
         ${ranks.map((r, k) => (k === 0 && (courses ?? []).length) || r.student ? chk(k ? `${esc(r.name)} is a student rank` : 'The first rank is a student rank', `${p}.ranks.${k}.student`, 'You can be hired at it while you take the course this job asks for; the next rank needs the course finished.') : '').join('')}`;
+}
+// What a rank asks before you're promoted to it (skill levels, a course, traits, a condition such as the performance it
+// wants: `perf: 80`), and where it works when not at the job's place (an idol's top ranks at the TV studio).
+function rankMore(w: WorldDef, q: string, r: Rank | undefined) {
+    if (!r) return '';
+    const n = Object.keys(r.needs ?? {}).length + (r.course ? 1 : 0) + (r.traits?.length ? 1 : 0) + (r.when ? 1 : 0) + (r.place ? 1 : 0);
+    const courses = (((w.catalogs as any).courses ?? []) as any[]).map(c => [c.id, c.name] as [string, string]);
+    return `<details class="mu-cw-kept" ${n ? 'open' : ''}><summary>What ${esc(r.name)} asks · ${n}</summary>
+        ${skillOpts(w).length || r.needs ? skillLevels(w, `${q}.needs`, 'Skill levels') : ''}
+        <div class="mu-row2">${courses.length || r.course ? sel('A course finished', `${q}.course`, withCur([['', '(none)'], ...courses], r.course), 'opt') : '<span></span>'}${cond('Also (a condition; perf: 80 is the performance it wants)', `${q}.when`, 'perf: 60')}</div>
+        <div class="mu-field"><span>Traits (one of them)</span>${chips(traitOptions(w), `${q}.traits`, true)}</div>
+        ${sel('Works at (empty: the job\'s place)', `${q}.place`, withCur([['', '(the job\'s place)'], ...placeOpts(w)], r.place), 'opt')}</details>`;
 }
 // Skill levels by skill (a job's or a track's levels to be hired): a row each, the skill changed in place (its level
 // kept, never two of one skill), "Add a skill" adding the next one of the world at level 3.
@@ -881,7 +893,7 @@ function branchEditor(w: WorldDef, o: WorldDef['occupations'][number], p: string
                 <div class="mu-row2">${txt('Path', `${q}.name`)}${txt('What it is', `${q}.desc`)}</div>
                 ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Time to reach it (relative)', `${q}.promote.${ri}`, 1)}
                     ${bounded('Days a week (empty: the schedule\'s)', `${q}.ranks.${ri}.days`, 1, 7)}
-                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>`).join('')}
+                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>${rankMore(w, `${q}.ranks.${ri}`, x.ranks[ri])}`).join('')}
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>
                 ${earlier(b.at).length ? `<div class="mu-field"><span>Only after (empty: after any)</span>${pairChips(earlier(b.at), `${q}.after`)}</div>` : ''}
