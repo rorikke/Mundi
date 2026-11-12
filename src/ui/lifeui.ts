@@ -85,10 +85,14 @@ function transitionHtml() {
     return `<div class="mh-fx is-${FX.kind}" style="animation-delay:-${2800 - (FX.until - Date.now())}ms">${orb}<b>${esc(FX.title)}</b><small>${esc(FX.sub)}</small></div>`;
 }
 
+/** What comes to you and waits for an answer (a street story, an invitation, a happening): one at a time, in hud.ts's
+ *  slot for such cards. */
+export function lifeAskHtml(g: Save, w: WorldDef) { return storyHtml(g, w) || inviteHtml(g, w) || happeningHtml(g); }
+
 export function lifeOverlays() {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w) return '';
-    return `${elevatorHtml()}${storyHtml(g, w) || inviteHtml(g, w) || happeningHtml(g)}${playAsHtml(g)}${transitionHtml()}${relOverlays()}${endConfirmHtml()}`;
+    return `${elevatorHtml()}${playAsHtml(g)}${transitionHtml()}${relOverlays()}${endConfirmHtml()}`;
 }
 
 /* ---------- phone app: the shop ---------- */

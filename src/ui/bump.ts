@@ -14,14 +14,16 @@ import { syncScene } from '../sim/game.js';
 import { thumb } from '../st/bridge.js';
 import { ACT } from './reg.js';
 
-// `on`: where it happens when it isn't here (E11: on the train, at the station).
-export const BUMP = { who: '', on: '' as '' | 'train' | 'station' };
+// `on`: where it happens when it isn't here (E11: on the train, at the station). `at`: the place it belongs to; the
+// card can wait behind another one (hud.ts shows one at a time), and once you have left it is gone.
+export const BUMP = { who: '', on: '' as '' | 'train' | 'station', at: '' };
 const CHANCE = 0.3;
 const TALK_MINUTES = 60;
 
 // Called after an action away from home. Picks someone free (not working, not here already), preferring people
 // who like this place.
 export function maybeBump(g: Save, w: WorldDef) {
+    if (BUMP.who && BUMP.at !== g.player.loc) dropBump();
     if (g.player.loc === playerHomeId || BUMP.who || Math.random() > CHANCE) return;
     const now = nowAbs(g);
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
@@ -30,8 +32,10 @@ export function maybeBump(g: Save, w: WorldDef) {
     const fond = free.filter(r => r.leisure.includes(g.player.loc));
     const pool = fond.length && Math.random() < 0.7 ? fond : free;
     BUMP.who = pool[Math.floor(Math.random() * pool.length)].avatar;
-    BUMP.on = '';
+    BUMP.on = ''; BUMP.at = g.player.loc;
 }
+/** Leaving without answering: you just missed each other (nobody is hurt). */
+export function dropBump() { BUMP.who = ''; BUMP.on = ''; BUMP.at = ''; }
 const MET_ON = { train: 'You run into each other on the train.', station: 'You run into each other at the station.' } as const;
 // The fact of meeting: where you met, here or on the way here, is part of the text so that it can be translated.
 const MET_AT = { '': 'at {1}', train: 'on the train to {1}', station: 'at the station, on the way to {1}' } as const;
@@ -40,7 +44,7 @@ const metNote = (g: Save, w: WorldDef, r: { name: string; avatar: string }, end:
 export function bumpHtml(): string {
     const g = game(); const w = g && getWorld(g.world);
     const r = g && BUMP.who ? g.cast[BUMP.who] : null;
-    if (!g || !w || !r || state.view !== 'scene') return '';
+    if (!g || !w || !r || state.view !== 'scene' || BUMP.at !== g.player.loc) return '';
     const name = r.met ? r.name : tr('Someone');
     return `<div class="mu-bump" role="dialog"><img src="${esc(thumb(r.avatar))}" alt="">
         <div><b data-notr>${esc(name)}</b><p>${r.met ? (BUMP.on ? MET_ON[BUMP.on] : 'You run into each other here.') :'Someone you do not know yet crosses your path.'}</p></div>
