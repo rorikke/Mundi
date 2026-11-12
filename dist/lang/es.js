@@ -7567,5 +7567,7 @@ const DICT = {
     "Degree": "Título",
     "New start": "Nuevo comienzo",
     "🎁 New keepsake": "🎁 Nuevo recuerdo",
+    "Listed": "En orden",
+    "Interview chance": "Probabilidad en la entrevista",
 };
 export default DICT;

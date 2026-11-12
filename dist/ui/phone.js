@@ -328,6 +328,32 @@ function interviewHelp(g, w, o) {
     const s = interviewSkill(g, o), liked = (o.likes ?? []).filter(t => traitsOf(g).includes(t));
     return `${s ? `<small class="mu-good">Your ${esc(skillName(w, s.id))} (level ${s.level}) helps: +${s.bonus}</small>` : ''}${liked.length ? `<small class="mu-good">Your traits help: ${esc(liked.join(', '))}</small>` : ''}`;
 }
+// Jobs: how the openings are sorted ('' as the world lists them). Kept while the game runs, like the Homes app's city.
+const JF = { sort: '' };
+const JOB_SORTS = [['', 'Listed'], ['pay', 'Pay'], ['chance', 'Interview chance'], ['place', 'Where'], ['days', 'Days a week']];
+// The openings in the order picked: the best starting pay first (then the best top pay), the best interview chance
+// first (a job asking for a course you haven't got last), by district and then place (off-screen jobs last), or the
+// fewest days a week first (then the best pay). Ties keep the world's order.
+function sortedOpenings(g, w, list) {
+    if (!JF.sort)
+        return list;
+    const on = (job) => trackOf(g, job);
+    const pay = (o) => payOf(g, o.ranks[0]?.pay ?? 0), top = (o) => payOf(g, o.ranks.at(-1)?.pay ?? 0);
+    const chance = (o) => (missingCourses(g, w, o).length ? -1 : interviewChance(g, o, traitsOf(g)));
+    const where = (o) => { if (offScreen(w, o))
+        return '\uffff'; const p = placeOf(g, w, o.place); return `${w.maps?.find(m => m.id === p?.map)?.name ?? ''}\u0000${p?.name ?? ''}`; };
+    const by = {
+        pay: (a, b) => pay(b) - pay(a) || top(b) - top(a),
+        chance: (a, b) => chance(b) - chance(a),
+        place: (a, b) => where(a).localeCompare(where(b)),
+        days: (a, b) => realDays(a, a.ranks[0]) - realDays(b, b.ranks[0]) || pay(b) - pay(a),
+    };
+    const cmp = by[JF.sort];
+    if (!cmp)
+        return list;
+    return list.map(job => ({ job, o: on(job) })).sort((x, y) => cmp(x.o, y.o)).map(x => x.job);
+}
+const jobSortChips = () => `<div class="mu-chips mu-jobs-sort"><small class="mu-muted">Sort by</small>${JOB_SORTS.map(([id, name]) => `<button class="mu-chip ${JF.sort === id ? 'is-on' : ''}" data-act="ph-jobs-sort" data-id="${esc(id)}">${esc(name)}</button>`).join('')}</div>`;
 function jobsApp(g, w) {
     const j = g.player.job;
     const mine = myJob(g, w); // the job you hold, on your track
@@ -349,7 +375,8 @@ function jobsApp(g, w) {
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
             ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
         <h4>${T('openings')}</h4>
-        ${openJobs(g, w).filter(o => o.id !== j?.id).map(job => {
+        ${openJobs(g, w).filter(o => o.id !== j?.id).length > 1 ? jobSortChips() : ''}
+        ${sortedOpenings(g, w, openJobs(g, w).filter(o => o.id !== j?.id)).map(job => {
         const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
         return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1).pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}</small>
             ${picks.length > 1 ? `<small>${esc(picks.length === 2 ? 'Two tracks' : `${picks.length} tracks`)}: ${esc(picks.map(t => trackName(w, job, t)).join(' or '))} (you choose when hired)</small>` : o.track !== undefined && o.trackName ? `<small>Your track: ${esc(o.trackName)}</small>` : ''}
@@ -460,6 +487,7 @@ Object.assign(ACT, {
         notify();
     },
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
+    'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
     'ph-open-campus': () => { P.open = true; P.app = 'campus'; notify(); },
 });

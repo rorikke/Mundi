@@ -2821,6 +2821,9 @@ body.mundi-open #toast-container { display: none !important; }
 /* a lodging with no picture yet: a sketch frame */
 #mundi-root .mu-book .mu-home-pic:not([style]) { background: repeating-linear-gradient(45deg, rgba(110, 76, 38, .08) 0 8px, transparent 8px 16px), #efe0bd !important; border: 1px solid rgba(110, 76, 38, .3); }
 #mundi-root .mu-book .mu-homes-cities { margin: 4px 0 6px; }
+/* The Jobs app's sort chips (ui/phone.ts jobSortChips) */
+#mundi-root .mu-jobs-sort { margin: 2px 0 8px; align-items: center; }
+#mundi-root .mu-jobs-sort > small { margin-right: 2px; }
 /* The fight screen (RPG), in the style of monster-battle games: the place as the backdrop, foes up and to the right,
    your party down and to the left, name / level / HP boxes, a text box and a 2×2 menu. */
 #mundi-root .mu-pkb-veil { position: absolute; inset: 0; z-index: 90; display: grid; place-items: center; padding: 12px; background: rgba(5, 8, 14, .72); }
