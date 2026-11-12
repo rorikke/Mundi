@@ -1,6 +1,6 @@
 # Tokyo's place sounds from public recordings
 
-Tokyo has 22 sound tags (`worlds/tokyo/sound/README.md`). Each slot in `world.json`'s `sounds` now names a recording
+Tokyo has 23 sound tags (`worlds/tokyo/sound/README.md`). Each slot in `world.json`'s `sounds` now names a recording
 other people published under a license we can ship (CC0 or CC BY), instead of the sound Mundi makes itself
 (`src/ui/ambience.ts`). No engine change was needed: a slot takes a file path in the world's folder, the file loops,
 and if it fails to load (or a slot is emptied), the made sound plays instead. Who made each file and how it was cut is
@@ -63,7 +63,8 @@ The code is AGPL-3.0. The sounds keep their own licenses, so each one must let u
 | crowd | 27 | [Walking through shops of Japan](https://freesound.org/people/jrussell_tm/sounds/789673/) (jrussell_tm) | CC0 | The stretch with the most voices. Nakano Station north exit (markystar), the first pick, sounded like construction. Also liked: [Shibuya crossing](https://freesound.org/people/Heigh-hoo/sounds/31791/), now `crossing`. |
 | birds | 13 | [Kashiwa birds](https://freesound.org/people/RutgerMuller/sounds/361918/) (RutgerMuller) | CC0 | 7 dB above the made sound, which is short chirps over silence. |
 | wind | 13 | [Typhoon wind, Mitaka](https://freesound.org/people/piego/sounds/490656/) (piego) | CC0 | Chosen over wind in high pines (bruno.auzet) and Sapporo (pflanigan). |
-| office | 11 | [Office Ambience](https://freesound.org/people/170026/sounds/407735/) (170026) | CC0 | A fan, distant talk, typing; 4 dB under the made sound. Also plays in konbini, capsule hotels and manga cafés. |
+| office | 10 | [Office Ambience](https://freesound.org/people/170026/sounds/407735/) (170026) | CC0 | A fan, distant talk, typing; 4 dB under the made sound. Also plays in a capsule hotel, a manga café and a museum. |
+| shop | 1 | [Tokyo - Supermarket](https://freesound.org/people/manuke/sounds/315897/) (manuke) | CC0 | Hiroo: a queue, Japanese voices, coins and registers, no music; 4 dB under the made sound. A tag of its own for the konbini (Moonlight Mart), which sounded like an office; its made sound is a fridge hum, a two-note door chime and a till's beep. |
 | traffic | 9 | [Tokyo evening rush](https://freesound.org/people/markystar/sounds/75271/) (markystar) | CC0 | |
 | cicadas | 7 | [Hie Jinja, Akasaka](https://freesound.org/people/markystar/sounds/79086/) (markystar) | CC0 | |
 | bar | 7 | [Tokyo darts bar](https://freesound.org/people/markystar/sounds/79089/) (markystar) | CC0 | A stretch before the music gets loud. |

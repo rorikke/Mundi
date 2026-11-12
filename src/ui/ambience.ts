@@ -88,6 +88,10 @@ const RECIPES: Record<string, Recipe> = {
     hospital: { beds: [HUM], events: [{ every: 2.4, fn: (a, o, t) => tone(a, o, t, 1000, 1000, 0.12, 0.025) }] },
     train: { beds: [{ type: 'lowpass', f: 130, g: 0.22, lfo: [1.3, 0.5] }] },
     market: { beds: CROWD, events: [{ every: 6, fn: (a, o, t) => { const f = 220 + Math.random() * 120; tone(a, o, t, f, f * 0.8, 0.5, 0.025, 'sawtooth'); } }] },
+    // a shop: the fridges' hum, the door's two-note chime as someone comes in, the till's beep
+    shop: { beds: [HUM, { type: 'lowpass', f: 160, g: 0.05 }, { type: 'bandpass', f: 900, q: 0.8, g: 0.03, lfo: [0.2, 0.3] }],
+        events: [{ every: 30, fn: (a, o, t) => { tone(a, o, t, 784, 784, 0.7, 0.04, 'triangle'); tone(a, o, t + 0.45, 622, 622, 0.9, 0.04, 'triangle'); } },
+            { every: 12, fn: (a, o, t) => tone(a, o, t, 2100, 2100, 0.08, 0.02) }] },
     rain: { beds: [{ type: 'lowpass', f: 2400, g: 0.1 }] },
 };
 

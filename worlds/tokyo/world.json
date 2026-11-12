@@ -21812,7 +21812,7 @@
    "x": 81.16,
    "y": 65.58,
    "sound": [
-    "office"
+    "shop"
    ]
   },
   {
@@ -41625,6 +41625,7 @@
   "market": "sound/market.mp3",
   "office": "sound/office.mp3",
   "pachinko": "sound/pachinko.mp3",
+  "shop": "sound/shop.mp3",
   "shrine": "sound/shrine.mp3",
   "station": "sound/station.mp3",
   "temple": "sound/temple.mp3",

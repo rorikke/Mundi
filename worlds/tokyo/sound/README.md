@@ -14,5 +14,5 @@ seamless loop of 30–60 seconds works best, set to the loudness of Mundi's own 
 made, what each tag plays and what was left out is in [`docs/tokyo-sounds.md`](../../../docs/tokyo-sounds.md).
 
 The tags: `arcade`, `bar`, `birds`, `cicadas` (summer days only), `club`, `crossing`, `crowd`, `hospital`, `izakaya`,
-`karaoke`, `kitchen`, `market`, `office`, `pachinko`, `shrine`, `station`, `temple`, `traffic`, `train`, `water`,
+`karaoke`, `kitchen`, `market`, `office`, `pachinko`, `shop`, `shrine`, `station`, `temple`, `traffic`, `train`, `water`,
 `waves`, `wind`. Sounds made by people follow how busy the place is and stop while it's closed.

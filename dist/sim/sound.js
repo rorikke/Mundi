@@ -9,10 +9,11 @@ export const SOUND_TAGS = {
     karaoke: 'singing and music through the walls', club: 'a club\'s bass', arcade: 'arcade machines\' bleeps and jingles', pachinko: 'pachinko balls\' clatter and jingles',
     temple: 'a temple: wind and now and then a deep bell', shrine: 'a shrine: wind in the trees, a small bell, a clap', waves: 'the sea',
     wind: 'wind', water: 'running water, a bath', office: 'an office: a hum and typing', hospital: 'a hospital: a hum and soft monitor beeps',
-    train: 'a train\'s rumble', market: 'a market: voices calling', rain: 'rain on a roof (as well as the weather\'s)',
+    train: 'a train\'s rumble', market: 'a market: voices calling', shop: 'a shop: fridges humming, a door chime, a till',
+    rain: 'rain on a roof (as well as the weather\'s)',
 };
 // Tags whose sound comes from people: they follow how busy the place is, and stop when it's closed.
-const PEOPLE = new Set(['crowd', 'station', 'crossing', 'izakaya', 'bar', 'kitchen', 'karaoke', 'club', 'arcade', 'pachinko', 'office', 'market', 'traffic', 'train']);
+const PEOPLE = new Set(['crowd', 'station', 'crossing', 'izakaya', 'bar', 'kitchen', 'karaoke', 'club', 'arcade', 'pachinko', 'office', 'market', 'shop', 'traffic', 'train']);
 /** What plays at a place now (`place`: where you are). Nothing at home, asleep, on the way somewhere, or at a place
  *  without tags. */
 export function soundsAt(g, w, place = g.player.loc) {
