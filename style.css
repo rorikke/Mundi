@@ -4241,6 +4241,26 @@ body.mundi-open #completion_prompt_manager_popup {
     #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 28px)); left: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { #mundi-root .mu-dialog { transition: none !important; } }
+/* Find a place (the map's bar): the search box under it and the places that match, with their map and the trip. */
+#mundi-root .mu-mapnav > button.is-on { box-shadow: 0 0 0 2px var(--accent) !important; }
+#mundi-root .mu-find { position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: min(460px, calc(100vw - 32px)); display: grid; gap: 8px; padding: 10px; border-radius: 18px; background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow); text-align: left; }
+/* inside the bar, whose own blur is the backdrop: a darker glass, so the pins under it don't show through */
+#mundi-root .mu-mapnav .mu-find.mh-glass { background: linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, 0) 50%), linear-gradient(var(--glass-strong, var(--panel)), var(--glass-strong, var(--panel))), rgba(10, 13, 22, .66) !important; }
+#mundi-root .mu-find .mu-search { max-width: none; width: 100%; margin: 0; }
+#mundi-root .mu-find > small { padding: 2px 6px 4px; }
+#mundi-root .mu-find-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; max-height: min(52vh, 440px); overflow: auto; }
+#mundi-root .mu-find-list > li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding-right: 4px; border-radius: 12px; }
+#mundi-root .mu-find-list > li:hover, #mundi-root .mu-find-list > li.is-on { background: rgba(255, 255, 255, .1); }
+#mundi-root .mu-find-list > li.is-on { box-shadow: inset 3px 0 0 var(--accent); }
+#mundi-root .mu-find .mu-find-row { display: grid; gap: 1px; justify-items: start; justify-content: stretch; min-width: 0; padding: 7px 10px; text-align: left; background: transparent !important; border: 0 !important; box-shadow: none !important; color: inherit !important; }
+#mundi-root .mu-find-row b, #mundi-root .mu-find-row small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-find-row b { font-size: 14px; }
+#mundi-root .mu-find-row small { font-size: 12px; color: var(--muted); }
+#mundi-root .mu-find-row mark { background: color-mix(in srgb, var(--accent) 40%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+#mundi-root .mu-find-trip { display: grid; justify-items: end; gap: 1px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+#mundi-root .mu-find-trip em { font-style: normal; color: var(--accent); }
+#mundi-root .mu-find-trip small { font-size: 11px; font-weight: 600; color: var(--warn); }
+#mundi-root .mu-find-go { width: 32px; height: 32px; flex: none; }
 /* Gallery: the two tabs (Saves / Character greetings) side by side, like pills */
 #mundi-root .mu-gal-tabs { display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 0; border: 0; background: none; width: auto; }
 #mundi-root .mu-gal-tabs button { flex: 0 0 auto; width: auto !important; display: inline-flex !important; flex-direction: row !important; align-items: center; gap: 8px; padding: 9px 16px !important; border-radius: 999px !important; min-height: 0; font-size: 14px; }

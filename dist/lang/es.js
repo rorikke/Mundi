@@ -7592,5 +7592,11 @@ const DICT = {
     "Jobs that train it each shift:": "Trabajos que lo entrenan en cada turno:",
     "1 in a place you haven't been to yet.": "1 en un lugar donde aún no has estado.",
     "{0} in places you haven't been to yet.": "{0} en lugares donde aún no has estado.",
+    "Find": "Buscar",
+    "Find a place": "Buscar un lugar",
+    "Type part of a name: every place on every map that has it.": "Escribe parte de un nombre: todos los lugares de todos los mapas que lo tienen.",
+    "No place has that name.": "Ningún lugar tiene ese nombre.",
+    "Closed now": "Cerrado ahora",
+    "{0} h {1} min": "{0} h {1} min",
 };
 export default DICT;
