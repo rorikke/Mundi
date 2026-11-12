@@ -55,7 +55,7 @@ function practiceHtml(g: Save, w: WorldDef, id: string): string {
     if (!p.spots.length && !p.unseen && !p.jobs.length && !p.immersion) return '';
     const where = (s: typeof p.spots[number]) => s.home ? `Home${s.item ? ` · needs ${esc(s.item)}` : ''}` : s.anywhere ? 'Anywhere'
         : `<span data-notr>${esc(s.where.slice(0, 3).join(', '))}</span>${s.where.length > 3 ? ` +${s.where.length - 3}` : ''}${s.more ? ` · ${s.more === 1 ? '1 more place' : `${s.more} more places`}` : ''}`;
-    const list = p.spots.map(s => `<li><b><span>${esc(s.icon)}</span> <span data-notr>${esc(s.label)}</span></b><small>${where(s)}</small></li>`).join('');
+    const list = p.spots.map(s => `<li><b><span>${esc(s.icon)}</span> <span data-notr>${esc(s.label)}</span></b><small>${where(s)}</small>${s.when?.length ? `<small class="mu-practice-when"><span aria-hidden="true">🕒</span> ${esc(s.when.join(' · '))}</small>` : ''}</li>`).join('');
     const itself = p.immersion ? '<small class="mu-muted">It also grows by itself, every hour you spend out among people who speak it.</small>' : '';
     const jobs = p.jobs.length ? `<small class="mu-muted">Jobs that train it each shift: <span data-notr>${esc(p.jobs.slice(0, 5).join(', '))}</span>${p.jobs.length > 5 ? ` +${p.jobs.length - 5}` : ''}</small>` : '';
     const more = p.spots.length ? ' more' : '';   // (with nothing found yet, these are all there is)
