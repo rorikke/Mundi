@@ -345,6 +345,7 @@ function logWords(g, w, why, items) {
         case 'secret': return 'A secret learned';
         case 'thread': return 'A story you followed came to its end';
         case 'keepsake': return a ? `A new keepsake: ${keepsakeName(w, a)}` : 'A new keepsake';
+        case 'degree': return `Graduated: ${(w.institutions ?? []).flatMap(i => i.degrees ?? []).find(d => d.id === a)?.name ?? humanize(a ?? '')}`;
         case 'learned': return g.cast[a] ? `Something you learned about ${g.cast[a].name}` : 'Something you learned about someone'; // (adult) never the words
     }
     return items.find(x => x.id === why)?.name ?? humanize(why);

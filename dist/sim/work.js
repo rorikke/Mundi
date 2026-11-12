@@ -26,7 +26,7 @@ import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
-import { onHour, onDay, onLook } from './hooks.js';
+import { onHour, onDay, onLook, studentLink } from './hooks.js';
 import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
@@ -125,8 +125,11 @@ const wdOf = (day) => (((day - 1) % 7) + 7) % 7; // 0 Monday … 6 Sunday
 export const realDays = (o, rank) => { const d = rank?.days ?? scheduleOf(o).days; return Math.max(1, Math.min(7, Array.isArray(d) ? d.length : Math.round(d))); };
 // The days a week of the job at the rank you hold in it (the job's own when it isn't yours).
 const weekDays = (g, o) => realDays(o, g.player.job?.id === o.id ? rankOf(g, o) : null);
-/** The days a week you work it under the work rules (at least one). */
-export const daysAWeek = (g, w, o) => { o = trackOf(g, o); return Math.max(1, Math.min(weekDays(g, o), Math.round(weekDays(g, o) * workRules(g, w).days))); };
+// The days a week the work rules give a job (at least one).
+const ruleDays = (g, w, o) => Math.max(1, Math.min(weekDays(g, o), Math.round(weekDays(g, o) * workRules(g, w).days)));
+/** The days a week you work it under the work rules (at least one), and no more than a student may (sim/degrees.ts: a
+ *  part-time cap while you study for a degree, which isn't paid back by a higher hourly pay). */
+export const daysAWeek = (g, w, o) => { o = trackOf(g, o); const cap = studentLink.workCap(g, w); return Math.max(1, Math.min(ruleDays(g, w, o), cap ?? 7)); };
 /** Your working weekdays (0 Monday … 6 Sunday): the job's own weekdays, the first ones when you work fewer; for a
  *  number of days, an office week (Monday on) for a full-time job worked four days or more, and otherwise the days
  *  spread over the week (from Monday for a full-time job; shops and restaurants work weekends), the same for the same
@@ -223,7 +226,7 @@ export function weekText(g, w, o) {
  *  seasonal bonuses), `tips` (money from a choice at work); also aimed at the job, its place or the place's tags. */
 export const payMul = (g, w, o, what) => { o = trackOf(g, o); return effectMul(g, w, 'pay', [what, o.id, ...(o.tags ?? []), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]); };
 /** Pay per hour for this rank: the rank's pay, raised so a week earns the same with fewer days (J9). */
-export const payFactor = (g, w, o) => weekDays(g, trackOf(g, o)) / daysAWeek(g, w, o);
+export const payFactor = (g, w, o) => weekDays(g, trackOf(g, o)) / ruleDays(g, w, trackOf(g, o));
 export const hourlyPay = (g, w, o) => rankOf(g, o).pay * payFactor(g, w, o);
 // Minutes of a stretch of time that fall in the night (22:00–5:00), for night pay (E20).
 function nightMinutes(start, minutes) {
@@ -429,6 +432,8 @@ export function promoNeeds(g, w, o) {
 }
 // What a rank's condition still asks, in words for the work screen: skills ("Logic 2 or Drawing 2") and friendships
 // ("friendship with Kyōko (Good friend)"); anything else is "something more".
+// A degree named in a condition (a degree's id is its credential): "a degree in Economics".
+const degreeWord = (w, id) => { const d = (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id); return d ? `a degree (${d.name})` : undefined; };
 const FRIEND_WORDS = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
 function whenMissing(g, w, when, place) {
     const out = [];
@@ -439,6 +444,8 @@ function whenMissing(g, w, when, place) {
             continue;
         if (c.key === 'skill' && !c.not)
             out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
+        else if (c.key === 'course' && !c.not)
+            out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
         else if (c.key === 'feels' && !c.not && c.values.length === 1) {
             const [who, lvl] = c.values[0].split(/\s+/);
             out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`);
@@ -515,6 +522,10 @@ export function hire(g, w, id, track) {
     if ((o.shifted ?? []).length && !askedCourses(g, w, o).length)
         while (o.ranks[rank]?.student && rank < o.ranks.length - 1)
             rank++;
+    // a distinguished degree in this field starts you higher (never past the career's first branch)
+    const up = studentLink.headStart(g, w, id);
+    if (up > 0)
+        rank = Math.max(rank, Math.min(rank + up, career(o).ranks.length - 1));
     const j = { id, rank, shifts: 0, perf: r.crit ? 65 : 50, since: nowAbs(g), checked: today && today.start > nowAbs(g) ? g.day - 1 : g.day, vac: 0, vacAt: g.day };
     if (key !== undefined)
         j.track = key;
@@ -1222,6 +1233,9 @@ export function moveTo(g, w, zoneId) {
     const spot = freeSpots(g, w, zoneId)[0];
     if (!zone || !spot)
         return 'There is no free home there.';
+    const student = studentLink.homeBlock(g, w, zone.id); // (while you study for a degree: student homes only)
+    if (student)
+        return student;
     const deposit = priceOf(g, zone.rent);
     if (g.player.money < deposit)
         return 'Not enough money.';

@@ -95,6 +95,18 @@ export function payStep(g, w, goal, step, last) {
     return out;
 }
 onGoalStep.push(payStep);
+/** Points for a milestone outside life goals (graduating: sim/degrees.ts), once per key and outside the day's cap.
+ *  Returns the line to show ('' when nothing was paid). */
+export function milestonePoints(g, w, n, key, why) {
+    if (!w || !systemOn(w, 'goals'))
+        return '';
+    const p = pointsState(g);
+    if (p.kinds.includes(key))
+        return '';
+    p.kinds.push(key);
+    const got = credit(g, n, key);
+    return got ? `${pointsLine(got)} ${why}${shopHint(g, w)}` : '';
+}
 /* ---------- second sources ---------- */
 // A like or a hard limit of someone's learned (sim/intimacy.ts `learn()`, whoever called it: a great night, a limit met,
 // Pillow talk the action or the item): once each, and only with adult content on. Said as a toast: the caller's own lines

@@ -505,7 +505,7 @@ export async function startNewGame(o) {
             }
         }
     // (E16) the start: its job, skills, the people you already know, the household you live with
-    applyStart(save, w, start);
+    applyStart(save, w, start, o.degree);
     // what you're good at: the strengths picked become skill levels, at least, after the start's own skills
     applyStrengths(save, w, o.hero.traits);
     for (const t of o.relations ?? []) {

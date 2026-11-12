@@ -23,6 +23,7 @@ import { characters, thumb, personas, personaThumb, persona, openCharacter, useP
 import { startNewGame } from '../sim/game.js';
 import { startPickHtml, draftStart, loreText, householdOf } from './startsui.js';
 import { findStart, defaultStart, CUSTOM_START } from '../sim/starts.js';
+import { findDegree, degreesOffered } from '../sim/degrees.js';
 import { ACT, INPUT } from './reg.js';
 import { styleName, inWorld, LOCKED_NOTE } from './styles.js';
 import { pickAndCrop, pickFile } from './cropper.js';
@@ -328,9 +329,19 @@ function dropUnoffered(w) {
 const asks = (w, k) => w.sheet.ask?.[k] !== false;
 function heroSheetHtml(persona) {
     const w = W(), h = state.wizard.hero, sh = w.sheet;
-    return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${asks(w, 'origin') && !isScenario(w) ? startPickHtml(w, h.origin, !!state.wizard.adult) : ''}
+    return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${asks(w, 'origin') && !isScenario(w) ? startPickHtml(w, h.origin, !!state.wizard.adult) + degreePickHtml(w) : ''}
         ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(ngGroups(w), h.traits, 'ng-trait', w)}</section>` : ''}
         ${asks(w, 'bio') ? `<section class="mu-bio"><label class="mu-field"><span>${persona ? 'About you in this world (optional; your persona\'s description is not changed)' : 'About you (optional)'}</span><textarea rows="4" data-input="ng-bio" data-focus="ngbio" placeholder="${persona ? 'What you do here, what people know about you' : 'Personality, quirks, what drives you'}">${esc(h.bio)}</textarea></label></section>` : ''}`;
+}
+// A start enrolled in a degree (Tokyo's university student): which of its school's degrees you study for.
+function degreePickHtml(w) {
+    const st = isScenario(w) ? undefined : chosenStart();
+    const x = st?.degree ? findDegree(w, st.degree) : null;
+    if (!x || !degreesOffered(w).length)
+        return '';
+    const on = state.wizard.degree && findDegree(w, state.wizard.degree)?.inst.id === x.inst.id ? state.wizard.degree : x.d.id;
+    return `<section class="mu-origins mu-degree-pick"><h3>Your degree</h3><p class="mu-muted">You start enrolled at ${esc(x.inst.name)}${st.scholarship ? ', on a scholarship that pays the tuition while your grades hold' : ''}. The first term's required modules are on your calendar; the Campus app has the rest.</p>
+        <div class="mu-cards small">${(x.inst.degrees ?? []).map(d => `<button class="mu-origin ${on === d.id ? 'is-on' : ''}" data-act="ng-degree" data-id="${esc(d.id)}"><b data-notr>${esc(d.name)}</b>${d.desc ? `<p data-notr>${esc(d.desc)}</p>` : ''}</button>`).join('')}</div></section>`;
 }
 // A scenario: how you fit in the house, instead of an origin. Custom: your own premise, written by you, or by your
 // AI from one or more lorebooks (adapted to a Mundi scenario: one house, its people, you).
@@ -654,6 +665,7 @@ Object.assign(ACT, {
         notify();
     },
     'ng-origin': (el) => { state.wizard.hero.origin = el.dataset.id; notify(); },
+    'ng-degree': (el) => { state.wizard.degree = el.dataset.id; notify(); },
     'ng-wp': (el) => { const l = wpOf(), n = el.dataset.name; state.wizard.wp = l.includes(n) ? l.filter(x => x !== n) : [...l, n]; notify(); },
     'ng-wp-all': (el) => { wpOf(); state.wizard.wp = el.dataset.v ? W().cast.examples.map(e => e.name) : []; notify(); },
     'ng-play': (el) => { state.wizard.play = el.dataset.v; notify(); },
@@ -695,7 +707,7 @@ Object.assign(ACT, {
             await startNewGame({ world: W(), cast: wz.cast, examples: wpChosen().length > 0, worldPeople: wpChosen(), adult: !!wz.adult, worldStart: isScenario(W()) ? undefined : chosenStart(), hero: { ...wz.hero, name: wz.hero.name.trim() }, persona: wz.heroMode === 'existing' ? wz.persona : undefined, lore: chosenLore(),
                 households: (wz.hh ?? []).filter((h) => h.members.length), family: wz.family ?? [], home: (() => { const st = isScenario(W()) ? undefined : chosenStart(); return householdOf(W(), st, wpChosen()).length ? undefined : wz.home ?? undefined; })(), difficulty: wz.difficulty ?? 'normal',
                 approval: wz.approval ?? undefined, relations: (wz.rels ?? []).filter((t) => t.a !== t.b), mode: rpgOf(W()) ? playMode() : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined,
-                people: ngPeopleFor([...wz.cast, ...(wz.family ?? []).map((f) => f.avatar)]) });
+                people: ngPeopleFor([...wz.cast, ...(wz.family ?? []).map((f) => f.avatar)]), degree: wz.degree || undefined });
             state.wizard = null;
         }
         catch (e) {

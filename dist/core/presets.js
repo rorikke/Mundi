@@ -501,6 +501,26 @@ export function upgradeWorld(w) {
     if (info)
         w.traitInfo = info;
     upgradeAdult(w);
+    // degrees (sim/degrees.ts): entries without an id or a name dropped, numbers inside sensible bounds; nothing is added
+    // to a world without them (the defaults are read where they're used)
+    for (const i of w.institutions ?? [])
+        if (i.degrees) {
+            i.degrees = i.degrees.filter(d => d && typeof d.id === 'string' && d.id && typeof d.name === 'string');
+            for (const d of i.degrees) {
+                if (d.terms !== undefined)
+                    d.terms = Math.max(1, Math.min(12, Math.round(Number(d.terms) || 4)));
+                if (d.perTerm !== undefined) {
+                    const [a, b] = Array.isArray(d.perTerm) ? d.perTerm.map(n => Math.max(1, Math.min(6, Math.round(Number(n) || 1)))) : [2, 3];
+                    d.perTerm = [Math.min(a, b ?? a), Math.max(a, b ?? a)];
+                }
+                if (d.minGpa !== undefined)
+                    d.minGpa = Math.max(0, Math.min(4, Number(d.minGpa) || 0));
+                if (d.workCap !== undefined)
+                    d.workCap = Math.max(1, Math.min(7, Math.round(Number(d.workCap) || 3)));
+            }
+            if (!i.degrees.length)
+                delete i.degrees;
+        }
     // life goals and the rewards shop (core/goals.ts): a world's own made safe, perks and boosts inside their limits; the
     // general ones stay in the engine (so a world gets their later changes), and a world without either gets no key
     const goals = upgradeGoals(w.goals), rewards = upgradeRewards(w.rewards);

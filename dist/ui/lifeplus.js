@@ -2,7 +2,7 @@
 // becoming traits, your apprentices), the Animals app, an apprentice button on a person's page, help for a friend's
 // letter, and the HUD's festival and lesson buttons.
 import { esc, game, notify, saveGame, toast } from '../core/store.js';
-import { getWorld, systemOn } from '../core/world.js';
+import { getWorld, systemOn, appsOf } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
 import { ACT } from './reg.js';
 import { thumb } from '../st/bridge.js';
@@ -17,6 +17,7 @@ import { petsOf, petDef, petsAvailable, soldHere, buyPet, feedPet, playWithPet, 
 import { helpAsked, sendHelp } from '../sim/letters.js';
 import { canCelebrate, celebrate, festivalOn, upcoming } from '../sim/festivals.js';
 import { eventChip } from './cityui.js';
+import { campusActs } from './campus.js';
 import { schoolOf, instDef, instAt, enroll, drop, attend, examDue, sitExam, joinClub, clubMeeting, faculty } from '../sim/institutions.js';
 import { setPrompt } from '../st/bridge.js';
 const UIS = { alias: '', petName: '', area: '' };
@@ -104,6 +105,9 @@ export function lifeActs(g, w) {
 export function schoolActs(g, w) {
     return instAt(w, g.player.loc).map(d => {
         const e = schoolOf(g)[d.id];
+        // a school with degrees: the Campus app (no ladder to enroll in)
+        if (!e && (d.degrees ?? []).length)
+            return campusActs(g, w) + `<button class="mh-act mh-glass" data-act="ph-open-campus"><i>🎓</i><b>${esc(appsOf(w).find(a => a.id === 'campus')?.name ?? 'Campus')}</b><small>${esc(d.name)} · degrees</small></button>`;
         if (!e)
             return `<button class="mh-act mh-glass" data-act="lp-enroll" data-id="${esc(d.id)}"><i>🎓</i><b>Enroll</b><small>${esc(d.name)}${d.tuition ? ` · ${esc(money(w, d.tuition))}/week` : ''}</small></button>`;
         return [e.last !== g.day ? `<button class="mh-act mh-glass" data-act="lp-attend" data-id="${esc(d.id)}"><i>📚</i><b>Attend class</b><small>${esc(d.name)} · 2h</small></button>` : '',

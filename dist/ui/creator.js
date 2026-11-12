@@ -485,6 +485,7 @@ function tabJobs(w) {
             <div class="mu-row2">${chk('Worked off-screen', `${p}.offScreen`, 'Away from every map during the shift')}${chk('Open to the player', `${p}.hireable`, '', true)}</div>
             <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, '', true)}${bounded('Months before the first shift (0–12; empty: from the next shift)', `${p}.startAfter`, 0, 12, 0.5)}</div>
             ${bounded(INTERVIEW_LABEL, `${p}.interview`, -10, 10, 1)}
+            ${degreeOpts(w).length || o.degree?.length ? `<div class="mu-field"><span>Wants a degree (one of these; none: no degree)</span>${pairChips(degreeOpts(w), `${p}.degree`)}</div>` : ''}
             <span class="mu-cw-sub">Hired only with (one of these is enough; none: anyone)</span>
             ${hireRows(p, o)}
             ${words('Kinds of job (tags, comma separated)', `${p}.tags`, 'Effects can aim at them: pay and performance in every job of a kind (adult-stage, nightwork).', 'nightwork')}
@@ -831,7 +832,8 @@ function tabCustoms(w) {
                 ${csv('Ranks, students first, the head last', `${p}.ranks`)}
                 <div class="mu-row2">${num('Tuition a week', `${p}.tuition`, 0)}${num('An exam every (days)', `${p}.examEvery`, 1)}</div>
                 <div class="mu-row2">${RPG_LOCKED ? '' : sel('Skill it teaches (RPG)', `${p}.skill`, [['', '(none)'], ...skills])}${txt('Trait it teaches (Life-Sim)', `${p}.trait`, 'Smart')}</div>
-                ${csv('Clubs (comma separated)', `${p}.clubs`)}`;
+                ${csv('Clubs (comma separated)', `${p}.clubs`)}
+                ${degreeRows(w, p, w.institutions[i])}`;
     }, 'inst')}</section>
         <section class="mu-cw-sec"><h4>Animals (pets and familiars)</h4>${master('pet', 'pets', a => `<b>${esc(a.icon)} ${esc(a.name)}</b><small>${a.price}${a.familiar ? ' · familiar' : ''}</small>`, i => {
         const p = `pets.${i}`;
@@ -1002,6 +1004,40 @@ const AID_KINDS = [['employer', 'An employer (sponsorship)'], ['merit', 'A schoo
 // jobs that require it are linked here. Traits drive the bonuses of worlds without skills, so those links are written
 // where the engine reads them: a job it favors (the course's traits in occupation.likes: faster promotions), a roll it
 // improves (its traits in the action's roll).
+// A school's degrees (sim/degrees.ts): terms of a season, modules (courses marked with the degree, in Courses) chosen
+// each term, tuition a term and its aid, what the finals roll, the work cap while studying, the jobs a distinguished
+// degree starts a rank up.
+const degreeOpts = (w) => (w.institutions ?? []).flatMap(i => (i.degrees ?? []).map(d => [d.id, d.name]));
+function degreeRows(w, p, inst) {
+    const jobs = w.occupations.map(o => [o.id, o.name]);
+    const mods = (id) => (w.catalogs.courses ?? []).filter(c => c.degree === id);
+    return `<h4>Degrees</h4><p class="mu-muted">A degree takes a few of its modules each term (a term is a season); each module is a course marked with the degree (in Courses). A school with degrees has no ladder to join.</p>
+        ${(inst.degrees ?? []).map((d, k) => {
+        const q = `${p}.degrees.${k}`, m = mods(d.id);
+        return `<div class="mu-cw-path">
+            <div class="mu-row mu-cw-inline">${idTag(d.id)}<small class="mu-muted">${m.length} module${m.length === 1 ? '' : 's'}, ${m.filter(c => c.core).length} required</small></div>
+            ${txt('Name', `${q}.name`, 'Economics')}${area('What it is', `${q}.desc`, 2)}
+            <div class="mu-row2">${bounded('Terms (1–12; empty: 4)', `${q}.terms`, 1, 12)}${num('Modules to pass (empty: terms × the least a term)', `${q}.credits`, 1)}</div>
+            <div class="mu-row2">${bounded('Modules a term, at least', `${q}.perTerm.0`, 1, 6)}${bounded('Modules a term, at most', `${q}.perTerm.1`, 1, 6)}</div>
+            <div class="mu-row2">${bounded('Least GPA a term (0–4; empty: 2)', `${q}.minGpa`, 0, 4, 0.1)}${num(`Tuition a term (${esc(w.currency.symbol)})`, `${q}.tuition`)}</div>
+            ${bounded('Shifts a week a student may work (1–7; empty: 3)', `${q}.workCap`, 1, 7)}
+            <div class="mu-field"><span>Skills the finals use (a module's own skills first)</span>${pairChips(skillOpts(w), `${q}.skills`)}</div>
+            <div class="mu-field"><span>With distinction (GPA 3.5+), a rank up in these jobs</span>${pairChips(jobs, `${q}.gives.jobs`)}</div>
+            <span class="mu-cw-sub">Help with the tuition (the best one counts)</span>
+            ${(d.aid ?? []).map((ad, j) => {
+            const a = `${q}.aid.${j}`;
+            return `<div class="mu-cw-path">
+                <div class="mu-row2">${txt('Name', `${a}.name`, 'Merit scholarship')}${sel('Who pays', `${a}.kind`, AID_KINDS)}</div>
+                <div class="mu-row2">${bounded('Share (0.5: half)', `${a}.share`, 0, 1, 0.05)}${sel('When it pays', `${a}.pays`, [['', 'As usual (merit, employer: off the fee; public: back at the end)'], ['enroll', 'Off the fee'], ['finish', 'Back when you graduate']], 'opt')}</div>
+                ${cond('Who qualifies (a condition)', `${a}.when`, 'skill: logic 4')}
+                <div class="mu-row2">${ad.jobless ? '' : num('Only after holding a job for (seasons)', `${a}.held`, 0)}${ad.held ? '' : chk('Only while out of work', `${a}.jobless`)}</div>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(a)}">${icon('x')}<span>Remove this aid</span></button></div>`;
+        }).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="aid" data-path="${esc(`${q}.aid`)}">${icon('plus')}<span>Add aid</span></button>
+            <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>Remove this degree</span></button></div>`;
+    }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="degree" data-path="${esc(`${p}.degrees`)}">${icon('plus')}<span>Add a degree</span></button>`;
+}
 function tabCourses(w) {
     const list = (w.catalogs.courses ?? []);
     const rolls = w.actions.filter(a => a.roll);
@@ -1037,6 +1073,11 @@ function tabCourses(w) {
                 ${sel('The fee is paid', `${p}.perSeason`, [['', 'By its length (each season when it lasts longer than one)'], ['true', 'Every season while you take it'], ['false', 'Once, when you enroll']], 'tri')}
                 ${chk('Retired', `${p}.retired`, 'No longer offered. A game taking it can finish it, and jobs still accept it. A course is never removed once games may have taken it.')}
                 ${flag('Only with adult content on', `${p}.adult`, "Otherwise not offered, no aid and no boss's message; one being taken waits.", true)}
+                ${degreeOpts(w).length || c.degree ? `<h4>Part of a degree</h4>
+                ${sel('A module of', `${p}.degree`, withCur([['', '(none: a course of its own)'], ...degreeOpts(w)], c.degree), 'opt')}
+                ${c.degree ? `<small class="mu-muted">Taken only through the degree, for one term (its classes run to the term's end), graded A–F; no fee (the degree's tuition), not in the courses list.</small>
+                <div class="mu-row2">${num('Offered from term', `${p}.term`, 1)}${bounded('Coursework a week (hours; empty: 3)', `${p}.study`, 0, 20)}</div>
+                ${chk('Required to graduate', `${p}.core`)}` : ''}` : ''}
                 <h4>Help paying (aid)</h4><p class="mu-muted">Only the best one a player qualifies for counts.</p>
                 ${(c.aid ?? []).map((ad, k) => {
             const q = `${p}.aid.${k}`;
@@ -1105,6 +1146,8 @@ function startsEditor(w) {
                 <div class="mu-row2">${sel('Where you live', `${p}.home`, withCur(zoneOpts(w, '(the first area)'), s.home), 'opt')}${num(`Money (${esc(w.currency.symbol)})`, `${p}.money`)}</div>
                 <div class="mu-row2">${num(`Rent you pay there, a week (${esc(w.currency.symbol)}; empty: the home's own, until you move)`, `${p}.rent`)}${sel('A job to start with', `${p}.job`, withCur(jobs, s.job), 'opt')}</div>
                 ${households.length || s.household ? sel('You live with this household', `${p}.household`, withCur([['', '(nobody)'], ...households], s.household), 'opt') : ''}
+                ${degreeOpts(w).length || s.degree ? `<div class="mu-row2">${sel('Enrolled from day one in', `${p}.degree`, withCur([['', '(no degree)'], ...degreeOpts(w)], s.degree), 'opt')}${s.degree ? chk('A scholarship pays the tuition', `${p}.scholarship`, "While each term's GPA holds.") : ''}</div>` : ''}
+                ${w.homes.zones.some(z => z.student) || s.anyHome ? chk('Family money: as a student, any home', `${p}.anyHome`, 'Otherwise a student rents only student homes.') : ''}
                 <div class="mu-row2"><label class="mu-check"><input type="checkbox" data-input="cw-sdefault" data-path="${esc(`${p}.default`)}" data-i="${esc(i)}" ${s.default ? 'checked' : ''}><span>Picked first<small>The card chosen when a new game opens.</small></span></label>${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
                 <h4>Whom you already know</h4>
                 ${(s.knows ?? []).map((k, j) => {
@@ -1146,6 +1189,7 @@ function tabHomes(w) {
         return `${txt('Name', `${p}.name`)}${area('Description', `${p}.desc`, 2)}
                     <div class="mu-row2">${sel('Kind of home', `${p}.kind`, kinds.map(([id, k]) => [id, k.name]))}${num(`Rent (${esc(w.currency.symbol)})`, `${p}.rent`)}</div>
                     ${sel('On the map', `${p}.map`, w.maps.map(m => [m.id, m.name]))}
+                    ${chk('A student home', `${p}.student`, 'While you study for a degree, only these can be rented.')}
                     <p class="mu-muted">${z.spots.length} homes placed. They are numbered (House 1, House 2…).</p>
                     <button data-act="cw-homes-map" data-i="${esc(i)}">${icon('map')}<span>Place the homes on the map</span></button>`;
     }, 'zone', 'No housing areas yet.')}</section>
@@ -2361,6 +2405,13 @@ Object.assign(ACT, {
             if (!free)
                 return;
             (c.skills ??= {})[free[0]] = 3;
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'degree') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push({ id: newId('deg'), name: 'New degree', terms: 4, perTerm: [2, 3], tuition: 0 });
             CW.dirty = true;
             notify();
             return;

@@ -4,6 +4,7 @@
 import { nowAbs } from '../core/store.js';
 import { takingNow, studyBlock, studySession, payDue, learning, CLASS_MINUTES } from './courses.js';
 import { countUp } from './skills.js';
+import { courseworkAction, addCoursework } from './degrees.js';
 import { priceOf } from './bills.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { priceHere } from './worldstate.js';
@@ -93,7 +94,7 @@ export const brokenThings = (g, w) => (systemOn(w, 'breakdowns') ? life(g).broke
 const blocked = (g, w) => new Set(!systemOn(w, 'breakdowns') ? [] : life(g).broken.flatMap(id => breakables(w).find(b => b.id === id)?.blocks ?? []));
 /* ---------- actions the engine adds ---------- */
 const x = (a) => ({ name: a.label, cost: 0, minutes: 60, effects: {}, ...a });
-// Only what comes from the game's own state: paying to fix what broke, and studying the course you take.
+// Only what comes from the game's own state: paying to fix what broke, studying the course you take, a degree's coursework.
 export function extraActions(g, w) {
     const out = [];
     if (g.player.loc === playerHomeId)
@@ -107,6 +108,10 @@ export function extraActions(g, w) {
         if (due > 0 && g.player.money >= due)
             out.push(x({ id: `x-coursefee-${cur.id}`, label: `Pay what you owe for ${cur.name}`, icon: '💳', minutes: 5, effects: {} }));
     }
+    // a degree's coursework, where you can study
+    const work = courseworkAction(g, w);
+    if (work)
+        out.push(work);
     return out;
 }
 // Which world actions are blocked by something broken at home.
@@ -133,6 +138,8 @@ export function afterAction(g, w, a, success) {
         if (t)
             out.push(t);
     }
+    if (a.id === 'x-coursework')
+        out.push(...addCoursework(g, w, a.minutes));
     if (a.id === 'cook')
         countUp(g, 'meals');
     if ((a.id === 'x-workout' || a.id === 'x-treadmill') && success)

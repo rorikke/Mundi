@@ -15,7 +15,7 @@ import { setSkillLevel, skillName, trainSkill, LEVELS } from './hobbies.js';
 import { gainTrait } from './skills.js';
 import { effectMul } from './effects.js';
 import { whenHolds, parseWhen } from './when.js';
-import { onDay } from './hooks.js';
+import { onDay, moduleLink } from './hooks.js';
 import { seasonDays, hm } from './time.js';
 import { money } from './needs.js';
 import { lex } from '../core/lexicon.js';
@@ -24,7 +24,7 @@ import { trackOf } from './tracks.js';
 export const coursesOf = (w) => (systemOn(w, 'courses') ? w.catalogs.courses ?? [] : []);
 /** What a world offers now: its courses except the retired ones (a save taking a retired one can still finish it). With
  *  a game (`g`), adult courses only when its adult content is on. */
-export const offeredOf = (w, g) => coursesOf(w).filter(c => !c.retired && !(g && adultHeld(g, c)));
+export const offeredOf = (w, g) => coursesOf(w).filter(c => !c.retired && !c.degree && !(g && adultHeld(g, c)));
 /** An adult course in a game with adult content off: not offered, no aid, and one being taken waits (no class, no miss,
  *  no fee) until it's back on. */
 export const adultHeld = (g, c) => !!c.adult && !adultOn(g);
@@ -67,12 +67,19 @@ export const hasCourse = (g, id) => learning(g).done.includes(id);
 export const isTaking = (g, id) => learning(g).taking.includes(id);
 /** The courses you are taking that the world still has (retired ones too; not an adult one while adult content is off). */
 export const takingNow = (g, w) => learning(g).taking.map(id => courseOf(w, id)).filter((c) => !!c && !adultHeld(g, c));
+/** The courses of your own you take (not a degree's modules: those are the Campus app's). */
+export const ownCourses = (g, w) => takingNow(g, w).filter(c => !c.degree);
+/** How many courses of your own you take (what "two at once" counts). */
+export const ownCount = (g, w) => learning(g).taking.filter(id => !courseOf(w, id)?.degree).length;
 export const canStudyHere = (g, w) => isScenario(w) || g.player.loc === playerHomeId || (placeOf(g, w, g.player.loc)?.tags ?? []).includes('study');
 export const studiedToday = (g, id) => learning(g).lastDay[id] === g.day;
 /* ---------- how long a course is, and its classes ---------- */
 /** The days a course lasts in this game: a share of the game year (so it follows the season length) at the work preset's
  *  speed, else its `days`. */
 export function spanOf(g, w, c) {
+    // a degree's module runs to the end of the term it's taken in (a term is a season)
+    if (c.degree)
+        return seasonDays(g) - ((Math.max(1, g.day) - 1) % seasonDays(g));
     if (!c.length)
         return Math.max(1, Math.round(c.days));
     return Math.max(1, Math.round((4 * seasonDays(g) * c.length) / Math.max(0.05, workRules(g, w).speed)));
@@ -133,7 +140,9 @@ export const freeOf = (n) => Math.max(1, Math.floor(n * 0.1 + 1e-9));
 export const capOf = (n) => Math.max(2, Math.floor(n * 0.2 + 1e-9));
 /** Taking two courses makes each class count 0.85; *Well read* and the like multiply it. */
 export const TWO_AT_ONCE = 0.85;
-export const classWorth = (g, w, taking = learning(g).taking.length) => (taking >= 2 ? TWO_AT_ONCE : 1) * effectMul(g, w, 'study', 'class');
+export const classWorth = (g, w, taking = ownCount(g, w)) => (taking >= 2 ? TWO_AT_ONCE : 1) * effectMul(g, w, 'study', 'class');
+// What a class of this course is worth: a module's class is never slowed by "two at once".
+const worthOf = (g, w, c) => (c.degree ? effectMul(g, w, 'study', 'class') : classWorth(g, w));
 /** Classes a course runs over its plan while two are taken (14 become 17), shown from enrollment. */
 export const extraWhileTwo = (g, w, n) => Math.max(0, Math.ceil(n / (TWO_AT_ONCE * effectMul(g, w, 'study', 'class')) - 1e-9) - n);
 /* ---------- shifts, places and hours ---------- */
@@ -173,6 +182,8 @@ export function studyBlock(g, w, c) {
         return 'You already studied today. Come back tomorrow.';
     if (dueOf(l, c.id) > 0)
         return `The fee for ${c.name} is unpaid (${money(w, dueOf(l, c.id))}): the course is on hold.`;
+    if (c.degree && moduleLink.held(g, w, c.id))
+        return moduleLink.held(g, w, c.id);
     if (adultHeld(g, c))
         return `${c.name} is on hold while adult content is off.`;
     if (c.at ? g.player.loc !== c.at : !canStudyHere(g, w))
@@ -296,7 +307,7 @@ export function stateOf(g, w, c) {
     if (!l.taking.includes(c.id))
         return null;
     const p = ensure(g, w, c), n = p.n, free = freeOf(n), cap = capOf(n);
-    const credit = l.progress[c.id] ?? 0, worth = classWorth(g, w), missed = l.missed[c.id] ?? 0, makeups = l.makeups[c.id] ?? 0;
+    const credit = l.progress[c.id] ?? 0, worth = worthOf(g, w, c), missed = l.missed[c.id] ?? 0, makeups = l.makeups[c.id] ?? 0;
     const endDay = l.start[c.id] + p.span + (l.held[c.id] ?? 0) - 1;
     // a course without a schedule counts its misses at the end of its span, but what no longer fits before then (one class
     // a day) is missed already: the warnings say so while there is still time, not on the last day
@@ -306,7 +317,7 @@ export function stateOf(g, w, c) {
     const w2 = warnLevel(missed + behind, free, Math.max(makeups, missed + behind - free), cap);
     const toGo = Math.max(0, Math.ceil((n - credit) / worth - 1e-9));
     return { id: c.id, n, span: p.span, start: l.start[c.id], endDay, sched: p.sched, attended, credit, missed, free, freeLeft: Math.max(0, free - missed - behind), makeups, cap,
-        extra: extraWhileTwo(g, w, n), toGo, worth, paused: dueOf(l, c.id) > 0, due: dueOf(l, c.id),
+        extra: c.degree ? 0 : extraWhileTwo(g, w, n), toGo, worth, paused: dueOf(l, c.id) > 0 || (!!c.degree && !!moduleLink.held(g, w, c.id)), due: dueOf(l, c.id),
         warn: ['', 'half', 'all', 'edge'][w2], studied: studiedToday(g, c.id), next: nextClass(g, w, c), behind, daysLeft, of: Math.max(n, attended + toGo) };
 }
 /** The warning in words ('' when there's none), for the phone and the day's messages. */
@@ -357,10 +368,12 @@ export function enroll(g, w, id) {
         return '';
     if (c.retired || adultHeld(g, c))
         return 'This course is not offered any more.';
+    if (c.degree)
+        return 'This is a module of a degree: it is chosen in the Campus app.';
     const l = learning(g);
     if (l.taking.includes(id))
         return 'You are already taking this course.';
-    if (l.taking.length >= 2)
+    if (ownCount(g, w) >= 2)
         return 'You can take two courses at most. Finish or drop one first.';
     if (l.done.includes(id))
         return 'You already finished this course.';
@@ -416,6 +429,39 @@ function leave(g, l, id) {
     delete l.aid[id];
     clear(l, id);
 }
+/** A degree's module begins (the term starts, or you join it): its classes run to the term's end; no fee, no cap, no
+ *  half credit from before (sim/degrees.ts asks). */
+export function startModule(g, w, id) {
+    const c = courseOf(w, id);
+    const l = learning(g);
+    if (!c?.degree || l.taking.includes(id))
+        return false;
+    l.taking.push(id);
+    l.start[id] = g.day;
+    l.fees[id] = 0;
+    l.paid[id] = seasonNo(g, g.day);
+    l.plan[id] = planFor(g, w, c);
+    l.missed[id] = 0;
+    l.makeups[id] = 0;
+    l.held[id] = 0;
+    delete l.due[id];
+    delete l.warned[id];
+    l.settled[id] = overToday(g, w, c, g.day) ? g.day : g.day - 1;
+    l.progress[id] = 0;
+    l.attended[id] = 0;
+    return true;
+}
+/** How a module being taken stands, for its grade: classes attended, of how many, missed, and its days. */
+export function moduleTally(g, w, id) {
+    const l = learning(g), c = courseOf(w, id);
+    if (!c || !l.taking.includes(id))
+        return null;
+    const p = ensure(g, w, c);
+    return { attended: l.attended[id] ?? 0, n: p.n, missed: l.missed[id] ?? 0, span: p.span };
+}
+/** A module leaves the courses engine (its term ended, or you left the degree): no credential, nothing kept. */
+export function endModule(g, id) { const l = learning(g); if (l.taking.includes(id))
+    clear(l, id); }
 export function dropCourse(g, id) {
     const l = learning(g);
     const which = id ?? (l.taking.length === 1 ? l.taking[0] : '');
@@ -423,12 +469,25 @@ export function dropCourse(g, id) {
         leave(g, l, which);
 }
 function fail(g, w, c, out) {
+    if (c.degree) {
+        moduleLink.ended(g, w, c.id, 'failed');
+        clear(learning(g), c.id);
+        out.push(`You failed ${c.name}: too many missed classes. It will be an F this term; you can take it again next term.`);
+        return;
+    }
     leave(g, learning(g), c.id);
     note(g, '{u} failed the course "{0}": too many missed classes.', [c.name], [], g.player.loc, 'study');
     out.push(`You failed ${c.name}: too many missed classes. What you learned stays, but there is no certificate. If you enroll again within a year, half the classes you attended count (once).`);
 }
 function finish(g, w, c, out) {
     const l = learning(g);
+    // a module's classes are done: the degree keeps how it went and grades it when the term ends
+    if (c.degree) {
+        moduleLink.ended(g, w, c.id, 'done');
+        clear(l, c.id);
+        out.push(`${c.name}: all classes done. Your grade comes at the end of the term.`);
+        return;
+    }
     const taken = l.aid[c.id], fees = l.fees[c.id] ?? 0;
     clear(l, c.id);
     delete l.failed[c.id];
@@ -466,7 +525,7 @@ export function studySession(g, w, id) {
         return [];
     if (studiedToday(g, c.id))
         return ['You already studied today. Come back tomorrow.'];
-    const p = ensure(g, w, c), worth = classWorth(g, w);
+    const p = ensure(g, w, c), worth = worthOf(g, w, c);
     l.lastDay[c.id] = g.day;
     l.attended[c.id] = (l.attended[c.id] ?? 0) + 1;
     l.progress[c.id] = (l.progress[c.id] ?? 0) + worth;
@@ -502,9 +561,9 @@ function miss(g, w, c, out) {
     const l = learning(g), p = l.plan[c.id];
     l.missed[c.id] = (l.missed[c.id] ?? 0) + 1;
     // (a free miss never finishes a course you haven't been to once: a one-class course isn't passed by skipping it)
-    const last = !(l.attended[c.id] ?? 0) && (l.progress[c.id] ?? 0) + classWorth(g, w) >= p.n - 1e-6;
+    const last = !(l.attended[c.id] ?? 0) && (l.progress[c.id] ?? 0) + worthOf(g, w, c) >= p.n - 1e-6;
     if (l.missed[c.id] <= freeOf(p.n) && !last) {
-        l.progress[c.id] = (l.progress[c.id] ?? 0) + classWorth(g, w);
+        l.progress[c.id] = (l.progress[c.id] ?? 0) + worthOf(g, w, c);
         if (l.progress[c.id] >= p.n - 1e-6) {
             finish(g, w, c, out);
             return 'done';
@@ -527,7 +586,7 @@ function settle(g, w, c, out) {
     const l = learning(g), p = ensure(g, w, c);
     for (let d = (l.settled[c.id] ?? g.day - 1) + 1; d <= g.day - 1; d++) {
         l.settled[c.id] = d;
-        if (dueOf(l, c.id) > 0 || adultHeld(g, c)) {
+        if (dueOf(l, c.id) > 0 || adultHeld(g, c) || (c.degree && moduleLink.held(g, w, c.id))) {
             l.held[c.id] = (l.held[c.id] ?? 0) + 1;
             continue;
         }
@@ -657,8 +716,19 @@ function courseDay(g, w) {
 onDay.push(courseDay);
 // (a course the world no longer offers is not asked for: the job would be out of reach forever; a course being taken
 // counts for a job whose first rank is a student's, which you leave by finishing it; on your track of the job)
-export const missingCourses = (g, w, o) => (o = trackOf(g, o),
-    (o.courses ?? []).filter((id) => { const c = courseOf(w, id); return !!c && !c.retired && !hasCourse(g, id) && !(o.ranks[0]?.student && isTaking(g, id)); }).map((id) => courseOf(w, id)?.name ?? id));
+export const missingCourses = (g, w, o) => (o = trackOf(g, o), [
+    ...(o.courses ?? []).filter((id) => { const c = courseOf(w, id); return !!c && !c.retired && !hasCourse(g, id) && !(o.ranks[0]?.student && isTaking(g, id)); }).map((id) => courseOf(w, id)?.name ?? id),
+    ...missingDegree(g, w, o)
+]);
+/** The degree a job wants (one of its `degree` list), as a name for the job's listing, while you hold none of them (a
+ *  degree's id is its credential in `learning.done`); nothing with schools or courses off, or when the world has none of
+ *  those degrees. */
+export function missingDegree(g, w, o) {
+    const want = (o.degree ?? []).map(id => ({ id, d: (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id) })).filter(x => x.d);
+    if (!want.length || !systemOn(w, 'institutions') || !systemOn(w, 'courses') || want.some(x => hasCourse(g, x.id)))
+        return [];
+    return [`${want.map(x => x.d.name).join(' or ')} (a degree)`];
+}
 /* ---------- words for the screens and the boss's message ---------- */
 const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 /** A course's schedule as words ("Tue, Thu · 19:00–21:00"), '' without one. */

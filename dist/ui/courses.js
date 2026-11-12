@@ -9,7 +9,7 @@ import { money } from '../sim/needs.js';
 import { priceOf } from '../sim/bills.js';
 import { weekday } from '../sim/time.js';
 import { skillName } from '../sim/hobbies.js';
-import { freeOf, capOf, offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, takingNow, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, classWord } from '../sim/courses.js';
+import { freeOf, capOf, offeredOf, courseOf, learning, enroll, dropCourse, payDue, canStudyHere, ownCourses, ownCount, stateOf, planFor, needsText, perSeason, extraWhileTwo, clashCount, aidText, scheduleWords, whereWords, windowText, classWindow, courseWarnings, classWord } from '../sim/courses.js';
 import { nudgesFor, aheadCourse } from '../sim/coursenudge.js';
 import { countOf } from '../sim/skills.js';
 import { jobDef, rankOf, careerOf } from '../sim/work.js';
@@ -25,7 +25,7 @@ const CS = { open: false, area: '', drop: '' };
 export const openCourses = () => { CS.open = true; CS.drop = ''; notify(); };
 // "Things to do": take a course, or how the ones you take are going (the study buttons are in the list).
 export function courseRow(g, w) {
-    const mine = takingNow(g, w);
+    const mine = ownCourses(g, w);
     if (!offeredOf(w, g).length && !mine.length)
         return '';
     if (!canStudyHere(g, w) && !mine.some(c => c.at === g.player.loc))
@@ -53,7 +53,7 @@ function takingCard(g, w, c, s) {
         <small>Missed ${esc(String(s.missed))}${s.behind ? ` (and ${esc(String(s.behind))} more that won't fit in the ${esc(String(s.daysLeft))} days left)` : ''}: ${esc(String(s.freeLeft))} free left · make-up classes ${esc(String(s.makeups))} of ${esc(String(s.cap))}</small>
         ${warn ? `<small class="mu-bad">${esc(warn)}</small>` : ''}
         ${s.paused ? `<small class="mu-bad">On hold: ${esc(money(w, s.due))} is unpaid. ${g.player.money >= s.due ? '' : 'Earn it first.'}</small><button class="mu-primary" data-act="course-pay" data-id="${esc(c.id)}" ${g.player.money >= s.due ? '' : 'aria-disabled="true"'}>Pay ${esc(money(w, s.due))}</button>` : ''}
-        ${l.taking.length > 1 ? `<small class="mu-muted">While you take two, each class counts ${esc(String(Math.round(s.worth * 100) / 100))}${s.extra ? ` (+${esc(classWord(s.extra))})` : ''}.</small>` : ''}
+        ${ownCount(g, w) > 1 ? `<small class="mu-muted">While you take two, each class counts ${esc(String(Math.round(s.worth * 100) / 100))}${s.extra ? ` (+${esc(classWord(s.extra))})` : ''}.</small>` : ''}
         ${a ? `<small class="mu-good">${esc(a.name)}: ${esc(String(Math.round(a.share * 100)))}% ${a.pays === 'finish' ? 'back at the end' : 'paid for you'}${a.stay ? ', and you stay a season after' : ''}.</small>` : ''}
         ${CS.drop === c.id ? `<small class="mu-bad">Drop it? What you paid is gone. Enroll again within a year and half your classes count (once).</small><div class="mu-row"><button class="mu-danger" data-act="course-drop" data-id="${esc(c.id)}">Yes, drop it</button><button class="mu-ghost" data-act="course-keep">Keep it</button></div>`
         : `<button class="mu-ghost" data-act="course-ask-drop" data-id="${esc(c.id)}">Drop it</button>`}
@@ -64,12 +64,12 @@ export function coursesHtml() {
     const w = g && getWorld(g.world);
     if (!CS.open || !g || !w)
         return '';
-    const l = learning(g), all = offeredOf(w, g), mine = takingNow(g, w);
+    const l = learning(g), all = offeredOf(w, g), mine = ownCourses(g, w);
     const areas = [...new Set(all.map(c => c.area))];
     const list = all.filter(c => !CS.area || c.area === CS.area);
     const forJobs = (id) => w.occupations.filter(o => (o.courses ?? []).includes(id) || [...o.ranks, ...(o.branches ?? []).flatMap(b => b.options.flatMap(x => x.ranks))].some(r => r.course === id)).map(o => o.name);
     const top = mine.length
-        ? `<div class="mu-course-top"><p class="mu-course-now">Taking ${mine.length} of 2. ${l.taking.length > 1 ? 'Two at once is slower: each class counts less. ' : ''}One class a day for each, ${esc(lex(w, 'studyWhere'))}.</p><div class="mu-course-grid">${mine.map(c => takingCard(g, w, c, stateOf(g, w, c))).join('')}</div></div>`
+        ? `<div class="mu-course-top"><p class="mu-course-now">Taking ${mine.length} of 2. ${ownCount(g, w) > 1 ? 'Two at once is slower: each class counts less. ' : ''}One class a day for each, ${esc(lex(w, 'studyWhere'))}.</p><div class="mu-course-grid">${mine.map(c => takingCard(g, w, c, stateOf(g, w, c))).join('')}</div></div>`
         : `<div class="mu-course-top"><p class="mu-muted">Pay, then go to class: a course lasts weeks and has a set number of classes (2 h each, ${esc(lex(w, 'studyWhere'))}). Every class teaches you a little of its skills, and finishing gives you their levels for good. You can miss a few classes; miss too many and the course runs long, or you fail. Some jobs ask for a course first.</p></div>`;
     return `<div class="mu-recap-veil mu-help-veil" data-act="course-bg"><section class="mu-recap mh-glass mu-help mu-courses" role="dialog" aria-label="${esc(lex(w, 'courses'))}">
         <header class="mu-row"><div><small>${lex(w, 'courses')}</small><h3>What do you want to learn?</h3></div><button class="mu-ibtn mu-ghost mu-right" data-act="course-close" aria-label="Close">${icon('x')}</button></header>
@@ -79,7 +79,7 @@ export function coursesHtml() {
         const done = l.done.includes(c.id), on = l.taking.includes(c.id), jobs = forJobs(c.id);
         const price = priceOf(g, c.cost), p = planFor(g, w, c), seasonal = perSeason(g, w, c);
         const needs = needsText(g, w, c), clash = clashCount(g, w, c), aid = aidText(g, w, c), when = scheduleWords(c);
-        const block = on ? '' : l.taking.length >= 2 ? 'You can take two courses at most. Finish or drop one first.' : needs ? `Asks for ${needs} first.` : g.player.money < price ? 'Not enough money' : '';
+        const block = on ? '' : ownCount(g, w) >= 2 ? 'You can take two courses at most. Finish or drop one first.' : needs ? `Asks for ${needs} first.` : g.player.money < price ? 'Not enough money' : '';
         return `<article class="mu-course ${done ? 'is-done' : ''} ${on ? 'is-on' : ''}">
                 <header><i>${esc(c.icon)}</i><span><b>${esc(c.name)}</b><small>${esc(c.area)} · ${esc(classWord(p.n))} · about ${esc(String(p.span))} day${p.span === 1 ? '' : 's'} · ${esc(money(w, price))}${seasonal ? ' a season' : ''}</small></span></header>
                 <p>${esc(c.desc)}</p>
@@ -99,7 +99,7 @@ export function coursesHtml() {
 }
 // The courses you take, for the profile page.
 export function takingRows(g, w) {
-    return takingNow(g, w).map(c => {
+    return ownCourses(g, w).map(c => {
         const s = stateOf(g, w, c), warn = warnOf(g, w, c, s);
         return `<div class="mu-pf-row"><b>${esc(c.icon)} ${esc(c.name)}</b><small>In progress · class ${esc(String(s.attended))} of ${esc(String(s.of))}${s.studied ? ' · studied today' : ''}${s.paused ? ' · on hold' : ''}</small><span class="mu-bond"><i style="width:${pctOf(s)}%"></i></span>${warn ? `<small class="mu-bad">${esc(warn)}</small>` : ''}</div>`;
     }).join('');
