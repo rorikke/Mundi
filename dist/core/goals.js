@@ -118,9 +118,9 @@ export const GENERAL_GOALS = [
         ],
         perk: perk('Steady', 'Mood drains 20% slower.', { kind: 'drain', target: 'mood', value: -0.2 }) },
     { id: 'mentor', name: 'Mentor', icon: '🧑‍🏫', category: 'social', desc: 'Pass on what you know.', needs: ['mentors'], steps: [
-            s('Take an apprentice', 'did: apprentice'), s('Teach 10 lessons', 'did: lesson 10'), s('An apprentice who finishes', 'did: taught'), s('Two who finish', 'did: taught 2')
+            s('Start teaching someone', 'did: apprentice'), s('Teach 10 sessions', 'did: lesson 10'), s('Someone you teach learns all you can teach', 'did: taught'), s('Two who learn all you can teach', 'did: taught 2')
         ],
-        perk: perk('Teacher', 'Lessons you give count 50% more.', { kind: 'study', target: 'teach', value: 0.5 }) },
+        perk: perk('Teacher', 'Those you teach learn 50% more each session.', { kind: 'study', target: 'teach', value: 0.5 }) },
     // only with the systems they're about
     { id: 'family', name: 'A family of your own', icon: '👶', category: 'love', desc: 'A partner, a home together, children.', needs: ['romance', 'family'], steps: [
             s('A partner', 'partner: dating or engaged or married'), s('Living together', 'partner: home'), s('A child', 'did: baby'), s('Two children', 'did: baby 2')

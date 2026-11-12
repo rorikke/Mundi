@@ -14,8 +14,9 @@ import { onAction, onHour, onLook } from './hooks.js';
  *  part), `party` (a party you threw): sim/skills.ts `countUp`; `missed_shift`: sim/work.ts; `missed_train` (a taxi or a
  *  wait after the last train): sim/transit.ts; `date` (a date kept): sim/plans.ts; `overnight` (someone stays the night
  *  with you, or you with them): sim/plans.ts; `night_away` (a night at a hotel, a capsule, a ryokan): sim/stays.ts;
- *  `crisis` and `collapse` (a need at zero too long; collapse: energy): sim/needs.ts; `apprentice`, `lesson`, `taught`
- *  (an apprentice who finished): sim/mentors.ts; `baby`: sim/family.ts; `business` (one opened): sim/holdings.ts;
+ *  `crisis` and `collapse` (a need at zero too long; collapse: energy): sim/needs.ts; `apprentice` (someone you
+ *  start teaching), `lesson` (a session where you teach), `taught` (someone you taught to the end), `taught_you` (someone
+ *  who taught you to the end): sim/training.ts; `baby`: sim/family.ts; `business` (one opened): sim/holdings.ts;
  *  `big_party` (a party at home with 5 guests or more: `BIG_PARTY` in sim/plans.ts) and `loved_party` (one where every guest who said yes came, 3 at
  *  least): sim/plans.ts; `night_together` (a night someone stays with you, or you with them, that's more than a
  *  sleepover: a partner, or someone ready to get intimate with you): sim/plans.ts; `trip` (a day out in another area than
@@ -26,7 +27,7 @@ import { onAction, onHour, onLook } from './hooks.js';
  *  sim/private.ts and sim/social.ts; `jealous` (a partner jealous of a new partner of yours): sim/romance.ts; `risky` (a
  *  risky moment not caught) and `caught`: sim/caught.ts.
  *  A moment with someone is also counted for that person (`event:<name>|<avatar>`: `did: overnight with best`). */
-export const TALLY_EVENTS = ['meal', 'workout', 'painting', 'shift', 'party', 'missed_shift', 'missed_train', 'date', 'overnight', 'night_away', 'crisis', 'collapse', 'apprentice', 'lesson', 'taught', 'baby', 'business',
+export const TALLY_EVENTS = ['meal', 'workout', 'painting', 'shift', 'party', 'missed_shift', 'missed_train', 'date', 'overnight', 'night_away', 'crisis', 'collapse', 'apprentice', 'lesson', 'taught', 'taught_you', 'baby', 'business',
     'big_party', 'loved_party', 'night_together', 'trip', 'late_night',
     'intimate', 'learned', 'risky', 'caught', 'threesome', 'jealous', 'gift_loved'];
 /** The prefixes a counted key can have in a condition (`did: tag:karaoke 3`); with none it's an event name or an action id. */

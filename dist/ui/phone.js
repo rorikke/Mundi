@@ -12,7 +12,7 @@ import { campusApp, campusBadge } from './campus.js';
 import { studentLink } from '../sim/hooks.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
 import { partyApp } from './combatui.js';
-import { standingApp, petsApp, apprenticeBtn, helpBtn } from './lifeplus.js';
+import { standingApp, petsApp, helpBtn } from './lifeplus.js';
 import { factionsApp } from './factionsui.js';
 import { holdingsApp } from './holdingsui.js';
 import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, healthApp } from './adventureui.js';
@@ -299,7 +299,6 @@ function personApp(g, w) {
         ${featureOn(w, 'plans') ? planForm(g, w, r.avatar) : ''}
         ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? '<button data-act="ph-partner">Ask to be together</button>' : ''}
         ${referBtn(g, w, r.avatar)}
-        ${apprenticeBtn(g, w, r.avatar)}
         <p class="mu-muted">Now: ${esc(placeOf(g, w, whereNow(g, w, r))?.name ?? '')}${breakNow(g, w, r) && whereNow(g, w, r) === breakNow(g, w, r).place ? ` · <i>${esc(breakNow(g, w, r).why.replace(/^is /, ''))}</i>` : ''}</p>
     </div>`;
 }

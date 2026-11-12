@@ -1,18 +1,14 @@
 // Life and society on screen: the Reputation app (how each town sees you, your alter ego, habits on the way to
-// becoming traits, your apprentices), the Animals app, an apprentice button on a person's page, help for a friend's
-// letter, and the HUD's festival and lesson buttons.
+// becoming traits), the Animals app, help for a friend's letter, and the HUD's festival and school buttons. (Training
+// together, which took the place of apprentices, is ui/trainui.ts.)
 import { esc, game, notify, saveGame, toast } from '../core/store.js';
 import { getWorld, systemOn, appsOf } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
 import { ACT } from './reg.js';
-import { thumb } from '../st/bridge.js';
 import { money } from '../sim/needs.js';
-import { presentAt } from '../sim/people.js';
-import { isWith } from '../sim/social.js';
 import { advance } from '../sim/time.js';
 import { reputationList, repWord, identityOf, disguised, setAlias, toggleDisguise, addRep } from '../sim/standing.js';
 import { habitProgress } from '../sim/habits.js';
-import { menteesOf, canMentor, teachable, takeApprentice, lesson, areaName, dropApprentice } from '../sim/mentors.js';
 import { petsOf, petDef, petsAvailable, soldHere, buyPet, feedPet, playWithPet, releasePet, petWord, MAX_PETS } from '../sim/pets.js';
 import { helpAsked, sendHelp } from '../sim/letters.js';
 import { canCelebrate, celebrate, festivalOn, upcoming } from '../sim/festivals.js';
@@ -20,10 +16,9 @@ import { eventChip } from './cityui.js';
 import { campusActs } from './campus.js';
 import { schoolOf, instDef, instAt, enroll, drop, attend, examDue, sitExam, joinClub, clubMeeting, faculty } from '../sim/institutions.js';
 import { setPrompt } from '../st/bridge.js';
-const UIS = { alias: '', petName: '', area: '' };
+const UIS = { alias: '', petName: '' };
 const bar = (v, cls = '') => `<span class="mu-lp-bar ${cls}"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span>`;
 const repBar = (v) => `<span class="mu-lp-rep"><i style="${v >= 0 ? `left:50%;width:${v / 2}%` : `right:50%;width:${-v / 2}%`}" class="${v >= 0 ? 'is-good' : 'is-bad'}"></i></span>`;
-const here = (g, w, a) => isWith(g, a) || presentAt(g, w, g.player.loc).some(r => r.avatar === a);
 /* ---------- Reputation ---------- */
 export function standingApp(g, w, head) {
     const parts = [];
@@ -45,12 +40,6 @@ export function standingApp(g, w, head) {
     const habits = habitProgress(g, w);
     if (habits.length)
         parts.push(`<section><h4>Habits</h4>${habits.map(({ h, n, has }) => `<div class="mu-lp-row ${has ? 'is-has' : ''}"><b>${esc(h.trait)}</b><small>${has ? '✓ part of you' : `${Math.min(n, h.count)}/${h.count} in ${h.days} days`} · ${esc(h.desc ?? '')}</small>${has ? '' : bar((n / h.count) * 100)}</div>`).join('')}</section>`);
-    if (systemOn(w, 'mentors')) {
-        const ms = menteesOf(g).filter(m => g.cast[m.avatar]);
-        parts.push(`<section><h4>${esc(lex(w, 'apprentice'))}s</h4>${ms.length ? ms.map(m => `<div class="mu-ph-job"><img src="${esc(thumb(m.avatar))}" alt=""><span><b data-notr>${esc(g.cast[m.avatar].name)}</b><small>${esc(areaName(w, m.area))} · ${m.done ? 'finished: a bond for life' : `${m.progress}%`}</small>${m.done ? '' : bar(m.progress)}</span>
-            ${m.done ? '' : `<button class="mu-primary" data-act="lp-lesson" data-who="${esc(m.avatar)}" ${here(g, w, m.avatar) ? '' : 'aria-disabled="true" title="They have to be with you"'}>Teach (1h)</button><button class="mu-ghost" data-act="lp-drop" data-who="${esc(m.avatar)}">Stop</button>`}</div>`).join('')
-            : '<p class="mu-muted">Someone who trusts you (bond 50+) can become your apprentice: open their page in People.</p>'}</section>`);
-    }
     const studies = Object.entries(schoolOf(g)).map(([id, e]) => ({ d: instDef(w, id), e })).filter(x => x.d);
     if (studies.length)
         parts.push(`<section><h4>Studies</h4>${studies.map(({ d, e }) => {
@@ -78,16 +67,6 @@ export function petsApp(g, w, head) {
     </div>`;
 }
 /* ---------- on a person's page, in a letter, on the HUD ---------- */
-export function apprenticeBtn(g, w, avatar) {
-    if (!systemOn(w, 'mentors') || menteesOf(g).some(m => m.avatar === avatar))
-        return '';
-    const why = canMentor(g, w, avatar);
-    if (why && /trust|cannot/.test(why))
-        return '';
-    const opts = teachable(g, w);
-    return `<div class="mu-lp-mentor"><select data-input="lp-area">${opts.map(([id, n]) => `<option value="${esc(id)}" ${UIS.area === id ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
-        <button data-act="lp-mentor" data-who="${esc(avatar)}" ${why ? `aria-disabled="true" title="${esc(why)}"` : ''}>Take as ${esc(lex(w, 'apprentice').toLowerCase())}</button></div>`;
-}
 export function helpBtn(g, w, avatar) {
     const l = helpAsked(g, avatar);
     return l ? `<button data-act="lp-help" data-who="${esc(avatar)}">${esc(`Send ${money(w, l.ask ?? 0)}`)}</button>` : '';
@@ -97,9 +76,6 @@ export function lifeActs(g, w) {
     const f = canCelebrate(g, w);
     if (f)
         out.push(`<button class="mh-act mh-glass is-quest" data-act="lp-celebrate"><i>🎉</i><b>Celebrate</b><small>${esc(f.name)}</small></button>`);
-    for (const m of menteesOf(g))
-        if (!m.done && m.last !== g.day && g.cast[m.avatar] && here(g, w, m.avatar))
-            out.push(`<button class="mh-act mh-glass" data-act="lp-lesson" data-who="${esc(m.avatar)}"><i>📖</i><b>Teach ${esc(g.cast[m.avatar].name)}</b><small>${esc(areaName(w, m.area))} · 1h</small></button>`);
     return out.join('');
 }
 export function schoolActs(g, w) {
@@ -131,22 +107,6 @@ Object.assign(ACT, {
         const m = toggleDisguise(c.g, c.w);
         done(m, /Not in|first/.test(m) ? 'warn' : 'info');
     } },
-    'lp-lesson': (el) => {
-        const c = S();
-        if (!c)
-            return;
-        const a = el.dataset.who;
-        const r = lesson(c.g, c.w, a, here(c.g, c.w, a));
-        if (r.minutes)
-            advance(c.g, c.w, r.minutes).forEach(m => toast(m, 'info'));
-        done(r.text, r.minutes ? 'success' : 'warn');
-    },
-    'lp-drop': (el) => { const c = S(); if (c) {
-        dropApprentice(c.g, el.dataset.who);
-        done('', 'info');
-    } },
-    'lp-mentor': (el) => { const c = S(); if (!c)
-        return; const area = UIS.area || teachable(c.g, c.w)[0]?.[0] || ''; const m = takeApprentice(c.g, c.w, el.dataset.who, area); done(m, /now/.test(m) ? 'success' : 'warn'); },
     'lp-buy': (el) => { const c = S(); if (!c)
         return; const m = buyPet(c.g, c.w, el.dataset.id, UIS.petName); if (/yours/.test(m))
         UIS.petName = ''; done(m, /yours/.test(m) ? 'success' : 'warn'); },
@@ -197,8 +157,4 @@ document.addEventListener('input', (e) => {
         UIS.alias = t.value;
     else if (k === 'lp-petname')
         UIS.petName = t.value;
-    else if (k === 'lp-area')
-        UIS.area = t.value;
 });
-document.addEventListener('change', (e) => { const t = e.target; if (t?.dataset?.input === 'lp-area')
-    UIS.area = t.value; });

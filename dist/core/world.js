@@ -181,7 +181,7 @@ export const SYSTEMS = [
     { id: 'reputation', name: 'Reputation', desc: 'no reputation per region (and it never fades).', apps: ['standing'], blocks: [] },
     { id: 'identity', name: 'Secret identity', desc: 'no alter ego or disguise.', apps: [], blocks: [] },
     { id: 'pets', name: 'Pets and familiars', desc: 'no animals to keep.', apps: ['pets'], blocks: [] },
-    { id: 'mentors', name: 'Apprentices', desc: 'you cannot take an apprentice.', apps: [], blocks: [] },
+    { id: 'mentors', name: 'Training together', desc: 'nobody teaches you or learns from you: no lessons or language exchanges with the people you know.', apps: [], blocks: [], needs: 'hobbies' },
     { id: 'letters', name: 'Letters from afar', desc: 'friends in other towns never write, and distance never cools a friendship.', apps: [], blocks: [] },
     { id: 'festivals', name: 'Festivals', desc: 'no festivals in the calendar.', apps: [], blocks: [] },
     { id: 'events', name: 'City events', desc: 'no shows, matches or fairs in the city calendar.', apps: [], blocks: [] },

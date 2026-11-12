@@ -1,5 +1,6 @@
 // City events in the Calendar ("I'll go", go there now) and hobbies in the Profile.
 import { esc, game, notify, saveGame, toast, nowAbs } from '../core/store.js';
+import { trainingPracticeHtml } from './trainui.js';
 import { getWorld } from '../core/world.js';
 import { ACT } from './reg.js';
 import { money } from '../sim/needs.js';
@@ -55,7 +56,7 @@ const PRACTICE_OPEN = new Set();
 // counted, so it points you somewhere without listing the whole city.
 function practiceHtml(g, w, id) {
     const p = practiceFor(g, w, id);
-    if (!p.spots.length && !p.unseen && !p.jobs.length && !p.immersion)
+    if (!p.spots.length && !p.unseen && !p.jobs.length && !p.immersion && !trainingPracticeHtml(g, w, id))
         return '';
     const where = (s) => s.home ? `Home${s.item ? ` · needs ${esc(s.item)}` : ''}` : s.anywhere ? 'Anywhere'
         : `<span data-notr>${esc(s.where.slice(0, 3).join(', '))}</span>${s.where.length > 3 ? ` +${s.where.length - 3}` : ''}${s.more ? ` · ${s.more === 1 ? '1 more place' : `${s.more} more places`}` : ''}`;
@@ -65,7 +66,7 @@ function practiceHtml(g, w, id) {
     const more = p.spots.length ? ' more' : ''; // (with nothing found yet, these are all there is)
     const unseen = p.unseen ? `<small class="mu-muted">${p.unseen === 1 ? `1${more} in a place you haven't been to yet.` : `${p.unseen}${more} in places you haven't been to yet.`}</small>` : '';
     return `<details class="mu-practice" ${PRACTICE_OPEN.has(id) ? 'open' : ''}><summary data-act="practice-fold" data-id="${esc(id)}">Where to practise${p.spots.length ? ` (${p.spots.length})` : ''}</summary>
-        ${list ? `<ul>${list}</ul>` : p.unseen ? '' : `<small class="mu-muted">Nothing in the places you've been to yet.</small>`}${unseen}${itself}${jobs}</details>`;
+        ${list ? `<ul>${list}</ul>` : p.unseen ? '' : `<small class="mu-muted">Nothing in the places you've been to yet.</small>`}${unseen}${itself}${jobs}${trainingPracticeHtml(g, w, id)}</details>`;
 }
 Object.assign(ACT, {
     'practice-fold': (el, e) => {
