@@ -24,7 +24,7 @@ import { eventsOn, liveEvents } from './cityevents.js';
 import { presentAt, routineAt, workingAt } from './people.js';
 import { visitsTo } from './daylife.js';
 import { levelOf, skillsOf } from './hobbies.js';
-import { fr, ro, statusOf, YOU } from './rel.js';
+import { fr, ro, statusOf, relOf, idOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
@@ -36,7 +36,7 @@ import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'track', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'] as const;
+    'rank', 'track', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -129,7 +129,7 @@ function badValue(key: WhenKey, v: string): string {
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
         case 'feels': return splitLevel(v)[0] ? '' : 'a name is missing';
         case 'course': return ID.test(v) ? '' : `"${v}" should be a course id, or a number of courses`;
-        case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'gave': case 'knows': case 'track':
+        case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'gave': case 'knows': case 'track': case 'gender':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
@@ -284,6 +284,8 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'job': { const j = g.player.job; const o = j && w.occupations.find(o => o.id === j.id); return !!j && (v === 'here' ? !!o && trackOf(g, o).place === x.place : v === 'any' || j.id === v); }
         // the track you work your job on (a job with tracks: sim/tracks.ts)
         case 'track': { const j = g.player.job, o = j && w.occupations.find(o => o.id === j.id); return !!o && playerTrack(g, o) === v; }
+        // your gender (a gender id: woman, man, nonbinary, or one of the world's own)
+        case 'gender': return relOf(g).people[idOf(g, YOU)]?.gender === v;
         case 'start': return ((g.player as any).start ?? g.player.origin) === v;
         case 'clock': return inClock(x.minutes, v);
         case 'stayed': { const s = (g.player as any).stayed as { place: string; day: number } | undefined; return !!s && s.place === v && s.day === x.day; }
@@ -455,7 +457,7 @@ function zoneOf(g: Save, place: string, depth = 0): string {
 // don't matter). A full name wins over a first name.
 const plain = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 export function personNamed(g: Save, name: string): Resident | undefined {
-    const n = plain(name), all = Object.values(g.cast);
+    const n = plain(name), all = Object.values(g.cast ?? {});
     return all.find(r => plain(r.name ?? '') === n) ?? all.find(r => plain(r.name ?? '').split(/\s+/)[0] === n);
 }
 /** Is someone toward you at this level or closer (a friendship tier, a romance tier, a couple status)? Below Stranger,

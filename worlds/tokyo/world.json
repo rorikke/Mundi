@@ -13618,7 +13618,7 @@
    "desc": "You moved up from a small town for a fresh start. A studio in Shinjuku, some savings, nobody you know.",
    "premise": "{{user}} has just moved to Tokyo from a small town for a fresh start, living alone in a small Shinjuku studio; nobody in the city knows {{user}} yet.",
    "home": "hz_studio",
-   "money": 250000,
+   "money": 80000,
    "skills": {
     "japanese": 8,
     "english": 2,
@@ -13634,7 +13634,7 @@
    "premise": "{{user}} came to Tokyo for university and has just taken the last free room in a Kōenji share house; the four housemates barely know {{user}} yet.",
    "home": "hz_sharehouse",
    "household": "sharehouse",
-   "money": 150000,
+   "money": 70000,
    "skills": {
     "japanese": 8,
     "english": 2,
@@ -13666,7 +13666,7 @@
    "desc": "You grew up here and still live with your family in Setagaya, chipping in toward the house.",
    "premise": "{{user}} grew up in Tokyo and still lives with family in a Setagaya house; Kyōko, who knew {{user}}'s parents, and Ayaka, an old friend, are already part of {{user}}'s life.",
    "home": "hz_setagaya",
-   "money": 120000,
+   "money": 40000,
    "rent": 10000,
    "skills": {
     "japanese": 8,
@@ -13691,7 +13691,7 @@
    "desc": "You came from abroad on a work visa, and the city is all new.",
    "premise": "{{user}} has just arrived in Japan from abroad on a work visa, speaks English well and Japanese only a little, and finds the city entirely new.",
    "home": "hz_studio",
-   "money": 300000,
+   "money": 100000,
    "skills": {
     "japanese": 2,
     "english": 6,
@@ -13710,7 +13710,7 @@
    "desc": "A bayside flat paid for by your family, and no idea what to do with your life.",
    "premise": "{{user}} lives in a bayside Toyosu flat paid for by family money and has no idea what to do with life; {{user}}'s family knows Rina's family.",
    "home": "hz_toyosu",
-   "money": 3000000,
+   "money": 1500000,
    "skills": {
     "japanese": 8,
     "english": 2,
@@ -13730,7 +13730,7 @@
    "desc": "You left Tokyo years ago and you are back, with old friends and an old flame.",
    "premise": "{{user}} left Tokyo years ago and has come back, renting a wooden apartment on the west side; old friends are still here, and so is Nanami, {{user}}'s ex.",
    "home": "hz_apaato",
-   "money": 180000,
+   "money": 60000,
    "skills": {
     "japanese": 8,
     "english": 2,
@@ -13762,7 +13762,7 @@
    "desc": "You washed up in Isezaki, Yokohama with almost nothing, and the neighborhood is taking an interest.",
    "premise": "{{user}} has washed up in Isezaki, Yokohama, with almost nothing, in a cheap apartment; the neighborhood is taking an interest, and Akane and Sayuri have noticed {{user}}.",
    "home": "hz_yokohama",
-   "money": 40000,
+   "money": 15000,
    "skills": {
     "japanese": 8,
     "english": 2,
@@ -28358,6 +28358,11 @@
     "japanese": 3,
     "charisma": 1
    },
+   "hire": [
+    "gender: woman",
+    "feels: Sayuri friend",
+    "skill: charisma 7"
+   ],
    "likes": [
     "Kind",
     "Romantic",
@@ -34359,6 +34364,11 @@
     "dance": 2,
     "fitness": 2
    },
+   "hire": [
+    "gender: woman",
+    "feels: Lisa friend",
+    "skill: dance 7"
+   ],
    "likes": [
     "Hot-headed",
     "Cheerful",
@@ -35170,6 +35180,11 @@
    "skills": {
     "japanese": 3
    },
+   "hire": [
+    "gender: woman",
+    "feels: Sayuri friend",
+    "skill: charisma 7"
+   ],
    "likes": [
     "Kind",
     "Romantic",
@@ -36307,14 +36322,20 @@
    ],
    "tracks": {
     "woman": {
-     "name": "Actress"
+     "name": "Actress",
+     "hire": [
+      "gender: woman",
+      "holds: av_director_card",
+      "feels: Airi friend or Momo friend",
+      "skill: sensuality 7"
+     ]
     },
     "man": {
      "name": "Actor",
      "hire": [
       "holds: av_director_card",
       "feels: Airi friend or Momo friend",
-      "job: lovehotel"
+      "skill: sensuality 7"
      ],
      "skills": {
       "fitness": 2,
@@ -36592,7 +36613,9 @@
         }
        ]
       }
-     ]
+     ],
+     "title": "AV actor",
+     "interview": 4
     }
    },
    "startAfter": 1

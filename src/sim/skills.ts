@@ -3,7 +3,7 @@
 // and the counters some life goals are measured with. (Courses themselves are in courses.ts, skills with their levels
 // in hobbies.ts.)
 import { nowAbs, type Save } from '../core/store.js';
-import { getWorld, type Occupation } from '../core/world.js';
+import { getWorld, type Occupation, type WorldDef } from '../core/world.js';
 import { learning, courseOf } from './courses.js';
 import { levelOf, setSkillLevel } from './hobbies.js';
 import { strengthOf } from './traits.js';
@@ -35,7 +35,26 @@ export function gainTrait(g: Save, trait: string, from: 'course' | 'goal'): bool
 
 // (with a save, on your track of the job: its ranks, likes, courses and skills)
 
-export function interviewDc(o: Occupation) { const top = o.ranks.at(-1)?.pay ?? 0; return 9 + (o.needs?.length ? 3 : 0) + (top >= 50 ? 2 : 0); }
+// A job nothing of yours helps with is a long shot (30%): what you're good at and the traits it likes make the difference.
+export const INTERVIEW_DC = 15;
+/** Days before you can try the same job again: after a no (tomorrow, as ever), and after a disaster (a 1). (A longer wait
+ *  after every no stalled careers whose course was paid for and running: the starter job's shifts failed it meanwhile.) */
+export const RETRY_DAYS = 1, DISASTER_DAYS = 3;
+// The world's usual top pay (the median of its jobs' top ranks), so "well paid" means the same in yen and in coins.
+const usualTop = new WeakMap<object, number>();
+function usualTopPay(w: WorldDef | null | undefined): number {
+    if (!w) return 0;
+    let n = usualTop.get(w);
+    if (n === undefined) { const t = w.occupations.map(o => o.ranks.at(-1)?.pay ?? 0).sort((a, b) => a - b); n = t[Math.floor(t.length / 2)] ?? 0; usualTop.set(w, n); }
+    return n;
+}
+/** The number to reach on the d20: the base, the job's (or its track's) own `interview`, +3 when it asks for a trait,
+ *  and +2 (+4) for a career that pays well above the world's usual (1.4×, 2.5× its usual top pay). */
+export function interviewDc(o: Occupation, w?: WorldDef | null) {
+    const top = o.ranks.at(-1)?.pay ?? 0, usual = usualTopPay(w);
+    const prestige = usual > 0 ? (top >= usual * 2.5 ? 4 : top >= usual * 1.4 ? 2 : 0) : 0;
+    return INTERVIEW_DC + Math.round(o.interview ?? 0) + (o.needs?.length ? 3 : 0) + prestige;
+}
 /** The skills a job's interview looks at: the ones it needs to be hired, its hobby, and what its first two ranks ask for
  *  (a rank's skill needs, or the skills in its condition). */
 export function interviewSkills(o: Occupation): string[] {
@@ -68,15 +87,26 @@ export function interviewBonus(g: Save, o: Occupation, traits: string[]) {
     if ((s.mood ?? 100) < 25) b -= 2;
     return b;
 }
-export const interviewChance = (g: Save, o: Occupation, traits: string[]) => { o = trackOf(g, o); const b = interviewBonus(g, o, traits), dc = interviewDc(o); let ok = 0; for (let d = 1; d <= 20; d++) if (d === 20 || (d > 1 && d + b >= dc)) ok++; return ok * 5; };
-export const triedToday = (g: Save, id: string) => learning(g).interviews[id] === g.day;
+export const interviewChance = (g: Save, o: Occupation, traits: string[]) => { o = trackOf(g, o); const b = interviewBonus(g, o, traits), dc = interviewDc(o, getWorld(g.world)); let ok = 0; for (let d = 1; d <= 20; d++) if (d === 20 || (d > 1 && d + b >= dc)) ok++; return ok * 5; };
+/** Days until you can apply to this job again (0: now). Today's interview, whatever came of it, waits till tomorrow;
+ *  a no waits a few days (`retry`; saves from before kept only the day you tried). */
+export function retryIn(g: Save, id: string): number {
+    const s = learning(g), next = Math.max((s.interviews[id] ?? -1) + 1, s.retry?.[id] ?? 0);
+    return Math.max(0, next - g.day);
+}
+export const triedToday = (g: Save, id: string) => retryIn(g, id) > 0;
+/** "tomorrow", "in 3 days": when you can try a job again. */
+export const retryText = (g: Save, id: string) => { const n = retryIn(g, id); return n <= 1 ? 'tomorrow' : `in ${n} days`; };
 export function interview(g: Save, o: Occupation, traits: string[], rnd = Math.random): { ok: boolean; crit: boolean; text: string } {
-    learning(g).interviews[o.id] = g.day;
+    const s = learning(g);
+    s.interviews[o.id] = g.day;
     o = trackOf(g, o);
-    const d20 = 1 + Math.floor(rnd() * 20), bonus = interviewBonus(g, o, traits), dc = interviewDc(o);
+    const d20 = 1 + Math.floor(rnd() * 20), bonus = interviewBonus(g, o, traits), dc = interviewDc(o, getWorld(g.world));
     const ok = d20 === 20 || (d20 > 1 && d20 + bonus >= dc);
     const crit = d20 === 20;
     void nowAbs;
+    if (!ok) (s.retry ??= {})[o.id] = g.day + (d20 === 1 ? DISASTER_DAYS : RETRY_DAYS);
+    else if (s.retry) delete s.retry[o.id];
     return { ok, crit, text: ok ? (crit ? 'They loved you: you start with a head start toward your first promotion.' : 'The interview went well.')
-        : d20 === 1 ? 'The interview was a disaster.' : 'They chose someone else this time. Try again tomorrow.' };
+        : d20 === 1 ? `The interview was a disaster. They won't see you again for ${DISASTER_DAYS} days.` : 'They chose someone else this time. Try again tomorrow.' };
 }

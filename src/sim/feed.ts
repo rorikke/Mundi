@@ -14,6 +14,8 @@ import { whereNow, residents } from './people.js';
 import { social, addBond, standsWith, isPartner, bondAtLeast, wordsIn } from './social.js';
 import { sharedLikes, likesOf } from './private.js';
 import { groupOptions } from './traits.js';
+import { levelOf, skillDef } from './hobbies.js';
+import { onDay } from './hooks.js';
 
 export interface Reply { by: string; text: string; at: number }          // by: avatar, or 'me'
 export interface Post { id: string; by: string; text: string; at: number; likes: number; liked: boolean; reposts: number; replies: Reply[]; image?: string }
@@ -128,13 +130,16 @@ export async function replyTo(g: Save, w: WorldDef, post: Post, text: string) {
 /* ---------- dating ---------- */
 
 export const LOOKING = ['A relationship', 'Something casual', 'Friendship', 'Not sure yet'];
-export interface DatingProfile { bio: string; looking: string[]; interests: string[]; ready: boolean }
-export interface Dating { profile: DatingProfile; seen: Record<string, 'like' | 'pass'>; matches: string[] }
+/** `show`: the genders whose profiles you see (gender ids; missing: the ones you're drawn to). */
+export interface DatingProfile { bio: string; looking: string[]; interests: string[]; ready: boolean; show?: string[] }
+/** `waiting`: likes not answered yet: who → the day the answer comes and what it is (decided when you liked them). */
+export interface Dating { profile: DatingProfile; seen: Record<string, 'like' | 'pass'>; matches: string[]; waiting: Record<string, { day: number; yes: boolean }>;
+    /** matches that came while the app was closed, shown with "It's a match!" when it's opened */ news: string[] }
 export function dating(g: Save): Dating {
     const s = social(g) as any;
     const d = (s.dating ??= {}) as Dating;
     d.profile ??= { bio: '', looking: [], interests: [...(g.player.traits?.interests ?? [])], ready: false };
-    d.seen ??= {}; d.matches ??= [];
+    d.seen ??= {}; d.matches ??= []; d.waiting ??= {}; d.news ??= [];
     return d;
 }
 // What someone looks for on the app: set for them, else from how they are about intimacy (only with a partner: a
@@ -167,32 +172,72 @@ export function theirProfile(g: Save, w: WorldDef, r: Resident) {
         onApp: h % 10 < 8,
     };
 }
-// Who the app shows: never someone not attracted to your gender, nor someone of a gender you aren't attracted to; the
-// ones of the genders you're most attracted to first.
+// The genders the app shows you: the ones you chose on your profile, else the ones you're drawn to.
+function shows(g: Save, d: Dating, r: Resident): boolean {
+    const show = d.profile.show;
+    if (!show?.length) return attraction(g, YOU, r.avatar, 'r') > 0;
+    const theirs = relOf(g).people[idOf(g, r.avatar)]?.gender;
+    return !theirs || show.includes(theirs);
+}
+// Who the app shows: never someone not attracted to your gender, nor someone of a gender you didn't ask to see; the ones
+// of the genders you're most attracted to first.
 export function candidates(g: Save, w: WorldDef): Resident[] {
     const d = dating(g);
     // a random order, the same until the app is opened again (so the card on screen does not jump)
     const seed = String((d as any).seed ??= Math.random().toString(36).slice(2));
     const mine = (r: Resident) => attraction(g, YOU, r.avatar, 'r');
     return residents(g).sort((a, b) => mine(b) - mine(a) || hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`))
-        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && mine(r) > 0);
+        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && shows(g, d, r));
 }
-// A like matches when you have enough in common (what you both look for, shared interests, Kink included, and, with adult
-// content on, likes in bed you share: two at most) and a bit of luck.
+/** The odds (0–75%) that someone likes you back: a long shot with nothing in common (10%). What you both look for,
+ *  shared interests (Kink included) and likes in bed you share (adult content), a profile with a few words about you,
+ *  and your charm where the world has Charisma; half when one wants a relationship and the other only something casual,
+ *  and as much less as they're less drawn to your gender. */
+export function matchChance(g: Save, w: WorldDef, avatar: string): number {
+    const d = dating(g), r = g.cast[avatar]; if (!r) return 0;
+    const p = theirProfile(g, w, r), mine = d.profile.looking;
+    let chance = 10;
+    if (mine.includes(p.looking)) chance += 15;
+    chance += 8 * Math.min(3, p.interests.filter(i => d.profile.interests.includes(i)).length) + 5 * Math.min(2, sharedLikes(g, avatar).length);
+    if (d.profile.bio.trim().length >= 40) chance += 5;
+    if (skillDef(w, 'charisma')) chance += Math.min(10, 2 * levelOf(g, 'charisma'));
+    const only = (x: string) => mine.length > 0 && mine.every(m => m === x);
+    if ((p.looking === 'A relationship' && only('Something casual')) || (p.looking === 'Something casual' && only('A relationship'))) chance *= 0.5;
+    chance *= attraction(g, avatar, YOU, 'r');   // less attracted to your gender: fewer matches
+    return Math.max(0, Math.min(75, Math.round(chance)));
+}
+/** Days a like waits for its answer, yes or no (from, to). */
+export const ANSWER_DAYS = [1, 4];
+// A like is answered a few days later: a match, or nothing at all (some people never like you back). The answer is
+// decided now, so nothing done in between can turn it; true when it will be a match.
 export function swipe(g: Save, w: WorldDef, avatar: string, like: boolean): boolean {
     const d = dating(g);
     d.seen[avatar] = like ? 'like' : 'pass';
-    if (!like) return false;
-    const r = g.cast[avatar]; const p = theirProfile(g, w, r);
-    let chance = 35;
-    if (d.profile.looking.includes(p.looking)) chance += 30;
-    chance += 15 * (p.interests.filter(i => d.profile.interests.includes(i)).length + Math.min(2, sharedLikes(g, avatar).length));
-    chance *= attraction(g, avatar, YOU, 'r');   // less attracted to your gender: fewer matches
-    const match = hash(`${avatar}|${g.day}|${d.profile.bio.length}`) % 100 < chance;
-    if (match) {
-        d.matches.push(avatar);
-        r.met = true;   // a match is a contact: she shows up in Messages and People
-        bondAtLeast(g, avatar, 10);
-    }
-    return match;
+    if (!like || !g.cast[avatar]) return false;
+    const yes = hash(`${avatar}|${g.day}|${d.profile.bio.length}`) % 100 < matchChance(g, w, avatar);
+    const [lo, hi] = ANSWER_DAYS;
+    d.waiting[avatar] = { day: g.day + lo + (hash(`${avatar}|answer|${g.day}`) % (hi - lo + 1)), yes };
+    return yes;
 }
+/** A match: they're a contact now (Messages and People), with a little friendship to start from. */
+function matchWith(g: Save, d: Dating, avatar: string) {
+    if (!d.matches.includes(avatar)) d.matches.push(avatar);
+    g.cast[avatar].met = true;
+    bondAtLeast(g, avatar, 10);
+}
+/** Likes still waiting for an answer. */
+export const waitingCount = (g: Save): number => Object.keys(dating(g).waiting).length;
+// Each morning the likes whose day has come are answered: a match is told, a no is never said.
+onDay.push((g) => {
+    const s = (g as any).social?.dating as Dating | undefined;
+    if (!s?.waiting || !Object.keys(s.waiting).length) return [];
+    const d = dating(g), out: string[] = [];
+    for (const [avatar, x] of Object.entries(d.waiting)) {
+        if (x.day > g.day) continue;
+        delete d.waiting[avatar];
+        if (!x.yes || !g.cast[avatar] || isPartner(g, avatar) || romanceBlocked(g, avatar)) continue;
+        matchWith(g, d, avatar); d.news.push(avatar);
+        out.push(`Spark: ${g.cast[avatar].name} liked you back. It's a match!`);
+    }
+    return out;
+});

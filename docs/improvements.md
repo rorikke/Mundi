@@ -99,7 +99,8 @@ Each trait's line is shown when you pick it and on your profile ("Who you are").
 
 - **No job is closed to your personality.** Jobs like some personalities and interests: each one you have makes every
   rank a little shorter and helps at the interview. The interview also counts the skill the job uses most (+1 for every
-  two levels, up to +4) and a course it asks for, once you've finished it.
+  two levels, up to +4) and a course it asks for, once you've finished it. With none of that it's a long shot (about
+  30%, less for careers that pay well above the usual). After a no, try again the next day; after a disaster, three days.
 - **One bonus for every roll.** Things you do, choices in street stories and choices at work all add the same bonus:
   +1 for every two levels of the skill they use, and −2 each when you're exhausted or miserable.
 - **Practice trains in Tokyo.** Cooking at home trains Cooking; working out and running train Fitness; busking trains
@@ -349,13 +350,17 @@ office (20%), Ueno Park after dark (15%), the ryokan's shared bath after midnigh
 
 - **Sensuality** is asked by the AV and the dancer's higher ranks, and trained on the job. Hosts, hostesses and club staff
   sell talk and company, so they still ask for Charisma. Adult jobs stay closed with adult content off.
-- **One job, a track for each gender.** The AV job and the esthe have the same name and listing for everyone, but ranks,
+- **Women's night jobs.** Hostess clubs (Kabukichō and Yokohama), the pole club's dancers and the AV studios take women
+  from the listings; anyone else needs an introduction (a friend who works there: Sayuri for the hostess clubs, Lisa for
+  the pole club, Airi or Momo for AV), the scout's card for AV, or to be very good at it already (Charisma 7, Dance 7,
+  Sensuality 7). Without one, the job isn't among your openings.
+- **One job, a track for each gender.** The AV job and the esthe have one listing for everyone, but ranks,
   pay, hours, pace and needs differ by track, as they do in real life. Your track comes from your gender (in Tokyo, a
   woman is an actress and works the men's esthe, a man is an actor and works women's services); if your gender has
   none, you pick one when you're hired, once, and it can't be changed later. The world's people use their own.
-- **AV.** *Actress* is the job as before (scouted, from the listings). *Actor* has no listing: you need an introduction
-  (a director's card from a street story in Kabukichō, a friend in the business, or work at a love hotel), Fitness and
-  Sensuality to start, and the pay is lower (¥800 to ¥3,000 an hour against ¥1,500 to ¥4,000). Ranks take half again as
+- **AV.** *AV actress* is the job as before (from the listings, for women). *AV actor* has no listing: you need an
+  introduction (a director's card from a street story in Kabukichō, Airi or Momo as a friend, or Sensuality 7), Fitness
+  and Sensuality to start, and a harder interview; the pay is lower (¥800 to ¥3,000 an hour against ¥1,500 to ¥4,000). Ranks take half again as
   long, you're called one day a week to begin with, and some ranks wait for a work event: a director calling you back,
   an actress asking for you (a friend of yours first, otherwise someone unnamed). Both tracks wait a month between
   signing and the first shoot.

@@ -78,7 +78,9 @@ Each person, you included, can have:
   The built-in characters already have one. The AI is told everyone's gender and pronouns in the scene.
 - **Attraction.** Who they can fall for, per gender: "Everyone", "Only women", "No one", or exact amounts per gender.
   Someone not attracted to your gender never falls for you and always turns you down. Someone only a little attracted
-  falls for you more slowly. The dating app only shows people who could be attracted to you.
+  falls for you more slowly. The dating app only shows people who could be attracted to you, of the genders you pick
+  on your profile. A like is answered a few days later, if at all: what you both look for, interests you share, a few
+  words about yourself and your charm make a yes likelier.
 - **How they are about intimacy.** *Free spirit* (a spark is enough), *Passionate*, *Steady* (the usual), *Slow to
   trust*, *Devoted*, or custom; plus "Only with a partner" for people who don't do anything casual. It decides when
   they're ready for something casual or a night together, and the AI plays them accordingly.

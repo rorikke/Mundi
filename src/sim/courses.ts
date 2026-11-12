@@ -41,6 +41,8 @@ export interface Learning {
     current?: string;
     /** Per course being taken: the credit gained (a class is worth 1, less while two are taken, more with *Well read*). */
     progress: Record<string, number>; lastDay: Record<string, number>; done: string[]; count: Record<string, number>; interviews: Record<string, number>; earned: string[];
+    /** Per job turned down: the first day you may apply again (a no waits a few days). */
+    retry?: Record<string, number>;
     /** The courses being taken (two at most). */
     taking: string[];
     /** Per course: the last season whose fee is paid, the day it started, classes missed, make-up classes owed. */

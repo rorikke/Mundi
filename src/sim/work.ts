@@ -9,7 +9,7 @@ import { lex } from '../core/lexicon.js';
 import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
-import { triedToday, interview, countUp } from './skills.js';
+import { triedToday, retryIn, interview, countUp } from './skills.js';
 import { missingCourses, hasCourse, courseOf } from './courses.js';
 import { needCourseText } from './coursenudge.js';
 import { rollBonus, rollD20, bonusLabel } from './dice.js';
@@ -87,8 +87,8 @@ export const isOpen = (g: Save, o: Occupation) => { const [a, b] = o.hours ?? [0
 // Adult content (E15): its switch is the new game's; until then, a save setting.
 /** (E20) Jobs open to the player: not the ones only the world's people have, nor adult ones without adult content. A job
  *  with tracks: open on your track (its `hireable` and `hire`), or, with a track to pick, on one of them. */
-export const openJobs = (g: Save, w: WorldDef) => w.occupations.filter(o => (!o.adult || adultOn(g)) && (o.tracks ? trackOpen(g, w, o) : o.hireable !== false));
-/** Open to you on this track: hireable, and its `hire` condition (an introduction) holds. */
+export const openJobs = (g: Save, w: WorldDef) => w.occupations.filter(o => (!o.adult || adultOn(g)) && (o.tracks ? trackOpen(g, w, o) : openOn(g, w, o)));
+/** Open to you on this track (or a job without tracks): hireable, and its `hire` condition (an introduction) holds. */
 const openOn = (g: Save, w: WorldDef, o: TrackedJob) => o.hireable !== false && (!o.hire || (Array.isArray(o.hire) ? o.hire : [o.hire]).some((h, i) => whenHolds(g, w, h, { place: o.place, key: `hire|${o.id}|${o.track ?? ''}|${i}` })));
 /** The tracks you could be hired on: yours, or with none of your own, every one open to you (the pick). */
 export function openTracks(g: Save, w: WorldDef, o: Occupation): string[] {
@@ -448,10 +448,11 @@ export function hire(g: Save, w: WorldDef, id: string, track?: string): { ok: bo
     }
     const o: TrackedJob = key !== undefined ? layTrack(job, key) : job;
     if (o.hireable === false) return { ok: false, text: 'They are not hiring.' };
+    if (key === undefined && !openOn(g, w, o)) return { ok: false, text: `${job.name} only takes people who come with an introduction.` };
     const miss = missingCourses(g, w, o);
     if (miss.length) return { ok: false, text: needCourseText(g, w, o, miss) };
     if (!hobbyFits(g, w, o)) return { ok: false, text: `They are looking for someone better at it: ${hobbyNeed(g, w, o)}.` };
-    if (triedToday(g, id)) return { ok: false, text: 'You already had an interview there today. Try again tomorrow.' };
+    if (triedToday(g, id)) return { ok: false, text: retryIn(g, id) <= 1 ? 'You already had an interview there today. Try again tomorrow.' : `They turned you down not long ago. Try again in ${retryIn(g, id)} days.` };
     const fee = feeOf(g, w, o);
     if (fee > g.player.money) return { ok: false, text: `They ask a fee of ${money(w, fee)} when you start, and you don't have it.` };
     // a word from someone high up there gets you in without the interview

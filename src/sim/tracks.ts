@@ -24,16 +24,17 @@ const kept = new WeakMap<Occupation, Map<string, { t: JobTrack; o: TrackedJob }>
 
 /** The job with one of its tracks laid over it: what the track sets replaces the job's own, except `events`, which come
  *  on top of the job's (a track's event with the id of one of the job's replaces it) and `name`, the track's own
- *  (`trackName`; the job keeps its name). The job as written when it has no such track. */
+ *  (`trackName`), and `title`, the job's name on the track. The job as written when it has no such track. */
 export function layTrack(o: Occupation, id: string): TrackedJob {
     const t = o.tracks?.[id];
     if (!t || laid.has(o)) return o;
     let m = kept.get(o); if (!m) kept.set(o, m = new Map());
     const k = m.get(id); if (k && k.t === t) return k.o;
-    const { name, events, ...rest } = t;
+    const { name, title, events, ...rest } = t;
     const own = new Set((events ?? []).map(e => e.id));
     const x: TrackedJob = { ...o, ...(rest as Partial<TrackedJob>), track: id };
     if (name) x.trackName = name;
+    if (title) x.name = title;   // the job's name on this track (AV actor); the job as written keeps its own
     if (events) x.events = [...(o.events ?? []).filter(e => !own.has(e.id)), ...events];
     delete x.tracks;
     laid.add(x); m.set(id, { t, o: x });

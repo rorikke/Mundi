@@ -2,7 +2,7 @@
 import { safeUrl } from '../core/safe.js';
 import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
-import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
+import { interviewChance, interviewSkill, triedToday, retryText } from '../sim/skills.js';
 import { missingCourses, isTaking } from '../sim/courses.js';
 import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, type BillId } from '../sim/bills.js';
@@ -40,12 +40,13 @@ import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pend
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
-import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, appInterests, LOOKING, type Post } from '../sim/feed.js';
+import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, waitingCount, appInterests, LOOKING, type Post } from '../sim/feed.js';
+import { gendersOf } from '../sim/gender.js';
 import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
-import { setStatus, casualsOf, attracted, YOU } from '../sim/rel.js';
+import { setStatus, casualsOf, attracted, relOf, YOU } from '../sim/rel.js';
 import { crushOn, canAsk } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
 import { sharedLikes } from '../sim/private.js';
@@ -307,7 +308,7 @@ function jobsApp(g: Save, w: WorldDef) {
             ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${((o as any).courses as string[]).some(id => isTaking(g, id)) ? 'You can start while you study for it' : T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
-            ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ' · try again tomorrow' : ''}</small>`}</span>
+            ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ` · try again ${retryText(g, o.id)}` : ''}</small>`}</span>
             <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}
     </div>`;
 }
@@ -433,12 +434,19 @@ function postApp(g: Save) {
 function chips(list: string[], on: string[], act: string) {
     return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="${esc(act)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
 }
+// The genders whose profiles Spark shows: your pick, else the ones you're drawn to (what it showed before there was a pick).
+const shownGenders = (g: Save, w: WorldDef): string[] => dating(g).profile.show ?? gendersOf(w).filter(x => (relOf(g).people[YOU]?.att?.[x.id]?.r ?? 1) > 0).map(x => x.id);
+function showChips(g: Save, w: WorldDef) {
+    const on = shownGenders(g, w);
+    return `<div class="mu-chips">${gendersOf(w).map(x => `<button class="mu-chip ${on.includes(x.id) ? 'is-on' : ''}" data-act="sp-show" data-v="${esc(x.id)}">${esc(x.plural ? x.plural.charAt(0).toUpperCase() + x.plural.slice(1) : x.name)}</button>`).join('')}</div>`;
+}
 function datingProfileApp(g: Save, w: WorldDef) {
     const d = dating(g);
     const interests = appInterests(g, w);
     return `${head(T('yourProfile'), d.profile.ready ? 'dating' : 'home')}<div class="mu-ph-body">
         <div class="mu-ph-profile"><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b><small>${g.player.traits ? '' : ''}</small></div>
         <label class="mu-field"><span>${T('profileAbout')}</span><textarea rows="3" data-input="sp-bio" data-focus="sp-bio" placeholder="A line or two about you">${esc(d.profile.bio)}</textarea></label>
+        <section><h4>Who you want to see</h4>${showChips(g, w)}</section>
         <section><h4>Looking for</h4>${chips(LOOKING, d.profile.looking, 'sp-look')}</section>
         <section><h4>Interests</h4>${chips(interests, d.profile.interests, 'sp-int')}</section>
         <button class="mu-primary" data-act="sp-save" ${d.profile.looking.length ? '' : 'aria-disabled="true"'}>${d.profile.ready ? 'Save' : T('profileStart')}</button>
@@ -472,7 +480,8 @@ function datingApp(g: Save, w: WorldDef) {
 }
 function matchesApp(g: Save) {
     const d = dating(g);
-    return `${head(T('matches'), 'dating')}<div class="mu-ph-list">${d.matches.length ? d.matches.map(a => `<button class="mu-ph-row" data-act="ph-thread" data-who="${esc(a)}"><img src="${esc(thumb(a))}" alt=""><span><b data-notr>${esc(g.cast[a]?.name ?? '')}</b><small>${bondLabel(g, a)}</small></span></button>`).join('') : `<p class="mu-muted mu-pad">${T('noMatches')}</p>`}</div>`;
+    const n = waitingCount(g);
+    return `${head(T('matches'), 'dating')}${n ? `<p class="mu-muted mu-pad">${esc(n === 1 ? 'One like is waiting for an answer.' : `${n} likes are waiting for an answer.`)}</p>` : ''}<div class="mu-ph-list">${d.matches.length ? d.matches.map(a => `<button class="mu-ph-row" data-act="ph-thread" data-who="${esc(a)}"><img src="${esc(thumb(a))}" alt=""><span><b data-notr>${esc(g.cast[a]?.name ?? '')}</b><small>${bondLabel(g, a)}</small></span></button>`).join('') : `<p class="mu-muted mu-pad">${T('noMatches')}</p>`}</div>`;
 }
 
 async function refreshFeed(g: Save, w: WorldDef, force = false) {
@@ -574,7 +583,8 @@ Object.assign(ACT, {
         P.app = el.dataset.app as App; P.draft = ''; P.matched = ''; P.q = '';
         { const s = sectionFor(P.app); if (s) LAST_TAB[s.id] = P.app; }
         if (P.app === 'journal') openJournal();
-        if (P.app === 'dating') { const g = game(); if (g) (dating(g) as any).seed = Math.random().toString(36).slice(2); }   // a new shuffle of Spark
+        // a new shuffle of Spark, and the newest match that came while you were away (its "It's a match!")
+        if (P.app === 'dating') { const g = game(); if (g) { const d = dating(g); (d as any).seed = Math.random().toString(36).slice(2); const n = d.news.shift(); if (n && g.cast[n]) P.matched = n; } }
         notify();
         const g = game(); const w = g && getWorld(g.world);
         if (P.app === 'social' && g && w && feedPrefs().mode === 'open') refreshFeed(g, w);   // only in "each time you open the app" mode
@@ -604,10 +614,12 @@ Object.assign(ACT, {
     'sp-look': (el) => { const g = game(); if (!g) return; const l = dating(g).profile.looking; const v = el.dataset.v!; const i = l.indexOf(v); i >= 0 ? l.splice(i, 1) : l.push(v); notify(); },
     'sp-int': (el) => { const g = game(); if (!g) return; const l = dating(g).profile.interests; const v = el.dataset.v!; const i = l.indexOf(v); i >= 0 ? l.splice(i, 1) : l.length < 5 && l.push(v); notify(); },
     'sp-save': () => { const g = game(); if (!g) return; const d = dating(g); if (!d.profile.looking.length) { toast('Choose what you are looking for.', 'info'); return; } d.profile.ready = true; P.app = 'dating'; saveGame(); notify(); },
+    'sp-show': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; const l = [...shownGenders(g, w)]; const v = el.dataset.v!; const i = l.indexOf(v); i >= 0 ? l.splice(i, 1) : l.push(v); dating(g).profile.show = l; notify(); },
     'sp-swipe': (el) => {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
-        const matched = swipe(g, w, el.dataset.who!, el.dataset.like === '1');
-        if (matched) P.matched = el.dataset.who!;
+        const like = el.dataset.like === '1';
+        swipe(g, w, el.dataset.who!, like);   // the answer comes in a few days (sim/feed.ts)
+        if (like) toast("Liked. If they like you back, you'll hear within a few days.", 'info');
         saveGame(); notify();
     },
     'sp-next': () => { P.matched = ''; notify(); },

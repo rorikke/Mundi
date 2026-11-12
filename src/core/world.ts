@@ -354,14 +354,21 @@ export interface Occupation {
     /** Months between signing and the first shift (1: a month, a third of a season; Japan's AV law). Missing: from the
      *  next shift, as before. A track can set its own. */
     startAfter?: number;
+    /** How much harder its interview is than the usual (added to the d20's target: 3 is about 15% less likely; below 0
+     *  easier). Missing: 0. A track can set its own. */
+    interview?: number;
+    /** A condition to be hired at all, or a list of them where one is enough (`gender: woman`, an introduction, a
+     *  skill at the top): without one it isn't among your openings. A track can set its own. */
+    hire?: When | When[];
 }
 /** What a job's track changes (see Occupation.tracks); what it doesn't set is the job's own. `hire`: a condition to be
  *  hired on it, or a list of them where one is enough (an introduction); `fee`: money the job takes when you're hired
  *  (a training fee), waived once you've finished one of the track's `courses`; `pace`: its ranks take this many times
  *  as long (1.5). Its `events` come on top of the job's (one with the id of one of the job's replaces it); every other
- *  field replaces the job's (sim/tracks.ts). */
+ *  field replaces the job's (sim/tracks.ts). `title`: what the job is called on this track (AV actor), where `name`
+ *  names the track itself. */
 export interface JobTrack {
-    name?: string; ranks?: Rank[]; branches?: Branch[]; promote?: number[]; schedule?: Schedule; length?: number; place?: string; hireable?: boolean;
+    name?: string; title?: string; interview?: number; ranks?: Rank[]; branches?: Branch[]; promote?: number[]; schedule?: Schedule; length?: number; place?: string; hireable?: boolean;
     courses?: string[]; skills?: Record<string, number>; likes?: string[]; trains?: string[]; events?: WorkEvent[];
     hire?: When | When[]; fee?: number; pace?: number;
     shift?: number; hours?: [number, number]; offScreen?: boolean; nightPay?: number; cost?: Record<string, number>; overtime?: boolean; startAfter?: number;
