@@ -54,8 +54,9 @@ Everything the world creator (`src/ui/creator.ts`) can change should be changeab
 rituals (`dayplan.ts`), prices (`economy.ts`), city events, letters, training hints and more. A copy has a new id,
 so moving onto it would quietly move everyone's birthday, change the weather and reshuffle everyone's days.
 
-Fix: a `seedOf(g)` helper returning `g.seed ?? g.world`, used by all those rolls. Switching worlds sets `g.seed` to
-the old id, so nothing moves. It's a new field read with a default: no change to the save format (`SCHEMA`).
+Fix: a `seedOf(g)` helper returning `g.worldSeed ?? g.world`, used by all those rolls. Switching worlds sets
+`g.worldSeed` to the old id, so nothing moves. (Not `g.seed`: that's taken, each game's own chemistry draw in
+`saveSeed()`, `src/sim/relations.ts`.) It's a new field read with a default: no change to the save format (`SCHEMA`).
 
 ### Other places that remember a world's id
 
@@ -83,7 +84,7 @@ the old id, so nothing moves. It's a new field read with a default: no change to
    come out the same before and after a switch.
 2. **"Make it my own for this game"** in This world → World, for a built-in world (your own world goes straight to
    the creator): back up the save (`backup()`); copy the world as "<world> · <game title>" with `copyOf`, keeping its
-   mode and `madeFor` as Duplicate does; set `g.seed`; move `g.world` and the games-list entry to the copy; run
+   mode and `madeFor` as Duplicate does; set `g.worldSeed`; move `g.world` and the games-list entry to the copy; run
    `repair()`, refresh, and open the creator.
 3. **The creator opened from a game:** "Edit this world" in This world; Delete hidden; game mode and Home or world
    locked; tabs that only matter for new games labelled; the running clock paused; after Save, `repair()` on the open
