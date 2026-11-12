@@ -909,6 +909,11 @@ function branchEditor(w: WorldDef, o: WorldDef['occupations'][number], p: string
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>
                 ${earlier(b.at).length ? `<div class="mu-field"><span>Only after (empty: after any)</span>${pairChips(earlier(b.at), `${q}.after`)}</div>` : ''}
+                <div class="mu-row2">${flag('Only with adult content on', `${q}.adult`, '', true)}${bounded('Pace (its ranks take this many times as long: 0.1–4)', `${q}.pace`, 0.1, 4, 0.1)}</div>
+                ${words('Kinds of job on this path (tags, comma separated)', `${q}.tags`, 'On top of the job\'s own: effects aim at them (adult-stage).', 'adult-stage')}
+                <span class="mu-cw-sub">Taken only with (one of these is enough; none: anyone)</span>
+                ${hireRows(q, x)}
+                ${x.hire !== undefined ? optTxt('Why it is closed, as the player reads it (empty: the game\'s line)', `${q}.closed`, 'Invite only: someone in the business has to bring you in.') : ''}
                 <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>Remove this path</span></button></div>`; }).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="boption" data-path="${p}.branches.${bi}.options">${icon('plus')}<span>Add a path</span></button></section>`).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="branch" data-path="${p}.branches">${icon('plus')}<span>Add a choice of paths</span></button>`;
@@ -1261,7 +1266,7 @@ export function forSaving(w: WorldDef): WorldDef {
 // effects were all removed, an emptied pool of likes and limits. Nothing else is touched (an untouched world saves as it was).
 function tidyAdult(w: WorldDef) {
     for (const o of w.occupations ?? []) {
-        for (const t of [o, ...Object.values(o.tracks ?? {})]) {
+        for (const t of [o, ...Object.values(o.tracks ?? {}), ...[o, ...Object.values(o.tracks ?? {})].flatMap(x => x?.branches ?? []).flatMap(b => b.options ?? [])]) {
             if (!t || t.hire === undefined) continue;
             if (Array.isArray(t.hire)) { const l = t.hire.filter(h => typeof h !== 'string' || h.trim()); if (l.length) t.hire = l; else delete t.hire; }
             else if (typeof t.hire === 'string' && !t.hire.trim()) delete t.hire;

@@ -286,31 +286,40 @@ export interface Rank { name: string; pay: number; needs?: Record<string, number
     days?: number }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
 // `promote`: shifts to reach each of its ranks; `after`: the option is only offered after one of these paths.
-export interface BranchOption { id: string; name: string; desc?: string; ranks: Rank[]; promote?: number[]; likes?: string[]; after?: string[] }
+/** A path at a branch. `after`: offered only after one of these earlier paths. `adult`: only with adult content on.
+ *  `hire`: a condition to take it, or a list where one is enough (an introduction, `gender: woman`, a skill at the top);
+ *  without it the path shows closed, with `closed` saying why. `tags`: kinds of job it is on this path, on top of the
+ *  job's own (`adult-stage` for a streamer's adult shows), which effects aim at as they do at a job's. `pace`: its ranks
+ *  take this many times as long to reach (a slow, hard path: 1.6), as a job track's `pace` does. */
+export interface BranchOption { id: string; name: string; desc?: string; ranks: Rank[]; promote?: number[]; likes?: string[]; after?: string[];
+    adult?: boolean; hire?: When | When[]; closed?: string; tags?: string[]; pace?: number }
 export interface Branch { at: number; options: BranchOption[] }
 // A career as you live it: the job's ranks up to its first branch, then the ranks of each path you chose. `open`: a
-// branch waiting for your choice (you are at its rank); the next promotion comes once you choose.
-export interface Career { ranks: Rank[]; promote: number[]; likes: string[]; open: Branch | null; options: BranchOption[] }
+// branch waiting for your choice (you are at its rank); the next promotion comes once you choose. `pace`: per rank,
+// how many times as long it takes to reach it (its path's `pace`; 1 for the job's own ranks).
+export interface Career { ranks: Rank[]; promote: number[]; likes: string[]; open: Branch | null; options: BranchOption[]; pace: number[] }
 export function career(o: Occupation, path: string[] = []): Career {
     const branches = [...(o.branches ?? [])].filter(b => b.at > 0 && b.options?.length).sort((a, b) => a.at - b.at);
     const first = branches[0];
     const ranks = first ? o.ranks.slice(0, first.at) : [...o.ranks];
     const promote = (o.promote ?? []).slice(0, Math.max(0, ranks.length - 1));
     const likesOf = [...(o.likes ?? [])];
+    const pace = ranks.map(() => 1);
     const pad = () => { while (promote.length < ranks.length - 1) promote.push((promote.at(-1) ?? 4) + 3); };
     pad();
     let i = 0;
     for (const b of branches) {
         if (ranks.length < b.at) break;   // not reached (the job has fewer ranks than this branch)
-        ranks.length = b.at; promote.length = Math.min(promote.length, b.at - 1); pad();
+        ranks.length = b.at; pace.length = b.at; promote.length = Math.min(promote.length, b.at - 1); pad();
         const offered = b.options.filter(x => !x.after?.length || x.after.some(a => path.includes(a)));
         const pick = offered.find(x => x.id === path[i]);
-        if (!pick) return { ranks, promote, likes: likesOf, open: offered.length ? { ...b, options: offered } : null, options: offered };
-        for (const [k, r] of pick.ranks.entries()) { ranks.push(r); promote.push(pick.promote?.[k] ?? (promote.at(-1) ?? 4) + 3); }
+        if (!pick) return { ranks, promote, likes: likesOf, open: offered.length ? { ...b, options: offered } : null, options: offered, pace };
+        const p = pick.pace && pick.pace > 0 ? pick.pace : 1;
+        for (const [k, r] of pick.ranks.entries()) { ranks.push(r); pace.push(p); promote.push(pick.promote?.[k] ?? (promote.at(-1) ?? 4) + 3); }
         likesOf.push(...(pick.likes ?? []));
         i++;
     }
-    return { ranks, promote, likes: likesOf, open: null, options: [] };
+    return { ranks, promote, likes: likesOf, open: null, options: [], pace };
 }
 
 export interface Occupation {
@@ -573,7 +582,9 @@ export interface WorldDef {
     /** A scenario instead of a world: one closed place (a house, a mansion) with its residents and a premise. */
     scenario?: { premise: string };
     /** Ids the world no longer has, and what took their place (saves are moved over when they load). */
-    retired?: { maps?: Record<string, string>; places?: Record<string, string> };
+    retired?: { maps?: Record<string, string>; places?: Record<string, string>;
+        /** a job now part of another: who held it works the new one, on `path` (then the old job's own paths) */
+        jobs?: Record<string, { to: string; path?: string[] }> };
     /** A scenario's floor plan (optional): when on, the house map is a plan with floors instead of the room pictures. */
     plan?: HousePlan;
     /** what kind of world this is: how it can be played (Life-Sim, RPG) and what it holds (realistic or fantasy); systems for one kind stay off in the others */

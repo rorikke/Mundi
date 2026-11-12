@@ -19,7 +19,7 @@ import { note, placeName } from './facts.js';
 import { presentAt } from './people.js';
 import { startCaughtRumor } from './living.js';
 import { whoJoins, matchIn, limitsOf } from './private.js';
-import { myJob, jobPlace, shiftOn, addPerf, type JobState } from './work.js';
+import { myJob, jobPlace, shiftOn, addPerf, jobTags, type JobState } from './work.js';
 import { personaName } from '../st/bridge.js';
 
 /** What getting caught costs, and what not getting caught gives. */
@@ -155,7 +155,7 @@ const RAID_AGAIN = 4 * 90;   // a raid this many days old (about a year) is forg
 export function workRisk(g: Save, w: WorldDef, o: Occupation, r: WorkResult, rnd: () => number = Math.random): string[] {
     const risk = Number(r.risk), j = g.player.job as JobState | null;
     if (!adultOn(g) || !(risk > 0) || !j) return [];
-    if (!riskRoll(g, w, { id: o.id, tags: ['work', ...(o.tags ?? [])], risk }, rnd).caught) { tallyEvent(g, 'risky'); return []; }
+    if (!riskRoll(g, w, { id: o.id, tags: ['work', ...jobTags(g, o)], risk }, rnd).caught) { tallyEvent(g, 'risky'); return []; }
     const out: string[] = [], c = state(g), place = jobPlace(g, o);
     const raids = c.raids && c.raids.job === o.id && g.day - c.raids.day < RAID_AGAIN ? c.raids.n : 0;
     c.raids = { job: o.id, n: raids + 1, day: g.day };

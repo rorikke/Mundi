@@ -243,6 +243,18 @@ export function repair(g: Save, w: WorldDef): string[] {
     if (p.home && !w.homes.kinds[p.home.kind]) { const z = zones.find(x => x.id === p.home.zone); if (z) p.home.kind = z.kind; }
     // where you are
     if (p.loc && !isPlace(g, w, p.loc)) { p.loc = HOME; notes.push('The place you were in is not in this world anymore: you are back home.'); }
+    // jobs the world retired into another (a job now a path of a bigger one): who held one works the new job, on the
+    // path given and then the old job's own paths, at the same rank (kept or held to the career just below)
+    for (const [from, to] of Object.entries(w.retired?.jobs ?? {})) {
+        const into = to && w.occupations.find(o => o.id === to.to);
+        if (!into || w.occupations.some(o => o.id === from)) continue;
+        if (p.job?.id === from) {
+            p.job.id = into.id; p.job.path = [...(to.path ?? []), ...(p.job.path ?? [])];
+            const names = p.job.path.map(id => (into.branches ?? []).flatMap(b => b.options).find(x => x.id === id)?.name).filter(Boolean);
+            notes.push(`Your job is now ${into.name}${names.length ? ` (${names.join(' › ')})` : ''}: you keep your rank and how well you work.`);
+        }
+        for (const r of Object.values(g.cast)) if (r.occupation === from) r.occupation = into.id;
+    }
     // your job and rank
     if (p.job) {
         const job = w.occupations.find(x => x.id === p.job!.id), o = job && trackOf(g, job);   // (on your track: its own ranks and paths)

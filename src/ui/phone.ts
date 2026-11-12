@@ -38,7 +38,7 @@ import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays } from '../sim/work.js';
+import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText } from '../sim/work.js';
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
@@ -271,12 +271,12 @@ function referBtn(g: Save, w: WorldDef, avatar: string) {
 }
 // The paths of a career you chose, in words.
 const pathNames = (o: Occupation, path: string[]) => path.map(id => (o.branches ?? []).flatMap(b => b.options).find(x => x.id === id)?.name ?? id).join(' › ');
-// At a branch: the paths you can take next (each with its ranks and pay).
+// At a branch: the paths you can take next (each with its ranks and pay); one that isn't open to you shows why.
 function branchPicker(g: Save, w: WorldDef, o: Occupation) {
     const b = pendingBranch(g, o); if (!b) return '';
     return `<div class="mu-branch"><b>${T('choosePathTitle')}</b><small class="mu-muted">The next ranks depend on it; it cannot be changed later.</small>
-        ${b.options.map(x => `<button class="mu-branch-opt" data-act="ph-path" data-id="${esc(x.id)}"><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}
-            <small class="mu-muted">${x.ranks.map(r => `${esc(r.name)} (${money(w, r.pay)}/h)`).join(' › ')}</small>${x.likes?.length ? `<small>Good for: ${esc(x.likes.join(', '))}</small>` : ''}</button>`).join('')}</div>`;
+        ${pathChoices(g, w, b).map(({ opt: x, open }) => `<button class="mu-branch-opt" data-act="ph-path" data-id="${esc(x.id)}" ${open ? '' : 'aria-disabled="true"'}><b>${esc(x.name)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}
+            <small class="mu-muted">${x.ranks.map(r => `${esc(r.name)} (${money(w, r.pay)}/h)`).join(' › ')}</small>${x.likes?.length ? `<small>Good for: ${esc(x.likes.join(', '))}</small>` : ''}${open ? '' : `<small class="mu-bad">${esc(closedText(x))}</small>`}</button>`).join('')}</div>`;
 }
 // What helps an interview: your best skill for the job (about +1 for every two levels) and the traits it likes (+2 each).
 function interviewHelp(g: Save, w: WorldDef, o: Occupation): string {

@@ -361,6 +361,11 @@ office (20%), Ueno Park after dark (15%), the ryokan's shared bath after midnigh
   from the listings; anyone else needs an introduction (a friend who works there: Sayuri for the hostess clubs, Lisa for
   the pole club, Airi or Momo for AV), the scout's card for AV, or to be very good at it already (Charisma 7, Dance 7,
   Sensuality 7). Without one, the job isn't among your openings.
+- **Streamer.** Anyone can start streaming from their room, for very little at first (¥600 an hour). After the first rank
+  you choose a path. *Games and chatting* stays poorly paid for a long time (¥700 to ¥1,300 an hour) and climbs slowly,
+  behind skills and performance, to esports or talk streams (¥2,200 to ¥4,000). *Adult streams*, with adult content on,
+  pays better from the start (¥1,700 to ¥2,800, then your own fan page or a live studio, up to ¥4,300); the sites take
+  women, and anyone else only with an introduction (Airi or Momo) or Sensuality 7: the path shows closed and says why.
 - **One job, a track for each gender.** The AV job and the esthe have one listing for everyone, but ranks,
   pay, hours, pace and needs differ by track, as they do in real life. Your track comes from your gender (in Tokyo, a
   woman is an actress and works the men's esthe, a man is an actor and works women's services); if your gender has

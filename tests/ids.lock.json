@@ -1585,7 +1585,8 @@
    "chinatown",
    "ryokan",
    "avactress",
-   "esthe"
+   "esthe",
+   "streamer"
   ],
   "courses": [
    "japanese",
@@ -1732,7 +1733,8 @@
    "chinatown": 4,
    "ryokan": 4,
    "avactress": 5,
-   "esthe": 4
+   "esthe": 4,
+   "streamer": 1
   },
   "goals": [
    "tk_makeit",

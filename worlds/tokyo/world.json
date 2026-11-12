@@ -37394,6 +37394,395 @@
     }
    },
    "startAfter": 1
+  },
+  {
+   "id": "streamer",
+   "name": "Streamer",
+   "place": "",
+   "offScreen": true,
+   "schedule": {
+    "days": 4,
+    "from": 20,
+    "to": 24
+   },
+   "shift": 4,
+   "length": 1.3,
+   "interview": -3,
+   "likes": [
+    "Shy",
+    "Sarcastic",
+    "Games",
+    "Technology"
+   ],
+   "trains": [
+    "charisma",
+    "gaming",
+    "english"
+   ],
+   "ranks": [
+    {
+     "name": "New streamer",
+     "pay": 600
+    }
+   ],
+   "branches": [
+    {
+     "at": 1,
+     "options": [
+      {
+       "id": "variety",
+       "name": "Games and chatting",
+       "desc": "Play games and talk with whoever drops in. Little money for a long time, and only a few ever make a living from it.",
+       "ranks": [
+        {
+         "name": "Small streamer",
+         "pay": 700,
+         "needs": {
+          "charisma": 1,
+          "gaming": 1
+         }
+        },
+        {
+         "name": "Affiliate",
+         "pay": 900,
+         "needs": {
+          "charisma": 2,
+          "gaming": 2
+         }
+        },
+        {
+         "name": "Partnered streamer",
+         "pay": 1300,
+         "needs": {
+          "charisma": 3,
+          "gaming": 3
+         },
+         "when": "perf: 75"
+        }
+       ],
+       "promote": [
+        14,
+        20,
+        26
+       ],
+       "likes": [
+        "Games",
+        "Anime & manga"
+       ],
+       "pace": 1.6
+      },
+      {
+       "id": "adult",
+       "name": "Adult streams",
+       "adult": true,
+       "desc": "Shows for adults on a members' site, from your room. Better money from the start; the sites take on few men.",
+       "hire": [
+        "gender: woman",
+        "feels: Airi friend or Momo friend",
+        "skill: sensuality 7"
+       ],
+       "closed": "Invite only: the sites take on almost no men, unless someone in the business brings you in or you are already known for it.",
+       "ranks": [
+        {
+         "name": "Regular performer",
+         "pay": 1700,
+         "needs": {
+          "charisma": 1
+         }
+        },
+        {
+         "name": "Viewers' favorite",
+         "pay": 2200,
+         "needs": {
+          "charisma": 2,
+          "english": 1,
+          "sensuality": 1
+         }
+        },
+        {
+         "name": "Ranked performer",
+         "pay": 2800,
+         "needs": {
+          "charisma": 3,
+          "fashion": 2,
+          "sensuality": 3
+         },
+         "when": "perf: 70"
+        }
+       ],
+       "likes": [
+        "Shameless",
+        "Flirtatious"
+       ],
+       "tags": [
+        "adult-stage",
+        "exhib"
+       ]
+      }
+     ]
+    },
+    {
+     "at": 4,
+     "options": [
+      {
+       "id": "esports",
+       "name": "Esports and games",
+       "after": [
+        "variety"
+       ],
+       "desc": "Tournaments, a team jersey and long nights of ranked matches.",
+       "ranks": [
+        {
+         "name": "Popular streamer",
+         "pay": 2200,
+         "needs": {
+          "charisma": 4,
+          "gaming": 5,
+          "english": 2
+         },
+         "when": "perf: 80"
+        },
+        {
+         "name": "Top streamer",
+         "pay": 4000,
+         "needs": {
+          "charisma": 6,
+          "gaming": 7
+         },
+         "when": "perf: 85"
+        }
+       ],
+       "promote": [
+        32,
+        44
+       ],
+       "pace": 1.6
+      },
+      {
+       "id": "talk",
+       "name": "Talk and real life",
+       "after": [
+        "variety"
+       ],
+       "desc": "Walks through the city, guests and late-night talks: you are the show.",
+       "ranks": [
+        {
+         "name": "Popular streamer",
+         "pay": 2200,
+         "needs": {
+          "charisma": 6,
+          "english": 3
+         },
+         "when": "perf: 80"
+        },
+        {
+         "name": "Top streamer",
+         "pay": 4000,
+         "needs": {
+          "charisma": 8,
+          "fashion": 3
+         },
+         "when": "perf: 85"
+        }
+       ],
+       "promote": [
+        32,
+        44
+       ],
+       "pace": 1.6
+      },
+      {
+       "id": "independent",
+       "name": "On your own",
+       "after": [
+        "adult"
+       ],
+       "adult": true,
+       "desc": "Your own fan page and subscribers, your own rules and your own taxes.",
+       "ranks": [
+        {
+         "name": "Independent creator",
+         "pay": 3400,
+         "needs": {
+          "charisma": 4,
+          "logic": 2,
+          "sensuality": 4
+         }
+        },
+        {
+         "name": "Top creator",
+         "pay": 4300,
+         "needs": {
+          "charisma": 6,
+          "logic": 4,
+          "sensuality": 5
+         },
+         "when": "perf: 80"
+        }
+       ],
+       "tags": [
+        "adult-stage",
+        "exhib"
+       ]
+      },
+      {
+       "id": "livestudio",
+       "name": "The live studio",
+       "after": [
+        "adult"
+       ],
+       "adult": true,
+       "desc": "Stream from an agency's studio rooms: a cut for them, staff and security for you.",
+       "ranks": [
+        {
+         "name": "Studio lead",
+         "pay": 3200,
+         "needs": {
+          "charisma": 4,
+          "sensuality": 4
+         }
+        },
+        {
+         "name": "Studio manager",
+         "pay": 3900,
+         "needs": {
+          "charisma": 5,
+          "logic": 4,
+          "sensuality": 4
+         }
+        }
+       ],
+       "tags": [
+        "adult-stage",
+        "exhib"
+       ]
+      }
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "stream_ev_raid",
+     "setup": "A bigger streamer ends their stream and sends their whole chat over to yours.",
+     "choices": [
+      {
+       "id": "welcome",
+       "label": "Welcome them warmly",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 2,
+       "text": "Half of them stay, and some follow you.",
+       "fail": {
+        "text": "You stumble over the welcome, and most of them drift off.",
+        "perf": 0
+       }
+      },
+      {
+       "id": "carry",
+       "label": "Keep doing what you were doing",
+       "perf": 1,
+       "text": "A few like what they see and stay."
+      },
+      {
+       "id": "freeze",
+       "label": "Freeze",
+       "perf": -1,
+       "text": "The numbers jump and so does your heart; the moment passes."
+      }
+     ]
+    },
+    {
+     "id": "stream_ev_troll",
+     "setup": "Someone in the chat keeps posting nasty things, and the others start answering.",
+     "choices": [
+      {
+       "id": "ban",
+       "label": "Ban them and move on",
+       "perf": 1,
+       "text": "The chat calms down and carries on."
+      },
+      {
+       "id": "joke",
+       "label": "Answer with a joke",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "perf": 2,
+       "text": "The chat laughs with you, and the troll gives up.",
+       "fail": {
+        "text": "It lands badly, and the evening sours.",
+        "perf": -1,
+        "effects": {
+         "mood": -5
+        }
+       }
+      },
+      {
+       "id": "end",
+       "label": "End the stream early",
+       "perf": -2,
+       "effects": {
+        "mood": -3
+       },
+       "text": "You log off and sit in the quiet for a while."
+      }
+     ]
+    },
+    {
+     "id": "stream_ev_sponsor",
+     "when": "path: variety",
+     "setup": "A small brand writes: a paid mention of their energy drink, if you keep the can in view.",
+     "choices": [
+      {
+       "id": "take",
+       "label": "Take the deal",
+       "money": 5000,
+       "text": "The can sits by your keyboard all evening."
+      },
+      {
+       "id": "more",
+       "label": "Ask for more",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "money": 9000,
+       "text": "They agree, a little surprised.",
+       "fail": {
+        "text": "They thank you and go with someone else."
+       }
+      },
+      {
+       "id": "no",
+       "label": "Turn it down",
+       "text": "Your chat never knows."
+      }
+     ]
+    },
+    {
+     "id": "stream_ev_late",
+     "setup": "The chat is having fun and nobody wants you to stop.",
+     "choices": [
+      {
+       "id": "stay",
+       "label": "Stay on two more hours",
+       "perf": 2,
+       "effects": {
+        "energy": -15
+       },
+       "text": "It's your best night in weeks, and you pay for it in the morning."
+      },
+      {
+       "id": "night",
+       "label": "Say goodnight",
+       "text": "They groan, and come back tomorrow."
+      }
+     ]
+    }
+   ]
   }
  ],
  "institutions": [

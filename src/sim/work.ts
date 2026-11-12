@@ -21,7 +21,7 @@ import { BOOST_LIMITS } from '../core/goals.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
-import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult, type When } from '../core/world.js';
+import { career, systemOn, getWorld, offScreenWork, isScenario, WEEKDAY_IDS, type WorldDef, type Occupation, type Branch, type BranchOption, type Career, type Rank, type WorkEvent, type WorkChoice, type WorkResult, type When } from '../core/world.js';
 import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
@@ -238,7 +238,7 @@ export function weekText(g: Save, w: WorldDef, o: Occupation) {
 }
 /** What effects (life goals' perks, boosts) do to what this job pays: `wage` (shifts and overtime), `bonus` (the
  *  seasonal bonuses), `tips` (money from a choice at work); also aimed at the job, its place or the place's tags. */
-export const payMul = (g: Save, w: WorldDef, o: Occupation, what: 'wage' | 'bonus' | 'tips') => { o = trackOf(g, o); return effectMul(g, w, 'pay', [what, o.id, ...(o.tags ?? []), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]); };
+export const payMul = (g: Save, w: WorldDef, o: Occupation, what: 'wage' | 'bonus' | 'tips') => { o = trackOf(g, o); return effectMul(g, w, 'pay', [what, o.id, ...jobTags(g, o), o.place, ...(w.places.find(p => p.id === o.place)?.tags ?? [])]); };
 /** Pay per hour for this rank: the rank's pay, raised so a week earns the same with fewer days (J9). */
 export const payFactor = (g: Save, w: WorldDef, o: Occupation) => weekDays(g, trackOf(g, o)) / ruleDays(g, w, trackOf(g, o));
 export const hourlyPay = (g: Save, w: WorldDef, o: Occupation) => rankOf(g, o).pay * payFactor(g, w, o);
@@ -295,7 +295,9 @@ export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
     for (let n = path.length; n < 4; n++) {
         const c = career(o, path);
         if (!c.open) return c;
-        path.push(c.open.options[H(`${avatar}|${o.id}|${n}`) % c.open.options.length].id);
+        // (an adult path isn't one of theirs with adult content off)
+        const opts = c.open.options.filter(x => !x.adult || (!!g && adultOn(g))), from = opts.length ? opts : c.open.options;
+        path.push(from[H(`${avatar}|${o.id}|${n}`) % from.length].id);
     }
     return career(o, path);
 }
@@ -337,12 +339,27 @@ export function pendingBranch(g: Save, o: Occupation): Branch | null {
     const c = careerOf(g, o);
     return c.open && j.rank >= c.ranks.length - 1 ? c.open : null;
 }
+/** The kinds of job it is for you: its own tags, and those of the paths you took in it (while you hold it). */
+export function jobTags(g: Save, o: Occupation): string[] {
+    const j = g.player.job, own = o.tags ?? [];
+    if (!j || j.id !== o.id || !(j.path ?? []).length) return own;
+    const opts = (o.branches ?? []).flatMap(b => b.options ?? []).filter(x => (j.path ?? []).includes(x.id));
+    return [...new Set([...own, ...opts.flatMap(x => x.tags ?? [])])];
+}
+/** A branch's paths as you can take them: an adult one only with adult content on (else not offered at all), one with
+ *  `hire` open only when one of its conditions holds (else shown closed, with its `closed` line). */
+export function pathChoices(g: Save, w: WorldDef, b: Branch): { opt: BranchOption; open: boolean }[] {
+    return b.options.filter(x => !x.adult || adultOn(g)).map(opt => ({ opt, open: !opt.hire || (Array.isArray(opt.hire) ? opt.hire : [opt.hire]).some((h, i) => whenHolds(g, w, h, { key: `path|${opt.id}|${i}` })) }));
+}
+/** Why a path is closed to you: its own words, else a general line. */
+export const closedText = (opt: BranchOption) => opt.closed?.trim() || 'Not open to you yet: it takes an introduction, or being very good at it already.';
 // Choosing a path: it decides the ranks that come next.
 export function choosePath(g: Save, w: WorldDef, optionId: string): string {
     const j = g.player.job; const o = myJob(g, w);
     if (!j || !o) return '';
-    const b = pendingBranch(g, o); const opt = b?.options.find(x => x.id === optionId);
+    const b = pendingBranch(g, o); const c = b && pathChoices(g, w, b).find(x => x.opt.id === optionId), opt = c?.opt;
     if (!b || !opt) return '';
+    if (!c!.open) return closedText(opt);
     (j.path ??= []).push(opt.id); delete (j as any).toldBranch;
     note(g, '{u} chose a path at work: {0} ({1}).', [opt.name, o.name], [], o.place, 'work');
     return `You chose ${opt.name}. Next: ${opt.ranks[0]?.name ?? ''}.`;
@@ -363,7 +380,8 @@ export function rankDays(g: Save, w: WorldDef, o: Occupation, rank: number, path
     const sum = weights.reduce((a, b) => a + Math.max(0.1, b), 0);
     if (!sum || rank >= weights.length) return 0;
     const liked = Math.min(3, c.likes.filter(t => traits.includes(t)).length);
-    return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (1 - 0.05 * liked) * effectMul(g, w, 'career', 'rank');
+    // (a path's pace: reaching one of its ranks takes that many times as long)
+    return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (c.pace?.[rank + 1] ?? 1) * (1 - 0.05 * liked) * effectMul(g, w, 'career', 'rank');
 }
 // What a promotion asks of the performance, unless the rank says otherwise.
 export const PROMO_PERF = 60;
@@ -526,7 +544,7 @@ export function chooseShift(g: Save, w: WorldDef, id: string): string {
  *  the work rules go. Returns what happened. */
 export function addPerf(g: Save, w: WorldDef, n: number): string[] {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return [];
-    if (n > 0) n *= effectMul(g, w, 'perf', ['gain', o.id, ...(o.tags ?? [])]);
+    if (n > 0) n *= effectMul(g, w, 'perf', ['gain', o.id, ...jobTags(g, o)]);
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
     const low = workRules(g, w).low, out: string[] = [];
     if (j.perf >= 60) delete j.warn;
@@ -740,7 +758,7 @@ export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random):
     if (c.roll) {
         // (a choice at work is a `work` roll: what effects aimed at work add counts here, not on actions or stories; and
         // the job's id and tags, as `perf` and `pay` take them, so a trait aimed at stage work (`adult-stage`) reaches it)
-        const bonus = rollBonus(g, w, { skill: c.roll.skill, tags: ['work', o.id, ...(o.tags ?? [])] }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
+        const bonus = rollBonus(g, w, { skill: c.roll.skill, tags: ['work', o.id, ...jobTags(g, o)] }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
         ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
         if (ok) tallyRoll(g, c.roll.skill);
         out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
