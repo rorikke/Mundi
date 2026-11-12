@@ -9,7 +9,7 @@ import { book } from './ledger.js';
 import { traitsOf } from './work.js';
 import { note } from './facts.js';
 import { addXp } from './rpg.js';
-import { hobbyFor, hobbyPay, levelOf } from './hobbies.js';
+import { hobbyFor, hobbyPay, levelOf, skillDef } from './hobbies.js';
 import { effectAdd, effectMul } from './effects.js';
 import { groupsOf } from '../core/goals.js';
 import { useReroll } from './perks.js';
@@ -27,7 +27,8 @@ export interface RollSpec { skill?: string; traits?: string[]; tags?: string[] }
 export function rollBonus(g: Save, w: WorldDef | null | undefined, r: RollSpec): number {
     const mine = traitsOf(g);
     let bonus = (r.traits ?? []).filter(t => mine.includes(t)).length * 2;
-    if (r.skill) bonus += Math.floor(levelOf(g, r.skill) / 2);
+    // (only a skill the world has now: a hobby with the hobbies system off adds nothing, as systems off do nothing)
+    if (r.skill && (!w || skillDef(w, r.skill))) bonus += Math.floor(levelOf(g, r.skill) / 2);
     bonus += effectAdd(g, w, 'roll', [r.skill, ...groupsOf(r.skill), ...(r.tags ?? [])]);
     if ((g.player.stats.energy ?? 100) <= 20) bonus -= 2;
     if ((g.player.stats.mood ?? 100) <= 20) bonus -= 2;
