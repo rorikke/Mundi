@@ -43,7 +43,7 @@ import { advance, weekday, hm } from '../sim/time.js';
 import { syncScene } from '../sim/game.js';
 import { endVisit } from '../sim/visits.js';
 import { toolsHtml } from './tools.js';
-import { ACT } from './reg.js';
+import { ACT, INPUT } from './reg.js';
 import { featureOn } from '../sim/creator.js';
 import { icon } from './icons.js';
 
@@ -238,6 +238,70 @@ function planHtml(g: Save, w: WorldDef & { plan: NonNullable<WorldDef['plan']> }
         ${toolsHtml()}</div>`;
 }
 
+// Find a place: a search box under the map's bar. Every place you could click on any map (homes of people you know
+// too) whose name has the words typed, the closest first, with its map and the trip there.
+const FIND = { open: false, q: '', at: 0, focus: false, scroll: false };
+let findNext = '';   // a place picked from the list: the map turns to it, zooms in and opens its card
+const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+type Found = { p: ReturnType<typeof pins>[number]; rank: number; mins: number };
+function findList(g: Save, w: WorldDef): Found[] {
+    const q = fold(FIND.q).trim();
+    if (!q) return [];
+    const words = q.split(/\s+/);
+    return pins(g, w).filter(p => !p.link).flatMap(p => {
+        const name = fold(p.name), mapName = fold(w.maps.find(m => m.id === p.map)?.name ?? '');
+        const hay = `${name} ${mapName} ${fold((p.tags ?? []).join(' '))}`;
+        if (!words.every(x => hay.includes(x))) return [];
+        // its name starting with it, then a word of its name, then anywhere in it, then only its map or tags
+        const rank = name.startsWith(q) ? 0 : name.split(/[^a-z0-9]+/).some(x => x.startsWith(q)) ? 1 : name.includes(q) ? 2 : 3;
+        return [{ p, rank, mins: travelMinutes(g, w, g.player.loc, p.id) }];
+    }).sort((a, b) => a.rank - b.rank || a.mins - b.mins || a.p.name.localeCompare(b.p.name)).slice(0, 40);
+}
+const tripText = (mins: number) => mins < 60 ? `${mins} min` : mins % 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${mins / 60} h`;
+// The name with the typed text marked ("cafe" marks "Café"): folded letter by letter, so the places line up
+function markName(name: string): string {
+    const chars = [...name], folded = chars.map(fold), q = fold(FIND.q).trim();
+    if (!q || folded.some(c => c.length !== 1)) return esc(name);
+    const i = folded.join('').indexOf(q);
+    if (i < 0) return esc(name);
+    const part = (a: number, b?: number) => esc(chars.slice(a, b).join(''));
+    return `${part(0, i)}<mark>${part(i, i + q.length)}</mark>${part(i + q.length)}`;
+}
+function findHtml(g: Save, w: WorldDef) {
+    const list = findList(g, w);
+    FIND.at = Math.max(0, Math.min(FIND.at, list.length - 1));
+    const row = ({ p }: Found, i: number) => {
+        const m = w.maps.find(x => x.id === p.map), up = m?.parent ? w.maps.find(x => x.id === m.parent) : null;
+        const you = p.id === g.player.loc, shut = !p.home && systemOn(w, 'living') && !openNow(g, w, p.id);
+        const where = [...new Set([m?.name, m?.area ?? up?.name].filter(Boolean))].map(x => esc(x)).join(' · ');
+        return `<li class="${i === FIND.at ? 'is-on' : ''}"><button class="mu-ghost mu-find-row" data-act="find-pick" data-loc="${esc(p.id)}">
+            <b ${p.id === playerHomeId ? '' : 'data-notr'}>${markName(p.name)}</b><small data-notr>${where}</small></button>
+            <span class="mu-find-trip">${you ? '<em>You are here</em>' : `<span>${esc(tripText(travelMinutes(g, w, g.player.loc, p.id)))}</span>`}${shut ? '<small>Closed now</small>' : ''}</span>
+            <button class="mu-ibtn mu-find-go" data-act="find-go" data-loc="${esc(p.id)}" data-sfx="open" title="${you ? 'Enter the scene' : 'Go here'}">${icon(you ? 'check' : 'forward')}</button></li>`;
+    };
+    return `<div class="mu-find mh-glass" role="dialog" aria-label="Find a place">
+        <input class="mu-search" type="search" data-input="map-find" data-focus="map-find" placeholder="Find a place" value="${esc(FIND.q)}" autocomplete="off">
+        ${!FIND.q.trim() ? '<small class="mu-muted">Type part of a name: every place on every map that has it.</small>'
+            : list.length ? `<ol class="mu-find-list" data-keep="map-find">${list.map(row).join('')}</ol>` : '<small class="mu-muted">No place has that name.</small>'}
+    </div>`;
+}
+function pickFound(loc: string) {
+    const { g, w } = ctxW();
+    const map = placeOf(g, w, loc)?.map;
+    if (!map) return;
+    FIND.open = false;
+    viewMap = map === youMap(g, w).id ? null : map;
+    state.sel = loc; focusNext = loc; findNext = loc; popFor = '';
+    notify();
+}
+Object.assign(INPUT, { 'map-find': (el: HTMLInputElement) => { FIND.q = el.value; FIND.at = 0; notify(); } });
+/** Esc with the search open (focus outside its box): closes it. */
+export function mapEscape(): boolean {
+    if (!FIND.open || state.view !== 'map') return false;
+    FIND.open = false; notify();
+    return true;
+}
+
 export function mapHtml() {
     const { g, w } = ctxW();
     if (planOn(w)) return planHtml(g, w);
@@ -246,8 +310,8 @@ export function mapHtml() {
     const parent = map.parent ? w.maps.find(m => m.id === map.parent) : null;
     const away = map.id !== youMap(g, w).id;
     const many = w.maps.length > 1;
-    const nav = parent || away || many ? `<div class="mu-mapnav">${many ? `<button data-act="maps-pick" title="All maps">${icon('map')}<span>Maps</span></button>` : ''}${parent ? `<button data-act="open-map" data-map="${esc(parent.id)}">${icon('up')}<span>${esc(parent.name)}</span></button>` : ''}
-        ${away ? `<button data-act="open-map" data-map="">${icon('pin')}<span>Back to where you are</span></button>` : ''}<b data-notr>${esc(map.name)}</b></div>` : '';
+    const nav = `<div class="mu-mapnav"><button class="${FIND.open ? 'is-on' : ''}" data-act="find-open" title="Find a place">${icon('search')}<span>Find</span></button>${many ? `<button data-act="maps-pick" title="All maps">${icon('map')}<span>Maps</span></button>` : ''}${parent ? `<button data-act="open-map" data-map="${esc(parent.id)}">${icon('up')}<span>${esc(parent.name)}</span></button>` : ''}
+        ${away ? `<button data-act="open-map" data-map="">${icon('pin')}<span>Back to where you are</span></button>` : ''}<b data-notr>${esc(map.name)}</b>${FIND.open ? findHtml(g, w) : ''}</div>`;
     return `<div class="mu-map">${nav}${mapsPicker ? mapsPickerHtml(g, w, map.id) : ''}
         <div class="mu-stage" data-stage>
             <div class="mu-mapimg" style="--r:${map.ratio};background-image:url('${safeUrl(worldFile(w, pictureAt(w, g.minutes, map.image, map.images, looksAt(g, w, undefined, map.id))!))}')">${pinsHtml(g, w)}</div>
@@ -284,6 +348,8 @@ export function applyMapView(reset = false) {
     if (!e) return;
     const cur = state.mapView as V;
     let v = clampView(reset || !cur.k ? { z: 1, k: 0, x: 0, y: 0 } : cur, e.stage, e.map);
+    // a place found by name: close enough to see where it is among its neighbours
+    if (findNext) v = clampView({ ...v, k: Math.max(v.k!, clampView({ z: 1, k: 0, x: 0, y: 0 }, e.stage, e.map).k * 2) }, e.stage, e.map);
     const target = focusNext ?? (reset || !cur.k ? game()?.player.loc ?? null : null);
     focusNext = null;
     if (target) {   // brings the pin into the free area left of the side card
@@ -301,6 +367,17 @@ export function applyMapView(reset = false) {
     e.map.style.willChange = 'transform';
     clearTimeout(sharpTimer);
     sharpTimer = setTimeout(() => { const m = els()?.map; if (m) m.style.willChange = 'auto'; }, 180);
+    if (findNext) {   // its card, with "Go here", once the map has moved to it
+        const pin = e.map.querySelector<HTMLElement>(`.mu-pin[data-loc="${CSS.escape(findNext)}"]`);
+        findNext = '';
+        if (pin) showPop(pin, true);
+    }
+    if (FIND.focus) {   // the search just opened: type straight away
+        FIND.focus = false;
+        const box = document.getElementById(ROOT_ID)?.querySelector<HTMLInputElement>('[data-focus="map-find"]');
+        if (box) { box.focus(); box.select(); }
+    }
+    if (FIND.scroll) { FIND.scroll = false; document.getElementById(ROOT_ID)?.querySelector('.mu-find-list > li.is-on')?.scrollIntoView({ block: 'nearest' }); }
 }
 let sharpTimer: any = null;
 
@@ -359,6 +436,20 @@ export const mapInput = {
         r.addEventListener('pointerup', end);
         r.addEventListener('pointercancel', end);
         window.addEventListener('resize', () => applyMapView());
+        // in the search box: ↑ ↓ choose a place, Enter shows it on the map, Esc closes
+        r.addEventListener('keydown', (e) => {
+            if ((e.target as HTMLElement).dataset?.focus !== 'map-find' || e.isComposing) return;
+            const g = game(), w = g && getWorld(g.world);
+            if (!g || !w) return;
+            if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); FIND.open = false; notify(); return; }
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const n = findList(g, w).length;
+                if (n) { FIND.at = (FIND.at + (e.key === 'ArrowDown' ? 1 : n - 1)) % n; FIND.scroll = true; notify(); }
+                return;
+            }
+            if (e.key === 'Enter') { e.preventDefault(); const hit = findList(g, w)[FIND.at]; if (hit) pickFound(hit.p.id); }
+        });
         // hover a pin: its card opens next to it; leaving pin and card closes it
         r.addEventListener('pointerover', (e) => {
             if ((e as PointerEvent).pointerType === 'touch' || pan) return;
@@ -581,6 +672,9 @@ Object.assign(ACT, {
     // a click goes to the place (on a touch screen the first tap shows its card, with a "Go here" button)
     'maps-pick': (el, e) => { if (e && el.classList.contains('mu-worlds-veil') && (e.target as HTMLElement).closest('.mu-worlds')) return; mapsPicker = !mapsPicker; notify(); },
     'maps-go': (el) => { mapsPicker = false; const { g, w } = ctxW(); viewMap = el.dataset.map === youMap(g, w).id ? null : el.dataset.map || null; popFor = ''; state.mapView = {} as any; notify(); setTimeout(() => applyMapView(true), 0); },
+    'find-open': () => { FIND.open = !FIND.open; FIND.focus = FIND.open; mapsPicker = false; hidePop(0); notify(); },
+    'find-pick': (el) => pickFound(el.dataset.loc!),
+    'find-go': (el) => { FIND.open = false; return goTo(el.dataset.loc!); },
     'open-map': (el) => { viewMap = el.dataset.map || null; popFor = ''; state.mapView = {} as any; notify(); setTimeout(() => applyMapView(true), 0); },
     pin: (el, e) => {
         if (moved) return;

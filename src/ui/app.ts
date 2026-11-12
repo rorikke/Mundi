@@ -27,7 +27,7 @@ import { ACT, INPUT } from './reg.js';
 import { menuHtml } from './menu.js';
 import { settingsHtml } from './settings.js';
 import { newGameHtml } from './newgame.js';
-import { mapHtml, applyMapView, mapInput, journeyHtml } from './map.js';
+import { mapHtml, applyMapView, mapInput, journeyHtml, mapEscape } from './map.js';
 import { rpgOverlays } from './rpgui.js';
 import { combatHtml } from './combatui.js';
 import { audienceHtml } from './factionsui.js';
@@ -255,6 +255,7 @@ function attach(r: HTMLElement) {
         if (e.key !== 'Escape') return;
         if (state.view === 'gallery' && closeLightbox()) return;
         if (closeToastLog()) return;
+        if (mapEscape()) return;
         if (phone.open && inGame()) { phone.open = false; notify(); return; }
         if (PL.card) { PL.card = ''; notify(); return; }
         if (state.view === 'worldcfg') { state.view = 'map'; notify(); return; }
