@@ -4,8 +4,8 @@
 
 Training together: the people you know can teach you what they're good at, you can teach them, or you trade lessons,
 all agreed in conversation. It replaces apprentices. Tokyo gets a Streamer job, and the city is easier to find your way
-in: a Find button on the map, where to practise each skill, and notices you can read again. Your saves are upgraded once
-(save format 6), with a backup kept in the save.
+in: a Find button on the map, where to practise each skill, notices you can read again, and the whole world you play,
+in detail, from inside the game. Your saves are upgraded once (save format 6), with a backup kept in the save.
 
 ### Training together
 
@@ -46,6 +46,10 @@ in: a Find button on the map, where to practise each skill, and notices you can 
   of the session.
 - **Cards that come to you show one at a time** (a plan coming up, then a street story, an invitation or a happening,
   then a chance meeting), and a meeting you leave without answering stays behind.
+- **The whole world in detail.** ☰ → This world → World has "See everything about this world", and "In detail" on
+  its needs, places and jobs: the World creator opens on the world you're playing, built-in ones included, only to
+  look. Every tab and field is there (a job's ranks, pay, shifts, what it asks and its career paths; places, needs,
+  courses, the shop…); nothing can be changed, and Back returns to the game.
 - **The Jobs app sorts its openings** by pay, interview chance, where or days a week.
 - **Updates:** the main menu checks for new commits on Mundi's branch through SillyTavern's extension manager and
   offers to update and reload.

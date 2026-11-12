@@ -7693,5 +7693,6 @@ const DICT = {
     "See everything about this world": "Ver todo sobre este mundo",
     "See everything about this Home": "Ver todo sobre este Home",
     "Every part of it, as the world creator shows it: places, jobs and their careers, needs, things to do, courses, the shop… Only to look: nothing can be changed there.": "Cada parte, tal como la muestra el creador de mundos: lugares, trabajos y sus carreras, necesidades, cosas que hacer, cursos, la tienda… Solo para ver: ahí no se puede cambiar nada.",
+    "In a game, ☰ → This world → In detail shows the whole world you play, built-in ones too: every job's ranks, pay, shifts, requirements and career paths, the places, needs, courses… as the World creator shows them, only to look.": "En una partida, ☰ → Este mundo → En detalle muestra el mundo entero en el que juegas, también los que vienen hechos: los rangos, el sueldo, los turnos, los requisitos y las carreras de cada trabajo, los lugares, las necesidades, los cursos… como los muestra el creador de mundos, solo para ver.",
 };
 export default DICT;

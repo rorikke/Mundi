@@ -11,6 +11,7 @@ export const CHANGELOG: Release[] = [
         ['search', "The map has a Find button: type part of a name to see every matching place, its district and the trip there."],
         ['star', "Things to do show the skill they train, and each skill on the Profile lists where to practise it, when, and what it waits for."],
         ['bell', "Notices stay as long as they need and count down one at a time, with a Log of them all in the ☰ menu; cards that come to you show one at a time."],
+        ['book', "In a game, ☰ → This world → In detail shows the whole world you play, built-in ones too: every job's ranks, pay, shifts, requirements and career paths, the places, needs, courses… as the World creator shows them, only to look."],
         ['download', "The main menu tells you when Mundi has an update and offers to update and reload. The Jobs app sorts its openings."],
         ['globe', "Everything new in Portuguese and Spanish, and fixes to the map's card, a character's menu, the scene's text box and Say."],
     ] },
