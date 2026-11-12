@@ -134,7 +134,7 @@ function placeMore(w: WorldDef, p: Place, path: string) {
             <div class="mu-field"><span>Closed in this weather</span>${pairChips(wx, `${path}.closedIn`, true)}</div>
             ${(w.festivals ?? []).length ? `<div class="mu-field"><span>Open all night on these festivals</span>${pairChips((w.festivals ?? []).map(f => [f.id, f.name] as [string, string]), `${path}.festivalOpen`, true)}</div>` : ''}</div>
         <div class="mu-me-pfcol"><label class="mu-check"><input type="checkbox" data-input="me-sleep" ${p.sleep ? 'checked' : ''}><span>You can sleep here<small>A capsule, a ryokan, a manga café.</small></span></label>
-            ${p.sleep ? `<div class="mu-row2">${num(`A night costs (${esc(w.currency.symbol)})`, `${path}.sleep.price`, 0)}${sel('How well you rest', `${path}.sleep.rest`, [['poor', 'Poorly'], ['fair', 'Fairly'], ['good', 'Well'], ['great', 'Very well']])}</div>
+            ${p.sleep ? `<div class="mu-row2">${num(`A night costs (${esc(w.currency.symbol)})`, `${path}.sleep.price`, 0)}${sel('How well you rest', `${path}.sleep.rest`, [['poor', 'Poor rest'], ['fair', 'Fair rest'], ['good', 'Good rest'], ['great', 'Great rest']])}</div>
                 ${bounded('You leave by (hour; empty: when sleep ends)', `${path}.sleep.until`, 0, 24, 0.5)}
                 <div class="mu-field"><span>Included with the night</span>${pairChips(here, `${path}.sleep.includes`, true)}</div>
                 ${cond('Who may stay (optional)', `${path}.sleep.when`, 'feels: Haru friend')}` : ''}</div></div></details>`;

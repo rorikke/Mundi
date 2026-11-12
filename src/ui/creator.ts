@@ -390,7 +390,7 @@ function climatesEditor(w: WorldDef) {
                 <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.days.${k}`)}" title="Remove">${icon('x')}</button></div>${oddsRow(`${q}.days.${k}.odds`)}</div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="cdays" data-path="${esc(`${q}.days`)}">${icon('plus')}<span>Add a stretch</span></button>
             <span class="mu-cw-sub">Weather a region has on its own (a kind ending in “view” is a view, seen only on a clear day)</span>
-            ${regional.map(r => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Kind</span><input data-input="cw-mkey" data-path="${esc(`${q}.regional`)}" data-from="${esc(r)}" value="${esc(r)}"></label>
+            ${regional.map(r => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Kind of weather</span><input data-input="cw-mkey" data-path="${esc(`${q}.regional`)}" data-from="${esc(r)}" value="${esc(r)}"></label>
                 ${SEASON_OPTS.map(([s, l]) => bounded(`${l} (0 … 1)`, `${q}.regional.${r}.${s}`, 0, 1, 0.05)).join('')}
                 <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.regional.${r}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="cregion" data-path="${esc(`${q}.regional`)}">${icon('plus')}<span>Add regional weather</span></button>
@@ -1032,7 +1032,7 @@ function startsEditor(w: WorldDef) {
     const jobs: [string, string][] = [['', '(none)'], ...w.occupations.map(o => [o.id, o.name] as [string, string])];
     const households = [...new Set(w.cast.examples.map(e => e.household).filter((h): h is string => !!h))].map(h => [h, h] as [string, string]);
     return `<section class="mu-cw-sec mu-cw-wide"><h4>Starts (who you are when the game begins)</h4><p class="mu-muted">The cards a new game offers: where you live, what you have, who you already know, and what the AI is told. The player can still write a custom one.</p>
-        ${master('start', 'starts', s => `<b>${esc(s.name)}</b><small>${s.money !== undefined ? esc(money(w, s.money)) : ''}${s.default ? ' · first' : ''}${s.adult ? ' · adult' : ''}</small>`, i => {
+        ${master('start', 'starts', s => `<b>${esc(s.name)}</b><small>${s.money !== undefined ? esc(money(w, s.money)) : ''}${s.default ? ' · picked first' : ''}${s.adult ? ' · adult' : ''}</small>`, i => {
             const p = `starts.${i}`; const s = (w.starts ?? [])[i];
             const names = (k: { name: string }) => withCur(peopleOpts(w), k.name);
             return `<div class="mu-row mu-cw-inline">${idTag(s.id)}</div>
