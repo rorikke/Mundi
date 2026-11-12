@@ -228,8 +228,8 @@ function tabActions(w: WorldDef) {
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'] as [string, string], ...(((w.catalogs as any).shop ?? []) as any[]).map(it => [it.id, `${it.icon ?? ''} ${it.name}`] as [string, string])])}
             <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>
-            ${privateBox(w, p, a)}${outcomesList(a)}`;
-    }, 'action')}${storiesList(w)}`;
+            ${actionMore(w, p, a)}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
+    }, 'action')}${tablesEditor(w)}${storiesEditor(w)}`;
 }
 // (adult) A private moment: done in private, only with adult content on, how hard it is (the private roll), the words it
 // matches against someone's likes and hard limits, and the chance of being caught where it's done (with what that costs).
@@ -242,21 +242,125 @@ function privateBox(w: WorldDef, p: string, a: WorldDef['actions'][number]) {
         <div class="mu-row2">${bounded('Chance of being caught (0 … 1)', `${p}.risk`, 0, 1, 0.05)}${num(`Getting caught costs (${esc(w.currency.symbol)})`, `${p}.fee`)}</div>
         <small class="mu-muted">Empty: the roll is the game's (10, 13 with a chance of being caught); no chance of being caught. Caught, it doesn't happen: a fee, a week's ban there, and maybe a rumor.</small></details>`;
 }
-// Outcomes and story choices aren't edited here: they're kept as the world file has them. Their ids (a name a private
-// overlay rewrites them by) are shown, never changed or renumbered.
+// An action's other parts: when it's offered, more places that offer it, done with the people with you, the skill it
+// trains, a keepsake it leaves, what's remembered, and whether it plays out in the scene.
+function actionMore(w: WorldDef, p: string, a: WorldDef['actions'][number]) {
+    const ks = keepsakeOpts(w);
+    return `<h4>When, where and with whom</h4>
+        ${cond('Only offered while (optional)', `${p}.when`, 'period: afternoon; daily: yes')}
+        <details class="mu-cw-kept" ${a.places?.length ? 'open' : ''}><summary>More places that offer it · ${a.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.places`, true)}</details>
+        <label class="mu-check"><input type="checkbox" data-input="cw-from" data-path="${esc(`${p}.together`)}" ${a.together ? 'checked' : ''}><span>Done with the people with you<small>It counts as time together with whoever came along (and the one you talk to alone).</small></span></label>
+        ${a.together ? `<div class="mu-row2">${flag('Not alone', `${p}.together.needed`, 'Only offered with someone.')}${optTxt('What it means for you two (for the AI)', `${p}.together.text`, 'eating side by side at the counter')}</div>` : ''}
+        <div class="mu-row2">${skillOpts(w).length ? sel('A skill it trains a little', `${p}.trains`, withCur([['', '(none)'], ...skillOpts(w)], a.trains), 'opt') : '<span></span>'}${keepsakeOpts(w).length ? sel('A keepsake it always leaves', `${p}.keepsake`, withCur([['', '(none)'], ...ks], a.keepsake), 'opt') : '<span></span>'}</div>
+        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${p}.fact`, '{u} ate ramen at {0}')}${sel('Played out in the scene', `${p}.scene`, [['', 'As the world says'], ['true', 'Yes'], ['false', 'Never']], 'tri')}</div>`;
+}
+const keepsakeOpts = (w: WorldDef): [string, string][] => (w.keepsakes ?? []).map(k => [k.id, `${k.icon ?? ''} ${k.name}`] as [string, string]);
+// What a roll's result, an outcome or a table's row does: what happens, needs, money, a keepsake, how some of the world's
+// people feel about you (once a day or every time), what's remembered and a rumor it starts.
+function outcomeForm(w: WorldDef, q: string, daily = true) {
+    const o = getPath(q) ?? {}; const ks = keepsakeOpts(w);
+    return `${area('What happens (told to the AI)', `${q}.text`, 2)}
+        <div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${q}.effects.${s.id}`, -1000)).join('')}</div>
+        <div class="mu-row2">${num(`Money (${esc(w.currency.symbol)}; below 0: it costs)`, `${q}.money`, -1000000)}${ks.length ? sel('A keepsake', `${q}.keepsake`, withCur([['', '(none)'], ...ks], o.keepsake), 'opt') : '<span></span>'}</div>
+        ${feelsRows(w, `${q}.feels`, false)}${o.feels && daily ? flag('Those feelings count once a game day', `${q}.feelsDaily`, 'Per person and action; the text is still told after that.') : ''}
+        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${q}.fact`)}${optTxt('A rumor it starts among the people here', `${q}.rumor`)}</div>`;
+}
+// A one-click roll: its skill (none: the skill the action trains), how hard, the traits that help, and what success and
+// failure add.
+function rollEditor(w: WorldDef, p: string, a: WorldDef['actions'][number]) {
+    const r = a.roll; const roll = r ? (r.skill ?? ROLL_PLAIN) : ROLL_NONE;
+    const rolls: Opt[] = [[ROLL_NONE, 'No roll'], [ROLL_PLAIN, 'A roll (the skill it trains)'], ...skillOpts(w)];
+    if (!rolls.some(([v]) => v === roll)) rolls.push([roll, roll]);
+    return `<h4>A roll</h4><div class="mu-row2"><label class="mu-field"><span>A d20 roll, with the level of</span><select data-input="cw-aroll" data-path="${esc(p)}">${rolls.map(([v, l]) => `<option value="${esc(v)}" ${v === roll ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${r ? bounded('Against (1–30)', `${p}.roll.dc`, 1, 30) : '<span></span>'}</div>
+        ${r ? `<div class="mu-field"><span>Traits that help (+2 each)</span>${chips(traitOptions(w), `${p}.roll.traits`, true)}</div>
+            <div class="mu-cw-path"><span class="mu-cw-sub">When it works</span>${outcomeForm(w, `${p}.roll.success`)}</div>
+            <div class="mu-cw-path"><span class="mu-cw-sub">When it doesn't</span>${outcomeForm(w, `${p}.roll.fail`)}</div>` : ''}`;
+}
+// Weighted outcomes (an action's, or a shared table's rows), one drawn each time. Their ids (a name a private overlay
+// rewrites them by) are shown, never changed or renumbered; a new one gets an id when the others have them (a table's
+// rows always have one: the actions' words name them).
+function outcomesEditor(w: WorldDef, p: string, list: any[], kind: 'outcome' | 'row') {
+    return `<h4>${kind === 'row' ? 'Rows' : 'Outcomes'} · ${list.length}</h4><p class="mu-muted">${kind === 'row' ? 'One is drawn by weight each time an action uses this table.' : 'Optional: one is drawn by weight (among those whose condition holds) after the roll, if there is one.'}</p>
+        ${list.map((_o, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k + 1}</b>${idTag(list[k]?.id)}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${k}`)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${num('Weight (how often, against the others)', `${p}.${k}.weight`, 0)}${cond('Only while (optional)', `${p}.${k}.when`, 'present: Kaito')}</div>
+            ${outcomeForm(w, `${p}.${k}`)}</div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="${kind}" data-path="${esc(p)}">${icon('plus')}<span>${kind === 'row' ? 'Add a row' : 'Add an outcome'}</span></button>`;
+}
+// An action drawing from a shared table (an omikuji) tells each result in its own words: a text, or what it changes
+// here too. A result without words keeps the table's.
+function wordsEditor(w: WorldDef, p: string, a: WorldDef['actions'][number]) {
+    const tables = Object.keys(w.tables ?? {}).filter(k => !BAD_KEYS.includes(k));
+    if (!tables.length && !a.table) return '';
+    const rows: any[] = (a.table && own(w.tables, a.table)) || [];
+    return `<h4>A shared table</h4>${sel('Draws its outcome from', `${p}.table`, withCur([['', '(its own outcomes)'], ...tables.map(t => [t, t] as [string, string])], a.table), 'opt')}
+        ${a.table ? `<p class="mu-muted">Each result in this action's words (empty: the table's).</p>${rows.map(r => {
+            const id = String(r.id ?? ''); if (!id || BAD_KEYS.includes(id)) return '';
+            const q = `${p}.words.${id}`; const v = own(a.words, id);
+            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(id)}<small class="mu-muted" data-notr>${clip(r.text, 60)}</small></div>
+                ${v && typeof v === 'object' ? `${area('Told instead', `${q}.text`, 2)}<div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${q}.effects.${s.id}`, -1000)).join('')}</div>${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${q}.fact`)}
+                    <button class="mu-ghost" data-act="cw-word" data-path="${esc(q)}" data-v="text">${icon('x')}<span>Only the words (what it does is the table's)</span></button>`
+                : `<label class="mu-field"><span>Told instead</span><textarea rows="2" data-input="cw" data-type="opt" data-path="${esc(q)}" data-focus="${esc(q)}">${esc(typeof v === 'string' ? v : '')}</textarea></label>
+                    <button class="mu-ghost" data-act="cw-word" data-path="${esc(q)}" data-v="obj">${icon('plus')}<span>What it does here too (needs, a fact)</span></button>`}</div>`;
+        }).join('')}` : ''}`;
+}
 const idTag = (id: unknown) => (typeof id === 'string' && id ? `<code data-notr>${esc(id)}</code>` : '<small class="mu-muted">(no id)</small>');
 const clip = (t: unknown, n = 70) => { const x = String(t ?? ''); return esc(x.length > n ? `${x.slice(0, n - 1)}…` : x); };
-function outcomesList(a: WorldDef['actions'][number]) {
-    const l = a.outcomes ?? []; if (!l.length) return '';
-    return `<details class="mu-cw-kept"><summary>Outcomes · ${l.length} (kept as the world file has them)</summary>
-        ${l.map(o => `<div class="mu-cw-keptrow">${idTag(o.id)}<small class="mu-muted">weight ${esc(o.weight)}</small><span data-notr>${clip(o.text)}</span></div>`).join('')}</details>`;
+// Outcome tables shared by several actions (one omikuji for every shrine): each action tells the rows in its own words.
+// A table's name is what actions point at, so it's set once and never renamed here.
+function tablesEditor(w: WorldDef) {
+    const names = Object.keys(w.tables ?? {}).filter(k => !BAD_KEYS.includes(k));
+    if (!names.includes(CW.sel.table)) CW.sel.table = names[0] ?? '';
+    const t: string = CW.sel.table; const users = w.actions.filter(a => a.table && a.table === t).map(a => a.label || a.name);
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Shared tables</h4><p class="mu-muted">Outcomes several things to do draw from (one omikuji for every shrine), each told in that action's own words (Things to do › A shared table).</p>
+        <div class="mu-row mu-cw-inline mu-cw-tracks">${names.map(n => `<button class="mu-chip ${n === t ? 'is-on' : ''}" data-act="cw-table" data-id="${esc(n)}"><span data-notr>${esc(n)}</span> <small>${(own(w.tables, n) ?? []).length}</small></button>`).join('') || '<small class="mu-muted">No shared tables.</small>'}
+            <button class="mu-ghost" data-act="cw-add" data-what="table">${icon('plus')}<span>Add a table</span></button></div>
+        ${t ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><code data-notr>${esc(t)}</code><small class="mu-muted">${users.length ? `Used by: ${esc(users.join(', '))}` : 'No action uses it yet.'}</small><span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`tables.${t}`)}">${icon('trash')}<span>Remove this table</span></button></div>
+            ${outcomesEditor(w, `tables.${t}`, own(w.tables, t) ?? [], 'row')}</div>` : ''}</section>`;
 }
-function storiesList(w: WorldDef) {
-    const l = w.stories ?? []; if (!l.length) return '';
-    return `<section class="mu-cw-sec mu-cw-wide"><details class="mu-cw-kept"><summary>Street stories · ${l.length} (kept as the world file has them)</summary>
-        <p class="mu-muted">Seen once at a place. Their choices keep their order (\`seen: story:2\` counts by position) and their ids, which a private overlay rewrites them by.</p>
-        ${l.map(x => `<div class="mu-cw-keptstory"><div class="mu-cw-keptrow">${idTag(x.id)}${x.adult ? ADULT : ''}<span data-notr>${clip(x.setup, 90)}</span></div>
-            ${(x.choices ?? []).map((c, k) => `<div class="mu-cw-keptrow is-sub"><small class="mu-muted">${k + 1}</small>${idTag(c.id)}<span data-notr>${clip(c.label)}</span></div>`).join('')}</div>`).join('')}</details></section>`;
+// Street stories: seen once at a place (or every year), a setup told to the AI and two to four choices. Their ids, and
+// their choices' ids and order (`seen: story:2` counts by position), are what a private overlay and conditions name:
+// shown, never changed or renumbered; a new choice gets an id when the others have them.
+function storiesEditor(w: WorldDef) {
+    const placeName = (id: string) => w.places.find(p => p.id === id)?.name ?? id;
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Street stories</h4><p class="mu-muted">Short one-off stories that happen at a place: a setup told to the AI (unnamed people, or one of the world's people by name) and two or three choices.</p>
+        ${master('story', 'stories', (x, k) => `<b data-notr>${clip(x.setup, 48) || `#${k + 1}`}</b><small><span data-notr>${esc(placeName(x.place))}</span> · ${esc(x.id)}${x.adult ? ' · adult' : ''}</small>`, i => {
+            const p = `stories.${i}`; const x = (w.stories ?? [])[i];
+            const others = (w.stories ?? []).filter((_s, k) => k !== i).map(s => [s.id, `${s.id}: ${String(s.setup ?? '').slice(0, 40)}`] as [string, string]);
+            return `<div class="mu-row mu-cw-inline">${idTag(x.id)}</div>
+                <div class="mu-row2">${sel('Where', `${p}.place`, withCur(placeOpts(w), x.place))}${cond('When (optional)', `${p}.when`, 'period: evening; weather: rain')}</div>
+                ${area('What happens (the setup, told to the AI)', `${p}.setup`, 3)}
+                <div class="mu-row2">${sel('Someone placed there while it lasts', `${p}.brings`, withCur([['', '(nobody)'], ...peopleOpts(w)], x.brings), 'opt')}${sel('Only after this story', `${p}.after`, withCur([['', '(any time)'], ...others], x.after), 'opt')}</div>
+                <div class="mu-row2">${flag('It comes back every year', `${p}.yearly`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+                ${(x.choices ?? []).map((c, k) => storyChoice(w, `${p}.choices.${k}`, k, c)).join('')}
+                ${(x.choices ?? []).length < 4 ? `<button class="mu-ghost" data-act="cw-add" data-what="schoice" data-path="${esc(`${p}.choices`)}">${icon('plus')}<span>Add a choice</span></button>` : ''}`;
+        }, 'story', 'No street stories yet.')}</section>`;
+}
+function storyChoice(w: WorldDef, q: string, k: number, c: any) {
+    const roll: string = c.roll ? (c.roll.skill ?? ROLL_PLAIN) : ROLL_NONE;
+    const rolls: Opt[] = [[ROLL_NONE, 'No roll'], [ROLL_PLAIN, 'A roll (no skill)'], ...skillOpts(w)];
+    if (!rolls.some(([v]) => v === roll)) rolls.push([roll, roll]);
+    return `<div class="mu-cw-path mu-cw-choice"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Choice ${k + 1}</b>${idTag(c.id)}<span class="mu-cw-spacer"></span>
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove this choice">${icon('x')}</button></div>
+        <div class="mu-row2">${txt('What you choose (the button)', `${q}.label`, 'Help them')}${cond('Only offered while (optional)', `${q}.when`, 'feels: Rina friend')}</div>
+        <div class="mu-row2"><label class="mu-field"><span>A roll</span><select data-input="cw-roll" data-path="${esc(q)}">${rolls.map(([v, l]) => `<option value="${esc(v)}" ${v === roll ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${c.roll ? bounded('Against (1–30)', `${q}.roll.dc`, 1, 30) : num('Takes … minutes (empty: 15)', `${q}.minutes`, 1)}</div>
+        ${c.roll ? num('Takes … minutes (empty: 15)', `${q}.minutes`, 1) : ''}
+        ${storyResult(w, q)}
+        ${c.roll ? (c.fail ? `<div class="mu-cw-path"><span class="mu-cw-sub">When the roll fails, instead</span>${storyResult(w, `${q}.fail`)}
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${q}.fail`)}">${icon('x')}<span>Remove: a failed roll only “did not work out”</span></button></div>`
+            : `<button class="mu-ghost" data-act="cw-add" data-what="wfail" data-path="${esc(`${q}.fail`)}">${icon('plus')}<span>What happens when the roll fails</span></button>`) : ''}</div>`;
+}
+// What a story's choice leads to: besides what any outcome does, a favor someone now owes you (or one it calls in), a
+// thread the player learns, and a skill it trains a little.
+function storyResult(w: WorldDef, q: string) {
+    const o = getPath(q) ?? {};
+    const threads = w.cast.examples.flatMap(e => (e.threads ?? []).map(t => [t.id, `${e.name}: ${t.id}`] as [string, string]));
+    return `${outcomeForm(w, q, false)}
+        <div class="mu-row2">${optTxt('Someone now owes you a favor (a name, or a stranger\'s id)', `${q}.favor`, 'Rina')}${optTxt('A favor it calls in', `${q}.spend`)}</div>
+        <div class="mu-row2">${threads.length || o.reveal ? sel('A secret the player learns', `${q}.reveal`, withCur([['', '(none)'], ...threads], o.reveal), 'opt') : '<span></span>'}${skillOpts(w).length ? sel('A skill it trains a little', `${q}.trains`, withCur([['', '(none)'], ...skillOpts(w)], o.trains), 'opt') : '<span></span>'}</div>`;
 }
 
 function tabJobs(w: WorldDef) {
@@ -1666,9 +1770,10 @@ const NEW: Record<string, () => [string, any]> = {
     trait: () => ['sheet.traits', { id: newId('trait'), label: 'New group', max: 2, options: [] }],
     skill: () => ['skills', { id: newId('skill'), name: 'New skill', icon: '🎯' }],
     goal: () => ['goals.add', { id: newId('goal'), name: 'New goal', icon: '⭐', category: 'social', desc: '', steps: [{ name: 'Step 1', when: '' }], perk: { name: 'New perk', desc: '', effects: [{ kind: 'learn', value: 0.1 }] } }],
+    story: () => ['stories', { id: newId('st'), place: W().places.find(p => !p.link)?.id ?? '', setup: '', choices: [{ label: 'Choice A', text: '' }, { label: 'Choice B', text: '' }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey: Record<string, string> = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill' };
+const listKey: Record<string, string> = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story' };
 
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
@@ -1771,6 +1876,21 @@ Object.assign(ACT, {
             list.push({ ...(list.length && list.every(c => typeof c.id === 'string' && c.id) ? { id: newId('c') } : {}), label: `Choice ${String.fromCharCode(65 + list.length)}`, text: '', perf: 0 });
             CW.dirty = true; notify(); return;
         }
+        // an action's outcome, a shared table's row (always with an id: actions' words name it)
+        if (what === 'outcome' || what === 'row') {
+            const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[];
+            const ids = what === 'row' || (list.length > 0 && list.every(o => typeof o.id === 'string' && o.id));
+            list.push({ ...(ids ? { id: newId(what === 'row' ? 'r' : 'o') } : {}), weight: 1, text: '' }); CW.dirty = true; notify(); return;
+        }
+        if (what === 'schoice') {
+            const list = getPath(el.dataset.path!) as any[]; if (!Array.isArray(list) || list.length >= 4) return;
+            list.push({ ...(list.length && list.every(c => typeof c.id === 'string' && c.id) ? { id: newId('c') } : {}), label: `Choice ${String.fromCharCode(65 + list.length)}`, text: '' });
+            CW.dirty = true; notify(); return;
+        }
+        if (what === 'table') {
+            const m = (w.tables ??= {}); let n = Object.keys(m).length + 1; while (own(m, `table${n}`)) n++;
+            m[`table${n}`] = [{ id: newId('r'), weight: 1, text: '' }]; CW.sel.table = `table${n}`; CW.dirty = true; notify(); return;
+        }
         if (what === 'wfail') { setPath(el.dataset.path!, { text: '' }); notify(); return; }
         if (what === 'wboost') { setPath(el.dataset.path!, { effects: [{ kind: 'pay', value: 0.1 }], days: 7 }); notify(); return; }
         if (what === 'hire') {
@@ -1813,9 +1933,17 @@ Object.assign(ACT, {
         if (l.length >= 2) return;
         l.push({ kind: 'learn', value: 0.1 }); CW.dirty = true; notify();
     },
+    // a table result told in an action's own words: only a text, or what it changes there too
+    'cw-word': (el) => {
+        const p = el.dataset.path!; const v = getPath(p);
+        if (el.dataset.v === 'obj') setPath(p, { text: typeof v === 'string' ? v : '' });
+        else setPath(p, v && typeof v === 'object' && v.text ? v.text : undefined);
+        notify();
+    },
     // the work event open below its list (another click closes it), the track shown
     'cw-wev': (el) => { CW.sel.wev = CW.sel.wev === el.dataset.k ? '' : el.dataset.k; notify(); },
     'cw-track': (el) => { CW.sel.track = el.dataset.id; notify(); },
+    'cw-table': (el) => { CW.sel.table = el.dataset.id; notify(); },
     // one of a track's hiring conditions; one left stays a list of one (an emptied list goes)
     'cw-hire-del': (el) => {
         const t = getPath(el.dataset.path!); if (!t || t.hire === undefined) return;
@@ -1968,6 +2096,13 @@ Object.assign(INPUT, {
     'cw-roll': (el) => {
         const c = getPath(el.dataset.path!); if (!c) return; const v = el.value;
         if (v === ROLL_NONE) delete c.roll; else c.roll = { ...(v === ROLL_PLAIN ? {} : { skill: v }), dc: c.roll?.dc ?? 12 };
+        CW.dirty = true; notify();
+    },
+    // an action's roll: none, or one with a skill's level (none: the skill it trains); its difficulty, traits and results kept
+    'cw-aroll': (el) => {
+        const a = getPath(el.dataset.path!); if (!a) return; const v = el.value;
+        if (v === ROLL_NONE) delete a.roll;
+        else { const r = a.roll ?? { dc: 12, success: { text: '' }, fail: { text: '' } }; if (v === ROLL_PLAIN) delete r.skill; else r.skill = v; a.roll = r; }
         CW.dirty = true; notify();
     },
     // an event that comes from a colleague (as Friend, at half the usual chance with an unnamed fallback), or not
