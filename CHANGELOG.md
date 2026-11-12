@@ -3,8 +3,8 @@
 ## 0.3.4 · 2026-11-12
 
 Training together: the people you know can teach you what they're good at, you can teach them, or you trade lessons,
-all agreed in conversation. It replaces apprentices. Tokyo gets a Streamer job, and the city is easier to find your way
-in: a Find button on the map, where to practise each skill, notices you can read again, and the whole world you play,
+all agreed in conversation. It replaces apprentices. Tokyo gets a Streamer job and maps that light up at night, and the
+city is easier to find your way in: a Find button on the map, where to practise each skill, notices you can read again, and the whole world you play,
 in detail, from inside the game. Your saves are upgraded once (save format 6), with a backup kept in the save.
 
 ### Training together
@@ -32,6 +32,9 @@ in detail, from inside the game. Your saves are upgraded once (save format 6), w
   choose: games and chatting, slow to climb and poorly paid, toward esports or talk streams; or, with adult content on,
   adult streams, better paid from the start, toward a fan page of your own or a live studio. The adult path is open to
   women; anyone else needs Airi or Momo as a friend, or Sensuality 7.
+- **The maps change at night.** Every district's map and the map of the whole city have a night picture, shown from
+  18:00 to 05:00: Kabukichō's neon, Asakusa's lanterns, Tokyo Tower lit up, the bay bridge's lights and the moon on
+  Hakone's lake. The pins stay where they were.
 - **Career paths can ask for something** (shown closed with why), be adult-only, carry tags of their own and take longer
   or shorter; the World creator edits it all.
 

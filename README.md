@@ -16,7 +16,7 @@ This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features 
 
 Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and Kōenji, Akihabara, Asakusa and Ueno, Marunouchi and Ginza, Odaiba, Roppongi) and two getaways (Yokohama and Hakone), with 89 places and 30 people who live there.
 
-- **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map.
+- **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map, by day and by night.
 - **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 30 people have a portrait and 28 expressions.
 - **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
 - **Life there.** 45 jobs with their ranks (a Streamer among them: start from your room and choose your kind of stream), drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner, which a language exchange with a friend helps with.
