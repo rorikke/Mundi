@@ -7612,5 +7612,12 @@ const DICT = {
     "Not on {0}": "Excepto {0}",
     "Not in {0}": "No con {0}",
     "working here": "trabajando aquí",
+    "Not open to you yet: it takes an introduction, or being very good at it already.": "Todavía no está abierto para ti: hace falta una presentación, o ser ya muy bueno en ello.",
+    "Your job is now {0} ({1}): you keep your rank and how well you work.": "Tu trabajo ahora es {0} ({1}): conservas tu rango y tu desempeño.",
+    "Your job is now {0}: you keep your rank and how well you work.": "Tu trabajo ahora es {0}: conservas tu rango y tu desempeño.",
+    "Taken only with (one of these is enough; none: anyone)": "Solo con (basta uno de estos; ninguno: cualquiera)",
+    "Why it is closed, as the player reads it (empty: the game's line)": "Por qué está cerrado, como lo lee el jugador (vacío: la frase del juego)",
+    "Kinds of job on this path (tags, comma separated)": "Tipos de trabajo en este camino (etiquetas, separadas por comas)",
+    "On top of the job's own: effects aim at them (adult-stage).": "Además de los del propio trabajo: los efectos apuntan a ellos (adult-stage).",
 };
 export default DICT;

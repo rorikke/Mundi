@@ -24,6 +24,7 @@ export function career(o, path = []) {
     const ranks = first ? o.ranks.slice(0, first.at) : [...o.ranks];
     const promote = (o.promote ?? []).slice(0, Math.max(0, ranks.length - 1));
     const likesOf = [...(o.likes ?? [])];
+    const pace = ranks.map(() => 1);
     const pad = () => { while (promote.length < ranks.length - 1)
         promote.push((promote.at(-1) ?? 4) + 3); };
     pad();
@@ -32,20 +33,23 @@ export function career(o, path = []) {
         if (ranks.length < b.at)
             break; // not reached (the job has fewer ranks than this branch)
         ranks.length = b.at;
+        pace.length = b.at;
         promote.length = Math.min(promote.length, b.at - 1);
         pad();
         const offered = b.options.filter(x => !x.after?.length || x.after.some(a => path.includes(a)));
         const pick = offered.find(x => x.id === path[i]);
         if (!pick)
-            return { ranks, promote, likes: likesOf, open: offered.length ? { ...b, options: offered } : null, options: offered };
+            return { ranks, promote, likes: likesOf, open: offered.length ? { ...b, options: offered } : null, options: offered, pace };
+        const p = pick.pace && pick.pace > 0 ? pick.pace : 1;
         for (const [k, r] of pick.ranks.entries()) {
             ranks.push(r);
+            pace.push(p);
             promote.push(pick.promote?.[k] ?? (promote.at(-1) ?? 4) + 3);
         }
         likesOf.push(...(pick.likes ?? []));
         i++;
     }
-    return { ranks, promote, likes: likesOf, open: null, options: [] };
+    return { ranks, promote, likes: likesOf, open: null, options: [], pace };
 }
 export const INTIMATE_ROLES = ['lead', 'follow', 'switch'];
 export const INTIMATE_DRIVES = ['low', 'average', 'high'];

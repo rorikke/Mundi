@@ -35,7 +35,7 @@ import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'track', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'];
+    'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -145,6 +145,7 @@ function badValue(key, v) {
         case 'knows':
         case 'track':
         case 'gender':
+        case 'path':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
@@ -342,6 +343,11 @@ function holds(g, w, key, v, x) {
         case 'track': {
             const j = g.player.job, o = j && w.occupations.find(o => o.id === j.id);
             return !!o && playerTrack(g, o) === v;
+        }
+        // a career path you took in the job you hold (a branch option's id: `path: adult`)
+        case 'path': {
+            const j = g.player.job;
+            return !!j && (j.path ?? []).includes(v);
         }
         // your gender (a gender id: woman, man, nonbinary, or one of the world's own)
         case 'gender': return relOf(g).people[idOf(g, YOU)]?.gender === v;

@@ -18,7 +18,7 @@ import { note, placeName } from './facts.js';
 import { presentAt } from './people.js';
 import { startCaughtRumor } from './living.js';
 import { whoJoins, matchIn, limitsOf } from './private.js';
-import { myJob, jobPlace, shiftOn, addPerf } from './work.js';
+import { myJob, jobPlace, shiftOn, addPerf, jobTags } from './work.js';
 import { personaName } from '../st/bridge.js';
 /** What getting caught costs, and what not getting caught gives. */
 export const CAUGHT = {
@@ -166,7 +166,7 @@ export function workRisk(g, w, o, r, rnd = Math.random) {
     const risk = Number(r.risk), j = g.player.job;
     if (!adultOn(g) || !(risk > 0) || !j)
         return [];
-    if (!riskRoll(g, w, { id: o.id, tags: ['work', ...(o.tags ?? [])], risk }, rnd).caught) {
+    if (!riskRoll(g, w, { id: o.id, tags: ['work', ...jobTags(g, o)], risk }, rnd).caught) {
         tallyEvent(g, 'risky');
         return [];
     }
