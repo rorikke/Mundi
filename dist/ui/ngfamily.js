@@ -195,11 +195,13 @@ function newCharForm(n) {
 /* ---------- a home on the map (yours, or a household's) ---------- */
 const sameHome = (a, zone, x, y) => !!a && a.zone === zone && a.x === x && a.y === y;
 // `who`: 'you' or a household's index. Homes chosen by someone else are shown as taken.
-function homePicker(who, mapKey) {
+// `start`: the area your start gives you, marked on the map (and its map shown first)
+function homePicker(who, mapKey, start = '') {
     const z = wz();
     const w = W();
     const maps = w.maps.filter(m => w.homes.zones.some(zn => zn.map === m.id));
-    const mapId = maps.some(m => m.id === z[mapKey]) ? z[mapKey] : maps[0]?.id;
+    const startMap = w.homes.zones.find(zn => zn.id === start)?.map;
+    const mapId = maps.some(m => m.id === z[mapKey]) ? z[mapKey] : maps.some(m => m.id === startMap) ? startMap : maps[0]?.id;
     const m = w.maps.find(x => x.id === mapId);
     const mine = who === 'you' ? z.home ?? null : hhs()[who]?.home ?? null;
     const others = [...(who === 'you' ? [] : [z.home]), ...hhs().filter((_h, i) => i !== who).map(h => h.home)].filter(Boolean);
@@ -208,12 +210,14 @@ function homePicker(who, mapKey) {
         ${m ? `<div class="mu-nghome-map" style="aspect-ratio:${m.ratio};width:min(100%, calc(64vh * ${m.ratio}));background-image:url('${safeUrl(worldFile(w, m.image))}')">
             ${w.homes.zones.filter(zn => zn.map === m.id).map(zn => zn.spots.map(([x, y], k) => {
         const on = sameHome(mine, zn.id, x, y), taken = others.some(o => sameHome(o, zn.id, x, y));
-        return `<button class="mu-nghome-spot ${on ? 'is-on' : ''} ${taken ? 'is-taken' : ''}" style="left:${x}%;top:${y}%" data-act="${act}-pick" data-zone="${esc(zn.id)}" data-k="${esc(k)}" ${taken ? 'aria-disabled="true"' : ''} title="${esc(zn.name)} · ${zn.kind === 'house' ? 'House' : 'Apartment'} ${k + 1} · rent ${zn.rent}${taken ? ' · taken' : ''}">${icon('home')}</button>`;
+        return `<button class="mu-nghome-spot ${on ? 'is-on' : ''} ${taken ? 'is-taken' : ''} ${zn.id === start ? 'is-start' : ''}" style="left:${x}%;top:${y}%" data-act="${act}-pick" data-zone="${esc(zn.id)}" data-k="${esc(k)}" ${taken ? 'aria-disabled="true"' : ''} title="${esc(zn.name)} · ${zn.kind === 'house' ? 'House' : 'Apartment'} ${k + 1} · rent ${zn.rent}${taken ? ' · taken' : ''}">${icon('home')}</button>`;
     }).join('')).join('')}</div>` : ''}`;
 }
 const homeLine = (h, none) => { const w = W(); const zone = h && w.homes.zones.find(zn => zn.id === h.zone); return zone && h ? `${icon('home')} <b>${esc(zone.name)}, ${esc(homeKindName(w, zone.kind))} ${h.n}</b> · ${esc(w.homes.kinds[zone.kind]?.name ?? zone.kind)} · rent ${zone.rent}` : `<span class="mu-muted">${none}</span>`; };
 /* ---------- step: choosing your home ---------- */
-export function stepHome() {
+/** The Home step. `start`: the start chosen (its area is marked, and not choosing gives a home there); `household`: the
+ *  people that start has you living with, in which case the home is theirs and isn't chosen here. */
+export function stepHome(start, household = []) {
     const w = W();
     if (isScenario(w)) { // a scenario: the kinds of bedroom as pictures, no floor plan
         const cur = wz().home;
@@ -225,10 +229,16 @@ export function stepHome() {
                     <b data-notr>${esc(k?.name ?? zn.name)}</b><small class="mu-muted" data-notr>${esc(k?.desc ?? zn.desc ?? '')}</small></button>`;
         }).join('')}</div>`;
     }
+    const area = start?.home ? w.homes.zones.find(zn => zn.id === start.home) : undefined;
+    if (household.length && area)
+        return `<h3>Your home</h3>
+        <p>${esc(`Your start has you living in ${area.name} with ${household.join(', ')}: their home is yours.`)}</p>
+        <p class="mu-muted">To live somewhere else, go back to Your character, choose "Change this start" and pick nobody under "Who you live with".</p>`;
     return `<h3>Choose your home</h3>
         <p class="mu-muted">Click a home on the map. The others are given to the people of the world after you choose.${familyOf().length ? ' Your household moves in with you.' : ''}</p>
-        ${homePicker('you', 'homeMap')}
-        <p class="mu-nghome-pick">${homeLine(wz().home, 'No home chosen yet: one is given by your origin.')}</p>`;
+        ${area ? `<p class="mu-muted">${esc(`Your start's area is marked: ${area.name}.`)}${start?.rent !== undefined ? ` ${esc('Its rent is only for a home there.')}` : ''}</p>` : ''}
+        ${homePicker('you', 'homeMap', area?.id ?? '')}
+        <p class="mu-nghome-pick">${homeLine(wz().home, area ? `No home chosen yet: your start gives you one in ${area.name}.` : 'No home chosen yet: one is given by your origin.')}</p>`;
 }
 /* ---------- actions ---------- */
 Object.assign(ACT, {

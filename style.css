@@ -4283,8 +4283,10 @@ body.mundi-open #completion_prompt_manager_popup {
         left: calc(var(--cx) + (var(--pk, 0) - (var(--nk, 1) - 1) / 2) * var(--step)); translate: -50% 0; }
     #mundi-root[data-layout="cards"]:not([data-mobile]) .mu-sprite:has(> .is-avatar) { display: none; }
 }
-/* A start's skill levels (the start editor, startsui.ts): the level a short number beside its skill, not a full row. */
+/* The start editor (startsui.ts): a skill's level a short number beside its skill, not a full row. The new game's Home
+   step (ngfamily.ts): the area your start gives you, marked on the map. */
 #mundi-root .mu-ties-add input[type="number"] { width: 5.5em; flex: 0 0 auto; }
+#mundi-root .mu-nghome-spot.is-start { box-shadow: 0 0 0 3px var(--accent), 0 0 12px var(--accent); }
 /* The tour box: always fixed in the middle of the screen, with Stella (from the waist up) big and fitting inside it */
 #mundi-root .mu-tut-box img { width: 200px; height: 300px; object-fit: cover; object-position: top center; }
 #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-left .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut.box-top .mu-tut-box, #mundi-root:not([data-mobile]) .mu-tut:not(.has-target) .mu-tut-box {

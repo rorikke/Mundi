@@ -371,7 +371,8 @@ export async function startNewGame(o) {
     const taken = new Set();
     // an origin still gives what only it has (RPG skills and attributes, "knows N people"): the one the start came from
     const origin = start ? w.catalogs.origins?.find(x => x.id === start.id) : w.catalogs.origins?.find(x => x.id === o.hero.origin) ?? w.catalogs.origins?.[0];
-    const picked = o.home && w.homes.zones.find(z => z.id === o.home.zone);
+    // (a start that has you living with a household keeps you in its area: a home picked elsewhere would take them away)
+    const picked = o.home && w.homes.zones.find(z => z.id === o.home.zone) && !(start?.household && start.home && o.home.zone !== start.home);
     if (picked)
         taken.add(spotKey(o.home.zone, o.home.x, o.home.y));
     // homes chosen for households are nobody else's

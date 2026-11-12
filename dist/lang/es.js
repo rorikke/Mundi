@@ -7331,5 +7331,13 @@ const DICT = {
     "Your skills": "Tus habilidades",
     "The levels you begin with (0–10).": "Los niveles con los que empiezas (0–10).",
     "It also gives you {0}, added to the traits you pick.": "También te da {0}, sumado a los rasgos que elijas.",
+    "Your start has you living in {0} with {1}: their home is yours.": "Tu comienzo te hace vivir en {0} con {1}: su casa es la tuya.",
+    "To live somewhere else, go back to Your character, choose \"Change this start\" and pick nobody under \"Who you live with\".": "Para vivir en otro sitio, vuelve a Tu personaje, elige \"Cambiar este comienzo\" y elige a nadie en \"Con quién vives\".",
+    "Your start's area is marked: {0}.": "La zona de tu comienzo está marcada: {0}.",
+    "Its rent is only for a home there.": "Su alquiler es solo para una casa allí.",
+    "No home chosen yet: your start gives you one in {0}.": "Aún no has elegido casa: tu comienzo te da una en {0}.",
+    "Who you live with": "Con quién vives",
+    "Nobody: a home of your own": "Nadie: una casa propia",
+    "Their home, while you live with them": "Su casa, mientras vivas con ellos",
 };
 export default DICT;
