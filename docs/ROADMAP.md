@@ -20,7 +20,11 @@ Ideas planned for later. Nothing here is promised for a date.
 
 - **Medieval:** paused; it gets the systems built for the modern worlds once they are done.
 - **World creator, "From lorebooks":** your AI reads lorebooks you choose and builds a world from them.
+- **The world creator from inside a game:** everything the creator can change, changeable from ☰ → This world while
+  you play; a game in a built-in world gets its own copy of the world first (plan and limitations:
+  [`world-edit-in-game.md`](world-edit-in-game.md)).
 - **Tokyo in Portuguese and Spanish:** the world's own text (places, things to do, stories) in
   `worlds/tokyo/lang/pt.json` and `es.json`, as Porto Alto has; the interface is already translated.
 - **Tokyo's place sounds:** recordings for the 22 sound slots (stations, izakaya, cicadas…) in place of the
-  sounds Mundi makes itself.
+  sounds Mundi makes itself, taken from public CC0 and CC-BY recordings (plan and candidates:
+  [`tokyo-sounds.md`](tokyo-sounds.md)).
