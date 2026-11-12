@@ -132,6 +132,11 @@ npm i -g typescript
 ## Credits
 
 - Sounds by [Kenney](https://kenney.nl) (CC0).
+- Tokyo's place sounds: recordings from [Freesound](https://freesound.org) by markystar, manuke, jrussell_tm,
+  Heigh-hoo, muse88, Intimana, RutgerMuller, csaszi, gazy, macdaddyno1, piego, BenParamoreAudio, 170026 and Kinoton
+  (CC0), and by RadioGoldProductions, volivieri, LG, Echograin (CC BY 4.0) and Tomlija (CC BY 3.0); see
+  [`worlds/tokyo/sound/CREDITS.md`](worlds/tokyo/sound/CREDITS.md) for each recording, its license and what was
+  changed.
 - Seraphina is SillyTavern's default character; her picture is bundled for the tour.
 
 ## License

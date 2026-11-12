@@ -46,6 +46,8 @@ node tests/hobbies.test.mjs > /tmp/mundi-hobbies-test.log 2>&1 || { grep -v "^\[
 echo "events and hobbies: $(tail -1 /tmp/mundi-hobbies-test.log)"
 node tests/rpglock.test.mjs > /tmp/mundi-rpglock-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-rpglock-test.log; echo "RPG LOCK TESTS FAILED"; exit 1; }
 echo "rpg lock: $(tail -1 /tmp/mundi-rpglock-test.log)"
+node tests/sounds.test.mjs > /tmp/mundi-sounds-test.log 2>&1 || { cat /tmp/mundi-sounds-test.log; echo "SOUND TESTS FAILED"; exit 1; }
+echo "sounds: $(tail -1 /tmp/mundi-sounds-test.log)"
 node tests/version.test.mjs > /tmp/mundi-version-test.log 2>&1 || { cat /tmp/mundi-version-test.log; echo "VERSION TESTS FAILED"; exit 1; }
 echo "version: $(tail -1 /tmp/mundi-version-test.log)"
 echo "build ok"

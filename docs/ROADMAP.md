@@ -25,6 +25,3 @@ Ideas planned for later. Nothing here is promised for a date.
   [`world-edit-in-game.md`](world-edit-in-game.md)).
 - **Tokyo in Portuguese and Spanish:** the world's own text (places, things to do, stories) in
   `worlds/tokyo/lang/pt.json` and `es.json`, as Porto Alto has; the interface is already translated.
-- **Tokyo's place sounds:** recordings for the 22 sound slots (stations, izakaya, cicadas…) in place of the
-  sounds Mundi makes itself, taken from public CC0 and CC-BY recordings (plan and candidates:
-  [`tokyo-sounds.md`](tokyo-sounds.md)).

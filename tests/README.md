@@ -22,6 +22,9 @@ A save is hours of a player's life. No update may break one. These rules and che
 - `node tests/saves.test.mjs`: every save in `fixtures/` opens with the current build without losing a value, keeps an
   exact backup, plays a week, draws its screens; plus a changed world, a newer save, a new save and a restore.
 
+- `node tests/sounds.test.mjs`: every filled `sounds` slot in a built-in world names a tag its places use, points to a
+  file in its `sound/` folder (under 1.5 MB), and has a line in `sound/CREDITS.md` linking a CC0 or CC-BY license.
+
 ## Parity (also run by `build.sh`)
 
 - `node tests/systems.test.mjs`: each system turned off in turn (needs, jobs, bills, courses, shop, breakdowns,
