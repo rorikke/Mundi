@@ -10,7 +10,7 @@ import { getCurrentChatId, deleteMessage, updateMessageBlock, saveChatDebounced,
 // @ts-ignore
 import { groups, selected_group, openGroupById, openGroupChat, editGroup, getGroups, createNewGroupChat, getGroupPastChats, deleteGroupChat as stDeleteGroupChat, is_group_generating } from '../../../../../group-chats.js';
 // @ts-ignore
-import { modules } from '../../../../../extensions.js';
+import { modules, extensionTypes } from '../../../../../extensions.js';
 // @ts-ignore
 import { convertSoloToGroupChat } from '../../../../../bookmarks.js';
 // @ts-ignore
@@ -1084,6 +1084,27 @@ export async function deleteSprite(avatar: string, label: string, spriteName: st
     const name = outfit === undefined ? spriteFolder(avatar) : outfit ? `${baseSpriteFolder(avatar)}/${outfit}` : baseSpriteFolder(avatar);
     const res = await fetch('/api/sprites/delete', { method: 'POST', headers: headers(), body: JSON.stringify({ name, label, spriteName }) });
     if (!res.ok) throw new Error('Could not delete the image.');
+}
+
+/* ---------- Mundi's own updates ---------- */
+
+// The same git check and pull as SillyTavern's extension manager ("Check for updates", "Update"): the server fetches
+// origin and compares HEAD with the branch there, so any new commit counts, not only a new version number.
+// (the folder Mundi runs from: "Mundi" from the URL, but a zip can be "Mundi-main"; installed for one user or for all)
+const EXT_FOLDER = decodeURIComponent(/\/third-party\/([^/]+)\//.exec(import.meta.url)?.[1] ?? 'Mundi');
+const extGlobal = () => (extensionTypes as Record<string, string> | undefined)?.[`third-party/${EXT_FOLDER}`] === 'global';
+const extBody = () => JSON.stringify({ extensionName: EXT_FOLDER, global: extGlobal() });
+// null when SillyTavern can't tell; no commit when Mundi isn't a git clone (a zip), which can't be updated from here
+export type ExtVersion = { upToDate: boolean; branch: string; commit: string; remote: string };
+export async function extVersion(): Promise<ExtVersion | null> {
+    const r = await fetch('/api/extensions/version', { method: 'POST', headers: headers(), body: extBody() });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return { upToDate: d?.isUpToDate !== false, branch: String(d?.currentBranchName ?? ''), commit: String(d?.currentCommitHash ?? ''), remote: String(d?.remoteUrl ?? '') };
+}
+export async function extUpdate(): Promise<boolean> {
+    const r = await fetch('/api/extensions/update', { method: 'POST', headers: headers(), body: extBody() });
+    return r.ok;
 }
 
 /* ---------- events ---------- */
