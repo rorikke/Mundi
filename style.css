@@ -1538,6 +1538,10 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-upd .mu-primary { padding: 7px 16px !important; }
 #mundi-root .mu-upd-link { font-size: 13px; color: inherit; opacity: .8; text-decoration: underline; }
 #mundi-root .mu-upd .mu-ibtn { margin: -4px -2px 0 0; }
+#mundi-root .mu-wn > p { margin: 0; line-height: 1.5; }
+#mundi-root .mu-wn footer .mu-upd-link { margin-right: auto; }
+/* fill #mundi-main, not the page: SillyTavern's transform on <html> (height 0) collapses a fixed inset:0 layer */
+#mundi-root .mu-recap-veil.mu-wn-veil { position: absolute; inset: 0; }
 /* The Sims 4-inspired look, for both themes: Nunito, glossy blue buttons, green accents, white-edged panels.
    Colors come from these variables; corners are moderately rounded. */
 #mundi-root {
