@@ -4294,6 +4294,13 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-log-row.is-error { border-left-color: var(--bad); }
 #mundi-root .mu-log-row b { font-size: 13px; }
 #mundi-root .mu-log-when, #mundi-root .mu-log-src { font-size: 11px; font-weight: 700; color: var(--muted); }
+/* Where to practise, under each skill on the Profile. */
+#mundi-root .mu-practice { margin-top: 6px; }
+#mundi-root .mu-practice summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); }
+#mundi-root .mu-practice ul { list-style: none; margin: 6px 0 4px; padding: 0; display: grid; gap: 4px; }
+#mundi-root .mu-practice li { display: grid; gap: 1px; padding: 5px 9px; border-radius: 8px; background: rgba(255, 255, 255, .05); }
+#mundi-root .mu-practice li b { font-size: 12px; display: block; }
+#mundi-root .mu-practice li small, #mundi-root .mu-practice > small { font-size: 11px; color: var(--muted); display: block; }
 /* Classic and Cards: the characters with Expressions sprites stand beside the conversation, in the space left free
    on each side of it. One: on the left. Two or more: the 1st, 3rd… on the left and the 2nd, 4th… on the right (see
    stageVars in ui/scene.ts: --side, --pk, --nk).

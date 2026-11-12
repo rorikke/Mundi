@@ -2,7 +2,7 @@ import { lookPanelHtml } from './chatlook.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { fmtClock, is12h } from '../core/fmt.js';
 import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
-import { skillName } from '../sim/hobbies.js';
+import { skillName, trainedBy } from '../sim/hobbies.js';
 import { courseRow } from './courses.js';
 import { payOf, lockedOut, toGetBackIn } from '../sim/bills.js';
 // The in-game HUD (the same layout for every style; skins only tint it). Glass panels around the scene:
@@ -208,7 +208,7 @@ function actsColumn(g, w) {
         ...(atHome && lockedOut(g) ? [`<button class="mh-act mh-glass is-warn" data-act="ph-open-homes"><i>${icon('home')}</i><b>${lex(w, 'lockedOutShort')}</b><small>${lex(w, 'lockedOutHint', appRef(w, 'homes'), money(w, toGetBackIn(g, w, 'rent')))}</small></button>`] : []),
         ...((atHome && !lockedOut(g)) || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
         ...innRows(g, w, atHome),
-        ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),
+        ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${trainedSkill(w, a)}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),
         ...buyRows(g, w),
         ...giftRows(g, w),
     ];
@@ -286,6 +286,8 @@ Object.assign(ACT, {
         notify();
     },
 });
+// The skill an action trains, on its button, so you can find practice by looking around.
+const trainedSkill = (w, a) => { const k = trainedBy(w, a); return k ? ` · ${esc(k.icon ?? '⭐')} ${esc(k.name)}` : ''; };
 // On a phone the list is a sheet over the scene: closed until you open it, and it closes again after a choice.
 let actsPhone = false;
 const actsOpen = () => (onPhone() ? actsPhone : UI().actsOpen !== false);

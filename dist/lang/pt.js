@@ -7569,5 +7569,17 @@ const DICT = {
     "Interview chance": "Chance na entrevista",
     "Log": "Registro",
     "Nothing here yet. Notices that pop up while you play are kept here until you close SillyTavern.": "Nada aqui ainda. Os avisos que aparecem enquanto você joga ficam guardados aqui até você fechar o SillyTavern.",
+    "Where to practise": "Onde praticar",
+    "Where to practise ({0})": "Onde praticar ({0})",
+    "needs {0}": "precisa de {0}",
+    "1 more place": "mais 1 lugar",
+    "{0} more places": "mais {0} lugares",
+    "1 more in a place you haven't been to yet.": "Mais 1 num lugar onde você ainda não foi.",
+    "{0} more in places you haven't been to yet.": "Mais {0} em lugares onde você ainda não foi.",
+    "Nothing in the places you've been to yet.": "Nada nos lugares onde você já foi, por enquanto.",
+    "It also grows by itself, every hour you spend out among people who speak it.": "Também melhora sozinho, a cada hora que você passa fora entre pessoas que falam a língua.",
+    "Jobs that train it each shift:": "Empregos que treinam isso a cada turno:",
+    "1 in a place you haven't been to yet.": "1 num lugar onde você ainda não foi.",
+    "{0} in places you haven't been to yet.": "{0} em lugares onde você ainda não foi.",
 };
 export default DICT;
