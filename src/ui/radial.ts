@@ -56,6 +56,14 @@ export function radialHtml(avatar: string, r: Resident | null): string {
         <div class="mu-rad-side is-left">${arc(left, 'l')}</div><div class="mu-rad-side is-right">${arc(right, 'r')}</div></div>`;
 }
 
+// The open menu goes over the chat box, but the sprites stay under it (their pictures would cover the text). So the
+// menu is drawn in a layer of its own above the box: a copy of the sprite's slot (same classes and place, so the
+// buttons sit around them as before) whose picture is invisible and lets clicks through.
+export function radialLayer(avatar: string, r: Resident | null, style: string, inner: string): string {
+    const menu = radialHtml(avatar, r);
+    return menu ? `<div class="mu-sprites mu-rad-layer"><figure class="mu-sprite is-menu" style="${style}">${inner}${menu}</figure></div>` : '';
+}
+
 Object.assign(ACT, {
     'spr-menu': (el, e) => {
         if ((e?.target as HTMLElement)?.closest?.('.mu-radial')) return;

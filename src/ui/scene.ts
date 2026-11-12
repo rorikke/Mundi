@@ -42,7 +42,7 @@ import { tr } from '../core/tr.js';
 import { stFormat, avatarHtml, cardPicHtml, portraitHtml, lightboxHtml, lookPanelHtml, lookConfirmHtml } from './chatlook.js';
 import { avatarUrl } from '../st/bridge.js';
 import { charPicker } from './charpick.js';
-import { RAD, radialHtml } from './radial.js';
+import { RAD, radialLayer } from './radial.js';
 
 const LOG_SIZE = 40;
 
@@ -228,13 +228,17 @@ export function sceneHtml() {
     // how many have a real sprite (the classic layout shows only those, so they share the room among themselves)
     const withSprite = here.filter(r => !!spriteFor(r.avatar, ex[r.avatar] ?? null)).length;
     const sv = stageVars(here.map(r => r.avatar), a => !!spriteFor(a, ex[a] ?? null)); void withSprite;
+    let menu = '';
     const sprites = here.map((r, k) => {
         const src = spriteFor(r.avatar, ex[r.avatar] ?? null);
-        return `<figure class="mu-sprite ${isWith(g, r.avatar) ? 'is-with' : ''} ${RAD.who === r.avatar ? 'is-menu' : ''}" style="--i:${k};${sv.get(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}" data-act="spr-menu" data-who="${esc(r.avatar)}">${src ? `<img src="${esc(src)}" alt="">` : `<span class="is-avatar mu-zoomable"><img src="${esc(avatarUrl(r.avatar))}" alt="" draggable="false"></span>`}<figcaption>${esc(r.met ? r.name : 'Someone')}</figcaption>${radialHtml(r.avatar, r)}</figure>`;
+        const style = `--i:${k};${sv.get(r.avatar)}`;
+        const pic = src ? `<img src="${esc(src)}" alt="">` : `<span class="is-avatar mu-zoomable"><img src="${esc(avatarUrl(r.avatar))}" alt="" draggable="false"></span>`;
+        if (RAD.who === r.avatar) menu = radialLayer(r.avatar, r, style, pic);
+        return `<figure class="mu-sprite ${isWith(g, r.avatar) ? 'is-with' : ''} ${RAD.who === r.avatar ? 'is-menu' : ''}" style="${style}" title="${esc(r.met ? r.name : 'Someone')}" data-act="spr-menu" data-who="${esc(r.avatar)}">${pic}<figcaption>${esc(r.met ? r.name : 'Someone')}</figcaption></figure>`;
     }).join('');
     return `<div class="mu-scene">
         <div class="mu-scene-bg" data-morph-skip data-keep="scene-bg" data-place="${esc(g.player.loc)}" style="${background(g, w)}"></div>
-        <div class="mu-sprites">${sprites}</div>
+        <div class="mu-sprites">${sprites}</div>${menu}
         
         <section class="mu-dialog">
             <div class="mu-log" data-keep="log" data-bottom>${logHtml()}</div>
@@ -307,9 +311,13 @@ export function chatHtml() {
     const cast = scenarioCast();
     const ex = expressions();
     const sv = stageVars(cast, a => !!spriteFor(a, ex[a] ?? null));
+    let menu = '';
     const sprites = cast.map((a, k) => {
         const src = spriteFor(a, ex[a] ?? null);
-        return `<figure class="mu-sprite ${RAD.who === a ? 'is-menu' : ''}" style="--i:${k};${sv.get(a)}" ${src ? `data-act="spr-menu" data-who="${esc(a)}"` : ''}>${radialHtml(a, null)}${src ? `<img src="${esc(src)}" alt="">` : `<span class="is-avatar mu-zoomable" data-act="portrait" data-src="${esc(avatarUrl(a))}" data-name="${esc(charOf(a)?.name ?? '')}"><img src="${esc(avatarUrl(a))}" alt="" draggable="false"></span>`}</figure>`;
+        const style = `--i:${k};${sv.get(a)}`;
+        const pic = src ? `<img src="${esc(src)}" alt="">` : `<span class="is-avatar mu-zoomable" data-act="portrait" data-src="${esc(avatarUrl(a))}" data-name="${esc(charOf(a)?.name ?? '')}"><img src="${esc(avatarUrl(a))}" alt="" draggable="false"></span>`;
+        if (RAD.who === a) menu = radialLayer(a, null, style, pic);
+        return `<figure class="mu-sprite ${RAD.who === a ? 'is-menu' : ''}" style="${style}" ${src ? `data-act="spr-menu" data-who="${esc(a)}"` : ''}>${pic}</figure>`;
     }).join('');
     // the chat's own background (just chosen, or locked to this chat), else what SillyTavern shows now
     const bgEl = document.getElementById('bg1');
@@ -318,7 +326,7 @@ export function chatHtml() {
     const group = !currentCharacter();
     return `<div class="mu-scene is-chat">
         <div class="mu-scene-bg" data-morph-skip data-keep="scene-bg" data-place="chat" style="${bg && bg !== 'none' ? `background-image:${esc(bg)};background-size:cover;background-position:center` : ''}"></div>
-        <div class="mu-sprites">${sprites}</div>
+        <div class="mu-sprites">${sprites}</div>${menu}
         ${group ? `<nav class="mu-people" aria-label="People here">${cast.map(a => `<span class="mu-person"><img src="${esc(thumb(a))}" alt=""><b data-notr>${esc(charOf(a)?.name ?? '')}</b>${cast.length > 1 ? `<button class="mu-ghost" data-act="sc-remove" data-avatar="${esc(a)}" title="Remove from the scene">${icon('x')}</button>` : ''}</span>`).join('')}</nav>` : ''}
         <section class="mu-dialog">
             <div class="mu-log" data-keep="log" data-bottom>${logHtml()}</div>

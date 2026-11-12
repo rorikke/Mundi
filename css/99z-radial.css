@@ -1,0 +1,6 @@
+/* A sprite's menu (ui/radial.ts) over the chat box (12) and the HUD's bars (20), under the cards that ask you
+   something (24 and up): a copy of the sprite's slot where only the buttons show and take clicks, so the picture and
+   the text stay as they are. */
+#mundi-root .mu-rad-layer { z-index: 21; overflow: visible; }
+#mundi-root .mu-rad-layer .mu-sprite { overflow: visible; }
+#mundi-root .mu-rad-layer .mu-sprite > :not(.mu-radial) { visibility: hidden; pointer-events: none !important; }

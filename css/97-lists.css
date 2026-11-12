@@ -19,10 +19,6 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mh-drawer-panel button { min-width: 0; }
 #mundi-root .mu-lorepick button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Classic layout (the sprite beside the dialogue box): while a sprite's menu is open, its buttons go over the chat */
-#mundi-root[data-layout="classic"] .mu-sprites:has(.mu-sprite.is-menu) { z-index: 14; overflow: visible; }
-#mundi-root[data-layout="classic"] .mu-sprite.is-menu { overflow: visible; }
-
 /* no focus ring after a click (only when moving with the keyboard) */
 #mundi-root[data-pointer] button:focus-visible, #mundi-root[data-pointer] button:focus { outline: none; }
 
@@ -53,7 +49,7 @@ body.mundi-open #completion_prompt_manager_popup {
 /* Classic layout: people without a sprite are not shown, so the others share the space (not a third of it each) */
 #mundi-root[data-layout="classic"] .mu-sprite { max-width: calc(100% / var(--ns, var(--n, 1))); }
 
-/* the open sprite sits above the people next to it (its buttons are not hidden behind their pictures), still under the chat box */
+/* the open sprite sits above the people next to it, still under the chat box (its menu has a layer of its own above it: 99z-radial.css) */
 #mundi-root .mu-sprite.is-menu { z-index: 5; }
 #mundi-root .mu-style-tag.is-lifesim { background: rgba(22, 140, 90, .9); color: #fff; }
 #mundi-root .mu-style-tag.is-rpg { background: rgba(124, 58, 237, .9); color: #fff; }
