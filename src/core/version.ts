@@ -9,6 +9,7 @@ export const CHANGELOG: Release[] = [
         ['chat', "Suggest it in your own words and they answer yes or no; someone may offer it when the talk turns that way, and you accept or turn it down on a card."],
         ['mic', "Tokyo's Streamer: anyone can stream for little at first, then choose games and chatting or, with adult content on, adult streams."],
         ['moon', "Tokyo's maps change at night: every district and the whole city light up from 18:00 (neon, lanterns, Tokyo Tower), with the pins where they were."],
+        ['speaker', "Tokyo sounds like Tokyo: every place plays real recordings (its crowds, an izakaya, the Shibuya crossing, cicadas in summer, a temple bell), quieter when the place is quiet, and silent while it's closed."],
         ['search', "The map has a Find button: type part of a name to see every matching place, its district and the trip there."],
         ['star', "Things to do show the skill they train, and each skill on the Profile lists where to practise it, when, and what it waits for."],
         ['bell', "Notices stay as long as they need and count down one at a time, with a Log of them all in the ☰ menu; cards that come to you show one at a time."],

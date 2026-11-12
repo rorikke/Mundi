@@ -3,9 +3,10 @@
 ## 0.3.4 · 2026-11-12
 
 Training together: the people you know can teach you what they're good at, you can teach them, or you trade lessons,
-all agreed in conversation. It replaces apprentices. Tokyo gets a Streamer job and maps that light up at night, and the
-city is easier to find your way in: a Find button on the map, where to practise each skill, notices you can read again, and the whole world you play,
-in detail, from inside the game. Your saves are upgraded once (save format 6), with a backup kept in the save.
+all agreed in conversation. It replaces apprentices. Tokyo gets a Streamer job, maps that light up at night and the
+sounds of the city, and it is easier to find your way in: a Find button on the map, where to practise each skill,
+notices you can read again, and the whole world you play, in detail, from inside the game. Your saves are upgraded
+once (save format 6), with a backup kept in the save.
 
 ### Training together
 
@@ -35,6 +36,11 @@ in detail, from inside the game. Your saves are upgraded once (save format 6), w
 - **The maps change at night.** Every district's map and the map of the whole city have a night picture, shown from
   18:00 to 05:00: Kabukichō's neon, Asakusa's lanterns, Tokyo Tower lit up, the bay bridge's lights and the moon on
   Hakone's lake. The pins stay where they were.
+- **Tokyo sounds like Tokyo.** Every place plays real recordings in place of the sounds Mundi made itself: the
+  crowds in a shopping street, an izakaya, Ameyoko's vendors, the Shibuya crossing, the Hibiya line, cicadas on summer
+  days, a temple bell now and then, a typhoon's wind on the towers. As before, they follow the hour and how busy a
+  place is, and stop while it's closed. They are other people's recordings, free to share (CC0 or CC BY), credited
+  in `worlds/tokyo/sound/CREDITS.md`.
 - **Career paths can ask for something** (shown closed with why), be adult-only, carry tags of their own and take longer
   or shorter; the World creator edits it all.
 

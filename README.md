@@ -18,6 +18,7 @@ Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and K
 
 - **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map, by day and by night.
 - **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 30 people have a portrait and 28 expressions.
+- **Its own sounds.** Every place plays recordings made in Tokyo and around (the crowds, izakaya, stations, the Shibuya crossing, cicadas in summer, a temple bell), following the hour and how busy it is.
 - **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
 - **Life there.** 45 jobs with their ranks (a Streamer among them: start from your room and choose your kind of stream), drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner, which a language exchange with a friend helps with.
 - **Seven starts** to begin from, and 71 small stories at the places.
