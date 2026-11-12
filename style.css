@@ -652,7 +652,8 @@ body.mundi-open { overflow: hidden; }
 #mundi-root .mu-style-info ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
 /* map: the card that opens next to a pin */
 #mundi-root .mu-pop {
-    position: absolute; z-index: 20; width: 300px; max-height: min(62vh, 520px); overflow: auto; padding: 14px 16px; display: none; gap: 8px;
+    /* above the HUD's cards (19–22), under the bump, the phone, invitations and menus (24 and up) */
+    position: absolute; z-index: 23; width: 300px; max-height: min(62vh, 520px); overflow: auto; padding: 14px 16px; display: none; gap: 8px;
     background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); backdrop-filter: blur(8px);
 }
 #mundi-root .mu-pop.is-open { display: grid; animation: mu-pop-in .14s ease; }

@@ -111,7 +111,10 @@ function banLine(g, loc) {
     const b = bansNow(g).find(x => x.place === loc);
     return b ? `<small class="mu-ban">${icon('lock')}<span>${esc(BAN_WORDS)} ${esc(b.days === 1 ? '1 more day.' : `${b.days} more days.`)}</span></small>` : '';
 }
-// Shows the card above the pin (or below, when there is no room), kept inside the screen.
+// Shows the card beside the pin where it covers none of the HUD's cards (above, below, right, left, in that order) and
+// fits the screen; with no such side, where it covers the least. It's drawn above the HUD (css/50-phone.css), so a card
+// that has to cover something is still seen whole.
+const HUD_CARDS = '.mh-persona, .mh-house, .mh-swapback, .mh-clock, .mh-where, .mh-corner, .mh-event, .mh-people, .mh-acts, .mh-here, .mu-mapnav, .mu-hud, .mu-top';
 let popFor = '', hideTimer = 0;
 function showPop(pin, touch) {
     const mapEl = pin.closest('.mu-map');
@@ -138,26 +141,27 @@ function showPop(pin, touch) {
     pop.style.left = '0';
     pop.style.top = '0';
     pop.classList.add('is-open');
-    const pw = pop.offsetWidth, ph = pop.offsetHeight, gap = 14, topBar = 70;
-    const above = top - gap - ph >= topBar;
-    const below = bottom + gap + ph <= box.height - 8;
-    // too tall for above and below (a place with many jobs): beside the pin, so the pin can still be clicked
-    const side = !above && !below;
-    let x, y;
-    if (side) {
-        const right = cx + 26 + pw <= box.width - 8;
-        x = right ? cx + 26 : Math.max(8, cx - 26 - pw);
-        y = Math.max(topBar, Math.min(box.height - ph - 8, top - ph / 2));
-    }
-    else {
-        y = above ? top - gap - ph : bottom + gap;
-        x = Math.max(8, Math.min(box.width - pw - 8, cx - pw / 2));
-    }
+    const pw = pop.offsetWidth, ph = pop.offsetHeight, gap = 14, m = 8;
+    // the HUD's cards on screen, in the map's coordinates
+    const root = mapEl.closest('#' + ROOT_ID) ?? document;
+    const cards = [...root.querySelectorAll(HUD_CARDS)].filter(el => !el.contains(pin) && el.offsetParent !== null).map(el => el.getBoundingClientRect())
+        .filter(c => c.width > 0 && c.height > 0).map(c => ({ x: (c.left - b0.left) / zz, y: (c.top - b0.top) / zz, w: c.width / zz, h: c.height / zz }));
+    const covered = (x, y) => cards.reduce((n, c) => n + Math.max(0, Math.min(x + pw, c.x + c.w) - Math.max(x, c.x)) * Math.max(0, Math.min(y + ph, c.y + c.h) - Math.max(y, c.y)), 0);
+    const fits = (x, y) => x >= m && y >= m && x + pw <= box.width - m && y + ph <= box.height - m;
+    const midX = Math.max(m, Math.min(box.width - pw - m, cx - pw / 2)), midY = Math.max(m, Math.min(box.height - ph - m, top - ph / 2));
+    const sides = [
+        { kind: 'above', x: midX, y: top - gap - ph },
+        { kind: 'below', x: midX, y: bottom + gap },
+        { kind: 'side', x: cx + 26, y: midY },
+        { kind: 'side', x: cx - 26 - pw, y: midY }, // (beside the pin, so the pin can still be clicked)
+    ].map(c => ({ ...c, fit: fits(c.x, c.y), cover: covered(c.x, c.y) }));
+    const pick = sides.find(c => c.fit && !c.cover) ?? [...sides].sort((a, b) => Number(b.fit) - Number(a.fit) || a.cover - b.cover)[0];
+    const x = Math.max(m, Math.min(pick.x, box.width - pw - m)), y = Math.max(m, Math.min(pick.y, box.height - ph - m));
     pop.style.left = `${x}px`;
-    pop.style.top = `${Math.max(8, Math.min(y, box.height - ph - 8))}px`;
+    pop.style.top = `${y}px`;
     pop.style.setProperty('--ax', `${Math.max(16, Math.min(pw - 16, cx - x))}px`);
-    pop.classList.toggle('is-below', !side && !above);
-    pop.classList.toggle('is-side', side);
+    pop.classList.toggle('is-below', pick.kind === 'below');
+    pop.classList.toggle('is-side', pick.kind === 'side');
     // a card shown on hover has nothing to click: it never takes the click meant for the pin under it
     pop.style.pointerEvents = touch || loc === g.player.loc ? '' : 'none';
     pop.style.visibility = '';
