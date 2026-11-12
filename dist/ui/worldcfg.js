@@ -27,7 +27,7 @@ import { weekday } from '../sim/time.js';
 import { LAST_TRAIN_RULES, lastTrainRule } from '../sim/transit.js';
 import { tabHouseholds } from './households.js';
 import { houseRoomsHtml } from './newgame.js';
-import { openCreatorEdit, CW as CREATOR } from './creator.js';
+import { openCreatorEdit, openCreatorView, CW as CREATOR } from './creator.js';
 import { tabAiContext } from './aictx.js';
 import { warningsBanner } from './warnings.js';
 import { ACT, INPUT } from './reg.js';
@@ -296,8 +296,12 @@ function tabRules(g, w) {
     const list = (items) => `<div class="mu-chips">${items.map(x => `<span class="mu-chip">${esc(x)}</span>`).join('')}</div>`;
     const slider = (label, key, v, min, max, step, unit) => `<label class="mu-field slider"><span>${label} · ${v}${unit}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-input="wc-cfg" data-k="${esc(key)}"></label>`;
     const live = (c.clock ?? 'action') === 'live';
-    return `<section class="mu-wc-sec"><h4>${esc(w.name)}</h4><p>${esc(w.description)}</p><p class="mu-muted">Game mode: <b>${GAME_MODES.find(m => m.id === gameMode(w)).name}</b> (change it in the world creator).</p></section>
-        ${isScenario(w) ? `<section class="mu-wc-sec">${homeSettingsHtml(g)}</section>${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}<section class="mu-wc-sec"><h4>Rooms</h4>${list(w.places.map(p => p.name))}</section>` : `
+    // a list here is a summary; "In detail" opens the world creator on it, only to look (every field, nothing changes)
+    const head = (title, tab) => `<div class="mu-wc-sechead"><h4>${title}</h4><button class="mu-ghost" data-act="wc-view" data-tab="${tab}">${icon('book')}<span>In detail</span></button></div>`;
+    return `<section class="mu-wc-sec"><h4>${esc(w.name)}</h4><p>${esc(w.description)}</p><p class="mu-muted">Game mode: <b>${GAME_MODES.find(m => m.id === gameMode(w)).name}</b> (change it in the world creator).</p>
+            <button data-act="wc-view" data-tab="general">${icon('book')}<span>${isScenario(w) ? 'See everything about this Home' : 'See everything about this world'}</span></button>
+            <small class="mu-muted">Every part of it, as the world creator shows it: places, jobs and their careers, needs, things to do, courses, the shop… Only to look: nothing can be changed there.</small></section>
+        ${isScenario(w) ? `<section class="mu-wc-sec">${homeSettingsHtml(g)}</section>${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}<section class="mu-wc-sec">${head('Rooms', 'maps')}${list(w.places.map(p => p.name))}</section>` : `
         <section class="mu-wc-sec"><h4>Time</h4>
             <div class="mu-heropick is-start">
                 <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>Only with actions</b><p>The clock moves only when you do something: eat, drink, sleep, work, travel, or let time pass. Talking does not spend time.</p></button>
@@ -308,9 +312,9 @@ function tabRules(g, w) {
         ${relSection(g, w)}
         ${adultSettingHtml(g)}
         ${lifeSection(g, w)}
-        <section class="mu-wc-sec"><h4>Needs</h4>${list(activeStatuses(w, g).map(s => `${s.icon} ${s.name}`))}</section>
-        <section class="mu-wc-sec"><h4>Places</h4>${list(w.places.map(p => p.name))}</section>
-        <section class="mu-wc-sec"><h4>Jobs</h4><ul class="mu-lib-jobs">${w.occupations.map(o => `<li><b>${esc(o.name)}</b> <small>${o.ranks.map(r => esc(r.name)).join(' → ')}</small></li>`).join('')}</ul></section>
+        <section class="mu-wc-sec">${head('Needs', 'needs')}${list(activeStatuses(w, g).map(s => `${s.icon} ${s.name}`))}</section>
+        <section class="mu-wc-sec">${head('Places', 'maps')}${list(w.places.map(p => p.name))}</section>
+        <section class="mu-wc-sec">${head('Jobs', 'jobs')}<ul class="mu-lib-jobs">${w.occupations.map(o => `<li><b>${esc(o.name)}</b> <small>${o.ranks.map(r => esc(r.name)).join(' → ')}</small></li>`).join('')}</ul></section>
         ${WC.adv ? `<section class="mu-wc-sec"><h4>Advanced settings</h4>
             ${slider('Travel time', 'travel', c.travel ?? 1, 0.25, 3, 0.25, '×')}
             ${w.transit?.last !== undefined ? `<div class="mu-field"><span>After the last train</span><div class="mu-heropick is-start">${LAST_TRAIN_RULES.map(x => `<button class="mu-herocard ${lastTrainRule(g) === x.id ? 'is-on' : ''}" data-act="wc-lasttrain" data-v="${x.id}"><b>${x.name}</b><p>${x.desc}</p></button>`).join('')}</div></div>` : ''}
@@ -367,6 +371,8 @@ function tiesHtml(g, avatar) {
 Object.assign(ACT, {
     'wc-house-plan': () => { const g = game(); if (!g)
         return; openCreatorEdit(g.world); CREATOR.tab = 'maps'; notify(); },
+    'wc-view': (el) => { const g = game(); if (g)
+        openCreatorView(g.world, el.dataset.tab); },
     'open-world': () => { WC.back = state.view; state.view = 'worldcfg'; notify(); },
     'wc-back': () => { state.view = (WC.back === 'scene' ? 'scene' : 'map'); notify(); },
     'wc-memday': (el) => { const d = Number(el.dataset.d); const g = game(); const newest = g ? Math.max(...facts(g).map(f => Math.floor(f.at / 1440))) : d; const cur = MEMDAYS.has(d) ? MEMDAYS.get(d) : d === newest; MEMDAYS.set(d, !cur); notify(); },

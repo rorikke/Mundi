@@ -104,8 +104,8 @@ document.addEventListener('pointerdown', (e) => {
     e.preventDefault();
 });
 document.addEventListener('pointermove', (e) => {
-    if (!drag)
-        return;
+    if (!drag || CW.view)
+        return; // (only looking: a room is chosen, never moved)
     if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 3)
         return;
     drag.moved = true;
@@ -236,6 +236,8 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        if (CW.view)
+            return; // (a room off the plan is only placed when editing)
         plan.rooms = plan.rooms.filter(r => r.id !== id);
         const bed = id.startsWith('spot:');
         plan.rooms.push({ id, floor: PE.floor, ...freeSpot(plan, PE.floor), w: bed ? 16 : 22, h: bed ? 18 : 20 });

@@ -37,7 +37,7 @@ import { sceneHtml, afterScene, chatHtml } from './scene.js';
 import { worldCfgHtml } from './worldcfg.js';
 import { styleOf } from '../core/world.js';
 import { skinOf } from './skins.js';
-import { creatorHtml, CW } from './creator.js';
+import { creatorHtml, CW, viewRefuses, lockView } from './creator.js';
 const creatorWorld = () => CW.w ?? (CW.start ? getWorld(CW.start.base) ?? null : null);
 import { hudHtml, clock12, ampm } from './hud.js';
 import { libraryHtml, libraryEscape } from './library.js';
@@ -143,6 +143,7 @@ export function render() {
     main.querySelectorAll('[data-keep]').forEach(el => { keep[el.dataset.keep] = { top: el.scrollTop, h: el.scrollHeight, atEnd: el.scrollHeight - el.scrollTop - el.clientHeight < 40 }; });
     // only what changed is redrawn (morph), so nothing else on screen "resets"
     morph(main, `${body()}${inGame() ? hudHtml() + phoneHtml() + helpHtml() + coursesHtml() + journeyHtml() + rpgOverlays() + combatHtml() + audienceHtml() + arrestHtml() + diceHtml() : ''}${updateHtml()}${whatsNewHtml()}${tutorialHtml()}${state.busy ? `<div class="mu-busy"><i></i><span>${state.busy}…</span></div>` : ''}`);
+    lockView(main); // (the world creator opened only to look: its fields drawn disabled)
     {
         const g = game();
         rainAmbience(!!g && inGame() && (state.view === 'map' || state.view === 'scene') && weatherHere(g, getWorld(g.world)).rain);
@@ -264,7 +265,7 @@ function attach(r) {
         if (mapInput.click(e))
             return;
         const el = e.target.closest('[data-act]');
-        if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true')
+        if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || viewRefuses(el))
             return;
         const fn = ACT[el.dataset.act];
         if (fn)
@@ -279,7 +280,7 @@ function attach(r) {
             onComposerInput(el);
         }
         const name = el.dataset?.input;
-        if (name)
+        if (name && !viewRefuses(el))
             INPUT[name]?.(el, e);
     };
     r.addEventListener('input', onInput);
