@@ -7,7 +7,7 @@
 // Every gain goes through `pointsFor()` (sim/perks.ts), so perks with a `points` effect add their share. All of it
 // belongs to the `goals` system: with it off nothing is earned. Read with `??=` (no new schema).
 import { toast, adultOn } from '../core/store.js';
-import { systemOn, getWorld } from '../core/world.js';
+import { systemOn, getWorld, appsOf } from '../core/world.js';
 import { goalOf, GOAL_POINTS } from '../core/goals.js';
 import { pointsFor } from './perks.js';
 import { seasonDays } from './time.js';
@@ -56,6 +56,16 @@ export function spendPoints(g, n, why) {
     return true;
 }
 export const pointsLine = (n) => `+${n} life point${n === 1 ? '' : 's'}`;
+// Where points go, said with a gain until you've bought something, once a week at most (so a new player learns the
+// shop exists without every line saying it). `hinted`: the day it was last said.
+const HINT_EVERY = 7;
+function shopHint(g, w) {
+    const p = pointsState(g);
+    if (p.bought.length || !systemOn(w, 'goals') || (p.hinted !== undefined && g.day - p.hinted < HINT_EVERY))
+        return '';
+    p.hinted = g.day;
+    return ` · spend them in the ${appsOf(w).find(a => a.id === 'goals')?.name ?? 'Goals'} app's Rewards tab`;
+}
 /* ---------- the active goal ---------- */
 let skipping = false;
 /** While the rewards shop's "Skip a step" does its step, that step pays nothing (points would buy it back). */
@@ -73,14 +83,14 @@ export function payStep(g, w, goal, step, last) {
     const raw = skipping ? 0 : def?.steps[step]?.reward?.points ?? GOAL_POINTS.step;
     const n = credit(g, pointsFor(g, w, 'step', raw), `step:${goal}:${step}`);
     if (n)
-        out.push(pointsLine(n));
+        out.push(`${pointsLine(n)}${last ? '' : shopHint(g, w)}`);
     if (last) {
         const p = pointsState(g), twice = p.double.includes(goal);
         const m = credit(g, pointsFor(g, w, 'goal', GOAL_POINTS.goal * (twice ? 2 : 1)), `goal:${goal}`);
         if (twice)
             p.double = p.double.filter(x => x !== goal);
         if (m)
-            out.push(`${pointsLine(m)} for finishing it${twice ? ' (doubled)' : ''}`);
+            out.push(`${pointsLine(m)} for finishing it${twice ? ' (doubled)' : ''}${shopHint(g, w)}`);
     }
     return out;
 }
@@ -128,5 +138,5 @@ export function earn(g, w, source, key = '') {
     p.today.n += n;
     // (the log says whom a learned like was about, never the words)
     const why = source === 'learned' ? `learned:${key.split('>')[0]}` : key ? `${source}:${key}` : source;
-    return `${pointsLine(credit(g, n, why))}${SAID[source] ?? ''}`;
+    return `${pointsLine(credit(g, n, why))}${SAID[source] ?? ''}${shopHint(g, w)}`;
 }

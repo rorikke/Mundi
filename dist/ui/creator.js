@@ -484,6 +484,9 @@ function tabJobs(w) {
             <div class="mu-row2">${num('Extra pay at night (0.25: +25%)', `${p}.nightPay`, 0, 0.05)}${chk('The boss asks for overtime', `${p}.overtime`)}</div>
             <div class="mu-row2">${chk('Worked off-screen', `${p}.offScreen`, 'Away from every map during the shift')}${chk('Open to the player', `${p}.hireable`, '', true)}</div>
             <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, '', true)}${bounded('Months before the first shift (0–12; empty: from the next shift)', `${p}.startAfter`, 0, 12, 0.5)}</div>
+            ${bounded(INTERVIEW_LABEL, `${p}.interview`, -10, 10, 1)}
+            <span class="mu-cw-sub">Hired only with (one of these is enough; none: anyone)</span>
+            ${hireRows(p, o)}
             ${words('Kinds of job (tags, comma separated)', `${p}.tags`, 'Effects can aim at them: pay and performance in every job of a kind (adult-stage, nightwork).', 'nightwork')}
             <h4>Ranks and pay per hour</h4>
             ${rankRows(w, p, o)}
@@ -609,6 +612,13 @@ function eventsEditor(w, p, list, intro) {
 }
 // A job's tracks by gender (`Occupation.tracks`): one job, one listing, with its own ranks, pay, hours and gates for a
 // gender. What a track leaves empty is the job's own; its work events come on top of the job's.
+// A job's (or a track's) conditions to be hired, one of which is enough (an introduction, a gender, a top skill).
+function hireRows(q, x) {
+    const hire = x?.hire === undefined ? [] : Array.isArray(x.hire) ? x.hire : [x.hire];
+    return `${hire.map((_h, k) => `<div class="mu-row mu-cw-inline">${wayField(`Condition ${k + 1}`, Array.isArray(x.hire) ? `${q}.hire.${k}` : `${q}.hire`, 'holds: av_director_card')}<button class="mu-ghost mu-ibtn" data-act="cw-hire-del" data-path="${esc(q)}" data-k="${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="hire" data-path="${esc(q)}">${icon('plus')}<span>Add a condition</span></button>`;
+}
+const INTERVIEW_LABEL = 'Interview harder by (−10–10; 3 is about 15% less likely)';
 function trackEditor(w, o, p) {
     const tracks = o.tracks ?? {};
     const gs = gendersOf(w);
@@ -623,17 +633,17 @@ function trackEditor(w, o, p) {
     const yes = (b, d) => ((b ?? d) ? 'yes' : 'no');
     const courses = (w.catalogs.courses ?? []).map(c => [c.id, c.name]);
     const placeName = o.place ? (w.places.find(x => x.id === o.place)?.name ?? o.place) : '(none)';
-    const hire = t?.hire === undefined ? [] : Array.isArray(t.hire) ? t.hire : [t.hire];
     return `<h4>Tracks by gender</h4><p class="mu-muted">One job and one listing, with its own ranks, pay, hours and gates for a gender (the AV actor's track beside the actresses'). What a track leaves empty is the job's own; its work events come on top of the job's. A player whose gender has no track picks one of the open tracks once, when hired. Write a track for every gender that has one, even when it is the job as written.</p>
         <div class="mu-row mu-cw-inline mu-cw-tracks">${ids.map(id => `<button class="mu-chip ${id === g ? 'is-on' : ''}" data-act="cw-track" data-id="${esc(id)}">${esc(tracks[id]?.name || o.name)} <small>${esc(gname(id))}</small></button>`).join('') || '<small class="mu-muted">No tracks: the job is the same for everyone.</small>'}
             ${free.length ? `<label class="mu-field"><span>Add a track for</span><select data-input="cw-track-add" data-path="${esc(`${p}.tracks`)}"><option value="">(choose)</option>${free.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')}</select></label>` : ''}</div>
         ${t ? `<div class="mu-cw-path mu-cw-track">
             <div class="mu-row mu-cw-inline">${optTxt(`Name of this track (${esc(gname(g))}; empty: the job's)`, `${q}.name`, o.name)}<button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this track</span></button></div>
+            ${optTxt('What the job is called on this track (empty: its name)', `${q}.title`, o.name)}
             <span class="mu-cw-sub">Being hired</span>
             <div class="mu-row2">${sel('Open to the player', `${q}.hireable`, [['', `As the job (${yes(o.hireable, true)})`], ['true', 'Yes'], ['false', 'No']], 'tri')}${num(`A fee when hired (${esc(w.currency.symbol)}; waived by one of its courses)`, `${q}.fee`)}</div>
-            <span class="mu-cw-sub">Hired only with (one of these is enough; none: anyone)</span>
-            ${hire.map((_h, k) => `<div class="mu-row mu-cw-inline">${wayField(`Condition ${k + 1}`, Array.isArray(t.hire) ? `${q}.hire.${k}` : `${q}.hire`, 'holds: av_director_card')}<button class="mu-ghost mu-ibtn" data-act="cw-hire-del" data-path="${esc(q)}" data-k="${k}" title="Remove">${icon('x')}</button></div>`).join('')}
-            <button class="mu-ghost" data-act="cw-add" data-what="hire" data-path="${esc(q)}">${icon('plus')}<span>Add a condition</span></button>
+            <span class="mu-cw-sub">Hired only with (one of these is enough; none: as the job)</span>
+            ${hireRows(q, t)}
+            ${bounded(`${INTERVIEW_LABEL}; empty: the job's`, `${q}.interview`, -10, 10, 1)}
             ${courses.length ? `<div class="mu-field"><span>Courses it asks for (none picked: the job's)</span>${pairChips(courses, `${q}.courses`, true)}</div>` : ''}
             ${bounded('Months before the first shift (0–12; empty: the job\'s)', `${q}.startAfter`, 0, 12, 0.5)}
             <span class="mu-cw-sub">The work (empty: as the job)</span>
@@ -1282,11 +1292,11 @@ export function forSaving(w) {
     }
     return out;
 }
-// What the newer editors can leave that the engine would refuse: a track's hiring condition left empty, a boost whose
+// What the newer editors can leave that the engine would refuse: a job's or a track's hiring condition left empty, a boost whose
 // effects were all removed, an emptied pool of likes and limits. Nothing else is touched (an untouched world saves as it was).
 function tidyAdult(w) {
     for (const o of w.occupations ?? []) {
-        for (const t of Object.values(o.tracks ?? {})) {
+        for (const t of [o, ...Object.values(o.tracks ?? {})]) {
             if (!t || t.hire === undefined)
                 continue;
             if (Array.isArray(t.hire)) {

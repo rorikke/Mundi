@@ -24,7 +24,7 @@ import { eventsOn, liveEvents } from './cityevents.js';
 import { presentAt, routineAt, workingAt } from './people.js';
 import { visitsTo } from './daylife.js';
 import { levelOf, skillsOf } from './hobbies.js';
-import { fr, ro, statusOf, YOU } from './rel.js';
+import { fr, ro, statusOf, relOf, idOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
@@ -35,7 +35,7 @@ import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'track', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'];
+    'rank', 'track', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -144,6 +144,7 @@ function badValue(key, v) {
         case 'gave':
         case 'knows':
         case 'track':
+        case 'gender':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
@@ -342,6 +343,8 @@ function holds(g, w, key, v, x) {
             const j = g.player.job, o = j && w.occupations.find(o => o.id === j.id);
             return !!o && playerTrack(g, o) === v;
         }
+        // your gender (a gender id: woman, man, nonbinary, or one of the world's own)
+        case 'gender': return relOf(g).people[idOf(g, YOU)]?.gender === v;
         case 'start': return (g.player.start ?? g.player.origin) === v;
         case 'clock': return inClock(x.minutes, v);
         case 'stayed': {
@@ -575,7 +578,7 @@ function zoneOf(g, place, depth = 0) {
 // don't matter). A full name wins over a first name.
 const plain = (s) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 export function personNamed(g, name) {
-    const n = plain(name), all = Object.values(g.cast);
+    const n = plain(name), all = Object.values(g.cast ?? {});
     return all.find(r => plain(r.name ?? '') === n) ?? all.find(r => plain(r.name ?? '').split(/\s+/)[0] === n);
 }
 /** Is someone toward you at this level or closer (a friendship tier, a romance tier, a couple status)? Below Stranger,
