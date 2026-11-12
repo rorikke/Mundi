@@ -74,14 +74,14 @@ const color = (label: string, p: string) => `<label class="mu-field mu-cw-color"
 // `drop`: none picked leaves nothing in the file (a track's list left to the job's)
 const chips = (list: string[], p: string, drop = false) => { const on: string[] = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(x)}" ${drop ? 'data-drop="1"' : ''}>${esc(x)}</button>`).join('')}</div>`; };
 // A number held between two bounds as it is typed (a skill level 1–10, a share 0–1); a whole number when it steps by 1.
-const bounded = (label: string, p: string, lo: number, hi: number, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" ${step === 1 ? 'data-int="1"' : ''} data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
+export const bounded = (label: string, p: string, lo: number, hi: number, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" ${step === 1 ? 'data-int="1"' : ''} data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
 // (adult) The mark on what only plays with adult content on, so it's plain which parts of a world need it.
 const ADULT = '<em class="mu-cw-adult" title="Only with adult content on">Adult</em>';
 // A switch whose "off" leaves nothing in the file (no `false`), for the newer marks: a world that never had them gains none.
-const flag = (label: string, p: string, hint = '', adult = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="flag" data-path="${esc(p)}" ${getPath(p) ? 'checked' : ''}><span>${label}${adult ? ` ${ADULT}` : ''}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
+export const flag = (label: string, p: string, hint = '', adult = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="flag" data-path="${esc(p)}" ${getPath(p) ? 'checked' : ''}><span>${label}${adult ? ` ${ADULT}` : ''}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
 // Words separated by commas, or a text, where nothing typed leaves nothing in the file (an optional id, a job's tags).
-const words = (label: string, p: string, hint = '', ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
-const optTxt = (label: string, p: string, ph = '', hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+export const words = (label: string, p: string, hint = '', ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+export const optTxt = (label: string, p: string, ph = '', hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
 // One per line (likes, limits), kept as typed while typing; nothing typed leaves nothing in the file.
 const lines = (label: string, p: string, rows = 4, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-type="lines" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${esc((getPath(p) ?? []).join('\n'))}</textarea></label>`;
 // A choice that may be left to something else (a track's field left to the job's): `*` is "as the job", '' a value.
@@ -89,7 +89,7 @@ const inherit = (label: string, p: string, opts: [string, string][], from: strin
     return `<label class="mu-field"><span>${label}</span><select data-input="cw" data-type="inherit" data-path="${esc(p)}">${[['*', from] as [string, string], ...opts].map(([x, l]) => `<option value="${esc(x)}" ${on === x ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`; };
 // A condition in the grammar of sim/when.ts, checked as it is typed: what can't be read shows under it (such a condition
 // never holds in a game). `ok`: a value the reader of this field takes besides the grammar.
-const cond = (label: string, p: string, ph = '', hint = '', ok = '') => {
+export const cond = (label: string, p: string, ph = '', hint = '', ok = '') => {
     const v = getPath(p); const err = typeof v === 'string' && v !== ok ? whenError(v) : '';
     return `<label class="mu-field"><span>${label}</span><input data-input="cw-when" data-path="${esc(p)}" data-focus="${esc(p)}" ${ok ? `data-ok="${esc(ok)}"` : ''} value="${typeof v === 'string' ? esc(v) : ''}" placeholder="${esc(ph)}">
         <small class="mu-cw-err" ${err ? '' : 'hidden'}>${esc(err)}</small>${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
@@ -894,7 +894,7 @@ function branchEditor(w: WorldDef, o: WorldDef['occupations'][number], p: string
 const homeActionOpts = (w: WorldDef): [string, string][] => w.actions.filter(a => a.home).map(a => [a.id, a.label || a.name] as [string, string]);
 // Chips over numbers (weekdays 0–6): the picked ones are kept as numbers; none picked leaves nothing.
 const numChips = (opts: [string, string][], p: string) => { const on: number[] = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(Number(v)) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" data-num="1" data-drop="1">${esc(l)}</button>`).join('')}</div>`; };
-const pairChips = (opts: [string, string][], p: string, drop = false) => { const on: string[] = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" ${drop ? 'data-drop="1"' : ''}>${esc(l)}</button>`).join('')}</div>`; };
+export const pairChips = (opts: [string, string][], p: string, drop = false) => { const on: string[] = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" ${drop ? 'data-drop="1"' : ''}>${esc(l)}</button>`).join('')}</div>`; };
 // A world made before free expenses gets its water and power written out, so they can be edited like any other.
 function ensureExpenses(w: WorldDef) {
     if (w.homes.expenses) return;
