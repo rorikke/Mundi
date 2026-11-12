@@ -11,6 +11,7 @@ import { applyStartFeel, addOldTie } from './startfeel.js';
 import { liveTogether } from './living.js';
 import { hobbyXp, LEVELS, MAX_LEVEL } from './hobbies.js';
 import { YOU } from './rel.js';
+import { enrollDegree, findDegree } from './degrees.js';
 
 export const CUSTOM_START = 'custom';
 /** The world's own starts (for this save's adult setting when one is given). */
@@ -40,6 +41,9 @@ export function cleanStart(raw: any): StartDef | null {
     const skills = Object.entries(raw.skills ?? {}).filter(([k, v]) => k && Number.isFinite(Number(v))).map(([k, v]) => [k.slice(0, 40), Math.max(0, Math.min(MAX_LEVEL, Math.round(Number(v))))]);
     if (skills.length) s.skills = Object.fromEntries(skills);
     if (raw.adult === true) s.adult = true;
+    const degree = line(raw.degree, 80); if (degree) s.degree = degree;
+    if (raw.scholarship === true) s.scholarship = true;
+    if (raw.anyHome === true) s.anyHome = true;
     return s;
 }
 function cleanKnown(raw: any): StartKnown | null {
@@ -94,8 +98,13 @@ export function withStartTraits(w: WorldDef, traits: Record<string, string[]>, s
 }
 /** What a start gives once the save and its people exist: its job, skill levels, the people you know (feelings or
  *  family, met), the household you live with. Your own choices in the new game come after and win. */
-export function applyStart(g: Save, w: WorldDef, start: StartDef | undefined) {
+export function applyStart(g: Save, w: WorldDef, start: StartDef | undefined, degree?: string) {
     if (!start) return;
+    // enrolled from day one: the start's degree, or another of the same school picked in the new game
+    if (start.degree && findDegree(w, start.degree)) {
+        const pick = degree && findDegree(w, degree)?.inst.id === findDegree(w, start.degree)!.inst.id ? degree : start.degree;
+        enrollDegree(g, w, pick, { scholarship: !!start.scholarship, quiet: true });
+    }
     g.player.start = start.id;
     if (start.premise?.trim()) g.player.premise = start.premise.trim().slice(0, 4000);
     // the start's rent, only in its own home (a home picked in the new game pays its own)

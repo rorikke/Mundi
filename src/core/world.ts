@@ -128,6 +128,9 @@ export const placeIs = (p: { id: string; name: string; tags?: string[]; roles?: 
 export interface HomeZone {
     id: string; name: string; map: string; kind: string; rent: number; desc?: string;
     spots: [number, number][];
+    /** A home a student can live in (a share house, a dorm, cheap rooms): while you study for a degree, only these, unless
+     *  your start's family pays (`StartDef.anyHome`). Read by sim/degrees.ts. */
+    student?: boolean;
 }
 export interface StatusDef {
     id: string; name: string; icon: string; color: string; start: number; max: number; hud?: boolean;
@@ -257,6 +260,11 @@ export interface Course {
     length?: number; at?: string; when?: When; needs?: When; perSeason?: boolean; retired?: boolean; aid?: CourseAid[];
     /** Only with adult content on: otherwise not offered, no aid and no boss's message, and one being taken is on hold. */
     adult?: boolean;
+    /** A module of a degree (sim/degrees.ts): taken only as part of that degree, for one term (its classes run to the
+     *  term's end), graded A–F; not in the courses window, no fee of its own (the degree's tuition pays), not counted in
+     *  "two at once". `term`: offered from this term of the degree on (1 when missing); `core`: required to graduate;
+     *  `study`: hours of coursework a week it asks for (3 when missing). */
+    degree?: string; term?: number; core?: boolean; study?: number;
 }
 export interface Origin {
     id: string; name: string; desc?: string; money: number; home?: string; knows?: number;
@@ -321,6 +329,9 @@ export interface Occupation {
     /** Course ids needed to be hired (sim/courses.ts): finished, or being taken when the first rank is a `student` one.
      *  (J3) `skills`: skill levels needed to be hired. */
     courses?: string[]; skills?: Record<string, number>;
+    /** Degrees it wants (sim/degrees.ts): one of these held to be hired (a degree's id is its credential, in
+     *  `learning.done` once you graduate). */
+    degree?: string[];
     /** (J1) When it's worked; missing: whenever the place is open, as before (see Schedule). */
     schedule?: Schedule;
     /** (J4) How long the top takes compared with the average career (1: about a game year at 1×; a konbini clerk 0.5,
@@ -692,7 +703,10 @@ export interface WorldDef {
  *  you live with this household of the world's people (their `household` id), in your home. `rent`: the weekly rent you
  *  pay in the start's home instead of the home's own (a share of a family house), until you move. Made from an origin (an
  *  older world), a start has the origin's id, and the origin still gives what only it has (RPG skills, "knows N"). */
-export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; rent?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean; household?: string }
+export interface StartDef { id: string; name: string; desc?: string; premise: string; home?: string; money?: number; rent?: number; job?: string; knows?: StartKnown[]; traits?: string[]; skills?: Record<string, number>; default?: boolean; adult?: boolean; household?: string;
+    /** Enrolled from the first day in this degree (the new game may let you pick another of the same school's);
+     *  `scholarship`: its tuition paid while your grades hold; `anyHome`: family money, so a student may live in any home. */
+    degree?: string; scholarship?: boolean; anyHome?: boolean }
 export interface StartKnown extends FeelParts { name: string; family?: FamilyType }
 /** (J3) A skill. */
 export interface SkillDef { id: string; name: string; icon?: string; desc?: string;
@@ -769,6 +783,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'journal', name: 'Journal', icon: 'book', color: '#8e6cf0', on: true },
     { id: 'shop', name: 'Shop', icon: 'wallet', color: '#16c79a', on: true },
     { id: 'goals', name: 'Goals', icon: 'star', color: '#ffb02e', on: true },
+    { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -800,7 +815,9 @@ export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'craftin
     'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
-export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+// (the Campus app only where a school offers degrees)
+const hasDegrees = (w: WorldDef) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
+export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';
@@ -907,7 +924,17 @@ export interface HazardDef { id: string; name: string; desc?: string; climate: s
 /** A school with a ladder (sim/institutions.ts). `skill`: in Life-Sim, what each lesson trains a little, where the
  *  world has that skill; in the RPG, what five lessons make you trained in. `trait`: what six lessons give in Life-Sim
  *  when the world has no such skill. */
-export interface InstitutionDef { id: string; name: string; place: string; ranks: string[]; tuition?: number; skill?: string; trait?: string; examEvery?: number; clubs?: string[]; desc?: string }
+export interface InstitutionDef { id: string; name: string; place: string; ranks: string[]; tuition?: number; skill?: string; trait?: string; examEvery?: number; clubs?: string[]; desc?: string;
+    /** Degrees you study for over terms (sim/degrees.ts). A school with degrees has no weekly exams or ladder to enroll in
+     *  (someone already on the ladder keeps it until they choose a degree). */
+    degrees?: DegreeDef[] }
+/** A degree (sim/degrees.ts): modules (`Course.degree`) taken over `terms` terms of a season each, `perTerm` [least,
+ *  most] at once, chosen each term; `credits` modules passed to graduate (missing: terms × least), every `core` one among
+ *  them; a term's grade point average under `minGpa` is a weak term. `tuition` is paid each term (`aid` like a course's);
+ *  the finals roll `skills` (the module's own skills first). `workCap`: shifts a week while enrolled. A distinguished
+ *  degree (GPA 3.5 or better) starts you a rank up in the jobs in `gives.jobs`. */
+export interface DegreeDef { id: string; name: string; desc?: string; terms?: number; perTerm?: [number, number]; credits?: number; minGpa?: number;
+    tuition?: number; aid?: CourseAid[]; skills?: string[]; workCap?: number; gives?: { jobs?: string[] } }
 export interface FactionDef { id: string; name: string; kind: string; desc?: string; hq?: string; region?: string; ranks: string[]; allies?: string[]; rivals?: string[]; beats?: string; dues?: number; quota?: number; jobs?: string[]; secret?: boolean; joinRep?: number }
 export type Government = 'monarchy' | 'fractured' | 'empire' | 'republic' | 'theocracy' | 'council';
 export type PowerAffinity = 'balanced' | 'military' | 'arcane' | 'trade' | 'faith';
@@ -965,7 +992,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'factions', name: 'Factions and guilds', desc: 'no guilds, orders, gangs or kingdoms to join or lead.', apps: ['factions'], blocks: [] },
     { id: 'legends', name: 'Legends', desc: 'your deeds never become tales that travel and grow.', apps: [], blocks: [] },
     { id: 'talents', name: 'Talent trees', desc: 'no talents to choose when you level up (RPG).', apps: [], blocks: [], tag: 'rpg' },
-    { id: 'institutions', name: 'Schools and academies', desc: 'no schools to enroll in, no exams or clubs.', apps: [], blocks: [] },
+    { id: 'institutions', name: 'Schools and academies', desc: 'no schools to enroll in, no exams, clubs or degrees.', apps: ['campus'], blocks: [] },
     { id: 'trade', name: 'Trade and smuggling', desc: 'no goods to buy and sell between towns, no contraband.', apps: [], blocks: [] },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },

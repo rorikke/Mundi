@@ -16,7 +16,9 @@ import { ACT, INPUT } from './reg.js';
 /** A start being written: the start's own fields, and (new game) the lorebooks its premise is written from. `from`: the
  *  name of the start it was copied from; its traits, household and adult mark come along as they are. */
 export interface StartDraft { id?: string; name: string; premise: string; home?: string; money?: number | string; rent?: number | string; job?: string; knows: StartKnown[];
-    skills?: Record<string, number>; traits?: string[]; household?: string; adult?: boolean; from?: string; books?: string[]; bq?: string; busy?: boolean; savedId?: string }
+    skills?: Record<string, number>; traits?: string[]; household?: string; adult?: boolean; from?: string; books?: string[]; bq?: string; busy?: boolean; savedId?: string;
+    /** kept from the start it was copied from (enrolled in a degree, its scholarship, family money for homes) */
+    degree?: string; scholarship?: boolean; anyHome?: boolean }
 /** A start copied into a draft to change it (its id isn't kept: saved, it becomes a start of your own). */
 export const draftOf = (s: StartDef): StartDraft => {
     const c: StartDef = JSON.parse(JSON.stringify(s));

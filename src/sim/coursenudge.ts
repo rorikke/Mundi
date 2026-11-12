@@ -15,7 +15,7 @@ import { seasonDays } from './time.js';
 import { textFrom, social } from './social.js';
 import { whenHolds } from './when.js';
 import { myJob, nextRankOf, careerOf, bossOf, rankDays, PROMO_PERF, trackOf } from './work.js';
-import { courseOf, adultHeld, hasCourse, isTaking, learning, spanOf, factsOf, whereWords, type WorkMsg } from './courses.js';
+import { courseOf, adultHeld, hasCourse, isTaking, learning, spanOf, factsOf, whereWords, missingDegree, type WorkMsg } from './courses.js';
 import type { Resident } from '../core/store.js';
 
 /** Messages kept in the work app per save (the newest). */
@@ -86,7 +86,11 @@ export function aheadCourse(g: Save, w: WorldDef, o: Occupation): { rank: string
 /** What the work screen says when a job turns you away for a course: the way in, if its first rank is a student's. */
 export function needCourseText(g: Save, w: WorldDef, o: Occupation, missing: string[]): string {
     o = trackOf(g, o);
-    const base = lex(w, 'needCourse', missing.join('", "'));
+    // a degree the job wants is said on its own (it's studied for over terms, not a course you sign up for here)
+    const deg = missingDegree(g, w, o), rest = missing.filter(m => !deg.includes(m));
+    const degText = deg.length ? `They want a degree: ${deg[0].replace(/ \(a degree\)$/, '')}. Degrees are studied for at a university (the Campus app).` : '';
+    if (!rest.length) return degText;
+    const base = `${lex(w, 'needCourse', rest.join('", "'))}${degText ? ` ${degText}` : ''}`;
     const ids = ((o as any).courses ?? []) as string[];
     const open = ids.map(id => courseOf(w, id)).find(c => c && !c.retired && !hasCourse(g, c.id) && (!c.needs || whenHolds(g, w, c.needs)));
     if (o.ranks[0]?.student && open) return `${base} But you can start as ${o.ranks[0].name} while you study: enroll in ${open.name} (${whereWords(g, w, open)}) first.`;

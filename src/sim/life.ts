@@ -4,6 +4,7 @@
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { takingNow, studyBlock, studySession, payDue, learning, CLASS_MINUTES } from './courses.js';
 import { countUp } from './skills.js';
+import { courseworkAction, addCoursework } from './degrees.js';
 import { priceOf } from './bills.js';
 import type { WorldDef, ActionDef, StatusDef } from '../core/world.js';
 import { systemOn, isScenario } from '../core/world.js';
@@ -104,7 +105,7 @@ const blocked = (g: Save, w?: WorldDef | null) => new Set(!systemOn(w, 'breakdow
 /* ---------- actions the engine adds ---------- */
 
 const x = (a: Partial<ActionDef> & { id: string; label: string }): ActionDef => ({ name: a.label, cost: 0, minutes: 60, effects: {}, ...a } as ActionDef);
-// Only what comes from the game's own state: paying to fix what broke, and studying the course you take.
+// Only what comes from the game's own state: paying to fix what broke, studying the course you take, a degree's coursework.
 export function extraActions(g: Save, w: WorldDef): ActionDef[] {
     const out: ActionDef[] = [];
     if (g.player.loc === playerHomeId) for (const b of life(g).broken) out.push(x({ id: `x-repair-${b}`, label: `Pay someone to fix ${thing(w, b)}`, icon: '🧰', minutes: 60, cost: Number((w.homes as any).repairCost ?? 0), effects: {} }));
@@ -114,6 +115,8 @@ export function extraActions(g: Save, w: WorldDef): ActionDef[] {
         const due = learning(g).due[cur.id] ?? 0;
         if (due > 0 && g.player.money >= due) out.push(x({ id: `x-coursefee-${cur.id}`, label: `Pay what you owe for ${cur.name}`, icon: '💳', minutes: 5, effects: {} }));
     }
+    // a degree's coursework, where you can study
+    const work = courseworkAction(g, w); if (work) out.push(work);
     return out;
 }
 // Which world actions are blocked by something broken at home.
@@ -127,6 +130,7 @@ export function afterAction(g: Save, w: WorldDef, a: ActionDef, success: boolean
     if (a.id === 'fix' && success && l.broken.length) { const b = l.broken.shift()!; out.push(`You fixed ${thing(w, b)}.`); }
     if (a.id.startsWith('x-study-')) out.push(...studySession(g, w, a.id.slice(8)));
     if (a.id.startsWith('x-coursefee-')) { const t = payDue(g, w, a.id.slice(12)); if (t) out.push(t); }
+    if (a.id === 'x-coursework') out.push(...addCoursework(g, w, a.minutes));
     if (a.id === 'cook') countUp(g, 'meals');
     if ((a.id === 'x-workout' || a.id === 'x-treadmill') && success) countUp(g, 'workouts');
     if (a.id === 'x-paint' && success) countUp(g, 'paintings');

@@ -4,6 +4,7 @@ import { getWorld, appsOf, styleOf, isScenario, systemOn, type WorldDef } from '
 import { lex, appRef } from '../core/lexicon.js';
 import { GOAL_POINTS } from '../core/goals.js';
 import { DAILY_CAP } from '../sim/points.js';
+import { degreesOffered } from '../sim/degrees.js';
 import { billList as bills } from '../sim/bills.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
@@ -160,6 +161,15 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['A perk', 'Finishing a goal gives a perk: a small change to the game\'s numbers that lasts for good (lower prices, energy that lasts longer, a bonus on rolls). A goal gives a perk, not a trait: traits are who you are. Your perks are in the Goals app and on your profile; when two touch the same thing, percentages multiply and flat bonuses add.'],
             ['Life points', `Each step of your goal gives life points (${GOAL_POINTS.step}), and finishing it more (${GOAL_POINTS.goal}). Festivals and city events (the first time each year), street stories, secrets and storylines you followed give a few too, up to ${DAILY_CAP} a day.`],
             ['Rewards', 'Spend life points in the Goals app\'s Rewards tab: a lucky day, energy full now, a nudge in how someone feels about you, a fresh start with someone, a trait swapped… Each shows its price and how often it can be used; some only work in certain places, and a world may have its own.'],
+        ] }] : []),
+    ...((w && degreesOffered(w).length) ? [<Topic>{ id: 'university', icon: 'book', title: 'University', intro: `Study for a degree at a university, like in The Sims: enroll ${appRef(w, 'campus')}, take a few modules each term (a term is a season) and graduate.`,
+        items: [
+            ['Terms and modules', "Each term you take two or three of the degree's modules (the required ones are marked); choose next term's in the last week of this one. A module's classes are on campus on set weekdays: go to them (Study, in the things to do there)."],
+            ['Coursework', 'Each module asks for a few hours of coursework a week: Coursework at home, or studying in a library or a quiet room. Each hour goes to the module furthest behind.'],
+            ['Grades', "When the term ends every module gets a grade, A to F: attendance, coursework and the final (a roll on its skill). A term's grade point average (GPA) under the minimum is a weak term: two put you on probation, three and you are out. An F is taken again in a later term."],
+            ['Money', "Tuition is paid each term; a scholarship pays it while each term's GPA holds, and a weak term takes it away. Unpaid tuition holds your classes until you pay it in the Campus app."],
+            ['Being a student', "While you study you work a few shifts a week at most and rent only student homes (unless your family pays). Some jobs and ranks want a degree; you can join one of the school's clubs too."],
+            ['Graduating', 'Pass enough modules, every required one among them, and you graduate: a degree jobs ask for, life points, and with a GPA of 3.5 or more a distinguished degree that starts you a rank up in related jobs.'],
         ] }] : []),
     { id: 'journal', icon: 'book', title: 'Memory and the diary', intro: 'Mundi remembers in short facts ("You met Bianca at the café"). The AI gets only the facts of the people in the scene.',
         items: [

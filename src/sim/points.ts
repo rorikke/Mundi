@@ -88,6 +88,17 @@ export function payStep(g: Save, w: WorldDef, goal: string, step: number, last: 
 }
 onGoalStep.push(payStep);
 
+/** Points for a milestone outside life goals (graduating: sim/degrees.ts), once per key and outside the day's cap.
+ *  Returns the line to show ('' when nothing was paid). */
+export function milestonePoints(g: Save, w: WorldDef | null | undefined, n: number, key: string, why: string): string {
+    if (!w || !systemOn(w, 'goals')) return '';
+    const p = pointsState(g);
+    if (p.kinds.includes(key)) return '';
+    p.kinds.push(key);
+    const got = credit(g, n, key);
+    return got ? `${pointsLine(got)} ${why}${shopHint(g, w)}` : '';
+}
+
 /* ---------- second sources ---------- */
 
 // A like or a hard limit of someone's learned (sim/intimacy.ts `learn()`, whoever called it: a great night, a limit met,
