@@ -60,6 +60,7 @@ import { holdingsActs } from './holdingsui.js';
 import { adventureActs } from './adventureui.js';
 import { rpgOf } from '../core/rpgdef.js';
 import { afterglow, DESIRE } from '../sim/drive.js';
+import { toastLogHtml } from './toastlog.js';
 /* ---------- you ---------- */
 // Health and energy are bars; the other needs are round badges. A world can choose with `hudKind`.
 const isBar = (s) => (s.hudKind ? s.hudKind === 'bar' : ['life', 'health', 'energy'].includes(s.id));
@@ -148,6 +149,7 @@ function corner(g, w) {
             ${isScenario(w) && isOuting(g.player.loc) ? `<button data-act="out-bg-open">${icon('image')}<span>Background</span></button>` : ''}
             ${isScenario(w) ? `<button data-act="res-open">${icon('users')}<span>Who lives here</span></button>` : ''}
             ${isScenario(w) ? `<button data-act="sc-open" data-v="persona"><span class="mh-drawer-mew"><img class="mh-drawer-me" src="${esc(personaThumb())}" alt=""></span><span>Your persona<small data-notr>${esc(personaName())}</small></span></button>` : ''}
+            <button data-act="log-open">${icon('bell')}<span>Log</span></button>
             <button data-act="hud-look">${icon('palette')}<span>Chat look</span></button>
             <button data-act="open-settings">${icon('gear')}<span>Settings</span></button>
             <button data-act="to-menu" data-sfx="back">${icon('back')}<span>Main menu</span></button></nav>` : ''}
@@ -305,7 +307,7 @@ export function hudHtml() {
     if (!g || !w)
         return '';
     // Home: no card of your own (no money, no needs); your persona is in the menu, as in a chat
-    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}`;
+    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}`;
 }
 Object.assign(ACT, {
     'quest-step': (el) => {

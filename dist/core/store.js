@@ -2,7 +2,7 @@
 //  - settings(): Mundi's own settings, saved by SillyTavern (interface preferences, the list of games);
 //  - game(): the current save, stored INSIDE the open group chat's metadata (the save is the chat itself);
 //  - state: this session only (open screens, selection, drafts), never saved.
-import { ctx } from '../st/bridge.js';
+import { ctx, selectedGroup } from '../st/bridge.js';
 export const EXT = 'mundi';
 export const ROOT_ID = 'mundi-root';
 // Phones: 'port' (upright: the HUD stacks in rows over the dialogue box), 'land' (sideways: the HUD on the left half, the dialogue box on the right), '' (a computer).
@@ -136,7 +136,48 @@ export function notify() {
 }
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
 export const asset = (f) => new URL(`../../assets/${f}`, import.meta.url).href;
+/** This session's notices, oldest first (never saved: the Log is for reading back what went by too fast). */
+export const toastLog = [];
+const LOG_MAX = 300;
+let onLogged = null;
+export const watchToastLog = (fn) => { onLogged = fn; };
+// How long a notice stays once its turn comes: a moment to notice it, then about 15 characters a second.
+const readMs = (text) => Math.min(20000, Math.max(4000, 1500 + text.length * 65));
+const live = [];
+const SHOWN = 6;
+function armToast(n, wait) {
+    clearTimeout(n.t1);
+    clearTimeout(n.t2);
+    n.t1 = window.setTimeout(() => n.el.classList.add('is-out'), wait);
+    n.t2 = window.setTimeout(() => dropToast(n), wait + 400);
+}
+function dropToast(n) {
+    clearTimeout(n.t1);
+    clearTimeout(n.t2);
+    n.el.remove();
+    const i = live.indexOf(n);
+    if (i < 0)
+        return;
+    live.splice(i, 1);
+    if (i === 0)
+        nextToast();
+}
+function nextToast() {
+    while (live[0] && !live[0].el.isConnected)
+        live.shift(); // (Mundi's screen was rebuilt meanwhile)
+    const h = live[0];
+    if (!h || h.on)
+        return;
+    h.on = true;
+    if (!h.hover)
+        armToast(h, h.ms);
+}
 export function toast(msg, kind = 'info', o = {}) {
+    const g = game();
+    toastLog.push({ msg, kind, source: o.source, title: o.title, at: Date.now(), ...(g ? { gid: selectedGroup() ?? undefined, day: g.day, min: g.minutes } : {}) });
+    if (toastLog.length > LOG_MAX)
+        toastLog.splice(0, toastLog.length - LOG_MAX);
+    onLogged?.();
     const host = document.getElementById('mundi-toasts');
     if (!host) {
         console.log('[Mundi]', msg);
@@ -157,17 +198,19 @@ export function toast(msg, kind = 'info', o = {}) {
     x.title = 'Close';
     x.setAttribute('aria-label', 'Close');
     x.textContent = '✕';
-    x.addEventListener('click', (e) => { e.stopPropagation(); el.remove(); });
     el.appendChild(x);
     host.appendChild(el);
     globalThis.__muSfx?.(kind === 'error' ? 'error' : kind === 'success' ? 'success' : 'info');
-    const ms = o.ms ?? 3600;
-    let t1 = 0, t2 = 0;
-    const arm = (wait) => { t1 = window.setTimeout(() => el.classList.add('is-out'), wait); t2 = window.setTimeout(() => el.remove(), wait + 400); };
-    el.addEventListener('mouseenter', () => { clearTimeout(t1); clearTimeout(t2); el.classList.remove('is-out'); });
-    el.addEventListener('mouseleave', () => arm(1500));
-    el.addEventListener('click', () => el.remove());
-    arm(ms);
+    const n = { el, ms: Math.max(o.ms ?? 0, readMs(`${o.title ?? ''} ${msg}`)), t1: 0, t2: 0, on: false, hover: false };
+    live.push(n);
+    x.addEventListener('click', (e) => { e.stopPropagation(); dropToast(n); });
+    el.addEventListener('mouseenter', () => { n.hover = true; clearTimeout(n.t1); clearTimeout(n.t2); el.classList.remove('is-out'); });
+    el.addEventListener('mouseleave', () => { n.hover = false; if (n.on)
+        armToast(n, 1500); });
+    el.addEventListener('click', () => dropToast(n));
+    while (live.length > SHOWN)
+        dropToast(live[0]);
+    nextToast();
 }
 export function busy(label, job) {
     state.busy = label;

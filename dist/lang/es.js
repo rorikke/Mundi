@@ -7578,5 +7578,7 @@ const DICT = {
     "🎁 New keepsake": "🎁 Nuevo recuerdo",
     "Listed": "En orden",
     "Interview chance": "Probabilidad en la entrevista",
+    "Log": "Registro",
+    "Nothing here yet. Notices that pop up while you play are kept here until you close SillyTavern.": "Nada por aquí todavía. Los avisos que aparecen mientras juegas se guardan aquí hasta que cierres SillyTavern.",
 };
 export default DICT;
