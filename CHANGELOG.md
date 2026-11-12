@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.3.4 · 2026-11-12
+
+Training together: the people you know can teach you what they're good at, you can teach them, or you trade lessons,
+all agreed in conversation. It replaces apprentices. Tokyo gets a Streamer job, and the city is easier to find your way
+in: a Find button on the map, where to practise each skill, and notices you can read again. Your saves are upgraded once
+(save format 6), with a backup kept in the save.
+
+### Training together
+
+- **Teach, be taught, or trade.** Someone who is good at something (level 6 or more, three levels above the learner)
+  can teach it: a friend teaching you, you teaching a friend, or an exchange, each teaching the other (a Tokyo native
+  teaching you Japanese while you help with their English). With someone who feels like a Friend or closer, two at a
+  time.
+- **Agreed in conversation.** Suggest it in your own words; after their reply the AI says whether they agreed, choosing
+  only among what the rules allow. Yes starts it; no means it won't come up with them for four weeks, and it's a little
+  awkward. Rarely, someone who'd make a good match is nudged to offer it if the talk turns that way, and characters may
+  offer on their own: an offer comes as a card, Accept or Not now, and your answer goes to the scene.
+- **Sessions** are an hour together, twice a week, from the things to do: the learner gains by the gap between you, up
+  to a level below the teacher (Japanese 1 to 4 in about two and a half weeks with Chloe), and each one brings you
+  closer. Two weeks without one and it lapses. The Profile lists your arrangements; adult skills are never taught this
+  way.
+- **Tokyo's 30 people are good at things of their own** (Genzō cooks at 10, Kyōko mixes drinks at 9, Natsuki games at
+  9), on top of their languages and what their job asks. The World creator sets it for anyone.
+- **Apprentices are gone,** in every world: an apprentice who had finished stays as a former apprentice; one halfway
+  through (learning a trait) is dropped. The **Mentor** life goal counts teaching now, and Tokyo offers it.
+
+### Tokyo
+
+- **Streamer,** a new job: anyone can start streaming from their room, for very little at first (¥600 an hour). Then
+  choose: games and chatting, slow to climb and poorly paid, toward esports or talk streams; or, with adult content on,
+  adult streams, better paid from the start, toward a fan page of your own or a live studio. The adult path is open to
+  women; anyone else needs Airi or Momo as a friend, or Sensuality 7.
+- **Career paths can ask for something** (shown closed with why), be adult-only, carry tags of their own and take longer
+  or shorter; the World creator edits it all.
+
+### Finding your way
+
+- **The map has a Find button:** type part of a name to list every matching place on every map, with its district and
+  the trip there, then show it on the map or go.
+- **Where to practise.** Things to do show the skill they train; each skill on the Profile lists where to practise it,
+  when each place offers it and what it waits for (evenings, once a day, a friend, being a regular). An action that
+  rolls a skill trains it.
+- **Notices** stay on screen as long as they need and count down one at a time; the ☰ menu has a Log of every notice
+  of the session.
+- **Cards that come to you show one at a time** (a plan coming up, then a street story, an invitation or a happening,
+  then a chance meeting), and a meeting you leave without answering stays behind.
+- **The Jobs app sorts its openings** by pay, interview chance, where or days a week.
+- **Updates:** the main menu checks for new commits on Mundi's branch through SillyTavern's extension manager and
+  offers to update and reload.
+
+### Fixes
+
+- The map's card opens on a side of the pin clear of the HUD, and the things to do run down to whatever is under them.
+- A character's menu is drawn above the chat box and the HUD's bars, so none of its buttons are hidden.
+- The scene's text box has its padding back.
+- Say sends a line that already quotes what's said as written, instead of wrapping it all in quotes.
+- Everything new in Portuguese and Spanish.
+
 ## 0.3.3 · 2026-11-12
 
 A university to study at, and a Tokyo that makes you work for it: harder job interviews, less money to start with,

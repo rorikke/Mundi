@@ -8,7 +8,7 @@ It is a SillyTavern **extension** (no server plugin). Everything is built on wha
 
 ## What this fork adds
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.3**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.4**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
 
 ### A new world: Tokyo
 
@@ -19,7 +19,7 @@ Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and K
 - **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map.
 - **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 30 people have a portrait and 28 expressions.
 - **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
-- **Life there.** 45 jobs with their ranks, drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner.
+- **Life there.** 45 jobs with their ranks (a Streamer among them: start from your room and choose your kind of stream), drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner, which a language exchange with a friend helps with.
 - **Seven starts** to begin from, and 71 small stories at the places.
 
 | | | |
@@ -64,6 +64,7 @@ More on each in **[Other improvements in this fork](docs/improvements.md)**.
 - **Outfits from the game.** With adult content on, the people in a private moment wear their "naked" outfit and dress again after; a world's people can bring outfits of their own. With it off, adult actions stay hidden everywhere.
 - **A World creator that edits everything.** Every field of the built-in worlds, Tokyo included, can be changed in the World creator: lore, rolls and outcomes, street stories, starts, keepsakes, people's appointments and storylines, weather, trains, places' hours and pictures. [More on it](docs/improvements.md#the-world-creator-and-the-new-game).
 - **Your own additions to a built-in world.** A file in SillyTavern's user files (`mundi-overlay-<world id>.json`) adds places, people, actions, lore and pictures to a built-in world when it loads, without touching the world itself (the format is at the top of `src/core/overlay.ts`).
+- **Easier to find your way.** The map's Find button lists every place matching a name, with its district and the trip there; each skill on the Profile says where to practise it and when; notices count down one at a time and stay in a Log (☰ menu); the cards that come to you show one at a time; the Jobs app sorts its openings; and the main menu tells you when Mundi has an update. [More on it](CHANGELOG.md#034--2026-11-12).
 - **New pictures reach your cards.** When a world updates a character's expressions or outfits, cards made before get them too.
 - **Pictures that follow the weather and the season,** expression sprites in any format, and everything in Portuguese and Spanish.
 

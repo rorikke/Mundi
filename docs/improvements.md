@@ -11,6 +11,7 @@ point of view, and grows as new ones arrive.
 - [Tokyo's adult progression](#tokyos-adult-progression)
 - [Owing rent](#owing-rent)
 - [University](#university)
+- [Training together](#training-together)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
