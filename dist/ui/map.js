@@ -12,7 +12,7 @@ import { startInScene, finishFirst } from './sceneact.js';
 import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNight } from '../sim/stays.js';
 import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom, UI } from '../core/store.js';
 import { runPlans } from './plans.js';
-import { maybeBump, BUMP } from './bump.js';
+import { maybeBump, dropBump, BUMP } from './bump.js';
 import { gradeName } from '../sim/dice.js';
 import { setPrompt, sendCanned } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
@@ -601,8 +601,9 @@ export async function travelTo(loc, road, late) {
         book(g, 'Taxi', -fare);
         toast(`The taxi cost ${money(w, fare)}.`, 'info');
     }
+    dropBump(); // a meeting you did not answer stays behind
     // (E11) who is where as you leave: someone you know may be on the same train
-    const train = !fare && byTrain(g, w, from, loc) && systemOn(w, 'living') && !BUMP.who;
+    const train = !fare && byTrain(g, w, from, loc) && systemOn(w, 'living');
     const departed = g.minutes;
     const before = train ? new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)])) : null;
     g.traveling = true; // the trip itself costs no energy (only what you do does)
@@ -642,6 +643,7 @@ function meetOnTrain(g, w, before, from, to, departed) {
         return;
     BUMP.who = list[Math.floor(Math.random() * list.length)].avatar;
     BUMP.on = same ? 'train' : 'station';
+    BUMP.at = to;
 }
 // The journey dialog: the road takes hours; make camp at night, or push on without rest.
 // (E4) After the last train: a taxi, or a wait for the first train.

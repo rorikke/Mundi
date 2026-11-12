@@ -3694,10 +3694,6 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mh-drawer-panel button { min-width: 0; }
 #mundi-root .mu-lorepick button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Classic layout (the sprite beside the dialogue box): while a sprite's menu is open, its buttons go over the chat */
-#mundi-root[data-layout="classic"] .mu-sprites:has(.mu-sprite.is-menu) { z-index: 14; overflow: visible; }
-#mundi-root[data-layout="classic"] .mu-sprite.is-menu { overflow: visible; }
-
 /* no focus ring after a click (only when moving with the keyboard) */
 #mundi-root[data-pointer] button:focus-visible, #mundi-root[data-pointer] button:focus { outline: none; }
 
@@ -3728,7 +3724,7 @@ body.mundi-open #completion_prompt_manager_popup {
 /* Classic layout: people without a sprite are not shown, so the others share the space (not a third of it each) */
 #mundi-root[data-layout="classic"] .mu-sprite { max-width: calc(100% / var(--ns, var(--n, 1))); }
 
-/* the open sprite sits above the people next to it (its buttons are not hidden behind their pictures), still under the chat box */
+/* the open sprite sits above the people next to it, still under the chat box (its menu has a layer of its own above it: 99z-radial.css) */
 #mundi-root .mu-sprite.is-menu { z-index: 5; }
 #mundi-root .mu-style-tag.is-lifesim { background: rgba(22, 140, 90, .9); color: #fff; }
 #mundi-root .mu-style-tag.is-rpg { background: rgba(124, 58, 237, .9); color: #fff; }
@@ -4307,7 +4303,7 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-conflict-party { font-size: 40px; line-height: 1; text-align: center; }
 /* The Log (☰ menu): every notice shown this session, newest first. */
 #mundi-root .mu-logdlg { width: min(560px, calc(100% - 32px)); grid-template-rows: auto minmax(0, 1fr) auto; }
-#mundi-root .mu-log { list-style: none; margin: 0; padding: 0 4px 0 0; display: grid; gap: 8px; align-content: start; overflow: auto; min-height: 0; }
+#mundi-root .mu-loglist { list-style: none; margin: 0; padding: 0 4px 0 0; display: grid; gap: 8px; align-content: start; overflow: auto; min-height: 0; }
 #mundi-root .mu-log-row { display: grid; gap: 2px; padding: 8px 12px; border-radius: 10px; background: rgba(255, 255, 255, .05); border-left: 3px solid var(--accent); line-height: 1.4; overflow-wrap: anywhere; }
 #mundi-root .mu-log-row.is-success { border-left-color: var(--good); }
 #mundi-root .mu-log-row.is-warn { border-left-color: var(--warn); }
@@ -4321,6 +4317,12 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-practice li { display: grid; gap: 1px; padding: 5px 9px; border-radius: 8px; background: rgba(255, 255, 255, .05); }
 #mundi-root .mu-practice li b { font-size: 12px; display: block; }
 #mundi-root .mu-practice li small, #mundi-root .mu-practice > small { font-size: 11px; color: var(--muted); display: block; }
+/* A sprite's menu (ui/radial.ts) over the chat box (12) and the HUD's bars (20), under the cards that ask you
+   something (24 and up): a copy of the sprite's slot where only the buttons show and take clicks, so the picture and
+   the text stay as they are. */
+#mundi-root .mu-rad-layer { z-index: 21; overflow: visible; }
+#mundi-root .mu-rad-layer .mu-sprite { overflow: visible; }
+#mundi-root .mu-rad-layer .mu-sprite > :not(.mu-radial) { visibility: hidden; pointer-events: none !important; }
 /* Classic and Cards: the characters with Expressions sprites stand beside the conversation, in the space left free
    on each side of it. One: on the left. Two or more: the 1st, 3rd… on the left and the 2nd, 4th… on the right (see
    stageVars in ui/scene.ts: --side, --pk, --nk).

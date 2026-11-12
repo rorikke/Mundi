@@ -13,7 +13,7 @@ import { payOf, lockedOut, toGetBackIn } from '../sim/bills.js';
 //   right       — things to do here (only inside a scene)
 //   bottom      — the dialogue box (scene.ts); bottom right: the phone, peeking up when it is closed
 import { needWord } from '../sim/life.js';
-import { lifeOverlays, soloOf } from './lifeui.js';
+import { lifeOverlays, lifeAskHtml, soloOf } from './lifeui.js';
 import { game, esc, state, UI, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
 import { getWorld, activeStatuses, systemOn, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
 import { levelChip } from './rpgui.js';
@@ -302,6 +302,10 @@ function phoneButton(w) {
         <i style="--c:#7fd3ff">${icon('chat')}</i><i style="--c:#ff9ac1">${icon('heart')}</i><i style="--c:#b6a6ff">${icon('users')}</i>
         <i style="--c:#9be7c4">${icon('wallet')}</i><i style="--c:#ffc58a">${icon('calendar')}</i><i style="--c:#ffd36e">${icon('briefcase')}</i></span>${n ? `<em>${n}</em>` : ''}</button>`;
 }
+// The cards that come to you and wait for an answer all sit in one place under the top bar, so only one shows at a
+// time; the others wait their turn. A plan coming up goes first (it can't wait), then what is happening here, and a
+// chance meeting last (it stays until you answer it or leave).
+const askCard = (g, w) => apptReminderHtml(g, w) || lifeAskHtml(g, w) || bumpHtml();
 // (adult) Someone making the move: their card stands in for the event's panel until you answer.
 export function hudHtml() {
     const g = game();
@@ -309,7 +313,7 @@ export function hudHtml() {
     if (!g || !w)
         return '';
     // Home: no card of your own (no money, no needs); your persona is in the menu, as in a chat
-    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${bumpHtml()}${apptReminderHtml(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}`;
+    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${askCard(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}`;
 }
 Object.assign(ACT, {
     'quest-step': (el) => {
