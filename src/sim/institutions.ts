@@ -33,6 +33,8 @@ const NEED = [0, 2, 5, 9, 14];
 export function enroll(g: Save, w: WorldDef, id: string): string {
     const d = instDef(w, id); if (!d || !on(w)) return '';
     if (schoolOf(g)[id]) return 'You are already enrolled.';
+    // a school with degrees has no ladder to join (a degree is chosen in the Campus app, sim/degrees.ts)
+    if ((d.degrees ?? []).length) return `${d.name} offers degrees: enroll in one in the Campus app.`;
     if (g.player.loc !== d.place) return `You enroll at ${w.places.find(p => p.id === d.place)?.name ?? 'the school'}.`;
     if (g.player.money < (d.tuition ?? 0)) return `The first week's tuition is ${d.tuition}.`;
     if (d.tuition) { g.player.money -= d.tuition; book(g, `${d.name}: tuition`, -d.tuition); }
@@ -122,6 +124,8 @@ export function institutionLines(g: Save, w: WorldDef): string[] {
     if (!on(w)) return [];
     return instAt(w, g.player.loc).map(d => {
         const e = schoolOf(g)[d.id]; const f = faculty(g, w, d);
+        // a school with degrees: its ladder only matters to someone still on it (the degree's line is in the "you" block)
+        if ((d.degrees ?? []).length && !e) return `${d.name} offers degrees (${d.degrees!.map(x => x.name).join(', ')}).${f.head ? ` ${f.head.name} heads it.` : ''}`;
         const top = d.ranks.length - 1;
         return `${d.name} has its ladder: ${d.ranks.join(' → ')}.${f.head ? ` ${f.head.name} is the ${d.ranks[top]?.toLowerCase()}.` : ''}${f.teachers.length ? ` ${d.ranks[top - 1] ?? 'Teacher'}s: ${f.teachers.map(r => r.name).join(', ')}.` : ''}${e ? ` {{user}} is a ${d.ranks[e.rank]?.toLowerCase()} here${e.club ? `, in the ${e.club}` : ''}.` : ''}`;
     });

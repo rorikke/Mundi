@@ -54,3 +54,19 @@ export const gainMods: ((g: Save, w: WorldDef, a: { id: string; tags?: string[] 
 // You learned a like or a hard limit of someone's (`learn()` in sim/intimacy.ts, only when it's new): the points ledger pays
 // for it (sim/points.ts). `value`: its words, as in their profile.
 export const onLearned: ((g: Save, who: string, what: 'like' | 'limit', value: string) => void)[] = [];
+
+// Degrees (sim/degrees.ts) meet the courses engine and the rest of the game here, so neither waits on the other. A
+// module (a course of a degree) ended in the courses engine: its classes all done, or failed for missed classes; the
+// degree grades it when the term ends. `held`: why a module's classes wait ('' when they don't: the term's tuition unpaid).
+export const moduleLink: {
+    ended: (g: Save, w: WorldDef, course: string, how: 'done' | 'failed') => void;
+    held: (g: Save, w: WorldDef, course: string) => string;
+} = { ended: () => {}, held: () => '' };
+// Being a student: the most shifts a week you may work (null: no cap), why you can't move to a home ('' when you can),
+// and the ranks a new job starts you up (a distinguished degree's head start). Asked by sim/work.ts and the Homes app.
+// (A job that wants a degree goes through `missingCourses` in sim/courses.ts.)
+export const studentLink: {
+    workCap: (g: Save, w: WorldDef) => number | null;
+    homeBlock: (g: Save, w: WorldDef, zone: string) => string;
+    headStart: (g: Save, w: WorldDef, job: string) => number;
+} = { workCap: () => null, homeBlock: () => '', headStart: () => 0 };

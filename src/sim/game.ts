@@ -325,6 +325,8 @@ export interface NewGame {
     memoriesFrom?: string;
     /** each one's own ways (gender, pace, styles…) as chosen in the new game, by avatar ('__you' is you) */
     people?: Record<string, Person>;
+    /** a start enrolled in a degree: the degree picked in the new game (one of the same school's) */
+    degree?: string;
 }
 
 export async function startNewGame(o: NewGame) {
@@ -440,7 +442,7 @@ export async function startNewGame(o: NewGame) {
     // adult content on)
     for (const ex of w.cast.examples) for (const f of ex.feelings ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(f.to); if (a && b && a !== b && (adult || !f.adult)) { const { to, adult: x, ...feel } = f; void to; void x; applyStartFeel(save, { a, b, ...feel }); } }
     // (E16) the start: its job, skills, the people you already know, the household you live with
-    applyStart(save, w, start);
+    applyStart(save, w, start, o.degree);
     // what you're good at: the strengths picked become skill levels, at least, after the start's own skills
     applyStrengths(save, w, o.hero.traits);
     for (const t of o.relations ?? []) {
