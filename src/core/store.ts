@@ -2,7 +2,7 @@
 //  - settings(): Mundi's own settings, saved by SillyTavern (interface preferences, the list of games);
 //  - game(): the current save, stored INSIDE the open group chat's metadata (the save is the chat itself);
 //  - state: this session only (open screens, selection, drafts), never saved.
-import { ctx } from '../st/bridge.js';
+import { ctx, selectedGroup } from '../st/bridge.js';
 import type { Routine, StartDef } from './world.js';
 import type { StartRel } from './feel.js';
 
@@ -217,7 +217,47 @@ export function notify() {
 export const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]!));
 export const asset = (f: string) => new URL(`../../assets/${f}`, import.meta.url).href;
 
-export function toast(msg: string, kind: 'info' | 'success' | 'error' | 'warn' = 'info', o: { source?: string; title?: string; ms?: number } = {}) {
+export type ToastKind = 'info' | 'success' | 'error' | 'warn';
+/** A notice as it was shown, for the Log (☰ menu). `gid`, `day`, `min`: the game open then and its time. */
+export interface ToastRow { msg: string; kind: ToastKind; source?: string; title?: string; at: number; gid?: string; day?: number; min?: number }
+/** This session's notices, oldest first (never saved: the Log is for reading back what went by too fast). */
+export const toastLog: ToastRow[] = [];
+const LOG_MAX = 300;
+let onLogged: (() => void) | null = null;
+export const watchToastLog = (fn: () => void) => { onLogged = fn; };
+
+// How long a notice stays once its turn comes: a moment to notice it, then about 15 characters a second.
+const readMs = (text: string) => Math.min(20000, Math.max(4000, 1500 + text.length * 65));
+// Notices on screen, oldest first. Only the oldest counts down, so the next one's time starts when it goes: a burst
+// is read one at a time instead of vanishing together. Past SHOWN, the oldest makes room (the Log keeps it).
+interface Live { el: HTMLElement; ms: number; t1: number; t2: number; on: boolean; hover: boolean }
+const live: Live[] = [];
+const SHOWN = 6;
+function armToast(n: Live, wait: number) {
+    clearTimeout(n.t1); clearTimeout(n.t2);
+    n.t1 = window.setTimeout(() => n.el.classList.add('is-out'), wait);
+    n.t2 = window.setTimeout(() => dropToast(n), wait + 400);
+}
+function dropToast(n: Live) {
+    clearTimeout(n.t1); clearTimeout(n.t2); n.el.remove();
+    const i = live.indexOf(n);
+    if (i < 0) return;
+    live.splice(i, 1);
+    if (i === 0) nextToast();
+}
+function nextToast() {
+    while (live[0] && !live[0].el.isConnected) live.shift();   // (Mundi's screen was rebuilt meanwhile)
+    const h = live[0];
+    if (!h || h.on) return;
+    h.on = true;
+    if (!h.hover) armToast(h, h.ms);
+}
+
+export function toast(msg: string, kind: ToastKind = 'info', o: { source?: string; title?: string; ms?: number } = {}) {
+    const g = game();
+    toastLog.push({ msg, kind, source: o.source, title: o.title, at: Date.now(), ...(g ? { gid: selectedGroup() ?? undefined, day: g.day, min: g.minutes } : {}) });
+    if (toastLog.length > LOG_MAX) toastLog.splice(0, toastLog.length - LOG_MAX);
+    onLogged?.();
     const host = document.getElementById('mundi-toasts');
     if (!host) { console.log('[Mundi]', msg); return; }
     const el = document.createElement('div');
@@ -229,17 +269,17 @@ export function toast(msg: string, kind: 'info' | 'success' | 'error' | 'warn' =
     // a close button that shows when the mouse is over it; while the mouse is over it, it does not go away
     const x = document.createElement('button');
     x.className = 'mu-toast-x'; x.type = 'button'; x.title = 'Close'; x.setAttribute('aria-label', 'Close'); x.textContent = '✕';
-    x.addEventListener('click', (e) => { e.stopPropagation(); el.remove(); });
     el.appendChild(x);
     host.appendChild(el);
     (globalThis as any).__muSfx?.(kind === 'error' ? 'error' : kind === 'success' ? 'success' : 'info');
-    const ms = o.ms ?? 3600;
-    let t1 = 0, t2 = 0;
-    const arm = (wait: number) => { t1 = window.setTimeout(() => el.classList.add('is-out'), wait); t2 = window.setTimeout(() => el.remove(), wait + 400); };
-    el.addEventListener('mouseenter', () => { clearTimeout(t1); clearTimeout(t2); el.classList.remove('is-out'); });
-    el.addEventListener('mouseleave', () => arm(1500));
-    el.addEventListener('click', () => el.remove());
-    arm(ms);
+    const n: Live = { el, ms: Math.max(o.ms ?? 0, readMs(`${o.title ?? ''} ${msg}`)), t1: 0, t2: 0, on: false, hover: false };
+    live.push(n);
+    x.addEventListener('click', (e) => { e.stopPropagation(); dropToast(n); });
+    el.addEventListener('mouseenter', () => { n.hover = true; clearTimeout(n.t1); clearTimeout(n.t2); el.classList.remove('is-out'); });
+    el.addEventListener('mouseleave', () => { n.hover = false; if (n.on) armToast(n, 1500); });
+    el.addEventListener('click', () => dropToast(n));
+    while (live.length > SHOWN) dropToast(live[0]);
+    nextToast();
 }
 
 export function busy<T>(label: string, job: () => Promise<T>): Promise<T> {

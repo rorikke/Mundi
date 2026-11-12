@@ -1,0 +1,9 @@
+/* The Log (☰ menu): every notice shown this session, newest first. */
+#mundi-root .mu-logdlg { width: min(560px, calc(100% - 32px)); grid-template-rows: auto minmax(0, 1fr) auto; }
+#mundi-root .mu-log { list-style: none; margin: 0; padding: 0 4px 0 0; display: grid; gap: 8px; align-content: start; overflow: auto; min-height: 0; }
+#mundi-root .mu-log-row { display: grid; gap: 2px; padding: 8px 12px; border-radius: 10px; background: rgba(255, 255, 255, .05); border-left: 3px solid var(--accent); line-height: 1.4; overflow-wrap: anywhere; }
+#mundi-root .mu-log-row.is-success { border-left-color: var(--good); }
+#mundi-root .mu-log-row.is-warn { border-left-color: var(--warn); }
+#mundi-root .mu-log-row.is-error { border-left-color: var(--bad); }
+#mundi-root .mu-log-row b { font-size: 13px; }
+#mundi-root .mu-log-when, #mundi-root .mu-log-src { font-size: 11px; font-weight: 700; color: var(--muted); }
