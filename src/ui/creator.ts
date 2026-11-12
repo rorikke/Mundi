@@ -56,7 +56,8 @@ export function setPath(path: string, v: any) {
     const keys = path.split('.'); const last = keys.pop()!;
     if ([...keys, last].some(k => k === '__proto__' || k === 'constructor' || k === 'prototype')) return;   // (an id from a file can't reach the built-in objects)
     let o: any = CW.w;
-    for (const k of keys) { o[k] ??= /^\d+$/.test(last) ? [] : {}; o = o[k]; }
+    // (a field inside something that isn't an object, a condition written as text, is left alone: writing into it throws)
+    for (const k of keys) { o[k] ??= /^\d+$/.test(last) ? [] : {}; o = o[k]; if (typeof o !== 'object') return; }
     if (v === undefined) delete o[last]; else o[last] = v;
     CW.dirty = true;
 }
@@ -115,6 +116,9 @@ const placeOpts = (w: WorldDef, none = ''): [string, string][] => [...(none ? [[
 const statusOpts = (w: WorldDef): [string, string][] => w.statuses.map(s => [s.id, `${s.icon} ${s.name}`]);
 const zoneOpts = (w: WorldDef, none = ''): [string, string][] => [...(none ? [['', none] as [string, string]] : []), ...w.homes.zones.map(z => [z.id, z.name] as [string, string])];
 // (adult options too: a job may like Shameless)
+// The world's people by name (who a rumor is about, who comes along); `withCur` keeps a value the list doesn't have.
+const peopleOpts = (w: WorldDef): [string, string][] => w.cast.examples.map(e => [e.name, e.name] as [string, string]);
+const withCur = (opts: [string, string][], cur: unknown): [string, string][] => (typeof cur === 'string' && cur && !opts.some(([v]) => v === cur) ? [...opts, [cur, cur]] : opts);
 const traitOptions = (w: WorldDef) => (w.sheet.traits ?? []).flatMap(t => [...t.options, ...(t.adultOptions ?? [])]);
 
 /* ---------- tabs ---------- */
@@ -1472,17 +1476,23 @@ SCOPES.cw = {
 
 function tabLore(w: WorldDef) {
     return master('lore', 'lore', (l, k) => `<b>${esc((l.keys ?? []).join(', ') || `#${k + 1}`)}</b><small>${l.constant ? 'Always on' : ''}${l.id ? ` · ${esc(l.id)}` : ''}</small>`, i => {
-        const p = `lore.${i}`;
+        const p = `lore.${i}`; const l = w.lore[i];
+        // `when` is either a condition written as text (as goals write them) or the older choices below; each is edited
+        // its own way, and switching from one to the other starts empty
+        const text = typeof l.when === 'string' || CW.sel.lwhen === p;
         return `${csv('Keywords (comma separated)', `${p}.keys`, 'The entry is used when one of these comes up in the chat.')}${chk('Always on', `${p}.constant`)}
             ${optTxt('Id (optional)', `${p}.id`, 'tk_lore_hotel', 'A name a private overlay can replace this entry by: its entry with the same id is used instead of this one. Keep it once games may use the overlay.')}
+            <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, '', true)}${num('Priority (higher: kept first in a busy scene)', `${p}.priority`, 0)}</div>
             <h4>Only when… (optional: the entry switches on by itself when the world is like this)</h4>
-            <div class="mu-row2">${sel('Weather', `${p}.when.weather`, [['', 'Any'], ['Sunny', 'Sunny'], ['Fair', 'Fair'], ['Partly cloudy', 'Partly cloudy'], ['Cloudy', 'Cloudy'], ['Rain', 'Rain']])}${sel('Part of the day', `${p}.when.period`, [['', 'Any'], ...w.time.periods.map(x => [x.name, x.name] as [string, string])])}</div>
+            <label class="mu-field"><span>Written as</span><select data-input="cw-lwhen" data-path="${esc(p)}"><option value="" ${text ? '' : 'selected'}>Choices (weather, place, season…)</option><option value="text" ${text ? 'selected' : ''}>A condition, as goals write them</option></select></label>
+            ${text ? cond('Only while', `${p}.when`, 'place: sb_crossing; period: evening; weekend: yes', 'The same conditions as goals and things to do. One that can\'t be read never holds.') : `<div class="mu-row2">${sel('Weather', `${p}.when.weather`, [['', 'Any'], ['Sunny', 'Sunny'], ['Fair', 'Fair'], ['Partly cloudy', 'Partly cloudy'], ['Cloudy', 'Cloudy'], ['Rain', 'Rain']])}${sel('Part of the day', `${p}.when.period`, [['', 'Any'], ...w.time.periods.map(x => [x.name, x.name] as [string, string])])}</div>
             <div class="mu-row2">${sel('Place', `${p}.when.place`, [['', 'Anywhere'], ...placeOpts(w)])}${sel('Days', `${p}.when.weekend`, [['', 'Any day'], ['true', 'Weekends'], ['false', 'Weekdays']], 'tri')}</div>
             <div class="mu-row2">${sel('Region (map)', `${p}.when.region`, [['', 'Anywhere'], ...w.maps.map(m => [m.id, m.name] as [string, string])])}${sel('Season', `${p}.when.season`, [['', 'Any'], ['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']])}</div>
             <div class="mu-row2">${num('Tension above (0 … 100)', `${p}.when.tensionAbove`)}${num('Chance each day (0 … 1)', `${p}.when.chance`, 0, 0.05)}</div>
             <div class="mu-row2">${num('Public mood above (−100 … 100)', `${p}.when.moodAbove`, -100)}${num('Public mood below', `${p}.when.moodBelow`, -100)}</div>
-            <div class="mu-row2">${num('From day', `${p}.when.fromDay`, 1)}${num('Until day', `${p}.when.toDay`, 1)}</div>
+            <div class="mu-row2">${num('From day', `${p}.when.fromDay`, 1)}${num('Until day', `${p}.when.toDay`, 1)}</div>`}
             ${chk('It is a rumor', `${p}.rumor`, 'Instead of telling the AI, people pass it around (from two people in its region, when the conditions hold); you may overhear it.')}
+            ${l.rumor || l.about || l.secret ? `<div class="mu-row2">${sel('Who it is about (they never hear it)', `${p}.about`, withCur([['', '(nobody in particular)'], ...peopleOpts(w)], l.about), 'opt')}${flag('A secret', `${p}.secret`, 'Their close friends don\'t pass it on.')}</div>` : ''}
             ${area('Content', `${p}.content`, 8)}`;
     }, 'lore', 'No entries yet.') + `<p class="mu-muted">These entries, the setting and every place become the world's lorebook when a game starts.</p>`;
 }
@@ -1894,6 +1904,13 @@ Object.assign(INPUT, {
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
     // a starting feeling's Together: a couple's status, or the couple they used to be
     'cw-together': (el) => { const q = el.dataset.path!; setPath(`${q}.status`, undefined); setPath(`${q}.was`, undefined); if (el.value === 'ex') setPath(`${q}.was`, 'ex'); else if (el.value) setPath(`${q}.status`, el.value); notify(); },
+    // a lore entry's `when` written as a condition, or as the choices (each starts empty when switched to)
+    'cw-lwhen': (el) => {
+        const p = el.dataset.path!; const cur = getPath(`${p}.when`);
+        if (el.value === 'text') { if (typeof cur !== 'string') setPath(`${p}.when`, undefined); CW.sel.lwhen = p; }
+        else { if (typeof cur === 'string') setPath(`${p}.when`, undefined); CW.sel.lwhen = ''; }
+        notify();
+    },
     'cw-alltabs': (el) => { CW.allTabs = (el as HTMLInputElement).checked; notify(); },
     cw: (el) => {
         const t = el.dataset.type; const p = el.dataset.path!;
