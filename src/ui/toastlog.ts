@@ -26,7 +26,7 @@ export function toastLogHtml() {
     const rows = toastLog.filter(r => !r.gid || r.gid === gid).reverse();
     return `<div class="mu-dlg-veil" data-keep="log-veil" data-act="log-close"></div><div class="mu-panel mu-scpick mu-glassdlg mu-logdlg" data-keep="log-dlg" role="dialog" aria-label="Log">
         <header><h3>Log</h3><button class="mu-ibtn mu-ghost" data-act="log-close" aria-label="Close">${icon('x')}</button></header>
-        ${rows.length ? `<ol class="mu-log">${rows.map(row).join('')}</ol>` : '<p class="mu-muted">Nothing here yet. Notices that pop up while you play are kept here until you close SillyTavern.</p>'}
+        ${rows.length ? `<ol class="mu-loglist">${rows.map(row).join('')}</ol>` : '<p class="mu-muted">Nothing here yet. Notices that pop up while you play are kept here until you close SillyTavern.</p>'}
         ${rows.length ? `<div class="mu-row mu-dlg-btns"><button data-act="log-clear">${icon('trash')}<span>Clear</span></button></div>` : ''}
     </div>`;
 }
