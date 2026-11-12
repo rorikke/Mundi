@@ -137,7 +137,7 @@ export function render() {
     r.dataset.style = styleOf(shown);
     r.dataset.skin = skinOf(shown);
 
-    placeTutorial(main); tutorialTick(); stackHud(main);
+    placeTutorial(main); tutorialTick(); stackHud(main); fitActs(main);
     // the picture by the side (a click on a name) fits in the room left of the dialogue box
     { const side = main.querySelector<HTMLElement>('.mu-sidepic'), dlg = main.querySelector<HTMLElement>('.mu-dialog');
       if (side) { const room = dlg ? (dlg.getBoundingClientRect().left - main.getBoundingClientRect().left) / uiZoom() - 10 : 0; if (room > 160) main.style.setProperty('--side-w', `${Math.round(room)}px`); else main.style.removeProperty('--side-w'); } }
@@ -349,6 +349,29 @@ export function mount() {
 
 export const peopleHere = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? presentAt(g, w, g.player.loc) : []; };
 export const openOnStart = () => settings().openOnStart;
+
+// The things to do run down as far as the screen lets them: to whatever sits under them (the dialogue box, the phone's
+// peek, the book button), else to the bottom corner. Something beside them rather than under (a narrow screen's dialogue
+// box, Classic's tall one) leaves the stylesheet's height. Phones lay the HUD out on their own.
+const UNDER_ACTS = '.mu-dialog, .mh-peek, .mh-bookbtn, .mh-extmenu';
+function fitActs(main: HTMLElement) {
+    const acts = main.querySelector<HTMLElement>('.mh-acts');
+    if (!acts) return;
+    acts.style.removeProperty('max-height');
+    if (main.closest('[data-mobile]') || document.querySelector('#mundi-root[data-mobile]') || acts.offsetParent === null) return;
+    const a = acts.getBoundingClientRect(), all = main.getBoundingClientRect();
+    const scale = acts.offsetHeight ? a.height / acts.offsetHeight : 1;
+    let limit = all.bottom - 14 * scale;
+    for (const el of main.querySelectorAll<HTMLElement>(UNDER_ACTS)) {
+        if (el.offsetParent === null) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width <= 0 || r.right <= a.left || r.left >= a.right) continue;   // not under the list
+        if (r.top < a.top + 120 * scale) return;   // beside it, not under it: the stylesheet's height
+        limit = Math.min(limit, r.top - 12 * scale);
+    }
+    const room = (limit - a.top) / (scale || 1);
+    if (room > 120) acts.style.setProperty('max-height', `${Math.floor(room)}px`);
+}
 
 // The clock card, the place chip under it and the map's tabs under that: stacked by measuring, so a bigger HUD (its
 // scale, a festival line, a long place name) never makes them overlap.
