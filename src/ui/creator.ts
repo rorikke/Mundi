@@ -2,6 +2,7 @@
 // A world starts from a base (a copy of Porto Alto, or the Modern rules with an empty map) and is saved as a
 // JSON file in SillyTavern's user files. Inputs bind to the draft by path: data-path="statuses.2.name".
 import { TIME_SLOTS } from '../sim/daynight.js';
+import { WEATHER_KINDS } from '../sim/weather.js';
 import { safeUrl } from '../core/safe.js';
 import { money } from '../sim/needs.js';
 import { DEFAULT_EXPENSES } from '../sim/bills.js';
@@ -147,6 +148,7 @@ function tabGeneral(w: WorldDef) {
             ${w.time.periods.map((_p, k) => `<div class="mu-row mu-cw-inline">${txt('Name', `time.periods.${k}.name`)}${time('From', `time.periods.${k}.from`)}${num('Prices ×', `time.periods.${k}.prices`, 0.1, 0.05)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="time.periods.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="period">${icon('plus')}<span>Add a period</span></button>
             <small class="mu-muted">Each part of the day can change what is open (Maps: a place's "Closed at"), what things cost out and about (Prices ×, empty = as listed) and how places, homes and maps look (a picture for each part of the day).</small></section>
+        ${isScenario(w) ? '' : transitEditor()}${soundsEditor(w)}
     </div>`;
 }
 
@@ -170,7 +172,10 @@ function tabFeatures(w: WorldDef) {
             ${sel('The device looks like', 'features.deviceLook', [['phone', 'A phone (apps on a screen)'], ['book', 'A journal (an open book with pages)']])}
             ${sel('The social app is', 'features.socialKind', [['feed', 'A social network (posts, likes and replies)'], ['board', 'A notice board (notices; whoever answers writes you a letter)']])}
             ${sel('Messages are', 'features.messageKind', [['texts', 'Text messages'], ['letters', 'Letters carried by a courier']])}
-            ${txt('How people write (what the AI is told for messages and posts)', 'ai.voice', 'casual; emoji and hashtags are fine')}</section>
+            ${txt('How people write (what the AI is told for messages and posts)', 'ai.voice', 'casual; emoji and hashtags are fine')}
+            ${flag('Background people everywhere', 'scene.background', 'The AI may describe unnamed staff, regulars and passers-by at every place, not only where a place says who is around.')}
+            ${flag('Things to do play out in the scene', 'scene.actions', 'When someone you have met is here, one of 20 minutes or more becomes the focus of the scene while the clock runs.')}
+            ${num('Conditional lore rows in a scene, at most (empty: no limit)', 'scene.lore', 0)}</section>
         <section class="mu-cw-sec"><h4>Systems</h4>
             <small class="mu-muted">A system turned off is gone from the HUD, the ${esc(w.features?.device ?? 'phone').toLowerCase()} and what the AI is told, and the game stops running it. Saves keep its data: turn it back on and it picks up where it was.</small>
             <div class="mu-cw-systems">${SYSTEMS.map(sy => {
@@ -362,6 +367,79 @@ function storyResult(w: WorldDef, q: string) {
         <div class="mu-row2">${optTxt('Someone now owes you a favor (a name, or a stranger\'s id)', `${q}.favor`, 'Rina')}${optTxt('A favor it calls in', `${q}.spend`)}</div>
         <div class="mu-row2">${threads.length || o.reveal ? sel('A secret the player learns', `${q}.reveal`, withCur([['', '(none)'], ...threads], o.reveal), 'opt') : '<span></span>'}${skillOpts(w).length ? sel('A skill it trains a little', `${q}.trains`, withCur([['', '(none)'], ...skillOpts(w)], o.trains), 'opt') : '<span></span>'}</div>`;
 }
+
+// Weather by climate (a map's climate picks one): each season's odds of each kind of weather, stretches of a season with
+// odds of their own (the rainy season), weather a region has on its own (a view of a far mountain, volcanic gas), and
+// the climate's own word for a kind (a storm is a typhoon). A climate's name, and a regional kind's, are what maps,
+// places and conditions name: set once (a regional kind can be renamed while nothing names it yet).
+const SEASON_OPTS: [string, string][] = [['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']];
+const oddsRow = (p: string) => `<div class="mu-cw-effects">${WEATHER_KINDS.map(k => num(esc(`${k.icon} ${k.name}`), `${p}.${k.id}`, 0)).join('')}</div>`;
+function climatesEditor(w: WorldDef) {
+    const names = Object.keys(w.climates ?? {}).filter(k => !BAD_KEYS.includes(k));
+    if (!names.includes(CW.sel.climate)) CW.sel.climate = names[0] ?? '';
+    const c: string = CW.sel.climate; const q = `climates.${c}`; const cl = c ? own(w.climates, c) : undefined;
+    const regional = Object.keys(cl?.regional ?? {}).filter(k => !BAD_KEYS.includes(k));
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Weather by climate</h4><p class="mu-muted">Each season's odds of each kind of weather (weights: 30 against 10 is three times as likely). A map's climate (Maps & places) picks one; with none, one table all year.</p>
+        <div class="mu-row mu-cw-inline mu-cw-tracks">${names.map(n => `<button class="mu-chip ${n === c ? 'is-on' : ''}" data-act="cw-climate" data-id="${esc(n)}"><span data-notr>${esc(n)}</span></button>`).join('') || '<small class="mu-muted">No climates.</small>'}
+            <button class="mu-ghost" data-act="cw-add" data-what="climate">${icon('plus')}<span>Add a climate</span></button></div>
+        ${cl ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><code data-notr>${esc(c)}</code><small class="mu-muted">Maps with it: ${esc(w.maps.filter(m => m.climate === c).map(m => m.name).join(', ') || 'none yet')}</small><span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this climate</span></button></div>
+            ${SEASON_OPTS.map(([s, l]) => `<span class="mu-cw-sub">${l}</span>${oddsRow(`${q}.seasons.${s}`)}`).join('')}
+            <span class="mu-cw-sub">Stretches of a season with odds of their own (the rainy season)</span>
+            ${(cl.days ?? []).map((_d, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Season', `${q}.days.${k}.season`, SEASON_OPTS)}${bounded('From day', `${q}.days.${k}.from`, 1, SEASON_DAYS)}${bounded('To day', `${q}.days.${k}.to`, 1, SEASON_DAYS)}
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.days.${k}`)}" title="Remove">${icon('x')}</button></div>${oddsRow(`${q}.days.${k}.odds`)}</div>`).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="cdays" data-path="${esc(`${q}.days`)}">${icon('plus')}<span>Add a stretch</span></button>
+            <span class="mu-cw-sub">Weather a region has on its own (a kind ending in “view” is a view, seen only on a clear day)</span>
+            ${regional.map(r => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Kind</span><input data-input="cw-mkey" data-path="${esc(`${q}.regional`)}" data-from="${esc(r)}" value="${esc(r)}"></label>
+                ${SEASON_OPTS.map(([s, l]) => bounded(`${l} (0 … 1)`, `${q}.regional.${r}.${s}`, 0, 1, 0.05)).join('')}
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.regional.${r}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="cregion" data-path="${esc(`${q}.regional`)}">${icon('plus')}<span>Add regional weather</span></button>
+            <details class="mu-cw-kept" ${Object.keys(cl.names ?? {}).length ? 'open' : ''}><summary>Its own words for a kind (a storm is a typhoon)</summary>
+                <div class="mu-cw-effects">${WEATHER_KINDS.map(k => optTxt(esc(k.name), `${q}.names.${k.id}`)).join('')}</div></details></div>` : ''}</section>`;
+}
+// Small settings of the whole world: trains and taxis, how people address you, the languages spoken, what the AI is told
+// in a scene, and your own sound files for places' sounds.
+function transitEditor() {
+    return `<section class="mu-cw-sec"><h4>Trains and taxis</h4><p class="mu-muted">Between the last and the first train, a trip between two maps is a taxi or a wait. Empty: no last train.</p>
+        <div class="mu-row2">${bounded('Last trains leave at (hour; 0.5 = 0:30)', 'transit.last', 0, 24, 0.25)}${bounded('First trains at (hour)', 'transit.first', 0, 24, 0.25)}</div>
+        <div class="mu-row2">${num('A taxi costs (base)', 'transit.taxi.base', 0)}${num('… and per minute', 'transit.taxi.perMinute', 0)}</div>
+        ${num('The walk to the station (minutes, added to trips between districts)', 'transit.walk', 0)}</section>`;
+}
+function soundsEditor(w: WorldDef) {
+    const tags = [...new Set([...Object.keys(w.sounds ?? {}), ...w.places.flatMap(p => p.sound ?? [])])].filter(t => t && !BAD_KEYS.includes(t)).sort();
+    if (!tags.length) return '';
+    return `<section class="mu-cw-sec"><h4>Sounds of places</h4><p class="mu-muted">Your own sound file for a place's sound (a looped file in the world's folder). Empty: the game's own sound.</p>
+        <div class="mu-cw-effects">${tags.map(t => txt(esc(t), `sounds.${t}`, 'sounds/station.mp3')).join('')}</div></section>`;
+}
+function addressEditor(w: WorldDef) {
+    const love = systemOn(w, 'romance');
+    return `<section class="mu-cw-sec"><h4>How people address you</h4><p class="mu-muted">A few words per level, told to the AI ("first name + -san, casual speech"). Empty: as the AI likes.</p>
+        <div class="mu-cw-effects">${[...FRIEND_TIERS].reverse().map(t => optTxt(esc(t.name), `address.friend.${t.id}`)).join('')}</div>
+        ${love ? `<span class="mu-cw-sub">A partner</span><div class="mu-cw-effects">${[['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([id, l]) => optTxt(l, `address.romance.${id}`)).join('')}</div>` : ''}
+        <div class="mu-row2">${optTxt('A senior at work', 'address.senior')}${optTxt('A junior at work', 'address.junior')}</div></section>`;
+}
+function languageEditor(w: WorldDef) {
+    const sk = skillOpts(w); const l = w.language;
+    if (!sk.length && !l) return '';
+    return `<section class="mu-cw-sec"><h4>Languages</h4><p class="mu-muted">The language everyone here speaks, for a newcomer who doesn't: the player's level in it shapes what the AI is told, and time with people who speak only it trains it.</p>
+        ${sel('Spoken here (a skill)', 'language.local', withCur([['', '(no barrier)'], ...sk], l?.local), 'opt')}
+        ${l?.local ? `<div class="mu-field"><span>Other languages people may share with you</span>${pairChips(sk.filter(([id]) => id !== l.local), 'language.others', true)}</div>
+            ${bounded('How well the world\'s people speak those (0–10; empty: 2)', 'language.level', 0, 10)}` : ''}</section>`;
+}
+// Who a festival or event draws, and who has a part in it (they're there instead of their routine).
+function audienceRows(w: WorldDef, p: string) {
+    const opts: [string, string][] = [['everyone', 'Everyone'], ['couples', 'Couples'], ['friends', 'Friends of those taking part'], ['fans', 'Fans (free time there)'], ['colleagues', 'Colleagues (work there)'], ['neighbors', 'Neighbors (live on its map)'], ['students', 'Students'],
+        ...(w.hobbies ?? []).map(h => [`hobby:${h.id}`, `Hobby: ${h.name}`] as [string, string]), ...w.occupations.map(o => [`job:${o.id}`, `Job: ${o.name}`] as [string, string])];
+    const roles: any[] = getPath(`${p}.roles`) ?? [];
+    return `<details class="mu-cw-kept" ${(getPath(`${p}.audience`) ?? []).length ? 'open' : ''}><summary>Who it draws · ${(getPath(`${p}.audience`) ?? []).length}</summary>${pairChips(withCurAll(opts, getPath(`${p}.audience`)), `${p}.audience`, true)}</details>
+        <span class="mu-cw-sub">Who has a part in it</span>
+        ${roles.map((_r, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Who', `${p}.roles.${k}.who`, withCur(peopleOpts(w), roles[k]?.who))}${sel('Where', `${p}.roles.${k}.place`, withCur([['', '(its place)'], ...placeOpts(w)], roles[k]?.place), 'opt')}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.roles.${k}`)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${bounded('From (hour; empty: its own)', `${p}.roles.${k}.from`, 0, 30, 0.5)}${bounded('To (hour)', `${p}.roles.${k}.to`, 0, 30, 0.5)}</div>
+            ${txt('What they do (for the AI)', `${p}.roles.${k}.text`, 'behind her convention table')}</div>`).join('')}
+        ${w.cast.examples.length ? `<button class="mu-ghost" data-act="cw-add" data-what="erole" data-path="${esc(`${p}.roles`)}">${icon('plus')}<span>Someone with a part in it</span></button>` : ''}`;
+}
+const withCurAll = (opts: [string, string][], cur: unknown): [string, string][] => [...opts, ...(Array.isArray(cur) ? cur.filter((x): x is string => typeof x === 'string' && !opts.some(([v]) => v === x)).map(x => [x, x] as [string, string]) : [])];
 
 function tabJobs(w: WorldDef) {
     return `<div class="mu-row2">${num('Career speed (×; 2: twice as fast)', 'careerSpeed', 0.25, 0.25)}${sel('Work rules a new game starts with', 'workPreset', [['', 'Realistic (Relaxed in a Home)'], ['realistic', 'Realistic'], ['reduced', 'Reduced'], ['relaxed', 'Relaxed']], 'opt')}</div>
@@ -585,9 +663,11 @@ function tabEconomy(w: WorldDef) {
             return `${txt('Name', `${p}.name`)}${txt('What it is like', `${p}.desc`)}<div class="mu-row2">${num('Comes back every (days)', `${p}.every`, 2)}${num('Lasts (days)', `${p}.days`, 1)}</div>
                 <div class="mu-row2">${sel('Effect', `${p}.effect`, [['mana', 'Mana storm: focus back every morning'], ['monsters', 'Blood moon: roads twice as dangerous, shops shut'], ['omen', 'Omen: moods drop']])}${num('Amount (omen: mood)', `${p}.amount`, -50)}</div>`;
         }, 'sky')}</section>
+        ${climatesEditor(w)}
         <section class="mu-cw-sec"><h4>Extreme weather</h4><p class="mu-muted">Each map has a climate (Maps & places → Life in this region).</p>${master('hazard', 'skies.hazards', x => `<b>${esc(x.name)}</b><small>${esc(x.climate)}</small>`, i => {
             const p = `skies.hazards.${i}`;
-            return `${txt('Name', `${p}.name`)}${txt('What it is like', `${p}.desc`)}<div class="mu-row2">${sel('Climate', `${p}.climate`, climates)}${sel('Season', `${p}.season`, seasons)}</div>
+            return `${txt('Name', `${p}.name`)}${txt('What it is like', `${p}.desc`)}<div class="mu-row2">${sel('Climate', `${p}.climate`, withCur([...climates, ...Object.keys(w.climates ?? {}).map(c => [c, c] as [string, string])], w.skies?.hazards?.[i]?.climate))}${sel('Season', `${p}.season`, seasons)}</div>
+                <div class="mu-field"><span>Only on days of this weather (none: any day)</span>${pairChips(WEATHER_KINDS.map(k => [k.id, `${k.icon} ${k.name}`] as [string, string]), `${p}.weather`, true)}</div>
                 ${num('Chance on a day (0 … 1)', `${p}.chance`, 0, 0.01)}<h4>Needs drop faster (×)</h4><div class="mu-row2">${w.statuses.map(st => num(esc(st.name), `${p}.drain.${st.id}`, 0, 0.1)).join('')}</div>
                 ${chk('No rest at camp without camping gear', `${p}.blocksCamp`)}${chk('Shuts the shops', `${p}.closes`)}`;
         }, 'hazard')}</section>
@@ -605,7 +685,8 @@ function tabRealm(w: WorldDef) {
         <section class="mu-cw-sec mu-cw-wide"><h4>The realm</h4>
             ${txt('The country (or kingdom) its cities belong to', 'realm.name', 'Costa Serena')}
             <div class="mu-row2">${sel('Government', 'realm.government', GOVERNMENTS.map(([id, n]) => [id, n] as [string, string]))}${txt('Leadership', 'realm.leadership', 'A single emperor, regional kings, elected leaders…')}</div>
-            <div class="mu-row2">${sel('Power affinity', 'realm.power', POWERS.map(([id, n, d]) => [id, `${n}: ${d}`] as [string, string]))}${num('Tax rate (0.1 = 10%; empty: by government)', 'realm.tax', 0, 0.01)}</div></section>
+            <div class="mu-row2">${sel('Power affinity', 'realm.power', POWERS.map(([id, n, d]) => [id, `${n}: ${d}`] as [string, string]))}${num('Tax rate (0.1 = 10%; empty: by government)', 'realm.tax', 0, 0.01)}</div>
+            <label class="mu-field"><span>What the AI is told about the realm (optional: instead of the sentences made from the above)</span><textarea rows="2" data-input="cw" data-type="opt" data-path="realm.line" data-focus="realm.line">${val('realm.line')}</textarea></label></section>
         <section class="mu-cw-sec"><h4>Pantheon</h4><p class="mu-muted">Optional. With no gods, altars are monuments, faith classes use their secular name and faith attributes are hidden.</p>
         ${master('god', 'realm.pantheon', x => `<b>${esc(x.symbol ?? '')} ${esc(x.name)}</b><small>${esc(x.domain)}</small>`, i => {
             const p = `realm.pantheon.${i}`;
@@ -653,7 +734,12 @@ function tabCustoms(w: WorldDef) {
             return `${txt('Name', `${p}.name`)}${txt('What it is like (told to the AI)', `${p}.desc`)}
                 <div class="mu-row2">${sel('Season', `${p}.season`, seasons)}${num('Day of the season', `${p}.day`, 1)}</div>
                 <div class="mu-row2">${num('Lasts (days)', `${p}.days`, 1)}${sel('People gather at', `${p}.place`, [['', '(nowhere in particular)'], ...places])}</div>
-                <div class="mu-row2">${num('Prices ×', `${p}.prices`, 0, 0.05)}${num('Mood when you celebrate', `${p}.mood`, 0)}</div>`;
+                <div class="mu-row2">${num('Prices ×', `${p}.prices`, 0, 0.05)}${num('Mood when you celebrate', `${p}.mood`, 0)}</div>
+                <div class="mu-row2">${bounded('Crowd (of 100 people with free time)', `${p}.crowd`, 0, 100)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+                <details class="mu-cw-kept" ${(w.festivals ?? [])[i]?.places?.length ? 'open' : ''}><summary>More places it fills · ${(w.festivals ?? [])[i]?.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.places`, true)}</details>
+                ${sel('A custom between people', `${p}.custom.kind`, [['', '(none)'], ['gift', 'People who like you give you something'], ['return', 'The return gift'], ['couples', 'Partners expect a date'], ['family', 'Family and close friends go together'], ['group', 'Friends invite you along']], 'opt')}
+                ${(w.festivals ?? [])[i]?.custom ? `<div class="mu-row2">${optTxt('The custom in a sentence (for the AI)', `${p}.custom.text`)}${bounded('Done at (hour; empty: soon after they ask)', `${p}.custom.at`, 0, 24, 0.5)}</div>` : ''}
+                ${audienceRows(w, p)}`;
         }, 'festival')}</section>
         <section class="mu-cw-sec"><h4>City events</h4><p class="mu-muted">Shows, matches, fairs: on a weekday, every few weeks, at a place. They are in the calendar and you go if you want.</p>
         ${master('cevent', 'cityEvents', e => `<b>${esc(e.icon ?? '')} ${esc(e.name)}</b><small>${esc(DAYS[e.weekday]?.[1] ?? '')} ${e.from}h</small>`, i => {
@@ -668,7 +754,13 @@ function tabCustoms(w: WorldDef) {
                 <div class="mu-row2">${num('Crowd (of 100 people with free time)', `${p}.crowd`, 0)}${chk('Outdoors (called off when it rains)', `${p}.outdoor`)}</div>
                 <h4>Perform there (a hobby)</h4>
                 <div class="mu-row2">${sel('Hobby', `${p}.stage.hobby`, hob)}${num('Level needed', `${p}.stage.level`, 0)}</div>
-                <div class="mu-row2">${txt('Button', `${p}.stage.label`, 'Play at the open mic')}${num('Pay', `${p}.stage.pay`, 0)}</div>`;
+                <div class="mu-row2">${txt('Button', `${p}.stage.label`, 'Play at the open mic')}${num('Pay', `${p}.stage.pay`, 0)}</div>
+                <h4>More of the calendar</h4>
+                <div class="mu-field"><span>More weekdays it's on</span>${numChips(DAYS, `${p}.weekdays`)}</div>
+                <div class="mu-field"><span>Only in these seasons (none: all year)</span>${pairChips(SEASON_OPTS, `${p}.seasons`, true)}</div>
+                <div class="mu-row2">${bounded('Only from day of the season', `${p}.seasonDays.0`, 1, SEASON_DAYS)}${bounded('to day', `${p}.seasonDays.1`, 1, SEASON_DAYS)}</div>
+                ${flag('Only with adult content on', `${p}.adult`, '', true)}
+                ${audienceRows(w, p)}`;
         }, 'cevent')}</section>
         <section class="mu-cw-sec"><h4>Hobbies</h4><p class="mu-muted">Practice levels them up (to 10): +1 on their rolls every 2 levels, more money each level, and jobs can ask for a level.</p>
         ${master('hobby', 'hobbies', h => `<b>${esc(h.icon ?? '')} ${esc(h.name)}</b><small>${(h.actions ?? []).length} actions</small>`, i => {
@@ -800,6 +892,8 @@ function branchEditor(w: WorldDef, o: WorldDef['occupations'][number], p: string
 
 // What a bill or a broken thing can stop at home: the world's home actions.
 const homeActionOpts = (w: WorldDef): [string, string][] => w.actions.filter(a => a.home).map(a => [a.id, a.label || a.name] as [string, string]);
+// Chips over numbers (weekdays 0–6): the picked ones are kept as numbers; none picked leaves nothing.
+const numChips = (opts: [string, string][], p: string) => { const on: number[] = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(Number(v)) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" data-num="1" data-drop="1">${esc(l)}</button>`).join('')}</div>`; };
 const pairChips = (opts: [string, string][], p: string, drop = false) => { const on: string[] = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" ${drop ? 'data-drop="1"' : ''}>${esc(l)}</button>`).join('')}</div>`; };
 // A world made before free expenses gets its water and power written out, so they can be edited like any other.
 function ensureExpenses(w: WorldDef) {
@@ -1611,6 +1705,8 @@ function tabPeople(w: WorldDef) {
         ${peopleEditor(w)}
         ${gendersEditor(w)}
         ${poolEditor(w)}
+        ${addressEditor(w)}
+        ${languageEditor(w)}
         ${routineEditor(w)}
     </div>`;
 }
@@ -1959,6 +2055,20 @@ Object.assign(ACT, {
             const s = (w.starts ?? [])[Number(el.dataset.i)]; const e = w.cast.examples.find(x => !(s?.knows ?? []).some(k => k.name === x.name)); if (!s || !e) return;
             (s.knows ??= []).push({ name: e.name, f: 'acquaintance' }); CW.dirty = true; notify(); return;
         }
+        if (what === 'climate') {
+            const m = (w.climates ??= {}); let n = Object.keys(m).length + 1; while (own(m, `climate${n}`)) n++;
+            m[`climate${n}`] = { seasons: { spring: { sunny: 30, fair: 30, cloudy: 20, rain: 20 }, summer: { sunny: 40, fair: 30, cloudy: 15, rain: 15 }, autumn: { sunny: 25, fair: 25, cloudy: 25, rain: 25 }, winter: { sunny: 25, fair: 20, cloudy: 30, rain: 15, snow: 10 } } };
+            CW.sel.climate = `climate${n}`; CW.dirty = true; notify(); return;
+        }
+        if (what === 'cdays') { const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; list.push({ season: 'summer', from: 1, to: 5, odds: { cloudy: 40, rain: 60 } }); CW.dirty = true; notify(); return; }
+        if (what === 'cregion') {
+            const m = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, {}), getPath(el.dataset.path!))) as Record<string, any>; let n = Object.keys(m).length + 1; while (own(m, `regional${n}`)) n++;
+            m[`regional${n}`] = { spring: 0.1, summer: 0.1, autumn: 0.1, winter: 0.1 }; CW.dirty = true; notify(); return;
+        }
+        if (what === 'erole') {
+            const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[];
+            list.push({ who: w.cast.examples[0]?.name ?? '', text: '' }); CW.dirty = true; notify(); return;
+        }
         if (what === 'wfail') { setPath(el.dataset.path!, { text: '' }); notify(); return; }
         if (what === 'wboost') { setPath(el.dataset.path!, { effects: [{ kind: 'pay', value: 0.1 }], days: 7 }); notify(); return; }
         if (what === 'hire') {
@@ -2012,6 +2122,7 @@ Object.assign(ACT, {
     'cw-wev': (el) => { CW.sel.wev = CW.sel.wev === el.dataset.k ? '' : el.dataset.k; notify(); },
     'cw-track': (el) => { CW.sel.track = el.dataset.id; notify(); },
     'cw-table': (el) => { CW.sel.table = el.dataset.id; notify(); },
+    'cw-climate': (el) => { CW.sel.climate = el.dataset.id; notify(); },
     // one of a track's hiring conditions; one left stays a list of one (an emptied list goes)
     'cw-hire-del': (el) => {
         const t = getPath(el.dataset.path!); if (!t || t.hire === undefined) return;
@@ -2028,7 +2139,7 @@ Object.assign(ACT, {
         setPath(path, cur ? `${cur}; ${made}` : made); notify();
     },
     'cw-chip': (el) => {
-        const l: string[] = getPath(el.dataset.path!) ?? []; const v = el.dataset.v!; const i = l.indexOf(v);
+        const l: any[] = getPath(el.dataset.path!) ?? []; const v = el.dataset.num ? Number(el.dataset.v) : el.dataset.v!; const i = l.indexOf(v);
         i >= 0 ? l.splice(i, 1) : l.push(v);
         setPath(el.dataset.path!, l.length || !el.dataset.drop ? l : undefined); notify();
     },
@@ -2113,6 +2224,12 @@ Object.assign(INPUT, {
         l.forEach((s, k) => { if (k === i && (el as HTMLInputElement).checked) s.default = true; else delete s.default; });
         CW.dirty = true; notify();
     },
+    // a key of a small map renamed in place (a regional kind of weather): a plain name, not one it has already
+    'cw-mkey': (el) => {
+        const p = el.dataset.path!; const m = getPath(p) as Record<string, unknown> | undefined; const from = el.dataset.from!, to = el.value.trim();
+        if (!m || !/^[a-z][a-z0-9_]*$/.test(to) || to === from || own(m, to) !== undefined || BAD_KEYS.includes(to) || own(m, from) === undefined) return;
+        setPath(p, Object.fromEntries(Object.entries(m).map(([k, v]) => [k === from ? to : k, v]))); el.dataset.from = to; dirtyMark();
+    },
     'cw-alltabs': (el) => { CW.allTabs = (el as HTMLInputElement).checked; notify(); },
     cw: (el) => {
         const t = el.dataset.type; const p = el.dataset.path!;
@@ -2142,6 +2259,8 @@ Object.assign(INPUT, {
             if (!getPath(base)) setPath(base, p.endsWith('slot') ? { slot: v, kind: v === 'armor' ? 'armor' : 'attack', amount: 1 } : { kind: v, chance: 0.3, turns: 3 });
         }
         if (/\.(element|combat)$/.test(p) && v === '') v = undefined;
+        // a festival's custom set to none goes whole (no empty custom left behind)
+        if (/^festivals\.\d+\.custom\.kind$/.test(p) && v === undefined) { setPath(p.replace(/\.kind$/, ''), undefined); notify(); return; }
         setPath(p, v);
         if (el.tagName !== 'INPUT' || ['checkbox', 'color', 'time'].includes(el.type)) notify();
         else { dirtyMark(); refreshNotes(); }

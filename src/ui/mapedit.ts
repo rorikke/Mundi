@@ -123,7 +123,7 @@ export function mapEditorHtml(w: WorldDef): string {
                 ${num('Public mood (−100 … 100)', `maps.${mi}.mood`, -100)}${num('Tension (0 … 100)', `maps.${mi}.tension`, 0)}
                 ${num('Prices ×', `maps.${mi}.prices`, 0.2, 0.05)}${num('Crowds ×', `maps.${mi}.crowd`, 0, 0.1)}
                 ${chk('Its own weather', `maps.${mi}.ownWeather`)}
-                ${sel('Climate (its extreme weather)', `maps.${mi}.climate`, [['', '(as the map it is in; else temperate)'], ['temperate', 'Temperate'], ['cold', 'Cold'], ['hot', 'Hot'], ['coastal', 'Coastal']])}
+                ${sel('Climate (its extreme weather)', `maps.${mi}.climate`, [['', '(as the map it is in; else temperate)'], ['temperate', 'Temperate'], ['cold', 'Cold'], ['hot', 'Hot'], ['coastal', 'Coastal'], ...Object.keys(w.climates ?? {}).filter(c => !['temperate', 'cold', 'hot', 'coastal'].includes(c)).map(c => [c, c] as [string, string])])}
                 <small class="mu-muted">Empty: mood 15, tension 10, prices and crowds ×1. They drift day by day around these (weather, weekends, what happens there).</small></details>
             <details class="mu-me-times" ${Object.keys(m.images ?? {}).length ? 'open' : ''}><summary>Picture at other times of the day</summary>
                 ${TIME_SLOTS.map(per => { const b = m.images?.[per.id] ? worldFile(w, m.images[per.id]) : ''; return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${safeUrl(b)}')` : ''}">${b ? '' : '<span>usual</span>'}</div><b>${esc(per.name)}</b>
