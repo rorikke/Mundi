@@ -6,6 +6,7 @@ import { money } from '../sim/needs.js';
 import { weekday } from '../sim/time.js';
 import { comingEvents, isGoing, toggleGoing, placeName, eventHere, type EventTime } from '../sim/cityevents.js';
 import { hobbiesOf, skillsOf, progressOf, titleOf, MAX_LEVEL } from '../sim/hobbies.js';
+import { practiceFor } from '../sim/practice.js';
 
 const hm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 function when(g: Save, x: EventTime) {
@@ -42,10 +43,34 @@ export function hobbiesHtml(g: Save, w: WorldDef): string {
     return `<section class="mu-hobbies"><h4>🎯 ${w.skills?.length ? 'Skills' : 'Hobbies'}</h4><p class="mu-muted">Practice levels them up: each 2 levels are +1 on their rolls, each level pays more, and jobs and promotions ask for them.</p>
         ${list.map(h => { const p = progressOf(g, h.id); return `<div class="mu-pf-row mu-hobby"><b>${esc(h.icon ?? '⭐')} ${esc(h.name)} <em>Lv ${p.level}</em></b>
             <small>${esc(titleOf(p.level))}${p.level < MAX_LEVEL ? ` · ${p.xp}/${p.next} xp` : ' · top level'}${h.desc ? ` · ${esc(h.desc)}` : ''}</small>
-            <span class="mu-bond"><i style="width:${p.pct}%"></i></span></div>`; }).join('')}</section>`;
+            <span class="mu-bond"><i style="width:${p.pct}%"></i></span>${practiceHtml(g, w, h.id)}</div>`; }).join('')}</section>`;
+}
+
+// (kept open across redraws, which happen every game minute; this session only)
+const PRACTICE_OPEN = new Set<string>();
+// Under a skill: what trains it in the places you've been to and at home, folded. Places you haven't been to are only
+// counted, so it points you somewhere without listing the whole city.
+function practiceHtml(g: Save, w: WorldDef, id: string): string {
+    const p = practiceFor(g, w, id);
+    if (!p.spots.length && !p.unseen && !p.jobs.length && !p.immersion) return '';
+    const where = (s: typeof p.spots[number]) => s.home ? `Home${s.item ? ` · needs ${esc(s.item)}` : ''}` : s.anywhere ? 'Anywhere'
+        : `<span data-notr>${esc(s.where.slice(0, 3).join(', '))}</span>${s.where.length > 3 ? ` +${s.where.length - 3}` : ''}${s.more ? ` · ${s.more === 1 ? '1 more place' : `${s.more} more places`}` : ''}`;
+    const list = p.spots.map(s => `<li><b><span>${esc(s.icon)}</span> <span data-notr>${esc(s.label)}</span></b><small>${where(s)}</small></li>`).join('');
+    const itself = p.immersion ? '<small class="mu-muted">It also grows by itself, every hour you spend out among people who speak it.</small>' : '';
+    const jobs = p.jobs.length ? `<small class="mu-muted">Jobs that train it each shift: <span data-notr>${esc(p.jobs.slice(0, 5).join(', '))}</span>${p.jobs.length > 5 ? ` +${p.jobs.length - 5}` : ''}</small>` : '';
+    const more = p.spots.length ? ' more' : '';   // (with nothing found yet, these are all there is)
+    const unseen = p.unseen ? `<small class="mu-muted">${p.unseen === 1 ? `1${more} in a place you haven't been to yet.` : `${p.unseen}${more} in places you haven't been to yet.`}</small>` : '';
+    return `<details class="mu-practice" ${PRACTICE_OPEN.has(id) ? 'open' : ''}><summary data-act="practice-fold" data-id="${esc(id)}">Where to practise${p.spots.length ? ` (${p.spots.length})` : ''}</summary>
+        ${list ? `<ul>${list}</ul>` : p.unseen ? '' : `<small class="mu-muted">Nothing in the places you've been to yet.</small>`}${unseen}${itself}${jobs}</details>`;
 }
 
 Object.assign(ACT, {
+    'practice-fold': (el, e) => {
+        e.preventDefault();
+        const id = el.dataset.id!;
+        if (!PRACTICE_OPEN.delete(id)) PRACTICE_OPEN.add(id);
+        notify();
+    },
     'ce-go': (el) => {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
         const key = el.dataset.key!; const x = comingEvents(g, w, 7).find(e => e.key === key); if (!x) return;

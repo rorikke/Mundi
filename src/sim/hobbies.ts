@@ -58,6 +58,10 @@ export function setSkillLevel(g: Save, id: string, level: number) {
 // The hobby an action trains (from the world's list, or set on the action itself), or the skill it names (`trains`).
 export const hobbyFor = (w: WorldDef | null | undefined, a: { id: string; hobby?: string; trains?: string }): HobbyDef | null =>
     hobbiesOf(w).find(h => h.id === a.hobby || h.actions.includes(a.id)) ?? (a.trains ? skillDef(w, a.trains) : null);
+/** The skill doing an action trains: its hobby or `trains`, else the skill its roll uses (trying something trains it,
+ *  as a story's choice does). */
+export const trainedBy = (w: WorldDef | null | undefined, a: { id: string; hobby?: string; trains?: string; roll?: { skill?: string } }): HobbyDef | null =>
+    hobbyFor(w, a) ?? (a.roll?.skill ? skillDef(w, a.roll.skill) : null);
 // On what it pays: +12% a level (or the hobby's own rate).
 export const hobbyPay = (g: Save, w: WorldDef | null | undefined, a: ActionDef) => { const h = hobbyFor(w, a); return h ? 1 + (levelOf(g, h.id) * (h.pay ?? 12)) / 100 : 1; };
 
@@ -77,7 +81,7 @@ export function trainSkill(g: Save, w: WorldDef, id: string, amount: number): st
 
 // After you do it: experience (10 when it goes well, 4 when not, 15 on a great day; actions without a roll give 6).
 export function practice(g: Save, w: WorldDef, a: ActionDef, success: boolean | null, great = false): string[] {
-    const h = hobbyFor(w, a); if (!h) return [];
+    const h = trainedBy(w, a); if (!h) return [];
     return trainSkill(g, w, h.id, success === null ? 6 : great ? 15 : success ? 10 : 4);
 }
 

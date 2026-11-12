@@ -20,7 +20,7 @@ import { CRUSH, DISLIKES } from './romance.js';
 import { rollBonus, rollD20 } from './dice.js';
 import { effectMul } from './effects.js';
 import { addStatus, statusDef } from './needs.js';
-import { trainSkill, hobbyFor, skillName } from './hobbies.js';
+import { trainSkill, trainedBy, skillName } from './hobbies.js';
 import { tallyEvent } from './tally.js';
 import { traitsInPlay } from './traits.js';
 
@@ -258,7 +258,7 @@ privateResults.push((g, w, x, done) => {
     // the skill, by how it went (an action that trains it already gave its practice)
     const skill = privateSkill(w, x.a);
     if (skill) {
-        const xp = PRIVATE.xp[tier] - (hobbyFor(w, x.a)?.id === skill ? 6 : 0);
+        const xp = PRIVATE.xp[tier] - (trainedBy(w, x.a)?.id === skill ? 6 : 0);
         if (xp > 0) trainSkill(g, w, skill, xp).forEach(t => done.lines.push({ text: t, kind: 'success' }));
     }
     if (tier === 'great') done.lines.push({ text: `A night to remember with ${listed(names)}.`, kind: 'success' });
