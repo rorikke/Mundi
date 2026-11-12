@@ -1,18 +1,27 @@
 // (E16) Starts on screen: the cards to choose one in the new game, the editor of a custom start (its premise, written
-// by you or by your AI from lorebooks, the home area, money, a job, the people you already know) shared by the new
-// game and Library → Starts, where the starts you saved for each world are changed or deleted.
+// by you or by your AI from lorebooks, the home area, money, a job, the people you already know, skill levels) shared by
+// the new game and Library → Starts, where the starts you saved for each world are changed or deleted. A start of the
+// world (or one you saved) can be copied into the custom one and changed for this game ("Change this start").
 import { state, notify, esc, toast } from '../core/store.js';
 import { getWorld, worlds, systemOn, type WorldDef, type StartDef, type StartKnown } from '../core/world.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { FAMILY_TYPES } from '../core/feel.js';
-import { worldStarts, savedStarts, saveStart, deleteStart, cleanStart, CUSTOM_START } from '../sim/starts.js';
+import { worldStarts, savedStarts, saveStart, deleteStart, cleanStart, findStart, CUSTOM_START } from '../sim/starts.js';
+import { skillsOf } from '../sim/hobbies.js';
 import { lorebooks, loadLore, quiet } from '../st/bridge.js';
 import { money } from '../sim/needs.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 
-/** A start being written: the start's own fields, and (new game) the lorebooks its premise is written from. */
-export interface StartDraft { id?: string; name: string; premise: string; home?: string; money?: number | string; rent?: number | string; job?: string; knows: StartKnown[]; books?: string[]; bq?: string; busy?: boolean; savedId?: string }
+/** A start being written: the start's own fields, and (new game) the lorebooks its premise is written from. `from`: the
+ *  name of the start it was copied from; its traits, household and adult mark come along as they are. */
+export interface StartDraft { id?: string; name: string; premise: string; home?: string; money?: number | string; rent?: number | string; job?: string; knows: StartKnown[];
+    skills?: Record<string, number>; traits?: string[]; household?: string; adult?: boolean; from?: string; books?: string[]; bq?: string; busy?: boolean; savedId?: string }
+/** A start copied into a draft to change it (its id isn't kept: saved, it becomes a start of your own). */
+export const draftOf = (s: StartDef): StartDraft => {
+    const c: StartDef = JSON.parse(JSON.stringify(s));
+    return { name: c.name, premise: c.premise ?? '', home: c.home, money: c.money, rent: c.rent, job: c.job, knows: c.knows ?? [], skills: c.skills, traits: c.traits, household: c.household, adult: c.adult, from: c.name };
+};
 export const blankStart = (w: WorldDef | null): StartDraft => ({ name: '', premise: '', home: w?.homes.zones[0]?.id ?? '', money: w?.starts?.find(s => s.default)?.money ?? w?.starts?.[0]?.money ?? w?.catalogs.origins?.[0]?.money ?? 0, knows: [] });
 // Each editor's draft and world: the new game's custom start, or the start open in the Library.
 const LIB = { world: '', sel: '', draft: null as StartDraft | null };
@@ -42,6 +51,7 @@ export function startPickHtml(w: WorldDef, on: string, adult: boolean): string {
     return `<section class="mu-origins mu-starts"><h3>Your start</h3><p class="mu-muted">Who you are when the story begins: where you live, what you have, who you already know.</p>
         <div class="mu-cards small">${worldStarts(w, adult).map(s => card(s, false)).join('')}${savedStarts(w.id).filter(s => adult || !s.adult).map(s => card(s, true)).join('')}
             <button class="mu-origin ${on === CUSTOM_START ? 'is-on' : ''}" data-act="ng-origin" data-id="${CUSTOM_START}"><b>Custom</b><p>Write your own premise, or let your AI write it from lorebooks; then choose your home, your money and whom you know.</p></button></div>
+        ${on !== CUSTOM_START && findStart(w, on, adult) ? `<div class="mu-row"><button data-act="st-copy" data-id="${esc(on)}">${icon('edit')}<span>Change this start</span></button><small class="mu-muted">Copied into Custom, to change its premise, money, home, whom you know and your skills for this game.</small></div>` : ''}
         ${on === CUSTOM_START ? `<div class="mu-panel mu-situation-custom">${startEditorHtml('ng')}${aiPremiseHtml()}
             <div class="mu-row"><button data-act="st-save" data-scope="ng">${icon('save')}<span>Save as a start</span></button><small class="mu-muted">Keep it for this world's next games (Library → Starts).</small></div></div>` : ''}</section>`;
 }
@@ -63,7 +73,13 @@ export function startEditorHtml(scope: 'ng' | 'lib'): string {
             ${love ? `${sel('r', [['', 'No romance'], ...ROMANCE_TIERS.filter(t => t.id !== 'none').map(t => [t.id, t.name] as [string, string])], k.r)}${sel('together', TOGETHER, k.status ?? (k.was ? 'ex' : ''))}` : ''}
             <button class="mu-ibtn mu-ghost" data-act="st-k-del" data-scope="${scope}" data-i="${i}" title="Remove">${icon('x')}</button></div>`;
     };
-    return `<label class="mu-field"><span>Name</span><input ${f('name')} maxlength="60" value="${esc(d.name)}" placeholder="My start"></label>
+    const skills = w ? skillsOf(w).filter(k => sc.adult() || !(k as { adult?: boolean }).adult) : [];
+    const has = Object.keys(d.skills ?? {}); const free = skills.filter(k => !has.includes(k.id));
+    const skillRow = (id: string) => `<div class="mu-ties-add"><select data-input="st-skill" data-scope="${scope}" data-from="${esc(id)}">${[...skills.filter(k => k.id === id || free.includes(k)).map(k => opt(k.id, k.name, k.id === id)), ...(skills.some(k => k.id === id) ? [] : [opt(id, id, true)])].join('')}</select>
+        <input type="number" min="0" max="10" step="1" data-input="st-skill-lv" data-scope="${scope}" data-skill="${esc(id)}" value="${esc(d.skills?.[id] ?? 0)}" title="Level (0–10)">
+        <button class="mu-ibtn mu-ghost" data-act="st-skill-del" data-scope="${scope}" data-skill="${esc(id)}" title="Remove">${icon('x')}</button></div>`;
+    return `${d.from ? `<p class="mu-muted">${esc(`Based on ${d.from}: what you change here is for this game, unless you save it as a start.`)}</p>` : ''}
+        <label class="mu-field"><span>Name</span><input ${f('name')} maxlength="60" value="${esc(d.name)}" placeholder="My start"></label>
         <label class="mu-field"><span>Premise (how the story starts; the AI is told this)</span><textarea rows="5" ${f('premise')} placeholder="Who you are, why you're here, and what's going on as the story begins. Write {{user}} for yourself.">${esc(d.premise)}</textarea></label>
         ${w ? `<div class="mu-row2"><label class="mu-field"><span>Where you live</span><select ${f('home')}>${w.homes.zones.map(z => opt(z.id, z.name, d.home === z.id)).join('')}</select></label>
             <label class="mu-field"><span>Money</span><input type="number" min="0" step="1" ${f('money')} value="${esc(d.money ?? '')}"></label></div>
@@ -71,7 +87,10 @@ export function startEditorHtml(scope: 'ng' | 'lib'): string {
         ${jobs.length ? `<label class="mu-field"><span>A job to start with</span><select ${f('job')}>${opt('', 'None', !d.job)}${jobs.map(o => opt(o.id, o.name, d.job === o.id)).join('')}</select></label>` : ''}
         <h4>Whom you already know</h4><p class="mu-muted">The world's people who know you from the start, and how (only those in the game; your own characters are under "Your relations").</p>
         ${d.knows.map(known).join('') || '<p class="mu-muted">Nobody yet.</p>'}
-        ${people.length ? `<button data-act="st-k-add" data-scope="${scope}">${icon('plus')}<span>Someone you know</span></button>` : ''}` : ''}`;
+        ${people.length ? `<button data-act="st-k-add" data-scope="${scope}">${icon('plus')}<span>Someone you know</span></button>` : ''}
+        ${skills.length || has.length ? `<h4>Your skills</h4><p class="mu-muted">The levels you begin with (0–10).</p>${has.map(skillRow).join('') || '<p class="mu-muted">None.</p>'}
+            ${free.length ? `<button data-act="st-skill-add" data-scope="${scope}">${icon('plus')}<span>A skill</span></button>` : ''}` : ''}
+        ${d.traits?.length ? `<p class="mu-muted">${esc(`It also gives you ${d.traits.join(', ')}, added to the traits you pick.`)}</p>` : ''}` : ''}`;
 }
 // The new game: let your AI write the premise from one or more lorebooks.
 function aiPremiseHtml(): string {
@@ -93,7 +112,7 @@ export async function loreText(names: string[], max = 9000): Promise<string> {
 }
 /** The draft as a start (for the new game: its id is 'custom', the saved one's when it was saved). */
 export function draftStart(d: StartDraft, id: string): StartDef | null {
-    const { books, bq, busy, savedId, ...s } = d; void books; void bq; void busy; void savedId;
+    const { books, bq, busy, savedId, from, ...s } = d; void books; void bq; void busy; void savedId; void from;
     return cleanStart({ ...s, id, name: s.name.trim() || 'Custom' });
 }
 
@@ -117,6 +136,18 @@ Object.assign(ACT, {
         const name = w.cast.examples.find(e => (sc.adult() || !e.adult) && !d.knows.some(k => k.name === e.name))?.name; if (!name) return;
         d.knows.push({ name, f: 'acquaintance' }); notify();
     },
+    // a start of the world (or one you saved) copied into the custom one, to change it for this game
+    'st-copy': (el) => {
+        const wz = state.wizard, w = SC.ng.world(); const s = w && findStart(w, el.dataset.id, !!wz?.adult); if (!wz || !s) return;
+        wz.cstart = draftOf(s); wz.hero.origin = CUSTOM_START; notify();
+    },
+    // a skill level: the next skill of the world not there yet (at 1), removed
+    'st-skill-add': (el) => {
+        const sc = SC[el.dataset.scope!], d = sc?.draft(), w = sc?.world(); if (!d || !w) return;
+        const k = skillsOf(w).find(x => (sc.adult() || !(x as { adult?: boolean }).adult) && d.skills?.[x.id] === undefined); if (!k) return;
+        d.skills = { ...(d.skills ?? {}), [k.id]: 1 }; notify();
+    },
+    'st-skill-del': (el) => { const d = SC[el.dataset.scope!]?.draft(); if (!d?.skills) return; const { [el.dataset.skill!]: _gone, ...rest } = d.skills; void _gone; d.skills = Object.keys(rest).length ? rest : undefined; notify(); },
     'st-k-del': (el) => { const d = SC[el.dataset.scope!]?.draft(); if (!d) return; d.knows.splice(Number(el.dataset.i), 1); notify(); },
     'st-book': (el) => { const d = SC.ng.draft(); if (!d) return; const n = el.dataset.name!; const l = (d.books ??= []); d.books = l.includes(n) ? l.filter(b => b !== n) : [...l, n]; notify(); },
     'st-gen': async () => {
@@ -159,6 +190,15 @@ Object.assign(INPUT, {
         if (k === 'together') { delete kn.status; delete kn.was; if (v === 'ex') kn.was = 'ex'; else if (v) kn.status = v; }
         else if (v) kn[k] = v; else delete kn[k];
         notify();
+    },
+    // a skill changed for another (its level and place kept), a level held at 0–10
+    'st-skill': (el) => {
+        const d = SC[el.dataset.scope!]?.draft(); const from = el.dataset.from!, to = el.value; if (!d?.skills || !to || to === from || d.skills[to] !== undefined) return;
+        d.skills = Object.fromEntries(Object.entries(d.skills).map(([k, v]) => [k === from ? to : k, v])); notify();
+    },
+    'st-skill-lv': (el) => {
+        const d = SC[el.dataset.scope!]?.draft(); const k = el.dataset.skill!; if (!d?.skills || d.skills[k] === undefined || el.value === '') return;
+        d.skills[k] = Math.max(0, Math.min(10, Math.round(Number(el.value) || 0)));
     },
     'st-bq': (el) => { const d = SC.ng.draft(); if (d) { d.bq = el.value; notify(); } },
 });

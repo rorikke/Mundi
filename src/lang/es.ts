@@ -7326,5 +7326,11 @@ const DICT: Record<string, string> = {
  "Once a month": "Una vez al mes",
  "Who is around besides the world's people (6–20 words, for the AI)": "Quién anda por ahí además de la gente del mundo (6–20 palabras, para la IA)",
  "Who you are, why you're here, and what's going on as the story begins.": "Quién eres, por qué estás aquí y qué está pasando cuando empieza la historia.",
+ "Change this start": "Cambiar este comienzo",
+ "Copied into Custom, to change its premise, money, home, whom you know and your skills for this game.": "Se copia en Personalizado, para cambiar su premisa, el dinero, la casa, a quién conoces y tus habilidades en esta partida.",
+ "Based on {0}: what you change here is for this game, unless you save it as a start.": "Basado en {0}: lo que cambies aquí es para esta partida, salvo que lo guardes como comienzo.",
+ "Your skills": "Tus habilidades",
+ "The levels you begin with (0–10).": "Los niveles con los que empiezas (0–10).",
+ "It also gives you {0}, added to the traits you pick.": "También te da {0}, sumado a los rasgos que elijas.",
 };
 export default DICT;

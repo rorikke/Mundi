@@ -1,0 +1,2 @@
+/* A start's skill levels (the start editor, startsui.ts): the level a short number beside its skill, not a full row. */
+#mundi-root .mu-ties-add input[type="number"] { width: 5.5em; flex: 0 0 auto; }
