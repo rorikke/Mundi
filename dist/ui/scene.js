@@ -118,14 +118,18 @@ function spriteFor(avatar, label) {
     const hit = [want, ...(NEAR[want] ?? []), 'neutral'].map(find).find(Boolean) ?? list[0];
     return String(hit?.path ?? '');
 }
-// The latest expression of each person in the scene (from her last line).
+// The latest expression of each person in the scene (from her last line that has one). A reply still being written
+// or read has none yet, so the face she had stays until the new one is known, instead of flashing back to neutral.
 function expressions() {
     const out = {};
     const list = chat();
     for (let i = list.length - 1; i >= 0 && i > list.length - 60; i--) {
         const a = speakerOf(list[i]);
-        if (a && !(a in out))
-            out[a] = labelOf(list[i]);
+        if (!a || a in out)
+            continue;
+        const l = labelOf(list[i]);
+        if (l)
+            out[a] = l;
     }
     return out;
 }
