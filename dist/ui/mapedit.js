@@ -12,9 +12,13 @@ import { closedOf } from '../sim/daynight.js';
 import { pickFile } from './cropper.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { CW, W, txt, area, sel, num, chk } from './creator.js';
+import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, pairChips } from './creator.js';
+import { WEATHER_KINDS } from '../sim/weather.js';
+import { WEEKDAY_IDS } from '../core/world.js';
+import { WEEKDAYS } from '../sim/time.js';
 // `home`: the chosen home, "<area id>:<index in its spots>" ('' for none; a pin and a home are never both chosen)
-export const ME = { map: '', mode: 'move', zone: '', pin: '', home: '', zoom: 1, bgPick: false, bgq: '', bgs: null, bgPeriod: '' };
+export const ME = { map: '', mode: 'move', zone: '', pin: '', home: '', zoom: 1, bgPick: false, bgq: '', bgs: null, bgPeriod: '',
+    /** the season and weather of a new background picture (`rain-summer-night`) */ bgVar: { wx: '', season: '', per: 'day' } };
 const TAGS = ['leisure', 'food', 'shop', 'work', 'study', 'service', 'health'];
 const TAG_NAMES = { leisure: 'Leisure', food: 'Food', shop: 'Shopping', work: 'Work', study: 'Study', service: 'Services', health: 'Health' };
 // A place's background: the usual one, or the one of a part of the day ('' removes it).
@@ -102,7 +106,55 @@ function placeForm(w) {
                     <button class="mu-ghost mu-ibtn" data-act="me-bg-pick" data-period="${esc(per.id)}" title="From Backgrounds">${icon('image')}</button><button class="mu-ghost mu-ibtn" data-act="me-bg-upload" data-period="${esc(per.id)}" title="Upload">${icon('upload')}</button>${b ? `<button class="mu-ghost mu-ibtn" data-act="me-bg-clear" data-period="${esc(per.id)}" title="Use the usual one">${icon('x')}</button>` : ''}</div>`;
     }).join('')}
                 <small class="mu-muted">Day 5–12 h, afternoon 12–18 h, night 18–5 h. Empty: the usual one.</small></details>
-        <button class="mu-danger" data-act="me-del-pin">${icon('trash')}<span>Remove this place</span></button></div></div>`;
+            ${seasonalBgs(w, p)}
+        <button class="mu-danger" data-act="me-del-pin">${icon('trash')}<span>Remove this place</span></button></div></div>
+        ${placeMore(w, p, path)}`;
+}
+// A place's background in some seasons and weather (`rain-summer-night`, `snow-day`): the most fitting one is shown.
+const BG_SLOTS = () => TIME_SLOTS.map(t => t.id);
+const SEASONS4 = [['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']];
+function seasonalBgs(w, p) {
+    const keys = Object.keys(p.bgs ?? {}).filter(k => !BG_SLOTS().includes(k)).sort();
+    const v = ME.bgVar;
+    const key = [v.wx, v.season, v.per].filter(Boolean).join('-');
+    const opt = (list, on, k) => `<select data-input="me-bgvar" data-k="${k}">${list.map(([x, l]) => `<option value="${esc(x)}" ${x === on ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+    return `<details class="mu-me-times" ${keys.length ? 'open' : ''}><summary>By season and weather · ${keys.length}</summary>
+        ${keys.map(k => {
+        const b = worldFile(w, p.bgs[k]);
+        return `<div class="mu-me-time"><div class="mu-cw-cover is-mini" style="${b ? `background-image:url('${safeUrl(b)}')` : ''}"></div><b data-notr>${esc(k)}</b>
+            <button class="mu-ghost mu-ibtn" data-act="me-bg-pick" data-period="${esc(k)}" title="From Backgrounds">${icon('image')}</button><button class="mu-ghost mu-ibtn" data-act="me-bg-upload" data-period="${esc(k)}" title="Upload">${icon('upload')}</button><button class="mu-ghost mu-ibtn" data-act="me-bg-clear" data-period="${esc(k)}" title="Remove">${icon('x')}</button></div>`;
+    }).join('')}
+        <div class="mu-row mu-cw-inline">${opt([['', 'Any weather'], ['rain', 'Rain'], ['snow', 'Snow']], v.wx, 'wx')}${opt([['', 'Any season'], ...SEASONS4], v.season, 'season')}${opt(TIME_SLOTS.map(t => [t.id, t.name]), v.per, 'per')}
+            <button class="mu-ghost mu-ibtn" data-act="me-bg-pick" data-period="${esc(key)}" title="From Backgrounds">${icon('image')}</button><button class="mu-ghost mu-ibtn" data-act="me-bg-upload" data-period="${esc(key)}" title="Upload">${icon('upload')}</button></div>
+        <small class="mu-muted">The most fitting picture is shown: rain in summer at night first, then rain at night, summer at night, night.</small></details>`;
+}
+// A place's opening hours (by the clock, by season, by weekday), days and weather it's closed, festival nights it stays
+// open, what it costs to get in, who's around, what you hear, private and adult places, what's offered there and
+// sleeping there.
+function placeMore(w, p, path) {
+    const days = WEEKDAY_IDS.map((d, k) => [d, WEEKDAYS[k]]);
+    const regional = [...new Set(Object.values(w.climates ?? {}).flatMap(c => Object.keys(c.regional ?? {})))];
+    const wx = [...WEATHER_KINDS.map(k => [k.id, `${k.icon} ${k.name}`]), ...regional.map(r => [r, r])];
+    const extra = w.actions.filter(a => !a.place || (p.actions ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`]);
+    const here = w.actions.filter(a => a.place === p.id || (a.places ?? []).includes(p.id) || (p.actions ?? []).includes(a.id) || (p.sleep?.includes ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`]);
+    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep;
+    return `<details class="mu-me-more" ${set ? 'open' : ''}><summary>Hours, visitors and more</summary><div class="mu-me-pf">
+        <div class="mu-me-pfcol">${optTxt('Who is around besides the world\'s people (6–20 words, for the AI)', `${path}.staff`, 'the master works in silence; old men at the counter')}
+            <div class="mu-row2">${num(`Getting in costs (${esc(w.currency.symbol)}, once a day)`, `${path}.entry`, 0)}${words('What you hear (sound tags)', `${path}.sound`, '', 'station, crowd')}</div>
+            <div class="mu-row2">${flag('A private place', `${path}.private`, 'A karaoke room, a love-hotel room: a private scene.')}${flag('Only with adult content on', `${path}.adult`, '', true)}</div>
+            ${chk('Offers what its tags bring', `${path}.generic`, 'A walk, a coffee, a meal… Off: only what is offered here by name.', true)}
+            <details class="mu-cw-kept" ${p.actions?.length ? 'open' : ''}><summary>More things to do here · ${p.actions?.length ?? 0}</summary>${pairChips(extra, `${path}.actions`, true)}</details></div>
+        <div class="mu-me-pfcol"><div class="mu-row2">${bounded('Open from (hour; 17.5 = 17:30)', `${path}.open.0`, 0, 24, 0.25)}${bounded('to (below “from”: past midnight)', `${path}.open.1`, 0, 24, 0.25)}</div>
+            <details class="mu-cw-kept" ${p.openBySeason ? 'open' : ''}><summary>Hours by season</summary>${SEASONS4.map(([s, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openBySeason.${s}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openBySeason.${s}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
+            <details class="mu-cw-kept" ${p.openByDay ? 'open' : ''}><summary>Hours on some weekdays (the evening's weekday)</summary>${days.map(([d, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openByDay.${d}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openByDay.${d}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
+            <div class="mu-field"><span>Closed all day on</span>${pairChips(days, `${path}.closedDays`, true)}</div>
+            <div class="mu-field"><span>Closed in this weather</span>${pairChips(wx, `${path}.closedIn`, true)}</div>
+            ${(w.festivals ?? []).length ? `<div class="mu-field"><span>Open all night on these festivals</span>${pairChips((w.festivals ?? []).map(f => [f.id, f.name]), `${path}.festivalOpen`, true)}</div>` : ''}</div>
+        <div class="mu-me-pfcol"><label class="mu-check"><input type="checkbox" data-input="me-sleep" ${p.sleep ? 'checked' : ''}><span>You can sleep here<small>A capsule, a ryokan, a manga café.</small></span></label>
+            ${p.sleep ? `<div class="mu-row2">${num(`A night costs (${esc(w.currency.symbol)})`, `${path}.sleep.price`, 0)}${sel('How well you rest', `${path}.sleep.rest`, [['poor', 'Poor rest'], ['fair', 'Fair rest'], ['good', 'Good rest'], ['great', 'Great rest']])}</div>
+                ${bounded('You leave by (hour; empty: when sleep ends)', `${path}.sleep.until`, 0, 24, 0.5)}
+                <div class="mu-field"><span>Included with the night</span>${pairChips(here, `${path}.sleep.includes`, true)}</div>
+                ${cond('Who may stay (optional)', `${path}.sleep.when`, 'feels: Haru friend')}` : ''}</div></div></details>`;
 }
 function bgPicker() {
     if (!ME.bgPick)
@@ -148,7 +200,7 @@ export function mapEditorHtml(w) {
                 ${num('Public mood (−100 … 100)', `maps.${mi}.mood`, -100)}${num('Tension (0 … 100)', `maps.${mi}.tension`, 0)}
                 ${num('Prices ×', `maps.${mi}.prices`, 0.2, 0.05)}${num('Crowds ×', `maps.${mi}.crowd`, 0, 0.1)}
                 ${chk('Its own weather', `maps.${mi}.ownWeather`)}
-                ${sel('Climate (its extreme weather)', `maps.${mi}.climate`, [['', '(as the map it is in; else temperate)'], ['temperate', 'Temperate'], ['cold', 'Cold'], ['hot', 'Hot'], ['coastal', 'Coastal']])}
+                ${sel('Climate (its extreme weather)', `maps.${mi}.climate`, [['', '(as the map it is in; else temperate)'], ['temperate', 'Temperate'], ['cold', 'Cold'], ['hot', 'Hot'], ['coastal', 'Coastal'], ...Object.keys(w.climates ?? {}).filter(c => !['temperate', 'cold', 'hot', 'coastal'].includes(c)).map(c => [c, c])])}
                 <small class="mu-muted">Empty: mood 15, tension 10, prices and crowds ×1. They drift day by day around these (weather, weekends, what happens there).</small></details>
             <details class="mu-me-times" ${Object.keys(m.images ?? {}).length ? 'open' : ''}><summary>Picture at other times of the day</summary>
                 ${TIME_SLOTS.map(per => {
@@ -499,6 +551,14 @@ Object.assign(ACT, {
 Object.assign(INPUT, {
     'me-zone': (el) => { ME.zone = el.value; notify(); },
     'me-bgq': (el) => { ME.bgq = el.value; notify(); },
+    'me-bgvar': (el) => { const k = el.dataset.k; if (k in ME.bgVar)
+        ME.bgVar[k] = el.value; notify(); },
+    // sleeping at a place: a free night with fair rest to start from, or none
+    'me-sleep': (el) => { const p = W().places.find(x => x.id === ME.pin); if (!p)
+        return; if (el.checked)
+        p.sleep ??= { price: 0, rest: 'fair' };
+    else
+        delete p.sleep; CW.dirty = true; notify(); },
 });
 const asked = new Map();
 function confirmTwice(key, msg) {

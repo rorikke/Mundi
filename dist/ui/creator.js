@@ -2,6 +2,7 @@
 // A world starts from a base (a copy of Porto Alto, or the Modern rules with an empty map) and is saved as a
 // JSON file in SillyTavern's user files. Inputs bind to the draft by path: data-path="statuses.2.name".
 import { TIME_SLOTS } from '../sim/daynight.js';
+import { WEATHER_KINDS } from '../sim/weather.js';
 import { safeUrl } from '../core/safe.js';
 import { money } from '../sim/needs.js';
 import { DEFAULT_EXPENSES } from '../sim/bills.js';
@@ -13,7 +14,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES } from '../core/world.js';
+import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES } from '../core/world.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
 import { tr, setWorldDicts } from '../core/tr.js';
@@ -53,9 +54,12 @@ export function setPath(path, v) {
     if ([...keys, last].some(k => k === '__proto__' || k === 'constructor' || k === 'prototype'))
         return; // (an id from a file can't reach the built-in objects)
     let o = CW.w;
+    // (a field inside something that isn't an object, a condition written as text, is left alone: writing into it throws)
     for (const k of keys) {
         o[k] ??= /^\d+$/.test(last) ? [] : {};
         o = o[k];
+        if (typeof o !== 'object')
+            return;
     }
     if (v === undefined)
         delete o[last];
@@ -75,14 +79,14 @@ const color = (label, p) => `<label class="mu-field mu-cw-color"><span>${label}<
 // `drop`: none picked leaves nothing in the file (a track's list left to the job's)
 const chips = (list, p, drop = false) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(x)}" ${drop ? 'data-drop="1"' : ''}>${esc(x)}</button>`).join('')}</div>`; };
 // A number held between two bounds as it is typed (a skill level 1–10, a share 0–1); a whole number when it steps by 1.
-const bounded = (label, p, lo, hi, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" ${step === 1 ? 'data-int="1"' : ''} data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
+export const bounded = (label, p, lo, hi, step = 1) => `<label class="mu-field"><span>${label}</span><input type="number" min="${lo}" max="${hi}" step="${step}" data-input="cw" data-type="num" data-clamp="${lo},${hi}" ${step === 1 ? 'data-int="1"' : ''} data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}"></label>`;
 // (adult) The mark on what only plays with adult content on, so it's plain which parts of a world need it.
 const ADULT = '<em class="mu-cw-adult" title="Only with adult content on">Adult</em>';
 // A switch whose "off" leaves nothing in the file (no `false`), for the newer marks: a world that never had them gains none.
-const flag = (label, p, hint = '', adult = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="flag" data-path="${esc(p)}" ${getPath(p) ? 'checked' : ''}><span>${label}${adult ? ` ${ADULT}` : ''}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
+export const flag = (label, p, hint = '', adult = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="flag" data-path="${esc(p)}" ${getPath(p) ? 'checked' : ''}><span>${label}${adult ? ` ${ADULT}` : ''}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
 // Words separated by commas, or a text, where nothing typed leaves nothing in the file (an optional id, a job's tags).
-const words = (label, p, hint = '', ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
-const optTxt = (label, p, ph = '', hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+export const words = (label, p, hint = '', ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+export const optTxt = (label, p, ph = '', hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
 // One per line (likes, limits), kept as typed while typing; nothing typed leaves nothing in the file.
 const lines = (label, p, rows = 4, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-type="lines" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${esc((getPath(p) ?? []).join('\n'))}</textarea></label>`;
 // A choice that may be left to something else (a track's field left to the job's): `*` is "as the job", '' a value.
@@ -93,7 +97,7 @@ const inherit = (label, p, opts, from) => {
 };
 // A condition in the grammar of sim/when.ts, checked as it is typed: what can't be read shows under it (such a condition
 // never holds in a game). `ok`: a value the reader of this field takes besides the grammar.
-const cond = (label, p, ph = '', hint = '', ok = '') => {
+export const cond = (label, p, ph = '', hint = '', ok = '') => {
     const v = getPath(p);
     const err = typeof v === 'string' && v !== ok ? whenError(v) : '';
     return `<label class="mu-field"><span>${label}</span><input data-input="cw-when" data-path="${esc(p)}" data-focus="${esc(p)}" ${ok ? `data-ok="${esc(ok)}"` : ''} value="${typeof v === 'string' ? esc(v) : ''}" placeholder="${esc(ph)}">
@@ -125,6 +129,9 @@ const placeOpts = (w, none = '') => [...(none ? [['', none]] : []), ...w.places.
 const statusOpts = (w) => w.statuses.map(s => [s.id, `${s.icon} ${s.name}`]);
 const zoneOpts = (w, none = '') => [...(none ? [['', none]] : []), ...w.homes.zones.map(z => [z.id, z.name])];
 // (adult options too: a job may like Shameless)
+// The world's people by name (who a rumor is about, who comes along); `withCur` keeps a value the list doesn't have.
+const peopleOpts = (w) => w.cast.examples.map(e => [e.name, e.name]);
+const withCur = (opts, cur) => (typeof cur === 'string' && cur && !opts.some(([v]) => v === cur) ? [...opts, [cur, cur]] : opts);
 const traitOptions = (w) => (w.sheet.traits ?? []).flatMap(t => [...t.options, ...(t.adultOptions ?? [])]);
 /* ---------- tabs ---------- */
 function tabGeneral(w) {
@@ -151,6 +158,7 @@ function tabGeneral(w) {
             ${w.time.periods.map((_p, k) => `<div class="mu-row mu-cw-inline">${txt('Name', `time.periods.${k}.name`)}${time('From', `time.periods.${k}.from`)}${num('Prices ×', `time.periods.${k}.prices`, 0.1, 0.05)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="time.periods.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="period">${icon('plus')}<span>Add a period</span></button>
             <small class="mu-muted">Each part of the day can change what is open (Maps: a place's "Closed at"), what things cost out and about (Prices ×, empty = as listed) and how places, homes and maps look (a picture for each part of the day).</small></section>
+        ${isScenario(w) ? '' : transitEditor()}${soundsEditor(w)}
     </div>`;
 }
 function tabFeatures(w) {
@@ -174,7 +182,10 @@ function tabFeatures(w) {
             ${sel('The device looks like', 'features.deviceLook', [['phone', 'A phone (apps on a screen)'], ['book', 'A journal (an open book with pages)']])}
             ${sel('The social app is', 'features.socialKind', [['feed', 'A social network (posts, likes and replies)'], ['board', 'A notice board (notices; whoever answers writes you a letter)']])}
             ${sel('Messages are', 'features.messageKind', [['texts', 'Text messages'], ['letters', 'Letters carried by a courier']])}
-            ${txt('How people write (what the AI is told for messages and posts)', 'ai.voice', 'casual; emoji and hashtags are fine')}</section>
+            ${txt('How people write (what the AI is told for messages and posts)', 'ai.voice', 'casual; emoji and hashtags are fine')}
+            ${flag('Background people everywhere', 'scene.background', 'The AI may describe unnamed staff, regulars and passers-by at every place, not only where a place says who is around.')}
+            ${flag('Things to do play out in the scene', 'scene.actions', 'When someone you have met is here, one of 20 minutes or more becomes the focus of the scene while the clock runs.')}
+            ${num('Conditional lore rows in a scene, at most (empty: no limit)', 'scene.lore', 0)}</section>
         <section class="mu-cw-sec"><h4>Systems</h4>
             <small class="mu-muted">A system turned off is gone from the HUD, the ${esc(w.features?.device ?? 'phone').toLowerCase()} and what the AI is told, and the game stops running it. Saves keep its data: turn it back on and it picks up where it was.</small>
             <div class="mu-cw-systems">${SYSTEMS.map(sy => {
@@ -234,8 +245,8 @@ function tabActions(w) {
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'], ...(w.catalogs.shop ?? []).map(it => [it.id, `${it.icon ?? ''} ${it.name}`])])}
             <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>
-            ${privateBox(w, p, a)}${outcomesList(a)}`;
-    }, 'action')}${storiesList(w)}`;
+            ${actionMore(w, p, a)}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
+    }, 'action')}${tablesEditor(w)}${storiesEditor(w)}`;
 }
 // (adult) A private moment: done in private, only with adult content on, how hard it is (the private roll), the words it
 // matches against someone's likes and hard limits, and the chance of being caught where it's done (with what that costs).
@@ -248,26 +259,215 @@ function privateBox(w, p, a) {
         <div class="mu-row2">${bounded('Chance of being caught (0 … 1)', `${p}.risk`, 0, 1, 0.05)}${num(`Getting caught costs (${esc(w.currency.symbol)})`, `${p}.fee`)}</div>
         <small class="mu-muted">Empty: the roll is the game's (10, 13 with a chance of being caught); no chance of being caught. Caught, it doesn't happen: a fee, a week's ban there, and maybe a rumor.</small></details>`;
 }
-// Outcomes and story choices aren't edited here: they're kept as the world file has them. Their ids (a name a private
-// overlay rewrites them by) are shown, never changed or renumbered.
+// An action's other parts: when it's offered, more places that offer it, done with the people with you, the skill it
+// trains, a keepsake it leaves, what's remembered, and whether it plays out in the scene.
+function actionMore(w, p, a) {
+    const ks = keepsakeOpts(w);
+    return `<h4>When, where and with whom</h4>
+        ${cond('Only offered while (optional)', `${p}.when`, 'period: afternoon; daily: yes')}
+        <details class="mu-cw-kept" ${a.places?.length ? 'open' : ''}><summary>More places that offer it · ${a.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.places`, true)}</details>
+        <label class="mu-check"><input type="checkbox" data-input="cw-from" data-path="${esc(`${p}.together`)}" ${a.together ? 'checked' : ''}><span>Done with the people with you<small>It counts as time together with whoever came along (and the one you talk to alone).</small></span></label>
+        ${a.together ? `<div class="mu-row2">${flag('Not alone', `${p}.together.needed`, 'Only offered with someone.')}${optTxt('What it means for you two (for the AI)', `${p}.together.text`, 'eating side by side at the counter')}</div>` : ''}
+        <div class="mu-row2">${skillOpts(w).length ? sel('A skill it trains a little', `${p}.trains`, withCur([['', '(none)'], ...skillOpts(w)], a.trains), 'opt') : '<span></span>'}${keepsakeOpts(w).length ? sel('A keepsake it always leaves', `${p}.keepsake`, withCur([['', '(none)'], ...ks], a.keepsake), 'opt') : '<span></span>'}</div>
+        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${p}.fact`, '{u} ate ramen at {0}')}${sel('Played out in the scene', `${p}.scene`, [['', 'As the world says'], ['true', 'Yes'], ['false', 'Never']], 'tri')}</div>`;
+}
+const keepsakeOpts = (w) => (w.keepsakes ?? []).map(k => [k.id, `${k.icon ?? ''} ${k.name}`]);
+// What a roll's result, an outcome or a table's row does: what happens, needs, money, a keepsake, how some of the world's
+// people feel about you (once a day or every time), what's remembered and a rumor it starts.
+function outcomeForm(w, q, daily = true) {
+    const o = getPath(q) ?? {};
+    const ks = keepsakeOpts(w);
+    return `${area('What happens (told to the AI)', `${q}.text`, 2)}
+        <div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${q}.effects.${s.id}`, -1000)).join('')}</div>
+        <div class="mu-row2">${num(`Money (${esc(w.currency.symbol)}; below 0: it costs)`, `${q}.money`, -1000000)}${ks.length ? sel('A keepsake', `${q}.keepsake`, withCur([['', '(none)'], ...ks], o.keepsake), 'opt') : '<span></span>'}</div>
+        ${feelsRows(w, `${q}.feels`, false)}${o.feels && daily ? flag('Those feelings count once a game day', `${q}.feelsDaily`, 'Per person and action; the text is still told after that.') : ''}
+        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${q}.fact`)}${optTxt('A rumor it starts among the people here', `${q}.rumor`)}</div>`;
+}
+// A one-click roll: its skill (none: the skill the action trains), how hard, the traits that help, and what success and
+// failure add.
+function rollEditor(w, p, a) {
+    const r = a.roll;
+    const roll = r ? (r.skill ?? ROLL_PLAIN) : ROLL_NONE;
+    const rolls = [[ROLL_NONE, 'No roll'], [ROLL_PLAIN, 'A roll (the skill it trains)'], ...skillOpts(w)];
+    if (!rolls.some(([v]) => v === roll))
+        rolls.push([roll, roll]);
+    return `<h4>A roll</h4><div class="mu-row2"><label class="mu-field"><span>A d20 roll, with the level of</span><select data-input="cw-aroll" data-path="${esc(p)}">${rolls.map(([v, l]) => `<option value="${esc(v)}" ${v === roll ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${r ? bounded('Against (1–30)', `${p}.roll.dc`, 1, 30) : '<span></span>'}</div>
+        ${r ? `<div class="mu-field"><span>Traits that help (+2 each)</span>${chips(traitOptions(w), `${p}.roll.traits`, true)}</div>
+            <div class="mu-cw-path"><span class="mu-cw-sub">When it works</span>${outcomeForm(w, `${p}.roll.success`)}</div>
+            <div class="mu-cw-path"><span class="mu-cw-sub">When it doesn't</span>${outcomeForm(w, `${p}.roll.fail`)}</div>` : ''}`;
+}
+// Weighted outcomes (an action's, or a shared table's rows), one drawn each time. Their ids (a name a private overlay
+// rewrites them by) are shown, never changed or renumbered; a new one gets an id when the others have them (a table's
+// rows always have one: the actions' words name them).
+function outcomesEditor(w, p, list, kind) {
+    return `<h4>${kind === 'row' ? 'Rows' : 'Outcomes'} · ${list.length}</h4><p class="mu-muted">${kind === 'row' ? 'One is drawn by weight each time an action uses this table.' : 'Optional: one is drawn by weight (among those whose condition holds) after the roll, if there is one.'}</p>
+        ${list.map((_o, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k + 1}</b>${idTag(list[k]?.id)}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${k}`)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${num('Weight (how often, against the others)', `${p}.${k}.weight`, 0)}${cond('Only while (optional)', `${p}.${k}.when`, 'present: Kaito')}</div>
+            ${outcomeForm(w, `${p}.${k}`)}</div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="${kind}" data-path="${esc(p)}">${icon('plus')}<span>${kind === 'row' ? 'Add a row' : 'Add an outcome'}</span></button>`;
+}
+// An action drawing from a shared table (an omikuji) tells each result in its own words: a text, or what it changes
+// here too. A result without words keeps the table's.
+function wordsEditor(w, p, a) {
+    const tables = Object.keys(w.tables ?? {}).filter(k => !BAD_KEYS.includes(k));
+    if (!tables.length && !a.table)
+        return '';
+    const rows = (a.table && own(w.tables, a.table)) || [];
+    return `<h4>A shared table</h4>${sel('Draws its outcome from', `${p}.table`, withCur([['', '(its own outcomes)'], ...tables.map(t => [t, t])], a.table), 'opt')}
+        ${a.table ? `<p class="mu-muted">Each result in this action's words (empty: the table's).</p>${rows.map(r => {
+        const id = String(r.id ?? '');
+        if (!id || BAD_KEYS.includes(id))
+            return '';
+        const q = `${p}.words.${id}`;
+        const v = own(a.words, id);
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(id)}<small class="mu-muted" data-notr>${clip(r.text, 60)}</small></div>
+                ${v && typeof v === 'object' ? `${area('Told instead', `${q}.text`, 2)}<div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${q}.effects.${s.id}`, -1000)).join('')}</div>${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${q}.fact`)}
+                    <button class="mu-ghost" data-act="cw-word" data-path="${esc(q)}" data-v="text">${icon('x')}<span>Only the words (what it does is the table's)</span></button>`
+            : `<label class="mu-field"><span>Told instead</span><textarea rows="2" data-input="cw" data-type="opt" data-path="${esc(q)}" data-focus="${esc(q)}">${esc(typeof v === 'string' ? v : '')}</textarea></label>
+                    <button class="mu-ghost" data-act="cw-word" data-path="${esc(q)}" data-v="obj">${icon('plus')}<span>What it does here too (needs, a fact)</span></button>`}</div>`;
+    }).join('')}` : ''}`;
+}
 const idTag = (id) => (typeof id === 'string' && id ? `<code data-notr>${esc(id)}</code>` : '<small class="mu-muted">(no id)</small>');
 const clip = (t, n = 70) => { const x = String(t ?? ''); return esc(x.length > n ? `${x.slice(0, n - 1)}…` : x); };
-function outcomesList(a) {
-    const l = a.outcomes ?? [];
-    if (!l.length)
-        return '';
-    return `<details class="mu-cw-kept"><summary>Outcomes · ${l.length} (kept as the world file has them)</summary>
-        ${l.map(o => `<div class="mu-cw-keptrow">${idTag(o.id)}<small class="mu-muted">weight ${esc(o.weight)}</small><span data-notr>${clip(o.text)}</span></div>`).join('')}</details>`;
+// Outcome tables shared by several actions (one omikuji for every shrine): each action tells the rows in its own words.
+// A table's name is what actions point at, so it's set once and never renamed here.
+function tablesEditor(w) {
+    const names = Object.keys(w.tables ?? {}).filter(k => !BAD_KEYS.includes(k));
+    if (!names.includes(CW.sel.table))
+        CW.sel.table = names[0] ?? '';
+    const t = CW.sel.table;
+    const users = w.actions.filter(a => a.table && a.table === t).map(a => a.label || a.name);
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Shared tables</h4><p class="mu-muted">Outcomes several things to do draw from (one omikuji for every shrine), each told in that action's own words (Things to do › A shared table).</p>
+        <div class="mu-row mu-cw-inline mu-cw-tracks">${names.map(n => `<button class="mu-chip ${n === t ? 'is-on' : ''}" data-act="cw-table" data-id="${esc(n)}"><span data-notr>${esc(n)}</span> <small>${(own(w.tables, n) ?? []).length}</small></button>`).join('') || '<small class="mu-muted">No shared tables.</small>'}
+            <button class="mu-ghost" data-act="cw-add" data-what="table">${icon('plus')}<span>Add a table</span></button></div>
+        ${t ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><code data-notr>${esc(t)}</code><small class="mu-muted">${users.length ? `Used by: ${esc(users.join(', '))}` : 'No action uses it yet.'}</small><span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`tables.${t}`)}">${icon('trash')}<span>Remove this table</span></button></div>
+            ${outcomesEditor(w, `tables.${t}`, own(w.tables, t) ?? [], 'row')}</div>` : ''}</section>`;
 }
-function storiesList(w) {
-    const l = w.stories ?? [];
-    if (!l.length)
-        return '';
-    return `<section class="mu-cw-sec mu-cw-wide"><details class="mu-cw-kept"><summary>Street stories · ${l.length} (kept as the world file has them)</summary>
-        <p class="mu-muted">Seen once at a place. Their choices keep their order (\`seen: story:2\` counts by position) and their ids, which a private overlay rewrites them by.</p>
-        ${l.map(x => `<div class="mu-cw-keptstory"><div class="mu-cw-keptrow">${idTag(x.id)}${x.adult ? ADULT : ''}<span data-notr>${clip(x.setup, 90)}</span></div>
-            ${(x.choices ?? []).map((c, k) => `<div class="mu-cw-keptrow is-sub"><small class="mu-muted">${k + 1}</small>${idTag(c.id)}<span data-notr>${clip(c.label)}</span></div>`).join('')}</div>`).join('')}</details></section>`;
+// Street stories: seen once at a place (or every year), a setup told to the AI and two to four choices. Their ids, and
+// their choices' ids and order (`seen: story:2` counts by position), are what a private overlay and conditions name:
+// shown, never changed or renumbered; a new choice gets an id when the others have them.
+function storiesEditor(w) {
+    const placeName = (id) => w.places.find(p => p.id === id)?.name ?? id;
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Street stories</h4><p class="mu-muted">Short one-off stories that happen at a place: a setup told to the AI (unnamed people, or one of the world's people by name) and two or three choices.</p>
+        ${master('story', 'stories', (x, k) => `<b data-notr>${clip(x.setup, 48) || `#${k + 1}`}</b><small><span data-notr>${esc(placeName(x.place))}</span> · ${esc(x.id)}${x.adult ? ' · adult' : ''}</small>`, i => {
+        const p = `stories.${i}`;
+        const x = (w.stories ?? [])[i];
+        const others = (w.stories ?? []).filter((_s, k) => k !== i).map(s => [s.id, `${s.id}: ${String(s.setup ?? '').slice(0, 40)}`]);
+        return `<div class="mu-row mu-cw-inline">${idTag(x.id)}</div>
+                <div class="mu-row2">${sel('Where', `${p}.place`, withCur(placeOpts(w), x.place))}${cond('When (optional)', `${p}.when`, 'period: evening; weather: rain')}</div>
+                ${area('What happens (the setup, told to the AI)', `${p}.setup`, 3)}
+                <div class="mu-row2">${sel('Someone placed there while it lasts', `${p}.brings`, withCur([['', '(nobody)'], ...peopleOpts(w)], x.brings), 'opt')}${sel('Only after this story', `${p}.after`, withCur([['', '(any time)'], ...others], x.after), 'opt')}</div>
+                <div class="mu-row2">${flag('It comes back every year', `${p}.yearly`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+                ${(x.choices ?? []).map((c, k) => storyChoice(w, `${p}.choices.${k}`, k, c)).join('')}
+                ${(x.choices ?? []).length < 4 ? `<button class="mu-ghost" data-act="cw-add" data-what="schoice" data-path="${esc(`${p}.choices`)}">${icon('plus')}<span>Add a choice</span></button>` : ''}`;
+    }, 'story', 'No street stories yet.')}</section>`;
 }
+function storyChoice(w, q, k, c) {
+    const roll = c.roll ? (c.roll.skill ?? ROLL_PLAIN) : ROLL_NONE;
+    const rolls = [[ROLL_NONE, 'No roll'], [ROLL_PLAIN, 'A roll (no skill)'], ...skillOpts(w)];
+    if (!rolls.some(([v]) => v === roll))
+        rolls.push([roll, roll]);
+    return `<div class="mu-cw-path mu-cw-choice"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Choice ${k + 1}</b>${idTag(c.id)}<span class="mu-cw-spacer"></span>
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove this choice">${icon('x')}</button></div>
+        <div class="mu-row2">${txt('What you choose (the button)', `${q}.label`, 'Help them')}${cond('Only offered while (optional)', `${q}.when`, 'feels: Rina friend')}</div>
+        <div class="mu-row2"><label class="mu-field"><span>A roll</span><select data-input="cw-roll" data-path="${esc(q)}">${rolls.map(([v, l]) => `<option value="${esc(v)}" ${v === roll ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${c.roll ? bounded('Against (1–30)', `${q}.roll.dc`, 1, 30) : num('Takes … minutes (empty: 15)', `${q}.minutes`, 1)}</div>
+        ${c.roll ? num('Takes … minutes (empty: 15)', `${q}.minutes`, 1) : ''}
+        ${storyResult(w, q)}
+        ${c.roll ? (c.fail ? `<div class="mu-cw-path"><span class="mu-cw-sub">When the roll fails, instead</span>${storyResult(w, `${q}.fail`)}
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${q}.fail`)}">${icon('x')}<span>Remove: a failed roll only “did not work out”</span></button></div>`
+        : `<button class="mu-ghost" data-act="cw-add" data-what="wfail" data-path="${esc(`${q}.fail`)}">${icon('plus')}<span>What happens when the roll fails</span></button>`) : ''}</div>`;
+}
+// What a story's choice leads to: besides what any outcome does, a favor someone now owes you (or one it calls in), a
+// thread the player learns, and a skill it trains a little.
+function storyResult(w, q) {
+    const o = getPath(q) ?? {};
+    const threads = w.cast.examples.flatMap(e => (e.threads ?? []).map(t => [t.id, `${e.name}: ${t.id}`]));
+    return `${outcomeForm(w, q, false)}
+        <div class="mu-row2">${optTxt('Someone now owes you a favor (a name, or a stranger\'s id)', `${q}.favor`, 'Rina')}${optTxt('A favor it calls in', `${q}.spend`)}</div>
+        <div class="mu-row2">${threads.length || o.reveal ? sel('A secret the player learns', `${q}.reveal`, withCur([['', '(none)'], ...threads], o.reveal), 'opt') : '<span></span>'}${skillOpts(w).length ? sel('A skill it trains a little', `${q}.trains`, withCur([['', '(none)'], ...skillOpts(w)], o.trains), 'opt') : '<span></span>'}</div>`;
+}
+// Weather by climate (a map's climate picks one): each season's odds of each kind of weather, stretches of a season with
+// odds of their own (the rainy season), weather a region has on its own (a view of a far mountain, volcanic gas), and
+// the climate's own word for a kind (a storm is a typhoon). A climate's name, and a regional kind's, are what maps,
+// places and conditions name: set once (a regional kind can be renamed while nothing names it yet).
+const SEASON_OPTS = [['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']];
+const oddsRow = (p) => `<div class="mu-cw-effects">${WEATHER_KINDS.map(k => num(esc(`${k.icon} ${k.name}`), `${p}.${k.id}`, 0)).join('')}</div>`;
+function climatesEditor(w) {
+    const names = Object.keys(w.climates ?? {}).filter(k => !BAD_KEYS.includes(k));
+    if (!names.includes(CW.sel.climate))
+        CW.sel.climate = names[0] ?? '';
+    const c = CW.sel.climate;
+    const q = `climates.${c}`;
+    const cl = c ? own(w.climates, c) : undefined;
+    const regional = Object.keys(cl?.regional ?? {}).filter(k => !BAD_KEYS.includes(k));
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Weather by climate</h4><p class="mu-muted">Each season's odds of each kind of weather (weights: 30 against 10 is three times as likely). A map's climate (Maps & places) picks one; with none, one table all year.</p>
+        <div class="mu-row mu-cw-inline mu-cw-tracks">${names.map(n => `<button class="mu-chip ${n === c ? 'is-on' : ''}" data-act="cw-climate" data-id="${esc(n)}"><span data-notr>${esc(n)}</span></button>`).join('') || '<small class="mu-muted">No climates.</small>'}
+            <button class="mu-ghost" data-act="cw-add" data-what="climate">${icon('plus')}<span>Add a climate</span></button></div>
+        ${cl ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><code data-notr>${esc(c)}</code><small class="mu-muted">Maps with it: ${esc(w.maps.filter(m => m.climate === c).map(m => m.name).join(', ') || 'none yet')}</small><span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this climate</span></button></div>
+            ${SEASON_OPTS.map(([s, l]) => `<span class="mu-cw-sub">${l}</span>${oddsRow(`${q}.seasons.${s}`)}`).join('')}
+            <span class="mu-cw-sub">Stretches of a season with odds of their own (the rainy season)</span>
+            ${(cl.days ?? []).map((_d, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Season', `${q}.days.${k}.season`, SEASON_OPTS)}${bounded('From day', `${q}.days.${k}.from`, 1, SEASON_DAYS)}${bounded('To day', `${q}.days.${k}.to`, 1, SEASON_DAYS)}
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.days.${k}`)}" title="Remove">${icon('x')}</button></div>${oddsRow(`${q}.days.${k}.odds`)}</div>`).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="cdays" data-path="${esc(`${q}.days`)}">${icon('plus')}<span>Add a stretch</span></button>
+            <span class="mu-cw-sub">Weather a region has on its own (a kind ending in “view” is a view, seen only on a clear day)</span>
+            ${regional.map(r => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Kind of weather</span><input data-input="cw-mkey" data-path="${esc(`${q}.regional`)}" data-from="${esc(r)}" value="${esc(r)}"></label>
+                ${SEASON_OPTS.map(([s, l]) => bounded(`${l} (0 … 1)`, `${q}.regional.${r}.${s}`, 0, 1, 0.05)).join('')}
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.regional.${r}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="cregion" data-path="${esc(`${q}.regional`)}">${icon('plus')}<span>Add regional weather</span></button>
+            <details class="mu-cw-kept" ${Object.keys(cl.names ?? {}).length ? 'open' : ''}><summary>Its own words for a kind (a storm is a typhoon)</summary>
+                <div class="mu-cw-effects">${WEATHER_KINDS.map(k => optTxt(esc(k.name), `${q}.names.${k.id}`)).join('')}</div></details></div>` : ''}</section>`;
+}
+// Small settings of the whole world: trains and taxis, how people address you, the languages spoken, what the AI is told
+// in a scene, and your own sound files for places' sounds.
+function transitEditor() {
+    return `<section class="mu-cw-sec"><h4>Trains and taxis</h4><p class="mu-muted">Between the last and the first train, a trip between two maps is a taxi or a wait. Empty: no last train.</p>
+        <div class="mu-row2">${bounded('Last trains leave at (hour; 0.5 = 0:30)', 'transit.last', 0, 24, 0.25)}${bounded('First trains at (hour)', 'transit.first', 0, 24, 0.25)}</div>
+        <div class="mu-row2">${num('A taxi costs (base)', 'transit.taxi.base', 0)}${num('… and per minute', 'transit.taxi.perMinute', 0)}</div>
+        ${num('The walk to the station (minutes, added to trips between districts)', 'transit.walk', 0)}</section>`;
+}
+function soundsEditor(w) {
+    const tags = [...new Set([...Object.keys(w.sounds ?? {}), ...w.places.flatMap(p => p.sound ?? [])])].filter(t => t && !BAD_KEYS.includes(t)).sort();
+    if (!tags.length)
+        return '';
+    return `<section class="mu-cw-sec"><h4>Sounds of places</h4><p class="mu-muted">Your own sound file for a place's sound (a looped file in the world's folder). Empty: the game's own sound.</p>
+        <div class="mu-cw-effects">${tags.map(t => txt(esc(t), `sounds.${t}`, 'sounds/station.mp3')).join('')}</div></section>`;
+}
+function addressEditor(w) {
+    const love = systemOn(w, 'romance');
+    return `<section class="mu-cw-sec"><h4>How people address you</h4><p class="mu-muted">A few words per level, told to the AI ("first name + -san, casual speech"). Empty: as the AI likes.</p>
+        <div class="mu-cw-effects">${[...FRIEND_TIERS].reverse().map(t => optTxt(esc(t.name), `address.friend.${t.id}`)).join('')}</div>
+        ${love ? `<span class="mu-cw-sub">A partner</span><div class="mu-cw-effects">${[['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']].map(([id, l]) => optTxt(l, `address.romance.${id}`)).join('')}</div>` : ''}
+        <div class="mu-row2">${optTxt('A senior at work', 'address.senior')}${optTxt('A junior at work', 'address.junior')}</div></section>`;
+}
+function languageEditor(w) {
+    const sk = skillOpts(w);
+    const l = w.language;
+    if (!sk.length && !l)
+        return '';
+    return `<section class="mu-cw-sec"><h4>Languages</h4><p class="mu-muted">The language everyone here speaks, for a newcomer who doesn't: the player's level in it shapes what the AI is told, and time with people who speak only it trains it.</p>
+        ${sel('Spoken here (a skill)', 'language.local', withCur([['', '(no barrier)'], ...sk], l?.local), 'opt')}
+        ${l?.local ? `<div class="mu-field"><span>Other languages people may share with you</span>${pairChips(sk.filter(([id]) => id !== l.local), 'language.others', true)}</div>
+            ${bounded('How well the world\'s people speak those (0–10; empty: 2)', 'language.level', 0, 10)}` : ''}</section>`;
+}
+// Who a festival or event draws, and who has a part in it (they're there instead of their routine).
+function audienceRows(w, p) {
+    const opts = [['everyone', 'Everyone'], ['couples', 'Couples'], ['friends', 'Friends of those taking part'], ['fans', 'Fans (free time there)'], ['colleagues', 'Colleagues (work there)'], ['neighbors', 'Neighbors (live on its map)'], ['students', 'Students'],
+        ...(w.hobbies ?? []).map(h => [`hobby:${h.id}`, `Hobby: ${h.name}`]), ...w.occupations.map(o => [`job:${o.id}`, `Job: ${o.name}`])];
+    const roles = getPath(`${p}.roles`) ?? [];
+    return `<details class="mu-cw-kept" ${(getPath(`${p}.audience`) ?? []).length ? 'open' : ''}><summary>Who it draws · ${(getPath(`${p}.audience`) ?? []).length}</summary>${pairChips(withCurAll(opts, getPath(`${p}.audience`)), `${p}.audience`, true)}</details>
+        <span class="mu-cw-sub">Who has a part in it</span>
+        ${roles.map((_r, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Who', `${p}.roles.${k}.who`, withCur(peopleOpts(w), roles[k]?.who))}${sel('Where', `${p}.roles.${k}.place`, withCur([['', '(its place)'], ...placeOpts(w)], roles[k]?.place), 'opt')}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.roles.${k}`)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${bounded('From (hour; empty: its own)', `${p}.roles.${k}.from`, 0, 30, 0.5)}${bounded('To (hour)', `${p}.roles.${k}.to`, 0, 30, 0.5)}</div>
+            ${txt('What they do (for the AI)', `${p}.roles.${k}.text`, 'behind her convention table')}</div>`).join('')}
+        ${w.cast.examples.length ? `<button class="mu-ghost" data-act="cw-add" data-what="erole" data-path="${esc(`${p}.roles`)}">${icon('plus')}<span>Someone with a part in it</span></button>` : ''}`;
+}
+const withCurAll = (opts, cur) => [...opts, ...(Array.isArray(cur) ? cur.filter((x) => typeof x === 'string' && !opts.some(([v]) => v === x)).map(x => [x, x]) : [])];
 function tabJobs(w) {
     return `<div class="mu-row2">${num('Career speed (×; 2: twice as fast)', 'careerSpeed', 0.25, 0.25)}${sel('Work rules a new game starts with', 'workPreset', [['', 'Realistic (Relaxed in a Home)'], ['realistic', 'Realistic'], ['reduced', 'Reduced'], ['relaxed', 'Relaxed']], 'opt')}</div>
         ${master('jobs', 'occupations', o => `<b>${esc(o.name)}</b><small>${esc(w.places.find(p => p.id === o.place)?.name ?? '—')}</small>`, i => {
@@ -279,6 +479,8 @@ function tabJobs(w) {
             <div class="mu-row2">${num('Opens at (hour)', `${p}.hours.0`, 0)}${num('Closes at (hour)', `${p}.hours.1`, 0)}</div>
             <div class="mu-row2">${num('Days a week (empty: five)', `${p}.schedule.days`, 0)}${num('Career length (1: about a game year)', `${p}.length`, 0.1, 0.1)}</div>
             <div class="mu-row2">${num('Shift from (hour; empty: when it opens)', `${p}.schedule.from`, 0)}${num('Shift to (hour)', `${p}.schedule.to`, 0)}</div>
+            ${shiftRows(p, o)}
+            <details class="mu-cw-kept" ${o.drinks?.length ? 'open' : ''}><summary>Where colleagues go for drinks after work · ${o.drinks?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.drinks`, true)}<small class="mu-muted">None: only to a team's standing appointment right after work.</small></details>
             <div class="mu-row2">${num('Extra pay at night (0.25: +25%)', `${p}.nightPay`, 0, 0.05)}${chk('The boss asks for overtime', `${p}.overtime`)}</div>
             <div class="mu-row2">${chk('Worked off-screen', `${p}.offScreen`, 'Away from every map during the shift')}${chk('Open to the player', `${p}.hireable`, '', true)}</div>
             <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, '', true)}${bounded('Months before the first shift (0–12; empty: from the next shift)', `${p}.startAfter`, 0, 12, 0.5)}</div>
@@ -296,6 +498,15 @@ function tabJobs(w) {
             ${trackEditor(w, o, p)}`;
     }, 'job')}`;
 }
+// Named shifts a job is worked in (a konbini's day, evening and night), each from and to an hour (past midnight: to is
+// below from); a worker keeps one. Their ids are what saves remember: set once, never changed here.
+function shiftRows(p, o) {
+    const l = o.schedule?.shifts ?? [];
+    return `<span class="mu-cw-sub">Shifts (optional: instead of one shift from … to)</span>
+        ${l.map((_x, k) => `<div class="mu-row mu-cw-inline">${idTag(l[k].id)}${txt('Name', `${p}.schedule.shifts.${k}.name`, 'Night')}${bounded('From (hour)', `${p}.schedule.shifts.${k}.from`, 0, 24, 0.5)}${bounded('To (hour)', `${p}.schedule.shifts.${k}.to`, 0, 24, 0.5)}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.schedule.shifts.${k}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="shift" data-path="${esc(`${p}.schedule.shifts`)}">${icon('plus')}<span>Add a shift</span></button>`;
+}
 // A job's (or a track's) ranks: name, pay per hour, time to the next, days a week at that rank (an extra called once a
 // week), and the student rank when it asks for a course.
 function rankRows(w, p, o, courses = o.courses) {
@@ -303,19 +514,32 @@ function rankRows(w, p, o, courses = o.courses) {
     return `${ranks.map((_r, k) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${p}.ranks.${k}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${p}.ranks.${k}.pay`)}
             ${k < ranks.length - 1 ? num('Time to the next rank (relative)', `${p}.promote.${k}`, 1) : '<span class="mu-cw-spacer"></span>'}
             ${bounded('Days a week (empty: the schedule\'s)', `${p}.ranks.${k}.days`, 1, 7)}
-            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${p}.ranks.${k}" title="Remove">${icon('x')}</button></div>${rankMore(w, `${p}.ranks.${k}`, ranks[k])}`).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${p}.ranks">${icon('plus')}<span>Add a rank</span></button>
         ${ranks.map((r, k) => (k === 0 && (courses ?? []).length) || r.student ? chk(k ? `${esc(r.name)} is a student rank` : 'The first rank is a student rank', `${p}.ranks.${k}.student`, 'You can be hired at it while you take the course this job asks for; the next rank needs the course finished.') : '').join('')}`;
 }
+// What a rank asks before you're promoted to it (skill levels, a course, traits, a condition such as the performance it
+// wants: `perf: 80`), and where it works when not at the job's place (an idol's top ranks at the TV studio).
+function rankMore(w, q, r) {
+    if (!r)
+        return '';
+    const n = Object.keys(r.needs ?? {}).length + (r.course ? 1 : 0) + (r.traits?.length ? 1 : 0) + (r.when ? 1 : 0) + (r.place ? 1 : 0);
+    const courses = (w.catalogs.courses ?? []).map(c => [c.id, c.name]);
+    return `<details class="mu-cw-kept" ${n ? 'open' : ''}><summary>What ${esc(r.name)} asks · ${n}</summary>
+        ${skillOpts(w).length || r.needs ? skillLevels(w, `${q}.needs`, 'Skill levels') : ''}
+        <div class="mu-row2">${courses.length || r.course ? sel('A course finished', `${q}.course`, withCur([['', '(none)'], ...courses], r.course), 'opt') : '<span></span>'}${cond('Also (a condition; perf: 80 is the performance it wants)', `${q}.when`, 'perf: 60')}</div>
+        <div class="mu-field"><span>Traits (one of them)</span>${chips(traitOptions(w), `${q}.traits`, true)}</div>
+        ${sel('Works at (empty: the job\'s place)', `${q}.place`, withCur([['', '(the job\'s place)'], ...placeOpts(w)], r.place), 'opt')}</details>`;
+}
 // Skill levels by skill (a job's or a track's levels to be hired): a row each, the skill changed in place (its level
 // kept, never two of one skill), "Add a skill" adding the next one of the world at level 3.
-function skillLevels(w, p, label) {
+function skillLevels(w, p, label, lo = 1) {
     const map = (getPath(p) ?? {});
     const all = skillOpts(w);
     const has = Object.keys(map).filter(s => !BAD_KEYS.includes(s));
     const free = all.filter(([id]) => !has.includes(id));
     return `<span class="mu-cw-sub">${label}</span>${has.map(s => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Skill</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(s)}">${[...all.filter(([id]) => id === s || free.some(([f]) => f === id)), ...(all.some(([id]) => id === s) ? [] : [[s, s]])].map(([id, n]) => `<option value="${esc(id)}" ${id === s ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
-            ${bounded('Level (1–10)', `${p}.${s}`, 1, 10)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${s}`)}" title="Remove">${icon('x')}</button></div>`).join('') || '<small class="mu-muted">None.</small>'}
+            ${bounded(`Level (${lo}–10)`, `${p}.${s}`, lo, 10)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${s}`)}" title="Remove">${icon('x')}</button></div>`).join('') || '<small class="mu-muted">None.</small>'}
         ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="skills" data-v="3" data-path="${esc(p)}">${icon('plus')}<span>Add a skill</span></button>` : ''}`;
 }
 // How some of the world's people feel about you after a choice (a name → friendship points, 2–5 "a little"); in an event
@@ -486,9 +710,11 @@ function tabEconomy(w) {
         return `${txt('Name', `${p}.name`)}${txt('What it is like', `${p}.desc`)}<div class="mu-row2">${num('Comes back every (days)', `${p}.every`, 2)}${num('Lasts (days)', `${p}.days`, 1)}</div>
                 <div class="mu-row2">${sel('Effect', `${p}.effect`, [['mana', 'Mana storm: focus back every morning'], ['monsters', 'Blood moon: roads twice as dangerous, shops shut'], ['omen', 'Omen: moods drop']])}${num('Amount (omen: mood)', `${p}.amount`, -50)}</div>`;
     }, 'sky')}</section>
+        ${climatesEditor(w)}
         <section class="mu-cw-sec"><h4>Extreme weather</h4><p class="mu-muted">Each map has a climate (Maps & places → Life in this region).</p>${master('hazard', 'skies.hazards', x => `<b>${esc(x.name)}</b><small>${esc(x.climate)}</small>`, i => {
         const p = `skies.hazards.${i}`;
-        return `${txt('Name', `${p}.name`)}${txt('What it is like', `${p}.desc`)}<div class="mu-row2">${sel('Climate', `${p}.climate`, climates)}${sel('Season', `${p}.season`, seasons)}</div>
+        return `${txt('Name', `${p}.name`)}${txt('What it is like', `${p}.desc`)}<div class="mu-row2">${sel('Climate', `${p}.climate`, withCur([...climates, ...Object.keys(w.climates ?? {}).map(c => [c, c])], w.skies?.hazards?.[i]?.climate))}${sel('Season', `${p}.season`, seasons)}</div>
+                <div class="mu-field"><span>Only on days of this weather (none: any day)</span>${pairChips(WEATHER_KINDS.map(k => [k.id, `${k.icon} ${k.name}`]), `${p}.weather`, true)}</div>
                 ${num('Chance on a day (0 … 1)', `${p}.chance`, 0, 0.01)}<h4>Needs drop faster (×)</h4><div class="mu-row2">${w.statuses.map(st => num(esc(st.name), `${p}.drain.${st.id}`, 0, 0.1)).join('')}</div>
                 ${chk('No rest at camp without camping gear', `${p}.blocksCamp`)}${chk('Shuts the shops', `${p}.closes`)}`;
     }, 'hazard')}</section>
@@ -505,7 +731,8 @@ function tabRealm(w) {
         <section class="mu-cw-sec mu-cw-wide"><h4>The realm</h4>
             ${txt('The country (or kingdom) its cities belong to', 'realm.name', 'Costa Serena')}
             <div class="mu-row2">${sel('Government', 'realm.government', GOVERNMENTS.map(([id, n]) => [id, n]))}${txt('Leadership', 'realm.leadership', 'A single emperor, regional kings, elected leaders…')}</div>
-            <div class="mu-row2">${sel('Power affinity', 'realm.power', POWERS.map(([id, n, d]) => [id, `${n}: ${d}`]))}${num('Tax rate (0.1 = 10%; empty: by government)', 'realm.tax', 0, 0.01)}</div></section>
+            <div class="mu-row2">${sel('Power affinity', 'realm.power', POWERS.map(([id, n, d]) => [id, `${n}: ${d}`]))}${num('Tax rate (0.1 = 10%; empty: by government)', 'realm.tax', 0, 0.01)}</div>
+            <label class="mu-field"><span>What the AI is told about the realm (optional: instead of the sentences made from the above)</span><textarea rows="2" data-input="cw" data-type="opt" data-path="realm.line" data-focus="realm.line">${val('realm.line')}</textarea></label></section>
         <section class="mu-cw-sec"><h4>Pantheon</h4><p class="mu-muted">Optional. With no gods, altars are monuments, faith classes use their secular name and faith attributes are hidden.</p>
         ${master('god', 'realm.pantheon', x => `<b>${esc(x.symbol ?? '')} ${esc(x.name)}</b><small>${esc(x.domain)}</small>`, i => {
         const p = `realm.pantheon.${i}`;
@@ -552,7 +779,12 @@ function tabCustoms(w) {
         return `${txt('Name', `${p}.name`)}${txt('What it is like (told to the AI)', `${p}.desc`)}
                 <div class="mu-row2">${sel('Season', `${p}.season`, seasons)}${num('Day of the season', `${p}.day`, 1)}</div>
                 <div class="mu-row2">${num('Lasts (days)', `${p}.days`, 1)}${sel('People gather at', `${p}.place`, [['', '(nowhere in particular)'], ...places])}</div>
-                <div class="mu-row2">${num('Prices ×', `${p}.prices`, 0, 0.05)}${num('Mood when you celebrate', `${p}.mood`, 0)}</div>`;
+                <div class="mu-row2">${num('Prices ×', `${p}.prices`, 0, 0.05)}${num('Mood when you celebrate', `${p}.mood`, 0)}</div>
+                <div class="mu-row2">${bounded('Crowd (of 100 people with free time)', `${p}.crowd`, 0, 100)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+                <details class="mu-cw-kept" ${(w.festivals ?? [])[i]?.places?.length ? 'open' : ''}><summary>More places it fills · ${(w.festivals ?? [])[i]?.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.places`, true)}</details>
+                ${sel('A custom between people', `${p}.custom.kind`, [['', '(none)'], ['gift', 'People who like you give you something'], ['return', 'The return gift'], ['couples', 'Partners expect a date'], ['family', 'Family and close friends go together'], ['group', 'Friends invite you along']], 'opt')}
+                ${(w.festivals ?? [])[i]?.custom ? `<div class="mu-row2">${optTxt('The custom in a sentence (for the AI)', `${p}.custom.text`)}${bounded('Done at (hour; empty: soon after they ask)', `${p}.custom.at`, 0, 24, 0.5)}</div>` : ''}
+                ${audienceRows(w, p)}`;
     }, 'festival')}</section>
         <section class="mu-cw-sec"><h4>City events</h4><p class="mu-muted">Shows, matches, fairs: on a weekday, every few weeks, at a place. They are in the calendar and you go if you want.</p>
         ${master('cevent', 'cityEvents', e => `<b>${esc(e.icon ?? '')} ${esc(e.name)}</b><small>${esc(DAYS[e.weekday]?.[1] ?? '')} ${e.from}h</small>`, i => {
@@ -567,7 +799,13 @@ function tabCustoms(w) {
                 <div class="mu-row2">${num('Crowd (of 100 people with free time)', `${p}.crowd`, 0)}${chk('Outdoors (called off when it rains)', `${p}.outdoor`)}</div>
                 <h4>Perform there (a hobby)</h4>
                 <div class="mu-row2">${sel('Hobby', `${p}.stage.hobby`, hob)}${num('Level needed', `${p}.stage.level`, 0)}</div>
-                <div class="mu-row2">${txt('Button', `${p}.stage.label`, 'Play at the open mic')}${num('Pay', `${p}.stage.pay`, 0)}</div>`;
+                <div class="mu-row2">${txt('Button', `${p}.stage.label`, 'Play at the open mic')}${num('Pay', `${p}.stage.pay`, 0)}</div>
+                <h4>More of the calendar</h4>
+                <div class="mu-field"><span>More weekdays it's on</span>${numChips(DAYS, `${p}.weekdays`)}</div>
+                <div class="mu-field"><span>Only in these seasons (none: all year)</span>${pairChips(SEASON_OPTS, `${p}.seasons`, true)}</div>
+                <div class="mu-row2">${bounded('Only from day of the season', `${p}.seasonDays.0`, 1, SEASON_DAYS)}${bounded('to day', `${p}.seasonDays.1`, 1, SEASON_DAYS)}</div>
+                ${flag('Only with adult content on', `${p}.adult`, '', true)}
+                ${audienceRows(w, p)}`;
     }, 'cevent')}</section>
         <section class="mu-cw-sec"><h4>Hobbies</h4><p class="mu-muted">Practice levels them up (to 10): +1 on their rolls every 2 levels, more money each level, and jobs can ask for a level.</p>
         ${master('hobby', 'hobbies', h => `<b>${esc(h.icon ?? '')} ${esc(h.name)}</b><small>${(h.actions ?? []).length} actions</small>`, i => {
@@ -692,7 +930,7 @@ function branchEditor(w, o, p) {
                 <div class="mu-row2">${txt('Path', `${q}.name`)}${txt('What it is', `${q}.desc`)}</div>
                 ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Time to reach it (relative)', `${q}.promote.${ri}`, 1)}
                     ${bounded('Days a week (empty: the schedule\'s)', `${q}.ranks.${ri}.days`, 1, 7)}
-                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>`).join('')}
+                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>${rankMore(w, `${q}.ranks.${ri}`, x.ranks[ri])}`).join('')}
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>
                 ${earlier(b.at).length ? `<div class="mu-field"><span>Only after (empty: after any)</span>${pairChips(earlier(b.at), `${q}.after`)}</div>` : ''}
@@ -703,7 +941,9 @@ function branchEditor(w, o, p) {
 }
 // What a bill or a broken thing can stop at home: the world's home actions.
 const homeActionOpts = (w) => w.actions.filter(a => a.home).map(a => [a.id, a.label || a.name]);
-const pairChips = (opts, p, drop = false) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" ${drop ? 'data-drop="1"' : ''}>${esc(l)}</button>`).join('')}</div>`; };
+// Chips over numbers (weekdays 0–6): the picked ones are kept as numbers; none picked leaves nothing.
+const numChips = (opts, p) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(Number(v)) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" data-num="1" data-drop="1">${esc(l)}</button>`).join('')}</div>`; };
+export const pairChips = (opts, p, drop = false) => { const on = getPath(p) ?? []; return `<div class="mu-chips">${opts.map(([v, l]) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" ${drop ? 'data-drop="1"' : ''}>${esc(l)}</button>`).join('')}</div>`; };
 // A world made before free expenses gets its water and power written out, so they can be edited like any other.
 function ensureExpenses(w) {
     if (w.homes.expenses)
@@ -818,7 +1058,58 @@ function tabShop(w) {
                 <div class="mu-row2">${num(`Price (${esc(w.currency.symbol)})`, `${p}.price`)}${num('Mood when you wake up at home (+)', `${p}.sleepMood`)}</div>
                 <div class="mu-row2">${num('Trips take this share of the time (0.5 = half; empty = not a vehicle)', `${p}.travel`, 0, 0.05)}</div>
                 <p class="mu-muted">${unlocks.length ? `Unlocks: ${esc(unlocks.join(', '))}.` : 'Unlocks nothing to do yet: in Things to do, pick this item under "Only if the player owns".'}</p>`;
-    }, 'item', 'Nothing for sale.')}</section>`;
+    }, 'item', 'Nothing for sale.')}</section>${keepsakesEditor(w)}`;
+}
+// Keepsakes: things you keep from actions and street stories (a goshuin stamp, a plush), and gifts. Their ids are what
+// actions, stories and goals name: set once, never changed here.
+function keepsakesEditor(w) {
+    return `<section class="mu-cw-sec"><h4>Keepsakes and gifts</h4><p class="mu-muted">Things you keep from things to do and street stories; most can be given. Some are sold at places, for gifts.</p>
+        ${master('keep', 'keepsakes', k => `<b>${esc(k.icon ?? '')} ${esc(k.name)}</b><small>${esc(k.kind ?? '')}${k.adult ? ' · adult' : ''}</small>`, i => {
+        const p = `keepsakes.${i}`;
+        const k = (w.keepsakes ?? [])[i];
+        return `<div class="mu-row mu-cw-inline">${idTag(k.id)}</div>
+                <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎁')}</div>
+                <div class="mu-row2">${optTxt('Kind (a gift of each kind counts once per person)', `${p}.kind`, 'charm')}${chk('It can be given', `${p}.gift`, '', true)}</div>
+                ${area('Description', `${p}.desc`, 2)}
+                ${words('Who would love it (names, or words matched against their job and where they spend free time)', `${p}.loves`, '', 'Mio, music, shrine')}
+                <div class="mu-row2">${flag('A romantic gift', `${p}.romantic`, 'With someone drawn to you, romance grows too.')}${flag('An intimate gift', `${p}.intimate`, 'Welcome only from a partner or someone with a crush on you.', true)}</div>
+                ${flag('Only with adult content on', `${p}.adult`, '', true)}
+                <details class="mu-cw-kept" ${k.at?.length ? 'open' : ''}><summary>Sold at · ${k.at?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.at`, true)}</details>
+                ${k.at?.length ? num(`Price (${esc(w.currency.symbol)})`, `${p}.price`) : ''}`;
+    }, 'keepsake', 'No keepsakes yet.')}</section>`;
+}
+// The world's ready-made starts: who you are when a game begins (the new game's cards). Made from an origin, a start
+// keeps the origin's id, and the origin still gives what only it has (RPG skills, "people you know").
+function startsEditor(w) {
+    const love = systemOn(w, 'romance');
+    const jobs = [['', '(none)'], ...w.occupations.map(o => [o.id, o.name])];
+    const households = [...new Set(w.cast.examples.map(e => e.household).filter((h) => !!h))].map(h => [h, h]);
+    return `<section class="mu-cw-sec mu-cw-wide"><h4>Starts (who you are when the game begins)</h4><p class="mu-muted">The cards a new game offers: where you live, what you have, who you already know, and what the AI is told. The player can still write a custom one.</p>
+        ${master('start', 'starts', s => `<b>${esc(s.name)}</b><small>${s.money !== undefined ? esc(money(w, s.money)) : ''}${s.default ? ' · picked first' : ''}${s.adult ? ' · adult' : ''}</small>`, i => {
+        const p = `starts.${i}`;
+        const s = (w.starts ?? [])[i];
+        const names = (k) => withCur(peopleOpts(w), k.name);
+        return `<div class="mu-row mu-cw-inline">${idTag(s.id)}</div>
+                ${txt('Name', `${p}.name`)}${optTxt('Short description (on its card)', `${p}.desc`)}
+                ${area('Premise (how the story starts; the AI is told this. {{user}}: the player)', `${p}.premise`, 5, 'Who you are, why you\'re here, and what\'s going on as the story begins.')}
+                <div class="mu-row2">${sel('Where you live', `${p}.home`, withCur(zoneOpts(w, '(the first area)'), s.home), 'opt')}${num(`Money (${esc(w.currency.symbol)})`, `${p}.money`)}</div>
+                <div class="mu-row2">${num(`Rent you pay there, a week (${esc(w.currency.symbol)}; empty: the home's own, until you move)`, `${p}.rent`)}${sel('A job to start with', `${p}.job`, withCur(jobs, s.job), 'opt')}</div>
+                ${households.length || s.household ? sel('You live with this household', `${p}.household`, withCur([['', '(nobody)'], ...households], s.household), 'opt') : ''}
+                <div class="mu-row2"><label class="mu-check"><input type="checkbox" data-input="cw-sdefault" data-path="${esc(`${p}.default`)}" data-i="${esc(i)}" ${s.default ? 'checked' : ''}><span>Picked first<small>The card chosen when a new game opens.</small></span></label>${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+                <h4>Whom you already know</h4>
+                ${(s.knows ?? []).map((k, j) => {
+            const q = `${p}.knows.${j}`;
+            const together = k.status ?? (k.was ? 'ex' : '');
+            return `<div class="mu-cw-feel"><div class="mu-row mu-cw-inline">${sel('Who', `${q}.name`, names(k))}${sel('Family', `${q}.family`, [['', 'Not family'], ...TIE_TYPES.map(([id, l]) => [id, l.replace(/ of$/, '')])], 'opt')}
+                        <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+                        <div class="mu-row2">${sel('Friendship', `${q}.f`, LEVELS('As usual'), 'opt')}${love ? sel('Romance', `${q}.r`, ROMANCE('No romance').filter(([v]) => v !== 'none'), 'opt') : ''}</div>
+                        ${love ? `<label class="mu-field"><span>Together</span><select data-input="cw-together" data-path="${esc(q)}">${TOGETHER.map(([v, l]) => `<option value="${v}" ${together === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>` : ''}</div>`;
+        }).join('') || '<p class="mu-muted">Nobody yet.</p>'}
+                ${w.cast.examples.length ? `<button class="mu-ghost" data-act="cw-add" data-what="sknown" data-i="${esc(i)}">${icon('plus')}<span>Someone you know</span></button>` : ''}
+                <h4>What you begin with</h4>
+                <div class="mu-field"><span>Traits</span>${chips(traitOptions(w), `${p}.traits`, true)}</div>
+                ${skillOpts(w).length || s.skills ? skillLevels(w, `${p}.skills`, 'Skill levels') : ''}`;
+    }, 'start', 'No starts: the origins are the starts.')}</section>`;
 }
 // The words of the game: every term with the style's word as a hint; what you write replaces it in this world.
 const WORDS = { q: '' };
@@ -1140,6 +1431,7 @@ function tabCharacter(w) {
                         ${txt('What it gives you', `${p}.feature`, 'Folk hero: common folk take you in.')}
                         <div class="mu-row2">${w.rpg.attributes.map(a => num(`+ ${esc(a.short)}`, `${p}.attributes.${a.id}`, 0)).join('')}</div>` : ''}`;
     }, 'origin')}</section>
+        ${startsEditor(w)}
     </div>`;
 }
 const round4 = (x) => Math.round(x * 10000) / 10000;
@@ -1529,6 +1821,81 @@ function feelRow(q, others, love) {
         <div class="mu-row2">${sel('Friendship', `${q}.f`, LEVELS('As usual'), 'opt')}${love ? sel('Romance', `${q}.r`, ROMANCE('As usual'), 'opt') : ''}</div>
         <div class="mu-row2">${sel('Their friendship back', `${q}.back`, LEVELS('The same'), 'opt')}${love ? sel('Their romance back', `${q}.rback`, ROMANCE('The same'), 'opt') : ''}</div></div>`;
 }
+// A person's other parts: looks and voice, pictures, their household, the rank they hold, the languages they speak, and
+// whether they only exist with adult content on or may change their life by chance.
+function personMore(w, p, e) {
+    const ranks = w.occupations.find(o => o.id === e.occupation)?.ranks ?? [];
+    const at = typeof e.rank === 'number' ? e.rank : typeof e.rank === 'string' ? ranks.findIndex(r => r.name === e.rank) : -1;
+    return `<h4>Looks, voice and pictures</h4>
+        <div class="mu-row2">${optTxt('Their looks in a line (when present but not speaking)', `${p}.look`)}${optTxt('Their voice in a line', `${p}.voice`)}</div>
+        <div class="mu-row2">${optTxt('Portrait (a picture in the world\'s folder)', `${p}.avatar`, 'people/mio.png')}${optTxt('Expression sprites (a folder in the world\'s folder)', `${p}.sprites`, 'sprites/mio')}</div>
+        <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
+        ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
+        <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>`;
+}
+// Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
+// how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
+const EVERY = [['', 'Every week'], ['2', 'Every 2 weeks'], ['3', 'Every 3 weeks'], ['4', 'Every 4 weeks'], ['month', 'Once a month'], ['year', 'Once a year']];
+function ritualsEditor(w, p, e) {
+    const l = e.rituals ?? [];
+    const days = WEEKDAY_IDS.map((d, k) => [d, WEEKDAYS[k]]);
+    const others = peopleOpts(w).filter(([n]) => n !== e.name);
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Standing appointments · ${l.length}</summary>
+        <p class="mu-muted">They win over free time, not over a work shift. Hours past 24 run into the night (21–26 is 21:00 to 2:00).</p>
+        ${l.map((r, k) => {
+        const q = `${p}.rituals.${k}`;
+        const every = r.every === undefined || r.every === 'week' ? '' : String(r.every);
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Where', `${q}.place`, withCur([['home', 'Their own home'], ...placeOpts(w)], r.place))}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-field"><span>Weekdays (none: their days off)</span>${pairChips(days, `${q}.days`, true)}</div>
+            <div class="mu-row2">${bounded('From (hour)', `${q}.from`, 0, 30, 0.5)}${bounded('To (hour)', `${q}.to`, 0, 30, 0.5)}</div>
+            <div class="mu-row2"><label class="mu-field"><span>How often</span><select data-input="cw" data-type="every" data-path="${esc(`${q}.every`)}">${withCur(EVERY, every).map(([v, x]) => `<option value="${esc(v)}" ${v === every ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+                ${every ? num(every === 'month' ? 'The week of the season (1: the first, -1: the last)' : 'Starting on week', `${q}.week`, -1) : bounded('How often it happens (0 … 1; empty: always)', `${q}.chance`, 0, 1, 0.05)}</div>
+            ${every ? bounded('How often it happens (0 … 1; empty: always)', `${q}.chance`, 0, 1, 0.05) : ''}
+            <div class="mu-row2">${sel('Only on a festival\'s days', `${q}.festival`, withCur([['', '(any day)'], ...(w.festivals ?? []).map(f => [f.id, f.name])], r.festival), 'opt')}${sel('Only on an event\'s days', `${q}.event`, withCur([['', '(any day)'], ...(w.cityEvents ?? []).map(c => [c.id, c.name])], r.event), 'opt')}</div>
+            ${txt('What they\'re doing (for the AI)', `${q}.text`, 'sings at Bar Kotori')}
+            <div class="mu-row2">${cond('Only while (optional)', `${q}.when`, 'season: summer')}${flag('Only with adult content on', `${q}.adult`, '', true)}</div>
+            <div class="mu-field"><span>Who comes along</span>${pairChips(withCurAll(others, r.with), `${q}.with`, true)}</div>
+            <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details></div>`;
+    }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="ritual" data-path="${esc(`${p}.rituals`)}">${icon('plus')}<span>Add an appointment</span></button></details>`;
+}
+// Secrets and storylines that move in stages: what they hide, how it reads once known, when they tell, the stages (when,
+// how it's told, a moment, a rumor, a fact) and how it ends (a new job or home, leaving, a good ending). Ids are what
+// conditions, stories and saves name: shown, never changed.
+function threadsEditor(w, p, e) {
+    const l = e.threads ?? [];
+    const jobs = [['', '(the same)'], ...w.occupations.map(o => [o.id, o.name])];
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Secrets and storylines · ${l.length}</summary>
+        ${l.map((t, k) => {
+        const q = `${p}.threads.${k}`;
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(t.id)}${flag('Only with adult content on', `${q}.adult`, '', true)}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this storyline</span></button></div>
+            ${area('What they know and don\'t say (told to the AI as hidden)', `${q}.hidden`, 2)}
+            <div class="mu-row2"><label class="mu-field"><span>How it reads once you know ({{user}} knows …)</span><textarea rows="2" data-input="cw" data-type="opt" data-path="${esc(`${q}.known`)}" data-focus="${esc(`${q}.known`)}">${val(`${q}.known`)}</textarea></label>${cond('They tell you when (empty: once you\'re good friends)', `${q}.reveal`, 'feels: Mio good')}</div>
+            <span class="mu-cw-sub">Stages</span>
+            ${(t.stages ?? []).map((st, j) => {
+            const s = `${q}.stages.${j}`;
+            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${j + 1}</b>${st.id ? idTag(st.id) : ''}${sel('Told as', `${s}.tell`, [['hidden', 'Hidden'], ['hinted', 'Hinted'], ['known', 'Known']])}<span class="mu-cw-spacer"></span>
+                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
+                ${cond('Begins when', `${s}.when`, 'season: summer; seasonDays: 8-14')}${area('What is going on', `${s}.text`, 2)}
+                <div class="mu-row2">${optTxt('A moment it brings', `${s}.moment`)}${optTxt('A rumor it starts', `${s}.rumor`)}</div>${optTxt('Remembered (a fact)', `${s}.fact`)}</div>`;
+        }).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="tstage" data-path="${esc(`${q}.stages`)}">${icon('plus')}<span>Add a stage</span></button>
+            <span class="mu-cw-sub">Endings (the first whose condition holds; else the last without one)</span>
+            ${(t.endings ?? []).map((en, j) => {
+            const s = `${q}.endings.${j}`;
+            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(en.id)}<span class="mu-cw-spacer"></span>
+                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
+                ${cond('When (optional)', `${s}.when`, 'knows: mio_grades; feels: Mio friend')}${area('How it ends', `${s}.text`, 2)}
+                <div class="mu-row2">${sel('A new job', `${s}.job`, withCur(jobs, en.job), 'opt')}${sel('A new home', `${s}.home`, withCur(zoneOpts(w, '(the same)'), en.home), 'opt')}</div>
+                ${optTxt('Remembered (a fact)', `${s}.fact`)}
+                <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div></div>`;
+        }).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="tend" data-path="${esc(`${q}.endings`)}">${icon('plus')}<span>Add an ending</span></button></div>`;
+    }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="thread" data-path="${esc(`${p}.threads`)}">${icon('plus')}<span>Add a storyline</span></button></details>`;
+}
 // The world's own people: a character card is made from each when a game of this world starts (or reused).
 function peopleEditor(w) {
     const others = (e) => w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name]);
@@ -1558,6 +1925,8 @@ function peopleEditor(w) {
                 ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${esc(i)}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
+                ${personMore(w, p, e)}
+                <h4>Their life</h4>${ritualsEditor(w, p, e)}${threadsEditor(w, p, e)}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
     }, 'person', 'Nobody lives here yet.')}
@@ -1584,6 +1953,8 @@ function tabPeople(w) {
         ${peopleEditor(w)}
         ${gendersEditor(w)}
         ${poolEditor(w)}
+        ${addressEditor(w)}
+        ${languageEditor(w)}
         ${routineEditor(w)}
     </div>`;
 }
@@ -1624,16 +1995,23 @@ SCOPES.cw = {
 function tabLore(w) {
     return master('lore', 'lore', (l, k) => `<b>${esc((l.keys ?? []).join(', ') || `#${k + 1}`)}</b><small>${l.constant ? 'Always on' : ''}${l.id ? ` · ${esc(l.id)}` : ''}</small>`, i => {
         const p = `lore.${i}`;
+        const l = w.lore[i];
+        // `when` is either a condition written as text (as goals write them) or the older choices below; each is edited
+        // its own way, and switching from one to the other starts empty
+        const text = typeof l.when === 'string' || CW.sel.lwhen === p;
         return `${csv('Keywords (comma separated)', `${p}.keys`, 'The entry is used when one of these comes up in the chat.')}${chk('Always on', `${p}.constant`)}
             ${optTxt('Id (optional)', `${p}.id`, 'tk_lore_hotel', 'A name a private overlay can replace this entry by: its entry with the same id is used instead of this one. Keep it once games may use the overlay.')}
+            <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, '', true)}${num('Priority (higher: kept first in a busy scene)', `${p}.priority`, 0)}</div>
             <h4>Only when… (optional: the entry switches on by itself when the world is like this)</h4>
-            <div class="mu-row2">${sel('Weather', `${p}.when.weather`, [['', 'Any'], ['Sunny', 'Sunny'], ['Fair', 'Fair'], ['Partly cloudy', 'Partly cloudy'], ['Cloudy', 'Cloudy'], ['Rain', 'Rain']])}${sel('Part of the day', `${p}.when.period`, [['', 'Any'], ...w.time.periods.map(x => [x.name, x.name])])}</div>
+            <label class="mu-field"><span>Written as</span><select data-input="cw-lwhen" data-path="${esc(p)}"><option value="" ${text ? '' : 'selected'}>Choices (weather, place, season…)</option><option value="text" ${text ? 'selected' : ''}>A condition, as goals write them</option></select></label>
+            ${text ? cond('Only while', `${p}.when`, 'place: sb_crossing; period: evening; weekend: yes', 'The same conditions as goals and things to do. One that can\'t be read never holds.') : `<div class="mu-row2">${sel('Weather', `${p}.when.weather`, [['', 'Any'], ['Sunny', 'Sunny'], ['Fair', 'Fair'], ['Partly cloudy', 'Partly cloudy'], ['Cloudy', 'Cloudy'], ['Rain', 'Rain']])}${sel('Part of the day', `${p}.when.period`, [['', 'Any'], ...w.time.periods.map(x => [x.name, x.name])])}</div>
             <div class="mu-row2">${sel('Place', `${p}.when.place`, [['', 'Anywhere'], ...placeOpts(w)])}${sel('Days', `${p}.when.weekend`, [['', 'Any day'], ['true', 'Weekends'], ['false', 'Weekdays']], 'tri')}</div>
             <div class="mu-row2">${sel('Region (map)', `${p}.when.region`, [['', 'Anywhere'], ...w.maps.map(m => [m.id, m.name])])}${sel('Season', `${p}.when.season`, [['', 'Any'], ['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']])}</div>
             <div class="mu-row2">${num('Tension above (0 … 100)', `${p}.when.tensionAbove`)}${num('Chance each day (0 … 1)', `${p}.when.chance`, 0, 0.05)}</div>
             <div class="mu-row2">${num('Public mood above (−100 … 100)', `${p}.when.moodAbove`, -100)}${num('Public mood below', `${p}.when.moodBelow`, -100)}</div>
-            <div class="mu-row2">${num('From day', `${p}.when.fromDay`, 1)}${num('Until day', `${p}.when.toDay`, 1)}</div>
+            <div class="mu-row2">${num('From day', `${p}.when.fromDay`, 1)}${num('Until day', `${p}.when.toDay`, 1)}</div>`}
             ${chk('It is a rumor', `${p}.rumor`, 'Instead of telling the AI, people pass it around (from two people in its region, when the conditions hold); you may overhear it.')}
+            ${l.rumor || l.about || l.secret ? `<div class="mu-row2">${sel('Who it is about (they never hear it)', `${p}.about`, withCur([['', '(nobody in particular)'], ...peopleOpts(w)], l.about), 'opt')}${flag('A secret', `${p}.secret`, 'Their close friends don\'t pass it on.')}</div>` : ''}
             ${area('Content', `${p}.content`, 8)}`;
     }, 'lore', 'No entries yet.') + `<p class="mu-muted">These entries, the setting and every place become the world's lorebook when a game starts.</p>`;
 }
@@ -1820,9 +2198,12 @@ const NEW = {
     trait: () => ['sheet.traits', { id: newId('trait'), label: 'New group', max: 2, options: [] }],
     skill: () => ['skills', { id: newId('skill'), name: 'New skill', icon: '🎯' }],
     goal: () => ['goals.add', { id: newId('goal'), name: 'New goal', icon: '⭐', category: 'social', desc: '', steps: [{ name: 'Step 1', when: '' }], perk: { name: 'New perk', desc: '', effects: [{ kind: 'learn', value: 0.1 }] } }],
+    story: () => ['stories', { id: newId('st'), place: W().places.find(p => !p.link)?.id ?? '', setup: '', choices: [{ label: 'Choice A', text: '' }, { label: 'Choice B', text: '' }] }],
+    keepsake: () => ['keepsakes', { id: newId('ks'), name: 'New keepsake', icon: '🎁', kind: 'charm' }],
+    start: () => ['starts', { id: newId('start'), name: 'New start', premise: '', home: W().homes.zones[0]?.id ?? '', money: W().starts?.[0]?.money ?? 1000 }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill' };
+const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },
@@ -2040,6 +2421,96 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        // an action's outcome, a shared table's row (always with an id: actions' words name it)
+        if (what === 'outcome' || what === 'row') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            const ids = what === 'row' || (list.length > 0 && list.every(o => typeof o.id === 'string' && o.id));
+            list.push({ ...(ids ? { id: newId(what === 'row' ? 'r' : 'o') } : {}), weight: 1, text: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'schoice') {
+            const list = getPath(el.dataset.path);
+            if (!Array.isArray(list) || list.length >= 4)
+                return;
+            list.push({ ...(list.length && list.every(c => typeof c.id === 'string' && c.id) ? { id: newId('c') } : {}), label: `Choice ${String.fromCharCode(65 + list.length)}`, text: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'table') {
+            const m = (w.tables ??= {});
+            let n = Object.keys(m).length + 1;
+            while (own(m, `table${n}`))
+                n++;
+            m[`table${n}`] = [{ id: newId('r'), weight: 1, text: '' }];
+            CW.sel.table = `table${n}`;
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'shift') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push({ id: newId('shift'), name: `Shift ${list.length + 1}`, from: 9, to: 17 });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'sknown') {
+            const s = (w.starts ?? [])[Number(el.dataset.i)];
+            const e = w.cast.examples.find(x => !(s?.knows ?? []).some(k => k.name === x.name));
+            if (!s || !e)
+                return;
+            (s.knows ??= []).push({ name: e.name, f: 'acquaintance' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'climate') {
+            const m = (w.climates ??= {});
+            let n = Object.keys(m).length + 1;
+            while (own(m, `climate${n}`))
+                n++;
+            m[`climate${n}`] = { seasons: { spring: { sunny: 30, fair: 30, cloudy: 20, rain: 20 }, summer: { sunny: 40, fair: 30, cloudy: 15, rain: 15 }, autumn: { sunny: 25, fair: 25, cloudy: 25, rain: 25 }, winter: { sunny: 25, fair: 20, cloudy: 30, rain: 15, snow: 10 } } };
+            CW.sel.climate = `climate${n}`;
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'cdays') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push({ season: 'summer', from: 1, to: 5, odds: { cloudy: 40, rain: 60 } });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'cregion') {
+            const m = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, {}), getPath(el.dataset.path)));
+            let n = Object.keys(m).length + 1;
+            while (own(m, `regional${n}`))
+                n++;
+            m[`regional${n}`] = { spring: 0.1, summer: 0.1, autumn: 0.1, winter: 0.1 };
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'erole') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push({ who: w.cast.examples[0]?.name ?? '', text: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        // a person's standing appointment, storyline, a storyline's stage and ending
+        if (what === 'ritual' || what === 'thread' || what === 'tstage' || what === 'tend') {
+            const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            list.push(what === 'ritual' ? { place: 'home', from: 19, to: 21, text: '' } : what === 'thread' ? { id: newId('th'), hidden: '', stages: [{ tell: 'hidden', text: '' }] }
+                : what === 'tstage' ? { ...(list.length && list.every(x => typeof x.id === 'string' && x.id) ? { id: newId('stage') } : {}), tell: 'hinted', text: '' } : { id: newId('end'), text: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
         if (what === 'wfail') {
             setPath(el.dataset.path, { text: '' });
             notify();
@@ -2134,9 +2605,21 @@ Object.assign(ACT, {
         CW.dirty = true;
         notify();
     },
+    // a table result told in an action's own words: only a text, or what it changes there too
+    'cw-word': (el) => {
+        const p = el.dataset.path;
+        const v = getPath(p);
+        if (el.dataset.v === 'obj')
+            setPath(p, { text: typeof v === 'string' ? v : '' });
+        else
+            setPath(p, v && typeof v === 'object' && v.text ? v.text : undefined);
+        notify();
+    },
     // the work event open below its list (another click closes it), the track shown
     'cw-wev': (el) => { CW.sel.wev = CW.sel.wev === el.dataset.k ? '' : el.dataset.k; notify(); },
     'cw-track': (el) => { CW.sel.track = el.dataset.id; notify(); },
+    'cw-table': (el) => { CW.sel.table = el.dataset.id; notify(); },
+    'cw-climate': (el) => { CW.sel.climate = el.dataset.id; notify(); },
     // one of a track's hiring conditions; one left stays a list of one (an emptied list goes)
     'cw-hire-del': (el) => {
         const t = getPath(el.dataset.path);
@@ -2168,7 +2651,7 @@ Object.assign(ACT, {
     },
     'cw-chip': (el) => {
         const l = getPath(el.dataset.path) ?? [];
-        const v = el.dataset.v;
+        const v = el.dataset.num ? Number(el.dataset.v) : el.dataset.v;
         const i = l.indexOf(v);
         i >= 0 ? l.splice(i, 1) : l.push(v);
         setPath(el.dataset.path, l.length || !el.dataset.drop ? l : undefined);
@@ -2303,6 +2786,46 @@ Object.assign(INPUT, {
         setPath(`${q}.was`, 'ex');
     else if (el.value)
         setPath(`${q}.status`, el.value); notify(); },
+    // a lore entry's `when` written as a condition, or as the choices (each starts empty when switched to)
+    'cw-lwhen': (el) => {
+        const p = el.dataset.path;
+        const cur = getPath(`${p}.when`);
+        if (el.value === 'text') {
+            if (typeof cur !== 'string')
+                setPath(`${p}.when`, undefined);
+            CW.sel.lwhen = p;
+        }
+        else {
+            if (typeof cur === 'string')
+                setPath(`${p}.when`, undefined);
+            CW.sel.lwhen = '';
+        }
+        notify();
+    },
+    // the start a new game picks first (one at most)
+    'cw-sdefault': (el) => {
+        const l = W().starts ?? [];
+        const i = Number(el.dataset.i);
+        if (!l[i])
+            return;
+        l.forEach((s, k) => { if (k === i && el.checked)
+            s.default = true;
+        else
+            delete s.default; });
+        CW.dirty = true;
+        notify();
+    },
+    // a key of a small map renamed in place (a regional kind of weather): a plain name, not one it has already
+    'cw-mkey': (el) => {
+        const p = el.dataset.path;
+        const m = getPath(p);
+        const from = el.dataset.from, to = el.value.trim();
+        if (!m || !/^[a-z][a-z0-9_]*$/.test(to) || to === from || own(m, to) !== undefined || BAD_KEYS.includes(to) || own(m, from) === undefined)
+            return;
+        setPath(p, Object.fromEntries(Object.entries(m).map(([k, v]) => [k === from ? to : k, v])));
+        el.dataset.from = to;
+        dirtyMark();
+    },
     'cw-alltabs': (el) => { CW.allTabs = el.checked; notify(); },
     cw: (el) => {
         const t = el.dataset.type;
@@ -2335,6 +2858,8 @@ Object.assign(INPUT, {
             v = el.checked ? undefined : false;
         else if (t === 'tri')
             v = el.value === '' ? undefined : el.value === 'true';
+        else if (t === 'every')
+            v = el.value === '' ? undefined : /^\d+$/.test(el.value) ? Number(el.value) : el.value; // a ritual: every N weeks, a month, a year
         else if (t === 'nullable')
             v = el.value === '' ? null : el.value; // a choice where empty means none (no job)
         else if (t === 'opt')
@@ -2363,6 +2888,12 @@ Object.assign(INPUT, {
         }
         if (/\.(element|combat)$/.test(p) && v === '')
             v = undefined;
+        // a festival's custom set to none goes whole (no empty custom left behind)
+        if (/^festivals\.\d+\.custom\.kind$/.test(p) && v === undefined) {
+            setPath(p.replace(/\.kind$/, ''), undefined);
+            notify();
+            return;
+        }
         setPath(p, v);
         if (el.tagName !== 'INPUT' || ['checkbox', 'color', 'time'].includes(el.type))
             notify();
@@ -2413,6 +2944,25 @@ Object.assign(INPUT, {
             delete c.roll;
         else
             c.roll = { ...(v === ROLL_PLAIN ? {} : { skill: v }), dc: c.roll?.dc ?? 12 };
+        CW.dirty = true;
+        notify();
+    },
+    // an action's roll: none, or one with a skill's level (none: the skill it trains); its difficulty, traits and results kept
+    'cw-aroll': (el) => {
+        const a = getPath(el.dataset.path);
+        if (!a)
+            return;
+        const v = el.value;
+        if (v === ROLL_NONE)
+            delete a.roll;
+        else {
+            const r = a.roll ?? { dc: 12, success: { text: '' }, fail: { text: '' } };
+            if (v === ROLL_PLAIN)
+                delete r.skill;
+            else
+                r.skill = v;
+            a.roll = r;
+        }
         CW.dirty = true;
         notify();
     },
