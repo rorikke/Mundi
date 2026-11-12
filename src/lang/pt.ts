@@ -7321,5 +7321,13 @@ const DICT: Record<string, string> = {
  "Your skills": "Suas habilidades",
  "The levels you begin with (0–10).": "Os níveis com que você começa (0–10).",
  "It also gives you {0}, added to the traits you pick.": "Também te dá {0}, somado aos traços que você escolher.",
+ "Your start has you living in {0} with {1}: their home is yours.": "Seu início faz você morar em {0} com {1}: a casa deles é a sua.",
+ "To live somewhere else, go back to Your character, choose \"Change this start\" and pick nobody under \"Who you live with\".": "Para morar em outro lugar, volte a Seu personagem, escolha \"Mudar este início\" e escolha ninguém em \"Com quem você mora\".",
+ "Your start's area is marked: {0}.": "A área do seu início está marcada: {0}.",
+ "Its rent is only for a home there.": "O aluguel dele vale só para uma casa lá.",
+ "No home chosen yet: your start gives you one in {0}.": "Nenhuma casa escolhida ainda: seu início te dá uma em {0}.",
+ "Who you live with": "Com quem você mora",
+ "Nobody: a home of your own": "Ninguém: uma casa só sua",
+ "Their home, while you live with them": "A casa deles, enquanto você mora com eles",
 };
 export default DICT;

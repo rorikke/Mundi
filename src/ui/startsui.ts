@@ -37,6 +37,19 @@ const FAMILY_NAME: Record<string, string> = { parent: 'your parent', child: 'you
     stepsibling: 'your stepsibling', parentinlaw: 'your parent-in-law', childinlaw: 'your son- or daughter-in-law', siblinginlaw: 'your brother- or sister-in-law',
     godparent: 'your godparent', godchild: 'your godchild', guardian: 'your guardian', ward: 'your ward' };
 
+/** The world's people a start has you living with (its `household`), among those in this game (`people`: their names;
+ *  first names as the world writes them). None: the start has no household, or none of them is in the game. */
+export function householdOf(w: WorldDef, s: StartDef | undefined, people: string[]): string[] {
+    if (!s?.household) return [];
+    return w.cast.examples.filter(e => e.household === s.household && people.includes(e.name)).map(e => e.name.split(/\s+/)[0]);
+}
+// The world's households to live with (id → who, and the area of their home), adult-only people only with adult content.
+const householdsOf = (w: WorldDef, adult: boolean) => {
+    const out = new Map<string, { names: string[]; home: string }>();
+    for (const e of w.cast.examples) if (e.household && (adult || !e.adult)) { const h = out.get(e.household) ?? { names: [], home: e.home }; h.names.push(e.name.split(/\s+/)[0]); out.set(e.household, h); }
+    return out;
+};
+
 /* ---------- choosing a start (new game) ---------- */
 
 // The line under a start's name: where you live, and who you know already.
@@ -73,6 +86,7 @@ export function startEditorHtml(scope: 'ng' | 'lib'): string {
             ${love ? `${sel('r', [['', 'No romance'], ...ROMANCE_TIERS.filter(t => t.id !== 'none').map(t => [t.id, t.name] as [string, string])], k.r)}${sel('together', TOGETHER, k.status ?? (k.was ? 'ex' : ''))}` : ''}
             <button class="mu-ibtn mu-ghost" data-act="st-k-del" data-scope="${scope}" data-i="${i}" title="Remove">${icon('x')}</button></div>`;
     };
+    const households = w ? householdsOf(w, sc.adult()) : new Map();
     const skills = w ? skillsOf(w).filter(k => sc.adult() || !(k as { adult?: boolean }).adult) : [];
     const has = Object.keys(d.skills ?? {}); const free = skills.filter(k => !has.includes(k.id));
     const skillRow = (id: string) => `<div class="mu-ties-add"><select data-input="st-skill" data-scope="${scope}" data-from="${esc(id)}">${[...skills.filter(k => k.id === id || free.includes(k)).map(k => opt(k.id, k.name, k.id === id)), ...(skills.some(k => k.id === id) ? [] : [opt(id, id, true)])].join('')}</select>
@@ -81,7 +95,8 @@ export function startEditorHtml(scope: 'ng' | 'lib'): string {
     return `${d.from ? `<p class="mu-muted">${esc(`Based on ${d.from}: what you change here is for this game, unless you save it as a start.`)}</p>` : ''}
         <label class="mu-field"><span>Name</span><input ${f('name')} maxlength="60" value="${esc(d.name)}" placeholder="My start"></label>
         <label class="mu-field"><span>Premise (how the story starts; the AI is told this)</span><textarea rows="5" ${f('premise')} placeholder="Who you are, why you're here, and what's going on as the story begins. Write {{user}} for yourself.">${esc(d.premise)}</textarea></label>
-        ${w ? `<div class="mu-row2"><label class="mu-field"><span>Where you live</span><select ${f('home')}>${w.homes.zones.map(z => opt(z.id, z.name, d.home === z.id)).join('')}</select></label>
+        ${w && households.size ? `<label class="mu-field"><span>Who you live with</span><select ${f('household')}>${opt('', 'Nobody: a home of your own', !d.household)}${[...households].map(([id, h]) => opt(id, `${h.names.join(', ')} (${zoneName(w, h.home)})`, d.household === id)).join('')}${d.household && !households.has(d.household) ? opt(d.household, d.household, true) : ''}</select></label>` : ''}
+        ${w ? `<div class="mu-row2">${d.household && households.has(d.household) ? `<label class="mu-field"><span>Where you live</span><input value="${esc(zoneName(w, d.home))}" disabled title="${esc('Their home, while you live with them')}"></label>` : `<label class="mu-field"><span>Where you live</span><select ${f('home')}>${w.homes.zones.map(z => opt(z.id, z.name, d.home === z.id)).join('')}</select></label>`}
             <label class="mu-field"><span>Money</span><input type="number" min="0" step="1" ${f('money')} value="${esc(d.money ?? '')}"></label></div>
         ${systemOn(w, 'bills') && w.rent ? `<label class="mu-field"><span>Rent you pay there, a week (empty: the home's own, ${esc(money(w, w.homes.zones.find(z => z.id === d.home)?.rent ?? 0))}; until you move)</span><input type="number" min="0" step="1" ${f('rent')} value="${esc(d.rent ?? '')}"></label>` : ''}
         ${jobs.length ? `<label class="mu-field"><span>A job to start with</span><select ${f('job')}>${opt('', 'None', !d.job)}${jobs.map(o => opt(o.id, o.name, d.job === o.id)).join('')}</select></label>` : ''}
@@ -181,8 +196,10 @@ Object.assign(INPUT, {
     'st-f': (el) => {
         const d = SC[el.dataset.scope!]?.draft(); if (!d) return; const k = el.dataset.k!, v = el.value;
         if (k === 'money' || k === 'rent') d[k] = v === '' ? undefined : Math.max(0, Math.round(Number(v) || 0));
+        // living with a household: your home is in their area
+        else if (k === 'household') { const sc = SC[el.dataset.scope!], w = sc?.world(); if (v) { d.household = v; const h = w && householdsOf(w, true).get(v); if (h) d.home = h.home; } else delete d.household; }
         else (d as any)[k] = v;
-        if (k === 'home' || k === 'job') notify();
+        if (k === 'home' || k === 'job' || k === 'household') notify();
     },
     'st-k': (el) => {
         const d = SC[el.dataset.scope!]?.draft(); const kn = d?.knows[Number(el.dataset.i)] as any; if (!kn) return;

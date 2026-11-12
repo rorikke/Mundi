@@ -21,7 +21,7 @@ import { openCreatorNew, openCreatorEdit, importWorldFile } from './creator.js';
 import { setWorldDicts } from '../core/tr.js';
 import { characters, thumb, personas, personaThumb, persona, openCharacter, usePersona, charLorebooks, charOf, personaSheet } from '../st/bridge.js';
 import { startNewGame, type Hero } from '../sim/game.js';
-import { startPickHtml, draftStart, loreText } from './startsui.js';
+import { startPickHtml, draftStart, loreText, householdOf } from './startsui.js';
 import { findStart, defaultStart, CUSTOM_START } from '../sim/starts.js';
 import type { ExampleCharacter, StartDef } from '../core/world.js';
 import { ACT, INPUT } from './reg.js';
@@ -422,7 +422,7 @@ export function newGameHtml() {
     if (!wz.mode) return modeHtml();
     if (wz.mode === 'chat') return scenarioHtml();
     const i = STEPS.findIndex(s => s[0] === wz.step);
-    const body = wz.step === 'world' ? stepWorld() : wz.step === 'cast' ? stepCast() : wz.step === 'homes' ? stepHouseholds() : wz.step === 'hero' ? stepHero() : wz.step === 'house' ? stepHome() : stepReview();
+    const body = wz.step === 'world' ? stepWorld() : wz.step === 'cast' ? stepCast() : wz.step === 'homes' ? stepHouseholds() : wz.step === 'hero' ? stepHero() : wz.step === 'house' ? (() => { const st = chosenStart(); return stepHome(st, householdOf(W(), st, wpChosen())); })() : stepReview();
     const block = canGo(wz.step);
     return `<div class="mu-wizard">
         <div class="mu-subhead"><button data-act="ng-back" data-sfx="back">← Back</button><h2>New game</h2>
@@ -544,7 +544,7 @@ Object.assign(ACT, {
         try {
             dropUnoffered(W());
             await startNewGame({ world: W(), cast: wz.cast, examples: wpChosen().length > 0, worldPeople: wpChosen(), adult: !!wz.adult, worldStart: isScenario(W()) ? undefined : chosenStart(), hero: { ...wz.hero, name: wz.hero.name.trim() }, persona: wz.heroMode === 'existing' ? wz.persona : undefined, lore: chosenLore(),
-                households: (wz.hh ?? []).filter((h: any) => h.members.length), family: wz.family ?? [], home: wz.home ?? undefined, difficulty: wz.difficulty ?? 'normal',
+                households: (wz.hh ?? []).filter((h: any) => h.members.length), family: wz.family ?? [], home: (() => { const st = isScenario(W()) ? undefined : chosenStart(); return householdOf(W(), st, wpChosen()).length ? undefined : wz.home ?? undefined; })(), difficulty: wz.difficulty ?? 'normal',
                 approval: wz.approval ?? undefined, relations: (wz.rels ?? []).filter((t: any) => t.a !== t.b), mode: rpgOf(W()) ? playMode() as any : undefined, rpg: rpgState()?.s, memoriesFrom: wz.memories || undefined, jobs: wz.jobs ?? undefined, rooms: isScenario(W()) ? roomsOf() : undefined, extraRooms: isScenario(W()) ? extraOf() : undefined, roomActs: isScenario(W()) ? wz.roomActs : undefined, start: isScenario(W()) ? { id: startOf().id, text: startOf().text } : undefined,
                 people: ngPeopleFor([...wz.cast, ...(wz.family ?? []).map((f: any) => f.avatar)]) });
             state.wizard = null;

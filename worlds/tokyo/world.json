@@ -13633,6 +13633,7 @@
    "desc": "You came for university and took the last room in a Kōenji share house.",
    "premise": "{{user}} came to Tokyo for university and has just taken the last free room in a Kōenji share house; the four housemates barely know {{user}} yet.",
    "home": "hz_sharehouse",
+   "household": "sharehouse",
    "money": 150000,
    "skills": {
     "japanese": 8,

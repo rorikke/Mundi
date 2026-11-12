@@ -1,0 +1,4 @@
+/* The start editor (startsui.ts): a skill's level a short number beside its skill, not a full row. The new game's Home
+   step (ngfamily.ts): the area your start gives you, marked on the map. */
+#mundi-root .mu-ties-add input[type="number"] { width: 5.5em; flex: 0 0 auto; }
+#mundi-root .mu-nghome-spot.is-start { box-shadow: 0 0 0 3px var(--accent), 0 0 12px var(--accent); }
