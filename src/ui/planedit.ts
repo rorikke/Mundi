@@ -95,7 +95,7 @@ document.addEventListener('pointerdown', (e) => {
     box.setPointerCapture?.(e.pointerId); e.preventDefault();
 });
 document.addEventListener('pointermove', (e) => {
-    if (!drag) return;
+    if (!drag || CW.view) return;   // (only looking: a room is chosen, never moved)
     if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 3) return;
     drag.moved = true;
     const b = drag.plan.getBoundingClientRect();
@@ -157,6 +157,7 @@ Object.assign(ACT, {
         const plan = planOf(W()); const id = el.dataset.id!;
         const at = plan.rooms.find(r => r.id === id && plan.floors.some(f => f.id === r.floor));
         if (at) { PE.floor = at.floor; PE.sel = id; notify(); return; }
+        if (CW.view) return;   // (a room off the plan is only placed when editing)
         plan.rooms = plan.rooms.filter(r => r.id !== id);
         const bed = id.startsWith('spot:');
         plan.rooms.push({ id, floor: PE.floor, ...freeSpot(plan, PE.floor), w: bed ? 16 : 22, h: bed ? 18 : 20 });

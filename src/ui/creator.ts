@@ -8,7 +8,7 @@ import { money } from '../sim/needs.js';
 import { DEFAULT_EXPENSES } from '../sim/bills.js';
 import { lex, lexGroups, lexDefault } from '../core/lexicon.js';
 import { slidesHtml, toneTag } from './slides.js';
-import { houseMapsHtml } from './planedit.js';
+import { houseMapsHtml, PE } from './planedit.js';
 import { MEDIEVAL_RPG, MODERN_RPG, POWERS_RPG } from '../core/rpgdef.js';
 import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
@@ -21,7 +21,7 @@ import { SKINS } from './skins.js';
 import { tr, setWorldDicts } from '../core/tr.js';
 import { lorebooks } from '../st/bridge.js';
 import { hm, WEEKDAYS } from '../sim/time.js';
-import { newWorldFrom, saveWorld, deleteWorld, exportWorld, importWorld, uploadWorldPicture, appsOf, slug, newId } from '../sim/creator.js';
+import { newWorldFrom, worldInLang, saveWorld, deleteWorld, exportWorld, importWorld, uploadWorldPicture, appsOf, slug, newId } from '../sim/creator.js';
 import { mapEditorHtml, ME } from './mapedit.js';
 import { pickFile } from './cropper.js';
 import { icon, ICON_NAMES } from './icons.js';
@@ -47,6 +47,7 @@ export const CW = {
     sel: { courses: 0, needs: 0, actions: 0, jobs: 0, zones: 0, kinds: '', traits: 0, origins: 0, people: 0, routine: '', lore: 0, tinfo: '' } as Record<string, any>,
     start: null as null | { name: string; style: string; base: string; mode: 'copy' | 'empty'; game: GameMode; scenario?: boolean },
     allTabs: false,
+    view: false,   // opened from a game to look through: every tab shows, nothing can change (see VIEW_ACTS)
 };
 export const W = () => CW.w!;
 
@@ -54,6 +55,7 @@ export const W = () => CW.w!;
 
 export function getPath(path: string): any { return path.split('.').reduce((o: any, k) => (o == null ? undefined : o[k]), CW.w); }
 export function setPath(path: string, v: any) {
+    if (CW.view) return;
     const keys = path.split('.'); const last = keys.pop()!;
     if ([...keys, last].some(k => k === '__proto__' || k === 'constructor' || k === 'prototype')) return;   // (an id from a file can't reach the built-in objects)
     let o: any = CW.w;
@@ -1978,20 +1980,22 @@ export function creatorHtml(): string {
     const body = CW.tab === 'general' ? tabGeneral(w) : CW.tab === 'features' ? tabFeatures(w) : CW.tab === 'needs' ? tabNeeds(w) : CW.tab === 'maps' ? (isScenario(w) ? houseMapsHtml(w) : mapEditorHtml(w))
         : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
         : CW.tab === 'people' ? tabPeople(w) : CW.tab === 'books' ? tabBooks(w) : tabLore(w);
-    return `<div class="mu-settings mu-creator-ed">
-        <div class="mu-subhead"><button data-act="cw-close" data-sfx="back">← Back</button><h2>${isScenario(w) ? 'Home creator' : 'World creator'}</h2><small data-notr>${esc(w.name)}${CW.dirty ? ' •' : ''}</small>
+    const head = CW.view ? (isScenario(w) ? 'The Home' : 'The world') : isScenario(w) ? 'Home creator' : 'World creator';
+    return `<div class="mu-settings mu-creator-ed ${CW.view ? 'is-view' : ''}">
+        <div class="mu-subhead"><button data-act="cw-close" data-sfx="back">← Back</button><h2>${head}</h2><small data-notr>${esc(w.name)}${CW.dirty ? ' •' : ''}</small>
+            ${CW.view ? `<span class="mu-cw-viewnote">${icon('lock')}<span>${isScenario(w) ? 'View only: the Home as it is made. What this game chose for itself (its rules, who lives where) is in This Home.' : 'View only: the world as it is made. What this game chose for itself (difficulty, work, relationships, who lives where) is in This world.'}</span></span>` : ''}
 </div>
         <div class="mu-settings-layout mu-cw-layout">
             <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
             <div class="mu-settings-body mu-panel ${CW.tab === 'maps' ? 'is-maps' : ''}" data-keep="cw-body">${body}</div>
         </div>
-        <div class="mu-row mu-cw-new-go mu-cw-foot">
+        ${CW.view ? '' : `<div class="mu-row mu-cw-new-go mu-cw-foot">
             ${CW.confirmDel ? `<span class="mu-warn">Delete "${esc(w.name)}"? This cannot be undone.</span><button data-act="cw-delete-no">Cancel</button><button class="mu-danger" data-act="cw-delete-yes">${icon('trash')}<span>Delete</span></button>`
             : `<button class="mu-danger" data-act="cw-delete" title="Delete this ${isScenario(w) ? 'Home' : 'world'}">${icon('trash')}<span>Delete</span></button>
                <button class="mu-ghost" data-act="cw-dup" title="Make a copy of it">${icon('copy')}<span>Duplicate</span></button>
                <button class="mu-ghost" data-act="cw-export" title="Export to a file">${icon('upload')}<span>Export</span></button>
                <span class="mu-grow"></span>${CW.dirty ? '<span class="mu-muted">Not saved</span>' : ''}
-               <button class="mu-primary mu-big" data-act="cw-save" ${CW.saving ? 'disabled' : ''}>${icon('save')}<span>${CW.saving ? 'Saving…' : 'Save'}</span></button>`}</div>
+               <button class="mu-primary mu-big" data-act="cw-save" ${CW.saving ? 'disabled' : ''}>${icon('save')}<span>${CW.saving ? 'Saving…' : 'Save'}</span></button>`}</div>`}
         ${CW.leaveAsk ? leaveHtml('cw') : ''}</div>`;
 }
 
@@ -2000,20 +2004,48 @@ export function creatorHtml(): string {
 let backTo = 'newgame';
 export function openCreatorNew(style = 'modern', scenario = false) {
     if (!STYLES.find(x => x.id === style)?.ready) style = 'modern';
-    backTo = state.view; CW.w = null; CW.confirmDel = false; CW.leaveAsk = false; CW.dirty = false;
+    backTo = state.view; CW.w = null; CW.view = false; CW.confirmDel = false; CW.leaveAsk = false; CW.dirty = false;
     CW.nameMiss = false; CW.start = { name: '', style, base: presetsOf(style, scenario)[0]?.id ?? 'modern', mode: 'copy', game: 'lifesim', scenario };
     state.view = 'creator' as any; notify();
 }
 export function openCreatorEdit(id: string) {
     const w = getWorld(id); if (!w) return;
-    backTo = state.view; CW.w = structuredClone(w); CW.w.base = w.base; CW.tab = 'general'; CW.dirty = false; CW.confirmDel = false; CW.leaveAsk = false; CW.start = null;
+    backTo = state.view; CW.w = structuredClone(w); CW.w.base = w.base; CW.tab = 'general'; CW.view = false; CW.dirty = false; CW.confirmDel = false; CW.leaveAsk = false; CW.start = null;
     state.view = 'creator' as any; notify();
+}
+// The world a game plays, to look through from the game (This world): every tab and field of the creator, in the
+// player's language, and nothing can change. A built-in world opens as well as one of your own.
+export function openCreatorView(id: string, tab: Tab = 'general') {
+    const w = getWorld(id); if (!w) return;
+    backTo = state.view; CW.w = worldInLang(w); CW.w.base = w.base; CW.w.i18n = w.i18n;
+    CW.tab = TABS.some(([t]) => t === tab) ? tab : 'general'; CW.view = true; CW.dirty = false; CW.confirmDel = false; CW.leaveAsk = false; CW.start = null;
+    Object.assign(ME, { map: '', mode: 'move', pin: '', home: '', bgPick: false }); PE.sel = ''; PE.floor = '';
+    state.view = 'creator' as any; notify();
+}
+// In the view, these only move around (a tab, an item of a list, a track, a map, a floor); every other action and
+// field of the creator is refused (viewRefuses, called for each click and input) and drawn disabled (lockView),
+// and setPath writes nothing. A button that only edits (add, remove, a picture…) is hidden instead.
+const VIEW_ACTS = new Set(['cw-close', 'cw-tab', 'cw-pick', 'cw-routine', 'cw-wev', 'cw-track', 'cw-table', 'cw-climate', 'cw-tinfo', 'me-map', 'me-zoom', 'pe-view', 'pe-floor', 'pe-pick', 'pp-int-open']);
+const VIEW_INPUTS = new Set(['cw-words-q', 'cw-alltabs']);
+const EDIT_ONLY = /^(cw-(add|del|move|crel|fx-add|ti-add|ti-del|ti-reset|hire-del|qa-add|rnd-.+|cover.*|kind-img.*|homes-map|rpg-.+)|me-(add-.+|del-.+|new-zone|bg-.+|map-img.*|map-lib|mode)|pe-(floor-.+|room-off)|pp-sug.*|pp-suggest)$/;
+export function viewRefuses(el: HTMLElement): boolean {
+    if (!CW.view || state.view !== ('creator' as any) || !el.closest('.mu-creator-ed')) return false;
+    const act = el.dataset.act, input = el.dataset.input;
+    return act ? !VIEW_ACTS.has(act) : input ? !VIEW_INPUTS.has(input) : false;
+}
+export function lockView(root: ParentNode) {
+    if (!CW.view || state.view !== ('creator' as any)) return;
+    root.querySelectorAll<HTMLInputElement>('.mu-creator-ed .mu-settings-body :is(input, select, textarea, button)').forEach(el => {
+        const act = el.dataset.act, input = el.dataset.input;
+        if (act ? VIEW_ACTS.has(act) : input ? VIEW_INPUTS.has(input) : el.tagName === 'BUTTON') return;
+        if (act && EDIT_ONLY.test(act)) el.classList.add('mu-viewhide'); else el.disabled = true;
+    });
 }
 // Leaving with changes not saved: save them, leave without them, or stay.
 export const leaveHtml = (k: string) => `<div class="mu-dlg-veil" data-act="${k}-leave-stay"><div class="mu-dlg mu-panel mu-leave" role="dialog" data-act="lib-stay">
     <h3>Unsaved changes</h3><p>You have changes that are not saved. Leave anyway?</p>
     <div class="mu-row mu-dlg-btns"><button data-act="${k}-leave-stay">Stay</button><button class="mu-danger" data-act="${k}-leave-go">Leave without saving</button><button class="mu-primary" data-act="${k}-leave-save">${icon('save')}<span>Save and leave</span></button></div></div></div>`;
-function close() { CW.leaveAsk = false; CW.confirmDel = false; CW.dirty = false; CW.w = null; CW.start = null; state.view = (backTo === 'creator' ? 'newgame' : backTo) as any; notify(); }
+function close() { CW.leaveAsk = false; CW.confirmDel = false; CW.dirty = false; CW.w = null; CW.start = null; CW.view = false; state.view = (backTo === 'creator' ? 'newgame' : backTo) as any; notify(); }
 
 const NEW: Record<string, () => [string, any]> = {
     rattr: () => ['rpg.attributes', { id: newId('attr'), name: 'New attribute', short: 'NEW' }],

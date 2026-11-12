@@ -1,0 +1,15 @@
+/* The world creator opened from a game only to look (This world → In detail): its fields read as plain values
+   rather than greyed-out boxes, and what only edits is hidden. */
+#mundi-root .mu-creator-ed.is-view .mu-cw-viewnote { display: flex; align-items: center; gap: 8px; margin-left: auto; max-width: 620px; font-size: .85em; opacity: .9; }
+#mundi-root .mu-creator-ed.is-view .mu-cw-viewnote svg { flex: 0 0 auto; width: 16px; height: 16px; }
+#mundi-root .mu-creator-ed.is-view :is(input, select, textarea):disabled { opacity: 1 !important; color: var(--fg) !important; -webkit-text-fill-color: currentColor; cursor: default !important; }
+#mundi-root .mu-creator-ed.is-view select:disabled { appearance: none; -webkit-appearance: none; background-image: none !important; }
+#mundi-root .mu-creator-ed.is-view input[type="range"]:disabled,
+#mundi-root .mu-creator-ed.is-view input[type="checkbox"]:disabled,
+#mundi-root .mu-creator-ed.is-view input[type="radio"]:disabled { opacity: .85 !important; }
+#mundi-root .mu-creator-ed.is-view button:disabled { opacity: 1 !important; cursor: default !important; }
+#mundi-root .mu-creator-ed.is-view .mu-viewhide { display: none !important; }
+#mundi-root .mu-creator-ed.is-view .mu-me-pin, #mundi-root .mu-creator-ed.is-view .mu-me-home { cursor: pointer; }
+#mundi-root .mu-wc-sechead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#mundi-root .mu-wc-sechead h4 { margin: 0; }
+#mundi-root .mu-wc-sechead button { display: flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: .85em; }

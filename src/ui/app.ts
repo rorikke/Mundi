@@ -37,7 +37,7 @@ import { sceneHtml, afterScene, chatHtml } from './scene.js';
 import { worldCfgHtml } from './worldcfg.js';
 import { styleOf } from '../core/world.js';
 import { skinOf } from './skins.js';
-import { creatorHtml, CW } from './creator.js';
+import { creatorHtml, CW, viewRefuses, lockView } from './creator.js';
 const creatorWorld = () => CW.w ?? (CW.start ? getWorld(CW.start.base) ?? null : null);
 import { hudHtml, clock12, ampm } from './hud.js';
 import { libraryHtml, libraryEscape } from './library.js';
@@ -129,6 +129,7 @@ export function render() {
 
     // only what changed is redrawn (morph), so nothing else on screen "resets"
     morph(main, `${body()}${inGame() ? hudHtml() + phoneHtml() + helpHtml() + coursesHtml() + journeyHtml() + rpgOverlays() + combatHtml() + audienceHtml() + arrestHtml() + diceHtml() : ''}${updateHtml()}${whatsNewHtml()}${tutorialHtml()}${state.busy ? `<div class="mu-busy"><i></i><span>${state.busy}…</span></div>` : ''}`);
+    lockView(main);   // (the world creator opened only to look: its fields drawn disabled)
     { const g = game(); rainAmbience(!!g && inGame() && (state.view === 'map' || state.view === 'scene') && weatherHere(g, getWorld(g.world)).rain); }   // rain you can hear
     { const g = game(), w = g && getWorld(g.world); syncAmbience(g && w && inGame() && (state.view === 'map' || state.view === 'scene') ? soundsAt(g, w) : [], w); }   // (E12) the place's sounds
     r.dataset.view = state.view;
@@ -219,7 +220,7 @@ function attach(r: HTMLElement) {
     r.addEventListener('click', (e) => {
         if (mapInput.click(e)) return;
         const el = (e.target as HTMLElement).closest<HTMLElement>('[data-act]');
-        if (!el || (el as any).disabled || el.getAttribute('aria-disabled') === 'true') return;
+        if (!el || (el as any).disabled || el.getAttribute('aria-disabled') === 'true' || viewRefuses(el)) return;
         const fn = ACT[el.dataset.act!];
         if (fn) Promise.resolve(fn(el, e)).catch(err => { console.error('[Mundi]', err); toast(String(err?.message ?? err), 'error'); });
     });
@@ -228,7 +229,7 @@ function attach(r: HTMLElement) {
         if (e.type === 'input' && el.tagName === 'SELECT') return;   // a list fires "input" and "change": handled once, on "change"
         if (el.dataset?.focus === 'composer') { state.composer = el.value; onComposerInput(el as unknown as HTMLTextAreaElement); }
         const name = el.dataset?.input;
-        if (name) INPUT[name]?.(el, e);
+        if (name && !viewRefuses(el)) INPUT[name]?.(el, e);
     };
     r.addEventListener('input', onInput);
     r.addEventListener('focusout', (e) => { if ((e.target as HTMLElement).dataset?.focus === 'composer') setTimeout(closeMention, 150); });

@@ -7686,5 +7686,13 @@ const DICT: Record<string, string> = {
  "Notices stay as long as they need and count down one at a time, with a Log of them all in the ☰ menu; cards that come to you show one at a time.": "Los avisos se quedan lo que necesitan y cuentan de uno en uno, con un Registro de todos en el menú ☰; las tarjetas que te llegan aparecen de una en una.",
  "The main menu tells you when Mundi has an update and offers to update and reload. The Jobs app sorts its openings.": "El menú principal te avisa cuando Mundi tiene una actualización y ofrece actualizar y recargar. La app Empleos ordena sus ofertas.",
  "Everything new in Portuguese and Spanish, and fixes to the map's card, a character's menu, the scene's text box and Say.": "Todo lo nuevo en portugués y español, y arreglos en la tarjeta del mapa, el menú de un personaje, el cuadro de texto de la escena y Decir.",
+ "The world": "El mundo",
+ "The Home": "El Home",
+ "View only: the world as it is made. What this game chose for itself (difficulty, work, relationships, who lives where) is in This world.": "Solo para ver: el mundo tal como está hecho. Lo que esta partida eligió para sí (dificultad, trabajo, relaciones, quién vive dónde) está en Este mundo.",
+ "View only: the Home as it is made. What this game chose for itself (its rules, who lives where) is in This Home.": "Solo para ver: el Home tal como está hecho. Lo que esta partida eligió para sí (sus reglas, quién vive dónde) está en Este Home.",
+ "In detail": "En detalle",
+ "See everything about this world": "Ver todo sobre este mundo",
+ "See everything about this Home": "Ver todo sobre este Home",
+ "Every part of it, as the world creator shows it: places, jobs and their careers, needs, things to do, courses, the shop… Only to look: nothing can be changed there.": "Cada parte, tal como la muestra el creador de mundos: lugares, trabajos y sus carreras, necesidades, cosas que hacer, cursos, la tienda… Solo para ver: ahí no se puede cambiar nada.",
 };
 export default DICT;

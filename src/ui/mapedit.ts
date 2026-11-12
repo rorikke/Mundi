@@ -225,7 +225,7 @@ document.addEventListener('pointerdown', (e) => {
     e.preventDefault();
 });
 document.addEventListener('pointermove', (e) => {
-    if (!drag) return;
+    if (!drag || CW.view) return;   // (only looking: a pin is chosen, never moved)
     if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;
     drag.moved = true;
     const img = drag.el.closest<HTMLElement>('[data-me-img]'); if (!img) return;
@@ -253,6 +253,7 @@ document.addEventListener('pointerup', (e) => {
     const w = CW.w; if (!img || !w) return;
     const [x, y] = pct(e, img);
     const m = curMap(w); if (!m) return;
+    if (CW.view) { if (!t.closest('.mu-me-pin')) { ME.pin = ''; ME.home = ''; notify(); } return; }
     if (ME.mode === 'homes') {
         const z = w.homes.zones.find(z => z.id === ME.zone);
         if (!z) { toast('Create a housing area first (New area).', 'info'); return; }

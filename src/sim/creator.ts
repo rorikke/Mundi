@@ -19,6 +19,11 @@ function translateDeep(v: any, dict: Record<string, string>, key = ''): any {
     if (v && typeof v === 'object') { const o: any = {}; for (const [k, x] of Object.entries(v)) o[k] = translateDeep(x, dict, k); return o; }
     return v;
 }
+// A copy of a world with its text in the interface language (the world's own dictionary), as a copy made now would read.
+export const worldInLang = (w: WorldDef): WorldDef => {
+    const raw = structuredClone({ ...w, base: undefined, i18n: undefined }) as WorldDef;
+    return uiLang() === 'en' ? raw : translateDeep(raw, w.i18n?.[uiLang()] ?? {});
+};
 // A built-in world's pictures and music become absolute URLs, so the copy still finds them.
 function absolutize(w: WorldDef, src: WorldDef) {
     const abs = (f?: string) => (f ? worldFile(src, f) : f);
