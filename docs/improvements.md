@@ -11,6 +11,7 @@ point of view, and grows as new ones arrive.
 - [Tokyo's adult progression](#tokyos-adult-progression)
 - [Owing rent](#owing-rent)
 - [University](#university)
+- [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
 
@@ -484,3 +485,35 @@ English studies, Computer science, and Arts and design. The University student s
   (from which term, required, hours of coursework), and mark a job's wanted degrees, a start's degree and scholarship, and
   student homes. Schools without degrees work as before. Older games aren't enrolled; someone on Hijiri's old ladder
   keeps it until choosing a degree.
+
+## The World creator and the new game
+
+- **Every field of a built-in world can be edited** in the World creator, so anything Porto Alto, the Shared House or
+  Tokyo does, a world of your own can do too: a lore entry's condition written as text, and whether it's adult, secret or
+  about someone; what a thing to do brings (its roll, outcomes, shared tables and their words, when and with whom); every
+  street story; starts, keepsakes and gifts; a job's shifts, where colleagues go for drinks, and what each rank asks
+  before a promotion and where it works; people's standing appointments, storylines, looks, voice, pictures, household,
+  rank and languages; weather by climate, trains and taxis, how people address you, languages, the scene's settings and
+  who festivals and events draw. In the map editor, a place's hours by season and weekday, closed days and weather, entry
+  fee, who's around, sounds, sleeping there, private and adult places, and pictures by season and weather.
+- **A job can ask for something to be hired:** a condition, or a list where one is enough (an introduction, a gender
+  with `gender: woman`, a skill at the top), its interview made harder or easier, and on a track by gender a name of its
+  own (Tokyo's *AV actor*).
+- **Change one of the world's starts for a new game:** choose "Change this start" and its money, home, whom you know,
+  your skills and the premise become yours to change for that game (it's copied into Custom, so the world's start stays
+  as it is). Starts you save keep their skills. A start you live in with others (Tokyo's student start in the Kōenji
+  share house) keeps its home, the Home step marks your start's area, and a changed start says who you live with.
+
+### Tokyo's starts and money
+
+Tokyo's starts begin with less money than before, about four weeks of rent and bills for most, so a first job matters:
+
+| Start | Money | Before |
+|---|---|---|
+| Up from the countryside | ¥80,000 | ¥250,000 |
+| University student | ¥70,000 | ¥150,000 |
+| Tokyo born | ¥40,000 | ¥120,000 |
+| New in Japan | ¥100,000 | ¥300,000 |
+| Family money | ¥1,500,000 | ¥3,000,000 |
+| Back after years away | ¥60,000 | ¥180,000 |
+| Down on your luck | ¥15,000 | ¥40,000 |

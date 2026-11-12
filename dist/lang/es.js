@@ -7555,5 +7555,17 @@ const DICT = {
     "no schools to enroll in, no exams, clubs or degrees.": "sin escuelas en las que inscribirse, sin exámenes, clubes ni carreras.",
     "Dropped out": "Abandonada",
     "Term {0}: choose {1} module": "Trimestre {0}: elige {1} asignatura",
+    "University, and a city that makes you work for it": "Universidad, y una ciudad que te hace luchar",
+    "University: Hijiri offers four degrees, played the way The Sims does it: terms of modules, coursework, grades and a GPA, a scholarship you can lose, and a Campus app. The University student start begins enrolled.": "Universidad: Hijiri ofrece cuatro carreras, jugadas como en Los Sims: trimestres de asignaturas, trabajos, notas y un promedio, una beca que puedes perder y una app Campus. El inicio Estudiante universitario empieza ya matriculado.",
+    "Job interviews are harder: about 30% with nothing that helps, a job beyond your reach won't see you, and noes in a row at one place wait longer.": "Las entrevistas de trabajo son más difíciles: un 30% sin nada que ayude, un puesto fuera de tu alcance ni te recibe, y los noes seguidos en un mismo sitio esperan más.",
+    "With adult content on, Tokyo's hostess clubs, pole club and AV studios take women from the listings; anyone else needs an introduction or a top skill. Men work as AV actors.": "Con contenido adulto activado, los clubes de hostess, el club de pole y los estudios de AV de Tokio contratan mujeres por los anuncios; los demás necesitan una presentación o una habilidad al máximo. Los hombres trabajan como actores de AV.",
+    "Tokyo's starts begin with less money: about four weeks of rent and bills for most.": "Los inicios de Tokio empiezan con menos dinero: unas cuatro semanas de alquiler y facturas en la mayoría.",
+    "Spark: choose whom you want to see. A like is answered days later, if at all, and a match takes more in common.": "Spark: elige a quién quieres ver. Un me gusta se responde días después, si se responde, y un match pide más en común.",
+    "Life points say where to spend them: the Goals app's Rewards tab.": "Los puntos de logro dicen dónde gastarlos: la pestaña Recompensas de la app Metas.",
+    "The World creator edits every field of the built-in worlds, Tokyo included, and a new game can change one of the world's starts for that game.": "El Creador de mundos edita todos los campos de los mundos incluidos, Tokio también, y una partida nueva puede cambiar uno de los inicios del mundo para esa partida.",
+    "Everything new in Portuguese and Spanish, and a fix: with the hobbies system off, a hobby no longer adds to a roll.": "Todo lo nuevo en portugués y español, y una corrección: con el sistema de aficiones apagado, una afición ya no suma a una tirada.",
+    "Degree": "Título",
+    "New start": "Nuevo comienzo",
+    "🎁 New keepsake": "🎁 Nuevo recuerdo",
 };
 export default DICT;

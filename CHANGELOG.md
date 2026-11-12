@@ -1,5 +1,70 @@
 # Changelog
 
+## 0.3.3 · 2026-11-12
+
+A university to study at, and a Tokyo that makes you work for it: harder job interviews, less money to start with,
+introductions for the night jobs, and a dating app that takes its time. The World creator now edits every field of the
+built-in worlds. Your saves open as they are: no save format change.
+
+### University
+
+- **Degrees at Tokyo's Hijiri University,** played the way The Sims does it: Economics, Japanese and English studies,
+  Computer science, and Arts and design. A term is a season; each term you take two or three of the degree's modules,
+  with classes on campus two weekdays, coursework hours each week, and a final.
+- **Grades from A to F and a GPA.** An F is taken again; two weak terms put you on probation, a third gets you expelled.
+  Pass eight modules and you graduate, and with a GPA of 3.5 or more the degree is distinguished: you start a rank up in
+  the jobs it's for.
+- **Being a student:** at most three shifts a week, only student homes (unless your family pays), and some jobs want a
+  degree (the office hires only graduates). Tuition is paid each term, with aid for some.
+- **The University student start begins enrolled,** on a scholarship that pays the tuition while each term's GPA holds.
+- **The Campus app** follows it all: your degree, term, GPA, this term's modules with their classes, attendance and
+  coursework, next term's choice, the scholarship and the clubs. The World creator gives any school degrees.
+
+### Getting a job
+
+- **Interviews are harder.** With nothing that helps, an interview is about 30% (it was 50–60%); each trait the job
+  likes, the skill it uses and its course (finished or being taken) add to it, and careers that pay far above the usual
+  are harder.
+- **Asking every day no longer wins a long shot.** A 20 on the die no longer passes on its own, so a job beyond your
+  reach shows "out of your reach for now" and won't see you. After a no you can try again the next day, then each no in
+  a row at the same job waits longer (3 days, then a week): about four tries a season. A new season, getting better at
+  what the job looks for, or a good word from someone there starts again.
+- **Tokyo's women's night jobs** (the hostess clubs in Kabukichō and Yokohama, the pole club's dancers and the AV
+  studios, with adult content on) take women from the listings. Anyone else needs an introduction (Sayuri for the
+  hostess clubs, Lisa for the pole club, Airi or Momo or the scout's card for AV) or to be very good at it already
+  (Charisma, Dance or Sensuality 7). Working at the love hotel is no longer an introduction. Men see the job as *AV
+  actor*, with a harder interview.
+- **World makers** can give any job a condition to be hired (a new `gender:` condition among them), make its interview
+  harder or easier, and name a job differently on each track.
+
+### Money, love and points
+
+- **Tokyo's starts begin with less money,** about four weeks of rent and bills for most: Up from the countryside
+  ¥80,000 (was ¥250,000), University student ¥70,000 (¥150,000), Tokyo born ¥40,000 (¥120,000), New in Japan ¥100,000
+  (¥300,000), Family money ¥1,500,000 (¥3,000,000), Back after years away ¥60,000 (¥180,000), Down on your luck ¥15,000
+  (¥40,000).
+- **Spark takes its time.** Choose on your profile which genders you want to see. A like is answered one to four days
+  later with a message, or never: matches start at 10% with nothing in common, and what you both look for, shared
+  interests, a few words about yourself and your charm make a yes likelier. A match that came while you were away shows
+  as "It's a match!" when you open the app.
+- **Life points say where to spend them** (the Goals app's Rewards tab) until you first buy something.
+
+### The World creator and the new game
+
+- **The World creator edits every field of the built-in worlds,** Tokyo included: a lore entry's condition and marks,
+  what a thing to do brings (its roll, outcomes, shared tables and their words), every street story, starts, keepsakes
+  and gifts, a job's shifts and drinks after work, what a rank asks before a promotion, people's appointments,
+  storylines, looks, voice, pictures and household, weather by climate, trains and taxis, places' hours by season,
+  closed days, entry fees, sounds and pictures, and the scene's settings.
+- **Change one of the world's starts for a new game** ("Change this start"): its money, home, whom you know, your skills
+  and the premise. Starts you save keep their skills, and a start you live in with others (Tokyo's share house) keeps
+  its home and says who you live with.
+
+### Fixes
+
+- With the hobbies system off, a hobby's level no longer adds to a roll (busking with Guitar got +2).
+- Everything new in Portuguese and Spanish.
+
 ## 0.3.2 · 2026-11-11
 
 Life goals with perks and life points to spend; and with adult content on, Tokyo's love life and night world have

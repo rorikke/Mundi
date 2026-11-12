@@ -8,7 +8,7 @@ It is a SillyTavern **extension** (no server plugin). Everything is built on wha
 
 ## What this fork adds
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.2**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
+This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.3.3**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
 
 ### A new world: Tokyo
 
@@ -34,6 +34,7 @@ People in your world have feelings of their own, for you and for each other, and
 - **Friendship and romance are separate.** A best friend can stay just a friend; a stranger can flirt with you on the first night. Romance fades when you stop seeing each other, partners can leave you, and something casual is possible too. Exes are remembered as exes.
 - **Scenes count.** Each scene is judged when it ends: kindness, flirting, a fight or an insult all change how people feel, right away. Swiping or editing replies no longer stacks changes.
 - **Who people are.** Everyone can have a gender, an attraction (who they can fall for), a way of being about intimacy (from free spirit to devoted) and an exclusive or open relationship style. Your AI can suggest them from the cards.
+- **A dating app that takes its time.** On Spark you choose which genders you see; a like is answered days later, or never, and a match takes something in common.
 - **People take the initiative.** They open up, confess their feelings, ask you out, text you, warn you before a breakup, hold grudges until you apologize, get jealous, and talk about you to their friends. How often is up to you.
 - **The world's people live their own lives.** They make friends, fall out, fall for each other, date, marry and break up, from their own feelings.
 - **Family is family, feelings are feelings.** Family ties (parents, children, siblings and half-siblings, grandparents, aunts and uncles, cousins, step-family, in-laws, godparents, guardians) are kept apart from how people feel; everything else, from best friends to exes, is set as feelings: in the new game, the World creator and the People tab, without needing the Advanced settings.
@@ -42,6 +43,7 @@ People in your world have feelings of their own, for you and for each other, and
 
 - **Jobs with a working week.** Each job has its shifts and days off, and you see them in the Calendar and the Jobs app. How well you work builds your performance, and a promotion says what it still needs ("Logic 2 or Drawing 2"). A career takes about a game year to reach the top. Sick days, vacations and lateness follow work rules you can ease (Realistic, Reduced, Relaxed), and you can set the career speed.
 - **The world's people work too.** They keep their own shifts, with days off spread across the team and vacations, so you find them at work when they're on. The world's own people keep the jobs and homes the world gave them.
+- **A job is something you earn.** An interview is a long shot with nothing that helps (about 30%); what you're good at, the traits a job likes and its course make the difference, a job beyond your reach won't see you, and asking again every day doesn't win it. With adult content on, Tokyo's women's night jobs take anyone else only with an introduction or a top skill. [More on it](docs/improvements.md#jobs-and-rolls).
 - **Skills.** Hobbies became skills that level up, the world's own skills included. Things you do and courses can train them.
 - **Who you are matters.** Your strengths start your skills ("Good cook · Cooking 3"); your personality and interests each do something small, help with the jobs that like them and are told to the AI; habits have names of their own and make their skill train faster. No job is closed to your personality, and every roll gets the same bonus from your skill.
 - **Courses that take weeks.** Classes on a schedule or five days a week, a few you can miss (more cost make-up classes), two courses at once, long programs paid by the season, help with the fee, jobs you can start while you study for them, and a word from your boss when your next rank needs a course. Tokyo has 17, and two more with adult content on. [More on it](docs/improvements.md#who-you-are-and-courses-that-take-weeks).
@@ -50,7 +52,7 @@ People in your world have feelings of their own, for you and for each other, and
 - **Tokyo's adult progression.** With adult content on, Tokyo's love life and night world have something to play: a Sensuality skill, private moments that go better or worse, learning what someone likes, a Desire need and a drive for everyone, the risk of being caught, careers with a track for each gender (AV and the esthe), two courses, traits, goals and shop items. None of it exists with the switch off. [More on it](docs/improvements.md#tokyos-adult-progression).
 - **Gifts that mean something.** Buy them where they're sold. A romantic gift warms a crush or a partner; an intimate one only lands with someone drawn to you, and is loved when it fits their intimate profile.
 - **Couples go out.** Couples among the world's people go on dates a couple of evenings a week, at places they both like.
-- **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
+- **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, or change one of the world's starts for that game (its money, home, whom you know and your skills), and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
 - **The AI knows the scene better.** In a crowded place it hears once what the people there share (why they're here, where they stand with you), and results written for you ("You nail the chorus") reach it as what you were told. The world's lorebook stays small in every request.
 
 ### Other improvements
@@ -59,6 +61,7 @@ More on each in **[Other improvements in this fork](docs/improvements.md)**.
 
 - **A color for each speaker's dialogue.** The quotes in each line, and the speaker's name, take that person's color, chosen by your AI to fit the characters and kept readable (Chat look, ☰ menu).
 - **Outfits from the game.** With adult content on, the people in a private moment wear their "naked" outfit and dress again after; a world's people can bring outfits of their own. With it off, adult actions stay hidden everywhere.
+- **A World creator that edits everything.** Every field of the built-in worlds, Tokyo included, can be changed in the World creator: lore, rolls and outcomes, street stories, starts, keepsakes, people's appointments and storylines, weather, trains, places' hours and pictures. [More on it](docs/improvements.md#the-world-creator-and-the-new-game).
 - **Your own additions to a built-in world.** A file in SillyTavern's user files (`mundi-overlay-<world id>.json`) adds places, people, actions, lore and pictures to a built-in world when it loads, without touching the world itself (the format is at the top of `src/core/overlay.ts`).
 - **New pictures reach your cards.** When a world updates a character's expressions or outfits, cards made before get them too.
 - **Pictures that follow the weather and the season,** expression sprites in any format, and everything in Portuguese and Spanish.

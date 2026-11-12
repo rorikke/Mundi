@@ -1,9 +1,19 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.3.2';
+export const VERSION = '0.3.3';
 
 export interface Release { v: string; title: string; items: [string, string][] }
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG: Release[] = [
+    { v: '0.3.3', title: "University, and a city that makes you work for it", items: [
+        ['cap', "University: Hijiri offers four degrees, played the way The Sims does it: terms of modules, coursework, grades and a GPA, a scholarship you can lose, and a Campus app. The University student start begins enrolled."],
+        ['briefcase', "Job interviews are harder: about 30% with nothing that helps, a job beyond your reach won't see you, and noes in a row at one place wait longer."],
+        ['moon', "With adult content on, Tokyo's hostess clubs, pole club and AV studios take women from the listings; anyone else needs an introduction or a top skill. Men work as AV actors."],
+        ['wallet', "Tokyo's starts begin with less money: about four weeks of rent and bills for most."],
+        ['flame', "Spark: choose whom you want to see. A like is answered days later, if at all, and a match takes more in common."],
+        ['sparkles', "Life points say where to spend them: the Goals app's Rewards tab."],
+        ['edit', "The World creator edits every field of the built-in worlds, Tokyo included, and a new game can change one of the world's starts for that game."],
+        ['globe', "Everything new in Portuguese and Spanish, and a fix: with the hobbies system off, a hobby no longer adds to a roll."],
+    ] },
     { v: '0.3.2', title: 'Life goals, and Tokyo after dark', items: [
         ['star', "Life goals: follow one through its steps, switch any time without losing what it counted, and finishing it gives a perk for good. Tokyo has 25 of its own."],
         ['sparkles', "Life points from steps and small moments buy a lucky day, a nudge, an invitation, insight into someone and Tokyo's shrine charms."],
