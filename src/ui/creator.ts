@@ -14,7 +14,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank } from '../core/world.js';
+import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank } from '../core/world.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
 
@@ -493,11 +493,11 @@ function rankRows(w: WorldDef, p: string, o: { ranks?: Rank[]; courses?: string[
 }
 // Skill levels by skill (a job's or a track's levels to be hired): a row each, the skill changed in place (its level
 // kept, never two of one skill), "Add a skill" adding the next one of the world at level 3.
-function skillLevels(w: WorldDef, p: string, label: string) {
+function skillLevels(w: WorldDef, p: string, label: string, lo = 1) {
     const map = (getPath(p) ?? {}) as Record<string, number>; const all = skillOpts(w);
     const has = Object.keys(map).filter(s => !BAD_KEYS.includes(s)); const free = all.filter(([id]) => !has.includes(id));
     return `<span class="mu-cw-sub">${label}</span>${has.map(s => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Skill</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(s)}">${[...all.filter(([id]) => id === s || free.some(([f]) => f === id)), ...(all.some(([id]) => id === s) ? [] : [[s, s] as [string, string]])].map(([id, n]) => `<option value="${esc(id)}" ${id === s ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
-            ${bounded('Level (1–10)', `${p}.${s}`, 1, 10)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${s}`)}" title="Remove">${icon('x')}</button></div>`).join('') || '<small class="mu-muted">None.</small>'}
+            ${bounded(`Level (${lo}–10)`, `${p}.${s}`, lo, 10)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${s}`)}" title="Remove">${icon('x')}</button></div>`).join('') || '<small class="mu-muted">None.</small>'}
         ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="skills" data-v="3" data-path="${esc(p)}">${icon('plus')}<span>Add a skill</span></button>` : ''}`;
 }
 // How some of the world's people feel about you after a choice (a name → friendship points, 2–5 "a little"); in an event
@@ -1652,6 +1652,71 @@ function feelRow(q: string, others: [string, string][], love: boolean): string {
         <div class="mu-row2">${sel('Friendship', `${q}.f`, LEVELS('As usual'), 'opt')}${love ? sel('Romance', `${q}.r`, ROMANCE('As usual'), 'opt') : ''}</div>
         <div class="mu-row2">${sel('Their friendship back', `${q}.back`, LEVELS('The same'), 'opt')}${love ? sel('Their romance back', `${q}.rback`, ROMANCE('The same'), 'opt') : ''}</div></div>`;
 }
+// A person's other parts: looks and voice, pictures, their household, the rank they hold, the languages they speak, and
+// whether they only exist with adult content on or may change their life by chance.
+function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const ranks = w.occupations.find(o => o.id === e.occupation)?.ranks ?? [];
+    const at = typeof e.rank === 'number' ? e.rank : typeof e.rank === 'string' ? ranks.findIndex(r => r.name === e.rank) : -1;
+    return `<h4>Looks, voice and pictures</h4>
+        <div class="mu-row2">${optTxt('Their looks in a line (when present but not speaking)', `${p}.look`)}${optTxt('Their voice in a line', `${p}.voice`)}</div>
+        <div class="mu-row2">${optTxt('Portrait (a picture in the world\'s folder)', `${p}.avatar`, 'people/mio.png')}${optTxt('Expression sprites (a folder in the world\'s folder)', `${p}.sprites`, 'sprites/mio')}</div>
+        <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
+        ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
+        <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>`;
+}
+// Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
+// how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
+const EVERY: [string, string][] = [['', 'Every week'], ['2', 'Every 2 weeks'], ['3', 'Every 3 weeks'], ['4', 'Every 4 weeks'], ['month', 'Once a month'], ['year', 'Once a year']];
+function ritualsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const l = e.rituals ?? []; const days: [string, string][] = WEEKDAY_IDS.map((d, k) => [d, WEEKDAYS[k]] as [string, string]);
+    const others = peopleOpts(w).filter(([n]) => n !== e.name);
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Standing appointments · ${l.length}</summary>
+        <p class="mu-muted">They win over free time, not over a work shift. Hours past 24 run into the night (21–26 is 21:00 to 2:00).</p>
+        ${l.map((r, k) => { const q = `${p}.rituals.${k}`; const every = r.every === undefined || r.every === 'week' ? '' : String(r.every);
+            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Where', `${q}.place`, withCur([['home', 'Their own home'], ...placeOpts(w)], r.place))}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-field"><span>Weekdays (none: their days off)</span>${pairChips(days, `${q}.days`, true)}</div>
+            <div class="mu-row2">${bounded('From (hour)', `${q}.from`, 0, 30, 0.5)}${bounded('To (hour)', `${q}.to`, 0, 30, 0.5)}</div>
+            <div class="mu-row2"><label class="mu-field"><span>How often</span><select data-input="cw" data-type="every" data-path="${esc(`${q}.every`)}">${withCur(EVERY, every).map(([v, x]) => `<option value="${esc(v)}" ${v === every ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+                ${every ? num(every === 'month' ? 'The week of the season (1: the first, -1: the last)' : 'Starting on week', `${q}.week`, -1) : bounded('How often it happens (0 … 1; empty: always)', `${q}.chance`, 0, 1, 0.05)}</div>
+            ${every ? bounded('How often it happens (0 … 1; empty: always)', `${q}.chance`, 0, 1, 0.05) : ''}
+            <div class="mu-row2">${sel('Only on a festival\'s days', `${q}.festival`, withCur([['', '(any day)'], ...(w.festivals ?? []).map(f => [f.id, f.name] as [string, string])], r.festival), 'opt')}${sel('Only on an event\'s days', `${q}.event`, withCur([['', '(any day)'], ...(w.cityEvents ?? []).map(c => [c.id, c.name] as [string, string])], r.event), 'opt')}</div>
+            ${txt('What they\'re doing (for the AI)', `${q}.text`, 'sings at Bar Kotori')}
+            <div class="mu-row2">${cond('Only while (optional)', `${q}.when`, 'season: summer')}${flag('Only with adult content on', `${q}.adult`, '', true)}</div>
+            <div class="mu-field"><span>Who comes along</span>${pairChips(withCurAll(others, r.with), `${q}.with`, true)}</div>
+            <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details></div>`; }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="ritual" data-path="${esc(`${p}.rituals`)}">${icon('plus')}<span>Add an appointment</span></button></details>`;
+}
+// Secrets and storylines that move in stages: what they hide, how it reads once known, when they tell, the stages (when,
+// how it's told, a moment, a rumor, a fact) and how it ends (a new job or home, leaving, a good ending). Ids are what
+// conditions, stories and saves name: shown, never changed.
+function threadsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const l = e.threads ?? [];
+    const jobs: [string, string][] = [['', '(the same)'], ...w.occupations.map(o => [o.id, o.name] as [string, string])];
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Secrets and storylines · ${l.length}</summary>
+        ${l.map((t, k) => { const q = `${p}.threads.${k}`;
+            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(t.id)}${flag('Only with adult content on', `${q}.adult`, '', true)}<span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this storyline</span></button></div>
+            ${area('What they know and don\'t say (told to the AI as hidden)', `${q}.hidden`, 2)}
+            <div class="mu-row2"><label class="mu-field"><span>How it reads once you know ({{user}} knows …)</span><textarea rows="2" data-input="cw" data-type="opt" data-path="${esc(`${q}.known`)}" data-focus="${esc(`${q}.known`)}">${val(`${q}.known`)}</textarea></label>${cond('They tell you when (empty: once you\'re good friends)', `${q}.reveal`, 'feels: Mio good')}</div>
+            <span class="mu-cw-sub">Stages</span>
+            ${(t.stages ?? []).map((st, j) => { const s = `${q}.stages.${j}`;
+                return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${j + 1}</b>${st.id ? idTag(st.id) : ''}${sel('Told as', `${s}.tell`, [['hidden', 'Hidden'], ['hinted', 'Hinted'], ['known', 'Known']])}<span class="mu-cw-spacer"></span>
+                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
+                ${cond('Begins when', `${s}.when`, 'season: summer; seasonDays: 8-14')}${area('What is going on', `${s}.text`, 2)}
+                <div class="mu-row2">${optTxt('A moment it brings', `${s}.moment`)}${optTxt('A rumor it starts', `${s}.rumor`)}</div>${optTxt('Remembered (a fact)', `${s}.fact`)}</div>`; }).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="tstage" data-path="${esc(`${q}.stages`)}">${icon('plus')}<span>Add a stage</span></button>
+            <span class="mu-cw-sub">Endings (the first whose condition holds; else the last without one)</span>
+            ${(t.endings ?? []).map((en, j) => { const s = `${q}.endings.${j}`;
+                return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(en.id)}<span class="mu-cw-spacer"></span>
+                    <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
+                ${cond('When (optional)', `${s}.when`, 'knows: mio_grades; feels: Mio friend')}${area('How it ends', `${s}.text`, 2)}
+                <div class="mu-row2">${sel('A new job', `${s}.job`, withCur(jobs, en.job), 'opt')}${sel('A new home', `${s}.home`, withCur(zoneOpts(w, '(the same)'), en.home), 'opt')}</div>
+                ${optTxt('Remembered (a fact)', `${s}.fact`)}
+                <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div></div>`; }).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="tend" data-path="${esc(`${q}.endings`)}">${icon('plus')}<span>Add an ending</span></button></div>`; }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="thread" data-path="${esc(`${p}.threads`)}">${icon('plus')}<span>Add a storyline</span></button></details>`;
+}
 // The world's own people: a character card is made from each when a game of this world starts (or reused).
 function peopleEditor(w: WorldDef) {
     const others = (e: { name: string }) => w.cast.examples.filter(x => x.name !== e.name).map(x => [x.name, x.name] as [string, string]);
@@ -1680,6 +1745,8 @@ function peopleEditor(w: WorldDef) {
                 ${others(e).length ? `<button class="mu-ghost" data-act="cw-add" data-what="efeel" data-i="${esc(i)}">${icon('plus')}<span>Add a relation</span></button>` : ''}
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
+                ${personMore(w, p, e)}
+                <h4>Their life</h4>${ritualsEditor(w, p, e)}${threadsEditor(w, p, e)}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
         }, 'person', 'Nobody lives here yet.')}
@@ -2069,6 +2136,13 @@ Object.assign(ACT, {
             const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[];
             list.push({ who: w.cast.examples[0]?.name ?? '', text: '' }); CW.dirty = true; notify(); return;
         }
+        // a person's standing appointment, storyline, a storyline's stage and ending
+        if (what === 'ritual' || what === 'thread' || what === 'tstage' || what === 'tend') {
+            const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[];
+            list.push(what === 'ritual' ? { place: 'home', from: 19, to: 21, text: '' } : what === 'thread' ? { id: newId('th'), hidden: '', stages: [{ tell: 'hidden', text: '' }] }
+                : what === 'tstage' ? { ...(list.length && list.every(x => typeof x.id === 'string' && x.id) ? { id: newId('stage') } : {}), tell: 'hinted', text: '' } : { id: newId('end'), text: '' });
+            CW.dirty = true; notify(); return;
+        }
         if (what === 'wfail') { setPath(el.dataset.path!, { text: '' }); notify(); return; }
         if (what === 'wboost') { setPath(el.dataset.path!, { effects: [{ kind: 'pay', value: 0.1 }], days: 7 }); notify(); return; }
         if (what === 'hire') {
@@ -2245,6 +2319,7 @@ Object.assign(INPUT, {
         else if (t === 'lines') { const l = el.value.split(/\r?\n/).map((x: string) => x.trim()).filter(Boolean); setPath(p, l.length ? l : undefined); dirtyMark(); return; }
         else if (t === 'nbool') v = el.checked ? undefined : false;
         else if (t === 'tri') v = el.value === '' ? undefined : el.value === 'true';
+        else if (t === 'every') v = el.value === '' ? undefined : /^\d+$/.test(el.value) ? Number(el.value) : el.value;   // a ritual: every N weeks, a month, a year
         else if (t === 'nullable') v = el.value === '' ? null : el.value;   // a choice where empty means none (no job)
         else if (t === 'opt') v = el.value === '' ? undefined : el.value;   // a choice where empty means unset (removed)
         else if (p.includes('.when.') && el.value === '') v = undefined;
