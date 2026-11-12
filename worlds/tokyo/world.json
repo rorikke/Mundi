@@ -70,7 +70,10 @@
    "climate": "tokyo",
    "area": "Tokyo",
    "town": true,
-   "minutesPerUnit": 0.56
+   "minutesPerUnit": 0.56,
+   "images": {
+    "night": "maps/tokyo-night.avif"
+   }
   },
   {
    "id": "shibuya",
@@ -80,7 +83,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 15
+   "local": 15,
+   "images": {
+    "night": "maps/shibuya-night.avif"
+   }
   },
   {
    "id": "shinjuku",
@@ -90,7 +96,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 15
+   "local": 15,
+   "images": {
+    "night": "maps/shinjuku-night.avif"
+   }
   },
   {
    "id": "westside",
@@ -100,7 +109,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 20
+   "local": 20,
+   "images": {
+    "night": "maps/westside-night.avif"
+   }
   },
   {
    "id": "akiba",
@@ -110,7 +122,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 15
+   "local": 15,
+   "images": {
+    "night": "maps/akiba-night.avif"
+   }
   },
   {
    "id": "oldtown",
@@ -120,7 +135,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 20
+   "local": 20,
+   "images": {
+    "night": "maps/oldtown-night.avif"
+   }
   },
   {
    "id": "marunouchi",
@@ -130,7 +148,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 15
+   "local": 15,
+   "images": {
+    "night": "maps/marunouchi-night.avif"
+   }
   },
   {
    "id": "bay",
@@ -140,7 +161,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 20
+   "local": 20,
+   "images": {
+    "night": "maps/bay-night.avif"
+   }
   },
   {
    "id": "roppongi",
@@ -150,7 +174,10 @@
    "climate": "tokyo",
    "parent": "tokyo",
    "area": "Tokyo",
-   "local": 15
+   "local": 15,
+   "images": {
+    "night": "maps/roppongi-night.avif"
+   }
   },
   {
    "id": "yokohama",
@@ -161,7 +188,10 @@
    "parent": "tokyo",
    "area": "Yokohama",
    "trip": 40,
-   "local": 20
+   "local": 20,
+   "images": {
+    "night": "maps/yokohama-night.avif"
+   }
   },
   {
    "id": "hakone",
@@ -172,7 +202,10 @@
    "parent": "tokyo",
    "area": "Hakone",
    "trip": 90,
-   "local": 30
+   "local": 30,
+   "images": {
+    "night": "maps/hakone-night.avif"
+   }
   }
  ],
  "homes": {
