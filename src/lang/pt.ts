@@ -7557,5 +7557,7 @@ const DICT: Record<string, string> = {
  "Degree": "Diploma",
  "New start": "Novo começo",
  "🎁 New keepsake": "🎁 Nova lembrança",
+ "Listed": "Na ordem",
+ "Interview chance": "Chance na entrevista",
 };
 export default DICT;
