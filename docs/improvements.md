@@ -203,8 +203,9 @@ on *Mentor*, *A family of your own*, *A good name* and *Your own business*.
 train*, *Seasons of Japan*, *Akiba legend*, *Doujin artist*, *Hot springs and getaways*, *Old Tokyo heart*, *Karaoke king
 or queen*, *A Tokyo romance*, *Up from Isezaki*, *Keeper of secrets*, and with adult content on *King or queen of
 Kabukichō*. Five more come with adult content on: *Adult star*, *The art of pleasure*, *Keeping the spark*, *Open hearts*
-and *Thrill seeker* (see [Tokyo's adult progression](#tokyos-adult-progression)). A world's own goals are marked ✦. Mentors,
-businesses and reputation are off in Tokyo, so those goals aren't there.
+and *Thrill seeker* (see [Tokyo's adult progression](#tokyos-adult-progression)). A world's own goals are marked ✦.
+Businesses and reputation are off in Tokyo, so those goals aren't there; *Mentor* is, through [training
+together](#training-together).
 
 ### Life points and the shop
 
@@ -490,6 +491,39 @@ English studies, Computer science, and Arts and design. The University student s
   (from which term, required, hours of coursework), and mark a job's wanted degrees, a start's degree and scholarship, and
   student homes. Schools without degrees work as before. Older games aren't enrolled; someone on Hijiri's old ladder
   keeps it until choosing a degree.
+
+## Training together
+
+Someone who is good at what you're not can teach you; you can teach what you know; or you trade, each teaching the
+other (Mio from the share house teaching you Japanese while you help with her English homework). It replaces
+apprentices, in every world.
+
+- **Who can teach.** A teacher needs level 6 in the skill and three levels more than the learner. The world's people
+  are good at what their world says (Genzō cooks at 10, Kyōko mixes drinks at 9, Natsuki games at 9), at the languages
+  they speak (a Tokyo native speaks Japanese at 10 and a little English), and at what their job's rank asks.
+- **Who with.** Someone you've met who feels like a **Friend** or closer. Two arrangements at a time, one per person.
+  Adult skills are never taught this way.
+- **How it starts: in conversation.** Suggest it in your own words ("could you teach me Japanese? I'd help with your
+  English"). After their reply the game asks the AI whether they agreed, and to what, choosing only among what the
+  rules allow: yes starts it at once, no means it won't come up with them for four weeks (and it's a little awkward:
+  friendship −2). Someone who isn't a friend yet puts it off kindly, with no cost. Rarely, someone who'd make a good
+  match is nudged to offer it if the talk turns that way (at most one nudge in ten days, the same person once in four
+  weeks), and characters may offer on their own: an offer comes as a card, **Accept** or **Not now**, and your answer
+  goes to the scene by itself.
+- **Sessions.** An hour together, with them beside you: a button among the things to do ("Language exchange with Mio",
+  "Lesson with Genzō", "Teach Haru"). Once a day, twice a week. The learner gains 16 experience plus 4 for each level
+  between them (up to 36), never past a level below the teacher; twice a week takes you from Japanese 1 to 4 with
+  Chloe in two and a half weeks. Each session brings you closer (friendship +3, and a little romance when there's some
+  already), and the AI hears about the arrangement whenever they're in the scene.
+- **Finishing and lapsing.** Once both sides have learned all they can, it's finished: a memory for both of you and a
+  warmer friendship. Two weeks without a session and it lapses (a little cooler between you); someone who no longer
+  feels like a friend calls it off. End one yourself from the Profile's **Training together**.
+- **Mentor**, the general life goal, counts it: start teaching someone, teach ten sessions, someone you teach learns
+  all you can teach, two of them. Its perk, Teacher, makes those you teach learn 50% more.
+- **Worlds and older games.** It belongs to the *Training together* system (World → Systems), which needs skills. World
+  makers set what each person is good at in the World creator (People, "What they're good at"); without it, a person
+  knows what their job asks. Apprentices who had finished in an older game stay as former apprentices; one halfway
+  through had been learning a trait, which training together doesn't teach, so that one is gone.
 
 ## The World creator and the new game
 

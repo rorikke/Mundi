@@ -1472,7 +1472,7 @@ const roleOpts = (w: WorldDef, cur: string[] = []): Opt[] => {
 // events, places, maps and areas, friendship and romance tiers, keepsakes, courses, partners); a form the condition
 // grammar doesn't read yet is left out (a regular at one place: `visited: <place> regular`).
 const MOMENT_NAMES: Record<string, string> = { meal: 'Cook a meal', workout: 'Work out', painting: 'Paint', shift: 'Work a shift', party: 'Throw a party', missed_shift: 'Miss a shift', missed_train: 'Miss the last train', date: 'Go on a date',
-    overnight: 'Someone stays the night', night_away: 'A night away from home', crisis: 'A crisis (a need at zero)', collapse: 'Collapse from exhaustion', apprentice: 'Take an apprentice', lesson: 'Teach a lesson', taught: 'An apprentice finishes',
+    overnight: 'Someone stays the night', night_away: 'A night away from home', crisis: 'A crisis (a need at zero)', collapse: 'Collapse from exhaustion', apprentice: 'Start teaching someone', lesson: 'A session where you teach', taught: 'Someone you teach learns all you can teach', taught_you: 'Someone teaches you all they can',
     baby: 'Have a baby', business: 'Open a business', big_party: 'A party with five guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00',
     // (adult)
     intimate: 'A private moment with someone (adult)', learned: 'Learn something someone likes or won\'t do (adult)', risky: 'Get away with something risky (adult)', caught: 'Get caught (adult)',
@@ -1717,8 +1717,8 @@ function feelRow(q: string, others: [string, string][], love: boolean): string {
         <div class="mu-row2">${sel('Friendship', `${q}.f`, LEVELS('As usual'), 'opt')}${love ? sel('Romance', `${q}.r`, ROMANCE('As usual'), 'opt') : ''}</div>
         <div class="mu-row2">${sel('Their friendship back', `${q}.back`, LEVELS('The same'), 'opt')}${love ? sel('Their romance back', `${q}.rback`, ROMANCE('The same'), 'opt') : ''}</div></div>`;
 }
-// A person's other parts: looks and voice, pictures, their household, the rank they hold, the languages they speak, and
-// whether they only exist with adult content on or may change their life by chance.
+// A person's other parts: looks and voice, pictures, their household, the rank they hold, the languages they speak, what
+// they're good at, and whether they only exist with adult content on or may change their life by chance.
 function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
     const ranks = w.occupations.find(o => o.id === e.occupation)?.ranks ?? [];
     const at = typeof e.rank === 'number' ? e.rank : typeof e.rank === 'string' ? ranks.findIndex(r => r.name === e.rank) : -1;
@@ -1727,6 +1727,7 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
         <div class="mu-row2">${optTxt('Portrait (a picture in the world\'s folder)', `${p}.avatar`, 'people/mio.png')}${optTxt('Expression sprites (a folder in the world\'s folder)', `${p}.sprites`, 'sprites/mio')}</div>
         <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
+        ${skillOpts(w).length || e.skills ? skillLevels(w, `${p}.skills`, 'What they\'re good at, for training together (teaching takes 6; empty: what their job asks)', 0) : ''}
         <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>`;
 }
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),

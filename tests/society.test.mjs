@@ -1,5 +1,5 @@
 // Life and society (§9C): habits that become traits, reputation that fades, a secret identity with suspicion, pets and
-// familiars, apprentices, letters from friends far away, festivals. Run: node tests/society.test.mjs [repo root]
+// familiars, training together, letters from friends far away, festivals. Run: node tests/society.test.mjs [repo root]
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +13,7 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); await D('core/saves.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const R = await D('sim/rpg.js'); const S = await D('sim/social.js');
 const REL = await D('sim/rel.js'); const setBond = (g, a, v) => REL.setFr(g, a, REL.YOU, v);   // friendship toward you (sim/rel.ts)
-const HB = await D('sim/habits.js'); const ST = await D('sim/standing.js'); const PT = await D('sim/pets.js'); const MT = await D('sim/mentors.js');
+const HB = await D('sim/habits.js'); const ST = await D('sim/standing.js'); const PT = await D('sim/pets.js'); const MT = await D('sim/training.js');
 const LT = await D('sim/letters.js'); const FS = await D('sim/festivals.js'); const P = await D('sim/prompt.js'); const facts = await D('sim/facts.js');
 const people = await D('sim/people.js'); const WS = await D('sim/worldstate.js'); const UI = await D('ui/lifeplus.js');
 let fails = 0, passes = 0;
@@ -83,21 +83,25 @@ const act = (id) => w.actions.find(a => a.id === id);
     for (let i = 0; i < 6; i++) time.advance(g, w, 1440);
     ok(PT.petsOf(g).length < 2, 'neglected, they run away');
 }
-// apprentices
+// training together (it took the place of apprentices): with a world skill, you teach a friend until they're a level below you
 {
     const g = fresh(true);
     const r = Object.values(g.cast).find(x => !(g.family?.kids ?? []).some(k => k.avatar === x.avatar)); r.met = true;
-    setBond(g, r.avatar, 30);
-    ok(/trust/.test(MT.canMentor(g, w, r.avatar)), 'only someone who trusts you');
-    setBond(g, r.avatar, 60); g.player.money = 500;
-    const area = MT.teachable(g, w)[0][0];
-    ok(/apprentice/.test(MT.takeApprentice(g, w, r.avatar, area)), 'taking an apprentice');
-    ok(/with you/.test(MT.lesson(g, w, r.avatar, false).text), 'lessons only with them here');
-    let n = 0; while (!MT.graduated(g, r.avatar) && n++ < 20) { MT.lesson(g, w, r.avatar, true); g.day++; }
-    ok(MT.graduated(g, r.avatar) && n < 15, `they finish (${n} lessons): mentor and apprentice for life`);
+    const w2 = { ...w, skills: [...(w.skills ?? []), { id: 'herbs', name: 'Herbs' }] };
+    const HO = await D('sim/hobbies.js'); HO.setSkillLevel(g, 'herbs', 8);
+    setBond(g, r.avatar, 20);
+    ok(/well enough/.test(MT.whyNot(g, w2, r.avatar)), 'only a friend');
+    setBond(g, r.avatar, 60);
+    ok(MT.possible(g, w2, r.avatar).teach.includes('herbs'), 'you can teach what you know well');
+    ok(/agreed/.test(MT.arrange(g, w2, r.avatar, undefined, 'herbs')), 'agreeing on lessons');
+    const a = MT.activeOf(g)[0];
+    ok(/with you/.test(MT.session(g, w2, a.id).text), 'sessions only with them here');
+    S.social(g).with.push({ avatar: r.avatar });
+    let n = 0; while (!MT.graduated(g, r.avatar) && n++ < 60) { MT.session(g, w2, a.id); g.day += 4; }
+    ok(MT.graduated(g, r.avatar) && MT.personLevel(g, w2, r, 'herbs') === 7, `they finish (${n} sessions): a level below you`);
     const C = await D('sim/combat.js'); const PA = await D('sim/party.js');
     PA.join(g, w, r.avatar); const c = C.startCombat(g, w, { why: 'x', foes: ['wolf'] });
-    ok(c.list.find(f => f.ref === r.avatar).level === g.rpg.level + 1, 'a former apprentice fights a level higher');
+    ok(c.list.find(f => f.ref === r.avatar).level === g.rpg.level + 1, 'someone you taught fights a level higher');
     delete g.combat;
 }
 // letters

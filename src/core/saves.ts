@@ -19,7 +19,7 @@ import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 5;
+export const SCHEMA = 6;
 
 interface Migration { to: number; what: string; run: (g: any) => void }
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -37,6 +37,8 @@ const MIGRATIONS: Migration[] = [
     // 5 (traits and courses): the course you take moves into a list, the old trait lists are kept, and the traits are
     // settled once the world is known (settleTraits, sim/traits.ts).
     { to: 5, what: 'courses in a list, traits made skills', run: g => traitsAndCourses(g) },
+    // 6 (training together): apprentices become training together; those who finished stay as former apprentices.
+    { to: 6, what: 'apprentices become training together', run: g => apprenticesToTraining(g) },
 ];
 
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
@@ -185,6 +187,21 @@ function traitsAndCourses(g: any) {
     if (l && typeof l === 'object' && !Array.isArray(l.taking)) { l.taking = l.current ? [String(l.current)] : []; delete l.current; }
     if (!p.traitsBefore) { p.traitsBefore = structuredClone(p.traits ?? {}); p.traitsTodo = true; }
     if (!Array.isArray(p.shifts)) p.shifts = [];
+}
+
+// Schema 6. Apprentices (`mentees`: an avatar learning one of your traits, by percent) give way to training together
+// (`training`, sim/training.ts), which teaches skills. Those who finished stay as former apprentices (the AI keeps
+// hearing it, and they still count as someone you taught); those halfway through had learned a trait, not a skill, so
+// nothing carries over. A second run finds no `mentees` and changes nothing.
+function apprenticesToTraining(g: any) {
+    if (!Array.isArray(g.mentees)) { delete g.mentees; return; }
+    const done = g.mentees.filter((m: any) => m && m.done && typeof m.avatar === 'string');
+    if (done.length) {
+        const t = (g.training ??= {});
+        t.former = Array.isArray(t.former) ? t.former : [];
+        for (const m of done) if (!t.former.some((f: any) => f.who === m.avatar)) t.former.push({ who: m.avatar, what: String(m.area ?? '') });
+    }
+    delete g.mentees;
 }
 
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);

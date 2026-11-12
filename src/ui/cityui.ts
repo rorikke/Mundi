@@ -1,5 +1,6 @@
 // City events in the Calendar ("I'll go", go there now) and hobbies in the Profile.
 import { esc, game, notify, saveGame, toast, nowAbs, type Save } from '../core/store.js';
+import { trainingPracticeHtml } from './trainui.js';
 import { getWorld, type WorldDef } from '../core/world.js';
 import { ACT } from './reg.js';
 import { money } from '../sim/needs.js';
@@ -52,7 +53,7 @@ const PRACTICE_OPEN = new Set<string>();
 // counted, so it points you somewhere without listing the whole city.
 function practiceHtml(g: Save, w: WorldDef, id: string): string {
     const p = practiceFor(g, w, id);
-    if (!p.spots.length && !p.unseen && !p.jobs.length && !p.immersion) return '';
+    if (!p.spots.length && !p.unseen && !p.jobs.length && !p.immersion && !trainingPracticeHtml(g, w, id)) return '';
     const where = (s: typeof p.spots[number]) => s.home ? `Home${s.item ? ` · needs ${esc(s.item)}` : ''}` : s.anywhere ? 'Anywhere'
         : `<span data-notr>${esc(s.where.slice(0, 3).join(', '))}</span>${s.where.length > 3 ? ` +${s.where.length - 3}` : ''}${s.more ? ` · ${s.more === 1 ? '1 more place' : `${s.more} more places`}` : ''}`;
     const list = p.spots.map(s => `<li><b><span>${esc(s.icon)}</span> <span data-notr>${esc(s.label)}</span></b><small>${where(s)}</small>${s.when?.length ? `<small class="mu-practice-when"><span aria-hidden="true">🕒</span> ${esc(s.when.join(' · '))}</small>` : ''}</li>`).join('');
@@ -61,7 +62,7 @@ function practiceHtml(g: Save, w: WorldDef, id: string): string {
     const more = p.spots.length ? ' more' : '';   // (with nothing found yet, these are all there is)
     const unseen = p.unseen ? `<small class="mu-muted">${p.unseen === 1 ? `1${more} in a place you haven't been to yet.` : `${p.unseen}${more} in places you haven't been to yet.`}</small>` : '';
     return `<details class="mu-practice" ${PRACTICE_OPEN.has(id) ? 'open' : ''}><summary data-act="practice-fold" data-id="${esc(id)}">Where to practise${p.spots.length ? ` (${p.spots.length})` : ''}</summary>
-        ${list ? `<ul>${list}</ul>` : p.unseen ? '' : `<small class="mu-muted">Nothing in the places you've been to yet.</small>`}${unseen}${itself}${jobs}</details>`;
+        ${list ? `<ul>${list}</ul>` : p.unseen ? '' : `<small class="mu-muted">Nothing in the places you've been to yet.</small>`}${unseen}${itself}${jobs}${trainingPracticeHtml(g, w, id)}</details>`;
 }
 
 Object.assign(ACT, {

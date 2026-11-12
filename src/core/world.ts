@@ -461,6 +461,9 @@ export interface ExampleCharacter {
     /** (E13) How well they speak the world's languages (skill id → level 0–10: `{ english: 9 }`); missing: the world's
      *  own language fluently and its other languages a little (see LanguageDef). */
     languages?: Record<string, number>;
+    /** What they're good at, beyond their languages (skill id → level 0–10: `{ cooking: 9 }`), for training together
+     *  (sim/training.ts): a teacher needs 6. Missing: what their job's rank asks, else nothing. */
+    skills?: Record<string, number>;
     /** (E25) The world's own people stay themselves: no random new job or home (only their threads or the player change
      *  that). Missing: they stay themselves; `false` lets one change by chance. */
     anchored?: boolean;
@@ -995,7 +998,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'reputation', name: 'Reputation', desc: 'no reputation per region (and it never fades).', apps: ['standing'], blocks: [] },
     { id: 'identity', name: 'Secret identity', desc: 'no alter ego or disguise.', apps: [], blocks: [] },
     { id: 'pets', name: 'Pets and familiars', desc: 'no animals to keep.', apps: ['pets'], blocks: [] },
-    { id: 'mentors', name: 'Apprentices', desc: 'you cannot take an apprentice.', apps: [], blocks: [] },
+    { id: 'mentors', name: 'Training together', desc: 'nobody teaches you or learns from you: no lessons or language exchanges with the people you know.', apps: [], blocks: [], needs: 'hobbies' },
     { id: 'letters', name: 'Letters from afar', desc: 'friends in other towns never write, and distance never cools a friendship.', apps: [], blocks: [] },
     { id: 'festivals', name: 'Festivals', desc: 'no festivals in the calendar.', apps: [], blocks: [] },
     { id: 'events', name: 'City events', desc: 'no shows, matches or fairs in the city calendar.', apps: [], blocks: [] },

@@ -83,11 +83,11 @@ function follow() {
         }
         redraw();
     };
-    on('GENERATION_ENDED', () => { emptyReply(); done(); void import('./ui/relui.js').then(m => m.checkAsk()); void import('./ui/events.js').then(m => m.checkEventEnd()); });
+    on('GENERATION_ENDED', () => { emptyReply(); done(); void import('./ui/relui.js').then(m => m.checkAsk()); void import('./ui/trainui.js').then(m => m.checkTrain()); void import('./ui/events.js').then(m => m.checkEventEnd()); });
     on('GENERATION_STOPPED', done);
     on('GROUP_WRAPPER_FINISHED', done);
     on('STREAM_TOKEN_RECEIVED', () => { if (state.open && state.view === 'scene') patchLastLine(); });
-    on('MESSAGE_SENT', (id: number) => { const m: any = (globalThis as any).SillyTavern?.getContext?.().chat?.[id]; if (m?.is_user) void import('./ui/relui.js').then(x => { x.detectAsk(String(m.mes ?? '')); void x.checkReverse(); }); });
+    on('MESSAGE_SENT', (id: number) => { const m: any = (globalThis as any).SillyTavern?.getContext?.().chat?.[id]; if (m?.is_user) { void import('./ui/relui.js').then(x => { x.detectAsk(String(m.mes ?? '')); void x.checkReverse(); }); void import('./ui/trainui.js').then(x => x.detectTrain(String(m.mes ?? ''))); } });
     // Home: time passes with every message you send (Settings › This save can turn it off)
     on('MESSAGE_SENT', async (id: number) => {
         const m: any = (globalThis as any).SillyTavern?.getContext?.().chat?.[id];

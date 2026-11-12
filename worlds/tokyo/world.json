@@ -15775,7 +15775,6 @@
   "identity": false,
   "letters": false,
   "legends": false,
-  "mentors": false,
   "prison": false
  },
  "presetActions": true,
@@ -38223,7 +38222,10 @@
      "role": "switch",
      "drive": "average"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "drawing": 6
+    }
    },
    {
     "name": "Ren",
@@ -38309,7 +38311,10 @@
      "role": "follow",
      "drive": "average"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "music": 8
+    }
    },
    {
     "name": "Chloe",
@@ -38420,6 +38425,9 @@
     "languages": {
      "english": 10,
      "japanese": 6
+    },
+    "skills": {
+     "charisma": 6
     }
    },
    {
@@ -38524,6 +38532,9 @@
     "anchored": true,
     "languages": {
      "english": 1
+    },
+    "skills": {
+     "drawing": 9
     }
    },
    {
@@ -38615,7 +38626,11 @@
      "role": "lead",
      "drive": "high"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "singing": 8,
+     "fashion": 7
+    }
    },
    {
     "name": "Kaito",
@@ -38731,7 +38746,11 @@
      "role": "follow",
      "drive": "high"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "music": 7,
+     "fitness": 6
+    }
    },
    {
     "name": "Genzō",
@@ -38876,6 +38895,9 @@
     "anchored": true,
     "languages": {
      "english": 0
+    },
+    "skills": {
+     "cooking": 10
     }
    },
    {
@@ -38982,7 +39004,10 @@
      "role": "lead",
      "drive": "high"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "cooking": 7
+    }
    },
    {
     "name": "Yui",
@@ -39042,7 +39067,11 @@
      "role": "switch",
      "drive": "average"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "dance": 6,
+     "writing": 6
+    }
    },
    {
     "name": "Reiko",
@@ -39194,6 +39223,10 @@
     "anchored": true,
     "languages": {
      "english": 5
+    },
+    "skills": {
+     "logic": 7,
+     "charisma": 7
     }
    },
    {
@@ -39340,6 +39373,10 @@
     "anchored": true,
     "languages": {
      "english": 6
+    },
+    "skills": {
+     "logic": 6,
+     "charisma": 7
     }
    },
    {
@@ -39438,7 +39475,10 @@
      "role": "follow",
      "drive": "average"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "logic": 6
+    }
    },
    {
     "name": "Hina",
@@ -39558,7 +39598,11 @@
      "role": "follow",
      "drive": "low"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "singing": 7,
+     "dance": 8
+    }
    },
    {
     "name": "Shōta",
@@ -39614,7 +39658,12 @@
      "role": "follow",
      "drive": "low"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "charisma": 9,
+     "fashion": 7,
+     "mixology": 6
+    }
    },
    {
     "name": "Kyōko",
@@ -39696,6 +39745,10 @@
     "anchored": true,
     "languages": {
      "english": 1
+    },
+    "skills": {
+     "mixology": 9,
+     "charisma": 8
     }
    },
    {
@@ -39808,6 +39861,10 @@
     "anchored": true,
     "languages": {
      "english": 3
+    },
+    "skills": {
+     "gaming": 9,
+     "logic": 8
     }
    },
    {
@@ -39880,6 +39937,11 @@
     "anchored": true,
     "languages": {
      "english": 6
+    },
+    "skills": {
+     "dance": 9,
+     "fitness": 7,
+     "music": 6
     }
    },
    {
@@ -39987,7 +40049,12 @@
      "role": "lead",
      "drive": "average"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "charisma": 8,
+     "fashion": 7,
+     "mixology": 6
+    }
    },
    {
     "name": "Akane",
@@ -40035,7 +40102,10 @@
      "role": "lead",
      "drive": "high"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "fitness": 8
+    }
    },
    {
     "name": "Shizuka",
@@ -40126,7 +40196,11 @@
      "role": "follow",
      "drive": "average"
     },
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "charisma": 6,
+     "cooking": 6
+    }
    },
    {
     "name": "Seo-yeon",
@@ -40233,6 +40307,9 @@
     "languages": {
      "english": 4,
      "japanese": 9
+    },
+    "skills": {
+     "writing": 7
     }
    },
    {
@@ -40326,6 +40403,9 @@
     "languages": {
      "english": 7,
      "japanese": 3
+    },
+    "skills": {
+     "drawing": 8
     }
    },
    {
@@ -40424,6 +40504,10 @@
     "languages": {
      "english": 7,
      "japanese": 5
+    },
+    "skills": {
+     "logic": 7,
+     "fitness": 6
     }
    },
    {
@@ -40535,6 +40619,9 @@
     "languages": {
      "english": 6,
      "japanese": 6
+    },
+    "skills": {
+     "cooking": 6
     }
    },
    {
@@ -40643,6 +40730,10 @@
     "anchored": true,
     "languages": {
      "english": 9
+    },
+    "skills": {
+     "writing": 8,
+     "logic": 6
     }
    },
    {
@@ -40731,6 +40822,10 @@
     "languages": {
      "english": 8,
      "japanese": 6
+    },
+    "skills": {
+     "writing": 7,
+     "gaming": 7
     }
    },
    {
@@ -40862,6 +40957,9 @@
     "languages": {
      "english": 10,
      "japanese": 2
+    },
+    "skills": {
+     "logic": 9
     }
    },
    {
@@ -40956,7 +41054,11 @@
      "drive": "high"
     },
     "adult": true,
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "drawing": 8,
+     "writing": 6
+    }
    },
    {
     "name": "Airi",
@@ -41078,7 +41180,11 @@
      "drive": "average"
     },
     "adult": true,
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "charisma": 7,
+     "fashion": 6
+    }
    },
    {
     "name": "Momo",
@@ -41182,7 +41288,10 @@
      "drive": "high"
     },
     "adult": true,
-    "anchored": true
+    "anchored": true,
+    "skills": {
+     "fitness": 8
+    }
    }
   ]
  },

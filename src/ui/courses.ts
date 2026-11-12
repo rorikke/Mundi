@@ -1,6 +1,7 @@
 // Courses (a window in the middle of the screen, like Help) and the phone's Profile app: what you know, the courses
 // you took, your life goals and your career, like a professional profile page.
 import { hobbiesHtml } from './cityui.js';
+import { trainingHtml } from './trainui.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { esc, game, notify, saveGame, toast, adultOn, type Save } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type Course } from '../core/world.js';
@@ -151,6 +152,7 @@ export function profileApp(g: Save, w: WorldDef, head: string): string {
             ${!taking && !l.done.length ? `<p class="mu-muted">${lex(w, 'noCourses')}</p>` : ''}
             <button class="mu-primary" data-act="course-open">${icon('plus')}<span>${lex(w, 'browseCourses')}</span></button></section>
         ${hobbiesHtml(g, w)}
+        ${trainingHtml(g, w)}
         <section><h4>${icon('bolt')} Activity</h4><small class="mu-muted">Fitness ${life.fitness}/100 · ${countOf(g, 'meals')} meals cooked · ${countOf(g, 'workouts')} good workouts · ${countOf(g, 'parties')} parties</small></section>
     </div>`;
 }

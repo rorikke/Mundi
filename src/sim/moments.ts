@@ -15,8 +15,9 @@ export type Initiative = 'off' | 'rarely' | 'normal' | 'often';
  *  `talk`: a partner brings up the relationship (A-3); `grudge`: they bring up what hurt them (A-4); `jealous`: a
  *  partner confronts you about someone else (A-5); `thread`: a step of their own story (E22, sim/threads.ts; `tier`
  *  is the thread's id); `custom`: a festival's custom between you (E5: Valentine's chocolate; `tier` is the
- *  festival's id); `intro`: they'd like you to meet a friend of theirs (E30). */
-export type MomentKind = 'tier' | 'down' | 'ask' | 'talk' | 'grudge' | 'jealous' | 'thread' | 'custom' | 'intro';
+ *  festival's id); `intro`: they'd like you to meet a friend of theirs (E30); `train`: they might offer to train together, if the
+ *  talk turns that way (sim/training.ts). */
+export type MomentKind = 'tier' | 'down' | 'ask' | 'talk' | 'grudge' | 'jealous' | 'thread' | 'custom' | 'intro' | 'train';
 export type Asked = AskKind | 'stay' | 'staytheirs';
 export interface Moment {
     id: number; who: string; kind: MomentKind; text: string; day: number;

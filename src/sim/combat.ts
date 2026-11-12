@@ -20,7 +20,7 @@ import { placeOf } from './places.js';
 import { afterFight } from './hooks.js';
 export { afterFight };
 import { addRep } from './standing.js';
-import { graduated } from './mentors.js';
+import { graduated } from './training.js';
 import { xpMul, faithOf } from './realm.js';
 import { elementMul } from './elements.js';
 import { weatherAt } from './worldstate.js';
