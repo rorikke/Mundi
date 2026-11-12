@@ -308,8 +308,8 @@ function jobsApp(g: Save, w: WorldDef) {
             ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${((o as any).courses as string[]).some(id => isTaking(g, id)) ? 'You can start while you study for it' : T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
-            ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id) ? ` · try again ${retryText(g, o.id)}` : ''}</small>`}</span>
-            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}
+            ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}${interviewChance(g, o, traitsOf(g)) ? `<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id, o, traitsOf(g)) ? ` · try again ${retryText(g, o.id, o, traitsOf(g))}` : ''}</small>` : '<small class="mu-bad">Interview: out of your reach for now</small>'}`}</span>
+            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}
     </div>`;
 }
 

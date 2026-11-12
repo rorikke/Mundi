@@ -11,6 +11,7 @@ import { parseWhen } from './when.js';
 import { effectAdd } from './effects.js';
 import { tallyEvent, type TallyEvent } from './tally.js';
 import { trackOf } from './tracks.js';
+import { seasonDays } from './time.js';
 
 // Counters for life goals (meals cooked, workouts, shifts…); each is also one of the tally's moments (sim/tally.ts).
 const MOMENT: Record<string, TallyEvent> = { meals: 'meal', workouts: 'workout', paintings: 'painting', shifts: 'shift', parties: 'party' };
@@ -37,9 +38,13 @@ export function gainTrait(g: Save, trait: string, from: 'course' | 'goal'): bool
 
 // A job nothing of yours helps with is a long shot (30%): what you're good at and the traits it likes make the difference.
 export const INTERVIEW_DC = 15;
-/** Days before you can try the same job again: after a no (tomorrow, as ever), and after a disaster (a 1). (A longer wait
- *  after every no stalled careers whose course was paid for and running: the starter job's shifts failed it meanwhile.) */
-export const RETRY_DAYS = 1, DISASTER_DAYS = 3;
+/** Days before you can try the same job again after each no in a row there: the first, tomorrow; then longer, so a long
+ *  shot can't be had by asking every day. The count lasts a season from its first no (a hiring round: about four tries
+ *  a season, so bad luck at an ordinary job costs days, not months), and getting better at what the job looks for
+ *  (`interviewMerit` above what it was at the last no) starts it again too. A disaster (a 1) waits at least
+ *  `DISASTER_DAYS`. (Waiting days after the first no stalled careers whose course was running: a starter job's shifts
+ *  failed it meanwhile; the first no still says tomorrow.) */
+export const NO_WAITS = [1, 3, 7, 14, 28], DISASTER_DAYS = 3;
 // The world's usual top pay (the median of its jobs' top ranks), so "well paid" means the same in yen and in coins.
 const usualTop = new WeakMap<object, number>();
 function usualTopPay(w: WorldDef | null | undefined): number {
@@ -72,41 +77,74 @@ export function interviewSkill(g: Save, o: Occupation): { id: string; level: num
     for (const id of interviewSkills(o)) { const level = levelOf(g, id); if (!best || level > best.level) best = { id, level, bonus: Math.min(4, Math.floor(level / 2)) }; }
     return best && best.bonus > 0 ? best : null;
 }
-export function interviewBonus(g: Save, o: Occupation, traits: string[]) {
+/** The interview's bonus: what you bring (`interviewMerit`) and the state you come in (`interviewState`). */
+export const interviewBonus = (g: Save, o: Occupation, traits: string[]) => interviewMerit(g, o, traits) + interviewState(g);
+/** What you bring to a job's interview: the traits it asks for and likes, the skill it uses most, its course finished,
+ *  and what effects add. (Getting better at these starts the count of noes there again: a shower doesn't.) */
+export function interviewMerit(g: Save, o: Occupation, traits: string[]) {
     o = trackOf(g, o);
     let b = 0;
     if ((o.needs ?? []).some(t => traits.includes(t))) b += 4;
     b += Math.min(4, (o.likes ?? []).filter(t => traits.includes(t)).length * 2);
     b += interviewSkill(g, o)?.bonus ?? 0;
     const w = getWorld(g.world), asked = (((o as any).courses ?? []) as string[]).filter(id => !w || !!courseOf(w, id));   // (a course the world dropped isn't asked for)
-    if (asked.length && asked.every(id => learning(g).done.includes(id))) b += 2;   // you have the course they ask for (not just taking it)
+    // the course they ask for, finished or being taken (a job lets you apply while taking it only at a rank for students,
+    // which is made for them)
+    if (asked.length && asked.every(id => learning(g).done.includes(id) || learning(g).taking.includes(id))) b += 2;
     b += effectAdd(g, w, 'interview', o.id);   // what effects add (life goals' perks)
-    const s = g.player.stats;
+    return b;
+}
+/** The state you come to an interview in: unwashed, exhausted or miserable count against you. */
+export function interviewState(g: Save) {
+    const s = g.player.stats; let b = 0;
     if ((s.hygiene ?? 100) < 30) b -= 3;   // nobody hires someone who smells
     if ((s.energy ?? 100) < 25) b -= 2;
     if ((s.mood ?? 100) < 25) b -= 2;
     return b;
 }
-export const interviewChance = (g: Save, o: Occupation, traits: string[]) => { o = trackOf(g, o); const b = interviewBonus(g, o, traits), dc = interviewDc(o, getWorld(g.world)); let ok = 0; for (let d = 1; d <= 20; d++) if (d === 20 || (d > 1 && d + b >= dc)) ok++; return ok * 5; };
-/** Days until you can apply to this job again (0: now). Today's interview, whatever came of it, waits till tomorrow;
- *  a no waits a few days (`retry`; saves from before kept only the day you tried). */
-export function retryIn(g: Save, id: string): number {
-    const s = learning(g), next = Math.max((s.interviews[id] ?? -1) + 1, s.retry?.[id] ?? 0);
+// A roll of 1 always fails, and a 20 passes only when it reaches the number: a job beyond your reach is 0% until you get
+// better at what it looks for (a 20 that passes is still the head start).
+const passes = (d20: number, bonus: number, dc: number) => d20 > 1 && d20 + bonus >= dc;
+export const interviewChance = (g: Save, o: Occupation, traits: string[]) => { o = trackOf(g, o); const b = interviewBonus(g, o, traits), dc = interviewDc(o, getWorld(g.world)); let ok = 0; for (let d = 1; d <= 20; d++) if (passes(d, b, dc)) ok++; return ok * 5; };
+/** The noes in a row at a job: how many, what you brought to the last one (`interviewMerit`), the day you may try again,
+ *  and the day of the first (the count lasts a season from it). */
+export interface NoStreak { n: number; merit: number; until: number; since: number }
+// The streak still counting: not once a season has gone by since its first no, nor when you've got better since its
+// last no (with the job and your traits to tell).
+function streakOf(g: Save, id: string, o?: Occupation, traits?: string[]): NoStreak | null {
+    const k = learning(g).noes?.[id];
+    if (!k) return null;
+    if (g.day >= (k.since ?? k.until) + seasonDays(g)) return null;
+    if (o && traits && interviewMerit(g, o, traits) > k.merit) return null;
+    return k;
+}
+/** Days until you can apply to this job again (0: now). Today's interview, whatever came of it, waits till tomorrow; a
+ *  no waits as the count of noes there says (`NO_WAITS`), unless you've got better since (pass the job and your traits
+ *  to tell; `retry` is what saves kept for a few days in 2026-11, the day you may try again). */
+export function retryIn(g: Save, id: string, o?: Occupation, traits?: string[]): number {
+    const s = learning(g), k = streakOf(g, id, o, traits);
+    const next = Math.max((s.interviews[id] ?? -1) + 1, k?.until ?? 0, s.retry?.[id] ?? 0);
     return Math.max(0, next - g.day);
 }
-export const triedToday = (g: Save, id: string) => retryIn(g, id) > 0;
+export const triedToday = (g: Save, id: string, o?: Occupation, traits?: string[]) => retryIn(g, id, o, traits) > 0;
 /** "tomorrow", "in 3 days": when you can try a job again. */
-export const retryText = (g: Save, id: string) => { const n = retryIn(g, id); return n <= 1 ? 'tomorrow' : `in ${n} days`; };
+export const retryText = (g: Save, id: string, o?: Occupation, traits?: string[]) => { const n = retryIn(g, id, o, traits); return n <= 1 ? 'tomorrow' : `in ${n} days`; };
 export function interview(g: Save, o: Occupation, traits: string[], rnd = Math.random): { ok: boolean; crit: boolean; text: string } {
     const s = learning(g);
     s.interviews[o.id] = g.day;
+    const prev = streakOf(g, o.id, o, traits);
+    if (s.retry) delete s.retry[o.id];
     o = trackOf(g, o);
-    const d20 = 1 + Math.floor(rnd() * 20), bonus = interviewBonus(g, o, traits), dc = interviewDc(o, getWorld(g.world));
-    const ok = d20 === 20 || (d20 > 1 && d20 + bonus >= dc);
-    const crit = d20 === 20;
+    const d20 = 1 + Math.floor(rnd() * 20), merit = interviewMerit(g, o, traits), dc = interviewDc(o, getWorld(g.world));
+    const ok = passes(d20, merit + interviewState(g), dc);
+    const crit = ok && d20 === 20;
     void nowAbs;
-    if (!ok) (s.retry ??= {})[o.id] = g.day + (d20 === 1 ? DISASTER_DAYS : RETRY_DAYS);
-    else if (s.retry) delete s.retry[o.id];
-    return { ok, crit, text: ok ? (crit ? 'They loved you: you start with a head start toward your first promotion.' : 'The interview went well.')
-        : d20 === 1 ? `The interview was a disaster. They won't see you again for ${DISASTER_DAYS} days.` : 'They chose someone else this time. Try again tomorrow.' };
+    if (ok) { if (s.noes) delete s.noes[o.id]; return { ok, crit, text: crit ? 'They loved you: you start with a head start toward your first promotion.' : 'The interview went well.' }; }
+    // (the wait never runs past the season the count lasts, except a disaster's)
+    const n = (prev?.n ?? 0) + 1, since = prev?.since ?? g.day;
+    const wait = Math.max(Math.min(NO_WAITS[Math.min(n, NO_WAITS.length) - 1], Math.max(1, since + seasonDays(g) - g.day)), d20 === 1 ? DISASTER_DAYS : 0);
+    (s.noes ??= {})[o.id] = { n, merit, until: g.day + wait, since };
+    return { ok, crit, text: d20 === 1 ? `The interview was a disaster. They won't see you again for ${wait} days.`
+        : n === 1 ? 'They chose someone else this time. Try again tomorrow.'
+        : `They chose someone else again. They won't see you for ${wait} days, unless you get better at what the job asks for.` };
 }

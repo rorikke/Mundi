@@ -9,7 +9,7 @@ import { lex } from '../core/lexicon.js';
 import { bump, bondOf, social } from './social.js';
 import { approvalOf, startRumor } from './living.js';
 import { npcRank } from './longlife.js';
-import { triedToday, retryIn, interview, countUp } from './skills.js';
+import { retryIn, interview, interviewChance, countUp } from './skills.js';
 import { missingCourses, hasCourse, courseOf } from './courses.js';
 import { needCourseText } from './coursenudge.js';
 import { rollBonus, rollD20, bonusLabel } from './dice.js';
@@ -452,11 +452,14 @@ export function hire(g: Save, w: WorldDef, id: string, track?: string): { ok: bo
     const miss = missingCourses(g, w, o);
     if (miss.length) return { ok: false, text: needCourseText(g, w, o, miss) };
     if (!hobbyFits(g, w, o)) return { ok: false, text: `They are looking for someone better at it: ${hobbyNeed(g, w, o)}.` };
-    if (triedToday(g, id)) return { ok: false, text: retryIn(g, id) <= 1 ? 'You already had an interview there today. Try again tomorrow.' : `They turned you down not long ago. Try again in ${retryIn(g, id)} days.` };
+    // (a good word from someone high up there gets you in without the interview, and without waiting for one)
+    const ref = referralFor(g, id);
+    const again = ref ? 0 : retryIn(g, id, o, traitsOf(g));
+    if (again) return { ok: false, text: again <= 1 ? 'You already had an interview there today. Try again tomorrow.' : `They turned you down not long ago. Try again in ${again} days, or once you're better at what the job asks for.` };
     const fee = feeOf(g, w, o);
     if (fee > g.player.money) return { ok: false, text: `They ask a fee of ${money(w, fee)} when you start, and you don't have it.` };
-    // a word from someone high up there gets you in without the interview
-    const ref = referralFor(g, id);
+    // a job beyond your reach isn't worth their time (no roll, nothing counted): what would change it is on the job's listing
+    if (!ref && !interviewChance(g, o, traitsOf(g))) return { ok: false, text: "They won't consider you yet: get better at what the job uses, have the traits it likes or finish its course, and come rested and clean." };
     const r = ref ? { ok: true, crit: false, text: `${g.cast[ref]?.name ?? 'Someone'} put in a good word for you.` } : interview(g, o, traitsOf(g));
     if (ref) delete (g as any).referral;
     if (!r.ok) { note(g, '{u} had a job interview for {0}, but did not get it.', [o.name], [], o.place, 'work'); return { ok: false, text: r.text }; }

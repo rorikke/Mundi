@@ -99,8 +99,13 @@ Each trait's line is shown when you pick it and on your profile ("Who you are").
 
 - **No job is closed to your personality.** Jobs like some personalities and interests: each one you have makes every
   rank a little shorter and helps at the interview. The interview also counts the skill the job uses most (+1 for every
-  two levels, up to +4) and a course it asks for, once you've finished it. With none of that it's a long shot (about
-  30%, less for careers that pay well above the usual). After a no, try again the next day; after a disaster, three days.
+  two levels, up to +4) and a course it asks for, finished or being taken (a job takes you while you study only at a rank
+  for students). With none of that it's a long shot (about
+  30%, less for careers that pay well above the usual), and a job beyond your reach won't see you at all (0%) until you
+  get better at what it looks for. After a no, try again the next day; each no in a row at the same job in a season waits
+  longer (3 days, then a week…), about four tries a season, so a long shot can't be had by asking every day. A new season,
+  or getting better at what the job looks for (a skill level, a trait, its course), starts the count again; a disaster
+  waits at least three days, and a good word from someone there gets you in at once.
 - **One bonus for every roll.** Things you do, choices in street stories and choices at work all add the same bonus:
   +1 for every two levels of the skill they use, and −2 each when you're exhausted or miserable.
 - **Practice trains in Tokyo.** Cooking at home trains Cooking; working out and running train Fitness; busking trains
