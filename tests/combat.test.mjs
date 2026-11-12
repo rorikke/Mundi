@@ -15,6 +15,7 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); await D('core/saves.js');
 const time = await D('sim/time.js'); const R = await D('sim/rpg.js'); const Q = await D('sim/quests.js'); const T = await D('sim/journey.js');
 const C = await D('sim/combat.js'); const PT = await D('sim/party.js'); const S = await D('sim/social.js'); const P = await D('sim/prompt.js');
+const REL = await D('sim/rel.js'); const setBond = (g, a, v) => REL.setFr(g, a, REL.YOU, v);   // friendship toward you (sim/rel.ts)
 const UI = await D('ui/combatui.js');
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
@@ -36,12 +37,12 @@ const people = (g) => Object.values(g.cast).filter(r => !(g.family?.kids ?? []).
 {
     const g = rpgSave('fighter');
     const [a, b, c, d] = people(g);
-    for (const r of [a, b, c, d]) { r.met = true; S.social(g).bond[r.avatar] = 50; }
+    for (const r of [a, b, c, d]) { r.met = true; setBond(g, r.avatar, 50); }
     ok(!PT.canJoin(g, w, a.avatar) && PT.join(g, w, a.avatar) === '' && PT.inParty(g, a.avatar) && S.isWith(g, a.avatar), 'someone who trusts you joins the party and follows you');
-    S.social(g).bond[d.avatar] = 10;
+    setBond(g, d.avatar, 10);
     ok(/trust/.test(PT.canJoin(g, w, d.avatar)), 'a stranger does not');
     PT.join(g, w, b.avatar); PT.join(g, w, c.avatar);
-    S.social(g).bond[d.avatar] = 80;
+    setBond(g, d.avatar, 80);
     ok(/full/.test(PT.canJoin(g, w, d.avatar)), `three companions at most`);
     const m = PT.partyOf(g).members[0]; const other = m.row === 'front' ? 'back' : 'front';
     PT.setRow(g, a.avatar, other); ok(PT.partyOf(g).members[0].row === other, 'the formation can be changed');
@@ -64,7 +65,7 @@ const people = (g) => Object.values(g.cast).filter(r => !(g.family?.kids ?? []).
 // a tactical fight
 {
     const g = rpgSave('fighter', 3);
-    const [a] = people(g); a.met = true; S.social(g).bond[a.avatar] = 70; PT.join(g, w, a.avatar);
+    const [a] = people(g); a.met = true; setBond(g, a.avatar, 70); PT.join(g, w, a.avatar);
     const c = C.startCombat(g, w, { why: 'Test fight:', foes: ['bandit', 'archer'] });
     ok(c && c.list.length === 4 && C.inCombat(g) && !c.mode, 'a fight starts: you, your companion, two foes; you choose how to fight');
     const me = c.list.find(f => f.id === 'you');
@@ -93,7 +94,7 @@ const people = (g) => Object.values(g.cast).filter(r => !(g.family?.kids ?? []).
 // rules: rows, synergy, reactions
 {
     const g = rpgSave('mage', 2);
-    const [a] = people(g); a.met = true; S.social(g).bond[a.avatar] = 90; PT.join(g, w, a.avatar); PT.setRow(g, a.avatar, 'front');
+    const [a] = people(g); a.met = true; setBond(g, a.avatar, 90); PT.join(g, w, a.avatar); PT.setRow(g, a.avatar, 'front');
     const c = C.startCombat(g, w, { why: 'Rules:', foes: ['wolf'] });
     const me = c.list.find(f => f.id === 'you'); const fr = c.list.find(f => f.who === 'friend'); const wolf = c.list.find(f => f.who === 'foe');
     ok(me.row === 'back' && me.ranged, 'a mage fights from the back row');

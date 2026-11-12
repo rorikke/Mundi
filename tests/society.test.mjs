@@ -12,6 +12,7 @@ const meta = {}; browser(meta);
 const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); await D('core/saves.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const R = await D('sim/rpg.js'); const S = await D('sim/social.js');
+const REL = await D('sim/rel.js'); const setBond = (g, a, v) => REL.setFr(g, a, REL.YOU, v);   // friendship toward you (sim/rel.ts)
 const HB = await D('sim/habits.js'); const ST = await D('sim/standing.js'); const PT = await D('sim/pets.js'); const MT = await D('sim/mentors.js');
 const LT = await D('sim/letters.js'); const FS = await D('sim/festivals.js'); const P = await D('sim/prompt.js'); const facts = await D('sim/facts.js');
 const people = await D('sim/people.js'); const WS = await D('sim/worldstate.js'); const UI = await D('ui/lifeplus.js');
@@ -61,7 +62,7 @@ const act = (id) => w.actions.find(a => a.id === id);
     ok(/knows that name/.test(ST.setAlias(g, 'The Fox')), 'a burned name cannot be used again');
     // people who know you well raise suspicion
     const g2 = fresh(); ST.setAlias(g2, 'Raven'); g2.player.loc = 'home:player'; ST.toggleDisguise(g2, w); g2.player.loc = 'tavern';
-    const friend = Object.values(g2.cast)[0]; friend.met = true; S.social(g2).bond[friend.avatar] = 60; friend.routine = { weekday: [[0, 'tavern']], weekend: [[0, 'tavern']] };
+    const friend = Object.values(g2.cast)[0]; friend.met = true; setBond(g2, friend.avatar, 60); friend.routine = { weekday: [[0, 'tavern']], weekend: [[0, 'tavern']] };
     ST.suspicionTick(g2, w);
     ok(ST.identityOf(g2).suspicion > 0, 'a close friend nearby makes you suspicious');
 }
@@ -86,9 +87,9 @@ const act = (id) => w.actions.find(a => a.id === id);
 {
     const g = fresh(true);
     const r = Object.values(g.cast).find(x => !(g.family?.kids ?? []).some(k => k.avatar === x.avatar)); r.met = true;
-    S.social(g).bond[r.avatar] = 30;
+    setBond(g, r.avatar, 30);
     ok(/trust/.test(MT.canMentor(g, w, r.avatar)), 'only someone who trusts you');
-    S.social(g).bond[r.avatar] = 60; g.player.money = 500;
+    setBond(g, r.avatar, 60); g.player.money = 500;
     const area = MT.teachable(g, w)[0][0];
     ok(/apprentice/.test(MT.takeApprentice(g, w, r.avatar, area)), 'taking an apprentice');
     ok(/with you/.test(MT.lesson(g, w, r.avatar, false).text), 'lessons only with them here');
@@ -102,7 +103,7 @@ const act = (id) => w.actions.find(a => a.id === id);
 // letters
 {
     const g = fresh(); g.player.money = 200;
-    const r = Object.values(g.cast)[1]; r.met = true; S.social(g).bond[r.avatar] = 50; r.home = { zone: 'hr_long', x: 20, y: 30 }; delete r.homeWith;
+    const r = Object.values(g.cast)[1]; r.met = true; setBond(g, r.avatar, 50); r.home = { zone: 'hr_long', x: 20, y: 30 }; delete r.homeWith;
     ok(LT.farAway(g, w, r.avatar) && LT.distantFriends(g, w).some(x => x.avatar === r.avatar), 'a friend living in Hrafnborg is far away');
     let got = false; for (let i = 0; i < 30 && !got; i++) { time.advance(g, w, 1440); got = LT.postOf(g).queue.some(l => l.avatar === r.avatar); }
     ok(got, 'friends far away write now and then');
@@ -111,7 +112,7 @@ const act = (id) => w.actions.find(a => a.id === id);
     ok(await LT.deliverLetter(g, w) === r.name && S.social(g).threads[r.avatar].at(-1).text.includes('north'), 'the AI writes the letter in their voice');
     const b = S.bondOf(g, r.avatar);
     ok(/sent 20/.test(LT.sendHelp(g, w, r.avatar)) && S.bondOf(g, r.avatar) > b && g.player.money === 180, 'sending help warms the friendship');
-    S.social(g).bond[r.avatar] = 60; LT.postOf(g).contact[r.avatar] = g.day; (S.social(g).threads[r.avatar] ?? []).length = 0;
+    setBond(g, r.avatar, 60); LT.postOf(g).contact[r.avatar] = g.day; (S.social(g).threads[r.avatar] ?? []).length = 0;
     for (let i = 0; i < 24; i++) time.advance(g, w, 1440);
     ok(S.bondOf(g, r.avatar) < 60, 'without a word for weeks, distance cools it');
 }

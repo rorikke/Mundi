@@ -14,6 +14,7 @@ const store = await D('core/store.js'); const W = await D('core/world.js'); awai
 const time = await D('sim/time.js'); const people = await D('sim/people.js'); const gm = await D('sim/game.js');
 const G = await D('sim/guests.js'); const HP = await D('sim/houseparty.js'); const homes = await D('sim/homes.js'); const facts = await D('sim/facts.js');
 await D('sim/prompt.js');
+const REL = await D('sim/rel.js');   // friendship toward you (sim/rel.ts)
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
 seed(7);
@@ -47,10 +48,10 @@ const to = (h) => { const now = g.day * 1440 + g.minutes; let t = Math.floor(now
     for (const h of [10, 13, 16, 19, 22]) { to(h); ok(rooms.includes(at(v)), `by day (${h}:00) in a common room (${at(v)})`); }
     to(2); ok(at(v) === 'home:vis1.png', `at night in a free bedroom of their own, never the sofa (${at(v)})`);
     to(9);
-    g.social = g.social ?? {}; g.social.bond = { ...(g.social.bond ?? {}), 'vis1.png': 42 };
+    REL.setFr(g, 'vis1.png', REL.YOU, 42);
     const n = G.sendHome(g, 'vis1.png');
     ok(n === 'Vis1' && !g.cast['vis1.png'], 'saying goodbye: they go home');
-    ok(g.social.bond['vis1.png'] === 42, 'the bond stays after they leave');
+    ok(REL.fr(g, 'vis1.png', REL.YOU) === 42, 'the bond stays after they leave');
     ok(facts.facts(g).some(f => f.who.includes('vis1.png') && /said goodbye/.test(f.t)), 'the visit is remembered');
     ok(facts.facts(g).some(f => f.who.includes('vis1.png') && /arrived to stay/.test(f.t)), 'the arrival is remembered');
 }
@@ -146,7 +147,7 @@ const to = (h) => { const now = g.day * 1440 + g.minutes; let t = Math.floor(now
     time.advance(g, w, 300); to(3);
     const v = g.cast['vis1.png'];
     ok(at(v) === 'home:vis1.png', `they sleep in their own room (${at(v)})`);
-    { const LIFE = await D('sim/life.js'); g.social.bond['vis1.png'] = 0; ok(LIFE.doorAnswer(g, w, 'home:vis1.png').ok, 'a guest\'s room: you can always go in, even as strangers'); }
+    { const LIFE = await D('sim/life.js'); REL.setFr(g, 'vis1.png', REL.YOU, 0); ok(LIFE.doorAnswer(g, w, 'home:vis1.png').ok, 'a guest\'s room: you can always go in, even as strangers'); }
     ok(!G.freeRooms(g, w).some(r => r.spot === free[0].spot), 'the room is taken while they stay');
     { const PL = await D('sim/places.js'); g.player.loc = 'home:vis1.png';
       G.sendHome(g, 'vis1.png');

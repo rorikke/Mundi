@@ -12,6 +12,7 @@ const meta = {}; browser(meta);
 const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); await D('core/saves.js'); const RD = await D('core/rpgdef.js');
 const time = await D('sim/time.js'); const R = await D('sim/rpg.js'); const S = await D('sim/social.js'); const F = await D('sim/factions.js');
+const REL = await D('sim/rel.js'); const setBond = (g, a, v) => REL.setFr(g, a, REL.YOU, v);   // friendship toward you (sim/rel.ts)
 const RM = await D('sim/realm.js'); const C = await D('sim/combat.js'); const P = await D('sim/prompt.js'); const WS = await D('sim/worldstate.js');
 const UI = await D('ui/factionsui.js'); const pre = await D('core/presets.js');
 let fails = 0, passes = 0;
@@ -67,7 +68,7 @@ const w = world(ext, 'medieval'); W.registerWorld(w);
     ok(/founded/.test(F.found(g, w, 'The Silver Lanterns', 'guild')) && F.fstate(g).own.level === 1, 'founding a faction');
     ok(/level 2/.test(F.hireAssistant(g, w)) && F.fstate(g).own.level === 2, 'level 2: a roster');
     ok(/level 3/.test(F.setHq(g, w, 'square')) && F.fstate(g).own.level === 3, 'level 3: a headquarters');
-    const ppl = Object.values(g.cast).slice(0, 3); ppl.forEach(r => { r.met = true; S.social(g).bond[r.avatar] = 60; F.recruit(g, w, r.avatar); });
+    const ppl = Object.values(g.cast).slice(0, 3); ppl.forEach(r => { r.met = true; setBond(g, r.avatar, 60); F.recruit(g, w, r.avatar); });
     F.deposit(g, 600);
     ok(F.fstate(g).own.level === 4 || /level 4/.test(F.checkLevel(g, w)) || F.fstate(g).own.level === 4, `level 4: members and a treasury (${F.fstate(g).own.level})`);
     ok(F.isLeader(g, w, F.OWN), 'you lead it');

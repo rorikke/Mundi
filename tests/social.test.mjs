@@ -13,6 +13,7 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); await D('core/saves.js');
 const time = await D('sim/time.js'); const work = await D('sim/work.js'); const HP = await D('sim/happenings.js');
 const social = await D('sim/social.js');
+const REL = await D('sim/rel.js'); const setBond = (g, a, v) => REL.setFr(g, a, REL.YOU, v);   // friendship toward you (sim/rel.ts)
 await D('sim/prompt.js');
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
@@ -38,7 +39,9 @@ const med = world(ext, 'medieval'); W.registerWorld(med);
         ok(all.every(n => n === top), `${wd.id}/${o.id}: every way up has ${top} ranks (${[...new Set(all)].join(',')})`);
     }
     const g = open(fixture('v0.1.0-modern.json'));
-    g.player.job = { id: 'developer', rank: 2, shifts: 50 }; g.player.loc = 'downtown';
+    // long enough in the rank, working well and good enough at it (promotions ask for all three): only the path is missing
+    g.player.job = { id: 'developer', rank: 2, shifts: 50, since: store.nowAbs(g) - 60 * 1440, perf: 80 }; g.player.loc = 'downtown';
+    (await D('sim/hobbies.js')).setSkillLevel(g, 'logic', 6);
     ok(work.pendingBranch(g, dev) && work.shiftsToPromote(g, dev, 2) === null, 'at a choice: no promotion until you choose');
     const msgs = work.workShift(g, w, 'normal');
     ok(msgs.some(m => /choose your path/i.test(m)) && g.player.job.rank === 2, 'working tells you to choose');
@@ -54,7 +57,7 @@ const med = world(ext, 'medieval'); W.registerWorld(med);
 {
     const g = open(fixture('v0.1.0-modern.json'));
     const r = Object.values(g.cast).find(x => x.occupation && x.occupation !== g.player.job?.id && w.occupations.find(o => o.id === x.occupation)?.ranks.length >= 3);
-    r.met = true; social.social(g).bond[r.avatar] = 60;
+    r.met = true; setBond(g, r.avatar, 60);
     ok(!work.canRefer(g, w, r.avatar), 'someone at the bottom cannot recommend you');
     g.living ??= {}; g.living.ranks = { [r.avatar]: 2 };
     const o = work.canRefer(g, w, r.avatar);
@@ -88,7 +91,7 @@ const med = world(ext, 'medieval'); W.registerWorld(med);
 // advice and life events
 {
     const g = open(fixture('v0.1.0-modern.json'));
-    const f = Object.values(g.cast)[0]; f.met = true; social.social(g).bond[f.avatar] = 70;
+    const f = Object.values(g.cast)[0]; f.met = true; setBond(g, f.avatar, 70);
     // the AI (stubbed): writes her messages, and judges what your answer means
     let judged = '';
     globalThis.__ctx.generateRaw = async ({ prompt }) => (/Answer with one word: YES, NO or MAYBE/.test(prompt) ? (judged = prompt, /go for it|take it|yes/i.test((prompt.split('answered: "')[1] ?? '').split('"\n')[0]) ? 'YES' : 'MAYBE') : 'Hey, can I ask you something? I need your honest opinion on this.');
@@ -120,7 +123,7 @@ const med = world(ext, 'medieval'); W.registerWorld(med);
     ok(HP.castLevel(3).level === 'too few' && HP.castLevel(8).level === 'pleasant' && HP.castLevel(15).level === 'lively' && HP.castLevel(10, 'rpg').level === 'works', 'how many cards each mode needs');
     const off = structuredClone(w); off.id = 'quiet'; off.features = { ...off.features, consults: false, neighbors: false }; W.registerWorld(off);
     const s = fixture('v0.1.0-modern.json'); s.world = 'quiet'; const g3 = open(s);
-    const ff = Object.values(g3.cast)[0]; ff.met = true; social.social(g3).bond[ff.avatar] = 70;
+    const ff = Object.values(g3.cast)[0]; ff.met = true; setBond(g3, ff.avatar, 70);
     for (let d = 0; d < 20; d++) time.advance(g3, off, 1440);
     ok(!HP.currentHappening(g3), 'turned off: nothing comes to you');
 }
@@ -128,7 +131,7 @@ const med = world(ext, 'medieval'); W.registerWorld(med);
 {
     const plans = await D('sim/plans.js');
     const g = open(fixture('v0.1.0-modern.json'));
-    const r = Object.values(g.cast)[0]; r.homeWith = '__you'; r.met = true; social.social(g).bond[r.avatar] = 0;
+    const r = Object.values(g.cast)[0]; r.homeWith = '__you'; r.met = true; setBond(g, r.avatar, 0);
     ok(plans.askAlong(g, w, r.avatar).ok, 'someone you live with comes along, even if you are not close');
     ok(!plans.beforeTravel(g, w, 'home:player').length && social.isWith(g, r.avatar), 'and comes home with you');
     const e0 = g.player.stats.energy; g.traveling = true; time.advance(g, w, 180); delete g.traveling;

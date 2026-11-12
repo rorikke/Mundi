@@ -12,6 +12,7 @@ const meta = {}; const io = browser(meta);
 const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); const saves = await D('core/saves.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const work = await D('sim/work.js'); const bills = await D('sim/bills.js');
+const REL = await D('sim/rel.js');
 let ui = null;
 try { ui = { hud: await D('ui/hud.js'), phone: await D('ui/phone.js') }; } catch (e) { console.log('note: screens not drawn in Node:', e.message); }
 
@@ -23,6 +24,26 @@ function kept(a, b, at = '') {
     if (a === null || typeof a !== 'object') return Object.is(a, b) ? [] : [`${at}: ${JSON.stringify(a)} → ${JSON.stringify(b)}`];
     if (b === null || typeof b !== 'object') return [`${at}: was an object, now ${JSON.stringify(b)}`];
     return Object.keys(a).flatMap(k => kept(a[k], b[k], `${at}.${k}`));
+}
+// Schema 2 moved friendship, romance and couples into the relationships store (sim/rel.ts, `toRelStore` in
+// core/saves.ts): every value must be there, as it was. (`social.today`, the old daily cap on friendship, has no
+// heir: pacing replaced it.)
+const REL_MOVED = /^\.(social\.(bond|today|partner)|romance|living\.(pairs|pairInfo)|cfg\.bondCap|swap\.persp\.[^.]+\.(romance|social\.(bond|today|partner)))(\.|:|$)/;
+function relMoved(orig, g) {
+    const out = [], clamp = (v, lo) => Math.max(lo, Math.min(100, Number(v) || 0));
+    const check = (c, what) => { if (!c) out.push(what); };
+    const mine = (soc, rom, who) => {
+        for (const [a, v] of Object.entries(soc?.bond ?? {})) check(REL.fr(g, a, who) === clamp(v, -100), `friendship ${a} > ${who} ${v} → ${REL.fr(g, a, who)}`);
+        for (const [a, r] of Object.entries(rom ?? {})) {
+            check(REL.ro(g, a, who) === clamp(r?.value, 0), `romance ${a} > ${who} ${r?.value} → ${REL.ro(g, a, who)}`);
+            if (['dating', 'engaged', 'married'].includes(r?.status)) check(REL.statusOf(g, a, who) === r.status, `${a} and ${who}: ${r.status} → ${REL.statusOf(g, a, who)}`);
+        }
+        for (const a of Array.isArray(soc?.partner) ? soc.partner : []) check(REL.isPartner(g, a, who), `${a} and ${who} are still together`);
+    };
+    mine(orig.social, orig.romance, REL.YOU);
+    for (const [key, p] of Object.entries(orig.swap?.persp ?? {})) { const who = key === '__orig' ? orig.swap.origCard : key; if (who && g.cast[who]) mine(p?.social, p?.romance, who); }
+    for (const [a, b] of Array.isArray(orig.living?.pairs) ? orig.living.pairs : []) check(!!REL.statusOf(g, a, b), `${a} and ${b} are still a couple`);
+    return out;
 }
 const open = (save) => { for (const k of Object.keys(meta)) delete meta[k]; meta.mundi = save; return store.game(); };
 const worlds = { modern: world(ext, 'modern'), medieval: world(ext, 'medieval') };
@@ -54,8 +75,10 @@ for (const f of fixtures) {
         ok(saves.schemaOf(g) === saves.SCHEMA, `migrated to format ${saves.SCHEMA}`);
         // a redrawn map of homes moves where a home sits (its area stays), and a retired map's region data moves to its heir
         // (schema 5: the course being taken moves into `taking`, and the trait lists are settled once the world is known; the old lists stay whole in `traitsBefore`)
-        const moved = (x) => /\.home\.(x|y|n)$/.test(x.split(':')[0]) || /^\.(regions|bounty|rep)\.city/.test(x) || /^\.player\.(learning\.current|traits\.)/.test(x);
+        // (schema 2: friendship, romance and couples move into the relationships store, checked just below)
+        const moved = (x) => /\.home\.(x|y|n)$/.test(x.split(':')[0]) || /^\.(regions|bounty|rep)\.city/.test(x) || /^\.player\.(learning\.current|traits\.)/.test(x) || REL_MOVED.test(x);
         const lost = kept(orig, g).filter(x => !moved(x)); ok(!lost.length, `nothing lost (${lost.slice(0, 3).join('; ')})`);
+        const notMoved = relMoved(orig, g); ok(!notMoved.length, `friendship, romance and couples moved into the relationships store (${notMoved.slice(0, 3).join('; ')})`);
         if (saves.schemaOf(orig) < 5) ok(JSON.stringify(g.player.traitsBefore) === JSON.stringify(orig.player.traits ?? {}) && (!orig.player.learning?.current || g.player.learning.taking?.includes(orig.player.learning.current)), 'the old traits (traitsBefore) and the course being taken (taking) are kept');
         ok(g.player.home.zone === orig.player.home.zone && Object.keys(orig.cast).every(a => g.cast[a].home.zone === orig.cast[a].home.zone), 'everyone keeps their neighborhood');
         const key = (h) => `${h.zone}:${h.x},${h.y}`;

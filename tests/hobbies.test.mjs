@@ -77,7 +77,7 @@ ok(Math.abs(H.hobbyPay(g, w, busk) - 1.48) < 1e-9, 'and pays 48% more');
 const mus = w.occupations.find(o => o.id === 'musician');
 delete xp.music; ok(!work.fits(g, mus, w), 'the bar musician job needs Guitar 4');
 xp.music = H.LEVELS[4]; ok(work.fits(g, mus, w), 'and opens at level 4');
-ok(/hobbies: guitar \(decent, level 4/.test(H.hobbyLine(g, w)), 'the AI knows how good you are');
+ok(/(hobbies|skills): guitar \(decent, level 4/.test(H.hobbyLine(g, w)), 'the AI knows how good you are');   // "skills" in a world with skills of its own
 const msg = H.practice(g, w, busk, true); void msg;
 xp.music = H.LEVELS[5] - 1; const up = H.practice(g, w, busk, false);
 ok(up.some(m => /Guitar: level 5/.test(m)), 'a new level is announced');
@@ -88,7 +88,10 @@ if (st && st.ev.id === 'beachfest') ok(needs.actionsHere(g, w).some(x => x.id ==
 // off: nothing
 {
     const c = structuredClone(w); c.id = 'nohob'; c.features = { ...c.features, hobbies: false, events: false }; W.registerWorld(c);
-    ok(H.hobbyBonus(g, c, busk) === 0 && H.hobbyFits(g, c, mus) && !CE.eventsOn(g, c, sun).length, 'with the systems off, nothing');
+    // (the hobby's part of the roll: the bonus with your Guitar level against the bonus with none)
+    const roll = () => dice.rollBonus(g, c, dice.actionRoll(c, busk));
+    const lv = xp.music, withIt = roll(); delete xp.music; const without = roll(); xp.music = lv;
+    ok(withIt === without && H.hobbyFits(g, c, mus) && !CE.eventsOn(g, c, sun).length, `with the systems off, nothing (roll ${withIt} with Guitar, ${without} without)`);
 }
 console.log(`${passes} passed, ${fails} failed`);
 process.exit(fails ? 1 : 0);

@@ -57,13 +57,15 @@ const modern = world(ext, 'modern'); W.registerWorld(modern);
     g.player.loc = 'mall'; g.day += 2;
     ok(DL.placeMemoryLines(g, modern, [someone]).some(l => l.includes(`${someone.name} last saw {{user}} at`) && l.includes('2 days ago')), 'and say so elsewhere');
     const job = modern.occupations.find(o => o.place === 'mall'); someone.occupation = job?.id;
-    if (job) ok(DL.placeMemoryLines(g, modern, [someone]).some(l => l === `${someone.name} works here.`), 'who works here');
+    // ("Bianca works here.", or with her rank: "Bianca (Cashier) works here.")
+    if (job) ok(DL.placeMemoryLines(g, modern, [someone]).some(l => l === `${someone.name} works here.` || (l.startsWith(`${someone.name} (`) && l.endsWith(') works here.'))), 'who works here');
 }
 // crises at zero
 {
     const g = open(fixture('v0.1.0-modern.json'));
     g.player.loc = 'cafe'; g.minutes = 9 * 60; g.asleep = false;
     const seen = Object.values(g.cast)[1]; seen.met = true; seen.routine = { weekday: [[0, 'cafe']], weekend: [[0, 'cafe']] };
+    seen.occupation = undefined;   // (a job with a schedule would take them to work, whatever their routine says)
     g.player.stats.hunger = 0; for (const s of ['energy', 'thirst', 'mood', 'hygiene']) g.player.stats[s] = 100;
     const before = facts.facts(g).length;
     let msgs = time.advance(g, modern, 60);

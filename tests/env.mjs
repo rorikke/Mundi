@@ -23,7 +23,8 @@ export function stage(root, tag = 'cur') {
         }
     };
     walk(path.join(ext, 'dist'));
-    const VALUES = { getContext: '() => globalThis.__ctx', groups: '[]', world_names: '[]', tags: '[]', tag_map: '{}', power_user: '{}', world_info: '{}' };
+    const VALUES = { getContext: '() => globalThis.__ctx', groups: '[]', world_names: '[]', tags: '[]', tag_map: '{}', power_user: '{}', world_info: '{}', modules: '[]',
+        is_send_press: 'false', is_group_generating: 'false' };   // SillyTavern is never busy replying here (a stub function would read as busy)
     for (const [file, names] of mods) fs.writeFileSync(file, [...names].map(n => n in VALUES ? `export const ${n} = ${VALUES[n]};` : /^(selected_|user_avatar|METADATA_KEY)/.test(n) ? `export let ${n} = '';` : `export const ${n} = (...a) => undefined;`).join('\n') + '\n');
     return ext;
 }
@@ -34,6 +35,7 @@ globalThis.__MUNDI_MEDIEVAL = true;   // the medieval style too (MEDIEVAL_LOCKED
 export function browser(meta = {}) {
     const el = () => ({ style: {}, dataset: {}, classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, appendChild() {}, addEventListener() {}, querySelector: () => null, querySelectorAll: () => [], setAttribute() {}, remove() {} });
     globalThis.window = globalThis; globalThis.requestAnimationFrame = () => 0;
+    globalThis.MutationObserver = class { observe() {} disconnect() {} takeRecords() { return []; } };   // some screens watch the page
     globalThis.document = { getElementById: () => null, querySelector: () => null, querySelectorAll: () => [], createElement: el, addEventListener() {}, documentElement: el(), body: el(), head: el() };
     globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
     globalThis.location = { href: 'http://localhost:8000/' };
@@ -41,7 +43,8 @@ export function browser(meta = {}) {
     let saves = 0;
     globalThis.__ctx = { extensionSettings: {}, chatMetadata: meta, chat: [], characters: [], groups: [], name1: 'Tester',
         saveSettingsDebounced() {}, saveMetadataDebounced() { saves++; }, saveMetadata: async () => { saves++; },
-        eventSource: { on() {}, emit() {} }, eventTypes: {}, event_types: {}, executeSlashCommandsWithOptions: async () => ({ pipe: '' }) };
+        eventSource: { on() {}, emit() {} }, eventTypes: {}, event_types: {}, executeSlashCommandsWithOptions: async () => ({ pipe: '' }),
+        extensionPrompts: {}, setExtensionPrompt(key, value, position, depth) { this.extensionPrompts[key] = { value, position, depth }; } };
     return { get writes() { return saves; } };
 }
 

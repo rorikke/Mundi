@@ -216,6 +216,7 @@ const hour = (g, w) => H.onHour.flatMap(f => f(g, w) ?? []);
     const PE = await D('sim/people.js'); const TM = await D('sim/time.js');
     const g = rpgSave(modern, 'soldier'); const r = Object.values(g.cast)[0];
     r.home = { zone: 'north', x: 6, y: 6, n: 1 }; delete r.homeWith; r.leisure = [];
+    r.occupation = undefined;   // (with a job, her days off follow her shifts and free time can be near work too)
     r.routine = { weekday: [[0, 'leisure']], weekend: [[0, 'leisure']] };
     let weekdayHome = true;
     for (let d = 0; d < 14; d++) { if (TM.isWeekend(d)) continue; for (const h of [10, 14, 19]) { const at = PE.routineAt(g, modern, r, d * 1440 + h * 60); const p = modern.places.find(x => x.id === at); if (p && p.map !== 'maple') weekdayHome = false; } }

@@ -69,7 +69,7 @@ const base = world(ext, 'modern');
     const s = fixture('v0.1.0-modern.json'); const g = open(s); const w = base; W.registerWorld(w);
     const [a, b] = Object.keys(g.cast).slice(2, 4);
     g.cast[a].met = true;
-    g.living = g.living ?? {}; g.living.pairs = [[a, b]];
+    (await D('sim/rel.js')).setStatus(g, a, b, 'dating');   // a couple (the relationships store, sim/rel.ts)
     const news = [];
     for (let d = 0; d < 120; d++) news.push(...time.advance(g, w, 1440));
     const st = LL.pairStage(g, a, b);
