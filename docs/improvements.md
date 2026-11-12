@@ -10,6 +10,7 @@ point of view, and grows as new ones arrive.
 - [Life goals and life points](#life-goals-and-life-points)
 - [Tokyo's adult progression](#tokyos-adult-progression)
 - [Owing rent](#owing-rent)
+- [University](#university)
 
 ## A color for each speaker's dialogue
 
@@ -439,3 +440,42 @@ power stops. Owing more than you have used to lock you out for good. Now:
   you back in. Moving out leaves the old debt behind.
 - **Tokyo born pays a family share** of ¥10,000 a week while living in the family home, instead of the whole house's
   rent. A game already started as Tokyo born, still in the family home, moves to the share once.
+
+## University
+
+Tokyo's Hijiri University offers four degrees, played the way The Sims plays university: Economics, Japanese and
+English studies, Computer science, and Arts and design. The University student start begins enrolled.
+
+- **The Campus app** (on the phone) is to studying what the Jobs app is to work: your degree, the term and the days
+  left of it, your grade point average (GPA), the modules you passed and the ones still to pass, the scholarship and
+  the tuition, this term's modules with their class times, attendance and coursework, next term's choice, every term's
+  grades, the school's clubs, and leaving. Not a student yet: each degree with what it takes, what it costs and which
+  jobs want it, and Enroll.
+- **Terms and modules.** A term is a season (four terms are a game year). Each term you take two or three of the
+  degree's modules, chosen in the last week of the term before; the required ones are marked and suggested, and two
+  that meet at the same time can't both be chosen. In a term's first days you can still change its modules. Classes are
+  on campus on two weekdays (10:00–12:00 or 13:00–15:00): go to them with Study in the things to do there.
+- **Coursework.** Each module asks for a few hours a week: Coursework at home, or studying in the university's library or
+  the juku's quiet room. Each hour goes to the module furthest behind, and practices its skill a little.
+- **Grades.** At the term's end each module gets a grade from A to F: half from attendance, a third from coursework, the
+  rest from the final (a roll on the module's skill, with the usual bonus). Missing too many classes fails a module
+  right away. An F is taken again in a later term. A term with a GPA under 2.0 is a weak term: two put you on academic
+  probation, a third gets you expelled.
+- **Money.** Tuition is paid each term (¥40,000 at Hijiri, with a merit scholarship or a public grant for some). The
+  student start has a scholarship that pays it while each term's GPA holds; a weak term takes it away. Unpaid tuition
+  holds your classes until you pay it in the Campus app.
+- **Being a student.** While you study you work at most three shifts a week (a job with more days is worked part-time,
+  without a higher hourly pay), and you rent only student homes: the Kōenji share house, the dorm and the cheap wooden
+  apartments, unless your family pays (the Family money start). You can join one of the university's clubs for a meeting
+  a week.
+- **Graduating.** Pass eight modules, every required one among them, and you graduate: a ceremony, life points (twice
+  for a distinguished degree), and a degree jobs ask for. The office hires only graduates; the juku's class teachers,
+  the startup's team members, TV's assistant directors and the museum's senior guides need a degree too. With a GPA of
+  3.5 or more the degree is distinguished, and you start a rank up in the jobs it's for (Economics: office and startup;
+  Japanese and English studies: English teacher, museum and TV; Computer science: startup and game studio; Arts and
+  design: animator, stylist and museum).
+- **World makers** can give any school degrees in the World creator (its terms, modules a term, modules to pass, the
+  least GPA, tuition and aid, the work cap, the jobs a distinguished degree helps), mark a course as a module of a degree
+  (from which term, required, hours of coursework), and mark a job's wanted degrees, a start's degree and scholarship, and
+  student homes. Schools without degrees work as before. Older games aren't enrolled; someone on Hijiri's old ladder
+  keeps it until choosing a degree.
