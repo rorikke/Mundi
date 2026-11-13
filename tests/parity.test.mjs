@@ -43,7 +43,9 @@ const TOOLS = {
     'genders.*.id': 'set by the creator', 'sheet.appearance.*.id': 'set by the creator', 'sheet.traits.*.id': 'set by the creator', 'skills.*.id': 'set by the creator',
     'starts.*.id': 'set by the creator', 'stories.*.id': 'set by the creator', 'keepsakes.*.id': 'set by the creator', 'tables.*.*.id': 'set by the creator',
     'occupations.*.events.*.id': 'set by the creator', 'occupations.*.schedule.shifts.*.id': 'set by the creator', 'catalogs.courses.*.aid.*.id': 'set by the creator', 'institutions.*.degrees.*.id': 'set by the creator', 'institutions.*.degrees.*.aid.*.id': 'set by the creator',
-    'cast.examples.*.threads.*.id': 'set by the creator', 'cast.examples.*.threads.*.endings.*.id': 'set by the creator',
+    'cast.examples.*.threads.*.id': 'set by the creator', 'cast.examples.*.threads.*.endings.*.id': 'set by the creator', 'cast.examples.*.threads.*.stages.*.id': 'set by the creator',
+    'ventures.*.id': 'set by the creator', 'ventures.*.tiers.*.id': 'set by the creator', 'ventures.*.styles.*.id': 'set by the creator', 'ventures.*.upgrades.*.id': 'set by the creator',
+    'ventures.*.discoveries.*.id': 'set by the creator', 'ventures.*.events.*.id': 'set by the creator', 'ventures.*.cards.*.id': 'set by the creator',
     'homes.kinds.*.images': 'Homes & rent › a kind of home: Inside picture at other times of the day (upload)',
     // the shared person panel (ui/personui.ts) writes a person's ways whole through its scope, not field by field
     'cast.examples.*.gender': 'People › the person panel: Gender', 'cast.examples.*.attraction': 'People › the person panel: Who they are drawn to',
@@ -60,8 +62,8 @@ for (const id of ['modern', 'urban', 'medieval', 'house', 'tokyo']) {
     const shown = new Set();
     // (a Remove, move or Add button names a whole item or list: it doesn't make the fields inside editable)
     const grab = () => { for (const m of cw.creatorHtml().matchAll(/<[^<>]*data-path="([^"]+)"[^<>]*>/g)) if (!/data-act="cw-(del|move|add)"/.test(m[0])) shown.add(norm(m[1])); };
-    const lists = { needs: 'statuses', actions: 'actions', jobs: 'occupations', zones: 'homes.zones', origins: 'catalogs.origins', people: 'cast.examples', lore: 'lore', courses: 'catalogs.courses', shop: 'catalogs.shop', expenses: 'homes.expenses', breakables: 'homes.breakables', rattr: 'rpg.attributes', rskill: 'rpg.skills', rclass: 'rpg.classes', rschool: 'rpg.schools', rspell: 'rpg.spells', rtitle: 'rpg.titles', rfoe: 'rpg.bestiary', habit: 'habits', festival: 'festivals', cevent: 'cityEvents', hobby: 'hobbies', pet: 'pets', god: 'realm.pantheon', faction: 'factions', inst: 'institutions', rtal: 'rpg.talents', good: 'goods', recipe: 'recipes', tower: 'towers', blade: 'blades', crop: 'crops', biz: 'businesses', sky: 'skies.events', hazard: 'skies.hazards', goal: 'goals.add', reward: 'rewards.add', skill: 'skills', story: 'stories', keep: 'keepsakes', start: 'starts' };
-    for (const tab of ['general', 'features', 'needs', 'maps', 'homes', 'actions', 'jobs', 'goals', 'courses', 'shop', 'words', 'character', 'rpg', 'customs', 'realm', 'economy', 'people', 'lore', 'books']) {
+    const lists = { needs: 'statuses', actions: 'actions', jobs: 'occupations', zones: 'homes.zones', origins: 'catalogs.origins', people: 'cast.examples', lore: 'lore', courses: 'catalogs.courses', shop: 'catalogs.shop', expenses: 'homes.expenses', breakables: 'homes.breakables', rattr: 'rpg.attributes', rskill: 'rpg.skills', rclass: 'rpg.classes', rschool: 'rpg.schools', rspell: 'rpg.spells', rtitle: 'rpg.titles', rfoe: 'rpg.bestiary', habit: 'habits', festival: 'festivals', cevent: 'cityEvents', hobby: 'hobbies', pet: 'pets', god: 'realm.pantheon', faction: 'factions', inst: 'institutions', rtal: 'rpg.talents', good: 'goods', recipe: 'recipes', tower: 'towers', blade: 'blades', crop: 'crops', biz: 'businesses', sky: 'skies.events', hazard: 'skies.hazards', goal: 'goals.add', reward: 'rewards.add', skill: 'skills', story: 'stories', keep: 'keepsakes', start: 'starts', venture: 'ventures' };
+    for (const tab of ['general', 'features', 'needs', 'maps', 'homes', 'actions', 'jobs', 'goals', 'business', 'courses', 'shop', 'words', 'character', 'rpg', 'customs', 'realm', 'economy', 'people', 'lore', 'books']) {
         cw.CW.tab = tab; grab();
         for (const [key, p] of Object.entries(lists)) { const n = (p.split('.').reduce((o, k) => o?.[k], cw.CW.w) ?? []).length; for (let i = 0; i < n; i++) { cw.CW.sel[key] = i; grab(); } cw.CW.sel[key] = 0; }
         for (const r of Object.keys(cw.CW.w.cast.routineTemplates)) { cw.CW.sel.routine = r; grab(); }
@@ -72,6 +74,8 @@ for (const id of ['modern', 'urban', 'medieval', 'house', 'tokyo']) {
             for (const t of Object.keys(o.tracks ?? {})) { cw.CW.sel.track = t; grab(); (o.tracks[t].events ?? []).forEach((_e, k) => { cw.CW.sel.wev = `occupations.${i}.tracks.${t}.events.${k}`; grab(); }); }
             cw.CW.sel.track = ''; cw.CW.sel.wev = '';
         }
+        // each venture's events at the counter (an event's form opens below its list, as a job's)
+        if (tab === 'business') { (cw.CW.w.ventures ?? []).forEach((v, i) => { cw.CW.sel.venture = i; (v.events ?? []).forEach((_e, k) => { cw.CW.sel.wev = `ventures.${i}.events.${k}`; grab(); }); }); cw.CW.sel.venture = 0; cw.CW.sel.wev = ''; }
         if (tab === 'actions') for (const t of Object.keys(cw.CW.w.tables ?? {})) { cw.CW.sel.table = t; grab(); }   // each shared table
         if (tab === 'maps') { for (const p of cw.CW.w.places) { me.ME.map = p.map; me.ME.pin = p.id; grab(); } me.ME.pin = ''; }   // each place
         if (tab === 'economy') for (const c of Object.keys(cw.CW.w.climates ?? {})) { cw.CW.sel.climate = c; grab(); }   // each climate
