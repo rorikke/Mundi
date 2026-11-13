@@ -10,11 +10,13 @@ Ideas planned for later. Nothing here is promised for a date.
 
 ## Engine
 
-- **Running a business (an end game).** Open a place of your own (a snack bar in Golden Gai, a café, an izakaya)
-  and run it: a lease, staff hired from people you know, regulars, stock and prices, the takings by the week,
-  the season and your reputation, and growing it into more than one place. A management layer for the late game,
-  after a career's top or a life goal; it would replace the `property` system's fixed small businesses, with
-  prices set per world.
+- **Running a business (an end game).** A management layer for the late game, in a few tracks on one engine: a
+  café of your own (taking over an old kissaten, or opening one), an executive's career above a company's top ranks
+  (hard to reach: long seasons at the top, skills at their best, an expensive program, the right stories), a hotel
+  (a capsule hotel, a ryokan, or a love hotel with adult content on), and a tycoon's stake in a company. Staff are
+  hired hands, not the world's people; the world's people are the regulars, guests, partners and rivals, and a
+  business can change how their stories end. Weekly choices and reports, run it yourself or hand it to a manager,
+  the seasons and festivals, your reputation. It would replace the `property` system's fixed small businesses.
 
 ## Worlds
 
