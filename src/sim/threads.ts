@@ -24,12 +24,14 @@ import { queueMoment } from './moments.js';
 import { note } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
 import { earn } from './points.js';
+import { seasonDays } from './time.js';
 
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 
 /** A thread's state in the save (`g.threads`, by thread id): the stage it's at (-1: not begun), since which day,
  *  the day the player learned it (`known`) and how (`how`), how it ended and when. */
-export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight'; ended?: string; endDay?: number }
+export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight'; ended?: string; endDay?: number;
+    /** (business) the day it began waiting at its last stage for an ending's `waits` */ waitFrom?: number }
 export const threadStates = (g: Save) => ((g as any).threads ??= {}) as Record<string, ThreadState>;
 // How long an ending is still news for the AI.
 const NEWS_DAYS = 14;
@@ -65,9 +67,21 @@ function step(g: Save, w: WorldDef, t: Thread, r: Resident, first: boolean): str
         if (!first) enterStage(g, w, t, r, next);
         return [];
     }
-    // the last stage is over: the thread ends
-    if (st.stage === t.stages.length - 1 && !holds(g, w, t.stages[st.stage], t.id, st.stage)) return endThread(g, w, t, r);
+    // the last stage is over: the thread ends (unless an ending still waits for its way: a business on its way)
+    if (st.stage === t.stages.length - 1 && !holds(g, w, t.stages[st.stage], t.id, st.stage)) return waiting(g, w, t, st) ? [] : endThread(g, w, t, r);
     return [];
+}
+// (business) An ending whose `waits` holds while its own condition doesn't yet keeps the thread at its last stage, for a
+// game year at most from the day it began to wait.
+function waiting(g: Save, w: WorldDef, t: Thread, st: ThreadState): boolean {
+    const list = t.endings ?? [];
+    if (!list.some(x => x.waits)) return false;
+    const ctx = (i: number, k: string) => ({ day: true, key: `thread|${t.id}|${k}|${i}` });
+    if (list.some((x, i) => !!x.when && whenHolds(g, w, x.when, ctx(i, 'end')) && !x.waits)) { delete st.waitFrom; return false; }
+    const wait = list.some((x, i) => !!x.waits && !(x.when && whenHolds(g, w, x.when, ctx(i, 'end'))) && whenHolds(g, w, x.waits, ctx(i, 'wait')));
+    if (!wait) { delete st.waitFrom; return false; }
+    st.waitFrom ??= g.day;
+    return g.day - st.waitFrom < 4 * seasonDays(g);
 }
 // What a stage brings: a moment with you (when you know them), a rumor about them, a fact.
 function enterStage(g: Save, w: WorldDef, t: Thread, r: Resident, i: number) {

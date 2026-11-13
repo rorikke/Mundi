@@ -12,6 +12,7 @@ point of view, and grows as new ones arrive.
 - [Owing rent](#owing-rent)
 - [University](#university)
 - [Training together](#training-together)
+- [Running a business](#running-a-business)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -525,6 +526,60 @@ apprentices, in every world.
   makers set what each person is good at in the World creator (People, "What they're good at"); without it, a person
   knows what their job asks. Apprentices who had finished in an older game stay as former apprentices; one halfway
   through had been learning a trait, which training together doesn't teach, so that one is gone.
+
+## Running a business
+
+A late game for Tokyo, in two tracks for now: a café of your own, and the executive's floor above a company's top
+ranks. More (a hotel, a stake in a company) may come on the same engine. The world's people are never your staff:
+they're your regulars, the people you fight for, the ones whose stories your business can change.
+
+### A café of your own
+
+- **Two ways in.** Rise to "The master's right hand" at Kissa Shirakaba and the master, about to retire, shows you his
+  notebook and then offers you the lease (¥300,000 of key money): you run the place now instead of working shifts there.
+  Or lease a small unit and open a café you name: a narrow two-storey place on a Shimokita lane, an old wooden front in
+  Yanaka, or a white concrete box off Omotesandō, each with its price and weekly rent. One café at a time.
+- **How it grows.** Four numbers, Quality, Atmosphere, Capacity and Fame, make what a day brings in, with the calendar:
+  weekends, festivals in its part of town, the season, how busy the street is. Upgrades raise one of them for good; each
+  costs more than the last of its number. A third are bought from the app; a third turn up around Tokyo (1970s chairs at
+  Second Bloom, beans from an Ameyoko importer, sweets from a Yanaka maker, a wall of books from Jinbōchō); a third are
+  earned (the master's siphon bar, a house blend once you cook well, your friends' crowd). Money only buys what's there.
+- **Tiers.** A coffee stand (open only while you're behind it), a kissaten (hired hands keep it open on the days you
+  don't come), two cafés, a roastery. Each has a ceiling its numbers can't pass, and the next asks for a milestone: an
+  upgrade and a scene (your first regulars, the coffee guide's critic, the bank's answer). Each tier has its style,
+  chosen once (as it was, specialty coffee, open late): about the same money, other guests and other finds.
+- **Running it yourself.** "Run the counter" at your café passes four hours like a shift: the day counts as yours (all
+  its takings), you practise cooking and charm, something may come up at the counter, and you may discover a pairing
+  that lasts (iced coffee in summer, hot milk coffee for the illuminations). It never clashes with your job's shift.
+- **The week.** The takings come to you at the week's end, less the rent, with a report. Now and then a calendar card
+  offers one optional choice (a stall at the Kōenji Awa Odori, a reading for the book fair): never more than one a week,
+  and skipping it costs only what it would have given. Left alone, a café never collapses; you can sell it or close it.
+- **People.** Friends who like eating out come by the café you run. Seo-yeon's novel is set in Kissa Shirakaba, and
+  if you keep the place as it was, her parents come to your counter. Genzō, Kyōko, Mio, Haru and Ayaka have their
+  moments too.
+
+### The executive's floor
+
+- **Above the top.** Asahina Trading, Mochi Byte Games and Wave TV have three ranks above their old tops: Executive
+  officer, Managing director, Vice president. The careers below are paced as before.
+- **The gate is hard.** Three seasons at the top with a high performance, two skills at their best and a third close
+  behind, the Executive leadership program at Hijiri's business school (the company pays half if a director backs you),
+  the board's nomination (a few work stories: a crisis, a sponsor, the offer), and one of the company's people's
+  storylines settled.
+- **Your division.** At Executive officer you run a division: four numbers (Results, Team, Network, Standing) grown
+  by initiatives paid from the season's budget (never your money), found around the city (a client over drinks, the
+  trade fair, the fan convention) or earned. At each season's end the board looks at it against a target. A fuller
+  division makes your shifts count for more and your summer and winter bonuses larger.
+- **People.** As an executive you can fight for Mei to stay, have your company sponsor Chloe's visa, sign Rina's deal
+  with Mochi Byte, and give Hina's last show or Nanami's band an hour of Wave TV, each after a step of their own.
+
+### The Business app, world makers and older games
+
+- The **Business** app shows each venture's numbers against the ceiling, the week, what the next tier asks, its
+  upgrades (with hints of where to look for the ones still to find), discoveries and staff, and the ways in.
+- Ventures are world data, so other worlds can have their own (the World creator edits them); with the business
+  system off, none of it exists. Older games have no ventures until one opens; a player already at a career's top keeps
+  their rank, with the new ranks simply above it.
 
 ## The World creator and the new game
 

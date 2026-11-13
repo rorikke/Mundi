@@ -5,13 +5,12 @@ import { seasonDays } from './time.js';
 import { payOf } from './bills.js';
 import { money } from './needs.js';
 import { note } from './facts.js';
-import { venturesOf, ventureStore, fill, addStat, weekOf, retier, startOf, resultAdds } from './ventures.js';
+import { venturesOf, ventureStore, fill, addStat, weekOf, retier, startOf, resultAdds, execTarget } from './ventures.js';
 import { careerOf, jobDef, myJob } from './work.js';
 /** The executive's numbers. `budget`: a season's budget for initiatives at each tier (× the tier's `base` when it has
- *  one); `target`: the season's target, as how full the division is (0–1): `from` at the first tier, `per` more at
- *  each one after; `perf` and `bonus`: what a full division adds to the performance a shift gives and to the bonuses
+ *  one; the season's target is `EXEC_TARGET` in sim/ventures.ts); `perf` and `bonus`: what a full division adds to the performance a shift gives and to the bonuses
  *  (an empty one takes a little away); `board`: Standing points the board's verdict moves. */
-export const EXEC = { budget: 1_500_000, target: { from: 0.4, per: 0.12 }, perf: { min: -0.1, max: 0.25 }, bonus: { min: -0.2, max: 0.5 }, board: 3 };
+export const EXEC = { budget: 1_500_000, perf: { min: -0.1, max: 0.25 }, bonus: { min: -0.2, max: 0.5 }, board: 3 };
 /** The world's division for a job (the venture of track `exec` whose `job` it is). */
 export const divisionDefOf = (w, job) => (job && systemOn(w, 'business') ? (w.ventures ?? []).find(v => v.track === 'exec' && v.job === job) ?? null : null);
 /** Your division, while you hold a rank that opens it. */
@@ -36,7 +35,7 @@ const seasonOfDay = (g, day) => Math.floor((Math.max(1, day) - 1) / seasonDays(g
 /** A season's budget for initiatives at the division's tier. */
 export const budgetOf = (g, d, tier) => Math.round(payOf(g, d.tiers[Math.max(0, tier - 1)]?.base ?? EXEC.budget * tier) / 1000) * 1000;
 /** The season's target: how full the board wants the division (0–1), higher at each tier. */
-export const targetOf = (s) => Math.min(0.95, EXEC.target.from + EXEC.target.per * (s.tier - 1));
+export const targetOf = (s) => execTarget(s.tier);
 // The division follows your rank: opened at the first rank above the top (with this season's budget), its tier the
 // rank you hold, closed once you leave the job (or fall below). Returns lines to show.
 function syncDivision(g, w) {

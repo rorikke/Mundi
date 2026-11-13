@@ -34,6 +34,10 @@ export const VENTURE = {
     cost: { energy: 2.5, hygiene: 1, hunger: 1.5, thirst: 1.5 },
     train: 1.2, noise: 0.1, festival: 1.1, weekend: 1.2,
 };
+/** (exec, sim/exec.ts) The season's target for an executive's division: how full the board wants it (0–1), higher at
+ *  each tier. Here so the AI's line and the division's verdict read the same numbers. */
+export const EXEC_TARGET = { from: 0.4, per: 0.12 };
+export const execTarget = (tier) => Math.min(0.95, EXEC_TARGET.from + EXEC_TARGET.per * (tier - 1));
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -681,7 +685,12 @@ export function ventureLine(g, w) {
     if (!systemOn(w, 'business') || !venturesOf(g).length)
         return '';
     const s = ventureAt(g, w, g.player.loc), d = s && live(g, w, s);
-    if (!s || !d || d.track === 'exec')
+    // (an executive at the office: the division and what's at stake this season, the board's target against how it stands)
+    if (s && d?.track === 'exec') {
+        const want = execTarget(s.tier);
+        return `{{user}} runs ${d.name} here, as ${tierOf(d, s.tier).name}. This season the board wants the division at ${Math.round(want * 100)}%; it stands at ${Math.round(fill(d, s) * 100)}%.`;
+    }
+    if (!s || !d)
         return '';
     const t = tierOf(d, s.tier), st = styleDef(d, s.style);
     const busy = demandOn(g, w, d, s, g.day) * fill(d, s);

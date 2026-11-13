@@ -505,7 +505,11 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
     /** (H) They leave the world's maps (Chloe goes back to Manchester): kept in the save, never seen around again. */
     leaves?: boolean;
     /** A good ending: a thread you knew that ends this way counts as one you helped (the `helped` condition, life goals). */
-    good?: boolean }
+    good?: boolean;
+    /** (business) While this holds and the ending's own condition doesn't yet, the thread waits at its last stage (a game
+     *  year at most) instead of ending: a business on its way can still decide how the story ends (Mei waits while you
+     *  are at Asahina's top). */
+    waits?: When }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
 export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string;

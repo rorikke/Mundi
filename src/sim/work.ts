@@ -757,7 +757,9 @@ function rollWorkEvent(g: Save, w: WorldDef, o: Occupation) {
         return false;
     });
     if (o.overtime && Math.random() < (ready.length ? 0.3 : 0.6)) { j.event = { id: OVERTIME_ASK.id, day: g.day }; return; }
-    if (ready.length) { const e = ready[Math.floor(Math.random() * ready.length)]; j.event = { id: e.id, day: g.day }; if (who.has(e.id)) j.event.who = who.get(e.id); }
+    // (business) a step a rank's gate asks for (an event with a `title`: the nomination) comes before the everyday ones
+    const gate = ready.filter(e => e.title), pool = gate.length ? gate : ready;
+    if (pool.length) { const e = pool[Math.floor(Math.random() * pool.length)]; j.event = { id: e.id, day: g.day }; if (who.has(e.id)) j.event.who = who.get(e.id); }
 }
 /** The event waiting for your choice (with the choices you can make now), if any. */
 export function pendingEvent(g: Save, w: WorldDef): { ev: WorkEvent; choices: { c: WorkChoice; i: number }[] } | null {
