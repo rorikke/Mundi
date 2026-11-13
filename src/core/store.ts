@@ -52,6 +52,8 @@ export interface Settings {
     castPresets?: CastPreset[];
     /** (E16) starts the player saved from a new game ("Save as a start"), by world id (Library → Starts) */
     starts?: Record<string, StartDef[]>;
+    /** "Something else…" in Things to do (ui/custom.ts); off unless the player turns it on */
+    customAction?: boolean;
 }
 /** A preset of people. `hh[].ties`: family in each household; `rels`: starting relations (core/feel.ts). Presets saved
  *  before family-only ties have old relations there (any type and a tone): ui/castpresets.ts converts them on read. */

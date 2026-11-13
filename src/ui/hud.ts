@@ -14,7 +14,7 @@ import { payOf, lockedOut, toGetBackIn } from '../sim/bills.js';
 //   bottom      — the dialogue box (scene.ts); bottom right: the phone, peeking up when it is closed
 import { needWord } from '../sim/life.js';
 import { lifeOverlays, lifeAskHtml, soloOf } from './lifeui.js';
-import { game, esc, state, UI, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
+import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
 import { getWorld, activeStatuses, systemOn, type StatusDef, type WorldDef, type ActionDef, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
 import { levelChip } from './rpgui.js';
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -224,7 +224,7 @@ function actsColumn(g: Save, w: WorldDef) {
         ...giftRows(g, w),
     ];
     { const cr = courseRow(g, w); if (cr) rows.splice(rows.length, 0, cr); }
-    rows.push(customActionRow());   // an action you name yourself
+    if (settings().customAction) rows.push(customActionRow());   // an action you name yourself (Settings → Game)
     const open = actsOpen();
     return `<aside class="mh-acts ${open ? '' : 'is-closed'}" aria-label="Things to do">
         <button class="mh-acts-head mh-glass" data-act="dock-toggle">${icon(open ? 'up' : 'down')}<span>Things to do</span>${onPhone() ? `<em>${rows.length}</em>` : ''}</button>

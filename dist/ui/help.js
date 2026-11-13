@@ -20,7 +20,7 @@ const homeTopics = (w) => {
             items: [
                 ['The clock (top left)', 'The day, the time and the weather. Click it to let time pass until the next part of the day.'],
                 ['Here', 'Who is in this room with you. Click a face for what you can do with that person.'],
-                ['Things to do (right)', 'What this room offers: eat, rest, shower… and "Something else…" for anything you can think of. They cost nothing.'],
+                ['Things to do (right)', 'What this room offers: eat, rest, shower… They cost nothing. Turn on "Something else…" in Settings → Game to do anything you can think of.'],
                 ['Rooms', 'The house, floor by floor. Click a room to go there: inside the house, walking takes no time.'],
             ] },
         { id: 'talk', icon: 'chat', title: 'Talking', intro: 'Write in the box under the story. The engine keeps the time and the relationships; the AI writes the scene.',
@@ -96,7 +96,7 @@ const topics = (w) => {
                 ['Your card (top left)', 'Your name, money, energy and needs. Click your photo to play as someone else.'],
                 ['The clock (top)', 'The day, the time, where you are and the weather. Time passes when you do things, travel or sleep. Click it to let time pass.'],
                 ['Here', 'Who is in this place right now. Click a face for what you can do with that person.'],
-                ['Things to do (right)', 'What this place offers: eat, drink, work, rest… and "Something else…" for anything you can think of.'],
+                ['Things to do (right)', 'What this place offers: eat, drink, work, rest… Turn on "Something else…" in Settings → Game to do anything you can think of.'],
                 ['Doing things with people around', "Being in the same place isn't being together: what you do on your own, the narrator tells, and the people here go on with their own things. Someone may come over now and then (friends more often, and more in a bar than a library): talk, or nod and keep going. Talk to someone and they're with you for a while. \"Keep to myself\" in Things to do: only friends come over, and rarely."],
                 ['Map', 'Go to other places. Travelling takes time; the people you are with can come along.'],
             ] },

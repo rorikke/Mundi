@@ -48,7 +48,7 @@ function chooseHtml(g, w) {
                 ${ahead.length ? `<small>With distinction (GPA ${esc(DISTINGUISHED.toFixed(1))}+), you start a rank up as: ${esc(ahead.join(', '))}</small>` : ''}
                 <small class="mu-muted">While you study: at most ${esc(plural(workCapOf(d), 'shift'))} a week at work${w.homes.zones.some(z => z.student) ? ', and student homes only' : ''}.</small>
                 ${open ? `<div class="mu-campus-mods">${mods.map(c => `<small>${c.core ? '<b>Required</b> · ' : ''}<span data-notr>${esc(c.name)}</span> · from term ${esc(String(c.term ?? 1))} · ${esc(classTimes(g, w, c))}</small>`).join('')}</div>` : ''}
-                <div class="mu-row"><button class="mu-primary" data-act="ca-enroll" data-id="${esc(d.id)}" ${why ? `aria-disabled="true" title="${esc(why)}"` : ''}>Enroll</button><button class="mu-ghost" data-act="ca-open" data-id="${esc(d.id)}">${open ? 'Hide modules' : `Modules (${esc(String(mods.length))})`}</button></div>
+                <div class="mu-row"><button class="mu-primary" data-act="ca-enroll" data-id="${esc(d.id)}" ${why ? `aria-disabled="true" title="${esc(why)}"` : ''}>Enroll</button><button class="mu-ghost" data-act="ca-mods" data-id="${esc(d.id)}">${open ? 'Hide modules' : `Modules (${esc(String(mods.length))})`}</button></div>
                 ${why && !/already/.test(why) ? `<small class="mu-bad">${esc(why)}</small>` : ''}</section>`;
     }).join('')}`;
 }
@@ -143,7 +143,7 @@ const said = (lines, kind = 'info') => { for (const m of lines.filter(Boolean))
     toast(m, kind); };
 function done() { refreshPrompt(); saveGame(); notify(); }
 Object.assign(ACT, {
-    'ca-open': (el) => { CA.open = CA.open === el.dataset.id ? '' : el.dataset.id; notify(); },
+    'ca-mods': (el) => { CA.open = CA.open === el.dataset.id ? '' : el.dataset.id; notify(); },
     'ca-enroll': (el) => { const c = S(); if (!c)
         return; const r = enrollDegree(c.g, c.w, el.dataset.id); said([r.text, ...r.msgs], r.ok ? 'success' : 'warn'); CA.picks = null; done(); },
     'ca-pick': (el) => {
