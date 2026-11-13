@@ -300,6 +300,9 @@ export const saveMeta = () => ctx().saveMetadata();
 export const saveChat = () => saveChatDebounced();
 
 // Who wrote a message in a group (avatar file).
+/** Was the reply that just came in stopped by the player (SillyTavern keeps what was written so far)? Read while
+ *  handling MESSAGE_RECEIVED, before the next reply starts. */
+export const replyStopped = (): boolean => !!ctx().streamingProcessor?.abortController?.signal?.aborted;
 export function speakerOf(m: any): string | null {
     if (!m || m.is_user || m.is_system) return null;
     if (m.original_avatar) return m.original_avatar;
@@ -332,6 +335,8 @@ export async function translateTo(text: string, lang = chatLang()): Promise<stri
     } catch (e) { console.warn('[Mundi] translation', e); return text; }
 }
 // A line Mundi writes for you (a button's message): in the chat's language when Chat Translation is on.
+/** A line Mundi writes for you, in the chat's language (SillyTavern's translation on) or as it is. */
+export const cannedText = async (text: string): Promise<string> => (chatLang() ? translateTo(text) : text);
 export function sendCanned(text: string): boolean {
     if (!document.getElementById('send_textarea') || !document.getElementById('send_but')) return false;
     if (!chatLang()) return sendText(text);

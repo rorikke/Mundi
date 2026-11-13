@@ -120,21 +120,25 @@ function follow() {
         if (await sceneActTick(m))
             redraw();
     });
-    // someone you did not know answered you in the scene: now you know them
+    // someone answered you in the scene: you're talking (they're with you for a while, sim/social.ts), and someone you
+    // did not know is now someone you know. A reply you stopped counts for neither: you cut it off.
     on('MESSAGE_RECEIVED', async (id) => {
         const { game, saveGame } = await import('./core/store.js');
         const g = game();
         const m = globalThis.SillyTavern?.getContext?.().chat?.[id];
         if (!g || !m || m.is_user || m.is_system)
             return;
-        const { speakerOf } = await import('./st/bridge.js');
+        const { speakerOf, replyStopped } = await import('./st/bridge.js');
         const who = speakerOf(m);
+        if (!who || replyStopped() || !String(m.mes ?? '').trim())
+            return;
         const { markMet } = await import('./sim/game.js');
-        if (who && markMet(g, who)) {
-            saveGame();
-            (await import('./sim/prompt.js')).refreshPrompt();
+        const { talkedWith } = await import('./sim/social.js');
+        talkedWith(g, who);
+        if (markMet(g, who))
             redraw();
-        }
+        saveGame();
+        (await import('./sim/prompt.js')).refreshPrompt(); // (who is with you is in the scene's focus)
     });
     for (const ev of ['MESSAGE_RECEIVED', 'MESSAGE_SENT', 'MESSAGE_SWIPED', 'MESSAGE_EDITED', 'MESSAGE_DELETED', 'MESSAGE_UPDATED'])
         on(ev, redraw);

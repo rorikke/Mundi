@@ -12,7 +12,7 @@ import { CRUSH } from './romance.js';
 import { note } from './facts.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
-import { placeOf } from './places.js';
+import { placeOf, isHome } from './places.js';
 import { sawYou } from './warnings.js';
 import { book } from './ledger.js';
 import { effectMul } from './effects.js';
@@ -24,6 +24,8 @@ export function social(g) {
     s.unread ??= {};
     s.appts ??= [];
     s.with ??= [];
+    s.talked ??= {};
+    s.came ??= {};
     for (const a of s.appts) {
         a.id ??= `a${a.from}${a.avatar}`;
         a.kind ??= 'hangout';
@@ -73,16 +75,33 @@ export function appointmentNow(g, avatar) {
 }
 export const isWith = (g, avatar) => social(g).with.some(c => c.avatar === avatar);
 export const companions = (g) => social(g).with.map(c => c.avatar).filter(a => g.cast[a]);
-// (E14) Who does something with you here: the people who came with you and are here, and the one you talk to alone;
-// with neither, the one person you know here who isn't working (Chloe at the karaoke joins your hour of singing).
+// Someone you've just been talking with stays with you for a while (`TALK_WITH` game minutes after the last line between
+// you, or after the last thing you did together): long enough for the next action, not for the rest of the day.
+export const TALK_WITH = 30;
+export function talkedWith(g, avatar, at = nowAbs(g)) {
+    const t = (social(g).talked ??= {});
+    if (!(t[avatar] >= at))
+        t[avatar] = at;
+}
+export const talkingWith = (g, avatar) => { const t = social(g).talked?.[avatar]; return typeof t === 'number' && nowAbs(g) - t <= TALK_WITH; };
+// (E14) Who does something with you here: the people who came with you, the one you talk to alone, someone you're
+// meeting here, and whoever you've just been talking with. Being in the same place isn't being together: someone who
+// is only around isn't with you, except your partner when the two of you are alone in a home. Without the living
+// world (a Home, where the people of the house are the scene) the one person here who isn't working is with you.
 export function withYou(g, w) {
-    const met = presentAt(g, w, g.player.loc).filter(r => r.met);
+    const loc = g.player.loc, now = nowAbs(g);
+    const here = presentAt(g, w, loc), met = here.filter(r => r.met);
     const solo = String(social(g).solo ?? '');
-    const mine = met.filter(r => isWith(g, r.avatar) || r.avatar === solo).map(r => r.avatar);
+    const free = (r) => workingAt(g, w, r, now) !== loc;
+    const mine = met.filter(r => isWith(g, r.avatar) || r.avatar === solo || appointmentNow(g, r.avatar)?.place === loc || (talkingWith(g, r.avatar) && free(r))).map(r => r.avatar);
     if (mine.length)
         return mine;
-    const free = met.filter(r => workingAt(g, w, r, nowAbs(g)) !== g.player.loc);
-    return free.length === 1 ? [free[0].avatar] : [];
+    if (!systemOn(w, 'living')) {
+        const f = met.filter(free);
+        return f.length === 1 ? [f[0].avatar] : [];
+    }
+    const one = here.length === 1 && met.length === 1 && free(met[0]) ? met[0] : null;
+    return one && statusOf(g, one.avatar, YOU) && (isHome(loc) || !!placeOf(g, w, loc)?.home) ? [one.avatar] : [];
 }
 /* ---------- things done together (E14) ---------- */
 // Time spent doing something together counts like the rest of everyday life: a paced gain (sim/rel.ts), worth more

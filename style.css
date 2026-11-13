@@ -4301,6 +4301,9 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-party-btns .mu-party-edit { margin-left: auto; }
 /* sleeping (or a shift) would run over the party: the question */
 #mundi-root .mu-conflict-party { font-size: 40px; line-height: 1; text-align: center; }
+/* "Keep to myself" in the things to do: on, it is marked like a plan, so you can see at a glance that people leave you be */
+#mundi-root .mh-act.mh-keep.is-on { box-shadow: inset 0 1px 0 var(--glass-shine), 0 0 0 1.5px var(--accent2, var(--accent)), var(--glass-shadow) !important; }
+#mundi-root .mh-act.mh-keep:not(.is-on) { opacity: .85; }
 /* The Log (☰ menu): every notice shown this session, newest first. */
 #mundi-root .mu-logdlg { width: min(560px, calc(100% - 32px)); grid-template-rows: auto minmax(0, 1fr) auto; }
 #mundi-root .mu-loglist { list-style: none; margin: 0; padding: 0 4px 0 0; display: grid; gap: 8px; align-content: start; overflow: auto; min-height: 0; }

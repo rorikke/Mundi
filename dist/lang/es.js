@@ -7696,5 +7696,18 @@ const DICT = {
     "See everything about this Home": "Ver todo sobre este Home",
     "Every part of it, as the world creator shows it: places, jobs and their careers, needs, things to do, courses, the shop… Only to look: nothing can be changed there.": "Cada parte, tal como la muestra el creador de mundos: lugares, trabajos y sus carreras, necesidades, cosas que hacer, cursos, la tienda… Solo para ver: ahí no se puede cambiar nada.",
     "In a game, ☰ → This world → In detail shows the whole world you play, built-in ones too: every job's ranks, pay, shifts, requirements and career paths, the places, needs, courses… as the World creator shows them, only to look.": "En una partida, ☰ → Este mundo → En detalle muestra el mundo entero en el que juegas, también los que vienen hechos: los rangos, el sueldo, los turnos, los requisitos y las carreras de cada trabajo, los lugares, las necesidades, los cursos… como los muestra el creador de mundos, solo para ver.",
+    // who comes over to you (sim/approach.ts, ui/bump.ts, ui/hud.ts)
+    "They come over to you.": "Se acerca a ti.",
+    "Someone here comes over to you.": "Alguien de aquí se acerca a ti.",
+    "Talk": "Charlar",
+    "Nod and keep going": "Saludar con la cabeza y seguir",
+    "Keep to myself": "A lo mío",
+    "On · only friends come over, and rarely": "Activado · solo los amigos se acercan, y pocas veces",
+    "Off · people here may come over": "Desactivado · la gente de aquí puede acercarse",
+    "You keep to yourself: people rarely come over.": "Vas a lo tuyo: la gente casi nunca se acerca.",
+    "People here may come over to you again.": "La gente de aquí puede volver a acercarse.",
+    "Who is in this place right now. Click a face for what you can do with that person.": "Quién está en este lugar ahora. Haz clic en una cara para ver qué puedes hacer con esa persona.",
+    "Doing things with people around": "Hacer cosas con gente alrededor",
+    "Being in the same place isn't being together: what you do on your own, the narrator tells, and the people here go on with their own things. Someone may come over now and then (friends more often, and more in a bar than a library): talk, or nod and keep going. Talk to someone and they're with you for a while. \"Keep to myself\" in Things to do: only friends come over, and rarely.": "Estar en el mismo lugar no es estar juntos: lo que haces por tu cuenta lo cuenta el narrador, y la gente de aquí sigue con lo suyo. A veces alguien puede acercarse (los amigos más a menudo, y más en un bar que en una biblioteca): charla, o saluda con la cabeza y sigue. Charla con alguien y estará contigo un rato. \"A lo mío\" en Cosas que hacer: solo los amigos se acercan, y pocas veces.",
 };
 export default DICT;

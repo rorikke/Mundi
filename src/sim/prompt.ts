@@ -31,7 +31,8 @@ import { threadLines } from './threads.js';
 import { favorLines } from './stories.js';
 import { sceneActLine } from './actions.js';
 import { familyLine } from './family.js';
-import { social, livePlan, companions } from './social.js';
+import { social, livePlan, companions, withYou } from './social.js';
+import { approachOn, keepToMyself } from './approach.js';
 import { personaName } from '../st/bridge.js';
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { worldLine, weatherHere } from './worldstate.js';
@@ -162,7 +163,7 @@ export function sceneBlocks(): Built[] {
             ...scenarioLines(g, w),
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
             `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
-            hereLine(g, present, bg, sheets.length > 0),
+            hereLine(g, w, present, bg, sheets.length > 0),
             ...(guestLine(g, present) ? [guestLine(g, present)] : []),
             ...(present.some(r => !r.met) ? [`Strangers to {{user}}: ${present.filter(r => !r.met).map(r => r.name).join(', ')}. They and {{user}} have never met: they do not know each other's names until they talk and introduce themselves.`] : []),
         ],
@@ -246,16 +247,20 @@ function premiseLine(g: Save): string {
 
 // Who is here with you. With background people (E1) or sheets (E27): only the people here are characters, and with
 // more than a few of them (more than get a sheet), those with you (who came along, who know you) come first, the
-// others are "also here".
-function hereLine(g: Save, present: Resident[], bg: boolean, sheets: boolean): string {
+// others are "also here". When nobody is with you (sim/social.ts), the people here are only around: they keep to their
+// own things, and the engine decides who comes over (sim/approach.ts).
+function hereLine(g: Save, w: WorldDef, present: Resident[], bg: boolean, sheets: boolean): string {
     const names = present.map(r => r.name);
-    if (!bg && !sheets) return names.length ? `Here with {{user}}: ${names.join(', ')}. Only they are in this scene; nobody else speaks or appears.` : 'Nobody else is here right now.';
+    const head = approachOn(w) && present.length && !withYou(g, w).length
+        ? `Here, not with {{user}}${keepToMyself(g) ? ' (who wants to be left alone)' : ''}`
+        : 'Here with {{user}}';
+    if (!bg && !sheets) return names.length ? `${head}: ${names.join(', ')}. Only they are in this scene; nobody else speaks or appears.` : 'Nobody else is here right now.';
     const extras = bg ? ' Background people may be described and say a short line, but never join in or become characters.' : '';
     if (!names.length) return `None of the world's characters is here right now.${extras}`;
     const along = new Set(companions(g));
     const mine = present.length > SHEETS_MAX && sheets ? present.filter(r => r.met || along.has(r.avatar)) : present;
     const also = mine.length ? present.filter(r => !mine.includes(r)) : [];
-    return `Here with {{user}}: ${(mine.length ? mine : present).map(r => r.name).join(', ')}.${also.length ? ` Also here: ${also.map(r => r.name).join(', ')}.` : ''} Only they are characters in this scene${bg ? `.${extras}` : '; nobody else speaks or appears.'}`;
+    return `${head}: ${(mine.length ? mine : present).map(r => r.name).join(', ')}.${also.length ? ` Also here: ${also.map(r => r.name).join(', ')}.` : ''} Only they are characters in this scene${bg ? `.${extras}` : '; nobody else speaks or appears.'}`;
 }
 
 // The scene's focus (a short directive so the story does not wander): the plan or company that brought you here, and

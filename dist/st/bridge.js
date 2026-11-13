@@ -337,6 +337,9 @@ export const chat = () => globalThis.__mundiTutChat ?? ctx().chat ?? []; // the 
 export const saveMeta = () => ctx().saveMetadata();
 export const saveChat = () => saveChatDebounced();
 // Who wrote a message in a group (avatar file).
+/** Was the reply that just came in stopped by the player (SillyTavern keeps what was written so far)? Read while
+ *  handling MESSAGE_RECEIVED, before the next reply starts. */
+export const replyStopped = () => !!ctx().streamingProcessor?.abortController?.signal?.aborted;
 export function speakerOf(m) {
     if (!m || m.is_user || m.is_system)
         return null;
@@ -377,6 +380,8 @@ export async function translateTo(text, lang = chatLang()) {
     }
 }
 // A line Mundi writes for you (a button's message): in the chat's language when Chat Translation is on.
+/** A line Mundi writes for you, in the chat's language (SillyTavern's translation on) or as it is. */
+export const cannedText = async (text) => (chatLang() ? translateTo(text) : text);
 export function sendCanned(text) {
     if (!document.getElementById('send_textarea') || !document.getElementById('send_but'))
         return false;

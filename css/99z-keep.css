@@ -1,0 +1,3 @@
+/* "Keep to myself" in the things to do: on, it is marked like a plan, so you can see at a glance that people leave you be */
+#mundi-root .mh-act.mh-keep.is-on { box-shadow: inset 0 1px 0 var(--glass-shine), 0 0 0 1.5px var(--accent2, var(--accent)), var(--glass-shadow) !important; }
+#mundi-root .mh-act.mh-keep:not(.is-on) { opacity: .85; }

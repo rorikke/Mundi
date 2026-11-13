@@ -177,8 +177,9 @@ export interface ActionDef {
     /** (E14) When it's offered (see When): `period: afternoon; daily: yes; feels: Ayaka friend`. */
     when?: When;
     /** (E14) Done with the people with you (it counts as time together): `needed` when it can't be done alone;
-     *  `text`: what it means for you two, for the AI ("eating side by side at the counter"). With you: the people who
-     *  came with you and are here, and the one you talk to alone. */
+     *  `text`: what it means for you two, for the AI ("eating side by side at the counter"). With you (`withYou()` in
+     *  sim/social.ts): the people who came with you and are here, the one you talk to alone, someone you're meeting
+     *  here, and whoever you've just been talking with; not people who are only around. */
     together?: { needed?: boolean; text?: string };
     /** (E14) Weighted outcomes (an omikuji's four results), one drawn after the roll if there is one. */
     outcomes?: ActionOutcome[];
@@ -189,8 +190,8 @@ export interface ActionDef {
     words?: Record<string, string | Partial<RollOutcome>>;
     /** (E14.6) Played out in the scene instead of off-screen: it becomes the scene's focus while the clock runs (a
      *  step with each of your lines, or the live clock), and ends with its results once its time is up. `false`:
-     *  never. Without it, a world with `scene.actions` plays out an action of 20 minutes or more when someone you've
-     *  met is here. */
+     *  never. Without it, a world with `scene.actions` plays out an action of 20 minutes or more when someone is with
+     *  you (see `together`). */
     scene?: boolean;
     /** (E14) A keepsake it always leaves (an id from the world's `keepsakes`); an outcome's or a roll result's own
      *  keepsake only when that one comes out. */

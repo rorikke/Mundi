@@ -530,16 +530,23 @@ Object.assign(ACT, {
     'delete-yes': async (el) => { state.modal = null; await deleteMessageAt(Number(el.dataset.i)); notify(); },
 });
 Object.assign(INPUT, { 'sc-q': (el) => { SC.q = el.value; notify(); } });
-// The invisible narrator for scenes with nobody else: your line goes into the chat, and the narrator answers with the
-// surroundings, the passing moment and how you feel. No character is made to appear.
-async function soloNarrate(g, w, text) {
+// The invisible narrator, for scenes with nobody else and for what you do on your own: your line goes into the chat,
+// and the narrator answers with the surroundings, the passing moment and how you feel. Alone, no character is made to
+// appear; with people around who aren't with you (sim/social.ts) they may be glimpsed, busy with their own things, but
+// nobody comes over or speaks: the engine decides that (sim/approach.ts). `hint`: what the engine just decided (an
+// action's result).
+export async function soloNarrate(g, w, text, hint = '') {
     state.generating = true;
     notify();
     try {
         await addUserLine(text);
         const me = personaName();
         const recent = chat().slice(-8).filter((m) => !m.is_system).map((m) => `${m.is_user ? me : m.name}: ${String(m.mes ?? '').replace(/\s+/g, ' ').slice(0, 300)}`).join('\n');
-        const out = await quiet(`${sceneText().replace(/\{\{user\}\}/g, me)}\n\n${recent}\n\nNarrate what happens next in 2 to 4 sentences, in the second person ("you"), following ${me}'s last line. ${me} is alone: describe only the place, small details, the passing moment and ${me}'s feelings and thoughts. No other character appears, speaks or arrives. Do not write ${me}'s words or decisions.${aiLangNote() ? ` ${aiLangNote()}` : ''}`, 260, 'You are the quiet narrator of a life simulation. You never bring other characters into the scene.', { lane: 'now' });
+        const around = presentAt(g, w, g.player.loc).map(r => (r.met ? r.name : `someone ${me} does not know`));
+        const who = around.length
+            ? `${me} is doing this on their own. Others are here (${around.join(', ')}), busy with their own things: they may be glimpsed in the background, but nobody comes over, speaks to ${me} or interrupts. Nobody else appears or arrives.`
+            : `${me} is alone: describe only the place, small details, the passing moment and ${me}'s feelings and thoughts. No other character appears, speaks or arrives.`;
+        const out = await quiet(`${sceneText().replace(/\{\{user\}\}/g, me)}\n\n${recent}\n\n${hint ? `${hint.replace(/\{\{user\}\}/g, me)}\n\n` : ''}Narrate what happens next in 2 to 4 sentences, in the second person ("you"), following ${me}'s last line. ${who} Do not write ${me}'s words or decisions.${aiLangNote() ? ` ${aiLangNote()}` : ''}`, 260, 'You are the quiet narrator of a life simulation. You never bring other characters into the scene or make them speak.', { lane: 'now' });
         if (out.trim())
             await narratorLine(out.trim());
         else

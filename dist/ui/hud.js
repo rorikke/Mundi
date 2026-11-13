@@ -32,6 +32,7 @@ import { missingCourses } from '../sim/courses.js';
 import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf } from '../sim/work.js';
 import { banHere } from '../sim/caught.js';
 import { presentAt } from '../sim/people.js';
+import { approachOn, keepToMyself, setKeepToMyself } from '../sim/approach.js';
 import { period, weekday, seasonOf, toNextPeriod } from '../sim/time.js';
 import { icon } from './icons.js';
 import { featureOn } from '../sim/creator.js';
@@ -181,7 +182,8 @@ function hereBar(g, w) {
     const list = presentAt(g, w, g.player.loc); // everyone in the place, the people who came with you too
     if (!list.length)
         return '';
-    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>`;
+    const mine = new Set(withYou(g, w)); // (marked: who is with you now, sim/social.ts; the others are only around)
+    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>`;
 }
 /* ---------- things to do (inside a scene) ---------- */
 function actsColumn(g, w) {
@@ -197,6 +199,7 @@ function actsColumn(g, w) {
     const rows = [
         ...(ban ? [`<div class="mh-act mh-glass is-warn mh-ban" role="note"><i>${icon('lock')}</i><b>${esc(ban.text)}</b><small>${esc(ban.days === 1 ? '1 more day' : `${ban.days} more days`)}</small></div>`] : []),
         sceneActRow(g, w),
+        keepRow(g, w),
         ...apptActions(g, w),
         lifeActs(g, w) + trainActs(g, w), // (one row: the count above counts rows)
         schoolActs(g, w),
@@ -223,6 +226,16 @@ function actsColumn(g, w) {
     return `<aside class="mh-acts ${open ? '' : 'is-closed'}" aria-label="Things to do">
         <button class="mh-acts-head mh-glass" data-act="dock-toggle">${icon(open ? 'up' : 'down')}<span>Things to do</span>${onPhone() ? `<em>${rows.length}</em>` : ''}</button>
         ${open ? `<div class="mh-acts-list" data-keep="dock">${rows.join('')}</div>` : ''}</aside>`;
+}
+// "Keep to myself": the people here rarely come over while you get things done (sim/approach.ts). Shown when someone
+// is here, or while it's on wherever you are.
+function keepRow(g, w) {
+    if (!approachOn(w))
+        return '';
+    const on = keepToMyself(g);
+    if (!on && !presentAt(g, w, g.player.loc).length)
+        return '';
+    return `<button class="mh-act mh-glass mh-keep ${on ? 'is-on' : ''}" data-act="keep-toggle" aria-pressed="${on}"><i>${icon(on ? 'lock' : 'users')}</i><b>Keep to myself</b><small>${on ? 'On · only friends come over, and rarely' : 'Off · people here may come over'}</small></button>`;
 }
 // (E6) A place you can sleep at: book the night (when it includes things to do first) and sleep in your room.
 const REST_WORD = { poor: 'Poor rest', fair: 'Fair rest', good: 'Good rest', great: 'Great rest' };
@@ -334,6 +347,16 @@ Object.assign(ACT, {
     },
 });
 Object.assign(ACT, {
+    'keep-toggle': () => {
+        const g = game();
+        if (!g)
+            return;
+        setKeepToMyself(g, !keepToMyself(g));
+        toast(keepToMyself(g) ? 'You keep to yourself: people rarely come over.' : 'People here may come over to you again.', 'info');
+        saveGame();
+        refreshPrompt();
+        notify();
+    },
     'dock-toggle': () => { if (onPhone()) {
         actsPhone = !actsPhone;
         notify();

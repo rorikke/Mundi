@@ -19,7 +19,7 @@ import { payOf, priceOf } from './bills.js';
 import { book } from './ledger.js';
 import { facts, note, placeName, toldAs } from './facts.js';
 import { whenHolds, markDone, doneToday } from './when.js';
-import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, type TogetherGain } from './social.js';
+import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, talkedWith, type TogetherGain } from './social.js';
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { startRumor } from './living.js';
@@ -134,6 +134,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     const keep = outcome?.keepsake ?? res?.keepsake ?? a.keepsake ?? null;
     if (keep) { addKeepsake(g, keep); const k = keepsakeDef(w, keep); lines.push({ text: `You keep: ${k.icon} ${k.name}.`, kind: 'success' }); const p = earn(g, w, 'keepsake', keep); if (p) lines.push({ text: p, kind: 'success' }); }
     const together = doneTogether(g, w, mates, a.minutes);
+    for (const m of mates) talkedWith(g, m);   // (having done it together, they're still with you for the next thing)
     const company = mates.length ? mates : withYou(g, w);
     if (company.length) tallyTogether(g, a.id, company);   // (cooking for a friend: someone with you counts)
     // remembered: its own fact (the outcome's, the roll's, the action's), or a plain one when nothing else wrote one
@@ -176,12 +177,13 @@ export const sceneAct = (g: Save): SceneAct | undefined => (g as any).act ?? und
 export const SCENE_ACT = { min: 20, lines: 3, step: 5 };
 
 /** Is this action played out in the scene? Its own `scene`, else the world's `scene.actions` when it takes a while and
- *  someone you've met is here. Never an outing, never in a Home, and only with the living world on (off: everything is
+ *  someone is with you (sim/social.ts: who came along, a plan, the one you've just been talking with; people who are
+ *  only around don't make it a scene). Never an outing, never in a Home, and only with the living world on (off: everything is
  *  done off-screen, as before). */
 export function playsInScene(g: Save, w: WorldDef, a: ActionDef): boolean {
     if (a.scene === false || a.outing || isScenario(w) || !systemOn(w, 'living')) return false;
     if (a.scene) return true;
-    return !!w.scene?.actions && a.minutes >= SCENE_ACT.min && presentAt(g, w, g.player.loc).some(r => r.met);
+    return !!w.scene?.actions && a.minutes >= SCENE_ACT.min && withYou(g, w).length > 0;
 }
 
 /** Starts an action in the scene: its price and needs now, then it's the scene's focus until its time is up. (The
@@ -231,7 +233,8 @@ export function finishSceneAction(g: Save, w: WorldDef, { rest = true, judge = t
     const lines: ActionLine[] = [];
     const left = Math.max(0, act.until - nowAbs(g));
     if (rest && there && left > 0) advance(g, w, left).forEach(m => lines.push({ text: m, kind: 'warn' }));
-    const mates = there ? act.with.filter(a => withYou(g, w).includes(a)) : [];
+    // (whoever started it with you and is still here: the talk that made them company may be older than its time now)
+    const mates = there ? act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a)) : [];
     if (act.priv) Object.assign(act.priv, { a: act.a, rnd });   // (the dice don't survive a save)
     const done = act.priv?.stop ?? results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true, priv: act.priv });
     done.lines.forEach(l => toast(l.text, l.kind));

@@ -13,8 +13,10 @@ import { sleepHere, bookNight, bookedHere, nightMinutes, wakeUpAt, restAfterNigh
 import { state, notify, esc, game, toast, saveGame, ROOT_ID, nowAbs, uiZoom, UI } from '../core/store.js';
 import { runPlans } from './plans.js';
 import { maybeBump, dropBump, BUMP } from './bump.js';
+import { withYou } from '../sim/social.js';
+import { approachOn } from '../sim/approach.js';
 import { gradeName } from '../sim/dice.js';
-import { setPrompt, sendCanned } from '../st/bridge.js';
+import { setPrompt, sendCanned, cannedText } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
 import { getWorld, worldFile, systemOn, isScenario } from '../core/world.js';
 import { openNow, pictureAt, entryDue, payEntry } from '../sim/daynight.js';
@@ -644,6 +646,7 @@ function meetOnTrain(g, w, before, from, to, departed) {
     BUMP.who = list[Math.floor(Math.random() * list.length)].avatar;
     BUMP.on = same ? 'train' : 'station';
     BUMP.at = to;
+    BUMP.come = false;
 }
 // The journey dialog: the road takes hours; make camp at night, or push on without rest.
 // (E4) After the last train: a taxi, or a wait for the first train.
@@ -919,8 +922,8 @@ Object.assign(ACT, {
         // the AI only tells the story of what the engine decided
         if (state.view === 'scene')
             setPrompt('mundi_roll', done.ai);
-        narrateNow(a.label);
-        maybeBump(g, w);
+        await narrateNow(g, w, a.label, done.ai);
+        maybeBump(g, w, a); // then maybe someone here comes over, or someone arrives (the engine decides)
         notify();
     },
     // (E6) Book the night here (to use what it includes before sleeping), then sleep when you like
@@ -939,9 +942,16 @@ Object.assign(ACT, {
     'zoom-fit': () => applyMapView(true),
 });
 // "The AI narrates what you do right away" (Settings → Game, on by default): the action goes into the chat as what you
-// do, so the AI answers with how it goes (the hint above tells it the result).
-function narrateNow(label) {
+// do, so the AI answers with how it goes (the hint above tells it the result). Someone with you answers; done on your
+// own, the narrator tells it, and the people who are only around stay out of it (sim/approach.ts decides who comes over).
+async function narrateNow(g, w, label, hint) {
     if (state.view !== 'scene' || state.generating || UI().narrateActions === false)
         return;
-    sendCanned(`*${label.charAt(0).toLowerCase()}${label.slice(1)}*`);
+    const line = `*${label.charAt(0).toLowerCase()}${label.slice(1)}*`;
+    if (!approachOn(w) || withYou(g, w).length) {
+        sendCanned(line);
+        return;
+    }
+    const { soloNarrate } = await import('./scene.js');
+    await soloNarrate(g, w, await cannedText(line), hint);
 }
