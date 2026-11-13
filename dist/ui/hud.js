@@ -234,10 +234,15 @@ function actsColumn(g, w) {
     }
     if (settings().customAction)
         rows.push(customActionRow()); // an action you name yourself (Settings → Game)
-    const open = actsOpen();
+    const open = actsOpen(), html = rows.join('');
     return `<aside class="mh-acts ${open ? '' : 'is-closed'}" aria-label="Things to do">
-        <button class="mh-acts-head mh-glass" data-act="dock-toggle">${icon(open ? 'up' : 'down')}<span>Things to do</span>${onPhone() ? `<em>${rows.length}</em>` : ''}</button>
-        ${open ? `<div class="mh-acts-list" data-keep="dock">${rows.join('')}</div>` : ''}</aside>`;
+        <button class="mh-acts-head mh-glass" data-act="dock-toggle">${icon(open ? 'up' : 'down')}<span>Things to do</span>${onPhone() ? `<em>${shownRows(html)}</em>` : ''}</button>
+        ${open ? `<div class="mh-acts-list" data-keep="dock">${html}</div>` : ''}</aside>`;
+}
+// The rows a player sees: a slot with nothing to offer is empty and one slot may hold several rows, so the list's
+// length isn't the count; a gift's sub-rows (shown while its list is unfolded) belong to the row above them.
+function shownRows(html) {
+    return (html.match(/class="mh-act [^"]*"/g) ?? []).filter(c => !/\bis-sub\b/.test(c)).length;
 }
 // "Keep to myself": the people here rarely come over while you get things done (sim/approach.ts). Shown when someone
 // is here, or while it's on wherever you are.
