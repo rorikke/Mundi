@@ -1,5 +1,5 @@
 // The Goals app (phone, Profile section) and its Rewards tab. Goals: the goal you follow (its perk first, its steps as
-// pips, the current step's objectives with how far you are), or "Pick a life goal" with the badge (D-7); goals
+// pips, the current step's objectives with how far you are and how to do them), or "Pick a life goal" with the badge (D-7); goals
 // suggested for you; every goal this game offers in the nine categories, folded (finished ones with a check, the
 // world's own with a mark; nothing greyed out: goals a game can't offer simply aren't there); a goal's detail (steps,
 // objectives, step rewards, perk); the perks you have. Rewards: your life points and the shop (sim/rewards.ts), with
@@ -12,7 +12,7 @@ import { GOAL_CATEGORIES, GOAL_POINTS, isOwnGoal } from '../core/goals.js';
 import { goalsState, offeredGoals, activeGoal, canPick, pickGoal, goalProgress, stepProgress, suggestedGoals, perksOf, needsPick, type Objective } from '../sim/goals.js';
 import { pointsOf } from '../sim/points.js';
 import { shopItems, peopleFor, traitChoices, rumorsToQuiet, buyReward, type ShopItem, type RewardChoice, type InsightId } from '../sim/rewards.js';
-import { countedOf } from '../sim/when.js';
+import { countedOf, homeMap } from '../sim/when.js';
 import { placesBeen, beenTo, isRegular } from '../sim/tally.js';
 import { placeOf } from '../sim/places.js';
 import { bannedUntil } from '../sim/caught.js';
@@ -22,6 +22,7 @@ import { skillName } from '../sim/hobbies.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import type { Meter } from '../sim/rel.js';
 import { ACT } from './reg.js';
+import { howTo } from './goalhints.js';
 
 /** What the Goals app shows (memory only): the tab, the categories opened, the goal whose detail is open, the item
  *  being bought and what was picked for it. `said`: the last lines shown (toasted). */
@@ -99,6 +100,7 @@ function valueWords(w: WorldDef, key: string, v: string): string {
             if (v === 'all') return 'Every place';
             let m = v.match(/^all\s+in\s+(\S+)$/); if (m) return `Every place in ${mapName(w, m[1])}`;
             m = v.match(/^(\d+)\s+regular$/); if (m) return 'Places where you are a regular';
+            m = v.match(/^(\d+)\s+regular\s+in\s+(\S+)$/); if (m) return m[2].toLowerCase() === 'home' ? 'Places near home where you are a regular' : `Places where you are a regular in ${mapName(w, m[2])}`;
             m = v.match(/^(\d+)\s+in\s+(\S+)$/); if (m) return `Places visited in ${mapName(w, m[2])}`;
             if (/^\d+$/.test(v)) return 'Places visited';
             m = v.match(/^(\S+)\s+regular$/); if (m) return `A regular at ${placeName(w, m[1])}`;
@@ -143,6 +145,8 @@ function extraCount(g: Save, w: WorldDef, key: string, v: string): { have: numbe
         if (m) { const on = visitable(w).filter(p => onMapOf(w, p, m![1])); return { have: on.filter(p => beenTo(g, p.id)).length, need: on.length }; }
         m = v.match(/^(\d+)\s+regular$/);
         if (m) return { have: visitable(w).filter(p => isRegular(g, p.id)).length, need: Number(m[1]) };
+        m = v.match(/^(\d+)\s+regular\s+in\s+(\S+)$/);
+        if (m) { const map = m[2].toLowerCase() === 'home' ? homeMap(g, w) : m[2]; return { have: map ? visitable(w).filter(p => onMapOf(w, p, map) && isRegular(g, p.id)).length : 0, need: Number(m[1]) }; }
         if (v === 'all') return { have: placesBeen(g).filter(id => visitable(w).some(p => p.id === id)).length, need: visitable(w).length };
     }
     if (key === 'course' && /^\d+$/.test(v)) return { have: ((g.player as any).learning?.done ?? []).length, need: Number(v) };
@@ -162,20 +166,22 @@ export function objectiveWords(g: Save, w: WorldDef, o: Objective): { text: stri
     if (o.key === 'skill' && values.length === 1) return { text: text.replace(/\s+\d+$/, ''), have, need };
     return { text, have, need };
 }
-function objectiveHtml(g: Save, w: WorldDef, o: Objective): string {
+function objectiveHtml(g: Save, w: WorldDef, o: Objective, said: Set<string>): string {
     const x = objectiveWords(g, w, o);
     const num = x.have !== undefined && x.need !== undefined
         ? ` <span class="mu-gl-num">${o.key === 'money' ? `${esc(money(w, Math.min(x.have, x.need)))} / ${esc(money(w, x.need))}` : `${n(Math.min(x.have, x.need))}/${n(x.need)}`}</span>` : '';
     const bar = x.have !== undefined && x.need ? `<span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, Math.round((x.have / x.need) * 100)))}%"></i></span>` : '';
-    return `<li class="${o.ok ? 'is-ok' : ''}"><i>${o.ok ? '✓' : '○'}</i><span><span class="mu-gl-otext">${esc(x.text)}${num}</span>${bar}${o.ok ? '' : hintOf(o)}</span></li>`;
+    return `<li class="${o.ok ? 'is-ok' : ''}"><i>${o.ok ? '✓' : '○'}</i><span><span class="mu-gl-otext">${esc(x.text)}${num}</span>${bar}${o.ok ? '' : hintOf(g, w, o, said)}</span></li>`;
 }
-// How to do an objective the game has no button for in a scene: living together is set in This world → Households.
-const hintOf = (o: Objective) => (o.key === 'partner' && !o.not && o.text.slice(o.text.indexOf(':') + 1).split(' or ').map(v => v.trim()).includes('home') ? `<small class="mu-gl-hint">${esc('To live together, move your partner into your household: This world → Households.')}</small>` : '');
+// How to do it (ui/goalhints.ts): where a keepsake comes from, when a festival is next, what trains a skill… A line
+// already shown under another objective of the step (the same place's hours) isn't repeated.
+const hintOf = (g: Save, w: WorldDef, o: Objective, said: Set<string>) => howTo(g, w, o).filter(l => !said.has(l) && !!said.add(l)).map(l => `<small class="mu-gl-hint">${esc(l)}</small>`).join('');
 // A step's ways of being done, each a list of objectives (several ways read "or").
 function waysHtml(g: Save, w: WorldDef, goal: GoalDef, step: number): string {
     const p = stepProgress(g, w, goal.id, step);
     if (!p) return '';
-    const ways = p.ways.map(objs => `<ul class="mu-gl-objs">${objs.map(o => objectiveHtml(g, w, o)).join('')}</ul>`);
+    const said = new Set<string>();
+    const ways = p.ways.map(objs => `<ul class="mu-gl-objs">${objs.map(o => objectiveHtml(g, w, o, said)).join('')}</ul>`);
     const hold = p.hold ? `<small class="mu-gl-hold">Held ${n(Math.min(p.hold.days, p.hold.need))} of ${n(p.hold.need)} days</small>` : '';
     return `${ways.join('<small class="mu-gl-or">or</small>')}${hold}`;
 }

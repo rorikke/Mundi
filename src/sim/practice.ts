@@ -63,7 +63,7 @@ export function whenWords(w: WorldDef, when: ActionDef['when']): string[] {
 
 // The places an action is offered in: the one or ones it names, the places that list it, or (with neither) every place
 // whose tags bring it, as actionsHere() in needs.ts decides.
-function placesFor(w: WorldDef, a: ActionDef): string[] {
+export function placesFor(w: WorldDef, a: ActionDef): string[] {
     const named = [a.place, ...(a.places ?? []), ...w.places.filter(p => p.actions?.includes(a.id)).map(p => p.id)].filter((x): x is string => !!x);
     if (named.length || a.place || a.places) return [...new Set(named)];
     return w.places.filter(p => !p.link && p.generic !== false && (a.tags ?? []).some(t => p.tags?.includes(t)) && !(a.notTags ?? []).some(t => p.tags?.includes(t))).map(p => p.id);
