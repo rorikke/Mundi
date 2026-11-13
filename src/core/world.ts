@@ -817,6 +817,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'shop', name: 'Shop', icon: 'wallet', color: '#16c79a', on: true },
     { id: 'goals', name: 'Goals', icon: 'star', color: '#ffb02e', on: true },
     { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
+    { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -850,7 +851,7 @@ export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'craftin
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w: WorldDef) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';

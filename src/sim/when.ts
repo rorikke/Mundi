@@ -427,7 +427,8 @@ function friendsHold(g: Save, w: WorldDef, v: string): boolean {
     return Object.values(g.cast).filter(r => r.met && levelHolds(g, w, r.avatar, level) && (!map || onMap(r)) && (!atRegular || works(r))).length >= n;
 }
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
-const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult);
+// (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
+const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture);
 const onMapOf = (w: WorldDef, p: { map: string }, map: string) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
 /** The map `in home` means: the map your home is on ('' with no home). */
 export const homeMap = (g: Save, w: WorldDef) => w.homes.zones.find(z => z.id === g.player.home?.zone)?.map ?? '';

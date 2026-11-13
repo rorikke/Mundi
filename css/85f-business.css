@@ -1,0 +1,27 @@
+/* The Business app (ui/business.ts): a venture's tier, numbers, week, style, next tier, upgrades, discoveries, staff;
+   the ways in; an event or calendar card */
+#mundi-root .mu-biz { display: grid; gap: 10px; align-content: start; }
+#mundi-root .mu-biz-venture { display: grid; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-biz .mu-ph-card { display: grid; gap: 4px; }
+#mundi-root .mu-biz .mu-row { display: flex; gap: 8px; flex-wrap: wrap; }
+#mundi-root .mu-biz-head b { font-size: 16px; }
+#mundi-root .mu-biz-stats { gap: 6px; }
+#mundi-root .mu-biz-stat { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: center; }
+#mundi-root .mu-biz-stat .mu-bond { grid-column: 1 / -1; }
+#mundi-root .mu-biz-stat small { color: var(--muted); font-variant-numeric: tabular-nums; }
+#mundi-root .mu-biz-note { color: var(--muted); padding-left: 8px; border-left: 2px solid var(--line); }
+#mundi-root .mu-biz-opt { display: grid; gap: 2px; text-align: left; padding: 8px 10px; border-radius: 12px; }
+#mundi-root .mu-biz-opt small { color: var(--muted); }
+#mundi-root .mu-biz-opt.is-on b::before { content: '✓ '; color: var(--accent); }
+#mundi-root .mu-biz-opt[aria-disabled="true"] { opacity: .55; }
+#mundi-root .mu-biz-up { display: grid; gap: 2px; padding: 6px 0; border-top: 1px solid var(--line); }
+#mundi-root .mu-biz-up button { justify-self: start; margin-top: 4px; }
+#mundi-root .mu-biz-up button[aria-disabled="true"] { opacity: .55; }
+#mundi-root .mu-biz-up.is-found b::before { content: '✦ '; color: var(--accent); }
+#mundi-root .mu-biz-up.is-hint, #mundi-root .mu-biz-up.is-later { opacity: .7; }
+#mundi-root .mu-biz-up.is-hint b { font-weight: 600; font-style: italic; }
+#mundi-root .mu-biz-way .mu-input { width: 100%; }
+#mundi-root .mu-biz-ask { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+#mundi-root .mu-biz-ask-btns { display: grid; gap: 6px; margin-top: 4px; }
+#mundi-root .mu-biz-ask-btns button { text-align: left; }
+#mundi-root .mu-biz-ask-btns small { margin-left: 6px; color: var(--muted); }
