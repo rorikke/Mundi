@@ -140,7 +140,7 @@ function aiCallsHtml() {
     return `<section class="mu-wc-sec mu-aic">
             <h4>AI calls</h4>
             <p class="mu-muted">Besides the replies to your messages, these are the times Mundi asks the AI for something. Turn off what you don't want (it applies to all your games).</p>
-            ${chk('ui-bool', UI().narrateActions !== false, 'Narrate what you do right away', 'Things to do in a scene (a shower, cooking…): the AI answers with how it goes. One reply each time.', 'narrateActions')}
+            ${chk('ui-bool', UI().narrateActions !== false, 'Narrate what you do right away', 'Things to do in a scene (a shower, cooking…): the people with you answer with how it goes, one reply each time. Done on your own, it goes into the story with no reply.', 'narrateActions')}
             ${chk('set-diary', st.diaryOnSleep !== false, 'Write the day in the diary when you sleep', 'One call per night: the day becomes a short first-person entry, and the story remembers past days through it.')}
             ${chk('ui-bool', UI().aiTexts !== false, 'Characters write their own texts', 'Answers to your invitations, being stood up, asking your advice, letters from far away. Off: short ready-made replies.', 'aiTexts')}
             <label class="mu-field"><span>Who posts on Chirp</span><select data-input="set-feed">${[['button', 'Only when you tap "New posts"'], ['open', 'New posts each time you open the app'], ['auto', 'The characters, on their own as time passes'], ['react', 'Only you post; they reply']].map(([v, l]) => `<option value="${v}" ${fp.mode === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>

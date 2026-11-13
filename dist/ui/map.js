@@ -16,7 +16,7 @@ import { maybeBump, dropBump, BUMP } from './bump.js';
 import { withYou } from '../sim/social.js';
 import { approachOn } from '../sim/approach.js';
 import { gradeName } from '../sim/dice.js';
-import { setPrompt, sendCanned, cannedText } from '../st/bridge.js';
+import { setPrompt, sendCanned, cannedText, addUserLine } from '../st/bridge.js';
 import { beforeTravel, beforeSleep } from '../sim/plans.js';
 import { getWorld, worldFile, systemOn, isScenario } from '../core/world.js';
 import { openNow, pictureAt, entryDue, payEntry } from '../sim/daynight.js';
@@ -922,7 +922,7 @@ Object.assign(ACT, {
         // the AI only tells the story of what the engine decided
         if (state.view === 'scene')
             setPrompt('mundi_roll', done.ai);
-        await narrateNow(g, w, a.label, done.ai);
+        await narrateNow(g, w, a.label);
         maybeBump(g, w, a); // then maybe someone here comes over, or someone arrives (the engine decides)
         notify();
     },
@@ -942,9 +942,10 @@ Object.assign(ACT, {
     'zoom-fit': () => applyMapView(true),
 });
 // "The AI narrates what you do right away" (Settings → Game, on by default): the action goes into the chat as what you
-// do, so the AI answers with how it goes (the hint above tells it the result). Someone with you answers; done on your
-// own, the narrator tells it, and the people who are only around stay out of it (sim/approach.ts decides who comes over).
-async function narrateNow(g, w, label, hint) {
+// do, and the people with you answer with how it goes (the hint above tells them the result). Done on your own, it
+// goes into the story without a reply: a narration would only retell what the screen already showed, with nothing
+// decided by it. (The hint stays for the next reply.)
+async function narrateNow(g, w, label) {
     if (state.view !== 'scene' || state.generating || UI().narrateActions === false)
         return;
     const line = `*${label.charAt(0).toLowerCase()}${label.slice(1)}*`;
@@ -952,6 +953,5 @@ async function narrateNow(g, w, label, hint) {
         sendCanned(line);
         return;
     }
-    const { soloNarrate } = await import('./scene.js');
-    await soloNarrate(g, w, await cannedText(line), hint);
+    await addUserLine(await cannedText(line));
 }
