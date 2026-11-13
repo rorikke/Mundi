@@ -24244,6 +24244,9 @@
     "bar",
     "crowd"
    ],
+   "bgs": {
+    "night": "bg/ws_cafe_unit-night.avif"
+   },
    "actions": [
     "cf_unit_coffee"
    ]
@@ -24278,6 +24281,9 @@
     "bar",
     "birds"
    ],
+   "bgs": {
+    "afternoon": "bg/ot_cafe_unit-afternoon.avif"
+   },
    "actions": [
     "cf_unit_coffee"
    ]
@@ -24310,6 +24316,9 @@
     "crowd",
     "traffic"
    ],
+   "bgs": {
+    "night": "bg/sb_cafe_unit-night.avif"
+   },
    "actions": [
     "cf_unit_coffee"
    ]
