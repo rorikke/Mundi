@@ -44,7 +44,12 @@ export function placeOf(g, w, id) {
     }
     if (isOuting(id))
         return { id, name: outingName(id), map: w.maps[0]?.id ?? '', x: 50, y: 50, tags: ['outing'], desc: `out of the house: ${outingName(id)}` };
-    return w.places.find(p => p.id === id) ?? extraRooms(g).find(p => p.id === id) ?? null;
+    const p = w.places.find(x => x.id === id);
+    // (business) a unit you lease goes by the name you gave your café
+    const named = p?.venture ? (g?.ventures?.list ?? []).find((v) => v && !v.closed && v.name && (v.place === id || (v.places ?? []).includes(id))) : null;
+    if (named)
+        return { ...p, name: named.name };
+    return p ?? extraRooms(g).find(x => x.id === id) ?? null;
 }
 // The map a place is on: the same answer as placeOf(…)?.map without building a home's name (asked very often: the
 // region of everyone's home, every time someone's day is worked out).
@@ -98,7 +103,7 @@ function ventureHere(g, w, id) {
         return true;
     if (!systemOn(w, 'business'))
         return false;
-    return (g?.ventures?.list ?? []).some((s) => s && !s.closed && s.id === v && (s.place === id || (s.places ?? []).includes(id)));
+    return (g?.ventures?.list ?? []).some((s) => s && !s.closed && (s.place === id || (s.places ?? []).includes(id)));
 }
 export function pins(g, w) {
     const out = [...w.places.filter(p => placeOn(g, w, p.id)), ...(isScenario(w) ? extraRooms(g) : [])];

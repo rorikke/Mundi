@@ -48,6 +48,14 @@ export function storyState(g) {
 }
 const yearOf = (g, day) => Math.floor((Math.max(1, day) - 1) / (4 * seasonDays(g)));
 const storyDef = (w, id) => (w.stories ?? []).find(s => s.id === id) ?? null;
+// (business) A story at `venture:<id>` happens at whichever place of that venture (or kind of venture: `venture:cafe`) you
+// own (a milestone at your café);
+// `g.ventures` is read from the save, so this file needs no venture code.
+export const VENTURE_PLACE = 'venture:';
+const placeFits = (g, w, at, place) => at === place || (at.startsWith(VENTURE_PLACE)
+    && (g.ventures?.list ?? []).some((v) => { const x = at.slice(VENTURE_PLACE.length); return v && !v.closed && (v.id === x || w.ventures?.find(d => d.id === v.id)?.track === x) && (v.place === place || (v.places ?? []).includes(place)); }));
+/** Where a story happens now: its place, or (`venture:`) the one it started at, else where you are. */
+export const storyPlace = (g, s) => (!s.place.startsWith(VENTURE_PLACE) ? s.place : storyState(g).now?.id === s.id ? storyState(g).now.place : g.player.loc);
 /* ---------- which stories can happen here ---------- */
 // The condition without the brought person's presence: the story brings them.
 function condFor(s) {
@@ -76,7 +84,7 @@ function canBring(g, w, s) {
 const timed = (s) => parseWhen(typeof s.when === 'string' ? s.when : '').conds.some(c => (c.key === 'period' || c.key === 'clock') && !c.not);
 /** Could this story happen now, where you are (or at `place`)? */
 export function storyFits(g, w, s, place = g.player.loc) {
-    if (s.place !== place || (s.adult && !adultOn(g)) || !s.choices?.length)
+    if (!placeFits(g, w, s.place, place) || (s.adult && !adultOn(g)) || !s.choices?.length)
         return false;
     if (!timed(s) && !openNow(g, w, place))
         return false;
@@ -101,14 +109,14 @@ export function currentStory(g, w) {
 }
 /** Starts a story here (the screen's card and the AI's line follow). */
 export function startStory(g, w, s) {
-    const st = storyState(g), at = nowAbs(g);
-    const now = { id: s.id, place: s.place, at, until: at + STORY.minutes };
+    const st = storyState(g), at = nowAbs(g), where = s.place.startsWith(VENTURE_PLACE) ? g.player.loc : s.place;
+    const now = { id: s.id, place: where, at, until: at + STORY.minutes };
     st.now = now;
     st.seen[s.id] = { day: g.day };
     st.looks.n++;
     const r = s.brings ? personNamed(g, s.brings) : null;
     if (r)
-        bringTo(g, r.avatar, s.place, now.until, 'is caught up in what is happening here (the street story)');
+        bringTo(g, r.avatar, where, now.until, 'is caught up in what is happening here (the street story)');
     return now;
 }
 /** Looks at the scene: a story going on ends when you leave (or it's over); otherwise one may start (once an hour per
@@ -134,7 +142,7 @@ export function lookStories(g, w, roll = (salt) => rnd(g, salt)) {
 }
 /** The choices you can make now (with their place in the story's list). */
 export function storyChoices(g, w, s) {
-    return s.choices.map((c, i) => ({ c, i })).filter(({ c, i }) => (!c.when || whenHolds(g, w, c.when, { place: s.place, key: `story|${s.id}|${i}` })) && (!c.spend || favorOwed(g, c.spend) > 0));
+    return s.choices.map((c, i) => ({ c, i })).filter(({ c, i }) => (!c.when || whenHolds(g, w, c.when, { place: storyPlace(g, s), key: `story|${s.id}|${i}` })) && (!c.spend || favorOwed(g, c.spend) > 0));
 }
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 /** Your choice: a roll if it has one (d20 + the roll bonus against its difficulty, as for actions and at work), then what it
@@ -184,7 +192,7 @@ export function leaveStory(g, w) {
 // Everything a result does. Money below 0 is a cost (after the difficulty, as everywhere).
 function applyResult(g, w, s, r) {
     const out = [];
-    const cast = castOf(g, s), where = placeName(g, w, s.place);
+    const at = storyPlace(g, s), cast = castOf(g, s), where = placeName(g, w, at);
     if (r.text)
         out.push(cap(r.text.trim()));
     if (r.money) {
@@ -203,9 +211,9 @@ function applyResult(g, w, s, r) {
         out.push(`You keep: ${k.icon} ${k.name}.`);
     }
     if (r.rumor)
-        startRumor(g, w, r.rumor, s.place, { about: cast.map(x => x.name), you: true, id: `story:${s.id}` });
+        startRumor(g, w, r.rumor, at, { about: cast.map(x => x.name), you: true, id: `story:${s.id}` });
     if (r.fact)
-        note(g, r.fact, [where], cast.map(x => x.avatar), s.place, 'story');
+        note(g, r.fact, [where], cast.map(x => x.avatar), at, 'story');
     if (r.favor)
         out.push(owe(g, r.favor, 1));
     if (r.spend && favorOwed(g, r.spend) > 0)

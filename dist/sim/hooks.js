@@ -55,4 +55,6 @@ export const studentLink = { workCap: () => null, homeBlock: () => '', headStart
 // Ventures (business, sim/ventures.ts) meet the rest of the game here, so neither waits on the other. A street story's
 // result (or anything else) `finds` an upgrade of a venture you own: it waits in the Business app (lines to show; nothing
 // without the venture).
-export const ventureLink = { find: () => [] };
+// A choice at work (sim/work.ts) whose result `add`s to a venture's numbers or `finds` an upgrade: the division of that
+// job gets it (sim/exec.ts). Lines to show.
+export const ventureLink = { find: () => [], workResult: () => [] };

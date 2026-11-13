@@ -105,8 +105,8 @@ export interface Place {
     /** (E12) What you hear there, as sound tags (`station`, `crowd`, `izakaya`, `cicadas`…): played as a quiet loop with
      *  the sound setting on (ui/ambience.ts); the world's `sounds` may give a file of its own for a tag. */
     sound?: string[];
-    /** (business) The id of a venture (`WorldDef.ventures`) this place belongs to: it's on the map and in anyone's plans
-     *  only while that venture is yours and runs here (a café unit you lease). */
+    /** (business) The id of a venture (`WorldDef.ventures`) this place is a unit of: it's on the map and in anyone's
+     *  plans only while a venture of yours runs here (a café unit you lease, or a second café you open in it). */
     venture?: string;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
@@ -407,6 +407,7 @@ export interface JobTrack {
 export interface Schedule { days: number | WeekdayId[]; from?: number; to?: number; shifts?: { id: string; name?: string; from: number; to: number }[] }
 /** (J6) A thing that happens on a shift: a setup sentence and two or three choices. */
 export interface WorkEvent { id: string; setup: string; when?: When; choices: WorkChoice[]; adult?: boolean;
+    /** (business) what a gate that asks for it (`seen: <id>`) calls it in words: "the nomination" */ title?: string;
     /** It comes from a colleague: one of the world's people in the same job, met, at `level` or closer with you (a
      *  friendship level, `friend` when missing), whose name stands for {who} in its texts (and a `feels` key "{who}").
      *  Without one, `fallback` stands for them ("another actress"), at `odds` of the usual chance (0.5); with no
@@ -754,7 +755,9 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
  *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
-export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean }
+/** (business) `place` may be `venture:<id>`: the story happens at whichever place of that venture you own. */
+export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean;
+    /** (business) what a gate that asks for it (`seen: <id>`) calls it in words: "the board's vote" */ title?: string }
 /** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
  *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). `minutes`:
  *  the time it takes (missing: 15). */
@@ -971,15 +974,23 @@ export interface VentureDef {
     trains?: string[];
     /** Hours a stint of running it yourself takes (default 4), and its opening hours [from, to) (default its place's). */
     stint?: number; hours?: [number, number];
+    /** How busy the calendar makes it: weekends, festivals in its part of town, each season (multipliers, 1 when
+     *  missing; a festival anywhere else counts a little). */
+    demand?: { weekend?: number; festival?: number; season?: Partial<Record<SeasonId, number>> };
+    /** The units a later tier (`places` above 1) can open at (default: its lease units): the kissaten you took over
+     *  opening a second café in a unit. */
+    more?: LeaseUnit[];
     adult?: boolean;
 }
 /** How a venture becomes yours. `takeover`: a place you already know (the kissaten whose right hand you are): a
- *  condition (`rank: …; seen: …`), the key money, the story that offers it, the tier it starts at (1: the first) and
- *  its weekly rent. `lease`: small units to rent, one chosen (its place has `venture` set to this venture), each with
- *  what moving in costs and its weekly rent. An executive's division has neither: the job's rank opens it. */
+ *  condition (`rank: …; seen: …`), the key money, the story that offers it, the tier it starts at (1: the first), its
+ *  weekly rent, its numbers when it becomes yours (`start`; default a third of the tier's ceiling) and a job it ends
+ *  (`endsJob`: the master's right hand becomes the master). `lease`: small units to rent, one chosen (its place has
+ *  `venture` set to this venture), each with what moving in costs and its weekly rent. An executive's division has
+ *  neither: the job's rank opens it. */
 export interface VentureWays {
-    takeover?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number };
-    lease?: { units: LeaseUnit[]; tier?: number };
+    takeover?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; endsJob?: string };
+    lease?: { units: LeaseUnit[]; tier?: number; start?: Record<string, number> };
 }
 export interface LeaseUnit { place: string; cost: number; rent: number }
 /** A tier (café: a stand, a kissaten, a second café, a roastery): the ceiling its numbers can't pass, and the
@@ -993,7 +1004,8 @@ export interface TierDef {
 }
 /** A style, chosen once per tier (*as it was*, *specialty coffee*, *open late*): its words lay over the place's for
  *  the AI, its multipliers shift the numbers a little (`fame: 1.1`), and some upgrades are found only with it. */
-export interface StyleDef { id: string; name: string; desc: string; tier: number; mul?: Record<string, number>; finds?: string[] }
+export interface StyleDef { id: string; name: string; desc: string; tier: number; mul?: Record<string, number>; finds?: string[];
+    /** its own opening hours [from, to) (open late: until two), over the venture's and its place's */ hours?: [number, number] }
 /** An upgrade: points added to one number for good (`stat`, `add`), at a price, from a tier on. `how`: bought from the
  *  app from the start (`basic`), turned up somewhere in the city (`found`: a street story's `finds`), or opened by a
  *  condition (`earned`: `when`). `style`: only with that style; `place`: only at that unit; `staff`: comes with a hire

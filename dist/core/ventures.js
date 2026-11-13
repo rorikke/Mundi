@@ -65,6 +65,8 @@ export function upgradeVentures(w) {
         }
         if (v.ways?.lease)
             v.ways.lease.units = (v.ways.lease.units ?? []).filter(u => typeof u?.place === 'string');
+        if (v.more)
+            v.more = v.more.filter(u => typeof u?.place === 'string').map(u => ({ place: u.place, cost: Math.round(num(u.cost, 0, VENTURE_BOUNDS.cost, 0)), rent: Math.round(num(u.rent, 0, VENTURE_BOUNDS.cost, 0)) }));
         if (v.ways?.takeover)
             v.ways.takeover.cost = Math.round(num(v.ways.takeover.cost, 0, VENTURE_BOUNDS.cost, 0));
     }

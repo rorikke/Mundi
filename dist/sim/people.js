@@ -39,7 +39,10 @@ function leisurePool(g, w, r, day, stepHour, st) {
     const fun = (p) => !p.link && !!p.tags?.includes('leisure');
     const wild = (p) => fun(p) && !p.adult;
     const banned = adult ? null : adultPlaces(w);
-    const pool = r.leisure.length ? r.leisure : w.places.filter(wild).map(p => p.id);
+    // (business) a venture of yours they like the look of joins their favorites for the day (sim/ventures.ts makes the
+    // list once a day; read from the save here, so this file needs no venture code)
+    const hang = (g.ventures?.hang?.day === day ? g.ventures.hang.who?.[r.avatar] : null) ?? [];
+    const pool = r.leisure.length ? (hang.length ? [...r.leisure, ...hang] : r.leisure) : w.places.filter(wild).map(p => p.id);
     const all = banned?.size ? pool.filter(id => !banned.has(id)) : pool;
     const on = all.filter(id => placeOn(g, w, id)); // a scenario: only the rooms of this game
     const mine = on.length ? on : isScenario(w) ? w.places.filter(p => fun(p) && placeOn(g, w, p.id)).map(p => p.id) : all;

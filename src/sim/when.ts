@@ -355,7 +355,8 @@ const ventureList = (g: Save): { id: string; tier?: number; style?: string; owne
 function ventureHolds(g: Save, w: WorldDef, v: string): boolean {
     if (!systemOn(w, 'business')) return false;
     const [id, a, b] = v.split(/\s+/);
-    return ventureList(g).some(s => (id === 'any' || s.id === id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
+    // (a venture's id, or its kind: `cafe` for either café)
+    return ventureList(g).some(s => (id === 'any' || s.id === id || w.ventures?.find(d => d.id === s.id)?.track === id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
 }
 
 // (life goals) The skills a `skill: any …` or `skill: creative …` looks at.
