@@ -15,7 +15,9 @@
 // someone at that level toward you now. `goal` reads `g.goals` (sim/goals.ts keeps it) and the old
 // aspirations finished (`player.aspDone`).
 // Business: `venture: cafe [tier 2 | <style>]` and `upgrade: <id>` read the ventures you own (`g.ventures`, kept by
-// sim/ventures.ts); `inrank: 42` the days in your current rank (`player.job.since`), for an executive's gate.
+// sim/ventures.ts); `inrank: 42` the days in your current rank (`player.job.since`), for an executive's gate;
+// (hospitality) `venture:` names a kind too (`ryokan`), `tenant: Tsubaki [ryokan]` someone renting a room of yours,
+// `kept: 3` secrets kept at your hotels' desks.
 import { nowAbs, adultOn } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
@@ -39,7 +41,7 @@ export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays'
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank'];
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -159,6 +161,8 @@ function badValue(key, v) {
         case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
         case 'inrank': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of days in your rank`;
+        case 'tenant': return /^[^,;]+$/.test(v) ? '' : `"${v}" should be a name, or a name and a venture, like Tsubaki ryokan`;
+        case 'kept': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets kept at your hotels`;
         default: return ''; // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -436,6 +440,8 @@ function holds(g, w, key, v, x) {
             const j = g.player.job;
             return !!j && systemOn(w, 'jobs') && (nowAbs(g) - (j.since ?? nowAbs(g))) / 1440 >= Number(v);
         }
+        case 'tenant': return tenantHolds(g, w, v);
+        case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': {
@@ -457,12 +463,24 @@ function holds(g, w, key, v, x) {
 // (business) The ventures you own (sim/ventures.ts keeps `g.ventures`, read here so this file needs no venture code):
 // `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style.
 const ventureList = (g) => (g.ventures?.list ?? []).filter((s) => s && !s.closed);
+// (a venture's id, its track or its kind: `cafe` for either café, `hotel` for any hotel, `ryokan` for the ryokan)
+const ventureIs = (w, s, id) => { if (id === 'any' || s.id === id)
+    return true; const d = w.ventures?.find(x => x.id === s.id); return d?.track === id || d?.kind === id; };
 function ventureHolds(g, w, v) {
     if (!systemOn(w, 'business'))
         return false;
     const [id, a, b] = v.split(/\s+/);
-    // (a venture's id, or its kind: `cafe` for either café)
-    return ventureList(g).some(s => (id === 'any' || s.id === id || w.ventures?.find(d => d.id === s.id)?.track === id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
+    return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
+}
+// (hospitality) `tenant: Tsubaki` someone renting a room at a venture of yours; `tenant: Tsubaki ryokan` at that one
+// (its id, track or kind). The name may have spaces; the venture is its last word when one of yours matches it.
+function tenantHolds(g, w, v) {
+    if (!systemOn(w, 'business'))
+        return false;
+    const words = v.trim().split(/\s+/), last = words.length > 1 ? words[words.length - 1] : '';
+    const list = ventureList(g), at = last && list.some(s => ventureIs(w, s, last)) ? last : '';
+    const who = (at ? words.slice(0, -1) : words).join(' ').toLowerCase();
+    return list.some(s => (!at || ventureIs(w, s, at)) && (s.tenants ?? []).some(t => t.who.toLowerCase() === who || t.who.toLowerCase().split(/\s+/)[0] === who));
 }
 // (life goals) The skills a `skill: any …` or `skill: creative …` looks at.
 const skillIds = (g, w, id) => (id === 'any' ? skillsOf(w, g).map(s => s.id) : SKILL_GROUPS[id] ?? []);

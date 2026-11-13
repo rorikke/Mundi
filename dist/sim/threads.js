@@ -239,7 +239,8 @@ export function threadLines(g, w, present) {
             continue;
         const now = ` Right now: ${trim(s.text)}.`;
         if (st.known) {
-            const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' || st.how === 'insight' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : '';
+            // ('saw': at the desk of a hotel of theirs, B-14; they don't know {{user}} saw)
+            const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' || st.how === 'insight' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : st.how === 'saw' ? ` (seen at {{user}}'s hotel; ${n} doesn't know {{user}} saw)` : '';
             out.push(`${trim(t.known ?? `{{user}} knows: ${t.hidden}`)}${from}.${now}`);
         }
         else if (s.tell === 'known')

@@ -33,7 +33,7 @@ import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workeven
  *  (what selling it gives back a share of); `week`/`last`: this week's and last week's report; `event`: one of its
  *  events waiting for your choice; `closed`: the day it was sold or closed (kept, it does nothing). */
 export interface VentureState {
-    id: string; place: string; places?: string[]; name?: string; way: 'takeover' | 'lease' | 'rank';
+    id: string; place: string; places?: string[]; name?: string; way: 'takeover' | 'lease' | 'rank' | 'buy' | 'partner';
     since: number; tier: number; style?: string; styleTier?: number;
     stats: Record<string, number>; owned: string[]; found: string[]; disc: string[];
     staff: { name: string; quirk: string; for: string }[];
@@ -43,6 +43,14 @@ export interface VentureState {
     evDay?: number;
     /** (exec, sim/exec.ts) the season its budget (`cash`) is for, and the board's verdicts on the seasons before */
     season?: number; verdicts?: { season: number; got: number; want: number }[];
+    /** (hospitality) what's still owed on the owner's note and the weekly instalment taken from the takings (H-2) */
+    owes?: number; instalment?: number;
+    /** (hospitality) partners beside you (the ryokan's family: their share of the takings) and tenants (B-19) */
+    partners?: { who: string; share: number }[];
+    tenants?: { id: string; who: string; since: number }[];
+    /** (love hotel) secrets kept and let slip at the desk, sightings already heard, and whether you want to hear them
+     *  (`never`: no sightings; default: only when it matters) */
+    kept?: number; slipped?: number; sighted?: string[]; tell?: 'matters' | 'never';
 }
 /** A week's report: its number (week 0 is days 1–7), what came in and went out, days you ran it, lines worth telling. */
 export interface WeekReport { n: number; takings: number; costs: number; run: number; notes: string[] }
@@ -54,6 +62,9 @@ export interface Ventures {
     hang?: { day: number; who: Record<string, string[]> };
     /** cards already put to you this year (`venture:card:year`), so a festival's card comes once a year */
     seen?: string[];
+    /** (love hotel) couples you know of (`a|b`, sorted), the week a sighting last came, and the one waiting for your
+     *  choice (sim/sightings.ts) */
+    pairs?: string[]; sightWeek?: number; sighting?: { venture: string; id: string; who: string[]; day: number; via: 'desk' | 'notebook' };
 }
 
 /** The engine's numbers (tuned by the long run, tokyo-business-long.mjs). `stint`: hours a stint takes unless the
