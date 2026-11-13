@@ -1539,7 +1539,11 @@
    "priv_office_late",
    "priv_park_night",
    "priv_ryokan_rotenburo",
-   "sb_lovehotel_night"
+   "sb_lovehotel_night",
+   "x-hotaru",
+   "sj_esthe_book",
+   "sj_hostess_sumire",
+   "sb_lovehotel_kaoru"
   ],
   "occupations": [
    "rider",
@@ -1686,7 +1690,11 @@
    "Jake",
    "Kanon",
    "Airi",
-   "Momo"
+   "Momo",
+   "Shiori",
+   "Tsubaki",
+   "Sumire",
+   "Kaoru"
   ],
   "apps": [],
   "ranks": {
