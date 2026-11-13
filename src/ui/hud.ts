@@ -180,8 +180,16 @@ function peopleColumn(g: Save, w: WorldDef) {
         return `<button class="mh-person ${PL.card === r.avatar ? 'is-on' : ''} ${c ? 'is-with' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}">
             <img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b>
             <span class="mh-mini-rel">${relBar(r.avatar, false)}</span>
-            ${left !== null ? `<span class="mh-mini is-time" title="With you for a while"><i style="width:${left}%"></i></span>` : ''}</button>`;
+            ${left !== null ? `<span class="mh-mini-time" title="${esc(timeLeftText(c!.until - now))}">${icon('clock')}<span class="mh-mini is-time"><i style="width:${left}%"></i></span></span>` : ''}</button>`;
     }).join('')}</aside>`;
+}
+// The clock bar's tooltip. Parties and trips keep people with you until they end (their timers run a day or more),
+// so a countdown there would only confuse.
+function timeLeftText(mins: number): string {
+    if (mins > 16 * 60) return 'Time together: until you part.';
+    const m = Math.max(1, Math.round(mins)), h = Math.floor(m / 60), rest = m % 60;
+    const left = h ? (rest ? `${h} h ${rest} min` : `${h} h`) : `${m} min`;
+    return `Time left together: about ${left}. When it runs out, they have to go.`;
 }
 
 // Who is in this place (not in your party): their pictures under the place's name; a click opens their options.

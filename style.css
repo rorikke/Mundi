@@ -1798,7 +1798,11 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mh-mini { width: 76px; height: 6px; border-radius: 4px; background: rgba(255, 255, 255, .16); overflow: hidden; }
 #mundi-root .mh-mini i { display: block; height: 100%; border-radius: 4px; }
 #mundi-root .mh-mini.is-bond i { background: linear-gradient(90deg, #7ff2ff, #19c3e6); box-shadow: 0 0 8px #19c3e6; }
-#mundi-root .mh-mini.is-time i { background: linear-gradient(90deg, #ff8a8a, #ff4d6d); box-shadow: 0 0 8px #ff4d6d; }
+/* violet, so it can't pass for a friendship or romance bar (none of their tiers use it) */
+#mundi-root .mh-mini-time { display: flex; align-items: center; gap: 4px; width: 76px; color: #c4b5ff; }
+#mundi-root .mh-mini-time .mu-ic { flex: none; width: 11px; height: 11px; stroke-width: 2.4; }
+#mundi-root .mh-mini-time .mh-mini { flex: 1; width: auto; height: 5px; }
+#mundi-root .mh-mini.is-time i { background: linear-gradient(90deg, #c4b5ff, #8b7cf6); box-shadow: 0 0 6px #8b7cf6; }
 
 /* ----- things to do: right ----- */
 #mundi-root .mh-acts { position: absolute; z-index: 19; right: 14px; top: 76px; bottom: auto; margin: 0; height: fit-content; max-height: calc(100% - min(44vh, 440px) - 100px);
