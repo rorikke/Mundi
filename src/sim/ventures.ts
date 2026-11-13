@@ -39,6 +39,8 @@ export interface VentureState {
     staff: { name: string; quirk: string; for: string }[];
     manager?: boolean; cash: number; rent?: number; ran?: number[]; spent?: number;
     week: WeekReport; last?: WeekReport; event?: { id: string; day: number }; closed?: number;
+    /** the last day one of its events came (one a day at most) */
+    evDay?: number;
     /** (exec, sim/exec.ts) the season its budget (`cash`) is for, and the board's verdicts on the seasons before */
     season?: number; verdicts?: { season: number; got: number; want: number }[];
 }
@@ -61,7 +63,7 @@ export interface Ventures {
  *  its takings at the ceiling; `cost`: what an hour at the counter takes of your needs; `train`: practice per stint
  *  hour; `noise`: the day's takings vary by this much either way; `festival`: a festival elsewhere in the world. */
 export const VENTURE = {
-    stint: 4, events: 0.35, rise: 1.6, manager: 0.15, sell: 0.4, renovate: 10,
+    stint: 4, events: 0.2, rise: 1.6, manager: 0.15, sell: 0.4, renovate: 10,
     cost: { energy: 2.5, hygiene: 1, hunger: 1.5, thirst: 1.5 } as Record<string, number>,
     train: 1.2, noise: 0.1, festival: 1.1, weekend: 1.2,
 };
@@ -466,12 +468,13 @@ function discover(g: Save, w: WorldDef, s: VentureState, d: VentureDef): string[
 
 const ventureEvents = (g: Save, w: WorldDef, s: VentureState, d: VentureDef): WorkEvent[] =>
     eventsReady(g, w, d.events, g.player.loc, e => `venture|${s.id}|${e.id}`);
-// After a stint, now and then: one of its events whose condition holds, waiting for your choice.
+// After a stint, now and then (one day in five or so, never twice a day): one of its events whose condition holds,
+// waiting for your choice.
 function rollEvent(g: Save, w: WorldDef, s: VentureState, d: VentureDef) {
     delete s.event;
-    if (rnd(g, `vevent|${s.id}|${nowAbs(g)}`) >= VENTURE.events) return;
+    if (s.evDay === g.day || rnd(g, `vevent|${s.id}|${nowAbs(g)}`) >= VENTURE.events) return;
     const list = ventureEvents(g, w, s, d);
-    if (list.length) s.event = { id: list[Math.floor(rnd(g, `vpick|${s.id}|${nowAbs(g)}`) * list.length)].id, day: g.day };
+    if (list.length) { s.event = { id: list[Math.floor(rnd(g, `vpick|${s.id}|${nowAbs(g)}`) * list.length)].id, day: g.day }; s.evDay = g.day; }
 }
 /** The venture event waiting for your choice (with the choices you can make now), if any. */
 export function pendingVentureEvent(g: Save, w: WorldDef): { s: VentureState; ev: WorkEvent; choices: { c: WorkEvent['choices'][number]; i: number }[] } | null {

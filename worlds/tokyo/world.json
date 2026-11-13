@@ -27860,7 +27860,7 @@
   {
    "id": "cf_ms_regulars",
    "place": "venture:cafe",
-   "when": "venture: cf_own; venture: not cafe tier 2; period: rush or midmorning",
+   "when": "venture: cf_own; venture: not cafe tier 2; regular: 10; period: rush or midmorning",
    "title": "your first regulars",
    "setup": "On an ordinary morning the same three faces come in again: the woman who orders before she's through the door, the student who always takes the stool by the window, the old man who counts his coins onto the counter in piles of ten. It's the third week in a row, and today they nod to each other.",
    "choices": [
@@ -27998,6 +27998,106 @@
     {
      "label": "Say you'd rather not",
      "text": "she shrugs, says most people say that, and photographs your cup anyway, without your face, for the collage at the back"
+    }
+   ]
+  },
+  {
+   "id": "cf_genzo_booth",
+   "place": "ws_kissaten",
+   "brings": "Genzō",
+   "when": "venture: cf_shirakaba; feels: Genzō friend; period: afternoon",
+   "setup": "Genzō comes in on his day off, still smelling faintly of pork bones, and sits in the corner booth without looking at the menu. He orders two coffees. When {{user}} brings them he pushes one across the table to the empty seat and says, to nobody, that thirty years ago Kyōko always made him wait here, and that the booth hasn't changed.",
+   "choices": [
+    {
+     "label": "Sit with him a while",
+     "text": "he talks more than he has in a year, about Golden Gai in the eighties and a ring he never gave back; then he pays for both cups and goes",
+     "feels": {
+      "Genzō": 3
+     },
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "label": "Call Bar Kotori",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "Kyōko answers on the fourth ring, laughs a husky laugh, and is in the booth within the hour; nobody at the counter says a word",
+     "feels": {
+      "Genzō": 3,
+      "Kyōko": 3
+     },
+     "fact": "Genzō and Kyōko had coffee together at {0}, in their old booth",
+     "fail": {
+      "text": "she says she's busy, then that she isn't, then hangs up; Genzō drinks both coffees and leaves a tip far too large",
+      "feels": {
+       "Genzō": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_sharehouse_morning",
+   "place": "venture:cafe",
+   "when": "venture: cafe tier 2; present: Mio; present: Haru; period: rush or midmorning",
+   "setup": "Mio and Haru come in together before the morning rush, Mio half asleep with paint on her sleeve, Haru with a sketchbook under their arm. They take the stools by the window as if they always had. While Mio stirs four sugars into her coffee, Haru draws her on a paper napkin in six quick lines, and slides it across the counter to {{user}} instead.",
+   "choices": [
+    {
+     "label": "Pin the napkin up behind the counter",
+     "text": "Mio goes pink and says it looks nothing like her; Haru says nothing, and the next morning there is another napkin, and the morning after that",
+     "feels": {
+      "Mio": 2,
+      "Haru": 2
+     },
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "label": "Give it back to Mio",
+     "text": "Mio folds it into her wallet very carefully and pretends she didn't; Haru looks out of the window for a long time, smiling at the street",
+     "feels": {
+      "Mio": 3,
+      "Haru": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_ayaka_menu",
+   "place": "ot_ramen",
+   "when": "venture: cafe; feels: Ayaka friend; period: afternoon",
+   "setup": "Between lunch and dinner Ayaka sits {{user}} down at the counter of Ramen Kamejirō with a menu she has rewritten in pencil: a yuzu shio, a vegan bowl, a set for tourists. Her father is in the back, pretending not to listen. She wants to know, from {{user}}, who runs a place of their own now, whether an old shop should change or stay as it was.",
+   "choices": [
+    {
+     "label": "Keep his bowl, and add one of hers",
+     "text": "she crosses out half the new menu and circles one dish; from the back, Genzō grunts, which for him is a speech of approval",
+     "feels": {
+      "Ayaka": 2,
+      "Genzō": 2
+     }
+    },
+    {
+     "label": "Tell her to change it all",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "she grins as if you'd handed her the keys; Genzō comes out, reads the new menu twice, and says only that the vegan bowl needs more salt",
+     "feels": {
+      "Ayaka": 4,
+      "Genzō": -1
+     },
+     "fail": {
+      "text": "Genzō comes out before you finish and takes the menu without a word; Ayaka slams the pencil down, and you leave before the broth boils over",
+      "feels": {
+       "Ayaka": 1,
+       "Genzō": -2
+      }
+     }
     }
    ]
   }
@@ -44879,7 +44979,7 @@
      "id": "kissaten",
      "name": "Kissaten",
      "ceiling": 40,
-     "alone": 0.45,
+     "alone": 0.5,
      "base": 17000,
      "desc": "a café with its regulars, open every day; hired hands keep it open when you're not there",
      "milestone": {
@@ -44945,10 +45045,6 @@
       "capacity": 1.1,
       "quality": 0.95
      },
-     "hours": [
-      11,
-      26
-     ],
      "finds": [
       "cf_nightcap"
      ]
@@ -46032,7 +46128,7 @@
      "id": "kissaten",
      "name": "Kissaten",
      "ceiling": 40,
-     "alone": 0.45,
+     "alone": 0.5,
      "base": 17000,
      "desc": "a café with its regulars, open every day; hired hands keep it open when you're not there",
      "milestone": {
@@ -46098,10 +46194,6 @@
       "capacity": 1.1,
       "quality": 0.95
      },
-     "hours": [
-      11,
-      26
-     ],
      "finds": [
       "cf_nightcap"
      ]
