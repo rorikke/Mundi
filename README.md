@@ -68,7 +68,7 @@ More on each in **[Other improvements in this fork](docs/improvements.md)**.
 - **A World creator that edits everything.** Every field of the built-in worlds, Tokyo included, can be changed in the World creator: lore, rolls and outcomes, street stories, starts, keepsakes, people's appointments and storylines, weather, trains, places' hours and pictures. [More on it](docs/improvements.md#the-world-creator-and-the-new-game).
 - **Your own additions to a built-in world.** A file in SillyTavern's user files (`mundi-overlay-<world id>.json`) adds places, people, actions, lore and pictures to a built-in world when it loads, without touching the world itself (the format is at the top of `src/core/overlay.ts`).
 - **Easier to find your way.** The map's Find button lists every place matching a name, with its district and the trip there; each skill on the Profile says where to practise it and when; the Goals app says how to do each objective (where a keepsake comes from, when a festival is next, where to ask for a job); notices count down one at a time and stay in a Log (☰ menu); the cards that come to you show one at a time; the Jobs app sorts its openings; and the main menu tells you when Mundi has an update. [More on it](CHANGELOG.md#034--2026-11-12).
-- **New pictures reach your cards.** When a world updates a character's expressions or outfits, cards made before get them too.
+- **New pictures and new people reach your games.** When a world updates a character's expressions or outfits, cards made before get them too; when it gains people, a game already running offers to bring them in.
 - **Pictures that follow the weather and the season,** expression sprites in any format, and everything in Portuguese and Spanish.
 
 ## What you can do

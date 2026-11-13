@@ -4344,6 +4344,14 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-log-row.is-error { border-left-color: var(--bad); }
 #mundi-root .mu-log-row b { font-size: 13px; }
 #mundi-root .mu-log-when, #mundi-root .mu-log-src { font-size: 11px; font-weight: 700; color: var(--muted); }
+/* The world's new people in a running game: the card that offers them and the box in This world → People. */
+#mundi-root .mu-np-offer .mu-np-ic { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .08); }
+#mundi-root .mu-np-offer .mu-np-ic svg { width: 28px; height: 28px; }
+#mundi-root .mu-np-faces { display: flex; flex-wrap: wrap; margin-top: 8px; padding-left: 6px; }
+#mundi-root .mu-np-faces img, #mundi-root .mu-np-faces em { width: 34px; height: 34px; margin-left: -6px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid rgba(0, 0, 0, .45); }
+#mundi-root .mu-np-faces em { display: grid; place-items: center; font-style: normal; font-size: 13px; background: rgba(255, 255, 255, .12); }
+#mundi-root .mu-np-box { display: grid; gap: 6px; padding: 8px 10px; margin: 6px 0; border-radius: 12px; background: rgba(255, 255, 255, .06); }
+#mundi-root .mu-np-box small { opacity: .85; }
 /* Where to practise, under each skill on the Profile. */
 #mundi-root .mu-practice { margin-top: 6px; }
 #mundi-root .mu-practice summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent); }

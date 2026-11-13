@@ -6,7 +6,7 @@ export const CHANGELOG = [
             ['store', "A café of your own: take over Kissa Shirakaba or lease a unit and name it, then grow it from a stand to a roastery with upgrades bought, found around the city or earned. Run the counter yourself or let hired hands keep it open."],
             ['briefcase', "The executive's floor: three ranks above Asahina Trading's, Mochi Byte's and Wave TV's tops, then a division of your own with a season's budget and the board's verdict."],
             ['heart', "A business can change how people's stories end, and a Business app on the phone follows it all."],
-            ['moon', "With adult content on, four new women in Tokyo's night world: Shiori, Tsubaki, Sumire and Kaoru, each with her own storyline."],
+            ['moon', "With adult content on, four new women in Tokyo's night world: Shiori, Tsubaki, Sumire and Kaoru, each with her own storyline. A game already running offers to bring them in."],
             ['users', "People around you no longer join everything you do: someone may come over now and then, and you talk or keep going. What you do on your own needs no AI reply."],
             ['flame', "Not everyone is attracted to everyone: in a new game, people are drawn to your gender if you're drawn to theirs, and straight otherwise."],
             ['star', "The Goals app says how to do each objective, and the university student start has a life goal of its own."],

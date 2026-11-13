@@ -31,7 +31,12 @@ format change.
 
 - **Four new women, with adult content on:** Shiori, a Hijiri student secretly the masked streamer Hotaru; Tsubaki,
   the top therapist at Aroma Room Lily; Sumire, Lounge Velvet's number one; and Kaoru, the night manager at Hotel Coco
-  Palace. Each has a portrait, 28 expressions, a storyline and something to do with her. They join new games.
+  Palace. Each has a portrait, 28 expressions, a storyline and something to do with her.
+- **A game already running can bring in the world's new people.** When a world has gained people since your game
+  began, a card offers to bring them in (a home, a routine, their ties and feelings with the people already there, as
+  a new game makes them; nobody already in the game changes). "Not now" stops the card, and ☰ → This world → People
+  lists anyone the game doesn't have yet, with a button to bring them in. A game from before 0.4.0 is offered everyone
+  its world has that it lacks, once.
 - **A life goal for the university student start:** Hijiri graduate, with the Old school tie perk. The Goals app shows
   your term and GPA.
 - **The Goals app says how to do each objective:** where a keepsake comes from and how often, when a festival is next,

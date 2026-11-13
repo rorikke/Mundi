@@ -8111,7 +8111,7 @@ const DICT: Record<string, string> = {
  "A café of your own: take over Kissa Shirakaba or lease a unit and name it, then grow it from a stand to a roastery with upgrades bought, found around the city or earned. Run the counter yourself or let hired hands keep it open.": "Um café só seu: assuma o Kissa Shirakaba ou alugue um ponto e dê um nome a ele, depois faça-o crescer de uma barraquinha a uma torrefação com melhorias compradas, achadas pela cidade ou conquistadas. Toque o balcão você mesmo ou deixe funcionários mantendo-o aberto.",
  "The executive's floor: three ranks above Asahina Trading's, Mochi Byte's and Wave TV's tops, then a division of your own with a season's budget and the board's verdict.": "O andar dos executivos: três cargos acima do topo da Asahina Trading, da Mochi Byte e da Wave TV, e depois uma divisão sua, com o orçamento da estação e o veredito da diretoria.",
  "A business can change how people's stories end, and a Business app on the phone follows it all.": "Um negócio pode mudar como as histórias das pessoas terminam, e um app Negócios no celular acompanha tudo.",
- "With adult content on, four new women in Tokyo's night world: Shiori, Tsubaki, Sumire and Kaoru, each with her own storyline.": "Com conteúdo adulto ativado, quatro mulheres novas na noite de Tóquio: Shiori, Tsubaki, Sumire e Kaoru, cada uma com sua própria trama.",
+ "With adult content on, four new women in Tokyo's night world: Shiori, Tsubaki, Sumire and Kaoru, each with her own storyline. A game already running offers to bring them in.": "Com conteúdo adulto ativado, quatro mulheres novas na noite de Tóquio: Shiori, Tsubaki, Sumire e Kaoru, cada uma com sua própria trama. Um jogo já em andamento oferece trazê-las.",
  "People around you no longer join everything you do: someone may come over now and then, and you talk or keep going. What you do on your own needs no AI reply.": "As pessoas ao seu redor não participam mais de tudo o que você faz: alguém pode vir falar com você de vez em quando, e você conversa ou segue no que estava. O que você faz sozinho não precisa de resposta da IA.",
  "Not everyone is attracted to everyone: in a new game, people are drawn to your gender if you're drawn to theirs, and straight otherwise.": "Nem todo mundo se atrai por todo mundo: num jogo novo, as pessoas se atraem pelo seu gênero se você se atrai pelo delas, e são hétero caso contrário.",
  "The Goals app says how to do each objective, and the university student start has a life goal of its own.": "O app Metas diz como cumprir cada objetivo, e o começo de estudante universitário tem uma meta de vida própria.",
@@ -8124,5 +8124,13 @@ const DICT: Record<string, string> = {
  "Running it": "No dia a dia",
  "Work the counter yourself for the whole day's takings and the chance of something coming up, or let hired hands keep it open. The takings come at the week's end, with a report; left alone, it never collapses.": "Trabalhe no balcão você mesmo para ficar com tudo o que o dia rende e a chance de algo acontecer, ou deixe funcionários mantendo-o aberto. O faturamento chega no fim da semana, com um relatório; deixado de lado, ele nunca quebra.",
  "The world's people are never your staff, but friends come by, and a business can change how their stories end.": "As pessoas do mundo nunca são seus funcionários, mas amigos aparecem, e um negócio pode mudar como as histórias delas terminam.",
+ "New people in {0}": "Gente nova em {0}",
+ "{0} has people this game doesn't have yet: {1}. Bring them into your game? They get a home, a routine and the ties a new game would give them; nobody already here changes.": "{0} tem pessoas que este jogo ainda não tem: {1}. Trazê-las para o seu jogo? Elas ganham uma casa, uma rotina e os laços que um jogo novo daria; ninguém que já está aqui muda.",
+ "Bring them in": "Trazer",
+ "Not in this game yet: {0}": "Ainda não estão neste jogo: {0}",
+ "{0} now live in {1}.": "{0} agora moram em {1}.",
+ "Could not bring them in: {0}": "Não foi possível trazê-las: {0}",
+ "You can bring them in later: ☰ → This world → People.": "Você pode trazê-las depois: ☰ → Este mundo → Pessoas.",
+ "Bringing them in": "Trazendo",
 };
 export default DICT;

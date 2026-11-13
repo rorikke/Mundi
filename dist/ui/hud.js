@@ -47,6 +47,7 @@ import { social, isWith, withYou, giftable, giveKeepsake, keepsakesOf, giftsForS
 import { sleepHere, bookedHere, nightPrice } from '../sim/stays.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { bumpHtml } from './bump.js';
+import { newPeopleHtml } from './newpeople.js';
 import { P as phone, phoneUnread } from './phone.js';
 import { PL, facePlanHtml } from './plans.js';
 import { relBar, workButton } from './relui.js';
@@ -336,7 +337,7 @@ function phoneButton(w) {
 // The cards that come to you and wait for an answer all sit in one place under the top bar, so only one shows at a
 // time; the others wait their turn. A plan coming up goes first (it can't wait), then what is happening here, and a
 // chance meeting last (it stays until you answer it or leave).
-const askCard = (g, w) => apptReminderHtml(g, w) || lifeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || bumpHtml();
+const askCard = (g, w) => apptReminderHtml(g, w) || lifeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || bumpHtml() || newPeopleHtml();
 // (adult) Someone making the move: their card stands in for the event's panel until you answer.
 export function hudHtml() {
     const g = game();

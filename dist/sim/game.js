@@ -292,6 +292,32 @@ export function missingWorldPeople(g, w) {
     const have = new Set(Object.keys(g.cast).map(a => charOf(a)?.data?.extensions?.mundi?.example).filter(Boolean));
     return worldPeopleFor(w, undefined, !!cfgOf(g).adult).filter(e => !have.has(exampleTag(w, e)));
 }
+// The world's people a game has already had or been offered (`peopleSeen`, example tags): a new game writes everyone
+// the world had then, so only people added later are offered on their own. A save from before it has none, and is
+// offered everyone it lacks once. A Home's people are the ones you moved in, so it's never offered any.
+const seenOf = (g) => (g.peopleSeen ??= []);
+const OFFER = { key: '', list: [] };
+export function peopleToOffer(g, w) {
+    if (isScenario(w))
+        return [];
+    const seen = g.peopleSeen;
+    const key = `${g.world}|${Object.keys(g.cast).length}|${!!cfgOf(g).adult}|${seen?.length ?? 0}|${w.cast.examples.length}`;
+    if (OFFER.key !== key) {
+        const skip = new Set(seen ?? []);
+        OFFER.key = key;
+        OFFER.list = missingWorldPeople(g, w).filter(e => !skip.has(exampleTag(w, e)));
+    }
+    return OFFER.list;
+}
+/** Remembers people as offered, so the card doesn't ask about them again (This world → People still can). */
+export function markPeopleSeen(g, w, people) {
+    const seen = seenOf(g);
+    for (const e of people) {
+        const t = exampleTag(w, e);
+        if (!seen.includes(t))
+            seen.push(t);
+    }
+}
 /** Brings the world's people this game doesn't have into it, as a new game makes them: their cards (portrait, sprites,
  *  outfits), a home, the world's households, ties, ages and ways, a profile, and their starting feelings with the people
  *  already here (never overwriting a feeling the game has). They join the group chat muted, the scene decides who's
@@ -362,6 +388,7 @@ export async function addWorldPeople(g, w, names) {
         await bindChatLore(await writeWorldLore(w, adult));
     const named = avatars.map(a => g.cast[a].name);
     note(g, 'New in {0}: {1}.', [w.name, named.join(', ')], avatars, g.player.loc, 'event');
+    markPeopleSeen(g, w, add);
     saveGame();
     await syncScene();
     refreshPrompt();
@@ -482,6 +509,7 @@ export async function startNewGame(o) {
     // nobody lives in your home unless you chose them (your household)
     for (const a of cast)
         save.cast[a] = resident(w, a, taken, save.player.home);
+    markPeopleSeen(save, w, w.cast.examples); // the people left out now aren't offered later (peopleToOffer)
     // jobs chosen at the start: the job, and a routine that goes to work (or none that does)
     for (const [a, id] of Object.entries(o.jobs ?? {})) {
         const r = save.cast[a];

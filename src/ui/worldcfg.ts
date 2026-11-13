@@ -41,6 +41,7 @@ import { personPanel, suggestHtml, SCOPES } from './personui.js';
 import { adultSettingHtml } from './adultui.js';
 import { gendersOf, cleanPerson } from '../sim/gender.js';
 import { ensureProfile } from '../sim/profiles.js';
+import { newPeopleBox } from './newpeople.js';
 
 type Tab = 'people' | 'homes' | 'house' | 'needs' | 'save' | 'lore' | 'ai' | 'rules';
 const TABS: [Tab, string][] = [['people', 'People'], ['homes', 'Households'], ['house', 'The house'], ['needs', 'Needs'], ['save', "Author's Note"], ['lore', 'Lorebooks'], ['ai', 'AI context'], ['rules', 'World']];
@@ -228,6 +229,7 @@ function tabPeople(g: Save, w: WorldDef): string {
     return `<div class="mu-wc-people">
         <aside class="mu-wc-list" data-keep="wc-list">
             <button class="mu-primary" data-act="wc-add-open">${icon('plus')}<span>Add someone</span></button>
+            ${newPeopleBox()}
             <button class="mu-wc-row is-you ${WC.who === YOU ? 'is-on' : ''}" data-act="wc-who" data-who="${YOU}"><img src="${esc(personaThumb())}" alt=""><span><b data-notr>${esc(personaName())}</b><small>You · ${esc(homeAddress(w, g.player.home))}</small></span></button>
             ${ordered.map(([k, rs]) => `<h5 class="mu-wc-addr">${k === mine ? `${icon('home')} ` : ''}${esc(homeAddress(w, rs[0].home))}${k === mine ? ' · with you' : ''}</h5>
                 ${rs.map(r => `<button class="mu-wc-row ${WC.who === r.avatar ? 'is-on' : ''}" data-act="wc-who" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
