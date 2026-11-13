@@ -402,6 +402,7 @@ const DICT: Record<string, string> = {
  "Sunny": "Soleado",
  "Decline": "Rechazar",
  "{0} moved into the house.": "{0} se mudó a la casa.",
+ "New in {0}: {1}.": "Nuevos en {0}: {1}.",
  "{0} moved out of the house.": "{0} se fue de la casa.",
  "too few": "pocas",
  "Not now": "Ahora no",

@@ -286,6 +286,87 @@ export async function addResident(g, w, avatar) {
     await syncScene();
     return r;
 }
+/** The world's people this game doesn't have yet (added to the world since the game began, or left out then), as a new
+ *  game would see them: adult-only ones only with adult content on. */
+export function missingWorldPeople(g, w) {
+    const have = new Set(Object.keys(g.cast).map(a => charOf(a)?.data?.extensions?.mundi?.example).filter(Boolean));
+    return worldPeopleFor(w, undefined, !!cfgOf(g).adult).filter(e => !have.has(exampleTag(w, e)));
+}
+/** Brings the world's people this game doesn't have into it, as a new game makes them: their cards (portrait, sprites,
+ *  outfits), a home, the world's households, ties, ages and ways, a profile, and their starting feelings with the people
+ *  already here (never overwriting a feeling the game has). They join the group chat muted, the scene decides who's
+ *  present, and the lorebook is written again with their lore. Returns their names. */
+export async function addWorldPeople(g, w, names) {
+    const add = missingWorldPeople(g, w).filter(e => !names || names.includes(e.name));
+    if (!add.length)
+        return [];
+    const avatars = (await exampleCards(w, add)).filter(a => !g.cast[a]);
+    const taken = takenHomes(g);
+    for (const a of avatars)
+        g.cast[a] = resident(w, a, taken, g.player.home);
+    const fresh = new Set(avatars);
+    const exAvatar = new Map();
+    for (const a of Object.keys(g.cast)) {
+        const tag = charOf(a)?.data?.extensions?.mundi?.example;
+        const ex = w.cast.examples.find(e => exampleTag(w, e) === tag);
+        if (ex)
+            exAvatar.set(ex.name, a);
+    }
+    const touches = (a, b) => !!a && !!b && a !== b && (fresh.has(a) || fresh.has(b));
+    // a world household: a newcomer moves in with its first member already here (or the first newcomer of it)
+    const hh = new Map();
+    for (const ex of w.cast.examples) {
+        const a = exAvatar.get(ex.name);
+        if (a && ex.household)
+            hh.set(ex.household, [...(hh.get(ex.household) ?? []), a]);
+    }
+    for (const list of hh.values()) {
+        const head = list.find(a => !fresh.has(a)) ?? list[0];
+        for (const a of list)
+            if (a !== head && fresh.has(a))
+                liveTogether(g, head, a);
+    }
+    for (const ex of w.cast.examples)
+        for (const t of ex.ties ?? []) {
+            const a = exAvatar.get(ex.name), b = exAvatar.get(t.to);
+            if (touches(a, b))
+                addOldTie(g, { a: a, b: b, type: t.type, tone: t.tone, back: t.back });
+        }
+    const exOf = (a) => w.cast.examples.find(e => exAvatar.get(e.name) === a);
+    for (const a of avatars) {
+        const ex = exOf(a);
+        if (ex && Number.isFinite(ex.age))
+            (relOf(g).people[a] ??= {}).age = ex.age;
+        applyPerson(g, a, cleanPerson(charOf(a)?.data?.extensions?.mundi?.person) ?? exampleSettings(ex));
+    }
+    ensureProfiles(g, w);
+    const adult = !!cfgOf(g).adult;
+    for (const ex of w.cast.examples)
+        for (const f of ex.feelings ?? []) {
+            const a = exAvatar.get(ex.name), b = exAvatar.get(f.to);
+            if (touches(a, b) && (adult || !f.adult)) {
+                const { to, adult: x, ...feel } = f;
+                void to;
+                void x;
+                applyStartFeel(g, { a: a, b: b, ...feel });
+            }
+        }
+    normalizeHomes(g);
+    const gid = selectedGroup(), grp = gid ? groupOf(gid) : null;
+    if (gid && grp) {
+        const members = [...new Set([...(grp.members ?? []), ...avatars])];
+        await setPresent(gid, members, (grp.members ?? []).filter((a) => !(grp.disabled_members ?? []).includes(a)));
+    }
+    if (!TUT.save)
+        await bindChatLore(await writeWorldLore(w, adult));
+    const named = avatars.map(a => g.cast[a].name);
+    note(g, 'New in {0}: {1}.', [w.name, named.join(', ')], avatars, g.player.loc, 'event');
+    saveGame();
+    await syncScene();
+    refreshPrompt();
+    notify();
+    return named;
+}
 // Home: someone moves out of the house (their card and chats stay in SillyTavern; their memories of the house stay in
 // the story's facts). Plans with them are called off.
 export function removeResident(g, avatar) {
