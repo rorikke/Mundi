@@ -52,3 +52,7 @@ export const moduleLink = { ended: () => { }, held: () => '' };
 // and the ranks a new job starts you up (a distinguished degree's head start). Asked by sim/work.ts and the Homes app.
 // (A job that wants a degree goes through `missingCourses` in sim/courses.ts.)
 export const studentLink = { workCap: () => null, homeBlock: () => '', headStart: () => 0 };
+// Ventures (business, sim/ventures.ts) meet the rest of the game here, so neither waits on the other. A street story's
+// result (or anything else) `finds` an upgrade of a venture you own: it waits in the Business app (lines to show; nothing
+// without the venture).
+export const ventureLink = { find: () => [] };

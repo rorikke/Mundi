@@ -13,6 +13,8 @@
 // (`WhenCtx.count`: a goal counts only while it's active); `did: overnight with best` counts only what was done with
 // someone at that level toward you now. `goal` reads `g.goals` (sim/goals.ts keeps it) and the old
 // aspirations finished (`player.aspDone`).
+// Business: `venture: cafe [tier 2 | <style>]` and `upgrade: <id>` read the ventures you own (`g.ventures`, kept by
+// sim/ventures.ts); `inrank: 42` the days in your current rank (`player.job.since`), for an executive's gate.
 import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
@@ -36,7 +38,8 @@ import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'] as const;
+    'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known',
+    'venture', 'upgrade', 'inrank'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -62,7 +65,8 @@ const MONEY = /^(\d+(?:\.\d+)?)(?:\s+(weeks?|months?|years?))?$|^fortune$/i;
 const FRIENDS = /^(\d+)\s+(\S+)(?:\s+(?:in\s+(\S+)|at\s+(regular)))?$/i;    // 3 good · 2 good in yokohama · 1 good at regular
 const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/;                      // meal 15 · tag:karaoke 3 · ramen_contest
 const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i;      // overnight 2 with best: only with someone at that level now
-const VISITED = /^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;   // 3 regular in home
+const VENTURE = /^[^\s,;]+(?:\s+(?:tier\s+\d+|[^\s,;]+))?$/i;              // cafe · cafe tier 2 · cafe as_it_was · any
+const VISITED =/^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;   // 3 regular in home
 /** `visited: pk_arcade regular`: a regular at that place. */
 export const PLACE_REGULAR = /^([^\s,;]+)\s+regular$/i;
 /** `partner:` values besides a number (`partner: 2`: two partners or more, casual ones included). `open`: a partner
@@ -133,6 +137,9 @@ function badValue(key: WhenKey, v: string): string {
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
+        case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
+        case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
+        case 'inrank': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of days in your rank`;
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -328,6 +335,9 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'rep': { if (!systemOn(w, 'reputation')) return false; const min = /^-?\d+$/.test(v) ? Number(v) : REP_WORDS.find(([, n]) => n === v)![0];
             return Object.values<{ v: number }>((g as any).rep ?? {}).some(r => r.v >= min); }
         // the old object form's own keys
+        case 'venture': return ventureHolds(g, w, v);
+        case 'upgrade': return systemOn(w, 'business') && ventureList(g).some(s => (s.owned ?? []).includes(v));
+        case 'inrank': { const j = g.player.job as { since?: number } | null; return !!j && systemOn(w, 'jobs') && (nowAbs(g) - (j.since ?? nowAbs(g))) / 1440 >= Number(v); }
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': { const r = regionNow(g, w, x); return !!r && r.tension > Number(v); }
@@ -338,6 +348,15 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
 }
 
 /* ---------- the pieces the keys read ---------- */
+
+// (business) The ventures you own (sim/ventures.ts keeps `g.ventures`, read here so this file needs no venture code):
+// `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style.
+const ventureList = (g: Save): { id: string; tier?: number; style?: string; owned?: string[]; closed?: number }[] => ((g as any).ventures?.list ?? []).filter((s: any) => s && !s.closed);
+function ventureHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'business')) return false;
+    const [id, a, b] = v.split(/\s+/);
+    return ventureList(g).some(s => (id === 'any' || s.id === id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
+}
 
 // (life goals) The skills a `skill: any …` or `skill: creative …` looks at.
 const skillIds = (g: Save, w: WorldDef, id: string) => (id === 'any' ? skillsOf(w, g).map(s => s.id) : SKILL_GROUPS[id] ?? []);
@@ -358,7 +377,8 @@ function rankHolds(g: Save, w: WorldDef, v: string): boolean {
     if (m[2]) return Object.values(bestRanks(g)).filter(r => r >= Number(what)).length >= Number(m[2]);
     const j = g.player.job, o = j && w.occupations.find(x => x.id === j.id);
     if (!j || !o) return false;
-    const c = careerOf(g, trackOf(g, o)), total = c.open ? c.ranks.length + 1 : c.ranks.length;   // (your track's top)
+    // (your track's top; business: the ranks `beyond` it are above the top, so holding one is past it)
+    const c = careerOf(g, trackOf(g, o)), above = c.ranks.findIndex(r => r.beyond), total = c.open ? c.ranks.length + 1 : above < 0 ? c.ranks.length : above;
     const need = what === 'top' ? total : what === 'middle' ? Math.ceil(total / 2) : what.startsWith('top-') ? total - Number(what.slice(4)) : Number(what);
     return j.rank + 1 >= Math.max(1, need);
 }

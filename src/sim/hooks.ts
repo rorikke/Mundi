@@ -70,3 +70,10 @@ export const studentLink: {
     homeBlock: (g: Save, w: WorldDef, zone: string) => string;
     headStart: (g: Save, w: WorldDef, job: string) => number;
 } = { workCap: () => null, homeBlock: () => '', headStart: () => 0 };
+
+// Ventures (business, sim/ventures.ts) meet the rest of the game here, so neither waits on the other. A street story's
+// result (or anything else) `finds` an upgrade of a venture you own: it waits in the Business app (lines to show; nothing
+// without the venture).
+export const ventureLink: {
+    find: (g: Save, w: WorldDef, upgrade: string) => string[];
+} = { find: () => [] };

@@ -2,6 +2,7 @@ import { MEDIEVAL_RPG, MODERN_RPG } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
+import { upgradeVentures } from './ventures.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -532,5 +533,8 @@ export function upgradeWorld(w) {
         w.rewards = rewards;
     else
         delete w.rewards;
+    // ventures (business): made safe to play; a world without them gets no key
+    if (w.ventures || w.staffPool)
+        upgradeVentures(w);
     return w;
 }

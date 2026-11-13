@@ -32,7 +32,7 @@ import { whenError, namedIn, PARTNER_VALUES } from '../sim/when.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
 import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind, type EffectKind, type EffectDef, type EffectLimits, type TraitInfo } from '../core/traits.js';
-import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIMITS, BOOST_DAYS, GOAL_POINTS, REWARD_KINDS, PERSON_KINDS, SKILL_GROUPS, isSystemNeed } from '../core/goals.js';
+import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIMITS, BOOST_DAYS, GOAL_POINTS, REWARD_KINDS, PERSON_KINDS, SKILL_GROUPS, systemNeedsOff } from '../core/goals.js';
 import { TALLY_EVENTS } from '../sim/tally.js';
 import { SECOND_POINTS } from '../sim/points.js';
 
@@ -1629,7 +1629,7 @@ function rewardForm(w: WorldDef, i: number) {
 }
 function tabGoals(w: WorldDef) {
     const gs = w.goals ?? {}, rs = w.rewards ?? {};
-    const sysOff = (needs: string[] = []) => needs.filter(n => isSystemNeed(n) && !systemOn(w, n as any)).map(n => SYSTEMS.find(s => s.id === n)?.name ?? n);
+    const sysOff = (needs: string[] = []) => systemNeedsOff(w, needs).map(n => n.split('|').map(x => SYSTEMS.find(s => s.id === x)?.name ?? x).join(' or '));
     const cat = (id: string) => GOAL_CATEGORIES.find(c => c.id === id)?.name ?? id;
     const general = GENERAL_GOALS.map(x => {
         const on = !(gs.off ?? []).includes(x.id), mine = (gs.add ?? []).some(a => a.id === x.id), off = sysOff(x.needs);

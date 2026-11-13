@@ -118,7 +118,7 @@ export const GENERAL_GOALS: GoalDef[] = [
     { id: 'renown', name: 'A good name', icon: '⭐', category: 'social', desc: 'Be known, then respected, then renowned.', needs: ['reputation'], steps: [
         s('Known in town', 'rep: known'), s('Respected', 'rep: respected'), s('Respected for a season', 'rep: respected', 'season'), s('Renowned', 'rep: renowned')],
         perk: perk('Good name', '+2 friendship when you first meet someone.', { kind: 'warm', target: 'new', value: 2 }) },
-    { id: 'business', name: 'Your own business', icon: '🏪', category: 'fortune', desc: 'Open a business and keep it going.', needs: ['property'], steps: [
+    { id: 'business', name: 'Your own business', icon: '🏪', category: 'fortune', desc: 'Open a business and keep it going.', needs: ['property|business'], steps: [
         s('Open a business', 'did: business'), s('Run it a season', 'did: business', 'season'), s('A second business', 'did: business 2'), s('Two for a season', 'did: business 2', 'season')],
         perk: perk('Head for business', 'Work pays 5% more.', { kind: 'pay', value: 0.05 }) },
 ];
@@ -151,8 +151,13 @@ const isObj = (v: unknown): v is Record<string, any> => !!v && typeof v === 'obj
 // A system off in the world: goals and items that need it are left out (needs that can be off in one game are the
 // game's business: sim/goals.ts).
 /** Is this one of a goal's or a reward's `needs` a system (else it's a need)? */
-export const isSystemNeed = (id: string) => SYSTEMS.some(x => x.id === id);
-const systemsOk = (w: WorldDef, needs: string[] | undefined) => (needs ?? []).every(id => !isSystemNeed(id) || systemOn(w, id as any));
+// `property|business`: one of the systems is enough. `business` asks for ventures too (on in every world, it does
+// nothing without them).
+export const isSystemNeed = (id: string) => id.split('|').every(x => SYSTEMS.some(s => s.id === x));
+const systemNeedOn = (w: WorldDef, id: string) => systemOn(w, id as any) && (id !== 'business' || !!w.ventures?.length);
+const systemsOk = (w: WorldDef, needs: string[] | undefined) => (needs ?? []).every(id => !isSystemNeed(id) || id.split('|').some(x => systemNeedOn(w, x)));
+/** The system needs a world has off (one with alternatives, `property|business`, when every one of them is). */
+export const systemNeedsOff = (w: WorldDef, needs: string[] = []) => needs.filter(id => isSystemNeed(id) && !id.split('|').some(x => systemNeedOn(w, x)));
 
 /** The world's goals: the general ones it keeps (renamed where it says so), then its own (one with a general goal's id
  *  takes that goal's place), without those whose systems the world has off. Nothing with the `goals` system off. */

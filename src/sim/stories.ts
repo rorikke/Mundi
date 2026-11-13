@@ -1,7 +1,7 @@
 // Street stories (E17, E28): short stories that happen at a place now and then (a lost new hire at the station, a fan
 // following an idol home), written in the world's data (`stories`, core/world.ts): where, when, the setup the AI plays,
 // and two or three choices with a roll, each leading to money, needs, a keepsake, a rumor, a fact, how some of the
-// world's people feel about you, a favor owed (or called in), a thread learned, practice in a skill. Each is seen once (`yearly`: once a
+// world's people feel about you, a favor owed (or called in), a thread learned, practice in a skill, an upgrade found for a venture you own. Each is seen once (`yearly`: once a
 // year), at its place and when its condition holds, one at a time. The AI plays it with unnamed people around, or the
 // world's people by name; nobody new is made up. `brings`: one of the world's people is placed at the story's place
 // while it lasts (sim/dayplan.ts `bringTo`); `after`: another story was seen first. On screen it's a card like the
@@ -9,7 +9,7 @@
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type StoryDef, type StoryChoice, type StoryResult } from '../core/world.js';
 import { setPrompt } from '../st/bridge.js';
-import { onLook } from './hooks.js';
+import { onLook, ventureLink } from './hooks.js';
 import { adultOn, bringTo } from './dayplan.js';
 import { workingAt } from './people.js';
 import { whenHolds, personNamed, favorOwed, parseWhen } from './when.js';
@@ -182,6 +182,7 @@ function applyResult(g: Save, w: WorldDef, s: StoryDef, r: StoryResult): string[
     if (r.favor) out.push(owe(g, r.favor, 1));
     if (r.spend && favorOwed(g, r.spend) > 0) out.push(owe(g, r.spend, -1));
     if (r.reveal) revealThread(g, w, r.reveal, 'story');
+    if (r.finds) out.push(...ventureLink.find(g, w, r.finds));   // (business) an upgrade turned up for a venture you own
     return out.filter(Boolean);
 }
 
