@@ -1,7 +1,8 @@
 // How to do a goal's objective, for the Goals app: a line or two under an objective not done yet, worked out from the
 // world (where a keepsake comes from and how often, where and when an action is on, when a festival or city event is
-// next, what trains a skill, where to ask for a job, how a place becomes yours as a regular). Only reads the world and
-// the save; an objective that says enough by itself ("A good friend", "Money saved") gets nothing.
+// next, what trains a skill, where to ask for a job, how a place becomes yours as a regular, what a degree's grades and
+// scholarship hang on). Only reads the world and the save; an objective that says enough by itself ("A good friend",
+// "Money saved") gets nothing.
 import { adultOk } from '../core/store.js';
 import { offeredGoals } from '../sim/goals.js';
 import { countedOf } from '../sim/when.js';
@@ -16,6 +17,7 @@ import { offScreen } from '../sim/work.js';
 import { trackOf } from '../sim/tracks.js';
 import { courseOf } from '../sim/courses.js';
 import { SEASONS, seasonDays, WEEKDAYS } from '../sim/time.js';
+import { degreeOf, degreesOffered, findDegree, minGpaOf, daysToNextTerm } from '../sim/degrees.js';
 const MAX_LINES = 4;
 const placeName = (w, id) => w.places.find(p => p.id === id)?.name ?? id;
 const mapName = (w, place) => {
@@ -216,6 +218,33 @@ function stayHints(w, v) {
         return [];
     return [`Book a night at ${placeAt(w, v)} and sleep there.`];
 }
+// A degree: enrolling, a club, what a grade is made of, what keeps the scholarship, when the next term begins.
+function degreeHints(g, w, v) {
+    const s = degreeOf(g, w), [what, n] = v.split(/\s+/);
+    if (!s) {
+        const schools = [...new Set(degreesOffered(w).map(x => x.inst.name))];
+        return schools.length ? [`Enroll in a degree at ${or(schools)} in the Campus app.`] : [];
+    }
+    const x = findDegree(w, s.id);
+    if (!x)
+        return [];
+    switch (what) {
+        case 'club': {
+            const clubs = x.inst.clubs ?? [];
+            return clubs.length ? [`Join a club in the Campus app: ${or(clubs)}. It meets once a week at ${placeName(w, x.inst.place)}.`] : [];
+        }
+        case 'gpa':
+        case 'distinction':
+        case 'graduated':
+            return ['A module\'s grade is half the classes you attend, 30% your coursework and 20% the final exam. Grades come at the end of each term.'];
+        case 'scholarship': return [`The scholarship holds while every term's GPA is ${minGpaOf(x.d).toFixed(1)} or better.`];
+        case 'term': {
+            const d = daysToNextTerm(g);
+            return Number(n) > s.term ? [`A term is a season. Term ${s.term + 1} begins ${d === 1 ? 'tomorrow' : `in ${d} days`}.`] : [];
+        }
+    }
+    return [];
+}
 /** How to do an objective not done yet: up to four short lines (none when it says enough by itself). */
 export function howTo(g, w, o) {
     if (o.ok || o.not)
@@ -233,8 +262,9 @@ export function howTo(g, w, o) {
                         : o.key === 'job' ? jobHints(g, w, v)
                             : o.key === 'visited' ? visitHints(g, w, v)
                                 : o.key === 'stayed' ? stayHints(w, v)
-                                    : o.key === 'partner' && v === 'home' ? ['To live together, move your partner into your household: This world → Households.']
-                                        : [];
+                                    : o.key === 'degree' ? degreeHints(g, w, v)
+                                        : o.key === 'partner' && v === 'home' ? ['To live together, move your partner into your household: This world → Households.']
+                                            : [];
         for (const l of lines)
             if (!out.includes(l))
                 out.push(l);

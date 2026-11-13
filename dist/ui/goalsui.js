@@ -21,6 +21,7 @@ import { money } from '../sim/needs.js';
 import { skillName } from '../sim/hobbies.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { ACT } from './reg.js';
+import { degreeOf, gpaOf, uniOf } from '../sim/degrees.js';
 import { howTo } from './goalhints.js';
 /** What the Goals app shows (memory only): the tab, the categories opened, the goal whose detail is open, the item
  *  being bought and what was picked for it. `said`: the last lines shown (toasted). */
@@ -146,6 +147,19 @@ function valueWords(w, key, v) {
             return `${who}${m[3] ? ` in ${mapName(w, m[3])}` : m[4] ? ' where you are a regular' : ''}`;
         }
         case 'course': return /^\d+$/.test(v) ? 'Courses finished' : `The course ${courseOf(w, v)?.name ?? humanize(v)}`;
+        case 'degree': {
+            const [what, x] = v.split(/\s+/);
+            switch (what) {
+                case 'any': return 'Studying for a degree';
+                case 'term': return `Term ${x} of your degree`;
+                case 'gpa': return `A GPA of ${x} or better`;
+                case 'scholarship': return 'Your scholarship still held';
+                case 'club': return 'A club at your university';
+                case 'graduated': return 'Graduate';
+                case 'distinction': return 'Graduate with distinction (a GPA of 3.5 or better)';
+            }
+            return v;
+        }
         case 'secrets': return 'Secrets learned';
         case 'known': return 'Likes and limits you know of your lovers';
         case 'helped': return /^\d+$/.test(v) ? `${v} storyline${v === '1' ? '' : 's'} helped to a good ending` : 'A storyline helped to a good ending';
@@ -188,6 +202,11 @@ function extraCount(g, w, key, v) {
         if (v === 'all')
             return { have: placesBeen(g).filter(id => visitable(w).some(p => p.id === id)).length, need: visitable(w).length };
     }
+    // the term you're in, of the one asked for (past it once you graduate)
+    if (key === 'degree' && /^term\s+\d+$/i.test(v)) {
+        const need = Number(v.split(/\s+/)[1]), grad = uniOf(g).past.some(p => p.how === 'graduated');
+        return { have: grad ? need : degreeOf(g, w)?.term ?? 0, need };
+    }
     if (key === 'course' && /^\d+$/.test(v))
         return { have: (g.player.learning?.done ?? []).length, need: Number(v) };
     return null;
@@ -202,6 +221,12 @@ export function objectiveWords(g, w, o) {
         const x = extraCount(g, w, o.key, values[0]);
         if (x)
             ({ have, need } = x);
+    }
+    // a GPA asked for, with yours so far
+    if (o.key === 'degree' && values.length === 1 && /^gpa\s/i.test(values[0]) && !o.ok) {
+        const s = degreeOf(g, w), gpa = s ? gpaOf(s) : null;
+        if (gpa !== null)
+            return { text: `${text} (now ${gpa.toFixed(2)})` };
     }
     // a count of one reads as done or not, not as 0/1
     if (need !== undefined && need <= 1 && o.key !== 'skill')

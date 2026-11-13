@@ -27536,6 +27536,13 @@
   },
   {
    "gift": true,
+   "id": "hijiri_fountain_pen",
+   "name": "Hijiri fountain pen",
+   "icon": "🖋️",
+   "kind": "stationery"
+  },
+  {
+   "gift": true,
    "id": "pond_sketch",
    "name": "pond sketch",
    "icon": "🖼️",
@@ -42714,6 +42721,70 @@
       {
        "kind": "interview",
        "value": 3
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_hijiri",
+    "name": "Hijiri graduate",
+    "icon": "🎓",
+    "category": "knowledge",
+    "starts": [
+     "student"
+    ],
+    "needs": [
+     "institutions",
+     "courses",
+     "festivals"
+    ],
+    "desc": "Lectures, a club, the autumn festival and a degree with your name on it.",
+    "steps": [
+     {
+      "name": "Your first grades, a GPA of 2.5, and a club",
+      "when": "degree: gpa 2.5; degree: club",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The university festival, and a good friend",
+      "when": "attended: unifest; friends: 1 good",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Term 3, still on the scholarship or with a GPA of 3",
+      "when": "degree: term 3; degree: scholarship",
+      "or": [
+       "degree: term 3; degree: gpa 3"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Graduate with distinction",
+      "when": "degree: distinction",
+      "reward": {
+       "mood": 10,
+       "keepsake": "hijiri_fountain_pen"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Old school tie",
+     "desc": "+3 at job interviews, and ranks take 5% less time.",
+     "effects": [
+      {
+       "kind": "interview",
+       "value": 3
+      },
+      {
+       "kind": "career",
+       "target": "rank",
+       "value": -0.05
       }
      ]
     }

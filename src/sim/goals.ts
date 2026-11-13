@@ -22,6 +22,7 @@ import { book } from './ledger.js';
 import { seasonDays } from './time.js';
 import { skillsOf, levelOf } from './hobbies.js';
 import { offeredOf } from './courses.js';
+import { degreesOffered, degreeOf } from './degrees.js';
 import { threadsOf } from './threads.js';
 import { placeOk } from './dayplan.js';
 import { styleOf, knownCount } from './intimacy.js';
@@ -142,6 +143,16 @@ const reachable = (g: Save, w: WorldDef, id: string) => { const p = w.places.fin
 function canHold(g: Save, w: WorldDef, key: string, v: string, inPlay: Set<string>): boolean {
     switch (key) {
         case 'course': return /^\d+$/.test(v) ? offeredOf(w, g).length >= Number(v) : offeredOf(w, g).some(c => c.id === v);
+        // a degree needs the world's degrees; a club, a school with clubs; the scholarship, the one you hold, or (before
+        // you enroll) a degree with a merit scholarship. A degree's own schools only: what you study for now, or any.
+        case 'degree': {
+            const all = degreesOffered(w), cur = degreeOf(g, w);
+            const mine = cur ? all.filter(x => x.d.id === cur.id) : all;
+            if (!mine.length) return false;
+            if (v === 'club') return mine.some(x => !!x.inst.clubs?.length);
+            if (v === 'scholarship') return cur ? cur.scholarship === 'held' : mine.some(x => (x.d.aid ?? []).some(a => a.kind === 'merit'));
+            return true;
+        }
         case 'skill': {
             const m = v.match(SKILL); if (!m) return true;
             const have = new Set(skillsOf(w, g).map(x => x.id)), many = Number(m[3] ?? 1);

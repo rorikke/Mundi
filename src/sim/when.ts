@@ -6,7 +6,8 @@
 // `player.stayed`), `holds` (E14 writes `player.keepsakes`). The story so far is read straight from the save, so this
 // file needs neither module: `knows` and `thread` (sim/threads.ts keeps `g.threads`), `seen` and `favor`
 // (sim/stories.ts keeps `g.stories`); `perf` reads the player's job (sim/work.ts keeps `player.job.perf`); `course`
-// reads the courses finished (sim/courses.ts keeps `player.learning.done`).
+// reads the courses finished (sim/courses.ts keeps `player.learning.done`); `degree` reads the degree you study for and
+// those you finished (sim/degrees.ts keeps `g.uni`).
 // Life goals' keys (their steps are conditions, and actions, jobs and stories can ask for a goal): states, true as soon
 // as they hold (`rank`, `money`, `home`, `partner`, `friends`, `visited`, `secrets`, `helped`, `goal`, `need`, `rep`),
 // and counts (`did`, `attended`) read from sim/tally.ts's lifetime counters, or from the asker's own counts
@@ -36,7 +37,7 @@ import { REP_WORDS } from './standing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
-    'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known'] as const;
+    'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -62,6 +63,7 @@ const MONEY = /^(\d+(?:\.\d+)?)(?:\s+(weeks?|months?|years?))?$|^fortune$/i;
 const FRIENDS = /^(\d+)\s+(\S+)(?:\s+(?:in\s+(\S+)|at\s+(regular)))?$/i;    // 3 good · 2 good in yokohama · 1 good at regular
 const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/;                      // meal 15 · tag:karaoke 3 · ramen_contest
 const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i;      // overnight 2 with best: only with someone at that level now
+const DEGREE = /^(?:any|graduated|distinction|scholarship|club|term\s+\d+|gpa\s+\d+(?:\.\d+)?)$/i;   // term 3 · gpa 2.5
 const VISITED = /^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;   // 3 regular in home
 /** `visited: pk_arcade regular`: a regular at that place. */
 export const PLACE_REGULAR = /^([^\s,;]+)\s+regular$/i;
@@ -129,6 +131,7 @@ function badValue(key: WhenKey, v: string): string {
         case 'companion': return v.toLowerCase() === 'yes' || LEVELS.includes(v.toLowerCase()) ? '' : `"${v}" is not a level (friend, crush, dating…)`;
         case 'feels': return splitLevel(v)[0] ? '' : 'a name is missing';
         case 'course': return ID.test(v) ? '' : `"${v}" should be a course id, or a number of courses`;
+        case 'degree': return DEGREE.test(v) ? '' : `"${v}" should be any, term and a number, gpa and a number, scholarship, club, graduated or distinction`;
         case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'gave': case 'knows': case 'track': case 'gender': case 'path':
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
@@ -136,7 +139,7 @@ function badValue(key: WhenKey, v: string): string {
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
-const tidy = (key: WhenKey, v: string) => (key === 'weekday' ? weekdayOf(v)! : ['weekend', 'daily'].includes(key) ? (YES.includes(v.toLowerCase()) ? 'yes' : 'no') : ['season', 'companion', 'partner', 'rep', 'rank', 'money'].includes(key) ? v.toLowerCase() : v);
+const tidy = (key: WhenKey, v: string) => (key === 'weekday' ? weekdayOf(v)! : ['weekend', 'daily'].includes(key) ? (YES.includes(v.toLowerCase()) ? 'yes' : 'no') : ['season', 'companion', 'partner', 'rep', 'rank', 'money', 'degree'].includes(key) ? v.toLowerCase() : v);
 
 function parseText(text: string): ParsedWhen {
     // backticks from design tables; an outcome's own condition may be written `when: present: Kaito`
@@ -303,6 +306,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'favor': return favorOwed(g, v) > 0;
         // a course finished (its id), or at least this many courses (a number)
         case 'course': { if (!systemOn(w, 'courses')) return false; const done: string[] = (g.player as any).learning?.done ?? []; return /^\d+$/.test(v) ? done.length >= Number(v) : done.includes(v); }
+        case 'degree': return degreeHolds(g, w, v);
         // the player's performance at their job, at least this (a rank that asks for a high performance)
         case 'perf': { const j = g.player.job as { perf?: number } | null; return !!j && Math.round(j.perf ?? 50) >= Number(v); }
         // life goals (see the top of the file)
@@ -442,6 +446,29 @@ function goalHolds(g: Save, w: WorldDef, v: string): boolean {
     if (/^\d+$/.test(v)) return done.size >= Number(v);
     const [raw, n] = v.split(/\s+/), id = FOLDED_GOALS[raw] ?? raw;
     return done.has(id) || (n !== undefined && (st?.steps?.[id] ?? 0) >= Number(n));
+}
+// A degree: `any` (studying for one), `term 3` (its third term begun or later), `gpa 3` (a GPA of 3 or better so far),
+// `scholarship` (still held), `club` (one of the school's clubs joined), `graduated`, `distinction` (graduated with a
+// GPA of 3.5 or better). A graduate is past every term, with the GPA they graduated with. sim/degrees.ts keeps `g.uni`.
+const GRADE_POINTS: Record<string, number> = { A: 4, B: 3, C: 2, D: 1, F: 0 };
+function degreeHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'institutions') || !systemOn(w, 'courses')) return false;
+    const u = (g as any).uni as { cur?: { term?: number; grades?: Record<string, string>; scholarship?: string; club?: string } | null; past?: { how: string; gpa: number; distinguished: boolean }[] } | undefined;
+    const cur = u?.cur ?? null, grads = (u?.past ?? []).filter(p => p.how === 'graduated');
+    const [what, n] = v.split(/\s+/);
+    switch (what) {
+        case 'any': return !!cur;
+        case 'graduated': return grads.length > 0;
+        case 'distinction': return grads.some(p => p.distinguished);
+        case 'scholarship': return cur?.scholarship === 'held';
+        case 'club': return !!cur?.club;
+        case 'term': return (cur?.term ?? 0) >= Number(n) || grads.length > 0;
+        case 'gpa': {
+            const all = Object.values(cur?.grades ?? {}), gpa = all.length ? Math.round((all.reduce((a, gr) => a + (GRADE_POINTS[gr] ?? 0), 0) / all.length) * 100) / 100 : null;
+            return (gpa !== null && gpa >= Number(n)) || grads.some(p => p.gpa >= Number(n));
+        }
+    }
+    return false;
 }
 
 // The home zone of a place: your home's, or the home of the person whose home it is (someone living with another
