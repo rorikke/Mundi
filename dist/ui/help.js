@@ -5,6 +5,7 @@ import { lex, appRef } from '../core/lexicon.js';
 import { GOAL_POINTS } from '../core/goals.js';
 import { DAILY_CAP } from '../sim/points.js';
 import { degreesOffered } from '../sim/degrees.js';
+import { ventureDefs } from '../sim/ventures.js';
 import { billList as bills } from '../sim/bills.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
@@ -172,6 +173,13 @@ const topics = (w) => {
                     ['Money', "Tuition is paid each term; a scholarship pays it while each term's GPA holds, and a weak term takes it away. Unpaid tuition holds your classes until you pay it in the Campus app."],
                     ['Being a student', "While you study you work a few shifts a week at most and rent only student homes (unless your family pays). Some jobs and ranks want a degree; you can join one of the school's clubs too."],
                     ['Graduating', 'Pass enough modules, every required one among them, and you graduate: a degree jobs ask for, life points, and with a GPA of 3.5 or more a distinguished degree that starts you a rank up in related jobs.'],
+                ] }] : []),
+        ...((w && ventureDefs(game(), w).length) ? [{ id: 'business', icon: 'store', title: 'Running a business', intro: `A late game: a business of your own, or a division to run at the top of a company. Follow it ${appRef(w, 'business')}.`,
+                items: [
+                    ['Ways in', 'The Business app lists them: take over a place you work at, lease a unit and name it, or rise above a career\'s top. Each says what it costs and what it asks for.'],
+                    ['How it grows', "A business has a few numbers that make what a day brings in. Upgrades raise them for good: some are bought, some turn up around the city, some are earned. Each tier has a ceiling, and the next asks for a milestone."],
+                    ['Running it', 'Work the counter yourself for the whole day\'s takings and the chance of something coming up, or let hired hands keep it open. The takings come at the week\'s end, with a report; left alone, it never collapses.'],
+                    ['People', "The world's people are never your staff, but friends come by, and a business can change how their stories end."],
                 ] }] : []),
         { id: 'journal', icon: 'book', title: 'Memory and the diary', intro: 'Mundi remembers in short facts ("You met Bianca at the café"). The AI gets only the facts of the people in the scene.',
             items: [

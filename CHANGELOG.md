@@ -1,5 +1,64 @@
 # Changelog
 
+## 0.4.0 · 2026-11-13
+
+Running a business comes to Tokyo, as an end game in two tracks: a café of your own, and the executive's floor above a
+company's top ranks. Four new women join Tokyo's night world with adult content on, the people around you no longer
+join everything you do, and new games stop making everyone attracted to everyone. Your saves open as they are: no save
+format change.
+
+### Running a business
+
+- **A café of your own.** Take over Kissa Shirakaba when its master retires (his notebook, then his offer), or lease a
+  small unit in Shimokita, Yanaka or off Omotesandō and name it. Grow it from a coffee stand to a kissaten, two cafés
+  and a roastery: four numbers (Quality, Atmosphere, Capacity, Fame) raised by upgrades you buy, find around the city or
+  earn, a ceiling for each tier and a milestone to the next, a style to choose, discoveries, events at the counter and
+  a calendar card now and then. Run the counter yourself, or let hired hands keep it open; the takings come at the
+  week's end with a report. Left alone it never collapses, and you can sell it.
+- **The executive's floor.** Asahina Trading, Mochi Byte Games and Wave TV have three ranks above their old tops. The
+  way up is hard: three seasons at the top, skills at their best, the Executive leadership program at Hijiri and the
+  board's nomination. Then you run a division with a season's budget, initiatives found around Tokyo or earned, the
+  board's verdict and bonuses by how it did.
+- **The world's people are never your staff,** but a business can change how their stories end: Seo-yeon's novel at
+  your counter, Mei staying, Chloe's visa, Rina's deal, Hina's last show, Nanami's band. Genzō, Kyōko, Mio, Haru and
+  Ayaka have moments at a café you run, and a storyline waits a while for you when you're on your way.
+- **A Business app** on the phone follows it all, and each café unit has its pictures.
+- **World makers:** ventures are world data, made in the World creator's new Business tab (tiers, styles, upgrades,
+  discoveries, events, cards, hired hands); a rank can sit above a career's top. With the business system off, none
+  of it exists.
+
+### Tokyo
+
+- **Four new women, with adult content on:** Shiori, a Hijiri student secretly the masked streamer Hotaru; Tsubaki,
+  the top therapist at Aroma Room Lily; Sumire, Lounge Velvet's number one; and Kaoru, the night manager at Hotel Coco
+  Palace. Each has a portrait, 28 expressions, a storyline and something to do with her. They join new games.
+- **A life goal for the university student start:** Hijiri graduate, with the Old school tie perk. The Goals app shows
+  your term and GPA.
+- **The Goals app says how to do each objective:** where a keepsake comes from and how often, when a festival is next,
+  what trains a skill, where to ask for a job, an action's place and hours, how far you are from being a regular.
+
+### People
+
+- **The people around you no longer join everything you do.** Being in the same place isn't being together: what you
+  do on your own goes into the story as your line, with no AI reply. Someone may come over now and then (friends more
+  often, more in a bar than a library), and you choose to talk or nod and keep going; talking to someone keeps them
+  with you for a while. "Keep to myself" in Things to do leaves only friends, rarely.
+- **Not everyone is attracted to everyone.** When a game starts, anyone without a romance setting is drawn to your
+  gender if you are drawn to theirs, and is straight otherwise: "Only: Women" leaves the men straight, a share like 20%
+  makes about one in five of that gender drawn to you. They stay drawn to whoever they are with or used to be with.
+  "Your gender" is the default while making a game. Running games keep what they had. In Tokyo, Shōta is straight,
+  Haru is drawn to men and women and Camille to men and non-binary people, as their stories say.
+- **The bar for how long someone stays with you** is violet with a small clock, and hovering it says how much time is
+  left together.
+
+### Other changes
+
+- "Something else…" is gone from Things to do unless you turn it on in Settings → Game.
+- Characters keep their expression while they answer, instead of flashing back to neutral.
+- On a phone, the number next to "Things to do" counts what the list shows.
+- The campus "Modules" button shows a course's modules again.
+- Everything new in Portuguese and Spanish.
+
 ## 0.3.4 · 2026-11-12
 
 Training together: the people you know can teach you what they're good at, you can teach them, or you trade lessons,

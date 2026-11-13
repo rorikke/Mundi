@@ -76,11 +76,14 @@ Each person, you included, can have:
 
 - **A gender.** Every world has its own list (Woman, Man and Non-binary to start; the world creator can change it).
   The built-in characters already have one. The AI is told everyone's gender and pronouns in the scene.
-- **Attraction.** Who they can fall for, per gender: "Everyone", "Only women", "No one", or exact amounts per gender.
-  Someone not attracted to your gender never falls for you and always turns you down. Someone only a little attracted
-  falls for you more slowly. The dating app only shows people who could be attracted to you, of the genders you pick
-  on your profile. A like is answered a few days later, if at all: what you both look for, interests you share, a few
-  words about yourself and your charm make a yes likelier.
+- **Attraction.** Who they can fall for, per gender: "Your gender", "Everyone", "Only women", "No one", or exact
+  amounts per gender. "Your gender" is the default: when a game starts, they're drawn to your gender if you are drawn
+  to theirs, and are straight otherwise (your own "Only: Women" leaves the men straight, a share like 20% makes about
+  one in five of that gender drawn to you), and they stay drawn to whoever they are with or used to be with. After
+  that, what the game decided is what they have. Someone not attracted to your gender never falls for you and always
+  turns you down. Someone only a little attracted falls for you more slowly. The dating app only shows people who
+  could be attracted to you, of the genders you pick on your profile. A like is answered a few days later, if at
+  all: what you both look for, interests you share, a few words about yourself and your charm make a yes likelier.
 - **How they are about intimacy.** *Free spirit* (a spark is enough), *Passionate*, *Steady* (the usual), *Slow to
   trust*, *Devoted*, or custom; plus "Only with a partner" for people who don't do anything casual. It decides when
   they're ready for something casual or a night together, and the AI plays them accordingly.
@@ -112,6 +115,11 @@ Characters don't wait for you to drive every relationship.
   write that you need to talk, and bring it up when you meet, before they end it. A good scene together turns it
   around.
 - **Friends check in** when you haven't seen them for a week.
+- **Coming over.** Being in the same place isn't being together: what you do on your own goes into the story with no
+  AI reply, and the people there go on with their own things. Now and then one of them comes over (friends more
+  often, more in a bar than a library), and you choose to talk or nod and keep going; talk to someone and they stay
+  with you for a while (a violet bar with a clock under them shows how long). "Keep to myself" in Things to do leaves
+  only friends, rarely.
 - **Grudges.** Insult someone, stand them up, or cancel your plans, and they're hurt for some days: they bring it up,
   turn down your plans and don't invite you. Apologize sincerely in a scene and it's over (with a little bonus);
   otherwise it fades on its own.
@@ -178,4 +186,5 @@ Everyone keeps their friendship and romance with you, couples stay together, and
 feelings for each other from their existing relations. Family relations stay family; the others (friend, rival, married
 to, ex…) become feelings, couples and exes, and their feelings stay exactly as they were. Your cast presets and your own
 worlds are converted the same way when they're opened. Nobody has a gender or special attraction until you set them, so
-nothing changes behind your back.
+nothing changes behind your back. Games started before 0.4.0 keep the attraction they had: "Your gender" applies when
+people come into a game.

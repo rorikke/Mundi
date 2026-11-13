@@ -1,7 +1,17 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.3.4';
+export const VERSION = '0.4.0';
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG = [
+    { v: '0.4.0', title: 'Running a business in Tokyo', items: [
+            ['store', "A café of your own: take over Kissa Shirakaba or lease a unit and name it, then grow it from a stand to a roastery with upgrades bought, found around the city or earned. Run the counter yourself or let hired hands keep it open."],
+            ['briefcase', "The executive's floor: three ranks above Asahina Trading's, Mochi Byte's and Wave TV's tops, then a division of your own with a season's budget and the board's verdict."],
+            ['heart', "A business can change how people's stories end, and a Business app on the phone follows it all."],
+            ['moon', "With adult content on, four new women in Tokyo's night world: Shiori, Tsubaki, Sumire and Kaoru, each with her own storyline."],
+            ['users', "People around you no longer join everything you do: someone may come over now and then, and you talk or keep going. What you do on your own needs no AI reply."],
+            ['flame', "Not everyone is attracted to everyone: in a new game, people are drawn to your gender if you're drawn to theirs, and straight otherwise."],
+            ['star', "The Goals app says how to do each objective, and the university student start has a life goal of its own."],
+            ['globe', "Everything new in Portuguese and Spanish. \"Something else…\" in Things to do is now a choice in Settings → Game."],
+        ] },
     { v: '0.3.4', title: 'Training together, and a city easier to find your way in', items: [
             ['users', "Training together: a friend who's good at what you're not can teach you, you can teach what you know, or you trade (a language exchange). Agree on it in conversation; it replaces apprentices."],
             ['chat', "Suggest it in your own words and they answer yes or no; someone may offer it when the talk turns that way, and you accept or turn it down on a card."],

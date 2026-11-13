@@ -200,14 +200,15 @@ worker*, *Jack of all trades*, *Find love*, *Free spirit*, *Social butterfly*, *
 learner*, *Home chef*, *Athlete*, *Artist*, *Regular*, *Explorer*, *Collector*, *Balanced life*, and with their systems
 on *Mentor*, *A family of your own*, *A good name* and *Your own business*.
 
-**Tokyo** has twenty of its own: *Make it in Tokyo*, *Nihongo jōzu* (for those still learning Japanese), *Bookworm*,
+**Tokyo** has twenty-one of its own: *Make it in Tokyo*, *Nihongo jōzu* (for those still learning Japanese), *Hijiri
+graduate* (for the university student start), *Bookworm*,
 *Strategist*, *Idol dream*, *The Shimokita sound*, *Up the corporate ladder*, *Founder*, *Taste of Tokyo*, *After the last
 train*, *Seasons of Japan*, *Akiba legend*, *Doujin artist*, *Hot springs and getaways*, *Old Tokyo heart*, *Karaoke king
 or queen*, *A Tokyo romance*, *Up from Isezaki*, *Keeper of secrets*, and with adult content on *King or queen of
 Kabukichō*. Five more come with adult content on: *Adult star*, *The art of pleasure*, *Keeping the spark*, *Open hearts*
 and *Thrill seeker* (see [Tokyo's adult progression](#tokyos-adult-progression)). A world's own goals are marked ✦.
-Businesses and reputation are off in Tokyo, so those goals aren't there; *Mentor* is, through [training
-together](#training-together).
+Reputation is off in Tokyo, so *A good name* isn't there; *Your own business* is, through [a café of your
+own](#a-café-of-your-own), and *Mentor* through [training together](#training-together).
 
 ### Life points and the shop
 
