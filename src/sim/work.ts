@@ -7,17 +7,17 @@ import { hobbyFits, hobbyNeed, levelOf, trainSkill, skillName } from './hobbies.
 import { addRep } from './standing.js';
 import { lex } from '../core/lexicon.js';
 import { bump, bondOf, social } from './social.js';
-import { approvalOf, startRumor } from './living.js';
+import { approvalOf } from './living.js';
 import { npcRank } from './longlife.js';
 import { retryIn, interview, interviewChance, countUp } from './skills.js';
 import { missingCourses, hasCourse, courseOf } from './courses.js';
 import { needCourseText } from './coursenudge.js';
-import { rollBonus, rollD20, bonusLabel } from './dice.js';
-import { tallyRoll, tallyEvent } from './tally.js';
+import './dice.js';   // (kept where it was: the order modules load in, and so their hooks, stays the same)
+import { tallyEvent } from './tally.js';
 import { effectMul } from './effects.js';
-import { addBoost } from './perks.js';
-import { cleanEffects } from '../core/traits.js';
-import { BOOST_LIMITS } from '../core/goals.js';
+import './perks.js';
+import '../core/traits.js';
+import '../core/goals.js';
 import { payOf, priceOf, resetBills, difficultyOf } from './bills.js';
 import { note } from './facts.js';
 import { cfg, nowAbs, type Save, type Resident, adultOn } from '../core/store.js';
@@ -26,12 +26,12 @@ import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
-import { onHour, onDay, onLook, studentLink } from './hooks.js';
+import { onHour, onDay, onLook, studentLink, ventureLink } from './hooks.js';
 import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
 import { openAt } from './daynight.js';
-import { whenHolds, personNamed, parseWhen, favorOwed, levelHolds } from './when.js';
+import { whenHolds, parseWhen, favorOwed, levelHolds } from './when.js';
 import { callInFavor } from './stories.js';
 import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
@@ -39,6 +39,7 @@ import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
 import { trackOf, playerTrack, layTrack, trackName, type TrackedJob } from './tracks.js';
 import { workRisk } from './caught.js';   // (adult) a choice with a risk of a raid
+import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
 export { ledger, book } from './ledger.js';
 export { trackOf, jobTrack, playerTrack, layTrack, needsPick, tracksOf, trackName, type TrackedJob } from './tracks.js';
 export { scheduleOf } from '../core/presets.js';
@@ -294,12 +295,17 @@ export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
     const path: string[] = [...((g && npcPath(g, avatar, o)) ?? [])];
     for (let n = path.length; n < 4; n++) {
         const c = career(o, path);
-        if (!c.open) return c;
+        if (!c.open) return belowTop(c);
         // (an adult path isn't one of theirs with adult content off)
         const opts = c.open.options.filter(x => !x.adult || (!!g && adultOn(g))), from = opts.length ? opts : c.open.options;
         path.push(from[H(`${avatar}|${o.id}|${n}`) % from.length].id);
     }
-    return career(o, path);
+    return belowTop(career(o, path));
+}
+// (business) The world's people never rise above a career's top: the ranks `beyond` it are the player's (an executive's).
+function belowTop(c: Career): Career {
+    const n = c.ranks.findIndex(r => r.beyond);
+    return n < 0 ? c : { ...c, ranks: c.ranks.slice(0, n), promote: c.promote.slice(0, Math.max(0, n - 1)), pace: c.pace.slice(0, n) };
 }
 /** The path the save keeps for one of the world's people in this job (null: none, the picked one holds). */
 export function npcPath(g: Save, avatar: string, o: Occupation): string[] | null {
@@ -377,8 +383,9 @@ export function rankDays(g: Save, w: WorldDef, o: Occupation, rank: number, path
     o = trackOf(g, o);
     const c = fullCareer(o, path);
     const weights = c.promote.slice(0, Math.max(0, c.ranks.length - 1));
-    const sum = weights.reduce((a, b) => a + Math.max(0.1, b), 0);
-    if (!sum || rank >= weights.length) return 0;
+    // (business: a rank above the top, `beyond`, takes its time from its own gate, none of the career's)
+    const sum = weights.reduce((a, b, i) => a + (c.ranks[i + 1]?.beyond ? 0 : Math.max(0.1, b)), 0);
+    if (!sum || rank >= weights.length || c.ranks[rank + 1]?.beyond) return 0;
     const liked = Math.min(3, c.likes.filter(t => traits.includes(t)).length);
     // (a path's pace: reaching one of its ranks takes that many times as long)
     return (topDays(g, w, o) * Math.max(0.1, weights[rank]) / sum) * (c.pace?.[rank + 1] ?? 1) * (1 - 0.05 * liked) * effectMul(g, w, 'career', 'rank');
@@ -431,6 +438,18 @@ export function promoNeeds(g: Save, w: WorldDef, o: Occupation): PromoNeeds | nu
 // A degree named in a condition (a degree's id is its credential): "a degree in Economics".
 const degreeWord = (w: WorldDef, id: string) => { const d = (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id); return d ? `a degree (${d.name})` : undefined; };
 const FRIEND_WORDS: Record<string, string> = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
+// "three seasons as Head of Sales" (the rank you hold now), or "20 days in your rank".
+function inRankWords(g: Save, w: WorldDef, days: number): string {
+    const sd = seasonDays(g), o = myJob(g, w), name = o ? rankOf(g, o).name : '';
+    const n = days % sd === 0 ? days / sd : 0, words = ['', 'a season', 'two seasons', 'three seasons', 'four seasons'];
+    const span = n ? words[n] ?? `${n} seasons` : `${days} days`;
+    return name ? `${span} as ${name}` : `${span} in your rank`;
+}
+// What a gate calls a story or a work event (`title`), if it gives one.
+function seenTitle(g: Save, w: WorldDef, v: string): string | undefined {
+    const id = v.split(':')[0];
+    return (w.stories ?? []).find(s => s.id === id)?.title ?? w.occupations.flatMap(o => o.events ?? []).find(e => e.id === id)?.title;
+}
 function whenMissing(g: Save, w: WorldDef, when: When, place: string): string[] {
     const out: string[] = [];
     let other = false;
@@ -440,6 +459,9 @@ function whenMissing(g: Save, w: WorldDef, when: When, place: string): string[] 
         if (c.key === 'skill' && !c.not) out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
         else if (c.key === 'course' && !c.not) out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
         else if (c.key === 'feels' && !c.not && c.values.length === 1) { const [who, lvl] = c.values[0].split(/\s+/); out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`); }
+        // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
+        else if (c.key === 'inrank' && !c.not) out.push(inRankWords(g, w, Number(c.values[0])));
+        else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(g, w, v))) out.push(c.values.map(v => seenTitle(g, w, v)!).join(' or '));
         else other = true;
     }
     return other || !out.length ? [...out, 'something more'] : out;
@@ -717,14 +739,14 @@ function namedEvent(g: Save, e: WorkEvent, who: string | undefined): WorkEvent {
     const name = who ? g.cast[who]?.name ?? e.from.fallback ?? 'A colleague' : e.from.fallback ?? 'A colleague';
     return { ...e, setup: e.setup.split('{who}').join(name), choices: e.choices.map(c => told(c, name, who)) };
 }
-const choiceOk = (g: Save, w: WorldDef, o: Occupation, c: WorkChoice, i: number) => !c.when || whenHolds(g, w, c.when, { place: jobPlace(g, o), key: `workc|${o.id}|${i}` });
+const choiceOk = (g: Save, w: WorldDef, o: Occupation, c: WorkChoice, i: number) => choiceOpen(g, w, c, jobPlace(g, o), `workc|${o.id}|${i}`);
 // After a shift, now and then (as often as the work rules say): one of the job's events whose condition holds, or the
 // boss asking for overtime. It waits for your choice on the work screen.
 function rollWorkEvent(g: Save, w: WorldDef, o: Occupation) {
     const j = jobOf(g)!; const chance = workRules(g, w).events;
     delete j.event;
     if (Math.random() >= chance) return;
-    const list = (o.events ?? []).filter(e => (!e.adult || adultOn(g)) && e.choices?.length && (!e.when || whenHolds(g, w, e.when, { place: jobPlace(g, o), key: `work|${e.id}` })));
+    const list = eventsReady(g, w, o.events, jobPlace(g, o), e => `work|${e.id}`);
     // an event from a colleague: theirs when one is close enough, else the unnamed one's at lower odds (or none)
     const who = new Map<string, string>();
     const ready = list.filter(e => {
@@ -735,7 +757,9 @@ function rollWorkEvent(g: Save, w: WorldDef, o: Occupation) {
         return false;
     });
     if (o.overtime && Math.random() < (ready.length ? 0.3 : 0.6)) { j.event = { id: OVERTIME_ASK.id, day: g.day }; return; }
-    if (ready.length) { const e = ready[Math.floor(Math.random() * ready.length)]; j.event = { id: e.id, day: g.day }; if (who.has(e.id)) j.event.who = who.get(e.id); }
+    // (business) a step a rank's gate asks for (an event with a `title`: the nomination) comes before the everyday ones
+    const gate = ready.filter(e => e.title), pool = gate.length ? gate : ready;
+    if (pool.length) { const e = pool[Math.floor(Math.random() * pool.length)]; j.event = { id: e.id, day: g.day }; if (who.has(e.id)) j.event.who = who.get(e.id); }
 }
 /** The event waiting for your choice (with the choices you can make now), if any. */
 export function pendingEvent(g: Save, w: WorldDef): { ev: WorkEvent; choices: { c: WorkChoice; i: number }[] } | null {
@@ -754,16 +778,10 @@ export function chooseEvent(g: Save, w: WorldDef, i: number, rnd = Math.random):
     if (!j || !o || !p || !pick) return [];
     delete j.event;
     const c = pick.c, out: string[] = [];
-    let res: WorkResult = c, ok: boolean | null = null;
-    if (c.roll) {
-        // (a choice at work is a `work` roll: what effects aimed at work add counts here, not on actions or stories; and
-        // the job's id and tags, as `perf` and `pay` take them, so a trait aimed at stage work (`adult-stage`) reaches it)
-        const bonus = rollBonus(g, w, { skill: c.roll.skill, tags: ['work', o.id, ...jobTags(g, o)] }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
-        ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
-        if (ok) tallyRoll(g, c.roll.skill);
-        out.push(`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`);
-        if (!ok) res = c.fail ?? { text: 'It did not work out.' };
-    }
+    // (a choice at work is a `work` roll: what effects aimed at work add counts here, not on actions or stories; and the
+    // job's id and tags, as `perf` and `pay` take them, so a trait aimed at stage work (`adult-stage`) reaches it)
+    const { ok, res, line } = rollChoice(g, w, c, ['work', o.id, ...jobTags(g, o)], rnd);
+    if (line) out.push(line);
     out.push(...applyResult(g, w, o, res, workRules(g, w).gentle, p.ev.id, rnd));
     out.push(...choicePractice(g, w, c.roll?.skill, ok, res.trains));
     if (p.ev.id !== OVERTIME_ASK.id) (j.seen ??= {})[p.ev.id] = ok === null ? { choice: i } : { choice: i, ok };
@@ -779,21 +797,14 @@ export function choicePractice(g: Save, w: WorldDef, rolled: string | undefined,
     if (trains) out.push(...trainSkill(g, w, trains, CHOICE_PRACTICE.trains));
     return out;
 }
+// What a choice at work leads to (sim/workevents.ts): money as tips by the job's pay effects, performance, a raid's risk.
 function applyResult(g: Save, w: WorldDef, o: Occupation, r: WorkResult, gentle: boolean, from = '', rnd = Math.random): string[] {
-    const out: string[] = [];
-    const ok = (n: number | undefined) => (n === undefined ? 0 : gentle ? Math.max(0, n) : n);
-    if (r.text) out.push(r.text);
-    if (ok(r.perf)) out.push(...addPerf(g, w, ok(r.perf) * 5));
-    if (ok(r.money)) { const m = ok(r.money) > 0 ? payOf(g, ok(r.money) * payMul(g, w, o, 'tips')) : -priceOf(g, -ok(r.money)); g.player.money += m; book(g, o.name, m); out.push(m > 0 ? `+${money(w, m)}` : `−${money(w, -m)}`); }
-    for (const [id, v] of Object.entries(r.effects ?? {})) if (ok(v)) addStatus(g, w, id, ok(v));
-    for (const [name, v] of Object.entries(r.feels ?? {})) { const who = personNamed(g, name); if (who && ok(v)) bump(g, who.avatar, ok(v)); }
-    if (r.fact) note(g, r.fact, [placeOf(g, w, jobPlace(g, o))?.name ?? o.name], [], jobPlace(g, o), 'work');
-    if (r.rumor) startRumor(g, w, r.rumor, jobPlace(g, o), { you: true, id: `work:${o.id}:${r.rumor.slice(0, 24)}` });   // (E31) it goes round from work
-    // a timed effect (a ranking's better pay for a week), kept as a boost
-    const fx = r.boost ? cleanEffects(r.boost.effects, BOOST_LIMITS).filter(e => !gentle || e.value >= 0) : [];
-    if (fx.length) addBoost(g, `work:${o.id}:${from}`, fx, r.boost!.days);
-    if (r.risk && !gentle) out.push(...workRisk(g, w, o, r, rnd));   // (adult) caught: a raid
-    return out;
+    const place = jobPlace(g, o);
+    return applyWorkResult(g, w, r, {
+        place, name: () => placeOf(g, w, place)?.name ?? o.name, label: o.name, key: `work:${o.id}`, boost: `work:${o.id}:${from}`, gentle,
+        tips: () => payMul(g, w, o, 'tips'), perf: n => addPerf(g, w, n), risk: (x, rn) => workRisk(g, w, o, x, rn),
+        more: (x, ok) => ventureLink.workResult(g, w, o.id, x, ok),   // (business) an executive's division gets its `add`
+    }, rnd);
 }
 // Staying longer: the hours pass, paid as overtime.
 function overtimeHours(g: Save, w: WorldDef, o: Occupation, h: number): string[] {

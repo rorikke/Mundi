@@ -1,7 +1,7 @@
 // Places: the world's public places plus homes (the player's and each resident's). Distances and travel time.
 import { travelFactor } from './life.js';
 import { cfg } from '../core/store.js';
-import { isScenario } from '../core/world.js';
+import { isScenario, systemOn } from '../core/world.js';
 import { effectMul } from './effects.js';
 export const playerHomeId = 'home:player';
 export const isHome = (id) => id.startsWith('home:');
@@ -44,7 +44,12 @@ export function placeOf(g, w, id) {
     }
     if (isOuting(id))
         return { id, name: outingName(id), map: w.maps[0]?.id ?? '', x: 50, y: 50, tags: ['outing'], desc: `out of the house: ${outingName(id)}` };
-    return w.places.find(p => p.id === id) ?? extraRooms(g).find(p => p.id === id) ?? null;
+    const p = w.places.find(x => x.id === id);
+    // (business) a unit you lease goes by the name you gave your café
+    const named = p?.venture ? (g?.ventures?.list ?? []).find((v) => v && !v.closed && v.name && (v.place === id || (v.places ?? []).includes(id))) : null;
+    if (named)
+        return { ...p, name: named.name };
+    return p ?? extraRooms(g).find(x => x.id === id) ?? null;
 }
 // The map a place is on: the same answer as placeOf(…)?.map without building a home's name (asked very often: the
 // region of everyone's home, every time someone's day is worked out).
@@ -82,7 +87,24 @@ export const roomsOn = (g, w) => {
     const fresh = own && seen ? w.places.filter(p => !p.scenarioOff && !p.link && !seen.includes(p.id) && !own.includes(p.id)).map(p => p.id) : [];
     return [...(own ?? w.places.filter(p => !p.scenarioOff && !p.link).map(p => p.id)), ...fresh, ...extraRooms(g).map(p => p.id)];
 };
-export const placeOn = (g, w, id) => !isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id);
+export const placeOn = (g, w, id) => ventureHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id));
+// (business) A venture's own place (a café unit you lease) is in the game only while that venture is yours and runs
+// there (`g.ventures`, kept by sim/ventures.ts, read here so this file needs no venture code).
+const ventureKept = new WeakMap();
+export function venturePlaces(w) {
+    let k = ventureKept.get(w);
+    if (!k || k.list !== w.places || k.n !== w.places.length)
+        ventureKept.set(w, k = { list: w.places, n: w.places.length, ids: new Map(w.places.filter(p => p.venture).map(p => [p.id, p.venture])) });
+    return k.ids;
+}
+function ventureHere(g, w, id) {
+    const v = venturePlaces(w).get(id);
+    if (!v)
+        return true;
+    if (!systemOn(w, 'business'))
+        return false;
+    return (g?.ventures?.list ?? []).some((s) => s && !s.closed && (s.place === id || (s.places ?? []).includes(id)));
+}
 export function pins(g, w) {
     const out = [...w.places.filter(p => placeOn(g, w, p.id)), ...(isScenario(w) ? extraRooms(g) : [])];
     const mine = placeOf(g, w, playerHomeId);

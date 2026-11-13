@@ -56,6 +56,7 @@ import { weatherHere, crowdLevel, crowdWord, regionState, regionOf, moodWord, te
 import { chanceOf } from '../sim/dice.js';
 import { isRpg, sheetOf, focusMax, hpMax } from '../sim/rpg.js';
 import { lifeActs, festivalChip, schoolActs } from './lifeplus.js';
+import { ventureActs, ventureAskHtml } from './business.js';
 import { trainActs, trainOfferHtml } from './trainui.js';
 import { factionActs } from './factionsui.js';
 import { holdingsActs } from './holdingsui.js';
@@ -205,6 +206,7 @@ function actsColumn(g, w) {
         schoolActs(g, w),
         factionActs(g, w),
         holdingsActs(g, w),
+        ventureActs(g, w),
         adventureActs(g, w),
         ...questsHere(g).map(q => `<button class="mh-act is-quest mh-glass" data-act="quest-step" data-id="${esc(q.id)}"><i>📜</i><b>${esc(q.steps[q.step].what)}</b><small>${esc(q.title)}</small></button>`),
         ...(jobsOn ? [workButton(g, w)] : []),
@@ -320,7 +322,7 @@ function phoneButton(w) {
 // The cards that come to you and wait for an answer all sit in one place under the top bar, so only one shows at a
 // time; the others wait their turn. A plan coming up goes first (it can't wait), then what is happening here, and a
 // chance meeting last (it stays until you answer it or leave).
-const askCard = (g, w) => apptReminderHtml(g, w) || lifeAskHtml(g, w) || trainOfferHtml(g, w) || bumpHtml();
+const askCard = (g, w) => apptReminderHtml(g, w) || lifeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || bumpHtml();
 // (adult) Someone making the move: their card stands in for the event's panel until you answer.
 export function hudHtml() {
     const g = game();

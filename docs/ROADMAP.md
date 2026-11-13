@@ -10,13 +10,17 @@ Ideas planned for later. Nothing here is promised for a date.
 
 ## Engine
 
-- **Running a business (an end game).** A management layer for the late game, in a few tracks on one engine: a
-  café of your own (taking over an old kissaten, or opening one), an executive's career above a company's top ranks
-  (hard to reach: long seasons at the top, skills at their best, an expensive program, the right stories), a hotel
-  (a capsule hotel, a ryokan, or a love hotel with adult content on), and a tycoon's stake in a company. Staff are
-  hired hands, not the world's people; the world's people are the regulars, guests, partners and rivals, and a
-  business can change how their stories end. Weekly choices and reports, run it yourself or hand it to a manager,
-  the seasons and festivals, your reputation. It would replace the `property` system's fixed small businesses.
+- **Running a business: the next tracks.** The first two tracks are in Tokyo now (a café of your own and the
+  executive's floor; see [Running a business](improvements.md#running-a-business)). Next, on the same engine:
+  - **Hospitality:** a capsule hotel (Nest Capsule, bought out from its manager's rank or bought), the ryokan in
+    Hakone as a partnership through Shizuka's story, and a love hotel with adult content on (Hotel Coco Palace, with
+    Kaoru's window and notebook: the guests you know as stories, and discretion as a choice). Rooms upgraded one at a
+    time, occupancy by hour, weekday, season and festival, and people renting a room for a business of their own.
+  - **Tycoon:** buying a stake in a company (a seed stake, a large one, a majority), its value as the score: the
+    projects you back, a funding round, a listing, selling out; Rina's company, Nanami's band, Lisa's studio, a club
+    with Sayuri.
+  - Life goals and keepsakes for each track, and perhaps the other worlds' fixed small businesses (`property`) moved
+    onto the same engine.
 
 ## Worlds
 

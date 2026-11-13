@@ -150,7 +150,7 @@ const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;
 const VISITED_N = /^(\d+)(\s+regular)?(?:\s+in\s+(\S+))?$/i;
 // Places a `visited` count can be about, on a map or area (`home`: whichever map has homes), and a place one can be
 // at in this game (not a pin to another map, not private, its adult content on).
-const countable = (w, map) => w.places.filter(p => !p.link && !p.private && !p.adult && (!map || p.map === map || w.maps.find(x => x.id === p.map)?.area === map));
+const countable = (w, map) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && (!map || p.map === map || w.maps.find(x => x.id === p.map)?.area === map));
 const reachable = (g, w, id) => { const p = w.places.find(x => x.id === id); return !!p && !p.link && !p.private && placeOk(g, w, id); };
 // Could this value of a condition ever hold in this game? (A course count beyond the world's courses, a skill it lacks,
 // a need off in this game, more keepsakes or places than it has, a place it doesn't have or can't reach, regulars with

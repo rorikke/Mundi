@@ -13106,6 +13106,42 @@
    "trains": "charisma",
    "fact": "{u} nominated Sumire at {0}",
    "adult": true
+  },
+  {
+   "id": "cf_unit_coffee",
+   "label": "Pour yourself a coffee",
+   "name": "Your own coffee",
+   "icon": "☕",
+   "cost": 0,
+   "minutes": 20,
+   "place": "ws_cafe_unit",
+   "places": [
+    "ot_cafe_unit",
+    "sb_cafe_unit"
+   ],
+   "effects": {
+    "energy": 15,
+    "mood": 5,
+    "thirst": 10
+   },
+   "together": {
+    "needed": false,
+    "text": "a cup at the counter counts as time together"
+   },
+   "outcomes": [
+    {
+     "weight": 80,
+     "text": "You drink it standing, looking at the room the way a customer would."
+    },
+    {
+     "weight": 20,
+     "text": "A regular nods at your cup: \"Same as mine.\"",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} had a coffee at {0}, the café {u} runs"
   }
  ],
  "sleep": {
@@ -14489,6 +14525,37 @@
     "degree": "deg_arts",
     "term": 4,
     "study": 2
+   },
+   {
+    "id": "exec_program",
+    "name": "Executive leadership program",
+    "area": "Business",
+    "days": 28,
+    "cost": 600000,
+    "grants": [],
+    "icon": "🏛️",
+    "desc": "Hijiri University's business school trains the people companies want on their boards: strategy, finance, leading people and the board's own manners, in seminars on weekend evenings over two seasons. Asahina Trading, Mochi Byte Games and Wave TV ask for it before a seat as an executive.",
+    "skills": {
+     "charisma": 6,
+     "logic": 6,
+     "writing": 3
+    },
+    "length": 0.5,
+    "perSeason": true,
+    "at": "ak_university",
+    "when": "weekday: sat or sun; clock: 18:00-20:00",
+    "needs": "rank: top",
+    "aid": [
+     {
+      "id": "exec-sponsor",
+      "name": "Your company backs you",
+      "kind": "employer",
+      "share": 0.5,
+      "pays": "enroll",
+      "stay": true,
+      "when": "seen: office_sponsor:1 or gamedev_sponsor:1 or tv_sponsor:1"
+     }
+    ]
    }
   ],
   "shop": [
@@ -24148,6 +24215,113 @@
    "y": 18,
    "link": "hakone",
    "tags": []
+  },
+  {
+   "id": "ws_cafe_unit",
+   "name": "Café on Ichibangai",
+   "map": "westside",
+   "x": 22.4,
+   "y": 46.2,
+   "tags": [
+    "food",
+    "work"
+   ],
+   "venture": "cf_own",
+   "desc": "a narrow two-storey unit on a Shimokita lane: a counter by the window, six stools, a steep wooden stair to four tables upstairs, posters for gigs on the door",
+   "staff": "whoever is behind the counter, a regular with headphones, a student at the window seat",
+   "crowd": 1,
+   "open": [
+    8,
+    20
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain"
+   ],
+   "generic": false,
+   "bg": "bg/ws_cafe_unit.avif",
+   "sound": [
+    "bar",
+    "crowd"
+   ],
+   "bgs": {
+    "night": "bg/ws_cafe_unit-night.avif"
+   },
+   "actions": [
+    "cf_unit_coffee"
+   ]
+  },
+  {
+   "id": "ot_cafe_unit",
+   "name": "Café on Yanaka Ginza",
+   "map": "oldtown",
+   "x": 71.8,
+   "y": 56.4,
+   "tags": [
+    "food",
+    "work"
+   ],
+   "venture": "cf_own",
+   "desc": "an old wooden machiya front near Yanaka Ginza: sliding glass doors, a tatami step at the back, a long elm counter, a cat that belongs to the street",
+   "staff": "whoever is behind the counter, an old neighbor with a newspaper, a tourist taking a photo of the noren",
+   "crowd": 0.8,
+   "open": [
+    9,
+    18
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain",
+    "rush",
+    "night"
+   ],
+   "generic": false,
+   "bg": "bg/ot_cafe_unit.avif",
+   "sound": [
+    "bar",
+    "birds"
+   ],
+   "bgs": {
+    "afternoon": "bg/ot_cafe_unit-afternoon.avif"
+   },
+   "actions": [
+    "cf_unit_coffee"
+   ]
+  },
+  {
+   "id": "sb_cafe_unit",
+   "name": "Café off Omotesandō",
+   "map": "shibuya",
+   "x": 52.6,
+   "y": 79.8,
+   "tags": [
+    "food",
+    "work"
+   ],
+   "venture": "cf_own",
+   "desc": "a white concrete box in a back street off Omotesandō: a glass front, a pale oak bar, one long communal table, a strip of terrace under a young zelkova",
+   "staff": "whoever is behind the counter, a queue of shoppers with paper bags, a designer on a laptop",
+   "crowd": 1.3,
+   "open": [
+    9,
+    21
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain"
+   ],
+   "generic": false,
+   "bg": "bg/sb_cafe_unit.avif",
+   "sound": [
+    "crowd",
+    "traffic"
+   ],
+   "bgs": {
+    "night": "bg/sb_cafe_unit-night.avif"
+   },
+   "actions": [
+    "cf_unit_coffee"
+   ]
   }
  ],
  "stories": [
@@ -27475,6 +27649,907 @@
       "Momo": 2
      },
      "fact": "{u} brought Airi and Momo together over a contract"
+    }
+   ]
+  },
+  {
+   "id": "ws_kissaten_st_notebook",
+   "place": "ws_kissaten",
+   "when": "job: kissaten; rank: top; period: afternoon",
+   "title": "the master's notebook",
+   "setup": "After closing, the master sits {{user}} down at the counter and slides a notebook across it: a cracked leather cover, fifty years of siphon times, bean blends and the names of regulars, half of them crossed out in the same blue ink. He taps his own handwriting, pours two cups nobody ordered, and says nothing for a long while.",
+   "choices": [
+    {
+     "label": "Read it with him",
+     "text": "he explains every crossed-out name and which blend each of them drank, until the last train; at the door he says the notebook stays with the café, whoever runs it",
+     "effects": {
+      "mood": 5
+     },
+     "trains": "cooking",
+     "fact": "{u} read the master's notebook at {0}"
+    },
+    {
+     "label": "Ask why he's showing you",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "his knees, he says, and the stairs to the storeroom; and that in fifty years nobody else has ever asked him what the notebook was for",
+     "effects": {
+      "mood": 3
+     },
+     "fail": {
+      "text": "he closes the notebook, rinses the two cups and says it's late; the notebook stays on the counter by the till, where it has always been"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ws_kissaten_st_offer",
+   "place": "ws_kissaten",
+   "after": "ws_kissaten_st_notebook",
+   "when": "job: kissaten; rank: top",
+   "title": "the master's offer",
+   "setup": "On a quiet weekday the master hangs up his apron for what he says is the last time and tells {{user}} the landlord would rather a tenant than a convenience store, and he would rather {{user}} than anyone. The key money is ¥300,000. The regulars come with it, and so does Seo-yeon's part-time job, if {{user}} wants it that way.",
+   "choices": [
+    {
+     "label": "Say you'll think about it seriously",
+     "text": "he nods as if that were the right answer and folds his apron over the stool; the offer is open now, and the café can be taken over from the Business app",
+     "fact": "{u} was offered Kissa Shirakaba by its master"
+    },
+    {
+     "label": "Say you're not ready",
+     "text": "he says the offer stands as long as the landlord lets it, and that nobody is ready; it stays open in the Business app whenever you are"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_chairs",
+   "place": "ws_vintage",
+   "when": "venture: cafe",
+   "setup": "At the back of Second Bloom, under a dust sheet that smells of mothballs, {{user}} finds six bentwood café chairs with brown vinyl seats and brass feet, from a kissaten in Asagaya that closed last spring. The owner, from her stool by the till, says nobody wants furniture any more, only coats, and names a price that sounds like an apology.",
+   "choices": [
+    {
+     "label": "Ask her to hold them",
+     "text": "she writes SOLD? on a scrap of paper with the question mark twice as big and tapes it to the top chair; they wait for you in the Business app",
+     "finds": "cf_chairs70s"
+    },
+    {
+     "label": "Leave them",
+     "text": "you pull the dust sheet back over them; someone will want them, she says, the way she says it about everything in the shop"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_beans",
+   "place": "ot_ameyoko",
+   "when": "venture: cafe",
+   "setup": "Between the dried squid and the discount sneakers of Ameyoko, a shop barely wider than its door roasts beans in a drum the size of a suitcase. The owner, sleeves rolled, hands {{user}} a paper cup of an Ethiopian that smells of blueberries and asks, without much hope, whether anyone in Tokyo still cares about beans.",
+   "choices": [
+    {
+     "label": "Talk prices for a café",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "he'll sell to a café by the kilo, cash on Fridays, and he writes his number on the cup; the beans wait for you in the Business app",
+     "finds": "cf_ameyoko_beans",
+     "fail": {
+      "text": "he'll sell, though at the price he gives tourists, and he writes it on the cup in case you forget; the beans wait for you in the Business app",
+      "finds": "cf_ameyoko_beans"
+     }
+    },
+    {
+     "label": "Just buy a bag for yourself",
+     "text": "two hundred grams in a paper bag folded twice; it's very good, and the smell stays in your coat for the rest of the day",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_find_wagashi",
+   "place": "ot_yanaka",
+   "when": "venture: cafe",
+   "setup": "An old wagashi maker in Yanaka is pulling down the shop window's blind for good and keeping only her standing orders. Her seasonal sweets change every two weeks: plum blossoms now, then hydrangeas. She tells {{user}}, folding a box with fingers that have folded fifty thousand of them, that she is looking for a few places to send them.",
+   "choices": [
+    {
+     "label": "Ask if a café could take them",
+     "text": "she looks at your hands for a long moment and says she'll try one month, no more, and see how her sweets are treated; they wait in the Business app",
+     "finds": "cf_wagashi"
+    },
+    {
+     "label": "Buy a box and go",
+     "text": "six plum-blossom sweets in a paper box tied with string, too pretty to eat, which you eat on the bench outside anyway",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_find_records",
+   "place": "ws_shimokita",
+   "when": "venture: cafe",
+   "setup": "A record shop on a Shimokita lane, the size of a closet, has a handwritten sign in the window: CLOSING, EVERYTHING MUST GO. Behind the counter sit a box of 1960s jazz with soft corners and a turntable that still works. The owner plays one side for {{user}} without asking, and doesn't say a word until it ends.",
+   "choices": [
+    {
+     "label": "Make an offer for the box and the turntable",
+     "text": "he is glad they'll stay together and throws in a pair of speakers from under the counter; they wait for you in the Business app",
+     "finds": "cf_jazz_records"
+    },
+    {
+     "label": "Flip through and leave",
+     "text": "you thank him for the side he played; he nods and puts on the other one for nobody in particular as you go"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_books",
+   "place": "ak_jinbocho",
+   "when": "venture: cafe",
+   "setup": "A Jinbōchō bookseller is clearing out a warehouse of paperbacks nobody collects: old novels with their covers faded by shop windows, thin books of poetry, travel guides from the seventies with their maps folded wrong. He would sell them by the shelf, he tells {{user}}, to anyone who promises they'll be read.",
+   "choices": [
+    {
+     "label": "Pick out a wall's worth",
+     "roll": {
+      "skill": "writing",
+      "dc": 9
+     },
+     "text": "you choose well, slowly, and he notices; he throws in a box of old postcards for the tables, and the books wait for you in the Business app",
+     "finds": "cf_book_wall",
+     "fail": {
+      "text": "you pick too fast and he fills the gaps with dictionaries, smiling at his own joke; the books wait for you in the Business app all the same",
+      "finds": "cf_book_wall"
+     }
+    },
+    {
+     "label": "Not today",
+     "text": "he shrugs and goes back to his ledger; the books have waited forty years, he says, and they can wait a little longer"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_booths",
+   "place": "ws_koenji",
+   "when": "venture: cafe",
+   "setup": "In Kōenji's covered arcade a kissaten older than Shirakaba has its shutter half down and a skip outside. The owner's son, in a suit that doesn't suit him, is selling everything inside before the building comes down: the cups, the clock, the menus, and two red vinyl booths that his father reupholstered every ten years.",
+   "choices": [
+    {
+     "label": "Ask about the booths",
+     "text": "two booths, a little worn, still smelling of coffee and cigarettes; he's glad they'll be sat in, and they wait for you in the Business app",
+     "finds": "cf_booths"
+    },
+    {
+     "label": "Pay your respects and go",
+     "text": "you bow at the half-open shutter; he bows back, surprised, and goes on taping boxes of cups that nobody will buy"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_origin",
+   "place": "sb_omotesando",
+   "when": "venture: cafe cf_specialty",
+   "setup": "A micro-roaster from Kyoto runs a weekend pop-up on a corner of Omotesandō: three single origins in glass jars, each with a postcard about the farm and the family that grew it. The roaster, a woman with burn marks on her wrists, is looking for one café in Tokyo to carry them, and she tastes everyone who asks.",
+   "choices": [
+    {
+     "label": "Taste and talk",
+     "roll": {
+      "skill": "cooking",
+      "dc": 11
+     },
+     "text": "you name the farm of the third cup before reading its card; she laughs, agrees on the spot, and the beans wait for you in the Business app",
+     "finds": "cf_single_origin",
+     "fail": {
+      "text": "you taste all three and say very little; she gives you her card anyway, and a week later her beans wait for you in the Business app",
+      "finds": "cf_single_origin"
+     }
+    },
+    {
+     "label": "Just a cup",
+     "text": "an excellent cup, drunk standing on the corner while the shoppers go by with their paper bags; you keep her postcard in your wallet"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_tv",
+   "place": "bay_tv",
+   "when": "venture: cafe cf_specialty",
+   "setup": "In the Wave TV lobby, between the visitor badges and a cardboard cutout of a weather presenter, a researcher for a morning show overhears {{user}} talking about coffee on the phone. She asks, a little too eagerly, whether the café has anything \"visual\": a queue, a trick, a story, anything she could film before seven in the morning.",
+   "choices": [
+    {
+     "label": "Describe the latte art",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "she books a three-minute segment for next month on the spot and asks for the address twice; the spot waits for you in the Business app",
+     "finds": "cf_tv_spot",
+     "fail": {
+      "text": "she takes your card and promises to call; she does, in the end, a little less eagerly, and the spot waits for you in the Business app",
+      "finds": "cf_tv_spot"
+     }
+    },
+    {
+     "label": "Say it's just a café",
+     "text": "she loses interest at once and turns to a man in the lobby with a parrot on his shoulder, who has plenty that is visual"
+    }
+   ]
+  },
+  {
+   "id": "cf_find_nightcap",
+   "place": "sj_goldengai",
+   "when": "venture: cafe cf_open_late; period: night",
+   "setup": "In a Golden Gai bar the size of a cupboard, with seven stools and a ceiling of old ticket stubs, the master stirs coffee, brown sugar and a dark rum into a small glass and slides it to {{user}}. He calls it \"the last train\". He has never written the recipe down, he says, because nobody has ever asked for it sober.",
+   "choices": [
+    {
+     "label": "Ask if you can serve it",
+     "text": "he writes it on a coaster in pencil and says to tell people where it's from; the coaster waits for you in the Business app",
+     "finds": "cf_nightcap"
+    },
+    {
+     "label": "Just drink it",
+     "text": "it's exactly right at one in the morning, and the master watches you drink it with the satisfaction of a man proven right",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_ms_regulars",
+   "place": "venture:cafe",
+   "when": "venture: cf_own; venture: not cafe tier 2; regular: 10; period: rush or midmorning",
+   "title": "your first regulars",
+   "setup": "On an ordinary morning the same three faces come in again: the woman who orders before she's through the door, the student who always takes the stool by the window, the old man who counts his coins onto the counter in piles of ten. It's the third week in a row, and today they nod to each other.",
+   "choices": [
+    {
+     "label": "Remember their orders",
+     "roll": {
+      "skill": "charisma",
+      "dc": 9
+     },
+     "text": "you have their cups on the counter before they sit down; the old man says nothing, and comes back the next day, and the day after that",
+     "effects": {
+      "mood": 5
+     },
+     "fail": {
+      "text": "you mix two of their orders up; they laugh, swap cups, correct you, and come back anyway, which is what regulars do",
+      "effects": {
+       "mood": 3
+      }
+     }
+    },
+    {
+     "label": "Just serve them",
+     "text": "they come back anyway, all three, and the woman brings a friend; a stand with regulars is a café, whatever the sign says"
+    }
+   ]
+  },
+  {
+   "id": "cf_ms_guide",
+   "place": "venture:cafe",
+   "when": "venture: cafe tier 2; upgrade: cf_house_blend",
+   "title": "the guide's critic",
+   "setup": "A woman with a small black notebook orders the house blend, then a second cup of something else, then sits with both until they are cold, writing. A regular leans across the counter and whispers to {{user}} that she writes for the coffee guide everyone reads, and that she once closed a café in Ebisu with a single paragraph.",
+   "choices": [
+    {
+     "label": "Talk her through the blend",
+     "roll": {
+      "skill": "cooking",
+      "dc": 13
+     },
+     "text": "she asks three precise questions, writes for a long time and leaves a business card under the saucer; the guide gives the café a star",
+     "fact": "{u}'s café got a star in the coffee guide",
+     "fail": {
+      "text": "she listens, thanks you, pays exactly, and writes a kind paragraph without a star; people come because of it all the same"
+     }
+    },
+    {
+     "label": "Leave her alone",
+     "text": "she writes a short, warm paragraph about the room and the regulars, with no star; people come because of it, and some of them stay"
+    }
+   ]
+  },
+  {
+   "id": "cf_ms_bank",
+   "place": "venture:cafe",
+   "when": "venture: cafe tier 3; upgrade: cf_roaster",
+   "title": "the bank's answer",
+   "setup": "A loan officer from the neighborhood shinkin bank comes in person, in a grey suit and sensible shoes, with a folder of {{user}}'s numbers and one question she has clearly asked many cafés before: whether a roastery that sells its beans to other places is a business, or a very expensive hobby.",
+   "choices": [
+    {
+     "label": "Show her the books",
+     "roll": {
+      "skill": "logic",
+      "dc": 12
+     },
+     "text": "she reads every page, closes the folder, finishes her coffee to the last drop and says yes; the loan comes through before the end of the week",
+     "fail": {
+      "text": "she asks for another season of numbers, politely; she comes back three weeks later with the same folder, and says yes then"
+     }
+    },
+    {
+     "label": "Roast her a batch while she waits",
+     "roll": {
+      "skill": "cooking",
+      "dc": 12
+     },
+     "text": "she takes a warm bag home under her arm; the answer comes the next morning by phone, and it is yes, with a question about the beans",
+     "fail": {
+      "text": "the batch scorches and the café fills with smoke; she laughs until she coughs and says yes anyway, for the honesty"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_seoyeon_reading",
+   "place": "ws_kissaten",
+   "when": "venture: cf_shirakaba; present: Seo-yeon; feels: Seo-yeon friend; period: afternoon",
+   "title": "Seo-yeon's first chapter",
+   "setup": "At closing time Seo-yeon puts a printed manuscript on the counter, squares its edges twice and asks {{user}}, in her most careful Japanese, whether the café could hold a reading one evening: the first chapter of her novel, which is set in this room, for whoever wants to hear it. She doesn't look up while she asks.",
+   "choices": [
+    {
+     "label": "Say yes, and set a date",
+     "text": "she bows too low and knocks the sugar bowl over, then laughs at herself; the first reading night is a Thursday, and she asks you to sit at the counter",
+     "feels": {
+      "Seo-yeon": 4
+     },
+     "effects": {
+      "mood": 5
+     }
+    },
+    {
+     "label": "Ask to read it first",
+     "roll": {
+      "skill": "writing",
+      "dc": 10
+     },
+     "text": "you read it at the counter while she pretends to wipe clean tables; it's good, the room is in it exactly, and she can tell from your face",
+     "feels": {
+      "Seo-yeon": 3
+     },
+     "fail": {
+      "text": "you read it too fast and she sees it; she takes it back gently and says she'll ask again when it's finished, which she does"
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_find_magazine",
+   "place": "mg_chuodori",
+   "when": "venture: cafe tier 3",
+   "setup": "On Ginza's main street, closed to cars for the weekend, an editor from a city magazine is photographing people's coffee cups for a feature on \"where Tokyo drinks\". She stops {{user}}, recognizes the paper cup, and asks whether the café would sit for a page: the owner, the counter, one sentence about why it exists.",
+   "choices": [
+    {
+     "label": "Say yes and find the sentence",
+     "roll": {
+      "skill": "writing",
+      "dc": 11
+     },
+     "text": "your sentence makes her stop writing and look up; she promises the page for next month, and it waits for you in the Business app",
+     "finds": "cf_magazine",
+     "fail": {
+      "text": "your sentence comes out long and she shortens it to four words; the page is still yours, and it waits for you in the Business app",
+      "finds": "cf_magazine"
+     }
+    },
+    {
+     "label": "Say you'd rather not",
+     "text": "she shrugs, says most people say that, and photographs your cup anyway, without your face, for the collage at the back"
+    }
+   ]
+  },
+  {
+   "id": "cf_genzo_booth",
+   "place": "ws_kissaten",
+   "brings": "Genzō",
+   "when": "venture: cf_shirakaba; feels: Genzō friend; period: afternoon",
+   "setup": "Genzō comes in on his day off, still smelling faintly of pork bones, and sits in the corner booth without looking at the menu. He orders two coffees. When {{user}} brings them he pushes one across the table to the empty seat and says, to nobody, that thirty years ago Kyōko always made him wait here, and that the booth hasn't changed.",
+   "choices": [
+    {
+     "label": "Sit with him a while",
+     "text": "he talks more than he has in a year, about Golden Gai in the eighties and a ring he never gave back; then he pays for both cups and goes",
+     "feels": {
+      "Genzō": 3
+     },
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "label": "Call Bar Kotori",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "Kyōko answers on the fourth ring, laughs a husky laugh, and is in the booth within the hour; nobody at the counter says a word",
+     "feels": {
+      "Genzō": 3,
+      "Kyōko": 3
+     },
+     "fact": "Genzō and Kyōko had coffee together at {0}, in their old booth",
+     "fail": {
+      "text": "she says she's busy, then that she isn't, then hangs up; Genzō drinks both coffees and leaves a tip far too large",
+      "feels": {
+       "Genzō": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_sharehouse_morning",
+   "place": "venture:cafe",
+   "when": "venture: cafe tier 2; present: Mio; present: Haru; period: rush or midmorning",
+   "setup": "Mio and Haru come in together before the morning rush, Mio half asleep with paint on her sleeve, Haru with a sketchbook under their arm. They take the stools by the window as if they always had. While Mio stirs four sugars into her coffee, Haru draws her on a paper napkin in six quick lines, and slides it across the counter to {{user}} instead.",
+   "choices": [
+    {
+     "label": "Pin the napkin up behind the counter",
+     "text": "Mio goes pink and says it looks nothing like her; Haru says nothing, and the next morning there is another napkin, and the morning after that",
+     "feels": {
+      "Mio": 2,
+      "Haru": 2
+     },
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "label": "Give it back to Mio",
+     "text": "Mio folds it into her wallet very carefully and pretends she didn't; Haru looks out of the window for a long time, smiling at the street",
+     "feels": {
+      "Mio": 3,
+      "Haru": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "cf_ayaka_menu",
+   "place": "ot_ramen",
+   "when": "venture: cafe; feels: Ayaka friend; period: afternoon",
+   "setup": "Between lunch and dinner Ayaka sits {{user}} down at the counter of Ramen Kamejirō with a menu she has rewritten in pencil: a yuzu shio, a vegan bowl, a set for tourists. Her father is in the back, pretending not to listen. She wants to know, from {{user}}, who runs a place of their own now, whether an old shop should change or stay as it was.",
+   "choices": [
+    {
+     "label": "Keep his bowl, and add one of hers",
+     "text": "she crosses out half the new menu and circles one dish; from the back, Genzō grunts, which for him is a speech of approval",
+     "feels": {
+      "Ayaka": 2,
+      "Genzō": 2
+     }
+    },
+    {
+     "label": "Tell her to change it all",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "she grins as if you'd handed her the keys; Genzō comes out, reads the new menu twice, and says only that the vegan bowl needs more salt",
+     "feels": {
+      "Ayaka": 4,
+      "Genzō": -1
+     },
+     "fail": {
+      "text": "Genzō comes out before you finish and takes the menu without a word; Ayaka slams the pencil down, and you leave before the broth boils over",
+      "feels": {
+       "Ayaka": 1,
+       "Genzō": -2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "ex_find_as_client",
+   "place": "mg_izakaya",
+   "when": "venture: div_asahina; period: evening or night",
+   "setup": "At the far end of Izakaya Tetsuro's counter, away from the Thursday tables, a man in a rumpled suit is eating grilled fish alone and doing sums on a napkin. He runs purchasing for a regional supermarket chain, he tells {{user}} after the second beer, and every trading house in Tokyo stopped returning his calls once his firm got small. The master sets down two more cups without being asked.",
+   "choices": [
+    {
+     "label": "Hear him out over another round",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "he talks for an hour about rice, cold chains and loyalty; by the last train he has your card, and his account waits for you in the Business app",
+     "finds": "ex_as_client",
+     "fail": {
+      "text": "you talk too much about Asahina and not enough about him; he takes your card anyway, a little cooler, and his account waits in the Business app",
+      "finds": "ex_as_client"
+     }
+    },
+    {
+     "label": "Leave him to his sums",
+     "text": "you nod goodnight and leave him with his napkin; the master watches you go as if he had expected a little more from an executive"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_as_fair",
+   "place": "bay_expo",
+   "when": "venture: div_asahina tier 2; weekend: no; period: midmorning or afternoon",
+   "setup": "A food importers' fair fills two halls of the Tokyo Bay Exhibition Center: olive oil from Spain, frozen scallops from Hokkaido, a coffee stand with a queue. At a quiet booth near the back, a family firm from Kyushu that brews soy sauce in cedar barrels is looking for a trading house to take it abroad. The founder's granddaughter has rehearsed her pitch all week, and nobody has stopped to hear it.",
+   "choices": [
+    {
+     "label": "Stop and taste",
+     "roll": {
+      "skill": "logic",
+      "dc": 12
+     },
+     "text": "you ask about volumes, shelf life and the age of the barrels; she answers every question better than she rehearsed, and the contract waits for you in the Business app",
+     "finds": "ex_as_fair",
+     "fail": {
+      "text": "your questions come too fast and she loses her place; she starts again, slower, and by closing time the contract waits in the Business app all the same",
+      "finds": "ex_as_fair"
+     }
+    },
+    {
+     "label": "Walk the halls instead",
+     "text": "you collect a bag of samples and twelve business cards, none of which you will ever call; the fair closes around you with its usual noise"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_as_kabuki",
+   "place": "mg_kabuki",
+   "when": "venture: div_asahina tier 2; period: afternoon or evening",
+   "setup": "In the long interval at the Ginza Kabuki Hall, the lobby smells of bento and green tea. An elderly director from Asahina's board, one {{user}} has only ever seen at the far end of a long table, stands alone by the souvenir counter in a grey kimono, studying a print of a famous actor. He looks up, recognizes {{user}}, and asks without small talk what {{user}} thought of the first act.",
+   "choices": [
+    {
+     "label": "Say what you really thought",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "you say the second scene dragged and the ending was worth it; he laughs once, loudly, and his ear on the board waits for you in the Business app",
+     "finds": "ex_as_kabuki",
+     "fail": {
+      "text": "you praise everything and he hears it; still, he asks your name twice before the bell, and his ear on the board waits in the Business app",
+      "finds": "ex_as_kabuki"
+     }
+    },
+    {
+     "label": "Bow and keep your distance",
+     "text": "you bow and go back to your seat; in the second act he is fast asleep, and nobody on the board will ever know you were there"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_as_campus",
+   "place": "ak_university",
+   "when": "venture: div_asahina tier 3; weekend: no; period: afternoon",
+   "setup": "Hijiri University's careers office has set up folding tables in a lecture hall lobby for the job-hunting season: rows of fourth-years in identical black suits, clutching identical folders. A professor of economics with chalk on her sleeve spots the Asahina pin on {{user}}'s lapel and says her seminar has five students who could run a trading floor, if anyone at the top would bother to meet them.",
+   "choices": [
+    {
+     "label": "Meet the five",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "you take them for coffee and listen more than you talk; three of them apply, and first pick of her seminar waits for you in the Business app",
+     "finds": "ex_as_graduates",
+     "fail": {
+      "text": "you talk about yourself for half an hour; they apply anyway, out of politeness or ambition, and first pick of her seminar waits in the Business app",
+      "finds": "ex_as_graduates"
+     }
+    },
+    {
+     "label": "Leave it to HR",
+     "text": "you hand her the HR department's card; she takes it with the smile of someone who has been handed that same card many times before"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_mb_fancon",
+   "place": "bay_expo",
+   "when": "venture: div_mochibyte; festival: fancon; period: midmorning or afternoon",
+   "setup": "The summer fan convention roars through the Tokyo Bay Exhibition Center: cosplayers on the stairs, queues folded six times around the pillars, the air thick with sweat and printer ink. Behind the business-day partitions, a publisher who brings Japanese games to Europe has a free half hour and a list of studios he hasn't met. Mochi Byte is near the bottom of it, and he tells {{user}} so cheerfully.",
+   "choices": [
+    {
+     "label": "Show him the next game",
+     "roll": {
+      "skill": "gaming",
+      "dc": 12
+     },
+     "text": "you hand him the controller and stand back; he plays past his half hour, misses his next meeting, and the deal waits for you in the Business app",
+     "finds": "ex_mb_publisher",
+     "fail": {
+      "text": "the demo crashes at the first boss, of course; he laughs, asks for a build that works by Friday, and the deal waits in the Business app",
+      "finds": "ex_mb_publisher"
+     }
+    },
+    {
+     "label": "Enjoy the convention instead",
+     "text": "you spend the afternoon in the queues like everyone else and come home with three comics, a paper fan and a sunburn"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_mb_izakaya",
+   "place": "ot_izakaya",
+   "when": "venture: div_mochibyte; period: evening or night",
+   "setup": "Izakaya Daruma is loud with somebody else's office party, and the only free seat is beside a woman who looks after Japanese studios for one of the big console makers. She is complaining to the master about a studio that missed its certification date for the third time. She has no idea who {{user}} is yet, and a great deal to say about game companies.",
+   "choices": [
+    {
+     "label": "Admit where you work",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "she laughs into her highball, then talks shop with you until closing; a direct line to her desk waits for you in the Business app",
+     "finds": "ex_mb_platform",
+     "fail": {
+      "text": "she goes quiet and polite at once, but she finishes her drink beside you, and a line to her desk waits in the Business app",
+      "finds": "ex_mb_platform"
+     }
+    },
+    {
+     "label": "Just listen",
+     "text": "you learn a great deal about other studios' mistakes and say nothing about your own; the master refills your glass, as if it were a reward"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_mb_investor",
+   "place": "sb_startup",
+   "when": "venture: div_mochibyte tier 2; event: startup_demo",
+   "setup": "Demo night packs Hikari Labs with founders, laptops and paper cups of cheap wine. At the back, an angel investor who sits on Mochi Byte's board stands with his arms folded, unimpressed by everyone in the room. He knows {{user}}'s name from the board's minutes and asks, in the tone of a test, which of tonight's pitches {{user}} would buy, and why.",
+   "choices": [
+    {
+     "label": "Pick one and say why",
+     "roll": {
+      "skill": "logic",
+      "dc": 12
+     },
+     "text": "you name the quietest pitch and its numbers; he nods slowly, says he would buy it too, and his backing at the board waits in the Business app",
+     "finds": "ex_mb_investor",
+     "fail": {
+      "text": "you pick the loudest pitch and he winces, but he likes being argued with; his backing at the board waits in the Business app anyway",
+      "finds": "ex_mb_investor"
+     }
+    },
+    {
+     "label": "Say you're only here for the wine",
+     "text": "he snorts, almost a laugh, and goes back to being unimpressed; the wine turns out to be exactly as bad as it looks"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_mb_arcade",
+   "place": "ak_arcade",
+   "when": "venture: div_mochibyte tier 3; period: evening or night",
+   "setup": "On the top floor of Pixel Castle, between the rhythm cabinets, three tired developers have rented a corner to playtest their own game on a borrowed cabinet: a hand-drawn shooter with music one of them recorded in a bathroom. Their savings run out next month, and a small queue of the arcade's regulars has formed behind the cabinet without anyone asking it to.",
+   "choices": [
+    {
+     "label": "Play it, then talk",
+     "roll": {
+      "skill": "gaming",
+      "dc": 12
+     },
+     "text": "you clear the second stage and ask who drew the bosses; by midnight all three are coming to Mochi Byte as a team, waiting in the Business app",
+     "finds": "ex_mb_indie",
+     "fail": {
+      "text": "you die on the first boss in front of the whole queue; they talk with you anyway, and the team waits for you in the Business app",
+      "finds": "ex_mb_indie"
+     }
+    },
+    {
+     "label": "Play one credit and move on",
+     "text": "you lose on the first stage and leave them to their queue; next month the corner is a crane game again, full of plush cats"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_tv_agency",
+   "place": "ak_idol",
+   "when": "venture: div_wavetv; period: evening or night",
+   "setup": "After the evening show at Stage Starlight, the lobby empties into Akihabara's neon, and a small agency's manager stays behind counting merchandise into cardboard boxes. She runs four groups nobody has seen on television, and says so before {{user}} can ask. She has a folder of their footage, a list of everything they have never been allowed to do, and the patience of someone told no for years.",
+   "choices": [
+    {
+     "label": "Watch the footage with her",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "you watch all four groups on her phone and ask the right questions; she shakes your hand twice, and her agency waits for you in the Business app",
+     "finds": "ex_tv_agency",
+     "fail": {
+      "text": "you look at your watch once and she sees it; she gives you the folder anyway, and her agency waits for you in the Business app",
+      "finds": "ex_tv_agency"
+     }
+    },
+    {
+     "label": "Wish her luck",
+     "text": "she thanks you, tapes the last box shut and carries it out to a van older than any of the young women in her groups"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_tv_sponsor",
+   "place": "mg_depachika",
+   "when": "venture: div_wavetv tier 2; period: midmorning or afternoon",
+   "setup": "In Tsubakiya Ginza's food hall, under glass counters of wagashi and fruit that costs as much as a dinner, the store's head of marketing walks the floor with a clipboard. She has a sponsorship budget the store hasn't spent in three years because, she tells {{user}} over a sample of yuzu jelly, television never asks a department store what it actually wants to say.",
+   "choices": [
+    {
+     "label": "Ask what the store wants to say",
+     "roll": {
+      "skill": "writing",
+      "dc": 12
+     },
+     "text": "you write it down in her own words and read it back; she says that's a first, and the sponsorship waits for you in the Business app",
+     "finds": "ex_tv_sponsor",
+     "fail": {
+      "text": "you pitch your own idea instead and she corrects you, kindly; she sends the budget all the same, and it waits for you in the Business app",
+      "finds": "ex_tv_sponsor"
+     }
+    },
+    {
+     "label": "Buy a box of jelly and go",
+     "text": "six yuzu jellies in a box with a ribbon, which costs more than you thought and tastes exactly like the first week of summer"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_tv_crew",
+   "place": "yk_noge",
+   "when": "venture: div_wavetv tier 3; period: night",
+   "setup": "In a Noge bar with five stools and a television that only shows old documentaries, an old cameraman is watching his own work from thirty years ago: a fishing village, a storm, a woman mending nets in the rain. He tells {{user}} he still has the best crew in Kanagawa, all of them retired, all of them bored, and that nobody films anything properly any more.",
+   "choices": [
+    {
+     "label": "Ask him to bring them back",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "he says he'll think about it, which means yes; by the end of the week his crew of grumbling veterans waits for you in the Business app",
+     "finds": "ex_tv_crew",
+     "fail": {
+      "text": "he says no three times and yes on the fourth, mostly to stop you asking; his grumbling crew waits for you in the Business app",
+      "finds": "ex_tv_crew"
+     }
+    },
+    {
+     "label": "Watch the storm with him",
+     "text": "you watch the whole film without a word; at the end he pays for your drink and never tells you his name"
+    }
+   ]
+  },
+  {
+   "id": "ex_find_tv_drama",
+   "place": "ws_theater",
+   "when": "venture: div_wavetv tier 3; period: evening or night",
+   "setup": "Theater Komorebi seats sixty, and tonight forty seats are taken for a play about two sisters closing their father's sentō. Afterwards the playwright sweeps the stage herself, in her socks. She has turned down two television offers this year, she tells {{user}}, because both wanted to change the ending. Nobody has yet asked her who would keep it exactly as it is.",
+   "choices": [
+    {
+     "label": "Promise to keep the ending",
+     "roll": {
+      "skill": "writing",
+      "dc": 13
+     },
+     "text": "you tell her which line of the last scene you would never cut; it's the right one, and her drama waits for you in the Business app",
+     "finds": "ex_tv_drama",
+     "fail": {
+      "text": "you name the wrong line and she raises an eyebrow, but she likes that you tried; her drama waits for you in the Business app",
+      "finds": "ex_tv_drama"
+     }
+    },
+    {
+     "label": "Tell her it was beautiful",
+     "text": "she thanks you, sweeps the last of the stage and turns out the lights on the sisters' sentō for the night"
+    }
+   ]
+  },
+  {
+   "id": "ex_chloe_visa",
+   "place": "sb_eikaiwa",
+   "brings": "Chloe",
+   "title": "Chloe's application",
+   "when": "venture: exec; knows: chloe_visa; feels: Chloe friend; thread: not chloe_visa; period: evening or night",
+   "setup": "After the last class at Hello Bridge English, Chloe is alone in the staff room with a printed job listing from {{user}}'s company: an in-house English coach, visa sponsorship offered. She has already filled in the form in her neatest handwriting and clipped on a photo she clearly hates. She slides it across the table and asks only one thing: whether the company really means it about the visa.",
+   "choices": [
+    {
+     "label": "Tell her to send it in",
+     "text": "she posts it that night and sits the interview on her own; when they ask you, you only say she is the best teacher you know",
+     "feels": {
+      "Chloe": 3
+     },
+     "effects": {
+      "mood": 4
+     },
+     "fact": "{u} told Chloe to apply for a post with a visa at {u}'s company"
+    },
+    {
+     "label": "Say you'd rather not mix work and friends",
+     "text": "she nods, folds the form in half and puts it in her bag; she will look for another sponsor, and you can both tell it will be harder",
+     "feels": {
+      "Chloe": -1
+     }
+    }
+   ]
+  },
+  {
+   "id": "ex_rina_pitch",
+   "place": "ak_gamedev",
+   "brings": "Rina",
+   "title": "Rina's pitch",
+   "when": "venture: div_mochibyte; knows: rina_runway; feels: Rina friend; thread: not rina_runway; weekend: no; period: afternoon",
+   "setup": "Rina has booked Mochi Byte's big meeting room under her own name and pitched it herself: Hikari Labs' tools licensed for the studio's next game line, the numbers on one slide and the risks on the next. She never asked {{user}} for an introduction or a favor. Now the lights are back on, the room is quiet, and everyone is looking at the one signature the deal still needs.",
+   "choices": [
+    {
+     "label": "Sign it",
+     "text": "you sign, and the room breathes out; Rina keeps a straight face until the door closes behind the last of them, then hugs you hard enough to hurt",
+     "feels": {
+      "Rina": 4
+     },
+     "effects": {
+      "mood": 5
+     },
+     "fact": "{u} signed the deal Rina pitched to Mochi Byte"
+    },
+    {
+     "label": "Ask for another quarter's numbers",
+     "text": "she nods, packs her laptop without a word and thanks the room; at the lift she says she has a quarter's numbers, just not a quarter",
+     "feels": {
+      "Rina": -1
+     }
+    }
+   ]
+  },
+  {
+   "id": "ex_hina_lastshow",
+   "place": "bay_tv",
+   "brings": "Hina",
+   "title": "Hina's running order",
+   "when": "job: tv; rank: top; knows: hina_graduation; feels: Hina friend; thread: not hina_graduation; period: afternoon or evening",
+   "setup": "Hina waits in the Wave TV lobby in a plain coat, no mask, with a notebook open on her knees: the running order for her last show, written out by hand, the songs, the people to thank, and how she wants to say goodbye. She isn't asking the agency's permission any more, she tells {{user}}. She is asking for one hour of airtime, in a slot that is hers.",
+   "choices": [
+    {
+     "label": "Give her the slot",
+     "text": "you clear an hour on a Saturday night and hand her running order back unchanged; she reads it twice, as if to check it is still hers",
+     "feels": {
+      "Hina": 4
+     },
+     "effects": {
+      "mood": 5
+     },
+     "fact": "{u} gave Hina an hour on Wave TV for her last show"
+    },
+    {
+     "label": "Say the schedule is full this season",
+     "text": "she closes the notebook, thanks you politely and leaves by the staff door; the agency will plan her last show, the way it plans everything",
+     "feels": {
+      "Hina": -1
+     }
+    }
+   ]
+  },
+  {
+   "id": "ex_nanami_audition",
+   "place": "ws_livehouse",
+   "brings": "Nanami",
+   "title": "Nanami's audition form",
+   "when": "job: tv; rank: top; knows: nanami_scout; feels: Nanami friend; thread: not nanami_scout; period: night",
+   "setup": "After Paper Lanterns' set at Basement Moon, Nanami finds {{user}} by the bar with the scout's card in one hand and the music program's audition form in the other, already filled in with every name in the band. She doesn't want a word put in for them, she says over the next band's soundcheck. She wants {{user}} in the audience when they audition, and nothing else.",
+   "choices": [
+    {
+     "label": "Promise to watch, and only watch",
+     "text": "you promise, and you keep it: on the day you sit at the back of the studio with your hands in your lap while they play the best twelve minutes of their lives",
+     "feels": {
+      "Nanami": 4
+     },
+     "effects": {
+      "mood": 5
+     },
+     "fact": "{u} watched Paper Lanterns audition for a music program on Wave TV"
+    },
+    {
+     "label": "Tell her to take the solo deal",
+     "text": "she looks at you for a long second, puts the form in her pocket and the card back in her wallet, and goes to help pack up the amps",
+     "feels": {
+      "Nanami": -2
+     }
     }
    ]
   }
@@ -31648,6 +32723,38 @@
           "logic": 8,
           "charisma": 6
          }
+        },
+        {
+         "name": "Executive officer",
+         "pay": 8000,
+         "needs": {
+          "logic": 10,
+          "charisma": 8
+         },
+         "course": "exec_program",
+         "when": "skill: drawing 10 or gaming 10; perf: 80; inrank: 42; seen: gamedev_nomination_3:1; thread: hannah_stream",
+         "beyond": true
+        },
+        {
+         "name": "Managing director",
+         "pay": 10000,
+         "needs": {
+          "logic": 10,
+          "charisma": 10
+         },
+         "when": "skill: drawing 10 or gaming 10; perf: 80; inrank: 28; seen: gamedev_board_md:1",
+         "beyond": true
+        },
+        {
+         "name": "Vice president",
+         "pay": 12000,
+         "needs": {
+          "logic": 10,
+          "charisma": 10,
+          "writing": 8
+         },
+         "when": "skill: drawing 10 or gaming 10; perf: 85; inrank: 28; seen: gamedev_board_vp:1",
+         "beyond": true
         }
        ]
       },
@@ -31694,6 +32801,38 @@
           "charisma": 6,
           "writing": 4
          }
+        },
+        {
+         "name": "Executive officer",
+         "pay": 8000,
+         "needs": {
+          "logic": 10,
+          "charisma": 8
+         },
+         "course": "exec_program",
+         "when": "skill: drawing 10 or gaming 10; perf: 80; inrank: 42; seen: gamedev_nomination_3:1; thread: hannah_stream",
+         "beyond": true
+        },
+        {
+         "name": "Managing director",
+         "pay": 10000,
+         "needs": {
+          "logic": 10,
+          "charisma": 10
+         },
+         "when": "skill: drawing 10 or gaming 10; perf: 80; inrank: 28; seen: gamedev_board_md:1",
+         "beyond": true
+        },
+        {
+         "name": "Vice president",
+         "pay": 12000,
+         "needs": {
+          "logic": 10,
+          "charisma": 10,
+          "writing": 8
+         },
+         "when": "skill: drawing 10 or gaming 10; perf: 85; inrank: 28; seen: gamedev_board_vp:1",
+         "beyond": true
         }
        ]
       }
@@ -31787,6 +32926,169 @@
       },
       {
        "label": "Say the build isn't ready"
+      }
+     ]
+    },
+    {
+     "id": "gamedev_sponsor",
+     "title": "a sponsor for the leadership program",
+     "when": "rank: top; perf: 70; seen: not gamedev_sponsor",
+     "setup": "Mochi Byte's founder, who still writes code on Fridays, stops at your desk with two cans of coffee: Hijiri runs an Executive leadership program, the studio has never sent anyone, and he would like you to be the first, with the studio paying half.",
+     "choices": [
+      {
+       "label": "Thank them and say yes",
+       "perf": 1,
+       "text": "he clinks his can against yours; the studio will pay half of the program when you enroll"
+      },
+      {
+       "label": "Say you'll pay your own way",
+       "text": "he shrugs, says the offer was there, and goes back to his Friday code"
+      }
+     ]
+    },
+    {
+     "id": "gamedev_nomination_1",
+     "title": "the crisis",
+     "when": "rank: top; perf: 80; seen: not gamedev_nomination_1; weekend: no",
+     "setup": "Launch week, and the servers fall over an hour after midnight: two hundred thousand players locked out, the feeds on fire, and the publisher calling every ten minutes.",
+     "choices": [
+      {
+       "label": "Take the war room yourself",
+       "roll": {
+        "skill": "logic",
+        "dc": 14
+       },
+       "perf": 2,
+       "effects": {
+        "energy": -20
+       },
+       "text": "you reroute, patch and post an honest apology by six in the morning; the players forgive you faster than the publisher does",
+       "fail": {
+        "text": "the servers come back at noon and the apology at two; it holds, barely",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Tell the players yourself, live",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 2,
+       "text": "you go live at three in the morning and say exactly what broke; the clip gets more views than the trailer",
+       "fail": {
+        "text": "you go live and say too much about the publisher; it's handled, but the clip follows you for a week",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Call Natsuki in",
+       "when": "feels: Natsuki friend",
+       "perf": 1,
+       "feels": {
+        "Natsuki": 2
+       },
+       "text": "she arrives in slippers with her laptop already open and finds the leak in forty minutes; you make sure her name is in the report"
+      }
+     ]
+    },
+    {
+     "id": "gamedev_nomination_2",
+     "title": "a sponsor on the board",
+     "when": "seen: gamedev_nomination_1; seen: not gamedev_nomination_2",
+     "setup": "A board member who made her money on mobile games takes you to a Kanda soba shop at eleven, before the queue. She asks which of the studio's games you would cancel tomorrow, and waits with her chopsticks down.",
+     "choices": [
+      {
+       "label": "Name one and say why",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 1,
+       "text": "you name the game everyone loves and nobody buys; she eats in silence, pays, and says she'll speak for you at the board",
+       "fail": {
+        "text": "you hedge and name two; she sighs, says the board likes people who choose, and promises to speak for you anyway"
+       }
+      },
+      {
+       "label": "Say you would cancel none of them",
+       "text": "she laughs and says that is either very brave or very foolish; she will speak for you, to find out which"
+      }
+     ]
+    },
+    {
+     "id": "gamedev_nomination_3",
+     "title": "the nomination",
+     "when": "seen: gamedev_nomination_2; seen: not gamedev_nomination_3:1",
+     "setup": "The founder calls you into the room with the beanbags and the whiteboard nobody erases: the board wants you as an executive officer, with a division of the studio and a budget to match. He says he would understand if you only wanted to make games.",
+     "choices": [
+      {
+       "label": "Accept",
+       "perf": 1,
+       "text": "you say yes, and he writes your name on the whiteboard, in a corner nobody will ever erase",
+       "fact": "{u} accepted a nomination to the board of Mochi Byte Games"
+      },
+      {
+       "label": "Ask for a season to think",
+       "text": "he nods and says the whiteboard will wait; nothing at Mochi Byte is ever really erased"
+      }
+     ]
+    },
+    {
+     "id": "gamedev_board_md",
+     "title": "the board's vote",
+     "when": "venture: div_mochibyte; inrank: 21; seen: not gamedev_board_md:1",
+     "setup": "The board meets in the studio's one room with a door that locks: they are voting on a managing director, and your division's playtest numbers are on the screen behind you.",
+     "choices": [
+      {
+       "label": "Make your case to the board",
+       "roll": {
+        "skill": "charisma",
+        "dc": 15
+       },
+       "perf": 2,
+       "add": {
+        "standing": 3
+       },
+       "text": "you walk them through the numbers and one player's review; the vote goes your way, and somebody claps, which nobody does at Mochi Byte",
+       "fact": "{u} won the board's vote for managing director at Mochi Byte Games",
+       "fail": {
+        "text": "the vote is put off to the next meeting; the founder winks at you on the way out, which helps less than he thinks",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Let the numbers speak this time",
+       "text": "nobody argues and nobody decides; the vote moves to a later meeting, and your division has a little longer to grow"
+      }
+     ]
+    },
+    {
+     "id": "gamedev_board_vp",
+     "title": "the board's vote for vice president",
+     "when": "venture: div_mochibyte tier 2; inrank: 21; seen: not gamedev_board_vp:1",
+     "setup": "The founder is stepping back to write code full time, and the board must choose a vice president to run the studio day to day. The other name on the list is the publisher's own choice, flown in for the meeting.",
+     "choices": [
+      {
+       "label": "Make your case to the board",
+       "roll": {
+        "skill": "logic",
+        "dc": 15
+       },
+       "perf": 2,
+       "add": {
+        "standing": 4
+       },
+       "text": "you show them the studio as it is and the games it could make; the board votes for you, and the publisher's man takes the next flight home",
+       "fact": "{u} was voted vice president of Mochi Byte Games",
+       "fail": {
+        "text": "the board can't decide and the vote moves to the next meeting; the publisher's man stays on for the karaoke",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Wait for the next meeting",
+       "text": "you ask for the vote to wait a season; the president agrees too quickly, and the other name on the list smiles"
       }
      ]
     }
@@ -33239,6 +34541,40 @@
           "logic": 8,
           "writing": 6
          }
+        },
+        {
+         "name": "Executive officer",
+         "pay": 8000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10
+         },
+         "course": "exec_program",
+         "when": "skill: writing 8 or english 8; perf: 80; inrank: 42; seen: office_nomination_3:1; thread: reiko_burnout",
+         "beyond": true
+        },
+        {
+         "name": "Managing director",
+         "pay": 10000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10,
+          "writing": 10
+         },
+         "when": "perf: 80; inrank: 28; seen: office_board_md:1",
+         "beyond": true
+        },
+        {
+         "name": "Vice president",
+         "pay": 12000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10,
+          "writing": 10,
+          "english": 8
+         },
+         "when": "perf: 85; inrank: 28; seen: office_board_vp:1",
+         "beyond": true
         }
        ]
       },
@@ -33296,6 +34632,40 @@
           "charisma": 7,
           "writing": 8
          }
+        },
+        {
+         "name": "Executive officer",
+         "pay": 8000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10
+         },
+         "course": "exec_program",
+         "when": "skill: writing 8 or english 8; perf: 80; inrank: 42; seen: office_nomination_3:1; thread: reiko_burnout",
+         "beyond": true
+        },
+        {
+         "name": "Managing director",
+         "pay": 10000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10,
+          "writing": 10
+         },
+         "when": "perf: 80; inrank: 28; seen: office_board_md:1",
+         "beyond": true
+        },
+        {
+         "name": "Vice president",
+         "pay": 12000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10,
+          "writing": 10,
+          "english": 8
+         },
+         "when": "perf: 85; inrank: 28; seen: office_board_vp:1",
+         "beyond": true
         }
        ]
       }
@@ -33526,6 +34896,230 @@
        "effects": {
         "energy": 5
        }
+      }
+     ]
+    },
+    {
+     "id": "office_sponsor",
+     "title": "a sponsor for the leadership program",
+     "when": "rank: top; perf: 70; seen: not office_sponsor",
+     "setup": "A managing director stops by your desk at six, which nobody can remember him doing: Hijiri's Executive leadership program takes one person from Asahina a year, and he would like to put your name forward, with the company paying half.",
+     "choices": [
+      {
+       "label": "Thank them and say yes",
+       "perf": 1,
+       "text": "he nods as if it were settled already; the company will pay half of the program when you enroll"
+      },
+      {
+       "label": "Say you'll pay your own way",
+       "text": "he raises an eyebrow, says independence is admirable in moderation, and doesn't offer twice"
+      }
+     ]
+    },
+    {
+     "id": "office_nomination_1",
+     "title": "the crisis",
+     "when": "rank: top; perf: 80; seen: not office_nomination_1; weekend: no",
+     "setup": "Nine o'clock on a Monday: the company's biggest client in Southeast Asia threatens to move its whole account to a rival, over a shipment stuck in port and an email nobody answered. The president's office wants it handled by Friday, and wants to know who handled it.",
+     "choices": [
+      {
+       "label": "Fly out and fix it in person",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 2,
+       "effects": {
+        "energy": -20
+       },
+       "text": "three days, two flights, one long dinner; the client stays, and the president's office writes your name down",
+       "fail": {
+        "text": "the client stays, barely, on worse terms; the president's office writes your name down with a question mark",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Untangle it from the twenty-third floor",
+       "roll": {
+        "skill": "logic",
+        "dc": 14
+       },
+       "perf": 2,
+       "text": "you find the unanswered email, the port's real problem and a cheaper route by Wednesday; the client asks for you by name",
+       "fail": {
+        "text": "you find the problem on Thursday, a day too late to impress anyone; the client stays out of habit",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Give the lead to the section Reiko trained",
+       "when": "thread: reiko_burnout takes_leave",
+       "perf": 1,
+       "feels": {
+        "Reiko": 2
+       },
+       "text": "they fix it in two days, the way she taught them, and you make sure the president knows whose team it was"
+      }
+     ]
+    },
+    {
+     "id": "office_nomination_2",
+     "title": "a sponsor on the board",
+     "when": "seen: office_nomination_1; seen: not office_nomination_2",
+     "setup": "A director from the board, who once spoke for you in a meeting you weren't in, takes you to lunch in a Ginza basement where the waiters know her order. She asks what you would do with a division of your own, and listens to the answer like a buyer.",
+     "choices": [
+      {
+       "label": "Tell her plainly",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 1,
+       "text": "you give her three things and the cost of each; she pays, and says she'll speak for you when the board meets",
+       "fail": {
+        "text": "you give her ten things and no costs; she pays, and says she'll speak for you, a little less warmly"
+       }
+      },
+      {
+       "label": "Say Reiko taught you most of it",
+       "when": "thread: reiko_burnout takes_leave",
+       "perf": 1,
+       "feels": {
+        "Reiko": 2
+       },
+       "text": "she smiles: Reiko wrote to her from her leave and said the same about you; they will both speak for you"
+      },
+      {
+       "label": "Ask her why not Reiko",
+       "when": "thread: reiko_burnout pushes_on",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 1,
+       "text": "she says Reiko asked for her backing first and she said no; she'll speak for you, if you can sit beside a rival",
+       "fail": {
+        "text": "she says that is a question for Reiko, coolly, and lunch ends early; she'll speak for you anyway, because the numbers do"
+       }
+      }
+     ]
+    },
+    {
+     "id": "office_nomination_3",
+     "title": "the nomination",
+     "when": "seen: office_nomination_2; seen: not office_nomination_3:1",
+     "setup": "The president's secretary calls you up to the top floor: the board will put your name forward as an executive officer at its next meeting, if you want it. The seat comes with a division, a budget and the end of your evenings.",
+     "choices": [
+      {
+       "label": "Accept",
+       "perf": 1,
+       "text": "you say yes before you can think better of it; the secretary writes the date of the meeting in your diary in ink",
+       "fact": "{u} accepted a nomination to the board of Asahina Trading"
+      },
+      {
+       "label": "Call Reiko before you answer",
+       "when": "thread: reiko_burnout takes_leave",
+       "feels": {
+        "Reiko": 2
+       },
+       "text": "she answers on the first ring, says you would be a fool to refuse, and hangs up before you can thank her; the offer will come again"
+      },
+      {
+       "label": "Ask the board to consider Reiko too",
+       "when": "thread: reiko_burnout pushes_on",
+       "feels": {
+        "Reiko": 2
+       },
+       "text": "the president says the board already has, twice; Reiko hears that you asked, and the offer comes again later"
+      },
+      {
+       "label": "Ask for a season to think",
+       "text": "the secretary says the president does not usually ask twice, and then, more quietly, that he will"
+      }
+     ]
+    },
+    {
+     "id": "office_board_md",
+     "title": "the board's vote",
+     "when": "venture: div_asahina; inrank: 21; seen: not office_board_md:1",
+     "setup": "The board meets on the top floor to vote on a managing director. Your division's numbers are in the folder in front of each of them, and the president, who never speaks first, is looking at you.",
+     "choices": [
+      {
+       "label": "Make your case to the board",
+       "roll": {
+        "skill": "charisma",
+        "dc": 15
+       },
+       "perf": 2,
+       "add": {
+        "standing": 3
+       },
+       "text": "you talk for six minutes and sit down; the vote is unanimous but for one abstention, and the president nods once",
+       "fact": "{u} won the board's vote for managing director at Asahina Trading",
+       "fail": {
+        "text": "the vote is put off to another meeting, politely; the folder goes back into the secretary's cabinet",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Let the numbers speak this time",
+       "text": "nobody argues and nobody decides; the vote moves to a later meeting, and your division has a little longer to grow"
+      }
+     ]
+    },
+    {
+     "id": "office_board_vp",
+     "title": "the board's vote for vice president",
+     "when": "venture: div_asahina tier 2; inrank: 21; seen: not office_board_vp:1",
+     "setup": "The president has asked the board to name a vice president, and the shortlist has two names on it, one of them yours. The other has been at Asahina for thirty-one years and has never once raised his voice.",
+     "choices": [
+      {
+       "label": "Make your case to the board",
+       "roll": {
+        "skill": "logic",
+        "dc": 15
+       },
+       "perf": 2,
+       "add": {
+        "standing": 4
+       },
+       "text": "you present the division as it is, the weak quarter included; the board votes for you, and the other man is the first to shake your hand",
+       "fact": "{u} was voted vice president of Asahina Trading",
+       "fail": {
+        "text": "the board chooses thirty-one years over you, by one vote; he shakes your hand, and the president says there will be another meeting",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Wait for the next meeting",
+       "text": "you ask for the vote to wait a season; the president agrees too quickly, and the other name on the list smiles"
+      }
+     ]
+    },
+    {
+     "id": "office_ex_mei",
+     "title": "Mei's offer",
+     "when": "venture: div_asahina; knows: mei_interviews; feels: Mei friend; thread: not mei_interviews; seen: not office_ex_mei",
+     "setup": "Mei closes your office door behind her and puts the rival firm's offer on your desk, signed by them and not yet by her. She says she would rather stay, if staying meant a team of her own, and that she wanted to tell you herself before anyone else did.",
+     "choices": [
+      {
+       "label": "Fight for her at the board",
+       "perf": 1,
+       "add": {
+        "team": 2
+       },
+       "feels": {
+        "Mei": 4
+       },
+       "text": "you take her case upstairs that afternoon and come back with the team in writing; she tears up the offer in front of you, very neatly",
+       "fact": "{u} fought for Mei to stay at Asahina Trading"
+      },
+      {
+       "label": "Tell her you won't stand in her way",
+       "feels": {
+        "Mei": 1
+       },
+       "text": "she nods, thanks you for being honest and takes the offer back with her; her desk is tidier than usual all week"
       }
      ]
     }
@@ -35063,6 +36657,38 @@
           "logic": 8,
           "charisma": 7
          }
+        },
+        {
+         "name": "Executive officer",
+         "pay": 8000,
+         "needs": {
+          "charisma": 10,
+          "logic": 8
+         },
+         "course": "exec_program",
+         "when": "skill: writing 10 or music 10; perf: 80; inrank: 42; seen: tv_nomination_3:1; thread: hina_graduation or nanami_scout",
+         "beyond": true
+        },
+        {
+         "name": "Managing director",
+         "pay": 10000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10
+         },
+         "when": "skill: writing 10 or music 10; perf: 80; inrank: 28; seen: tv_board_md:1",
+         "beyond": true
+        },
+        {
+         "name": "Vice president",
+         "pay": 12000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10,
+          "english": 8
+         },
+         "when": "skill: writing 10 or music 10; perf: 85; inrank: 28; seen: tv_board_vp:1",
+         "beyond": true
         }
        ]
       },
@@ -35103,6 +36729,38 @@
           "logic": 7,
           "writing": 7
          }
+        },
+        {
+         "name": "Executive officer",
+         "pay": 8000,
+         "needs": {
+          "charisma": 10,
+          "logic": 8
+         },
+         "course": "exec_program",
+         "when": "skill: writing 10 or music 10; perf: 80; inrank: 42; seen: tv_nomination_3:1; thread: hina_graduation or nanami_scout",
+         "beyond": true
+        },
+        {
+         "name": "Managing director",
+         "pay": 10000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10
+         },
+         "when": "skill: writing 10 or music 10; perf: 80; inrank: 28; seen: tv_board_md:1",
+         "beyond": true
+        },
+        {
+         "name": "Vice president",
+         "pay": 12000,
+         "needs": {
+          "charisma": 10,
+          "logic": 10,
+          "english": 8
+         },
+         "when": "skill: writing 10 or music 10; perf: 85; inrank: 28; seen: tv_board_vp:1",
+         "beyond": true
         }
        ]
       }
@@ -35211,6 +36869,160 @@
       },
       {
        "label": "Call security"
+      }
+     ]
+    },
+    {
+     "id": "tv_sponsor",
+     "title": "a sponsor for the leadership program",
+     "when": "rank: top; perf: 70; seen: not tv_sponsor",
+     "setup": "The head of programming, who has never once called you by name, calls you by name: Hijiri's Executive leadership program wants one person from Wave TV, she has decided it should be you, and the station will pay half.",
+     "choices": [
+      {
+       "label": "Thank them and say yes",
+       "perf": 1,
+       "text": "she says good and walks off before you finish thanking her; the station will pay half of the program when you enroll"
+      },
+      {
+       "label": "Say you'll pay your own way",
+       "text": "she shrugs and says the station will spend the money on a new weather set"
+      }
+     ]
+    },
+    {
+     "id": "tv_nomination_1",
+     "title": "the crisis",
+     "when": "rank: top; perf: 80; seen: not tv_nomination_1; weekend: no",
+     "setup": "Ten minutes before a live prime-time special, the host is stuck in a lift between floors, the guest has walked out over the running order, and the special's sponsor is watching from the gallery.",
+     "choices": [
+      {
+       "label": "Run the show from the floor",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 2,
+       "effects": {
+        "energy": -15
+       },
+       "text": "you put a stand-in host on, talk the guest back and smile at the sponsor; the ratings are the best of the season",
+       "fail": {
+        "text": "the show goes out eight minutes late and short; nobody blames you, and nobody remembers it was you",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Rewrite the running order on the spot",
+       "roll": {
+        "skill": "writing",
+        "dc": 14
+       },
+       "perf": 2,
+       "text": "you rebuild the hour around the walkout and make it the story; the papers call it the most honest special of the year",
+       "fail": {
+        "text": "the new running order works, just; the special goes out ragged, and the gallery is very quiet",
+        "perf": -1
+       }
+      }
+     ]
+    },
+    {
+     "id": "tv_nomination_2",
+     "title": "a sponsor on the board",
+     "when": "seen: tv_nomination_1; seen: not tv_nomination_2",
+     "setup": "A board member who used to read the evening news takes you to tea at a Ginza hotel, then asks you to name a show the station should have cancelled years ago.",
+     "choices": [
+      {
+       "label": "Name it",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 1,
+       "text": "you name her own old program, gently; she laughs until she has to dab her eyes, and says she'll speak for you at the board",
+       "fail": {
+        "text": "you name a safe one and she can tell; she pays, and says she'll speak for you because the numbers do"
+       }
+      },
+      {
+       "label": "Say every show has its audience",
+       "text": "she looks at you over her cup and says that is what she said at your age; she will speak for you, a little doubtfully"
+      }
+     ]
+    },
+    {
+     "id": "tv_nomination_3",
+     "title": "the nomination",
+     "when": "seen: tv_nomination_2; seen: not tv_nomination_3:1",
+     "setup": "The president of Wave TV, whom you have only seen on a stage at the year-end party, asks you up to the top floor: the board wants you as an executive officer, with programs of your own and the budget that goes with them.",
+     "choices": [
+      {
+       "label": "Accept",
+       "perf": 1,
+       "text": "you say yes, and she shakes your hand without looking away from the bay; your name goes on next season's schedule in ink",
+       "fact": "{u} accepted a nomination to the board of Wave TV"
+      },
+      {
+       "label": "Ask for a season to think",
+       "text": "she says the bay will still be there next season, and so, probably, will the offer"
+      }
+     ]
+    },
+    {
+     "id": "tv_board_md",
+     "title": "the board's vote",
+     "when": "venture: div_wavetv; inrank: 21; seen: not tv_board_md:1",
+     "setup": "The board meets to vote on a managing director for programming, with your division's ratings on one screen and a rival producer's on the screen beside it.",
+     "choices": [
+      {
+       "label": "Make your case to the board",
+       "roll": {
+        "skill": "charisma",
+        "dc": 15
+       },
+       "perf": 2,
+       "add": {
+        "standing": 3
+       },
+       "text": "you talk about the shows, not the numbers, and the numbers do the rest; the vote goes your way, and the rival producer congratulates you through his teeth",
+       "fact": "{u} won the board's vote for managing director at Wave TV",
+       "fail": {
+        "text": "the vote is put off to the next meeting; the rival producer smiles at you all the way to the lift",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Let the numbers speak this time",
+       "text": "nobody argues and nobody decides; the vote moves to a later meeting, and your division has a little longer to grow"
+      }
+     ]
+    },
+    {
+     "id": "tv_board_vp",
+     "title": "the board's vote for vice president",
+     "when": "venture: div_wavetv tier 2; inrank: 21; seen: not tv_board_vp:1",
+     "setup": "The board must name a vice president to run the station, and the shortlist has two names: yours, and the head of news, who thinks entertainment is beneath her.",
+     "choices": [
+      {
+       "label": "Make your case to the board",
+       "roll": {
+        "skill": "logic",
+        "dc": 15
+       },
+       "perf": 2,
+       "add": {
+        "standing": 4
+       },
+       "text": "you show them a season of what the station could be; the board votes for you, and the head of news asks, stiffly, for a slot of her own",
+       "fact": "{u} was voted vice president of Wave TV",
+       "fail": {
+        "text": "the board chooses the head of news, by one vote, until the next meeting; she is gracious about it, which is worse",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Wait for the next meeting",
+       "text": "you ask for the vote to wait a season; the president agrees too quickly, and the other name on the list smiles"
       }
      ]
     }
@@ -38717,9 +40529,16 @@
       ],
       "endings": [
        {
+        "id": "company_sponsor",
+        "when": "venture: exec; seen: ex_chloe_visa:1; knows: chloe_visa; feels: Chloe friend",
+        "good": true,
+        "waits": "job: office or gamedev or tv; rank: top; feels: Chloe friend",
+        "text": "She applies to {{user}}'s company herself and wins the post of in-house English coach on her own; the company sponsors her visa, and she stays in Tokyo for good."
+       },
+       {
         "id": "new_sponsor",
         "text": "A new sponsor (Hikari Labs or Hijiri University) takes on her visa, and she stays in Tokyo for good.",
-        "when": "knows: chloe_visa; feels: Chloe good",
+        "when": "knows: chloe_visa; feels: Chloe best",
         "good": true
        },
        {
@@ -38923,6 +40742,13 @@
       ],
       "endings": [
        {
+        "id": "band_on_air",
+        "when": "job: tv; rank: top; seen: ex_nanami_audition:1; thread: not kaito_debt sells_drums; knows: nanami_scout; feels: Nanami friend",
+        "good": true,
+        "waits": "job: tv; feels: Nanami friend",
+        "text": "She takes the whole band to the audition herself and wins it; Paper Lanterns plays on the music program of {{user}}'s channel, and the scout's card goes in the bin."
+       },
+       {
         "id": "signs_solo",
         "text": "She signs solo, and Paper Lanterns ends.",
         "when": "thread: kaito_debt sells_drums"
@@ -38930,7 +40756,7 @@
        {
         "id": "brings_band",
         "text": "She brings the band along.",
-        "when": "knows: nanami_scout; feels: Nanami good",
+        "when": "knows: nanami_scout; feels: Nanami best",
         "good": true
        },
        {
@@ -39514,6 +41340,12 @@
         "text": "Reiko works later and drinks more; her Friday karaoke is the only time she breathes."
        },
        {
+        "id": "ex_seat",
+        "when": "job: office; rank: top",
+        "tell": "hinted",
+        "text": "Now that {{user}} is at the top of the floor and spoken of for the board, the seat she has wanted for years, she works later still and watches the boardroom door like a clock."
+       },
+       {
         "when": "season: autumn",
         "tell": "known",
         "text": "A crisis at work: she collapses at her desk.",
@@ -39673,9 +41505,16 @@
       ],
       "endings": [
        {
+        "id": "mochi_deal",
+        "when": "venture: div_mochibyte; seen: ex_rina_pitch:1; knows: rina_runway; feels: Rina friend",
+        "good": true,
+        "waits": "job: gamedev; rank: top; feels: Rina friend",
+        "text": "She pitches the deal to Mochi Byte herself and {{user}} signs it: Hikari Labs lives on licensing its own tools, Jake stays, and the runway is long again."
+       },
+       {
         "id": "funded",
         "text": "The Mochi Byte deal closes with the help of {{user}}, Jake stays, and Hikari Labs survives.",
-        "when": "knows: rina_runway; feels: Rina friend",
+        "when": "knows: rina_runway; feels: Rina good",
         "good": true
        },
        {
@@ -39764,6 +41603,12 @@
         "when": "season: spring or summer or autumn",
         "tell": "hidden",
         "text": "He rewrites the letter, takes it out, and puts it back in the drawer."
+       },
+       {
+        "id": "ex_above",
+        "when": "venture: div_asahina",
+        "tell": "hidden",
+        "text": "With {{user}} on the board, any letter he hands in would cross {{user}}'s desk; he rewrites it with {{user}}'s name at the top, and still leaves it in the drawer."
        },
        {
         "when": "season: winter",
@@ -39902,9 +41747,16 @@
       ],
       "endings": [
        {
+        "id": "last_show",
+        "when": "job: tv; rank: top; seen: ex_hina_lastshow:1; knows: hina_graduation; feels: Hina friend",
+        "good": true,
+        "waits": "job: tv; feels: Hina friend",
+        "text": "She plans her last show herself and {{user}}'s channel gives it an hour of its own; she says goodbye on air in her own words, graduates, and lives an ordinary life."
+       },
+       {
         "id": "graduates",
         "text": "She graduates and lives an ordinary life.",
-        "when": "knows: hina_graduation; feels: Hina friend",
+        "when": "knows: hina_graduation; feels: Hina good",
         "good": true
        },
        {
@@ -40605,6 +42457,12 @@
         "text": "She tells her mother about economics homework over the phone, in quick Korean."
        },
        {
+        "id": "cf_owner",
+        "when": "venture: cf_shirakaba",
+        "tell": "hinted",
+        "text": "Now that {{user}} runs Kissa Shirakaba, she watches every change to the café as if it were a page of her novel, and writes the new owner into it."
+       },
+       {
         "when": "season: winter",
         "tell": "known",
         "text": "Her parents visit Tokyo."
@@ -40612,9 +42470,23 @@
       ],
       "endings": [
        {
+        "id": "novel_at_counter",
+        "when": "venture: cf_shirakaba cf_as_it_was; knows: seoyeon_parents; feels: Seo-yeon friend",
+        "good": true,
+        "waits": "job: kissaten; feels: Seo-yeon friend",
+        "text": "Her parents come in winter, to the kissaten her novel is set in, kept just as it was; {{user}} pours for them at the counter, and she tells them about literature with the first chapter between the cups."
+       },
+       {
+        "id": "another_book",
+        "when": "venture: cf_shirakaba; knows: seoyeon_parents; feels: Seo-yeon good",
+        "good": true,
+        "waits": "job: kissaten; feels: Seo-yeon friend",
+        "text": "The café changed under her, and the novel with it: she starts a different book, about a city that keeps nothing, and tells her parents about that one at {{user}}'s new counter."
+       },
+       {
         "id": "tells_parents",
         "text": "She tells them about literature.",
-        "when": "knows: seoyeon_parents; feels: Seo-yeon friend",
+        "when": "knows: seoyeon_parents; feels: Seo-yeon good",
         "good": true
        },
        {
@@ -41043,9 +42915,16 @@
       ],
       "endings": [
        {
+        "id": "fought_for",
+        "when": "venture: div_asahina; seen: office_ex_mei:1; knows: mei_interviews; feels: Mei friend",
+        "good": true,
+        "waits": "job: office; rank: top; feels: Mei friend",
+        "text": "She tells {{user}} about the rival firm's offer herself and asks for a team of her own; {{user}} wins it for her at the board, and she tears up the offer and stays."
+       },
+       {
         "id": "stays",
         "text": "She stays when Reiko fights for her.",
-        "when": "knows: mei_interviews; feels: Mei good",
+        "when": "knows: mei_interviews; feels: Mei best",
         "good": true
        },
        {
@@ -44396,6 +46275,3285 @@
    "no cheating",
    "nothing when either of you has been drinking",
    "nothing hidden behind anyone's back"
+  ]
+ },
+ "ventures": [
+  {
+   "id": "cf_shirakaba",
+   "name": "Kissa Shirakaba",
+   "desc": "the old kissaten in Kōenji, taken over from the master when he retired",
+   "place": "ws_kissaten",
+   "track": "cafe",
+   "trains": [
+    "cooking",
+    "charisma"
+   ],
+   "stint": 4,
+   "tiers": [
+    {
+     "id": "stand",
+     "name": "Coffee stand",
+     "ceiling": 20,
+     "alone": 0,
+     "base": 9000,
+     "desc": "a counter and a few stools, open only while you're behind it",
+     "milestone": {
+      "upgrade": "cf_counter",
+      "story": "cf_ms_regulars"
+     }
+    },
+    {
+     "id": "kissaten",
+     "name": "Kissaten",
+     "ceiling": 40,
+     "alone": 0.5,
+     "base": 17000,
+     "desc": "a café with its regulars, open every day; hired hands keep it open when you're not there",
+     "milestone": {
+      "upgrade": "cf_house_blend",
+      "story": "cf_ms_guide"
+     }
+    },
+    {
+     "id": "two",
+     "name": "Two cafés",
+     "ceiling": 60,
+     "alone": 0.55,
+     "base": 26000,
+     "places": 2,
+     "desc": "a second café in another part of town, the same coffee in both",
+     "milestone": {
+      "upgrade": "cf_roaster",
+      "story": "cf_ms_bank"
+     }
+    },
+    {
+     "id": "roastery",
+     "name": "Roastery",
+     "ceiling": 85,
+     "alone": 0.65,
+     "base": 34000,
+     "places": 2,
+     "desc": "a small roastery behind the café that sells beans to other places"
+    }
+   ],
+   "styles": [
+    {
+     "id": "cf_as_it_was",
+     "name": "As it was",
+     "tier": 2,
+     "desc": "kept the way it has always been: dark wood, siphons, the old regulars with their newspapers, quiet but for the clock",
+     "mul": {
+      "atmosphere": 1.12,
+      "fame": 0.92
+     }
+    },
+    {
+     "id": "cf_specialty",
+     "name": "Specialty coffee",
+     "tier": 2,
+     "desc": "single origins and pour-overs, latte art, a young crowd, a queue on weekends and photos of every cup",
+     "mul": {
+      "quality": 1.08,
+      "fame": 1.1,
+      "atmosphere": 0.9
+     },
+     "finds": [
+      "cf_single_origin",
+      "cf_tv_spot"
+     ]
+    },
+    {
+     "id": "cf_open_late",
+     "name": "Open late",
+     "tier": 2,
+     "desc": "lamps on until two: the night crowd, musicians after a gig, people who missed the last train",
+     "mul": {
+      "capacity": 1.1,
+      "quality": 0.95
+     },
+     "finds": [
+      "cf_nightcap"
+     ]
+    },
+    {
+     "id": "cf_wholesale",
+     "name": "Beans for the city",
+     "tier": 4,
+     "desc": "the roaster runs every morning; its beans go to restaurants and other cafés across town",
+     "mul": {
+      "capacity": 1.1,
+      "atmosphere": 0.95
+     }
+    },
+    {
+     "id": "cf_tasting",
+     "name": "A tasting room",
+     "tier": 4,
+     "desc": "the roastery opens as a tasting room on weekends: cuppings at a long table, people who come from far for it",
+     "mul": {
+      "fame": 1.12,
+      "capacity": 0.92
+     }
+    }
+   ],
+   "discoveries": [
+    {
+     "id": "cf_d_iced",
+     "name": "Iced coffee in summer",
+     "when": "season: summer",
+     "add": {
+      "quality": 2
+     },
+     "text": "Summer customers want it cold and strong; you cold-brew a jug overnight and it's gone by noon."
+    },
+    {
+     "id": "cf_d_milk",
+     "name": "Hot milk coffee for the illuminations",
+     "when": "festival: illumination",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "People walking back from the lights want something warm to hold more than something to drink."
+    },
+    {
+     "id": "cf_d_sakura",
+     "name": "A sakura latte for hanami",
+     "when": "festival: hanami",
+     "add": {
+      "fame": 2
+     },
+     "text": "A pinch of salted cherry blossom and the photos do the rest."
+    },
+    {
+     "id": "cf_d_rain",
+     "name": "Rainy-day regulars",
+     "when": "weather: rain or heavyrain",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "On rainy days the same few people come in to wait it out; you keep their seats dry."
+    },
+    {
+     "id": "cf_d_rush",
+     "name": "The morning rush",
+     "when": "period: rush",
+     "add": {
+      "capacity": 2
+     },
+     "text": "A takeaway window for the commuters: one coffee, no talking, a nod."
+    },
+    {
+     "id": "cf_d_tsukimi",
+     "name": "Tsukimi dango with the coffee",
+     "when": "festival: tsukimi",
+     "add": {
+      "quality": 2
+     },
+     "text": "Three white dumplings on a plate beside the cup, for the moon."
+    },
+    {
+     "id": "cf_d_zenzai",
+     "name": "Zenzai on winter afternoons",
+     "when": "season: winter; period: afternoon",
+     "add": {
+      "quality": 2
+     },
+     "text": "Sweet red-bean soup with a toasted mochi: the old customers ask for it by name."
+    },
+    {
+     "id": "cf_d_valentine",
+     "name": "Chocolate for Valentine's",
+     "when": "festival: valentine",
+     "add": {
+      "fame": 2
+     },
+     "text": "A tiny square of dark chocolate with every cup that week, and people bring their dates."
+    },
+    {
+     "id": "cf_d_lasttrain",
+     "name": "The last-train crowd",
+     "when": "venture: cafe cf_open_late; period: night",
+     "add": {
+      "capacity": 3
+     },
+     "text": "After midnight the café fills with people who missed the last train and decided not to mind."
+    },
+    {
+     "id": "cf_d_students",
+     "name": "Monday afternoons belong to students",
+     "when": "weekday: mon; period: afternoon",
+     "add": {
+      "capacity": 2
+     },
+     "text": "Laptops, highlighters, one coffee each for three hours; you put a power strip under the long table."
+    }
+   ],
+   "events": [
+    {
+     "id": "cf_ev_blogger",
+     "setup": "A food blogger photographs every cup from four angles before she drinks any of them, and asks for the wifi password twice.",
+     "choices": [
+      {
+       "label": "Make her a special one",
+       "money": -800,
+       "add": {
+        "fame": 2
+       },
+       "text": "She posts it with a long caption; by evening two strangers come in asking for \"that cup\"."
+      },
+      {
+       "label": "Leave her to it",
+       "text": "She leaves a polite three-star review: \"atmospheric, slow\"."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_siphon",
+     "setup": "A glass siphon cracks in the middle of the morning rush, and coffee runs across the counter.",
+     "choices": [
+      {
+       "label": "Fix it on the spot",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "Tape, a spare bowl and a steady hand: nobody waits long.",
+       "fail": {
+        "text": "It cracks again; you switch to drip for the day.",
+        "money": -3000
+       }
+      },
+      {
+       "label": "Apologize and serve drip",
+       "text": "The regulars grumble kindly and drink it anyway."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_proposal",
+     "setup": "A young man at the window table asks, very quietly, whether the café could bring out a cake with a ring on it at exactly three o'clock.",
+     "choices": [
+      {
+       "label": "Of course",
+       "add": {
+        "atmosphere": 2
+       },
+       "effects": {
+        "mood": 6
+       },
+       "text": "She says yes. The whole café claps, and an old regular wipes his eyes and pretends he didn't."
+      },
+      {
+       "label": "Suggest somewhere quieter",
+       "text": "He thanks you and books a restaurant instead."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_tourists",
+     "setup": "A tour group of twenty squeezes in all at once; the regulars look up from their newspapers in alarm.",
+     "choices": [
+      {
+       "label": "Serve them fast",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "money": 6000,
+       "add": {
+        "fame": 1
+       },
+       "text": "Twenty coffees, twenty photos, twenty polite bows on the way out.",
+       "fail": {
+        "text": "Orders get mixed up and the regulars leave early.",
+        "add": {
+         "atmosphere": -1
+        }
+       }
+      },
+      {
+       "label": "Ask them to come back in an hour",
+       "text": "Half of them do.",
+       "money": 2000
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_inspector",
+     "setup": "A health inspector arrives unannounced with a clipboard and a flashlight.",
+     "choices": [
+      {
+       "label": "Show her everything",
+       "roll": {
+        "skill": "logic",
+        "dc": 10
+       },
+       "text": "She finds nothing to write down, and orders a coffee before she goes.",
+       "fail": {
+        "text": "A note about the fridge seal; a small fine.",
+        "money": -5000
+       }
+      },
+      {
+       "label": "Offer her a coffee first",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "text": "She declines the coffee and is twice as thorough.",
+       "fail": {
+        "text": "She is not amused; a fine for a cracked tile.",
+        "money": -8000
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_author",
+     "setup": "A novelist people recognize from television takes the corner seat and writes in longhand for four hours on one coffee.",
+     "choices": [
+      {
+       "label": "Refill his cup without asking",
+       "add": {
+        "atmosphere": 1,
+        "fame": 2
+       },
+       "text": "He signs the guest book on his way out: \"a place to finish things\"."
+      },
+      {
+       "label": "Ask for a photo for the wall",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "add": {
+        "fame": 3
+       },
+       "text": "He laughs and agrees, if you promise never to tell anyone what he was writing.",
+       "fail": {
+        "text": "He is polite about it, and doesn't come back."
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_powercut",
+     "setup": "The power goes out across the block on a grey afternoon; the grinder stops, and the room goes dim.",
+     "choices": [
+      {
+       "label": "Light candles and boil water on the gas",
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "Hand-poured coffee by candlelight; nobody wants to leave when the lights come back."
+      },
+      {
+       "label": "Close for an hour",
+       "text": "You lose an hour of takings and nothing else."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_wallet",
+     "setup": "An old regular pats every pocket at the till, twice, and goes red: his wallet is at home, across town, and he has had two coffees and a slice of cake.",
+     "choices": [
+      {
+       "label": "Tell him next time is fine",
+       "effects": {
+        "mood": 4
+       },
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "He comes back the next morning with the money in an envelope, and a box of senbei for the counter."
+      },
+      {
+       "label": "Put it on a tab",
+       "roll": {
+        "skill": "logic",
+        "dc": 9
+       },
+       "text": "You start a little tab book by the register; three regulars ask to be in it by the end of the week.",
+       "add": {
+        "atmosphere": 2
+       },
+       "fail": {
+        "text": "The tab book gets lost under the receipts; he pays anyway, and laughs about it."
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_chess",
+     "setup": "Two old regulars have been playing the same game of shōgi at the corner table for a week. Today they start to argue about whether a piece was moved overnight.",
+     "choices": [
+      {
+       "label": "Say you saw nothing",
+       "text": "They glare at each other, then at you, then go back to playing."
+      },
+      {
+       "label": "Keep the board behind the counter at night",
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "The board gets a shelf of its own and a little sign: \"game in progress, do not touch\"."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_supplier",
+     "setup": "Your milk supplier raises his prices by a third, apologizing, blaming the summer.",
+     "choices": [
+      {
+       "label": "Haggle",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "text": "You meet in the middle and he throws in cream.",
+       "fail": {
+        "text": "He won't move; it comes out of the week's takings.",
+        "money": -4000
+       }
+      },
+      {
+       "label": "Find another farm",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "A small dairy in Chiba with better milk, for less.",
+       "fail": {
+        "text": "The new milk is worse; you go back to him, sheepish.",
+        "money": -2000
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_rival",
+     "setup": "A chain café opens two doors down with a grand opening, balloons and free coffee all day.",
+     "choices": [
+      {
+       "label": "Do nothing different",
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "By the afternoon your regulars come back, holding their free cups and looking guilty."
+      },
+      {
+       "label": "Put out a sign: \"the same coffee as 1975\"",
+       "roll": {
+        "skill": "writing",
+        "dc": 11
+       },
+       "add": {
+        "fame": 2
+       },
+       "text": "Someone posts a photo of the sign; it gets shared more than the balloons.",
+       "fail": {
+        "text": "Nobody notices the sign under the balloons."
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_mio",
+     "setup": "Mio comes in before her shift with a stack of textbooks and asks, a little embarrassed, if she can study at the back table until it's busy.",
+     "when": "feels: Mio friend",
+     "choices": [
+      {
+       "label": "Of course, and here's a coffee",
+       "feels": {
+        "Mio": 3
+       },
+       "text": "She studies for two hours and leaves a thank-you note under the saucer."
+      },
+      {
+       "label": "Only until noon",
+       "feels": {
+        "Mio": 1
+       },
+       "text": "She nods and is gone at eleven fifty-nine on the dot."
+      }
+     ]
+    }
+   ],
+   "cards": [
+    {
+     "id": "cf_c_awaodori",
+     "when": "festival: awaodori",
+     "setup": "The Kōenji Awa Odori fills the streets this weekend. A neighbor's shop offers you a corner for an iced-coffee stall.",
+     "choices": [
+      {
+       "label": "Run the stall (a long day)",
+       "minutes": 360,
+       "money": 32000,
+       "add": {
+        "fame": 4
+       },
+       "effects": {
+        "energy": -25
+       },
+       "text": "Hundreds of dancers, thousands of cups; your name on a lot of paper cups going home."
+      },
+      {
+       "label": "Not this year",
+       "text": "You watch the dancers from the door."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_hanami",
+     "when": "festival: hanami",
+     "setup": "Cherry blossom week: people want coffee to take to the park. A flask and a cart would do it.",
+     "choices": [
+      {
+       "label": "Take a cart to the park",
+       "minutes": 240,
+       "money": 18000,
+       "add": {
+        "fame": 3
+       },
+       "text": "A queue under the trees, petals in the cups."
+      },
+      {
+       "label": "Leave the park to the beer sellers",
+       "text": "The café is quiet all afternoon."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_tanabata",
+     "when": "festival: tanabata",
+     "setup": "For Tanabata the street puts up bamboo. You could hang one by the door for customers' wishes.",
+     "choices": [
+      {
+       "label": "Put up a bamboo and paper strips",
+       "money": -3000,
+       "add": {
+        "atmosphere": 3
+       },
+       "text": "By evening it's heavy with wishes; one of them is about your coffee."
+      },
+      {
+       "label": "Skip it",
+       "text": "Nothing changes."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_halloween",
+     "when": "festival: halloween",
+     "setup": "Halloween is coming. A costume night at the café, with a pumpkin latte?",
+     "choices": [
+      {
+       "label": "Costume night",
+       "minutes": 180,
+       "money": 12000,
+       "add": {
+        "fame": 3
+       },
+       "text": "A vampire, three witches and a man dressed as a siphon."
+      },
+      {
+       "label": "An ordinary night",
+       "text": "A few costumed strangers come in anyway."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_bookfair",
+     "when": "festival: bookfair",
+     "setup": "The Kanda book fair is on. A publisher asks if they can hold a small reading at your café.",
+     "choices": [
+      {
+       "label": "Host the reading",
+       "minutes": 120,
+       "add": {
+        "atmosphere": 3,
+        "fame": 1
+       },
+       "money": 6000,
+       "text": "Forty people on borrowed chairs, and a poet who cries a little."
+      },
+      {
+       "label": "Say the café is too small",
+       "text": "They hold it in a bookshop instead."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_illumination",
+     "when": "festival: illumination",
+     "setup": "The winter illuminations bring crowds after dark. You could stay open late with lights in the window.",
+     "choices": [
+      {
+       "label": "Stay open late this week",
+       "minutes": 180,
+       "money": 16000,
+       "add": {
+        "atmosphere": 2
+       },
+       "effects": {
+        "energy": -15
+       },
+       "text": "Cold hands around warm cups until ten every night."
+      },
+      {
+       "label": "Close at the usual hour",
+       "text": "The crowds pass by the dark window."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_yearend",
+     "when": "festival: yearend_market",
+     "setup": "The year-end market: people buy gifts for the New Year. Little bags of your beans with a hand-written card?",
+     "choices": [
+      {
+       "label": "Make fifty gift bags",
+       "minutes": 150,
+       "money": 20000,
+       "add": {
+        "fame": 2
+       },
+       "text": "Sold out by noon; people ask whether you'll do it again next year."
+      },
+      {
+       "label": "Not this year",
+       "text": "The year ends quietly."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_ramen",
+     "when": "festival: ramen_contest",
+     "setup": "The Tokyo ramen contest wants a coffee stall for the judges' tent. The best one gets mentioned on the results board.",
+     "choices": [
+      {
+       "label": "Enter (a day of your time)",
+       "minutes": 360,
+       "roll": {
+        "skill": "cooking",
+        "dc": 13
+       },
+       "add": {
+        "fame": 5
+       },
+       "money": 15000,
+       "text": "The judges come back for seconds; your name goes on the board.",
+       "fail": {
+        "text": "A long hot day, and a polite mention in small print.",
+        "add": {
+         "fame": 1
+        },
+        "money": 6000
+       }
+      },
+      {
+       "label": "Leave it to the ramen",
+       "text": "You hear about the winner on the news."
+      }
+     ]
+    }
+   ],
+   "demand": {
+    "weekend": 1.25,
+    "festival": 1.3,
+    "season": {
+     "winter": 1.1,
+     "summer": 0.95
+    }
+   },
+   "ways": {
+    "takeover": {
+     "place": "ws_kissaten",
+     "when": "job: kissaten; rank: top",
+     "story": "ws_kissaten_st_offer",
+     "cost": 300000,
+     "tier": 2,
+     "rent": 12000,
+     "start": {
+      "quality": 20,
+      "atmosphere": 28,
+      "capacity": 12,
+      "fame": 10
+     },
+     "endsJob": "kissaten"
+    }
+   },
+   "more": [
+    {
+     "place": "ws_cafe_unit",
+     "cost": 250000,
+     "rent": 12000
+    },
+    {
+     "place": "ot_cafe_unit",
+     "cost": 200000,
+     "rent": 9000
+    },
+    {
+     "place": "sb_cafe_unit",
+     "cost": 450000,
+     "rent": 20000
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "cf_grinder",
+     "name": "A proper hand grinder",
+     "stat": "quality",
+     "add": 4,
+     "cost": 15000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "beans ground for each cup, the way the master did"
+    },
+    {
+     "id": "cf_ameyoko_beans",
+     "name": "Beans from an Ameyoko importer",
+     "stat": "quality",
+     "add": 5,
+     "cost": 25000,
+     "tier": 1,
+     "how": "found",
+     "hint": "an import shop in Ameyoko"
+    },
+    {
+     "id": "cf_morning_set",
+     "name": "A morning set",
+     "stat": "quality",
+     "add": 5,
+     "cost": 30000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "thick toast, a boiled egg and a little salad with the first coffee"
+    },
+    {
+     "id": "cf_wagashi",
+     "name": "Wagashi for the seasons",
+     "stat": "quality",
+     "add": 6,
+     "cost": 40000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a sweets maker in Yanaka"
+    },
+    {
+     "id": "cf_siphon_bar",
+     "name": "The master's siphon bar, restored",
+     "stat": "quality",
+     "add": 8,
+     "cost": 90000,
+     "tier": 2,
+     "how": "earned",
+     "when": "seen: ws_kissaten_st_notebook",
+     "hint": "the master's notebook"
+    },
+    {
+     "id": "cf_house_blend",
+     "name": "A house blend",
+     "stat": "quality",
+     "add": 8,
+     "cost": 60000,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: cooking 8",
+     "hint": "Cooking 8"
+    },
+    {
+     "id": "cf_single_origin",
+     "name": "Single origins from a micro-roaster",
+     "stat": "quality",
+     "add": 7,
+     "cost": 70000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a roaster's pop-up on Omotesandō"
+    },
+    {
+     "id": "cf_roaster",
+     "name": "A small drum roaster",
+     "stat": "quality",
+     "add": 10,
+     "cost": 400000,
+     "tier": 3,
+     "how": "basic",
+     "desc": "roasting your own beans in the back"
+    },
+    {
+     "id": "cf_competition",
+     "name": "A barista championship medal",
+     "stat": "quality",
+     "add": 9,
+     "cost": 50000,
+     "tier": 3,
+     "how": "earned",
+     "when": "skill: cooking 10",
+     "hint": "Cooking at its best"
+    },
+    {
+     "id": "cf_plants",
+     "name": "Plants in the window",
+     "stat": "atmosphere",
+     "add": 4,
+     "cost": 12000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "cf_chairs70s",
+     "name": "A set of 1970s café chairs",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 80000,
+     "tier": 1,
+     "how": "found",
+     "hint": "the back of a vintage shop in Shimokita"
+    },
+    {
+     "id": "cf_jazz_records",
+     "name": "A record player and old jazz",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 60000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a record shop closing in Shimokita's lanes"
+    },
+    {
+     "id": "cf_book_wall",
+     "name": "A wall of used books",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 50000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a bookseller in Jinbōchō"
+    },
+    {
+     "id": "cf_reading_nights",
+     "name": "Seo-yeon's reading nights",
+     "stat": "atmosphere",
+     "add": 8,
+     "cost": 20000,
+     "tier": 2,
+     "how": "earned",
+     "when": "seen: cf_seoyeon_reading:1",
+     "hint": "Seo-yeon and her novel"
+    },
+    {
+     "id": "cf_napkins",
+     "name": "Haru's drawings on the napkins",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 15000,
+     "tier": 2,
+     "how": "earned",
+     "when": "feels: Haru good",
+     "hint": "a friend who draws"
+    },
+    {
+     "id": "cf_lanterns",
+     "name": "Paper lanterns for the evening",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 35000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "cf_nightcap",
+     "name": "A Golden Gai coffee nightcap",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 30000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a bar master in Golden Gai"
+    },
+    {
+     "id": "cf_counter",
+     "name": "A real counter and four stools",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 50000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "cf_second_hand",
+     "name": "A second hand at the counter",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 40000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "a second hand at the counter"
+    },
+    {
+     "id": "cf_booths",
+     "name": "Booths from a kissaten that closed",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 90000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a kissaten closing in Kōenji's arcade"
+    },
+    {
+     "id": "cf_terrace",
+     "name": "A terrace under the zelkova",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 70000,
+     "tier": 2,
+     "how": "basic",
+     "place": "sb_cafe_unit"
+    },
+    {
+     "id": "cf_night_staff",
+     "name": "Someone for the late shift",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 45000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "the late shift",
+     "style": "cf_open_late"
+    },
+    {
+     "id": "cf_english_menu",
+     "name": "A menu in English",
+     "stat": "capacity",
+     "add": 4,
+     "cost": 10000,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: english 6",
+     "hint": "good English"
+    },
+    {
+     "id": "cf_manager",
+     "name": "A manager",
+     "stat": "capacity",
+     "add": 3,
+     "cost": 150000,
+     "tier": 3,
+     "how": "basic",
+     "staff": "the manager",
+     "manager": true
+    },
+    {
+     "id": "cf_roast_hand",
+     "name": "A roaster's apprentice",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 120000,
+     "tier": 4,
+     "how": "basic",
+     "staff": "the roaster's apprentice"
+    },
+    {
+     "id": "cf_sign",
+     "name": "A hand-painted sign",
+     "stat": "fame",
+     "add": 4,
+     "cost": 10000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "cf_latte_art",
+     "name": "Latte art people photograph",
+     "stat": "fame",
+     "add": 5,
+     "cost": 8000,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: drawing 5",
+     "hint": "a steady hand for drawing"
+    },
+    {
+     "id": "cf_ramen_stall",
+     "name": "The coffee stall at the ramen contest",
+     "stat": "fame",
+     "add": 7,
+     "cost": 25000,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: ramen_contest",
+     "hint": "the Tokyo ramen contest in summer"
+    },
+    {
+     "id": "cf_tv_spot",
+     "name": "A spot on a morning show",
+     "stat": "fame",
+     "add": 10,
+     "cost": 60000,
+     "tier": 2,
+     "how": "found",
+     "hint": "someone at Wave TV"
+    },
+    {
+     "id": "cf_regulars",
+     "name": "Your friends' crowd",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "friends: 3 good",
+     "hint": "good friends who bring theirs"
+    },
+    {
+     "id": "cf_guide_star",
+     "name": "A star in the coffee guide",
+     "stat": "fame",
+     "add": 10,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "seen: cf_ms_guide:1",
+     "hint": "the guide's critic"
+    },
+    {
+     "id": "cf_beans_bags",
+     "name": "Bags of your own beans",
+     "stat": "fame",
+     "add": 8,
+     "cost": 60000,
+     "tier": 4,
+     "how": "basic"
+    },
+    {
+     "id": "cf_magazine",
+     "name": "A page in a Ginza magazine",
+     "stat": "fame",
+     "add": 8,
+     "cost": 40000,
+     "tier": 3,
+     "how": "found",
+     "hint": "an editor on Ginza's main street"
+    },
+    {
+     "id": "cf_named_roastery",
+     "name": "A roastery people name",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 4,
+     "how": "earned",
+     "when": "helped: 3",
+     "hint": "people whose stories you helped"
+    },
+    {
+     "id": "cf_cupping_lab",
+     "name": "A cupping lab",
+     "stat": "quality",
+     "add": 8,
+     "cost": 300000,
+     "tier": 4,
+     "how": "basic",
+     "desc": "a white room with a long table, spittoons and a scale"
+    },
+    {
+     "id": "cf_farm_beans",
+     "name": "Beans from a farm you know",
+     "stat": "quality",
+     "add": 8,
+     "cost": 120000,
+     "tier": 4,
+     "how": "earned",
+     "when": "skill: english 8",
+     "hint": "English good enough to deal with a farm abroad"
+    },
+    {
+     "id": "cf_second_room",
+     "name": "The second café's own interior",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 120000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "cf_live_music",
+     "name": "Live music on Sunday afternoons",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 20000,
+     "tier": 3,
+     "how": "earned",
+     "when": "skill: music 6",
+     "hint": "playing music well"
+    },
+    {
+     "id": "cf_window_roaster",
+     "name": "A roaster in the window",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 80000,
+     "tier": 4,
+     "how": "basic"
+    },
+    {
+     "id": "cf_second_barista",
+     "name": "A barista for the second café",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 90000,
+     "tier": 3,
+     "how": "basic",
+     "staff": "a barista for the second café"
+    },
+    {
+     "id": "cf_delivery",
+     "name": "Deliveries to other cafés",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 100000,
+     "tier": 4,
+     "how": "basic",
+     "staff": "deliveries by bicycle"
+    }
+   ]
+  },
+  {
+   "id": "cf_own",
+   "name": "A café of your own",
+   "desc": "a small café you opened yourself in a unit you lease",
+   "track": "cafe",
+   "trains": [
+    "cooking",
+    "charisma"
+   ],
+   "stint": 4,
+   "tiers": [
+    {
+     "id": "stand",
+     "name": "Coffee stand",
+     "ceiling": 20,
+     "alone": 0,
+     "base": 9000,
+     "desc": "a counter and a few stools, open only while you're behind it",
+     "milestone": {
+      "upgrade": "cf_counter",
+      "story": "cf_ms_regulars"
+     }
+    },
+    {
+     "id": "kissaten",
+     "name": "Kissaten",
+     "ceiling": 40,
+     "alone": 0.5,
+     "base": 17000,
+     "desc": "a café with its regulars, open every day; hired hands keep it open when you're not there",
+     "milestone": {
+      "upgrade": "cf_house_blend",
+      "story": "cf_ms_guide"
+     }
+    },
+    {
+     "id": "two",
+     "name": "Two cafés",
+     "ceiling": 60,
+     "alone": 0.55,
+     "base": 26000,
+     "places": 2,
+     "desc": "a second café in another part of town, the same coffee in both",
+     "milestone": {
+      "upgrade": "cf_roaster",
+      "story": "cf_ms_bank"
+     }
+    },
+    {
+     "id": "roastery",
+     "name": "Roastery",
+     "ceiling": 85,
+     "alone": 0.65,
+     "base": 34000,
+     "places": 2,
+     "desc": "a small roastery behind the café that sells beans to other places"
+    }
+   ],
+   "styles": [
+    {
+     "id": "cf_as_it_was",
+     "name": "As it was",
+     "tier": 2,
+     "desc": "kept the way it has always been: dark wood, siphons, the old regulars with their newspapers, quiet but for the clock",
+     "mul": {
+      "atmosphere": 1.12,
+      "fame": 0.92
+     }
+    },
+    {
+     "id": "cf_specialty",
+     "name": "Specialty coffee",
+     "tier": 2,
+     "desc": "single origins and pour-overs, latte art, a young crowd, a queue on weekends and photos of every cup",
+     "mul": {
+      "quality": 1.08,
+      "fame": 1.1,
+      "atmosphere": 0.9
+     },
+     "finds": [
+      "cf_single_origin",
+      "cf_tv_spot"
+     ]
+    },
+    {
+     "id": "cf_open_late",
+     "name": "Open late",
+     "tier": 2,
+     "desc": "lamps on until two: the night crowd, musicians after a gig, people who missed the last train",
+     "mul": {
+      "capacity": 1.1,
+      "quality": 0.95
+     },
+     "finds": [
+      "cf_nightcap"
+     ]
+    },
+    {
+     "id": "cf_wholesale",
+     "name": "Beans for the city",
+     "tier": 4,
+     "desc": "the roaster runs every morning; its beans go to restaurants and other cafés across town",
+     "mul": {
+      "capacity": 1.1,
+      "atmosphere": 0.95
+     }
+    },
+    {
+     "id": "cf_tasting",
+     "name": "A tasting room",
+     "tier": 4,
+     "desc": "the roastery opens as a tasting room on weekends: cuppings at a long table, people who come from far for it",
+     "mul": {
+      "fame": 1.12,
+      "capacity": 0.92
+     }
+    }
+   ],
+   "discoveries": [
+    {
+     "id": "cf_d_iced",
+     "name": "Iced coffee in summer",
+     "when": "season: summer",
+     "add": {
+      "quality": 2
+     },
+     "text": "Summer customers want it cold and strong; you cold-brew a jug overnight and it's gone by noon."
+    },
+    {
+     "id": "cf_d_milk",
+     "name": "Hot milk coffee for the illuminations",
+     "when": "festival: illumination",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "People walking back from the lights want something warm to hold more than something to drink."
+    },
+    {
+     "id": "cf_d_sakura",
+     "name": "A sakura latte for hanami",
+     "when": "festival: hanami",
+     "add": {
+      "fame": 2
+     },
+     "text": "A pinch of salted cherry blossom and the photos do the rest."
+    },
+    {
+     "id": "cf_d_rain",
+     "name": "Rainy-day regulars",
+     "when": "weather: rain or heavyrain",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "On rainy days the same few people come in to wait it out; you keep their seats dry."
+    },
+    {
+     "id": "cf_d_rush",
+     "name": "The morning rush",
+     "when": "period: rush",
+     "add": {
+      "capacity": 2
+     },
+     "text": "A takeaway window for the commuters: one coffee, no talking, a nod."
+    },
+    {
+     "id": "cf_d_tsukimi",
+     "name": "Tsukimi dango with the coffee",
+     "when": "festival: tsukimi",
+     "add": {
+      "quality": 2
+     },
+     "text": "Three white dumplings on a plate beside the cup, for the moon."
+    },
+    {
+     "id": "cf_d_zenzai",
+     "name": "Zenzai on winter afternoons",
+     "when": "season: winter; period: afternoon",
+     "add": {
+      "quality": 2
+     },
+     "text": "Sweet red-bean soup with a toasted mochi: the old customers ask for it by name."
+    },
+    {
+     "id": "cf_d_valentine",
+     "name": "Chocolate for Valentine's",
+     "when": "festival: valentine",
+     "add": {
+      "fame": 2
+     },
+     "text": "A tiny square of dark chocolate with every cup that week, and people bring their dates."
+    },
+    {
+     "id": "cf_d_lasttrain",
+     "name": "The last-train crowd",
+     "when": "venture: cafe cf_open_late; period: night",
+     "add": {
+      "capacity": 3
+     },
+     "text": "After midnight the café fills with people who missed the last train and decided not to mind."
+    },
+    {
+     "id": "cf_d_students",
+     "name": "Monday afternoons belong to students",
+     "when": "weekday: mon; period: afternoon",
+     "add": {
+      "capacity": 2
+     },
+     "text": "Laptops, highlighters, one coffee each for three hours; you put a power strip under the long table."
+    }
+   ],
+   "events": [
+    {
+     "id": "cf_ev_blogger",
+     "setup": "A food blogger photographs every cup from four angles before she drinks any of them, and asks for the wifi password twice.",
+     "choices": [
+      {
+       "label": "Make her a special one",
+       "money": -800,
+       "add": {
+        "fame": 2
+       },
+       "text": "She posts it with a long caption; by evening two strangers come in asking for \"that cup\"."
+      },
+      {
+       "label": "Leave her to it",
+       "text": "She leaves a polite three-star review: \"atmospheric, slow\"."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_siphon",
+     "setup": "A glass siphon cracks in the middle of the morning rush, and coffee runs across the counter.",
+     "choices": [
+      {
+       "label": "Fix it on the spot",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "Tape, a spare bowl and a steady hand: nobody waits long.",
+       "fail": {
+        "text": "It cracks again; you switch to drip for the day.",
+        "money": -3000
+       }
+      },
+      {
+       "label": "Apologize and serve drip",
+       "text": "The regulars grumble kindly and drink it anyway."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_proposal",
+     "setup": "A young man at the window table asks, very quietly, whether the café could bring out a cake with a ring on it at exactly three o'clock.",
+     "choices": [
+      {
+       "label": "Of course",
+       "add": {
+        "atmosphere": 2
+       },
+       "effects": {
+        "mood": 6
+       },
+       "text": "She says yes. The whole café claps, and an old regular wipes his eyes and pretends he didn't."
+      },
+      {
+       "label": "Suggest somewhere quieter",
+       "text": "He thanks you and books a restaurant instead."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_tourists",
+     "setup": "A tour group of twenty squeezes in all at once; the regulars look up from their newspapers in alarm.",
+     "choices": [
+      {
+       "label": "Serve them fast",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "money": 6000,
+       "add": {
+        "fame": 1
+       },
+       "text": "Twenty coffees, twenty photos, twenty polite bows on the way out.",
+       "fail": {
+        "text": "Orders get mixed up and the regulars leave early.",
+        "add": {
+         "atmosphere": -1
+        }
+       }
+      },
+      {
+       "label": "Ask them to come back in an hour",
+       "text": "Half of them do.",
+       "money": 2000
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_inspector",
+     "setup": "A health inspector arrives unannounced with a clipboard and a flashlight.",
+     "choices": [
+      {
+       "label": "Show her everything",
+       "roll": {
+        "skill": "logic",
+        "dc": 10
+       },
+       "text": "She finds nothing to write down, and orders a coffee before she goes.",
+       "fail": {
+        "text": "A note about the fridge seal; a small fine.",
+        "money": -5000
+       }
+      },
+      {
+       "label": "Offer her a coffee first",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "text": "She declines the coffee and is twice as thorough.",
+       "fail": {
+        "text": "She is not amused; a fine for a cracked tile.",
+        "money": -8000
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_author",
+     "setup": "A novelist people recognize from television takes the corner seat and writes in longhand for four hours on one coffee.",
+     "choices": [
+      {
+       "label": "Refill his cup without asking",
+       "add": {
+        "atmosphere": 1,
+        "fame": 2
+       },
+       "text": "He signs the guest book on his way out: \"a place to finish things\"."
+      },
+      {
+       "label": "Ask for a photo for the wall",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "add": {
+        "fame": 3
+       },
+       "text": "He laughs and agrees, if you promise never to tell anyone what he was writing.",
+       "fail": {
+        "text": "He is polite about it, and doesn't come back."
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_powercut",
+     "setup": "The power goes out across the block on a grey afternoon; the grinder stops, and the room goes dim.",
+     "choices": [
+      {
+       "label": "Light candles and boil water on the gas",
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "Hand-poured coffee by candlelight; nobody wants to leave when the lights come back."
+      },
+      {
+       "label": "Close for an hour",
+       "text": "You lose an hour of takings and nothing else."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_wallet",
+     "setup": "An old regular pats every pocket at the till, twice, and goes red: his wallet is at home, across town, and he has had two coffees and a slice of cake.",
+     "choices": [
+      {
+       "label": "Tell him next time is fine",
+       "effects": {
+        "mood": 4
+       },
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "He comes back the next morning with the money in an envelope, and a box of senbei for the counter."
+      },
+      {
+       "label": "Put it on a tab",
+       "roll": {
+        "skill": "logic",
+        "dc": 9
+       },
+       "text": "You start a little tab book by the register; three regulars ask to be in it by the end of the week.",
+       "add": {
+        "atmosphere": 2
+       },
+       "fail": {
+        "text": "The tab book gets lost under the receipts; he pays anyway, and laughs about it."
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_chess",
+     "setup": "Two old regulars have been playing the same game of shōgi at the corner table for a week. Today they start to argue about whether a piece was moved overnight.",
+     "choices": [
+      {
+       "label": "Say you saw nothing",
+       "text": "They glare at each other, then at you, then go back to playing."
+      },
+      {
+       "label": "Keep the board behind the counter at night",
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "The board gets a shelf of its own and a little sign: \"game in progress, do not touch\"."
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_supplier",
+     "setup": "Your milk supplier raises his prices by a third, apologizing, blaming the summer.",
+     "choices": [
+      {
+       "label": "Haggle",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "text": "You meet in the middle and he throws in cream.",
+       "fail": {
+        "text": "He won't move; it comes out of the week's takings.",
+        "money": -4000
+       }
+      },
+      {
+       "label": "Find another farm",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "A small dairy in Chiba with better milk, for less.",
+       "fail": {
+        "text": "The new milk is worse; you go back to him, sheepish.",
+        "money": -2000
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_rival",
+     "setup": "A chain café opens two doors down with a grand opening, balloons and free coffee all day.",
+     "choices": [
+      {
+       "label": "Do nothing different",
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "By the afternoon your regulars come back, holding their free cups and looking guilty."
+      },
+      {
+       "label": "Put out a sign: \"the same coffee as 1975\"",
+       "roll": {
+        "skill": "writing",
+        "dc": 11
+       },
+       "add": {
+        "fame": 2
+       },
+       "text": "Someone posts a photo of the sign; it gets shared more than the balloons.",
+       "fail": {
+        "text": "Nobody notices the sign under the balloons."
+       }
+      }
+     ]
+    },
+    {
+     "id": "cf_ev_mio",
+     "setup": "Mio comes in before her shift with a stack of textbooks and asks, a little embarrassed, if she can study at the back table until it's busy.",
+     "when": "feels: Mio friend",
+     "choices": [
+      {
+       "label": "Of course, and here's a coffee",
+       "feels": {
+        "Mio": 3
+       },
+       "text": "She studies for two hours and leaves a thank-you note under the saucer."
+      },
+      {
+       "label": "Only until noon",
+       "feels": {
+        "Mio": 1
+       },
+       "text": "She nods and is gone at eleven fifty-nine on the dot."
+      }
+     ]
+    }
+   ],
+   "cards": [
+    {
+     "id": "cf_c_awaodori",
+     "when": "festival: awaodori",
+     "setup": "The Kōenji Awa Odori fills the streets this weekend. A neighbor's shop offers you a corner for an iced-coffee stall.",
+     "choices": [
+      {
+       "label": "Run the stall (a long day)",
+       "minutes": 360,
+       "money": 32000,
+       "add": {
+        "fame": 4
+       },
+       "effects": {
+        "energy": -25
+       },
+       "text": "Hundreds of dancers, thousands of cups; your name on a lot of paper cups going home."
+      },
+      {
+       "label": "Not this year",
+       "text": "You watch the dancers from the door."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_hanami",
+     "when": "festival: hanami",
+     "setup": "Cherry blossom week: people want coffee to take to the park. A flask and a cart would do it.",
+     "choices": [
+      {
+       "label": "Take a cart to the park",
+       "minutes": 240,
+       "money": 18000,
+       "add": {
+        "fame": 3
+       },
+       "text": "A queue under the trees, petals in the cups."
+      },
+      {
+       "label": "Leave the park to the beer sellers",
+       "text": "The café is quiet all afternoon."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_tanabata",
+     "when": "festival: tanabata",
+     "setup": "For Tanabata the street puts up bamboo. You could hang one by the door for customers' wishes.",
+     "choices": [
+      {
+       "label": "Put up a bamboo and paper strips",
+       "money": -3000,
+       "add": {
+        "atmosphere": 3
+       },
+       "text": "By evening it's heavy with wishes; one of them is about your coffee."
+      },
+      {
+       "label": "Skip it",
+       "text": "Nothing changes."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_halloween",
+     "when": "festival: halloween",
+     "setup": "Halloween is coming. A costume night at the café, with a pumpkin latte?",
+     "choices": [
+      {
+       "label": "Costume night",
+       "minutes": 180,
+       "money": 12000,
+       "add": {
+        "fame": 3
+       },
+       "text": "A vampire, three witches and a man dressed as a siphon."
+      },
+      {
+       "label": "An ordinary night",
+       "text": "A few costumed strangers come in anyway."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_bookfair",
+     "when": "festival: bookfair",
+     "setup": "The Kanda book fair is on. A publisher asks if they can hold a small reading at your café.",
+     "choices": [
+      {
+       "label": "Host the reading",
+       "minutes": 120,
+       "add": {
+        "atmosphere": 3,
+        "fame": 1
+       },
+       "money": 6000,
+       "text": "Forty people on borrowed chairs, and a poet who cries a little."
+      },
+      {
+       "label": "Say the café is too small",
+       "text": "They hold it in a bookshop instead."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_illumination",
+     "when": "festival: illumination",
+     "setup": "The winter illuminations bring crowds after dark. You could stay open late with lights in the window.",
+     "choices": [
+      {
+       "label": "Stay open late this week",
+       "minutes": 180,
+       "money": 16000,
+       "add": {
+        "atmosphere": 2
+       },
+       "effects": {
+        "energy": -15
+       },
+       "text": "Cold hands around warm cups until ten every night."
+      },
+      {
+       "label": "Close at the usual hour",
+       "text": "The crowds pass by the dark window."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_yearend",
+     "when": "festival: yearend_market",
+     "setup": "The year-end market: people buy gifts for the New Year. Little bags of your beans with a hand-written card?",
+     "choices": [
+      {
+       "label": "Make fifty gift bags",
+       "minutes": 150,
+       "money": 20000,
+       "add": {
+        "fame": 2
+       },
+       "text": "Sold out by noon; people ask whether you'll do it again next year."
+      },
+      {
+       "label": "Not this year",
+       "text": "The year ends quietly."
+      }
+     ]
+    },
+    {
+     "id": "cf_c_ramen",
+     "when": "festival: ramen_contest",
+     "setup": "The Tokyo ramen contest wants a coffee stall for the judges' tent. The best one gets mentioned on the results board.",
+     "choices": [
+      {
+       "label": "Enter (a day of your time)",
+       "minutes": 360,
+       "roll": {
+        "skill": "cooking",
+        "dc": 13
+       },
+       "add": {
+        "fame": 5
+       },
+       "money": 15000,
+       "text": "The judges come back for seconds; your name goes on the board.",
+       "fail": {
+        "text": "A long hot day, and a polite mention in small print.",
+        "add": {
+         "fame": 1
+        },
+        "money": 6000
+       }
+      },
+      {
+       "label": "Leave it to the ramen",
+       "text": "You hear about the winner on the news."
+      }
+     ]
+    }
+   ],
+   "demand": {
+    "weekend": 1.25,
+    "festival": 1.3,
+    "season": {
+     "winter": 1.1,
+     "summer": 0.95
+    }
+   },
+   "ways": {
+    "lease": {
+     "units": [
+      {
+       "place": "ws_cafe_unit",
+       "cost": 250000,
+       "rent": 12000
+      },
+      {
+       "place": "ot_cafe_unit",
+       "cost": 200000,
+       "rent": 9000
+      },
+      {
+       "place": "sb_cafe_unit",
+       "cost": 450000,
+       "rent": 20000
+      }
+     ],
+     "tier": 1
+    }
+   },
+   "upgrades": [
+    {
+     "id": "cf_grinder",
+     "name": "A proper hand grinder",
+     "stat": "quality",
+     "add": 4,
+     "cost": 15000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "beans ground for each cup, the way the master did"
+    },
+    {
+     "id": "cf_ameyoko_beans",
+     "name": "Beans from an Ameyoko importer",
+     "stat": "quality",
+     "add": 5,
+     "cost": 25000,
+     "tier": 1,
+     "how": "found",
+     "hint": "an import shop in Ameyoko"
+    },
+    {
+     "id": "cf_morning_set",
+     "name": "A morning set",
+     "stat": "quality",
+     "add": 5,
+     "cost": 30000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "thick toast, a boiled egg and a little salad with the first coffee"
+    },
+    {
+     "id": "cf_wagashi",
+     "name": "Wagashi for the seasons",
+     "stat": "quality",
+     "add": 6,
+     "cost": 40000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a sweets maker in Yanaka"
+    },
+    {
+     "id": "cf_house_blend",
+     "name": "A house blend",
+     "stat": "quality",
+     "add": 8,
+     "cost": 60000,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: cooking 8",
+     "hint": "Cooking 8"
+    },
+    {
+     "id": "cf_single_origin",
+     "name": "Single origins from a micro-roaster",
+     "stat": "quality",
+     "add": 7,
+     "cost": 70000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a roaster's pop-up on Omotesandō"
+    },
+    {
+     "id": "cf_roaster",
+     "name": "A small drum roaster",
+     "stat": "quality",
+     "add": 10,
+     "cost": 400000,
+     "tier": 3,
+     "how": "basic",
+     "desc": "roasting your own beans in the back"
+    },
+    {
+     "id": "cf_competition",
+     "name": "A barista championship medal",
+     "stat": "quality",
+     "add": 9,
+     "cost": 50000,
+     "tier": 3,
+     "how": "earned",
+     "when": "skill: cooking 10",
+     "hint": "Cooking at its best"
+    },
+    {
+     "id": "cf_plants",
+     "name": "Plants in the window",
+     "stat": "atmosphere",
+     "add": 4,
+     "cost": 12000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "cf_chairs70s",
+     "name": "A set of 1970s café chairs",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 80000,
+     "tier": 1,
+     "how": "found",
+     "hint": "the back of a vintage shop in Shimokita"
+    },
+    {
+     "id": "cf_jazz_records",
+     "name": "A record player and old jazz",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 60000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a record shop closing in Shimokita's lanes"
+    },
+    {
+     "id": "cf_book_wall",
+     "name": "A wall of used books",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 50000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a bookseller in Jinbōchō"
+    },
+    {
+     "id": "cf_napkins",
+     "name": "Haru's drawings on the napkins",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 15000,
+     "tier": 2,
+     "how": "earned",
+     "when": "feels: Haru good",
+     "hint": "a friend who draws"
+    },
+    {
+     "id": "cf_lanterns",
+     "name": "Paper lanterns for the evening",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 35000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "cf_nightcap",
+     "name": "A Golden Gai coffee nightcap",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 30000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a bar master in Golden Gai"
+    },
+    {
+     "id": "cf_counter",
+     "name": "A real counter and four stools",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 50000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "cf_second_hand",
+     "name": "A second hand at the counter",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 40000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "a second hand at the counter"
+    },
+    {
+     "id": "cf_booths",
+     "name": "Booths from a kissaten that closed",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 90000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a kissaten closing in Kōenji's arcade"
+    },
+    {
+     "id": "cf_terrace",
+     "name": "A terrace under the zelkova",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 70000,
+     "tier": 2,
+     "how": "basic",
+     "place": "sb_cafe_unit"
+    },
+    {
+     "id": "cf_night_staff",
+     "name": "Someone for the late shift",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 45000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "the late shift",
+     "style": "cf_open_late"
+    },
+    {
+     "id": "cf_english_menu",
+     "name": "A menu in English",
+     "stat": "capacity",
+     "add": 4,
+     "cost": 10000,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: english 6",
+     "hint": "good English"
+    },
+    {
+     "id": "cf_manager",
+     "name": "A manager",
+     "stat": "capacity",
+     "add": 3,
+     "cost": 150000,
+     "tier": 3,
+     "how": "basic",
+     "staff": "the manager",
+     "manager": true
+    },
+    {
+     "id": "cf_roast_hand",
+     "name": "A roaster's apprentice",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 120000,
+     "tier": 4,
+     "how": "basic",
+     "staff": "the roaster's apprentice"
+    },
+    {
+     "id": "cf_sign",
+     "name": "A hand-painted sign",
+     "stat": "fame",
+     "add": 4,
+     "cost": 10000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "cf_latte_art",
+     "name": "Latte art people photograph",
+     "stat": "fame",
+     "add": 5,
+     "cost": 8000,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: drawing 5",
+     "hint": "a steady hand for drawing"
+    },
+    {
+     "id": "cf_ramen_stall",
+     "name": "The coffee stall at the ramen contest",
+     "stat": "fame",
+     "add": 7,
+     "cost": 25000,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: ramen_contest",
+     "hint": "the Tokyo ramen contest in summer"
+    },
+    {
+     "id": "cf_tv_spot",
+     "name": "A spot on a morning show",
+     "stat": "fame",
+     "add": 10,
+     "cost": 60000,
+     "tier": 2,
+     "how": "found",
+     "hint": "someone at Wave TV"
+    },
+    {
+     "id": "cf_regulars",
+     "name": "Your friends' crowd",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "friends: 3 good",
+     "hint": "good friends who bring theirs"
+    },
+    {
+     "id": "cf_guide_star",
+     "name": "A star in the coffee guide",
+     "stat": "fame",
+     "add": 10,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "seen: cf_ms_guide:1",
+     "hint": "the guide's critic"
+    },
+    {
+     "id": "cf_beans_bags",
+     "name": "Bags of your own beans",
+     "stat": "fame",
+     "add": 8,
+     "cost": 60000,
+     "tier": 4,
+     "how": "basic"
+    },
+    {
+     "id": "cf_magazine",
+     "name": "A page in a Ginza magazine",
+     "stat": "fame",
+     "add": 8,
+     "cost": 40000,
+     "tier": 3,
+     "how": "found",
+     "hint": "an editor on Ginza's main street"
+    },
+    {
+     "id": "cf_named_roastery",
+     "name": "A roastery people name",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 4,
+     "how": "earned",
+     "when": "helped: 3",
+     "hint": "people whose stories you helped"
+    },
+    {
+     "id": "cf_cupping_lab",
+     "name": "A cupping lab",
+     "stat": "quality",
+     "add": 8,
+     "cost": 300000,
+     "tier": 4,
+     "how": "basic",
+     "desc": "a white room with a long table, spittoons and a scale"
+    },
+    {
+     "id": "cf_farm_beans",
+     "name": "Beans from a farm you know",
+     "stat": "quality",
+     "add": 8,
+     "cost": 120000,
+     "tier": 4,
+     "how": "earned",
+     "when": "skill: english 8",
+     "hint": "English good enough to deal with a farm abroad"
+    },
+    {
+     "id": "cf_second_room",
+     "name": "The second café's own interior",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 120000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "cf_live_music",
+     "name": "Live music on Sunday afternoons",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 20000,
+     "tier": 3,
+     "how": "earned",
+     "when": "skill: music 6",
+     "hint": "playing music well"
+    },
+    {
+     "id": "cf_window_roaster",
+     "name": "A roaster in the window",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 80000,
+     "tier": 4,
+     "how": "basic"
+    },
+    {
+     "id": "cf_second_barista",
+     "name": "A barista for the second café",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 90000,
+     "tier": 3,
+     "how": "basic",
+     "staff": "a barista for the second café"
+    },
+    {
+     "id": "cf_delivery",
+     "name": "Deliveries to other cafés",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 100000,
+     "tier": 4,
+     "how": "basic",
+     "staff": "deliveries by bicycle"
+    }
+   ]
+  },
+  {
+   "id": "div_asahina",
+   "track": "exec",
+   "name": "Asahina Trading's trade division",
+   "job": "office",
+   "place": "mg_tower",
+   "desc": "a division of Asahina Trading run from the top floors of the tower: food and materials traded across Asia, a floor of sales staff, a seat at the board's long table",
+   "tiers": [
+    {
+     "id": "eo",
+     "name": "Executive officer",
+     "rank": "Executive officer",
+     "ceiling": 40,
+     "base": 1500000,
+     "desc": "a division of your own, a budget each season and a target the board watches"
+    },
+    {
+     "id": "md",
+     "name": "Managing director",
+     "rank": "Managing director",
+     "ceiling": 65,
+     "base": 2500000,
+     "desc": "a larger division and a seat on the board's inner table"
+    },
+    {
+     "id": "vp",
+     "name": "Vice president",
+     "rank": "Vice president",
+     "ceiling": 90,
+     "base": 4000000,
+     "desc": "the company day to day, under a president who stays upstairs"
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "ex_as_accounts",
+     "name": "A key-accounts program",
+     "stat": "results",
+     "add": 10,
+     "cost": 450000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "the twenty clients that matter, each with someone on your floor who answers for them"
+    },
+    {
+     "id": "ex_as_fair",
+     "name": "A Kyushu soy-sauce house's export contract",
+     "stat": "results",
+     "add": 15,
+     "cost": 800000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a food importers' fair at the Tokyo Bay Exhibition Center"
+    },
+    {
+     "id": "ex_as_overseas",
+     "name": "An overseas desk in Singapore",
+     "stat": "results",
+     "add": 20,
+     "cost": 1100000,
+     "tier": 3,
+     "how": "earned",
+     "when": "skill: english 10",
+     "hint": "English at its best"
+    },
+    {
+     "id": "ex_as_reiko",
+     "name": "Reiko's way of running a section",
+     "stat": "team",
+     "add": 10,
+     "cost": 300000,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: reiko_burnout takes_leave",
+     "hint": "Reiko, once she has let someone in"
+    },
+    {
+     "id": "ex_as_mentors",
+     "name": "A mentor for every junior",
+     "stat": "team",
+     "add": 15,
+     "cost": 700000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "each new hire paired with someone ten years ahead, an hour a week"
+    },
+    {
+     "id": "ex_as_graduates",
+     "name": "First pick of a Hijiri seminar",
+     "stat": "team",
+     "add": 20,
+     "cost": 1000000,
+     "tier": 3,
+     "how": "found",
+     "hint": "a professor at Hijiri University in the job-hunting season"
+    },
+    {
+     "id": "ex_as_client",
+     "name": "A supermarket chain's purchasing",
+     "stat": "network",
+     "add": 10,
+     "cost": 400000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a client drinking alone at Izakaya Tetsuro"
+    },
+    {
+     "id": "ex_as_mei",
+     "name": "Mei's clients, kept",
+     "stat": "network",
+     "add": 15,
+     "cost": 600000,
+     "tier": 2,
+     "how": "earned",
+     "when": "thread: mei_interviews fought_for or mei_interviews stays",
+     "hint": "Mei, if she stays"
+    },
+    {
+     "id": "ex_as_chamber",
+     "name": "A seat on the chamber of commerce's trade committee",
+     "stat": "network",
+     "add": 20,
+     "cost": 1200000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "ex_as_report",
+     "name": "A monthly report the board reads",
+     "stat": "standing",
+     "add": 10,
+     "cost": 350000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "two pages, every number explained, on the president's desk on the first Monday"
+    },
+    {
+     "id": "ex_as_kabuki",
+     "name": "A board director's ear",
+     "stat": "standing",
+     "add": 15,
+     "cost": 750000,
+     "tier": 2,
+     "how": "found",
+     "hint": "an interval at the Ginza Kabuki Hall"
+    },
+    {
+     "id": "ex_as_vouched",
+     "name": "A name people vouch for",
+     "stat": "standing",
+     "add": 20,
+     "cost": 900000,
+     "tier": 3,
+     "how": "earned",
+     "when": "friends: 4 good",
+     "hint": "good friends who speak well of you"
+    }
+   ],
+   "cards": [
+    {
+     "id": "ex_c_as_fiscal",
+     "when": "festival: newyear_fiscal",
+     "setup": "The new fiscal year starts on Monday and forty new hires arrive at Asahina in identical suits. The welcome for your division is yours to give, or to leave to HR.",
+     "choices": [
+      {
+       "label": "Give the welcome yourself",
+       "minutes": 120,
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 1,
+       "add": {
+        "team": 4
+       },
+       "text": "you keep it to five minutes and learn ten names; by lunch the new hires are asking to join your division",
+       "fail": {
+        "text": "you run long and forget a name you were told twice; they clap politely, and two of them still ask for your division",
+        "add": {
+         "team": 1
+        }
+       }
+      },
+      {
+       "label": "Leave it to HR",
+       "text": "HR shows the same slides as last year; the new hires learn where the lifts are."
+      }
+     ]
+    },
+    {
+     "id": "ex_c_as_halfyear",
+     "when": "season: summer; seasonDays: 12-14",
+     "setup": "The half-year results are due on Friday and the division is three percent short of its forecast. The finance director asks whether to restate the forecast now or carry it to the year's end.",
+     "choices": [
+      {
+       "label": "Restate it now, honestly",
+       "add": {
+        "standing": 3
+       },
+       "text": "the board hates the number and likes the honesty; by autumn nobody remembers the three percent"
+      },
+      {
+       "label": "Carry it, and push the team",
+       "roll": {
+        "skill": "logic",
+        "dc": 14
+       },
+       "perf": 1,
+       "add": {
+        "results": 4
+       },
+       "effects": {
+        "energy": -10
+       },
+       "text": "the team closes the gap by September and the forecast stands; nobody sleeps much in August",
+       "fail": {
+        "text": "the gap is five percent by September, and the restatement is worse for having waited",
+        "add": {
+         "standing": -3
+        },
+        "perf": -1
+       }
+      }
+     ]
+    },
+    {
+     "id": "ex_c_as_typhoon",
+     "when": "season: autumn; weekday: mon",
+     "setup": "Monday morning: a typhoon has closed the port where the division's biggest autumn order is waiting, and a rival is already offering the client air freight.",
+     "choices": [
+      {
+       "label": "Match it with air freight",
+       "add": {
+        "network": 3,
+        "results": -1
+       },
+       "text": "it costs the order its margin and wins the client's trust for years; finance sends you a sad email"
+      },
+      {
+       "label": "Wait out the storm",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "add": {
+        "results": 2
+       },
+       "text": "the port reopens on Wednesday and the order lands on Friday, a day early by the contract; the client never knew how close it was",
+       "fail": {
+        "text": "the port stays shut until Friday, and the client takes half the order by air, with the rival",
+        "add": {
+         "network": -2
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "ex_c_as_bonenkai",
+     "when": "festival: bonenkai",
+     "setup": "The year-end parties: the division's biggest client wants a bōnenkai with you at Izakaya Tetsuro, the kind that ends at the last train, or after it.",
+     "choices": [
+      {
+       "label": "Host it yourself",
+       "minutes": 240,
+       "perf": 1,
+       "add": {
+        "network": 5
+       },
+       "effects": {
+        "energy": -20
+       },
+       "text": "you pour, sing one song badly and hear three stories about his grandfather; the account renews before the New Year"
+      },
+      {
+       "label": "Send your deputy",
+       "add": {
+        "network": 1
+       },
+       "text": "your deputy does well, and the client sends you a polite card that says he missed you"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "div_mochibyte",
+   "track": "exec",
+   "name": "Mochi Byte's games division",
+   "job": "gamedev",
+   "place": "ak_gamedev",
+   "desc": "a division of Mochi Byte Games: its game lines, its teams and their milestones, a seat on a board that meets beside the beanbags",
+   "tiers": [
+    {
+     "id": "eo",
+     "name": "Executive officer",
+     "rank": "Executive officer",
+     "ceiling": 40,
+     "base": 1500000,
+     "desc": "a division of your own, a budget each season and a target the board watches"
+    },
+    {
+     "id": "md",
+     "name": "Managing director",
+     "rank": "Managing director",
+     "ceiling": 65,
+     "base": 2500000,
+     "desc": "a larger division and a seat on the board's inner table"
+    },
+    {
+     "id": "vp",
+     "name": "Vice president",
+     "rank": "Vice president",
+     "ceiling": 90,
+     "base": 4000000,
+     "desc": "the company day to day, under a president who stays upstairs"
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "ex_mb_liveops",
+     "name": "A patch calendar players trust",
+     "stat": "results",
+     "add": 10,
+     "cost": 450000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "an update on the same day every month, announced a week before, never late"
+    },
+    {
+     "id": "ex_mb_publisher",
+     "name": "A European publishing deal",
+     "stat": "results",
+     "add": 15,
+     "cost": 800000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a publisher at the summer fan convention"
+    },
+    {
+     "id": "ex_mb_hikari",
+     "name": "Hikari Labs' tools, licensed",
+     "stat": "results",
+     "add": 20,
+     "cost": 1100000,
+     "tier": 3,
+     "how": "earned",
+     "when": "thread: rina_runway mochi_deal or rina_runway funded",
+     "hint": "Rina's company, if it survives"
+    },
+    {
+     "id": "ex_mb_esports",
+     "name": "The studio's esports team",
+     "stat": "team",
+     "add": 10,
+     "cost": 300000,
+     "tier": 1,
+     "how": "earned",
+     "when": "feels: Natsuki good",
+     "hint": "Natsuki, a good friend"
+    },
+    {
+     "id": "ex_mb_nocrunch",
+     "name": "Milestones without crunch",
+     "stat": "team",
+     "add": 15,
+     "cost": 700000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "the office locked at nine, and the milestones moved instead of the people"
+    },
+    {
+     "id": "ex_mb_indie",
+     "name": "An indie team brought in whole",
+     "stat": "team",
+     "add": 20,
+     "cost": 1000000,
+     "tier": 3,
+     "how": "found",
+     "hint": "developers playtesting their own game at Pixel Castle"
+    },
+    {
+     "id": "ex_mb_platform",
+     "name": "A direct line to a console maker",
+     "stat": "network",
+     "add": 10,
+     "cost": 400000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a console maker's rep at Izakaya Daruma"
+    },
+    {
+     "id": "ex_mb_hannah",
+     "name": "Hannah's stream, the studio's open secret",
+     "stat": "network",
+     "add": 15,
+     "cost": 600000,
+     "tier": 2,
+     "how": "earned",
+     "when": "thread: hannah_stream recognized",
+     "hint": "Hannah, if her fans find her"
+    },
+    {
+     "id": "ex_mb_showfloor",
+     "name": "A booth at the big overseas game show",
+     "stat": "network",
+     "add": 20,
+     "cost": 1200000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "ex_mb_dashboard",
+     "name": "A studio dashboard for the board",
+     "stat": "standing",
+     "add": 10,
+     "cost": 350000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "every game's players, sales and bugs on one page the board can read on a phone"
+    },
+    {
+     "id": "ex_mb_investor",
+     "name": "An investor on the board who backs you",
+     "stat": "standing",
+     "add": 15,
+     "cost": 750000,
+     "tier": 2,
+     "how": "found",
+     "hint": "demo night at Hikari Labs"
+    },
+    {
+     "id": "ex_mb_keynote",
+     "name": "A launch you present in English",
+     "stat": "standing",
+     "add": 20,
+     "cost": 900000,
+     "tier": 3,
+     "how": "earned",
+     "when": "skill: english 10",
+     "hint": "English at its best"
+    }
+   ],
+   "cards": [
+    {
+     "id": "ex_c_mb_goldenweek",
+     "when": "festival: goldenweek",
+     "setup": "Golden Week: a week of holidays, and half the country will be playing games at home. A sale on the old games, or a free weekend of the new one?",
+     "choices": [
+      {
+       "label": "A free weekend",
+       "roll": {
+        "skill": "gaming",
+        "dc": 12
+       },
+       "add": {
+        "network": 3,
+        "results": 2
+       },
+       "text": "the servers hold and a million people try the new game; enough of them stay",
+       "fail": {
+        "text": "the servers wobble on the first day, and the free weekend becomes a free three days, with apologies",
+        "add": {
+         "network": 1
+        }
+       }
+      },
+      {
+       "label": "A quiet sale",
+       "add": {
+        "results": 2
+       },
+       "text": "the old games sell steadily all week; nobody writes about it, and the numbers are fine"
+      }
+     ]
+    },
+    {
+     "id": "ex_c_mb_fancon",
+     "when": "festival: fancon",
+     "setup": "The summer fan convention opens tomorrow, and the studio's booth has room for one surprise: the new game's first trailer, months early, or nothing until it's ready.",
+     "choices": [
+      {
+       "label": "Show the trailer",
+       "roll": {
+        "skill": "gaming",
+        "dc": 13
+       },
+       "perf": 1,
+       "add": {
+        "network": 4,
+        "results": 2
+       },
+       "text": "the hall goes quiet, then loud; the trailer is the most-watched thing of the weekend",
+       "fail": {
+        "text": "the trailer leaks an hour before the show and plays to a half-empty booth",
+        "add": {
+         "network": 1
+        }
+       }
+      },
+      {
+       "label": "Keep it until it's ready",
+       "add": {
+        "team": 2
+       },
+       "text": "the team is quietly grateful; the booth gives away paper fans with the logo, which go fast in the heat"
+      }
+     ]
+    },
+    {
+     "id": "ex_c_mb_launch",
+     "when": "season: autumn; seasonDays: 1-3",
+     "setup": "The autumn launch is two weeks away and the game isn't finished: a month's delay, or ship on the day and patch it after.",
+     "choices": [
+      {
+       "label": "Delay a month",
+       "add": {
+        "team": 3,
+        "standing": -2
+       },
+       "text": "the board grumbles, the players grumble, and the game that comes out a month later is the one the team meant to make"
+      },
+      {
+       "label": "Ship on the day",
+       "roll": {
+        "skill": "logic",
+        "dc": 14
+       },
+       "perf": 1,
+       "add": {
+        "results": 4
+       },
+       "text": "it ships with bugs nobody notices and one everyone loves; the sales chart goes the right way",
+       "fail": {
+        "text": "it ships with a bug everyone notices; the patch is out in a week, and the reviews take a month to forgive you",
+        "add": {
+         "standing": -2
+        },
+        "perf": -1
+       }
+      }
+     ]
+    },
+    {
+     "id": "ex_c_mb_unifest",
+     "when": "festival: unifest",
+     "setup": "Hijiri University's campus festival is on, and the game-design club asks whether Mochi Byte would judge its contest. The winners will be job hunting in spring.",
+     "choices": [
+      {
+       "label": "Judge it yourself",
+       "minutes": 180,
+       "add": {
+        "team": 4
+       },
+       "text": "you play twelve games in a hot classroom and pick a strange, perfect puzzle game; its maker applies in April"
+      },
+      {
+       "label": "Send a recruiter",
+       "add": {
+        "team": 1
+       },
+       "text": "the recruiter comes back with a stack of résumés and a festival towel"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "div_wavetv",
+   "track": "exec",
+   "name": "Wave TV's programming division",
+   "job": "tv",
+   "place": "bay_tv",
+   "desc": "a division of Wave TV: its programs and their slots, the crews that make them, a seat on the board above the bay",
+   "tiers": [
+    {
+     "id": "eo",
+     "name": "Executive officer",
+     "rank": "Executive officer",
+     "ceiling": 40,
+     "base": 1500000,
+     "desc": "a division of your own, a budget each season and a target the board watches"
+    },
+    {
+     "id": "md",
+     "name": "Managing director",
+     "rank": "Managing director",
+     "ceiling": 65,
+     "base": 2500000,
+     "desc": "a larger division and a seat on the board's inner table"
+    },
+    {
+     "id": "vp",
+     "name": "Vice president",
+     "rank": "Vice president",
+     "ceiling": 90,
+     "base": 4000000,
+     "desc": "the company day to day, under a president who stays upstairs"
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "ex_tv_variety",
+     "name": "A late-night variety block",
+     "stat": "results",
+     "add": 10,
+     "cost": 450000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "an hour after the news on weeknights, cheap to make and loud to watch"
+    },
+    {
+     "id": "ex_tv_music",
+     "name": "A live music program from Basement Moon",
+     "stat": "results",
+     "add": 15,
+     "cost": 800000,
+     "tier": 2,
+     "how": "earned",
+     "when": "visited: ws_livehouse regular",
+     "hint": "a regular at Basement Moon"
+    },
+    {
+     "id": "ex_tv_drama",
+     "name": "A playwright's drama, ending kept",
+     "stat": "results",
+     "add": 20,
+     "cost": 1100000,
+     "tier": 3,
+     "how": "found",
+     "hint": "a play at Theater Komorebi"
+    },
+    {
+     "id": "ex_tv_crewfriends",
+     "name": "A crew that follows you",
+     "stat": "team",
+     "add": 10,
+     "cost": 300000,
+     "tier": 1,
+     "how": "earned",
+     "when": "friends: 3 good",
+     "hint": "good friends who vouch for you"
+    },
+    {
+     "id": "ex_tv_floor",
+     "name": "A floor crew of your own",
+     "stat": "team",
+     "add": 15,
+     "cost": 700000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "cameras, sound and a floor manager who answer to your programs first"
+    },
+    {
+     "id": "ex_tv_crew",
+     "name": "A documentary crew back from retirement",
+     "stat": "team",
+     "add": 20,
+     "cost": 1000000,
+     "tier": 3,
+     "how": "found",
+     "hint": "an old cameraman in the Noge alleys"
+    },
+    {
+     "id": "ex_tv_agency",
+     "name": "A small idol agency's groups",
+     "stat": "network",
+     "add": 10,
+     "cost": 400000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a manager after the show at Stage Starlight"
+    },
+    {
+     "id": "ex_tv_hina",
+     "name": "The idol world's goodwill",
+     "stat": "network",
+     "add": 15,
+     "cost": 600000,
+     "tier": 2,
+     "how": "earned",
+     "when": "thread: hina_graduation last_show or hina_graduation stays_her_way",
+     "hint": "Hina's story, ended her way"
+    },
+    {
+     "id": "ex_tv_streaming",
+     "name": "A streaming partner overseas",
+     "stat": "network",
+     "add": 20,
+     "cost": 1200000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "ex_tv_ratings",
+     "name": "Ratings the board reads every Monday",
+     "stat": "standing",
+     "add": 10,
+     "cost": 350000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "the weekend's numbers on one page by nine on Monday, good or bad"
+    },
+    {
+     "id": "ex_tv_sponsor",
+     "name": "A Ginza department store's sponsorship",
+     "stat": "standing",
+     "add": 15,
+     "cost": 750000,
+     "tier": 2,
+     "how": "found",
+     "hint": "the food hall at Tsubakiya Ginza"
+    },
+    {
+     "id": "ex_tv_trust",
+     "name": "A channel people trust",
+     "stat": "standing",
+     "add": 20,
+     "cost": 900000,
+     "tier": 3,
+     "how": "earned",
+     "when": "helped: 4",
+     "hint": "people whose stories you helped"
+    }
+   ],
+   "cards": [
+    {
+     "id": "ex_c_tv_spring",
+     "when": "season: spring; seasonDays: 1-2",
+     "setup": "The spring schedule is due: a variety show that has run for nineteen years is slipping, and its host is a friend of half the board.",
+     "choices": [
+      {
+       "label": "Cancel it",
+       "add": {
+        "results": 3,
+        "standing": -2
+       },
+       "text": "the host takes it well on air and badly at the board; the new show in his slot does better by June"
+      },
+      {
+       "label": "Give it one more season",
+       "add": {
+        "standing": 2
+       },
+       "text": "half the board is grateful and the other half is watching; the ratings slip a little more, politely"
+      }
+     ]
+    },
+    {
+     "id": "ex_c_tv_fireworks",
+     "when": "festival: fireworks",
+     "setup": "The Sumida fireworks are on Saturday, and the station could broadcast them live from a rooftop, if the rain holds off and the permits come through in time.",
+     "choices": [
+      {
+       "label": "Go live from the roof",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 1,
+       "add": {
+        "results": 4
+       },
+       "text": "the permits arrive at noon, the rain holds, and your rooftop shot is on every channel's news the next morning",
+       "fail": {
+        "text": "the permits come through but the rain doesn't hold off: an hour of umbrellas and two minutes of fireworks",
+        "add": {
+         "results": 1
+        }
+       }
+      },
+      {
+       "label": "Buy a highlights package",
+       "text": "a tidy five minutes of someone else's footage; nobody complains, and nobody remembers it"
+      }
+     ]
+    },
+    {
+     "id": "ex_c_tv_halloween",
+     "when": "festival: halloween",
+     "setup": "Halloween in Shibuya: the crowds will fill the scramble crossing, and the news team wants a crew in the middle of it, live.",
+     "choices": [
+      {
+       "label": "Film from a rooftop instead",
+       "add": {
+        "standing": 2,
+        "team": 1
+       },
+       "text": "the shot from above is the best of the night, and your crew goes home in one piece"
+      },
+      {
+       "label": "Send the crew into the crowd",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 1,
+       "add": {
+        "results": 4
+       },
+       "text": "the crew comes back with the night's best interviews and only one lost shoe",
+       "fail": {
+        "text": "the crowd swallows the crew for an hour and the police walk them out; the footage is mostly feet",
+        "add": {
+         "team": -2
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "ex_c_tv_omisoka",
+     "when": "festival: omisoka",
+     "setup": "New Year's Eve: the station's countdown special is yours this year, live until past midnight, with every other channel against it.",
+     "choices": [
+      {
+       "label": "Produce it live",
+       "minutes": 300,
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 2,
+       "add": {
+        "results": 5,
+        "standing": 2
+       },
+       "effects": {
+        "energy": -25
+       },
+       "text": "the countdown lands on the second and the guest cries on cue; the ratings are the best New Year's Eve in a decade",
+       "fail": {
+        "text": "the countdown is four seconds late and the whole country notices; the ratings are fine, and the clip is famous",
+        "add": {
+         "results": 2
+        }
+       }
+      },
+      {
+       "label": "Hand it to the old team",
+       "add": {
+        "team": 2
+       },
+       "text": "the old team does it the way it always has; the ratings are exactly what they were last year"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "staffPool": {
+  "names": [
+   "Satō",
+   "Suzuki",
+   "Takahashi",
+   "Tanaka",
+   "Watanabe",
+   "Itō",
+   "Yamamoto",
+   "Nakamura",
+   "Kobayashi",
+   "Katō",
+   "Yoshida",
+   "Yamada",
+   "Sasaki",
+   "Yamaguchi",
+   "Matsumoto",
+   "Inoue",
+   "Kimura",
+   "Hayashi",
+   "Saitō",
+   "Shimizu",
+   "Yamazaki",
+   "Abe",
+   "Ikeda",
+   "Hashimoto",
+   "Yamashita",
+   "Ishikawa",
+   "Nakajima",
+   "Maeda",
+   "Ogawa",
+   "Okada",
+   "Gotō",
+   "Hasegawa",
+   "Murakami",
+   "Kondō",
+   "Ishii",
+   "Sakamoto",
+   "Endō",
+   "Nishimura",
+   "Fukuda",
+   "Ōta",
+   "Miura",
+   "Okamoto",
+   "Matsuda",
+   "Nakagawa",
+   "Nakano",
+   "Harada",
+   "Ono",
+   "Tamura",
+   "Takeuchi",
+   "Kaneko",
+   "Wada",
+   "Nakayama",
+   "Ishihara",
+   "Ueda",
+   "Morita",
+   "Hara",
+   "Shibata",
+   "Sakai",
+   "Kudō",
+   "Yokoyama",
+   "Miyazaki",
+   "Miyamoto",
+   "Uchida",
+   "Takagi",
+   "Andō",
+   "Taniguchi",
+   "Ōno",
+   "Maruyama",
+   "Imai",
+   "Takada",
+   "Kōno",
+   "Fujita",
+   "Murata",
+   "Takeda",
+   "Ueno",
+   "Sugiyama",
+   "Masuda",
+   "Kojima",
+   "Koyama",
+   "Chiba",
+   "Ōtsuka",
+   "Hirano",
+   "Kubo",
+   "Matsui",
+   "Iwasaki",
+   "Kinoshita",
+   "Noguchi",
+   "Matsuo",
+   "Kikuchi",
+   "Nomura",
+   "Arai",
+   "Sano",
+   "Ōnishi",
+   "Sugawara",
+   "Hamada",
+   "Ichikawa",
+   "Kitamura",
+   "Yasuda",
+   "Nakata",
+   "Kawaguchi",
+   "Hirata",
+   "Kawasaki",
+   "Iida",
+   "Yoshikawa",
+   "Honda",
+   "Kubota",
+   "Sawada",
+   "Tsuji",
+   "Seki",
+   "Iwata",
+   "Higuchi",
+   "Mochizuki",
+   "Hattori",
+   "Nagai",
+   "Tsuchiya",
+   "Ozaki",
+   "Hoshino",
+   "Nagata",
+   "Akiyama",
+   "Chen",
+   "Lin",
+   "Tran",
+   "Kim",
+   "Santos",
+   "Rai"
+  ],
+  "quirks": [
+   "hums old enka while polishing the cups",
+   "remembers every regular's order and none of their names",
+   "is saving for a trip to Hokkaido and says so a little too often",
+   "draws tiny cats on the order slips",
+   "apologizes before every sentence, even good news",
+   "is a night owl who comes alive after ten",
+   "is studying for the bar exam between customers",
+   "knows the train timetables by heart and warns people about the last train",
+   "plays in a band on weekends and taps rhythms on the counter",
+   "is always ten minutes early, and lets you know",
+   "can carry five plates up a staircase without looking",
+   "hates the phone and lets it ring until someone else answers",
+   "brings homemade pickles from their grandmother in Niigata",
+   "laughs at every joke, especially the bad ones",
+   "reads manga in the back during the quiet hour",
+   "keeps a notebook of customers' complaints and actually reads it",
+   "is a foreign student practising keigo on every customer",
+   "treats the coffee machine like a temperamental pet",
+   "takes the weather personally",
+   "never forgets a birthday, never mentions their own",
+   "is quietly brilliant at fixing things with tape",
+   "goes pale whenever a manager walks in",
+   "gives directions to lost tourists in four languages, badly",
+   "arranges the sugar packets by color when bored",
+   "falls asleep on breaks and wakes up perfectly on time",
+   "is the best at calming down an angry customer",
+   "sings along to the radio when they think nobody can hear",
+   "is training for a marathon and eats like it",
+   "takes photos of every latte art they pour",
+   "tells the same story about meeting a famous actor once",
+   "always has a spare umbrella for someone",
+   "is very serious about recycling"
   ]
  }
 }

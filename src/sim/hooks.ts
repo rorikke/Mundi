@@ -1,6 +1,6 @@
 // Places other systems hook into time (kept apart, with no imports, so no module waits on another).
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, ActionDef, Place, StatusDef } from '../core/world.js';
+import type { WorldDef, ActionDef, Place, StatusDef, WorkResult } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
 export const onDay: ((g: Save, w: WorldDef) => string[])[] = [];
@@ -70,3 +70,13 @@ export const studentLink: {
     homeBlock: (g: Save, w: WorldDef, zone: string) => string;
     headStart: (g: Save, w: WorldDef, job: string) => number;
 } = { workCap: () => null, homeBlock: () => '', headStart: () => 0 };
+
+// Ventures (business, sim/ventures.ts) meet the rest of the game here, so neither waits on the other. A street story's
+// result (or anything else) `finds` an upgrade of a venture you own: it waits in the Business app (lines to show; nothing
+// without the venture).
+// A choice at work (sim/work.ts) whose result `add`s to a venture's numbers or `finds` an upgrade: the division of that
+// job gets it (sim/exec.ts). Lines to show.
+export const ventureLink: {
+    find: (g: Save, w: WorldDef, upgrade: string) => string[];
+    workResult: (g: Save, w: WorldDef, job: string, r: WorkResult, ok: (n: number | undefined) => number) => string[];
+} = { find: () => [], workResult: () => [] };

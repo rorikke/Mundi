@@ -68,6 +68,7 @@ export const DEFAULT_APPS = [
     { id: 'shop', name: 'Shop', icon: 'wallet', color: '#16c79a', on: true },
     { id: 'goals', name: 'Goals', icon: 'star', color: '#ffb02e', on: true },
     { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
+    { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -96,12 +97,12 @@ export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'so
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w) => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id))) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w) => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id))) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 // The RPG mode waits for a later update: while this is on, nothing of it can be chosen, made or played. Worlds made
@@ -191,6 +192,7 @@ export const SYSTEMS = [
     { id: 'talents', name: 'Talent trees', desc: 'no talents to choose when you level up (RPG).', apps: [], blocks: [], tag: 'rpg' },
     { id: 'institutions', name: 'Schools and academies', desc: 'no schools to enroll in, no exams, clubs or degrees.', apps: ['campus'], blocks: [] },
     { id: 'trade', name: 'Trade and smuggling', desc: 'no goods to buy and sell between towns, no contraband.', apps: [], blocks: [] },
+    { id: 'business', name: 'Running a business', desc: 'no café of your own and no executive\'s division: no ventures to open, grow or run.', apps: ['business'], blocks: ['business'] },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },
     { id: 'farming', name: 'Growing things', desc: 'nothing to plant at home.', apps: [], blocks: [] },

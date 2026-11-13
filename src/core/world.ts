@@ -105,6 +105,9 @@ export interface Place {
     /** (E12) What you hear there, as sound tags (`station`, `crowd`, `izakaya`, `cicadas`…): played as a quiet loop with
      *  the sound setting on (ui/ambience.ts); the world's `sounds` may give a file of its own for a tag. */
     sound?: string[];
+    /** (business) The id of a venture (`WorldDef.ventures`) this place is a unit of: it's on the map and in anyone's
+     *  plans only while a venture of yours runs here (a café unit you lease, or a second café you open in it). */
+    venture?: string;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
@@ -284,7 +287,11 @@ export interface Rank { name: string; pay: number; needs?: Record<string, number
      *  rank, the job hires you while you take a course it lists in `courses`, and leaving the rank needs it finished. */
     student?: boolean;
     /** Days a week at this rank, in place of the job's (an AV extra is called once a week, a regular three times). */
-    days?: number }
+    days?: number;
+    /** (business) A rank above the career's top (an executive's): its time is its gate's (`inrank`, a course, a story),
+     *  not a share of the career's length, so `topDays`/`rankDays` and `rank: top` stop below it, and the world's people
+     *  never rise into it. */
+    beyond?: boolean }
 // Career branches (like The Sims): reaching rank `at` (3, 6, 9…), you choose a path; its ranks come next.
 // `promote`: shifts to reach each of its ranks; `after`: the option is only offered after one of these paths.
 /** A path at a branch. `after`: offered only after one of these earlier paths. `adult`: only with adult content on.
@@ -400,6 +407,7 @@ export interface JobTrack {
 export interface Schedule { days: number | WeekdayId[]; from?: number; to?: number; shifts?: { id: string; name?: string; from: number; to: number }[] }
 /** (J6) A thing that happens on a shift: a setup sentence and two or three choices. */
 export interface WorkEvent { id: string; setup: string; when?: When; choices: WorkChoice[]; adult?: boolean;
+    /** (business) what a gate that asks for it (`seen: <id>`) calls it in words: "the nomination" */ title?: string;
     /** It comes from a colleague: one of the world's people in the same job, met, at `level` or closer with you (a
      *  friendship level, `friend` when missing), whose name stands for {who} in its texts (and a `feels` key "{who}").
      *  Without one, `fallback` stands for them ("another actress"), at `odds` of the usual chance (0.5); with no
@@ -414,7 +422,9 @@ export interface WorkResult { text?: string; perf?: number; money?: number; effe
     /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string;
     /** (adult) a chance (0–1) the job gets raided over this, rolled with the `risk` effects as an action's is: the job's
      *  place shuts for 7 days (no shifts, no pay), a warning, a rumor, and the second time you're let go (sim/caught.ts) */ risk?: number;
-    /** effects for some days (1–7), as a boost: a ranking's +15% pay for a week (`addBoost` in sim/perks.ts) */ boost?: { effects: EffectDef[]; days: number } }
+    /** effects for some days (1–7), as a boost: a ranking's +15% pay for a week (`addBoost` in sim/perks.ts) */ boost?: { effects: EffectDef[]; days: number };
+    /** (business: a venture's event or card) points added to the venture's numbers (`quality: 2`), inside its ceiling */ add?: Record<string, number>;
+    /** (business) an upgrade (by id) this turns up for the venture, waiting in the Business app until bought */ finds?: string }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
@@ -497,7 +507,11 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
     /** (H) They leave the world's maps (Chloe goes back to Manchester): kept in the save, never seen around again. */
     leaves?: boolean;
     /** A good ending: a thread you knew that ends this way counts as one you helped (the `helped` condition, life goals). */
-    good?: boolean }
+    good?: boolean;
+    /** (business) While this holds and the ending's own condition doesn't yet, the thread waits at its last stage (a game
+     *  year at most) instead of ending: a business on its way can still decide how the story ends (Mei waits while you
+     *  are at Asahina's top). */
+    waits?: When }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
 export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string;
@@ -666,6 +680,10 @@ export interface WorldDef {
     crops?: CropDef[];
     /** Kinds of business you can open (cost, daily profit, staff, the places that suit it). */
     businesses?: BusinessDef[];
+    /** (business) Ventures you can own or run (a café, an executive's division): see VentureDef. */
+    ventures?: VentureDef[];
+    /** (business) Where a venture's hired hands come from: names and quirks, drawn for each hire. */
+    staffPool?: StaffPool;
     /** Celestial events (eclipses, mana storms, blood moons…) and extreme weather by climate. */
     skies?: { events?: CelestialDef[]; hazards?: HazardDef[] };
     /** Schools, academies, universities: a ladder of ranks, tuition, lessons, exams and clubs. */
@@ -743,7 +761,9 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
  *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
-export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean }
+/** (business) `place` may be `venture:<id>`: the story happens at whichever place of that venture you own. */
+export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean;
+    /** (business) what a gate that asks for it (`seen: <id>`) calls it in words: "the board's vote" */ title?: string }
 /** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
  *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). `minutes`:
  *  the time it takes (missing: 15). */
@@ -755,7 +775,9 @@ export interface StoryChoice extends StoryResult { label: string; roll?: { skill
  *  you one (one of the world's people by name, or a stranger's id another story can ask about); `spend`: a favor it
  *  calls in. (E22) `reveal`: a thread (by id) the player learns this way. */
 export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string;
-    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string }
+    /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string;
+    /** (business) an upgrade (by id) of a venture you own that this turns up: found, it waits in the Business app until
+     *  you buy it (a find story's result; nothing without the venture) */ finds?: string }
 /** (E2) A climate: per season, the odds of each kind of weather (weights: `sunny`, `hot`, `fair`, `humid`, `partly`,
  *  `cloudy`, `snow`, `rain`, `heavyrain`, `storm`); `days`: a stretch of a season with odds of its own (the rainy season,
  *  summer 1–5: days of the season as written, like festivals); `regional`: weather a region has on its own (`fujiview`,
@@ -801,6 +823,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'shop', name: 'Shop', icon: 'wallet', color: '#16c79a', on: true },
     { id: 'goals', name: 'Goals', icon: 'star', color: '#ffb02e', on: true },
     { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
+    { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -829,12 +852,12 @@ export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'so
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w: WorldDef) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';
@@ -874,7 +897,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies';
+    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business';
 /** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
  *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
@@ -933,6 +956,81 @@ export interface RecipeDef { id: string; name: string; needs: Record<string, num
 export interface TowerDef { id: string; name: string; place: string; floors: number; tags?: string[]; desc?: string }
 export interface BladeDef { id: string; name: string; personality: string; likes: 'fights' | 'quests' | 'gold' | 'mercy'; bonus: number; desc?: string }
 export interface CropDef { id: string; name: string; icon: string; days: number; seed: number; good: string; yield: number }
+/* ---------- (business) ventures: a café, an executive's division (sim/ventures.ts, sim/exec.ts) ---------- */
+
+/** A venture: something you own or run, growing like an incremental game (B-15). Four numbers (`stats`: Quality,
+ *  Atmosphere, Capacity, Fame by default; an executive's Results, Team, Network, Standing), raised for good by upgrades,
+ *  discoveries and events inside the ceiling of its tier; a milestone opens the next tier. `track`: what kind it is
+ *  (`cafe`, `exec`; later `hotel`, `stake`). `place`: where it runs (exec: the company's office; a lease: the unit
+ *  chosen). `job`: (exec) the job whose ranks it rides on: its tiers are that career's `beyond` ranks (`TierDef.rank`),
+ *  opened by reaching them and closed when you leave the job. `ways`: how you come to own it. `adult`: only with
+ *  adult content on. */
+export interface VentureDef {
+    id: string; track: string; name: string; desc?: string; place?: string; job?: string;
+    ways?: VentureWays;
+    tiers: TierDef[]; styles?: StyleDef[]; upgrades?: UpgradeDef[]; discoveries?: DiscoveryDef[];
+    /** Things that happen while you run it yourself (the work-event format; a result can `add` to its numbers or
+     *  `finds` an upgrade). */
+    events?: WorkEvent[];
+    /** Calendar cards: one optional choice now and then (a stall at a festival), at most one a week in all. */
+    cards?: CardDef[];
+    /** Its numbers' ids (default `quality`, `atmosphere`, `capacity`, `fame`; exec `results`, `team`, `network`,
+     *  `standing`), and their names where they aren't the usual words. */
+    stats?: string[]; statNames?: Record<string, string>;
+    /** Skills running it yourself trains a little each time (a café: cooking, charisma). */
+    trains?: string[];
+    /** Hours a stint of running it yourself takes (default 4), and its opening hours [from, to) (default its place's). */
+    stint?: number; hours?: [number, number];
+    /** How busy the calendar makes it: weekends, festivals in its part of town, each season (multipliers, 1 when
+     *  missing; a festival anywhere else counts a little). */
+    demand?: { weekend?: number; festival?: number; season?: Partial<Record<SeasonId, number>> };
+    /** The units a later tier (`places` above 1) can open at (default: its lease units): the kissaten you took over
+     *  opening a second café in a unit. */
+    more?: LeaseUnit[];
+    adult?: boolean;
+}
+/** How a venture becomes yours. `takeover`: a place you already know (the kissaten whose right hand you are): a
+ *  condition (`rank: …; seen: …`), the key money, the story that offers it, the tier it starts at (1: the first), its
+ *  weekly rent, its numbers when it becomes yours (`start`; default a third of the tier's ceiling) and a job it ends
+ *  (`endsJob`: the master's right hand becomes the master). `lease`: small units to rent, one chosen (its place has
+ *  `venture` set to this venture), each with what moving in costs and its weekly rent. An executive's division has
+ *  neither: the job's rank opens it. */
+export interface VentureWays {
+    takeover?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; endsJob?: string };
+    lease?: { units: LeaseUnit[]; tier?: number; start?: Record<string, number> };
+}
+export interface LeaseUnit { place: string; cost: number; rent: number }
+/** A tier (café: a stand, a kissaten, a second café, a roastery): the ceiling its numbers can't pass, and the
+ *  milestone that opens the next one (an upgrade owned, a story seen, a condition). `alone`: the share it earns on days
+ *  you don't run it yourself (0: open only while you do, as a first tier). `places`: how many places it runs at.
+ *  `base`: a day's takings with every number at the ceiling, before the calendar. `rank`: (exec) the rank it is. */
+export interface TierDef {
+    id: string; name: string; ceiling: number; desc?: string;
+    milestone?: { upgrade?: string; story?: string; when?: When };
+    alone?: number; places?: number; base?: number; rank?: string;
+}
+/** A style, chosen once per tier (*as it was*, *specialty coffee*, *open late*): its words lay over the place's for
+ *  the AI, its multipliers shift the numbers a little (`fame: 1.1`), and some upgrades are found only with it. */
+export interface StyleDef { id: string; name: string; desc: string; tier: number; mul?: Record<string, number>; finds?: string[];
+    /** its own opening hours [from, to) (open late: until two), over the venture's and its place's */ hours?: [number, number] }
+/** An upgrade: points added to one number for good (`stat`, `add`), at a price, from a tier on. `how`: bought from the
+ *  app from the start (`basic`), turned up somewhere in the city (`found`: a street story's `finds`), or opened by a
+ *  condition (`earned`: `when`). `style`: only with that style; `place`: only at that unit; `staff`: comes with a hire
+ *  from the pool (what they do: "a second hand at the counter"); `manager`: the manager (a larger share on its own, and
+ *  the small things dealt with); `hint`: where a found one might be, shown while it's still to find. */
+export interface UpgradeDef {
+    id: string; name: string; desc?: string; stat: string; add: number; cost: number; tier: number;
+    how: 'basic' | 'found' | 'earned'; when?: When; style?: string; place?: string; staff?: string; manager?: boolean; hint?: string;
+}
+/** A discovery: a pairing found while you run the place yourself and its condition holds (iced coffee in summer), kept
+ *  for good: points added, and a short line. */
+export interface DiscoveryDef { id: string; name: string; when?: When; add: Record<string, number>; text: string }
+/** A calendar card: one clear, optional choice (a stall at the Awa Odori: a day of your time, money, some Fame). */
+export interface CardDef { id: string; when?: When; setup: string; choices: CardChoice[]; adult?: boolean }
+export interface CardChoice extends WorkChoice { minutes?: number }
+/** Names and quirks a venture's hired hands are drawn from (seeded, one of each per hire). */
+export interface StaffPool { names: string[]; quirks: string[] }
+
 export interface BusinessDef { id: string; name: string; icon: string; cost: number; profit: number; staff: number; tags: string[] }
 export interface CelestialDef { id: string; name: string; desc?: string; every: number; days: number; effect: 'mana' | 'monsters' | 'omen'; amount?: number }
 /** Extreme weather. `weather` (E2): it only strikes on days of these kinds of weather in its region (a typhoon on a
@@ -1011,6 +1109,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'talents', name: 'Talent trees', desc: 'no talents to choose when you level up (RPG).', apps: [], blocks: [], tag: 'rpg' },
     { id: 'institutions', name: 'Schools and academies', desc: 'no schools to enroll in, no exams, clubs or degrees.', apps: ['campus'], blocks: [] },
     { id: 'trade', name: 'Trade and smuggling', desc: 'no goods to buy and sell between towns, no contraband.', apps: [], blocks: [] },
+    { id: 'business', name: 'Running a business', desc: 'no café of your own and no executive\'s division: no ventures to open, grow or run.', apps: ['business'], blocks: ['business'] },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },
     { id: 'farming', name: 'Growing things', desc: 'nothing to plant at home.', apps: [], blocks: [] },

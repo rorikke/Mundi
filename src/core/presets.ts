@@ -6,6 +6,7 @@ import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
+import { upgradeVentures } from './ventures.js';
 
 export interface ShopItem { id: string; name: string; desc: string; icon: string; price: number;
     /** trips take this share of the time (0.5 = half); the best vehicle you own counts */ travel?: number;
@@ -440,5 +441,7 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     const goals = upgradeGoals(w.goals), rewards = upgradeRewards(w.rewards);
     if (goals) w.goals = goals; else delete w.goals;
     if (rewards) w.rewards = rewards; else delete w.rewards;
+    // ventures (business): made safe to play; a world without them gets no key
+    if (w.ventures || w.staffPool) upgradeVentures(w);
     return w;
 }
