@@ -92,7 +92,9 @@ function youForm(g: Save, w: WorldDef): string {
 // The People tab edits the save's own entries (the store's ids: the person you play is '__you').
 SCOPES.save = {
     get: (id) => { const g = game(); return g ? relOf(g).people[idOf(g, id)] : undefined; },
-    set: (id, p) => { const g = game(); if (!g) return; const people = relOf(g).people; const k = idOf(g, id); if (p) people[k] = p; else delete people[k]; saveGame(); refreshPrompt(); },
+    // the save's attraction is only its values ("Your gender" was settled when the game started)
+    set: (id, p) => { const g = game(); if (!g) return; const people = relOf(g).people; const k = idOf(g, id); if (p) delete p.attMode; if (p && Object.keys(p).length) people[k] = p; else delete people[k]; saveGame(); refreshPrompt(); },
+    live: true,
     genders: () => gendersOf(getWorld(game()?.world ?? '')),
     romance: () => systemOn(getWorld(game()?.world ?? ''), 'romance'),
     adult: () => adultOn(game()),
@@ -449,7 +451,10 @@ Object.assign(ACT, {
     'wc-work-preset': (el) => { const g = game(); if (!g) return; setPreset(g, el.dataset.v as PresetId); saveGame(); refreshPrompt(); notify(); },
     'wc-save-card': async () => {
         const g = game(); const r = g?.cast[WC.who]; if (!g || !r) return;
-        try { await saveCardPerson(r.avatar, cleanPerson(relOf(g).people[idOf(g, r.avatar)]) ?? {}); toast(`Saved to ${r.name}'s card.`, 'success'); }
+        // a card keeps "Everyone" as chosen (with no romance value a new game would read "Your gender")
+        const p = cleanPerson(relOf(g).people[idOf(g, r.avatar)]) ?? {};
+        if (!Object.values(p.att ?? {}).some(v => typeof v.r === 'number')) p.attMode = 'set';
+        try { await saveCardPerson(r.avatar, p); toast(`Saved to ${r.name}'s card.`, 'success'); }
         catch (e: any) { toast(String(e?.message ?? e), 'error'); }
     },
     'wc-rel-reset': () => { const g = game(); if (!g) return; delete cfg(g).rel; saveGame(); notify(); },

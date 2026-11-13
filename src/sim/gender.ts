@@ -3,11 +3,13 @@
 // and romance grow (`att`; the multiplier itself is `attraction()` in rel.ts, applied to every gain). Also where a
 // person's own settings come from at a new game (their card's Mundi data, a cast preset, the world's example cast),
 // cleaned of anything a hand-edited file might hold; suggestions read from a card by the AI; and the AI's line about
-// the gender, pronouns and attraction of the people in the scene.
+// the gender, pronouns and attraction of the people in the scene. Someone whose romance isn't set follows your gender
+// when you are drawn to theirs, and is straight when you aren't (`fitToYou`): "everyone" is only ever chosen.
 import { adultOn, game, type Save, type Resident } from '../core/store.js';
 import { getWorld, systemOn, INTIMATE_ROLES, INTIMATE_DRIVES, type WorldDef, type GenderDef, type ExampleCharacter, type IntimateProfile } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
-import { relOf, idOf, YOU, type Person, type Attraction } from './rel.js';
+import { relOf, idOf, pairOf, YOU, type Person, type Attraction } from './rel.js';
+import { saveSeed } from './relations.js';
 import { isMinor } from './family.js';
 import { quiet } from '../st/bridge.js';
 
@@ -46,6 +48,7 @@ export function cleanPerson(raw: any): Person | undefined {
         if (r !== undefined && r < 1) (att[k] ??= {}).r = r;
     }
     if (Object.keys(att).length) p.att = att;
+    if (raw.attMode === 'you' || raw.attMode === 'set') p.attMode = raw.attMode;
     const intimate = cleanIntimate(raw.intimate);
     if (intimate) p.intimate = intimate;
     return Object.keys(p).length ? p : undefined;
@@ -69,6 +72,59 @@ export function cleanIntimate(raw: any): IntimateProfile | undefined {
     return Object.keys(p).length ? p : undefined;
 }
 export const exampleSettings = (ex: ExampleCharacter | undefined) => cleanPerson(ex);
+/* ---------- romance that follows your gender ---------- */
+
+// Their romance follows your gender: chosen so, or nothing chosen at all (no romance value).
+export const followsYou = (p: Person | undefined) => p?.attMode === 'you' || (p?.attMode !== 'set' && !Object.values(p?.att ?? {}).some(v => typeof v?.r === 'number'));
+// Straight, for someone of gender `id`: man for woman and woman for man (by id, else by pronouns she/he), the other
+// one in a world of two genders; undefined when there is no such gender (non-binary).
+const OPPOSITE: Record<string, string> = { woman: 'man', man: 'woman', she: 'he', he: 'she' };
+export function oppositeOf(gs: GenderDef[], id: string): string | undefined {
+    const d = gs.find(x => x.id === id); if (!d) return undefined;
+    if (OPPOSITE[d.id] && gs.some(x => x.id === OPPOSITE[d.id])) return OPPOSITE[d.id];
+    const pr = (x: GenderDef) => (x.pronouns ?? '').split('/')[0].trim().toLowerCase();
+    const byPr = gs.filter(x => OPPOSITE[pr(d)] && pr(x) === OPPOSITE[pr(d)]);
+    if (byPr.length === 1) return byPr[0].id;
+    return gs.length === 2 ? gs.find(x => x.id !== id)?.id : undefined;
+}
+// A fixed draw per person and game, 0..1 (the save's seed, so another game draws again).
+const draw = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
+// Most people aren't attracted to everyone, and most should be able to fall for you. Whoever follows your gender is
+// drawn to it when you are drawn to theirs: your own romance value for their gender is the share of them who are (all
+// of them at 100%, none at 0%: "Only: Women" leaves every man straight, "No one" everyone; 20%: about one in five, a
+// fixed draw per person and game). The others are straight (`oppositeOf`; with no opposite, as if they were drawn to
+// you). Either way they stay drawn to the genders of anyone they are or were with (a couple, something casual, an
+// ex), so no relationship is cut off; a crush alone doesn't count (in play it's mostly chance, and a world that wants
+// one across genders sets the person's attraction). Romance toward every other gender is 0.
+// Friendship values stay. Only `only` (avatars) when given; never the person you play. Done once, when people come
+// into a game (a new game, newcomers a running game takes in): the save keeps only the values (no `attMode`), and
+// nothing fits them again later (the People tab, "Play as"). With your gender unset, those drawn to you can fall for
+// anyone.
+export function fitToYou(g: Save, w: WorldDef | null | undefined, only?: string[]) {
+    const people = relOf(g).people, me = people[YOU], mine = me?.gender, gs = gendersOf(w), seed = saveSeed(g, w);
+    const share = (gid: string) => { const v = me?.att?.[gid]?.r; return typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 1; };
+    const all = Object.keys(g.cast).map(a => idOf(g, a)).filter(id => id !== YOU);
+    for (const x of only ? only.map(a => idOf(g, a)).filter(id => id !== YOU && g.cast[id]) : all) {
+        const p = people[x];
+        if (!followsYou(p)) { if (p?.attMode) delete p.attMode; continue; }
+        const gx = p?.gender, s = gx ? share(gx) : 1;
+        const toYou = s >= 1 || (s > 0 && draw(`${seed}|drawn to you|${x}`) < s);
+        const straight = gx && !toYou ? oppositeOf(gs, gx) : undefined;
+        const keep = new Set<string>(straight ? [straight] : mine ? [mine] : gs.map(d => d.id));
+        for (const y of all) {
+            const gy = people[y]?.gender, pr = pairOf(g, x, y);
+            if (y !== x && gy && (pr?.status || pr?.was)) keep.add(gy);
+        }
+        const att: Attraction = {};
+        for (const [k, v] of Object.entries(p?.att ?? {})) if (typeof v?.f === 'number' && v.f < 1) att[k] = { f: v.f };
+        for (const d of gs) if (!keep.has(d.id)) (att[d.id] ??= {}).r = 0;
+        const next: Person = { ...(p ?? {}) };
+        delete next.attMode;
+        if (Object.keys(att).length) next.att = att; else delete next.att;
+        people[x] = next;
+    }
+}
+
 // Puts carried settings on someone's entry in the save (their age, minor flag… stay).
 export function applyPerson(g: Save, a: string, p: Person | undefined) {
     if (!p) return;
@@ -92,9 +148,10 @@ export function parseSuggestion(text: string, gs: GenderDef[], adult = false): P
     const to = line('attracted to');
     if (to && !/unknown/.test(to)) {
         if (/no ?one|nobody|none/.test(to)) p.att = Object.fromEntries(gs.map(d => [d.id, { r: 0 }]));
-        else if (!/every|anyone|all/.test(to)) {
+        else if (/every|anyone|all/.test(to)) p.attMode = 'set';
+        else {
             const yes = to.split(/,|\band\b|\//).map(s => find(s.trim())).filter(Boolean) as GenderDef[];
-            if (yes.length) { const att = Object.fromEntries(gs.filter(d => !yes.includes(d)).map(d => [d.id, { r: 0 }])); if (Object.keys(att).length) p.att = att; }
+            if (yes.length) { const att = Object.fromEntries(gs.filter(d => !yes.includes(d)).map(d => [d.id, { r: 0 }])); if (Object.keys(att).length) p.att = att; else p.attMode = 'set'; }
         }
     }
     const intim = line('intimacy');

@@ -2032,12 +2032,14 @@ SCOPES.cw = {
         const e = CW.w?.cast.examples[Number(id)];
         if (!e)
             return;
-        for (const k of ['gender', 'attraction', 'pace', 'style', 'intimacy'])
+        for (const k of ['gender', 'attraction', 'attMode', 'pace', 'style', 'intimacy'])
             delete e[k];
         if (p?.gender)
             e.gender = p.gender;
         if (p?.att)
             e.attraction = p.att;
+        if (p?.attMode)
+            e.attMode = p.attMode;
         if (p?.pace)
             e.pace = p.pace;
         if (p?.style)

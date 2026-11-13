@@ -24,8 +24,13 @@ export interface Past { status?: Status; until: number }
 export type Pace = PaceId;
 /** A person's own settings. `age` from the world's example cast; `minor` set in the People tab: minors are left out of
  *  every romance. `gender`: one of the world's gender ids (unset: nobody's attraction depends on it). `intimate`: their
- *  intimate profile (E15), kept with them like their other ways; only shown and told with adult content on. */
-export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; intimate?: IntimateProfile }
+ *  intimate profile (E15), kept with them like their other ways; only shown and told with adult content on.
+ *  `attMode` (only where a game is made: cards, cast presets, the world's people, the new game's draft; never in a
+ *  save): `'you'`, their romance follows your gender, settled into `att` when the game starts (`fitToYou()` in
+ *  sim/gender.ts); `'set'`, `att` is all there is (nothing: everyone). Unset: `'set'` when `att` holds a romance value,
+ *  else `'you'`. In a save, `att` alone counts (missing: everyone). */
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile }
+export type AttMode = 'you' | 'set';
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */
 export type Attraction = Record<string, { f?: number; r?: number }>;

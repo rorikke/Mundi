@@ -91,11 +91,14 @@ function youForm(g, w) {
 // The People tab edits the save's own entries (the store's ids: the person you play is '__you').
 SCOPES.save = {
     get: (id) => { const g = game(); return g ? relOf(g).people[idOf(g, id)] : undefined; },
+    // the save's attraction is only its values ("Your gender" was settled when the game started)
     set: (id, p) => { const g = game(); if (!g)
         return; const people = relOf(g).people; const k = idOf(g, id); if (p)
+        delete p.attMode; if (p && Object.keys(p).length)
         people[k] = p;
     else
         delete people[k]; saveGame(); refreshPrompt(); },
+    live: true,
     genders: () => gendersOf(getWorld(game()?.world ?? '')),
     romance: () => systemOn(getWorld(game()?.world ?? ''), 'romance'),
     adult: () => adultOn(game()),
@@ -496,8 +499,12 @@ Object.assign(ACT, {
         const r = g?.cast[WC.who];
         if (!g || !r)
             return;
+        // a card keeps "Everyone" as chosen (with no romance value a new game would read "Your gender")
+        const p = cleanPerson(relOf(g).people[idOf(g, r.avatar)]) ?? {};
+        if (!Object.values(p.att ?? {}).some(v => typeof v.r === 'number'))
+            p.attMode = 'set';
         try {
-            await saveCardPerson(r.avatar, cleanPerson(relOf(g).people[idOf(g, r.avatar)]) ?? {});
+            await saveCardPerson(r.avatar, p);
             toast(`Saved to ${r.name}'s card.`, 'success');
         }
         catch (e) {

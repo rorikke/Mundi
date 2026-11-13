@@ -432,8 +432,10 @@ export interface ExampleCharacter {
         /** (E29) a couple that keeps it secret: seen together only by people they trust */ secret?: boolean })[];
     /** Their own ways, from the start of every game (all optional: unset means the defaults). `gender`: one of the
      *  world's gender ids. `attraction`: per gender id, how much of the normal rate their friendship (`f`) and romance
-     *  (`r`) grow toward people of that gender (0..1, missing = 1). */
-    gender?: string; attraction?: Record<string, { f?: number; r?: number }>;
+     *  (`r`) grow toward people of that gender (0..1, missing = 1). `attMode`: `'set'` when `attraction` is all there
+     *  is (no romance value: attracted to everyone); without it and without a romance value, their romance follows
+     *  the player's gender in each game (sim/gender.ts). */
+    gender?: string; attraction?: Record<string, { f?: number; r?: number }>; attMode?: 'you' | 'set';
     pace?: { f?: 'slow' | 'normal' | 'fast'; r?: 'slow' | 'normal' | 'fast' }; style?: 'exclusive' | 'open';
     intimacy?: { preset?: string; r?: string; f?: string; casual?: false };
     /** (E18) Everyone with the same household id shares one home in every game (like the new game's households). */

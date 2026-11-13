@@ -38765,6 +38765,12 @@
     "name": "Haru",
     "age": 24,
     "gender": "nonbinary",
+    "attraction": {
+     "nonbinary": {
+      "f": 1,
+      "r": 0
+     }
+    },
     "occupation": "animator",
     "rank": "Key animator",
     "home": "hz_sharehouse",
@@ -39939,6 +39945,12 @@
     "name": "Shōta",
     "age": 27,
     "gender": "man",
+    "attraction": {
+     "man": {
+      "f": 1,
+      "r": 0
+     }
+    },
     "occupation": "host",
     "rank": 6,
     "home": "hz_azabu",
@@ -40647,6 +40659,12 @@
     "name": "Camille",
     "age": 20,
     "gender": "woman",
+    "attraction": {
+     "woman": {
+      "f": 1,
+      "r": 0
+     }
+    },
     "occupation": "animator",
     "rank": 0,
     "home": "hz_dorm",

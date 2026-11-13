@@ -3986,7 +3986,6 @@ const DICT = {
     "Only: {0}": "Solo: {0}",
     "No one": "Nadie",
     "How fast feelings grow toward each gender (100% is normal, 0% never). Losses are never changed.": "Lo rápido que crecen los sentimientos hacia cada género (100% es lo normal, 0% nunca). Las pérdidas nunca cambian.",
-    "Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.": "La tuya solo ordena la app de citas: mientras juegas como alguien, sus propios sentimientos esperan. Vuelve a contar cuando dejas de jugar como esa persona.",
     "Turn on \"Advanced\" for who you are attracted to.": "Activa \"Avanzado\" para elegir quién te atrae.",
     "Suggest from the cards": "Sugerir desde las tarjetas",
     "{0} without a gender. Your AI reads each card once (gender, attraction, intimacy); nothing changes until you apply it.": "{0} sin género. Tu IA lee cada tarjeta una vez (género, atracción, intimidad); nada cambia hasta que lo apliques.",
@@ -7773,5 +7772,10 @@ const DICT = {
     "Book a night at {0} and sleep there.": "Reserva una noche en {0} y duerme allí.",
     "Places near home where you are a regular": "Lugares cerca de casa donde eres habitual",
     "Places where you are a regular in {0}": "Lugares donde eres habitual en {0}",
+    "Your gender (default)": "Tu género (predeterminado)",
+    "attracted to everyone": "le atrae todo el mundo",
+    "Drawn to your gender if you are drawn to theirs, otherwise straight; still drawn to anyone they are or were with.": "Le atrae tu género si a ti te atrae el suyo; si no, es hetero; le sigue atrayendo con quien está o estuvo.",
+    "Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.": "La tuya solo ordena la app de citas: mientras juegas como alguien, sus propios sentimientos esperan. Vuelve a contar cuando dejas de jugar como esa persona.",
+    "Yours sorts the dating app and, when the game starts, decides who is drawn to you: of the people set to “Your gender”, the share you choose for their gender are (all of them at 100%, about half at 50%); the others are straight.": "La tuya ordena la app de citas y, cuando empieza la partida, decide a quién le atraes: de las personas con “Tu género”, la parte que eliges para su género (todas al 100%, cerca de la mitad al 50%); las demás son hetero.",
 };
 export default DICT;

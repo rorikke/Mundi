@@ -28,7 +28,7 @@ import { FRIEND_START, levelOfApproval, isFamily } from '../core/feel.js';
 import { checkLeft } from './verdict.js';
 import { fr, setFr, seedFamily, relOf, gain, lose, YOU } from './rel.js';
 import { effectAdd } from './effects.js';
-import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
+import { cleanPerson, exampleSettings, applyPerson, fitToYou } from './gender.js';
 import { ensureProfile, ensureProfiles } from './profiles.js';
 import { applyGameLore } from './lore.js';
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -351,6 +351,7 @@ export async function addWorldPeople(g, w, names) {
                 applyStartFeel(g, { a: a, b: b, ...feel });
             }
         }
+    fitToYou(g, w, avatars); // after their feelings: whom they're with stays possible
     normalizeHomes(g);
     const gid = selectedGroup(), grp = gid ? groupOf(gid) : null;
     if (gid && grp) {
@@ -634,6 +635,8 @@ export async function startNewGame(o) {
     // feelings in families and couples (and your own, hidden while you play) start where they usually do
     seedFamily(save, tiesOfSave(save));
     delete save.rel?.day; // starting values aren't the first day's changes
+    // whoever has no romance setting is drawn to your gender (and to anyone they already love)
+    fitToYou(save, w);
     if (isScenario(w))
         shareRooms(save); // Home: more people than bedrooms share a room (no second flat in a house)
     normalizeHomes(save);

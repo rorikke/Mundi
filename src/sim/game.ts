@@ -36,7 +36,7 @@ import { FRIEND_START, levelOfApproval, isFamily, type StartRel } from '../core/
 import { checkLeft } from './verdict.js';
 import { fr, setFr, seedFamily, relOf, gain, lose, YOU, type Person } from './rel.js';
 import { effectAdd } from './effects.js';
-import { cleanPerson, exampleSettings, applyPerson } from './gender.js';
+import { cleanPerson, exampleSettings, applyPerson, fitToYou } from './gender.js';
 import { ensureProfile, ensureProfiles } from './profiles.js';
 import { applyGameLore } from './lore.js';
 
@@ -293,6 +293,7 @@ export async function addWorldPeople(g: Save, w: WorldDef, names?: string[]): Pr
         const a = exAvatar.get(ex.name), b = exAvatar.get(f.to);
         if (touches(a, b) && (adult || !f.adult)) { const { to, adult: x, ...feel } = f; void to; void x; applyStartFeel(g, { a: a!, b: b!, ...feel }); }
     }
+    fitToYou(g, w, avatars);   // after their feelings: whom they're with stays possible
     normalizeHomes(g);
     const gid = selectedGroup(), grp = gid ? groupOf(gid) : null;
     if (gid && grp) {
@@ -525,6 +526,8 @@ export async function startNewGame(o: NewGame) {
     // feelings in families and couples (and your own, hidden while you play) start where they usually do
     seedFamily(save, tiesOfSave(save));
     delete (save as any).rel?.day;   // starting values aren't the first day's changes
+    // whoever has no romance setting is drawn to your gender (and to anyone they already love)
+    fitToYou(save, w);
     if (isScenario(w)) shareRooms(save);   // Home: more people than bedrooms share a room (no second flat in a house)
     normalizeHomes(save);
     // the world's lorebooks and the characters' lorebooks chosen to stay on in this world

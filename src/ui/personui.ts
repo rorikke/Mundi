@@ -12,7 +12,7 @@ import { PRESETS as INTIMACY, R_NAME, F_NAME, knownOf, intimateCount, roleOf, dr
 import { ACT, INPUT } from './reg.js';
 import { icon } from './icons.js';
 import { fullCharacter } from '../st/bridge.js';
-import { suggestFromCard, cleanIntimate, INTIMATE_LINES, INTIMATE_LISTS, INTIMATE_LONG, INTIMATE_LONG_MAX } from '../sim/gender.js';
+import { suggestFromCard, followsYou, cleanIntimate, INTIMATE_LINES, INTIMATE_LISTS, INTIMATE_LONG, INTIMATE_LONG_MAX } from '../sim/gender.js';
 
 export interface PersonScope {
     get(id: string): Person | undefined;
@@ -24,6 +24,9 @@ export interface PersonScope {
     cards?(): { id: string; avatar: string; name: string }[];
     /** (E15) adult content is on here: the intimate profile is shown and can be changed (missing: never) */
     adult?(): boolean;
+    /** a running game's own entries: attraction is only what is stored (unset: everyone), never "Your gender", which is
+     *  for making a game (sim/gender.ts fits it when the game starts) */
+    live?: boolean;
 }
 export const SCOPES: Record<string, PersonScope> = {};
 export type Part = 'gender' | 'attraction' | 'pace' | 'ways';
@@ -36,9 +39,11 @@ const data = (scope: string, id: string) => `data-scope="${esc(scope)}" data-id=
 /* ---------- attraction presets ---------- */
 
 const mult = (p: Person | undefined, gid: string, m: 'f' | 'r') => p?.att?.[gid]?.[m] ?? 1;
-// "everyone", "none", "only:<gender>" or "custom", from the values.
-export function attPreset(p: Person | undefined, gs: GenderDef[]): string {
+// "you" (follows your gender), "everyone", "none", "only:<gender>" or "custom", from the values. Your own and a
+// running game's (`self`) never follow you: unset, it's everyone.
+export function attPreset(p: Person | undefined, gs: GenderDef[], self = false): string {
     if (gs.some(x => mult(p, x.id, 'f') !== 1)) return 'custom';
+    if (!self && followsYou(p)) return 'you';
     const r = gs.map(x => mult(p, x.id, 'r'));
     if (r.every(v => v === 1)) return 'everyone';
     if (r.every(v => v === 0)) return 'none';
@@ -47,7 +52,8 @@ export function attPreset(p: Person | undefined, gs: GenderDef[]): string {
 }
 function setAttPreset(p: Person, preset: string, gs: GenderDef[]) {
     if (preset === 'custom') return;
-    delete p.att;
+    delete p.att; delete p.attMode;
+    if (preset === 'you' || preset === 'everyone') p.attMode = preset === 'you' ? 'you' : 'set';
     const only = preset.startsWith('only:') ? preset.slice(5) : '';
     if (preset === 'none' || only) p.att = Object.fromEntries(gs.filter(x => x.id !== only).map(x => [x.id, { r: 0 }]));
 }
@@ -60,15 +66,15 @@ function genderHtml(scope: string, id: string, p: Person | undefined, gs: Gender
 }
 function attractionHtml(scope: string, id: string, p: Person | undefined, gs: GenderDef[], romance: boolean, you: boolean): string {
     if (!gs.length) return '';
-    const preset = attPreset(p, gs), custom = preset === 'custom' || PP.custom.has(key(scope, id));
+    const live = !!SCOPES[scope]?.live, preset = attPreset(p, gs, you || live), custom = preset === 'custom' || PP.custom.has(key(scope, id));
     const slider = (x: GenderDef, m: 'f' | 'r') => {
         const v = Math.round(mult(p, x.id, m) * 100);
         return `<label class="mu-field slider"><span>${m === 'r' ? 'Romance' : 'Friendship'} · ${esc(x.name)} · ${v}%</span><input type="range" min="0" max="100" step="5" value="${v}" data-input="pp" data-k="att" data-g="${esc(x.id)}" data-m="${m}" ${data(scope, id)}></label>`;
     };
-    return `${romance ? `<label class="mu-field"><span>Attracted to</span><select data-input="pp" data-k="attp" ${data(scope, id)}>${opt('everyone', 'Everyone (default)', !custom && preset === 'everyone')}${gs.map(x => opt(`only:${x.id}`, `Only: ${x.name}`, !custom && preset === `only:${x.id}`)).join('')}${opt('none', 'No one', !custom && preset === 'none')}${opt('custom', 'Custom', custom)}</select></label>` : ''}
+    return `${romance ? `<label class="mu-field"><span>Attracted to</span><select data-input="pp" data-k="attp" ${data(scope, id)}>${you || live ? '' : opt('you', 'Your gender (default)', !custom && preset === 'you')}${opt('everyone', you || live ? 'Everyone (default)' : 'Everyone', !custom && preset === 'everyone')}${gs.map(x => opt(`only:${x.id}`, `Only: ${x.name}`, !custom && preset === `only:${x.id}`)).join('')}${opt('none', 'No one', !custom && preset === 'none')}${opt('custom', 'Custom', custom)}</select></label>${!you && !live && !custom && preset === 'you' ? '<small class="mu-muted">Drawn to your gender if you are drawn to theirs, otherwise straight; still drawn to anyone they are or were with.</small>' : ''}` : ''}
         ${custom || !romance ? `<p class="mu-muted">How fast feelings grow toward each gender (100% is normal, 0% never). Losses are never changed.</p>
             ${gs.map(x => `<div class="mu-row2">${romance ? slider(x, 'r') : ''}${slider(x, 'f')}</div>`).join('')}` : ''}
-        ${you ? '<small class="mu-muted">Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.</small>' : ''}`;
+        ${you ? `<small class="mu-muted">${live ? 'Yours only sorts the dating app: while you play someone, their own feelings wait. It counts again once you stop playing them.' : 'Yours sorts the dating app and, when the game starts, decides who is drawn to you: of the people set to “Your gender”, the share you choose for their gender are (all of them at 100%, about half at 50%); the others are straight.'}</small>` : ''}`;
 }
 function paceHtml(scope: string, id: string, p: Person | undefined, romance: boolean): string {
     const PACES: [string, string][] = [['', 'World default'], ['slow', 'Slow'], ['normal', 'Normal'], ['fast', 'Fast']];
@@ -152,6 +158,7 @@ function sugWords(p: Person | undefined, gs: GenderDef[]): string {
     const out: string[] = [];
     const d = gs.find(x => x.id === p.gender); if (d) out.push(d.name);
     if (p.att) { const yes = gs.filter(x => (p.att?.[x.id]?.r ?? 1) > 0); out.push(yes.length ? `attracted to: ${yes.map(x => x.name).join(', ')}` : 'attracted to no one'); }
+    else if (p.attMode === 'set') out.push('attracted to everyone');
     const preset = p.intimacy?.preset; if (preset && preset !== 'custom') out.push(INTIMACY[preset as keyof typeof INTIMACY]?.name ?? preset);
     if (p.intimacy?.casual === false) out.push('only with a partner');
     if (p.intimate?.role) out.push(`in bed: ${ROLE_NAME[p.intimate.role].toLowerCase()}`);
@@ -175,12 +182,15 @@ export function suggestHtml(scope: string): string {
 
 /* ---------- editing ---------- */
 
-// Drops what is back to the default, so an untouched person stores nothing.
+// Drops what is back to the default, so an untouched person stores nothing (and an `attMode` that the values already
+// say: following you with no romance value, "set" with one).
 export function tidyPerson(p: Person): Person | undefined {
     if (p.att) {
         for (const [k, v] of Object.entries(p.att)) { if (v.f === 1) delete v.f; if (v.r === 1) delete v.r; if (v.f === undefined && v.r === undefined) delete p.att[k]; }
         if (!Object.keys(p.att).length) delete p.att;
     }
+    const hasR = Object.values(p.att ?? {}).some(v => typeof v.r === 'number');
+    if (p.attMode === (hasR ? 'set' : 'you') || (p.attMode !== 'you' && p.attMode !== 'set')) delete p.attMode;
     if (p.pace && !p.pace.f && !p.pace.r) delete p.pace;
     if (p.intimacy && !Object.keys(p.intimacy).length) delete p.intimacy;
     if (!p.gender) delete p.gender;
@@ -229,7 +239,7 @@ function applySuggestion(scope: string, id: string, p: Person | undefined) {
     const s = SCOPES[scope]; if (!s || !p) return;
     const cur: Person = structuredClone(s.get(id) ?? {});
     if (p.gender) cur.gender = p.gender;
-    if (p.att) cur.att = structuredClone(p.att);
+    if (p.att || p.attMode) { cur.att = p.att ? structuredClone(p.att) : undefined; if (p.attMode) cur.attMode = p.attMode; else delete cur.attMode; }
     if (p.intimacy) cur.intimacy = { ...(cur.intimacy ?? {}), ...p.intimacy };
     // (adult) what the card says of their role, drive, likes and limits, only where they have none yet
     if (p.intimate && s.adult?.()) {
@@ -267,7 +277,7 @@ Object.assign(INPUT, {
         edit(el, (p, s) => {
             if (k === 'gender') p.gender = v || undefined;
             else if (k === 'attp') setAttPreset(p, v, s.genders());
-            else if (k === 'att') { const e = ((p.att ??= {})[el.dataset.g!] ??= {}); e[m] = Math.max(0, Math.min(1, Number(v) / 100)); }
+            else if (k === 'att') { const e = ((p.att ??= {})[el.dataset.g!] ??= {}); e[m] = Math.max(0, Math.min(1, Number(v) / 100)); if (m === 'r') p.attMode = 'set'; }
             else if (k === 'pace') { const pc = (p.pace ??= {}); if (v) pc[m] = v as Pace; else delete pc[m]; }
             else if (k === 'intim') {
                 const i = (p.intimacy ??= {}), f = el.dataset.f;
