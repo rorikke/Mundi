@@ -1525,12 +1525,29 @@ export function forSaving(w: WorldDef): WorldDef {
         tidyInfo(info);
     }
     if (mine) out.traitInfo = mine; else delete out.traitInfo;
-    tidyGoals(out); tidyAdult(out);
+    tidyGoals(out); tidyAdult(out); tidyThreads(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length) g.formerly = [...(g.formerly ?? []), ...left];
     }
     return out;
+}
+// (storylines) What the form can leave that a game would drop anyway: empty earlier ways in, empty nudge boxes (three kept at
+// most), a help with no label or a price outside its range. Nothing else is touched.
+function tidyThreads(w: WorldDef) {
+    for (const e of w.cast?.examples ?? []) for (const t of e.threads ?? []) {
+        if (t.opens !== undefined) {
+            if (Array.isArray(t.opens)) { const l = t.opens.filter(x => typeof x !== 'string' || x.trim()); if (l.length) t.opens = l; else delete t.opens; }
+            else if (typeof t.opens === 'string' && !t.opens.trim()) delete t.opens;
+        }
+        if (t.nudges !== undefined) { const l = (Array.isArray(t.nudges) ? t.nudges : []).map(x => String(x).trim()).filter(Boolean).slice(0, 3); if (l.length) t.nudges = l; else delete t.nudges; }
+        for (const en of t.endings ?? []) {
+            const h = en.help; if (!h) continue;
+            if (typeof h.label !== 'string' || !h.label.trim()) { delete en.help; continue; }
+            if (h.money !== undefined) h.money = Math.max(0, Math.min(HELP_LIMITS.money, Number(h.money) || 0));
+            if (h.hours !== undefined) h.hours = Math.max(0, Math.min(HELP_LIMITS.hours, Number(h.hours) || 0));
+        }
+    }
 }
 // What the newer editors can leave that the engine would refuse: a job's or a track's hiring condition left empty, a boost whose
 // effects were all removed, an emptied pool of likes and limits. Nothing else is touched (an untouched world saves as it was).
@@ -2027,6 +2044,34 @@ function ritualsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
             <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details></div>`; }).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="ritual" data-path="${esc(`${p}.rituals`)}">${icon('plus')}<span>Add an appointment</span></button></details>`;
 }
+// (storylines) A storyline waits for the player: it opens once the player knows its person (at friend, when they learn the
+// secret, or through any of these earlier ways: one condition or a list, any one holding), runs its stages, then ends in
+// a deciding scene. These are the parts of its form that say how it opens, what is at stake, the last chances by text
+// and what the player can do about an ending (Help). A list of one is kept a list (nothing here rewrites a world).
+const HELP_LIMITS = { money: 10_000_000, hours: 8 };   // as upgradeWorld holds a storyline's help (core/presets.ts)
+type ThreadForm = NonNullable<WorldDef['cast']['examples'][number]['threads']>[number];
+function opensRows(q: string, t: ThreadForm) {
+    const list = t.opens === undefined ? [] : Array.isArray(t.opens) ? t.opens : [t.opens];
+    return `<div class="mu-cw-path"><span class="mu-cw-sub">How it opens</span>
+        ${list.map((_x, k) => `<div class="mu-row mu-cw-inline">${wayField(k ? 'Or opens earlier when' : 'Opens earlier when (optional)', Array.isArray(t.opens) ? `${q}.opens.${k}` : `${q}.opens`, 'job: ramen; feels: Genzō acquaintance')}<button class="mu-ghost mu-ibtn" data-act="cw-hire-del" data-f="opens" data-path="${esc(q)}" data-k="${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <small class="mu-muted">Always opens at friend, or when the player learns the secret</small>
+        <button class="mu-ghost" data-act="cw-add" data-what="hire" data-f="opens" data-path="${esc(q)}">${icon('plus')}<span>Add an earlier way in</span></button></div>`;
+}
+const optArea = (label: string, p: string, rows = 3, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${val(p)}</textarea></label>`;
+const NUDGE_LABELS = ['First text', 'Second text', 'Last text (it says it is the last chance)'];
+const nudgeBox = (q: string, n: number) => `<label class="mu-field"><span>${NUDGE_LABELS[n]}</span><textarea rows="2" data-input="cw-nudge" data-path="${esc(`${q}.nudges`)}" data-k="${n}" data-focus="${esc(`${q}.nudges.${n}`)}">${val(`${q}.nudges.${n}`)}</textarea></label>`;
+// What the player can pay in the deciding scene (or by text) to take a good ending: money and/or hours, a button's label.
+function helpForm(w: WorldDef, s: string, en: NonNullable<ThreadForm['endings']>[number]) {
+    const h = en.help; const q = `${s}.help`;
+    if (!h) return `<button class="mu-ghost" data-act="cw-add" data-what="thelp" data-path="${esc(q)}">${icon('plus')}<span>Add a way to help</span></button>`;
+    return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">Help: the player takes this way by paying for it</span><span class="mu-cw-spacer"></span>
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove the help">${icon('x')}</button></div>
+        <div class="mu-row2">${wayField('Offered while (a condition)', `${q}.when`, 'knows: kaito_debt; feels: Kaito acquaintance')}${txt('The button\'s label', `${q}.label`, 'Lend him what he owes')}</div>
+        <div class="mu-row2">${bounded(`Money it costs (${esc(w.currency.symbol)}; 0 … 10,000,000)`, `${q}.money`, 0, HELP_LIMITS.money)}${bounded('Hours it takes (0 … 8)', `${q}.hours`, 0, HELP_LIMITS.hours)}</div>
+        <div class="mu-row2">${flag('Can also be given by text', `${q}.remote`, 'In a last chance by text, with no meeting.')}${flag('Only through Help', `${q}.only`, 'The way never happens on its own condition: the player takes it by paying.')}</div>
+        ${typeof h.label === 'string' && h.label.trim() ? '' : '<small class="mu-cw-err">A help needs a label for its button: without one it is left out.</small>'}
+        ${en.good ? '' : '<small class="mu-cw-err">A help only works on a good ending: tick “A good ending”.</small>'}</div>`;
+}
 // Secrets and storylines that move in stages: what they hide, how it reads once known, when they tell, the stages (when,
 // how it's told, a moment, a rumor, a fact) and how it ends (a new job or home, leaving, a good ending). Ids are what
 // conditions, stories and saves name: shown, never changed.
@@ -2037,23 +2082,30 @@ function threadsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
         ${l.map((t, k) => { const q = `${p}.threads.${k}`;
             return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(t.id)}${flag('Only with adult content on', `${q}.adult`, '', true)}<span class="mu-cw-spacer"></span>
                 <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('trash')}<span>Remove this storyline</span></button></div>
+            ${optTxt('What it is called once you know it', `${q}.title`, 'Mio\'s exams', 'Empty: “their name’s storyline”.')}
             ${area('What they know and don\'t say (told to the AI as hidden)', `${q}.hidden`, 2)}
             <div class="mu-row2"><label class="mu-field"><span>How it reads once you know ({{user}} knows …)</span><textarea rows="2" data-input="cw" data-type="opt" data-path="${esc(`${q}.known`)}" data-focus="${esc(`${q}.known`)}">${val(`${q}.known`)}</textarea></label>${cond('They tell you when (empty: once you\'re good friends)', `${q}.reveal`, 'feels: Mio good')}</div>
+            ${opensRows(q, t)}
+            ${optArea('The deciding scene (for the AI: what is at stake as they bring it up; {{user}} is the player)', `${q}.decide`, 3, 'Empty: made from what they hide and the last stage.')}
+            <span class="mu-cw-sub">Last chances by text (in their voice, first to last; empty boxes are left out)</span>
+            <div class="mu-row2">${[0, 1, 2].map(n => nudgeBox(q, n)).join('')}</div>
             <span class="mu-cw-sub">Stages</span>
             ${(t.stages ?? []).map((st, j) => { const s = `${q}.stages.${j}`;
                 return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${j + 1}</b>${st.id ? idTag(st.id) : ''}${sel('Told as', `${s}.tell`, [['hidden', 'Hidden'], ['hinted', 'Hinted'], ['known', 'Known']])}<span class="mu-cw-spacer"></span>
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
                 ${cond('Begins when', `${s}.when`, 'season: summer; seasonDays: 8-14')}${area('What is going on', `${s}.text`, 2)}
                 <div class="mu-row2">${optTxt('A moment it brings', `${s}.moment`)}${optTxt('A rumor it starts', `${s}.rumor`)}</div>${optTxt('Remembered (a fact)', `${s}.fact`)}</div>`; }).join('')}
+            ${(t.stages ?? []).length ? '<small class="mu-muted mu-cw-lastnote">The last stage waits for the player: the storyline ends in a deciding scene with them, or after its last chances</small>' : ''}
             <button class="mu-ghost" data-act="cw-add" data-what="tstage" data-path="${esc(`${q}.stages`)}">${icon('plus')}<span>Add a stage</span></button>
             <span class="mu-cw-sub">Endings (the first whose condition holds; else the last without one)</span>
             ${(t.endings ?? []).map((en, j) => { const s = `${q}.endings.${j}`;
                 return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${idTag(en.id)}<span class="mu-cw-spacer"></span>
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
-                <div class="mu-row2">${cond('When (optional)', `${s}.when`, 'knows: mio_grades; feels: Mio friend')}${cond('Waits while (optional)', `${s}.waits`, 'venture: cafe', 'The storyline stays at its last stage while this holds, a game year at most.')}</div>${area('How it ends', `${s}.text`, 2)}
+                <div class="mu-row2">${cond('When (optional)', `${s}.when`, 'knows: mio_grades; feels: Mio friend')}${cond('Waits while (optional)', `${s}.waits`, 'venture: cafe', 'A good way still on its way: the player can wait for it')}</div>${area('How it ends', `${s}.text`, 2)}
                 <div class="mu-row2">${sel('A new job', `${s}.job`, withCur(jobs, en.job), 'opt')}${sel('A new home', `${s}.home`, withCur(zoneOpts(w, '(the same)'), en.home), 'opt')}</div>
                 ${optTxt('Remembered (a fact)', `${s}.fact`)}
-                <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div></div>`; }).join('')}
+                <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div>
+                ${helpForm(w, s, en)}</div>`; }).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="tend" data-path="${esc(`${q}.endings`)}">${icon('plus')}<span>Add an ending</span></button></div>`; }).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="thread" data-path="${esc(`${p}.threads`)}">${icon('plus')}<span>Add a storyline</span></button></details>`;
 }
@@ -2550,10 +2602,11 @@ Object.assign(ACT, {
         if (what === 'wfail') { setPath(el.dataset.path!, { text: '' }); notify(); return; }
         if (what === 'wboost') { setPath(el.dataset.path!, { effects: [{ kind: 'pay', value: 0.1 }], days: 7 }); notify(); return; }
         if (what === 'hire') {
-            const t = getPath(el.dataset.path!); if (!t) return;
-            t.hire = t.hire === undefined ? '' : [...(Array.isArray(t.hire) ? t.hire : [t.hire]), ''];
+            const t = getPath(el.dataset.path!); if (!t) return; const f = el.dataset.f ?? 'hire';
+            t[f] = t[f] === undefined ? '' : [...(Array.isArray(t[f]) ? t[f] : [t[f]]), ''];
             CW.dirty = true; notify(); return;
         }
+        if (what === 'thelp') { setPath(el.dataset.path!, { when: '', label: 'Help' }); notify(); return; }
         const [path, item] = NEW[what]();
         const list = (getPath(path) ?? (setPath(path, []), getPath(path))) as any[];
         list.push(item);
@@ -2606,9 +2659,9 @@ Object.assign(ACT, {
     'cw-climate': (el) => { CW.sel.climate = el.dataset.id; notify(); },
     // one of a track's hiring conditions; one left stays a list of one (an emptied list goes)
     'cw-hire-del': (el) => {
-        const t = getPath(el.dataset.path!); if (!t || t.hire === undefined) return;
-        const l = (Array.isArray(t.hire) ? t.hire : [t.hire]).filter((_x: unknown, k: number) => k !== Number(el.dataset.k));
-        if (l.length) t.hire = Array.isArray(t.hire) ? l : l[0]; else delete t.hire;
+        const t = getPath(el.dataset.path!); const f = el.dataset.f ?? 'hire'; if (!t || t[f] === undefined) return;   // (a storyline's earlier ways in are such a list too: `data-f="opens"`)
+        const l = (Array.isArray(t[f]) ? t[f] : [t[f]]).filter((_x: unknown, k: number) => k !== Number(el.dataset.k));
+        if (l.length) t[f] = Array.isArray(t[f]) ? l : l[0]; else delete t[f];
         CW.dirty = true; notify();
     },
     // what a step's quick-add row has picked, added to its objectives (or to one of its other ways)
@@ -2689,6 +2742,13 @@ export async function importWorldFile() {
 }
 
 Object.assign(INPUT, {
+    // one of a storyline's three last-chance texts: the list keeps its places while typing (empty ones go when saved), none left removes it
+    'cw-nudge': (el) => {
+        const p = el.dataset.path!; const cur = getPath(p); const l: string[] = Array.isArray(cur) ? cur.map(String) : [];
+        while (l.length < 3) l.push('');
+        l[Number(el.dataset.k)] = el.value;
+        setPath(p, l.some(x => x.trim()) ? l : undefined); dirtyMark();
+    },
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
     // a starting feeling's Together: a couple's status, or the couple they used to be
     'cw-together': (el) => { const q = el.dataset.path!; setPath(`${q}.status`, undefined); setPath(`${q}.was`, undefined); if (el.value === 'ex') setPath(`${q}.was`, 'ex'); else if (el.value) setPath(`${q}.status`, el.value); notify(); },
