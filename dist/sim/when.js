@@ -694,13 +694,15 @@ function threadHolds(g, w, values, x) {
     const there = values.filter(here);
     return !there.length || there.some(v => holds(g, w, 'thread', v, x));
 }
-/** The storylines of the people in this game (adult ones only with adult content on), by id. */
+/** The storylines of the people in this game (an adult person's, or an adult thread, only with adult content on), by id. */
 export function threadsInGame(g, w) {
     const out = new Set();
-    for (const r of Object.values(g.cast ?? {}))
-        for (const t of exampleOf(w, r)?.threads ?? [])
-            if (t.id && (!t.adult || adultOn(g)))
+    for (const r of Object.values(g.cast ?? {})) {
+        const ex = exampleOf(w, r);
+        for (const t of ex?.threads ?? [])
+            if (t.id && ((!t.adult && !ex?.adult) || adultOn(g)))
                 out.add(t.id);
+    }
     return out;
 }
 // A thread's state (sim/threads.ts): `known` the day the player learned it, `ended` how it ended.
