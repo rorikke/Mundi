@@ -30523,7 +30523,13 @@
    "id": "hijiri_fountain_pen",
    "name": "Hijiri fountain pen",
    "icon": "🖋️",
-   "kind": "stationery"
+   "kind": "stationery",
+   "desc": "A slim navy fountain pen with the Hijiri crest on the clip.",
+   "at": [
+    "ak_university",
+    "ak_jinbocho"
+   ],
+   "price": 6800
   },
   {
    "gift": true,
@@ -45144,7 +45150,7 @@
        {
         "id": "stays",
         "text": "He stays, as long as Hikari Labs lives.",
-        "when": "thread: rina_runway funded",
+        "when": "thread: rina_runway funded or rina_runway mochi_deal",
         "good": true
        },
        {
