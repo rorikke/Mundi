@@ -28552,6 +28552,469 @@
      }
     }
    ]
+  },
+  {
+   "id": "hc_st_owner_rounds",
+   "place": "sj_capsule",
+   "when": "job: capsule; rank: top; period: latenight",
+   "title": "the owner's rounds",
+   "setup": "At three in the morning the owner of Nest Capsule, a small man in a cardigan who is never there by day, walks the floors with {{user}} and a flashlight, listening to the snoring as if it were an engine. In the lounge he says a hotel chain has written to him twice: they would buy the building, put in check-in machines and send the night staff home.",
+   "choices": [
+    {
+     "label": "Ask what he told them",
+     "text": "nothing yet, he says; he built the place for people who missed the last train, and machines don't notice who is crying in the lounge at four",
+     "effects": {
+      "mood": 3
+     },
+     "fact": "{u} walked the owner's rounds at {0}"
+    },
+    {
+     "label": "Show him the night's numbers",
+     "roll": {
+      "skill": "logic",
+      "dc": 10
+     },
+     "text": "he reads the night's sheet twice and taps the full Friday; at the door he says he has been wondering who would keep it running",
+     "effects": {
+      "mood": 3
+     },
+     "trains": "logic",
+     "fail": {
+      "text": "he nods at the sheet without reading it and says the numbers were never the point; he leaves before the first train"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_st_owner_offer",
+   "place": "sj_capsule",
+   "after": "hc_st_owner_rounds",
+   "when": "job: capsule; rank: top",
+   "title": "the owner's offer",
+   "setup": "The owner comes in early with a folder and a can of hot coffee for each of them. He would rather sell Nest Capsule to {{user}} than to the chain: ¥2,200,000, a fifth of it now and the rest out of the takings over half a year, his own note, no bank. The night staff stay, and the noodle shop downstairs keeps its lease. {{user}} would run it, and no longer work for it.",
+   "choices": [
+    {
+     "label": "Say you'll think about it seriously",
+     "text": "he nods as if that were the right answer and leaves the folder on the desk; the offer is open now, in the Business app",
+     "fact": "{u} was offered Nest Capsule by its owner"
+    },
+    {
+     "label": "Say you're not ready",
+     "text": "he says nobody is, and that he will keep the chain's letters in a drawer a while longer; the offer waits in the Business app whenever you are"
+    }
+   ]
+  },
+  {
+   "id": "hc_st_for_sale",
+   "place": "sj_capsule",
+   "when": "job: not capsule; regular: 3; period: night or latenight",
+   "title": "Nest Capsule for sale",
+   "setup": "On the lounge noticeboard, between the bath rules and a lost umbrella, a handwritten card: FOR SALE BY OWNER, NO CHAINS. The owner, a small man in a cardigan, is refilling the vending machine himself. He recognizes {{user}} as a regular and says he would rather sell to a guest who knows the place: ¥3,600,000, under a third now and the rest from the takings.",
+   "choices": [
+    {
+     "label": "Ask him about the hotel",
+     "text": "he talks about the night bus crowd, the Friday last train and the boiler that needs kicking; the sale waits for you in the Business app",
+     "fact": "{u} heard Nest Capsule is for sale"
+    },
+    {
+     "label": "Just buy a can of tea",
+     "text": "he hands you one from the box before it goes into the machine; the card stays on the board, and the sale stays open in the Business app"
+    }
+   ]
+  },
+  {
+   "id": "hc_find_noodles",
+   "place": "sj_omoide",
+   "when": "venture: ht_capsule",
+   "setup": "At a six-seat noodle stall in Omoide Yokochō, under the tracks, the master ladles soy broth past midnight for people who missed the last train. He knows Nest Capsule: half his late customers sleep there. If someone came down for the bowls at one in the morning, he tells {{user}}, he would send them up hot, with the lids taped on.",
+   "choices": [
+    {
+     "label": "Shake on it",
+     "text": "he wipes his hand on his apron first; the late bowls wait for you in the Business app",
+     "finds": "hc_noodles"
+    },
+    {
+     "label": "Just eat",
+     "text": "a bowl of soba with a raw egg, eaten elbow to elbow with a man in a suit who is asleep with his chopsticks in his hand",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_prints",
+   "place": "ot_sensoji",
+   "when": "venture: ht_capsule",
+   "setup": "On a side lane off Nakamise an old print seller keeps a box of reprints nobody buys: Hiroshige's night views of Edo, travelers in straw hats sleeping at post stations, a lantern-lit inn on the old road. Sleeping away from home, he tells {{user}} when he hears about the hotel, is the oldest subject there is.",
+   "choices": [
+    {
+     "label": "Buy the box for the corridors",
+     "text": "forty prints wrapped in newspaper, and a frame maker's card; they wait for you in the Business app",
+     "finds": "hc_prints"
+    },
+    {
+     "label": "Buy one for yourself",
+     "text": "a traveler asleep against his pack at Hodogaya, two hundred years ago, exactly like the guests at four in the morning",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_lockers",
+   "place": "sj_station",
+   "when": "venture: ht_capsule",
+   "setup": "In a corridor of Shinjuku Station two workmen are unbolting a bank of old coin lockers, the big ones that fit a suitcase. Their foreman says they are going for scrap, unless someone with a van wants them by Friday, keys and all.",
+   "choices": [
+    {
+     "label": "Say you'll take them",
+     "text": "a van, two workmen and a long afternoon on the stairs; the lockers wait for you in the Business app",
+     "finds": "hc_coin_lockers"
+    },
+    {
+     "label": "Leave them",
+     "text": "they go out on a trolley, rattling all the way to the lifts, and the corridor looks bare and strange without them"
+    }
+   ]
+  },
+  {
+   "id": "hc_find_guide",
+   "place": "rp_pub",
+   "when": "venture: ht_capsule hc_travelers",
+   "setup": "At the Crown & Anchor an Australian travel writer is updating a backpackers' guide on a laptop held together with tape. Her Tokyo chapter has two capsule hotels in it, she complains, and both of them have closed. She asks {{user}} whether there is anywhere left in Shinjuku with a lounge where travelers can actually talk.",
+   "choices": [
+    {
+     "label": "Tell her about your lounge",
+     "roll": {
+      "skill": "english",
+      "dc": 10
+     },
+     "text": "she writes the address in the margin and underlines it; the page waits for you in the Business app",
+     "finds": "hc_backpacker_guide",
+     "fail": {
+      "text": "you lose a word or two, and she gets the gist anyway; the page waits for you in the Business app",
+      "finds": "hc_backpacker_guide"
+     }
+    },
+    {
+     "label": "Let her work",
+     "text": "she buys you a pint for leaving her alone, which she says is rarer in a pub than a good capsule hotel"
+    }
+   ]
+  },
+  {
+   "id": "hc_find_manga",
+   "place": "ak_mangacafe",
+   "when": "venture: ht_capsule",
+   "setup": "Comic Cocoon is clearing out its back shelves: whole runs of old manga, a hundred volumes each, their spines sun-faded, priced by the meter. The night clerk tells {{user}} that half of their overnight customers only came to read until the first train anyway.",
+   "choices": [
+    {
+     "label": "Buy three meters of manga",
+     "text": "a stack of boxes up to your chin; the manga wait for you in the Business app",
+     "finds": "hc_manga_shelves"
+    },
+    {
+     "label": "Read a volume and go",
+     "text": "one volume becomes three, and the clerk brings you a free melon soda without being asked",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_anime",
+   "place": "ak_electric",
+   "when": "venture: ht_capsule tier 2",
+   "setup": "Above a figure shop in Electric Town a studio's merchandise team is throwing out the panels from a pop-up shop: a whole corridor of a starship, life-size, with numbered sleeping pods painted on the walls. The team lead says they were meant for an anime collaboration that fell through, and asks {{user}}, half joking, whether anyone sleeps in pods for real.",
+   "choices": [
+    {
+     "label": "Say your guests do",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "she laughs, then calls the studio; they'll lend the panels and the name for a floor, if fans can book it; it waits for you in the Business app",
+     "finds": "hc_anime_floor",
+     "fail": {
+      "text": "she doesn't believe you until you show her a photo of the capsules; then she calls the studio, and the floor waits for you in the Business app",
+      "finds": "hc_anime_floor"
+     }
+    },
+    {
+     "label": "Help carry them down",
+     "text": "you carry a section of starship down three flights of stairs, and she gives you a keyring for your trouble",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_light",
+   "place": "bay_art",
+   "when": "venture: ht_capsule hc_quiet",
+   "setup": "In a dark room of the Lumen Digital Art Museum, where light falls like slow rain through the visitors, one of the artists is packing up an old piece: a ceiling of drifting stars that dims as the people under it breathe slower. It was too quiet for the museum, she tells {{user}}. It was made for falling asleep.",
+   "choices": [
+    {
+     "label": "Ask if it could hang over your lounge",
+     "text": "she is delighted; she will come and set it up herself, if she can sleep a night under it; it waits for you in the Business app",
+     "finds": "hc_light_room"
+    },
+    {
+     "label": "Lie down under it a while",
+     "text": "you nearly fall asleep on the museum floor, which, she says, is the highest praise it ever got",
+     "effects": {
+      "mood": 5,
+      "energy": 5
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_mural",
+   "place": "ws_sento",
+   "when": "venture: ht_capsule hc_sauna",
+   "setup": "At Matsu-no-yu a painter on a ladder is touching up the Mount Fuji over the men's bath, one of the last bathhouse painters in Tokyo. He has painted that mountain four hundred times, he tells {{user}}, and never yet in a capsule hotel. He looks curious about it.",
+   "choices": [
+    {
+     "label": "Invite him to paint yours",
+     "text": "he climbs down, wipes his brush and asks how high your bath wall is; the mural waits for you in the Business app",
+     "finds": "hc_fuji_mural"
+    },
+    {
+     "label": "Just take a bath",
+     "text": "you soak under the fresh snow on the mountain while he paints the clouds above you, very slowly",
+     "effects": {
+      "mood": 4,
+      "hygiene": 20
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_chairs",
+   "place": "bay_mall",
+   "when": "venture: ht_capsule hc_business",
+   "setup": "In a showroom at Odaiba Harbor Mall a salesman is selling off last year's massage chairs, the big black ones with arms that grip like a handshake. Six of them, he tells {{user}}, at a price he lowers twice while {{user}} is still sitting in one.",
+   "choices": [
+    {
+     "label": "Buy all six for the lounge",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "he lowers it a third time and throws in delivery; the chairs wait for you in the Business app",
+     "finds": "hc_massage_chairs",
+     "fail": {
+      "text": "he won't go lower, and you take them anyway; they wait for you in the Business app",
+      "finds": "hc_massage_chairs"
+     }
+    },
+    {
+     "label": "Stay in the chair a while",
+     "text": "fifteen minutes later he is still talking about lumbar rollers, and you are almost asleep with your shoes off",
+     "effects": {
+      "mood": 3,
+      "energy": 5
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_find_drama",
+   "place": "bay_tv",
+   "when": "venture: ht_capsule tier 3",
+   "setup": "A location scout for a Wave TV night drama is in the lobby with a folder of rejected hotels. The script needs a capsule hotel where two strangers meet after the last train, she tells {{user}}, and every one she has seen looks like a hospital. She asks whether {{user}}'s has a women's floor and a lounge that looks like somewhere people fall in love.",
+   "choices": [
+    {
+     "label": "Show her photos on your phone",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "she books the lounge for two nights of filming next month; the episode waits for you in the Business app",
+     "finds": "hc_drama_night",
+     "fail": {
+      "text": "she isn't sure, then sees the light on the lounge ceiling; the filming waits for you in the Business app",
+      "finds": "hc_drama_night"
+     }
+    },
+    {
+     "label": "Say it isn't that kind of hotel",
+     "text": "she laughs and says nowhere is that kind of hotel until the camera is in it, and gives you her card anyway"
+    }
+   ]
+  },
+  {
+   "id": "hc_find_hinoki",
+   "place": "hk_yumoto",
+   "when": "venture: ht_capsule tier 3",
+   "setup": "In a workshop at Hakone-Yumoto a bath maker is planing a tub of hinoki cypress, the shavings curling on the floor and the whole room smelling like a forest after rain. He makes them for ryokan, he tells {{user}}, and has never made one for a hotel in Shinjuku. He would like to.",
+   "choices": [
+    {
+     "label": "Order two for the women's floor",
+     "text": "he measures nothing and writes down everything; the tubs wait for you in the Business app",
+     "finds": "hc_hinoki_tubs"
+    },
+    {
+     "label": "Take a handful of shavings",
+     "text": "he fills a paper bag for you; your coat smells of cypress all the way back to Shinjuku",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_ms_sauna",
+   "place": "sj_capsule",
+   "when": "venture: ht_capsule; upgrade: hc_sauna; period: night or latenight",
+   "title": "the sauna club's verdict",
+   "setup": "Three men in matching towels arrive the week the sauna opens: a sauna club that rates every hot room in Tokyo for a newsletter with a cult following. They take a thermometer in with them and come out red and silent. One of them asks {{user}} whether the owner would care to sit with them for the second round.",
+   "choices": [
+    {
+     "label": "Sit the second round with them",
+     "roll": {
+      "skill": "fitness",
+      "dc": 11
+     },
+     "text": "you last longer than the youngest; their newsletter gives the sauna a place on its map, and people come with the page folded in their pockets",
+     "fact": "{u}'s sauna made the sauna club's map",
+     "fail": {
+      "text": "you leave first, dizzy, and they write a kind paragraph without a place on the map; people come anyway"
+     }
+    },
+    {
+     "label": "Bring them cold water",
+     "text": "they drink it in a row on the bench and write a short, fair review; the sauna fills on Saturday all the same"
+    }
+   ]
+  },
+  {
+   "id": "hc_ms_cabins",
+   "place": "sj_capsule",
+   "when": "venture: ht_capsule tier 2; upgrade: hc_womens_floor",
+   "title": "the women's floor opens",
+   "setup": "The women's floor opens on a wet Thursday: its own lift code, its own powder room, cabins tall enough to stand in. The first guests are a nurse off a night shift, two students from Osaka and an editor from a travel magazine, who walks every corridor and asks {{user}} what the floor is for in one sentence.",
+   "choices": [
+    {
+     "label": "Find the sentence",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "she writes it down word for word; the magazine runs a page on the floor, and the bookings come from women who travel alone",
+     "fact": "{u}'s women's floor was in a travel magazine",
+     "fail": {
+      "text": "your sentence is too long, and she prints a shorter one of her own; the floor fills anyway, more slowly"
+     }
+    },
+    {
+     "label": "Let her see for herself",
+     "text": "she sleeps a night and writes a short, warm paragraph about the quiet; the floor fills, slowly, one booking at a time"
+    }
+   ]
+  },
+  {
+   "id": "hc_daisuke_lasttrain",
+   "place": "sj_capsule",
+   "brings": "Daisuke",
+   "when": "venture: ht_capsule; feels: Daisuke friend; weekday: fri; period: latenight",
+   "setup": "Long after the last train Daisuke arrives at the desk with his tie in his pocket and his glasses fogged, apologizing to the door, to the clerk and to {{user}}. Asahina's year-end figures, a drinking party he couldn't leave, a section chief who sang for an hour. He bows and asks, very politely, whether there is one capsule left.",
+   "choices": [
+    {
+     "label": "Give him the best one, on the house",
+     "text": "he bows four times and is asleep before the screen is shut; on Monday a box of sweets arrives at the desk with a card in careful handwriting",
+     "feels": {
+      "Daisuke": 3
+     },
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "label": "Sit with him in the lounge first",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "over a can of corn soup he says more about his job than he has in a year, and laughs at himself at the end",
+     "feels": {
+      "Daisuke": 4
+     },
+     "fail": {
+      "text": "he falls asleep in the lounge chair mid-sentence; you put a blanket over him and leave his glasses on the table",
+      "feels": {
+       "Daisuke": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "hc_ts_lease",
+   "place": "sj_capsule",
+   "brings": "Tsubaki",
+   "after": "ht_ts_tin",
+   "adult": true,
+   "when": "venture: ht_capsule tier 3; upgrade: hc_spa_room; feels: Tsubaki friend; period: evening or night",
+   "title": "Tsubaki's lease",
+   "setup": "Tsubaki walks the women's floor in flat shoes and a plain coat, opens the spa room's window, runs the tap, tests the lock. She has brought her own copy of the lease and a pen. At the lounge table she reads every line twice, as she promised, and asks one question: whether her name can go on the door in letters as big as the hotel's.",
+   "choices": [
+    {
+     "label": "Say as big as she likes",
+     "text": "she signs her side in her own hand and pays the first month from the tin; your side of the lease waits in the Business app",
+     "feels": {
+      "Tsubaki": 3
+     },
+     "fact": "Tsubaki signed a lease for the spa room at {0}"
+    },
+    {
+     "label": "Ask about the man who won't let her go",
+     "text": "she says he doesn't know where she'll be, and asks the night desk to know his face; then she signs her side, and yours waits in the Business app",
+     "feels": {
+      "Tsubaki": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ht_ts_tin",
+   "place": "sj_esthe",
+   "adult": true,
+   "title": "Tsubaki's tin",
+   "when": "venture: hotel; knows: tsubaki_salon; feels: Tsubaki friend; thread: not tsubaki_salon; present: Tsubaki",
+   "setup": "Between bookings Tsubaki sets a biscuit tin on the reception sofa, the salon's name on its lid in her neat hand. It is full: she counted it twice last night. This week she told her special regulars there will be no more extras, and the license papers are in her bag. What she still needs is a room with a window and a door to put her name on, and she has heard that {{user}} has a hotel.",
+   "choices": [
+    {
+     "label": "Tell her about a room at your hotel",
+     "text": "she listens with her head on one side, then says she will come and see it herself, and sign nothing she hasn't read twice",
+     "feels": {
+      "Tsubaki": 3
+     },
+     "fact": "Tsubaki showed {u} the salon fund she filled herself"
+    },
+    {
+     "label": "Ask what kind of room she needs",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "daylight, a sink, a lock, and a door nobody is ashamed to knock on; she writes it on the back of a price list and gives it to you",
+     "feels": {
+      "Tsubaki": 3
+     },
+     "fail": {
+      "text": "she laughs and says she'll know it when she sees it; she puts the tin back in her locker and goes to her next booking",
+      "feels": {
+       "Tsubaki": 1
+      }
+     }
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -39925,6 +40388,38 @@
      ]
     }
    ]
+  },
+  {
+   "id": "aroma_salon",
+   "name": "Aroma salon",
+   "place": "ws_koenji",
+   "adult": true,
+   "hireable": false,
+   "schedule": {
+    "days": 5,
+    "from": 10,
+    "to": 18
+   },
+   "hours": [
+    10,
+    19
+   ],
+   "shift": 8,
+   "length": 1,
+   "likes": [
+    "Sports",
+    "Shameless"
+   ],
+   "trains": [
+    "charisma",
+    "fitness"
+   ],
+   "ranks": [
+    {
+     "name": "Licensed aroma therapist, owner",
+     "pay": 2800
+    }
+   ]
   }
  ],
  "institutions": [
@@ -43715,10 +44210,19 @@
       ],
       "endings": [
        {
+        "id": "salon_at_hotel",
+        "when": "tenant: Tsubaki; knows: tsubaki_salon; seen: ht_ts_tin",
+        "job": "aroma_salon",
+        "good": true,
+        "waits": "venture: hotel; knows: tsubaki_salon; feels: Tsubaki friend; tenant: not Tsubaki",
+        "text": "The tin is full and the lease is in her own name: a licensed aroma salon in a room of {{user}}'s hotel, daylight hours, her name on the door, and her ex blocked everywhere."
+       },
+       {
         "id": "own_salon",
         "text": "The tin is full: she rents a small room in Kōenji for a licensed aroma salon of her own, daylight hours, her name on the door, and her ex blocked everywhere.",
-        "when": "knows: tsubaki_salon; feels: Tsubaki good; did: sj_esthe_book 3",
-        "good": true
+        "when": "knows: tsubaki_salon; feels: Tsubaki good; did: sj_esthe_book 5",
+        "good": true,
+        "job": "aroma_salon"
        },
        {
         "id": "late_slots",
@@ -49389,6 +49893,1131 @@
        "text": "the old team does it the way it always has; the ratings are exactly what they were last year"
       }
      ]
+    }
+   ]
+  },
+  {
+   "id": "ht_capsule",
+   "track": "hotel",
+   "kind": "capsule",
+   "name": "Nest Capsule Shinjuku",
+   "place": "sj_capsule",
+   "desc": "the capsule hotel above a noodle shop in Shinjuku, built for people who missed the last train",
+   "ways": {
+    "takeover": {
+     "place": "sj_capsule",
+     "when": "job: capsule; rank: top",
+     "story": "hc_st_owner_offer",
+     "cost": 2200000,
+     "tier": 1,
+     "rent": 30000,
+     "start": {
+      "quality": 12,
+      "atmosphere": 12,
+      "capacity": 14,
+      "fame": 10
+     },
+     "endsJob": "capsule",
+     "note": {
+      "down": 0.2,
+      "weeks": 26
+     }
+    },
+    "buy": {
+     "place": "sj_capsule",
+     "when": "seen: hc_st_for_sale; job: not capsule",
+     "story": "hc_st_for_sale",
+     "cost": 3600000,
+     "tier": 1,
+     "rent": 30000,
+     "start": {
+      "quality": 10,
+      "atmosphere": 10,
+      "capacity": 12,
+      "fame": 8
+     },
+     "note": {
+      "down": 0.3,
+      "weeks": 40
+     }
+    }
+   },
+   "run": {
+    "label": "Work the front desk",
+    "icon": "🛎"
+   },
+   "trains": [
+    "english",
+    "logic"
+   ],
+   "stint": 4,
+   "demand": {
+    "days": {
+     "mon": 1,
+     "tue": 1.05,
+     "wed": 1.05,
+     "thu": 1.1,
+     "fri": 1.3,
+     "sat": 0.8,
+     "sun": 0.7
+    },
+    "festivals": {
+     "bonenkai": 1.6,
+     "fireworks": 1.3,
+     "halloween": 1.25,
+     "fancon": 1.25,
+     "goldenweek": 1.15,
+     "christmas": 0.85,
+     "omisoka": 0.6
+    },
+    "festival": 1.1,
+    "season": {
+     "winter": 1.1,
+     "summer": 1.05
+    },
+    "hours": [
+     [
+      16,
+      21,
+      0.5
+     ],
+     [
+      23,
+      3,
+      1.3
+     ],
+     [
+      6,
+      10,
+      0.6
+     ]
+    ]
+   },
+   "tiers": [
+    {
+     "id": "capsule",
+     "name": "Capsule hotel",
+     "ceiling": 30,
+     "alone": 0.6,
+     "rooms": 40,
+     "prices": {
+      "stay": 4800,
+      "rest": 2400
+     },
+     "rests": 0.5,
+     "costs": 0.72,
+     "desc": "forty screened capsules over a noodle shop, lockers, a communal bath and a vending-machine lounge; the night staff keep it open around you",
+     "milestone": {
+      "upgrade": "hc_sauna",
+      "story": "hc_ms_sauna"
+     }
+    },
+    {
+     "id": "sauna",
+     "name": "Capsule hotel with a sauna and lounge",
+     "ceiling": 55,
+     "alone": 0.65,
+     "rooms": 48,
+     "prices": {
+      "stay": 5400,
+      "rest": 2800
+     },
+     "rests": 0.5,
+     "costs": 0.71,
+     "desc": "a sauna and a cold plunge beside the bath, a lounge with reclining chairs, more capsules on the floor above; day-use guests between the nights",
+     "milestone": {
+      "upgrade": "hc_womens_floor",
+      "story": "hc_ms_cabins"
+     }
+    },
+    {
+     "id": "cabins",
+     "name": "Cabin hotel with a women's floor",
+     "ceiling": 80,
+     "alone": 0.7,
+     "rooms": 56,
+     "prices": {
+      "stay": 6400,
+      "rest": 3000
+     },
+     "rests": 0.5,
+     "costs": 0.7,
+     "desc": "cabins you can stand up in, a women's floor with its own lift code and powder room, the sauna and the lounge; people book it on purpose now"
+    }
+   ],
+   "styles": [
+    {
+     "id": "hc_business",
+     "name": "For salarymen",
+     "tier": 1,
+     "desc": "quiet and early: alarms at six, shirts ironed by seven, the morning papers on a rack; full on weeknights, empty on Sundays",
+     "mul": {
+      "quality": 1.08,
+      "fame": 0.94
+     },
+     "finds": [
+      "hc_massage_chairs"
+     ]
+    },
+    {
+     "id": "hc_travelers",
+     "name": "For travelers",
+     "tier": 1,
+     "desc": "backpackers and night-bus arrivals: maps on the wall, English at the desk, a lounge that talks until two",
+     "mul": {
+      "fame": 1.1,
+      "atmosphere": 1.04,
+      "quality": 0.92
+     },
+     "finds": [
+      "hc_backpacker_guide"
+     ]
+    },
+    {
+     "id": "hc_sauna",
+     "name": "A sauna hotel",
+     "tier": 2,
+     "desc": "the sauna is the point: steam on the hour, a cold plunge, men in towels asleep in the reclining chairs at noon; as many day guests as night ones",
+     "mul": {
+      "quality": 1.1,
+      "capacity": 0.95
+     },
+     "finds": [
+      "hc_fuji_mural"
+     ]
+    },
+    {
+     "id": "hc_quiet",
+     "name": "Quiet floors",
+     "tier": 2,
+     "desc": "silence after eleven, phones in the lockers, soft lights and earplugs on every pillow: the sleep people pay for",
+     "mul": {
+      "atmosphere": 1.1,
+      "fame": 0.95
+     },
+     "finds": [
+      "hc_light_room"
+     ]
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "hc_pajamas",
+     "name": "Fresh pajamas and good towels",
+     "stat": "quality",
+     "add": 4,
+     "cost": 35000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hc_mattress",
+     "name": "Proper mattresses in every capsule",
+     "stat": "quality",
+     "add": 4,
+     "cost": 60000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "thicker mattresses and blackout screens; the snorers are still there"
+    },
+    {
+     "id": "hc_noodles",
+     "name": "Late bowls from Omoide Yokochō",
+     "stat": "quality",
+     "add": 5,
+     "cost": 40000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a noodle stall under the tracks in Omoide Yokochō"
+    },
+    {
+     "id": "hc_massage_chairs",
+     "name": "Six massage chairs for the lounge",
+     "stat": "quality",
+     "add": 5,
+     "cost": 160000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a showroom in Odaiba's mall"
+    },
+    {
+     "id": "hc_sauna",
+     "name": "A sauna and a cold plunge",
+     "stat": "quality",
+     "add": 8,
+     "cost": 900000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "a cedar-lined hot room beside the bath and a plunge pool cold enough to shout in"
+    },
+    {
+     "id": "hc_breakfast",
+     "name": "A breakfast counter",
+     "stat": "quality",
+     "add": 5,
+     "cost": 120000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "rice balls, miso soup and pickles before the first train"
+    },
+    {
+     "id": "hc_manga_shelves",
+     "name": "Three meters of manga",
+     "stat": "quality",
+     "add": 6,
+     "cost": 70000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a manga café clearing its shelves in Akihabara"
+    },
+    {
+     "id": "hc_bath_regular",
+     "name": "A bath kept the way a regular likes it",
+     "stat": "quality",
+     "add": 6,
+     "cost": 60000,
+     "tier": 2,
+     "how": "earned",
+     "when": "did: sj_capsule_bath 10",
+     "hint": "nights in its own bath"
+    },
+    {
+     "id": "hc_cabin_beds",
+     "name": "Cabins you can stand up in",
+     "stat": "quality",
+     "add": 8,
+     "cost": 700000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "hc_hinoki_tubs",
+     "name": "Cypress tubs for the women's floor",
+     "stat": "quality",
+     "add": 7,
+     "cost": 260000,
+     "tier": 3,
+     "how": "found",
+     "hint": "a bath maker in Hakone-Yumoto"
+    },
+    {
+     "id": "hc_lounge_lights",
+     "name": "Plants and soft lights in the lounge",
+     "stat": "atmosphere",
+     "add": 4,
+     "cost": 25000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hc_curtains",
+     "name": "Thick curtains on every capsule",
+     "stat": "atmosphere",
+     "add": 4,
+     "cost": 40000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hc_prints",
+     "name": "Old prints of travelers for the corridors",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 50000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a print seller off Nakamise"
+    },
+    {
+     "id": "hc_night_music",
+     "name": "Night music in the lounge",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 20000,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: music 5",
+     "hint": "a feel for music"
+    },
+    {
+     "id": "hc_anime_floor",
+     "name": "An anime capsule floor",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 320000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a studio's pop-up in Electric Town"
+    },
+    {
+     "id": "hc_light_room",
+     "name": "A ceiling of slow light",
+     "stat": "atmosphere",
+     "add": 8,
+     "cost": 280000,
+     "tier": 2,
+     "how": "found",
+     "hint": "an artist at the digital art museum"
+    },
+    {
+     "id": "hc_fuji_mural",
+     "name": "Mount Fuji over the bath",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 150000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a bathhouse painter in Kōenji"
+    },
+    {
+     "id": "hc_camille_doors",
+     "name": "Camille's drawings on the capsule doors",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 30000,
+     "tier": 2,
+     "how": "earned",
+     "when": "feels: Camille good",
+     "hint": "a friend who draws for a studio"
+    },
+    {
+     "id": "hc_spa_room",
+     "name": "A spa room on the women's floor",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 300000,
+     "tier": 3,
+     "how": "basic",
+     "desc": "a small room with a window, a sink and a lock, for treatments"
+    },
+    {
+     "id": "hc_lockers",
+     "name": "Lockers big enough for a suitcase",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 45000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hc_coin_lockers",
+     "name": "A bank of old station lockers",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 80000,
+     "tier": 1,
+     "how": "found",
+     "hint": "workmen in a corridor of Shinjuku Station"
+    },
+    {
+     "id": "hc_english_rules",
+     "name": "House rules in plain English",
+     "stat": "capacity",
+     "add": 4,
+     "cost": 15000,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: english 5",
+     "hint": "good English"
+    },
+    {
+     "id": "hc_night_desk",
+     "name": "A second clerk on the night desk",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 70000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "a second clerk on the night desk"
+    },
+    {
+     "id": "hc_manager",
+     "name": "A manager",
+     "stat": "capacity",
+     "add": 3,
+     "cost": 250000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "the manager",
+     "manager": true
+    },
+    {
+     "id": "hc_bonenkai_deal",
+     "name": "The izakaya masters' last-train cards",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: bonenkai",
+     "hint": "the year-end parties"
+    },
+    {
+     "id": "hc_rota",
+     "name": "A rota that never leaves the desk empty",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 40000,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: logic 7",
+     "hint": "a head for rotas"
+    },
+    {
+     "id": "hc_womens_floor",
+     "name": "A women's floor and cabins",
+     "stat": "capacity",
+     "add": 10,
+     "cost": 2000000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "the top floor rebuilt as cabins, with its own lift code and a powder room"
+    },
+    {
+     "id": "hc_neon",
+     "name": "A neon nest over the door",
+     "stat": "fame",
+     "add": 4,
+     "cost": 30000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hc_listing",
+     "name": "A page on the booking sites",
+     "stat": "fame",
+     "add": 4,
+     "cost": 20000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hc_backpacker_guide",
+     "name": "A page in a backpackers' guide",
+     "stat": "fame",
+     "add": 6,
+     "cost": 0,
+     "tier": 1,
+     "how": "found",
+     "hint": "a travel writer at a Roppongi pub"
+    },
+    {
+     "id": "hc_crown_stragglers",
+     "name": "The Crown & Anchor sends its stragglers",
+     "stat": "fame",
+     "add": 6,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "feels: Lucas friend",
+     "hint": "a friend behind a pub bar in Roppongi"
+    },
+    {
+     "id": "hc_fireworks_night",
+     "name": "The fireworks' last-train night",
+     "stat": "fame",
+     "add": 7,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: fireworks",
+     "hint": "the Sumida fireworks in summer"
+    },
+    {
+     "id": "hc_sauna_map",
+     "name": "A place on the sauna club's map",
+     "stat": "fame",
+     "add": 9,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "seen: hc_ms_sauna:1",
+     "hint": "the sauna club's verdict"
+    },
+    {
+     "id": "hc_halloween",
+     "name": "Halloween's costumed guests",
+     "stat": "fame",
+     "add": 7,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: halloween",
+     "hint": "Halloween in Shibuya"
+    },
+    {
+     "id": "hc_drama_night",
+     "name": "A night scene in a TV drama",
+     "stat": "fame",
+     "add": 9,
+     "cost": 60000,
+     "tier": 3,
+     "how": "found",
+     "hint": "a location scout at Wave TV"
+    },
+    {
+     "id": "hc_women_reviews",
+     "name": "Women who travel alone",
+     "stat": "fame",
+     "add": 7,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "seen: hc_ms_cabins:1",
+     "hint": "the travel magazine's page"
+    },
+    {
+     "id": "hc_friends_visitors",
+     "name": "Your friends send their visitors",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "friends: 3 good",
+     "hint": "good friends with visitors from out of town"
+    }
+   ],
+   "discoveries": [
+    {
+     "id": "hc_d_lasttrain",
+     "name": "The Friday last train",
+     "when": "weekday: fri; period: night or latenight",
+     "add": {
+      "capacity": 3
+     },
+     "text": "Fridays after half past midnight the desk has a queue: suits, heels, a groom-to-be in a sash. You open the spare floor an hour early."
+    },
+    {
+     "id": "hc_d_shirts",
+     "name": "Shirts ironed by seven",
+     "when": "weekday: mon or tue or wed or thu; period: firsttrain or rush",
+     "add": {
+      "quality": 2
+     },
+     "text": "An iron and a board by the lockers, and the salarymen leave looking as if they slept at home."
+    },
+    {
+     "id": "hc_d_typhoon",
+     "name": "Typhoon nights",
+     "when": "weather: storm",
+     "add": {
+      "capacity": 2
+     },
+     "text": "When the trains stop for a typhoon, half of Shinjuku wants a capsule; you put out towels for the wet ones at the door."
+    },
+    {
+     "id": "hc_d_summer",
+     "name": "Cold towels in summer",
+     "when": "season: summer",
+     "add": {
+      "quality": 2
+     },
+     "text": "A fridge of rolled cold towels at the desk, and nobody arrives in July without taking one."
+    },
+    {
+     "id": "hc_d_winter",
+     "name": "The bath on a cold night",
+     "when": "season: winter; period: night or latenight",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "In winter the bath is the warmest room in Shinjuku at two in the morning, and the guests talk in it like old friends."
+    },
+    {
+     "id": "hc_d_hanami",
+     "name": "Hanami stragglers",
+     "when": "festival: hanami",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "Petals in their hair, picnic sheets under their arms: the park parties end at the last train, and some of them end here."
+    },
+    {
+     "id": "hc_d_ramen",
+     "name": "The ramen contest crowd",
+     "when": "festival: ramen_contest",
+     "add": {
+      "fame": 2
+     },
+     "text": "Cooks and judges from Sapporo and Fukuoka in town for the contest: they compare broths in the lounge until three."
+    },
+    {
+     "id": "hc_d_fancon",
+     "name": "Fans in town for the convention",
+     "when": "festival: fancon",
+     "add": {
+      "fame": 2
+     },
+     "text": "Rolling cases of merchandise and costumes in garment bags: the fans book a whole floor and leave the best reviews you ever had."
+    },
+    {
+     "id": "hc_d_bonenkai",
+     "name": "Year-end party survivors",
+     "when": "festival: bonenkai",
+     "add": {
+      "capacity": 2
+     },
+     "text": "In the party weeks you keep hangover drinks behind the desk and a stack of spare ties for the morning."
+    }
+   ],
+   "events": [
+    {
+     "id": "hc_ev_wallet",
+     "setup": "At twenty to two a salaryman in a crumpled suit arrives with a dead phone and no wallet; his cards were in it, and his train left an hour ago.",
+     "choices": [
+      {
+       "label": "Let him stay, pay tomorrow",
+       "add": {
+        "atmosphere": 1
+       },
+       "effects": {
+        "mood": 4
+       },
+       "text": "He comes back the next evening with the money and his whole team's business cards."
+      },
+      {
+       "label": "Call him a taxi home",
+       "text": "He thanks you, and is gone into the rain."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_alarm",
+     "setup": "At four in the morning a capsule's alarm rings and rings, and its owner sleeps through it; the whole row is awake and glaring.",
+     "choices": [
+      {
+       "label": "Knock on the screen",
+       "roll": {
+        "skill": "charisma",
+        "dc": 9
+       },
+       "text": "He wakes, apologizes to the row one by one, and buys them all coffee from the machine.",
+       "fail": {
+        "text": "He wakes up cross, and so does everyone else; two guests check out early.",
+        "add": {
+         "atmosphere": -1
+        }
+       }
+      },
+      {
+       "label": "Hand out earplugs",
+       "money": -500,
+       "text": "The row goes back to sleep, and so, eventually, does he."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_nightbus",
+     "setup": "A night bus lets out six backpackers with no booking and two capsules free; they are tired, wet and very polite in four languages.",
+     "choices": [
+      {
+       "label": "Sort it out in English",
+       "roll": {
+        "skill": "english",
+        "dc": 10
+       },
+       "money": 6000,
+       "add": {
+        "fame": 1
+       },
+       "text": "Two capsules, the lounge sofas and a deal for the rest of the week: they post about it before they sleep.",
+       "fail": {
+        "text": "Something is lost in translation; four of them walk on to a manga café.",
+        "money": 2000
+       }
+      },
+      {
+       "label": "Send them to the station hotel",
+       "text": "They thank you and go; one of them comes back the next week with a booking."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_fire",
+     "setup": "A fire inspector arrives unannounced and walks the floors with a stopwatch, timing how long it takes to reach the stairs from the last capsule.",
+     "choices": [
+      {
+       "label": "Walk it with her",
+       "roll": {
+        "skill": "logic",
+        "dc": 10
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "Every exit clear, every sign lit; she signs the form and asks where you buy your earplugs.",
+       "fail": {
+        "text": "A stack of towels on the back stairs: a warning, and a small fine.",
+        "money": -6000
+       }
+      },
+      {
+       "label": "Let the night clerk show her",
+       "text": "He is nervous and slow, but the hotel passes."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_typhoon",
+     "setup": "The trains stop for a typhoon, and the lobby fills with wet commuters asking whether they can sleep on the lounge floor.",
+     "choices": [
+      {
+       "label": "Open the lounge at half price",
+       "money": 9000,
+       "add": {
+        "fame": 2
+       },
+       "text": "Blankets on the floor, the vending machine emptied by midnight, and a lot of grateful people on the first train."
+      },
+      {
+       "label": "Capsules only",
+       "text": "The capsules fill in ten minutes; the rest go back out into the rain."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_ring",
+     "setup": "A guest comes out of the bath white-faced: her engagement ring slipped off in the water and went down the drain.",
+     "choices": [
+      {
+       "label": "Open the drain yourself",
+       "roll": {
+        "skill": "fitness",
+        "dc": 10
+       },
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "Half an hour on your knees with a torch, and a ring held up to the light; she cries, and so does the cleaner.",
+       "fail": {
+        "text": "You can't reach it; a plumber does in the morning, for a fee.",
+        "money": -8000
+       }
+      },
+      {
+       "label": "Call a plumber now",
+       "money": -12000,
+       "text": "He finds it in ten minutes and charges for the night call."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_blogger",
+     "setup": "A man who reviews capsule hotels for a video channel checks in with a tape measure and a decibel meter, and asks which capsule is the quietest.",
+     "choices": [
+      {
+       "label": "Give him the corner capsule",
+       "add": {
+        "fame": 2
+       },
+       "text": "His video gives you eight out of ten and spends a whole minute on the bath."
+      },
+      {
+       "label": "Give him whichever is free",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "You talk him through the hotel's history at the desk; he likes the story more than the capsule.",
+       "fail": {
+        "text": "He measures the snoring next door and gives you five out of ten."
+       }
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_party",
+     "setup": "A man from an office party falls asleep in the lounge in his shoes and his coat, hugging a bouquet that must have been for someone.",
+     "choices": [
+      {
+       "label": "Leave him with a blanket",
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "He wakes at six, very embarrassed, and leaves the flowers on the desk for the staff."
+      },
+      {
+       "label": "Wake him and find him a capsule",
+       "money": 4800,
+       "text": "He pays, mumbles an apology and takes the flowers to bed with him."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_boiler",
+     "setup": "The boiler gives out at one in the morning in the middle of winter, and the bath goes lukewarm.",
+     "choices": [
+      {
+       "label": "Kick it, the way the owner did",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "text": "Two kicks in the right place and it roars back; the night clerk looks at you with new respect.",
+       "fail": {
+        "text": "It stays cold until morning; you hand out discount slips.",
+        "money": -5000
+       }
+      },
+      {
+       "label": "Call the repair company",
+       "money": -15000,
+       "text": "They come in an hour and charge for the night."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_lucas",
+     "when": "feels: Lucas friend",
+     "setup": "Lucas turns up after closing the Crown & Anchor with two customers who missed their last train, both singing, one wearing his football scarf.",
+     "choices": [
+      {
+       "label": "Find them capsules",
+       "money": 9600,
+       "feels": {
+        "Lucas": 3
+       },
+       "text": "Lucas tucks them in like a nurse and leaves a pint glass on the desk as a thank-you."
+      },
+      {
+       "label": "Only if they stop singing",
+       "roll": {
+        "skill": "charisma",
+        "dc": 10
+       },
+       "feels": {
+        "Lucas": 2
+       },
+       "money": 9600,
+       "text": "They stop for exactly as long as it takes to reach the capsules.",
+       "fail": {
+        "text": "They don't; Lucas takes them to a karaoke box instead, laughing.",
+        "feels": {
+         "Lucas": 1
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_doorcode",
+     "when": "venture: ht_capsule tier 3",
+     "setup": "The night clerk calls you over: a man has tried the women's floor's lift code three times, and says his girlfriend is up there.",
+     "choices": [
+      {
+       "label": "Ask him to wait at the desk",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "You call up; nobody of that name is staying. He leaves, and the floor never hears about it.",
+       "fail": {
+        "text": "He argues for ten minutes before he goes; you change the code in the morning."
+       }
+      },
+      {
+       "label": "Call the police box",
+       "text": "Two officers walk him out politely, and the women's floor sleeps on."
+      }
+     ]
+    },
+    {
+     "id": "hc_ev_tsubaki_ex",
+     "adult": true,
+     "when": "tenant: Tsubaki ht_capsule",
+     "setup": "A man in a good coat asks at the desk for \"the aroma lady upstairs\". He says he is her fiancé and wants her room number, and shows a photo of Tsubaki on his phone.",
+     "choices": [
+      {
+       "label": "Say there's nobody by that name",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "feels": {
+        "Tsubaki": 3
+       },
+       "text": "He looks at you a long time and leaves; the night desk puts his face behind the counter.",
+       "fail": {
+        "text": "He waits across the street for an hour before he goes; you walk Tsubaki to the station.",
+        "feels": {
+         "Tsubaki": 2
+        }
+       }
+      },
+      {
+       "label": "Call Tsubaki down",
+       "feels": {
+        "Tsubaki": 4
+       },
+       "text": "She comes down, says his name once, and tells him in front of the staff that it is over; he goes, and she thanks you for not lying for her."
+      }
+     ]
+    }
+   ],
+   "cards": [
+    {
+     "id": "hc_c_fireworks",
+     "when": "festival: fireworks",
+     "setup": "The Sumida fireworks end at nine and the trains are packed until midnight; Shinjuku's last-train crowd will be the biggest of the summer. Extra staff, and a stand of cold drinks at the door?",
+     "choices": [
+      {
+       "label": "Staff up for the night (a long night)",
+       "minutes": 300,
+       "money": 30000,
+       "add": {
+        "fame": 3
+       },
+       "effects": {
+        "energy": -20
+       },
+       "text": "Yukata and sandals in the lockers, every capsule full by one, and a queue for the bath."
+      },
+      {
+       "label": "An ordinary night",
+       "text": "The capsules fill anyway, a little more slowly."
+      }
+     ]
+    },
+    {
+     "id": "hc_c_bonenkai",
+     "when": "festival: bonenkai",
+     "setup": "The year-end parties: every izakaya in Shinjuku will pour its office parties out after the last train. You could leave cards with the masters, a discount for whoever they send.",
+     "choices": [
+      {
+       "label": "Walk the izakaya with the cards",
+       "minutes": 180,
+       "money": 22000,
+       "add": {
+        "capacity": 2,
+        "fame": 1
+       },
+       "text": "Forty masters, forty bows; by Friday half the guests arrive holding your card."
+      },
+      {
+       "label": "Let them find you",
+       "text": "Some do, singing."
+      }
+     ]
+    },
+    {
+     "id": "hc_c_halloween",
+     "when": "festival: halloween",
+     "setup": "Halloween in Shibuya: thousands in costume, and the last trains won't hold them. A costume-friendly night, with makeup remover in the bath and hangers for capes?",
+     "choices": [
+      {
+       "label": "A costume night",
+       "minutes": 180,
+       "money": 14000,
+       "add": {
+        "fame": 3
+       },
+       "text": "A vampire, three nurses and a man dressed as a capsule, asleep in a capsule."
+      },
+      {
+       "label": "Ask guests to change first",
+       "text": "They change in the toilets and leave glitter everywhere anyway."
+      }
+     ]
+    },
+    {
+     "id": "hc_c_omisoka",
+     "when": "festival: omisoka",
+     "setup": "On New Year's Eve the trains run all night and almost nobody needs a capsule. The few who stay are the ones with nowhere else to be.",
+     "choices": [
+      {
+       "label": "Year-crossing soba in the lounge",
+       "money": -4000,
+       "add": {
+        "atmosphere": 3
+       },
+       "text": "A pot of soba, a small television for the countdown, and twelve strangers wishing each other a happy new year."
+      },
+      {
+       "label": "A quiet night",
+       "text": "The desk clerk watches the countdown on his phone."
+      }
+     ]
+    },
+    {
+     "id": "hc_c_goldenweek",
+     "when": "festival: goldenweek",
+     "setup": "Golden Week: travelers from all over the country, and every hotel in Shinjuku full. A sign in English and Chinese at the bus terminal?",
+     "choices": [
+      {
+       "label": "Put up the sign",
+       "money": 18000,
+       "add": {
+        "fame": 2
+       },
+       "text": "Every capsule booked for the week, and a waiting list on a sheet at the desk."
+      },
+      {
+       "label": "No need",
+       "text": "You fill up anyway, a day later."
+      }
+     ]
+    },
+    {
+     "id": "hc_c_typhoon",
+     "when": "weather: storm",
+     "setup": "A typhoon is due tonight; the railways say they will stop at eight. You could offer the lounge as a shelter, free, to anyone who needs it.",
+     "choices": [
+      {
+       "label": "Open the lounge for free",
+       "money": -3000,
+       "add": {
+        "fame": 3,
+        "atmosphere": 1
+       },
+       "text": "Sixty people on the lounge floor, tea in paper cups, an old man asleep on the desk clerk's jacket; the news films it in the morning."
+      },
+      {
+       "label": "Capsules only",
+       "money": 8000,
+       "text": "A full house at the full price, and a lobby you have to clear twice."
+      }
+     ]
+    },
+    {
+     "id": "hc_c_fancon",
+     "when": "festival: fancon",
+     "setup": "A fan club in town for the convention wants to book a whole floor for three nights, if they can hang banners in the corridor.",
+     "choices": [
+      {
+       "label": "Give them the floor",
+       "money": 20000,
+       "add": {
+        "fame": 2
+       },
+       "text": "Banners, glow sticks and the politest guests you have ever had."
+      },
+      {
+       "label": "No banners",
+       "text": "They book elsewhere, and a few of them come anyway."
+      }
+     ]
+    }
+   ],
+   "tenancies": [
+    {
+     "id": "hc_tenant_tsubaki",
+     "who": "Tsubaki",
+     "job": "aroma_salon",
+     "rent": 20000,
+     "add": {
+      "atmosphere": 6
+     },
+     "adult": true,
+     "when": "upgrade: hc_spa_room; seen: ht_ts_tin; knows: tsubaki_salon; feels: Tsubaki friend",
+     "story": "hc_ts_lease",
+     "text": "Tsubaki rents the spa room on the women's floor for her licensed aroma salon: daylight hours, her name on the door"
     }
    ]
   }
