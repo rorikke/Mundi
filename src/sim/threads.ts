@@ -58,10 +58,11 @@ export const STORYLINE = { answer: 3, dayFrom: 9, textFrom: 17, until: 20, nudge
 /** The plain engine nudges, first to last, for a storyline without its own (interface text). */
 export const DEFAULT_NUDGES = ["Can we talk soon? It's about something I've kept to myself.", "It's still on my mind. Could we meet this week?", "I have to decide soon, and I'd like to talk to you first."];
 
-/** The threads of the people in this save (adult ones only with adult content on), with whose they are. */
+/** The threads of the people in this save (an adult person's, or an adult thread, only with adult content on), with whose they are. */
 export function threadsOf(g: Save, w: WorldDef): { t: Thread; r: Resident }[] {
     const out: { t: Thread; r: Resident }[] = [];
-    for (const r of residents(g)) for (const t of exampleOf(w, r)?.threads ?? []) if (t.id && t.stages?.length && (!t.adult || adultOn(g))) out.push({ t, r });
+    // (an adult person's storylines are adult too: someone left in the cast when adult content is switched off stays quiet)
+    for (const r of residents(g)) { const ex = exampleOf(w, r); for (const t of ex?.threads ?? []) if (t.id && t.stages?.length && ((!t.adult && !ex?.adult) || adultOn(g))) out.push({ t, r }); }
     return out;
 }
 const findThread = (g: Save, w: WorldDef, id: string) => threadsOf(g, w).find(x => x.t.id === id) ?? null;
