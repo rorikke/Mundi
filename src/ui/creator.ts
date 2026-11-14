@@ -661,10 +661,16 @@ const storyOpts = (w: WorldDef): Opt[] => (w.stories ?? []).map(s => [s.id, `${s
 // Every venture's upgrades (a street story or a job's event can turn up any of them), named by venture when there are several.
 const upgradeOpts = (w: WorldDef, only?: VentureDef): Opt[] => { const l = only ? [only] : w.ventures ?? [];
     return l.flatMap(d => (d.upgrades ?? []).map(u => [u.id, l.length > 1 ? `${d.name}: ${u.name}` : u.name] as Opt)); };
-const TRACK_NAMES: Record<string, string> = { cafe: 'café', exec: 'executive\'s division' };
-// Where a street story may happen besides a place: at whichever place of a venture (or of a kind of venture) you own.
+const TRACK_NAMES: Record<string, string> = { cafe: 'café', exec: 'executive\'s division', hotel: 'hotel', capsule: 'capsule hotel', ryokan: 'ryokan', lovehotel: 'love hotel' };
+// Where a street story may happen besides a place: at whichever place of a venture (or of a track or kind of venture) you own.
 const venturePlaceOpts = (w: WorldDef): Opt[] => [...(w.ventures ?? []).map(v => [`venture:${v.id}`, `At your ${v.name || v.id}, wherever it runs`] as Opt),
-    ...[...new Set((w.ventures ?? []).map(v => v.track))].map(t => [`venture:${t}`, `At any ${TRACK_NAMES[t] ?? t} of yours`] as Opt)];
+    ...[...new Set((w.ventures ?? []).flatMap(v => [v.track, ...(v.kind ? [v.kind] : [])]))].map(t => [`venture:${t}`, `At any ${TRACK_NAMES[t] ?? t} of yours`] as Opt)];
+// (hospitality) A venture with rooms: its tiers' rooms and prices, its tenants, the night desk's notebook and sightings
+// are shown for it (a café's form stays as it was).
+const hotelish = (v: VentureDef) => v.track === 'hotel' || !!v.kind || v.tiers.some(t => t.rooms != null || t.prices != null)
+    || !!(v.tenancies?.length || v.notebook || v.sightings?.length);
+// The world's storylines, for what a sighting shows (a thread's id, named by whose it is).
+const threadOpts = (w: WorldDef): Opt[] => w.cast.examples.flatMap(e => (e.threads ?? []).filter(t => t.id).map(t => [t.id, `${e.name}: ${t.id}`] as Opt));
 const HOW_OPTS: Opt[] = [['basic', 'Bought from the app (basic)'], ['found', 'Turned up somewhere in the city (found)'], ['earned', 'Opened by a condition (earned)']];
 const tierPick = (label: string, p: string, v: VentureDef, none: string) => { const cur = getPath(p);
     return sel(label, p, withCur([['', none], ...v.tiers.map((t, k) => [String(k + 1), `${k + 1}: ${t.name}`] as Opt)], cur == null ? cur : String(cur)), 'num'); };
@@ -688,19 +694,37 @@ function unitRows(w: WorldDef, p: string, list: { place: string; cost: number; r
             <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${k}`)}" title="Remove">${icon('x')}</button></div>`).join('') || `<small class="mu-muted">${none}</small>`}
         ${addBtn('vunit', p, 'Add a unit')}`;
 }
-// How a venture becomes yours: a takeover of a place you know, a unit to lease, or neither (an executive's division,
-// opened by the job's rank).
-function waysEditor(w: WorldDef, p: string, v: VentureDef) {
-    const t = v.ways?.takeover, l = v.ways?.lease, sym = esc(w.currency.symbol), q = `${p}.ways.takeover`, r = `${p}.ways.lease`;
-    return `<h4>How it becomes yours</h4><p class="mu-muted">A takeover, a lease, both (either way in), or neither: an executive's division opens with the job's rank.</p>
-        ${t ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">A takeover: a place you already know becomes yours</span><span class="mu-cw-spacer"></span>
-                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>No takeover</span></button></div>
-            <div class="mu-row2">${sel('The place', `${q}.place`, withCur(placeOpts(w, '(the venture\'s place)'), t.place), 'opt')}${cond('Offered once this holds', `${q}.when`, 'job: kissaten; rank: top')}</div>
-            <div class="mu-row2">${num(`Key money (${sym})`, `${q}.cost`)}${num(`Rent a week (${sym})`, `${q}.rent`)}</div>
+// How a venture becomes yours: a takeover of a place you know, a purchase from outside, a partnership, a unit to
+// lease, or none of them (an executive's division, opened by the job's rank). One of each at most.
+const WAY_HEAD: Record<'takeover' | 'buy' | 'partner', [string, string, string, string, string]> = {
+    takeover: ['A takeover: a place you already know becomes yours', 'No takeover', 'A takeover', 'Key money', 'Rent a week'],
+    buy: ['A purchase: bought from its owner while it is for sale', 'No purchase', 'A purchase', 'The price', 'Upkeep a week'],
+    partner: ['A partnership: a share of it, beside the family that owns it', 'No partnership', 'A partnership', 'The buy-in', 'Upkeep a week'],
+};
+// The owner's note (a takeover's or a purchase's): part of the price at once, the rest out of the weekly takings.
+function noteRow(q: string, has: boolean) {
+    return has ? `<span class="mu-cw-sub">Paid off over time: part of the price at once, the rest out of the weekly takings (never your own money)</span>
+            <div class="mu-row mu-cw-inline">${bounded('Paid at once (a share of the price, 0 … 1)', `${q}.note.down`, 0, 1, 0.05)}${bounded('The rest over (weeks, 1–520)', `${q}.note.weeks`, 1, 520)}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.note`)}" title="Remove">${icon('x')}</button></div>`
+        : addBtn('vnote', `${q}.note`, 'Paid off over time');
+}
+function wayForm(w: WorldDef, p: string, v: VentureDef, k: 'takeover' | 'buy' | 'partner') {
+    const q = `${p}.ways.${k}`, t = v.ways?.[k] as any, [head, none, add, cost, rent] = WAY_HEAD[k], sym = esc(w.currency.symbol);
+    if (!t) return addBtn(`v${k}`, q, add);
+    return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">${head}</span><span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>${none}</span></button></div>
+            <div class="mu-row2">${sel('The place', `${q}.place`, withCur(placeOpts(w, '(the venture\'s place)'), t.place), 'opt')}${cond('Offered once this holds', `${q}.when`, k === 'takeover' ? 'job: kissaten; rank: top' : k === 'buy' ? 'seen: for_sale; job: not capsule' : 'seen: okami_offer; feels: Shizuka good')}</div>
+            <div class="mu-row2">${num(`${cost} (${sym})`, `${q}.cost`)}${num(`${rent} (${sym})`, `${q}.rent`)}</div>
             <div class="mu-row2">${sel('The story that offers it', `${q}.story`, withCur([['', '(none)'], ...storyOpts(w)], t.story), 'opt')}${tierPick('It starts at tier', `${q}.tier`, v, '(the first)')}</div>
-            ${sel('A job it ends (the right hand becomes the master)', `${q}.endsJob`, withCur([['', '(none)'], ...jobOpts(w)], t.endsJob), 'opt')}
-            <span class="mu-cw-sub">Its numbers when it becomes yours (empty: a third of the tier's ceiling)</span>${statRow(v, `${q}.start`, 0)}</div>`
-        : addBtn('vtakeover', q, 'A takeover')}
+            ${k === 'partner' ? `<div class="mu-row2">${sel('The partner (your share of the takings is each tier\'s)', `${q}.with`, withCur(peopleOpts(w), t.with))}${sel('A job it ends', `${q}.endsJob`, withCur([['', '(none)'], ...jobOpts(w)], t.endsJob), 'opt')}</div>`
+                : k === 'takeover' ? sel('A job it ends (the right hand becomes the master)', `${q}.endsJob`, withCur([['', '(none)'], ...jobOpts(w)], t.endsJob), 'opt') : ''}
+            ${k !== 'partner' ? noteRow(q, !!t.note) : ''}
+            <span class="mu-cw-sub">Its numbers when it becomes yours (empty: a third of the tier's ceiling)</span>${statRow(v, `${q}.start`, 0)}</div>`;
+}
+function waysEditor(w: WorldDef, p: string, v: VentureDef) {
+    const l = v.ways?.lease, r = `${p}.ways.lease`;
+    return `<h4>How it becomes yours</h4><p class="mu-muted">A takeover, a purchase, a partnership, a lease (one of each at most, any of them a way in), or none: an executive's division opens with the job's rank.</p>
+        ${wayForm(w, p, v, 'takeover')}${wayForm(w, p, v, 'buy')}${wayForm(w, p, v, 'partner')}
         ${l ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">A lease: one of these units, chosen (mark each place as a unit of this venture in Maps &amp; places)</span><span class="mu-cw-spacer"></span>
                 <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(r)}">${icon('x')}<span>No lease</span></button></div>
             ${unitRows(w, `${r}.units`, l.units ?? [], 'No units yet.')}
@@ -715,14 +739,17 @@ function waysEditor(w: WorldDef, p: string, v: VentureDef) {
 function tierRows(w: WorldDef, p: string, v: VentureDef) {
     const job = v.job ? w.occupations.find(o => o.id === v.job) : undefined;
     const ranks = (job?.ranks ?? []).filter(r => r.beyond).map(r => [r.name, r.name] as Opt);
-    const ups = upgradeOpts(w, v), stories = storyOpts(w), sym = esc(w.currency.symbol);
+    const ups = upgradeOpts(w, v), stories = storyOpts(w), sym = esc(w.currency.symbol), hotel = hotelish(v);
     return `<h4>Tiers</h4><p class="mu-muted">Each tier holds its numbers under a ceiling; its milestone (an upgrade owned, a story seen, a condition: all that are set) opens the next.</p>
-        ${v.tiers.map((t, k) => { const q = `${p}.tiers.${k}`;
+        ${v.tiers.map((t, k) => { const q = `${p}.tiers.${k}`, share = !!v.ways?.partner || t.share != null;
             return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">Tier ${k + 1}</b>${idTag(t.id)}<span class="mu-cw-spacer"></span>
                     ${v.tiers.length > 1 ? `<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove this tier">${icon('x')}</button>` : ''}</div>
                 <div class="mu-row2">${txt('Name', `${q}.name`, 'Coffee stand')}${bounded('Ceiling of its numbers (1–1000)', `${q}.ceiling`, 1, 1000)}</div>
                 <div class="mu-row2">${bounded('Share it earns on days you don\'t run it (0 … 1; 0: open only while you do)', `${q}.alone`, 0, 1, 0.05)}${bounded('Places it runs at (1–9; empty: 1)', `${q}.places`, 1, 9)}</div>
                 <div class="mu-row2">${num(`A day's takings with every number at the ceiling (${sym})`, `${q}.base`)}${v.track === 'exec' || t.rank ? sel('The rank it is (exec)', `${q}.rank`, withCur([['', '(the next rank above the top)'], ...ranks], t.rank), 'opt') : '<span></span>'}</div>
+                ${hotel ? `<div class="mu-row2">${bounded('Rooms at the ceiling (1–999; fewer while Capacity is short)', `${q}.rooms`, 1, 999)}${bounded('Running costs (a share of the takings, 0 … 0.95)', `${q}.costs`, 0, 0.95, 0.01)}</div>
+                    <div class="mu-row2">${num(`A night's stay (${sym})`, `${q}.prices.stay`)}${num(`A rest of a few hours (${sym}; empty: none)`, `${q}.prices.rest`)}</div>` : ''}
+                ${hotel || share ? `<div class="mu-row2">${hotel ? bounded('Rests a room turns in a day (0–12)', `${q}.rests`, 0, 12, 0.05) : '<span></span>'}${share ? bounded('Your share of the takings (a partnership, 0 … 1)', `${q}.share`, 0, 1, 0.01) : '<span></span>'}</div>` : ''}
                 ${area('What it is (told to the AI)', `${q}.desc`, 2)}
                 ${k < v.tiers.length - 1 || t.milestone ? `<span class="mu-cw-sub">The milestone to the next tier</span>
                     <div class="mu-row2">${sel('An upgrade owned', `${q}.milestone.upgrade`, withCur([['', '(none)'], ...ups], t.milestone?.upgrade), 'opt')}${sel('A story seen', `${q}.milestone.story`, withCur([['', '(none)'], ...stories], t.milestone?.story), 'opt')}</div>
@@ -730,7 +757,7 @@ function tierRows(w: WorldDef, p: string, v: VentureDef) {
         ${addBtn('vtier', `${p}.tiers`, 'Add a tier')}`;
 }
 function styleRows(w: WorldDef, p: string, v: VentureDef) {
-    const ups = upgradeOpts(w, v);
+    const ups = upgradeOpts(w, v), hotel = hotelish(v), sym = esc(w.currency.symbol);
     return `<h4>Styles</h4><p class="mu-muted">Chosen once at their tier: their words lay over the place's for the AI, their multipliers shift the numbers a little, and some upgrades are found only with them.</p>
         ${(v.styles ?? []).map((s, k) => { const q = `${p}.styles.${k}`;
             return fold(q, `<b data-notr>${esc(s.name || s.id)}</b> <small>tier ${esc(s.tier)}</small>`, `${delRow(s.id, q, 'style')}
@@ -738,12 +765,13 @@ function styleRows(w: WorldDef, p: string, v: VentureDef) {
                 ${area('What it is like (told to the AI)', `${q}.desc`, 2)}
                 <span class="mu-cw-sub">Multipliers (1.1: a tenth more; empty: 1)</span>${statRow(v, `${q}.mul`, 0, 0.01)}
                 <div class="mu-row2">${bounded('Its own hours: open from (hour; empty: the venture\'s)', `${q}.hours.0`, 0, 30, 0.5)}${bounded('to (26: two at night)', `${q}.hours.1`, 0, 30, 0.5)}</div>
+                ${hotel || s.prices ? `<div class="mu-row2">${num(`Its own night's stay (${sym}; empty: the tier's)`, `${q}.prices.stay`)}${num(`Its own rest (${sym}; empty: the tier's)`, `${q}.prices.rest`)}</div>` : ''}
                 ${ups.length || s.finds?.length ? `<div class="mu-field"><span>Upgrades found only with it</span>${pairChips(withCurAll(ups, s.finds), `${q}.finds`, true)}</div>` : ''}`); }).join('') || '<small class="mu-muted">No styles.</small>'}
         ${addBtn('vstyle', `${p}.styles`, 'Add a style')}`;
 }
 function upgradeRows(w: WorldDef, p: string, v: VentureDef) {
     const stats = statsOf(v).map(s => [s, statName(v, s)] as Opt), styles = (v.styles ?? []).map(s => [s.id, s.name] as Opt), sym = esc(w.currency.symbol);
-    const units = [...new Set([...(v.ways?.lease?.units ?? []), ...(v.more ?? [])].map(u => u.place))].map(id => [id, w.places.find(x => x.id === id)?.name ?? id] as Opt);
+    const units = [...new Set([...(v.ways?.lease?.units ?? []), ...(v.more ?? [])].map(u => u.place))].map(id => [id, w.places.find(x => x.id === id)?.name ?? id] as Opt), hotel = hotelish(v);
     return `<h4>Upgrades</h4><p class="mu-muted">Points added to one number for good, at a price, from a tier on: bought from the app, turned up in the city (what a street story's or an event's choice turns up), or opened by a condition.</p>
         ${(v.upgrades ?? []).map((u, k) => { const q = `${p}.upgrades.${k}`;
             return fold(q, `<b data-notr>${esc(u.name || u.id)}</b> <small>${esc(statName(v, u.stat))} ${Number(u.add) < 0 ? '' : '+'}${esc(u.add)} · ${esc(money(w, Number(u.cost) || 0))} · tier ${esc(u.tier)} · ${esc(u.how)}</small>`, `${delRow(u.id, q, 'upgrade')}
@@ -754,7 +782,8 @@ function upgradeRows(w: WorldDef, p: string, v: VentureDef) {
                 ${u.how === 'earned' || u.when ? cond('Opened once this holds', `${q}.when`, 'visited: 30 regular') : ''}
                 ${u.how === 'found' || u.hint ? optTxt('Where it might be (shown while it\'s still to find)', `${q}.hint`, 'an import shop in Ameyoko') : ''}
                 <div class="mu-row2">${sel('Only with this style', `${q}.style`, withCur([['', '(any style)'], ...styles], u.style), 'opt')}${sel('Only at this unit', `${q}.place`, withCur([['', '(any)'], ...units], u.place), 'opt')}</div>
-                <div class="mu-row2">${optTxt('Comes with a hire from the staff pool (what they do)', `${q}.staff`, 'a second hand at the counter')}${flag('It is the manager', `${q}.manager`, 'A larger share on its own, and the small things dealt with.')}</div>`); }).join('') || '<small class="mu-muted">No upgrades.</small>'}
+                <div class="mu-row2">${optTxt('Comes with a hire from the staff pool (what they do)', `${q}.staff`, 'a second hand at the counter')}${flag('It is the manager', `${q}.manager`, 'A larger share on its own, and the small things dealt with.')}</div>
+                ${hotel || u.opens ? sel('A place it opens once bought (mark that place as this venture\'s in Maps & places)', `${q}.opens`, withCur([['', '(none)'], ...placeOpts(w)], u.opens), 'opt') : ''}`); }).join('') || '<small class="mu-muted">No upgrades.</small>'}
         ${addBtn('vupgrade', `${p}.upgrades`, 'Add an upgrade')}`;
 }
 function discoveryRows(p: string, v: VentureDef) {
@@ -776,10 +805,75 @@ function cardRows(w: WorldDef, p: string, v: VentureDef) {
                 ${(c.choices ?? []).length < 4 ? addBtn('schoice', `${q}.choices`, 'Add a choice') : ''}`); }).join('') || '<small class="mu-muted">No calendar cards.</small>'}
         ${addBtn('vcard', `${p}.cards`, 'Add a card')}`;
 }
+// (hospitality) Named festivals' own multipliers (Christmas Eve full): a row each, the festival changed in place.
+function festivalMuls(w: WorldDef, p: string) {
+    const map = (getPath(p) ?? {}) as Record<string, number>; const all = (w.festivals ?? []).map(f => [f.id, f.name || f.id] as Opt);
+    const has = Object.keys(map).filter(k => !BAD_KEYS.includes(k)); const free = all.filter(([id]) => !has.includes(id));
+    return `<span class="mu-cw-sub">Named festivals, wherever they are (×, over festivals nearby)</span>${has.map(f => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Festival</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(f)}">${[...all.filter(([id]) => id === f || free.some(([x]) => x === id)), ...(all.some(([id]) => id === f) ? [] : [[f, f] as Opt])].map(([id, n]) => `<option value="${esc(id)}" ${id === f ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+            ${num('×', `${p}.${f}`, 0, 0.05)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${f}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="festivals" data-v="1.5" data-path="${esc(p)}">${icon('plus')}<span>Add a festival</span></button>` : ''}`;
+}
+// (hospitality) How busy the hours make it (rows from, to, ×; a row may run past midnight: 22 to 5).
+function hourMuls(p: string, list: unknown[]) {
+    return `<span class="mu-cw-sub">The hours (×, for tonight and now; 22 to 5 runs past midnight)</span>${list.map((_h, k) => `<div class="mu-row mu-cw-inline">${bounded('From (hour)', `${p}.${k}.0`, 0, 24, 0.5)}${bounded('to', `${p}.${k}.1`, 0, 24, 0.5)}${num('×', `${p}.${k}.2`, 0, 0.05)}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${k}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        ${addBtn('vhour', p, 'Add hours')}`;
+}
+// (hospitality) People who rent a room of it for a business of their own: tenants, never staff.
+function tenancyRows(w: WorldDef, p: string, v: VentureDef) {
+    const sym = esc(w.currency.symbol);
+    return `<h4>Tenants</h4><p class="mu-muted">Someone who rents a room of it for a business of their own (an aroma salon): they work here while it lasts, pay rent each week, and add to its numbers.</p>
+        ${(v.tenancies ?? []).map((t, k) => { const q = `${p}.tenancies.${k}`;
+            return fold(q, `<b data-notr>${esc(t.who || t.id)}</b> <small>${esc(money(w, Number(t.rent) || 0))}${t.adult ? ' · adult' : ''}</small>`, `${delRow(t.id, q, 'tenant')}
+                <div class="mu-row2">${sel('Who rents it', `${q}.who`, withCur(peopleOpts(w), t.who))}${num(`Rent a week (${sym})`, `${q}.rent`)}</div>
+                <div class="mu-row2">${sel('Their job there (they work here while they have it; none: any job)', `${q}.job`, withCur([['', '(none)'], ...jobOpts(w)], t.job), 'opt')}${sel('The story that offers it', `${q}.story`, withCur([['', '(none)'], ...storyOpts(w)], t.story), 'opt')}</div>
+                ${cond('Offered once this holds', `${q}.when`, 'knows: tsubaki_salon; feels: Tsubaki friend')}
+                <span class="mu-cw-sub">What it adds to the numbers once the room is let</span>${statRow(v, `${q}.add`, -100)}
+                ${area('What it is (told to the AI)', `${q}.text`, 2)}
+                ${flag('Only with adult content on', `${q}.adult`, '', true)}`); }).join('') || '<small class="mu-muted">No tenants.</small>'}
+        ${addBtn('vtenant', `${p}.tenancies`, 'Add a tenant')}`;
+}
+// (love hotel) Who tells you what the night desk saw while you weren't at it.
+function notebookForm(w: WorldDef, p: string, v: VentureDef) {
+    const n = v.notebook, q = `${p}.notebook`;
+    return `<h4>The night desk's notebook</h4><p class="mu-muted">Someone who tells you what the desk saw while you weren't at it, while this holds and they're on their shift here.</p>
+        ${n ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">Kept by</span><span class="mu-cw-spacer"></span>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>No notebook</span></button></div>
+            <div class="mu-row2">${sel('Who keeps it', `${q}.who`, withCur(peopleOpts(w), n.who))}${cond('While this holds', `${q}.when`, 'venture: lovehotel')}</div></div>`
+        : addBtn('vnotebook', q, 'A notebook')}`;
+}
+// (love hotel, adult) Guests you'd notice: one or two of the world's people, the line you'd hear, the secret it shows.
+function sightingRows(w: WorldDef, p: string, v: VentureDef) {
+    const people = peopleOpts(w), threads = threadOpts(w);
+    return `<h4>Guests you'd notice</h4><p class="mu-muted">Written sightings at the desk, beside the world's couples: who comes in, when, the line you'd hear, and what keeping it or letting it slip means.</p>
+        ${(v.sightings ?? []).map((s, k) => { const q = `${p}.sightings.${k}`; const who = Array.isArray(s.who) ? s.who : [];
+            return fold(q, `<b data-notr>${esc(who.join(' & ') || s.id)}</b> <small><span data-notr>${clip(s.line, 50)}</span>${s.adult ? ' · adult' : ''}</small>`, `${delRow(s.id, q, 'sighting')}
+                <div class="mu-row2">${sel('Who comes in', `${q}.who.0`, withCur(people, who[0]))}${sel('With (one of the world\'s people)', `${q}.who.1`, withCur([['', '(someone else: say who below)'], ...people], who[1]), 'tail')}</div>
+                ${who.length < 2 || s.with ? optTxt('With whom, in words', `${q}.with`, 'a man she met on an app') : ''}
+                ${cond('When it can happen', `${q}.when`, 'weekday: fri or sat; period: evening or night')}
+                ${area('The line you hear ({0}: who comes in, {1}: with whom)', `${q}.line`, 2, '{0} came in with {1}, a night\'s stay')}
+                ${sel('The storyline whose secret it shows', `${q}.learn`, withCur([['', '(none)'], ...threads], s.learn), 'opt')}
+                ${area('The rumor if you let it slip', `${q}.slip`, 2)}${area('What keeping it means', `${q}.kept`, 2)}
+                ${flag('Only with adult content on', `${q}.adult`, '', true)}`); }).join('') || '<small class="mu-muted">No sightings.</small>'}
+        ${addBtn('vsight', `${p}.sightings`, 'Add a sighting')}`;
+}
+// Who may buy it from you, for more than selling it gives (a hotel chain).
+function buyerRows(w: WorldDef, p: string, v: VentureDef) {
+    return `<h4>Buyers</h4><p class="mu-muted">Someone who would buy it from you for more than selling it gives, once their story has been seen.</p>
+        ${(v.buyers ?? []).map((b, k) => { const q = `${p}.buyers.${k}`;
+            return fold(q, `<b data-notr>${esc(b.name || b.id)}</b> <small>× ${esc(b.mul)}</small>`, `${delRow(b.id, q, 'buyer')}
+                <div class="mu-row2">${txt('Name', `${q}.name`, 'a hotel group')}${bounded('Times what selling gives (0–5)', `${q}.mul`, 0, 5, 0.05)}</div>
+                <div class="mu-row2">${cond('Once this holds', `${q}.when`, 'seen: chain_offer')}${sel('The story that offers it', `${q}.story`, withCur([['', '(none)'], ...storyOpts(w)], b.story), 'opt')}</div>
+                ${area('What they offer (told to the AI; optional)', `${q}.text`, 2)}`); }).join('') || '<small class="mu-muted">No buyers.</small>'}
+        ${addBtn('vbuyer', `${p}.buyers`, 'Add a buyer')}`;
+}
 function ventureForm(w: WorldDef, i: number) {
     const p = `ventures.${i}`; const v = (w.ventures ?? [])[i]; const exec = v.track === 'exec' || !!v.job;
     return `${idTag(v.id)}
-        <div class="mu-row2">${txt('Name', `${p}.name`, 'Your café')}<label class="mu-field"><span>What kind (Café: cafe; Executive: exec; or another word)</span><input data-input="cw" data-path="${esc(`${p}.track`)}" data-focus="${esc(`${p}.track`)}" value="${val(`${p}.track`)}" list="mu-cw-vtracks" placeholder="cafe"><datalist id="mu-cw-vtracks"><option value="cafe">Café</option><option value="exec">Executive</option></datalist></label></div>
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'Your café')}<label class="mu-field"><span>What kind (Café: cafe; Executive: exec; or another word)</span><input data-input="cw" data-path="${esc(`${p}.track`)}" data-focus="${esc(`${p}.track`)}" value="${val(`${p}.track`)}" list="mu-cw-vtracks" placeholder="cafe"><datalist id="mu-cw-vtracks"><option value="cafe">Café</option><option value="exec">Executive</option><option value="hotel">Hotel</option></datalist></label></div>
+        <div class="mu-row2"><label class="mu-field"><span>What kind of its track (one of each kind at a time; empty: the track)</span><input data-input="cw" data-type="opt" data-path="${esc(`${p}.kind`)}" data-focus="${esc(`${p}.kind`)}" value="${val(`${p}.kind`)}" list="mu-cw-vkinds" placeholder="capsule"><datalist id="mu-cw-vkinds"><option value="capsule">Capsule hotel</option><option value="ryokan">Ryokan</option><option value="lovehotel">Love hotel</option></datalist></label>
+            ${chk('Friends come here in their free time', `${p}.hangout`, 'Off: nobody spends their free time here (a love hotel).', true)}</div>
+        <div class="mu-row2">${optTxt('Its button for running it yourself (empty: the café\'s)', `${p}.run.label`, 'Work the front desk')}${optTxt('The button\'s icon (an emoji)', `${p}.run.icon`, '🛎')}</div>
         ${area('What it is (told to the AI)', `${p}.desc`, 2)}
         <div class="mu-row2">${sel('Where it runs (exec: the company\'s office)', `${p}.place`, withCur(placeOpts(w, '(the unit chosen for a lease)'), v.place), 'opt')}${exec ? sel('The job whose ranks it rides on (exec)', `${p}.job`, withCur([['', '(none)'], ...jobOpts(w)], v.job), 'opt') : flag('Only with adult content on', `${p}.adult`, '', true)}</div>
         ${exec ? flag('Only with adult content on', `${p}.adult`, '', true) : ''}
@@ -788,17 +882,21 @@ function ventureForm(w: WorldDef, i: number) {
         <div class="mu-row2">${bounded('Open from (hour; empty: its place\'s hours)', `${p}.hours.0`, 0, 30, 0.5)}${bounded('to (26: two at night)', `${p}.hours.1`, 0, 30, 0.5)}</div>
         <span class="mu-cw-sub">How busy the calendar makes it (×; empty: 1)</span>
         <div class="mu-cw-effects">${num('Weekends', `${p}.demand.weekend`, 0, 0.05)}${num('Festivals nearby', `${p}.demand.festival`, 0, 0.05)}${SEASON_OPTS.map(([s, l]) => num(esc(l), `${p}.demand.season.${s}`, 0, 0.05)).join('')}</div>
+        <span class="mu-cw-sub">Each day of the week (×; empty: the weekend's rule)</span>
+        <div class="mu-cw-effects">${WEEKDAY_IDS.map((d, k) => num(esc(WEEKDAYS[k]), `${p}.demand.days.${d}`, 0, 0.05)).join('')}</div>
+        ${festivalMuls(w, `${p}.demand.festivals`)}${hourMuls(`${p}.demand.hours`, v.demand?.hours ?? [])}
         <details class="mu-cw-kept" ${v.stats || v.statNames ? 'open' : ''}><summary>Its numbers: ${esc(statsOf(v).map(s => statName(v, s)).join(', '))}</summary>
             ${words('Their ids (comma separated)', `${p}.stats`, `Empty: ${esc((v.track === 'exec' ? EXEC_STATS : VENTURE_STATS).join(', '))}.`)}
             <div class="mu-cw-effects">${statsOf(v).map(s => optTxt(esc(`What ${s} is called`), `${p}.statNames.${s}`, STAT_NAMES[s] ?? s)).join('')}</div></details>
         ${waysEditor(w, p, v)}${tierRows(w, p, v)}${styleRows(w, p, v)}${upgradeRows(w, p, v)}${discoveryRows(p, v)}
         ${eventsEditor(w, `${p}.events`, v.events ?? [], 'Things that happen while you run it yourself: a setup and two or three choices (a choice can add to its numbers or turn up an upgrade).', v, 'Events at the counter')}
-        ${cardRows(w, p, v)}`;
+        ${cardRows(w, p, v)}
+        ${hotelish(v) ? `${tenancyRows(w, p, v)}${notebookForm(w, p, v)}${sightingRows(w, p, v)}` : ''}${buyerRows(w, p, v)}`;
 }
 function tabBusiness(w: WorldDef) {
     return `${systemOn(w, 'business') ? '' : '<p class="mu-warn">Running a business is off in this world (Features › Systems): none of this plays until it is on.</p>'}
-        <div class="mu-cw-grid"><section class="mu-cw-sec mu-cw-wide"><h4>Ventures</h4><p class="mu-muted">Something the player can own or run (a café, an executive's division), growing like an incremental game: its numbers raised for good by upgrades, discoveries and events inside the ceiling of its tier.</p>
-        ${master('venture', 'ventures', x => `<b>${esc(x.name || x.id)}</b><small>${esc(TRACK_NAMES[x.track] ?? x.track ?? '')}${x.place ? ` · <span data-notr>${esc(w.places.find(p => p.id === x.place)?.name ?? x.place)}</span>` : ''}${x.adult ? ' · adult' : ''}</small>`, i => ventureForm(w, i), 'venture', 'No ventures yet.')}</section>
+        <div class="mu-cw-grid"><section class="mu-cw-sec mu-cw-wide"><h4>Ventures</h4><p class="mu-muted">Something the player can own or run (a café, a hotel, an executive's division), growing like an incremental game: its numbers raised for good by upgrades, discoveries and events inside the ceiling of its tier.</p>
+        ${master('venture', 'ventures', x => `<b>${esc(x.name || x.id)}</b><small>${esc(TRACK_NAMES[x.kind ?? x.track] ?? x.kind ?? x.track ?? '')}${x.place ? ` · <span data-notr>${esc(w.places.find(p => p.id === x.place)?.name ?? x.place)}</span>` : ''}${x.adult ? ' · adult' : ''}</small>`, i => ventureForm(w, i), 'venture', 'No ventures yet.')}</section>
         <section class="mu-cw-sec mu-cw-wide"><h4>Hired hands</h4><p class="mu-muted">Where a venture's hired hands come from: one name and one quirk drawn for each hire.</p>
             <div class="mu-row2">${lines('Names (one per line)', 'staffPool.names', 6, 'Satō')}${lines('Quirks (one per line)', 'staffPool.quirks', 6, 'hums old enka while polishing the cups')}</div></section></div>`;
 }
@@ -2362,7 +2460,8 @@ Object.assign(ACT, {
         // a key of a small map (a skill level to be hired, how someone feels after a choice): the next one not there yet
         if (what === 'mapkey') {
             const p = el.dataset.path!; const m = (getPath(p) ?? {}) as Record<string, number>;
-            const keys = el.dataset.keys === 'skills' ? skillOpts(w).map(([id]) => id) : [...(el.dataset.keys === 'who' ? ['{who}'] : []), ...w.cast.examples.map(e => e.name)];
+            const keys = el.dataset.keys === 'skills' ? skillOpts(w).map(([id]) => id) : el.dataset.keys === 'festivals' ? (w.festivals ?? []).map(f => f.id)
+                : [...(el.dataset.keys === 'who' ? ['{who}'] : []), ...w.cast.examples.map(e => e.name)];
             const k = keys.find(x => !BAD_KEYS.includes(x) && own(m, x) === undefined); if (!k) return;
             setPath(p, { ...m, [k]: Number(el.dataset.v) || 3 }); notify(); return;
         }
@@ -2421,9 +2520,21 @@ Object.assign(ACT, {
                 : what === 'tstage' ? { ...(list.length && list.every(x => typeof x.id === 'string' && x.id) ? { id: newId('stage') } : {}), tell: 'hinted', text: '' } : { id: newId('end'), text: '' });
             CW.dirty = true; notify(); return;
         }
-        // (business) a venture's ways in, units, tiers, styles, upgrades, discoveries and cards; a new part opens folded out
-        if (what === 'vtakeover') { setPath(el.dataset.path!, { cost: 0 }); notify(); return; }
+        // (business) a venture's ways in (and a note), units, hours, tiers, styles, upgrades, discoveries, cards, tenants, the notebook, sightings and buyers; a new part opens folded out
+        const someone = w.cast.examples[0]?.name ?? '';
+        if (what === 'vtakeover' || what === 'vbuy') { setPath(el.dataset.path!, { cost: 0 }); notify(); return; }
+        if (what === 'vpartner') { setPath(el.dataset.path!, { cost: 0, with: someone }); notify(); return; }
+        if (what === 'vnote') { setPath(el.dataset.path!, { down: 0.25, weeks: 26 }); notify(); return; }
+        if (what === 'vnotebook') { setPath(el.dataset.path!, { who: someone }); notify(); return; }
         if (what === 'vlease') { setPath(el.dataset.path!, { units: [] }); notify(); return; }
+        if (what === 'vhour') { const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; list.push([18, 22, 1.2]); CW.dirty = true; notify(); return; }
+        if (what === 'vtenant' || what === 'vsight' || what === 'vbuyer') {
+            const p = el.dataset.path!; const list = (getPath(p) ?? (setPath(p, []), getPath(p))) as any[];
+            list.push(what === 'vtenant' ? { id: newId('tenant'), who: someone, rent: 0 }
+                : what === 'vsight' ? { id: newId('sight'), who: [someone], with: 'someone', line: '{0} came in with {1}, a night\'s stay', adult: true }
+                : { id: newId('buyer'), name: 'A buyer', mul: 1.5 });
+            OPEN.add(`${p}.${list.length - 1}`); CW.dirty = true; notify(); return;
+        }
         if (/^v(unit|tier|style|upgrade|disc|card)$/.test(what)) {
             const p = el.dataset.path!; const list = (getPath(p) ?? (setPath(p, []), getPath(p))) as any[];
             const v = getPath(p.split('.').slice(0, 2).join('.')) as VentureDef | undefined;
@@ -2618,6 +2729,9 @@ Object.assign(INPUT, {
         else if (t === 'every') v = el.value === '' ? undefined : /^\d+$/.test(el.value) ? Number(el.value) : el.value;   // a ritual: every N weeks, a month, a year
         else if (t === 'nullable') v = el.value === '' ? null : el.value;   // a choice where empty means none (no job)
         else if (t === 'opt') v = el.value === '' ? undefined : el.value;   // a choice where empty means unset (removed)
+        else if (t === 'tail' && el.value === '') {   // the last of a short list taken off (a sighting's second guest), no hole left
+            const list = getPath(p.replace(/\.\d+$/, '')); if (Array.isArray(list)) list.splice(Number(p.split('.').pop())); CW.dirty = true; notify(); return;
+        }
         else if (p.includes('.when.') && el.value === '') v = undefined;
         else if (t === 'time') { const [h, m] = el.value.split(':').map(Number); v = (h || 0) * 60 + (m || 0); }
         else if (t === 'csv') v = el.value.split(',').map((x: string) => x.trim()).filter(Boolean);

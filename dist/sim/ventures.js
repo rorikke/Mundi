@@ -23,6 +23,9 @@ import { whenHolds, levelHolds } from './when.js';
 import { placeOf } from './places.js';
 import { myJob, shiftNow, quitJob, choicePractice, addPerf } from './work.js';
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
+import { isHotel, hotelDay, hourMul, pricesOf } from './rooms.js';
+import { personNamed } from './when.js';
+import { effectSources } from './effects.js';
 /** The engine's numbers (tuned by the long run, tokyo-business-long.mjs). `stint`: hours a stint takes unless the
  *  venture says; `events`: the chance one of its events comes after a stint; `rise`: each upgrade of a number costs
  *  this many times the one before it; `manager`: what a manager adds to the share it earns on its own; `sell`: the
@@ -76,7 +79,11 @@ export const ventureDef = (w, id) => (w.ventures ?? []).find(v => v.id === id) ?
 const live = (g, w, s) => (systemOn(w, 'business') ? ventureDefs(g, w).find(v => v.id === s.id) ?? null : null);
 export const tierOf = (d, tier) => d.tiers[Math.min(d.tiers.length, Math.max(1, tier)) - 1];
 export const ventureName = (w, s) => s.name || ventureDef(w, s.id)?.name || s.id;
-export const placesOf = (s) => [s.place, ...(s.places ?? [])];
+export const placesOf = (s) => [s.place, ...(s.places ?? []), ...(s.opened ?? [])];
+// (the places it runs at as a business, a second hotel or café; not the rooms an upgrade opened)
+const sitesOf = (s) => [s.place, ...(s.places ?? [])];
+/** What kind of venture it is: one of each kind at a time (H-1); a café's kind is its track. */
+export const kindOf = (d) => d?.kind ?? d?.track ?? '';
 /** The venture you own that runs at this place, if any. */
 export function ventureAt(g, w, place) {
     if (!systemOn(w, 'business'))
@@ -132,10 +139,16 @@ export function fill(d, s, extra = {}) {
  *  season, how busy its place is and the mood of its part of town. 1 is an ordinary weekday. */
 export function demandOn(g, w, d, s, day) {
     const dm = d.demand ?? {};
-    let m = isWeekend(day) ? dm.weekend ?? VENTURE.weekend : 1;
+    // (a weekday of its own, `days`, comes before the weekend rule)
+    const wd = WD[((day - 1) % 7 + 7) % 7];
+    let m = dm.days?.[wd] ?? (isWeekend(day) ? dm.weekend ?? VENTURE.weekend : 1);
     const region = regionOf(g, w, s.place);
     const fests = festivalsOn(g, w, day);
-    if (fests.some(f => !f.place || (f.places ?? [f.place]).some(p => regionOf(g, w, p) === region)))
+    // (a festival named in `festivals` counts for what it says, wherever it is: Christmas Eve fills every love hotel)
+    const named = fests.map(f => dm.festivals?.[f.id]).filter((x) => x !== undefined);
+    if (named.length)
+        m *= Math.max(...named);
+    else if (fests.some(f => !f.place || (f.places ?? [f.place]).some(p => regionOf(g, w, p) === region)))
         m *= dm.festival ?? 1.3;
     else if (fests.length)
         m *= VENTURE.festival;
@@ -154,10 +167,40 @@ export function shareOf(d, s, ran) {
     const a = tierOf(d, s.tier)?.alone ?? 0;
     return a > 0 ? Math.min(0.95, a + (s.manager ? VENTURE.manager : 0)) : 0;
 }
-/** A day's takings (before the noise): the tier's `base` × how full it is × the day's demand × the share it earns. */
-export const dayValue = (g, w, d, s, day, ran, extra) => (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day) * shareOf(d, s, ran) * closedOn(g, w, s, day);
+/** A day's takings (before the noise): the tier's `base` × how full it is × the day's demand × the share it earns; a
+ *  hotel's by its rooms (sim/rooms.ts); a partnership's, your share of them. */
+export const dayValue = (g, w, d, s, day, ran, extra) => (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day))
+    * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day);
+/** (hospitality) A hotel's day at its tier: rooms, rooms open, how full, what comes in (sim/rooms.ts). */
+export function hotelOn(g, w, d, s, day, extra = {}) {
+    const t = tierOf(d, s.tier), stats = { ...s.stats };
+    for (const [k, v] of Object.entries(extra))
+        stats[k] = (stats[k] ?? 0) + v;
+    const ids = statsOf(d);
+    // (a tier that runs at more than one place counts the rooms of the places you have: the second hotel, once bought)
+    const at = Math.max(1, t.places ?? 1), have = Math.min(at, sitesOf(s).length);
+    const tt = at > 1 && t.rooms ? { ...t, rooms: Math.round(t.rooms * have / at) } : t;
+    return hotelDay(tt, tierStyle(d, s), ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
+}
+// (a style's own prices count at its own tier only: the next tier's prices are its own)
+const tierStyle = (d, s) => { const st = styleDef(d, s.style); return st && st.tier === s.tier ? st : null; };
+/** (hospitality) A night's and a rest's prices at the hotel's tier and style, as its day counts them (0: none). */
+export const hotelPrices = (d, s) => pricesOf(tierOf(d, s.tier), tierStyle(d, s));
+/** (hospitality) How full a hotel is this week, about: the days' occupancy, this week's seven, as one. */
+export function occupancyWeek(g, w, d, s) {
+    const from = weekOf(g.day) * 7 + 1;
+    let sum = 0;
+    for (let i = 0; i < 7; i++)
+        sum += hotelOn(g, w, d, s, from + i).occupancy;
+    return sum / 7;
+}
+/** (hospitality) How full a hotel is right now: the day's occupancy by the hour (`demand.hours`), at most full. */
+export const occupancyNow = (g, w, d, s) => Math.min(1, hotelOn(g, w, d, s, g.day).occupancy * hourMul(d, Math.floor(g.minutes / 60)));
+/** Your share of what it earns: all of it, or in a partnership the tier's `share` (the ryokan: a third, then half). */
+export const mineOf = (d, s) => (s.way === 'partner' ? tierOf(d, s.tier)?.share ?? 0.5 : 1);
 // A place closed all day on its weekday earns nothing that day.
-const closedOn = (g, w, s, day) => (placeOf(g, w, s.place)?.closedDays ?? []).includes(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'][((day - 1) % 7 + 7) % 7]) ? 0 : 1;
+const WD = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+const closedOn = (g, w, s, day) => (placeOf(g, w, s.place)?.closedDays ?? []).includes(WD[((day - 1) % 7 + 7) % 7]) ? 0 : 1;
 /** What a week would bring in, about (no noise; `run`: days you'd run it yourself, the rest on its own; `extra`:
  *  points you might add, for "what the next step would give"). Rent not taken off. */
 export function weekGuess(g, w, s, run = 0, extra) {
@@ -191,21 +234,46 @@ function dayEnds(g, w, s, d) {
     s.ran = (s.ran ?? []).filter(x => x > g.day - 15);
     return out;
 }
-function weekEnds(g, w, s, _d) {
+function weekEnds(g, w, s, d) {
+    const name = ventureName(w, s), hotel = isHotel(d);
+    // (tenants pay their rooms' rent with the week, B-19)
+    const lets = tenantRent(g, w, s, d);
+    if (lets) {
+        s.cash += lets;
+        s.week.takings += lets;
+    }
     const rent = Math.round(priceOf(g, s.rent ?? 0));
     s.week.costs += rent;
-    const net = s.cash - rent;
+    let net = s.cash - rent;
+    // (the owner's note, H-2: its instalment out of what's left of the week, never out of your own money)
+    const pay = s.owes ? Math.max(0, Math.min(s.owes, s.instalment ?? s.owes, net)) : 0;
+    if (pay) {
+        s.owes = Math.round(s.owes - pay);
+        net -= pay;
+        s.week.costs += pay;
+        s.week.note = pay;
+    }
     g.player.money = Math.max(0, g.player.money + net);
     if (s.cash)
-        book(g, `${ventureName(w, s)}: the week's takings`, s.cash);
+        book(g, `${name}: the week's takings`, s.cash);
     if (rent)
-        book(g, `${ventureName(w, s)}: rent`, -rent);
+        book(g, `${name}: ${hotel ? 'upkeep' : 'rent'}`, -rent);
+    if (pay)
+        book(g, `${name}: the owner's note`, -pay);
     s.cash = 0;
     s.last = s.week;
     s.week = blankWeek(weekOf(g.day));
-    return [`${ventureName(w, s)}'s week: ${money(w, s.last.takings)} came in${rent ? `, ${money(w, rent)} of rent went out` : ''}${s.last.run ? ` (you ran it ${s.last.run} day${s.last.run === 1 ? '' : 's'})` : ''}.`];
+    const paid = pay ? (s.owes ? `, ${money(w, pay)} paid on the note (${money(w, s.owes)} still owed)` : `, ${money(w, pay)} paid on the note: it's paid off`) : '';
+    if (pay && !s.owes) {
+        delete s.owes;
+        delete s.instalment;
+        report(s, "The note is paid off: it's all yours.");
+    }
+    return [`${name}'s week: ${money(w, s.last.takings)} came in${rent ? `, ${money(w, rent)} of ${hotel ? 'upkeep' : 'rent'} went out` : ''}${paid}${s.last.run ? ` (you ran it ${s.last.run} day${s.last.run === 1 ? '' : 's'})` : ''}.`];
 }
 const report = (s, line) => { s.week.notes = [...s.week.notes, line].slice(-8); };
+/** A line in the venture's week's report (sim/sightings.ts: the notebook's). */
+export const ventureReport = report;
 /* ---------- tiers, milestones and styles ---------- */
 /** What the next tier asks (its milestone, on the current tier): an upgrade owned, a story seen, a condition; null at
  *  the last tier, or for an executive's division (its tiers are ranks). */
@@ -230,11 +298,20 @@ function tierUp(g, w, s) {
         return [];
     s.tier++;
     catchUp(g, w, s);
-    const line = `${ventureName(w, s)} is now ${/^[aeiou]/i.test(m.next.name) ? 'an' : 'a'} ${m.next.name.toLowerCase()}.`;
+    const d = ventureDef(w, s.id);
+    if (d && s.partners?.length)
+        s.partners = s.partners.map((p, i) => (i ? p : { ...p, share: Math.round((1 - mineOf(d, s)) * 100) / 100 }));
+    const line = /^(the|with)\b/i.test(m.next.name) ? `${ventureName(w, s)} has moved up a tier: ${m.next.name}.` : `${ventureName(w, s)} is now ${tierWords(m.next.name)}.`;
     report(s, line);
     note(g, '{u}\'s {0} became {1}.', [ventureName(w, s), m.next.name.toLowerCase()], [], s.place, 'work');
     return [line];
 }
+/** A tier's name in a sentence: "a kissaten", "an old inn", or as it is when it reads on its own ("with the open-air
+ *  bath", "the detached rooms"). */
+export const tierWords = (name) => (/^(the|with)\b/i.test(name) ? name.toLowerCase() : `${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${name.toLowerCase()}`);
+/** A day's takings with every number at the tier's ceiling and a full house (what a renovation is priced by): a
+ *  hotel's rooms at its prices less its running costs, else the tier's `base`. */
+const tierDay = (t) => (t?.rooms ? t.rooms * ((t.prices?.stay ?? 0) + (t.rests ?? 0) * (t.prices?.rest ?? 0)) * (1 - (t.costs ?? 0)) : t?.base ?? 0);
 /** The styles to choose from at the current tier (none: the one chosen before stays). */
 export const stylesNow = (d, s) => (d.styles ?? []).filter(x => x.tier === s.tier);
 /** A style still to choose at this tier (free the first time). */
@@ -244,7 +321,7 @@ export function styleCost(g, w, s) {
     const d = ventureDef(w, s.id);
     if (!d || styleDue(d, s))
         return 0;
-    return Math.round(priceOf(g, (tierOf(d, s.tier)?.base ?? 0) * VENTURE.renovate));
+    return Math.round(priceOf(g, tierDay(tierOf(d, s.tier)) * VENTURE.renovate));
 }
 export function chooseStyle(g, w, id, style) {
     const s = venturesOf(g).find(x => x.id === id), d = s && live(g, w, s);
@@ -263,6 +340,8 @@ export function chooseStyle(g, w, id, style) {
     }
     s.style = style;
     s.styleTier = s.tier;
+    // (each tier's choice is kept: the love hotel's window stays its window once its floors are themed)
+    s.styles = { ...(s.styles ?? {}), [s.tier]: style };
     report(s, `New style: ${st.name}.`);
     note(g, '{u} made {0} {1}.', [ventureName(w, s), st.name], [], s.place, 'work');
     return cost ? `${ventureName(w, s)} is renovated: ${st.name}.` : `${ventureName(w, s)}: ${st.name}.`;
@@ -289,10 +368,14 @@ function upgradeState(g, w, d, s, u) {
     return u.tier > s.tier ? 'later' : u.how === 'found' ? 'found' : 'ready';
 }
 /** What an upgrade costs now: its price, raised for each upgrade of the same number you already own (B-15: each costs
- *  more than the last of its number), by the game's difficulty. */
+ *  more than the last of its number), by the game's difficulty; a hotel's milestone at its own price. */
 export function upgradePrice(g, d, s, u) {
-    const before = s.owned.filter(id => id !== u.id && d.upgrades?.find(x => x.id === id)?.stat === u.stat).length;
-    return Math.round(priceOf(g, u.cost * VENTURE.rise ** before) / 100) * 100;
+    // (a hotel's milestone is a building project, the sauna or the open-air bath: priced as itself, apart from the climb
+    // of its number, so the order you buy in doesn't make it cost several times its price)
+    const project = isHotel(d) ? new Set(d.tiers.map(t => t.milestone?.upgrade).filter(Boolean)) : null;
+    const before = project?.has(u.id) ? 0 : s.owned.filter(id => id !== u.id && !project?.has(id) && d.upgrades?.find(x => x.id === id)?.stat === u.stat).length;
+    // (a partnership: you pay your share of it, as you're paid your share of the takings)
+    return Math.round(priceOf(g, u.cost * VENTURE.rise ** before * mineOf(d, s)) / 100) * 100;
 }
 export function buyUpgrade(g, w, id, upgrade) {
     const s = venturesOf(g).find(x => x.id === id), d = s && live(g, w, s);
@@ -330,6 +413,10 @@ export function buyUpgrade(g, w, id, upgrade) {
         s.manager = true;
         out.push('A manager runs it on the days you don\'t.');
     }
+    if (it.u.opens && w.places.some(p => p.id === it.u.opens) && !placesOf(s).includes(it.u.opens)) {
+        s.opened = [...(s.opened ?? []), it.u.opens];
+        out.push(`${placeOf(g, w, it.u.opens)?.name ?? it.u.opens} is open to you now.`);
+    }
     if (it.u.staff) {
         const h = hire(g, w, s, it.u);
         if (h)
@@ -356,7 +443,7 @@ function catchUp(g, w, s) {
         for (const [k, v] of Object.entries(x?.add ?? {}))
             wanted[k] = (wanted[k] ?? 0) + v;
     }
-    const start = startOf(d, s.way, (s.way === 'takeover' ? d.ways?.takeover?.tier : s.way === 'lease' ? d.ways?.lease?.tier : 1) ?? 1);
+    const start = startOf(d, s.way, wayOf(d, s.way)?.tier ?? 1);
     for (const k of statsOf(d)) {
         const due = (start[k] ?? 0) + (wanted[k] ?? 0);
         if (due > (s.stats[k] ?? 0))
@@ -378,67 +465,99 @@ function hire(g, w, s, u) {
     s.staff.push(h);
     return h;
 }
-/* ---------- becoming yours (the takeover, a lease), selling ---------- */
+/** A way in's own entry in the world (its tier, its starting numbers, its note). */
+const wayOf = (d, way) => (way === 'rank' ? undefined : d.ways?.[way]);
 /** The numbers a venture starts with: the way's own, else a third of the starting tier's ceiling each. */
 export function startOf(d, way, tier) {
-    const own = way === 'takeover' ? d.ways?.takeover?.start : way === 'lease' ? d.ways?.lease?.start : undefined;
+    const own = wayOf(d, way)?.start;
     const cap = tierOf(d, tier)?.ceiling ?? 0;
     return Object.fromEntries(statsOf(d).map(k => [k, Math.min(cap, own?.[k] ?? Math.round(cap / 3))]));
 }
-/** The ways in this game offers now: a takeover whose condition holds, the units to lease. One venture of a kind
- *  (`track`) at a time: a café you took over or a café of your own, not both (the café stays a life, not an empire). */
+/** The ways in this game offers now: a takeover, a purchase or a partnership whose condition holds and story was seen,
+ *  the units to lease. One venture of a kind at a time (H-1): a café you took over or a café of your own, not both
+ *  (the café stays a life, not an empire); a capsule hotel, a ryokan and a love hotel beside each other. */
 export function waysOpen(g, w) {
     const out = [];
     for (const d of ventureDefs(g, w)) {
-        if (d.track === 'exec' || venturesOf(g).some(s => s.id === d.id || ventureDef(w, s.id)?.track === d.track))
+        if (d.track === 'exec' || venturesOf(g).some(s => s.id === d.id || kindOf(ventureDef(w, s.id)) === kindOf(d)))
             continue;
-        const t = d.ways?.takeover;
-        if (t && (!t.when || whenHolds(g, w, t.when, { place: t.place ?? d.place, key: `takeover|${d.id}` })) && (!t.story || whenHolds(g, w, `seen: ${t.story}`)))
-            out.push({ d, way: 'takeover', place: t.place ?? d.place ?? '', cost: priceOf(g, t.cost), rent: t.rent ?? 0 });
+        for (const way of ['takeover', 'buy', 'partner']) {
+            const t = d.ways?.[way];
+            if (!t || (t.when && !whenHolds(g, w, t.when, { place: t.place ?? d.place, key: `${way}|${d.id}` })) || (t.story && !whenHolds(g, w, `seen: ${t.story}`)))
+                continue;
+            const cost = Math.round(priceOf(g, t.cost)), down = t.note ? Math.round(cost * t.note.down / 100) * 100 : cost;
+            out.push({ d, way, place: t.place ?? d.place ?? '', cost, rent: t.rent ?? 0, down, ...(t.note && down < cost ? { note: { weeks: t.note.weeks } } : {}), ...(t.with ? { with: t.with } : {}) });
+        }
         for (const u of d.ways?.lease?.units ?? [])
-            if (w.places.some(p => p.id === u.place))
-                out.push({ d, way: 'lease', place: u.place, cost: priceOf(g, u.cost), rent: u.rent });
+            if (w.places.some(p => p.id === u.place)) {
+                const cost = priceOf(g, u.cost);
+                out.push({ d, way: 'lease', place: u.place, cost, rent: u.rent, down: cost });
+            }
     }
     return out;
 }
 /** It becomes yours: the key money or the move-in paid, its numbers as it starts, the week's report begun. `name`: a
  *  name of your own (a lease). */
+const PAID_FOR = { takeover: 'key money', lease: 'moving in', buy: 'the purchase', partner: 'buying in' };
 export function openVenture(g, w, id, way, place, name) {
     const o = waysOpen(g, w).find(x => x.d.id === id && x.way === way && x.place === place);
     if (!o)
         return '';
-    if (o.cost > g.player.money)
-        return `It takes ${money(w, o.cost)} to start.`;
-    const d = o.d, tier = (way === 'takeover' ? d.ways?.takeover?.tier : d.ways?.lease?.tier) ?? 1;
-    g.player.money -= o.cost;
-    book(g, `${d.name}: ${way === 'takeover' ? 'key money' : 'moving in'}`, -o.cost);
+    if (o.down > g.player.money)
+        return `It takes ${money(w, o.down)} to start.`;
+    const d = o.d, tier = wayOf(d, way)?.tier ?? 1;
+    g.player.money -= o.down;
+    book(g, `${d.name}: ${o.note ? 'the down payment' : PAID_FOR[way]}`, -o.down);
     const st = ventureStore(g);
     st.list = st.list.filter(x => x.id !== id); // a closed one before it gives way
     const s = { id, place, way, since: g.day, tier, stats: startOf(d, way, tier), owned: [], found: [], disc: [], staff: [], cash: 0, rent: o.rent, spent: o.cost, week: blankWeek(weekOf(g.day)) };
+    // (the owner's note: what's left is paid from the takings, an instalment a week)
+    if (o.note) {
+        s.owes = o.cost - o.down;
+        s.instalment = Math.ceil(s.owes / Math.max(1, o.note.weeks) / 100) * 100;
+    }
+    if (way === 'partner' && o.with)
+        s.partners = [{ who: o.with, share: Math.round((1 - mineOf(d, s)) * 100) / 100 }];
     const own = name?.trim().replace(/\s+/g, ' ').slice(0, 40);
     if (own && way === 'lease')
         s.name = own;
     st.list.push(s);
-    const out = [`${ventureName(w, s)} is yours.`];
-    const job = d.ways?.takeover?.endsJob;
-    if (way === 'takeover' && job && g.player.job?.id === job) {
+    const out = [way === 'partner' ? `You're a partner in ${ventureName(w, s)} now.` : `${ventureName(w, s)} is yours.`];
+    if (s.owes)
+        out.push(`The rest, ${money(w, s.owes)}, comes out of its takings: about ${money(w, s.instalment ?? 0)} a week.`);
+    const job = wayOf(d, way)?.endsJob;
+    if (job && g.player.job?.id === job) {
         quitJob(g, w);
         out.push('You run the place now, not a shift at it.');
     }
     tallyEvent(g, 'business');
-    report(s, way === 'takeover' ? 'You took it over.' : 'You moved in.');
-    note(g, way === 'takeover' ? '{u} took over {0}.' : '{u} opened {0}.', [ventureName(w, s)], [], place, 'work');
+    report(s, { takeover: 'You took it over.', lease: 'You moved in.', buy: 'You bought it.', partner: 'You went into partnership.' }[way]);
+    note(g, way === 'lease' ? '{u} opened {0}.' : way === 'partner' ? '{u} went into partnership in {0}.' : way === 'buy' ? '{u} bought {0}.' : '{u} took over {0}.', [ventureName(w, s)], [], place, 'work');
     hangouts(g, w, true);
     return out.join(' ');
 }
 /** What selling it would give back: a share of what it cost you. */
 export const sellValue = (g, s) => Math.round(payOf(g, (s.spent ?? 0) * VENTURE.sell) / 100) * 100;
-/** Sell it (a share of what it cost you back) or close it (nothing back): it's kept as closed and does nothing. */
-export function closeVenture(g, w, id, sell = true) {
+/** Who would buy it now for more than selling gives (a hotel chain): a buyer whose condition holds and story was seen. */
+export function buyersOf(g, w, s) {
+    const d = live(g, w, s);
+    if (!d)
+        return [];
+    return (d.buyers ?? []).filter(b => (!b.when || whenHolds(g, w, b.when, { place: s.place, key: `buyer|${s.id}|${b.id}` })) && (!b.story || whenHolds(g, w, `seen: ${b.story}`)))
+        .map(b => ({ id: b.id, name: b.name, price: Math.round(sellValue(g, s) * b.mul / 100) * 100, text: b.text }));
+}
+/** Sell it (a share of what it cost you back, or a buyer's price, less what's owed on the note) or close it (nothing
+ *  back): it's kept as closed and does nothing. */
+export function closeVenture(g, w, id, sell = true, buyer) {
     const s = venturesOf(g).find(x => x.id === id);
     if (!s)
         return '';
-    const back = sell ? sellValue(g, s) : 0;
+    const b = buyer ? buyersOf(g, w, s).find(x => x.id === buyer) : undefined;
+    if (buyer && !b)
+        return '';
+    const back = sell ? Math.max(0, (b?.price ?? sellValue(g, s)) - (s.owes ?? 0)) : 0;
+    delete s.owes;
+    delete s.instalment;
     s.cash = 0;
     s.closed = g.day;
     delete s.event;
@@ -448,14 +567,14 @@ export function closeVenture(g, w, id, sell = true) {
     }
     note(g, sell ? '{u} sold {0}.' : '{u} closed {0}.', [ventureName(w, s)], [], s.place, 'work');
     hangouts(g, w, true);
-    return sell ? `You sold ${ventureName(w, s)} for ${money(w, back)}.` : `You closed ${ventureName(w, s)}.`;
+    return sell ? `You sold ${ventureName(w, s)}${b ? ` to ${b.name}` : ''} for ${money(w, back)}.` : `You closed ${ventureName(w, s)}.`;
 }
 /** A later tier runs at more places: the units it could open at next (not the one it runs at). */
 export function morePlaces(g, w, s) {
     const d = live(g, w, s);
     if (!d)
         return [];
-    if (placesOf(s).length >= (tierOf(d, s.tier)?.places ?? 1))
+    if (sitesOf(s).length >= (tierOf(d, s.tier)?.places ?? 1))
         return [];
     return (d.more ?? d.ways?.lease?.units ?? []).filter(u => !placesOf(s).includes(u.place) && w.places.some(p => p.id === u.place)).map(u => ({ place: u.place, cost: priceOf(g, u.cost), rent: u.rent }));
 }
@@ -535,10 +654,11 @@ export function runStint(g, w, id, hours) {
         s.ran = [...(s.ran ?? []), day];
         (s.week.n === weekOf(day) ? s.week : (s.last ??= blankWeek(weekOf(day)))).run++;
     }
-    out.unshift(`You ran ${ventureName(w, s)} for ${h} hour${h === 1 ? '' : 's'}.`);
+    out.unshift(isHotel(d) ? `You worked the front desk at ${ventureName(w, s)} for ${h} hour${h === 1 ? '' : 's'}.` : `You ran ${ventureName(w, s)} for ${h} hour${h === 1 ? '' : 's'}.`);
     for (const k of d.trains ?? [])
         out.push(...trainSkill(g, w, k, VENTURE.train * h));
     out.push(...discover(g, w, s, d));
+    out.push(...ventureLink.stint(g, w, s.id));
     rollEvent(g, w, s, d);
     out.push(...tierUp(g, w, s));
     return out;
@@ -661,13 +781,13 @@ function hangouts(g, w, force = false) {
     if (!st || (!force && st.hang?.day === g.day))
         return;
     const who = {};
-    const open = venturesOf(g).map(s => ({ s, d: live(g, w, s) })).filter(x => x.d && x.d.track !== 'exec' && ((tierOf(x.d, x.s.tier)?.alone ?? 0) > 0 || x.s.tier > 1));
+    const open = venturesOf(g).map(s => ({ s, d: live(g, w, s) })).filter(x => x.d && x.d.track !== 'exec' && x.d.hangout !== false && ((tierOf(x.d, x.s.tier)?.alone ?? 0) > 0 || x.s.tier > 1));
     if (open.length)
         for (const r of Object.values(g.cast)) {
             if (!r.met || r.gone || !levelHolds(g, w, r.avatar, 'good'))
                 continue;
             const liked = new Set(r.leisure.flatMap(id => kinds(w, id)));
-            const places = open.flatMap(x => placesOf(x.s)).filter(p => kinds(w, p).some(k => liked.has(k)) && !r.leisure.includes(p));
+            const places = open.flatMap(x => sitesOf(x.s)).filter(p => kinds(w, p).some(k => liked.has(k)) && !r.leisure.includes(p));
             if (places.length)
                 who[r.avatar] = places;
         }
@@ -678,6 +798,81 @@ export const hangoutsOf = (g, avatar) => {
     const h = g.ventures?.hang;
     return h && h.day === g.day ? h.who[avatar] ?? [] : [];
 };
+/* ---------- tenants (B-19: a room for a business of their own, never staff) ---------- */
+/** The rooms you could let now: a tenancy of a venture of yours whose person is in the game (met, not gone), not
+ *  renting anywhere yet, whose condition holds and story was seen (adult ones only with adult content on). */
+export function tenancyOffers(g, w) {
+    const out = [];
+    const renting = new Set(venturesOf(g).flatMap(s => (s.tenants ?? []).map(x => x.who.toLowerCase())));
+    for (const s of venturesOf(g)) {
+        const d = live(g, w, s);
+        if (!d)
+            continue;
+        for (const t of d.tenancies ?? []) {
+            if (t.adult && !adultOn(g))
+                continue;
+            const r = personNamed(g, t.who);
+            if (!r || !r.met || r.gone || renting.has(r.name.toLowerCase()) || (s.tenants ?? []).some(x => x.id === t.id))
+                continue;
+            if (t.when && !whenHolds(g, w, t.when, { place: s.place, key: `tenancy|${s.id}|${t.id}` }))
+                continue;
+            if (t.story && !whenHolds(g, w, `seen: ${t.story}`))
+                continue;
+            out.push({ s, d, t, r });
+        }
+    }
+    return out;
+}
+/** Let the room: they move their business in (their own job, their own hours), its numbers get what they bring. */
+export function letRoom(g, w, id, tenancy) {
+    const o = tenancyOffers(g, w).find(x => x.s.id === id && x.t.id === tenancy);
+    if (!o)
+        return '';
+    o.s.tenants = [...(o.s.tenants ?? []), { id: o.t.id, who: o.r.name, since: g.day }];
+    // (their business moves in: the job it is theirs from today, as their story's ending would give it)
+    if (o.t.job && systemOn(w, 'jobs') && w.occupations.some(x => x.id === o.t.job) && o.r.occupation !== o.t.job) {
+        o.r.occupation = o.t.job;
+        delete (g.living?.ranks ?? {})[o.r.avatar];
+    }
+    const got = addAll(g, w, o.s, o.t.add);
+    report(o.s, `${o.r.name} rents a room.`);
+    note(g, '{0} rents a room at {u}\'s {1}.', [o.r.name, ventureName(w, o.s)], [o.r.avatar], o.s.place, 'work');
+    return [o.t.text ?? `${o.r.name} rents a room at ${ventureName(w, o.s)}.`, got.length ? `(${got.join(', ')})` : ''].filter(Boolean).join(' ');
+}
+// What the tenants pay a week (their tenancy's rent, by the game's prices), for those still in the game.
+function tenantRent(g, w, s, d) {
+    let n = 0;
+    for (const x of s.tenants ?? []) {
+        const t = d.tenancies?.find(y => y.id === x.id), r = personNamed(g, x.who);
+        if (t && r && !r.gone)
+            n += priceOf(g, t.rent);
+    }
+    return Math.round(n);
+}
+// A tenant works at the venture's place while it's yours and their job is the tenancy's (sim/dayplan.ts asks).
+ventureLink.workPlace = (g, w, avatar) => {
+    if (!systemOn(w, 'business'))
+        return null;
+    const r = g.cast[avatar];
+    if (!r)
+        return null;
+    for (const s of venturesOf(g)) {
+        const x = (s.tenants ?? []).find(t => t.who.toLowerCase() === r.name.toLowerCase());
+        if (!x)
+            continue;
+        const d = live(g, w, s), t = d?.tenancies?.find(y => y.id === x.id);
+        if (t && (!t.adult || adultOn(g)) && (!t.job || r.occupation === t.job))
+            return s.place;
+    }
+    return null;
+};
+// (hospitality) The owner's rate: at a hotel of yours, a room and what the place charges cost you as little as prices
+// can go (the laundry and the room's upkeep), through the effects every price reads (sim/worldstate.ts pricePerk).
+effectSources.push((g, w) => {
+    if (!systemOn(w, 'business') || !w.ventures)
+        return [];
+    return venturesOf(g).filter(s => isHotel(live(g, w, s))).flatMap(s => placesOf(s).map(p => ({ kind: 'price', value: -0.5, target: p })));
+});
 /* ---------- what the AI is told ---------- */
 /** What the AI is told about the venture at this place (empty elsewhere): you own it, its tier and style in a phrase,
  *  today's crowd, the hired hands on, the event waiting; while you run it yourself, that you're behind the counter. */
@@ -692,14 +887,22 @@ export function ventureLine(g, w) {
     }
     if (!s || !d)
         return '';
-    const t = tierOf(d, s.tier), st = styleDef(d, s.style);
+    const t = tierOf(d, s.tier), st = styleDef(d, s.style), hotel = isHotel(d);
     const busy = demandOn(g, w, d, s, g.day) * fill(d, s);
     const crowd = busy > 0.9 ? 'busy, every seat taken' : busy > 0.5 ? 'a steady crowd' : busy > 0.25 ? 'a few customers' : 'quiet';
+    // (a hotel: how many of its rooms are taken at this hour)
+    const h = hotel ? hotelOn(g, w, d, s, g.day) : null, taken = h ? Math.round(h.open * occupancyNow(g, w, d, s)) : 0;
+    const today = h ? `Right now ${taken} of its ${h.open} rooms are taken${taken >= h.open ? ' (full)' : ''}.` : `Today it's ${crowd}.`;
     const staff = s.staff.slice(0, 3).map(h => `${h.name} (${h.quirk})`);
     const ev = pendingVentureEvent(g, w);
-    return [`{{user}} owns this place: ${ventureName(w, s)}, ${/^[aeiou]/i.test(t.name) ? 'an' : 'a'} ${t.name.toLowerCase()}${st ? ` (${st.name}: ${st.desc})` : ''}. Today it's ${crowd}.`,
-        isRunning(g, s.id) || ranOn(s, g.day) ? '{{user}} is working behind the counter.' : '',
+    const owns = s.way === 'partner' ? `{{user}} is a partner in this place${s.partners?.[0] ? ` beside ${s.partners[0].who}'s family, who keep an equal say` : ''}` : '{{user}} owns this place';
+    const lets = (s.tenants ?? []).map(x => x.who).filter(n => personNamed(g, n));
+    return [`${owns}: ${ventureName(w, s)}, ${tierWords(t.name)}${st ? ` (${st.name}: ${st.desc})` : ''}. ${today}`,
+        isRunning(g, s.id) || ranOn(s, g.day) ? (hotel ? '{{user}} is working the front desk.' : '{{user}} is working behind the counter.') : '',
         staff.length ? `Hired hands working here (background, not characters): ${staff.join('; ')}.` : '',
+        lets.length ? `Renting a room here for a business of their own (tenants, not staff): ${lets.join(', ')}.` : '',
+        // (a love hotel's house rule: who stays here is never told, B-14)
+        d.sightings?.length || d.notebook ? 'The house rule: who comes in with whom is never told to anyone.' : '',
         ev?.s === s ? `Something going on: ${ev.ev.setup}` : ''].filter(Boolean).join(' ');
 }
 // An upgrade turned up by a story (or an event): kept as found in the venture it belongs to, if you own that venture.

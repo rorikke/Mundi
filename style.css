@@ -2511,6 +2511,13 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-biz-ask-btns { display: grid; gap: 6px; margin-top: 4px; }
 #mundi-root .mu-biz-ask-btns button { text-align: left; }
 #mundi-root .mu-biz-ask-btns small { margin-left: 6px; color: var(--muted); }
+/* The Business app's hotel parts (ui/hotels.ts): rooms and occupancy, the owner's note, a partnership, tenants, the
+   love hotel's discretion and the sighting waiting for your choice */
+#mundi-root .mu-biz-discretion .mu-biz-opt.is-on[aria-disabled="true"] { opacity: 1; }
+#mundi-root .mu-biz-owes, #mundi-root .mu-biz-partner { border-left: 3px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
+#mundi-root .mu-biz-sight { border-color: color-mix(in srgb, #d9668f 55%, var(--line)); }
+#mundi-root .mu-biz-sight .mu-biz-ask-btns small, #mundi-root .mh-invite.mu-biz-sight small { opacity: .8; }
+#mundi-root .mu-biz-tenants .mu-biz-up b { overflow-wrap: anywhere; }
 /* ---------- the medieval journal: an open book over the game ---------- */
 #mundi-root .mu-bk-wrap {
     position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px 16px;

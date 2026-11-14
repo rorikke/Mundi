@@ -76,7 +76,12 @@ export const studentLink: {
 // without the venture).
 // A choice at work (sim/work.ts) whose result `add`s to a venture's numbers or `finds` an upgrade: the division of that
 // job gets it (sim/exec.ts). Lines to show.
+// (hospitality) Someone renting a room of a venture of yours for their own business (B-19) works there, not at their
+// job's own place (sim/dayplan.ts asks; null: their job's place as usual).
 export const ventureLink: {
     find: (g: Save, w: WorldDef, upgrade: string) => string[];
     workResult: (g: Save, w: WorldDef, job: string, r: WorkResult, ok: (n: number | undefined) => number) => string[];
-} = { find: () => [], workResult: () => [] };
+    workPlace: (g: Save, w: WorldDef, avatar: string) => string | null;
+    /** (the love hotel) after your hours at the desk: what you saw (sim/sightings.ts; lines to show) */
+    stint: (g: Save, w: WorldDef, venture: string) => string[];
+} = { find: () => [], workResult: () => [], workPlace: () => null, stint: () => [] };

@@ -30,7 +30,7 @@ const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.worl
 
 /** A thread's state in the save (`g.threads`, by thread id): the stage it's at (-1: not begun), since which day,
  *  the day the player learned it (`known`) and how (`how`), how it ended and when. */
-export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight'; ended?: string; endDay?: number;
+export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight' | 'saw'; ended?: string; endDay?: number;
     /** (business) the day it began waiting at its last stage for an ending's `waits` */ waitFrom?: number }
 export const threadStates = (g: Save) => ((g as any).threads ??= {}) as Record<string, ThreadState>;
 // How long an ending is still news for the AI.
@@ -213,7 +213,8 @@ export function threadLines(g: Save, w: WorldDef, present: Resident[]): string[]
         if (!s) continue;
         const now = ` Right now: ${trim(s.text)}.`;
         if (st.known) {
-            const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' || st.how === 'insight' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : '';
+            // ('saw': at the desk of a hotel of theirs, B-14; they don't know {{user}} saw)
+            const from = st.how === 'rumor' ? ' (heard around town)' : st.how === 'story' || st.how === 'insight' ? ' (found out)' : st.how === 'friend' ? ` (${n} told them)` : st.how === 'saw' ? ` (seen at {{user}}'s hotel; ${n} doesn't know {{user}} saw)` : '';
             out.push(`${trim(t.known ?? `{{user}} knows: ${t.hidden}`)}${from}.${now}`);
         } else if (s.tell === 'known') out.push(`${n} no longer hides it: ${trim(t.hidden)}.${now} ${n} tells {{user}} if it comes up.`);
         else if (s.tell === 'hinted' || (hint() && levelHolds(g, w, r.avatar, 'friend'))) out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);

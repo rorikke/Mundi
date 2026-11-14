@@ -983,12 +983,51 @@ export interface VentureDef {
     stint?: number; hours?: [number, number];
     /** How busy the calendar makes it: weekends, festivals in its part of town, each season (multipliers, 1 when
      *  missing; a festival anywhere else counts a little). */
-    demand?: { weekend?: number; festival?: number; season?: Partial<Record<SeasonId, number>> };
+    demand?: VentureDemand;
     /** The units a later tier (`places` above 1) can open at (default: its lease units): the kissaten you took over
      *  opening a second café in a unit. */
     more?: LeaseUnit[];
     adult?: boolean;
+    /** (hospitality) What kind of venture of its track it is (`capsule`, `ryokan`, `lovehotel`; default the track): one
+     *  of each kind at a time. */
+    kind?: string;
+    /** How running it yourself is called on its button ("Work the front desk") and its icon (default the café's). */
+    run?: { label?: string; icon?: string };
+    /** false: your friends don't come here to spend their free time (a love hotel). */
+    hangout?: boolean;
+    /** (hospitality) People who may rent a room of it for a business of their own (B-19: tenants, never staff). */
+    tenancies?: TenancyDef[];
+    /** (love hotel) Who tells you what the night desk saw while you're not at it (Kaoru's notebook, B-20), while `when`
+     *  holds and that person is on their shift there. */
+    notebook?: { who: string; when?: When };
+    /** (love hotel, adult) Guests you'd notice: written sightings (B-14), beside the world's couples. */
+    sightings?: SightingDef[];
+    /** Who may buy it from you, for more than selling it gives (a hotel chain), and when they would. */
+    buyers?: BuyerDef[];
 }
+/** How busy the calendar makes a venture (multipliers, 1 when missing): weekends, festivals in its part of town, each
+ *  season; (hospitality) each weekday (`days`: `fri: 1.4`), named festivals (`festivals`: `christmas: 2.5`, over
+ *  `festival`), and the hours (`hours`: `[from, to, multiplier]` rows, for tonight and now). */
+export interface VentureDemand {
+    weekend?: number; festival?: number; season?: Partial<Record<SeasonId, number>>;
+    days?: Partial<Record<'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun', number>>;
+    festivals?: Record<string, number>;
+    hours?: [number, number, number][];
+}
+/** A room someone rents for a business of their own (Tsubaki's aroma salon at your ryokan): who, the job their life
+ *  gives them there (their workplace is your venture's place while it lasts), the weekly rent, when it can be offered,
+ *  the story that offers it, and what it adds to the venture's numbers. */
+export interface TenancyDef { id: string; who: string; job?: string; rent: number; when?: When; story?: string; add?: Record<string, number>; text?: string; adult?: boolean }
+/** A sighting at the desk (B-14): who comes in (one or two names; with one, `with` says with whom in words), when it
+ *  can happen, the line you'd hear ("{0} came in with {1}, a night's stay"), the thread whose secret it shows
+ *  (`learn`), the rumor if you let it slip, and what keeping it means. */
+export interface SightingDef { id: string; who: string[]; with?: string; when?: When; line: string; learn?: string; slip?: string; kept?: string; adult?: boolean }
+/** Someone who would buy the venture (Shiori's family's hotel group): when, how many times what selling gives, the
+ *  story that offers it. */
+export interface BuyerDef { id: string; name: string; when?: When; mul: number; story?: string; text?: string }
+/** (hospitality) Paying a hotel off over time (H-2): `down` of the price at once (a share, 0–1), the rest out of the
+ *  weekly takings over about `weeks` weeks, never out of your own money. */
+export interface NoteDef { down: number; weeks: number }
 /** How a venture becomes yours. `takeover`: a place you already know (the kissaten whose right hand you are): a
  *  condition (`rank: …; seen: …`), the key money, the story that offers it, the tier it starts at (1: the first), its
  *  weekly rent, its numbers when it becomes yours (`start`; default a third of the tier's ceiling) and a job it ends
@@ -996,8 +1035,14 @@ export interface VentureDef {
  *  `venture` set to this venture), each with what moving in costs and its weekly rent. An executive's division has
  *  neither: the job's rank opens it. */
 export interface VentureWays {
-    takeover?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; endsJob?: string };
+    takeover?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; endsJob?: string; note?: NoteDef };
     lease?: { units: LeaseUnit[]; tier?: number; start?: Record<string, number> };
+    /** (hospitality) Buying it from outside, while it's for sale (`when`): the price, the story, the tier it starts at,
+     *  the weekly upkeep (`rent`), its numbers, the owner's note. */
+    buy?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; note?: NoteDef };
+    /** (hospitality) A partnership (the ryokan with Shizuka's family): offered through `story` while `when` holds, the
+     *  buy-in, `with` the partner's name; your share of the takings is the tier's `share`. */
+    partner?: { place?: string; when?: When; cost: number; story?: string; tier?: number; rent?: number; start?: Record<string, number>; with: string; endsJob?: string };
 }
 export interface LeaseUnit { place: string; cost: number; rent: number }
 /** A tier (café: a stand, a kissaten, a second café, a roastery): the ceiling its numbers can't pass, and the
@@ -1008,11 +1053,18 @@ export interface TierDef {
     id: string; name: string; ceiling: number; desc?: string;
     milestone?: { upgrade?: string; story?: string; when?: When };
     alone?: number; places?: number; base?: number; rank?: string;
+    /** (hospitality) Rooms at the ceiling (fewer while Capacity is short), the night's and a rest's prices, how many
+     *  rests a room turns in a day, and (a partnership) your share of the takings at this tier. A tier without `rooms`
+     *  earns by `base` as a café does. */
+    rooms?: number; prices?: { stay: number; rest?: number }; rests?: number; share?: number;
+    /** (hospitality) The share of a hotel's takings its running costs take (the laundry, the cleaning, the staff). */
+    costs?: number;
 }
 /** A style, chosen once per tier (*as it was*, *specialty coffee*, *open late*): its words lay over the place's for
  *  the AI, its multipliers shift the numbers a little (`fame: 1.1`), and some upgrades are found only with it. */
 export interface StyleDef { id: string; name: string; desc: string; tier: number; mul?: Record<string, number>; finds?: string[];
-    /** its own opening hours [from, to) (open late: until two), over the venture's and its place's */ hours?: [number, number] }
+    /** its own opening hours [from, to) (open late: until two), over the venture's and its place's */ hours?: [number, number];
+    /** (hospitality) its own prices, over the tier's */ prices?: { stay?: number; rest?: number } }
 /** An upgrade: points added to one number for good (`stat`, `add`), at a price, from a tier on. `how`: bought from the
  *  app from the start (`basic`), turned up somewhere in the city (`found`: a street story's `finds`), or opened by a
  *  condition (`earned`: `when`). `style`: only with that style; `place`: only at that unit; `staff`: comes with a hire
@@ -1021,6 +1073,9 @@ export interface StyleDef { id: string; name: string; desc: string; tier: number
 export interface UpgradeDef {
     id: string; name: string; desc?: string; stat: string; add: number; cost: number; tier: number;
     how: 'basic' | 'found' | 'earned'; when?: When; style?: string; place?: string; staff?: string; manager?: boolean; hint?: string;
+    /** (hospitality) A place that joins the venture once it's bought (the owner's suite, the detached rooms): it has
+     *  `venture` set, so it's on the map only from then. */
+    opens?: string;
 }
 /** A discovery: a pairing found while you run the place yourself and its condition holds (iced coffee in summer), kept
  *  for good: points added, and a short line. */

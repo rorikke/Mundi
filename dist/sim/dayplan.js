@@ -12,7 +12,7 @@
 import { nowAbs, changes, adultOn } from '../core/store.js';
 import { systemOn, isScenario, offScreenWork, exampleTag, WEEKDAY_IDS } from '../core/world.js';
 import { charOf } from '../st/bridge.js';
-import { onDay } from './hooks.js';
+import { onDay, ventureLink } from './hooks.js';
 import { isWeekend, seasonDays } from './time.js';
 import { isOpen } from './daynight.js';
 import { placeOn } from './places.js';
@@ -330,9 +330,12 @@ export function shiftOn(g, w, r, day, st = stampOf(g, w)) {
 // (E20) Worked off-screen (an AV actress's shoots, Home mode's jobs): away during a shift, on no map.
 const offScreen = (w, o) => !!o.offScreen || offScreenWork(w);
 const careers = new WeakMap();
-/** Where someone works their job: away (`OUT`) for an off-screen job, else their rank's own place (an idol's top ranks
- *  at the TV studio), else the job's. */
+/** Where someone works their job: a room they rent at a venture of yours (business, B-19), away (`OUT`) for an
+ *  off-screen job, else their rank's own place (an idol's top ranks at the TV studio), else the job's. */
 export function workPlace(g, w, r, o) {
+    const rented = ventureLink.workPlace(g, w, r.avatar);
+    if (rented)
+        return rented;
     if (offScreen(w, o))
         return OUT;
     let m = careers.get(o);

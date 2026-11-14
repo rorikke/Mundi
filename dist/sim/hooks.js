@@ -57,4 +57,6 @@ export const studentLink = { workCap: () => null, homeBlock: () => '', headStart
 // without the venture).
 // A choice at work (sim/work.ts) whose result `add`s to a venture's numbers or `finds` an upgrade: the division of that
 // job gets it (sim/exec.ts). Lines to show.
-export const ventureLink = { find: () => [], workResult: () => [] };
+// (hospitality) Someone renting a room of a venture of yours for their own business (B-19) works there, not at their
+// job's own place (sim/dayplan.ts asks; null: their job's place as usual).
+export const ventureLink = { find: () => [], workResult: () => [], workPlace: () => null, stint: () => [] };

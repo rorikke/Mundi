@@ -175,7 +175,8 @@ const topics = (w: WorldDef | null): Topic[] => {
         ] }] : []),
     ...((w && ventureDefs(game(), w).length) ? [<Topic>{ id: 'business', icon: 'store', title: 'Running a business', intro: `A late game: a business of your own, or a division to run at the top of a company. Follow it ${appRef(w, 'business')}.`,
         items: [
-            ['Ways in', 'The Business app lists them: take over a place you work at, lease a unit and name it, or rise above a career\'s top. Each says what it costs and what it asks for.'],
+            ['Ways in', 'The Business app lists them: take over a place you work at, lease a unit and name it, buy a hotel for sale, go into partnership, or rise above a career\'s top. Each says what it costs and what it asks for.'],
+            ['Hotels', 'A hotel earns by its rooms: Capacity opens them, its other numbers and the calendar fill them. Part of a hotel\'s price can be paid off from its takings, never from your own money. Someone may rent a room for a business of their own.'],
             ['How it grows', "A business has a few numbers that make what a day brings in. Upgrades raise them for good: some are bought, some turn up around the city, some are earned. Each tier has a ceiling, and the next asks for a milestone."],
             ['Running it', 'Work the counter yourself for the whole day\'s takings and the chance of something coming up, or let hired hands keep it open. The takings come at the week\'s end, with a report; left alone, it never collapses.'],
             ['People', "The world's people are never your staff, but friends come by, and a business can change how their stories end."],
