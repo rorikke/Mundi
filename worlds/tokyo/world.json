@@ -28652,7 +28652,7 @@
   },
   {
    "id": "yk_marina",
-   "name": "Yokohama Bayside Marina",
+   "name": "Kamome Marina",
    "map": "yokohama",
    "x": 40.5,
    "y": 46.5,
@@ -35797,7 +35797,7 @@
    "name": "marina pass",
    "icon": "⚓",
    "kind": "card",
-   "desc": "a pass to the berths at the Yokohama Bayside Marina",
+   "desc": "a pass to the berths at the Kamome Marina",
    "gift": false
   },
   {
