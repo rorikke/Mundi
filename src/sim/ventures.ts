@@ -23,7 +23,7 @@ import { whenHolds, levelHolds } from './when.js';
 import { placeOf } from './places.js';
 import { myJob, shiftNow, quitJob, choicePractice, addPerf } from './work.js';
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
-import { isHotel, hotelDay, hourMul, type HotelDay } from './rooms.js';
+import { isHotel, hotelDay, hourMul, pricesOf, type HotelDay } from './rooms.js';
 import { personNamed } from './when.js';
 import { effectSources } from './effects.js';
 import type { EffectDef } from '../core/traits.js';
@@ -206,9 +206,18 @@ export function hotelOn(g: Save, w: WorldDef, d: VentureDef, s: VentureState, da
     const t = tierOf(d, s.tier), stats: Record<string, number> = { ...s.stats };
     for (const [k, v] of Object.entries(extra)) stats[k] = (stats[k] ?? 0) + v;
     const ids = statsOf(d);
-    // (a style's own prices count at its own tier only: the next tier's prices are its own)
-    const st = styleDef(d, s.style);
-    return hotelDay(t, st && st.tier === s.tier ? st : null, ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
+    return hotelDay(t, tierStyle(d, s), ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
+}
+// (a style's own prices count at its own tier only: the next tier's prices are its own)
+const tierStyle = (d: VentureDef, s: VentureState) => { const st = styleDef(d, s.style); return st && st.tier === s.tier ? st : null; };
+/** (hospitality) A night's and a rest's prices at the hotel's tier and style, as its day counts them (0: none). */
+export const hotelPrices = (d: VentureDef, s: VentureState) => pricesOf(tierOf(d, s.tier), tierStyle(d, s));
+/** (hospitality) How full a hotel is this week, about: the days' occupancy, this week's seven, as one. */
+export function occupancyWeek(g: Save, w: WorldDef, d: VentureDef, s: VentureState): number {
+    const from = weekOf(g.day) * 7 + 1;
+    let sum = 0;
+    for (let i = 0; i < 7; i++) sum += hotelOn(g, w, d, s, from + i).occupancy;
+    return sum / 7;
 }
 /** (hospitality) How full a hotel is right now: the day's occupancy by the hour (`demand.hours`), at most full. */
 export const occupancyNow = (g: Save, w: WorldDef, d: VentureDef, s: VentureState) => Math.min(1, hotelOn(g, w, d, s, g.day).occupancy * hourMul(d, Math.floor(g.minutes / 60)));
