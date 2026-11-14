@@ -46,6 +46,7 @@ const TOOLS = {
     'cast.examples.*.threads.*.id': 'set by the creator', 'cast.examples.*.threads.*.endings.*.id': 'set by the creator', 'cast.examples.*.threads.*.stages.*.id': 'set by the creator',
     'ventures.*.id': 'set by the creator', 'ventures.*.tiers.*.id': 'set by the creator', 'ventures.*.styles.*.id': 'set by the creator', 'ventures.*.upgrades.*.id': 'set by the creator',
     'ventures.*.discoveries.*.id': 'set by the creator', 'ventures.*.events.*.id': 'set by the creator', 'ventures.*.cards.*.id': 'set by the creator',
+    'ventures.*.tenancies.*.id': 'set by the creator', 'ventures.*.sightings.*.id': 'set by the creator', 'ventures.*.buyers.*.id': 'set by the creator',
     'homes.kinds.*.images': 'Homes & rent › a kind of home: Inside picture at other times of the day (upload)',
     // the shared person panel (ui/personui.ts) writes a person's ways whole through its scope, not field by field
     'cast.examples.*.gender': 'People › the person panel: Gender', 'cast.examples.*.attraction': 'People › the person panel: Who they are drawn to',
