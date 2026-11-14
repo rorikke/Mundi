@@ -31,7 +31,7 @@ import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
 import { openAt } from './daynight.js';
-import { whenHolds, parseWhen, favorOwed, levelHolds } from './when.js';
+import { whenHolds, parseWhen, favorOwed, levelHolds, missingWords } from './when.js';
 import { callInFavor } from './stories.js';
 import { presentAt, workingAt } from './people.js';
 import { placeOf, travelMinutes } from './places.js';
@@ -454,50 +454,8 @@ export function promoNeeds(g, w, o) {
     const rest = whenBesidesPerf(next.when);
     const when = rest ? whenHolds(g, w, rest, { place: rankPlace(o, next), key: `promo|${o.id}|${j.rank}` }) : undefined;
     if (when === false)
-        missing.push(...whenMissing(g, w, rest, rankPlace(o, next)));
+        missing.push(...missingWords(g, w, rest, rankPlace(o, next)));
     return { rank: next, shifts, have: j.shifts, days, inRank, perf: want, skills, traits, course: next.course, when, ready: !missing.length, missing };
-}
-// What a rank's condition still asks, in words for the work screen: skills ("Logic 2 or Drawing 2") and friendships
-// ("friendship with Kyōko (Good friend)"); anything else is "something more".
-// A degree named in a condition (a degree's id is its credential): "a degree in Economics".
-const degreeWord = (w, id) => { const d = (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id); return d ? `a degree (${d.name})` : undefined; };
-const FRIEND_WORDS = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
-// "three seasons as Head of Sales" (the rank you hold now), or "20 days in your rank".
-function inRankWords(g, w, days) {
-    const sd = seasonDays(g), o = myJob(g, w), name = o ? rankOf(g, o).name : '';
-    const n = days % sd === 0 ? days / sd : 0, words = ['', 'a season', 'two seasons', 'three seasons', 'four seasons'];
-    const span = n ? words[n] ?? `${n} seasons` : `${days} days`;
-    return name ? `${span} as ${name}` : `${span} in your rank`;
-}
-// What a gate calls a story or a work event (`title`), if it gives one.
-function seenTitle(g, w, v) {
-    const id = v.split(':')[0];
-    return (w.stories ?? []).find(s => s.id === id)?.title ?? w.occupations.flatMap(o => o.events ?? []).find(e => e.id === id)?.title;
-}
-function whenMissing(g, w, when, place) {
-    const out = [];
-    let other = false;
-    for (const c of parseWhen(when).conds) {
-        const text = `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
-        if (whenHolds(g, w, text, { place }))
-            continue;
-        if (c.key === 'skill' && !c.not)
-            out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
-        else if (c.key === 'course' && !c.not)
-            out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
-        else if (c.key === 'feels' && !c.not && c.values.length === 1) {
-            const [who, lvl] = c.values[0].split(/\s+/);
-            out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`);
-        }
-        // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
-        else if (c.key === 'inrank' && !c.not)
-            out.push(inRankWords(g, w, Number(c.values[0])));
-        else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(g, w, v)))
-            out.push(c.values.map(v => seenTitle(g, w, v)).join(' or '));
-        else
-            other = true;
-    }
-    return other || !out.length ? [...out, 'something more'] : out;
 }
 // Shifts still needed for the next rank. null: no next rank (or a path to choose).
 export function shiftsToPromote(g, o, _rank) {

@@ -30,7 +30,7 @@ import { grudgeOf } from './grudges.js';
 import { warning, lowFor } from './warnings.js';
 import { lookingOf } from './feed.js';
 import { confrontations } from './jealousy.js';
-import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat } from './moments.js';
+import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, inviteSoon } from './moments.js';
 import { festivalsOn } from './festivals.js';
 import { slotAt, adultOn } from './dayplan.js';
 import { ties } from './living.js';
@@ -397,7 +397,8 @@ const whenText = (g, at) => { const d = Math.floor(at / 1440); return `${hm(at %
 // A texted invitation (one waits at a time), with the plans system on. `note`: what they convey, for the AI.
 function textInvite(g, w, r, place, from, note, fallback) {
     const s = social(g);
-    if (!systemOn(w, 'plans') || s.invite || !placeOf(g, w, place))
+    // (someone who has left the maps never asks you out: a storyline's last text can take them away in the middle of a day)
+    if (!systemOn(w, 'plans') || s.invite || !placeOf(g, w, place) || goneFromMap(r))
         return false;
     s.invite = { avatar: r.avatar, place, from, kind: 'hangout' };
     void textFrom(g, w, r.avatar, `${r.name} texts ${personaName()}: ${note} One or two short sentences, in their own voice.`, fallback)
@@ -410,9 +411,8 @@ function textInvite(g, w, r, place, from, note, fallback) {
 // usual places. It was paid for, so it spends no initiative budget and comes whatever the setting; it waits while
 // another invitation is open, while they're upset with you or dislike you, and is dropped after a week.
 const INVITE = { chance: 0.08, sure: 2, drop: 7 };
-const boughtInvites = (g) => (seat(g).bought ??= {});
-/** Someone will invite you out soon (bought). */
-export function inviteSoon(g, a) { boughtInvites(g)[a] = g.day; }
+/** Someone will invite you out soon (bought): kept in sim/moments.ts. */
+export { inviteSoon };
 /** Who has a bought invitation still to send (avatar → the day it was bought). */
 export const invitesDue = (g) => ({ ...(seat(g).bought ?? {}) });
 export function sendBoughtInvites(g, w) {

@@ -59,7 +59,7 @@ function checkIns(g: Save, w: WorldDef): string[] {
     if (!systemOn(w, 'plans') || s.invite) return [];
     for (const r of Object.values(g.cast)) {
         const a = r.avatar;
-        if (!r.met || idOf(g, a) === YOU || PARTNER.includes(pairOf(g, a, YOU)?.status as Status)) continue;
+        if (!r.met || (r as any).gone || idOf(g, a) === YOU || PARTNER.includes(pairOf(g, a, YOU)?.status as Status)) continue;   // (not someone who left the maps)
         if (seen[a] === undefined) { seen[a] = g.day; continue; }   // first seen: start counting from today
         if (g.day - seen[a] < WARN.checkIn || bondOf(g, a) < WARN.friend || grudgeOf(g, a) || !r.leisure.length || !canSpend(g, a)) continue;
         spend(g, a); seen[a] = g.day;

@@ -29,14 +29,17 @@ import { festivalsOn } from './festivals.js';
 import { eventsOn, liveEvents } from './cityevents.js';
 import { presentAt, routineAt, workingAt } from './people.js';
 import { visitsTo } from './daylife.js';
-import { levelOf, skillsOf } from './hobbies.js';
+import { levelOf, skillsOf, skillName } from './hobbies.js';
 import { fr, ro, statusOf, relOf, idOf, YOU } from './rel.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
 import { careerOf, trackOf, playerTrack } from './work.js';
 import { styleOf, knownCount } from './intimacy.js';
-import { usualPay } from './needs.js';
+import { usualPay, money } from './needs.js';
+import { courseOf } from './courses.js';
+import { myJob, rankOf } from './work.js';
+import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, SHOP_CATS } from './shop.js';
 
@@ -247,7 +250,7 @@ export function whenHolds(g: Save, w: WorldDef, when: When | null | undefined, c
     for (const c of p.conds) {
         if (ctx.day && MOMENT_KEYS.has(c.key)) continue;
         // each `chance` rolls its own dice (the first one with the asker's salt, as the old lore did)
-        const hit = c.key === 'chance' ? roll(g, x, chanceOf(c.values[0]), rolls++) : c.values.some(v => holds(g, w, c.key, v, x));
+        const hit = c.key === 'chance' ? roll(g, x, chanceOf(c.values[0]), rolls++) : c.key === 'thread' && !c.not ? threadHolds(g, w, c.values, x) : c.values.some(v => holds(g, w, c.key, v, x));
         if (hit === c.not) return false;
     }
     if (ctx.chance !== undefined && !p.conds.some(c => c.key === 'chance')) return roll(g, x, ctx.chance, 0);
@@ -561,6 +564,21 @@ function atWork(g: Save, w: WorldDef, r: Resident, x: Here) {
     return systemOn(w, 'jobs') && workingAt(g, w, r, x.at) === x.place && isHere(g, w, r, x);
 }
 
+// (storylines, SL-2) `thread: <id>` with no ending named ("ended, any way") never waits on someone who isn't in the game:
+// a storyline nobody here has counts as ended; with alternatives, it waits on those that are here, and holds when none
+// is. A named ending (`thread: rina_runway funded`) stays false without its person.
+function threadHolds(g: Save, w: WorldDef, values: string[], x: Here): boolean {
+    let have: Set<string> | undefined;
+    const here = (v: string) => /\s/.test(v) || (have ??= threadsInGame(g, w)).has(v);
+    const there = values.filter(here);
+    return !there.length || there.some(v => holds(g, w, 'thread', v, x));
+}
+/** The storylines of the people in this game (adult ones only with adult content on), by id. */
+export function threadsInGame(g: Save, w: WorldDef): Set<string> {
+    const out = new Set<string>();
+    for (const r of Object.values(g.cast ?? {})) for (const t of exampleOf(w, r)?.threads ?? []) if (t.id && (!t.adult || adultOn(g))) out.add(t.id);
+    return out;
+}
 // A thread's state (sim/threads.ts): `known` the day the player learned it, `ended` how it ended.
 const threadState = (g: Save, id: string) => (g as any).threads?.[id] as { known?: number; ended?: string } | undefined;
 /** How many favors someone (a name of the world's people, or a stranger's id) owes you (sim/stories.ts keeps them,
@@ -570,6 +588,80 @@ export function favorOwed(g: Save, who: string): number {
     if (!f) return 0;
     const r = personNamed(g, who);
     return (r ? f[r.avatar] : undefined) ?? f[who] ?? 0;
+}
+
+/* ---------- in words ---------- */
+
+/** (storylines) Keys that only follow the calendar: a stage whose condition asks for nothing else (or nothing) is a
+ *  calendar stage, never skipped (sim/threads.ts). */
+export const CALENDAR_KEYS = new Set<Cond['key']>(['season', 'seasonDays', 'weekday', 'weekend', 'festival', 'event', 'period', 'clock', 'weather', 'fromDay', 'toDay']);
+export const calendarOnly = (when: When | null | undefined) => parseWhen(when).conds.every(c => CALENDAR_KEYS.has(c.key));
+
+// A degree named in a condition (a degree's id is its credential): "a degree in Economics".
+const degreeWord = (w: WorldDef, id: string) => { const d = (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id); return d ? `a degree (${d.name})` : undefined; };
+const FRIEND_WORDS: Record<string, string> = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
+const levelWord = (lvl: string) => FRIEND_WORDS[lvl] ?? [...FRIEND_TIERS, ...ROMANCE_TIERS].find(t => t.id === lvl)?.name ?? lvl;
+// "three seasons as Head of Sales" (the rank you hold now), or "20 days in your rank".
+function inRankWords(g: Save, w: WorldDef, days: number): string {
+    const sd = seasonDays(g), o = myJob(g, w), name = o ? rankOf(g, o).name : '';
+    const n = days % sd === 0 ? days / sd : 0, words = ['', 'a season', 'two seasons', 'three seasons', 'four seasons'];
+    const span = n ? words[n] ?? `${n} seasons` : `${days} days`;
+    return name ? `${span} as ${name}` : `${span} in your rank`;
+}
+// What a gate calls a story or a work event (`title`), if it gives one.
+function seenTitle(w: WorldDef, v: string): string | undefined {
+    const id = v.split(':')[0];
+    return (w.stories ?? []).find(s => s.id === id)?.title ?? w.occupations.flatMap(o => o.events ?? []).find(e => e.id === id)?.title;
+}
+// (storylines) A story without a title, in words: where it happens, never its text.
+function seenWords(w: WorldDef, v: string): string {
+    const t = seenTitle(w, v); if (t) return t;
+    const s = (w.stories ?? []).find(x => x.id === v.split(':')[0]);
+    const p = s && w.places.find(x => x.id === s.place)?.name;
+    return p ? `a moment at ${p}` : 'a moment of its own';
+}
+/** Whose storyline a thread is (the world's person's first name). */
+export const threadOwner = (w: WorldDef, id: string) => w.cast.examples.find(e => (e.threads ?? []).some(t => t.id === id))?.name.split(/\s+/)[0] ?? 'someone';
+/** What a condition still asks, in words. The work screen's keys (skills, courses, friendships, time in the rank, a
+ *  story or work event by its title) and "something more" for the rest; with `more` (storylines), what a storyline's
+ *  way asks for too: a friendship with where it stands now, a secret, how another storyline ends, a story by where it
+ *  happens, how many times something was done, money, a favor, a business, a job. */
+export function missingWords(g: Save, w: WorldDef, when: When, place?: string, opts: { more?: boolean } = {}): string[] {
+    const out: string[] = [];
+    let other = false;
+    const more = !!opts.more;
+    for (const c of parseWhen(when).conds) {
+        const text = `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
+        if (whenHolds(g, w, text, { place })) continue;
+        if (c.key === 'skill' && !c.not) out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
+        else if (c.key === 'course' && !c.not) out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
+        else if (c.key === 'feels' && !c.not && c.values.length === 1) {
+            if (!more) { const [who, lvl] = c.values[0].split(/\s+/); out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`); continue; }
+            const [who, lvl] = splitLevel(c.values[0]), r = personNamed(g, who), v = r ? Math.round(fr(g, r.avatar, YOU)) : 0;
+            const now = r && FRIEND_TIERS.find(t => t.lo >= 0 && v >= t.lo && v < t.hi);
+            out.push(lvl ? `friendship with ${who} (${levelWord(lvl)}${now ? `; now ${levelWord(now.id)}` : ''})` : `meeting ${who}`);
+        }
+        // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
+        else if (c.key === 'inrank' && !c.not) out.push(inRankWords(g, w, Number(c.values[0])));
+        else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
+        else if (!more) other = true;
+        else if (c.key === 'seen' && !c.not) out.push([...new Set(c.values.map(v => seenWords(w, v)))].join(' or '));
+        else if (c.key === 'knows' && !c.not) out.push(c.values.map(v => `${threadOwner(w, v)}'s secret`).join(' or '));
+        else if (c.key === 'thread' && !c.not) out.push(c.values.length === 1 && !/\s/.test(c.values[0]) ? `${threadOwner(w, c.values[0])}'s storyline to come to its end` : [...new Set(c.values.map(v => `how ${threadOwner(w, v.split(/\s+/)[0])}'s storyline ends`))].join(' or '));
+        else if (c.key === 'did' && !c.not && c.values.length === 1 && countedOf('did', c.values[0])) {
+            const d = countedOf('did', c.values[0])!, k = countKey(w, 'did', d.what);
+            const a = ((w as any).actions ?? []).find((x: { id: string }) => x.id === d.what) as { name?: string; label?: string } | undefined;
+            const have = tallyOf(g, k), name = a?.label ?? a?.name ?? d.what.replace(/^[^:]*:/, '').replace(/_/g, ' ');
+            out.push(d.n > 1 ? `${name}: ${d.n} times (${Math.min(have, d.n)} so far)` : name);
+        }
+        else if (c.key === 'money' && !c.not) out.push(`${money(w, moneyAmount(w, c.values[0]))} (you have ${money(w, g.player.money)})`);
+        else if (c.key === 'favor' && !c.not) out.push(`a favor from ${c.values.join(' or ')}`);
+        else if (c.key === 'venture' && !c.not) out.push([...new Set(c.values.map(v => { const id = v.split(/\s+/)[0]; const d = w.ventures?.find(x => x.id === id) ?? w.ventures?.find(x => x.track === id || x.kind === id); return d && d.id === id ? `${d.name} of your own` : 'a business of your own'; }))].join(' or '));
+        else if (c.key === 'job' && !c.not) out.push(c.values.map(v => `working at ${w.occupations.find(o => o.id === v)?.name ?? v}`).join(' or '));
+        else if (c.key === 'rank' && !c.not) out.push(c.values[0] === 'top' ? 'the top of your career' : `rank ${c.values[0]} in your job`);
+        else other = true;
+    }
+    return other || !out.length ? [...out, 'something more'] : out;
 }
 
 /* ---------- what was done today (`after`, `daily`) ---------- */

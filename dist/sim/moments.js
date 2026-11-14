@@ -18,6 +18,11 @@ export function seat(g) {
     return s;
 }
 export const momentsOf = (g, who) => seat(g).moments.filter(m => !who || m.who === who);
+// Invitations someone will text soon (bought in the rewards shop, or a storyline's "Meet them"): sim/initiative.ts sends
+// them. Kept here, so a module can ask for one without loading the initiative code.
+export const boughtInvites = (g) => (seat(g).bought ??= {});
+/** Someone will invite you out soon. */
+export function inviteSoon(g, a) { boughtInvites(g)[a] = g.day; }
 /* ---------- the budget (A-0) ---------- */
 // Initiatives a day across everyone, days between two of them (rarely), and days between two by the same person.
 export const LIMITS = {

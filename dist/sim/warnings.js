@@ -73,8 +73,8 @@ function checkIns(g, w) {
         return [];
     for (const r of Object.values(g.cast)) {
         const a = r.avatar;
-        if (!r.met || idOf(g, a) === YOU || PARTNER.includes(pairOf(g, a, YOU)?.status))
-            continue;
+        if (!r.met || r.gone || idOf(g, a) === YOU || PARTNER.includes(pairOf(g, a, YOU)?.status))
+            continue; // (not someone who left the maps)
         if (seen[a] === undefined) {
             seen[a] = g.day;
             continue;
