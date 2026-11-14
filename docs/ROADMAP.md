@@ -19,6 +19,13 @@ Ideas planned for later. Nothing here is promised for a date.
   - Life goals and keepsakes for each track, and perhaps the other worlds' fixed small businesses (`property`) moved
     onto the same engine.
 
+- **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:
+  - Storylines for the other worlds' people (the World creator can already write them), and a second storyline for a
+    person once their first has ended.
+  - A place to look back on how each story you saw ended.
+  - Tuning from play: how long the first stage and the wait between last chances should be, and how many last chances
+    a story gets.
+
 ## Worlds
 
 - **Medieval:** paused; it gets the systems built for the modern worlds once they are done.
