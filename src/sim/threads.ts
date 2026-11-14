@@ -28,13 +28,12 @@ import { presentAt, residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner, type Cond } from './when.js';
 import { effectAdd } from './effects.js';
 import { startRumor, rumorPool, YOU } from './living.js';
-import { queueMoment } from './moments.js';
+import { queueMoment, inviteSoon } from './moments.js';
 import { note } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
 import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
 import { textFrom, social } from './social.js';
-import { inviteSoon } from './initiative.js';
 import { money } from './needs.js';
 
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };

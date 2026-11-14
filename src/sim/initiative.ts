@@ -30,7 +30,7 @@ import { grudgeOf } from './grudges.js';
 import { warning, lowFor } from './warnings.js';
 import { lookingOf } from './feed.js';
 import { confrontations } from './jealousy.js';
-import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, type Moment, type Asked } from './moments.js';
+import { initiativeOn, canSpend, spend, queueMoment, tidyMoments, momentsHere, seat, inviteSoon, type Moment, type Asked } from './moments.js';
 import { festivalsOn } from './festivals.js';
 import { slotAt, adultOn } from './dayplan.js';
 import { ties } from './living.js';
@@ -355,9 +355,8 @@ function textInvite(g: Save, w: WorldDef, r: Resident, place: string, from: numb
 // usual places. It was paid for, so it spends no initiative budget and comes whatever the setting; it waits while
 // another invitation is open, while they're upset with you or dislike you, and is dropped after a week.
 const INVITE = { chance: 0.08, sure: 2, drop: 7 };
-const boughtInvites = (g: Save) => ((seat(g) as any).bought ??= {}) as Record<string, number>;
-/** Someone will invite you out soon (bought). */
-export function inviteSoon(g: Save, a: string) { boughtInvites(g)[a] = g.day; }
+/** Someone will invite you out soon (bought): kept in sim/moments.ts. */
+export { inviteSoon };
 /** Who has a bought invitation still to send (avatar → the day it was bought). */
 export const invitesDue = (g: Save): Record<string, number> => ({ ...((seat(g) as any).bought ?? {}) });
 export function sendBoughtInvites(g: Save, w: WorldDef): string[] {
