@@ -60,6 +60,7 @@ import { isRpg, sheetOf, focusMax, hpMax } from '../sim/rpg.js';
 import { lifeActs, festivalChip, schoolActs } from './lifeplus.js';
 import { ventureActs, ventureAskHtml } from './business.js';
 import { trainActs, trainOfferHtml } from './trainui.js';
+import { decideHtml, nudgeCardHtml } from './threadui.js';
 import { factionActs } from './factionsui.js';
 import { holdingsActs } from './holdingsui.js';
 import { adventureActs } from './adventureui.js';
@@ -325,9 +326,10 @@ function phoneButton(w: WorldDef) {
 }
 
 // The cards that come to you and wait for an answer all sit in one place under the top bar, so only one shows at a
-// time; the others wait their turn. A plan coming up goes first (it can't wait), then what is happening here, and a
-// chance meeting last (it stays until you answer it or leave).
-const askCard = (g: Save, w: WorldDef) => apptReminderHtml(g, w) || lifeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || bumpHtml() || newPeopleHtml();
+// time; the others wait their turn. A plan coming up goes first (it can't wait), then a storyline's deciding card, what
+// is happening here, a text waiting for your answer (a storyline's last chance), and a chance meeting last (it stays
+// until you answer it or leave).
+const askCard = (g: Save, w: WorldDef) => apptReminderHtml(g, w) || decideHtml(g, w) || lifeAskHtml(g, w) || ventureAskHtml(g, w) || trainOfferHtml(g, w) || nudgeCardHtml(g, w) || bumpHtml() || newPeopleHtml();
 
 // (adult) Someone making the move: their card stands in for the event's panel until you answer.
 export function hudHtml() {
