@@ -536,5 +536,45 @@ export function upgradeWorld(w) {
     // ventures (business): made safe to play; a world without them gets no key
     if (w.ventures || w.staffPool)
         upgradeVentures(w);
+    // storylines: their new fields made safe (no key is added where a world has none)
+    for (const ex of w.cast?.examples ?? [])
+        for (const t of ex.threads ?? [])
+            upgradeThread(t);
     return w;
+}
+// A storyline's words and prices from someone else's file: texts stay texts, at most three nudges, a help's price and
+// hours inside their range (a help without a label or a condition is dropped).
+const HELP_MONEY = 10_000_000, HELP_HOURS = 8;
+function upgradeThread(t) {
+    if (!t || typeof t !== 'object')
+        return;
+    for (const k of ['title', 'decide'])
+        if (k in t && typeof t[k] !== 'string')
+            delete t[k];
+    if ('nudges' in t) {
+        const list = Array.isArray(t.nudges) ? t.nudges.filter((x) => typeof x === 'string' && x.trim()).slice(0, 3) : [];
+        if (list.length)
+            t.nudges = list;
+        else
+            delete t.nudges;
+    }
+    if ('opens' in t && !(typeof t.opens === 'string' || (Array.isArray(t.opens) && t.opens.every((x) => typeof x === 'string'))))
+        delete t.opens;
+    for (const e of Array.isArray(t.endings) ? t.endings : []) {
+        if (!e || typeof e !== 'object' || !('help' in e))
+            continue;
+        const h = e.help;
+        if (!h || typeof h !== 'object' || typeof h.when !== 'string' || typeof h.label !== 'string' || !h.label.trim()) {
+            delete e.help;
+            continue;
+        }
+        const clamp = (v, hi) => Math.max(0, Math.min(hi, Number(v) || 0));
+        if ('money' in h)
+            h.money = clamp(h.money, HELP_MONEY);
+        if ('hours' in h)
+            h.hours = clamp(h.hours, HELP_HOURS);
+        for (const k of ['remote', 'only'])
+            if (k in h)
+                h[k] = h[k] === true;
+    }
 }

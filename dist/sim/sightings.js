@@ -57,7 +57,8 @@ export function candidates(g, w, s, d) {
             continue;
         if (who.length === 2)
             written.add(pairKey(who[0].avatar, who[1].avatar));
-        if (x.learn && (knowsThread(g, x.learn) || !threadStates(g)[x.learn] || threadStates(g)[x.learn].ended))
+        // (a storyline not begun yet counts: learning it opens it)
+        if (x.learn && (knowsThread(g, x.learn) || threadStates(g)[x.learn]?.ended))
             continue;
         if (x.when && !whenHolds(g, w, x.when, { place: s.place, key: `sight|${s.id}|${x.id}`, day: true }))
             continue;
