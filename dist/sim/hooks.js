@@ -59,4 +59,4 @@ export const studentLink = { workCap: () => null, homeBlock: () => '', headStart
 // job gets it (sim/exec.ts). Lines to show.
 // (hospitality) Someone renting a room of a venture of yours for their own business (B-19) works there, not at their
 // job's own place (sim/dayplan.ts asks; null: their job's place as usual).
-export const ventureLink = { find: () => [], workResult: () => [], workPlace: () => null };
+export const ventureLink = { find: () => [], workResult: () => [], workPlace: () => null, stint: () => [] };

@@ -257,6 +257,8 @@ function weekEnds(g, w, s, d) {
     return [`${name}'s week: ${money(w, s.last.takings)} came in${rent ? `, ${money(w, rent)} of ${hotel ? 'upkeep' : 'rent'} went out` : ''}${paid}${s.last.run ? ` (you ran it ${s.last.run} day${s.last.run === 1 ? '' : 's'})` : ''}.`];
 }
 const report = (s, line) => { s.week.notes = [...s.week.notes, line].slice(-8); };
+/** A line in the venture's week's report (sim/sightings.ts: the notebook's). */
+export const ventureReport = report;
 /* ---------- tiers, milestones and styles ---------- */
 /** What the next tier asks (its milestone, on the current tier): an upgrade owned, a story seen, a condition; null at
  *  the last tier, or for an executive's division (its tiers are ranks). */
@@ -629,6 +631,7 @@ export function runStint(g, w, id, hours) {
     for (const k of d.trains ?? [])
         out.push(...trainSkill(g, w, k, VENTURE.train * h));
     out.push(...discover(g, w, s, d));
+    out.push(...ventureLink.stint(g, w, s.id));
     rollEvent(g, w, s, d);
     out.push(...tierUp(g, w, s));
     return out;

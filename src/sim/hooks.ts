@@ -82,4 +82,6 @@ export const ventureLink: {
     find: (g: Save, w: WorldDef, upgrade: string) => string[];
     workResult: (g: Save, w: WorldDef, job: string, r: WorkResult, ok: (n: number | undefined) => number) => string[];
     workPlace: (g: Save, w: WorldDef, avatar: string) => string | null;
-} = { find: () => [], workResult: () => [], workPlace: () => null };
+    /** (the love hotel) after your hours at the desk: what you saw (sim/sightings.ts; lines to show) */
+    stint: (g: Save, w: WorldDef, venture: string) => string[];
+} = { find: () => [], workResult: () => [], workPlace: () => null, stint: () => [] };

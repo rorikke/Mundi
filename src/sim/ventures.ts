@@ -70,7 +70,7 @@ export interface Ventures {
     seen?: string[];
     /** (love hotel) couples you know of (`a|b`, sorted), the week a sighting last came, and the one waiting for your
      *  choice (sim/sightings.ts) */
-    pairs?: string[]; sightWeek?: number; sighting?: { venture: string; id: string; who: string[]; day: number; via: 'desk' | 'notebook' };
+    pairs?: string[]; sightWeek?: number; sightN?: number; sighting?: { venture: string; id: string; who: string[]; day: number; via: 'desk' | 'notebook' };
 }
 
 /** The engine's numbers (tuned by the long run, tokyo-business-long.mjs). `stint`: hours a stint takes unless the
@@ -257,6 +257,8 @@ function weekEnds(g: Save, w: WorldDef, s: VentureState, d: VentureDef): string[
     return [`${name}'s week: ${money(w, s.last.takings)} came in${rent ? `, ${money(w, rent)} of ${hotel ? 'upkeep' : 'rent'} went out` : ''}${paid}${s.last.run ? ` (you ran it ${s.last.run} day${s.last.run === 1 ? '' : 's'})` : ''}.`];
 }
 const report = (s: VentureState, line: string) => { s.week.notes = [...s.week.notes, line].slice(-8); };
+/** A line in the venture's week's report (sim/sightings.ts: the notebook's). */
+export const ventureReport = report;
 
 /* ---------- tiers, milestones and styles ---------- */
 
@@ -533,6 +535,7 @@ export function runStint(g: Save, w: WorldDef, id: string, hours?: number): stri
     out.unshift(isHotel(d) ? `You worked the front desk at ${ventureName(w, s)} for ${h} hour${h === 1 ? '' : 's'}.` : `You ran ${ventureName(w, s)} for ${h} hour${h === 1 ? '' : 's'}.`);
     for (const k of d.trains ?? []) out.push(...trainSkill(g, w, k, VENTURE.train * h));
     out.push(...discover(g, w, s, d));
+    out.push(...ventureLink.stint(g, w, s.id));
     rollEvent(g, w, s, d);
     out.push(...tierUp(g, w, s));
     return out;
