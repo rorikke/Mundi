@@ -13188,6 +13188,90 @@
     "hinoki",
     "veranda"
    ]
+  },
+  {
+   "id": "sb_lovehotel_suite_night",
+   "name": "The suite",
+   "label": "Spend the night in the suite",
+   "icon": "🌃",
+   "cost": 0,
+   "minutes": 480,
+   "place": "sb_lovehotel_suite",
+   "effects": {
+    "energy": 45,
+    "mood": 20,
+    "hygiene": 25,
+    "hunger": -15,
+    "desire": 50
+   },
+   "when": "period: evening or night or latenight; companion: crush or casual",
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "hotel"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a whole night in the owner's suite: the bath behind the glass, the city below the window, breakfast through the hatch"
+   },
+   "outcomes": [
+    {
+     "id": "night",
+     "weight": 70,
+     "text": "The hill's lights go off one by one below the window; neither of you notices the last one."
+    },
+    {
+     "id": "bath",
+     "weight": 30,
+     "text": "You run the big bath at two in the morning and watch the taxis crawl up Dōgenzaka from the water.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} spent the night in the owner's suite at {0} with someone",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private",
+    "lovehotel"
+   ]
+  },
+  {
+   "id": "sb_lovehotel_suite_view",
+   "name": "The view",
+   "label": "Look out over Dōgenzaka",
+   "icon": "🌆",
+   "cost": 0,
+   "minutes": 30,
+   "place": "sb_lovehotel_suite",
+   "effects": {
+    "mood": 8,
+    "energy": 5
+   },
+   "when": "period: evening or night or latenight",
+   "together": {
+    "needed": false,
+    "text": "the window is big enough for two"
+   },
+   "outcomes": [
+    {
+     "weight": 70,
+     "text": "Below the window the hill keeps its own hours: taxis, couples, a man with a cart of towels for the hotel next door."
+    },
+    {
+     "weight": 30,
+     "text": "You count the lit windows of the other hotels on the hill and stop at forty.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} looked out over Dōgenzaka from the owner's suite at {0}",
+   "adult": true,
+   "tags": [
+    "lovehotel"
+   ]
   }
  ],
  "sleep": {
@@ -24403,6 +24487,69 @@
    "actions": [
     "hr_hanare_bath"
    ]
+  },
+  {
+   "id": "yk_lovehotel_mirage",
+   "name": "Hotel Mirage, Isezakichō",
+   "map": "yokohama",
+   "x": 77.2,
+   "y": 67.4,
+   "tags": [
+    "service",
+    "nightworld"
+   ],
+   "venture": "ht_coco",
+   "desc": "an older love hotel on an Isezakichō back street: a narrow lobby of worn beige tiles, a backlit panel of room photos with a few squares dark, a frosted window with a tray slot",
+   "staff": "a night clerk behind frosted glass, a cleaner with a cart, couples in from the arcade watching the panel",
+   "crowd": 0.5,
+   "closed": [],
+   "generic": false,
+   "sleep": {
+    "price": 8000,
+    "rest": "good"
+   },
+   "adult": true,
+   "private": true,
+   "bg": "bg/yk_lovehotel_mirage.avif",
+   "sound": [
+    "water"
+   ],
+   "roles": [],
+   "actions": [
+    "sb_lovehotel_rest",
+    "sb_lovehotel_night"
+   ]
+  },
+  {
+   "id": "sb_lovehotel_suite",
+   "name": "The owner's suite, Coco Palace",
+   "map": "shibuya",
+   "x": 74.6,
+   "y": 11.4,
+   "tags": [
+    "nightworld"
+   ],
+   "venture": "ht_coco",
+   "desc": "the owner's suite on Coco Palace's top floor: a wide low bed in soft violet and rose light, a whole wall of window over the Dōgenzaka lights, a big bath behind clear glass",
+   "staff": "nobody: a key card of your own, a hatch where room service leaves a tray and knocks twice",
+   "crowd": 0.1,
+   "closed": [],
+   "generic": false,
+   "sleep": {
+    "price": 18000,
+    "rest": "great"
+   },
+   "adult": true,
+   "private": true,
+   "bg": "bg/sb_lovehotel_suite.avif",
+   "sound": [
+    "traffic"
+   ],
+   "roles": [],
+   "actions": [
+    "sb_lovehotel_suite_night",
+    "sb_lovehotel_suite_view"
+   ]
   }
  ],
  "stories": [
@@ -29495,6 +29642,476 @@
      "text": "she says he has never been to Hakone and never will, and she asks the front desk to know his face; then she signs, and yours waits in the Business app",
      "feels": {
       "Tsubaki": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_st_offer",
+   "place": "sb_lovehotel",
+   "when": "job: lovehotel; rank: top; period: night or latenight or firsttrain",
+   "title": "the owner's offer",
+   "adult": true,
+   "setup": "Near dawn the owner of Coco Palace, a heavy man in a golf jacket who is seldom seen in his own lobby, sits {{user}} down in the office behind the window. A brochure for self-check-in machines lies on the desk. He is tired of it all, he says: he would rather sell to the one who runs the place than to a chain, and he would take part of the price out of the takings, a little each week.",
+   "choices": [
+    {
+     "label": "Say you'll think about it seriously",
+     "text": "he pushes the brochure across with the papers and says the machine is the new owner's business now; the offer is open, and the hotel can be taken over from the Business app",
+     "fact": "{u} was offered Hotel Coco Palace by its owner"
+    },
+    {
+     "label": "Say you're not ready",
+     "text": "he shrugs and says nobody ever is, and that the offer stands until he finds someone else; it stays open in the Business app whenever you are"
+    }
+   ]
+  },
+  {
+   "id": "hl_st_forsale",
+   "place": "sb_lovehotel",
+   "when": "season: summer; job: not lovehotel; money: 1000000; period: evening or night",
+   "title": "the owner selling up",
+   "adult": true,
+   "setup": "For once the owner of Coco Palace is in the lobby himself, showing a man in a grey suit the room panel and the fire doors. When the man leaves without a word, the owner lights a cigarette under the no-smoking sign and tells {{user}}, a stranger, that he is selling: the machine people quoted him, his night manager won't hear of it, and he is too old to argue.",
+   "choices": [
+    {
+     "label": "Ask what he wants for it",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "he names a price, and then a better one: part of it down, the rest out of the takings; he writes his number on a key card, and the purchase waits in the Business app",
+     "fact": "{u} heard that Hotel Coco Palace was for sale",
+     "fail": {
+      "text": "he names a price meant for the man in the grey suit and won't move from it, but he writes his number on a key card; the purchase waits in the Business app"
+     }
+    },
+    {
+     "label": "Wish him luck",
+     "text": "he laughs, coughs and says luck has nothing to do with it; the hotel stays for sale through the summer, and the Business app knows where to find him"
+    }
+   ]
+  },
+  {
+   "id": "hl_kaoru_notebook",
+   "place": "sb_lovehotel",
+   "when": "venture: ht_coco hl_window; present: Kaoru; feels: Kaoru good",
+   "title": "Kaoru's notebook",
+   "adult": true,
+   "setup": "At the end of the night Kaoru unlocks the safe, takes out a thick notebook with a worn cloth cover and slides it through the window onto the tray, face down. Twelve years, she says, of who came in with whom. Then, without looking up, she asks {{user}} for a week off: the first she would ever take. She doesn't say what she means to do with the notebook.",
+   "choices": [
+    {
+     "label": "Give her the week, and the notebook back",
+     "text": "she reads the first page to you, smiles at it and closes it; she'll burn it, she says, and come back to see what the hotel looks like in daylight",
+     "reveal": "kaoru_notebook",
+     "feels": {
+      "Kaoru": 4
+     },
+     "effects": {
+      "mood": 4
+     },
+     "fact": "Kaoru showed {u} her notebook at {0}"
+    },
+    {
+     "label": "Ask her to stay on the night shift",
+     "text": "she nods as if she expected it, takes the notebook back off the tray and locks it in the safe; the window slides down a little further than usual",
+     "feels": {
+      "Kaoru": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_kaoru_suite",
+   "place": "sb_lovehotel",
+   "when": "venture: ht_coco tier 2; present: Kaoru; feels: Kaoru good",
+   "title": "a room, just once",
+   "adult": true,
+   "setup": "Kaoru asks {{user}}, as if it were a question about towels, whether she might take a room herself one night: the big one on the top floor nobody books on weekdays. Alone, she adds. In twelve years she has handed over every key in the building and never once used one, and she would like to know what all those people were looking at.",
+   "choices": [
+    {
+     "label": "Give her the top-floor room, on the house",
+     "text": "she comes down at noon looking younger and draws on a napkin what the room should be: the bed lower, the bath behind glass, the window bare; the owner's suite waits in the Business app",
+     "feels": {
+      "Kaoru": 3
+     },
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "label": "Say the rooms are for the guests",
+     "text": "she says of course, as if she had asked about towels after all, and hands the next couple their key without a word",
+     "feels": {
+      "Kaoru": -2
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_ms_floors",
+   "place": "venture:ht_coco",
+   "when": "venture: ht_coco; venture: not ht_coco tier 2; upgrade: hl_theme_floors",
+   "title": "the ward's inspection",
+   "adult": true,
+   "setup": "The two top floors, closed since a fire scare in the nineties, are refitted and ready: new wiring, new doors, rooms that smell of fresh paint. Before a single key goes out, an inspector from the ward office walks every corridor with a torch and a clipboard, opens every fire door twice and asks {{user}} who exactly is going to sleep up here.",
+   "choices": [
+    {
+     "label": "Walk her through the fire plan",
+     "roll": {
+      "skill": "logic",
+      "dc": 12
+     },
+     "text": "she checks the plan against every door, finds nothing to write down and signs; that weekend the new floors are full, and a guide site asks for photos",
+     "fail": {
+      "text": "she finds a door that sticks and a sign in the wrong place; it takes a week and a second visit, and then she signs"
+     }
+    },
+    {
+     "label": "Let the contractor answer",
+     "text": "he answers in numbers she likes; she signs at the third floor and leaves the rest to the fire brigade's next round, and the new floors open"
+    }
+   ]
+  },
+  {
+   "id": "hl_ms_mirage",
+   "place": "venture:ht_coco",
+   "when": "venture: ht_coco tier 2; upgrade: hl_booking",
+   "title": "the letter from Isezakichō",
+   "adult": true,
+   "setup": "A letter comes for the owner of Coco Palace in careful handwriting: the owner of Hotel Mirage, an old love hotel on a back street of Isezakichō in Yokohama, is eighty and has no one to leave it to. He has heard that {{user}} runs a hotel the way hotels used to be run, and asks whether {{user}} would come and see his before a chain does.",
+   "choices": [
+    {
+     "label": "Take the train to Isezakichō",
+     "text": "he shows you all twelve rooms, the panel with its dead bulbs and the ledger from 1979; he'll sell to you, he says, and the second hotel can open from the Business app",
+     "effects": {
+      "mood": 3
+     },
+     "fact": "{u} was offered Hotel Mirage in Isezakichō"
+    },
+    {
+     "label": "Write back first",
+     "roll": {
+      "skill": "writing",
+      "dc": 10
+     },
+     "text": "your letter makes him call the next morning; he'll sell to you, he says, and the second hotel can open from the Business app whenever you're ready",
+     "fail": {
+      "text": "he writes back two weeks later, a little stiffly, that the offer still stands; the second hotel can open from the Business app"
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_find_anime",
+   "place": "ak_electric",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "On a side street of Electric Town a cosplay studio that rented out sets by the hour is closing: a classroom with a blackboard, a space station of painted plywood, a shrine gate in plastic. The owner, packing figures into boxes, tells {{user}} the sets are going in a skip on Monday unless somebody has a room big enough to put them in.",
+   "choices": [
+    {
+     "label": "Say you have a few rooms",
+     "text": "she gives you the sets for the price of the van, and a box of posters thrown in; the anime room waits for you in the Business app",
+     "finds": "hl_anime_room"
+    },
+    {
+     "label": "Leave them to the skip",
+     "text": "she shrugs and tapes another box shut; a man buys the shrine gate for his balcony while you watch"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_light",
+   "place": "bay_art",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "In the last dark hall of the Lumen Digital Art Museum, where light falls like water down the walls, one of the designers is adjusting a projector by hand. She tells {{user}} she makes rooms of light for anyone who has a room and a reason, and that the strangest commission she ever had was a love hotel in Osaka.",
+   "choices": [
+    {
+     "label": "Ask if she'd do a second one",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "she laughs, says the Osaka one was her best work, and comes to measure the room the next week; the room of light waits in the Business app",
+     "finds": "hl_light_room",
+     "fail": {
+      "text": "she takes your card without much interest, then calls a month later, curious after all; the room of light waits in the Business app",
+      "finds": "hl_light_room"
+     }
+    },
+    {
+     "label": "Just watch the light",
+     "text": "you stand in the falling light until the hall closes; the designer switches it off with a sigh, as if it were a pity to stop"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_fuji",
+   "place": "ws_sento",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "At Matsu-no-yu the old master points his chin at the Mount Fuji painted over the big bath: the man who painted it, he tells {{user}}, still paints a Fuji a month for bathhouses all over Tokyo, though there are fewer every year. He would paint one in a hotel bathroom, the master says, if the bath were big enough to deserve it.",
+   "choices": [
+    {
+     "label": "Ask for the painter's number",
+     "text": "the master writes it on the back of a ticket; the painter comes with three tins of blue and a ladder, and the Fuji baths wait for you in the Business app",
+     "finds": "hl_fuji_baths"
+    },
+    {
+     "label": "Just have a bath",
+     "text": "you soak under the painted mountain until your fingers wrinkle, and the master turns the radio up for the baseball",
+     "effects": {
+      "mood": 4,
+      "hygiene": 20
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_find_towels",
+   "place": "ot_ameyoko",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "Under the tracks at Ameyoko a towel wholesaler with a voice like a market auctioneer is shouting about Imabari cotton: thick white bath towels and robes, a box of fifty, the same ones the big hotels use, he swears, at half their price. He catches {{user}} feeling a towel and asks how many rooms, without being told it is a hotel.",
+   "choices": [
+    {
+     "label": "Haggle for two boxes a month",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "he groans, laughs and shakes on it, cash on delivery; the towels and robes wait for you in the Business app",
+     "finds": "hl_towels",
+     "fail": {
+      "text": "he doesn't move a yen, but throws in a box of slippers; the towels and robes wait for you in the Business app",
+      "finds": "hl_towels"
+     }
+    },
+    {
+     "label": "Buy one towel",
+     "text": "he sells you one towel with the dignity of a man selling fifty, and wraps it in newspaper"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_karaoke",
+   "place": "sb_karaoke",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "Echo Box is replacing every machine in the building over one weekend, and the old ones stand in a row in the corridor with their screens dark: good speakers, two microphones each, ten thousand songs. The night manager tells {{user}} they are going for scrap unless someone takes them, and that the ballads still sound fine.",
+   "choices": [
+    {
+     "label": "Take six of them",
+     "text": "he helps you carry them to a van and keeps one microphone as a souvenir; karaoke in the rooms waits for you in the Business app",
+     "finds": "hl_karaoke"
+    },
+    {
+     "label": "Sing one last song on one",
+     "text": "he plugs one in for you in the corridor; you sing a ballad to a row of dead machines, and he claps",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_find_sky",
+   "place": "bay_mall",
+   "when": "venture: ht_coco hl_themes",
+   "adult": true,
+   "setup": "Odaiba Harbor Mall is tearing out the painted sky over its old European street: panels of blue with soft clouds that turn pink when the lights change. A foreman on a lift tells {{user}} they are perfectly good panels, that people used to propose under them, and that they will be in a landfill by Friday.",
+   "choices": [
+    {
+     "label": "Ask for enough panels for a floor",
+     "text": "he sends them over on a truck, wrapped in blankets, for the cost of the truck; the painted sky waits for you in the Business app",
+     "finds": "hl_painted_sky"
+    },
+    {
+     "label": "Leave the sky to the landfill",
+     "text": "he lowers the next panel past you, clouds and all, and you watch it go into the skip"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_kabuki",
+   "place": "mg_kabuki",
+   "when": "venture: ht_coco hl_themes",
+   "adult": true,
+   "setup": "At the stage door of the Ginza Kabuki Hall a retired scene painter is giving away his brushes to the young ones and telling them, not for the first time, about the cherry trees he painted for forty years. He tells {{user}} he misses the work and would paint a room, any room, if it were treated like a stage.",
+   "choices": [
+    {
+     "label": "Offer him a room to paint",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "he asks only whether the lights can be made to come up like dawn; they can, and the kabuki room waits for you in the Business app",
+     "finds": "hl_kabuki_room",
+     "fail": {
+      "text": "he says he'll think about it, which he does for a month, and then calls to say yes; the kabuki room waits for you in the Business app",
+      "finds": "hl_kabuki_room"
+     }
+    },
+    {
+     "label": "Listen to the story",
+     "text": "he tells it all, the cherry trees and the snow and the one curtain that fell, and gives you a brush you didn't ask for"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_onsen",
+   "place": "hk_yumoto",
+   "when": "venture: ht_coco hl_resort",
+   "adult": true,
+   "setup": "Beside the river at Hakone-Yumoto a tanker truck is filling up at a spring under a little wooden roof. The driver tells {{user}} he takes hot spring water down to inns and bathhouses in Tokyo that have no spring of their own, twice a week, and that a hotel could have it too, if the baths were deep enough.",
+   "choices": [
+    {
+     "label": "Ask about a hotel's round",
+     "text": "he puts you on Tuesdays and Fridays and gives you a sample bottle that is still warm; the spring water waits for you in the Business app",
+     "finds": "hl_onsen_water"
+    },
+    {
+     "label": "Just bathe here",
+     "text": "you bathe in the town where the water is from, and decide it tastes of iron and travels well",
+     "effects": {
+      "mood": 4,
+      "hygiene": 20
+     }
+    }
+   ]
+  },
+  {
+   "id": "hl_find_hinoki",
+   "place": "hk_ashi",
+   "when": "venture: ht_coco hl_resort",
+   "adult": true,
+   "setup": "In a boathouse on the shore of Lake Ashi an old carpenter is planing a hinoki bathtub, and the whole shed smells of it. He makes six a year, he tells {{user}}, for inns that still care, and he has two that a ryokan ordered and never collected. They are a little big for a city bathroom, he warns, and very heavy.",
+   "choices": [
+    {
+     "label": "Ask for both, and two more",
+     "text": "he says the two more will take until spring; the cypress baths wait for you in the Business app",
+     "finds": "hl_hinoki_baths"
+    },
+    {
+     "label": "Breathe in the shed and go",
+     "text": "he gives you a curl of hinoki shaving for your pocket; it smells of the lake for a week"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_review",
+   "place": "sb_centergai",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "In a Center Gai coffee shop a woman with three phones on the table is writing up a love hotel, out loud, to her own recorder: the bath, the bed, the lighting, the staff who never meet a guest's eye. She writes the most read love hotel reviews in Tokyo under a cat's name, and she has never been to Coco Palace.",
+   "choices": [
+    {
+     "label": "Invite her for a night, unannounced",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "she says she never takes invitations, and comes anyway, unannounced, two weeks later; the review waits for you in the Business app",
+     "finds": "hl_review_site",
+     "fail": {
+      "text": "she says she never takes invitations, and means it; she comes months later on her own, and the review waits for you in the Business app",
+      "finds": "hl_review_site"
+     }
+    },
+    {
+     "label": "Let her write in peace",
+     "text": "she gives the hotel she is writing about four stars and a paragraph on its towels, and doesn't look up once"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_neon",
+   "place": "sj_kabukicho",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "Down a Kabukichō stair a neon maker bends a glass tube over a gas flame, one of the last in Tokyo who still does it by hand. He has a sign half finished for a host club that closed before paying, a heart in pink, and he tells {{user}} he would rather it hung over a door that stays open.",
+   "choices": [
+    {
+     "label": "Ask him to finish it for the hotel",
+     "text": "he changes the name and keeps the heart; it is the prettiest thing on the hill, and the sign waits for you in the Business app",
+     "finds": "hl_neon_heart"
+    },
+    {
+     "label": "Watch him work",
+     "text": "he lets you hold the tube while it cools and tells you never to touch it hot, twice"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_magazine",
+   "place": "rp_crossing",
+   "when": "venture: ht_coco tier 2",
+   "adult": true,
+   "setup": "At the Roppongi crossing a photographer from a city night guide is shooting couples under the expressway for a feature on \"where Tokyo goes after midnight\". The editor beside her, in a leather coat, recognizes the Coco Palace key card {{user}} is turning over in one hand and asks whether the hotel would sit for a page.",
+   "choices": [
+    {
+     "label": "Say yes, without faces",
+     "roll": {
+      "skill": "writing",
+      "dc": 11
+     },
+     "text": "your one line about the window makes her laugh and keep it; the page waits for you in the Business app",
+     "finds": "hl_night_guide",
+     "fail": {
+      "text": "she cuts your words to the address and the opening hours, which is what people read anyway; the page waits for you in the Business app",
+      "finds": "hl_night_guide"
+     }
+    },
+    {
+     "label": "Say discretion is the point",
+     "text": "she nods, says that is the best line she's heard all night, and writes it down without the hotel's name"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_expo",
+   "place": "bay_expo",
+   "when": "venture: ht_coco",
+   "adult": true,
+   "setup": "The hotel trade fair fills one hall of the Tokyo Bay Exhibition Center: linen carts, bed frames, key cards, a robot that folds towels badly. At a quiet booth an engineer from a small firm shows {{user}} a board that tells the cleaners which room is free the minute a couple leaves, and admits he has sold three.",
+   "choices": [
+    {
+     "label": "Make it four",
+     "roll": {
+      "skill": "logic",
+      "dc": 10
+     },
+     "text": "you find the one flaw in his demo and he fixes it on the spot, grateful; the turnover board waits for you in the Business app",
+     "finds": "hl_turnover_board",
+     "fail": {
+      "text": "you sign before you understand it; it works anyway, mostly, and the turnover board waits for you in the Business app",
+      "finds": "hl_turnover_board"
+     }
+    },
+    {
+     "label": "Take a leaflet",
+     "text": "you take his leaflet and a pen with the firm's name; the robot drops another towel behind you"
+    }
+   ]
+  },
+  {
+   "id": "hl_find_lanterns",
+   "place": "yk_chinatown",
+   "when": "venture: ht_coco tier 3",
+   "adult": true,
+   "setup": "A Chinatown restaurant that has fed Yokohama for sixty years is closing its upstairs banquet room, and the red silk lanterns, the lacquered screens and a round table for twelve are stacked on the pavement. The owner's granddaughter tells {{user}} she'd like them to stay in Yokohama, somewhere people still go at night.",
+   "choices": [
+    {
+     "label": "Say you know just the place",
+     "text": "she sells you the lanterns and the screens and keeps the round table for her own wedding; a Chinatown room at Mirage waits in the Business app",
+     "finds": "hl_chinatown_room"
+    },
+    {
+     "label": "Eat one last banquet",
+     "text": "you eat dumplings at the round table on the pavement with half the street, and nobody asks who invited you",
+     "effects": {
+      "mood": 4,
+      "hunger": 25
      }
     }
    ]
@@ -40903,6 +41520,58 @@
      "pay": 2800
     }
    ]
+  },
+  {
+   "id": "lovehotel_day",
+   "name": "Love hotel day manager",
+   "place": "sb_lovehotel",
+   "schedule": {
+    "days": 5,
+    "from": 10,
+    "to": 19
+   },
+   "shift": 9,
+   "length": 1,
+   "likes": [],
+   "trains": [
+    "logic",
+    "charisma"
+   ],
+   "ranks": [
+    {
+     "name": "Day manager",
+     "pay": 2000
+    }
+   ],
+   "events": [],
+   "hireable": false,
+   "adult": true
+  },
+  {
+   "id": "bizhotel_night",
+   "name": "Business hotel night desk",
+   "place": "",
+   "schedule": {
+    "days": 4,
+    "from": 22,
+    "to": 7
+   },
+   "shift": 9,
+   "length": 1,
+   "likes": [],
+   "trains": [
+    "japanese"
+   ],
+   "ranks": [
+    {
+     "name": "Night clerk",
+     "pay": 1500
+    }
+   ],
+   "events": [],
+   "hireable": false,
+   "offScreen": true,
+   "adult": true
   }
  ],
  "institutions": [
@@ -44951,6 +45620,12 @@
         "text": "The owner talks about a self-check-in machine and closing the window, or about selling the hotel altogether; Kaoru reads job ads on her breaks and never applies."
        },
        {
+        "id": "hl_owner",
+        "when": "venture: ht_coco; season: summer",
+        "tell": "hinted",
+        "text": "Now that {{user}} owns Coco Palace, the self-check-in machine is {{user}}'s to order or not; Kaoru stops reading job ads and waits at her window, polite and very still, to hear which."
+       },
+       {
         "when": "season: autumn",
         "tell": "known",
         "text": "A couple she has watched come every Thursday for years stops coming, and she realizes she misses them more than anyone she knows."
@@ -44958,10 +45633,25 @@
       ],
       "endings": [
        {
+        "id": "window_closed",
+        "when": "venture: ht_coco hl_selfcheck",
+        "job": "bizhotel_night",
+        "text": "The machines go in and the little window is boarded over. Kaoru clears her drawer in one night, says goodbye to the cleaners and not to {{user}}, and takes the night desk of a business hotel across town, where nobody comes in with anyone."
+       },
+       {
+        "id": "owner_window",
+        "when": "venture: ht_coco hl_window; seen: hl_kaoru_notebook:1; knows: kaoru_notebook; feels: Kaoru good",
+        "good": true,
+        "job": "lovehotel_day",
+        "waits": "knows: kaoru_notebook; feels: Kaoru friend; seen: hl_st_forsale or hl_st_offer",
+        "text": "She burns the notebook in the boiler room at dawn, takes the first week off in twelve years, and comes back to run Coco Palace by day for {{user}}, the window left to the night shift and to whoever comes in with whom."
+       },
+       {
         "id": "burns_notebook",
         "text": "She burns the notebook, takes the first week off in twelve years, and comes back to run the hotel by day.",
-        "when": "knows: kaoru_notebook; feels: Kaoru good; did: sb_lovehotel_kaoru 5",
-        "good": true
+        "when": "knows: kaoru_notebook; feels: Kaoru best; did: sb_lovehotel_kaoru 5",
+        "good": true,
+        "job": "lovehotel_day"
        },
        {
         "id": "keeps_window",
@@ -52552,6 +53242,1207 @@
      "when": "seen: ht_ts_tin; knows: tsubaki_salon; feels: Tsubaki friend",
      "story": "hr_ts_lease",
      "text": "Tsubaki rents the small room off the garden corridor for her licensed aroma salon: treatments for the guests by day, her name on a wooden plate"
+    }
+   ]
+  },
+  {
+   "id": "ht_coco",
+   "track": "hotel",
+   "kind": "lovehotel",
+   "name": "Hotel Coco Palace",
+   "place": "sb_lovehotel",
+   "adult": true,
+   "hangout": false,
+   "desc": "the pastel love hotel on the Dōgenzaka hill, with its room panel in the lobby and its little window",
+   "run": {
+    "label": "Work the front desk",
+    "icon": "🔑"
+   },
+   "trains": [
+    "charisma",
+    "japanese"
+   ],
+   "stint": 5,
+   "ways": {
+    "takeover": {
+     "place": "sb_lovehotel",
+     "when": "job: lovehotel; rank: top",
+     "story": "hl_st_offer",
+     "cost": 2400000,
+     "tier": 1,
+     "rent": 25000,
+     "start": {
+      "quality": 15,
+      "atmosphere": 15,
+      "capacity": 16,
+      "fame": 14
+     },
+     "endsJob": "lovehotel",
+     "note": {
+      "down": 0.25,
+      "weeks": 36
+     }
+    },
+    "buy": {
+     "place": "sb_lovehotel",
+     "when": "job: not lovehotel",
+     "story": "hl_st_forsale",
+     "cost": 3600000,
+     "tier": 1,
+     "rent": 25000,
+     "start": {
+      "quality": 15,
+      "atmosphere": 15,
+      "capacity": 16,
+      "fame": 14
+     },
+     "note": {
+      "down": 0.3,
+      "weeks": 52
+     }
+    }
+   },
+   "more": [
+    {
+     "place": "yk_lovehotel_mirage",
+     "cost": 1800000,
+     "rent": 15000
+    }
+   ],
+   "tiers": [
+    {
+     "id": "palace",
+     "name": "Love hotel",
+     "ceiling": 40,
+     "rooms": 18,
+     "prices": {
+      "stay": 11000,
+      "rest": 5000
+     },
+     "rests": 1.3,
+     "costs": 0.8,
+     "alone": 0.5,
+     "desc": "Coco Palace as you found it: eighteen rooms on four floors, a panel of lit photos in the lobby, the top two floors closed for years",
+     "milestone": {
+      "upgrade": "hl_theme_floors",
+      "story": "hl_ms_floors"
+     }
+    },
+    {
+     "id": "themed",
+     "name": "Hotel with themed floors",
+     "ceiling": 65,
+     "rooms": 22,
+     "prices": {
+      "stay": 12500,
+      "rest": 5800
+     },
+     "rests": 1.4,
+     "costs": 0.8,
+     "alone": 0.5,
+     "desc": "the closed floors open again as rooms with themes people book ahead and photograph",
+     "milestone": {
+      "upgrade": "hl_booking",
+      "story": "hl_ms_mirage"
+     }
+    },
+    {
+     "id": "two",
+     "name": "Two hotels",
+     "ceiling": 85,
+     "rooms": 34,
+     "prices": {
+      "stay": 12000,
+      "rest": 5500
+     },
+     "rests": 1.3,
+     "costs": 0.8,
+     "alone": 0.5,
+     "places": 2,
+     "desc": "Coco Palace on Dōgenzaka and Hotel Mirage in Isezakichō, one ledger for both"
+    }
+   ],
+   "styles": [
+    {
+     "id": "hl_window",
+     "name": "The window",
+     "tier": 1,
+     "desc": "the little window stays: a voice that never shows its face, a key on a tray, discretion as the house rule, and whoever keeps the night window remembers everyone",
+     "mul": {
+      "atmosphere": 1.1,
+      "fame": 1.05,
+      "capacity": 0.95
+     }
+    },
+    {
+     "id": "hl_selfcheck",
+     "name": "Self check-in",
+     "tier": 1,
+     "desc": "the window is closed: guests pick a room on the panel, pay a machine and take the key from a slot, and nobody at all sees who came in",
+     "mul": {
+      "capacity": 1.2,
+      "atmosphere": 0.92
+     }
+    },
+    {
+     "id": "hl_themes",
+     "name": "Theme rooms",
+     "tier": 2,
+     "desc": "rooms that are somewhere else: a jungle, a train carriage, a classroom, a kabuki stage, a beach under a painted sky; people come to laugh, and to photograph the bed",
+     "mul": {
+      "fame": 1.12,
+      "quality": 0.95
+     },
+     "prices": {
+      "rest": 6200
+     },
+     "finds": [
+      "hl_painted_sky",
+      "hl_kabuki_room"
+     ]
+    },
+    {
+     "id": "hl_resort",
+     "name": "Resort rooms",
+     "tier": 2,
+     "desc": "calm, grown-up rooms: stone and cypress baths, good sheets, a sauna on the top floor, a quiet lobby; couples who book a night ahead for an anniversary",
+     "mul": {
+      "quality": 1.1,
+      "atmosphere": 1.05,
+      "fame": 0.9
+     },
+     "prices": {
+      "stay": 13500
+     },
+     "finds": [
+      "hl_onsen_water",
+      "hl_hinoki_baths"
+     ]
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "hl_mattresses",
+     "name": "New mattresses in every room",
+     "stat": "quality",
+     "add": 5,
+     "cost": 40000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "the old springs out, firm new beds in"
+    },
+    {
+     "id": "hl_jet_baths",
+     "name": "Jet baths with lights",
+     "stat": "quality",
+     "add": 7,
+     "cost": 120000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "big tubs with jets and coloured lights under the water"
+    },
+    {
+     "id": "hl_towels",
+     "name": "Imabari towels and robes",
+     "stat": "quality",
+     "add": 4,
+     "cost": 30000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a towel wholesaler under the tracks at Ameyoko"
+    },
+    {
+     "id": "hl_fuji_baths",
+     "name": "A Fuji painted over the baths",
+     "stat": "quality",
+     "add": 6,
+     "cost": 60000,
+     "tier": 1,
+     "how": "found",
+     "hint": "the bathhouse painter Matsu-no-yu's master knows"
+    },
+    {
+     "id": "hl_karaoke",
+     "name": "Karaoke in the rooms",
+     "stat": "quality",
+     "add": 5,
+     "cost": 45000,
+     "tier": 1,
+     "how": "found",
+     "hint": "old machines going for scrap at Echo Box"
+    },
+    {
+     "id": "hl_room_service",
+     "name": "A room-service menu",
+     "stat": "quality",
+     "add": 7,
+     "cost": 80000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "noodles, curry, ice cream and a bottle of something cold, through the hatch"
+    },
+    {
+     "id": "hl_studio_room",
+     "name": "The room the studios ask for",
+     "stat": "quality",
+     "add": 6,
+     "cost": 90000,
+     "tier": 2,
+     "how": "earned",
+     "when": "feels: Airi friend",
+     "hint": "someone who knows what a film crew needs from a room"
+    },
+    {
+     "id": "hl_onsen_water",
+     "name": "Hot spring water from Hakone",
+     "stat": "quality",
+     "add": 8,
+     "cost": 150000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a tanker filling up at a spring in Hakone-Yumoto"
+    },
+    {
+     "id": "hl_hinoki_baths",
+     "name": "Cypress baths",
+     "stat": "quality",
+     "add": 6,
+     "cost": 180000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a carpenter by Lake Ashi"
+    },
+    {
+     "id": "hl_lobby_plants",
+     "name": "Tall plants in the lobby",
+     "stat": "atmosphere",
+     "add": 3,
+     "cost": 15000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "nobody sees anyone else's face on the way in"
+    },
+    {
+     "id": "hl_anime_room",
+     "name": "An anime room",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 50000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a cosplay studio closing in Electric Town"
+    },
+    {
+     "id": "hl_theme_floors",
+     "name": "The top two floors, refitted",
+     "stat": "atmosphere",
+     "add": 10,
+     "cost": 900000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "the floors closed since the nineties, rewired and opened as rooms with themes"
+    },
+    {
+     "id": "hl_nervous_guests",
+     "name": "A way with nervous guests",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: charisma 8",
+     "hint": "a way with people (Charisma 8)"
+    },
+    {
+     "id": "hl_soundproofing",
+     "name": "Soundproofing",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 200000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "the walls between the rooms finally thick enough"
+    },
+    {
+     "id": "hl_light_room",
+     "name": "A room of light",
+     "stat": "atmosphere",
+     "add": 8,
+     "cost": 250000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a designer at the Lumen Digital Art Museum"
+    },
+    {
+     "id": "hl_painted_sky",
+     "name": "A painted sky over the beach room",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 70000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a mall in Odaiba tearing out its ceiling"
+    },
+    {
+     "id": "hl_kabuki_room",
+     "name": "A kabuki stage room",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 120000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a retired scene painter at the Ginza Kabuki Hall"
+    },
+    {
+     "id": "hl_owner_suite",
+     "name": "The owner's suite",
+     "stat": "atmosphere",
+     "add": 8,
+     "cost": 350000,
+     "tier": 2,
+     "how": "earned",
+     "when": "seen: hl_kaoru_suite:1",
+     "hint": "Kaoru, and a night she has never had",
+     "opens": "sb_lovehotel_suite",
+     "desc": "the big room on the top floor made the owner's own: a low bed, a bath behind glass, the hill's lights in the window"
+    },
+    {
+     "id": "hl_chinatown_room",
+     "name": "A Chinatown room at Mirage",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 90000,
+     "tier": 3,
+     "how": "found",
+     "hint": "a banquet room closing in Yokohama Chinatown",
+     "place": "yk_lovehotel_mirage"
+    },
+    {
+     "id": "hl_akane_watch",
+     "name": "Nobody makes trouble on Akane's street",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "feels: Akane friend",
+     "hint": "a friend Isezakichō listens to",
+     "place": "yk_lovehotel_mirage"
+    },
+    {
+     "id": "hl_turnover_team",
+     "name": "A second turnover team",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 50000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "the second turnover team"
+    },
+    {
+     "id": "hl_kiosk",
+     "name": "A second check-in machine",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 180000,
+     "tier": 1,
+     "how": "basic",
+     "style": "hl_selfcheck",
+     "desc": "no queue at the panel on a Saturday night"
+    },
+    {
+     "id": "hl_turnover_board",
+     "name": "A board that tells the cleaners",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 100000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a quiet booth at the hotel trade fair in the bay"
+    },
+    {
+     "id": "hl_rota",
+     "name": "A rota that works",
+     "stat": "capacity",
+     "add": 6,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: logic 8",
+     "hint": "a head for numbers (Logic 8)"
+    },
+    {
+     "id": "hl_laundry",
+     "name": "A laundry of your own",
+     "stat": "capacity",
+     "add": 7,
+     "cost": 150000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "the basement machines run all night; no more waiting for the linen van"
+    },
+    {
+     "id": "hl_manager",
+     "name": "An assistant manager",
+     "stat": "capacity",
+     "add": 3,
+     "cost": 300000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "the assistant manager",
+     "manager": true
+    },
+    {
+     "id": "hl_booking",
+     "name": "Bookings for two hotels",
+     "stat": "capacity",
+     "add": 9,
+     "cost": 600000,
+     "tier": 2,
+     "how": "basic",
+     "desc": "one system for the rooms, the rests and the bookings, ready for a second hotel"
+    },
+    {
+     "id": "hl_english",
+     "name": "Bookings in English",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 20000,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: english 6",
+     "hint": "good English"
+    },
+    {
+     "id": "hl_mirage_desk",
+     "name": "A night desk at Mirage",
+     "stat": "capacity",
+     "add": 7,
+     "cost": 120000,
+     "tier": 3,
+     "how": "basic",
+     "staff": "the night desk at Mirage",
+     "place": "yk_lovehotel_mirage"
+    },
+    {
+     "id": "hl_hotel_app",
+     "name": "A page on the hotel apps",
+     "stat": "fame",
+     "add": 5,
+     "cost": 20000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hl_neon_heart",
+     "name": "A neon heart over the door",
+     "stat": "fame",
+     "add": 5,
+     "cost": 60000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a neon maker down a Kabukichō stair"
+    },
+    {
+     "id": "hl_review_site",
+     "name": "A review people trust",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 1,
+     "how": "found",
+     "hint": "a reviewer who writes in a Center Gai coffee shop"
+    },
+    {
+     "id": "hl_discretion",
+     "name": "A name for discretion",
+     "stat": "fame",
+     "add": 7,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "kept: 3",
+     "hint": "secrets kept at the desk"
+    },
+    {
+     "id": "hl_kyoko_word",
+     "name": "Kyōko's word in Golden Gai",
+     "stat": "fame",
+     "add": 6,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "feels: Kyōko good",
+     "hint": "a bar mama who sends people where they'll be all right"
+    },
+    {
+     "id": "hl_guide_page",
+     "name": "Hotel of the month on the guide site",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "seen: hl_ms_floors:1",
+     "hint": "the new floors' inspection, passed first time"
+    },
+    {
+     "id": "hl_night_guide",
+     "name": "A page in a night guide",
+     "stat": "fame",
+     "add": 6,
+     "cost": 40000,
+     "tier": 2,
+     "how": "found",
+     "hint": "an editor shooting at the Roppongi crossing"
+    },
+    {
+     "id": "hl_christmas_name",
+     "name": "The Christmas Eve waiting list",
+     "stat": "fame",
+     "add": 6,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: christmas",
+     "hint": "a Christmas Eve of your own"
+    }
+   ],
+   "discoveries": [
+    {
+     "id": "hl_d_lasttrain",
+     "name": "The last-train crowd",
+     "when": "weekday: fri or sat; period: latenight",
+     "add": {
+      "capacity": 2
+     },
+     "text": "After the last train the hill fills with couples who weren't planning to stay; a sign by the door says how many rooms are left."
+    },
+    {
+     "id": "hl_d_rain",
+     "name": "Rainy afternoons",
+     "when": "weather: rain or heavyrain; period: afternoon",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "Couples caught in the rain take a rest to dry off; you leave a stack of warm towels by the door."
+    },
+    {
+     "id": "hl_d_lunch",
+     "name": "The lunchtime rest",
+     "when": "weekday: tue or wed or thu; period: afternoon",
+     "add": {
+      "capacity": 2
+     },
+     "text": "Office couples with an hour to spare: a sixty-minute rest at noon, in and out before the meetings start."
+    },
+    {
+     "id": "hl_d_summer",
+     "name": "Cold towels in summer",
+     "when": "season: summer",
+     "add": {
+      "quality": 2
+     },
+     "text": "A cold towel on the tray with every key in August; people mention it in their reviews more than the beds."
+    },
+    {
+     "id": "hl_d_christmas",
+     "name": "Christmas Eve, booked in November",
+     "when": "festival: christmas",
+     "add": {
+      "fame": 3
+     },
+     "text": "Every room on Christmas Eve is booked a month ahead, and the waiting list is a page long."
+    },
+    {
+     "id": "hl_d_valentine",
+     "name": "Chocolate on the pillows",
+     "when": "festival: valentine",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "One square of dark chocolate on each pillow for Valentine's week; nobody has ever left one."
+    },
+    {
+     "id": "hl_d_fireworks",
+     "name": "Couples in yukata",
+     "when": "festival: fireworks",
+     "add": {
+      "fame": 2
+     },
+     "text": "On fireworks night the couples come in yukata, sandals in their hands; you keep the rooms with a view for them."
+    },
+    {
+     "id": "hl_d_mirage",
+     "name": "Isezakichō after the clubs close",
+     "when": "venture: ht_coco tier 3; period: latenight",
+     "add": {
+      "fame": 2
+     },
+     "text": "When Isezaki's clubs close the street comes to Mirage, and the old regulars say it is like the eighties again."
+    }
+   ],
+   "events": [
+    {
+     "id": "hl_ev_airi_shoot",
+     "when": "feels: Airi acquaintance; period: midmorning or afternoon",
+     "setup": "A studio has booked the jungle room for the day. A crew of four comes in through the side door with camera cases and a light on a stand, and behind them, in sunglasses, Airi Mizusawa, who laughs out loud at the plastic vines and asks {{user}} whether the parrot works.",
+     "choices": [
+      {
+       "label": "Give them the room early, with coffee",
+       "feels": {
+        "Airi": 2
+       },
+       "add": {
+        "fame": 1
+       },
+       "money": 3000,
+       "text": "They finish an hour early and book the room again for next month; Airi leaves a signed coaster on the tray, for the parrot."
+      },
+      {
+       "label": "Hold them to the booked hour",
+       "text": "They wait in the lobby; Airi buys the vending machine out of iced coffee and hands it round the crew."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_momo_shoot",
+     "when": "feels: Momo acquaintance; period: midmorning or afternoon",
+     "setup": "A tall young woman in a cap and a gym bag waits by the room panel far too early for her crew: Momo, who apologizes to the panel, to the plants and then to {{user}}. Her phone buzzes; she looks at it and doesn't answer.",
+     "choices": [
+      {
+       "label": "Sit her in the back with a tea",
+       "feels": {
+        "Momo": 3
+       },
+       "effects": {
+        "mood": 2
+       },
+       "text": "She drinks it in both hands and stops apologizing; when the crew arrives she goes up with them with her chin up."
+      },
+      {
+       "label": "Tell her crews are always late",
+       "feels": {
+        "Momo": 1
+       },
+       "text": "She laughs, a little too loudly, and practices her lines to the vending machine."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_police",
+     "setup": "A detective in a tired raincoat shows {{user}} a photo of a man through the window and asks whether he came in last night, and with whom.",
+     "choices": [
+      {
+       "label": "Ask for a warrant first",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "add": {
+        "fame": 2
+       },
+       "text": "He comes back with one the next day, polite about it; the guests who hear about it come back too.",
+       "fail": {
+        "text": "He gets his warrant, and a word with the ward about your fire doors.",
+        "money": -5000
+       }
+      },
+      {
+       "label": "Show him the lobby screen",
+       "add": {
+        "atmosphere": -1
+       },
+       "text": "It takes him ten minutes to find what he wanted. Two regulars stop coming that month."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_ring",
+     "setup": "A man phones from Shibuya station, close to tears: a ring, his grandmother's, came off in the bath of room 302 this afternoon. The room has had two couples since.",
+     "choices": [
+      {
+       "label": "Take the drain apart yourself",
+       "roll": {
+        "skill": "logic",
+        "dc": 10
+       },
+       "effects": {
+        "mood": 5
+       },
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "It's in the trap, under a hair tie. He runs all the way back from the station to get it.",
+       "fail": {
+        "text": "Nothing in the drain; a cleaner finds it a week later in the towel bin, and he cries on the phone."
+       }
+      },
+      {
+       "label": "Promise to look",
+       "text": "A cleaner finds it at the end of the shift, in the soap dish, where someone had kindly left it."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_inspector",
+     "setup": "A fire inspector arrives on a Saturday night, of all nights, with a clipboard and a strong torch.",
+     "choices": [
+      {
+       "label": "Walk her round yourself",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "text": "Every corridor, every door, every alarm: she signs at four in the morning and admits she's never seen a cleaner hotel.",
+       "fail": {
+        "text": "A blocked exit on the second floor, behind a linen cart: a fine and a lecture.",
+        "money": -8000
+       }
+      },
+      {
+       "label": "Ask her to come back on a weekday",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "text": "She agrees, amused, and comes back on Tuesday afternoon when the corridors are empty.",
+       "fail": {
+        "text": "She doesn't agree, and is twice as thorough.",
+        "money": -5000
+       }
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_alone",
+     "setup": "A woman in an office suit takes a rest alone, pays in coins and asks only whether the room is quiet. She has been crying; she's not hiding it well.",
+     "choices": [
+      {
+       "label": "Give her the quietest room, and an extra hour",
+       "add": {
+        "atmosphere": 1
+       },
+       "effects": {
+        "mood": 3
+       },
+       "text": "She sleeps for four hours and leaves a note on the tray: \"thank you for the silence\"."
+      },
+      {
+       "label": "Just hand her a key",
+       "text": "She leaves after two hours, composed again, and nods to the window on her way out."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_reviewer",
+     "setup": "The cleaners whisper that the couple in room 401 are photographing everything, the bath, the menu, the light switches, and taking notes between photos.",
+     "choices": [
+      {
+       "label": "Send up a room-service tray on the house",
+       "money": -1500,
+       "add": {
+        "fame": 2
+       },
+       "text": "They were reviewers, and the review mentions the tray: \"a hotel that notices without looking\"."
+      },
+      {
+       "label": "Treat them like anyone else",
+       "roll": {
+        "skill": "charisma",
+        "dc": 10
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "The review praises the staff \"who never once looked us in the eye\".",
+       "fail": {
+        "text": "They weren't reviewers, just very thorough."
+       }
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_powercut",
+     "setup": "The power fails across the hill at eleven on a Friday; the room panel goes dark, the lifts stop, and twelve rooms phone the desk at once.",
+     "choices": [
+      {
+       "label": "Candles to every door, and the rest on the house",
+       "money": -6000,
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "By the time the lights come back, half the rooms have asked to stay the night."
+      },
+      {
+       "label": "Wait for the power, and apologize",
+       "text": "It comes back in forty minutes; nobody asks for their money back, quite."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_double",
+     "when": "season: winter",
+     "setup": "The busiest week of the year, and two couples arrive for the same booked room within a minute of each other, both holding the confirmation.",
+     "choices": [
+      {
+       "label": "Give one the theme room and an apology",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "They end up preferring the jungle, and post a photo of the parrot.",
+       "fail": {
+        "text": "They take the jungle room under protest and say so in a review.",
+        "add": {
+         "fame": -1
+        }
+       }
+      },
+      {
+       "label": "Refund the second couple",
+       "money": -9000,
+       "text": "They take the money with good grace, and the last room at the hotel next door."
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_kaoru",
+     "when": "venture: ht_coco hl_window; present: Kaoru; period: latenight or firsttrain",
+     "setup": "At four in the morning, the quietest hour, Kaoru slides a cup of coffee through the window to {{user}} without being asked, and asks whether {{user}} wants to hear about the couple in 304 who have come every Thursday for six years.",
+     "choices": [
+      {
+       "label": "Listen",
+       "feels": {
+        "Kaoru": 2
+       },
+       "text": "She tells it without names, the whole six years, and laughs once at the end, dryly, at herself."
+      },
+      {
+       "label": "Ask her what she would change",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "feels": {
+        "Kaoru": 2
+       },
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "She has a list, it turns out, twelve years long; the first three things are done by the weekend.",
+       "fail": {
+        "text": "She says nothing should change, and means the opposite, and slides the window down."
+       }
+      }
+     ]
+    },
+    {
+     "id": "hl_ev_mirage",
+     "when": "venture: ht_coco tier 3",
+     "setup": "An old couple from Isezakichō, married forty years, come in to Hotel Mirage and ask for room 7, which they have taken every anniversary since 1981. Room 7 is being refitted.",
+     "choices": [
+      {
+       "label": "Put room 7 back together for one night",
+       "money": -4000,
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "The cleaners carry the old bed back up the stairs; the couple leave a box of sweets from Chinatown on the tray."
+      },
+      {
+       "label": "Give them the best room instead",
+       "text": "They take it politely and say, on the way out, that it was very nice, and not room 7."
+      }
+     ]
+    }
+   ],
+   "cards": [
+    {
+     "id": "hl_c_christmas",
+     "when": "festival: christmas",
+     "setup": "Christmas Eve: every room is booked and the waiting list is a page long. A cake and a bottle in every room, a \"Christmas plan\" at a higher price, and a long night at the desk?",
+     "choices": [
+      {
+       "label": "Run the Christmas plan (a long night)",
+       "minutes": 480,
+       "money": 48000,
+       "add": {
+        "fame": 4
+       },
+       "effects": {
+        "energy": -30
+       },
+       "text": "Forty cakes, forty bottles, one couple who get engaged in the jungle room and ring the desk to tell you."
+      },
+      {
+       "label": "Let the night run itself",
+       "text": "The rooms fill anyway; the hotel down the hill sells the cakes."
+      }
+     ]
+    },
+    {
+     "id": "hl_c_valentine",
+     "when": "festival: valentine",
+     "setup": "Valentine's week. A chocolatier on the hill offers a box for every room at a price, if the hotel's name goes on the ribbon.",
+     "choices": [
+      {
+       "label": "Take the boxes",
+       "money": -8000,
+       "add": {
+        "atmosphere": 2,
+        "fame": 2
+       },
+       "text": "The ribbons end up in photos all over the review sites."
+      },
+      {
+       "label": "Not this year",
+       "text": "The rooms fill as they always do in February."
+      }
+     ]
+    },
+    {
+     "id": "hl_c_whiteday",
+     "when": "festival: whiteday",
+     "setup": "White Day, a month after Valentine's, when the gifts are returned. A \"White Day rest\" with marshmallows and white roses on the bed, for the ones returning the favor?",
+     "choices": [
+      {
+       "label": "Run the White Day rest",
+       "minutes": 240,
+       "money": 18000,
+       "add": {
+        "fame": 2
+       },
+       "text": "Most of the men who book it look terrified; most of them leave looking very pleased."
+      },
+      {
+       "label": "Leave it to the shops",
+       "text": "A quiet March day at the desk."
+      }
+     ]
+    },
+    {
+     "id": "hl_c_bonenkai",
+     "when": "festival: bonenkai",
+     "setup": "The year-end parties: every night this week, office groups miss the last train on the hill. A late \"last train\" price for anyone in after midnight?",
+     "choices": [
+      {
+       "label": "Put the sign out and work the desk late",
+       "minutes": 300,
+       "money": 30000,
+       "add": {
+        "capacity": 2
+       },
+       "effects": {
+        "energy": -20
+       },
+       "text": "Salarymen in pairs, in fours, one in a reindeer hat asleep in the lobby by two."
+      },
+      {
+       "label": "The usual prices",
+       "text": "They go to the capsule hotels in Shinjuku instead."
+      }
+     ]
+    },
+    {
+     "id": "hl_c_fireworks",
+     "when": "festival: fireworks",
+     "setup": "Fireworks night over the river: couples in yukata will want somewhere to go afterwards. A \"yukata plan\" with a cold beer and a fan in every room?",
+     "choices": [
+      {
+       "label": "Run the yukata plan",
+       "minutes": 240,
+       "money": 22000,
+       "add": {
+        "fame": 3
+       },
+       "text": "Sandals in a row by every door, and the smell of gunpowder in the lobby until morning."
+      },
+      {
+       "label": "Not this year",
+       "text": "The yukata couples come anyway, and ask for a fan."
+      }
+     ]
+    },
+    {
+     "id": "hl_c_halloween",
+     "when": "festival: halloween",
+     "setup": "Halloween in Shibuya: the crossing will be full of costumes all night. Open the theme rooms to \"costume couples\" with a photo at the panel?",
+     "choices": [
+      {
+       "label": "Costume night (a long night)",
+       "minutes": 360,
+       "money": 26000,
+       "add": {
+        "fame": 3
+       },
+       "effects": {
+        "energy": -20
+       },
+       "text": "A vampire, two nurses, a man dressed as a vending machine and his very patient date."
+      },
+      {
+       "label": "An ordinary night",
+       "text": "Half the costumes come in anyway, and leave glitter on the panel."
+      }
+     ]
+    }
+   ],
+   "demand": {
+    "weekend": 1.4,
+    "festival": 1.15,
+    "season": {
+     "winter": 1.1,
+     "summer": 1.05
+    },
+    "days": {
+     "mon": 0.85,
+     "tue": 0.9,
+     "wed": 0.95,
+     "thu": 1.05,
+     "fri": 1.45,
+     "sat": 1.6,
+     "sun": 0.95
+    },
+    "festivals": {
+     "christmas": 2.5,
+     "valentine": 1.5,
+     "whiteday": 1.3,
+     "bonenkai": 1.3,
+     "omisoka": 1.2,
+     "fireworks": 1.3,
+     "halloween": 1.3
+    },
+    "hours": [
+     [
+      10,
+      17,
+      0.75
+     ],
+     [
+      17,
+      22,
+      1.1
+     ],
+     [
+      22,
+      5,
+      1.3
+     ],
+     [
+      5,
+      10,
+      0.4
+     ]
+    ]
+   },
+   "notebook": {
+    "who": "Kaoru",
+    "when": "venture: ht_coco hl_window; thread: not kaoru_notebook burns_notebook or kaoru_notebook owner_window"
+   },
+   "sightings": [
+    {
+     "id": "hl_s_shizuka_rina",
+     "who": [
+      "Shizuka",
+      "Rina"
+     ],
+     "when": "weekday: mon or tue or wed; period: afternoon or evening",
+     "learn": "shizuka_marriage",
+     "line": "{0} came in with {1} on a weekday afternoon, a rest, and asked for the quietest room",
+     "slip": "Someone saw Shizuka of Kasumi-sō going into a love hotel on Dōgenzaka with another woman.",
+     "kept": "You keep it; the quiet room is free on her days off from now on, and nobody asks why.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_yui",
+     "who": [
+      "Yui"
+     ],
+     "with": "a man she met on an app",
+     "when": "weekday: fri or sat; period: evening or night",
+     "line": "{0} came in with {1} on a Friday night, under a name that wasn't hers, and paid for a rest in cash",
+     "slip": "People say the shrine maiden of Tsukimi Inari goes to love hotels in Shibuya under a fake name.",
+     "kept": "You keep it; the name she gave stays in the ledger and nowhere else.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_kyoko_mon",
+     "who": [
+      "Kyōko"
+     ],
+     "with": "a younger man in a good coat",
+     "when": "weekday: mon; period: night or latenight",
+     "line": "{0} came in with {1} on Monday night, a night's stay, and tipped the cleaner on the way out",
+     "slip": "Kyōko of Bar Kotori was seen going into a love hotel with a man half her age.",
+     "kept": "You keep it; she would keep yours.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_kyoko_wed",
+     "who": [
+      "Kyōko"
+     ],
+     "with": "another younger man, not Monday's",
+     "when": "weekday: wed; period: night or latenight",
+     "line": "{0} came in on Wednesday with {1}, and asked for a different room from Monday's",
+     "slip": "Kyōko of Bar Kotori has two young lovers, and neither knows about the other.",
+     "kept": "You keep it; two nights, two rooms, and the ledger shows nothing but a name.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_nanami",
+     "who": [
+      "Nanami"
+     ],
+     "with": "someone new from the Shimokita crowd",
+     "when": "weekday: fri or sat; period: latenight",
+     "line": "{0} came in with {1} at two in the morning, after a gig, and left alone before six",
+     "slip": "Nanami of Paper Lanterns has been going to love hotels with someone different every week since she broke up with Ren.",
+     "kept": "You keep it; whoever she was with that night is nobody's business but hers.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_airi",
+     "who": [
+      "Airi"
+     ],
+     "with": "her crew",
+     "when": "season: spring or summer or autumn; period: midmorning or afternoon",
+     "learn": "airi_retirement",
+     "line": "{0} came in with {1} for a booked shoot, and on the way out asked the window quietly whether the room could be booked for one last day in winter, a date her agency doesn't know yet",
+     "slip": "Airi Mizusawa is retiring this winter, and her agency doesn't know.",
+     "kept": "You keep it; the winter date goes in the book in pencil, under the studio's name.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_momo",
+     "who": [
+      "Momo"
+     ],
+     "with": "a film crew",
+     "when": "weekday: mon or tue or wed or thu; period: midmorning or afternoon",
+     "learn": "momo_family",
+     "line": "{0} came in with {1} for a booked shoot, and from the lobby phoned home to say she was at work at the gym",
+     "slip": "That young woman from Fukuoka who says she works at a gym in Tokyo was seen going into a love hotel with a film crew.",
+     "kept": "You keep it; her family hears about the gym, and nothing else.",
+     "adult": true
+    },
+    {
+     "id": "hl_s_sumire",
+     "who": [
+      "Sumire"
+     ],
+     "with": "a regular from her table at Velvet, in an expensive watch",
+     "when": "weekday: thu; period: latenight",
+     "learn": "sumire_tab",
+     "line": "{0} came in at one in the morning with {1}, a night's stay, and left an hour before him",
+     "slip": "Sumire of Lounge Velvet keeps her number by spending nights with her top client.",
+     "kept": "You keep it; at the window she's a key and a tray, like anyone.",
+     "adult": true
     }
    ]
   }
