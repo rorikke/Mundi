@@ -456,7 +456,11 @@ export function lastChances(g: Save, w: WorldDef): string[] {
     for (const { t, r } of list) {
         const st = threadStates(g)[t.id];
         if (st.ended || st.asked || g.day < (st.next ?? st.due! + half(g))) continue;
-        if (here(g, w, r)) { st.asked = { day: g.day, n: Math.min(st.missed ?? 0, nudgesOf(t).length - 1), by: 'card' }; delete st.waiting; continue; }
+        if (here(g, w, r)) {
+            st.asked = { day: g.day, n: Math.min(st.missed ?? 0, nudgesOf(t).length - 1), by: 'card' }; delete st.waiting;
+            const sc = sceneOf(g); sc.looked = sc.looked.filter(x => x !== t.id);   // (this scene looks at it again: the card, or a way that holds now)
+            continue;
+        }
         if (!phone || texted || h < STORYLINE.textFrom) continue;
         sendNudge(g, w, t, r, st);
         (g as any).threadText = g.day; texted = true;
