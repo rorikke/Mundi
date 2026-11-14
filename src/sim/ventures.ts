@@ -296,11 +296,17 @@ function tierUp(g: Save, w: WorldDef, s: VentureState): string[] {
     catchUp(g, w, s);
     const d = ventureDef(w, s.id);
     if (d && s.partners?.length) s.partners = s.partners.map((p, i) => (i ? p : { ...p, share: Math.round((1 - mineOf(d, s)) * 100) / 100 }));
-    const line = `${ventureName(w, s)} is now ${/^[aeiou]/i.test(m.next.name) ? 'an' : 'a'} ${m.next.name.toLowerCase()}.`;
+    const line = /^(the|with)\b/i.test(m.next.name) ? `${ventureName(w, s)} has moved up a tier: ${m.next.name}.` : `${ventureName(w, s)} is now ${tierWords(m.next.name)}.`;
     report(s, line);
     note(g, '{u}\'s {0} became {1}.', [ventureName(w, s), m.next.name.toLowerCase()], [], s.place, 'work');
     return [line];
 }
+/** A tier's name in a sentence: "a kissaten", "an old inn", or as it is when it reads on its own ("with the open-air
+ *  bath", "the detached rooms"). */
+export const tierWords = (name: string) => (/^(the|with)\b/i.test(name) ? name.toLowerCase() : `${/^[aeiou]/i.test(name) ? 'an' : 'a'} ${name.toLowerCase()}`);
+/** A day's takings with every number at the tier's ceiling and a full house (what a renovation is priced by): a
+ *  hotel's rooms at its prices less its running costs, else the tier's `base`. */
+const tierDay = (t: TierDef | undefined) => (t?.rooms ? t.rooms * ((t.prices?.stay ?? 0) + (t.rests ?? 0) * (t.prices?.rest ?? 0)) * (1 - (t.costs ?? 0)) : t?.base ?? 0);
 /** The styles to choose from at the current tier (none: the one chosen before stays). */
 export const stylesNow = (d: VentureDef, s: VentureState) => (d.styles ?? []).filter(x => x.tier === s.tier);
 /** A style still to choose at this tier (free the first time). */
@@ -308,7 +314,7 @@ export const styleDue = (d: VentureDef, s: VentureState) => stylesNow(d, s).leng
 /** What a new style costs: nothing the first time at a tier, else a renovation. */
 export function styleCost(g: Save, w: WorldDef, s: VentureState): number {
     const d = ventureDef(w, s.id); if (!d || styleDue(d, s)) return 0;
-    return Math.round(priceOf(g, (tierOf(d, s.tier)?.base ?? 0) * VENTURE.renovate));
+    return Math.round(priceOf(g, tierDay(tierOf(d, s.tier)) * VENTURE.renovate));
 }
 export function chooseStyle(g: Save, w: WorldDef, id: string, style: string): string {
     const s = venturesOf(g).find(x => x.id === id), d = s && live(g, w, s);
@@ -753,7 +759,7 @@ export function ventureLine(g: Save, w: WorldDef): string {
     const ev = pendingVentureEvent(g, w);
     const owns = s.way === 'partner' ? `{{user}} is a partner in this place${s.partners?.[0] ? ` beside ${s.partners[0].who}'s family, who keep an equal say` : ''}` : '{{user}} owns this place';
     const lets = (s.tenants ?? []).map(x => x.who).filter(n => personNamed(g, n));
-    return [`${owns}: ${ventureName(w, s)}, ${/^[aeiou]/i.test(t.name) ? 'an' : 'a'} ${t.name.toLowerCase()}${st ? ` (${st.name}: ${st.desc})` : ''}. ${today}`,
+    return [`${owns}: ${ventureName(w, s)}, ${tierWords(t.name)}${st ? ` (${st.name}: ${st.desc})` : ''}. ${today}`,
         isRunning(g, s.id) || ranOn(s, g.day) ? (hotel ? '{{user}} is working the front desk.' : '{{user}} is working behind the counter.') : '',
         staff.length ? `Hired hands working here (background, not characters): ${staff.join('; ')}.` : '',
         lets.length ? `Renting a room here for a business of their own (tenants, not staff): ${lets.join(', ')}.` : '',
