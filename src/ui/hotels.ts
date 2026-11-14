@@ -29,7 +29,7 @@ export function roomsHtml(g: Save, w: WorldDef, d: VentureDef, s: VentureState):
     const t = tierOf(d, s.tier), h = hotelOn(g, w, d, s, g.day), now = occupancyNow(g, w, d, s), week = occupancyWeek(g, w, d, s), p = hotelPrices(d, s);
     const taken = Math.round(h.open * now);
     const names = (ids: string[] | undefined) => (ids ?? []).map(id => pname(g, w, id)).join(' · ');
-    return `<section class="mu-ph-card mu-biz-rooms"><b>Rooms</b><small>${esc(String(h.open))} of ${esc(String(h.rooms))} rooms open</small>
+    return `<section class="mu-ph-card mu-biz-rooms"><b>The rooms</b><small>${esc(String(h.open))} of ${esc(String(h.rooms))} rooms open</small>
         ${h.open < h.rooms ? '<small class="mu-muted">More of them open as Capacity grows.</small>' : ''}
         <div class="mu-biz-stat"><span>This week</span><small>about ${pct(week)} full</small>${bar(week * 100)}</div>
         <div class="mu-biz-stat"><span>Right now</span><small>${esc(String(taken))} of ${esc(String(h.open))} taken</small>${bar(now * 100)}</div>
@@ -55,7 +55,8 @@ export function partnerHtml(d: VentureDef, s: VentureState): string {
     if (s.way !== 'partner') return '';
     const mine = mineOf(d, s), next = d.tiers[s.tier]?.share;
     return `<section class="mu-ph-card mu-biz-partner"><b>A partnership</b><small>Your share of the takings: ${pct(mine)}</small>
-        ${(s.partners ?? []).map((p, _, all) => `<small><span data-notr>${esc(p.who)}</span>'s family: ${pct(all.length === 1 ? 1 - mine : p.share)}</small>`).join('')}
+        ${(s.partners ?? []).map((p, _, all) => // (one text with the name in it, so a translation can put the name where its language wants it)
+            `<small>${esc(`${p.who}'s family: ${Math.round((all.length === 1 ? 1 - mine : p.share) * 100)}%`)}</small>`).join('')}
         <small class="mu-muted">The takings shown are your share. An upgrade costs you your share of its price; the family pays the rest and keeps an equal say.</small>
         ${next && next > mine ? `<small class="mu-muted">At the next tier your share grows to ${pct(next)}.</small>` : ''}</section>`;
 }

@@ -8336,5 +8336,7 @@ const DICT = {
     "Times what selling gives (0–5)": "Vezes o que a venda rende (0–5)",
     "Once this holds": "Quando isto valer",
     "What they offer (told to the AI; optional)": "O que oferecem (contado à IA; opcional)",
+    "The rooms": "Os quartos",
+    "{0}'s family: {1}%": "Família de {0}: {1}%",
 };
 export default DICT;
