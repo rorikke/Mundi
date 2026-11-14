@@ -5,7 +5,7 @@ import { adultOk, adultOn, type Save } from '../core/store.js';
 import { systemOn, type ActionDef, type WorldDef } from '../core/world.js';
 import { trainedBy } from './hobbies.js';
 import { beenTo } from './tally.js';
-import { hasItem, shopItems } from './life.js';
+import { haveItem, shopItems } from './shop.js';
 import { placeOf } from './places.js';
 import { parseWhen } from './when.js';
 
@@ -75,7 +75,7 @@ export function practiceFor(g: Save, w: WorldDef, skill: string): Practice {
         if (trainedBy(w, a)?.id !== skill || !adultOk(g, a) || a.id === 'fix') continue;   // (fixing: only when something breaks)
         const base = { label: a.label, icon: a.icon ?? '', when: whenWords(w, a.when) };
         if (a.home) {
-            const it = a.needsItem && !hasItem(g, a.needsItem) ? shopItems(w).find(x => x.id === a.needsItem)?.name ?? a.needsItem : undefined;
+            const it = a.needsItem && !haveItem(g, w, a.needsItem) ? shopItems(w).find(x => x.id === a.needsItem)?.name ?? a.needsItem : undefined;
             out.spots.push({ ...base, where: [], more: 0, home: true, item: it });
             continue;
         }

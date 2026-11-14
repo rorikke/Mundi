@@ -1,16 +1,33 @@
 // Style presets: what a world of each style starts with, as data. The engine reads only the world; a style is just
 // the set of values a new world (or an older world that lacks a field) begins with. Everything here can be changed
 // per world in the world creator.
-import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule } from './world.js';
+import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule, When } from './world.js';
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
-import { upgradeTraitInfo } from './traits.js';
+import { upgradeTraitInfo, type EffectDef } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
 
+// Something the shop sells (catalogs.shop). Every field after `price` is optional, so older and user-made worlds read
+// as before; the defaults are read where they're used (`catOf`, `onlineOf`, `toldOf` in sim/shop.ts). The fields say
+// what a thing you have does, not where it's sold, so a home's rooms and fixtures can take the same shape later.
 export interface ShopItem { id: string; name: string; desc: string; icon: string; price: number;
     /** trips take this share of the time (0.5 = half); the best vehicle you own counts */ travel?: number;
-    /** mood gained each morning you wake up at home */ sleepMood?: number }
+    /** mood gained each morning you wake up at home */ sleepMood?: number;
+    /** its category (`SHOP_CATS` in sim/shop.ts): without one, `vehicle` when it has `travel`, else `home`; an unknown
+     *  one reads as `home` */ cat?: string;
+    /** sold at these places, while they're open */ at?: string[];
+    /** sold in the phone's Shop app: by default when it has no `at` */ online?: boolean;
+    /** offered only while this holds (the condition grammar, sim/when.ts); kept once bought */ when?: When;
+    /** bought again: its effects last `days` (1–28), or it gives `stock` uses of what it unlocks */ repeat?: { days?: number; stock?: number };
+    /** needs changed at once when it's bought (each within ±40) */ now?: Record<string, number>;
+    /** small effects while you have it (sim/effects.ts), held inside `SHOP_LIMITS` */ effects?: EffectDef[];
+    /** a car: after the last train you drive (no taxi, no wait) */ late?: boolean;
+    /** buying it gives this keepsake (a gift to give); always bought again */ keepsake?: string;
+    /** what the AI is told while you have it ("{{user}} wears …"); by default its name */ ai?: string;
+    /** when the AI is told of it: always, at home, never (by default the category's) */ told?: 'always' | 'home' | 'no';
+    /** an adult item: in sight, or put away until someone knows of it */ seen?: 'out' | 'away';
+    /** only with adult content on */ adult?: boolean }
 export interface Breakable { id: string; name: string; blocks: string[] }
 export interface Kinds { deviceLook: 'phone' | 'book'; socialKind: 'feed' | 'board'; messageKind: 'texts' | 'letters'; voice: string }
 

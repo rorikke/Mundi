@@ -18,6 +18,7 @@
 // sim/ventures.ts); `inrank: 42` the days in your current rank (`player.job.since`), for an executive's gate;
 // (hospitality) `venture:` names a kind too (`ryokan`), `tenant: Tsubaki [ryokan]` someone renting a room of yours,
 // `kept: 3` secrets kept at your hotels' desks.
+// The shop: `owns: bike` an item you have, `owns: cat:vehicle [2]` that many things of a category (sim/shop.ts).
 import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
@@ -37,12 +38,13 @@ import { careerOf, trackOf, playerTrack } from './work.js';
 import { styleOf, knownCount } from './intimacy.js';
 import { usualPay } from './needs.js';
 import { REP_WORDS } from './standing.js';
+import { haveItem, ownedDefs, catOf, SHOP_CATS } from './shop.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept'] as const;
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -70,6 +72,7 @@ const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/;                      // m
 const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i;      // overnight 2 with best: only with someone at that level now
 const DEGREE = /^(?:any|graduated|distinction|scholarship|club|term\s+\d+|gpa\s+\d+(?:\.\d+)?)$/i;   // term 3 · gpa 2.5
 const VENTURE = /^[^\s,;]+(?:\s+(?:tier\s+\d+|[^\s,;]+))?$/i;              // cafe · cafe tier 2 · cafe as_it_was · any
+const OWNS = /^(?:cat:([^\s,;]+)(?:\s+(\d+))?|[^\s,;:]+)$/i;                  // bike · cat:vehicle · cat:fashion 3
 const VISITED = /^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;   // 3 regular in home
 /** `visited: pk_arcade regular`: a regular at that place. */
 export const PLACE_REGULAR = /^([^\s,;]+)\s+regular$/i;
@@ -146,7 +149,8 @@ function badValue(key: WhenKey, v: string): string {
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
         case 'inrank': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of days in your rank`;
         case 'tenant': return /^[^,;]+$/.test(v) ? '' : `"${v}" should be a name, or a name and a venture, like Tsubaki ryokan`;
-        case 'kept': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets kept at your hotels`;
+        case 'owns': { const m = v.match(OWNS); return m && (!m[1] || SHOP_CATS.some(c => c.id === m[1].toLowerCase())) ? '' : `"${v}" should be an item id, or cat: and a category (and how many), like cat:vehicle 2`; }
+        case 'kept': return /^\d+$/.test(v) ? '' :`"${v}" should be a number of secrets kept at your hotels`;
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -348,6 +352,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'inrank': { const j = g.player.job as { since?: number } | null; return !!j && systemOn(w, 'jobs') && (nowAbs(g) - (j.since ?? nowAbs(g))) / 1440 >= Number(v); }
         case 'tenant': return tenantHolds(g, w, v);
         case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
+        case 'owns': return ownsHolds(g, w, v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': { const r = regionNow(g, w, x); return !!r && r.tension > Number(v); }
@@ -369,6 +374,15 @@ function ventureHolds(g: Save, w: WorldDef, v: string): boolean {
     if (!systemOn(w, 'business')) return false;
     const [id, a, b] = v.split(/\s+/);
     return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a || Object.values(s.styles ?? {}).includes(a))));
+}
+// `owns: bike`: an item you have; `owns: cat:vehicle 2`: that many things of a category (one without a number). Never
+// with the shop off.
+function ownsHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'shop')) return false;
+    const m = v.match(OWNS);
+    if (!m?.[1]) return haveItem(g, w, v);
+    const cat = m[1].toLowerCase();
+    return ownedDefs(g, w).filter(it => catOf(it) === cat).length >= Number(m[2] ?? 1);
 }
 // (hospitality) `tenant: Tsubaki` someone renting a room at a venture of yours; `tenant: Tsubaki ryokan` at that one
 // (its id, track or kind). The name may have spaces; the venture is its last word when one of yours matches it.
