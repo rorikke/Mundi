@@ -3,8 +3,9 @@
 // report, upgrades (ready to buy, waiting where you found them, owned, still to find as hints of where, a later tier's),
 // discoveries, the hired hands, a second place, selling. An executive's division: the season's budget and target, the
 // board's verdicts, its initiatives. Not yet a venture: the takeover when it's offered, the units to lease (with a name
-// of your own). A hotel's own parts (rooms, the owner's note, a partnership, tenants) are drawn in ui/hotels.ts. Also
-// the HUD's rows at your venture's place ("Run the counter") and the card for one of its events or a calendar card. The engine owns every number (sim/ventures.ts, sim/exec.ts); this file
+// of your own). A hotel's own parts (rooms, the owner's note, a partnership, tenants, discretion and the sighting
+// waiting) are drawn in ui/hotels.ts. Also the HUD's rows at your venture's place ("Run the counter") and the card for one
+// of its events, a sighting or a calendar card. The engine owns every number (sim/ventures.ts, sim/exec.ts); this file
 // only draws and calls.
 import { esc, game, toast, notify, saveGame, state, type Save } from '../core/store.js';
 import { getWorld, type WorldDef, type VentureDef, type UpgradeDef } from '../core/world.js';
@@ -21,7 +22,8 @@ import {
     type VentureState, type UpgradeState, type WayOpen,
 } from '../sim/ventures.js';
 import { isHotel } from '../sim/rooms.js';
-import { roomsHtml, noteHtml, partnerHtml, tenantsHtml } from './hotels.js';
+import { pendingSighting, chooseSighting, setTell } from '../sim/sightings.js';
+import { roomsHtml, noteHtml, partnerHtml, tenantsHtml, discretionHtml, sightingAsk } from './hotels.js';
 import { budgetOf, targetOf } from '../sim/exec.js';
 import { ACT, INPUT } from './reg.js';
 import { finishWork } from './map.js';
@@ -36,11 +38,11 @@ const an = (s: string) => (/^[aeiou]/i.test(s) ? 'an' : 'a');
 // (a tier's name with its article: "a capsule hotel", "the old inn" as it is)
 const aTier = (name: string) => (/^the /i.test(name) ? name.toLowerCase() : `${an(name)} ${name.toLowerCase()}`);
 
-/** The badge on the phone's icon: one of your ventures' events or a calendar card waiting, a style to choose, an
- *  upgrade you found waiting to be bought, a room you could let. */
+/** The badge on the phone's icon: one of your ventures' events, a calendar card or a sighting waiting, a style to
+ *  choose, an upgrade you found waiting to be bought, a room you could let. */
 export function businessBadge(g: Save, w: WorldDef): boolean {
     if (!w.ventures?.length || !venturesOf(g).length) return false;
-    if (pendingCard(g, w) || pendingVentureEvent(g, w) || tenancyOffers(g, w).length) return true;
+    if (pendingCard(g, w) || pendingVentureEvent(g, w) || pendingSighting(g, w) || tenancyOffers(g, w).length) return true;
     return ownedNow(g, w).some(s => { const d = ventureDef(w, s.id); return !!d && (styleDue(d, s) || upgradesOf(g, w, s).some(x => x.state === 'found')); });
 }
 // The ventures you own that this game plays (an adult one only with adult content on, none with the system off).
@@ -61,7 +63,7 @@ function ventureHtml(g: Save, w: WorldDef, s: VentureState): string {
     const head = `<section class="mu-ph-card mu-biz-head"><small>${esc(t.name)}${d.tiers.length > 1 ? ` · tier ${esc(String(s.tier))} of ${esc(String(d.tiers.length))}` : ''}</small>
         <b data-notr>${esc(ventureName(w, s))}</b><small data-notr>${esc(where)}</small>${t.desc ? `<small class="mu-muted" data-notr>${esc(t.desc)}</small>` : ''}</section>`;
     return `<div class="mu-biz-venture">${head}${roomsHtml(g, w, d, s)}${exec ? execHtml(g, w, d, s) : weekHtml(g, w, d, s)}${noteHtml(w, s)}${partnerHtml(d, s)}
-        ${numbersHtml(g, w, d, s)}${styleHtml(g, w, d, s)}${milestoneHtml(g, w, d, s)}${tenantsHtml(g, w, d, s)}
+        ${numbersHtml(g, w, d, s)}${styleHtml(g, w, d, s)}${milestoneHtml(g, w, d, s)}${tenantsHtml(g, w, d, s)}${discretionHtml(g, w, d, s)}
         ${upgradesHtml(g, w, d, s)}${discoveriesHtml(d, s)}${staffHtml(s)}${exec ? '' : placesHtml(g, w, s)}${exec ? '' : sellHtml(g, w, s)}</div>`;
 }
 function numbersHtml(g: Save, w: WorldDef, d: VentureDef, s: VentureState): string {
@@ -201,7 +203,8 @@ export function ventureActs(g: Save, w: WorldDef): string {
 }
 // (a hotel's row: how many of its open rooms are taken at this hour)
 const roomsTaken = (g: Save, w: WorldDef, d: VentureDef, s: VentureState) => { const h = hotelOn(g, w, d, s, g.day); return `${Math.round(h.open * occupancyNow(g, w, d, s))} of ${h.open} rooms taken`; };
-/** One of your venture's events (at its place) or a calendar card, as a card in the scene (`inApp`: drawn in the app). */
+/** One of your venture's events (at its place), a sighting (at that hotel) or a calendar card, as a card in the scene
+ *  (`inApp`: drawn in the app). */
 export function ventureAskHtml(g: Save, w: WorldDef): string { return state.view === 'scene' ? askHtml(g, w, false) : ''; }
 function askHtml(g: Save, w: WorldDef, inApp: boolean): string {
     if (!w.ventures?.length || !venturesOf(g).length) return '';
@@ -209,6 +212,9 @@ function askHtml(g: Save, w: WorldDef, inApp: boolean): string {
     const icon = (s: VentureState) => ventureDef(w, s.id)?.run?.icon ?? '☕';
     const ev = pendingVentureEvent(g, w);
     if (ev && (inApp || placesOf(ev.s).includes(g.player.loc))) return card(`At ${ventureName(w, ev.s)}`, say(ev.ev.setup), ev.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-ev', i: x.i })), '', inApp, icon(ev.s));
+    // (a sighting: in the app anywhere, in the scene at that hotel; its words are the world's, the buttons the app's)
+    const x = sightingAsk(g, w, inApp);
+    if (x) return card(x.title, x.setup, x.choices.map((c, i) => ({ label: c.label, act: 'bz-sight', i, how: c.how, note: c.note })), '', inApp, x.icon, 'mu-biz-sight');
     const c = pendingCard(g, w);
     if (c) return card(`${ventureName(w, c.s)}: this week`, say(c.card.setup), c.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-card', i: x.i, mins: x.c.minutes })), 'bz-skip', inApp, icon(c.s));
     return '';
@@ -259,6 +265,17 @@ Object.assign(ACT, {
     'bz-sell-no': () => { BZ.sell = ''; notify(); },
     'bz-sell': async (el) => { const c = C(); if (!c) return; BZ.sell = ''; done(closeVenture(c.g, c.w, el.dataset.id!, true, el.dataset.buyer || undefined)); await syncScene(); },
     'bz-let': async (el) => { const c = C(); if (!c) return; const m = letRoom(c.g, c.w, el.dataset.id!, el.dataset.t!); if (!m) { toast('Not open to you now.', 'warn'); return; } done(m); await syncScene(); },
+    'bz-sight': async (el) => {
+        const c = C(); if (!c) return;
+        const how = el.dataset.how; if (how !== 'keep' && how !== 'use' && how !== 'slip') return;
+        done(chooseSighting(c.g, c.w, how), how === 'slip' ? 'warn' : 'success'); await syncScene();
+    },
+    'bz-tell': (el) => {
+        const c = C(); if (!c) return;
+        const never = el.dataset.tell === 'never';
+        if (setTell(c.g, c.w, el.dataset.id!, never ? 'never' : 'matters')) done(never ? 'This hotel will never tell you who comes in.' : 'This hotel tells you only when it matters.', 'info');
+    },
+    'bz-close': async (el) => { const c = C(); if (!c) return; BZ.sell = ''; done(closeVenture(c.g, c.w, el.dataset.id!, false), 'info'); await syncScene(); },
     'bz-ev': async (el) => { const c = C(); if (!c) return; done(chooseVentureEvent(c.g, c.w, Number(el.dataset.i))); await syncScene(); },
     'bz-card': async (el) => { const c = C(); if (!c) return; done(chooseCard(c.g, c.w, Number(el.dataset.i))); await syncScene(); },
     'bz-skip': () => { const c = C(); if (!c) return; skipCard(c.g); done('You let it go this time.', 'info'); },
