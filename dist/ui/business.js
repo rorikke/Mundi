@@ -3,8 +3,10 @@
 // report, upgrades (ready to buy, waiting where you found them, owned, still to find as hints of where, a later tier's),
 // discoveries, the hired hands, a second place, selling. An executive's division: the season's budget and target, the
 // board's verdicts, its initiatives. Not yet a venture: the takeover when it's offered, the units to lease (with a name
-// of your own). Also the HUD's rows at your venture's place ("Run the counter") and the card for one of its events or a
-// calendar card. The engine owns every number (sim/ventures.ts, sim/exec.ts); this file only draws and calls.
+// of your own). A hotel's own parts (rooms, the owner's note, a partnership, tenants, discretion and the sighting
+// waiting) are drawn in ui/hotels.ts. Also the HUD's rows at your venture's place ("Run the counter") and the card for one
+// of its events, a sighting or a calendar card. The engine owns every number (sim/ventures.ts, sim/exec.ts); this file
+// only draws and calls.
 import { esc, game, toast, notify, saveGame, state } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { statsOf, statName } from '../core/ventures.js';
@@ -13,8 +15,10 @@ import { placeOf } from '../sim/places.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { syncScene } from '../sim/game.js';
 import { personaName } from '../st/bridge.js';
-import { venturesOf, ventureDefs, ventureDef, ventureAt, ventureName, tierOf, placesOf, fill, weekGuess, milestoneOf, stylesNow, styleDue, styleCost, chooseStyle, upgradesOf, buyUpgrade, waysOpen, openVenture, closeVenture, sellValue, morePlaces, addPlace, runBlock, stintHours, runStint, pendingVentureEvent, chooseVentureEvent, pendingCard, chooseCard, skipCard, } from '../sim/ventures.js';
+import { venturesOf, ventureDefs, ventureDef, ventureAt, ventureName, tierOf, placesOf, fill, weekGuess, milestoneOf, stylesNow, styleDue, styleCost, chooseStyle, upgradesOf, buyUpgrade, waysOpen, openVenture, closeVenture, sellValue, morePlaces, addPlace, runBlock, stintHours, runStint, pendingVentureEvent, chooseVentureEvent, pendingCard, chooseCard, skipCard, buyersOf, tenancyOffers, letRoom, hotelOn, occupancyNow, } from '../sim/ventures.js';
 import { isHotel } from '../sim/rooms.js';
+import { pendingSighting, chooseSighting, setTell } from '../sim/sightings.js';
+import { roomsHtml, noteHtml, partnerHtml, tenantsHtml, discretionHtml, sightingAsk } from './hotels.js';
 import { budgetOf, targetOf } from '../sim/exec.js';
 import { ACT, INPUT } from './reg.js';
 import { finishWork } from './map.js';
@@ -25,28 +29,34 @@ const bar = (v) => `<span class="mu-bond"><i style="width:${Math.max(0, Math.min
 const plural = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 const pname = (g, w, id) => placeOf(g, w, id)?.name ?? id;
 const an = (s) => (/^[aeiou]/i.test(s) ? 'an' : 'a');
-/** The badge on the phone's icon: one of your ventures' events or a calendar card waiting, a style to choose, an upgrade
- *  you found waiting to be bought. */
+// (a tier's name with its article: "a capsule hotel", "the old inn" as it is)
+const aTier = (name) => (/^the /i.test(name) ? name.toLowerCase() : `${an(name)} ${name.toLowerCase()}`);
+/** The badge on the phone's icon: one of your ventures' events, a calendar card or a sighting waiting, a style to
+ *  choose, an upgrade you found waiting to be bought, a room you could let. */
 export function businessBadge(g, w) {
     if (!w.ventures?.length || !venturesOf(g).length)
         return false;
-    if (pendingCard(g, w) || pendingVentureEvent(g, w))
+    if (pendingCard(g, w) || pendingVentureEvent(g, w) || pendingSighting(g, w) || tenancyOffers(g, w).length)
         return true;
-    return venturesOf(g).some(s => { const d = ventureDef(w, s.id); return !!d && (styleDue(d, s) || upgradesOf(g, w, s).some(x => x.state === 'found')); });
+    return ownedNow(g, w).some(s => { const d = ventureDef(w, s.id); return !!d && (styleDue(d, s) || upgradesOf(g, w, s).some(x => x.state === 'found')); });
 }
+// The ventures you own that this game plays (an adult one only with adult content on, none with the system off).
+const ownedNow = (g, w) => { const ids = new Set(ventureDefs(g, w).map(d => d.id)); return venturesOf(g).filter(s => ids.has(s.id)); };
 export function businessApp(g, w, head) {
     if (!ventureDefs(g, w).length)
         return `${head}<div class="mu-ph-body mu-biz"><p class="mu-muted">No businesses here.</p></div>`;
-    const mine = venturesOf(g).filter(s => ventureDef(w, s.id));
+    const mine = ownedNow(g, w);
     return `${head}<div class="mu-ph-body mu-biz">${askHtml(g, w, true)}${mine.map(s => ventureHtml(g, w, s)).join('')}${waysHtml(g, w)}${execHint(g, w)}</div>`;
 }
 /* ---------- a venture ---------- */
 function ventureHtml(g, w, s) {
     const d = ventureDef(w, s.id), t = tierOf(d, s.tier), exec = d.track === 'exec';
-    const where = placesOf(s).map(p => pname(g, w, p)).join(' · ');
+    // (a hotel's second hotel and the rooms an upgrade opened are listed with its rooms)
+    const where = (isHotel(d) ? [s.place] : placesOf(s)).map(p => pname(g, w, p)).join(' · ');
     const head = `<section class="mu-ph-card mu-biz-head"><small>${esc(t.name)}${d.tiers.length > 1 ? ` · tier ${esc(String(s.tier))} of ${esc(String(d.tiers.length))}` : ''}</small>
         <b data-notr>${esc(ventureName(w, s))}</b><small data-notr>${esc(where)}</small>${t.desc ? `<small class="mu-muted" data-notr>${esc(t.desc)}</small>` : ''}</section>`;
-    return `<div class="mu-biz-venture">${head}${exec ? execHtml(g, w, d, s) : weekHtml(g, w, d, s)}${numbersHtml(g, w, d, s)}${styleHtml(g, w, d, s)}${milestoneHtml(g, w, d, s)}
+    return `<div class="mu-biz-venture">${head}${roomsHtml(g, w, d, s)}${exec ? execHtml(g, w, d, s) : weekHtml(g, w, d, s)}${noteHtml(w, s)}${partnerHtml(d, s)}
+        ${numbersHtml(g, w, d, s)}${styleHtml(g, w, d, s)}${milestoneHtml(g, w, d, s)}${tenantsHtml(g, w, d, s)}${discretionHtml(g, w, d, s)}
         ${upgradesHtml(g, w, d, s)}${discoveriesHtml(d, s)}${staffHtml(s)}${exec ? '' : placesHtml(g, w, s)}${exec ? '' : sellHtml(g, w, s)}</div>`;
 }
 function numbersHtml(g, w, d, s) {
@@ -57,10 +67,12 @@ function numbersHtml(g, w, d, s) {
 function weekHtml(g, w, d, s) {
     const alone = (tierOf(d, s.tier).alone ?? 0) > 0;
     const guess = weekGuess(g, w, s, alone ? 2 : 4);
-    const last = s.last;
-    return `<section class="mu-ph-card mu-biz-week"><b>This week</b><small>${esc(money(w, s.week.takings))} so far${s.week.run ? ` · you ran it ${esc(plural(s.week.run, 'day'))}` : ''}${s.rent ? ` · rent ${esc(money(w, s.rent))} a week` : ''}</small>
+    const last = s.last, rent = isHotel(d) ? 'upkeep' : 'rent';
+    // (last week's costs: the rent or upkeep, and what went to the owner's note)
+    const kept = last ? last.costs - (last.note ?? 0) : 0;
+    return `<section class="mu-ph-card mu-biz-week"><b>This week</b><small>${esc(money(w, s.week.takings))} so far${s.week.run ? ` · you ran it ${esc(plural(s.week.run, 'day'))}` : ''}${s.rent ? ` · ${rent} ${esc(money(w, s.rent))} a week` : ''}</small>
         <small class="mu-muted">${alone ? `Open every day: hired hands keep it going when you're not there (${esc(String(Math.round(((tierOf(d, s.tier).alone ?? 0) + (s.manager ? 0.15 : 0)) * 100)))}% of a day you run it yourself).` : 'Open only while you run it yourself: go there and run the counter.'} About ${esc(money(w, guess))} a week if you run it ${alone ? 'two' : 'four'} days.</small>
-        ${last ? `<small>Last week: ${esc(money(w, last.takings))} in${last.costs ? `, ${esc(money(w, last.costs))} of rent` : ''}${last.run ? ` · you ran it ${esc(plural(last.run, 'day'))}` : ''}</small>` : ''}
+        ${last ? `<small>Last week: ${esc(money(w, last.takings))} in${kept ? `, ${esc(money(w, kept))} of ${rent}` : ''}${last.note ? `, ${esc(money(w, last.note))} on the note` : ''}${last.run ? ` · you ran it ${esc(plural(last.run, 'day'))}` : ''}</small>` : ''}
         ${[...(s.week.notes ?? [])].reverse().slice(0, 4).map(n => `<small class="mu-biz-note" data-notr>${esc(n)}</small>`).join('')}</section>`;
 }
 function execHtml(g, w, d, s) {
@@ -137,7 +149,11 @@ function placesHtml(g, w, s) {
 function sellHtml(g, w, s) {
     if (BZ.sell !== s.id)
         return `<div class="mu-row mu-biz-sell"><button class="mu-ghost" data-act="bz-sell-ask" data-id="${esc(s.id)}">Sell or close it…</button></div>`;
-    return `<section class="mu-ph-card mu-biz-sell"><small class="mu-bad">Sell ${esc(ventureName(w, s))} for ${esc(money(w, sellValue(g, s)))}, or close it for nothing? What you built there is gone.</small>
+    // (what's still owed on the owner's note comes off any price, as the engine takes it)
+    const owes = s.owes ?? 0, net = (p) => esc(money(w, Math.max(0, p - owes)));
+    return `<section class="mu-ph-card mu-biz-sell"><small class="mu-bad">Sell ${esc(ventureName(w, s))} for ${net(sellValue(g, s))}, or close it for nothing? What you built there is gone.</small>
+        ${owes ? `<small class="mu-muted">What's still owed on the owner's note (${esc(money(w, owes))}) comes off the price.</small>` : ''}
+        ${buyersOf(g, w, s).map(b => `<button class="mu-biz-opt" data-act="bz-sell" data-id="${esc(s.id)}" data-buyer="${esc(b.id)}"><b>Sell to <span data-notr>${esc(b.name)}</span> for ${net(b.price)}</b>${b.text ? `<small data-notr>${esc(b.text)}</small>` : ''}</button>`).join('')}
         <div class="mu-row"><button class="mu-danger" data-act="bz-sell" data-id="${esc(s.id)}">Sell</button><button class="mu-ghost" data-act="bz-close" data-id="${esc(s.id)}">Close it</button><button data-act="bz-sell-no">Keep it</button></div></section>`;
 }
 /* ---------- ways in ---------- */
@@ -151,11 +167,11 @@ function waysHtml(g, w) {
     const price = (x) => x.note ? `${esc(money(w, x.down))} down, the rest (${esc(money(w, x.cost - x.down))}) out of its takings over about ${esc(plural(x.note.weeks, 'week'))}`
         : `${x.way === 'takeover' ? 'Key money' : x.way === 'partner' ? 'Buying in' : 'The price'} ${esc(money(w, x.cost))}`;
     return `${take.map(x => `<section class="mu-ph-card mu-biz-way"><small>${WAY_WORDS[x.way].kind}</small><b data-notr>${esc(x.d.name)}</b>${x.d.desc ? `<small class="mu-muted" data-notr>${esc(x.d.desc)}</small>` : ''}
-            <small>${price(x)}${x.rent ? ` · ${isHotel(x.d) ? 'upkeep' : 'rent'} ${esc(money(w, x.rent))} a week` : ''} · it starts as ${esc(an(tier(x.d, x.way).name))} ${esc(tier(x.d, x.way).name.toLowerCase())}</small>
+            <small>${price(x)}${x.rent ? ` · ${isHotel(x.d) ? 'upkeep' : 'rent'} ${esc(money(w, x.rent))} a week` : ''} · it starts as ${esc(aTier(tier(x.d, x.way).name))}</small>
             ${x.way === 'partner' && x.with ? `<small class="mu-muted">${esc(`Beside ${x.with}'s family: they keep an equal say, and a share of the takings.`)}</small>` : ''}
             <button class="mu-primary" data-act="bz-open" data-id="${esc(x.d.id)}" data-way="${esc(x.way)}" data-place="${esc(x.place)}" ${x.down > g.player.money ? 'aria-disabled="true"' : ''}>${WAY_WORDS[x.way].button}</button></section>`).join('')}
         ${lease.length ? `<section class="mu-ph-card mu-biz-way"><small>A place of your own</small><b data-notr>${esc(lease[0].d.name)}</b>${lease[0].d.desc ? `<small class="mu-muted" data-notr>${esc(lease[0].d.desc)}</small>` : ''}
-            <small>It starts as ${esc(an(tier(lease[0].d, 'lease').name))} ${esc(tier(lease[0].d, 'lease').name.toLowerCase())}. Give it a name, then choose a unit:</small>
+            <small>It starts as ${esc(aTier(tier(lease[0].d, 'lease').name))}. Give it a name, then choose a unit:</small>
             <input class="mu-input" data-input="bz-name" maxlength="40" placeholder="Your café's name" value="${esc(BZ.name)}">
             ${lease.map(x => `<button class="mu-biz-opt" data-act="bz-open" data-id="${esc(x.d.id)}" data-way="lease" data-place="${esc(x.place)}" ${x.cost > g.player.money ? 'aria-disabled="true"' : ''}><b data-notr>${esc(pname(g, w, x.place))}</b>
                 <small data-notr>${esc((w.places.find(p => p.id === x.place)?.desc ?? '').slice(0, 140))}</small><small>${esc(money(w, x.cost))} to move in · ${esc(money(w, x.rent))} a week</small></button>`).join('')}</section>` : ''}`;
@@ -181,31 +197,43 @@ export function ventureActs(g, w) {
     if (s && d && d.track !== 'exec') {
         const why = runBlock(g, w, s), h = stintHours(g, w, s);
         return `<button class="mh-act mh-glass" data-act="bz-run" data-id="${esc(s.id)}" ${why ? `aria-disabled="true" title="${esc(why)}"` : ''}><i>${esc(d.run?.icon ?? '☕')}</i><b${d.run?.label ? ' data-notr' : ''}>${esc(d.run?.label ?? 'Run the counter')}</b><small>${why ? esc(why) : `${esc(plural(h, 'hour'))} · `}<span data-notr>${esc(ventureName(w, s))}</span></small></button>
-            <button class="mh-act mh-glass" data-act="ph-open-business"><i>📒</i><b>Your business</b><small>${esc(tierOf(d, s.tier).name)}</small></button>`;
+            <button class="mh-act mh-glass" data-act="ph-open-business"><i>📒</i><b>Your business</b><small>${esc(tierOf(d, s.tier).name)}${isHotel(d) ? ` · ${esc(roomsTaken(g, w, d, s))}` : ''}</small></button>`;
     }
     const offer = waysOpen(g, w).find(x => x.way !== 'lease' && x.place === g.player.loc);
     return offer ? `<button class="mh-act mh-glass is-quest" data-act="ph-open-business"><i>🔑</i><b>${WAY_WORDS[offer.way].button}</b><small data-notr>${esc(offer.d.name)} · ${esc(money(w, offer.down))}</small></button>` : '';
 }
-/** One of your venture's events (at its place) or a calendar card, as a card in the scene (`inApp`: drawn in the app). */
+// (a hotel's row: how many of its open rooms are taken at this hour)
+const roomsTaken = (g, w, d, s) => { const h = hotelOn(g, w, d, s, g.day); return `${Math.round(h.open * occupancyNow(g, w, d, s))} of ${h.open} rooms taken`; };
+/** One of your venture's events (at its place), a sighting (at that hotel) or a calendar card, as a card in the scene
+ *  (`inApp`: drawn in the app). */
 export function ventureAskHtml(g, w) { return state.view === 'scene' ? askHtml(g, w, false) : ''; }
 function askHtml(g, w, inApp) {
     if (!w.ventures?.length || !venturesOf(g).length)
         return '';
     const me = personaName(), say = (t) => t.replace(/\{\{user\}\}/g, me);
+    const icon = (s) => ventureDef(w, s.id)?.run?.icon ?? '☕';
     const ev = pendingVentureEvent(g, w);
     if (ev && (inApp || placesOf(ev.s).includes(g.player.loc)))
-        return card(`At ${ventureName(w, ev.s)}`, say(ev.ev.setup), ev.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-ev', i: x.i })), '', inApp);
+        return card(`At ${ventureName(w, ev.s)}`, say(ev.ev.setup), ev.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-ev', i: x.i })), '', inApp, icon(ev.s));
+    // (a sighting: in the app anywhere, in the scene at that hotel; its words are the world's, the buttons the app's)
+    const x = sightingAsk(g, w, inApp);
+    if (x)
+        return card(x.title, x.setup, x.choices.map((c, i) => ({ label: c.label, act: 'bz-sight', i, how: c.how, note: c.note })), '', inApp, x.icon, 'mu-biz-sight', false);
     const c = pendingCard(g, w);
     if (c)
-        return card(`${ventureName(w, c.s)}: this week`, say(c.card.setup), c.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-card', i: x.i, mins: x.c.minutes })), 'bz-skip', inApp);
+        return card(`${ventureName(w, c.s)}: this week`, say(c.card.setup), c.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-card', i: x.i, mins: x.c.minutes })), 'bz-skip', inApp, icon(c.s));
     return '';
 }
-function card(title, setup, choices, skip, inApp) {
-    const btns = `${choices.map((x, n) => `<button class="${n ? '' : 'mu-primary'}" data-act="${x.act}" data-i="${x.i}"><span data-notr>${esc(x.label)}</span>${x.roll ? `<small>🎲 ${esc(x.roll)}</small>` : x.mins ? `<small>${esc(plural(Math.round(x.mins / 60) || 1, 'hour'))}</small>` : ''}</button>`).join('')}${skip ? `<button class="mu-ghost" data-act="${skip}">Not this time</button>` : ''}`;
+// (`notr`: the title is the world's words; a sighting's is the app's, "{0}: at the desk", so it can be translated)
+function card(title, setup, choices, skip, inApp, icon = '☕', cls = '', notr = true) {
+    const tn = notr ? ' data-notr' : '';
+    // (`how`: a choice of the app's own, its label and note in the app's words, not the world's)
+    const label = (x) => (x.how ? `<span>${esc(x.label)}</span>` : `<span data-notr>${esc(x.label)}</span>`);
+    const btns = `${choices.map((x, n) => `<button class="${n ? '' : 'mu-primary'}" data-act="${x.act}" data-i="${x.i}"${x.how ? ` data-how="${esc(x.how)}"` : ''}>${label(x)}${x.roll ? `<small>🎲 ${esc(x.roll)}</small>` : x.mins ? `<small>${esc(plural(Math.round(x.mins / 60) || 1, 'hour'))}</small>` : x.note ? `<small>${esc(x.note)}</small>` : ''}</button>`).join('')}${skip ? `<button class="mu-ghost" data-act="${skip}">Not this time</button>` : ''}`;
     if (inApp)
-        return `<section class="mu-ph-card mu-biz-ask"><b data-notr>${esc(title)}</b><small data-notr>${esc(setup)}</small><div class="mu-biz-ask-btns">${btns}</div></section>`;
-    return `<div class="mh-invite mh-happen mh-story mh-glass" role="dialog" aria-label="${esc(title)}"><span class="mh-story-ic" aria-hidden="true">☕</span>
-        <div><b data-notr>${esc(title)}</b><p data-notr>${esc(setup)}</p></div><div class="mh-invite-btns">${btns}</div></div>`;
+        return `<section class="mu-ph-card mu-biz-ask${cls ? ` ${cls}` : ''}"><b${tn}>${esc(title)}</b><small data-notr>${esc(setup)}</small><div class="mu-biz-ask-btns">${btns}</div></section>`;
+    return `<div class="mh-invite mh-happen mh-story mh-glass${cls ? ` ${cls}` : ''}" role="dialog" aria-label="${esc(title)}"><span class="mh-story-ic" aria-hidden="true">${esc(icon)}</span>
+        <div><b${tn}>${esc(title)}</b><p data-notr>${esc(setup)}</p></div><div class="mh-invite-btns">${btns}</div></div>`;
 }
 /* ---------- clicks ---------- */
 const C = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? { g, w } : null; };
@@ -264,7 +292,30 @@ Object.assign(ACT, {
     'bz-sell-ask': (el) => { BZ.sell = el.dataset.id; notify(); },
     'bz-sell-no': () => { BZ.sell = ''; notify(); },
     'bz-sell': async (el) => { const c = C(); if (!c)
-        return; BZ.sell = ''; done(closeVenture(c.g, c.w, el.dataset.id, true)); await syncScene(); },
+        return; BZ.sell = ''; done(closeVenture(c.g, c.w, el.dataset.id, true, el.dataset.buyer || undefined)); await syncScene(); },
+    'bz-let': async (el) => { const c = C(); if (!c)
+        return; const m = letRoom(c.g, c.w, el.dataset.id, el.dataset.t); if (!m) {
+        toast('Not open to you now.', 'warn');
+        return;
+    } done(m); await syncScene(); },
+    'bz-sight': async (el) => {
+        const c = C();
+        if (!c)
+            return;
+        const how = el.dataset.how;
+        if (how !== 'keep' && how !== 'use' && how !== 'slip')
+            return;
+        done(chooseSighting(c.g, c.w, how), how === 'slip' ? 'warn' : 'success');
+        await syncScene();
+    },
+    'bz-tell': (el) => {
+        const c = C();
+        if (!c)
+            return;
+        const never = el.dataset.tell === 'never';
+        if (setTell(c.g, c.w, el.dataset.id, never ? 'never' : 'matters'))
+            done(never ? 'This hotel will never tell you who comes in.' : 'This hotel tells you only when it matters.', 'info');
+    },
     'bz-close': async (el) => { const c = C(); if (!c)
         return; BZ.sell = ''; done(closeVenture(c.g, c.w, el.dataset.id, false), 'info'); await syncScene(); },
     'bz-ev': async (el) => { const c = C(); if (!c)
