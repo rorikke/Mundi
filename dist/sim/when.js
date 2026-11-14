@@ -461,7 +461,8 @@ function holds(g, w, key, v, x) {
 }
 /* ---------- the pieces the keys read ---------- */
 // (business) The ventures you own (sim/ventures.ts keeps `g.ventures`, read here so this file needs no venture code):
-// `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style.
+// `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style
+// (chosen at any tier and not changed since: the love hotel's window after its floors are themed).
 const ventureList = (g) => (g.ventures?.list ?? []).filter((s) => s && !s.closed);
 // (a venture's id, its track or its kind: `cafe` for either café, `hotel` for any hotel, `ryokan` for the ryokan)
 const ventureIs = (w, s, id) => { if (id === 'any' || s.id === id)
@@ -470,7 +471,7 @@ function ventureHolds(g, w, v) {
     if (!systemOn(w, 'business'))
         return false;
     const [id, a, b] = v.split(/\s+/);
-    return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
+    return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a || Object.values(s.styles ?? {}).includes(a))));
 }
 // (hospitality) `tenant: Tsubaki` someone renting a room at a venture of yours; `tenant: Tsubaki ryokan` at that one
 // (its id, track or kind). The name may have spaces; the venture is its last word when one of yours matches it.

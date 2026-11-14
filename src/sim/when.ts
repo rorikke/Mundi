@@ -360,14 +360,15 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
 /* ---------- the pieces the keys read ---------- */
 
 // (business) The ventures you own (sim/ventures.ts keeps `g.ventures`, read here so this file needs no venture code):
-// `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style.
-const ventureList = (g: Save): { id: string; tier?: number; style?: string; owned?: string[]; closed?: number; kept?: number; tenants?: { who: string }[] }[] => ((g as any).ventures?.list ?? []).filter((s: any) => s && !s.closed);
+// `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style
+// (chosen at any tier and not changed since: the love hotel's window after its floors are themed).
+const ventureList = (g: Save): { id: string; tier?: number; style?: string; styles?: Record<number, string>; owned?: string[]; closed?: number; kept?: number; tenants?: { who: string }[] }[] => ((g as any).ventures?.list ?? []).filter((s: any) => s && !s.closed);
 // (a venture's id, its track or its kind: `cafe` for either café, `hotel` for any hotel, `ryokan` for the ryokan)
 const ventureIs = (w: WorldDef, s: { id: string }, id: string) => { if (id === 'any' || s.id === id) return true; const d = w.ventures?.find(x => x.id === s.id); return d?.track === id || d?.kind === id; };
 function ventureHolds(g: Save, w: WorldDef, v: string): boolean {
     if (!systemOn(w, 'business')) return false;
     const [id, a, b] = v.split(/\s+/);
-    return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a)));
+    return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a || Object.values(s.styles ?? {}).includes(a))));
 }
 // (hospitality) `tenant: Tsubaki` someone renting a room at a venture of yours; `tenant: Tsubaki ryokan` at that one
 // (its id, track or kind). The name may have spaces; the venture is its last word when one of yours matches it.

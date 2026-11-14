@@ -177,7 +177,9 @@ export function hotelOn(g, w, d, s, day, extra = {}) {
     for (const [k, v] of Object.entries(extra))
         stats[k] = (stats[k] ?? 0) + v;
     const ids = statsOf(d);
-    return hotelDay(t, styleDef(d, s.style), ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
+    // (a style's own prices count at its own tier only: the next tier's prices are its own)
+    const st = styleDef(d, s.style);
+    return hotelDay(t, st && st.tier === s.tier ? st : null, ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
 }
 /** (hospitality) How full a hotel is right now: the day's occupancy by the hour (`demand.hours`), at most full. */
 export const occupancyNow = (g, w, d, s) => Math.min(1, hotelOn(g, w, d, s, g.day).occupancy * hourMul(d, Math.floor(g.minutes / 60)));
@@ -319,6 +321,8 @@ export function chooseStyle(g, w, id, style) {
     }
     s.style = style;
     s.styleTier = s.tier;
+    // (each tier's choice is kept: the love hotel's window stays its window once its floors are themed)
+    s.styles = { ...(s.styles ?? {}), [s.tier]: style };
     report(s, `New style: ${st.name}.`);
     note(g, '{u} made {0} {1}.', [ventureName(w, s), st.name], [], s.place, 'work');
     return cost ? `${ventureName(w, s)} is renovated: ${st.name}.` : `${ventureName(w, s)}: ${st.name}.`;
@@ -348,7 +352,8 @@ function upgradeState(g, w, d, s, u) {
  *  more than the last of its number), by the game's difficulty. */
 export function upgradePrice(g, d, s, u) {
     const before = s.owned.filter(id => id !== u.id && d.upgrades?.find(x => x.id === id)?.stat === u.stat).length;
-    return Math.round(priceOf(g, u.cost * VENTURE.rise ** before) / 100) * 100;
+    // (a partnership: you pay your share of it, as you're paid your share of the takings)
+    return Math.round(priceOf(g, u.cost * VENTURE.rise ** before * mineOf(d, s)) / 100) * 100;
 }
 export function buyUpgrade(g, w, id, upgrade) {
     const s = venturesOf(g).find(x => x.id === id), d = s && live(g, w, s);
@@ -802,6 +807,11 @@ export function letRoom(g, w, id, tenancy) {
     if (!o)
         return '';
     o.s.tenants = [...(o.s.tenants ?? []), { id: o.t.id, who: o.r.name, since: g.day }];
+    // (their business moves in: the job it is theirs from today, as their story's ending would give it)
+    if (o.t.job && systemOn(w, 'jobs') && w.occupations.some(x => x.id === o.t.job) && o.r.occupation !== o.t.job) {
+        o.r.occupation = o.t.job;
+        delete (g.living?.ranks ?? {})[o.r.avatar];
+    }
     const got = addAll(g, w, o.s, o.t.add);
     report(o.s, `${o.r.name} rents a room.`);
     note(g, '{0} rents a room at {u}\'s {1}.', [o.r.name, ventureName(w, o.s)], [o.r.avatar], o.s.place, 'work');

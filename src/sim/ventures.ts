@@ -57,6 +57,8 @@ export interface VentureState {
     kept?: number; slipped?: number; sighted?: string[]; tell?: 'matters' | 'never';
     /** (hospitality) places an upgrade opened (the owner's suite, the detached rooms): part of it, on the map */
     opened?: string[];
+    /** the style chosen at each tier (tier → style id); `style` is the latest */
+    styles?: Record<number, string>;
 }
 /** A week's report: its number (week 0 is days 1–7), what came in and went out, days you ran it, lines worth telling. */
 export interface WeekReport { n: number; takings: number; costs: number; run: number; notes: string[]; /** paid on the owner's note */ note?: number }
@@ -204,7 +206,9 @@ export function hotelOn(g: Save, w: WorldDef, d: VentureDef, s: VentureState, da
     const t = tierOf(d, s.tier), stats: Record<string, number> = { ...s.stats };
     for (const [k, v] of Object.entries(extra)) stats[k] = (stats[k] ?? 0) + v;
     const ids = statsOf(d);
-    return hotelDay(t, styleDef(d, s.style), ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
+    // (a style's own prices count at its own tier only: the next tier's prices are its own)
+    const st = styleDef(d, s.style);
+    return hotelDay(t, st && st.tier === s.tier ? st : null, ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
 }
 /** (hospitality) How full a hotel is right now: the day's occupancy by the hour (`demand.hours`), at most full. */
 export const occupancyNow = (g: Save, w: WorldDef, d: VentureDef, s: VentureState) => Math.min(1, hotelOn(g, w, d, s, g.day).occupancy * hourMul(d, Math.floor(g.minutes / 60)));
@@ -306,6 +310,8 @@ export function chooseStyle(g: Save, w: WorldDef, id: string, style: string): st
     if (cost > g.player.money) return `A new style means a renovation: ${money(w, cost)}.`;
     if (cost) { g.player.money -= cost; book(g, `${ventureName(w, s)}: renovation`, -cost); s.spent = (s.spent ?? 0) + cost; }
     s.style = style; s.styleTier = s.tier;
+    // (each tier's choice is kept: the love hotel's window stays its window once its floors are themed)
+    s.styles = { ...(s.styles ?? {}), [s.tier]: style };
     report(s, `New style: ${st.name}.`);
     note(g, '{u} made {0} {1}.', [ventureName(w, s), st.name], [], s.place, 'work');
     return cost ? `${ventureName(w, s)} is renovated: ${st.name}.` : `${ventureName(w, s)}: ${st.name}.`;
@@ -335,7 +341,8 @@ function upgradeState(g: Save, w: WorldDef, d: VentureDef, s: VentureState, u: U
  *  more than the last of its number), by the game's difficulty. */
 export function upgradePrice(g: Save, d: VentureDef, s: VentureState, u: UpgradeDef): number {
     const before = s.owned.filter(id => id !== u.id && d.upgrades?.find(x => x.id === id)?.stat === u.stat).length;
-    return Math.round(priceOf(g, u.cost * VENTURE.rise ** before) / 100) * 100;
+    // (a partnership: you pay your share of it, as you're paid your share of the takings)
+    return Math.round(priceOf(g, u.cost * VENTURE.rise ** before * mineOf(d, s)) / 100) * 100;
 }
 export function buyUpgrade(g: Save, w: WorldDef, id: string, upgrade: string): string {
     const s = venturesOf(g).find(x => x.id === id), d = s && live(g, w, s);
@@ -685,6 +692,8 @@ export function letRoom(g: Save, w: WorldDef, id: string, tenancy: string): stri
     const o = tenancyOffers(g, w).find(x => x.s.id === id && x.t.id === tenancy);
     if (!o) return '';
     o.s.tenants = [...(o.s.tenants ?? []), { id: o.t.id, who: o.r.name, since: g.day }];
+    // (their business moves in: the job it is theirs from today, as their story's ending would give it)
+    if (o.t.job && systemOn(w, 'jobs') && w.occupations.some(x => x.id === o.t.job) && o.r.occupation !== o.t.job) { o.r.occupation = o.t.job; delete ((g as any).living?.ranks ?? {})[o.r.avatar]; }
     const got = addAll(g, w, o.s, o.t.add);
     report(o.s, `${o.r.name} rents a room.`);
     note(g, '{0} rents a room at {u}\'s {1}.', [o.r.name, ventureName(w, o.s)], [o.r.avatar], o.s.place, 'work');
