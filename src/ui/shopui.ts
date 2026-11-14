@@ -4,7 +4,7 @@
 // description, price, what the engine says the item does, and Buy / Owned / Buy again. Items whose `when` doesn't hold
 // are hidden; a category with some says "More by invitation." once. Also the HUD's "Shop here" row at such a place.
 // The engine owns every number (sim/shop.ts); this file only draws and calls.
-import { esc, game, toast, notify, saveGame, nowAbs, adultOn, adultOk, SAVE, type Save } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, nowAbs, adultOn, SAVE, type Save } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type KeepsakeDef } from '../core/world.js';
 import { num } from '../core/safe.js';
 import { money } from '../sim/needs.js';
@@ -58,6 +58,11 @@ function doesStandIn(w: WorldDef, it: Item): string[] {
     if (k) out.push(`Gives: ${k.name}`);
     return out;
 }
+// until A: days left of a service (rounded up) and uses left of stock, read without writing `g.shop` into a save.
+const daysOf = (g: Save, id: string): number => ((S as any).daysLeft ? num((S as any).daysLeft(g, id)) : Math.max(0, Math.ceil((num(peek(g).until?.[id]) - nowAbs(g)) / 1440)));
+const stockOf = (g: Save, id: string): number => ((S as any).stockLeft ? num((S as any).stockLeft(g, id)) : Math.max(0, num(peek(g).stock?.[id])));
+// until A: an adult thing: `adult: true`, or in an adult category (Adult, Explicit).
+const adultThing = (it: Item): boolean => ((S as any).isAdultItem ? (S as any).isAdultItem(it) : it.adult === true || !!S.shopCat(it).adult);
 /* ---------- (end of until A) ---------- */
 
 /** What the app shows (memory only): the tab (`here`, `yours` or a category id; '' picks the first there is). */
@@ -66,7 +71,7 @@ SAVE.hooks.push(() => { SH.tab = ''; });
 
 // Sold `where` as far as the item says (online, or at that place while it's open), adult items only with adult
 // content on. Whether its `when` holds is left out: that's what tells offered from "by invitation".
-const soldAt = (g: Save, w: WorldDef, it: Item, where: string) => adultOk(g, it) && (where === 'online' ? onlineOf(it) : (it.at ?? []).includes(where) && openNow(g, w, where));
+const soldAt = (g: Save, w: WorldDef, it: Item, where: string) => (!adultThing(it) || adultOn(g)) && (where === 'online' ? onlineOf(it) : (it.at ?? []).includes(where) && openNow(g, w, where));
 const catShown = (g: Save, c: ShopCat) => !c.adult || adultOn(g);
 const peek = (g: Save): Partial<ShopState> => ((g as any).shop ?? {}) as Partial<ShopState>;
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many.replace('{0}', String(n)));
@@ -80,8 +85,8 @@ export const shopHereCount = (g: Save, w: WorldDef): number => (systemOn(w, 'sho
 /* ---------- a card ---------- */
 
 function leftWords(g: Save, it: Item): string {
-    const s = peek(g), until = num(s.until?.[it.id]), stock = num(s.stock?.[it.id]);
-    if (until > nowAbs(g)) { const d = Math.ceil((until - nowAbs(g)) / 1440); return plural(d, 'Ends today', '{0} days left'); }
+    const d = daysOf(g, it.id), stock = stockOf(g, it.id);
+    if (d > 0) return plural(d, '1 day left', '{0} days left');
     if (stock > 0) return plural(stock, '1 left', '{0} left');
     return '';
 }
