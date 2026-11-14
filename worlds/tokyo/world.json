@@ -40267,7 +40267,10 @@
    "adult": false,
    "drinks": [
     "ot_izakaya"
-   ]
+   ],
+   "skills": {
+    "photography": 0
+   }
   },
   {
    "id": "idol",
@@ -44102,7 +44105,10 @@
    ],
    "drinks": [
     "bay_mall"
-   ]
+   ],
+   "skills": {
+    "photography": 0
+   }
   },
   {
    "id": "clubstaff",
