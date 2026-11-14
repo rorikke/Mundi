@@ -2069,6 +2069,7 @@ function helpForm(w: WorldDef, s: string, en: NonNullable<ThreadForm['endings']>
         <div class="mu-row2">${wayField('Offered while (a condition)', `${q}.when`, 'knows: kaito_debt; feels: Kaito acquaintance')}${txt('The button\'s label', `${q}.label`, 'Lend him what he owes')}</div>
         <div class="mu-row2">${bounded(`Money it costs (${esc(w.currency.symbol)}; 0 … 10,000,000)`, `${q}.money`, 0, HELP_LIMITS.money)}${bounded('Hours it takes (0 … 8)', `${q}.hours`, 0, HELP_LIMITS.hours)}</div>
         <div class="mu-row2">${flag('Can also be given by text', `${q}.remote`, 'In a last chance by text, with no meeting.')}${flag('Only through Help', `${q}.only`, 'The way never happens on its own condition: the player takes it by paying.')}</div>
+        ${typeof h.when === 'string' && h.when.trim() ? '' : '<small class="mu-cw-err">A help needs a condition to say when it is offered.</small>'}
         ${typeof h.label === 'string' && h.label.trim() ? '' : '<small class="mu-cw-err">A help needs a label for its button: without one it is left out.</small>'}
         ${en.good ? '' : '<small class="mu-cw-err">A help only works on a good ending: tick “A good ending”.</small>'}</div>`;
 }
