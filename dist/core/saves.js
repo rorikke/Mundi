@@ -17,8 +17,9 @@ import { settleTraits } from '../sim/traits.js';
 import { trackOf } from '../sim/tracks.js';
 import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
+import { settleThreads } from '../sim/threads.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 6;
+export const SCHEMA = 7;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
 const MIGRATIONS = [
     // 1 (Mundi 0.1.x): the first versioned format. Saves from before only get the stamp; every system already fills
@@ -36,6 +37,9 @@ const MIGRATIONS = [
     { to: 5, what: 'courses in a list, traits made skills', run: g => traitsAndCourses(g) },
     // 6 (training together): apprentices become training together; those who finished stay as former apprentices.
     { to: 6, what: 'apprentices become training together', run: g => apprenticesToTraining(g) },
+    // 7 (storylines): storylines wait for the player; they're settled once the world is known (settleThreads,
+    // sim/threads.ts).
+    { to: 7, what: 'storylines wait for the player', run: g => storylinesTodo(g) },
 ];
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
 // directions toward you, the status (and the partner list) the pair's; each "Play as" copy (`swap.persp`) holds how
@@ -249,6 +253,14 @@ function apprenticesToTraining(g) {
     }
     delete g.mentees;
 }
+// Schema 7. Storylines start with the player and wait for them at the end. What each one under way becomes depends on
+// the world (whose storyline it is, whether you've met them, whether its last stage is over), so the migration only
+// asks settleThreads to do it when the world is loaded (a custom world not there yet waits); it changes nothing else.
+// A second run finds the flag set, or settled and gone, and does nothing new.
+function storylinesTodo(g) {
+    if (g.threads && typeof g.threads === 'object' && Object.keys(g.threads).length)
+        g.threadsTodo = true;
+}
 export const schemaOf = (g) => Number(g.schema ?? 0);
 const KEEP = 3;
 export const backups = () => (Array.isArray(ctx().chatMetadata?.mundi_backups) ? ctx().chatMetadata.mundi_backups : []);
@@ -450,6 +462,11 @@ export function repair(g, w) {
 }
 /* ---------- the check when a save is opened ---------- */
 const later = (f) => setTimeout(f, 300);
+/** What the player is told the first time an old save meets storylines that wait for them. */
+export function storylinesToast(reset, kept) {
+    const parts = [reset ? `${reset === 1 ? '1 person' : `${reset} people`} you haven't met yet will start theirs when you get to know them` : '', kept ? `${kept === 1 ? '1 storyline' : `${kept} storylines`} under way will end in a scene with you` : ''].filter(Boolean);
+    return `Storylines now wait for you${parts.length ? `: ${parts.join(', and ')}` : ''}. A backup of the save was kept (Settings → Game → This save).`;
+}
 export function checkSave(g) {
     // made by a newer Mundi: play a copy, never write
     if (schemaOf(g) > SCHEMA) {
@@ -482,11 +499,21 @@ export function checkSave(g) {
         if (JSON.stringify(settled) !== JSON.stringify(g)) {
             if (!backedUp)
                 backup(g, 'before settling your traits and courses');
+            backedUp = true;
             const said = settleTraits(g, w);
             changed = true;
             // the first time an old save meets the new traits and courses, the player is told what moved
             if (first)
                 later(() => toast(`Your game now plays by the new traits and courses: strengths are skill levels, your personality and interests do small things, and courses take weeks. ${said.join(' ')} A backup of the save was kept (Settings → Game → This save).`.replace(/\s+/g, ' '), 'info'));
+        }
+        // storylines that wait for the player (schema 7), once the world is known
+        const threads = structuredClone(g);
+        if (settleThreads(threads, w) && JSON.stringify(threads) !== JSON.stringify(g)) {
+            if (!backedUp)
+                backup(g, 'before settling the storylines');
+            const n = settleThreads(g, w);
+            changed = true;
+            later(() => toast(storylinesToast(n.reset, n.kept), 'info'));
         }
     }
     if (changed)

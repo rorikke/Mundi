@@ -39,6 +39,11 @@ export function seat(g: Save): Seat {
     return s;
 }
 export const momentsOf = (g: Save, who?: string) => seat(g).moments.filter(m => !who || m.who === who);
+// Invitations someone will text soon (bought in the rewards shop, or a storyline's "Meet them"): sim/initiative.ts sends
+// them. Kept here, so a module can ask for one without loading the initiative code.
+export const boughtInvites = (g: Save) => ((seat(g) as any).bought ??= {}) as Record<string, number>;
+/** Someone will invite you out soon. */
+export function inviteSoon(g: Save, a: string) { boughtInvites(g)[a] = g.day; }
 
 /* ---------- the budget (A-0) ---------- */
 

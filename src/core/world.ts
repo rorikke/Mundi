@@ -497,7 +497,13 @@ export interface Ritual {
  *  AI as hidden); `known`: how it reads once the player knows ({{user}} knows …); `reveal`: when the character tells
  *  the player, asked while the two are together (a condition; missing: `feels: <them> good`). A story's choice
  *  (`reveal` on its result) or an overheard rumor of one of its stages also tells it (sim/threads.ts). */
-export interface Thread { id: string; hidden: string; known?: string; reveal?: When; stages: ThreadStage[]; endings?: ThreadEnding[]; adult?: boolean }
+export interface Thread { id: string; hidden: string; known?: string; reveal?: When; stages: ThreadStage[]; endings?: ThreadEnding[]; adult?: boolean;
+    /** What the player sees it called once they know it ("Mio's exams"; missing: "{name}'s storyline"). */ title?: string;
+    /** Earlier ways in, besides friend and learning the secret (any one holding): a storyline never opens before its
+     *  person has met you, and then opens at friend, through one of these, or when you learn the secret. */ opens?: When | When[];
+    /** The deciding scene, for the AI: what's at stake as they bring it up (`{{user}}`; missing: from `hidden` and the
+     *  last stage's text). */ decide?: string;
+    /** The last chances by text, in their voice, first to last (at most 3; missing: three plain engine lines). */ nudges?: string[] }
 /** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
  *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
@@ -508,10 +514,14 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
     leaves?: boolean;
     /** A good ending: a thread you knew that ends this way counts as one you helped (the `helped` condition, life goals). */
     good?: boolean;
-    /** (business) While this holds and the ending's own condition doesn't yet, the thread waits at its last stage (a game
-     *  year at most) instead of ending: a business on its way can still decide how the story ends (Mei waits while you
-     *  are at Asahina's top). */
-    waits?: When }
+    /** A good way still on its way: while this holds and the ending's own condition doesn't yet, the deciding scene
+     *  offers to wait for it (Mei waits while you are at Asahina's top), for as long as it holds. */
+    waits?: When;
+    /** A price paid in the deciding scene (or by text, `remote`) that takes this way when `when` holds; with `only`, the
+     *  way is taken through Help alone, never on its own condition (Genzō's key money). */
+    help?: ThreadHelp }
+/** (storylines) Help in a deciding scene: money (0…10,000,000) and/or hours together (0…8), a label for the button. */
+export interface ThreadHelp { when: When; money?: number; hours?: number; remote?: boolean; only?: boolean; label: string }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
  *  flirt, who leads, preference tags, hard limits (never cut by the token budget). */
 export interface IntimateProfile { experience?: string; wants?: string; drawnTo?: string; flirts?: string; dynamic?: string;
