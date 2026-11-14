@@ -1,0 +1,32 @@
+/* Storylines (ui/threadui.ts): the deciding card and the last-chance card in the HUD, the answers under a text in the
+   phone conversation, and "Their story" on a person's page. The card itself is a .mh-invite (84-hud.css). */
+#mundi-root .mu-th-card > div:nth-child(2), #mundi-root .mu-th-nudge > div:nth-child(2) { min-width: 0; }
+#mundi-root .mu-th-title { display: block; margin-top: 1px; font-size: 12px; font-weight: 700; color: var(--hud-muted); overflow-wrap: anywhere; }
+#mundi-root .mu-th-card p { max-height: 7.5em; overflow: auto; overflow-wrap: anywhere; }
+#mundi-root .mu-th-why { font-style: italic; }
+#mundi-root .mu-th-help { display: block; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--hud-muted); }
+#mundi-root .mu-th-miss { margin: 2px 0 0; padding-left: 18px; font-size: 12px; color: var(--hud-muted); }
+#mundi-root .mu-th-miss li { margin: 1px 0; overflow-wrap: anywhere; }
+#mundi-root .mu-th-card .mh-invite-btns button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+#mundi-root .mu-th-nudge .mu-th-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+#mundi-root .mu-th-nudge { border: 1px solid color-mix(in srgb, var(--accent, #7fd3ff) 35%, transparent); }
+/* the answers under their text in the phone */
+#mundi-root .mu-th-answers { display: grid; gap: 6px; align-self: stretch; margin-top: 4px; padding: 10px; border-radius: 14px; background: var(--bg2); border: 1px dashed var(--line); }
+#mundi-root .mu-th-answers .mu-th-title { color: var(--muted); }
+#mundi-root .mu-th-answers > small:last-child { color: var(--muted); font-size: 11px; }
+#mundi-root .mu-th-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+#mundi-root .mu-th-btns button { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 7px 12px; border-radius: 12px; font-size: 13px; text-align: left; white-space: normal; }
+#mundi-root .mu-th-btns button small, #mundi-root .mu-th-card .mh-invite-btns button small { opacity: .75; font-size: 11px; }
+#mundi-root .mu-th-btns button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+/* "Their story" on a person's page */
+#mundi-root .mu-th-story { display: grid; gap: 4px; margin: 8px 0; padding: 10px 12px; border-radius: 14px; background: rgba(127, 211, 255, .07); border: 1px solid rgba(127, 211, 255, .22); }
+#mundi-root .mu-th-story h5 { display: flex; align-items: center; gap: 6px; margin: 0 0 2px; font-size: 13px; }
+#mundi-root .mu-th-story h5 .mu-ic { width: 14px; height: 14px; color: #7fd3ff; }
+#mundi-root .mu-th-story b { overflow-wrap: anywhere; }
+#mundi-root .mu-th-state { font-weight: 700; }
+#mundi-root .mu-th-story.is-due .mu-th-state, #mundi-root .mu-th-story.is-waiting .mu-th-state { color: #ffd36e; }
+#mundi-root .mu-th-story.is-ended { opacity: .85; }
+#mundi-root .mu-th-story .mu-th-help { margin-top: 2px; color: inherit; opacity: .8; }
+#mundi-root .mu-th-story .mu-th-miss { margin-top: 0; color: inherit; opacity: .8; }
+#mundi-root .mu-th-story button { justify-self: start; margin-top: 4px; }
+#mundi-root .mu-th-story button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }

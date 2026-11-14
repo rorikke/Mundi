@@ -9,6 +9,7 @@ import { ventureDefs } from '../sim/ventures.js';
 import { billList as bills } from '../sim/bills.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
+import { STORYLINES_HELP } from './threadui.js';
 
 interface Topic { id: string; icon: string; title: string; intro: string; items: [string, string][] }
 // Written with the world's own words: its apps, bills, courses and device (a phone, a journal…).
@@ -125,6 +126,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['What they think of you', 'Approval goes up when you keep your word and down when you let people down. Feelings (happy, hurt…) fade with the days.'],
             ['Their own lives', `People work, go out and sleep on their own schedule. ${lex(w, 'reachThem')}`],
         ] },
+    ...(!w || systemOn(w, 'living') ? [<Topic>{ id: 'storylines', icon: 'book', ...STORYLINES_HELP }] : []),
     { id: 'plans', icon: 'calendar', title: 'Plans and events', intro: 'Invite people to hang out, go on a date or come to your party. A plan becomes an event when it starts.',
         items: [
             ['Make plans', `From a person's card (in person) or the ${devl}. Choose where, when, and give it a name: the story will be about it ("${lex(w, 'planTitleEg').replace(/^e\.g\. /, '').split(',')[0]}").`],
