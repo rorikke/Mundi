@@ -42542,7 +42542,7 @@
        },
        {
         "id": "leaves_tokyo",
-        "text": "She leaves Tokyo at the start of spring, and writes from Manchester.",
+        "text": "She leaves Tokyo, and writes from Manchester.",
         "leaves": true
        }
       ]
@@ -42875,9 +42875,15 @@
       "endings": [
        {
         "id": "paid_off",
-        "text": "The debt is paid off with Nanami's help.",
+        "text": "The debt is paid off, with Nanami's help and {{user}}'s.",
         "when": "knows: kaito_debt; feels: Kaito friend",
-        "good": true
+        "good": true,
+        "help": {
+         "when": "knows: kaito_debt; feels: Kaito acquaintance",
+         "money": 150000,
+         "remote": true,
+         "label": "Lend him what he owes"
+        }
        },
        {
         "id": "sells_drums",
@@ -43019,6 +43025,18 @@
         "text": "A new lease is signed, thanks to Ayaka's contest win and the help of {{user}}.",
         "when": "thread: ayaka_contest wins; knows: genzo_lease",
         "good": true
+       },
+       {
+        "id": "backed_lease",
+        "text": "{{user}} puts up the key money and Genzō signs a new lease on the same street, calling it a loan he'll pay back; {{user}} hasn't paid for a bowl since.",
+        "when": "knows: genzo_lease; feels: Genzō good",
+        "good": true,
+        "help": {
+         "when": "knows: genzo_lease; feels: Genzō good",
+         "money": 1500000,
+         "only": true,
+         "label": "Put up the key money"
+        }
        },
        {
         "id": "smaller_place",
@@ -43488,7 +43506,7 @@
        {
         "when": "season: spring",
         "tell": "hidden",
-        "text": "Rina pitches investors all spring, upbeat and fast; nobody sees how short the runway is."
+        "text": "Rina pitches investors week after week, upbeat and fast; nobody sees how short the runway is."
        },
        {
         "when": "season: summer; seasonDays: 1-7",
@@ -44494,7 +44512,7 @@
        {
         "when": "season: winter",
         "tell": "known",
-        "text": "Her parents visit Tokyo."
+        "text": "Her parents are coming to Tokyo."
        }
       ],
       "endings": [
