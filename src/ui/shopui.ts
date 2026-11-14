@@ -14,13 +14,13 @@ import { giftsForSale, giftPrice } from '../sim/social.js';
 import { whenHolds } from '../sim/when.js';
 import { openNow } from '../sim/daynight.js';
 import * as S from '../sim/shop.js';
-import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, catOf, onlineOf, type Item, type ShopCat, type ShopState } from '../sim/shop.js';
+import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, haveItem, catOf, onlineOf, type Item, type ShopCat, type ShopState } from '../sim/shop.js';
 import { ACT } from './reg.js';
 
 /* ---------- until A: the engine's pieces that aren't on this branch yet ---------- */
-// until A: `itemDoes`, and `where` on `shopPrice` and `buy`, are session A's (plans/shop.md). Until they're merged,
-// these call A's version when it's there and stand in for it otherwise; the merge deletes this block and the calls
-// below use sim/shop.ts directly.
+// until A: `itemDoes`, `isKept`, `whyNotBuy`, `moreByInvitation`, and `where` on `shopPrice` and `buy`, are session A's
+// (plans/shop.md, A's API in the shared notes). Until they're merged, these call A's version when it's there and stand
+// in for it otherwise; the merge deletes this block and the calls below use sim/shop.ts directly.
 // until A
 const itemDoes = (g: Save, w: WorldDef, it: Item): string[] => ((S as any).itemDoes ? (S as any).itemDoes(g, w, it) : doesStandIn(w, it));
 // until A
@@ -31,7 +31,17 @@ const buyAt = (g: Save, w: WorldDef, id: string, where: string): string => (S.bu
 // it's sold and the place's hours. Filtering again here changes nothing once A's is in.
 const offeredAt = (g: Save, w: WorldDef, where: string): Item[] => {
     const list = where === 'online' ? offers(g, w, where) : (offers(g, w, where).length ? offers(g, w, where) : shopItems(w));
-    return list.filter(it => soldAt(g, w, it, where) && whenHolds(g, w, it.when ?? null));
+    return list.filter(it => soldAt(g, w, it, where) && (whenHolds(g, w, it.when ?? null) || haveItem(g, w, it.id)));
+};
+// until A: kept for good (Owned once bought); anything else is bought again.
+const kept = (it: Item): boolean => ((S as any).isKept ? (S as any).isKept(it) : !it.repeat && !it.keepsake && !it.now);
+// until A: '' when it can be bought here, else why not (the Buy button is off, the reason its title).
+const whyNot = (g: Save, w: WorldDef, it: Item, where: string): string => ((S as any).whyNotBuy ? (S as any).whyNotBuy(g, w, it, where) : num(g.player.money) < priceAt(g, w, it, where) ? 'Not enough money.' : '');
+// until A: the categories with something sold `where` that a condition still hides.
+const invitedCats = (g: Save, w: WorldDef, where: string): string[] => {
+    if ((S as any).moreByInvitation) return (S as any).moreByInvitation(g, w, where);
+    const ids = new Set(offeredAt(g, w, where).map(it => it.id));
+    return [...new Set(shopItems(w).filter(it => !ids.has(it.id) && soldAt(g, w, it, where)).map(catOf))];
 };
 // until A: what the engine will say an item does, from the fields alone.
 function doesStandIn(w: WorldDef, it: Item): string[] {
@@ -59,8 +69,6 @@ SAVE.hooks.push(() => { SH.tab = ''; });
 const soldAt = (g: Save, w: WorldDef, it: Item, where: string) => adultOk(g, it) && (where === 'online' ? onlineOf(it) : (it.at ?? []).includes(where) && openNow(g, w, where));
 const catShown = (g: Save, c: ShopCat) => !c.adult || adultOn(g);
 const peek = (g: Save): Partial<ShopState> => ((g as any).shop ?? {}) as Partial<ShopState>;
-// (a kept thing is bought once; a service, stock or a gift is bought again)
-const kept = (it: Item) => !it.repeat && !it.keepsake;
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many.replace('{0}', String(n)));
 
 /** The phone's place: the place you're at, when the shop sells something there (or a gift is sold there). */
@@ -78,12 +86,12 @@ function leftWords(g: Save, it: Item): string {
     return '';
 }
 function card(g: Save, w: WorldDef, it: Item, where: string, canBuy = true): string {
-    const price = priceAt(g, w, it, where), poor = num(g.player.money) < price;
+    const price = priceAt(g, w, it, where), why = whyNot(g, w, it, where);
     const owned = kept(it) && hasItem(g, it.id), left = leftWords(g, it);
     const again = !kept(it) && (!!left || num(peek(g).bought?.[it.id]) > 0);
     const does = itemDoes(g, w, it).map(t => `<li>${esc(t)}</li>`).join('');
     const act = owned ? '<em>Owned</em>'
-        : canBuy ? `<button data-act="shop-buy" data-id="${esc(it.id)}" data-where="${esc(where)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}>${again ? 'Buy again' : 'Buy'}</button>` : '';
+        : canBuy ? `<button data-act="shop-buy" data-id="${esc(it.id)}" data-where="${esc(where)}" ${why ? `aria-disabled="true" title="${esc(why.replace(/\.$/, ''))}"` : ''}>${again ? 'Buy again' : 'Buy'}</button>` : '';
     return `<article class="mu-shop-item ${owned ? 'is-owned' : ''}" data-item="${esc(it.id)}"><i>${esc(it.icon ?? '')}</i>
         <span><b data-notr>${esc(it.name)}</b>${it.desc ? `<small data-notr>${esc(it.desc)}</small>` : ''}${does ? `<ul class="mu-shop-does">${does}</ul>` : ''}
         <small class="mu-shop-price">${esc(money(w, price))}</small>${left ? `<small class="mu-shop-left">${esc(left)}</small>` : ''}</span>${act}</article>`;
@@ -111,14 +119,11 @@ function tabsOf(g: Save, w: WorldDef, place: string): { id: string; name: string
 }
 function catTab(g: Save, w: WorldDef, cat: string): string {
     const on = cheapestFirst(g, w, 'online', offeredAt(g, w, 'online').filter(it => catOf(it) === cat));
-    const ids = new Set(on.map(it => it.id));
-    const hidden = shopItems(w).some(it => catOf(it) === cat && !ids.has(it.id) && soldAt(g, w, it, 'online'));
-    return `${on.map(it => card(g, w, it, 'online')).join('')}${hidden ? invite : ''}`;
+    return `${on.map(it => card(g, w, it, 'online')).join('')}${invitedCats(g, w, 'online').includes(cat) ? invite : ''}`;
 }
 function hereTab(g: Save, w: WorldDef, place: string): string {
     const on = cheapestFirst(g, w, place, offeredAt(g, w, place).filter(it => catShown(g, S.shopCat(it))));
-    const ids = new Set(on.map(it => it.id));
-    const hidden = shopItems(w).some(it => !ids.has(it.id) && soldAt(g, w, it, place));
+    const hidden = invitedCats(g, w, place).some(c => catShown(g, SHOP_CATS.find(x => x.id === c) ?? SHOP_CATS[0]));
     const gifts = giftsForSale(g, w, place);
     const name = placeOf(g, w, place)?.name ?? '';
     return `<p class="mu-shop-where"><small>Sold at</small> <b data-notr>${esc(name)}</b></p>${on.map(it => card(g, w, it, place)).join('')}${hidden ? invite : ''}
