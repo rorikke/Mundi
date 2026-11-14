@@ -26,5 +26,9 @@ Ideas planned for later. Nothing here is promised for a date.
 - **The world creator from inside a game:** everything the creator can change, changeable from ☰ → This world while
   you play; a game in a built-in world gets its own copy of the world first (plan and limitations:
   [`world-edit-in-game.md`](world-edit-in-game.md)).
+- **Tokyo: a photographer's job.** Once photography is a skill (planned with the shop's overhaul, where it trains at
+  scenic places and with cameras and counts in a few existing jobs), a job of its own: a studio to work from (a new
+  place and its picture), assignments for magazines, weddings and the city's festivals and events, and an adult side
+  when adult content is on.
 - **Tokyo in Portuguese and Spanish:** the world's own text (places, things to do, stories) in
   `worlds/tokyo/lang/pt.json` and `es.json`, as Porto Alto has; the interface is already translated.
