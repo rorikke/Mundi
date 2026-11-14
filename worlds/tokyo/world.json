@@ -13142,6 +13142,52 @@
     }
    ],
    "fact": "{u} had a coffee at {0}, the café {u} runs"
+  },
+  {
+   "id": "hr_hanare_bath",
+   "dc": 11,
+   "label": "Soak in the veranda's cypress bath",
+   "name": "Cypress bath",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 40,
+   "place": "hk_ryokan_hanare",
+   "effects": {
+    "hygiene": 50,
+    "energy": 10,
+    "mood": 12
+   },
+   "private": true,
+   "together": {
+    "needed": false,
+    "text": "a private bath for two on the veranda, among the maples; with a partner it counts as a shared intimate moment"
+   },
+   "outcomes": [
+    {
+     "id": "maples",
+     "weight": 80,
+     "text": "Hot cypress, cold air, the maples dripping into the garden: nobody comes across the path for an hour."
+    },
+    {
+     "id": "deer",
+     "weight": 20,
+     "text": "A deer steps out of the trees below the veranda, looks at you for a long moment and goes back into the dark.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} soaked in the cypress bath at {0}",
+   "tags": [
+    "bath",
+    "private"
+   ],
+   "matches": [
+    "bath",
+    "cypress",
+    "hinoki",
+    "veranda"
+   ]
   }
  ],
  "sleep": {
@@ -24322,6 +24368,41 @@
    "actions": [
     "cf_unit_coffee"
    ]
+  },
+  {
+   "id": "hk_ryokan_hanare",
+   "name": "Kasumi-sō's detached rooms",
+   "map": "hakone",
+   "x": 74.6,
+   "y": 57.4,
+   "tags": [
+    "service",
+    "health"
+   ],
+   "venture": "ht_ryokan",
+   "desc": "a separate cottage across Kasumi-sō's garden: a tatami room with a low table and paper screens, a veranda with a private cypress bath, maples all around",
+   "staff": "a room attendant who crosses the garden with the trays; nobody else",
+   "crowd": 0.2,
+   "closed": [
+    "latenight"
+   ],
+   "generic": false,
+   "sleep": {
+    "price": 58000,
+    "rest": "great",
+    "until": 11,
+    "includes": [
+     "hr_hanare_bath"
+    ]
+   },
+   "bg": "bg/hk_ryokan_hanare.avif",
+   "sound": [
+    "water",
+    "birds"
+   ],
+   "actions": [
+    "hr_hanare_bath"
+   ]
   }
  ],
  "stories": [
@@ -29012,6 +29093,408 @@
       "feels": {
        "Tsubaki": 1
       }
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_st_shizuka_step",
+   "place": "hk_ryokan",
+   "yearly": true,
+   "title": "Shizuka's plan",
+   "when": "knows: shizuka_marriage; feels: Shizuka friend; present: Shizuka; thread: not shizuka_marriage; venture: not ht_ryokan; period: afternoon or evening",
+   "setup": "After the guests' dinner Shizuka walks {{user}} to the old rock bath under the cedars. Its stones are cracking, she says, and the old wing's roof leaks. The suitor's family offered to pay for all of it as part of the match. This morning she wrote to them herself and said no to the money. Now she means to put another plan to her mother: a partner from outside, one she chooses.",
+   "choices": [
+    {
+     "label": "Tell her she may give your name",
+     "text": "she lets out a breath she seems to have held all autumn; she will speak to her mother herself, she says, and whatever the okami answers will come from her",
+     "feels": {
+      "Shizuka": 3
+     },
+     "fact": "Shizuka refused the suitor's family's money and put {u}'s name to her mother"
+    },
+    {
+     "label": "Ask what her mother will say",
+     "text": "that the inn has never had a partner in ninety years, she says, smiling for the first time; and that she will say it anyway, and then listen",
+     "feels": {
+      "Shizuka": 3
+     }
+    },
+    {
+     "label": "Say it isn't your place",
+     "text": "she bows, a little stiffly, and says she understands; she will find another way, and she still won't take their money",
+     "feels": {
+      "Shizuka": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_st_okami_offer",
+   "place": "hk_ryokan",
+   "title": "the okami's proposal",
+   "when": "seen: hr_st_shizuka_step:1 or hr_st_shizuka_step:2; feels: Shizuka good; present: Shizuka; venture: not ht_ryokan; period: evening or night",
+   "setup": "In the family's own room behind the kitchen the okami kneels at a low table with the ledgers. Shizuka kneels beside her, very straight. Yui telephoned last night, the okami says dryly, to tell her aunt whose side she is on. Her daughter refused the other family's money and vouches for {{user}}. The buy-in is ¥1,800,000 for a third of the takings, half once the open-air bath is built; the family keeps an equal say, and the inn stays Kasumi-sō.",
+   "choices": [
+    {
+     "label": "Bow and say you would be honored",
+     "text": "the okami bows exactly as low as you did, and Shizuka looks down at the table to hide her face; the partnership waits for you in the Business app",
+     "feels": {
+      "Shizuka": 3
+     },
+     "fact": "{u} was offered a partnership in Kasumi-sō by the okami"
+    },
+    {
+     "label": "Ask for time to think",
+     "text": "the okami says the offer stands as long as her daughter vouches for you; it waits in the Business app, and Shizuka walks you to the gate",
+     "feels": {
+      "Shizuka": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_yui_side",
+   "place": "ot_shrine",
+   "title": "Yui's promise",
+   "when": "venture: ht_ryokan; present: Yui; feels: Yui friend; knows: shizuka_marriage; thread: not shizuka_marriage; period: midmorning or afternoon",
+   "setup": "Yui is sweeping the steps of Tsukimi Inari when {{user}} comes by. She leans on the broom and says, in her most formal voice, that her cousin is going to tell her family about Rina before the year is out, and that she, Yui, will be sitting beside her. Then, less formally: the family's new partner should be at that table too.",
+   "choices": [
+    {
+     "label": "Promise you'll be there",
+     "text": "she bows, then grins and says she has already written the scene, in case it goes well; she won't say where it's published",
+     "feels": {
+      "Yui": 3,
+      "Shizuka": 2
+     }
+    },
+    {
+     "label": "Ask how Shizuka is",
+     "roll": {
+      "skill": "charisma",
+      "dc": 9
+     },
+     "text": "frightened and very calm, Yui says, which in their family is the same thing; she sends her love through you, and a fox charm for the inn",
+     "feels": {
+      "Yui": 3,
+      "Shizuka": 1
+     },
+     "fail": {
+      "text": "\"Ask her yourself,\" Yui says, and goes back to sweeping the steps; she is smiling to herself, though, all the way down",
+      "feels": {
+       "Yui": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_find_yosegi",
+   "place": "hk_yumoto",
+   "when": "venture: ht_ryokan",
+   "setup": "In a workshop on Hakone-Yumoto's main street an old craftsman is gluing strips of a dozen woods into a block that will become a puzzle box, a pattern of tiny diamonds in cedar, cherry and walnut. He makes them for the souvenir shops, he tells {{user}}, and would far rather they went to an inn where people actually open them.",
+   "choices": [
+    {
+     "label": "Order one for every room",
+     "text": "he writes the room names on the bottom of each in pencil; the boxes wait for you in the Business app",
+     "finds": "hr_yosegi"
+    },
+    {
+     "label": "Buy one and try to open it",
+     "text": "it takes you eleven moves and most of the afternoon; he watches the whole time and says nothing helpful",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_find_trout",
+   "place": "hk_ashi",
+   "when": "venture: ht_ryokan",
+   "setup": "At dawn on Lake Ashi a fisherman is landing his boat by the torii in the water, a box of trout under wet newspaper. He supplied Kasumi-sō in the okami's mother's time, he tells {{user}}, until the inn started buying from the market in Odawara. He wouldn't mind starting again.",
+   "choices": [
+    {
+     "label": "Ask him to bring the morning's catch",
+     "text": "he spits on his hand before he shakes; the trout wait for you in the Business app",
+     "finds": "hr_lake_trout"
+    },
+    {
+     "label": "Just watch the lake",
+     "text": "the mist lifts off the water and Fuji shows for a minute, and the fisherman says that's the only thing he still gets up for",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_find_eggs",
+   "place": "hk_owakudani",
+   "when": "venture: ht_ryokan",
+   "setup": "At Ōwakudani, in the sulfur steam, a stall boils eggs in the volcanic pools until their shells go black; one, they say, adds seven years to your life. The stallholder has a sideline he tells {{user}} about quietly: black eggs delivered to inns, still warm, for breakfast.",
+   "choices": [
+    {
+     "label": "Order them for the breakfast trays",
+     "text": "a basket every morning by the first bus; the eggs wait for you in the Business app",
+     "finds": "hr_black_eggs"
+    },
+    {
+     "label": "Eat one for the seven years",
+     "text": "it tastes exactly like an egg, and you feel seven years younger anyway, for a while",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_find_sweets",
+   "place": "mg_depachika",
+   "when": "venture: ht_ryokan",
+   "setup": "In the food hall of Tsubakiya Ginza a confectioner from an old Kyoto house is offering tastes of a seasonal sweet: a maple leaf in red bean jelly, too pretty to bite. She sells to three ryokan in Kyoto, she tells {{user}}, and none in Hakone.",
+   "choices": [
+    {
+     "label": "Ask about a standing order",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "she would send a box each week with the season's sweet for the rooms' tea; it waits for you in the Business app",
+     "finds": "hr_sweets",
+     "fail": {
+      "text": "she hesitates over Hakone, then agrees to a trial month; it waits for you in the Business app",
+      "finds": "hr_sweets"
+     }
+    },
+    {
+     "label": "Buy a box for yourself",
+     "text": "six maple leaves in a paper box, which you eat on the train back without meaning to eat more than one",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_find_ikebana",
+   "place": "ot_yanaka",
+   "when": "venture: ht_ryokan",
+   "setup": "In a Yanaka back lane an ikebana teacher is putting out the week's arrangement by her gate: one branch of persimmon, two chrysanthemums, a stone. Her students have grown old, she tells {{user}}, and she would like her flowers to be seen by strangers again before she stops.",
+   "choices": [
+    {
+     "label": "Ask if she would do the inn's alcoves",
+     "text": "she says she will come once a season and stay one night, no more; it waits for you in the Business app",
+     "finds": "hr_ikebana"
+    },
+    {
+     "label": "Admire it and go",
+     "text": "she bows, and moves the stone half an inch while you watch, and it is better"
+    }
+   ]
+  },
+  {
+   "id": "hr_find_lacquer",
+   "place": "ot_sensoji",
+   "when": "venture: ht_ryokan hr_old_house",
+   "setup": "Behind Nakamise a lacquer craftsman is finishing a set of trays in deep red, each coat dried for a week in a humid box. The set was ordered by an inn in Nikkō that closed before it was paid for. He would like it to go to a house that still serves dinner in the rooms.",
+   "choices": [
+    {
+     "label": "Say Kasumi-sō still does",
+     "text": "he wraps the trays in soft paper one by one; they wait for you in the Business app",
+     "finds": "hr_lacquer"
+    },
+    {
+     "label": "Just look",
+     "text": "he lets you hold one; it is as light as a leaf, and he takes it back very gently"
+    }
+   ]
+  },
+  {
+   "id": "hr_find_sculpture",
+   "place": "hk_sculpture",
+   "when": "venture: ht_ryokan hr_modern",
+   "setup": "At the Kirigaoka Sculpture Garden a young sculptor is crating a piece that didn't make the new show: a smooth black stone, split, with a thread of water running through the gap. It needs a garden that is quiet, she tells {{user}}, not one with a gift shop.",
+   "choices": [
+    {
+     "label": "Offer her the inn's garden",
+     "roll": {
+      "skill": "drawing",
+      "dc": 10
+     },
+     "text": "you sketch the garden from memory on the back of her flyer; she says yes before you finish, and it waits for you in the Business app",
+     "finds": "hr_sculpture",
+     "fail": {
+      "text": "your sketch is poor but the description isn't; she comes to see the garden, and it waits for you in the Business app",
+      "finds": "hr_sculpture"
+     }
+    },
+    {
+     "label": "Wish her luck",
+     "text": "she says luck has nothing to do with stone, and goes back to her crate"
+    }
+   ]
+  },
+  {
+   "id": "hr_find_knives",
+   "place": "mg_tsukiji",
+   "when": "venture: ht_ryokan tier 2",
+   "setup": "At a knife shop in Tsukiji's outer market the old master is engraving a name on a blade while its buyer waits. He has a set of kitchen knives made for a ryokan chef who retired before he collected them, he tells {{user}}: the right weight for fish, never used.",
+   "choices": [
+    {
+     "label": "Buy them for the kitchen",
+     "text": "he engraves the inn's name under the chef's and asks for a coin for luck; they wait for you in the Business app",
+     "finds": "hr_knives"
+    },
+    {
+     "label": "Just watch him engrave",
+     "text": "four characters in five minutes, without looking up once; the buyer bows to the blade before he bows to the master"
+    }
+   ]
+  },
+  {
+   "id": "hr_find_sake",
+   "place": "ot_izakaya",
+   "when": "venture: ht_ryokan tier 2",
+   "setup": "At Izakaya Daruma the master pours {{user}} a cup from an unlabelled bottle: a sake from a brewery of four people in the mountains of Niigata. They make too little to sell to anyone, he says, except a few places they like. He would put in a word.",
+   "choices": [
+    {
+     "label": "Ask him to",
+     "text": "he writes a letter on the spot in a beautiful hand; the brewery says yes, and their sake waits for you in the Business app",
+     "finds": "hr_sake"
+    },
+    {
+     "label": "Just drink",
+     "text": "it tastes of rice and snow, and the master refills your cup without asking twice",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "hr_find_kabuki",
+   "place": "mg_kabuki",
+   "when": "venture: ht_ryokan tier 2",
+   "setup": "In the lobby of the Ginza Kabuki Hall, between acts, an actor's manager is complaining that his star can't find an inn in Hakone that will let him rest without photographs. The actor, still in half his makeup, only wants a bath and silence after the new year's run.",
+   "choices": [
+    {
+     "label": "Promise him both",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "he books the quietest room for January, and later tells a magazine where he goes to rest; it waits for you in the Business app",
+     "finds": "hr_kabuki",
+     "fail": {
+      "text": "the manager is doubtful, then calls the inn himself; the booking comes, and it waits for you in the Business app",
+      "finds": "hr_kabuki"
+     }
+    },
+    {
+     "label": "Leave him be",
+     "text": "the bell rings for the next act, and the manager hurries back in, still complaining"
+    }
+   ]
+  },
+  {
+   "id": "hr_find_magazine",
+   "place": "rp_sky",
+   "when": "venture: ht_ryokan hr_modern",
+   "setup": "At an opening at the Meridian Hills Sky Museum an editor from a design magazine is collecting places for an issue on \"old houses, opened up\". She has a ryokan in Kyoto and a temple lodging in Kōya, and nothing near Tokyo.",
+   "choices": [
+    {
+     "label": "Tell her about the inn",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "she sends a photographer the next week; the pages wait for you in the Business app",
+     "finds": "hr_magazine",
+     "fail": {
+      "text": "she takes your card without much interest, then looks up the inn on her phone in the lift; the pages wait for you in the Business app",
+      "finds": "hr_magazine"
+     }
+    },
+    {
+     "label": "Just look at the view",
+     "text": "the whole city lit below you, and somewhere past it, the mountains you're going back to"
+    }
+   ]
+  },
+  {
+   "id": "hr_ms_spring",
+   "place": "hk_ryokan",
+   "when": "venture: ht_ryokan; upgrade: hr_rotenburo",
+   "title": "the first night of the open-air bath",
+   "setup": "The night the new open-air bath opens, the water comes down from the family's old spring on the hill for the first time since the okami's grandfather. Shizuka tests it with her wrist like a cook. Among the guests is a quiet woman with a notebook, who writes for the hot-spring guide every inn in Hakone reads.",
+   "choices": [
+    {
+     "label": "Talk her through the spring",
+     "roll": {
+      "skill": "japanese",
+      "dc": 12
+     },
+     "text": "she asks about the water's source and its heat, and writes for a long time; the guide gives the bath a star",
+     "fact": "the open-air bath at {0} got a star in the hot-spring guide",
+     "fail": {
+      "text": "your Japanese stumbles on the minerals, and Shizuka steps in gently; the guide gives a warm paragraph, without a star"
+     }
+    },
+    {
+     "label": "Let the bath speak for itself",
+     "text": "she soaks for an hour under the cedars and writes a short, warm paragraph; the bookings come, and some guests ask for the room nearest the bath"
+    }
+   ]
+  },
+  {
+   "id": "hr_ms_hanare",
+   "place": "hk_ryokan",
+   "when": "venture: ht_ryokan tier 2; upgrade: hr_hanare",
+   "title": "the okami's verdict",
+   "setup": "Before any guest sleeps in the detached rooms, the okami crosses the garden in her best kimono and spends a night there alone. She bathes in the cypress tub on the veranda, sleeps on the new tatami, and in the morning comes back across the garden and sits {{user}} down in the lobby to say what she thinks.",
+   "choices": [
+    {
+     "label": "Ask her to be honest",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "she says the rooms are worthy of the house, which she has never said of anything; she sends her own oldest guests there first",
+     "fact": "the okami blessed the detached rooms at {0}",
+     "fail": {
+      "text": "she lists eleven things to change, kindly and in order; you change them, and she nods at the twelfth time of asking"
+     }
+    },
+    {
+     "label": "Pour her tea and wait",
+     "text": "she drinks two cups and says only that the maples will be good in November; from her, Shizuka says later, that is high praise"
+    }
+   ]
+  },
+  {
+   "id": "hr_ts_lease",
+   "place": "hk_ryokan",
+   "brings": "Tsubaki",
+   "after": "ht_ts_tin",
+   "adult": true,
+   "when": "venture: ht_ryokan; feels: Tsubaki friend; period: afternoon or evening",
+   "title": "Tsubaki's lease",
+   "setup": "Tsubaki comes up to Hakone on her day off in a plain coat and flat shoes. In the small room off the garden corridor she opens the window onto the maples, runs the tap, tests the lock. She has brought her own copy of the lease and a pen, and reads every line twice at the low table, as she promised, while a room attendant brings tea and does not ask.",
+   "choices": [
+    {
+     "label": "Say the room is hers if she wants it",
+     "text": "she signs her side in her own hand and pays the first month from the tin; your side of the lease waits in the Business app",
+     "feels": {
+      "Tsubaki": 3
+     },
+     "fact": "Tsubaki signed a lease for a room at {0}"
+    },
+    {
+     "label": "Ask about the man who won't let her go",
+     "text": "she says he has never been to Hakone and never will, and she asks the front desk to know his face; then she signs, and yours waits in the Business app",
+     "feels": {
+      "Tsubaki": 4
      }
     }
    ]
@@ -42844,6 +43327,13 @@
         "text": "The family favors one suitor, and Shizuka grows quieter."
        },
        {
+        "id": "hr_suitor_money",
+        "when": "season: autumn; knows: shizuka_marriage; feels: Shizuka friend",
+        "tell": "hinted",
+        "text": "The favored suitor's family offers to pay for the inn's cracked bath and leaking roof as part of the match; Shizuka starts to think the inn could have another partner, one she chooses.",
+        "moment": "Shizuka quietly mentions that the suitor's family has offered to pay for the inn's repairs if the match goes ahead"
+       },
+       {
         "when": "season: winter",
         "tell": "known",
         "text": "She must give her family an answer."
@@ -42851,10 +43341,18 @@
       ],
       "endings": [
        {
+        "id": "family_partner",
+        "when": "venture: ht_ryokan; knows: shizuka_marriage; feels: Shizuka good; seen: hr_st_shizuka_step",
+        "good": true,
+        "waits": "seen: hr_st_shizuka_step; venture: not ht_ryokan; feels: Shizuka friend",
+        "text": "She tells her family about Rina at the low table where the partnership was signed, with {{user}} there as the family's new partner and Yui beside her; the okami is quiet a long while, then asks Rina to come for New Year."
+       },
+       {
         "id": "tells_family",
         "text": "She tells her family about Rina, with Yui beside her.",
-        "when": "knows: shizuka_marriage; feels: Shizuka friend",
-        "good": true
+        "when": "knows: shizuka_marriage; feels: Shizuka good",
+        "good": true,
+        "waits": "seen: hr_st_shizuka_step; venture: not ht_ryokan; feels: Shizuka friend"
        },
        {
         "id": "agrees",
@@ -51018,6 +51516,1042 @@
      "when": "upgrade: hc_spa_room; seen: ht_ts_tin; knows: tsubaki_salon; feels: Tsubaki friend",
      "story": "hc_ts_lease",
      "text": "Tsubaki rents the spa room on the women's floor for her licensed aroma salon: daylight hours, her name on the door"
+    }
+   ]
+  },
+  {
+   "id": "ht_ryokan",
+   "track": "hotel",
+   "kind": "ryokan",
+   "name": "Ryokan Kasumi-sō",
+   "place": "hk_ryokan",
+   "desc": "the Kasumi family's ryokan in Hakone, where you are the family's partner beside Shizuka",
+   "ways": {
+    "partner": {
+     "place": "hk_ryokan",
+     "when": "seen: hr_st_okami_offer; feels: Shizuka good",
+     "story": "hr_st_okami_offer",
+     "cost": 1800000,
+     "tier": 1,
+     "start": {
+      "quality": 14,
+      "atmosphere": 14,
+      "capacity": 10,
+      "fame": 9
+     },
+     "with": "Shizuka"
+    }
+   },
+   "run": {
+    "label": "Greet the guests",
+    "icon": "🏮"
+   },
+   "trains": [
+    "japanese",
+    "charisma",
+    "cooking"
+   ],
+   "stint": 4,
+   "demand": {
+    "days": {
+     "mon": 0.75,
+     "tue": 0.7,
+     "wed": 0.7,
+     "thu": 0.8,
+     "fri": 1.15,
+     "sat": 1.45,
+     "sun": 0.9
+    },
+    "festivals": {
+     "koyo": 1.6,
+     "hatsumode": 1.5,
+     "ekiden": 1.5,
+     "omisoka": 1.4,
+     "goldenweek": 1.4,
+     "christmas": 1.15
+    },
+    "festival": 1.1,
+    "season": {
+     "autumn": 1.2,
+     "winter": 1.15,
+     "summer": 0.9
+    },
+    "hours": [
+     [
+      15,
+      19,
+      1.2
+     ]
+    ]
+   },
+   "tiers": [
+    {
+     "id": "old_inn",
+     "name": "The old inn",
+     "ceiling": 30,
+     "alone": 0.6,
+     "rooms": 8,
+     "prices": {
+      "stay": 64000,
+      "rest": 9000
+     },
+     "rests": 0.25,
+     "costs": 0.66,
+     "share": 0.33,
+     "desc": "eight rooms off a tatami corridor, kaiseki in the rooms, the rock bath under the cedars; the family runs it with you, and you have a third of the takings",
+     "milestone": {
+      "upgrade": "hr_rotenburo",
+      "story": "hr_ms_spring"
+     }
+    },
+    {
+     "id": "rotenburo",
+     "name": "With the open-air bath",
+     "ceiling": 55,
+     "alone": 0.65,
+     "rooms": 9,
+     "prices": {
+      "stay": 66000,
+      "rest": 10000
+     },
+     "rests": 0.25,
+     "costs": 0.68,
+     "share": 0.5,
+     "desc": "the new open-air bath fed from the family's old spring on the hill, a restored room in the old wing; you funded the bath, and have half the takings now",
+     "milestone": {
+      "upgrade": "hr_hanare",
+      "story": "hr_ms_hanare"
+     }
+    },
+    {
+     "id": "hanare",
+     "name": "The detached rooms",
+     "ceiling": 80,
+     "alone": 0.7,
+     "rooms": 11,
+     "prices": {
+      "stay": 72000,
+      "rest": 11000
+     },
+     "rests": 0.25,
+     "costs": 0.66,
+     "share": 0.5,
+     "desc": "a cottage of detached rooms across the garden, each with its own cypress bath on the veranda; people book a year ahead for the autumn leaves"
+    }
+   ],
+   "styles": [
+    {
+     "id": "hr_old_house",
+     "name": "The old house",
+     "tier": 1,
+     "desc": "kept as the family always kept it: the okami kneeling at the door, dark wood and paper screens, kaiseki by the season, no television in the rooms",
+     "mul": {
+      "atmosphere": 1.1,
+      "fame": 0.94
+     },
+     "finds": [
+      "hr_lacquer"
+     ]
+    },
+    {
+     "id": "hr_modern",
+     "name": "A modern retreat",
+     "tier": 1,
+     "desc": "the old house opened up: a reading lounge, wine beside the sake, low beds on the tatami, quiet design and photographs people share",
+     "mul": {
+      "fame": 1.1,
+      "quality": 1.04,
+      "atmosphere": 0.92
+     },
+     "finds": [
+      "hr_sculpture",
+      "hr_magazine"
+     ]
+    }
+   ],
+   "upgrades": [
+    {
+     "id": "hr_tatami",
+     "name": "New tatami for the rooms",
+     "stat": "quality",
+     "add": 4,
+     "cost": 120000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hr_futon",
+     "name": "Silk futons and buckwheat pillows",
+     "stat": "quality",
+     "add": 4,
+     "cost": 90000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hr_lake_trout",
+     "name": "Trout from a Lake Ashi fisherman",
+     "stat": "quality",
+     "add": 5,
+     "cost": 40000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a fisherman on Lake Ashi at dawn"
+    },
+    {
+     "id": "hr_black_eggs",
+     "name": "Black eggs from Ōwakudani for breakfast",
+     "stat": "quality",
+     "add": 4,
+     "cost": 20000,
+     "tier": 1,
+     "how": "found",
+     "hint": "an egg stall in the sulfur steam"
+    },
+    {
+     "id": "hr_sweets",
+     "name": "Kyoto sweets for the rooms' tea",
+     "stat": "quality",
+     "add": 5,
+     "cost": 60000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a confectioner in a Ginza food hall"
+    },
+    {
+     "id": "hr_knives",
+     "name": "A ryokan chef's knives from Tsukiji",
+     "stat": "quality",
+     "add": 6,
+     "cost": 120000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a knife maker in Tsukiji's outer market"
+    },
+    {
+     "id": "hr_sake",
+     "name": "A four-person brewery's sake",
+     "stat": "quality",
+     "add": 6,
+     "cost": 100000,
+     "tier": 2,
+     "how": "found",
+     "hint": "the master of an Asakusa izakaya"
+    },
+    {
+     "id": "hr_your_dish",
+     "name": "Your own dish on the kaiseki",
+     "stat": "quality",
+     "add": 7,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: cooking 8",
+     "hint": "Cooking 8"
+    },
+    {
+     "id": "hr_shizuka_menu",
+     "name": "Shizuka's own seasonal menu",
+     "stat": "quality",
+     "add": 8,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "feels: Shizuka best",
+     "hint": "Shizuka at her closest"
+    },
+    {
+     "id": "hr_hanare_dinner",
+     "name": "Dinner served in the detached rooms",
+     "stat": "quality",
+     "add": 8,
+     "cost": 400000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "hr_yukata",
+     "name": "Yukata in the season's colors",
+     "stat": "atmosphere",
+     "add": 4,
+     "cost": 40000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hr_yosegi",
+     "name": "A marquetry box in every room",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 80000,
+     "tier": 1,
+     "how": "found",
+     "hint": "a marquetry workshop in Hakone-Yumoto"
+    },
+    {
+     "id": "hr_ikebana",
+     "name": "Flowers in the alcoves each season",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 50000,
+     "tier": 1,
+     "how": "found",
+     "hint": "an ikebana teacher in Yanaka"
+    },
+    {
+     "id": "hr_omamori",
+     "name": "A fox charm from Tsukimi Inari in every room",
+     "stat": "atmosphere",
+     "add": 5,
+     "cost": 10000,
+     "tier": 1,
+     "how": "earned",
+     "when": "feels: Yui friend",
+     "hint": "a friend at a shrine in Yanaka"
+    },
+    {
+     "id": "hr_rotenburo",
+     "name": "The open-air bath from the family's spring",
+     "stat": "atmosphere",
+     "add": 9,
+     "cost": 1200000,
+     "tier": 1,
+     "how": "basic",
+     "desc": "a rock bath on the hillside, fed from the old spring the family has held since the okami's grandfather"
+    },
+    {
+     "id": "hr_lacquer",
+     "name": "Red lacquer trays from Asakusa",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 180000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a lacquer craftsman near Sensō-ji"
+    },
+    {
+     "id": "hr_sculpture",
+     "name": "A split stone with water for the garden",
+     "stat": "atmosphere",
+     "add": 7,
+     "cost": 400000,
+     "tier": 2,
+     "how": "found",
+     "hint": "a sculptor at the Kirigaoka garden"
+    },
+    {
+     "id": "hr_calligraphy",
+     "name": "Room plates in your own hand",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "skill: drawing 6",
+     "hint": "a steady hand with a brush"
+    },
+    {
+     "id": "hr_tea_room",
+     "name": "A tea room in the garden",
+     "stat": "atmosphere",
+     "add": 6,
+     "cost": 500000,
+     "tier": 3,
+     "how": "basic"
+    },
+    {
+     "id": "hr_rooms_aired",
+     "name": "The closed rooms aired and opened",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 150000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hr_shuttle",
+     "name": "A shuttle from Hakone-Yumoto station",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 180000,
+     "tier": 1,
+     "how": "basic",
+     "staff": "a driver for the station shuttle"
+    },
+    {
+     "id": "hr_english",
+     "name": "Guests from abroad, welcomed in English",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 20000,
+     "tier": 1,
+     "how": "earned",
+     "when": "skill: english 6",
+     "hint": "good English"
+    },
+    {
+     "id": "hr_rina_booking",
+     "name": "A booking system Rina builds for nothing",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "feels: Rina friend",
+     "hint": "a friend who builds apps"
+    },
+    {
+     "id": "hr_old_wing",
+     "name": "A room in the old wing, restored",
+     "stat": "capacity",
+     "add": 7,
+     "cost": 600000,
+     "tier": 2,
+     "how": "basic"
+    },
+    {
+     "id": "hr_nakai",
+     "name": "Two more room attendants",
+     "stat": "capacity",
+     "add": 5,
+     "cost": 200000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "two more room attendants"
+    },
+    {
+     "id": "hr_manager",
+     "name": "A head clerk",
+     "stat": "capacity",
+     "add": 3,
+     "cost": 300000,
+     "tier": 2,
+     "how": "basic",
+     "staff": "the head clerk",
+     "manager": true
+    },
+    {
+     "id": "hr_hanare",
+     "name": "The detached rooms across the garden",
+     "stat": "capacity",
+     "add": 10,
+     "cost": 3000000,
+     "tier": 2,
+     "how": "basic",
+     "opens": "hk_ryokan_hanare",
+     "desc": "a cottage across the garden: tatami rooms, a veranda and a cypress bath of their own among the maples"
+    },
+    {
+     "id": "hr_noren",
+     "name": "A new noren and lantern at the gate",
+     "stat": "fame",
+     "add": 4,
+     "cost": 30000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hr_website",
+     "name": "A booking page in four languages",
+     "stat": "fame",
+     "add": 4,
+     "cost": 60000,
+     "tier": 1,
+     "how": "basic"
+    },
+    {
+     "id": "hr_ekiden",
+     "name": "Hot amazake for the ekiden crowd",
+     "stat": "fame",
+     "add": 6,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "attended: ekiden",
+     "hint": "the Hakone ekiden in January"
+    },
+    {
+     "id": "hr_koyo_rooms",
+     "name": "Rooms booked a year ahead for the leaves",
+     "stat": "fame",
+     "add": 7,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "attended: koyo",
+     "hint": "the autumn leaves"
+    },
+    {
+     "id": "hr_kabuki",
+     "name": "A kabuki actor who rests here",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 2,
+     "how": "found",
+     "hint": "an actor's manager at the Ginza kabuki hall"
+    },
+    {
+     "id": "hr_magazine",
+     "name": "Pages in a design magazine",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 2,
+     "how": "found",
+     "hint": "a design editor at the Sky Museum"
+    },
+    {
+     "id": "hr_hatsumode",
+     "name": "The New Year's first bath",
+     "stat": "fame",
+     "add": 6,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "attended: hatsumode",
+     "hint": "the New Year's first shrine visit"
+    },
+    {
+     "id": "hr_onsen_guide",
+     "name": "A star in the hot-spring guide",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 2,
+     "how": "earned",
+     "when": "seen: hr_ms_spring:1",
+     "hint": "the hot-spring guide's writer"
+    },
+    {
+     "id": "hr_okami_guests",
+     "name": "The okami's oldest guests",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "seen: hr_ms_hanare:1",
+     "hint": "the okami's verdict"
+    },
+    {
+     "id": "hr_friends",
+     "name": "Your friends' weekends",
+     "stat": "fame",
+     "add": 8,
+     "cost": 0,
+     "tier": 3,
+     "how": "earned",
+     "when": "friends: 3 good",
+     "hint": "good friends who come for the weekend"
+    }
+   ],
+   "discoveries": [
+    {
+     "id": "hr_d_koyo",
+     "name": "Maple leaves on the dinner trays",
+     "when": "festival: koyo",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "A single red leaf beside each dish in the leaf-viewing weeks; guests photograph the leaf before the food."
+    },
+    {
+     "id": "hr_d_snow",
+     "name": "Snow on the open-air bath",
+     "when": "weather: snow",
+     "add": {
+      "atmosphere": 3
+     },
+     "text": "Snow falling into the hot water, the cedars white: the guests stay in until they are dizzy, and book again before they leave."
+    },
+    {
+     "id": "hr_d_hydrangea",
+     "name": "The hydrangea train",
+     "when": "season: summer; weather: rain",
+     "add": {
+      "fame": 2
+     },
+     "text": "In the rainy weeks the mountain railway runs between walls of hydrangeas, and its passengers want an inn at the top."
+    },
+    {
+     "id": "hr_d_ekiden",
+     "name": "The runners' road",
+     "when": "festival: ekiden",
+     "add": {
+      "fame": 2
+     },
+     "text": "The university relay passes at the bottom of the lane; families who come to cheer book the same rooms every January."
+    },
+    {
+     "id": "hr_d_fireflies",
+     "name": "Fireflies by the stream",
+     "when": "season: summer; period: night",
+     "add": {
+      "atmosphere": 2
+     },
+     "text": "On warm nights the stream below the garden is full of fireflies; you turn the garden lanterns off at nine."
+    },
+    {
+     "id": "hr_d_fuji",
+     "name": "Fuji at breakfast",
+     "when": "weather: fujiview",
+     "add": {
+      "quality": 2
+     },
+     "text": "On clear mornings the breakfast room's screens slide open onto Fuji, and nobody eats for the first five minutes."
+    },
+    {
+     "id": "hr_d_weekdays",
+     "name": "Writers' weekdays",
+     "when": "weekday: tue or wed",
+     "add": {
+      "capacity": 2
+     },
+     "text": "A weekday rate for people who come to write or rest alone: the quiet rooms fill midweek, one guest each."
+    },
+    {
+     "id": "hr_d_osechi",
+     "name": "Osechi for the New Year",
+     "when": "festival: hatsumode",
+     "add": {
+      "quality": 2
+     },
+     "text": "Lacquered boxes of New Year dishes, three tiers each, and the cook up since four to fill them."
+    }
+   ],
+   "events": [
+    {
+     "id": "hr_ev_honeymoon",
+     "setup": "A young couple on their honeymoon find their futons laid out at opposite ends of the room, and are too shy to ask anyone to move them.",
+     "choices": [
+      {
+       "label": "Have them laid side by side, quietly",
+       "add": {
+        "atmosphere": 2
+       },
+       "effects": {
+        "mood": 3
+       },
+       "text": "Nobody says a word; they leave a thank-you letter in the room, folded very small."
+      },
+      {
+       "label": "Leave it to the room attendant",
+       "text": "She notices at turndown and fixes it with a straight face."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_allergy",
+     "setup": "Halfway through dinner a guest mentions, very politely, that she cannot eat shellfish; the next course is a crab dish.",
+     "choices": [
+      {
+       "label": "Go to the kitchen yourself",
+       "roll": {
+        "skill": "cooking",
+        "dc": 11
+       },
+       "add": {
+        "quality": 1
+       },
+       "text": "Grilled trout with yuzu in twelve minutes; she says it was the best course.",
+       "fail": {
+        "text": "A plain dish, late; she is gracious about it, and you send a dessert.",
+        "money": -2000
+       }
+      },
+      {
+       "label": "Apologize and skip the course",
+       "text": "She doesn't mind; her husband eats both crabs."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_snowed",
+     "setup": "Heavy snow closes the road down to Yumoto, and four rooms of guests can't leave; one of them has a meeting in Tokyo.",
+     "choices": [
+      {
+       "label": "A free night and a long lunch",
+       "money": -12000,
+       "add": {
+        "atmosphere": 2,
+        "fame": 1
+       },
+       "text": "They talk about it for years: the inn where the snow kept them."
+      },
+      {
+       "label": "Find a driver with chains",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "text": "A neighbor with a truck gets the man with the meeting to the station by noon.",
+       "fail": {
+        "text": "Nobody will drive in it; he takes his meeting by phone, in a yukata."
+       }
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_bath_manners",
+     "setup": "A family from abroad walks into the bath in their swimsuits, with towels, soap and a waterproof speaker.",
+     "choices": [
+      {
+       "label": "Explain the bath in English",
+       "roll": {
+        "skill": "english",
+        "dc": 10
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "They laugh, apologize and do it properly; they post a long, careful guide to it afterward.",
+       "fail": {
+        "text": "They understand half and leave the speaker behind; the other guests are patient."
+       }
+      },
+      {
+       "label": "Book them the private bath instead",
+       "money": -4000,
+       "text": "They have the time of their lives, speaker and all."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_critic",
+     "setup": "The okami whispers that the woman alone in the plum room, who gave a false name, is an inspector for the guide that ranks Japan's inns.",
+     "choices": [
+      {
+       "label": "Change nothing",
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "Dinner as always, the bath as always; she leaves before breakfast and the guide says nothing for a year."
+      },
+      {
+       "label": "Serve her yourself",
+       "roll": {
+        "skill": "japanese",
+        "dc": 12
+       },
+       "add": {
+        "fame": 2
+       },
+       "text": "Every word in its place; a few months later the inn is in the guide.",
+       "fail": {
+        "text": "You are a little too careful, and she notices; the guide is polite and brief."
+       }
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_suitor_mother",
+     "when": "thread: not shizuka_marriage",
+     "setup": "The favored suitor's mother books a room for one night and asks for Shizuka to serve her dinner herself, kneeling.",
+     "choices": [
+      {
+       "label": "Serve her yourself instead",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "feels": {
+        "Shizuka": 3
+       },
+       "text": "You serve the whole dinner; she leaves early, and Shizuka bows to you in the corridor without a word.",
+       "fail": {
+        "text": "She asks for Shizuka twice more; Shizuka comes, composed, and serves her perfectly.",
+        "feels": {
+         "Shizuka": 1
+        }
+       }
+      },
+      {
+       "label": "Let Shizuka decide",
+       "feels": {
+        "Shizuka": 2
+       },
+       "text": "She serves the dinner, every course correct, and then goes for a very long walk."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_okami",
+     "setup": "The okami sets the month's ledger in front of you and taps one line: the cost of the flowers, which went up when you weren't looking.",
+     "choices": [
+      {
+       "label": "Keep the flowers",
+       "add": {
+        "atmosphere": 1
+       },
+       "money": -6000,
+       "text": "She closes the ledger and says nothing, which in her is approval."
+      },
+      {
+       "label": "Cut them back",
+       "money": 4000,
+       "text": "She nods; the alcoves look a little bare for a while."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_tremor",
+     "setup": "A tremor at two in the morning rattles the paper screens, and a corridor of guests come out in their yukata, frightened.",
+     "choices": [
+      {
+       "label": "Walk the corridor with tea",
+       "roll": {
+        "skill": "charisma",
+        "dc": 10
+       },
+       "add": {
+        "atmosphere": 2
+       },
+       "text": "You talk them back to sleep one room at a time; at breakfast they joke about it.",
+       "fail": {
+        "text": "Two rooms leave at dawn; the rest stay, a little shaken."
+       }
+      },
+      {
+       "label": "Check the bath and the boiler first",
+       "roll": {
+        "skill": "logic",
+        "dc": 10
+       },
+       "text": "Nothing broken; you tell them so, calmly, and they go back to bed.",
+       "fail": {
+        "text": "A cracked pipe in the bath house; it is closed for a day.",
+        "money": -10000
+       }
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_yui",
+     "when": "feels: Yui friend",
+     "setup": "Yui comes up from Tokyo for the weekend, puts on an apron in the kitchen without being asked, and tells the cook a joke so wicked he drops a ladle.",
+     "choices": [
+      {
+       "label": "Put her to work",
+       "feels": {
+        "Yui": 2,
+        "Shizuka": 1
+       },
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "She folds napkins into foxes for every tray, and Shizuka laughs out loud in the corridor."
+      },
+      {
+       "label": "Send her to the bath",
+       "feels": {
+        "Yui": 2
+       },
+       "text": "She takes a notebook with her and comes back an hour later, pink and smug."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_boiler",
+     "when": "season: winter",
+     "setup": "The bath house boiler stops on the coldest night of the winter, and the indoor bath begins to cool.",
+     "choices": [
+      {
+       "label": "Fix it with the cook",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "text": "Two hours with a torch and a spanner; the water is hot again by midnight.",
+       "fail": {
+        "text": "It stays off until the repairman comes in the morning; the open-air bath, from the spring, still runs.",
+        "money": -8000
+       }
+      },
+      {
+       "label": "Call the repairman now",
+       "money": -18000,
+       "text": "He comes up the lane in the snow and charges for it."
+      }
+     ]
+    },
+    {
+     "id": "hr_ev_tsubaki_ex",
+     "adult": true,
+     "when": "tenant: Tsubaki ht_ryokan",
+     "setup": "A man in a good coat arrives without a booking and asks at the front for \"the aroma room\". He says he is Tsubaki's fiancé, come all the way from Tokyo to surprise her.",
+     "choices": [
+      {
+       "label": "Say the inn is full",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "feels": {
+        "Tsubaki": 3
+       },
+       "text": "He looks at the lantern a long while and goes back down the lane; the front desk keeps his face in mind.",
+       "fail": {
+        "text": "He waits at the gate until the last bus; you walk Tsubaki to the station by the back path.",
+        "feels": {
+         "Tsubaki": 2
+        }
+       }
+      },
+      {
+       "label": "Ask Tsubaki first",
+       "feels": {
+        "Tsubaki": 4
+       },
+       "text": "She comes out to the gate, says his name once, and tells him it is over; he goes, and she thanks you for not lying for her."
+      }
+     ]
+    }
+   ],
+   "cards": [
+    {
+     "id": "hr_c_koyo",
+     "when": "festival: koyo",
+     "setup": "The leaves are at their best this week. Dinner in the garden under the maples, with lanterns and braziers, for every room?",
+     "choices": [
+      {
+       "label": "Dinner in the garden (an evening)",
+       "minutes": 240,
+       "money": 40000,
+       "add": {
+        "atmosphere": 3,
+        "fame": 1
+       },
+       "effects": {
+        "energy": -15
+       },
+       "text": "Red leaves in the lantern light, frost on the stones by ten; every room books for next year."
+      },
+      {
+       "label": "Dinner in the rooms as usual",
+       "text": "The guests watch the maples through the windows."
+      }
+     ]
+    },
+    {
+     "id": "hr_c_ekiden",
+     "when": "festival: ekiden",
+     "setup": "The university relay passes the bottom of the lane at dawn. A stand of hot amazake for the people waiting in the cold?",
+     "choices": [
+      {
+       "label": "Run the stand (an early start)",
+       "minutes": 180,
+       "money": -5000,
+       "add": {
+        "fame": 3
+       },
+       "effects": {
+        "energy": -15
+       },
+       "text": "Two hundred cups and the inn's name on every one; the runners' parents remember it."
+      },
+      {
+       "label": "Watch from the gate",
+       "text": "The runners pass in a blur of colors and steam."
+      }
+     ]
+    },
+    {
+     "id": "hr_c_hatsumode",
+     "when": "festival: hatsumode",
+     "setup": "New Year: the guests want to pound mochi in the garden, the old way, with a wooden mallet and the cook calling the beat.",
+     "choices": [
+      {
+       "label": "Bring out the mortar",
+       "minutes": 120,
+       "money": -3000,
+       "add": {
+        "atmosphere": 3
+       },
+       "text": "Everyone takes a turn with the mallet, even the okami, and the mochi is eaten warm with soy and seaweed."
+      },
+      {
+       "label": "Buy it from the shop",
+       "text": "It is good mochi, and nobody hits anybody's hand."
+      }
+     ]
+    },
+    {
+     "id": "hr_c_omisoka",
+     "when": "festival: omisoka",
+     "setup": "On New Year's Eve the temple down the valley rings its bell a hundred and eight times. Year-crossing soba, and lanterns to walk the guests down to hear it?",
+     "choices": [
+      {
+       "label": "Walk them down at midnight",
+       "minutes": 120,
+       "money": 20000,
+       "add": {
+        "atmosphere": 2,
+        "fame": 1
+       },
+       "effects": {
+        "energy": -10
+       },
+       "text": "A line of lanterns down the lane, breath in the cold, the bell in the dark."
+      },
+      {
+       "label": "Soba in the rooms",
+       "text": "The bell carries up the valley anyway."
+      }
+     ]
+    },
+    {
+     "id": "hr_c_goldenweek",
+     "when": "festival: goldenweek",
+     "setup": "Golden Week: every inn in Hakone is full and the phone won't stop. You could open the unrestored room in the old wing, at a lower price, with an honest word about it.",
+     "choices": [
+      {
+       "label": "Open it with a candid note",
+       "money": 24000,
+       "add": {
+        "fame": 1
+       },
+       "text": "The family who takes it loves the creaking floor and the old view."
+      },
+      {
+       "label": "Keep it closed",
+       "text": "You turn away twenty calls, politely."
+      }
+     ]
+    },
+    {
+     "id": "hr_c_tsukimi",
+     "when": "festival: tsukimi",
+     "setup": "The harvest moon: pampas grass in the alcoves, dumplings on a stand, and the veranda screens open to the hill. A moon-viewing for the guests?",
+     "choices": [
+      {
+       "label": "Set up the moon-viewing",
+       "money": -4000,
+       "add": {
+        "atmosphere": 3
+       },
+       "text": "Twenty guests on the veranda in the cold, very quiet, looking up."
+      },
+      {
+       "label": "An ordinary evening",
+       "text": "The moon rises over the cedars anyway."
+      }
+     ]
+    }
+   ],
+   "tenancies": [
+    {
+     "id": "hr_tenant_tsubaki",
+     "who": "Tsubaki",
+     "job": "aroma_salon",
+     "rent": 15000,
+     "add": {
+      "atmosphere": 6
+     },
+     "adult": true,
+     "when": "seen: ht_ts_tin; knows: tsubaki_salon; feels: Tsubaki friend",
+     "story": "hr_ts_lease",
+     "text": "Tsubaki rents the small room off the garden corridor for her licensed aroma salon: treatments for the guests by day, her name on a wooden plate"
     }
    ]
   }
