@@ -193,7 +193,7 @@ export const clearInvite = (g: Save) => { (social(g) as any).invite = null; };
 function maybeInvite(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60);
     if (!systemOn(w, 'plans') || pendingInvite(g) || h < 9 || h > 20 || rnd(g, 'invite') > 0.05) return [];
-    const pool = residents(g).filter(r => r.met && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length);
+    const pool = residents(g).filter(r => r.met && !(r as any).gone && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length);
     if (!pool.length) return [];
     const r = pool[Math.floor(rnd(g, 'who') * pool.length)];
     const from = nowAbs(g) + 120 - (nowAbs(g) % 30);

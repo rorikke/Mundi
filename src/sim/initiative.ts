@@ -342,7 +342,8 @@ const whenText = (g: Save, at: number) => { const d = Math.floor(at / 1440); ret
 // A texted invitation (one waits at a time), with the plans system on. `note`: what they convey, for the AI.
 function textInvite(g: Save, w: WorldDef, r: Resident, place: string, from: number, note: string, fallback: string): boolean {
     const s = social(g) as any;
-    if (!systemOn(w, 'plans') || s.invite || !placeOf(g, w, place)) return false;
+    // (someone who has left the maps never asks you out: a storyline's last text can take them away in the middle of a day)
+    if (!systemOn(w, 'plans') || s.invite || !placeOf(g, w, place) || goneFromMap(r)) return false;
     s.invite = { avatar: r.avatar, place, from, kind: 'hangout' };
     void textFrom(g, w, r.avatar, `${r.name} texts ${personaName()}: ${note} One or two short sentences, in their own voice.`, fallback)
         .then(() => { s.unread[r.avatar] = (s.unread[r.avatar] ?? 0) + 1; })
