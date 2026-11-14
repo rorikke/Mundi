@@ -30523,7 +30523,13 @@
    "id": "hijiri_fountain_pen",
    "name": "Hijiri fountain pen",
    "icon": "🖋️",
-   "kind": "stationery"
+   "kind": "stationery",
+   "desc": "A slim navy fountain pen with the Hijiri crest on the clip.",
+   "at": [
+    "ak_university",
+    "ak_jinbocho"
+   ],
+   "price": 6800
   },
   {
    "gift": true,
@@ -42307,8 +42313,16 @@
     "threads": [
      {
       "id": "mio_grades",
+      "title": "Mio's exams",
       "hidden": "She is failing two classes and hides it from her parents; her night shifts pay her tuition.",
       "known": "{{user}} knows Mio is failing two classes.",
+      "opens": "feels: Mio acquaintance",
+      "decide": "Mio's exams have caught up with her: she is failing two classes, the resits are her last chance, and her parents in Sendai still think everything is fine. She admits it to {{user}}, laughing too much, and asks whether it's already too late to save the year.",
+      "nudges": [
+       "exams went kind of bad and my sketchbook hasn't moved. can I buy you a coffee and panic at you a bit?",
+       "ok I need to tell someone. it's about my grades. are you around this week?",
+       "resits are soon. if I'm fixing this it's now. come find me at the konbini? 🙏"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -42501,8 +42515,16 @@
     "threads": [
      {
       "id": "chloe_visa",
+      "title": "Chloe's visa",
       "hidden": "Her school stops sponsoring visas next spring; unless she finds another sponsor, she has to leave Tokyo.",
       "known": "{{user}} knows Chloe's visa ends next spring unless a new sponsor turns up.",
+      "opens": "job: eikaiwa; feels: Chloe acquaintance",
+      "decide": "Chloe still has no sponsor, and her school has stopped sponsoring visas. She tells {{user}} straight out: she has applied everywhere, Mum keeps asking which flight to meet, and unless something changes she's going back to Manchester for good.",
+      "nudges": [
+       "Bit of news, love, not the good kind. Fancy a pint so I can moan about visas?",
+       "Still no sponsor. Mum's asked which flight to meet. Can we talk, mate?",
+       "Right, if nothing turns up I'm booking it this week. Come say something before I do?"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -42536,7 +42558,7 @@
        },
        {
         "id": "leaves_tokyo",
-        "text": "She leaves Tokyo at the start of spring, and writes from Manchester.",
+        "text": "She leaves Tokyo, and writes from Manchester.",
         "leaves": true
        }
       ]
@@ -42714,8 +42736,19 @@
     "threads": [
      {
       "id": "nanami_scout",
+      "title": "Nanami's solo offer",
       "hidden": "A label scout's card sits in her wallet: a solo deal, without the band.",
       "known": "{{user}} knows a label scout offered Nanami a solo deal, without the band.",
+      "opens": [
+       "job: vintage; feels: Nanami acquaintance",
+       "job: tv; rank: top; feels: Nanami acquaintance"
+      ],
+      "decide": "The label scout wants an answer: a solo deal for Nanami, without Paper Lanterns. She shows {{user}} the card she has carried all year and asks, half as a dare, what they would do: sign alone, bring the band, or tear it up.",
+      "nudges": [
+       "the scout called again. I need a second opinion that isn't from the band. drink?",
+       "they want an answer and I keep taking the card out. come to the livehouse this week?",
+       "deciding this weekend, with or without you. would rather it was with."
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -42850,8 +42883,16 @@
     "threads": [
      {
       "id": "kaito_debt",
+      "title": "Kaito's loan",
       "hidden": "He borrowed from a loan app to cover his pachinko losses, and hasn't told his sister.",
       "known": "{{user}} knows Kaito owes a loan app money from his pachinko losses.",
+      "opens": "feels: Kaito acquaintance",
+      "decide": "The loan app's collector has been phoning Nanami. Kaito owns up to {{user}}: what he borrowed to cover pachinko, how the late fees have grown, and that he's about to sell his drums to clear it before his sister finds out how bad it is.",
+      "nudges": [
+       "hey so. kind of in a hole. not asking for money!! just want to talk to someone who isn't nee-chan",
+       "they called nee-chan again. I'm gonna have to sell the kit, aren't I",
+       "guy from the music shop says he'll take the drums friday. talk me out of it?"
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -42869,9 +42910,15 @@
       "endings": [
        {
         "id": "paid_off",
-        "text": "The debt is paid off with Nanami's help.",
+        "text": "The debt is paid off, with Nanami's help and {{user}}'s.",
         "when": "knows: kaito_debt; feels: Kaito friend",
-        "good": true
+        "good": true,
+        "help": {
+         "when": "knows: kaito_debt; feels: Kaito acquaintance",
+         "money": 150000,
+         "remote": true,
+         "label": "Lend him what he owes"
+        }
        },
        {
         "id": "sells_drums",
@@ -42987,8 +43034,16 @@
     "threads": [
      {
       "id": "genzo_lease",
+      "title": "Kamejirō's lease",
       "hidden": "The shop's lease ends this year, and he hasn't told Ayaka.",
       "known": "{{user}} knows the lease on Ramen Kamejirō ends this year.",
+      "opens": "job: ramen; feels: Genzō acquaintance",
+      "decide": "Kamejirō's lease has run out. Genzō, who says ten words a day, tells {{user}} the landlord will hold the shop a little longer and no more, that Ayaka argues with him about it every night, and that he'd rather close than move off the street.",
+      "nudges": [
+       "Lease. Landlord wants an answer. Come by the counter.",
+       "Still the lease. Ayaka keeps asking. Come eat.",
+       "Signing or closing. End of the week. Come before."
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -43013,6 +43068,18 @@
         "text": "A new lease is signed, thanks to Ayaka's contest win and the help of {{user}}.",
         "when": "thread: ayaka_contest wins; knows: genzo_lease",
         "good": true
+       },
+       {
+        "id": "backed_lease",
+        "text": "{{user}} puts up the key money and Genzō signs a new lease on the same street, calling it a loan he'll pay back; {{user}} hasn't paid for a bowl since.",
+        "when": "knows: genzo_lease; feels: Genzō good",
+        "good": true,
+        "help": {
+         "when": "knows: genzo_lease; feels: Genzō good",
+         "money": 1500000,
+         "only": true,
+         "label": "Put up the key money"
+        }
        },
        {
         "id": "smaller_place",
@@ -43110,8 +43177,16 @@
     "threads": [
      {
       "id": "ayaka_contest",
+      "title": "Ayaka's contest",
       "hidden": "She entered the Tokyo ramen contest with her own recipe, behind her father's back.",
       "known": "{{user}} knows Ayaka entered the ramen contest with a recipe of her own.",
+      "opens": "feels: Ayaka acquaintance",
+      "decide": "The ramen contest is over and the results are out. Ayaka tells {{user}} she cooked her own broth there, behind her father's back, and wants to know what {{user}} thinks before she tells him, win or lose.",
+      "nudges": [
+       "results are posted and I haven't told oyaji a thing. come by after closing?",
+       "need someone to taste the last version before I tell him. tonight?",
+       "telling oyaji tomorrow, win or lose. want you there first."
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -43324,8 +43399,16 @@
     "threads": [
      {
       "id": "reiko_burnout",
+      "title": "Reiko at the edge",
       "hidden": "She is close to burning out and tells no one.",
       "known": "{{user}} knows Reiko is close to burning out.",
+      "opens": "job: office; feels: Reiko acquaintance",
+      "decide": "Since she collapsed at her desk, Reiko has come back to work as if nothing happened. Over a drink she finally tells {{user}} the truth: she has been close to breaking for a long time, the doctor says leave or nothing, and she doesn't know how to stop.",
+      "nudges": [
+       "Are you free Friday? Bar Kotori. I would like to talk, if that isn't strange.",
+       "I'm fine. That is what I tell everyone. Could we have a drink this week?",
+       "I have to answer HR about leave on Monday. I would value your opinion before then."
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -43476,13 +43559,21 @@
     "threads": [
      {
       "id": "rina_runway",
+      "title": "Hikari Labs' runway",
       "hidden": "Her startup has three months of money left, and she tells no one.",
       "known": "{{user}} knows Hikari Labs has about three months of money left.",
+      "opens": "job: startup; feels: Rina acquaintance",
+      "decide": "Hikari Labs' money has run out and the last deal hasn't closed. Rina stops pretending with {{user}}: unless something changes now she shuts the company, Jake goes home, and she ends up in a safe job at Asahina Trading, the life she walked out of.",
+      "nudges": [
+       "quick sync? need a sanity check on the runway. coffee on me",
+       "honest update: we're at weeks, not months. can you meet this week?",
+       "board call friday. I close a deal or I close the company. call me before?"
+      ],
       "stages": [
        {
         "when": "season: spring",
         "tell": "hidden",
-        "text": "Rina pitches investors all spring, upbeat and fast; nobody sees how short the runway is."
+        "text": "Rina pitches investors week after week, upbeat and fast; nobody sees how short the runway is."
        },
        {
         "when": "season: summer; seasonDays: 1-7",
@@ -43589,8 +43680,16 @@
     "threads": [
      {
       "id": "daisuke_letter",
+      "title": "Daisuke's letter",
       "hidden": "A resignation letter sits in his desk, and he never hands it in.",
       "known": "{{user}} knows Daisuke keeps a resignation letter in his desk.",
+      "opens": "job: office; feels: Daisuke acquaintance",
+      "decide": "After Reiko's crisis, Daisuke can't keep rewriting the letter. He shows it to {{user}}, apologizing, and admits the rest: he has loved Reiko for three years, and he has to tell her, leave, or both.",
+      "nudges": [
+       "Sumimasen, are you free for a drink? There is something I've wanted to ask your advice on.",
+       "Sorry to bother you again. The letter. I took it out today. Could we talk?",
+       "I've decided to decide by Friday. I'm sorry. Would you have time before?"
+      ],
       "stages": [
        {
         "when": "season: spring or summer or autumn",
@@ -43718,8 +43817,19 @@
     "threads": [
      {
       "id": "hina_graduation",
+      "title": "Hina's graduation",
       "hidden": "She is thinking of leaving idol life, and an overzealous fan follows her after shows.",
       "known": "{{user}} knows Hina is thinking of leaving idol life.",
+      "opens": [
+       "job: idol; feels: Hina acquaintance",
+       "job: tv; rank: top; feels: Hina acquaintance"
+      ],
+      "decide": "Hina's last show is pencilled in and she still hasn't said yes. Off duty, cap and mask on, she tells {{user}} she wants an ordinary life, that one fan follows her home after shows, and that she's scared of who she is without the stage.",
+      "nudges": [
+       "hi! it's hina, off duty. could we get tea somewhere quiet? I'll wear the cap",
+       "the agency needs my answer about graduating. I keep saying soon. can we meet?",
+       "they print the last show's tickets on monday. I want to talk to you before I sign"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -44185,8 +44295,19 @@
     "threads": [
      {
       "id": "sayuri_debt",
+      "title": "Club Hibiscus's debt",
       "hidden": "She owes money to the Hamakaze Group, a loan outfit with underworld ties.",
       "known": "{{user}} knows Sayuri owes money to the Hamakaze Group.",
+      "opens": [
+       "venture: hotel; feels: Sayuri acquaintance",
+       "job: clubmama; feels: Sayuri acquaintance"
+      ],
+      "decide": "The Hamakaze Group's deadline has come. Sayuri snaps her fan shut and tells {{user}} what Club Hibiscus owes and to whom, and that unless the money is found she will have to sell the club to the Group, and the women who work there with it.",
+      "nudges": [
+       "Would you honor Hibiscus with a visit this week? I'd value a word, privately.",
+       "The Group's man came again tonight. Forgive me for asking: could we talk?",
+       "I meet their lawyer on Friday about selling. If you have anything to say, say it to me first."
+      ],
       "stages": [
        {
         "when": "season: spring or summer or autumn",
@@ -44343,8 +44464,19 @@
     "threads": [
      {
       "id": "shizuka_marriage",
+      "title": "Shizuka's answer",
       "hidden": "Her family is arranging marriage meetings for her, and she is secretly with Rina.",
       "known": "{{user}} knows Shizuka's family is arranging marriage meetings for her.",
+      "opens": [
+       "venture: ht_ryokan",
+       "job: ryokan; feels: Shizuka acquaintance"
+      ],
+      "decide": "Shizuka's family is waiting for her answer to the match they favor. In her soft, formal way she tells {{user}} what nobody in Hakone knows: she loves Rina, and she doesn't know how to say it at her mother's low table.",
+      "nudges": [
+       "Forgive the sudden message. If you are in Hakone this week, I would be glad of your company.",
+       "My mother asked again this morning. I didn't answer. May I see you?",
+       "I promised my family an answer at the end of the week. I would like to speak with you first."
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -44471,8 +44603,20 @@
     "threads": [
      {
       "id": "seoyeon_parents",
+      "title": "The novel, not economics",
       "hidden": "Her parents think she studies economics; she studies Japanese literature and is writing a novel set in Kissa Shirakaba.",
       "known": "{{user}} knows Seo-yeon's parents think she studies economics.",
+      "opens": [
+       "job: kissaten; feels: Seo-yeon acquaintance",
+       "venture: cf_shirakaba",
+       "degree: any; feels: Seo-yeon acquaintance"
+      ],
+      "decide": "Seo-yeon's parents are coming to Tokyo, and they still think she studies economics. She tells {{user}} about the literature degree and the novel set in Kissa Shirakaba, and that she has to tell them on this visit or go on pretending.",
+      "nudges": [
+       "Would you walk in Yanaka with me? I have been carrying something, and it's heavy.",
+       "My mother asked about my economics exams. I said they went well. I would like to talk.",
+       "My parents come again soon. If I'm going to tell them, it's this time. Will you meet me first?"
+      ],
       "stages": [
        {
         "when": "season: spring or summer or autumn",
@@ -44488,7 +44632,7 @@
        {
         "when": "season: winter",
         "tell": "known",
-        "text": "Her parents visit Tokyo."
+        "text": "Her parents are coming to Tokyo."
        }
       ],
       "endings": [
@@ -44592,8 +44736,16 @@
     "threads": [
      {
       "id": "camille_scholarship",
+      "title": "Camille's scholarship",
       "hidden": "Her scholarship depends on grades she isn't getting; she skips class to draw at the studio.",
       "known": "{{user}} knows Camille's scholarship depends on grades she isn't getting.",
+      "opens": "feels: Camille acquaintance",
+      "decide": "The scholarship review has come, and Camille's grades won't pass it. She tells {{user}}, far too lightly, that she may have to choose between the studio and staying in Japan, and asks whether drawing counts as attendance.",
+      "nudges": [
+       "the review board wants to discuss my attendance. philosophy question: is drawing attendance?",
+       "ok it is serious. come smoke with me (you don't have to smoke).",
+       "they decide on thursday. I could use one person on my side before."
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -44695,8 +44847,16 @@
     "threads": [
      {
       "id": "lucas_grandmother",
+      "title": "Lucas's grandmother",
       "hidden": "He is searching for the village of his Japanese grandmother, who left for Brazil in 1960, and tells almost no one.",
       "known": "{{user}} knows Lucas is searching for his grandmother's village in Japan.",
+      "opens": "job: pubstaff; feels: Lucas acquaintance",
+      "decide": "A temple register has given Lucas a name and a town at last. Before he takes the train, he tells {{user}} about his grandmother, who left for Brazil in 1960, and asks for help to read what the clues really say.",
+      "nudges": [
+       "bro I found something about my avó. come to Ameyoko with me? I need a Japanese brain",
+       "the stall guy at Ameyoko said come back with someone who reads old kanji. you free??",
+       "I'm taking the train to the town on saturday, right village or not. come before?"
+      ],
       "stages": [
        {
         "tell": "hidden",
@@ -44808,8 +44968,16 @@
     "threads": [
      {
       "id": "linh_debt",
+      "title": "Linh's exam",
       "hidden": "She still owes her recruitment broker, and most of her pay goes home.",
       "known": "{{user}} knows Linh still owes her recruitment broker.",
+      "opens": "feels: Linh acquaintance",
+      "decide": "The national care exam is close, and Linh's broker still takes most of her pay. She tells {{user}} what she owes and what passing would change for her family in Huế, and asks, very politely, for help to study.",
+      "nudges": [
+       "Hello! Do you have time this week? I would like to practice for the exam with someone, if okay.",
+       "The broker called my mother. Sorry to message about this. Can we meet?",
+       "The exam is soon. I study every night but I am scared. Could you help me one evening?"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -44921,8 +45089,16 @@
     "threads": [
      {
       "id": "mei_interviews",
+      "title": "Mei's other offer",
       "hidden": "She is interviewing at a rival trading firm and hasn't told Reiko.",
       "known": "{{user}} knows Mei is interviewing at a rival trading firm.",
+      "opens": "job: office; feels: Mei acquaintance",
+      "decide": "The rival firm wants Mei's answer. Dry as ever, she tells {{user}} she has been interviewing behind Reiko's back and will take the offer unless someone here gives her a reason, and a role with her own name on it, to stay.",
+      "nudges": [
+       "Drink after work? I need someone not on my team to tell me I'm being reasonable.",
+       "They raised the offer. I haven't told Reiko. Lunch?",
+       "I sign on Monday unless someone gives me a reason not to. Your move."
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -45020,8 +45196,16 @@
     "threads": [
      {
       "id": "hannah_stream",
+      "title": "Hannah's avatar",
       "hidden": "She is a popular virtual streamer teaching Japanese to foreigners, and nobody at work knows her avatar.",
       "known": "{{user}} knows Hannah is a popular virtual streamer.",
+      "opens": "feels: Hannah acquaintance",
+      "decide": "At the fan convention some of her viewers were sure they knew her voice. Hannah tells {{user}}, deadpan, that she is the streamer behind the avatar, and asks whether she should finally show her face.",
+      "nudges": [
+       "Question for a human, not a chat. Coffee? It's about my \"hobby\".",
+       "Three people at the con said my voice sounded familiar. Help me decide something?",
+       "Face reveal stream on Saturday. Or not. Talk me into one or out of it before?"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -45121,8 +45305,16 @@
     "threads": [
      {
       "id": "jake_offer",
+      "title": "Jake's offer from home",
       "hidden": "A big offer from a company back home sits unanswered, and he hasn't told Rina.",
       "known": "{{user}} knows Jake has an unanswered job offer from back home.",
+      "opens": "job: startup; feels: Jake acquaintance",
+      "decide": "The offer from back home won't wait much longer. Jake tells {{user}} about it, and that he'll stay as long as Hikari Labs and Rina have a future; he just can't tell any more whether they do.",
+      "nudges": [
+       "hey buddy, got a minute this week? pub's on me. kinda need to talk something through",
+       "they called from Ohio again. haven't said no. haven't said yes. beer?",
+       "gotta give 'em an answer monday. would really like your take first, buddy"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -45144,7 +45336,7 @@
        {
         "id": "stays",
         "text": "He stays, as long as Hikari Labs lives.",
-        "when": "thread: rina_runway funded",
+        "when": "thread: rina_runway funded or rina_runway mochi_deal",
         "good": true
        },
        {
@@ -45255,8 +45447,16 @@
     "threads": [
      {
       "id": "kanon_door",
+      "title": "Kanon's door",
       "hidden": "She hasn't left her apartment for more than a convenience-store run in months, except for the convention.",
       "known": "{{user}} knows Kanon barely leaves her apartment.",
+      "opens": "feels: Kanon acquaintance",
+      "decide": "The convention is over and Kanon is back behind her door. Between jokes she tells {{user}} it's the only day she goes out all year, and then asks, very fast, whether {{user}} would go somewhere with her.",
+      "nudges": [
+       "hiii ok weird question do you ever just. go places. outside. asking for me",
+       "made it to the konbini AND back. new record. maybe we could go somewhere? (no pressure) (some pressure)",
+       "ok I'm going out properly on saturday. if you don't come I'll chicken out lol. come?"
+      ],
       "stages": [
        {
         "tell": "hidden",
@@ -45380,8 +45580,16 @@
     "threads": [
      {
       "id": "airi_retirement",
+      "title": "Airi's last signing",
       "hidden": "She has a retirement date her agency doesn't know about yet.",
       "known": "{{user}} knows Airi plans to retire.",
+      "opens": "job: avactress; feels: Airi acquaintance",
+      "decide": "Airi's last signing is on the calendar, and her agency still doesn't know it's her last. Laughing too loud, she tells {{user}} she's leaving the screen, and asks what a woman like her does with the rest of her life.",
+      "nudges": [
+       "Oi, buy me a drink at Kotori? Got news, the kind you don't post.",
+       "The agency's planning next year's shoots for me and I keep smiling. Come drink?",
+       "Telling them Monday. Want one honest opinion first, and you're it."
+      ],
       "stages": [
        {
         "when": "season: spring or summer or autumn",
@@ -45487,8 +45695,16 @@
     "threads": [
      {
       "id": "momo_family",
+      "title": "Momo's family",
       "hidden": "Her family thinks she works at a gym in Tokyo.",
       "known": "{{user}} knows Momo's family doesn't know what her job is.",
+      "opens": "feels: Momo acquaintance",
+      "decide": "Momo's sister found out what she does, and her family in Fukuoka will hear it next. Momo tells {{user}}, apologizing the whole time, and asks how she's supposed to face them.",
+      "nudges": [
+       "um, sorry for the random message! can we talk sometime? it's a family thing",
+       "my sister keeps calling and I don't pick up. sorry, can I see you?",
+       "I'm going home to Fukuoka at the weekend to tell them. please can we talk before? sorry!!"
+      ],
       "stages": [
        {
         "when": "season: spring or summer",
@@ -45603,8 +45819,16 @@
     "threads": [
      {
       "id": "shiori_hotaru",
+      "title": "Shiori's mask",
       "hidden": "She is \"Hotaru\", a masked adult streamer and one of the top-ranked performers on a members' site; nobody in her life knows, and she has never been with anyone.",
       "known": "{{user}} knows Shiori is the masked streamer Hotaru, and that nobody else can ever know.",
+      "opens": "seen: hp_sh_offer_capsule or hp_sh_offer_coco",
+      "decide": "Since the still of Hotaru's hand went round, Shiori hasn't stopped shaking. She tells {{user}}, and only {{user}}, that she is Hotaru, that her father must never know, and that she is about to delete everything.",
+      "nudges": [
+       "Forgive me for writing so late. Might I see you this week? There is a matter I can tell no one else.",
+       "I have not streamed in a week. I keep the files open and cannot decide. May we speak?",
+       "I will delete it all on Sunday unless I find a reason not to. I would like to see you before."
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -45730,8 +45954,19 @@
     "threads": [
      {
       "id": "tsubaki_salon",
+      "title": "Tsubaki's tin",
       "hidden": "For a few trusted regulars she goes past the shop's line for extra money toward a salon of her own, and the ex she left two years ago still texts, still waits, and won't let her go.",
       "known": "{{user}} knows how Tsubaki fills her salon fund, and about the ex who won't let her go.",
+      "opens": [
+       "job: esthe; feels: Tsubaki acquaintance",
+       "venture: hotel; feels: Tsubaki acquaintance"
+      ],
+      "decide": "Tsubaki's ex keeps turning up, and the tin isn't full. She tells {{user}} how she has been filling her salon fund and why she can't stop yet, and that she is tired of being afraid to go home.",
+      "nudges": [
+       "Free after my last booking? Somewhere with chairs that aren't mine.",
+       "He waited outside again. I'm fine. I'd like company on the walk home, though.",
+       "A room in Kōenji came up. I sign this week or keep the late slots another year. Talk to me?"
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -45870,8 +46105,16 @@
     "threads": [
      {
       "id": "sumire_tab",
+      "title": "Sumire's tab",
       "hidden": "She spends what she earns at Club Eternal, where she is Kaname's biggest customer and runs a tab she can't pay; to keep her number at Velvet she sleeps with her top client.",
       "known": "{{user}} knows Sumire is deep in debt to a host club, and what she does to stay number one.",
+      "opens": "job: hostess; feels: Sumire acquaintance",
+      "decide": "Kaname's birthday has come and gone, and Club Eternal wants its tab. Still smiling, Sumire tells {{user}} what she owes, what she does to stay number one, and that she can't see a way out that leaves her pride.",
+      "nudges": [
+       "Come by Velvet this week? I'll keep the good table for you. Just to talk.",
+       "Eternal's manager was at the lift again. Silly of me, but I'd like to see you.",
+       "The tab's due Friday. I can pay it, or I can stop pretending. Come help me choose."
+      ],
       "stages": [
        {
         "when": "season: spring",
@@ -45980,8 +46223,19 @@
     "threads": [
      {
       "id": "kaoru_notebook",
+      "title": "Kaoru's notebook",
       "hidden": "She keeps a notebook of who comes to Hotel Coco Palace with whom and watches the screens far longer than the job needs; she has not been touched in years and has never taken a room herself.",
       "known": "{{user}} knows about Kaoru's notebook, and that in twelve years she has never taken a room herself.",
+      "opens": [
+       "venture: ht_coco",
+       "job: lovehotel; feels: Kaoru acquaintance"
+      ],
+      "decide": "The Thursday couple has stopped coming, and Kaoru misses them more than anyone she knows. Through her little window she tells {{user}} about the notebook, and that after twelve years of other people's nights she doesn't know what she wants for herself.",
+      "nudges": [
+       "Quiet night at the window. If you're passing, I'll make tea.",
+       "Filled another page. Starting to wonder who it's for. Come by?",
+       "Thinking of putting in my notice. Or not. You'd be the one to ask, oddly."
+      ],
       "stages": [
        {
         "when": "season: spring",
