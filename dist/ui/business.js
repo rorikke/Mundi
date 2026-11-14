@@ -218,20 +218,22 @@ function askHtml(g, w, inApp) {
     // (a sighting: in the app anywhere, in the scene at that hotel; its words are the world's, the buttons the app's)
     const x = sightingAsk(g, w, inApp);
     if (x)
-        return card(x.title, x.setup, x.choices.map((c, i) => ({ label: c.label, act: 'bz-sight', i, how: c.how, note: c.note })), '', inApp, x.icon, 'mu-biz-sight');
+        return card(x.title, x.setup, x.choices.map((c, i) => ({ label: c.label, act: 'bz-sight', i, how: c.how, note: c.note })), '', inApp, x.icon, 'mu-biz-sight', false);
     const c = pendingCard(g, w);
     if (c)
         return card(`${ventureName(w, c.s)}: this week`, say(c.card.setup), c.choices.map(x => ({ label: x.c.label, roll: x.c.roll?.skill, act: 'bz-card', i: x.i, mins: x.c.minutes })), 'bz-skip', inApp, icon(c.s));
     return '';
 }
-function card(title, setup, choices, skip, inApp, icon = '☕', cls = '') {
+// (`notr`: the title is the world's words; a sighting's is the app's, "{0}: at the desk", so it can be translated)
+function card(title, setup, choices, skip, inApp, icon = '☕', cls = '', notr = true) {
+    const tn = notr ? ' data-notr' : '';
     // (`how`: a choice of the app's own, its label and note in the app's words, not the world's)
     const label = (x) => (x.how ? `<span>${esc(x.label)}</span>` : `<span data-notr>${esc(x.label)}</span>`);
     const btns = `${choices.map((x, n) => `<button class="${n ? '' : 'mu-primary'}" data-act="${x.act}" data-i="${x.i}"${x.how ? ` data-how="${esc(x.how)}"` : ''}>${label(x)}${x.roll ? `<small>🎲 ${esc(x.roll)}</small>` : x.mins ? `<small>${esc(plural(Math.round(x.mins / 60) || 1, 'hour'))}</small>` : x.note ? `<small>${esc(x.note)}</small>` : ''}</button>`).join('')}${skip ? `<button class="mu-ghost" data-act="${skip}">Not this time</button>` : ''}`;
     if (inApp)
-        return `<section class="mu-ph-card mu-biz-ask${cls ? ` ${cls}` : ''}"><b data-notr>${esc(title)}</b><small data-notr>${esc(setup)}</small><div class="mu-biz-ask-btns">${btns}</div></section>`;
+        return `<section class="mu-ph-card mu-biz-ask${cls ? ` ${cls}` : ''}"><b${tn}>${esc(title)}</b><small data-notr>${esc(setup)}</small><div class="mu-biz-ask-btns">${btns}</div></section>`;
     return `<div class="mh-invite mh-happen mh-story mh-glass${cls ? ` ${cls}` : ''}" role="dialog" aria-label="${esc(title)}"><span class="mh-story-ic" aria-hidden="true">${esc(icon)}</span>
-        <div><b data-notr>${esc(title)}</b><p data-notr>${esc(setup)}</p></div><div class="mh-invite-btns">${btns}</div></div>`;
+        <div><b${tn}>${esc(title)}</b><p data-notr>${esc(setup)}</p></div><div class="mh-invite-btns">${btns}</div></div>`;
 }
 /* ---------- clicks ---------- */
 const C = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? { g, w } : null; };
