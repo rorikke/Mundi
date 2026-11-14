@@ -10,12 +10,9 @@ Ideas planned for later. Nothing here is promised for a date.
 
 ## Engine
 
-- **Running a business: the next tracks.** The first two tracks are in Tokyo now (a café of your own and the
-  executive's floor; see [Running a business](improvements.md#running-a-business)). Next, on the same engine:
-  - **Hospitality:** a capsule hotel (Nest Capsule, bought out from its manager's rank or bought), the ryokan in
-    Hakone as a partnership through Shizuka's story, and a love hotel with adult content on (Hotel Coco Palace, with
-    Kaoru's window and notebook: the guests you know as stories, and discretion as a choice). Rooms upgraded one at a
-    time, occupancy by hour, weekday, season and festival, and people renting a room for a business of their own.
+- **Running a business: the next track.** Three tracks are in Tokyo now (a café of your own, the executive's floor,
+  and hotels: Nest Capsule, Ryokan Kasumi-sō and Hotel Coco Palace; see
+  [Running a business](improvements.md#running-a-business)). Next, on the same engine:
   - **Tycoon:** buying a stake in a company (a seed stake, a large one, a majority), its value as the score: the
     projects you back, a funding round, a listing, selling out; Rina's company, Nanami's band, Lisa's studio, a club
     with Sayuri.

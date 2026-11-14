@@ -8350,5 +8350,8 @@ const DICT: Record<string, string> = {
  "What they offer (told to the AI; optional)": "Lo que ofrecen (se le cuenta a la IA; opcional)",
  "The rooms": "Las habitaciones",
  "{0}'s family: {1}%": "Familia de {0}: {1}%",
+ "The Business app lists them: take over a place you work at, lease a unit and name it, buy a hotel for sale, go into partnership, or rise above a career's top. Each says what it costs and what it asks for.": "La app Negocios los muestra: quedarte con un lugar donde trabajas, alquilar un local y ponerle nombre, comprar un hotel en venta, entrar en una sociedad, o subir por encima de la cima de una carrera. Cada uno dice cuánto cuesta y qué pide.",
+ "Hotels": "Hoteles",
+ "A hotel earns by its rooms: Capacity opens them, its other numbers and the calendar fill them. Part of a hotel's price can be paid off from its takings, never from your own money. Someone may rent a room for a business of their own.": "Un hotel gana por sus habitaciones: la Capacidad abre más, sus otros números y el calendario las llenan. Parte del precio de un hotel se puede pagar con su caja, nunca con tu propio dinero. Alguien puede alquilar una habitación para un negocio propio.",
 };
 export default DICT;

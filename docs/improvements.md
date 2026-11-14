@@ -530,8 +530,8 @@ apprentices, in every world.
 
 ## Running a business
 
-A late game for Tokyo, in two tracks for now: a café of your own, and the executive's floor above a company's top
-ranks. More (a hotel, a stake in a company) may come on the same engine. The world's people are never your staff:
+A late game for Tokyo, in three tracks for now: a café of your own, the executive's floor above a company's top
+ranks, and hotels. A stake in a company may come on the same engine. The world's people are never your staff:
 they're your regulars, the people you fight for, the ones whose stories your business can change.
 
 ### A café of your own
@@ -581,6 +581,36 @@ they're your regulars, the people you fight for, the ones whose stories your bus
 - Ventures are world data, so other worlds can have their own (the World creator edits them); with the business
   system off, none of it exists. Older games have no ventures until one opens; a player already at a career's top keeps
   their rank, with the new ranks simply above it.
+
+### Hotels
+
+- **Three kinds, one of each.** Nest Capsule in Shinjuku, Ryokan Kasumi-sō in Hakone and, with adult content on, Hotel
+  Coco Palace in Dōgenzaka. You can own one of each beside a café.
+- **Ways in.** Rise to Hotel manager at the capsule hotel or the love hotel and the owner offers it to you, or buy it
+  from outside when it's for sale. Either way you pay part of the price at once and the rest comes out of the hotel's
+  weekly takings until it's paid off, never out of your own money. The ryokan isn't for sale: through Shizuka's story
+  her family takes you in as a partner, with a third of the takings, and half once you fund the open-air bath.
+- **Rooms and nights.** A hotel earns by its rooms: Capacity opens more of them, its other numbers and the calendar
+  fill them (the last train's Fridays and the year-end parties at the capsule hotel, the autumn leaves and New Year at
+  the ryokan, weekends and Christmas Eve at the love hotel), at a night's and a rest's price that follow its tier and
+  style. Running costs and the upkeep come off. A full house is full: on its busiest nights only more rooms earn more.
+- **Tiers.** A capsule hotel, then a sauna and lounge, then a cabin hotel with a women's floor. The old inn, then the
+  open-air bath, then the detached rooms across the garden. The love hotel, then themed floors, then a second hotel
+  in Isezakichō, with the owner's suite on the top floor. Upgrades are bought, found around Tokyo and earned, as at the
+  café.
+- **Running it yourself.** "Work the front desk" passes the hours like a shift. At a hotel of yours you pay the owner's
+  rate, half of what a room and the place cost.
+- **Tenants and partners.** People are never your staff, but someone may rent a room for a business of their own:
+  Tsubaki's licensed aroma salon at the ryokan or the capsule hotel. They pay rent with the week and work there.
+- **The night desk.** A love hotel sees who comes in with whom. Most guests come and go without a word; once in a while
+  someone you know, when it moves a story: a secret you didn't know, a couple you didn't know was one. You hear it at
+  the desk in your own hours, or from Kaoru's notebook while she keeps the window. Keep it, use it, or let it slip.
+  The hotel can be told never to tell you. Choosing the self check-in machine over Kaoru's window closes that, and her
+  job there.
+- **People.** Shizuka's story can end with you as her family's partner, Kaoru's with her running the hotel by day,
+  Tsubaki's with her salon at your hotel. The Hamakaze Group's man comes to your desk, and Sayuri can count on you or
+  not; Akane turns up when trouble does; Shiori's family's hotel group is your rival, and would buy you out.
+- **Selling.** Sell or close a hotel as any business; a buyer's offer may come for more, less what's still owed.
 
 ## The World creator and the new game
 
