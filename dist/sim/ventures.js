@@ -177,7 +177,10 @@ export function hotelOn(g, w, d, s, day, extra = {}) {
     for (const [k, v] of Object.entries(extra))
         stats[k] = (stats[k] ?? 0) + v;
     const ids = statsOf(d);
-    return hotelDay(t, tierStyle(d, s), ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
+    // (a tier that runs at more than one place counts the rooms of the places you have: the second hotel, once bought)
+    const at = Math.max(1, t.places ?? 1), have = Math.min(at, sitesOf(s).length);
+    const tt = at > 1 && t.rooms ? { ...t, rooms: Math.round(t.rooms * have / at) } : t;
+    return hotelDay(tt, tierStyle(d, s), ids, stats, k => styleMul(d, s, k), demandOn(g, w, d, s, day), ids.includes('capacity') ? 'capacity' : ids[2]);
 }
 // (a style's own prices count at its own tier only: the next tier's prices are its own)
 const tierStyle = (d, s) => { const st = styleDef(d, s.style); return st && st.tier === s.tier ? st : null; };
