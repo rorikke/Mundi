@@ -211,7 +211,7 @@ export function advanceThreads(g: Save, w: WorldDef): string[] {
 
 /* ---------- the endings, as they are now ---------- */
 
-const condText = (c: Cond) => `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
+const condText = (c: Cond) => `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`;   // (the grammar's own order: `thread: not x`)
 const endCtx = (t: Thread, i: number) => ({ day: true, key: `thread|${t.id}|end|${i}` });
 const isOpen = (g: Save, id: string) => { const s = threadStates(g)[id]; return !!s && s.stage >= 0 && !s.ended; };
 // The storylines an ending's `thread:` names.

@@ -617,7 +617,7 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
     let other = false;
     const more = !!opts.more;
     for (const c of parseWhen(when).conds) {
-        const text = `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
+        const text = `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`;
         if (whenHolds(g, w, text, { place })) continue;
         if (c.key === 'skill' && !c.not) out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
         else if (c.key === 'course' && !c.not) out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
