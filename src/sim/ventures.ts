@@ -353,9 +353,12 @@ function upgradeState(g: Save, w: WorldDef, d: VentureDef, s: VentureState, u: U
     return u.tier > s.tier ? 'later' : u.how === 'found' ? 'found' : 'ready';
 }
 /** What an upgrade costs now: its price, raised for each upgrade of the same number you already own (B-15: each costs
- *  more than the last of its number), by the game's difficulty. */
+ *  more than the last of its number), by the game's difficulty; a hotel's milestone at its own price. */
 export function upgradePrice(g: Save, d: VentureDef, s: VentureState, u: UpgradeDef): number {
-    const before = s.owned.filter(id => id !== u.id && d.upgrades?.find(x => x.id === id)?.stat === u.stat).length;
+    // (a hotel's milestone is a building project, the sauna or the open-air bath: priced as itself, apart from the climb
+    // of its number, so the order you buy in doesn't make it cost several times its price)
+    const project = isHotel(d) ? new Set(d.tiers.map(t => t.milestone?.upgrade).filter(Boolean)) : null;
+    const before = project?.has(u.id) ? 0 : s.owned.filter(id => id !== u.id && !project?.has(id) && d.upgrades?.find(x => x.id === id)?.stat === u.stat).length;
     // (a partnership: you pay your share of it, as you're paid your share of the takings)
     return Math.round(priceOf(g, u.cost * VENTURE.rise ** before * mineOf(d, s)) / 100) * 100;
 }
