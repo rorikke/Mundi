@@ -30121,6 +30121,346 @@
      }
     }
    ]
+  },
+  {
+   "id": "hp_sy_deal",
+   "place": "yk_noge",
+   "when": "venture: hotel; feels: Sayuri; present: Sayuri; thread: not sayuri_debt",
+   "title": "Sayuri's deal",
+   "setup": "At a three-stool counter in the Noge alleys Sayuri taps her folding fan on the bar and says she hears {{user}} owns a hotel now. Her regulars always ask her where to stay, she says, and hotel guests always ask where to drink. A card of Club Hibiscus on {{user}}'s front desk, a card of the hotel by her till: nothing more than that, between owners.",
+   "choices": [
+    {
+     "label": "Shake on it",
+     "text": "she shakes your hand like a man closing a deal in 1985 and pays for the round; a box of the club's cards is waiting at your desk by Wednesday",
+     "feels": {
+      "Sayuri": 3
+     },
+     "fact": "{u} made a deal between a hotel and Sayuri's Club Hibiscus"
+    },
+    {
+     "label": "Ask about the man who calls once a month",
+     "when": "knows: not sayuri_debt",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "reveal": "sayuri_debt",
+     "feels": {
+      "Sayuri": 2
+     },
+     "text": "she snaps the fan shut, then opens it again: the Hamakaze Group, a loan from the year the club opened, and interest she stopped understanding long ago; the deal stands, she says",
+     "fail": {
+      "text": "she smiles over the fan and says the man is an old friend of the club; she shakes on the deal all the same, and changes the subject to the weather",
+      "feels": {
+       "Sayuri": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp_sy_receipts",
+   "place": "yk_noge",
+   "after": "hp_sy_deal",
+   "when": "venture: hotel; knows: sayuri_debt; feels: Sayuri good; present: Sayuri; thread: not sayuri_debt",
+   "title": "Sayuri's receipts",
+   "setup": "Sayuri sets a shoebox on the counter of a Noge bar: five years of receipts from the Hamakaze Group, rubber-banded by month. She added them up last night. She has paid back what she borrowed twice over, at three times the interest the law allows. Tomorrow she takes the box to a lawyer in Kannai and stops paying. She is not asking {{user}} for money, she says; she is telling a partner.",
+   "choices": [
+    {
+     "label": "Say the hotel stands with her",
+     "text": "she nods once and puts the lid back on the box; the Group will come to your door too now, she says, and you had better hear it from her first",
+     "feels": {
+      "Sayuri": 4
+     },
+     "fact": "Sayuri told {u} she is taking the Hamakaze Group to a lawyer"
+    },
+    {
+     "label": "Offer to pay it off",
+     "text": "she snaps the fan shut: pay them, and the Group owns two people instead of one; she will do it her way, she says, and you can buy the next round",
+     "feels": {
+      "Sayuri": 1
+     }
+    },
+    {
+     "label": "Offer to wait with her at the lawyer's",
+     "text": "you sit in a Kannai waiting room the next morning while she does all the talking; she comes out with the lawyer's card and a look you haven't seen on her before",
+     "feels": {
+      "Sayuri": 5
+     },
+     "fact": "Sayuri took the Hamakaze Group to a lawyer, and {u} went with her"
+    }
+   ]
+  },
+  {
+   "id": "hp_sy_desk",
+   "place": "venture:hotel",
+   "after": "hp_sy_receipts",
+   "when": "venture: hotel; thread: not sayuri_debt",
+   "title": "the Group's man at the desk",
+   "setup": "A man in a pale suit asks the front desk for the owner by name and waits, smiling, until {{user}} comes. His card says Hamakaze Group and nothing else. He hears the hotel is a friend of Club Hibiscus, he says, and hotels are delicate things: fire inspections, reviews, licenses. A sensible owner would keep the hotel's guests away from that club, and keep out of its owner's business.",
+   "choices": [
+    {
+     "label": "Say the hotel stands with Sayuri",
+     "text": "he bows, leaves his card face down on the counter and goes; that night Sayuri calls, says nothing for a while, then thank you, in plain words",
+     "feels": {
+      "Sayuri": 4
+     },
+     "fact": "{u} stood with Sayuri against the Hamakaze Group at {0}"
+    },
+    {
+     "label": "Say you'll keep out of it",
+     "text": "he thanks you warmly and leaves; the club's cards go from the desk that week, and the next time you see Sayuri she calls you -sama again",
+     "feels": {
+      "Sayuri": -4
+     }
+    },
+    {
+     "label": "Phone Akane while he waits",
+     "when": "feels: Akane friend",
+     "text": "he waits, smiling, until a tall woman in an old gang jacket walks in; then he remembers an appointment, and Akane drinks the tea he left",
+     "feels": {
+      "Sayuri": 3,
+      "Akane": 2
+     },
+     "fact": "{u} stood with Sayuri against the Hamakaze Group at {0}"
+    }
+   ]
+  },
+  {
+   "id": "hp_sy_club",
+   "place": "yk_hostess",
+   "when": "thread: sayuri_debt hp_group_backs_off; present: Sayuri",
+   "title": "the club full again",
+   "adult": true,
+   "setup": "Club Hibiscus is full on a Friday for the first time in years. The women who work there have hung paper lanterns over the bar, Kyōko has come down from Tokyo in her best kimono, and Akane sits at the end of the counter in a dress she plainly hates. Sayuri brings a bottle to {{user}}'s table with a name tag already on it, and doesn't say -sama once.",
+   "choices": [
+    {
+     "label": "Toast the club",
+     "text": "the whole room raises a glass, Akane loudest; Sayuri drinks hers in one go and laughs behind her fan for the rest of the night",
+     "effects": {
+      "mood": 8
+     },
+     "feels": {
+      "Sayuri": 2
+     }
+    },
+    {
+     "label": "Ask what the lawyer said in the end",
+     "text": "that the Group's papers would never stand up in court, that they knew it, and that a hotel owner on her side made them stop pretending; the letter is in her till",
+     "feels": {
+      "Sayuri": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp_ak_capsule",
+   "place": "sj_capsule",
+   "brings": "Akane",
+   "when": "venture: ht_capsule; seen: hp_sy_desk:1 or hp_sy_desk:3; thread: not sayuri_debt; period: latenight",
+   "title": "Akane at the door",
+   "setup": "Past midnight two young men in loud shirts take capsules at Nest Capsule, play music from a phone in the lounge and ask the night clerk, loudly, which owner drinks at Club Hibiscus. The clerk is calling {{user}} when a tall woman with a bleached wolf cut walks in from the street in an old embroidered gang jacket: Akane, who rode up from Yokohama because Sayuri told her where the Group would go next.",
+   "choices": [
+    {
+     "label": "Let Akane talk to them",
+     "text": "she sits down between them and says something about their mothers in very old Yokohama slang; they check out before the first train, and she asks for a coffee and no thanks",
+     "feels": {
+      "Akane": 3
+     },
+     "fact": "{u} and Akane saw the Group's young men out of {0}"
+    },
+    {
+     "label": "Handle it yourself, with Akane at the door",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "you tell them the lounge closes at midnight for everyone; they look at Akane in the doorway, then at you, and go to bed quietly, and leave at six",
+     "feels": {
+      "Akane": 4
+     },
+     "fact": "{u} and Akane saw the Group's young men out of {0}",
+     "fail": {
+      "text": "they laugh at you until Akane steps in, and then they stop laughing; she says afterwards that you did fine, which is generous of her",
+      "feels": {
+       "Akane": 2
+      }
+     }
+    },
+    {
+     "label": "Tell Akane to stay out of it",
+     "text": "she says they came from her street, so it is her business, and you are welcome; she rides back to Yokohama, and the music goes on until morning",
+     "feels": {
+      "Akane": -3
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp_ak_mirage",
+   "place": "yk_lovehotel_mirage",
+   "brings": "Akane",
+   "when": "venture: ht_coco tier 3; period: latenight",
+   "title": "old rivals at Mirage",
+   "adult": true,
+   "setup": "At two in the morning five motorbikes idle in a row outside Hotel Mirage, ridden by women in their thirties in the faded jackets of an old Isezaki gang. Their leader, drunk, sits on the step and tells every couple coming in that this was her street before it was a hotel's. The night clerk hides behind the frosted glass. Then a sixth bike comes round the corner: Akane, on her way home from Home Run Alley.",
+   "choices": [
+    {
+     "label": "Let Akane deal with her old rival",
+     "text": "they shout, then laugh, then share a can of coffee on the step; the bikes leave before three, and the leader apologizes to the clerk on her way out",
+     "feels": {
+      "Akane": 3
+     },
+     "fact": "Akane cleared her old rivals from the door of {0} for {u}"
+    },
+    {
+     "label": "Offer them a room for the night, on the house",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "text": "the leader stares, then laughs until she cries; they ride off without taking it, and Akane tells the story at the batting center for a month",
+     "feels": {
+      "Akane": 3
+     },
+     "effects": {
+      "mood": 3
+     },
+     "fail": {
+      "text": "they take it, all five, and empty the minibar; Akane pays for the beer, laughing, and makes them push their bikes round the corner before they start them",
+      "feels": {
+       "Akane": 2
+      },
+      "money": -6000
+     }
+    },
+    {
+     "label": "Call the police",
+     "text": "the bikes are gone before the patrol car comes; Akane rides off too, saying you didn't have to, and the clerk writes it in the ledger",
+     "feels": {
+      "Akane": -1
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp_sh_offer_capsule",
+   "place": "sj_capsule",
+   "when": "venture: ht_capsule tier 2",
+   "title": "Rokujō Hotels' offer",
+   "adult": true,
+   "setup": "A man in a dark suit books a cabin at Nest Capsule for one night, walks every floor with a measuring app and, at check-out, hands {{user}} an envelope with a crest on the flap. Rokujō Hotels, an old Kyoto family's group, would buy Nest Capsule for well above what it is worth. The chairman is in Tokyo this season and would like to talk it over at dinner in Ginza.",
+   "choices": [
+    {
+     "label": "Say you'll hear the chairman out",
+     "text": "he bows and says the chairman dines on Chūō-dōri, any evening you like; the offer waits in the Business app, beside selling",
+     "fact": "{u} had an offer for {0} from Rokujō Hotels"
+    },
+    {
+     "label": "Say it isn't for sale",
+     "text": "he bows and leaves the envelope anyway; the offer stays in the Business app should you change your mind, and the dinner on Chūō-dōri still stands"
+    }
+   ]
+  },
+  {
+   "id": "hp_sh_offer_coco",
+   "place": "sb_lovehotel",
+   "when": "venture: ht_coco tier 2",
+   "title": "Rokujō Hotels' offer",
+   "adult": true,
+   "setup": "A man in a dark suit asks to see Coco Palace's building, not its rooms: the fire stairs, the roof, the plot behind. At the door he hands {{user}} an envelope with a crest on the flap. Rokujō Hotels, an old Kyoto family's group, would buy the hotel and the land, take down the panel and the window, and reopen it as a business hotel. The chairman would like to discuss it at dinner in Ginza.",
+   "choices": [
+    {
+     "label": "Say you'll hear the chairman out",
+     "text": "he bows and says the chairman dines on Chūō-dōri, any evening you like; the offer waits in the Business app, beside selling",
+     "fact": "{u} had an offer for {0} from Rokujō Hotels"
+    },
+    {
+     "label": "Say it isn't for sale",
+     "text": "he bows and leaves the envelope anyway; the offer stays in the Business app should you change your mind, and the dinner on Chūō-dōri still stands"
+    }
+   ]
+  },
+  {
+   "id": "hp_sh_dinner",
+   "place": "mg_chuodori",
+   "brings": "Shiori",
+   "when": "seen: hp_sh_offer_capsule or hp_sh_offer_coco; venture: hotel; feels: Shiori friend; thread: not shiori_hotaru; period: evening",
+   "title": "dinner with the chairman",
+   "adult": true,
+   "setup": "In the private room of a kaiseki house off Chūō-dōri, the chairman of Rokujō Hotels pours {{user}}'s sake himself and introduces the young woman beside him: his daughter, who studies in Tokyo. It is Shiori, perfect and pale, a gold crest ring on her finger. Over the third course he mentions, laughing, that a man at his club showed him a picture of a masked young woman wearing the family's crest, and asks {{user}} what young people make of such things.",
+   "choices": [
+    {
+     "label": "Say crest rings like that are in every antique shop",
+     "roll": {
+      "skill": "charisma",
+      "dc": 11
+     },
+     "reveal": "shiori_hotaru",
+     "feels": {
+      "Shiori": 4
+     },
+     "fact": "{u} kept Shiori's secret at her father's table",
+     "text": "he laughs and says Kyoto is full of fakes; in the taxi afterwards Shiori holds your sleeve and tells you, in a whisper, everything you have just kept for her",
+     "fail": {
+      "text": "he lets it drop, but his eyes rest on his daughter's hand a moment too long; she turns the ring inward and doesn't eat another bite",
+      "feels": {
+       "Shiori": 1
+      }
+     }
+    },
+    {
+     "label": "Bring the talk back to his offer",
+     "text": "he is happy to talk numbers, and the picture is forgotten by the fourth course; under the table, Shiori's hand stops shaking",
+     "feels": {
+      "Shiori": 3
+     },
+     "fact": "{u} kept the talk on business at dinner with Shiori's father"
+    },
+    {
+     "label": "Say his daughter would know more about it than you",
+     "text": "everyone laughs but Shiori; her father looks at the ring on her finger and says nothing more all evening, and at the door she won't meet your eyes",
+     "feels": {
+      "Shiori": -8
+     }
+    }
+   ]
+  },
+  {
+   "id": "hp_sh_ring",
+   "place": "ak_jinbocho",
+   "after": "hp_sh_dinner",
+   "when": "seen: hp_sh_dinner:1 or hp_sh_dinner:2; knows: shiori_hotaru; feels: Shiori good; present: Shiori; thread: not shiori_hotaru",
+   "title": "Shiori's plain ring",
+   "adult": true,
+   "setup": "Between two shelves of French paperbacks Shiori holds out her hand to {{user}}: the gold crest ring is gone, and in its place is a plain silver band she bought with money she earned herself. She rang her father last night, she says, and told him she will choose her own work after graduation, not the family's hotels. She didn't tell him what work. She asks {{user}} not to say anything clever.",
+   "choices": [
+    {
+     "label": "Say nothing clever",
+     "text": "you say it suits her, which is true; she laughs too loudly for a bookshop, covers her mouth, and buys you a book of Verlaine",
+     "feels": {
+      "Shiori": 4
+     },
+     "fact": "Shiori showed {u} the plain ring she bought herself"
+    },
+    {
+     "label": "Ask what her father said",
+     "roll": {
+      "skill": "charisma",
+      "dc": 10
+     },
+     "text": "that she would come round, he said, and that the young hotel owner had seemed sensible; she finds this funnier than anything Hotaru has ever heard",
+     "feels": {
+      "Shiori": 3
+     },
+     "fail": {
+      "text": "she says it doesn't matter what he said, and nearly means it; the old ring goes into an envelope, and the envelope into a book of poems",
+      "feels": {
+       "Shiori": 2
+      }
+     }
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -43854,6 +44194,13 @@
         "text": "Once a month the Group's collector visits Club Hibiscus, and Sayuri pays what she can with a smile."
        },
        {
+        "id": "hp_lawyer",
+        "when": "seen: hp_sy_receipts; season: spring or summer or autumn",
+        "tell": "known",
+        "text": "Sayuri has stopped paying the Hamakaze Group: a lawyer in Kannai is reading five years of her receipts, and the Group has started calling on the hotel owner who stands beside her club.",
+        "moment": "Sayuri mentions, lightly, that her lawyer says the Group's interest was never legal, and that the Group has not taken it well"
+       },
+       {
         "when": "season: winter",
         "tell": "known",
         "text": "The deadline is near.",
@@ -43862,10 +44209,18 @@
       ],
       "endings": [
        {
+        "id": "hp_group_backs_off",
+        "when": "venture: hotel; knows: sayuri_debt; feels: Sayuri good; seen: hp_sy_receipts; seen: hp_sy_desk:1 or hp_sy_desk:3",
+        "good": true,
+        "waits": "venture: hotel; knows: sayuri_debt; feels: Sayuri friend; seen: hp_sy_deal; seen: not hp_sy_desk",
+        "text": "Sayuri's lawyer takes the Group's papers apart line by line, and with {{user}}'s hotel standing beside the club, the Hamakaze Group lets the debt go rather than go to court. Club Hibiscus keeps its lights on, paid for by nobody but her."
+       },
+       {
         "id": "club_saved",
         "text": "The club is saved with the help of Akane, Kyōko and {{user}}.",
-        "when": "knows: sayuri_debt; feels: Sayuri good",
-        "good": true
+        "when": "knows: sayuri_debt; feels: Sayuri best",
+        "good": true,
+        "waits": "venture: hotel; knows: sayuri_debt; feels: Sayuri friend; seen: hp_sy_deal; seen: not hp_sy_desk"
        },
        {
         "id": "club_sold",
@@ -45269,10 +45624,23 @@
       ],
       "endings": [
        {
+        "id": "hp_own_terms",
+        "when": "venture: hotel; knows: shiori_hotaru; feels: Shiori good; seen: hp_sh_dinner:1 or hp_sh_dinner:2; seen: hp_sh_ring",
+        "good": true,
+        "waits": "venture: hotel; feels: Shiori friend; seen: hp_sh_offer_capsule or hp_sh_offer_coco; seen: not hp_sh_ring; seen: not hp_sh_dinner:3",
+        "text": "She keeps Hotaru, with a plain silver ring on and her father none the wiser: what he nearly heard at {{user}}'s table stayed there. After graduation she chooses her own work, and with {{user}} she has an evening a week that isn't for anyone's camera."
+       },
+       {
+        "id": "hp_father_knows",
+        "when": "seen: hp_sh_dinner:3",
+        "text": "Her father never says a word about the dinner. She deletes Hotaru and every file that week, wears the crest ring every day after, and is very, very polite to {{user}} for the rest of the year."
+       },
+       {
         "id": "keeps_hotaru",
         "text": "She keeps streaming with a plain ring on and a little more courage, and with {{user}} she finally has something that isn't for the camera.",
-        "when": "knows: shiori_hotaru; feels: Shiori good; did: x-hotaru 3",
-        "good": true
+        "when": "knows: shiori_hotaru; feels: Shiori best; did: x-hotaru 3",
+        "good": true,
+        "waits": "venture: hotel; feels: Shiori friend; seen: hp_sh_offer_capsule or hp_sh_offer_coco; seen: not hp_sh_ring; seen: not hp_sh_dinner:3"
        },
        {
         "id": "deletes_hotaru",
@@ -51670,6 +52038,17 @@
      "how": "earned",
      "when": "friends: 3 good",
      "hint": "good friends with visitors from out of town"
+    },
+    {
+     "id": "hp_hc_hibiscus",
+     "name": "Club Hibiscus's last-train guests",
+     "stat": "fame",
+     "add": 4,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: sayuri_debt hp_group_backs_off",
+     "hint": "a club owner in Isezaki, once her debt is behind her"
     }
    ],
    "discoveries": [
@@ -52053,6 +52432,56 @@
        "text": "She comes down, says his name once, and tells him in front of the staff that it is over; he goes, and she thanks you for not lying for her."
       }
      ]
+    },
+    {
+     "id": "hp_ev_hc_group",
+     "when": "seen: hp_sy_desk:1 or hp_sy_desk:3; thread: not sayuri_debt",
+     "setup": "Overnight Nest Capsule gets fourteen one-star reviews, all from new accounts, all about bedbugs, all in the same words; the Hamakaze Group's man did say hotels were delicate things.",
+     "choices": [
+      {
+       "label": "Answer every one, politely, with the inspection report",
+       "roll": {
+        "skill": "writing",
+        "dc": 11
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "The site takes them down within the week, and a regular writes a long review of her own.",
+       "fail": {
+        "text": "Half come down; the rest sit there until better reviews bury them."
+       }
+      },
+      {
+       "label": "Leave them and tell Sayuri",
+       "feels": {
+        "Sayuri": 2
+       },
+       "text": "She says they did the same to the club for a year, and sends three of her regulars to stay the night."
+      }
+     ]
+    },
+    {
+     "id": "hp_ev_hc_rokujo",
+     "adult": true,
+     "setup": "Rokujō Hotels opens a business hotel two streets away with an opening price lower than a capsule, and a man hands out its leaflets at the station exit every evening.",
+     "choices": [
+      {
+       "label": "Keep your prices and your floors as they are",
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "Most of the regulars try it once and come back, saying the rooms there are too quiet to sleep."
+      },
+      {
+       "label": "Run a week of last-train prices",
+       "money": -6000,
+       "add": {
+        "capacity": 1
+       },
+       "text": "The lockers fill; the leaflets stop after ten days."
+      }
+     ]
     }
    ],
    "cards": [
@@ -52212,6 +52641,16 @@
      "when": "upgrade: hc_spa_room; seen: ht_ts_tin; knows: tsubaki_salon; feels: Tsubaki friend",
      "story": "hc_ts_lease",
      "text": "Tsubaki rents the spa room on the women's floor for her licensed aroma salon: daylight hours, her name on the door"
+    }
+   ],
+   "buyers": [
+    {
+     "id": "hp_rokujo",
+     "name": "Rokujō Hotels",
+     "when": "venture: ht_capsule tier 2",
+     "mul": 1.8,
+     "story": "hp_sh_offer_capsule",
+     "text": "the Kyoto family's group: they would keep the name a year, then make it one of theirs"
     }
    ]
   },
@@ -52740,6 +53179,17 @@
      "how": "earned",
      "when": "friends: 3 good",
      "hint": "good friends who come for the weekend"
+    },
+    {
+     "id": "hp_hr_hibiscus",
+     "name": "Club Hibiscus's regulars' weekends",
+     "stat": "fame",
+     "add": 4,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: sayuri_debt hp_group_backs_off",
+     "hint": "a club owner in Isezaki, once her debt is behind her"
     }
    ],
    "discoveries": [
@@ -53100,6 +53550,65 @@
         "Tsubaki": 4
        },
        "text": "She comes out to the gate, says his name once, and tells him it is over; he goes, and she thanks you for not lying for her."
+      }
+     ]
+    },
+    {
+     "id": "hp_ev_hr_group",
+     "when": "seen: hp_sy_desk:1 or hp_sy_desk:3; thread: not sayuri_debt",
+     "setup": "Overnight Kasumi-sō gets fourteen one-star reviews, all from new accounts, all about bedbugs, all in the same words; the Hamakaze Group's man did say hotels were delicate things.",
+     "choices": [
+      {
+       "label": "Answer every one, politely, with the inspection report",
+       "roll": {
+        "skill": "writing",
+        "dc": 11
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "The site takes them down within the week, and a regular writes a long review of her own.",
+       "fail": {
+        "text": "Half come down; the rest sit there until better reviews bury them."
+       }
+      },
+      {
+       "label": "Leave them and tell Sayuri",
+       "feels": {
+        "Sayuri": 2
+       },
+       "text": "She says they did the same to the club for a year, and sends three of her regulars to stay the night."
+      }
+     ]
+    },
+    {
+     "id": "hp_ev_hr_rokujo",
+     "adult": true,
+     "setup": "A guest from Kyoto measures the corridor with his eyes and asks the okami, very politely, what the Kasumi family would take for the inn. Rokujō Hotels collects old ryokan.",
+     "choices": [
+      {
+       "label": "Tell him the inn has partners now",
+       "feels": {
+        "Shizuka": 2
+       },
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "He bows to you both; Shizuka pours his tea a little more slowly than usual."
+      },
+      {
+       "label": "Ask what Rokujō did with the last one",
+       "roll": {
+        "skill": "japanese",
+        "dc": 11
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "Kept the gate, he says, and built two hundred rooms behind it; the okami serves his breakfast without a second cup.",
+       "fail": {
+        "text": "He smiles and talks about the weather in Kyoto."
+       }
       }
      ]
     }
@@ -53812,6 +54321,17 @@
      "how": "earned",
      "when": "attended: christmas",
      "hint": "a Christmas Eve of your own"
+    },
+    {
+     "id": "hp_hl_hibiscus",
+     "name": "Club Hibiscus's guests after closing",
+     "stat": "fame",
+     "add": 4,
+     "cost": 0,
+     "tier": 1,
+     "how": "earned",
+     "when": "thread: sayuri_debt hp_group_backs_off",
+     "hint": "a club owner in Isezaki, once her debt is behind her"
     }
    ],
    "discoveries": [
@@ -54164,6 +54684,95 @@
        "text": "They take it politely and say, on the way out, that it was very nice, and not room 7."
       }
      ]
+    },
+    {
+     "id": "hp_ev_hl_group",
+     "when": "seen: hp_sy_desk:1 or hp_sy_desk:3; thread: not sayuri_debt",
+     "setup": "Overnight Coco Palace gets fourteen one-star reviews, all from new accounts, all about bedbugs, all in the same words; the Hamakaze Group's man did say hotels were delicate things.",
+     "choices": [
+      {
+       "label": "Answer every one, politely, with the inspection report",
+       "roll": {
+        "skill": "writing",
+        "dc": 11
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "The site takes them down within the week, and a regular writes a long review of her own.",
+       "fail": {
+        "text": "Half come down; the rest sit there until better reviews bury them."
+       }
+      },
+      {
+       "label": "Leave them and tell Sayuri",
+       "feels": {
+        "Sayuri": 2
+       },
+       "text": "She says they did the same to the club for a year, and sends three of her regulars to stay the night."
+      }
+     ]
+    },
+    {
+     "id": "hp_ev_hl_rokujo",
+     "adult": true,
+     "setup": "A man from Rokujō Hotels' Tokyo office takes a rest alone, photographs the fire doors and the panel, and asks the window what the hotel takes on a Friday.",
+     "choices": [
+      {
+       "label": "Tell him nothing",
+       "add": {
+        "atmosphere": 1
+       },
+       "text": "He gets a key, a tray and the hotel's silence, and leaves after an hour."
+      },
+      {
+       "label": "Tell him, and ask what he is buying",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "add": {
+        "fame": 1
+       },
+       "text": "Buildings, he says, not hotels; his employer likes the hill and doesn't care for the panel.",
+       "fail": {
+        "text": "He writes your answer down and doesn't give one."
+       }
+      }
+     ]
+    },
+    {
+     "id": "hp_ev_hl_mirage_group",
+     "adult": true,
+     "when": "place: yk_lovehotel_mirage; knows: sayuri_debt; thread: not sayuri_debt",
+     "setup": "Two men from the Hamakaze Group take room 9 at Hotel Mirage every Friday for meetings, pay in cash, and want no names in the ledger; tonight they ask the clerk who the owner drinks with.",
+     "choices": [
+      {
+       "label": "Tell them the rooms are for couples",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "feels": {
+        "Sayuri": 2
+       },
+       "text": "They take their meetings somewhere else; Sayuri hears by Sunday.",
+       "fail": {
+        "text": "They come back the next Friday, and the one after, until Akane happens to be in the lobby.",
+        "feels": {
+         "Akane": 1
+        }
+       }
+      },
+      {
+       "label": "Take their cash and ask nothing",
+       "money": 8000,
+       "feels": {
+        "Sayuri": -3
+       },
+       "text": "Room 9 stays theirs on Fridays; somebody tells Sayuri."
+      }
+     ]
     }
    ],
    "cards": [
@@ -54449,6 +55058,16 @@
      "slip": "Sumire of Lounge Velvet keeps her number by spending nights with her top client.",
      "kept": "You keep it; at the window she's a key and a tray, like anyone.",
      "adult": true
+    }
+   ],
+   "buyers": [
+    {
+     "id": "hp_rokujo",
+     "name": "Rokujō Hotels",
+     "when": "venture: ht_coco tier 2",
+     "mul": 1.6,
+     "story": "hp_sh_offer_coco",
+     "text": "the Kyoto family's group: they would take down the panel and the window and reopen it as a business hotel"
     }
    ]
   }
