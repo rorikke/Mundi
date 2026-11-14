@@ -28825,7 +28825,7 @@
    "after": "hc_st_owner_rounds",
    "when": "job: capsule; rank: top",
    "title": "the owner's offer",
-   "setup": "The owner comes in early with a folder and a can of hot coffee for each of them. He would rather sell Nest Capsule to {{user}} than to the chain: ¥2,200,000, a fifth of it now and the rest out of the takings over half a year, his own note, no bank. The night staff stay, and the noodle shop downstairs keeps its lease. {{user}} would run it, and no longer work for it.",
+   "setup": "The owner comes in early with a folder and a can of hot coffee for each of them. He would rather sell Nest Capsule to {{user}} than to the chain: ¥1,800,000, a fifth of it now and the rest out of the takings over three years, his own note, no bank. The night staff stay, and the noodle shop downstairs keeps its lease. {{user}} would run it, and no longer work for it.",
    "choices": [
     {
      "label": "Say you'll think about it seriously",
@@ -28843,7 +28843,7 @@
    "place": "sj_capsule",
    "when": "job: not capsule; regular: 3; period: night or latenight",
    "title": "Nest Capsule for sale",
-   "setup": "On the lounge noticeboard, between the bath rules and a lost umbrella, a handwritten card: FOR SALE BY OWNER, NO CHAINS. The owner, a small man in a cardigan, is refilling the vending machine himself. He recognizes {{user}} as a regular and says he would rather sell to a guest who knows the place: ¥3,600,000, under a third now and the rest from the takings.",
+   "setup": "On the lounge noticeboard, between the bath rules and a lost umbrella, a handwritten card: FOR SALE BY OWNER, NO CHAINS. The owner, a small man in a cardigan, is refilling the vending machine himself. He recognizes {{user}} as a regular and says he would rather sell to a guest who knows the place: ¥2,400,000, under a third now and the rest from the takings.",
    "choices": [
     {
      "label": "Ask him about the hotel",
@@ -51470,7 +51470,7 @@
      "place": "sj_capsule",
      "when": "job: capsule; rank: top",
      "story": "hc_st_owner_offer",
-     "cost": 2200000,
+     "cost": 1800000,
      "tier": 1,
      "rent": 30000,
      "start": {
@@ -51482,14 +51482,14 @@
      "endsJob": "capsule",
      "note": {
       "down": 0.2,
-      "weeks": 26
+      "weeks": 24
      }
     },
     "buy": {
      "place": "sj_capsule",
      "when": "seen: hc_st_for_sale; job: not capsule",
      "story": "hc_st_for_sale",
-     "cost": 3600000,
+     "cost": 2400000,
      "tier": 1,
      "rent": 30000,
      "start": {
@@ -51500,7 +51500,7 @@
      },
      "note": {
       "down": 0.3,
-      "weeks": 40
+      "weeks": 24
      }
     }
    },
@@ -51560,14 +51560,14 @@
      "id": "capsule",
      "name": "Capsule hotel",
      "ceiling": 30,
-     "alone": 0.6,
+     "alone": 0.65,
      "rooms": 40,
      "prices": {
       "stay": 4800,
       "rest": 2400
      },
      "rests": 0.5,
-     "costs": 0.72,
+     "costs": 0.78,
      "desc": "forty screened capsules over a noodle shop, lockers, a communal bath and a vending-machine lounge; the night staff keep it open around you",
      "milestone": {
       "upgrade": "hc_sauna",
@@ -51577,15 +51577,15 @@
     {
      "id": "sauna",
      "name": "Capsule hotel with a sauna and lounge",
-     "ceiling": 55,
-     "alone": 0.65,
+     "ceiling": 48,
+     "alone": 0.72,
      "rooms": 48,
      "prices": {
       "stay": 5400,
       "rest": 2800
      },
      "rests": 0.5,
-     "costs": 0.71,
+     "costs": 0.775,
      "desc": "a sauna and a cold plunge beside the bath, a lounge with reclining chairs, more capsules on the floor above; day-use guests between the nights",
      "milestone": {
       "upgrade": "hc_womens_floor",
@@ -51595,15 +51595,15 @@
     {
      "id": "cabins",
      "name": "Cabin hotel with a women's floor",
-     "ceiling": 80,
-     "alone": 0.7,
+     "ceiling": 70,
+     "alone": 0.78,
      "rooms": 56,
      "prices": {
       "stay": 6400,
       "rest": 3000
      },
      "rests": 0.5,
-     "costs": 0.7,
+     "costs": 0.81,
      "desc": "cabins you can stand up in, a women's floor with its own lift code and powder room, the sauna and the lounge; people book it on purpose now"
     }
    ],
@@ -51707,7 +51707,7 @@
      "name": "A sauna and a cold plunge",
      "stat": "quality",
      "add": 8,
-     "cost": 900000,
+     "cost": 600000,
      "tier": 1,
      "how": "basic",
      "desc": "a cedar-lined hot room beside the bath and a plunge pool cold enough to shout in"
@@ -51930,7 +51930,7 @@
      "name": "A women's floor and cabins",
      "stat": "capacity",
      "add": 10,
-     "cost": 2000000,
+     "cost": 1100000,
      "tier": 2,
      "how": "basic",
      "desc": "the top floor rebuilt as cabins, with its own lift code and a powder room"
@@ -52724,14 +52724,14 @@
      "id": "old_inn",
      "name": "The old inn",
      "ceiling": 30,
-     "alone": 0.6,
+     "alone": 0.65,
      "rooms": 8,
      "prices": {
       "stay": 64000,
       "rest": 9000
      },
      "rests": 0.25,
-     "costs": 0.66,
+     "costs": 0.72,
      "share": 0.33,
      "desc": "eight rooms off a tatami corridor, kaiseki in the rooms, the rock bath under the cedars; the family runs it with you, and you have a third of the takings",
      "milestone": {
@@ -52742,15 +52742,15 @@
     {
      "id": "rotenburo",
      "name": "With the open-air bath",
-     "ceiling": 55,
-     "alone": 0.65,
+     "ceiling": 48,
+     "alone": 0.72,
      "rooms": 9,
      "prices": {
       "stay": 66000,
       "rest": 10000
      },
      "rests": 0.25,
-     "costs": 0.68,
+     "costs": 0.755,
      "share": 0.5,
      "desc": "the new open-air bath fed from the family's old spring on the hill, a restored room in the old wing; you funded the bath, and have half the takings now",
      "milestone": {
@@ -52761,15 +52761,15 @@
     {
      "id": "hanare",
      "name": "The detached rooms",
-     "ceiling": 80,
-     "alone": 0.7,
+     "ceiling": 68,
+     "alone": 0.78,
      "rooms": 11,
      "prices": {
       "stay": 72000,
       "rest": 11000
      },
      "rests": 0.25,
-     "costs": 0.66,
+     "costs": 0.785,
      "share": 0.5,
      "desc": "a cottage of detached rooms across the garden, each with its own cypress bath on the veranda; people book a year ahead for the autumn leaves"
     }
@@ -52949,7 +52949,7 @@
      "name": "The open-air bath from the family's spring",
      "stat": "atmosphere",
      "add": 9,
-     "cost": 1200000,
+     "cost": 1800000,
      "tier": 1,
      "how": "basic",
      "desc": "a rock bath on the hillside, fed from the old spring the family has held since the okami's grandfather"
@@ -53070,7 +53070,7 @@
      "name": "The detached rooms across the garden",
      "stat": "capacity",
      "add": 10,
-     "cost": 3000000,
+     "cost": 2000000,
      "tier": 2,
      "how": "basic",
      "opens": "hk_ryokan_hanare",
@@ -53783,7 +53783,7 @@
      "place": "sb_lovehotel",
      "when": "job: lovehotel; rank: top",
      "story": "hl_st_offer",
-     "cost": 2400000,
+     "cost": 2000000,
      "tier": 1,
      "rent": 25000,
      "start": {
@@ -53795,14 +53795,14 @@
      "endsJob": "lovehotel",
      "note": {
       "down": 0.25,
-      "weeks": 36
+      "weeks": 24
      }
     },
     "buy": {
      "place": "sb_lovehotel",
      "when": "job: not lovehotel",
      "story": "hl_st_forsale",
-     "cost": 3600000,
+     "cost": 2400000,
      "tier": 1,
      "rent": 25000,
      "start": {
@@ -53813,7 +53813,7 @@
      },
      "note": {
       "down": 0.3,
-      "weeks": 52
+      "weeks": 24
      }
     }
    },
@@ -53828,15 +53828,15 @@
     {
      "id": "palace",
      "name": "Love hotel",
-     "ceiling": 40,
+     "ceiling": 35,
      "rooms": 18,
      "prices": {
       "stay": 11000,
       "rest": 5000
      },
-     "rests": 1.3,
-     "costs": 0.8,
-     "alone": 0.5,
+     "rests": 1.1,
+     "costs": 0.82,
+     "alone": 0.65,
      "desc": "Coco Palace as you found it: eighteen rooms on four floors, a panel of lit photos in the lobby, the top two floors closed for years",
      "milestone": {
       "upgrade": "hl_theme_floors",
@@ -53846,15 +53846,15 @@
     {
      "id": "themed",
      "name": "Hotel with themed floors",
-     "ceiling": 65,
+     "ceiling": 56,
      "rooms": 22,
      "prices": {
       "stay": 12500,
       "rest": 5800
      },
-     "rests": 1.4,
-     "costs": 0.8,
-     "alone": 0.5,
+     "rests": 1.2,
+     "costs": 0.82,
+     "alone": 0.72,
      "desc": "the closed floors open again as rooms with themes people book ahead and photograph",
      "milestone": {
       "upgrade": "hl_booking",
@@ -53864,15 +53864,15 @@
     {
      "id": "two",
      "name": "Two hotels",
-     "ceiling": 85,
+     "ceiling": 76,
      "rooms": 34,
      "prices": {
-      "stay": 12000,
-      "rest": 5500
+      "stay": 11500,
+      "rest": 5200
      },
-     "rests": 1.3,
-     "costs": 0.8,
-     "alone": 0.5,
+     "rests": 1.1,
+     "costs": 0.85,
+     "alone": 0.78,
      "places": 2,
      "desc": "Coco Palace on Dōgenzaka and Hotel Mirage in Isezakichō, one ledger for both"
     }
@@ -54052,7 +54052,7 @@
      "name": "The top two floors, refitted",
      "stat": "atmosphere",
      "add": 10,
-     "cost": 900000,
+     "cost": 600000,
      "tier": 1,
      "how": "basic",
      "desc": "the floors closed since the nineties, rewired and opened as rooms with themes"
@@ -54212,7 +54212,7 @@
      "name": "Bookings for two hotels",
      "stat": "capacity",
      "add": 9,
-     "cost": 600000,
+     "cost": 900000,
      "tier": 2,
      "how": "basic",
      "desc": "one system for the rooms, the rests and the bookings, ready for a second hotel"
