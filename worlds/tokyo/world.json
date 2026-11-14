@@ -24486,7 +24486,10 @@
    ],
    "actions": [
     "hr_hanare_bath"
-   ]
+   ],
+   "bgs": {
+    "night": "bg/hk_ryokan_hanare-night.avif"
+   }
   },
   {
    "id": "yk_lovehotel_mirage",
@@ -24546,6 +24549,9 @@
     "traffic"
    ],
    "roles": [],
+   "bgs": {
+    "afternoon": "bg/sb_lovehotel_suite-afternoon.avif"
+   },
    "actions": [
     "sb_lovehotel_suite_night",
     "sb_lovehotel_suite_view"
