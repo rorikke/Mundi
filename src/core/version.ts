@@ -1,9 +1,16 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.4.0';
+export const VERSION = '0.4.1';
 
 export interface Release { v: string; title: string; items: [string, string][] }
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG: Release[] = [
+    { v: '0.4.1', title: 'Hotels in Tokyo', items: [
+        ['home', "Nest Capsule can be yours: rise to Hotel manager or buy it when it's for sale, its price paid off from the takings, then grow it from capsules to a cabin hotel with a women's floor."],
+        ['heart', "Ryokan Kasumi-sō in Hakone takes you in as a partner through Shizuka's family: a third of the takings, half once you fund the open-air bath."],
+        ['moon', "With adult content on, Hotel Coco Palace: its night desk sees who comes in with whom, and what you hear is yours to keep, use or let slip."],
+        ['calendar', "Rooms filled by the calendar, people renting a room for a business of their own, buyers who'd pay more, and stories that can end at your hotel."],
+        ['globe', "Hotels in the World creator, and everything new in Portuguese and Spanish."],
+    ] },
     { v: '0.4.0', title: 'Running a business in Tokyo', items: [
         ['store', "A café of your own: take over Kissa Shirakaba or lease a unit and name it, then grow it from a stand to a roastery with upgrades bought, found around the city or earned. Run the counter yourself or let hired hands keep it open."],
         ['briefcase', "The executive's floor: three ranks above Asahina Trading's, Mochi Byte's and Wave TV's tops, then a division of your own with a season's budget and the board's verdict."],

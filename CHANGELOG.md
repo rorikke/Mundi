@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.4.1 · 2026-11-14
+
+Hotels come to Tokyo, the business end game's third track: a capsule hotel, a ryokan in partnership and, with adult
+content on, a love hotel with a night desk. Your saves open as they are: no save format change.
+
+### Hotels
+
+- **Nest Capsule, in Shinjuku.** Rise to Hotel manager and the owner offers it to you, or buy it when it's for sale.
+  You pay part of the price at once and the rest comes out of the hotel's takings until it's paid off, never out of
+  your own money. Grow it from capsules to a sauna and lounge, then a cabin hotel with a women's floor.
+- **Ryokan Kasumi-sō, in Hakone,** isn't for sale: through Shizuka's story her family takes you in as a partner, with
+  a third of the takings, half once you fund the open-air bath, then the detached rooms across the garden.
+- **Hotel Coco Palace, with adult content on.** Take it over or buy it; keep Kaoru's window or put in the self
+  check-in machine; themed floors, then a second hotel in Isezakichō and the owner's suite. The night desk sees who
+  comes in with whom: now and then someone you know, when it moves a story. Keep it, use it or let it slip, or tell
+  the hotel never to tell you.
+- **Rooms and the calendar.** A hotel earns by its rooms: Capacity opens them, its other numbers and the calendar fill
+  them (the last train's Fridays and the year-end parties, the autumn leaves and New Year, weekends and Christmas Eve).
+  "Work the front desk" passes the hours like a shift. One hotel of each kind, beside a café.
+- **People.** Someone may rent a room for a business of their own (Tsubaki's aroma salon). Shizuka's, Kaoru's and
+  Tsubaki's stories can end at your hotel; the Hamakaze Group's man comes to your desk, and Sayuri can count on you or
+  not; Shiori's family's hotel group is your rival, and would buy you out. A buyer's offer may come for more.
+- **World makers:** the World creator's Business tab makes hotels: kinds, rooms and prices, the calendar, buying and
+  partnerships, the owner's note, tenants, the night desk and buyers.
+
+### Other changes
+
+- Everything new in Portuguese and Spanish.
+
 ## 0.4.0 · 2026-11-13
 
 Running a business comes to Tokyo, as an end game in two tracks: a café of your own, and the executive's floor above a
