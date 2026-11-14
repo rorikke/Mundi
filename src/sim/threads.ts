@@ -304,8 +304,9 @@ export function decideNow(g: Save, w: WorldDef, t: Thread): Decision {
         return { kind: 'card', now: F, ending: F, waitFor: onWay.map(e => ({ e, missing: missingOf(g, w, t, e) })), help: null };
     }
     const help = helpOf(g, w, t, before);
-    // (the way Help takes is said by its button, not again under Wait)
-    const waitFor = before.filter(e => e !== help?.e && reachable(g, w, t, e)).map(e => ({ e, missing: missingOf(g, w, t, e) }));
+    // (the way Help takes is said by its button; it's under Wait too when it can also come without paying, as Kaito's
+    // can with his friendship: having the money never takes Wait away. A way taken through Help alone isn't.)
+    const waitFor = before.filter(e => (e !== help?.e || !e.help?.only) && reachable(g, w, t, e)).map(e => ({ e, missing: missingOf(g, w, t, e) }));
     const dead = before.filter(e => !reachable(g, w, t, e));
     const why = !waitFor.length && !help ? (dead.length ? `${you(dead.map(e => whyNot(g, w, e)).filter((x, i, a) => a.indexOf(x) === i).join('; '))}.` : 'Nothing can change how it ends now.') : undefined;
     return { kind: 'card', ending: F, help, waitFor, ...(why ? { why } : {}) };
