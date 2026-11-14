@@ -16,8 +16,9 @@ import { personaName } from '../st/bridge.js';
 import {
     venturesOf, ventureDefs, ventureDef, ventureAt, ventureName, tierOf, placesOf, fill, weekGuess, milestoneOf, stylesNow, styleDue, styleCost,
     chooseStyle, upgradesOf, buyUpgrade, waysOpen, openVenture, closeVenture, sellValue, morePlaces, addPlace, runBlock, stintHours, runStint,
-    pendingVentureEvent, chooseVentureEvent, pendingCard, chooseCard, skipCard, type VentureState, type UpgradeState,
+    pendingVentureEvent, chooseVentureEvent, pendingCard, chooseCard, skipCard, type VentureState, type UpgradeState, type WayOpen,
 } from '../sim/ventures.js';
+import { isHotel } from '../sim/rooms.js';
 import { budgetOf, targetOf } from '../sim/exec.js';
 import { ACT, INPUT } from './reg.js';
 import { finishWork } from './map.js';
@@ -142,17 +143,25 @@ function sellHtml(g: Save, w: WorldDef, s: VentureState): string {
 function waysHtml(g: Save, w: WorldDef): string {
     const ways = waysOpen(g, w);
     if (!ways.length) return '';
-    const take = ways.filter(x => x.way === 'takeover'), lease = ways.filter(x => x.way === 'lease');
-    const tier = (d: VentureDef, way: 'takeover' | 'lease') => tierOf(d, (way === 'takeover' ? d.ways?.takeover?.tier : d.ways?.lease?.tier) ?? 1);
-    return `${take.map(x => `<section class="mu-ph-card mu-biz-way"><small>A takeover</small><b data-notr>${esc(x.d.name)}</b>${x.d.desc ? `<small class="mu-muted" data-notr>${esc(x.d.desc)}</small>` : ''}
-            <small>Key money ${esc(money(w, x.cost))}${x.rent ? ` · rent ${esc(money(w, x.rent))} a week` : ''} · it starts as ${esc(an(tier(x.d, 'takeover').name))} ${esc(tier(x.d, 'takeover').name.toLowerCase())}</small>
-            <button class="mu-primary" data-act="bz-open" data-id="${esc(x.d.id)}" data-way="takeover" data-place="${esc(x.place)}" ${x.cost > g.player.money ? 'aria-disabled="true"' : ''}>Take it over</button></section>`).join('')}
+    const take = ways.filter(x => x.way !== 'lease'), lease = ways.filter(x => x.way === 'lease');
+    const tier = (d: VentureDef, way: WayOpen['way']) => tierOf(d, (way === 'lease' ? d.ways?.lease?.tier : d.ways?.[way]?.tier) ?? 1);
+    // (a takeover, a hotel for sale, a partnership: what it costs now, and with the owner's note, what the takings pay)
+    const price = (x: WayOpen) => x.note ? `${esc(money(w, x.down))} down, the rest (${esc(money(w, x.cost - x.down))}) out of its takings over about ${esc(plural(x.note.weeks, 'week'))}`
+        : `${x.way === 'takeover' ? 'Key money' : x.way === 'partner' ? 'Buying in' : 'The price'} ${esc(money(w, x.cost))}`;
+    return `${take.map(x => `<section class="mu-ph-card mu-biz-way"><small>${WAY_WORDS[x.way].kind}</small><b data-notr>${esc(x.d.name)}</b>${x.d.desc ? `<small class="mu-muted" data-notr>${esc(x.d.desc)}</small>` : ''}
+            <small>${price(x)}${x.rent ? ` · ${isHotel(x.d) ? 'upkeep' : 'rent'} ${esc(money(w, x.rent))} a week` : ''} · it starts as ${esc(an(tier(x.d, x.way).name))} ${esc(tier(x.d, x.way).name.toLowerCase())}</small>
+            ${x.way === 'partner' && x.with ? `<small class="mu-muted">${esc(`Beside ${x.with}'s family: they keep an equal say, and a share of the takings.`)}</small>` : ''}
+            <button class="mu-primary" data-act="bz-open" data-id="${esc(x.d.id)}" data-way="${esc(x.way)}" data-place="${esc(x.place)}" ${x.down > g.player.money ? 'aria-disabled="true"' : ''}>${WAY_WORDS[x.way].button}</button></section>`).join('')}
         ${lease.length ? `<section class="mu-ph-card mu-biz-way"><small>A place of your own</small><b data-notr>${esc(lease[0].d.name)}</b>${lease[0].d.desc ? `<small class="mu-muted" data-notr>${esc(lease[0].d.desc)}</small>` : ''}
             <small>It starts as ${esc(an(tier(lease[0].d, 'lease').name))} ${esc(tier(lease[0].d, 'lease').name.toLowerCase())}. Give it a name, then choose a unit:</small>
             <input class="mu-input" data-input="bz-name" maxlength="40" placeholder="Your café's name" value="${esc(BZ.name)}">
             ${lease.map(x => `<button class="mu-biz-opt" data-act="bz-open" data-id="${esc(x.d.id)}" data-way="lease" data-place="${esc(x.place)}" ${x.cost > g.player.money ? 'aria-disabled="true"' : ''}><b data-notr>${esc(pname(g, w, x.place))}</b>
                 <small data-notr>${esc((w.places.find(p => p.id === x.place)?.desc ?? '').slice(0, 140))}</small><small>${esc(money(w, x.cost))} to move in · ${esc(money(w, x.rent))} a week</small></button>`).join('')}</section>` : ''}`;
 }
+const WAY_WORDS: Record<WayOpen['way'], { kind: string; button: string }> = {
+    takeover: { kind: 'A takeover', button: 'Take it over' }, buy: { kind: 'For sale', button: 'Buy it' },
+    partner: { kind: 'A partnership', button: 'Go into partnership' }, lease: { kind: 'A place of your own', button: 'Lease it' },
+};
 // An executive's division isn't opened here: it comes with the first rank above a company's top.
 function execHint(g: Save, w: WorldDef): string {
     const divs = ventureDefs(g, w).filter(d => d.track === 'exec' && !venturesOf(g).some(s => s.id === d.id));
@@ -169,11 +178,11 @@ export function ventureActs(g: Save, w: WorldDef): string {
     const s = ventureAt(g, w, g.player.loc), d = s && ventureDef(w, s.id);
     if (s && d && d.track !== 'exec') {
         const why = runBlock(g, w, s), h = stintHours(g, w, s);
-        return `<button class="mh-act mh-glass" data-act="bz-run" data-id="${esc(s.id)}" ${why ? `aria-disabled="true" title="${esc(why)}"` : ''}><i>☕</i><b>Run the counter</b><small>${why ? esc(why) : `${esc(plural(h, 'hour'))} · `}<span data-notr>${esc(ventureName(w, s))}</span></small></button>
+        return `<button class="mh-act mh-glass" data-act="bz-run" data-id="${esc(s.id)}" ${why ? `aria-disabled="true" title="${esc(why)}"` : ''}><i>${esc(d.run?.icon ?? '☕')}</i><b${d.run?.label ? ' data-notr' : ''}>${esc(d.run?.label ?? 'Run the counter')}</b><small>${why ? esc(why) : `${esc(plural(h, 'hour'))} · `}<span data-notr>${esc(ventureName(w, s))}</span></small></button>
             <button class="mh-act mh-glass" data-act="ph-open-business"><i>📒</i><b>Your business</b><small>${esc(tierOf(d, s.tier).name)}</small></button>`;
     }
-    const offer = waysOpen(g, w).find(x => x.way === 'takeover' && x.place === g.player.loc);
-    return offer ? `<button class="mh-act mh-glass is-quest" data-act="ph-open-business"><i>🔑</i><b>Take it over</b><small data-notr>${esc(offer.d.name)} · ${esc(money(w, offer.cost))}</small></button>` : '';
+    const offer = waysOpen(g, w).find(x => x.way !== 'lease' && x.place === g.player.loc);
+    return offer ? `<button class="mh-act mh-glass is-quest" data-act="ph-open-business"><i>🔑</i><b>${WAY_WORDS[offer.way].button}</b><small data-notr>${esc(offer.d.name)} · ${esc(money(w, offer.down))}</small></button>` : '';
 }
 /** One of your venture's events (at its place) or a calendar card, as a card in the scene (`inApp`: drawn in the app). */
 export function ventureAskHtml(g: Save, w: WorldDef): string { return state.view === 'scene' ? askHtml(g, w, false) : ''; }
@@ -217,7 +226,7 @@ Object.assign(ACT, {
     'bz-owned': (el) => { BZ.owned = BZ.owned === el.dataset.id ? '' : el.dataset.id!; notify(); },
     'bz-open': async (el) => {
         const c = C(); if (!c) return;
-        const way = el.dataset.way as 'takeover' | 'lease';
+        const way = el.dataset.way as WayOpen['way'];
         if (way === 'lease' && !BZ.name.trim()) { toast('Give your café a name first.', 'warn'); return; }
         const m = openVenture(c.g, c.w, el.dataset.id!, way, el.dataset.place!, BZ.name);
         if (!m || bad(m)) { toast(m || 'Not open to you now.', 'warn'); return; }

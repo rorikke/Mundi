@@ -31,6 +31,7 @@ function cleanTier(t: TierDef): TierDef {
     if (t.prices !== undefined) t.prices = cleanPrices(t.prices, true) as { stay: number; rest?: number };
     if (t.rests !== undefined) t.rests = num(t.rests, 0, 12, 0);
     if (t.share !== undefined) t.share = num(t.share, 0, 1, 1);
+    if (t.costs !== undefined) t.costs = num(t.costs, 0, 0.95, 0);
     t.name = str(t.name) ?? t.id;
     return t;
 }

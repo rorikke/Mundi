@@ -43,7 +43,7 @@ export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boo
     if (isOuting(id)) return { id, name: outingName(id), map: w.maps[0]?.id ?? '', x: 50, y: 50, tags: ['outing'], desc: `out of the house: ${outingName(id)}` };
     const p = w.places.find(x => x.id === id);
     // (business) a unit you lease goes by the name you gave your café
-    const named = p?.venture ? ((g as any)?.ventures?.list ?? []).find((v: any) => v && !v.closed && v.name && (v.place === id || (v.places ?? []).includes(id))) : null;
+    const named = p?.venture ? ((g as any)?.ventures?.list ?? []).find((v: any) => v && !v.closed && v.name && (v.place === id || (v.places ?? []).includes(id) || (v.opened ?? []).includes(id))) : null;
     if (named) return { ...p!, name: named.name };
     return p ?? extraRooms(g).find(x => x.id === id) ?? null;
 }
@@ -92,7 +92,7 @@ function ventureHere(g: Save | null | undefined, w: WorldDef, id: string): boole
     const v = venturePlaces(w).get(id);
     if (!v) return true;
     if (!systemOn(w, 'business')) return false;
-    return ((g as any)?.ventures?.list ?? []).some((s: any) => s && !s.closed && (s.place === id || (s.places ?? []).includes(id)));
+    return ((g as any)?.ventures?.list ?? []).some((s: any) => s && !s.closed && (s.place === id || (s.places ?? []).includes(id) || (s.opened ?? []).includes(id)));
 }
 export function pins(g: Save, w: WorldDef) {
     const out: (Place & { home?: boolean; owner?: string })[] = [...w.places.filter(p => placeOn(g, w, p.id)), ...(isScenario(w) ? extraRooms(g) : [])];

@@ -1057,6 +1057,8 @@ export interface TierDef {
      *  rests a room turns in a day, and (a partnership) your share of the takings at this tier. A tier without `rooms`
      *  earns by `base` as a café does. */
     rooms?: number; prices?: { stay: number; rest?: number }; rests?: number; share?: number;
+    /** (hospitality) The share of a hotel's takings its running costs take (the laundry, the cleaning, the staff). */
+    costs?: number;
 }
 /** A style, chosen once per tier (*as it was*, *specialty coffee*, *open late*): its words lay over the place's for
  *  the AI, its multipliers shift the numbers a little (`fame: 1.1`), and some upgrades are found only with it. */
@@ -1071,6 +1073,9 @@ export interface StyleDef { id: string; name: string; desc: string; tier: number
 export interface UpgradeDef {
     id: string; name: string; desc?: string; stat: string; add: number; cost: number; tier: number;
     how: 'basic' | 'found' | 'earned'; when?: When; style?: string; place?: string; staff?: string; manager?: boolean; hint?: string;
+    /** (hospitality) A place that joins the venture once it's bought (the owner's suite, the detached rooms): it has
+     *  `venture` set, so it's on the map only from then. */
+    opens?: string;
 }
 /** A discovery: a pairing found while you run the place yourself and its condition holds (iced coffee in summer), kept
  *  for good: points added, and a short line. */
