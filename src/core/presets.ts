@@ -474,6 +474,7 @@ function upgradeThread(t: any) {
         const list = Array.isArray(t.nudges) ? t.nudges.filter((x: unknown) => typeof x === 'string' && x.trim()).slice(0, 3) : [];
         if (list.length) t.nudges = list; else delete t.nudges;
     }
+    if ('ignored' in t && t.ignored !== 'end' && t.ignored !== 'cool') delete t.ignored;
     if ('opens' in t && !(typeof t.opens === 'string' || (Array.isArray(t.opens) && t.opens.every((x: unknown) => typeof x === 'string')))) delete t.opens;
     for (const e of Array.isArray(t.endings) ? t.endings : []) {
         if (!e || typeof e !== 'object' || !('help' in e)) continue;

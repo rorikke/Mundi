@@ -13,6 +13,8 @@ import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
 import { textFrom, social } from './social.js';
 import { money } from './needs.js';
+import { fr, setFr } from './rel.js';
+import { FRIEND_TIERS } from './romance.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -250,6 +252,12 @@ const fallbackOf = (list) => [...list].reverse().find(x => !x.when && !x.help?.o
 export function wouldEnd(g, w, t) {
     const list = t.endings ?? [];
     return list.find((e, i) => endHolds(g, w, t, e, i) && !pendingOf(g, w, t, e, i)?.on) ?? fallbackOf(list);
+}
+/** How it ends without the player, once its last chances all went unanswered: the first way that isn't good and holds,
+ *  else the last one without a condition. Never a good way: those say what the player did, and they weren't there. */
+export function endsWithoutYou(g, w, t) {
+    const list = t.endings ?? [];
+    return list.find((e, i) => !e.good && endHolds(g, w, t, e, i) && !pendingOf(g, w, t, e, i)?.on) ?? [...list].reverse().find(x => !x.when && !x.good && !x.help?.only) ?? fallbackOf(list);
 }
 // Keys a player can still do something about (a friendship, a secret, something done, a favor, a course, a skill,
 // money, places, a gift, stories not seen yet, storylines not over yet).
@@ -492,13 +500,29 @@ const liveDue = (g, w) => (systemOn(w, 'living') ? threadsOf(g, w) : []).filter(
     const st = threadStates(g)[t.id];
     return !!st && !st.ended && st.due !== undefined && !st.on && r.met && !goneFromMap(r) && r.avatar !== self(g);
 }).sort((a, b) => (threadStates(g)[a.t.id].due ?? 0) - (threadStates(g)[b.t.id].due ?? 0));
-// One left unanswered (or "not now"): the next a season after it; the last one ends it the way it would.
+// One left unanswered (or "not now"): the next a season after it. The last one ends it the way it would without you;
+// a storyline marked `ignored: cool` instead cools them toward you by a friendship level and waits again, once.
 function missOne(g, w, t, r, st) {
     const from = st.asked?.day ?? g.day;
     st.missed = (st.missed ?? 0) + 1;
     delete st.asked;
     st.next = from + seasonDays(g);
-    return st.missed >= nudgesOf(t).length ? endThread(g, w, t, r, wouldEnd(g, w, t), 'nudges') : [];
+    if (st.missed < nudgesOf(t).length)
+        return [];
+    if (t.ignored === 'cool' && st.cooled === undefined) {
+        st.cooled = g.day;
+        st.missed = 0;
+        coolOff(g, r);
+        return r.met ? [`${r.name} stopped waiting to hear from you about it, and is cooler toward you now.`] : [];
+    }
+    return endThread(g, w, t, r, endsWithoutYou(g, w, t), 'nudges');
+}
+// A friendship level down (just under the level they're at, and at least 10 lower), never below a stranger.
+function coolOff(g, r) {
+    const v = fr(g, r.avatar, YOU), tier = FRIEND_TIERS.find(x => v >= x.lo && v < x.hi);
+    if (!tier || tier.lo < 10)
+        return;
+    setFr(g, r.avatar, YOU, Math.max(0, Math.min(v - 10, tier.lo - 1)));
 }
 // The text a last chance sends: the storyline's own nudge in order (the last says it's the last), worded by the AI.
 function sendNudge(g, w, t, r, st) {
@@ -703,6 +727,8 @@ export function threadLines(g, w, present) {
             out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);
         else
             out.push(`${n} keeps a secret, and nothing gives it away: ${trim(t.hidden)}.${now} {{user}} doesn't know it; ${n} doesn't tell.`);
+        if (st.cooled !== undefined && !st.ended)
+            out.push(`${n} reached out to {{user}} several times lately and never heard back, and is a little cooler toward {{user}} for it.`);
         if (st.due === undefined || st.known === undefined)
             continue;
         if (sc?.id === t.id && sc.key === key && cardOpen(g, st))

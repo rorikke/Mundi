@@ -35,6 +35,8 @@ import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
 import { textFrom, social } from './social.js';
 import { money } from './needs.js';
+import { fr, setFr } from './rel.js';
+import { FRIEND_TIERS } from './romance.js';
 
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 
@@ -43,10 +45,11 @@ const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.worl
  *  its stages were over (`due`), the day you chose to wait (`waiting`), the storyline it hangs on (`on`), the last
  *  chance waiting for an answer (`asked`: when, which one, in person or by text), last chances left unanswered
  *  (`missed`), the day the next one comes (`next`), how it ended (`endedBy`, for the museum's plaque), the day of the
- *  scene after which its person leaves (`leaving`), the scene in which you brought it up (`talk`). */
+ *  scene after which its person leaves (`leaving`), the scene in which you brought it up (`talk`), the day they cooled
+ *  toward you after a round of last chances went unanswered (`cooled`, an `ignored: cool` storyline's one second round). */
 export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight' | 'saw' | 'told'; ended?: string; endDay?: number;
     opened?: number; due?: number; waiting?: number; on?: string; asked?: { day: number; n: number; by: 'text' | 'card'; text?: string }; missed?: number; next?: number;
-    endedBy?: 'calendar' | 'scene' | 'let' | 'help' | 'nudges'; leaving?: number; talk?: string }
+    endedBy?: 'calendar' | 'scene' | 'let' | 'help' | 'nudges'; leaving?: number; talk?: string; cooled?: number }
 export const threadStates = (g: Save) => ((g as any).threads ??= {}) as Record<string, ThreadState>;
 // How long an ending is still news for the AI.
 const NEWS_DAYS = 14;
@@ -234,6 +237,12 @@ const fallbackOf = (list: ThreadEnding[]) => [...list].reverse().find(x => !x.wh
 export function wouldEnd(g: Save, w: WorldDef, t: Thread): ThreadEnding | undefined {
     const list = t.endings ?? [];
     return list.find((e, i) => endHolds(g, w, t, e, i) && !pendingOf(g, w, t, e, i)?.on) ?? fallbackOf(list);
+}
+/** How it ends without the player, once its last chances all went unanswered: the first way that isn't good and holds,
+ *  else the last one without a condition. Never a good way: those say what the player did, and they weren't there. */
+export function endsWithoutYou(g: Save, w: WorldDef, t: Thread): ThreadEnding | undefined {
+    const list = t.endings ?? [];
+    return list.find((e, i) => !e.good && endHolds(g, w, t, e, i) && !pendingOf(g, w, t, e, i)?.on) ?? [...list].reverse().find(x => !x.when && !x.good && !x.help?.only) ?? fallbackOf(list);
 }
 // Keys a player can still do something about (a friendship, a secret, something done, a favor, a course, a skill,
 // money, places, a gift, stories not seen yet, storylines not over yet).
@@ -429,12 +438,25 @@ const liveDue = (g: Save, w: WorldDef) => (systemOn(w, 'living') ? threadsOf(g, 
     const st = threadStates(g)[t.id];
     return !!st && !st.ended && st.due !== undefined && !st.on && r.met && !goneFromMap(r) && r.avatar !== self(g);
 }).sort((a, b) => (threadStates(g)[a.t.id].due ?? 0) - (threadStates(g)[b.t.id].due ?? 0));
-// One left unanswered (or "not now"): the next a season after it; the last one ends it the way it would.
+// One left unanswered (or "not now"): the next a season after it. The last one ends it the way it would without you;
+// a storyline marked `ignored: cool` instead cools them toward you by a friendship level and waits again, once.
 function missOne(g: Save, w: WorldDef, t: Thread, r: Resident, st: ThreadState): string[] {
     const from = st.asked?.day ?? g.day;
     st.missed = (st.missed ?? 0) + 1; delete st.asked;
     st.next = from + seasonDays(g);
-    return st.missed >= nudgesOf(t).length ? endThread(g, w, t, r, wouldEnd(g, w, t), 'nudges') : [];
+    if (st.missed < nudgesOf(t).length) return [];
+    if (t.ignored === 'cool' && st.cooled === undefined) {
+        st.cooled = g.day; st.missed = 0;
+        coolOff(g, r);
+        return r.met ? [`${r.name} stopped waiting to hear from you about it, and is cooler toward you now.`] : [];
+    }
+    return endThread(g, w, t, r, endsWithoutYou(g, w, t), 'nudges');
+}
+// A friendship level down (just under the level they're at, and at least 10 lower), never below a stranger.
+function coolOff(g: Save, r: Resident) {
+    const v = fr(g, r.avatar, YOU), tier = FRIEND_TIERS.find(x => v >= x.lo && v < x.hi);
+    if (!tier || tier.lo < 10) return;
+    setFr(g, r.avatar, YOU, Math.max(0, Math.min(v - 10, tier.lo - 1)));
 }
 // The text a last chance sends: the storyline's own nudge in order (the last says it's the last), worded by the AI.
 function sendNudge(g: Save, w: WorldDef, t: Thread, r: Resident, st: ThreadState) {
@@ -602,6 +624,7 @@ export function threadLines(g: Save, w: WorldDef, present: Resident[]): string[]
         } else if (s.tell === 'known') out.push(`${n} no longer hides it: ${trim(t.hidden)}.${now} ${n} tells {{user}} if it comes up.`);
         else if (s.tell === 'hinted' || (hint() && levelHolds(g, w, r.avatar, 'friend'))) out.push(`${n} keeps something from {{user}}, but small signs show: ${trim(t.hidden)}.${now} ${n} doesn't say it outright; {{user}} doesn't know it.`);
         else out.push(`${n} keeps a secret, and nothing gives it away: ${trim(t.hidden)}.${now} {{user}} doesn't know it; ${n} doesn't tell.`);
+        if (st.cooled !== undefined && !st.ended) out.push(`${n} reached out to {{user}} several times lately and never heard back, and is a little cooler toward {{user}} for it.`);
         if (st.due === undefined || st.known === undefined) continue;
         if (sc?.id === t.id && sc.key === key && cardOpen(g, st)) out.push(`${decideOf(t)}. ${n} brings it up with {{user}} in this scene, in their own way. What {{user}} does about it is shown to the player and decided apart: don't settle it in the story.`);
         else if (st.on) out.push(`${t.title?.trim() ? `For ${n}, ${t.title.trim()}` : `${n}'s storyline`} hangs on how ${threadOwner(w, st.on)}'s storyline ends.`);

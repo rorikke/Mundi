@@ -503,7 +503,11 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
      *  person has met you, and then opens at friend, through one of these, or when you learn the secret. */ opens?: When | When[];
     /** The deciding scene, for the AI: what's at stake as they bring it up (`{{user}}`; missing: from `hidden` and the
      *  last stage's text). */ decide?: string;
-    /** The last chances by text, in their voice, first to last (at most 3; missing: three plain engine lines). */ nudges?: string[] }
+    /** The last chances by text, in their voice, first to last (at most 3; missing: three plain engine lines). */ nudges?: string[];
+    /** When its last chances all go unanswered: `end` (missing) it ends the way it would without the player (never a
+     *  good way); `cool` (a storyline whose bad ending is only "things go on as they are") they cool toward the
+     *  player by a friendship level and it waits again, once; ignored a second time, it ends without the player. */
+    ignored?: 'end' | 'cool' }
 /** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
  *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
