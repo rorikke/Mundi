@@ -13,8 +13,25 @@ import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { STORYLINES_HELP } from './threadui.js';
 import { housingOn } from '../sim/housing.js';
+import { museumDef } from '../sim/museum.js';
 
 interface Topic { id: string; icon: string; title: string; intro: string; items: [string, string][] }
+// (museum) The Collection topic's museum part, in a world with a museum: its numbers are the world's own (the cases,
+// the first room, the dealer's days, the sales' lots), and only the parts it has.
+function museumHelp(w: WorldDef): [string, string][] {
+    const m = museumDef(w)!, name = `<span data-notr>${esc(m.name)}</span>`, n = (v: number | undefined, d: number) => esc(String(Math.round(v ?? d)));
+    return [
+        ['The museum', `Display pieces (art, crafts, things of the city) come from finds, shops, festival stalls, people's storylines and more. Your first one begins a museum of your own: its tabs come first in the app.`],
+        ['Cases at home', `Until you have a museum, your ${n(m.cases, 6)} dearest pieces sit in glass cases at home and the rest are boxed. Every piece counts for the museum's percentage as soon as it's yours, wherever it is.`],
+        ['Your own museum', `Keep collecting and ${name} may be offered to you: take it on in the Museum tab, paid once, with no weekly upkeep. Its first room shows ${n(m.room, 12)} pieces from any hall.`],
+        ['Wings and upgrades', 'A wing puts a whole hall on show. Other upgrades bring renown, a place to read or have tea, and room for what needs it: some pieces wait for a climate room, security or a night guard, and their tiles say so.'],
+        ['Renown and visitors', 'Pieces on show, upgrades, shows and the museum\'s milestones bring renown. Each level opens more (the Museum tab says what the next one brings), and every Monday the visitors pay a little.'],
+        ...(m.dealer ? [['The dealer', `Once the museum is yours a dealer calls every ${n(m.dealer.every, 7)} days with a few pieces, on sale until her next visit. No piece waits too long for its turn. You can ask her for one piece at a time: it comes within two visits, a little dearer.`] as [string, string]] : []),
+        ...(m.auctions ? [['The sales', 'Sales come four times a year, with a catalogue a week before. Set a top bid for each lot by phone, or be in the saleroom as it starts to raise once more if you are outbid. Another collector bids too; a lot she takes comes back later, dearer.'] as [string, string]] : []),
+        ['Damaged pieces and replicas', 'A find can come damaged: it counts once the restoration workshop has restored it. A piece whose only chance has passed can be made as a replica by the workshop: it fills the slot at half the renown, and the real piece replaces it if it ever comes.'],
+        ...(m.shows ? [['Shows', `With an exhibition hall, open a show once a season on a theme with at least ${n(m.shows.min, 6)} pieces on show: more renown while it's on, and a little for good the first time each theme is shown.`] as [string, string]] : []),
+    ];
+}
 // Written with the world's own words: its apps, bills, courses and device (a phone, a journal…).
 // A Home: one house, no work or money, so its own short set of topics.
 const homeTopics = (w: WorldDef): Topic[] => {
@@ -96,6 +113,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     const goalsOn = !w || systemOn(w, 'goals');
     const shopOn = !w || (systemOn(w, 'shop') && on('shop') && shopItems(w).length > 0);
     const collectionHere = !!w && collectionOn(w) && on('collection');
+    const museumHere = collectionHere && !!museumDef(w);
     const ownOn = !!w && housingOn(w) && on('homes') && w.homes.zones.some(z => (z.price ?? 0) > 0);   // (housing: homes to buy)
     const carHome = !w || shopItems(w).some(it => it.late);
     return [
@@ -170,6 +188,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['What can no longer happen', "A district's count leaves out the stories tied to a business or a job, and a story that can't happen any more (its person is gone, or it hung on another ending) drops out of it and says so."],
             ['New slots', 'When the world gains something new, a record already at 100% stays at 100%, with the new slots marked New until you fill them.'],
             ['An older game', "The record begins with what your game already remembers (storylines ended, festivals and events since the life goals came, places, stories, goals finished, keepsakes): what it never kept, like a café sold before, can't be counted."],
+            ...(museumHere ? museumHelp(w!) : []),
         ] }] : []),
     ...(ownOn ? [<Topic>{ id: 'owning', icon: 'home', title: 'Owning a home', intro: `Some homes can be bought, ${appRef(w!, 'homes')}: Homes for sale, under the homes for rent.`,
         items: [

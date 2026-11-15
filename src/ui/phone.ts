@@ -9,7 +9,8 @@ import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, 
 import { shopApp, feelingsHtml } from './lifeui.js';
 import { SH } from './shopui.js';
 import { goalsApp, goalsBadge } from './goalsui.js';
-import { collectionApp, openCollection } from './collection.js';
+import { collectionApp, openCollection, CL } from './collection.js';
+import { tierHtml } from './museumui.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
 import { studentLink } from '../sim/hooks.js';
@@ -258,7 +259,7 @@ function personApp(g: Save, w: WorldDef) {
     const r = g.cast[P.who]; if (!r) return peopleApp(g);
     const partner = isPartner(g, r.avatar);
     return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body">
-        <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
+        <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}${tierHtml(g, w, r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
         ${knownHtml(g, w, r.avatar)}
         ${theirStoryHtml(g, w, r.avatar)}
         <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
@@ -420,6 +421,10 @@ Object.assign(ACT, {
     'ph-open-campus': () => { P.open = true; P.app = 'campus'; notify(); },
     'ph-open-business': () => { P.open = true; P.app = 'business'; notify(); },
     'ph-open-shop': () => { P.open = true; P.app = 'shop'; SH.tab = 'here'; notify(); },   // (the HUD's "Shop here")
+    'ph-open-collection': (el) => {   // (the HUD's "Museum pieces": the Collection app on Here)
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        P.open = true; P.app = 'collection'; openCollection(g, w); CL.hall = el.dataset.v ?? ''; CL.open = new Set(); saveGame(); notify();
+    },
 });
 
 /* ---------- Chirp: short posts, like Twitter/X ---------- */
