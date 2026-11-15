@@ -7,6 +7,7 @@ import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo, type EffectDef } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
+import { upgradeCollection } from './collection.js';
 
 // Something the shop sells (catalogs.shop). Every field after `price` is optional, so older and user-made worlds read
 // as before; the defaults are read where they're used (`catOf`, `onlineOf`, `toldOf` in sim/shop.ts). The fields say
@@ -460,6 +461,8 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     if (rewards) w.rewards = rewards; else delete w.rewards;
     // ventures (business): made safe to play; a world without them gets no key
     if (w.ventures || w.staffPool) upgradeVentures(w);
+    // the collection's halls and slots: made safe, and no key for a world without any
+    if ('collection' in w) { const c = upgradeCollection(w.collection); if (c) w.collection = c; else delete w.collection; }
     // storylines: their new fields made safe (no key is added where a world has none)
     for (const ex of w.cast?.examples ?? []) for (const t of ex.threads ?? []) upgradeThread(t);
     return w;

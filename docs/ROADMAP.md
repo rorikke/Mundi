@@ -23,8 +23,10 @@ Ideas planned for later. Nothing here is promised for a date.
   [Shopping](improvements.md#shopping) and [Your own home](improvements.md#your-own-home)). Next:
   - **Homes, later:** pictures of their own for the four new homes and their rooms (they borrow others' for now),
     parties at the second home with guests staying the night, and homes for sale in the other worlds.
-  - **A collection:** rare pieces that turn up at places and events, a record of the Tokyo content you've completed,
-    and milestones that bring stories.
+  - **A collection:** the record of what you've lived in Tokyo is in (see [Tokyo memories](improvements.md#tokyo-memories)).
+    Next: a museum of your own in an old Yanaka storehouse, with a curator; rare art and antiques from places, a dealer
+    and auctions; upgrades and renown; then Nature (insects, fish, pressed flowers by season) and a dig for what came
+    before Edo.
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
 
 - **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:

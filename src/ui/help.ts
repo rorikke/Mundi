@@ -8,6 +8,7 @@ import { degreesOffered } from '../sim/degrees.js';
 import { ventureDefs } from '../sim/ventures.js';
 import { billList as bills } from '../sim/bills.js';
 import { shopItems } from '../sim/shop.js';
+import { collectionOn } from '../sim/collection.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { STORYLINES_HELP } from './threadui.js';
@@ -94,6 +95,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     const modern = styleOf(w) === 'modern';
     const goalsOn = !w || systemOn(w, 'goals');
     const shopOn = !w || (systemOn(w, 'shop') && on('shop') && shopItems(w).length > 0);
+    const collectionHere = !!w && collectionOn(w) && on('collection');
     const ownOn = !!w && housingOn(w) && on('homes') && w.homes.zones.some(z => (z.price ?? 0) > 0);   // (housing: homes to buy)
     const carHome = !w || shopItems(w).some(it => it.late);
     return [
@@ -160,6 +162,14 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['No selling, no upkeep', 'Nothing can be sold back, and nothing costs you anything weekly: you pay the price, and that is all.'],
             ['More by invitation.', 'Some things are sold only to people who have earned it (a story seen, an introduction): until then the tab says "More by invitation." and keeps them hidden.'],
             ...(adultOn(game()) ? [['Adult things', 'Shown, and doing anything at all, only while adult content is on in this game: even the ones you already have.'] as [string, string]] : []),
+        ] }] : []),
+    ...(collectionHere ? [<Topic>{ id: 'collection', icon: 'museum', title: 'Collection', intro: `What you have lived here, ${appRef(w, 'collection')}: a record that fills by itself as things happen, with a slot for each.`,
+        items: [
+            ['What fills it', 'A storyline coming to its end, a festival or a city event you were at, every street story of a district and every place in it, life goals, a business at its top, every keepsake of a kind. Each slot fills the first time it happens and stays filled, whatever happens after.'],
+            ['Any ending counts', 'A storyline fills its slot however it ended; its plaque says how. A good ending gets a gold frame, never needed for 100%.'],
+            ['What can no longer happen', "A district's count leaves out the stories tied to a business or a job, and a story that can't happen any more (its person is gone, or it hung on another ending) drops out of it and says so."],
+            ['New slots', 'When the world gains something new, a record already at 100% stays at 100%, with the new slots marked New until you fill them.'],
+            ['An older game', "The record begins with what your game already remembers (storylines ended, festivals and events since the life goals came, places, stories, goals finished, keepsakes): what it never kept, like a café sold before, can't be counted."],
         ] }] : []),
     ...(ownOn ? [<Topic>{ id: 'owning', icon: 'home', title: 'Owning a home', intro: `Some homes can be bought, ${appRef(w!, 'homes')}: Homes for sale, under the homes for rent.`,
         items: [

@@ -21734,7 +21734,8 @@
   "identity": false,
   "letters": false,
   "legends": false,
-  "prison": false
+  "prison": false,
+  "collection": true
  },
  "presetActions": true,
  "presetEconomy": true,
@@ -62528,6 +62529,1579 @@
    "tells the same story about meeting a famous actor once",
    "always has a spare umbrella for someone",
    "is very serious about recycling"
+  ]
+ },
+ "collection": {
+  "halls": [
+   {
+    "id": "memories",
+    "name": "Tokyo memories",
+    "record": true,
+    "groups": [
+     {
+      "id": "storylines",
+      "name": "Storylines",
+      "icon": "📖"
+     },
+     {
+      "id": "festivals",
+      "name": "Festivals",
+      "icon": "🎐"
+     },
+     {
+      "id": "events",
+      "name": "City events",
+      "icon": "🎟️"
+     },
+     {
+      "id": "stories",
+      "name": "District stories",
+      "icon": "🗺️"
+     },
+     {
+      "id": "districts",
+      "name": "Districts",
+      "icon": "🚉"
+     },
+     {
+      "id": "goals",
+      "name": "Life goals",
+      "icon": "🎯"
+     },
+     {
+      "id": "ventures",
+      "name": "Ventures",
+      "icon": "💼"
+     },
+     {
+      "id": "keepsakes",
+      "name": "Keepsakes",
+      "icon": "🎁"
+     }
+    ],
+    "icon": "🗾",
+    "desc": "What you have lived in Tokyo. It fills by itself as it happens."
+   },
+   {
+    "id": "night",
+    "name": "The night world",
+    "adult": true,
+    "groups": [
+     {
+      "id": "mementos",
+      "name": "Mementos",
+      "icon": "🌙"
+     }
+    ],
+    "icon": "🌃",
+    "desc": "The night world: its people and its things.",
+    "open": "goal: 999"
+   }
+  ],
+  "slots": [
+   {
+    "id": "mem_sl_mio_grades",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Mio",
+    "who": "Mio",
+    "when": "thread: mio_grades",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Mio's story through to its end."
+   },
+   {
+    "id": "mem_sl_chloe_visa",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Chloe",
+    "who": "Chloe",
+    "when": "thread: chloe_visa",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "company_sponsor": "She coaches English at {{user}}'s company, which sponsors her visa: she stays in Tokyo for good."
+    },
+    "hint": "See Chloe's story through to its end."
+   },
+   {
+    "id": "mem_sl_nanami_scout",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Nanami",
+    "who": "Nanami",
+    "when": "thread: nanami_scout",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "band_on_air": "Paper Lanterns wins the audition and plays on {{user}}'s channel; the scout's card goes in the bin."
+    },
+    "hint": "See Nanami's story through to its end."
+   },
+   {
+    "id": "mem_sl_kaito_debt",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Kaito",
+    "who": "Kaito",
+    "when": "thread: kaito_debt",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Kaito's story through to its end."
+   },
+   {
+    "id": "mem_sl_genzo_lease",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Genzō",
+    "who": "Genzō",
+    "when": "thread: genzo_lease",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "backed_lease": "{{user}} puts up the key money, and Kamejirō signs a new lease on the same street."
+    },
+    "hint": "See Genzō's story through to its end."
+   },
+   {
+    "id": "mem_sl_ayaka_contest",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Ayaka",
+    "who": "Ayaka",
+    "when": "thread: ayaka_contest",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Ayaka's story through to its end."
+   },
+   {
+    "id": "mem_sl_yui_fox",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Yui",
+    "who": "Yui",
+    "when": "thread: yui_fox",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Yui's story through to its end."
+   },
+   {
+    "id": "mem_sl_reiko_burnout",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Reiko",
+    "who": "Reiko",
+    "when": "thread: reiko_burnout",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Reiko's story through to its end."
+   },
+   {
+    "id": "mem_sl_rina_runway",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Rina",
+    "who": "Rina",
+    "when": "thread: rina_runway",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "mochi_deal": "Hikari Labs lives on licensing its own tools, a deal {{user}} signed; Jake stays."
+    },
+    "hint": "See Rina's story through to its end."
+   },
+   {
+    "id": "mem_sl_daisuke_letter",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Daisuke",
+    "who": "Daisuke",
+    "when": "thread: daisuke_letter",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Daisuke's story through to its end."
+   },
+   {
+    "id": "mem_sl_hina_graduation",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Hina",
+    "who": "Hina",
+    "when": "thread: hina_graduation",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "last_show": "She says goodbye on air, in an hour of {{user}}'s channel, and lives an ordinary life."
+    },
+    "hint": "See Hina's story through to its end."
+   },
+   {
+    "id": "mem_sl_natsuki_live",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Natsuki",
+    "who": "Natsuki",
+    "when": "thread: natsuki_live",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "plays_live": "She plays the finals live as NATSU-P, with {{user}} in the crowd, and keeps her alias."
+    },
+    "hint": "See Natsuki's story through to its end."
+   },
+   {
+    "id": "mem_sl_natsuki_hina",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Natsuki and Hina",
+    "who": "Natsuki",
+    "when": "thread: natsuki_hina",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "says_hello": "{{user}} introduces her to Hina at last; they trade numbers as two ordinary people."
+    },
+    "hint": "See Natsuki's story through to its end."
+   },
+   {
+    "id": "mem_sl_lisa_shoulder",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Lisa",
+    "who": "Lisa",
+    "when": "thread: lisa_shoulder",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "dances_hurt": "She dances the showcase and tears the shoulder again; off the pole, she DJs anyway."
+    },
+    "hint": "See Lisa's story through to its end."
+   },
+   {
+    "id": "mem_sl_sayuri_debt",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Sayuri",
+    "who": "Sayuri",
+    "when": "thread: sayuri_debt",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "hp_group_backs_off": "With her lawyer and {{user}}'s hotel beside the club, the Hamakaze Group lets the debt go."
+    },
+    "hint": "See Sayuri's story through to its end."
+   },
+   {
+    "id": "mem_sl_shizuka_marriage",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Shizuka",
+    "who": "Shizuka",
+    "when": "thread: shizuka_marriage",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "family_partner": "She tells her family about Rina, with {{user}} there as the family's new partner; the okami asks Rina for New Year."
+    },
+    "hint": "See Shizuka's story through to its end."
+   },
+   {
+    "id": "mem_sl_seoyeon_parents",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Seo-yeon",
+    "who": "Seo-yeon",
+    "when": "thread: seoyeon_parents",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "novel_at_counter": "Her parents come to the kissaten of her novel; {{user}} pours, and she tells them about literature.",
+     "another_book": "She starts a different book, and tells her parents about it at {{user}}'s new counter."
+    },
+    "hint": "See Seo-yeon's story through to its end."
+   },
+   {
+    "id": "mem_sl_camille_scholarship",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Camille",
+    "who": "Camille",
+    "when": "thread: camille_scholarship",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Camille's story through to its end."
+   },
+   {
+    "id": "mem_sl_lucas_grandmother",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Lucas",
+    "who": "Lucas",
+    "when": "thread: lucas_grandmother",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Lucas's story through to its end."
+   },
+   {
+    "id": "mem_sl_linh_debt",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Linh",
+    "who": "Linh",
+    "when": "thread: linh_debt",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Linh's story through to its end."
+   },
+   {
+    "id": "mem_sl_mei_interviews",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Mei",
+    "who": "Mei",
+    "when": "thread: mei_interviews",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "fought_for": "{{user}} wins her a team of her own at the board, and she tears up the rival's offer."
+    },
+    "hint": "See Mei's story through to its end."
+   },
+   {
+    "id": "mem_sl_hannah_stream",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Hannah",
+    "who": "Hannah",
+    "when": "thread: hannah_stream",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Hannah's story through to its end."
+   },
+   {
+    "id": "mem_sl_jake_offer",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Jake",
+    "who": "Jake",
+    "when": "thread: jake_offer",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Jake's story through to its end."
+   },
+   {
+    "id": "nw_kanon",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Kanon",
+    "who": "Kanon",
+    "when": "thread: kanon_door",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Kanon's story through to its end."
+   },
+   {
+    "id": "nw_airi",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Airi",
+    "who": "Airi",
+    "when": "thread: airi_retirement",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Airi's story through to its end."
+   },
+   {
+    "id": "nw_momo",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Momo",
+    "who": "Momo",
+    "when": "thread: momo_family",
+    "needs": [
+     "living"
+    ],
+    "hint": "See Momo's story through to its end."
+   },
+   {
+    "id": "nw_shiori",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Shiori",
+    "who": "Shiori",
+    "when": "thread: shiori_hotaru",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "hp_own_terms": "She keeps Hotaru, and her father is none the wiser: what he nearly heard at {{user}}'s table stayed there.",
+     "keeps_hotaru": "She keeps streaming, with a little more courage, and with {{user}} something that isn't for the camera."
+    },
+    "hint": "See Shiori's story through to its end."
+   },
+   {
+    "id": "nw_tsubaki",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Tsubaki",
+    "who": "Tsubaki",
+    "when": "thread: tsubaki_salon",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "salon_at_hotel": "A licensed aroma salon in a room of {{user}}'s hotel, her name on the door.",
+     "own_salon": "A licensed aroma salon of her own in Kōenji, her name on the door."
+    },
+    "hint": "See Tsubaki's story through to its end."
+   },
+   {
+    "id": "nw_sumire",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Sumire",
+    "who": "Sumire",
+    "when": "thread: sumire_tab",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "walks_away": "She pays off the tab in one go and saves every yen after for a club of her own."
+    },
+    "hint": "See Sumire's story through to its end."
+   },
+   {
+    "id": "nw_kaoru",
+    "hall": "night",
+    "group": "mementos",
+    "adult": true,
+    "name": "Kaoru",
+    "who": "Kaoru",
+    "when": "thread: kaoru_notebook",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "owner_window": "She burns the notebook and runs Coco Palace by day for {{user}}."
+    },
+    "hint": "See Kaoru's story through to its end."
+   },
+   {
+    "id": "mem_fe_whiteday",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "White Day",
+    "when": "attended: whiteday",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🍬",
+    "hint": "Be there on day 3 of spring."
+   },
+   {
+    "id": "mem_fe_hanami",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Cherry blossoms",
+    "when": "attended: hanami",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🌸",
+    "hint": "Be there on day 4 of spring."
+   },
+   {
+    "id": "mem_fe_newyear_fiscal",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Start of the work year",
+    "when": "attended: newyear_fiscal",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "💼",
+    "hint": "Be there on day 5 of spring."
+   },
+   {
+    "id": "mem_fe_goldenweek",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Golden Week",
+    "when": "attended: goldenweek",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎏",
+    "hint": "Be there on day 9 of spring."
+   },
+   {
+    "id": "mem_fe_sanja",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Sanja Matsuri",
+    "when": "attended: sanja",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🏮",
+    "hint": "Be there on day 13 of spring."
+   },
+   {
+    "id": "mem_fe_noge_daidogei",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Noge street performers' festival",
+    "when": "attended: noge_daidogei",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🤹",
+    "hint": "Be there on day 6 of spring."
+   },
+   {
+    "id": "mem_fe_pride",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Pride week",
+    "when": "attended: pride",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🏳️‍🌈",
+    "hint": "Be there on day 7 of summer."
+   },
+   {
+    "id": "mem_fe_tanabata",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Tanabata",
+    "when": "attended: tanabata",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎋",
+    "hint": "Be there on day 5 of summer."
+   },
+   {
+    "id": "mem_fe_fireworks",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Sumida River Fireworks",
+    "when": "attended: fireworks",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎆",
+    "hint": "Be there on day 6 of summer."
+   },
+   {
+    "id": "mem_fe_ramen_contest",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Tokyo ramen contest",
+    "when": "attended: ramen_contest",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🍜",
+    "hint": "Be there on day 10 of summer."
+   },
+   {
+    "id": "mem_fe_bon",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Bon Odori",
+    "when": "attended: bon",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "💃",
+    "hint": "Be there on day 10 of summer."
+   },
+   {
+    "id": "mem_fe_noryo",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Azabu-Jūban summer festival",
+    "when": "attended: noryo",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🍧",
+    "hint": "Be there on day 12 of summer."
+   },
+   {
+    "id": "mem_fe_fancon",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Summer fan convention",
+    "when": "attended: fancon",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🦸",
+    "hint": "Be there on day 13 of summer."
+   },
+   {
+    "id": "mem_fe_awaodori",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Kōenji Awa Odori",
+    "when": "attended: awaodori",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🥁",
+    "hint": "Be there on day 13 of summer."
+   },
+   {
+    "id": "mem_fe_tsukimi",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Moon viewing",
+    "when": "attended: tsukimi",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🌕",
+    "hint": "Be there on day 3 of autumn."
+   },
+   {
+    "id": "mem_fe_halloween",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Halloween",
+    "when": "attended: halloween",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎃",
+    "hint": "Be there on day 9 of autumn."
+   },
+   {
+    "id": "mem_fe_bookfair",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Used-book festival",
+    "when": "attended: bookfair",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "📖",
+    "hint": "Be there on day 8 of autumn."
+   },
+   {
+    "id": "mem_fe_unifest",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "University festivals",
+    "when": "attended: unifest",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎓",
+    "hint": "Be there on day 10 of autumn."
+   },
+   {
+    "id": "mem_fe_koyo",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Autumn leaves",
+    "when": "attended: koyo",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🍁",
+    "hint": "Be there on day 11 of autumn."
+   },
+   {
+    "id": "mem_fe_illumination",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Winter illuminations",
+    "when": "attended: illumination",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "✨",
+    "hint": "Be there on day 1 of winter."
+   },
+   {
+    "id": "mem_fe_bonenkai",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Year-end parties",
+    "when": "attended: bonenkai",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🍻",
+    "hint": "Be there on day 2 of winter."
+   },
+   {
+    "id": "mem_fe_yearend_market",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Year-end market rush",
+    "when": "attended: yearend_market",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🛒",
+    "hint": "Be there on day 3 of winter."
+   },
+   {
+    "id": "mem_fe_christmas",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Christmas Eve",
+    "when": "attended: christmas",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎄",
+    "hint": "Be there on day 4 of winter."
+   },
+   {
+    "id": "mem_fe_omisoka",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "New Year's Eve",
+    "when": "attended: omisoka",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🔔",
+    "hint": "Be there on day 5 of winter."
+   },
+   {
+    "id": "mem_fe_hatsumode",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "New Year's shrine visit",
+    "when": "attended: hatsumode",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "⛩️",
+    "hint": "Be there on day 6 of winter."
+   },
+   {
+    "id": "mem_fe_first_auction",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "The year's first tuna auction",
+    "when": "attended: first_auction",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🐟",
+    "hint": "Be there on day 6 of winter."
+   },
+   {
+    "id": "mem_fe_ekiden",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "New Year university relay",
+    "when": "attended: ekiden",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🏃",
+    "hint": "Be there on day 6 of winter."
+   },
+   {
+    "id": "mem_fe_seijin",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Coming of Age Day",
+    "when": "attended: seijin",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "👘",
+    "hint": "Be there on day 6 of winter."
+   },
+   {
+    "id": "mem_fe_setsubun",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Setsubun",
+    "when": "attended: setsubun",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "👹",
+    "hint": "Be there on day 10 of winter."
+   },
+   {
+    "id": "mem_fe_valentine",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Valentine's Day",
+    "when": "attended: valentine",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🍫",
+    "hint": "Be there on day 11 of winter."
+   },
+   {
+    "id": "mem_fe_chinese_newyear",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Chinese New Year",
+    "when": "attended: chinese_newyear",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🧧",
+    "hint": "Be there on day 12 of winter."
+   },
+   {
+    "id": "mem_fe_rhythm_finals",
+    "hall": "memories",
+    "group": "festivals",
+    "name": "Rhythm game finals",
+    "when": "attended: rhythm_finals",
+    "needs": [
+     "festivals"
+    ],
+    "icon": "🎮",
+    "hint": "Be there on day 13 of winter."
+   },
+   {
+    "id": "mem_ev_yoyogi_sunday",
+    "hall": "memories",
+    "group": "events",
+    "name": "Sunday at Yoyogi Park",
+    "icon": "🌳",
+    "when": "attended: yoyogi_sunday",
+    "needs": [
+     "events"
+    ],
+    "hint": "Sundays at Yoyogi Park, from 11:00."
+   },
+   {
+    "id": "mem_ev_livehouse_gig",
+    "hall": "memories",
+    "group": "events",
+    "name": "Weekend gig",
+    "icon": "🎸",
+    "when": "attended: livehouse_gig",
+    "needs": [
+     "events"
+    ],
+    "hint": "Fridays at Basement Moon, from 19:00."
+   },
+   {
+    "id": "mem_ev_idol_show",
+    "hall": "memories",
+    "group": "events",
+    "name": "Idol show",
+    "icon": "🎤",
+    "when": "attended: idol_show",
+    "needs": [
+     "events"
+    ],
+    "hint": "Saturdays at Stage Starlight, from 18:00."
+   },
+   {
+    "id": "mem_ev_akiba_sunday",
+    "hall": "memories",
+    "group": "events",
+    "name": "Car-free Sunday",
+    "icon": "🚶",
+    "when": "attended: akiba_sunday",
+    "needs": [
+     "events"
+    ],
+    "hint": "Sundays at Electric Town, from 13:00."
+   },
+   {
+    "id": "mem_ev_baseball",
+    "hall": "memories",
+    "group": "events",
+    "name": "Baseball night",
+    "icon": "⚾",
+    "when": "attended: baseball",
+    "needs": [
+     "events"
+    ],
+    "hint": "Tuesdays at Odaiba Harbor Mall, from 18:00."
+   },
+   {
+    "id": "mem_ev_comedy",
+    "hall": "memories",
+    "group": "events",
+    "name": "Comedy live",
+    "icon": "🎭",
+    "when": "attended: comedy",
+    "needs": [
+     "events"
+    ],
+    "hint": "Thursdays at Theater Komorebi, from 19:00."
+   },
+   {
+    "id": "mem_ev_tuna",
+    "hall": "memories",
+    "group": "events",
+    "name": "Tuna auction",
+    "icon": "🐟",
+    "when": "attended: tuna",
+    "needs": [
+     "events"
+    ],
+    "hint": "Mondays at Toyosu Market, from 5:00."
+   },
+   {
+    "id": "mem_ev_antique",
+    "hall": "memories",
+    "group": "events",
+    "name": "Antique market",
+    "icon": "🏺",
+    "when": "attended: antique",
+    "needs": [
+     "events"
+    ],
+    "hint": "Sundays at Tokyo Station, from 9:00."
+   },
+   {
+    "id": "mem_ev_club_night",
+    "hall": "memories",
+    "group": "events",
+    "name": "Big club night",
+    "icon": "🪩",
+    "when": "attended: club_night",
+    "needs": [
+     "events"
+    ],
+    "hint": "Saturdays at Club Undertow, from 23:00."
+   },
+   {
+    "id": "mem_ev_mahjong_night",
+    "hall": "memories",
+    "group": "events",
+    "name": "Mahjong tournament",
+    "icon": "🀄",
+    "when": "attended: mahjong_night",
+    "needs": [
+     "events"
+    ],
+    "hint": "Fridays at Parlor Tenpai, from 20:00."
+   },
+   {
+    "id": "mem_ev_open_mic",
+    "hall": "memories",
+    "group": "events",
+    "name": "Open mic",
+    "icon": "🎙️",
+    "when": "attended: open_mic",
+    "needs": [
+     "events"
+    ],
+    "hint": "Wednesdays at Basement Moon, from 19:00."
+   },
+   {
+    "id": "mem_ev_startup_demo",
+    "hall": "memories",
+    "group": "events",
+    "name": "Demo night",
+    "icon": "💡",
+    "when": "attended: startup_demo",
+    "needs": [
+     "events"
+    ],
+    "hint": "Fridays at Hikari Labs, from 17:00."
+   },
+   {
+    "id": "mem_ev_ginza_hokoten",
+    "hall": "memories",
+    "group": "events",
+    "name": "Car-free Ginza",
+    "icon": "🛍️",
+    "when": "attended: ginza_hokoten",
+    "needs": [
+     "events"
+    ],
+    "hint": "Saturdays at Ginza Chūō-dōri, from 12:00."
+   },
+   {
+    "id": "mem_ev_tv_taping",
+    "hall": "memories",
+    "group": "events",
+    "name": "Studio audience taping",
+    "icon": "📺",
+    "when": "attended: tv_taping",
+    "needs": [
+     "events"
+    ],
+    "hint": "Tuesdays at Wave TV Studios, from 13:00."
+   },
+   {
+    "id": "mem_ev_awa_practice",
+    "hall": "memories",
+    "group": "events",
+    "name": "Awa Odori practice",
+    "icon": "🥁",
+    "when": "attended: awa_practice",
+    "needs": [
+     "events"
+    ],
+    "hint": "Tuesdays at Kōenji's covered arcade, from 19:00."
+   },
+   {
+    "id": "mem_ds_shibuya",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Shibuya & Harajuku",
+    "when": "seen: all in shibuya",
+    "icon": "🚦",
+    "hint": "See every street story of Shibuya & Harajuku that can still happen."
+   },
+   {
+    "id": "mem_dk_shibuya",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Shibuya & Harajuku, every corner",
+    "when": "visited: all in shibuya",
+    "icon": "🚦",
+    "hint": "Go to every place in Shibuya & Harajuku."
+   },
+   {
+    "id": "mem_ds_shinjuku",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Shinjuku",
+    "when": "seen: all in shinjuku",
+    "icon": "🌆",
+    "hint": "See every street story of Shinjuku that can still happen."
+   },
+   {
+    "id": "mem_dk_shinjuku",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Shinjuku, every corner",
+    "when": "visited: all in shinjuku",
+    "icon": "🌆",
+    "hint": "Go to every place in Shinjuku."
+   },
+   {
+    "id": "mem_ds_westside",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Shimokita & Kōenji",
+    "when": "seen: all in westside",
+    "icon": "🎸",
+    "hint": "See every street story of Shimokita & Kōenji that can still happen."
+   },
+   {
+    "id": "mem_dk_westside",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Shimokita & Kōenji, every corner",
+    "when": "visited: all in westside",
+    "icon": "🎸",
+    "hint": "Go to every place in Shimokita & Kōenji."
+   },
+   {
+    "id": "mem_ds_akiba",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Akihabara & Kanda",
+    "when": "seen: all in akiba",
+    "icon": "🕹️",
+    "hint": "See every street story of Akihabara & Kanda that can still happen."
+   },
+   {
+    "id": "mem_dk_akiba",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Akihabara & Kanda, every corner",
+    "when": "visited: all in akiba",
+    "icon": "🕹️",
+    "hint": "Go to every place in Akihabara & Kanda."
+   },
+   {
+    "id": "mem_ds_oldtown",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Asakusa, Ueno & Yanaka",
+    "when": "seen: all in oldtown",
+    "icon": "🏯",
+    "hint": "See every street story of Asakusa, Ueno & Yanaka that can still happen."
+   },
+   {
+    "id": "mem_dk_oldtown",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Asakusa, Ueno & Yanaka, every corner",
+    "when": "visited: all in oldtown",
+    "icon": "🏯",
+    "hint": "Go to every place in Asakusa, Ueno & Yanaka."
+   },
+   {
+    "id": "mem_ds_marunouchi",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Marunouchi & Ginza",
+    "when": "seen: all in marunouchi",
+    "icon": "🏙️",
+    "hint": "See every street story of Marunouchi & Ginza that can still happen."
+   },
+   {
+    "id": "mem_dk_marunouchi",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Marunouchi & Ginza, every corner",
+    "when": "visited: all in marunouchi",
+    "icon": "🏙️",
+    "hint": "Go to every place in Marunouchi & Ginza."
+   },
+   {
+    "id": "mem_ds_bay",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Odaiba & Toyosu",
+    "when": "seen: all in bay",
+    "icon": "🎡",
+    "hint": "See every street story of Odaiba & Toyosu that can still happen."
+   },
+   {
+    "id": "mem_dk_bay",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Odaiba & Toyosu, every corner",
+    "when": "visited: all in bay",
+    "icon": "🎡",
+    "hint": "Go to every place in Odaiba & Toyosu."
+   },
+   {
+    "id": "mem_ds_roppongi",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Roppongi & Azabu",
+    "when": "seen: all in roppongi",
+    "icon": "🗼",
+    "hint": "See every street story of Roppongi & Azabu that can still happen."
+   },
+   {
+    "id": "mem_dk_roppongi",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Roppongi & Azabu, every corner",
+    "when": "visited: all in roppongi",
+    "icon": "🗼",
+    "hint": "Go to every place in Roppongi & Azabu."
+   },
+   {
+    "id": "mem_ds_yokohama",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Yokohama",
+    "when": "seen: all in yokohama",
+    "icon": "⚓",
+    "hint": "See every street story of Yokohama that can still happen."
+   },
+   {
+    "id": "mem_dk_yokohama",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Yokohama, every corner",
+    "when": "visited: all in yokohama",
+    "icon": "⚓",
+    "hint": "Go to every place in Yokohama."
+   },
+   {
+    "id": "mem_ds_hakone",
+    "hall": "memories",
+    "group": "stories",
+    "name": "Stories of Hakone",
+    "when": "seen: all in hakone",
+    "icon": "♨️",
+    "hint": "See every street story of Hakone that can still happen."
+   },
+   {
+    "id": "mem_dk_hakone",
+    "hall": "memories",
+    "group": "districts",
+    "name": "Hakone, every corner",
+    "when": "visited: all in hakone",
+    "icon": "♨️",
+    "hint": "Go to every place in Hakone."
+   },
+   {
+    "id": "mem_go_start_countryside",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "countryside"
+    ],
+    "when": "goal: tk_makeit",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish Make it in Tokyo, the life goal of your start."
+   },
+   {
+    "id": "mem_go_start_student",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "student"
+    ],
+    "when": "goal: tk_hijiri",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish Hijiri graduate, the life goal of your start."
+   },
+   {
+    "id": "mem_go_start_native",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "native"
+    ],
+    "when": "goal: tk_seasons",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish Seasons of Japan, the life goal of your start."
+   },
+   {
+    "id": "mem_go_start_foreigner",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "foreigner"
+    ],
+    "when": "goal: tk_nihongo",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish Nihongo jōzu, the life goal of your start."
+   },
+   {
+    "id": "mem_go_start_heir",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "heir"
+    ],
+    "when": "goal: tk_founder",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish Founder, the life goal of your start."
+   },
+   {
+    "id": "mem_go_start_back",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "back"
+    ],
+    "when": "goal: tk_shimokita",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish The Shimokita sound, the life goal of your start."
+   },
+   {
+    "id": "mem_go_start_yokohama",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Your start's goal",
+    "starts": [
+     "yokohama"
+    ],
+    "when": "goal: tk_isezaki",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🧭",
+    "hint": "Finish Up from Isezaki, the life goal of your start."
+   },
+   {
+    "id": "mem_go_5",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Five life goals",
+    "when": "goal: 5",
+    "needs": [
+     "goals"
+    ],
+    "icon": "⭐",
+    "hint": "Finish five life goals."
+   },
+   {
+    "id": "mem_go_10",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Ten life goals",
+    "when": "goal: 10",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🌟",
+    "hint": "Finish ten life goals."
+   },
+   {
+    "id": "mem_vt_cafe",
+    "hall": "memories",
+    "group": "ventures",
+    "name": "A café at its top",
+    "when": "venture: cafe tier 4",
+    "needs": [
+     "business"
+    ],
+    "icon": "☕",
+    "hint": "Bring a café of yours to its top tier."
+   },
+   {
+    "id": "mem_vt_exec",
+    "hall": "memories",
+    "group": "ventures",
+    "name": "An executive's floor at its top",
+    "when": "venture: exec tier 3",
+    "needs": [
+     "business"
+    ],
+    "icon": "🏢",
+    "hint": "Bring an executive's division to its top tier."
+   },
+   {
+    "id": "mem_vt_hotel",
+    "hall": "memories",
+    "group": "ventures",
+    "name": "A hotel at its top",
+    "when": "venture: capsule tier 3 or ryokan tier 3 or lovehotel tier 3",
+    "needs": [
+     "business"
+    ],
+    "icon": "🏨",
+    "hint": "Bring a hotel of yours to its top tier."
+   },
+   {
+    "id": "mem_kk_plush",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Plushs",
+    "when": "had: all plush",
+    "icon": "🧸",
+    "hint": "Hold every keepsake of this kind at some time (plushs)."
+   },
+   {
+    "id": "mem_kk_music",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Music",
+    "when": "had: all music",
+    "icon": "🎵",
+    "hint": "Hold every keepsake of this kind at some time (music)."
+   },
+   {
+    "id": "mem_kk_charm",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Charms",
+    "when": "had: all charm",
+    "icon": "🧿",
+    "hint": "Hold every keepsake of this kind at some time (charms)."
+   },
+   {
+    "id": "mem_kk_stationery",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Stationery",
+    "when": "had: all stationery",
+    "icon": "🖋️",
+    "hint": "Hold every keepsake of this kind at some time (stationery)."
+   },
+   {
+    "id": "mem_kk_print",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Prints",
+    "when": "had: all print",
+    "icon": "🖼️",
+    "hint": "Hold every keepsake of this kind at some time (prints)."
+   },
+   {
+    "id": "mem_kk_accessory",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Accessorys",
+    "when": "had: all accessory",
+    "icon": "👜",
+    "hint": "Hold every keepsake of this kind at some time (accessorys)."
+   },
+   {
+    "id": "mem_kk_photo",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Photos",
+    "when": "had: all photo",
+    "icon": "📷",
+    "hint": "Hold every keepsake of this kind at some time (photos)."
+   },
+   {
+    "id": "mem_kk_book",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Books",
+    "when": "had: all book",
+    "icon": "📚",
+    "hint": "Hold every keepsake of this kind at some time (books)."
+   },
+   {
+    "id": "mem_kk_food_box",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Food boxes",
+    "when": "had: all food box",
+    "icon": "🍱",
+    "hint": "Hold every keepsake of this kind at some time (food boxes)."
+   },
+   {
+    "id": "mem_kk_card",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Cards",
+    "when": "had: all card",
+    "icon": "🃏",
+    "hint": "Hold every keepsake of this kind at some time (cards)."
+   },
+   {
+    "id": "mem_kk_clothing",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Clothing",
+    "when": "had: all clothing",
+    "icon": "👘",
+    "hint": "Hold every keepsake of this kind at some time (clothing)."
+   },
+   {
+    "id": "mem_kk_flowers",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Flowerss",
+    "when": "had: all flowers",
+    "icon": "💐",
+    "hint": "Hold every keepsake of this kind at some time (flowerss)."
+   },
+   {
+    "id": "mem_kk_jewellery",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Jewellery",
+    "when": "had: all jewellery",
+    "icon": "💍",
+    "hint": "Hold every keepsake of this kind at some time (jewellery)."
+   },
+   {
+    "id": "mem_kk_lingerie",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Lingerie",
+    "when": "had: all lingerie",
+    "adult": true,
+    "icon": "🩱",
+    "hint": "Hold every keepsake of this kind at some time (lingerie)."
+   },
+   {
+    "id": "mem_kk_bedroom",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "For the bedroom",
+    "when": "had: all bedroom",
+    "adult": true,
+    "icon": "🕯️",
+    "hint": "Hold every keepsake of this kind at some time (for the bedroom)."
+   },
+   {
+    "id": "mem_kk_costume",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Costumes",
+    "when": "had: all costume",
+    "icon": "🎭",
+    "hint": "Hold every keepsake of this kind at some time (costumes)."
+   },
+   {
+    "id": "mem_kk_spirits",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Spirits",
+    "when": "had: all spirits",
+    "icon": "🍶",
+    "hint": "Hold every keepsake of this kind at some time (spirits)."
+   },
+   {
+    "id": "mem_kk_tableware",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "Tableware",
+    "when": "had: all tableware",
+    "icon": "🍵",
+    "hint": "Hold every keepsake of this kind at some time (tableware)."
+   },
+   {
+    "id": "mem_go_20",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Twenty life goals",
+    "when": "goal: 20",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🏆",
+    "hint": "Finish twenty life goals."
+   }
   ]
  }
 }

@@ -1,0 +1,43 @@
+/* The Collection app (ui/collection.ts): the hall's percentage, a folded section per group, and a row per slot: a
+   filled one with its emoji or portrait, plaque and day (gold for a good ending), an empty one greyed with its hint,
+   a bar and what can't happen any more; New and Just in marks */
+#mundi-root .mu-cl { display: grid; gap: 8px; align-content: start; }
+#mundi-root .mu-cl-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 3px; border-radius: 999px; background: var(--bg2); border: 1px solid var(--line); scrollbar-width: none; }
+#mundi-root .mu-cl-tabs::-webkit-scrollbar { display: none; }
+#mundi-root .mu-cl-tabs button { flex: 0 0 auto; display: inline-flex; gap: 5px; align-items: center; min-height: 32px; padding: 4px 12px; border: 0; border-radius: 999px;
+    background: transparent; box-shadow: none; color: inherit; font-weight: 700; font-size: 13px; white-space: nowrap; }
+#mundi-root .mu-cl-tabs button i { font-style: normal; }
+#mundi-root .mu-cl-tabs button.is-on { background: var(--accent); color: #fff; }
+#mundi-root .mu-cl-hname { margin: 2px 2px 0; font-size: 15px; }
+#mundi-root .mu-cl-hname i { font-style: normal; }
+#mundi-root .mu-cl-sum { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
+#mundi-root .mu-cl-pct { font-size: 28px; line-height: 1; color: var(--accent); }
+#mundi-root .mu-cl-sum > span { display: grid; gap: 2px; font-size: 13px; }
+#mundi-root .mu-cl-sum small { opacity: .75; }
+#mundi-root .mu-cl-group { border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); overflow: hidden; }
+#mundi-root .mu-cl-ghead { display: flex; gap: 8px; align-items: center; width: 100%; min-height: 40px; padding: 6px 12px; border: 0; border-radius: 0;
+    background: transparent; box-shadow: none; color: inherit; text-align: left; }
+#mundi-root .mu-cl-ghead i { font-style: normal; }
+#mundi-root .mu-cl-ghead b { flex: 1; }
+#mundi-root .mu-cl-gnum { font-size: 12px; opacity: .7; }
+#mundi-root .mu-cl-tiles { display: grid; gap: 1px; margin: 0; padding: 0 0 4px; list-style: none; }
+#mundi-root .mu-cl-tile { display: flex; gap: 10px; align-items: flex-start; padding: 7px 12px; border-top: 1px solid var(--line); }
+#mundi-root .mu-cl-pic { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px; object-fit: cover; display: grid; place-items: center; font-style: normal; font-size: 22px; background: var(--bg); }
+#mundi-root .mu-cl-pic.is-face { border-radius: 50%; object-position: top; }
+#mundi-root .mu-cl-tile.is-empty .mu-cl-pic { filter: grayscale(1); opacity: .45; }
+#mundi-root .mu-cl-tile.is-empty .mu-cl-pic:not(.is-face):not(.is-emoji) { filter: brightness(0); opacity: .25; }   /* a piece's own picture as its silhouette */
+#mundi-root .mu-cl-tile.is-gold .mu-cl-pic { box-shadow: 0 0 0 2px #d4a017; }
+#mundi-root .mu-cl-text { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-cl-name { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; }
+#mundi-root .mu-cl-title, #mundi-root .mu-cl-day, #mundi-root .mu-cl-hint, #mundi-root .mu-cl-gone, #mundi-root .mu-cl-away { opacity: .75; }
+#mundi-root .mu-cl-tile.is-empty .mu-cl-name b { opacity: .7; }
+#mundi-root .mu-cl-count { margin-left: auto; font-size: 12px; opacity: .7; }
+#mundi-root .mu-cl-plaque { font-style: italic; }
+#mundi-root .mu-cl-bar { display: block; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+#mundi-root .mu-cl-bar b { display: block; height: 100%; background: var(--accent); }
+#mundi-root .mu-cl-mark { font-style: normal; font-size: 11px; font-weight: 700; padding: 0 6px; border-radius: 999px; background: var(--accent); color: #fff; }
+#mundi-root .mu-cl-mark.is-just { background: #d4a017; }
+/* the journal (book look) */
+#mundi-root .mu-book .mu-cl-group, #mundi-root .mu-book .mu-cl-sum { background: transparent; border-color: rgba(90, 60, 30, .35); }
+#mundi-root .mu-book .mu-cl-tile { border-color: rgba(90, 60, 30, .25); }
+#mundi-root .mu-book .mu-cl-pct { color: #7a4a1e; }

@@ -42,13 +42,14 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
+import { collectionLink } from './hooks.js';
 import { homeWorth, housingOn, ownedHere } from './housing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns'] as const;
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -147,7 +148,8 @@ function badValue(key: WhenKey, v: string): string {
         case 'degree': return DEGREE.test(v) ? '' : `"${v}" should be any, term and a number, gpa and a number, scholarship, club, graduated or distinction`;
         case 'festival': case 'event': case 'place': case 'zone': case 'region': case 'after': case 'job': case 'start': case 'stayed': case 'holds': case 'gave': case 'knows': case 'track': case 'gender': case 'path':
             return ID.test(v) ? '' : `"${v}" should be one id`;
-        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
+        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) || SEEN_ALL.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2, or all in a map`;
+        case 'had': return HAD.test(v) ? '' : `"${v}" should be a keepsake id, all and a keepsake kind (all charm), or a number of keepsakes`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
@@ -321,7 +323,8 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         // the story so far (E22, E17, E28)
         case 'knows': return !!threadState(g, v)?.known;
         case 'thread': { const [id, how] = v.split(/\s+/); const t = threadState(g, id); return !!t?.ended && (!how || t.ended === how); }
-        case 'seen': { const [id, n] = v.split(':'); const s = (g as any).stories?.seen?.[id] ?? (g.player.job as any)?.seen?.[id]; return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false)); }
+        case 'seen': { const all = v.match(SEEN_ALL); if (all) return collectionLink.storiesDone(g, w, all[1]);
+            const [id, n] = v.split(':'); const s = (g as any).stories?.seen?.[id] ?? (g.player.job as any)?.seen?.[id]; return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false)); }
         case 'favor': return favorOwed(g, v) > 0;
         // a course finished (its id), or at least this many courses (a number)
         case 'course': { if (!systemOn(w, 'courses')) return false; const done: string[] = (g.player as any).learning?.done ?? []; return /^\d+$/.test(v) ? done.length >= Number(v) : done.includes(v); }
@@ -357,6 +360,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'tenant': return tenantHolds(g, w, v);
         case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
         case 'owns': return ownsHolds(g, w, v);
+        case 'had': return hadHolds(g, w, v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': { const r = regionNow(g, w, x); return !!r && r.tension > Number(v); }
@@ -469,6 +473,11 @@ function friendsHold(g: Save, w: WorldDef, v: string): boolean {
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
 const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room);
+/** (the collection) The places `visited: all in <map>` asks for, and how many of them you've been to. */
+export function placesToVisit(g: Save, w: WorldDef, map: string): { all: number; been: number } {
+    const on = visitable(w).filter(p => onMapOf(w, p, mapArg(g, w, map)));
+    return { all: on.length, been: on.filter(p => beenTo(g, p.id)).length };
+}
 const onMapOf = (w: WorldDef, p: { map: string }, map: string) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
 /** The map `in home` means: the map your home is on ('' with no home). */
 export const homeMap = (g: Save, w: WorldDef) => w.homes.zones.find(z => z.id === g.player.home?.zone)?.map ?? '';
@@ -497,11 +506,35 @@ function helpedThreads(g: Save, w: WorldDef): string[] {
 }
 // A life goal finished (its id; an old aspiration's too), one of its steps done (`idol 3`), or a number of goals
 // finished. sim/goals.ts keeps `g.goals.done` (ids) and `g.goals.steps` (steps done per goal).
+// (the collection) `seen: all in <map>`, and `had:` a keepsake held at some time (`g.collection.had`, kept by
+// sim/collection.ts while the collection is on): one, all of a kind this game can have, or a number of them.
+const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)$/i;
+const hadOf = (g: Save, w: WorldDef) => new Set<string>(systemOn(w, 'collection') ? ((g as any).collection?.had ?? []) : []);
+/** The keepsakes of a kind this game can have (adult ones only with adult content on). */
+export const kindHere = (g: Save, w: WorldDef, kind: string) => (w.keepsakes ?? []).filter(k => (k.kind ?? '') === kind && (!k.adult || adultOn(g)));
+function hadHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'collection')) return false;
+    const had = hadOf(g, w);
+    if (/^\d+$/.test(v)) return had.size >= Number(v);
+    const m = v.match(/^all\s+(.+)$/i);
+    if (!m) return had.has(v);
+    const list = kindHere(g, w, m[1].trim());
+    return list.length > 0 && list.every(k => had.has(k.id));
+}
+function hadWords(g: Save, w: WorldDef, v: string): string {
+    const had = hadOf(g, w);
+    if (/^\d+$/.test(v)) return `${v} keepsakes (${Math.min(had.size, Number(v))} so far)`;
+    const m = v.match(/^all\s+(.+)$/i);
+    if (!m) return w.keepsakes?.find(k => k.id === v)?.name ?? v.replace(/_/g, ' ');
+    const list = kindHere(g, w, m[1].trim());
+    return `every ${m[1].trim()} keepsake (${list.filter(k => had.has(k.id)).length} of ${list.length})`;
+}
 function goalHolds(g: Save, w: WorldDef, v: string): boolean {
     if (!systemOn(w, 'goals')) return false;
     const st = (g as any).goals as { done?: string[]; steps?: Record<string, number> } | undefined;
     const done = new Set([...(st?.done ?? []), ...(((g.player as any).aspDone ?? []) as string[]).map(id => FOLDED_GOALS[id] ?? id)]);
     if (/^\d+$/.test(v)) return done.size >= Number(v);
+    if (v === 'all') return collectionLink.goalsAll(g, w);
     const [raw, n] = v.split(/\s+/), id = FOLDED_GOALS[raw] ?? raw;
     return done.has(id) || (n !== undefined && (st?.steps?.[id] ?? 0) >= Number(n));
 }
@@ -659,6 +692,10 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         }
         // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
         else if (c.key === 'inrank' && !c.not) out.push(inRankWords(g, w, Number(c.values[0])));
+        // (the collection) a district's stories, keepsakes held at some time, every life goal
+        else if (c.key === 'seen' && !c.not && c.values.every(v => SEEN_ALL.test(v))) out.push(c.values.map(v => collectionLink.storiesWords(g, w, v.match(SEEN_ALL)![1])).join(' or '));
+        else if (c.key === 'had' && !c.not) out.push(c.values.map(v => hadWords(g, w, v)).join(' or '));
+        else if (c.key === 'goal' && !c.not && c.values.length === 1 && c.values[0] === 'all') out.push(collectionLink.goalsWords(g, w));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
         else if (c.key === 'owns' && !c.not) out.push(ownsWords(w, c.values));

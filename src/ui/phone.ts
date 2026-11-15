@@ -9,6 +9,7 @@ import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, 
 import { shopApp, feelingsHtml } from './lifeui.js';
 import { SH } from './shopui.js';
 import { goalsApp, goalsBadge } from './goalsui.js';
+import { collectionApp, openCollection } from './collection.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
 import { studentLink } from '../sim/hooks.js';
@@ -58,7 +59,7 @@ import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
 import { HU, ownedHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
 
-type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'settings' | 'profile';
+type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -72,7 +73,7 @@ export function closePhone() {
 export const P = { closing: false, open: false, app: 'home' as App, who: '' as string, draft: '', typing: '' as string, post: '' as string, busy: false, matched: '' as string, q: '' };
 // Sections: several apps under one icon (on the phone and in the journal), with tabs to move between them.
 const SECTIONS: { id: string; name: string; icon: string; color: string; apps: App[] }[] = [
-    { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'goals', 'trophies', 'standing'] },
+    { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'goals', 'collection', 'trophies', 'standing'] },
     { id: 'companions', name: 'Companions', icon: 'heart', color: '#e58a4e', apps: ['pets', 'soulbond', 'blade'] },
     { id: 'groups', name: 'Groups', icon: 'users', color: '#6b4fd8', apps: ['party', 'factions'] },
     { id: 'missions', name: 'Missions', icon: 'map', color: '#c08a2e', apps: ['quests', 'tower', 'contracts'] },
@@ -544,7 +545,7 @@ export function phoneHtml(): string {
     BOOK = deviceLook(w) === 'book'; BOARD = socialKind(w) === 'board'; LETTERS = messageKind(w) === 'letters'; LW = w;
     const body = P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-        : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+        : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
     const unread = phoneUnread();
     // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never
@@ -622,6 +623,7 @@ Object.assign(ACT, {
         P.app = el.dataset.app as App; P.draft = ''; P.matched = ''; P.q = '';
         { const s = sectionFor(P.app); if (s) LAST_TAB[s.id] = P.app; }
         if (P.app === 'journal') openJournal();
+        if (P.app === 'collection') { const g = game(); const w = g && getWorld(g.world); if (g && w) { openCollection(g, w); saveGame(); } }
         // a new shuffle of Spark, and the newest match that came while you were away (its "It's a match!")
         if (P.app === 'dating') { const g = game(); if (g) { const d = dating(g); (d as any).seed = Math.random().toString(36).slice(2); const n = d.news.shift(); if (n && g.cast[n]) P.matched = n; } }
         notify();
