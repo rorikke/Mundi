@@ -166,7 +166,8 @@ function settle(g: Save, w: WorldDef): string[] {
         if (!whenHolds(g, w, s.when)) continue;
         const t = threadOfSlot(s);
         const day = first ? dayOf(g, w, s) : undefined;
-        c.got[s.id] = { day: day ?? g.day, ...(t ? endingOf(g, w, t) : {}), ...(first ? { back: true } : {}) };
+        // (`back`: filled by the first settle on a day the save doesn't know: "before the record began")
+        c.got[s.id] = { day: day ?? g.day, ...(t ? endingOf(g, w, t) : {}), ...(first && day === undefined ? { back: true } : {}) };
         filled.push(s);
     }
     // R-8: a slot not counted yet joins the count when it fills, or at once while that percentage isn't 100%

@@ -876,7 +876,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'goals', name: 'Goals', icon: 'star', color: '#ffb02e', on: true },
     { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
     { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
-    { id: 'collection', name: 'Collection', icon: 'star', color: '#c0883a', on: true },
+    { id: 'collection', name: 'Collection', icon: 'museum', color: '#c0883a', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
