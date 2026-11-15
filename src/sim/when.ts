@@ -471,6 +471,11 @@ function friendsHold(g: Save, w: WorldDef, v: string): boolean {
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
 const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture);
+/** (the collection) The places `visited: all in <map>` asks for, and how many of them you've been to. */
+export function placesToVisit(g: Save, w: WorldDef, map: string): { all: number; been: number } {
+    const on = visitable(w).filter(p => onMapOf(w, p, mapArg(g, w, map)));
+    return { all: on.length, been: on.filter(p => beenTo(g, p.id)).length };
+}
 const onMapOf = (w: WorldDef, p: { map: string }, map: string) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
 /** The map `in home` means: the map your home is on ('' with no home). */
 export const homeMap = (g: Save, w: WorldDef) => w.homes.zones.find(z => z.id === g.player.home?.zone)?.map ?? '';
@@ -506,6 +511,7 @@ const hadOf = (g: Save, w: WorldDef) => new Set<string>(systemOn(w, 'collection'
 /** The keepsakes of a kind this game can have (adult ones only with adult content on). */
 export const kindHere = (g: Save, w: WorldDef, kind: string) => (w.keepsakes ?? []).filter(k => (k.kind ?? '') === kind && (!k.adult || adultOn(g)));
 function hadHolds(g: Save, w: WorldDef, v: string): boolean {
+    if (!systemOn(w, 'collection')) return false;
     const had = hadOf(g, w);
     if (/^\d+$/.test(v)) return had.size >= Number(v);
     const m = v.match(/^all\s+(.+)$/i);
