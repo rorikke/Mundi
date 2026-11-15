@@ -28674,13 +28674,13 @@
    ],
    "generic": false,
    "bg": "bg/yk_marina.avif",
-   "bgs": {
-    "night": "bg/yk_marina-night.avif"
-   },
    "sound": [
     "waves",
     "wind"
-   ]
+   ],
+   "bgs": {
+    "night": "bg/yk_marina-night.avif"
+   }
   },
   {
    "id": "rp_classics",
