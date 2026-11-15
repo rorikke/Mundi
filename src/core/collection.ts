@@ -43,7 +43,7 @@ function slot(s: any, halls: Map<string, HallDef>): SlotDef | null {
     const h = halls.get(s.hall);
     if (!h || !h.groups.some(g => g.id === s.group)) return null;
     const out: SlotDef = { id: s.id, hall: s.hall, group: s.group, name: s.name };
-    for (const k of ['icon', 'who', 'hint', 'needsUpgrade'] as const) if (str(s[k])) out[k] = s[k];
+    for (const k of ['icon', 'who', 'hint', 'needsUpgrade', 'plaque'] as const) if (str(s[k])) out[k] = s[k];
     if (s.adult === true) out.adult = true;
     const needs = strs(s.needs); if (needs?.length) out.needs = needs as any;
     const starts = strs(s.starts); if (starts?.length) out.starts = starts;

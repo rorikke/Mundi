@@ -904,6 +904,9 @@ export interface SlotDef {
     when?: When;
     /** A storyline slot's plaque by ending id; missing: the ending's own words. */
     plaques?: Record<string, string>;
+    /** (museum) A display piece's own plaque, one line, shown once it's yours (an ending's plaque wins for a storyline's
+     *  piece); `{{user}}` is the player's name. */
+    plaque?: string;
     /** A picture (a world file), written by the art track's wiring; missing: the icon or the portrait. */
     pic?: string;
     /** (museum) A display piece: where it comes from, its price, an upgrade it needs, its parts (a fossil). */

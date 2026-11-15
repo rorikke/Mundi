@@ -65694,6 +65694,7 @@
     "name": "The Great Wave",
     "icon": "🌊",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "Hokusai's great wave off Kanagawa, its claw-like foam over three boats, Fuji small beyond.",
     "sources": [
      {
       "kind": "auction",
@@ -65710,6 +65711,7 @@
     "name": "Red Fuji",
     "icon": "🗻",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "Hokusai's Fine Wind, Clear Morning: Fuji red at dawn under a mackerel sky.",
     "sources": [
      {
       "kind": "auction",
@@ -65726,6 +65728,7 @@
     "name": "Storm below the summit",
     "icon": "⛈️",
     "hint": "The dealer may bring it.",
+    "plaque": "Hokusai's Fuji dark above, lightning at its foot.",
     "sources": [
      {
       "kind": "dealer",
@@ -65742,6 +65745,7 @@
     "name": "Sudden shower at Ōhashi",
     "icon": "🌧️",
     "hint": "The dealer may bring it.",
+    "plaque": "Hiroshige's bridge in slanting rain, people hurrying under hats and mats.",
     "sources": [
      {
       "kind": "dealer",
@@ -65758,6 +65762,7 @@
     "name": "Plum garden at Kameido",
     "icon": "🌸",
     "hint": "The dealer may bring it.",
+    "plaque": "Hiroshige's plum branch close up, the garden beyond, a red sky.",
     "sources": [
      {
       "kind": "dealer",
@@ -65774,6 +65779,7 @@
     "name": "Night snow at Kambara",
     "icon": "❄️",
     "hint": "The dealer may bring it.",
+    "plaque": "Hiroshige's village under deep snow, three walkers bent against it.",
     "sources": [
      {
       "kind": "dealer",
@@ -65790,6 +65796,7 @@
     "name": "Fireworks at Ryōgoku",
     "icon": "🎆",
     "hint": "From a stall at the Sumida River Fireworks.",
+    "plaque": "Hiroshige's single firework bursting over the bridge and boats at night.",
     "sources": [
      {
       "kind": "festival",
@@ -65807,6 +65814,7 @@
     "name": "A kabuki actor",
     "icon": "🎭",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "Sharaku's actor in a villain's role, hands spread, a fierce grimace on a dark mica ground.",
     "sources": [
      {
       "kind": "auction",
@@ -65823,6 +65831,7 @@
     "name": "A beauty",
     "icon": "🪭",
     "hint": "The dealer may bring it.",
+    "plaque": "Utamaro's half-length beauty, a fan in her hand, her hair pinned high.",
     "sources": [
      {
       "kind": "dealer",
@@ -65839,6 +65848,7 @@
     "name": "The fight on the Hōryūkaku",
     "icon": "🏯",
     "hint": "Sold at Jinbōchō's old print shops.",
+    "plaque": "Kuniyoshi's two warriors fighting on the steep roof of a castle tower, from the Tale of Eight Dogs.",
     "sources": [
      {
       "kind": "sold",
@@ -65858,6 +65868,7 @@
     "name": "From the hundred moons",
     "icon": "🌕",
     "hint": "Sold at Jinbōchō's old print shops.",
+    "plaque": "Yoshitoshi: a figure under a full moon, from One Hundred Aspects of the Moon.",
     "sources": [
      {
       "kind": "sold",
@@ -65877,6 +65888,7 @@
     "name": "Beauties by the river",
     "icon": "👘",
     "hint": "Sometimes found in the used-book festival's carts, or the dealer may bring it.",
+    "plaque": "Kiyonaga's tall beauties walking by the Sumida in summer kimono.",
     "sources": [
      {
       "kind": "find",
@@ -65898,6 +65910,7 @@
     "name": "Irises",
     "icon": "🪻",
     "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "plaque": "Kōrin's irises on gold, in clumps along a zigzag of folds (a screen).",
     "sources": [
      {
       "kind": "auction",
@@ -65915,6 +65928,7 @@
     "name": "The thunder god",
     "icon": "⚡",
     "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "plaque": "Sōtatsu's thunder god leaping on gold, his ring of drums around him.",
     "sources": [
      {
       "kind": "auction",
@@ -65932,6 +65946,7 @@
     "name": "A rooster",
     "icon": "🐓",
     "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "plaque": "Jakuchū's rooster, every feather drawn, under a blossoming branch.",
     "sources": [
      {
       "kind": "auction",
@@ -65949,6 +65964,7 @@
     "name": "Puppies in the snow",
     "icon": "🐶",
     "hint": "Turns up at the Ginza sales, or the dealer may bring it in time. Needs the climate room.",
+    "plaque": "Rosetsu's round white and brown puppies tumbling in the snow (Ōkyo's pupil, in his manner).",
     "sources": [
      {
       "kind": "auction",
@@ -65972,6 +65988,7 @@
     "name": "Pines",
     "icon": "🦅",
     "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "A seventeenth-century screen of hawks in old pines and camellias on gold.",
     "sources": [
      {
       "kind": "dealer",
@@ -65989,6 +66006,7 @@
     "name": "An ink landscape",
     "icon": "🏞️",
     "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "An ink landscape in Sesshū's manner: cliffs, a temple roof, a boatman.",
     "sources": [
      {
       "kind": "dealer",
@@ -66006,6 +66024,7 @@
     "name": "Pines in mist",
     "icon": "🌲",
     "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "Pine trees fading into mist in ink, in Tōhaku's manner.",
     "sources": [
      {
       "kind": "dealer",
@@ -66023,6 +66042,7 @@
     "name": "A cat by the camellias",
     "icon": "🐈",
     "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "A black-and-white cat under a flowering camellia, ink and soft colour on silk.",
     "sources": [
      {
       "kind": "dealer",
@@ -66040,6 +66060,7 @@
     "name": "A Zen circle",
     "icon": "⭕",
     "hint": "A Yanaka temple's gift, if you sit with its priest one morning.",
+    "plaque": "One brushstroke circle (ensō), the ink thinning where it closes.",
     "sources": [
      {
       "kind": "story",
@@ -66061,6 +66082,7 @@
     "name": "A temple's plaque",
     "icon": "🪧",
     "hint": "Yours when a division of yours reaches Vice president, or the dealer may bring it.",
+    "plaque": "A carved wooden plaque with three large characters, gold on black.",
     "sources": [
      {
       "kind": "milestone",
@@ -66081,6 +66103,7 @@
     "name": "A poem slip",
     "icon": "📜",
     "hint": "From a stall at the Used-book festival.",
+    "plaque": "A tall decorated paper slip (tanzaku) with a poem in flowing hand.",
     "sources": [
      {
       "kind": "festival",
@@ -66098,6 +66121,7 @@
     "name": "A seated Amida",
     "icon": "🧘",
     "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "plaque": "A Kamakura-era wooden Amida Buddha, seated, hands in meditation, worn gilt.",
     "sources": [
      {
       "kind": "auction",
@@ -66115,6 +66139,7 @@
     "name": "A temple guardian",
     "icon": "👹",
     "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A fierce wooden niō guardian, muscles taut, mouth open.",
     "sources": [
      {
       "kind": "auction",
@@ -66132,6 +66157,7 @@
     "name": "A wooden Kannon",
     "icon": "🪷",
     "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A slender standing Kannon, carved wood, a lotus in her hand.",
     "sources": [
      {
       "kind": "dealer",
@@ -66149,6 +66175,7 @@
     "name": "A bronze eagle",
     "icon": "🦅",
     "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A Meiji bronze eagle on a rock, wings half open.",
     "sources": [
      {
       "kind": "dealer",
@@ -66166,6 +66193,7 @@
     "name": "A shrine's stone fox",
     "icon": "🦊",
     "hint": "Tsukimi Inari's to give, if you lend a hand. Needs security.",
+    "plaque": "A stone fox guardian of an Inari shrine, a red bib, a key in its mouth.",
     "sources": [
      {
       "kind": "story",
@@ -66188,6 +66216,7 @@
     "name": "A raku tea bowl",
     "icon": "🍵",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "A black raku tea bowl, hand-shaped, the glaze run thick at the foot.",
     "sources": [
      {
       "kind": "auction",
@@ -66204,6 +66233,7 @@
     "name": "An Imari plate",
     "icon": "🍽️",
     "hint": "Sold at the antique market at Tokyo Station.",
+    "plaque": "A large Imari plate in blue, red and gold, flowers and panels.",
     "sources": [
      {
       "kind": "sold",
@@ -66224,6 +66254,7 @@
     "name": "A Kutani dish",
     "icon": "🐦",
     "hint": "The dealer may bring it.",
+    "plaque": "A Kutani dish in deep green, yellow and purple, a bird on a branch.",
     "sources": [
      {
       "kind": "dealer",
@@ -66240,6 +66271,7 @@
     "name": "An Oribe dish",
     "icon": "🟩",
     "hint": "Sometimes found on the racks at Second Bloom, or the dealer may bring it.",
+    "plaque": "An Oribe dish, green glaze on one side, iron-brown patterns on the other.",
     "sources": [
      {
       "kind": "find",
@@ -66262,6 +66294,7 @@
     "name": "A Bizen jar",
     "icon": "🏺",
     "hint": "The dealer may bring it.",
+    "plaque": "An unglazed Bizen jar, its brown body marked by the kiln fire.",
     "sources": [
      {
       "kind": "dealer",
@@ -66278,6 +66311,7 @@
     "name": "A celadon vase",
     "icon": "🏺",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "A pale green celadon vase with a fine crackle.",
     "sources": [
      {
       "kind": "auction",
@@ -66294,6 +66328,7 @@
     "name": "A Shino bowl",
     "icon": "🥣",
     "hint": "The dealer may bring it.",
+    "plaque": "A thick white Shino bowl with pinholes and a faint iron sketch.",
     "sources": [
      {
       "kind": "dealer",
@@ -66310,6 +66345,7 @@
     "name": "A Seto tea caddy",
     "icon": "🫙",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A small brown Seto tea caddy with an ivory lid.",
     "sources": [
      {
       "kind": "find",
@@ -66332,6 +66368,7 @@
     "name": "A katana",
     "icon": "🗡️",
     "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A katana out of its scabbard, the temper line along its edge, on a stand.",
     "sources": [
      {
       "kind": "auction",
@@ -66349,6 +66386,7 @@
     "name": "A tantō",
     "icon": "🔪",
     "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A short tantō blade with a lacquered scabbard.",
     "sources": [
      {
       "kind": "dealer",
@@ -66366,6 +66404,7 @@
     "name": "A sword guard",
     "icon": "⚙️",
     "hint": "Sold at the antique market at Tokyo Station. Needs security.",
+    "plaque": "An iron tsuba pierced with a pattern of plum branches.",
     "sources": [
      {
       "kind": "sold",
@@ -66387,6 +66426,7 @@
     "name": "A helmet",
     "icon": "⛑️",
     "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A samurai kabuto with a lacquered bowl, neck guard and a crest.",
     "sources": [
      {
       "kind": "auction",
@@ -66404,6 +66444,7 @@
     "name": "A face guard",
     "icon": "👺",
     "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A lacquered iron face guard (menpō) with a moustache.",
     "sources": [
      {
       "kind": "dealer",
@@ -66421,6 +66462,7 @@
     "name": "A suit of armour",
     "icon": "🛡️",
     "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "plaque": "A full laced suit of armour on its box, helmet and mask.",
     "sources": [
      {
       "kind": "auction",
@@ -66438,6 +66480,7 @@
     "name": "A maki-e box",
     "icon": "🎁",
     "hint": "Yours when a hotel of yours reaches its top tier, or the dealer may bring it.",
+    "plaque": "A black lacquer box with autumn grasses in gold.",
     "sources": [
      {
       "kind": "milestone",
@@ -66458,6 +66501,7 @@
     "name": "An inrō",
     "icon": "🧧",
     "hint": "The dealer may bring it.",
+    "plaque": "A small lacquered case of stacked sections on a cord, with its netsuke.",
     "sources": [
      {
       "kind": "dealer",
@@ -66474,6 +66518,7 @@
     "name": "A bronze mirror",
     "icon": "🪞",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "The back of a round bronze mirror: cranes and pines in relief.",
     "sources": [
      {
       "kind": "auction",
@@ -66490,6 +66535,7 @@
     "name": "An iron kettle",
     "icon": "🫖",
     "hint": "Yours when a café of yours becomes a roastery, or the dealer may bring it.",
+    "plaque": "A round cast-iron tea-ceremony kettle (kama) with cranes in relief and two lugs.",
     "sources": [
      {
       "kind": "milestone",
@@ -66510,6 +66556,7 @@
     "name": "A hairpin",
     "icon": "📍",
     "hint": "Sold at Second Bloom.",
+    "plaque": "An Edo hairpin of tortoiseshell-coloured lacquer and silver flowers.",
     "sources": [
      {
       "kind": "sold",
@@ -66530,6 +66577,7 @@
     "icon": "🗝️",
     "who": "Tamaki",
     "hint": "Tamaki may have it for you, one day.",
+    "plaque": "A small black lacquer box in an old collector's own hand, puppies in the snow on its lid, a child's paper labels inside.",
     "sources": [
      {
       "kind": "ending",
@@ -66545,6 +66593,7 @@
     "name": "A rat netsuke",
     "icon": "🐀",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A small ivory-coloured rat curled round a nut.",
     "sources": [
      {
       "kind": "find",
@@ -66567,6 +66616,7 @@
     "name": "An ox netsuke",
     "icon": "🐂",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A reclining ox, its legs folded, carved wood.",
     "sources": [
      {
       "kind": "find",
@@ -66589,6 +66639,7 @@
     "name": "A tiger netsuke",
     "icon": "🐅",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A tiger turning its head, stripes inlaid dark.",
     "sources": [
      {
       "kind": "find",
@@ -66611,6 +66662,7 @@
     "name": "A hare netsuke",
     "icon": "🐇",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A hare with long ears laid back, amber eyes.",
     "sources": [
      {
       "kind": "find",
@@ -66633,6 +66685,7 @@
     "name": "A dog netsuke",
     "icon": "🐕",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A puppy with a ball, round and smooth.",
     "sources": [
      {
       "kind": "find",
@@ -66655,6 +66708,7 @@
     "name": "A monkey netsuke",
     "icon": "🐒",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A monkey holding a peach.",
     "sources": [
      {
       "kind": "find",
@@ -66677,6 +66731,7 @@
     "name": "A cat netsuke",
     "icon": "🐈",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A cat curled over a carp, carved wood.",
     "sources": [
      {
       "kind": "find",
@@ -66699,6 +66754,7 @@
     "name": "A mask netsuke",
     "icon": "🎭",
     "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A tiny smiling Okame mask, carved wood.",
     "sources": [
      {
       "kind": "find",
@@ -66721,6 +66777,7 @@
     "name": "A Meiji kimono",
     "icon": "👘",
     "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "A silk kimono on a stand, cranes over waves at the hem.",
     "sources": [
      {
       "kind": "dealer",
@@ -66738,6 +66795,7 @@
     "name": "A Noh robe",
     "icon": "🎭",
     "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "plaque": "A Noh costume of gold brocade, blocks of colour and flowers.",
     "sources": [
      {
       "kind": "auction",
@@ -66755,6 +66813,7 @@
     "name": "An obi",
     "icon": "🎀",
     "hint": "Sold at Second Bloom. Needs the climate room.",
+    "plaque": "A woven silk obi, gold and deep red, folded to show its pattern.",
     "sources": [
      {
       "kind": "sold",
@@ -66775,6 +66834,7 @@
     "name": "A festival coat",
     "icon": "🧥",
     "hint": "From a stall at the Sanja Matsuri. Needs the climate room.",
+    "plaque": "A short indigo happi coat with a guild crest on its back.",
     "sources": [
      {
       "kind": "festival",
@@ -66793,6 +66853,7 @@
     "name": "A map of Edo",
     "icon": "🗺️",
     "hint": "Sold at Jinbōchō's old print shops.",
+    "plaque": "A hand-coloured woodblock map of Edo: the castle, the river, the wards.",
     "sources": [
      {
       "kind": "sold",
@@ -66812,6 +66873,7 @@
     "name": "A fire brigade's standard",
     "icon": "🚒",
     "hint": "The dealer may bring it.",
+    "plaque": "An Edo fire brigade's matoi: a white crest on a pole with long paper strips.",
     "sources": [
      {
       "kind": "dealer",
@@ -66828,6 +66890,7 @@
     "name": "A shop sign",
     "icon": "🪧",
     "hint": "Sold at the antique market at Tokyo Station.",
+    "plaque": "An old wooden shop sign carved with a merchant house name.",
     "sources": [
      {
       "kind": "sold",
@@ -66848,6 +66911,7 @@
     "name": "A woodblock newssheet",
     "icon": "📰",
     "hint": "Sometimes found browsing Jinbōchō, or sold at Jinbōchō during the used-book festival.",
+    "plaque": "A kawaraban newssheet with a picture of a great fire.",
     "sources": [
      {
       "kind": "find",
@@ -66873,6 +66937,7 @@
     "name": "A Meiji tram ticket",
     "icon": "🎫",
     "hint": "Sometimes found in the used-book festival's carts, or the dealer may bring it.",
+    "plaque": "A small printed tram ticket of Tokyo, Meiji era.",
     "sources": [
      {
       "kind": "find",
@@ -66894,6 +66959,7 @@
     "name": "A pre-war poster",
     "icon": "🖼️",
     "hint": "Sold at Second Bloom.",
+    "plaque": "A 1930s travel poster of a Tokyo department store, a woman in modern dress.",
     "sources": [
      {
       "kind": "sold",
@@ -66913,6 +66979,7 @@
     "name": "A tin robot",
     "icon": "🤖",
     "hint": "Sold in Electric Town's retro shops.",
+    "plaque": "A wind-up tin robot of a made-up toy maker, red and silver.",
     "sources": [
      {
       "kind": "sold",
@@ -66931,6 +66998,7 @@
     "name": "A kaiju figure",
     "icon": "🦖",
     "hint": "From a stall at the Summer fan convention.",
+    "plaque": "A soft vinyl monster figure, green with spines.",
     "sources": [
      {
       "kind": "festival",
@@ -66947,6 +67015,7 @@
     "name": "A transistor radio",
     "icon": "📻",
     "hint": "Sold at Second Bloom.",
+    "plaque": "A small 1960s transistor radio of a made-up brand.",
     "sources": [
      {
       "kind": "sold",
@@ -66965,6 +67034,7 @@
     "name": "A film camera",
     "icon": "📷",
     "hint": "Sold at Second Bloom.",
+    "plaque": "A 1970s rangefinder film camera.",
     "sources": [
      {
       "kind": "sold",
@@ -66983,6 +67053,7 @@
     "name": "An early game console",
     "icon": "🕹️",
     "hint": "Sold in Electric Town's retro shops.",
+    "plaque": "An early home game console with two wired pads, made-up brand.",
     "sources": [
      {
       "kind": "sold",
@@ -67001,6 +67072,7 @@
     "name": "A handheld LCD game",
     "icon": "🎮",
     "hint": "Sometimes found in Electric Town's retro shops, or sold in Electric Town's retro shops.",
+    "plaque": "A pocket LCD game with one screen and two buttons.",
     "sources": [
      {
       "kind": "find",
@@ -67024,6 +67096,7 @@
     "name": "A rotary phone",
     "icon": "☎️",
     "hint": "Sometimes found at the back of Second Bloom, or sold at Second Bloom.",
+    "plaque": "A pink public rotary phone from a Shōwa coffee shop.",
     "sources": [
      {
       "kind": "find",
@@ -67047,6 +67120,7 @@
     "name": "A lunchbox",
     "icon": "🍱",
     "hint": "Sold at the antique market at Tokyo Station.",
+    "plaque": "A tin lunchbox printed with a cartoon hero.",
     "sources": [
      {
       "kind": "sold",
@@ -67067,6 +67141,7 @@
     "icon": "🎸",
     "who": "Nanami",
     "hint": "Comes with the end of Nanami's story, whichever way it ends.",
+    "plaque": "A guitar pick with a paper lantern drawn on it.",
     "sources": [
      {
       "kind": "ending",
@@ -67082,6 +67157,7 @@
     "icon": "🥁",
     "who": "Kaito",
     "hint": "Comes with the end of Kaito's story, whichever way it ends.",
+    "plaque": "A pair of worn drumsticks, the tips chewed by cymbals.",
     "sources": [
      {
       "kind": "ending",
@@ -67097,6 +67173,7 @@
     "icon": "💾",
     "who": "Rina",
     "hint": "Comes with the end of Rina's story, whichever way it ends.",
+    "plaque": "The first boxed copy of Hikari Labs' game.",
     "sources": [
      {
       "kind": "ending",
@@ -67112,6 +67189,7 @@
     "icon": "🎤",
     "who": "Hina",
     "hint": "Comes with the end of Hina's story, whichever way it ends.",
+    "plaque": "A folded programme from one of Hina's shows.",
     "sources": [
      {
       "kind": "ending",
@@ -67127,6 +67205,7 @@
     "icon": "📓",
     "who": "Seo-yeon",
     "hint": "Comes with the end of Seo-yeon's story, whichever way it ends.",
+    "plaque": "A notebook of the novel, coffee rings on the cover.",
     "sources": [
      {
       "kind": "ending",
@@ -67142,6 +67221,7 @@
     "icon": "🍜",
     "who": "Genzō",
     "hint": "Comes with the end of Genzō's story, whichever way it ends.",
+    "plaque": "The ramen shop's faded curtain with its turtle crest.",
     "sources": [
      {
       "kind": "ending",
@@ -67157,6 +67237,7 @@
     "icon": "🖌️",
     "who": "Ayaka",
     "hint": "Comes with the end of Ayaka's story, whichever way it ends.",
+    "plaque": "A calligraphy brush with a bamboo handle.",
     "sources": [
      {
       "kind": "ending",
@@ -67172,6 +67253,7 @@
     "icon": "📝",
     "who": "Mio",
     "hint": "Comes with the end of Mio's story, whichever way it ends.",
+    "plaque": "A stack of exam notes in coloured pens.",
     "sources": [
      {
       "kind": "ending",
@@ -67187,6 +67269,7 @@
     "icon": "✉️",
     "who": "Daisuke",
     "hint": "Comes with the end of Daisuke's story, whichever way it ends.",
+    "plaque": "A sealed letter in a plain envelope.",
     "sources": [
      {
       "kind": "ending",
@@ -67202,6 +67285,7 @@
     "icon": "🏷️",
     "who": "Hannah",
     "hint": "Comes with the end of Hannah's story, whichever way it ends.",
+    "plaque": "A sticker of Hannah's streaming avatar.",
     "sources": [
      {
       "kind": "ending",
@@ -67217,6 +67301,7 @@
     "icon": "📮",
     "who": "Chloe",
     "hint": "Comes with the end of Chloe's story, whichever way it ends.",
+    "plaque": "A postcard with a Manchester stamp, or a Tokyo one.",
     "sources": [
      {
       "kind": "ending",
@@ -67232,6 +67317,7 @@
     "icon": "🔑",
     "who": "Jake",
     "hint": "Comes with the end of Jake's story, whichever way it ends.",
+    "plaque": "A keyring of a pixel mochi.",
     "sources": [
      {
       "kind": "ending",
@@ -67247,6 +67333,7 @@
     "icon": "🎟️",
     "who": "Natsuki",
     "hint": "Comes with the end of Natsuki's story, whichever way it ends.",
+    "plaque": "The rhythm finals' player wristband.",
     "sources": [
      {
       "kind": "ending",
@@ -67262,6 +67349,7 @@
     "icon": "👠",
     "who": "Lisa",
     "hint": "Comes with the end of Lisa's story, whichever way it ends.",
+    "plaque": "A pair of worn pole dance shoes.",
     "sources": [
      {
       "kind": "ending",
@@ -67277,6 +67365,7 @@
     "icon": "📕",
     "who": "Yui",
     "hint": "Comes with the end of Yui's story, whichever way it ends.",
+    "plaque": "An anonymous paperback from the book fair, a fox on the cover.",
     "sources": [
      {
       "kind": "ending",
@@ -67291,6 +67380,7 @@
     "name": "A Wave TV poster",
     "icon": "📺",
     "hint": "Yours once you are an associate director at Wave TV, or sold at Second Bloom.",
+    "plaque": "A poster of a Wave TV program.",
     "sources": [
      {
       "kind": "milestone",
@@ -67313,6 +67403,7 @@
     "name": "A doujin",
     "icon": "📚",
     "hint": "From a stall at the Summer fan convention.",
+    "plaque": "A fan-made comic from the summer convention.",
     "sources": [
      {
       "kind": "festival",
@@ -67329,6 +67420,7 @@
     "name": "A champagne tower's first bottle",
     "icon": "🍾",
     "hint": "Sometimes kept after a champagne call at Club Eternal, or the dealer may bring it.",
+    "plaque": "An empty champagne bottle signed in gold marker.",
     "adult": true,
     "sources": [
      {
@@ -67350,6 +67442,7 @@
     "name": "A love hotel key fob",
     "icon": "🔑",
     "hint": "Yours when Hotel Coco Palace reaches its second tier, or the dealer may bring it.",
+    "plaque": "A 1970s acrylic key fob with a room number.",
     "adult": true,
     "sources": [
      {
@@ -67370,6 +67463,7 @@
     "name": "A host club's photo board",
     "icon": "📸",
     "hint": "Sold at Second Bloom.",
+    "plaque": "An old board of host portraits, the top one crowned.",
     "adult": true,
     "sources": [
      {
@@ -67389,6 +67483,7 @@
     "name": "A cabaret's matchbook",
     "icon": "🔥",
     "hint": "Sometimes left on the bar at Bar Kotori, or sold at the antique market at Tokyo Station.",
+    "plaque": "A Shōwa cabaret matchbook, a dancer on the cover.",
     "adult": true,
     "sources": [
      {
@@ -67414,6 +67509,7 @@
     "name": "A club's neon sign",
     "icon": "💗",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "A small pink neon sign of a closed club's name.",
     "adult": true,
     "sources": [
      {
@@ -67430,6 +67526,7 @@
     "name": "Harunobu",
     "icon": "🌸",
     "hint": "The dealer may bring it.",
+    "plaque": "The first leaf of Harunobu's Maneemon album: the tiny hero spying on two women among the trees, all clothed.",
     "adult": true,
     "sources": [
      {
@@ -67446,6 +67543,7 @@
     "name": "Koryūsai",
     "icon": "🌸",
     "hint": "The dealer may bring it.",
+    "plaque": "Koryūsai's lovers on a tall pillar print, close and clothed.",
     "adult": true,
     "sources": [
      {
@@ -67462,6 +67560,7 @@
     "name": "Utamaro",
     "icon": "🌸",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "Utamaro's pair of lovers sitting close on a bench, clothed.",
     "adult": true,
     "sources": [
      {
@@ -67478,6 +67577,7 @@
     "name": "Toyokuni",
     "icon": "🌸",
     "hint": "The dealer may bring it.",
+    "plaque": "A picture from Toyokuni I's book of erotica: lovers resting close together, clothed.",
     "adult": true,
     "sources": [
      {
@@ -67494,6 +67594,7 @@
     "name": "Kunisada",
     "icon": "🌸",
     "hint": "Turns up at the Ginza sales.",
+    "plaque": "The opening picture of Kunisada's Love of Yatsufuji: a couple in an embrace, clothed.",
     "adult": true,
     "sources": [
      {
@@ -67510,6 +67611,7 @@
     "name": "Kuniyoshi",
     "icon": "🌸",
     "hint": "The dealer may bring it.",
+    "plaque": "A spread from a Kuniyoshi erotic book: lovers talking in a room, clothed.",
     "adult": true,
     "sources": [
      {

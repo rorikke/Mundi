@@ -219,7 +219,8 @@ export interface HallView { id: string; name: string; icon?: string; desc?: stri
     groups: { id: string; name: string; icon?: string; tiles: Tile[]; filled: number }[] }
 // A storyline's plaque: the world's own for that ending, else the ending's words cut to their first sentence.
 function plaqueOf(g: Save, w: WorldDef, s: SlotDef, got: Got): string | undefined {
-    if (!got.how) return undefined;
+    // (museum) a display piece's own line, when no ending gives the plaque
+    if (!got.how) return s.plaque ? s.plaque.replace(/\{\{user\}\}/g, personaName()) : undefined;
     if (s.plaques?.[got.how]) return s.plaques[got.how].replace(/\{\{user\}\}/g, personaName());
     const t = storyOfSlot(s), e = t ? threadsOf(g, w).find(x => x.t.id === t)?.t.endings?.find(x => x.id === got.how) : undefined;
     const text = (e?.text ?? '').replace(/\{\{user\}\}/g, personaName()).trim();
