@@ -106,8 +106,7 @@ export function homeLine(g: Save, w: WorldDef): string {
     const z = zoneOf(w, o.zone), kind = z && w.homes.kinds[z.kind];
     const cut = isCut(g, UPKEEP);
     const fx = cut ? [] : fixturesOf(w).filter(f => fixturesIn(o).includes(f.id) && !isAdult(f)).sort((a, b) => (b.price || 0) - (a.price || 0)).slice(0, TOLD_FIXTURES);
-    const what = kind ? `${kind.name.toLowerCase()}, ${homeAddress(w, o)}` : homeAddress(w, o);
-    const parts = [`{{user}} owns this home (${what})${o === s ? ', a second home' : ''}.`];
+    const parts = [`{{user}} owns this home${o === s ? ', a second home' : ''}, ${homeAddress(w, o)}${kind?.desc ? `: ${kind.desc}` : ''}.`];
     if (fx.length) parts.push(`It has ${list(fx.map(phrase))}.`);
     if (room) parts.push(`{{user}} is in ${room.name}, part of the home.`);
     if (cut) parts.push("The home's upkeep is unpaid: the staff have stopped coming.");

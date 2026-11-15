@@ -908,7 +908,7 @@
     "guests": 6
    },
    "penthouse": {
-    "name": "Roppongi penthouse",
+    "name": "Penthouse",
     "desc": "a double-height flat at the top of a tower, glass on every side, with a stair to an upper floor",
     "size": 4,
     "guests": 24,
@@ -923,7 +923,7 @@
     }
    },
    "estate": {
-    "name": "Den-en-chōfu mansion",
+    "name": "Mansion",
     "desc": "a big Western-style house with Japanese rooms, a lawn and pines behind a tiled wall and a gate",
     "size": 5,
     "guests": 30,
@@ -938,7 +938,7 @@
     }
    },
    "villa": {
-    "name": "Yamate villa",
+    "name": "Western-style villa",
     "desc": "a 1920s Western-style villa of painted wood, with a fireplace, a bay window and a rose garden over the harbor",
     "size": 5,
     "guests": 30,
@@ -953,7 +953,7 @@
     }
    },
    "onsenvilla": {
-    "name": "Hakone hot-spring villa",
+    "name": "Hot-spring villa",
     "desc": "a modern Japanese villa of cedar and stone, with a sunken hearth, its own hot spring and the lake below",
     "size": 4,
     "guests": 24,
