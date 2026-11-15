@@ -14,7 +14,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, type VentureDef } from '../core/world.js';
+import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, type VentureDef, type Ritual } from '../core/world.js';
 import { statsOf, statName, STAT_NAMES, VENTURE_STATS, EXEC_STATS } from '../core/ventures.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
@@ -2113,13 +2113,11 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
 const EVERY: [string, string][] = [['', 'Every week'], ['2', 'Every 2 weeks'], ['3', 'Every 3 weeks'], ['4', 'Every 4 weeks'], ['month', 'Once a month'], ['year', 'Once a year']];
-function ritualsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
-    const l = e.rituals ?? []; const days: [string, string][] = WEEKDAY_IDS.map((d, k) => [d, WEEKDAYS[k]] as [string, string]);
-    const others = peopleOpts(w).filter(([n]) => n !== e.name);
-    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Standing appointments · ${l.length}</summary>
-        <p class="mu-muted">They win over free time, not over a work shift. Hours past 24 run into the night (21–26 is 21:00 to 2:00).</p>
-        ${l.map((r, k) => { const q = `${p}.rituals.${k}`; const every = r.every === undefined || r.every === 'week' ? '' : String(r.every);
-            return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Where', `${q}.place`, withCur([['home', 'Their own home'], ...placeOpts(w)], r.place))}<span class="mu-cw-spacer"></span>
+// One standing appointment's form (a person's own, or the one a storyline's stage adds): `q` is its path.
+function ritualRow(w: WorldDef, q: string, r: Ritual, others: [string, string][]) {
+    const days: [string, string][] = WEEKDAY_IDS.map((d, k) => [d, WEEKDAYS[k]] as [string, string]);
+    const every = r.every === undefined || r.every === 'week' ? '' : String(r.every);
+    return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Where', `${q}.place`, withCur([['home', 'Their own home'], ...placeOpts(w)], r.place))}<span class="mu-cw-spacer"></span>
                 <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
             <div class="mu-field"><span>Weekdays (none: their days off)</span>${pairChips(days, `${q}.days`, true)}</div>
             <div class="mu-row2">${bounded('From (hour)', `${q}.from`, 0, 30, 0.5)}${bounded('To (hour)', `${q}.to`, 0, 30, 0.5)}</div>
@@ -2130,7 +2128,14 @@ function ritualsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
             ${txt('What they\'re doing (for the AI)', `${q}.text`, 'sings at Bar Kotori')}
             <div class="mu-row2">${cond('Only while (optional)', `${q}.when`, 'season: summer')}${flag('Only with adult content on', `${q}.adult`, '', true)}</div>
             <div class="mu-field"><span>Who comes along</span>${pairChips(withCurAll(others, r.with), `${q}.with`, true)}</div>
-            <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details></div>`; }).join('')}
+            <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details></div>`;
+}
+function ritualsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const l = e.rituals ?? [];
+    const others = peopleOpts(w).filter(([n]) => n !== e.name);
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Standing appointments · ${l.length}</summary>
+        <p class="mu-muted">They win over free time, not over a work shift. Hours past 24 run into the night (21–26 is 21:00 to 2:00).</p>
+        ${l.map((r, k) => ritualRow(w, `${p}.rituals.${k}`, r, others)).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="ritual" data-path="${esc(`${p}.rituals`)}">${icon('plus')}<span>Add an appointment</span></button></details>`;
 }
 // (storylines) A storyline waits for the player: it opens once the player knows its person (at friend, when they learn the
@@ -2185,8 +2190,10 @@ function threadsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
                 return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${j + 1}</b>${st.id ? idTag(st.id) : ''}${sel('Told as', `${s}.tell`, [['hidden', 'Hidden'], ['hinted', 'Hinted'], ['known', 'Known']])}<span class="mu-cw-spacer"></span>
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(s)}" title="Remove">${icon('x')}</button></div>
                 ${cond('Begins when', `${s}.when`, 'season: summer; seasonDays: 8-14')}${area('What is going on', `${s}.text`, 2)}
-                <div class="mu-row2">${optTxt('A moment it brings', `${s}.moment`)}${optTxt('A rumor it starts', `${s}.rumor`)}</div>${optTxt('Remembered (a fact)', `${s}.fact`)}</div>`; }).join('')}
-            ${(t.stages ?? []).length ? '<small class="mu-muted mu-cw-lastnote">The last stage waits for the player: the storyline ends in a deciding scene with them, or after its last chances</small>' : ''}
+                <div class="mu-row2">${optTxt('A moment it brings', `${s}.moment`)}${optTxt('A rumor it starts', `${s}.rumor`)}</div>${optTxt('Remembered (a fact)', `${s}.fact`)}
+                ${st.ritual ? `<span class="mu-cw-sub">A standing appointment while at this stage</span>${ritualRow(w, `${s}.ritual`, st.ritual, peopleOpts(w).filter(([n]) => n !== e.name))}`
+                    : `<button class="mu-ghost" data-act="cw-add" data-what="tritual" data-path="${esc(`${s}.ritual`)}">${icon('plus')}<span>Add an appointment for this stage</span></button>`}</div>`; }).join('')}
+            ${(t.stages ?? []).length ? `<small class="mu-muted mu-cw-lastnote">The last stage waits for the player: the storyline ends in a deciding scene with them, or after its last chances</small>${(t.stages ?? []).some(x => x?.ritual) ? '<small class="mu-muted">An appointment on the last stage lasts until the storyline ends.</small>' : ''}` : ''}
             <button class="mu-ghost" data-act="cw-add" data-what="tstage" data-path="${esc(`${q}.stages`)}">${icon('plus')}<span>Add a stage</span></button>
             <span class="mu-cw-sub">Endings (the first whose condition holds; else the last without one)</span>
             ${(t.endings ?? []).map((en, j) => { const s = `${q}.endings.${j}`;
@@ -2698,6 +2705,8 @@ Object.assign(ACT, {
             CW.dirty = true; notify(); return;
         }
         if (what === 'thelp') { setPath(el.dataset.path!, { when: '', label: 'Help' }); notify(); return; }
+        // (NE-1) a storyline stage's appointment: the first place, an afternoon
+        if (what === 'tritual') { setPath(el.dataset.path!, { place: w.places.find(x => !x.link)?.id ?? 'home', from: 14, to: 16, text: '' }); CW.dirty = true; notify(); return; }
         const [path, item] = NEW[what]();
         // (a shop item added while the list shows one category is in that category, so it stays in sight)
         if (what === 'item' && SHOP_CATS.some(c => c.id === CW.sel.shopCat)) item.cat = CW.sel.shopCat;

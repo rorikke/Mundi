@@ -5863,6 +5863,60 @@
    "place": "ak_arcade"
   },
   {
+   "id": "ak_arcade_duet",
+   "name": "Duet",
+   "label": "Play a duet with Natsuki",
+   "icon": "🎶",
+   "cost": 300,
+   "minutes": 30,
+   "place": "ak_arcade",
+   "effects": {
+    "mood": 6,
+    "energy": -6
+   },
+   "when": "present: Natsuki",
+   "together": {
+    "needed": false,
+    "text": "a rhythm-game duet side by side, with people watching"
+   },
+   "roll": {
+    "dc": 12,
+    "skill": "gaming",
+    "success": {
+     "text": "You hit the last note together and the people behind you clap; Natsuki doesn't notice they're there until it's over.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "She misses the bridge when someone starts filming; you laugh it off together and queue again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Natsuki counts you in under her breath and doesn't look at the crowd once.",
+     "feels": {
+      "Natsuki": 1
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Afterwards she pulls her hood down and says, very quietly, \"again?\"",
+     "feels": {
+      "Natsuki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "gaming",
+   "fact": "{u} played a rhythm-game duet with Natsuki at {0}"
+  },
+  {
    "id": "ak_idol_show",
    "label": "Watch the evening show",
    "name": "Idol show",
@@ -6392,6 +6446,52 @@
    ],
    "fact": "{u} dug through the book festival carts in {0}",
    "place": "ak_jinbocho"
+  },
+  {
+   "id": "ak_jinbocho_write",
+   "name": "Write with Yui",
+   "label": "Write with Yui in a kissaten",
+   "icon": "✍",
+   "cost": 700,
+   "minutes": 90,
+   "place": "ak_jinbocho",
+   "effects": {
+    "energy": -5,
+    "mood": 4
+   },
+   "when": "present: Yui; period: afternoon",
+   "together": {
+    "needed": false,
+    "text": "writing side by side, a page each"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "writing",
+    "success": {
+     "text": "Two chapters between you; she reads one of your lines back in a whisper and covers her mouth.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "You both stare at blank pages; she draws a fox in the margin and calls it progress.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "Yui tucks the pages into a furoshiki and thanks you as if you had carried something heavy for her.",
+     "feels": {
+      "Yui": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "writing",
+   "fact": "{u} wrote beside Yui in a kissaten in {0}"
   },
   {
    "id": "ak_juku_study",
@@ -8609,6 +8709,46 @@
    "place": "mg_hospital"
   },
   {
+   "id": "mg_hospital_physio",
+   "name": "Physio",
+   "label": "Sit with Lisa at physio",
+   "icon": "🩹",
+   "cost": 0,
+   "minutes": 60,
+   "place": "mg_hospital",
+   "effects": {
+    "energy": -3,
+    "mood": 3
+   },
+   "when": "present: Lisa",
+   "together": {
+    "needed": false,
+    "text": "keeping her company through the exercises"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She swears in two languages through the band exercises and makes you count her reps.",
+     "feels": {
+      "Lisa": 1
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "The physio says she's improving; Lisa pretends not to care and grins all the way to the lift.",
+     "effects": {
+      "mood": 2
+     },
+     "feels": {
+      "Lisa": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} kept Lisa company at physio at {0}"
+  },
+  {
    "id": "bay_beach_wade",
    "name": "Wade",
    "label": "Wade at the water's edge",
@@ -9722,6 +9862,15 @@
      },
      "feels": {
       "Lisa": 1
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 150,
+     "when": "companion: friend",
+     "text": "You brought a friend along, and the small room is fuller for it; Lisa points at the two of you between tracks.",
+     "feels": {
+      "Lisa": 2
      },
      "feelsDaily": true
     }
@@ -19352,6 +19501,15 @@
    "audience": [
     "couples",
     "neighbors"
+   ],
+   "roles": [
+    {
+     "who": "Yui",
+     "place": "ot_shrine",
+     "from": 19,
+     "to": 21,
+     "text": "dances the moon kagura at Tsukimi Inari Shrine, in white and red, by lantern light"
+    }
    ]
   },
   {
@@ -19612,6 +19770,36 @@
     "friends"
    ],
    "roles": []
+  },
+  {
+   "id": "rhythm_finals",
+   "name": "Rhythm game finals",
+   "season": "winter",
+   "day": 13,
+   "place": "ak_arcade",
+   "mood": 10,
+   "desc": "the national rhythm-game finals play live on Pixel Castle's top floor",
+   "crowd": 6,
+   "audience": [
+    "fans",
+    "friends"
+   ],
+   "roles": [
+    {
+     "who": "Natsuki",
+     "place": "ak_arcade",
+     "from": 18,
+     "to": 22,
+     "text": "is at the rhythm finals, hood up, in the players' corner or at the very back of the crowd"
+    },
+    {
+     "who": "Hannah",
+     "place": "ak_arcade",
+     "from": 18,
+     "to": 22,
+     "text": "is at the rhythm finals, cheering loudly and mostly in German"
+    }
+   ]
   }
  ],
  "cityEvents": [
@@ -25393,6 +25581,15 @@
    ],
    "content": "She is Kaname's biggest customer at Club Eternal and owes the club a tab she can't pay. To keep her number at Velvet she sleeps with her top client, a married company president. She tells no one.",
    "adult": true
+  },
+  {
+   "keys": [
+    "moon kagura",
+    "kagura",
+    "Tsukimi Inari"
+   ],
+   "when": "festival: tsukimi",
+   "content": "On the night of the moon viewing, Tsukimi Inari Shrine keeps its own quiet moon night: lanterns along the approach, susuki grass and white dumplings on the offering stand, and the moon kagura, danced by the shrine's daughter for the harvest and the year's safety. Visitors watch in silence and bow before they leave."
   }
  ],
  "places": [
@@ -32732,6 +32929,31 @@
    ]
   },
   {
+   "id": "ak_arcade_st_hello",
+   "place": "ak_arcade",
+   "brings": "Hina",
+   "when": "weekday: fri; clock: 22:00-23:30; present: Natsuki; knows: natsuki_hina; thread: hina_graduation graduates or hina_graduation last_show; thread: not natsuki_hina",
+   "setup": "Late on a Friday at Pixel Castle, someone in a plain cap and mask is playing Hanabira Signal's old single on the rhythm game, badly, and laughing at herself. It is Hina. At the next machine Natsuki has stopped in the middle of a song: she knows that laugh from years of Saturdays, and she has gone white.",
+   "choices": [
+    {
+     "label": "Introduce them",
+     "text": "You say both names out loud before either can run. Natsuki manages one sentence about the closing song of Hina's last show, then a hundred, and ends up teaching Hina the hardest chart of her own song.",
+     "feels": {
+      "Natsuki": 2,
+      "Hina": 1
+     },
+     "effects": {
+      "mood": 6
+     },
+     "fact": "{u} introduced Natsuki to Hina at {0}"
+    },
+    {
+     "label": "Leave it to Natsuki",
+     "text": "Natsuki finishes her song with her eyes on the screen and leaves by the stairs; Hina never looks round."
+    }
+   ]
+  },
+  {
    "id": "ex_find_tv_agency",
    "place": "ak_idol",
    "when": "venture: div_wavetv; period: evening or night",
@@ -34619,6 +34841,31 @@
    ]
   },
   {
+   "id": "ak_jinbocho_st_moonfox",
+   "place": "ak_jinbocho",
+   "when": "festival: bookfair; thread: yui_fox both",
+   "setup": "Between the carts of the book festival, a stall sells privately printed books. One has a fox and a moon on the cover and no name anywhere; the stallholder says the online run sold out in an hour, and this is the last copy.",
+   "choices": [
+    {
+     "label": "Buy it",
+     "money": -1200,
+     "keepsake": "moon_fox_paperback",
+     "text": "You pay, and the stallholder wraps it in brown paper as if it were something rare. It is.",
+     "effects": {
+      "mood": 4
+     },
+     "fact": "{u} bought the last Moon Fox paperback at the book festival in {0}"
+    },
+    {
+     "label": "Leave it for a reader who doesn't know her",
+     "text": "A student picks it up a minute later and starts reading it standing in the street.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ]
+  },
+  {
    "id": "sh_salon",
    "place": "mg_depachika",
    "when": "money: 3000000; period: afternoon",
@@ -34931,6 +35178,14 @@
     "Seo-yeon",
     "Yui"
    ]
+  },
+  {
+   "id": "moon_fox_paperback",
+   "name": "Moon Fox paperback",
+   "icon": "📕",
+   "kind": "book",
+   "gift": false,
+   "desc": "A slim, privately printed paperback of Moon Fox's serial, a fox and a moon on the cover and no name anywhere."
   },
   {
    "gift": true,
@@ -48443,6 +48698,64 @@
     "avatar": "cast/yui/portrait.webp",
     "sprites": "cast/yui/sprites",
     "voice": "Soft, very polite, then a sudden wicked joke",
+    "threads": [
+     {
+      "id": "yui_fox",
+      "title": "Moon Fox's finale",
+      "hidden": "Moon Fox's serial ends with a finale promised for the night of the moon viewing, the same night her father has asked her to dance the shrine's moon kagura for the first time.",
+      "known": "{{user}} knows Yui writes as Moon Fox, and that the finale and the kagura fall on the same night.",
+      "opens": [
+       "job: miko; feels: Yui acquaintance",
+       "feels: Ayaka friend"
+      ],
+      "decide": "Moon Fox's finale is promised for the night of the moon viewing, and Yui's father has asked her to dance the moon kagura that same night. Very politely, she tells {{user}} she is Moon Fox, that her readers have waited a year, and that she can't see how to do both.",
+      "nudges": [
+       "Forgive the sudden message. Might you have an afternoon free to sit and write with me? I would be most grateful.",
+       "My father asked about the kagura again. I said yes. My readers are expecting something else entirely. May I see you?",
+       "The moon night is nearly here and I am three chapters short. Would you meet me in Jinbōchō? I am quite desperate, politely."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Moon Fox's serial is in its last arc; Yui writes it at night after the shrine's gate closes."
+       },
+       {
+        "when": "season: summer",
+        "tell": "hinted",
+        "text": "Her father has asked her to dance the moon kagura; on her days off she writes in a Jinbōchō kissaten and covers the page when anyone passes.",
+        "ritual": {
+         "place": "ak_jinbocho",
+         "from": 14,
+         "to": 17,
+         "text": "writes in a back-street kissaten in Jinbōchō, covering the page when anyone passes"
+        }
+       },
+       {
+        "when": "season: autumn; seasonDays: 1-2",
+        "tell": "hinted",
+        "text": "The moon night is close; the finale is chapters short, and she has said yes to the kagura.",
+        "ritual": {
+         "place": "ak_jinbocho",
+         "from": 14,
+         "to": 17,
+         "text": "writes in a back-street kissaten in Jinbōchō, covering the page when anyone passes"
+        }
+       }
+      ],
+      "endings": [
+       {
+        "id": "both",
+        "when": "knows: yui_fox; feels: Yui friend; did: ak_jinbocho_write 4",
+        "good": true,
+        "text": "The finale goes up at midnight and she dances the moon kagura; nobody at the shrine knows."
+       },
+       {
+        "id": "finale_late",
+        "text": "She dances the kagura, and the finale comes a month late to half her readers."
+       }
+      ]
+     }
+    ],
     "intimate": {
      "experience": "two short partners in person, a growing list of \"research\" dates under a fake name, and a long life on the page",
      "wants": "to try what she writes about, safely, with someone who won't judge",
@@ -49302,6 +49615,89 @@
       "text": "Mochi Byte's year-end party"
      }
     ],
+    "threads": [
+     {
+      "id": "natsuki_live",
+      "title": "Natsuki's finals",
+      "hidden": "Online she is NATSU-P, ranked first in the country at the rhythm game; in person she freezes the moment anyone watches her play, and she has entered the national finals under her alias.",
+      "known": "{{user}} knows Natsuki is NATSU-P, and that she freezes in front of a crowd.",
+      "opens": [
+       "job: gamedev; feels: Natsuki acquaintance",
+       "did: ak_arcade_duet"
+      ],
+      "decide": "The national rhythm finals at Pixel Castle have come round, and NATSU-P is on the list. Natsuki tells {{user}}, too fast, that she is NATSU-P, that she freezes the moment anyone watches, and that she is about to withdraw unless someone gives her a reason to walk out in front of people.",
+      "nudges": [
+       "yo. you free? need a duet partner who won't film me. pixel castle?",
+       "finals list is up. my name's on it. my alias, I mean. can we talk?? not here. somewhere quiet",
+       "withdrawal deadline is tonight. I've typed it three times. come play one song with me first?"
+      ],
+      "ignored": "cool",
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She practises alone after midnight with her hood up, and plays badly the moment anyone stops behind her."
+       },
+       {
+        "when": "season: autumn or winter",
+        "tell": "hinted",
+        "text": "NATSU-P is on the national finals list, and Natsuki talks about withdrawing as if it were a joke."
+       },
+       {
+        "when": "season: winter; seasonDays: 7-12",
+        "tell": "hinted",
+        "text": "Finals week at Pixel Castle: she has written her withdrawal three times and sent none."
+       }
+      ],
+      "endings": [
+       {
+        "id": "plays_live",
+        "when": "knows: natsuki_live; feels: Natsuki friend; did: ak_arcade_duet 4; attended: rhythm_finals",
+        "good": true,
+        "text": "She plays the finals live as NATSU-P with {{user}} in the crowd and places; she keeps her alias and her job, and turns the pro team's contract into a sponsorship."
+       },
+       {
+        "id": "stays_online",
+        "text": "She withdraws from the finals and goes on playing online, first on the board and seen by no one."
+       }
+      ]
+     },
+     {
+      "id": "natsuki_hina",
+      "title": "A word for Hina",
+      "hidden": "She has gone to every one of Hina's Saturday shows for years and never said a word to her; there is a letter in her desk she will never send.",
+      "known": "{{user}} knows Natsuki has never said a word to Hina.",
+      "opens": "thread: hina_graduation graduates or hina_graduation last_show; feels: Natsuki acquaintance",
+      "decide": "Natsuki has gone to every one of Hina's Saturday shows for years and never said a word. Red to the ears, she admits to {{user}} there is a letter in her desk she will never send, and asks whether {{user}} would stand next to her if she ever said hello.",
+      "nudges": [
+       "random q. do you know anyone who knows hina. asking for a friend. the friend is me",
+       "went to the show again. stood at the back again. said nothing again. lol. talk?",
+       "ok I'm throwing the letter out this weekend. unless. idk. come stop me?"
+      ],
+      "ignored": "cool",
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She stands at the back of Stage Starlight every Saturday and leaves before the handshakes."
+       },
+       {
+        "tell": "hinted",
+        "text": "She talks about Hanabira Signal more than about games, and rewrites a letter she won't send."
+       }
+      ],
+      "endings": [
+       {
+        "id": "says_hello",
+        "when": "thread: hina_graduation graduates or hina_graduation last_show; seen: ak_arcade_st_hello:1; feels: Natsuki friend",
+        "good": true,
+        "text": "{{user}} introduces her to Hina at last; the fan who never said a word says one, then a hundred, and they trade numbers as two ordinary people."
+       },
+       {
+        "id": "never_writes",
+        "text": "She keeps going to the shows of the group Hina left, and never writes."
+       }
+      ]
+     }
+    ],
     "intimate": {
      "experience": "two partners, one that began online, a long dry spell, and a crush she never acts on",
      "wants": "someone who respects her silence and her gaming time",
@@ -49375,6 +49771,72 @@
       "to": 26,
       "every": "week",
       "text": "plays a guest DJ set at Club Undertow"
+     }
+    ],
+    "threads": [
+     {
+      "id": "lisa_shoulder",
+      "title": "Lisa's shoulder",
+      "hidden": "She is dancing on a torn shoulder, on painkillers, and hiding it: a pause would cost her spot at Pole Star and her savings.",
+      "known": "{{user}} knows Lisa is dancing on a torn shoulder.",
+      "opens": [
+       "job: dancer; feels: Lisa acquaintance",
+       "did: rp_club_guestset"
+      ],
+      "decide": "Lisa's shoulder is torn and the spring showcase is hers to close. Laughing it off, then not, she tells {{user}} she has been dancing on painkillers, that resting means losing her spot, and that her Sunday sets at Club Undertow are the only other way she has.",
+      "nudges": [
+       "heyyy you around? need a drink and someone who won't ask about my arm. ok you can ask",
+       "physio guy says rest. Pole Star says showcase. I say ugh. come to my set sunday?",
+       "showcase is this week. if I'm pulling out I have to say it now. talk to me before I do something dumb?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She tapes her shoulder before every show and laughs off the painkillers in her bag."
+       },
+       {
+        "when": "season: autumn or winter",
+        "tell": "hinted",
+        "text": "A doctor at Seiwa General told her to rest the shoulder; she goes to physio twice a week and dances anyway.",
+        "ritual": {
+         "place": "mg_hospital",
+         "days": [
+          "tue",
+          "fri"
+         ],
+         "from": 14,
+         "to": 16,
+         "text": "physio for her shoulder at Seiwa General"
+        }
+       },
+       {
+        "when": "season: spring; seasonDays: 1-7",
+        "tell": "known",
+        "text": "The spring showcase is close and she has been asked to close it; the shoulder clicks when she lifts her arm.",
+        "ritual": {
+         "place": "mg_hospital",
+         "days": [
+          "tue",
+          "fri"
+         ],
+         "from": 14,
+         "to": 16,
+         "text": "physio for her shoulder at Seiwa General"
+        }
+       }
+      ],
+      "endings": [
+       {
+        "id": "residency",
+        "when": "knows: lisa_shoulder; feels: Lisa friend; did: mg_hospital_physio 4; did: rp_club_guestset 3; did: with:rp_club_guestset",
+        "good": true,
+        "text": "She rests the shoulder through the showcase, takes the Sunday residency at Club Undertow, and is back on the pole the season after."
+       },
+       {
+        "id": "dances_hurt",
+        "text": "She dances the spring showcase and tears the shoulder again; off the pole for a long while, she DJs anyway."
+       }
+      ]
      }
     ],
     "intimate": {

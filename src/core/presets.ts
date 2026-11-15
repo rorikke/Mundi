@@ -465,7 +465,8 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     return w;
 }
 // A storyline's words and prices from someone else's file: texts stay texts, at most three nudges, a help's price and
-// hours inside their range (a help without a label or a condition is dropped).
+// hours inside their range (a help without a label or a condition is dropped), a stage's appointment only when it has a
+// place, hours and a text.
 const HELP_MONEY = 10_000_000, HELP_HOURS = 8;
 function upgradeThread(t: any) {
     if (!t || typeof t !== 'object') return;
@@ -476,6 +477,12 @@ function upgradeThread(t: any) {
     }
     if ('ignored' in t && t.ignored !== 'end' && t.ignored !== 'cool') delete t.ignored;
     if ('opens' in t && !(typeof t.opens === 'string' || (Array.isArray(t.opens) && t.opens.every((x: unknown) => typeof x === 'string')))) delete t.opens;
+    // (NE-1) a stage's appointment: a place, hours and what they're doing, or nothing
+    for (const st of Array.isArray(t.stages) ? t.stages : []) {
+        if (!st || typeof st !== 'object' || !('ritual' in st)) continue;
+        const r = st.ritual;
+        if (!r || typeof r !== 'object' || typeof r.place !== 'string' || typeof r.text !== 'string' || !Number.isFinite(r.from) || !Number.isFinite(r.to)) delete st.ritual;
+    }
     for (const e of Array.isArray(t.endings) ? t.endings : []) {
         if (!e || typeof e !== 'object' || !('help' in e)) continue;
         const h = e.help;

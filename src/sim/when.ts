@@ -667,7 +667,15 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         else if (c.key === 'did' && !c.not && c.values.length === 1 && countedOf('did', c.values[0])) {
             const d = countedOf('did', c.values[0])!, k = countKey(w, 'did', d.what);
             const a = ((w as any).actions ?? []).find((x: { id: string }) => x.id === d.what) as { name?: string; label?: string } | undefined;
-            const have = tallyOf(g, k), name = a?.label ?? a?.name ?? d.what.replace(/^[^:]*:/, '').replace(/_/g, ' ');
+            // (`with:<action>`: done with someone along, Lisa's set with a friend you brought)
+            const along = d.what.startsWith('with:') ? ((w as any).actions ?? []).find((x: { id: string }) => x.id === d.what.slice(5)) as { name?: string; label?: string } | undefined : undefined;
+            const have = tallyOf(g, k), name = along ? `${along.label ?? along.name} with someone along` : a?.label ?? a?.name ?? d.what.replace(/^[^:]*:/, '').replace(/_/g, ' ');
+            out.push(d.n > 1 ? `${name}: ${d.n} times (${Math.min(have, d.n)} so far)` : name);
+        }
+        else if (c.key === 'attended' && !c.not && c.values.length === 1 && countedOf('attended', c.values[0])) {
+            const d = countedOf('attended', c.values[0])!, k = countKey(w, 'attended', d.what);
+            const f = w.festivals?.find(x => x.id === d.what) ?? w.cityEvents?.find(x => x.id === d.what);
+            const have = tallyOf(g, k), name = d.what === 'any' ? 'a festival or a city event' : f?.name ?? d.what.replace(/_/g, ' ');
             out.push(d.n > 1 ? `${name}: ${d.n} times (${Math.min(have, d.n)} so far)` : name);
         }
         else if (c.key === 'money' && !c.not) out.push(`${money(w, moneyAmount(w, c.values[0]))} (you have ${money(w, g.player.money)})`);

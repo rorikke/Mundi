@@ -1,7 +1,8 @@
 // What the world's people do on a given day besides their routine template:
 // · J5: the shifts of a job with a weekly schedule (days off spread across the team so a workplace is never empty,
 //   a vacation now and then), and their rank.
-// · E21: standing appointments of the world's own people (rituals): Reiko's Friday karaoke, the band's gigs.
+// · E21: standing appointments of the world's own people (rituals): Reiko's Friday karaoke, the band's gigs; and
+//   (NE-1) the one a stage of their storyline adds while it lasts (Lisa's physio while her shoulder heals).
 // · E23: parts in festivals and city events (roles), and the one event or festival someone with free time goes to
 //   when it says who comes (`audience`) and how many (`crowd`).
 // · E29: couples between people going out together (secret couples keep away from the family).
@@ -77,16 +78,50 @@ export function ruleOn(w, id) {
         onKept.set(w, k = { code, on: Object.fromEntries(RULES.map(x => [x, systemOn(w, x)])) });
     return k.on[id];
 }
+// (NE-1) The storylines whose stages add an appointment, per world (kept while its people stay the same), and which of
+// them are at such a stage now: a storyline moves on during the day (an opening at a look) without the clock or a click,
+// so this is asked on every stamp check; a world without stage appointments pays an empty loop.
+const stageRitKept = new WeakMap();
+function stageRitThreads(w) {
+    const ex = w.cast?.examples ?? [];
+    let k = stageRitKept.get(w);
+    if (!k || k.list !== ex || k.n !== ex.length) {
+        const ids = [];
+        for (const e of ex)
+            for (const t of e.threads ?? []) {
+                const at = new Set();
+                (t.stages ?? []).forEach((s, i) => { if (s?.ritual)
+                    at.add(i); });
+                if (t.id && at.size)
+                    ids.push({ id: t.id, at });
+            }
+        stageRitKept.set(w, k = { list: ex, n: ex.length, ids });
+    }
+    return k.ids;
+}
+function stageRitSig(g, w) {
+    const ids = stageRitThreads(w);
+    if (!ids.length)
+        return '';
+    const all = g.threads;
+    let s = '';
+    for (const x of ids) {
+        const st = all?.[x.id];
+        if (st && !st.ended && typeof st.stage === 'number' && x.at.has(st.stage))
+            s += `${x.id}:${st.stage};`;
+    }
+    return s;
+}
 const SIG = 8;
 const sigOf = (r, out, i) => { out[i] = r; out[i + 1] = r.occupation; out[i + 2] = r.name; out[i + 3] = r.routine; out[i + 4] = r.leisure; out[i + 5] = r.home?.zone; out[i + 6] = r.homeWith; out[i + 7] = r.gone; };
 const checked = new WeakMap();
 export function stampOf(g, w) {
     const s = kept.get(g), code = codeOf(w), sd = seasonDays(g), adult = adultOn(g), swap = g.swap?.avatar ?? '';
-    const at = nowAbs(g), n = changes(), c = checked.get(g);
-    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && c && c.at === at && c.n === n)
+    const at = nowAbs(g), n = changes(), c = checked.get(g), rit = stageRitSig(g, w);
+    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && c && c.at === at && c.n === n)
         return s;
     checked.set(g, { at, n });
-    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap) {
+    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit) {
         let i = 0, same = true;
         for (const a in g.cast) {
             const r = g.cast[a], x = s.sig;
@@ -101,7 +136,7 @@ export function stampOf(g, w) {
     }
     const list = Object.values(g.cast), sig = [];
     list.forEach((r, i) => sigOf(r, sig, i * SIG));
-    const made = { id: ++stamps, w, code, sd, adult, swap, list, sig };
+    const made = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit };
     kept.set(g, made);
     return made;
 }
@@ -407,7 +442,7 @@ function ritualIndex(g, w, st) {
             if (r.gone)
                 continue; // (someone who left: their appointments go with them, and they come to nobody's)
             const ex = exampleOf(w, r);
-            (ex?.rituals ?? []).forEach((rit, i) => {
+            const put = (rit, i) => {
                 if (rit.adult && !adultOn(g))
                     return;
                 const who = [r.avatar, ...(rit.with ?? []).map(n => personNamed(g, n)?.avatar ?? '')].filter((a, k, all) => a && g.cast[a] && !g.cast[a].gone && all.indexOf(a) === k);
@@ -419,7 +454,19 @@ function ritualIndex(g, w, st) {
                     else
                         m.set(a, [ref]);
                 }
-            });
+            };
+            (ex?.rituals ?? []).forEach((rit, i) => put(rit, i));
+            // (NE-1) their storyline's stage appointment, while it's at that stage and not ended (at the last stage that
+            // includes the days it waits for you); a storyline exists only as threads.ts says (an adult one with adult on)
+            if (st.rit)
+                for (const t of ex?.threads ?? []) {
+                    const s = g.threads?.[t.id];
+                    if (!s || s.ended || typeof s.stage !== 'number' || s.stage < 0)
+                        continue;
+                    const rit = t.stages?.[s.stage]?.ritual;
+                    if (rit && ((!t.adult && !ex?.adult) || adultOn(g)))
+                        put(rit, `${t.id}.${s.stage}`);
+                }
         }
     ritKept.set(st, m);
     return m;
