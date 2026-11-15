@@ -1398,7 +1398,8 @@ function slotForm(w: WorldDef, i: number) {
         ${sel('A person (their portrait on the tile)', `${p}.who`, withCur([['', '(nobody)'], ...peopleOpts(w).map(([v]) => [v.split(/\s+/)[0], v] as Opt)], s.who), 'opt')}
         ${cond(h?.record === false ? 'Filled when (a condition; a museum piece comes from its sources instead)' : 'Filled when (a condition)', `${p}.when`, 'attended: hanami', 'It fills for good the first time this holds: thread: mio_grades, attended: hanami, seen: all in shibuya, visited: all in shibuya, had: all charm, goal: 5, venture: cafe tier 4.')}
         ${optTxt('Hint on the empty slot (optional; empty: the condition in words)', `${p}.hint`, 'Be there on day 4 of spring.')}
-        ${t ? `<span class="mu-cw-sub">Plaques by ending (optional; empty: the ending's first sentence)</span>${(t.endings ?? []).map(e => optTxt(`${esc(e.id)}${e.good ? ' (good)' : ''}`, `${p}.plaques.${e.id}`, (e.text ?? '').slice(0, 80), '{{user}} is the player\'s name on the plaque.')).join('')}` : ''}
+        ${h && !h.record ? optTxt('Plaque (one line about the piece, shown once it\'s yours; optional)', `${p}.plaque`, 'Hokusai\'s great wave off Kanagawa.', '{{user}} is the player\'s name on the plaque.') : ''}
+        ${t ?`<span class="mu-cw-sub">Plaques by ending (optional; empty: the ending's first sentence)</span>${(t.endings ?? []).map(e => optTxt(`${esc(e.id)}${e.good ? ' (good)' : ''}`, `${p}.plaques.${e.id}`, (e.text ?? '').slice(0, 80), '{{user}} is the player\'s name on the plaque.')).join('')}` : ''}
         <span class="mu-cw-sub">Only for these starts (none: every start)</span>${pairChips((w.starts ?? []).map(x => [x.id, x.name] as Opt), `${p}.starts`, true)}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
         ${flag('Only with adult content on', `${p}.adult`, '', true)}
