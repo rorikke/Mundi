@@ -9,8 +9,8 @@ const str = (v: unknown) => typeof v === 'string' && !!v.trim();
 const isWhen = (v: unknown) => typeof v === 'string' || (!!v && typeof v === 'object' && !Array.isArray(v));
 
 /** One person's tiers made safe, in place: ids `[a-z0-9_]` and unique, a name and a condition each, caps only at known
- *  levels, `hold` and `moves` booleans, texts texts, outfits a list of names; a tier missing any of its musts dropped,
- *  and no `tiers` key left when none is. `reserved` only when true. */
+ *  levels, `hold`, `moves` and `invites` booleans, texts texts, outfits and lines lists of texts; a tier missing any of
+ *  its musts dropped, and no `tiers` key left when none is. `reserved` only when true. */
 export function upgradeTiers(ex: any) {
     if (!ex || typeof ex !== 'object') return;
     if ('reserved' in ex && ex.reserved !== true) delete ex.reserved;
@@ -49,6 +49,9 @@ export function upgradeTiers(ex: any) {
         }
         if (Array.isArray(t.outfits)) { const list = t.outfits.filter(str); if (list.length) x.outfits = list; }
         if (t.moves === true) x.moves = true;
+        if (t.invites === true) x.invites = true;
+        if (typeof t.inviteOdds === 'number' && Number.isFinite(t.inviteOdds) && t.inviteOdds > 0) x.inviteOdds = Math.min(5, t.inviteOdds);
+        for (const k of ['moveLines', 'askLines']) if (Array.isArray(t[k])) { const list = t[k].filter(str); if (list.length) x[k] = list; }
         out.push(x);
     }
     if (out.length) ex.tiers = out; else delete ex.tiers;

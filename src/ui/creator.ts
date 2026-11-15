@@ -1375,6 +1375,7 @@ function hallForm(w: WorldDef, i: number) {
         <div class="mu-row2">${txt('Name', `${p}.name`)}${optTxt('Icon (an emoji)', `${p}.icon`, '🗾')}</div>
         ${optTxt('A line under its name (optional)', `${p}.desc`, 'What you have lived here.')}
         <div class="mu-row2">${flag('The record (fills by itself; its own percentage)', `${p}.record`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        ${h.record ? flag('A hall of its own (counted in neither percentage)', `${p}.apart`, 'Its own share is shown instead, and what fills in it is told only while it\'s open: a person\'s cabinet.') : ''}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
         ${cond('Open when (a condition; empty: always)', `${p}.open`, 'goal: 3', 'A museum wing opens when this holds; its slots fill meanwhile.')}
         <span class="mu-cw-sub">Groups</span>
@@ -1399,6 +1400,7 @@ function slotForm(w: WorldDef, i: number) {
         ${cond(h?.record === false ? 'Filled when (a condition; a museum piece comes from its sources instead)' : 'Filled when (a condition)', `${p}.when`, 'attended: hanami', 'It fills for good the first time this holds: thread: mio_grades, attended: hanami, seen: all in shibuya, visited: all in shibuya, had: all charm, goal: 5, venture: cafe tier 4.')}
         ${optTxt('Hint on the empty slot (optional; empty: the condition in words)', `${p}.hint`, 'Be there on day 4 of spring.')}
         ${h && !h.record ? optTxt('Plaque (one line about the piece, shown once it\'s yours; optional)', `${p}.plaque`, 'Hokusai\'s great wave off Kanagawa.', '{{user}} is the player\'s name on the plaque.') : ''}
+        ${h?.record && !t ? optTxt('Plaque (one line, shown once it fills; optional)', `${p}.plaque`, 'No. 7, the roof, at night.', '{{user}} is the player\'s name on the plaque.') : ''}
         ${t ?`<span class="mu-cw-sub">Plaques by ending (optional; empty: the ending's first sentence)</span>${(t.endings ?? []).map(e => optTxt(`${esc(e.id)}${e.good ? ' (good)' : ''}`, `${p}.plaques.${e.id}`, (e.text ?? '').slice(0, 80), '{{user}} is the player\'s name on the plaque.')).join('')}` : ''}
         <span class="mu-cw-sub">Only for these starts (none: every start)</span>${pairChips((w.starts ?? []).map(x => [x.id, x.name] as Opt), `${p}.starts`, true)}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
@@ -2635,6 +2637,8 @@ function tierForm(w: WorldDef, p: string, k: number, t: PersonTier, e: WorldDef[
         <div class="mu-row2">${chk('Keep friendship gained past the cap for the next tier', `${q}.hold.f`, 'Up to one level\'s worth; off: it is lost.', true)}${chk('Keep romance gained past the cap for the next tier', `${q}.hold.r`, '', true)}</div>
         ${optArea('What the AI is told at this tier ({{user}} is the player)', `${q}.ai`, 2, 'Tamaki lets {{user}} see her off duty now…')}
         <div class="mu-row2">${words('Outfits it lets the game put on (names, comma-separated)', `${q}.outfits`, mine.length ? `Theirs: ${mine.join(', ')}` : 'They have no outfits in this world yet.', 'yukata')}${flag('They may make the move from here', `${q}.moves`, '', true)}</div>
+        <div class="mu-row2">${flag('They text you invitations from here', `${q}.invites`, 'Once any tier says so, not before that tier.')}${num('Their invitations, × as often from here (empty: as anyone; up to 5)', `${q}.inviteOdds`, 1, 0.5)}</div>
+        <div class="mu-row2">${lines(`The move in their own words (one per line; {name}, {action}) ${ADULT}`, `${q}.moveLines`, 2)}${lines(`Asking you over tonight, by text (one per line; {when})`, `${q}.askLines`, 2)}</div>
         <span class="mu-cw-sub">Before getting intimate, from this tier ${ADULT}</span>
         <label class="mu-field"><span>They need</span><select data-input="cw-tintim" data-f="preset" data-path="${esc(`${q}.intimacy`)}">${TIER_PRESETS.map(([v, l]) => `<option value="${esc(v)}" ${v === preset ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="mu-muted">Once any tier sets this, nothing intimate happens before that tier.</small></label>
         ${preset === 'custom' ? `<div class="mu-row2">${sel('Romance', `${q}.intimacy.r`, withCur(Object.entries(R_NAME) as Opt[], i?.r))}${sel('Friendship', `${q}.intimacy.f`, withCur(Object.entries(F_NAME) as Opt[], i?.f))}</div>` : ''}

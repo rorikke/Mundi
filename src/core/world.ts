@@ -113,6 +113,9 @@ export interface Place {
      *  map and in anyone's plans only while a home of yours in zone `homeZone` has that fixture (not `home`: a place
      *  built for a home carries `home: true`). */
     room?: string; homeZone?: string;
+    /** (museum) On the map and in anyone's plans only while this holds (the kura's back room: `museum: open; tier:
+     *  Tamaki 3`). A place that holds only with the museum open (`museum:` in it) is one of the museum's rooms. */
+    when?: When;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
@@ -532,7 +535,12 @@ export interface ExampleCharacter {
  *  status `none`: no couple at all; before the first tier is reached, the first tier's caps hold); `hold`: whether a
  *  gain past a cap is kept for the next tier (default) or dropped (`false`). `ai`: told to the AI while at this tier
  *  ({{user}}); `intimacy`: their needs from this tier; `intimate`: profile lines added at it (an overlay adds the
- *  explicit ones by id); `outfits`: outfits the game may put on from it; `moves`: they may make the move from it. */
+ *  explicit ones by id); `outfits`: outfits the game may put on from it; `moves`: they may make the move from it.
+ *  `invites`: they text you invitations (to hang out, on a date) from it (when no tier says so: as anyone does);
+ *  `inviteOdds`: from it, those invitations come this many times as often (the nearest reached tier's; up to 5).
+ *  `moveLines`: the move's card in their own words from it, one picked (`{name}`; `{action}`: what they have in mind);
+ *  `askLines`: what they text when they ask you over tonight (`{when}`); both the nearest reached tier's, else the
+ *  engine's own words. */
 export interface PersonTier { id: string; name: string; when: When;
     caps?: { f?: FriendLevel; r?: RomLevel; status?: 'none' | 'casual' | 'dating' | 'engaged' | 'married' };
     hold?: { f?: boolean; r?: boolean };
@@ -540,7 +548,8 @@ export interface PersonTier { id: string; name: string; when: When;
     intimacy?: { preset?: string; r?: string; f?: string; casual?: false };
     intimate?: Partial<IntimateProfile>;
     outfits?: string[];
-    moves?: boolean }
+    moves?: boolean;
+    invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[] }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
@@ -887,6 +896,9 @@ export interface HallDef {
     id: string; name: string; icon?: string; desc?: string;
     /** The completion record: filled by itself, nothing bought, its own percentage. */
     record?: boolean;
+    /** A record hall of its own (a person's cabinet): counted in neither percentage, its own share shown, what fills in
+     *  it told under its own name and only while it's open. */
+    apart?: boolean;
     groups: { id: string; name: string; icon?: string }[];
     adult?: boolean; needs?: SystemId[];
     /** (museum) When the hall is open, a wing bought; missing: always. */

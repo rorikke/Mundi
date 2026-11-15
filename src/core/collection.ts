@@ -22,6 +22,7 @@ function hall(h: any): HallDef | null {
     const out: HallDef = { id: h.id, name: h.name, groups };
     for (const k of ['icon', 'desc'] as const) if (str(h[k])) out[k] = h[k];
     if (h.record === true) out.record = true;
+    if (h.record === true && h.apart === true) out.apart = true;   // (a record hall's: a display hall is the museum's)
     if (h.adult === true) out.adult = true;
     const needs = strs(h.needs); if (needs?.length) out.needs = needs as any;
     if (when(h.open)) out.open = h.open;
@@ -162,7 +163,8 @@ export function draftRecord(w: WorldDef, { night = true } = {}): WorldCollection
     for (const e of w.cast?.examples ?? []) for (const t of e.threads ?? []) {
         const adult = !!t.adult || !!e.adult, first = e.name.split(/\s+/)[0];
         const base = { name: first, who: first, when: `thread: ${t.id}`, needs: ['living' as SystemId] };
-        if (adult && night) add({ id: `nw_${plainId(first)}${(e.threads ?? []).filter(x => x.adult || e.adult).indexOf(t) > 0 ? `_${plainId(t.id)}` : ''}`, hall: 'night', group: 'mementos', adult: true, ...base });
+        // (a memento is the night world's own people's: an adult storyline of anyone else is the record's, adult)
+        if (e.adult && night) add({ id: `nw_${plainId(first)}${(e.threads ?? []).filter(x => x.adult || e.adult).indexOf(t) > 0 ? `_${plainId(t.id)}` : ''}`, hall: 'night', group: 'mementos', adult: true, ...base });
         else add({ id: `mem_sl_${t.id}`, hall: 'memories', group: 'storylines', ...(adult ? { adult: true } : {}), ...base });
     }
     if (slots.some(s => s.hall === 'night')) halls.push({ id: 'night', name: 'The night world', adult: true, groups: [{ id: 'mementos', name: 'Mementos' }] });

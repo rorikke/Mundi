@@ -148,7 +148,9 @@ export const ventureLink: {
 // whoever you play, whatever your gender, and to no one else; `notYet`: why their tier doesn't allow a couple status
 // (`casual`… `married`) with you now (null: it does; `ever`: no tier ever will); `intimacy`: their needs from their tier
 // (undefined: no tier says, their own apply; null: not before a later tier); `moves`: they may make the move now;
-// `outfit`: the game may put that outfit on them now.
+// `outfit`: the game may put that outfit on them now; `invites`: they may text you invitations now (`inviteOdds`: how many
+// times as often as anyone, 1 without a tier saying; `inviteMax`: the most any tier of the world says); `words`: their own
+// words for the move's card or for asking you over (empty: the engine's).
 export const tierLink: {
     cap: (g: Save, m: 'f' | 'r', x: string) => number | null;
     hold: (g: Save, m: 'f' | 'r', x: string, raw: number) => void;
@@ -157,4 +159,13 @@ export const tierLink: {
     intimacy: (g: Save, x: string) => { preset?: string; r?: string; f?: string; casual?: false } | null | undefined;
     moves: (g: Save, x: string) => boolean;
     outfit: (g: Save, x: string, outfit: string) => boolean;
-} = { cap: () => null, hold: () => {}, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true };
+    invites: (g: Save, x: string) => boolean;
+    inviteOdds: (g: Save, x: string) => number;
+    inviteMax: (g: Save) => number;
+    words: (g: Save, x: string, k: 'moveLines' | 'askLines') => string[];
+} = { cap: () => null, hold: () => {}, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true,
+    invites: () => true, inviteOdds: () => 1, inviteMax: () => 1, words: () => [] };
+// (museum) A place that is yours (the museum you own and its rooms), asked when you're caught at a place: null when it
+// isn't; else being caught there bans nothing, and `risk` multiplies the chance of being seen (the night guard's
+// rounds). sim/museum.ts fills it in.
+export const ownedPlaces: ((g: Save, w: WorldDef, place: string) => { risk: number } | null)[] = [];

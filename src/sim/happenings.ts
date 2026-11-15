@@ -94,12 +94,15 @@ const pickThing = (w: WorldDef, v: number) => { const list = (w as any).style ==
 // later you hear how it went (well or not).
 export interface Consult { avatar: string; kind: string; choice: string; due: number; good: boolean; text: string }
 interface Dilemma { id: string; ask: (g: Save, w: WorldDef, r: Resident, x: any) => string; yes: string; no: string; setup?: (g: Save, w: WorldDef, r: Resident) => any; apply?: (g: Save, w: WorldDef, r: Resident, x: any) => void }
+// (museum) the museum's curator keeps the job the museum gave them while they hold it: no offer elsewhere, no quitting
+// for a dream (asked or decided on their own), so the museum keeps its curator
+const keepsJob = (w: WorldDef, r: Resident) => { const m = w.collection?.museum; return !!m?.curator && !!m.curatorJob && r.occupation === m.curatorJob && (r.name === m.curator || r.name.split(/\s+/)[0] === m.curator); };
 const others = (g: Save, r: Resident) => Object.values(g.cast).filter(x => x.avatar !== r.avatar && !isKid(g, x.avatar));
 const DILEMMAS: Dilemma[] = [
     { id: 'job', yes: 'Take it', no: 'Stay where you are',
-        setup: (g, w, r) => { const list = w.occupations.filter(o => o.id !== r.occupation); return systemOn(w, 'jobs') && list.length ? list[Math.floor(dayRnd(g, `job|${r.avatar}`) * list.length)].id : null; },
+        setup: (g, w, r) => { const list = w.occupations.filter(o => o.id !== r.occupation); return systemOn(w, 'jobs') && list.length && !keepsJob(w, r) ? list[Math.floor(dayRnd(g, `job|${r.avatar}`) * list.length)].id : null; },
         ask: (_g, w, _r, x) => `I got an offer to work as ${w.occupations.find(o => o.id === x)?.name.toLowerCase() ?? 'something new'}. Should I take it?`,
-        apply: (g, w, r, x) => { const o = w.occupations.find(j => j.id === x); if (o) { r.occupation = o.id; delete ((g as any).living?.ranks ?? {})[r.avatar]; note(g, '{0} started a new job: {1}.', [r.name, o.name], [r.avatar], o.place, 'life'); } } },
+        apply: (g, w, r, x) => { const o = w.occupations.find(j => j.id === x); if (o && !keepsJob(w, r)) { r.occupation = o.id; delete ((g as any).living?.ranks ?? {})[r.avatar]; note(g, '{0} started a new job: {1}.', [r.name, o.name], [r.avatar], o.place, 'life'); } } },
     // someone they have a crush on; whether it works depends on how that person feels about them
     { id: 'crush', yes: 'Go for it', no: 'Wait a little',
         setup: (g, w, r) => { if (!systemOn(w, 'romance') || !systemOn(w, 'relations')) return null; const taken = (a: string) => partnersOf(g, a).length > 0; if (taken(r.avatar)) return null; const list = others(g, r).filter(x => !taken(x.avatar) && ro(g, r.avatar, x.avatar) >= CRUSH && attracted(g, r.avatar, x.avatar) && !familyBlocked(g, r.avatar, x.avatar)); return list.length ? list[Math.floor(dayRnd(g, `crush|${r.avatar}`) * list.length)].avatar : null; },
@@ -114,9 +117,9 @@ const DILEMMAS: Dilemma[] = [
         setup: (g, w, r) => { if (!systemOn(w, 'relations')) return null; const list = others(g, r).filter(x => fr(g, r.avatar, x.avatar) < 0); return list.length ? list[Math.floor(dayRnd(g, `feud|${r.avatar}`) * list.length)].avatar : null; },
         ask: (g, _w, _r, x) => `I had a fight with ${g.cast[x]?.name ?? 'someone'}. Should I apologize?` },
     { id: 'quit', yes: 'Follow your dream', no: 'Keep your job',
-        setup: (_g, w, r) => (systemOn(w, 'jobs') && r.occupation ? 'dream' : null),
+        setup: (_g, w, r) => (systemOn(w, 'jobs') && r.occupation && !keepsJob(w, r) ? 'dream' : null),
         ask: () => 'I\'m thinking of quitting my job to do something I really love. Is that crazy?',
-        apply: (g, w, r) => { const o = w.occupations.find(j => j.id === r.occupation); r.occupation = null; note(g, '{0} quit the job to follow a dream.', [r.name], [r.avatar], o?.place ?? `home:${r.avatar}`, 'life'); } },
+        apply: (g, w, r) => { if (keepsJob(w, r)) return; const o = w.occupations.find(j => j.id === r.occupation); r.occupation = null; note(g, '{0} quit the job to follow a dream.', [r.name], [r.avatar], o?.place ?? `home:${r.avatar}`, 'life'); } },
     { id: 'study', yes: 'Do it', no: 'Not now', setup: () => 'study', ask: () => 'Should I go back to studying? I\'d have less time, but…' },
 ];
 // How a feud turns out: an apology brings both a little closer (+3 friendship each way), standing firm pushes them

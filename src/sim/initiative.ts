@@ -169,9 +169,9 @@ export const WANT_INVITE = 2;
 // Not yet). The hour's chance is 5% for each person who could text, twice that for someone wanting you.
 export function textAsks(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60), s = social(g) as any, roll = rnd(g, `textask|${h}`);
-    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE) return [];
+    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE * tierLink.inviteMax(g)) return [];
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
-    const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar));
+    const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar) && tierLink.invites(g, idOf(g, r.avatar)));
     const pick = (r: Resident): TextAsk | null => {
         const st = romOf(g, r.avatar).status;
         if (st === 'casual' && intimacyReady(g, r.avatar, '').lean === 'yes') return { kind: 'casual' };
@@ -181,7 +181,8 @@ export function textAsks(g: Save, w: WorldDef): string[] {
     };
     const list = pool.map(r => [r, pick(r)] as const).filter((x): x is readonly [Resident, TextAsk] => !!x[1]);
     if (!list.length) return [];
-    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1)), total = ws.reduce((a, b) => a + b, 0);
+    // (museum) someone whose tier makes them reach out more texts that many times as often (sim/tiers.ts inviteOdds)
+    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1) * tierLink.inviteOdds(g, idOf(g, r.avatar))), total = ws.reduce((a, b) => a + b, 0);
     if (roll > 0.05 * total / list.length) return [];
     let x = rnd(g, 'textaskwho') * total, i = 0;
     while (i < list.length - 1 && (x -= ws[i]) >= 0) i++;
@@ -194,10 +195,15 @@ export function textAsks(g: Save, w: WorldDef): string[] {
     const when = `${hm(from % 1440)}${Math.floor(from / 1440) === g.day ? ' today' : ' tomorrow'}`;
     const where = t.kind === 'casual' ? `${r.name}'s place` : placeOf(g, w, place)?.name ?? 'somewhere nice';
     const me = personaName();
-    void textFrom(g, w, r.avatar, t.kind === 'casual'
+    // (museum) someone whose tier gives their own words for asking you over says it their way
+    const own = t.kind === 'casual' ? tierLink.words(g, idOf(g, r.avatar), 'askLines') : [];
+    const line = own.length ? own[Math.floor(rnd(g, `askline|${from}`) * own.length)].replace(/\{when\}/g, when) : '';
+    void textFrom(g, w, r.avatar, line
+        ? `${r.name} texts ${me} out of the blue to come over to ${r.name}'s place tonight (${when}), along these lines: "${line}" One or two short sentences, in their own voice.`
+        : t.kind === 'casual'
         ? `${r.name} texts ${me} out of the blue: would ${me} like to come over to ${r.name}'s place tonight (${when})? One or two short, flirty sentences, in their own voice.`
         : `${r.name} has a crush on ${me} and texts to ask them out on a date: ${where}, ${when}. One or two short sentences, in their own voice, a little nervous.`,
-        t.kind === 'casual' ? `Come over tonight? ${when}.` : `Would you like to go out with me? ${where}, ${when}?`)
+        line || (t.kind === 'casual' ? `Come over tonight? ${when}.` : `Would you like to go out with me? ${where}, ${when}?`))
         .then(() => { s.unread[r.avatar] = (s.unread[r.avatar] ?? 0) + 1; })
         .catch(() => { /* offline: the invitation card still shows */ });
     return [];
@@ -314,11 +320,15 @@ export function moveOffer(g: Save, w: WorldDef): MoveOffer | null {
     delete (seat(g) as any).move;
     return null;
 }
-/** For the card (ui/events.ts): who, the action they have in mind, and the words. Null when there's none. */
-export function moveCard(g: Save, w: WorldDef): { who: string; name: string; action: ActionDef; text: string } | null {
+/** For the card (ui/events.ts): who, the action they have in mind, and the words (`own`: in their own words, from their
+ *  tier, which the card shows). Null when there's none. */
+export function moveCard(g: Save, w: WorldDef): { who: string; name: string; action: ActionDef; text: string; own?: boolean } | null {
     const m = moveOffer(g, w); if (!m) return null;
     const action = moveActions(g, w, m.who).find(x => x.id === m.action)!, name = g.cast[m.who]?.name ?? m.who;
-    return { who: m.who, name, action, text: `${name} pulls you closer: ${action.label.replace(/[.\s]+$/, '').toLowerCase()}?` };
+    const what = action.label.replace(/[.\s]+$/, '').toLowerCase(), own = tierLink.words(g, idOf(g, m.who), 'moveLines');
+    // (museum) someone whose tier gives the card their own words says it their way (one picked for this offer)
+    const text = own.length ? own[Math.floor(rnd(g, `moveline|${m.at}`) * own.length)].replace(/\{name\}/g, name).replace(/\{action\}/g, what) : `${name} pulls you closer: ${what}?`;
+    return { who: m.who, name, action, text, ...(own.length ? { own: true } : {}) };
 }
 /** Yes: the action they had in mind, for the screen to start exactly as if you'd picked it (its price and time, in the
  *  scene or not); null when it no longer fits. The card goes either way. */
