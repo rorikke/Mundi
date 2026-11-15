@@ -29138,7 +29138,12 @@
    "sound": [
     "birds",
     "wind"
-   ]
+   ],
+   "bg": "bg/ot_kura.avif",
+   "bgs": {
+    "afternoon": "bg/ot_kura-afternoon.avif",
+    "night": "bg/ot_kura-night.avif"
+   }
   },
   {
    "id": "ot_ramen",
@@ -66584,7 +66589,8 @@
       "id": "tamaki_last_case"
      }
     ],
-    "bonus": true
+    "bonus": true,
+    "pic": "collection/crafts/cr_kura_box.avif"
    },
    {
     "id": "cr_nk_rat",
@@ -66989,7 +66995,8 @@
       "price": 48000
      }
     ],
-    "price": 48000
+    "price": 48000,
+    "pic": "collection/modern/mo_tin_robot.avif"
    },
    {
     "id": "mo_kaiju",
@@ -67006,7 +67013,8 @@
       "price": 24000
      }
     ],
-    "price": 24000
+    "price": 24000,
+    "pic": "collection/modern/mo_kaiju.avif"
    },
    {
     "id": "mo_radio",
@@ -67025,7 +67033,8 @@
       "price": 36000
      }
     ],
-    "price": 36000
+    "price": 36000,
+    "pic": "collection/modern/mo_radio.avif"
    },
    {
     "id": "mo_film_camera",
@@ -67044,7 +67053,8 @@
       "price": 58000
      }
     ],
-    "price": 58000
+    "price": 58000,
+    "pic": "collection/modern/mo_film_camera.avif"
    },
    {
     "id": "mo_console",
@@ -67063,7 +67073,8 @@
       "price": 42000
      }
     ],
-    "price": 42000
+    "price": 42000,
+    "pic": "collection/modern/mo_console.avif"
    },
    {
     "id": "mo_lcd_game",
@@ -67087,7 +67098,8 @@
       "price": 18000
      }
     ],
-    "price": 18000
+    "price": 18000,
+    "pic": "collection/modern/mo_lcd_game.avif"
    },
    {
     "id": "mo_rotary_phone",
@@ -67111,7 +67123,8 @@
       "price": 28000
      }
     ],
-    "price": 28000
+    "price": 28000,
+    "pic": "collection/modern/mo_rotary_phone.avif"
    },
    {
     "id": "mo_lunchbox",
@@ -67131,7 +67144,8 @@
       "when": "event: antique"
      }
     ],
-    "price": 12000
+    "price": 12000,
+    "pic": "collection/modern/mo_lunchbox.avif"
    },
    {
     "id": "mo_nanami_pick",
@@ -67147,7 +67161,8 @@
       "kind": "ending",
       "id": "nanami_scout"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_nanami_pick.avif"
    },
    {
     "id": "mo_kaito_sticks",
@@ -67163,7 +67178,8 @@
       "kind": "ending",
       "id": "kaito_debt"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_kaito_sticks.avif"
    },
    {
     "id": "mo_rina_cartridge",
@@ -67179,7 +67195,8 @@
       "kind": "ending",
       "id": "rina_runway"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_rina_cartridge.avif"
    },
    {
     "id": "mo_hina_programme",
@@ -67195,7 +67212,8 @@
       "kind": "ending",
       "id": "hina_graduation"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_hina_programme.avif"
    },
    {
     "id": "mo_seoyeon_notebook",
@@ -67211,7 +67229,8 @@
       "kind": "ending",
       "id": "seoyeon_parents"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_seoyeon_notebook.avif"
    },
    {
     "id": "mo_genzo_noren",
@@ -67227,7 +67246,8 @@
       "kind": "ending",
       "id": "genzo_lease"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_genzo_noren.avif"
    },
    {
     "id": "mo_ayaka_brush",
@@ -67243,7 +67263,8 @@
       "kind": "ending",
       "id": "ayaka_contest"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_ayaka_brush.avif"
    },
    {
     "id": "mo_mio_notes",
@@ -67259,7 +67280,8 @@
       "kind": "ending",
       "id": "mio_grades"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_mio_notes.avif"
    },
    {
     "id": "mo_daisuke_letter",
@@ -67275,7 +67297,8 @@
       "kind": "ending",
       "id": "daisuke_letter"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_daisuke_letter.avif"
    },
    {
     "id": "mo_hannah_sticker",
@@ -67291,7 +67314,8 @@
       "kind": "ending",
       "id": "hannah_stream"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_hannah_sticker.avif"
    },
    {
     "id": "mo_chloe_postcard",
@@ -67307,7 +67331,8 @@
       "kind": "ending",
       "id": "chloe_visa"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_chloe_postcard.avif"
    },
    {
     "id": "mo_jake_keyring",
@@ -67323,7 +67348,8 @@
       "kind": "ending",
       "id": "jake_offer"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_jake_keyring.avif"
    },
    {
     "id": "mo_natsuki_wristband",
@@ -67339,7 +67365,8 @@
       "kind": "ending",
       "id": "natsuki_live"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_natsuki_wristband.avif"
    },
    {
     "id": "mo_lisa_shoes",
@@ -67355,7 +67382,8 @@
       "kind": "ending",
       "id": "lisa_shoulder"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_lisa_shoes.avif"
    },
    {
     "id": "mo_yui_paperback",
@@ -67371,7 +67399,8 @@
       "kind": "ending",
       "id": "yui_fox"
      }
-    ]
+    ],
+    "pic": "collection/modern/mo_yui_paperback.avif"
    },
    {
     "id": "mo_wavetv_poster",
@@ -67394,7 +67423,8 @@
       "price": 30000
      }
     ],
-    "price": 30000
+    "price": 30000,
+    "pic": "collection/modern/mo_wavetv_poster.avif"
    },
    {
     "id": "mo_doujin",
@@ -67411,7 +67441,8 @@
       "price": 3000
      }
     ],
-    "price": 3000
+    "price": 3000,
+    "pic": "collection/modern/mo_doujin.avif"
    },
    {
     "id": "nw_tower_bottle",
@@ -67433,7 +67464,8 @@
       "price": 120000
      }
     ],
-    "price": 120000
+    "price": 120000,
+    "pic": "collection/night/nw_tower_bottle.avif"
    },
    {
     "id": "nw_key_fob",
@@ -67454,7 +67486,8 @@
       "price": 40000
      }
     ],
-    "price": 40000
+    "price": 40000,
+    "pic": "collection/night/nw_key_fob.avif"
    },
    {
     "id": "nw_photo_board",
@@ -67474,7 +67507,8 @@
       "price": 60000
      }
     ],
-    "price": 60000
+    "price": 60000,
+    "pic": "collection/night/nw_photo_board.avif"
    },
    {
     "id": "nw_matchbook",
@@ -67500,7 +67534,8 @@
       "when": "event: antique"
      }
     ],
-    "price": 9000
+    "price": 9000,
+    "pic": "collection/night/nw_matchbook.avif"
    },
    {
     "id": "nw_neon",
@@ -67517,7 +67552,8 @@
       "price": 300000
      }
     ],
-    "price": 300000
+    "price": 300000,
+    "pic": "collection/night/nw_neon.avif"
    },
    {
     "id": "nw_shunga_harunobu",
@@ -67534,7 +67570,8 @@
       "price": 500000
      }
     ],
-    "price": 500000
+    "price": 500000,
+    "pic": "collection/night/nw_shunga_harunobu.avif"
    },
    {
     "id": "nw_shunga_koryusai",
@@ -67551,7 +67588,8 @@
       "price": 280000
      }
     ],
-    "price": 280000
+    "price": 280000,
+    "pic": "collection/night/nw_shunga_koryusai.avif"
    },
    {
     "id": "nw_shunga_utamaro",
@@ -67568,7 +67606,8 @@
       "price": 700000
      }
     ],
-    "price": 700000
+    "price": 700000,
+    "pic": "collection/night/nw_shunga_utamaro.avif"
    },
    {
     "id": "nw_shunga_toyokuni",
@@ -67585,7 +67624,8 @@
       "price": 380000
      }
     ],
-    "price": 380000
+    "price": 380000,
+    "pic": "collection/night/nw_shunga_toyokuni.avif"
    },
    {
     "id": "nw_shunga_kunisada",
@@ -67602,7 +67642,8 @@
       "price": 500000
      }
     ],
-    "price": 500000
+    "price": 500000,
+    "pic": "collection/night/nw_shunga_kunisada.avif"
    },
    {
     "id": "nw_shunga_kuniyoshi",
@@ -67619,7 +67660,8 @@
       "price": 240000
      }
     ],
-    "price": 240000
+    "price": 240000,
+    "pic": "collection/night/nw_shunga_kuniyoshi.avif"
    },
    {
     "id": "mem_sl_tamaki_puppies",
