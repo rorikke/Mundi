@@ -52414,7 +52414,15 @@
       ]
      }
     ],
-    "reserved": true
+    "reserved": true,
+    "avatar": "cast/tamaki/portrait.webp",
+    "sprites": "cast/tamaki/sprites",
+    "outfits": {
+     "offduty": "cast/tamaki/offduty",
+     "yukata": "cast/tamaki/yukata",
+     "opening": "cast/tamaki/opening",
+     "home": "cast/tamaki/home"
+    }
    },
    {
     "name": "Reiko",
