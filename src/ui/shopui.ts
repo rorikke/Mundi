@@ -4,74 +4,25 @@
 // description, price, what the engine says the item does, and Buy / Owned / Buy again. Items whose `when` doesn't hold
 // are hidden; a category with some says "More by invitation." once. Also the HUD's "Shop here" row at such a place.
 // The engine owns every number (sim/shop.ts); this file only draws and calls.
-import { esc, game, toast, notify, saveGame, nowAbs, adultOn, SAVE, type Save } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, adultOn, SAVE, type Save } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type KeepsakeDef } from '../core/world.js';
 import { num } from '../core/safe.js';
 import { money } from '../sim/needs.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { placeOf } from '../sim/places.js';
 import { giftsForSale, giftPrice } from '../sim/social.js';
-import { whenHolds } from '../sim/when.js';
-import { openNow } from '../sim/daynight.js';
 import * as S from '../sim/shop.js';
-import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, haveItem, catOf, onlineOf, type Item, type ShopCat, type ShopState } from '../sim/shop.js';
+import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, catOf, type Item, type ShopCat, type ShopState } from '../sim/shop.js';
 import { ACT } from './reg.js';
 
-/* ---------- until A: the engine's pieces that aren't on this branch yet ---------- */
-// until A: `itemDoes`, `isKept`, `whyNotBuy`, `moreByInvitation`, and `where` on `shopPrice` and `buy`, are session A's
-// (plans/shop.md, A's API in the shared notes). Until they're merged, these call A's version when it's there and stand
-// in for it otherwise; the merge deletes this block and the calls below use sim/shop.ts directly.
-// until A
-const itemDoes = (g: Save, w: WorldDef, it: Item): string[] => ((S as any).itemDoes ? (S as any).itemDoes(g, w, it) : doesStandIn(w, it));
-// until A
-const priceAt = (g: Save, w: WorldDef, it: Item, where: string): number => (S.shopPrice as any)(g, w, it, where);
-// until A
-const buyAt = (g: Save, w: WorldDef, id: string, where: string): string => (S.buy as any)(g, w, id, where);
-// until A: S0's `offers` lists every item online and nothing at a place; A's filters by adult content, `when`, where
-// it's sold and the place's hours. Filtering again here changes nothing once A's is in.
-const offeredAt = (g: Save, w: WorldDef, where: string): Item[] => {
-    const list = where === 'online' ? offers(g, w, where) : (offers(g, w, where).length ? offers(g, w, where) : shopItems(w));
-    return list.filter(it => soldAt(g, w, it, where) && (whenHolds(g, w, it.when ?? null) || haveItem(g, w, it.id)));
-};
-// until A: kept for good (Owned once bought); anything else is bought again.
-const kept = (it: Item): boolean => ((S as any).isKept ? (S as any).isKept(it) : !it.repeat && !it.keepsake && !it.now);
-// until A: '' when it can be bought here, else why not (the Buy button is off, the reason its title).
-const whyNot = (g: Save, w: WorldDef, it: Item, where: string): string => ((S as any).whyNotBuy ? (S as any).whyNotBuy(g, w, it, where) : num(g.player.money) < priceAt(g, w, it, where) ? 'Not enough money.' : '');
-// until A: the categories with something sold `where` that a condition still hides.
-const invitedCats = (g: Save, w: WorldDef, where: string): string[] => {
-    if ((S as any).moreByInvitation) return (S as any).moreByInvitation(g, w, where);
-    const ids = new Set(offeredAt(g, w, where).map(it => it.id));
-    return [...new Set(shopItems(w).filter(it => !ids.has(it.id) && soldAt(g, w, it, where)).map(catOf))];
-};
-// until A: what the engine will say an item does, from the fields alone.
-function doesStandIn(w: WorldDef, it: Item): string[] {
-    const out: string[] = [];
-    const travel = num(it.travel);
-    if (travel > 0 && travel < 1) out.push(`Trips take ${Math.round((1 - travel) * 100)}% less time`);
-    if (it.late) out.push('Drive after the last train');
-    if (num(it.sleepMood) > 0) out.push(`Mood +${num(it.sleepMood)} on waking at home`);
-    const acts = (w.actions ?? []).filter(a => a.needsItem === it.id).map(a => a.label);
-    if (acts.length) out.push(`Unlocks: ${acts.join(', ')}`);
-    if (num(it.repeat?.days) > 0) out.push(num(it.repeat?.days) === 1 ? 'Lasts a day' : `Lasts ${num(it.repeat?.days)} days`);
-    if (num(it.repeat?.stock) > 0) out.push(`${num(it.repeat?.stock)} uses`);
-    const k = it.keepsake && (w.keepsakes ?? []).find(x => x.id === it.keepsake);
-    if (k) out.push(`Gives: ${k.name}`);
-    return out;
-}
-// until A: days left of a service (rounded up) and uses left of stock, read without writing `g.shop` into a save.
-const daysOf = (g: Save, id: string): number => ((S as any).daysLeft ? num((S as any).daysLeft(g, id)) : Math.max(0, Math.ceil((num(peek(g).until?.[id]) - nowAbs(g)) / 1440)));
-const stockOf = (g: Save, id: string): number => ((S as any).stockLeft ? num((S as any).stockLeft(g, id)) : Math.max(0, num(peek(g).stock?.[id])));
-// until A: an adult thing: `adult: true`, or in an adult category (Adult, Explicit).
-const adultThing = (it: Item): boolean => ((S as any).isAdultItem ? (S as any).isAdultItem(it) : it.adult === true || !!S.shopCat(it).adult);
-/* ---------- (end of until A) ---------- */
+import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf,
+    stockLeft as stockOf, shopPrice as priceAt, buy as buyAt } from '../sim/shop.js';
+const offeredAt = offers;
 
 /** What the app shows (memory only): the tab (`here`, `yours` or a category id; '' picks the first there is). */
 export const SH = { tab: '' };
 SAVE.hooks.push(() => { SH.tab = ''; });
 
-// Sold `where` as far as the item says (online, or at that place while it's open), adult items only with adult
-// content on. Whether its `when` holds is left out: that's what tells offered from "by invitation".
-const soldAt = (g: Save, w: WorldDef, it: Item, where: string) => (!adultThing(it) || adultOn(g)) && (where === 'online' ? onlineOf(it) : (it.at ?? []).includes(where) && openNow(g, w, where));
 const catShown = (g: Save, c: ShopCat) => !c.adult || adultOn(g);
 const peek = (g: Save): Partial<ShopState> => ((g as any).shop ?? {}) as Partial<ShopState>;
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many.replace('{0}', String(n)));
