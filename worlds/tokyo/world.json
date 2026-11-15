@@ -8429,6 +8429,290 @@
    "place": "ot_kura"
   },
   {
+   "id": "ot_kura_backroom",
+   "name": "The back room",
+   "label": "Kiss Tamaki in the back store",
+   "icon": "🗝️",
+   "cost": 0,
+   "minutes": 40,
+   "place": "ot_kura",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 2; present: Tamaki; companion: crush or casual; period: evening",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "quiet places after closing",
+    "a thrill of near-discovery",
+    "long kissing",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's back store at closing time with Tamaki, among the stacked boxes, the shutters half down and the last visitor maybe still on the step"
+   },
+   "outcomes": [
+    {
+     "id": "boxes",
+     "weight": 50,
+     "text": "Among the paulownia boxes she kisses you as if she has been waiting all day, which she says she has, and then shushes you for laughing."
+    },
+    {
+     "id": "shutter",
+     "weight": 30,
+     "text": "The shutter rattles in the lane and you both go still; it is only the wind, and she laughs into your shoulder until she can breathe.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "labels",
+     "weight": 20,
+     "text": "Afterwards she straightens every box you knocked and checks every label, pink to the ears the whole time.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} slipped into the back store of {0} with Tamaki at closing time",
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "ot_kura_back_night",
+   "name": "Back-room night",
+   "label": "A night in the back room",
+   "icon": "🏮",
+   "cost": 0,
+   "minutes": 120,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 14,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "quiet places after closing",
+    "slow and tender",
+    "whispered words",
+    "tea brought afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's back room after closing, the futon kept for inventory nights unrolled between the boxes, one low lamp and nobody for streets around"
+   },
+   "outcomes": [
+    {
+     "id": "lamp",
+     "weight": 50,
+     "text": "One lamp, the boxes all around like a sleeping audience; she is slower than ever, and says your name like a label she is proud of."
+    },
+    {
+     "id": "tea",
+     "weight": 30,
+     "text": "Near midnight she makes tea on the office burner and brings it back to the futon in her grandfather's cups, the good ones, on purpose this time.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "list",
+     "weight": 20,
+     "text": "Lying in the dark she lists every piece in the room in order, and you lose count of the times she stops to kiss you.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent the night in the back room of the Kurahashi kura with Tamaki",
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "ot_kura_back_halls",
+   "name": "The dark halls",
+   "label": "Walk the dark halls with Tamaki",
+   "icon": "🔦",
+   "cost": 0,
+   "minutes": 45,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "a thrill of near-discovery",
+    "semi-public places",
+    "quiet places after closing"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's halls after closing with Tamaki, the cases dark, the alarm panel blinking, and someone who works there maybe coming by"
+   },
+   "outcomes": [
+    {
+     "id": "case",
+     "weight": 50,
+     "text": "Against the cool glass of the netsuke case she whispers each piece's date to you, which is somehow the most daring thing she has ever said."
+    },
+    {
+     "id": "panel",
+     "weight": 30,
+     "text": "The alarm panel blinks in the dark; every time a car passes in the lane she holds her breath, and so do you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "scroll",
+     "weight": 20,
+     "text": "In front of the tokonoma she turns the hanging scroll to the wall first, solemnly (\"he shouldn't watch\"), and then pulls you down onto the boards.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} walked the dark halls of the Kurahashi kura with Tamaki after closing",
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "ot_kura_back_roof",
+   "name": "Roof at night",
+   "label": "A blanket on the roof",
+   "icon": "🌌",
+   "cost": 0,
+   "minutes": 60,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 13,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: night or latenight; weather: not rain or snow or storm",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "risk": 0.05,
+   "dc": 13,
+   "matches": [
+    "a thrill of near-discovery",
+    "semi-public places",
+    "slow and tender"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's tiled roof at night through the hatch above the back room, a blanket on the warm tiles, Yanaka asleep below and a window or two still lit"
+   },
+   "outcomes": [
+    {
+     "id": "tiles",
+     "weight": 50,
+     "text": "The tiles still hold the day's warmth; under the blanket she names the stars wrongly on purpose until you correct her, then stops you correcting anything."
+    },
+    {
+     "id": "window",
+     "weight": 30,
+     "text": "A window across the lane lights up; she pulls the blanket over both your heads and laughs into the dark.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "bell",
+     "weight": 20,
+     "text": "A temple bell marks the hour; she says she will never hear it again without blushing, and sounds pleased about it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took a blanket up to the roof of the Kurahashi kura with Tamaki",
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "ot_kura_back_reading",
+   "name": "Reading after hours",
+   "label": "Read to Tamaki after hours",
+   "icon": "📖",
+   "cost": 0,
+   "minutes": 90,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 12,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; museum: reading; present: Tamaki; companion: crush or casual; period: evening or night",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "being read to",
+    "whispered words",
+    "slow and tender",
+    "being asked what they want"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's reading room after hours, through the door from the back room: one green lamp, old catalogues and letters, and Tamaki asking to be read to"
+   },
+   "outcomes": [
+    {
+     "id": "letters",
+     "weight": 50,
+     "text": "She hands you her grandfather's letters to his dealers and asks you to read them aloud; at the dull parts she kisses you to make you skip."
+    },
+    {
+     "id": "lots",
+     "weight": 30,
+     "text": "You read the lots of a Taishō-era sale in your best auctioneer's voice; she bids on you, outrageously, and wins.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "dark",
+     "weight": 20,
+     "text": "She turns the green lamp down until you can hardly see the page, and asks you to keep reading anyway, from memory.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} read to Tamaki in the reading room of the Kurahashi kura after hours",
+   "tags": [
+    "private"
+   ]
+  },
+  {
    "id": "ot_ameyoko_snack",
    "name": "Stall food",
    "label": "Eat from the stalls",
@@ -13438,6 +13722,63 @@
    "place": "hk_ryokan"
   },
   {
+   "id": "hk_ryokan_tamaki_bath",
+   "name": "Bath with Tamaki",
+   "label": "The private bath with Tamaki",
+   "icon": "♨️",
+   "cost": 4000,
+   "minutes": 60,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 13,
+    "hygiene": 40,
+    "energy": 6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: evening or night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 11,
+   "matches": [
+    "a bath together",
+    "hot-spring baths",
+    "slow and tender"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the ryokan's private family bath booked for an hour, the door latched, cedar and steam, Tamaki's silver hair pinned up out of the water"
+   },
+   "outcomes": [
+    {
+     "id": "cedar",
+     "weight": 50,
+     "text": "She leans back against you in the cedar tub and tells you the wood's age by its smell; she is wrong, she admits, because she can't think."
+    },
+    {
+     "id": "pin",
+     "weight": 30,
+     "text": "Her hairpin slips into the water and you both go after it; she finds it, and forgets it again at once.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "yukata",
+     "weight": 20,
+     "text": "Afterwards, in the inn's yukata, she sits on the step with her feet in the water and won't let go of your hand.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shared the private bath at {0} with Tamaki",
+   "tags": [
+    "bath",
+    "private"
+   ]
+  },
+  {
    "id": "hk_ashi_cruise",
    "name": "Cruise",
    "label": "Take the lake cruise",
@@ -13939,7 +14280,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -14043,6 +14384,118 @@
    "fact": "{u} danced for someone at home",
    "adult": true,
    "private": true,
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_home_tamaki",
+   "name": "An evening in",
+   "label": "An evening in with Tamaki",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 2; present: Tamaki; companion: crush or casual; period: evening or night",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "long kissing",
+    "hand-holding",
+    "whispered words",
+    "being asked what they want"
+   ],
+   "together": {
+    "needed": true,
+    "text": "an evening in at {{user}}'s place with Tamaki, the lights low, her gloves folded on the table and her hairpin out"
+   },
+   "outcomes": [
+    {
+     "id": "asks",
+     "weight": 50,
+     "text": "She asks before every step, very seriously, as if signing a loan form; by the end she has stopped asking and started telling."
+    },
+    {
+     "id": "hairpin",
+     "weight": 30,
+     "text": "She takes the plum-blossom hairpin out and sets it on the table with both hands, the way she would a piece, and only then lets herself be kissed.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "late",
+     "weight": 20,
+     "text": "You talk until the last train has gone and then stop talking; she leaves at dawn with her collar buttoned wrong.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent an evening in with Tamaki",
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_home_tamaki_yukata",
+   "name": "After the festival",
+   "label": "Take Tamaki home in her yukata",
+   "icon": "🎐",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 2; festival: sanja or fireworks or tsukimi; present: Tamaki; companion: crush or casual; period: evening or night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "yukata",
+    "long kissing",
+    "whispered words",
+    "hand-holding"
+   ],
+   "together": {
+    "needed": true,
+    "text": "home from the festival with Tamaki still in her indigo yukata, the obi knot she tied herself, the smell of the stalls on both of them"
+   },
+   "outcomes": [
+    {
+     "id": "obi",
+     "weight": 50,
+     "text": "The obi knot defeats you both; in the end she undoes it herself, slowly, explaining the knot as she goes, and forgets to finish the sentence."
+    },
+    {
+     "id": "fan",
+     "weight": 30,
+     "text": "She kept her paper fan from the festival and fans you both afterwards, very seriously, in the heat.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "window",
+     "weight": 20,
+     "text": "Somewhere a last firework goes up; she doesn't look at the window once.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} took Tamaki home after the festival, still in her yukata",
    "tags": [
     "private"
    ]
@@ -16507,6 +16960,63 @@
    }
   },
   {
+   "id": "fa_tamaki_tearoom",
+   "name": "Midnight tea",
+   "label": "Midnight tea with Tamaki",
+   "icon": "🍵",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_tearoom",
+   "effects": {
+    "mood": 12,
+    "energy": 2,
+    "thirst": 10,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 9,
+   "matches": [
+    "tea brought afterward",
+    "slow and tender",
+    "mornings in bed"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the tea room of {{user}}'s home at night, one candle, the kettle singing, Tamaki kneeling on the tatami in her own kimono"
+   },
+   "outcomes": [
+    {
+     "id": "bowl",
+     "weight": 50,
+     "text": "She turns the tea bowl to you with both hands, the ceremony exact to the last gesture, and then lets the ceremony go entirely."
+    },
+    {
+     "id": "kettle",
+     "weight": 30,
+     "text": "The kettle boils over while neither of you is watching it; she says it is the best tea she has never drunk.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "dawn",
+     "weight": 20,
+     "text": "You wake on the tatami at dawn under her haori, the candle out, the bowl still waiting for its tea.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} made tea for Tamaki in the tea room at night",
+   "tags": [
+    "private"
+   ]
+  },
+  {
    "id": "fa_sauna",
    "name": "Sauna",
    "label": "A sauna and a cold shower",
@@ -16819,6 +17329,62 @@
     "energy": -5
    },
    "trains": "writing"
+  },
+  {
+   "id": "fa_tamaki_library",
+   "name": "Library after dark",
+   "label": "The library with Tamaki",
+   "icon": "📚",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "fx_library",
+   "effects": {
+    "mood": 12,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: evening or night",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 9,
+   "matches": [
+    "being read to",
+    "whispered words",
+    "slow and tender"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the library of {{user}}'s home after dark with Tamaki, the ladder on its rail, a lamp and the reading chair big enough for two"
+   },
+   "outcomes": [
+    {
+     "id": "ladder",
+     "weight": 50,
+     "text": "She climbs the ladder to read your shelves aloud, title by title, judging every one, and comes down only when you stop listening."
+    },
+    {
+     "id": "chair",
+     "weight": 30,
+     "text": "The reading chair turns out to be big enough for two, just; she says it was made for it, and is probably right.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "margin",
+     "weight": 20,
+     "text": "In the morning you find a note in her brush pen in the margin of a book you were reading. It is not about the book.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent an evening in the library with Tamaki",
+   "tags": [
+    "private"
+   ]
   },
   {
    "id": "fa_games_play",
@@ -22308,7 +22874,17 @@
     "priv_use_oil",
     "priv_use_costume",
     "sh_bath_two",
-    "sh_instant_private"
+    "sh_instant_private",
+    "ot_kura_backroom",
+    "priv_home_tamaki",
+    "priv_home_tamaki_yukata",
+    "ot_kura_back_night",
+    "ot_kura_back_halls",
+    "ot_kura_back_roof",
+    "ot_kura_back_reading",
+    "hk_ryokan_tamaki_bath",
+    "fa_tamaki_library",
+    "fa_tamaki_tearoom"
    ],
    "count": 5,
    "days": 7,
@@ -29139,6 +29715,33 @@
     "birds",
     "wind"
    ]
+  },
+  {
+   "id": "ot_kura_back",
+   "name": "The kura's back room",
+   "map": "oldtown",
+   "x": 63.9,
+   "y": 67.6,
+   "tags": [
+    "leisure"
+   ],
+   "desc": "the kura's back store after closing: paulownia boxes to the beams, one low lamp, a futon for inventory nights, a ladder to the roof hatch, doors to the reading room and the dark halls",
+   "staff": "nobody after closing; the lane outside asleep, a night guard on his rounds once one is hired",
+   "crowd": 0.1,
+   "open": [
+    17.5,
+    2
+   ],
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "sound": [
+    "wind"
+   ],
+   "bg": "bg/hk_ryokan_hanare-night.avif",
+   "adult": true,
+   "private": true,
+   "when": "museum: open; tier: Tamaki 3"
   },
   {
    "id": "ot_ramen",
@@ -51488,6 +52091,48 @@
         "text": "Under the tokonoma's floor lies a small lacquered box in his own hand, the puppies in the snow on its lid; she sets it in a case of its own and gives {{user}} its key."
        }
       ]
+     },
+     {
+      "id": "tamaki_spring_pictures",
+      "title": "Spring pictures",
+      "adult": true,
+      "hidden": "Since the night room opened she has been staying late with its shunga, the Edo masters' bedroom prints, writing plaques for them and tearing them up. She is embarrassed by how much they fascinate her, and has started to wonder which of them she would like to try.",
+      "known": "{{user}} knows Tamaki has been studying the night room's spring pictures after hours, and that the show she wants to hang of them is partly an excuse.",
+      "opens": "tier: Tamaki 3; museum: wing_night",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Tamaki has written six plaques for the night room's spring pictures and torn up five. She asks {{user}} to stay after closing and help her hang a show of them, insists it is purely scholarly, then admits she would like to try one or two of the prints with {{user}} first.",
+      "nudges": [
+       "I rewrote the plaque for the Utamaro again. It still sounds as if I'm blushing. Come and read it?",
+       "Purely as a curator, I have questions about the third print. Practical ones. After closing?",
+       "The night room is empty and the prints are waiting for their plaques. So am I, a little. Come by."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She stays late in the night room with the shunga prints, a notebook open on her knee, and shuts it whenever anyone comes in."
+       },
+       {
+        "tell": "hinted",
+        "text": "Her wastepaper basket is full of torn plaques, and she asks {{user}} odd, careful questions about what people find romantic."
+       },
+       {
+        "tell": "known",
+        "text": "She has the show planned to the last pin, and a list of the prints she would like to try, which she has shown nobody."
+       }
+      ],
+      "endings": [
+       {
+        "id": "hung",
+        "when": "knows: tamaki_spring_pictures; feels: Tamaki infatuated; did: ot_kura_back_night 2",
+        "good": true,
+        "text": "The spring pictures hang in the night room under Tamaki's plaques, frank and funny; the show was the excuse, and the two of them tried the prints first."
+       },
+       {
+        "id": "notebook",
+        "text": "She hangs the prints under the museum's plain labels, and keeps her own plaques, and her list, in a notebook only {{user}} has read."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -51540,7 +52185,8 @@
       "ai": "Tamaki lets {{user}} see her off duty now: she texts first, asks {{user}} along to the antique market and to Jinbōchō in the evenings, talks about her grandfather and the old TV show, laughs more easily, and still turns any flirting back into a joke about provenance.",
       "outfits": [
        "offduty"
-      ]
+      ],
+      "invites": true
      },
      {
       "id": "sweetheart",
@@ -51560,15 +52206,17 @@
        "preset": "slow"
       },
       "intimate": {
+       "experience": "a few kisses at university and one shy boyfriend; she has read a great deal and done very little, and says so",
        "wants": "to be kissed among the cases after closing, where nobody can see, and to find out slowly what she has only read about",
        "drawnTo": "people who notice things; lately, one person in particular, which she finds very inconvenient",
-       "flirts": "deadpan appraisals of you (\"good provenance\", \"remarkably well kept\"), then a blush she can't hide",
+       "flirts": "deadpan appraisals of you (\"good provenance\", \"remarkably well kept\"), then a blush she can't hide; she lends you a book with one line underlined",
        "dynamic": "shy and careful, then suddenly brave; she wants to be asked, every time",
        "prefs": [
         "long kissing",
         "hand-holding",
         "being asked what they want",
-        "whispered words"
+        "whispered words",
+        "festival nights in yukata"
        ],
        "limits": [
         "nothing rushed"
@@ -51593,6 +52241,15 @@
       "intimacy": {
        "preset": "steady"
       },
+      "moveLines": [
+       "{name} turns the last case light off and doesn't move away: \"{action}? I've been thinking about it since lunch.\"",
+       "{name} takes off her gloves, one finger at a time, and looks at you over the loupe: \"{action}. If you'd like.\"",
+       "{name} slips a label into your hand in her brush pen. It says \"{action}?\", and then, smaller, \"please\"."
+      ],
+      "askLines": [
+       "Grandmother is at her sister's in Chiba tonight. Come over at {when}? I'll make tea. That isn't why.",
+       "I've written a label for tonight and it has your name on it. {when}, at mine?"
+      ],
       "intimate": {
        "wants": "nights that are only theirs, after closing and at home, and to stop pretending she is calm about it",
        "flirts": "a hand at your back between the cases; a label slipped into your pocket that says only \"tonight?\"",
@@ -51602,7 +52259,9 @@
         "slow and tender",
         "mornings in bed",
         "tea brought afterward",
-        "a thrill of near-discovery"
+        "a thrill of near-discovery",
+        "a bath together",
+        "being read to"
        ],
        "drive": "average"
       }
@@ -55173,6 +55832,38 @@
     "id": "blanket",
     "weight": 20,
     "text": "The blanket slides off the bed, then the pillow, then you; you give up and order food."
+   }
+  ],
+  "owncaught": [
+   {
+    "id": "guard_tamaki",
+    "weight": 60,
+    "when": "museum: guard; present: Tamaki",
+    "text": "The night guard's torch finds you both by the cases. He coughs, says \"Evening, Kurahashi-san,\" and walks the other way; Tamaki hides her face in your shoulder: \"I have to say good morning to that man. Every day. For years.\""
+   },
+   {
+    "id": "cleaner_tamaki",
+    "weight": 30,
+    "when": "present: Tamaki",
+    "text": "The cleaner, early with her mop, stops in the doorway, looks at the two of you for a long second and backs out humming. Tamaki goes crimson to the roots of her silver hair: \"She has known me since I was twelve.\""
+   },
+   {
+    "id": "grandmother_tamaki",
+    "weight": 10,
+    "when": "present: Tamaki",
+    "text": "Old Mrs. Kurahashi comes in for her broom, finds it, and leaves again without a word; at the door she says, to nobody, \"About time.\" Tamaki wants the floor to open, and says so."
+   },
+   {
+    "id": "guard",
+    "weight": 60,
+    "when": "museum: guard; present: not Tamaki",
+    "text": "The night guard's torch finds you, stops, and swings politely away; his footsteps go on down the hall a little faster than before."
+   },
+   {
+    "id": "cleaner",
+    "weight": 40,
+    "when": "present: not Tamaki",
+    "text": "The cleaner, early with her mop, stops in the doorway, takes in the scene and backs out humming; she will tell someone."
    }
   ]
  },
@@ -67702,6 +68393,23 @@
     "when": "had: all tamaki",
     "icon": "🏷️",
     "hint": "Hold every keepsake of this kind at some time (from tamaki)."
+   },
+   {
+    "id": "mem_sl_tamaki_spring_pictures",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Tamaki's spring pictures",
+    "who": "Tamaki",
+    "when": "thread: tamaki_spring_pictures",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "hung": "The spring pictures hang under Tamaki's own plaques; the show was the excuse.",
+     "notebook": "Her plaques for the spring pictures stay in a notebook only {{user}} has read."
+    },
+    "hint": "See Tamaki's story through to its end."
    }
   ],
   "museum": {
