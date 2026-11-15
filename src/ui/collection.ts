@@ -3,12 +3,20 @@
 // day and a gold frame for a good ending; an empty one greyed with its hint and how far along it is. Drawn from
 // sim/collection.ts alone (`recordView`, `percentOf`); it holds no numbers of its own. With the collection system off,
 // or a world without halls, the app isn't on the phone and this draws only a line.
+// (museum) Once the museum has begun, its tabs come first (Museum, Dealer, Sales: ui/museumui.ts), then the display
+// halls with their pieces as picture tiles (how each came, where it's on show, Replica, Damaged · restore; a missing
+// one darkened with its hint and price band; a bonus piece in a gold frame), then the record. A Here tab shows where
+// you are sells pieces. The app opens on the Museum tab once the museum's offer has come, else on the first hall.
 import { esc, notify, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
 import { ACT } from './reg.js';
 import { thumb } from '../st/bridge.js';
+import { worldFile } from '../core/world.js';
 import { recordView, percentOf, collectionOn, collectionOf, markSeen, settleCollection, type Tile, type HallView } from '../sim/collection.js';
 import { personNamed } from '../sim/when.js';
+import { money } from '../sim/needs.js';
+import { museumOn, museumOf, museumOpen, museumDef, hasUpgrade, type PieceTile, type HallShow } from '../sim/museum.js';
+import { museumTab, dealerTab, salesTab, hereTab, piecesHereCount, howItCame, whereWords, priceBand } from './museumui.js';
 
 /** In memory only: the hall shown, the groups opened, and the day the app was last opened before now (a slot filled
  *  since is marked as just in). */
@@ -16,9 +24,11 @@ export const CL = { hall: '', open: new Set<string>(), since: -1, game: '' };
 
 const n = (x: number) => String(Math.round(x));
 const plural = (k: number, one: string, many: string) => (k === 1 ? one : many.replace('{0}', n(k)));
-// A tile's picture: the slot's own (the museum's pieces, from the art track), else the person's portrait, else its emoji.
+// A tile's picture: the slot's own (the museum's pieces, from the art track, through the world's files), else the
+// person's portrait, else its emoji.
 function picOf(g: Save, w: WorldDef, t: Tile): string {
-    if (t.pic) return `<img class="mu-cl-pic" src="${esc(t.pic)}" alt="" loading="lazy">`;
+    const src = t.pic ? worldFile(w, t.pic) : '';
+    if (src) return `<img class="mu-cl-pic" src="${esc(src)}" alt="" loading="lazy">`;
     const r = t.who ? personNamed(g, t.who) : undefined;
     if (r) return `<img class="mu-cl-pic is-face" src="${esc(thumb(r.avatar))}" alt="">`;
     return `<i class="mu-cl-pic is-emoji" aria-hidden="true">${esc(t.icon ?? '❔')}</i>`;
@@ -40,16 +50,77 @@ function tileHtml(g: Save, w: WorldDef, t: Tile): string {
     return `<li class="${cls}">${picOf(g, w, t)}<span class="mu-cl-text">
         <span class="mu-cl-name"><b data-notr>${esc(t.name)}</b>${t.title ? ` <small class="mu-cl-title" data-notr>${esc(t.title)}</small>` : ''}${count}${marks}</span>${body}</span></li>`;
 }
+// (museum) A display piece's tile: its picture, name, plaque, how it came and where it's on show, Replica, Damaged with
+// the restoring (or the day it's back); missing: darkened, its hint, its price band and the upgrade it waits for; a
+// bonus piece in a gold frame. A damaged find isn't filled yet (MU-4): it shows as yours, waiting for the workshop.
+function pieceHtml(g: Save, w: WorldDef, t: Tile): string {
+    const p = (t.piece ?? {}) as Partial<PieceTile>, got = t.got, bonus = !!w.collection?.slots.find(s => s.id === t.id)?.bonus;
+    const fresh = !!got && CL.since >= 0 && !got.back && got.day > CL.since, open = museumOpen(g, w), shop = hasUpgrade(g, w, 'workshop');
+    const hurt = !!p.damaged, waiting = hurt && !got;
+    const cls = ['mu-cl-tile', 'mu-cl-piece', got || waiting ? 'is-got' : 'is-empty', t.gold || bonus ? 'is-gold' : '', bonus ? 'is-bonus' : '', hurt ? 'is-damaged' : '', p.replica ? 'is-replica' : '', p.needs && !got ? 'is-needs' : '', t.fresh ? 'is-new' : '', fresh ? 'is-just' : ''].filter(Boolean).join(' ');
+    const marks = `${bonus ? '<em class="mu-cl-mark is-bonus">Bonus</em>' : ''}${p.replica ? '<em class="mu-cl-mark is-replica">Replica</em>' : ''}${t.fresh ? '<em class="mu-cl-mark">New</em>' : ''}${fresh ? '<em class="mu-cl-mark is-just">Just in</em>' : ''}`;
+    const fix = !hurt ? '' : p.ready !== undefined ? `<small class="mu-cl-fix">${esc(`In the workshop until day ${n(p.ready)}`)}</small>`
+        : shop && p.fee ? `<button class="mu-cl-fix" data-act="mus-restore" data-id="${esc(t.id)}" ${g.player.money < p.fee ? `aria-disabled="true" title="${esc(`You need ${money(w, p.fee)}`)}"` : ''}>${esc(`Damaged · restore ${money(w, p.fee)}`)}</button>`
+        : `<small class="mu-cl-fix">${esc(waiting ? 'Damaged: it counts once the workshop restores it' : 'Damaged: off the show until the workshop restores it')}</small>`;
+    let body: string;
+    if (got) body = `${t.plaque ? `<span class="mu-cl-plaque" data-notr>${esc(t.plaque)}</span>` : ''}${t.away ? '<small class="mu-cl-away">You weren\'t there when it ended.</small>' : ''}
+        <small class="mu-cl-day">${esc(howItCame(g, w, got as any))}</small>${museumOn(w) && !hurt ? `<small class="mu-cl-at">${esc(whereWords(p.at, open))}</small>` : ''}${fix}`;
+    else if (waiting) body = `<small class="mu-cl-day">${esc(howItCame(g, w, { day: (museumOf(g)?.damaged?.[t.id]?.day ?? g.day), src: p.src }))}</small>${fix}`;
+    else body = `<small class="mu-cl-hint ${p.needs ? 'is-needs' : ''}" data-notr>${esc(t.hint)}</small>${priceBand(p.rung ?? 0) ? `<small class="mu-cl-band" title="${esc(`About ${money(w, p.price ?? 0)}`)}">${esc(priceBand(p.rung ?? 0))}</small>` : ''}${p.needs && !said(t.hint, p.needs) ? `<small class="mu-cl-needs">${esc('Needs')} <span data-notr>${esc(p.needs)}</span></small>` : ''}`;
+    return `<li class="${cls}" data-piece="${esc(t.id)}">${picOf(g, w, t)}<span class="mu-cl-text">
+        <span class="mu-cl-name"><b data-notr>${esc(t.name)}</b>${t.title ? ` <small class="mu-cl-title" data-notr>${esc(t.title)}</small>` : ''}${marks}</span>${body}</span></li>`;
+}
+// (a world's hint may already say what the piece waits for: "… Needs security.")
+const said = (hint: string, needs: string) => hint.toLowerCase().includes(needs.toLowerCase().replace(/^(the|a|an) /, ''));
+// (museum) How a display hall is on show: whole in its wing, its pieces in the first room, in the cases at home, boxed.
+function showLine(w: WorldDef, h: HallView): string {
+    const s = h.show as HallShow | undefined;
+    if (!s) return '';
+    const wing = s.build ? museumDef(w)?.upgrades.find(u => u.id === s.build)?.name : undefined;
+    const parts = [
+        ...(s.wing ? ['On show in its wing'] : []),
+        ...(s.room ? [`In the first room: ${n(s.room)}`] : []),
+        ...(s.home ? [`In the cases at home: ${n(s.home)}`] : []),
+        ...(s.boxed ? [`Boxed: ${n(s.boxed)}`] : []),
+    ];
+    return `${parts.length ? `<small>${esc(parts.join(' · '))}</small>` : ''}${wing && (s.boxed || s.room) ? `<small>${esc('Build')} <span data-notr>${esc(wing)}</span> ${esc('to show it all')}</small>` : ''}`;
+}
 function hallHtml(g: Save, w: WorldDef, h: HallView): string {
-    const p = percentOf(g, w, h.record);
-    const head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(p.pct)}%</b><span><span>${esc(`${n(p.filled)} of ${n(p.counted)} filled`)}</span>${p.fresh ? `<small>${esc(plural(p.fresh, '1 new', '{0} new'))}</small>` : ''}${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}</span></div>`;
+    let head: string;
+    if (h.record || !h.groups.some(gr => gr.tiles.some(t => t.piece))) {
+        const p = percentOf(g, w, h.record);
+        head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(p.pct)}%</b><span><span>${esc(`${n(p.filled)} of ${n(p.counted)} filled`)}</span>${p.fresh ? `<small>${esc(plural(p.fresh, '1 new', '{0} new'))}</small>` : ''}${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}${showLine(w, h)}</span></div>`;
+    } else {
+        // a display hall: its own share of the pieces this game has (a bonus piece never counted)
+        const bonus = new Set((w.collection?.slots ?? []).filter(s => s.bonus).map(s => s.id));
+        const tiles = h.groups.flatMap(gr => gr.tiles).filter(t => !bonus.has(t.id)), have = tiles.filter(t => t.got).length;
+        const pct = tiles.length ? Math.floor((have / tiles.length) * 100) : 0;
+        head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(pct)}%</b><span><span>${esc(`${n(have)} of ${n(tiles.length)} pieces`)}</span>${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}${showLine(w, h)}</span></div>`;
+    }
     const groups = h.groups.map(gr => {
-        const key = `${h.id}/${gr.id}`, open = CL.open.has(key);
+        const key = `${h.id}/${gr.id}`, open = CL.open.has(key), pieces = gr.tiles.some(t => t.piece);
         return `<section class="mu-cl-group ${open ? 'is-open' : ''}">
             <button class="mu-cl-ghead" data-act="cl-fold" data-v="${esc(key)}" aria-expanded="${open}"><i aria-hidden="true">${esc(gr.icon ?? '')}</i><b data-notr>${esc(gr.name)}</b><span class="mu-cl-gnum">${n(gr.filled)}/${n(gr.tiles.length)}</span></button>
-            ${open ? `<ul class="mu-cl-tiles">${gr.tiles.map(t => tileHtml(g, w, t)).join('')}</ul>` : ''}</section>`;
+            ${open ? `<ul class="mu-cl-tiles ${pieces ? 'is-pieces' : ''}">${gr.tiles.map(t => (t.piece ? pieceHtml(g, w, t) : tileHtml(g, w, t))).join('')}</ul>` : ''}</section>`;
     }).join('');
     return `${head}${groups}`;
+}
+/** The tabs besides the halls: Here (pieces sold where you are), and the museum's once it has begun. */
+function extraTabs(g: Save, w: WorldDef): { id: string; name: string; icon: string }[] {
+    const m = museumDef(w), begun = museumOn(w) && museumOf(g)?.begun !== undefined;
+    return [
+        ...(begun ? [{ id: 'kura', name: 'Museum', icon: '🏛️' }] : []),
+        ...(begun && m?.dealer ? [{ id: 'dealer', name: 'Dealer', icon: '🚐' }] : []),
+        ...(begun && m?.auctions ? [{ id: 'sales', name: 'Sales', icon: '🔨' }] : []),
+        ...(piecesHereCount(g, w) ? [{ id: 'here', name: 'Here', icon: '📍' }] : []),
+    ];
+}
+// The tab the app opens on in a game seen for the first time: the museum once its offer has come (or it's yours),
+// else the first hall (the display halls come first once the museum has begun, then the record).
+function firstTab(g: Save, w: WorldDef, extra: { id: string }[], halls: HallView[]): string {
+    const st = museumOf(g);
+    if (extra.some(t => t.id === 'kura') && (st?.offered !== undefined || st?.opened !== undefined)) return 'kura';
+    return halls[0]?.id ?? extra[0]?.id ?? '';
 }
 /** The app's body under the header. */
 export function collectionApp(g: Save, w: WorldDef, head: string): string {
@@ -58,12 +129,18 @@ export function collectionApp(g: Save, w: WorldDef, head: string): string {
         // a game seen for the first time here: back to the first hall, the first group open, the last visit remembered
         CL.game = g.world + '|' + (g as any).seed; CL.hall = ''; CL.open = new Set(); CL.since = collectionOf(g)?.seen ?? -1;
     }
-    const halls = recordView(g, w);
-    if (!halls.length) return `${head}<div class="mu-ph-body mu-cl"><p class="mu-muted">Nothing to collect yet.</p></div>`;
-    const h = halls.find(x => x.id === CL.hall) ?? halls[0];
-    if (!CL.open.size && h.groups[0]) CL.open.add(`${h.id}/${h.groups[0].id}`);
-    const tabs = halls.length > 1 ? `<nav class="mu-cl-tabs">${halls.map(x => `<button class="${x.id === h.id ? 'is-on' : ''}" data-act="cl-hall" data-v="${esc(x.id)}" aria-pressed="${x.id === h.id}"><i aria-hidden="true">${esc(x.icon ?? '')}</i><span data-notr>${esc(x.name)}</span></button>`).join('')}</nav>` : `<h3 class="mu-cl-hname"><i aria-hidden="true">${esc(h.icon ?? '')}</i> <span data-notr>${esc(h.name)}</span></h3>`;
-    return `${head}<div class="mu-ph-body mu-cl">${tabs}${hallHtml(g, w, h)}</div>`;
+    const halls = recordView(g, w), extra = extraTabs(g, w);
+    if (!halls.length && !extra.length) return `${head}<div class="mu-ph-body mu-cl"><p class="mu-muted">Nothing to collect yet.</p></div>`;
+    const ids = [...extra.map(t => t.id), ...halls.map(h => h.id)];
+    if (!ids.includes(CL.hall)) CL.hall = firstTab(g, w, extra, halls);
+    const h = halls.find(x => x.id === CL.hall);
+    if (h && !CL.open.size && h.groups[0]) CL.open.add(`${h.id}/${h.groups[0].id}`);
+    const tab = (id: string, name: string, icon: string | undefined, notr: boolean) => `<button class="${id === CL.hall ? 'is-on' : ''}" data-act="cl-hall" data-v="${esc(id)}" aria-pressed="${id === CL.hall}"><i aria-hidden="true">${esc(icon ?? '')}</i><span${notr ? ' data-notr' : ''}>${esc(name)}</span></button>`;
+    const tabs = ids.length > 1
+        ? `<nav class="mu-cl-tabs" data-keep="cl-tabs">${extra.map(t => tab(t.id, t.name, t.icon, false)).join('')}${extra.length && halls.length ? '<span class="mu-cl-tabsep" aria-hidden="true"></span>' : ''}${halls.map(x => tab(x.id, x.name, x.icon, true)).join('')}</nav>`
+        : h ? `<h3 class="mu-cl-hname"><i aria-hidden="true">${esc(h.icon ?? '')}</i> <span data-notr>${esc(h.name)}</span></h3>` : '';
+    const body = h ? hallHtml(g, w, h) : CL.hall === 'kura' ? museumTab(g, w) : CL.hall === 'dealer' ? dealerTab(g, w) : CL.hall === 'sales' ? salesTab(g, w) : CL.hall === 'here' ? hereTab(g, w) : '';
+    return `${head}<div class="mu-ph-body mu-cl">${tabs}${body}</div>`;
 }
 /** Opening the app: the record catches up first (a click since the hour may have filled something), the last visit
  *  is remembered for "Just in", and this visit is the new last one. */
