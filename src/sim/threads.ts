@@ -148,6 +148,14 @@ function enterStage(g: Save, w: WorldDef, t: Thread, r: Resident, i: number) {
 // A moment written about them ("A collector phones Nanami…"): told as theirs to bring up, in this scene.
 const momentText = (r: Resident, text: string) => `${text.replace(/[.\s]+$/, '')}: ${r.name} brings it up with {{user}} in this scene, in their own way.`;
 
+/** One of the world's people takes another job (a storyline's ending, the museum's curator): its rank starts again.
+ *  Nothing with jobs off or a job the world doesn't have; true when it changed. */
+export function changeJob(g: Save, w: WorldDef, r: Resident, job: string): boolean {
+    if (!systemOn(w, 'jobs') || !w.occupations.some(o => o.id === job) || r.occupation === job) return false;
+    r.occupation = job;
+    delete ((g as any).living?.ranks ?? {})[r.avatar];
+    return true;
+}
 // It ends this way: a life that changes (the world's people keep their jobs and homes otherwise, E25, their stories may
 // move them), the fact, life points for one you knew, and leaving: the morning after the scene, or at once by text.
 function endThread(g: Save, w: WorldDef, t: Thread, r: Resident, e: ThreadEnding | undefined, by: NonNullable<ThreadState['endedBy']>): string[] {
@@ -156,10 +164,7 @@ function endThread(g: Save, w: WorldDef, t: Thread, r: Resident, e: ThreadEnding
     for (const k of ['asked', 'talk', 'on', 'waiting', 'next'] as const) delete st[k];
     const paid = st.known !== undefined ? earn(g, w, 'thread', t.id) : '';   // a thread you knew reaching its end: life points
     if (!e) return paid ? [paid] : [];
-    if (e.job && systemOn(w, 'jobs') && w.occupations.some(o => o.id === e.job) && r.occupation !== e.job) {
-        r.occupation = e.job;
-        delete ((g as any).living?.ranks ?? {})[r.avatar];
-    }
+    if (e.job) changeJob(g, w, r, e.job);
     if (e.home && w.homes.zones.some(z => z.id === e.home) && r.home?.zone !== e.home && (r as any).homeWith !== '__you') {
         r.home = { ...homeSpot(w, e.home, takenHomes(g, r), g.player.home) };
         delete (r as any).homeWith;
