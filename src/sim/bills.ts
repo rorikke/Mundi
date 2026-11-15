@@ -100,8 +100,9 @@ function held(g: Save, b: Bill): Bill {
 }
 const playerZone = (g: Save, w: WorldDef) => w.homes.zones.find(z => z.id === g.player.home.zone);
 export function billAmount(g: Save, w: WorldDef, id: BillId): number {
-    // (housing) a home you own pays no rent; the upkeep is that of every home you own
-    if (id === 'rent' && housingOn(w) && ownedHere(g)) return 0;
+    // (housing) a home you own pays no rent (with the system off too: the house stays yours, it just costs nothing a
+    // week); the upkeep is that of every home you own
+    if (id === 'rent' && ownedHere(g)) return 0;
     if (id === UPKEEP) {
         if (!housingOn(w)) return 0;
         const sum = ownedHomes(g).reduce((a, o) => a + upkeepOf(zoneOf(w, o.zone)), 0);

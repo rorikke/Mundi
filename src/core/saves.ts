@@ -46,7 +46,7 @@ const MIGRATIONS: Migration[] = [
     // 7 (storylines): storylines wait for the player; they're settled once the world is known (settleThreads,
     // sim/threads.ts).
     { to: 7, what: 'storylines wait for the player', run: g => storylinesTodo(g) },
-    // 8 (homes you can buy): a tenant whose rent went up is told once the world is known (settleHomes, sim/housing.ts).
+    // 8 (homes you can buy): a tenant whose rent went up is told once the world is known (settleHomes, sim/owning.ts).
     { to: 8, what: 'homes you can buy', run: g => homesTodo(g) },
 ];
 
