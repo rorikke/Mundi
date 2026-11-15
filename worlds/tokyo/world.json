@@ -7103,6 +7103,44 @@
    "fact": "{u} wrote beside Yui in a kissaten in {0}"
   },
   {
+   "id": "ak_jinbocho_tamaki",
+   "name": "Jinbōchō evening",
+   "label": "A Jinbōchō evening with Tamaki",
+   "icon": "📚",
+   "cost": 1200,
+   "minutes": 120,
+   "effects": {
+    "mood": 9,
+    "energy": -5,
+    "hunger": 15
+   },
+   "when": "tier: Tamaki 1; present: Tamaki; period: evening",
+   "together": {
+    "needed": true,
+    "text": "an evening of old bookshops and a curry, her tote filling with sale catalogues"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She knows which dealer keeps the old sale catalogues behind the counter, and reads you the prices of thirty years ago over curry, outraged and delighted.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "In a back-street kissaten she tells you about her grandfather's shop, the crates, the pieces she named, and forgets her coffee entirely.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} spent an evening in Jinbōchō with Tamaki",
+   "place": "ak_jinbocho"
+  },
+  {
    "id": "ak_juku_study",
    "label": "Study in the quiet room",
    "name": "Quiet room",
@@ -7463,6 +7501,43 @@
    "place": "ot_sensoji"
   },
   {
+   "id": "ot_sensoji_sanja_tamaki",
+   "name": "Sanja with Tamaki",
+   "label": "The Sanja festival with Tamaki",
+   "icon": "🏮",
+   "cost": 800,
+   "minutes": 90,
+   "effects": {
+    "mood": 12,
+    "energy": -6
+   },
+   "when": "tier: Tamaki 2; festival: sanja; present: Tamaki; period: midmorning or afternoon",
+   "together": {
+    "needed": true,
+    "text": "the Sanja festival in yukata, hers indigo with white plum blossoms"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "In her indigo yukata she dates every portable shrine that passes, out loud, until a bearer laughs and tells her she is right about his.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "The crowd pushes you together on Nakamise and she doesn't step away again; she holds your sleeve all the way to the temple.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} watched the Sanja shrines go by with Tamaki, both in yukata",
+   "place": "ot_sensoji"
+  },
+  {
    "id": "ot_sensoji_bell",
    "name": "Midnight bell",
    "label": "Join the midnight line",
@@ -7615,6 +7690,43 @@
    "place": "ot_sumida"
   },
   {
+   "id": "ot_sumida_fireworks_tamaki",
+   "name": "Fireworks with Tamaki",
+   "label": "The fireworks with Tamaki",
+   "icon": "🎆",
+   "cost": 600,
+   "minutes": 90,
+   "effects": {
+    "mood": 14,
+    "energy": -6
+   },
+   "when": "tier: Tamaki 2; festival: fireworks; present: Tamaki; period: evening; weather: not rain or snow or storm",
+   "together": {
+    "needed": true,
+    "text": "the Sumida fireworks from the bank, in yukata, her fan going faster than the bursts"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She grades every burst like a lot at a sale, \"good provenance, poor finish\", and then the big one goes up and she forgets to speak at all.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Her shoulder ends up against yours on the crowded bank, and it stays there through the finale and a long while after it.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} watched the Sumida fireworks with Tamaki, both in yukata",
+   "place": "ot_sumida"
+  },
+  {
    "id": "ot_sumida_moon",
    "name": "Moon viewing",
    "label": "Look at the moon",
@@ -7643,6 +7755,43 @@
     }
    ],
    "fact": "{u} watched the harvest moon from the Sumida riverside",
+   "place": "ot_sumida"
+  },
+  {
+   "id": "ot_sumida_moon_tamaki",
+   "name": "Moon with Tamaki",
+   "label": "View the moon with Tamaki",
+   "icon": "🌕",
+   "cost": 400,
+   "minutes": 60,
+   "effects": {
+    "mood": 12,
+    "hunger": 10
+   },
+   "when": "tier: Tamaki 2; festival: tsukimi; present: Tamaki; period: night",
+   "together": {
+    "needed": true,
+    "text": "the harvest moon over the river, dumplings between them, her yukata sleeve against their wrist"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She tells you the moon has been painted badly for a thousand years and she has never once minded, then hands you the last dumpling.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Clouds hide the moon and she says it is the best kind of viewing, the waiting kind, and doesn't let go of your hand when it comes out.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} viewed the harvest moon with Tamaki on the Sumida",
    "place": "ot_sumida"
   },
   {
@@ -7999,6 +8148,16 @@
       "Tamaki": 1
      },
      "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "present: Tamaki; thread: tamaki_last_case; had: not tamaki_key",
+     "text": "At the case with the lacquered box Tamaki stops, unties a small iron key from her sash and presses it into your hand. \"It opens for you now too.\"",
+     "keepsake": "tamaki_key",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
     }
    ],
    "fact": "{u} walked the halls of {0}",
@@ -8199,10 +8358,74 @@
       "Tamaki": 2
      },
      "feelsDaily": true
+    },
+    {
+     "weight": 60,
+     "when": "did: ot_kura_lesson 5",
+     "text": "You see the old repair before she points to it. \"There,\" she says, pleased and pretending not to be. \"Now take that eye to every stall.\"",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
     }
    ],
    "trains": "logic",
    "fact": "{u} took an appraisal lesson from Tamaki at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_after_hours",
+   "name": "After hours",
+   "label": "Stay after closing with Tamaki",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 10,
+    "energy": -4
+   },
+   "when": "tier: Tamaki 2; present: Tamaki; period: evening",
+   "together": {
+    "needed": true,
+    "text": "the kura after the last visitor, the case lights going off one by one, just the two of them"
+   },
+   "outcomes": [
+    {
+     "weight": 50,
+     "text": "She turns the case lights off one by one and leaves the last one on, so the two of you can sit on the boards beside the tea bowls.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 30,
+     "text": "She reads you the plaques she rejected this week, in a museum voice, until neither of you can keep a straight face.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 20,
+     "text": "Between the netsuke and the tea bowls she kisses you once, quickly, then turns to straighten a label that was perfectly straight.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "had: not tamaki_pin",
+     "text": "From her desk drawer she takes a small enamel badge, the Treasure Clinic pin every appraiser wore, and pins it on you. \"I kept it eleven years. That's long enough.\"",
+     "keepsake": "tamaki_pin",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} stayed after closing with Tamaki at {0}",
    "place": "ot_kura"
   },
   {
@@ -8405,6 +8628,53 @@
     "needed": false
    },
    "fact": "{u} walked through the old cemetery in Yanaka",
+   "place": "ot_yanaka"
+  },
+  {
+   "id": "ot_yanaka_kura_roof",
+   "name": "The kura roof",
+   "label": "Climb onto the kura roof",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 12,
+    "energy": -3
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; period: night; weather: not rain or snow or storm",
+   "together": {
+    "needed": true,
+    "text": "the kura's tiled roof at night, up the ladder from the lane, Yanaka asleep below"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Up the ladder from the lane, the tiles still warm from the day, she names the temple roofs of Yanaka one by one, then stops naming things and leans on you.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "She says her grandfather used to sit up here after closing, that she has never told anyone, and that she is telling you.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "had: not tamaki_leaf",
+     "text": "A maple leaf has blown onto the tiles. She presses it flat in her notebook, writes \"No. 1, the roof, at night\" under it in brush pen, and gives you the page.",
+     "keepsake": "tamaki_leaf",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} sat on the roof of the Kurahashi kura with Tamaki at night",
    "place": "ot_yanaka"
   },
   {
@@ -8669,6 +8939,53 @@
    },
    "trains": "charisma",
    "fact": "{u} browsed the antique market near {0}",
+   "place": "mg_station"
+  },
+  {
+   "id": "mg_station_antique_tamaki",
+   "name": "Stalls with Tamaki",
+   "label": "Comb the stalls with Tamaki",
+   "icon": "🏺",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "mood": 8,
+    "energy": -6
+   },
+   "when": "tier: Tamaki 1; event: antique; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "the antique market at opening time, her loupe up, the coffee going cold"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She walks ahead of you through the stalls, loupe up, buying nothing; at the last one she taps a chipped bowl and says it is worth more than the stall.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "A dealer calls her by her old television nickname; she smiles with her mouth only, takes your arm, and walks you on to the next stall.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "had: not tamaki_label",
+     "text": "Between two stalls she takes a folded card from her tote: a label in her eight-year-old pencil, \"Puppy, very old, not for sale\". She gives it to you without a word.",
+     "keepsake": "tamaki_label",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} combed the antique market's stalls with Tamaki at {0}",
    "place": "mg_station"
   },
   {
@@ -10469,6 +10786,43 @@
     }
    ],
    "fact": "{u} waited at the stage door of {0}"
+  },
+  {
+   "id": "bay_tv_clinic",
+   "name": "In the wings",
+   "label": "Stand in the wings with Tamaki",
+   "icon": "🎬",
+   "cost": 0,
+   "minutes": 120,
+   "effects": {
+    "mood": 6,
+    "energy": -6
+   },
+   "when": "knows: tamaki_clinic; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "the wings of the Treasure Clinic studio, her gloved hands steady only while {{user}} is in sight"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Under the studio lights she dates a tea bowl in a single breath, then looks for you in the wings before the audience has finished clapping.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "The floor manager calls her by her old nickname and she freezes; then she catches your eye, laughs, and walks onto the set.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} stood in the wings at {0} while Tamaki rehearsed for Treasure Clinic",
+   "place": "bay_tv"
   },
   {
    "id": "rp_crossing_kebab",
@@ -13045,6 +13399,43 @@
     }
    ],
    "fact": "{u} ate breakfast at {0}"
+  },
+  {
+   "id": "hk_ryokan_tamaki",
+   "name": "Hakone weekend",
+   "label": "A Hakone weekend with Tamaki",
+   "icon": "♨️",
+   "cost": 36000,
+   "minutes": 240,
+   "effects": {
+    "mood": 16,
+    "energy": 8
+   },
+   "when": "tier: Tamaki 4; present: Tamaki; period: afternoon or evening",
+   "together": {
+    "needed": true,
+    "text": "a weekend at Ryokan Kasumi-sō, just the two of them, the kura closed for once"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She leaves her loupe in the room for the whole weekend, on purpose, and reaches for it only twice, both times in front of the tokonoma.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Over the kaiseki dinner she plans the next ten years of the kura on a paper napkin, and puts you on every line of it.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} spent a weekend in Hakone with Tamaki at {0}",
+   "place": "hk_ryokan"
   },
   {
    "id": "hk_ashi_cruise",
@@ -37042,6 +37433,23 @@
    "price": 6800
   },
   {
+   "id": "good_brush",
+   "name": "A good writing brush",
+   "icon": "🖌️",
+   "kind": "stationery",
+   "gift": true,
+   "loves": [
+    "Tamaki",
+    "Yui",
+    "Seo-yeon"
+   ],
+   "at": [
+    "ot_sensoji"
+   ],
+   "price": 8500,
+   "desc": "A weasel-hair brush from an old brush-maker off Nakamise, in a paulownia box with the maker's seal."
+  },
+  {
    "gift": true,
    "id": "pond_sketch",
    "name": "pond sketch",
@@ -37121,6 +37529,23 @@
    ]
   },
   {
+   "id": "old_sale_catalogue",
+   "name": "An old sale catalogue",
+   "icon": "📔",
+   "kind": "print",
+   "gift": true,
+   "loves": [
+    "Tamaki",
+    "Seo-yeon",
+    "Haru"
+   ],
+   "at": [
+    "ak_jinbocho"
+   ],
+   "price": 3000,
+   "desc": "A Taishō-era auction catalogue from a Jinbōchō dealer, someone's pencilled prices in the margins."
+  },
+  {
    "id": "moon_fox_paperback",
    "name": "Moon Fox paperback",
    "icon": "📕",
@@ -37171,6 +37596,38 @@
    "kind": "museum",
    "gift": false,
    "desc": "The plain grey furoshiki a thief wrapped a piece in and left behind in the lane, folded now in the kura office drawer."
+  },
+  {
+   "id": "tamaki_label",
+   "name": "A label in her hand",
+   "icon": "🏷️",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "One of the labels Tamaki wrote for the kura when she was eight, in careful pencil: \"Puppy, very old, not for sale.\""
+  },
+  {
+   "id": "tamaki_pin",
+   "name": "Her Treasure Clinic pin",
+   "icon": "📌",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "The small enamel badge every appraiser on Treasure Clinic wore. She kept hers in a desk drawer for eleven years."
+  },
+  {
+   "id": "tamaki_leaf",
+   "name": "A pressed-leaf label",
+   "icon": "🍁",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "A maple leaf from the kura's roof pressed flat on a notebook page, labelled in her brush pen: \"No. 1, the roof, at night.\""
+  },
+  {
+   "id": "tamaki_key",
+   "name": "The key to the box",
+   "icon": "🗝️",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "A small iron key on a red silk cord, for the lacquered box her grandfather hid under the tokonoma's floor."
   },
   {
    "gift": true,
@@ -37337,6 +37794,23 @@
     "Yui",
     "Genzō"
    ]
+  },
+  {
+   "id": "yanaka_sweets",
+   "name": "Sweets from Yanaka Ginza",
+   "icon": "🍡",
+   "kind": "food box",
+   "gift": true,
+   "loves": [
+    "Tamaki",
+    "Yui",
+    "Mio"
+   ],
+   "at": [
+    "ot_yanaka"
+   ],
+   "price": 900,
+   "desc": "Skewered dango and a paper bag of karintō from the old shops on Yanaka Ginza, still warm."
   },
   {
    "gift": true,
@@ -50811,7 +51285,7 @@
      "ot_museum"
     ],
     "routine": "homebody",
-    "description": "{{char}} is Tamaki Kurahashi, 26, an appraiser with a prodigy's eye, granddaughter of the old Kurahashi Antiques in Yanaka. Petite and poised, silver-white hair worn half up with her grandfather's plum-blossom hairpin, amber eyes, a Taishō-roman arrow-feather jacket and a loupe on a red cord. Quick, deadpan and delighted by things: she talks to objects, names them, and is blunt about fakes. At twelve she was the youngest appraiser on Wave TV's Treasure Clinic, until at fifteen, live, she called a sponsor's heirloom a fake; she was right, and she hasn't faced a camera since. She took the curator's certificate at Hijiri and writes labels for other people's shows at Ueno Hall of Art. Yui Kanzaki has been her neighbour since they were small.",
+    "description": "{{char}} is Tamaki Kurahashi, 26, an appraiser with a prodigy's eye, granddaughter of the old Kurahashi Antiques in Yanaka. Petite and poised, silver-white hair worn half up with her grandfather's plum-blossom hairpin, amber eyes, a Taishō-roman arrow-feather jacket and a loupe on a red cord. Quick, deadpan and delighted by things: she talks to objects, names them, and is blunt about fakes; anything new made to look old, she thanks you for, politely. At twelve she was the youngest appraiser on Wave TV's Treasure Clinic, until at fifteen, live, she called a sponsor's heirloom a fake; she was right, and hasn't faced a camera since. She took the curator's certificate at Hijiri and writes labels at Ueno Hall of Art. Yui Kanzaki has been her neighbour since they were small.",
     "personality": "sharp, delighted by things, deadpan, proud of her eye, guarded, devoted",
     "first_mes": "*Tamaki lifts a small netsuke from the case with both gloved hands, turns it to the window, and smiles at it before she looks at you.* Boxwood, Edo, about two hundred years. The label says \"rat\". It's a mouse. Nobody has noticed in forty years. *She sets it down.* Please don't tell the director. I like being the only one who knows.",
     "feelings": [
@@ -50877,6 +51351,143 @@
         "text": "She closes the binder for good and keeps one catalogue in her desk drawer."
        }
       ]
+     },
+     {
+      "id": "tamaki_clinic",
+      "title": "Back on Treasure Clinic",
+      "hidden": "Wave TV wants her back on Treasure Clinic for its twentieth-anniversary special, live, eleven years after the show cut her for calling a sponsor's heirloom a fake. She hasn't said no yet, and that frightens her more than a yes would.",
+      "known": "{{user}} knows Wave TV has asked Tamaki back on Treasure Clinic for its anniversary special, and that she hasn't said no.",
+      "opens": "tier: Tamaki 1",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Wave TV wants Tamaki back for Treasure Clinic's anniversary special, live, the show that cut her at fifteen for calling a sponsor's heirloom a fake. She tells {{user}} she hasn't said no, that this frightens her more than a yes, and that she could only do it with someone she trusts in the wings.",
+      "nudges": [
+       "Wave TV called the kura again. I let it ring. Then I listened to the message twice. Tea after closing?",
+       "They sent a running order. My name is on it, in pencil. Can I show you before I tear it up?",
+       "They rehearse on Mondays, when the kura is shut. I still haven't said no. I'd like to say something to someone first. You, ideally."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A letter on Wave TV's paper lies under the blotter on her desk at the kura; she turns it face down whenever anyone comes into the office."
+       },
+       {
+        "tell": "hinted",
+        "text": "A producer from Wave TV rings the kura twice a week; she lets it ring, and at home she watches her old episodes with the sound off."
+       },
+       {
+        "tell": "known",
+        "text": "She has said she will come to the rehearsals for the anniversary special, and not yet whether she will go on; on Mondays, when the kura is shut, she is at the studios.",
+        "ritual": {
+         "place": "bay_tv",
+         "days": [
+          "mon"
+         ],
+         "from": 13,
+         "to": 17,
+         "text": "sits in a Wave TV dressing room at the rehearsals for Treasure Clinic's anniversary special, gloves in her lap"
+        }
+       }
+      ],
+      "endings": [
+       {
+        "id": "special",
+        "when": "knows: tamaki_clinic; feels: Tamaki friend; did: bay_tv_clinic",
+        "good": true,
+        "text": "She appraises live again on Treasure Clinic's anniversary special, with {{user}} in the wings, and laughs on air; the papers name the heirloom's family, not her."
+       },
+       {
+        "id": "declines",
+        "text": "She turns Wave TV down, and keeps the tapes of her old show in a drawer at the kura."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_after_hours",
+      "title": "After hours",
+      "hidden": "She has never let anyone into her life outside the objects. At the back of the kura she keeps a small case of things from her days with {{user}}: a ticket, a pressed leaf, a receipt from the antique market, each labelled like a museum piece.",
+      "known": "{{user}} knows about the case at the back of the kura where Tamaki keeps, labelled, the things from their days together.",
+      "opens": "tier: Tamaki 2",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "After closing, Tamaki stands by a small case at the back of the kura with her hand on its lock. She tells {{user}} she has never let anyone past the objects, that the case holds things from their days together, labelled like pieces, and asks whether {{user}} wants to see.",
+      "nudges": [
+       "Stay after closing tonight? There's nothing to inventory. That's the point. …Never mind. Come anyway.",
+       "I wrote a label today that isn't for any piece. It's for a day. You were in it.",
+       "The case at the back is unlocked. It has been all week. I keep walking past it. Will you come by?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A small locked case stands at the back of the kura's store under a dust sheet; she checks its lock every evening before she goes home."
+       },
+       {
+        "tell": "hinted",
+        "text": "She stays after closing more often now, writing labels at the back of the kura that she won't let anyone read."
+       },
+       {
+        "tell": "known",
+        "text": "She has left the case at the back of the kura unlocked for the first time, and keeps finding reasons to walk past it."
+       }
+      ],
+      "endings": [
+       {
+        "id": "together",
+        "when": "knows: tamaki_after_hours; feels: Tamaki infatuated; did: ot_kura_after_hours 2",
+        "good": true,
+        "couple": "dating",
+        "text": "She opens the case for {{user}} after closing, every label in her brush pen, the first dated the day they met; among the glass cases, they start dating."
+       },
+       {
+        "id": "case_closed",
+        "text": "She keeps the case shut and its key in her sash: not yet, she says, and means it kindly."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_last_case",
+      "title": "The last case",
+      "hidden": "Her grandfather left a sealed letter for \"the day the kura is full again\". It says the kura's own treasure was never sold and is still in the kura, under the tokonoma's floor, in a small lacquered box he made himself.",
+      "known": "{{user}} knows about Shūzō Kurahashi's letter, and that the kura's own treasure is hidden somewhere in the kura.",
+      "opens": "tier: Tamaki 4",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "The kura is full again, and Tamaki has opened her grandfather's letter at last: the kura's own treasure was never sold, and is hidden in the kura itself. She has tapped every board but the tokonoma's, and asks {{user}} to lift it with her, because she can't do it alone.",
+      "nudges": [
+       "I read Grandfather's letter again. Eleven times. It's very short. Come and tap some floorboards with me?",
+       "Every board in the kura sounds the same except one. I've been staring at it for a week. Help?",
+       "The crowbar is wrapped in a furoshiki on my desk. It has been there for days. I'll wait for you."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A sealed letter in her grandfather's hand waits in the kura's office safe, marked for the day the kura is full again."
+       },
+       {
+        "tell": "hinted",
+        "text": "She has opened the letter; after closing she taps the kura's boards one by one with a knuckle, and listens."
+       },
+       {
+        "tell": "known",
+        "text": "Every board but the tokonoma's sounds the same; a crowbar wrapped in a furoshiki lies on her desk, and she won't use it alone."
+       }
+      ],
+      "endings": [
+       {
+        "id": "partner",
+        "when": "knows: tamaki_last_case; feels: Tamaki dating",
+        "waits": "feels: Tamaki crush",
+        "good": true,
+        "movesIn": true,
+        "text": "Under the tokonoma's floor lies a small lacquered box in his own hand, the puppies in the snow on its lid and her first labels inside; she asks to move in with {{user}}."
+       },
+       {
+        "id": "found",
+        "when": "knows: tamaki_last_case",
+        "good": true,
+        "text": "Under the tokonoma's floor lies a small lacquered box in his own hand, the puppies in the snow on its lid; she sets it in a case of its own and gives {{user}} its key."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -50915,7 +51526,7 @@
        "r": "interest",
        "status": "none"
       },
-      "ai": "Tamaki keeps {{user}} at a colleague's distance: quick, dry and teasing about the work, warm only toward the objects, and she changes the subject when it turns to her."
+      "ai": "Tamaki keeps {{user}} at a colleague's distance: quick, dry and teasing about the work, warm only toward the objects. She talks to the pieces more than to people, and changes the subject when it turns to her or her grandfather."
      },
      {
       "id": "confidante",
@@ -50926,7 +51537,10 @@
        "r": "crush",
        "status": "none"
       },
-      "ai": "Tamaki lets {{user}} see her off duty now: she texts first, talks about her grandfather, laughs more easily, and still turns any flirting back into a joke about provenance."
+      "ai": "Tamaki lets {{user}} see her off duty now: she texts first, asks {{user}} along to the antique market and to Jinbōchō in the evenings, talks about her grandfather and the old TV show, laughs more easily, and still turns any flirting back into a joke about provenance.",
+      "outfits": [
+       "offduty"
+      ]
      },
      {
       "id": "sweetheart",
@@ -50937,13 +51551,28 @@
        "r": "infatuated",
        "status": "dating"
       },
-      "ai": "Tamaki lets herself flirt with {{user}}, clumsily at first and then not; she would say yes to being asked out, and blushes at the thought of the kura after hours.",
+      "ai": "Tamaki lets herself flirt with {{user}}, clumsily at first and then not: deadpan appraisals, a hand that stays a moment too long. She would say yes to being asked out, wears her yukata to festivals with {{user}}, and blushes at the thought of the kura after hours.",
+      "outfits": [
+       "yukata",
+       "opening"
+      ],
       "intimacy": {
        "preset": "slow"
       },
       "intimate": {
-       "wants": "to be kissed somewhere among the cases where nobody can see, and to find out what she has only read about",
-       "flirts": "deadpan compliments, as if appraising you: \"good provenance\", \"remarkably well kept\"",
+       "wants": "to be kissed among the cases after closing, where nobody can see, and to find out slowly what she has only read about",
+       "drawnTo": "people who notice things; lately, one person in particular, which she finds very inconvenient",
+       "flirts": "deadpan appraisals of you (\"good provenance\", \"remarkably well kept\"), then a blush she can't hide",
+       "dynamic": "shy and careful, then suddenly brave; she wants to be asked, every time",
+       "prefs": [
+        "long kissing",
+        "hand-holding",
+        "being asked what they want",
+        "whispered words"
+       ],
+       "limits": [
+        "nothing rushed"
+       ],
        "drive": "low"
       }
      },
@@ -50957,10 +51586,24 @@
        "status": "dating"
       },
       "moves": true,
-      "ai": "Tamaki trusts {{user}} with all of herself now and wants them, plainly; she no longer hides it behind work, and she may make the first move.",
+      "ai": "Tamaki trusts {{user}} with all of herself now and wants them, plainly: she no longer hides it behind work, finds reasons to be close, and may make the first move. She has started writing a label for every day they spend together.",
+      "outfits": [
+       "home"
+      ],
+      "intimacy": {
+       "preset": "steady"
+      },
       "intimate": {
-       "wants": "nights that are only theirs, in the kura after closing and at home",
+       "wants": "nights that are only theirs, after closing and at home, and to stop pretending she is calm about it",
+       "flirts": "a hand at your back between the cases; a label slipped into your pocket that says only \"tonight?\"",
        "dynamic": "curious and quick to learn; she asks, then leads",
+       "inBed": "attentive and earnest, as careful as she is with anything precious, then not careful at all; she laughs when she is happy and says so out loud",
+       "prefs": [
+        "slow and tender",
+        "mornings in bed",
+        "tea brought afterward",
+        "a thrill of near-discovery"
+       ],
        "drive": "average"
       }
      },
@@ -50968,9 +51611,18 @@
       "id": "partner",
       "name": "Partner",
       "when": "museum: 100%",
-      "ai": "Tamaki is {{user}}'s partner in everything, the kura first among it; she holds nothing back from them now and says so.",
+      "ai": "Tamaki is {{user}}'s partner in everything, the kura first among it: she holds nothing back from them now, says so out loud, and plans their life together the way she would plan an exhibition.",
+      "intimacy": {
+       "preset": "passionate"
+      },
       "intimate": {
-       "wants": "a whole life together, catalogued and kept",
+       "wants": "a whole life together, catalogued and kept, and nothing between them left unsaid",
+       "dynamic": "sure of herself now: she leads as often as she follows, and asks for what she wants",
+       "prefs": [
+        "a weekend away",
+        "hot-spring baths",
+        "cuddling afterward"
+       ],
        "role": "switch",
        "drive": "high"
       }
@@ -65878,6 +66530,12 @@
     "icon": "🗝️",
     "who": "Tamaki",
     "hint": "Tamaki may have it for you, one day.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "tamaki_last_case"
+     }
+    ],
     "bonus": true
    },
    {
@@ -66885,6 +67543,63 @@
     "when": "had: all museum",
     "icon": "🏛️",
     "hint": "Hold every keepsake of this kind at some time (from the kura)."
+   },
+   {
+    "id": "mem_sl_tamaki_clinic",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki on air",
+    "who": "Tamaki",
+    "when": "thread: tamaki_clinic",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "special": "She appraises live again on Treasure Clinic's anniversary special, {{user}} in the wings.",
+     "declines": "She turns Wave TV down, and keeps the tapes of her old show in a drawer."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_tamaki_after_hours",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki after hours",
+    "who": "Tamaki",
+    "when": "thread: tamaki_after_hours",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "together": "She opens the case of labelled days for {{user}} after closing, and they start dating.",
+     "case_closed": "She keeps the case at the back of the kura shut, for now."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_tamaki_last_case",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki's last case",
+    "who": "Tamaki",
+    "when": "thread: tamaki_last_case",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "partner": "Under the tokonoma: her grandfather's lacquered box; she moves in with {{user}}.",
+     "found": "Under the tokonoma: her grandfather's lacquered box, and its key for {{user}}."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_kk_tamaki",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "From Tamaki",
+    "when": "had: all tamaki",
+    "icon": "🏷️",
+    "hint": "Hold every keepsake of this kind at some time (from tamaki)."
    }
   ],
   "museum": {
@@ -66898,6 +67613,10 @@
    "room": 12,
    "curator": "Tamaki",
    "curatorJob": "kura",
+   "eye": {
+    "when": "did: ot_kura_lesson 5",
+    "damaged": 0.75
+   },
    "upgrades": [
     {
      "id": "wing_art",
