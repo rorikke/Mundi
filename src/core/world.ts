@@ -895,6 +895,9 @@ export interface HallDef {
     id: string; name: string; icon?: string; desc?: string;
     /** The completion record: filled by itself, nothing bought, its own percentage. */
     record?: boolean;
+    /** A record hall of its own (a person's cabinet): counted in neither percentage, its own share shown, what fills in
+     *  it told under its own name and only while it's open. */
+    apart?: boolean;
     groups: { id: string; name: string; icon?: string }[];
     adult?: boolean; needs?: SystemId[];
     /** (museum) When the hall is open, a wing bought; missing: always. */

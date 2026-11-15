@@ -1375,6 +1375,7 @@ function hallForm(w: WorldDef, i: number) {
         <div class="mu-row2">${txt('Name', `${p}.name`)}${optTxt('Icon (an emoji)', `${p}.icon`, '🗾')}</div>
         ${optTxt('A line under its name (optional)', `${p}.desc`, 'What you have lived here.')}
         <div class="mu-row2">${flag('The record (fills by itself; its own percentage)', `${p}.record`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        ${h.record ? flag('A hall of its own (counted in neither percentage)', `${p}.apart`, 'Its own share is shown instead, and what fills in it is told only while it\'s open: a person\'s cabinet.') : ''}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
         ${cond('Open when (a condition; empty: always)', `${p}.open`, 'goal: 3', 'A museum wing opens when this holds; its slots fill meanwhile.')}
         <span class="mu-cw-sub">Groups</span>
@@ -1399,6 +1400,7 @@ function slotForm(w: WorldDef, i: number) {
         ${cond(h?.record === false ? 'Filled when (a condition; a museum piece comes from its sources instead)' : 'Filled when (a condition)', `${p}.when`, 'attended: hanami', 'It fills for good the first time this holds: thread: mio_grades, attended: hanami, seen: all in shibuya, visited: all in shibuya, had: all charm, goal: 5, venture: cafe tier 4.')}
         ${optTxt('Hint on the empty slot (optional; empty: the condition in words)', `${p}.hint`, 'Be there on day 4 of spring.')}
         ${h && !h.record ? optTxt('Plaque (one line about the piece, shown once it\'s yours; optional)', `${p}.plaque`, 'Hokusai\'s great wave off Kanagawa.', '{{user}} is the player\'s name on the plaque.') : ''}
+        ${h?.record && !t ? optTxt('Plaque (one line, shown once it fills; optional)', `${p}.plaque`, 'No. 7, the roof, at night.', '{{user}} is the player\'s name on the plaque.') : ''}
         ${t ?`<span class="mu-cw-sub">Plaques by ending (optional; empty: the ending's first sentence)</span>${(t.endings ?? []).map(e => optTxt(`${esc(e.id)}${e.good ? ' (good)' : ''}`, `${p}.plaques.${e.id}`, (e.text ?? '').slice(0, 80), '{{user}} is the player\'s name on the plaque.')).join('')}` : ''}
         <span class="mu-cw-sub">Only for these starts (none: every start)</span>${pairChips((w.starts ?? []).map(x => [x.id, x.name] as Opt), `${p}.starts`, true)}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}

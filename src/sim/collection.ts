@@ -38,6 +38,8 @@ export function collectionState(g: Save): CollectionState {
 // The storylines' states, read without making the key (sim/threads.ts's accessor writes `g.threads`)
 const threadStates = (g: Save) => ((g as any).threads ?? {}) as Record<string, ThreadState>;
 const hallOf = (w: WorldDef, id: string) => w.collection?.halls.find(h => h.id === id);
+// Which percentage a slot counts in: the record's, the museum's, or none (a hall of its own, `apart`)
+const countsIn = (w: WorldDef, s: SlotDef, record: boolean) => { const h = hallOf(w, s.hall); return !h?.apart && !!h?.record === record; };
 const fits = (g: Save, w: WorldDef, x: { adult?: boolean; needs?: string[] }) => (!x.adult || adultOn(g)) && (x.needs ?? []).every(n => systemOn(w, n as any));
 // The storyline a slot is about (`thread: <id>` with no ending named), and the keepsake kind (`had: all <kind>`).
 const threadOfSlot = (s: SlotDef): string | null => {
@@ -151,14 +153,15 @@ function endingOf(g: Save, w: WorldDef, id: string): Pick<Got, 'how' | 'good' | 
     const e = t?.endings?.find(x => x.id === st.ended);
     return { how: st.ended, ...(e?.good ? { good: true } : {}), ...(st.endedBy ? { by: st.endedBy } : {}) };
 }
-/** Filled ÷ counted, for the record (`record` halls) or the museum (every other hall), over the slots here. */
+/** Filled ÷ counted, for the record (`record` halls) or the museum (every other hall), over the slots here; a hall of
+ *  its own (`apart`) counts in neither. */
 export function percentOf(g: Save, w: WorldDef, record: boolean): { filled: number; counted: number; pct: number; fresh: number } {
     const c = collectionOf(g), counted = new Set(c?.counted ?? []);
-    const here = slotsHere(g, w).filter(s => !!hallOf(w, s.hall)?.record === record && !s.bonus);   // (a bonus piece never counts)
+    const here = slotsHere(g, w).filter(s => countsIn(w, s, record) && !s.bonus);   // (a bonus piece never counts)
     const inIt = here.filter(s => counted.has(s.id)), filled = inIt.filter(s => c?.got[s.id]).length;
     return { filled, counted: inIt.length, pct: inIt.length ? Math.floor((filled / inIt.length) * 100) : 0, fresh: here.length - inIt.length };
 }
-const recordName = (w: WorldDef) => w.collection?.halls.find(h => h.record)?.name ?? 'Your collection';
+const recordName = (w: WorldDef) => w.collection?.halls.find(h => h.record && !h.apart)?.name ?? 'Your collection';
 /** Fill what holds now (an hourly hook and when a save opens; the first run is the backfill). Returns lines to show. */
 // (a condition can reach `game()`, which settles a save it's opening: never inside a settle already running)
 let busy = false;
@@ -189,18 +192,26 @@ function settle(g: Save, w: WorldDef): string[] {
     const counted = new Set(c.counted);
     if (first) for (const s of here) counted.add(s.id);
     else for (const record of [true, false]) {
-        const fresh = here.filter(s => !counted.has(s.id) && !!hallOf(w, s.hall)?.record === record);
+        const fresh = here.filter(s => !counted.has(s.id) && countsIn(w, s, record));
         if (!fresh.length) continue;
-        const inIt = here.filter(s => counted.has(s.id) && !!hallOf(w, s.hall)?.record === record && !s.bonus);
+        const inIt = here.filter(s => counted.has(s.id) && countsIn(w, s, record) && !s.bonus);
         const done = inIt.length > 0 && inIt.every(s => c.got[s.id]);
         for (const s of fresh) if (!done || c.got[s.id]) counted.add(s.id);
     }
+    // (a hall of its own has no percentage to keep at 100%, so no slot of it is ever "new")
+    if (!first) for (const s of here) if (hallOf(w, s.hall)?.apart) counted.add(s.id);
     if (counted.size !== c.counted.length) c.counted = [...counted];
     c.v = 1;
     if (!filled.length) return [];
-    const name = recordName(w);
-    if (first) return [`${name} begin with ${filled.length} things you've already done.`];
-    return filled.length <= 2 ? [`${name}: ${filled.map(s => s.name).join(', ')}.`] : [`${name}: ${filled.length} new.`];
+    // a hall of its own tells what fills in it under its own name, and only while it's open (its slots fill meanwhile)
+    const out: string[] = [], tell = (name: string, list: SlotDef[], begin: boolean) => {
+        if (!list.length) return;
+        if (begin) out.push(`${name} begin with ${list.length} things you've already done.`);
+        else out.push(list.length <= 2 ? `${name}: ${list.map(s => s.name).join(', ')}.` : `${name}: ${list.length} new.`);
+    };
+    tell(recordName(w), filled.filter(s => !hallOf(w, s.hall)?.apart), first);
+    for (const h of w.collection?.halls ?? []) if (h.apart && (!h.open || whenHolds(g, w, h.open))) tell(h.name, filled.filter(s => s.hall === h.id), false);
+    return out;
 }
 
 /* ---------- for the screen ---------- */
@@ -215,6 +226,7 @@ export interface Tile {
     piece?: Record<string, unknown>;
 }
 export interface HallView { id: string; name: string; icon?: string; desc?: string; record: boolean;
+    /** a record hall of its own (`HallDef.apart`): its own share, in neither percentage */ apart?: boolean;
     /** (museum) how a display hall is on show (sim/museum.ts `HallShow`) */ show?: Record<string, unknown>;
     groups: { id: string; name: string; icon?: string; tiles: Tile[]; filled: number }[] }
 // A storyline's plaque: the world's own for that ending, else the ending's words cut to their first sentence.
@@ -254,7 +266,7 @@ export function recordView(g: Save, w: WorldDef): HallView[] {
     const c = collectionOf(g), counted = new Set(c?.counted ?? []), here = slotsHere(g, w), begun = museumHooks.begun(g, w);
     const shown = (h: HallDef) => (h.record || begun === null ? !h.open || whenHolds(g, w, h.open) : begun);
     return w.collection!.halls.filter((h: HallDef) => fits(g, w, h) && shown(h)).map(h => ({
-        id: h.id, name: h.name, icon: h.icon, desc: h.desc, record: !!h.record,
+        id: h.id, name: h.name, icon: h.icon, desc: h.desc, record: !!h.record, ...(h.apart ? { apart: true } : {}),
         ...(!h.record && begun !== null ? { show: museumHooks.hall(g, w, h.id) } : {}),
         groups: h.groups.map(gr => {
             const tiles = here.filter(s => s.hall === h.id && s.group === gr.id).map((s): Tile => {

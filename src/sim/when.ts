@@ -35,7 +35,7 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
 import { careerOf, trackOf, playerTrack } from './work.js';
-import { styleOf, knownCount } from './intimacy.js';
+import { styleOf, knownCount, knownOf } from './intimacy.js';
 import { usualPay, money } from './needs.js';
 import { courseOf } from './courses.js';
 import { myJob, rankOf } from './work.js';
@@ -135,7 +135,7 @@ function badValue(key: WhenKey, v: string): string {
         case 'attended': return COUNTED.test(v) && !v.includes(':') ? '' : `"${v}" should be a festival or an event, and how many times`;
         case 'visited': return VISITED.test(v) || ID.test(v) || PLACE_REGULAR.test(v) ? '' : `"${v}" should be a place (or a place and regular), a number of places (3 in a map, 3 regular in home), all, map or maps`;
         case 'secrets': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets`;
-        case 'known': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of likes and limits you know`;
+        case 'known': return KNOWN.test(v) ? '' : `"${v}" should be a number of likes and limits you know (of your lovers, or of one person: Tamaki 5; "likes" or "limits" after it counts only those)`;
         case 'helped': return ID.test(v) ? '' : `"${v}" should be a number of storylines, or a storyline's id`;
         case 'goal': return /^[^\s,;]+(\s+\d+)?$/.test(v) ? '' : `"${v}" should be a goal, a goal and a step (idol 3), or a number of goals`;
         case 'need': return /^\S+\s+\d+$/.test(v) ? '' : `"${v}" should be a need (or all) and a value, like mood 50`;
@@ -350,7 +350,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         }
         case 'visited': return visitedHolds(g, w, v);
         // (adult) how many likes and hard limits you know of your lovers, in all (a state: counted at once, as skill: is)
-        case 'known': return adultOn(g) && knownCount(g) >= Number(v);
+        case 'known': { const k = knownHave(g, v); return adultOn(g) && !!k && k.have >= k.need; }
         case 'secrets': return Object.values<{ known?: number }>((g as any).threads ?? {}).filter(t => t?.known !== undefined).length >= Number(v);
         case 'helped': return /^\d+$/.test(v) ? helpedThreads(g, w).length >= Number(v) : helpedThreads(g, w).includes(v);
         case 'goal': return goalHolds(g, w, v);
@@ -525,6 +525,17 @@ const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)
 // (lots she sold you back); `dealer: spent 2000000` (yen) · `bought 4` · `asked 1` · `visits 3` (visits you bought from).
 const SALES = /^(?:won|lots|resold)\s+\d+$/i, DEALER = /^(?:spent|bought|asked|visits)\s+\d+$/i;
 const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
+// (adult) `known: 5`: likes and hard limits you know of your lovers, in all; `known: Tamaki 5`: of that person; `likes` or
+// `limits` after the number counts only those (`known: Tamaki 2 limits`).
+const KNOWN = /^(?:(.*\S)\s+)?(\d+)(?:\s+(likes|limits))?$/i;
+/** What a `known:` value asks, and how many you know now (null when it doesn't read). */
+export function knownHave(g: Save, v: string): { have: number; need: number } | null {
+    const m = v.match(KNOWN); if (!m) return null;
+    const what = m[3]?.toLowerCase() as 'likes' | 'limits' | undefined, need = Number(m[2]);
+    if (!m[1]) return { have: knownCount(g, YOU, what), need };
+    const r = personNamed(g, m[1]), k = r ? knownOf(g, r.avatar) : { likes: [], limits: [] };
+    return { have: (what !== 'limits' ? k.likes.length : 0) + (what !== 'likes' ? k.limits.length : 0), need };
+}
 /** (people who unlock) Has this person reached that tier? Read from the save without writing (sim/tiers.ts keeps it). */
 function tierHolds(g: Save, v: string): boolean {
     const m = v.match(TIER); if (!m) return false;

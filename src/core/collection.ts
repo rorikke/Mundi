@@ -22,6 +22,7 @@ function hall(h: any): HallDef | null {
     const out: HallDef = { id: h.id, name: h.name, groups };
     for (const k of ['icon', 'desc'] as const) if (str(h[k])) out[k] = h[k];
     if (h.record === true) out.record = true;
+    if (h.record === true && h.apart === true) out.apart = true;   // (a record hall's: a display hall is the museum's)
     if (h.adult === true) out.adult = true;
     const needs = strs(h.needs); if (needs?.length) out.needs = needs as any;
     if (when(h.open)) out.open = h.open;

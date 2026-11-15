@@ -87,7 +87,12 @@ function showLine(w: WorldDef, h: HallView): string {
 }
 function hallHtml(g: Save, w: WorldDef, h: HallView): string {
     let head: string;
-    if (h.record || !h.groups.some(gr => gr.tiles.some(t => t.piece))) {
+    if (h.apart) {
+        // a record hall of its own: its own share, in neither percentage
+        const tiles = h.groups.flatMap(gr => gr.tiles), have = tiles.filter(t => t.got).length;
+        const pct = tiles.length ? Math.floor((have / tiles.length) * 100) : 0;
+        head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(pct)}%</b><span><span>${esc(`${n(have)} of ${n(tiles.length)} filled`)}</span>${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}</span></div>`;
+    } else if (h.record || !h.groups.some(gr => gr.tiles.some(t => t.piece))) {
         const p = percentOf(g, w, h.record);
         head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(p.pct)}%</b><span><span>${esc(`${n(p.filled)} of ${n(p.counted)} filled`)}</span>${p.fresh ? `<small>${esc(plural(p.fresh, '1 new', '{0} new'))}</small>` : ''}${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}${showLine(w, h)}</span></div>`;
     } else {
