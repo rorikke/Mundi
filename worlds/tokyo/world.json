@@ -43592,7 +43592,7 @@
         "id": "mochi_deal",
         "when": "venture: div_mochibyte; seen: ex_rina_pitch:1; knows: rina_runway; feels: Rina friend",
         "good": true,
-        "waits": "job: gamedev; rank: top; feels: Rina friend",
+        "waits": "job: gamedev; feels: Rina friend",
         "text": "She pitches the deal to Mochi Byte herself and {{user}} signs it: Hikari Labs lives on licensing its own tools, Jake stays, and the runway is long again."
        },
        {
