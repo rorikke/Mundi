@@ -13779,6 +13779,62 @@
    ]
   },
   {
+   "id": "hk_ryokan_tamaki_night",
+   "name": "Hakone night",
+   "label": "Night at the inn with Tamaki",
+   "icon": "🏮",
+   "cost": 0,
+   "minutes": 120,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 15,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 4; after: hk_ryokan_tamaki; present: Tamaki; companion: crush or casual; period: evening or night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "a weekend away",
+    "a night with no clock",
+    "slow and tender",
+    "cuddling afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the night of the Hakone weekend in the ryokan's room with Tamaki, the futons pushed together, the paper screens dark, the river loud below and no clock anywhere"
+   },
+   "outcomes": [
+    {
+     "id": "futons",
+     "weight": 50,
+     "text": "She pushes the two futons together with great ceremony, then forgets the ceremony; long after midnight she is still awake, learning your face by touch the way she learns a tea bowl."
+    },
+    {
+     "id": "river",
+     "weight": 30,
+     "text": "The river is loud below the window; she opens the screen to hear it better, and the cold air makes her laugh and pull you back under the quilt.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "clock",
+     "weight": 20,
+     "text": "She has hidden the room's clock in a drawer, on purpose; in the morning neither of you knows the time, and she says that was the whole point.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent the night of the Hakone weekend with Tamaki at {0}",
+   "tags": [
+    "private"
+   ]
+  },
+  {
    "id": "hk_ashi_cruise",
    "name": "Cruise",
    "label": "Take the lake cruise",
@@ -14280,7 +14336,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -22884,7 +22940,8 @@
     "ot_kura_back_reading",
     "hk_ryokan_tamaki_bath",
     "fa_tamaki_library",
-    "fa_tamaki_tearoom"
+    "fa_tamaki_tearoom",
+    "hk_ryokan_tamaki_night"
    ],
    "count": 5,
    "days": 7,
@@ -52133,6 +52190,48 @@
         "text": "She hangs the prints under the museum's plain labels, and keeps her own plaques, and her list, in a notebook only {{user}} has read."
        }
       ]
+     },
+     {
+      "id": "tamaki_cabinet",
+      "title": "The cabinet",
+      "adult": true,
+      "hidden": "In the bottom drawer of the kura office's card cabinet, behind the accession cards, Tamaki keeps a second catalogue: her own wishes, written up like museum pieces, each with a number, a label in brush pen and a line on its condition. Some she wrote years ago, before she had anyone to try them with; the newest have {{user}} in them.",
+      "known": "{{user}} knows about the bottom drawer of Tamaki's card cabinet, where she keeps her wishes catalogued like pieces, and that she means them to be tried together, a card at a time.",
+      "opens": "tier: Tamaki 4",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "After closing Tamaki unlocks the bottom drawer of the card cabinet and draws it out between them: a second catalogue, her wishes written up like museum pieces, numbered and labelled. She says she has never shown it to anyone, that the newest cards have {{user}} in them, and asks whether {{user}} would like to start at number one.",
+      "nudges": [
+       "I re-sorted a drawer today. Not the pieces. A different drawer. Come by after closing?",
+       "There is a card I keep taking out and putting back. It has your name on it. That's all I'll say by text.",
+       "The cabinet key is on my desk, not in my sash, for the first time in years. I'm leaving it there until you come."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She keeps the bottom drawer of the kura office's card cabinet locked, the key in her sash, and closes it whenever {{user}} comes into the office."
+       },
+       {
+        "tell": "hinted",
+        "text": "After closing she writes index cards that aren't for any piece, blushes when {{user}} asks, and files them in the bottom drawer."
+       },
+       {
+        "tell": "known",
+        "text": "The bottom drawer of the card cabinet is a catalogue of her wishes, numbered and labelled like pieces, and she has left its key on her desk for {{user}}."
+       }
+      ],
+      "endings": [
+       {
+        "id": "drawer",
+        "when": "knows: tamaki_cabinet; feels: Tamaki infatuated; did: hk_ryokan_tamaki_night",
+        "good": true,
+        "text": "They work through her drawer a card at a time, the night at the inn first; every card tried gets a red seal and a date, and she writes new ones faster than they can keep up."
+       },
+       {
+        "id": "locked",
+        "text": "She locks the drawer again and keeps its key on the cord with her loupe; the cards are still there, she says, for when they both want them."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -52275,16 +52374,34 @@
        "preset": "passionate"
       },
       "intimate": {
+       "experience": "everything she once only read about, and a drawer of wishes she still means to try, each with its own label",
        "wants": "a whole life together, catalogued and kept, and nothing between them left unsaid",
+       "drawnTo": "one person, and she has stopped finding it inconvenient",
+       "flirts": "a card left on your pillow in brush pen, a catalogue number and a time; reading you her drawer's index in her museum voice",
        "dynamic": "sure of herself now: she leads as often as she follows, and asks for what she wants",
+       "inBed": "unhurried and sure, laughing, as glad to lead as to be led; she keeps her promises to her own labels, one card at a time",
        "prefs": [
         "a weekend away",
         "hot-spring baths",
-        "cuddling afterward"
+        "cuddling afterward",
+        "a night with no clock",
+        "her labels read aloud",
+        "trying a card from her drawer",
+        "being kissed awake",
+        "leading for a change"
        ],
        "role": "switch",
        "drive": "high"
-      }
+      },
+      "moveLines": [
+       "{name} hangs her loupe on the bedpost, very deliberately: \"{action}. I've already decided; you only have to agree.\"",
+       "{name} takes a card from her drawer and turns it so you can read it: \"{action}\". She waits, smiling, for your yes.",
+       "{name} kisses you, slow and sure, and says against your mouth: \"{action}? I want you. That's the whole label.\""
+      ],
+      "askLines": [
+       "The kura is shut and the drawer is open. {when}, at mine? Bring nothing but yourself.",
+       "I've chosen a card for tonight. You'll have to come over at {when} to find out which."
+      ]
      }
     ],
     "reserved": true
@@ -64872,6 +64989,41 @@
     ],
     "icon": "🗾",
     "desc": "What you have lived in Tokyo. It fills by itself as it happens."
+   },
+   {
+    "id": "cabinet",
+    "name": "Tamaki's cabinet",
+    "icon": "🗄️",
+    "desc": "Her labels, in brush pen: one for every first, kept in the bottom drawer of the card cabinet.",
+    "record": true,
+    "apart": true,
+    "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "open": "tier: Tamaki 3",
+    "groups": [
+     {
+      "id": "firsts",
+      "name": "Firsts",
+      "icon": "🎀"
+     },
+     {
+      "id": "places",
+      "name": "Where",
+      "icon": "🏮"
+     },
+     {
+      "id": "told",
+      "name": "What she told you",
+      "icon": "🤫"
+     },
+     {
+      "id": "ledger",
+      "name": "The ledger",
+      "icon": "📒"
+     }
+    ]
    }
   ],
   "slots": [
@@ -68408,6 +68560,342 @@
     "plaques": {
      "hung": "The spring pictures hang under Tamaki's own plaques; the show was the excuse.",
      "notebook": "Her plaques for the spring pictures stay in a notebook only {{user}} has read."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "tc_leaf",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 1, the roof, at night",
+    "icon": "🍁",
+    "hint": "Sit on the kura's roof with her at night.",
+    "adult": true,
+    "when": "had: tamaki_leaf",
+    "plaque": "The first label she ever wrote that wasn't for a piece: a maple leaf from the kura's roof."
+   },
+   {
+    "id": "tc_sweetheart",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 2, the day she stopped pretending",
+    "icon": "💌",
+    "hint": "Fill half the museum.",
+    "adult": true,
+    "when": "tier: Tamaki 2",
+    "plaque": "Written the week the kura was half full: \"Condition: hopeless. Provenance: {{user}}.\""
+   },
+   {
+    "id": "tc_dating",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 3, the case opened",
+    "icon": "🗝️",
+    "hint": "Start dating her.",
+    "adult": true,
+    "when": "feels: Tamaki dating",
+    "plaque": "The day she opened her case of labelled days, and they started dating."
+   },
+   {
+    "id": "tc_lover",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 4, the back room's key",
+    "icon": "🕯️",
+    "hint": "Fill three-quarters of the museum.",
+    "adult": true,
+    "when": "tier: Tamaki 3",
+    "plaque": "The kura three-quarters full, and a key to the back room on its red cord, for two."
+   },
+   {
+    "id": "tc_partner",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 5, the kura full",
+    "icon": "🏛️",
+    "hint": "Fill the whole museum.",
+    "adult": true,
+    "when": "tier: Tamaki 4",
+    "plaque": "Every case full, and her label for it a single word: \"Ours.\""
+   },
+   {
+    "id": "tc_box",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 6, the box under the tokonoma",
+    "icon": "🎁",
+    "hint": "Find what her grandfather hid in the kura.",
+    "adult": true,
+    "when": "thread: tamaki_last_case",
+    "plaque": "Her grandfather's lacquered box, and what she asked of {{user}} the night they found it."
+   },
+   {
+    "id": "tc_backroom",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 7, the back store, closing time",
+    "icon": "🗝️",
+    "hint": "Kiss her in the kura's back store at closing time.",
+    "adult": true,
+    "when": "did: ot_kura_backroom with crush",
+    "plaque": "Among the paulownia boxes, the shutter half down, the last visitor maybe still on the step."
+   },
+   {
+    "id": "tc_evening",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 8, an evening in, the hairpin out",
+    "icon": "🕯️",
+    "hint": "Spend an evening in with her.",
+    "adult": true,
+    "when": "did: priv_home_tamaki with crush",
+    "plaque": "The plum-blossom hairpin set on the table with both hands, like a piece, before the first kiss."
+   },
+   {
+    "id": "tc_yukata",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 9, the obi knot",
+    "icon": "🎐",
+    "hint": "Take her home from a festival in her yukata.",
+    "adult": true,
+    "when": "did: priv_home_tamaki_yukata with crush",
+    "plaque": "A festival night, and a knot she had to untie herself, explaining it all the way."
+   },
+   {
+    "id": "tc_back_night",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 10, the futon between the boxes",
+    "icon": "🏮",
+    "hint": "Spend a night in the kura's back room with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_night with crush",
+    "plaque": "One low lamp, the boxes all round like a sleeping audience."
+   },
+   {
+    "id": "tc_halls",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 11, the netsuke case, in the dark",
+    "icon": "🔦",
+    "hint": "Walk the kura's dark halls with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_halls with crush",
+    "plaque": "The alarm panel blinking, every piece's date whispered against the glass."
+   },
+   {
+    "id": "tc_roof",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 12, the roof, under a blanket",
+    "icon": "🌌",
+    "hint": "Take a blanket up to the kura's roof with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_roof with crush",
+    "plaque": "Warm tiles, the temple bell, the stars named wrong on purpose."
+   },
+   {
+    "id": "tc_reading",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 13, the green lamp",
+    "icon": "📖",
+    "hint": "Read to her in the reading room after hours.",
+    "adult": true,
+    "when": "did: ot_kura_back_reading with crush",
+    "plaque": "Her grandfather's letters read aloud, the dull parts skipped by request."
+   },
+   {
+    "id": "tc_bath",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 14, the cedar bath",
+    "icon": "♨️",
+    "hint": "Share the ryokan's private bath with her.",
+    "adult": true,
+    "when": "did: hk_ryokan_tamaki_bath with crush",
+    "plaque": "The wood's age guessed by its smell, wrongly, because she couldn't think."
+   },
+   {
+    "id": "tc_library",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 15, the reading chair for two",
+    "icon": "📚",
+    "hint": "An evening in your library with her.",
+    "adult": true,
+    "when": "did: fa_tamaki_library with crush",
+    "plaque": "A chair made for two, she said, and she was probably right."
+   },
+   {
+    "id": "tc_tearoom",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 16, midnight tea",
+    "icon": "🍵",
+    "hint": "Make midnight tea for her in your tea room.",
+    "adult": true,
+    "when": "did: fa_tamaki_tearoom with crush",
+    "plaque": "The ceremony exact to the last gesture, and then the kettle boiling over."
+   },
+   {
+    "id": "tc_hakone",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 17, Hakone, the night with no clock",
+    "icon": "🌙",
+    "hint": "Spend the night of a Hakone weekend with her.",
+    "adult": true,
+    "when": "did: hk_ryokan_tamaki_night with crush",
+    "plaque": "The futons pushed together, the river loud below, the room's clock hidden in a drawer."
+   },
+   {
+    "id": "tc_like_1",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 18, the first thing she admitted to",
+    "icon": "🤫",
+    "hint": "Learn something she likes.",
+    "adult": true,
+    "when": "known: Tamaki 1 likes",
+    "plaque": "One thing she likes, said out loud, and then a long silence while she went pink."
+   },
+   {
+    "id": "tc_like_5",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 19, five things, in order",
+    "icon": "📝",
+    "hint": "Learn five things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 5 likes",
+    "plaque": "Five things she likes, in the order she admitted them; she checked your list against hers."
+   },
+   {
+    "id": "tc_like_10",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 20, ten, and counting",
+    "icon": "🗂️",
+    "hint": "Learn ten things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 10 likes",
+    "plaque": "Ten things she likes; she has started a card index for them."
+   },
+   {
+    "id": "tc_like_15",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 21, fifteen, cross-referenced",
+    "icon": "📇",
+    "hint": "Learn fifteen things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 15 likes",
+    "plaque": "Fifteen, cross-referenced, with a note on which ones go well together."
+   },
+   {
+    "id": "tc_like_20",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 22, the whole index",
+    "icon": "📚",
+    "hint": "Learn twenty things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 20 likes",
+    "plaque": "Twenty things she likes; she says the index will never be finished, and means it happily."
+   },
+   {
+    "id": "tc_limit_1",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 23, a line she drew",
+    "icon": "🚫",
+    "hint": "Learn something she won't do.",
+    "adult": true,
+    "when": "known: Tamaki 1 limits",
+    "plaque": "Something she will never do, said once and plainly, and kept to without a word."
+   },
+   {
+    "id": "tc_limit_3",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 24, every line she drew",
+    "icon": "🛡️",
+    "hint": "Learn three things she won't do.",
+    "adult": true,
+    "when": "known: Tamaki 3 limits",
+    "plaque": "Three things she will never do; she wrote them on the inside of the drawer's lid."
+   },
+   {
+    "id": "tc_spring",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 25, the spring pictures",
+    "icon": "🌸",
+    "hint": "See her spring pictures through to their end.",
+    "adult": true,
+    "when": "thread: tamaki_spring_pictures",
+    "plaque": "The night room's prints, the show that was an excuse, and her own plaques for them."
+   },
+   {
+    "id": "tc_cabinet",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 26, the drawer, opened",
+    "icon": "🗄️",
+    "hint": "See the story of her cabinet through to its end.",
+    "adult": true,
+    "when": "thread: tamaki_cabinet",
+    "plaque": "The bottom drawer of the card cabinet, opened between them at last."
+   },
+   {
+    "id": "tc_back_ten",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 27, the back room, the tenth night",
+    "icon": "🏮",
+    "hint": "Ten nights in the kura's back room with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_night 10 with crush",
+    "plaque": "Ten nights on the futon between the boxes; she stopped counting, then started again for this card."
+   },
+   {
+    "id": "tc_halls_five",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 28, the dark halls, a fifth time",
+    "icon": "🔦",
+    "hint": "Walk the kura's dark halls with her five times.",
+    "adult": true,
+    "when": "did: ot_kura_back_halls 5 with crush",
+    "plaque": "Five walks through the dark halls; she turns the scroll to the wall every time."
+   },
+   {
+    "id": "tc_hakone_three",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 29, Hakone, the third weekend",
+    "icon": "♨️",
+    "hint": "Three Hakone nights with her.",
+    "adult": true,
+    "when": "did: hk_ryokan_tamaki_night 3 with crush",
+    "plaque": "Three weekends at the inn; the maid now brings two pillows without being asked."
+   },
+   {
+    "id": "mem_sl_tamaki_cabinet",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Tamaki's cabinet of wishes",
+    "who": "Tamaki",
+    "when": "thread: tamaki_cabinet",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "drawer": "They work through the drawer of her wishes a card at a time, the night at the inn first.",
+     "locked": "She locks the drawer of her wishes again, its key on the cord with her loupe."
     },
     "hint": "See Tamaki's story through to its end."
    }

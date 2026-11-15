@@ -1677,7 +1677,8 @@
    "priv_home_tamaki",
    "priv_home_tamaki_yukata",
    "fa_tamaki_tearoom",
-   "fa_tamaki_library"
+   "fa_tamaki_library",
+   "hk_ryokan_tamaki_night"
   ],
   "occupations": [
    "rider",
@@ -2172,7 +2173,37 @@
    "mem_sl_tamaki_after_hours",
    "mem_sl_tamaki_last_case",
    "mem_kk_tamaki",
-   "mem_sl_tamaki_spring_pictures"
+   "mem_sl_tamaki_spring_pictures",
+   "tc_leaf",
+   "tc_sweetheart",
+   "tc_dating",
+   "tc_lover",
+   "tc_partner",
+   "tc_box",
+   "tc_backroom",
+   "tc_evening",
+   "tc_yukata",
+   "tc_back_night",
+   "tc_halls",
+   "tc_roof",
+   "tc_reading",
+   "tc_bath",
+   "tc_library",
+   "tc_tearoom",
+   "tc_hakone",
+   "tc_like_1",
+   "tc_like_5",
+   "tc_like_10",
+   "tc_like_15",
+   "tc_like_20",
+   "tc_limit_1",
+   "tc_limit_3",
+   "tc_spring",
+   "tc_cabinet",
+   "tc_back_ten",
+   "tc_halls_five",
+   "tc_hakone_three",
+   "mem_sl_tamaki_cabinet"
   ]
  }
 }
