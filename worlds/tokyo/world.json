@@ -61181,7 +61181,6 @@
     "id": "night",
     "name": "The night world",
     "adult": true,
-    "open": "goal: 999",
     "groups": [
      {
       "id": "mementos",
@@ -61190,7 +61189,8 @@
      }
     ],
     "icon": "🌃",
-    "desc": "The night world: its people and its things."
+    "desc": "The night world: its people and its things.",
+    "open": "goal: 999"
    }
   ],
   "slots": [
@@ -61511,9 +61511,9 @@
     "id": "nw_kanon",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Kanon",
     "who": "Kanon",
-    "adult": true,
     "when": "thread: kanon_door",
     "needs": [
      "living"
@@ -61524,9 +61524,9 @@
     "id": "nw_airi",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Airi",
     "who": "Airi",
-    "adult": true,
     "when": "thread: airi_retirement",
     "needs": [
      "living"
@@ -61537,9 +61537,9 @@
     "id": "nw_momo",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Momo",
     "who": "Momo",
-    "adult": true,
     "when": "thread: momo_family",
     "needs": [
      "living"
@@ -61550,9 +61550,9 @@
     "id": "nw_shiori",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Shiori",
     "who": "Shiori",
-    "adult": true,
     "when": "thread: shiori_hotaru",
     "needs": [
      "living"
@@ -61567,9 +61567,9 @@
     "id": "nw_tsubaki",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Tsubaki",
     "who": "Tsubaki",
-    "adult": true,
     "when": "thread: tsubaki_salon",
     "needs": [
      "living"
@@ -61584,9 +61584,9 @@
     "id": "nw_sumire",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Sumire",
     "who": "Sumire",
-    "adult": true,
     "when": "thread: sumire_tab",
     "needs": [
      "living"
@@ -61600,9 +61600,9 @@
     "id": "nw_kaoru",
     "hall": "night",
     "group": "mementos",
+    "adult": true,
     "name": "Kaoru",
     "who": "Kaoru",
-    "adult": true,
     "when": "thread: kaoru_notebook",
     "needs": [
      "living"
@@ -62656,9 +62656,9 @@
     "group": "keepsakes",
     "name": "Lingerie",
     "when": "had: all lingerie",
+    "adult": true,
     "icon": "🩱",
-    "hint": "Hold every keepsake of this kind at some time (lingerie).",
-    "adult": true
+    "hint": "Hold every keepsake of this kind at some time (lingerie)."
    },
    {
     "id": "mem_kk_bedroom",
@@ -62666,9 +62666,9 @@
     "group": "keepsakes",
     "name": "For the bedroom",
     "when": "had: all bedroom",
+    "adult": true,
     "icon": "🕯️",
-    "hint": "Hold every keepsake of this kind at some time (for the bedroom).",
-    "adult": true
+    "hint": "Hold every keepsake of this kind at some time (for the bedroom)."
    },
    {
     "id": "mem_kk_costume",
