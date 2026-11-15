@@ -29,7 +29,9 @@ import { icon, ICON_NAMES } from './icons.js';
 import { ACT, INPUT } from './reg.js';
 import { personPanel, SCOPES } from './personui.js';
 import { cleanPerson, cleanIntimate, gendersOf } from '../sim/gender.js';
-import { whenError, namedIn, PARTNER_VALUES } from '../sim/when.js';
+import { whenError, namedIn, parseWhen, PARTNER_VALUES } from '../sim/when.js';
+import { SHOP_CATS, SHOP_LIMITS, SHOP_NOW_MAX, catOf, shopCat, isAdultItem } from '../sim/shop.js';
+import type { ShopItem } from '../core/presets.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
 import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind, type EffectKind, type EffectDef, type EffectLimits, type TraitInfo } from '../core/traits.js';
@@ -107,14 +109,18 @@ const skillOpts = (w: WorldDef): [string, string][] => skillsOf(w).map(s => [s.i
 const BAD_KEYS = ['__proto__', 'constructor', 'prototype'];
 const own = <T>(o: Record<string, T> | undefined, k: string): T | undefined => (o && !BAD_KEYS.includes(k) && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
 
-// A list on the left (pick, add, remove) and the picked item's form on the right.
-function master(key: string, path: string, label: (x: any, i: number) => string, form: (i: number) => string, add: string, empty = 'Nothing here yet.') {
+// A list on the left (pick, add, remove) and the picked item's form on the right. `show`: only the rows it keeps are
+// listed (the shop's list by category); the picked one is always one of them, still counted in the whole list.
+function master(key: string, path: string, label: (x: any, i: number) => string, form: (i: number) => string, add: string, empty = 'Nothing here yet.', show?: (x: any, i: number) => boolean) {
     const list: any[] = getPath(path) ?? [];
-    const i = Math.min(CW.sel[key] ?? 0, Math.max(0, list.length - 1)); CW.sel[key] = i;
+    const rows = list.map((_x, k) => k).filter(k => !show || show(list[k], k));
+    let i = Math.min(CW.sel[key] ?? 0, Math.max(0, list.length - 1));
+    if (!rows.includes(i) && rows.length) i = rows[0];
+    CW.sel[key] = i;
     return `<div class="mu-cw-master">
-        <aside class="mu-cw-list" data-keep="cw-${key}">${list.map((x, k) => `<button class="mu-cw-row ${k === i ? 'is-on' : ''}" data-act="cw-pick" data-k="${esc(key)}" data-i="${esc(k)}">${label(x, k)}</button>`).join('') || `<p class="mu-muted">${empty}</p>`}
+        <aside class="mu-cw-list" data-keep="cw-${key}">${rows.map(k => `<button class="mu-cw-row ${k === i ? 'is-on' : ''}" data-act="cw-pick" data-k="${esc(key)}" data-i="${esc(k)}">${label(list[k], k)}</button>`).join('') || `<p class="mu-muted">${empty}</p>`}
             <button class="mu-primary" data-act="cw-add" data-what="${esc(add)}">${icon('plus')}<span>Add</span></button></aside>
-        <section class="mu-cw-form">${list.length ? `${form(i)}<button class="mu-danger mu-cw-del" data-act="cw-del" data-path="${path}.${i}">${icon('trash')}<span>Remove</span></button>` : ''}</section></div>`;
+        <section class="mu-cw-form">${rows.length ? `${form(i)}<button class="mu-danger mu-cw-del" data-act="cw-del" data-path="${path}.${i}">${icon('trash')}<span>Remove</span></button>` : ''}</section></div>`;
 }
 const placeOpts = (w: WorldDef, none = ''): [string, string][] => [...(none ? [['', none] as [string, string]] : []), ...w.places.filter(p => !p.link).map(p => [p.id, p.name] as [string, string])];
 const statusOpts = (w: WorldDef): [string, string][] => w.statuses.map(s => [s.id, `${s.icon} ${s.name}`]);
@@ -1313,20 +1319,89 @@ function tabCourses(w: WorldDef) {
         }, 'course', 'No courses yet.')}</section>`;
 }
 
-// The shop: things to buy once. A vehicle shortens trips, a good bed lifts the mood each morning, and an item can
-// unlock things to do at home (Things to do → "Only if the player owns").
+// The shop (sim/shop.ts): what the world sells, online or at its places, in the engine's fixed categories. A vehicle
+// shortens trips (a car drives after the last train), a good bed lifts the mood each morning, a service lasts some days,
+// stock holds some uses, a gift to give is a keepsake, small effects stay inside the shop's limits, and an item can
+// unlock things to do (Things to do → "Only if the player owns", or an `owns:` condition). The list filters by category.
 function tabShop(w: WorldDef) {
-    const list = ((w.catalogs as any).shop ?? []) as any[];
+    const list = ((w.catalogs as any).shop ?? []) as ShopItem[];
+    const f = SHOP_CATS.some(c => c.id === CW.sel.shopCat) ? String(CW.sel.shopCat) : '';
+    const count = (c: string) => list.filter(it => catOf(it) === c).length;
+    const filter = `<label class="mu-field"><span>Show</span><select data-input="cw-shopcat">${[['', `Every category · ${list.length}`] as Opt, ...SHOP_CATS.map(c => [c.id, `${c.name}${c.adult && c.id !== 'adult' ? ' (adult)' : ''} · ${count(c.id)}`] as Opt)]
+        .map(([v, l]) => `<option value="${esc(v)}" ${v === f ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
     return `<section class="mu-cw-sec"><h4>Shop</h4>
-        ${master('shop', 'catalogs.shop', it => `<b>${esc(it.icon ?? '')} ${esc(it.name)}</b><small>${esc(money(w, it.price ?? 0))}</small>`, i => {
-            const p = `catalogs.shop.${i}`; const it = list[i];
-            const unlocks = w.actions.filter(a => a.needsItem === it.id).map(a => a.label || a.name);
-            return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🛏️')}</div>
-                ${area('Description', `${p}.desc`, 2)}
-                <div class="mu-row2">${num(`Price (${esc(w.currency.symbol)})`, `${p}.price`)}${num('Mood when you wake up at home (+)', `${p}.sleepMood`)}</div>
-                <div class="mu-row2">${num('Trips take this share of the time (0.5 = half; empty = not a vehicle)', `${p}.travel`, 0, 0.05)}</div>
-                <p class="mu-muted">${unlocks.length ? `Unlocks: ${esc(unlocks.join(', '))}.` : 'Unlocks nothing to do yet: in Things to do, pick this item under "Only if the player owns".'}</p>`;
-        }, 'item', 'Nothing for sale.')}</section>${keepsakesEditor(w)}`;
+        <p class="mu-muted">What the world sells: online in the phone's Shop app, or at its places while they're open. Things are kept for good, or bought again (a service for some days, stock for some uses, a gift to give). Nothing is sold back, and nothing costs anything weekly.</p>${filter}
+        ${master('shop', 'catalogs.shop', (it: ShopItem) => `<b>${esc(it.icon ?? '')} ${esc(it.name)}</b><small>${esc(money(w, Number(it.price) || 0))}${f ? '' : ` · ${esc(shopCat(it).name)}`}${isAdultItem(it) ? ' · adult' : ''}</small>`,
+            i => itemForm(`catalogs.shop.${i}`, list[i]), 'item', f ? 'Nothing in this category.' : 'Nothing for sale.', f ? (it: ShopItem) => catOf(it) === f : undefined)}</section>${keepsakesEditor(w)}`;
+}
+// Places that may sell things: not a pin to another map, a home or a venture's own unit (world-check's rule).
+const sellingPlaces = (w: WorldDef) => w.places.filter(p => !p.link && !(p as any).home && !String(p.id).startsWith('home:') && !p.venture);
+// Places as chips under their maps; one picked that can't sell (a home, a unit, a place gone) stays shown, to take off.
+function placeChecklist(w: WorldDef, p: string) {
+    const on: string[] = getPath(p) ?? []; const ok = sellingPlaces(w);
+    const chip = (v: string, l: string, adult = false) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" data-drop="1">${esc(l)}${adult ? ` ${ADULT}` : ''}</button>`;
+    const groups = w.maps.map(m => [m.name, ok.filter(x => x.map === m.id)] as const).filter(([, l]) => l.length);
+    const loose = ok.filter(x => !w.maps.some(m => m.id === x.map));
+    const stray = on.filter(id => !ok.some(x => x.id === id));
+    return `${groups.map(([name, l]) => `<span class="mu-cw-sub">${esc(name)}</span><div class="mu-chips">${l.map(x => chip(x.id, x.name, !!x.adult)).join('')}</div>`).join('')}
+        ${loose.length ? `<div class="mu-chips">${loose.map(x => chip(x.id, x.name, !!x.adult)).join('')}</div>` : ''}
+        ${stray.length ? `<span class="mu-cw-sub">Can't sell (a home, a business's own unit, or not a place)</span><div class="mu-chips">${stray.map(id => chip(id, w.places.find(x => x.id === id)?.name ?? id)).join('')}</div>` : ''}
+        ${ok.length ? '' : '<small class="mu-muted">No places that can sell yet.</small>'}`;
+}
+// What an item unlocks: things to do that need it, or name it in an `owns:` condition.
+const unlocksOf = (w: WorldDef, id: string) => w.actions.filter(a => a.needsItem === id || (typeof a.when === 'string' && parseWhen(a.when).conds.some(c => c.key === 'owns' && !c.not && c.values.includes(id))));
+const REPEAT_OPTS: Opt[] = [['kept', 'Kept for good (bought once)'], ['days', 'A service: it lasts some days'], ['stock', 'Stock: some uses of what it unlocks']];
+/** A shop item's form (`p`: its path, `it`: the item). Written for any list of things in the item's shape, so another
+ *  tab (a home's rooms and fixtures, later) can show it too. Every field the world doesn't set is left out of the file
+ *  and read with the engine's default (catOf, onlineOf, toldOf in sim/shop.ts). */
+export function itemForm(p: string, it: ShopItem): string {
+    const w = W(); if (!it) return '';
+    const adult = isAdultItem(it); const cat = shopCat(it);
+    const autoCat = Number(it.travel) > 0 ? 'Vehicles' : 'Home & furniture';
+    const rep = it.repeat; const hasDays = rep?.days !== undefined, hasStock = rep?.stock !== undefined;
+    const mode = hasDays && hasStock ? 'both' : hasDays ? 'days' : hasStock ? 'stock' : 'kept';
+    const unlocks = unlocksOf(w, it.id);
+    const gifts = (w.keepsakes ?? []).filter(k => k.gift !== false).map(k => [k.id, `${k.icon ?? ''} ${k.name}${k.adult ? ' (adult)' : ''}`.trim()] as Opt);
+    const needs = w.statuses.filter(s => !s.rpg || own(it.now, s.id) !== undefined);
+    const others = Object.keys(it.now ?? {}).filter(k => !BAD_KEYS.includes(k) && !w.statuses.some(s => s.id === k));
+    const placeOf = (id: string) => w.places.find(x => x.id === id);
+    const warn: string[] = [];
+    if (it.online === false && !it.at?.length) warn.push('Sold nowhere: not online, and at no place.');
+    if (hasStock && !w.actions.some(a => a.needsItem === it.id)) warn.push('Stock that nothing uses: no thing to do needs this item (Things to do → "Only if the player owns").');
+    if (typeof it.ai === 'string' && it.ai.trim() && !it.ai.includes('{{user}}')) warn.push("The AI's line should name {{user}} (the player).");
+    if (!adult && (it.at ?? []).some(id => placeOf(id)?.adult)) warn.push('Sold at an adult place: mark it adult.');
+    if (!adult && it.keepsake && (w.keepsakes ?? []).find(k => k.id === it.keepsake)?.adult) warn.push('It gives an adult keepsake: mark it adult.');
+    if (!adult && unlocks.length && unlocks.every(a => a.adult)) warn.push('It only unlocks adult things to do: mark it adult.');
+    return `<div class="mu-row mu-cw-inline">${idTag(it.id)}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🛏️')}</div>
+        ${area('Description', `${p}.desc`, 2)}
+        <div class="mu-row2">${sel('Category', `${p}.cat`, withCur([['', `Automatic (${autoCat})`], ...SHOP_CATS.map(c => [c.id, `${c.name}${c.adult && c.id !== 'adult' ? ' (adult)' : ''}`] as Opt)], it.cat), 'opt')}${num(`Price (${esc(w.currency.symbol)})`, `${p}.price`)}</div>
+        ${it.cat && !SHOP_CATS.some(c => c.id === it.cat) ? '<p class="mu-warn">Not one of the categories: it shows under Home &amp; furniture.</p>' : ''}
+        <h4>Where it's sold</h4>
+        ${sel('In the phone\'s Shop app', `${p}.online`, [['', 'As usual: online when it isn\'t sold at places'], ['true', 'Online'], ['false', 'Not online']], 'tri')}
+        <details class="mu-cw-kept" ${it.at?.length ? 'open' : ''}><summary>Sold at · ${esc(it.at?.length ?? 0)}</summary><small class="mu-muted">While the place is open, when you're there (its Shop here row).</small>${placeChecklist(w, `${p}.at`)}</details>
+        ${cond('Shown when (a condition; empty: always)', `${p}.when`, 'seen: sh_salon', 'Hidden until it holds ("More by invitation." says something is); kept once bought.')}
+        <h4>Buying it again</h4>
+        <div class="mu-row2"><label class="mu-field"><span>Bought</span><select data-input="cw-repeat" data-path="${esc(`${p}.repeat`)}">${[...REPEAT_OPTS, ...(mode === 'both' ? [['both', 'Both: some days and some uses'] as Opt] : [])].map(([v, l]) => `<option value="${esc(v)}" ${v === mode ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${hasDays ? bounded('Lasts (days, 1–28)', `${p}.repeat.days`, 1, 28) : ''}${hasStock ? bounded('Uses', `${p}.repeat.stock`, 1, 99) : ''}</div>
+        <small class="mu-muted">${it.keepsake ? 'It gives a keepsake, so it can always be bought again.' : mode === 'days' ? 'Bought again, its days add on, up to two lengths ahead.' : mode === 'stock' ? 'Each time the thing to do it unlocks is done, one use goes.' : 'Bought once and kept.'}</small>
+        <details class="mu-cw-kept" ${Object.keys(it.now ?? {}).length ? 'open' : ''}><summary>At once, when bought · ${esc(Object.keys(it.now ?? {}).length)}</summary><small class="mu-muted">Needs changed the moment it's bought (a massage at home), each −${SHOP_NOW_MAX} … +${SHOP_NOW_MAX}.</small>
+            <div class="mu-row2">${needs.map(s => bounded(`${esc(s.icon ?? '')} ${esc(s.name)}${s.adult ? ` ${ADULT}` : ''}`, `${p}.now.${s.id}`, -SHOP_NOW_MAX, SHOP_NOW_MAX)).join('')}${others.map(k => bounded(esc(k), `${p}.now.${k}`, -SHOP_NOW_MAX, SHOP_NOW_MAX)).join('')}</div></details>
+        <h4>What having it does</h4>
+        <div class="mu-row2">${num('Mood when you wake up at home (+; the best bed counts)', `${p}.sleepMood`)}${num('Trips take this share of the time (0.5 = half; empty = not a vehicle)', `${p}.travel`, 0, 0.05)}</div>
+        ${flag('Drive after the last train', `${p}.late`, 'A car: no taxi and no wait. For a vehicle that shortens trips.')}
+        <span class="mu-cw-sub">Small effects</span>
+        <p class="mu-muted">Up to three, each within ±${SHOP_LIMITS.mul * 100}% (a flat amount within ±${SHOP_LIMITS.add}); of the things you own, only the best one of each kind counts. A good thing +5%, a fine one +8%, luxury +10%: the top pays in status and words, not bigger numbers.</p>
+        ${fxEditor(w, `${p}.effects`, 'shop', 3)}
+        ${sel('Gives a keepsake (a gift to give)', `${p}.keepsake`, withCur([['', '(none)'], ...gifts], it.keepsake), 'opt')}
+        <p class="mu-muted">${unlocks.length ? `Unlocks: ${esc([...new Set(unlocks.map(a => a.label || a.name))].join(', '))}.` : 'Unlocks nothing to do yet: in Things to do, pick this item under "Only if the player owns".'}</p>
+        <h4>What the AI is told</h4>
+        ${optTxt('While you have it (optional; empty: its name)', `${p}.ai`, '{{user}} drives a red sports car.', '{{user}} is the player. A line of its own, told whole.')}
+        <div class="mu-row2">${sel('When', `${p}.told`, [['', `As its category (${cat.told === 'always' ? 'always' : cat.told === 'home' ? 'at home' : 'never'})`], ['always', 'Always: worn or driven, seen out and about'], ['home', 'At home'], ['no', 'Never']], 'opt')}
+            ${adult || it.seen !== undefined ? sel('At home', `${p}.seen`, [['', 'As usual: put away'], ['away', 'Put away: named only to those who know of it'], ['out', 'In plain sight (sheets, candles)']], 'opt') : ''}</div>
+        ${adult ? '<small class="mu-muted">Adult things are told only at your home, with a partner or someone drawn to you there.</small>' : ''}
+        ${flag('Only with adult content on', `${p}.adult`, cat.adult ? 'Its category is adult already.' : '', true)}
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
 }
 // Keepsakes: things you keep from actions and street stories (a goshuin stamp, a plush), and gifts. Their ids are what
 // actions, stories and goals name: set once, never changed here.
@@ -1525,12 +1600,23 @@ export function forSaving(w: WorldDef): WorldDef {
         tidyInfo(info);
     }
     if (mine) out.traitInfo = mine; else delete out.traitInfo;
-    tidyGoals(out); tidyAdult(out); tidyThreads(out);
+    tidyGoals(out); tidyAdult(out); tidyThreads(out); tidyShop(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length) g.formerly = [...(g.formerly ?? []), ...left];
     }
     return out;
+}
+// (the shop) What the item form can leave that the engine would refuse or ignore: a `repeat` with neither days nor stock
+// (a number emptied), an emptied `now`, effects all removed, an empty `ai`. Nothing else is touched.
+function tidyShop(w: WorldDef) {
+    for (const it of ((w.catalogs as any)?.shop ?? []) as ShopItem[]) {
+        if (it.repeat !== undefined && (!it.repeat || typeof it.repeat !== 'object' || (it.repeat.days === undefined && it.repeat.stock === undefined))) delete it.repeat;
+        if (it.now !== undefined && (!it.now || typeof it.now !== 'object' || !Object.keys(it.now).length)) delete it.now;
+        if (Array.isArray(it.effects) && !it.effects.length) delete it.effects;
+        if (Array.isArray(it.at) && !it.at.length) delete it.at;
+        if (typeof it.ai === 'string' && !it.ai.trim()) delete it.ai;
+    }
 }
 // (storylines) What the form can leave that a game would drop anyway: empty earlier ways in, empty nudge boxes (three kept at
 // most), a help with no label or a price outside its range. Nothing else is touched.
@@ -1673,7 +1759,10 @@ function tabCharacter(w: WorldDef) {
 // world's own ids. Kinds, targets, tiers and moments come from the engine's lists, so what it learns later shows here.
 type Opt = [string, string];
 const round4 = (x: number) => Math.round(x * 10000) / 10000;
-const FX_LIMITS: Record<string, EffectLimits> = { perk: PERK_LIMITS, boost: BOOST_LIMITS };
+const FX_LIMITS: Record<string, EffectLimits> = { perk: PERK_LIMITS, boost: BOOST_LIMITS, shop: { pct: SHOP_LIMITS.mul, flat: SHOP_LIMITS.add } };
+// (the shop) Work's own kinds aren't a thing's: pay and performance stay with skills, traits, perks and the division
+// (plans' decision); one a world already wrote stays listed.
+const SHOP_FX_OFF: EffectKind[] = ['pay', 'perf', 'career'];
 /** What one effect may be: its source's limits (a perk ±50%, a boost ±100%; flat ±3) and its kind's own range for the
  *  whole pile (a price no lower than ×0.5, pay no lower than ×0.75, rerolls 0 to 3…): one perk can't do it alone. */
 export function fxRange(kind: EffectKind, lim: EffectLimits): [number, number] {
@@ -1682,16 +1771,16 @@ export function fxRange(kind: EffectKind, lim: EffectLimits): [number, number] {
 }
 export function holdEffect(e: EffectDef, lim: EffectLimits): EffectDef { const [lo, hi] = fxRange(e.kind, lim); return { ...e, value: round4(Math.max(lo, Math.min(hi, Number(e.value) || 0))) }; }
 const signed = (x: number) => (x > 0 ? `+${x}` : x < 0 ? `−${-x}` : '0');
-// A perk's or a boost's effects (`p`: the list's path), edited as "what traits do" edits a trait's: every kind the engine
-// has, the targets its hook asks for, a value held inside the limits as it is typed, and an optional condition.
-function fxEditor(w: WorldDef, p: string, which: 'perk' | 'boost', max = 2) {
+// A perk's, a boost's or a shop item's effects (`p`: the list's path), edited as "what traits do" edits a trait's: every
+// kind the engine has, the targets its hook asks for, a value held inside the limits as it is typed, and an optional condition.
+function fxEditor(w: WorldDef, p: string, which: 'perk' | 'boost' | 'shop', max = 2) {
     const lim = FX_LIMITS[which]; const list: EffectDef[] = getPath(p) ?? [];
     const row = (e: EffectDef, j: number) => {
         const kind: EffectKind = isEffectKind(e.kind) ? e.kind : 'learn'; const pct = pctOf(kind); const [lo, hi] = fxRange(kind, lim);
         const sh = (x: number) => (pct ? Math.round(x * 1000) / 10 : x);
         const q = `${p}.${j}`; const at = (f: string) => `data-input="cw-fx" data-lim="${which}" data-path="${esc(`${q}.${f}`)}"`;
         const err = typeof e.when === 'string' ? whenError(e.when) : '';
-        const kinds = (Object.keys(EFFECT_KINDS) as EffectKind[]);
+        const kinds = (Object.keys(EFFECT_KINDS) as EffectKind[]).filter(k => which !== 'shop' || !SHOP_FX_OFF.includes(k) || k === kind);
         return `<div class="mu-cw-path"><div class="mu-row2">
             <label class="mu-field"><span>What it changes</span><select ${at('kind')}>${kinds.map(k => `<option value="${esc(k)}" ${k === kind ? 'selected' : ''}>${esc(KIND_NAMES[k] ?? k)}</option>`).join('')}</select></label>
             <label class="mu-field"><span>Of</span><select ${at('target')}>${targetOpts(w, kind, e.target ?? '', true).map(([v, l]) => `<option value="${esc(v)}" ${v === (e.target ?? '') ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>
@@ -1700,7 +1789,7 @@ function fxEditor(w: WorldDef, p: string, which: 'perk' | 'boost', max = 2) {
                 <small class="mu-cw-err" ${err ? '' : 'hidden'}>${esc(err)}</small></label></div>
             <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(q)}">${icon('x')}<span>Remove this effect</span></button></div>`;
     };
-    return `${list.map(row).join('') || '<p class="mu-muted">No effects yet.</p>'}${list.length < max ? `<button class="mu-ghost" data-act="cw-fx-add" data-path="${esc(p)}">${icon('plus')}<span>Add an effect</span></button>` : ''}`;
+    return `${list.map(row).join('') || '<p class="mu-muted">No effects yet.</p>'}${list.length < max ? `<button class="mu-ghost" data-act="cw-fx-add" data-path="${esc(p)}" data-lim="${which}" data-max="${max}">${icon('plus')}<span>Add an effect</span></button>` : ''}`;
 }
 
 /** What keeps a step from working: a condition that can't be read (it never holds), no objectives (it would be done at
@@ -2609,6 +2698,8 @@ Object.assign(ACT, {
         }
         if (what === 'thelp') { setPath(el.dataset.path!, { when: '', label: 'Help' }); notify(); return; }
         const [path, item] = NEW[what]();
+        // (a shop item added while the list shows one category is in that category, so it stays in sight)
+        if (what === 'item' && SHOP_CATS.some(c => c.id === CW.sel.shopCat)) item.cat = CW.sel.shopCat;
         const list = (getPath(path) ?? (setPath(path, []), getPath(path))) as any[];
         list.push(item);
         if (listKey[path]) CW.sel[listKey[path]] = list.length - 1;
@@ -2638,11 +2729,11 @@ Object.assign(ACT, {
         if (!Array.isArray(l) || !(i >= 0 && i < l.length) || !(j >= 0 && j < l.length)) return;
         [l[i], l[j]] = [l[j], l[i]]; CW.dirty = true; notify();
     },
-    // a perk's or a boost's effect (one or two)
+    // a perk's or a boost's effect (one or two), or a shop item's (up to three)
     'cw-fx-add': (el) => {
         const p = el.dataset.path!; const l = (getPath(p) ?? (setPath(p, []), getPath(p))) as EffectDef[];
-        if (l.length >= 2) return;
-        l.push({ kind: 'learn', value: 0.1 }); CW.dirty = true; notify();
+        if (l.length >= (Number(el.dataset.max) || 2)) return;
+        l.push({ kind: 'learn', value: el.dataset.lim === 'shop' ? 0.05 : 0.1 }); CW.dirty = true; notify();   // (a shop item's: a good thing's +5%)
     },
     // a table result told in an action's own words: only a text, or what it changes there too
     'cw-word': (el) => {
@@ -2751,6 +2842,17 @@ Object.assign(INPUT, {
         setPath(p, l.some(x => x.trim()) ? l : undefined); dirtyMark();
     },
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
+    // the shop's list by category ('' : every one)
+    'cw-shopcat': (el) => { CW.sel.shopCat = el.value; notify(); },
+    // how a shop item is bought again: kept for good (no `repeat`), a service's days or stock's uses (one kept as it was)
+    'cw-repeat': (el) => {
+        const p = el.dataset.path!; const cur = getPath(p); const r = cur && typeof cur === 'object' ? cur : {};
+        if (el.value === 'days') setPath(p, { days: Number(r.days) || 7 });
+        else if (el.value === 'stock') setPath(p, { stock: Number(r.stock) || 6 });
+        else if (el.value === 'both') setPath(p, { days: Number(r.days) || 7, stock: Number(r.stock) || 6 });
+        else setPath(p, undefined);
+        notify();
+    },
     // a starting feeling's Together: a couple's status, or the couple they used to be
     'cw-together': (el) => { const q = el.dataset.path!; setPath(`${q}.status`, undefined); setPath(`${q}.was`, undefined); if (el.value === 'ex') setPath(`${q}.was`, 'ex'); else if (el.value) setPath(`${q}.status`, el.value); notify(); },
     // a lore entry's `when` written as a condition, or as the choices (each starts empty when switched to)
