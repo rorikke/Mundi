@@ -4,6 +4,7 @@
 // event the first time each year (10), a street story finished (15), a secret learned (20), a thread you knew reaching
 // its end (20), a keepsake you never had before (10), a like or a hard limit of someone's learned (10, once each: adult
 // content only, from `learn()` through `onLearned`); at most 60 a day from these together, so nothing can be farmed.
+// (museum) A level of the museum's renown the first time it's reached pays 30, once each, outside the cap.
 // Every gain goes through `pointsFor()` (sim/perks.ts), so perks with a `points` effect add their share. All of it
 // belongs to the `goals` system: with it off nothing is earned. Read with `??=` (no new schema).
 import { toast, adultOn, type Save } from '../core/store.js';
@@ -14,7 +15,7 @@ import { seasonDays } from './time.js';
 import { onGoalStep, onLearned } from './hooks.js';
 
 /** What a second source pays (before perks), and how much of them a day counts at most. */
-export const SECOND_POINTS: Record<'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned', number> = { festival: 10, event: 10, story: 15, secret: 20, thread: 20, keepsake: 10, learned: 10 };
+export const SECOND_POINTS: Record<'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned' | 'museum', number> = { festival: 10, event: 10, story: 15, secret: 20, thread: 20, keepsake: 10, learned: 10, museum: 30 };
 export const DAILY_CAP = 60;
 
 /** One thing bought in the rewards shop: the item, the day, for whom, during which goal. Kept for the items' limits
@@ -120,6 +121,13 @@ export function earn(g: Save, w: WorldDef | null | undefined, source: Exclude<Po
     if (source === 'festival' || source === 'event') { const k = `${source}:${key}`; if (p.years[k] === yearOf(g)) return ''; p.years[k] = yearOf(g); }
     if (source === 'keepsake') { if (!key || p.kinds.includes(key)) return ''; p.kinds.push(key); }
     if (source === 'learned') { if (!key || p.learned.includes(key)) return ''; p.learned.push(key); }   // (counted even when the day's cap left nothing)
+    // (museum) a renown level reached the first time (`renown:<n>`): once each and outside the day's cap, as a milestone
+    if (source === 'museum') {
+        const k = `museum:${key}`;
+        if (!key || p.kinds.includes(k)) return '';
+        p.kinds.push(k);
+        return `${pointsLine(credit(g, pointsFor(g, w, source, SECOND_POINTS.museum), k))}${shopHint(g, w)}`;
+    }
     if (p.today.day !== g.day) p.today = { day: g.day, n: 0 };
     const n = Math.min(pointsFor(g, w, source, SECOND_POINTS[source]), DAILY_CAP - p.today.n);
     if (!(n > 0)) return '';

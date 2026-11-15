@@ -1,6 +1,6 @@
 // Places other systems hook into time (kept apart, with no imports, so no module waits on another).
 import type { Save, Resident } from '../core/store.js';
-import type { WorldDef, ActionDef, Place, StatusDef, WorkResult } from '../core/world.js';
+import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 import type { ShopItem } from '../core/presets.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
@@ -15,6 +15,20 @@ export const thingsOwned: ((g: Save, w: WorldDef) => ShopItem[])[] = [];
 
 // After you do an action (habits, pets…).
 export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[]; name: string }) => void)[] = [];
+// (museum, sim/museum.ts) What the rest of the game asks of the museum's engine, so neither waits on the other; with none,
+// nothing. `settle`: run inside the collection's settle (sim/collection.ts), lines to show; `found`: after an action's
+// roll (sim/actions.ts, `ok` its success, null without a roll), a find's lines; `story`: a street story's result with
+// `renown` or `damage` (sim/stories.ts), lines; `begun`: are the display halls shown (null: the world has no museum,
+// track 4's rule); `tile`: what a display piece's tile adds (sim/collection.ts `recordView`); `hall`: how a display
+// hall is on show.
+export const museumHooks: {
+    settle: (g: Save, w: WorldDef) => string[];
+    found: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
+    story: (g: Save, w: WorldDef, r: { renown?: number; damage?: boolean }) => string[];
+    begun: (g: Save, w: WorldDef) => boolean | null;
+    tile: (g: Save, w: WorldDef, slot: string) => Record<string, unknown>;
+    hall: (g: Save, w: WorldDef, hall: string) => Record<string, unknown> | undefined;
+} = { settle: () => [], found: () => [], story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.
 export const seenAs: ((g: Save) => string)[] = [];
 // Other things that help or hurt a d20 check (a familiar, an injury, a debuff, a talent…).
@@ -49,8 +63,26 @@ export const collectionLink: {
     pieceWords: (g: Save, w: WorldDef, v: string) => string;
     museum: (g: Save, w: WorldDef, v: string) => boolean;
     museumWords: (g: Save, w: WorldDef, v: string) => string;
+    /** (museum, the market: sim/market.ts) `sales:` and `dealer:`, the counters the rival's and the dealer's tiers read. */
+    market: (g: Save, w: WorldDef, key: 'sales' | 'dealer', v: string) => boolean;
+    marketWords: (g: Save, w: WorldDef, key: 'sales' | 'dealer', v: string) => string;
 } = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
-    piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v };
+    piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v,
+    market: () => false, marketWords: (_g, _w, _k, v) => v };
+// (museum) What the market (sim/market.ts) asks of the museum's engine (sim/museum.ts fills these in, so neither file
+// imports the other's rules). Unset, the market uses its own plain answers: renown level 0, a piece can be housed when
+// it needs no upgrade or the museum has one by that id or `does`, prices through the difficulty only, and a piece
+// bought is written into the collection as it is.
+export const museumLink: {
+    /** The renown level now (0: below the first level). */
+    level?: (g: Save, w: WorldDef) => number;
+    /** Can the museum house this piece now (the upgrade it needs is built)? */
+    canHouse?: (g: Save, w: WorldDef, s: SlotDef) => boolean;
+    /** A museum price from its yen before difficulty: the difficulty and any perk. */
+    price?: (g: Save, w: WorldDef, base: number) => number;
+    /** The piece is yours, bought from the dealer or at a sale for `paid`: write it, return any lines. */
+    give?: (g: Save, w: WorldDef, id: string, x: { src: 'dealer' | 'auction'; paid: number }) => string[];
+} = {};
 // (museum) Whether a place is in the game now (sim/places.ts `placeOn` asks every entry): the museum's place stays off
 // the maps until it's yours. Empty: every place is.
 export const placeGates: ((g: Save | null | undefined, w: WorldDef, id: string) => boolean)[] = [];

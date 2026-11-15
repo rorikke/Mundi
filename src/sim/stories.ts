@@ -9,7 +9,7 @@
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type StoryDef, type StoryChoice, type StoryResult } from '../core/world.js';
 import { setPrompt } from '../st/bridge.js';
-import { onLook, ventureLink } from './hooks.js';
+import { onLook, ventureLink, museumHooks } from './hooks.js';
 import { adultOn, bringTo } from './dayplan.js';
 import { workingAt } from './people.js';
 import { whenHolds, personNamed, favorOwed, parseWhen } from './when.js';
@@ -191,6 +191,7 @@ function applyResult(g: Save, w: WorldDef, s: StoryDef, r: StoryResult): string[
     if (r.spend && favorOwed(g, r.spend) > 0) out.push(owe(g, r.spend, -1));
     if (r.reveal) revealThread(g, w, r.reveal, 'story');
     if (r.finds) out.push(...ventureLink.find(g, w, r.finds));   // (business) an upgrade turned up for a venture you own
+    if (r.renown || r.damage) out.push(...museumHooks.story(g, w, r));   // (museum) lasting renown, the theft's damage
     return out.filter(Boolean);
 }
 
