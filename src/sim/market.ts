@@ -69,7 +69,7 @@ const seasonLen = (g: Save) => Math.max(1, Math.round((g as any).cfg?.seasonDays
 /** A piece's rung from its yen before difficulty (the shop's rungs: R1 ¥1,000–9,000 … R5 ¥5,000,000–15,000,000; 0 free). */
 export function pieceRung(price: number | undefined): number {
     const p = price ?? 0;
-    return p >= 5_000_000 ? 5 : p >= 450_000 ? 4 : p >= 70_000 ? 3 : p >= 10_000 ? 2 : p > 0 ? 1 : 0;
+    return p >= 5_000_000 ? 5 : p >= 500_000 ? 4 : p >= 80_000 ? 3 : p >= 10_000 ? 2 : p > 0 ? 1 : 0;   // as museum.ts's rungOf
 }
 /** The museum's renown level now (M-A's engine; 0 until it says). */
 export const renownLevel = (g: Save, w: WorldDef): number => museumLink.level?.(g, w) ?? 0;
@@ -95,6 +95,7 @@ function give(g: Save, w: WorldDef, id: string, src: 'dealer' | 'auction', paid:
     return [];
 }
 const slotOf = (w: WorldDef, id: string) => w.collection?.slots.find(s => s.id === id);
+const housable = (g: Save, w: WorldDef, id: string) => { const s = slotOf(w, id); return !!s && canHouse(g, w, s); };
 const nameOf = (w: WorldDef, id: string) => slotOf(w, id)?.name ?? id;
 const sourcesOf = (s: SlotDef, kind: PieceSource['kind']) => (s.sources ?? []).filter(x => x.kind === kind);
 // Weighted draw without putting back (each piece's key is u^(1/weight), the highest keys win), seeded.
@@ -284,7 +285,8 @@ const stepOf = (lot: Lot) => Math.max(1, Math.round(lot.est * 0.1));
 // One lot's outcome at the hammer (or a card, in person). Returns lines.
 function settleLot(g: Save, w: WorldDef, sale: number, lot: Lot, inPerson: boolean, out: LotResult[]): string[] {
     const s = salesOf(g), a = museumDef(w)!.auctions!, name = nameOf(w, lot.id);
-    if (!missing(g, lot.id)) { if (lot.back && s.lost) delete s.lost[lot.id]; return []; }
+    // had another way since the catalogue (or a damaged find waiting for the workshop): nothing to sell
+    if (!missing(g, lot.id) || !housable(g, w, lot.id)) { if (lot.back && s.lost) delete s.lost[lot.id]; return []; }
     const r = rivalAt(g, w, sale, lot), step = stepOf(lot), bid = lot.bid;
     const win = (paid: number, against: boolean): string[] => {
         g.player.money -= paid; book(g, `The sale: ${name}`, -paid);
@@ -324,7 +326,8 @@ export function answerCard(g: Save, w: WorldDef, id: string, yes: boolean): stri
         if (missing(g, id)) (s.lost ??= {})[id] = a?.back ?? 2;
         return [`Lost at the sale: ${name} went to the other collector.`];
     };
-    if (!yes || !missing(g, id)) return lose('card');
+    if (!missing(g, id) || !housable(g, w, id)) return [];
+    if (!yes) return lose('card');
     const mine = c.bid + c.step, paid = c.her + c.step;
     if (mine < paid || g.player.money < paid) return lose('card');
     g.player.money -= paid; book(g, `The sale: ${name}`, -paid);
