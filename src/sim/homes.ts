@@ -12,14 +12,15 @@ export function homeSpot(w: WorldDef, zoneId: string, taken: Set<string>, avoid?
     const zone = w.homes.zones.find(z => z.id === zoneId) ?? w.homes.zones[0];
     const ok = (z: typeof zone, s: number[]) => !avoid || avoid.zone !== z.id || avoid.x !== s[0] || avoid.y !== s[1];
     const free = (z: typeof zone) => z.spots.filter(s => ok(z, s) && !taken.has(spotKey(z.id, s[0], s[1]))).map(s => [z, s] as const);
-    const others = w.homes.zones.filter(z => z.id !== zone.id);
+    // (housing) a zone you can only buy has no tenants: nobody is put there by chance
+    const others = w.homes.zones.filter(z => z.id !== zone.id && !(z.price && !(z.rent > 0)));
     const choice = [free(zone), others.flatMap(z => free(z))].find(l => l.length);
     if (choice) {
         const [z, s] = pick(choice);
         taken.add(spotKey(z.id, s[0], s[1]));
         return { zone: z.id, x: s[0], y: s[1], n: z.spots.indexOf(s) + 1 };   // homes are numbered: House 1, House 2…
     }
-    const z = zone.spots.some(s => ok(zone, s)) ? zone : w.homes.zones.find(x => x.spots.some(s => ok(x, s))) ?? zone;
+    const z = zone.spots.some(s => ok(zone, s)) ? zone : others.find(x => x.spots.some(s => ok(x, s))) ?? zone;
     const s = pick(z.spots.filter(s => ok(z, s)).length ? z.spots.filter(s => ok(z, s)) : z.spots);
     let unit = 1; while (taken.has(spotKey(z.id, s[0], s[1], unit))) unit++;
     taken.add(spotKey(z.id, s[0], s[1], unit));

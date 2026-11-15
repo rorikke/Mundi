@@ -3,6 +3,7 @@ import { travelFactor } from './life.js';
 import { cfg, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type Place } from '../core/world.js';
 import { effectMul } from './effects.js';
+import { housingOn, ownsFixtureIn } from './housing.js';
 
 export const playerHomeId = 'home:player';
 export const isHome = (id: string) => id.startsWith('home:');
@@ -79,7 +80,20 @@ export const roomsOn = (g: Save | null | undefined, w: WorldDef): string[] => {
     const fresh = own && seen ? w.places.filter(p => !p.scenarioOff && !p.link && !seen.includes(p.id) && !own.includes(p.id)).map(p => p.id) : [];
     return [...(own ?? w.places.filter(p => !p.scenarioOff && !p.link).map(p => p.id)), ...fresh, ...extraRooms(g).map(p => p.id)];
 };
-export const placeOn = (g: Save | null | undefined, w: WorldDef, id: string) => ventureHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id));
+export const placeOn = (g: Save | null | undefined, w: WorldDef, id: string) => ventureHere(g, w, id) && roomHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id));
+// (housing) A room of a home (the penthouse's terrace, the villa's bath: `Place.room`) is in the game only while a home
+// of yours in its zone has that fixture, with the system on.
+const roomKept = new WeakMap<WorldDef, { list: unknown; n: number; ids: Map<string, { room: string; home: string }> }>();
+function roomPlaces(w: WorldDef) {
+    let k = roomKept.get(w);
+    if (!k || k.list !== w.places || k.n !== w.places.length) roomKept.set(w, k = { list: w.places, n: w.places.length, ids: new Map(w.places.filter(p => p.room).map(p => [p.id, { room: p.room!, home: p.homeZone ?? '' }])) });
+    return k.ids;
+}
+function roomHere(g: Save | null | undefined, w: WorldDef, id: string): boolean {
+    const r = roomPlaces(w).get(id);
+    if (!r) return true;
+    return !!g && housingOn(w) && ownsFixtureIn(g, r.home, r.room);
+}
 // (business) A venture's own place (a café unit you lease) is in the game only while that venture is yours and runs
 // there (`g.ventures`, kept by sim/ventures.ts, read here so this file needs no venture code).
 const ventureKept = new WeakMap<WorldDef, { list: unknown; n: number; ids: Map<string, string> }>();

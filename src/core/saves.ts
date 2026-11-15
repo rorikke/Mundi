@@ -19,9 +19,10 @@ import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 import { settleThreads } from '../sim/threads.js';
 import { settleModules } from '../sim/degrees.js';
+import { settleHomes } from '../sim/housing.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 7;
+export const SCHEMA = 8;
 
 interface Migration { to: number; what: string; run: (g: any) => void }
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -44,6 +45,8 @@ const MIGRATIONS: Migration[] = [
     // 7 (storylines): storylines wait for the player; they're settled once the world is known (settleThreads,
     // sim/threads.ts).
     { to: 7, what: 'storylines wait for the player', run: g => storylinesTodo(g) },
+    // 8 (homes you can buy): a tenant whose rent went up is told once the world is known (settleHomes, sim/housing.ts).
+    { to: 8, what: 'homes you can buy', run: g => homesTodo(g) },
 ];
 
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
@@ -215,6 +218,13 @@ function apprenticesToTraining(g: any) {
 // A second run finds the flag set, or settled and gone, and does nothing new.
 function storylinesTodo(g: any) {
     if (g.threads && typeof g.threads === 'object' && Object.keys(g.threads).length) g.threadsTodo = true;
+}
+
+// Schema 8. Homes can be bought, and the dearest rents went up. Whether this save rents where the rent changed depends
+// on the world, so the migration only asks settleHomes to look when the world is loaded; it changes nothing else. A
+// second run sets the same flag.
+function homesTodo(g: any) {
+    if (g.player && typeof g.player === 'object') g.player.homesTodo = true;
 }
 
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);
@@ -399,6 +409,16 @@ export function checkSave(g: Save) {
             const n = settleThreads(g, w)!;
             changed = true;
             later(() => toast(storylinesToast(n.reset, n.kept), 'info'));
+        }
+        // homes you can buy (schema 8): a tenant whose rent went up is told, once the world is known
+        const homes = structuredClone(g);
+        settleHomes(homes, w);
+        if (JSON.stringify(homes) !== JSON.stringify(g)) {
+            if (!backedUp) backup(g, 'before settling your home');
+            backedUp = true;
+            const said = settleHomes(g, w);
+            changed = true;
+            if (said) later(() => toast(`${said} A backup of the save was kept (Settings → Game → This save).`, 'info'));
         }
         // modules passed teach what they teach now (a module whose skill changed since it was graded), once the world is known
         if (settleModules(structuredClone(g), w).length) {
