@@ -967,7 +967,13 @@
     "image": "bg/home-onsenvilla.avif",
     "images": {
      "afternoon": "bg/home-onsenvilla-afternoon.avif",
-     "night": "bg/home-onsenvilla-night.avif"
+     "night": "bg/home-onsenvilla-night.avif",
+     "winter-day": "bg/home-onsenvilla-snow.avif",
+     "snow-day": "bg/home-onsenvilla-snow.avif",
+     "winter-afternoon": "bg/home-onsenvilla-snow-afternoon.avif",
+     "snow-afternoon": "bg/home-onsenvilla-snow-afternoon.avif",
+     "winter-night": "bg/home-onsenvilla-snow-night.avif",
+     "snow-night": "bg/home-onsenvilla-snow-night.avif"
     }
    }
   },
@@ -30313,7 +30319,11 @@
    "roles": [],
    "bg": "bg/hk_villa_onsen.avif",
    "bgs": {
-    "night": "bg/hk_villa_onsen-night.avif"
+    "night": "bg/hk_villa_onsen-night.avif",
+    "winter-day": "bg/hk_villa_onsen-snow.avif",
+    "snow-day": "bg/hk_villa_onsen-snow.avif",
+    "winter-night": "bg/hk_villa_onsen-snow-night.avif",
+    "snow-night": "bg/hk_villa_onsen-snow-night.avif"
    }
   }
  ],
