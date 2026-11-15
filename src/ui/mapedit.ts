@@ -12,7 +12,8 @@ import { closedOf } from '../sim/daynight.js';
 import { pickFile } from './cropper.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, pairChips, ventureOpts, withCur } from './creator.js';
+import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, pairChips, ventureOpts, withCur, fixtureOpts, getPath, setPath } from './creator.js';
+import { fixturesOf, housingOn } from '../sim/housing.js';
 import { WEATHER_KINDS } from '../sim/weather.js';
 import { WEEKDAY_IDS } from '../core/world.js';
 import { WEEKDAYS } from '../sim/time.js';
@@ -111,6 +112,24 @@ function seasonalBgs(w: WorldDef, p: Place) {
             <button class="mu-ghost mu-ibtn" data-act="me-bg-pick" data-period="${esc(key)}" title="From Backgrounds">${icon('image')}</button><button class="mu-ghost mu-ibtn" data-act="me-bg-upload" data-period="${esc(key)}" title="Upload">${icon('upload')}</button></div>
         <small class="mu-muted">The most fitting picture is shown: rain in summer at night first, then rain at night, summer at night, night.</small></details>`;
 }
+// (housing) A room of a home you own (the penthouse's terrace, the villa's bath): which fixture opens it, and the area
+// whose homes it belongs to (on this place's map). The fixture names the room back, so picking one here writes both.
+function roomOf(w: WorldDef, p: Place, path: string) {
+    const zones = w.homes.zones.filter(z => z.map === p.map).map(z => [z.id, z.name] as [string, string]);
+    const z = w.homes.zones.find(x => x.id === p.homeZone), f = fixturesOf(w).find(x => x.id === p.room);
+    const warn: string[] = [];
+    if (p.room && !f) warn.push('That fixture is gone: pick another, or none.');
+    if (p.room && !p.homeZone) warn.push('Pick the area whose homes it belongs to.');
+    if (p.homeZone && !p.room) warn.push('Pick the fixture that opens it.');
+    if (p.homeZone && !z) warn.push('That area is gone: pick another.');
+    if (z && z.map !== p.map) warn.push('That area is on another map.');
+    if (f?.room && f.room !== p.id) warn.push(`${f.name} opens another place.`);
+    if (f?.adult && !p.adult) warn.push('It opens with an adult fixture: mark it adult.');
+    return `<div class="mu-row2"><label class="mu-field"><span>A room of a home (the fixture that opens it)</span><select data-input="me-room" data-path="${esc(`${path}.room`)}">${withCur([['', '(none)'], ...fixtureOpts(w)], p.room).map(([v, l]) => `<option value="${esc(v)}" ${v === (p.room ?? '') ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            ${sel('In the homes of this area', `${path}.homeZone`, withCur([['', zones.length ? '(none)' : '(no housing area on this map)'], ...zones], p.homeZone), 'opt')}</div>
+        <small class="mu-muted">On the map and in anyone's plans only while a home of yours in that area has the fixture; two minutes from the house.</small>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
 // A place's opening hours (by the clock, by season, by weekday), days and weather it's closed, festival nights it stays
 // open, what it costs to get in, who's around, what you hear, private and adult places, what's offered there and
 // sleeping there.
@@ -120,7 +139,7 @@ function placeMore(w: WorldDef, p: Place, path: string) {
     const wx: [string, string][] = [...WEATHER_KINDS.map(k => [k.id, `${k.icon} ${k.name}`] as [string, string]), ...regional.map(r => [r, r] as [string, string])];
     const extra = w.actions.filter(a => !a.place || (p.actions ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`] as [string, string]);
     const here = w.actions.filter(a => a.place === p.id || (a.places ?? []).includes(p.id) || (p.actions ?? []).includes(a.id) || (p.sleep?.includes ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`] as [string, string]);
-    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep || p.venture;
+    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep || p.venture || p.room || p.homeZone;
     return `<details class="mu-me-more" ${set ? 'open' : ''}><summary>Hours, visitors and more</summary><div class="mu-me-pf">
         <div class="mu-me-pfcol">${optTxt('Who is around besides the world\'s people (6–20 words, for the AI)', `${path}.staff`, 'the master works in silence; old men at the counter')}
             <div class="mu-row2">${num(`Getting in costs (${esc(w.currency.symbol)}, once a day)`, `${path}.entry`, 0)}${words('What you hear (sound tags)', `${path}.sound`, '', 'station, crowd')}</div>
@@ -128,6 +147,7 @@ function placeMore(w: WorldDef, p: Place, path: string) {
             ${chk('Offers what its tags bring', `${path}.generic`, 'A walk, a coffee, a meal… Off: only what is offered here by name.', true)}
             ${(w.ventures ?? []).length || p.venture ? `${sel('A unit of a venture', `${path}.venture`, withCur([['', '(none)'], ...ventureOpts(w)], p.venture), 'opt')}
                 <small class="mu-muted">On the map and in anyone's plans only while that venture of yours runs here (a unit you lease, a second café you open in it).</small>` : ''}
+            ${(housingOn(w) && fixturesOf(w).length) || p.room !== undefined || p.homeZone !== undefined ? roomOf(w, p, path) : ''}
             <details class="mu-cw-kept" ${p.actions?.length ? 'open' : ''}><summary>More things to do here · ${p.actions?.length ?? 0}</summary>${pairChips(extra, `${path}.actions`, true)}</details></div>
         <div class="mu-me-pfcol"><div class="mu-row2">${bounded('Open from (hour; 17.5 = 17:30)', `${path}.open.0`, 0, 24, 0.25)}${bounded('to (below “from”: past midnight)', `${path}.open.1`, 0, 24, 0.25)}</div>
             <details class="mu-cw-kept" ${p.openBySeason ? 'open' : ''}><summary>Hours by season</summary>${SEASONS4.map(([s, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openBySeason.${s}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openBySeason.${s}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
@@ -365,6 +385,16 @@ Object.assign(ACT, {
     'me-bg-clear': (el) => { const p = W().places.find(p => p.id === ME.pin); if (p) { setBg(p, el.dataset.period ?? '', ''); CW.dirty = true; } notify(); },
 });
 Object.assign(INPUT, {
+    // (housing) a place made a room of a fixture: the fixture names it back (and one that named it before lets go)
+    'me-room': (el) => {
+        const path = el.dataset.path!; const p = getPath(path.replace(/\.room$/, '')) as Place | undefined; if (!p || CW.view) return;
+        const list = fixturesOf(W()); const v = el.value || undefined;
+        for (const f of list) if (f.room === p.id && f.id !== v) delete f.room;
+        setPath(path, v);
+        const f = v && list.find(x => x.id === v); if (f && !f.room) f.room = p.id;
+        if (v && !p.homeZone) { const z = W().homes.zones.find(x => x.map === p.map && (f as any)?.zones?.includes(x.id)); if (z) p.homeZone = z.id; }
+        notify();
+    },
     'me-zone': (el) => { ME.zone = el.value; notify(); },
     'me-bgq': (el) => { ME.bgq = el.value; notify(); },
     'me-bgvar': (el) => { const k = el.dataset.k as 'wx' | 'season' | 'per'; if (k in ME.bgVar) ME.bgVar[k] = el.value; notify(); },
