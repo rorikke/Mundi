@@ -42,7 +42,7 @@ function tileHtml(g: Save, w: WorldDef, t: Tile): string {
 }
 function hallHtml(g: Save, w: WorldDef, h: HallView): string {
     const p = percentOf(g, w, h.record);
-    const head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(p.pct)}%</b><span><span>${esc(`${n(p.filled)} of ${n(p.counted)}`)}</span>${p.fresh ? `<small>${esc(plural(p.fresh, '1 new', '{0} new'))}</small>` : ''}${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}</span></div>`;
+    const head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(p.pct)}%</b><span><span>${esc(`${n(p.filled)} of ${n(p.counted)} filled`)}</span>${p.fresh ? `<small>${esc(plural(p.fresh, '1 new', '{0} new'))}</small>` : ''}${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}</span></div>`;
     const groups = h.groups.map(gr => {
         const key = `${h.id}/${gr.id}`, open = CL.open.has(key);
         return `<section class="mu-cl-group ${open ? 'is-open' : ''}">
