@@ -18,6 +18,8 @@ const ids = (w) => ({
     goals: (w.goals?.add ?? []).map(g => g.id), rewards: (w.rewards?.add ?? []).map(r => r.id),
     // degrees (the one you study for and the ones you hold are kept by id; their modules are courses, above)
     degrees: (w.institutions ?? []).flatMap(i => (i.degrees ?? []).map(d => d.id)),
+    // the collection's slots (a save keeps the slots it filled by id)
+    collection: (w.collection?.slots ?? []).map(s => s.id),
 });
 const lock = fs.existsSync(lockFile) ? JSON.parse(fs.readFileSync(lockFile, 'utf8')) : {};
 const problems = [];

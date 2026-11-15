@@ -9,7 +9,8 @@ import { systemOn, getWorld, type WorldDef, type SlotDef, type HallDef, type Sto
 import { MIN_KIND } from '../core/collection.js';
 import { onHour, onKeepsake, collectionLink } from './hooks.js';
 import { parseWhen, whenHolds, namedIn, personNamed, threadsInGame, missingWords, kindHere, placesToVisit } from './when.js';
-import { threadStates, threadsOf, goneFromMap } from './threads.js';
+import { threadStates, threadsOf, goneFromMap, titleOf } from './threads.js';
+import { personaName } from '../st/bridge.js';
 import { offeredGoals } from './goals.js';
 
 /** What the save keeps: the slots filled (the day; a storyline's ending, whether it was good and how it came; `back`:
@@ -191,17 +192,26 @@ function settle(g: Save, w: WorldDef): string[] {
 export interface Tile {
     id: string; name: string; icon?: string; who?: string; pic?: string;
     got?: Got; plaque?: string; gold: boolean; away: boolean; fresh: boolean; hint: string;
+    /** A storyline's title, once you know its secret or it has ended (before that the slot shows only its name). */
+    title?: string;
     count?: { have: number; need: number; gone?: number };
 }
 export interface HallView { id: string; name: string; icon?: string; desc?: string; record: boolean; groups: { id: string; name: string; icon?: string; tiles: Tile[]; filled: number }[] }
 // A storyline's plaque: the world's own for that ending, else the ending's words cut to their first sentence.
 function plaqueOf(g: Save, w: WorldDef, s: SlotDef, got: Got): string | undefined {
     if (!got.how) return undefined;
-    if (s.plaques?.[got.how]) return s.plaques[got.how];
+    if (s.plaques?.[got.how]) return s.plaques[got.how].replace(/\{\{user\}\}/g, personaName());
     const t = threadOfSlot(s), e = t ? threadsOf(g, w).find(x => x.t.id === t)?.t.endings?.find(x => x.id === got.how) : undefined;
-    const text = (e?.text ?? '').replace(/\{\{user\}\}/g, 'you').trim();
+    const text = (e?.text ?? '').replace(/\{\{user\}\}/g, personaName()).trim();
     const one = text.match(/^.*?[.!?](\s|$)/)?.[0]?.trim() ?? text;
     return one.length > 160 ? `${one.slice(0, 157).trimEnd()}…` : one || undefined;
+}
+// A storyline's title is the player's once they know its secret or it has ended (as the person's "Their story" shows it).
+function titleNow(g: Save, w: WorldDef, s: SlotDef): string | undefined {
+    const id = threadOfSlot(s), st = id ? threadStates(g)[id] : undefined;
+    if (!id || !st || (st.known === undefined && !st.ended)) return undefined;
+    const x = threadsOf(g, w).find(y => y.t.id === id);
+    return x ? titleOf(x.t, x.r) : undefined;
 }
 // How far along a group slot is: a district's stories or places, a keepsake kind.
 function countOf(g: Save, w: WorldDef, s: SlotDef): Tile['count'] | undefined {
@@ -226,7 +236,7 @@ export function recordView(g: Save, w: WorldDef): HallView[] {
                 const got = c?.got[s.id];
                 return {
                     id: s.id, name: s.name, icon: s.icon, who: s.who, pic: s.pic, got,
-                    plaque: got ? plaqueOf(g, w, s, got) : undefined, gold: !!got?.good, away: got?.by === 'nudges',
+                    plaque: got ? plaqueOf(g, w, s, got) : undefined, gold: !!got?.good, away: got?.by === 'nudges', title: titleNow(g, w, s),
                     fresh: !counted.has(s.id), hint: got ? '' : s.hint ?? (s.when ? missingWords(g, w, s.when, undefined, { more: true }).join('; ') : ''),
                     count: got ? undefined : countOf(g, w, s),
                 };
