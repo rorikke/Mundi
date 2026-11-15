@@ -29,7 +29,9 @@ export type Pace = PaceId;
  *  save): `'you'`, their romance follows your gender, settled into `att` when the game starts (`fitToYou()` in
  *  sim/gender.ts); `'set'`, `att` is all there is (nothing: everyone). Unset: `'set'` when `att` holds a romance value,
  *  else `'you'`. In a save, `att` alone counts (missing: everyone). */
-export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile }
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile;
+    /** (museum, people who unlock: sim/tiers.ts) the highest tier reached and the day; gains past a cap held for the next */
+    tier?: { n: number; day: number }; held?: { f?: number; r?: number } }
 export type AttMode = 'you' | 'set';
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */

@@ -8,6 +8,7 @@ import { upgradeTraitInfo, type EffectDef } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
 import { upgradeCollection } from './collection.js';
+import { upgradeTiers } from './tiers.js';
 
 // Something the shop sells (catalogs.shop). Every field after `price` is optional, so older and user-made worlds read
 // as before; the defaults are read where they're used (`catOf`, `onlineOf`, `toldOf` in sim/shop.ts). The fields say
@@ -465,12 +466,21 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     if ('collection' in w) { const c = upgradeCollection(w.collection); if (c) w.collection = c; else delete w.collection; }
     // storylines: their new fields made safe (no key is added where a world has none)
     for (const ex of w.cast?.examples ?? []) for (const t of ex.threads ?? []) upgradeThread(t);
+    // (museum) people who unlock, and a street story's renown and damage: made safe where a world has them
+    for (const ex of w.cast?.examples ?? []) if ('tiers' in ex || 'reserved' in ex) upgradeTiers(ex);
+    for (const s of w.stories ?? []) for (const c of s.choices ?? []) for (const r of [c, c.fail]) upgradeStoryMuseum(r);
     return w;
 }
 // A storyline's words and prices from someone else's file: texts stay texts, at most three nudges, a help's price and
 // hours inside their range (a help without a label or a condition is dropped), a stage's appointment only when it has a
 // place, hours and a text.
 const HELP_MONEY = 10_000_000, HELP_HOURS = 8;
+// (museum) A story result's lasting renown held to ±100, `damage` only when true.
+function upgradeStoryMuseum(r: any) {
+    if (!r || typeof r !== 'object') return;
+    if ('renown' in r) { const v = Number(r.renown); if (Number.isFinite(v) && v) r.renown = Math.max(-100, Math.min(100, Math.round(v))); else delete r.renown; }
+    if ('damage' in r && r.damage !== true) delete r.damage;
+}
 function upgradeThread(t: any) {
     if (!t || typeof t !== 'object') return;
     for (const k of ['title', 'decide']) if (k in t && typeof t[k] !== 'string') delete t[k];
@@ -480,6 +490,7 @@ function upgradeThread(t: any) {
     }
     if ('ignored' in t && t.ignored !== 'end' && t.ignored !== 'cool') delete t.ignored;
     if ('opens' in t && !(typeof t.opens === 'string' || (Array.isArray(t.opens) && t.opens.every((x: unknown) => typeof x === 'string')))) delete t.opens;
+    for (const k of ['opensOnly', 'noLast']) if (k in t && t[k] !== true) delete t[k];
     // (NE-1) a stage's appointment: a place, hours and what they're doing, or nothing
     for (const st of Array.isArray(t.stages) ? t.stages : []) {
         if (!st || typeof st !== 'object' || !('ritual' in st)) continue;

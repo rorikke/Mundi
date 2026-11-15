@@ -38,13 +38,22 @@ export const goalLink: {
 // A keepsake gained (actions, stories, goal steps, the shop, a gift bought): the collection remembers it was held.
 export const onKeepsake: ((g: Save, id: string) => void)[] = [];
 // What the condition grammar asks of the collection (sim/collection.ts fills these in; until then nothing holds):
-// `seen: all in <map>` (a district's street stories, less those that can't happen any more) and `goal: all`.
+// `seen: all in <map>` (a district's street stories, less those that can't happen any more) and `goal: all`; (museum,
+// sim/museum.ts) `piece:` and `museum:` and their words.
 export const collectionLink: {
     storiesDone: (g: Save, w: WorldDef, map: string) => boolean;
     storiesWords: (g: Save, w: WorldDef, map: string) => string;
     goalsAll: (g: Save, w: WorldDef) => boolean;
     goalsWords: (g: Save, w: WorldDef) => string;
-} = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '' };
+    piece: (g: Save, w: WorldDef, v: string) => boolean;
+    pieceWords: (g: Save, w: WorldDef, v: string) => string;
+    museum: (g: Save, w: WorldDef, v: string) => boolean;
+    museumWords: (g: Save, w: WorldDef, v: string) => string;
+} = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
+    piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v };
+// (museum) Whether a place is in the game now (sim/places.ts `placeOn` asks every entry): the museum's place stays off
+// the maps until it's yours. Empty: every place is.
+export const placeGates: ((g: Save | null | undefined, w: WorldDef, id: string) => boolean)[] = [];
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll: ((c: { skill: string; d20: number; other?: number; total: number; dc: number; grade: string }) => void)[] = [];
 

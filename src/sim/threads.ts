@@ -251,7 +251,7 @@ export function endsWithoutYou(g: Save, w: WorldDef, t: Thread): ThreadEnding | 
 }
 // Keys a player can still do something about (a friendship, a secret, something done, a favor, a course, a skill,
 // money, places, a gift, stories not seen yet, storylines not over yet).
-const DOABLE = new Set<Cond['key']>(['feels', 'knows', 'did', 'favor', 'course', 'skill', 'money', 'visited', 'gave', 'secrets', 'helped', 'kept', 'holds', 'attended', 'companion']);
+const DOABLE = new Set<Cond['key']>(['feels', 'knows', 'did', 'favor', 'course', 'skill', 'money', 'visited', 'gave', 'secrets', 'helped', 'kept', 'holds', 'attended', 'companion', 'piece', 'museum']);
 function condReachable(g: Save, w: WorldDef, c: Cond): boolean {
     if (whenHolds(g, w, condText(c), { day: true })) return true;
     if (DOABLE.has(c.key) && !c.not) return true;

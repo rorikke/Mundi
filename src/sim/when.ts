@@ -49,7 +49,7 @@ export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays'
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had'] as const;
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -150,6 +150,9 @@ function badValue(key: WhenKey, v: string): string {
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) || SEEN_ALL.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2, or all in a map`;
         case 'had': return HAD.test(v) ? '' : `"${v}" should be a keepsake id, all and a keepsake kind (all charm), or a number of keepsakes`;
+        case 'piece': return PIECE.test(v) ? '' : `"${v}" should be a piece id, a number of pieces, or a number (or all) in a hall, like 10 in art`;
+        case 'museum': return MUSEUM.test(v) ? '' : `"${v}" should be open, show, renown and a level, shows and a number, a percentage (50%), or an upgrade id`;
+        case 'tier': return TIER.test(v) ? '' : `"${v}" should be a name and a tier, like Tamaki 2`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
@@ -361,6 +364,9 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
         case 'owns': return ownsHolds(g, w, v);
         case 'had': return hadHolds(g, w, v);
+        case 'piece': return collectionLink.piece(g, w, v);
+        case 'museum': return collectionLink.museum(g, w, v);
+        case 'tier': return tierHolds(g, v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': { const r = regionNow(g, w, x); return !!r && r.tension > Number(v); }
@@ -509,6 +515,16 @@ function helpedThreads(g: Save, w: WorldDef): string[] {
 // (the collection) `seen: all in <map>`, and `had:` a keepsake held at some time (`g.collection.had`, kept by
 // sim/collection.ts while the collection is on): one, all of a kind this game can have, or a number of them.
 const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)$/i;
+// (museum) `piece: art_great_wave` · `piece: 30` · `piece: 10 in art` · `piece: all in crafts`; `museum: open` · `show` ·
+// `renown 3` · `shows 2` · `50%` · an upgrade id; `tier: Tamaki 2` (people who unlock: that person's tier reached).
+const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
+/** (people who unlock) Has this person reached that tier? Read from the save without writing (sim/tiers.ts keeps it). */
+function tierHolds(g: Save, v: string): boolean {
+    const m = v.match(TIER); if (!m) return false;
+    const r = personNamed(g, m[1]); if (!r) return false;
+    const t = (g as any).rel?.people?.[idOf(g, r.avatar)]?.tier as { n?: number } | undefined;
+    return (t?.n ?? -1) >= Number(m[2]);
+}
 const hadOf = (g: Save, w: WorldDef) => new Set<string>(systemOn(w, 'collection') ? ((g as any).collection?.had ?? []) : []);
 /** The keepsakes of a kind this game can have (adult ones only with adult content on). */
 export const kindHere = (g: Save, w: WorldDef, kind: string) => (w.keepsakes ?? []).filter(k => (k.kind ?? '') === kind && (!k.adult || adultOn(g)));
@@ -696,6 +712,10 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         else if (c.key === 'seen' && !c.not && c.values.every(v => SEEN_ALL.test(v))) out.push(c.values.map(v => collectionLink.storiesWords(g, w, v.match(SEEN_ALL)![1])).join(' or '));
         else if (c.key === 'had' && !c.not) out.push(c.values.map(v => hadWords(g, w, v)).join(' or '));
         else if (c.key === 'goal' && !c.not && c.values.length === 1 && c.values[0] === 'all') out.push(collectionLink.goalsWords(g, w));
+        // (museum) a piece or pieces, the museum's state; a person's tier
+        else if (c.key === 'piece' && !c.not) out.push(c.values.map(v => collectionLink.pieceWords(g, w, v)).join(' or '));
+        else if (c.key === 'museum' && !c.not) out.push(c.values.map(v => collectionLink.museumWords(g, w, v)).join(' or '));
+        else if (c.key === 'tier' && !c.not) out.push(c.values.map(v => { const m = v.match(TIER); return m ? `${m[1]} closer (tier ${m[2]})` : v; }).join(' or '));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
         else if (c.key === 'owns' && !c.not) out.push(ownsWords(w, c.values));
