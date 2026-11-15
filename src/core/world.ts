@@ -536,7 +536,8 @@ export interface ExampleCharacter {
  *  gain past a cap is kept for the next tier (default) or dropped (`false`). `ai`: told to the AI while at this tier
  *  ({{user}}); `intimacy`: their needs from this tier; `intimate`: profile lines added at it (an overlay adds the
  *  explicit ones by id); `outfits`: outfits the game may put on from it; `moves`: they may make the move from it.
- *  `invites`: they text you invitations (to hang out, on a date) from it (when no tier says so: as anyone does).
+ *  `invites`: they text you invitations (to hang out, on a date) from it (when no tier says so: as anyone does);
+ *  `inviteOdds`: from it, those invitations come this many times as often (the nearest reached tier's; up to 5).
  *  `moveLines`: the move's card in their own words from it, one picked (`{name}`; `{action}`: what they have in mind);
  *  `askLines`: what they text when they ask you over tonight (`{when}`); both the nearest reached tier's, else the
  *  engine's own words. */
@@ -548,7 +549,7 @@ export interface PersonTier { id: string; name: string; when: When;
     intimate?: Partial<IntimateProfile>;
     outfits?: string[];
     moves?: boolean;
-    invites?: boolean; moveLines?: string[]; askLines?: string[] }
+    invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[] }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a

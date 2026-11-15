@@ -50,6 +50,7 @@ export function upgradeTiers(ex: any) {
         if (Array.isArray(t.outfits)) { const list = t.outfits.filter(str); if (list.length) x.outfits = list; }
         if (t.moves === true) x.moves = true;
         if (t.invites === true) x.invites = true;
+        if (typeof t.inviteOdds === 'number' && Number.isFinite(t.inviteOdds) && t.inviteOdds > 0) x.inviteOdds = Math.min(5, t.inviteOdds);
         for (const k of ['moveLines', 'askLines']) if (Array.isArray(t[k])) { const list = t[k].filter(str); if (list.length) x[k] = list; }
         out.push(x);
     }

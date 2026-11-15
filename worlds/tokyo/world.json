@@ -51963,9 +51963,13 @@
      {
       "place": "mg_station",
       "event": "antique",
+      "days": [
+       "sat",
+       "sun"
+      ],
       "from": 9,
-      "to": 12,
-      "text": "combs the antique market's stalls with her loupe, gloves in her pocket"
+      "to": 10,
+      "text": "combs the antique market's first stalls with her loupe before work, gloves in her pocket"
      }
     ],
     "threads": [
@@ -52301,6 +52305,7 @@
        "yukata",
        "opening"
       ],
+      "inviteOdds": 2,
       "intimacy": {
        "preset": "slow"
       },

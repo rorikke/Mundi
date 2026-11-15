@@ -169,7 +169,7 @@ export const WANT_INVITE = 2;
 // Not yet). The hour's chance is 5% for each person who could text, twice that for someone wanting you.
 export function textAsks(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60), s = social(g) as any, roll = rnd(g, `textask|${h}`);
-    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE) return [];
+    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE * tierLink.inviteMax(g)) return [];
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
     const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar) && tierLink.invites(g, idOf(g, r.avatar)));
     const pick = (r: Resident): TextAsk | null => {
@@ -181,7 +181,8 @@ export function textAsks(g: Save, w: WorldDef): string[] {
     };
     const list = pool.map(r => [r, pick(r)] as const).filter((x): x is readonly [Resident, TextAsk] => !!x[1]);
     if (!list.length) return [];
-    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1)), total = ws.reduce((a, b) => a + b, 0);
+    // (museum) someone whose tier makes them reach out more texts that many times as often (sim/tiers.ts inviteOdds)
+    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1) * tierLink.inviteOdds(g, idOf(g, r.avatar))), total = ws.reduce((a, b) => a + b, 0);
     if (roll > 0.05 * total / list.length) return [];
     let x = rnd(g, 'textaskwho') * total, i = 0;
     while (i < list.length - 1 && (x -= ws[i]) >= 0) i++;

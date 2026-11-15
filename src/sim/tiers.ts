@@ -166,6 +166,18 @@ export function invitesNow(g: Save, w: WorldDef | null | undefined, id: string):
     const list = tiersOf(g, w, id);
     return !list.some(t => t.invites) || reachedTiers(list, tierReached(g, id)).some(t => t.invites);
 }
+/** How many times as often as anyone they text you invitations now: the nearest reached tier's `inviteOdds`, else 1. */
+export function inviteOddsNow(g: Save, w: WorldDef | null | undefined, id: string): number {
+    return [...reachedTiers(tiersOf(g, w, id), tierReached(g, id))].reverse().find(t => t.inviteOdds)?.inviteOdds ?? 1;
+}
+// the most any tier of the world says (the invitation rolls' first cut), kept per world
+const oddsKept = new WeakMap<object, { list: unknown; n: number; max: number }>();
+export function inviteOddsMax(w: WorldDef | null | undefined): number {
+    const list = w?.cast?.examples; if (!w || !list?.length) return 1;
+    let k = oddsKept.get(w);
+    if (!k || k.list !== list || k.n !== list.length) oddsKept.set(w, k = { list, n: list.length, max: Math.max(1, ...list.flatMap(e => (e.tiers ?? []).map(t => t.inviteOdds ?? 1))) });
+    return k.max;
+}
 /** Their own words for the move's card or for asking you over tonight (`moveLines`, `askLines`): the nearest reached
  *  tier's list (empty: the engine's words). */
 export function tierWords(g: Save, w: WorldDef | null | undefined, id: string, k: 'moveLines' | 'askLines'): string[] {
@@ -207,6 +219,8 @@ tierLink.intimacy = (g, x) => intimacyOf(g, W(g), x);
 tierLink.moves = (g, x) => movesNow(g, W(g), x);
 tierLink.outfit = (g, x, o) => outfitOpen(g, W(g), x, o);
 tierLink.invites = (g, x) => invitesNow(g, W(g), x);
+tierLink.inviteOdds = (g, x) => inviteOddsNow(g, W(g), x);
+tierLink.inviteMax = (g) => inviteOddsMax(W(g));
 tierLink.words = (g, x, k) => tierWords(g, W(g), x, k);
 onHour.push(latchTiers);
 onDay.push(latchTiers);
