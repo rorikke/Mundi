@@ -456,10 +456,11 @@ function cameBy(g: Save, w: WorldDef, s: SlotDef): { x: PieceSource; day?: numbe
     for (const x of s.sources ?? []) {
         if (x.kind === 'ending' && x.id) { const t = threadsRead(g)[x.id]; if (t?.ended) return { x, day: t.endDay }; }
         if (x.kind === 'milestone' && x.when && whenHolds(g, w, x.when)) return { x };
+        // (a story's piece: its `when` when it has one, the choice that gives it, `seen: x:1`; else any choice of `id`)
         if (x.kind === 'story') {
             const seen = x.id ? seenRead(g)[x.id] : undefined;
-            if (seen && (seen.choice ?? -1) >= 0) return { x, day: seen.day };
-            if (!x.id && x.when && whenHolds(g, w, x.when)) return { x };
+            if (x.when) { if (whenHolds(g, w, x.when)) return { x, day: seen?.day }; }
+            else if (seen && (seen.choice ?? -1) >= 0) return { x, day: seen.day };
         }
     }
     return null;

@@ -16,6 +16,8 @@ point of view, and grows as new ones arrive.
 - [Shopping](#shopping)
 - [Your own home](#your-own-home)
 - [Storylines](#storylines)
+- [Tokyo memories](#tokyo-memories)
+- [A museum of your own, and Tamaki](#a-museum-of-your-own-and-tamaki)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -947,6 +949,108 @@ for each thing as it happens, and shows how much of the city you've seen: a firs
 - **Your existing games** start their record with what they already remember: storylines ended, festivals and events
   (since life goals came), places, stories, goals finished, keepsakes, a business at its top now. What a game never
   kept (a café sold before) can't be counted. Nothing else in the save changes.
+
+## A museum of your own, and Tamaki
+
+Tokyo's Collection app gains display halls beside Tokyo memories: **Art**, **Crafts and antiques**, **Modern Tokyo**
+and, with adult content on, **the night world**. Their pieces (prints, screens, tea bowls, netsuke, a suit of armour,
+Shōwa toys, the things the city's people leave you) end up in a private museum of your own, an old storehouse in
+Yanaka, whose curator becomes the end game's reward. It's the largest thing in the game to spend on: years of money.
+
+### Where pieces come from
+
+- **Finds**: some things to do turn up a piece now and then: browsing the antique market at Tokyo Station (once a
+  season, on a Saturday) and Jinbōchō's bookshops, the used-book festival's carts, trying things on at Second Bloom,
+  Electric Town's retro corner, a drink in the night world. A find you can't house yet, or one that came damaged, says so.
+- **Shops**: a **Museum pieces** row in the scene where pieces are sold (Jinbōchō's print shops, Second Bloom, Electric
+  Town, the antique market on its day), and in the app's **Here** tab.
+- **Festival stalls**, once a year each: Sanja, the Sumida fireworks, the fan convention, the used-book festival.
+- **People's things**: fifteen of the city's people each leave you something when their storyline ends, whichever way
+  (a gold frame for a good ending). With adult content on, the night world's people leave mementos the same way.
+- **Two street stories** in the old town give a piece if you play them well, and a business at its top (a café, an
+  executive's division, a hotel) or Wave TV's fourth rank brings one too. Each of these also has a second way, so
+  nothing is lost for good.
+- **The dealer and the sales** (below), once you have the museum.
+- A piece counts as soon as it's yours. A damaged find counts once it's been restored.
+
+### The Kurahashi kura
+
+- Your first pieces go into **six glass cases at home** (the dearest on show, the rest boxed).
+- Once you own three, walk Yanaka's lanes in the daytime: an old woman sweeping the step of her late husband's
+  storehouse would rather see it full of things people come to look at. Take it on in the Collection app's **Museum**
+  tab: **¥1,500,000**, paid once, with no weekly upkeep. The kura appears on Yanaka's map, and its first room shows
+  twelve pieces.
+- **Upgrades** (¥500,000 to ¥2,000,000 each): a **wing** for each hall puts the whole hall on show; the **climate room**
+  is needed for paintings, screens and textiles, **security** for arms and sculpture, and a **night guard** for the
+  three crown pieces; the **restoration workshop** restores damaged pieces and makes replicas; the **reading room**
+  makes finds likelier; **lighting** and the **garden** add renown; the **exhibition hall** lets you hold shows. The
+  shops, the dealer and the sales only offer what the museum can house, and each empty tile says what it needs.
+- **Renown** comes from the pieces on show (rarer ones count more), the upgrades, shows and the museum's big moments.
+  Its five levels, from "a local secret" to "famous", each bring life points; the higher ones bring more pieces from the
+  dealer and the sales, the rarest pieces, a newspaper critic's visit, and an attempted theft (no piece is ever lost:
+  at worst one needs restoring).
+- **Visitors** pay a small sum each Monday, more with renown and twice that while a show is on. It's a thank-you, not
+  an income: the museum costs far more than it ever brings in.
+- **Shows**: with the exhibition hall, once a season, pick a theme with at least six pieces on show (prints, netsuke,
+  Shōwa toys…), ¥300,000; renown while it's on and a little for good for each new theme. Your first show has an
+  opening night.
+- **At the kura**: walk the halls, tea in the garden, an afternoon in the reading room, help with the inventory, write
+  a plaque with Tamaki, her appraisal lessons. It's open 10 to 18 and shut on Mondays.
+
+### The dealer and the sales
+
+- **The dealer**, a woman with an old van, calls every week with three pieces (four once the museum is in the
+  guidebooks), on sale until her next visit. Nothing waits for ever: every piece she can bring comes round within a
+  few visits. You can **ask her for a piece**: it comes with her next visit, on top of the rest, 10% dearer.
+- **The sales**: four a year at an auction house on Ginza's Chūō-dōri (day 10 of each season at 15:00), the catalogue a
+  week before. Set a top bid for each lot (the estimate, +25%, +50%, +100%). Another collector, a woman who bids by
+  phone, wants some lots (the dear ones more often), and bids higher as your museum grows famous. Be in the saleroom as
+  it starts and you get one more step when she outbids you.
+- **A lot she takes comes back** within two sales, offered by her at 20% over the estimate. Not bought then, the dealer
+  brings it later at half as much again. A piece whose only way has passed (a story played another way, a business you
+  never ran) comes from the dealer, or the workshop makes a **replica**: it counts, gives half the renown, and gives way
+  to the real piece if that ever comes.
+
+### Tamaki Kurahashi
+
+- The museum's curator: Mrs. Kurahashi's granddaughter, 26, silver-haired, the appraiser who was a child star of a TV
+  appraisal show until she called a sponsor's heirloom a fake on air. Until you open the kura she labels other people's
+  shows at Ueno Hall of Art; then she runs yours.
+- **She lets you closer as the museum fills**, in five tiers: **Colleague** when the kura opens, **Confidante** at 25%,
+  **Sweetheart** at 50%, **Lover** at 75%, **Partner** at 100% (every display slot your game has). Each tier lets
+  friendship and romance go further; what you'd have gained past it is kept and comes in at the next tier; asking for
+  more than she allows yet gets a kind "not yet". A tier, once reached, is never lost. Her People page shows her tier
+  and what opens the next.
+- She's drawn to you, whoever you play, and to no one else, and she never leaves Tokyo.
+- **Her four storylines**, one opening at tier 0, 1, 2 and 4 (*Puppies in the snow*, *Back on Treasure Clinic*, *After
+  hours*, *The last case*), wait for you: they never end by last chances. The first is about a painting her grandfather
+  sold, which turns up at a sale; win it, and she hangs it in the kura again. The last can end with her moving in.
+- **Her eye**: with her along, a find is likelier and less often damaged; after five of her lessons your own eye stays
+  sharper; from Confidante she tells you which lot the other collector wants.
+- **With her**: comb the antique market's stalls, a Jinbōchō evening, festival dates in yukata, staying after closing,
+  the kura's roof at night, a weekend in Hakone, each from its tier; gifts she loves (sweets from Yanaka Ginza, a good
+  writing brush, an old sale catalogue) and four keepsakes of hers. With adult content on, her intimate side opens
+  from the later tiers, as anyone's does; with it off, everything else plays.
+
+### How long it takes
+
+- The four base halls and the kura's upgrades cost about **¥44 million**, more with shows, lots she pushes up, and
+  pieces bought back. Tokyo's life goal **Patron of the arts** (open the kura, thirty pieces, in the guidebooks,
+  famous) gives the **Connoisseur** perk: museum prices 10% lower (not bids at the sales).
+- In the long simulated runs, a player putting the museum first (with a show every season) completes it about **four
+  game years** after opening the kura on ¥1,500,000 a week, and **six to seven** on ¥1,000,000; on ¥500,000 it's over
+  90% after eight years. Spending half as much takes it to three quarters or more. Someone who only picks up what's
+  cheap, and the people's things, fills about forty slots without ever taking the kura on.
+
+### World makers and older games
+
+- The **Help** app's Collection topic explains the museum. The **World creator** edits each display piece's ways (find,
+  shop, festival stall, dealer, sale, storyline, milestone, street story, replica), its price and the upgrade it needs;
+  a **Museum** section (the place, the offer, the upgrades, renown, the dealer, the sales, shows); and a person's
+  **tiers** and whether they're drawn only to you, so a world of your own can have its own museum and its own Tamaki.
+- **Your existing games** get the halls at once: a storyline already ended gives its person's thing ("before the
+  museum" when the day isn't known), and a business already at its top gives its piece. Nothing else in the save
+  changes.
 
 ## The World creator and the new game
 

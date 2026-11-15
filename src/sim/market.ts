@@ -141,8 +141,9 @@ export function stockSize(g: Save, w: WorldDef): number {
 }
 
 // A visit. No pooled piece waits longer than `max(pity, pool ÷ stock)` visits (the longest a full round of the pool
-// takes): the pieces that would wait longer if not offered now come first (the longest waits first), then the piece
-// asked for (or, the second time, before them), then every piece that has waited `pity` visits, then by rarity.
+// takes): the pieces that would wait longer if not offered now come first (the longest waits first), then every piece
+// that has waited `pity` visits, then by rarity. The piece asked for comes on top of the stock (one more than `stock`),
+// so it never takes a place the pity timer needs.
 function dealerVisit(g: Save, w: WorldDef, d: NonNullable<MuseumDef['dealer']>): string[] {
     const st = dealerOf(g), at = `visit${g.day}`;
     st.calls = (st.calls ?? 0) + 1;
@@ -160,15 +161,14 @@ function dealerVisit(g: Save, w: WorldDef, d: NonNullable<MuseumDef['dealer']>):
         must = Math.max(must, k - n * (j - 1));
     }
     const asked = st.ask && byId.has(st.ask) ? byId.get(st.ask)! : null;
-    const take = (p: Pooled, ask = false) => { if (picks.length < n && !picks.some(x => x.p.id === p.id)) picks.push({ p, ...(ask ? { asked: true } : {}) }); };
-    if (asked && st.askd) take(asked, true);
-    for (const p of order.slice(0, Math.min(n, must))) take(p);
+    const room = n + (asked ? 1 : 0);   // (the piece asked for is an extra one)
+    const take = (p: Pooled, ask = false) => { if (picks.length < room && !picks.some(x => x.p.id === p.id)) picks.push({ p, ...(ask ? { asked: true } : {}) }); };
     if (asked) take(asked, true);
-    if (asked && !picks.some(x => x.p.id === asked.id)) st.askd = 1;   // no room this time: first at the next visit
-    else { delete st.ask; delete st.askd; }
+    delete st.ask; delete st.askd;   // (askd: a second-visit mark older saves may still have)
+    for (const p of order.slice(0, Math.min(n, must))) take(p);
     for (const p of order) if (waited[p.id] >= d.pity) take(p);
     const left = new Set(picks.map(x => x.p.id));
-    for (const p of weighted(g, at, pool.filter(x => !left.has(x.id)), n - picks.length)) take(p);
+    for (const p of weighted(g, at, pool.filter(x => !left.has(x.id)), room - picks.length)) take(p);
     st.stock = picks.map(({ p, asked }) => ({ id: p.id, price: marketPrice(g, w, p.base * (asked ? 1 + (d.ask ?? 0) : 1)),
         ...(asked ? { asked: true } : {}), ...(p.late ? { late: true } : {}) }));
     for (const x of picks) waited[x.p.id] = 0;
