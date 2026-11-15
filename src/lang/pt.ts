@@ -9669,5 +9669,18 @@ const DICT: Record<string, string> = {
  "Museum: renown {0}": "Museu: renome {0}",
  "Museum: shows {0}": "Museu: exposições {0}",
  "Piece: {0}": "Peças: {0}",
+ "It's your own place: nobody asks you to leave.": "O lugar é seu: ninguém pede para você sair.",
+ "Someone who works here saw you, and looked away.": "Alguém que trabalha aqui viu você e desviou o olhar.",
+ "There only while (a condition; empty: always)": "Presente só enquanto (uma condição; vazio: sempre)",
+ "On the map and in anyone's plans only while it holds.": "No mapa e nos planos de qualquer pessoa só enquanto valer.",
+ "They text you invitations from here": "Manda convites por mensagem a partir daqui",
+ "Once any tier says so, not before that tier.": "Quando algum nível disser isso, não antes desse nível.",
+ "Their invitations, × as often from here (empty: as anyone; up to 5)": "Os convites da pessoa, × mais frequentes a partir daqui (vazio: como qualquer um; até 5)",
+ "The move in their own words (one per line; {name}, {action})": "A iniciativa nas palavras da pessoa (uma por linha; {name}, {action})",
+ "Asking you over tonight, by text (one per line; {when})": "Convidando você para hoje à noite, por mensagem (uma por linha; {when})",
+ "A hall of its own (counted in neither percentage)": "Um salão à parte (não conta em nenhuma porcentagem)",
+ "Its own share is shown instead, and what fills in it is told only while it's open: a person's cabinet.": "Mostra a própria parcela em vez disso, e o que se preenche nele só é contado enquanto está aberto: o gabinete de uma pessoa.",
+ "Plaque (one line, shown once it fills; optional)": "Placa (uma linha, mostrada quando se preencher; opcional)",
+ "\"{0}\" should be a number of likes and limits you know (of your lovers, or of one person: Tamaki 5; \"likes\" or \"limits\" after it counts only those)": "\"{0}\" deve ser um número de gostos e limites que você conhece (dos seus amantes, ou de uma pessoa: Tamaki 5; \"likes\" ou \"limits\" depois conta só esses)",
 };
 export default DICT;

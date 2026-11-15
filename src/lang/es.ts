@@ -9680,5 +9680,18 @@ const DICT: Record<string, string> = {
  "Museum: renown {0}": "Museo: renombre {0}",
  "Museum: shows {0}": "Museo: exposiciones {0}",
  "Piece: {0}": "Piezas: {0}",
+ "It's your own place: nobody asks you to leave.": "Es tu propio sitio: nadie te pide que te vayas.",
+ "Someone who works here saw you, and looked away.": "Alguien que trabaja aquí te vio y apartó la mirada.",
+ "There only while (a condition; empty: always)": "Presente solo mientras (una condición; vacío: siempre)",
+ "On the map and in anyone's plans only while it holds.": "En el mapa y en los planes de cualquiera solo mientras se cumpla.",
+ "They text you invitations from here": "Te manda invitaciones por mensaje desde aquí",
+ "Once any tier says so, not before that tier.": "Cuando un escalón lo diga, no antes de ese escalón.",
+ "Their invitations, × as often from here (empty: as anyone; up to 5)": "Sus invitaciones, × más a menudo desde aquí (vacío: como cualquiera; hasta 5)",
+ "The move in their own words (one per line; {name}, {action})": "El primer paso con sus palabras (una por línea; {name}, {action})",
+ "Asking you over tonight, by text (one per line; {when})": "Invitándote a ir esta noche, por mensaje (una por línea; {when})",
+ "A hall of its own (counted in neither percentage)": "Una sala aparte (no cuenta en ningún porcentaje)",
+ "Its own share is shown instead, and what fills in it is told only while it's open: a person's cabinet.": "Muestra su propia parte en su lugar, y lo que se llena en ella solo se cuenta mientras está abierta: el gabinete de una persona.",
+ "Plaque (one line, shown once it fills; optional)": "Placa (una línea, que se muestra cuando se llena; opcional)",
+ "\"{0}\" should be a number of likes and limits you know (of your lovers, or of one person: Tamaki 5; \"likes\" or \"limits\" after it counts only those)": "\"{0}\" debe ser un número de gustos y límites que conoces (de tus amantes, o de una persona: Tamaki 5; \"likes\" o \"limits\" detrás cuenta solo esos)",
 };
 export default DICT;
