@@ -27,8 +27,13 @@ Ideas planned for later. Nothing here is promised for a date.
     [Tokyo memories](improvements.md#tokyo-memories) and [A museum of your own](improvements.md#a-museum-of-your-own-and-tamaki)).
     Next: the rival collector and the dealer as people of their own, made the way Tamaki is (cards, pictures, tiers
     from the sales and from what you buy, their storylines); Nature (insects, fish, pressed flowers by season) and a
-    dig for what came before Edo, as two more halls; and perhaps more ways for the museum to earn (its visitors, its
-    shows) if filling it proves too slow.
+    dig for what came before Edo, as two more halls.
+  - **TODO, the museum's pace:** in the long simulated runs, a player putting the museum first completes its base halls
+    about 6.3–7.1 game years after taking on the kura on ¥1,000,000 a week, not the planned five (about four on
+    ¥1,500,000; on ¥500,000 never within eight years). Prices stay as they are; the museum should earn more instead.
+    Candidates: shows that sell tickets, lending a hall to Ueno Hall of Art for a fee, a museum shop. Raising what
+    visitors pay barely helps (they pay by renown, which is low while the museum is being built) and would make them
+    more than the small thank-you they are meant to be.
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
 
 - **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:

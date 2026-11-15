@@ -1001,7 +1001,7 @@ Yanaka, whose curator becomes the end game's reward. It's the largest thing in t
 
 - **The dealer**, a woman with an old van, calls every week with three pieces (four once the museum is in the
   guidebooks), on sale until her next visit. Nothing waits for ever: every piece she can bring comes round within a
-  few visits. You can **ask her for a piece**: it comes within two visits, 10% dearer.
+  few visits. You can **ask her for a piece**: it comes with her next visit, on top of the rest, 10% dearer.
 - **The sales**: four a year at an auction house on Ginza's Chūō-dōri (day 10 of each season at 15:00), the catalogue a
   week before. Set a top bid for each lot (the estimate, +25%, +50%, +100%). Another collector, a woman who bids by
   phone, wants some lots (the dear ones more often), and bids higher as your museum grows famous. Be in the saleroom as
