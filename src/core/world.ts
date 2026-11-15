@@ -458,7 +458,8 @@ export interface ExampleCharacter {
     outfits?: Record<string, string>;
     /** (J5) The rank they hold in their job: an index (0 = the first) or the rank's name. */
     rank?: number | string;
-    /** (E21) Standing appointments (see Ritual). */
+    /** (E21) Standing appointments (see Ritual); a stage of one of their storylines can add one for a while
+     *  (ThreadStage.ritual). */
     rituals?: Ritual[];
     /** (E22) Their secrets and storylines (see Thread). */
     threads?: Thread[];
@@ -510,7 +511,10 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
     ignored?: 'end' | 'cool' }
 /** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
  *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
-export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string }
+export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string;
+    /** (NE-1) A standing appointment its person keeps while the storyline is at this stage (at the last stage, until it
+     *  ends): a person's `rituals` format (Lisa's physio twice a week while her shoulder heals). */
+    ritual?: Ritual }
 /** How a thread ends, picked by what happened (`when`, asked once the last stage is over; the first that holds, the
  *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
 export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string;
