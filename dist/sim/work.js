@@ -38,6 +38,8 @@ import { placeOf, travelMinutes } from './places.js';
 import { ailOf } from './afflictions.js';
 import { fr, YOU } from './rel.js';
 import { trackOf, playerTrack, layTrack, trackName } from './tracks.js';
+import { takenSpots } from './housing.js';
+import { canLeave, leaveOwned } from './owning.js';
 import { workRisk } from './caught.js'; // (adult) a choice with a risk of a raid
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
 export { ledger, book } from './ledger.js';
@@ -1193,23 +1195,31 @@ export function workLine(g, w, present) {
     return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}${juniors.length ? ` ${juniors.map(r => r.name).join(' and ')} ${juniors.length > 1 ? 'are' : 'is'} junior to {{user}} (kōhai).` : ''}`;
 }
 /* ---------- moving ---------- */
+// (the zone counts as well as the spot: two maps' spots can share coordinates; and a home you own isn't free)
 export function freeSpots(g, w, zoneId) {
     const zone = w.homes.zones.find(z => z.id === zoneId);
     if (!zone)
         return [];
-    const taken = new Set([g.player.home, ...Object.values(g.cast).map(r => r.home)].map(h => `${h.x},${h.y}`));
-    return zone.spots.filter(s => !taken.has(`${s[0]},${s[1]}`));
+    const taken = takenSpots(g);
+    return zone.spots.filter(s => !taken.has(`${zone.id}:${s[0]},${s[1]}`));
 }
-// Moving costs one week of the new rent; rent then counts from today.
-export function moveTo(g, w, zoneId) {
+// Moving costs one week of the new rent; rent then counts from today. (housing) Leaving a home you own: `leave` says
+// whether it's sold or kept as your second home (asked first; without it, nothing happens).
+export function moveTo(g, w, zoneId, leave) {
     const zone = w.homes.zones.find(z => z.id === zoneId);
     const spot = freeSpots(g, w, zoneId)[0];
     if (!zone || !spot)
         return 'There is no free home there.';
+    if (!((zone.rent ?? 0) > 0) && zone.price)
+        return 'Homes there are for sale, not for rent.';
     const student = studentLink.homeBlock(g, w, zone.id); // (while you study for a degree: student homes only)
     if (student)
         return student;
     const deposit = priceOf(g, zone.rent);
+    const why = canLeave(g, w, leave, deposit);
+    if (why)
+        return why;
+    leaveOwned(g, w, leave);
     if (g.player.money < deposit)
         return 'Not enough money.';
     g.player.money -= deposit;

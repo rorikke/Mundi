@@ -26,10 +26,13 @@ import { onAction, onHour, onLook } from './hooks.js';
  *  limit of someone's learned), `threesome` (a private moment with two people), `gift_loved` (a gift someone loved):
  *  sim/private.ts and sim/social.ts; `jealous` (a partner jealous of a new partner of yours): sim/romance.ts; `risky` (a
  *  risky moment not caught) and `caught`: sim/caught.ts.
+ *  (housing) `home_bought`, `home_sold` (sim/owning.ts) and `grand_party` (a party at home that 12 or more came to:
+ *  sim/plans.ts).
  *  A moment with someone is also counted for that person (`event:<name>|<avatar>`: `did: overnight with best`). */
 export const TALLY_EVENTS = ['meal', 'workout', 'painting', 'shift', 'party', 'missed_shift', 'missed_train', 'date', 'overnight', 'night_away', 'crisis', 'collapse', 'apprentice', 'lesson', 'taught', 'taught_you', 'baby', 'business',
     'big_party', 'loved_party', 'night_together', 'trip', 'late_night',
-    'intimate', 'learned', 'risky', 'caught', 'threesome', 'jealous', 'gift_loved'];
+    'intimate', 'learned', 'risky', 'caught', 'threesome', 'jealous', 'gift_loved',
+    'home_bought', 'home_sold', 'grand_party'];
 /** The prefixes a counted key can have in a condition (`did: tag:karaoke 3`); with none it's an event name or an action id. */
 export const TALLY_PREFIXES = ['tag', 'roll', 'win', 'with', 'people'];
 export function tally(g) {

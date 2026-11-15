@@ -9,7 +9,7 @@ import { rpgOf } from '../core/rpgdef.js';
 import { SCHEMA } from '../core/saves.js';
 import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES } from './bills.js';
-import { placeOf as placeOf2, mapOf } from './places.js';
+import { placeOf as placeOf2, mapOf, homeKindAt } from './places.js';
 import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
 import { settings, saveSettings, state, game, setGame, saveGame, notify, toast, } from '../core/store.js';
@@ -881,7 +881,7 @@ function followBackground(g, w) {
     const looks = looksAt(g, w, p.id);
     let img = pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs, looks) ?? '';
     if (!img && p.home) {
-        const k = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? '')];
+        const k = w.homes.kinds[homeKindAt(g, w, p.id)];
         img = (k && pictureAt(w, g.minutes, k.image, k.images, looks)) ?? '';
     }
     if (!img)

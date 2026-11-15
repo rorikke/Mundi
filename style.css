@@ -2572,6 +2572,24 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-th-story .mu-th-miss { margin-top: 0; color: inherit; opacity: .8; }
 #mundi-root .mu-th-story button { justify-self: start; margin-top: 4px; }
 #mundi-root .mu-th-story button[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+/* Owning a home (ui/homesui.ts): the lines under a home you own, the cards of homes for sale (two buttons), the Rooms
+   view's rows of fixtures, the question before buying, selling or moving out; the HUD's room rows use .mh-act as is */
+#mundi-root .mu-home-owned { display: grid; gap: 8px; margin-top: 8px; }
+#mundi-root .mu-home-owned p { margin: 0; color: #a9b6cc; }
+#mundi-root .mu-home-owned p b { color: #e8eefa; }
+#mundi-root .mu-home-card.is-sale .mu-home-info { flex-wrap: wrap; }
+#mundi-root .mu-home-card.is-sale .mu-row { gap: 6px; flex-wrap: wrap; }
+#mundi-root .mu-rooms { display: grid; gap: 10px; align-content: start; }
+#mundi-root .mu-rooms > header { align-items: center; gap: 8px; }
+#mundi-root .mu-rooms > header h4 { margin: 0; }
+#mundi-root .mu-fix { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: #1b2231; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); }
+#mundi-root .mu-fix > i { font-style: normal; font-size: 24px; text-align: center; }
+#mundi-root .mu-fix > span { display: grid; gap: 2px; min-width: 0; }
+#mundi-root .mu-fix small { color: #a9b6cc; }
+#mundi-root .mu-fix > em { font-style: normal; font-weight: 700; color: #13cfe0; white-space: nowrap; }
+#mundi-root .mu-fix.is-have { box-shadow: 0 0 0 2px rgba(19, 207, 224, .55), 0 4px 12px rgba(0, 0, 0, .3); }
+#mundi-root .mu-hu-ask p { margin: 0 0 10px; }
+#mundi-root .mu-hu-ask .mu-row { gap: 8px; flex-wrap: wrap; }
 /* ---------- the medieval journal: an open book over the game ---------- */
 #mundi-root .mu-bk-wrap {
     position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px 16px;

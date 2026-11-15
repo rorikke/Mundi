@@ -24,7 +24,9 @@ import { looksAt } from '../sim/worldstate.js';
 import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import { thumb } from '../st/bridge.js';
-import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
+import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName, homeKindAt } from '../sim/places.js';
+import { SECOND_HOME_ID } from '../sim/housing.js';
+import { tallyEvent } from '../sim/tally.js';
 import { missedTrain, drivesNow, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
@@ -194,7 +196,7 @@ function mapsPickerHtml(g, w, shown) {
 }
 // A scenario: no floor plan, the rooms of the house as pictures (as they look now); click one to go there.
 function roomsHtml(g, w) {
-    const kindPic = (p) => { const k = p.home ? w.homes.kinds[p.id === playerHomeId ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[String(p.id).slice(5)]?.home.zone)?.kind ?? '')] : null; return k ? pictureAt(w, g.minutes, k.image, k.images) : ''; };
+    const kindPic = (p) => { const k = p.home ? w.homes.kinds[homeKindAt(g, w, String(p.id))] : null; return k ? pictureAt(w, g.minutes, k.image, k.images) : ''; };
     const list = pins(g, w).filter(p => !p.link);
     const yours = list.filter(p => p.id === playerHomeId), rooms = list.filter(p => !p.home), beds = list.filter(p => p.home && p.id !== playerHomeId);
     const card = (p) => {
@@ -230,7 +232,7 @@ function planHtml(g, w) {
         PV.floor = '';
     }
     const floor = plan.floors.find(f => f.id === PV.floor) ?? plan.floors.find(f => f.id === floorOf(g, w, g.player.loc)) ?? plan.floors[0];
-    const kindPic = (loc) => { const k = loc === playerHomeId ? w.homes.kinds[g.player.home.kind] : w.homes.kinds[w.homes.zones.find(z => z.id === g.cast[loc.slice(5)]?.home.zone)?.kind ?? '']; return k ? pictureAt(w, g.minutes, k.image, k.images) : ''; };
+    const kindPic = (loc) => { const k = w.homes.kinds[homeKindAt(g, w, loc)]; return k ? pictureAt(w, g.minutes, k.image, k.images) : ''; };
     const faces = (loc) => { const here = presentAt(g, w, loc); return here.length ? `<span class="faces">${here.slice(0, 4).map(r => `<img src="${esc(thumb(r.avatar))}" alt="" title="${esc(r.met ? r.name : 'Someone')}">`).join('')}${here.length > 4 ? `<i>+${here.length - 4}</i>` : ''}</span>` : ''; };
     const rooms = plan.rooms.filter(r => r.floor === floor.id).map(r => {
         const t = planTarget(g, w, r);
@@ -721,7 +723,7 @@ async function sleep(wakeAt) {
     const stay = stayOf(g);
     const away = !!stay && stay.where === g.player.loc && g.player.loc !== playerHomeId;
     const inn = innHere(g, w, away); // (E6) a capsule, a manga café, a ryokan…
-    if (w.sleep.homeOnly && g.player.loc !== playerHomeId && !away && !inn) {
+    if (w.sleep.homeOnly && g.player.loc !== playerHomeId && g.player.loc !== SECOND_HOME_ID && !away && !inn) {
         toast('You can only sleep at home.', 'info');
         return;
     }
@@ -751,6 +753,8 @@ async function sleep(wakeAt) {
     // a bed away from home gives back part of a night at home (a capsule less than a ryokan); a nap, part of a night
     const rest = inn ? wakeUpAt(g, w, at, inn) : null;
     restAfterNight(g, w, rest, rest || part < 0.5 ? 0 : sleepMood(g, w), part); // (a good bed at home lifts the mood)
+    if (at === SECOND_HOME_ID && part >= 0.5)
+        tallyEvent(g, 'night_away'); // (housing) the weekend place: a night away from home
     if (isRpg(w) && part >= 0.75)
         longRest(g, w); // RPG: a long rest (hit points, focus, preparing spells)
     msgs.forEach(m => toast(m, 'warn'));

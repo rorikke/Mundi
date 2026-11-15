@@ -13,6 +13,7 @@ import { isRpg, sheetOf } from './rpg.js';
 import { startCombat, inCombat } from './combat.js';
 import { addBond, bondOf } from './social.js';
 import { pleaseBlade } from './artifacts.js';
+import { ownedHomes } from './housing.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -23,7 +24,7 @@ const week = (g) => Math.floor((g.day - 1) / 7);
 export function freeHomes(g, w) {
     if (!systemOn(w, 'property'))
         return [];
-    const taken = new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...holdingsOf(g).estates].map(h => `${h.zone}:${h.x},${h.y}`));
+    const taken = new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...holdingsOf(g).estates, ...ownedHomes(g)].map(h => `${h.zone}:${h.x},${h.y}`)); // (and homes owned through housing)
     return w.homes.zones.flatMap(z => z.spots.map((s, i) => ({ zone: z.id, x: s[0], y: s[1], n: i + 1, price: (z.rent ?? 40) * 30, rent: z.rent ?? 40, name: homeAddress(w, { zone: z.id, x: s[0], y: s[1], n: i + 1 }) })))
         .filter(h => !taken.has(`${h.zone}:${h.x},${h.y}`));
 }
