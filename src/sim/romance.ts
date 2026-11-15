@@ -208,9 +208,7 @@ export function applyAnswer(g: Save, avatar: string, name: string, k: AskKind, a
             note(g, '{u} and {0} started something casual.', [name], [avatar], g.player.loc, 'love');
             return [`You and ${name} are keeping it casual.`, ...hurt].join(' ');
         }
-        setStatus(g, avatar, YOU, ASKS[k].to as 'dating' | 'engaged' | 'married'); cool(0); addRomance(g, avatar, 15); bump(g, avatar, 5);
-        note(g, k === 'date' ? '{u} and {0} started dating.' : k === 'propose' ? '{u} and {0} got engaged.' : '{u} and {0} got married.', [name], [avatar], g.player.loc, 'love');
-        return [k === 'date' ? `You and ${name} are now dating!` : k === 'propose' ? `You and ${name} are engaged!` : `You and ${name} are married!`, ...hurt].join(' ');
+        return [becomeCouple(g, avatar, name, ASKS[k].to as 'dating' | 'engaged' | 'married'), ...hurt].join(' ');
     }
     const day = 1440;
     if (answer === 'maybe') { cool(nowAbs(g) + day); note(g, '{0} asked {u} for some time to think about it.', [name], [avatar], g.player.loc, 'love'); return `${name} wants some time to think.`; }
@@ -221,6 +219,16 @@ export function applyAnswer(g: Save, avatar: string, name: string, k: AskKind, a
     note(g, '{0} turned {u} down.', [name], [avatar], g.player.loc, 'love');
     return `${name} said no.`;
 }
+/** You and someone become a couple (dating, engaged, married): an accepted ask, or (museum) a storyline's ending that
+ *  says so (sim/threads.ts, which first hears who else minds: `jealousOf`). The status, romance +15, friendship +5, the
+ *  fact; returns the line. */
+export function becomeCouple(g: Save, avatar: string, name: string, to: 'dating' | 'engaged' | 'married'): string {
+    setStatus(g, avatar, YOU, to); setCooldown(g, avatar, YOU, 0); addRomance(g, avatar, 15); bump(g, avatar, 5);
+    note(g, to === 'dating' ? '{u} and {0} started dating.' : to === 'engaged' ? '{u} and {0} got engaged.' : '{u} and {0} got married.', [name], [avatar], g.player.loc, 'love');
+    return to === 'dating' ? `You and ${name} are now dating!` : to === 'engaged' ? `You and ${name} are engaged!` : `You and ${name} are married!`;
+}
+/** Your other partners who mind a new one (see `jealousy`): their lines. */
+export const jealousOf = (g: Save, avatar: string, name: string) => jealousy(g, avatar, name);
 // (museum) The engine's "not yet" for an ask their tier doesn't allow (see `tierNo`): nothing lost, a day before asking
 // again, a fact. One that no tier will ever allow is a plain no (`applyAnswer`).
 export function notYetAnswer(g: Save, avatar: string, name: string, k: AskKind): string {

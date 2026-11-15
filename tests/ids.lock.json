@@ -1657,7 +1657,16 @@
    "ot_kura_tea",
    "ot_kura_reading",
    "ot_kura_inventory",
-   "ot_kura_lesson"
+   "ot_kura_lesson",
+   "ak_jinbocho_tamaki",
+   "ot_sensoji_sanja_tamaki",
+   "ot_sumida_fireworks_tamaki",
+   "ot_sumida_moon_tamaki",
+   "ot_kura_after_hours",
+   "ot_yanaka_kura_roof",
+   "mg_station_antique_tamaki",
+   "bay_tv_clinic",
+   "hk_ryokan_tamaki"
   ],
   "occupations": [
    "rider",
@@ -2147,7 +2156,11 @@
    "nw_shunga_kunisada",
    "nw_shunga_kuniyoshi",
    "mem_sl_tamaki_puppies",
-   "mem_kk_museum"
+   "mem_kk_museum",
+   "mem_sl_tamaki_clinic",
+   "mem_sl_tamaki_after_hours",
+   "mem_sl_tamaki_last_case",
+   "mem_kk_tamaki"
   ]
  }
 }

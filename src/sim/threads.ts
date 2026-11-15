@@ -27,7 +27,7 @@ import { exampleOf, adultOn } from './dayplan.js';
 import { presentAt, residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner, type Cond } from './when.js';
 import { effectAdd } from './effects.js';
-import { startRumor, rumorPool, YOU } from './living.js';
+import { startRumor, rumorPool, liveTogether, YOU } from './living.js';
 import { queueMoment, inviteSoon } from './moments.js';
 import { note } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
@@ -35,8 +35,10 @@ import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
 import { textFrom, social } from './social.js';
 import { money } from './needs.js';
-import { fr, setFr } from './rel.js';
-import { FRIEND_TIERS } from './romance.js';
+import { fr, setFr, attracted, statusOf, isPartner } from './rel.js';
+import { FRIEND_TIERS, becomeCouple, jealousOf } from './romance.js';
+import { romanceBlocked } from './family.js';
+import { playerHomeId } from './places.js';
 
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 
@@ -172,13 +174,36 @@ function endThread(g: Save, w: WorldDef, t: Thread, r: Resident, e: ThreadEnding
     }
     note(g, e.text.replace(/\{\{user\}\}/g, '{u}'), [], [r.avatar], `home:${r.avatar}`, 'thread');
     if (e.fact) note(g, e.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
-    const out = [`${first(r)}: ${you(trim(e.text))}.`, ...(paid ? [paid] : [])];
+    const out = [`${first(r)}: ${you(trim(e.text))}.`, ...(paid ? [paid] : []), ...coupleOf(g, w, r, e)];
     if (e.leaves) {
         if (by === 'nudges') {
             // the goodbye comes by text, the ending's own words standing in for the AI's
             if (systemOn(w, 'plans') && r.met) void textFrom(g, w, r.avatar, `${r.name} writes to say goodbye to ${personaName()}: ${trim(e.text).replace(/\{\{user\}\}/g, personaName())}. A short, warm goodbye in their own voice.`, `${you(trim(e.text))}. Take care of yourself.`).then(() => unread(g, r.avatar)).catch(() => { /* offline */ });
             out.push(...leaveMap(g, r, e.text));
         } else st.leaving = g.day;
+    }
+    return out;
+}
+// (museum) An ending's couple with the player and their moving in: the highest status at most the ending's that their
+// tier allows (never lowering one you are already; nothing with romance off, with someone romance is closed to or not
+// drawn to you, or the person you play), then, once partners, they move into your home.
+const COUPLE = ['dating', 'engaged', 'married'] as const;
+function coupleOf(g: Save, w: WorldDef, r: Resident, e: ThreadEnding): string[] {
+    const out: string[] = [];
+    if (r.avatar === self(g) || goneFromMap(r)) return out;
+    if (e.couple && systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) && attracted(g, r.avatar, YOU)) {
+        const have = COUPLE.indexOf(statusOf(g, r.avatar, YOU) as typeof COUPLE[number]);
+        for (let i = COUPLE.indexOf(e.couple); i > have; i--) {
+            if (tierLink.notYet(g, r.avatar, COUPLE[i])) continue;
+            const hurt = COUPLE[i] === 'dating' ? jealousOf(g, r.avatar, r.name) : [];
+            out.push(becomeCouple(g, r.avatar, r.name, COUPLE[i]), ...hurt);
+            break;
+        }
+    }
+    if (e.movesIn && isPartner(g, r.avatar, YOU) && (r as any).homeWith !== YOU && g.player.home) {
+        liveTogether(g, YOU, r.avatar);
+        note(g, '{0} moved in with {u}.', [r.name], [r.avatar], playerHomeId, 'love');
+        out.push(`${r.name} moves in with you.`);
     }
     return out;
 }

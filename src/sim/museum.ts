@@ -314,7 +314,8 @@ const themeName = (w: WorldDef, theme: string) => { const [h, gr] = theme.split(
 
 /** After an action (its roll done): one roll for its finds, then one missing piece among them you can house. The odds
  *  are the best of its finds' `chance`, times the best two of: the action's roll succeeded (×2), the reading room
- *  (×1.5), the curator with you (×1.5), at most `FIND.most`; with the curator a find's damaged odds are halved. */
+ *  (×1.5), the curator with you (×1.5), at most `FIND.most`; with the curator a find's damaged odds are halved, and
+ *  the museum's `eye` (once its condition holds) lowers them for good. */
 function found(g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]): string[] {
     if (!piecesOn(w)) return [];
     const place = g.player.loc;
@@ -334,7 +335,8 @@ function found(g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: st
     const total = list.reduce((n, f) => n + Math.max(0.001, f.x.chance ?? 0), 0);
     let pick = rnd(g, `findwhich|${a.id}`) * total, f = list[0];
     for (const y of list) { pick -= Math.max(0.001, y.x.chance ?? 0); if (pick < 0) { f = y; break; } }
-    const bad = museumOn(w) && rnd(g, `finddamaged|${f.s.id}`) < (f.x.damaged ?? 0) * (withCur ? 0.5 : 1);
+    const eye = w.collection?.museum?.eye, sharp = eye && whenHolds(g, w, eye.when) ? eye.damaged : 1;   // (her lessons' eye, for good)
+    const bad = museumOn(w) && rnd(g, `finddamaged|${f.s.id}`) < (f.x.damaged ?? 0) * (withCur ? 0.5 : 1) * sharp;
     give(g, w, f.s, { day: g.day, src: 'find' }, bad);
     return [`A find: ${f.s.icon ? `${f.s.icon} ` : ''}${f.s.name}.${whereLine(g, w, f.s, bad)}`];
 }
