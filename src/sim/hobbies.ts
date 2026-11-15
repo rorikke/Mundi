@@ -92,7 +92,8 @@ export function hobbyNeed(g: Save, w: WorldDef | null | undefined, o: Occupation
     const parts: string[] = [];
     const h = on(w) && o.hobby?.id ? hobbiesOf(w).find(x => x.id === o.hobby!.id) : null;
     if (h) parts.push(`${h.name} level ${o.hobby!.level} (you: ${levelOf(g, h.id)})`);
-    for (const [id, n] of Object.entries(o.skills ?? {})) parts.push(`${skillName(w, id)} level ${n} (you: ${levelOf(g, id)})`);
+    // (a skill at level 0 asks for nothing: it only counts in the interview)
+    for (const [id, n] of Object.entries(o.skills ?? {})) if (Number(n) > 0) parts.push(`${skillName(w, id)} level ${n} (you: ${levelOf(g, id)})`);
     return parts.join(', ');
 }
 

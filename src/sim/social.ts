@@ -18,6 +18,7 @@ import { book } from './ledger.js';
 import { effectMul } from './effects.js';
 import { pricePerk } from './worldstate.js';
 import { tallyEvent } from './tally.js';
+import { usualPay } from './needs.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
@@ -167,8 +168,9 @@ export function wordsIn(g: Save, list: string[] | undefined, text: string): bool
 // what they like (not their body: a body line names parts, not wishes)
 const profileText = (p: IntimateProfile | undefined) => !p ? '' : [p.experience, p.wants, p.drawnTo, p.flirts, p.dynamic, p.inBed, ...(p.prefs ?? [])].filter(Boolean).join(' . ');
 const intimateOf = (g: Save, avatar: string): IntimateProfile | undefined => relOf(g).people[idOf(g, avatar)]?.intimate;
-// drawn to you: a couple with you, or romance at Crush and up (and romance possible between you)
-const drawnToYou = (g: Save, w: WorldDef, avatar: string) => !!statusOf(g, avatar, YOU) || (systemOn(w, 'romance') && !romanceBlocked(g, avatar) && ro(g, avatar, YOU) >= CRUSH);
+/** Drawn to you: a couple with you, or romance at Crush and up (and romance possible between you). The test gifts use,
+ *  and the shop's adult things told at home (sim/shop.ts). */
+export const drawnToYou = (g: Save, w: WorldDef, avatar: string) => !!statusOf(g, avatar, YOU) || (systemOn(w, 'romance') && !romanceBlocked(g, avatar) && ro(g, avatar, YOU) >= CRUSH);
 export function giftFit(g: Save, w: WorldDef, k: KeepsakeDef, avatar: string): GiftFit {
     const r = g.cast[avatar]; if (!r) return 'kind';
     const loves = k.loves ?? [];
@@ -217,10 +219,14 @@ export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): 
     note(g, '{u} gave {0} a gift: {1}.', [r.name, k.name], [avatar], g.player.loc, 'gift');
     const how = fit === 'loves' ? 'loves it: it is exactly the kind of thing they treasure' : fit === 'fits' ? 'likes it: it fits what they enjoy' : loving ? 'is touched by it' : 'takes it kindly, though it means little to them';
     const why = loving ? ` It's ${k.intimate ? 'an intimate' : 'a romantic'} gift from someone ${r.name} is drawn to${k.intimate ? ', and it reads as an invitation' : ''}.` : '';
+    const dear = giftCost(w, k) >= usualPay(w) * 40 ? ` It's plainly an expensive gift; what it means to ${r.name} is the same either way.` : '';
     const text = !first ? `${r.name} already has something like it from you.` : fit === 'loves' ? `${r.name} loves the ${k.name}!` : fit === 'fits' ? `${r.name} likes the ${k.name}.` : loving ? `${r.name} blushes at the ${k.name}.` : `${r.name} thanks you for the ${k.name}.`;
-    const ai = `[Just now {{user}} gave ${r.name} a gift: ${k.name}. ${r.name} ${how}${first ? '' : ` (${r.name} already has something like it from {{user}})`}.${why} Narrate how ${r.name} reacts.]`;
+    const ai = `[Just now {{user}} gave ${r.name} a gift: ${k.name}. ${r.name} ${how}${first ? '' : ` (${r.name} already has something like it from {{user}})`}.${why}${dear} Narrate how ${r.name} reacts.]`;
     return { ok: true, text, fit, first, d, ai };
 }
+// What a gift cost: its own price where it's sold, or the dearest shop item that gives it (sim/shop.ts). A gift that
+// cost a week's usual pay or more is told to the AI as expensive; its worth to them is its fit all the same.
+const giftCost = (w: WorldDef, k: KeepsakeDef) => Math.max(k.price ?? 0, ...((((w.catalogs as any)?.shop ?? []) as { keepsake?: string; price?: number }[]).filter(it => it.keepsake === k.id).map(it => Number(it.price) || 0)));
 /** Gifts sold where you are (adult ones only with adult content on). */
 export const giftsForSale = (g: Save, w: WorldDef, place = g.player.loc) => (w.keepsakes ?? []).filter(k => (k.price ?? 0) > 0 && (k.at ?? []).includes(place) && adultOk(g, k));
 /** What a gift costs here (what effects do to prices at the place). */

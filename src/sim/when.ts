@@ -41,7 +41,7 @@ import { courseOf } from './courses.js';
 import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
-import { haveItem, ownedDefs, catOf, SHOP_CATS } from './shop.js';
+import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
@@ -620,6 +620,20 @@ function seenWords(w: WorldDef, v: string): string {
     const p = s && w.places.find(x => x.id === s.place)?.name;
     return p ? `a moment at ${p}` : 'a moment of its own';
 }
+// What an `owns:` asks, in words: things by name (cars only: "a car"), or a number of a category's things.
+function ownsWords(w: WorldDef, values: string[]): string {
+    const items = shopItems(w), words: string[] = [];
+    const ids = values.filter(v => !OWNS.exec(v)?.[1]), named = ids.map(id => items.find(x => x.id === id));
+    if (ids.length && named.every(it => it?.late)) words.push('a car');
+    else for (const [i, it] of named.entries()) words.push(it ? `a ${it.name}` : ids[i]);
+    for (const v of values) {
+        const m = OWNS.exec(v); if (!m?.[1]) continue;
+        const cat = SHOP_CATS.find(x => x.id === m[1].toLowerCase()), n = Number(m[2] ?? 1);
+        const what = cat?.id === 'vehicle' ? (n > 1 ? 'vehicles' : 'vehicle') : `${n > 1 ? 'things' : 'thing'} from ${cat?.name ?? m[1]}`;
+        words.push(n > 1 ? `${n} ${what}` : `a ${what}`);
+    }
+    return `${[...new Set(words)].join(' or ')} of your own`;
+}
 /** Whose storyline a thread is (the world's person's first name). */
 export const threadOwner = (w: WorldDef, id: string) => w.cast.examples.find(e => (e.threads ?? []).some(t => t.id === id))?.name.split(/\s+/)[0] ?? 'someone';
 /** What a condition still asks, in words. The work screen's keys (skills, courses, friendships, time in the rank, a
@@ -644,6 +658,8 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
         else if (c.key === 'inrank' && !c.not) out.push(inRankWords(g, w, Number(c.values[0])));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
+        // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
+        else if (c.key === 'owns' && !c.not) out.push(ownsWords(w, c.values));
         else if (!more) other = true;
         else if (c.key === 'seen' && !c.not) out.push([...new Set(c.values.map(v => seenWords(w, v)))].join(' or '));
         else if (c.key === 'knows' && !c.not) out.push(c.values.map(v => `${threadOwner(w, v)}'s secret`).join(' or '));
