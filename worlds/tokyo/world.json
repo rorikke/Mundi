@@ -36436,6 +36436,241 @@
      "text": "she shrugs, says the nieces will be pleased, and goes back to taking the window apart piece by piece"
     }
    ]
+  },
+  {
+   "id": "ot_yanaka_st_enso",
+   "place": "ot_yanaka",
+   "when": "period: rush or midmorning; weekday: not mon",
+   "setup": "Behind a low wall in Yanaka's temple quarter, an old priest in a grey work robe rakes the gravel of a small temple's garden. A board by its gate, in brush and in English, says anyone may sit the morning zazen. Inside, the meditation hall's doors stand open on a row of black cushions, all empty.",
+   "choices": [
+    {
+     "label": "Sit zazen with him",
+     "roll": {
+      "dc": 12
+     },
+     "minutes": 45,
+     "text": "You sit until the bell, your mind as still as the gravel. Afterwards he brushes one circle in a single breath and gives it to you, for sitting longer than most.",
+     "effects": {
+      "mood": 8
+     },
+     "fact": "{u} sat zazen with the old priest of a Yanaka temple, who gave {u} a Zen circle he brushed",
+     "fail": {
+      "text": "Your legs go numb and your thoughts never stop. At the bell he only smiles, bows, and goes back to his raking.",
+      "effects": {
+       "mood": 2
+      }
+     }
+    },
+    {
+     "label": "Ask about the temple",
+     "text": "He tells how the temple survived the great fire and the war, and how few come to sit now. The gravel, he says, is raked new every morning anyway.",
+     "effects": {
+      "mood": 3
+     },
+     "rumor": "An old priest in Yanaka still holds a morning zazen that almost no one comes to"
+    },
+    {
+     "label": "Leave a coin and walk on",
+     "text": "The coin rings in the offering box at the gate. He bows to you without once stopping his rake, and the gravel hisses on.",
+     "money": -100,
+     "effects": {
+      "mood": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_shrine_st_fox",
+   "place": "ot_shrine",
+   "when": "period: midmorning or afternoon",
+   "setup": "At Tsukimi Inari, a new stone fox stands wrapped in white cloth beside the old one, whose ear is cracked through and whose red bib has faded pink. The priest and a young man are trying to lift the old fox onto a hand cart; it won't budge. A shrine never throws a guardian away, the priest says to no one in particular: it has to go somewhere it will be looked after.",
+   "choices": [
+    {
+     "label": "Help carry the old fox",
+     "roll": {
+      "skill": "fitness",
+      "dc": 12
+     },
+     "minutes": 30,
+     "text": "Between the three of you it goes onto the cart and down the lane. Out of breath, the priest says a guardian carried by your hands should stay with you, if you'll give it a roof.",
+     "effects": {
+      "mood": 6
+     },
+     "fact": "{u} helped carry Tsukimi Inari's old stone fox, and the priest gave it to {u} to look after",
+     "fail": {
+      "text": "It slips back onto its base with a thud that makes the priest wince. They thank you and send for the neighbourhood association.",
+      "effects": {
+       "mood": -1
+      }
+     }
+    },
+    {
+     "label": "Ask about the new fox",
+     "text": "Carved in Okazaki, he says proudly, from the same stone as the first. He shows you the key in its mouth: the key to the rice store.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "label": "Bow to both and walk on",
+     "text": "You bow to the new fox and then the old one. The two of them, one white and one grey, watch you all the way to the gate.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_opening",
+   "place": "ot_kura",
+   "when": "museum: show",
+   "title": "the opening night",
+   "setup": "The first show's opening night at the Kurahashi kura: paper lanterns along the lane, cold sake and rice crackers on a table by the door, neighbours from Yanaka in their good cardigans, a few of the people {{user}} knows, and a man from the ward's newsletter with a camera. The iron shutters are open and every case is lit.",
+   "choices": [
+    {
+     "label": "Give a short speech",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "A few words about the storehouse and the people who kept it; the lane goes quiet to listen, and the applause carries out to the street.",
+     "effects": {
+      "mood": 8
+     },
+     "renown": 10,
+     "keepsake": "kura_programme",
+     "rumor": "The old Kurahashi storehouse in Yanaka is a museum now",
+     "fail": {
+      "text": "You lose your place halfway through, laugh, and raise a glass instead. It goes down better than the speech would have.",
+      "effects": {
+       "mood": 4
+      },
+      "renown": 10,
+      "keepsake": "kura_programme"
+     }
+    },
+    {
+     "label": "Walk the guests round the cases",
+     "text": "You tell each piece its story to whoever will listen; by the end there is a little crowd following you from case to case.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 10,
+     "keepsake": "kura_programme",
+     "rumor": "The old Kurahashi storehouse in Yanaka is a museum now"
+    },
+    {
+     "label": "Keep to the door and greet people",
+     "text": "You shake hands until your arm aches. The old woman from the corner shop says it is the first time the lane has been this full since the Bon dance.",
+     "effects": {
+      "mood": 5
+     },
+     "renown": 10,
+     "keepsake": "kura_programme"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_critic",
+   "place": "ot_kura",
+   "when": "museum: renown 3; museum: shows 1",
+   "title": "the critic's visit",
+   "setup": "A woman in a grey coat with a notebook and a newspaper's press card walks the kura's halls slowly, saying nothing, stopping a long time at some cases and none at others. Her paper's arts page is the one people in Tokyo read; she hasn't said she's writing about the kura, but she is.",
+   "choices": [
+    {
+     "label": "Walk her round yourself",
+     "roll": {
+      "skill": "writing",
+      "dc": 14
+     },
+     "text": "You find the right words for every case, and she starts writing them down. The review runs on Sunday: \"a private museum with a public heart\".",
+     "effects": {
+      "mood": 8
+     },
+     "renown": 15,
+     "keepsake": "kura_review",
+     "fail": {
+      "text": "You talk too much, and she writes less. The review is kind but short: \"worth the walk from Nippori\".",
+      "effects": {
+       "mood": 2
+      },
+      "renown": 5,
+      "keepsake": "kura_review"
+     }
+    },
+    {
+     "label": "Let Tamaki lead",
+     "when": "present: Tamaki",
+     "text": "Tamaki takes her round, quietly, and the critic stops writing and just listens. The review calls the kura \"a lesson in looking\".",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 12,
+     "keepsake": "kura_review",
+     "feels": {
+      "Tamaki": 1
+     }
+    },
+    {
+     "label": "Leave her with the catalogue",
+     "text": "She thanks you and reads it on the bench by the garden. The review, when it comes, quotes the catalogue more than it quotes you.",
+     "effects": {
+      "mood": 2
+     },
+     "renown": 5,
+     "keepsake": "kura_review"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_theft",
+   "place": "ot_kura",
+   "when": "museum: renown 4; period: evening or night",
+   "title": "the theft",
+   "setup": "After closing, with the lane dark and the cases unlit, there is a scrape at the kura's back shutters. A figure in dark clothes has one of the cases open and something wrapped in a cloth under one arm, and is backing towards the lane. They haven't seen {{user}} yet.",
+   "choices": [
+    {
+     "label": "Sound the alarm",
+     "when": "museum: guard",
+     "text": "The night guard is at the gate before the thief is; they are caught with the piece still in its cloth, and the police take it from there.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 10,
+     "rumor": "A thief was caught at the Kurahashi kura in Yanaka"
+    },
+    {
+     "label": "Go after them",
+     "roll": {
+      "skill": "fitness",
+      "dc": 15
+     },
+     "text": "You catch them at the end of the lane; they drop the piece into your hands and run. Not a scratch on it.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 10,
+     "rumor": "Someone stopped a thief at the Kurahashi kura with their own hands",
+     "fail": {
+      "text": "They drop it on the stones of the lane and are gone round the corner. The piece is yours still, but it will need the workshop.",
+      "effects": {
+       "mood": -4
+      },
+      "renown": 5,
+      "damage": true,
+      "rumor": "A thief tried to rob the Kurahashi kura"
+     }
+    },
+    {
+     "label": "Call the police",
+     "text": "They take a statement and a photo of the empty case. Three days later the piece turns up in a pawnshop in Ueno, and comes home in a police van.",
+     "effects": {
+      "mood": -2
+     },
+     "renown": 5,
+     "rumor": "A piece stolen from the Kurahashi kura turned up in a pawnshop"
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -62534,6 +62769,115 @@
  "collection": {
   "halls": [
    {
+    "id": "art",
+    "name": "Art",
+    "icon": "🖼️",
+    "desc": "Prints, paintings, calligraphy and sculpture.",
+    "groups": [
+     {
+      "id": "prints",
+      "name": "Ukiyo-e prints",
+      "icon": "🌊"
+     },
+     {
+      "id": "paintings",
+      "name": "Paintings, scrolls and screens",
+      "icon": "🎨"
+     },
+     {
+      "id": "calligraphy",
+      "name": "Calligraphy",
+      "icon": "🖌️"
+     },
+     {
+      "id": "sculpture",
+      "name": "Sculpture",
+      "icon": "🗿"
+     }
+    ]
+   },
+   {
+    "id": "crafts",
+    "name": "Crafts and antiques",
+    "icon": "🏺",
+    "desc": "Tea ware, swords, lacquer, netsuke, textiles and old Edo-Tokyo.",
+    "groups": [
+     {
+      "id": "ceramics",
+      "name": "Ceramics and tea ware",
+      "icon": "🍵"
+     },
+     {
+      "id": "arms",
+      "name": "Swords, armour and fittings",
+      "icon": "⚔️"
+     },
+     {
+      "id": "lacquer",
+      "name": "Lacquer and metalwork",
+      "icon": "🪞"
+     },
+     {
+      "id": "netsuke",
+      "name": "Netsuke and small carvings",
+      "icon": "🐭"
+     },
+     {
+      "id": "textiles",
+      "name": "Textiles",
+      "icon": "👘"
+     },
+     {
+      "id": "old_tokyo",
+      "name": "Old Edo-Tokyo",
+      "icon": "🏮"
+     }
+    ]
+   },
+   {
+    "id": "modern",
+    "name": "Modern Tokyo",
+    "icon": "📻",
+    "desc": "Shōwa retro, and the things of the people you've known.",
+    "groups": [
+     {
+      "id": "showa",
+      "name": "Shōwa retro",
+      "icon": "📺"
+     },
+     {
+      "id": "cast",
+      "name": "The people's things",
+      "icon": "🎁"
+     }
+    ]
+   },
+   {
+    "id": "night",
+    "name": "The night world",
+    "adult": true,
+    "groups": [
+     {
+      "id": "mementos",
+      "name": "Mementos",
+      "icon": "🌙"
+     },
+     {
+      "id": "things",
+      "name": "Night-world things",
+      "icon": "🍾"
+     },
+     {
+      "id": "shunga",
+      "name": "Shunga",
+      "icon": "🌸"
+     }
+    ],
+    "icon": "🌃",
+    "desc": "The night world: its people and its things.",
+    "open": "museum: wing_night"
+   },
+   {
     "id": "memories",
     "name": "Tokyo memories",
     "record": true,
@@ -62581,21 +62925,6 @@
     ],
     "icon": "🗾",
     "desc": "What you have lived in Tokyo. It fills by itself as it happens."
-   },
-   {
-    "id": "night",
-    "name": "The night world",
-    "adult": true,
-    "groups": [
-     {
-      "id": "mementos",
-      "name": "Mementos",
-      "icon": "🌙"
-     }
-    ],
-    "icon": "🌃",
-    "desc": "The night world: its people and its things.",
-    "open": "goal: 999"
    }
   ],
   "slots": [
@@ -64101,7 +64430,1971 @@
     ],
     "icon": "🏆",
     "hint": "Finish twenty life goals."
+   },
+   {
+    "id": "art_great_wave",
+    "hall": "art",
+    "group": "prints",
+    "name": "The Great Wave",
+    "icon": "🌊",
+    "hint": "Turns up at the Ginza sales.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1500000
+     }
+    ],
+    "price": 1500000
+   },
+   {
+    "id": "art_red_fuji",
+    "hall": "art",
+    "group": "prints",
+    "name": "Red Fuji",
+    "icon": "🗻",
+    "hint": "Turns up at the Ginza sales.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 750000
+     }
+    ],
+    "price": 750000
+   },
+   {
+    "id": "art_black_fuji",
+    "hall": "art",
+    "group": "prints",
+    "name": "Storm below the summit",
+    "icon": "⛈️",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 300000
+     }
+    ],
+    "price": 300000
+   },
+   {
+    "id": "art_ohashi_shower",
+    "hall": "art",
+    "group": "prints",
+    "name": "Sudden shower at Ōhashi",
+    "icon": "🌧️",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 260000
+     }
+    ],
+    "price": 260000
+   },
+   {
+    "id": "art_kameido_plum",
+    "hall": "art",
+    "group": "prints",
+    "name": "Plum garden at Kameido",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 220000
+     }
+    ],
+    "price": 220000
+   },
+   {
+    "id": "art_kambara_snow",
+    "hall": "art",
+    "group": "prints",
+    "name": "Night snow at Kambara",
+    "icon": "❄️",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 180000
+     }
+    ],
+    "price": 180000
+   },
+   {
+    "id": "art_ryogoku_fireworks",
+    "hall": "art",
+    "group": "prints",
+    "name": "Fireworks at Ryōgoku",
+    "icon": "🎆",
+    "hint": "From a stall at the Sumida River Fireworks.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "fireworks",
+      "price": 90000
+     }
+    ],
+    "price": 90000
+   },
+   {
+    "id": "art_sharaku_actor",
+    "hall": "art",
+    "group": "prints",
+    "name": "A kabuki actor",
+    "icon": "🎭",
+    "hint": "Turns up at the Ginza sales.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000
+     }
+    ],
+    "price": 500000
+   },
+   {
+    "id": "art_utamaro_beauty",
+    "hall": "art",
+    "group": "prints",
+    "name": "A beauty",
+    "icon": "🪭",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000
+   },
+   {
+    "id": "art_kuniyoshi_horyukaku",
+    "hall": "art",
+    "group": "prints",
+    "name": "The fight on the Hōryūkaku",
+    "icon": "🏯",
+    "hint": "Sold at Jinbōchō's old print shops.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 120000
+     }
+    ],
+    "price": 120000
+   },
+   {
+    "id": "art_yoshitoshi_moon",
+    "hall": "art",
+    "group": "prints",
+    "name": "From the hundred moons",
+    "icon": "🌕",
+    "hint": "Sold at Jinbōchō's old print shops.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 80000
+     }
+    ],
+    "price": 80000
+   },
+   {
+    "id": "art_kiyonaga_beauties",
+    "hall": "art",
+    "group": "prints",
+    "name": "Beauties by the river",
+    "icon": "👘",
+    "hint": "Sometimes found in the used-book festival's carts, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_jinbocho_fair",
+      "chance": 0.1
+     },
+     {
+      "kind": "dealer",
+      "price": 100000
+     }
+    ],
+    "price": 100000
+   },
+   {
+    "id": "art_korin_irises",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Irises",
+    "icon": "🪻",
+    "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 5000000
+     }
+    ],
+    "price": 5000000,
+    "needsUpgrade": "guard"
+   },
+   {
+    "id": "art_sotatsu_gods",
+    "hall": "art",
+    "group": "paintings",
+    "name": "The thunder god",
+    "icon": "⚡",
+    "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1000000
+     }
+    ],
+    "price": 1000000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_jakuchu_rooster",
+    "hall": "art",
+    "group": "paintings",
+    "name": "A rooster",
+    "icon": "🐓",
+    "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 750000
+     }
+    ],
+    "price": 750000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_okyo_puppies",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Puppies in the snow",
+    "icon": "🐶",
+    "hint": "Turns up at the Ginza sales, or the dealer may bring it in time. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000,
+      "when": "knows: tamaki_puppies"
+     },
+     {
+      "kind": "dealer",
+      "price": 750000,
+      "when": "thread: tamaki_puppies"
+     }
+    ],
+    "price": 500000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_kano_pines",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Pines",
+    "icon": "🦅",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 500000
+     }
+    ],
+    "price": 500000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_sesshu_landscape",
+    "hall": "art",
+    "group": "paintings",
+    "name": "An ink landscape",
+    "icon": "🏞️",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_tohaku_pines",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Pines in mist",
+    "icon": "🌲",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 260000
+     }
+    ],
+    "price": 260000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_nihonga_cat",
+    "hall": "art",
+    "group": "paintings",
+    "name": "A cat by the camellias",
+    "icon": "🐈",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 160000
+     }
+    ],
+    "price": 160000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "art_enso",
+    "hall": "art",
+    "group": "calligraphy",
+    "name": "A Zen circle",
+    "icon": "⭕",
+    "hint": "A Yanaka temple's gift, if you sit with its priest one morning.",
+    "sources": [
+     {
+      "kind": "story",
+      "id": "ot_yanaka_st_enso",
+      "when": "seen: ot_yanaka_st_enso:1"
+     },
+     {
+      "kind": "replica",
+      "when": "seen: ot_yanaka_st_enso",
+      "price": 40000
+     }
+    ]
+   },
+   {
+    "id": "art_temple_plaque",
+    "hall": "art",
+    "group": "calligraphy",
+    "name": "A temple's plaque",
+    "icon": "🪧",
+    "hint": "Yours when a division of yours reaches Vice president, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: exec tier 3"
+     },
+     {
+      "kind": "dealer",
+      "price": 300000
+     }
+    ],
+    "price": 300000
+   },
+   {
+    "id": "art_poem_slip",
+    "hall": "art",
+    "group": "calligraphy",
+    "name": "A poem slip",
+    "icon": "📜",
+    "hint": "From a stall at the Used-book festival.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "bookfair",
+      "price": 40000
+     }
+    ],
+    "price": 40000
+   },
+   {
+    "id": "art_amida",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A seated Amida",
+    "icon": "🧘",
+    "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1400000
+     }
+    ],
+    "price": 1400000,
+    "needsUpgrade": "guard"
+   },
+   {
+    "id": "art_nio",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A temple guardian",
+    "icon": "👹",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 900000
+     }
+    ],
+    "price": 900000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "art_kannon",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A wooden Kannon",
+    "icon": "🪷",
+    "hint": "The dealer may bring it. Needs security.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 600000
+     }
+    ],
+    "price": 600000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "art_meiji_eagle",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A bronze eagle",
+    "icon": "🦅",
+    "hint": "The dealer may bring it. Needs security.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 380000
+     }
+    ],
+    "price": 380000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "art_stone_fox",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A shrine's stone fox",
+    "icon": "🦊",
+    "hint": "Tsukimi Inari's to give, if you lend a hand. Needs security.",
+    "sources": [
+     {
+      "kind": "story",
+      "id": "ot_shrine_st_fox",
+      "when": "seen: ot_shrine_st_fox:1"
+     },
+     {
+      "kind": "replica",
+      "when": "seen: ot_shrine_st_fox",
+      "price": 90000
+     }
+    ],
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "cr_raku_bowl",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A raku tea bowl",
+    "icon": "🍵",
+    "hint": "Turns up at the Ginza sales.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 800000
+     }
+    ],
+    "price": 800000
+   },
+   {
+    "id": "cr_imari_plate",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "An Imari plate",
+    "icon": "🍽️",
+    "hint": "Sold at the antique market at Tokyo Station.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 120000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 120000
+   },
+   {
+    "id": "cr_kutani_dish",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Kutani dish",
+    "icon": "🐦",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 160000
+     }
+    ],
+    "price": 160000
+   },
+   {
+    "id": "cr_oribe_dish",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "An Oribe dish",
+    "icon": "🟩",
+    "hint": "Sometimes found on the racks at Second Bloom, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ws_vintage_buy",
+      "chance": 0.06,
+      "damaged": 0.4
+     },
+     {
+      "kind": "dealer",
+      "price": 140000
+     }
+    ],
+    "price": 140000
+   },
+   {
+    "id": "cr_bizen_jar",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Bizen jar",
+    "icon": "🏺",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 380000
+     }
+    ],
+    "price": 380000
+   },
+   {
+    "id": "cr_celadon_vase",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A celadon vase",
+    "icon": "🏺",
+    "hint": "Turns up at the Ginza sales.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000
+     }
+    ],
+    "price": 500000
+   },
+   {
+    "id": "cr_shino_bowl",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Shino bowl",
+    "icon": "🥣",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 600000
+     }
+    ],
+    "price": 600000
+   },
+   {
+    "id": "cr_seto_caddy",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Seto tea caddy",
+    "icon": "🫙",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.15,
+      "damaged": 0.3
+     },
+     {
+      "kind": "dealer",
+      "price": 100000
+     }
+    ],
+    "price": 100000
+   },
+   {
+    "id": "cr_katana",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A katana",
+    "icon": "🗡️",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1200000
+     }
+    ],
+    "price": 1200000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "cr_tanto",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A tantō",
+    "icon": "🔪",
+    "hint": "The dealer may bring it. Needs security.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "cr_tsuba",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A sword guard",
+    "icon": "⚙️",
+    "hint": "Sold at the antique market at Tokyo Station. Needs security.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 90000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 90000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "cr_kabuto",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A helmet",
+    "icon": "⛑️",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 800000
+     }
+    ],
+    "price": 800000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "cr_menpo",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A face guard",
+    "icon": "👺",
+    "hint": "The dealer may bring it. Needs security.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 320000
+     }
+    ],
+    "price": 320000,
+    "needsUpgrade": "security"
+   },
+   {
+    "id": "cr_armour",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A suit of armour",
+    "icon": "🛡️",
+    "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 2600000
+     }
+    ],
+    "price": 2600000,
+    "needsUpgrade": "guard"
+   },
+   {
+    "id": "cr_makie_box",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "A maki-e box",
+    "icon": "🎁",
+    "hint": "Yours when a hotel of yours reaches its top tier, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: capsule tier 3 or ryokan tier 3 or lovehotel tier 3"
+     },
+     {
+      "kind": "dealer",
+      "price": 600000
+     }
+    ],
+    "price": 600000
+   },
+   {
+    "id": "cr_inro",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "An inrō",
+    "icon": "🧧",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 280000
+     }
+    ],
+    "price": 280000
+   },
+   {
+    "id": "cr_bronze_mirror",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "A bronze mirror",
+    "icon": "🪞",
+    "hint": "Turns up at the Ginza sales.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 300000
+     }
+    ],
+    "price": 300000
+   },
+   {
+    "id": "cr_tetsubin",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "An iron kettle",
+    "icon": "🫖",
+    "hint": "Yours when a café of yours becomes a roastery, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: cafe tier 4"
+     },
+     {
+      "kind": "dealer",
+      "price": 220000
+     }
+    ],
+    "price": 220000
+   },
+   {
+    "id": "cr_kanzashi",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "A hairpin",
+    "icon": "📍",
+    "hint": "Sold at Second Bloom.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 80000
+     }
+    ],
+    "price": 80000
+   },
+   {
+    "id": "cr_kura_box",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "The Kurahashi box",
+    "icon": "🗝️",
+    "who": "Tamaki",
+    "hint": "Tamaki may have it for you, one day.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "tamaki_last_case"
+     }
+    ],
+    "bonus": true
+   },
+   {
+    "id": "cr_nk_rat",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A rat netsuke",
+    "icon": "🐀",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 60000
+     }
+    ],
+    "price": 60000
+   },
+   {
+    "id": "cr_nk_ox",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "An ox netsuke",
+    "icon": "🐂",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 80000
+     }
+    ],
+    "price": 80000
+   },
+   {
+    "id": "cr_nk_tiger",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A tiger netsuke",
+    "icon": "🐅",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 100000
+     }
+    ],
+    "price": 100000
+   },
+   {
+    "id": "cr_nk_hare",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A hare netsuke",
+    "icon": "🐇",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 60000
+     }
+    ],
+    "price": 60000
+   },
+   {
+    "id": "cr_nk_dog",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A dog netsuke",
+    "icon": "🐕",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 80000
+     }
+    ],
+    "price": 80000
+   },
+   {
+    "id": "cr_nk_monkey",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A monkey netsuke",
+    "icon": "🐒",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 90000
+     }
+    ],
+    "price": 90000
+   },
+   {
+    "id": "cr_nk_cat",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A cat netsuke",
+    "icon": "🐈",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 110000
+     }
+    ],
+    "price": 110000
+   },
+   {
+    "id": "cr_nk_mask",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A mask netsuke",
+    "icon": "🎭",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 90000
+     }
+    ],
+    "price": 90000
+   },
+   {
+    "id": "cr_meiji_kimono",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "A Meiji kimono",
+    "icon": "👘",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "cr_noh_robe",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "A Noh robe",
+    "icon": "🎭",
+    "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 900000
+     }
+    ],
+    "price": 900000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "cr_obi",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "An obi",
+    "icon": "🎀",
+    "hint": "Sold at Second Bloom. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 160000
+     }
+    ],
+    "price": 160000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "cr_happi",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "A festival coat",
+    "icon": "🧥",
+    "hint": "From a stall at the Sanja Matsuri. Needs the climate room.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "sanja",
+      "price": 50000
+     }
+    ],
+    "price": 50000,
+    "needsUpgrade": "climate"
+   },
+   {
+    "id": "cr_edo_map",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A map of Edo",
+    "icon": "🗺️",
+    "hint": "Sold at Jinbōchō's old print shops.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 240000
+     }
+    ],
+    "price": 240000
+   },
+   {
+    "id": "cr_matoi",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A fire brigade's standard",
+    "icon": "🚒",
+    "hint": "The dealer may bring it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 260000
+     }
+    ],
+    "price": 260000
+   },
+   {
+    "id": "cr_kanban",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A shop sign",
+    "icon": "🪧",
+    "hint": "Sold at the antique market at Tokyo Station.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 100000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 100000
+   },
+   {
+    "id": "cr_kawaraban",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A woodblock newssheet",
+    "icon": "📰",
+    "hint": "Sometimes found browsing Jinbōchō, or sold at Jinbōchō during the used-book festival.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_jinbocho_browse",
+      "chance": 0.05
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 40000,
+      "when": "festival: bookfair"
+     }
+    ],
+    "price": 40000
+   },
+   {
+    "id": "cr_tram_ticket",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A Meiji tram ticket",
+    "icon": "🎫",
+    "hint": "Sometimes found in the used-book festival's carts, or the dealer may bring it.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_jinbocho_fair",
+      "chance": 0.1
+     },
+     {
+      "kind": "dealer",
+      "price": 20000
+     }
+    ],
+    "price": 20000
+   },
+   {
+    "id": "cr_prewar_poster",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A pre-war poster",
+    "icon": "🖼️",
+    "hint": "Sold at Second Bloom.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 80000
+     }
+    ],
+    "price": 80000
+   },
+   {
+    "id": "mo_tin_robot",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A tin robot",
+    "icon": "🤖",
+    "hint": "Sold in Electric Town's retro shops.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_electric"
+      ],
+      "price": 48000
+     }
+    ],
+    "price": 48000
+   },
+   {
+    "id": "mo_kaiju",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A kaiju figure",
+    "icon": "🦖",
+    "hint": "From a stall at the Summer fan convention.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "fancon",
+      "price": 24000
+     }
+    ],
+    "price": 24000
+   },
+   {
+    "id": "mo_radio",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A transistor radio",
+    "icon": "📻",
+    "hint": "Sold at Second Bloom.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 36000
+     }
+    ],
+    "price": 36000
+   },
+   {
+    "id": "mo_film_camera",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A film camera",
+    "icon": "📷",
+    "hint": "Sold at Second Bloom.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 58000
+     }
+    ],
+    "price": 58000
+   },
+   {
+    "id": "mo_console",
+    "hall": "modern",
+    "group": "showa",
+    "name": "An early game console",
+    "icon": "🕹️",
+    "hint": "Sold in Electric Town's retro shops.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_electric"
+      ],
+      "price": 42000
+     }
+    ],
+    "price": 42000
+   },
+   {
+    "id": "mo_lcd_game",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A handheld LCD game",
+    "icon": "🎮",
+    "hint": "Sometimes found in Electric Town's retro shops, or sold in Electric Town's retro shops.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_electric_retro",
+      "chance": 0.1
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ak_electric"
+      ],
+      "price": 18000
+     }
+    ],
+    "price": 18000
+   },
+   {
+    "id": "mo_rotary_phone",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A rotary phone",
+    "icon": "☎️",
+    "hint": "Sometimes found at the back of Second Bloom, or sold at Second Bloom.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ws_vintage_try",
+      "chance": 0.08
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 28000
+     }
+    ],
+    "price": 28000
+   },
+   {
+    "id": "mo_lunchbox",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A lunchbox",
+    "icon": "🍱",
+    "hint": "Sold at the antique market at Tokyo Station.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 12000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 12000
+   },
+   {
+    "id": "mo_nanami_pick",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Nanami's guitar pick",
+    "icon": "🎸",
+    "who": "Nanami",
+    "hint": "Comes with the end of Nanami's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "nanami_scout"
+     }
+    ]
+   },
+   {
+    "id": "mo_kaito_sticks",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Kaito's drumsticks",
+    "icon": "🥁",
+    "who": "Kaito",
+    "hint": "Comes with the end of Kaito's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "kaito_debt"
+     }
+    ]
+   },
+   {
+    "id": "mo_rina_cartridge",
+    "hall": "modern",
+    "group": "cast",
+    "name": "The first copy of Rina's game",
+    "icon": "💾",
+    "who": "Rina",
+    "hint": "Comes with the end of Rina's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "rina_runway"
+     }
+    ]
+   },
+   {
+    "id": "mo_hina_programme",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Hina's show programme",
+    "icon": "🎤",
+    "who": "Hina",
+    "hint": "Comes with the end of Hina's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "hina_graduation"
+     }
+    ]
+   },
+   {
+    "id": "mo_seoyeon_notebook",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Seo-yeon's notebook",
+    "icon": "📓",
+    "who": "Seo-yeon",
+    "hint": "Comes with the end of Seo-yeon's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "seoyeon_parents"
+     }
+    ]
+   },
+   {
+    "id": "mo_genzo_noren",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Kamejirō's old noren",
+    "icon": "🍜",
+    "who": "Genzō",
+    "hint": "Comes with the end of Genzō's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "genzo_lease"
+     }
+    ]
+   },
+   {
+    "id": "mo_ayaka_brush",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Ayaka's brush",
+    "icon": "🖌️",
+    "who": "Ayaka",
+    "hint": "Comes with the end of Ayaka's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "ayaka_contest"
+     }
+    ]
+   },
+   {
+    "id": "mo_mio_notes",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Mio's exam notes",
+    "icon": "📝",
+    "who": "Mio",
+    "hint": "Comes with the end of Mio's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "mio_grades"
+     }
+    ]
+   },
+   {
+    "id": "mo_daisuke_letter",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Daisuke's letter",
+    "icon": "✉️",
+    "who": "Daisuke",
+    "hint": "Comes with the end of Daisuke's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "daisuke_letter"
+     }
+    ]
+   },
+   {
+    "id": "mo_hannah_sticker",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Hannah's avatar sticker",
+    "icon": "🏷️",
+    "who": "Hannah",
+    "hint": "Comes with the end of Hannah's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "hannah_stream"
+     }
+    ]
+   },
+   {
+    "id": "mo_chloe_postcard",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Chloe's postcard",
+    "icon": "📮",
+    "who": "Chloe",
+    "hint": "Comes with the end of Chloe's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "chloe_visa"
+     }
+    ]
+   },
+   {
+    "id": "mo_jake_keyring",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Jake's keyring",
+    "icon": "🔑",
+    "who": "Jake",
+    "hint": "Comes with the end of Jake's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "jake_offer"
+     }
+    ]
+   },
+   {
+    "id": "mo_natsuki_wristband",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Natsuki's finals wristband",
+    "icon": "🎟️",
+    "who": "Natsuki",
+    "hint": "Comes with the end of Natsuki's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "natsuki_live"
+     }
+    ]
+   },
+   {
+    "id": "mo_lisa_shoes",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Lisa's dance shoes",
+    "icon": "👠",
+    "who": "Lisa",
+    "hint": "Comes with the end of Lisa's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "lisa_shoulder"
+     }
+    ]
+   },
+   {
+    "id": "mo_yui_paperback",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Yui's paperback",
+    "icon": "📕",
+    "who": "Yui",
+    "hint": "Comes with the end of Yui's story, whichever way it ends.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "yui_fox"
+     }
+    ]
+   },
+   {
+    "id": "mo_wavetv_poster",
+    "hall": "modern",
+    "group": "cast",
+    "name": "A Wave TV poster",
+    "icon": "📺",
+    "hint": "Yours once you are an associate director at Wave TV, or sold at Second Bloom.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "job: tv; rank: 4"
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 30000
+     }
+    ],
+    "price": 30000
+   },
+   {
+    "id": "mo_doujin",
+    "hall": "modern",
+    "group": "cast",
+    "name": "A doujin",
+    "icon": "📚",
+    "hint": "From a stall at the Summer fan convention.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "fancon",
+      "price": 3000
+     }
+    ],
+    "price": 3000
+   },
+   {
+    "id": "nw_tower_bottle",
+    "hall": "night",
+    "group": "things",
+    "name": "A champagne tower's first bottle",
+    "icon": "🍾",
+    "hint": "Sometimes kept after a champagne call at Club Eternal, or the dealer may bring it.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sj_hostclub_bottle",
+      "chance": 0.15
+     },
+     {
+      "kind": "dealer",
+      "price": 120000
+     }
+    ],
+    "price": 120000
+   },
+   {
+    "id": "nw_key_fob",
+    "hall": "night",
+    "group": "things",
+    "name": "A love hotel key fob",
+    "icon": "🔑",
+    "hint": "Yours when Hotel Coco Palace reaches its second tier, or the dealer may bring it.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: ht_coco tier 2"
+     },
+     {
+      "kind": "dealer",
+      "price": 40000
+     }
+    ],
+    "price": 40000
+   },
+   {
+    "id": "nw_photo_board",
+    "hall": "night",
+    "group": "things",
+    "name": "A host club's photo board",
+    "icon": "📸",
+    "hint": "Sold at Second Bloom.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 60000
+     }
+    ],
+    "price": 60000
+   },
+   {
+    "id": "nw_matchbook",
+    "hall": "night",
+    "group": "things",
+    "name": "A cabaret's matchbook",
+    "icon": "🔥",
+    "hint": "Sometimes left on the bar at Bar Kotori, or sold at the antique market at Tokyo Station.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sj_goldengai_drink",
+      "chance": 0.1
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 9000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 9000
+   },
+   {
+    "id": "nw_neon",
+    "hall": "night",
+    "group": "things",
+    "name": "A club's neon sign",
+    "icon": "💗",
+    "hint": "Turns up at the Ginza sales.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 300000
+     }
+    ],
+    "price": 300000
+   },
+   {
+    "id": "nw_shunga_harunobu",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Harunobu",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 500000
+     }
+    ],
+    "price": 500000
+   },
+   {
+    "id": "nw_shunga_koryusai",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Koryūsai",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 280000
+     }
+    ],
+    "price": 280000
+   },
+   {
+    "id": "nw_shunga_utamaro",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Utamaro",
+    "icon": "🌸",
+    "hint": "Turns up at the Ginza sales.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 700000
+     }
+    ],
+    "price": 700000
+   },
+   {
+    "id": "nw_shunga_toyokuni",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Toyokuni",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 380000
+     }
+    ],
+    "price": 380000
+   },
+   {
+    "id": "nw_shunga_kunisada",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Kunisada",
+    "icon": "🌸",
+    "hint": "Turns up at the Ginza sales.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000
+     }
+    ],
+    "price": 500000
+   },
+   {
+    "id": "nw_shunga_kuniyoshi",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Kuniyoshi",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 240000
+     }
+    ],
+    "price": 240000
    }
-  ]
+  ],
+  "museum": {
+   "place": "ot_kura",
+   "name": "The Kurahashi kura",
+   "offer": {
+    "when": "seen: ot_yanaka_st_kura",
+    "price": 1500000
+   },
+   "cases": 6,
+   "room": 12,
+   "curator": "Tamaki",
+   "curatorJob": "kura",
+   "upgrades": [
+    {
+     "id": "wing_art",
+     "name": "The Art wing",
+     "icon": "🖼️",
+     "desc": "Puts the whole Art hall on show.",
+     "price": 1500000,
+     "renown": 5,
+     "opens": "art"
+    },
+    {
+     "id": "wing_crafts",
+     "name": "The Crafts wing",
+     "icon": "🏺",
+     "desc": "Puts all of Crafts and antiques on show.",
+     "price": 1200000,
+     "renown": 5,
+     "opens": "crafts"
+    },
+    {
+     "id": "wing_modern",
+     "name": "The Modern Tokyo room",
+     "icon": "📻",
+     "desc": "Puts all of Modern Tokyo on show.",
+     "price": 600000,
+     "renown": 5,
+     "opens": "modern"
+    },
+    {
+     "id": "wing_night",
+     "name": "The night room",
+     "icon": "🌃",
+     "desc": "A room at the back for the night world and its things.",
+     "price": 800000,
+     "renown": 5,
+     "opens": "night",
+     "adult": true
+    },
+    {
+     "id": "lighting",
+     "name": "Lighting",
+     "icon": "💡",
+     "desc": "Proper lights in every case: the pieces look their best.",
+     "price": 500000,
+     "renown": 15
+    },
+    {
+     "id": "climate",
+     "name": "The climate room",
+     "icon": "🌡️",
+     "desc": "Steady warmth and damp for textiles, screens and scrolls.",
+     "price": 1800000,
+     "renown": 5,
+     "does": "climate"
+    },
+    {
+     "id": "security",
+     "name": "Security",
+     "icon": "🔒",
+     "desc": "Locked cases and alarms, for swords, armour and sculpture.",
+     "price": 1000000,
+     "renown": 5,
+     "does": "security"
+    },
+    {
+     "id": "guard",
+     "name": "A night guard",
+     "icon": "🔦",
+     "desc": "Someone on the premises at night: the crown pieces can come, and no thief gets far.",
+     "price": 2000000,
+     "renown": 5,
+     "needs": [
+      "security"
+     ],
+     "does": "guard"
+    },
+    {
+     "id": "workshop",
+     "name": "The restoration workshop",
+     "icon": "🛠️",
+     "desc": "Restores damaged finds, and makes replicas of pieces that can no longer be had.",
+     "price": 900000,
+     "renown": 5,
+     "does": "workshop"
+    },
+    {
+     "id": "reading",
+     "name": "The reading room",
+     "icon": "📚",
+     "desc": "Catalogues and old sale records: you spot finds more often.",
+     "price": 600000,
+     "renown": 5,
+     "does": "reading"
+    },
+    {
+     "id": "garden",
+     "name": "The garden",
+     "icon": "🌿",
+     "desc": "A small tea garden behind the kura.",
+     "price": 800000,
+     "renown": 10
+    },
+    {
+     "id": "exhibition",
+     "name": "The exhibition hall",
+     "icon": "🎪",
+     "desc": "Room for a show each season.",
+     "price": 1800000,
+     "renown": 10,
+     "does": "exhibition"
+    }
+   ],
+   "renown": {
+    "levels": [
+     {
+      "at": 10,
+      "name": "a local secret"
+     },
+     {
+      "at": 40,
+      "name": "talked about in Yanaka"
+     },
+     {
+      "at": 90,
+      "name": "in the guidebooks"
+     },
+     {
+      "at": 160,
+      "name": "known across Tokyo"
+     },
+     {
+      "at": 240,
+      "name": "famous"
+     }
+    ],
+    "rung": [
+     1,
+     1,
+     1,
+     2,
+     4,
+     10
+    ],
+    "income": 150
+   },
+   "dealer": {
+    "every": 7,
+    "stock": 3,
+    "more": [
+     3,
+     4
+    ],
+    "pity": 6,
+    "ask": 0.1,
+    "late": 0.5
+   },
+   "auctions": {
+    "place": "mg_chuodori",
+    "days": [
+     10
+    ],
+    "from": 15,
+    "lots": 4,
+    "more": [
+     3,
+     5
+    ],
+    "rival": {
+     "wants": 0.4,
+     "top": [
+      1.1,
+      1.8
+     ],
+     "perLevel": 0.05
+    },
+    "back": 2,
+    "again": 0.2
+   },
+   "shows": {
+    "price": 300000,
+    "renown": 10,
+    "lasting": 2,
+    "most": 12,
+    "min": 6
+   }
+  }
  }
 }
