@@ -2307,6 +2307,7 @@ function threadsEditor(w, p, e) {
             ${optArea('The deciding scene (for the AI: what is at stake as they bring it up; {{user}} is the player)', `${q}.decide`, 3, 'Empty: made from what they hide and the last stage.')}
             <span class="mu-cw-sub">Last chances by text (in their voice, first to last; empty boxes are left out)</span>
             <div class="mu-row2">${[0, 1, 2].map(n => nudgeBox(q, n)).join('')}</div>
+            ${sel('If its last chances all go unanswered', `${q}.ignored`, [['', 'It ends the way it would without the player (never a good way)'], ['cool', 'They cool off a friendship level and it waits again, once']], 'opt')}
             <span class="mu-cw-sub">Stages</span>
             ${(t.stages ?? []).map((st, j) => {
             const s = `${q}.stages.${j}`;

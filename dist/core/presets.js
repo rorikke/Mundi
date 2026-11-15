@@ -558,6 +558,8 @@ function upgradeThread(t) {
         else
             delete t.nudges;
     }
+    if ('ignored' in t && t.ignored !== 'end' && t.ignored !== 'cool')
+        delete t.ignored;
     if ('opens' in t && !(typeof t.opens === 'string' || (Array.isArray(t.opens) && t.opens.every((x) => typeof x === 'string'))))
         delete t.opens;
     for (const e of Array.isArray(t.endings) ? t.endings : []) {

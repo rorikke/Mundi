@@ -677,8 +677,13 @@ asking whether you'll help.
   **Help** (only where the story's help can be given by text), or **Not now**. These come whether or not "Characters
   take the initiative" is on, because they're what keeps a storyline from ending unseen.
 - **A text left three days counts as missed, and so does Not now.** After three missed, the story ends the way it
-  would without you. That is about a month of game time of letting it go. Help, Wait or Meet them start the count
-  over. The last text says it's the last. These timings are first values and are tuned as the game is played.
+  would without you, and that is never one of its good endings: those need you there. That is about six game weeks
+  of letting it go. Help, Wait or Meet them start the count over. The last text says it's the last. They send at most
+  two of these texts a week, so when many stories are waiting the rest wait their turn.
+- **Some stories cool off instead.** Where the bad ending is only things going on as they are (Kanon staying in,
+  Tsubaki keeping her late slots), ignoring the last chances makes them cooler toward you (a friendship level down),
+  and the story waits for you again, once. Ignore it a second time and it ends without you.
+- These timings are first values and are tuned as the game is played.
 
 ### Stories that hang on each other
 

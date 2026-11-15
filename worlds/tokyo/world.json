@@ -44617,6 +44617,7 @@
        "My mother asked about my economics exams. I said they went well. I would like to talk.",
        "My parents come again soon. If I'm going to tell them, it's this time. Will you meet me first?"
       ],
+      "ignored": "cool",
       "stages": [
        {
         "when": "season: spring or summer or autumn",
@@ -45206,6 +45207,7 @@
        "Three people at the con said my voice sounded familiar. Help me decide something?",
        "Face reveal stream on Saturday. Or not. Talk me into one or out of it before?"
       ],
+      "ignored": "cool",
       "stages": [
        {
         "when": "season: spring or summer",
@@ -45457,6 +45459,7 @@
        "made it to the konbini AND back. new record. maybe we could go somewhere? (no pressure) (some pressure)",
        "ok I'm going out properly on saturday. if you don't come I'll chicken out lol. come?"
       ],
+      "ignored": "cool",
       "stages": [
        {
         "tell": "hidden",
@@ -45967,6 +45970,7 @@
        "He waited outside again. I'm fine. I'd like company on the walk home, though.",
        "A room in Kōenji came up. I sign this week or keep the late slots another year. Talk to me?"
       ],
+      "ignored": "cool",
       "stages": [
        {
         "when": "season: spring",
@@ -46115,6 +46119,7 @@
        "Eternal's manager was at the lift again. Silly of me, but I'd like to see you.",
        "The tab's due Friday. I can pay it, or I can stop pretending. Come help me choose."
       ],
+      "ignored": "cool",
       "stages": [
        {
         "when": "season: spring",
@@ -46236,6 +46241,7 @@
        "Filled another page. Starting to wonder who it's for. Come by?",
        "Thinking of putting in my notice. Or not. You'd be the one to ask, oddly."
       ],
+      "ignored": "cool",
       "stages": [
        {
         "when": "season: spring",

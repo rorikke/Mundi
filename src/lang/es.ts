@@ -8559,5 +8559,9 @@ const DICT: Record<string, string> = {
  "working at {0} or {1}": "trabajando en {0} o {1}",
  "{0}, {1} (you have {2})": "{0}, {1} (tienes {2})",
  "{0}, {1}: {2} times ({3} so far)": "{0}, {1}: {2} veces ({3} hasta ahora)",
+ "{0} stopped waiting to hear from you about it, and is cooler toward you now.": "{0} se cansó de esperar noticias tuyas sobre eso y ahora está más distante contigo.",
+ "If its last chances all go unanswered": "Si todas sus últimas oportunidades quedan sin respuesta",
+ "It ends the way it would without the player (never a good way)": "Termina como acabaría sin el jugador (nunca un camino bueno)",
+ "They cool off a friendship level and it waits again, once": "La persona se enfría un nivel de amistad y la trama espera de nuevo, una vez",
 };
 export default DICT;
