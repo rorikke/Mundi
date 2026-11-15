@@ -18038,7 +18038,7 @@
      {
       "kind": "morning",
       "target": "mood",
-      "value": 2
+      "value": 1
      }
     ],
     "told": "home"
@@ -18164,7 +18164,7 @@
     "name": "Japanese tutor's month",
     "desc": "Lessons three times a week: Japanese comes faster for four weeks.",
     "icon": "🗾",
-    "price": 96000,
+    "price": 80000,
     "cat": "wellness",
     "online": true,
     "repeat": {
@@ -18183,7 +18183,7 @@
     "name": "English tutor's month",
     "desc": "Lessons three times a week: English comes faster for four weeks.",
     "icon": "💬",
-    "price": 96000,
+    "price": 80000,
     "cat": "wellness",
     "online": true,
     "repeat": {
@@ -18202,7 +18202,7 @@
     "name": "Trainer's month",
     "desc": "A personal trainer for four weeks: fitness comes faster, and sessions at the gym.",
     "icon": "🏋️",
-    "price": 120000,
+    "price": 100000,
     "cat": "wellness",
     "online": true,
     "repeat": {
