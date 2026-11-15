@@ -36933,6 +36933,7 @@
       "mood": 6
      },
      "renown": 10,
+     "keepsake": "kura_cloth",
      "rumor": "A thief was caught at the Kurahashi kura in Yanaka"
     },
     {
@@ -36946,6 +36947,7 @@
       "mood": 6
      },
      "renown": 10,
+     "keepsake": "kura_cloth",
      "rumor": "Someone stopped a thief at the Kurahashi kura with their own hands",
      "fail": {
       "text": "They drop it on the stones of the lane and are gone round the corner. The piece is yours still, but it will need the workshop.",
@@ -36954,6 +36956,7 @@
       },
       "renown": 5,
       "damage": true,
+      "keepsake": "kura_cloth",
       "rumor": "A thief tried to rob the Kurahashi kura"
      }
     },
@@ -36964,6 +36967,7 @@
       "mood": -2
      },
      "renown": 5,
+     "keepsake": "kura_cloth",
      "rumor": "A piece stolen from the Kurahashi kura turned up in a pawnshop"
     }
    ]
@@ -37151,6 +37155,22 @@
    "kind": "museum",
    "gift": false,
    "desc": "A newspaper clipping on the Kurahashi kura, folded twice, one line underlined in pencil."
+  },
+  {
+   "id": "kura_guidebook",
+   "name": "A guidebook with the kura in it",
+   "icon": "📕",
+   "kind": "museum",
+   "gift": false,
+   "desc": "A pocket guide to old Tokyo, open at a page of its own on the Kurahashi kura, the photo slightly crooked."
+  },
+  {
+   "id": "kura_cloth",
+   "name": "The thief's cloth",
+   "icon": "🧣",
+   "kind": "museum",
+   "gift": false,
+   "desc": "The plain grey furoshiki a thief wrapped a piece in and left behind in the lane, folded now in the kura office drawer."
   },
   {
    "gift": true,
@@ -50817,13 +50837,13 @@
     "threads": [
      {
       "id": "tamaki_puppies",
-      "title": "The puppies in the snow",
+      "title": "Puppies in the snow",
       "hidden": "In his last years her grandfather sold the kura's best pieces one by one to pay a debt he never spoke of. She has kept every auction catalogue since and rings each of his pieces in red; the one she minds most is a pair of sliding-door paintings of puppies in the snow that she named when she was small.",
       "known": "{{user}} knows Tamaki has been following her grandfather's sold pieces through the sales, and that the puppies in the snow matter most.",
       "opens": "museum: open; feels: Tamaki acquaintance",
       "opensOnly": true,
       "noLast": true,
-      "decide": "The puppies in the snow, the sliding-door paintings her grandfather sold, are in the next sale's catalogue. The binder shut on her knees, Tamaki tells {{user}} he sold the kura's best pieces one by one for a debt he never spoke of, that she has followed each through the sales since, and that she can't bid for these herself.",
+      "decide": "The puppies in the snow, the sliding doors her grandfather sold, are in the next sale's catalogue. The binder shut on her knees, Tamaki tells {{user}} he sold the kura's best pieces for a debt he never spoke of, that she has followed each one since, and that she can't bid herself.",
       "nudges": [
        "The new catalogue came. I've read it four times. That's normal. …Come by the kura when you can?",
        "I ringed a lot in red again. You'll laugh. Or you won't, which is worse. Tea in the office?",
@@ -55622,7 +55642,8 @@
       "name": "Famous",
       "when": "museum: renown 5",
       "reward": {
-       "mood": 10
+       "mood": 10,
+       "keepsake": "kura_guidebook"
       }
      }
     ],
@@ -65857,12 +65878,6 @@
     "icon": "🗝️",
     "who": "Tamaki",
     "hint": "Tamaki may have it for you, one day.",
-    "sources": [
-     {
-      "kind": "ending",
-      "id": "tamaki_last_case"
-     }
-    ],
     "bonus": true
    },
    {
