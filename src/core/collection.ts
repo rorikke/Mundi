@@ -89,6 +89,7 @@ function museum(m: any, halls: Map<string, HallDef>): MuseumDef | undefined {
     const cases = numIn(m.cases, 0, 50); if (cases !== undefined) out.cases = cases;
     const room = numIn(m.room, 0, 200); if (room !== undefined) out.room = room;
     for (const k of ['curator', 'curatorJob'] as const) if (str(m[k])) out[k] = m[k];
+    if (m.eye && typeof m.eye === 'object' && when(m.eye.when)) { const d = numIn(m.eye.damaged, 0, 1, false); if (d !== undefined) out.eye = { when: m.eye.when, damaged: d }; }
     if (m.renown && typeof m.renown === 'object') {
         const levels = (Array.isArray(m.renown.levels) ? m.renown.levels : []).filter((l: any) => l && str(l.name) && numIn(l.at, 0, 1e6) !== undefined)
             .map((l: any) => ({ at: numIn(l.at, 0, 1e6)!, name: l.name as string })).sort((a: { at: number }, b: { at: number }) => a.at - b.at);

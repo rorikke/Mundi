@@ -498,7 +498,11 @@ function upgradeThread(t: any) {
         if (!r || typeof r !== 'object' || typeof r.place !== 'string' || typeof r.text !== 'string' || !Number.isFinite(r.from) || !Number.isFinite(r.to)) delete st.ritual;
     }
     for (const e of Array.isArray(t.endings) ? t.endings : []) {
-        if (!e || typeof e !== 'object' || !('help' in e)) continue;
+        if (!e || typeof e !== 'object') continue;
+        // (museum) the couple an ending starts with its person, and their moving in with you
+        if ('couple' in e && !['dating', 'engaged', 'married'].includes(e.couple)) delete e.couple;
+        if ('movesIn' in e && e.movesIn !== true) delete e.movesIn;
+        if (!('help' in e)) continue;
         const h = e.help;
         if (!h || typeof h !== 'object' || typeof h.when !== 'string' || typeof h.label !== 'string' || !h.label.trim()) { delete e.help; continue; }
         const clamp = (v: unknown, hi: number) => Math.max(0, Math.min(hi, Number(v) || 0));

@@ -588,7 +588,13 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
     waits?: When;
     /** A price paid in the deciding scene (or by text, `remote`) that takes this way when `when` holds; with `only`, the
      *  way is taken through Help alone, never on its own condition (Genzō's key money). */
-    help?: ThreadHelp }
+    help?: ThreadHelp;
+    /** (museum) The couple its person and the player become (Tamaki's `together` starts dating): never past what their
+     *  tier allows (the highest it does, at most this), never lowering a couple you are already, nothing with romance
+     *  off or with someone romance is closed to. */
+    couple?: 'dating' | 'engaged' | 'married';
+    /** (museum) Its person moves in with the player (Tamaki's `partner`), when they're partners (dating or more) by then. */
+    movesIn?: boolean }
 /** (storylines) Help in a deciding scene: money (0…10,000,000) and/or hours together (0…8), a label for the button. */
 export interface ThreadHelp { when: When; money?: number; hours?: number; remote?: boolean; only?: boolean; label: string }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
@@ -861,6 +867,9 @@ export interface MuseumDef { place: string; name: string;
     offer: { when: When; price: number };
     cases?: number; room?: number;
     curator?: string; curatorJob?: string;
+    /** (museum) An eye that goes with you (Tamaki's appraisal lessons): once `when` holds, finds' damaged odds × `damaged`
+     *  (0…1), for good (`when` should be something that stays true, like `did: <lesson> 5`). */
+    eye?: { when: When; damaged: number };
     upgrades: MuseumUpgrade[];
     renown?: { levels: { at: number; name: string }[]; rung?: number[]; income?: number };
     dealer?: { every: number; stock: number; more?: [number, number]; pity: number; ask?: number; late?: number };
