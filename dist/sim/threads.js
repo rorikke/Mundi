@@ -243,7 +243,13 @@ function pendingOf(g, w, t, e, i) {
     const link = !on && e.good ? ids.find(id => { const x = findThread(g, w, id); const s = threadStates(g)[id]; return !!x && x.r.met && !goneFromMap(x.r) && !(s?.ended) && !(s && s.stage >= 0); }) : undefined;
     if (!on && !link)
         return null;
-    return !rest || whenHolds(g, w, rest, endCtx(t, i)) ? (on ? { on } : { link }) : null;
+    if (!rest || whenHolds(g, w, rest, endCtx(t, i)))
+        return on ? { on } : { link };
+    // a good way that names the other storyline as it must end (not `thread: not …`) also hangs on it while what else it
+    // asks can still be done: Natsuki's word for Hina needs an introduction that can't happen before Hina's storyline
+    // ends, so it waits on Hina's (and opens it) the way Jake's waits on Rina's, rather than asking you to wait
+    const named = parseWhen(e.when).conds.some(c => c.key === 'thread' && !c.not && c.values.some(v => v.split(/\s+/)[0] === (on ?? link)));
+    return e.good && named && parseWhen(rest).conds.every(c => condReachable(g, w, c)) ? (on ? { on } : { link }) : null;
 }
 const endHolds = (g, w, t, e, i) => !!e.when && !e.help?.only && whenHolds(g, w, e.when, endCtx(t, i));
 const fallbackOf = (list) => [...list].reverse().find(x => !x.when && !x.help?.only) ?? list.at(-1);
