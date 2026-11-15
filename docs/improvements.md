@@ -215,7 +215,7 @@ own](#a-café-of-your-own), and *Mentor* through [training together](#training-t
 
 - **Earning them.** Each step of the goal you follow gives 100, finishing it 200 more. A little comes from living too:
   a festival or city event the first time each year (10), a street story finished (15), a secret learned (20), a story you
-  followed reaching its end (40), a new kind of keepsake (10), at most 60 a day. Some perks raise these.
+  followed reaching its end (20), a new kind of keepsake (10), at most 60 a day. Some perks raise these.
 - **Spending them** in the Goals app's **Rewards** tab:
 
 | Item | What it does | Points |
