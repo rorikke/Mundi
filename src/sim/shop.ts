@@ -240,11 +240,14 @@ const LIMITS = { pct: SHOP_LIMITS.mul, flat: SHOP_LIMITS.add };
 const better = (a: EffectDef, b: EffectDef) => (LOWER_IS_BETTER.has(a.kind) ? a.value < b.value : a.value > b.value);
 /** The small effects of what you own (sim/effects.ts): each item's held inside `SHOP_LIMITS` and kept while its `when`
  *  holds; per kind and target only the best item's counts (three good knives don't stack). */
+// (housing) a home's rooms and fixtures are things of the same shape: they count here too, with the same limits and
+// best-of, while the shop is off as well (they're the house's; sim/fixtures.ts says when they count)
 export function shopEffects(g: Save, w: WorldDef): EffectDef[] {
-    if (!systemOn(w, 'shop')) return [];
+    const shopOn = systemOn(w, 'shop'), fixtures = new Set((Array.isArray(w.homes?.fixtures) ? w.homes.fixtures : []).map(f => f?.id));
+    if (!shopOn && !fixtures.size) return [];
     const best = new Map<string, EffectDef>();
     for (const it of ownedDefs(g, w)) {
-        if (!it.effects?.length) continue;
+        if (!it.effects?.length || (!shopOn && !fixtures.has(it.id))) continue;
         for (const e of cleanEffects(it.effects, LIMITS)) {
             if (e.when && !whenHolds(g, w, e.when, { key: `shop|${it.id}|${e.kind}` })) continue;
             const k = `${e.kind}|${e.target ?? ''}`, cur = best.get(k);
@@ -379,7 +382,9 @@ export function shopLine(g: Save, w: WorldDef): string {
         const said = used.filter(it => it.ai?.trim()).map(it => it.ai!.trim().replace(/([^.!?])$/, '$1.')), plain = used.filter(it => !it.ai?.trim());
         return [plain.length ? `In use right now: ${plain.map(it => it.name).join(', ')}.` : '', ...said].filter(Boolean).join(' ');
     }
-    const owned = ownedDefs(g, w).filter(it => !isAdultItem(it) && catOf(it) !== 'gift');
+    // (a home's own fixtures are told by its own line, sim/fixtures.ts; adult ones stay here, under the rules below)
+    const fixtures = new Set((Array.isArray(w.homes?.fixtures) ? w.homes.fixtures : []).map(f => f?.id));
+    const owned = ownedDefs(g, w).filter(it => !isAdultItem(it) && catOf(it) !== 'gift' && !fixtures.has(it.id));
     const atHome = g.player.loc === playerHomeId;
     const parts: string[] = [];
     if (!atHome) parts.push(toldWords(owned.filter(it => toldOf(it) === 'always').sort(dearest).slice(0, TOLD.out), s => `{{user}} ${s}.`));
