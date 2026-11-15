@@ -1486,7 +1486,9 @@ function pieceRows(w: WorldDef, p: string, s: SlotDef) {
 
 const UPGRADE_DOES: Opt[] = [['', '(nothing more: renown, or a wing)'], ['climate', 'A climate room (pieces that need it)'], ['security', 'Security (pieces that need it)'], ['guard', 'A night guard (pieces that need it; stops a theft)'],
     ['workshop', 'A workshop (restores damaged pieces, makes replicas)'], ['reading', 'A reading room (finds come more often)'], ['exhibition', 'An exhibition hall (shows)']];
-const RUNG_LABELS = ['Free', 'R1', 'R2', 'R3', 'R4', 'R5'];
+// (storylines, M-K) the couple an ending starts between its person and the player (held to what their tier allows)
+const ENDING_COUPLE: Opt[] = [['', '(no change)'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']];
+const RUNG_LABELS =['Free', 'R1', 'R2', 'R3', 'R4', 'R5'];
 // What world-check says of the museum (its errors and the notes that matter), said at the top of its form.
 function museumIssues(w: WorldDef, M: MuseumDef): string[] {
     const out: string[] = [], halls = w.collection?.halls ?? [], ups = M.upgrades ?? [];
@@ -1578,7 +1580,8 @@ function museumEditor(w: WorldDef) {
                 : `<button class="mu-ghost" data-act="cw-add" data-what="mpart" data-path="${q}.auctions.rival">${icon('plus')}<span>Add a rival</span></button>`}`)}
         ${mpart(`${q}.shows`, !!sh, 'Shows in the exhibition hall', 'Add shows', () => `<div class="mu-row2">${num(`A show's price (${sym})`, `${q}.shows.price`)}${num('Renown while it is on', `${q}.shows.renown`)}</div>
             <div class="mu-row2">${num('Lasting renown per theme shown', `${q}.shows.lasting`)}${num('Lasting renown from shows at most', `${q}.shows.most`)}</div>
-            ${num('Pieces on show a theme needs', `${q}.shows.min`)}`)}</section>`;
+            ${num('Pieces on show a theme needs', `${q}.shows.min`)}`)}
+        ${mpart(`${q}.eye`, !!(M as any).eye, "The curator's eye: finds come damaged less often, for good", "Add the curator's eye", () => `<div class="mu-row2">${cond('Once (a condition)', `${q}.eye.when`, 'did: ot_kura_lesson 5')}${bounded('Damaged odds × (0 … 1)', `${q}.eye.damaged`, 0, 1, 0.05)}</div>`)}</section>`;
 }
 // (the collection) What the forms can leave empty: optional texts, chips, plaques; a block with no hall left goes.
 function tidyCollection(w: WorldDef) {
@@ -2581,6 +2584,7 @@ function threadsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
                 <div class="mu-row2">${sel('A new job', `${s}.job`, withCur(jobs, en.job), 'opt')}${sel('A new home', `${s}.home`, withCur(zoneOpts(w, '(the same)'), en.home), 'opt')}</div>
                 ${optTxt('Remembered (a fact)', `${s}.fact`)}
                 <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div>
+                <div class="mu-row2">${sel('Together with the player after it', `${s}.couple`, withCur(ENDING_COUPLE, (en as any).couple), 'opt')}${flag('Moves in with you', `${s}.movesIn`, 'If you are together (dating or more) by then.')}</div>
                 ${helpForm(w, s, en)}</div>`; }).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="tend" data-path="${esc(`${q}.endings`)}">${icon('plus')}<span>Add an ending</span></button></div>`; }).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="thread" data-path="${esc(`${p}.threads`)}">${icon('plus')}<span>Add a storyline</span></button></details>`;
@@ -2607,7 +2611,8 @@ export function tierIssues(e: WorldDef['cast']['examples'][number]): string[][] 
         if (t.when == null || (typeof t.when === 'string' && !t.when.trim())) out.push('It needs a condition: without one it is dropped when the world loads.');
         if (prev) for (const k of ['f', 'r', 'status'] as const) if (capRank(k, t.caps?.[k]) < capRank(k, prev.caps?.[k])) out.push(`${CAP_NAMES[k]} is capped lower than at ${prev.name || 'the tier before'}: caps never fall from one tier to the next.`);
         for (const o of t.outfits ?? []) {
-            if (!mine.some(m => m.toLowerCase() === o.toLowerCase())) out.push(`${e.name} has no outfit called ${o}.`);
+            // (none wired yet, the art still to come: said, as world-check's note; once some are, a name that isn't one)
+            if (!mine.some(m => m.toLowerCase() === o.toLowerCase())) out.push(mine.length ? `${e.name} has no outfit called ${o}.` : `${e.name} has no outfits wired yet: ${o} waits for them.`);
             if (named.has(o.toLowerCase())) out.push(`The outfit ${o} is named on an earlier tier: name each outfit on the tier it opens at.`);
             named.add(o.toLowerCase());
         }
@@ -3172,7 +3177,7 @@ Object.assign(ACT, {
             const p = el.dataset.path!, M = w.collection?.museum; if (!M || getPath(p) !== undefined) return;
             const part = p.split('.').pop();
             setPath(p, part === 'renown' ? { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } : part === 'dealer' ? { every: 7, stock: 3, pity: 6 }
-                : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
+                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
                 : { price: Math.round((Number(M.offer?.price) || 100000) / 5), renown: 10 });
             notify(); return;
         }
