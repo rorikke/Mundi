@@ -916,10 +916,10 @@
      "water": 0,
      "power": 0
     },
-    "image": "bg/home-luxury.avif",
+    "image": "bg/home-penthouse.avif",
     "images": {
-     "afternoon": "bg/home-luxury-afternoon.avif",
-     "night": "bg/home-luxury-night.avif"
+     "afternoon": "bg/home-penthouse-afternoon.avif",
+     "night": "bg/home-penthouse-night.avif"
     }
    },
    "estate": {
@@ -931,10 +931,10 @@
      "water": 0,
      "power": 0
     },
-    "image": "bg/home-family.avif",
+    "image": "bg/home-estate.avif",
     "images": {
-     "afternoon": "bg/home-family-afternoon.avif",
-     "night": "bg/home-family-night.avif"
+     "afternoon": "bg/home-estate-afternoon.avif",
+     "night": "bg/home-estate-night.avif"
     }
    },
    "villa": {
@@ -946,10 +946,10 @@
      "water": 0,
      "power": 0
     },
-    "image": "bg/home-luxury.avif",
+    "image": "bg/home-villa.avif",
     "images": {
-     "afternoon": "bg/home-luxury-afternoon.avif",
-     "night": "bg/home-luxury-night.avif"
+     "afternoon": "bg/home-villa-afternoon.avif",
+     "night": "bg/home-villa-night.avif"
     }
    },
    "onsenvilla": {
@@ -964,10 +964,10 @@
     "fixtures": [
      "fx_onsen"
     ],
-    "image": "bg/home-oldhouse.avif",
+    "image": "bg/home-onsenvilla.avif",
     "images": {
-     "afternoon": "bg/home-oldhouse-afternoon.avif",
-     "night": "bg/home-oldhouse-night.avif"
+     "afternoon": "bg/home-onsenvilla-afternoon.avif",
+     "night": "bg/home-onsenvilla-night.avif"
     }
    }
   },
@@ -30233,9 +30233,9 @@
    "closed": [],
    "generic": false,
    "roles": [],
-   "bg": "bg/rp_sky.avif",
+   "bg": "bg/rp_pent_terrace.avif",
    "bgs": {
-    "night": "bg/rp_sky-night.avif"
+    "night": "bg/rp_pent_terrace-night.avif"
    }
   },
   {
@@ -30258,9 +30258,9 @@
    "closed": [],
    "generic": false,
    "roles": [],
-   "bg": "bg/yk_yamashita.avif",
+   "bg": "bg/ym_villa_veranda.avif",
    "bgs": {
-    "night": "bg/yk_yamashita-night.avif"
+    "night": "bg/ym_villa_veranda-night.avif"
    }
   },
   {
@@ -30284,9 +30284,9 @@
    "closed": [],
    "generic": false,
    "roles": [],
-   "bg": "bg/hk_ryokan_hanare.avif",
+   "bg": "bg/ws_dec_bath.avif",
    "bgs": {
-    "night": "bg/hk_ryokan_hanare-night.avif"
+    "night": "bg/ws_dec_bath-night.avif"
    }
   },
   {
@@ -30311,9 +30311,9 @@
    "closed": [],
    "generic": false,
    "roles": [],
-   "bg": "bg/hk_ryokan_hanare.avif",
+   "bg": "bg/hk_villa_onsen.avif",
    "bgs": {
-    "night": "bg/hk_ryokan_hanare-night.avif"
+    "night": "bg/hk_villa_onsen-night.avif"
    }
   }
  ],
