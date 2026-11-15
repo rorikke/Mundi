@@ -716,6 +716,8 @@ export interface WorldDef {
     skills?: SkillDef[];
     /** (E14, E20, E35) Things you can keep, from actions and street stories (a goshuin stamp, a claw-machine plush). */
     keepsakes?: KeepsakeDef[];
+    /** (collection) Halls of display slots and the completion record (Tokyo memories): see WorldCollection. */
+    collection?: WorldCollection;
     /** (E17, E28) Street stories: short one-off stories that happen at a place (see StoryDef). */
     stories?: StoryDef[];
     /** (E14) Outcome tables shared by several actions (Tokyo's `omikuji`: one table for every shrine and temple, each
@@ -776,6 +778,38 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
     /** An intimate gift: welcome only from a partner or someone with a Crush on you and up (anyone else hands it back);
      *  refused when a word of `loves` is in their hard limits, loved when one is in their intimate profile. */
     intimate?: boolean }
+/** (collection) Halls, each a set of slots in groups. A `record` hall (Tokyo memories) fills by itself from what you did
+ *  (each slot's `when`, latched the first time it holds); the others hold pieces you find or buy (their `sources`, from
+ *  the museum's track). `minKind`: a keepsake kind gets a record slot only when this game can have that many of it (3). */
+export interface WorldCollection { halls: HallDef[]; slots: SlotDef[]; minKind?: number }
+export interface HallDef {
+    id: string; name: string; icon?: string; desc?: string;
+    /** The completion record: filled by itself, nothing bought, its own percentage. */
+    record?: boolean;
+    groups: { id: string; name: string; icon?: string }[];
+    adult?: boolean; needs?: SystemId[];
+    /** (museum) When the hall is open, a wing bought; missing: always. */
+    open?: When }
+export interface SlotDef {
+    id: string; hall: string; group: string; name: string; icon?: string;
+    /** One of the world's people (an example's name): the tile shows their portrait. */
+    who?: string;
+    /** The empty slot's hint; missing: its condition in words. */
+    hint?: string;
+    adult?: boolean; needs?: SystemId[];
+    /** Only for these starts. */
+    starts?: string[];
+    /** A record slot: filled for good the first time this holds. */
+    when?: When;
+    /** A storyline slot's plaque by ending id; missing: the ending's own words. */
+    plaques?: Record<string, string>;
+    /** A picture (a world file), written by the art track's wiring; missing: the icon or the portrait. */
+    pic?: string;
+    /** (museum) A display piece: where it comes from, its price, an upgrade it needs, its parts (a fossil). */
+    sources?: PieceSource[]; price?: number; needsUpgrade?: string; parts?: string[] }
+/** (museum, read by nothing yet) Where a piece comes from. */
+export interface PieceSource { kind: 'find' | 'sold' | 'dealer' | 'auction' | 'festival' | 'ending' | 'milestone' | 'story' | 'dig';
+    at?: string[]; action?: string; when?: When; chance?: number; price?: number; id?: string }
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
  *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
@@ -842,6 +876,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'goals', name: 'Goals', icon: 'star', color: '#ffb02e', on: true },
     { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
     { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
+    { id: 'collection', name: 'Collection', icon: 'star', color: '#c0883a', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -864,18 +899,18 @@ export const appsOf = (w: WorldDef): AppDef[] => {
 };
 // The apps the player sees: on in the world, and their system on too.
 // A scenario's phone is smaller: one house, so no moving, holdings, factions or reputation per region.
-export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'social', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals'];
+export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'social', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection'];
 /** Systems a scenario never has: no neighbors (everyone lives in the house), no social network, no crafting. */
 // Home (a scenario): a simpler world made for role-play with your characters in one house. Work, money, courses,
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'collection'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w: WorldDef) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';
@@ -915,7 +950,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business';
+    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'collection';
 /** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
  *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
@@ -1183,6 +1218,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'institutions', name: 'Schools and academies', desc: 'no schools to enroll in, no exams, clubs or degrees.', apps: ['campus'], blocks: [] },
     { id: 'trade', name: 'Trade and smuggling', desc: 'no goods to buy and sell between towns, no contraband.', apps: [], blocks: [] },
     { id: 'business', name: 'Running a business', desc: 'no café of your own and no executive\'s division: no ventures to open, grow or run.', apps: ['business'], blocks: ['business'] },
+    { id: 'collection', name: 'Collection', desc: 'nothing collected: no Collection app and no record of what you have done.', apps: ['collection'], blocks: [] },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },
     { id: 'farming', name: 'Growing things', desc: 'nothing to plant at home.', apps: [], blocks: [] },

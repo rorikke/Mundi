@@ -19,6 +19,7 @@ import { effectMul } from './effects.js';
 import { pricePerk } from './worldstate.js';
 import { tallyEvent } from './tally.js';
 import { usualPay } from './needs.js';
+import { onKeepsake } from './hooks.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
@@ -155,7 +156,7 @@ export const GIFT_AWKWARD = 3;   // friendship lost when an intimate gift is han
 export type GiftFit = keyof typeof GIFT;
 export const keepsakesOf = (g: Save): Record<string, number> => ((g.player as any).keepsakes ??= {});
 export const keepsakeDef = (w: WorldDef, id: string): KeepsakeDef => w.keepsakes?.find(k => k.id === id) ?? { id, name: id, icon: '🎁' };
-export function addKeepsake(g: Save, id: string, n = 1) { const k = keepsakesOf(g); k[id] = (k[id] ?? 0) + n; if (k[id] <= 0) delete k[id]; }
+export function addKeepsake(g: Save, id: string, n = 1) { const k = keepsakesOf(g); k[id] = (k[id] ?? 0) + n; if (k[id] <= 0) delete k[id]; if (n > 0) for (const f of onKeepsake) f(g, id); }
 /** The gifts each person has from you (keepsake ids, in the order given). */
 export const giftsGiven = (g: Save): Record<string, string[]> => (((social(g) as any).given ??= {}) as Record<string, string[]>);
 const words = (s: string) => s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);

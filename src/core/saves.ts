@@ -19,6 +19,7 @@ import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 import { settleThreads } from '../sim/threads.js';
 import { settleModules } from '../sim/degrees.js';
+import { settleCollection } from '../sim/collection.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 7;
@@ -408,6 +409,10 @@ export function checkSave(g: Save) {
             changed = true;
             later(() => toast(`Modules you passed now teach what they teach today: ${raised.join(', ')}.`, 'info'));
         }
+        // the collection's record (only its own key is written: no backup); the first time, it fills from what the
+        // save remembers
+        const filled = settleCollection(g, w);
+        if (filled.length) { changed = true; later(() => toast(filled.join(' '), 'info')); }
     }
     if (changed) ctx().saveMetadataDebounced();
 }

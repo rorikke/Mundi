@@ -35,6 +35,16 @@ export const goalLink: {
     canSkip: (g: Save, w: WorldDef) => boolean;
     skip: (g: Save, w: WorldDef) => string[];
 } = { active: () => null, canSkip: () => false, skip: () => [] };
+// A keepsake gained (actions, stories, goal steps, the shop, a gift bought): the collection remembers it was held.
+export const onKeepsake: ((g: Save, id: string) => void)[] = [];
+// What the condition grammar asks of the collection (sim/collection.ts fills these in; until then nothing holds):
+// `seen: all in <map>` (a district's street stories, less those that can't happen any more) and `goal: all`.
+export const collectionLink: {
+    storiesDone: (g: Save, w: WorldDef, map: string) => boolean;
+    storiesWords: (g: Save, w: WorldDef, map: string) => string;
+    goalsAll: (g: Save, w: WorldDef) => boolean;
+    goalsWords: (g: Save, w: WorldDef) => string;
+} = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '' };
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll: ((c: { skill: string; d20: number; other?: number; total: number; dc: number; grade: string }) => void)[] = [];
 
