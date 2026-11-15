@@ -658,6 +658,8 @@ export const calendarOnly = (when: When | null | undefined) => parseWhen(when).c
 // A degree named in a condition (a degree's id is its credential): "a degree in Economics".
 const degreeWord = (w: WorldDef, id: string) => { const d = (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id); return d ? `a degree (${d.name})` : undefined; };
 const FRIEND_WORDS: Record<string, string> = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
+// (a couple status in `feels:`, in words: being that couple with them, or closer)
+const STATUS_WORDS: Record<string, (who: string) => string> = { casual: (who) => `a fling with ${who}`, dating: (who) => `going out with ${who}`, engaged: (who) => `engaged to ${who}`, married: (who) => `married to ${who}` };
 const levelWord = (lvl: string) => FRIEND_WORDS[lvl] ?? [...FRIEND_TIERS, ...ROMANCE_TIERS].find(t => t.id === lvl)?.name ?? lvl;
 // "three seasons as Head of Sales" (the rank you hold now), or "20 days in your rank".
 function inRankWords(g: Save, w: WorldDef, days: number): string {
@@ -708,10 +710,13 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         if (c.key === 'skill' && !c.not) out.push(c.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
         else if (c.key === 'course' && !c.not) out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
         else if (c.key === 'feels' && !c.not && c.values.length === 1) {
-            if (!more) { const [who, lvl] = c.values[0].split(/\s+/); out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`); continue; }
-            const [who, lvl] = splitLevel(c.values[0]), r = personNamed(g, who), v = r ? Math.round(fr(g, r.avatar, YOU)) : 0;
-            const now = r && FRIEND_TIERS.find(t => t.lo >= 0 && v >= t.lo && v < t.hi);
-            out.push(lvl ? `friendship with ${who} (${levelWord(lvl)}${now ? `; now ${levelWord(now.id)}` : ''})` : `meeting ${who}`);
+            // (a romance level reads as romance, with the romance it is now; a couple status as the couple, "going out with Tamaki")
+            if (!more) { const [who, lvl] = c.values[0].split(/\s+/), l = lvl?.toLowerCase(); out.push(STATUS_WORDS[l] ? STATUS_WORDS[l](who) : ROMANCE_TIERS.some(t => t.id === l) ? `romance with ${who} (${levelWord(l)})` : `friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`); continue; }
+            const [who, lvl] = splitLevel(c.values[0]), r = personNamed(g, who);
+            if (lvl && STATUS_WORDS[lvl]) { out.push(STATUS_WORDS[lvl](who)); continue; }
+            const rom = !!lvl && ROMANCE_TIERS.some(t => t.id === lvl), v = r ? Math.round((rom ? ro : fr)(g, r.avatar, YOU)) : 0;
+            const now = r && (rom ? ROMANCE_TIERS : FRIEND_TIERS).find(t => t.lo >= 0 && v >= t.lo && v < t.hi);
+            out.push(lvl ? `${rom ? 'romance' : 'friendship'} with ${who} (${levelWord(lvl)}${now ? `; now ${levelWord(now.id)}` : ''})` : `meeting ${who}`);
         }
         // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
         else if (c.key === 'inrank' && !c.not) out.push(inRankWords(g, w, Number(c.values[0])));
