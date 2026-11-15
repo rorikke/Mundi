@@ -8,7 +8,7 @@ import { courseworkAction, addCoursework } from './degrees.js';
 import type { WorldDef, ActionDef, StatusDef } from '../core/world.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
-import { onDay, onHour } from './hooks.js';
+import { onDay, onHour, tierLink } from './hooks.js';
 import { money } from './needs.js';
 import type { Breakable } from '../core/presets.js';
 import { social, bondOf, isPartner, type PlanKind } from './social.js';
@@ -164,10 +164,11 @@ export function lockedHere(g: Save, avatar: string): string | null {
 export interface Invite { avatar: string; place: string; from: number; kind: PlanKind; initiative?: 'date' | 'casual' }
 export const pendingInvite = (g: Save): Invite | null => ((social(g) as any).invite ?? null);
 export const clearInvite = (g: Save) => { (social(g) as any).invite = null; };
+// (someone whose tier doesn't let them invite you yet, an end-game character before her Confidante tier, waits)
 function maybeInvite(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60);
     if (!systemOn(w, 'plans') || pendingInvite(g) || h < 9 || h > 20 || rnd(g, 'invite') > 0.05) return [];
-    const pool = residents(g).filter(r => r.met && !(r as any).gone && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length);
+    const pool = residents(g).filter(r => r.met && !(r as any).gone && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length && tierLink.invites(g, r.avatar));
     if (!pool.length) return [];
     const r = pool[Math.floor(rnd(g, 'who') * pool.length)];
     const from = nowAbs(g) + 120 - (nowAbs(g) % 30);

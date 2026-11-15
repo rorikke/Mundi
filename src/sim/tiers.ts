@@ -6,8 +6,10 @@
 // held, up to one level's worth (`rel.people[id].held`), and comes in through the usual pacing when the next tier opens,
 // or is dropped (`hold: false`). An ask the tier doesn't allow gets the engine's own "not yet" (sim/romance.ts). From a
 // tier on: its line for the AI while they're here, its intimacy needs (none before the first tier that has some), its
-// profile lines (written into the save as it opens), its outfits, and making the move. `reserved` people are drawn to
-// whoever you play and to nobody else (sim/rel.ts `attraction`), aren't on the dating app and never leave the maps.
+// profile lines (written into the save as it opens), its outfits, making the move, texting you invitations (`invites`:
+// once any tier says so, not before it) and their own words for the move's card and for asking you over (`moveLines`,
+// `askLines`). `reserved` people are drawn to whoever you play and to nobody else (sim/rel.ts `attraction`), aren't
+// on the dating app and never leave the maps.
 // The rules reach the rest of the game through `tierLink` (sim/hooks.ts), so the store and the romance code don't import
 // this file. A world without tiers or reserved people changes nothing: every hook answers as if this file weren't here.
 import type { Save, Resident } from '../core/store.js';
@@ -158,6 +160,17 @@ export function movesNow(g: Save, w: WorldDef | null | undefined, id: string): b
     const list = tiersOf(g, w, id);
     return !list.length || reachedTiers(list, tierReached(g, id)).some(t => t.moves);
 }
+/** May they text you invitations now? Someone whose tiers never say (`invites`), always, as anyone; otherwise only from
+ *  a tier that says so. */
+export function invitesNow(g: Save, w: WorldDef | null | undefined, id: string): boolean {
+    const list = tiersOf(g, w, id);
+    return !list.some(t => t.invites) || reachedTiers(list, tierReached(g, id)).some(t => t.invites);
+}
+/** Their own words for the move's card or for asking you over tonight (`moveLines`, `askLines`): the nearest reached
+ *  tier's list (empty: the engine's words). */
+export function tierWords(g: Save, w: WorldDef | null | undefined, id: string, k: 'moveLines' | 'askLines'): string[] {
+    return [...reachedTiers(tiersOf(g, w, id), tierReached(g, id))].reverse().find(t => t[k]?.length)?.[k] ?? [];
+}
 /** May the game put this outfit on them now? An outfit no tier names, always; one a tier names, from that tier. */
 export function outfitOpen(g: Save, w: WorldDef | null | undefined, id: string, outfit: string): boolean {
     const list = tiersOf(g, w, id), o = outfit.trim().toLowerCase();
@@ -193,5 +206,7 @@ tierLink.notYet = (g, x, status) => notYet(g, W(g), x, status);
 tierLink.intimacy = (g, x) => intimacyOf(g, W(g), x);
 tierLink.moves = (g, x) => movesNow(g, W(g), x);
 tierLink.outfit = (g, x, o) => outfitOpen(g, W(g), x, o);
+tierLink.invites = (g, x) => invitesNow(g, W(g), x);
+tierLink.words = (g, x, k) => tierWords(g, W(g), x, k);
 onHour.push(latchTiers);
 onDay.push(latchTiers);

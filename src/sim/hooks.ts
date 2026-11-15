@@ -148,7 +148,8 @@ export const ventureLink: {
 // whoever you play, whatever your gender, and to no one else; `notYet`: why their tier doesn't allow a couple status
 // (`casual`… `married`) with you now (null: it does; `ever`: no tier ever will); `intimacy`: their needs from their tier
 // (undefined: no tier says, their own apply; null: not before a later tier); `moves`: they may make the move now;
-// `outfit`: the game may put that outfit on them now.
+// `outfit`: the game may put that outfit on them now; `invites`: they may text you invitations now; `words`: their own
+// words for the move's card or for asking you over (empty: the engine's).
 export const tierLink: {
     cap: (g: Save, m: 'f' | 'r', x: string) => number | null;
     hold: (g: Save, m: 'f' | 'r', x: string, raw: number) => void;
@@ -157,4 +158,7 @@ export const tierLink: {
     intimacy: (g: Save, x: string) => { preset?: string; r?: string; f?: string; casual?: false } | null | undefined;
     moves: (g: Save, x: string) => boolean;
     outfit: (g: Save, x: string, outfit: string) => boolean;
-} = { cap: () => null, hold: () => {}, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true };
+    invites: (g: Save, x: string) => boolean;
+    words: (g: Save, x: string, k: 'moveLines' | 'askLines') => string[];
+} = { cap: () => null, hold: () => {}, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true,
+    invites: () => true, words: () => [] };
