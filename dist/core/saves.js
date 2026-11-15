@@ -18,6 +18,7 @@ import { trackOf } from '../sim/tracks.js';
 import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 import { settleThreads } from '../sim/threads.js';
+import { settleModules } from '../sim/degrees.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 7;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -514,6 +515,15 @@ export function checkSave(g) {
             const n = settleThreads(g, w);
             changed = true;
             later(() => toast(storylinesToast(n.reset, n.kept), 'info'));
+        }
+        // modules passed teach what they teach now (a module whose skill changed since it was graded), once the world is known
+        if (settleModules(structuredClone(g), w).length) {
+            if (!backedUp)
+                backup(g, 'before settling your modules');
+            backedUp = true;
+            const raised = settleModules(g, w);
+            changed = true;
+            later(() => toast(`Modules you passed now teach what they teach today: ${raised.join(', ')}.`, 'info'));
         }
     }
     if (changed)

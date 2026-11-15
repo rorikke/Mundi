@@ -3,6 +3,9 @@ export const onDay = [];
 // After anything changed (the prompt is refreshed: arriving somewhere, a click, the clock): the world's stories and
 // threads look at the scene (sim/stories.ts, sim/threads.ts).
 export const onLook = [];
+// Things you have, in a shop item's shape: each entry lists what you own right now. Only the shop's (sim/shop.ts) for
+// now; a home's rooms and fixtures can join later. Read through `ownedDefs` in sim/shop.ts, never one by one.
+export const thingsOwned = [];
 // After you do an action (habits, pets…).
 export const onAction = [];
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.

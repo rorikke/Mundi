@@ -13,7 +13,8 @@ import { approve } from './living.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
 import { book } from './ledger.js';
-import { extraActions, isBlocked, brokenThings, hasItem } from './life.js';
+import { extraActions, isBlocked, brokenThings } from './life.js';
+import { haveItem } from './shop.js';
 import { whenHolds } from './when.js';
 import { withYou } from './social.js';
 import { guestAt, includedHere } from './stays.js';
@@ -183,7 +184,7 @@ export function actionsHere(g, w) {
     const earns = (a) => a.cost < 0 || (a.roll?.success?.money ?? 0) > 0 || !!a.outing;
     // (E15) adult actions only with adult content on (not only those at adult places: a private bath, a night at home)
     const base = w.actions.filter(useful).filter(a => adultOk(g, a)).filter(a => !homeMode || !earns(a)).filter(a => !isBlocked(g, a, w)).filter(a => a.id !== 'fix' || broken)
-        .filter(a => homeMode || !a.needsItem || hasItem(g, a.needsItem)).filter(a => chosen || own(a) || !(a.notTags ?? []).some(t => tags.includes(t))).filter(a => chosen ? (a.anywhere || chosen.includes(a.id)) : (a.home && atHome)
+        .filter(a => homeMode || !a.needsItem || haveItem(g, w, a.needsItem)).filter(a => chosen || own(a) || !(a.notTags ?? []).some(t => tags.includes(t))).filter(a => chosen ? (a.anywhere || chosen.includes(a.id)) : (a.home && atHome)
         || (a.place && a.place === g.player.loc) || own(a)
         || (!a.home && !a.place && !a.places && (a.anywhere || (generic && (a.tags ?? []).some(t => tags.includes(t)))))).filter(a => !closed || a.anywhere)
         .filter(a => !a.when || whenHolds(g, w, a.when, { id: a.id, key: a.id })).filter(a => !a.together?.needed || withYou(g, w).length > 0)

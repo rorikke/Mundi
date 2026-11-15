@@ -99,8 +99,10 @@ export function hobbyNeed(g, w, o) {
     const h = on(w) && o.hobby?.id ? hobbiesOf(w).find(x => x.id === o.hobby.id) : null;
     if (h)
         parts.push(`${h.name} level ${o.hobby.level} (you: ${levelOf(g, h.id)})`);
+    // (a skill at level 0 asks for nothing: it only counts in the interview)
     for (const [id, n] of Object.entries(o.skills ?? {}))
-        parts.push(`${skillName(w, id)} level ${n} (you: ${levelOf(g, id)})`);
+        if (Number(n) > 0)
+            parts.push(`${skillName(w, id)} level ${n} (you: ${levelOf(g, id)})`);
     return parts.join(', ');
 }
 // For the AI: what you are good at (level 3 and up).

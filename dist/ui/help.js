@@ -1,5 +1,5 @@
 // The phone's Help app: a window in the middle of the screen that explains each part of the game, topic by topic.
-import { notify, game, esc } from '../core/store.js';
+import { notify, game, esc, adultOn } from '../core/store.js';
 import { getWorld, appsOf, styleOf, isScenario, systemOn } from '../core/world.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { GOAL_POINTS } from '../core/goals.js';
@@ -7,6 +7,7 @@ import { DAILY_CAP } from '../sim/points.js';
 import { degreesOffered } from '../sim/degrees.js';
 import { ventureDefs } from '../sim/ventures.js';
 import { billList as bills } from '../sim/bills.js';
+import { shopItems } from '../sim/shop.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { STORYLINES_HELP } from './threadui.js';
@@ -92,6 +93,8 @@ const topics = (w) => {
     const billList = bills(w).map(b => b.name).join(', ').replace(/, ([^,]*)$/, ' and $1');
     const modern = styleOf(w) === 'modern';
     const goalsOn = !w || systemOn(w, 'goals');
+    const shopOn = !w || (systemOn(w, 'shop') && on('shop') && shopItems(w).length > 0);
+    const carHome = !w || shopItems(w).some(it => it.late);
     return [
         { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
             items: [
@@ -147,6 +150,16 @@ const topics = (w) => {
                 [`${app('bank')} and ${app('shop')}`, 'See where your money goes, and buy things that make life easier.'],
                 ['At home', lex(w, 'homeUnwind', app('shop'))],
             ] },
+        ...(shopOn ? [{ id: 'shopping', icon: 'wallet', title: 'Shopping', intro: `What money buys, ${appRef(w, 'shop')}: a tab for each kind of thing, Here for the place you're at, and Yours for what you have.`,
+                items: [
+                    ['Where things are sold', `Most things are sold ${appRef(w, 'shop')}, delivered. A place that sells shows "Shop here" in its things to do while it's open: it opens the Here tab, with what that place sells (some things are sold only there) and the gifts sold there.`],
+                    ['Kept, or bought again', 'Most things are yours for good once bought. A service lasts some days (a cleaner, a trainer, flowers) and can be paid a little ahead; a case holds a few uses (bottles of wine), one used each time; a gift to give becomes a keepsake, for you to give to someone. Yours shows the days or uses left.'],
+                    ['Small bonuses', "Many things help a little: a skill trains faster, a need drains slower, a better night's sleep, a better first impression. Each card says what it does. Of things that do the same, only the best one counts: a second, cheaper one adds nothing."],
+                    ...(carHome ? [['A car', 'With a car of your own you drive home after the last train: no taxi, no wait.']] : []),
+                    ['No selling, no upkeep', 'Nothing can be sold back, and nothing costs you anything weekly: you pay the price, and that is all.'],
+                    ['More by invitation.', 'Some things are sold only to people who have earned it (a story seen, an introduction): until then the tab says "More by invitation." and keeps them hidden.'],
+                    ...(adultOn(game()) ? [['Adult things', 'Shown, and doing anything at all, only while adult content is on in this game: even the ones you already have.']] : []),
+                ] }] : []),
         { id: 'phone', icon: modern ? 'phone' : 'book', title: `The ${devl}`, intro: lex(w, 'deviceIntro'),
             items: [
                 [app('messages'), lex(w, 'messagesHelp')],

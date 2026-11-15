@@ -1,6 +1,6 @@
 import { relOverlays, endConfirmHtml } from './relui.js';
-// Screens for the Life-Sim systems: the elevator of apartment buildings, invitations from people, the shop app (the
-// Goals app is ui/goalsui.ts), throwing a party, talking with only one person, and playing as someone else.
+// Screens for the Life-Sim systems: the elevator of apartment buildings, invitations from people (the shop app is
+// ui/shopui.ts, the Goals app ui/goalsui.ts), throwing a party, talking with only one person, and playing as someone else.
 import { currentHappening, answer } from '../sim/happenings.js';
 import { storyHtml } from './storyui.js';
 import { esc, game, toast, notify, saveGame, nowAbs, state } from '../core/store.js';
@@ -21,7 +21,7 @@ import { syncScene } from '../sim/game.js';
 import { houseParty, partyRooms, throwHouseParty, cancelHouseParty, PARTY_HOURS } from '../sim/houseparty.js';
 import { partyExtraHtml, partyCardExtra, partyCardButtons } from './guestsui.js';
 import { rememberOutingBg } from '../sim/outing.js';
-import { shopPrice, shopItems, hasItem, buy, pendingInvite, clearInvite, activeFeelings } from '../sim/life.js';
+import { pendingInvite, clearInvite, activeFeelings } from '../sim/life.js';
 import { thumb, charOf, personaName, personaThumb } from '../st/bridge.js';
 import { swapOf, switchTo, roster } from '../sim/playas.js';
 import { refreshPrompt } from '../sim/prompt.js';
@@ -94,11 +94,8 @@ export function lifeOverlays() {
     return `${elevatorHtml()}${playAsHtml(g)}${transitionHtml()}${relOverlays()}${endConfirmHtml()}`;
 }
 /* ---------- phone app: the shop ---------- */
-export function shopApp(g, w, head) {
-    return `${head}<div class="mu-ph-body mu-shop">${shopItems(w).map(it => `<article class="mu-shop-item">
-        <i>${it.icon}</i><span><b>${esc(it.name)}</b><small>${esc(it.desc)}</small><small class="mu-shop-price">${money(w, shopPrice(g, w, it))}</small></span>
-        ${hasItem(g, it.id) ? '<em>Owned</em>' : `<button data-act="shop-buy" data-id="${esc(it.id)}" ${g.player.money >= shopPrice(g, w, it) ? '' : 'aria-disabled="true"'}>Buy</button>`}</article>`).join('')}</div>`;
-}
+// (drawn by ui/shopui.ts: tabs by category, Here at a place that sells, Yours)
+export { shopApp } from './shopui.js';
 // feelings someone has toward you, for her page in People
 export const feelingsHtml = (g, avatar) => { const f = activeFeelings(g, avatar); return f.length ? `<div class="mu-chips">${f.map(x => `<span class="mu-chip">${esc(x.tag)}</span>`).join('')}</div>` : ''; };
 /* ---------- throwing a party ---------- */
@@ -236,20 +233,6 @@ Object.assign(ACT, {
             return;
         (social(g).threads[inv.avatar] ??= []).push({ me: true, text: 'Not tonight, but soon?', at: nowAbs(g) });
         clearInvite(g);
-        saveGame();
-        notify();
-    },
-    'shop-buy': (el) => {
-        const g = game();
-        const w = g && getWorld(g.world);
-        if (!g || !w)
-            return;
-        const err = buy(g, w, el.dataset.id);
-        if (err) {
-            toast(err, 'info');
-            return;
-        }
-        toast('Bought!', 'success');
         saveGame();
         notify();
     },

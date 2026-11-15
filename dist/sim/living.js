@@ -71,7 +71,9 @@ export const couples = (g) => couplePairs(g).map(p => [p.a, p.b]);
 const anchored = (w, r) => { const ex = exampleOf(w, r); return !!ex && ex.anchored !== false; };
 // A job someone could just take: one that asks for no training (courses, skills, a hobby level), that the world's
 // people can hold, and that this game has (adult jobs only with adult content on).
-const takeable = (g, w, o) => !o.courses?.length && !Object.keys(o.skills ?? {}).length && !o.hobby && !o.needs?.length && o.hireable !== false && (!o.adult || adultOn(g)) && w.places.some(p => p.id === o.place);
+/** A job townspeople may switch into: nothing to qualify for. (A skill at level 0 only counts in the interview: it asks
+ *  nothing of whoever takes the job.) */
+export const takeable = (g, w, o) => !o.courses?.length && !Object.values(o.skills ?? {}).some(n => Number(n) > 0) && !o.hobby && !o.needs?.length && o.hireable !== false && (!o.adult || adultOn(g)) && w.places.some(p => p.id === o.place);
 function lifeGoesOn(g, w) {
     const out = [];
     const people = residents(g).filter(r => !anchored(w, r));

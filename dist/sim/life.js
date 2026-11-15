@@ -1,17 +1,14 @@
-// Life-Sim systems: needs in words, feelings that fade, the lifestyle shop (vehicles, furniture,
-// gear for working at home), quick gigs, the gym, college, things at home that break, scene lock, NPCs who
-// invite you, and who lets you into their home. All decided by the engine; the AI only narrates.
+// Life-Sim systems: needs in words, feelings that fade, the lifestyle shop's older names (sim/shop.ts has it), quick
+// gigs, the gym, college, things at home that break, scene lock, NPCs who invite you, and who lets you into their home.
+// All decided by the engine; the AI only narrates.
 import { nowAbs } from '../core/store.js';
 import { takingNow, studyBlock, studySession, payDue, learning, CLASS_MINUTES } from './courses.js';
 import { countUp } from './skills.js';
 import { courseworkAction, addCoursework } from './degrees.js';
-import { priceOf } from './bills.js';
 import { systemOn, isScenario } from '../core/world.js';
-import { priceHere } from './worldstate.js';
 import { lex } from '../core/lexicon.js';
 import { onDay, onHour } from './hooks.js';
 import { money } from './needs.js';
-import { book } from './ledger.js';
 import { social, bondOf, isPartner } from './social.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
@@ -61,32 +58,9 @@ export function feelingLine(g, present) {
 /* ---------- life goals ---------- */
 // Life goals live in sim/goals.ts; these names stay for the screens that still read them.
 export { ASPIRATIONS, aspirationOf, setAspiration } from './goals.js';
-export const shopItems = (w) => (systemOn(w, 'shop') ? w.catalogs.shop ?? [] : []);
-export const hasItem = (g, id) => life(g).items.includes(id);
-// What an item costs now: the difficulty, then the prices where you live (the living world).
-export const shopPrice = (g, w, it) => Math.round(priceOf(g, it.price) * priceHere(g, w, playerHomeId));
-const owned = (g, w) => shopItems(w).filter(it => hasItem(g, it.id));
-export function buy(g, w, id) {
-    const it = shopItems(w).find(x => x.id === id);
-    if (!it)
-        return '';
-    if (hasItem(g, id))
-        return 'You already have it.';
-    const price = shopPrice(g, w, it);
-    if (g.player.money < price)
-        return 'Not enough money.';
-    g.player.money -= price;
-    book(g, it.name, -price);
-    life(g).items.push(id);
-    note(g, '{u} bought: {0}.', [it.name], [], g.player.loc, 'shop');
-    return '';
-}
-// Vehicles shorten every trip (the best one you own).
-// (a mount you keep well fed counts too)
-export const travelFactor = (g, w) => (w ? Math.min(1, ...owned(g, w).map(it => (Number(it.travel) > 0 ? Number(it.travel) : 1)), ...mountSpeeds(g, w)) : 1);
-const mountSpeeds = (g, w) => (w.features?.mounts === false ? [] : (g.pets ?? []).map((p) => { const d = (w.pets ?? []).find(x => x.id === p.kind); return d?.mount && p.hunger > 20 ? Math.max(0.3, (d.speed ?? 0.6) - (p.bound ? Math.min(0.2, (p.level ?? 1) * 0.02) : 0)) : 1; }));
-// Mood gained when you wake up at home (a good bed…).
-export const sleepMood = (g, w) => owned(g, w).reduce((a, it) => a + (it.sleepMood ?? 0), 0);
+/* ---------- the lifestyle shop ---------- */
+// It lives in sim/shop.ts; these names stay for the screens and systems that read them here.
+export { shopItems, hasItem, shopPrice, buy, travelFactor, sleepMood } from './shop.js';
 /* ---------- things at home that break ---------- */
 const breakables = (w) => (w?.homes?.breakables ?? []);
 const thing = (w, id) => breakables(w).find(b => b.id === id)?.name ?? id;
