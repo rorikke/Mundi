@@ -42,7 +42,7 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
-import { collectionLink } from './hooks.js';
+import { collectionLink, placeGates } from './hooks.js';
 import { homeWorth, housingOn, ownedHere } from './housing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
@@ -781,3 +781,20 @@ export function whenPlace(when: When | null | undefined): string | undefined {
 }
 /** Does a region meet the condition's `region` parts (none: any region)? Who starts a world rumor. */
 export const whenRegionOk = (when: When | null | undefined, region: string) => parseWhen(when).conds.filter(c => c.key === 'region').every(c => c.values.includes(region) !== c.not);
+
+/* ---------- places that are there only while something holds ---------- */
+
+// (museum) A place with `when` is on the maps and in anyone's plans only while it holds (the kura's back room, from
+// Tamaki's Lover tier). Kept per world: which places have one (none: the gate answers at once). A condition that asks
+// where people are would ask the maps again: while one is being read, the gate lets every place be.
+const placeWhens = new WeakMap<WorldDef['places'], Map<string, When>>();
+let readingPlace = false;
+placeGates.push((g, w, id) => {
+    if (!g || readingPlace || !w?.places) return true;
+    let m = placeWhens.get(w.places);
+    if (!m) placeWhens.set(w.places, m = new Map(w.places.filter(p => p.when).map(p => [p.id, p.when!] as [string, When])));
+    const when = m.size ? m.get(id) : undefined;
+    if (!when) return true;
+    readingPlace = true;
+    try { return whenHolds(g, w, when); } finally { readingPlace = false; }
+});

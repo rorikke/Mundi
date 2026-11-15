@@ -8,7 +8,7 @@
 // sim/market.ts's, in `MuseumState.dealer` and `.sales`.)
 import { adultOn, type Save, type Resident } from '../core/store.js';
 import type { WorldDef, MuseumDef, MuseumUpgrade, SlotDef, PieceSource, HallDef, ActionDef } from '../core/world.js';
-import { placeGates, collectionLink, museumLink, museumHooks, onDay } from './hooks.js';
+import { placeGates, collectionLink, museumLink, museumHooks, onDay, ownedPlaces } from './hooks.js';
 import { collectionOn, collectionOf, slotsHere, percentOf, type Got } from './collection.js';
 import { whenHolds, personNamed, missingWords } from './when.js';
 import { threadsOf, changeJob, goneFromMap } from './threads.js';
@@ -62,6 +62,17 @@ export const museumOpen = (g: Save | null | undefined, w: WorldDef | null | unde
 
 // The museum's place is off the maps, out of place pickers and nobody goes there until it's yours.
 placeGates.push((g, w, id) => { const m = museumDef(w); return !m || m.place !== id || museumOpen(g, w); });
+
+/** The museum's places: its own and its rooms (a place there only while the museum is open: `museum:` in its `when`). */
+export function museumPlaces(w: WorldDef): string[] {
+    const m = museumDef(w); if (!m) return [];
+    const rooms = w.places.filter(p => p.id !== m.place && typeof p.when === 'string' && /(^|;)\s*museum\s*:/.test(p.when)).map(p => p.id);
+    return [m.place, ...rooms];
+}
+/** Twice the chance of being seen at a museum you own once a night guard does the rounds. */
+export const GUARD_RISK = 2;
+// Caught at the museum you own (sim/caught.ts asks): nobody bans you from your own place; the guard's rounds double the risk.
+ownedPlaces.push((g, w, place) => (museumOpen(g, w) && museumPlaces(w).includes(place) ? { risk: hasUpgrade(g, w, 'guard') ? GUARD_RISK : 1 } : null));
 
 /* ---------- numbers ---------- */
 

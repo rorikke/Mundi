@@ -162,3 +162,7 @@ export const tierLink: {
     words: (g: Save, x: string, k: 'moveLines' | 'askLines') => string[];
 } = { cap: () => null, hold: () => {}, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true,
     invites: () => true, words: () => [] };
+// (museum) A place that is yours (the museum you own and its rooms), asked when you're caught at a place: null when it
+// isn't; else being caught there bans nothing, and `risk` multiplies the chance of being seen (the night guard's
+// rounds). sim/museum.ts fills it in.
+export const ownedPlaces: ((g: Save, w: WorldDef, place: string) => { risk: number } | null)[] = [];

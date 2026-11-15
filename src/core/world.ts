@@ -113,6 +113,9 @@ export interface Place {
      *  map and in anyone's plans only while a home of yours in zone `homeZone` has that fixture (not `home`: a place
      *  built for a home carries `home: true`). */
     room?: string; homeZone?: string;
+    /** (museum) On the map and in anyone's plans only while this holds (the kura's back room: `museum: open; tier:
+     *  Tamaki 3`). A place that holds only with the museum open (`museum:` in it) is one of the museum's rooms. */
+    when?: When;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
