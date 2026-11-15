@@ -15,7 +15,7 @@ import { social, addBond, standsWith, isPartner, bondAtLeast, wordsIn } from './
 import { sharedLikes, likesOf } from './private.js';
 import { groupOptions } from './traits.js';
 import { levelOf, skillDef } from './hobbies.js';
-import { onDay } from './hooks.js';
+import { onDay, tierLink } from './hooks.js';
 
 export interface Reply { by: string; text: string; at: number }          // by: avatar, or 'me'
 export interface Post { id: string; by: string; text: string; at: number; likes: number; liked: boolean; reposts: number; replies: Reply[]; image?: string }
@@ -187,14 +187,14 @@ export function candidates(g: Save, w: WorldDef): Resident[] {
     const seed = String((d as any).seed ??= Math.random().toString(36).slice(2));
     const mine = (r: Resident) => attraction(g, YOU, r.avatar, 'r');
     return residents(g).sort((a, b) => mine(b) - mine(a) || hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`))
-        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && shows(g, d, r));
+        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && !tierLink.reserved(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && shows(g, d, r));   // ((museum) someone reserved isn't on the app)
 }
 /** The odds (0–75%) that someone likes you back: a long shot with nothing in common (10%). What you both look for,
  *  shared interests (Kink included) and likes in bed you share (adult content), a profile with a few words about you,
  *  and your charm where the world has Charisma; half when one wants a relationship and the other only something casual,
  *  and as much less as they're less drawn to your gender. */
 export function matchChance(g: Save, w: WorldDef, avatar: string): number {
-    const d = dating(g), r = g.cast[avatar]; if (!r) return 0;
+    const d = dating(g), r = g.cast[avatar]; if (!r || tierLink.reserved(g, avatar)) return 0;
     const p = theirProfile(g, w, r), mine = d.profile.looking;
     let chance = 10;
     if (mine.includes(p.looking)) chance += 15;

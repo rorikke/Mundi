@@ -3,7 +3,8 @@
 import { FRIEND_LEVELS, ROM_LEVELS } from './feel.js';
 
 const ID = /^[a-z0-9_]+$/;
-const STATUSES = ['casual', 'dating', 'engaged', 'married'];
+// (a cap of `none`: no couple at all while at that tier)
+const STATUSES = ['none', 'casual', 'dating', 'engaged', 'married'];
 const str = (v: unknown) => typeof v === 'string' && !!v.trim();
 const isWhen = (v: unknown) => typeof v === 'string' || (!!v && typeof v === 'object' && !Array.isArray(v));
 

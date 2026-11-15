@@ -528,12 +528,13 @@ export interface ExampleCharacter {
     reserved?: boolean;
 }
 /** (museum, people who unlock) A tier of an end-game character, reached the first time `when` holds (latched: never
- *  lost). `caps`: the highest friendship, romance and couple status this tier allows (missing: no cap); `hold`: whether a
+ *  lost). `caps`: the highest friendship, romance and couple status toward the player this tier allows (missing: no cap;
+ *  status `none`: no couple at all; before the first tier is reached, the first tier's caps hold); `hold`: whether a
  *  gain past a cap is kept for the next tier (default) or dropped (`false`). `ai`: told to the AI while at this tier
  *  ({{user}}); `intimacy`: their needs from this tier; `intimate`: profile lines added at it (an overlay adds the
  *  explicit ones by id); `outfits`: outfits the game may put on from it; `moves`: they may make the move from it. */
 export interface PersonTier { id: string; name: string; when: When;
-    caps?: { f?: FriendLevel; r?: RomLevel; status?: 'casual' | 'dating' | 'engaged' | 'married' };
+    caps?: { f?: FriendLevel; r?: RomLevel; status?: 'none' | 'casual' | 'dating' | 'engaged' | 'married' };
     hold?: { f?: boolean; r?: boolean };
     ai?: string;
     intimacy?: { preset?: string; r?: string; f?: string; casual?: false };

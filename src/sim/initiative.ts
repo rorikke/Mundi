@@ -15,13 +15,13 @@
 // (X23: a card with Yes and Not tonight, within the budget).
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
-import { onHour, onDay, onLook } from './hooks.js';
+import { onHour, onDay, onLook, tierLink } from './hooks.js';
 import { presentAt, residents, routineAt, workingAt } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
 import { social, bondOf, textFrom } from './social.js';
 import { personaName } from '../st/bridge.js';
-import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, shutOut, HATES, DISLIKES, ASKS, type AskKind } from './romance.js';
+import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, tierNo, shutOut, HATES, DISLIKES, ASKS, type AskKind } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { intimacyReady, needsOf, styleOf } from './intimacy.js';
 import { canDate } from './plans.js';
@@ -138,7 +138,7 @@ export function readyToAsk(g: Save, w: WorldDef, a: string): Asked | null {
     if (!romanticOk(g, w, a) || shutOut(g, a, true) || coolingDown(g, a) || grudgeOf(g, a)) return null;
     const st = romOf(g, a).status;
     const night = intimacyReady(g, a, '').lean === 'yes' && (st !== 'none' || romValue(g, a) >= ROMANCE_TIERS[1].lo);
-    const ok = (k: AskKind) => canAsk(g, a, k);
+    const ok = (k: AskKind) => canAsk(g, a, k) && !tierNo(g, a, k);   // (museum) never what their tier doesn't allow yet
     // asking you out takes a crush, however good friends you are
     if ((st === 'none' || st === 'casual') && ok('date') && romValue(g, a) >= ROMANCE_TIERS[2].lo && likelyYes(g, a, 'date')) return 'date';
     if (st === 'none' && ok('casual') && night && !needsOf(g, a).partnerOnly) return 'casual';
@@ -291,7 +291,7 @@ function canMove(g: Save, w: WorldDef, a: string): boolean {
     if (!adultOn(g) || !initiativeOn(g) || g.asleep || sceneAct(g) || !isMine(g, a)) return false;
     const here = presentAt(g, w, g.player.loc);
     if (here.length !== 1 || here[0].avatar !== a || !here[0].met || !withYou(g, w).includes(a)) return false;
-    return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a);
+    return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a) && tierLink.moves(g, idOf(g, a));   // (museum) from the tier that lets them
 }
 /** Maybe someone here makes the move now: a chance a day per person by their drive (high often, low rarely), within the
  *  initiative budget. `force`: skip the day's dice (tests). */

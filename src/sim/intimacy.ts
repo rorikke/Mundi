@@ -10,7 +10,7 @@ import type { IntimateRole, IntimateDrive } from '../core/world.js';
 import { relOf, idOf, ro, fr, isPartner, attracted, YOU } from './rel.js';
 import { notAttractedWords } from './gender.js';
 import { bondOf } from './social.js';
-import { onLearned } from './hooks.js';
+import { onLearned, tierLink } from './hooks.js';
 
 export type IntimacyPreset = 'free' | 'passionate' | 'steady' | 'slow' | 'devoted' | 'custom';
 export type RNeed = 'interest' | 'crush' | 'infatuated';
@@ -31,9 +31,9 @@ export const R_NAME: Record<RNeed, string> = { interest: 'Interest', crush: 'Cru
 export const F_NAME: Record<FNeed, string> = { none: 'None', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
 
 const personOf = (g: Save, a: string) => relOf(g).people[idOf(g, a)] as ({ intimacy?: Intimacy; style?: RelStyle } | undefined);
-// A person's needs (unset: Steady, casual intimacy yes).
+// A person's needs (unset: Steady, casual intimacy yes); (museum) someone whose tiers say has their tier's.
 export function needsOf(g: Save, a: string): { preset: IntimacyPreset; r: RNeed; f: FNeed; partnerOnly: boolean } {
-    const i = personOf(g, a)?.intimacy ?? {};
+    const i = (tierLink.intimacy(g, idOf(g, a)) as Intimacy | null | undefined) ?? personOf(g, a)?.intimacy ?? {};
     const preset = i.preset ?? 'steady';
     const base = preset === 'custom' ? { r: i.r ?? 'crush', f: i.f ?? 'friend' } : PRESETS[preset] ?? PRESETS.steady;
     return { preset, r: base.r, f: base.f, partnerOnly: i.casual === false };
@@ -47,10 +47,14 @@ export const ownStyle = (g: Save, a: string): RelStyle | undefined => personOf(g
 export interface IntimacyReady { lean: 'yes' | 'unsure' | 'no' | 'never'; why: string }
 export function intimacyReady(g: Save, a: string, name: string): IntimacyReady {
     if (!attracted(g, a, YOU)) return { lean: 'never', why: notAttractedWords(g, name) };
+    // (museum) someone who unlocks: not before the tier that opens it
+    const tier = tierLink.intimacy(g, idOf(g, a));
+    if (tier === null) return { lean: 'never', why: `${name} isn't ready for that with {{user}} yet` };
     const n = needsOf(g, a);
     if (n.partnerOnly && !isPartner(g, a)) return { lean: 'never', why: `${name} only gets intimate with a partner, and {{user}} isn't one` };
     const r = ro(g, a, YOU), f = bondOf(g, a), fNeed = F_AT[n.f];
-    const gapR = R_AT[n.r] - r, gapF = fNeed === null ? (f < 0 ? -f : 0) : fNeed - f;
+    // (a tier's needs with no friendship asked mean none at all, resentment included: enemies with benefits)
+    const gapR = R_AT[n.r] - r, gapF = fNeed === null ? (f < 0 && !tier ? -f : 0) : fNeed - f;
     const missing = [
         gapR > 0 ? `${name} isn't attracted enough to {{user}} yet` : '',
         gapF > 0 ? (fNeed === null ? `${name} resents {{user}} too much` : `${name} needs to trust {{user}} more first (as a ${F_NAME[n.f].toLowerCase()}, at least)`) : '',

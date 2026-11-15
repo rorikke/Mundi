@@ -28,5 +28,14 @@ export function paced(raw: number, F: number, c: Curve): number {
     const e1 = -H + Math.sqrt(H * H + 2 * H * (q + e0 + e0 * e0 / (2 * H)));
     return easy + (e1 - e0);
 }
+// The other way round: the raw points a paced gain needs to bring `add` points against fatigue F (a cap that lets only
+// part of a gain in keeps the raw rest for later: sim/tiers.ts).
+export function rawFor(add: number, F: number, c: Curve): number {
+    if (!(add > 0)) return 0;
+    const E = Math.max(0, c.E), H = Math.max(0.01, c.H), f = Math.max(0, F);
+    const easy = Math.min(add, Math.max(0, E - f));
+    const e0 = Math.max(0, f - E), e1 = e0 + (add - easy);
+    return easy + (e1 - e0) + (e1 * e1 - e0 * e0) / (2 * H);
+}
 // The rate of the next point gained (1 = full) at fatigue F.
 export const rateAt = (F: number, c: Curve) => (F < c.E ? 1 : 1 / (1 + (F - c.E) / Math.max(0.01, c.H)));
