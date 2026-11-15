@@ -407,6 +407,7 @@ export function checkSave(g: Save) {
         const threads = structuredClone(g);
         if (settleThreads(threads, w) && JSON.stringify(threads) !== JSON.stringify(g)) {
             if (!backedUp) backup(g, 'before settling the storylines');
+            backedUp = true;   // (one backup per opening: the steps after this one keep it)
             const n = settleThreads(g, w)!;
             changed = true;
             later(() => toast(storylinesToast(n.reset, n.kept), 'info'));
