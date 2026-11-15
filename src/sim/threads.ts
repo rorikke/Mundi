@@ -54,7 +54,7 @@ const NEWS_DAYS = 14;
 const TELL = 0.5;
 /** Storylines' numbers: days to answer a last chance; the hours a text can come (from `TEXT_FROM`, when you haven't
  *  been together that day) and an in-person one (from `DAY_FROM`); the most last chances (and nudge texts). */
-export const STORYLINE = { answer: 3, dayFrom: 9, textFrom: 17, until: 20, nudges: 3 };
+export const STORYLINE = { answer: 3, dayFrom: 9, textFrom: 17, until: 20, nudges: 3, perWeek: 2 };
 /** The plain engine nudges, first to last, for a storyline without its own (interface text). */
 export const DEFAULT_NUDGES = ["Can we talk soon? It's about something I've kept to myself.", "It's still on my mind. Could we meet this week?", "I have to decide soon, and I'd like to talk to you first."];
 
@@ -445,16 +445,23 @@ function sendNudge(g: Save, w: WorldDef, t: Thread, r: Resident, st: ThreadState
     const brief = `${r.name} texts ${me}: they would like to meet and talk about ${about}.${last ? ' They have to decide soon, and this is the last time they ask.' : ''} A short message in their own voice, like: "${list[n]}"`;
     void textFrom(g, w, r.avatar, brief, list[n]).then(text => { ask.text = text; unread(g, r.avatar); }).catch(() => { /* offline */ });
 }
+// The days storyline texts went out this past week (`g.threadTexts`): with many storylines waiting at once, the phone
+// shouldn't fill with them, so the rest wait their turn (a last chance counts as missed only once it has been sent).
+const textsThisWeek = (g: Save): number[] => {
+    const a = g as any, list: number[] = (Array.isArray(a.threadTexts) ? a.threadTexts : []).filter((d: unknown) => typeof d === 'number' && g.day - d < 7);
+    return (a.threadTexts = list);
+};
 /** Each hour: last chances left unanswered for three days count as missed; a storyline whose last chance is due gets it,
- *  in person when you're together (the card again), else by text later in the day (one storyline text a day, the
- *  oldest due first). Sent with "Characters take the initiative" off too. */
+ *  in person when you're together (the card again), else by text later in the day (one storyline text a day and two a
+ *  week at most, the oldest due first). Sent with "Characters take the initiative" off too. */
 export function lastChances(g: Save, w: WorldDef): string[] {
     const list = liveDue(g, w), out: string[] = [];
     for (const { t, r } of list) { const st = threadStates(g)[t.id]; if (st.asked && g.day - st.asked.day >= STORYLINE.answer) out.push(...missOne(g, w, t, r, st)); }
     const h = Math.floor(g.minutes / 60);
     if ((g as any).asleep || h < STORYLINE.dayFrom || h > STORYLINE.until) return out;
     const phone = systemOn(w, 'plans');
-    let texted = (g as any).threadText === g.day;
+    const week = textsThisWeek(g);
+    let texted = (g as any).threadText === g.day || week.length >= STORYLINE.perWeek;
     for (const { t, r } of list) {
         const st = threadStates(g)[t.id];
         if (st.ended || st.asked || g.day < (st.next ?? st.due! + half(g))) continue;
@@ -465,7 +472,7 @@ export function lastChances(g: Save, w: WorldDef): string[] {
         }
         if (!phone || texted || h < STORYLINE.textFrom) continue;
         sendNudge(g, w, t, r, st);
-        (g as any).threadText = g.day; texted = true;
+        (g as any).threadText = g.day; week.push(g.day); texted = true;
         out.push(`${r.name} sent you a message.`);
     }
     return out;
