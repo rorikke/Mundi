@@ -30,6 +30,7 @@ import { personPanel, SCOPES } from './personui.js';
 import { cleanPerson, cleanIntimate, gendersOf } from '../sim/gender.js';
 import { whenError, namedIn, parseWhen, PARTNER_VALUES } from '../sim/when.js';
 import { SHOP_CATS, SHOP_LIMITS, SHOP_NOW_MAX, catOf, shopCat, isAdultItem } from '../sim/shop.js';
+import { RESALE, SIZES, buyable, buyOnly, housingOn, fixturesOf } from '../sim/housing.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
 import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind } from '../core/traits.js';
@@ -338,7 +339,8 @@ function wordsEditor(w, p, a) {
                     <button class="mu-ghost" data-act="cw-word" data-path="${esc(q)}" data-v="obj">${icon('plus')}<span>What it does here too (needs, a fact)</span></button>`}</div>`;
     }).join('')}` : ''}`;
 }
-const idTag = (id) => (typeof id === 'string' && id ? `<code data-notr>${esc(id)}</code>` : '<small class="mu-muted">(no id)</small>');
+// `p`: the id's path, shown (never typed: what names it, saves included, would lose it)
+const idTag = (id, p = '') => (typeof id === 'string' && id ? `<code data-notr${p ? ` data-path="${esc(p)}"` : ''}>${esc(id)}</code>` : '<small class="mu-muted">(no id)</small>');
 const clip = (t, n = 70) => { const x = String(t ?? ''); return esc(x.length > n ? `${x.slice(0, n - 1)}…` : x); };
 // Outcome tables shared by several actions (one omikuji for every shrine): each action tells the rows in its own words.
 // A table's name is what actions point at, so it's set once and never renamed here.
@@ -1433,13 +1435,18 @@ function placeChecklist(w, p) {
 // What an item unlocks: things to do that need it, or name it in an `owns:` condition.
 const unlocksOf = (w, id) => w.actions.filter(a => a.needsItem === id || (typeof a.when === 'string' && parseWhen(a.when).conds.some(c => c.key === 'owns' && !c.not && c.values.includes(id))));
 const REPEAT_OPTS = [['kept', 'Kept for good (bought once)'], ['days', 'A service: it lasts some days'], ['stock', 'Stock: some uses of what it unlocks']];
+// (housing) A fixture's words are listed in the home's line ("It has a walnut home bar and …"): world-check's rule.
+const FIXTURE_AI = /^(a|an|the|two|three|four|five|six|seven|eight|nine|ten|twelve|some)\s/i;
 /** A shop item's form (`p`: its path, `it`: the item). Written for any list of things in the item's shape, so another
- *  tab (a home's rooms and fixtures, later) can show it too. Every field the world doesn't set is left out of the file
- *  and read with the engine's default (catOf, onlineOf, toldOf in sim/shop.ts). */
-export function itemForm(p, it) {
+ *  tab can show it too. Every field the world doesn't set is left out of the file and read with the engine's default
+ *  (catOf, onlineOf, toldOf in sim/shop.ts). `as.fixture`: a home's room or fixture (bought in the Homes app for a home
+ *  you own), so what only the shop reads (category, where it's sold, buying again, at once, a keepsake, trips, driving
+ *  late) isn't shown, and `as.fits` (where it fits) comes after its price. */
+export function itemForm(p, it, as = {}) {
     const w = W();
     if (!it)
         return '';
+    const fx = !!as.fixture;
     const adult = isAdultItem(it);
     const cat = shopCat(it);
     const autoCat = Number(it.travel) > 0 ? 'Vehicles' : 'Home & furniture';
@@ -1452,22 +1459,42 @@ export function itemForm(p, it) {
     const others = Object.keys(it.now ?? {}).filter(k => !BAD_KEYS.includes(k) && !w.statuses.some(s => s.id === k));
     const placeOf = (id) => w.places.find(x => x.id === id);
     const warn = [];
-    if (it.online === false && !it.at?.length)
+    if (!fx && it.online === false && !it.at?.length)
         warn.push('Sold nowhere: not online, and at no place.');
     if (hasStock && !w.actions.some(a => a.needsItem === it.id))
         warn.push('Stock that nothing uses: no thing to do needs this item (Things to do → "Only if the player owns").');
-    if (typeof it.ai === 'string' && it.ai.trim() && !it.ai.includes('{{user}}'))
+    if (!fx && typeof it.ai === 'string' && it.ai.trim() && !it.ai.includes('{{user}}'))
         warn.push("The AI's line should name {{user}} (the player).");
+    if (fx && typeof it.ai === 'string' && it.ai.trim() && (!FIXTURE_AI.test(it.ai.trim()) || /[.!?]$/.test(it.ai.trim()) || it.ai.includes('{{user}}')))
+        warn.push('Its words should be a short phrase with its article ("a black grand piano by the window"): no {{user}}, no full stop.');
     if (!adult && (it.at ?? []).some(id => placeOf(id)?.adult))
         warn.push('Sold at an adult place: mark it adult.');
     if (!adult && it.keepsake && (w.keepsakes ?? []).find(k => k.id === it.keepsake)?.adult)
         warn.push('It gives an adult keepsake: mark it adult.');
     if (!adult && unlocks.length && unlocks.every(a => a.adult))
         warn.push('It only unlocks adult things to do: mark it adult.');
-    return `<div class="mu-row mu-cw-inline">${idTag(it.id)}</div>
+    const price = num(`Price (${esc(w.currency.symbol)})`, `${p}.price`);
+    const head = `<div class="mu-row mu-cw-inline">${idTag(it.id, `${p}.id`)}</div>
         <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🛏️')}</div>
-        ${area('Description', `${p}.desc`, 2)}
-        <div class="mu-row2">${sel('Category', `${p}.cat`, withCur([['', `Automatic (${autoCat})`], ...SHOP_CATS.map(c => [c.id, `${c.name}${c.adult && c.id !== 'adult' ? ' (adult)' : ''}`])], it.cat), 'opt')}${num(`Price (${esc(w.currency.symbol)})`, `${p}.price`)}</div>
+        ${area('Description', `${p}.desc`, 2)}`;
+    if (fx)
+        return `${head}<div class="mu-row2">${price}</div>${as.fits ?? ''}
+        ${cond('Offered when (a condition; empty: always)', `${p}.when`, 'money: 1000000', 'The Homes app offers it only while it holds; kept once bought.')}
+        <h4>What having it does</h4>
+        <div class="mu-row2">${num('Mood when you wake up at home (+; the best bed counts)', `${p}.sleepMood`)}</div>
+        <span class="mu-cw-sub">Small effects</span>
+        <p class="mu-muted">Up to three, each within ±${SHOP_LIMITS.mul * 100}% (a flat amount within ±${SHOP_LIMITS.add}), counted with the shop's things: only the best one of each kind counts. They work in the home it's in: the one you live in, or your second home while you're there.</p>
+        ${fxEditor(w, `${p}.effects`, 'shop', 3)}
+        <p class="mu-muted">${unlocks.length ? `Unlocks: ${esc([...new Set(unlocks.map(a => a.label || a.name))].join(', '))}.` : 'Unlocks nothing to do yet: in Things to do, pick this item under "Only if the player owns".'}</p>
+        <h4>What the AI is told</h4>
+        ${optTxt('Its words (optional; empty: its name)', `${p}.ai`, 'a black grand piano by the window', 'At a home you own: "It has …", the dearest five.')}
+        <div class="mu-row2">${sel('When', `${p}.told`, [['', 'As usual'], ['always', 'Always'], ['home', 'At home'], ['no', 'Never']], 'opt')}
+            ${sel('At home', `${p}.seen`, [['', 'As usual: put away'], ['away', 'Put away: named only to those who know of it'], ['out', 'In plain sight (sheets, candles)']], 'opt')}</div>
+        <small class="mu-muted">These two matter for an adult one, told under the shop's rules; the others are named in the home's own line.</small>
+        ${flag('Only with adult content on', `${p}.adult`, '', true)}
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+    return `${head}
+        <div class="mu-row2">${sel('Category', `${p}.cat`, withCur([['', `Automatic (${autoCat})`], ...SHOP_CATS.map(c => [c.id, `${c.name}${c.adult && c.id !== 'adult' ? ' (adult)' : ''}`])], it.cat), 'opt')}${price}</div>
         ${it.cat && !SHOP_CATS.some(c => c.id === it.cat) ? '<p class="mu-warn">Not one of the categories: it shows under Home &amp; furniture.</p>' : ''}
         <h4>Where it's sold</h4>
         ${sel('In the phone\'s Shop app', `${p}.online`, [['', 'As usual: online when it isn\'t sold at places'], ['true', 'Online'], ['false', 'Not online']], 'tri')}
@@ -1561,19 +1588,75 @@ function tabWords(w) {
         ${groups.map(g => `<h4>${esc(g.title)}</h4><div class="mu-cw-words">${g.keys.map(k => `<label class="mu-field"><span>${esc(lexDefault(w, k))}</span><input data-input="cw" data-path="lexicon.${k}" data-focus="lexicon.${k}" value="${esc(own[k] ?? '')}" placeholder="${esc(lexDefault(w, k))}"></label>`).join('')}</div>`).join('') || '<p class="mu-muted">Nothing matches.</p>'}
     </section>`;
 }
+// (housing) Chips of what can be picked, and any picked that isn't there any more (to take off); none picked, none in the file.
+const pickChips = (opts, p) => { const cur = getPath(p); const on = Array.isArray(cur) ? cur : []; return pairChips([...opts, ...on.filter(v => !opts.some(([x]) => x === v)).map(v => [v, v])], p, true); };
+export const fixtureOpts = (w) => fixturesOf(w).map(f => [f.id, `${f.icon ?? ''} ${f.name}`.trim()]);
+// (housing) Buying a home in an area: its price, upkeep, what selling gives back, its size, a second home, and the rent
+// before a version raised it. Read with their defaults (sim/housing.ts), so only what's typed is in the file.
+function zoneBuying(w, p, z) {
+    const cur = esc(w.currency.symbol);
+    const warn = [];
+    if (buyable(z) && !(Number(z.upkeep) > 0))
+        warn.push('A home for sale needs an upkeep a week.');
+    if (!buyable(z) && (z.upkeep !== undefined || z.resale !== undefined || z.second !== undefined))
+        warn.push('Upkeep, resale and second home are read only for a home with a price.');
+    const living = w.cast.examples.filter(e => e.home === z.id).length;
+    if (buyOnly(z) && living)
+        warn.push(`Only for sale, but ${living} of the world's people live here.`);
+    return `<h4>Buying a home here</h4>
+        <div class="mu-row2">${num(`Price to buy (${cur}; empty: not for sale)`, `${p}.price`)}${num(`Upkeep a week, once it's yours (${cur})`, `${p}.upkeep`)}</div>
+        <div class="mu-row2">${bounded(`Sold back for this share of what you paid (${RESALE.min}–${RESALE.max}; empty: ${RESALE.usual})`, `${p}.resale`, RESALE.min, RESALE.max, 0.05)}${bounded(`Size (${SIZES.min}–${SIZES.max}; empty: its kind's, else 1)`, `${p}.size`, SIZES.min, SIZES.max)}</div>
+        <div class="mu-row2">${sel('It can be a second home', `${p}.second`, [['', 'As usual: yes when it is for sale'], ['true', 'Yes'], ['false', 'No']], 'tri')}${num(`Rent before it went up (${cur}; tells old saves)`, `${p}.was`)}</div>
+        <small class="mu-muted">${buyOnly(z) ? 'No rent and a price: for sale only. Nobody is placed here by chance.' : buyable(z) ? 'Rented or bought. A home you own pays its upkeep instead of the rent.' : 'Empty rent and a price: for sale only.'}</small>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// (housing) A home's rooms and fixtures (`homes.fixtures`): the shop item's form without what only the shop reads, and
+// where it fits (the home's size, its kind and area, another fixture first) and the place it opens as a room.
+function fixtureForm(w, i) {
+    const list = w.homes.fixtures ?? [];
+    const p = `homes.fixtures.${i}`;
+    const f = list[i];
+    if (!f)
+        return '';
+    const others = fixtureOpts(w).filter(([id]) => id !== f.id);
+    const rooms = w.places.filter(x => x.room === f.id).map(x => [x.id, x.name]);
+    const fits = (z) => (!f.size || (Number(z.size) || Number(w.homes.kinds[z.kind]?.size) || 1) >= f.size) && (!f.kinds?.length || f.kinds.includes(z.kind)) && (!f.zones?.length || f.zones.includes(z.id));
+    const warn = [];
+    if (!w.homes.zones.some(z => buyable(z) && fits(z)))
+        warn.push('It fits no home for sale (its size, kinds and areas).');
+    if (f.needs && f.needs === f.id)
+        warn.push('It needs itself.');
+    if (f.room && !rooms.some(([id]) => id === f.room))
+        warn.push("That place isn't a room of this fixture: in Maps & places, make it one.");
+    if ((w.catalogs.shop ?? []).some((x) => x.id === f.id))
+        warn.push('The same id as a shop item.');
+    const move = (d) => `<button class="mu-ghost mu-ibtn" data-act="cw-move" data-path="homes.fixtures" data-i="${esc(i)}" data-d="${d}" data-k="fixtures" title="${d < 0 ? 'Move up' : 'Move down'}">${icon(d < 0 ? 'up' : 'down')}</button>`;
+    const where = `<h4>Where it fits</h4>
+        <div class="mu-row2">${bounded(`The home's size at least (${SIZES.min}–${SIZES.max}; empty: any)`, `${p}.size`, SIZES.min, SIZES.max)}${sel('Another first (in the same house)', `${p}.needs`, withCur([['', '(nothing)'], ...others], f.needs), 'opt')}</div>
+        <details class="mu-cw-kept" ${f.kinds?.length ? 'open' : ''}><summary>Only in these kinds of home · ${esc(f.kinds?.length ?? 0)}</summary><small class="mu-muted">None picked: any kind.</small>${pickChips(Object.entries(w.homes.kinds).map(([id, k]) => [id, k.name]), `${p}.kinds`)}</details>
+        <details class="mu-cw-kept" ${f.zones?.length ? 'open' : ''}><summary>Only in these areas · ${esc(f.zones?.length ?? 0)}</summary><small class="mu-muted">None picked: any area.</small>${pickChips(zoneOpts(w), `${p}.zones`)}</details>
+        ${sel('A room of its own (a place on the map)', `${p}.room`, withCur([['', '(none)'], ...rooms], f.room), 'opt')}
+        <small class="mu-muted">${rooms.length ? 'On the map only while a home of yours has it.' : 'No place is a room of this yet: in Maps & places, a place can be one (a terrace, a bath).'}</small>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+    return `${list.length > 1 ? `<div class="mu-row mu-cw-inline">${i > 0 ? move(-1) : ''}${i < list.length - 1 ? move(1) : ''}</div>` : ''}${itemForm(p, f, { fixture: true, fits: where })}`;
+}
 function tabHomes(w) {
     ensureExpenses(w);
     const kinds = Object.entries(w.homes.kinds);
     const exps = w.homes.expenses ?? [];
+    const housing = housingOn(w) || !!w.homes.fixtures?.length;
+    const fixtures = fixtureOpts(w);
+    const priced = (z) => (buyOnly(z) ? 'for sale only' : esc(money(w, Number(z.rent) || 0))) + (buyable(z) ? ` · ${esc(money(w, Number(z.price)))} to buy` : '');
     return `<div class="mu-cw-grid">
         <section class="mu-cw-sec"><h4>Housing areas</h4>
-            ${master('zones', 'homes.zones', z => `<b>${esc(z.name)}</b><small>${z.spots.length} homes · ${esc(money(w, z.rent))}</small>`, i => {
+            ${master('zones', 'homes.zones', z => `<b>${esc(z.name)}</b><small>${z.spots.length} homes · ${priced(z)}</small>`, i => {
         const p = `homes.zones.${i}`;
         const z = w.homes.zones[i];
         return `${txt('Name', `${p}.name`)}${area('Description', `${p}.desc`, 2)}
                     <div class="mu-row2">${sel('Kind of home', `${p}.kind`, kinds.map(([id, k]) => [id, k.name]))}${num(`Rent (${esc(w.currency.symbol)})`, `${p}.rent`)}</div>
                     ${sel('On the map', `${p}.map`, w.maps.map(m => [m.id, m.name]))}
                     ${chk('A student home', `${p}.student`, 'While you study for a degree, only these can be rented.')}
+                    ${housing || z.price !== undefined ? zoneBuying(w, p, z) : ''}
                     <p class="mu-muted">${z.spots.length} homes placed. They are numbered (House 1, House 2…).</p>
                     <button data-act="cw-homes-map" data-i="${esc(i)}">${icon('map')}<span>Place the homes on the map</span></button>`;
     }, 'zone', 'No housing areas yet.')}</section>
@@ -1581,6 +1664,8 @@ function tabHomes(w) {
             ${kinds.map(([id, k]) => `<div class="mu-cw-kind"><div class="mu-cw-cover is-small" style="${k.image ? `background-image:url('${safeUrl(worldFile(w, k.image))}')` : ''}"></div>
                 <div>${txt('Name', `homes.kinds.${id}.name`)}${area('Description', `homes.kinds.${id}.desc`, 2)}
                 ${exps.length ? `<div class="mu-row2">${exps.map(e => num(`${esc(e.name)} a week (${esc(w.currency.symbol)})`, `homes.kinds.${id}.bills.${e.id}`)).join('')}</div>` : ''}
+                ${housing || k.size !== undefined || k.guests !== undefined ? `<div class="mu-row2">${bounded(`Size (${SIZES.min}–${SIZES.max}; for areas that don't give one)`, `homes.kinds.${id}.size`, SIZES.min, SIZES.max)}${bounded('Guests at a party, at most (empty: no limit)', `homes.kinds.${id}.guests`, 1, 999)}</div>` : ''}
+                ${fixtures.length || k.fixtures?.length ? `<details class="mu-cw-kept" ${k.fixtures?.length ? 'open' : ''}><summary>Comes with these rooms and fixtures · ${esc(k.fixtures?.length ?? 0)}</summary><small class="mu-muted">A home of this kind you buy has them already.</small>${pickChips(fixtures, `homes.kinds.${id}.fixtures`)}</details>` : ''}
                 <details class="mu-me-times" ${Object.keys(k.images ?? {}).length ? 'open' : ''}><summary>Inside at other times of the day</summary>
                     ${TIME_SLOTS.map(per => {
         const b = k.images?.[per.id] ? worldFile(w, k.images[per.id]) : '';
@@ -1590,6 +1675,9 @@ function tabHomes(w) {
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-kind-img" data-id="${esc(id)}">${icon('image')}<span>Inside picture (scene)</span></button>
                 ${kinds.length > 1 ? `<button class="mu-ghost" data-act="cw-del" data-path="homes.kinds.${id}">${icon('trash')}</button>` : ''}</div></div></div>`).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="kind">${icon('plus')}<span>Add a kind of home</span></button></section>
+        ${housing ? `<section class="mu-cw-sec"><h4>Rooms and fixtures</h4>
+            <p class="mu-muted">What can be added to a home you own, in the phone's Homes app: a sauna, a grand piano, a rooftop terrace. Each is bought once for one house and stays with it, sold with it; it works as the shop's things do while you're there, and one can open a room of its own on the map.</p>
+            ${master('fixtures', 'homes.fixtures', (f) => `<b>${esc(f.icon ?? '')} ${esc(f.name)}</b><small>${esc(money(w, Number(f.price) || 0))}${f.size ? ` · size ${esc(f.size)}+` : ''}${f.room ? ' · a room' : ''}${isAdultItem(f) ? ' · adult' : ''}</small>`, i => fixtureForm(w, i), 'fixture', 'No rooms or fixtures yet.')}</section>` : ''}
         <section class="mu-cw-sec"><h4>Expenses (besides the rent)</h4>
             <p class="mu-muted">Bills every home pays each week with the rent: water, power, firewood, servants, taxes… as many as you like, or none. Each kind of home sets its own amount above. One left unpaid for a week stops the things you pick here.</p>
             ${master('expenses', 'homes.expenses', e => `<b>${esc(e.name || lexDefault(w, `bill_${e.id}`))}${e.rpg ? ' <small>(RPG)</small>' : ''}</b><small>${(e.blocks ?? []).length ? `stops ${(e.blocks ?? []).length} thing${(e.blocks ?? []).length === 1 ? '' : 's'}` : 'stops nothing'}</small>`, i => {
@@ -1715,6 +1803,7 @@ export function forSaving(w) {
     tidyAdult(out);
     tidyThreads(out);
     tidyShop(out);
+    tidyFixtures(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length)
@@ -1737,6 +1826,20 @@ function tidyShop(w) {
         if (typeof it.ai === 'string' && !it.ai.trim())
             delete it.ai;
     }
+}
+// (housing) What the fixture and kind forms can leave empty: effects all removed, no kind, area or fixture picked (any
+// kind, any area, nothing comes with it), empty words. Nothing else is touched.
+function tidyFixtures(w) {
+    for (const f of w.homes?.fixtures ?? []) {
+        for (const k of ['effects', 'kinds', 'zones'])
+            if (Array.isArray(f[k]) && !f[k].length)
+                delete f[k];
+        if (typeof f.ai === 'string' && !f.ai.trim())
+            delete f.ai;
+    }
+    for (const k of Object.values(w.homes?.kinds ?? {}))
+        if (Array.isArray(k.fixtures) && !k.fixtures.length)
+            delete k.fixtures;
 }
 // (storylines) What the form can leave that a game would drop anyway: empty earlier ways in, empty nudge boxes (three kept at
 // most), a help with no label or a price outside its range. Nothing else is touched.
@@ -2033,7 +2136,8 @@ const MOMENT_NAMES = { meal: 'Cook a meal', workout: 'Work out', painting: 'Pain
     baby: 'Have a baby', business: 'Open a business', big_party: 'A party with five guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00',
     // (adult)
     intimate: 'A private moment with someone (adult)', learned: 'Learn something someone likes or won\'t do (adult)', risky: 'Get away with something risky (adult)', caught: 'Get caught (adult)',
-    threesome: 'A night for three (adult)', jealous: 'Make a partner jealous', gift_loved: 'A gift someone loved' };
+    threesome: 'A night for three (adult)', jealous: 'Make a partner jealous', gift_loved: 'A gift someone loved',
+    home_bought: 'Buy a home', home_sold: 'Sell a home', grand_party: 'A party at home 12 came to' };
 const PARTNER_NAMES = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married', open: 'A partner fine with more than one' };
 const realPlaces = (w) => w.places.filter(p => !p.link);
 // (an area named with a space can't be written in a condition)
@@ -2778,6 +2882,7 @@ const NEW = {
     pet: () => ['pets', { id: newId('pet'), name: 'New animal', icon: '🐾', price: 50, mood: 3 }],
     rfoe: () => ['rpg.bestiary', { id: newId('foe'), name: 'New foe', level: 1, hp: 10, ac: 12, atk: 3, dice: 1, sides: 6, bonus: 1, row: 'front', tags: ['road'], desc: '' }],
     item: () => ['catalogs.shop', { id: newId('item'), name: 'New item', desc: '', icon: '🎁', price: 100 }],
+    fixture: () => ['homes.fixtures', { id: newId('fx'), name: 'New fixture', desc: '', icon: '🛋️', price: 1000 }],
     breakable: () => ['homes.breakables', { id: newId('thing'), name: 'the new thing', blocks: [] }],
     course: () => ['catalogs.courses', { id: newId('course'), name: 'New course', area: 'General', days: 3, cost: 100, grants: [], icon: '📚', desc: '' }],
     expense: () => ['homes.expenses', { id: newId('expense'), name: 'New expense', icon: 'wallet', blocks: [] }],
@@ -2800,7 +2905,7 @@ const NEW = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },
@@ -3270,13 +3375,15 @@ Object.assign(ACT, {
         CW.dirty = true;
         notify();
     },
-    // a goal's step up or down
+    // a goal's step up or down; a fixture in its list (`data-k`: the list's picked row moves with it)
     'cw-move': (el) => {
         const l = getPath(el.dataset.path);
         const i = Number(el.dataset.i), j = i + Number(el.dataset.d);
         if (!Array.isArray(l) || !(i >= 0 && i < l.length) || !(j >= 0 && j < l.length))
             return;
         [l[i], l[j]] = [l[j], l[i]];
+        if (el.dataset.k)
+            CW.sel[el.dataset.k] = j;
         CW.dirty = true;
         notify();
     },

@@ -12,6 +12,7 @@ import { collectionOn } from '../sim/collection.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { STORYLINES_HELP } from './threadui.js';
+import { housingOn } from '../sim/housing.js';
 
 interface Topic { id: string; icon: string; title: string; intro: string; items: [string, string][] }
 // Written with the world's own words: its apps, bills, courses and device (a phone, a journal…).
@@ -95,6 +96,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     const goalsOn = !w || systemOn(w, 'goals');
     const shopOn = !w || (systemOn(w, 'shop') && on('shop') && shopItems(w).length > 0);
     const collectionHere = !!w && collectionOn(w) && on('collection');
+    const ownOn = !!w && housingOn(w) && on('homes') && w.homes.zones.some(z => (z.price ?? 0) > 0);   // (housing: homes to buy)
     const carHome = !w || shopItems(w).some(it => it.late);
     return [
     { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
@@ -168,6 +170,15 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['What can no longer happen', "A district's count leaves out the stories tied to a business or a job, and a story that can't happen any more (its person is gone, or it hung on another ending) drops out of it and says so."],
             ['New slots', 'When the world gains something new, a record already at 100% stays at 100%, with the new slots marked New until you fill them.'],
             ['An older game', "The record begins with what your game already remembers (storylines ended, festivals and events since the life goals came, places, stories, goals finished, keepsakes): what it never kept, like a café sold before, can't be counted."],
+        ] }] : []),
+    ...(ownOn ? [<Topic>{ id: 'owning', icon: 'home', title: 'Owning a home', intro: `Some homes can be bought, ${appRef(w!, 'homes')}: Homes for sale, under the homes for rent.`,
+        items: [
+            ['Buying', "A home is bought outright: no rent, and no loan. You can buy one to live in, or as a second home (the place for weekends); you can own two at most. Some homes can only be bought, never rented."],
+            ['Upkeep', "A home you own costs a weekly upkeep (management, taxes, staff), a bill like the others. Left a week unpaid, the house's rooms and fixtures stop working until it's paid; you're never locked out of a home you own."],
+            ['Selling', "A home you own can be sold back for part of what you paid (the card says how much). Its rooms and fixtures stay with it. To move out of the home you own, you'll be asked whether to sell it or keep it as your second home."],
+            ['Rooms and fixtures', "A home you own can be fitted out: a sauna, a grand piano, a garden, a home bar… Each is bought once for that house and adds things to do there and a small help; of what you own, only the best of each kind of help counts. A few are rooms of their own (a rooftop terrace, a bath): Things to do takes you there."],
+            ['The second home', "Your second home is on the map: go there, sleep there, and use its rooms while you're there."],
+            ['Parties', "A bigger home has room for more guests, and a big one can have a party catered."],
         ] }] : []),
     { id: 'phone', icon: modern ? 'phone' : 'book', title: `The ${devl}`, intro: lex(w, 'deviceIntro'),
         items: [

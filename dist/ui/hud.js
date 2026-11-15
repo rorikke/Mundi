@@ -67,6 +67,8 @@ import { adventureActs } from './adventureui.js';
 import { rpgOf } from '../core/rpgdef.js';
 import { afterglow, DESIRE } from '../sim/drive.js';
 import { toastLogHtml } from './toastlog.js';
+import { roomRows } from './homesui.js';
+import { SECOND_HOME_ID } from '../sim/housing.js';
 /* ---------- you ---------- */
 // Health and energy are bars; the other needs are round badges. A world can choose with `hudKind`.
 const isBar = (s) => (s.hudKind ? s.hudKind === 'bar' : ['life', 'health', 'energy'].includes(s.id));
@@ -224,7 +226,8 @@ function actsColumn(g, w) {
         ...(jobsOn ? [workButton(g, w)] : []),
         ...jobs.map(o => `<button class="mh-act mh-glass" data-act="apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}><i>${icon('briefcase')}</i><b>Apply: ${esc(o.name)}</b><small>${missingCourses(g, w, o).length ? `${lex(w, 'needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}` : `${money(w, payOf(g, o.ranks[0].pay))}/h · ${interviewChance(g, o, traitsOf(g)) ? `interview 🎲 ${interviewChance(g, o, traitsOf(g))}%` : 'out of your reach for now'}${(() => { const s = interviewSkill(g, o); return s ? ` · ${esc(skillName(w, s.id))} ${s.level} helps` : ''; })()}`}</small></button>`),
         ...(atHome && lockedOut(g) ? [`<button class="mh-act mh-glass is-warn" data-act="ph-open-homes"><i>${icon('home')}</i><b>${lex(w, 'lockedOutShort')}</b><small>${lex(w, 'lockedOutHint', appRef(w, 'homes'), money(w, toGetBackIn(g, w, 'rent')))}</small></button>`] : []),
-        ...((atHome && !lockedOut(g)) || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
+        ...roomRows(g, w),
+        ...((atHome && !lockedOut(g)) || g.player.loc === SECOND_HOME_ID || stayHere(g) ? [`<button class="mh-act mh-glass" data-act="sleep"><i>${icon('moon')}</i><b>Sleep until morning</b><small>${atHome || g.player.loc === SECOND_HOME_ID ? 'Rest' : 'Staying the night here'}</small></button>`] : []),
         ...innRows(g, w, atHome),
         ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${trainedSkill(w, a)}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),
         ...shopHereRows(g, w),

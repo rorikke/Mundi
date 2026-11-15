@@ -1139,7 +1139,11 @@
    "yk_lovehotel_mirage",
    "sb_lovehotel_suite",
    "yk_marina",
-   "rp_classics"
+   "rp_classics",
+   "rp_pent_terrace",
+   "ym_villa_veranda",
+   "ws_dec_bath",
+   "hk_villa_onsen"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1152,7 +1156,11 @@
    "hz_azabu",
    "hz_yokohama",
    "hz_hakone",
-   "hz_dorm"
+   "hz_dorm",
+   "hz_penthouse",
+   "hz_hakone_villa",
+   "hz_denenchofu",
+   "hz_yamate"
   ],
   "homeKinds": [
    "studio",
@@ -1163,7 +1171,11 @@
    "oldhouse",
    "tower",
    "luxury",
-   "dorm"
+   "dorm",
+   "penthouse",
+   "estate",
+   "villa",
+   "onsenvilla"
   ],
   "expenses": [
    "water",
@@ -1611,7 +1623,34 @@
    "sh_classics_look",
    "ak_arcade_duet",
    "ak_jinbocho_write",
-   "mg_hospital_physio"
+   "mg_hospital_physio",
+   "fa_bar_mix",
+   "fa_cellar_open",
+   "fa_kitchen_dinner",
+   "fa_tea_ceremony",
+   "fa_sauna",
+   "fa_cypress_soak",
+   "fa_onsen_soak",
+   "fa_onsen_two",
+   "fa_gym_train",
+   "fa_massage",
+   "fa_yoga",
+   "fa_theatre_film",
+   "fa_piano_play",
+   "fa_studio_record",
+   "fa_library_read",
+   "fa_library_write",
+   "fa_games_play",
+   "fa_atelier_paint",
+   "fa_darkroom_print",
+   "fa_observatory",
+   "fa_terrace_drinks",
+   "fa_terrace_pool",
+   "fa_veranda_breakfast",
+   "fa_veranda_lights",
+   "fa_garden_walk",
+   "fa_pond_koi",
+   "fa_suite_night"
   ],
   "occupations": [
    "rider",

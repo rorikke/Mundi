@@ -469,7 +469,7 @@
     "name": "Toyosu towers",
     "map": "bay",
     "kind": "tower",
-    "rent": 60000,
+    "rent": 90000,
     "spots": [
      [
       27.97,
@@ -504,14 +504,19 @@
       87.58
      ]
     ],
-    "desc": "fifty-story glass towers on the Toyosu canals: concierge desks, gyms and sky lounges downstairs, wide quiet promenades, and fish trucks rumbling by before dawn"
+    "desc": "fifty-story glass towers on the Toyosu canals: concierge desks, gyms and sky lounges downstairs, wide quiet promenades, and fish trucks rumbling by before dawn",
+    "was": 60000,
+    "price": 2400000,
+    "upkeep": 18000,
+    "resale": 0.8,
+    "size": 2
    },
    {
     "id": "hz_azabu",
     "name": "Azabu residences",
     "map": "roppongi",
     "kind": "luxury",
-    "rent": 110000,
+    "rent": 180000,
     "spots": [
      [
       71.39,
@@ -546,7 +551,12 @@
       72.4
      ]
     ],
-    "desc": "quiet embassy-lined streets above the shopping street: stone-fronted residences with concierge desks, planted entrances, and Tokyo Tower in every window"
+    "desc": "quiet embassy-lined streets above the shopping street: stone-fronted residences with concierge desks, planted entrances, and Tokyo Tower in every window",
+    "was": 110000,
+    "price": 4400000,
+    "upkeep": 32000,
+    "resale": 0.8,
+    "size": 3
    },
    {
     "id": "hz_yokohama",
@@ -659,6 +669,106 @@
     ],
     "desc": "an international dorm behind the Ochanomizu bridges: narrow corridors, a shared kitchen smelling of five cuisines, a laundry room that doubles as a lounge",
     "student": true
+   },
+   {
+    "id": "hz_penthouse",
+    "name": "Roppongi penthouse",
+    "map": "roppongi",
+    "kind": "penthouse",
+    "spots": [
+     [
+      30.6,
+      9
+     ],
+     [
+      17.5,
+      12.5
+     ],
+     [
+      4,
+      29.5
+     ]
+    ],
+    "desc": "the top floors of the glass towers above Roppongi: a private lift, a doorman who never forgets a name, and the whole city, Tokyo Tower first, at the window",
+    "price": 6000000,
+    "upkeep": 45000,
+    "resale": 0.75,
+    "size": 4
+   },
+   {
+    "id": "hz_hakone_villa",
+    "name": "Hakone villa",
+    "map": "hakone",
+    "kind": "onsenvilla",
+    "spots": [
+     [
+      8.1,
+      57.2
+     ],
+     [
+      16.5,
+      59.5
+     ],
+     [
+      40,
+      66.5
+     ]
+    ],
+    "desc": "cedar-and-stone villas on the wooded slope above Lake Ashi: a hot spring piped to every one, a caretaker in the lodge by the road, and the lake through the trees",
+    "price": 8000000,
+    "upkeep": 55000,
+    "resale": 0.65,
+    "size": 4
+   },
+   {
+    "id": "hz_denenchofu",
+    "name": "Den-en-chōfu mansion",
+    "map": "westside",
+    "kind": "estate",
+    "spots": [
+     [
+      4.3,
+      82.6
+     ],
+     [
+      36.3,
+      95.8
+     ],
+     [
+      5,
+      68.5
+     ]
+    ],
+    "desc": "old-money houses behind tiled walls on wide ginkgo avenues: gates that open by themselves, pines trimmed by a gardener every spring, and neighbors who are never seen",
+    "price": 12000000,
+    "upkeep": 80000,
+    "resale": 0.7,
+    "size": 5
+   },
+   {
+    "id": "hz_yamate",
+    "name": "Yamate villa",
+    "map": "yokohama",
+    "kind": "villa",
+    "spots": [
+     [
+      96.1,
+      75.2
+     ],
+     [
+      88.2,
+      97.4
+     ],
+     [
+      99,
+      82
+     ]
+    ],
+    "desc": "painted wooden villas from the 1920s on the quiet streets above the harbor: bay windows, rose gardens behind iron railings, and ship horns drifting up from the bay",
+    "price": 18000000,
+    "upkeep": 110000,
+    "resale": 0.7,
+    "size": 5
    }
   ],
   "kinds": {
@@ -673,7 +783,9 @@
     "images": {
      "afternoon": "bg/home-studio-afternoon.avif",
      "night": "bg/home-studio-night.avif"
-    }
+    },
+    "size": 1,
+    "guests": 6
    },
    "apaato": {
     "name": "Wooden apartment",
@@ -686,7 +798,9 @@
     "images": {
      "afternoon": "bg/home-apaato-afternoon.avif",
      "night": "bg/home-apaato-night.avif"
-    }
+    },
+    "size": 1,
+    "guests": 6
    },
    "sharehouse": {
     "name": "Share house room",
@@ -699,7 +813,9 @@
     "images": {
      "afternoon": "bg/home-sharehouse-afternoon.avif",
      "night": "bg/home-sharehouse-night.avif"
-    }
+    },
+    "size": 1,
+    "guests": 6
    },
    "mansion": {
     "name": "Apartment (1LDK)",
@@ -712,7 +828,9 @@
     "images": {
      "afternoon": "bg/home-mansion-afternoon.avif",
      "night": "bg/home-mansion-night.avif"
-    }
+    },
+    "size": 1,
+    "guests": 8
    },
    "family": {
     "name": "Family house",
@@ -725,7 +843,9 @@
     "images": {
      "afternoon": "bg/home-family-afternoon.avif",
      "night": "bg/home-family-night.avif"
-    }
+    },
+    "size": 2,
+    "guests": 10
    },
    "oldhouse": {
     "name": "Old wooden house",
@@ -738,7 +858,9 @@
     "images": {
      "afternoon": "bg/home-oldhouse-afternoon.avif",
      "night": "bg/home-oldhouse-night.avif"
-    }
+    },
+    "size": 1,
+    "guests": 8
    },
    "tower": {
     "name": "Bayside tower flat",
@@ -751,7 +873,9 @@
     "images": {
      "afternoon": "bg/home-tower-afternoon.avif",
      "night": "bg/home-tower-night.avif"
-    }
+    },
+    "size": 2,
+    "guests": 12
    },
    "luxury": {
     "name": "Azabu residence",
@@ -764,7 +888,9 @@
     "images": {
      "afternoon": "bg/home-luxury-afternoon.avif",
      "night": "bg/home-luxury-night.avif"
-    }
+    },
+    "size": 3,
+    "guests": 16
    },
    "dorm": {
     "name": "Dorm room",
@@ -777,6 +903,71 @@
     "images": {
      "afternoon": "bg/home-dorm-afternoon.avif",
      "night": "bg/home-dorm-night.avif"
+    },
+    "size": 1,
+    "guests": 6
+   },
+   "penthouse": {
+    "name": "Penthouse",
+    "desc": "a double-height flat at the top of a tower, glass on every side, with a stair to an upper floor",
+    "size": 4,
+    "guests": 24,
+    "bills": {
+     "water": 0,
+     "power": 0
+    },
+    "image": "bg/home-luxury.avif",
+    "images": {
+     "afternoon": "bg/home-luxury-afternoon.avif",
+     "night": "bg/home-luxury-night.avif"
+    }
+   },
+   "estate": {
+    "name": "Mansion",
+    "desc": "a big Western-style house with Japanese rooms, a lawn and pines behind a tiled wall and a gate",
+    "size": 5,
+    "guests": 30,
+    "bills": {
+     "water": 0,
+     "power": 0
+    },
+    "image": "bg/home-family.avif",
+    "images": {
+     "afternoon": "bg/home-family-afternoon.avif",
+     "night": "bg/home-family-night.avif"
+    }
+   },
+   "villa": {
+    "name": "Western-style villa",
+    "desc": "a 1920s Western-style villa of painted wood, with a fireplace, a bay window and a rose garden over the harbor",
+    "size": 5,
+    "guests": 30,
+    "bills": {
+     "water": 0,
+     "power": 0
+    },
+    "image": "bg/home-luxury.avif",
+    "images": {
+     "afternoon": "bg/home-luxury-afternoon.avif",
+     "night": "bg/home-luxury-night.avif"
+    }
+   },
+   "onsenvilla": {
+    "name": "Hot-spring villa",
+    "desc": "a modern Japanese villa of cedar and stone, with a sunken hearth, its own hot spring and the lake below",
+    "size": 4,
+    "guests": 24,
+    "bills": {
+     "water": 0,
+     "power": 0
+    },
+    "fixtures": [
+     "fx_onsen"
+    ],
+    "image": "bg/home-oldhouse.avif",
+    "images": {
+     "afternoon": "bg/home-oldhouse-afternoon.avif",
+     "night": "bg/home-oldhouse-night.avif"
     }
    }
   },
@@ -828,7 +1019,425 @@
     ]
    }
   ],
-  "repairCost": 9000
+  "repairCost": 9000,
+  "fixtures": [
+   {
+    "id": "fx_bar",
+    "name": "Home bar",
+    "icon": "🍸",
+    "price": 650000,
+    "size": 2,
+    "effects": [
+     {
+      "kind": "party",
+      "target": "mood",
+      "value": 0.05
+     }
+    ],
+    "desc": "A walnut counter, a back bar of bottles and an ice machine: parties at home go a little better.",
+    "ai": "a walnut home bar with a back bar of bottles",
+    "told": "home"
+   },
+   {
+    "id": "fx_cellar",
+    "name": "Wine cellar",
+    "icon": "🍷",
+    "price": 1800000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "party",
+      "target": "mood",
+      "value": 0.08
+     }
+    ],
+    "desc": "A cooled cellar of racked bottles, some older than you: parties at home go better.",
+    "ai": "a cooled wine cellar",
+    "told": "home"
+   },
+   {
+    "id": "fx_kitchen",
+    "name": "Chef's kitchen",
+    "icon": "🍳",
+    "price": 2200000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "cooking",
+      "value": 0.08
+     }
+    ],
+    "desc": "A steel range, a long marble island and every knife you could want: you learn to cook faster.",
+    "ai": "a chef's kitchen with a long marble island",
+    "told": "home"
+   },
+   {
+    "id": "fx_tearoom",
+    "name": "Tea room",
+    "icon": "🍵",
+    "price": 1100000,
+    "size": 3,
+    "kinds": [
+     "estate",
+     "villa",
+     "onsenvilla",
+     "luxury"
+    ],
+    "effects": [
+     {
+      "kind": "morning",
+      "target": "mood",
+      "value": 1
+     }
+    ],
+    "desc": "Four and a half tatami, a sunken hearth and a scroll in the alcove: you wake up a little happier.",
+    "ai": "a four-and-a-half-mat tea room",
+    "told": "home"
+   },
+   {
+    "id": "fx_sauna",
+    "name": "Sauna",
+    "icon": "🧖",
+    "price": 900000,
+    "size": 2,
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "bath",
+      "value": 0.05
+     }
+    ],
+    "desc": "A Finnish cedar sauna and a cold shower beside it: baths give a little more back.",
+    "ai": "a cedar sauna",
+    "told": "home"
+   },
+   {
+    "id": "fx_cypress",
+    "name": "Cypress bath",
+    "icon": "🛁",
+    "price": 1300000,
+    "kinds": [
+     "estate"
+    ],
+    "zones": [
+     "hz_denenchofu"
+    ],
+    "room": "ws_dec_bath",
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "bath",
+      "value": 0.08
+     }
+    ],
+    "desc": "A square hinoki tub in a stone room off a moss garden: baths give more back. Opens the cypress bath.",
+    "ai": "a hinoki cypress bath off a moss garden",
+    "told": "home"
+   },
+   {
+    "id": "fx_onsen",
+    "name": "Open-air hot-spring bath",
+    "icon": "♨️",
+    "price": 0,
+    "kinds": [
+     "onsenvilla"
+    ],
+    "zones": [
+     "hz_hakone_villa"
+    ],
+    "room": "hk_villa_onsen",
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "bath",
+      "value": 0.1
+     }
+    ],
+    "desc": "A rock-lined pool fed by the villa's own hot spring, on a cedar deck over the forest: baths give the most back. Comes with the house.",
+    "ai": "an open-air hot-spring bath of its own over the forest",
+    "told": "home"
+   },
+   {
+    "id": "fx_gym",
+    "name": "Private gym",
+    "icon": "🏋️",
+    "price": 1400000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "fitness",
+      "value": 0.08
+     }
+    ],
+    "desc": "Racks, a rowing machine and a mirrored wall: you get fitter faster.",
+    "ai": "a private gym",
+    "told": "home"
+   },
+   {
+    "id": "fx_massage",
+    "name": "Massage room",
+    "icon": "💆",
+    "price": 1000000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "sleep home",
+      "value": 0.05
+     }
+    ],
+    "desc": "A quiet room with a padded table, warm stones and a therapist on call: you sleep a little better at home.",
+    "ai": "a massage room with a therapist on call",
+    "told": "home"
+   },
+   {
+    "id": "fx_yoga",
+    "name": "Yoga room",
+    "icon": "🧘",
+    "price": 500000,
+    "size": 2,
+    "desc": "A bare wooden room full of morning light, with mats and blocks on a shelf.",
+    "ai": "a light yoga room",
+    "told": "home"
+   },
+   {
+    "id": "fx_theatre",
+    "name": "Home theatre",
+    "icon": "🎬",
+    "price": 2000000,
+    "size": 3,
+    "desc": "Twelve reclining seats, a wall-sized screen and sound you feel in your chest.",
+    "ai": "a twelve-seat home theatre",
+    "told": "home"
+   },
+   {
+    "id": "fx_piano",
+    "name": "Grand piano",
+    "icon": "🎹",
+    "price": 3200000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.1
+     }
+    ],
+    "desc": "A black concert grand by the window, tuned every season: you learn music faster than with anything else.",
+    "ai": "a black concert grand piano by the window",
+    "told": "home"
+   },
+   {
+    "id": "fx_studio",
+    "name": "Recording studio",
+    "icon": "🎙️",
+    "price": 1600000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "singing",
+      "value": 0.08
+     }
+    ],
+    "desc": "A soundproofed booth, a good microphone and a mixing desk: you learn to sing faster.",
+    "ai": "a soundproofed recording studio",
+    "told": "home"
+   },
+   {
+    "id": "fx_library",
+    "name": "Library",
+    "icon": "📚",
+    "price": 800000,
+    "size": 2,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "writing",
+      "value": 0.05
+     }
+    ],
+    "desc": "Shelves to the ceiling, a ladder on a rail and a reading chair: you learn to write a little faster.",
+    "ai": "a library with shelves to the ceiling",
+    "told": "home"
+   },
+   {
+    "id": "fx_games",
+    "name": "Games room",
+    "icon": "🎱",
+    "price": 700000,
+    "size": 3,
+    "desc": "A billiard table under a low lamp, a dartboard and a shelf of board games.",
+    "ai": "a games room with a billiard table",
+    "told": "home"
+   },
+   {
+    "id": "fx_atelier",
+    "name": "Atelier",
+    "icon": "🎨",
+    "price": 900000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "drawing",
+      "value": 0.08
+     }
+    ],
+    "desc": "North light, easels, a big table and the smell of oil paint: you learn to draw faster.",
+    "ai": "a painter's atelier with north light",
+    "told": "home"
+   },
+   {
+    "id": "fx_darkroom",
+    "name": "Darkroom",
+    "icon": "📷",
+    "price": 600000,
+    "size": 3,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "photography",
+      "value": 0.05
+     }
+    ],
+    "desc": "A red lamp, trays, an enlarger and a line of prints drying: you learn photography a little faster.",
+    "ai": "a darkroom for printing photographs",
+    "told": "home"
+   },
+   {
+    "id": "fx_observatory",
+    "name": "Rooftop telescope dome",
+    "icon": "🔭",
+    "price": 1500000,
+    "kinds": [
+     "penthouse",
+     "villa",
+     "onsenvilla"
+    ],
+    "desc": "A small white dome on the roof with a real telescope that turns with the sky.",
+    "ai": "a telescope dome on the roof",
+    "told": "home"
+   },
+   {
+    "id": "fx_terrace",
+    "name": "Rooftop terrace",
+    "icon": "🌆",
+    "price": 1200000,
+    "kinds": [
+     "penthouse"
+    ],
+    "zones": [
+     "hz_penthouse"
+    ],
+    "room": "rp_pent_terrace",
+    "effects": [
+     {
+      "kind": "party",
+      "target": "mood",
+      "value": 0.1
+     }
+    ],
+    "desc": "A wooden deck on the roof with a plunge pool, a bar counter and the city all around: parties at home go best. Opens the terrace.",
+    "ai": "a rooftop terrace with a plunge pool",
+    "told": "home"
+   },
+   {
+    "id": "fx_veranda",
+    "name": "Veranda over the rose garden",
+    "icon": "🌹",
+    "price": 900000,
+    "kinds": [
+     "villa"
+    ],
+    "zones": [
+     "hz_yamate"
+    ],
+    "room": "ym_villa_veranda",
+    "effects": [
+     {
+      "kind": "party",
+      "target": "mood",
+      "value": 0.08
+     }
+    ],
+    "desc": "A white-painted veranda over the roses, with a breakfast table and the harbor beyond: parties at home go better. Opens the veranda.",
+    "ai": "a white veranda over a rose garden and the harbor",
+    "told": "home"
+   },
+   {
+    "id": "fx_garden",
+    "name": "Japanese garden",
+    "icon": "🎋",
+    "price": 2600000,
+    "kinds": [
+     "estate",
+     "villa",
+     "onsenvilla"
+    ],
+    "effects": [
+     {
+      "kind": "morning",
+      "target": "mood",
+      "value": 1
+     }
+    ],
+    "desc": "Raked gravel, mossy stones, a maple and a stone lantern, kept by a gardener: you wake up a little happier.",
+    "ai": "a Japanese garden with a stone lantern",
+    "told": "home"
+   },
+   {
+    "id": "fx_pond",
+    "name": "Koi pond",
+    "icon": "🐟",
+    "price": 600000,
+    "kinds": [
+     "estate",
+     "villa",
+     "onsenvilla"
+    ],
+    "needs": "fx_garden",
+    "desc": "A pond under the maple with a dozen koi, red, white and gold, who come when they hear your steps.",
+    "ai": "a koi pond under the maple",
+    "told": "home"
+   },
+   {
+    "id": "fx_guestroom",
+    "name": "Guest room",
+    "icon": "🛏️",
+    "price": 700000,
+    "size": 2,
+    "desc": "A spare bedroom with fresh sheets and its own bathroom: a guest sleeps in a bed, not on the sofa.",
+    "ai": "a guest room",
+    "told": "home"
+   },
+   {
+    "id": "fx_suite",
+    "name": "Bedroom suite",
+    "icon": "🛌",
+    "price": 900000,
+    "size": 3,
+    "adult": true,
+    "seen": "away",
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "sleep together",
+      "value": 0.08
+     },
+     {
+      "kind": "roll",
+      "target": "private",
+      "value": 1
+     }
+    ],
+    "desc": "A big bed, low light, a deep bath through a sliding door and a door that locks: nights together give more back.",
+    "ai": "a bedroom suite with a deep bath and a door that locks",
+    "told": "home"
+   }
+  ]
  },
  "statuses": [
   {
@@ -15138,6 +15747,698 @@
     }
    ],
    "fact": "{u} looked over the classic cars at {0}"
+  },
+  {
+   "id": "fa_bar_mix",
+   "name": "Home bar",
+   "label": "Mix drinks at the home bar",
+   "icon": "🍸",
+   "cost": 800,
+   "minutes": 30,
+   "home": true,
+   "needsItem": "fx_bar",
+   "effects": {
+    "mood": 7,
+    "thirst": 10
+   },
+   "trains": "mixology",
+   "roll": {
+    "dc": 11,
+    "skill": "mixology",
+    "traits": [],
+    "success": {
+     "text": "A round worth the bar it came from.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "You overdo the bitters and start again.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "drinks mixed at the home bar"
+   }
+  },
+  {
+   "id": "fa_cellar_open",
+   "name": "Wine cellar",
+   "label": "Open a bottle from the cellar",
+   "icon": "🍷",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_cellar",
+   "effects": {
+    "mood": 9,
+    "thirst": 10
+   },
+   "together": {
+    "needed": false,
+    "text": "an old bottle brought up from the cellar"
+   },
+   "outcomes": [
+    {
+     "id": "good",
+     "weight": 75,
+     "text": "It has aged into something soft and deep."
+    },
+    {
+     "id": "great",
+     "weight": 25,
+     "text": "A year everyone talks about, and it lives up to it.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "fa_kitchen_dinner",
+   "name": "Long dinner",
+   "label": "Cook a long dinner",
+   "icon": "🍳",
+   "cost": 3000,
+   "minutes": 120,
+   "home": true,
+   "needsItem": "fx_kitchen",
+   "effects": {
+    "hunger": 55,
+    "mood": 8,
+    "energy": -8
+   },
+   "trains": "cooking",
+   "roll": {
+    "dc": 12,
+    "skill": "cooking",
+    "traits": [],
+    "success": {
+     "text": "Five courses, every one on time.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "The sauce splits; the rest is fine.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "a long dinner cooked at home"
+   }
+  },
+  {
+   "id": "fa_tea_ceremony",
+   "name": "Tea ceremony",
+   "label": "Make tea in the tea room",
+   "icon": "🍵",
+   "cost": 0,
+   "minutes": 45,
+   "home": true,
+   "needsItem": "fx_tearoom",
+   "effects": {
+    "mood": 7,
+    "energy": 6,
+    "thirst": 12
+   },
+   "together": {
+    "needed": false,
+    "text": "a slow bowl of matcha in the tea room"
+   }
+  },
+  {
+   "id": "fa_sauna",
+   "name": "Sauna",
+   "label": "A sauna and a cold shower",
+   "icon": "🧖",
+   "cost": 0,
+   "minutes": 40,
+   "home": true,
+   "needsItem": "fx_sauna",
+   "effects": {
+    "hygiene": 30,
+    "energy": 10,
+    "mood": 6
+   },
+   "tags": [
+    "bath"
+   ],
+   "together": {
+    "needed": false,
+    "text": "a sauna at home"
+   }
+  },
+  {
+   "id": "fa_cypress_soak",
+   "name": "Cypress bath",
+   "label": "Soak in the hinoki tub",
+   "icon": "🛁",
+   "cost": 0,
+   "minutes": 45,
+   "place": "ws_dec_bath",
+   "needsItem": "fx_cypress",
+   "effects": {
+    "hygiene": 50,
+    "energy": 10,
+    "mood": 10
+   },
+   "tags": [
+    "bath"
+   ],
+   "outcomes": [
+    {
+     "id": "steam",
+     "weight": 80,
+     "text": "Hot cypress and a moss garden outside the glass: the day comes off you."
+    },
+    {
+     "id": "rain",
+     "weight": 20,
+     "text": "Rain on the moss outside; you stay in until your fingers wrinkle.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "fa_onsen_soak",
+   "name": "Hot-spring bath",
+   "label": "Soak in the open-air bath",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 45,
+   "place": "hk_villa_onsen",
+   "needsItem": "fx_onsen",
+   "effects": {
+    "hygiene": 50,
+    "energy": 12,
+    "mood": 12
+   },
+   "tags": [
+    "bath"
+   ],
+   "together": {
+    "needed": false,
+    "text": "a soak in the villa's own hot spring"
+   },
+   "outcomes": [
+    {
+     "id": "mist",
+     "weight": 70,
+     "text": "Steam on the water, cedar on the air, the lake far below."
+    },
+    {
+     "id": "fuji",
+     "weight": 30,
+     "text": "The clouds open and Fuji is there, white over the hills.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "fa_onsen_two",
+   "name": "Onsen for two",
+   "label": "Share the open-air bath",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 60,
+   "place": "hk_villa_onsen",
+   "needsItem": "fx_onsen",
+   "effects": {
+    "mood": 12,
+    "hygiene": 40,
+    "energy": 8,
+    "desire": 50
+   },
+   "when": "companion: crush or casual",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "bath",
+    "private"
+   ],
+   "dc": 9,
+   "trains": "sensuality",
+   "matches": [
+    "bath together",
+    "onsen",
+    "hot spring"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the villa's open-air hot-spring bath for two, at night and alone"
+   },
+   "outcomes": [
+    {
+     "id": "stars",
+     "weight": 70,
+     "text": "Steam, stars and the forest dark all around; nobody for miles."
+    },
+    {
+     "id": "snow",
+     "weight": 30,
+     "when": "season: winter",
+     "text": "Snow falls into the steaming water; you stay in until it covers the rocks.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "fa_gym_train",
+   "name": "Home gym",
+   "label": "Train in the home gym",
+   "icon": "🏋️",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_gym",
+   "effects": {
+    "energy": -14,
+    "hygiene": -12,
+    "mood": 6
+   },
+   "trains": "fitness"
+  },
+  {
+   "id": "fa_massage",
+   "name": "Massage",
+   "label": "A massage at home",
+   "icon": "💆",
+   "cost": 15000,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_massage",
+   "effects": {
+    "energy": 15,
+    "mood": 8
+   },
+   "together": {
+    "needed": false,
+    "text": "a massage at home, a therapist each"
+   }
+  },
+  {
+   "id": "fa_yoga",
+   "name": "Yoga",
+   "label": "Yoga in the light room",
+   "icon": "🧘",
+   "cost": 0,
+   "minutes": 45,
+   "home": true,
+   "needsItem": "fx_yoga",
+   "effects": {
+    "energy": 6,
+    "mood": 6
+   },
+   "trains": "fitness",
+   "together": {
+    "needed": false,
+    "text": "yoga side by side in the light room"
+   }
+  },
+  {
+   "id": "fa_theatre_film",
+   "name": "Home theatre",
+   "label": "Watch a film at home",
+   "icon": "🎬",
+   "cost": 0,
+   "minutes": 150,
+   "home": true,
+   "needsItem": "fx_theatre",
+   "effects": {
+    "mood": 11,
+    "energy": -3
+   },
+   "together": {
+    "needed": false,
+    "text": "a film in the home theatre"
+   }
+  },
+  {
+   "id": "fa_piano_play",
+   "name": "Grand piano",
+   "label": "Play the grand piano",
+   "icon": "🎹",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_piano",
+   "effects": {
+    "energy": -6,
+    "mood": 7
+   },
+   "trains": "music",
+   "roll": {
+    "dc": 12,
+    "skill": "music",
+    "traits": [],
+    "success": {
+     "text": "The grand answers every touch; the room rings.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "The same bar, again and again.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "listening by the grand piano"
+   }
+  },
+  {
+   "id": "fa_studio_record",
+   "name": "Recording",
+   "label": "Record a song in the studio",
+   "icon": "🎙️",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "fx_studio",
+   "effects": {
+    "energy": -8,
+    "mood": 6
+   },
+   "trains": "singing",
+   "roll": {
+    "dc": 12,
+    "skill": "singing",
+    "traits": [],
+    "success": {
+     "text": "One take, and it's the one.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Twenty takes and none you keep.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   }
+  },
+  {
+   "id": "fa_library_read",
+   "name": "Library",
+   "label": "Read in the library",
+   "icon": "📚",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_library",
+   "effects": {
+    "mood": 6,
+    "energy": 3
+   },
+   "together": {
+    "needed": false,
+    "text": "reading side by side in the library"
+   }
+  },
+  {
+   "id": "fa_library_write",
+   "name": "Writing",
+   "label": "Write at the library desk",
+   "icon": "✒️",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_library",
+   "effects": {
+    "mood": 4,
+    "energy": -5
+   },
+   "trains": "writing"
+  },
+  {
+   "id": "fa_games_play",
+   "name": "Games room",
+   "label": "Billiards and games",
+   "icon": "🎱",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_games",
+   "effects": {
+    "mood": 8
+   },
+   "together": {
+    "needed": false,
+    "text": "billiards and darts in the games room"
+   },
+   "outcomes": [
+    {
+     "id": "close",
+     "weight": 70,
+     "text": "A close game down to the last ball."
+    },
+    {
+     "id": "trick",
+     "weight": 30,
+     "text": "A trick shot nobody will believe you made.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "fa_atelier_paint",
+   "name": "Atelier",
+   "label": "Paint in the atelier",
+   "icon": "🎨",
+   "cost": 1000,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "fx_atelier",
+   "effects": {
+    "energy": -6,
+    "mood": 7
+   },
+   "trains": "drawing"
+  },
+  {
+   "id": "fa_darkroom_print",
+   "name": "Darkroom",
+   "label": "Print photographs in the darkroom",
+   "icon": "📷",
+   "cost": 600,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "fx_darkroom",
+   "effects": {
+    "energy": -5,
+    "mood": 6
+   },
+   "trains": "photography"
+  },
+  {
+   "id": "fa_observatory",
+   "name": "Telescope dome",
+   "label": "Stargaze from the dome",
+   "icon": "🔭",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_observatory",
+   "effects": {
+    "mood": 9
+   },
+   "when": "period: night or latenight; weather: not rain or heavyrain or storm or snow or cloudy",
+   "together": {
+    "needed": false,
+    "text": "taking turns at the big telescope"
+   },
+   "outcomes": [
+    {
+     "id": "moon",
+     "weight": 50,
+     "text": "The moon's mountains, sharp-edged and close."
+    },
+    {
+     "id": "jupiter",
+     "weight": 50,
+     "text": "Jupiter and four tiny moons in a line.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "fa_terrace_drinks",
+   "name": "Terrace",
+   "label": "Drinks on the terrace",
+   "icon": "🌆",
+   "cost": 0,
+   "minutes": 60,
+   "place": "rp_pent_terrace",
+   "needsItem": "fx_terrace",
+   "effects": {
+    "mood": 10,
+    "thirst": 10
+   },
+   "together": {
+    "needed": false,
+    "text": "drinks on the rooftop terrace over the city"
+   }
+  },
+  {
+   "id": "fa_terrace_pool",
+   "name": "Plunge pool",
+   "label": "A dip in the plunge pool",
+   "icon": "🏊",
+   "cost": 0,
+   "minutes": 30,
+   "place": "rp_pent_terrace",
+   "needsItem": "fx_terrace",
+   "effects": {
+    "energy": 8,
+    "hygiene": 10,
+    "mood": 7
+   },
+   "when": "season: spring or summer or autumn",
+   "together": {
+    "needed": false,
+    "text": "a swim in the rooftop plunge pool"
+   }
+  },
+  {
+   "id": "fa_veranda_breakfast",
+   "name": "Veranda breakfast",
+   "label": "Breakfast on the veranda",
+   "icon": "🌹",
+   "cost": 1500,
+   "minutes": 45,
+   "place": "ym_villa_veranda",
+   "needsItem": "fx_veranda",
+   "effects": {
+    "hunger": 40,
+    "mood": 8
+   },
+   "when": "period: firsttrain or rush or midmorning",
+   "together": {
+    "needed": false,
+    "text": "breakfast on the veranda over the roses"
+   }
+  },
+  {
+   "id": "fa_veranda_lights",
+   "name": "Harbor lights",
+   "label": "Watch the harbor lights",
+   "icon": "🌃",
+   "cost": 0,
+   "minutes": 45,
+   "place": "ym_villa_veranda",
+   "needsItem": "fx_veranda",
+   "effects": {
+    "mood": 8,
+    "energy": 4
+   },
+   "when": "period: evening or night or latenight",
+   "together": {
+    "needed": false,
+    "text": "the harbor lights from the veranda"
+   }
+  },
+  {
+   "id": "fa_garden_walk",
+   "name": "Garden",
+   "label": "Walk in the garden",
+   "icon": "🎋",
+   "cost": 0,
+   "minutes": 30,
+   "home": true,
+   "needsItem": "fx_garden",
+   "effects": {
+    "mood": 6,
+    "energy": 4
+   },
+   "together": {
+    "needed": false,
+    "text": "a slow walk around the garden"
+   }
+  },
+  {
+   "id": "fa_pond_koi",
+   "name": "Koi",
+   "label": "Feed the koi",
+   "icon": "🐟",
+   "cost": 0,
+   "minutes": 15,
+   "home": true,
+   "needsItem": "fx_pond",
+   "effects": {
+    "mood": 5
+   },
+   "together": {
+    "needed": false,
+    "text": "feeding the koi"
+   }
+  },
+  {
+   "id": "fa_suite_night",
+   "name": "The suite",
+   "label": "An evening in the bedroom suite",
+   "icon": "🛌",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "fx_suite",
+   "effects": {
+    "mood": 12,
+    "energy": 6,
+    "desire": 50
+   },
+   "when": "companion: crush or casual",
+   "adult": true,
+   "private": true,
+   "tags": [
+    "private"
+   ],
+   "dc": 9,
+   "trains": "sensuality",
+   "matches": [
+    "bedroom",
+    "suite",
+    "night together"
+   ],
+   "together": {
+    "needed": true,
+    "text": "an evening in the bedroom suite with the door locked"
+   },
+   "outcomes": [
+    {
+     "id": "slow",
+     "weight": 70,
+     "text": "Low light, the deep bath through the sliding door, and no hurry at all."
+    },
+    {
+     "id": "morning",
+     "weight": 30,
+     "text": "Neither of you notices the night go by.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
   }
  ],
  "sleep": {
@@ -19093,7 +20394,8 @@
      "f": "acquaintance"
     }
    ],
-   "anyHome": true
+   "anyHome": true,
+   "rent": 60000
   },
   {
    "id": "back",
@@ -28910,6 +30212,109 @@
    "sound": [
     "traffic"
    ]
+  },
+  {
+   "id": "rp_pent_terrace",
+   "name": "Rooftop terrace",
+   "map": "roppongi",
+   "room": "fx_terrace",
+   "homeZone": "hz_penthouse",
+   "tags": [
+    "leisure"
+   ],
+   "sound": [
+    "wind"
+   ],
+   "crowd": 0.1,
+   "desc": "a wooden deck on the roof of a Roppongi tower: a plunge pool lit from below, lounge chairs, a bar counter, a glass railing and Tokyo Tower close enough to touch",
+   "staff": "nobody but whoever was invited; the building's staff send up ice when called",
+   "x": 30.6,
+   "y": 9,
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "bg": "bg/rp_sky.avif",
+   "bgs": {
+    "night": "bg/rp_sky-night.avif"
+   }
+  },
+  {
+   "id": "ym_villa_veranda",
+   "name": "Veranda over the rose garden",
+   "map": "yokohama",
+   "room": "fx_veranda",
+   "homeZone": "hz_yamate",
+   "tags": [
+    "leisure"
+   ],
+   "sound": [
+    "birds"
+   ],
+   "crowd": 0.1,
+   "desc": "a white-painted veranda along the back of an old Yamate villa: a breakfast table, wicker chairs, the rose garden below and the harbor and the Bay Bridge beyond",
+   "staff": "nobody but the household; now and then the gardener among the roses below",
+   "x": 96.1,
+   "y": 75.2,
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "bg": "bg/yk_yamashita.avif",
+   "bgs": {
+    "night": "bg/yk_yamashita-night.avif"
+   }
+  },
+  {
+   "id": "ws_dec_bath",
+   "name": "Cypress bath",
+   "map": "westside",
+   "room": "fx_cypress",
+   "homeZone": "hz_denenchofu",
+   "private": true,
+   "tags": [
+    "health"
+   ],
+   "sound": [
+    "water"
+   ],
+   "crowd": 0.1,
+   "desc": "a stone-floored bathroom at the back of the mansion: a square hinoki tub full to the brim, steam on the glass and a small moss garden outside the window",
+   "staff": "nobody; the housekeeper leaves fresh towels folded by the door",
+   "x": 4.3,
+   "y": 82.6,
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "bg": "bg/hk_ryokan_hanare.avif",
+   "bgs": {
+    "night": "bg/hk_ryokan_hanare-night.avif"
+   }
+  },
+  {
+   "id": "hk_villa_onsen",
+   "name": "Open-air hot-spring bath",
+   "map": "hakone",
+   "room": "fx_onsen",
+   "homeZone": "hz_hakone_villa",
+   "private": true,
+   "tags": [
+    "health"
+   ],
+   "sound": [
+    "water",
+    "birds"
+   ],
+   "crowd": 0.1,
+   "desc": "a rock-lined hot-spring pool on a cedar deck behind the villa: steam over the water, the forest falling away to Lake Ashi, and Fuji faint on a clear day",
+   "staff": "nobody; the caretaker keeps the spring running and never comes past the gate",
+   "x": 8.1,
+   "y": 57.2,
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "bg": "bg/hk_ryokan_hanare.avif",
+   "bgs": {
+    "night": "bg/hk_ryokan_hanare-night.avif"
+   }
   }
  ],
  "stories": [

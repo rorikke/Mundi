@@ -6,7 +6,7 @@ import { getWorld, worldFile } from '../core/world.js';
 import { rpgOf } from '../core/rpgdef.js';
 import { ACT } from './reg.js';
 import { thumb, setPrompt, personaThumb } from '../st/bridge.js';
-import { placeOf } from '../sim/places.js';
+import { placeOf, homeKindAt } from '../sim/places.js';
 import { pictureAt } from '../sim/daynight.js';
 import { money } from '../sim/needs.js';
 import { presentAt } from '../sim/people.js';
@@ -21,7 +21,7 @@ function backdrop(g, w, where) {
     const p = placeOf(g, w, where);
     let img = p ? pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs) ?? '' : '';
     if (!img && p?.home) {
-        const k = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === g.cast[p.id.slice(5)]?.home.zone)?.kind ?? '')];
+        const k = w.homes.kinds[homeKindAt(g, w, p.id)];
         img = (k && pictureAt(w, g.minutes, k.image, k.images)) ?? '';
     }
     if (!img && p) {

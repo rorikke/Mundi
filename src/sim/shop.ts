@@ -240,11 +240,14 @@ const LIMITS = { pct: SHOP_LIMITS.mul, flat: SHOP_LIMITS.add };
 const better = (a: EffectDef, b: EffectDef) => (LOWER_IS_BETTER.has(a.kind) ? a.value < b.value : a.value > b.value);
 /** The small effects of what you own (sim/effects.ts): each item's held inside `SHOP_LIMITS` and kept while its `when`
  *  holds; per kind and target only the best item's counts (three good knives don't stack). */
+// (housing) a home's rooms and fixtures are things of the same shape: they count here too, with the same limits and
+// best-of, while the shop is off as well (they're the house's; sim/fixtures.ts says when they count)
 export function shopEffects(g: Save, w: WorldDef): EffectDef[] {
-    if (!systemOn(w, 'shop')) return [];
+    const shopOn = systemOn(w, 'shop'), fixtures = new Set((Array.isArray(w.homes?.fixtures) ? w.homes.fixtures : []).map(f => f?.id));
+    if (!shopOn && !fixtures.size) return [];
     const best = new Map<string, EffectDef>();
     for (const it of ownedDefs(g, w)) {
-        if (!it.effects?.length) continue;
+        if (!it.effects?.length || (!shopOn && !fixtures.has(it.id))) continue;
         for (const e of cleanEffects(it.effects, LIMITS)) {
             if (e.when && !whenHolds(g, w, e.when, { key: `shop|${it.id}|${e.kind}` })) continue;
             const k = `${e.kind}|${e.target ?? ''}`, cur = best.get(k);
@@ -317,10 +320,15 @@ function toldWords(list: Item[], head: (parts: string) => string): string {
 }
 const serviceWords = (g: Save, it: Item) => { const d = daysLeft(g, it.id); return `${it.name} (${d <= 1 ? 'today' : d <= 7 ? 'this week' : 'this month'})`; };
 // Adult things you have: owned ones, and those whose keepsake you hold (a blindfold bought as a gift to give).
+// (housing) a home's adult fixtures (a bedroom suite) are adult things of yours too, told under the same rules; their
+// `ai` is a noun phrase (the home's line lists fixtures), so it stands for their name here
+const fixtureList = (w: WorldDef): Item[] => (Array.isArray(w.homes?.fixtures) ? w.homes.fixtures : []).filter(f => !!f?.id);
+const isFixtureOf = (w: WorldDef, it: Item) => fixtureList(w).some(f => f.id === it.id);
+const thingName = (w: WorldDef, it: Item) => (isFixtureOf(w, it) ? it.ai?.trim().replace(/[.!]$/, '') || it.name : it.name);
 function adultThings(g: Save, w: WorldDef): Item[] {
     const held = new Set(Object.entries(((g.player as any).keepsakes ?? {}) as Record<string, number>).filter(([, n]) => n > 0).map(([id]) => id));
     const owned = new Set(ownedDefs(g, w).map(it => it.id));
-    return shopItems(w).filter(it => isAdultItem(it) && toldOf(it) !== 'no' && (owned.has(it.id) || (!!it.keepsake && held.has(it.keepsake)))).sort(dearest);
+    return [...shopItems(w), ...fixtureList(w)].filter(it => isAdultItem(it) && toldOf(it) !== 'no' && (owned.has(it.id) || (!!it.keepsake && held.has(it.keepsake)))).sort(dearest);
 }
 const seenOf = (it: Item) => it.seen ?? 'away';
 /** Who knows of a put-away thing: from a private action with them that used it, finding it, or having it as a gift. */
@@ -341,14 +349,14 @@ function adultLine(g: Save, w: WorldDef): string {
     const list = adultThings(g, w).slice(0, TOLD.adult);
     if (!list.length) return '';
     const out = list.filter(it => seenOf(it) === 'out'), away = list.filter(it => seenOf(it) === 'away');
-    const parts: string[] = [], said = out.filter(it => it.ai?.trim()).map(it => it.ai!.trim().replace(/([^.!?])$/, '$1.'));
-    const plain = out.filter(it => !it.ai?.trim());
-    if (plain.length) parts.push(`In {{user}}'s bedroom, in plain sight: ${plain.map(it => it.name).join(', ')}`);
+    const parts: string[] = [], said = out.filter(it => it.ai?.trim() && !isFixtureOf(w, it)).map(it => it.ai!.trim().replace(/([^.!?])$/, '$1.'));
+    const plain = out.filter(it => !it.ai?.trim() || isFixtureOf(w, it));
+    if (plain.length) parts.push(`In {{user}}'s bedroom, in plain sight: ${plain.map(it => thingName(w, it)).join(', ')}`);
     if (away.length) {
         const known = (it: Item) => who.filter(p => knowsOf(g, w, p.avatar, it)).map(p => p.name);
         const words = away.map(it => {
             const k = known(it), unknown = who.filter(p => !k.includes(p.name)).map(p => p.name);
-            return `${it.name} (${!unknown.length ? `${k.join(' and ')} ${k.length > 1 ? 'know' : 'knows'} of it` : k.length ? `${k.join(' and ')} ${k.length > 1 ? 'know' : 'knows'} of it; ${unknown.join(' and ')} not` : `unknown to ${unknown.join(' and ')}`})`;
+            return `${thingName(w, it)} (${!unknown.length ? `${k.join(' and ')} ${k.length > 1 ? 'know' : 'knows'} of it` : k.length ? `${k.join(' and ')} ${k.length > 1 ? 'know' : 'knows'} of it; ${unknown.join(' and ')} not` : `unknown to ${unknown.join(' and ')}`})`;
         });
         parts.push(`put away out of sight, where nobody sees them unless {{user}} brings them out: ${words.join(', ')}`);
     }
@@ -375,11 +383,13 @@ export function shopLine(g: Save, w: WorldDef): string {
     const act = sceneAct(g);
     if (act && isPrivateAct(g, act.a)) {
         const holds = parseWhen(act.a.when).conds.filter(c => c.key === 'holds' && !c.not).flatMap(c => c.values);
-        const used = shopItems(w).filter(x => itemOk(g, x) && (x.id === act.a.needsItem || (!!x.keepsake && holds.includes(x.keepsake) && ((g.player as any).keepsakes?.[x.keepsake] ?? 0) > 0))).slice(0, TOLD.adult);
-        const said = used.filter(it => it.ai?.trim()).map(it => it.ai!.trim().replace(/([^.!?])$/, '$1.')), plain = used.filter(it => !it.ai?.trim());
-        return [plain.length ? `In use right now: ${plain.map(it => it.name).join(', ')}.` : '', ...said].filter(Boolean).join(' ');
+        const used = [...shopItems(w), ...fixtureList(w)].filter(x => itemOk(g, x) && (x.id === act.a.needsItem || (!!x.keepsake && holds.includes(x.keepsake) && ((g.player as any).keepsakes?.[x.keepsake] ?? 0) > 0))).slice(0, TOLD.adult);
+        const said = used.filter(it => it.ai?.trim() && !isFixtureOf(w, it)).map(it => it.ai!.trim().replace(/([^.!?])$/, '$1.')), plain = used.filter(it => !it.ai?.trim() || isFixtureOf(w, it));
+        return [plain.length ? `In use right now: ${plain.map(it => thingName(w, it)).join(', ')}.` : '', ...said].filter(Boolean).join(' ');
     }
-    const owned = ownedDefs(g, w).filter(it => !isAdultItem(it) && catOf(it) !== 'gift');
+    // (a home's own fixtures are told by its own line, sim/fixtures.ts; adult ones stay here, under the rules below)
+    const fixtures = new Set((Array.isArray(w.homes?.fixtures) ? w.homes.fixtures : []).map(f => f?.id));
+    const owned = ownedDefs(g, w).filter(it => !isAdultItem(it) && catOf(it) !== 'gift' && !fixtures.has(it.id));
     const atHome = g.player.loc === playerHomeId;
     const parts: string[] = [];
     if (!atHome) parts.push(toldWords(owned.filter(it => toldOf(it) === 'always').sort(dearest).slice(0, TOLD.out), s => `{{user}} ${s}.`));
@@ -400,7 +410,7 @@ const learnOf = (g: Save, avatar: string, id: string) => { const k = (shopOf(g).
 // A private action done with someone, using one of your things: they know of it now.
 privateResults.push((g, w, x, done) => {
     const id = x.a.needsItem;
-    if (!id || done.stopped || !systemOn(w, 'shop') || !shopItems(w).some(it => it.id === id && isAdultItem(it))) return;
+    if (!id || done.stopped || !systemOn(w, 'shop') || ![...shopItems(w), ...fixtureList(w)].some(it => it.id === id && isAdultItem(it))) return;
     for (const a of done.with) learnOf(g, a, id);
 });
 // On a day someone spends time at your home with you (everyone there drawn to you), a small chance they come across one
@@ -409,7 +419,7 @@ onHour.push((g, w) => {
     if (!systemOn(w, 'shop') || g.player.loc !== playerHomeId || !adultOn(g)) return [];
     const who = intimateCompany(g, w);
     if (!who.length) return [];
-    const away = adultThings(g, w).filter(it => seenOf(it) === 'away');
+    const away = adultThings(g, w).filter(it => seenOf(it) === 'away' && !isFixtureOf(w, it));   // (a room isn't found in a drawer)
     if (!away.length) return [];
     for (const p of who) {
         const looked = peek(g).looked?.[p.avatar];

@@ -14,6 +14,7 @@ point of view, and grows as new ones arrive.
 - [Training together](#training-together)
 - [Running a business](#running-a-business)
 - [Shopping](#shopping)
+- [Your own home](#your-own-home)
 - [Storylines](#storylines)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
@@ -698,6 +699,114 @@ they're hidden and do nothing, even the ones you have.
   limits), driving after the last train, the keepsake it gives, what the AI is told and when, adult.
 - Other worlds keep their shops, now in tabs. With the shop system off, none of it exists.
 - Older games keep what they bought, at the price they paid (only the gaming PC costs more now).
+
+## Your own home
+
+Homes used to be only rented. Now some can be bought outright, to live in or as a second home, and fitted out with
+rooms and fixtures: a sauna, a grand piano, a rooftop terrace. Like the shop, it's for the end game: the dearest homes
+take a few game years of a top income, and a home with every room it could have takes longer still.
+
+### Buying
+
+- **The Homes app has "Homes for sale"**, under your home and its bills, before the homes for rent: a card for each
+  housing area with homes free, its price, its upkeep a week, its size, how many guests a party there can have, and two
+  buttons, *Buy* (to move in) and *As a second home*. When you can't buy, the button says why: not enough money, a
+  student's limit on homes, two homes already.
+- **Bought outright**: no loan and no rent. Before paying, the app says what it costs, its upkeep a week and what it
+  would sell back for.
+- **Two homes at most**: the one you live in and a second home.
+- **Tokyo has six homes for sale.** Two can still be rented too: the Toyosu towers (about ¥2,400,000) and the Azabu
+  residences (about ¥4,400,000). Four can only be bought: a penthouse at the top of a Roppongi tower (about ¥6,000,000),
+  a hot-spring villa above Lake Ashi in Hakone (about ¥8,000,000, made for a second home, with its own open-air bath),
+  a mansion in Den-en-chōfu (about ¥12,000,000) and a 1920s Western-style villa on the hill in Yamate, Yokohama, over a
+  rose garden and the harbor (about ¥18,000,000). Nobody else is ever placed in those four by chance. Prices follow the
+  difficulty.
+
+### Upkeep instead of rent
+
+- **A home you own pays no rent.** It costs a weekly **upkeep** instead (management, taxes, staff): about ¥18,000 a
+  week at Toyosu, up to about ¥110,000 at the Yamate villa. Toyosu and Azabu keep their water and power bills; in the
+  four new homes they're part of the upkeep. A second home's upkeep is added to the same bill.
+- **It's a bill like the others**: paid in the Homes app, part payments, the warning the day before, a debt that never
+  grows, the perks that lower bills.
+- **Left a week unpaid, it's cut off, but you're never locked out** of a home you own. The staff and the management
+  stop: the house's rooms and fixtures do nothing, and what they let you do isn't offered, until it's paid. Nothing is
+  ever repossessed.
+
+### Selling back
+
+- **A home you own sells back for part of what you paid**: 80% at Toyosu and Azabu, 75% for the penthouse, 70% for the
+  mansion and the Yamate villa, 65% for the Hakone villa. Its card always says what it would sell for. Any upkeep still
+  owed is paid from the sale.
+- **Its rooms and fixtures stay with the house**: they're sold with it and nothing is paid back for them.
+- **You're never left without a home.** To move out of a home you own (to rent somewhere, or to buy another to live
+  in), the app first asks whether to sell it or keep it as your second home. To sell the home you live in, move into
+  your second home, or move out first.
+
+### Rooms and fixtures
+
+- **A home you own can be fitted out.** Its card has *Rooms and fixtures*: what fits that house, with what each does,
+  its price and a *Buy* button. Tokyo has 24, from a ¥500,000 yoga room to a ¥3,200,000 grand piano: a home bar, a wine
+  cellar, a chef's kitchen, a tea room, a sauna, a private gym, a massage room, a home theatre, a recording studio, a
+  library, a games room, an atelier, a darkroom, a rooftop telescope dome, a Japanese garden and its koi pond, a guest
+  room, and with adult content on a bedroom suite. What fits depends on the home: the Toyosu flat takes five, the
+  bigger homes most of them, and some belong to certain homes only (a Japanese garden where there's ground for one, a
+  telescope dome up high or in the hills).
+- **Bought once for that house**, kept while it's yours. They're only for homes you own: a landlord doesn't let you
+  build a sauna.
+- **What they do**, as the shop's things do: small bonuses (a skill that trains faster at the piano, the kitchen, the
+  gym, the studio, the library, the atelier or the darkroom; a better bath or sleep; parties that lift the mood more; a
+  better morning in the tea room or the garden), and things to do at home, 27 in all: mix drinks at the bar, a tea
+  ceremony, a sauna and a cold shower, a film with someone, billiards, feeding the koi. **Only the best one of each kind
+  counts**, counted with the shop's things: a grand piano and the shop's stage piano don't add up.
+- **Four are rooms of their own**, places on the map two minutes from the house: the penthouse's **rooftop terrace**,
+  the Yamate villa's **veranda over the rose garden**, the Den-en-chōfu mansion's **cypress bath** and the Hakone villa's
+  **open-air hot-spring bath** (which comes with the house). At home, Things to do has a button to go there, and one to
+  come back inside. Each has its own things to do: drinks on the terrace, breakfast on the veranda, a long soak.
+- **What the AI knows**: at a home you own, that it's yours and what it has (its five dearest rooms and fixtures, never
+  what they cost or do), and which room you're in. The bedroom suite is told as the shop's adult things are: only when
+  everyone with you is your partner or drawn to you. Out and about, nothing.
+
+### The second home
+
+- **Any home you can buy can be your second home**, and the Hakone villa is made for it. Bought as a second home, you
+  stay where you live; or keep the home you leave as your second when you move.
+- **It's on the map**, as *My second home*: go there, sleep there, and use its rooms and fixtures while you're there
+  (only there). A night there counts as a night away. Nobody lives there, and parties are at the home you live in.
+
+### Parties at a big home
+
+- **A home has room for so many guests**: six in a dorm, a share house, a studio or a wooden apartment, eight in a 1LDK
+  or an old house, ten in a family house, twelve in a tower flat, sixteen at Azabu, 24 at the penthouse or the Hakone
+  villa, 30 at the mansion or the Yamate villa. The party form says so and stops at it; a party planned before isn't
+  cut.
+- **Catering**, at a home of size 3 or more (Azabu and up): food and drinks as usual, a caterer (about ¥15,000 a guest)
+  or a chef and staff (about ¥40,000 a guest), each making the party a little better for everyone. You pay only for
+  the guests who said yes.
+- A party that twelve or more came to counts as a grand party, a moment a world's life goals can ask for (as buying
+  and selling a home are).
+
+### Rents that went up
+
+- **The two top rents rose** to fit homes that can be bought: the Toyosu towers from ¥60,000 to ¥90,000 a week, the
+  Azabu residences from ¥110,000 to ¥180,000. Tenants already there pay the new rent from the next week due.
+- **The Family money start keeps its family flat at ¥60,000 a week**, in a new game and in one already started.
+
+### World makers and older games
+
+- **Older games** open with nothing owned. One that rents at Toyosu or Azabu is told once, when it opens, that the rent
+  went up and that homes can be bought now; a Family money game is told its rent stays. A backup of the save is kept
+  first (Settings → Game → This save).
+- **The World creator edits all of it**, in the Homes & rent tab: a housing area's price (empty: not for sale), upkeep,
+  share paid back when sold, size and whether it can be a second home, and its rent before it went up (to tell older
+  games); an area with a price and no rent is for sale only. A kind of home has its size, how many guests a party can
+  have, and the rooms and fixtures it comes with. **Rooms and fixtures** are a list of their own, with the shop item's
+  form (without what only the shop uses) plus where each fits: the home's size, kinds of home, areas, another fixture
+  first, and a room of its own. In Maps & places, a place can be a room of a home.
+- **Owning a home is a system of its own** ("Owning a home"), on by default; a world has nothing to buy until one of
+  its areas has a price, so Porto Alto and the Shared House play as before. With it off, nothing can be bought, a home
+  already owned costs no upkeep and its rooms and fixtures do nothing. Home mode has none of it.
+- Help has a topic, *Owning a home*, and all of it is in Portuguese and Spanish.
 
 ## Storylines
 

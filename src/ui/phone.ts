@@ -56,6 +56,8 @@ import { crushOn, canAsk } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
+import { buyOnly } from '../sim/housing.js';
+import { HU, ownedHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
 
 type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
@@ -370,6 +372,8 @@ function homesApp(g: Save, w: WorldDef) {
     };
     // locked out: the cheapest home you could move to instead, when it costs less than getting back in
     const cheaper = isCut(g, 'rent') && billAmount(g, w, 'rent') ? cheapestHome(g, w, z => freeSpots(g, w, z).length) : null;
+    // (housing) a house of yours' rooms and fixtures, in place of the rest
+    if (HU.rooms) { const r = roomsHtml(g, w); if (r) return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${r}</div>${askHtml(g, w)}`; }
     return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">
         <section><h4>${T('myHome')}</h4>
         <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span>
@@ -378,14 +382,16 @@ function homesApp(g: Save, w: WorldDef) {
         ${cheaper && cheaper.rent < toGetBackIn(g, w, 'rent') ? `<p class="mu-bad">${esc(`Or move somewhere cheaper: ${cheaper.name}, ${money(w, cheaper.rent)} a week, paid one week in advance.`)}</p>` : ''}
         <small class="mu-muted">${T('billsNote')}</small>` : ''}
         ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}
+        ${ownedHtml(g, w)}
         </section>
+        ${forSaleHtml(g, w)}
         <section><h4>${T('homesForRent')}</h4>
         ${(() => { // by city (map): the one you live in first
             const cities = [...new Set(w.homes.zones.filter(z => z.id !== g.player.home.zone).map(z => z.map))].map(id => w.maps.find(m => m.id === id)).filter(Boolean) as { id: string; name: string }[];
             if (cities.length < 2) return '';
             if (HF.city && !cities.some(c => c.id === HF.city)) HF.city = '';
             return `<div class="mu-chips mu-homes-cities"><button class="mu-chip ${HF.city ? '' : 'is-on'}" data-act="ph-homes-city" data-id="">All</button>${cities.map(c => `<button class="mu-chip ${HF.city === c.id ? 'is-on' : ''}" data-act="ph-homes-city" data-id="${esc(c.id)}">${esc(c.name)}</button>`).join('')}</div>`; })()}
-        ${w.homes.zones.filter(z => z.id !== g.player.home.zone && (!HF.city || z.map === HF.city)).map(z => {
+        ${w.homes.zones.filter(z => z.id !== g.player.home.zone && !buyOnly(z) && (!HF.city || z.map === HF.city)).map(z => {   // (homes you can only buy aren't for rent)
             const free = freeSpots(g, w, z.id).length, student = studentLink.homeBlock(g, w, z.id);   // (a student: student homes only)
             const rent = priceOf(g, z.rent), bills = priceOf(g, billsOf(w, z.kind));
             return `<article class="mu-home-card"><span class="mu-home-pic" ${pic(z.kind)}></span>
@@ -394,7 +400,7 @@ function homesApp(g: Save, w: WorldDef) {
         }).join('')}
         ${w.homes.zones.some(z => studentLink.homeBlock(g, w, z.id)) ? `<p class="mu-bad">${esc(w.homes.zones.map(z => studentLink.homeBlock(g, w, z.id)).find(Boolean)!)}</p>` : ''}
         <p class="mu-muted">${T('movingNote')}</p></section>
-    </div>`;
+    </div>${askHtml(g, w)}`;
 }
 Object.assign(ACT, {
     'ph-refer': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w) return; const r = askReferral(g, w, el.dataset.who!); if (r.text) toast(r.text, r.ok ? 'success' : 'info'); saveGame(); notify(); },
@@ -692,6 +698,7 @@ Object.assign(ACT, {
     'ph-quit': () => { const g = game(); if (!g) return; quitJob(g, getWorld(g.world) ?? undefined); toast('You quit your job.', 'info'); saveGame(); notify(); },
     'ph-move': (el) => {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        if (askLeave(g, w, el.dataset.id!)) return;   // (a home you own: sell it, or keep it as the second, first)
         const err = moveTo(g, w, el.dataset.id!);
         if (err) { toast(err, 'warn'); return; }
         toast(`You moved to ${homeAddress(w, g.player.home)}.`, 'success'); saveGame(); notify();

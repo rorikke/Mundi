@@ -5,6 +5,7 @@ import { applyOverlay, overlayFile } from './overlay.js';
 import type { RpgDef } from './rpgdef.js';
 import type { FeelParts, FamilyType, FriendLevel } from './feel.js';
 import type { TraitInfo, EffectDef } from './traits.js';
+import type { ShopItem } from './presets.js';
 // The world format. A world is pure data (worlds/<id>/world.json); Mundi's systems read it.
 // Everything a world can configure is declared here, so this file is also the format's documentation.
 
@@ -108,6 +109,10 @@ export interface Place {
     /** (business) The id of a venture (`WorldDef.ventures`) this place is a unit of: it's on the map and in anyone's
      *  plans only while a venture of yours runs here (a café unit you lease, or a second café you open in it). */
     venture?: string;
+    /** (housing) The id of a fixture (`homes.fixtures`) this place is a room of (the penthouse's terrace): it's on the
+     *  map and in anyone's plans only while a home of yours in zone `homeZone` has that fixture (not `home`: a place
+     *  built for a home carries `home: true`). */
+    room?: string; homeZone?: string;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
@@ -129,11 +134,45 @@ export const PLACE_ROLES: { id: string; name: string; re: RegExp }[] = [
 export const guessRoles = (p: { id: string; name: string; tags?: string[] }) => PLACE_ROLES.filter(r => r.re.test(`${p.id} ${p.name}`) || (p.tags ?? []).includes(r.id)).map(r => r.id);
 export const placeIs = (p: { id: string; name: string; tags?: string[]; roles?: string[] } | null | undefined, role: string) => !!p && (p.roles ? p.roles.includes(role) : guessRoles(p).includes(role));
 export interface HomeZone {
+    /** `rent`: a week. 0 or missing in a zone with a `price`: it can only be bought (read through `buyOnly()` in
+     *  sim/housing.ts, as every field below is read through its helper there). */
     id: string; name: string; map: string; kind: string; rent: number; desc?: string;
     spots: [number, number][];
     /** A home a student can live in (a share house, a dorm, cheap rooms): while you study for a degree, only these, unless
      *  your start's family pays (`StartDef.anyHome`). Read by sim/degrees.ts. */
     student?: boolean;
+    /** (housing) What a home here costs to buy; none: not for sale. */
+    price?: number;
+    /** (housing) What a home here you own costs a week (management, taxes, staff): the upkeep bill. */
+    upkeep?: number;
+    /** (housing) The share of what you paid that selling gives back (0.5–0.9; default 0.7). */
+    resale?: number;
+    /** (housing) How big a home here is, 1–5 (what rooms and fixtures fit); default the kind's, else 1. */
+    size?: number;
+    /** (housing) Whether a home here can be a second home (default: any zone you can buy). */
+    second?: boolean;
+    /** (housing) The rent before a version raised it: read only when an old save opens, to tell a tenant here. */
+    was?: number;
+}
+/** A kind of home (studio, tower flat, villa…): its name, words and pictures by time of day, and its weekly bills. */
+export interface HomeKind {
+    name: string; desc: string; image?: string; images?: Record<string, string>; bills?: Record<string, number>;
+    /** (housing) Its size, 1–5, for zones that don't give one. */
+    size?: number;
+    /** (housing) How many guests can come to a party here; none: no limit. */
+    guests?: number;
+    /** (housing) Fixtures that come with a home of this kind when you buy it (the villa's hot-spring bath). */
+    fixtures?: string[];
+}
+/** (housing) A room or fixture of a home you own (a sauna, a grand piano, a rooftop terrace): a shop item's shape
+ *  (`effects`, `ai`, `told`, `seen`, `adult`, `when`; never `at`, `online`, `repeat`, `now`, `keepsake`, `travel`,
+ *  `late`), bought once for one house and kept while it's yours, plus where it fits. */
+export interface HomeFixture extends ShopItem {
+    /** the home's size at least */ size?: number;
+    /** only in homes of these kinds */ kinds?: string[];
+    /** only in homes of these zones */ zones?: string[];
+    /** another fixture of the same house first (the koi pond needs the garden) */ needs?: string;
+    /** the id of a place that opens with it (`Place.room`: the terrace, the bath) */ room?: string;
 }
 export interface StatusDef {
     id: string; name: string; icon: string; color: string; start: number; max: number; hud?: boolean;
@@ -638,8 +677,10 @@ export interface WorldDef {
     /** `kinds.<kind>.bills`: what each kind of home pays a week for each expense (by expense id).
      *  `expenses`: the bills besides the rent (water, power, firewood, taxes…); each `blocks` the actions it stops while
      *  it is a week unpaid. Without it, a world has water and power. */
-    homes: { zones: HomeZone[]; kinds: Record<string, { name: string; desc: string; image?: string; images?: Record<string, string>; bills?: Record<string, number> }>;
-        expenses?: { id: string; name: string; icon?: string; blocks?: string[]; cut?: string; back?: string }[] };
+    homes: { zones: HomeZone[]; kinds: Record<string, HomeKind>;
+        expenses?: { id: string; name: string; icon?: string; blocks?: string[]; cut?: string; back?: string }[];
+        /** (housing) Rooms and fixtures you can buy for a home you own. */
+        fixtures?: HomeFixture[] };
     statuses: StatusDef[];
     actions: ActionDef[];
     sleep: { until: number; restore: Record<string, number>; homeOnly?: boolean };
@@ -905,7 +946,7 @@ export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'so
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'collection'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
@@ -950,7 +991,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'collection';
+    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection';
 /** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
  *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
@@ -1190,6 +1231,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'needs', name: 'Needs', desc: 'no hunger, energy, thirst, mood or hygiene to look after (health, in RPG, stays).', apps: [], blocks: ['needs'] },
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
+    { id: 'housing', name: 'Owning a home', desc: 'homes can only be rented: none to buy or sell, no rooms or fixtures to add, no second home.', apps: [], blocks: [] },
     { id: 'courses', name: 'Courses', desc: 'no courses to take; jobs do not ask for any.', apps: [], blocks: [] },
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },
     { id: 'breakdowns', name: 'Things break at home', desc: 'nothing at home ever breaks.', apps: [], blocks: [] },

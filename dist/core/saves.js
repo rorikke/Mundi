@@ -19,8 +19,10 @@ import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 import { settleThreads } from '../sim/threads.js';
 import { settleModules } from '../sim/degrees.js';
+import { settleHomes } from '../sim/owning.js';
+import { SECOND_HOME_ID, secondHome } from '../sim/housing.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 7;
+export const SCHEMA = 8;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
 const MIGRATIONS = [
     // 1 (Mundi 0.1.x): the first versioned format. Saves from before only get the stamp; every system already fills
@@ -41,6 +43,8 @@ const MIGRATIONS = [
     // 7 (storylines): storylines wait for the player; they're settled once the world is known (settleThreads,
     // sim/threads.ts).
     { to: 7, what: 'storylines wait for the player', run: g => storylinesTodo(g) },
+    // 8 (homes you can buy): a tenant whose rent went up is told once the world is known (settleHomes, sim/owning.ts).
+    { to: 8, what: 'homes you can buy', run: g => homesTodo(g) },
 ];
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
 // directions toward you, the status (and the partner list) the pair's; each "Play as" copy (`swap.persp`) holds how
@@ -262,6 +266,13 @@ function storylinesTodo(g) {
     if (g.threads && typeof g.threads === 'object' && Object.keys(g.threads).length)
         g.threadsTodo = true;
 }
+// Schema 8. Homes can be bought, and the dearest rents went up. Whether this save rents where the rent changed depends
+// on the world, so the migration only asks settleHomes to look when the world is loaded; it changes nothing else. A
+// second run sets the same flag.
+function homesTodo(g) {
+    if (g.player && typeof g.player === 'object')
+        g.player.homesTodo = true;
+}
 export const schemaOf = (g) => Number(g.schema ?? 0);
 const KEEP = 3;
 export const backups = () => (Array.isArray(ctx().chatMetadata?.mundi_backups) ? ctx().chatMetadata.mundi_backups : []);
@@ -303,7 +314,7 @@ export function migrate(g) {
 }
 /* ---------- links to the world ---------- */
 const HOME = 'home:player';
-const isPlace = (g, w, id) => id === HOME || (id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
+const isPlace = (g, w, id) => id === HOME || (id === SECOND_HOME_ID && !!secondHome(g)) || (id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
 const firstSpot = (w, zoneId) => { const z = w.homes.zones.find(x => x.id === zoneId); const s = z?.spots?.[0]; return { x: s?.[0] ?? 0, y: s?.[1] ?? 0, n: 1 }; };
 // Repairs what in the save points to things the world no longer has. Safe to run on every load.
 export function repair(g, w) {
@@ -512,9 +523,22 @@ export function checkSave(g) {
         if (settleThreads(threads, w) && JSON.stringify(threads) !== JSON.stringify(g)) {
             if (!backedUp)
                 backup(g, 'before settling the storylines');
+            backedUp = true; // (one backup per opening: the steps after this one keep it)
             const n = settleThreads(g, w);
             changed = true;
             later(() => toast(storylinesToast(n.reset, n.kept), 'info'));
+        }
+        // homes you can buy (schema 8): a tenant whose rent went up is told, once the world is known
+        const homes = structuredClone(g);
+        settleHomes(homes, w);
+        if (JSON.stringify(homes) !== JSON.stringify(g)) {
+            if (!backedUp)
+                backup(g, 'before settling your home');
+            backedUp = true;
+            const said = settleHomes(g, w);
+            changed = true;
+            if (said)
+                later(() => toast(`${said} A backup of the save was kept (Settings → Game → This save).`, 'info'));
         }
         // modules passed teach what they teach now (a module whose skill changed since it was graded), once the world is known
         if (settleModules(structuredClone(g), w).length) {

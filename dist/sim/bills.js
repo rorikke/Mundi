@@ -11,6 +11,7 @@ import { book } from './ledger.js';
 import { money } from './needs.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { effectMul } from './effects.js';
+import { housingOn, ownedHere, ownedHomes, upkeepOf, zoneOf, fixturesOf, buyOnly, buyable } from './housing.js';
 // In a Home (no money) the difficulty is how fast relationships grow (`bond`).
 export const DIFFICULTIES = [
     { id: 'easy', name: 'Easy', desc: 'Work pays more, things cost less, you start with more money, and careers go a little faster.', homeDesc: 'Friendship and love grow fast.', pay: 1.25, price: 0.8, start: 1.5, bond: 1.5, career: 1.2 },
@@ -32,8 +33,25 @@ export const expensesOf = (w) => (w?.homes?.expenses ?? DEFAULT_EXPENSES.map(e =
 export const billList = (w) => (systemOn(w, 'bills') ? allBills(w) : []);
 const allBills = (w) => [
     { id: 'rent', name: lex(w, 'bill_rent'), icon: 'home', blocks: [] },
-    ...expensesOf(w).filter(e => e.id && e.id !== 'rent').map(e => ({ icon: 'wallet', ...e, blocks: e.blocks ?? [] })),
+    ...expensesOf(w).filter(e => e.id && e.id !== 'rent' && e.id !== UPKEEP).map(e => ({ icon: 'wallet', ...e, blocks: e.blocks ?? [] })),
+    ...(w && housingOn(w) && w.homes.zones.some(buyable) ? [upkeepBill(w)] : []),
 ];
+/** (housing) The upkeep of the homes you own, last, in a world with homes to buy: 0 while you own none, so it's never
+ *  billed or shown. Cut off a week, it stops what the rooms and fixtures unlock (their actions) and never locks you out. */
+export const UPKEEP = 'house'; // (not 'upkeep': the RPG's upkeep of arms and gear has that id)
+const upkeepKept = new WeakMap();
+function upkeepBill(w) {
+    let k = upkeepKept.get(w);
+    if (!k || k.list !== w.homes.fixtures || k.acts !== w.actions) {
+        const ids = new Set(fixturesOf(w).map(f => f.id));
+        upkeepKept.set(w, k = { list: w.homes.fixtures, acts: w.actions, def: {
+                id: UPKEEP, name: 'Home upkeep', icon: 'home', blocks: (w.actions ?? []).filter(a => a.needsItem && ids.has(a.needsItem)).map(a => a.id),
+                cut: "The upkeep of your home is a week overdue: the staff and the management have stopped, and your home's rooms and fixtures are off until it's paid ({app}).",
+                back: "Upkeep paid: your home's rooms and fixtures work again.",
+            } });
+    }
+    return k.def;
+}
 export const billName = (w, id) => allBills(w).find(b => b.id === id)?.name ?? id;
 const EVERY = 7;
 export function bills(g) {
@@ -46,7 +64,10 @@ export function bills(g) {
     return x.bills;
 }
 // One bill's state; an expense the world added later starts a week from now.
-const billOf = (g, id) => held(g, (bills(g)[id] ??= { due: g.day + EVERY }));
+// (the upkeep isn't written into a save that owns nothing: a passing bill, a week ahead)
+const billOf = (g, id) => (id === UPKEEP && !bills(g)[id] && !ownedHomes(g).length ? { due: g.day + EVERY } : held(g, (bills(g)[id] ??= { due: g.day + EVERY })));
+/** Starts a bill a week from now if it isn't running yet (the upkeep, when your first home is bought). */
+export function startBill(g, id) { bills(g)[id] ??= { due: g.day + EVERY }; }
 // A bill cut off owes no more weeks (nobody charges rent for a door they locked): at most the week that was cut off and
 // the current one. Done wherever a bill is read, so a save from before this rule owes two weeks as soon as it's opened.
 function held(g, b) {
@@ -62,9 +83,19 @@ function held(g, b) {
     }
     return b;
 }
-const zoneOf = (g, w) => w.homes.zones.find(z => z.id === g.player.home.zone);
+const playerZone = (g, w) => w.homes.zones.find(z => z.id === g.player.home.zone);
 export function billAmount(g, w, id) {
-    const zone = zoneOf(g, w);
+    // (housing) a home you own pays no rent (with the system off too: the house stays yours, it just costs nothing a
+    // week); the upkeep is that of every home you own
+    if (id === 'rent' && ownedHere(g))
+        return 0;
+    if (id === UPKEEP) {
+        if (!housingOn(w))
+            return 0;
+        const sum = ownedHomes(g).reduce((a, o) => a + upkeepOf(zoneOf(w, o.zone)), 0);
+        return sum ? priceOf(g, sum * effectMul(g, w, 'price', ['bills', UPKEEP])) : 0;
+    }
+    const zone = playerZone(g, w);
     const kind = g.player.home.kind ?? zone?.kind ?? '';
     const own = (w.homes.kinds[kind]?.bills ?? {});
     // older medieval worlds call their Power bill "firewood"
@@ -157,13 +188,23 @@ export function settleStartRent(g, w) {
     if (p.home.rent !== undefined || p.home.zone !== st.home || !systemOn(w, 'bills') || !w.rent)
         return '';
     p.home.rent = st.rent;
-    return `Your rent at home is now ${money(w, priceOf(g, st.rent))} a week (${st.name}).`;
+    // (a zone whose rent went up later, while the start keeps the old one: the heir's family flat)
+    const z = w.homes.zones.find(x => x.id === st.home);
+    return `Your rent at home ${z?.was === st.rent ? 'stays' : 'is now'} ${money(w, priceOf(g, st.rent))} a week (${st.name}).`;
 }
 // Moving in: the first week is paid with the deposit, so everything starts fresh (what the old home was still owed
 // stays behind, with its deposit).
+// (housing) The upkeep isn't the home's: it keeps running as it was (moving doesn't clear what's owed on it), and starts
+// only once something is owned.
 export function resetBills(g, w) {
+    const was = g.bills?.[UPKEEP];
     const ids = new Set([...Object.keys(g.bills ?? {}), ...allBills(w).map(b => b.id)]);
+    ids.delete(UPKEEP);
     g.bills = Object.fromEntries([...ids].map(id => [id, { due: g.day + EVERY }]));
+    if (was)
+        g.bills[UPKEEP] = was;
+    else if (ownedHomes(g).length)
+        startBill(g, UPKEEP);
 }
 // Once a day (from the timed rules): the bill that became due, and the one that was cut off.
 export function billNews(g, w) {
@@ -215,6 +256,6 @@ export const lockedOut = (g) => systemOn(getWorld(g.world), 'bills') && isCut(g,
 export const lockedOutLine = (g, w) => (systemOn(w, 'bills') && isCut(g, 'rent') ? '{{user}} is locked out of home over unpaid rent until it is paid, and cannot sleep or do anything there.' : '');
 /** The cheapest home elsewhere with a free spot (`free`: its free spots), at the rent you'd pay there. */
 export function cheapestHome(g, w, free) {
-    const z = w.homes.zones.filter(x => x.id !== g.player.home.zone && free(x.id) > 0).sort((a, b) => (a.rent ?? 0) - (b.rent ?? 0))[0];
+    const z = w.homes.zones.filter(x => x.id !== g.player.home.zone && !buyOnly(x) && free(x.id) > 0).sort((a, b) => (a.rent ?? 0) - (b.rent ?? 0))[0]; // (a home you can only buy isn't rented)
     return z ? { name: z.name, rent: priceOf(g, z.rent ?? 0) } : null;
 }

@@ -14,6 +14,7 @@ import { nowAbs } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { hm, weekday } from './time.js';
 import { placeOf, playerHomeId, travelMinutes } from './places.js';
+import { cateringMul, GRAND_PARTY } from './fixtures.js';
 import { routineStep, whereNow, workingAt } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom } from './social.js';
 import { dating } from './feed.js';
@@ -257,7 +258,7 @@ export function planTick(g, w) {
                 s.with.push({ avatar: a.avatar, until: a.to });
             if (!s.event && !a.come) {
                 s.event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now };
-                addStatus(g, w, 'mood', (a.kind === 'date' || a.kind === 'party' ? 15 : 10) * (a.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1));
+                addStatus(g, w, 'mood', (a.kind === 'date' || a.kind === 'party' ? 15 : 10) * (a.kind === 'party' ? effectMul(g, w, 'party', 'mood') * cateringMul(a.cater) : 1));
             }
             bump(g, a.avatar, a.kind === 'date' ? 8 : 5);
             touch(g, a.avatar);
@@ -294,7 +295,7 @@ export function planTick(g, w) {
         if (ev.moodAt === undefined)
             ev.moodAt = now;
         else if (hrs > 0) {
-            addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6) * (ev.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1));
+            addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6) * (ev.kind === 'party' ? effectMul(g, w, 'party', 'mood') * cateringMul(s.appts.find(x => x.id === ev.id)?.cater) : 1));
             ev.moodAt += hrs * 60;
         }
     }
@@ -329,6 +330,8 @@ function judgeParties(g, appts, now) {
             tallyEvent(g, 'big_party');
         if (came >= 3 && !missed)
             tallyEvent(g, 'loved_party');
+        if (came >= GRAND_PARTY)
+            tallyEvent(g, 'grand_party'); // (housing: room for that many in a big home)
     }
 }
 // A night that's more than a sleepover (life goals): with someone you're a couple with, or who is ready to get

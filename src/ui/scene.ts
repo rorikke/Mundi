@@ -22,7 +22,7 @@ import {
     scenarioOpen, scenarioCast, scenarioTitle, addToScenario, removeFromScenario, setChatBackground, newScenarioChat,
     persona, personas, personaThumb, usePersona,
 } from '../st/bridge.js';
-import { placeOf, isOuting } from '../sim/places.js';
+import { placeOf, isOuting, homeKindAt } from '../sim/places.js';
 import { outingOf } from '../sim/outing.js';
 import { bgStyle } from './outing.js';
 import { bgHead, bgGrid } from './bgpick.js';
@@ -156,7 +156,7 @@ function background(g: Save, w: WorldDef) {
     const p = placeOf(g, w, g.player.loc);
     if (!p) return '';
     if (p.home) {
-        const kind = w.homes.kinds[p.id === 'home:player' ? g.player.home.kind : (w.homes.zones.find(z => z.id === (g.cast[p.id.slice(5)]?.home.zone ?? (g as any).vacated?.home?.zone))?.kind ?? 'apartment')]   // (a room a guest just left keeps its picture);
+        const kind = w.homes.kinds[homeKindAt(g, w, p.id) || 'apartment']   // (a room a guest just left keeps its picture);
         const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id));   // the picture of this part of the day (and weather, season), if it has one
         if (img) return `background-image:url('${worldFile(w, img)}');background-size:cover;background-position:center`;
     }
