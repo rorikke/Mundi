@@ -19,10 +19,10 @@ Ideas planned for later. Nothing here is promised for a date.
   - Life goals and keepsakes for each track, and perhaps the other worlds' fixed small businesses (`property`) moved
     onto the same engine.
 
-- **End-game spending: homes and a collection.** The shop is in (see [Shopping](improvements.md#shopping)). Next:
-  - **Homes worth saving for:** Tokyo's top homes much dearer and a few new ones (penthouses, a mansion), bought
-    rather than only rented, with rooms and fixtures (a grand piano, a sauna, a home bar, a tea room) that work as the
-    shop's things do: small bonuses, things to do, what the AI is told.
+- **End-game spending: homes and a collection.** The shop and homes you own are in (see
+  [Shopping](improvements.md#shopping) and [Your own home](improvements.md#your-own-home)). Next:
+  - **Homes, later:** pictures of their own for the four new homes and their rooms (they borrow others' for now),
+    parties at the second home with guests staying the night, and homes for sale in the other worlds.
   - **A collection:** rare pieces that turn up at places and events, a record of the Tokyo content you've completed,
     and milestones that bring stories.
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
