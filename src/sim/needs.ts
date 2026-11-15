@@ -12,6 +12,7 @@ import { presentAt } from './people.js';
 import { approve } from './living.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
+import { SECOND_HOME_ID } from './housing.js';
 import { book } from './ledger.js';
 import { extraActions, isBlocked, brokenThings } from './life.js';
 import { haveItem } from './shop.js';
@@ -134,7 +135,7 @@ export function crisisLine(g: Save): string {
 // when it's offered (sim/when.ts), and one that needs company only shows with someone with you. (E6) A guest staying
 // the night is never locked out, and what the night includes is free.
 export function actionsHere(g: Save, w: WorldDef): ActionDef[] {
-    const atHome = g.player.loc === playerHomeId;
+    const atHome = g.player.loc === playerHomeId || g.player.loc === SECOND_HOME_ID;   // (housing: your second home too)
     const pl0 = w.places.find(p => p.id === g.player.loc);
     const tags = placeOf(g, w, g.player.loc)?.tags ?? [];
     const own = (a: ActionDef) => !!pl0 && (!!a.places?.includes(pl0.id) || !!pl0.actions?.includes(a.id));

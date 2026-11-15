@@ -16,6 +16,7 @@ import { social, bondOf, bump } from '../sim/social.js';
 import { addRomance } from '../sim/romance.js';
 import { setCooldown, YOU } from '../sim/rel.js';
 import { add, check, earliest, HANGOUT_BOND } from '../sim/plans.js';
+import { partyGuests, cateringFor, cateringPrice, type Catering } from '../sim/fixtures.js';
 import { note } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
 import { houseParty, partyRooms, throwHouseParty, cancelHouseParty, PARTY_HOURS } from '../sim/houseparty.js';
@@ -104,18 +105,22 @@ export const feelingsHtml = (g: Save, avatar: string) => { const f = activeFeeli
 
 /* ---------- throwing a party ---------- */
 
-export const PARTY = { open: false, day: 0, time: 20 * 60, guests: [] as string[], title: '' };
+export const PARTY = { open: false, day: 0, time: 20 * 60, guests: [] as string[], title: '', cater: 'none' as Catering };
 export function partyForm(g: Save, w: WorldDef) {
     if (!PARTY.open) return `<button class="mu-primary" data-act="party-open">${icon('users')}<span>Throw a party at home</span></button>`;
     const fee = Math.max(1, Math.round(usualPay(w) * 3.75));   // food and drinks: about four hours of a first job
     const people = residents(g).filter(r => r.met && bondOf(g, r.avatar) >= HANGOUT_BOND);
+    // (housing) how many your home has room for, and catering at a big home
+    const cap = partyGuests(g, w), caters = cateringFor(g, w);
+    if (!caters.some(c => c.id === PARTY.cater)) PARTY.cater = 'none';
     return `<section class="mu-ph-card mu-party"><h4>A party at your place</h4>
         <label class="mu-field"><span>Name (optional)</span><input type="text" maxlength="80" data-input="party-title" data-focus="partytitle" placeholder="e.g. My birthday, Game night" value="${esc(PARTY.title)}"></label>
         <div class="mu-row"><select data-input="party-day">${[0, 1, 2, 3].map(d => `<option value="${d}" ${PARTY.day === d ? 'selected' : ''}>${d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : weekday(g.day + d)}</option>`).join('')}</select>
             <select data-input="party-time">${[18, 19, 20, 21].map(h => `<option value="${h * 60}" ${PARTY.time === h * 60 ? 'selected' : ''}>${h}:00</option>`).join('')}</select></div>
-        <small>Guests (friends and acquaintances):</small>
-        ${people.length ? `<div class="mu-chips">${people.map(r => `<button class="mu-chip ${PARTY.guests.includes(r.avatar) ? 'is-on' : ''}" data-act="party-guest" data-who="${esc(r.avatar)}">${esc(r.name)}</button>`).join('')}</div>` : '<p class="mu-muted">Get to know people first.</p>'}
-        <small>Food and drinks: ${money(w, fee)}</small>
+        <small>Guests (friends and acquaintances)${cap ? ` · room for up to ${cap}` : ''}:</small>
+        ${people.length ? `<div class="mu-chips">${people.map(r => `<button class="mu-chip ${PARTY.guests.includes(r.avatar) ? 'is-on' : ''}" data-act="party-guest" data-who="${esc(r.avatar)}" ${!PARTY.guests.includes(r.avatar) && cap && PARTY.guests.length >= cap ? 'aria-disabled="true"' : ''}>${esc(r.name)}</button>`).join('')}</div>` : '<p class="mu-muted">Get to know people first.</p>'}
+        ${caters.length > 1 ? `<label class="mu-field"><span>Catering</span><select data-input="party-cater">${caters.map(c => `<option value="${esc(c.id)}" ${PARTY.cater === c.id ? 'selected' : ''}>${esc(c.name)}${c.perGuest ? ` (${money(w, cateringPrice(g, c.id, 1))} a guest)` : ''}</option>`).join('')}</select></label>` : ''}
+        <small>Food and drinks: ${money(w, fee + cateringPrice(g, PARTY.cater, PARTY.guests.length))}</small>
         <div class="mu-row"><button class="mu-primary" data-act="party-go" ${PARTY.guests.length ? '' : 'aria-disabled="true"'}>Send the invitations</button><button class="mu-ghost" data-act="party-close">Cancel</button></div></section>`;
 }
 
@@ -229,20 +234,26 @@ Object.assign(ACT, {
     'hp-cancel': () => { const g = game(); if (!g) return; cancelHouseParty(g); saveGame(); notify(); },
     'party-open': () => { const g = game(); PARTY.open = true; PARTY.guests = []; PARTY.day = 0; PARTY.time = 20 * 60; if (g && (g.minutes >= 21 * 60)) PARTY.day = 1; notify(); },
     'party-close': () => { PARTY.open = false; notify(); },
-    'party-guest': (el) => { const a = el.dataset.who!; const i = PARTY.guests.indexOf(a); i >= 0 ? PARTY.guests.splice(i, 1) : PARTY.guests.push(a); notify(); },
+    'party-guest': (el) => {
+        const a = el.dataset.who!; const i = PARTY.guests.indexOf(a);
+        if (i >= 0) PARTY.guests.splice(i, 1);
+        else { const g = game(), w = g && getWorld(g.world), cap = g && w ? partyGuests(g, w) : null; if (cap && PARTY.guests.length >= cap) { toast(`Your home has room for ${cap} guests.`, 'info'); return; } PARTY.guests.push(a); }
+        notify();
+    },
     'party-go': () => {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w || !PARTY.guests.length) return;
-        const fee = Math.max(1, Math.round(usualPay(w) * 3.75));   // food and drinks: about four hours of a first job
+        const cater = cateringFor(g, w).some(c => c.id === PARTY.cater) ? PARTY.cater : 'none';
+        const fee = Math.max(1, Math.round(usualPay(w) * 3.75)) + cateringPrice(g, cater, PARTY.guests.length);   // food and drinks: about four hours of a first job (and the catering)
         if (g.player.money < fee) { toast('Not enough money for food and drinks.', 'info'); return; }
         const from = Math.max(earliest(g), (g.day + PARTY.day) * 1440 + PARTY.time);
         const yes: string[] = [], no: string[] = [];
         for (const a of PARTY.guests) {
             const ans = check(g, w, a, playerHomeId, from, from + 120, 'party', HANGOUT_BOND);
             const name = g.cast[a]?.name ?? '';
-            if (ans.ok) { add(g, a, playerHomeId, from, 'party', false, PARTY.title); yes.push(name); } else no.push(name);
+            if (ans.ok) { const ap = add(g, a, playerHomeId, from, 'party', false, PARTY.title); if (cater !== 'none') (ap as any).cater = cater; yes.push(name); } else no.push(name);
         }
         if (!yes.length) { toast('Nobody can make it then. Try another day or time.', 'info'); notify(); return; }
-        g.player.money -= fee;
+        g.player.money -= fee - cateringPrice(g, cater, no.length);   // (catering only for those coming)
         const whenTxt = PARTY.day === 0 ? 'tonight' : PARTY.day === 1 ? 'tomorrow' : `on ${weekday(g.day + PARTY.day)}`;
         note(g, PARTY.title.trim() ? '{u} invited {0} to a party at home {1}: "{2}".' : '{u} invited {0} to a party at home {1}.', [yes.join(', '), whenTxt, PARTY.title.trim()], yes.map(n => Object.values(g.cast).find(r => r.name === n)?.avatar ?? '').filter(Boolean), playerHomeId, 'party');
         countUp(g, 'parties');
@@ -285,4 +296,5 @@ Object.assign(INPUT, {
     'party-day': (el) => { PARTY.day = Number(el.value); },
     'party-time': (el) => { PARTY.time = Number(el.value); },
     'party-title': (el) => { PARTY.title = el.value; },
+    'party-cater': (el) => { PARTY.cater = el.value as Catering; notify(); },
 });

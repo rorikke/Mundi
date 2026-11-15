@@ -3,6 +3,7 @@ import { travelFactor } from './life.js';
 import { cfg, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type Place } from '../core/world.js';
 import { effectMul } from './effects.js';
+import { housingOn, ownsFixtureIn, secondHome, SECOND_HOME_ID } from './housing.js';
 
 export const playerHomeId = 'home:player';
 export const isHome = (id: string) => id.startsWith('home:');
@@ -16,7 +17,23 @@ export function homeAddress(w: WorldDef, h: { zone: string; x: number; y: number
     return `${zone.name}, ${homeKindName(w, h.kind ?? zone.kind)} ${n || 1}${h.unit ? String.fromCharCode(65 + h.unit) : ''}`;
 }
 
+/** The kind of home a home's place is (yours, your second home, a resident's), '' for any other place. */
+export function homeKindAt(g: Save, w: WorldDef, id: string): string {
+    if (id === playerHomeId) return g.player.home.kind;
+    if (id === SECOND_HOME_ID) { const s = secondHome(g); return (s && w.homes.zones.find(z => z.id === s.zone)?.kind) ?? ''; }
+    if (!isHome(id)) return '';
+    const zone = g.cast[id.slice(5)]?.home.zone ?? (g as any).vacated?.home?.zone;
+    return w.homes.zones.find(z => z.id === zone)?.kind ?? '';
+}
+// (housing) Your second home: on the map while you have one (and the system is on).
+function secondPlace(g: Save, w: WorldDef): (Place & { home?: boolean }) | null {
+    const s = housingOn(w) ? secondHome(g) : undefined;
+    const zone = s && w.homes.zones.find(z => z.id === s.zone);
+    if (!s || !zone) return null;
+    return { id: SECOND_HOME_ID, name: 'My second home', map: zone.map, x: s.x, y: s.y, tags: ['home'], desc: `${homeAddress(w, s)}: ${w.homes.kinds[zone.kind]?.desc ?? ''}`, home: true };
+}
 export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boolean; owner?: string }) | null {
+    if (id === SECOND_HOME_ID) return secondPlace(g, w);
     if (id === playerHomeId) {
         const h = g.player.home, kind = w.homes.kinds[h.kind];
         const zone = w.homes.zones.find(z => z.id === h.zone);
@@ -51,6 +68,7 @@ export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boo
 // region of everyone's home, every time someone's day is worked out).
 export function mapOf(g: Save, w: WorldDef, id: string): string | undefined {
     if (id === playerHomeId) return w.homes.zones.find(z => z.id === g.player.home.zone)?.map ?? w.maps[0].id;
+    if (id === SECOND_HOME_ID) return secondPlace(g, w)?.map;
     if (isHome(id)) {
         const r = g.cast[id.slice(5)];
         if (!r) return undefined;
@@ -79,7 +97,20 @@ export const roomsOn = (g: Save | null | undefined, w: WorldDef): string[] => {
     const fresh = own && seen ? w.places.filter(p => !p.scenarioOff && !p.link && !seen.includes(p.id) && !own.includes(p.id)).map(p => p.id) : [];
     return [...(own ?? w.places.filter(p => !p.scenarioOff && !p.link).map(p => p.id)), ...fresh, ...extraRooms(g).map(p => p.id)];
 };
-export const placeOn = (g: Save | null | undefined, w: WorldDef, id: string) => ventureHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id));
+export const placeOn = (g: Save | null | undefined, w: WorldDef, id: string) => ventureHere(g, w, id) && roomHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id));
+// (housing) A room of a home (the penthouse's terrace, the villa's bath: `Place.room`) is in the game only while a home
+// of yours in its zone has that fixture, with the system on.
+const roomKept = new WeakMap<WorldDef, { list: unknown; n: number; ids: Map<string, { room: string; home: string }> }>();
+function roomPlaces(w: WorldDef) {
+    let k = roomKept.get(w);
+    if (!k || k.list !== w.places || k.n !== w.places.length) roomKept.set(w, k = { list: w.places, n: w.places.length, ids: new Map(w.places.filter(p => p.room).map(p => [p.id, { room: p.room!, home: p.homeZone ?? '' }])) });
+    return k.ids;
+}
+function roomHere(g: Save | null | undefined, w: WorldDef, id: string): boolean {
+    const r = roomPlaces(w).get(id);
+    if (!r) return true;
+    return !!g && housingOn(w) && ownsFixtureIn(g, r.home, r.room);
+}
 // (business) A venture's own place (a café unit you lease) is in the game only while that venture is yours and runs
 // there (`g.ventures`, kept by sim/ventures.ts, read here so this file needs no venture code).
 const ventureKept = new WeakMap<WorldDef, { list: unknown; n: number; ids: Map<string, string> }>();
@@ -98,6 +129,8 @@ export function pins(g: Save, w: WorldDef) {
     const out: (Place & { home?: boolean; owner?: string })[] = [...w.places.filter(p => placeOn(g, w, p.id)), ...(isScenario(w) ? extraRooms(g) : [])];
     const mine = placeOf(g, w, playerHomeId);
     if (mine) out.push(mine);
+    const second = secondPlace(g, w);
+    if (second) out.push(second);
     // (a guest with no bedroom of their own, zone '__guest', has no room to show)
     for (const r of Object.values(g.cast)) if (r.met && r.home.zone !== '__guest') { const p = placeOf(g, w, `home:${r.avatar}`); if (p && !out.some(x => x.id === p.id)) out.push(p); }
     return out;
@@ -126,8 +159,22 @@ export function realmOf(w: WorldDef, mapId?: string): string {
 export function travelMinutes(g: Save, w: WorldDef, from: string, to: string): number {
     if (from === to) return 0;
     if (isScenario(w)) return 0;   // Home: from one room to another takes no time
+    if (sameHome(g, w, from, to)) return ROOM_TRIP;   // (housing) a room of your home and the home: a few steps
     // (what effects take off: life goals' perks, boosts)
     return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) * effectMul(g, w, 'travel') / 5) * 5);
+}
+/** (housing) From a home of yours to one of its rooms (the terrace, the bath), or between two of its rooms. */
+export const ROOM_TRIP = 2;
+function sameHome(g: Save, w: WorldDef, a: string, b: string): boolean {
+    const zoneAt = (id: string) => {
+        if (id === playerHomeId) return g.player.home.zone;
+        if (id === SECOND_HOME_ID) return secondHome(g)?.zone;
+        const p = roomPlaces(w).get(id);
+        return p ? p.home : undefined;
+    };
+    if (!roomPlaces(w).has(a) && !roomPlaces(w).has(b)) return false;
+    const za = zoneAt(a);
+    return !!za && za === zoneAt(b);
 }
 /** The world's own time for a trip (minutes), before the "travel" rule and what you own (a car) change it. */
 export function tripMinutes(g: Save, w: WorldDef, from: string, to: string): number {

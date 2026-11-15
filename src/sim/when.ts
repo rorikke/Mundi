@@ -42,6 +42,7 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
+import { homeWorth, housingOn, ownedHere } from './housing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
@@ -421,7 +422,8 @@ function rankHolds(g: Save, w: WorldDef, v: string): boolean {
     const need = what === 'top' ? total : what === 'middle' ? Math.ceil(total / 2) : what.startsWith('top-') ? total - Number(what.slice(4)) : Number(what);
     return j.rank + 1 >= Math.max(1, need);
 }
-// The world's best kinds of home: the two whose dearest area costs most (one in a world with two kinds or fewer).
+// The world's best kinds of home: the two whose dearest area costs most (one in a world with two kinds or fewer). Only
+// rents count, so homes you can only buy (housing) never push the rented ones out of reach.
 function topKinds(w: WorldDef): string[] {
     const rent = (k: string) => Math.max(0, ...w.homes.zones.filter(z => z.kind === k).map(z => z.rent ?? 0));
     const kinds = Object.keys(w.homes.kinds ?? {}).sort((a, b) => rent(b) - rent(a));
@@ -432,11 +434,11 @@ function topKinds(w: WorldDef): string[] {
 function homeHolds(g: Save, w: WorldDef, v: string): boolean {
     const h = g.player.home, t = tally(g).home;
     if (!h) return false;
-    const rent = (zone: string) => w.homes.zones.find(z => z.id === zone)?.rent ?? 0;
     switch (v.toLowerCase()) {
         case 'alone': return !Object.values(g.cast).some(r => (r as any).homeWith === '__you');
-        case 'better': return !!t && rent(h.zone) > rent(t.first);
-        case 'top': return topKinds(w).includes(h.kind);
+        case 'better': return !!t && homeWorth(w, h.zone) > homeWorth(w, t.first);
+        // (housing) a home you own counts when it's worth at least the best rented kinds' dearest area
+        case 'top': return topKinds(w).includes(h.kind) || (housingOn(w) && ownedHere(g) && homeWorth(w, h.zone) >= Math.min(...topKinds(w).map(k => Math.max(0, ...w.homes.zones.filter(z => z.kind === k).map(z => z.rent ?? 0)))));
         case 'season': return !!t && g.day - t.since >= seasonDays(g);
         default: return /^\d+$/.test(v) ? !!t && g.day - t.since >= Number(v) : h.kind === v;
     }
@@ -466,7 +468,7 @@ function friendsHold(g: Save, w: WorldDef, v: string): boolean {
 }
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
-const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture);
+const visitable = (w: WorldDef) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room);
 const onMapOf = (w: WorldDef, p: { map: string }, map: string) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
 /** The map `in home` means: the map your home is on ('' with no home). */
 export const homeMap = (g: Save, w: WorldDef) => w.homes.zones.find(z => z.id === g.player.home?.zone)?.map ?? '';

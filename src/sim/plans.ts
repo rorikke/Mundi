@@ -14,6 +14,7 @@ import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef } from '../core/world.js';
 import { hm, weekday } from './time.js';
 import { placeOf, playerHomeId, travelMinutes } from './places.js';
+import { cateringMul, GRAND_PARTY } from './fixtures.js';
 import { routineStep, whereNow, workingAt } from './people.js';
 import { social, bondOf, isPartner, bump, livePlan, textFrom, type Appointment, type PlanKind } from './social.js';
 import { dating } from './feed.js';
@@ -225,7 +226,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
             // the event starts: they join you (and follow you) until it is over, and the HUD shows it
             const cw = s.with.find(x => x.avatar === a.avatar);
             if (cw) cw.until = Math.max(cw.until, a.to); else s.with.push({ avatar: a.avatar, until: a.to });
-            if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', (a.kind === 'date' || a.kind === 'party' ? 15 : 10) * (a.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1)); }
+            if (!(s as any).event && !a.come) { (s as any).event = { id: a.id, avatar: a.avatar, kind: a.kind, title: a.title, moodAt: now }; addStatus(g, w, 'mood', (a.kind === 'date' || a.kind === 'party' ? 15 : 10) * (a.kind === 'party' ? effectMul(g, w, 'party', 'mood') * cateringMul((a as any).cater) : 1)); }
             bump(g, a.avatar, a.kind === 'date' ? 8 : 5); touch(g, a.avatar); sawYou(g, a.avatar);
             if (a.kind === 'date' && systemOn(w, 'romance') && !romanceBlocked(g, a.avatar)) addRomance(g, a.avatar, 5 * effectMul(g, w, 'gain', 'dates'));   // a date kept is romantic too (a milestone)
             if (a.kind === 'date') tallyEvent(g, 'date', 1, a.avatar);
@@ -253,7 +254,7 @@ export function planTick(g: Save, w: WorldDef): PlanNews[] {
     if (ev && s.with.some(c => c.avatar === ev.avatar)) {
         const hrs = Math.floor((now - (ev.moodAt ?? now)) / 60);
         if (ev.moodAt === undefined) ev.moodAt = now;
-        else if (hrs > 0) { addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6) * (ev.kind === 'party' ? effectMul(g, w, 'party', 'mood') : 1)); ev.moodAt += hrs * 60; }
+        else if (hrs > 0) { addStatus(g, w, 'mood', hrs * (ev.kind === 'hangout' ? 5 : 6) * (ev.kind === 'party' ? effectMul(g, w, 'party', 'mood') * cateringMul((s.appts.find(x => x.id === ev.id) as any)?.cater) : 1)); ev.moodAt += hrs * 60; }
     }
     judgeParties(g, s.appts, now);
     // old plans are forgotten after a few days
@@ -277,6 +278,7 @@ function judgeParties(g: Save, appts: Appointment[], now: number) {
         for (const a of list) (a as any).judged = true;
         if (came >= BIG_PARTY) tallyEvent(g, 'big_party');
         if (came >= 3 && !missed) tallyEvent(g, 'loved_party');
+        if (came >= GRAND_PARTY) tallyEvent(g, 'grand_party');   // (housing: room for that many in a big home)
     }
 }
 // A night that's more than a sleepover (life goals): with someone you're a couple with, or who is ready to get
