@@ -42,12 +42,13 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
+import { collectionLink } from './hooks.js';
 import { homeWorth, housingOn, ownedHere } from './housing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns'];
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -163,7 +164,8 @@ function badValue(key, v) {
         case 'gender':
         case 'path':
             return ID.test(v) ? '' : `"${v}" should be one id`;
-        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2`;
+        case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) || SEEN_ALL.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2, or all in a map`;
+        case 'had': return HAD.test(v) ? '' : `"${v}" should be a keepsake id, all and a keepsake kind (all charm), or a number of keepsakes`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
@@ -395,6 +397,9 @@ function holds(g, w, key, v, x) {
             return !!t?.ended && (!how || t.ended === how);
         }
         case 'seen': {
+            const all = v.match(SEEN_ALL);
+            if (all)
+                return collectionLink.storiesDone(g, w, all[1]);
             const [id, n] = v.split(':');
             const s = g.stories?.seen?.[id] ?? g.player.job?.seen?.[id];
             return !!s && (!n || (s.choice === Number(n) - 1 && s.ok !== false));
@@ -454,6 +459,7 @@ function holds(g, w, key, v, x) {
         case 'tenant': return tenantHolds(g, w, v);
         case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
         case 'owns': return ownsHolds(g, w, v);
+        case 'had': return hadHolds(g, w, v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': {
@@ -586,6 +592,11 @@ function friendsHold(g, w, v) {
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
 const visitable = (w) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room);
+/** (the collection) The places `visited: all in <map>` asks for, and how many of them you've been to. */
+export function placesToVisit(g, w, map) {
+    const on = visitable(w).filter(p => onMapOf(w, p, mapArg(g, w, map)));
+    return { all: on.length, been: on.filter(p => beenTo(g, p.id)).length };
+}
 const onMapOf = (w, p, map) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
 /** The map `in home` means: the map your home is on ('' with no home). */
 export const homeMap = (g, w) => w.homes.zones.find(z => z.id === g.player.home?.zone)?.map ?? '';
@@ -625,6 +636,34 @@ function helpedThreads(g, w) {
 }
 // A life goal finished (its id; an old aspiration's too), one of its steps done (`idol 3`), or a number of goals
 // finished. sim/goals.ts keeps `g.goals.done` (ids) and `g.goals.steps` (steps done per goal).
+// (the collection) `seen: all in <map>`, and `had:` a keepsake held at some time (`g.collection.had`, kept by
+// sim/collection.ts while the collection is on): one, all of a kind this game can have, or a number of them.
+const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)$/i;
+const hadOf = (g, w) => new Set(systemOn(w, 'collection') ? (g.collection?.had ?? []) : []);
+/** The keepsakes of a kind this game can have (adult ones only with adult content on). */
+export const kindHere = (g, w, kind) => (w.keepsakes ?? []).filter(k => (k.kind ?? '') === kind && (!k.adult || adultOn(g)));
+function hadHolds(g, w, v) {
+    if (!systemOn(w, 'collection'))
+        return false;
+    const had = hadOf(g, w);
+    if (/^\d+$/.test(v))
+        return had.size >= Number(v);
+    const m = v.match(/^all\s+(.+)$/i);
+    if (!m)
+        return had.has(v);
+    const list = kindHere(g, w, m[1].trim());
+    return list.length > 0 && list.every(k => had.has(k.id));
+}
+function hadWords(g, w, v) {
+    const had = hadOf(g, w);
+    if (/^\d+$/.test(v))
+        return `${v} keepsakes (${Math.min(had.size, Number(v))} so far)`;
+    const m = v.match(/^all\s+(.+)$/i);
+    if (!m)
+        return w.keepsakes?.find(k => k.id === v)?.name ?? v.replace(/_/g, ' ');
+    const list = kindHere(g, w, m[1].trim());
+    return `every ${m[1].trim()} keepsake (${list.filter(k => had.has(k.id)).length} of ${list.length})`;
+}
 function goalHolds(g, w, v) {
     if (!systemOn(w, 'goals'))
         return false;
@@ -632,6 +671,8 @@ function goalHolds(g, w, v) {
     const done = new Set([...(st?.done ?? []), ...(g.player.aspDone ?? []).map(id => FOLDED_GOALS[id] ?? id)]);
     if (/^\d+$/.test(v))
         return done.size >= Number(v);
+    if (v === 'all')
+        return collectionLink.goalsAll(g, w);
     const [raw, n] = v.split(/\s+/), id = FOLDED_GOALS[raw] ?? raw;
     return done.has(id) || (n !== undefined && (st?.steps?.[id] ?? 0) >= Number(n));
 }
@@ -817,6 +858,13 @@ export function missingWords(g, w, when, place, opts = {}) {
         // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
         else if (c.key === 'inrank' && !c.not)
             out.push(inRankWords(g, w, Number(c.values[0])));
+        // (the collection) a district's stories, keepsakes held at some time, every life goal
+        else if (c.key === 'seen' && !c.not && c.values.every(v => SEEN_ALL.test(v)))
+            out.push(c.values.map(v => collectionLink.storiesWords(g, w, v.match(SEEN_ALL)[1])).join(' or '));
+        else if (c.key === 'had' && !c.not)
+            out.push(c.values.map(v => hadWords(g, w, v)).join(' or '));
+        else if (c.key === 'goal' && !c.not && c.values.length === 1 && c.values[0] === 'all')
+            out.push(collectionLink.goalsWords(g, w));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v)))
             out.push(c.values.map(v => seenTitle(w, v)).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"

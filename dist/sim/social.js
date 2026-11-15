@@ -19,6 +19,7 @@ import { effectMul } from './effects.js';
 import { pricePerk } from './worldstate.js';
 import { tallyEvent } from './tally.js';
 import { usualPay } from './needs.js';
+import { onKeepsake } from './hooks.js';
 export function social(g) {
     const s = (g.social ??= {});
     s.threads ??= {};
@@ -148,7 +149,9 @@ export const GIFT_AWKWARD = 3; // friendship lost when an intimate gift is hande
 export const keepsakesOf = (g) => (g.player.keepsakes ??= {});
 export const keepsakeDef = (w, id) => w.keepsakes?.find(k => k.id === id) ?? { id, name: id, icon: '🎁' };
 export function addKeepsake(g, id, n = 1) { const k = keepsakesOf(g); k[id] = (k[id] ?? 0) + n; if (k[id] <= 0)
-    delete k[id]; }
+    delete k[id]; if (n > 0)
+    for (const f of onKeepsake)
+        f(g, id); }
 /** The gifts each person has from you (keepsake ids, in the order given). */
 export const giftsGiven = (g) => (social(g).given ??= {});
 const words = (s) => s.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);

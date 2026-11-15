@@ -37,8 +37,9 @@ import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffe
 import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIMITS, BOOST_DAYS, GOAL_POINTS, REWARD_KINDS, PERSON_KINDS, SKILL_GROUPS, systemNeedsOff } from '../core/goals.js';
 import { TALLY_EVENTS } from '../sim/tally.js';
 import { SECOND_POINTS } from '../sim/points.js';
+import { missingFromRecord } from '../core/collection.js';
 const TABS = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
-    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['goals', 'Goals & rewards'], ['business', 'Business'], ['courses', 'Courses'], ['shop', 'Shop'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
+    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['goals', 'Goals & rewards'], ['business', 'Business'], ['courses', 'Courses'], ['shop', 'Shop'], ['collection', 'Collection'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
 // A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them), and
 // life goals (a Home has them off).
 const SCENARIO_HIDES = ['realm', 'economy', 'rpg', 'goals'];
@@ -1417,6 +1418,110 @@ function tabShop(w) {
         <p class="mu-muted">What the world sells: online in the phone's Shop app, or at its places while they're open. Things are kept for good, or bought again (a service for some days, stock for some uses, a gift to give). Nothing is sold back, and nothing costs anything weekly.</p>${filter}
         ${master('shop', 'catalogs.shop', (it) => `<b>${esc(it.icon ?? '')} ${esc(it.name)}</b><small>${esc(money(w, Number(it.price) || 0))}${f ? '' : ` · ${esc(shopCat(it).name)}`}${isAdultItem(it) ? ' · adult' : ''}</small>`, i => itemForm(`catalogs.shop.${i}`, list[i]), 'item', f ? 'Nothing in this category.' : 'Nothing for sale.', f ? (it) => catOf(it) === f : undefined)}</section>${keepsakesEditor(w)}`;
 }
+/* ---------- the collection: halls, their groups, and slots (plans/collection.md, session E) ---------- */
+// The systems a hall or a slot can need (its slot shown only with them on), as chips.
+const systemOpts = () => SYSTEMS.map(s => [s.id, s.name]);
+const hallOptsOf = (w) => (w.collection?.halls ?? []).map(h => [h.id, `${h.icon ?? ''} ${h.name}`.trim()]);
+// The storyline a slot is about (`thread: <id>`), for its plaques by ending.
+const slotThread = (w, when) => {
+    const c = typeof when === 'string' ? parseWhen(when).conds : [];
+    const id = c.length === 1 && c[0].key === 'thread' && !c[0].not && c[0].values.length === 1 ? c[0].values[0].split(/\s+/)[0] : '';
+    return id ? w.cast.examples.flatMap(e => e.threads ?? []).find(t => t.id === id) ?? null : null;
+};
+function tabCollection(w) {
+    const c = w.collection, halls = c?.halls ?? [], slots = c?.slots ?? [];
+    const missing = missingFromRecord(w);
+    const f = halls.some(h => h.id === CW.sel.cslotHall) ? String(CW.sel.cslotHall) : '';
+    const filter = `<label class="mu-field"><span>Show</span><select data-input="cw-cslothall">${[['', `Every hall · ${slots.length}`], ...halls.map(h => [h.id, `${h.name} · ${slots.filter(s => s.hall === h.id).length}`])]
+        .map(([v, l]) => `<option value="${esc(v)}" ${v === f ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+    const quick = missing.halls.length + missing.slots.length
+        ? `<button data-act="cw-coll-quick">${icon('plus')}<span>${esc(`Add the record's missing slots · ${missing.slots.length}`)}</span></button><small class="mu-muted">A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and twenty goals, and each kind of business at its top, from this world's own data. What's here already stays as it is.</small>`
+        : '<small class="mu-muted">The record has a slot for everything this world has.</small>';
+    return `${systemOn(w, 'collection') ? '' : '<p class="mu-warn">The collection is off in this world (Features › Systems): none of this plays until it is on.</p>'}
+        <section class="mu-cw-sec"><h4>Collection</h4>
+        <p class="mu-muted">Halls of slots. A record hall (the memories) fills by itself: a slot fills for good the first time its condition holds, and a game shows only the slots it can have (its start, its people, adult content, the systems on). Other halls hold the museum's pieces.</p>
+        <div class="mu-row">${quick}</div></section>
+        <section class="mu-cw-sec"><h4>Halls</h4>${master('chall', 'collection.halls', (h) => `<b>${esc(h.icon ?? '')} ${esc(h.name)}</b><small>${h.record ? 'record · ' : ''}${esc(String(slots.filter(s => s.hall === h.id).length))} slots${h.adult ? ' · adult' : ''}</small>`, i => hallForm(w, i), 'chall', 'No halls yet.')}</section>
+        <section class="mu-cw-sec"><h4>Slots</h4>${filter}${master('cslot', 'collection.slots', (s) => `<b>${esc(s.icon ?? '')} ${esc(s.name)}</b><small>${esc(halls.find(h => h.id === s.hall)?.groups.find(g => g.id === s.group)?.name ?? s.group)}${s.adult ? ' · adult' : ''}</small>`, i => slotForm(w, i), 'cslot', halls.length ? 'No slots yet.' : 'Add a hall first.', f ? (s) => s.hall === f : undefined)}</section>`;
+}
+function hallForm(w, i) {
+    const p = `collection.halls.${i}`, h = (w.collection?.halls ?? [])[i];
+    if (!h)
+        return '';
+    const used = (id) => (w.collection?.slots ?? []).filter(s => s.hall === h.id && s.group === id).length;
+    return `<div class="mu-row mu-cw-inline">${idTag(h.id)}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`)}${optTxt('Icon (an emoji)', `${p}.icon`, '🗾')}</div>
+        ${optTxt('A line under its name (optional)', `${p}.desc`, 'What you have lived here.')}
+        <div class="mu-row2">${flag('The record (fills by itself; its own percentage)', `${p}.record`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
+        ${cond('Open when (a condition; empty: always)', `${p}.open`, 'goal: 3', 'A museum wing opens when this holds; its slots fill meanwhile.')}
+        <span class="mu-cw-sub">Groups</span>
+        ${(h.groups ?? []).map((g, k) => `<div class="mu-row2 mu-cw-inline">${idTag(g.id)}${txt('Name', `${p}.groups.${k}.name`)}${optTxt('Icon', `${p}.groups.${k}.icon`, '📖')}<small class="mu-muted">${esc(String(used(g.id)))} slots</small>${(h.groups ?? []).length > 1 && !used(g.id) ? `<button class="mu-ghost" data-act="cw-del" data-path="${p}.groups.${k}">${icon('trash')}</button>` : ''}</div>`).join('')}
+        <button data-act="cw-add" data-what="cgroup" data-path="${p}.groups">${icon('plus')}<span>Add a group</span></button>
+        <small class="mu-muted">A group with slots in it can't be removed: move them first. Taking a hall away takes its slots with it when the world loads.</small>`;
+}
+function slotForm(w, i) {
+    const p = `collection.slots.${i}`, s = (w.collection?.slots ?? [])[i];
+    if (!s)
+        return '';
+    const h = (w.collection?.halls ?? []).find(x => x.id === s.hall);
+    const groups = (h?.groups ?? []).map(g => [g.id, g.name]);
+    const t = slotThread(w, s.when);
+    const warn = [];
+    if (!h)
+        warn.push('Its hall is gone: pick one.');
+    else if (!h.groups.some(g => g.id === s.group))
+        warn.push("Its group isn't one of this hall's: pick one.");
+    if (h?.record && !s.when)
+        warn.push('A record slot with no condition never fills.');
+    if (s.who && !w.cast.examples.some(e => e.name === s.who || e.name.split(/\s+/)[0] === s.who))
+        warn.push(`Nobody called ${s.who} among the world's people.`);
+    return `<div class="mu-row mu-cw-inline">${idTag(s.id)}</div>
+        <div class="mu-row2">${sel('Hall', `${p}.hall`, withCur(hallOptsOf(w), s.hall))}${sel('Group', `${p}.group`, withCur(groups, s.group))}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`)}${optTxt('Icon (an emoji)', `${p}.icon`, '🌸')}</div>
+        ${sel('A person (their portrait on the tile)', `${p}.who`, withCur([['', '(nobody)'], ...peopleOpts(w).map(([v]) => [v.split(/\s+/)[0], v])], s.who), 'opt')}
+        ${cond(h?.record === false ? 'Filled when (a condition; a museum piece comes from its sources instead)' : 'Filled when (a condition)', `${p}.when`, 'attended: hanami', 'It fills for good the first time this holds: thread: mio_grades, attended: hanami, seen: all in shibuya, visited: all in shibuya, had: all charm, goal: 5, venture: cafe tier 4.')}
+        ${optTxt('Hint on the empty slot (optional; empty: the condition in words)', `${p}.hint`, 'Be there on day 4 of spring.')}
+        ${t ? `<span class="mu-cw-sub">Plaques by ending (optional; empty: the ending's first sentence)</span>${(t.endings ?? []).map(e => optTxt(`${esc(e.id)}${e.good ? ' (good)' : ''}`, `${p}.plaques.${e.id}`, (e.text ?? '').slice(0, 80), '{{user}} is the player\'s name on the plaque.')).join('')}` : ''}
+        <span class="mu-cw-sub">Only for these starts (none: every start)</span>${pairChips((w.starts ?? []).map(x => [x.id, x.name]), `${p}.starts`, true)}
+        <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
+        ${flag('Only with adult content on', `${p}.adult`, '', true)}
+        ${s.pic ? `<p class="mu-muted">Picture: <code data-notr>${esc(s.pic)}</code> (set by the pictures' wiring)</p>` : ''}
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// (the collection) What the forms can leave empty: optional texts, chips, plaques; a block with no hall left goes.
+function tidyCollection(w) {
+    const c = w.collection;
+    if (!c)
+        return;
+    for (const h of c.halls ?? []) {
+        for (const k of ['icon', 'desc', 'open'])
+            if (typeof h[k] === 'string' && !h[k].trim())
+                delete h[k];
+        if (Array.isArray(h.needs) && !h.needs.length)
+            delete h.needs;
+        for (const g of h.groups ?? [])
+            if (typeof g.icon === 'string' && !g.icon.trim())
+                delete g.icon;
+    }
+    for (const s of c.slots ?? []) {
+        for (const k of ['icon', 'hint', 'who', 'when'])
+            if (typeof s[k] === 'string' && !s[k].trim())
+                delete s[k];
+        for (const k of ['needs', 'starts'])
+            if (Array.isArray(s[k]) && !s[k].length)
+                delete s[k];
+        if (s.plaques) {
+            for (const [k, v] of Object.entries(s.plaques))
+                if (typeof v !== 'string' || !v.trim())
+                    delete s.plaques[k];
+            if (!Object.keys(s.plaques).length)
+                delete s.plaques;
+        }
+    }
+    if (!c.halls?.length)
+        delete w.collection;
+}
 // Places that may sell things: not a pin to another map, a home or a venture's own unit (world-check's rule).
 const sellingPlaces = (w) => w.places.filter(p => !p.link && !p.home && !String(p.id).startsWith('home:') && !p.venture);
 // Places as chips under their maps; one picked that can't sell (a home, a unit, a place gone) stays shown, to take off.
@@ -1804,6 +1909,7 @@ export function forSaving(w) {
     tidyThreads(out);
     tidyShop(out);
     tidyFixtures(out);
+    tidyCollection(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length)
@@ -2752,7 +2858,7 @@ export function creatorHtml() {
     if (!w)
         return '';
     const body = CW.tab === 'general' ? tabGeneral(w) : CW.tab === 'features' ? tabFeatures(w) : CW.tab === 'needs' ? tabNeeds(w) : CW.tab === 'maps' ? (isScenario(w) ? houseMapsHtml(w) : mapEditorHtml(w))
-        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'business' ? tabBusiness(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
+        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'business' ? tabBusiness(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'collection' ? tabCollection(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
             : CW.tab === 'people' ? tabPeople(w) : CW.tab === 'books' ? tabBooks(w) : tabLore(w);
     const head = CW.view ? (isScenario(w) ? 'The Home' : 'The world') : isScenario(w) ? 'Home creator' : 'World creator';
     return `<div class="mu-settings mu-creator-ed ${CW.view ? 'is-view' : ''}">
@@ -2882,6 +2988,9 @@ const NEW = {
     pet: () => ['pets', { id: newId('pet'), name: 'New animal', icon: '🐾', price: 50, mood: 3 }],
     rfoe: () => ['rpg.bestiary', { id: newId('foe'), name: 'New foe', level: 1, hp: 10, ac: 12, atk: 3, dice: 1, sides: 6, bonus: 1, row: 'front', tags: ['road'], desc: '' }],
     item: () => ['catalogs.shop', { id: newId('item'), name: 'New item', desc: '', icon: '🎁', price: 100 }],
+    chall: () => ['collection.halls', { id: newId('hall'), name: 'New hall', groups: [{ id: newId('group'), name: 'New group' }] }],
+    // (a slot of the hall the list shows, else the first; its id starts as Tokyo's do for that hall: mem_ for the record)
+    cslot: () => { const w = W(), hs = w.collection?.halls ?? [], h = hs.find(x => x.id === CW.sel.cslotHall) ?? hs[0]; return ['collection.slots', { id: newId(h?.record ? 'mem' : (h?.id ?? 'slot')), hall: h?.id ?? '', group: h?.groups[0]?.id ?? '', name: 'New slot', ...(h?.record ? { when: '' } : {}) }]; },
     fixture: () => ['homes.fixtures', { id: newId('fx'), name: 'New fixture', desc: '', icon: '🛋️', price: 1000 }],
     breakable: () => ['homes.breakables', { id: newId('thing'), name: 'the new thing', blocks: [] }],
     course: () => ['catalogs.courses', { id: newId('course'), name: 'New course', area: 'General', days: 3, cost: 100, grants: [], icon: '📚', desc: '' }],
@@ -2905,7 +3014,7 @@ const NEW = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },
@@ -2998,6 +3107,21 @@ Object.assign(ACT, {
     'cw-pick': (el) => { if (el.dataset.k === 'venture')
         OPEN.clear(); CW.sel[el.dataset.k] = Number(el.dataset.i); notify(); },
     'cw-routine': (el) => { CW.sel.routine = el.dataset.id; notify(); },
+    // (the collection) the record's missing slots from the world's own data, and its halls if it has none; nothing changed
+    'cw-coll-quick': () => {
+        const w = W();
+        if (CW.view)
+            return;
+        const m = missingFromRecord(w);
+        const c = (w.collection ??= { halls: [], slots: [] });
+        c.halls.push(...m.halls);
+        c.slots.push(...m.slots);
+        if (!m.halls.length && !m.slots.length)
+            return;
+        CW.dirty = true;
+        toast(`Added ${m.slots.length} slots${m.halls.length ? ` and ${m.halls.length} halls` : ''} to the record.`, 'success');
+        notify();
+    },
     'cw-add': (el) => {
         const what = el.dataset.what;
         const w = W();
@@ -3303,6 +3427,12 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        if (what === 'cgroup') {
+            getPath(el.dataset.path).push({ id: newId('group'), name: 'New group' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
         if (what === 'thelp') {
             setPath(el.dataset.path, { when: '', label: 'Help' });
             notify();
@@ -3590,6 +3720,8 @@ Object.assign(INPUT, {
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
     // the shop's list by category ('' : every one)
     'cw-shopcat': (el) => { CW.sel.shopCat = el.value; notify(); },
+    // the collection's slots by hall ('' : every one)
+    'cw-cslothall': (el) => { CW.sel.cslotHall = el.value; notify(); },
     // how a shop item is bought again: kept for good (no `repeat`), a service's days or stock's uses (one kept as it was)
     'cw-repeat': (el) => {
         const p = el.dataset.path;

@@ -3,6 +3,7 @@ import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
+import { upgradeCollection } from './collection.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -536,6 +537,14 @@ export function upgradeWorld(w) {
     // ventures (business): made safe to play; a world without them gets no key
     if (w.ventures || w.staffPool)
         upgradeVentures(w);
+    // the collection's halls and slots: made safe, and no key for a world without any
+    if ('collection' in w) {
+        const c = upgradeCollection(w.collection);
+        if (c)
+            w.collection = c;
+        else
+            delete w.collection;
+    }
     // storylines: their new fields made safe (no key is added where a world has none)
     for (const ex of w.cast?.examples ?? [])
         for (const t of ex.threads ?? [])

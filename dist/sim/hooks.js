@@ -24,6 +24,11 @@ export const afterFight = [];
 export const onGoalStep = [];
 // What the rewards shop asks of life goals; sim/goals.ts fills these in (until then: no goal, nothing to skip).
 export const goalLink = { active: () => null, canSkip: () => false, skip: () => [] };
+// A keepsake gained (actions, stories, goal steps, the shop, a gift bought): the collection remembers it was held.
+export const onKeepsake = [];
+// What the condition grammar asks of the collection (sim/collection.ts fills these in; until then nothing holds):
+// `seen: all in <map>` (a district's street stories, less those that can't happen any more) and `goal: all`.
+export const collectionLink = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '' };
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll = [];
 // Adult content's private moments (Tokyo's adult progression) meet here, so the sessions that fill them never wait on
