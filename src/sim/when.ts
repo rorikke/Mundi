@@ -49,7 +49,7 @@ export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays'
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier'] as const;
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -153,6 +153,8 @@ function badValue(key: WhenKey, v: string): string {
         case 'piece': return PIECE.test(v) ? '' : `"${v}" should be a piece id, a number of pieces, or a number (or all) in a hall, like 10 in art`;
         case 'museum': return MUSEUM.test(v) ? '' : `"${v}" should be open, show, renown and a level, shows and a number, a percentage (50%), or an upgrade id`;
         case 'tier': return TIER.test(v) ? '' : `"${v}" should be a name and a tier, like Tamaki 2`;
+        case 'sales': return SALES.test(v) ? '' : `"${v}" should be won, lots or resold and a number, like won 3`;
+        case 'dealer': return DEALER.test(v) ? '' : `"${v}" should be spent and an amount, or bought, asked or visits and a number, like spent 2000000`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
@@ -367,6 +369,7 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'piece': return collectionLink.piece(g, w, v);
         case 'museum': return collectionLink.museum(g, w, v);
         case 'tier': return tierHolds(g, v);
+        case 'sales': case 'dealer': return collectionLink.market(g, w, key, v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': { const r = regionNow(g, w, x); return !!r && r.tension > Number(v); }
@@ -517,6 +520,9 @@ function helpedThreads(g: Save, w: WorldDef): string[] {
 const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)$/i;
 // (museum) `piece: art_great_wave` · `piece: 30` · `piece: 10 in art` · `piece: all in crafts`; `museum: open` · `show` ·
 // `renown 3` · `shows 2` · `50%` · an upgrade id; `tier: Tamaki 2` (people who unlock: that person's tier reached).
+// (museum, the market) `sales: won 3` (lots won against the other collector) · `lots 5` (every lot bought) · `resold 1`
+// (lots she sold you back); `dealer: spent 2000000` (yen) · `bought 4` · `asked 1` · `visits 3` (visits you bought from).
+const SALES = /^(?:won|lots|resold)\s+\d+$/i, DEALER = /^(?:spent|bought|asked|visits)\s+\d+$/i;
 const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
 /** (people who unlock) Has this person reached that tier? Read from the save without writing (sim/tiers.ts keeps it). */
 function tierHolds(g: Save, v: string): boolean {
@@ -715,6 +721,7 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         // (museum) a piece or pieces, the museum's state; a person's tier
         else if (c.key === 'piece' && !c.not) out.push(c.values.map(v => collectionLink.pieceWords(g, w, v)).join(' or '));
         else if (c.key === 'museum' && !c.not) out.push(c.values.map(v => collectionLink.museumWords(g, w, v)).join(' or '));
+        else if ((c.key === 'sales' || c.key === 'dealer') && !c.not) out.push(c.values.map(v => collectionLink.marketWords(g, w, c.key as 'sales' | 'dealer', v)).join(' or '));
         else if (c.key === 'tier' && !c.not) out.push(c.values.map(v => { const m = v.match(TIER); return m ? `${m[1]} closer (tier ${m[2]})` : v; }).join(' or '));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
