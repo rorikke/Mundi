@@ -757,7 +757,7 @@ export function missingWords(g, w, when, place, opts = {}) {
     let other = false;
     const more = !!opts.more;
     for (const c of parseWhen(when).conds) {
-        const text = `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
+        const text = `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`;
         if (whenHolds(g, w, text, { place }))
             continue;
         if (c.key === 'skill' && !c.not)
