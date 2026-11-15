@@ -64444,7 +64444,8 @@
       "price": 1500000
      }
     ],
-    "price": 1500000
+    "price": 1500000,
+    "pic": "collection/art/art_great_wave.avif"
    },
    {
     "id": "art_red_fuji",
@@ -64459,7 +64460,8 @@
       "price": 750000
      }
     ],
-    "price": 750000
+    "price": 750000,
+    "pic": "collection/art/art_red_fuji.avif"
    },
    {
     "id": "art_black_fuji",
@@ -64474,7 +64476,8 @@
       "price": 300000
      }
     ],
-    "price": 300000
+    "price": 300000,
+    "pic": "collection/art/art_black_fuji.avif"
    },
    {
     "id": "art_ohashi_shower",
@@ -64489,7 +64492,8 @@
       "price": 260000
      }
     ],
-    "price": 260000
+    "price": 260000,
+    "pic": "collection/art/art_ohashi_shower.avif"
    },
    {
     "id": "art_kameido_plum",
@@ -64504,7 +64508,8 @@
       "price": 220000
      }
     ],
-    "price": 220000
+    "price": 220000,
+    "pic": "collection/art/art_kameido_plum.avif"
    },
    {
     "id": "art_kambara_snow",
@@ -64519,7 +64524,8 @@
       "price": 180000
      }
     ],
-    "price": 180000
+    "price": 180000,
+    "pic": "collection/art/art_kambara_snow.avif"
    },
    {
     "id": "art_ryogoku_fireworks",
@@ -64535,7 +64541,8 @@
       "price": 90000
      }
     ],
-    "price": 90000
+    "price": 90000,
+    "pic": "collection/art/art_ryogoku_fireworks.avif"
    },
    {
     "id": "art_sharaku_actor",
@@ -64550,7 +64557,8 @@
       "price": 500000
      }
     ],
-    "price": 500000
+    "price": 500000,
+    "pic": "collection/art/art_sharaku_actor.avif"
    },
    {
     "id": "art_utamaro_beauty",
@@ -64565,7 +64573,8 @@
       "price": 400000
      }
     ],
-    "price": 400000
+    "price": 400000,
+    "pic": "collection/art/art_utamaro_beauty.avif"
    },
    {
     "id": "art_kuniyoshi_horyukaku",
@@ -64583,7 +64592,8 @@
       "price": 120000
      }
     ],
-    "price": 120000
+    "price": 120000,
+    "pic": "collection/art/art_kuniyoshi_horyukaku.avif"
    },
    {
     "id": "art_yoshitoshi_moon",
@@ -64601,7 +64611,8 @@
       "price": 80000
      }
     ],
-    "price": 80000
+    "price": 80000,
+    "pic": "collection/art/art_yoshitoshi_moon.avif"
    },
    {
     "id": "art_kiyonaga_beauties",
@@ -64621,7 +64632,8 @@
       "price": 100000
      }
     ],
-    "price": 100000
+    "price": 100000,
+    "pic": "collection/art/art_kiyonaga_beauties.avif"
    },
    {
     "id": "art_korin_irises",
@@ -64637,7 +64649,8 @@
      }
     ],
     "price": 5000000,
-    "needsUpgrade": "guard"
+    "needsUpgrade": "guard",
+    "pic": "collection/art/art_korin_irises.avif"
    },
    {
     "id": "art_sotatsu_gods",
@@ -64653,7 +64666,8 @@
      }
     ],
     "price": 1000000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_sotatsu_gods.avif"
    },
    {
     "id": "art_jakuchu_rooster",
@@ -64669,7 +64683,8 @@
      }
     ],
     "price": 750000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_jakuchu_rooster.avif"
    },
    {
     "id": "art_okyo_puppies",
@@ -64691,7 +64706,8 @@
      }
     ],
     "price": 500000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_okyo_puppies.avif"
    },
    {
     "id": "art_kano_pines",
@@ -64707,7 +64723,8 @@
      }
     ],
     "price": 500000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_kano_pines.avif"
    },
    {
     "id": "art_sesshu_landscape",
@@ -64723,7 +64740,8 @@
      }
     ],
     "price": 400000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_sesshu_landscape.avif"
    },
    {
     "id": "art_tohaku_pines",
@@ -64739,7 +64757,8 @@
      }
     ],
     "price": 260000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_tohaku_pines.avif"
    },
    {
     "id": "art_nihonga_cat",
@@ -64755,7 +64774,8 @@
      }
     ],
     "price": 160000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_nihonga_cat.avif"
    },
    {
     "id": "art_enso",
@@ -64775,7 +64795,8 @@
       "when": "seen: ot_yanaka_st_enso",
       "price": 40000
      }
-    ]
+    ],
+    "pic": "collection/art/art_enso.avif"
    },
    {
     "id": "art_temple_plaque",
@@ -64794,7 +64815,8 @@
       "price": 300000
      }
     ],
-    "price": 300000
+    "price": 300000,
+    "pic": "collection/art/art_temple_plaque.avif"
    },
    {
     "id": "art_poem_slip",
@@ -64810,7 +64832,8 @@
       "price": 40000
      }
     ],
-    "price": 40000
+    "price": 40000,
+    "pic": "collection/art/art_poem_slip.avif"
    },
    {
     "id": "art_amida",
@@ -64826,7 +64849,8 @@
      }
     ],
     "price": 1400000,
-    "needsUpgrade": "guard"
+    "needsUpgrade": "guard",
+    "pic": "collection/art/art_amida.avif"
    },
    {
     "id": "art_nio",
@@ -64842,7 +64866,8 @@
      }
     ],
     "price": 900000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_nio.avif"
    },
    {
     "id": "art_kannon",
@@ -64858,7 +64883,8 @@
      }
     ],
     "price": 600000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_kannon.avif"
    },
    {
     "id": "art_meiji_eagle",
@@ -64874,7 +64900,8 @@
      }
     ],
     "price": 380000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_meiji_eagle.avif"
    },
    {
     "id": "art_stone_fox",
@@ -64895,7 +64922,8 @@
       "price": 90000
      }
     ],
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_stone_fox.avif"
    },
    {
     "id": "cr_raku_bowl",
@@ -64910,7 +64938,8 @@
       "price": 800000
      }
     ],
-    "price": 800000
+    "price": 800000,
+    "pic": "collection/crafts/cr_raku_bowl.avif"
    },
    {
     "id": "cr_imari_plate",
@@ -64929,7 +64958,8 @@
       "when": "event: antique"
      }
     ],
-    "price": 120000
+    "price": 120000,
+    "pic": "collection/crafts/cr_imari_plate.avif"
    },
    {
     "id": "cr_kutani_dish",
@@ -64944,7 +64974,8 @@
       "price": 160000
      }
     ],
-    "price": 160000
+    "price": 160000,
+    "pic": "collection/crafts/cr_kutani_dish.avif"
    },
    {
     "id": "cr_oribe_dish",
@@ -64965,7 +64996,8 @@
       "price": 140000
      }
     ],
-    "price": 140000
+    "price": 140000,
+    "pic": "collection/crafts/cr_oribe_dish.avif"
    },
    {
     "id": "cr_bizen_jar",
@@ -64980,7 +65012,8 @@
       "price": 380000
      }
     ],
-    "price": 380000
+    "price": 380000,
+    "pic": "collection/crafts/cr_bizen_jar.avif"
    },
    {
     "id": "cr_celadon_vase",
@@ -64995,7 +65028,8 @@
       "price": 500000
      }
     ],
-    "price": 500000
+    "price": 500000,
+    "pic": "collection/crafts/cr_celadon_vase.avif"
    },
    {
     "id": "cr_shino_bowl",
@@ -65010,7 +65044,8 @@
       "price": 600000
      }
     ],
-    "price": 600000
+    "price": 600000,
+    "pic": "collection/crafts/cr_shino_bowl.avif"
    },
    {
     "id": "cr_seto_caddy",
@@ -65031,7 +65066,8 @@
       "price": 100000
      }
     ],
-    "price": 100000
+    "price": 100000,
+    "pic": "collection/crafts/cr_seto_caddy.avif"
    },
    {
     "id": "cr_katana",
@@ -65047,7 +65083,8 @@
      }
     ],
     "price": 1200000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_katana.avif"
    },
    {
     "id": "cr_tanto",
@@ -65063,7 +65100,8 @@
      }
     ],
     "price": 400000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_tanto.avif"
    },
    {
     "id": "cr_tsuba",
@@ -65083,7 +65121,8 @@
      }
     ],
     "price": 90000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_tsuba.avif"
    },
    {
     "id": "cr_kabuto",
@@ -65099,7 +65138,8 @@
      }
     ],
     "price": 800000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_kabuto.avif"
    },
    {
     "id": "cr_menpo",
@@ -65115,7 +65155,8 @@
      }
     ],
     "price": 320000,
-    "needsUpgrade": "security"
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_menpo.avif"
    },
    {
     "id": "cr_armour",
@@ -65131,7 +65172,8 @@
      }
     ],
     "price": 2600000,
-    "needsUpgrade": "guard"
+    "needsUpgrade": "guard",
+    "pic": "collection/crafts/cr_armour.avif"
    },
    {
     "id": "cr_makie_box",
@@ -65150,7 +65192,8 @@
       "price": 600000
      }
     ],
-    "price": 600000
+    "price": 600000,
+    "pic": "collection/crafts/cr_makie_box.avif"
    },
    {
     "id": "cr_inro",
@@ -65165,7 +65208,8 @@
       "price": 280000
      }
     ],
-    "price": 280000
+    "price": 280000,
+    "pic": "collection/crafts/cr_inro.avif"
    },
    {
     "id": "cr_bronze_mirror",
@@ -65180,7 +65224,8 @@
       "price": 300000
      }
     ],
-    "price": 300000
+    "price": 300000,
+    "pic": "collection/crafts/cr_bronze_mirror.avif"
    },
    {
     "id": "cr_tetsubin",
@@ -65199,7 +65244,8 @@
       "price": 220000
      }
     ],
-    "price": 220000
+    "price": 220000,
+    "pic": "collection/crafts/cr_tetsubin.avif"
    },
    {
     "id": "cr_kanzashi",
@@ -65217,7 +65263,8 @@
       "price": 80000
      }
     ],
-    "price": 80000
+    "price": 80000,
+    "pic": "collection/crafts/cr_kanzashi.avif"
    },
    {
     "id": "cr_kura_box",
@@ -65254,7 +65301,8 @@
       "price": 60000
      }
     ],
-    "price": 60000
+    "price": 60000,
+    "pic": "collection/crafts/cr_nk_rat.avif"
    },
    {
     "id": "cr_nk_ox",
@@ -65275,7 +65323,8 @@
       "price": 80000
      }
     ],
-    "price": 80000
+    "price": 80000,
+    "pic": "collection/crafts/cr_nk_ox.avif"
    },
    {
     "id": "cr_nk_tiger",
@@ -65296,7 +65345,8 @@
       "price": 100000
      }
     ],
-    "price": 100000
+    "price": 100000,
+    "pic": "collection/crafts/cr_nk_tiger.avif"
    },
    {
     "id": "cr_nk_hare",
@@ -65317,7 +65367,8 @@
       "price": 60000
      }
     ],
-    "price": 60000
+    "price": 60000,
+    "pic": "collection/crafts/cr_nk_hare.avif"
    },
    {
     "id": "cr_nk_dog",
@@ -65338,7 +65389,8 @@
       "price": 80000
      }
     ],
-    "price": 80000
+    "price": 80000,
+    "pic": "collection/crafts/cr_nk_dog.avif"
    },
    {
     "id": "cr_nk_monkey",
@@ -65359,7 +65411,8 @@
       "price": 90000
      }
     ],
-    "price": 90000
+    "price": 90000,
+    "pic": "collection/crafts/cr_nk_monkey.avif"
    },
    {
     "id": "cr_nk_cat",
@@ -65380,7 +65433,8 @@
       "price": 110000
      }
     ],
-    "price": 110000
+    "price": 110000,
+    "pic": "collection/crafts/cr_nk_cat.avif"
    },
    {
     "id": "cr_nk_mask",
@@ -65401,7 +65455,8 @@
       "price": 90000
      }
     ],
-    "price": 90000
+    "price": 90000,
+    "pic": "collection/crafts/cr_nk_mask.avif"
    },
    {
     "id": "cr_meiji_kimono",
@@ -65417,7 +65472,8 @@
      }
     ],
     "price": 400000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_meiji_kimono.avif"
    },
    {
     "id": "cr_noh_robe",
@@ -65433,7 +65489,8 @@
      }
     ],
     "price": 900000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_noh_robe.avif"
    },
    {
     "id": "cr_obi",
@@ -65452,7 +65509,8 @@
      }
     ],
     "price": 160000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_obi.avif"
    },
    {
     "id": "cr_happi",
@@ -65469,7 +65527,8 @@
      }
     ],
     "price": 50000,
-    "needsUpgrade": "climate"
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_happi.avif"
    },
    {
     "id": "cr_edo_map",
@@ -65487,7 +65546,8 @@
       "price": 240000
      }
     ],
-    "price": 240000
+    "price": 240000,
+    "pic": "collection/crafts/cr_edo_map.avif"
    },
    {
     "id": "cr_matoi",
@@ -65502,7 +65562,8 @@
       "price": 260000
      }
     ],
-    "price": 260000
+    "price": 260000,
+    "pic": "collection/crafts/cr_matoi.avif"
    },
    {
     "id": "cr_kanban",
@@ -65521,7 +65582,8 @@
       "when": "event: antique"
      }
     ],
-    "price": 100000
+    "price": 100000,
+    "pic": "collection/crafts/cr_kanban.avif"
    },
    {
     "id": "cr_kawaraban",
@@ -65545,7 +65607,8 @@
       "when": "festival: bookfair"
      }
     ],
-    "price": 40000
+    "price": 40000,
+    "pic": "collection/crafts/cr_kawaraban.avif"
    },
    {
     "id": "cr_tram_ticket",
@@ -65565,7 +65628,8 @@
       "price": 20000
      }
     ],
-    "price": 20000
+    "price": 20000,
+    "pic": "collection/crafts/cr_tram_ticket.avif"
    },
    {
     "id": "cr_prewar_poster",
@@ -65583,7 +65647,8 @@
       "price": 80000
      }
     ],
-    "price": 80000
+    "price": 80000,
+    "pic": "collection/crafts/cr_prewar_poster.avif"
    },
    {
     "id": "mo_tin_robot",
