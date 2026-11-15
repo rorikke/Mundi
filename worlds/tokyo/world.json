@@ -2726,10 +2726,11 @@
     },
     {
      "weight": 20,
-     "text": "A karaoke set in the room, which you ignore for the bath.",
+     "text": "A karaoke set in the room, which you ignore for the bath; the hotel's little bath set goes home in your bag.",
      "effects": {
       "mood": 2
-     }
+     },
+     "keepsake": "gk_hotel_bath_set"
     }
    ],
    "fact": "{u} took a room for a rest at {0}",
@@ -6439,7 +6440,8 @@
      "text": "A signed copy under a pile of reprints.",
      "effects": {
       "mood": 8
-     }
+     },
+     "keepsake": "gk_signed_copy"
     }
    ],
    "fact": "{u} dug through the book festival carts in {0}",
@@ -6834,10 +6836,11 @@
     },
     {
      "weight": 20,
-     "text": "A bearer waves you to the front of the crowd to see the gold phoenix on the roof.",
+     "text": "A bearer waves you to the front of the crowd to see the gold phoenix on the roof; afterward the neighborhood association hands you a spare happi coat to keep.",
      "effects": {
       "mood": 4
-     }
+     },
+     "keepsake": "gk_happi"
     },
     {
      "weight": 10,
@@ -7179,10 +7182,11 @@
     },
     {
      "weight": 20,
-     "text": "The next tarp invites you to toast with them.",
+     "text": "The next tarp invites you to toast with them, and a grandmother there presses a blossom into a little card for you.",
      "effects": {
       "mood": 6
-     }
+     },
+     "keepsake": "gk_pressed_sakura"
     }
    ],
    "fact": "{u} had a hanami picnic in Ueno Park",
@@ -9308,10 +9312,11 @@
     "skill": "fashion",
     "traits": [],
     "success": {
-     "text": "A ring of photographers forms; you strike the pose of an invented hero and are asked for another.",
+     "text": "A ring of photographers forms; you strike the pose of an invented hero and are asked for another, and a costume maker trades you her spare cape for a photo together.",
      "effects": {
       "mood": 10
-     }
+     },
+     "keepsake": "gk_cosplay_cape"
     },
     "fail": {
      "text": "The wig slides sideways; everyone applauds anyway.",
@@ -12692,7 +12697,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -13421,6 +13426,1718 @@
    "tags": [
     "lovehotel"
    ]
+  },
+  {
+   "id": "priv_use_lingerie",
+   "name": "Lingerie",
+   "label": "Ask them to wear your gift",
+   "icon": "🖤",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "mood": 12,
+    "energy": -10,
+    "desire": 50
+   },
+   "home": true,
+   "places": [
+    "sb_lovehotel"
+   ],
+   "private": true,
+   "when": "gave: g_lace_set or g_babydoll or g_silk_boxers",
+   "together": {
+    "needed": true,
+    "text": "they put on the lingerie {{user}} gave them and let {{user}} take a long look, and the evening goes on behind a closed door"
+   },
+   "outcomes": [
+    {
+     "id": "look",
+     "weight": 50,
+     "text": "They come out of the bathroom wearing it and stand there a while, letting you look."
+    },
+    {
+     "id": "kept",
+     "weight": 30,
+     "text": "It stays on much longer than either of you planned.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "id": "show",
+     "weight": 20,
+     "text": "They make you wait on the bed and turn it into a little show first.",
+     "effects": {
+      "mood": 6
+     }
+    }
+   ],
+   "fact": "{u} had a lingerie night with a lover at {0}",
+   "tags": [
+    "private"
+   ],
+   "dc": 12,
+   "matches": [
+    "lingerie",
+    "undressed",
+    "being undressed slowly"
+   ],
+   "trains": "sensuality",
+   "adult": true
+  },
+  {
+   "id": "priv_use_blindfold",
+   "name": "Blindfolded",
+   "label": "Use the blindfold",
+   "icon": "🎀",
+   "cost": 0,
+   "minutes": 75,
+   "effects": {
+    "mood": 12,
+    "energy": -10,
+    "desire": 50
+   },
+   "home": true,
+   "places": [
+    "sb_lovehotel"
+   ],
+   "private": true,
+   "when": "gave: g_blindfold",
+   "together": {
+    "needed": true,
+    "text": "one of them wears the blindfold and the other takes their time, every touch a surprise; they agree on a word to stop first"
+   },
+   "outcomes": [
+    {
+     "id": "surprise",
+     "weight": 60,
+     "text": "Every touch lands like a surprise; it takes a long time and nobody minds."
+    },
+    {
+     "id": "ice",
+     "weight": 25,
+     "text": "Ice from the minibar turns out to be a very good idea.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "id": "trade",
+     "weight": 15,
+     "text": "You trade the blindfold halfway through and start again.",
+     "effects": {
+      "mood": 6,
+      "energy": -6
+     }
+    }
+   ],
+   "fact": "{u} spent a blindfolded evening with a lover at {0}",
+   "tags": [
+    "private",
+    "kink"
+   ],
+   "dc": 12,
+   "matches": [
+    "blindfold",
+    "blindfolds",
+    "blindfolded",
+    "teasing",
+    "being teased"
+   ],
+   "trains": "sensuality",
+   "adult": true
+  },
+  {
+   "id": "priv_use_oil",
+   "name": "Massage",
+   "label": "Give a slow oil massage",
+   "icon": "🫙",
+   "cost": 0,
+   "minutes": 75,
+   "effects": {
+    "mood": 14,
+    "energy": 6,
+    "desire": 50
+   },
+   "home": true,
+   "places": [
+    "sb_lovehotel",
+    "hk_ryokan"
+   ],
+   "private": true,
+   "when": "gave: g_massage_oil",
+   "together": {
+    "needed": true,
+    "text": "a long, slow massage with the warming oil {{user}} gave them, from the shoulders down, unhurried, behind a closed door"
+   },
+   "outcomes": [
+    {
+     "id": "long",
+     "weight": 60,
+     "text": "The massage lasts twenty minutes, which is longer than either of you expected."
+    },
+    {
+     "id": "asleep",
+     "weight": 25,
+     "text": "They fall asleep under your hands, and wake up wanting more.",
+     "effects": {
+      "energy": 8
+     }
+    },
+    {
+     "id": "mess",
+     "weight": 15,
+     "text": "Oil everywhere, the sheets ruined, nobody sorry.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} gave a lover a long oil massage at {0}",
+   "tags": [
+    "private"
+   ],
+   "dc": 10,
+   "matches": [
+    "massage",
+    "oil",
+    "a massage first",
+    "being pampered"
+   ],
+   "trains": "sensuality",
+   "adult": true
+  },
+  {
+   "id": "priv_use_costume",
+   "name": "Costume",
+   "label": "Ask them to dress up",
+   "icon": "🎭",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "mood": 12,
+    "energy": -10,
+    "desire": 50
+   },
+   "home": true,
+   "places": [
+    "sb_lovehotel"
+   ],
+   "private": true,
+   "when": "gave: g_maid_costume or g_nurse_costume or g_bunny_costume",
+   "together": {
+    "needed": true,
+    "text": "they wear the costume {{user}} gave them and play the part in a little scene they make up together, staying in character as long as they can"
+   },
+   "outcomes": [
+    {
+     "id": "character",
+     "weight": 50,
+     "text": "They stay in character a lot longer than you manage to."
+    },
+    {
+     "id": "silly",
+     "weight": 30,
+     "text": "The scenario is ridiculous; neither of you minds.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "id": "photo",
+     "weight": 20,
+     "text": "They pose for a photo, just for you, before the costume comes off.",
+     "effects": {
+      "mood": 6
+     }
+    }
+   ],
+   "fact": "{u} played dress-up with a lover at {0}",
+   "tags": [
+    "private"
+   ],
+   "dc": 12,
+   "matches": [
+    "costume",
+    "costumes",
+    "cosplay",
+    "roleplay",
+    "costumes for fun"
+   ],
+   "trains": "sensuality",
+   "adult": true
+  },
+  {
+   "id": "sh_photo_crossing",
+   "name": "Photos",
+   "label": "Photograph the scramble",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "sb_crossing",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 11,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "You wait on the station walkway for the lights to change and shoot the crowd pouring across."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "Going through them later, one stands out: the second the lights changed, every walker mid-stride. You have it printed.",
+     "keepsake": "gk_photo_crossing"
+    }
+   ],
+   "fact": "{u} photographed the crossing at {0}"
+  },
+  {
+   "id": "sh_photo_takeshita",
+   "name": "Photos",
+   "label": "Shoot the street fashion",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "sb_takeshita",
+   "when": "period: midmorning or afternoon or evening",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 12,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "You ask a few people in wild outfits for a photo; most say yes and strike a pose."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "One portrait is perfect: the outfit, the face, the street behind. You have it printed.",
+     "keepsake": "gk_photo_takeshita"
+    }
+   ],
+   "fact": "{u} photographed street fashion on {0}"
+  },
+  {
+   "id": "sh_photo_tocho",
+   "name": "Photos",
+   "label": "Photograph the city from above",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "sj_tocho",
+   "when": "period: afternoon or evening",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 11,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "From 202 meters the city runs to the mountains; you shoot it through the glass with your sleeve against the reflections."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "One frame has Fuji on its edge, small and clear. You have it printed.",
+     "keepsake": "gk_photo_tocho"
+    }
+   ],
+   "fact": "{u} photographed the city from {0}"
+  },
+  {
+   "id": "sh_photo_yanaka",
+   "name": "Photos",
+   "label": "Photograph the cats and lanes",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "ot_yanaka",
+   "when": "period: midmorning or afternoon",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 10,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "Wooden houses, potted plants, a temple wall, and the cats who own all of it."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "A cat asleep on a temple wall in the late sun, not caring at all. You have it printed.",
+     "keepsake": "gk_photo_yanaka"
+    }
+   ],
+   "fact": "{u} photographed the cats and lanes of {0}"
+  },
+  {
+   "id": "sh_photo_bridge",
+   "name": "Photos",
+   "label": "Photograph the bay",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "bay_bridge",
+   "when": "period: afternoon or evening",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 12,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "The walkway shakes a little with the trucks; you brace against the rail and shoot the bay."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "One frame has the whole city in the water below. You have it printed.",
+     "keepsake": "gk_photo_bridge"
+    }
+   ],
+   "fact": "{u} photographed the bay from {0}"
+  },
+  {
+   "id": "sh_photo_lights",
+   "name": "Photos",
+   "label": "Photograph the light tunnel",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "rp_crossing",
+   "when": "festival: illumination; period: evening or night",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 13,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "Blue-white lights arch over the avenue; you shoot from low down while couples drift through the frame."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "One frame catches a couple under the lights, sharp, everyone else a blur. You have it printed.",
+     "keepsake": "light_tunnel_photo"
+    }
+   ],
+   "fact": "{u} photographed the winter illuminations near {0}"
+  },
+  {
+   "id": "sh_photo_tower",
+   "name": "Photos",
+   "label": "Photograph the tower lit up",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "rp_tower",
+   "when": "period: evening or night",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 12,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "You find an angle from the street below where the tower fills the frame, orange against the blue."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "The last light in the sky behind the tower, just right. You have it printed.",
+     "keepsake": "gk_photo_tower"
+    }
+   ],
+   "fact": "{u} photographed {0} lit up"
+  },
+  {
+   "id": "sh_photo_minato",
+   "name": "Photos",
+   "label": "Photograph the waterfront at night",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "yk_bay",
+   "when": "period: evening or night",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 12,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "The Ferris wheel changes color every few minutes; you shoot it from the promenade, waiting for the water to settle."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "The wheel and the towers doubled in still black water. You have it printed.",
+     "keepsake": "gk_photo_minato"
+    }
+   ],
+   "fact": "{u} photographed the waterfront at {0}"
+  },
+  {
+   "id": "sh_photo_ashi",
+   "name": "Photos",
+   "label": "Photograph the water gate",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "hk_ashi",
+   "when": "period: firsttrain or rush or midmorning or afternoon",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 12,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "You wait for a gap in the photo line and shoot the red gate standing in the lake."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "Mist on the water, the gate alone in it. You have it printed.",
+     "keepsake": "photo_at_the_water_gate"
+    }
+   ],
+   "fact": "{u} photographed the water gate at {0}"
+  },
+  {
+   "id": "sh_photo_skyline",
+   "name": "Photos",
+   "label": "Photograph the night view",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 45,
+   "place": "rp_sky",
+   "when": "period: evening or night",
+   "effects": {
+    "energy": -5,
+    "mood": 3
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 13,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "The light behaves and so do you: a handful of frames you're proud of.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Most of them come out flat or crooked; you learn what not to do.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "together": {
+    "needed": false,
+    "text": "taking photos side by side, and of each other"
+   },
+   "outcomes": [
+    {
+     "id": "frames",
+     "weight": 75,
+     "text": "Lights to every horizon; you press the lens to the glass and shoot the city coming on."
+    },
+    {
+     "id": "keeper",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "The tower an orange pin in a sea of lights, not a reflection in sight. You have it printed.",
+     "keepsake": "gk_photo_skyline"
+    }
+   ],
+   "fact": "{u} photographed the night view from {0}"
+  },
+  {
+   "id": "sh_photo_walk",
+   "name": "Photo walk",
+   "label": "Go on a photo walk",
+   "icon": "📷",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "energy": -10,
+    "mood": 5
+   },
+   "when": "owns: te_compact_cam or te_mirrorless or te_film_cam or te_fullframe or te_phone",
+   "roll": {
+    "dc": 11,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "You come home with a card full of frames worth keeping.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Nothing in the neighborhood wants to be photographed today.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "photography",
+   "outcomes": [
+    {
+     "id": "streets",
+     "weight": 70,
+     "text": "Back streets, laundry on balconies, a vending machine glowing in an alley."
+    },
+    {
+     "id": "stranger",
+     "weight": 30,
+     "text": "An old man at a tobacco stand asks you to take his portrait, and gives you his address to send it.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} went on a photo walk around the neighborhood"
+  },
+  {
+   "id": "sh_photo_sell",
+   "name": "Sell photos",
+   "label": "Sell your photos",
+   "icon": "🖼️",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "energy": -8,
+    "mood": 2
+   },
+   "when": "owns: te_compact_cam or te_mirrorless or te_film_cam or te_fullframe or te_phone",
+   "roll": {
+    "dc": 13,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "A stock agency buys a set.",
+     "money": 9000
+    },
+    "fail": {
+     "text": "Nobody bit this time.",
+     "effects": {
+      "mood": -4
+     }
+    }
+   },
+   "trains": "photography",
+   "outcomes": [
+    {
+     "id": "edit",
+     "weight": 92,
+     "text": "You sort, edit and upload until your eyes ache."
+    },
+    {
+     "id": "zine",
+     "weight": 8,
+     "when": "skill: photography 5",
+     "text": "You lay out the best of the year as a little zine and print a short run.",
+     "keepsake": "gk_photo_zine"
+    }
+   ]
+  },
+  {
+   "id": "sh_develop",
+   "name": "Darkroom",
+   "label": "Develop a roll",
+   "icon": "🎞️",
+   "cost": 600,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "te_film_cam",
+   "effects": {
+    "energy": -5,
+    "mood": 6
+   },
+   "trains": "photography",
+   "outcomes": [
+    {
+     "id": "strips",
+     "weight": 75,
+     "text": "The bathroom becomes a darkroom; the negatives come out of the tank and you hold them up to the light."
+    },
+    {
+     "id": "print",
+     "weight": 25,
+     "when": "skill: photography 3",
+     "text": "One frame is good enough to print by hand; you rock the tray until the picture rises.",
+     "keepsake": "gk_darkroom_print"
+    }
+   ]
+  },
+  {
+   "id": "sh_photo_gallery",
+   "name": "Gallerist",
+   "label": "Show your photos to a gallerist",
+   "icon": "🖼️",
+   "cost": 0,
+   "minutes": 40,
+   "place": "mg_chuodori",
+   "when": "skill: photography 4; period: midmorning or afternoon",
+   "effects": {
+    "mood": 2
+   },
+   "trains": "photography",
+   "roll": {
+    "dc": 14,
+    "skill": "photography",
+    "traits": [],
+    "success": {
+     "text": "She keeps three prints, pays for one and gives you her card: a group show next season.",
+     "money": 30000,
+     "keepsake": "gk_gallery_card",
+     "effects": {
+      "mood": 8
+     }
+    },
+    "fail": {
+     "text": "She is kind about it, and says to come back with a year's more work.",
+     "effects": {
+      "mood": -3
+     }
+    }
+   },
+   "fact": "{u} showed photographs to a gallerist on {0}"
+  },
+  {
+   "id": "sh_watch_fish",
+   "name": "Aquarium",
+   "label": "Watch the fish",
+   "icon": "🐠",
+   "cost": 0,
+   "minutes": 20,
+   "home": true,
+   "needsItem": "hm_aquarium",
+   "effects": {
+    "mood": 6,
+    "energy": 3
+   },
+   "together": {
+    "needed": false,
+    "text": "sitting in the dark watching the tank"
+   }
+  },
+  {
+   "id": "sh_tea",
+   "name": "Green tea",
+   "label": "Make green tea",
+   "icon": "🍵",
+   "cost": 0,
+   "minutes": 15,
+   "home": true,
+   "needsItem": "kt_teaset",
+   "effects": {
+    "energy": 8,
+    "thirst": 15,
+    "mood": 2
+   },
+   "together": {
+    "needed": false,
+    "text": "tea at home"
+   }
+  },
+  {
+   "id": "sh_bake",
+   "name": "Baking",
+   "label": "Bake something",
+   "icon": "🥣",
+   "cost": 800,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "kt_mixer",
+   "effects": {
+    "energy": -6,
+    "hunger": 15,
+    "mood": 6
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "cooking",
+    "traits": [],
+    "success": {
+     "text": "It rises, and the whole flat smells of it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "It comes out flat; you eat it anyway.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "cooking"
+  },
+  {
+   "id": "sh_espresso",
+   "name": "Espresso",
+   "label": "Pull an espresso",
+   "icon": "☕",
+   "cost": 0,
+   "minutes": 10,
+   "home": true,
+   "needsItem": "kt_espresso",
+   "effects": {
+    "energy": 25,
+    "thirst": 5,
+    "mood": 2
+   }
+  },
+  {
+   "id": "sh_nabe",
+   "name": "Hot pot",
+   "label": "Make a hot pot",
+   "icon": "🍲",
+   "cost": 1500,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "kt_donabe",
+   "effects": {
+    "hunger": 45,
+    "mood": 6,
+    "energy": -4
+   },
+   "when": "season: autumn or winter",
+   "trains": "cooking",
+   "together": {
+    "needed": false,
+    "text": "sharing a hot pot at the table"
+   }
+  },
+  {
+   "id": "sh_read",
+   "name": "Reading",
+   "label": "Read on the e-reader",
+   "icon": "📖",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "te_ereader",
+   "effects": {
+    "mood": 5,
+    "energy": 2
+   }
+  },
+  {
+   "id": "sh_vr",
+   "name": "VR",
+   "label": "Play in VR",
+   "icon": "🥽",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "te_vr",
+   "effects": {
+    "energy": -10,
+    "mood": 8
+   },
+   "trains": "gaming",
+   "together": {
+    "needed": false,
+    "text": "taking turns in the headset"
+   }
+  },
+  {
+   "id": "sh_movie_night",
+   "name": "Movie night",
+   "label": "Hold a movie night",
+   "icon": "📽️",
+   "cost": 0,
+   "minutes": 150,
+   "home": true,
+   "needsItem": "te_projector",
+   "effects": {
+    "mood": 10,
+    "energy": -4
+   },
+   "together": {
+    "needed": false,
+    "text": "a film on the big screen at home"
+   }
+  },
+  {
+   "id": "sh_yoga",
+   "name": "Stretching",
+   "label": "Stretch on the mat",
+   "icon": "🧘",
+   "cost": 0,
+   "minutes": 30,
+   "home": true,
+   "needsItem": "hb_yogamat",
+   "effects": {
+    "energy": 4,
+    "mood": 4
+   },
+   "trains": "fitness"
+  },
+  {
+   "id": "sh_bonsai",
+   "name": "Bonsai",
+   "label": "Tend the bonsai",
+   "icon": "🌳",
+   "cost": 0,
+   "minutes": 20,
+   "home": true,
+   "needsItem": "hb_bonsai",
+   "effects": {
+    "mood": 5
+   }
+  },
+  {
+   "id": "sh_cocktail",
+   "name": "Cocktails",
+   "label": "Mix a cocktail",
+   "icon": "🍸",
+   "cost": 500,
+   "minutes": 20,
+   "home": true,
+   "needsItem": "hb_cocktail",
+   "effects": {
+    "mood": 6,
+    "thirst": 8
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "mixology",
+    "traits": [],
+    "success": {
+     "text": "Balanced, cold and pretty.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Too sweet; you pour it down the sink.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "mixology",
+   "together": {
+    "needed": false,
+    "text": "cocktails at home"
+   }
+  },
+  {
+   "id": "sh_keyboard",
+   "name": "Keyboard",
+   "label": "Practice the keyboard",
+   "icon": "🎹",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "hb_keyboard",
+   "effects": {
+    "energy": -6,
+    "mood": 5
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "music",
+    "traits": [],
+    "success": {
+     "text": "A hard passage finally comes out clean.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Your left hand won't listen today.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "music"
+  },
+  {
+   "id": "sh_sing_home",
+   "name": "Singing",
+   "label": "Sing at home",
+   "icon": "🎤",
+   "cost": 0,
+   "minutes": 40,
+   "home": true,
+   "needsItem": "hb_karaoke_mic",
+   "effects": {
+    "energy": -4,
+    "mood": 6
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "singing",
+    "traits": [],
+    "success": {
+     "text": "You hit the high note, and the neighbor bangs on the wall in applause, probably.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Flat all evening.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "singing"
+  },
+  {
+   "id": "sh_calligraphy",
+   "name": "Calligraphy",
+   "label": "Practice calligraphy",
+   "icon": "🖌️",
+   "cost": 0,
+   "minutes": 45,
+   "home": true,
+   "needsItem": "hb_calligraphy",
+   "effects": {
+    "mood": 5
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "writing",
+    "traits": [],
+    "success": {
+     "text": "One character comes out with life in it; you pin it on the wall.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "A sheet of blots.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "writing"
+  },
+  {
+   "id": "sh_piano",
+   "name": "Piano",
+   "label": "Play the piano",
+   "icon": "🎹",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "hb_stagepiano",
+   "effects": {
+    "energy": -6,
+    "mood": 6
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "music",
+    "traits": [],
+    "success": {
+     "text": "You play a whole piece without stopping.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "You stop every four bars.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "music"
+  },
+  {
+   "id": "sh_barre",
+   "name": "Barre",
+   "label": "Practice at the barre",
+   "icon": "🩰",
+   "cost": 0,
+   "minutes": 45,
+   "home": true,
+   "needsItem": "hb_barre",
+   "effects": {
+    "energy": -10,
+    "hygiene": -8,
+    "mood": 4
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "dance",
+    "traits": [],
+    "success": {
+     "text": "Your line in the mirror looks like someone who dances.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Wobbly today.",
+     "effects": {
+      "mood": -2
+     }
+    }
+   },
+   "trains": "dance"
+  },
+  {
+   "id": "sh_stargaze",
+   "name": "Stargazing",
+   "label": "Look at the stars",
+   "icon": "🔭",
+   "cost": 0,
+   "minutes": 45,
+   "home": true,
+   "needsItem": "hb_telescope",
+   "effects": {
+    "mood": 8
+   },
+   "when": "period: night or latenight; weather: not rain or heavyrain or storm or snow or cloudy",
+   "together": {
+    "needed": false,
+    "text": "taking turns at the eyepiece"
+   },
+   "outcomes": [
+    {
+     "id": "moon",
+     "weight": 60,
+     "text": "The moon's craters, sharp enough to touch."
+    },
+    {
+     "id": "saturn",
+     "weight": 40,
+     "text": "Saturn, tiny and ringed, exactly like the pictures; you laugh out loud.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "sh_mealkit",
+   "name": "Meal kit",
+   "label": "Cook the meal kit",
+   "icon": "🥡",
+   "cost": 0,
+   "minutes": 40,
+   "home": true,
+   "needsItem": "wl_mealkit",
+   "effects": {
+    "hunger": 45,
+    "mood": 4
+   },
+   "trains": "cooking"
+  },
+  {
+   "id": "sh_open_wine",
+   "name": "Wine",
+   "label": "Open a bottle of wine",
+   "icon": "🍷",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "wl_wine",
+   "effects": {
+    "mood": 8,
+    "thirst": 10
+   },
+   "together": {
+    "needed": false,
+    "text": "sharing a bottle at home"
+   }
+  },
+  {
+   "id": "sh_open_sake",
+   "name": "Sake",
+   "label": "Warm a flask of sake",
+   "icon": "🍶",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "wl_sake",
+   "effects": {
+    "mood": 8,
+    "thirst": 8
+   },
+   "together": {
+    "needed": false,
+    "text": "warm sake at home"
+   }
+  },
+  {
+   "id": "sh_massage_chair",
+   "name": "Massage chair",
+   "label": "Sit in the massage chair",
+   "icon": "💺",
+   "cost": 0,
+   "minutes": 20,
+   "home": true,
+   "needsItem": "wl_massage_chair",
+   "effects": {
+    "energy": 12,
+    "mood": 4
+   }
+  },
+  {
+   "id": "sh_trainer",
+   "name": "Trainer",
+   "label": "Train with your trainer",
+   "icon": "🏋️",
+   "cost": 0,
+   "minutes": 60,
+   "tags": [
+    "sport"
+   ],
+   "needsItem": "wl_trainer",
+   "effects": {
+    "energy": -25,
+    "hygiene": -25,
+    "mood": 6,
+    "thirst": -10
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "fitness",
+    "traits": [],
+    "success": {
+     "text": "Your trainer pushes you one rep past where you would have stopped.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "A hard session; your trainer says the next one will be better.",
+     "effects": {
+      "mood": -1
+     }
+    }
+   },
+   "trains": "fitness"
+  },
+  {
+   "id": "sh_bath_two",
+   "name": "Bath for two",
+   "label": "Run a bath for two",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "ad_candles",
+   "effects": {
+    "mood": 12,
+    "hygiene": 30,
+    "energy": 6,
+    "desire": 50
+   },
+   "when": "companion: crush or casual",
+   "together": {
+    "needed": true,
+    "text": "a long candlelit bath for two at home"
+   },
+   "private": true,
+   "adult": true,
+   "tags": [
+    "private"
+   ],
+   "dc": 9,
+   "matches": [
+    "bath together",
+    "baths",
+    "candles"
+   ],
+   "trains": "sensuality",
+   "outcomes": [
+    {
+     "id": "warm",
+     "weight": 70,
+     "text": "Candles on the edge of the tub, the water too hot, nobody in a hurry."
+    },
+    {
+     "id": "over",
+     "weight": 30,
+     "text": "The water goes over the side; you laugh and mop it up together.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "sh_couples_cards",
+   "name": "Card game",
+   "label": "Play the couples' card game",
+   "icon": "🃏",
+   "cost": 0,
+   "minutes": 45,
+   "home": true,
+   "needsItem": "ad_cards",
+   "effects": {
+    "mood": 8
+   },
+   "when": "companion: crush or casual",
+   "adult": true,
+   "together": {
+    "needed": true,
+    "text": "a card game of questions and dares for two"
+   },
+   "outcomes": [
+    {
+     "id": "truths",
+     "weight": 60,
+     "text": "The questions get more honest as the deck gets thinner."
+    },
+    {
+     "id": "dare",
+     "weight": 40,
+     "text": "A dare neither of you will tell anyone about.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "sh_instant_private",
+   "name": "Instant photos",
+   "label": "Take instant photos together",
+   "icon": "📸",
+   "cost": 0,
+   "minutes": 30,
+   "home": true,
+   "needsItem": "ad_instant",
+   "effects": {
+    "mood": 8,
+    "desire": 50
+   },
+   "when": "companion: crush or casual",
+   "together": {
+    "needed": true,
+    "text": "instant photos of each other at home that nobody else will see"
+   },
+   "private": true,
+   "adult": true,
+   "tags": [
+    "private"
+   ],
+   "dc": 10,
+   "matches": [
+    "photos",
+    "being photographed",
+    "being looked at"
+   ],
+   "trains": "sensuality",
+   "outcomes": [
+    {
+     "id": "develop",
+     "weight": 70,
+     "text": "You watch them develop side by side on the sheets."
+    },
+    {
+     "id": "hide",
+     "weight": 30,
+     "text": "You agree on a hiding place for them, and laugh at how bad it is.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "sh_marina_look",
+   "name": "Berths",
+   "label": "Walk along the berths",
+   "icon": "⚓",
+   "cost": 0,
+   "minutes": 30,
+   "place": "yk_marina",
+   "effects": {
+    "mood": 5
+   },
+   "together": {
+    "needed": false,
+    "text": "a walk along the water"
+   },
+   "outcomes": [
+    {
+     "id": "boats",
+     "weight": 70,
+     "text": "Names painted on the sterns, halyards clinking, a gull on every third mast."
+    },
+    {
+     "id": "owner",
+     "weight": 30,
+     "text": "An owner coiling a rope tells you, unasked, everything that has ever gone wrong with his boat.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} walked along the berths at {0}"
+  },
+  {
+   "id": "sh_cruise_alone",
+   "name": "Cruise",
+   "label": "Take the cruiser out alone",
+   "icon": "🛥️",
+   "cost": 8000,
+   "minutes": 120,
+   "place": "yk_marina",
+   "needsItem": "ve_cruiser",
+   "when": "period: midmorning or afternoon or evening; weather: not rain or heavyrain or storm or snow",
+   "effects": {
+    "mood": 15,
+    "energy": -8
+   },
+   "outcomes": [
+    {
+     "id": "calm",
+     "weight": 70,
+     "text": "Out past the breakwater the city goes quiet behind you; just the engine and the water."
+    },
+    {
+     "id": "ships",
+     "weight": 30,
+     "text": "A container ship slides past, a cliff of color; you wave and someone on deck waves back.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} took the cruiser out on the bay from {0}"
+  },
+  {
+   "id": "sh_cruise_friends",
+   "name": "Bay outing",
+   "label": "Take friends out on the bay",
+   "icon": "🛥️",
+   "cost": 15000,
+   "minutes": 180,
+   "place": "yk_marina",
+   "needsItem": "ve_cruiser",
+   "when": "period: midmorning or afternoon; weather: not rain or heavyrain or storm or snow",
+   "effects": {
+    "mood": 18,
+    "energy": -12
+   },
+   "together": {
+    "needed": true,
+    "text": "a day out on the bay on {{user}}'s boat"
+   },
+   "outcomes": [
+    {
+     "id": "picnic",
+     "weight": 60,
+     "text": "Lunch on deck at anchor off the bay, everyone sunburnt and loud."
+    },
+    {
+     "id": "swim",
+     "weight": 40,
+     "text": "Someone jumps in, then everyone does; the water is colder than anyone admits.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} took friends out on the bay from {0}"
+  },
+  {
+   "id": "sh_cruise_date",
+   "name": "Sunset cruise",
+   "label": "Take a date out at sunset",
+   "icon": "🌅",
+   "cost": 8000,
+   "minutes": 120,
+   "place": "yk_marina",
+   "needsItem": "ve_cruiser",
+   "when": "period: evening; weather: not rain or heavyrain or storm or snow",
+   "effects": {
+    "mood": 16,
+    "energy": -6
+   },
+   "together": {
+    "needed": true,
+    "text": "a sunset on the bay, just the two of them; it counts as a date"
+   },
+   "outcomes": [
+    {
+     "id": "sunset",
+     "weight": 70,
+     "text": "The sun goes down behind the towers and the water turns the color of a peach."
+    },
+    {
+     "id": "lights",
+     "weight": 30,
+     "text": "You drift with the engine off and watch the city lights come on one by one.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} took a date out on the bay at sunset from {0}"
+  },
+  {
+   "id": "sh_classics_look",
+   "name": "Old cars",
+   "label": "Look over the old cars",
+   "icon": "🚙",
+   "cost": 0,
+   "minutes": 30,
+   "place": "rp_classics",
+   "effects": {
+    "mood": 5
+   },
+   "together": {
+    "needed": false,
+    "text": "looking at old cars together"
+   },
+   "outcomes": [
+    {
+     "id": "cars",
+     "weight": 70,
+     "text": "Chrome, leather and curves nobody draws anymore; the restorer lets you sit in one."
+    },
+    {
+     "id": "engine",
+     "weight": 30,
+     "text": "A mechanic starts an engine that hasn't run in thirty years; everyone in the garage stops to listen.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} looked over the classic cars at {0}"
   }
  ],
  "sleep": {
@@ -14719,10 +16436,10 @@
     "days": 14,
     "cost": 0,
     "grants": [],
-    "icon": "🎨",
+    "icon": "📷",
     "desc": "Light, framing and the darkroom.",
     "skills": {
-     "drawing": 3
+     "photography": 3
     },
     "at": "ak_university",
     "when": "weekday: tue or fri; clock: 10:00-12:00",
@@ -14844,14 +16561,22 @@
     "desc": "Sleep better: you wake up in a better mood.",
     "icon": "🛏️",
     "price": 40000,
-    "sleepMood": 10
+    "sleepMood": 10,
+    "cat": "home",
+    "at": [
+     "bay_mall",
+     "yk_isezaki"
+    ],
+    "online": true
    },
    {
     "id": "coffee",
     "name": "Coffee machine",
     "desc": "Make coffee at home (energy).",
     "icon": "☕",
-    "price": 8000
+    "price": 8000,
+    "cat": "kitchen",
+    "online": true
    },
    {
     "id": "bike",
@@ -14859,42 +16584,2398 @@
     "desc": "Travel takes a quarter less time.",
     "icon": "🚲",
     "price": 25000,
-    "travel": 0.75
+    "travel": 0.75,
+    "cat": "vehicle",
+    "at": [
+     "bay_mall",
+     "yk_isezaki"
+    ],
+    "online": true
    },
    {
     "id": "pc",
     "name": "Gaming PC",
     "desc": "Freelance or stream from home.",
     "icon": "🖥️",
-    "price": 180000
+    "price": 210000,
+    "cat": "tech",
+    "at": [
+     "ak_electric"
+    ],
+    "online": true
    },
    {
     "id": "easel",
     "name": "Drawing tablet",
     "desc": "Draw at home; good work sells as a commission. Drawing goes up.",
     "icon": "🖊️",
-    "price": 35000
+    "price": 35000,
+    "cat": "hobby",
+    "at": [
+     "ak_electric"
+    ],
+    "online": true
    },
    {
     "id": "guitar",
     "name": "Acoustic guitar",
     "desc": "Practice at home. Music goes up.",
     "icon": "🎸",
-    "price": 30000
+    "price": 30000,
+    "cat": "hobby",
+    "at": [
+     "ws_vintage",
+     "ak_electric"
+    ],
+    "online": true
    },
    {
     "id": "kotatsu",
     "name": "Kotatsu",
     "desc": "A low heated table with a quilt: warm up under it in winter.",
     "icon": "🛋️",
-    "price": 15000
+    "price": 15000,
+    "cat": "home",
+    "online": true
    },
    {
     "id": "console",
     "name": "Game console",
     "desc": "Play at home. Gaming goes up.",
     "icon": "🎮",
-    "price": 40000
+    "price": 40000,
+    "cat": "tech",
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ],
+    "online": true
+   },
+   {
+    "id": "hm_cushions",
+    "name": "Floor cushions",
+    "desc": "A stack of fat zabuton for guests on the floor.",
+    "icon": "🟫",
+    "price": 4800,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "hm_curtains",
+    "name": "Blackout curtains",
+    "desc": "No streetlight, no dawn: you sleep a little deeper at home.",
+    "icon": "🪟",
+    "price": 6500,
+    "cat": "home",
+    "online": true,
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "sleep home",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hm_plant",
+    "name": "A houseplant",
+    "desc": "A monstera in a clay pot, for the corner that needed something alive.",
+    "icon": "🪴",
+    "price": 3200,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "ws_shimokita",
+     "yk_isezaki"
+    ]
+   },
+   {
+    "id": "hm_lamp",
+    "name": "Paper floor lamp",
+    "desc": "A tall washi lamp that turns the room amber at night.",
+    "icon": "🏮",
+    "price": 8800,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "hm_bookshelf",
+    "name": "Bookshelf",
+    "desc": "A tall oak shelf for books, records and the things friends give you.",
+    "icon": "📚",
+    "price": 19000,
+    "cat": "home",
+    "online": true
+   },
+   {
+    "id": "hm_rug",
+    "name": "Wool rug",
+    "desc": "A thick rug from Nagisa Living, warm under bare feet.",
+    "icon": "🧶",
+    "price": 24000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "bay_mall",
+     "yk_isezaki"
+    ]
+   },
+   {
+    "id": "hm_purifier",
+    "name": "Air purifier",
+    "desc": "A quiet Sorahama purifier for pollen season and city air: you sleep a little better.",
+    "icon": "🌬️",
+    "price": 28000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "sleep home",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hm_desk",
+    "name": "A proper desk",
+    "desc": "A real desk and a chair that doesn't hurt: writing comes a little faster.",
+    "icon": "🪑",
+    "price": 45000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "bay_mall"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "writing",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hm_sofabed",
+    "name": "Sofa bed",
+    "desc": "A sofa by day and a bed for a friend who missed the last train.",
+    "icon": "🛋️",
+    "price": 58000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "bay_mall",
+     "yk_isezaki"
+    ]
+   },
+   {
+    "id": "hm_shirotae",
+    "name": "Silk bedding",
+    "desc": "Shirotae silk sheets and a light silk quilt: you sleep better at home.",
+    "icon": "🛏️",
+    "price": 95000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "mg_depachika"
+    ],
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "sleep home",
+      "value": 0.08
+     }
+    ]
+   },
+   {
+    "id": "hm_aquarium",
+    "name": "Aquarium",
+    "desc": "A planted tank with a shoal of neon tetras and a lamp that dims at night.",
+    "icon": "🐠",
+    "price": 120000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "hm_reading_chair",
+    "name": "Leather reading chair",
+    "desc": "A deep chair in worn tan leather with a lamp beside it.",
+    "icon": "💺",
+    "price": 180000,
+    "cat": "home",
+    "online": true,
+    "at": [
+     "ws_vintage",
+     "mg_depachika"
+    ]
+   },
+   {
+    "id": "hm_hinoki_bed",
+    "name": "Hinoki bed",
+    "desc": "A low cypress frame and a pocket-spring mattress; the room smells of wood. You wake in a better mood.",
+    "icon": "🛏️",
+    "price": 260000,
+    "cat": "home",
+    "sleepMood": 12,
+    "online": true,
+    "at": [
+     "mg_depachika"
+    ]
+   },
+   {
+    "id": "hm_tansu",
+    "name": "Vintage tansu",
+    "desc": "A Meiji-era chest of drawers in zelkova with iron fittings, restored.",
+    "icon": "🗄️",
+    "price": 680000,
+    "cat": "home",
+    "at": [
+     "ws_vintage"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "hm_dining",
+    "name": "Walnut dining set",
+    "desc": "A table and six chairs made by hand at the Kōbō Akebi workshop, to order.",
+    "icon": "🍽️",
+    "price": 1400000,
+    "cat": "home",
+    "at": [
+     "mg_depachika"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "hm_tobari",
+    "name": "Studio Tobari furniture",
+    "desc": "A whole room designed and made by Studio Tobari: sofa, low tables, shelves and lamps.",
+    "icon": "🛋️",
+    "price": 6800000,
+    "cat": "home",
+    "at": [
+     "mg_depachika"
+    ],
+    "when": "seen: sh_salon",
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "kt_pourover",
+    "name": "Pour-over set",
+    "desc": "A ceramic dripper, a gooseneck kettle and a little scale.",
+    "icon": "🫖",
+    "price": 4500,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "ak_jinbocho",
+     "mg_tsukiji"
+    ]
+   },
+   {
+    "id": "kt_teaset",
+    "name": "Tea set",
+    "desc": "A kyūsu teapot and four cups: green tea at home.",
+    "icon": "🍵",
+    "price": 6800,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "ot_sensoji",
+     "mg_tsukiji"
+    ]
+   },
+   {
+    "id": "kt_donabe",
+    "name": "Clay donabe pot",
+    "desc": "A clay pot for hot pot at the table, the way winter evenings should go.",
+    "icon": "🍲",
+    "price": 12000,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "mg_tsukiji",
+     "ot_ameyoko"
+    ]
+   },
+   {
+    "id": "kt_ricecooker",
+    "name": "Rice cooker",
+    "desc": "A Sorahama pressure rice cooker: cooking comes a little faster.",
+    "icon": "🍚",
+    "price": 32000,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "cooking",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "kt_mixer",
+    "name": "Stand mixer",
+    "desc": "A heavy mixer that kneads bread and whips cream while you watch.",
+    "icon": "🥣",
+    "price": 48000,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "kt_knives",
+    "name": "Tsukiji knife set",
+    "desc": "Three knives from a Tsukiji cutler, sharpened in front of you: cooking comes a little faster.",
+    "icon": "🔪",
+    "price": 120000,
+    "cat": "kitchen",
+    "at": [
+     "mg_tsukiji"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "cooking",
+      "value": 0.05
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "kt_winefridge",
+    "name": "Wine fridge",
+    "desc": "A glass-fronted fridge for twenty-four bottles at the right cool.",
+    "icon": "🍷",
+    "price": 150000,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "told": "home"
+   },
+   {
+    "id": "kt_espresso",
+    "name": "Espresso machine",
+    "desc": "A twin-boiler machine and a flat-burr grinder, chrome and walnut.",
+    "icon": "☕",
+    "price": 240000,
+    "cat": "kitchen",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "mg_depachika"
+    ]
+   },
+   {
+    "id": "kt_sakai",
+    "name": "Sakai smith's knife",
+    "desc": "A single gyūtō forged by a Sakai smith, his name cut in the blade: cooking at its best.",
+    "icon": "🗡️",
+    "price": 580000,
+    "cat": "kitchen",
+    "at": [
+     "mg_tsukiji",
+     "mg_depachika"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "cooking",
+      "value": 0.1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "kt_copper",
+    "name": "Copper cookware",
+    "desc": "Hammered copper pans, tin-lined, that will outlive their owner: cooking comes faster.",
+    "icon": "🥘",
+    "price": 720000,
+    "cat": "kitchen",
+    "at": [
+     "mg_depachika"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "cooking",
+      "value": 0.08
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "kt_sake_service",
+    "name": "Lacquered sake service",
+    "desc": "A Kurenai-dō tray, flask and cups in red and black lacquer.",
+    "icon": "🍶",
+    "price": 900000,
+    "cat": "kitchen",
+    "at": [
+     "mg_depachika"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "te_earbuds",
+    "name": "Wireless earbuds",
+    "desc": "Tsukuyo Audio earbuds that shut the train out.",
+    "icon": "🎧",
+    "price": 8800,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "te_ereader",
+    "name": "E-reader",
+    "desc": "A thousand books in a coat pocket.",
+    "icon": "📖",
+    "price": 8500,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ]
+   },
+   {
+    "id": "te_speaker",
+    "name": "Smart speaker",
+    "desc": "Music in the kitchen, the weather in the morning.",
+    "icon": "🔊",
+    "price": 12000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ]
+   },
+   {
+    "id": "te_headphones",
+    "name": "Studio headphones",
+    "desc": "Flat, honest Tsukuyo Audio headphones: music comes a little faster.",
+    "icon": "🎧",
+    "price": 36000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "te_handheld",
+    "name": "Handheld console",
+    "desc": "Games for the train and the bath.",
+    "icon": "🕹️",
+    "price": 38000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "te_smartwatch",
+    "name": "Smartwatch",
+    "desc": "It counts your steps and nags you up the stairs: fitness comes a little faster.",
+    "icon": "⌚",
+    "price": 42000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "fitness",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "te_compact_cam",
+    "name": "Compact camera",
+    "desc": "An Aozora Optical compact with a bright lens: photography comes a little faster.",
+    "icon": "📷",
+    "price": 48000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "photography",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "te_tablet",
+    "name": "Tablet",
+    "desc": "A big bright screen for reading, rough sketches and films in bed.",
+    "icon": "📱",
+    "price": 58000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ]
+   },
+   {
+    "id": "te_vr",
+    "name": "VR headset",
+    "desc": "A Hoshizora Labs headset: whole worlds in your living room.",
+    "icon": "🥽",
+    "price": 88000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ]
+   },
+   {
+    "id": "te_film_cam",
+    "name": "Film camera",
+    "desc": "A serviced 1970s rangefinder: photography comes faster, and you can develop at home.",
+    "icon": "🎞️",
+    "price": 95000,
+    "cat": "tech",
+    "at": [
+     "ws_vintage"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "photography",
+      "value": 0.08
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "te_projector",
+    "name": "4K projector",
+    "desc": "A Hoshizora Labs projector and a pull-down screen: movie nights at home.",
+    "icon": "📽️",
+    "price": 160000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ]
+   },
+   {
+    "id": "te_phone",
+    "name": "Flagship phone",
+    "desc": "The newest phone and the best camera a phone has: photography comes a little faster.",
+    "icon": "📱",
+    "price": 180000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "mg_chuodori"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "photography",
+      "value": 0.05
+     }
+    ],
+    "told": "always"
+   },
+   {
+    "id": "te_mirrorless",
+    "name": "Mirrorless camera",
+    "desc": "An Aozora Optical mirrorless body and two lenses: photography comes faster.",
+    "icon": "📸",
+    "price": 280000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "mg_chuodori"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "photography",
+      "value": 0.08
+     }
+    ]
+   },
+   {
+    "id": "te_laptop",
+    "name": "Pro laptop",
+    "desc": "Thin, fast and silent: writing comes a little faster.",
+    "icon": "💻",
+    "price": 320000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "writing",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "te_recording",
+    "name": "Desk recording kit",
+    "desc": "An interface, monitor speakers and a studio mic: music and singing come faster.",
+    "icon": "🎙️",
+    "price": 560000,
+    "cat": "tech",
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.08
+     },
+     {
+      "kind": "learn",
+      "target": "singing",
+      "value": 0.08
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "te_rig",
+    "name": "Custom-built rig",
+    "desc": "A water-cooled machine built to order in Electric Town: gaming at its best.",
+    "icon": "🖥️",
+    "price": 680000,
+    "cat": "tech",
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "gaming",
+      "value": 0.1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "te_fullframe",
+    "name": "Full-frame camera",
+    "desc": "An Aozora Optical full-frame body and three fast lenses: photography at its best.",
+    "icon": "📸",
+    "price": 1200000,
+    "cat": "tech",
+    "at": [
+     "mg_chuodori"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "photography",
+      "value": 0.1
+     }
+    ],
+    "told": "always",
+    "online": false
+   },
+   {
+    "id": "hb_sketchbook",
+    "name": "Sketchbooks and pens",
+    "desc": "Good paper and fineliners: drawing comes a little faster.",
+    "icon": "✏️",
+    "price": 2800,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_jinbocho",
+     "sb_takeshita"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "drawing",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hb_yogamat",
+    "name": "Yoga mat",
+    "desc": "A thick mat and a strap: a stretch at home.",
+    "icon": "🧘",
+    "price": 3800,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "hb_bonsai",
+    "name": "A bonsai",
+    "desc": "A young juniper in a shallow pot, and the scissors to keep it small.",
+    "icon": "🌳",
+    "price": 8500,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ot_sensoji",
+     "ws_shimokita"
+    ]
+   },
+   {
+    "id": "hb_karaoke_mic",
+    "name": "Karaoke mic",
+    "desc": "A mic with a speaker in it: singing comes a little faster.",
+    "icon": "🎤",
+    "price": 12000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "singing",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hb_cocktail",
+    "name": "Cocktail set",
+    "desc": "A shaker, a mixing glass, a jigger and a bar spoon: mixology comes a little faster.",
+    "icon": "🍸",
+    "price": 14000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "mg_depachika"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "mixology",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hb_calligraphy",
+    "name": "Calligraphy set",
+    "desc": "Brushes, an inkstone and a roll of practice paper.",
+    "icon": "🖌️",
+    "price": 16000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_jinbocho",
+     "ot_sensoji"
+    ]
+   },
+   {
+    "id": "hb_keyboard",
+    "name": "Keyboard",
+    "desc": "A Koharu Instruments keyboard with weighted keys: music comes a little faster.",
+    "icon": "🎹",
+    "price": 45000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.05
+     }
+    ]
+   },
+   {
+    "id": "hb_barre",
+    "name": "Barre and mirror",
+    "desc": "A free-standing ballet barre and a long mirror: dance comes faster.",
+    "icon": "🩰",
+    "price": 95000,
+    "cat": "hobby",
+    "online": true,
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "dance",
+      "value": 0.08
+     }
+    ]
+   },
+   {
+    "id": "hb_telescope",
+    "name": "Telescope",
+    "desc": "A refractor on a sturdy mount, for the moon and the planets above the city glow.",
+    "icon": "🔭",
+    "price": 110000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ]
+   },
+   {
+    "id": "hb_electric",
+    "name": "Electric guitar and amp",
+    "desc": "A Koharu Instruments electric and a valve amp: music comes faster.",
+    "icon": "🎸",
+    "price": 140000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "ws_vintage"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.08
+     }
+    ]
+   },
+   {
+    "id": "hb_pendisplay",
+    "name": "Pen display",
+    "desc": "You draw straight on the screen: drawing comes faster.",
+    "icon": "🖊️",
+    "price": 180000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "drawing",
+      "value": 0.08
+     }
+    ]
+   },
+   {
+    "id": "hb_stagepiano",
+    "name": "Digital stage piano",
+    "desc": "Eighty-eight hammer keys and a grand's sound: music comes faster.",
+    "icon": "🎹",
+    "price": 240000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.08
+     }
+    ]
+   },
+   {
+    "id": "hb_shamisen",
+    "name": "Master-made shamisen",
+    "desc": "A shamisen made by a master in Asakusa, with a red sandalwood neck: music at its best.",
+    "icon": "🪕",
+    "price": 620000,
+    "cat": "hobby",
+    "at": [
+     "ot_sensoji"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "hb_synth",
+    "name": "Vintage synthesizer",
+    "desc": "A 1980s Ondo Synth polysynth, serviced and warm: music at its best.",
+    "icon": "🎛️",
+    "price": 850000,
+    "cat": "hobby",
+    "at": [
+     "ws_vintage"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "hb_vintage_guitar",
+    "name": "Vintage guitar",
+    "desc": "A 1962 guitar, the finish worn through where a hundred players held it: music at its best.",
+    "icon": "🎸",
+    "price": 1800000,
+    "cat": "hobby",
+    "at": [
+     "ws_vintage"
+    ],
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.1
+     }
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "hb_violin",
+    "name": "Master luthier's violin",
+    "desc": "A violin from a master luthier's own bench, sold only to someone who can play it.",
+    "icon": "🎻",
+    "price": 9500000,
+    "cat": "hobby",
+    "at": [
+     "mg_chuodori"
+    ],
+    "when": "skill: music 8",
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "music",
+      "value": 0.1
+     }
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "fa_umbrella",
+    "name": "Good umbrella",
+    "desc": "A Fuyuzora Outdoor umbrella that doesn't turn inside out on the bridge.",
+    "icon": "☂️",
+    "price": 4500,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "ot_ameyoko",
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "fa_cardcase",
+    "name": "Leather card case",
+    "desc": "For the business cards you hand over with both hands.",
+    "icon": "💳",
+    "price": 6800,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "mg_chuodori",
+     "ot_ameyoko"
+    ]
+   },
+   {
+    "id": "fa_wool_scarf",
+    "name": "Wool scarf",
+    "desc": "A long merino scarf for the wind on the platforms.",
+    "icon": "🧣",
+    "price": 7800,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "sb_takeshita",
+     "ot_ameyoko"
+    ]
+   },
+   {
+    "id": "fa_sneakers",
+    "name": "Sneakers",
+    "desc": "Swiftline sneakers, white until the first rain.",
+    "icon": "👟",
+    "price": 16000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "ot_ameyoko",
+     "sb_takeshita"
+    ]
+   },
+   {
+    "id": "fa_tote",
+    "name": "Leather tote",
+    "desc": "A Fuyuzora Outdoor tote that fits a laptop and a lunch.",
+    "icon": "👜",
+    "price": 22000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "sb_omotesando",
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "fa_yukata",
+    "name": "A yukata",
+    "desc": "A cotton yukata, an obi and geta, for fireworks and summer festivals.",
+    "icon": "👘",
+    "price": 24000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "ot_sensoji",
+     "sb_takeshita"
+    ]
+   },
+   {
+    "id": "fa_coat",
+    "name": "Wool coat",
+    "desc": "A navy coat that makes the morning train look like a film.",
+    "icon": "🧥",
+    "price": 48000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "sb_omotesando",
+     "bay_mall"
+    ]
+   },
+   {
+    "id": "fa_boots",
+    "name": "Leather boots",
+    "desc": "Boots the cobbler under the tracks will resole forever.",
+    "icon": "👢",
+    "price": 54000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "ot_ameyoko",
+     "ws_vintage"
+    ]
+   },
+   {
+    "id": "fa_suit",
+    "name": "A good suit",
+    "desc": "A dark suit off the rack, taken in: you interview a little better.",
+    "icon": "👔",
+    "price": 58000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "bay_mall",
+     "yk_isezaki"
+    ],
+    "effects": [
+     {
+      "kind": "interview",
+      "value": 1
+     }
+    ]
+   },
+   {
+    "id": "fa_sunglasses",
+    "name": "Designer sunglasses",
+    "desc": "Tortoiseshell frames from Maison Kikyō.",
+    "icon": "🕶️",
+    "price": 85000,
+    "cat": "fashion",
+    "online": true,
+    "at": [
+     "sb_omotesando",
+     "mg_chuodori"
+    ]
+   },
+   {
+    "id": "fa_leather_jacket",
+    "name": "Vintage leather jacket",
+    "desc": "A 1970s rider jacket with someone else's stories in its creases.",
+    "icon": "🧥",
+    "price": 140000,
+    "cat": "fashion",
+    "at": [
+     "ws_vintage"
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_dress",
+    "name": "Designer outfit",
+    "desc": "A Maison Kikyō dress or suit cut for you: first meetings go a little warmer.",
+    "icon": "👗",
+    "price": 260000,
+    "cat": "fashion",
+    "at": [
+     "sb_omotesando",
+     "mg_chuodori"
+    ],
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_tailored",
+    "name": "Tailored Ginza suit",
+    "desc": "Three fittings at Hanabusa Tailors: you interview better, and first meetings go warmer.",
+    "icon": "🤵",
+    "price": 380000,
+    "cat": "fashion",
+    "at": [
+     "mg_chuodori"
+    ],
+    "effects": [
+     {
+      "kind": "interview",
+      "value": 1
+     },
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_handbag",
+    "name": "Designer handbag",
+    "desc": "A Valtière bag in grained calfskin; people notice it first.",
+    "icon": "👜",
+    "price": 1200000,
+    "cat": "fashion",
+    "at": [
+     "mg_chuodori",
+     "mg_depachika"
+    ],
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_jewels",
+    "name": "Fine jewellery",
+    "desc": "Hoshikage Jewellers' earrings and a bracelet to wear every day.",
+    "icon": "💎",
+    "price": 1800000,
+    "cat": "fashion",
+    "at": [
+     "mg_chuodori"
+    ],
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_kimono",
+    "name": "Formal kimono",
+    "desc": "A silk kimono and obi for weddings, the New Year and the theater.",
+    "icon": "👘",
+    "price": 2400000,
+    "cat": "fashion",
+    "at": [
+     "mg_depachika"
+    ],
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_couture",
+    "name": "Couture from Maison Kikyō",
+    "desc": "A piece made in the atelier for one person, after six fittings.",
+    "icon": "✨",
+    "price": 6500000,
+    "cat": "fashion",
+    "at": [
+     "mg_depachika"
+    ],
+    "when": "seen: sh_salon",
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "fa_living_treasure",
+    "name": "A living treasure's kimono",
+    "desc": "A kimono from a weaver the nation calls a living treasure: a year at her loom.",
+    "icon": "👘",
+    "price": 12000000,
+    "cat": "fashion",
+    "at": [
+     "mg_depachika"
+    ],
+    "when": "seen: sh_salon",
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "ve_ebike",
+    "name": "E-bike",
+    "desc": "A Mizuchi e-bike that climbs the hills for you: trips take 28% less time.",
+    "icon": "🚲",
+    "price": 180000,
+    "cat": "vehicle",
+    "travel": 0.72,
+    "online": true,
+    "at": [
+     "bay_mall",
+     "yk_isezaki"
+    ]
+   },
+   {
+    "id": "ve_scooter",
+    "name": "Scooter",
+    "desc": "A 125 cc Mizuchi scooter: trips take 30% less time.",
+    "icon": "🛵",
+    "price": 280000,
+    "cat": "vehicle",
+    "travel": 0.7,
+    "at": [
+     "bay_mall"
+    ],
+    "online": false
+   },
+   {
+    "id": "ve_compact",
+    "name": "Compact car",
+    "desc": "A Kazane Motors compact with a parking space found for it: trips take 35% less time. Drive after the last train.",
+    "icon": "🚗",
+    "price": 2600000,
+    "cat": "vehicle",
+    "travel": 0.65,
+    "late": true,
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "ve_sedan",
+    "name": "Electric sedan",
+    "desc": "A silent Kazane Motors sedan: trips take 38% less time. Drive after the last train.",
+    "icon": "🚘",
+    "price": 4800000,
+    "cat": "vehicle",
+    "travel": 0.62,
+    "late": true,
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "ve_sports",
+    "name": "Sports car",
+    "desc": "A low red Arashiro coupé: trips take 40% less time. Drive after the last train.",
+    "icon": "🏎️",
+    "price": 11000000,
+    "cat": "vehicle",
+    "travel": 0.6,
+    "late": true,
+    "at": [
+     "mg_chuodori"
+    ],
+    "ai": "{{user}} drives a red Arashiro sports car.",
+    "online": false
+   },
+   {
+    "id": "ve_cruiser",
+    "name": "Motor cruiser",
+    "desc": "A Minamikaze Marine cruiser with a berth at the marina: out on the bay alone, with friends or on a date.",
+    "icon": "🛥️",
+    "price": 12000000,
+    "cat": "vehicle",
+    "at": [
+     "yk_marina"
+    ],
+    "when": "seen: sh_marina",
+    "ai": "{{user}} keeps a motor cruiser at the Yokohama marina.",
+    "told": "always",
+    "online": false
+   },
+   {
+    "id": "ve_classic",
+    "name": "Classic coupé",
+    "desc": "A 1960s coupé brought back to life by Akatsuki Motorworks: trips take 40% less time. Drive after the last train.",
+    "icon": "🚙",
+    "price": 14000000,
+    "cat": "vehicle",
+    "travel": 0.6,
+    "late": true,
+    "at": [
+     "rp_classics"
+    ],
+    "when": "seen: sh_dealer",
+    "ai": "{{user}} drives a restored 1960s coupé.",
+    "online": false
+   },
+   {
+    "id": "ve_driver",
+    "name": "A car with a driver",
+    "desc": "A black sedan and a driver on call, paid ahead for good: trips take half the time. Drive after the last train.",
+    "icon": "🚖",
+    "price": 15000000,
+    "cat": "vehicle",
+    "travel": 0.5,
+    "late": true,
+    "at": [
+     "mg_chuodori"
+    ],
+    "when": "seen: sh_salon",
+    "ai": "{{user}} is driven around Tokyo in a black sedan with a driver.",
+    "online": false
+   },
+   {
+    "id": "lx_decanter",
+    "name": "Crystal decanter",
+    "desc": "A hand-blown decanter and two tumblers that ring like bells.",
+    "icon": "🍾",
+    "price": 120000,
+    "cat": "luxury",
+    "at": [
+     "mg_depachika"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_kiriko",
+    "name": "Edo kiriko set",
+    "desc": "Six Kiriha Studio glasses cut in indigo and red.",
+    "icon": "🥃",
+    "price": 180000,
+    "cat": "luxury",
+    "at": [
+     "mg_depachika",
+     "ot_sensoji"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_lacquer",
+    "name": "Lacquered writing box",
+    "desc": "A Kurenai-dō box with gold maki-e cranes, for brushes and letters.",
+    "icon": "🗃️",
+    "price": 240000,
+    "cat": "luxury",
+    "at": [
+     "mg_depachika"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_kizami",
+    "name": "Japanese automatic watch",
+    "desc": "A Kizami Watch Co. automatic with a dial like fresh snow.",
+    "icon": "⌚",
+    "price": 320000,
+    "cat": "luxury",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "lx_kizami_ltd",
+    "name": "Kizami limited edition",
+    "desc": "One of three hundred: a lacquer dial, numbered on the back.",
+    "icon": "⌚",
+    "price": 680000,
+    "cat": "luxury",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "lx_scroll",
+    "name": "Ink painting scroll",
+    "desc": "A hanging scroll of plum branches by a living master of ink.",
+    "icon": "📜",
+    "price": 900000,
+    "cat": "luxury",
+    "at": [
+     "mg_chuodori"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_pine",
+    "name": "Hundred-year pine",
+    "desc": "A black pine bonsai shaped by three generations of one family.",
+    "icon": "🌲",
+    "price": 1200000,
+    "cat": "luxury",
+    "at": [
+     "ot_sensoji",
+     "mg_depachika"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_watch",
+    "name": "Fontanel & Fils watch",
+    "desc": "A thin gold dress watch from Fontanel & Fils.",
+    "icon": "⌚",
+    "price": 1600000,
+    "cat": "luxury",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "lx_painting",
+    "name": "A painting from a Ginza gallery",
+    "desc": "An oil by a living painter, chosen with the gallerist over tea.",
+    "icon": "🖼️",
+    "price": 2200000,
+    "cat": "luxury",
+    "at": [
+     "mg_chuodori"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_screen",
+    "name": "Folding screen",
+    "desc": "A new six-panel screen of autumn grasses in gold leaf, from a Kyoto workshop.",
+    "icon": "🪭",
+    "price": 3600000,
+    "cat": "luxury",
+    "at": [
+     "mg_depachika"
+    ],
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_sculpture",
+    "name": "A bronze by a living sculptor",
+    "desc": "A bronze figure at half life size, cast for the salon's collectors.",
+    "icon": "🗿",
+    "price": 7500000,
+    "cat": "luxury",
+    "at": [
+     "mg_depachika"
+    ],
+    "when": "seen: sh_salon",
+    "told": "home",
+    "online": false
+   },
+   {
+    "id": "lx_complication",
+    "name": "Grand complication watch",
+    "desc": "A Fontanel & Fils grand complication: a minute repeater, a perpetual calendar, the moon.",
+    "icon": "⌚",
+    "price": 12000000,
+    "cat": "luxury",
+    "at": [
+     "mg_depachika"
+    ],
+    "when": "seen: sh_salon",
+    "online": false
+   },
+   {
+    "id": "wl_flowers",
+    "name": "Flowers delivered",
+    "desc": "Fresh flowers at the door every few days: a little more mood each morning for a week.",
+    "icon": "💐",
+    "price": 6000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 7
+    },
+    "effects": [
+     {
+      "kind": "morning",
+      "target": "mood",
+      "value": 1
+     }
+    ],
+    "told": "home"
+   },
+   {
+    "id": "wl_mealkit",
+    "name": "Meal-kit week",
+    "desc": "Five dinners in a box, everything measured.",
+    "icon": "🥡",
+    "price": 8800,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "stock": 5
+    }
+   },
+   {
+    "id": "wl_massage",
+    "name": "Massage at home",
+    "desc": "A therapist comes to you for an hour.",
+    "icon": "💆",
+    "price": 12000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 1
+    },
+    "now": {
+     "energy": 25,
+     "mood": 10
+    },
+    "told": "no"
+   },
+   {
+    "id": "wl_cleaner",
+    "name": "A cleaner's week",
+    "desc": "Someone cleans while you're out: you stay fresh a little longer for a week.",
+    "icon": "🧹",
+    "price": 18000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 7
+    },
+    "effects": [
+     {
+      "kind": "drain",
+      "target": "hygiene",
+      "value": -0.1
+     }
+    ]
+   },
+   {
+    "id": "wl_sake",
+    "name": "A case of sake",
+    "desc": "Six bottles of Yorunami junmai, for evenings at home.",
+    "icon": "🍶",
+    "price": 18000,
+    "cat": "wellness",
+    "online": true,
+    "at": [
+     "mg_depachika"
+    ],
+    "repeat": {
+     "stock": 6
+    }
+   },
+   {
+    "id": "wl_wine",
+    "name": "A case of wine",
+    "desc": "Six bottles chosen by a Ginza wine shop.",
+    "icon": "🍷",
+    "price": 24000,
+    "cat": "wellness",
+    "online": true,
+    "at": [
+     "mg_depachika"
+    ],
+    "repeat": {
+     "stock": 6
+    }
+   },
+   {
+    "id": "wl_spa_day",
+    "name": "Spa day",
+    "desc": "A whole day of baths, steam and a massage.",
+    "icon": "♨️",
+    "price": 28000,
+    "cat": "wellness",
+    "at": [
+     "sb_omotesando",
+     "hk_yumoto"
+    ],
+    "repeat": {
+     "days": 1
+    },
+    "now": {
+     "energy": 35,
+     "mood": 20,
+     "hygiene": 30
+    },
+    "told": "no",
+    "online": false
+   },
+   {
+    "id": "wl_chef",
+    "name": "Private chef's dinner",
+    "desc": "A chef cooks eight courses in your kitchen and leaves it cleaner than she found it.",
+    "icon": "👨‍🍳",
+    "price": 85000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 1
+    },
+    "now": {
+     "hunger": 40,
+     "mood": 20
+    }
+   },
+   {
+    "id": "wl_tutor_ja",
+    "name": "Japanese tutor's month",
+    "desc": "Lessons three times a week: Japanese comes faster for four weeks.",
+    "icon": "🗾",
+    "price": 80000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 28
+    },
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "japanese",
+      "value": 0.1
+     }
+    ]
+   },
+   {
+    "id": "wl_tutor_en",
+    "name": "English tutor's month",
+    "desc": "Lessons three times a week: English comes faster for four weeks.",
+    "icon": "💬",
+    "price": 80000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 28
+    },
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "english",
+      "value": 0.1
+     }
+    ]
+   },
+   {
+    "id": "wl_trainer",
+    "name": "Trainer's month",
+    "desc": "A personal trainer for four weeks: fitness comes faster, and sessions at the gym.",
+    "icon": "🏋️",
+    "price": 100000,
+    "cat": "wellness",
+    "online": true,
+    "repeat": {
+     "days": 28
+    },
+    "effects": [
+     {
+      "kind": "learn",
+      "target": "fitness",
+      "value": 0.1
+     }
+    ]
+   },
+   {
+    "id": "wl_stylist",
+    "name": "Stylist's season",
+    "desc": "A stylist picks your clothes for two weeks: first meetings go a little warmer.",
+    "icon": "💇",
+    "price": 150000,
+    "cat": "wellness",
+    "online": true,
+    "at": [
+     "sb_omotesando"
+    ],
+    "repeat": {
+     "days": 14
+    },
+    "effects": [
+     {
+      "kind": "warm",
+      "target": "new",
+      "value": 1
+     }
+    ]
+   },
+   {
+    "id": "wl_massage_chair",
+    "name": "Massage chair",
+    "desc": "A full-body massage chair in the corner of the room.",
+    "icon": "💺",
+    "price": 280000,
+    "cat": "wellness",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ],
+    "told": "home"
+   },
+   {
+    "id": "wl_spa_member",
+    "name": "Ginza spa membership",
+    "desc": "Four weeks at Yūsui Spa Ginza: baths give more back.",
+    "icon": "♨️",
+    "price": 600000,
+    "cat": "wellness",
+    "at": [
+     "mg_chuodori"
+    ],
+    "repeat": {
+     "days": 28
+    },
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "bath",
+      "value": 0.1
+     }
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_enmusubi",
+    "name": "En-musubi charm",
+    "desc": "A pink omamori for finding and keeping love.",
+    "icon": "🎐",
+    "price": 1000,
+    "cat": "gift",
+    "keepsake": "g_enmusubi",
+    "at": [
+     "ak_myojin"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_chocolates",
+    "name": "Ginza chocolates",
+    "desc": "A lacquered box of hand-made bonbons to give.",
+    "icon": "🍫",
+    "price": 4200,
+    "cat": "gift",
+    "keepsake": "g_chocolates",
+    "at": [
+     "mg_depachika"
+    ],
+    "online": true
+   },
+   {
+    "id": "gf_roses",
+    "name": "Red roses",
+    "desc": "A dozen long-stemmed roses to give.",
+    "icon": "🌹",
+    "price": 5500,
+    "cat": "gift",
+    "keepsake": "g_roses",
+    "at": [
+     "mg_depachika",
+     "sb_omotesando"
+    ],
+    "online": true
+   },
+   {
+    "id": "gf_melon",
+    "name": "Crown melon",
+    "desc": "A perfect melon in a wooden box: a gift that says respect.",
+    "icon": "🍈",
+    "price": 12000,
+    "cat": "gift",
+    "keepsake": "g_melon",
+    "at": [
+     "mg_depachika"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_perfume",
+    "name": "Perfume",
+    "desc": "A niche fragrance from an Omotesandō boutique, to give.",
+    "icon": "🌸",
+    "price": 16500,
+    "cat": "gift",
+    "keepsake": "g_perfume",
+    "at": [
+     "sb_omotesando"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_silk_scarf",
+    "name": "Silk scarf",
+    "desc": "A hand-rolled scarf in deep red, to give.",
+    "icon": "🧣",
+    "price": 22000,
+    "cat": "gift",
+    "keepsake": "g_silk_scarf",
+    "at": [
+     "sb_omotesando",
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_necklace",
+    "name": "Silver necklace",
+    "desc": "A thin chain with one small stone, to give.",
+    "icon": "📿",
+    "price": 38000,
+    "cat": "gift",
+    "keepsake": "g_necklace",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_pair_rings",
+    "name": "Pair rings",
+    "desc": "Two matching bands: a couple's promise short of an engagement.",
+    "icon": "💍",
+    "price": 56000,
+    "cat": "gift",
+    "keepsake": "g_pair_rings",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_plush_whale",
+    "name": "Whale plush",
+    "desc": "A soft blue whale as long as your arm, to give.",
+    "icon": "🐋",
+    "price": 3600,
+    "cat": "gift",
+    "keepsake": "gk_plush_whale",
+    "at": [
+     "bay_mall"
+    ],
+    "online": true
+   },
+   {
+    "id": "gf_bouquet",
+    "name": "Seasonal bouquet",
+    "desc": "Whatever the florist says is best this week, wrapped in paper.",
+    "icon": "💐",
+    "price": 3800,
+    "cat": "gift",
+    "keepsake": "gk_bouquet",
+    "at": [
+     "sb_omotesando",
+     "mg_depachika"
+    ],
+    "online": true
+   },
+   {
+    "id": "gf_plush_shiba",
+    "name": "Shiba plush",
+    "desc": "A smug shiba inu plush with a curled tail, to give.",
+    "icon": "🐕",
+    "price": 4800,
+    "cat": "gift",
+    "keepsake": "gk_plush_shiba",
+    "at": [
+     "sb_takeshita",
+     "bay_mall"
+    ],
+    "online": true
+   },
+   {
+    "id": "gf_yosegi",
+    "name": "Yosegi puzzle box",
+    "desc": "A Hakone marquetry box that opens only in seven moves.",
+    "icon": "🎁",
+    "price": 6800,
+    "cat": "gift",
+    "keepsake": "gk_yosegi_box",
+    "at": [
+     "hk_yumoto"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_yorunami",
+    "name": "Yorunami daiginjo",
+    "desc": "A boxed bottle of Yorunami's best sake, to give.",
+    "icon": "🍶",
+    "price": 9000,
+    "cat": "gift",
+    "keepsake": "gk_yorunami",
+    "at": [
+     "mg_depachika"
+    ],
+    "online": true
+   },
+   {
+    "id": "gf_kutani",
+    "name": "Kutani cup",
+    "desc": "A porcelain cup painted in Kutani's five colors.",
+    "icon": "🍵",
+    "price": 14000,
+    "cat": "gift",
+    "keepsake": "gk_kutani_cup",
+    "at": [
+     "mg_depachika"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_first_edition",
+    "name": "A first edition",
+    "desc": "A poet's first collection from a Jinbōchō dealer, in its paper wrapper.",
+    "icon": "📕",
+    "price": 18000,
+    "cat": "gift",
+    "keepsake": "gk_first_edition",
+    "at": [
+     "ak_jinbocho"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_kiriko",
+    "name": "Edo kiriko glasses",
+    "desc": "A pair of Kiriha Studio cut-glass tumblers in a paulownia box.",
+    "icon": "🥃",
+    "price": 28000,
+    "cat": "gift",
+    "keepsake": "gk_kiriko_glasses",
+    "at": [
+     "mg_depachika",
+     "ot_sensoji"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_cashmere",
+    "name": "Cashmere wrap",
+    "desc": "A wide wrap in soft grey cashmere, to give.",
+    "icon": "🧣",
+    "price": 48000,
+    "cat": "gift",
+    "keepsake": "gk_cashmere_wrap",
+    "at": [
+     "mg_chuodori",
+     "mg_depachika"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_fountain_pen",
+    "name": "Fine fountain pen",
+    "desc": "A Ginza stationer's pen with a gold nib, engraved with a name.",
+    "icon": "🖋️",
+    "price": 120000,
+    "cat": "gift",
+    "keepsake": "gk_fountain_pen",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_whisky",
+    "name": "Whisky from a closed distillery",
+    "desc": "One of the last bottles of Kirisato, a distillery that closed in 1983.",
+    "icon": "🥃",
+    "price": 180000,
+    "cat": "gift",
+    "keepsake": "gk_closed_whisky",
+    "at": [
+     "mg_depachika"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_pearls",
+    "name": "Pearl necklace",
+    "desc": "A strand of Mikazuki Pearl akoya pearls, to give.",
+    "icon": "🦪",
+    "price": 280000,
+    "cat": "gift",
+    "keepsake": "gk_pearl_necklace",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_pendant",
+    "name": "Diamond pendant",
+    "desc": "A single diamond on a fine chain from Hoshikage Jewellers, to give.",
+    "icon": "💎",
+    "price": 900000,
+    "cat": "gift",
+    "keepsake": "gk_diamond_pendant",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_watch",
+    "name": "A watch for someone",
+    "desc": "A Kizami automatic, engraved on the back.",
+    "icon": "⌚",
+    "price": 1200000,
+    "cat": "gift",
+    "keepsake": "gk_watch_gift",
+    "at": [
+     "mg_chuodori"
+    ],
+    "online": false
+   },
+   {
+    "id": "gf_ring",
+    "name": "A ring",
+    "desc": "A Hoshikage Jewellers ring with a stone that makes the salon go quiet.",
+    "icon": "💍",
+    "price": 6000000,
+    "cat": "gift",
+    "keepsake": "gk_ring",
+    "at": [
+     "mg_chuodori"
+    ],
+    "when": "seen: sh_salon",
+    "online": false
+   },
+   {
+    "id": "ad_feather",
+    "name": "Feather tickler",
+    "desc": "A long ostrich feather on a wand, to give a partner.",
+    "icon": "🪶",
+    "price": 1500,
+    "cat": "adult",
+    "keepsake": "g_feather",
+    "at": [
+     "sb_lovehotel"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_blindfold",
+    "name": "Silk blindfold",
+    "desc": "A padded silk mask that lets no light through, to give a partner.",
+    "icon": "🎀",
+    "price": 2200,
+    "cat": "adult",
+    "keepsake": "g_blindfold",
+    "at": [
+     "sb_lovehotel"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_cards",
+    "name": "Couples' card game",
+    "desc": "A deck of questions and dares for two.",
+    "icon": "🃏",
+    "price": 2400,
+    "cat": "adult",
+    "online": true,
+    "at": [
+     "sj_kabukicho"
+    ],
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_massage_oil",
+    "name": "Warming massage oil",
+    "desc": "Jasmine oil that warms on the skin, to give a partner.",
+    "icon": "🫙",
+    "price": 2800,
+    "cat": "adult",
+    "keepsake": "g_massage_oil",
+    "at": [
+     "sb_lovehotel"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_candles",
+    "name": "Candles and bath salts",
+    "desc": "Hotaru Candle Co. candles and salts for three long baths for two.",
+    "icon": "🕯️",
+    "price": 4800,
+    "cat": "adult",
+    "online": true,
+    "at": [
+     "sb_lovehotel"
+    ],
+    "repeat": {
+     "stock": 3
+    },
+    "seen": "out",
+    "adult": true
+   },
+   {
+    "id": "ad_nurse",
+    "name": "Nurse costume",
+    "desc": "A white costume and cap from the room's vending machine, to give a partner.",
+    "icon": "🩺",
+    "price": 5000,
+    "cat": "adult",
+    "keepsake": "g_nurse_costume",
+    "at": [
+     "sb_lovehotel",
+     "sj_kabukicho"
+    ],
+    "seen": "away",
+    "online": false,
+    "adult": true
+   },
+   {
+    "id": "ad_silk_boxers",
+    "name": "Black silk boxers",
+    "desc": "Heavy black silk, to give a partner.",
+    "icon": "🩲",
+    "price": 5200,
+    "cat": "adult",
+    "keepsake": "g_silk_boxers",
+    "at": [
+     "sb_omotesando"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_babydoll",
+    "name": "Sheer babydoll",
+    "desc": "A light chiffon slip, to give a partner.",
+    "icon": "👙",
+    "price": 6500,
+    "cat": "adult",
+    "keepsake": "g_babydoll",
+    "at": [
+     "sb_omotesando"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_maid",
+    "name": "Maid costume",
+    "desc": "A short black dress, an apron and a headband, to give a partner.",
+    "icon": "🎀",
+    "price": 7200,
+    "cat": "adult",
+    "keepsake": "g_maid_costume",
+    "at": [
+     "sj_kabukicho"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_bunny",
+    "name": "Bunny costume",
+    "desc": "A satin leotard and ears, to give a partner.",
+    "icon": "🐰",
+    "price": 8400,
+    "cat": "adult",
+    "keepsake": "g_bunny_costume",
+    "at": [
+     "sj_kabukicho"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_lace_set",
+    "name": "Black lace lingerie",
+    "desc": "A lace set with a garter belt, to give a partner.",
+    "icon": "🖤",
+    "price": 8800,
+    "cat": "adult",
+    "keepsake": "g_lace_set",
+    "at": [
+     "sb_omotesando"
+    ],
+    "online": true,
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_instant",
+    "name": "Instant camera for two",
+    "desc": "An instant camera and film, for pictures nobody else will see.",
+    "icon": "📸",
+    "price": 12000,
+    "cat": "adult",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "seen": "away",
+    "adult": true
+   },
+   {
+    "id": "ad_moodlight",
+    "name": "Mood lighting",
+    "desc": "Warm lamps that dim to candlelight by the bed.",
+    "icon": "💡",
+    "price": 14000,
+    "cat": "adult",
+    "online": true,
+    "seen": "out",
+    "adult": true
+   },
+   {
+    "id": "ad_robe",
+    "name": "Silk robe",
+    "desc": "A long robe in midnight silk, for mornings after.",
+    "icon": "🥻",
+    "price": 18000,
+    "cat": "adult",
+    "online": true,
+    "at": [
+     "sb_omotesando"
+    ],
+    "seen": "out",
+    "adult": true
+   },
+   {
+    "id": "ad_sheets",
+    "name": "Silk sheets",
+    "desc": "Shirotae silk for the bed: a night together gives more back.",
+    "icon": "🛏️",
+    "price": 120000,
+    "cat": "adult",
+    "online": true,
+    "at": [
+     "mg_depachika"
+    ],
+    "seen": "out",
+    "effects": [
+     {
+      "kind": "rest",
+      "target": "sleep together",
+      "value": 0.08
+     }
+    ],
+    "adult": true
+   },
+   {
+    "id": "ad_couture",
+    "name": "Couture lingerie",
+    "desc": "Soie de Minuit lingerie made to measure: private moments go a little better.",
+    "icon": "🖤",
+    "price": 680000,
+    "cat": "adult",
+    "at": [
+     "sb_omotesando"
+    ],
+    "seen": "away",
+    "effects": [
+     {
+      "kind": "roll",
+      "target": "private",
+      "value": 1
+     }
+    ],
+    "online": false,
+    "adult": true
    }
   ]
  },
@@ -15162,6 +19243,12 @@
    "icon": "🕯️",
    "desc": "Ease and attentiveness with a partner: reading them, patience and confidence. It makes private moments go better.",
    "adult": true
+  },
+  {
+   "id": "photography",
+   "name": "Photography",
+   "icon": "📷",
+   "desc": "Light, framing and the moment, for yourself and for sale."
   }
  ],
  "festivals": [
@@ -16280,7 +20367,13 @@
     "priv_office_late",
     "priv_park_night",
     "priv_ryokan_rotenburo",
-    "sb_lovehotel_night"
+    "sb_lovehotel_night",
+    "priv_use_lingerie",
+    "priv_use_blindfold",
+    "priv_use_oil",
+    "priv_use_costume",
+    "sh_bath_two",
+    "sh_instant_private"
    ],
    "count": 5,
    "days": 7,
@@ -24753,6 +28846,69 @@
     "sb_lovehotel_suite_night",
     "sb_lovehotel_suite_view"
    ]
+  },
+  {
+   "id": "yk_marina",
+   "name": "Kamome Marina",
+   "map": "yokohama",
+   "x": 40.5,
+   "y": 46.5,
+   "tags": [
+    "leisure",
+    "shop"
+   ],
+   "desc": "a marina below the Minato Mirai towers: floating pontoons, white cruisers and sailboats in rows, a harbor office with a terrace, gulls on the masts and the Ferris wheel across the water",
+   "staff": "the harbormaster in a white cap, owners hosing their decks, a broker showing a cruiser to a couple",
+   "crowd": 0.6,
+   "open": [
+    8,
+    20
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain",
+    "night"
+   ],
+   "generic": false,
+   "bg": "bg/yk_marina.avif",
+   "sound": [
+    "waves",
+    "wind"
+   ],
+   "bgs": {
+    "night": "bg/yk_marina-night.avif"
+   }
+  },
+  {
+   "id": "rp_classics",
+   "name": "Akatsuki Motorworks",
+   "map": "roppongi",
+   "x": 82,
+   "y": 70,
+   "tags": [
+    "shop"
+   ],
+   "desc": "a garage behind the embassy streets of Azabu: old coupés and roadsters under work lights, one car half rebuilt on the lift, framed rally photos, the smell of oil and leather",
+   "staff": "the restorer in grey overalls, two mechanics, a collector in a cashmere coat who keeps coming back",
+   "crowd": 0.4,
+   "open": [
+    11,
+    19
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain",
+    "rush",
+    "night"
+   ],
+   "closedDays": [
+    "tue"
+   ],
+   "generic": false,
+   "bg": "bg/rp_classics.avif",
+   "sound": [
+    "traffic"
+   ]
   }
  ],
  "stories": [
@@ -30708,6 +34864,172 @@
      }
     }
    ]
+  },
+  {
+   "id": "sh_salon",
+   "place": "mg_depachika",
+   "when": "money: 3000000; period: afternoon",
+   "title": "the members' salon",
+   "setup": "A floor manager in a dark suit appears at {{user}}'s elbow on the ground floor of Tsubakiya, bows, and says the store has a salon on the eighth floor for its most valued customers: tea, a quiet room, and the pieces that never go on the shop floor. She holds out a black card with a gold camellia.",
+   "choices": [
+    {
+     "label": "Take the card and go up",
+     "minutes": 40,
+     "text": "the salon is pale wood and silence: a kimono on a stand, a watch on a cushion, a bronze by the window, and very good tea. Its pieces show in the Shop app from now on",
+     "keepsake": "gk_salon_card",
+     "fact": "{u} was invited into Tsubakiya's members' salon"
+    },
+    {
+     "label": "Take the card, another day",
+     "text": "she bows again and says the salon is always open to {{user}}; its pieces show in the Shop app from now on",
+     "keepsake": "gk_salon_card"
+    }
+   ]
+  },
+  {
+   "id": "sh_dealer",
+   "place": "rp_classics",
+   "when": "owns: ve_compact or ve_sedan or ve_sports or ve_driver; money: 8000000",
+   "title": "the dealer's offer",
+   "setup": "The restorer wipes his hands on a rag and looks at {{user}} for a long moment. He says he doesn't sell to people who keep cars in a garage like jewellery, but {{user}} drives. There is a coupé in the back he has spent two years on. He would like it to go to someone who will take it out on the Hakone roads.",
+   "choices": [
+    {
+     "label": "Ask to see it",
+     "minutes": 30,
+     "text": "he pulls off the cover: a 1960s coupé in deep green, every bolt new and every curve old. He writes a private number on the back of his card. It shows in the Shop app at the garage now",
+     "keepsake": "gk_dealer_card",
+     "fact": "{u} was offered a restored classic coupé at {0}"
+    },
+    {
+     "label": "Say you'll think about it",
+     "text": "he shrugs and gives you his card anyway; the car will wait a while. It shows in the Shop app at the garage",
+     "keepsake": "gk_dealer_card"
+    }
+   ]
+  },
+  {
+   "id": "sh_marina",
+   "place": "yk_marina",
+   "when": "money: 6000000; period: midmorning or afternoon",
+   "title": "the cruiser's showing",
+   "setup": "A broker in boat shoes catches {{user}} on the pontoon: a Minamikaze Marine cruiser has just come in, its owner moved abroad, and the berth goes with it. She is showing it this afternoon, and there is room on board for one more.",
+   "choices": [
+    {
+     "label": "Go aboard for the showing",
+     "minutes": 60,
+     "text": "teak decks, a cabin with a table for six, and the bay opening up past the breakwater on the trial run; she hands you a pass for the berths. The cruiser shows in the Shop app at the marina now",
+     "keepsake": "gk_marina_pass",
+     "effects": {
+      "mood": 8
+     },
+     "fact": "{u} went to a cruiser's showing at {0}"
+    },
+    {
+     "label": "Take her card",
+     "text": "she says the berth won't stay empty long, and gives you a pass to come back and look; the cruiser shows in the Shop app at the marina",
+     "keepsake": "gk_marina_pass"
+    }
+   ]
+  },
+  {
+   "id": "sh_st_heirloom",
+   "place": "ot_yanaka",
+   "when": "period: midmorning or afternoon; weekend: yes",
+   "setup": "An old woman is carrying boxes out of a tiny watch and jewel repair shop on a Yanaka lane, its shutter half down. A hand-written sign in the window says it is closing after fifty-two years. She stops to catch her breath on the step and looks at {{user}}.",
+   "choices": [
+    {
+     "label": "Help her carry the boxes",
+     "minutes": 45,
+     "text": "twenty boxes of tiny drawers to her nephew's van; when it's done she presses a silver camellia brooch into your hand, her husband's work, and won't hear a word against it",
+     "keepsake": "gk_old_brooch",
+     "effects": {
+      "energy": -10,
+      "mood": 8
+     },
+     "fact": "{u} helped an old woman close her late husband's repair shop in Yanaka"
+    },
+    {
+     "label": "Wish her well and walk on",
+     "text": "she nods, thanks you for stopping at all, and goes back to her boxes and the shutter that won't quite close"
+    }
+   ]
+  },
+  {
+   "id": "sh_st_kiriko",
+   "place": "ot_sumida",
+   "when": "period: midmorning or afternoon; weekend: yes",
+   "setup": "A kiriko glass workshop by the river has its door open for a neighborhood open day: an old cutter bent over a spinning wheel, shelves of glasses in indigo and red, and a sign offering visitors a go at cutting their own pattern for the price of the glass.",
+   "choices": [
+    {
+     "label": "Try cutting a glass",
+     "minutes": 60,
+     "money": -3000,
+     "roll": {
+      "skill": "drawing",
+      "dc": 11
+     },
+     "text": "your pattern comes out almost even; the cutter polishes it, wraps it in newspaper and says it has character",
+     "keepsake": "gk_own_kiriko",
+     "fact": "{u} cut a kiriko glass at a workshop by the Sumida",
+     "fail": {
+      "text": "the wheel bites deeper than you meant; the cutter laughs, polishes it anyway and says nobody else in the world has one like it",
+      "money": -3000,
+      "keepsake": "gk_own_kiriko"
+     }
+    },
+    {
+     "label": "Just watch the cutter",
+     "text": "the glass sings against the wheel and the pattern rises out of it like frost",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ]
+  },
+  {
+   "id": "sh_st_lastbottle",
+   "place": "sj_goldengai",
+   "when": "present: Kyōko; regular: 5; period: night or latenight",
+   "setup": "Near closing time, with only {{user}} left at the counter, Mama reaches under it for a bottle with no label, pours two small glasses, and says the distillery that made it closed before {{user}} was born. There is a finger left in the bottle.",
+   "choices": [
+    {
+     "label": "Drink to the distillery",
+     "text": "it tastes of smoke and old wood; she corks what's left and pushes the bottle across the counter: \"for someone who comes back\"",
+     "keepsake": "gk_last_bottle",
+     "feels": {
+      "Kyōko": 2
+     },
+     "fact": "{u} shared the last of an old bottle with Mama at {0}"
+    },
+    {
+     "label": "Say it should stay hers",
+     "text": "she smiles, drinks yours as well as hers, and puts the bottle back under the counter where it has always lived",
+     "feels": {
+      "Kyōko": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "sh_st_atelier",
+   "place": "sb_omotesando",
+   "when": "companion: crush or casual; period: afternoon",
+   "adult": true,
+   "setup": "In a white back street off Omotesandō, the owner of a tiny lingerie atelier is taking in her window samples for the new season. She sees {{user}} and their companion looking, and asks, with a dry smile, whether they would like a sample to take home before the rest go to her nieces.",
+   "choices": [
+    {
+     "label": "Accept, with thanks",
+     "text": "she folds an ivory silk chemise into tissue paper and says it was the best of the season; nobody would ever wear it in a window again",
+     "keepsake": "gk_silk_chemise",
+     "effects": {
+      "mood": 5
+     }
+    },
+    {
+     "label": "Laugh and decline",
+     "text": "she shrugs, says the nieces will be pleased, and goes back to taking the window apart piece by piece"
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -31134,6 +35456,738 @@
     "Rina"
    ],
    "adult": true
+  },
+  {
+   "id": "g_roses",
+   "name": "bouquet of red roses",
+   "icon": "🌹",
+   "kind": "flowers",
+   "desc": "a dozen long-stemmed roses, wrapped in black paper",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Shizuka",
+    "Sayuri"
+   ]
+  },
+  {
+   "id": "g_chocolates",
+   "name": "box of Ginza chocolates",
+   "icon": "🍫",
+   "kind": "food box",
+   "desc": "sixteen hand-made bonbons in a lacquered box",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Hina",
+    "Mio",
+    "Seo-yeon"
+   ]
+  },
+  {
+   "id": "g_melon",
+   "name": "boxed crown melon",
+   "icon": "🍈",
+   "kind": "food box",
+   "desc": "a perfect Shizuoka melon in a wooden box, a gift that says respect",
+   "gift": true,
+   "loves": [
+    "Genzō",
+    "Kyōko"
+   ]
+  },
+  {
+   "id": "g_necklace",
+   "name": "fine silver necklace",
+   "icon": "📿",
+   "kind": "jewellery",
+   "desc": "a thin chain with a single small diamond",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Airi",
+    "Sayuri",
+    "Reiko"
+   ]
+  },
+  {
+   "id": "g_pair_rings",
+   "name": "pair rings",
+   "icon": "💍",
+   "kind": "jewellery",
+   "desc": "two matching plain bands, the Japanese couple's promise short of an engagement",
+   "gift": true,
+   "romantic": true
+  },
+  {
+   "id": "g_perfume",
+   "name": "bottle of perfume",
+   "icon": "🌸",
+   "kind": "accessory",
+   "desc": "a niche fragrance from an Omotesandō boutique",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Reiko",
+    "Chloe",
+    "Rina"
+   ]
+  },
+  {
+   "id": "g_silk_scarf",
+   "name": "silk scarf",
+   "icon": "🧣",
+   "kind": "clothing",
+   "desc": "a hand-rolled silk scarf in deep red",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Kyōko",
+    "Nanami",
+    "Camille"
+   ]
+  },
+  {
+   "id": "g_enmusubi",
+   "name": "en-musubi love charm",
+   "icon": "🎐",
+   "kind": "charm",
+   "desc": "a pink omamori for finding and keeping love",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Yui",
+    "Linh"
+   ]
+  },
+  {
+   "id": "g_lace_set",
+   "name": "black lace lingerie set",
+   "icon": "🖤",
+   "kind": "lingerie",
+   "desc": "a black lace set with a garter belt",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "lingerie",
+    "lace",
+    "garters",
+    "dressing up"
+   ]
+  },
+  {
+   "id": "g_babydoll",
+   "name": "sheer babydoll",
+   "icon": "👙",
+   "kind": "lingerie",
+   "desc": "a light, sheer chiffon slip",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "lingerie",
+    "sheer",
+    "being looked at",
+    "showing off"
+   ]
+  },
+  {
+   "id": "g_silk_boxers",
+   "name": "black silk boxers",
+   "icon": "🩲",
+   "kind": "lingerie",
+   "desc": "heavy black silk boxers",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "silk",
+    "underwear",
+    "lingerie"
+   ]
+  },
+  {
+   "id": "g_blindfold",
+   "name": "silk blindfold",
+   "icon": "🎀",
+   "kind": "bedroom",
+   "desc": "a padded silk mask that lets no light through",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "blindfold",
+    "blindfolded",
+    "being blindfolded",
+    "sensory",
+    "sensory play",
+    "anticipation"
+   ]
+  },
+  {
+   "id": "g_massage_oil",
+   "name": "warming massage oil",
+   "icon": "🫙",
+   "kind": "bedroom",
+   "desc": "jasmine massage oil that warms on the skin",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "massage",
+    "massages",
+    "oil",
+    "being touched",
+    "sensual"
+   ]
+  },
+  {
+   "id": "g_feather",
+   "name": "feather tickler",
+   "icon": "🪶",
+   "kind": "bedroom",
+   "desc": "a long ostrich feather on a wand",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "feathers",
+    "feather",
+    "tickling",
+    "light touch"
+   ]
+  },
+  {
+   "id": "g_maid_costume",
+   "name": "French maid costume",
+   "icon": "🎀",
+   "kind": "costume",
+   "desc": "a short black dress, a white apron and a headband",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "costume",
+    "costumes",
+    "cosplay",
+    "maid",
+    "roleplay",
+    "role play",
+    "dressing up"
+   ]
+  },
+  {
+   "id": "g_nurse_costume",
+   "name": "nurse costume",
+   "icon": "🩺",
+   "kind": "costume",
+   "desc": "a white nurse costume and cap, from a love hotel room's vending machine",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "costume",
+    "costumes",
+    "cosplay",
+    "roleplay",
+    "role play",
+    "doctor"
+   ]
+  },
+  {
+   "id": "g_bunny_costume",
+   "name": "bunny costume",
+   "icon": "🐰",
+   "kind": "costume",
+   "desc": "a satin leotard, ears and a bow tie",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "costume",
+    "costumes",
+    "cosplay",
+    "bunny",
+    "dressing up",
+    "showing off"
+   ]
+  },
+  {
+   "id": "gk_plush_whale",
+   "name": "whale plush",
+   "icon": "🐋",
+   "kind": "plush",
+   "desc": "a soft blue whale as long as an arm",
+   "gift": true,
+   "loves": [
+    "Hina",
+    "Mio",
+    "Linh"
+   ]
+  },
+  {
+   "id": "gk_plush_shiba",
+   "name": "shiba plush",
+   "icon": "🐕",
+   "kind": "plush",
+   "desc": "a smug shiba inu plush with a curled tail",
+   "gift": true,
+   "loves": [
+    "Hina",
+    "Natsuki",
+    "Akane"
+   ]
+  },
+  {
+   "id": "gk_bouquet",
+   "name": "seasonal bouquet",
+   "icon": "💐",
+   "kind": "flowers",
+   "desc": "the florist's pick of the week, wrapped in paper",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Shizuka",
+    "Seo-yeon",
+    "Linh"
+   ]
+  },
+  {
+   "id": "gk_yosegi_box",
+   "name": "yosegi puzzle box",
+   "icon": "🎁",
+   "kind": "accessory",
+   "desc": "a Hakone marquetry box that opens in seven moves",
+   "gift": true,
+   "loves": [
+    "Natsuki",
+    "Hannah",
+    "Daisuke"
+   ]
+  },
+  {
+   "id": "gk_watch_gift",
+   "name": "engraved watch",
+   "icon": "⌚",
+   "kind": "accessory",
+   "desc": "a Kizami automatic engraved on the back",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Reiko",
+    "Daisuke",
+    "Jake"
+   ]
+  },
+  {
+   "id": "gk_yorunami",
+   "name": "bottle of Yorunami daiginjo",
+   "icon": "🍶",
+   "kind": "spirits",
+   "desc": "Yorunami's best sake in a paulownia box",
+   "gift": true,
+   "loves": [
+    "Kyōko",
+    "Genzō",
+    "Daisuke"
+   ]
+  },
+  {
+   "id": "gk_closed_whisky",
+   "name": "Kirisato whisky",
+   "icon": "🥃",
+   "kind": "spirits",
+   "desc": "one of the last bottles of a distillery that closed in 1983",
+   "gift": true,
+   "loves": [
+    "Kyōko",
+    "Lucas",
+    "Reiko"
+   ]
+  },
+  {
+   "id": "gk_kutani_cup",
+   "name": "Kutani cup",
+   "icon": "🍵",
+   "kind": "tableware",
+   "desc": "a porcelain cup painted in Kutani's five colors",
+   "gift": true,
+   "loves": [
+    "Shizuka",
+    "Yui",
+    "Genzō"
+   ]
+  },
+  {
+   "id": "gk_kiriko_glasses",
+   "name": "Edo kiriko glasses",
+   "icon": "🥃",
+   "kind": "tableware",
+   "desc": "a pair of cut-glass tumblers in indigo and red",
+   "gift": true,
+   "loves": [
+    "Kyōko",
+    "Sayuri",
+    "Lucas"
+   ]
+  },
+  {
+   "id": "gk_first_edition",
+   "name": "first edition",
+   "icon": "📕",
+   "kind": "book",
+   "desc": "a poet's first collection in its paper wrapper",
+   "gift": true,
+   "loves": [
+    "Seo-yeon",
+    "Yui",
+    "Camille"
+   ]
+  },
+  {
+   "id": "gk_cashmere_wrap",
+   "name": "cashmere wrap",
+   "icon": "🧣",
+   "kind": "clothing",
+   "desc": "a wide wrap in soft grey cashmere",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Reiko",
+    "Shizuka",
+    "Mei"
+   ]
+  },
+  {
+   "id": "gk_fountain_pen",
+   "name": "fine fountain pen",
+   "icon": "🖋️",
+   "kind": "stationery",
+   "desc": "a Ginza stationer's pen with a gold nib, engraved with a name",
+   "gift": true,
+   "loves": [
+    "Seo-yeon",
+    "Daisuke",
+    "Mei"
+   ]
+  },
+  {
+   "id": "gk_pearl_necklace",
+   "name": "pearl necklace",
+   "icon": "🦪",
+   "kind": "jewellery",
+   "desc": "a strand of akoya pearls",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Shizuka",
+    "Reiko",
+    "Sayuri"
+   ]
+  },
+  {
+   "id": "gk_diamond_pendant",
+   "name": "diamond pendant",
+   "icon": "💎",
+   "kind": "jewellery",
+   "desc": "a single diamond on a fine chain",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Rina",
+    "Chloe",
+    "Airi"
+   ]
+  },
+  {
+   "id": "gk_ring",
+   "name": "Hoshikage ring",
+   "icon": "💍",
+   "kind": "jewellery",
+   "desc": "a ring with a stone that makes a room go quiet",
+   "gift": true,
+   "romantic": true
+  },
+  {
+   "id": "gk_signed_copy",
+   "name": "signed copy",
+   "icon": "📗",
+   "kind": "book",
+   "desc": "a novel signed by its author, found under a pile of reprints at the book fair",
+   "gift": true,
+   "loves": [
+    "Seo-yeon",
+    "Haru"
+   ]
+  },
+  {
+   "id": "gk_photo_zine",
+   "name": "your photo zine",
+   "icon": "📒",
+   "kind": "book",
+   "desc": "a short run of a zine of your best photographs",
+   "gift": true,
+   "loves": [
+    "Chloe",
+    "Camille",
+    "Nanami"
+   ]
+  },
+  {
+   "id": "gk_happi",
+   "name": "festival happi coat",
+   "icon": "🎽",
+   "kind": "clothing",
+   "desc": "a neighborhood association's happi coat from the Sanja festival",
+   "gift": true,
+   "loves": [
+    "Kaito",
+    "Genzō",
+    "Ayaka"
+   ]
+  },
+  {
+   "id": "gk_pressed_sakura",
+   "name": "pressed cherry blossom",
+   "icon": "🌸",
+   "kind": "flowers",
+   "desc": "a blossom pressed into a little card under the Ueno trees",
+   "gift": true,
+   "romantic": true,
+   "loves": [
+    "Yui",
+    "Seo-yeon",
+    "Haru"
+   ]
+  },
+  {
+   "id": "gk_old_brooch",
+   "name": "old silver brooch",
+   "icon": "📌",
+   "kind": "jewellery",
+   "desc": "a silver camellia brooch from a Yanaka repair shop that closed",
+   "gift": true,
+   "loves": [
+    "Nanami",
+    "Kyōko",
+    "Seo-yeon"
+   ]
+  },
+  {
+   "id": "gk_own_kiriko",
+   "name": "kiriko glass you cut",
+   "icon": "🥃",
+   "kind": "tableware",
+   "desc": "a slightly lopsided cut-glass tumbler, cut at a workshop by the Sumida",
+   "gift": true,
+   "loves": [
+    "Haru",
+    "Kaito"
+   ]
+  },
+  {
+   "id": "gk_last_bottle",
+   "name": "the last of a bottle",
+   "icon": "🍾",
+   "kind": "spirits",
+   "desc": "the end of an unlabeled bottle Mama kept under the counter at Bar Kotori",
+   "gift": true,
+   "loves": [
+    "Kyōko",
+    "Ren"
+   ]
+  },
+  {
+   "id": "gk_cosplay_cape",
+   "name": "convention cape",
+   "icon": "🦸",
+   "kind": "costume",
+   "desc": "a costume maker's spare cape, traded for a photo at the fan convention",
+   "gift": true,
+   "loves": [
+    "Natsuki",
+    "Hina"
+   ]
+  },
+  {
+   "id": "gk_silk_chemise",
+   "name": "silk chemise",
+   "icon": "🤍",
+   "kind": "lingerie",
+   "desc": "an atelier's sample in ivory silk",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "silk",
+    "lingerie",
+    "dressing up"
+   ]
+  },
+  {
+   "id": "gk_hotel_bath_set",
+   "name": "love hotel bath set",
+   "icon": "🛁",
+   "kind": "bedroom",
+   "desc": "a little bath set from Hotel Coco Palace: salts and a sachet of oil",
+   "gift": true,
+   "intimate": true,
+   "adult": true,
+   "loves": [
+    "bath together",
+    "baths",
+    "massage"
+   ]
+  },
+  {
+   "id": "gk_salon_card",
+   "name": "salon member's card",
+   "icon": "💳",
+   "kind": "card",
+   "desc": "a heavy black card with a gold camellia: Tsubakiya's members' salon",
+   "gift": false
+  },
+  {
+   "id": "gk_dealer_card",
+   "name": "restorer's card",
+   "icon": "🪪",
+   "kind": "card",
+   "desc": "Akatsuki Motorworks' card, with a private number written on the back",
+   "gift": false
+  },
+  {
+   "id": "gk_marina_pass",
+   "name": "marina pass",
+   "icon": "⚓",
+   "kind": "card",
+   "desc": "a pass to the berths at the Kamome Marina",
+   "gift": false
+  },
+  {
+   "id": "gk_gallery_card",
+   "name": "gallerist's card",
+   "icon": "🪪",
+   "kind": "card",
+   "desc": "a Ginza gallerist's card, the date of a group show written on it",
+   "gift": false
+  },
+  {
+   "id": "gk_photo_crossing",
+   "name": "photo of the scramble",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "a print of the crossing at the moment the lights change",
+   "gift": true,
+   "loves": [
+    "Chloe",
+    "Kaito",
+    "Jake"
+   ]
+  },
+  {
+   "id": "gk_photo_takeshita",
+   "name": "street-fashion photo",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "a print of a stranger's perfect outfit on Takeshita Street",
+   "gift": true,
+   "loves": [
+    "Nanami",
+    "Hina",
+    "Lisa"
+   ]
+  },
+  {
+   "id": "gk_photo_tocho",
+   "name": "photo from the observatory",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "the whole city from above, Fuji small on the edge",
+   "gift": true,
+   "loves": [
+    "Reiko",
+    "Rina",
+    "Daisuke"
+   ]
+  },
+  {
+   "id": "gk_photo_yanaka",
+   "name": "Yanaka cat photo",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "a cat asleep on a temple wall in the late sun",
+   "gift": true,
+   "loves": [
+    "Mio",
+    "Yui",
+    "Linh"
+   ]
+  },
+  {
+   "id": "gk_photo_bridge",
+   "name": "photo from Rainbow Bridge",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "the bay from the walkway, the city reflected in it",
+   "gift": true,
+   "loves": [
+    "Kaito",
+    "Hannah",
+    "Lucas"
+   ]
+  },
+  {
+   "id": "gk_photo_tower",
+   "name": "photo of the tower",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "Tokyo Tower lit orange against a deep blue sky",
+   "gift": true,
+   "loves": [
+    "Hina",
+    "Chloe",
+    "Mio"
+   ]
+  },
+  {
+   "id": "gk_photo_minato",
+   "name": "photo of the waterfront",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "the Ferris wheel and the towers doubled in the black water",
+   "gift": true,
+   "loves": [
+    "Shizuka",
+    "Camille",
+    "Ren"
+   ]
+  },
+  {
+   "id": "gk_photo_skyline",
+   "name": "night view photo",
+   "icon": "📷",
+   "kind": "photo",
+   "desc": "the city at night from the Sky Museum, the tower an orange pin",
+   "gift": true,
+   "loves": [
+    "Rina",
+    "Jake",
+    "Seo-yeon"
+   ]
+  },
+  {
+   "id": "gk_darkroom_print",
+   "name": "darkroom print",
+   "icon": "🎞️",
+   "kind": "photo",
+   "desc": "a silver gelatin print you developed yourself",
+   "gift": true,
+   "loves": [
+    "Haru",
+    "Ren",
+    "Camille"
+   ]
   }
  ],
  "occupations": [
@@ -31935,7 +36989,8 @@
    "shift": 9,
    "length": 0.7,
    "skills": {
-    "japanese": 4
+    "japanese": 4,
+    "photography": 0
    },
    "likes": [
     "Sarcastic",
@@ -32067,6 +37122,29 @@
        "effects": {
         "mood": -1
        }
+      }
+     ]
+    },
+    {
+     "id": "fashion_ev_photo",
+     "setup": "The manager wants the season's lookbook and the shop's posts done by Friday, and asks who can take a decent photo.",
+     "choices": [
+      {
+       "label": "Shoot the lookbook",
+       "roll": {
+        "skill": "photography",
+        "dc": 11
+       },
+       "perf": 2,
+       "text": "the posts do better than any the shop has put up",
+       "fail": {
+        "text": "the photos come out flat; the manager redoes half of them",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Say photos aren't your thing",
+       "text": "a part-timer with a ring light does it instead"
       }
      ]
     }
@@ -35410,12 +40488,47 @@
        }
       }
      ]
+    },
+    {
+     "id": "maid_ev_photo",
+     "setup": "A queue forms for cheki, the instant photos with a maid, and the head maid hands you the camera.",
+     "choices": [
+      {
+       "label": "Take the cheki",
+       "roll": {
+        "skill": "photography",
+        "dc": 10
+       },
+       "perf": 1,
+       "money": 800,
+       "text": "every customer goes home with a photo worth the price, and two come back for another",
+       "fail": {
+        "text": "half the shots are blurred; you retake them while the queue grows",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Ask to pose instead",
+       "roll": {
+        "skill": "charisma",
+        "dc": 10
+       },
+       "perf": 1,
+       "text": "you pose, and somebody else takes the pictures",
+       "fail": {
+        "perf": -1
+       }
+      }
+     ]
     }
    ],
    "adult": false,
    "drinks": [
     "ot_izakaya"
-   ]
+   ],
+   "skills": {
+    "photography": 0
+   }
   },
   {
    "id": "idol",
@@ -36389,7 +41502,8 @@
    "shift": 8,
    "length": 0.9,
    "skills": {
-    "japanese": 2
+    "japanese": 2,
+    "photography": 0
    },
    "likes": [
     "Curious",
@@ -36589,6 +41703,32 @@
       },
       {
        "label": "Just praise it"
+      }
+     ]
+    },
+    {
+     "id": "museum_ev_photo",
+     "setup": "The new exhibition opens next month and its catalog needs a photograph of every piece; the photographer the museum always uses has fallen ill.",
+     "choices": [
+      {
+       "label": "Offer to photograph the pieces",
+       "roll": {
+        "skill": "photography",
+        "dc": 13
+       },
+       "perf": 2,
+       "effects": {
+        "energy": -10
+       },
+       "text": "your photographs go into the catalog, with your name in small print on the last page",
+       "fail": {
+        "text": "the glare on the glass ruins half of them; a studio is hired after all",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Leave it to the curators",
+       "text": "they hire a studio, and the catalog is late"
       }
      ]
     }
@@ -39195,11 +44335,38 @@
        "text": "you ask for the vote to wait a season; the president agrees too quickly, and the other name on the list smiles"
       }
      ]
+    },
+    {
+     "id": "tv_ev_photo",
+     "setup": "The camera operator for a location shoot is stuck on a stalled train, and the light over the bay won't wait.",
+     "choices": [
+      {
+       "label": "Pick up the camera yourself",
+       "roll": {
+        "skill": "photography",
+        "dc": 12
+       },
+       "perf": 2,
+       "text": "the director uses three of your shots in the opening",
+       "fail": {
+        "text": "the footage shakes; the editor sighs and cuts around it",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Wait for the operator",
+       "perf": -1,
+       "text": "the light is gone by the time he arrives"
+      }
+     ]
     }
    ],
    "drinks": [
     "bay_mall"
-   ]
+   ],
+   "skills": {
+    "photography": 0
+   }
   },
   {
    "id": "clubstaff",
@@ -42329,7 +47496,8 @@
      "desc": "Drawing, color, illustration and fashion in the studios of the art building, and a graduation portfolio.",
      "skills": [
       "drawing",
-      "fashion"
+      "fashion",
+      "photography"
      ],
      "gives": {
       "jobs": [

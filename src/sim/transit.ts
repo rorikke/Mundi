@@ -1,13 +1,15 @@
 // (E4) Trains: in a world with `transit` (Tokyo), a trip between two maps goes by train, and no train runs between the
 // last one (about 0:30) and the first (about 5:00): then it's a taxi, at its fare, or a wait for the first train. The
 // save's "Last train" rule (World → Rules → Advanced) can make taxis cheap or keep the trains running all night.
-// Worlds without `transit` have no last train. (E11) On a train you may run into someone you know making the same
-// trip, more often at rush hour. (E36) The night a resident misses the last train is in people.ts (lateNight).
+// Worlds without `transit` have no last train. A car of yours (the shop's `late`) drives you instead: no taxi, no wait,
+// and it isn't a missed train. (E11) On a train you may run into someone you know making the same trip, more often at
+// rush hour. (E36) The night a resident misses the last train is in people.ts (lateNight).
 import { cfg, type Save, type Resident } from '../core/store.js';
 import { isScenario, type WorldDef } from '../core/world.js';
 import { mapOf } from './places.js';
 import { priceOf } from './bills.js';
 import { tallyEvent } from './tally.js';
+import { drivesLate } from './shop.js';
 
 export type LastTrain = 'on' | 'cheap' | 'off';
 export const LAST_TRAIN_RULES: { id: LastTrain; name: string; desc: string }[] = [
@@ -38,8 +40,12 @@ export function untilFirstTrain(w: WorldDef, minutes: number): number {
 }
 /** A trip that takes the train: between two maps, in a world with trains (not a Home). */
 export const byTrain = (g: Save, w: WorldDef, from: string, to: string) => !!w.transit && !isScenario(w) && from !== to && mapOf(g, w, from) !== mapOf(g, w, to);
-/** The player's trip now finds no train (and the rule keeps the last train). */
-export const missedTrain = (g: Save, w: WorldDef, from: string, to: string) => lastTrainRule(g) !== 'off' && byTrain(g, w, from, to) && !trainsRun(w, g.minutes);
+// The trip now would find no train (and the rule keeps the last train).
+const noTrain = (g: Save, w: WorldDef, from: string, to: string) => lastTrainRule(g) !== 'off' && byTrain(g, w, from, to) && !trainsRun(w, g.minutes);
+/** The player drives this trip: no train now, and a car of yours (sim/shop.ts `late`). */
+export const drivesNow = (g: Save, w: WorldDef, from: string, to: string) => noTrain(g, w, from, to) && drivesLate(g, w);
+/** The player's trip now finds no train (and the rule keeps the last train), with no car to drive instead. */
+export const missedTrain = (g: Save, w: WorldDef, from: string, to: string) => noTrain(g, w, from, to) && !drivesLate(g, w);
 /** You set off after the last train (a taxi, or a wait for the first one): counted for life goals (sim/tally.ts). */
 export const tookLateTrip = (g: Save) => tallyEvent(g, 'missed_train');
 /** A taxi for a trip of that many minutes: the world's fare (a base and per minute), with the difficulty's prices. */

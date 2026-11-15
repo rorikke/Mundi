@@ -27,7 +27,7 @@ import { journeyOf, travelRoad } from '../sim/journey.js';
 import type { Save } from '../core/store.js';
 import { thumb } from '../st/bridge.js';
 import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName } from '../sim/places.js';
-import { missedTrain, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
+import { missedTrain, drivesNow, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
 import { planOn, floorsOn, planTarget, unplaced, floorOf } from '../sim/plan.js';
 import { presentAt, whereNow } from '../sim/people.js';
 import { writeDiary, diaryOn, markDayStart } from '../sim/diary.js';
@@ -474,7 +474,8 @@ export const mapInput = {
 
 // Moves the player: time passes, the scene follows (who is there now), and the screen goes to the scene.
 // A long journey (RPG, between regions): first, how you go (making camp, or pushing on).
-// (E4) After the last train, a trip to another map: first, a taxi or a wait for the first train (`late`).
+// (E4) After the last train, a trip to another map: first, a taxi or a wait for the first train (`late`); with a car of
+// your own you just drive (no fare, no wait, not a missed train, and nobody to meet on a train).
 export const JOURNEY = { to: '', minutes: 0, camps: 0 };
 export const LATE = { to: '', minutes: 0, fare: 0, wait: 0 };
 export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi' | 'wait') {
@@ -486,6 +487,7 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     if (fee && g.player.money < fee) { toast(`Getting into ${placeOf(g, w, loc)?.name ?? 'there'} costs ${money(w, fee)}. Not enough money.`, 'info'); return; }
     const mins = travelMinutes(g, w, g.player.loc, loc);
     if (!late && missedTrain(g, w, g.player.loc, loc)) { Object.assign(LATE, { to: loc, minutes: mins, fare: taxiFare(g, w, mins), wait: untilFirstTrain(w, g.minutes) }); notify(); return; }
+    const drive = !late && drivesNow(g, w, g.player.loc, loc);
     const fare = late === 'taxi' ? taxiFare(g, w, mins) : 0;
     if (fare && g.player.money < fare + fee) { toast(`A taxi there costs ${money(w, fare)}. Not enough money.`, 'info'); return; }
     LATE.to = '';
@@ -501,7 +503,7 @@ export async function travelTo(loc: string, road?: 'camp' | 'push', late?: 'taxi
     if (fare) { g.player.money -= fare; book(g, 'Taxi', -fare); toast(`The taxi cost ${money(w, fare)}.`, 'info'); }
     dropBump();   // a meeting you did not answer stays behind
     // (E11) who is where as you leave: someone you know may be on the same train
-    const train = !fare && byTrain(g, w, from, loc) && systemOn(w, 'living');
+    const train = !fare && !drive && byTrain(g, w, from, loc) && systemOn(w, 'living');
     const departed = g.minutes;
     const before = train ? new Map(Object.values(g.cast).filter(r => r.met).map(r => [r.avatar, whereNow(g, w, r)])) : null;
     (g as any).traveling = true;   // the trip itself costs no energy (only what you do does)

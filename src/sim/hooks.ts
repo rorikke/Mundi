@@ -2,11 +2,16 @@
 import type { Save, Resident } from '../core/store.js';
 import type { WorldDef, ActionDef, Place, StatusDef, WorkResult } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
+import type { ShopItem } from '../core/presets.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
 export const onDay: ((g: Save, w: WorldDef) => string[])[] = [];
 // After anything changed (the prompt is refreshed: arriving somewhere, a click, the clock): the world's stories and
 // threads look at the scene (sim/stories.ts, sim/threads.ts).
 export const onLook: ((g: Save, w: WorldDef) => void)[] = [];
+
+// Things you have, in a shop item's shape: each entry lists what you own right now. Only the shop's (sim/shop.ts) for
+// now; a home's rooms and fixtures can join later. Read through `ownedDefs` in sim/shop.ts, never one by one.
+export const thingsOwned: ((g: Save, w: WorldDef) => ShopItem[])[] = [];
 
 // After you do an action (habits, pets…).
 export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[]; name: string }) => void)[] = [];

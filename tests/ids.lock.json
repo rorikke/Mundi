@@ -1126,7 +1126,15 @@
    "link_roppongi",
    "link_yokohama",
    "link_hakone",
-   "sj_esthe"
+   "sj_esthe",
+   "ws_cafe_unit",
+   "ot_cafe_unit",
+   "sb_cafe_unit",
+   "hk_ryokan_hanare",
+   "yk_lovehotel_mirage",
+   "sb_lovehotel_suite",
+   "yk_marina",
+   "rp_classics"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1543,7 +1551,59 @@
    "x-hotaru",
    "sj_esthe_book",
    "sj_hostess_sumire",
-   "sb_lovehotel_kaoru"
+   "sb_lovehotel_kaoru",
+   "cf_unit_coffee",
+   "hr_hanare_bath",
+   "sb_lovehotel_suite_night",
+   "sb_lovehotel_suite_view",
+   "priv_use_lingerie",
+   "priv_use_blindfold",
+   "priv_use_oil",
+   "priv_use_costume",
+   "sh_photo_crossing",
+   "sh_photo_takeshita",
+   "sh_photo_tocho",
+   "sh_photo_yanaka",
+   "sh_photo_bridge",
+   "sh_photo_lights",
+   "sh_photo_tower",
+   "sh_photo_minato",
+   "sh_photo_ashi",
+   "sh_photo_skyline",
+   "sh_photo_walk",
+   "sh_photo_sell",
+   "sh_develop",
+   "sh_photo_gallery",
+   "sh_watch_fish",
+   "sh_tea",
+   "sh_bake",
+   "sh_espresso",
+   "sh_nabe",
+   "sh_read",
+   "sh_vr",
+   "sh_movie_night",
+   "sh_yoga",
+   "sh_bonsai",
+   "sh_cocktail",
+   "sh_keyboard",
+   "sh_sing_home",
+   "sh_calligraphy",
+   "sh_piano",
+   "sh_barre",
+   "sh_stargaze",
+   "sh_mealkit",
+   "sh_open_wine",
+   "sh_open_sake",
+   "sh_massage_chair",
+   "sh_trainer",
+   "sh_bath_two",
+   "sh_couples_cards",
+   "sh_instant_private",
+   "sh_marina_look",
+   "sh_cruise_alone",
+   "sh_cruise_friends",
+   "sh_cruise_date",
+   "sh_classics_look"
   ],
   "occupations": [
    "rider",
@@ -1590,7 +1650,10 @@
    "ryokan",
    "avactress",
    "esthe",
-   "streamer"
+   "streamer",
+   "aroma_salon",
+   "lovehotel_day",
+   "bizhotel_night"
   ],
   "courses": [
    "japanese",
@@ -1651,7 +1714,8 @@
    "m_arts_animation",
    "m_arts_textiles",
    "m_arts_portfolio",
-   "m_arts_curating"
+   "m_arts_curating",
+   "exec_program"
   ],
   "origins": [],
   "routines": [
@@ -1742,7 +1806,10 @@
    "ryokan": 4,
    "avactress": 5,
    "esthe": 4,
-   "streamer": 1
+   "streamer": 1,
+   "aroma_salon": 1,
+   "lovehotel_day": 1,
+   "bizhotel_night": 1
   },
   "goals": [
    "tk_makeit",
@@ -1769,7 +1836,8 @@
    "tk_pleasure",
    "tk_spark",
    "tk_openhearts",
-   "tk_thrill"
+   "tk_thrill",
+   "tk_hijiri"
   ],
   "rewards": [
    "omikuji",

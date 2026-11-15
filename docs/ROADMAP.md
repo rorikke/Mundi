@@ -19,6 +19,14 @@ Ideas planned for later. Nothing here is promised for a date.
   - Life goals and keepsakes for each track, and perhaps the other worlds' fixed small businesses (`property`) moved
     onto the same engine.
 
+- **End-game spending: homes and a collection.** The shop is in (see [Shopping](improvements.md#shopping)). Next:
+  - **Homes worth saving for:** Tokyo's top homes much dearer and a few new ones (penthouses, a mansion), bought
+    rather than only rented, with rooms and fixtures (a grand piano, a sauna, a home bar, a tea room) that work as the
+    shop's things do: small bonuses, things to do, what the AI is told.
+  - **A collection:** rare pieces that turn up at places and events, a record of the Tokyo content you've completed,
+    and milestones that bring stories.
+  - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
+
 - **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:
   - Storylines for the other worlds' people (the World creator can already write them), and a second storyline for a
     person once their first has ended.
@@ -33,9 +41,9 @@ Ideas planned for later. Nothing here is promised for a date.
 - **The world creator from inside a game:** everything the creator can change, changeable from ☰ → This world while
   you play; a game in a built-in world gets its own copy of the world first (plan and limitations:
   [`world-edit-in-game.md`](world-edit-in-game.md)).
-- **Tokyo: a photographer's job.** Once photography is a skill (planned with the shop's overhaul, where it trains at
-  scenic places and with cameras and counts in a few existing jobs), a job of its own: a studio to work from (a new
-  place and its picture), assignments for magazines, weddings and the city's festivals and events, and an adult side
+- **Tokyo: a photographer's job.** Photography is a skill now (it trains at scenic places and with cameras, and counts
+  in a few existing jobs; see [Shopping](improvements.md#photography)). Next, a job of its own: a studio to work from (a
+  new place and its picture), assignments for magazines, weddings and the city's festivals and events, and an adult side
   when adult content is on.
 - **Tokyo in Portuguese and Spanish:** the world's own text (places, things to do, stories) in
   `worlds/tokyo/lang/pt.json` and `es.json`, as Porto Alto has; the interface is already translated.

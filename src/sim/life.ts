@@ -1,19 +1,16 @@
-// Life-Sim systems: needs in words, feelings that fade, the lifestyle shop (vehicles, furniture,
-// gear for working at home), quick gigs, the gym, college, things at home that break, scene lock, NPCs who
-// invite you, and who lets you into their home. All decided by the engine; the AI only narrates.
+// Life-Sim systems: needs in words, feelings that fade, the lifestyle shop's older names (sim/shop.ts has it), quick
+// gigs, the gym, college, things at home that break, scene lock, NPCs who invite you, and who lets you into their home.
+// All decided by the engine; the AI only narrates.
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { takingNow, studyBlock, studySession, payDue, learning, CLASS_MINUTES } from './courses.js';
 import { countUp } from './skills.js';
 import { courseworkAction, addCoursework } from './degrees.js';
-import { priceOf } from './bills.js';
 import type { WorldDef, ActionDef, StatusDef } from '../core/world.js';
 import { systemOn, isScenario } from '../core/world.js';
-import { priceHere } from './worldstate.js';
 import { lex } from '../core/lexicon.js';
 import { onDay, onHour } from './hooks.js';
 import { money } from './needs.js';
-import type { ShopItem, Breakable } from '../core/presets.js';
-import { book } from './ledger.js';
+import type { Breakable } from '../core/presets.js';
 import { social, bondOf, isPartner, type PlanKind } from './social.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
@@ -69,31 +66,8 @@ export { ASPIRATIONS, aspirationOf, setAspiration, type Aspiration } from './goa
 
 /* ---------- the lifestyle shop ---------- */
 
-// The world's shop (catalogs.shop): vehicles shorten trips, a good bed lifts your mood each morning, and some items
-// unlock things to do at home (an action with `needsItem`).
-export type Item = ShopItem;
-export const shopItems = (w: WorldDef): Item[] => (systemOn(w, 'shop') ? (w.catalogs as any).shop ?? [] : []) as Item[];
-export const hasItem = (g: Save, id: string) => life(g).items.includes(id);
-// What an item costs now: the difficulty, then the prices where you live (the living world).
-export const shopPrice = (g: Save, w: WorldDef, it: Item) => Math.round(priceOf(g, it.price) * priceHere(g, w, playerHomeId));
-const owned = (g: Save, w: WorldDef) => shopItems(w).filter(it => hasItem(g, it.id));
-export function buy(g: Save, w: WorldDef, id: string): string {
-    const it = shopItems(w).find(x => x.id === id);
-    if (!it) return '';
-    if (hasItem(g, id)) return 'You already have it.';
-    const price = shopPrice(g, w, it);
-    if (g.player.money < price) return 'Not enough money.';
-    g.player.money -= price; book(g, it.name, -price);
-    life(g).items.push(id);
-    note(g, '{u} bought: {0}.', [it.name], [], g.player.loc, 'shop');
-    return '';
-}
-// Vehicles shorten every trip (the best one you own).
-// (a mount you keep well fed counts too)
-export const travelFactor = (g: Save, w?: WorldDef | null) => (w ? Math.min(1, ...owned(g, w).map(it => (Number(it.travel) > 0 ? Number(it.travel) : 1)), ...mountSpeeds(g, w)) : 1);
-const mountSpeeds = (g: Save, w: WorldDef) => ((w.features as any)?.mounts === false ? [] : ((g as any).pets ?? []).map((p: any) => { const d = (w.pets ?? []).find(x => x.id === p.kind); return d?.mount && p.hunger > 20 ? Math.max(0.3, (d.speed ?? 0.6) - (p.bound ? Math.min(0.2, (p.level ?? 1) * 0.02) : 0)) : 1; }));
-// Mood gained when you wake up at home (a good bed…).
-export const sleepMood = (g: Save, w: WorldDef) => owned(g, w).reduce((a, it) => a + (it.sleepMood ?? 0), 0);
+// It lives in sim/shop.ts; these names stay for the screens and systems that read them here.
+export { shopItems, hasItem, shopPrice, buy, travelFactor, sleepMood, type Item } from './shop.js';
 
 /* ---------- things at home that break ---------- */
 

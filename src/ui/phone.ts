@@ -7,6 +7,7 @@ import { missingCourses, isTaking } from '../sim/courses.js';
 import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, type BillId } from '../sim/bills.js';
 import { shopApp, feelingsHtml } from './lifeui.js';
+import { SH } from './shopui.js';
 import { goalsApp, goalsBadge } from './goalsui.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
@@ -411,6 +412,7 @@ Object.assign(ACT, {
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
     'ph-open-campus': () => { P.open = true; P.app = 'campus'; notify(); },
     'ph-open-business': () => { P.open = true; P.app = 'business'; notify(); },
+    'ph-open-shop': () => { P.open = true; P.app = 'shop'; SH.tab = 'here'; notify(); },   // (the HUD's "Shop here")
 });
 
 /* ---------- Chirp: short posts, like Twitter/X ---------- */

@@ -19,7 +19,7 @@ import { book } from './ledger.js';
 import { money } from './needs.js';
 import { priceOf } from './bills.js';
 import { rollBonus, rollD20 } from './dice.js';
-import { setSkillLevel, skillDef, trainSkill } from './hobbies.js';
+import { setSkillLevel, skillDef, trainSkill, levelOf, skillName } from './hobbies.js';
 import { whenHolds } from './when.js';
 import { schoolOf } from './institutions.js';
 import { milestonePoints } from './points.js';
@@ -308,6 +308,24 @@ onAction.push((g, w, a) => {
 /* ---------- grades, the end of a term ---------- */
 
 const moduleSkill = (w: WorldDef, c: Course) => Object.keys(c.skills ?? {}).find(id => skillDef(w, id)) ?? (findDegree(w, c.degree)?.d.skills ?? []).find(id => skillDef(w, id));
+/** Old saves: a module's levels are set once, when it's graded, so a module that teaches something else since (Tokyo's
+ *  Photography: photography 3, where it taught drawing 3) brings what it teaches now up to its levels, for every module
+ *  passed in the degree you study for (never lowering one; what it taught before stays). Degrees already finished keep
+ *  no grades, so they're left as they are. Run by `checkSave()` (core/saves.ts) once the world is known; a second run
+ *  changes nothing. Returns the levels raised, in words ("Photography 3"). */
+export function settleModules(g: Save, w: WorldDef): string[] {
+    const cur = (g as any).uni?.cur as DegreeState | null | undefined;
+    if (!cur || !on(w)) return [];
+    const passed = new Set<string>();
+    for (const grades of [cur.grades ?? {}, ...(cur.history ?? []).map(h => h.grades ?? {})]) for (const [id, gr] of Object.entries(grades)) if (gr !== 'F') passed.add(id);
+    const out: string[] = [];
+    for (const id of passed) for (const [sid, n] of Object.entries(courseOf(w, id)?.skills ?? {})) {
+        if (!skillDef(w, sid) || levelOf(g, sid) >= n) continue;
+        setSkillLevel(g, sid, n);
+        out.push(`${skillName(w, sid)} ${n}`);
+    }
+    return out;
+}
 /** A grade from a score of 0–100: attendance (50), coursework (30) and the final (20). */
 export const gradeFor = (score: number): Grade => (score >= 85 ? 'A' : score >= 70 ? 'B' : score >= 55 ? 'C' : score >= 40 ? 'D' : 'F');
 /** A module's grade at the term's end: attendance share, coursework share and the final, a d20 with the one roll bonus

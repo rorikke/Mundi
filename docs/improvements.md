@@ -13,6 +13,7 @@ point of view, and grows as new ones arrive.
 - [University](#university)
 - [Training together](#training-together)
 - [Running a business](#running-a-business)
+- [Shopping](#shopping)
 - [Storylines](#storylines)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
@@ -613,6 +614,90 @@ they're your regulars, the people you fight for, the ones whose stories your bus
   Tsubaki's with her salon at your hotel. The Hamakaze Group's man comes to your desk, and Sayuri can count on you or
   not; Akane turns up when trouble does; Shiori's family's hotel group is your rival, and would buy you out.
 - **Selling.** Sell or close a hotel as any business; a buyer's offer may come for more, less what's still owed.
+
+## Shopping
+
+The phone's Shop app grew from eight things into Tokyo's whole high street: about 160 things in ten categories, from a
+¥1,000 charm to a ¥15,000,000 car with a driver. Early prices are as they were (the futon, the bike and the coffee
+machine cost what they always did), and the top is for the end game, when a career, a café and a hotel bring in half a
+million yen a week or more. It's meant for choosing, not buying out: everything together costs far more than a game
+earns.
+
+### What's sold, and where
+
+- **Ten categories**, each a tab: Home & furniture, Kitchen, Tech, Hobbies & instruments, Fashion & accessories,
+  Vehicles, Luxury, Wellness & services, Gifts to give, and (with adult content on) Adult. A **Here** tab shows what the
+  place you're at sells, and **Yours** what you have, with the days or uses left.
+- **Most things come online**, delivered. Some are sold only at their places, while they're open: knives at the Tsukiji
+  market, vintage guitars and the film camera at Second Bloom, watches, cars and the tailor's suits on Ginza Chūō-dōri,
+  the finest furniture and lacquer at Tsubakiya, a shamisen, a yukata and bonsai at Sensō-ji, the spa day at Omotesandō or in
+  Hakone. A place that sells shows "Shop here" in its things to do.
+- **Two new places**: Kamome Marina in Yokohama, with its berths and the cruiser, and Akatsuki Motorworks behind
+  Azabu's embassy streets, where old cars are restored under work lights.
+- **By invitation.** Some things are shown only to people who've earned them: Tsubakiya's members' salon asks for money
+  in the bank, the classic-car dealer wants you to drive already, the marina has its showing, the master luthier's
+  violin wants a musician. Until then a tab says "More by invitation." and keeps them hidden.
+- **The brands are made up**, each checked so it isn't a real one.
+
+### What things do
+
+- **Kept for good**: most things are yours once bought. Nothing can be sold back, nothing wears out, and nothing costs
+  anything weekly: no upkeep, no insurance.
+- **Services last some days**: flowers each week, a cleaner, a trainer's or a tutor's month, a stylist's season, the
+  Ginza spa membership. They can be paid a little ahead. A case of wine or sake holds six bottles, one opened each time;
+  a massage, a spa day or a private chef's dinner does its good at once.
+- **Small bonuses, the best one counting.** A skill trains faster (knives for cooking, a pen display for drawing, a
+  desk recording kit for music and singing, cameras for photography), a good suit helps at an interview, a tailored
+  one or a stylist with first impressions, a hinoki bed means a better morning, the cleaner keeps you fresh for longer.
+  Each card says what it does. They stay small (a few percent, a point), and of two things that do the same only the
+  better one counts: the top of the shop pays in what it is, what it says about you and what it opens, not in bigger
+  numbers.
+- **Things to do**: over thirty things unlock something at home or around town: an espresso machine, an aquarium to
+  watch, a telescope, a projector for movie nights, a stage piano, a barre, a VR headset, a cruiser to take out on the
+  bay alone, with friends or on a date.
+- **A car** drives you home after the last train: no taxi, no wait. By day you still take trains, and still meet people
+  on them.
+- **What the AI knows.** It's told the dearest things people can see on you when you're out ("wears a tailored Ginza
+  suit and a Fontanel & Fils watch, drives a compact car") and what's at your home when you're there, never what they
+  cost or do.
+
+### Photography
+
+A new skill. Take photos at ten of Tokyo's best views from the first day (the scramble, Takeshita Street, the
+Metropolitan Government's observatory, Yanaka's cats, Rainbow Bridge, the light tunnel, the tower, Minato Mirai by
+night, Lake Ashi's water gate, the night view from the Sky Museum); a good one now and then becomes a keepsake. A camera makes
+it come faster, the film camera lets you develop a roll at home, and any camera lets you sell your photos; a gallery on
+Ginza Chūō-dōri buys a good photographer's work. Four jobs have a moment that asks for it (Wave TV, the fashion shop,
+the museum, the maid café), and Hijiri's *Photography* module now teaches it: a game whose degree already passed that
+module gets the skill.
+
+### Gifts
+
+- **Gifts to give** are sold like everything else: roses, Ginza chocolates, a crown melon, a silver necklace, pair
+  rings, perfume, a Hakone yosegi box, Edo kiriko glasses, a pearl necklace, a fine fountain pen, a whisky from a closed
+  distillery, a watch, a diamond pendant, a ring (by invitation). Buying one gives you the keepsake, to give when you
+  like.
+- **A gift's worth is how well it fits**, as before, whatever it cost: money doesn't buy anyone's affection. An
+  expensive one is told to the AI as expensive, and each kind of gift counts once per person, so a hunt for every kind
+  is still a hunt: every kind has at least one keepsake you can only earn.
+- **With adult content on**, the overlay's milder intimate gifts (lingerie, costumes, a blindfold, massage oil) are now
+  part of Tokyo itself, sold at Omotesandō, in Kabukichō and at Hotel Coco Palace, with what they unlock.
+
+### Adult things
+
+With adult content on, an Adult tab: silk sheets, candles for a bath for two, an instant camera, couture lingerie and
+the like. They're told to the AI only at your home, and only when everyone there is your partner or drawn to you: the
+things in plain sight as they are, the ones you keep put away as things nobody sees unless you bring them out, with who
+already knows of each. Someone who spends time at your place may come across one now and then. With adult content off
+they're hidden and do nothing, even the ones you have.
+
+### World makers and older games
+
+- Every field of a shop item is editable in the World creator's Shop tab: its category, where it's sold and whether
+  online, when it's shown, bought again (days or uses), what it changes at once, its small effects (held to the shop's
+  limits), driving after the last train, the keepsake it gives, what the AI is told and when, adult.
+- Other worlds keep their shops, now in tabs. With the shop system off, none of it exists.
+- Older games keep what they bought, at the price they paid (only the gaming PC costs more now).
 
 ## Storylines
 

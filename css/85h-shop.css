@@ -1,0 +1,22 @@
+/* The Shop app (ui/shopui.ts): tabs by category, Here and Yours in one scrolling strip; a card's lines of what the
+   item does, the days or uses left; "More by invitation."; the HUD's "Shop here" row (it uses .mh-act as is) */
+#mundi-root .mu-shop { display: grid; gap: 10px; align-content: start; }
+#mundi-root .mu-shop-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 3px; border-radius: 999px; background: var(--bg2); border: 1px solid var(--line); scrollbar-width: none; }
+#mundi-root .mu-shop-tabs::-webkit-scrollbar { display: none; }
+#mundi-root .mu-shop-tabs button { flex: 0 0 auto; display: inline-flex; gap: 5px; align-items: center; min-height: 32px; padding: 4px 12px; border: 0; border-radius: 999px;
+    background: transparent; box-shadow: none; color: inherit; font-weight: 700; font-size: 13px; white-space: nowrap; }
+#mundi-root .mu-shop-tabs button i { font-style: normal; }
+#mundi-root .mu-shop-tabs button.is-on { background: var(--accent); color: #fff; }
+#mundi-root .mu-shop-list { display: grid; gap: 8px; }
+#mundi-root .mu-shop-does { display: grid; gap: 1px; margin: 2px 0 0; padding: 0; list-style: none; font-size: 12px; opacity: .85; }
+#mundi-root .mu-shop-does li::before { content: "· "; opacity: .6; }
+#mundi-root .mu-shop-left { color: var(--accent) !important; font-weight: 700; }
+#mundi-root .mu-shop-item.is-owned { opacity: .85; }
+#mundi-root .mu-shop-sub { margin: 8px 2px 0; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+#mundi-root .mu-shop-where { margin: 0 2px; }
+#mundi-root .mu-shop-invite { margin: 2px; font-style: italic; text-align: center; }
+/* the journal (book look) */
+#mundi-root .mu-book .mu-shop-list { gap: 16px; }
+#mundi-root .mu-book .mu-shop-tabs { background: transparent; border-color: rgba(90, 60, 30, .35); }
+#mundi-root .mu-book .mu-shop-tabs button.is-on { background: rgba(120, 70, 30, .85); color: #f6e7c8; }
+#mundi-root .mu-book .mu-shop-does, #mundi-root .mu-book .mu-shop-sub { color: #6e5434; }
