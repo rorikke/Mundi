@@ -1143,7 +1143,8 @@
    "rp_pent_terrace",
    "ym_villa_veranda",
    "ws_dec_bath",
-   "hk_villa_onsen"
+   "hk_villa_onsen",
+   "ot_kura"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1650,7 +1651,13 @@
    "fa_veranda_lights",
    "fa_garden_walk",
    "fa_pond_koi",
-   "fa_suite_night"
+   "fa_suite_night",
+   "ot_kura_walk",
+   "ot_kura_plaque",
+   "ot_kura_tea",
+   "ot_kura_reading",
+   "ot_kura_inventory",
+   "ot_kura_lesson"
   ],
   "occupations": [
    "rider",
@@ -1700,7 +1707,8 @@
    "streamer",
    "aroma_salon",
    "lovehotel_day",
-   "bizhotel_night"
+   "bizhotel_night",
+   "kura"
   ],
   "courses": [
    "japanese",
@@ -1805,7 +1813,8 @@
    "Shiori",
    "Tsubaki",
    "Sumire",
-   "Kaoru"
+   "Kaoru",
+   "Tamaki"
   ],
   "apps": [],
   "ranks": {
@@ -1856,7 +1865,8 @@
    "streamer": 1,
    "aroma_salon": 1,
    "lovehotel_day": 1,
-   "bizhotel_night": 1
+   "bizhotel_night": 1,
+   "kura": 1
   },
   "goals": [
    "tk_makeit",
@@ -1884,7 +1894,8 @@
    "tk_spark",
    "tk_openhearts",
    "tk_thrill",
-   "tk_hijiri"
+   "tk_hijiri",
+   "tk_patron"
   ],
   "rewards": [
    "omikuji",
@@ -2134,7 +2145,9 @@
    "nw_shunga_utamaro",
    "nw_shunga_toyokuni",
    "nw_shunga_kunisada",
-   "nw_shunga_kuniyoshi"
+   "nw_shunga_kuniyoshi",
+   "mem_sl_tamaki_puppies",
+   "mem_kk_museum"
   ]
  }
 }

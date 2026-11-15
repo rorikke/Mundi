@@ -7964,6 +7964,248 @@
    "place": "ot_museum"
   },
   {
+   "id": "ot_kura_walk",
+   "name": "Walk the halls",
+   "label": "Walk the halls",
+   "icon": "🏛️",
+   "cost": 0,
+   "minutes": 45,
+   "effects": {
+    "mood": 8,
+    "energy": -3
+   },
+   "when": "museum: open",
+   "together": {
+    "needed": false,
+    "text": "walking the cases side by side"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "The light lies low on the cases; a visitor reads every plaque twice."
+    },
+    {
+     "weight": 25,
+     "text": "Someone bends close to a piece of yours, then calls a friend over to see it.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "weight": 15,
+     "when": "present: Tamaki",
+     "text": "Tamaki falls in beside you and tells you, case by case, who mended what badly.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} walked the halls of {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_plaque",
+   "name": "Write a plaque",
+   "label": "Write a plaque with Tamaki",
+   "icon": "🏷️",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "energy": -6,
+    "mood": 4
+   },
+   "when": "museum: open; present: Tamaki",
+   "together": {
+    "needed": false,
+    "text": "writing a plaque together, a line each"
+   },
+   "roll": {
+    "dc": 12,
+    "skill": "writing",
+    "success": {
+     "text": "Four lines, not a word wasted; she reads it aloud, then copies it out with her brush pen.",
+     "effects": {
+      "mood": 5
+     }
+    },
+    "fail": {
+     "text": "Your draft says \"very old\". She crosses it out, kindly, and writes the date it really is.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "Tamaki pins the card beside the piece and steps back to see it the way a visitor would.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "writing",
+   "fact": "{u} wrote a plaque with Tamaki at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_tea",
+   "name": "Garden tea",
+   "label": "Tea in the garden",
+   "icon": "🍵",
+   "cost": 300,
+   "minutes": 45,
+   "effects": {
+    "mood": 8,
+    "energy": 6,
+    "thirst": 15
+   },
+   "when": "museum: garden",
+   "together": {
+    "needed": false,
+    "text": "tea on the garden bench behind the kura"
+   },
+   "outcomes": [
+    {
+     "weight": 70,
+     "text": "Green tea on the bench behind the kura; a cat from the lane comes to see what you have."
+    },
+    {
+     "weight": 30,
+     "when": "present: Tamaki",
+     "text": "Tamaki brings out her grandmother's cups, the good ones, and pretends it was an accident.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} had tea in the garden of {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_reading",
+   "name": "Reading room",
+   "label": "Read in the reading room",
+   "icon": "📚",
+   "cost": 0,
+   "minutes": 120,
+   "effects": {
+    "energy": -8,
+    "mood": 4
+   },
+   "when": "museum: reading; period: afternoon",
+   "together": {
+    "needed": false,
+    "text": "reading across one table, passing notes"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "writing",
+    "success": {
+     "text": "An old sale record and a dealer's letter agree at last: you know where one of the pieces came from.",
+     "effects": {
+      "mood": 5
+     }
+    },
+    "fail": {
+     "text": "The catalogues disagree on every date, and the light goes before you settle any of them.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "trains": "writing",
+   "fact": "{u} read until closing in the reading room of {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_inventory",
+   "name": "Inventory",
+   "label": "Help with the inventory",
+   "icon": "📋",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "energy": -10,
+    "mood": 2
+   },
+   "when": "museum: open; present: Tamaki",
+   "together": {
+    "needed": false,
+    "text": "counting the boxes in the back store together"
+   },
+   "outcomes": [
+    {
+     "weight": 85,
+     "text": "Box after box against her ledger; she knows every one by its knot.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 15,
+     "text": "A box marked \"odds\" holds something nobody listed. Tamaki turns it to the light for a long time and says nothing yet.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "logic",
+   "fact": "{u} helped Tamaki with the inventory at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_lesson",
+   "name": "Appraisal lesson",
+   "label": "Tamaki's appraisal lesson",
+   "icon": "🔍",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "energy": -8,
+    "mood": 3
+   },
+   "when": "tier: Tamaki 0; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "an appraisal lesson: her gloves, your guesses"
+   },
+   "roll": {
+    "dc": 13,
+    "skill": "logic",
+    "success": {
+     "text": "You date the bowl within fifty years. She looks at you, then at the bowl, almost offended.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "You say Edo. …Shōwa, she says. Last Tuesday, probably. She lets you try again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "Tamaki puts the piece back in its box with both hands and writes your guess and hers in the margin of her notebook.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "logic",
+   "fact": "{u} took an appraisal lesson from Tamaki at {0}",
+   "place": "ot_kura"
+  },
+  {
    "id": "ot_ameyoko_snack",
    "name": "Stall food",
    "label": "Eat from the stalls",
@@ -28476,6 +28718,38 @@
    ]
   },
   {
+   "id": "ot_kura",
+   "name": "The Kurahashi kura",
+   "map": "oldtown",
+   "x": 63.2,
+   "y": 68.4,
+   "tags": [
+    "leisure",
+    "work"
+   ],
+   "desc": "a white-walled storehouse on a Yanaka lane, its iron shutters folded open: thick plaster walls, dark beams overhead, old wooden floors, glass cases lit low, and a tokonoma alcove with a single hanging scroll",
+   "staff": "old Mrs. Kurahashi sweeping the step, a volunteer at the ticket table, visitors in socks on the boards",
+   "crowd": 0.5,
+   "open": [
+    10,
+    18
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain",
+    "rush",
+    "night"
+   ],
+   "closedDays": [
+    "mon"
+   ],
+   "generic": false,
+   "sound": [
+    "birds",
+    "wind"
+   ]
+  },
+  {
    "id": "ot_ramen",
    "name": "Ramen Kamejirō",
    "map": "oldtown",
@@ -31856,6 +32130,28 @@
       "mood": 3
      },
      "rumor": "One stray in Yanaka is fed by thirty households"
+    }
+   ]
+  },
+  {
+   "id": "ot_yanaka_st_kura",
+   "place": "ot_yanaka",
+   "when": "piece: 3; period: midmorning or afternoon",
+   "title": "Mrs. Kurahashi's storehouse",
+   "setup": "Halfway down a Yanaka lane an old woman is sweeping the step of a white-walled storehouse, its iron shutters folded open. Inside, in the dust, the shelves are bare and one plain folding screen stands against the wall. She leans on her broom and says it was the store of her late husband's shop, Kurahashi Antiques, shut these nine years. The family wants to sell the plot. She would rather see it full of things people come to look at, and she noticed how {{user}} looked in.",
+   "choices": [
+    {
+     "label": "Look inside with her",
+     "text": "She shows {{user}} plaster walls a hand thick, old beams, the alcove where the best scroll hung. At the door she says that if {{user}} wants to fill it, she will make the lease manageable.",
+     "effects": {
+      "mood": 4
+     },
+     "fact": "{u} looked inside the Kurahashi kura with old Mrs. Kurahashi"
+    },
+    {
+     "label": "Ask what it would take",
+     "text": "She names it plainly: the lease of the plot and the restoration, paid once, and no rent after, because she only wants it used. She writes her number on the back of an old shop receipt.",
+     "fact": "{u} asked old Mrs. Kurahashi what it would take to take on her kura"
     }
    ]
   },
@@ -36839,6 +37135,22 @@
     "Haru",
     "Camille"
    ]
+  },
+  {
+   "id": "kura_programme",
+   "name": "Opening-night programme",
+   "icon": "🎴",
+   "kind": "museum",
+   "gift": false,
+   "desc": "A folded card printed for the kura's first show, its pieces listed by hand in brush pen, a ring from a teacup on the back."
+  },
+  {
+   "id": "kura_review",
+   "name": "The critic's review",
+   "icon": "📰",
+   "kind": "museum",
+   "gift": false,
+   "desc": "A newspaper clipping on the Kurahashi kura, folded twice, one line underlined in pencil."
   },
   {
    "gift": true,
@@ -43377,6 +43689,46 @@
    "drinks": [
     "ot_izakaya"
    ]
+  },
+  {
+   "id": "kura",
+   "name": "Curator of the Kurahashi kura",
+   "place": "ot_kura",
+   "hireable": false,
+   "schedule": {
+    "days": [
+     "tue",
+     "wed",
+     "thu",
+     "fri",
+     "sat",
+     "sun"
+    ],
+    "from": 10,
+    "to": 18
+   },
+   "hours": [
+    10,
+    18
+   ],
+   "shift": 8,
+   "length": 1,
+   "likes": [
+    "Art",
+    "Books",
+    "Shy"
+   ],
+   "trains": [
+    "writing",
+    "logic"
+   ],
+   "ranks": [
+    {
+     "name": "Curator",
+     "pay": 2600
+    }
+   ],
+   "events": []
   },
   {
    "id": "office",
@@ -50427,6 +50779,186 @@
     }
    },
    {
+    "name": "Tamaki",
+    "age": 26,
+    "gender": "woman",
+    "occupation": "museum",
+    "rank": "Assistant curator",
+    "home": "hz_yanaka",
+    "leisure": [
+     "ak_jinbocho",
+     "ot_yanaka",
+     "ot_museum"
+    ],
+    "routine": "homebody",
+    "description": "{{char}} is Tamaki Kurahashi, 26, an appraiser with a prodigy's eye, granddaughter of the old Kurahashi Antiques in Yanaka. Petite and poised, silver-white hair worn half up with her grandfather's plum-blossom hairpin, amber eyes, a Taishō-roman arrow-feather jacket and a loupe on a red cord. Quick, deadpan and delighted by things: she talks to objects, names them, and is blunt about fakes. At twelve she was the youngest appraiser on Wave TV's Treasure Clinic, until at fifteen, live, she called a sponsor's heirloom a fake; she was right, and she hasn't faced a camera since. She took the curator's certificate at Hijiri and writes labels for other people's shows at Ueno Hall of Art. Yui Kanzaki has been her neighbour since they were small.",
+    "personality": "sharp, delighted by things, deadpan, proud of her eye, guarded, devoted",
+    "first_mes": "*Tamaki lifts a small netsuke from the case with both gloved hands, turns it to the window, and smiles at it before she looks at you.* Boxwood, Edo, about two hundred years. The label says \"rat\". It's a mouse. Nobody has noticed in forty years. *She sets it down.* Please don't tell the director. I like being the only one who knows.",
+    "feelings": [
+     {
+      "to": "Yui",
+      "f": "good"
+     }
+    ],
+    "intimacy": {
+     "preset": "slow"
+    },
+    "look": "Long silver-white hair half up with an old lacquered plum-blossom hairpin, amber eyes, an arrow-feather jacket over a high-collared blouse and a long navy skirt, a loupe on a red cord",
+    "voice": "Clear and quick, teasing with friends, a pause before the verdict",
+    "rituals": [
+     {
+      "place": "mg_station",
+      "event": "antique",
+      "from": 9,
+      "to": 12,
+      "text": "combs the antique market's stalls with her loupe, gloves in her pocket"
+     }
+    ],
+    "threads": [
+     {
+      "id": "tamaki_puppies",
+      "title": "The puppies in the snow",
+      "hidden": "In his last years her grandfather sold the kura's best pieces one by one to pay a debt he never spoke of. She has kept every auction catalogue since and rings each of his pieces in red; the one she minds most is a pair of sliding-door paintings of puppies in the snow that she named when she was small.",
+      "known": "{{user}} knows Tamaki has been following her grandfather's sold pieces through the sales, and that the puppies in the snow matter most.",
+      "opens": "museum: open; feels: Tamaki acquaintance",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "The puppies in the snow, the sliding-door paintings her grandfather sold, are in the next sale's catalogue. The binder shut on her knees, Tamaki tells {{user}} he sold the kura's best pieces one by one for a debt he never spoke of, that she has followed each through the sales since, and that she can't bid for these herself.",
+      "nudges": [
+       "The new catalogue came. I've read it four times. That's normal. …Come by the kura when you can?",
+       "I ringed a lot in red again. You'll laugh. Or you won't, which is worse. Tea in the office?",
+       "The sale is on the tenth and the catalogue keeps falling open at the same page. I won't keep asking. It's on my desk."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A binder of auction catalogues sits on the shelf of the kura's office, one lot ringed in red in each; she puts it away when anyone comes in."
+       },
+       {
+        "when": "museum: renown 1",
+        "tell": "hinted",
+        "text": "She goes quiet whenever a sale's catalogue comes, and reads it at her desk with the door shut."
+       },
+       {
+        "when": "seasonDays: 1-7",
+        "tell": "known",
+        "text": "The puppies in the snow are in the next sale's catalogue: ringed twice in red, her grandfather's name in the list of past owners."
+       }
+      ],
+      "endings": [
+       {
+        "id": "home",
+        "when": "knows: tamaki_puppies; feels: Tamaki friend; piece: art_okyo_puppies",
+        "good": true,
+        "text": "The puppies in the snow hang in the kura again; she writes their plaque under her grandfather's name and throws the binder away."
+       },
+       {
+        "id": "binder",
+        "text": "She closes the binder for good and keeps one catalogue in her desk drawer."
+       }
+      ]
+     }
+    ],
+    "intimate": {
+     "experience": "one boyfriend at university for a few months, mostly museum dates; nobody since, by choice",
+     "wants": "nothing she'd admit to: someone who looks at her the way she looks at a good piece",
+     "drawnTo": "people who notice things, and anyone who loves something more than they know about it",
+     "flirts": "she doesn't, yet: she corrects you, which is close",
+     "dynamic": "guarded; lets herself go a little at a time",
+     "prefs": [
+      "being asked, never assumed",
+      "slow, careful hands",
+      "quiet places after closing"
+     ],
+     "limits": [
+      "nothing in front of a camera",
+      "nothing she hasn't agreed to first"
+     ],
+     "role": "follow",
+     "drive": "low"
+    },
+    "anchored": true,
+    "skills": {
+     "writing": 6,
+     "japanese": 6,
+     "drawing": 4,
+     "logic": 4,
+     "charisma": 3
+    },
+    "tiers": [
+     {
+      "id": "colleague",
+      "name": "Colleague",
+      "when": "museum: open",
+      "caps": {
+       "f": "friend",
+       "r": "interest",
+       "status": "none"
+      },
+      "ai": "Tamaki keeps {{user}} at a colleague's distance: quick, dry and teasing about the work, warm only toward the objects, and she changes the subject when it turns to her."
+     },
+     {
+      "id": "confidante",
+      "name": "Confidante",
+      "when": "museum: 25%",
+      "caps": {
+       "f": "good",
+       "r": "crush",
+       "status": "none"
+      },
+      "ai": "Tamaki lets {{user}} see her off duty now: she texts first, talks about her grandfather, laughs more easily, and still turns any flirting back into a joke about provenance."
+     },
+     {
+      "id": "sweetheart",
+      "name": "Sweetheart",
+      "when": "museum: 50%",
+      "caps": {
+       "f": "good",
+       "r": "infatuated",
+       "status": "dating"
+      },
+      "ai": "Tamaki lets herself flirt with {{user}}, clumsily at first and then not; she would say yes to being asked out, and blushes at the thought of the kura after hours.",
+      "intimacy": {
+       "preset": "slow"
+      },
+      "intimate": {
+       "wants": "to be kissed somewhere among the cases where nobody can see, and to find out what she has only read about",
+       "flirts": "deadpan compliments, as if appraising you: \"good provenance\", \"remarkably well kept\"",
+       "drive": "low"
+      }
+     },
+     {
+      "id": "lover",
+      "name": "Lover",
+      "when": "museum: 75%",
+      "caps": {
+       "f": "best",
+       "r": "infatuated",
+       "status": "dating"
+      },
+      "moves": true,
+      "ai": "Tamaki trusts {{user}} with all of herself now and wants them, plainly; she no longer hides it behind work, and she may make the first move.",
+      "intimate": {
+       "wants": "nights that are only theirs, in the kura after closing and at home",
+       "dynamic": "curious and quick to learn; she asks, then leads",
+       "drive": "average"
+      }
+     },
+     {
+      "id": "partner",
+      "name": "Partner",
+      "when": "museum: 100%",
+      "ai": "Tamaki is {{user}}'s partner in everything, the kura first among it; she holds nothing back from them now and says so.",
+      "intimate": {
+       "wants": "a whole life together, catalogued and kept",
+       "role": "switch",
+       "drive": "high"
+      }
+     }
+    ],
+    "reserved": true
+   },
+   {
     "name": "Reiko",
     "age": 32,
     "gender": "woman",
@@ -55051,6 +55583,57 @@
        "kind": "warm",
        "target": "oldtown",
        "value": 3
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_patron",
+    "name": "Patron of the arts",
+    "icon": "🏛️",
+    "category": "creativity",
+    "needs": [
+     "collection"
+    ],
+    "desc": "Give old things a house again: take on the Kurahashi kura, fill it, and make it a name in the guidebooks.",
+    "steps": [
+     {
+      "name": "The Kurahashi kura opens",
+      "when": "museum: open",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Thirty pieces in the collection",
+      "when": "piece: 30",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "In the guidebooks",
+      "when": "museum: renown 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Famous",
+      "when": "museum: renown 5",
+      "reward": {
+       "mood": 10
+      }
+     }
+    ],
+    "perk": {
+     "name": "Connoisseur",
+     "desc": "Museum pieces, upgrades and shows 10% cheaper (not auction bids).",
+     "effects": [
+      {
+       "kind": "price",
+       "target": "museum",
+       "value": -0.1
       }
      ]
     }
@@ -66262,6 +66845,31 @@
      }
     ],
     "price": 240000
+   },
+   {
+    "id": "mem_sl_tamaki_puppies",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki",
+    "who": "Tamaki",
+    "when": "thread: tamaki_puppies",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "home": "The puppies in the snow hang in the kura again, her plaque under her grandfather's name.",
+     "binder": "She closes the binder of catalogues for good, and keeps one in her desk drawer."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_kk_museum",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "From the kura",
+    "when": "had: all museum",
+    "icon": "🏛️",
+    "hint": "Hold every keepsake of this kind at some time (from the kura)."
    }
   ],
   "museum": {
