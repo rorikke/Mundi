@@ -9693,5 +9693,6 @@ const DICT: Record<string, string> = {
  "Its own share is shown instead, and what fills in it is told only while it's open: a person's cabinet.": "Muestra su propia parte en su lugar, y lo que se llena en ella solo se cuenta mientras está abierta: el gabinete de una persona.",
  "Plaque (one line, shown once it fills; optional)": "Placa (una línea, que se muestra cuando se llena; opcional)",
  "\"{0}\" should be a number of likes and limits you know (of your lovers, or of one person: Tamaki 5; \"likes\" or \"limits\" after it counts only those)": "\"{0}\" debe ser un número de gustos y límites que conoces (de tus amantes, o de una persona: Tamaki 5; \"likes\" o \"limits\" detrás cuenta solo esos)",
+ "Outfit: {0} (a folder of sprites; empty: no such outfit)": "Ropa: {0} (una carpeta de sprites; vacío: esa ropa no existe)",
 };
 export default DICT;
