@@ -3,7 +3,7 @@ import { travelFactor } from './life.js';
 import { cfg, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type Place } from '../core/world.js';
 import { effectMul } from './effects.js';
-import { housingOn, ownsFixtureIn } from './housing.js';
+import { housingOn, ownsFixtureIn, secondHome, SECOND_HOME_ID } from './housing.js';
 
 export const playerHomeId = 'home:player';
 export const isHome = (id: string) => id.startsWith('home:');
@@ -17,7 +17,23 @@ export function homeAddress(w: WorldDef, h: { zone: string; x: number; y: number
     return `${zone.name}, ${homeKindName(w, h.kind ?? zone.kind)} ${n || 1}${h.unit ? String.fromCharCode(65 + h.unit) : ''}`;
 }
 
+/** The kind of home a home's place is (yours, your second home, a resident's), '' for any other place. */
+export function homeKindAt(g: Save, w: WorldDef, id: string): string {
+    if (id === playerHomeId) return g.player.home.kind;
+    if (id === SECOND_HOME_ID) { const s = secondHome(g); return (s && w.homes.zones.find(z => z.id === s.zone)?.kind) ?? ''; }
+    if (!isHome(id)) return '';
+    const zone = g.cast[id.slice(5)]?.home.zone ?? (g as any).vacated?.home?.zone;
+    return w.homes.zones.find(z => z.id === zone)?.kind ?? '';
+}
+// (housing) Your second home: on the map while you have one (and the system is on).
+function secondPlace(g: Save, w: WorldDef): (Place & { home?: boolean }) | null {
+    const s = housingOn(w) ? secondHome(g) : undefined;
+    const zone = s && w.homes.zones.find(z => z.id === s.zone);
+    if (!s || !zone) return null;
+    return { id: SECOND_HOME_ID, name: 'My second home', map: zone.map, x: s.x, y: s.y, tags: ['home'], desc: `${homeAddress(w, s)}: ${w.homes.kinds[zone.kind]?.desc ?? ''}`, home: true };
+}
 export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boolean; owner?: string }) | null {
+    if (id === SECOND_HOME_ID) return secondPlace(g, w);
     if (id === playerHomeId) {
         const h = g.player.home, kind = w.homes.kinds[h.kind];
         const zone = w.homes.zones.find(z => z.id === h.zone);
@@ -52,6 +68,7 @@ export function placeOf(g: Save, w: WorldDef, id: string): (Place & { home?: boo
 // region of everyone's home, every time someone's day is worked out).
 export function mapOf(g: Save, w: WorldDef, id: string): string | undefined {
     if (id === playerHomeId) return w.homes.zones.find(z => z.id === g.player.home.zone)?.map ?? w.maps[0].id;
+    if (id === SECOND_HOME_ID) return secondPlace(g, w)?.map;
     if (isHome(id)) {
         const r = g.cast[id.slice(5)];
         if (!r) return undefined;
@@ -112,6 +129,8 @@ export function pins(g: Save, w: WorldDef) {
     const out: (Place & { home?: boolean; owner?: string })[] = [...w.places.filter(p => placeOn(g, w, p.id)), ...(isScenario(w) ? extraRooms(g) : [])];
     const mine = placeOf(g, w, playerHomeId);
     if (mine) out.push(mine);
+    const second = secondPlace(g, w);
+    if (second) out.push(second);
     // (a guest with no bedroom of their own, zone '__guest', has no room to show)
     for (const r of Object.values(g.cast)) if (r.met && r.home.zone !== '__guest') { const p = placeOf(g, w, `home:${r.avatar}`); if (p && !out.some(x => x.id === p.id)) out.push(p); }
     return out;
@@ -140,8 +159,22 @@ export function realmOf(w: WorldDef, mapId?: string): string {
 export function travelMinutes(g: Save, w: WorldDef, from: string, to: string): number {
     if (from === to) return 0;
     if (isScenario(w)) return 0;   // Home: from one room to another takes no time
+    if (sameHome(g, w, from, to)) return ROOM_TRIP;   // (housing) a room of your home and the home: a few steps
     // (what effects take off: life goals' perks, boosts)
     return Math.max(5, Math.round(tripMinutes(g, w, from, to) * (cfg(g).travel ?? 1) * travelFactor(g, w) * effectMul(g, w, 'travel') / 5) * 5);
+}
+/** (housing) From a home of yours to one of its rooms (the terrace, the bath), or between two of its rooms. */
+export const ROOM_TRIP = 2;
+function sameHome(g: Save, w: WorldDef, a: string, b: string): boolean {
+    const zoneAt = (id: string) => {
+        if (id === playerHomeId) return g.player.home.zone;
+        if (id === SECOND_HOME_ID) return secondHome(g)?.zone;
+        const p = roomPlaces(w).get(id);
+        return p ? p.home : undefined;
+    };
+    if (!roomPlaces(w).has(a) && !roomPlaces(w).has(b)) return false;
+    const za = zoneAt(a);
+    return !!za && za === zoneAt(b);
 }
 /** The world's own time for a trip (minutes), before the "travel" rule and what you own (a car) change it. */
 export function tripMinutes(g: Save, w: WorldDef, from: string, to: string): number {

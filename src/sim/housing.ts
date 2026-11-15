@@ -6,7 +6,6 @@
 // houses to rent out, loans) is another system and isn't used here.
 import type { Save } from '../core/store.js';
 import { systemOn, type WorldDef, type HomeZone, type HomeFixture } from '../core/world.js';
-import { thingsOwned } from './hooks.js';
 import { homeKey } from './homes.js';
 
 /* ---------- what the world says (read with defaults) ---------- */
@@ -79,18 +78,15 @@ export function secondHome(g: Save): Owned | undefined {
 /** Does a home of yours in this zone have this fixture (bought or come with it)? The rooms that are places read it. */
 export const ownsFixtureIn = (g: Save, zone: string, id: string) => ownedHomes(g).some(o => o.zone === zone && (o.fix.includes(id) || (o.got ?? []).includes(id)));
 
-/* ---------- hooks (filled by the sessions after the format: A owning, B rooms and fixtures) ---------- */
-
-// Rooms and fixtures of the homes you own, in a shop item's shape (B): the home you live in, and the second home while
-// you're there. Nothing yet.
-thingsOwned.push((g, w) => {
-    if (!ownedHomes(g).length || !housingOn(w)) return [];
-    return [];
-});
-
-/** Once the world is known, an old save meets homes you can buy (schema 8): a tenant whose rent went up is told once
- *  (A). Returns what to tell the player ('' when nothing changed). */
-export function settleHomes(g: Save, w: WorldDef): string {
-    void g; void w;
-    return '';
+/** The place id of your second home (built by `placeOf` in sim/places.ts while you have one). */
+export const SECOND_HOME_ID = 'home:second';
+/** Every spot someone lives at or you own, as `zone:x,y` (a resident's extra flat counted at its address): what can't
+ *  be rented or bought. */
+export function takenSpots(g: Save): Set<string> {
+    const k = (h: { zone: string; x: number; y: number }) => `${h.zone}:${h.x},${h.y}`;
+    return new Set([g.player.home, ...Object.values(g.cast).map(r => r.home), ...ownedHomes(g)].filter(Boolean).map(k));
 }
+
+/* ---------- hooks ---------- */
+
+// (the rooms and fixtures of the homes you own join `thingsOwned` in sim/fixtures.ts)

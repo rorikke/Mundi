@@ -42,7 +42,7 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
-import { homeWorth } from './housing.js';
+import { homeWorth, housingOn, ownedHere } from './housing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
@@ -437,7 +437,8 @@ function homeHolds(g: Save, w: WorldDef, v: string): boolean {
     switch (v.toLowerCase()) {
         case 'alone': return !Object.values(g.cast).some(r => (r as any).homeWith === '__you');
         case 'better': return !!t && homeWorth(w, h.zone) > homeWorth(w, t.first);
-        case 'top': return topKinds(w).includes(h.kind);
+        // (housing) a home you own counts when it's worth at least the best rented kinds' dearest area
+        case 'top': return topKinds(w).includes(h.kind) || (housingOn(w) && ownedHere(g) && homeWorth(w, h.zone) >= Math.min(...topKinds(w).map(k => Math.max(0, ...w.homes.zones.filter(z => z.kind === k).map(z => z.rent ?? 0)))));
         case 'season': return !!t && g.day - t.since >= seasonDays(g);
         default: return /^\d+$/.test(v) ? !!t && g.day - t.since >= Number(v) : h.kind === v;
     }

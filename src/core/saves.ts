@@ -19,7 +19,8 @@ import { repairProfiles } from '../sim/profiles.js';
 import { settleStartRent } from '../sim/bills.js';
 import { settleThreads } from '../sim/threads.js';
 import { settleModules } from '../sim/degrees.js';
-import { settleHomes } from '../sim/housing.js';
+import { settleHomes } from '../sim/owning.js';
+import { SECOND_HOME_ID, secondHome } from '../sim/housing.js';
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 8;
@@ -266,7 +267,7 @@ export function migrate(g: Save): string {
 /* ---------- links to the world ---------- */
 
 const HOME = 'home:player';
-const isPlace = (g: Save, w: WorldDef, id: string) => id === HOME || (id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
+const isPlace = (g: Save, w: WorldDef, id: string) => id === HOME || (id === SECOND_HOME_ID && !!secondHome(g)) || (id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
 const firstSpot = (w: WorldDef, zoneId: string) => { const z = w.homes.zones.find(x => x.id === zoneId); const s = z?.spots?.[0]; return { x: s?.[0] ?? 0, y: s?.[1] ?? 0, n: 1 }; };
 
 // Repairs what in the save points to things the world no longer has. Safe to run on every load.

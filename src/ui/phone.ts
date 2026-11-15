@@ -55,6 +55,7 @@ import { crushOn, canAsk } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
+import { buyOnly } from '../sim/housing.js';
 
 type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
@@ -384,7 +385,7 @@ function homesApp(g: Save, w: WorldDef) {
             if (cities.length < 2) return '';
             if (HF.city && !cities.some(c => c.id === HF.city)) HF.city = '';
             return `<div class="mu-chips mu-homes-cities"><button class="mu-chip ${HF.city ? '' : 'is-on'}" data-act="ph-homes-city" data-id="">All</button>${cities.map(c => `<button class="mu-chip ${HF.city === c.id ? 'is-on' : ''}" data-act="ph-homes-city" data-id="${esc(c.id)}">${esc(c.name)}</button>`).join('')}</div>`; })()}
-        ${w.homes.zones.filter(z => z.id !== g.player.home.zone && (!HF.city || z.map === HF.city)).map(z => {
+        ${w.homes.zones.filter(z => z.id !== g.player.home.zone && !buyOnly(z) && (!HF.city || z.map === HF.city)).map(z => {   // (homes you can only buy aren't for rent)
             const free = freeSpots(g, w, z.id).length, student = studentLink.homeBlock(g, w, z.id);   // (a student: student homes only)
             const rent = priceOf(g, z.rent), bills = priceOf(g, billsOf(w, z.kind));
             return `<article class="mu-home-card"><span class="mu-home-pic" ${pic(z.kind)}></span>

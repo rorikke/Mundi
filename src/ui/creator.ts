@@ -1852,7 +1852,8 @@ const MOMENT_NAMES: Record<string, string> = { meal: 'Cook a meal', workout: 'Wo
     baby: 'Have a baby', business: 'Open a business', big_party: 'A party with five guests', loved_party: 'A party everyone loved', night_together: 'A night together', trip: 'A day trip', late_night: 'Still up at 1:00',
     // (adult)
     intimate: 'A private moment with someone (adult)', learned: 'Learn something someone likes or won\'t do (adult)', risky: 'Get away with something risky (adult)', caught: 'Get caught (adult)',
-    threesome: 'A night for three (adult)', jealous: 'Make a partner jealous', gift_loved: 'A gift someone loved' };
+    threesome: 'A night for three (adult)', jealous: 'Make a partner jealous', gift_loved: 'A gift someone loved',
+    home_bought: 'Buy a home', home_sold: 'Sell a home', grand_party: 'A party at home 12 came to' };
 const PARTNER_NAMES: Record<string, string> = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married', open: 'A partner fine with more than one' };
 interface Quick { name: string; ok: (w: WorldDef) => boolean; opts: (w: WorldDef) => Opt[]; n?: string; extra?: (w: WorldDef, what: string) => Opt[]; make: (what: string, n: number, extra: string) => string }
 const realPlaces = (w: WorldDef) => w.places.filter(p => !p.link);
