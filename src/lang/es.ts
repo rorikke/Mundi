@@ -8437,6 +8437,8 @@ const DICT: Record<string, string> = {
  "a moment at {0}": "un momento en {0}",
  "a moment of its own": "un momento propio",
  "{0}: {1} times ({2} so far)": "{0}: {1} veces ({2} hasta ahora)",
+ "{0} with someone along": "{0} con alguien que te acompañe",
+ "a festival or a city event": "un festival o un evento de la ciudad",
  "{0} (you have {1})": "{0} (tienes {1})",
  "a favor from {0}": "un favor de {0}",
  "a business of your own": "un negocio propio",
