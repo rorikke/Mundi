@@ -130,6 +130,9 @@ Characters don't wait for you to drive every relationship.
   out, something casual, to get closer, some space) and plays it.
 - **Opinions spread.** Someone who adores you, or can't stand you, talks about you to their close friends, and slowly
   colors what those friends think of you.
+- **Their own stories.** Some people have a story of their own ([Storylines](improvements.md#storylines)). It starts once
+  you know them, and since its good endings often ask for friendship, getting close to someone is how you help. When
+  it's time they bring it up with you, and they may text you to meet about it, even with this setting turned down.
 - **Not too much.** At the default setting, people start at most one thing on their own a day, and each person only
   every few days. You can make it rarer, more frequent, or turn it off.
 

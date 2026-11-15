@@ -2,7 +2,7 @@
 // step (the step's own `reward.points`, else 100) and finishing it (200, twice that with a daruma bought for it), through
 // the `onGoalStep` hook sim/goals.ts calls. Second sources pay a little, so goals stay the main way: a festival or a city
 // event the first time each year (10), a street story finished (15), a secret learned (20), a thread you knew reaching
-// its end (40), a keepsake you never had before (10), a like or a hard limit of someone's learned (10, once each: adult
+// its end (20), a keepsake you never had before (10), a like or a hard limit of someone's learned (10, once each: adult
 // content only, from `learn()` through `onLearned`); at most 60 a day from these together, so nothing can be farmed.
 // Every gain goes through `pointsFor()` (sim/perks.ts), so perks with a `points` effect add their share. All of it
 // belongs to the `goals` system: with it off nothing is earned. Read with `??=` (no new schema).
@@ -14,7 +14,7 @@ import { seasonDays } from './time.js';
 import { onGoalStep, onLearned } from './hooks.js';
 
 /** What a second source pays (before perks), and how much of them a day counts at most. */
-export const SECOND_POINTS: Record<'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned', number> = { festival: 10, event: 10, story: 15, secret: 20, thread: 40, keepsake: 10, learned: 10 };
+export const SECOND_POINTS: Record<'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned', number> = { festival: 10, event: 10, story: 15, secret: 20, thread: 20, keepsake: 10, learned: 10 };
 export const DAILY_CAP = 60;
 
 /** One thing bought in the rewards shop: the item, the day, for whom, during which goal. Kept for the items' limits

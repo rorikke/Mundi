@@ -51,6 +51,7 @@ import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, relOf, YOU } from '../sim/rel.js';
 import { crushOn, canAsk } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
+import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
@@ -267,7 +268,7 @@ function threadApp(g) {
         ? `<button class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr data-act="ph-msg-del" data-i="${esc(i)}" title="${esc(T('deleteMsg'))}">${esc(m.text)}<small>${day(g, m.at)}</small><i class="mu-ph-del">${icon('trash')}</i></button>`
         : `<div class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr>${esc(m.text)}<small>${day(g, m.at)}</small></div>`).join('')}
             ${P.typing === r.avatar ? '<div class="mu-ph-msg is-typing"><i></i><i></i><i></i></div>' : ''}
-            ${t.length ? '' : `<p class="mu-muted mu-pad">${T('emptyThread')}</p>`}</div>
+            ${t.length ? '' : `<p class="mu-muted mu-pad">${T('emptyThread')}</p>`}${NICK.who === r.avatar ? '' : (() => { const w = getWorld(g.world); return w ? nudgeAnswersHtml(g, w, r.avatar) : ''; })()}</div>
         <div class="mu-ph-quick">
             <button data-act="pl-come" data-who="${esc(r.avatar)}" ${PL.busy ? 'disabled' : ''}>${icon('home')}<span>Come over</span></button>
             <button data-act="ph-person" data-who="${esc(r.avatar)}">${icon('calendar')}<span>Make plans</span></button>
@@ -296,6 +297,7 @@ function personApp(g, w) {
     return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body">
         <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
         ${knownHtml(g, w, r.avatar)}
+        ${theirStoryHtml(g, w, r.avatar)}
         <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
         ${featureOn(w, 'plans') ? planForm(g, w, r.avatar) : ''}
         ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? '<button data-act="ph-partner">Ask to be together</button>' : ''}

@@ -24,16 +24,19 @@ const NEWS_DAYS = 14;
 const TELL = 0.5;
 /** Storylines' numbers: days to answer a last chance; the hours a text can come (from `TEXT_FROM`, when you haven't
  *  been together that day) and an in-person one (from `DAY_FROM`); the most last chances (and nudge texts). */
-export const STORYLINE = { answer: 3, dayFrom: 9, textFrom: 17, until: 20, nudges: 3 };
+export const STORYLINE = { answer: 3, dayFrom: 9, textFrom: 17, until: 20, nudges: 3, perWeek: 2 };
 /** The plain engine nudges, first to last, for a storyline without its own (interface text). */
 export const DEFAULT_NUDGES = ["Can we talk soon? It's about something I've kept to myself.", "It's still on my mind. Could we meet this week?", "I have to decide soon, and I'd like to talk to you first."];
-/** The threads of the people in this save (adult ones only with adult content on), with whose they are. */
+/** The threads of the people in this save (an adult person's, or an adult thread, only with adult content on), with whose they are. */
 export function threadsOf(g, w) {
     const out = [];
-    for (const r of residents(g))
-        for (const t of exampleOf(w, r)?.threads ?? [])
-            if (t.id && t.stages?.length && (!t.adult || adultOn(g)))
+    // (an adult person's storylines are adult too: someone left in the cast when adult content is switched off stays quiet)
+    for (const r of residents(g)) {
+        const ex = exampleOf(w, r);
+        for (const t of ex?.threads ?? [])
+            if (t.id && t.stages?.length && ((!t.adult && !ex?.adult) || adultOn(g)))
                 out.push({ t, r });
+    }
     return out;
 }
 const findThread = (g, w, id) => threadsOf(g, w).find(x => x.t.id === id) ?? null;
@@ -222,7 +225,7 @@ export function advanceThreads(g, w) {
     return out;
 }
 /* ---------- the endings, as they are now ---------- */
-const condText = (c) => `${c.not ? 'not ' : ''}${c.key}: ${c.values.join(' or ')}`;
+const condText = (c) => `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`; // (the grammar's own order: `thread: not x`)
 const endCtx = (t, i) => ({ day: true, key: `thread|${t.id}|end|${i}` });
 const isOpen = (g, id) => { const s = threadStates(g)[id]; return !!s && s.stage >= 0 && !s.ended; };
 // The storylines an ending's `thread:` names.
@@ -328,8 +331,9 @@ export function decideNow(g, w, t) {
         return { kind: 'card', now: F, ending: F, waitFor: onWay.map(e => ({ e, missing: missingOf(g, w, t, e) })), help: null };
     }
     const help = helpOf(g, w, t, before);
-    // (the way Help takes is said by its button, not again under Wait)
-    const waitFor = before.filter(e => e !== help?.e && reachable(g, w, t, e)).map(e => ({ e, missing: missingOf(g, w, t, e) }));
+    // (the way Help takes is said by its button; it's under Wait too when it can also come without paying, as Kaito's
+    // can with his friendship: having the money never takes Wait away. A way taken through Help alone isn't.)
+    const waitFor = before.filter(e => (e !== help?.e || !e.help?.only) && reachable(g, w, t, e)).map(e => ({ e, missing: missingOf(g, w, t, e) }));
     const dead = before.filter(e => !reachable(g, w, t, e));
     const why = !waitFor.length && !help ? (dead.length ? `${you(dead.map(e => whyNot(g, w, e)).filter((x, i, a) => a.indexOf(x) === i).join('; '))}.` : 'Nothing can change how it ends now.') : undefined;
     return { kind: 'card', ending: F, help, waitFor, ...(why ? { why } : {}) };
@@ -505,9 +509,15 @@ function sendNudge(g, w, t, r, st) {
     const brief = `${r.name} texts ${me}: they would like to meet and talk about ${about}.${last ? ' They have to decide soon, and this is the last time they ask.' : ''} A short message in their own voice, like: "${list[n]}"`;
     void textFrom(g, w, r.avatar, brief, list[n]).then(text => { ask.text = text; unread(g, r.avatar); }).catch(() => { });
 }
+// The days storyline texts went out this past week (`g.threadTexts`): with many storylines waiting at once, the phone
+// shouldn't fill with them, so the rest wait their turn (a last chance counts as missed only once it has been sent).
+const textsThisWeek = (g) => {
+    const a = g, list = (Array.isArray(a.threadTexts) ? a.threadTexts : []).filter((d) => typeof d === 'number' && g.day - d < 7);
+    return (a.threadTexts = list);
+};
 /** Each hour: last chances left unanswered for three days count as missed; a storyline whose last chance is due gets it,
- *  in person when you're together (the card again), else by text later in the day (one storyline text a day, the
- *  oldest due first). Sent with "Characters take the initiative" off too. */
+ *  in person when you're together (the card again), else by text later in the day (one storyline text a day and two a
+ *  week at most, the oldest due first). Sent with "Characters take the initiative" off too. */
 export function lastChances(g, w) {
     const list = liveDue(g, w), out = [];
     for (const { t, r } of list) {
@@ -519,7 +529,8 @@ export function lastChances(g, w) {
     if (g.asleep || h < STORYLINE.dayFrom || h > STORYLINE.until)
         return out;
     const phone = systemOn(w, 'plans');
-    let texted = g.threadText === g.day;
+    const week = textsThisWeek(g);
+    let texted = g.threadText === g.day || week.length >= STORYLINE.perWeek;
     for (const { t, r } of list) {
         const st = threadStates(g)[t.id];
         if (st.ended || st.asked || g.day < (st.next ?? st.due + half(g)))
@@ -535,6 +546,7 @@ export function lastChances(g, w) {
             continue;
         sendNudge(g, w, t, r, st);
         g.threadText = g.day;
+        week.push(g.day);
         texted = true;
         out.push(`${r.name} sent you a message.`);
     }
