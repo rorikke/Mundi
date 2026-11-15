@@ -109,3 +109,20 @@ export const ventureLink: {
     /** (the love hotel) after your hours at the desk: what you saw (sim/sightings.ts; lines to show) */
     stint: (g: Save, w: WorldDef, venture: string) => string[];
 } = { find: () => [], workResult: () => [], workPlace: () => null, stint: () => [] };
+
+// (museum) People who unlock (sim/tiers.ts fills these in; until it loads, and in a world without tiers, nothing changes).
+// Asked with store ids (the person's avatar). `cap`: the highest friendship or romance toward you their tier allows now
+// (null: no cap); `hold`: a gain's raw points that passed it (kept for the next tier, or dropped); `reserved`: drawn to
+// whoever you play, whatever your gender, and to no one else; `notYet`: why their tier doesn't allow a couple status
+// (`casual`… `married`) with you now (null: it does; `ever`: no tier ever will); `intimacy`: their needs from their tier
+// (undefined: no tier says, their own apply; null: not before a later tier); `moves`: they may make the move now;
+// `outfit`: the game may put that outfit on them now.
+export const tierLink: {
+    cap: (g: Save, m: 'f' | 'r', x: string) => number | null;
+    hold: (g: Save, m: 'f' | 'r', x: string, raw: number) => void;
+    reserved: (g: Save, x: string) => boolean;
+    notYet: (g: Save, x: string, status: 'casual' | 'dating' | 'engaged' | 'married') => { ever: boolean; when: string } | null;
+    intimacy: (g: Save, x: string) => { preset?: string; r?: string; f?: string; casual?: false } | null | undefined;
+    moves: (g: Save, x: string) => boolean;
+    outfit: (g: Save, x: string, outfit: string) => boolean;
+} = { cap: () => null, hold: () => {}, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true };

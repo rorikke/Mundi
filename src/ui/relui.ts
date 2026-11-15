@@ -11,7 +11,7 @@ import { ASK_WHAT } from '../sim/initiative.js';
 import { setCooldown, YOU } from '../sim/rel.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
-import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
+import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, tierNo, notYetAnswer, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
 import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, type WorkMode, type JobState, type ShiftTime } from '../sim/work.js';
@@ -167,6 +167,7 @@ export async function checkAsk() {
         else toast(`${name} said no.`, 'info');
         saveGame(); notify(); return;
     }
+    if (tierNo(g, avatar, kind)) { const msg = notYetAnswer(g, avatar, name, kind); saveGame(); toast(msg, 'info'); notify(); return; }   // (museum) their tier: "not yet"
     if (forcedNo(g, avatar, kind)) answer = 'no';   // "only with a partner": the engine's own no
     let msg = applyAnswer(g, avatar, name, kind, answer);
     if (kind === 'baby' && answer === 'yes') {

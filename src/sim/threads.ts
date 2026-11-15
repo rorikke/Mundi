@@ -22,7 +22,7 @@
 import type { Save, Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type Thread, type ThreadStage, type ThreadEnding, type ThreadHelp } from '../core/world.js';
 import { personaName } from '../st/bridge.js';
-import { onDay, onHour, onLook } from './hooks.js';
+import { onDay, onHour, onLook, tierLink } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { presentAt, residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner, type Cond } from './when.js';
@@ -89,10 +89,11 @@ const self = (g: Save) => { const s = (g as any).swap; return s ? (s.avatar || s
 
 /* ---------- opening and moving on, day by day ---------- */
 
-// A storyline opens once its person has met you: at friend, through an earlier way of its own, or a secret you know.
+// A storyline opens once its person has met you: at friend, through an earlier way of its own, or a secret you know;
+// (museum) one marked `opensOnly` only through its own ways.
 function opensNow(g: Save, w: WorldDef, t: Thread, r: Resident, st: ThreadState): boolean {
     if (!r.met || goneFromMap(r)) return false;
-    if (st.known !== undefined || levelHolds(g, w, r.avatar, 'friend')) return true;
+    if (!t.opensOnly && (st.known !== undefined || levelHolds(g, w, r.avatar, 'friend'))) return true;
     const list = t.opens == null ? [] : Array.isArray(t.opens) ? t.opens : [t.opens];
     return list.some((c, i) => !!c && whenHolds(g, w, c, { key: `thread|${t.id}|opens|${i}` }));
 }
@@ -180,7 +181,7 @@ const unread = (g: Save, a: string) => { const s = social(g); s.unread[a] = (s.u
 /** They leave the world's maps for good (the save keeps them): no more plans, company, invitations or placements. */
 export function leaveMap(g: Save, r: Resident, why: string): string[] {
     const me = self(g);
-    if (r.avatar === me || (r as any).gone) return [];   // (not the one you're playing as)
+    if (r.avatar === me || (r as any).gone || tierLink.reserved(g, r.avatar)) return [];   // (not the one you're playing as; (museum) someone reserved never leaves)
     (r as any).gone = { day: g.day, why };
     const s = (g as any).social;
     if (s) {
@@ -444,11 +445,13 @@ const liveDue = (g: Save, w: WorldDef) => (systemOn(w, 'living') ? threadsOf(g, 
     return !!st && !st.ended && st.due !== undefined && !st.on && r.met && !goneFromMap(r) && r.avatar !== self(g);
 }).sort((a, b) => (threadStates(g)[a.t.id].due ?? 0) - (threadStates(g)[b.t.id].due ?? 0));
 // One left unanswered (or "not now"): the next a season after it. The last one ends it the way it would without you;
-// a storyline marked `ignored: cool` instead cools them toward you by a friendship level and waits again, once.
+// a storyline marked `ignored: cool` instead cools them toward you by a friendship level and waits again, once; one
+// marked `noLast` (museum) never ends this way: its nudges come round again as reminders.
 function missOne(g: Save, w: WorldDef, t: Thread, r: Resident, st: ThreadState): string[] {
     const from = st.asked?.day ?? g.day;
     st.missed = (st.missed ?? 0) + 1; delete st.asked;
     st.next = from + seasonDays(g);
+    if (t.noLast) { st.missed %= nudgesOf(t).length; return []; }
     if (st.missed < nudgesOf(t).length) return [];
     if (t.ignored === 'cool' && st.cooled === undefined) {
         st.cooled = g.day; st.missed = 0;
@@ -465,7 +468,7 @@ function coolOff(g: Save, r: Resident) {
 }
 // The text a last chance sends: the storyline's own nudge in order (the last says it's the last), worded by the AI.
 function sendNudge(g: Save, w: WorldDef, t: Thread, r: Resident, st: ThreadState) {
-    const list = nudgesOf(t), n = Math.min(st.missed ?? 0, list.length - 1), last = n === list.length - 1;
+    const list = nudgesOf(t), n = Math.min(st.missed ?? 0, list.length - 1), last = !t.noLast && n === list.length - 1;
     const ask = (st.asked = { day: g.day, n, by: 'text', text: list[n] });
     const me = personaName();
     const about = st.known !== undefined ? `what is going on (${decideOf(t).replace(/\{\{user\}\}/g, me)})` : 'something they have kept to themselves; they don\'t say what it is by text';
@@ -511,7 +514,7 @@ export function nudgeAsk(g: Save, w: WorldDef, who?: string): NudgeAsk | null {
         const st = threadStates(g)[t.id];
         if (st.asked?.by !== 'text' || (who && r.avatar !== who)) continue;
         const list = nudgesOf(t), help = helpOf(g, w, t, t.endings ?? [], true);
-        return { thread: t.id, who: r.avatar, name: r.name, title: titleOf(t, r), text: st.asked.text ?? list[st.asked.n], n: st.asked.n, last: st.asked.n === list.length - 1,
+        return { thread: t.id, who: r.avatar, name: r.name, title: titleOf(t, r), text: st.asked.text ?? list[st.asked.n], n: st.asked.n, last: !t.noLast && st.asked.n === list.length - 1,
             choices: [{ id: 'meet', label: 'Meet them' }, ...(help ? [{ id: 'help' as const, label: help.h.label, price: help.price, ok: help.ok }] : []), { id: 'not', label: 'Not now' }] };
     }
     return null;

@@ -23,6 +23,7 @@ import { diaryLines } from './diary.js';
 import { tiesLine, householdLine, colleaguesLine } from './living.js';
 import { feelingsLine } from './relations.js';   // also runs feelings between people, hour by hour
 import { romanceLine } from './romance.js';
+import { tierLines } from './tiers.js';   // (museum) people who unlock: their tier's line, and the rules behind it
 import { genderLine } from './gender.js';
 import { rivalsLine } from './jealousy.js';
 import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
@@ -186,7 +187,7 @@ export function sceneBlocks(): Built[] {
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],
         ties: [...factionLines(g, w, present), tiesLine(g, present), householdLine(g, w, present), colleaguesLine(g, w, present), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
-        romance: [romanceLine(g, met), addressLine(g, w, met)],
+        romance: [romanceLine(g, met), addressLine(g, w, met), ...tierLines(g, w, met)],
         gender: [genderLine(g, w, present)],
         intimate: [...intimate.lines, intimate.limits],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],
