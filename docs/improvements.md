@@ -13,6 +13,7 @@ point of view, and grows as new ones arrive.
 - [University](#university)
 - [Training together](#training-together)
 - [Running a business](#running-a-business)
+- [Storylines](#storylines)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -566,7 +567,8 @@ they're your regulars, the people you fight for, the ones whose stories your bus
 - **The gate is hard.** Three seasons at the top with a high performance, two skills at their best and a third close
   behind, the Executive leadership program at Hijiri's business school (the company pays half if a director backs you),
   the board's nomination (a few work stories: a crisis, a sponsor, the offer), and one of the company's people's
-  storylines settled.
+  [storylines](#storylines) come to its end (Reiko's, Hannah's, or Hina's or Nanami's), which only starts once you know
+  them.
 - **Your division.** At Executive officer you run a division: four numbers (Results, Team, Network, Standing) grown
   by initiatives paid from the season's budget (never your money), found around the city (a client over drinks, the
   trade fair, the fan convention) or earned. At each season's end the board looks at it against a target. A fuller
@@ -611,6 +613,104 @@ they're your regulars, the people you fight for, the ones whose stories your bus
   Tsubaki's with her salon at your hotel. The Hamakaze Group's man comes to your desk, and Sayuri can count on you or
   not; Akane turns up when trouble does; Shiori's family's hotel group is your rival, and would buy you out.
 - **Selling.** Sell or close a hotel as any business; a buyer's offer may come for more, less what's still owed.
+
+## Storylines
+
+Some of Tokyo's people carry a story of their own: a debt, an exam, a lease, a visa, a leaving. 26 of its people have
+one (seven of them are adult). A storyline starts once you know the person, runs on its own time, and at its end it
+waits for you: you decide, in a scene with them, whether to help, wait or let it be, and if you leave it they come back
+a few times before it ends without you.
+
+### When a storyline starts
+
+- **Only once you know them.** A storyline never starts for someone you haven't met. Once you have, it starts when you
+  become friends, or earlier where their story says so: eight start as soon as you've met and they know you a little
+  (Mio, Kaito, Ayaka, Camille, Linh, Hannah, Momo and Kanon, whose good ending is simply becoming friends); most
+  colleagues' start once you work the same job and know each other; a few follow a business of yours (Sayuri's once
+  you own a hotel, Kaoru's once you own Coco Palace). Learning someone's secret any other way starts it too: a street
+  story, an overheard rumor, Insight, something seen at your hotel's desk.
+- **You don't see it start.** Until you know their secret you only get signs of it; they tell you themselves once they
+  trust you (a good friend), or you find out. From then on their page in People shows **Their story**: what it's
+  called, where it stands, and what would help.
+- **There is no limit** to how many run at once, and none starts for people you never meet. The living world has to be
+  on, and the adult ones only run with adult content on (switch it off and they wait where they are).
+
+### On their own time
+
+A storyline moves through its stages whether you're around or not, following the calendar (a contest in summer, a
+lease that runs out in winter) and what you do (a job, a business). Its first stage lasts at least half a season, a
+week in Tokyo's seasons of 14 days, wherever in the year it starts. A stage tied to the calendar is never skipped:
+one that starts in autumn waits for the winter and the spring it was written for. A stage that asks something of you,
+like holding a job, is skipped when the story moves on without it. Nothing ends because time runs out; when the last
+stage is over, the story waits for you.
+
+### The deciding scene
+
+The next time you're with them after that, they bring it up: the scene tells you their secret if you didn't know it,
+and the ending is decided.
+
+- **A good ending happens right there** if it already holds (you're friends enough, the business you run is far
+  enough along) and no better one is still on its way.
+- **Otherwise a card asks you.** **Now** takes the way that holds, or **Wait** for a better one that is on its way
+  (Seo-yeon's café ending while you work at the kissaten). **Help** pays a price and takes a good ending (see below).
+  **Wait** keeps the story waiting and lists what each good way still needs ("friendship with Mio (Friend; now
+  Acquaintance)", "Book a session with Tsubaki: 5 times (2 so far)", "how Ayaka's storyline ends"). **Let it be** ends it
+  the way it would without you. If nothing can change the ending any more (Ayaka lost her contest, the machines went in
+  at Coco Palace), the card says why and offers only Let it be.
+- **A card you don't answer** comes back the next time you're together. **Talk about it**, on their page in People
+  while you're with them, brings it back whenever you want.
+- **The AI is told** the scene is the moment they bring it up, and that what you do about it is decided on the card,
+  not in the story. Once it ends, it plays out in that scene.
+
+**Help** is the price of a good ending, and not every story has one. Two do: lend Kaito what he owes (¥150,000, even
+by text), and put up the key money for Genzō's new lease (¥1,500,000, as a good friend, in person). It's help for a
+friend, not a purchase; without the money the card shows the price and what you have,
+and you can still wait.
+
+### Last chances
+
+If you wait, they come back to you about once a season (the first about half a season after the story came due),
+asking whether you'll help.
+
+- **In person** it's the same card again. **By text**, in the evening, it's a message from them in the phone with
+  three answers: **Meet them** (they text you a time and place, and the next scene together brings the card),
+  **Help** (only where the story's help can be given by text), or **Not now**. These come whether or not "Characters
+  take the initiative" is on, because they're what keeps a storyline from ending unseen.
+- **A text left three days counts as missed, and so does Not now.** After three missed, the story ends the way it
+  would without you. That is about a month of game time of letting it go. Help, Wait or Meet them start the count
+  over. The last text says it's the last. These timings are first values and are tuned as the game is played.
+
+### Stories that hang on each other
+
+Some endings depend on how another story ends: Genzō's new lease hangs on Ayaka's contest, Jake staying on Rina's
+company, Daisuke's letter on Reiko, Nanami's offer on Kaito's debt. That story waits quietly (no card, no texts) until
+the other ends, and its page says what it hangs on. When it's Genzō's or Jake's turn and you've met Ayaka or Rina, the
+scene starts their story, so the one they wait for really begins. While a story hangs on another you can still choose
+**Talk about it** to Help or Let it be.
+
+### Leaving
+
+If a story ends with someone leaving Tokyo (Chloe's visa, Jake's offer from home), they go the morning after the
+deciding scene, so the goodbye is played with you, or, if the last text went unanswered, with a goodbye text. Nobody
+leaves off the screen.
+
+### What it gives
+
+A secret learned gives 20 life points and a story you knew coming to its end 40, and good endings count for *Keeper of
+secrets* and the goals and upgrades that ask for people you've helped. The executive floor asks for one of your
+company's people's storylines to have ended (Reiko's, Hannah's, Hina's or Nanami's): climbing means getting to know
+your colleagues. A gate never waits on someone left out of your game.
+
+### World makers and older games
+
+- The **Help** app has a topic, "Storylines".
+- The **World creator** edits a storyline's title, its earlier ways in, the deciding scene (for the AI), three
+  last-chance texts and an ending's help; Tokyo's own are editable like the rest.
+- **Your existing games** keep what they had. Storylines already over stay over; one under way with someone you've
+  met keeps its stage and ends in a scene with you (if its last stage was over it's waiting for you at once); one with
+  someone you haven't met goes back to not begun, and starts when you get to know them (a secret you learned stays
+  learned). The game tells you once and keeps a backup of the save. Other worlds only have storylines if their
+  makers write them.
 
 ## The World creator and the new game
 
