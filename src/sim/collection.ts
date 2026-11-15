@@ -9,7 +9,7 @@ import { systemOn, getWorld, type WorldDef, type SlotDef, type HallDef, type Sto
 import { MIN_KIND } from '../core/collection.js';
 import { onHour, onKeepsake, collectionLink } from './hooks.js';
 import { parseWhen, whenHolds, namedIn, personNamed, threadsInGame, missingWords, kindHere, placesToVisit } from './when.js';
-import { threadStates, threadsOf, goneFromMap, titleOf } from './threads.js';
+import { threadsOf, goneFromMap, titleOf, type ThreadState } from './threads.js';
 import { personaName } from '../st/bridge.js';
 import { offeredGoals } from './goals.js';
 
@@ -32,6 +32,8 @@ export function collectionState(g: Save): CollectionState {
 
 /* ---------- R-1: the slots this game has ---------- */
 
+// The storylines' states, read without making the key (sim/threads.ts's accessor writes `g.threads`)
+const threadStates = (g: Save) => ((g as any).threads ?? {}) as Record<string, ThreadState>;
 const hallOf = (w: WorldDef, id: string) => w.collection?.halls.find(h => h.id === id);
 const fits = (g: Save, w: WorldDef, x: { adult?: boolean; needs?: string[] }) => (!x.adult || adultOn(g)) && (x.needs ?? []).every(n => systemOn(w, n as any));
 // The storyline a slot is about (`thread: <id>` with no ending named), and the keepsake kind (`had: all <kind>`).

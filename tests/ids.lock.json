@@ -1972,7 +1972,6 @@
    "mem_go_start_yokohama",
    "mem_go_5",
    "mem_go_10",
-   "mem_go_all",
    "mem_vt_cafe",
    "mem_vt_exec",
    "mem_vt_hotel",
@@ -1993,7 +1992,8 @@
    "mem_kk_bedroom",
    "mem_kk_costume",
    "mem_kk_spirits",
-   "mem_kk_tableware"
+   "mem_kk_tableware",
+   "mem_go_20"
   ]
  }
 }

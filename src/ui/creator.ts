@@ -1353,7 +1353,7 @@ function tabCollection(w: WorldDef) {
     const filter = `<label class="mu-field"><span>Show</span><select data-input="cw-cslothall">${[['', `Every hall · ${slots.length}`] as Opt, ...halls.map(h => [h.id, `${h.name} · ${slots.filter(s => s.hall === h.id).length}`] as Opt)]
         .map(([v, l]) => `<option value="${esc(v)}" ${v === f ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
     const quick = missing.halls.length + missing.slots.length
-        ? `<button data-act="cw-coll-quick">${icon('plus')}<span>${esc(`Add the record's missing slots · ${missing.slots.length}`)}</span></button><small class="mu-muted">A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and every goal, and each kind of business at its top, from this world's own data. What's here already stays as it is.</small>`
+        ? `<button data-act="cw-coll-quick">${icon('plus')}<span>${esc(`Add the record's missing slots · ${missing.slots.length}`)}</span></button><small class="mu-muted">A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and twenty goals, and each kind of business at its top, from this world's own data. What's here already stays as it is.</small>`
         : '<small class="mu-muted">The record has a slot for everything this world has.</small>';
     return `${systemOn(w, 'collection') ? '' : '<p class="mu-warn">The collection is off in this world (Features › Systems): none of this plays until it is on.</p>'}
         <section class="mu-cw-sec"><h4>Collection</h4>

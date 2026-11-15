@@ -802,6 +802,43 @@ your colleagues. A gate never waits on someone left out of your game.
   learned). The game tells you once and keeps a backup of the save. Other worlds only have storylines if their
   makers write them.
 
+## Tokyo memories
+
+A record of what you've lived in Tokyo, in the phone's **Collection** app (next to Goals). It fills by itself, a slot
+for each thing as it happens, and shows how much of the city you've seen: a first step toward a museum of your own.
+
+### What it records
+
+- **Storylines** that came to their end, whichever way: the plaque says how. A good ending gets a gold frame (never
+  needed for 100%); one left to its last chances says you weren't there. A storyline shows only its person's name until
+  you know its secret.
+- **Festivals** and **city events** you were at, each with its emoji and when to go.
+- **Districts**: every street story of a district that can still happen, and every place in it. Stories tied to a
+  business or a job belong to those, not here, and a story that can't happen any more (its person is gone, or it hung
+  on an ending that went another way) drops out of the count and says so.
+- **Life goals**: your start's own goal, then five, ten and twenty goals finished.
+- **A business at its top**: a café, an executive's division, a hotel (any of them).
+- **Keepsakes**: every keepsake of a kind, held at some time (giving one away doesn't take it back).
+
+### How it counts
+
+- A slot fills the first time it happens and stays filled, whatever comes after (a café sold, a gift given).
+- A game has only the slots it can have: your start's goal, the people in your game, adult content (the adult
+  keepsake kinds), the systems on. The percentage counts those.
+- When the world gains something new after your record is full, it stays at 100% and the new slots are marked
+  **New**. What came in since your last look is marked **Just in**.
+
+### World makers and older games
+
+- The **Help** app has a topic, "Collection".
+- The **World creator** has a Collection tab: halls and their groups, slots with the condition that fills them, a hint,
+  a person's portrait, a plaque for each ending of a storyline; and a button that adds a slot for everything the world
+  has (storylines, festivals, city events, districts, keepsake kinds, life goals, businesses), so a world of your own
+  gets a record in a minute. A world can switch the collection off (Features › Systems).
+- **Your existing games** start their record with what they already remember: storylines ended, festivals and events
+  (since life goals came), places, stories, goals finished, keepsakes, a business at its top now. What a game never
+  kept (a café sold before) can't be counted. Nothing else in the save changes.
+
 ## The World creator and the new game
 
 - **Every field of a built-in world can be edited** in the World creator, so anything Porto Alto, the Shared House or

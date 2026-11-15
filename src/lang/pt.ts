@@ -8962,7 +8962,6 @@ const DICT: Record<string, string> = {
  "The collection is off in this world (Features › Systems): none of this plays until it is on.": "A coleção está desligada neste mundo (Recursos › Sistemas): nada disto vale até ela ser ligada.",
  "Halls of slots. A record hall (the memories) fills by itself: a slot fills for good the first time its condition holds, and a game shows only the slots it can have (its start, its people, adult content, the systems on). Other halls hold the museum's pieces.": "Salões de espaços. Um salão de registro (as memórias) se preenche sozinho: um espaço se preenche de vez na primeira vez que sua condição vale, e um jogo mostra só os espaços que pode ter (seu início, suas pessoas, conteúdo adulto, os sistemas ligados). Os outros salões guardam as peças do museu.",
  "Add the record's missing slots · {0}": "Adicionar os espaços que faltam no registro · {0}",
- "A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and every goal, and each kind of business at its top, from this world's own data. What's here already stays as it is.": "Um espaço para cada trama, festival, evento da cidade, bairro, tipo de lembrança, o objetivo de vida do seu início, cinco, dez e todos os objetivos, e cada tipo de negócio no topo, a partir dos próprios dados deste mundo. O que já está aqui fica como está.",
  "The record has a slot for everything this world has.": "O registro tem um espaço para tudo o que este mundo tem.",
  "Halls": "Salões",
  "Slots": "Espaços",
@@ -8995,5 +8994,6 @@ const DICT: Record<string, string> = {
  "Added {0} slots and {1} halls to the record.": "{0} espaços e {1} salões adicionados ao registro.",
  "Keepsakes": "Lembranças",
  "What you have lived here.": "O que você viveu aqui.",
+ "A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and twenty goals, and each kind of business at its top, from this world's own data. What's here already stays as it is.": "Um espaço para cada trama, festival, evento da cidade, bairro, tipo de lembrança, o objetivo de vida do seu início, cinco, dez e vinte objetivos, e cada tipo de negócio no topo, a partir dos próprios dados deste mundo. O que já está aqui fica como está.",
 };
 export default DICT;

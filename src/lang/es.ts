@@ -8973,7 +8973,6 @@ const DICT: Record<string, string> = {
  "The collection is off in this world (Features › Systems): none of this plays until it is on.": "La colección está desactivada en este mundo (Funciones › Sistemas): nada de esto cuenta hasta que se active.",
  "Halls of slots. A record hall (the memories) fills by itself: a slot fills for good the first time its condition holds, and a game shows only the slots it can have (its start, its people, adult content, the systems on). Other halls hold the museum's pieces.": "Salas de huecos. Una sala de registro (los recuerdos) se llena sola: un hueco se llena para siempre la primera vez que se cumple su condición, y una partida solo muestra los huecos que puede tener (su inicio, su gente, el contenido adulto, los sistemas activos). Las demás salas guardan las piezas del museo.",
  "Add the record's missing slots · {0}": "Añadir los huecos que le faltan al registro · {0}",
- "A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and every goal, and each kind of business at its top, from this world's own data. What's here already stays as it is.": "Un hueco para cada trama, festival, evento de la ciudad, barrio, tipo de recuerdo, el objetivo de vida de tu inicio, cinco, diez y todos los objetivos, y cada tipo de negocio en lo más alto, a partir de los datos de este mundo. Lo que ya está aquí se queda como está.",
  "The record has a slot for everything this world has.": "El registro tiene un hueco para todo lo que tiene este mundo.",
  "Halls": "Salas",
  "Slots": "Huecos",
@@ -9006,5 +9005,6 @@ const DICT: Record<string, string> = {
  "Added {0} slots and {1} halls to the record.": "Se añadieron {0} huecos y {1} salas al registro.",
  "Keepsakes": "Recuerdos",
  "What you have lived here.": "Lo que has vivido aquí.",
+ "A slot for every storyline, festival, city event, district, keepsake kind, your start's life goal, five, ten and twenty goals, and each kind of business at its top, from this world's own data. What's here already stays as it is.": "Un hueco para cada trama, festival, evento de la ciudad, barrio, tipo de recuerdo, el objetivo de vida de tu inicio, cinco, diez y veinte objetivos, y cada tipo de negocio en lo más alto, a partir de los datos de este mundo. Lo que ya está aquí se queda como está.",
 };
 export default DICT;

@@ -62486,18 +62486,6 @@
     "hint": "Finish ten life goals."
    },
    {
-    "id": "mem_go_all",
-    "hall": "memories",
-    "group": "goals",
-    "name": "Every life goal",
-    "when": "goal: all",
-    "needs": [
-     "goals"
-    ],
-    "icon": "🏆",
-    "hint": "Finish every life goal this game offers."
-   },
-   {
     "id": "mem_vt_cafe",
     "hall": "memories",
     "group": "ventures",
@@ -62696,6 +62684,18 @@
     "when": "had: all tableware",
     "icon": "🍵",
     "hint": "Hold every keepsake of this kind at some time (tableware)."
+   },
+   {
+    "id": "mem_go_20",
+    "hall": "memories",
+    "group": "goals",
+    "name": "Twenty life goals",
+    "when": "goal: 20",
+    "needs": [
+     "goals"
+    ],
+    "icon": "🏆",
+    "hint": "Finish twenty life goals."
    }
   ]
  }

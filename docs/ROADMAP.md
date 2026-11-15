@@ -23,8 +23,10 @@ Ideas planned for later. Nothing here is promised for a date.
   - **Homes worth saving for:** Tokyo's top homes much dearer and a few new ones (penthouses, a mansion), bought
     rather than only rented, with rooms and fixtures (a grand piano, a sauna, a home bar, a tea room) that work as the
     shop's things do: small bonuses, things to do, what the AI is told.
-  - **A collection:** rare pieces that turn up at places and events, a record of the Tokyo content you've completed,
-    and milestones that bring stories.
+  - **A collection:** the record of what you've lived in Tokyo is in (see [Tokyo memories](improvements.md#tokyo-memories)).
+    Next: a museum of your own in an old Yanaka storehouse, with a curator; rare art and antiques from places, a dealer
+    and auctions; upgrades and renown; then Nature (insects, fish, pressed flowers by season) and a dig for what came
+    before Edo.
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
 
 - **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:

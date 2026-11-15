@@ -70,8 +70,8 @@ export function upgradeCollection(c: unknown): WorldCollection | undefined {
 
 /** A plain record for a world, from its own data (the World creator's quick-add, and Tokyo's data script, which dresses
  *  it): a slot per storyline (the night world's mementos for adult people's), festival, city event, district (its
- *  street stories and its places), keepsake kind, your start's own life goal (a slot per start), five, ten and every
- *  goal, and each venture track at its top (one slot for every hotel kind, R-2). Names are plain; no emoji or plaques. */
+ *  street stories and its places), keepsake kind, your start's own life goal (a slot per start), five, ten and twenty
+ *  goals, and each venture track at its top (one slot for every hotel kind, R-2). Names are plain; no emoji or plaques. */
 export function draftRecord(w: WorldDef, { night = true } = {}): WorldCollection {
     const groups: [string, string][] = [['storylines', 'Storylines'], ['festivals', 'Festivals'], ['events', 'City events'], ['stories', 'District stories'],
         ['districts', 'Districts'], ['goals', 'Life goals'], ['ventures', 'Ventures'], ['keepsakes', 'Keepsakes']];
@@ -100,7 +100,9 @@ export function draftRecord(w: WorldDef, { night = true } = {}): WorldCollection
     }
     add({ id: 'mem_go_5', hall: 'memories', group: 'goals', name: 'Five life goals', when: 'goal: 5', needs: ['goals'] });
     add({ id: 'mem_go_10', hall: 'memories', group: 'goals', name: 'Ten life goals', when: 'goal: 10', needs: ['goals'] });
-    add({ id: 'mem_go_all', hall: 'memories', group: 'goals', name: 'Every life goal', when: 'goal: all', needs: ['goals'] });
+    // (CO-1: the long run showed every goal out of reach in six game years, so the top tier is twenty; `goal: all` stays
+    // in the grammar for a world that wants it)
+    add({ id: 'mem_go_20', hall: 'memories', group: 'goals', name: 'Twenty life goals', when: 'goal: 20', needs: ['goals'] });
     // one value per key (the grammar has `or` between values of one key): a kind and its top tier, or another
     const top = (list: VentureDef[]) => `venture: ${[...new Set(list.map(v => `${v.kind ?? v.track} tier ${v.tiers?.length ?? 1}`))].join(' or ')}`;
     const ven = w.ventures ?? [], kindOf = (v: VentureDef) => v.kind ?? v.track;
