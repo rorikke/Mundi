@@ -26,7 +26,8 @@ import { mapEditorHtml, ME } from './mapedit.js';
 import { pickFile } from './cropper.js';
 import { icon, ICON_NAMES } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { personPanel, SCOPES } from './personui.js';
+import { personPanel, SCOPES, ROLE_NAME, DRIVE_NAME } from './personui.js';
+import { R_NAME, F_NAME, PRESETS as INTIMACY_PRESETS } from '../sim/intimacy.js';
 import { cleanPerson, cleanIntimate, gendersOf } from '../sim/gender.js';
 import { whenError, namedIn, parseWhen, PARTNER_VALUES } from '../sim/when.js';
 import { SHOP_CATS, SHOP_LIMITS, SHOP_NOW_MAX, catOf, shopCat, isAdultItem } from '../sim/shop.js';
@@ -1442,7 +1443,8 @@ function tabCollection(w) {
         <p class="mu-muted">Halls of slots. A record hall (the memories) fills by itself: a slot fills for good the first time its condition holds, and a game shows only the slots it can have (its start, its people, adult content, the systems on). Other halls hold the museum's pieces.</p>
         <div class="mu-row">${quick}</div></section>
         <section class="mu-cw-sec"><h4>Halls</h4>${master('chall', 'collection.halls', (h) => `<b>${esc(h.icon ?? '')} ${esc(h.name)}</b><small>${h.record ? 'record · ' : ''}${esc(String(slots.filter(s => s.hall === h.id).length))} slots${h.adult ? ' · adult' : ''}</small>`, i => hallForm(w, i), 'chall', 'No halls yet.')}</section>
-        <section class="mu-cw-sec"><h4>Slots</h4>${filter}${master('cslot', 'collection.slots', (s) => `<b>${esc(s.icon ?? '')} ${esc(s.name)}</b><small>${esc(halls.find(h => h.id === s.hall)?.groups.find(g => g.id === s.group)?.name ?? s.group)}${s.adult ? ' · adult' : ''}</small>`, i => slotForm(w, i), 'cslot', halls.length ? 'No slots yet.' : 'Add a hall first.', f ? (s) => s.hall === f : undefined)}</section>`;
+        <section class="mu-cw-sec"><h4>Slots</h4>${filter}${master('cslot', 'collection.slots', (s) => `<b>${esc(s.icon ?? '')} ${esc(s.name)}</b><small>${esc(halls.find(h => h.id === s.hall)?.groups.find(g => g.id === s.group)?.name ?? s.group)}${s.adult ? ' · adult' : ''}</small>`, i => slotForm(w, i), 'cslot', halls.length ? 'No slots yet.' : 'Add a hall first.', f ? (s) => s.hall === f : undefined)}</section>
+        ${museumEditor(w)}`;
 }
 function hallForm(w, i) {
     const p = `collection.halls.${i}`, h = (w.collection?.halls ?? [])[i];
@@ -1453,6 +1455,7 @@ function hallForm(w, i) {
         <div class="mu-row2">${txt('Name', `${p}.name`)}${optTxt('Icon (an emoji)', `${p}.icon`, '🗾')}</div>
         ${optTxt('A line under its name (optional)', `${p}.desc`, 'What you have lived here.')}
         <div class="mu-row2">${flag('The record (fills by itself; its own percentage)', `${p}.record`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        ${h.record ? flag('A hall of its own (counted in neither percentage)', `${p}.apart`, 'Its own share is shown instead, and what fills in it is told only while it\'s open: a person\'s cabinet.') : ''}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
         ${cond('Open when (a condition; empty: always)', `${p}.open`, 'goal: 3', 'A museum wing opens when this holds; its slots fill meanwhile.')}
         <span class="mu-cw-sub">Groups</span>
@@ -1482,12 +1485,258 @@ function slotForm(w, i) {
         ${sel('A person (their portrait on the tile)', `${p}.who`, withCur([['', '(nobody)'], ...peopleOpts(w).map(([v]) => [v.split(/\s+/)[0], v])], s.who), 'opt')}
         ${cond(h?.record === false ? 'Filled when (a condition; a museum piece comes from its sources instead)' : 'Filled when (a condition)', `${p}.when`, 'attended: hanami', 'It fills for good the first time this holds: thread: mio_grades, attended: hanami, seen: all in shibuya, visited: all in shibuya, had: all charm, goal: 5, venture: cafe tier 4.')}
         ${optTxt('Hint on the empty slot (optional; empty: the condition in words)', `${p}.hint`, 'Be there on day 4 of spring.')}
+        ${h && !h.record ? optTxt('Plaque (one line about the piece, shown once it\'s yours; optional)', `${p}.plaque`, 'Hokusai\'s great wave off Kanagawa.', '{{user}} is the player\'s name on the plaque.') : ''}
+        ${h?.record && !t ? optTxt('Plaque (one line, shown once it fills; optional)', `${p}.plaque`, 'No. 7, the roof, at night.', '{{user}} is the player\'s name on the plaque.') : ''}
         ${t ? `<span class="mu-cw-sub">Plaques by ending (optional; empty: the ending's first sentence)</span>${(t.endings ?? []).map(e => optTxt(`${esc(e.id)}${e.good ? ' (good)' : ''}`, `${p}.plaques.${e.id}`, (e.text ?? '').slice(0, 80), '{{user}} is the player\'s name on the plaque.')).join('')}` : ''}
         <span class="mu-cw-sub">Only for these starts (none: every start)</span>${pairChips((w.starts ?? []).map(x => [x.id, x.name]), `${p}.starts`, true)}
         <span class="mu-cw-sub">Only with these systems on</span>${pairChips(systemOpts(), `${p}.needs`, true)}
         ${flag('Only with adult content on', `${p}.adult`, '', true)}
         ${s.pic ? `<p class="mu-muted">Picture: <code data-notr>${esc(s.pic)}</code> (set by the pictures' wiring)</p>` : ''}
+        ${!h?.record || s.sources?.length || s.price !== undefined || s.needsUpgrade || s.bonus ? pieceRows(w, p, s) : ''}
         ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+/* ---------- (museum) a display piece's ways, price and upgrade (plans/collection.md, track 5, session M-E) ---------- */
+// Each kind of source and the fields it reads (sim/museum.ts, sim/market.ts); a field the kind doesn't read is still
+// shown while the file has it, so nothing in a world is out of reach.
+const SOURCE_KINDS = [['find', 'Found after a thing to do (or any at some places)'], ['sold', 'Sold at places'], ['festival', "A festival's stall, every year"],
+    ['dealer', 'The dealer brings it'], ['auction', 'A lot at the sales'], ['ending', "A storyline's end (any ending)"], ['milestone', 'A milestone (free, once a condition holds)'],
+    ['story', 'A street story'], ['replica', "A replica from the curator's workshop"], ['dig', 'A dig (not played yet)']];
+const SOURCE_USES = { find: ['action', 'at', 'when', 'chance', 'damaged'], sold: ['at', 'price', 'when'], festival: ['id', 'price'],
+    dealer: ['price', 'chance', 'when'], auction: ['price', 'chance', 'when'], ending: ['id'], milestone: ['when'], story: ['id', 'when'], replica: ['when', 'price'], dig: [] };
+const museumOf = (w) => w.collection?.museum;
+const upgradeOptsOf = (w) => (museumOf(w)?.upgrades ?? []).map(u => [u.id, `${u.icon ?? ''} ${u.name || u.id}`.trim()]);
+// What world-check says of a source (its errors), said under it as it is edited.
+function sourceIssues(w, x) {
+    const out = [], M = museumOf(w);
+    const has = (l, id) => (l ?? []).some(y => y.id === id);
+    const n01 = (v) => v === undefined || (typeof v === 'number' && v >= 0 && v <= 1);
+    if (!SOURCE_USES[x.kind])
+        return ['Pick a kind of source.'];
+    if (!n01(x.chance))
+        out.push('Its chance is 0 … 1.');
+    if (x.damaged !== undefined && x.kind !== 'find')
+        out.push('Only a find can come damaged.');
+    const priced = () => { if (!(Number(x.price) > 0))
+        out.push('It needs a price.'); };
+    if (x.kind === 'find') {
+        if (!x.action && !x.at?.length)
+            out.push('A find needs a thing to do or places.');
+        if (x.action && !has(w.actions, x.action))
+            out.push(`No thing to do called ${x.action}.`);
+        if (!(Number(x.chance) > 0))
+            out.push('A find with no chance never comes.');
+    }
+    if (x.kind === 'sold') {
+        if (!x.at?.length)
+            out.push('Sold nowhere: pick places.');
+        priced();
+    }
+    if (x.kind === 'festival') {
+        if (!x.id)
+            out.push('Pick a festival.');
+        else if (!has(w.festivals, x.id))
+            out.push(`No festival called ${x.id}.`);
+        priced();
+    }
+    if (x.kind === 'dealer' || x.kind === 'auction') {
+        priced();
+        if (!M)
+            out.push('The world has no museum: nobody brings it.');
+        else if (x.kind === 'dealer' && !M.dealer)
+            out.push('The museum has no dealer.');
+        else if (x.kind === 'auction' && !M.auctions)
+            out.push('The museum has no sales.');
+    }
+    if (x.kind === 'ending') {
+        if (!x.id)
+            out.push('Pick a storyline.');
+        else if (!w.cast.examples.some(e => (e.threads ?? []).some(t => t.id === x.id)))
+            out.push(`No storyline called ${x.id}.`);
+    }
+    if (x.kind === 'milestone' && x.when == null)
+        out.push('A milestone needs a condition.');
+    if (x.kind === 'story') {
+        if (!x.id && x.when == null)
+            out.push('Pick a street story or write a condition (seen: x:n).');
+        else if (x.id && !has(w.stories, x.id))
+            out.push(`No street story called ${x.id}.`);
+    }
+    if (x.kind === 'replica') {
+        if (x.when == null)
+            out.push('A replica needs a condition: when its one-time way has passed.');
+        priced();
+        if (M && !M.upgrades.some(u => u.does === 'workshop'))
+            out.push('No upgrade of the museum is a workshop, so no one makes it.');
+    }
+    return out;
+}
+function sourceRows(w, q, x) {
+    const shows = (k) => (SOURCE_USES[x.kind] ?? []).includes(k) || x[k] !== undefined;
+    const sym = esc(w.currency.symbol);
+    const idOpts = x.kind === 'festival' ? (w.festivals ?? []).map(f => [f.id, f.name || f.id]) : x.kind === 'ending' ? threadOpts(w) : x.kind === 'story' ? storyOpts(w) : [];
+    const idLabel = x.kind === 'festival' ? 'Festival' : x.kind === 'ending' ? 'Storyline' : x.kind === 'story' ? 'Street story' : 'Id';
+    const whenPh = x.kind === 'milestone' ? 'venture: cafe tier 4' : x.kind === 'story' ? 'seen: ot_yanaka_st_enso:1' : x.kind === 'replica' ? 'seen: ot_yanaka_st_enso' : x.kind === 'sold' ? 'event: antique' : 'knows: tamaki_puppies';
+    const at = x.at ?? [];
+    return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><label class="mu-field"><span>Comes from</span><select data-input="cw-src-kind" data-path="${esc(`${q}.kind`)}">${withCur(SOURCE_KINDS, x.kind).map(([v, l]) => `<option value="${esc(v)}" ${v === x.kind ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label><span class="mu-cw-spacer"></span>
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+        ${shows('action') ? sel('After this thing to do', `${q}.action`, withCur([['', '(none: any thing to do at its places)'], ...w.actions.map(a => [a.id, a.label || a.name || a.id])], x.action), 'opt') : ''}
+        ${shows('id') ? sel(idLabel, `${q}.id`, withCur([['', '(pick one)'], ...idOpts], x.id), 'opt') : ''}
+        ${shows('at') ? `<details class="mu-cw-kept" ${at.length ? '' : 'open'}><summary>${esc(x.kind === 'find' ? `Or any thing to do at these places · ${at.length}` : `Sold at · ${at.length}`)}</summary>${placeChecklist(w, `${q}.at`)}</details>` : ''}
+        ${shows('price') || shows('chance') ? `<div class="mu-row2">${shows('price') ? num(x.kind === 'auction' ? `Estimate (${sym})` : `Price (${sym})`, `${q}.price`) : ''}${shows('chance') ? bounded(x.kind === 'find' ? 'Chance after it (0 … 1)' : 'How rare (0 … 1; empty: 1, as likely as any)', `${q}.chance`, 0, 1, 0.05) : ''}</div>` : ''}
+        ${shows('damaged') ? bounded('Odds it comes damaged (0 … 1; it counts once the workshop restores it)', `${q}.damaged`, 0, 1, 0.05) : ''}
+        ${shows('when') ? cond(x.kind === 'milestone' ? 'When it comes (a condition)' : x.kind === 'replica' ? 'Offered once (a condition: its one-time way has passed)' : 'Only while (a condition; optional)', `${q}.when`, whenPh) : ''}
+        ${sourceIssues(w, x).map(m => `<small class="mu-cw-err">${esc(m)}</small>`).join('')}</div>`;
+}
+// A display piece's part of the slot form: its ways (sources), the price shown on its empty tile, an upgrade it needs,
+// and whether it's a bonus; with world-check's warnings.
+function pieceRows(w, p, s) {
+    const src = s.sources ?? [], M = museumOf(w), warn = [];
+    if (!src.length && !s.when && !s.bonus)
+        warn.push('A display piece with no source and no condition can never be had.');
+    if (s.needsUpgrade && !M)
+        warn.push(`It needs the upgrade ${s.needsUpgrade}, but the world has no museum: ignored.`);
+    else if (s.needsUpgrade && !M.upgrades.some(u => u.id === s.needsUpgrade))
+        warn.push(`The museum has no upgrade called ${s.needsUpgrade}.`);
+    if (src.length && src.every(x => x.kind === 'milestone' || x.kind === 'story'))
+        warn.push('Its only ways can pass (a milestone, a story): give it a second one (the dealer, a shop, a replica).');
+    if (s.bonus && s.when)
+        warn.push('A bonus piece with a condition fills like a record slot.');
+    return `<span class="mu-cw-sub">Where the piece comes from (any one way)</span>
+        ${src.map((x, k) => sourceRows(w, `${p}.sources.${k}`, x)).join('') || '<small class="mu-muted">No ways yet: a piece needs at least one (or a condition, as a memento).</small>'}
+        <button class="mu-ghost" data-act="cw-add" data-what="csrc" data-path="${esc(`${p}.sources`)}">${icon('plus')}<span>Add a way to have it</span></button>
+        <div class="mu-row2">${num(`Price on the empty tile (${esc(w.currency.symbol)}; optional)`, `${p}.price`)}${sel('Needs an upgrade of the museum', `${p}.needsUpgrade`, withCur([['', '(none)'], ...upgradeOptsOf(w)], s.needsUpgrade), 'opt')}</div>
+        ${flag('A bonus piece', `${p}.bonus`, 'Shown in a gold frame and never counted in a percentage, so it can come after 100%.')}
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+/* ---------- (museum) the museum itself: place, offer, upgrades, renown, the dealer, the sales, shows ---------- */
+const UPGRADE_DOES = [['', '(nothing more: renown, or a wing)'], ['climate', 'A climate room (pieces that need it)'], ['security', 'Security (pieces that need it)'], ['guard', 'A night guard (pieces that need it; stops a theft)'],
+    ['workshop', 'A workshop (restores damaged pieces, makes replicas)'], ['reading', 'A reading room (finds come more often)'], ['exhibition', 'An exhibition hall (shows)']];
+// (storylines, M-K) the couple an ending starts between its person and the player (held to what their tier allows)
+const ENDING_COUPLE = [['', '(no change)'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']];
+const RUNG_LABELS = ['Free', 'R1', 'R2', 'R3', 'R4', 'R5'];
+// What world-check says of the museum (its errors and the notes that matter), said at the top of its form.
+function museumIssues(w, M) {
+    const out = [], halls = w.collection?.halls ?? [], ups = M.upgrades ?? [];
+    if (!w.places.some(x => x.id === M.place))
+        out.push(M.place ? `No place called ${M.place}.` : 'Pick its place.');
+    if (!String(M.name ?? '').trim())
+        out.push('It needs a name.');
+    const ow = M.offer?.when;
+    if (ow == null || (typeof ow === 'string' && !ow.trim()))
+        out.push('The offer needs a condition: without one the museum is dropped when the world loads.');
+    else if (typeof ow === 'string')
+        for (const c of parseWhen(ow).conds)
+            if (c.key === 'seen' && !c.not)
+                for (const v of c.values)
+                    if (!/^all\s/i.test(v) && !(w.stories ?? []).some(s => s.id === v.split(':')[0]))
+                        out.push(`The offer names the street story ${v.split(':')[0]}, which the world doesn't have.`);
+    if (M.curator && !w.cast.examples.some(e => e.name === M.curator || e.name.split(/\s+/)[0] === M.curator))
+        out.push(`Nobody called ${M.curator} among the world's people.`);
+    if (M.curatorJob && !w.occupations.some(o => o.id === M.curatorJob))
+        out.push(`No job called ${M.curatorJob}.`);
+    const lv = M.renown?.levels ?? [];
+    lv.forEach((l, i) => { if (!String(l.name ?? '').trim())
+        out.push(`Renown level ${i + 1} needs a name.`); if (i && !(Number(l.at) > Number(lv[i - 1].at)))
+        out.push(`Renown level ${i + 1} should be above the one before it.`); });
+    if (M.renown?.rung && M.renown.rung.length !== 6)
+        out.push('Renown by rung needs six numbers (free, R1 … R5).');
+    if (M.auctions) {
+        if (!w.places.some(x => x.id === M.auctions.place))
+            out.push('Pick the place of the sales.');
+        if (!(M.auctions.days ?? []).length)
+            out.push('The sales need at least one day of the season.');
+    }
+    if (M.shows && !ups.some(u => u.does === 'exhibition'))
+        out.push('No upgrade is an exhibition hall, so no show can be held.');
+    for (const h of halls)
+        if (!h.record && (w.collection?.slots ?? []).some(s => s.hall === h.id && s.sources?.length) && !ups.some(u => u.opens === h.id))
+            out.push(`No wing opens ${h.name}: its pieces show only in the first room.`);
+    return out;
+}
+function upgradeIssues(w, u) {
+    const out = [], h = (w.collection?.halls ?? []).find(x => x.id === u.opens);
+    if (!String(u.name ?? '').trim())
+        out.push('It needs a name: without one it is dropped when the world loads.');
+    if (!(Number(u.price) > 0))
+        out.push('It needs a price.');
+    if (u.opens && !h)
+        out.push(`No hall called ${u.opens}.`);
+    if (h?.adult && !u.adult)
+        out.push(`It opens ${h.name}, an adult hall: mark it adult too.`);
+    for (const n of u.needs ?? [])
+        if (!(museumOf(w)?.upgrades ?? []).some(x => x.id === n))
+            out.push(`It needs ${n}, which isn't an upgrade.`);
+    return out;
+}
+function upgradeForm(w, i) {
+    const p = `collection.museum.upgrades.${i}`, u = museumOf(w)?.upgrades?.[i];
+    if (!u)
+        return '';
+    const others = upgradeOptsOf(w).filter(([id]) => id !== u.id);
+    const halls = (w.collection?.halls ?? []).filter(h => !h.record).map(h => [h.id, `${h.icon ?? ''} ${h.name}`.trim()]);
+    return `<div class="mu-row mu-cw-inline">${idTag(u.id)}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'The Art wing')}${optTxt('Icon (an emoji)', `${p}.icon`, '🖼️')}</div>
+        ${optTxt('What it does, in a line (optional)', `${p}.desc`, 'Puts the whole Art hall on show.')}
+        <div class="mu-row2">${num(`Price (${esc(w.currency.symbol)})`, `${p}.price`)}${num('Renown it adds (optional)', `${p}.renown`)}</div>
+        <div class="mu-row2">${sel('A wing: puts this hall on show', `${p}.opens`, withCur([['', '(not a wing)'], ...halls], u.opens), 'opt')}${sel('What else it does', `${p}.does`, withCur(UPGRADE_DOES, u.does), 'opt')}</div>
+        ${others.length || u.needs?.length ? `<span class="mu-cw-sub">Needs these upgrades first</span>${pairChips(withCurAll(others, u.needs), `${p}.needs`, true)}` : ''}
+        <div class="mu-row2">${cond('Offered when (optional)', `${p}.when`, 'museum: renown 2')}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        ${upgradeIssues(w, u).map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// A pair of numbers ([renown level, stock], a bid's lowest and highest share) as two fields, or a button to add it.
+function pairRows(p, v, labels, add, lo, hi, step = 1) {
+    if (!Array.isArray(v))
+        return `<button class="mu-ghost" data-act="cw-add" data-what="mpair" data-path="${esc(p)}" data-v="${esc(`${lo},${step === 1 ? lo + 1 : lo + step}`)}">${icon('plus')}<span>${esc(add)}</span></button>`;
+    return `<div class="mu-row mu-cw-inline">${bounded(labels[0], `${p}.0`, lo, hi, step)}${bounded(labels[1], `${p}.1`, lo, hi, step)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(p)}" title="Remove">${icon('x')}</button></div>`;
+}
+// A part of the museum that is there whole or not at all (the dealer, the sales, shows): its fields, or a button.
+const mpart = (p, on, head, add, body) => on
+    ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">${esc(head)}</span><span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(p)}" title="Remove">${icon('x')}</button></div>${body()}</div>`
+    : `<button class="mu-ghost" data-act="cw-add" data-what="mpart" data-path="${esc(p)}">${icon('plus')}<span>${esc(add)}</span></button>`;
+function museumEditor(w) {
+    const c = w.collection;
+    if (!c?.halls?.length)
+        return '';
+    const M = c.museum, q = 'collection.museum', sym = esc(w.currency.symbol);
+    if (!M)
+        return `<section class="mu-cw-sec"><h4>Museum</h4><p class="mu-muted">A museum of your own: a place hidden until it's yours, an offer to take it on, upgrades and wings, renown and visitors, a dealer and sales. Without one, display halls are a plain collection (finds, shops, festivals, endings, stories, milestones).</p>
+        <button data-act="cw-add" data-what="museum">${icon('plus')}<span>Add a museum</span></button></section>`;
+    const lv = M.renown?.levels ?? [], d = M.dealer, a = M.auctions, sh = M.shows;
+    const people = [['', '(nobody)'], ...peopleOpts(w).map(([v]) => [v.split(/\s+/)[0], v])];
+    return `<section class="mu-cw-sec"><div class="mu-row mu-cw-inline"><h4>Museum</h4><span class="mu-cw-spacer"></span><button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${q}">${icon('trash')}<span>Remove the museum</span></button></div>
+        <p class="mu-muted">Pieces you own sit in cases at home until the museum is taken on; its first room shows some of any hall, and each wing puts a whole hall on show. Upgrades raise its renown, renown brings visitors and their money each week.</p>
+        ${museumIssues(w, M).map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}
+        <div class="mu-row2">${txt('Name', `${q}.name`, 'The Kurahashi kura')}${sel('Its place (hidden until it is yours)', `${q}.place`, withCur(placeOpts(w, '(pick one)'), M.place))}</div>
+        <div class="mu-row2">${cond('It can be taken on once (a condition)', `${q}.offer.when`, 'seen: ot_yanaka_st_kura')}${num(`Its price (${sym})`, `${q}.offer.price`)}</div>
+        <div class="mu-row2">${num('Pieces on show at home before it opens (cases)', `${q}.cases`)}${num('Pieces its first room shows (any hall, before wings)', `${q}.room`)}</div>
+        <div class="mu-row2">${sel('Its curator', `${q}.curator`, withCur(people, M.curator), 'opt')}${sel('The job the opening gives them', `${q}.curatorJob`, withCur([['', '(their own)'], ...jobOpts(w)], M.curatorJob), 'opt')}</div>
+        <h4>Upgrades</h4>${master('mup', `${q}.upgrades`, (u) => `<b>${esc(u.icon ?? '')} ${esc(u.name || u.id)}</b><small>${esc(money(w, Number(u.price) || 0))}${u.opens ? ' · a wing' : ''}${u.adult ? ' · adult' : ''}</small>`, i => upgradeForm(w, i), 'mup', 'No upgrades yet.')}
+        <h4>Renown</h4>
+        ${M.renown ? `<span class="mu-cw-sub">Levels (renown points it takes, and how it's known)</span>
+            ${lv.map((_l, k) => `<div class="mu-row mu-cw-inline">${num('At', `${q}.renown.levels.${k}.at`)}${txt('Known as', `${q}.renown.levels.${k}.name`, 'a local secret')}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.renown.levels.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+            <button class="mu-ghost" data-act="cw-add" data-what="mlevel" data-path="${q}.renown.levels">${icon('plus')}<span>Add a level</span></button>
+            <span class="mu-cw-sub">Renown per piece on show, by its price's rung (a replica counts half)</span>
+            <div class="mu-cw-effects">${RUNG_LABELS.map((l, k) => bounded(l, `${q}.renown.rung.${k}`, 0, 100)).join('')}</div>
+            ${num(`Visitors' money a week per renown point (${sym})`, `${q}.renown.income`)}`
+        : `<button class="mu-ghost" data-act="cw-add" data-what="mpart" data-path="${q}.renown">${icon('plus')}<span>Add renown</span></button>`}
+        <h4>The dealer, the sales and shows</h4>
+        ${mpart(`${q}.dealer`, !!d, 'The dealer: a visit with pieces to sell', 'Add a dealer', () => `<div class="mu-row2">${bounded('Comes every (days)', `${q}.dealer.every`, 1, 112)}${bounded('Pieces each visit', `${q}.dealer.stock`, 1, 12)}</div>
+            <div class="mu-row2">${bounded('Brings a missing piece within (visits)', `${q}.dealer.pity`, 1, 100)}${bounded('More for asking for a piece (0.1: +10%)', `${q}.dealer.ask`, 0, 5, 0.05)}</div>
+            ${bounded('More for a piece whose one-time way has passed (0.5: +50%)', `${q}.dealer.late`, 0, 5, 0.05)}
+            ${pairRows(`${q}.dealer.more`, d?.more, ['From renown level', 'Pieces each visit'], 'More pieces from a renown level', 0, 100)}`)}
+        ${mpart(`${q}.auctions`, !!a, 'The sales: lots to bid on, a rival collector', 'Add sales', () => `<div class="mu-row2">${sel('Where', `${q}.auctions.place`, withCur(placeOpts(w, '(pick one)'), a?.place))}${bounded('From (hour)', `${q}.auctions.from`, 0, 23.5, 0.5)}</div>
+            <span class="mu-cw-sub">On these days of each season</span>${numChips(Array.from({ length: 14 }, (_x, k) => [String(k + 1), String(k + 1)]), `${q}.auctions.days`)}
+            <div class="mu-row2">${bounded('Lots each sale', `${q}.auctions.lots`, 1, 20)}${bounded('A lost lot comes back within (sales)', `${q}.auctions.back`, 1, 20)}</div>
+            ${bounded('A lot that comes back costs more by (0.2: +20%)', `${q}.auctions.again`, 0, 5, 0.05)}
+            ${pairRows(`${q}.auctions.more`, a?.more, ['From renown level', 'Lots each sale'], 'More lots from a renown level', 0, 100)}
+            ${a?.rival ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">The rival who bids against you</span><span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.auctions.rival" title="Remove">${icon('x')}</button></div>
+                <div class="mu-row2">${bounded('Odds she wants a lot (0 … 1)', `${q}.auctions.rival.wants`, 0, 1, 0.05)}${bounded('More per renown level (0.05: +5%)', `${q}.auctions.rival.perLevel`, 0, 1, 0.01)}</div>
+                ${pairRows(`${q}.auctions.rival.top`, a.rival.top, ['Her top bid, lowest (× the estimate)', 'Highest'], 'Her top bid', 1, 10, 0.05)}</div>`
+        : `<button class="mu-ghost" data-act="cw-add" data-what="mpart" data-path="${q}.auctions.rival">${icon('plus')}<span>Add a rival</span></button>`}`)}
+        ${mpart(`${q}.shows`, !!sh, 'Shows in the exhibition hall', 'Add shows', () => `<div class="mu-row2">${num(`A show's price (${sym})`, `${q}.shows.price`)}${num('Renown while it is on', `${q}.shows.renown`)}</div>
+            <div class="mu-row2">${num('Lasting renown per theme shown', `${q}.shows.lasting`)}${num('Lasting renown from shows at most', `${q}.shows.most`)}</div>
+            ${num('Pieces on show a theme needs', `${q}.shows.min`)}`)}
+        ${mpart(`${q}.eye`, !!M.eye, "The curator's eye: finds come damaged less often, for good", "Add the curator's eye", () => `<div class="mu-row2">${cond('Once (a condition)', `${q}.eye.when`, 'did: ot_kura_lesson 5')}${bounded('Damaged odds × (0 … 1)', `${q}.eye.damaged`, 0, 1, 0.05)}</div>`)}</section>`;
 }
 // (the collection) What the forms can leave empty: optional texts, chips, plaques; a block with no hall left goes.
 function tidyCollection(w) {
@@ -1518,9 +1767,70 @@ function tidyCollection(w) {
             if (!Object.keys(s.plaques).length)
                 delete s.plaques;
         }
+        // (museum) an emptied list of ways or of places, an empty condition, an upgrade unpicked
+        for (const x of s.sources ?? []) {
+            if (Array.isArray(x.at) && !x.at.length)
+                delete x.at;
+            for (const k of ['action', 'id', 'when'])
+                if (typeof x[k] === 'string' && !x[k].trim())
+                    delete x[k];
+        }
+        if (Array.isArray(s.sources) && !s.sources.length)
+            delete s.sources;
+        if (typeof s.needsUpgrade === 'string' && !s.needsUpgrade.trim())
+            delete s.needsUpgrade;
+    }
+    const M = c.museum;
+    if (M) {
+        for (const u of M.upgrades ?? []) {
+            for (const k of ['icon', 'desc', 'opens', 'when'])
+                if (typeof u[k] === 'string' && !u[k].trim())
+                    delete u[k];
+            if (Array.isArray(u.needs) && !u.needs.length)
+                delete u.needs;
+        }
+        for (const k of ['curator', 'curatorJob'])
+            if (typeof M[k] === 'string' && !M[k].trim())
+                delete M[k];
+        // a number emptied inside a list: a renown rung counts nothing, a pair with a hole goes (as the loader would drop it)
+        if (Array.isArray(M.renown?.rung))
+            M.renown.rung = Array.from(M.renown.rung, v => (typeof v === 'number' && isFinite(v) ? v : 0)); // (Array.from: an emptied field leaves a hole map would skip)
+        const holed = (v) => Array.isArray(v) && (v.length !== 2 || Array.from(v).some(x => typeof x !== 'number' || !isFinite(x)));
+        if (M.dealer && holed(M.dealer.more))
+            delete M.dealer.more;
+        if (M.auctions && holed(M.auctions.more))
+            delete M.auctions.more;
+        if (M.auctions?.rival && holed(M.auctions.rival.top))
+            delete M.auctions.rival;
     }
     if (!c.halls?.length)
         delete w.collection;
+}
+// (museum) What a person's tier form can leave empty: caps, holds, an AI line, profile lines, outfits all unset; an
+// emptied list of tiers. Nothing else is touched.
+function tidyTiers(w) {
+    for (const e of w.cast?.examples ?? []) {
+        if (!Array.isArray(e.tiers))
+            continue;
+        for (const t of e.tiers) {
+            for (const k of ['caps', 'hold', 'intimate']) {
+                const o = t[k];
+                if (!o || typeof o !== 'object')
+                    continue;
+                for (const [f, v] of Object.entries(o))
+                    if (v === undefined || (typeof v === 'string' && !v.trim()) || (Array.isArray(v) && !v.length))
+                        delete o[f];
+                if (!Object.keys(o).length)
+                    delete t[k];
+            }
+            if (typeof t.ai === 'string' && !t.ai.trim())
+                delete t.ai;
+            if (Array.isArray(t.outfits) && !t.outfits.length)
+                delete t.outfits;
+        }
+        if (!e.tiers.length)
+            delete e.tiers;
+    }
 }
 // Places that may sell things: not a pin to another map, a home or a venture's own unit (world-check's rule).
 const sellingPlaces = (w) => w.places.filter(p => !p.link && !p.home && !String(p.id).startsWith('home:') && !p.venture);
@@ -1910,6 +2220,7 @@ export function forSaving(w) {
     tidyShop(out);
     tidyFixtures(out);
     tidyCollection(out);
+    tidyTiers(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length)
@@ -2540,6 +2851,7 @@ function personMore(w, p, e) {
     return `<h4>Looks, voice and pictures</h4>
         <div class="mu-row2">${optTxt('Their looks in a line (when present but not speaking)', `${p}.look`)}${optTxt('Their voice in a line', `${p}.voice`)}</div>
         <div class="mu-row2">${optTxt('Portrait (a picture in the world\'s folder)', `${p}.avatar`, 'people/mio.png')}${optTxt('Expression sprites (a folder in the world\'s folder)', `${p}.sprites`, 'sprites/mio')}</div>
+        ${Object.keys(e.outfits ?? {}).length ? `<div class="mu-row2">${Object.keys(e.outfits ?? {}).map(o => optTxt(`Outfit: ${esc(o)} (a folder of sprites; empty: no such outfit)`, `${p}.outfits.${o}`, 'sprites/mio/yukata')).join('')}</div>` : ''}
         <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
         ${skillOpts(w).length || e.skills ? skillLevels(w, `${p}.skills`, 'What they\'re good at, for training together (teaching takes 6; empty: what their job asks)', 0) : ''}
@@ -2582,7 +2894,8 @@ function opensRows(q, t) {
     const list = t.opens === undefined ? [] : Array.isArray(t.opens) ? t.opens : [t.opens];
     return `<div class="mu-cw-path"><span class="mu-cw-sub">How it opens</span>
         ${list.map((_x, k) => `<div class="mu-row mu-cw-inline">${wayField(k ? 'Or opens earlier when' : 'Opens earlier when (optional)', Array.isArray(t.opens) ? `${q}.opens.${k}` : `${q}.opens`, 'job: ramen; feels: Genzō acquaintance')}<button class="mu-ghost mu-ibtn" data-act="cw-hire-del" data-f="opens" data-path="${esc(q)}" data-k="${k}" title="Remove">${icon('x')}</button></div>`).join('')}
-        <small class="mu-muted">Always opens at friend, or when the player learns the secret</small>
+        <small class="mu-muted">${t.opensOnly ? 'Opens only through these ways in (not at friend, not by learning the secret)' : 'Always opens at friend, or when the player learns the secret'}</small>
+        <div class="mu-row2">${flag('Opens only through these ways', `${q}.opensOnly`, "Friendship and learning the secret don't open it (a tier of theirs, say).")}${flag('Its last chances never end it', `${q}.noLast`, 'It waits for the player; the texts come back as reminders.')}</div>
         <button class="mu-ghost" data-act="cw-add" data-what="hire" data-f="opens" data-path="${esc(q)}">${icon('plus')}<span>Add an earlier way in</span></button></div>`;
 }
 const optArea = (label, p, rows = 3, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${val(p)}</textarea></label>`;
@@ -2643,11 +2956,83 @@ function threadsEditor(w, p, e) {
                 <div class="mu-row2">${sel('A new job', `${s}.job`, withCur(jobs, en.job), 'opt')}${sel('A new home', `${s}.home`, withCur(zoneOpts(w, '(the same)'), en.home), 'opt')}</div>
                 ${optTxt('Remembered (a fact)', `${s}.fact`)}
                 <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div>
+                <div class="mu-row2">${sel('Together with the player after it', `${s}.couple`, withCur(ENDING_COUPLE, en.couple), 'opt')}${flag('Moves in with you', `${s}.movesIn`, 'If you are together (dating or more) by then.')}</div>
                 ${helpForm(w, s, en)}</div>`;
         }).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="tend" data-path="${esc(`${q}.endings`)}">${icon('plus')}<span>Add an ending</span></button></div>`;
     }).join('')}
         <button class="mu-ghost" data-act="cw-add" data-what="thread" data-path="${esc(`${p}.threads`)}">${icon('plus')}<span>Add a storyline</span></button></details>`;
+}
+/* ---------- (museum) people who unlock: a person's tiers and `reserved` (sim/tiers.ts; session M-E) ---------- */
+const STATUS_CAPS = [['', 'No cap'], ['none', 'No couple at all'], ['casual', 'Something casual'], ['dating', 'Dating'], ['engaged', 'Engaged'], ['married', 'Married']];
+const CAP_ORDER = { f: FRIEND_TIERS.map(t => t.id), r: ROMANCE_TIERS.map(t => t.id), status: STATUS_CAPS.slice(1).map(([v]) => v) };
+const CAP_NAMES = { f: 'Friendship', r: 'Romance', status: 'Together' };
+// (a cap missing is no cap: above every level)
+const capRank = (k, v) => (typeof v === 'string' && CAP_ORDER[k].includes(v) ? CAP_ORDER[k].indexOf(v) : Infinity);
+const TIER_INTIMATE = [['experience', 'Experience', 'line'], ['wants', 'What they want', 'line'], ['drawnTo', 'What draws them', 'line'],
+    ['flirts', 'How they flirt', 'line'], ['dynamic', 'Who leads', 'line'], ['body', 'Their body', 'area'], ['inBed', 'In bed', 'area'],
+    ['prefs', 'What they like (one per line)', 'list'], ['limits', 'Hard limits (one per line; always respected)', 'list']];
+const TIER_PRESETS = [['', 'As before (their own, or an earlier tier\'s)'], ['steady', 'Steady: a crush, and friends'], ['free', 'Free spirit: a spark is enough'], ['passionate', 'Passionate: a crush, no friendship needed'],
+    ['slow', 'Slow to trust: a crush, and close friends'], ['devoted', 'Devoted: deeply in love, and best friends'], ['custom', 'Custom']];
+// What world-check says of a person's tiers: caps never fall from one tier to the next, a name and a condition each, outfits
+// that are theirs (each named on one tier).
+export function tierIssues(e) {
+    const tiers = e.tiers ?? [], mine = Object.keys(e.outfits ?? {}), named = new Set();
+    return tiers.map((t, i) => {
+        const out = [], prev = tiers[i - 1];
+        if (!String(t.name ?? '').trim())
+            out.push('It needs a name: without one it is dropped when the world loads.');
+        if (t.when == null || (typeof t.when === 'string' && !t.when.trim()))
+            out.push('It needs a condition: without one it is dropped when the world loads.');
+        if (prev)
+            for (const k of ['f', 'r', 'status'])
+                if (capRank(k, t.caps?.[k]) < capRank(k, prev.caps?.[k]))
+                    out.push(`${CAP_NAMES[k]} is capped lower than at ${prev.name || 'the tier before'}: caps never fall from one tier to the next.`);
+        for (const o of t.outfits ?? []) {
+            // (none wired yet, the art still to come: said, as world-check's note; once some are, a name that isn't one)
+            if (!mine.some(m => m.toLowerCase() === o.toLowerCase()))
+                out.push(mine.length ? `${e.name} has no outfit called ${o}.` : `${e.name} has no outfits wired yet: ${o} waits for them.`);
+            if (named.has(o.toLowerCase()))
+                out.push(`The outfit ${o} is named on an earlier tier: name each outfit on the tier it opens at.`);
+            named.add(o.toLowerCase());
+        }
+        return out;
+    });
+}
+function tierForm(w, p, k, t, e, issues) {
+    const q = `${p}.tiers.${k}`, n = (e.tiers ?? []).length, i = t.intimacy;
+    const preset = !i ? '' : i.preset ?? 'steady', mine = Object.keys(e.outfits ?? {});
+    const levelOpts = (k2) => [['', 'No cap'], ...(k2 === 'f' ? [...FRIEND_TIERS].reverse() : [...ROMANCE_TIERS].reverse()).map(x => [x.id, x.name])];
+    const nameOpts = (names) => [['', '(as before)'], ...Object.entries(names)];
+    return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k}</b>${idTag(t.id)}<span class="mu-cw-spacer"></span>
+            ${k > 0 ? `<button class="mu-ghost mu-ibtn" data-act="cw-move" data-path="${esc(`${p}.tiers`)}" data-i="${k}" data-d="-1" title="Move up">${icon('up')}</button>` : ''}${k < n - 1 ? `<button class="mu-ghost mu-ibtn" data-act="cw-move" data-path="${esc(`${p}.tiers`)}" data-i="${k}" data-d="1" title="Move down">${icon('down')}</button>` : ''}
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+        <div class="mu-row2">${txt('Name', `${q}.name`, 'Confidante')}${cond('Reached when (a condition; never lost after)', `${q}.when`, 'museum: 25%')}</div>
+        <span class="mu-cw-sub">The most it allows toward the player</span>
+        <div class="mu-row2">${sel('Friendship up to', `${q}.caps.f`, withCur(levelOpts('f'), t.caps?.f), 'opt')}${sel('Romance up to', `${q}.caps.r`, withCur(levelOpts('r'), t.caps?.r), 'opt')}</div>
+        <div class="mu-row2">${sel('Together up to', `${q}.caps.status`, withCur(STATUS_CAPS, t.caps?.status), 'opt')}<span></span></div>
+        <div class="mu-row2">${chk('Keep friendship gained past the cap for the next tier', `${q}.hold.f`, 'Up to one level\'s worth; off: it is lost.', true)}${chk('Keep romance gained past the cap for the next tier', `${q}.hold.r`, '', true)}</div>
+        ${optArea('What the AI is told at this tier ({{user}} is the player)', `${q}.ai`, 2, 'Tamaki lets {{user}} see her off duty now…')}
+        <div class="mu-row2">${words('Outfits it lets the game put on (names, comma-separated)', `${q}.outfits`, mine.length ? `Theirs: ${mine.join(', ')}` : 'They have no outfits in this world yet.', 'yukata')}${flag('They may make the move from here', `${q}.moves`, '', true)}</div>
+        <div class="mu-row2">${flag('They text you invitations from here', `${q}.invites`, 'Once any tier says so, not before that tier.')}${num('Their invitations, × as often from here (empty: as anyone; up to 5)', `${q}.inviteOdds`, 1, 0.5)}</div>
+        <div class="mu-row2">${lines(`The move in their own words (one per line; {name}, {action}) ${ADULT}`, `${q}.moveLines`, 2)}${lines(`Asking you over tonight, by text (one per line; {when})`, `${q}.askLines`, 2)}</div>
+        <span class="mu-cw-sub">Before getting intimate, from this tier ${ADULT}</span>
+        <label class="mu-field"><span>They need</span><select data-input="cw-tintim" data-f="preset" data-path="${esc(`${q}.intimacy`)}">${TIER_PRESETS.map(([v, l]) => `<option value="${esc(v)}" ${v === preset ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="mu-muted">Once any tier sets this, nothing intimate happens before that tier.</small></label>
+        ${preset === 'custom' ? `<div class="mu-row2">${sel('Romance', `${q}.intimacy.r`, withCur(Object.entries(R_NAME), i?.r))}${sel('Friendship', `${q}.intimacy.f`, withCur(Object.entries(F_NAME), i?.f))}</div>` : ''}
+        ${i ? `<label class="mu-check"><input type="checkbox" data-input="cw-tintim" data-f="casual" data-path="${esc(`${q}.intimacy`)}" ${i.casual === false ? 'checked' : ''}><span>Only with a partner</span></label>` : ''}
+        <details class="mu-cw-kept" ${t.intimate ? 'open' : ''}><summary>Profile lines added at this tier ${ADULT} · ${Object.keys(t.intimate ?? {}).length}</summary>
+            ${TIER_INTIMATE.map(([f, l, how]) => how === 'list' ? lines(l, `${q}.intimate.${f}`, 3) : how === 'area' ? optArea(l, `${q}.intimate.${f}`, 2) : optTxt(l, `${q}.intimate.${f}`)).join('')}
+            <div class="mu-row2">${sel('In bed', `${q}.intimate.role`, withCur(nameOpts(ROLE_NAME), t.intimate?.role), 'opt')}${sel('Drive', `${q}.intimate.drive`, withCur(nameOpts(DRIVE_NAME), t.intimate?.drive), 'opt')}</div></details>
+        ${issues.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}</div>`;
+}
+function tiersEditor(w, p, e) {
+    const l = e.tiers ?? [], issues = tierIssues(e);
+    return `<h4>Tiers and who they're drawn to</h4>
+        ${flag('Drawn only to the player', `${p}.reserved`, 'Whatever the player\'s gender, and to no one else: no romance with anyone else forms by itself, not on the dating app, never leaves the maps.')}
+        <details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Tiers · ${l.length}</summary>
+        <p class="mu-muted">Tiers open one after another, each the first time its condition holds, and are never lost (tier: ${esc(e.name.split(/\s+/)[0])} 2 holds from the third). Each caps how close they let the player come; before the first is reached, its caps already hold.</p>
+        ${l.map((t, k) => tierForm(w, p, k, t, e, issues[k] ?? [])).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="ptier" data-path="${esc(`${p}.tiers`)}">${icon('plus')}<span>Add a tier</span></button></details>`;
 }
 // The world's own people: a character card is made from each when a game of this world starts (or reused).
 function peopleEditor(w) {
@@ -2679,6 +3064,7 @@ function peopleEditor(w) {
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 ${personMore(w, p, e)}
+                ${tiersEditor(w, p, e)}
                 <h4>Their life</h4>${ritualsEditor(w, p, e)}${threadsEditor(w, p, e)}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
                 ${spots ? '' : '<small class="mu-muted">Add places on the map first.</small>'}${e ? '' : ''}`;
@@ -2991,6 +3377,8 @@ const NEW = {
     chall: () => ['collection.halls', { id: newId('hall'), name: 'New hall', groups: [{ id: newId('group'), name: 'New group' }] }],
     // (a slot of the hall the list shows, else the first; its id starts as Tokyo's do for that hall: mem_ for the record)
     cslot: () => { const w = W(), hs = w.collection?.halls ?? [], h = hs.find(x => x.id === CW.sel.cslotHall) ?? hs[0]; return ['collection.slots', { id: newId(h?.record ? 'mem' : (h?.id ?? 'slot')), hall: h?.id ?? '', group: h?.groups[0]?.id ?? '', name: 'New slot', ...(h?.record ? { when: '' } : {}) }]; },
+    // (museum) an upgrade: bought once, nothing more until it's given a wing or a use
+    mup: () => ['collection.museum.upgrades', { id: newId('up'), name: 'New upgrade', price: 100000 }],
     fixture: () => ['homes.fixtures', { id: newId('fx'), name: 'New fixture', desc: '', icon: '🛋️', price: 1000 }],
     breakable: () => ['homes.breakables', { id: newId('thing'), name: 'the new thing', blocks: [] }],
     course: () => ['catalogs.courses', { id: newId('course'), name: 'New course', area: 'General', days: 3, cost: 100, grants: [], icon: '📚', desc: '' }],
@@ -3014,7 +3402,7 @@ const NEW = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },
@@ -3427,6 +3815,58 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        // (museum) a piece's way to have it (the dealer at the tile's price), a whole museum, one of its parts, a pair of
+        // numbers, a renown level, a person's tier
+        if (what === 'csrc') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            const price = Number(getPath(el.dataset.path.replace(/\.sources$/, '.price'))) || 10000;
+            l.push({ kind: 'dealer', price });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'museum') {
+            if (!w.collection || w.collection.museum)
+                return;
+            w.collection.museum = { place: w.places.find(x => !x.link)?.id ?? '', name: 'The museum', offer: { when: '', price: 100000 }, cases: 6, room: 12, upgrades: [], renown: { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } };
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'mpart') {
+            const p = el.dataset.path, M = w.collection?.museum;
+            if (!M || getPath(p) !== undefined)
+                return;
+            const part = p.split('.').pop();
+            setPath(p, part === 'renown' ? { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } : part === 'dealer' ? { every: 7, stock: 3, pity: 6 }
+                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
+                    : { price: Math.round((Number(M.offer?.price) || 100000) / 5), renown: 10 });
+            notify();
+            return;
+        }
+        if (what === 'mpair') {
+            const p = el.dataset.path;
+            if (getPath(p) !== undefined)
+                return;
+            const parent = getPath(p.replace(/\.[^.]+$/, '')) ?? {};
+            setPath(p, p.endsWith('.top') ? [1.1, 1.8] : [2, (Number(parent.stock ?? parent.lots) || 3) + 1]);
+            notify();
+            return;
+        }
+        if (what === 'mlevel') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ at: (Number(l[l.length - 1]?.at) || 0) + 20, name: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'ptier') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ id: newId('tier'), name: `Tier ${l.length}`, when: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
         if (what === 'cgroup') {
             getPath(el.dataset.path).push({ id: newId('group'), name: 'New group' });
             CW.dirty = true;
@@ -3718,6 +4158,54 @@ Object.assign(INPUT, {
         dirtyMark();
     },
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
+    // (museum) a piece's source changed to another kind: what the new kind doesn't read goes (its condition kept where read)
+    'cw-src-kind': (el) => {
+        const q = el.dataset.path.replace(/\.kind$/, '');
+        const x = getPath(q);
+        if (!x || typeof x !== 'object' || CW.view)
+            return;
+        const uses = SOURCE_USES[el.value];
+        if (!uses)
+            return;
+        for (const k of Object.keys(x))
+            if (k !== 'kind' && !uses.includes(k))
+                delete x[k];
+        x.kind = el.value;
+        CW.dirty = true;
+        notify();
+    },
+    // (museum) what a tier says they need before getting intimate: none (as before), a preset, custom; only with a partner
+    'cw-tintim': (el) => {
+        const p = el.dataset.path, f = el.dataset.f;
+        const cur = getPath(p);
+        const i = cur && typeof cur === 'object' ? { ...cur } : {};
+        if (f === 'casual') {
+            if (el.checked)
+                i.casual = false;
+            else
+                delete i.casual;
+            setPath(p, Object.keys(i).length ? i : undefined);
+            notify();
+            return;
+        }
+        if (!el.value) {
+            setPath(p, undefined);
+            notify();
+            return;
+        }
+        if (el.value === 'custom') {
+            const was = INTIMACY_PRESETS[i.preset] ?? INTIMACY_PRESETS.steady;
+            i.r ??= was.r;
+            i.f ??= was.f;
+        }
+        else {
+            delete i.r;
+            delete i.f;
+        }
+        i.preset = el.value;
+        setPath(p, i);
+        notify();
+    },
     // the shop's list by category ('' : every one)
     'cw-shopcat': (el) => { CW.sel.shopCat = el.value; notify(); },
     // the collection's slots by hall ('' : every one)

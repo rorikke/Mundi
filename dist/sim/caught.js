@@ -5,10 +5,13 @@
 // someone was there to see, and a warning at work when it was your own workplace. A work choice can carry a `risk` too
 // (the esthe's "a little more"): caught, it's a raid, the job's place shuts for a week, a warning, a rumor, and the
 // second time you're let go. The `risk` effects (Shameless a little more, a perk less) read through `riskRoll` in
-// sim/dice.ts. Everything goes through the hooks in sim/hooks.ts; nothing here does anything with adult content off.
+// sim/dice.ts. At a place that is yours (the museum you own and its rooms, sim/museum.ts through `ownedPlaces`) nobody
+// bans you: caught there, someone who works there sees (the world's table `owncaught` says who, and how the one with you
+// takes it), word gets around, and that's all; the night guard's rounds double the chance. Everything goes through the
+// hooks in sim/hooks.ts; nothing here does anything with adult content off.
 import { adultOn, nowAbs } from '../core/store.js';
 import { isScenario } from '../core/world.js';
-import { privateChecks, privateResults, actionGates, onDay } from './hooks.js';
+import { privateChecks, privateResults, actionGates, onDay, ownedPlaces } from './hooks.js';
 import { riskRoll } from './dice.js';
 import { addStatus, statusDef, money } from './needs.js';
 import { tallyEvent } from './tally.js';
@@ -19,6 +22,7 @@ import { presentAt } from './people.js';
 import { startCaughtRumor } from './living.js';
 import { whoJoins, matchIn, limitsOf } from './private.js';
 import { myJob, jobPlace, shiftOn, addPerf, jobTags } from './work.js';
+import { whenHolds } from './when.js';
 import { personaName } from '../st/bridge.js';
 /** What getting caught costs, and what not getting caught gives. */
 export const CAUGHT = {
@@ -127,6 +131,48 @@ function caught(g, w, x, who) {
     const first = lines[0].text;
     return { lines, roll: null, outcome: { id: CAUGHT_ID, weight: 0, text: first }, keepsake: null, with: who, together: [], ai: caughtLine(g, a, who, where) };
 }
+/* ---------- caught at a place of your own ---------- */
+/** Is this place yours (the museum you own, its rooms)? What being seen there is multiplied by, or null. */
+export const ownedHere = (g, w, place) => {
+    for (const f of ownedPlaces) {
+        const o = f(g, w, place);
+        if (o)
+            return o;
+    }
+    return null;
+};
+/** What a world says when you're caught at a place of yours: a row of its `owncaught` table whose `when` holds
+ *  (who saw you, and how the one with you takes it), drawn by weight; none: a plain line. */
+export function ownCaughtRow(g, w, rnd = Math.random) {
+    const rows = (w.tables?.owncaught ?? []).filter(r => r?.text && (r.weight ?? 1) > 0 && (!r.when || whenHolds(g, w, r.when)));
+    const total = rows.reduce((t, r) => t + (r.weight ?? 1), 0);
+    let x = rnd() * total;
+    for (const r of rows)
+        if ((x -= r.weight ?? 1) < 0)
+            return { id: r.id, text: r.text };
+    return rows.length ? { id: rows.at(-1).id, text: rows.at(-1).text } : { id: '', text: 'Someone who works here saw you, and looked away.' };
+}
+/** Caught at a place of yours: nothing of it plays, but nobody bans you or takes a fee: someone who works there saw, the
+ *  one with you is mortified (the world's words), and word may get around. */
+function caughtAtYours(g, w, x, who) {
+    const a = x.a, where = placeName(g, w, x.place), me = personaName(), lines = [];
+    const say = (text) => lines.push({ text, kind: 'warn' });
+    const row = ownCaughtRow(g, w, x.rnd);
+    say(row.text);
+    addStatus(g, w, 'mood', CAUGHT.mood);
+    say("It's your own place: nobody asks you to leave.");
+    const text = `${me}${who.length ? ` and ${names(g, who)}` : ''} ${who.length ? 'were' : 'was'} caught being intimate at ${where}.`;
+    // whoever works there talks: word starts with the people of the place, else of its neighbourhood (its map)
+    const map = w.places.find(p => p.id === x.place)?.map, o = { with: who, id: `caught:${a.id}:${nowAbs(g)}`, seen: true };
+    const near = [x.place, ...w.places.filter(p => p.map === map && p.id !== x.place && !p.private && !p.link).map(p => p.id)];
+    if (near.some(p => startCaughtRumor(g, w, text, p, o)))
+        say('Word may get around.');
+    note(g, who.length ? '{u} and {0} were caught at {1}.' : '{u} was caught at {1}.', [names(g, who), where], who, x.place, 'action');
+    tallyEvent(g, 'caught', 1, who[0]);
+    const label = a.label.toLowerCase(), people = names(g, who);
+    const ai = `[Just now ${people ? `{{user}} and ${people}` : '{{user}}'} were about to ${label} at ${where}, a place of {{user}}'s own, but someone who works there came by and saw them: ${row.text.replace(/[.\s]+$/, '')}. Nobody makes them leave and nothing more happens; narrate it briefly, in that light.]`;
+    return { lines, roll: null, outcome: { id: CAUGHT_ID, weight: 0, text: lines[0].text }, keepsake: null, with: who, together: [], ai };
+}
 privateChecks.push((g, w, x) => {
     if (!adultOn(g) || isScenario(w) || !((x.a.risk ?? 0) > 0))
         return;
@@ -137,8 +183,9 @@ privateChecks.push((g, w, x) => {
         return;
     if (who.some(p => matchIn(g, x.a.matches, limitsOf(g, p))))
         return;
-    if (riskRoll(g, w, x.a, x.rnd).caught) {
-        x.stop = caught(g, w, x, who);
+    const own = ownedHere(g, w, x.place), a = own && own.risk !== 1 ? { ...x.a, risk: Math.min(1, (x.a.risk ?? 0) * own.risk) } : x.a;
+    if (riskRoll(g, w, a, x.rnd).caught) {
+        x.stop = own ? caughtAtYours(g, w, x, who) : caught(g, w, x, who);
         return;
     }
     x.notes.risky = true;

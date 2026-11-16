@@ -11,7 +11,7 @@
 import { nowAbs, adultOk, adultOn } from '../core/store.js';
 import { systemOn, activeStatuses, getWorld } from '../core/world.js';
 import { goalsOf, goalOf, isSystemNeed, FOLDED_GOALS, SKILL_GROUPS, GENERAL_GOALS, GOAL_CATEGORIES } from '../core/goals.js';
-import { whenHolds, parseWhen, namedIn, personNamed, countKey, countedOf, moneyAmount, homeMap, PLACE_REGULAR } from './when.js';
+import { whenHolds, parseWhen, namedIn, personNamed, countKey, countedOf, moneyAmount, homeMap, PLACE_REGULAR, knownHave } from './when.js';
 import { tally, tallyOf, placesBeen, isRegular } from './tally.js';
 import { onHour, onGoalStep, goalLink } from './hooks.js';
 import { addStatus } from './needs.js';
@@ -24,7 +24,7 @@ import { offeredOf } from './courses.js';
 import { degreesOffered, degreeOf } from './degrees.js';
 import { threadsOf } from './threads.js';
 import { placeOk } from './dayplan.js';
-import { styleOf, knownCount } from './intimacy.js';
+import { styleOf } from './intimacy.js';
 import { homeWorth, housingOn } from './housing.js';
 /** The mood a step gives when it says nothing of its own reward (the general goals' steps), and the mood a finished
  *  goal gives on top. */
@@ -151,7 +151,8 @@ const SKILL = /^(\S+)\s+(\d+)(?:\s+x(\d+))?$/i;
 const VISITED_N = /^(\d+)(\s+regular)?(?:\s+in\s+(\S+))?$/i;
 // Places a `visited` count can be about, on a map or area (`home`: whichever map has homes), and a place one can be
 // at in this game (not a pin to another map, not private, its adult content on).
-const countable = (w, map) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room && (!map || p.map === map || w.maps.find(x => x.id === p.map)?.area === map));
+// (museum) the museum's place counts as none of its district's places, as in `visited: all in` (sim/when.ts)
+const countable = (w, map) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room && p.id !== w.collection?.museum?.place && (!map || p.map === map || w.maps.find(x => x.id === p.map)?.area === map));
 const reachable = (g, w, id) => { const p = w.places.find(x => x.id === id); return !!p && !p.link && !p.private && placeOk(g, w, id); };
 // Could this value of a condition ever hold in this game? (A course count beyond the world's courses, a skill it lacks,
 // a need off in this game, more keepsakes or places than it has, a place it doesn't have or can't reach, regulars with
@@ -466,8 +467,11 @@ export function stepProgress(g, w, id, step) {
             o.need = Number(v);
         }
         else if (c.key === 'known' && !c.not) {
-            o.have = knownCount(g);
-            o.need = Number(v);
+            const k = knownHave(g, v);
+            if (k) {
+                o.have = k.have;
+                o.need = k.need;
+            }
         }
         else if (c.key === 'visited' && !c.not && c.values.length === 1) {
             const m = v.match(VISITED_N), map = m?.[3] ? (m[3].toLowerCase() === 'home' ? homeMap(g, w) : m[3]) : undefined;

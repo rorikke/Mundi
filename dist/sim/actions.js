@@ -23,7 +23,7 @@ import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, talkedWith 
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { startRumor } from './living.js';
-import { onLook, privateChecks, privateResults } from './hooks.js';
+import { onLook, privateChecks, privateResults, museumHooks } from './hooks.js';
 import { earn } from './points.js';
 /** Is this a private action the hooks look at (done in private, or with a risk of being caught; adult content on)? */
 export const isPrivateAct = (g, a) => adultOn(g) && (!!a.private || (a.risk ?? 0) > 0);
@@ -128,6 +128,7 @@ function results(g, w, a, o) {
     afterAction(g, w, a, ok).forEach(m => lines.push({ text: m, kind: 'success' }));
     afterEvent(g, w, a).forEach(m => lines.push({ text: m, kind: 'success' }));
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
+    museumHooks.found(g, w, a, ok, mates).forEach(m => lines.push({ text: m, kind: 'success' })); // (museum) a piece found
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
     const outcome = o.priv && o.priv.outcome !== undefined ? o.priv.outcome : drawOutcome(g, w, a, loc, rnd);

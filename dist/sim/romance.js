@@ -4,7 +4,8 @@
 // the engine apply the result. Each scene is judged when it ends (sim/verdict.ts).
 import { nowAbs, cfg } from '../core/store.js';
 import { bondOf, bump } from './social.js';
-import { ro, gain, lose, pairOf, pastOf, pastWords, setStatus, setCooldown, attracted, rateOf, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { ro, gain, lose, pairOf, pastOf, pastWords, setStatus, setCooldown, attracted, rateOf, idOf, partnersOf as partnersOfId, casualsOf as casualsOfId, YOU } from './rel.js';
+import { tierLink } from './hooks.js';
 import { notAttractedWords } from './gender.js';
 import { intimacyReady, intimacyLine, styleOf } from './intimacy.js';
 import { dating, lookingOf } from './feed.js';
@@ -100,9 +101,21 @@ export const ASKS = {
 };
 export const canAsk = (g, avatar, k) => sysOn(g, k === 'baby' ? 'family' : 'romance') && !romanceBlocked(g, avatar) && !shutOut(g, avatar, true) && ASKS[k].from.includes(romOf(g, avatar).status) && (k !== 'baby' || canTryForBaby(g, avatar));
 export const coolingDown = (g, avatar) => (romOf(g, avatar).cooldown ?? 0) > nowAbs(g);
+// (museum) What someone's tier doesn't allow yet (sim/tiers.ts): the status this ask would start, or something casual
+// before their tier opens intimacy. `when`: what opens it, in words ('' when nothing says); `ever`: no tier ever will.
+// Null when it's allowed (and for a baby, which starts no status).
+export function tierNo(g, avatar, k) {
+    if (k === 'baby')
+        return null;
+    return tierLink.notYet(g, idOf(g, avatar), k === 'casual' ? 'casual' : ASKS[k].to);
+}
 // The engine's own "no", whatever the AI writes: something casual with someone who only gets intimate with a partner,
-// and being a couple or something casual with someone not attracted to your gender (G-6).
-export const forcedNo = (g, avatar, k) => (k === 'casual' && intimacyReady(g, avatar, '').lean === 'never') || (k === 'date' && !attracted(g, avatar, YOU));
+// being a couple or something casual with someone not attracted to your gender (G-6), and (museum) what their tier
+// doesn't allow yet (answered "not yet": `notYetAnswer`).
+export const forcedNo = (g, avatar, k) => (k === 'casual' && intimacyReady(g, avatar, '').lean === 'never') || (k === 'date' && !attracted(g, avatar, YOU)) || !!tierNo(g, avatar, k);
+// How a tier's "no" reads for the AI: "not yet" (and what opens it), or a plain no when it never will.
+const tierWords = (no, name) => (no.ever ? `will say no: ${name} doesn't want that with {{user}}`
+    : `will say not yet, kindly and without closing the door: it's too soon for ${name}${no.when ? ` (${no.when} first)` : ''}`);
 // Seeing someone else matters to someone exclusive (a step less ready); an open person doesn't mind.
 const seeingOthers = (g, avatar) => [...partnersOf(g), ...casualsOf(g)].some(a => a !== avatar);
 const LEAN = ['would most likely say no, or feel uncomfortable: it is too soon', 'is unsure: it could go either way, and asking may feel too soon', 'would probably say yes, maybe with some nerves', 'would very likely say yes'];
@@ -123,7 +136,8 @@ export function readiness(g, avatar, name, k) {
     const f = bondOf(g, avatar), a = approvalOf(g, avatar);
     const ft = coldWords(f) ? `${name} ${coldWords(f)} {{user}}` : friendTier(f).name.toLowerCase(), rt = romanceTier(g, avatar).name.toLowerCase();
     const { score, need } = askScore(g, avatar, k);
-    const lean = k === 'date' && !attracted(g, avatar, YOU) ? `will say no: ${notAttractedWords(g, name)}` : LEAN[score >= need + 15 ? 3 : score >= need ? 2 : score >= need - 15 ? 1 : 0];
+    const no = tierNo(g, avatar, k);
+    const lean = k === 'date' && !attracted(g, avatar, YOU) ? `will say no: ${notAttractedWords(g, name)}` : no ? tierWords(no, name) : LEAN[score >= need + 15 ? 3 : score >= need ? 2 : score >= need - 15 ? 1 : 0];
     return `[{{user}} is asking ${name} ${k === 'date' ? 'to be a couple' : k === 'propose' ? 'to marry them' : k === 'marry' ? 'to get married now' : 'to try for a baby together'}. Where they stand: ${ft}, romance: ${rt}${a <= -15 ? `, and ${name} disapproves of how {{user}} behaves` : ''}. Realistically ${name} ${lean}. ` +
         (k === 'date' && seeingOthers(g, avatar) ? othersWords(g, avatar, name) : '') +
         `Let ${name}'s personality decide within that; do not make ${name} agree just to please. Write ${name}'s honest reaction, and make the answer clear (yes, no, or that they need time to think).]`;
@@ -137,7 +151,8 @@ function casualReadiness(g, avatar, name) {
     let i = ready.lean === 'yes' ? 3 : ready.lean === 'unsure' ? 1 : 0;
     if (i > 0 && seeingOthers(g, avatar) && styleOf(g, avatar) === 'exclusive')
         i--;
-    const lean = ready.lean === 'never' ? `will say no: ${ready.why}` : `${LEAN[i]}${ready.lean === 'yes' ? '' : ` (${ready.why})`}`;
+    const no = attracted(g, avatar, YOU) ? tierNo(g, avatar, 'casual') : null;
+    const lean = no ? tierWords(no, name) : ready.lean === 'never' ? `will say no: ${ready.why}` : `${LEAN[i]}${ready.lean === 'yes' ? '' : ` (${ready.why})`}`;
     const app = dating(g).matches.includes(avatar) && lookingOf(g, avatar) === 'Something casual' ? ` ${name} is on the dating app looking for something casual too.` : '';
     return `[{{user}} is asking ${name} to keep things casual between them: intimacy without being a couple. Where they stand: ${friendTier(bondOf(g, avatar)).name.toLowerCase()}, romance: ${romanceTier(g, avatar).name.toLowerCase()}.${app} Realistically ${name} ${lean}. ` +
         (seeingOthers(g, avatar) ? othersWords(g, avatar, name) : '') +
@@ -190,12 +205,7 @@ export function applyAnswer(g, avatar, name, k, answer) {
             note(g, '{u} and {0} started something casual.', [name], [avatar], g.player.loc, 'love');
             return [`You and ${name} are keeping it casual.`, ...hurt].join(' ');
         }
-        setStatus(g, avatar, YOU, ASKS[k].to);
-        cool(0);
-        addRomance(g, avatar, 15);
-        bump(g, avatar, 5);
-        note(g, k === 'date' ? '{u} and {0} started dating.' : k === 'propose' ? '{u} and {0} got engaged.' : '{u} and {0} got married.', [name], [avatar], g.player.loc, 'love');
-        return [k === 'date' ? `You and ${name} are now dating!` : k === 'propose' ? `You and ${name} are engaged!` : `You and ${name} are married!`, ...hurt].join(' ');
+        return [becomeCouple(g, avatar, name, ASKS[k].to), ...hurt].join(' ');
     }
     const day = 1440;
     if (answer === 'maybe') {
@@ -221,6 +231,29 @@ export function applyAnswer(g, avatar, name, k, answer) {
     bump(g, avatar, -4);
     note(g, '{0} turned {u} down.', [name], [avatar], g.player.loc, 'love');
     return `${name} said no.`;
+}
+/** You and someone become a couple (dating, engaged, married): an accepted ask, or (museum) a storyline's ending that
+ *  says so (sim/threads.ts, which first hears who else minds: `jealousOf`). The status, romance +15, friendship +5, the
+ *  fact; returns the line. */
+export function becomeCouple(g, avatar, name, to) {
+    setStatus(g, avatar, YOU, to);
+    setCooldown(g, avatar, YOU, 0);
+    addRomance(g, avatar, 15);
+    bump(g, avatar, 5);
+    note(g, to === 'dating' ? '{u} and {0} started dating.' : to === 'engaged' ? '{u} and {0} got engaged.' : '{u} and {0} got married.', [name], [avatar], g.player.loc, 'love');
+    return to === 'dating' ? `You and ${name} are now dating!` : to === 'engaged' ? `You and ${name} are engaged!` : `You and ${name} are married!`;
+}
+/** Your other partners who mind a new one (see `jealousy`): their lines. */
+export const jealousOf = (g, avatar, name) => jealousy(g, avatar, name);
+// (museum) The engine's "not yet" for an ask their tier doesn't allow (see `tierNo`): nothing lost, a day before asking
+// again, a fact. One that no tier will ever allow is a plain no (`applyAnswer`).
+export function notYetAnswer(g, avatar, name, k) {
+    const no = tierNo(g, avatar, k);
+    if (!no || no.ever)
+        return applyAnswer(g, avatar, name, k, 'no');
+    setCooldown(g, avatar, YOU, nowAbs(g) + 1440);
+    note(g, '{0} told {u} not yet.', [name], [avatar], g.player.loc, 'love');
+    return no.when ? `${name} says not yet: ask again once ${no.when}.` : `${name} says not yet.`;
 }
 // Staying the night (yours or theirs): a sleepover between friends, decided by friendship (or being partners), or a
 // night together, decided by their intimacy needs. Staying doesn't move romance by itself; the scene verdict judges

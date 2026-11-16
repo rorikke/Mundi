@@ -1,11 +1,11 @@
 import { systemOn } from '../core/world.js';
 import { personaName } from '../st/bridge.js';
-import { onDay, onHour, onLook } from './hooks.js';
+import { onDay, onHour, onLook, tierLink } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
 import { presentAt, residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner } from './when.js';
 import { effectAdd } from './effects.js';
-import { startRumor, rumorPool, YOU } from './living.js';
+import { startRumor, rumorPool, liveTogether, YOU } from './living.js';
 import { queueMoment, inviteSoon } from './moments.js';
 import { note } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
@@ -13,8 +13,10 @@ import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
 import { textFrom, social } from './social.js';
 import { money } from './needs.js';
-import { fr, setFr } from './rel.js';
-import { FRIEND_TIERS } from './romance.js';
+import { fr, setFr, attracted, statusOf, isPartner } from './rel.js';
+import { FRIEND_TIERS, becomeCouple, jealousOf } from './romance.js';
+import { romanceBlocked } from './family.js';
+import { playerHomeId } from './places.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -60,11 +62,12 @@ const decideOf = (t) => trim(t.decide?.trim() || `${trim(t.hidden)}; ${trim(t.st
 const nudgesOf = (t) => (t.nudges?.length ? t.nudges.slice(0, STORYLINE.nudges) : DEFAULT_NUDGES);
 const self = (g) => { const s = g.swap; return s ? (s.avatar || s.origCard || '') : ''; };
 /* ---------- opening and moving on, day by day ---------- */
-// A storyline opens once its person has met you: at friend, through an earlier way of its own, or a secret you know.
+// A storyline opens once its person has met you: at friend, through an earlier way of its own, or a secret you know;
+// (museum) one marked `opensOnly` only through its own ways.
 function opensNow(g, w, t, r, st) {
     if (!r.met || goneFromMap(r))
         return false;
-    if (st.known !== undefined || levelHolds(g, w, r.avatar, 'friend'))
+    if (!t.opensOnly && (st.known !== undefined || levelHolds(g, w, r.avatar, 'friend')))
         return true;
     const list = t.opens == null ? [] : Array.isArray(t.opens) ? t.opens : [t.opens];
     return list.some((c, i) => !!c && whenHolds(g, w, c, { key: `thread|${t.id}|opens|${i}` }));
@@ -146,6 +149,15 @@ function enterStage(g, w, t, r, i) {
 }
 // A moment written about them ("A collector phones Nanami…"): told as theirs to bring up, in this scene.
 const momentText = (r, text) => `${text.replace(/[.\s]+$/, '')}: ${r.name} brings it up with {{user}} in this scene, in their own way.`;
+/** One of the world's people takes another job (a storyline's ending, the museum's curator): its rank starts again.
+ *  Nothing with jobs off or a job the world doesn't have; true when it changed. */
+export function changeJob(g, w, r, job) {
+    if (!systemOn(w, 'jobs') || !w.occupations.some(o => o.id === job) || r.occupation === job)
+        return false;
+    r.occupation = job;
+    delete (g.living?.ranks ?? {})[r.avatar];
+    return true;
+}
 // It ends this way: a life that changes (the world's people keep their jobs and homes otherwise, E25, their stories may
 // move them), the fact, life points for one you knew, and leaving: the morning after the scene, or at once by text.
 function endThread(g, w, t, r, e, by) {
@@ -158,10 +170,8 @@ function endThread(g, w, t, r, e, by) {
     const paid = st.known !== undefined ? earn(g, w, 'thread', t.id) : ''; // a thread you knew reaching its end: life points
     if (!e)
         return paid ? [paid] : [];
-    if (e.job && systemOn(w, 'jobs') && w.occupations.some(o => o.id === e.job) && r.occupation !== e.job) {
-        r.occupation = e.job;
-        delete (g.living?.ranks ?? {})[r.avatar];
-    }
+    if (e.job)
+        changeJob(g, w, r, e.job);
     if (e.home && w.homes.zones.some(z => z.id === e.home) && r.home?.zone !== e.home && r.homeWith !== '__you') {
         r.home = { ...homeSpot(w, e.home, takenHomes(g, r), g.player.home) };
         delete r.homeWith;
@@ -170,7 +180,7 @@ function endThread(g, w, t, r, e, by) {
     note(g, e.text.replace(/\{\{user\}\}/g, '{u}'), [], [r.avatar], `home:${r.avatar}`, 'thread');
     if (e.fact)
         note(g, e.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
-    const out = [`${first(r)}: ${you(trim(e.text))}.`, ...(paid ? [paid] : [])];
+    const out = [`${first(r)}: ${you(trim(e.text))}.`, ...(paid ? [paid] : []), ...coupleOf(g, w, r, e)];
     if (e.leaves) {
         if (by === 'nudges') {
             // the goodbye comes by text, the ending's own words standing in for the AI's
@@ -183,12 +193,37 @@ function endThread(g, w, t, r, e, by) {
     }
     return out;
 }
+// (museum) An ending's couple with the player and their moving in: the highest status at most the ending's that their
+// tier allows (never lowering one you are already; nothing with romance off, with someone romance is closed to or not
+// drawn to you, or the person you play), then, once partners, they move into your home.
+const COUPLE = ['dating', 'engaged', 'married'];
+function coupleOf(g, w, r, e) {
+    const out = [];
+    if (r.avatar === self(g) || goneFromMap(r))
+        return out;
+    if (e.couple && systemOn(w, 'romance') && !romanceBlocked(g, r.avatar) && attracted(g, r.avatar, YOU)) {
+        const have = COUPLE.indexOf(statusOf(g, r.avatar, YOU));
+        for (let i = COUPLE.indexOf(e.couple); i > have; i--) {
+            if (tierLink.notYet(g, r.avatar, COUPLE[i]))
+                continue;
+            const hurt = COUPLE[i] === 'dating' ? jealousOf(g, r.avatar, r.name) : [];
+            out.push(becomeCouple(g, r.avatar, r.name, COUPLE[i]), ...hurt);
+            break;
+        }
+    }
+    if (e.movesIn && isPartner(g, r.avatar, YOU) && r.homeWith !== YOU && g.player.home) {
+        liveTogether(g, YOU, r.avatar);
+        note(g, '{0} moved in with {u}.', [r.name], [r.avatar], playerHomeId, 'love');
+        out.push(`${r.name} moves in with you.`);
+    }
+    return out;
+}
 const unread = (g, a) => { const s = social(g); s.unread[a] = (s.unread[a] ?? 0) + 1; };
 /** They leave the world's maps for good (the save keeps them): no more plans, company, invitations or placements. */
 export function leaveMap(g, r, why) {
     const me = self(g);
-    if (r.avatar === me || r.gone)
-        return []; // (not the one you're playing as)
+    if (r.avatar === me || r.gone || tierLink.reserved(g, r.avatar))
+        return []; // (not the one you're playing as; (museum) someone reserved never leaves)
     r.gone = { day: g.day, why };
     const s = g.social;
     if (s) {
@@ -267,7 +302,7 @@ export function endsWithoutYou(g, w, t) {
 }
 // Keys a player can still do something about (a friendship, a secret, something done, a favor, a course, a skill,
 // money, places, a gift, stories not seen yet, storylines not over yet).
-const DOABLE = new Set(['feels', 'knows', 'did', 'favor', 'course', 'skill', 'money', 'visited', 'gave', 'secrets', 'helped', 'kept', 'holds', 'attended', 'companion']);
+const DOABLE = new Set(['feels', 'knows', 'did', 'favor', 'course', 'skill', 'money', 'visited', 'gave', 'secrets', 'helped', 'kept', 'holds', 'attended', 'companion', 'piece', 'museum']);
 function condReachable(g, w, c) {
     if (whenHolds(g, w, condText(c), { day: true }))
         return true;
@@ -507,12 +542,17 @@ const liveDue = (g, w) => (systemOn(w, 'living') ? threadsOf(g, w) : []).filter(
     return !!st && !st.ended && st.due !== undefined && !st.on && r.met && !goneFromMap(r) && r.avatar !== self(g);
 }).sort((a, b) => (threadStates(g)[a.t.id].due ?? 0) - (threadStates(g)[b.t.id].due ?? 0));
 // One left unanswered (or "not now"): the next a season after it. The last one ends it the way it would without you;
-// a storyline marked `ignored: cool` instead cools them toward you by a friendship level and waits again, once.
+// a storyline marked `ignored: cool` instead cools them toward you by a friendship level and waits again, once; one
+// marked `noLast` (museum) never ends this way: its nudges come round again as reminders.
 function missOne(g, w, t, r, st) {
     const from = st.asked?.day ?? g.day;
     st.missed = (st.missed ?? 0) + 1;
     delete st.asked;
     st.next = from + seasonDays(g);
+    if (t.noLast) {
+        st.missed %= nudgesOf(t).length;
+        return [];
+    }
     if (st.missed < nudgesOf(t).length)
         return [];
     if (t.ignored === 'cool' && st.cooled === undefined) {
@@ -532,7 +572,7 @@ function coolOff(g, r) {
 }
 // The text a last chance sends: the storyline's own nudge in order (the last says it's the last), worded by the AI.
 function sendNudge(g, w, t, r, st) {
-    const list = nudgesOf(t), n = Math.min(st.missed ?? 0, list.length - 1), last = n === list.length - 1;
+    const list = nudgesOf(t), n = Math.min(st.missed ?? 0, list.length - 1), last = !t.noLast && n === list.length - 1;
     const ask = (st.asked = { day: g.day, n, by: 'text', text: list[n] });
     const me = personaName();
     const about = st.known !== undefined ? `what is going on (${decideOf(t).replace(/\{\{user\}\}/g, me)})` : 'something they have kept to themselves; they don\'t say what it is by text';
@@ -588,7 +628,7 @@ export function nudgeAsk(g, w, who) {
         if (st.asked?.by !== 'text' || (who && r.avatar !== who))
             continue;
         const list = nudgesOf(t), help = helpOf(g, w, t, t.endings ?? [], true);
-        return { thread: t.id, who: r.avatar, name: r.name, title: titleOf(t, r), text: st.asked.text ?? list[st.asked.n], n: st.asked.n, last: st.asked.n === list.length - 1,
+        return { thread: t.id, who: r.avatar, name: r.name, title: titleOf(t, r), text: st.asked.text ?? list[st.asked.n], n: st.asked.n, last: !t.noLast && st.asked.n === list.length - 1,
             choices: [{ id: 'meet', label: 'Meet them' }, ...(help ? [{ id: 'help', label: help.h.label, price: help.price, ok: help.ok }] : []), { id: 'not', label: 'Not now' }] };
     }
     return null;

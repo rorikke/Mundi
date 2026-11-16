@@ -23,6 +23,7 @@ import { diaryLines } from './diary.js';
 import { tiesLine, householdLine, colleaguesLine } from './living.js';
 import { feelingsLine } from './relations.js'; // also runs feelings between people, hour by hour
 import { romanceLine } from './romance.js';
+import { tierLines } from './tiers.js'; // (museum) people who unlock: their tier's line, and the rules behind it
 import { genderLine } from './gender.js';
 import { rivalsLine } from './jealousy.js';
 import { checkInitiative, momentsFor, momentsLine, wantsLine } from './initiative.js';
@@ -58,6 +59,7 @@ import { holdingsLine } from './holdings.js';
 import { ventureLine } from './ventures.js';
 import { shopLine } from './shop.js';
 import { homeLine } from './fixtures.js';
+import { museumLine } from './museum.js';
 import { sightingLine } from './sightings.js';
 import './exec.js'; // (business) the executive's division and bonuses
 import { afflictionLine } from './afflictions.js';
@@ -178,12 +180,12 @@ export function sceneBlocks() {
         language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
         feelings: [feelingLine(g, met)],
-        you: [premiseLine(g), g.player.bio ? `About {{user}} in this world: ${g.player.bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
+        you: [premiseLine(g), g.player.bio ? `About {{user}} in this world: ${g.player.bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],
         ties: [...factionLines(g, w, present), tiesLine(g, present), householdLine(g, w, present), colleaguesLine(g, w, present), feelingsLine(g, w, present), rivalsLine(g, w, present), (() => { const n = new Set(neighbors(g).map(r => r.avatar)); const near = present.filter(r => n.has(r.avatar)).map(r => r.name); return near.length && systemOn(w, 'neighbors') ? `Neighbors of {{user}} (they live in the same area): ${near.join(', ')}.` : ''; })()],
-        romance: [romanceLine(g, met), addressLine(g, w, met)],
+        romance: [romanceLine(g, met), addressLine(g, w, met), ...tierLines(g, w, met)],
         gender: [genderLine(g, w, present)],
         intimate: [...intimate.lines, intimate.limits],
         moments: [momentsLine(momentsFor(g, w, present)), wantsLine(g, w, present)],

@@ -89,7 +89,7 @@ export function moveCardHtml(g, w) {
     const c = moveCard(g, w);
     if (!c)
         return '';
-    return `<aside class="mh-event mh-move mh-glass" role="dialog" aria-label="${esc(c.name)}"><b>${icon('heart')} <span data-notr>${esc(c.name)}</span> <span>pulls you closer</span></b>
+    return `<aside class="mh-event mh-move mh-glass" role="dialog" aria-label="${esc(c.name)}"><b>${icon('heart')} ${c.own ? `<span data-notr>${esc(c.text)}</span>` : `<span data-notr>${esc(c.name)}</span> <span>pulls you closer</span>`}</b>
         <small class="mh-event-name" data-notr>${esc(c.action.label)}</small>
         <div class="mh-event-btns"><button class="mu-primary" data-act="mv-yes">${icon('heart')}<span>Yes</span></button><button data-act="mv-no">${icon('x')}<span>Not tonight</span></button></div></aside>`;
 }

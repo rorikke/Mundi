@@ -35,20 +35,20 @@ import { FRIEND_TIERS, ROMANCE_TIERS } from './romance.js';
 import { companions } from './social.js';
 import { tallyOf, beenTo, placesBeen, bestRanks, tally, isRegular, TALLY_EVENTS, TALLY_PREFIXES } from './tally.js';
 import { careerOf, trackOf, playerTrack } from './work.js';
-import { styleOf, knownCount } from './intimacy.js';
+import { styleOf, knownCount, knownOf } from './intimacy.js';
 import { usualPay, money } from './needs.js';
 import { courseOf } from './courses.js';
 import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
-import { collectionLink } from './hooks.js';
+import { collectionLink, placeGates } from './hooks.js';
 import { homeWorth, housingOn, ownedHere } from './housing.js';
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had'];
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -134,7 +134,7 @@ function badValue(key, v) {
         case 'attended': return COUNTED.test(v) && !v.includes(':') ? '' : `"${v}" should be a festival or an event, and how many times`;
         case 'visited': return VISITED.test(v) || ID.test(v) || PLACE_REGULAR.test(v) ? '' : `"${v}" should be a place (or a place and regular), a number of places (3 in a map, 3 regular in home), all, map or maps`;
         case 'secrets': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of secrets`;
-        case 'known': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of likes and limits you know`;
+        case 'known': return KNOWN.test(v) ? '' : `"${v}" should be a number of likes and limits you know (of your lovers, or of one person: Tamaki 5; "likes" or "limits" after it counts only those)`;
         case 'helped': return ID.test(v) ? '' : `"${v}" should be a number of storylines, or a storyline's id`;
         case 'goal': return /^[^\s,;]+(\s+\d+)?$/.test(v) ? '' : `"${v}" should be a goal, a goal and a step (idol 3), or a number of goals`;
         case 'need': return /^\S+\s+\d+$/.test(v) ? '' : `"${v}" should be a need (or all) and a value, like mood 50`;
@@ -166,6 +166,11 @@ function badValue(key, v) {
             return ID.test(v) ? '' : `"${v}" should be one id`;
         case 'seen': return /^[^\s,;:]+(:\d+)?$/.test(v) || SEEN_ALL.test(v) ? '' : `"${v}" should be a story id (or a work event's), or one and a choice like sb_startup_st_pitch:2, or all in a map`;
         case 'had': return HAD.test(v) ? '' : `"${v}" should be a keepsake id, all and a keepsake kind (all charm), or a number of keepsakes`;
+        case 'piece': return PIECE.test(v) ? '' : `"${v}" should be a piece id, a number of pieces, or a number (or all) in a hall, like 10 in art`;
+        case 'museum': return MUSEUM.test(v) ? '' : `"${v}" should be open, show, renown and a level, shows and a number, a percentage (50%), or an upgrade id`;
+        case 'tier': return TIER.test(v) ? '' : `"${v}" should be a name and a tier, like Tamaki 2`;
+        case 'sales': return SALES.test(v) ? '' : `"${v}" should be won, lots or resold and a number, like won 3`;
+        case 'dealer': return DEALER.test(v) ? '' : `"${v}" should be spent and an amount, or bought, asked or visits and a number, like spent 2000000`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
         case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
@@ -433,7 +438,10 @@ function holds(g, w, key, v, x) {
         }
         case 'visited': return visitedHolds(g, w, v);
         // (adult) how many likes and hard limits you know of your lovers, in all (a state: counted at once, as skill: is)
-        case 'known': return adultOn(g) && knownCount(g) >= Number(v);
+        case 'known': {
+            const k = knownHave(g, v);
+            return adultOn(g) && !!k && k.have >= k.need;
+        }
         case 'secrets': return Object.values(g.threads ?? {}).filter(t => t?.known !== undefined).length >= Number(v);
         case 'helped': return /^\d+$/.test(v) ? helpedThreads(g, w).length >= Number(v) : helpedThreads(g, w).includes(v);
         case 'goal': return goalHolds(g, w, v);
@@ -460,6 +468,11 @@ function holds(g, w, key, v, x) {
         case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
         case 'owns': return ownsHolds(g, w, v);
         case 'had': return hadHolds(g, w, v);
+        case 'piece': return collectionLink.piece(g, w, v);
+        case 'museum': return collectionLink.museum(g, w, v);
+        case 'tier': return tierHolds(g, v);
+        case 'sales':
+        case 'dealer': return collectionLink.market(g, w, key, v);
         case 'fromDay': return x.day >= Number(v);
         case 'toDay': return x.day <= Number(v);
         case 'tensionAbove': {
@@ -591,7 +604,8 @@ function friendsHold(g, w, v) {
 }
 // The places a `visited` counts: real places (not a pin to another map, not private, not adult).
 // (business: a venture's unit isn't one of the places to visit: it's only there while it's yours)
-const visitable = (w) => w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room);
+// (museum) the museum's place isn't a corner of its district: it's hidden until yours, and only one player's
+const visitable = (w) => { const own = w.collection?.museum?.place; return w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room && p.id !== own); };
 /** (the collection) The places `visited: all in <map>` asks for, and how many of them you've been to. */
 export function placesToVisit(g, w, map) {
     const on = visitable(w).filter(p => onMapOf(w, p, mapArg(g, w, map)));
@@ -639,6 +653,37 @@ function helpedThreads(g, w) {
 // (the collection) `seen: all in <map>`, and `had:` a keepsake held at some time (`g.collection.had`, kept by
 // sim/collection.ts while the collection is on): one, all of a kind this game can have, or a number of them.
 const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)$/i;
+// (museum) `piece: art_great_wave` · `piece: 30` · `piece: 10 in art` · `piece: all in crafts`; `museum: open` · `show` ·
+// `renown 3` · `shows 2` · `50%` · an upgrade id; `tier: Tamaki 2` (people who unlock: that person's tier reached).
+// (museum, the market) `sales: won 3` (lots won against the other collector) · `lots 5` (every lot bought) · `resold 1`
+// (lots she sold you back); `dealer: spent 2000000` (yen) · `bought 4` · `asked 1` · `visits 3` (visits you bought from).
+const SALES = /^(?:won|lots|resold)\s+\d+$/i, DEALER = /^(?:spent|bought|asked|visits)\s+\d+$/i;
+const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
+// (adult) `known: 5`: likes and hard limits you know of your lovers, in all; `known: Tamaki 5`: of that person; `likes` or
+// `limits` after the number counts only those (`known: Tamaki 2 limits`).
+const KNOWN = /^(?:(.*\S)\s+)?(\d+)(?:\s+(likes|limits))?$/i;
+/** What a `known:` value asks, and how many you know now (null when it doesn't read). */
+export function knownHave(g, v) {
+    const m = v.match(KNOWN);
+    if (!m)
+        return null;
+    const what = m[3]?.toLowerCase(), need = Number(m[2]);
+    if (!m[1])
+        return { have: knownCount(g, YOU, what), need };
+    const r = personNamed(g, m[1]), k = r ? knownOf(g, r.avatar) : { likes: [], limits: [] };
+    return { have: (what !== 'limits' ? k.likes.length : 0) + (what !== 'likes' ? k.limits.length : 0), need };
+}
+/** (people who unlock) Has this person reached that tier? Read from the save without writing (sim/tiers.ts keeps it). */
+function tierHolds(g, v) {
+    const m = v.match(TIER);
+    if (!m)
+        return false;
+    const r = personNamed(g, m[1]);
+    if (!r)
+        return false;
+    const t = g.rel?.people?.[idOf(g, r.avatar)]?.tier;
+    return (t?.n ?? -1) >= Number(m[2]);
+}
 const hadOf = (g, w) => new Set(systemOn(w, 'collection') ? (g.collection?.had ?? []) : []);
 /** The keepsakes of a kind this game can have (adult ones only with adult content on). */
 export const kindHere = (g, w, kind) => (w.keepsakes ?? []).filter(k => (k.kind ?? '') === kind && (!k.adult || adultOn(g)));
@@ -786,6 +831,8 @@ export const calendarOnly = (when) => parseWhen(when).conds.every(c => CALENDAR_
 // A degree named in a condition (a degree's id is its credential): "a degree in Economics".
 const degreeWord = (w, id) => { const d = (w.institutions ?? []).flatMap(i => i.degrees ?? []).find(x => x.id === id); return d ? `a degree (${d.name})` : undefined; };
 const FRIEND_WORDS = { acquaintance: 'Acquaintance', friend: 'Friend', good: 'Good friend', best: 'Best friend' };
+// (a couple status in `feels:`, in words: being that couple with them, or closer)
+const STATUS_WORDS = { casual: (who) => `a fling with ${who}`, dating: (who) => `going out with ${who}`, engaged: (who) => `engaged to ${who}`, married: (who) => `married to ${who}` };
 const levelWord = (lvl) => FRIEND_WORDS[lvl] ?? [...FRIEND_TIERS, ...ROMANCE_TIERS].find(t => t.id === lvl)?.name ?? lvl;
 // "three seasons as Head of Sales" (the rank you hold now), or "20 days in your rank".
 function inRankWords(g, w, days) {
@@ -846,14 +893,20 @@ export function missingWords(g, w, when, place, opts = {}) {
         else if (c.key === 'course' && !c.not)
             out.push(c.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? degreeWord(w, v) ?? v)).join(' or '));
         else if (c.key === 'feels' && !c.not && c.values.length === 1) {
+            // (a romance level reads as romance, with the romance it is now; a couple status as the couple, "going out with Tamaki")
             if (!more) {
-                const [who, lvl] = c.values[0].split(/\s+/);
-                out.push(`friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`);
+                const [who, lvl] = c.values[0].split(/\s+/), l = lvl?.toLowerCase();
+                out.push(STATUS_WORDS[l] ? STATUS_WORDS[l](who) : ROMANCE_TIERS.some(t => t.id === l) ? `romance with ${who} (${levelWord(l)})` : `friendship with ${who} (${FRIEND_WORDS[lvl] ?? lvl})`);
                 continue;
             }
-            const [who, lvl] = splitLevel(c.values[0]), r = personNamed(g, who), v = r ? Math.round(fr(g, r.avatar, YOU)) : 0;
-            const now = r && FRIEND_TIERS.find(t => t.lo >= 0 && v >= t.lo && v < t.hi);
-            out.push(lvl ? `friendship with ${who} (${levelWord(lvl)}${now ? `; now ${levelWord(now.id)}` : ''})` : `meeting ${who}`);
+            const [who, lvl] = splitLevel(c.values[0]), r = personNamed(g, who);
+            if (lvl && STATUS_WORDS[lvl]) {
+                out.push(STATUS_WORDS[lvl](who));
+                continue;
+            }
+            const rom = !!lvl && ROMANCE_TIERS.some(t => t.id === lvl), v = r ? Math.round((rom ? ro : fr)(g, r.avatar, YOU)) : 0;
+            const now = r && (rom ? ROMANCE_TIERS : FRIEND_TIERS).find(t => t.lo >= 0 && v >= t.lo && v < t.hi);
+            out.push(lvl ? `${rom ? 'romance' : 'friendship'} with ${who} (${levelWord(lvl)}${now ? `; now ${levelWord(now.id)}` : ''})` : `meeting ${who}`);
         }
         // (business) time in the rank, and a story or work event a gate names in words ("the nomination")
         else if (c.key === 'inrank' && !c.not)
@@ -865,6 +918,15 @@ export function missingWords(g, w, when, place, opts = {}) {
             out.push(c.values.map(v => hadWords(g, w, v)).join(' or '));
         else if (c.key === 'goal' && !c.not && c.values.length === 1 && c.values[0] === 'all')
             out.push(collectionLink.goalsWords(g, w));
+        // (museum) a piece or pieces, the museum's state; a person's tier
+        else if (c.key === 'piece' && !c.not)
+            out.push(c.values.map(v => collectionLink.pieceWords(g, w, v)).join(' or '));
+        else if (c.key === 'museum' && !c.not)
+            out.push(c.values.map(v => collectionLink.museumWords(g, w, v)).join(' or '));
+        else if ((c.key === 'sales' || c.key === 'dealer') && !c.not)
+            out.push(c.values.map(v => collectionLink.marketWords(g, w, c.key, v)).join(' or '));
+        else if (c.key === 'tier' && !c.not)
+            out.push(c.values.map(v => { const m = v.match(TIER); return m ? `${m[1]} closer (tier ${m[2]})` : v; }).join(' or '));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v)))
             out.push(c.values.map(v => seenTitle(w, v)).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
@@ -931,3 +993,26 @@ export function whenPlace(when) {
 }
 /** Does a region meet the condition's `region` parts (none: any region)? Who starts a world rumor. */
 export const whenRegionOk = (when, region) => parseWhen(when).conds.filter(c => c.key === 'region').every(c => c.values.includes(region) !== c.not);
+/* ---------- places that are there only while something holds ---------- */
+// (museum) A place with `when` is on the maps and in anyone's plans only while it holds (the kura's back room, from
+// Tamaki's Lover tier). Kept per world: which places have one (none: the gate answers at once). A condition that asks
+// where people are would ask the maps again: while one is being read, the gate lets every place be.
+const placeWhens = new WeakMap();
+let readingPlace = false;
+placeGates.push((g, w, id) => {
+    if (!g || readingPlace || !w?.places)
+        return true;
+    let m = placeWhens.get(w.places);
+    if (!m)
+        placeWhens.set(w.places, m = new Map(w.places.filter(p => p.when).map(p => [p.id, p.when])));
+    const when = m.size ? m.get(id) : undefined;
+    if (!when)
+        return true;
+    readingPlace = true;
+    try {
+        return whenHolds(g, w, when);
+    }
+    finally {
+        readingPlace = false;
+    }
+});

@@ -8,6 +8,13 @@ export const onLook = [];
 export const thingsOwned = [];
 // After you do an action (habits, pets…).
 export const onAction = [];
+// (museum, sim/museum.ts) What the rest of the game asks of the museum's engine, so neither waits on the other; with none,
+// nothing. `settle`: run inside the collection's settle (sim/collection.ts), lines to show; `found`: after an action's
+// roll (sim/actions.ts, `ok` its success, null without a roll), a find's lines; `story`: a street story's result with
+// `renown` or `damage` (sim/stories.ts), lines; `begun`: are the display halls shown (null: the world has no museum,
+// track 4's rule); `tile`: what a display piece's tile adds (sim/collection.ts `recordView`); `hall`: how a display
+// hall is on show.
+export const museumHooks = { settle: () => [], found: () => [], story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.
 export const seenAs = [];
 // Other things that help or hurt a d20 check (a familiar, an injury, a debuff, a talent…).
@@ -27,8 +34,19 @@ export const goalLink = { active: () => null, canSkip: () => false, skip: () => 
 // A keepsake gained (actions, stories, goal steps, the shop, a gift bought): the collection remembers it was held.
 export const onKeepsake = [];
 // What the condition grammar asks of the collection (sim/collection.ts fills these in; until then nothing holds):
-// `seen: all in <map>` (a district's street stories, less those that can't happen any more) and `goal: all`.
-export const collectionLink = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '' };
+// `seen: all in <map>` (a district's street stories, less those that can't happen any more) and `goal: all`; (museum,
+// sim/museum.ts) `piece:` and `museum:` and their words.
+export const collectionLink = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
+    piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v,
+    market: () => false, marketWords: (_g, _w, _k, v) => v };
+// (museum) What the market (sim/market.ts) asks of the museum's engine (sim/museum.ts fills these in, so neither file
+// imports the other's rules). Unset, the market uses its own plain answers: renown level 0, a piece can be housed when
+// it needs no upgrade or the museum has one by that id or `does`, prices through the difficulty only, and a piece
+// bought is written into the collection as it is.
+export const museumLink = {};
+// (museum) Whether a place is in the game now (sim/places.ts `placeOn` asks every entry): the museum's place stays off
+// the maps until it's yours. Empty: every place is.
+export const placeGates = [];
 // Every d20 check that is rolled (the screen can show the die).
 export const onRoll = [];
 // Adult content's private moments (Tokyo's adult progression) meet here, so the sessions that fill them never wait on
@@ -68,3 +86,18 @@ export const studentLink = { workCap: () => null, homeBlock: () => '', headStart
 // (hospitality) Someone renting a room of a venture of yours for their own business (B-19) works there, not at their
 // job's own place (sim/dayplan.ts asks; null: their job's place as usual).
 export const ventureLink = { find: () => [], workResult: () => [], workPlace: () => null, stint: () => [] };
+// (museum) People who unlock (sim/tiers.ts fills these in; until it loads, and in a world without tiers, nothing changes).
+// Asked with store ids (the person's avatar). `cap`: the highest friendship or romance toward you their tier allows now
+// (null: no cap); `hold`: a gain's raw points that passed it (kept for the next tier, or dropped); `reserved`: drawn to
+// whoever you play, whatever your gender, and to no one else; `notYet`: why their tier doesn't allow a couple status
+// (`casual`… `married`) with you now (null: it does; `ever`: no tier ever will); `intimacy`: their needs from their tier
+// (undefined: no tier says, their own apply; null: not before a later tier); `moves`: they may make the move now;
+// `outfit`: the game may put that outfit on them now; `invites`: they may text you invitations now (`inviteOdds`: how many
+// times as often as anyone, 1 without a tier saying; `inviteMax`: the most any tier of the world says); `words`: their own
+// words for the move's card or for asking you over (empty: the engine's).
+export const tierLink = { cap: () => null, hold: () => { }, reserved: () => false, notYet: () => null, intimacy: () => undefined, moves: () => true, outfit: () => true,
+    invites: () => true, inviteOdds: () => 1, inviteMax: () => 1, words: () => [] };
+// (museum) A place that is yours (the museum you own and its rooms), asked when you're caught at a place: null when it
+// isn't; else being caught there bans nothing, and `risk` multiplies the chance of being seen (the night guard's
+// rounds). sim/museum.ts fills it in.
+export const ownedPlaces = [];

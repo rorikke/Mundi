@@ -15,7 +15,7 @@ import { social, addBond, standsWith, isPartner, bondAtLeast, wordsIn } from './
 import { sharedLikes, likesOf } from './private.js';
 import { groupOptions } from './traits.js';
 import { levelOf, skillDef } from './hobbies.js';
-import { onDay } from './hooks.js';
+import { onDay, tierLink } from './hooks.js';
 export function feed(g) {
     const s = social(g);
     const f = (s.feed ??= {});
@@ -193,7 +193,7 @@ export function candidates(g, w) {
     const seed = String(d.seed ??= Math.random().toString(36).slice(2));
     const mine = (r) => attraction(g, YOU, r.avatar, 'r');
     return residents(g).sort((a, b) => mine(b) - mine(a) || hash(`${seed}|${a.avatar}`) - hash(`${seed}|${b.avatar}`))
-        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && shows(g, d, r));
+        .filter(r => !d.seen[r.avatar] && !isPartner(g, r.avatar) && !romanceBlocked(g, r.avatar) && !tierLink.reserved(g, r.avatar) && theirProfile(g, w, r).onApp && attraction(g, r.avatar, YOU, 'r') > 0 && shows(g, d, r)); // ((museum) someone reserved isn't on the app)
 }
 /** The odds (0–75%) that someone likes you back: a long shot with nothing in common (10%). What you both look for,
  *  shared interests (Kink included) and likes in bed you share (adult content), a profile with a few words about you,
@@ -201,7 +201,7 @@ export function candidates(g, w) {
  *  and as much less as they're less drawn to your gender. */
 export function matchChance(g, w, avatar) {
     const d = dating(g), r = g.cast[avatar];
-    if (!r)
+    if (!r || tierLink.reserved(g, avatar))
         return 0;
     const p = theirProfile(g, w, r), mine = d.profile.looking;
     let chance = 10;

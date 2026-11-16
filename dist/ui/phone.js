@@ -9,7 +9,8 @@ import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, 
 import { shopApp, feelingsHtml } from './lifeui.js';
 import { SH } from './shopui.js';
 import { goalsApp, goalsBadge } from './goalsui.js';
-import { collectionApp, openCollection } from './collection.js';
+import { collectionApp, openCollection, CL } from './collection.js';
+import { tierHtml } from './museumui.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
 import { studentLink } from '../sim/hooks.js';
@@ -51,7 +52,7 @@ import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, relOf, YOU } from '../sim/rel.js';
-import { crushOn, canAsk } from '../sim/romance.js';
+import { crushOn, canAsk, tierNo } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
@@ -292,14 +293,14 @@ function peopleApp(g) {
         : `<p class="mu-muted mu-pad">${T('noneMet')}</p>`}</div>`;
 }
 // A sure yes by phone: very close friends who also have a crush on you (being a couple needs both).
-const quickCouple = (g, a) => bondOf(g, a) >= PARTNER_BOND && crushOn(g, a) && canAsk(g, a, 'date') && attracted(g, a, YOU); // a sure yes: never against attraction
+const quickCouple = (g, a) => bondOf(g, a) >= PARTNER_BOND && crushOn(g, a) && canAsk(g, a, 'date') && attracted(g, a, YOU) && !tierNo(g, a, 'date'); // a sure yes: never against attraction, nor (museum) before their tier
 function personApp(g, w) {
     const r = g.cast[P.who];
     if (!r)
         return peopleApp(g);
     const partner = isPartner(g, r.avatar);
     return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body">
-        <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
+        <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}${tierHtml(g, w, r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
         ${knownHtml(g, w, r.avatar)}
         ${theirStoryHtml(g, w, r.avatar)}
         <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
@@ -506,6 +507,19 @@ Object.assign(ACT, {
     'ph-open-campus': () => { P.open = true; P.app = 'campus'; notify(); },
     'ph-open-business': () => { P.open = true; P.app = 'business'; notify(); },
     'ph-open-shop': () => { P.open = true; P.app = 'shop'; SH.tab = 'here'; notify(); }, // (the HUD's "Shop here")
+    'ph-open-collection': (el) => {
+        const g = game();
+        const w = g && getWorld(g.world);
+        if (!g || !w)
+            return;
+        P.open = true;
+        P.app = 'collection';
+        openCollection(g, w);
+        CL.hall = el.dataset.v ?? '';
+        CL.open = new Set();
+        saveGame();
+        notify();
+    },
 });
 /* ---------- Chirp: short posts, like Twitter/X ---------- */
 const who = (g, by) => by === 'me' ? { name: personaName(), img: personaThumb() } : { name: g.cast[by]?.name ?? '?', img: thumb(by) };

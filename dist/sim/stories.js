@@ -9,7 +9,7 @@
 import { nowAbs } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { setPrompt } from '../st/bridge.js';
-import { onLook, ventureLink } from './hooks.js';
+import { onLook, ventureLink, museumHooks } from './hooks.js';
 import { adultOn, bringTo } from './dayplan.js';
 import { workingAt } from './people.js';
 import { whenHolds, personNamed, favorOwed, parseWhen } from './when.js';
@@ -222,6 +222,8 @@ function applyResult(g, w, s, r) {
         revealThread(g, w, r.reveal, 'story');
     if (r.finds)
         out.push(...ventureLink.find(g, w, r.finds)); // (business) an upgrade turned up for a venture you own
+    if (r.renown || r.damage)
+        out.push(...museumHooks.story(g, w, r)); // (museum) lasting renown, the theft's damage
     return out.filter(Boolean);
 }
 /* ---------- favors (E28) ---------- */

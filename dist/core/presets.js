@@ -4,6 +4,7 @@ import { upgradeTraitInfo } from './traits.js';
 import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
 import { upgradeCollection } from './collection.js';
+import { upgradeTiers } from './tiers.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -549,12 +550,34 @@ export function upgradeWorld(w) {
     for (const ex of w.cast?.examples ?? [])
         for (const t of ex.threads ?? [])
             upgradeThread(t);
+    // (museum) people who unlock, and a street story's renown and damage: made safe where a world has them
+    for (const ex of w.cast?.examples ?? [])
+        if ('tiers' in ex || 'reserved' in ex)
+            upgradeTiers(ex);
+    for (const s of w.stories ?? [])
+        for (const c of s.choices ?? [])
+            for (const r of [c, c.fail])
+                upgradeStoryMuseum(r);
     return w;
 }
 // A storyline's words and prices from someone else's file: texts stay texts, at most three nudges, a help's price and
 // hours inside their range (a help without a label or a condition is dropped), a stage's appointment only when it has a
 // place, hours and a text.
 const HELP_MONEY = 10_000_000, HELP_HOURS = 8;
+// (museum) A story result's lasting renown held to ±100, `damage` only when true.
+function upgradeStoryMuseum(r) {
+    if (!r || typeof r !== 'object')
+        return;
+    if ('renown' in r) {
+        const v = Number(r.renown);
+        if (Number.isFinite(v) && v)
+            r.renown = Math.max(-100, Math.min(100, Math.round(v)));
+        else
+            delete r.renown;
+    }
+    if ('damage' in r && r.damage !== true)
+        delete r.damage;
+}
 function upgradeThread(t) {
     if (!t || typeof t !== 'object')
         return;
@@ -572,6 +595,9 @@ function upgradeThread(t) {
         delete t.ignored;
     if ('opens' in t && !(typeof t.opens === 'string' || (Array.isArray(t.opens) && t.opens.every((x) => typeof x === 'string'))))
         delete t.opens;
+    for (const k of ['opensOnly', 'noLast'])
+        if (k in t && t[k] !== true)
+            delete t[k];
     // (NE-1) a stage's appointment: a place, hours and what they're doing, or nothing
     for (const st of Array.isArray(t.stages) ? t.stages : []) {
         if (!st || typeof st !== 'object' || !('ritual' in st))
@@ -581,7 +607,14 @@ function upgradeThread(t) {
             delete st.ritual;
     }
     for (const e of Array.isArray(t.endings) ? t.endings : []) {
-        if (!e || typeof e !== 'object' || !('help' in e))
+        if (!e || typeof e !== 'object')
+            continue;
+        // (museum) the couple an ending starts with its person, and their moving in with you
+        if ('couple' in e && !['dating', 'engaged', 'married'].includes(e.couple))
+            delete e.couple;
+        if ('movesIn' in e && e.movesIn !== true)
+            delete e.movesIn;
+        if (!('help' in e))
             continue;
         const h = e.help;
         if (!h || typeof h !== 'object' || typeof h.when !== 'string' || typeof h.label !== 'string' || !h.label.trim()) {

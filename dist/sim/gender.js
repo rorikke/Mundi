@@ -12,6 +12,7 @@ import { relOf, idOf, pairOf, YOU } from './rel.js';
 import { saveSeed } from './relations.js';
 import { isMinor } from './family.js';
 import { quiet } from '../st/bridge.js';
+import { tierLink } from './hooks.js';
 export const gendersOf = (w) => w?.genders ?? DEFAULT_GENDERS;
 export const genderDef = (w, id) => (id ? gendersOf(w).find(x => x.id === id) : undefined);
 export const genderOf = (g, a) => relOf(g).people[idOf(g, a)]?.gender;
@@ -295,7 +296,9 @@ export function genderLine(g, w, present) {
     const here = present.filter(r => idOf(g, r.avatar) !== YOU);
     const parts = [say('{{user}}', genderOf(g, YOU)), ...here.map(r => say(r.name, genderOf(g, r.avatar)))].filter(Boolean);
     const gs = gendersOf(w), romance = systemOn(w, 'romance');
-    const att = here.filter(r => !isMinor(g, r.avatar)).map(r => attractionWords(r.name, relOf(g).people[idOf(g, r.avatar)]?.att, gs, romance)).filter(Boolean);
+    // ((museum) someone reserved is drawn to {{user}} alone, whatever the genders say)
+    const att = here.filter(r => !isMinor(g, r.avatar)).map(r => romance && tierLink.reserved(g, r.avatar) ? `${r.name} is drawn to {{user}}, and to no one else`
+        : attractionWords(r.name, relOf(g).people[idOf(g, r.avatar)]?.att, gs, romance)).filter(Boolean);
     return [parts.length ? `Gender: ${parts.join('; ')}.` : '', att.length ? `${att.join('. ')}.` : ''].filter(Boolean).join(' ');
 }
 // For a "no" that attraction decides: "isn't attracted to men (like {{user}})".

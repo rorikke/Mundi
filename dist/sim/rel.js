@@ -8,7 +8,8 @@ import { nowAbs, cfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { effectMul } from './effects.js';
-import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt } from './pace.js';
+import { CURVES, HALF_LIFE, PACE, faded, paced, rawFor, rateAt } from './pace.js';
+import { tierLink } from './hooks.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 export const YOU = '__you';
 export function relOf(g) {
@@ -116,7 +117,10 @@ const CRUSH_AT = 40; // where romance becomes a Crush (`romance:early`: gains be
 const NONE = { d: 0, fat: 0 };
 // How much of a gain x feels toward y: x's attraction for y's gender, per meter (0..1; 1 when y has no gender or x
 // set nothing for it). Starting values and losses never read it.
+// (museum) Someone `reserved` falls for whoever you play, whatever your gender, and for nobody else.
 export function attraction(g, x, y, m) {
+    if (m === 'r' && tierLink.reserved(g, idOf(g, x)))
+        return idOf(g, y) === YOU ? 1 : 0;
     const people = relOf(g).people, gy = people[idOf(g, y)]?.gender;
     if (!gy)
         return 1;
@@ -138,8 +142,27 @@ export function gain(g, m, x, y, raw, isPaced = true) {
         raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? (meter(g, m, x, y) < CRUSH_AT ? ['romance', 'romance:early'] : 'romance') : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
     if (!(raw > 0))
         return NONE;
+    return land(g, m, x, y, raw, isPaced);
+}
+/** The last part of a gain, once attraction and the rest have scaled it: pacing, then (museum) the cap of x's tier
+ *  toward you, past which the raw rest is held for the next tier (sim/tiers.ts, which also lands held gains through
+ *  here). Exported for that; anything else gains through `gain`. */
+export function land(g, m, x, y, raw, isPaced = true) {
+    x = idOf(g, x);
+    y = idOf(g, y);
+    if (!x || !y || x === YOU || x === y || !(raw > 0))
+        return NONE;
     const before = meter(g, m, x, y);
-    const add = isPaced ? paced(raw, fatigue(g, m, x, y), curveOf(g, x, m)) : raw;
+    const F = isPaced ? fatigue(g, m, x, y) : 0, c = isPaced ? curveOf(g, x, m) : null;
+    let add = c ? paced(raw, F, c) : raw;
+    const cap = y === YOU ? tierLink.cap(g, m, x) : null;
+    if (cap !== null && before + add > cap) {
+        const room = Math.max(0, cap - before), rawIn = c ? rawFor(room, F, c) : room;
+        tierLink.hold(g, m, x, raw - rawIn);
+        add = room;
+        if (!(add > 0))
+            return NONE;
+    }
     setMeter(g, m, x, y, before + add);
     const d = clean(meter(g, m, x, y) - before);
     const fat = isPaced ? clean(add) : 0;

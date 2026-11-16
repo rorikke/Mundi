@@ -15,13 +15,13 @@
 // (X23: a card with Yes and Not tonight, within the budget).
 import { nowAbs } from '../core/store.js';
 import { systemOn } from '../core/world.js';
-import { onHour, onDay, onLook } from './hooks.js';
+import { onHour, onDay, onLook, tierLink } from './hooks.js';
 import { presentAt, residents, routineAt, workingAt } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
 import { social, bondOf, textFrom } from './social.js';
 import { personaName } from '../st/bridge.js';
-import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, shutOut, HATES, DISLIKES, ASKS } from './romance.js';
+import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, tierNo, shutOut, HATES, DISLIKES, ASKS } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { intimacyReady, needsOf, styleOf } from './intimacy.js';
 import { canDate } from './plans.js';
@@ -148,7 +148,7 @@ export function readyToAsk(g, w, a) {
         return null;
     const st = romOf(g, a).status;
     const night = intimacyReady(g, a, '').lean === 'yes' && (st !== 'none' || romValue(g, a) >= ROMANCE_TIERS[1].lo);
-    const ok = (k) => canAsk(g, a, k);
+    const ok = (k) => canAsk(g, a, k) && !tierNo(g, a, k); // (museum) never what their tier doesn't allow yet
     // asking you out takes a crush, however good friends you are
     if ((st === 'none' || st === 'casual') && ok('date') && romValue(g, a) >= ROMANCE_TIERS[2].lo && likelyYes(g, a, 'date'))
         return 'date';
@@ -187,10 +187,10 @@ export const WANT_INVITE = 2;
 // Not yet). The hour's chance is 5% for each person who could text, twice that for someone wanting you.
 export function textAsks(g, w) {
     const h = Math.floor(g.minutes / 60), s = social(g), roll = rnd(g, `textask|${h}`);
-    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE)
+    if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE * tierLink.inviteMax(g))
         return [];
     const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
-    const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar));
+    const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar) && tierLink.invites(g, idOf(g, r.avatar)));
     const pick = (r) => {
         const st = romOf(g, r.avatar).status;
         if (st === 'casual' && intimacyReady(g, r.avatar, '').lean === 'yes')
@@ -204,7 +204,8 @@ export function textAsks(g, w) {
     const list = pool.map(r => [r, pick(r)]).filter((x) => !!x[1]);
     if (!list.length)
         return [];
-    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1)), total = ws.reduce((a, b) => a + b, 0);
+    // (museum) someone whose tier makes them reach out more texts that many times as often (sim/tiers.ts inviteOdds)
+    const ws = list.map(([r]) => (wantingYou(g, w, r.avatar) ? WANT_INVITE : 1) * tierLink.inviteOdds(g, idOf(g, r.avatar))), total = ws.reduce((a, b) => a + b, 0);
     if (roll > 0.05 * total / list.length)
         return [];
     let x = rnd(g, 'textaskwho') * total, i = 0;
@@ -219,9 +220,14 @@ export function textAsks(g, w) {
     const when = `${hm(from % 1440)}${Math.floor(from / 1440) === g.day ? ' today' : ' tomorrow'}`;
     const where = t.kind === 'casual' ? `${r.name}'s place` : placeOf(g, w, place)?.name ?? 'somewhere nice';
     const me = personaName();
-    void textFrom(g, w, r.avatar, t.kind === 'casual'
-        ? `${r.name} texts ${me} out of the blue: would ${me} like to come over to ${r.name}'s place tonight (${when})? One or two short, flirty sentences, in their own voice.`
-        : `${r.name} has a crush on ${me} and texts to ask them out on a date: ${where}, ${when}. One or two short sentences, in their own voice, a little nervous.`, t.kind === 'casual' ? `Come over tonight? ${when}.` : `Would you like to go out with me? ${where}, ${when}?`)
+    // (museum) someone whose tier gives their own words for asking you over says it their way
+    const own = t.kind === 'casual' ? tierLink.words(g, idOf(g, r.avatar), 'askLines') : [];
+    const line = own.length ? own[Math.floor(rnd(g, `askline|${from}`) * own.length)].replace(/\{when\}/g, when) : '';
+    void textFrom(g, w, r.avatar, line
+        ? `${r.name} texts ${me} out of the blue to come over to ${r.name}'s place tonight (${when}), along these lines: "${line}" One or two short sentences, in their own voice.`
+        : t.kind === 'casual'
+            ? `${r.name} texts ${me} out of the blue: would ${me} like to come over to ${r.name}'s place tonight (${when})? One or two short, flirty sentences, in their own voice.`
+            : `${r.name} has a crush on ${me} and texts to ask them out on a date: ${where}, ${when}. One or two short sentences, in their own voice, a little nervous.`, line || (t.kind === 'casual' ? `Come over tonight? ${when}.` : `Would you like to go out with me? ${where}, ${when}?`))
         .then(() => { s.unread[r.avatar] = (s.unread[r.avatar] ?? 0) + 1; })
         .catch(() => { });
     return [];
@@ -336,7 +342,7 @@ function canMove(g, w, a) {
     const here = presentAt(g, w, g.player.loc);
     if (here.length !== 1 || here[0].avatar !== a || !here[0].met || !withYou(g, w).includes(a))
         return false;
-    return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a);
+    return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a) && tierLink.moves(g, idOf(g, a)); // (museum) from the tier that lets them
 }
 /** Maybe someone here makes the move now: a chance a day per person by their drive (high often, low rarely), within the
  *  initiative budget. `force`: skip the day's dice (tests). */
@@ -370,13 +376,17 @@ export function moveOffer(g, w) {
     delete seat(g).move;
     return null;
 }
-/** For the card (ui/events.ts): who, the action they have in mind, and the words. Null when there's none. */
+/** For the card (ui/events.ts): who, the action they have in mind, and the words (`own`: in their own words, from their
+ *  tier, which the card shows). Null when there's none. */
 export function moveCard(g, w) {
     const m = moveOffer(g, w);
     if (!m)
         return null;
     const action = moveActions(g, w, m.who).find(x => x.id === m.action), name = g.cast[m.who]?.name ?? m.who;
-    return { who: m.who, name, action, text: `${name} pulls you closer: ${action.label.replace(/[.\s]+$/, '').toLowerCase()}?` };
+    const what = action.label.replace(/[.\s]+$/, '').toLowerCase(), own = tierLink.words(g, idOf(g, m.who), 'moveLines');
+    // (museum) someone whose tier gives the card their own words says it their way (one picked for this offer)
+    const text = own.length ? own[Math.floor(rnd(g, `moveline|${m.at}`) * own.length)].replace(/\{name\}/g, name).replace(/\{action\}/g, what) : `${name} pulls you closer: ${what}?`;
+    return { who: m.who, name, action, text, ...(own.length ? { own: true } : {}) };
 }
 /** Yes: the action they had in mind, for the screen to start exactly as if you'd picked it (its price and time, in the
  *  scene or not); null when it no longer fits. The card goes either way. */
