@@ -550,7 +550,8 @@ export interface PersonTier { id: string; name: string; when: When;
     outfits?: string[];
     moves?: boolean;
     invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[];
-    /** (C-7) Set toward you once, as this tier opens: friendship and romance levels (the rival starts hating you). */
+    /** (C-7) Once, as this tier opens: friendship toward you set to `f` (the rival starts hating you), romance raised
+     *  to `r` when it's below (the heat a tier brings; never lowered). */
     sets?: { f?: FriendLevel; r?: RomLevel } }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the

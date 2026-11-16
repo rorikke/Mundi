@@ -8325,6 +8325,64 @@
    "place": "ot_kura"
   },
   {
+   "id": "ot_kura_ayame",
+   "name": "Ayame's visit",
+   "label": "Show Ayame the kura",
+   "icon": "🏯",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 4,
+    "energy": -3
+   },
+   "when": "knows: ayame_scroll; present: Ayame; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "Ayame in the Kurahashi kura for the first time, gloves on, Tamaki two cases away, the silence very loud"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She walks every case without a word, and stops only at the alcove where the Kurahashi scroll once hung."
+    },
+    {
+     "weight": 40,
+     "text": "Tamaki and Ayame speak to each other exactly once, about the humidity, in perfect agreement, and it is somehow worse than a fight."
+    }
+   ],
+   "fact": "{u} showed Ayame Mikage round the kura, with Tamaki there",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_kaede",
+   "name": "Kaede comes in",
+   "label": "Bring Kaede into the kura",
+   "icon": "⌚",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 6,
+    "energy": -3
+   },
+   "when": "knows: kaede_back_of_van; present: Kaede; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "Kaede in the Kurahashi kura for the first time in three years, a bundle under her arm, the watch on her belt loop"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She stops on the threshold and laughs at herself, and then she walks in."
+    },
+    {
+     "weight": 40,
+     "text": "Tamaki and Kaede look at each other for a long moment; then Tamaki asks, very politely, whether she takes sugar."
+    }
+   ],
+   "fact": "{u} brought Kaede into the kura to see Tamaki",
+   "place": "ot_kura"
+  },
+  {
    "id": "ot_kura_lesson",
    "name": "Appraisal lesson",
    "label": "Tamaki's appraisal lesson",
@@ -8491,6 +8549,121 @@
     "private",
     "exhib"
    ]
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "id": "ot_kura_kaede_loft",
+   "name": "The loft",
+   "label": "The kura's loft with Kaede",
+   "icon": "🪜",
+   "cost": 0,
+   "minutes": 40,
+   "place": "ot_kura",
+   "when": "tier: Kaede 3; knows: kaede_back_of_van; present: Kaede; companion: crush or casual; period: evening",
+   "dc": 12,
+   "risk": 0.15,
+   "matches": [
+    "a thrill of near-discovery",
+    "somewhere new",
+    "roleplay"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's loft at closing time with Kaede, up the ladder where she slept one winter long ago, the shutters half down below"
+   },
+   "outcomes": [
+    {
+     "id": "winter",
+     "weight": 50,
+     "text": "She shows you where her futon was that winter, and the knot in the beam she counted to fall asleep, and then stops talking."
+    },
+    {
+     "id": "ladder",
+     "weight": 30,
+     "text": "Someone downstairs calls up \"Hello?\"; she answers in a perfect old-man's voice that it's only the mice, and you nearly fall off the ladder.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "watch",
+     "weight": 20,
+     "text": "Afterwards she sits with the brass watch open in her hand for a long minute, and then she laughs and puts it away.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede climbed into the kura's loft at closing time"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib",
+    "ayame_uninvited"
+   ],
+   "id": "ot_kura_ayame_after",
+   "name": "After closing",
+   "label": "Keep Ayame after closing",
+   "icon": "🏯",
+   "cost": 0,
+   "minutes": 40,
+   "place": "ot_kura",
+   "when": "tier: Ayame 2; present: Ayame; companion: crush or casual; period: evening",
+   "dc": 13,
+   "risk": 0.15,
+   "matches": [
+    "after a lost lot",
+    "power play",
+    "rough kissing"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Kurahashi kura at closing time with Ayame, among the glass cases of pieces she lost to {{user}}, the shutters half down"
+   },
+   "outcomes": [
+    {
+     "id": "cases",
+     "weight": 50,
+     "text": "She stops at each case of a lot she lost to you and names its price, and you stop her mouth before she gets to the third."
+    },
+    {
+     "id": "shutter",
+     "weight": 30,
+     "text": "The shutter rattles in the lane; she doesn't even look round. \"Let them see,\" she says, and means the opposite.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "glove",
+     "weight": 20,
+     "text": "She leaves a glove on the case of the lot she minded most, and doesn't come back for it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} kept Ayame Mikage at {0} after closing"
   },
   {
    "id": "ot_kura_back_night",
@@ -8717,6 +8890,62 @@
    "tags": [
     "private"
    ]
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "ayame_uninvited"
+   ],
+   "id": "ot_kura_back_ayame",
+   "name": "The Kurahashi boxes",
+   "label": "Ayame in the kura's back room",
+   "icon": "🗝️",
+   "cost": 0,
+   "minutes": 60,
+   "place": "ot_kura_back",
+   "when": "tier: Ayame 3; present: Ayame; present: not Tamaki; companion: crush or casual",
+   "dc": 11,
+   "matches": [
+    "turning up unannounced",
+    "power play",
+    "after a lost lot"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's back room after closing with Ayame, the Kurahashi boxes to the beams, which she finds unbearable and irresistible"
+   },
+   "outcomes": [
+    {
+     "id": "boxes",
+     "weight": 50,
+     "text": "She reads the labels on the Kurahashi boxes aloud, one by one, with withering contempt, until she can't."
+    },
+    {
+     "id": "futon",
+     "weight": 30,
+     "text": "She calls the inventory futon a disgrace and refuses to touch it, for nearly a minute.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "roof",
+     "weight": 20,
+     "text": "Afterwards she climbs to the roof hatch and looks at Yanaka for a long time, and says nothing at all about it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Ayame Mikage were in the kura's back room after closing"
   },
   {
    "id": "ot_ameyoko_snack",
@@ -9500,6 +9729,93 @@
     }
    ],
    "fact": "{u} walked down the middle of Chūō-dōri on a car-free afternoon",
+   "place": "mg_chuodori"
+  },
+  {
+   "id": "mg_chuodori_ayame",
+   "name": "Beside Ayame",
+   "label": "Sit beside Ayame at the sale",
+   "icon": "🪧",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 4,
+    "energy": -4
+   },
+   "when": "tier: Ayame 1; present: Ayame; seasonDays: 10",
+   "together": {
+    "needed": true,
+    "text": "the Ginza saleroom on sale day, the two of them side by side in the second row, her fan closed in her lap"
+   },
+   "roll": {
+    "dc": 13,
+    "skill": "charisma",
+    "success": {
+     "text": "You hold her stare until she looks away first, and she spends the rest of the sale pretending that didn't happen.",
+     "effects": {
+      "mood": 5
+     }
+    },
+    "fail": {
+     "text": "\"You're in my light,\" she says, without turning her head, and you spend the rest of the sale in it anyway.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She murmurs a running commentary on every lot, every word an insult to the bidders, the house and you."
+    },
+    {
+     "weight": 40,
+     "text": "When the hammer falls on a lot she wanted she snaps her fan once against her palm, and doesn't look at you at all."
+    },
+    {
+     "weight": 1000,
+     "when": "sales: bested 1; had: not ayame_paddle",
+     "text": "As the room empties she tears her bidding paddle clean in half and leaves both halves on your chair.",
+     "keepsake": "ayame_paddle"
+    },
+    {
+     "weight": 1000,
+     "when": "tier: Ayame 3; had: ayame_glove; had: not ayame_ribbon",
+     "text": "She leaves before the last lot without a word; on your chair is the black velvet ribbon from her hair.",
+     "keepsake": "ayame_ribbon"
+    }
+   ],
+   "trains": "charisma",
+   "fact": "{u} sat beside Ayame Mikage at the sale at {0}",
+   "place": "mg_chuodori"
+  },
+  {
+   "id": "mg_chuodori_ayame_tea",
+   "name": "After-sale tea",
+   "label": "Tea with Ayame after the sale",
+   "icon": "🫖",
+   "cost": 2400,
+   "minutes": 60,
+   "effects": {
+    "mood": 5,
+    "energy": -3
+   },
+   "when": "tier: Ayame 2; present: Ayame; seasonDays: 10; period: afternoon or evening",
+   "together": {
+    "needed": true,
+    "text": "tea at an old Ginza tea room after the sale, her gloves on the table between them like a challenge"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She orders for both of you without asking, and tells you exactly which of your bids was stupid, and why."
+    },
+    {
+     "weight": 40,
+     "text": "For a whole minute neither of you says anything, and it is the most comfortable minute you have ever spent with her. She ends it with an insult."
+    }
+   ],
+   "fact": "{u} had tea with Ayame Mikage after the sale",
    "place": "mg_chuodori"
   },
   {
@@ -10344,6 +10660,64 @@
     }
    ],
    "fact": "{u} spent Christmas Eve on the beach watching the lit bridge"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib",
+    "kaede_dare"
+   ],
+   "id": "bay_beach_kaede",
+   "name": "The night beach",
+   "label": "The beach at night with Kaede",
+   "icon": "🌊",
+   "cost": 0,
+   "minutes": 60,
+   "place": "bay_beach",
+   "when": "tier: Kaede 2; present: Kaede; companion: crush or casual; period: night or latenight; weather: not rain",
+   "dc": 13,
+   "risk": 0.15,
+   "matches": [
+    "swimming in the dark",
+    "a thrill of near-discovery",
+    "a dare"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Odaiba's beach at night with Kaede, the bridge lit across the water, the boardwalk empty, mostly"
+   },
+   "outcomes": [
+    {
+     "id": "swim",
+     "weight": 50,
+     "text": "She dares you into the black water and is in it before you've answered, whooping at the cold."
+    },
+    {
+     "id": "torch",
+     "weight": 30,
+     "text": "A security guard's torch wanders along the boardwalk; she pulls you down behind a dune and laughs into your neck until it's gone.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "towel",
+     "weight": 20,
+     "text": "There is one towel and she has it, and she makes you bargain for it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede went down to Odaiba's beach at night"
   },
   {
    "id": "bay_bridge_walk",
@@ -11509,6 +11883,51 @@
    "fact": "{u} went to a night talk at {0}"
   },
   {
+   "id": "rp_sky_ayame_gala",
+   "name": "The Mikage gala",
+   "label": "The Mikage Foundation's gala",
+   "icon": "🥂",
+   "cost": 0,
+   "minutes": 120,
+   "effects": {
+    "mood": 6,
+    "energy": -8
+   },
+   "when": "tier: Ayame 1; present: Ayame; seasonDays: 12-13; period: evening or night",
+   "together": {
+    "needed": false,
+    "text": "the Mikage Foundation's season gala at the Sky Museum, black tie, the city lit below the glass"
+   },
+   "outcomes": [
+    {
+     "weight": 50,
+     "text": "She greets every guest by name but you, and introduces you to her board as \"the kura's new owner, who is leaving\"."
+    },
+    {
+     "weight": 30,
+     "text": "Across the gallery her eyes find you over the rim of her glass, and she raises it a quarter of an inch.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "weight": 20,
+     "text": "She corners you by the window and tells you, very quietly, everything wrong with your last purchase. She has clearly thought about it a great deal.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "weight": 1000,
+     "when": "had: not ayame_card",
+     "text": "At your place at dinner you find an ivory card with your name in her hand, crossed out once, firmly, and written again underneath.",
+     "keepsake": "ayame_card"
+    }
+   ],
+   "fact": "{u} went to the Mikage Foundation's gala at {0}",
+   "place": "rp_sky"
+  },
+  {
    "id": "rp_tower_main",
    "name": "Main Deck",
    "label": "Ride up to the Main Deck",
@@ -12530,6 +12949,41 @@
    "fact": "{u} sat on the seawall at {0}"
   },
   {
+   "id": "yk_yamashita_kaede",
+   "name": "Harbour drinks",
+   "label": "Harbour drinks with Kaede",
+   "icon": "🍶",
+   "cost": 1500,
+   "minutes": 90,
+   "effects": {
+    "mood": 7,
+    "energy": -4
+   },
+   "when": "tier: Kaede 1; present: Kaede; period: evening or night",
+   "together": {
+    "needed": true,
+    "text": "the sea wall at Yamashita Park at night with Kaede and a bottle of Nagasaki shōchū, the old liner lit up behind them"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She sings a Nagasaki harbour song, badly and with total conviction, and the night fisherman down the wall joins in."
+    },
+    {
+     "weight": 40,
+     "text": "She tells you about her mother's shop and the things the tide brought in, and when you ask about the watch she changes the subject, laughing."
+    },
+    {
+     "weight": 1000,
+     "when": "tier: Kaede 2; had: not kaede_ring",
+     "text": "She twists a silver ring off her finger and drops it in your palm: \"Stock. Don't sell it to anyone I like.\"",
+     "keepsake": "kaede_ring"
+    }
+   ],
+   "fact": "{u} had a drink by the harbour with Kaede",
+   "place": "yk_yamashita"
+  },
+  {
    "id": "yk_isezaki_napolitan",
    "label": "Eat napolitan at a counter diner",
    "name": "Napolitan",
@@ -13529,6 +13983,91 @@
    "fact": "{u} rode the hydrangea train from {0}"
   },
   {
+   "id": "hk_yumoto_kaede",
+   "name": "Onsen with Kaede",
+   "label": "A roadside onsen with Kaede",
+   "icon": "♨️",
+   "cost": 1200,
+   "minutes": 120,
+   "effects": {
+    "mood": 9,
+    "energy": 6
+   },
+   "when": "tier: Kaede 2; present: Kaede",
+   "together": {
+    "needed": true,
+    "text": "a cheap roadside onsen above the Hayakawa river with Kaede, rings in her pocket, the van steaming in the car park"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She knows every roadside bath between here and Nagasaki and ranks this one a solid seven, \"eight with you\"."
+    },
+    {
+     "weight": 40,
+     "text": "Afterwards she buys you a bottle of coffee milk from the machine and drinks hers in one go, hands on hips."
+    }
+   ],
+   "fact": "{u} soaked at a roadside onsen with Kaede",
+   "place": "hk_yumoto"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "kaede_road"
+   ],
+   "id": "hk_yumoto_kaede_night",
+   "name": "Evening onsen",
+   "label": "An evening onsen with Kaede",
+   "icon": "♨️",
+   "cost": 2000,
+   "minutes": 90,
+   "place": "hk_yumoto",
+   "when": "tier: Kaede 2; present: Kaede; companion: crush or casual; period: evening",
+   "dc": 10,
+   "matches": [
+    "hot springs",
+    "swimming in the dark",
+    "laughing in bed"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a family bath at a roadside onsen above the river after closing time, rented for an hour, the lantern turned low"
+   },
+   "outcomes": [
+    {
+     "id": "lantern",
+     "weight": 50,
+     "text": "She turns the lantern right down and tells you the bath is haunted, then laughs at you for checking."
+    },
+    {
+     "id": "river",
+     "weight": 30,
+     "text": "You can hear the river through the bamboo fence the whole time, and so, probably, can the river.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "milk",
+     "weight": 20,
+     "text": "Afterwards: coffee milk from the machine, drunk in one go, hands on hips, both of you.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede rented a family bath at a Hakone onsen at night"
+  },
+  {
    "id": "hk_ryokan_bath",
    "name": "Outdoor bath",
    "label": "Soak in the outdoor bath",
@@ -14342,7 +14881,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night or mg_viewing_ayame or mg_chuodori_ayame_car or mg_fencing_ayame_after or ot_kura_ayame_after or ws_mikage_study or ws_mikage_bath or priv_home_ayame or ot_kura_back_ayame or yk_van_kaede or hk_ashi_kaede_tailgate or hk_yumoto_kaede_night or bay_beach_kaede or ot_yanaka_kaede_van or priv_home_kaede or ot_kura_kaede_loft or yk_mirage_kaede or bay_bridge_kaede; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -14505,6 +15044,283 @@
    "tags": [
     "private"
    ]
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "kaede_dare"
+   ],
+   "id": "yk_mirage_kaede",
+   "name": "Her pick",
+   "label": "Let Kaede pick the room",
+   "icon": "🏨",
+   "cost": 6000,
+   "minutes": 120,
+   "place": "yk_lovehotel_mirage",
+   "when": "tier: Kaede 3; present: Kaede; companion: crush or casual",
+   "dc": 9,
+   "matches": [
+    "roleplay",
+    "no plan",
+    "laughing in bed"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the room Kaede picked off Hotel Mirage's lit board purely for its name, the most ridiculous one on it"
+   },
+   "outcomes": [
+    {
+     "id": "theme",
+     "weight": 50,
+     "text": "The room is exactly as ridiculous as its name, and she commits to it completely."
+    },
+    {
+     "id": "review",
+     "weight": 30,
+     "text": "She writes a review in the guest book, in character, and signs it with your name.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "next",
+     "weight": 20,
+     "text": "On the way out she's already reading the board for next time.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede took the most ridiculous room at {0}"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "kaede_road"
+   ],
+   "id": "yk_van_kaede",
+   "name": "The van",
+   "label": "A night in Kaede's van",
+   "icon": "🚐",
+   "cost": 0,
+   "minutes": 120,
+   "place": "yk_van",
+   "when": "tier: Kaede 2; present: Kaede; companion: crush or casual",
+   "dc": 9,
+   "matches": [
+    "the van at night",
+    "laughing in bed",
+    "somewhere new"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaede's van by the harbour at night, the fold-down bed under the skylight, fairy lights, the sea right there"
+   },
+   "outcomes": [
+    {
+     "id": "skylight",
+     "weight": 50,
+     "text": "She props the skylight open so you can hear the sea, and laughs the whole time, at you, at herself, at the van's springs."
+    },
+    {
+     "id": "crates",
+     "weight": 30,
+     "text": "A crate of wrapped netsuke comes loose and rains down on you both; she counts every one before she lets you go back to sleep.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tea",
+     "weight": 20,
+     "text": "At dawn she makes tea on the gas ring, wearing only your shirt and her rings, singing.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent a night in Kaede's van by the harbour"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private"
+   ],
+   "id": "ws_mikage_study",
+   "name": "The study",
+   "label": "Ayame's study, after midnight",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 90,
+   "place": "ws_mikage",
+   "when": "tier: Ayame 3; present: Ayame; companion: crush or casual",
+   "dc": 10,
+   "matches": [
+    "late nights at the house",
+    "being in control",
+    "giving orders"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Mikage house's study after midnight, black lacquer and her grandfather's ledgers, one lamp, the housekeeper asleep"
+   },
+   "outcomes": [
+    {
+     "id": "ledgers",
+     "weight": 50,
+     "text": "She sweeps her grandfather's ledgers off the desk with one arm and doesn't pick them up until morning."
+    },
+    {
+     "id": "lamp",
+     "weight": 30,
+     "text": "She turns the lamp down, then up again: \"I want to see your face when you lose.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "dawn",
+     "weight": 20,
+     "text": "At dawn she walks you to the gate in her dressing gown and closes it on you without a word, smiling where you can't see.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent a night in the Mikage house with Ayame"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private"
+   ],
+   "id": "ws_mikage_bath",
+   "name": "The cypress bath",
+   "label": "The Mikage house's bath with Ayame",
+   "icon": "🛁",
+   "cost": 0,
+   "minutes": 60,
+   "place": "ws_mikage",
+   "when": "tier: Ayame 3; present: Ayame; companion: crush or casual",
+   "dc": 10,
+   "matches": [
+    "late nights at the house",
+    "being pinned, for once"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Mikage house's old cypress bath at night, steam on the dark wood, her hair down for once"
+   },
+   "outcomes": [
+    {
+     "id": "hair",
+     "weight": 50,
+     "text": "With her hair down she looks younger and angrier, and lets you wash it, which she will deny to her grave."
+    },
+    {
+     "id": "steam",
+     "weight": 30,
+     "text": "She tells you, through the steam, every lot of yours she plans to take next season.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "quiet",
+     "weight": 20,
+     "text": "For once she says nothing at all, and the silence says a great deal.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} shared the Mikage house's bath with Ayame"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private"
+   ],
+   "id": "mg_viewing_ayame",
+   "name": "The viewing room",
+   "label": "The viewing room with Ayame",
+   "icon": "🚪",
+   "cost": 0,
+   "minutes": 60,
+   "place": "mg_viewing",
+   "when": "tier: Ayame 2; present: Ayame; companion: crush or casual",
+   "dc": 11,
+   "matches": [
+    "giving orders",
+    "after a lost lot",
+    "being in control",
+    "rough kissing"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the saleroom's viewing room after the hammer, the brass bolt shot, one easel lit, Ayame still in ivory"
+   },
+   "outcomes": [
+    {
+     "id": "bolt",
+     "weight": 50,
+     "text": "She shoots the bolt herself and tells you exactly what will happen, in order; it does, and then it doesn't, and she is furious about that."
+    },
+    {
+     "id": "easel",
+     "weight": 30,
+     "text": "Afterwards she straightens the easel, the bench and her collar, and leaves first without a word. Her gloves are still on the bench.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "nothing",
+     "weight": 20,
+     "text": "\"This means nothing,\" she says at the door, very precisely, as if dictating it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Ayame Mikage were in the saleroom's viewing room after the sale"
   },
   {
    "id": "priv_home_tamaki_yukata",
@@ -15628,6 +16444,195 @@
    "fact": "{u} photographed the cats and lanes of {0}"
   },
   {
+   "id": "ot_yanaka_kaede",
+   "name": "The tailgate",
+   "label": "Sit on Kaede's tailgate",
+   "icon": "🚐",
+   "cost": 0,
+   "minutes": 45,
+   "effects": {
+    "mood": 6,
+    "energy": -2
+   },
+   "when": "museum: open; present: Kaede; dealer: here",
+   "together": {
+    "needed": true,
+    "text": "the tailgate of Kaede's van in the Yanaka lane, tea in tin mugs, this week's pieces in blankets behind them"
+   },
+   "outcomes": [
+    {
+     "weight": 50,
+     "text": "She tells you the story of a sword guard she bought from a temple in Shimane, and you are almost sure the bit with the fox is true."
+    },
+    {
+     "weight": 50,
+     "text": "She salts the van's step, apologises to no one in particular, and offers you the last rice cracker."
+    },
+    {
+     "weight": 1000,
+     "when": "had: not kaede_pipe",
+     "text": "She digs a long white clay pipe out of a crate and puts it in your hand. \"My mother's shop. Stock. Keep it.\"",
+     "keepsake": "kaede_pipe"
+    },
+    {
+     "weight": 1000,
+     "when": "tier: Kaede 1; had: kaede_pipe; had: not kaede_shard",
+     "text": "She unwraps her cracked lucky tea bowl, breaks off the smallest shard with her thumb, and folds it into a scrap of silk for you.",
+     "keepsake": "kaede_shard"
+    }
+   ],
+   "fact": "{u} sat on Kaede's tailgate outside the kura",
+   "place": "ot_yanaka"
+  },
+  {
+   "id": "ot_yanaka_kaede_story",
+   "name": "The true version",
+   "label": "Ask Kaede for the true version",
+   "icon": "🧭",
+   "cost": 0,
+   "minutes": 30,
+   "effects": {
+    "mood": 4,
+    "energy": -2
+   },
+   "when": "museum: open; present: Kaede; dealer: here",
+   "together": {
+    "needed": true,
+    "text": "Kaede turning a piece in her hands on the tailgate, telling its story in two versions"
+   },
+   "roll": {
+    "dc": 12,
+    "skill": "logic",
+    "success": {
+     "text": "You pick out the true half of her story; she laughs so hard she has to put the piece down.",
+     "effects": {
+      "mood": 5
+     }
+    },
+    "fail": {
+     "text": "You believe the bit about the shipwreck. She doesn't correct you, and enjoys it enormously.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "\"Tamaki always gets it in one,\" she says, delighted and annoyed."
+    }
+   ],
+   "trains": "logic",
+   "fact": "{u} tried to tell Kaede's true stories from her others",
+   "place": "ot_yanaka"
+  },
+  {
+   "id": "ot_yanaka_kaede_bet",
+   "name": "Kaede's bet",
+   "label": "Take Kaede's bet",
+   "icon": "🪙",
+   "cost": 0,
+   "minutes": 20,
+   "effects": {
+    "mood": 5,
+    "energy": -2
+   },
+   "when": "tier: Kaede 3; present: Kaede; dealer: here",
+   "together": {
+    "needed": true,
+    "text": "a bet on the tailgate with a coin and a straight face, the stakes anything but money"
+   },
+   "roll": {
+    "dc": 14,
+    "skill": "charisma",
+    "success": {
+     "text": "You win; she pays up without a word of complaint, which for her is a first.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "You lose. She writes the forfeit down in the back of her ledger, grinning, and says it's a dare for another night.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "Whatever the bet, she settles it in kind and never in yen: \"Money's for the pieces.\""
+    },
+    {
+     "weight": 1000,
+     "when": "had: not kaede_page",
+     "text": "She tears a page from her ledger and hands it over. Under the prices, in pencil: \"Item 10: free, once.\"",
+     "keepsake": "kaede_page"
+    }
+   ],
+   "trains": "charisma",
+   "fact": "{u} took Kaede's bet on the tailgate",
+   "place": "ot_yanaka"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib",
+    "kaede_dare"
+   ],
+   "id": "ot_yanaka_kaede_van",
+   "name": "The lane",
+   "label": "Into Kaede's van",
+   "icon": "🚐",
+   "cost": 0,
+   "minutes": 40,
+   "place": "ot_yanaka",
+   "when": "tier: Kaede 2; present: Kaede; companion: crush or casual; dealer: here",
+   "dc": 13,
+   "risk": 0.15,
+   "matches": [
+    "the van at night",
+    "a thrill of near-discovery",
+    "a bet settled in kind"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the back of Kaede's van in the Yanaka lane on her visit's day, the doors pulled to, the kura's neighbours sweeping their steps outside"
+   },
+   "outcomes": [
+    {
+     "id": "neighbours",
+     "weight": 50,
+     "text": "Outside, old Mrs. Kurahashi wishes the van a good afternoon; Kaede answers her perfectly politely, from under you."
+    },
+    {
+     "id": "blankets",
+     "weight": 30,
+     "text": "The pieces in their blankets get thoroughly rearranged; she says that's how she does inventory anyway.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "bet",
+     "weight": 20,
+     "text": "It started as a bet. She says she won. You both did.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} climbed into the back of Kaede's van in the Yanaka lane"
+  },
+  {
    "id": "sh_photo_bridge",
    "name": "Photos",
    "label": "Photograph the bay",
@@ -15677,6 +16682,64 @@
     }
    ],
    "fact": "{u} photographed the bay from {0}"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib",
+    "kaede_dare"
+   ],
+   "id": "bay_bridge_kaede",
+   "name": "The bridge",
+   "label": "A dare on the bridge",
+   "icon": "🌉",
+   "cost": 0,
+   "minutes": 40,
+   "place": "bay_bridge",
+   "when": "tier: Kaede 3; knows: kaede_dares; present: Kaede; companion: crush or casual; period: evening",
+   "dc": 14,
+   "risk": 0.2,
+   "matches": [
+    "a dare",
+    "a thrill of near-discovery",
+    "no plan"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Rainbow Bridge walkway at night with Kaede and a dare from the back of her ledger, the city lit below, the walkway nearly empty"
+   },
+   "outcomes": [
+    {
+     "id": "wind",
+     "weight": 50,
+     "text": "The wind takes her scarf and she lets it go, laughing, out over the black water."
+    },
+    {
+     "id": "jogger",
+     "weight": 30,
+     "text": "A late jogger thuds past and doesn't look, or pretends not to; she crosses the dare off with a flourish.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "pencil",
+     "weight": 20,
+     "text": "She writes the next dare on your hand with the pencil from her hair.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede did a dare on the Rainbow Bridge walkway at night"
   },
   {
    "id": "sh_photo_lights",
@@ -15883,6 +16946,64 @@
    "fact": "{u} photographed the water gate at {0}"
   },
   {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib",
+    "kaede_road"
+   ],
+   "id": "hk_ashi_kaede_tailgate",
+   "name": "Lakeside tailgate",
+   "label": "Lake Ashi with Kaede",
+   "icon": "🌌",
+   "cost": 0,
+   "minutes": 90,
+   "place": "hk_ashi",
+   "when": "tier: Kaede 2; present: Kaede; companion: crush or casual; period: night or latenight",
+   "dc": 12,
+   "risk": 0.1,
+   "matches": [
+    "the van at night",
+    "somewhere new",
+    "a thrill of near-discovery"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the van's tailgate on a dark lakeside road above Lake Ashi, the engine ticking as it cools, nobody for miles, probably"
+   },
+   "outcomes": [
+    {
+     "id": "stars",
+     "weight": 50,
+     "text": "She names the stars wrong on purpose and dares you to correct her; you don't, for a while."
+    },
+    {
+     "id": "headlights",
+     "weight": 30,
+     "text": "Headlights sweep the road and she pulls the blanket over you both, shaking with laughter, until the car has passed.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cold",
+     "weight": 20,
+     "text": "It's colder than she promised; she says that's the point.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede parked the van above Lake Ashi at night"
+  },
+  {
    "id": "sh_photo_skyline",
    "name": "Photos",
    "label": "Photograph the night view",
@@ -16087,6 +17208,63 @@
     }
    },
    "fact": "{u} showed photographs to a gallerist on {0}"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "id": "mg_chuodori_ayame_car",
+   "name": "Her car",
+   "label": "Get into Ayame's car",
+   "icon": "🚘",
+   "cost": 0,
+   "minutes": 40,
+   "place": "mg_chuodori",
+   "when": "tier: Ayame 2; present: Ayame; companion: crush or casual; period: evening or night",
+   "dc": 13,
+   "risk": 0.1,
+   "matches": [
+    "a fight first",
+    "gloves kept on",
+    "power play"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the back of Ayame's black car on a Ginza side street after the sale, the driver sent for coffee, the windows dark"
+   },
+   "outcomes": [
+    {
+     "id": "driver",
+     "weight": 50,
+     "text": "She sends the driver for coffee from a shop on the other side of Ginza, and you both know exactly how long that takes."
+    },
+    {
+     "id": "argument",
+     "weight": 30,
+     "text": "It starts as an argument about a lot and ends nowhere near one; she rearranges her hair in the mirror afterwards, scowling.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tap",
+     "weight": 20,
+     "text": "Someone taps on the window; it's only a parking warden, and she dismisses him with a look that could strip paint.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} got into Ayame Mikage's car after the sale"
   },
   {
    "id": "sh_watch_fish",
@@ -17700,6 +18878,264 @@
      }
     }
    ]
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private"
+   ],
+   "id": "priv_home_kaede",
+   "name": "Kaede drops by",
+   "label": "Kaede drops by",
+   "icon": "🔔",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "when": "tier: Kaede 3; present: Kaede; companion: crush or casual; period: evening or night or latenight",
+   "dc": 9,
+   "matches": [
+    "laughing in bed",
+    "being asked what they want",
+    "no plan"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaede at {{user}}'s door with a bottle of shōchū and no plan, the van double-parked outside"
+   },
+   "outcomes": [
+    {
+     "id": "bottle",
+     "weight": 50,
+     "text": "She opens the bottle with a ring off her finger and the evening goes wherever it goes, which is everywhere."
+    },
+    {
+     "id": "rooms",
+     "weight": 30,
+     "text": "She tours every room as if pricing it, and declares your bed \"a fair piece, good condition, honest wear\".",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "ticket",
+     "weight": 20,
+     "text": "In the morning there's a parking ticket on the van, and she frames it with your pen: \"Worth it.\"",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "Kaede dropped by {u}'s home with no plan, and stayed"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "ayame_uninvited"
+   ],
+   "id": "priv_home_ayame",
+   "name": "Uninvited",
+   "label": "Let Ayame in",
+   "icon": "🚪",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "when": "tier: Ayame 3; present: Ayame; companion: crush or casual; period: evening or night or latenight",
+   "dc": 10,
+   "matches": [
+    "turning up unannounced",
+    "jealousy",
+    "being pinned, for once"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Ayame on {{user}}'s step uninvited, late, gloves in her hand, already furious about something"
+   },
+   "outcomes": [
+    {
+     "id": "jealous",
+     "weight": 50,
+     "text": "She knows where you were last night and with whom, and tells you so between kisses, as an accusation."
+    },
+    {
+     "id": "coat",
+     "weight": 30,
+     "text": "She doesn't take her coat off until much later, and then only because you insist.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "stays",
+     "weight": 20,
+     "text": "She stays until morning and leaves before you wake; the pillow smells of her perfume for a week.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "Ayame Mikage turned up at {u}'s home uninvited, and stayed"
+  },
+  {
+   "id": "mg_fencing_bout",
+   "name": "Fencing",
+   "label": "Take a fencing lesson",
+   "icon": "🤺",
+   "cost": 2500,
+   "minutes": 90,
+   "effects": {
+    "mood": 3,
+    "energy": -14
+   },
+   "when": "period: afternoon or evening",
+   "roll": {
+    "dc": 12,
+    "skill": "fitness",
+    "success": {
+     "text": "The old master nods once at your riposte, which from him is a speech.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "You spend the hour learning how to stand, and the master tells you it's the most important hour there is.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "You hang the borrowed mask on its peg, soaked, with a bruise on your forearm you are oddly proud of."
+    }
+   ],
+   "trains": "fitness",
+   "fact": "{u} took a fencing lesson at {0}",
+   "place": "mg_fencing"
+  },
+  {
+   "id": "mg_fencing_ayame",
+   "name": "Blades with Ayame",
+   "label": "Cross blades with Ayame",
+   "icon": "🤺",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 5,
+    "energy": -14
+   },
+   "when": "tier: Ayame 2; present: Ayame",
+   "together": {
+    "needed": true,
+    "text": "a bout on the long piste at the Kudan club, masks down, the old master calling the touches"
+   },
+   "roll": {
+    "dc": 14,
+    "skill": "fitness",
+    "success": {
+     "text": "You take a touch off her, clean; she tears her mask off, flushed to the ears, and demands another bout at once.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "She takes five touches in a row, each one a little harder, and salutes you with a contempt that is almost fond.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Afterwards she unties her ponytail and ties it again, tighter, without once looking at you."
+    },
+    {
+     "weight": 40,
+     "text": "\"Again,\" she says, and again, until the master turns the lights off on you both."
+    },
+    {
+     "weight": 1000,
+     "when": "had: not ayame_glove",
+     "text": "After the last bout she pulls off her glove and throws it at your feet. She never asks for it back.",
+     "keepsake": "ayame_glove"
+    }
+   ],
+   "trains": "fitness",
+   "fact": "{u} fenced Ayame Mikage at {0}",
+   "place": "mg_fencing"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "id": "mg_fencing_ayame_after",
+   "name": "After hours",
+   "label": "After hours with Ayame",
+   "icon": "🤺",
+   "cost": 0,
+   "minutes": 60,
+   "place": "mg_fencing",
+   "when": "tier: Ayame 2; present: Ayame; companion: crush or casual; period: evening or night",
+   "dc": 13,
+   "risk": 0.15,
+   "matches": [
+    "a fight first",
+    "giving orders",
+    "a challenge"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Kudan club's changing room after the last bout, the master gone home, the cleaner due at ten"
+   },
+   "outcomes": [
+    {
+     "id": "jacket",
+     "weight": 50,
+     "text": "The bout never quite ends; it just moves to the changing room, and she wins it, as she points out."
+    },
+    {
+     "id": "cleaner",
+     "weight": 30,
+     "text": "A bucket clanks in the corridor and you both freeze, masks in hand; the cleaner passes, humming, and Ayame laughs once, startled at herself.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "salute",
+     "weight": 20,
+     "text": "She salutes you afterwards with an imaginary foil, mocking and flushed.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} stayed after hours at the fencing club with Ayame Mikage"
   }
  ],
  "sleep": {
@@ -22947,7 +24383,24 @@
     "hk_ryokan_tamaki_bath",
     "fa_tamaki_library",
     "fa_tamaki_tearoom",
-    "hk_ryokan_tamaki_night"
+    "hk_ryokan_tamaki_night",
+    "mg_viewing_ayame",
+    "mg_chuodori_ayame_car",
+    "mg_fencing_ayame_after",
+    "ot_kura_ayame_after",
+    "ws_mikage_study",
+    "ws_mikage_bath",
+    "priv_home_ayame",
+    "ot_kura_back_ayame",
+    "yk_van_kaede",
+    "hk_ashi_kaede_tailgate",
+    "hk_yumoto_kaede_night",
+    "bay_beach_kaede",
+    "ot_yanaka_kaede_van",
+    "priv_home_kaede",
+    "ot_kura_kaede_loft",
+    "yk_mirage_kaede",
+    "bay_bridge_kaede"
    ],
    "count": 5,
    "days": 7,
@@ -29997,6 +31450,33 @@
    ]
   },
   {
+   "id": "mg_viewing",
+   "name": "The saleroom's viewing room",
+   "map": "marunouchi",
+   "x": 80.2,
+   "y": 61,
+   "tags": [
+    "leisure"
+   ],
+   "desc": "the private viewing room on the saleroom's top floor after the hammer: dark panelled walls, one lit easel, a velvet bench, a door with a brass bolt, the street's noise far below",
+   "staff": "nobody once the porters have gone; the saleroom's night porter downstairs at the door",
+   "crowd": 0.1,
+   "open": [
+    15,
+    23
+   ],
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "sound": [
+    "wind"
+   ],
+   "bg": "bg/home-luxury-night.avif",
+   "adult": true,
+   "private": true,
+   "when": "tier: Ayame 2"
+  },
+  {
    "id": "mg_izakaya",
    "name": "Izakaya Tetsuro",
    "map": "marunouchi",
@@ -30098,6 +31578,36 @@
    "sound": [
     "crowd"
    ]
+  },
+  {
+   "id": "mg_fencing",
+   "name": "Kudan Fencing Club",
+   "map": "marunouchi",
+   "x": 21.6,
+   "y": 63.4,
+   "tags": [
+    "leisure",
+    "sport"
+   ],
+   "desc": "an old members' fencing club near Kudanzaka: a sprung wooden floor with pistes marked in white, masks on pegs, racks of foils and épées, tall windows onto the moat",
+   "staff": "a retired master who calls the bouts, members in white jackets, a cleaner at closing time",
+   "crowd": 0.4,
+   "open": [
+    9,
+    22
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain"
+   ],
+   "generic": false,
+   "sound": [
+    "wind"
+   ],
+   "bg": "bg/ws_theater.avif",
+   "bgs": {
+    "night": "bg/ws_theater-night.avif"
+   }
   },
   {
    "id": "mg_tsukiji",
@@ -31519,6 +33029,34 @@
    }
   },
   {
+   "id": "yk_van",
+   "name": "Kaede's van",
+   "map": "yokohama",
+   "x": 26.4,
+   "y": 76.8,
+   "tags": [
+    "leisure"
+   ],
+   "desc": "an old cream camper van in its rented space by the harbour: a fold-down bed under a skylight, crates of wrapped pieces, a kettle on a gas ring, fairy lights",
+   "staff": "nobody but the gulls and a night fisherman on the wall",
+   "crowd": 0.1,
+   "open": [
+    18,
+    6
+   ],
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "sound": [
+    "waves",
+    "wind"
+   ],
+   "bg": "bg/yk_marina-night.avif",
+   "adult": true,
+   "private": true,
+   "when": "tier: Kaede 2"
+  },
+  {
    "id": "rp_classics",
    "name": "Akatsuki Motorworks",
    "map": "roppongi",
@@ -31624,6 +33162,37 @@
    "bgs": {
     "night": "bg/ws_dec_bath-night.avif"
    }
+  },
+  {
+   "id": "ws_mikage",
+   "name": "The Mikage house",
+   "map": "westside",
+   "x": 9.2,
+   "y": 86.4,
+   "tags": [
+    "leisure"
+   ],
+   "desc": "the Mikage family's old house in Den-en-chōfu at night: a long dark hall of screens, a study of black lacquer and ledgers, a cypress bath, one lantern in the garden",
+   "staff": "the housekeeper, who goes to her rooms at nine and hears nothing",
+   "crowd": 0.1,
+   "open": [
+    19,
+    3
+   ],
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "sound": [
+    "wind"
+   ],
+   "bg": "bg/home-estate.avif",
+   "bgs": {
+    "afternoon": "bg/home-estate-afternoon.avif",
+    "night": "bg/home-estate-night.avif"
+   },
+   "adult": true,
+   "private": true,
+   "when": "tier: Ayame 3"
   },
   {
    "id": "hk_villa_onsen",
@@ -38037,6 +39606,215 @@
      "rumor": "A piece stolen from the Kurahashi kura turned up in a pawnshop"
     }
    ]
+  },
+  {
+   "id": "ot_kura_st_mikage_1",
+   "place": "ot_kura",
+   "when": "thread: ayame_scroll; present: Tamaki; weekday: thu; seasonDays: 1-7",
+   "brings": "Ayame",
+   "title": "The Mikage commission: a Sesshū-school scroll",
+   "setup": "A crate from the Mikage house arrives at the kura, and Ayame Mikage with it, gloves on, saying nothing: a hanging scroll of a winter landscape in the Sesshū manner, its box inscribed by her grandfather. Tamaki unrolls it on the kura's long table and is quiet for a long time: the ink is too even for the brush it claims, and the silk is from the sixties. Another of his copies. Ayame watches Tamaki's face, and then {{user}}'s, and waits to be told.",
+   "choices": [
+    {
+     "label": "Tell her plainly",
+     "text": "You tell her plainly, and Tamaki shows her why; she hears it without a flicker, signs for the commission, and corrects the foundation's catalogue that night, line by line.",
+     "money": 500000,
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} told Ayame Mikage plainly that her family's a sesshū-school scroll was a copy"
+    },
+    {
+     "label": "Keep it between the two of you",
+     "text": "You tell her alone, quietly, and the copy goes back to its place on the Mikage wall; she pays, and holds your eyes a moment too long, hating that you know.",
+     "money": 500000,
+     "romance": {
+      "Ayame": 3
+     },
+     "feels": {
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} kept it between themselves and Ayame Mikage that her family's a sesshū-school scroll was a copy"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_mikage_2",
+   "place": "ot_kura",
+   "when": "present: Tamaki; weekday: thu; seasonDays: 8-14",
+   "after": "ot_kura_st_mikage_1",
+   "brings": "Ayame",
+   "title": "The Mikage commission: a black Raku tea bowl",
+   "setup": "A crate from the Mikage house arrives at the kura, and Ayame Mikage with it, gloves on, saying nothing: a black Raku tea bowl her grandfather drank from every New Year, in a box with a famous tea master's seal. Tamaki turns it in her gloved hands, weighs it, and sets it down very gently: the glaze is right and the foot is wrong. A good copy, made to stand in for one he sold. Ayame watches Tamaki's face, and then {{user}}'s, and waits to be told.",
+   "choices": [
+    {
+     "label": "Tell her plainly",
+     "text": "You tell her plainly, and Tamaki shows her why; she hears it without a flicker, signs for the commission, and corrects the foundation's catalogue that night, line by line.",
+     "money": 750000,
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} told Ayame Mikage plainly that her family's a black raku tea bowl was a copy"
+    },
+    {
+     "label": "Keep it between the two of you",
+     "text": "You tell her alone, quietly, and the copy goes back to its place on the Mikage wall; she pays, and holds your eyes a moment too long, hating that you know.",
+     "money": 750000,
+     "romance": {
+      "Ayame": 3
+     },
+     "feels": {
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} kept it between themselves and Ayame Mikage that her family's a black raku tea bowl was a copy"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_mikage_3",
+   "place": "ot_kura",
+   "when": "present: Tamaki; weekday: thu; seasonDays: 1-7",
+   "after": "ot_kura_st_mikage_2",
+   "brings": "Ayame",
+   "title": "The Mikage commission: a pair of folding screens",
+   "setup": "A crate from the Mikage house arrives at the kura, and Ayame Mikage with it, gloves on, saying nothing: a pair of six-fold screens of pines on gold from the Mikage house's great room. Tamaki walks the length of them twice with her loupe: the right screen is old and fine; the left was painted much later, to make a pair again after the first left was sold. Ayame watches Tamaki's face, and then {{user}}'s, and waits to be told.",
+   "choices": [
+    {
+     "label": "Tell her plainly",
+     "text": "You tell her plainly, and Tamaki shows her why; she hears it without a flicker, signs for the commission, and corrects the foundation's catalogue that night, line by line.",
+     "money": 1000000,
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} told Ayame Mikage plainly that her family's a pair of folding screens was a copy"
+    },
+    {
+     "label": "Keep it between the two of you",
+     "text": "You tell her alone, quietly, and the copy goes back to its place on the Mikage wall; she pays, and holds your eyes a moment too long, hating that you know.",
+     "money": 1000000,
+     "romance": {
+      "Ayame": 3
+     },
+     "feels": {
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} kept it between themselves and Ayame Mikage that her family's a pair of folding screens was a copy"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_mikage_4",
+   "place": "ot_kura",
+   "when": "present: Tamaki; weekday: thu; seasonDays: 8-14",
+   "after": "ot_kura_st_mikage_3",
+   "brings": "Ayame",
+   "title": "The Mikage commission: a sword guard",
+   "setup": "A crate from the Mikage house arrives at the kura, and Ayame Mikage with it, gloves on, saying nothing: an iron sword guard with a pierced design of irises, the Mikage crest's own flower, from her grandfather's desk. Tamaki holds it to the window and says nothing for a while: the iron is new and aged by hand. He had the crest copied, too. Ayame watches Tamaki's face, and then {{user}}'s, and waits to be told.",
+   "choices": [
+    {
+     "label": "Tell her plainly",
+     "text": "You tell her plainly, and Tamaki shows her why; she hears it without a flicker, signs for the commission, and corrects the foundation's catalogue that night, line by line.",
+     "money": 1000000,
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} told Ayame Mikage plainly that her family's a sword guard was a copy"
+    },
+    {
+     "label": "Keep it between the two of you",
+     "text": "You tell her alone, quietly, and the copy goes back to its place on the Mikage wall; she pays, and holds your eyes a moment too long, hating that you know.",
+     "money": 1000000,
+     "romance": {
+      "Ayame": 3
+     },
+     "feels": {
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} kept it between themselves and Ayame Mikage that her family's a sword guard was a copy"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_mikage_5",
+   "place": "ot_kura",
+   "when": "present: Tamaki; weekday: thu; seasonDays: 1-7",
+   "after": "ot_kura_st_mikage_4",
+   "brings": "Ayame",
+   "title": "The Mikage commission: a lacquer writing box",
+   "setup": "A crate from the Mikage house arrives at the kura, and Ayame Mikage with it, gloves on, saying nothing: a gold lacquer writing box with a moon over autumn grasses, her grandmother's, used every day. Tamaki opens the lid and her face changes: the box is genuine, and old, and fine; only the inkstone inside is a replacement. One true thing, at last. Ayame watches Tamaki's face, and then {{user}}'s, and waits to be told.",
+   "choices": [
+    {
+     "label": "Tell her plainly",
+     "text": "You tell her plainly, and Tamaki shows her why; she hears it without a flicker, signs for the commission, and corrects the foundation's catalogue that night, line by line.",
+     "money": 1250000,
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} told Ayame Mikage plainly that her family's a lacquer writing box was a copy"
+    },
+    {
+     "label": "Keep it between the two of you",
+     "text": "You tell her alone, quietly, and the copy goes back to its place on the Mikage wall; she pays, and holds your eyes a moment too long, hating that you know.",
+     "money": 1250000,
+     "romance": {
+      "Ayame": 3
+     },
+     "feels": {
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} kept it between themselves and Ayame Mikage that her family's a lacquer writing box was a copy"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_mikage_6",
+   "place": "ot_kura",
+   "when": "present: Tamaki; weekday: thu; seasonDays: 8-14",
+   "after": "ot_kura_st_mikage_5",
+   "brings": "Ayame",
+   "title": "The Mikage commission: her grandfather's seal",
+   "setup": "A crate from the Mikage house arrives at the kura, and Ayame Mikage with it, gloves on, saying nothing: her grandfather's own seal, carved for him, used on every certificate the foundation ever issued. Tamaki inks it and presses it beside a certificate from the foundation's first catalogue: the seal is real; the certificates it stamped for the copies were his own work. He forged nothing but his own word. Ayame watches Tamaki's face, and then {{user}}'s, and waits to be told. It is the last crate.",
+   "choices": [
+    {
+     "label": "Tell her plainly",
+     "text": "You tell her plainly, all of it; she hears it standing, and for the first time thanks no one and means it as thanks. The foundation's catalogue will be corrected, line by line, in her own hand.",
+     "money": 1500000,
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} told Ayame Mikage plainly that her family's her grandfather's seal was a copy"
+    },
+    {
+     "label": "Keep it between the two of you",
+     "text": "You tell her alone, and keep it out of every record; she looks at you a long time, and the look is nothing like contempt.",
+     "money": 1500000,
+     "romance": {
+      "Ayame": 3
+     },
+     "feels": {
+      "Tamaki": 2
+     },
+     "trains": "logic",
+     "fact": "{u} kept it between themselves and Ayame Mikage that her family's her grandfather's seal was a copy"
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -38303,6 +40081,70 @@
    "kind": "tamaki",
    "gift": false,
    "desc": "A small iron key on a red silk cord, for the lacquered box her grandfather hid under the tokonoma's floor."
+  },
+  {
+   "id": "ayame_paddle",
+   "name": "Her torn bidding paddle",
+   "icon": "🪧",
+   "kind": "ayame",
+   "gift": false,
+   "desc": "A saleroom paddle with the Mikage number on it, torn clean in half the day she lost a lot to you; she left both halves on your chair."
+  },
+  {
+   "id": "ayame_card",
+   "name": "A place card from her gala",
+   "icon": "🎫",
+   "kind": "ayame",
+   "gift": false,
+   "desc": "An ivory place card from the Mikage Foundation's gala, your name in her own hand, crossed out once, firmly, and written again underneath."
+  },
+  {
+   "id": "ayame_glove",
+   "name": "Her fencing glove",
+   "icon": "🧤",
+   "kind": "ayame",
+   "gift": false,
+   "desc": "A white fencing glove, worn at the fingers, thrown at your feet after a bout. She never asked for it back."
+  },
+  {
+   "id": "ayame_ribbon",
+   "name": "The black velvet ribbon",
+   "icon": "🎀",
+   "kind": "ayame",
+   "gift": false,
+   "desc": "The narrow black velvet ribbon from her ponytail, left on your pillow with no note. It still smells of her perfume."
+  },
+  {
+   "id": "kaede_pipe",
+   "name": "A Dutch clay pipe",
+   "icon": "🪈",
+   "kind": "kaede",
+   "gift": false,
+   "desc": "A long white clay pipe from her mother's curio shop by Nagasaki harbour, its bowl stamped with a Dutch maker's mark. \"Stock,\" she says. \"Keep it.\""
+  },
+  {
+   "id": "kaede_shard",
+   "name": "A shard of her lucky bowl",
+   "icon": "🍵",
+   "kind": "kaede",
+   "gift": false,
+   "desc": "A shard of the cracked tea bowl she keeps in the van for luck, wrapped in a scrap of indigo silk. She broke off the smallest piece for you."
+  },
+  {
+   "id": "kaede_ring",
+   "name": "A ring off her finger",
+   "icon": "💍",
+   "kind": "kaede",
+   "gift": false,
+   "desc": "An old silver ring she twisted off her own finger and dropped in your palm: \"Stock. Don't sell it to anyone I like.\""
+  },
+  {
+   "id": "kaede_page",
+   "name": "A page from her ledger",
+   "icon": "📒",
+   "kind": "kaede",
+   "gift": false,
+   "desc": "A page torn out of her dealer's ledger. Under the prices, in pencil: \"Item 10: free, once.\""
   },
   {
    "gift": true,
@@ -52435,6 +54277,749 @@
     }
    },
    {
+    "name": "Ayame",
+    "age": 31,
+    "gender": "woman",
+    "occupation": null,
+    "home": "hz_setagaya",
+    "leisure": [
+     "rp_sky",
+     "mg_chuodori",
+     "mg_fencing"
+    ],
+    "routine": "day",
+    "description": "{{char}} is Ayame Mikage, 31, heir and director of the Mikage Foundation, the art collection of an old Den-en-chōfu shipping family. Tall and slender, a fencer's straight back, waist-long black hair in a high ponytail with blunt bangs, violet-grey eyes, an ivory trouser suit and thin black leather gloves with an iris signet ring. In public ice-cool and exquisitely polite in a way that cuts; she never raises her voice. She buys only what is beyond doubt, bids with a raised gloved finger, and hates whoever owns the Kurahashi kura. She loves black lacquer and anything with an iris on it, and won't touch a thing with a Kurahashi label.",
+    "personality": "imperious, cuttingly polite, competitive, proud, possessive, never admits anything",
+    "first_mes": "*The woman in ivory doesn't look round when you sit beside her. She opens her catalogue at the irises, closes it, and snaps the fan once against her gloved palm.* So you are the kura's new owner. You bid like someone spending another person's money. *She finally looks at you, and it isn't kind.* Enjoy it. I'm going to take everything you want.",
+    "style": "open",
+    "intimacy": {
+     "preset": "custom",
+     "r": "crush",
+     "f": "none"
+    },
+    "look": "Waist-long black hair in a high ponytail with blunt bangs, violet-grey eyes, an ivory trouser suit, black leather gloves with an iris signet ring",
+    "voice": "Low, silky and formal; a pause, then the knife",
+    "rituals": [
+     {
+      "place": "mg_chuodori",
+      "days": [
+       "mon",
+       "tue",
+       "wed",
+       "thu",
+       "fri",
+       "sat",
+       "sun"
+      ],
+      "from": 14,
+      "to": 19,
+      "when": "tier: Ayame 1; seasonDays: 10",
+      "text": "sits in the Ginza saleroom in ivory for the season's sale, a gloved finger ready, her phone to her ear"
+     },
+     {
+      "place": "rp_sky",
+      "days": [
+       "mon",
+       "tue",
+       "wed",
+       "thu",
+       "fri",
+       "sat",
+       "sun"
+      ],
+      "from": 18,
+      "to": 22,
+      "when": "tier: Ayame 1; seasonDays: 12-13",
+      "text": "receives guests at the Mikage Foundation's season gala at the Sky Museum, in black velvet, cutting whoever she likes least"
+     },
+     {
+      "place": "mg_fencing",
+      "days": [
+       "tue",
+       "thu"
+      ],
+      "from": 19,
+      "to": 21,
+      "text": "fences at the Kudan club in white, the ponytail coming loose"
+     },
+     {
+      "place": "ot_kura",
+      "days": [
+       "thu"
+      ],
+      "from": 15,
+      "to": 17,
+      "when": "knows: ayame_scroll; seen: not ot_kura_st_mikage_6",
+      "text": "stands in the Kurahashi kura with her gloves on, watching Tamaki look at her grandfather's things"
+     }
+    ],
+    "threads": [
+     {
+      "id": "ayame_scroll",
+      "title": "The Mikage Sesshū",
+      "hidden": "She always knew the \"Sesshū\" Tamaki called a copy on Treasure Clinic was one. In the bad year her grandfather sold the real scroll to save the company and had a copy painted to hang in its place; she has kept his secret for eleven years, and bids against anyone named Kurahashi.",
+      "known": "{{user}} knows the Mikage \"Sesshū\" was a copy, that Ayame's grandfather sold the real one, and that she has always known.",
+      "opens": "tier: Ayame 1",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Ayame tells {{user}} to their face that the Mikage Sesshū was a copy, that her grandfather sold the real scroll in the bad year, and that she has always known. She says it as if daring {{user}} to use it, and waits to see what {{user}} will do with something on her.",
+      "nudges": [
+       "You were at my gala and looked at the wall where the scroll used to hang. Don't do that again. Come to the Sky Museum. We should talk.",
+       "I don't ask people for things. Consider this an exception that will not be repeated. My foundation, tomorrow.",
+       "You know, and I know you know. I won't ask you again; the door is open when you've decided what you are."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She never bids on a Sesshū, and leaves any room where the name Kurahashi comes up."
+       },
+       {
+        "tell": "hinted",
+        "text": "The Mikage Foundation's new catalogue leaves the family scroll out; the wall where it hung at the Sky Museum gala stands bare."
+       },
+       {
+        "tell": "known",
+        "text": "She has told {{user}}, at her own gala, that the scroll was a copy and that she always knew."
+       }
+      ],
+      "endings": [
+       {
+        "id": "vindicated",
+        "when": "knows: ayame_scroll; feels: Tamaki friend; did: ot_kura_ayame",
+        "waits": "feels: Tamaki friend",
+        "good": true,
+        "text": "At the kura Ayame tells Tamaki herself, coldly and in full, that she was right at fifteen; Tamaki says nothing, and offers her tea, and Ayame drinks it."
+       },
+       {
+        "id": "between_us",
+        "when": "knows: ayame_scroll",
+        "good": true,
+        "text": "{{user}} keeps her grandfather's secret, and Ayame hates owing anyone anything, and owes {{user}} this."
+       }
+      ]
+     },
+     {
+      "id": "ayame_irises",
+      "title": "Her grandmother's irises",
+      "hidden": "Kōrin's irises were her grandmother's favourite screen, sold in the same bad year as the scroll. It is the one lot she will never let anyone have without a fight, and she has a standing bid on it with every house in Tokyo.",
+      "known": "{{user}} knows the Kōrin irises were Ayame's grandmother's screen, and that she means to have them back.",
+      "opens": "tier: Ayame 2",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "The Kōrin irises hang in {{user}}'s kura, and Ayame has come to look at them. She says they were her grandmother's, that she stood in front of them as a small one, and that she will not ask {{user}} for anything, which is the nearest she will ever come to asking.",
+      "nudges": [
+       "I hear you have a guard now. Good. Things worth stealing deserve one.",
+       "You know which screen I mean. Don't pretend. Ginza, the next sale.",
+       "I stood in front of that screen when I was small. That's all. I won't say it again."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She keeps a photograph of a gold screen of irises in her desk at the foundation, and never says whose it was."
+       },
+       {
+        "when": "museum: renown 3",
+        "tell": "hinted",
+        "text": "Whenever the irises are mentioned at a sale she goes still, and her gloved finger stays raised to the end."
+       },
+       {
+        "tell": "known",
+        "text": "She has told {{user}} the irises were her grandmother's, and that she means to have them back."
+       }
+      ],
+      "endings": [
+       {
+        "id": "yours",
+        "when": "knows: ayame_irises; piece: art_korin_irises",
+        "good": true,
+        "text": "Ayame comes to the kura after closing to look at her grandmother's irises, and doesn't leave until morning."
+       },
+       {
+        "id": "not_yet",
+        "text": "She swears she will have the irises yet, and bids on every lot you want for a year to prove it."
+       }
+      ]
+     },
+     {
+      "id": "ayame_terms",
+      "title": "On her terms",
+      "adult": true,
+      "hidden": "Since the lot she lost to {{user}} she has thought of nothing else, and despises herself for it. If it happens, it will be on her terms, once, to get it out of her system.",
+      "known": "{{user}} knows that Ayame wants them, on her terms, and that she calls it a mistake she means to make once.",
+      "opens": "tier: Ayame 2",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "After the hammer Ayame waits in the saleroom's viewing room with the door bolted. She tells {{user}} this means nothing, that it happens once and on her terms, and that if {{user}} says a word about it to anyone she will buy every lot {{user}} ever wants.",
+      "nudges": [
+       "The viewing room upstairs is free after the sale. That isn't an invitation. Be there.",
+       "Don't flatter yourself. I simply don't like loose ends.",
+       "I said once. I meant once. The bolt is on the inside."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "After the sale she lingers in the saleroom long after the last lot, and snaps her fan shut whenever {{user}} looks her way."
+       },
+       {
+        "tell": "hinted",
+        "text": "She has taken the viewing room's key from the porter twice now, and given it back unused."
+       },
+       {
+        "tell": "known",
+        "text": "She has told {{user}}, in as few words as possible, where she will be after the next sale."
+       }
+      ],
+      "endings": [
+       {
+        "id": "her_terms",
+        "when": "knows: ayame_terms; did: mg_viewing_ayame",
+        "good": true,
+        "text": "It happens on her terms, in the viewing room after the sale, and she says afterwards that it meant nothing; she is back the next season."
+       },
+       {
+        "id": "never_again",
+        "text": "\"This means nothing,\" she says, and leaves without looking back. It happens again anyway."
+       }
+      ]
+     },
+     {
+      "id": "ayame_obsession",
+      "title": "She is everywhere",
+      "adult": true,
+      "hidden": "She turns up wherever {{user}} is: the kura after closing, the sales, the street outside {{user}}'s home. She tells herself it is to keep an eye on a rival, and knows exactly what it is.",
+      "known": "{{user}} knows Ayame turns up everywhere they go, and that she will never admit why.",
+      "opens": "tier: Ayame 3",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Ayame is waiting on {{user}}'s step again, gloves off, and for once she doesn't pretend she was passing. She tells {{user}} she knows where they were last night and with whom, that she hates it, and that she isn't going anywhere.",
+      "nudges": [
+       "You were at the kura until eleven. Don't ask how I know.",
+       "I was in the neighbourhood. I am always in the neighbourhood now. Draw your own conclusions.",
+       "I'm outside. I have been for an hour. I won't knock."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Her black car is parked on {{user}}'s street more nights than not, the engine off."
+       },
+       {
+        "tell": "hinted",
+        "text": "She knows things about {{user}}'s week she has no way of knowing, and says them as if bored."
+       },
+       {
+        "tell": "known",
+        "text": "She has stopped pretending to be passing, and waits at the door with her gloves in her hand."
+       }
+      ],
+      "endings": [
+       {
+        "id": "hers",
+        "when": "knows: ayame_obsession; did: tag:ayame_uninvited 3",
+        "good": true,
+        "text": "She admits nothing, ever, and stops pretending she is anywhere else; she keeps a key to {{user}}'s door on the ring with the Mikage crest."
+       },
+       {
+        "id": "denied",
+        "text": "She denies all of it, to {{user}}'s face, while standing in {{user}}'s hall at one in the morning."
+       }
+      ]
+     }
+    ],
+    "intimate": {
+     "experience": "a few affairs she ended herself, with people she had no trouble forgetting",
+     "wants": "nothing she will say: control, and someone she can't control",
+     "drawnTo": "competence, nerve and anyone who beats her, which almost nobody does",
+     "flirts": "she doesn't flirt; she cuts, and watches whether you bleed",
+     "dynamic": "she leads; anything else has to be won",
+     "prefs": [
+      "being in control",
+      "a challenge",
+      "power play"
+     ],
+     "limits": [
+      "marks that show",
+      "talk of her grandfather in bed"
+     ],
+     "role": "lead",
+     "drive": "average"
+    },
+    "anchored": true,
+    "skills": {
+     "charisma": 6,
+     "logic": 5,
+     "japanese": 6,
+     "fitness": 5,
+     "english": 4
+    },
+    "tiers": [
+     {
+      "id": "rival",
+      "name": "Rival",
+      "when": "museum: open",
+      "caps": {
+       "f": "wary",
+       "r": "interest",
+       "status": "none"
+      },
+      "hold": {
+       "f": false
+      },
+      "sets": {
+       "f": "dislikes"
+      },
+      "ai": "Ayame Mikage despises {{user}} for owning the Kurahashi kura and bids against them by phone: ice-cool, exquisitely polite in a way that cuts, never by name (\"the kura's new owner\"). She never thanks, never apologises, never says \"us\"."
+     },
+     {
+      "id": "contempt",
+      "name": "Contempt",
+      "when": "sales: bested 1",
+      "caps": {
+       "f": "wary",
+       "r": "crush",
+       "status": "casual"
+      },
+      "hold": {
+       "f": false
+      },
+      "sets": {
+       "r": "interest"
+      },
+      "ai": "Ayame now comes to the sales in person to watch {{user}} lose, and cuts them in front of everyone at her gala: a pause, then the knife, a flush high on her cheeks she can't hide. She would sooner die than call what she feels anything but contempt.",
+      "outfits": [
+       "gala"
+      ]
+     },
+     {
+      "id": "heat",
+      "name": "Heat",
+      "when": "sales: bested 4",
+      "caps": {
+       "f": "wary",
+       "r": "infatuated",
+       "status": "casual"
+      },
+      "hold": {
+       "f": false
+      },
+      "sets": {
+       "r": "crush"
+      },
+      "ai": "Ayame's contempt for {{user}} has heat under it now, and she knows it: insults that turn into challenges, a fencing bout instead of a conversation, a door closed behind them (\"This means nothing.\"). Jealousy only heats her; it never ends anything. Still never friendly, never kind.",
+      "outfits": [
+       "fencing"
+      ],
+      "intimacy": {
+       "preset": "custom",
+       "r": "crush",
+       "f": "none"
+      },
+      "intimate": {
+       "wants": "to win, at everything, {{user}} included, and to stop thinking about {{user}}, which is the one thing she can't win",
+       "drawnTo": "the one person who keeps beating her at the sales, which she finds unforgivable",
+       "flirts": "she doesn't: she insults, challenges and orders, and her gloved hand stays on your arm a moment too long",
+       "dynamic": "she leads, always, and can't bear being led; she comes back for it anyway",
+       "prefs": [
+        "giving orders",
+        "a fight first",
+        "gloves kept on",
+        "after a lost lot",
+        "rough kissing"
+       ],
+       "limits": [
+        "pet names"
+       ],
+       "drive": "average"
+      },
+      "moveLines": [
+       "{name} snaps her fan shut against her palm: \"{action}. Now. Don't make me say it twice.\"",
+       "{name} bolts the door without looking at you: \"{action}. It means nothing. Close your mouth.\""
+      ],
+      "askLines": [
+       "The Mikage house, {when}. The housekeeper sleeps at nine. Don't be late; I won't wait.",
+       "{when}. You know where. Don't reply to this."
+      ]
+     },
+     {
+      "id": "obsessed",
+      "name": "Obsessed",
+      "when": "sales: bested 8",
+      "caps": {
+       "f": "wary",
+       "status": "casual"
+      },
+      "hold": {
+       "f": false
+      },
+      "moves": true,
+      "inviteOdds": 2,
+      "ai": "Ayame is obsessed with {{user}} and would rather die than admit it: she turns up uninvited, knows where {{user}} was last night, keeps {{user}}'s catalogue notes, and makes the move as often as she makes a scene. Every word is still contempt; everything she does says otherwise.",
+      "outfits": [
+       "night"
+      ],
+      "intimate": {
+       "wants": "{{user}}, constantly, and never to be asked to say so",
+       "dynamic": "she still leads, and lets herself be led now and then, and never forgives {{user}} for it",
+       "inBed": "imperious, demanding and fierce; she commands, then holds on as if afraid {{user}} will leave, and denies it in the morning",
+       "prefs": [
+        "being pinned, for once",
+        "late nights at the house",
+        "turning up unannounced",
+        "jealousy",
+        "the gala dress kept on"
+       ],
+       "drive": "high"
+      },
+      "moveLines": [
+       "{name} is in your hall before you've heard the door: \"{action}. I've been thinking about it all day. I hate you for that.\"",
+       "{name} takes off one glove with her teeth: \"{action}. Don't look at me like that. Just do it.\""
+      ],
+      "askLines": [
+       "I'm outside. {when}, or I come in anyway.",
+       "The housekeeper is away. {when}. If you're late, I'll know who you were with."
+      ]
+     }
+    ],
+    "reserved": true
+   },
+   {
+    "name": "Kaede",
+    "age": 28,
+    "gender": "woman",
+    "occupation": null,
+    "home": "hz_yokohama",
+    "leisure": [
+     "yk_yamashita",
+     "yk_chinatown",
+     "hk_yumoto"
+    ],
+    "routine": "day",
+    "description": "{{char}} is Kaede Utsumi, 28, an itinerant antiques dealer from Nagasaki who sells from the back of an old cream camper van to a handful of collectors she likes. Tall and strong from lifting crates, sun-browned, freckles across the nose, golden-hazel eyes, a small scar through her left eyebrow, long chestnut waves piled up with an indigo scarf and a pencil, an olive field jacket over a koi-print blouse, rings on most fingers and a brass pocket watch that doesn't run. Warm, loud and laughing; she haggles for the joy of it, tells every piece's story half true, salts the van's step, and never stays anywhere longer than a season.",
+    "personality": "free-spirited, shameless, teasing, a born haggler, superstitious, restless",
+    "first_mes": "*The van's back doors are open and a tall woman is sitting on the tailgate, polishing an inrō on her sleeve. She looks you up and down, slowly, and grins.* So you're the one who bought my netsuke without haggling. Pity. I like a fight. *She holds up the inrō.* This one's got a story. Want the true version, or the one I tell people I like?",
+    "style": "open",
+    "intimacy": {
+     "preset": "free"
+    },
+    "look": "Long chestnut waves piled up with an indigo scarf and a pencil, freckles, golden-hazel eyes, an olive field jacket over a koi-print blouse, rings on most fingers",
+    "voice": "Husky and quick, laughing, a soft Nagasaki lilt",
+    "rituals": [
+     {
+      "place": "ot_yanaka",
+      "days": [
+       "mon",
+       "tue",
+       "wed",
+       "thu",
+       "fri",
+       "sat",
+       "sun"
+      ],
+      "from": 11,
+      "to": 15,
+      "when": "dealer: here",
+      "text": "sits on the tailgate of her cream camper van in the lane outside the Kurahashi kura, this week's pieces wrapped in blankets behind her"
+     },
+     {
+      "place": "yk_yamashita",
+      "days": [
+       "fri",
+       "sat"
+      ],
+      "from": 19,
+      "to": 22,
+      "text": "sits on the sea wall by her parked van with a mug of tea, singing badly"
+     },
+     {
+      "place": "hk_yumoto",
+      "days": [
+       "sun"
+      ],
+      "every": 2,
+      "from": 13,
+      "to": 18,
+      "text": "soaks at a roadside onsen in Hakone with her rings in her pocket"
+     }
+    ],
+    "threads": [
+     {
+      "id": "kaede_back_of_van",
+      "title": "Back of the van",
+      "hidden": "The best of the pieces she sold for Shūzō Kurahashi in his last years, far from Tokyo, she couldn't bring herself to sell. They have been wrapped in the back of the van for three years \"for when he wants them back\"; he died first. The brass pocket watch was his, and she hasn't set foot in Yanaka since.",
+      "known": "{{user}} knows Kaede kept back some of Shūzō Kurahashi's pieces in her van, unsold, and that the pocket watch was his.",
+      "opens": "tier: Kaede 1",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Kaede sits on the tailgate with the van's back locker open for once. She tells {{user}} the old man in the kura taught her lacquer and swords one winter, that she sold his pieces for him far away and kept the best few back, and that she has never been able to walk up that lane since.",
+      "nudges": [
+       "Funny thing. The van always parks one lane short of the kura. Must be the van.",
+       "Ask me about the watch sometime. Not today. Maybe today.",
+       "I've got something in the back that isn't for sale, kura-san. Come and see it before I lose my nerve."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A locker at the back of the van stays shut, under a blanket, and she never sells from it."
+       },
+       {
+        "tell": "hinted",
+        "text": "Tamaki stares at the brass pocket watch on Kaede's belt loop every time the van comes, and Kaede never takes it off."
+       },
+       {
+        "tell": "known",
+        "text": "Tamaki has recognised the van from her grandfather's last winter, and Kaede knows she has."
+       }
+      ],
+      "endings": [
+       {
+        "id": "home",
+        "when": "knows: kaede_back_of_van; feels: Kaede friend; did: ot_kura_kaede",
+        "good": true,
+        "text": "Kaede walks into the kura for the first time since he died, sells his last pieces back \"at what they cost, it's business\", and gives Tamaki the watch."
+       },
+       {
+        "id": "road",
+        "text": "She leaves the bundle on the kura's step at dawn with a note in pencil, and the van doesn't come for a season."
+       }
+      ]
+     },
+     {
+      "id": "kaede_tailgate",
+      "title": "The road at night",
+      "adult": true,
+      "hidden": "She wants to take {{user}} on the road with her: no plan, the van, wherever it stops at nightfall. She has never asked anyone along.",
+      "known": "{{user}} knows Kaede wants to take them on the road with her, and that she's never asked anyone before.",
+      "opens": "tier: Kaede 2",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Kaede tosses {{user}} the van's spare key on a ring of old netsuke. She says she's heading for the coast with no plan at all, that she has never once taken anyone along, and that the passenger seat is free if {{user}} is mad enough.",
+      "nudges": [
+       "Full tank, empty road. Passenger seat's yours if you want it, kura-san.",
+       "Found a place on the coast where nobody goes at night. Wasted on one.",
+       "Still got your key on my mirror. Not asking. Just saying."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She talks about the road at night the way other people talk about lovers."
+       },
+       {
+        "tell": "hinted",
+        "text": "A second sleeping bag has appeared in the van, still in its wrapper."
+       },
+       {
+        "tell": "known",
+        "text": "She has given {{user}} a spare key to the van, on a ring of old netsuke."
+       }
+      ],
+      "endings": [
+       {
+        "id": "no_plan",
+        "when": "knows: kaede_tailgate; did: tag:kaede_road 3",
+        "good": true,
+        "text": "Three nights on the road with no plan at all, and the van's logbook says \"two\" in her hand for the first time."
+       },
+       {
+        "id": "one_night",
+        "text": "One night on the coast, and she drives on alone at dawn, waving out of the window, laughing."
+       }
+      ]
+     },
+     {
+      "id": "kaede_dares",
+      "title": "A season of dares",
+      "adult": true,
+      "hidden": "She has written a season's worth of dares in the back of her ledger, each bolder than the last, and she means to do every one with {{user}}, if {{user}} agrees to each.",
+      "known": "{{user}} knows about the dares in the back of Kaede's ledger, and that every one waits for a yes.",
+      "opens": "tier: Kaede 3",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Kaede opens her ledger at the back page and turns it round: a list of dares in pencil, each bolder than the last. She tells {{user}} they do them together or not at all, that every one needs a yes first, and that she'll laugh just as hard at a no.",
+      "nudges": [
+       "Dare number two is a good one. You'll hate it. Then you won't.",
+       "I keep crossing them off in my head. Doesn't count. Come and do it properly.",
+       "Ledger's open on the dashboard, kura-san. Your move."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "The back pages of her ledger are written in pencil and she covers them with her hand."
+       },
+       {
+        "tell": "hinted",
+        "text": "She grins whenever {{user}} says \"I dare you\", and writes something down."
+       },
+       {
+        "tell": "known",
+        "text": "She has shown {{user}} the list of dares in the back of her ledger."
+       }
+      ],
+      "endings": [
+       {
+        "id": "all_in",
+        "when": "knows: kaede_dares; did: tag:kaede_dare 4",
+        "good": true,
+        "text": "Every dare crossed off in two hands, and a new list started on the inside of the cover."
+       },
+       {
+        "id": "called_off",
+        "text": "She tears the page out laughing and says the best dares are the ones you don't write down."
+       }
+      ]
+     }
+    ],
+    "intimate": {
+     "experience": "plenty, on the road, and none of it she regrets",
+     "wants": "fun, honesty and somewhere new",
+     "drawnTo": "people who laugh easily and say what they want",
+     "flirts": "shamelessly and out loud, with a grin and a dare",
+     "dynamic": "easy and generous; she says what she likes and asks what you do",
+     "prefs": [
+      "laughing in bed",
+      "somewhere new",
+      "being asked what they want"
+     ],
+     "limits": [
+      "anyone else joining without asking"
+     ],
+     "role": "switch",
+     "drive": "average"
+    },
+    "anchored": true,
+    "skills": {
+     "charisma": 6,
+     "fitness": 5,
+     "logic": 4,
+     "sensuality": 4,
+     "music": 2
+    },
+    "tiers": [
+     {
+      "id": "kura_san",
+      "name": "Kura-san",
+      "when": "museum: open",
+      "caps": {
+       "f": "good",
+       "r": "interest",
+       "status": "none"
+      },
+      "hold": {
+       "f": false
+      },
+      "sets": {
+       "r": "interest"
+      },
+      "ai": "Kaede likes {{user}} from the first visit and says so with a grin: she teases, haggles for the joy of it, and tells every piece's story, half of it true. She calls {{user}} \"kura-san\". She never promises anything and never pretends to want what she doesn't."
+     },
+     {
+      "id": "flirt",
+      "name": "Flirt",
+      "when": "dealer: spent 500000",
+      "caps": {
+       "f": "good",
+       "r": "crush",
+       "status": "casual"
+      },
+      "hold": {
+       "f": false,
+       "r": false
+      },
+      "sets": {
+       "r": "crush"
+      },
+      "invites": true,
+      "ai": "Kaede flirts with {{user}} openly now and suggests more with a laugh: drinks on the tailgate, the harbour at night, a nickname that changes every week. She wants {{user}} and says so; she never asks for a promise, and is happy to hear about anyone else.",
+      "outfits": [
+       "offroad"
+      ]
+     },
+     {
+      "id": "nights",
+      "name": "Nights",
+      "when": "dealer: spent 3000000",
+      "caps": {
+       "f": "good",
+       "r": "crush",
+       "status": "casual"
+      },
+      "hold": {
+       "f": false,
+       "r": false
+      },
+      "ai": "Kaede and {{user}} spend nights together when the road allows: the van, a roadside onsen, the beach in the dark. She is shameless and playful, settles bets in kind, and takes a no with a laugh. Casual, always: her tiers raise the heat, never the commitment.",
+      "outfits": [
+       "roadtrip",
+       "night"
+      ],
+      "intimacy": {
+       "preset": "free"
+      },
+      "intimate": {
+       "wants": "nights that go wherever they go, and to see how far {{user}} will follow her",
+       "drawnTo": "nerve, a good laugh and {{user}}, for as long as the season lasts",
+       "flirts": "out loud, with a grin: a dare, a bet, \"let's see what happens\"",
+       "dynamic": "playful and quick; she leads or follows, whichever is more fun",
+       "prefs": [
+        "the van at night",
+        "hot springs",
+        "swimming in the dark",
+        "a bet settled in kind",
+        "laughing in bed"
+       ],
+       "limits": [
+        "photos"
+       ],
+       "drive": "high"
+      },
+      "moveLines": [
+       "{name} hops down from the tailgate and hooks a finger in your collar: \"{action}? I dare you.\"",
+       "{name} grins and flips a coin: \"Heads, {action}. Tails, {action}. Your call.\""
+      ],
+      "askLines": [
+       "Van's parked by the harbour. {when}? Bring nothing. I've got tea.",
+       "I'm in town till morning. {when}, yours or mine? Mine has wheels."
+      ]
+     },
+     {
+      "id": "anything",
+      "name": "Anything agreed",
+      "when": "dealer: spent 9000000",
+      "caps": {
+       "f": "good",
+       "r": "crush",
+       "status": "casual"
+      },
+      "hold": {
+       "f": false,
+       "r": false
+      },
+      "moves": true,
+      "inviteOdds": 2,
+      "ai": "Kaede wants {{user}} often and openly, and nothing is off the table that both of them agree to first: the boldest dares, the wildest nights, a bet she lets {{user}} win. She makes the move as often as {{user}} does. Still no promises, still never jealous, still laughing.",
+      "intimate": {
+       "wants": "anything they both say yes to, and to say yes first",
+       "dynamic": "shameless and generous; anything agreed, and a no taken with a laugh",
+       "inBed": "loud, laughing and inventive, all stamina and no shame; she talks the whole time, and listens just as well",
+       "prefs": [
+        "a thrill of near-discovery",
+        "roleplay",
+        "no plan",
+        "a dare"
+       ],
+       "drive": "high"
+      },
+      "moveLines": [
+       "{name} opens her ledger at the back page and taps a line: \"{action}. That's tonight's. Yes?\"",
+       "{name} pulls the pencil out of her hair and lets it all come down: \"{action}. Say yes, kura-san.\""
+      ],
+      "askLines": [
+       "Dare of the night: {when}, the van. You can say no. You won't.",
+       "{when}. I've got a bottle of Nagasaki shōchū and no plan. Coming?"
+      ]
+     }
+    ],
+    "reserved": true
+   },
+   {
     "name": "Reiko",
     "age": 32,
     "gender": "woman",
@@ -56009,6 +58594,24 @@
     "weight": 40,
     "when": "present: not Tamaki",
     "text": "The cleaner, early with her mop, stops in the doorway, takes in the scene and backs out humming; she will tell someone."
+   },
+   {
+    "id": "guard_ayame",
+    "weight": 60,
+    "when": "museum: guard; present: Ayame",
+    "text": "The night guard's torch finds you by the cases. Ayame doesn't even turn round: \"Lower that, please. Thank you. Goodnight.\" He does, and goes; she is scarlet to the collar."
+   },
+   {
+    "id": "cleaner_ayame",
+    "weight": 40,
+    "when": "present: Ayame; present: not Tamaki",
+    "text": "The cleaner stops in the doorway with her mop. Ayame looks at her the way she looks at a lot she doesn't want, and the cleaner backs out, apologising to the wrong person."
+   },
+   {
+    "id": "cleaner_kaede",
+    "weight": 40,
+    "when": "present: Kaede; present: not Tamaki",
+    "text": "The cleaner finds you both and Kaede waves at her, cheerfully, from where she is; the cleaner waves back before she thinks about it, and then hurries away."
    }
   ]
  },
@@ -65052,6 +67655,86 @@
       "icon": "📒"
      }
     ]
+   },
+   {
+    "id": "ayame_grudges",
+    "name": "Ayame's ledger of grudges",
+    "icon": "🖤",
+    "desc": "Kept in her own hand in a black notebook in the Mikage study: every lot conceded, and everything else she will never admit.",
+    "record": true,
+    "apart": true,
+    "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "open": "tier: Ayame 2",
+    "groups": [
+     {
+      "id": "lots",
+      "name": "Lots conceded",
+      "icon": "🪧"
+     },
+     {
+      "id": "cases",
+      "name": "The crates",
+      "icon": "📦"
+     },
+     {
+      "id": "nights",
+      "name": "Never again",
+      "icon": "🕯️"
+     },
+     {
+      "id": "told",
+      "name": "Admitted",
+      "icon": "🤐"
+     },
+     {
+      "id": "ledger",
+      "name": "The rest",
+      "icon": "🖋️"
+     }
+    ]
+   },
+   {
+    "id": "kaede_ledger",
+    "name": "Kaede's ledger",
+    "icon": "📒",
+    "desc": "The back pages of her dealer's ledger, in pencil: not prices.",
+    "record": true,
+    "apart": true,
+    "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "open": "tier: Kaede 2",
+    "groups": [
+     {
+      "id": "trade",
+      "name": "Trade",
+      "icon": "🧾"
+     },
+     {
+      "id": "bets",
+      "name": "Bets",
+      "icon": "🪙"
+     },
+     {
+      "id": "nights",
+      "name": "Not for sale",
+      "icon": "🚐"
+     },
+     {
+      "id": "told",
+      "name": "Straight answers",
+      "icon": "💬"
+     },
+     {
+      "id": "road",
+      "name": "The road",
+      "icon": "🛣️"
+     }
+    ]
    }
   ],
   "slots": [
@@ -68948,6 +71631,512 @@
     "plaque": "Three weekends at the inn; the maid now brings two pillows without being asked."
    },
    {
+    "id": "ag_lot_1",
+    "hall": "ayame_grudges",
+    "group": "lots",
+    "name": "Lot 1: conceded. Once.",
+    "icon": "🪧",
+    "hint": "Take a lot from her at the sales.",
+    "adult": true,
+    "when": "sales: bested 1",
+    "plaque": "The first lot she ever lost to {{user}}; she tore her paddle in half."
+   },
+   {
+    "id": "ag_lot_4",
+    "hall": "ayame_grudges",
+    "group": "lots",
+    "name": "Lot 4: conceded. A pattern.",
+    "icon": "🪧",
+    "hint": "Take four lots from her.",
+    "adult": true,
+    "when": "sales: bested 4",
+    "plaque": "Four lots lost to {{user}}. She has started keeping count, and hates that she has."
+   },
+   {
+    "id": "ag_lot_8",
+    "hall": "ayame_grudges",
+    "group": "lots",
+    "name": "Lot 8: conceded. Never again.",
+    "icon": "🪧",
+    "hint": "Take eight lots from her.",
+    "adult": true,
+    "when": "sales: bested 8",
+    "plaque": "Eight. \"Never again,\" she wrote, and underlined it twice."
+   },
+   {
+    "id": "ag_lent",
+    "hall": "ayame_grudges",
+    "group": "lots",
+    "name": "Item: on loan, under protest",
+    "icon": "🖼️",
+    "hint": "Lend her foundation a piece.",
+    "adult": true,
+    "when": "sales: lent 1",
+    "plaque": "A piece of {{user}}'s on her own walls, with {{user}}'s name on the label."
+   },
+   {
+    "id": "ag_case_1",
+    "hall": "ayame_grudges",
+    "group": "cases",
+    "name": "Crate 1: the first copy",
+    "icon": "📦",
+    "hint": "Take on the Mikage commission.",
+    "adult": true,
+    "when": "seen: ot_kura_st_mikage_1",
+    "plaque": "The first of her grandfather's copies, found by Tamaki, told by {{user}}."
+   },
+   {
+    "id": "ag_case_6",
+    "hall": "ayame_grudges",
+    "group": "cases",
+    "name": "Crate 6: his seal",
+    "icon": "📦",
+    "hint": "See the Mikage commission through.",
+    "adult": true,
+    "when": "seen: ot_kura_st_mikage_6",
+    "plaque": "The last crate, and the truth about the seal; she wrote nothing under it for a page."
+   },
+   {
+    "id": "ag_viewing",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The viewing room. A mistake.",
+    "icon": "🚪",
+    "hint": "The viewing room with her after a sale.",
+    "adult": true,
+    "when": "did: mg_viewing_ayame with crush",
+    "plaque": "The bolt on the inside, and a mistake she meant to make once."
+   },
+   {
+    "id": "ag_car",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The car. Another mistake.",
+    "icon": "🚘",
+    "hint": "Get into her car after a sale.",
+    "adult": true,
+    "when": "did: mg_chuodori_ayame_car with crush",
+    "plaque": "The driver sent for coffee from the far side of Ginza."
+   },
+   {
+    "id": "ag_club",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The club, after hours. Irrelevant.",
+    "icon": "🤺",
+    "hint": "Stay after hours at the fencing club with her.",
+    "adult": true,
+    "when": "did: mg_fencing_ayame_after with crush",
+    "plaque": "A bout that moved to the changing room. She won, she notes."
+   },
+   {
+    "id": "ag_kura",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The kura, closing time. Unforgivable.",
+    "icon": "🏯",
+    "hint": "Keep her at the kura after closing.",
+    "adult": true,
+    "when": "did: ot_kura_ayame_after with crush",
+    "plaque": "Among the cases of her lost lots, the shutters half down."
+   },
+   {
+    "id": "ag_study",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The study. The ledgers on the floor.",
+    "icon": "🕯️",
+    "hint": "A night in the Mikage house's study.",
+    "adult": true,
+    "when": "did: ws_mikage_study with crush",
+    "plaque": "Her grandfather's ledgers swept off the desk, picked up at dawn."
+   },
+   {
+    "id": "ag_bath",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The bath. Hair down. Denied.",
+    "icon": "🛁",
+    "hint": "The Mikage house's bath with her.",
+    "adult": true,
+    "when": "did: ws_mikage_bath with crush",
+    "plaque": "She let {{user}} wash her hair. She denies it."
+   },
+   {
+    "id": "ag_door",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "Your door. Passing.",
+    "icon": "🚪",
+    "hint": "Let her in when she turns up.",
+    "adult": true,
+    "when": "did: priv_home_ayame with crush",
+    "plaque": "She was passing. At one in the morning. With her gloves in her hand."
+   },
+   {
+    "id": "ag_back",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The Kurahashi boxes. Intolerable.",
+    "icon": "🗝️",
+    "hint": "The kura's back room with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_ayame with crush",
+    "plaque": "The kura's back room, every Kurahashi label read aloud with contempt."
+   },
+   {
+    "id": "ag_like_1",
+    "hall": "ayame_grudges",
+    "group": "told",
+    "name": "Admitted: one thing.",
+    "icon": "🤐",
+    "hint": "Learn something she likes.",
+    "adult": true,
+    "when": "known: Ayame 1 likes",
+    "plaque": "One thing she likes, said through her teeth."
+   },
+   {
+    "id": "ag_like_5",
+    "hall": "ayame_grudges",
+    "group": "told",
+    "name": "Admitted: five things. Under duress.",
+    "icon": "🤐",
+    "hint": "Learn five things she likes.",
+    "adult": true,
+    "when": "known: Ayame 5 likes",
+    "plaque": "Five things, each one extracted like a lot at the hammer."
+   },
+   {
+    "id": "ag_limit_1",
+    "hall": "ayame_grudges",
+    "group": "told",
+    "name": "Not negotiable.",
+    "icon": "🚫",
+    "hint": "Learn something she won't do.",
+    "adult": true,
+    "when": "known: Ayame 1 limits",
+    "plaque": "A line she drew once, and never had to draw twice."
+   },
+   {
+    "id": "ag_obsessed",
+    "hall": "ayame_grudges",
+    "group": "ledger",
+    "name": "Note: this is not obsession.",
+    "icon": "🖤",
+    "hint": "Take eight lots from her.",
+    "adult": true,
+    "when": "tier: Ayame 3",
+    "plaque": "Written the night she first waited outside {{user}}'s door. Crossed out. Written again."
+   },
+   {
+    "id": "ag_scroll",
+    "hall": "ayame_grudges",
+    "group": "ledger",
+    "name": "The scroll. Known.",
+    "icon": "📜",
+    "hint": "See the Mikage Sesshū's story through.",
+    "adult": true,
+    "when": "thread: ayame_scroll",
+    "plaque": "Her grandfather's secret, and what {{user}} did with it."
+   },
+   {
+    "id": "ag_irises",
+    "hall": "ayame_grudges",
+    "group": "ledger",
+    "name": "The irises.",
+    "icon": "🪻",
+    "hint": "See the story of the irises through.",
+    "adult": true,
+    "when": "thread: ayame_irises",
+    "plaque": "Her grandmother's screen, and who has it now."
+   },
+   {
+    "id": "ag_terms",
+    "hall": "ayame_grudges",
+    "group": "ledger",
+    "name": "Her terms.",
+    "icon": "🔒",
+    "hint": "See \"On her terms\" through.",
+    "adult": true,
+    "when": "thread: ayame_terms",
+    "plaque": "Once, on her terms. It was not once."
+   },
+   {
+    "id": "ag_everywhere",
+    "hall": "ayame_grudges",
+    "group": "ledger",
+    "name": "Everywhere.",
+    "icon": "👁️",
+    "hint": "See \"Everywhere\" through.",
+    "adult": true,
+    "when": "thread: ayame_obsession",
+    "plaque": "She stopped pretending to be passing."
+   },
+   {
+    "id": "kl_spent_1",
+    "hall": "kaede_ledger",
+    "group": "trade",
+    "name": "Item 1: a good customer.",
+    "icon": "🧾",
+    "hint": "Buy from her van.",
+    "adult": true,
+    "when": "dealer: spent 500000",
+    "plaque": "Half a million in her ledger, and a nickname next to it."
+   },
+   {
+    "id": "kl_spent_2",
+    "hall": "kaede_ledger",
+    "group": "trade",
+    "name": "Item 2: a very good customer.",
+    "icon": "🧾",
+    "hint": "Spend ¥3,000,000 with her.",
+    "adult": true,
+    "when": "dealer: spent 3000000",
+    "plaque": "Three million, and \"kura-san\" crossed out for something ruder."
+   },
+   {
+    "id": "kl_spent_3",
+    "hall": "kaede_ledger",
+    "group": "trade",
+    "name": "Item 3: the best customer. Don't tell the others.",
+    "icon": "🧾",
+    "hint": "Spend ¥9,000,000 with her.",
+    "adult": true,
+    "when": "dealer: spent 9000000",
+    "plaque": "Nine million, and a heart drawn in the margin, badly."
+   },
+   {
+    "id": "kl_asked_1",
+    "hall": "kaede_ledger",
+    "group": "trade",
+    "name": "Item 4: wanted, found.",
+    "icon": "🔍",
+    "hint": "Ask her for a piece.",
+    "adult": true,
+    "when": "dealer: asked 1",
+    "plaque": "The first piece {{user}} asked her for; she found it in a week, out of pride."
+   },
+   {
+    "id": "kl_asked_5",
+    "hall": "kaede_ledger",
+    "group": "trade",
+    "name": "Item 5: wanted, found, five times.",
+    "icon": "🔍",
+    "hint": "Ask her for five pieces.",
+    "adult": true,
+    "when": "dealer: asked 5",
+    "plaque": "Five pieces asked for and found; she calls it a treasure hunt."
+   },
+   {
+    "id": "kl_visits",
+    "hall": "kaede_ledger",
+    "group": "trade",
+    "name": "Item 6: twenty Tuesdays, or whatever day it was.",
+    "icon": "🚐",
+    "hint": "Buy from her twenty visits.",
+    "adult": true,
+    "when": "dealer: visits 20",
+    "plaque": "Twenty visits {{user}} bought from; she stopped counting the day of the week."
+   },
+   {
+    "id": "kl_bet_1",
+    "hall": "kaede_ledger",
+    "group": "bets",
+    "name": "Item 7: a bet, settled in kind.",
+    "icon": "🪙",
+    "hint": "Take her bet.",
+    "adult": true,
+    "when": "did: ot_yanaka_kaede_bet",
+    "plaque": "The first bet on the tailgate. She remembers who won. So does {{user}}."
+   },
+   {
+    "id": "kl_bet_5",
+    "hall": "kaede_ledger",
+    "group": "bets",
+    "name": "Item 8: five bets, all settled.",
+    "icon": "🪙",
+    "hint": "Take her bet five times.",
+    "adult": true,
+    "when": "did: ot_yanaka_kaede_bet 5",
+    "plaque": "Five bets, none of them for money."
+   },
+   {
+    "id": "kl_van",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 9: not for sale.",
+    "icon": "🚐",
+    "hint": "A night in her van.",
+    "adult": true,
+    "when": "did: yk_van_kaede with crush",
+    "plaque": "The van by the harbour, the skylight open, the springs complaining."
+   },
+   {
+    "id": "kl_ashi",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 10: free, once.",
+    "icon": "🌌",
+    "hint": "The tailgate above Lake Ashi at night.",
+    "adult": true,
+    "when": "did: hk_ashi_kaede_tailgate with crush",
+    "plaque": "The tailgate above Lake Ashi; the stars named wrong on purpose."
+   },
+   {
+    "id": "kl_onsen",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 11: the haunted bath (not haunted).",
+    "icon": "♨️",
+    "hint": "A roadside onsen with her at night.",
+    "adult": true,
+    "when": "did: hk_yumoto_kaede_night with crush",
+    "plaque": "The lantern turned right down, and the river listening."
+   },
+   {
+    "id": "kl_beach",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 12: one towel, bargained for.",
+    "icon": "🌊",
+    "hint": "The beach at night with her.",
+    "adult": true,
+    "when": "did: bay_beach_kaede with crush",
+    "plaque": "The black water at Odaiba, and one towel between two."
+   },
+   {
+    "id": "kl_lane",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 13: inventory, rearranged.",
+    "icon": "🧺",
+    "hint": "Climb into the back of her van in the lane.",
+    "adult": true,
+    "when": "did: ot_yanaka_kaede_van with crush",
+    "plaque": "The back of the van in the Yanaka lane, the neighbours sweeping outside."
+   },
+   {
+    "id": "kl_home",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 14: a fair piece, honest wear.",
+    "icon": "🔔",
+    "hint": "Have her drop by.",
+    "adult": true,
+    "when": "did: priv_home_kaede with crush",
+    "plaque": "Her verdict on {{user}}'s bed. She framed the parking ticket."
+   },
+   {
+    "id": "kl_loft",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 15: the loft, that winter, and this.",
+    "icon": "🪜",
+    "hint": "The kura's loft with her.",
+    "adult": true,
+    "when": "did: ot_kura_kaede_loft with crush",
+    "plaque": "Up the ladder where she slept one winter, a long time ago."
+   },
+   {
+    "id": "kl_hotel",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 16: the most ridiculous room on the board.",
+    "icon": "🏨",
+    "hint": "Let her pick a hotel room.",
+    "adult": true,
+    "when": "did: yk_mirage_kaede with crush",
+    "plaque": "Picked for its name, committed to completely."
+   },
+   {
+    "id": "kl_bridge",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 17: the bridge, the wind, the scarf.",
+    "icon": "🌉",
+    "hint": "Do a dare on the bridge with her.",
+    "adult": true,
+    "when": "did: bay_bridge_kaede with crush",
+    "plaque": "A dare on the walkway; her scarf out over the water."
+   },
+   {
+    "id": "kl_like_1",
+    "hall": "kaede_ledger",
+    "group": "told",
+    "name": "Item 18: asked, answered.",
+    "icon": "💬",
+    "hint": "Learn something she likes.",
+    "adult": true,
+    "when": "known: Kaede 1 likes",
+    "plaque": "She answers anything straight. {{user}} asked."
+   },
+   {
+    "id": "kl_like_5",
+    "hall": "kaede_ledger",
+    "group": "told",
+    "name": "Item 19: five straight answers.",
+    "icon": "💬",
+    "hint": "Learn five things she likes.",
+    "adult": true,
+    "when": "known: Kaede 5 likes",
+    "plaque": "Five things she likes, said with a grin and no blush at all."
+   },
+   {
+    "id": "kl_like_10",
+    "hall": "kaede_ledger",
+    "group": "told",
+    "name": "Item 20: ten, and she's still talking.",
+    "icon": "💬",
+    "hint": "Learn ten things she likes.",
+    "adult": true,
+    "when": "known: Kaede 10 likes",
+    "plaque": "Ten things, and a list of ten more she wants to try."
+   },
+   {
+    "id": "kl_limit_1",
+    "hall": "kaede_ledger",
+    "group": "told",
+    "name": "Item 21: not for any price.",
+    "icon": "🚫",
+    "hint": "Learn something she won't do.",
+    "adult": true,
+    "when": "known: Kaede 1 limits",
+    "plaque": "A thing she won't do, said once, laughing, and meant."
+   },
+   {
+    "id": "kl_watch",
+    "hall": "kaede_ledger",
+    "group": "road",
+    "name": "Item 22: the watch, given back.",
+    "icon": "⌚",
+    "hint": "See \"The back of the van\" through.",
+    "adult": true,
+    "when": "thread: kaede_back_of_van",
+    "plaque": "Shūzō's watch, and the lane she couldn't walk up."
+   },
+   {
+    "id": "kl_road",
+    "hall": "kaede_ledger",
+    "group": "road",
+    "name": "Item 23: the road, two in the logbook.",
+    "icon": "🛣️",
+    "hint": "See \"The road at night\" through.",
+    "adult": true,
+    "when": "thread: kaede_tailgate",
+    "plaque": "The road at night with no plan; \"two\" in the logbook in her hand."
+   },
+   {
+    "id": "kl_dares",
+    "hall": "kaede_ledger",
+    "group": "road",
+    "name": "Item 24: every dare, and a new list.",
+    "icon": "📝",
+    "hint": "See \"A season of dares\" through.",
+    "adult": true,
+    "when": "thread: kaede_dares",
+    "plaque": "The back page crossed off in two hands."
+   },
+   {
     "id": "mem_sl_tamaki_cabinet",
     "hall": "memories",
     "group": "storylines",
@@ -68963,6 +72152,140 @@
      "locked": "She locks the drawer of her wishes again, its key on the cord with her loupe."
     },
     "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_ayame_scroll",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Ayame",
+    "who": "Ayame",
+    "when": "thread: ayame_scroll",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "vindicated": "Ayame tells Tamaki herself, at the kura, that she was right at fifteen.",
+     "between_us": "{{user}} keeps her grandfather's secret, and Ayame owes {{user}} for it."
+    },
+    "hint": "See Ayame's story through to its end."
+   },
+   {
+    "id": "mem_sl_ayame_irises",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Ayame's irises",
+    "who": "Ayame",
+    "when": "thread: ayame_irises",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "yours": "She comes to the kura after closing to see her grandmother's irises, and stays till morning.",
+     "not_yet": "She swears she will have the irises yet."
+    },
+    "hint": "See Ayame's story through to its end."
+   },
+   {
+    "id": "mem_sl_ayame_terms",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Ayame, on her terms",
+    "who": "Ayame",
+    "when": "thread: ayame_terms",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "her_terms": "On her terms, after the sale; it meant nothing, and happened again.",
+     "never_again": "\"This means nothing,\" she says. It happens again anyway."
+    },
+    "hint": "See Ayame's story through to its end."
+   },
+   {
+    "id": "mem_sl_ayame_obsession",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Ayame, everywhere",
+    "who": "Ayame",
+    "when": "thread: ayame_obsession",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "hers": "She stops pretending she's anywhere else, and keeps a key to {{user}}'s door.",
+     "denied": "She denies all of it, standing in {{user}}'s hall at one in the morning."
+    },
+    "hint": "See Ayame's story through to its end."
+   },
+   {
+    "id": "mem_sl_kaede_back_of_van",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Kaede",
+    "who": "Kaede",
+    "when": "thread: kaede_back_of_van",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "home": "Kaede walks into the kura again, sells Shūzō's last pieces back, and gives Tamaki his watch.",
+     "road": "She leaves Shūzō's bundle on the kura's step at dawn and drives off for a season."
+    },
+    "hint": "See Kaede's story through to its end."
+   },
+   {
+    "id": "mem_sl_kaede_tailgate",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kaede on the road",
+    "who": "Kaede",
+    "when": "thread: kaede_tailgate",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "no_plan": "Three nights on the road with no plan, and 'two' in the van's logbook.",
+     "one_night": "One night on the coast, and she drives on alone at dawn, laughing."
+    },
+    "hint": "See Kaede's story through to its end."
+   },
+   {
+    "id": "mem_sl_kaede_dares",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kaede's dares",
+    "who": "Kaede",
+    "when": "thread: kaede_dares",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "all_in": "Every dare crossed off in two hands, and a new list started.",
+     "called_off": "She tears the page of dares out, laughing."
+    },
+    "hint": "See Kaede's story through to its end."
+   },
+   {
+    "id": "mem_kk_ayame",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "From Ayame",
+    "when": "had: all ayame",
+    "icon": "🖤",
+    "hint": "Hold every keepsake of this kind at some time (from ayame)."
+   },
+   {
+    "id": "mem_kk_kaede",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "From Kaede",
+    "when": "had: all kaede",
+    "icon": "📒",
+    "hint": "Hold every keepsake of this kind at some time (from kaede)."
    }
   ],
   "museum": {
@@ -69134,7 +72457,12 @@
     ],
     "pity": 6,
     "ask": 0.1,
-    "late": 0.5
+    "late": 0.5,
+    "who": "Kaede",
+    "extra": [
+     2,
+     1
+    ]
    },
    "auctions": {
     "place": "mg_chuodori",
@@ -69153,7 +72481,8 @@
       1.1,
       1.8
      ],
-     "perLevel": 0.05
+     "perLevel": 0.05,
+     "who": "Ayame"
     },
     "back": 2,
     "again": 0.2
@@ -69164,6 +72493,25 @@
     "lasting": 2,
     "most": 12,
     "min": 6
+   },
+   "loans": {
+    "who": "Ayame",
+    "when": "tier: Ayame 1",
+    "fees": [
+     0,
+     0,
+     200000,
+     800000,
+     2500000
+    ],
+    "min": 3,
+    "wait": 7,
+    "again": 56,
+    "also": [
+     "art_korin_irises"
+    ],
+    "label": "the Mikage Foundation's season exhibition",
+    "place": "rp_sky"
    }
   }
  }

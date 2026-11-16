@@ -13,9 +13,11 @@
 // The rules reach the rest of the game through `tierLink` (sim/hooks.ts), so the store and the romance code don't import
 // this file. A world without tiers or reserved people changes nothing: every hook answers as if this file weren't here.
 import type { Save, Resident } from '../core/store.js';
-import { getWorld, type WorldDef, type PersonTier, type ExampleCharacter } from '../core/world.js';
+import { getWorld, systemOn, type WorldDef, type PersonTier, type ExampleCharacter } from '../core/world.js';
 import { onHour, onDay, tierLink } from './hooks.js';
-import { relOf, idOf, land, YOU, type Meter } from './rel.js';
+import { relOf, idOf, land, ro, setRo, YOU, type Meter } from './rel.js';
+import { ROM_START } from '../core/feel.js';
+import { romanceBlocked } from './family.js';
 import { whenHolds, missingWords } from './when.js';
 import { exampleOf } from './dayplan.js';
 import { milestonePoints } from './points.js';
@@ -90,11 +92,14 @@ function release(g: Save, id: string) {
 
 /* ---------- reaching a tier ---------- */
 
-// What a tier writes into the save as it opens: (C-7) how they feel toward you, when it says (`sets`: friendship and
-// romance set to those levels, the rival starting to hate you); its profile lines (texts replace the earlier ones, likes
+// What a tier writes into the save as it opens: (C-7) how they feel toward you, when it says (`sets`: friendship set to
+// that level, so the rival starts hating you; romance raised to that level when it's below); its profile lines (texts replace the earlier ones, likes
 // and limits are added to them, a role or drive replaces the old).
 function openTier(g: Save, id: string, t: PersonTier) {
-    if (t.sets && (t.sets.f || t.sets.r)) applyStartFeel(g, { a: id, b: YOU, ...(t.sets.f ? { f: t.sets.f } : {}), ...(t.sets.r ? { r: t.sets.r } : {}) }, true);
+    if (t.sets?.f) applyStartFeel(g, { a: id, b: YOU, f: t.sets.f }, true);
+    // romance only ever rises here (the heat a tier brings), never with romance off or someone it's closed to
+    const w = W(g);
+    if (t.sets?.r && w && systemOn(w, 'romance') && !romanceBlocked(g, id) && ro(g, id, YOU) < ROM_START[t.sets.r]) setRo(g, id, YOU, ROM_START[t.sets.r]);
     if (!t.intimate) return;
     const p = (relOf(g).people[id] ??= {}), i: any = (p.intimate ??= {});
     for (const [k, v] of Object.entries(t.intimate)) {
