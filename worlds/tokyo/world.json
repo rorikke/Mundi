@@ -54798,7 +54798,7 @@
      {
       "id": "heat",
       "name": "Heat",
-      "when": "sales: bested 6",
+      "when": "sales: bested 5",
       "caps": {
        "f": "wary",
        "r": "infatuated",
@@ -54866,7 +54866,7 @@
      {
       "id": "obsessed",
       "name": "Obsessed",
-      "when": "sales: bested 14",
+      "when": "sales: bested 9",
       "caps": {
        "f": "wary",
        "status": "casual"
@@ -71947,23 +71947,23 @@
     "id": "ag_lot_4",
     "hall": "ayame_grudges",
     "group": "lots",
-    "name": "Lot 6: conceded. A pattern.",
+    "name": "Lot 5: conceded. A pattern.",
     "icon": "🪧",
-    "hint": "Take six lots from her.",
+    "hint": "Take five lots from her.",
     "adult": true,
-    "when": "sales: bested 6",
-    "plaque": "Six lots lost to {{user}}. She has started keeping count, and hates that she has."
+    "when": "sales: bested 5",
+    "plaque": "Five lots lost to {{user}}. She has started keeping count, and hates that she has."
    },
    {
     "id": "ag_lot_8",
     "hall": "ayame_grudges",
     "group": "lots",
-    "name": "Lot 14: conceded. Never again.",
+    "name": "Lot 9: conceded. Never again.",
     "icon": "🪧",
-    "hint": "Take fourteen lots from her.",
+    "hint": "Take nine lots from her.",
     "adult": true,
-    "when": "sales: bested 14",
-    "plaque": "Fourteen. \"Never again,\" she wrote, and underlined it twice."
+    "when": "sales: bested 9",
+    "plaque": "Nine. \"Never again,\" she wrote, and underlined it twice."
    },
    {
     "id": "ag_lent",
