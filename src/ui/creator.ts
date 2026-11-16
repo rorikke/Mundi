@@ -14,7 +14,7 @@ import { TIE_TYPES } from '../sim/living.js';
 import { FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { GOVERNMENTS, POWERS } from '../sim/realm.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type HallDef, type SlotDef, type PieceSource, type MuseumDef, type MuseumUpgrade, type PersonTier, type IntimateProfile, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, type VentureDef, type Ritual } from '../core/world.js';
+import { WEEKDAY_IDS, getWorld, shortDesc, WORLD_DESC_MAX, worldFile, worlds, styleOf, isCustom, gameMode, GAME_MODES, SYSTEMS, systemOn, appSystem, isScenario, worldTags, allTags, WORLD_TAGS, RPG_LOCKED, RPG_NOTE, worldLocked, PLACE_ROLES, type WorldDef, type HallDef, type SlotDef, type PieceSource, type MuseumDef, type MuseumUpgrade, type DigDef, type PersonTier, type IntimateProfile, type GameMode, type GoalDef, type GoalStep, type RewardDef, type Rank, type VentureDef, type Ritual } from '../core/world.js';
 import { statsOf, statName, STAT_NAMES, VENTURE_STATS, EXEC_STATS } from '../core/ventures.js';
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
@@ -40,7 +40,7 @@ import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffe
 import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIMITS, BOOST_DAYS, GOAL_POINTS, REWARD_KINDS, PERSON_KINDS, SKILL_GROUPS, systemNeedsOff } from '../core/goals.js';
 import { TALLY_EVENTS } from '../sim/tally.js';
 import { SECOND_POINTS } from '../sim/points.js';
-import { missingFromRecord } from '../core/collection.js';
+import { missingFromRecord, MUSEUM_PRICE_MAX } from '../core/collection.js';
 
 type Tab = 'business' | 'economy' | 'realm' | 'customs' | 'rpg' | 'general' | 'features' | 'needs' | 'maps' | 'homes' | 'actions' | 'jobs' | 'goals' | 'courses' | 'shop' | 'collection' | 'words' | 'character' | 'people' | 'lore' | 'books';
 const TABS: [Tab, string][] = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
@@ -1366,6 +1366,7 @@ function tabCollection(w: WorldDef) {
             i => hallForm(w, i), 'chall', 'No halls yet.')}</section>
         <section class="mu-cw-sec"><h4>Slots</h4>${filter}${master('cslot', 'collection.slots', (s: SlotDef) => `<b>${esc(s.icon ?? '')} ${esc(s.name)}</b><small>${esc(halls.find(h => h.id === s.hall)?.groups.find(g => g.id === s.group)?.name ?? s.group)}${s.adult ? ' · adult' : ''}</small>`,
             i => slotForm(w, i), 'cslot', halls.length ? 'No slots yet.' : 'Add a hall first.', f ? (s: SlotDef) => s.hall === f : undefined)}</section>
+        ${digsEditor(w)}
         ${museumEditor(w)}`;
 }
 function hallForm(w: WorldDef, i: number) {
@@ -1415,9 +1416,9 @@ function slotForm(w: WorldDef, i: number) {
 // shown while the file has it, so nothing in a world is out of reach.
 const SOURCE_KINDS: [PieceSource['kind'], string][] = [['find', 'Found after a thing to do (or any at some places)'], ['sold', 'Sold at places'], ['festival', "A festival's stall, every year"],
     ['dealer', 'The dealer brings it'], ['auction', 'A lot at the sales'], ['ending', "A storyline's end (any ending)"], ['milestone', 'A milestone (free, once a condition holds)'],
-    ['story', 'A street story'], ['replica', "A replica from the curator's workshop"], ['dig', 'A dig (not played yet)']];
+    ['story', 'A street story'], ['replica', "A replica from the curator's workshop"], ['dig', 'A dig']];
 const SOURCE_USES: Record<string, (keyof PieceSource)[]> = { find: ['action', 'at', 'when', 'chance', 'damaged'], sold: ['at', 'price', 'when'], festival: ['id', 'price'],
-    dealer: ['price', 'chance', 'when'], auction: ['price', 'chance', 'when'], ending: ['id'], milestone: ['when'], story: ['id', 'when'], replica: ['when', 'price'], dig: [] };
+    dealer: ['price', 'chance', 'when'], auction: ['price', 'chance', 'when'], ending: ['id'], milestone: ['when'], story: ['id', 'when'], replica: ['when', 'price'], dig: ['id', 'chance', 'when'] };
 const museumOf = (w: WorldDef) => w.collection?.museum;
 const upgradeOptsOf = (w: WorldDef): Opt[] => (museumOf(w)?.upgrades ?? []).map(u => [u.id, `${u.icon ?? ''} ${u.name || u.id}`.trim()] as Opt);
 // What world-check says of a source (its errors), said under it as it is edited.
@@ -1450,21 +1451,23 @@ function sourceIssues(w: WorldDef, x: PieceSource): string[] {
         priced();
         if (M && !M.upgrades.some(u => u.does === 'workshop')) out.push('No upgrade of the museum is a workshop, so no one makes it.');
     }
+    if (x.kind === 'dig') { if (!x.id) out.push('Pick a dig.'); else if (!has(w.collection?.digs, x.id)) out.push(`No dig called ${x.id}.`); }
     return out;
 }
 function sourceRows(w: WorldDef, q: string, x: PieceSource) {
     const shows = (k: keyof PieceSource) => (SOURCE_USES[x.kind] ?? []).includes(k) || x[k] !== undefined;
     const sym = esc(w.currency.symbol);
-    const idOpts: Opt[] = x.kind === 'festival' ? (w.festivals ?? []).map(f => [f.id, f.name || f.id] as Opt) : x.kind === 'ending' ? threadOpts(w) : x.kind === 'story' ? storyOpts(w) : [];
-    const idLabel = x.kind === 'festival' ? 'Festival' : x.kind === 'ending' ? 'Storyline' : x.kind === 'story' ? 'Street story' : 'Id';
-    const whenPh = x.kind === 'milestone' ? 'venture: cafe tier 4' : x.kind === 'story' ? 'seen: ot_yanaka_st_enso:1' : x.kind === 'replica' ? 'seen: ot_yanaka_st_enso' : x.kind === 'sold' ? 'event: antique' : 'knows: tamaki_puppies';
+    const idOpts: Opt[] = x.kind === 'festival' ? (w.festivals ?? []).map(f => [f.id, f.name || f.id] as Opt) : x.kind === 'ending' ? threadOpts(w) : x.kind === 'story' ? storyOpts(w) : x.kind === 'dig' ? digOptsOf(w) : [];
+    const idLabel = x.kind === 'festival' ? 'Festival' : x.kind === 'ending' ? 'Storyline' : x.kind === 'story' ? 'Street story' : x.kind === 'dig' ? 'Dig' : 'Id';
+    const whenPh = x.kind === 'milestone' ? 'venture: cafe tier 4' : x.kind === 'story' ? 'seen: ot_yanaka_st_enso:1' : x.kind === 'replica' ? 'seen: ot_yanaka_st_enso' : x.kind === 'sold' ? 'event: antique' : x.kind === 'dig' ? 'seen: ak_university_st_naumann' : 'knows: tamaki_puppies';
+    const chanceLabel = x.kind === 'find' ? 'Chance after it (0 … 1)' : x.kind === 'dig' ? "How likely among the dig's pieces (0 … 1; empty: 1, as likely as any)" : 'How rare (0 … 1; empty: 1, as likely as any)';
     const at = x.at ?? [];
     return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><label class="mu-field"><span>Comes from</span><select data-input="cw-src-kind" data-path="${esc(`${q}.kind`)}">${withCur(SOURCE_KINDS, x.kind).map(([v, l]) => `<option value="${esc(v)}" ${v === x.kind ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label><span class="mu-cw-spacer"></span>
             <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
         ${shows('action') ? sel('After this thing to do', `${q}.action`, withCur([['', '(none: any thing to do at its places)'], ...w.actions.map(a => [a.id, a.label || a.name || a.id] as Opt)], x.action), 'opt') : ''}
         ${shows('id') ? sel(idLabel, `${q}.id`, withCur([['', '(pick one)'], ...idOpts], x.id), 'opt') : ''}
         ${shows('at') ? `<details class="mu-cw-kept" ${at.length ? '' : 'open'}><summary>${esc(x.kind === 'find' ? `Or any thing to do at these places · ${at.length}` : `Sold at · ${at.length}`)}</summary>${placeChecklist(w, `${q}.at`)}</details>` : ''}
-        ${shows('price') || shows('chance') ? `<div class="mu-row2">${shows('price') ? num(x.kind === 'auction' ? `Estimate (${sym})` : `Price (${sym})`, `${q}.price`) : ''}${shows('chance') ? bounded(x.kind === 'find' ? 'Chance after it (0 … 1)' : 'How rare (0 … 1; empty: 1, as likely as any)', `${q}.chance`, 0, 1, 0.05) : ''}</div>` : ''}
+        ${shows('price') || shows('chance') ? `<div class="mu-row2">${shows('price') ? num(x.kind === 'auction' ? `Estimate (${sym})` : `Price (${sym})`, `${q}.price`) : ''}${shows('chance') ? bounded(chanceLabel, `${q}.chance`, 0, 1, 0.05) : ''}</div>` : ''}
         ${shows('damaged') ? bounded('Odds it comes damaged (0 … 1; it counts once the workshop restores it)', `${q}.damaged`, 0, 1, 0.05) : ''}
         ${shows('when') ? cond(x.kind === 'milestone' ? 'When it comes (a condition)' : x.kind === 'replica' ? 'Offered once (a condition: its one-time way has passed)' : 'Only while (a condition; optional)', `${q}.when`, whenPh) : ''}
         ${sourceIssues(w, x).map(m => `<small class="mu-cw-err">${esc(m)}</small>`).join('')}</div>`;
@@ -1483,7 +1486,84 @@ function pieceRows(w: WorldDef, p: string, s: SlotDef) {
         <button class="mu-ghost" data-act="cw-add" data-what="csrc" data-path="${esc(`${p}.sources`)}">${icon('plus')}<span>Add a way to have it</span></button>
         <div class="mu-row2">${num(`Price on the empty tile (${esc(w.currency.symbol)}; optional)`, `${p}.price`)}${sel('Needs an upgrade of the museum', `${p}.needsUpgrade`, withCur([['', '(none)'], ...upgradeOptsOf(w)], s.needsUpgrade), 'opt')}</div>
         ${flag('A bonus piece', `${p}.bonus`, 'Shown in a gold frame and never counted in a percentage, so it can come after 100%.')}
+        ${partsRows(w, p, s)}
         ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+/* ---------- (nature) a piece of parts, and the digs (plans/collection.md, track 6, session N-E) ---------- */
+
+const PART_ID = /^[a-z0-9_]+$/;
+const digOptsOf = (w: WorldDef): Opt[] => (w.collection?.digs ?? []).map(d => [d.id, d.name || d.id] as Opt);
+const hasWorkshop = (M: MuseumDef | undefined) => !!M?.upgrades?.some(u => u.does === 'workshop');
+// What world-check says of a piece of parts (its parts and mounting), said under them as they're edited.
+export function partsIssues(w: WorldDef, s: SlotDef): string[] {
+    const out: string[] = [], M = museumOf(w), parts = Array.isArray(s.parts) ? s.parts : [];
+    for (const x of parts) if (!PART_ID.test(String(x))) out.push(`${x}: a part's id is lowercase letters, digits and _ only (dropped when the world loads).`);
+    if (parts.length && !(s.sources ?? []).some(x => x.kind === 'dig')) out.push('Its parts come from a dig: give it a way from one (A dig).');
+    if (s.mount) {
+        if (!parts.length) out.push('Mounting is for a piece of parts: without parts it is dropped when the world loads.');
+        if (!(Number.isFinite(s.mount.price) && Number.isFinite(s.mount.days))) out.push('Mounting needs a price and days, or it is dropped when the world loads.');
+        if (!M) out.push('The world has no museum: the piece fills the moment its last part comes, mounting is ignored.');
+        else if (!hasWorkshop(M)) out.push('No upgrade of the museum is a workshop, so no one mounts it.');
+    }
+    return out;
+}
+// A display piece's parts (a fossil found bone by bone), a picture per part, and the workshop's mounting.
+function partsRows(w: WorldDef, p: string, s: SlotDef) {
+    const parts = Array.isArray(s.parts) ? s.parts : [], pics = s.partPics ?? {}, sym = esc(w.currency.symbol);
+    const pic = (x: string) => { const f = typeof own(pics, x) === 'string' ? own(pics, x)! : '', url = f ? worldFile(w, f) : '';
+        return `<div class="mu-row mu-cw-inline">${url ? `<img src="${esc(url)}" alt="" loading="lazy" style="width:40px;height:40px;object-fit:cover;border-radius:4px">` : ''}<code data-notr>${esc(x)}</code>
+            <small class="mu-muted">${f ? `<code data-notr>${esc(f)}</code> (set by the pictures' wiring)` : "No picture yet: the slot's icon"}</small></div>`; };
+    return `<span class="mu-cw-sub">Its parts (a piece found part by part; optional)</span>
+        ${words('Parts (ids, separated by commas)', `${p}.parts`, 'Each part comes on its own from its ways (a dig); the slot fills once they are all in and, with a museum, mounted.', 'skull, tusk, leg')}
+        ${parts.length ? `<span class="mu-cw-sub">A picture per part</span>${parts.map(x => pic(String(x))).join('')}` : ''}
+        ${s.mount ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">Mounted by the workshop once every part is in</span><span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.mount`)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${bounded(`Its price (${sym})`, `${p}.mount.price`, 0, MUSEUM_PRICE_MAX)}${bounded('Days it takes', `${p}.mount.days`, 1, 60)}</div></div>`
+            : parts.length ? `<button class="mu-ghost" data-act="cw-add" data-what="cmount" data-path="${esc(`${p}.mount`)}">${icon('plus')}<span>Add mounting by the workshop</span></button><small class="mu-muted">Without mounting it fills the moment its last part comes.</small>` : ''}
+        ${partsIssues(w, s).map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// The places a thing to do is done at by its own data (a pin, a list of places, the place's own list); tags bring
+// generic ones to many places, which a dig's things to do shouldn't be.
+const actsAt = (w: WorldDef, pid: string) => { const pl = w.places.find(x => x.id === pid);
+    return w.actions.filter(a => !!pid && (a.place === pid || !!a.places?.includes(pid) || !!pl?.actions?.includes(a.id))); };
+// What world-check says of a dig, at the top of its form.
+export function digIssues(w: WorldDef, d: DigDef): string[] {
+    const out: string[] = [], pl = w.places.find(x => x.id === d.place), M = museumOf(w), acts = Array.isArray(d.actions) ? d.actions : [];
+    if (!String(d.name ?? '').trim()) out.push('No name: it shows as its id.');
+    if (!d.place) out.push('Pick its place: without one the dig is dropped when the world loads.');
+    else if (!pl) out.push(`No place called ${d.place}.`);
+    if (!acts.length) out.push('It needs at least one thing to do that digs: without one it is dropped when the world loads.');
+    const here = new Set(actsAt(w, d.place).map(a => a.id));
+    for (const id of acts) { const a = w.actions.find(x => x.id === id); if (!a) out.push(`No thing to do called ${id}.`); else if (pl && !here.has(id)) out.push(`${a.label || a.name || id} isn't done at ${pl.name}.`); }
+    if (d.season == null || (typeof d.season === 'string' && !d.season.trim())) out.push('It needs a season (a condition): without one it is dropped when the world loads.');
+    if (typeof d.sure === 'number' && typeof d.most === 'number' && d.sure > d.most) out.push(`Days that make sure of a find (${d.sure}) should be no more than the finds a season at most (${d.most}).`);
+    if (d.lend && !M) out.push('Lent to a museum, but the world has none: its finds come straight to the collection.');
+    else if (d.lend) {
+        const asks = (v: unknown) => typeof v === 'string' && parseWhen(v).conds.some(c => c.key === 'museum' && !c.not);
+        if (!asks(d.season) && !acts.some(id => asks(w.actions.find(a => a.id === id)?.when))) out.push('Its finds come only once the museum is open: ask museum: open in its season or its things to do, or days dug before then find nothing.');
+    }
+    if (!(w.collection?.slots ?? []).some(s => (s.sources ?? []).some(x => x.kind === 'dig' && x.id === d.id))) out.push('No piece comes from this dig yet (a piece\'s way: A dig).');
+    return out;
+}
+function digForm(w: WorldDef, i: number) {
+    const p = `collection.digs.${i}`, d = w.collection?.digs?.[i]; if (!d) return '';
+    const here: Opt[] = actsAt(w, d.place).map(a => [a.id, a.label || a.name || a.id] as Opt);
+    const pieces = (w.collection?.slots ?? []).filter(s => (s.sources ?? []).some(x => x.kind === 'dig' && x.id === d.id));
+    return `<div class="mu-row mu-cw-inline">${idTag(d.id)}</div>
+        ${digIssues(w, d).map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}
+        <div class="mu-row2">${txt('Name', `${p}.name`, "Hijiri University's autumn dig")}${sel('Its place', `${p}.place`, withCur(placeOpts(w, '(pick one)'), d.place))}</div>
+        <span class="mu-cw-sub">The things to do that dig there</span>${here.length || d.actions?.length ? pairChips(withCurAll(here, d.actions), `${p}.actions`, true) : '<small class="mu-muted">This place has no things to do of its own yet (Things to do › Where).</small>'}
+        ${cond('Its season (a condition; each time it holds again is a season of its own)', `${p}.season`, 'season: autumn; museum: open')}
+        <div class="mu-row2">${bounded('A day\'s odds of a find (0 … 1; optional)', `${p}.chance`, 0, 1, 0.05)}${bounded('Days in a season that make sure of a find (optional)', `${p}.sure`, 0, 60)}</div>
+        <div class="mu-row2">${bounded('Finds in a season at most (optional)', `${p}.most`, 1, 50)}${flag('Its finds are lent to the museum', `${p}.lend`, 'They come only to an open museum, on loan.')}</div>
+        <span class="mu-cw-sub">${esc(`Pieces from this dig · ${pieces.length}`)}</span>
+        ${pieces.length ? `<div class="mu-chips">${pieces.map(s => `<span class="mu-chip">${esc(`${s.icon ?? ''} ${s.name}`.trim())}${s.parts?.length ? ` <small>${esc(`· ${s.parts.length} parts`)}</small>` : ''}</span>`).join('')}</div>` : '<small class="mu-muted">None yet: a piece gets a way from it in its slot (Where the piece comes from › A dig).</small>'}`;
+}
+function digsEditor(w: WorldDef) {
+    const c = w.collection; if (!c?.halls?.length) return '';
+    return `<section class="mu-cw-sec"><h4>Digs</h4>
+        <p class="mu-muted">A dig at one of the world's places: its things to do dig while its season holds, each season counted apart. A day dug rolls for one of the pieces whose way is this dig; some days in a season make sure of a find, and a season gives so many at most. A piece of parts (a fossil) comes part by part.</p>
+        ${master('cdig', 'collection.digs', (d: DigDef) => `<b>${esc(d.name || d.id)}</b><small>${esc(w.places.find(x => x.id === d.place)?.name ?? d.place ?? '')}${esc(` · ${(c.slots ?? []).filter(s => (s.sources ?? []).some(x => x.kind === 'dig' && x.id === d.id)).length} pieces`)}${d.lend ? ' · lent' : ''}</small>`,
+            i => digForm(w, i), 'cdig', 'No digs yet.')}</section>`;
 }
 /* ---------- (museum) the museum itself: place, offer, upgrades, renown, the dealer, the sales, shows ---------- */
 
@@ -1602,7 +1682,18 @@ function tidyCollection(w: WorldDef) {
         for (const x of s.sources ?? []) { if (Array.isArray(x.at) && !x.at.length) delete x.at; for (const k of ['action', 'id', 'when'] as const) if (typeof x[k] === 'string' && !(x[k] as string).trim()) delete x[k]; }
         if (Array.isArray(s.sources) && !s.sources.length) delete s.sources;
         if (typeof s.needsUpgrade === 'string' && !s.needsUpgrade.trim()) delete s.needsUpgrade;
+        // (nature) an emptied list of parts; pictures of parts it no longer has; mounting with a number emptied (as the loader drops them)
+        if (Array.isArray(s.parts) && !s.parts.length) delete s.parts;
+        if (s.partPics && typeof s.partPics === 'object') { for (const [k, v] of Object.entries(s.partPics)) if (!(s.parts ?? []).includes(k) || typeof v !== 'string' || !v.trim()) delete s.partPics[k]; if (!Object.keys(s.partPics).length) delete s.partPics; }
+        if (s.mount && !(Number.isFinite(s.mount.price) && Number.isFinite(s.mount.days))) delete s.mount;
     }
+    // (nature) a dig's empty texts and emptied list of things to do; an emptied list of digs
+    for (const d of c.digs ?? []) {
+        for (const k of ['name', 'place'] as const) if (typeof d[k] === 'string' && !d[k].trim()) delete (d as any)[k];
+        if (typeof d.season === 'string' && !d.season.trim()) delete (d as any).season;
+        if (Array.isArray(d.actions) && !d.actions.length) delete (d as any).actions;
+    }
+    if (Array.isArray(c.digs) && !c.digs.length) delete c.digs;
     const M = c.museum;
     if (M) {
         for (const u of M.upgrades ?? []) {
@@ -2953,6 +3044,8 @@ const NEW: Record<string, () => [string, any]> = {
     cslot: () => { const w = W(), hs = w.collection?.halls ?? [], h = hs.find(x => x.id === CW.sel.cslotHall) ?? hs[0]; return ['collection.slots', { id: newId(h?.record ? 'mem' : (h?.id ?? 'slot')), hall: h?.id ?? '', group: h?.groups[0]?.id ?? '', name: 'New slot', ...(h?.record ? { when: '' } : {}) }]; },
     // (museum) an upgrade: bought once, nothing more until it's given a wing or a use
     mup: () => ['collection.museum.upgrades', { id: newId('up'), name: 'New upgrade', price: 100000 }],
+    // (nature) a dig: at the first place, in autumn, with its things to do still to pick
+    cdig: () => ['collection.digs', { id: newId('dig'), name: 'New dig', place: W().places.find(p => !p.link)?.id ?? '', actions: [], season: 'season: autumn' }],
     fixture: () => ['homes.fixtures', { id: newId('fx'), name: 'New fixture', desc: '', icon: '🛋️', price: 1000 }],
     breakable: () => ['homes.breakables', { id: newId('thing'), name: 'the new thing', blocks: [] }],
     course: () => ['catalogs.courses', { id: newId('course'), name: 'New course', area: 'General', days: 3, cost: 100, grants: [], icon: '📚', desc: '' }],
@@ -2976,7 +3069,7 @@ const NEW: Record<string, () => [string, any]> = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey: Record<string, string> = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey: Record<string, string> = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
@@ -3192,6 +3285,8 @@ Object.assign(ACT, {
             const parent = getPath(p.replace(/\.[^.]+$/, '')) ?? {};
             setPath(p, p.endsWith('.top') ? [1.1, 1.8] : [2, (Number(parent.stock ?? parent.lots) || 3) + 1]); notify(); return;
         }
+        // (nature) a piece of parts mounted by the workshop: a tenth of the piece's price, a week
+        if (what === 'cmount') { const p = el.dataset.path!; if (getPath(p) !== undefined) return; setPath(p, { price: Math.round((Number(getPath(p.replace(/\.mount$/, '.price'))) || 100000) / 10), days: 7 }); notify(); return; }
         if (what === 'mlevel') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ at: (Number(l[l.length - 1]?.at) || 0) + 20, name: '' }); CW.dirty = true; notify(); return; }
         if (what === 'ptier') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ id: newId('tier'), name: `Tier ${l.length}`, when: '' }); CW.dirty = true; notify(); return; }
         if (what === 'cgroup') { (getPath(el.dataset.path!) as any[]).push({ id: newId('group'), name: 'New group' }); CW.dirty = true; notify(); return; }
