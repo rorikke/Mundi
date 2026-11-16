@@ -18,6 +18,7 @@ point of view, and grows as new ones arrive.
 - [Storylines](#storylines)
 - [Tokyo memories](#tokyo-memories)
 - [A museum of your own, and Tamaki](#a-museum-of-your-own-and-tamaki)
+- [Nature and Before Edo](#nature-and-before-edo)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -1034,13 +1035,14 @@ Yanaka, whose curator becomes the end game's reward. It's the largest thing in t
 
 ### How long it takes
 
-- The four base halls and the kura's upgrades cost about **¥44 million**, more with shows, lots she pushes up, and
-  pieces bought back. Tokyo's life goal **Patron of the arts** (open the kura, thirty pieces, in the guidebooks,
+- The base halls and the kura's upgrades cost about **¥48 million** (¥44 million of it before Nature and Before Edo),
+  more with shows, lots she pushes up, and pieces bought back. Tokyo's life goal **Patron of the arts** (open the kura, thirty pieces, in the guidebooks,
   famous) gives the **Connoisseur** perk: museum prices 10% lower (not bids at the sales).
-- In the long simulated runs, a player putting the museum first (with a show every season) completes it about **four
-  game years** after opening the kura on ¥1,500,000 a week, and **six to seven** on ¥1,000,000; on ¥500,000 it's over
-  90% after eight years. Spending half as much takes it to three quarters or more. Someone who only picks up what's
-  cheap, and the people's things, fills about forty slots without ever taking the kura on.
+- In the long simulated runs, a player putting the museum first (with a show every season, and Nature and the dig at
+  weekends) completes it **four to five game years** after opening the kura on ¥1,500,000 a week, and about **seven**
+  on ¥1,000,000; on ¥500,000 it's about 90% after eight years. Spending half as much, and leaving Nature and the dig
+  aside, takes it to about two thirds. Someone who only picks up what's cheap, and the people's things, fills about
+  forty slots without ever taking the kura on.
 
 ### World makers and older games
 
@@ -1051,6 +1053,74 @@ Yanaka, whose curator becomes the end game's reward. It's the largest thing in t
 - **Your existing games** get the halls at once: a storyline already ended gives its person's thing ("before the
   museum" when the day isn't known), and a business already at its top gives its piece. Nothing else in the save
   changes.
+
+## Nature and Before Edo
+
+Two more halls for the museum: **Nature**, thirty insects, fish and sea creatures and pressed flowers that you find
+yourself around Tokyo, Hakone and the bay, each in its season and at its hour, and **Before Edo**, eight pieces from
+before the city: what Hijiri University's autumn dig turns up, a bronze bell from the sales, an ammonite, and Naumann's
+elephant, found a bone at a time and mounted in the kura.
+
+### Things to do by season and hour
+
+- **Insects**: look for them in the grass at Yoyogi Park, among Shinjuku Gyoen's old trees, by Shinobazu Pond in Ueno,
+  in Meiji Jingū's forest, in the Sumida's riverside grass and along the cedar avenue at Lake Ashi, and watch for
+  fireflies along the Hayakawa at Hakone-Yumoto. Cicadas on summer mornings and afternoons, a rhinoceros or stag beetle
+  at first light, dragonflies and mantises in autumn, bell crickets on autumn evenings. There are no insects in winter.
+- **Fishing**: trout from a hired boat on Lake Ashi, off the seawalls at Odaiba and Yamashita Park (gobies in autumn,
+  aji and sea bass in the evening, crabs by day), and a morning on a party fishing boat from Kamome Marina (sea bream,
+  flounder, octopus). Bait and boats cost a little.
+- **Pressed flowers and leaves**: plum in winter (the East Gardens' grove, Ueno), cherry during the blossom festival,
+  wisteria in spring, hydrangea, morning glory and lotus in summer, maple at the autumn leaves and at Lake Ashi, ginkgo in
+  Yokohama's Ichō Park and on Hijiri's campus avenue.
+- Each try is a roll of a skill you already have: Logic for insects, Fitness for fishing, Drawing for pressing. Making
+  the roll doubles the odds of a find; the kura's reading room and Tamaki along help as they do for every find. A net,
+  a rod and a flower press from the Shop add a little to the roll; nothing needs them.
+- Two fish are bought rather than caught: an ayu from Tsukiji's river fishmonger in summer and a koi from the shop under
+  the tracks at Ameyoko.
+- **Live fish need the kura's aquarium tanks**, so the sea waits for the museum. Insects and flowers can be found before
+  you have one and go into the glass cases at home (they count towards the three pieces that bring the kura's offer).
+- In the Collection app, a missing piece whose season it is now is marked **In season**, and the hall says how many
+  there are; the **Here** tab lists what could turn up where you are, now. Every tile's hint says when and where. Each
+  piece comes round every year, so a missed season only means waiting for the next.
+- With the collection switched off, these are still pastimes: a walk, a skill trained, a better mood.
+
+### Hijiri University's autumn dig
+
+- Once the kura is yours, a notice on the door of Hijiri's archaeology lab asks for volunteers: the new library's
+  foundations have cut into a Jōmon shell midden, the lab digs it every autumn, and the professor would rather lend
+  the finds to a small museum that shows them than box them up.
+- Sign up, and every autumn you can **dig a square with the team** and **sift and draw the finds**, in the daytime, on
+  as many days as you like (weekends are enough). Three days in one autumn make sure of a find; at most three come in a
+  season. They come to the kura on long loan: a Jōmon pot, magatama, a haniwa, a dogū and a shark's tooth.
+- The autumn after your first season, the professor's phone rings: the subway works at Nihonbashi have hit bones in the
+  old bay mud. **Naumann's elephant** comes a part at a time (its skull, a tusk, a leg) over the next autumns, each
+  shown under its tile. Once all three are in the kura's store, the workshop mounts it in the **Before Edo room**
+  (¥1,000,000, a week), and the kura holds an unveiling under the skeleton.
+- The Museum tab's **Dig** card shows whether the dig is on, your days and finds this season and what's still to come.
+- The **bronze bell** (dōtaku) comes from the sales and needs security; the **ammonite** is sold at Ōwakudani's
+  geology shop.
+
+### How long it takes
+
+- Three new upgrades: the **natural history room** (¥600,000) and the **Before Edo room** (¥1,000,000) put the halls on
+  show, the **aquarium tanks** (¥700,000) house the sea. With the bell, the ammonite, the two fish, the mount and the
+  gear, the two halls add about **¥4.6 million**: the museum's base halls now come to about ¥48 million.
+- Tamaki's tiers follow the whole museum, these halls included, so her last tier needs every fish and the elephant.
+- In the long simulated runs on ¥1,000,000 a week, someone free most days finds every Nature piece in under a game
+  year; someone who goes out on evenings and at weekends in one and a half to two and a half years. Before Edo is
+  complete in the third or fourth autumn after the kura opens, the elephant in the autumn of its call or the one after.
+
+### World makers and older games
+
+- The **World creator** has a **Digs** section (where, which things to do dig there, the season, how likely a find is,
+  the days that make sure of one, the most a season, lent to the museum or not), a piece's **parts** with a picture
+  each and **mounting** by the workshop, and "a dig" as a way to have a piece. Help's museum topic explains Nature and
+  the dig. A world without a museum plays them as a plain collection: no tanks or rooms, and a piece of parts is
+  complete when its last part comes.
+- **Your existing games** get the two halls at once. In a museum that isn't complete their pieces count straight away,
+  so its percentage drops, and a line says the museum has new halls; a complete museum stays at 100% and shows them as
+  new. Tamaki never goes back a tier.
 
 ## The World creator and the new game
 
