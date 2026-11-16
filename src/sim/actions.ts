@@ -120,6 +120,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     afterEvent(g, w, a).forEach(m => lines.push({ text: m, kind: 'success' }));
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
     museumHooks.found(g, w, a, ok, mates).forEach(m => lines.push({ text: m, kind: 'success' }));   // (museum) a piece found
+    museumHooks.dug(g, w, a, ok, mates).forEach(m => lines.push({ text: m, kind: 'success' }));     // (nature) a day at a dig
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
     const outcome = o.priv && o.priv.outcome !== undefined ? o.priv.outcome : drawOutcome(g, w, a, loc, rnd);

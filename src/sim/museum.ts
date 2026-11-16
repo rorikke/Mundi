@@ -29,8 +29,8 @@ import { seasonDays } from './time.js';
  *  (a hall's group as its theme, from and until, `told` once its close was said) and the themes held; the dealer's
  *  and the sales' state (sim/market.ts); last week's visitors' money and the day it was paid; the highest renown level
  *  reached (its line and points once); damaged finds waiting for the workshop (not filled until restored, MU-4) and
- *  restorations under way (id → the day it's ready); `v` once the display pieces have been filled from what the save
- *  remembers. */
+ *  restorations under way (id → the day it's ready); (nature) pieces being mounted; `v` once the display pieces have
+ *  been filled from what the save remembers. */
 export interface MuseumState {
     begun?: number; offered?: number; opened?: number;
     ups?: Record<string, number>;
@@ -42,6 +42,8 @@ export interface MuseumState {
     lv?: number;
     damaged?: Record<string, { day: number; src: string; paid?: number }>;
     fix?: Record<string, number>;
+    /** (nature) pieces of parts being put together by the workshop: id → the day it's ready */
+    mount?: Record<string, number>;
     v?: number;
 }
 

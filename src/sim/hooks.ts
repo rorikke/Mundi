@@ -20,15 +20,18 @@ export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[];
 // roll (sim/actions.ts, `ok` its success, null without a roll), a find's lines; `story`: a street story's result with
 // `renown` or `damage` (sim/stories.ts), lines; `begun`: are the display halls shown (null: the world has no museum,
 // track 4's rule); `tile`: what a display piece's tile adds (sim/collection.ts `recordView`); `hall`: how a display
-// hall is on show.
+// hall is on show. (nature, sim/dig.ts) `dug`: after the same action, a dig's day and roll, lines; `inSeason`: can a
+// piece's way come round in the season now (the tiles' mark).
 export const museumHooks: {
     settle: (g: Save, w: WorldDef) => string[];
     found: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
+    dug: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
+    inSeason: (g: Save, w: WorldDef, slot: string) => boolean;
     story: (g: Save, w: WorldDef, r: { renown?: number; damage?: boolean }) => string[];
     begun: (g: Save, w: WorldDef) => boolean | null;
     tile: (g: Save, w: WorldDef, slot: string) => Record<string, unknown>;
     hall: (g: Save, w: WorldDef, hall: string) => Record<string, unknown> | undefined;
-} = { settle: () => [], found: () => [], story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
+} = { settle: () => [], found: () => [], dug: () => [], inSeason: () => false, story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.
 export const seenAs: ((g: Save) => string)[] = [];
 // Other things that help or hurt a d20 check (a familiar, an injury, a debuff, a talent…).
@@ -66,9 +69,12 @@ export const collectionLink: {
     /** (museum, the market: sim/market.ts) `sales:` and `dealer:`, the counters the rival's and the dealer's tiers read. */
     market: (g: Save, w: WorldDef, key: 'sales' | 'dealer', v: string) => boolean;
     marketWords: (g: Save, w: WorldDef, key: 'sales' | 'dealer', v: string) => string;
+    /** (nature: sim/dig.ts) `dig:`, the counters of the world's digs, and its words. */
+    dig: (g: Save, w: WorldDef, v: string) => boolean;
+    digWords: (g: Save, w: WorldDef, v: string) => string;
 } = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
     piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v,
-    market: () => false, marketWords: (_g, _w, _k, v) => v };
+    market: () => false, marketWords: (_g, _w, _k, v) => v, dig: () => false, digWords: (_g, _w, v) => v };
 // (museum) What the market (sim/market.ts) asks of the museum's engine (sim/museum.ts fills these in, so neither file
 // imports the other's rules). Unset, the market uses its own plain answers: renown level 0, a piece can be housed when
 // it needs no upgrade or the museum has one by that id or `does`, prices through the difficulty only, and a piece
