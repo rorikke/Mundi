@@ -70417,7 +70417,7 @@
      {
       "kind": "find",
       "action": "sb_yoyogi_insects",
-      "chance": 0.1,
+      "chance": 0.2,
       "when": "season: summer; period: firsttrain"
      },
      {
@@ -70719,7 +70719,7 @@
      {
       "kind": "find",
       "action": "yk_marina_boatfish",
-      "chance": 0.15,
+      "chance": 0.2,
       "when": "season: spring or autumn"
      }
     ],
