@@ -14,6 +14,7 @@ import { setPrompt } from '../st/bridge.js';
 import { percentOf } from '../sim/collection.js';
 import * as M from '../sim/museum.js';
 import * as K from '../sim/market.js';
+import { digOf } from '../sim/dig.js';
 import { tierOf, tierReached } from '../sim/tiers.js';
 import { tierNo } from '../sim/romance.js';
 import { SEASONS, seasonDays } from '../sim/time.js';
@@ -35,7 +36,7 @@ export function piecePic(w: WorldDef, pic: string | undefined, icon: string | un
 export const priceBand = (rung: number) => (rung > 0 ? '¥'.repeat(Math.min(5, rung)) : '');
 const seasonWord = (g: Save, day: number) => SEASONS[Math.floor((Math.max(1, day) - 1) / seasonDays(g)) % 4].name.toLowerCase();
 /** How a piece came, in words ("From the dealer, day 212", "Won at the spring sale for ¥620,000"). */
-export function howItCame(g: Save, w: WorldDef, got: { day: number; src?: string; paid?: number; back?: boolean; replica?: boolean }): string {
+export function howItCame(g: Save, w: WorldDef, got: { day: number; src?: string; paid?: number; back?: boolean; replica?: boolean; dig?: string }): string {
     if (got.back) return 'Before the record began';
     const d = n(got.day), paid = got.paid ? money(w, got.paid) : '';
     switch (got.replica ? 'replica' : got.src) {
@@ -46,6 +47,11 @@ export function howItCame(g: Save, w: WorldDef, got: { day: number; src?: string
         case 'auction': return paid ? `Won at the ${seasonWord(g, got.day)} sale for ${paid}` : `Won at the ${seasonWord(g, got.day)} sale`;
         case 'replica': return `Made by the workshop, day ${d}`;
         case 'story': return `A gift, day ${d}`;
+        case 'dig': {   // (nature) on long loan from a lending dig in a museum world
+            const dg = got.dig ? digOf(w, got.dig) : undefined, year = n(Math.floor((Math.max(1, got.day) - 1) / (seasonDays(g) * 4)) + 1);
+            if (!dg) return `From a dig, day ${d}`;
+            return dg.lend && M.museumOn(w) ? `On long loan from ${dg.name}, ${seasonWord(g, got.day)} of year ${year}` : `From ${dg.name}, ${seasonWord(g, got.day)} of year ${year}`;
+        }
         default: return `Day ${d}`;
     }
 }

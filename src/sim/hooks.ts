@@ -21,9 +21,11 @@ export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[];
 // `renown` or `damage` (sim/stories.ts), lines; `begun`: are the display halls shown (null: the world has no museum,
 // track 4's rule); `tile`: what a display piece's tile adds (sim/collection.ts `recordView`); `hall`: how a display
 // hall is on show. (nature, sim/dig.ts) `dug`: after the same action, a dig's day and roll, lines; `inSeason`: can a
-// piece's way come round in the season now (the tiles' mark).
+// piece's way come round in the season now (the tiles' mark); `settleDig`: the dig's part of the settle, run right after
+// the museum's (pieces mounted on their ready day), lines.
 export const museumHooks: {
     settle: (g: Save, w: WorldDef) => string[];
+    settleDig: (g: Save, w: WorldDef) => string[];
     found: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
     dug: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
     inSeason: (g: Save, w: WorldDef, slot: string) => boolean;
@@ -31,7 +33,7 @@ export const museumHooks: {
     begun: (g: Save, w: WorldDef) => boolean | null;
     tile: (g: Save, w: WorldDef, slot: string) => Record<string, unknown>;
     hall: (g: Save, w: WorldDef, hall: string) => Record<string, unknown> | undefined;
-} = { settle: () => [], found: () => [], dug: () => [], inSeason: () => false, story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
+} = { settle: () => [], settleDig: () => [], found: () => [], dug: () => [], inSeason: () => false, story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.
 export const seenAs: ((g: Save) => string)[] = [];
 // Other things that help or hurt a d20 check (a familiar, an injury, a debuff, a talent…).

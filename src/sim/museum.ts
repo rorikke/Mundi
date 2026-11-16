@@ -132,7 +132,8 @@ export const canHouse = (g: Save, w: WorldDef, s: SlotDef): boolean => !s.needsU
 /** Can this piece still come to you: not had for real, not a damaged find waiting, and housed? (A replica can be
  *  replaced by the real piece.) The market's pools use it too. */
 export const wanted = (g: Save, w: WorldDef, s: SlotDef): boolean => !hasPiece(g, s.id) && !damagedOf(g)[s.id] && canHouse(g, w, s);
-const upgradeName = (w: WorldDef, key: string) => museumDef(w)?.upgrades.find(u => u.id === key || u.does === key)?.name ?? key;
+/** An upgrade's name, by id or by what it does (the key itself when the museum has none). */
+export const upgradeName = (w: WorldDef, key: string) => museumDef(w)?.upgrades.find(u => u.id === key || u.does === key)?.name ?? key;
 
 // A piece comes: filled (a replica it replaces is gone), or a damaged find kept aside until the workshop restores it.
 function give(g: Save, w: WorldDef, s: SlotDef, entry: Got, damaged = false): void {
@@ -143,6 +144,9 @@ function give(g: Save, w: WorldDef, s: SlotDef, entry: Got, damaged = false): vo
     if (m.damaged?.[s.id]) delete m.damaged[s.id];
     if (!c.counted.includes(s.id)) c.counted.push(s.id);   // (R-8: a slot joins the count when it fills)
 }
+/** (nature, sim/dig.ts) A piece comes from a dig: filled as it is (a dig's find, a piece of parts mounted or complete),
+ *  whatever its housing (the dig's rules decided that). */
+export const fillPiece = (g: Save, w: WorldDef, s: SlotDef, entry: Got): void => give(g, w, s, entry);
 /** A piece is yours (the dealer, a sale won, anything else that hands one over): filled with how it came and what it
  *  cost (a replica it replaces is gone), or kept aside damaged (MU-4). Returns the line to show. Nothing for a slot the
  *  world doesn't have or a piece you can't have now (`wanted`). */
@@ -152,8 +156,8 @@ export function receivePiece(g: Save, w: WorldDef, id: string, how: { src: strin
     give(g, w, s, { day: g.day, src: how.src, ...(how.paid ? { paid: how.paid } : {}) }, !!how.damaged && museumOn(w));
     return `${s.icon ? `${s.icon} ` : ''}${s.name} is yours.${whereLine(g, w, s, !!how.damaged && museumOn(w))}`;
 }
-// Where a new piece goes, said after its name.
-function whereLine(g: Save, w: WorldDef, s: SlotDef, damaged: boolean): string {
+/** Where a new piece goes, said after its name (a sentence with a space before it, or ''). */
+export function whereLine(g: Save, w: WorldDef, s: SlotDef, damaged: boolean): string {
     const m = museumDef(w);
     if (!m) return '';
     if (damaged) return ' It came damaged: it waits, boxed, for the restoration workshop.';
@@ -525,7 +529,8 @@ function settleMuseum(g: Save, w: WorldDef): string[] {
     }
     return out;
 }
-museumHooks.settle = settleMuseum;
+// (nature) the dig's settle after it, through its hook (sim/dig.ts imports this file, so either may load first)
+museumHooks.settle = (g, w) => [...settleMuseum(g, w), ...museumHooks.settleDig(g, w)];
 
 /* ---------- visitors ---------- */
 
@@ -593,8 +598,11 @@ collectionLink.museumWords = (g, w, v) => {
 
 /** A display piece's tile, beyond track 4's: where it is on show (missing: boxed, or not yours), a replica, damaged (on
  *  show and off it, or a find not filled yet), in the workshop until a day, its restoring fee, how it came, its price
- *  (after difficulty) and rung, and the upgrade it waits for. */
-export interface PieceTile { at?: ShowWhere; replica?: boolean; damaged?: boolean; find?: boolean; ready?: number; fee?: number; src?: string; price: number; rung: number; needs?: string }
+ *  (after difficulty) and rung, and the upgrade it waits for. (nature) A piece of parts: each part, had or not, with
+ *  its picture (a world file, through `worldFile`); `toMount` once every part is in and the workshop can put it
+ *  together (sim/dig.ts `mountsHere` says what it waits for); `mounting` the day it's ready. */
+export interface PieceTile { at?: ShowWhere; replica?: boolean; damaged?: boolean; find?: boolean; ready?: number; fee?: number; src?: string; price: number; rung: number; needs?: string;
+    parts?: { id: string; have: boolean; pic?: string }[]; toMount?: boolean; mounting?: number }
 export function pieceTile(g: Save, w: WorldDef, id: string): PieceTile {
     const s = w.collection?.slots.find(x => x.id === id);
     if (!s) return { price: 0, rung: 0 };
@@ -605,6 +613,13 @@ export function pieceTile(g: Save, w: WorldDef, id: string): PieceTile {
     } else if (d) Object.assign(out, { damaged: true, find: true, src: d.src, fee: restoreFee(g, w, s) });
     if (fix !== undefined) out.ready = fix;
     if (!x && !canHouse(g, w, s)) out.needs = upgradeName(w, s.needsUpgrade!);
+    if (s.parts?.length) {
+        // (read straight from the save: sim/dig.ts writes `parts` and imports this file, not the other way round)
+        const have = ((collectionOf(g) as any)?.parts?.[id] ?? {}) as Record<string, number>, mount = museumOf(g)?.mount?.[id];
+        out.parts = s.parts.map(p => ({ id: p, have: have[p] !== undefined, ...(s.partPics?.[p] ? { pic: s.partPics[p] } : {}) }));
+        if (!x && mount !== undefined) out.mounting = mount;
+        else if (!x && museumOn(w) && s.mount && out.parts.every(p => p.have)) out.toMount = true;
+    }
     return out;
 }
 museumHooks.tile = (g, w, id) => ({ ...pieceTile(g, w, id) });
