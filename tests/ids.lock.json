@@ -1695,7 +1695,6 @@
    "yk_yamashita_kaede",
    "hk_yumoto_kaede",
    "hk_yumoto_kaede_night",
-   "yk_mirage_kaede",
    "yk_van_kaede",
    "ws_mikage_study",
    "ws_mikage_bath",
@@ -1711,7 +1710,8 @@
    "priv_home_ayame",
    "mg_fencing_bout",
    "mg_fencing_ayame",
-   "mg_fencing_ayame_after"
+   "mg_fencing_ayame_after",
+   "sb_lovehotel_kaede"
   ],
   "occupations": [
    "rider",

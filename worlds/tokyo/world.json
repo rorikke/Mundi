@@ -14881,7 +14881,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night or mg_viewing_ayame or mg_chuodori_ayame_car or mg_fencing_ayame_after or ot_kura_ayame_after or ws_mikage_study or ws_mikage_bath or priv_home_ayame or ot_kura_back_ayame or yk_van_kaede or hk_ashi_kaede_tailgate or hk_yumoto_kaede_night or bay_beach_kaede or ot_yanaka_kaede_van or priv_home_kaede or ot_kura_kaede_loft or yk_mirage_kaede or bay_bridge_kaede; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night or mg_viewing_ayame or mg_chuodori_ayame_car or mg_fencing_ayame_after or ot_kura_ayame_after or ws_mikage_study or ws_mikage_bath or priv_home_ayame or ot_kura_back_ayame or yk_van_kaede or hk_ashi_kaede_tailgate or hk_yumoto_kaede_night or bay_beach_kaede or ot_yanaka_kaede_van or priv_home_kaede or ot_kura_kaede_loft or bay_bridge_kaede or sb_lovehotel_kaede; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -15044,62 +15044,6 @@
    "tags": [
     "private"
    ]
-  },
-  {
-   "adult": true,
-   "private": true,
-   "trains": "sensuality",
-   "effects": {
-    "mood": 12,
-    "energy": -6,
-    "desire": 50
-   },
-   "tags": [
-    "private",
-    "kaede_dare"
-   ],
-   "id": "yk_mirage_kaede",
-   "name": "Her pick",
-   "label": "Let Kaede pick the room",
-   "icon": "🏨",
-   "cost": 6000,
-   "minutes": 120,
-   "place": "yk_lovehotel_mirage",
-   "when": "tier: Kaede 3; present: Kaede; companion: crush or casual",
-   "dc": 9,
-   "matches": [
-    "roleplay",
-    "no plan",
-    "laughing in bed"
-   ],
-   "together": {
-    "needed": true,
-    "text": "the room Kaede picked off Hotel Mirage's lit board purely for its name, the most ridiculous one on it"
-   },
-   "outcomes": [
-    {
-     "id": "theme",
-     "weight": 50,
-     "text": "The room is exactly as ridiculous as its name, and she commits to it completely."
-    },
-    {
-     "id": "review",
-     "weight": 30,
-     "text": "She writes a review in the guest book, in character, and signs it with your name.",
-     "effects": {
-      "mood": 3
-     }
-    },
-    {
-     "id": "next",
-     "weight": 20,
-     "text": "On the way out she's already reading the board for next time.",
-     "effects": {
-      "mood": 2
-     }
-    }
-   ],
-   "fact": "{u} and Kaede took the most ridiculous room at {0}"
   },
   {
    "adult": true,
@@ -15687,6 +15631,62 @@
     "private",
     "lovehotel"
    ]
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "kaede_dare"
+   ],
+   "id": "sb_lovehotel_kaede",
+   "name": "Her pick",
+   "label": "Let Kaede pick the room",
+   "icon": "🏨",
+   "cost": 6000,
+   "minutes": 120,
+   "place": "sb_lovehotel",
+   "when": "tier: Kaede 3; present: Kaede; companion: crush or casual",
+   "dc": 9,
+   "matches": [
+    "roleplay",
+    "no plan",
+    "laughing in bed"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the room Kaede picked off Coco Palace's lit board purely for its name, the most ridiculous one on it"
+   },
+   "outcomes": [
+    {
+     "id": "theme",
+     "weight": 50,
+     "text": "The room is exactly as ridiculous as its name, and she commits to it completely."
+    },
+    {
+     "id": "review",
+     "weight": 30,
+     "text": "She writes a review in the guest book, in character, and signs it with your name.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "next",
+     "weight": 20,
+     "text": "On the way out she's already reading the board for next time.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Kaede took the most ridiculous room at {0}"
   },
   {
    "id": "sb_lovehotel_kaoru",
@@ -16705,7 +16705,7 @@
    "minutes": 40,
    "place": "bay_bridge",
    "when": "tier: Kaede 3; knows: kaede_dares; present: Kaede; companion: crush or casual; period: evening",
-   "dc": 14,
+   "dc": 13,
    "risk": 0.2,
    "matches": [
     "a dare",
@@ -24399,8 +24399,8 @@
     "ot_yanaka_kaede_van",
     "priv_home_kaede",
     "ot_kura_kaede_loft",
-    "yk_mirage_kaede",
-    "bay_bridge_kaede"
+    "bay_bridge_kaede",
+    "sb_lovehotel_kaede"
    ],
    "count": 5,
    "days": 7,
@@ -72045,7 +72045,7 @@
     "icon": "🏨",
     "hint": "Let her pick a hotel room.",
     "adult": true,
-    "when": "did: yk_mirage_kaede with crush",
+    "when": "did: sb_lovehotel_kaede with crush",
     "plaque": "Picked for its name, committed to completely."
    },
    {
