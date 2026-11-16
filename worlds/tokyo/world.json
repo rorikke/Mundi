@@ -58586,13 +58586,13 @@
    {
     "id": "guard",
     "weight": 60,
-    "when": "museum: guard; present: not Tamaki",
+    "when": "museum: guard; present: not Tamaki; present: not Ayame; present: not Kaede",
     "text": "The night guard's torch finds you, stops, and swings politely away; his footsteps go on down the hall a little faster than before."
    },
    {
     "id": "cleaner",
     "weight": 40,
-    "when": "present: not Tamaki",
+    "when": "present: not Tamaki; present: not Ayame; present: not Kaede",
     "text": "The cleaner, early with her mop, stops in the doorway, takes in the scene and backs out humming; she will tell someone."
    },
    {
