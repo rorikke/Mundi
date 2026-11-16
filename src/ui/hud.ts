@@ -5,6 +5,7 @@ import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
 import { skillName, trainedBy } from '../sim/hobbies.js';
 import { courseRow } from './courses.js';
 import { shopHereRows } from './shopui.js';
+import { museumRows } from './museumui.js';
 import { payOf, lockedOut, toGetBackIn } from '../sim/bills.js';
 // The in-game HUD (the same layout for every style; skins only tint it). Glass panels around the scene:
 //   top left    — you: portrait, bar needs (health, energy) and round needs (hunger, thirst, mood, hygiene)
@@ -237,6 +238,7 @@ function actsColumn(g: Save, w: WorldDef) {
         ...innRows(g, w, atHome),
         ...acts.map(a => `<button class="mh-act mh-glass ${a.outing ? 'is-outing' : ''}" data-act="do" data-id="${esc(a.id)}" ${canAfford(g, a) ? '' : 'aria-disabled="true" title="Not enough money"'}><i>${a.icon ?? ''}</i><b>${esc(a.label)}</b><small>${isScenario(w) ? '' : `${a.cost < 0 ? `+${money(w, -a.cost)}` : a.cost ? money(w, a.cost) : 'Free'} · `}${a.minutes} min${a.roll && !isScenario(w) ? ` · 🎲 ${chanceOf(g, a)}% chance` : ''}${trainedSkill(w, a)}${a.together && mates.length ? ` · with <span data-notr>${esc(mates.map(m => g.cast[m]?.name ?? '').join(', '))}</span>` : ''}</small></button>`),
         ...shopHereRows(g, w),
+        ...museumRows(g, w),
         ...buyRows(g, w),
         ...giftRows(g, w),
     ];

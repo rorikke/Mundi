@@ -8,7 +8,7 @@ import { courseworkAction, addCoursework } from './degrees.js';
 import type { WorldDef, ActionDef, StatusDef } from '../core/world.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
-import { onDay, onHour } from './hooks.js';
+import { onDay, onHour, tierLink } from './hooks.js';
 import { money } from './needs.js';
 import type { Breakable } from '../core/presets.js';
 import { social, bondOf, isPartner, type PlanKind } from './social.js';
@@ -164,12 +164,20 @@ export function lockedHere(g: Save, avatar: string): string | null {
 export interface Invite { avatar: string; place: string; from: number; kind: PlanKind; initiative?: 'date' | 'casual' }
 export const pendingInvite = (g: Save): Invite | null => ((social(g) as any).invite ?? null);
 export const clearInvite = (g: Save) => { (social(g) as any).invite = null; };
+// (someone whose tier doesn't let them invite you yet, an end-game character before her Confidante tier, waits)
 function maybeInvite(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60);
-    if (!systemOn(w, 'plans') || pendingInvite(g) || h < 9 || h > 20 || rnd(g, 'invite') > 0.05) return [];
-    const pool = residents(g).filter(r => r.met && !(r as any).gone && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length);
+    const roll = rnd(g, 'invite');
+    if (!systemOn(w, 'plans') || pendingInvite(g) || h < 9 || h > 20 || roll > 0.05 * tierLink.inviteMax(g)) return [];
+    const pool = residents(g).filter(r => r.met && !(r as any).gone && (bondOf(g, r.avatar) >= 25 || isPartner(g, r.avatar)) && !shutOut(g, r.avatar, isPartner(g, r.avatar)) && !grudgeOf(g, r.avatar) && r.leisure.length && tierLink.invites(g, r.avatar));
     if (!pool.length) return [];
-    const r = pool[Math.floor(rnd(g, 'who') * pool.length)];
+    // (museum) someone whose tier makes them reach out more (Tamaki from her Sweetheart tier) weighs more, and the hour's
+    // chance grows with them; with nobody like that, 5% and a fair pick as ever
+    const ws = pool.map(x => tierLink.inviteOdds(g, x.avatar)), total = ws.reduce((a, b) => a + b, 0);
+    if (roll > 0.05 * total / pool.length) return [];
+    let pickAt = rnd(g, 'who') * total, i = 0;
+    while (i < pool.length - 1 && (pickAt -= ws[i]) >= 0) i++;
+    const r = pool[i];
     const from = nowAbs(g) + 120 - (nowAbs(g) % 30);
     const place = r.leisure[Math.floor(rnd(g, 'where') * r.leisure.length)];
     const inv: Invite = { avatar: r.avatar, place, from, kind: isPartner(g, r.avatar) && systemOn(w, 'romance') ? 'date' : 'hangout' };

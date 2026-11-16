@@ -7,6 +7,7 @@ import { cfg, state, adultOn, type Save } from '../core/store.js';
 import { isScenario, type WorldDef } from '../core/world.js';
 import { presentAt } from './people.js';
 import { outfitOf, wearOutfit } from '../st/bridge.js';
+import { tierLink } from './hooks.js';
 
 export const dressCodes = (g: Save): Record<string, string> => ((cfg(g) as any).dress ??= {});
 // a room's own code; a bedroom (home:…) uses the one set for all the bedrooms
@@ -35,7 +36,8 @@ export function applyDress(g: Save, w: WorldDef, has: (avatar: string, code: str
         const code = here.includes(a) ? dressFor(g, w, a).toLowerCase() : '';
         const list = code ? has(a, code) : [];
         if (!list) continue;
-        const match = code ? list.find(o => o.toLowerCase() === code) : undefined;
+        // ((museum) an outfit someone's tier hasn't opened yet isn't put on)
+        const match = code ? list.find(o => o.toLowerCase() === code && tierLink.outfit(g, a, o)) : undefined;
         const cur = outfitOf(a);
         if (match) {
             if (cur.toLowerCase() !== match.toLowerCase()) { wearOutfit(a, match); worn[a] = match; delete (state.sprites as any)[a]; changed = true; }

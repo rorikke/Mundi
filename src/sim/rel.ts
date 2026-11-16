@@ -8,7 +8,8 @@ import { nowAbs, cfg, type Save, type RelCfg } from '../core/store.js';
 import { getWorld, isScenario } from '../core/world.js';
 import { difficultyOf } from './bills.js';
 import { effectMul } from './effects.js';
-import { CURVES, HALF_LIFE, PACE, faded, paced, rateAt, type Curve, type PaceId } from './pace.js';
+import { CURVES, HALF_LIFE, PACE, faded, paced, rawFor, rateAt, type Curve, type PaceId } from './pace.js';
+import { tierLink } from './hooks.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
 import type { IntimateProfile } from '../core/world.js';
@@ -29,7 +30,9 @@ export type Pace = PaceId;
  *  save): `'you'`, their romance follows your gender, settled into `att` when the game starts (`fitToYou()` in
  *  sim/gender.ts); `'set'`, `att` is all there is (nothing: everyone). Unset: `'set'` when `att` holds a romance value,
  *  else `'you'`. In a save, `att` alone counts (missing: everyone). */
-export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile }
+export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile;
+    /** (museum, people who unlock: sim/tiers.ts) the highest tier reached and the day; gains past a cap held for the next */
+    tier?: { n: number; day: number }; held?: { f?: number; r?: number } }
 export type AttMode = 'you' | 'set';
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */
@@ -139,7 +142,9 @@ const NONE: Applied = { d: 0, fat: 0 };
 
 // How much of a gain x feels toward y: x's attraction for y's gender, per meter (0..1; 1 when y has no gender or x
 // set nothing for it). Starting values and losses never read it.
+// (museum) Someone `reserved` falls for whoever you play, whatever your gender, and for nobody else.
 export function attraction(g: Save, x: string, y: string, m: Meter): number {
+    if (m === 'r' && tierLink.reserved(g, idOf(g, x))) return idOf(g, y) === YOU ? 1 : 0;
     const people = relOf(g).people, gy = people[idOf(g, y)]?.gender;
     if (!gy) return 1;
     const v = people[idOf(g, x)]?.att?.[gy]?.[m];
@@ -157,8 +162,24 @@ export function gain(g: Save, m: Meter, x: string, y: string, raw: number, isPac
     raw *= attraction(g, x, y, m) * homeMult(g);
     if (y === YOU) raw *= effectMul(g, getWorld(g.world), 'gain', m === 'r' ? (meter(g, m, x, y) < CRUSH_AT ? ['romance', 'romance:early'] : 'romance') : meter(g, m, x, y) >= GOOD_FRIENDS ? ['friend', 'good friends'] : 'friend');
     if (!(raw > 0)) return NONE;
+    return land(g, m, x, y, raw, isPaced);
+}
+/** The last part of a gain, once attraction and the rest have scaled it: pacing, then (museum) the cap of x's tier
+ *  toward you, past which the raw rest is held for the next tier (sim/tiers.ts, which also lands held gains through
+ *  here). Exported for that; anything else gains through `gain`. */
+export function land(g: Save, m: Meter, x: string, y: string, raw: number, isPaced = true): Applied {
+    x = idOf(g, x); y = idOf(g, y);
+    if (!x || !y || x === YOU || x === y || !(raw > 0)) return NONE;
     const before = meter(g, m, x, y);
-    const add = isPaced ? paced(raw, fatigue(g, m, x, y), curveOf(g, x, m)) : raw;
+    const F = isPaced ? fatigue(g, m, x, y) : 0, c = isPaced ? curveOf(g, x, m) : null;
+    let add = c ? paced(raw, F, c) : raw;
+    const cap = y === YOU ? tierLink.cap(g, m, x) : null;
+    if (cap !== null && before + add > cap) {
+        const room = Math.max(0, cap - before), rawIn = c ? rawFor(room, F, c) : room;
+        tierLink.hold(g, m, x, raw - rawIn);
+        add = room;
+        if (!(add > 0)) return NONE;
+    }
     setMeter(g, m, x, y, before + add);
     const d = clean(meter(g, m, x, y) - before);
     const fat = isPaced ? clean(add) : 0;

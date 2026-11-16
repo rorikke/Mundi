@@ -1,0 +1,75 @@
+/* The museum (ui/collection.ts, ui/museumui.ts): display pieces as picture tiles in a grid (darkened when missing,
+   gold for a bonus piece or a good ending, marks for Replica and Damaged), the museum's tabs (Museum, Dealer, Sales,
+   Here) as cards and rows, the four top bids, the scene's sale card, and a person's tier on their People page */
+#mundi-root .mu-cl-tabsep { flex: 0 0 1px; align-self: stretch; margin: 4px 2px; background: var(--line); }
+/* the pieces' grid */
+#mundi-root .mu-cl-tiles.is-pieces { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; padding: 8px; }
+#mundi-root .mu-cl-piece { flex-direction: column; gap: 6px; padding: 6px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+#mundi-root .mu-cl-piece .mu-cl-pic { width: 100%; height: auto; aspect-ratio: 1; border-radius: 9px; font-size: 40px; }
+#mundi-root .mu-cl-piece .mu-cl-text { width: 100%; font-size: 12px; }
+#mundi-root .mu-cl-piece .mu-cl-name b { font-size: 13px; line-height: 1.2; }
+#mundi-root .mu-cl-piece.is-empty { background: transparent; border-style: dashed; }
+#mundi-root .mu-cl-tile.mu-cl-piece.is-empty .mu-cl-pic:not(.is-face):not(.is-emoji) { filter: grayscale(1) brightness(.45) contrast(.8); opacity: .45; }   /* darkened, still recognisable */
+#mundi-root .mu-cl-piece.is-empty .mu-cl-pic.is-emoji { filter: grayscale(1); opacity: .35; }
+#mundi-root .mu-cl-piece.is-gold { border-color: #d4a017; box-shadow: 0 0 0 1px #d4a017 inset; }
+#mundi-root .mu-cl-piece.is-gold .mu-cl-pic { box-shadow: 0 0 0 2px #d4a017; }
+#mundi-root .mu-cl-piece.is-damaged .mu-cl-pic { filter: sepia(.6) saturate(.6); }
+#mundi-root .mu-cl-piece.is-replica .mu-cl-pic { opacity: .85; }
+#mundi-root .mu-cl-at, #mundi-root .mu-cl-band, #mundi-root .mu-cl-needs { opacity: .75; }
+#mundi-root .mu-cl-band { letter-spacing: 1px; font-weight: 700; color: #d4a017; opacity: 1; }
+#mundi-root .mu-cl-needs { color: var(--warn, #e0a040); opacity: 1; }
+#mundi-root .mu-cl-fix { color: var(--warn, #e0a040); }
+#mundi-root button.mu-cl-fix { min-height: 28px; padding: 2px 8px; font-size: 12px; }
+#mundi-root .mu-cl-mark.is-bonus { background: #d4a017; }
+#mundi-root .mu-cl-mark.is-replica { background: var(--line); color: inherit; }
+/* the museum's cards and rows */
+#mundi-root .mu-mu-card { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
+#mundi-root .mu-mu-card h4 { margin: 0; font-size: 14px; }
+#mundi-root .mu-mu-card p { margin: 0; }
+#mundi-root .mu-mu-card small { opacity: .8; }
+#mundi-root .mu-mu-name { font-size: 16px; }
+#mundi-root .mu-mu-big { font-size: 26px; line-height: 1; color: var(--accent); }
+#mundi-root .mu-mu-renown-top { display: flex; gap: 10px; align-items: center; }
+#mundi-root .mu-mu-renown-top span { display: grid; gap: 1px; }
+#mundi-root .mu-mu-bar { height: 6px; }
+#mundi-root .mu-mu-why { color: var(--warn, #e0a040); opacity: 1 !important; }
+#mundi-root .mu-mu-go { justify-self: start; }
+#mundi-root .mu-mu-show.is-on { border-color: var(--accent); }
+#mundi-root .mu-mu-list { display: grid; gap: 1px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-mu-row { display: flex; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); }
+#mundi-root .mu-mu-row:first-child { border-top: 0; }
+#mundi-root .mu-mu-row > span { flex: 1; display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-mu-row > i { font-style: normal; font-size: 22px; }
+#mundi-root .mu-mu-row > button, #mundi-root .mu-mu-row > em { flex: 0 0 auto; }
+#mundi-root .mu-mu-row > button { min-height: 30px; padding: 3px 10px; font-size: 12px; }
+#mundi-root .mu-mu-row > em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--good, #4caf50); }
+#mundi-root .mu-mu-row.is-off > span { opacity: .6; }
+#mundi-root .mu-mu-row.is-won b::before { content: '✓ '; color: var(--good, #4caf50); }
+#mundi-root .mu-mu-row.is-lost > span { opacity: .7; }
+/* pieces for sale: the dealer's stock, the lots, Here */
+#mundi-root .mu-mu-cards { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-mu-piece { display: grid; grid-template-columns: 64px 1fr auto; gap: 10px; align-items: center; padding: 8px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); }
+#mundi-root .mu-mu-piece > span { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-mu-pic { width: 64px; height: 64px; border-radius: 9px; object-fit: cover; display: grid; place-items: center; font-style: normal; font-size: 34px; background: var(--bg); }
+#mundi-root .mu-mu-lot { grid-template-columns: 64px 1fr; }
+#mundi-root .mu-mu-lot.is-wanted { border-color: #c0504d; }
+#mundi-root .mu-mu-rival { color: #e07a77; opacity: 1 !important; }
+#mundi-root .mu-mu-bids { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+#mundi-root .mu-mu-bids button { flex: 1 1 0; min-width: 64px; min-height: 30px; padding: 3px 6px; font-size: 12px; }
+#mundi-root .mu-mu-bids button.is-on { background: var(--accent); color: #fff; }
+#mundi-root .mu-mu-when { margin: 0 2px; font-size: 13px; opacity: .8; }
+#mundi-root .mu-mu-ask { display: grid; gap: 6px; }
+#mundi-root .mu-mu-ask label { display: grid; gap: 4px; }
+#mundi-root .mu-mu-ask select { width: 100%; min-height: 32px; }
+#mundi-root .mu-mu-ask button { justify-self: start; }
+#mundi-root .mu-mu-salecard { border-color: #c0504d; }
+#mundi-root .mu-mu-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+/* the scene's sale card (the HUD) */
+#mundi-root .mh-sale-card small { display: flex; flex-wrap: wrap; gap: 6px; opacity: 1; }
+#mundi-root .mh-sale-card small button { min-height: 28px; padding: 2px 10px; font-size: 12px; }
+/* a person's tier (People page) */
+#mundi-root .mu-mu-tier { display: grid; gap: 2px; margin: 2px 0; text-align: center; font-size: 13px; }
+/* the journal (book look) */
+#mundi-root .mu-book .mu-mu-card, #mundi-root .mu-book .mu-mu-piece, #mundi-root .mu-book .mu-cl-piece { background: transparent; border-color: rgba(90, 60, 30, .35); }
+#mundi-root .mu-book .mu-mu-big { color: #7a4a1e; }
+#mundi-root .mu-cl-hint.is-needs { color: var(--warn, #e0a040); opacity: 1; }

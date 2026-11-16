@@ -7,7 +7,7 @@
 import { adultOn, type Save } from '../core/store.js';
 import { systemOn, getWorld, type WorldDef, type SlotDef, type HallDef, type StoryDef } from '../core/world.js';
 import { MIN_KIND } from '../core/collection.js';
-import { onHour, onKeepsake, collectionLink } from './hooks.js';
+import { onHour, onKeepsake, collectionLink, museumHooks } from './hooks.js';
 import { parseWhen, whenHolds, namedIn, personNamed, threadsInGame, missingWords, kindHere, placesToVisit } from './when.js';
 import { threadsOf, goneFromMap, titleOf, type ThreadState } from './threads.js';
 import { personaName } from '../st/bridge.js';
@@ -16,7 +16,10 @@ import { offeredGoals } from './goals.js';
 /** What the save keeps: the slots filled (the day; a storyline's ending, whether it was good and how it came; `back`:
  *  filled by the first settle from what the save already remembered), the slots the percentages count, the keepsakes
  *  held at some time, the day the app was last opened, and `v` once the first settle has run. */
-export interface Got { day: number; how?: string; good?: boolean; by?: string; back?: boolean }
+export interface Got { day: number; how?: string; good?: boolean; by?: string; back?: boolean;
+    /** (museum) a display piece: the source kind it came by, what it cost, a replica (CO-2), damaged and off the show
+     *  until restored (the theft's; a damaged find isn't filled until restored, MU-4) */
+    src?: string; paid?: number; replica?: boolean; damaged?: boolean }
 export interface CollectionState { got: Record<string, Got>; counted: string[]; had: string[]; seen?: number; v?: number }
 
 /** The system on and something to collect in this world. */
@@ -35,12 +38,20 @@ export function collectionState(g: Save): CollectionState {
 // The storylines' states, read without making the key (sim/threads.ts's accessor writes `g.threads`)
 const threadStates = (g: Save) => ((g as any).threads ?? {}) as Record<string, ThreadState>;
 const hallOf = (w: WorldDef, id: string) => w.collection?.halls.find(h => h.id === id);
+// Which percentage a slot counts in: the record's, the museum's, or none (a hall of its own, `apart`)
+const countsIn = (w: WorldDef, s: SlotDef, record: boolean) => { const h = hallOf(w, s.hall); return !h?.apart && !!h?.record === record; };
 const fits = (g: Save, w: WorldDef, x: { adult?: boolean; needs?: string[] }) => (!x.adult || adultOn(g)) && (x.needs ?? []).every(n => systemOn(w, n as any));
 // The storyline a slot is about (`thread: <id>` with no ending named), and the keepsake kind (`had: all <kind>`).
 const threadOfSlot = (s: SlotDef): string | null => {
     const c = parseWhen(s.when).conds;
     return c.length === 1 && c[0].key === 'thread' && !c[0].not && c[0].values.length === 1 ? c[0].values[0].split(/\s+/)[0] : null;
 };
+// (museum) A piece whose only ways are storylines' endings (a person's thing) is about those storylines.
+const endingsOfSlot = (s: SlotDef): string[] => {
+    const src = s.sources ?? [];
+    return src.length && src.every(x => x.kind === 'ending' && !!x.id) ? src.map(x => x.id!) : [];
+};
+const storyOfSlot = (s: SlotDef): string | null => threadOfSlot(s) ?? endingsOfSlot(s)[0] ?? null;
 const kindOfSlot = (s: SlotDef): string | null => {
     for (const c of parseWhen(s.when).conds) if (c.key === 'had' && !c.not) for (const v of c.values) { const m = v.match(/^all\s+(.+)$/i); if (m) return m[1].trim(); }
     return null;
@@ -65,6 +76,8 @@ export function slotsHere(g: Save, w: WorldDef): SlotDef[] {
         if (s.who) named.people.push(s.who);
         if (named.people.some(p => !personNamed(g, p))) return false;
         if (named.threads.some(t => !threads.has(t))) return false;
+        const ends = endingsOfSlot(s);
+        if (ends.length && !ends.some(t => threads.has(t))) return false;
         const kind = kindOfSlot(s);
         if (kind !== null && kindHere(g, w, kind).length < min) return false;
         return true;
@@ -75,8 +88,9 @@ export function slotsHere(g: Save, w: WorldDef): SlotDef[] {
 
 /* ---------- R-4: a district's street stories ---------- */
 
-// Stories that belong to the Business app and the jobs, not to a district.
-const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track']);
+// Stories that belong to the Business app and the jobs, not to a district; (museum) nor the museum's and the end game's
+// people's (its milestones at the museum, a tier).
+const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer']);
 const seenOf = (g: Save) => ((g as any).stories?.seen ?? {}) as Record<string, { day: number; choice?: number }>;
 // A person a story names who left the map or isn't in this game.
 const personGone = (g: Save, name: string) => { const r = personNamed(g, name); return !r || goneFromMap(r); };
@@ -102,7 +116,8 @@ function storyGone(g: Save, w: WorldDef, s: StoryDef, depth = 0): boolean {
  *  job or rank condition; seen ones, those still to come, and those that can't happen any more. */
 export function storyPool(g: Save, w: WorldDef, map: string): { seen: StoryDef[]; open: StoryDef[]; gone: StoryDef[] } {
     const out = { seen: [] as StoryDef[], open: [] as StoryDef[], gone: [] as StoryDef[] };
-    const places = new Set(w.places.filter(p => p.map === map && !p.venture).map(p => p.id)), seen = seenOf(g);
+    const own = w.collection?.museum?.place;   // (museum) its place's stories are the museum's
+    const places = new Set(w.places.filter(p => p.map === map && !p.venture && p.id !== own).map(p => p.id)), seen = seenOf(g);
     for (const s of w.stories ?? []) {
         if (!places.has(s.place) || (s.adult && !adultOn(g))) continue;
         if (parseWhen(s.when).conds.some(c => NOT_DISTRICT.has(c.key))) continue;
@@ -138,21 +153,22 @@ function endingOf(g: Save, w: WorldDef, id: string): Pick<Got, 'how' | 'good' | 
     const e = t?.endings?.find(x => x.id === st.ended);
     return { how: st.ended, ...(e?.good ? { good: true } : {}), ...(st.endedBy ? { by: st.endedBy } : {}) };
 }
-/** Filled ÷ counted, for the record (`record` halls) or the museum (every other hall), over the slots here. */
+/** Filled ÷ counted, for the record (`record` halls) or the museum (every other hall), over the slots here; a hall of
+ *  its own (`apart`) counts in neither. */
 export function percentOf(g: Save, w: WorldDef, record: boolean): { filled: number; counted: number; pct: number; fresh: number } {
     const c = collectionOf(g), counted = new Set(c?.counted ?? []);
-    const here = slotsHere(g, w).filter(s => !!hallOf(w, s.hall)?.record === record);
+    const here = slotsHere(g, w).filter(s => countsIn(w, s, record) && !s.bonus);   // (a bonus piece never counts)
     const inIt = here.filter(s => counted.has(s.id)), filled = inIt.filter(s => c?.got[s.id]).length;
     return { filled, counted: inIt.length, pct: inIt.length ? Math.floor((filled / inIt.length) * 100) : 0, fresh: here.length - inIt.length };
 }
-const recordName = (w: WorldDef) => w.collection?.halls.find(h => h.record)?.name ?? 'Your collection';
+const recordName = (w: WorldDef) => w.collection?.halls.find(h => h.record && !h.apart)?.name ?? 'Your collection';
 /** Fill what holds now (an hourly hook and when a save opens; the first run is the backfill). Returns lines to show. */
 // (a condition can reach `game()`, which settles a save it's opening: never inside a settle already running)
 let busy = false;
 export function settleCollection(g: Save, w: WorldDef): string[] {
     if (!collectionOn(w) || busy) return [];
     busy = true;
-    try { return settle(g, w); } finally { busy = false; }
+    try { return [...settle(g, w), ...museumHooks.settle(g, w)]; } finally { busy = false; }
 }
 function settle(g: Save, w: WorldDef): string[] {
     const c = collectionState(g), first = !c.v;
@@ -176,18 +192,26 @@ function settle(g: Save, w: WorldDef): string[] {
     const counted = new Set(c.counted);
     if (first) for (const s of here) counted.add(s.id);
     else for (const record of [true, false]) {
-        const fresh = here.filter(s => !counted.has(s.id) && !!hallOf(w, s.hall)?.record === record);
+        const fresh = here.filter(s => !counted.has(s.id) && countsIn(w, s, record));
         if (!fresh.length) continue;
-        const inIt = here.filter(s => counted.has(s.id) && !!hallOf(w, s.hall)?.record === record);
+        const inIt = here.filter(s => counted.has(s.id) && countsIn(w, s, record) && !s.bonus);
         const done = inIt.length > 0 && inIt.every(s => c.got[s.id]);
         for (const s of fresh) if (!done || c.got[s.id]) counted.add(s.id);
     }
+    // (a hall of its own has no percentage to keep at 100%, so no slot of it is ever "new")
+    if (!first) for (const s of here) if (hallOf(w, s.hall)?.apart) counted.add(s.id);
     if (counted.size !== c.counted.length) c.counted = [...counted];
     c.v = 1;
     if (!filled.length) return [];
-    const name = recordName(w);
-    if (first) return [`${name} begin with ${filled.length} things you've already done.`];
-    return filled.length <= 2 ? [`${name}: ${filled.map(s => s.name).join(', ')}.`] : [`${name}: ${filled.length} new.`];
+    // a hall of its own tells what fills in it under its own name, and only while it's open (its slots fill meanwhile)
+    const out: string[] = [], tell = (name: string, list: SlotDef[], begin: boolean) => {
+        if (!list.length) return;
+        if (begin) out.push(`${name} begin with ${list.length} things you've already done.`);
+        else out.push(list.length <= 2 ? `${name}: ${list.map(s => s.name).join(', ')}.` : `${name}: ${list.length} new.`);
+    };
+    tell(recordName(w), filled.filter(s => !hallOf(w, s.hall)?.apart), first);
+    for (const h of w.collection?.halls ?? []) if (h.apart && (!h.open || whenHolds(g, w, h.open))) tell(h.name, filled.filter(s => s.hall === h.id), false);
+    return out;
 }
 
 /* ---------- for the screen ---------- */
@@ -198,20 +222,26 @@ export interface Tile {
     /** A storyline's title, once you know its secret or it has ended (before that the slot shows only its name). */
     title?: string;
     count?: { have: number; need: number; gone?: number };
+    /** (museum) a display piece's own: on show, where, its price and rung, what it waits for (sim/museum.ts `PieceTile`) */
+    piece?: Record<string, unknown>;
 }
-export interface HallView { id: string; name: string; icon?: string; desc?: string; record: boolean; groups: { id: string; name: string; icon?: string; tiles: Tile[]; filled: number }[] }
+export interface HallView { id: string; name: string; icon?: string; desc?: string; record: boolean;
+    /** a record hall of its own (`HallDef.apart`): its own share, in neither percentage */ apart?: boolean;
+    /** (museum) how a display hall is on show (sim/museum.ts `HallShow`) */ show?: Record<string, unknown>;
+    groups: { id: string; name: string; icon?: string; tiles: Tile[]; filled: number }[] }
 // A storyline's plaque: the world's own for that ending, else the ending's words cut to their first sentence.
 function plaqueOf(g: Save, w: WorldDef, s: SlotDef, got: Got): string | undefined {
-    if (!got.how) return undefined;
+    // (museum) a display piece's own line, when no ending gives the plaque
+    if (!got.how) return s.plaque ? s.plaque.replace(/\{\{user\}\}/g, personaName()) : undefined;
     if (s.plaques?.[got.how]) return s.plaques[got.how].replace(/\{\{user\}\}/g, personaName());
-    const t = threadOfSlot(s), e = t ? threadsOf(g, w).find(x => x.t.id === t)?.t.endings?.find(x => x.id === got.how) : undefined;
+    const t = storyOfSlot(s), e = t ? threadsOf(g, w).find(x => x.t.id === t)?.t.endings?.find(x => x.id === got.how) : undefined;
     const text = (e?.text ?? '').replace(/\{\{user\}\}/g, personaName()).trim();
     const one = text.match(/^.*?[.!?](\s|$)/)?.[0]?.trim() ?? text;
     return one.length > 160 ? `${one.slice(0, 157).trimEnd()}…` : one || undefined;
 }
 // A storyline's title is the player's once they know its secret or it has ended (as the person's "Their story" shows it).
 function titleNow(g: Save, w: WorldDef, s: SlotDef): string | undefined {
-    const id = threadOfSlot(s), st = id ? threadStates(g)[id] : undefined;
+    const id = storyOfSlot(s), st = id ? threadStates(g)[id] : undefined;
     if (!id || !st || (st.known === undefined && !st.ended)) return undefined;
     const x = threadsOf(g, w).find(y => y.t.id === id);
     return x ? titleOf(x.t, x.r) : undefined;
@@ -228,12 +258,16 @@ function countOf(g: Save, w: WorldDef, s: SlotDef): Tile['count'] | undefined {
     }
     return undefined;
 }
-/** The halls this game has and that are open, with their tiles, for the Collection app. Settles nothing. */
+/** The halls this game has and that are open, with their tiles, for the Collection app. Settles nothing. (museum) In a
+ *  world with a museum a display hall is shown once the museum has begun, and its `open` says it's on show, not
+ *  whether it's shown. */
 export function recordView(g: Save, w: WorldDef): HallView[] {
     if (!collectionOn(w)) return [];
-    const c = collectionOf(g), counted = new Set(c?.counted ?? []), here = slotsHere(g, w);
-    return w.collection!.halls.filter((h: HallDef) => fits(g, w, h) && (!h.open || whenHolds(g, w, h.open))).map(h => ({
-        id: h.id, name: h.name, icon: h.icon, desc: h.desc, record: !!h.record,
+    const c = collectionOf(g), counted = new Set(c?.counted ?? []), here = slotsHere(g, w), begun = museumHooks.begun(g, w);
+    const shown = (h: HallDef) => (h.record || begun === null ? !h.open || whenHolds(g, w, h.open) : begun);
+    return w.collection!.halls.filter((h: HallDef) => fits(g, w, h) && shown(h)).map(h => ({
+        id: h.id, name: h.name, icon: h.icon, desc: h.desc, record: !!h.record, ...(h.apart ? { apart: true } : {}),
+        ...(!h.record && begun !== null ? { show: museumHooks.hall(g, w, h.id) } : {}),
         groups: h.groups.map(gr => {
             const tiles = here.filter(s => s.hall === h.id && s.group === gr.id).map((s): Tile => {
                 const got = c?.got[s.id];
@@ -242,6 +276,7 @@ export function recordView(g: Save, w: WorldDef): HallView[] {
                     plaque: got ? plaqueOf(g, w, s, got) : undefined, gold: !!got?.good, away: got?.by === 'nudges', title: titleNow(g, w, s),
                     fresh: !counted.has(s.id), hint: got ? '' : s.hint ?? (s.when ? missingWords(g, w, s.when, undefined, { more: true }).join('; ') : ''),
                     count: got ? undefined : countOf(g, w, s),
+                    ...(!h.record && (s.sources?.length || begun !== null) ? { piece: museumHooks.tile(g, w, s.id) } : {}),
                 };
             });
             return { id: gr.id, name: gr.name, icon: gr.icon, tiles, filled: tiles.filter(t => t.got).length };

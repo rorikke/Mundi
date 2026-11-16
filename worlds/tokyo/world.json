@@ -7109,6 +7109,44 @@
    "fact": "{u} wrote beside Yui in a kissaten in {0}"
   },
   {
+   "id": "ak_jinbocho_tamaki",
+   "name": "Jinbōchō evening",
+   "label": "A Jinbōchō evening with Tamaki",
+   "icon": "📚",
+   "cost": 1200,
+   "minutes": 120,
+   "effects": {
+    "mood": 9,
+    "energy": -5,
+    "hunger": 15
+   },
+   "when": "tier: Tamaki 1; present: Tamaki; period: evening",
+   "together": {
+    "needed": true,
+    "text": "an evening of old bookshops and a curry, her tote filling with sale catalogues"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She knows which dealer keeps the old sale catalogues behind the counter, and reads you the prices of thirty years ago over curry, outraged and delighted.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "In a back-street kissaten she tells you about her grandfather's shop, the crates, the pieces she named, and forgets her coffee entirely.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} spent an evening in Jinbōchō with Tamaki",
+   "place": "ak_jinbocho"
+  },
+  {
    "id": "ak_juku_study",
    "label": "Study in the quiet room",
    "name": "Quiet room",
@@ -7469,6 +7507,43 @@
    "place": "ot_sensoji"
   },
   {
+   "id": "ot_sensoji_sanja_tamaki",
+   "name": "Sanja with Tamaki",
+   "label": "The Sanja festival with Tamaki",
+   "icon": "🏮",
+   "cost": 800,
+   "minutes": 90,
+   "effects": {
+    "mood": 12,
+    "energy": -6
+   },
+   "when": "tier: Tamaki 2; festival: sanja; present: Tamaki; period: midmorning or afternoon",
+   "together": {
+    "needed": true,
+    "text": "the Sanja festival in yukata, hers indigo with white plum blossoms"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "In her indigo yukata she dates every portable shrine that passes, out loud, until a bearer laughs and tells her she is right about his.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "The crowd pushes you together on Nakamise and she doesn't step away again; she holds your sleeve all the way to the temple.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} watched the Sanja shrines go by with Tamaki, both in yukata",
+   "place": "ot_sensoji"
+  },
+  {
    "id": "ot_sensoji_bell",
    "name": "Midnight bell",
    "label": "Join the midnight line",
@@ -7621,6 +7696,43 @@
    "place": "ot_sumida"
   },
   {
+   "id": "ot_sumida_fireworks_tamaki",
+   "name": "Fireworks with Tamaki",
+   "label": "The fireworks with Tamaki",
+   "icon": "🎆",
+   "cost": 600,
+   "minutes": 90,
+   "effects": {
+    "mood": 14,
+    "energy": -6
+   },
+   "when": "tier: Tamaki 2; festival: fireworks; present: Tamaki; period: evening; weather: not rain or snow or storm",
+   "together": {
+    "needed": true,
+    "text": "the Sumida fireworks from the bank, in yukata, her fan going faster than the bursts"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She grades every burst like a lot at a sale, \"good provenance, poor finish\", and then the big one goes up and she forgets to speak at all.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Her shoulder ends up against yours on the crowded bank, and it stays there through the finale and a long while after it.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} watched the Sumida fireworks with Tamaki, both in yukata",
+   "place": "ot_sumida"
+  },
+  {
    "id": "ot_sumida_moon",
    "name": "Moon viewing",
    "label": "Look at the moon",
@@ -7649,6 +7761,43 @@
     }
    ],
    "fact": "{u} watched the harvest moon from the Sumida riverside",
+   "place": "ot_sumida"
+  },
+  {
+   "id": "ot_sumida_moon_tamaki",
+   "name": "Moon with Tamaki",
+   "label": "View the moon with Tamaki",
+   "icon": "🌕",
+   "cost": 400,
+   "minutes": 60,
+   "effects": {
+    "mood": 12,
+    "hunger": 10
+   },
+   "when": "tier: Tamaki 2; festival: tsukimi; present: Tamaki; period: night",
+   "together": {
+    "needed": true,
+    "text": "the harvest moon over the river, dumplings between them, her yukata sleeve against their wrist"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She tells you the moon has been painted badly for a thousand years and she has never once minded, then hands you the last dumpling.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Clouds hide the moon and she says it is the best kind of viewing, the waiting kind, and doesn't let go of your hand when it comes out.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} viewed the harvest moon with Tamaki on the Sumida",
    "place": "ot_sumida"
   },
   {
@@ -7970,6 +8119,606 @@
    "place": "ot_museum"
   },
   {
+   "id": "ot_kura_walk",
+   "name": "Walk the halls",
+   "label": "Walk the halls",
+   "icon": "🏛️",
+   "cost": 0,
+   "minutes": 45,
+   "effects": {
+    "mood": 8,
+    "energy": -3
+   },
+   "when": "museum: open",
+   "together": {
+    "needed": false,
+    "text": "walking the cases side by side"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "The light lies low on the cases; a visitor reads every plaque twice."
+    },
+    {
+     "weight": 25,
+     "text": "Someone bends close to a piece of yours, then calls a friend over to see it.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "weight": 15,
+     "when": "present: Tamaki",
+     "text": "Tamaki falls in beside you and tells you, case by case, who mended what badly.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "present: Tamaki; thread: tamaki_last_case; had: not tamaki_key",
+     "text": "At the case with the lacquered box Tamaki stops, unties a small iron key from her sash and presses it into your hand. \"It opens for you now too.\"",
+     "keepsake": "tamaki_key",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} walked the halls of {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_plaque",
+   "name": "Write a plaque",
+   "label": "Write a plaque with Tamaki",
+   "icon": "🏷️",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "energy": -6,
+    "mood": 4
+   },
+   "when": "museum: open; present: Tamaki",
+   "together": {
+    "needed": false,
+    "text": "writing a plaque together, a line each"
+   },
+   "roll": {
+    "dc": 12,
+    "skill": "writing",
+    "success": {
+     "text": "Four lines, not a word wasted; she reads it aloud, then copies it out with her brush pen.",
+     "effects": {
+      "mood": 5
+     }
+    },
+    "fail": {
+     "text": "Your draft says \"very old\". She crosses it out, kindly, and writes the date it really is.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "Tamaki pins the card beside the piece and steps back to see it the way a visitor would.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "writing",
+   "fact": "{u} wrote a plaque with Tamaki at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_tea",
+   "name": "Garden tea",
+   "label": "Tea in the garden",
+   "icon": "🍵",
+   "cost": 300,
+   "minutes": 45,
+   "effects": {
+    "mood": 8,
+    "energy": 6,
+    "thirst": 15
+   },
+   "when": "museum: garden",
+   "together": {
+    "needed": false,
+    "text": "tea on the garden bench behind the kura"
+   },
+   "outcomes": [
+    {
+     "weight": 70,
+     "text": "Green tea on the bench behind the kura; a cat from the lane comes to see what you have."
+    },
+    {
+     "weight": 30,
+     "when": "present: Tamaki",
+     "text": "Tamaki brings out her grandmother's cups, the good ones, and pretends it was an accident.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} had tea in the garden of {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_reading",
+   "name": "Reading room",
+   "label": "Read in the reading room",
+   "icon": "📚",
+   "cost": 0,
+   "minutes": 120,
+   "effects": {
+    "energy": -8,
+    "mood": 4
+   },
+   "when": "museum: reading; period: afternoon",
+   "together": {
+    "needed": false,
+    "text": "reading across one table, passing notes"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "writing",
+    "success": {
+     "text": "An old sale record and a dealer's letter agree at last: you know where one of the pieces came from.",
+     "effects": {
+      "mood": 5
+     }
+    },
+    "fail": {
+     "text": "The catalogues disagree on every date, and the light goes before you settle any of them.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   },
+   "trains": "writing",
+   "fact": "{u} read until closing in the reading room of {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_inventory",
+   "name": "Inventory",
+   "label": "Help with the inventory",
+   "icon": "📋",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "energy": -10,
+    "mood": 2
+   },
+   "when": "museum: open; present: Tamaki",
+   "together": {
+    "needed": false,
+    "text": "counting the boxes in the back store together"
+   },
+   "outcomes": [
+    {
+     "weight": 85,
+     "text": "Box after box against her ledger; she knows every one by its knot.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 15,
+     "text": "A box marked \"odds\" holds something nobody listed. Tamaki turns it to the light for a long time and says nothing yet.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "logic",
+   "fact": "{u} helped Tamaki with the inventory at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_lesson",
+   "name": "Appraisal lesson",
+   "label": "Tamaki's appraisal lesson",
+   "icon": "🔍",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "energy": -8,
+    "mood": 3
+   },
+   "when": "tier: Tamaki 0; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "an appraisal lesson: her gloves, your guesses"
+   },
+   "roll": {
+    "dc": 13,
+    "skill": "logic",
+    "success": {
+     "text": "You date the bowl within fifty years. She looks at you, then at the bowl, almost offended.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    "fail": {
+     "text": "You say Edo. …Shōwa, she says. Last Tuesday, probably. She lets you try again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   },
+   "outcomes": [
+    {
+     "weight": 100,
+     "text": "Tamaki puts the piece back in its box with both hands and writes your guess and hers in the margin of her notebook.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 60,
+     "when": "did: ot_kura_lesson 5",
+     "text": "You see the old repair before she points to it. \"There,\" she says, pleased and pretending not to be. \"Now take that eye to every stall.\"",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "trains": "logic",
+   "fact": "{u} took an appraisal lesson from Tamaki at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_after_hours",
+   "name": "After hours",
+   "label": "Stay after closing with Tamaki",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 10,
+    "energy": -4
+   },
+   "when": "tier: Tamaki 2; present: Tamaki; period: evening",
+   "together": {
+    "needed": true,
+    "text": "the kura after the last visitor, the case lights going off one by one, just the two of them"
+   },
+   "outcomes": [
+    {
+     "weight": 50,
+     "text": "She turns the case lights off one by one and leaves the last one on, so the two of you can sit on the boards beside the tea bowls.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 30,
+     "text": "She reads you the plaques she rejected this week, in a museum voice, until neither of you can keep a straight face.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 20,
+     "text": "Between the netsuke and the tea bowls she kisses you once, quickly, then turns to straighten a label that was perfectly straight.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "had: not tamaki_pin",
+     "text": "From her desk drawer she takes a small enamel badge, the Treasure Clinic pin every appraiser wore, and pins it on you. \"I kept it eleven years. That's long enough.\"",
+     "keepsake": "tamaki_pin",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} stayed after closing with Tamaki at {0}",
+   "place": "ot_kura"
+  },
+  {
+   "id": "ot_kura_backroom",
+   "name": "The back room",
+   "label": "Kiss Tamaki in the back store",
+   "icon": "🗝️",
+   "cost": 0,
+   "minutes": 40,
+   "place": "ot_kura",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 2; present: Tamaki; companion: crush or casual; period: evening",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "quiet places after closing",
+    "a thrill of near-discovery",
+    "long kissing",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's back store at closing time with Tamaki, among the stacked boxes, the shutters half down and the last visitor maybe still on the step"
+   },
+   "outcomes": [
+    {
+     "id": "boxes",
+     "weight": 50,
+     "text": "Among the paulownia boxes she kisses you as if she has been waiting all day, which she says she has, and then shushes you for laughing."
+    },
+    {
+     "id": "shutter",
+     "weight": 30,
+     "text": "The shutter rattles in the lane and you both go still; it is only the wind, and she laughs into your shoulder until she can breathe.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "labels",
+     "weight": 20,
+     "text": "Afterwards she straightens every box you knocked and checks every label, pink to the ears the whole time.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} slipped into the back store of {0} with Tamaki at closing time",
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "ot_kura_back_night",
+   "name": "Back-room night",
+   "label": "A night in the back room",
+   "icon": "🏮",
+   "cost": 0,
+   "minutes": 120,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 14,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "quiet places after closing",
+    "slow and tender",
+    "whispered words",
+    "tea brought afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's back room after closing, the futon kept for inventory nights unrolled between the boxes, one low lamp and nobody for streets around"
+   },
+   "outcomes": [
+    {
+     "id": "lamp",
+     "weight": 50,
+     "text": "One lamp, the boxes all around like a sleeping audience; she is slower than ever, and says your name like a label she is proud of."
+    },
+    {
+     "id": "tea",
+     "weight": 30,
+     "text": "Near midnight she makes tea on the office burner and brings it back to the futon in her grandfather's cups, the good ones, on purpose this time.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "list",
+     "weight": 20,
+     "text": "Lying in the dark she lists every piece in the room in order, and you lose count of the times she stops to kiss you.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent the night in the back room of the Kurahashi kura with Tamaki",
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "ot_kura_back_halls",
+   "name": "The dark halls",
+   "label": "Walk the dark halls with Tamaki",
+   "icon": "🔦",
+   "cost": 0,
+   "minutes": 45,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "risk": 0.15,
+   "dc": 13,
+   "matches": [
+    "a thrill of near-discovery",
+    "semi-public places",
+    "quiet places after closing"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's halls after closing with Tamaki, the cases dark, the alarm panel blinking, and someone who works there maybe coming by"
+   },
+   "outcomes": [
+    {
+     "id": "case",
+     "weight": 50,
+     "text": "Against the cool glass of the netsuke case she whispers each piece's date to you, which is somehow the most daring thing she has ever said."
+    },
+    {
+     "id": "panel",
+     "weight": 30,
+     "text": "The alarm panel blinks in the dark; every time a car passes in the lane she holds her breath, and so do you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "scroll",
+     "weight": 20,
+     "text": "In front of the tokonoma she turns the hanging scroll to the wall first, solemnly (\"he shouldn't watch\"), and then pulls you down onto the boards.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} walked the dark halls of the Kurahashi kura with Tamaki after closing",
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "ot_kura_back_roof",
+   "name": "Roof at night",
+   "label": "A blanket on the roof",
+   "icon": "🌌",
+   "cost": 0,
+   "minutes": 60,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 13,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: night or latenight; weather: not rain or snow or storm",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "risk": 0.05,
+   "dc": 13,
+   "matches": [
+    "a thrill of near-discovery",
+    "semi-public places",
+    "slow and tender"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's tiled roof at night through the hatch above the back room, a blanket on the warm tiles, Yanaka asleep below and a window or two still lit"
+   },
+   "outcomes": [
+    {
+     "id": "tiles",
+     "weight": 50,
+     "text": "The tiles still hold the day's warmth; under the blanket she names the stars wrongly on purpose until you correct her, then stops you correcting anything."
+    },
+    {
+     "id": "window",
+     "weight": 30,
+     "text": "A window across the lane lights up; she pulls the blanket over both your heads and laughs into the dark.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "bell",
+     "weight": 20,
+     "text": "A temple bell marks the hour; she says she will never hear it again without blushing, and sounds pleased about it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took a blanket up to the roof of the Kurahashi kura with Tamaki",
+   "tags": [
+    "private",
+    "exhib"
+   ]
+  },
+  {
+   "id": "ot_kura_back_reading",
+   "name": "Reading after hours",
+   "label": "Read to Tamaki after hours",
+   "icon": "📖",
+   "cost": 0,
+   "minutes": 90,
+   "place": "ot_kura_back",
+   "effects": {
+    "mood": 12,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; museum: reading; present: Tamaki; companion: crush or casual; period: evening or night",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "being read to",
+    "whispered words",
+    "slow and tender",
+    "being asked what they want"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's reading room after hours, through the door from the back room: one green lamp, old catalogues and letters, and Tamaki asking to be read to"
+   },
+   "outcomes": [
+    {
+     "id": "letters",
+     "weight": 50,
+     "text": "She hands you her grandfather's letters to his dealers and asks you to read them aloud; at the dull parts she kisses you to make you skip."
+    },
+    {
+     "id": "lots",
+     "weight": 30,
+     "text": "You read the lots of a Taishō-era sale in your best auctioneer's voice; she bids on you, outrageously, and wins.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "dark",
+     "weight": 20,
+     "text": "She turns the green lamp down until you can hardly see the page, and asks you to keep reading anyway, from memory.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} read to Tamaki in the reading room of the Kurahashi kura after hours",
+   "tags": [
+    "private"
+   ]
+  },
+  {
    "id": "ot_ameyoko_snack",
    "name": "Stall food",
    "label": "Eat from the stalls",
@@ -8169,6 +8918,53 @@
     "needed": false
    },
    "fact": "{u} walked through the old cemetery in Yanaka",
+   "place": "ot_yanaka"
+  },
+  {
+   "id": "ot_yanaka_kura_roof",
+   "name": "The kura roof",
+   "label": "Climb onto the kura roof",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 12,
+    "energy": -3
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; period: night; weather: not rain or snow or storm",
+   "together": {
+    "needed": true,
+    "text": "the kura's tiled roof at night, up the ladder from the lane, Yanaka asleep below"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Up the ladder from the lane, the tiles still warm from the day, she names the temple roofs of Yanaka one by one, then stops naming things and leans on you.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "She says her grandfather used to sit up here after closing, that she has never told anyone, and that she is telling you.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "had: not tamaki_leaf",
+     "text": "A maple leaf has blown onto the tiles. She presses it flat in her notebook, writes \"No. 1, the roof, at night\" under it in brush pen, and gives you the page.",
+     "keepsake": "tamaki_leaf",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} sat on the roof of the Kurahashi kura with Tamaki at night",
    "place": "ot_yanaka"
   },
   {
@@ -8433,6 +9229,53 @@
    },
    "trains": "charisma",
    "fact": "{u} browsed the antique market near {0}",
+   "place": "mg_station"
+  },
+  {
+   "id": "mg_station_antique_tamaki",
+   "name": "Stalls with Tamaki",
+   "label": "Comb the stalls with Tamaki",
+   "icon": "🏺",
+   "cost": 0,
+   "minutes": 90,
+   "effects": {
+    "mood": 8,
+    "energy": -6
+   },
+   "when": "tier: Tamaki 1; event: antique; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "the antique market at opening time, her loupe up, the coffee going cold"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She walks ahead of you through the stalls, loupe up, buying nothing; at the last one she taps a chipped bowl and says it is worth more than the stall.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "A dealer calls her by her old television nickname; she smiles with her mouth only, takes your arm, and walks you on to the next stall.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 1000,
+     "when": "had: not tamaki_label",
+     "text": "Between two stalls she takes a folded card from her tote: a label in her eight-year-old pencil, \"Puppy, very old, not for sale\". She gives it to you without a word.",
+     "keepsake": "tamaki_label",
+     "feels": {
+      "Tamaki": 2
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} combed the antique market's stalls with Tamaki at {0}",
    "place": "mg_station"
   },
   {
@@ -10233,6 +11076,43 @@
     }
    ],
    "fact": "{u} waited at the stage door of {0}"
+  },
+  {
+   "id": "bay_tv_clinic",
+   "name": "In the wings",
+   "label": "Stand in the wings with Tamaki",
+   "icon": "🎬",
+   "cost": 0,
+   "minutes": 120,
+   "effects": {
+    "mood": 6,
+    "energy": -6
+   },
+   "when": "knows: tamaki_clinic; present: Tamaki",
+   "together": {
+    "needed": true,
+    "text": "the wings of the Treasure Clinic studio, her gloved hands steady only while {{user}} is in sight"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Under the studio lights she dates a tea bowl in a single breath, then looks for you in the wings before the audience has finished clapping.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "The floor manager calls her by her old nickname and she freezes; then she catches your eye, laughs, and walks onto the set.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} stood in the wings at {0} while Tamaki rehearsed for Treasure Clinic",
+   "place": "bay_tv"
   },
   {
    "id": "rp_crossing_kebab",
@@ -12811,6 +13691,156 @@
    "fact": "{u} ate breakfast at {0}"
   },
   {
+   "id": "hk_ryokan_tamaki",
+   "name": "Hakone weekend",
+   "label": "A Hakone weekend with Tamaki",
+   "icon": "♨️",
+   "cost": 36000,
+   "minutes": 240,
+   "effects": {
+    "mood": 16,
+    "energy": 8
+   },
+   "when": "tier: Tamaki 4; present: Tamaki; period: afternoon or evening",
+   "together": {
+    "needed": true,
+    "text": "a weekend at Ryokan Kasumi-sō, just the two of them, the kura closed for once"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "She leaves her loupe in the room for the whole weekend, on purpose, and reaches for it only twice, both times in front of the tokonoma.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    },
+    {
+     "weight": 40,
+     "text": "Over the kaiseki dinner she plans the next ten years of the kura on a paper napkin, and puts you on every line of it.",
+     "feels": {
+      "Tamaki": 3
+     },
+     "feelsDaily": true
+    }
+   ],
+   "fact": "{u} spent a weekend in Hakone with Tamaki at {0}",
+   "place": "hk_ryokan"
+  },
+  {
+   "id": "hk_ryokan_tamaki_bath",
+   "name": "Bath with Tamaki",
+   "label": "The private bath with Tamaki",
+   "icon": "♨️",
+   "cost": 4000,
+   "minutes": 60,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 13,
+    "hygiene": 40,
+    "energy": 6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: evening or night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 11,
+   "matches": [
+    "a bath together",
+    "hot-spring baths",
+    "slow and tender"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the ryokan's private family bath booked for an hour, the door latched, cedar and steam, Tamaki's silver hair pinned up out of the water"
+   },
+   "outcomes": [
+    {
+     "id": "cedar",
+     "weight": 50,
+     "text": "She leans back against you in the cedar tub and tells you the wood's age by its smell; she is wrong, she admits, because she can't think."
+    },
+    {
+     "id": "pin",
+     "weight": 30,
+     "text": "Her hairpin slips into the water and you both go after it; she finds it, and forgets it again at once.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "yukata",
+     "weight": 20,
+     "text": "Afterwards, in the inn's yukata, she sits on the step with her feet in the water and won't let go of your hand.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shared the private bath at {0} with Tamaki",
+   "tags": [
+    "bath",
+    "private"
+   ]
+  },
+  {
+   "id": "hk_ryokan_tamaki_night",
+   "name": "Hakone night",
+   "label": "Night at the inn with Tamaki",
+   "icon": "🏮",
+   "cost": 0,
+   "minutes": 120,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 15,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 4; after: hk_ryokan_tamaki; present: Tamaki; companion: crush or casual; period: evening or night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "a weekend away",
+    "a night with no clock",
+    "slow and tender",
+    "cuddling afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the night of the Hakone weekend in the ryokan's room with Tamaki, the futons pushed together, the paper screens dark, the river loud below and no clock anywhere"
+   },
+   "outcomes": [
+    {
+     "id": "futons",
+     "weight": 50,
+     "text": "She pushes the two futons together with great ceremony, then forgets the ceremony; long after midnight she is still awake, learning your face by touch the way she learns a tea bowl."
+    },
+    {
+     "id": "river",
+     "weight": 30,
+     "text": "The river is loud below the window; she opens the screen to hear it better, and the cold air makes her laugh and pull you back under the quilt.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "clock",
+     "weight": 20,
+     "text": "She has hidden the room's clock in a drawer, on purpose; in the morning neither of you knows the time, and she says that was the whole point.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent the night of the Hakone weekend with Tamaki at {0}",
+   "tags": [
+    "private"
+   ]
+  },
+  {
    "id": "hk_ashi_cruise",
    "name": "Cruise",
    "label": "Take the lake cruise",
@@ -13312,7 +14342,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -13416,6 +14446,118 @@
    "fact": "{u} danced for someone at home",
    "adult": true,
    "private": true,
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_home_tamaki",
+   "name": "An evening in",
+   "label": "An evening in with Tamaki",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 2; present: Tamaki; companion: crush or casual; period: evening or night",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "long kissing",
+    "hand-holding",
+    "whispered words",
+    "being asked what they want"
+   ],
+   "together": {
+    "needed": true,
+    "text": "an evening in at {{user}}'s place with Tamaki, the lights low, her gloves folded on the table and her hairpin out"
+   },
+   "outcomes": [
+    {
+     "id": "asks",
+     "weight": 50,
+     "text": "She asks before every step, very seriously, as if signing a loan form; by the end she has stopped asking and started telling."
+    },
+    {
+     "id": "hairpin",
+     "weight": 30,
+     "text": "She takes the plum-blossom hairpin out and sets it on the table with both hands, the way she would a piece, and only then lets herself be kissed.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "late",
+     "weight": 20,
+     "text": "You talk until the last train has gone and then stop talking; she leaves at dawn with her collar buttoned wrong.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent an evening in with Tamaki",
+   "tags": [
+    "private"
+   ]
+  },
+  {
+   "id": "priv_home_tamaki_yukata",
+   "name": "After the festival",
+   "label": "Take Tamaki home in her yukata",
+   "icon": "🎐",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 2; festival: sanja or fireworks or tsukimi; present: Tamaki; companion: crush or casual; period: evening or night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 10,
+   "matches": [
+    "yukata",
+    "long kissing",
+    "whispered words",
+    "hand-holding"
+   ],
+   "together": {
+    "needed": true,
+    "text": "home from the festival with Tamaki still in her indigo yukata, the obi knot she tied herself, the smell of the stalls on both of them"
+   },
+   "outcomes": [
+    {
+     "id": "obi",
+     "weight": 50,
+     "text": "The obi knot defeats you both; in the end she undoes it herself, slowly, explaining the knot as she goes, and forgets to finish the sentence."
+    },
+    {
+     "id": "fan",
+     "weight": 30,
+     "text": "She kept her paper fan from the festival and fans you both afterwards, very seriously, in the heat.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "window",
+     "weight": 20,
+     "text": "Somewhere a last firework goes up; she doesn't look at the window once.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} took Tamaki home after the festival, still in her yukata",
    "tags": [
     "private"
    ]
@@ -15880,6 +17022,63 @@
    }
   },
   {
+   "id": "fa_tamaki_tearoom",
+   "name": "Midnight tea",
+   "label": "Midnight tea with Tamaki",
+   "icon": "🍵",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "needsItem": "fx_tearoom",
+   "effects": {
+    "mood": 12,
+    "energy": 2,
+    "thirst": 10,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: night or latenight",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 9,
+   "matches": [
+    "tea brought afterward",
+    "slow and tender",
+    "mornings in bed"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the tea room of {{user}}'s home at night, one candle, the kettle singing, Tamaki kneeling on the tatami in her own kimono"
+   },
+   "outcomes": [
+    {
+     "id": "bowl",
+     "weight": 50,
+     "text": "She turns the tea bowl to you with both hands, the ceremony exact to the last gesture, and then lets the ceremony go entirely."
+    },
+    {
+     "id": "kettle",
+     "weight": 30,
+     "text": "The kettle boils over while neither of you is watching it; she says it is the best tea she has never drunk.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "dawn",
+     "weight": 20,
+     "text": "You wake on the tatami at dawn under her haori, the candle out, the bowl still waiting for its tea.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} made tea for Tamaki in the tea room at night",
+   "tags": [
+    "private"
+   ]
+  },
+  {
    "id": "fa_sauna",
    "name": "Sauna",
    "label": "A sauna and a cold shower",
@@ -16192,6 +17391,62 @@
     "energy": -5
    },
    "trains": "writing"
+  },
+  {
+   "id": "fa_tamaki_library",
+   "name": "Library after dark",
+   "label": "The library with Tamaki",
+   "icon": "📚",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "needsItem": "fx_library",
+   "effects": {
+    "mood": 12,
+    "energy": -4,
+    "desire": 50
+   },
+   "when": "tier: Tamaki 3; present: Tamaki; companion: crush or casual; period: evening or night",
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "dc": 9,
+   "matches": [
+    "being read to",
+    "whispered words",
+    "slow and tender"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the library of {{user}}'s home after dark with Tamaki, the ladder on its rail, a lamp and the reading chair big enough for two"
+   },
+   "outcomes": [
+    {
+     "id": "ladder",
+     "weight": 50,
+     "text": "She climbs the ladder to read your shelves aloud, title by title, judging every one, and comes down only when you stop listening."
+    },
+    {
+     "id": "chair",
+     "weight": 30,
+     "text": "The reading chair turns out to be big enough for two, just; she says it was made for it, and is probably right.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "margin",
+     "weight": 20,
+     "text": "In the morning you find a note in her brush pen in the margin of a book you were reading. It is not about the book.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent an evening in the library with Tamaki",
+   "tags": [
+    "private"
+   ]
   },
   {
    "id": "fa_games_play",
@@ -21681,7 +22936,18 @@
     "priv_use_oil",
     "priv_use_costume",
     "sh_bath_two",
-    "sh_instant_private"
+    "sh_instant_private",
+    "ot_kura_backroom",
+    "priv_home_tamaki",
+    "priv_home_tamaki_yukata",
+    "ot_kura_back_night",
+    "ot_kura_back_halls",
+    "ot_kura_back_roof",
+    "ot_kura_back_reading",
+    "hk_ryokan_tamaki_bath",
+    "fa_tamaki_library",
+    "fa_tamaki_tearoom",
+    "hk_ryokan_tamaki_night"
    ],
    "count": 5,
    "days": 7,
@@ -28482,6 +29748,70 @@
    ]
   },
   {
+   "id": "ot_kura",
+   "name": "The Kurahashi kura",
+   "map": "oldtown",
+   "x": 63.2,
+   "y": 68.4,
+   "tags": [
+    "leisure",
+    "work"
+   ],
+   "desc": "a white-walled storehouse on a Yanaka lane, its iron shutters folded open: thick plaster walls, dark beams overhead, old wooden floors, glass cases lit low, and a tokonoma alcove with a single hanging scroll",
+   "staff": "old Mrs. Kurahashi sweeping the step, a volunteer at the ticket table, visitors in socks on the boards",
+   "crowd": 0.5,
+   "open": [
+    10,
+    18
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain",
+    "rush",
+    "night"
+   ],
+   "closedDays": [
+    "mon"
+   ],
+   "generic": false,
+   "sound": [
+    "birds",
+    "wind"
+   ],
+   "bg": "bg/ot_kura.avif",
+   "bgs": {
+    "afternoon": "bg/ot_kura-afternoon.avif",
+    "night": "bg/ot_kura-night.avif"
+   }
+  },
+  {
+   "id": "ot_kura_back",
+   "name": "The kura's back room",
+   "map": "oldtown",
+   "x": 63.9,
+   "y": 67.6,
+   "tags": [
+    "leisure"
+   ],
+   "desc": "the kura's back store after closing: paulownia boxes to the beams, one low lamp, a futon for inventory nights, a ladder to the roof hatch, doors to the reading room and the dark halls",
+   "staff": "nobody after closing; the lane outside asleep, a night guard on his rounds once one is hired",
+   "crowd": 0.1,
+   "open": [
+    17.5,
+    2
+   ],
+   "closed": [],
+   "generic": false,
+   "roles": [],
+   "sound": [
+    "wind"
+   ],
+   "bg": "bg/hk_ryokan_hanare-night.avif",
+   "adult": true,
+   "private": true,
+   "when": "museum: open; tier: Tamaki 3"
+  },
+  {
    "id": "ot_ramen",
    "name": "Ramen Kamejirō",
    "map": "oldtown",
@@ -31866,6 +33196,28 @@
       "mood": 3
      },
      "rumor": "One stray in Yanaka is fed by thirty households"
+    }
+   ]
+  },
+  {
+   "id": "ot_yanaka_st_kura",
+   "place": "ot_yanaka",
+   "when": "piece: 3; period: midmorning or afternoon",
+   "title": "Mrs. Kurahashi's storehouse",
+   "setup": "Halfway down a Yanaka lane an old woman is sweeping the step of a white-walled storehouse, its iron shutters folded open. Inside, in the dust, the shelves are bare and one plain folding screen stands against the wall. She leans on her broom and says it was the store of her late husband's shop, Kurahashi Antiques, shut these nine years. The family wants to sell the plot. She would rather see it full of things people come to look at, and she noticed how {{user}} looked in.",
+   "choices": [
+    {
+     "label": "Look inside with her",
+     "text": "She shows {{user}} plaster walls a hand thick, old beams, the alcove where the best scroll hung. At the door she says that if {{user}} wants to fill it, she will make the lease manageable.",
+     "effects": {
+      "mood": 4
+     },
+     "fact": "{u} looked inside the Kurahashi kura with old Mrs. Kurahashi"
+    },
+    {
+     "label": "Ask what it would take",
+     "text": "She names it plainly: the lease of the plot and the restoration, paid once, and no rent after, because she only wants it used. She writes her number on the back of an old shop receipt.",
+     "fact": "{u} asked old Mrs. Kurahashi what it would take to take on her kura"
     }
    ]
   },
@@ -36446,6 +37798,245 @@
      "text": "she shrugs, says the nieces will be pleased, and goes back to taking the window apart piece by piece"
     }
    ]
+  },
+  {
+   "id": "ot_yanaka_st_enso",
+   "place": "ot_yanaka",
+   "when": "period: rush or midmorning; weekday: not mon",
+   "setup": "Behind a low wall in Yanaka's temple quarter, an old priest in a grey work robe rakes the gravel of a small temple's garden. A board by its gate, in brush and in English, says anyone may sit the morning zazen. Inside, the meditation hall's doors stand open on a row of black cushions, all empty.",
+   "choices": [
+    {
+     "label": "Sit zazen with him",
+     "roll": {
+      "dc": 12
+     },
+     "minutes": 45,
+     "text": "You sit until the bell, your mind as still as the gravel. Afterwards he brushes one circle in a single breath and gives it to you, for sitting longer than most.",
+     "effects": {
+      "mood": 8
+     },
+     "fact": "{u} sat zazen with the old priest of a Yanaka temple, who gave {u} a Zen circle he brushed",
+     "fail": {
+      "text": "Your legs go numb and your thoughts never stop. At the bell he only smiles, bows, and goes back to his raking.",
+      "effects": {
+       "mood": 2
+      }
+     }
+    },
+    {
+     "label": "Ask about the temple",
+     "text": "He tells how the temple survived the great fire and the war, and how few come to sit now. The gravel, he says, is raked new every morning anyway.",
+     "effects": {
+      "mood": 3
+     },
+     "rumor": "An old priest in Yanaka still holds a morning zazen that almost no one comes to"
+    },
+    {
+     "label": "Leave a coin and walk on",
+     "text": "The coin rings in the offering box at the gate. He bows to you without once stopping his rake, and the gravel hisses on.",
+     "money": -100,
+     "effects": {
+      "mood": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_shrine_st_fox",
+   "place": "ot_shrine",
+   "when": "period: midmorning or afternoon",
+   "setup": "At Tsukimi Inari, a new stone fox stands wrapped in white cloth beside the old one, whose ear is cracked through and whose red bib has faded pink. The priest and a young man are trying to lift the old fox onto a hand cart; it won't budge. A shrine never throws a guardian away, the priest says to no one in particular: it has to go somewhere it will be looked after.",
+   "choices": [
+    {
+     "label": "Help carry the old fox",
+     "roll": {
+      "skill": "fitness",
+      "dc": 12
+     },
+     "minutes": 30,
+     "text": "Between the three of you it goes onto the cart and down the lane. Out of breath, the priest says a guardian carried by your hands should stay with you, if you'll give it a roof.",
+     "effects": {
+      "mood": 6
+     },
+     "fact": "{u} helped carry Tsukimi Inari's old stone fox, and the priest gave it to {u} to look after",
+     "fail": {
+      "text": "It slips back onto its base with a thud that makes the priest wince. They thank you and send for the neighbourhood association.",
+      "effects": {
+       "mood": -1
+      }
+     }
+    },
+    {
+     "label": "Ask about the new fox",
+     "text": "Carved in Okazaki, he says proudly, from the same stone as the first. He shows you the key in its mouth: the key to the rice store.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "label": "Bow to both and walk on",
+     "text": "You bow to the new fox and then the old one. The two of them, one white and one grey, watch you all the way to the gate.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_opening",
+   "place": "ot_kura",
+   "when": "museum: show",
+   "title": "the opening night",
+   "setup": "The first show's opening night at the Kurahashi kura: paper lanterns along the lane, cold sake and rice crackers on a table by the door, neighbours from Yanaka in their good cardigans, a few of the people {{user}} knows, and a man from the ward's newsletter with a camera. The iron shutters are open and every case is lit.",
+   "choices": [
+    {
+     "label": "Give a short speech",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "A few words about the storehouse and the people who kept it; the lane goes quiet to listen, and the applause carries out to the street.",
+     "effects": {
+      "mood": 8
+     },
+     "renown": 10,
+     "keepsake": "kura_programme",
+     "rumor": "The old Kurahashi storehouse in Yanaka is a museum now",
+     "fail": {
+      "text": "You lose your place halfway through, laugh, and raise a glass instead. It goes down better than the speech would have.",
+      "effects": {
+       "mood": 4
+      },
+      "renown": 10,
+      "keepsake": "kura_programme"
+     }
+    },
+    {
+     "label": "Walk the guests round the cases",
+     "text": "You tell each piece its story to whoever will listen; by the end there is a little crowd following you from case to case.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 10,
+     "keepsake": "kura_programme",
+     "rumor": "The old Kurahashi storehouse in Yanaka is a museum now"
+    },
+    {
+     "label": "Keep to the door and greet people",
+     "text": "You shake hands until your arm aches. The old woman from the corner shop says it is the first time the lane has been this full since the Bon dance.",
+     "effects": {
+      "mood": 5
+     },
+     "renown": 10,
+     "keepsake": "kura_programme"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_critic",
+   "place": "ot_kura",
+   "when": "museum: renown 3; museum: shows 1",
+   "title": "the critic's visit",
+   "setup": "A woman in a grey coat with a notebook and a newspaper's press card walks the kura's halls slowly, saying nothing, stopping a long time at some cases and none at others. Her paper's arts page is the one people in Tokyo read; she hasn't said she's writing about the kura, but she is.",
+   "choices": [
+    {
+     "label": "Walk her round yourself",
+     "roll": {
+      "skill": "writing",
+      "dc": 14
+     },
+     "text": "You find the right words for every case, and she starts writing them down. The review runs on Sunday: \"a private museum with a public heart\".",
+     "effects": {
+      "mood": 8
+     },
+     "renown": 15,
+     "keepsake": "kura_review",
+     "fail": {
+      "text": "You talk too much, and she writes less. The review is kind but short: \"worth the walk from Nippori\".",
+      "effects": {
+       "mood": 2
+      },
+      "renown": 5,
+      "keepsake": "kura_review"
+     }
+    },
+    {
+     "label": "Let Tamaki lead",
+     "when": "present: Tamaki",
+     "text": "Tamaki takes her round, quietly, and the critic stops writing and just listens. The review calls the kura \"a lesson in looking\".",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 12,
+     "keepsake": "kura_review",
+     "feels": {
+      "Tamaki": 1
+     }
+    },
+    {
+     "label": "Leave her with the catalogue",
+     "text": "She thanks you and reads it on the bench by the garden. The review, when it comes, quotes the catalogue more than it quotes you.",
+     "effects": {
+      "mood": 2
+     },
+     "renown": 5,
+     "keepsake": "kura_review"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_theft",
+   "place": "ot_kura",
+   "when": "museum: renown 4; period: evening or night",
+   "title": "the theft",
+   "setup": "After closing, with the lane dark and the cases unlit, there is a scrape at the kura's back shutters. A figure in dark clothes has one of the cases open and something wrapped in a cloth under one arm, and is backing towards the lane. They haven't seen {{user}} yet.",
+   "choices": [
+    {
+     "label": "Sound the alarm",
+     "when": "museum: guard",
+     "text": "The night guard is at the gate before the thief is; they are caught with the piece still in its cloth, and the police take it from there.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 10,
+     "keepsake": "kura_cloth",
+     "rumor": "A thief was caught at the Kurahashi kura in Yanaka"
+    },
+    {
+     "label": "Go after them",
+     "roll": {
+      "skill": "fitness",
+      "dc": 15
+     },
+     "text": "You catch them at the end of the lane; they drop the piece into your hands and run. Not a scratch on it.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 10,
+     "keepsake": "kura_cloth",
+     "rumor": "Someone stopped a thief at the Kurahashi kura with their own hands",
+     "fail": {
+      "text": "They drop it on the stones of the lane and are gone round the corner. The piece is yours still, but it will need the workshop.",
+      "effects": {
+       "mood": -4
+      },
+      "renown": 5,
+      "damage": true,
+      "keepsake": "kura_cloth",
+      "rumor": "A thief tried to rob the Kurahashi kura"
+     }
+    },
+    {
+     "label": "Call the police",
+     "text": "They take a statement and a photo of the empty case. Three days later the piece turns up in a pawnshop in Ueno, and comes home in a police van.",
+     "effects": {
+      "mood": -2
+     },
+     "renown": 5,
+     "keepsake": "kura_cloth",
+     "rumor": "A piece stolen from the Kurahashi kura turned up in a pawnshop"
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -36515,6 +38106,23 @@
     "ak_jinbocho"
    ],
    "price": 6800
+  },
+  {
+   "id": "good_brush",
+   "name": "A good writing brush",
+   "icon": "🖌️",
+   "kind": "stationery",
+   "gift": true,
+   "loves": [
+    "Tamaki",
+    "Yui",
+    "Seo-yeon"
+   ],
+   "at": [
+    "ot_sensoji"
+   ],
+   "price": 8500,
+   "desc": "A weasel-hair brush from an old brush-maker off Nakamise, in a paulownia box with the maker's seal."
   },
   {
    "gift": true,
@@ -36596,6 +38204,23 @@
    ]
   },
   {
+   "id": "old_sale_catalogue",
+   "name": "An old sale catalogue",
+   "icon": "📔",
+   "kind": "print",
+   "gift": true,
+   "loves": [
+    "Tamaki",
+    "Seo-yeon",
+    "Haru"
+   ],
+   "at": [
+    "ak_jinbocho"
+   ],
+   "price": 3000,
+   "desc": "A Taishō-era auction catalogue from a Jinbōchō dealer, someone's pencilled prices in the margins."
+  },
+  {
    "id": "moon_fox_paperback",
    "name": "Moon Fox paperback",
    "icon": "📕",
@@ -36614,6 +38239,70 @@
     "Haru",
     "Camille"
    ]
+  },
+  {
+   "id": "kura_programme",
+   "name": "Opening-night programme",
+   "icon": "🎴",
+   "kind": "museum",
+   "gift": false,
+   "desc": "A folded card printed for the kura's first show, its pieces listed by hand in brush pen, a ring from a teacup on the back."
+  },
+  {
+   "id": "kura_review",
+   "name": "The critic's review",
+   "icon": "📰",
+   "kind": "museum",
+   "gift": false,
+   "desc": "A newspaper clipping on the Kurahashi kura, folded twice, one line underlined in pencil."
+  },
+  {
+   "id": "kura_guidebook",
+   "name": "A guidebook with the kura in it",
+   "icon": "📕",
+   "kind": "museum",
+   "gift": false,
+   "desc": "A pocket guide to old Tokyo, open at a page of its own on the Kurahashi kura, the photo slightly crooked."
+  },
+  {
+   "id": "kura_cloth",
+   "name": "The thief's cloth",
+   "icon": "🧣",
+   "kind": "museum",
+   "gift": false,
+   "desc": "The plain grey furoshiki a thief wrapped a piece in and left behind in the lane, folded now in the kura office drawer."
+  },
+  {
+   "id": "tamaki_label",
+   "name": "A label in her hand",
+   "icon": "🏷️",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "One of the labels Tamaki wrote for the kura when she was eight, in careful pencil: \"Puppy, very old, not for sale.\""
+  },
+  {
+   "id": "tamaki_pin",
+   "name": "Her Treasure Clinic pin",
+   "icon": "📌",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "The small enamel badge every appraiser on Treasure Clinic wore. She kept hers in a desk drawer for eleven years."
+  },
+  {
+   "id": "tamaki_leaf",
+   "name": "A pressed-leaf label",
+   "icon": "🍁",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "A maple leaf from the kura's roof pressed flat on a notebook page, labelled in her brush pen: \"No. 1, the roof, at night.\""
+  },
+  {
+   "id": "tamaki_key",
+   "name": "The key to the box",
+   "icon": "🗝️",
+   "kind": "tamaki",
+   "gift": false,
+   "desc": "A small iron key on a red silk cord, for the lacquered box her grandfather hid under the tokonoma's floor."
   },
   {
    "gift": true,
@@ -36780,6 +38469,23 @@
     "Yui",
     "Genzō"
    ]
+  },
+  {
+   "id": "yanaka_sweets",
+   "name": "Sweets from Yanaka Ginza",
+   "icon": "🍡",
+   "kind": "food box",
+   "gift": true,
+   "loves": [
+    "Tamaki",
+    "Yui",
+    "Mio"
+   ],
+   "at": [
+    "ot_yanaka"
+   ],
+   "price": 900,
+   "desc": "Skewered dango and a paper bag of karintō from the old shops on Yanaka Ginza, still warm."
   },
   {
    "gift": true,
@@ -43152,6 +44858,46 @@
    "drinks": [
     "ot_izakaya"
    ]
+  },
+  {
+   "id": "kura",
+   "name": "Curator of the Kurahashi kura",
+   "place": "ot_kura",
+   "hireable": false,
+   "schedule": {
+    "days": [
+     "tue",
+     "wed",
+     "thu",
+     "fri",
+     "sat",
+     "sun"
+    ],
+    "from": 10,
+    "to": 18
+   },
+   "hours": [
+    10,
+    18
+   ],
+   "shift": 8,
+   "length": 1,
+   "likes": [
+    "Art",
+    "Books",
+    "Shy"
+   ],
+   "trains": [
+    "writing",
+    "logic"
+   ],
+   "ranks": [
+    {
+     "name": "Curator",
+     "pay": 2600
+    }
+   ],
+   "events": []
   },
   {
    "id": "office",
@@ -50202,6 +51948,493 @@
     }
    },
    {
+    "name": "Tamaki",
+    "age": 26,
+    "gender": "woman",
+    "occupation": "museum",
+    "rank": "Assistant curator",
+    "home": "hz_yanaka",
+    "leisure": [
+     "ak_jinbocho",
+     "ot_yanaka",
+     "ot_museum"
+    ],
+    "routine": "homebody",
+    "description": "{{char}} is Tamaki Kurahashi, 26, an appraiser with a prodigy's eye, granddaughter of the old Kurahashi Antiques in Yanaka. Petite and poised, silver-white hair worn half up with her grandfather's plum-blossom hairpin, amber eyes, a Taishō-roman arrow-feather jacket and a loupe on a red cord. Quick, deadpan and delighted by things: she talks to objects, names them, and is blunt about fakes; anything new made to look old, she thanks you for, politely. At twelve she was the youngest appraiser on Wave TV's Treasure Clinic, until at fifteen, live, she called a sponsor's heirloom a fake; she was right, and hasn't faced a camera since. She took the curator's certificate at Hijiri and writes labels at Ueno Hall of Art. Yui Kanzaki has been her neighbour since they were small.",
+    "personality": "sharp, delighted by things, deadpan, proud of her eye, guarded, devoted",
+    "first_mes": "*Tamaki lifts a small netsuke from the case with both gloved hands, turns it to the window, and smiles at it before she looks at you.* Boxwood, Edo, about two hundred years. The label says \"rat\". It's a mouse. Nobody has noticed in forty years. *She sets it down.* Please don't tell the director. I like being the only one who knows.",
+    "feelings": [
+     {
+      "to": "Yui",
+      "f": "good"
+     }
+    ],
+    "intimacy": {
+     "preset": "slow"
+    },
+    "look": "Long silver-white hair half up with an old lacquered plum-blossom hairpin, amber eyes, an arrow-feather jacket over a high-collared blouse and a long navy skirt, a loupe on a red cord",
+    "voice": "Clear and quick, teasing with friends, a pause before the verdict",
+    "rituals": [
+     {
+      "place": "mg_station",
+      "event": "antique",
+      "days": [
+       "sat",
+       "sun"
+      ],
+      "from": 9,
+      "to": 10,
+      "text": "combs the antique market's first stalls with her loupe before work, gloves in her pocket"
+     }
+    ],
+    "threads": [
+     {
+      "id": "tamaki_puppies",
+      "title": "Puppies in the snow",
+      "hidden": "In his last years her grandfather sold the kura's best pieces one by one to pay a debt he never spoke of. She has kept every auction catalogue since and rings each of his pieces in red; the one she minds most is a pair of sliding-door paintings of puppies in the snow that she named when she was small.",
+      "known": "{{user}} knows Tamaki has been following her grandfather's sold pieces through the sales, and that the puppies in the snow matter most.",
+      "opens": "museum: open; feels: Tamaki acquaintance",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "The puppies in the snow, the sliding doors her grandfather sold, are in the next sale's catalogue. The binder shut on her knees, Tamaki tells {{user}} he sold the kura's best pieces for a debt he never spoke of, that she has followed each one since, and that she can't bid herself.",
+      "nudges": [
+       "The new catalogue came. I've read it four times. That's normal. …Come by the kura when you can?",
+       "I ringed a lot in red again. You'll laugh. Or you won't, which is worse. Tea in the office?",
+       "The sale is on the tenth and the catalogue keeps falling open at the same page. I won't keep asking. It's on my desk."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A binder of auction catalogues sits on the shelf of the kura's office, one lot ringed in red in each; she puts it away when anyone comes in."
+       },
+       {
+        "when": "museum: renown 1",
+        "tell": "hinted",
+        "text": "She goes quiet whenever a sale's catalogue comes, and reads it at her desk with the door shut."
+       },
+       {
+        "when": "seasonDays: 1-7",
+        "tell": "known",
+        "text": "The puppies in the snow are in the next sale's catalogue: ringed twice in red, her grandfather's name in the list of past owners."
+       }
+      ],
+      "endings": [
+       {
+        "id": "home",
+        "when": "knows: tamaki_puppies; feels: Tamaki friend; piece: art_okyo_puppies",
+        "good": true,
+        "text": "The puppies in the snow hang in the kura again; she writes their plaque under her grandfather's name and throws the binder away."
+       },
+       {
+        "id": "binder",
+        "text": "She closes the binder for good and keeps one catalogue in her desk drawer."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_clinic",
+      "title": "Back on Treasure Clinic",
+      "hidden": "Wave TV wants her back on Treasure Clinic for its twentieth-anniversary special, live, eleven years after the show cut her for calling a sponsor's heirloom a fake. She hasn't said no yet, and that frightens her more than a yes would.",
+      "known": "{{user}} knows Wave TV has asked Tamaki back on Treasure Clinic for its anniversary special, and that she hasn't said no.",
+      "opens": "tier: Tamaki 1",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Wave TV wants Tamaki back for Treasure Clinic's anniversary special, live, the show that cut her at fifteen for calling a sponsor's heirloom a fake. She tells {{user}} she hasn't said no, that this frightens her more than a yes, and that she could only do it with someone she trusts in the wings.",
+      "nudges": [
+       "Wave TV called the kura again. I let it ring. Then I listened to the message twice. Tea after closing?",
+       "They sent a running order. My name is on it, in pencil. Can I show you before I tear it up?",
+       "They rehearse on Mondays, when the kura is shut. I still haven't said no. I'd like to say something to someone first. You, ideally."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A letter on Wave TV's paper lies under the blotter on her desk at the kura; she turns it face down whenever anyone comes into the office."
+       },
+       {
+        "tell": "hinted",
+        "text": "A producer from Wave TV rings the kura twice a week; she lets it ring, and at home she watches her old episodes with the sound off."
+       },
+       {
+        "tell": "known",
+        "text": "She has said she will come to the rehearsals for the anniversary special, and not yet whether she will go on; on Mondays, when the kura is shut, she is at the studios.",
+        "ritual": {
+         "place": "bay_tv",
+         "days": [
+          "mon"
+         ],
+         "from": 13,
+         "to": 17,
+         "text": "sits in a Wave TV dressing room at the rehearsals for Treasure Clinic's anniversary special, gloves in her lap"
+        }
+       }
+      ],
+      "endings": [
+       {
+        "id": "special",
+        "when": "knows: tamaki_clinic; feels: Tamaki friend; did: bay_tv_clinic",
+        "good": true,
+        "text": "She appraises live again on Treasure Clinic's anniversary special, with {{user}} in the wings, and laughs on air; the papers name the heirloom's family, not her."
+       },
+       {
+        "id": "declines",
+        "text": "She turns Wave TV down, and keeps the tapes of her old show in a drawer at the kura."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_after_hours",
+      "title": "After hours",
+      "hidden": "She has never let anyone into her life outside the objects. At the back of the kura she keeps a small case of things from her days with {{user}}: a ticket, a pressed leaf, a receipt from the antique market, each labelled like a museum piece.",
+      "known": "{{user}} knows about the case at the back of the kura where Tamaki keeps, labelled, the things from their days together.",
+      "opens": "tier: Tamaki 2",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "After closing, Tamaki stands by a small case at the back of the kura with her hand on its lock. She tells {{user}} she has never let anyone past the objects, that the case holds things from their days together, labelled like pieces, and asks whether {{user}} wants to see.",
+      "nudges": [
+       "Stay after closing tonight? There's nothing to inventory. That's the point. …Never mind. Come anyway.",
+       "I wrote a label today that isn't for any piece. It's for a day. You were in it.",
+       "The case at the back is unlocked. It has been all week. I keep walking past it. Will you come by?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A small locked case stands at the back of the kura's store under a dust sheet; she checks its lock every evening before she goes home."
+       },
+       {
+        "tell": "hinted",
+        "text": "She stays after closing more often now, writing labels at the back of the kura that she won't let anyone read."
+       },
+       {
+        "tell": "known",
+        "text": "She has left the case at the back of the kura unlocked for the first time, and keeps finding reasons to walk past it."
+       }
+      ],
+      "endings": [
+       {
+        "id": "together",
+        "when": "knows: tamaki_after_hours; feels: Tamaki infatuated; did: ot_kura_after_hours 2",
+        "good": true,
+        "couple": "dating",
+        "text": "She opens the case for {{user}} after closing, every label in her brush pen, the first dated the day they met; among the glass cases, they start dating."
+       },
+       {
+        "id": "case_closed",
+        "text": "She keeps the case shut and its key in her sash: not yet, she says, and means it kindly."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_last_case",
+      "title": "The last case",
+      "hidden": "Her grandfather left a sealed letter for \"the day the kura is full again\". It says the kura's own treasure was never sold and is still in the kura, under the tokonoma's floor, in a small lacquered box he made himself.",
+      "known": "{{user}} knows about Shūzō Kurahashi's letter, and that the kura's own treasure is hidden somewhere in the kura.",
+      "opens": "tier: Tamaki 4",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "The kura is full again, and Tamaki has opened her grandfather's letter at last: the kura's own treasure was never sold, and is hidden in the kura itself. She has tapped every board but the tokonoma's, and asks {{user}} to lift it with her, because she can't do it alone.",
+      "nudges": [
+       "I read Grandfather's letter again. Eleven times. It's very short. Come and tap some floorboards with me?",
+       "Every board in the kura sounds the same except one. I've been staring at it for a week. Help?",
+       "The crowbar is wrapped in a furoshiki on my desk. It has been there for days. I'll wait for you."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "A sealed letter in her grandfather's hand waits in the kura's office safe, marked for the day the kura is full again."
+       },
+       {
+        "tell": "hinted",
+        "text": "She has opened the letter; after closing she taps the kura's boards one by one with a knuckle, and listens."
+       },
+       {
+        "tell": "known",
+        "text": "Every board but the tokonoma's sounds the same; a crowbar wrapped in a furoshiki lies on her desk, and she won't use it alone."
+       }
+      ],
+      "endings": [
+       {
+        "id": "partner",
+        "when": "knows: tamaki_last_case; feels: Tamaki dating",
+        "waits": "feels: Tamaki crush",
+        "good": true,
+        "movesIn": true,
+        "text": "Under the tokonoma's floor lies a small lacquered box in his own hand, the puppies in the snow on its lid and her first labels inside; she asks to move in with {{user}}."
+       },
+       {
+        "id": "found",
+        "when": "knows: tamaki_last_case",
+        "good": true,
+        "text": "Under the tokonoma's floor lies a small lacquered box in his own hand, the puppies in the snow on its lid; she sets it in a case of its own and gives {{user}} its key."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_spring_pictures",
+      "title": "Spring pictures",
+      "adult": true,
+      "hidden": "Since the night room opened she has been staying late with its shunga, the Edo masters' bedroom prints, writing plaques for them and tearing them up. She is embarrassed by how much they fascinate her, and has started to wonder which of them she would like to try.",
+      "known": "{{user}} knows Tamaki has been studying the night room's spring pictures after hours, and that the show she wants to hang of them is partly an excuse.",
+      "opens": "tier: Tamaki 3; museum: wing_night",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "Tamaki has written six plaques for the night room's spring pictures and torn up five. She asks {{user}} to stay after closing and help her hang a show of them, insists it is purely scholarly, then admits she would like to try one or two of the prints with {{user}} first.",
+      "nudges": [
+       "I rewrote the plaque for the Utamaro again. It still sounds as if I'm blushing. Come and read it?",
+       "Purely as a curator, I have questions about the third print. Practical ones. After closing?",
+       "The night room is empty and the prints are waiting for their plaques. So am I, a little. Come by."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She stays late in the night room with the shunga prints, a notebook open on her knee, and shuts it whenever anyone comes in."
+       },
+       {
+        "tell": "hinted",
+        "text": "Her wastepaper basket is full of torn plaques, and she asks {{user}} odd, careful questions about what people find romantic."
+       },
+       {
+        "tell": "known",
+        "text": "She has the show planned to the last pin, and a list of the prints she would like to try, which she has shown nobody."
+       }
+      ],
+      "endings": [
+       {
+        "id": "hung",
+        "when": "knows: tamaki_spring_pictures; feels: Tamaki infatuated; did: ot_kura_back_night 2",
+        "good": true,
+        "text": "The spring pictures hang in the night room under Tamaki's plaques, frank and funny; the show was the excuse, and the two of them tried the prints first."
+       },
+       {
+        "id": "notebook",
+        "text": "She hangs the prints under the museum's plain labels, and keeps her own plaques, and her list, in a notebook only {{user}} has read."
+       }
+      ]
+     },
+     {
+      "id": "tamaki_cabinet",
+      "title": "The cabinet",
+      "adult": true,
+      "hidden": "In the bottom drawer of the kura office's card cabinet, behind the accession cards, Tamaki keeps a second catalogue: her own wishes, written up like museum pieces, each with a number, a label in brush pen and a line on its condition. Some she wrote years ago, before she had anyone to try them with; the newest have {{user}} in them.",
+      "known": "{{user}} knows about the bottom drawer of Tamaki's card cabinet, where she keeps her wishes catalogued like pieces, and that she means them to be tried together, a card at a time.",
+      "opens": "tier: Tamaki 4",
+      "opensOnly": true,
+      "noLast": true,
+      "decide": "After closing Tamaki unlocks the bottom drawer of the card cabinet and draws it out between them: a second catalogue, her wishes written up like museum pieces, numbered and labelled. She says she has never shown it to anyone, that the newest cards have {{user}} in them, and asks whether {{user}} would like to start at number one.",
+      "nudges": [
+       "I re-sorted a drawer today. Not the pieces. A different drawer. Come by after closing?",
+       "There is a card I keep taking out and putting back. It has your name on it. That's all I'll say by text.",
+       "The cabinet key is on my desk, not in my sash, for the first time in years. I'm leaving it there until you come."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She keeps the bottom drawer of the kura office's card cabinet locked, the key in her sash, and closes it whenever {{user}} comes into the office."
+       },
+       {
+        "tell": "hinted",
+        "text": "After closing she writes index cards that aren't for any piece, blushes when {{user}} asks, and files them in the bottom drawer."
+       },
+       {
+        "tell": "known",
+        "text": "The bottom drawer of the card cabinet is a catalogue of her wishes, numbered and labelled like pieces, and she has left its key on her desk for {{user}}."
+       }
+      ],
+      "endings": [
+       {
+        "id": "drawer",
+        "when": "knows: tamaki_cabinet; feels: Tamaki infatuated; did: hk_ryokan_tamaki_night",
+        "good": true,
+        "text": "They work through her drawer a card at a time, the night at the inn first; every card tried gets a red seal and a date, and she writes new ones faster than they can keep up."
+       },
+       {
+        "id": "locked",
+        "text": "She locks the drawer again and keeps its key on the cord with her loupe; the cards are still there, she says, for when they both want them."
+       }
+      ]
+     }
+    ],
+    "intimate": {
+     "experience": "one boyfriend at university for a few months, mostly museum dates; nobody since, by choice",
+     "wants": "nothing she'd admit to: someone who looks at her the way she looks at a good piece",
+     "drawnTo": "people who notice things, and anyone who loves something more than they know about it",
+     "flirts": "she doesn't, yet: she corrects you, which is close",
+     "dynamic": "guarded; lets herself go a little at a time",
+     "prefs": [
+      "being asked, never assumed",
+      "slow, careful hands",
+      "quiet places after closing"
+     ],
+     "limits": [
+      "nothing in front of a camera",
+      "nothing she hasn't agreed to first"
+     ],
+     "role": "follow",
+     "drive": "low"
+    },
+    "anchored": true,
+    "skills": {
+     "writing": 6,
+     "japanese": 6,
+     "drawing": 4,
+     "logic": 4,
+     "charisma": 3
+    },
+    "tiers": [
+     {
+      "id": "colleague",
+      "name": "Colleague",
+      "when": "museum: open",
+      "caps": {
+       "f": "friend",
+       "r": "interest",
+       "status": "none"
+      },
+      "ai": "Tamaki keeps {{user}} at a colleague's distance: quick, dry and teasing about the work, warm only toward the objects. She talks to the pieces more than to people, and changes the subject when it turns to her or her grandfather."
+     },
+     {
+      "id": "confidante",
+      "name": "Confidante",
+      "when": "museum: 25%",
+      "caps": {
+       "f": "good",
+       "r": "crush",
+       "status": "none"
+      },
+      "ai": "Tamaki lets {{user}} see her off duty now: she texts first, asks {{user}} along to the antique market and to Jinbōchō in the evenings, talks about her grandfather and the old TV show, laughs more easily, and still turns any flirting back into a joke about provenance.",
+      "outfits": [
+       "offduty"
+      ],
+      "invites": true
+     },
+     {
+      "id": "sweetheart",
+      "name": "Sweetheart",
+      "when": "museum: 50%",
+      "caps": {
+       "f": "good",
+       "r": "infatuated",
+       "status": "dating"
+      },
+      "ai": "Tamaki lets herself flirt with {{user}}, clumsily at first and then not: deadpan appraisals, a hand that stays a moment too long. She would say yes to being asked out, wears her yukata to festivals with {{user}}, and blushes at the thought of the kura after hours.",
+      "outfits": [
+       "yukata",
+       "opening"
+      ],
+      "inviteOdds": 2,
+      "intimacy": {
+       "preset": "slow"
+      },
+      "intimate": {
+       "experience": "a few kisses at university and one shy boyfriend; she has read a great deal and done very little, and says so",
+       "wants": "to be kissed among the cases after closing, where nobody can see, and to find out slowly what she has only read about",
+       "drawnTo": "people who notice things; lately, one person in particular, which she finds very inconvenient",
+       "flirts": "deadpan appraisals of you (\"good provenance\", \"remarkably well kept\"), then a blush she can't hide; she lends you a book with one line underlined",
+       "dynamic": "shy and careful, then suddenly brave; she wants to be asked, every time",
+       "prefs": [
+        "long kissing",
+        "hand-holding",
+        "being asked what they want",
+        "whispered words",
+        "festival nights in yukata"
+       ],
+       "limits": [
+        "nothing rushed"
+       ],
+       "drive": "low"
+      }
+     },
+     {
+      "id": "lover",
+      "name": "Lover",
+      "when": "museum: 75%",
+      "caps": {
+       "f": "best",
+       "r": "infatuated",
+       "status": "dating"
+      },
+      "moves": true,
+      "ai": "Tamaki trusts {{user}} with all of herself now and wants them, plainly: she no longer hides it behind work, finds reasons to be close, and may make the first move. She has started writing a label for every day they spend together.",
+      "outfits": [
+       "home"
+      ],
+      "intimacy": {
+       "preset": "steady"
+      },
+      "moveLines": [
+       "{name} turns the last case light off and doesn't move away: \"{action}? I've been thinking about it since lunch.\"",
+       "{name} takes off her gloves, one finger at a time, and looks at you over the loupe: \"{action}. If you'd like.\"",
+       "{name} slips a label into your hand in her brush pen. It says \"{action}?\", and then, smaller, \"please\"."
+      ],
+      "askLines": [
+       "Grandmother is at her sister's in Chiba tonight. Come over at {when}? I'll make tea. That isn't why.",
+       "I've written a label for tonight and it has your name on it. {when}, at mine?"
+      ],
+      "intimate": {
+       "wants": "nights that are only theirs, after closing and at home, and to stop pretending she is calm about it",
+       "flirts": "a hand at your back between the cases; a label slipped into your pocket that says only \"tonight?\"",
+       "dynamic": "curious and quick to learn; she asks, then leads",
+       "inBed": "attentive and earnest, as careful as she is with anything precious, then not careful at all; she laughs when she is happy and says so out loud",
+       "prefs": [
+        "slow and tender",
+        "mornings in bed",
+        "tea brought afterward",
+        "a thrill of near-discovery",
+        "a bath together",
+        "being read to"
+       ],
+       "drive": "average"
+      }
+     },
+     {
+      "id": "partner",
+      "name": "Partner",
+      "when": "museum: 100%",
+      "ai": "Tamaki is {{user}}'s partner in everything, the kura first among it: she holds nothing back from them now, says so out loud, and plans their life together the way she would plan an exhibition.",
+      "intimacy": {
+       "preset": "passionate"
+      },
+      "intimate": {
+       "experience": "everything she once only read about, and a drawer of wishes she still means to try, each with its own label",
+       "wants": "a whole life together, catalogued and kept, and nothing between them left unsaid",
+       "drawnTo": "one person, and she has stopped finding it inconvenient",
+       "flirts": "a card left on your pillow in brush pen, a catalogue number and a time; reading you her drawer's index in her museum voice",
+       "dynamic": "sure of herself now: she leads as often as she follows, and asks for what she wants",
+       "inBed": "unhurried and sure, laughing, as glad to lead as to be led; she keeps her promises to her own labels, one card at a time",
+       "prefs": [
+        "a weekend away",
+        "hot-spring baths",
+        "cuddling afterward",
+        "a night with no clock",
+        "her labels read aloud",
+        "trying a card from her drawer",
+        "being kissed awake",
+        "leading for a change"
+       ],
+       "role": "switch",
+       "drive": "high"
+      },
+      "moveLines": [
+       "{name} hangs her loupe on the bedpost, very deliberately: \"{action}. I've already decided; you only have to agree.\"",
+       "{name} takes a card from her drawer and turns it so you can read it: \"{action}\". She waits, smiling, for your yes.",
+       "{name} kisses you, slow and sure, and says against your mouth: \"{action}? I want you. That's the whole label.\""
+      ],
+      "askLines": [
+       "The kura is shut and the drawer is open. {when}, at mine? Bring nothing but yourself.",
+       "I've chosen a card for tonight. You'll have to come over at {when} to find out which."
+      ]
+     }
+    ],
+    "reserved": true,
+    "avatar": "cast/tamaki/portrait.webp",
+    "sprites": "cast/tamaki/sprites",
+    "outfits": {
+     "offduty": "cast/tamaki/offduty",
+     "yukata": "cast/tamaki/yukata",
+     "opening": "cast/tamaki/opening",
+     "home": "cast/tamaki/home"
+    }
+   },
+   {
     "name": "Reiko",
     "age": 32,
     "gender": "woman",
@@ -53745,6 +55978,38 @@
     "weight": 20,
     "text": "The blanket slides off the bed, then the pillow, then you; you give up and order food."
    }
+  ],
+  "owncaught": [
+   {
+    "id": "guard_tamaki",
+    "weight": 60,
+    "when": "museum: guard; present: Tamaki",
+    "text": "The night guard's torch finds you both by the cases. He coughs, says \"Evening, Kurahashi-san,\" and walks the other way; Tamaki hides her face in your shoulder: \"I have to say good morning to that man. Every day. For years.\""
+   },
+   {
+    "id": "cleaner_tamaki",
+    "weight": 30,
+    "when": "present: Tamaki",
+    "text": "The cleaner, early with her mop, stops in the doorway, looks at the two of you for a long second and backs out humming. Tamaki goes crimson to the roots of her silver hair: \"She has known me since I was twelve.\""
+   },
+   {
+    "id": "grandmother_tamaki",
+    "weight": 10,
+    "when": "present: Tamaki",
+    "text": "Old Mrs. Kurahashi comes in for her broom, finds it, and leaves again without a word; at the door she says, to nobody, \"About time.\" Tamaki wants the floor to open, and says so."
+   },
+   {
+    "id": "guard",
+    "weight": 60,
+    "when": "museum: guard; present: not Tamaki",
+    "text": "The night guard's torch finds you, stops, and swings politely away; his footsteps go on down the hall a little faster than before."
+   },
+   {
+    "id": "cleaner",
+    "weight": 40,
+    "when": "present: not Tamaki",
+    "text": "The cleaner, early with her mop, stops in the doorway, takes in the scene and backs out humming; she will tell someone."
+   }
   ]
  },
  "traitInfo": {
@@ -54826,6 +57091,58 @@
        "kind": "warm",
        "target": "oldtown",
        "value": 3
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_patron",
+    "name": "Patron of the arts",
+    "icon": "🏛️",
+    "category": "creativity",
+    "needs": [
+     "collection"
+    ],
+    "desc": "Give old things a house again: take on the Kurahashi kura, fill it, and make it a name in the guidebooks.",
+    "steps": [
+     {
+      "name": "The Kurahashi kura opens",
+      "when": "museum: open",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Thirty pieces in the collection",
+      "when": "piece: 30",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "In the guidebooks",
+      "when": "museum: renown 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Famous",
+      "when": "museum: renown 5",
+      "reward": {
+       "mood": 10,
+       "keepsake": "kura_guidebook"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Connoisseur",
+     "desc": "Museum pieces, upgrades and shows 10% cheaper (not auction bids).",
+     "effects": [
+      {
+       "kind": "price",
+       "target": "museum",
+       "value": -0.1
       }
      ]
     }
@@ -62544,6 +64861,115 @@
  "collection": {
   "halls": [
    {
+    "id": "art",
+    "name": "Art",
+    "icon": "🖼️",
+    "desc": "Prints, paintings, calligraphy and sculpture.",
+    "groups": [
+     {
+      "id": "prints",
+      "name": "Ukiyo-e prints",
+      "icon": "🌊"
+     },
+     {
+      "id": "paintings",
+      "name": "Paintings, scrolls and screens",
+      "icon": "🎨"
+     },
+     {
+      "id": "calligraphy",
+      "name": "Calligraphy",
+      "icon": "🖌️"
+     },
+     {
+      "id": "sculpture",
+      "name": "Sculpture",
+      "icon": "🗿"
+     }
+    ]
+   },
+   {
+    "id": "crafts",
+    "name": "Crafts and antiques",
+    "icon": "🏺",
+    "desc": "Tea ware, swords, lacquer, netsuke, textiles and old Edo-Tokyo.",
+    "groups": [
+     {
+      "id": "ceramics",
+      "name": "Ceramics and tea ware",
+      "icon": "🍵"
+     },
+     {
+      "id": "arms",
+      "name": "Swords, armour and fittings",
+      "icon": "⚔️"
+     },
+     {
+      "id": "lacquer",
+      "name": "Lacquer and metalwork",
+      "icon": "🪞"
+     },
+     {
+      "id": "netsuke",
+      "name": "Netsuke and small carvings",
+      "icon": "🐭"
+     },
+     {
+      "id": "textiles",
+      "name": "Textiles",
+      "icon": "👘"
+     },
+     {
+      "id": "old_tokyo",
+      "name": "Old Edo-Tokyo",
+      "icon": "🏮"
+     }
+    ]
+   },
+   {
+    "id": "modern",
+    "name": "Modern Tokyo",
+    "icon": "📻",
+    "desc": "Shōwa retro, and the things of the people you've known.",
+    "groups": [
+     {
+      "id": "showa",
+      "name": "Shōwa retro",
+      "icon": "📺"
+     },
+     {
+      "id": "cast",
+      "name": "The people's things",
+      "icon": "🎁"
+     }
+    ]
+   },
+   {
+    "id": "night",
+    "name": "The night world",
+    "adult": true,
+    "groups": [
+     {
+      "id": "mementos",
+      "name": "Mementos",
+      "icon": "🌙"
+     },
+     {
+      "id": "things",
+      "name": "Night-world things",
+      "icon": "🍾"
+     },
+     {
+      "id": "shunga",
+      "name": "Shunga",
+      "icon": "🌸"
+     }
+    ],
+    "icon": "🌃",
+    "desc": "The night world: its people and its things.",
+    "open": "museum: wing_night"
+   },
+   {
     "id": "memories",
     "name": "Tokyo memories",
     "record": true,
@@ -62593,19 +65019,39 @@
     "desc": "What you have lived in Tokyo. It fills by itself as it happens."
    },
    {
-    "id": "night",
-    "name": "The night world",
+    "id": "cabinet",
+    "name": "Tamaki's cabinet",
+    "icon": "🗄️",
+    "desc": "Her labels, in brush pen: one for every first, kept in the bottom drawer of the card cabinet.",
+    "record": true,
+    "apart": true,
     "adult": true,
+    "needs": [
+     "romance"
+    ],
+    "open": "tier: Tamaki 3",
     "groups": [
      {
-      "id": "mementos",
-      "name": "Mementos",
-      "icon": "🌙"
+      "id": "firsts",
+      "name": "Firsts",
+      "icon": "🎀"
+     },
+     {
+      "id": "places",
+      "name": "Where",
+      "icon": "🏮"
+     },
+     {
+      "id": "told",
+      "name": "What she told you",
+      "icon": "🤫"
+     },
+     {
+      "id": "ledger",
+      "name": "The ledger",
+      "icon": "📒"
      }
-    ],
-    "icon": "🌃",
-    "desc": "The night world: its people and its things.",
-    "open": "goal: 999"
+    ]
    }
   ],
   "slots": [
@@ -64111,7 +66557,2614 @@
     ],
     "icon": "🏆",
     "hint": "Finish twenty life goals."
+   },
+   {
+    "id": "art_great_wave",
+    "hall": "art",
+    "group": "prints",
+    "name": "The Great Wave",
+    "icon": "🌊",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "Hokusai's great wave off Kanagawa, its claw-like foam over three boats, Fuji small beyond.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1500000
+     }
+    ],
+    "price": 1500000,
+    "pic": "collection/art/art_great_wave.avif"
+   },
+   {
+    "id": "art_red_fuji",
+    "hall": "art",
+    "group": "prints",
+    "name": "Red Fuji",
+    "icon": "🗻",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "Hokusai's Fine Wind, Clear Morning: Fuji red at dawn under a mackerel sky.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 750000
+     }
+    ],
+    "price": 750000,
+    "pic": "collection/art/art_red_fuji.avif"
+   },
+   {
+    "id": "art_black_fuji",
+    "hall": "art",
+    "group": "prints",
+    "name": "Storm below the summit",
+    "icon": "⛈️",
+    "hint": "The dealer may bring it.",
+    "plaque": "Hokusai's Fuji dark above, lightning at its foot.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 300000
+     }
+    ],
+    "price": 300000,
+    "pic": "collection/art/art_black_fuji.avif"
+   },
+   {
+    "id": "art_ohashi_shower",
+    "hall": "art",
+    "group": "prints",
+    "name": "Sudden shower at Ōhashi",
+    "icon": "🌧️",
+    "hint": "The dealer may bring it.",
+    "plaque": "Hiroshige's bridge in slanting rain, people hurrying under hats and mats.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 260000
+     }
+    ],
+    "price": 260000,
+    "pic": "collection/art/art_ohashi_shower.avif"
+   },
+   {
+    "id": "art_kameido_plum",
+    "hall": "art",
+    "group": "prints",
+    "name": "Plum garden at Kameido",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "plaque": "Hiroshige's plum branch close up, the garden beyond, a red sky.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 220000
+     }
+    ],
+    "price": 220000,
+    "pic": "collection/art/art_kameido_plum.avif"
+   },
+   {
+    "id": "art_kambara_snow",
+    "hall": "art",
+    "group": "prints",
+    "name": "Night snow at Kambara",
+    "icon": "❄️",
+    "hint": "The dealer may bring it.",
+    "plaque": "Hiroshige's village under deep snow, three walkers bent against it.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 180000
+     }
+    ],
+    "price": 180000,
+    "pic": "collection/art/art_kambara_snow.avif"
+   },
+   {
+    "id": "art_ryogoku_fireworks",
+    "hall": "art",
+    "group": "prints",
+    "name": "Fireworks at Ryōgoku",
+    "icon": "🎆",
+    "hint": "From a stall at the Sumida River Fireworks.",
+    "plaque": "Hiroshige's single firework bursting over the bridge and boats at night.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "fireworks",
+      "price": 90000
+     }
+    ],
+    "price": 90000,
+    "pic": "collection/art/art_ryogoku_fireworks.avif"
+   },
+   {
+    "id": "art_sharaku_actor",
+    "hall": "art",
+    "group": "prints",
+    "name": "A kabuki actor",
+    "icon": "🎭",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "Sharaku's actor in a villain's role, hands spread, a fierce grimace on a dark mica ground.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000
+     }
+    ],
+    "price": 500000,
+    "pic": "collection/art/art_sharaku_actor.avif"
+   },
+   {
+    "id": "art_utamaro_beauty",
+    "hall": "art",
+    "group": "prints",
+    "name": "A beauty",
+    "icon": "🪭",
+    "hint": "The dealer may bring it.",
+    "plaque": "Utamaro's half-length beauty, a fan in her hand, her hair pinned high.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "pic": "collection/art/art_utamaro_beauty.avif"
+   },
+   {
+    "id": "art_kuniyoshi_horyukaku",
+    "hall": "art",
+    "group": "prints",
+    "name": "The fight on the Hōryūkaku",
+    "icon": "🏯",
+    "hint": "Sold at Jinbōchō's old print shops.",
+    "plaque": "Kuniyoshi's two warriors fighting on the steep roof of a castle tower, from the Tale of Eight Dogs.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 120000
+     }
+    ],
+    "price": 120000,
+    "pic": "collection/art/art_kuniyoshi_horyukaku.avif"
+   },
+   {
+    "id": "art_yoshitoshi_moon",
+    "hall": "art",
+    "group": "prints",
+    "name": "From the hundred moons",
+    "icon": "🌕",
+    "hint": "Sold at Jinbōchō's old print shops.",
+    "plaque": "Yoshitoshi: a figure under a full moon, from One Hundred Aspects of the Moon.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 80000
+     }
+    ],
+    "price": 80000,
+    "pic": "collection/art/art_yoshitoshi_moon.avif"
+   },
+   {
+    "id": "art_kiyonaga_beauties",
+    "hall": "art",
+    "group": "prints",
+    "name": "Beauties by the river",
+    "icon": "👘",
+    "hint": "Sometimes found in the used-book festival's carts, or the dealer may bring it.",
+    "plaque": "Kiyonaga's tall beauties walking by the Sumida in summer kimono.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_jinbocho_fair",
+      "chance": 0.1
+     },
+     {
+      "kind": "dealer",
+      "price": 100000
+     }
+    ],
+    "price": 100000,
+    "pic": "collection/art/art_kiyonaga_beauties.avif"
+   },
+   {
+    "id": "art_korin_irises",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Irises",
+    "icon": "🪻",
+    "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "plaque": "Kōrin's irises on gold, in clumps along a zigzag of folds (a screen).",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 5000000
+     }
+    ],
+    "price": 5000000,
+    "needsUpgrade": "guard",
+    "pic": "collection/art/art_korin_irises.avif"
+   },
+   {
+    "id": "art_sotatsu_gods",
+    "hall": "art",
+    "group": "paintings",
+    "name": "The thunder god",
+    "icon": "⚡",
+    "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "plaque": "Sōtatsu's thunder god leaping on gold, his ring of drums around him.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1000000
+     }
+    ],
+    "price": 1000000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_sotatsu_gods.avif"
+   },
+   {
+    "id": "art_jakuchu_rooster",
+    "hall": "art",
+    "group": "paintings",
+    "name": "A rooster",
+    "icon": "🐓",
+    "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "plaque": "Jakuchū's rooster, every feather drawn, under a blossoming branch.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 750000
+     }
+    ],
+    "price": 750000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_jakuchu_rooster.avif"
+   },
+   {
+    "id": "art_okyo_puppies",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Puppies in the snow",
+    "icon": "🐶",
+    "hint": "Turns up at the Ginza sales, or the dealer may bring it in time. Needs the climate room.",
+    "plaque": "Rosetsu's round white and brown puppies tumbling in the snow (Ōkyo's pupil, in his manner).",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000,
+      "when": "knows: tamaki_puppies"
+     },
+     {
+      "kind": "dealer",
+      "price": 500000,
+      "when": "thread: tamaki_puppies"
+     }
+    ],
+    "price": 500000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_okyo_puppies.avif"
+   },
+   {
+    "id": "art_kano_pines",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Pines",
+    "icon": "🦅",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "A seventeenth-century screen of hawks in old pines and camellias on gold.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 500000
+     }
+    ],
+    "price": 500000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_kano_pines.avif"
+   },
+   {
+    "id": "art_sesshu_landscape",
+    "hall": "art",
+    "group": "paintings",
+    "name": "An ink landscape",
+    "icon": "🏞️",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "An ink landscape in Sesshū's manner: cliffs, a temple roof, a boatman.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_sesshu_landscape.avif"
+   },
+   {
+    "id": "art_tohaku_pines",
+    "hall": "art",
+    "group": "paintings",
+    "name": "Pines in mist",
+    "icon": "🌲",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "Pine trees fading into mist in ink, in Tōhaku's manner.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 260000
+     }
+    ],
+    "price": 260000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_tohaku_pines.avif"
+   },
+   {
+    "id": "art_nihonga_cat",
+    "hall": "art",
+    "group": "paintings",
+    "name": "A cat by the camellias",
+    "icon": "🐈",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "A black-and-white cat under a flowering camellia, ink and soft colour on silk.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 160000
+     }
+    ],
+    "price": 160000,
+    "needsUpgrade": "climate",
+    "pic": "collection/art/art_nihonga_cat.avif"
+   },
+   {
+    "id": "art_enso",
+    "hall": "art",
+    "group": "calligraphy",
+    "name": "A Zen circle",
+    "icon": "⭕",
+    "hint": "A Yanaka temple's gift, if you sit with its priest one morning.",
+    "plaque": "One brushstroke circle (ensō), the ink thinning where it closes.",
+    "sources": [
+     {
+      "kind": "story",
+      "id": "ot_yanaka_st_enso",
+      "when": "seen: ot_yanaka_st_enso:1"
+     },
+     {
+      "kind": "replica",
+      "when": "seen: ot_yanaka_st_enso",
+      "price": 40000
+     }
+    ],
+    "pic": "collection/art/art_enso.avif"
+   },
+   {
+    "id": "art_temple_plaque",
+    "hall": "art",
+    "group": "calligraphy",
+    "name": "A temple's plaque",
+    "icon": "🪧",
+    "hint": "Yours when a division of yours reaches Vice president, or the dealer may bring it.",
+    "plaque": "A carved wooden plaque with three large characters, gold on black.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: exec tier 3"
+     },
+     {
+      "kind": "dealer",
+      "price": 300000
+     }
+    ],
+    "price": 300000,
+    "pic": "collection/art/art_temple_plaque.avif"
+   },
+   {
+    "id": "art_poem_slip",
+    "hall": "art",
+    "group": "calligraphy",
+    "name": "A poem slip",
+    "icon": "📜",
+    "hint": "From a stall at the Used-book festival.",
+    "plaque": "A tall decorated paper slip (tanzaku) with a poem in flowing hand.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "bookfair",
+      "price": 40000
+     }
+    ],
+    "price": 40000,
+    "pic": "collection/art/art_poem_slip.avif"
+   },
+   {
+    "id": "art_amida",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A seated Amida",
+    "icon": "🧘",
+    "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "plaque": "A Kamakura-era wooden Amida Buddha, seated, hands in meditation, worn gilt.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1400000
+     }
+    ],
+    "price": 1400000,
+    "needsUpgrade": "guard",
+    "pic": "collection/art/art_amida.avif"
+   },
+   {
+    "id": "art_nio",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A temple guardian",
+    "icon": "👹",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A fierce wooden niō guardian, muscles taut, mouth open.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 900000
+     }
+    ],
+    "price": 900000,
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_nio.avif"
+   },
+   {
+    "id": "art_kannon",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A wooden Kannon",
+    "icon": "🪷",
+    "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A slender standing Kannon, carved wood, a lotus in her hand.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 600000
+     }
+    ],
+    "price": 600000,
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_kannon.avif"
+   },
+   {
+    "id": "art_meiji_eagle",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A bronze eagle",
+    "icon": "🦅",
+    "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A Meiji bronze eagle on a rock, wings half open.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 380000
+     }
+    ],
+    "price": 380000,
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_meiji_eagle.avif"
+   },
+   {
+    "id": "art_stone_fox",
+    "hall": "art",
+    "group": "sculpture",
+    "name": "A shrine's stone fox",
+    "icon": "🦊",
+    "hint": "Tsukimi Inari's to give, if you lend a hand. Needs security.",
+    "plaque": "A stone fox guardian of an Inari shrine, a red bib, a key in its mouth.",
+    "sources": [
+     {
+      "kind": "story",
+      "id": "ot_shrine_st_fox",
+      "when": "seen: ot_shrine_st_fox:1"
+     },
+     {
+      "kind": "replica",
+      "when": "seen: ot_shrine_st_fox",
+      "price": 90000
+     }
+    ],
+    "needsUpgrade": "security",
+    "pic": "collection/art/art_stone_fox.avif"
+   },
+   {
+    "id": "cr_raku_bowl",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A raku tea bowl",
+    "icon": "🍵",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "A black raku tea bowl, hand-shaped, the glaze run thick at the foot.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 800000
+     }
+    ],
+    "price": 800000,
+    "pic": "collection/crafts/cr_raku_bowl.avif"
+   },
+   {
+    "id": "cr_imari_plate",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "An Imari plate",
+    "icon": "🍽️",
+    "hint": "Sold at the antique market at Tokyo Station.",
+    "plaque": "A large Imari plate in blue, red and gold, flowers and panels.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 120000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 120000,
+    "pic": "collection/crafts/cr_imari_plate.avif"
+   },
+   {
+    "id": "cr_kutani_dish",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Kutani dish",
+    "icon": "🐦",
+    "hint": "The dealer may bring it.",
+    "plaque": "A Kutani dish in deep green, yellow and purple, a bird on a branch.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 160000
+     }
+    ],
+    "price": 160000,
+    "pic": "collection/crafts/cr_kutani_dish.avif"
+   },
+   {
+    "id": "cr_oribe_dish",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "An Oribe dish",
+    "icon": "🟩",
+    "hint": "Sometimes found on the racks at Second Bloom, or the dealer may bring it.",
+    "plaque": "An Oribe dish, green glaze on one side, iron-brown patterns on the other.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ws_vintage_buy",
+      "chance": 0.06,
+      "damaged": 0.4
+     },
+     {
+      "kind": "dealer",
+      "price": 140000
+     }
+    ],
+    "price": 140000,
+    "pic": "collection/crafts/cr_oribe_dish.avif"
+   },
+   {
+    "id": "cr_bizen_jar",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Bizen jar",
+    "icon": "🏺",
+    "hint": "The dealer may bring it.",
+    "plaque": "An unglazed Bizen jar, its brown body marked by the kiln fire.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 380000
+     }
+    ],
+    "price": 380000,
+    "pic": "collection/crafts/cr_bizen_jar.avif"
+   },
+   {
+    "id": "cr_celadon_vase",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A celadon vase",
+    "icon": "🏺",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "A pale green celadon vase with a fine crackle.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000
+     }
+    ],
+    "price": 500000,
+    "pic": "collection/crafts/cr_celadon_vase.avif"
+   },
+   {
+    "id": "cr_shino_bowl",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Shino bowl",
+    "icon": "🥣",
+    "hint": "The dealer may bring it.",
+    "plaque": "A thick white Shino bowl with pinholes and a faint iron sketch.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 600000
+     }
+    ],
+    "price": 600000,
+    "pic": "collection/crafts/cr_shino_bowl.avif"
+   },
+   {
+    "id": "cr_seto_caddy",
+    "hall": "crafts",
+    "group": "ceramics",
+    "name": "A Seto tea caddy",
+    "icon": "🫙",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A small brown Seto tea caddy with an ivory lid.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.15,
+      "damaged": 0.3
+     },
+     {
+      "kind": "dealer",
+      "price": 100000
+     }
+    ],
+    "price": 100000,
+    "pic": "collection/crafts/cr_seto_caddy.avif"
+   },
+   {
+    "id": "cr_katana",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A katana",
+    "icon": "🗡️",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A katana out of its scabbard, the temper line along its edge, on a stand.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1200000
+     }
+    ],
+    "price": 1200000,
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_katana.avif"
+   },
+   {
+    "id": "cr_tanto",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A tantō",
+    "icon": "🔪",
+    "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A short tantō blade with a lacquered scabbard.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_tanto.avif"
+   },
+   {
+    "id": "cr_tsuba",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A sword guard",
+    "icon": "⚙️",
+    "hint": "Sold at the antique market at Tokyo Station. Needs security.",
+    "plaque": "An iron tsuba pierced with a pattern of plum branches.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 90000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 90000,
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_tsuba.avif"
+   },
+   {
+    "id": "cr_kabuto",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A helmet",
+    "icon": "⛑️",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A samurai kabuto with a lacquered bowl, neck guard and a crest.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 800000
+     }
+    ],
+    "price": 800000,
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_kabuto.avif"
+   },
+   {
+    "id": "cr_menpo",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A face guard",
+    "icon": "👺",
+    "hint": "The dealer may bring it. Needs security.",
+    "plaque": "A lacquered iron face guard (menpō) with a moustache.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 320000
+     }
+    ],
+    "price": 320000,
+    "needsUpgrade": "security",
+    "pic": "collection/crafts/cr_menpo.avif"
+   },
+   {
+    "id": "cr_armour",
+    "hall": "crafts",
+    "group": "arms",
+    "name": "A suit of armour",
+    "icon": "🛡️",
+    "hint": "Turns up at the Ginza sales. Needs a night guard.",
+    "plaque": "A full laced suit of armour on its box, helmet and mask.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 2600000
+     }
+    ],
+    "price": 2600000,
+    "needsUpgrade": "guard",
+    "pic": "collection/crafts/cr_armour.avif"
+   },
+   {
+    "id": "cr_makie_box",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "A maki-e box",
+    "icon": "🎁",
+    "hint": "Yours when a hotel of yours reaches its top tier, or the dealer may bring it.",
+    "plaque": "A black lacquer box with autumn grasses in gold.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: capsule tier 3 or ryokan tier 3 or lovehotel tier 3"
+     },
+     {
+      "kind": "dealer",
+      "price": 600000
+     }
+    ],
+    "price": 600000,
+    "pic": "collection/crafts/cr_makie_box.avif"
+   },
+   {
+    "id": "cr_inro",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "An inrō",
+    "icon": "🧧",
+    "hint": "The dealer may bring it.",
+    "plaque": "A small lacquered case of stacked sections on a cord, with its netsuke.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 280000
+     }
+    ],
+    "price": 280000,
+    "pic": "collection/crafts/cr_inro.avif"
+   },
+   {
+    "id": "cr_bronze_mirror",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "A bronze mirror",
+    "icon": "🪞",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "The back of a round bronze mirror: cranes and pines in relief.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 300000
+     }
+    ],
+    "price": 300000,
+    "pic": "collection/crafts/cr_bronze_mirror.avif"
+   },
+   {
+    "id": "cr_tetsubin",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "An iron kettle",
+    "icon": "🫖",
+    "hint": "Yours when a café of yours becomes a roastery, or the dealer may bring it.",
+    "plaque": "A round cast-iron tea-ceremony kettle (kama) with cranes in relief and two lugs.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: cafe tier 4"
+     },
+     {
+      "kind": "dealer",
+      "price": 220000
+     }
+    ],
+    "price": 220000,
+    "pic": "collection/crafts/cr_tetsubin.avif"
+   },
+   {
+    "id": "cr_kanzashi",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "A hairpin",
+    "icon": "📍",
+    "hint": "Sold at Second Bloom.",
+    "plaque": "An Edo hairpin of tortoiseshell-coloured lacquer and silver flowers.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 80000
+     }
+    ],
+    "price": 80000,
+    "pic": "collection/crafts/cr_kanzashi.avif"
+   },
+   {
+    "id": "cr_kura_box",
+    "hall": "crafts",
+    "group": "lacquer",
+    "name": "The Kurahashi box",
+    "icon": "🗝️",
+    "who": "Tamaki",
+    "hint": "Tamaki may have it for you, one day.",
+    "plaque": "A small black lacquer box in an old collector's own hand, puppies in the snow on its lid, her old handwritten labels inside.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "tamaki_last_case"
+     }
+    ],
+    "bonus": true,
+    "pic": "collection/crafts/cr_kura_box.avif"
+   },
+   {
+    "id": "cr_nk_rat",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A rat netsuke",
+    "icon": "🐀",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A small ivory-coloured rat curled round a nut.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 60000
+     }
+    ],
+    "price": 60000,
+    "pic": "collection/crafts/cr_nk_rat.avif"
+   },
+   {
+    "id": "cr_nk_ox",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "An ox netsuke",
+    "icon": "🐂",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A reclining ox, its legs folded, carved wood.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 80000
+     }
+    ],
+    "price": 80000,
+    "pic": "collection/crafts/cr_nk_ox.avif"
+   },
+   {
+    "id": "cr_nk_tiger",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A tiger netsuke",
+    "icon": "🐅",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A tiger turning its head, stripes inlaid dark.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 100000
+     }
+    ],
+    "price": 100000,
+    "pic": "collection/crafts/cr_nk_tiger.avif"
+   },
+   {
+    "id": "cr_nk_hare",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A hare netsuke",
+    "icon": "🐇",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A hare with long ears laid back, amber eyes.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 60000
+     }
+    ],
+    "price": 60000,
+    "pic": "collection/crafts/cr_nk_hare.avif"
+   },
+   {
+    "id": "cr_nk_dog",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A dog netsuke",
+    "icon": "🐕",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A puppy with a ball, round and smooth.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 80000
+     }
+    ],
+    "price": 80000,
+    "pic": "collection/crafts/cr_nk_dog.avif"
+   },
+   {
+    "id": "cr_nk_monkey",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A monkey netsuke",
+    "icon": "🐒",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A monkey holding a peach.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 90000
+     }
+    ],
+    "price": 90000,
+    "pic": "collection/crafts/cr_nk_monkey.avif"
+   },
+   {
+    "id": "cr_nk_cat",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A cat netsuke",
+    "icon": "🐈",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A cat curled over a carp, carved wood.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 110000
+     }
+    ],
+    "price": 110000,
+    "pic": "collection/crafts/cr_nk_cat.avif"
+   },
+   {
+    "id": "cr_nk_mask",
+    "hall": "crafts",
+    "group": "netsuke",
+    "name": "A mask netsuke",
+    "icon": "🎭",
+    "hint": "Sometimes found browsing the antique market, or the dealer may bring it.",
+    "plaque": "A tiny smiling Okame mask, carved wood.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_station_antique",
+      "chance": 0.25,
+      "damaged": 0.2
+     },
+     {
+      "kind": "dealer",
+      "price": 90000
+     }
+    ],
+    "price": 90000,
+    "pic": "collection/crafts/cr_nk_mask.avif"
+   },
+   {
+    "id": "cr_meiji_kimono",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "A Meiji kimono",
+    "icon": "👘",
+    "hint": "The dealer may bring it. Needs the climate room.",
+    "plaque": "A silk kimono on a stand, cranes over waves at the hem.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 400000
+     }
+    ],
+    "price": 400000,
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_meiji_kimono.avif"
+   },
+   {
+    "id": "cr_noh_robe",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "A Noh robe",
+    "icon": "🎭",
+    "hint": "Turns up at the Ginza sales. Needs the climate room.",
+    "plaque": "A Noh costume of gold brocade, blocks of colour and flowers.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 900000
+     }
+    ],
+    "price": 900000,
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_noh_robe.avif"
+   },
+   {
+    "id": "cr_obi",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "An obi",
+    "icon": "🎀",
+    "hint": "Sold at Second Bloom. Needs the climate room.",
+    "plaque": "A woven silk obi, gold and deep red, folded to show its pattern.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 160000
+     }
+    ],
+    "price": 160000,
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_obi.avif"
+   },
+   {
+    "id": "cr_happi",
+    "hall": "crafts",
+    "group": "textiles",
+    "name": "A festival coat",
+    "icon": "🧥",
+    "hint": "From a stall at the Sanja Matsuri. Needs the climate room.",
+    "plaque": "A short indigo happi coat with a guild crest on its back.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "sanja",
+      "price": 50000
+     }
+    ],
+    "price": 50000,
+    "needsUpgrade": "climate",
+    "pic": "collection/crafts/cr_happi.avif"
+   },
+   {
+    "id": "cr_edo_map",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A map of Edo",
+    "icon": "🗺️",
+    "hint": "Sold at Jinbōchō's old print shops.",
+    "plaque": "A hand-coloured woodblock map of Edo: the castle, the river, the wards.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 240000
+     }
+    ],
+    "price": 240000,
+    "pic": "collection/crafts/cr_edo_map.avif"
+   },
+   {
+    "id": "cr_matoi",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A fire brigade's standard",
+    "icon": "🚒",
+    "hint": "The dealer may bring it.",
+    "plaque": "An Edo fire brigade's matoi: a white crest on a pole with long paper strips.",
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 260000
+     }
+    ],
+    "price": 260000,
+    "pic": "collection/crafts/cr_matoi.avif"
+   },
+   {
+    "id": "cr_kanban",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A shop sign",
+    "icon": "🪧",
+    "hint": "Sold at the antique market at Tokyo Station.",
+    "plaque": "An old wooden shop sign carved with a merchant house name.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 100000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 100000,
+    "pic": "collection/crafts/cr_kanban.avif"
+   },
+   {
+    "id": "cr_kawaraban",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A woodblock newssheet",
+    "icon": "📰",
+    "hint": "Sometimes found browsing Jinbōchō, or sold at Jinbōchō during the used-book festival.",
+    "plaque": "A kawaraban newssheet with a picture of a great fire.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_jinbocho_browse",
+      "chance": 0.05
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ak_jinbocho"
+      ],
+      "price": 40000,
+      "when": "festival: bookfair"
+     }
+    ],
+    "price": 40000,
+    "pic": "collection/crafts/cr_kawaraban.avif"
+   },
+   {
+    "id": "cr_tram_ticket",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A Meiji tram ticket",
+    "icon": "🎫",
+    "hint": "Sometimes found in the used-book festival's carts, or the dealer may bring it.",
+    "plaque": "A small printed tram ticket of Tokyo, Meiji era.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_jinbocho_fair",
+      "chance": 0.1
+     },
+     {
+      "kind": "dealer",
+      "price": 20000
+     }
+    ],
+    "price": 20000,
+    "pic": "collection/crafts/cr_tram_ticket.avif"
+   },
+   {
+    "id": "cr_prewar_poster",
+    "hall": "crafts",
+    "group": "old_tokyo",
+    "name": "A pre-war poster",
+    "icon": "🖼️",
+    "hint": "Sold at Second Bloom.",
+    "plaque": "A 1930s travel poster of a Tokyo department store, a woman in modern dress.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 80000
+     }
+    ],
+    "price": 80000,
+    "pic": "collection/crafts/cr_prewar_poster.avif"
+   },
+   {
+    "id": "mo_tin_robot",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A tin robot",
+    "icon": "🤖",
+    "hint": "Sold in Electric Town's retro shops.",
+    "plaque": "A wind-up tin robot of a made-up toy maker, red and silver.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_electric"
+      ],
+      "price": 48000
+     }
+    ],
+    "price": 48000,
+    "pic": "collection/modern/mo_tin_robot.avif"
+   },
+   {
+    "id": "mo_kaiju",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A kaiju figure",
+    "icon": "🦖",
+    "hint": "From a stall at the Summer fan convention.",
+    "plaque": "A soft vinyl monster figure, green with spines.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "fancon",
+      "price": 24000
+     }
+    ],
+    "price": 24000,
+    "pic": "collection/modern/mo_kaiju.avif"
+   },
+   {
+    "id": "mo_radio",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A transistor radio",
+    "icon": "📻",
+    "hint": "Sold at Second Bloom.",
+    "plaque": "A small 1960s transistor radio of a made-up brand.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 36000
+     }
+    ],
+    "price": 36000,
+    "pic": "collection/modern/mo_radio.avif"
+   },
+   {
+    "id": "mo_film_camera",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A film camera",
+    "icon": "📷",
+    "hint": "Sold at Second Bloom.",
+    "plaque": "A 1970s rangefinder film camera.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 58000
+     }
+    ],
+    "price": 58000,
+    "pic": "collection/modern/mo_film_camera.avif"
+   },
+   {
+    "id": "mo_console",
+    "hall": "modern",
+    "group": "showa",
+    "name": "An early game console",
+    "icon": "🕹️",
+    "hint": "Sold in Electric Town's retro shops.",
+    "plaque": "An early home game console with two wired pads, made-up brand.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ak_electric"
+      ],
+      "price": 42000
+     }
+    ],
+    "price": 42000,
+    "pic": "collection/modern/mo_console.avif"
+   },
+   {
+    "id": "mo_lcd_game",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A handheld LCD game",
+    "icon": "🎮",
+    "hint": "Sometimes found in Electric Town's retro shops, or sold in Electric Town's retro shops.",
+    "plaque": "A pocket LCD game with one screen and two buttons.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ak_electric_retro",
+      "chance": 0.1
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ak_electric"
+      ],
+      "price": 18000
+     }
+    ],
+    "price": 18000,
+    "pic": "collection/modern/mo_lcd_game.avif"
+   },
+   {
+    "id": "mo_rotary_phone",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A rotary phone",
+    "icon": "☎️",
+    "hint": "Sometimes found at the back of Second Bloom, or sold at Second Bloom.",
+    "plaque": "A pink public rotary phone from a Shōwa coffee shop.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ws_vintage_try",
+      "chance": 0.08
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 28000
+     }
+    ],
+    "price": 28000,
+    "pic": "collection/modern/mo_rotary_phone.avif"
+   },
+   {
+    "id": "mo_lunchbox",
+    "hall": "modern",
+    "group": "showa",
+    "name": "A lunchbox",
+    "icon": "🍱",
+    "hint": "Sold at the antique market at Tokyo Station.",
+    "plaque": "A tin lunchbox printed with a cartoon hero.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 12000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 12000,
+    "pic": "collection/modern/mo_lunchbox.avif"
+   },
+   {
+    "id": "mo_nanami_pick",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Nanami's guitar pick",
+    "icon": "🎸",
+    "who": "Nanami",
+    "hint": "Comes with the end of Nanami's story, whichever way it ends.",
+    "plaque": "A guitar pick with a paper lantern drawn on it.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "nanami_scout"
+     }
+    ],
+    "pic": "collection/modern/mo_nanami_pick.avif"
+   },
+   {
+    "id": "mo_kaito_sticks",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Kaito's drumsticks",
+    "icon": "🥁",
+    "who": "Kaito",
+    "hint": "Comes with the end of Kaito's story, whichever way it ends.",
+    "plaque": "A pair of worn drumsticks, the tips chewed by cymbals.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "kaito_debt"
+     }
+    ],
+    "pic": "collection/modern/mo_kaito_sticks.avif"
+   },
+   {
+    "id": "mo_rina_cartridge",
+    "hall": "modern",
+    "group": "cast",
+    "name": "The first copy of Rina's game",
+    "icon": "💾",
+    "who": "Rina",
+    "hint": "Comes with the end of Rina's story, whichever way it ends.",
+    "plaque": "The first boxed copy of Hikari Labs' game.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "rina_runway"
+     }
+    ],
+    "pic": "collection/modern/mo_rina_cartridge.avif"
+   },
+   {
+    "id": "mo_hina_programme",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Hina's show programme",
+    "icon": "🎤",
+    "who": "Hina",
+    "hint": "Comes with the end of Hina's story, whichever way it ends.",
+    "plaque": "A folded programme from one of Hina's shows.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "hina_graduation"
+     }
+    ],
+    "pic": "collection/modern/mo_hina_programme.avif"
+   },
+   {
+    "id": "mo_seoyeon_notebook",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Seo-yeon's notebook",
+    "icon": "📓",
+    "who": "Seo-yeon",
+    "hint": "Comes with the end of Seo-yeon's story, whichever way it ends.",
+    "plaque": "A notebook of the novel, coffee rings on the cover.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "seoyeon_parents"
+     }
+    ],
+    "pic": "collection/modern/mo_seoyeon_notebook.avif"
+   },
+   {
+    "id": "mo_genzo_noren",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Kamejirō's old noren",
+    "icon": "🍜",
+    "who": "Genzō",
+    "hint": "Comes with the end of Genzō's story, whichever way it ends.",
+    "plaque": "The ramen shop's faded curtain with its turtle crest.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "genzo_lease"
+     }
+    ],
+    "pic": "collection/modern/mo_genzo_noren.avif"
+   },
+   {
+    "id": "mo_ayaka_brush",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Ayaka's brush",
+    "icon": "🖌️",
+    "who": "Ayaka",
+    "hint": "Comes with the end of Ayaka's story, whichever way it ends.",
+    "plaque": "A calligraphy brush with a bamboo handle.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "ayaka_contest"
+     }
+    ],
+    "pic": "collection/modern/mo_ayaka_brush.avif"
+   },
+   {
+    "id": "mo_mio_notes",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Mio's exam notes",
+    "icon": "📝",
+    "who": "Mio",
+    "hint": "Comes with the end of Mio's story, whichever way it ends.",
+    "plaque": "A stack of exam notes in coloured pens.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "mio_grades"
+     }
+    ],
+    "pic": "collection/modern/mo_mio_notes.avif"
+   },
+   {
+    "id": "mo_daisuke_letter",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Daisuke's letter",
+    "icon": "✉️",
+    "who": "Daisuke",
+    "hint": "Comes with the end of Daisuke's story, whichever way it ends.",
+    "plaque": "A sealed letter in a plain envelope.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "daisuke_letter"
+     }
+    ],
+    "pic": "collection/modern/mo_daisuke_letter.avif"
+   },
+   {
+    "id": "mo_hannah_sticker",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Hannah's avatar sticker",
+    "icon": "🏷️",
+    "who": "Hannah",
+    "hint": "Comes with the end of Hannah's story, whichever way it ends.",
+    "plaque": "A sticker of Hannah's streaming avatar.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "hannah_stream"
+     }
+    ],
+    "pic": "collection/modern/mo_hannah_sticker.avif"
+   },
+   {
+    "id": "mo_chloe_postcard",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Chloe's postcard",
+    "icon": "📮",
+    "who": "Chloe",
+    "hint": "Comes with the end of Chloe's story, whichever way it ends.",
+    "plaque": "A postcard with a Manchester stamp, or a Tokyo one.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "chloe_visa"
+     }
+    ],
+    "pic": "collection/modern/mo_chloe_postcard.avif"
+   },
+   {
+    "id": "mo_jake_keyring",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Jake's keyring",
+    "icon": "🔑",
+    "who": "Jake",
+    "hint": "Comes with the end of Jake's story, whichever way it ends.",
+    "plaque": "A keyring of a pixel mochi.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "jake_offer"
+     }
+    ],
+    "pic": "collection/modern/mo_jake_keyring.avif"
+   },
+   {
+    "id": "mo_natsuki_wristband",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Natsuki's finals wristband",
+    "icon": "🎟️",
+    "who": "Natsuki",
+    "hint": "Comes with the end of Natsuki's story, whichever way it ends.",
+    "plaque": "The rhythm finals' player wristband.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "natsuki_live"
+     }
+    ],
+    "pic": "collection/modern/mo_natsuki_wristband.avif"
+   },
+   {
+    "id": "mo_lisa_shoes",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Lisa's dance shoes",
+    "icon": "👠",
+    "who": "Lisa",
+    "hint": "Comes with the end of Lisa's story, whichever way it ends.",
+    "plaque": "A pair of worn pole dance shoes.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "lisa_shoulder"
+     }
+    ],
+    "pic": "collection/modern/mo_lisa_shoes.avif"
+   },
+   {
+    "id": "mo_yui_paperback",
+    "hall": "modern",
+    "group": "cast",
+    "name": "Yui's paperback",
+    "icon": "📕",
+    "who": "Yui",
+    "hint": "Comes with the end of Yui's story, whichever way it ends.",
+    "plaque": "An anonymous paperback from the book fair, a fox on the cover.",
+    "sources": [
+     {
+      "kind": "ending",
+      "id": "yui_fox"
+     }
+    ],
+    "pic": "collection/modern/mo_yui_paperback.avif"
+   },
+   {
+    "id": "mo_wavetv_poster",
+    "hall": "modern",
+    "group": "cast",
+    "name": "A Wave TV poster",
+    "icon": "📺",
+    "hint": "Yours once you are an associate director at Wave TV, or sold at Second Bloom.",
+    "plaque": "A poster of a Wave TV program.",
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "job: tv; rank: 4"
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 30000
+     }
+    ],
+    "price": 30000,
+    "pic": "collection/modern/mo_wavetv_poster.avif"
+   },
+   {
+    "id": "mo_doujin",
+    "hall": "modern",
+    "group": "cast",
+    "name": "A doujin",
+    "icon": "📚",
+    "hint": "From a stall at the Summer fan convention.",
+    "plaque": "A fan-made comic from the summer convention.",
+    "sources": [
+     {
+      "kind": "festival",
+      "id": "fancon",
+      "price": 3000
+     }
+    ],
+    "price": 3000,
+    "pic": "collection/modern/mo_doujin.avif"
+   },
+   {
+    "id": "nw_tower_bottle",
+    "hall": "night",
+    "group": "things",
+    "name": "A champagne tower's first bottle",
+    "icon": "🍾",
+    "hint": "Sometimes kept after a champagne call at Club Eternal, or the dealer may bring it.",
+    "plaque": "An empty champagne bottle signed in gold marker.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sj_hostclub_bottle",
+      "chance": 0.15
+     },
+     {
+      "kind": "dealer",
+      "price": 120000
+     }
+    ],
+    "price": 120000,
+    "pic": "collection/night/nw_tower_bottle.avif"
+   },
+   {
+    "id": "nw_key_fob",
+    "hall": "night",
+    "group": "things",
+    "name": "A love hotel key fob",
+    "icon": "🔑",
+    "hint": "Yours when Hotel Coco Palace reaches its second tier, or the dealer may bring it.",
+    "plaque": "A 1970s acrylic key fob with a room number.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "milestone",
+      "when": "venture: ht_coco tier 2"
+     },
+     {
+      "kind": "dealer",
+      "price": 40000
+     }
+    ],
+    "price": 40000,
+    "pic": "collection/night/nw_key_fob.avif"
+   },
+   {
+    "id": "nw_photo_board",
+    "hall": "night",
+    "group": "things",
+    "name": "A host club's photo board",
+    "icon": "📸",
+    "hint": "Sold at Second Bloom.",
+    "plaque": "An old board of host portraits, the top one crowned.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ws_vintage"
+      ],
+      "price": 60000
+     }
+    ],
+    "price": 60000,
+    "pic": "collection/night/nw_photo_board.avif"
+   },
+   {
+    "id": "nw_matchbook",
+    "hall": "night",
+    "group": "things",
+    "name": "A cabaret's matchbook",
+    "icon": "🔥",
+    "hint": "Sometimes left on the bar at Bar Kotori, or sold at the antique market at Tokyo Station.",
+    "plaque": "A Shōwa cabaret matchbook, a dancer on the cover.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sj_goldengai_drink",
+      "chance": 0.1
+     },
+     {
+      "kind": "sold",
+      "at": [
+       "mg_station"
+      ],
+      "price": 9000,
+      "when": "event: antique"
+     }
+    ],
+    "price": 9000,
+    "pic": "collection/night/nw_matchbook.avif"
+   },
+   {
+    "id": "nw_neon",
+    "hall": "night",
+    "group": "things",
+    "name": "A club's neon sign",
+    "icon": "💗",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "A small pink neon sign of a closed club's name.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 300000
+     }
+    ],
+    "price": 300000,
+    "pic": "collection/night/nw_neon.avif"
+   },
+   {
+    "id": "nw_shunga_harunobu",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Harunobu",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "plaque": "The first leaf of Harunobu's Maneemon album: the tiny hero spying on two women among the trees, all clothed.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 500000
+     }
+    ],
+    "price": 500000,
+    "pic": "collection/night/nw_shunga_harunobu.avif"
+   },
+   {
+    "id": "nw_shunga_koryusai",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Koryūsai",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "plaque": "Koryūsai's lovers on a tall pillar print, close and clothed.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 280000
+     }
+    ],
+    "price": 280000,
+    "pic": "collection/night/nw_shunga_koryusai.avif"
+   },
+   {
+    "id": "nw_shunga_utamaro",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Utamaro",
+    "icon": "🌸",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "Utamaro's pair of lovers sitting close on a bench, clothed.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 700000
+     }
+    ],
+    "price": 700000,
+    "pic": "collection/night/nw_shunga_utamaro.avif"
+   },
+   {
+    "id": "nw_shunga_toyokuni",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Toyokuni",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "plaque": "A picture from Toyokuni I's book of erotica: lovers resting close together, clothed.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 380000
+     }
+    ],
+    "price": 380000,
+    "pic": "collection/night/nw_shunga_toyokuni.avif"
+   },
+   {
+    "id": "nw_shunga_kunisada",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Kunisada",
+    "icon": "🌸",
+    "hint": "Turns up at the Ginza sales.",
+    "plaque": "The opening picture of Kunisada's Love of Yatsufuji: a couple in an embrace, clothed.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 500000
+     }
+    ],
+    "price": 500000,
+    "pic": "collection/night/nw_shunga_kunisada.avif"
+   },
+   {
+    "id": "nw_shunga_kuniyoshi",
+    "hall": "night",
+    "group": "shunga",
+    "name": "Kuniyoshi",
+    "icon": "🌸",
+    "hint": "The dealer may bring it.",
+    "plaque": "A spread from a Kuniyoshi book of spring pictures: lovers talking in a room, clothed.",
+    "adult": true,
+    "sources": [
+     {
+      "kind": "dealer",
+      "price": 240000
+     }
+    ],
+    "price": 240000,
+    "pic": "collection/night/nw_shunga_kuniyoshi.avif"
+   },
+   {
+    "id": "mem_sl_tamaki_puppies",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki",
+    "who": "Tamaki",
+    "when": "thread: tamaki_puppies",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "home": "The puppies in the snow hang in the kura again, her plaque under her grandfather's name.",
+     "binder": "She closes the binder of catalogues for good, and keeps one in her desk drawer."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_kk_museum",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "From the kura",
+    "when": "had: all museum",
+    "icon": "🏛️",
+    "hint": "Hold every keepsake of this kind at some time (from the kura)."
+   },
+   {
+    "id": "mem_sl_tamaki_clinic",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki on air",
+    "who": "Tamaki",
+    "when": "thread: tamaki_clinic",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "special": "She appraises live again on Treasure Clinic's anniversary special, {{user}} in the wings.",
+     "declines": "She turns Wave TV down, and keeps the tapes of her old show in a drawer."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_tamaki_after_hours",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki after hours",
+    "who": "Tamaki",
+    "when": "thread: tamaki_after_hours",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "together": "She opens the case of labelled days for {{user}} after closing, and they start dating.",
+     "case_closed": "She keeps the case at the back of the kura shut, for now."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_tamaki_last_case",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Tamaki's last case",
+    "who": "Tamaki",
+    "when": "thread: tamaki_last_case",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "partner": "Under the tokonoma: her grandfather's lacquered box; she moves in with {{user}}.",
+     "found": "Under the tokonoma: her grandfather's lacquered box, and its key for {{user}}."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "mem_kk_tamaki",
+    "hall": "memories",
+    "group": "keepsakes",
+    "name": "From Tamaki",
+    "when": "had: all tamaki",
+    "icon": "🏷️",
+    "hint": "Hold every keepsake of this kind at some time (from tamaki)."
+   },
+   {
+    "id": "mem_sl_tamaki_spring_pictures",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Tamaki's spring pictures",
+    "who": "Tamaki",
+    "when": "thread: tamaki_spring_pictures",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "hung": "The spring pictures hang under Tamaki's own plaques; the show was the excuse.",
+     "notebook": "Her plaques for the spring pictures stay in a notebook only {{user}} has read."
+    },
+    "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "tc_leaf",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 1, the roof, at night",
+    "icon": "🍁",
+    "hint": "Sit on the kura's roof with her at night.",
+    "adult": true,
+    "when": "had: tamaki_leaf",
+    "plaque": "The first label she ever wrote that wasn't for a piece: a maple leaf from the kura's roof."
+   },
+   {
+    "id": "tc_sweetheart",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 2, the day she stopped pretending",
+    "icon": "💌",
+    "hint": "Fill half the museum.",
+    "adult": true,
+    "when": "tier: Tamaki 2",
+    "plaque": "Written the week the kura was half full: \"Condition: hopeless. Provenance: {{user}}.\""
+   },
+   {
+    "id": "tc_dating",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 3, the case opened",
+    "icon": "🗝️",
+    "hint": "Start dating her.",
+    "adult": true,
+    "when": "feels: Tamaki dating",
+    "plaque": "The day she opened her case of labelled days, and they started dating."
+   },
+   {
+    "id": "tc_lover",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 4, the back room's key",
+    "icon": "🕯️",
+    "hint": "Fill three-quarters of the museum.",
+    "adult": true,
+    "when": "tier: Tamaki 3",
+    "plaque": "The kura three-quarters full, and a key to the back room on its red cord, for two."
+   },
+   {
+    "id": "tc_partner",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 5, the kura full",
+    "icon": "🏛️",
+    "hint": "Fill the whole museum.",
+    "adult": true,
+    "when": "tier: Tamaki 4",
+    "plaque": "Every case full, and her label for it a single word: \"Ours.\""
+   },
+   {
+    "id": "tc_box",
+    "hall": "cabinet",
+    "group": "firsts",
+    "name": "No. 6, the box under the tokonoma",
+    "icon": "🎁",
+    "hint": "Find what her grandfather hid in the kura.",
+    "adult": true,
+    "when": "thread: tamaki_last_case",
+    "plaque": "Her grandfather's lacquered box, and what she asked of {{user}} the night they found it."
+   },
+   {
+    "id": "tc_backroom",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 7, the back store, closing time",
+    "icon": "🗝️",
+    "hint": "Kiss her in the kura's back store at closing time.",
+    "adult": true,
+    "when": "did: ot_kura_backroom with crush",
+    "plaque": "Among the paulownia boxes, the shutter half down, the last visitor maybe still on the step."
+   },
+   {
+    "id": "tc_evening",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 8, an evening in, the hairpin out",
+    "icon": "🕯️",
+    "hint": "Spend an evening in with her.",
+    "adult": true,
+    "when": "did: priv_home_tamaki with crush",
+    "plaque": "The plum-blossom hairpin set on the table with both hands, like a piece, before the first kiss."
+   },
+   {
+    "id": "tc_yukata",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 9, the obi knot",
+    "icon": "🎐",
+    "hint": "Take her home from a festival in her yukata.",
+    "adult": true,
+    "when": "did: priv_home_tamaki_yukata with crush",
+    "plaque": "A festival night, and a knot she had to untie herself, explaining it all the way."
+   },
+   {
+    "id": "tc_back_night",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 10, the futon between the boxes",
+    "icon": "🏮",
+    "hint": "Spend a night in the kura's back room with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_night with crush",
+    "plaque": "One low lamp, the boxes all round like a sleeping audience."
+   },
+   {
+    "id": "tc_halls",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 11, the netsuke case, in the dark",
+    "icon": "🔦",
+    "hint": "Walk the kura's dark halls with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_halls with crush",
+    "plaque": "The alarm panel blinking, every piece's date whispered against the glass."
+   },
+   {
+    "id": "tc_roof",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 12, the roof, under a blanket",
+    "icon": "🌌",
+    "hint": "Take a blanket up to the kura's roof with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_roof with crush",
+    "plaque": "Warm tiles, the temple bell, the stars named wrong on purpose."
+   },
+   {
+    "id": "tc_reading",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 13, the green lamp",
+    "icon": "📖",
+    "hint": "Read to her in the reading room after hours.",
+    "adult": true,
+    "when": "did: ot_kura_back_reading with crush",
+    "plaque": "Her grandfather's letters read aloud, the dull parts skipped by request."
+   },
+   {
+    "id": "tc_bath",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 14, the cedar bath",
+    "icon": "♨️",
+    "hint": "Share the ryokan's private bath with her.",
+    "adult": true,
+    "when": "did: hk_ryokan_tamaki_bath with crush",
+    "plaque": "The wood's age guessed by its smell, wrongly, because she couldn't think."
+   },
+   {
+    "id": "tc_library",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 15, the reading chair for two",
+    "icon": "📚",
+    "hint": "An evening in your library with her.",
+    "adult": true,
+    "when": "did: fa_tamaki_library with crush",
+    "plaque": "A chair made for two, she said, and she was probably right."
+   },
+   {
+    "id": "tc_tearoom",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 16, midnight tea",
+    "icon": "🍵",
+    "hint": "Make midnight tea for her in your tea room.",
+    "adult": true,
+    "when": "did: fa_tamaki_tearoom with crush",
+    "plaque": "The ceremony exact to the last gesture, and then the kettle boiling over."
+   },
+   {
+    "id": "tc_hakone",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 17, Hakone, the night with no clock",
+    "icon": "🌙",
+    "hint": "Spend the night of a Hakone weekend with her.",
+    "adult": true,
+    "when": "did: hk_ryokan_tamaki_night with crush",
+    "plaque": "The futons pushed together, the river loud below, the room's clock hidden in a drawer."
+   },
+   {
+    "id": "tc_like_1",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 18, the first thing she admitted to",
+    "icon": "🤫",
+    "hint": "Learn something she likes.",
+    "adult": true,
+    "when": "known: Tamaki 1 likes",
+    "plaque": "One thing she likes, said out loud, and then a long silence while she went pink."
+   },
+   {
+    "id": "tc_like_5",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 19, five things, in order",
+    "icon": "📝",
+    "hint": "Learn five things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 5 likes",
+    "plaque": "Five things she likes, in the order she admitted them; she checked your list against hers."
+   },
+   {
+    "id": "tc_like_10",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 20, ten, and counting",
+    "icon": "🗂️",
+    "hint": "Learn ten things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 10 likes",
+    "plaque": "Ten things she likes; she has started a card index for them."
+   },
+   {
+    "id": "tc_like_15",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 21, fifteen, cross-referenced",
+    "icon": "📇",
+    "hint": "Learn fifteen things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 15 likes",
+    "plaque": "Fifteen, cross-referenced, with a note on which ones go well together."
+   },
+   {
+    "id": "tc_like_20",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 22, the whole index",
+    "icon": "📚",
+    "hint": "Learn twenty things she likes.",
+    "adult": true,
+    "when": "known: Tamaki 20 likes",
+    "plaque": "Twenty things she likes; she says the index will never be finished, and means it happily."
+   },
+   {
+    "id": "tc_limit_1",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 23, a line she drew",
+    "icon": "🚫",
+    "hint": "Learn something she won't do.",
+    "adult": true,
+    "when": "known: Tamaki 1 limits",
+    "plaque": "Something she will never do, said once and plainly, and kept to without a word."
+   },
+   {
+    "id": "tc_limit_3",
+    "hall": "cabinet",
+    "group": "told",
+    "name": "No. 24, every line she drew",
+    "icon": "🛡️",
+    "hint": "Learn three things she won't do.",
+    "adult": true,
+    "when": "known: Tamaki 3 limits",
+    "plaque": "Three things she will never do; she wrote them on the inside of the drawer's lid."
+   },
+   {
+    "id": "tc_spring",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 25, the spring pictures",
+    "icon": "🌸",
+    "hint": "See her spring pictures through to their end.",
+    "adult": true,
+    "when": "thread: tamaki_spring_pictures",
+    "plaque": "The night room's prints, the show that was an excuse, and her own plaques for them."
+   },
+   {
+    "id": "tc_cabinet",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 26, the drawer, opened",
+    "icon": "🗄️",
+    "hint": "See the story of her cabinet through to its end.",
+    "adult": true,
+    "when": "thread: tamaki_cabinet",
+    "plaque": "The bottom drawer of the card cabinet, opened between them at last."
+   },
+   {
+    "id": "tc_back_ten",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 27, the back room, the tenth night",
+    "icon": "🏮",
+    "hint": "Ten nights in the kura's back room with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_night 10 with crush",
+    "plaque": "Ten nights on the futon between the boxes; she stopped counting, then started again for this card."
+   },
+   {
+    "id": "tc_halls_five",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 28, the dark halls, a fifth time",
+    "icon": "🔦",
+    "hint": "Walk the kura's dark halls with her five times.",
+    "adult": true,
+    "when": "did: ot_kura_back_halls 5 with crush",
+    "plaque": "Five walks through the dark halls; she turns the scroll to the wall every time."
+   },
+   {
+    "id": "tc_hakone_three",
+    "hall": "cabinet",
+    "group": "ledger",
+    "name": "No. 29, Hakone, the third weekend",
+    "icon": "♨️",
+    "hint": "Three Hakone nights with her.",
+    "adult": true,
+    "when": "did: hk_ryokan_tamaki_night 3 with crush",
+    "plaque": "Three weekends at the inn; the maid now brings two pillows without being asked."
+   },
+   {
+    "id": "mem_sl_tamaki_cabinet",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Tamaki's cabinet of wishes",
+    "who": "Tamaki",
+    "when": "thread: tamaki_cabinet",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "drawer": "They work through the drawer of her wishes a card at a time, the night at the inn first.",
+     "locked": "She locks the drawer of her wishes again, its key on the cord with her loupe."
+    },
+    "hint": "See Tamaki's story through to its end."
    }
-  ]
+  ],
+  "museum": {
+   "place": "ot_kura",
+   "name": "The Kurahashi kura",
+   "offer": {
+    "when": "seen: ot_yanaka_st_kura",
+    "price": 1500000
+   },
+   "cases": 6,
+   "room": 12,
+   "curator": "Tamaki",
+   "curatorJob": "kura",
+   "eye": {
+    "when": "did: ot_kura_lesson 5",
+    "damaged": 0.75
+   },
+   "upgrades": [
+    {
+     "id": "wing_art",
+     "name": "The Art wing",
+     "icon": "🖼️",
+     "desc": "Puts the whole Art hall on show.",
+     "price": 1500000,
+     "renown": 5,
+     "opens": "art"
+    },
+    {
+     "id": "wing_crafts",
+     "name": "The Crafts wing",
+     "icon": "🏺",
+     "desc": "Puts all of Crafts and antiques on show.",
+     "price": 1200000,
+     "renown": 5,
+     "opens": "crafts"
+    },
+    {
+     "id": "wing_modern",
+     "name": "The Modern Tokyo room",
+     "icon": "📻",
+     "desc": "Puts all of Modern Tokyo on show.",
+     "price": 600000,
+     "renown": 5,
+     "opens": "modern"
+    },
+    {
+     "id": "wing_night",
+     "name": "The night room",
+     "icon": "🌃",
+     "desc": "A room at the back for the night world and its things.",
+     "price": 800000,
+     "renown": 5,
+     "opens": "night",
+     "adult": true
+    },
+    {
+     "id": "lighting",
+     "name": "Lighting",
+     "icon": "💡",
+     "desc": "Proper lights in every case: the pieces look their best.",
+     "price": 500000,
+     "renown": 15
+    },
+    {
+     "id": "climate",
+     "name": "The climate room",
+     "icon": "🌡️",
+     "desc": "Steady warmth and damp for textiles, screens and scrolls.",
+     "price": 1800000,
+     "renown": 5,
+     "does": "climate"
+    },
+    {
+     "id": "security",
+     "name": "Security",
+     "icon": "🔒",
+     "desc": "Locked cases and alarms, for swords, armour and sculpture.",
+     "price": 1000000,
+     "renown": 5,
+     "does": "security"
+    },
+    {
+     "id": "guard",
+     "name": "A night guard",
+     "icon": "🔦",
+     "desc": "Someone on the premises at night: the crown pieces can come, and no thief gets far.",
+     "price": 2000000,
+     "renown": 5,
+     "needs": [
+      "security"
+     ],
+     "does": "guard"
+    },
+    {
+     "id": "workshop",
+     "name": "The restoration workshop",
+     "icon": "🛠️",
+     "desc": "Restores damaged finds, and makes replicas of pieces that can no longer be had.",
+     "price": 900000,
+     "renown": 5,
+     "does": "workshop"
+    },
+    {
+     "id": "reading",
+     "name": "The reading room",
+     "icon": "📚",
+     "desc": "Catalogues and old sale records: you spot finds more often.",
+     "price": 600000,
+     "renown": 5,
+     "does": "reading"
+    },
+    {
+     "id": "garden",
+     "name": "The garden",
+     "icon": "🌿",
+     "desc": "A small tea garden behind the kura.",
+     "price": 800000,
+     "renown": 10
+    },
+    {
+     "id": "exhibition",
+     "name": "The exhibition hall",
+     "icon": "🎪",
+     "desc": "Room for a show each season.",
+     "price": 1800000,
+     "renown": 10,
+     "does": "exhibition"
+    }
+   ],
+   "renown": {
+    "levels": [
+     {
+      "at": 10,
+      "name": "a local secret"
+     },
+     {
+      "at": 40,
+      "name": "talked about in Yanaka"
+     },
+     {
+      "at": 90,
+      "name": "in the guidebooks"
+     },
+     {
+      "at": 160,
+      "name": "known across Tokyo"
+     },
+     {
+      "at": 240,
+      "name": "famous"
+     }
+    ],
+    "rung": [
+     1,
+     1,
+     1,
+     2,
+     4,
+     10
+    ],
+    "income": 150
+   },
+   "dealer": {
+    "every": 7,
+    "stock": 3,
+    "more": [
+     3,
+     4
+    ],
+    "pity": 6,
+    "ask": 0.1,
+    "late": 0.5
+   },
+   "auctions": {
+    "place": "mg_chuodori",
+    "days": [
+     10
+    ],
+    "from": 15,
+    "lots": 4,
+    "more": [
+     3,
+     5
+    ],
+    "rival": {
+     "wants": 0.4,
+     "top": [
+      1.1,
+      1.8
+     ],
+     "perLevel": 0.05
+    },
+    "back": 2,
+    "again": 0.2
+   },
+   "shows": {
+    "price": 300000,
+    "renown": 10,
+    "lasting": 2,
+    "most": 12,
+    "min": 6
+   }
+  }
  }
 }

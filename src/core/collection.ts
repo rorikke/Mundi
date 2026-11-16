@@ -1,12 +1,15 @@
 // The collection's world data made safe (halls, groups and slots from someone else's file) and its fixed numbers.
 // The format is in core/world.ts (WorldCollection); what plays it is sim/collection.ts.
-import type { WorldCollection, HallDef, SlotDef, PieceSource, WorldDef, SystemId, VentureDef } from './world.js';
+import type { WorldCollection, HallDef, SlotDef, PieceSource, WorldDef, SystemId, VentureDef, MuseumDef, MuseumUpgrade } from './world.js';
 import { safeUrl } from './safe.js';
 
 /** A keepsake kind gets a record slot only when this game can have at least this many of it. */
 export const MIN_KIND = 3;
 const ID = /^[a-z0-9_]+$/;
-const SOURCE_KINDS = ['find', 'sold', 'dealer', 'auction', 'festival', 'ending', 'milestone', 'story', 'dig'];
+const SOURCE_KINDS = ['find', 'sold', 'dealer', 'auction', 'festival', 'ending', 'milestone', 'story', 'replica', 'dig'];
+const UPGRADE_DOES = ['climate', 'security', 'guard', 'workshop', 'reading', 'exhibition'];
+/** (museum) The most a world's museum price may be (a world's own numbers stay inside it). */
+export const MUSEUM_PRICE_MAX = 100_000_000;
 const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v : undefined);
 const strs = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && !!x.trim()) : undefined);
 const when = (v: unknown) => (typeof v === 'string' || (v && typeof v === 'object' && !Array.isArray(v)) ? v as any : undefined);
@@ -19,6 +22,7 @@ function hall(h: any): HallDef | null {
     const out: HallDef = { id: h.id, name: h.name, groups };
     for (const k of ['icon', 'desc'] as const) if (str(h[k])) out[k] = h[k];
     if (h.record === true) out.record = true;
+    if (h.record === true && h.apart === true) out.apart = true;   // (a record hall's: a display hall is the museum's)
     if (h.adult === true) out.adult = true;
     const needs = strs(h.needs); if (needs?.length) out.needs = needs as any;
     if (when(h.open)) out.open = h.open;
@@ -32,6 +36,7 @@ function source(s: any): PieceSource | null {
     if (when(s.when)) out.when = s.when;
     if (typeof s.chance === 'number' && isFinite(s.chance)) out.chance = Math.max(0, Math.min(1, s.chance));
     if (typeof s.price === 'number' && isFinite(s.price)) out.price = Math.max(0, Math.round(s.price));
+    if (typeof s.damaged === 'number' && isFinite(s.damaged)) out.damaged = Math.max(0, Math.min(1, s.damaged));
     return out;
 }
 function slot(s: any, halls: Map<string, HallDef>): SlotDef | null {
@@ -39,7 +44,7 @@ function slot(s: any, halls: Map<string, HallDef>): SlotDef | null {
     const h = halls.get(s.hall);
     if (!h || !h.groups.some(g => g.id === s.group)) return null;
     const out: SlotDef = { id: s.id, hall: s.hall, group: s.group, name: s.name };
-    for (const k of ['icon', 'who', 'hint', 'needsUpgrade'] as const) if (str(s[k])) out[k] = s[k];
+    for (const k of ['icon', 'who', 'hint', 'needsUpgrade', 'plaque'] as const) if (str(s[k])) out[k] = s[k];
     if (s.adult === true) out.adult = true;
     const needs = strs(s.needs); if (needs?.length) out.needs = needs as any;
     const starts = strs(s.starts); if (starts?.length) out.starts = starts;
@@ -52,6 +57,81 @@ function slot(s: any, halls: Map<string, HallDef>): SlotDef | null {
     if (Array.isArray(s.sources)) { const list = s.sources.map(source).filter(Boolean) as PieceSource[]; if (list.length) out.sources = list; }
     if (typeof s.price === 'number' && isFinite(s.price)) out.price = Math.max(0, Math.round(s.price));
     const parts = strs(s.parts)?.filter(x => ID.test(x)); if (parts?.length) out.parts = parts;
+    if (s.bonus === true) out.bonus = true;
+    return out;
+}
+// (museum) A number from someone else's file held to a range; not a number: nothing.
+const numIn = (v: unknown, lo: number, hi: number, round = true) => (typeof v === 'number' && isFinite(v) ? Math.max(lo, Math.min(hi, round ? Math.round(v) : v)) : undefined);
+const pair = (v: unknown, lo: number, hi: number, round = true): [number, number] | undefined => {
+    if (!Array.isArray(v) || v.length !== 2) return undefined;
+    const a = numIn(v[0], lo, hi, round), b = numIn(v[1], lo, hi, round);
+    return a === undefined || b === undefined ? undefined : [Math.min(a, b), Math.max(a, b)];
+};
+function upgrade(u: any, halls: Map<string, HallDef>): MuseumUpgrade | null {
+    if (!u || typeof u !== 'object' || !ID.test(u.id ?? '') || !str(u.name)) return null;
+    const out: MuseumUpgrade = { id: u.id, name: u.name, price: numIn(u.price, 0, MUSEUM_PRICE_MAX) ?? 0 };
+    for (const k of ['icon', 'desc'] as const) if (str(u[k])) out[k] = u[k];
+    const renown = numIn(u.renown, 0, 1000); if (renown) out.renown = renown;
+    if (str(u.opens) && halls.has(u.opens)) out.opens = u.opens;
+    const needs = strs(u.needs)?.filter(x => ID.test(x)); if (needs?.length) out.needs = needs;
+    if (UPGRADE_DOES.includes(u.does)) out.does = u.does;
+    if (when(u.when)) out.when = u.when;
+    if (u.adult === true) out.adult = true;
+    return out;
+}
+/** (museum) A world's museum made safe: a place, a name and an offer with a condition (else none), upgrades with unique
+ *  ids (a `needs` naming no upgrade dropped), numbers held to their ranges, a dealer, sales or shows only when whole. */
+function museum(m: any, halls: Map<string, HallDef>): MuseumDef | undefined {
+    if (!m || typeof m !== 'object' || !str(m.place) || !str(m.name) || !m.offer || typeof m.offer !== 'object' || !when(m.offer.when)) return undefined;
+    const ups: MuseumUpgrade[] = [], ids = new Set<string>();
+    for (const u of Array.isArray(m.upgrades) ? m.upgrades : []) { const x = upgrade(u, halls); if (x && !ids.has(x.id)) { ids.add(x.id); ups.push(x); } }
+    for (const u of ups) if (u.needs) { u.needs = u.needs.filter(n => ids.has(n) && n !== u.id); if (!u.needs.length) delete u.needs; }
+    const out: MuseumDef = { place: m.place, name: m.name, offer: { when: m.offer.when, price: numIn(m.offer.price, 0, MUSEUM_PRICE_MAX) ?? 0 }, upgrades: ups };
+    const cases = numIn(m.cases, 0, 50); if (cases !== undefined) out.cases = cases;
+    const room = numIn(m.room, 0, 200); if (room !== undefined) out.room = room;
+    for (const k of ['curator', 'curatorJob'] as const) if (str(m[k])) out[k] = m[k];
+    if (m.eye && typeof m.eye === 'object' && when(m.eye.when)) { const d = numIn(m.eye.damaged, 0, 1, false); if (d !== undefined) out.eye = { when: m.eye.when, damaged: d }; }
+    if (m.renown && typeof m.renown === 'object') {
+        const levels = (Array.isArray(m.renown.levels) ? m.renown.levels : []).filter((l: any) => l && str(l.name) && numIn(l.at, 0, 1e6) !== undefined)
+            .map((l: any) => ({ at: numIn(l.at, 0, 1e6)!, name: l.name as string })).sort((a: { at: number }, b: { at: number }) => a.at - b.at);
+        const r: NonNullable<MuseumDef['renown']> = { levels };
+        if (Array.isArray(m.renown.rung)) { const rung = m.renown.rung.slice(0, 6).map((v: unknown) => numIn(v, 0, 100) ?? 0); if (rung.length) r.rung = rung; }
+        const income = numIn(m.renown.income, 0, 100_000); if (income !== undefined) r.income = income;
+        out.renown = r;
+    }
+    if (m.dealer && typeof m.dealer === 'object') {
+        const d = m.dealer, every = numIn(d.every, 1, 112), stock = numIn(d.stock, 1, 12), pity = numIn(d.pity, 1, 100);
+        if (every && stock && pity) {
+            const x: NonNullable<MuseumDef['dealer']> = { every, stock, pity };
+            const more = pair(d.more, 0, 100); if (more) x.more = more;
+            const ask = numIn(d.ask, 0, 5, false); if (ask !== undefined) x.ask = ask;
+            const late = numIn(d.late, 0, 5, false); if (late !== undefined) x.late = late;
+            out.dealer = x;
+        }
+    }
+    if (m.auctions && typeof m.auctions === 'object' && str(m.auctions.place)) {
+        const a = m.auctions, days = (Array.isArray(a.days) ? a.days : []).map((v: unknown) => numIn(v, 1, 365)).filter((v: number | undefined): v is number => !!v);
+        const lots = numIn(a.lots, 1, 20), from = numIn(a.from, 0, 23.99, false);
+        if (days.length && lots && from !== undefined) {
+            const x: NonNullable<MuseumDef['auctions']> = { place: a.place, days, from, lots };
+            const more = pair(a.more, 0, 100); if (more) x.more = more;
+            if (a.rival && typeof a.rival === 'object') {
+                const wants = numIn(a.rival.wants, 0, 1, false), top = pair(a.rival.top, 1, 10, false);
+                if (wants !== undefined && top) { x.rival = { wants, top }; const per = numIn(a.rival.perLevel, 0, 1, false); if (per !== undefined) x.rival.perLevel = per; }
+            }
+            const back = numIn(a.back, 1, 20); if (back !== undefined) x.back = back;
+            const again = numIn(a.again, 0, 5, false); if (again !== undefined) x.again = again;
+            out.auctions = x;
+        }
+    }
+    if (m.shows && typeof m.shows === 'object') {
+        const s = m.shows, price = numIn(s.price, 0, MUSEUM_PRICE_MAX);
+        if (price !== undefined) {
+            const x: NonNullable<MuseumDef['shows']> = { price };
+            for (const k of ['renown', 'lasting', 'most', 'min'] as const) { const v = numIn(s[k], 0, 1000); if (v !== undefined) x[k] = v; }
+            out.shows = x;
+        }
+    }
     return out;
 }
 /** A world's collection made safe: unknown halls and groups dropped with their slots, ids `[a-z0-9_]` and unique,
@@ -65,6 +145,7 @@ export function upgradeCollection(c: unknown): WorldCollection | undefined {
     for (const s of Array.isArray(raw.slots) ? raw.slots : []) { const x = slot(s, halls); if (x && !seen.has(x.id)) { seen.add(x.id); slots.push(x); } }
     const out: WorldCollection = { halls: [...halls.values()], slots };
     if (typeof raw.minKind === 'number' && isFinite(raw.minKind)) out.minKind = Math.max(1, Math.min(10, Math.round(raw.minKind)));
+    if ('museum' in raw) { const m = museum(raw.museum, halls); if (m) out.museum = m; }
     return out;
 }
 
@@ -82,7 +163,8 @@ export function draftRecord(w: WorldDef, { night = true } = {}): WorldCollection
     for (const e of w.cast?.examples ?? []) for (const t of e.threads ?? []) {
         const adult = !!t.adult || !!e.adult, first = e.name.split(/\s+/)[0];
         const base = { name: first, who: first, when: `thread: ${t.id}`, needs: ['living' as SystemId] };
-        if (adult && night) add({ id: `nw_${plainId(first)}${(e.threads ?? []).filter(x => x.adult || e.adult).indexOf(t) > 0 ? `_${plainId(t.id)}` : ''}`, hall: 'night', group: 'mementos', adult: true, ...base });
+        // (a memento is the night world's own people's: an adult storyline of anyone else is the record's, adult)
+        if (e.adult && night) add({ id: `nw_${plainId(first)}${(e.threads ?? []).filter(x => x.adult || e.adult).indexOf(t) > 0 ? `_${plainId(t.id)}` : ''}`, hall: 'night', group: 'mementos', adult: true, ...base });
         else add({ id: `mem_sl_${t.id}`, hall: 'memories', group: 'storylines', ...(adult ? { adult: true } : {}), ...base });
     }
     if (slots.some(s => s.hall === 'night')) halls.push({ id: 'night', name: 'The night world', adult: true, groups: [{ id: 'mementos', name: 'Mementos' }] });

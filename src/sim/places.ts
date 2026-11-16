@@ -4,6 +4,7 @@ import { cfg, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type Place } from '../core/world.js';
 import { effectMul } from './effects.js';
 import { housingOn, ownsFixtureIn, secondHome, SECOND_HOME_ID } from './housing.js';
+import { placeGates } from './hooks.js';
 
 export const playerHomeId = 'home:player';
 export const isHome = (id: string) => id.startsWith('home:');
@@ -97,7 +98,7 @@ export const roomsOn = (g: Save | null | undefined, w: WorldDef): string[] => {
     const fresh = own && seen ? w.places.filter(p => !p.scenarioOff && !p.link && !seen.includes(p.id) && !own.includes(p.id)).map(p => p.id) : [];
     return [...(own ?? w.places.filter(p => !p.scenarioOff && !p.link).map(p => p.id)), ...fresh, ...extraRooms(g).map(p => p.id)];
 };
-export const placeOn = (g: Save | null | undefined, w: WorldDef, id: string) => ventureHere(g, w, id) && roomHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id));
+export const placeOn = (g: Save | null | undefined, w: WorldDef, id: string) => ventureHere(g, w, id) && roomHere(g, w, id) && (!isScenario(w) || !w.places.some(p => p.id === id) || roomsOn(g, w).includes(id)) && placeGates.every(f => f(g, w, id));
 // (housing) A room of a home (the penthouse's terrace, the villa's bath: `Place.room`) is in the game only while a home
 // of yours in its zone has that fixture, with the system on.
 const roomKept = new WeakMap<WorldDef, { list: unknown; n: number; ids: Map<string, { room: string; home: string }> }>();

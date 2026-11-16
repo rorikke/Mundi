@@ -3,7 +3,7 @@ import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
 import { applyOverlay, overlayFile } from './overlay.js';
 import type { RpgDef } from './rpgdef.js';
-import type { FeelParts, FamilyType, FriendLevel } from './feel.js';
+import type { FeelParts, FamilyType, FriendLevel, RomLevel } from './feel.js';
 import type { TraitInfo, EffectDef } from './traits.js';
 import type { ShopItem } from './presets.js';
 // The world format. A world is pure data (worlds/<id>/world.json); Mundi's systems read it.
@@ -113,6 +113,9 @@ export interface Place {
      *  map and in anyone's plans only while a home of yours in zone `homeZone` has that fixture (not `home`: a place
      *  built for a home carries `home: true`). */
     room?: string; homeZone?: string;
+    /** (museum) On the map and in anyone's plans only while this holds (the kura's back room: `museum: open; tier:
+     *  Tamaki 3`). A place that holds only with the museum open (`museum:` in it) is one of the museum's rooms. */
+    when?: When;
 }
 /** (E6) Sleeping at a place: what a night costs (0: free or paid with something else), how well you rest, when you
  *  must leave (an hour, default the world's `sleep.until`), actions included with the night (the ryokan's bath,
@@ -520,7 +523,33 @@ export interface ExampleCharacter {
     /** (E25) The world's own people stay themselves: no random new job or home (only their threads or the player change
      *  that). Missing: they stay themselves; `false` lets one change by chance. */
     anchored?: boolean;
+    /** (museum, people who unlock) Tiers that open one after another (see PersonTier): an end-game character's content and
+     *  how close they let you come, step by step. Read by sim/tiers.ts. */
+    tiers?: PersonTier[];
+    /** (museum) Attracted to the player whatever the player's gender, and to no one else: no romance toward, couple with or
+     *  fling with another person forms by itself; not on the dating app; never leaves the maps. */
+    reserved?: boolean;
 }
+/** (museum, people who unlock) A tier of an end-game character, reached the first time `when` holds (latched: never
+ *  lost). `caps`: the highest friendship, romance and couple status toward the player this tier allows (missing: no cap;
+ *  status `none`: no couple at all; before the first tier is reached, the first tier's caps hold); `hold`: whether a
+ *  gain past a cap is kept for the next tier (default) or dropped (`false`). `ai`: told to the AI while at this tier
+ *  ({{user}}); `intimacy`: their needs from this tier; `intimate`: profile lines added at it (an overlay adds the
+ *  explicit ones by id); `outfits`: outfits the game may put on from it; `moves`: they may make the move from it.
+ *  `invites`: they text you invitations (to hang out, on a date) from it (when no tier says so: as anyone does);
+ *  `inviteOdds`: from it, those invitations come this many times as often (the nearest reached tier's; up to 5).
+ *  `moveLines`: the move's card in their own words from it, one picked (`{name}`; `{action}`: what they have in mind);
+ *  `askLines`: what they text when they ask you over tonight (`{when}`); both the nearest reached tier's, else the
+ *  engine's own words. */
+export interface PersonTier { id: string; name: string; when: When;
+    caps?: { f?: FriendLevel; r?: RomLevel; status?: 'none' | 'casual' | 'dating' | 'engaged' | 'married' };
+    hold?: { f?: boolean; r?: boolean };
+    ai?: string;
+    intimacy?: { preset?: string; r?: string; f?: string; casual?: false };
+    intimate?: Partial<IntimateProfile>;
+    outfits?: string[];
+    moves?: boolean;
+    invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[] }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
@@ -547,7 +576,9 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
     /** When its last chances all go unanswered: `end` (missing) it ends the way it would without the player (never a
      *  good way); `cool` (a storyline whose bad ending is only "things go on as they are") they cool toward the
      *  player by a friendship level and it waits again, once; ignored a second time, it ends without the player. */
-    ignored?: 'end' | 'cool' }
+    ignored?: 'end' | 'cool';
+    /** (museum, people who unlock) Opens only through `opens` (friendship alone doesn't open it). */ opensOnly?: boolean;
+    /** (museum, people who unlock) Its last chances never end it: it waits for the player; the nudges stay reminders. */ noLast?: boolean }
 /** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
  *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string;
@@ -566,7 +597,13 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
     waits?: When;
     /** A price paid in the deciding scene (or by text, `remote`) that takes this way when `when` holds; with `only`, the
      *  way is taken through Help alone, never on its own condition (Genzō's key money). */
-    help?: ThreadHelp }
+    help?: ThreadHelp;
+    /** (museum) The couple its person and the player become (Tamaki's `together` starts dating): never past what their
+     *  tier allows (the highest it does, at most this), never lowering a couple you are already, nothing with romance
+     *  off or with someone romance is closed to. */
+    couple?: 'dating' | 'engaged' | 'married';
+    /** (museum) Its person moves in with the player (Tamaki's `partner`), when they're partners (dating or more) by then. */
+    movesIn?: boolean }
 /** (storylines) Help in a deciding scene: money (0…10,000,000) and/or hours together (0…8), a label for the button. */
 export interface ThreadHelp { when: When; money?: number; hours?: number; remote?: boolean; only?: boolean; label: string }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
@@ -822,11 +859,46 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
 /** (collection) Halls, each a set of slots in groups. A `record` hall (Tokyo memories) fills by itself from what you did
  *  (each slot's `when`, latched the first time it holds); the others hold pieces you find or buy (their `sources`, from
  *  the museum's track). `minKind`: a keepsake kind gets a record slot only when this game can have that many of it (3). */
-export interface WorldCollection { halls: HallDef[]; slots: SlotDef[]; minKind?: number }
+export interface WorldCollection { halls: HallDef[]; slots: SlotDef[]; minKind?: number;
+    /** (museum) The museum itself: its place, the offer, upgrades, renown, the dealer, the sales, shows (see MuseumDef).
+     *  Without it, display halls are a plain collection (finds, shops, festivals, endings, stories, milestones). */
+    museum?: MuseumDef }
+/** (museum) A museum of your own. `place`: hidden until it's yours. `offer`: when it can be taken on and its price;
+ *  `cases`: pieces on show at home before it opens; `room`: pieces its first room shows (any hall) before wings;
+ *  `curator`: one of the world's people, given `curatorJob` when it opens. `renown`: levels, renown per piece on show by
+ *  rung (free, R1…R5), yen a week per renown point from visitors. `dealer`: a visit every `every` days with `stock`
+ *  pieces (`more`: [renown level, stock]), the pity timer in visits, the premium for asking for a piece, the premium
+ *  for a piece whose one-time way has passed. `auctions`: at `place` on these days of each season at hour `from`, `lots`
+ *  lots (`more`), the rival (odds she wants a lot, her top bid as a share of the estimate, more per renown level), a lost
+ *  lot back within `back` sales at `again` more. `shows`: price, renown while on, lasting renown per theme (at most
+ *  `most`), pieces on show a theme needs. */
+export interface MuseumDef { place: string; name: string;
+    offer: { when: When; price: number };
+    cases?: number; room?: number;
+    curator?: string; curatorJob?: string;
+    /** (museum) An eye that goes with you (Tamaki's appraisal lessons): once `when` holds, finds' damaged odds × `damaged`
+     *  (0…1), for good (`when` should be something that stays true, like `did: <lesson> 5`). */
+    eye?: { when: When; damaged: number };
+    upgrades: MuseumUpgrade[];
+    renown?: { levels: { at: number; name: string }[]; rung?: number[]; income?: number };
+    dealer?: { every: number; stock: number; more?: [number, number]; pity: number; ask?: number; late?: number };
+    auctions?: { place: string; days: number[]; from: number; lots: number; more?: [number, number];
+        rival?: { wants: number; top: [number, number]; perLevel?: number }; back?: number; again?: number };
+    shows?: { price: number; renown?: number; lasting?: number; most?: number; min?: number } }
+/** (museum) An upgrade bought once: `opens` a hall (the wing that puts it on show), `needs` other upgrades first,
+ *  `does` what the engine reads (a climate room, security, a night guard, the workshop, the reading room, the
+ *  exhibition hall), `renown` it adds. */
+export interface MuseumUpgrade { id: string; name: string; icon?: string; desc?: string; price: number; renown?: number;
+    opens?: string; needs?: string[];
+    does?: 'climate' | 'security' | 'guard' | 'workshop' | 'reading' | 'exhibition';
+    when?: When; adult?: boolean }
 export interface HallDef {
     id: string; name: string; icon?: string; desc?: string;
     /** The completion record: filled by itself, nothing bought, its own percentage. */
     record?: boolean;
+    /** A record hall of its own (a person's cabinet): counted in neither percentage, its own share shown, what fills in
+     *  it told under its own name and only while it's open. */
+    apart?: boolean;
     groups: { id: string; name: string; icon?: string }[];
     adult?: boolean; needs?: SystemId[];
     /** (museum) When the hall is open, a wing bought; missing: always. */
@@ -844,13 +916,21 @@ export interface SlotDef {
     when?: When;
     /** A storyline slot's plaque by ending id; missing: the ending's own words. */
     plaques?: Record<string, string>;
+    /** (museum) A display piece's own plaque, one line, shown once it's yours (an ending's plaque wins for a storyline's
+     *  piece); `{{user}}` is the player's name. */
+    plaque?: string;
     /** A picture (a world file), written by the art track's wiring; missing: the icon or the portrait. */
     pic?: string;
     /** (museum) A display piece: where it comes from, its price, an upgrade it needs, its parts (a fossil). */
-    sources?: PieceSource[]; price?: number; needsUpgrade?: string; parts?: string[] }
-/** (museum, read by nothing yet) Where a piece comes from. */
-export interface PieceSource { kind: 'find' | 'sold' | 'dealer' | 'auction' | 'festival' | 'ending' | 'milestone' | 'story' | 'dig';
-    at?: string[]; action?: string; when?: When; chance?: number; price?: number; id?: string }
+    sources?: PieceSource[]; price?: number; needsUpgrade?: string; parts?: string[];
+    /** (museum) A bonus piece: shown with a gold frame, never counted in a percentage (it can come after 100%). */
+    bonus?: boolean }
+/** (museum, read by nothing yet) Where a piece comes from: `find` (after `action`, or any action `at` places, on a roll
+ *  of `chance`; `damaged`: the odds it needs restoring), `sold` (at places, for `price`), `festival` (a stall at festival
+ *  `id`), `dealer` and `auction` (`price`, `chance` as a rarity weight), `ending` (storyline `id`, any ending),
+ *  `milestone` and `story` (`when`, or story `id`), `replica` (the curator's, once `when` holds, for `price`), `dig`. */
+export interface PieceSource { kind: 'find' | 'sold' | 'dealer' | 'auction' | 'festival' | 'ending' | 'milestone' | 'story' | 'replica' | 'dig';
+    at?: string[]; action?: string; when?: When; chance?: number; price?: number; id?: string; damaged?: number }
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one
  *  of the world's people by name), and two or three choices. (E28) `brings`: someone placed at the story's place while
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
@@ -870,7 +950,9 @@ export interface StoryChoice extends StoryResult { label: string; roll?: { skill
 export interface StoryResult { text: string; effects?: Record<string, number>; money?: number; keepsake?: string; rumor?: string; fact?: string; feels?: Record<string, number>; favor?: string; spend?: string; reveal?: string;
     /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string;
     /** (business) an upgrade (by id) of a venture you own that this turns up: found, it waits in the Business app until
-     *  you buy it (a find story's result; nothing without the venture) */ finds?: string }
+     *  you buy it (a find story's result; nothing without the venture) */ finds?: string;
+    /** (museum) Lasting renown for the museum (a milestone story) */ renown?: number;
+    /** (museum) The dearest piece on show needs restoring (the theft's worst outcome; never taken) */ damage?: boolean }
 /** (E2) A climate: per season, the odds of each kind of weather (weights: `sunny`, `hot`, `fair`, `humid`, `partly`,
  *  `cloudy`, `snow`, `rain`, `heavyrain`, `storm`); `days`: a stretch of a season with odds of its own (the rainy season,
  *  summer 1–5: days of the season as written, like festivals); `regional`: weather a region has on its own (`fujiview`,
