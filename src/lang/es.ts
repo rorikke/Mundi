@@ -9310,6 +9310,10 @@ const DICT: Record<string, string> = {
  "1 lot won at the sales": "1 lote ganado en las subastas",
  "{0} lots won at the sales": "{0} lotes ganados en las subastas",
  // (C-7) the rival and the dealer as people, the rival's loans, their creator fields
+ "More for the AI while something holds (someone else here, how you stand with another person)": "Más para la IA mientras algo se cumple (otra persona aquí, cómo estás con otra persona)",
+ "While": "Mientras",
+ "Told to the AI ({{user}})": "Dicho a la IA ({{user}})",
+ "Add a line while something holds": "Añadir una línea mientras algo se cumple",
  "Once the other collector knows you well enough, her foundation may ask at the start of a season to borrow a piece you took from her at a sale. Lend it for the season's fee, or refuse: while it's away it brings no renown, but it still counts as yours, and it comes back after the season's last day.": "Cuando la otra coleccionista ya te conoce lo bastante, su fundación puede pedirte al principio de una temporada una pieza que le quitaste en una subasta. Préstala por la tarifa de la temporada, o recházalo: mientras esté fuera no da renombre, pero sigue contando como tuya, y vuelve después del último día de la temporada.",
  "{0}'s van is outside the museum: one piece this week.": "La furgoneta de {0} está delante del museo: una pieza esta semana.",
  "{0}'s van is outside the museum: {1} pieces this week.": "La furgoneta de {0} está delante del museo: {1} piezas esta semana.",
