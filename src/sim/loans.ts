@@ -10,7 +10,7 @@
 // yet, or her not in the game, nothing here reads or writes anything.
 import type { Save, Resident } from '../core/store.js';
 import type { WorldDef, SlotDef, LoanDef } from '../core/world.js';
-import { onHour, sceneLines } from './hooks.js';
+import { onHour, sceneLines, museumHooks } from './hooks.js';
 import { museumDef, museumOf, museumState, museumOpen, onShow, rungOf, basePrice, hasPiece } from './museum.js';
 import { castNamed, takenFromRival } from './market.js';
 import { whenHolds } from './when.js';
@@ -148,3 +148,6 @@ export function loanLines(g: Save, w: WorldDef): string[] {
     return [];
 }
 sceneLines.push((g, w) => loanLines(g, w));
+// A piece away shows on its tile as on loan (the museum's tile, wrapped: sim/museum.ts sets it first, this file imports it)
+const tileOf = museumHooks.tile;
+museumHooks.tile = (g, w, id) => { const t = tileOf(g, w, id); return onLoan(g)?.id === id ? { ...t, at: 'loan' } : t; };
