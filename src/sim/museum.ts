@@ -332,14 +332,15 @@ const themeName = (w: WorldDef, theme: string) => { const [h, gr] = theme.split(
 /** After an action (its roll done): one roll for its finds, then one missing piece among them you can house. The odds
  *  are the best of its finds' `chance`, times the best two of: the action's roll succeeded (×2), the reading room
  *  (×1.5), the curator with you (×1.5), at most `FIND.most`; with the curator a find's damaged odds are halved, and
- *  the museum's `eye` (once its condition holds) lowers them for good. */
-function found(g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]): string[] {
+ *  the museum's `eye` (once its condition holds) lowers them for good. A find's window (its `when`) is judged at
+ *  `began`, the minute the try set out (so a dawn walk can find what dawn brings, as the Here tab said it could). */
+function found(g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[], began?: number): string[] {
     if (!piecesOn(w)) return [];
     const place = g.player.loc;
     const list: { s: SlotDef; x: PieceSource }[] = [];
     for (const s of displayHere(g, w)) {
         if (!wanted(g, w, s)) continue;
-        const x = (s.sources ?? []).find(y => y.kind === 'find' && (y.action ? y.action === a.id : !!y.at?.includes(place)) && (!y.when || whenHolds(g, w, y.when)));
+        const x = (s.sources ?? []).find(y => y.kind === 'find' && (y.action ? y.action === a.id : !!y.at?.includes(place)) && (!y.when || whenHolds(g, w, y.when, began === undefined ? {} : { at: began })));
         if (x) list.push({ s, x });
     }
     if (!list.length) return [];

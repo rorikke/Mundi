@@ -113,10 +113,11 @@ export function digOdds(g: Save, w: WorldDef, d: DigDef, ok: boolean | null, mat
  *  under `most` finds this season, one roll; the action that brings the season's days to `sure` with nothing found yet
  *  finds without a roll. A find is one of the dig's pieces by weight; a piece of parts gets one missing part, and fills
  *  when the last part comes unless the museum's workshop mounts it (`mount`). Lines to show. */
-function dug(g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]): string[] {
+function dug(g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[], began?: number): string[] {
     const out: string[] = [];
     for (const d of digsOf(w)) {
-        if (!d.actions.includes(a.id) || g.player.loc !== d.place || !digOpen(g, w, d) || !whenHolds(g, w, d.season)) continue;
+        // (its season judged as the day's digging began, as a find's window is)
+        if (!d.actions.includes(a.id) || g.player.loc !== d.place || !digOpen(g, w, d) || !whenHolds(g, w, d.season, began === undefined ? {} : { at: began })) continue;
         const st = digState(g, d.id), now = seasonIndex(g);
         if (st.at !== now) {
             if (st.at !== undefined && (st.days ?? 0) > 0) st.seasons = (st.seasons ?? 0) + 1;

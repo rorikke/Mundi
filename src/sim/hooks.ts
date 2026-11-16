@@ -17,7 +17,8 @@ export const thingsOwned: ((g: Save, w: WorldDef) => ShopItem[])[] = [];
 export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[]; name: string }) => void)[] = [];
 // (museum, sim/museum.ts) What the rest of the game asks of the museum's engine, so neither waits on the other; with none,
 // nothing. `settle`: run inside the collection's settle (sim/collection.ts), lines to show; `found`: after an action's
-// roll (sim/actions.ts, `ok` its success, null without a roll), a find's lines; `story`: a street story's result with
+// roll (sim/actions.ts, `ok` its success, null without a roll; `began`: the minute the action began, so a find's
+// window is judged as you set out, not as the try ends), a find's lines; `story`: a street story's result with
 // `renown` or `damage` (sim/stories.ts), lines; `begun`: are the display halls shown (null: the world has no museum,
 // track 4's rule); `tile`: what a display piece's tile adds (sim/collection.ts `recordView`); `hall`: how a display
 // hall is on show. (nature, sim/dig.ts) `dug`: after the same action, a dig's day and roll, lines; `inSeason`: can a
@@ -26,8 +27,8 @@ export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[];
 export const museumHooks: {
     settle: (g: Save, w: WorldDef) => string[];
     settleDig: (g: Save, w: WorldDef) => string[];
-    found: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
-    dug: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[]) => string[];
+    found: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[], began?: number) => string[];
+    dug: (g: Save, w: WorldDef, a: ActionDef, ok: boolean | null, mates: string[], began?: number) => string[];
     inSeason: (g: Save, w: WorldDef, slot: string) => boolean;
     story: (g: Save, w: WorldDef, r: { renown?: number; damage?: boolean }) => string[];
     begun: (g: Save, w: WorldDef) => boolean | null;
