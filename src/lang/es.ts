@@ -9721,6 +9721,8 @@ const DICT: Record<string, string> = {
  "Mounting needs {0}.": "El montaje necesita {0}.",
  "There is nothing of that to mount.": "No hay nada de eso que montar.",
  "It's being mounted already.": "Ya se está montando.",
+ "The museum has a new hall: {0}.": "El museo tiene una sala nueva: {0}.",
+ "The museum has new halls: {0}.": "El museo tiene salas nuevas: {0}.",
  "a season at {0}": "una temporada en {0}",
  "{0} seasons at {1}": "{0} temporadas en {1}",
  "a day at {0}": "un día en {0}",
