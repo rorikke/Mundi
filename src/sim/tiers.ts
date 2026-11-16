@@ -20,6 +20,7 @@ import { whenHolds, missingWords } from './when.js';
 import { exampleOf } from './dayplan.js';
 import { milestonePoints } from './points.js';
 import { FRIEND_TIERS, ROMANCE_TIERS, type Tier } from './romance.js';
+import { applyStartFeel } from './startfeel.js';
 
 /** Life points for each tier reached (once per person and tier, outside the day's cap). */
 export const TIER_POINTS = 40;
@@ -89,9 +90,11 @@ function release(g: Save, id: string) {
 
 /* ---------- reaching a tier ---------- */
 
-// What a tier writes into the save as it opens: its profile lines (texts replace the earlier ones, likes and limits are
-// added to them, a role or drive replaces the old).
+// What a tier writes into the save as it opens: (C-7) how they feel toward you, when it says (`sets`: friendship and
+// romance set to those levels, the rival starting to hate you); its profile lines (texts replace the earlier ones, likes
+// and limits are added to them, a role or drive replaces the old).
 function openTier(g: Save, id: string, t: PersonTier) {
+    if (t.sets && (t.sets.f || t.sets.r)) applyStartFeel(g, { a: id, b: YOU, ...(t.sets.f ? { f: t.sets.f } : {}), ...(t.sets.r ? { r: t.sets.r } : {}) }, true);
     if (!t.intimate) return;
     const p = (relOf(g).people[id] ??= {}), i: any = (p.intimate ??= {});
     for (const [k, v] of Object.entries(t.intimate)) {

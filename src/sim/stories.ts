@@ -20,7 +20,7 @@ import { book } from './ledger.js';
 import { rollBonus, rollD20, bonusLabel } from './dice.js';
 import { tallyRoll } from './tally.js';
 import { note, placeName, toldAs } from './facts.js';
-import { feelsFrom, addKeepsake, keepsakeDef } from './social.js';
+import { feelsFrom, romanceFrom, addKeepsake, keepsakeDef } from './social.js';
 import { startRumor } from './living.js';
 import { revealThread } from './threads.js';
 import { seasonDays, advance } from './time.js';
@@ -184,6 +184,7 @@ function applyResult(g: Save, w: WorldDef, s: StoryDef, r: StoryResult): string[
     }
     for (const [id, v] of Object.entries(r.effects ?? {})) if (v) addStatus(g, w, id, v);
     feelsFrom(g, w, r.feels);
+    romanceFrom(g, w, r.romance);   // (C-7) heat, as `feels` is friendship
     if (r.keepsake) { addKeepsake(g, r.keepsake); const k = keepsakeDef(w, r.keepsake); out.push(`You keep: ${k.icon} ${k.name}.`); }
     if (r.rumor) startRumor(g, w, r.rumor, at, { about: cast.map(x => x.name), you: true, id: `story:${s.id}` });
     if (r.fact) note(g, r.fact, [where], cast.map(x => x.avatar), at, 'story');

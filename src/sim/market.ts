@@ -2,24 +2,30 @@
 // (a pity timer so no piece waits too long, a piece asked for, R-6's later and dearer pieces) and the sales four times
 // a year, where another collector bids against you and a lot she takes comes back. The world data is
 // `w.collection.museum.dealer` and `.auctions` and the slots' `dealer`/`auction` sources; the save is
-// `g.collection.museum.dealer` and `.sales`. Both women are words only until their cards (C-7). Everything is seeded
-// from the world, the day and the piece, so a save shows the same stock and the same sale when opened again. With the
-// collection off, no museum, or the museum not yours yet, nothing here reads or writes anything.
-import type { Save } from '../core/store.js';
+// `g.collection.museum.dealer` and `.sales`. (C-7) The two women are people once the world names them (`dealer.who`,
+// `auctions.rival.who`) and they're in the game: the lines name them, the dealer's van is there on her visit's day
+// (`dealer: here`), her tier `extra[0]` brings `extra[1]` more pieces a visit, and the scene's lines tell the AI the
+// sale and the van's stock (`sceneLines`); otherwise they stay words. Everything is seeded from the world, the day and
+// the piece, so a save shows the same stock and the same sale when opened again. With the collection off, no museum,
+// or the museum not yours yet, nothing here reads or writes anything.
+import type { Save, Resident } from '../core/store.js';
 import type { WorldDef, SlotDef, PieceSource, MuseumDef } from '../core/world.js';
-import { onHour, collectionLink, museumLink } from './hooks.js';
+import { onHour, collectionLink, museumLink, sceneLines } from './hooks.js';
 import { museumDef, museumOf, museumState, museumOpen } from './museum.js';
 import { slotsHere, collectionOf } from './collection.js';
 import { whenHolds } from './when.js';
 import { priceOf } from './bills.js';
 import { book } from './ledger.js';
 import { money } from './needs.js';
+import { exampleOf } from './dayplan.js';
+import { tierReached } from './tiers.js';
 
 /* ---------- the save ---------- */
 
 /** A piece in the dealer's stock: its price this visit; `asked`: the one you asked for (+`ask`); `late`: a lot the other
  *  collector took and never sold back (+`late`). */
-export interface StockItem { id: string; price: number; asked?: boolean; late?: boolean }
+export interface StockItem { id: string; price: number; asked?: boolean; late?: boolean;
+    /** (C-7) one of the pieces her tier adds ("from the back of the van") */ extra?: boolean }
 /** The dealer's part of the save (M0's fields and the market's own): `calls` visits made; `late` pieces from lost lots
  *  (id → the estimate they were lost at); the counters her tiers will read: yen `spent`, pieces `bought`, pieces
  *  `asked` for, `visits` you bought from (`last`: the visit's day you last bought on). */
@@ -42,6 +48,8 @@ export interface SaleCard { id: string; est: number; bid: number; her: number; s
 export interface SalesState {
     next?: number; lots?: Lot[]; lost?: Record<string, number>; held?: number;
     cats?: number; won?: number; lots_won?: number; resold?: number; card?: SaleCard[]; past?: LotResult[];
+    /** (C-7) the pieces you took from her: won over her bid or bought back from her (what her foundation may borrow) */
+    took?: string[];
 }
 
 /** Top bids offered for a lot: the estimate, +25%, +50%, +100%. */
@@ -59,6 +67,16 @@ const peekDealer = (g: Save) => (museumOf(g)?.dealer ?? {}) as DealerState;
 const peekSales = (g: Save) => (museumOf(g)?.sales ?? {}) as SalesState;
 
 /* ---------- small helpers ---------- */
+
+/** (C-7) The resident made from one of the world's people (by the example's name), if this game has them. */
+export function castNamed(g: Save, w: WorldDef, name: string | undefined): Resident | undefined {
+    if (!name) return undefined;
+    return Object.values(g.cast ?? {}).find(r => exampleOf(w, r)?.name === name);
+}
+/** (C-7) The dealer and the other collector as people in this game (undefined: words only). */
+export const dealerPerson = (g: Save, w: WorldDef) => castNamed(g, w, museumDef(w)?.dealer?.who);
+export const rivalPerson = (g: Save, w: WorldDef) => castNamed(g, w, museumDef(w)?.auctions?.rival?.who);
+const rivalWord = (g: Save, w: WorldDef) => rivalPerson(g, w)?.name ?? 'the other collector';
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 // A seeded number in [0, 1) for this world, a visit or sale (`at`) and a piece.
@@ -137,7 +155,17 @@ export function dealerPool(g: Save, w: WorldDef): Pooled[] {
 /** How many pieces a visit brings now (`more` from a renown level). */
 export function stockSize(g: Save, w: WorldDef): number {
     const d = museumDef(w)?.dealer; if (!d) return 0;
-    return d.more && renownLevel(g, w) >= d.more[0] ? d.more[1] : d.stock;
+    return (d.more && renownLevel(g, w) >= d.more[0] ? d.more[1] : d.stock) + extraPieces(g, w);
+}
+/** (C-7) The pieces a visit adds from the dealer's tier (`extra`: [tier, pieces]; 0 without her in the game). */
+export function extraPieces(g: Save, w: WorldDef): number {
+    const e = museumDef(w)?.dealer?.extra, r = e && dealerPerson(g, w);
+    return e && r && tierReached(g, r.avatar) >= e[0] ? e[1] : 0;
+}
+/** (C-7) Is the dealer at the museum today (a visit's day)? */
+export function dealerHere(g: Save, w: WorldDef): boolean {
+    const d = museumDef(w)?.dealer, st = peekDealer(g);
+    return !!d && museumOpen(g, w) && !!st.calls && st.next !== undefined && st.next - d.every === g.day;
 }
 
 // A visit. No pooled piece waits longer than `max(pity, pool ÷ stock)` visits (the longest a full round of the pool
@@ -172,9 +200,14 @@ function dealerVisit(g: Save, w: WorldDef, d: NonNullable<MuseumDef['dealer']>):
     st.stock = picks.map(({ p, asked }) => ({ id: p.id, price: marketPrice(g, w, p.base * (asked ? 1 + (d.ask ?? 0) : 1)),
         ...(asked ? { asked: true } : {}), ...(p.late ? { late: true } : {}) }));
     for (const x of picks) waited[x.p.id] = 0;
+    // (C-7) the last pieces of a full visit are the ones her tier added
+    const extra = extraPieces(g, w);
+    if (extra && picks.length === room) for (const it of st.stock.filter(x => !x.asked).slice(-extra)) it.extra = true;
     st.waited = waited;
     st.next = g.day + d.every;
     if (!st.stock.length) return [];
+    const who = dealerPerson(g, w)?.name;
+    if (who) return [st.stock.length === 1 ? `${who}'s van is outside the museum: one piece this week.` : `${who}'s van is outside the museum: ${st.stock.length} pieces this week.`];
     return [st.stock.length === 1 ? 'The dealer\'s van is outside the museum: one piece this week.' : `The dealer's van is outside the museum: ${st.stock.length} pieces this week.`];
 }
 
@@ -293,6 +326,7 @@ function settleLot(g: Save, w: WorldDef, sale: number, lot: Lot, inPerson: boole
         s.lots_won = (s.lots_won ?? 0) + 1;
         if (against) s.won = (s.won ?? 0) + 1;
         if (lot.back) { s.resold = (s.resold ?? 0) + 1; if (s.lost) delete s.lost[lot.id]; }
+        if (against || lot.back) tookFrom(s, lot.id);
         out.push({ day: sale, id: lot.id, est: lot.est, won: true, paid, ...(against ? { rival: true } : {}), ...(lot.back ? { back: true } : {}) });
         return [`Won at the sale: ${name} for ${money(w, paid)}.`, ...give(g, w, lot.id, 'auction', paid)];
     };
@@ -300,7 +334,7 @@ function settleLot(g: Save, w: WorldDef, sale: number, lot: Lot, inPerson: boole
         out.push({ day: sale, id: lot.id, est: lot.est, won: false, why, ...(rival ? { rival: true } : {}), ...(lot.back ? { back: true } : {}) });
         if (lot.back) { if (s.lost) delete s.lost[lot.id]; dealerOf(g).late = { ...(dealerOf(g).late ?? {}), [lot.id]: auctionBase(w, lot.id) }; return []; }
         if (rival || why === 'money') { (s.lost ??= {})[lot.id] = a.back ?? 2; }
-        return why === 'money' ? [`The bid for ${name} fell through: not enough money at the hammer.`] : rival ? [`Lost at the sale: ${name} went to the other collector.`] : [];
+        return why === 'money' ? [`The bid for ${name} fell through: not enough money at the hammer.`] : rival ? [rivalPerson(g, w) ? `Lost at the sale: ${name} went to ${rivalWord(g, w)}.` : `Lost at the sale: ${name} went to the other collector.`] : [];
     };
     if (!r.wants) {
         if (bid === undefined) { if (lot.back) return lose('unsold', false); out.push({ day: sale, id: lot.id, est: lot.est, won: false, why: 'nobid' }); return []; }
@@ -309,11 +343,19 @@ function settleLot(g: Save, w: WorldDef, sale: number, lot: Lot, inPerson: boole
     if (bid !== undefined && bid >= r.top + step) return g.player.money >= r.top + step ? win(r.top + step, true) : lose('money', true);
     if (bid !== undefined && inPerson && g.player.money >= bid + step) {
         (s.card ??= []).push({ id: lot.id, est: lot.est, bid, her: r.top, step, day: g.day, hour: hourOf(g) });
-        return [`The other collector outbids you on ${name}. One more step, ${money(w, bid + step)}?`];
+        return [rivalPerson(g, w) ? `${rivalWord(g, w)} outbids you on ${name}. One more step, ${money(w, bid + step)}?` : `The other collector outbids you on ${name}. One more step, ${money(w, bid + step)}?`];
     }
     return lose(bid === undefined ? 'nobid' : 'outbid', true);
 }
 const keepPast = (s: SalesState, res: LotResult[]) => { s.past = [...res, ...(s.past ?? [])].slice(0, PAST); };
+// (C-7) a piece taken from her, kept for good (the results keep only the last few)
+const tookFrom = (s: SalesState, id: string) => { if (!(s.took ??= []).includes(id)) s.took.push(id); };
+/** (C-7) The pieces you took from the other collector: won over her bid or bought back from her (older saves: what
+ *  the last results show). */
+export function takenFromRival(g: Save): string[] {
+    const s = peekSales(g);
+    return [...new Set([...(s.took ?? []), ...(s.past ?? []).filter(r => r.won && (r.rival || r.back)).map(r => r.id)])];
+}
 
 /** Answer an in-person card: one more step, or let it go. Returns lines. */
 export function answerCard(g: Save, w: WorldDef, id: string, yes: boolean): string[] {
@@ -324,14 +366,14 @@ export function answerCard(g: Save, w: WorldDef, id: string, yes: boolean): stri
     const lose = (why: string): string[] => {
         res.push({ day: c.day, id, est: c.est, won: false, why, rival: true }); keepPast(s, res);
         if (missing(g, id)) (s.lost ??= {})[id] = a?.back ?? 2;
-        return [`Lost at the sale: ${name} went to the other collector.`];
+        return [rivalPerson(g, w) ? `Lost at the sale: ${name} went to ${rivalWord(g, w)}.` : `Lost at the sale: ${name} went to the other collector.`];
     };
     if (!missing(g, id) || !housable(g, w, id)) return [];
     if (!yes) return lose('card');
     const mine = c.bid + c.step, paid = c.her + c.step;
     if (mine < paid || g.player.money < paid) return lose('card');
     g.player.money -= paid; book(g, `The sale: ${name}`, -paid);
-    s.lots_won = (s.lots_won ?? 0) + 1; s.won = (s.won ?? 0) + 1;
+    s.lots_won = (s.lots_won ?? 0) + 1; s.won = (s.won ?? 0) + 1; tookFrom(s, id);
     res.push({ day: c.day, id, est: c.est, won: true, paid, rival: true }); keepPast(s, res);
     return [`Won at the sale: ${name} for ${money(w, paid)}.`, ...give(g, w, id, 'auction', paid)];
 }
@@ -412,7 +454,8 @@ export function setBid(g: Save, w: WorldDef, id: string, mult: number | null): s
 /* ---------- for the screens (read without writing) ---------- */
 
 export interface DealerView { on: boolean; next?: number; days?: number;
-    stock: { id: string; name: string; icon?: string; pic?: string; price: number; asked?: boolean; late?: boolean; why: string }[];
+    /** (C-7) her name once she's in the game; her van at the museum today */ who?: string; here?: boolean;
+    stock: { id: string; name: string; icon?: string; pic?: string; price: number; asked?: boolean; late?: boolean; extra?: boolean; why: string }[];
     ask?: { id: string; name: string }; askable: { id: string; name: string; price: number }[] }
 /** The Dealer tab: this week's stock and why each can't be bought, the next visit, the piece asked for, what can be
  *  asked for (its price with the premium). */
@@ -421,12 +464,14 @@ export function dealerView(g: Save, w: WorldDef): DealerView {
     if (!d || !museumOpen(g, w)) return { on: false, stock: [], askable: [] };
     const st = peekDealer(g), next = st.next ?? museumOf(g)!.opened! + d.every;
     const ask = st.ask;
-    return { on: true, next, days: Math.max(0, next - g.day),
-        stock: (st.stock ?? []).map(x => { const s = slotOf(w, x.id); return { id: x.id, name: s?.name ?? x.id, icon: s?.icon, pic: s?.pic, price: x.price, ...(x.asked ? { asked: true } : {}), ...(x.late ? { late: true } : {}), why: whyNotBuyPiece(g, w, x.id) }; }),
+    const who = dealerPerson(g, w)?.name;
+    return { on: true, next, days: Math.max(0, next - g.day), ...(who ? { who } : {}), ...(dealerHere(g, w) ? { here: true } : {}),
+        stock: (st.stock ?? []).map(x => { const s = slotOf(w, x.id); return { id: x.id, name: s?.name ?? x.id, icon: s?.icon, pic: s?.pic, price: x.price, ...(x.asked ? { asked: true } : {}), ...(x.late ? { late: true } : {}), ...(x.extra ? { extra: true } : {}), why: whyNotBuyPiece(g, w, x.id) }; }),
         ...(ask ? { ask: { id: ask, name: nameOf(w, ask) } } : {}),
         askable: ask ? [] : askable(g, w).map(p => ({ id: p.id, name: nameOf(w, p.id), price: marketPrice(g, w, p.base * (1 + (d.ask ?? 0))) })) };
 }
 export interface SalesView { on: boolean; next?: number; hour?: number; place?: string; placeName?: string;
+    /** (C-7) the other collector's name once she's in the game */ who?: string;
     lots: { id: string; name: string; icon?: string; pic?: string; est: number; bid?: number; back?: boolean; bids: { mult: number; amount: number; why: string }[] }[];
     card: { id: string; name: string; price: number }[]; past: (LotResult & { name: string })[] }
 /** The Sales tab: the next sale (day, hour, place), its catalogue's lots with your top bid and the bids you can set,
@@ -435,7 +480,8 @@ export function salesView(g: Save, w: WorldDef): SalesView {
     const a = museumDef(w)?.auctions;
     if (!a || !museumOpen(g, w)) return { on: false, lots: [], card: [], past: [] };
     const s = peekSales(g), next = s.next ?? saleAfter(g, w);
-    return { on: true, next, hour: a.from, place: a.place, placeName: placeName(w, a.place),
+    const who = rivalPerson(g, w)?.name;
+    return { on: true, next, hour: a.from, place: a.place, placeName: placeName(w, a.place), ...(who ? { who } : {}),
         lots: (s.lots ?? []).map(l => { const sl = slotOf(w, l.id); return { id: l.id, name: sl?.name ?? l.id, icon: sl?.icon, pic: sl?.pic, est: l.est, ...(l.bid !== undefined ? { bid: l.bid } : {}), ...(l.back ? { back: true } : {}),
             bids: BID_STEPS.map(mult => ({ mult, amount: Math.round(l.est * mult), why: whyNotBid(g, w, l.id, mult) })) }; }),
         card: (s.card ?? []).map(c => ({ id: c.id, name: nameOf(w, c.id), price: c.bid + c.step })),
@@ -447,16 +493,58 @@ export function salesView(g: Save, w: WorldDef): SalesView {
 const COUNT = /^(\S+)\s+(\d+)$/;
 function marketCount(g: Save, w: WorldDef, key: 'sales' | 'dealer', what: string): number {
     if (!museumDef(w)) return 0;
-    if (key === 'sales') { const s = peekSales(g); return what === 'won' ? s.won ?? 0 : what === 'lots' ? s.lots_won ?? 0 : what === 'resold' ? s.resold ?? 0 : 0; }
+    if (key === 'sales') {
+        const s = peekSales(g);
+        return what === 'won' ? s.won ?? 0 : what === 'lots' ? s.lots_won ?? 0 : what === 'resold' ? s.resold ?? 0
+            : what === 'bested' ? (s.won ?? 0) + (s.resold ?? 0) : what === 'lent' ? ((museumOf(g) as any)?.loans?.n ?? 0) : 0;
+    }
     const d = peekDealer(g);
     return what === 'spent' ? d.spent ?? 0 : what === 'bought' ? d.bought ?? 0 : what === 'asked' ? d.asked ?? 0 : what === 'visits' ? d.visits ?? 0 : 0;
 }
-collectionLink.market = (g, w, key, v) => { const m = v.match(COUNT); return !!m && !!museumDef(w) && museumOf(g) !== undefined && marketCount(g, w, key, m[1].toLowerCase()) >= Number(m[2]); };
+collectionLink.market = (g, w, key, v) => {
+    if (key === 'dealer' && v.trim().toLowerCase() === 'here') return dealerHere(g, w);
+    const m = v.match(COUNT); return !!m && !!museumDef(w) && museumOf(g) !== undefined && marketCount(g, w, key, m[1].toLowerCase()) >= Number(m[2]);
+};
 collectionLink.marketWords = (g, w, key, v) => {
+    if (key === 'dealer' && v.trim().toLowerCase() === 'here') return 'the dealer\'s visit';
     const m = v.match(COUNT); if (!m) return v;
     const n = Number(m[2]), what = m[1].toLowerCase(), s = n === 1 ? '' : 's';
-    if (key === 'sales') return what === 'won' ? `${n} lot${s} won against the other collector` : what === 'lots' ? `${n} lot${s} won at the sales` : `${n} lot${s} the other collector sold back to you`;
+    if (key === 'sales') return what === 'won' ? `${n} lot${s} won against the other collector` : what === 'lots' ? `${n} lot${s} won at the sales`
+        : what === 'bested' ? `${n} lot${s} taken from the other collector` : what === 'lent' ? `${n} piece${s} lent to the other collector's foundation`
+        : `${n} lot${s} the other collector sold back to you`;
     return what === 'spent' ? `${money(w, n)} spent with the dealer` : what === 'bought' ? `${n} piece${s} bought from the dealer`
         : what === 'asked' ? `${n} piece${s} asked of the dealer` : `${n} visit${s} of the dealer's you bought from`;
 };
+
+/* ---------- (C-7) what the AI is told at a sale and at the van ---------- */
+
+const listOf = (xs: string[]) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}` : xs[0] ?? '');
+/** At the saleroom on a sale's day (until two hours after the hammer): the lots with {{user}}'s top bids, today's
+ *  results, and the other collector, here in person or bidding by phone. At the dealer's van on a visit's day, with her
+ *  here: this week's pieces at their prices (the game's) and the one asked for. Facts only: her manner is her tier's. */
+export function marketLines(g: Save, w: WorldDef, present: Resident[]): string[] {
+    const m = museumDef(w);
+    if (!m || !museumOpen(g, w)) return [];
+    const out: string[] = [], here = new Set(present.map(r => r.avatar)), a = m.auctions, s = peekSales(g), h = hourOf(g);
+    if (a && g.player.loc === a.place && h < a.from + 2) {
+        const due = s.next === g.day && !!s.lots?.length, today = (s.past ?? []).filter(r => r.day === g.day);
+        if (due) out.push(`The museum sale is here today at ${a.from}:00. The lots: ${listOf(s.lots!.map(l => `${nameOf(w, l.id)} (estimate ${money(w, l.est)}${l.bid !== undefined ? `; {{user}}'s top bid ${money(w, l.bid)}` : ''}${l.back ? '; sold back by the other collector' : ''})`))}. The prices are the game's: nobody in the scene changes them.`);
+        const mine = today.filter(r => r.won).map(r => nameOf(w, r.id)), hers = today.filter(r => !r.won && r.rival).map(r => nameOf(w, r.id));
+        if (mine.length) out.push(`At today's sale {{user}} won ${listOf(mine)}.`);
+        if (hers.length) out.push(`At today's sale ${rivalWord(g, w)} took ${listOf(hers)}.`);
+        if (due || today.length) {
+            const r = rivalPerson(g, w);
+            out.push(r && here.has(r.avatar) ? `${r.name}, the other collector, is here in person for the sale.` : 'The other collector bids by phone.');
+        }
+    }
+    const d = dealerPerson(g, w);
+    if (d && here.has(d.avatar) && dealerHere(g, w)) {
+        const stock = (peekDealer(g).stock ?? []).filter(x => missing(g, x.id));
+        out.push(stock.length
+            ? `${d.name}'s van holds this week's pieces: ${listOf(stock.map(x => `${nameOf(w, x.id)} (${money(w, x.price)}${x.asked ? ', the one {{user}} asked for' : x.extra ? ', from the back of the van' : ''})`))}. The prices are the game's and she delivers what {{user}} buys; she may tell each piece's story, but never sells below its price.`
+            : `${d.name}'s van is here; {{user}} has bought everything she brought this week.`);
+    }
+    return out;
+}
+sceneLines.push(marketLines);
 

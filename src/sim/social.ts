@@ -142,6 +142,16 @@ export function feelsFrom(g: Save, w: WorldDef, feels: Record<string, number> | 
         if (n > 0) gain(g, 'f', r.avatar, YOU, n); else lose(g, 'f', r.avatar, YOU, n);
     }
 }
+/** (C-7) A story result's romance toward you (name → small change), as `feelsFrom` does friendship: a rise through the
+ *  usual gain (attraction, pacing, their tier's cap), a fall in full; nothing with romance off or for anyone romance
+ *  is closed to (family, minors). */
+export function romanceFrom(g: Save, w: WorldDef, romance: Record<string, number> | undefined) {
+    if (!romance || !systemOn(w, 'romance')) return;
+    for (const [name, n] of Object.entries(romance)) {
+        const r = personNamed(g, name); if (!r || !n || romanceBlocked(g, r.avatar)) continue;
+        if (n > 0) gain(g, 'r', r.avatar, YOU, n); else lose(g, 'r', r.avatar, YOU, n);
+    }
+}
 
 /* ---------- gifts (E35) ---------- */
 
