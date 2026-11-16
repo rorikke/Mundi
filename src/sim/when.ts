@@ -523,7 +523,8 @@ const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)
 // `renown 3` · `shows 2` · `50%` · an upgrade id; `tier: Tamaki 2` (people who unlock: that person's tier reached).
 // (museum, the market) `sales: won 3` (lots won against the other collector) · `lots 5` (every lot bought) · `resold 1`
 // (lots she sold you back); `dealer: spent 2000000` (yen) · `bought 4` · `asked 1` · `visits 3` (visits you bought from).
-const SALES = /^(?:won|lots|resold)\s+\d+$/i, DEALER = /^(?:spent|bought|asked|visits)\s+\d+$/i;
+// (C-7) `sales: bested 4` (won over her bid + sold back by her) · `lent 1` (loans to her foundation); `dealer: here` (a visit's day).
+const SALES = /^(?:won|lots|resold|bested|lent)\s+\d+$/i, DEALER = /^(?:(?:spent|bought|asked|visits)\s+\d+|here)$/i;
 const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
 // (adult) `known: 5`: likes and hard limits you know of your lovers, in all; `known: Tamaki 5`: of that person; `likes` or
 // `limits` after the number counts only those (`known: Tamaki 2 limits`).
