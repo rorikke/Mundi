@@ -1615,8 +1615,13 @@ function loansEditor(w: WorldDef, q: string, M: MuseumDef) {
         <div class="mu-row2">${bounded('Days before the same piece is asked for again', `${q}.loans.again`, 0, 999)}${sel("Where it's shown (the AI is told there)", `${q}.loans.place`, withCur([['', '(nowhere in particular)'], ...placeOpts(w, '(pick one)').filter(o => o[0])], L?.place), 'opt')}</div>
         <div class="mu-row2">${optTxt("What it's lent for", `${q}.loans.label`, "the Mikage Foundation's season exhibition")}${words('Pieces she asks for however they came (slot ids, comma-separated)', `${q}.loans.also`, "Her grandmother's screen, for one.", 'art_korin_irises')}</div>`);
 }
-// (C-7) What the loans and the women's names can leave empty: an unpicked person, an empty label, place or list.
+// (C-7) What the loans and the women's names can leave empty: an unpicked person, an empty label, place or list; a
+// tier's unset opening feelings and an emptied line about the others.
 function tidyRival(w: WorldDef) {
+    for (const e of w.cast?.examples ?? []) for (const t of e.tiers ?? []) {
+        if (t.sets) { for (const k of ['f', 'r'] as const) if (!t.sets[k]) delete t.sets[k]; if (!Object.keys(t.sets).length) delete t.sets; }
+        if (Array.isArray(t.about)) { t.about = t.about.filter(a => a && String(a.ai ?? '').trim() && (typeof a.when !== 'string' || a.when.trim())); if (!t.about.length) delete t.about; }
+    }
     const M = w.collection?.museum; if (!M) return;
     if (M.dealer && typeof M.dealer.who === 'string' && !M.dealer.who.trim()) delete M.dealer.who;
     if (M.dealer?.extra && (!Array.isArray(M.dealer.extra) || M.dealer.extra.length !== 2 || Array.from(M.dealer.extra).some(x => typeof x !== 'number' || !isFinite(x)))) delete M.dealer.extra;
@@ -2680,6 +2685,9 @@ function tierForm(w: WorldDef, p: string, k: number, t: PersonTier, e: WorldDef[
         ${optArea('What the AI is told at this tier ({{user}} is the player)', `${q}.ai`, 2, 'Tamaki lets {{user}} see her off duty now…')}
         <div class="mu-row2">${words('Outfits it lets the game put on (names, comma-separated)', `${q}.outfits`, mine.length ? `Theirs: ${mine.join(', ')}` : 'They have no outfits in this world yet.', 'yukata')}${flag('They may make the move from here', `${q}.moves`, '', true)}</div>
         <div class="mu-row2">${flag('They text you invitations from here', `${q}.invites`, 'Once any tier says so, not before that tier.')}${num('Their invitations, × as often from here (empty: as anyone; up to 5)', `${q}.inviteOdds`, 1, 0.5)}</div>
+        <span class="mu-cw-sub">More for the AI while something holds (someone else here, how you stand with another person)</span>
+        ${(t.about ?? []).map((_a, j) => `<div class="mu-row mu-cw-inline">${cond('While', `${q}.about.${j}.when`, 'present: Tamaki')}${optArea('Told to the AI ({{user}})', `${q}.about.${j}.ai`, 2)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.about.${j}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="tabout" data-path="${esc(`${q}.about`)}">${icon('plus')}<span>Add a line while something holds</span></button>
         <div class="mu-row2">${lines(`The move in their own words (one per line; {name}, {action}) ${ADULT}`, `${q}.moveLines`, 2)}${lines(`Asking you over tonight, by text (one per line; {when})`, `${q}.askLines`, 2)}</div>
         <span class="mu-cw-sub">Before getting intimate, from this tier ${ADULT}</span>
         <label class="mu-field"><span>They need</span><select data-input="cw-tintim" data-f="preset" data-path="${esc(`${q}.intimacy`)}">${TIER_PRESETS.map(([v, l]) => `<option value="${esc(v)}" ${v === preset ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="mu-muted">Once any tier sets this, nothing intimate happens before that tier.</small></label>
@@ -3224,7 +3232,7 @@ Object.assign(ACT, {
             const p = el.dataset.path!, M = w.collection?.museum; if (!M || getPath(p) !== undefined) return;
             const part = p.split('.').pop();
             setPath(p, part === 'renown' ? { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } : part === 'dealer' ? { every: 7, stock: 3, pity: 6 }
-                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 200000, 800000, 2500000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
+                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 50000, 200000, 625000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
                 : { price: Math.round((Number(M.offer?.price) || 100000) / 5), renown: 10 });
             notify(); return;
         }
@@ -3234,6 +3242,7 @@ Object.assign(ACT, {
             setPath(p, p.endsWith('.top') ? [1.1, 1.8] : p.endsWith('.extra') ? [2, 1] : [2, (Number(parent.stock ?? parent.lots) || 3) + 1]); notify(); return;
         }
         if (what === 'mlevel') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ at: (Number(l[l.length - 1]?.at) || 0) + 20, name: '' }); CW.dirty = true; notify(); return; }
+        if (what === 'tabout') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ when: '', ai: '' }); CW.dirty = true; notify(); return; }   // (C-7)
         if (what === 'ptier') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ id: newId('tier'), name: `Tier ${l.length}`, when: '' }); CW.dirty = true; notify(); return; }
         if (what === 'cgroup') { (getPath(el.dataset.path!) as any[]).push({ id: newId('group'), name: 'New group' }); CW.dirty = true; notify(); return; }
         if (what === 'thelp') { setPath(el.dataset.path!, { when: '', label: 'Help' }); notify(); return; }

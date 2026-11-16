@@ -52,6 +52,7 @@ export function upgradeTiers(ex: any) {
         if (t.invites === true) x.invites = true;
         if (typeof t.inviteOdds === 'number' && Number.isFinite(t.inviteOdds) && t.inviteOdds > 0) x.inviteOdds = Math.min(5, t.inviteOdds);
         for (const k of ['moveLines', 'askLines']) if (Array.isArray(t[k])) { const list = t[k].filter(str); if (list.length) x[k] = list; }
+        if (Array.isArray(t.about)) { const list = t.about.filter((a: any) => a && typeof a === 'object' && isWhen(a.when) && str(a.ai)).map((a: any) => ({ when: a.when, ai: a.ai })); if (list.length) x.about = list; }
         if (t.sets && typeof t.sets === 'object') {
             const sets: any = {};
             if ((FRIEND_LEVELS as string[]).includes(t.sets.f)) sets.f = t.sets.f;

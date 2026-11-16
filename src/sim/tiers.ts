@@ -212,6 +212,9 @@ export function tierLines(g: Save, w: WorldDef, present: Resident[]): string[] {
         if (!list.length || n < 0) continue;
         const t = [...reachedTiers(list, n)].reverse().find(x => x.ai?.trim());
         if (t) out.push(`How close ${r.name} lets {{user}} come now (${list[Math.min(n, list.length - 1)].name}): ${t.ai!.trim().replace(/\s+/g, ' ')}`);
+        // (C-7) the nearest reached tier's lines about the others, each while its condition holds
+        const ab = [...reachedTiers(list, n)].reverse().find(x => x.about?.length)?.about ?? [];
+        for (const [i, a] of ab.entries()) if (whenHolds(g, w, a.when, { place: g.player.loc, key: `tier|${id}|about|${i}` })) out.push(a.ai.trim().replace(/\s+/g, ' '));
     }
     return out;
 }

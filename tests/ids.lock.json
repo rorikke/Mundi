@@ -1711,7 +1711,10 @@
    "mg_fencing_bout",
    "mg_fencing_ayame",
    "mg_fencing_ayame_after",
-   "sb_lovehotel_kaede"
+   "sb_lovehotel_kaede",
+   "yk_van_ayame_kaede",
+   "ws_mikage_ayame_kaede",
+   "priv_home_ayame_kaede"
   ],
   "occupations": [
    "rider",
@@ -2293,7 +2296,9 @@
    "mem_sl_kaede_tailgate",
    "mem_sl_kaede_dares",
    "mem_kk_ayame",
-   "mem_kk_kaede"
+   "mem_kk_kaede",
+   "ag_kaede",
+   "kl_ayame"
   ]
  }
 }

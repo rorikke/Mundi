@@ -14881,7 +14881,7 @@
    "effects": {
     "mood": 3
    },
-   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night or mg_viewing_ayame or mg_chuodori_ayame_car or mg_fencing_ayame_after or ot_kura_ayame_after or ws_mikage_study or ws_mikage_bath or priv_home_ayame or ot_kura_back_ayame or yk_van_kaede or hk_ashi_kaede_tailgate or hk_yumoto_kaede_night or bay_beach_kaede or ot_yanaka_kaede_van or priv_home_kaede or ot_kura_kaede_loft or bay_bridge_kaede or sb_lovehotel_kaede; companion: crush or casual",
+   "when": "after: ak_mangacafe_couple or hk_ryokan_private or priv_home_lapdance or priv_massage_full or priv_home_three or priv_office_late or priv_park_night or priv_ryokan_rotenburo or sb_lovehotel_night or priv_use_lingerie or priv_use_blindfold or priv_use_oil or priv_use_costume or sh_bath_two or sh_instant_private or ot_kura_backroom or priv_home_tamaki or priv_home_tamaki_yukata or ot_kura_back_night or ot_kura_back_halls or ot_kura_back_roof or ot_kura_back_reading or hk_ryokan_tamaki_bath or fa_tamaki_library or fa_tamaki_tearoom or hk_ryokan_tamaki_night or mg_viewing_ayame or mg_chuodori_ayame_car or mg_fencing_ayame_after or ot_kura_ayame_after or ws_mikage_study or ws_mikage_bath or priv_home_ayame or ot_kura_back_ayame or yk_van_kaede or hk_ashi_kaede_tailgate or hk_yumoto_kaede_night or bay_beach_kaede or ot_yanaka_kaede_van or priv_home_kaede or ot_kura_kaede_loft or bay_bridge_kaede or sb_lovehotel_kaede or priv_home_ayame_kaede or ws_mikage_ayame_kaede or yk_van_ayame_kaede; companion: crush or casual",
    "together": {
     "needed": true,
     "text": "a few quiet minutes together afterward, talking about what each of you likes"
@@ -15111,6 +15111,62 @@
     "desire": 50
    },
    "tags": [
+    "private",
+    "ayame_kaede"
+   ],
+   "id": "yk_van_ayame_kaede",
+   "name": "The van, crowded",
+   "label": "Ayame in Kaede's van",
+   "icon": "🚐",
+   "cost": 0,
+   "minutes": 90,
+   "place": "yk_van",
+   "when": "tier: Ayame 3; tier: Kaede 3; present: Ayame; present: Kaede; companion: crush or casual",
+   "dc": 12,
+   "matches": [
+    "a threesome, everyone asked first",
+    "the van at night",
+    "a threesome she wins"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaede's van by the harbour at night, the skylight open, Ayame in ivory on the fold-down bed, outraged by everything and not leaving"
+   },
+   "outcomes": [
+    {
+     "id": "outraged",
+     "weight": 50,
+     "text": "Ayame is outraged by the van, the bed, the fairy lights and the dealer, in that order, and stays until the gulls start."
+    },
+    {
+     "id": "springs",
+     "weight": 30,
+     "text": "The van's springs give out entirely; Kaede laughs until she cries and Ayame, unbelievably, laughs too, once.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tea",
+     "weight": 20,
+     "text": "In the morning Kaede makes tea for three on the gas ring and Ayame drinks it, under protest.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent a night in Kaede's van with Kaede and Ayame Mikage"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
     "private"
    ],
    "id": "ws_mikage_study",
@@ -15209,6 +15265,62 @@
     }
    ],
    "fact": "{u} shared the Mikage house's bath with Ayame"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "ayame_kaede"
+   ],
+   "id": "ws_mikage_ayame_kaede",
+   "name": "A point proved",
+   "label": "Kaede at the Mikage house",
+   "icon": "🏯",
+   "cost": 0,
+   "minutes": 120,
+   "place": "ws_mikage",
+   "when": "tier: Ayame 3; tier: Kaede 3; present: Ayame; present: Kaede; companion: crush or casual",
+   "dc": 11,
+   "matches": [
+    "a threesome she wins",
+    "late nights at the house",
+    "a threesome, everyone asked first"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Mikage house at night with Ayame and Kaede, Ayame having asked the dealer in to prove a point she won't name, and Kaede having said yes for the fun of it"
+   },
+   "outcomes": [
+    {
+     "id": "point",
+     "weight": 50,
+     "text": "Ayame means to prove she is the one {{user}} wants; Kaede means to have a good time; it is a long night, and both of them get what they came for."
+    },
+    {
+     "id": "study",
+     "weight": 30,
+     "text": "Kaede prices every piece in the study out loud and Ayame corrects her, icily, between kisses.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "gate",
+     "weight": 20,
+     "text": "At dawn Ayame walks them both to the gate and locks it behind them, and says nothing at all; Kaede waves at her through the bars.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent a night at the Mikage house with Ayame and Kaede"
   },
   {
    "adult": true,
@@ -18878,6 +18990,63 @@
      }
     }
    ]
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private",
+    "ayame_kaede"
+   ],
+   "id": "priv_home_ayame_kaede",
+   "name": "Kaede's bet",
+   "label": "Kaede's bet with Ayame",
+   "icon": "🪙",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "when": "tier: Ayame 3; tier: Kaede 3; present: Ayame; present: Kaede; companion: crush or casual; period: evening or night or latenight",
+   "dc": 12,
+   "matches": [
+    "a threesome she wins",
+    "a threesome, everyone asked first",
+    "a bet settled in kind",
+    "jealousy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaede's bet, put to Ayame in {{user}}'s hall and agreed by all three: which of them {{user}} wants more tonight, settled in kind, every rule said out loud first"
+   },
+   "outcomes": [
+    {
+     "id": "bet",
+     "weight": 50,
+     "text": "Ayame accepts the bet as if it were a duel and Kaede as if it were a party; by midnight neither remembers who was winning, and both claim it."
+    },
+    {
+     "id": "rules",
+     "weight": 30,
+     "text": "Ayame insists on rules; Kaede insists on changing them; {{user}} is asked to referee and is overruled by both.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "truce",
+     "weight": 20,
+     "text": "At dawn Ayame and Kaede share the last cup of tea in perfect, hostile silence, and both stay for breakfast.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent a night with Ayame Mikage and Kaede, over a bet"
   },
   {
    "adult": true,
@@ -24400,7 +24569,10 @@
     "priv_home_kaede",
     "ot_kura_kaede_loft",
     "bay_bridge_kaede",
-    "sb_lovehotel_kaede"
+    "sb_lovehotel_kaede",
+    "priv_home_ayame_kaede",
+    "ws_mikage_ayame_kaede",
+    "yk_van_ayame_kaede"
    ],
    "count": 5,
    "days": 7,
@@ -54131,7 +54303,17 @@
        "r": "interest",
        "status": "none"
       },
-      "ai": "Tamaki keeps {{user}} at a colleague's distance: quick, dry and teasing about the work, warm only toward the objects. She talks to the pieces more than to people, and changes the subject when it turns to her or her grandfather."
+      "ai": "Tamaki keeps {{user}} at a colleague's distance: quick, dry and teasing about the work, warm only toward the objects. She talks to the pieces more than to people, and changes the subject when it turns to her or her grandfather.",
+      "about": [
+       {
+        "when": "present: Ayame",
+        "ai": "Ayame Mikage is here, whose grandfather's scroll Tamaki called a copy on Treasure Clinic at fifteen. Tamaki is scrupulously polite and stands a little behind {{user}}."
+       },
+       {
+        "when": "present: Kaede",
+        "ai": "Kaede the dealer is here; Tamaki keeps looking at the brass watch on Kaede's belt, and doesn't say why."
+       }
+      ]
      },
      {
       "id": "confidante",
@@ -54183,7 +54365,21 @@
         "nothing rushed"
        ],
        "drive": "low"
-      }
+      },
+      "about": [
+       {
+        "when": "present: Ayame",
+        "ai": "Ayame Mikage is here; Tamaki is scrupulously polite to her, and stands a little closer to {{user}} than she needs to."
+       },
+       {
+        "when": "present: Kaede",
+        "ai": "Kaede is here; Tamaki is fond of her, a little wary of how easily she laughs with {{user}}, and too proud to say so."
+       },
+       {
+        "when": "feels: Ayame infatuated",
+        "ai": "Tamaki has noticed how Ayame Mikage looks at {{user}}; she doesn't like it, says so once, quietly, and not again."
+       }
+      ]
      },
      {
       "id": "lover",
@@ -54587,6 +54783,16 @@
       "ai": "Ayame now comes to the sales in person to watch {{user}} lose, and cuts them in front of everyone at her gala: a pause, then the knife, a flush high on her cheeks she can't hide. She would sooner die than call what she feels anything but contempt.",
       "outfits": [
        "gala"
+      ],
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "Tamaki Kurahashi is here, who called the Mikage scroll a copy on television at fifteen. Ayame is exquisitely, freezingly polite to her, and watches how {{user}} looks at her."
+       },
+       {
+        "when": "present: Kaede",
+        "ai": "Kaede the dealer is here; Ayame treats her as a peddler beneath notice, and notices everything she does, above all how easily she touches {{user}}."
+       }
       ]
      },
      {
@@ -54637,6 +54843,24 @@
       "askLines": [
        "The Mikage house, {when}. The housekeeper sleeps at nine. Don't be late; I won't wait.",
        "{when}. You know where. Don't reply to this."
+      ],
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "Tamaki Kurahashi is here, who called the Mikage scroll a copy on television at fifteen. Ayame is exquisitely, freezingly polite to her, and watches how {{user}} looks at her."
+       },
+       {
+        "when": "present: Kaede",
+        "ai": "Kaede the dealer is here; Ayame treats her as a peddler beneath notice, and notices everything she does, above all how easily she touches {{user}}."
+       },
+       {
+        "when": "feels: Tamaki dating",
+        "ai": "Ayame knows {{user}} is dating Tamaki Kurahashi. She says it with contempt, and it only makes her want {{user}} more; it never ends anything between them, and she would never ask {{user}} to choose."
+       },
+       {
+        "when": "tier: Kaede 2",
+        "ai": "Ayame suspects {{user}} spends nights with the dealer; it makes her colder in words and hotter in everything else."
+       }
       ]
      },
      {
@@ -54665,7 +54889,8 @@
         "late nights at the house",
         "turning up unannounced",
         "jealousy",
-        "the gala dress kept on"
+        "the gala dress kept on",
+        "a threesome she wins"
        ],
        "drive": "high"
       },
@@ -54676,6 +54901,24 @@
       "askLines": [
        "I'm outside. {when}, or I come in anyway.",
        "The housekeeper is away. {when}. If you're late, I'll know who you were with."
+      ],
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "With Tamaki here Ayame is all ice and perfect manners, and finds a reason to touch {{user}}'s sleeve where Tamaki can see it."
+       },
+       {
+        "when": "present: Kaede",
+        "ai": "With Kaede here Ayame competes for {{user}} without admitting there is any competition: closer, colder, more possessive, and furious when Kaede laughs at her for it."
+       },
+       {
+        "when": "feels: Tamaki dating",
+        "ai": "Ayame knows {{user}} is dating Tamaki Kurahashi. She says it with contempt, and it only makes her want {{user}} more; it never ends anything between them, and she would never ask {{user}} to choose."
+       },
+       {
+        "when": "tier: Kaede 2",
+        "ai": "Ayame suspects {{user}} spends nights with the dealer; it makes her colder in words and hotter in everything else."
+       }
       ]
      }
     ],
@@ -54908,7 +55151,13 @@
       "sets": {
        "r": "interest"
       },
-      "ai": "Kaede likes {{user}} from the first visit and says so with a grin: she teases, haggles for the joy of it, and tells every piece's story, half of it true. She calls {{user}} \"kura-san\". She never promises anything and never pretends to want what she doesn't."
+      "ai": "Kaede likes {{user}} from the first visit and says so with a grin: she teases, haggles for the joy of it, and tells every piece's story, half of it true. She calls {{user}} \"kura-san\". She never promises anything and never pretends to want what she doesn't.",
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "Tamaki is here: Kaede is unusually gentle with the old man's granddaughter, and doesn't quite meet her eyes."
+       }
+      ]
      },
      {
       "id": "flirt",
@@ -54930,6 +55179,16 @@
       "ai": "Kaede flirts with {{user}} openly now and suggests more with a laugh: drinks on the tailgate, the harbour at night, a nickname that changes every week. She wants {{user}} and says so; she never asks for a promise, and is happy to hear about anyone else.",
       "outfits": [
        "offroad"
+      ],
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "Tamaki is here: Kaede is unusually gentle with the old man's granddaughter, and teases {{user}} about her only when Tamaki can't hear."
+       },
+       {
+        "when": "present: Ayame",
+        "ai": "Ayame Mikage is here; Kaede thinks the ice-queen collector is hilarious and flirts with {{user}} in front of her on purpose."
+       }
       ]
      },
      {
@@ -54977,6 +55236,24 @@
       "askLines": [
        "Van's parked by the harbour. {when}? Bring nothing. I've got tea.",
        "I'm in town till morning. {when}, yours or mine? Mine has wheels."
+      ],
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "Tamaki is here: Kaede is gentle with her and careful of her, and keeps her hands to herself where Tamaki can see."
+       },
+       {
+        "when": "present: Ayame",
+        "ai": "Ayame Mikage is here; Kaede flirts with {{user}} in front of her on purpose, and grins at every frozen look she gets back."
+       },
+       {
+        "when": "feels: Tamaki dating",
+        "ai": "Kaede knows {{user}} is with Tamaki and is glad of it, and says so; it changes nothing between her and {{user}}, and she would never make trouble for Tamaki."
+       },
+       {
+        "when": "tier: Ayame 2",
+        "ai": "Kaede has guessed about {{user}} and the rival, and teases {{user}} about it without a trace of jealousy."
+       }
       ]
      },
      {
@@ -55003,7 +55280,8 @@
         "a thrill of near-discovery",
         "roleplay",
         "no plan",
-        "a dare"
+        "a dare",
+        "a threesome, everyone asked first"
        ],
        "drive": "high"
       },
@@ -55014,6 +55292,24 @@
       "askLines": [
        "Dare of the night: {when}, the van. You can say no. You won't.",
        "{when}. I've got a bottle of Nagasaki shōchū and no plan. Coming?"
+      ],
+      "about": [
+       {
+        "when": "present: Tamaki",
+        "ai": "Tamaki is here: Kaede is gentle with her and careful of her, and keeps her hands to herself where Tamaki can see."
+       },
+       {
+        "when": "present: Ayame",
+        "ai": "Ayame Mikage is here; Kaede flirts with {{user}} in front of her on purpose, and wouldn't mind making it a bet, if everyone said yes."
+       },
+       {
+        "when": "feels: Tamaki dating",
+        "ai": "Kaede knows {{user}} is with Tamaki and is glad of it, and says so; it changes nothing between her and {{user}}, and she would never make trouble for Tamaki."
+       },
+       {
+        "when": "tier: Ayame 3",
+        "ai": "Kaede knows the rival is wild about {{user}}, finds it delightful, and has a bet in mind about it."
+       }
       ]
      }
     ],
@@ -58612,6 +58908,12 @@
     "weight": 40,
     "when": "present: Kaede; present: not Tamaki",
     "text": "The cleaner finds you both and Kaede waves at her, cheerfully, from where she is; the cleaner waves back before she thinks about it, and then hurries away."
+   },
+   {
+    "id": "guard_kaede",
+    "weight": 60,
+    "when": "museum: guard; present: Kaede; present: not Ayame",
+    "text": "The night guard's torch finds you; Kaede shades her eyes, grins at him and asks if he wants a cup of tea. He says no, thank you, very fast, and goes."
    }
   ]
  },
@@ -71873,6 +72175,17 @@
     "plaque": "She stopped pretending to be passing."
    },
    {
+    "id": "ag_kaede",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "The dealer. Unacceptable. Again.",
+    "icon": "🪙",
+    "hint": "A night with her and Kaede both.",
+    "adult": true,
+    "when": "did: tag:ayame_kaede with crush",
+    "plaque": "A night with the dealer there too, over a bet she meant to win."
+   },
+   {
     "id": "kl_spent_1",
     "hall": "kaede_ledger",
     "group": "trade",
@@ -72135,6 +72448,17 @@
     "adult": true,
     "when": "thread: kaede_dares",
     "plaque": "The back page crossed off in two hands."
+   },
+   {
+    "id": "kl_ayame",
+    "hall": "kaede_ledger",
+    "group": "bets",
+    "name": "Item 25: a bet with the rival.",
+    "icon": "🖤",
+    "hint": "A night with her and Ayame both.",
+    "adult": true,
+    "when": "did: tag:ayame_kaede with crush",
+    "plaque": "The ice queen in the van, outraged and staying; nobody won, both claimed it."
    },
    {
     "id": "mem_sl_tamaki_cabinet",
@@ -72500,9 +72824,9 @@
     "fees": [
      0,
      0,
+     50000,
      200000,
-     800000,
-     2500000
+     625000
     ],
     "min": 3,
     "wait": 7,

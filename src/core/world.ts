@@ -552,7 +552,10 @@ export interface PersonTier { id: string; name: string; when: When;
     invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[];
     /** (C-7) Once, as this tier opens: friendship toward you set to `f` (the rival starts hating you), romance raised
      *  to `r` when it's below (the heat a tier brings; never lowered). */
-    sets?: { f?: FriendLevel; r?: RomLevel } }
+    sets?: { f?: FriendLevel; r?: RomLevel };
+    /** (C-7) More for the AI while a condition holds (someone else here, how you stand with another person: `present:
+     *  Tamaki`, `feels: Tamaki dating`): the nearest reached tier's list, each line told while its `when` holds. */
+    about?: { when: When; ai: string }[] }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
