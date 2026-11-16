@@ -4,17 +4,20 @@
 // Sales tab (the next sale, its lots with estimates and the four top bids, the other collector's likely lots once the
 // curator is close enough to say, an in-person card, past results) and the Here tab (pieces sold where you are, or at a
 // festival's stall). Also the scene's "Museum pieces" row and the sale's in-person card, and a person's tier on their
-// People page. The engine owns every number (sim/museum.ts, sim/market.ts, sim/tiers.ts); this file only draws and
-// calls, and every value from the world goes through esc() (names and plaques in data-notr), pictures through safeUrl.
+// People page. (nature) The Museum tab's Dig card (on now or when it comes back, days dug and finds this season, what's
+// left of its pieces) and the workshop's Mount row for a piece of parts; the Here tab's "Could turn up here now". The
+// engine owns every number (sim/museum.ts, sim/market.ts, sim/tiers.ts, sim/dig.ts); this file only draws and calls,
+// and every value from the world goes through esc() (names and plaques in data-notr), pictures through safeUrl.
 import { esc, game, toast, notify, saveGame, type Save } from '../core/store.js';
-import { getWorld, worldFile, type WorldDef } from '../core/world.js';
+import { getWorld, worldFile, type WorldDef, type DigDef, type SlotDef } from '../core/world.js';
 import { money } from '../sim/needs.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { setPrompt } from '../st/bridge.js';
 import { percentOf } from '../sim/collection.js';
 import * as M from '../sim/museum.js';
 import * as K from '../sim/market.js';
-import { digOf } from '../sim/dig.js';
+import { digOf, digsOf, digStatesOf, digPool, thisSeason, seasonsDug, missingParts, findsHere, mountsHere, mountPiece, DIG } from '../sim/dig.js';
+import { whenHolds, parseWhen } from '../sim/when.js';
 import { tierOf, tierReached } from '../sim/tiers.js';
 import { tierNo } from '../sim/romance.js';
 import { SEASONS, seasonDays } from '../sim/time.js';
@@ -105,13 +108,16 @@ function showCard(g: Save, w: WorldDef): string {
         }).join('')}</ul></section>`;
 }
 function workshopCard(g: Save, w: WorldDef): string {
-    const fix = M.toRestore(g, w), reps = M.replicasHere(g, w), shop = M.hasUpgrade(g, w, 'workshop');
-    if (!fix.length && !reps.length) return '';
+    const fix = M.toRestore(g, w), reps = M.replicasHere(g, w), mounts = mountsHere(g, w), shop = M.hasUpgrade(g, w, 'workshop');
+    if (!fix.length && !reps.length && !mounts.length) return '';
     return `<section class="mu-mu-card"><h4>The workshop</h4><ul class="mu-mu-list">
         ${fix.map(r => `<li class="mu-mu-row" data-piece="${esc(r.id)}"><span><b data-notr>${esc(r.name)}</b><small>${esc(r.find ? 'Damaged find: it counts once restored' : 'Damaged: off the show until restored')}</small></span>
             ${r.ready !== undefined ? `<small>${esc(`Ready on day ${n(r.ready)}`)}</small>` : `<button data-act="mus-restore" data-id="${esc(r.id)}" ${off(!shop ? 'Needs the restoration workshop.' : g.player.money < r.fee ? `You need ${money(w, r.fee)}.` : '')}>${esc(`Restore · ${money(w, r.fee)}`)}</button>`}</li>`).join('')}
         ${reps.map(r => `<li class="mu-mu-row" data-piece="${esc(r.id)}"><span><b data-notr>${esc(r.name)}</b><small>A replica: it fills the slot, at half the renown; the real piece replaces it if it ever comes</small></span>
             <button data-act="mus-replica" data-id="${esc(r.id)}" ${off(g.player.money < r.price ? `You need ${money(w, r.price)}.` : '')}>${esc(`Make a replica · ${money(w, r.price)}`)}</button></li>`).join('')}
+        ${mounts.map(v => `<li class="mu-mu-row mu-mu-mount ${v.ready === undefined && v.why ? 'is-off' : ''}" data-piece="${esc(v.id)}"><span><b data-notr>${esc(v.name)}</b>
+            <small>${esc(v.ready !== undefined ? 'Every part is in: the workshop is putting it together' : `Every part is in: the workshop can mount it in ${plural(v.days, '1 day', '{0} days')}`)}</small>${v.ready === undefined && v.why ? `<small class="mu-mu-why">${esc(v.why)}</small>` : ''}</span>
+            ${v.ready !== undefined ? `<small>${esc(`Ready on day ${n(v.ready)}`)}</small>` : `<button data-act="mus-mount" data-id="${esc(v.id)}" ${off(v.why)}>${esc(`Mount · ${money(w, v.price)}`)}</button>`}</li>`).join('')}
     </ul></section>`;
 }
 function upgradesCard(g: Save, w: WorldDef): string {
@@ -125,6 +131,49 @@ function upgradesCard(g: Save, w: WorldDef): string {
             ${v.owned ? '<em>Built</em>' : `<button data-act="mus-up" data-id="${esc(v.u.id)}" ${off(v.why)}>${esc(`Build · ${money(w, v.price)}`)}</button>`}</li>`;
     }).join('')}</ul></section>`;
 }
+// (nature) A dig's card shows once its story is seen, read from the `seen:` parts of its actions' conditions (Tokyo:
+// the notice at Hijiri), or once a day has been dug there.
+function digKnown(g: Save, w: WorldDef, d: DigDef): boolean {
+    if (digStatesOf(g)[d.id]) return true;
+    const seen = d.actions.flatMap(id => parseWhen(w.actions.find(a => a.id === id)?.when).conds.filter(c => c.key === 'seen'));
+    return seen.length > 0 && seen.every(c => whenHolds(g, w, `seen: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`));
+}
+// When a dig comes back, from its condition's `season:` part ("autumn"); '' when it has none.
+export function digSeasonWord(d: DigDef): string {
+    const c = parseWhen(d.season).conds.find(x => x.key === 'season' && !x.not);
+    return c ? c.values.map(v => SEASONS.find(x => x.id === v.toLowerCase())?.name.toLowerCase() ?? v).join(' or ') : '';
+}
+// One of a dig's pieces you haven't got: its picture, its name, and how far along it is (parts, mounting, not yet).
+function digPieceHtml(g: Save, w: WorldDef, d: DigDef, s: SlotDef, pool: Set<string>): string {
+    const x = (s.sources ?? []).find(y => y.kind === 'dig' && y.id === d.id), parts = s.parts ?? [];
+    const have = parts.length - missingParts(g, s).length, mount = M.museumOf(g)?.mount?.[s.id];
+    const state = mount !== undefined ? `Mounting: ready day ${n(mount)}`
+        : parts.length && have === parts.length ? 'Ready to mount'
+        : parts.length && have ? `${n(have)} of ${n(parts.length)} parts` : '';
+    const later = !state && !pool.has(s.id) && !!x?.when && !whenHolds(g, w, x.when) ? 'Not yet' : '';
+    return `<li class="mu-mu-chip ${later ? 'is-later' : ''}" data-piece="${esc(s.id)}">${piecePic(w, s.pic, s.icon, 'mu-mu-chip-pic')}<span><b data-notr>${esc(s.name)}</b>${state || later ? `<small>${esc(state || later)}</small>` : ''}</span></li>`;
+}
+/** (nature) A dig's card in the Museum tab: on now (days dug and finds this season, of its most) or when it comes
+ *  back, the seasons dug, and what's left of its pieces. */
+function digCard(g: Save, w: WorldDef, d: DigDef): string {
+    const now = whenHolds(g, w, d.season, { day: true }), t = thisSeason(g, d.id), most = d.most ?? DIG.most, back = digSeasonWord(d);
+    const days = plural(t.days, '1 day dug', '{0} days dug');
+    const status = !now ? (back ? `Back in ${back}` : 'Not on now')
+        : t.found >= most ? `On now · ${days} · this season's finds are all in (${n(t.found)} of ${n(most)})`
+        : `On now · ${days}, ${n(t.found)} of ${n(most)} finds this season`;
+    const dug = seasonsDug(g, d.id), place = w.places.find(p => p.id === d.place)?.name ?? d.place;
+    const mine = M.displayHere(g, w).filter(s => (s.sources ?? []).some(x => x.kind === 'dig' && x.id === d.id));
+    const left = mine.filter(s => !M.hasPiece(g, s.id)), pool = new Set(digPool(g, w, d).map(f => f.s.id));
+    const what = !mine.length ? '' : left.length
+        ? `<small>${esc(`Still to come: ${n(left.length)} of ${n(mine.length)}`)}</small><ul class="mu-mu-chips">${left.map(s => digPieceHtml(g, w, d, s, pool)).join('')}</ul>`
+        : '<small>Everything from this dig is yours.</small>';
+    return `<section class="mu-mu-card mu-mu-dig ${now ? 'is-on' : ''}" data-dig="${esc(d.id)}"><h4>The dig</h4><p><b data-notr>${esc(d.name)}</b></p>
+        <small>${esc('At')} <span data-notr>${esc(place)}</span></small>
+        <p class="mu-mu-dig-now">${esc(status)}</p>
+        <small>${esc(dug ? plural(dug, '1 season dug so far', '{0} seasons dug so far') : now && t.days ? 'Your first season' : 'No season dug yet')}${d.lend && M.museumOn(w) ? ` · <span>${esc('its finds come to the museum on long loan')}</span>` : ''}</small>
+        ${what}</section>`;
+}
+const digCards = (g: Save, w: WorldDef) => digsOf(w).filter(d => digKnown(g, w, d)).map(d => digCard(g, w, d)).join('');
 /** The Museum tab: before it's yours, the cases at home and the offer; then the museum itself. */
 export function museumTab(g: Save, w: WorldDef): string {
     const m = M.museumDef(w)!, st = M.museumOf(g), offer = M.museumOffer(g, w);
@@ -140,7 +189,7 @@ export function museumTab(g: Save, w: WorldDef): string {
     const p = percentOf(g, w, false), cur = M.curatorOf(g, w);
     const head = `<section class="mu-mu-card mu-mu-head"><b class="mu-mu-name" data-notr>${esc(m.name)}</b><p><b class="mu-mu-big">${esc(n(p.pct))}%</b> <small>${esc(`${n(p.filled)} of ${n(p.counted)} pieces`)}</small></p>
         <small>${esc(`Yours since day ${n(st!.opened!)}`)}${cur ? ` · ${esc('curator:')} <span data-notr>${esc(cur.name)}</span>` : ''}</small>${visitorsLine(g, w)}</section>`;
-    return `${head}${renownCard(g, w)}${showCard(g, w)}${workshopCard(g, w)}${upgradesCard(g, w)}`;
+    return `${head}${renownCard(g, w)}${showCard(g, w)}${digCards(g, w)}${workshopCard(g, w)}${upgradesCard(g, w)}`;
 }
 
 /* ---------- the Dealer tab ---------- */
@@ -203,14 +252,20 @@ export function salesTab(g: Save, w: WorldDef): string {
 
 /* ---------- the Here tab and the scene's row ---------- */
 
-/** The pieces sold where you are (a place's own while it's open, a festival's stall during its days). */
+/** The pieces sold where you are (a place's own while it's open, a festival's stall during its days), and (nature)
+ *  what could turn up here now: the things to do here with a missing piece in its window, by name as the tiles say. */
 export function hereTab(g: Save, w: WorldDef): string {
-    const list = M.piecesHere(g, w);
-    if (!list.length) return '<p class="mu-muted">Nothing for the collection is sold here now.</p>';
-    return `<ul class="mu-mu-cards">${list.sort((a, b) => a.price - b.price).map(o => `<li class="mu-mu-piece" data-piece="${esc(o.id)}">${piecePic(w, o.slot.pic, o.icon)}<span><b data-notr>${esc(o.name)}</b>
+    const list = M.piecesHere(g, w), finds = findsHere(g, w);
+    if (!list.length && !finds.length) return '<p class="mu-muted">Nothing for the collection is sold here now.</p>';
+    const sold = list.length ? `<ul class="mu-mu-cards">${list.sort((a, b) => a.price - b.price).map(o => `<li class="mu-mu-piece" data-piece="${esc(o.id)}">${piecePic(w, o.slot.pic, o.icon)}<span><b data-notr>${esc(o.name)}</b>
         <small>${esc(`${money(w, o.price)}${o.src === 'festival' ? ' · a festival stall' : ''}`)}</small></span>
-        <button data-act="mus-buy-here" data-id="${esc(o.id)}" ${off(g.player.money < o.price ? `You need ${money(w, o.price)}.` : '')}>Buy</button></li>`).join('')}</ul>`;
+        <button data-act="mus-buy-here" data-id="${esc(o.id)}" ${off(g.player.money < o.price ? `You need ${money(w, o.price)}.` : '')}>Buy</button></li>`).join('')}</ul>` : '';
+    const could = finds.length ? `<section class="mu-mu-card mu-mu-could"><h4>Could turn up here now</h4><ul class="mu-mu-list">${finds.map(f => `<li class="mu-mu-could-row" data-action="${esc(f.id)}"><b data-notr>${esc(f.name)}</b>
+        <ul class="mu-mu-chips">${f.pieces.map(p => `<li class="mu-mu-chip" data-piece="${esc(p.id)}">${piecePic(w, p.pic, p.icon, 'mu-mu-chip-pic')}<span><b data-notr>${esc(p.name)}</b></span></li>`).join('')}</ul></li>`).join('')}</ul></section>` : '';
+    return `${sold}${could}`;
 }
+/** (nature) Has the Here tab anything where you are: pieces sold, or a find that could turn up now. */
+export const hereHasAny = (g: Save, w: WorldDef): boolean => !!g.player.loc && (M.piecesHere(g, w).length > 0 || findsHere(g, w).length > 0);
 /** How many pieces are sold where you are now (0 elsewhere, with the collection off, or none to sell). */
 export const piecesHereCount = (g: Save, w: WorldDef): number => (g.player.loc ? M.piecesHere(g, w).length : 0);
 /** The scene's rows: "Museum pieces" where a place (or a festival's stall) sells some, as the shop's "Shop here"; and
@@ -260,6 +315,7 @@ Object.assign(ACT, {
     'mus-show': (el) => { const c = C(); if (!c || blocked(el)) return; const r = M.startShow(c.g, c.w, el.dataset.id!); said(r.lines, r.ok); },
     'mus-restore': (el) => { const c = C(); if (!c || blocked(el)) return; const r = M.restorePiece(c.g, c.w, el.dataset.id!); said(r.lines, r.ok); },
     'mus-replica': (el) => { const c = C(); if (!c || blocked(el)) return; const r = M.makeReplica(c.g, c.w, el.dataset.id!); said(r.lines, r.ok); },
+    'mus-mount': (el) => { const c = C(); if (!c || blocked(el)) return; const r = mountPiece(c.g, c.w, el.dataset.id!); said(r.lines, r.ok); },
     'mus-buy-here': (el) => { const c = C(); if (!c || blocked(el)) return; const r = M.buyPiece(c.g, c.w, el.dataset.id!); said(r.lines, r.ok); },
     'mus-buy-dealer': (el) => {
         const c = C(); if (!c || blocked(el)) return;

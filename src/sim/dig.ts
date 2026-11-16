@@ -221,20 +221,23 @@ museumHooks.settleDig = settleDig;
 /* ---------- in season (the tiles' mark) ---------- */
 
 // The parts of a condition that follow the calendar by day: a season, a festival, a city event.
-const BY_DAY = new Set(['season', 'festival', 'event']);
-const dayParts = (when: When | undefined): string => parseWhen(when).conds.filter(c => BY_DAY.has(c.key)).map(c => `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`).join('; ');
+const BY_DAY = new Set(['season', 'festival', 'event']), BY_YEAR = new Set(['season', 'festival']);
+const dayParts = (when: When | undefined, keys = BY_DAY): string => parseWhen(when).conds.filter(c => keys.has(c.key)).map(c => `${c.key}: ${c.not ? 'not ' : ''}${c.values.join(' or ')}`).join('; ');
 /** Can a piece's way come round in the season now (from today to the season's last day)? A pure reading of its find,
  *  sold and festival ways: a way counts when its condition (a find's action's too) has a `season:`, `festival:` or
  *  `event:` part, or it's a festival's stall, and those parts hold on one of those days; a way with none is there all
- *  year and isn't "in season". No dice, nothing written. */
-function inSeason(g: Save, w: WorldDef, slot: string): boolean {
+ *  year and isn't "in season". No dice, nothing written. `yearly` (the tiles' mark, ui/collection.ts): only `season:`
+ *  and `festival:` parts count, since a city event can come every week (Yoyogi's Sunday flea market) and would mark a
+ *  piece in every season. */
+function inSeason(g: Save, w: WorldDef, slot: string, opts: { yearly?: boolean } = {}): boolean {
+    const keys = opts.yearly ? BY_YEAR : BY_DAY;
     const s = slotOf(w, slot);
     if (!s || !collectionOn(w)) return false;
     const from = g.day, to = (seasonIndex(g) + 1) * seasonDays(g);
     for (const x of s.sources ?? []) {
         if (x.kind !== 'find' && x.kind !== 'sold' && x.kind !== 'festival') continue;
         const a = x.kind === 'find' && x.action ? w.actions.find(y => y.id === x.action) : undefined;
-        const parts = [dayParts(x.when), dayParts(a?.when)].filter(Boolean).join('; ');
+        const parts = [dayParts(x.when, keys), dayParts(a?.when, keys)].filter(Boolean).join('; ');
         if (!parts && x.kind !== 'festival') continue;
         for (let day = from; day <= to; day++) {
             if (x.kind === 'festival' && (!x.id || !festivalsOn(g, w, day).some(f => f.id === x.id))) continue;
