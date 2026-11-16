@@ -19,7 +19,9 @@ import { offeredGoals } from './goals.js';
 export interface Got { day: number; how?: string; good?: boolean; by?: string; back?: boolean;
     /** (museum) a display piece: the source kind it came by, what it cost, a replica (CO-2), damaged and off the show
      *  until restored (the theft's; a damaged find isn't filled until restored, MU-4) */
-    src?: string; paid?: number; replica?: boolean; damaged?: boolean }
+    src?: string; paid?: number; replica?: boolean; damaged?: boolean;
+    /** (nature) the dig a piece came from (`src: 'dig'`) */
+    dig?: string }
 export interface CollectionState { got: Record<string, Got>; counted: string[]; had: string[]; seen?: number; v?: number }
 
 /** The system on and something to collect in this world. */
