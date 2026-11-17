@@ -549,7 +549,13 @@ export interface PersonTier { id: string; name: string; when: When;
     intimate?: Partial<IntimateProfile>;
     outfits?: string[];
     moves?: boolean;
-    invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[] }
+    invites?: boolean; inviteOdds?: number; moveLines?: string[]; askLines?: string[];
+    /** (C-7) Once, as this tier opens: friendship toward you set to `f` (the rival starts hating you), romance raised
+     *  to `r` when it's below (the heat a tier brings; never lowered). */
+    sets?: { f?: FriendLevel; r?: RomLevel };
+    /** (C-7) More for the AI while a condition holds (someone else here, how you stand with another person: `present:
+     *  Tamaki`, `feels: Tamaki dating`): the nearest reached tier's list, each line told while its `when` holds. */
+    about?: { when: When; ai: string }[] }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
@@ -889,10 +895,24 @@ export interface MuseumDef { place: string; name: string;
     eye?: { when: When; damaged: number };
     upgrades: MuseumUpgrade[];
     renown?: { levels: { at: number; name: string }[]; rung?: number[]; income?: number };
-    dealer?: { every: number; stock: number; more?: [number, number]; pity: number; ask?: number; late?: number };
+    dealer?: { every: number; stock: number; more?: [number, number]; pity: number; ask?: number; late?: number;
+        /** (C-7) the dealer is this one of the world's people (the market names her once she's in the game); `extra`:
+         *  from her tier `extra[0]` on, `extra[1]` more pieces a visit */
+        who?: string; extra?: [number, number] };
     auctions?: { place: string; days: number[]; from: number; lots: number; more?: [number, number];
-        rival?: { wants: number; top: [number, number]; perLevel?: number }; back?: number; again?: number };
-    shows?: { price: number; renown?: number; lasting?: number; most?: number; min?: number } }
+        rival?: { wants: number; top: [number, number]; perLevel?: number;
+            /** (C-7) the other collector is this one of the world's people */ who?: string }; back?: number; again?: number };
+    shows?: { price: number; renown?: number; lasting?: number; most?: number; min?: number };
+    /** (C-7) Someone's foundation borrowing your pieces for a season (see LoanDef). */
+    loans?: LoanDef }
+/** (museum, C-7) Someone borrowing your pieces for a season for a fee (the rival's foundation, RR-1). `who`: one of the
+ *  world's people (nothing while she isn't in the game); from when `when` holds, at the start of each season she asks
+ *  for one piece of yours on show of rung `min` (3) or more that you took from her at a sale (won over her bid, or sold
+ *  back by her), or one of `also` (slot ids); `fees`: the fee a season by rung R1…R5 (0: never asked); answered within
+ *  `wait` days (7); the piece is away (not on show: no renown; still yours, still counted) until the season's last day,
+ *  and not asked for again for `again` days (56). `label`: what it's lent for ("the Mikage Foundation's exhibition");
+ *  `place`: where it's shown (the AI is told there). */
+export interface LoanDef { who: string; when: When; fees: number[]; min?: number; wait?: number; again?: number; also?: string[]; label?: string; place?: string }
 /** (museum) An upgrade bought once: `opens` a hall (the wing that puts it on show), `needs` other upgrades first,
  *  `does` what the engine reads (a climate room, security, a night guard, the workshop, the reading room, the
  *  exhibition hall), `renown` it adds. */
@@ -964,7 +984,9 @@ export interface StoryResult { text: string; effects?: Record<string, number>; m
     /** (business) an upgrade (by id) of a venture you own that this turns up: found, it waits in the Business app until
      *  you buy it (a find story's result; nothing without the venture) */ finds?: string;
     /** (museum) Lasting renown for the museum (a milestone story) */ renown?: number;
-    /** (museum) The dearest piece on show needs restoring (the theft's worst outcome; never taken) */ damage?: boolean }
+    /** (museum) The dearest piece on show needs restoring (the theft's worst outcome; never taken) */ damage?: boolean;
+    /** (C-7) How some of the world's people's romance toward you changes (name → small change), as `feels` does
+     *  friendship: through the usual pacing, their caps and their tier */ romance?: Record<string, number> }
 /** (E2) A climate: per season, the odds of each kind of weather (weights: `sunny`, `hot`, `fair`, `humid`, `partly`,
  *  `cloudy`, `snow`, `rain`, `heavyrain`, `storm`); `days`: a stretch of a season with odds of its own (the rainy season,
  *  summer 1–5: days of the season as written, like festivals); `regional`: weather a region has on its own (`fujiview`,

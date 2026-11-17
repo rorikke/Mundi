@@ -22,6 +22,7 @@ import { tierOf, tierReached } from '../sim/tiers.js';
 import { tierNo } from '../sim/romance.js';
 import { SEASONS, seasonDays } from '../sim/time.js';
 import { ACT, INPUT } from './reg.js';
+import { loanCard } from './rivalui.js';   // (C-7)
 
 /** In memory only: the piece picked in the Dealer tab's "Ask for a piece". */
 export const MU = { ask: '' };
@@ -59,7 +60,7 @@ export function howItCame(g: Save, w: WorldDef, got: { day: number; src?: string
     }
 }
 /** Where a piece of yours is: on show in its wing, in the first room, in a case at home, or boxed. */
-export const whereWords = (at: string | undefined, open: boolean) => (at === 'wing' ? 'On show' : at === 'room' ? 'In the first room' : at === 'home' ? 'In a case at home' : open ? 'In the store' : 'Boxed');
+export const whereWords = (at: string | undefined, open: boolean) => (at === 'wing' ? 'On show' : at === 'room' ? 'In the first room' : at === 'home' ? 'In a case at home' : at === 'loan' ? 'On loan for the season' : open ? 'In the store' : 'Boxed');
 
 /* ---------- the Museum tab ---------- */
 
@@ -82,7 +83,7 @@ function renownCard(g: Save, w: WorldDef): string {
         <div class="mu-mu-renown-top"><b class="mu-mu-big">${esc(n(r))}</b><span>${lv.n ? `<b data-notr>${esc(lv.name)}</b><small>${esc(`Level ${n(lv.n)} of ${n(levels.length)}`)}</small>` : '<b>Not known yet</b>'}</span></div>
         <span class="mu-cl-bar mu-mu-bar"><b style="width:${Math.round(bar * 100)}%"></b></span>
         ${lv.next ? `<small>${esc(`Next at ${n(lv.next.at)}:`)} <span data-notr>${esc(lv.next.name)}</span>${brings.length ? ` · ${esc(brings.join(', '))}` : ''}</small>` : '<small>The highest level.</small>'}
-    </section>`;
+    </section>${loanCard(g, w)}`;   // (C-7) the rival's foundation borrowing a piece, beside the renown it costs
 }
 function visitorsLine(g: Save, w: WorldDef): string {
     const st = M.museumOf(g);
@@ -199,11 +200,13 @@ export function dealerTab(g: Save, w: WorldDef): string {
     if (!v.on) return '<p class="mu-muted">The dealer calls once the museum is yours.</p>';
     const stock = v.stock.length ? `<ul class="mu-mu-cards">${v.stock.map(x => {
         return `<li class="mu-mu-piece" data-piece="${esc(x.id)}">${piecePic(w, x.pic, x.icon)}<span><b data-notr>${esc(x.name)}</b>
-            <small>${esc(money(w, x.price))}${x.asked ? ' · asked for' : ''}${x.late ? ' · back from a sale' : ''}</small></span>
+            <small>${esc(money(w, x.price))}${x.asked ? ' · asked for' : ''}${x.late ? ' · back from a sale' : ''}${x.extra ? ' · from the back of the van' : ''}</small></span>
             <button data-act="mus-buy-dealer" data-id="${esc(x.id)}" ${off(x.why)}>Buy</button></li>`;
     }).join('')}</ul>` : '<p class="mu-muted">Nothing left this week.</p>';
     const days = v.days ?? 0;
-    const when = `<p class="mu-mu-when">${esc(days ? `${plural(days, '1 day left', '{0} days left')}: the next visit on day ${n(v.next!)}` : 'The next visit is today')}</p>`;
+    const when = `<p class="mu-mu-when">${esc(days ? `${plural(days, '1 day left', '{0} days left')}: the next visit on day ${n(v.next!)}` : 'The next visit is today')}</p>`
+        // (C-7) the dealer as a person, and her van at the museum on a visit's day
+        + (v.who ? `<p class="mu-mu-who"><span data-notr>${esc(v.who)}</span> ${esc(v.here ? 'is the dealer: her van is outside the museum today.' : 'is the dealer.')}</p>` : '');
     const ask = v.ask ? `<p class="mu-muted">${esc('Asked for:')} <b data-notr>${esc(v.ask.name)}</b> ${esc('— it comes within two visits.')}</p>`
         : v.askable.length ? (() => {
             const pick = v.askable.some(a => a.id === MU.ask) ? MU.ask : v.askable[0].id;
@@ -228,7 +231,7 @@ export function salesTab(g: Save, w: WorldDef): string {
     if (!v.on) return '<p class="mu-muted">The sales know you once the museum is yours.</p>';
     const reader = rivalReader(g, w), next = v.next;
     const head = next !== undefined ? `<section class="mu-mu-card mu-mu-sale"><h4>${esc(`The next sale: day ${n(next)}, ${n(v.hour ?? 0)}:00`)}</h4>
-        <small>${esc('At')} <span data-notr>${esc(v.placeName ?? '')}</span> ${esc('· bid by phone with your top bids, or be there as it starts to answer if you are outbid')}</small></section>` : '';
+        <small>${esc('At')} <span data-notr>${esc(v.placeName ?? '')}</span> ${esc('· bid by phone with your top bids, or be there as it starts to answer if you are outbid')}</small>${v.who ? `<small><span data-notr>${esc(v.who)}</span> ${esc('is the other collector.')}</small>` : ''}</section>` : '';
     const cards = v.card.map(c => `<section class="mu-mu-card mu-mu-salecard" data-piece="${esc(c.id)}"><p>${esc('The other collector outbids you on')} <b data-notr>${esc(c.name)}</b>.</p>
         <div class="mu-mu-btns"><button data-act="mus-card" data-id="${esc(c.id)}" data-v="1">${esc(`One more step · ${money(w, c.price)}`)}</button><button data-act="mus-card" data-id="${esc(c.id)}" data-v="0">Let it go</button></div></section>`).join('');
     // no lots: the catalogue is still to come, or (after the first) none comes before renown's first level

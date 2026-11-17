@@ -2,6 +2,7 @@
 // The format is in core/world.ts (WorldCollection); what plays it is sim/collection.ts.
 import type { WorldCollection, HallDef, SlotDef, PieceSource, WorldDef, SystemId, VentureDef, MuseumDef, MuseumUpgrade, DigDef } from './world.js';
 import { safeUrl } from './safe.js';
+import { upgradeRival } from './rival.js';   // (C-7) the dealer's and the rival's names, the loans
 
 /** A keepsake kind gets a record slot only when this game can have at least this many of it. */
 export const MIN_KIND = 3;
@@ -141,7 +142,7 @@ function museum(m: any, halls: Map<string, HallDef>): MuseumDef | undefined {
             out.shows = x;
         }
     }
-    return out;
+    return upgradeRival(m, out);
 }
 /** (nature) A world's digs made safe: an id, a place, at least one action and a season each (else dropped), ids unique,
  *  numbers held to their ranges. */

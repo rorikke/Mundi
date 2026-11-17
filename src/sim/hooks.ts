@@ -178,3 +178,6 @@ export const tierLink: {
 // isn't; else being caught there bans nothing, and `risk` multiplies the chance of being seen (the night guard's
 // rounds). sim/museum.ts fills it in.
 export const ownedPlaces: ((g: Save, w: WorldDef, place: string) => { risk: number } | null)[] = [];
+// (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
+// other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
+export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];

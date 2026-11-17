@@ -191,7 +191,8 @@ export function onShow(g: Save, w: WorldDef): Map<string, ShowWhere> {
     const out = new Map<string, ShowWhere>(), m = museumDef(w);
     if (!m) return out;
     const fix = museumOf(g)?.fix ?? {};
-    const mine = piecesHad(g, w).filter(s => !gotOf(g, s.id)!.damaged && fix[s.id] === undefined);
+    const away = (museumOf(g) as any)?.loans?.now?.id as string | undefined;   // (C-7) lent to the rival's foundation: away, no renown, still yours (sim/loans.ts)
+    const mine = piecesHad(g, w).filter(s => !gotOf(g, s.id)!.damaged && fix[s.id] === undefined && s.id !== away);
     if (!museumOpen(g, w)) { for (const s of mine.sort(dearestFirst).slice(0, m.cases ?? CASES)) out.set(s.id, 'home'); return out; }
     const rest: SlotDef[] = [];
     for (const s of mine) (hallOnShow(g, w, s.hall) ? out.set(s.id, 'wing') : rest.push(s));
