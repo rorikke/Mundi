@@ -40994,6 +40994,145 @@
    ]
   },
   {
+   "id": "ot_kura_st_royalty_25",
+   "place": "ot_kura",
+   "when": "museum: open; museum: 25%; present: Tamaki",
+   "title": "the publisher's book",
+   "setup": "A man from a Jinbōchō art publisher is waiting at the kura's door with a folder under his arm and his shoes very clean: they want a book of the kura's prints, a plate for every piece, and he has brought three cover proofs. Tamaki has already taken the proofs off him and is holding them to the window, one after the other, with a small frown.",
+   "choices": [
+    {
+     "label": "Let Tamaki choose the cover",
+     "text": "She takes a long time over it and picks the one you would have passed over. \"That one. The red's right.\" The man writes it down as though she were the publisher.",
+     "effects": {
+      "mood": 5
+     },
+     "rumor": "A Jinbōchō publisher is doing a book of the Yanaka kura's prints"
+    },
+    {
+     "label": "Ask for the Great Wave on the cover",
+     "text": "\"Everyone will,\" Tamaki says, \"and everyone will buy it.\" The man looks relieved. He leaves the proofs, and Tamaki pins your choice to the wall of the office.",
+     "effects": {
+      "mood": 4
+     },
+     "rumor": "A Jinbōchō publisher is doing a book of the Yanaka kura's prints"
+    },
+    {
+     "label": "Ask him how many copies",
+     "text": "\"Three thousand to start,\" he says, \"and we'd like to be wrong.\" Tamaki laughs before she can stop herself.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_royalty_50",
+   "place": "ot_kura",
+   "when": "museum: open; museum: 50%; present: Tamaki",
+   "title": "the documentary",
+   "setup": "A television crew has the kura for the day: cables along the floorboards, a light on a stand by every case, a director in a padded jacket asking for quiet every few minutes. They want you and Tamaki in front of the camera, walking the halls, saying what a piece is and why it's here.",
+   "choices": [
+    {
+     "label": "Walk the halls with Tamaki",
+     "roll": {
+      "skill": "charisma",
+      "dc": 12
+     },
+     "text": "You find a rhythm: you tell where a piece came from and she tells what it is, with her pause before the verdict. The director stops asking for second takes.",
+     "effects": {
+      "mood": 8
+     },
+     "rumor": "There's a television documentary about the Yanaka kura",
+     "fail": {
+      "text": "You talk over each other twice and the third time she nudges you with her elbow on camera. The director keeps that one.",
+      "effects": {
+       "mood": 5
+      },
+      "rumor": "There's a television documentary about the Yanaka kura"
+     }
+    },
+    {
+     "label": "Leave the talking to Tamaki",
+     "text": "She is better at it than either of you expected, once she forgets the camera and starts telling a netsuke's story to the sound man instead.",
+     "effects": {
+      "mood": 6
+     },
+     "rumor": "There's a television documentary about the Yanaka kura"
+    },
+    {
+     "label": "Stay behind the camera",
+     "text": "You watch on the monitor. On the little screen the kura looks bigger and older than it is, and full.",
+     "effects": {
+      "mood": 5
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_royalty_75",
+   "place": "ot_kura",
+   "when": "museum: open; museum: 75%; present: Tamaki",
+   "title": "the second print run",
+   "setup": "Two boxes from the printer stand in the kura's office: the catalogue's second run, for museum shops from Sapporo to Fukuoka. Tamaki has a red pen and the first copy open on her knees, looking for the mistakes she says are always there.",
+   "choices": [
+    {
+     "label": "Read the proofs with her",
+     "text": "Between you, you find one: a date on page forty that is out by a century. She circles it twice. \"Third printing,\" she says, satisfied.",
+     "effects": {
+      "mood": 6
+     }
+    },
+    {
+     "label": "Send a copy to everyone who helped",
+     "text": "You spend the afternoon writing addresses: the dealer, the people whose things are in the halls, the old woman from the corner shop. Tamaki does the stamps.",
+     "effects": {
+      "mood": 7
+     },
+     "rumor": "The Yanaka kura's catalogue is in museum shops all over Japan"
+    },
+    {
+     "label": "Put the first copy in the reading room",
+     "text": "It goes on the reading room's table, where anyone can take it down. By the end of the week its spine is already broken in.",
+     "effects": {
+      "mood": 5
+     },
+     "rumor": "The Yanaka kura's catalogue is in museum shops all over Japan"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_royalty_100",
+   "place": "ot_kura",
+   "when": "museum: open; museum: 100%; present: Tamaki",
+   "title": "the stamps",
+   "setup": "A man from Japan Post sits very straight on the kura's bench with a sheet of stamp designs in a plastic sleeve: ten of the collection's pieces, one to a stamp, for a commemorative issue. He needs the museum's signature, and he would like to know which piece goes in the middle.",
+   "choices": [
+    {
+     "label": "Ask Tamaki which",
+     "text": "She doesn't hesitate for once. \"The one my grandfather would have chosen,\" she says, and points, and doesn't explain. The man moves it to the middle.",
+     "effects": {
+      "mood": 8
+     },
+     "rumor": "Japan Post is issuing stamps from the Yanaka kura's collection"
+    },
+    {
+     "label": "Choose the first piece you ever found",
+     "text": "It's the smallest thing in the halls and the man looks doubtful, but Tamaki says \"Yes\" before he can argue.",
+     "effects": {
+      "mood": 7
+     },
+     "rumor": "Japan Post is issuing stamps from the Yanaka kura's collection"
+    },
+    {
+     "label": "Sign and keep a sheet for the office",
+     "text": "He leaves a proof sheet behind. Tamaki frames it the same afternoon and hangs it crooked on purpose, to see if you notice.",
+     "effects": {
+      "mood": 6
+     }
+    }
+   ]
+  },
+  {
    "id": "ot_kura_st_mikage_1",
    "place": "ot_kura",
    "when": "thread: ayame_scroll; present: Tamaki; weekday: thu; seasonDays: 1-7",
@@ -74981,6 +75120,45 @@
     ],
     "label": "the Mikage Foundation's season exhibition",
     "place": "rp_sky"
+   },
+   "royalties": {
+    "curve": [
+     {
+      "at": 10,
+      "pay": 10000
+     },
+     {
+      "at": 100,
+      "pay": 150000
+     }
+    ],
+    "steps": [
+     {
+      "at": 10,
+      "line": "Postcards of the Kurahashi kura's pieces are on the rack at the Yanaka shops: the museum's name earns royalties now, paid each Monday, and more for every piece it has.",
+      "ai": "Postcards of the kura's pieces sell in the Yanaka shops."
+     },
+     {
+      "at": 25,
+      "line": "A Jinbōchō publisher has written to the Kurahashi kura: they want a book of its prints, and they pay for the pictures. The royalties go up.",
+      "ai": "A Jinbōchō publisher is bringing out a book of the kura's prints."
+     },
+     {
+      "at": 50,
+      "line": "A television producer asks to film a documentary in the Kurahashi kura, and the rights to every picture of the halls are the museum's. The royalties go up.",
+      "ai": "A television documentary has been filmed in the kura's halls."
+     },
+     {
+      "at": 75,
+      "line": "The Kurahashi kura's catalogue goes to a second print run, for museum shops across the country. The royalties go up.",
+      "ai": "The kura's catalogue is sold in museum shops across Japan."
+     },
+     {
+      "at": 100,
+      "line": "Japan Post asks for a set of stamps from the Kurahashi kura's halls: the whole collection is on the counter of every post office for a season. The royalties are at their highest.",
+      "ai": "Japan Post has brought out a set of stamps from the kura's collection."
+     }
+    ]
    }
   },
   "digs": [
