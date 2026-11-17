@@ -2633,6 +2633,10 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-fix.is-have { box-shadow: 0 0 0 2px rgba(19, 207, 224, .55), 0 4px 12px rgba(0, 0, 0, .3); }
 #mundi-root .mu-hu-ask p { margin: 0 0 10px; }
 #mundi-root .mu-hu-ask .mu-row { gap: 8px; flex-wrap: wrap; }
+/* Homes you let (R-a): each home's card under the one you live in and the second, a line between them, its buttons
+   wrapping on a narrow phone. */
+#mundi-root .mu-home-let + .mu-home-let { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .08); }
+#mundi-root .mu-home-let .mu-row { flex-wrap: wrap; }
 /* The museum (ui/collection.ts, ui/museumui.ts): display pieces as picture tiles in a grid (darkened when missing,
    gold for a bonus piece or a good ending, marks for Replica and Damaged), the museum's tabs (Museum, Dealer, Sales,
    Here) as cards and rows, the four top bids, the scene's sale card, and a person's tier on their People page */

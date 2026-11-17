@@ -57,7 +57,7 @@ import { knownHtml } from './personui.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
-import { HU, ownedHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
+import { HU, ownedHtml, letHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -441,6 +441,7 @@ function homesApp(g, w) {
         ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}
         ${ownedHtml(g, w)}
         </section>
+        ${letHtml(g, w)}
         ${forSaleHtml(g, w)}
         <section><h4>${T('homesForRent')}</h4>
         ${(() => {

@@ -294,6 +294,7 @@ function effectWords(w, e) {
             const what = t === 'sleep home' ? 'Sleep at home' : t === 'sleep together' ? 'Sleeping together' : t === 'bath' ? 'A bath' : t === 'food' ? 'A meal' : t ? `${t[0].toUpperCase()}${t.slice(1)}` : 'Rest';
             return `${what} restores ${pct(v)} more`;
         }
+        case 'letting': return `Rent from your tenants ${v >= 0 ? '+' : '−'}${pct(v)}`;
         case 'price': return `Prices ${pct(v)} ${v <= 0 ? 'lower' : 'higher'}${t ? ` (${t})` : ''}`;
         default: return `${e.kind} ${EFFECT_KINDS[e.kind]?.mode === 'mul' ? `${v >= 0 ? '+' : '−'}${pct(v)}` : plus(v)}${t ? ` (${t})` : ''}`;
     }
