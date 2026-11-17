@@ -15,12 +15,10 @@ Ideas planned for later. Nothing here is promised for a date.
 - **The other worlds' businesses:** Porto Alto's, Nova Vega's and Valdoria's small businesses on the business engine,
   with upgrades, tiers and stories.
 
-## Homes, shops and the museum
+## Homes and shops
 
 - **Homes:** parties at the second home with guests staying the night; homes for sale in the other worlds.
 - **Shops:** the other worlds' shops grown the way Tokyo's was (Porto Alto's, the Shared House's).
-- **The copyist:** a short story: fakes turn up in Kaede's van, and Tamaki, Ayame and Kaede trace them to the hand that
-  painted the Mikage "Sesshū"; choices for all three, an adult side when adult content is on, nothing to buy twice.
 
 ## Storylines
 
