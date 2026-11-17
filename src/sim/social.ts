@@ -23,7 +23,8 @@ import { onKeepsake } from './hooks.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
-export type PlanKind = 'hangout' | 'date' | 'party';
+// (photography) `shoot`: the subject of a photo brief comes to the shoot's place at the time set (sim/assignments.ts).
+export type PlanKind = 'hangout' | 'date' | 'party' | 'shoot';
 export type PlanState = 'set' | 'met' | 'missed' | 'cancelled';
 export interface Appointment { id: string; avatar: string; place: string; from: number; to: number; kind: PlanKind; state: PlanState; come?: boolean; warned?: boolean; title?: string }
 export interface Companion { avatar: string; until: number }

@@ -92,7 +92,7 @@ export function slotsHere(g: Save, w: WorldDef): SlotDef[] {
 
 // Stories that belong to the Business app and the jobs, not to a district; (museum) nor the museum's and the end game's
 // people's (its milestones at the museum, a tier).
-const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent', 'board', 'record']);
+const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent', 'board', 'record', 'photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance']);
 const seenOf = (g: Save) => ((g as any).stories?.seen ?? {}) as Record<string, { day: number; choice?: number }>;
 // A person a story names who left the map or isn't in this game.
 const personGone = (g: Save, name: string) => { const r = personNamed(g, name); return !r || goneFromMap(r); };

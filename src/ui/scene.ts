@@ -7,6 +7,7 @@ import { lex } from '../core/lexicon.js';
 import { setPrompt } from '../st/bridge.js';
 import { socialCheck } from '../sim/judge.js';
 import { pictureAt } from '../sim/daynight.js';
+import { NEAR } from '../sim/photo.js';   // (the nearest expression a set has: shared with the photos)
 import { looksAt } from '../sim/worldstate.js';
 import { nativeHost } from './native.js';
 import { lockScene } from '../sim/life.js';
@@ -103,14 +104,6 @@ export function formatText(t: string) {
 
 /* ---------- sprites ---------- */
 
-// A set with only some of the expressions (an outfit drawn in five): the nearest one it has, before neutral.
-const NEAR: Record<string, string[]> = {
-    excitement: ['desire', 'joy'], curiosity: ['surprise', 'embarrassment'], admiration: ['love', 'joy'],
-    nervousness: ['embarrassment', 'fear'], fear: ['nervousness', 'embarrassment'], surprise: ['embarrassment', 'joy'],
-    confusion: ['embarrassment', 'surprise'], realization: ['surprise', 'embarrassment'], remorse: ['sadness', 'embarrassment'],
-    caring: ['love'], gratitude: ['love', 'joy'], relief: ['love', 'joy'], approval: ['love', 'joy'], optimism: ['joy', 'love'],
-    amusement: ['joy'], pride: ['joy'], desire: ['love'], love: ['desire', 'caring'], embarrassment: ['nervousness'],
-};
 function spriteFor(avatar: string, label: string | null): string {
     const list = state.sprites[avatar];
     if (list === undefined) {

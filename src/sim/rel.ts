@@ -12,7 +12,7 @@ import { CURVES, HALF_LIFE, PACE, faded, paced, rawFor, rateAt, type Curve, type
 import { tierLink } from './hooks.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
-import type { IntimateProfile } from '../core/world.js';
+import type { IntimateProfile, CameraRule } from '../core/world.js';
 
 export const YOU = '__you';
 export type Meter = 'f' | 'r';
@@ -32,7 +32,9 @@ export type Pace = PaceId;
  *  else `'you'`. In a save, `att` alone counts (missing: everyone). */
 export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile;
     /** (museum, people who unlock: sim/tiers.ts) the highest tier reached and the day; gains past a cap held for the next */
-    tier?: { n: number; day: number }; held?: { f?: number; r?: number } }
+    tier?: { n: number; day: number }; held?: { f?: number; r?: number };
+    /** (photography) in front of a camera (ExampleCharacter.camera); read through `cameraOf` in sim/photo.ts */
+    camera?: CameraRule }
 export type AttMode = 'you' | 'set';
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */

@@ -170,6 +170,14 @@ export interface HomeKind {
     guests?: number;
     /** (housing) Fixtures that come with a home of this kind when you buy it (the villa's hot-spring bath). */
     fixtures?: string[];
+    /** (photography) A place to work, never lived in, let or anybody's home (a photo studio: `homes.studios`). */
+    work?: boolean;
+}
+/** (photography, housing) A photo studio you can rent or buy (`homes.studios`): a zone of its own with one spot, kept
+ *  out of `homes.zones` so no list of homes sees it. Its own pictures (the kind's otherwise), what comes with it, and
+ *  `given`: never offered (only an ending gives it, `ThreadEnding.studio`). Read by sim/studio.ts. */
+export interface StudioZone extends HomeZone {
+    image?: string; images?: Record<string, string>; fixtures?: string[]; given?: boolean;
 }
 /** (housing) A room or fixture of a home you own (a sauna, a grand piano, a rooftop terrace): a shop item's shape
  *  (`effects`, `ai`, `told`, `seen`, `adult`, `when`; never `at`, `online`, `repeat`, `now`, `keepsake`, `travel`,
@@ -245,6 +253,8 @@ export interface ActionDef {
     /** (E14) A keepsake it always leaves (an id from the world's `keepsakes`); an outcome's or a roll result's own
      *  keepsake only when that one comes out. */
     keepsake?: string;
+    /** (photography) Doing it takes a photo, kept in the Lens app (the place as it was, a friend with you in the frame). */
+    photo?: true;
     /** (E14) What's remembered and told to the AI ({u} the player, {0} the place): "{u} ate ramen at {0}". */
     fact?: string;
     /** (J3) The skill it trains a little (an id from the world's `skills`). */
@@ -346,7 +356,11 @@ export interface Rank { name: string; pay: number; needs?: Record<string, number
  *  job's own (`adult-stage` for a streamer's adult shows), which effects aim at as they do at a job's. `pace`: its ranks
  *  take this many times as long to reach (a slow, hard path: 1.6), as a job track's `pace` does. */
 export interface BranchOption { id: string; name: string; desc?: string; ranks: Rank[]; promote?: number[]; likes?: string[]; after?: string[];
-    adult?: boolean; hire?: When | When[]; closed?: string; tags?: string[]; pace?: number }
+    adult?: boolean; hire?: When | When[]; closed?: string; tags?: string[]; pace?: number;
+    /** (photography) A path with no shifts (a freelance photographer's): its ranks' `pay` is a weekly retainer, paid
+     *  for a week with at least one delivery, and a delivery counts as a shift toward promotion (sim/freelance.ts).
+     *  Its ranks set `days` (deliveries a week, nominally). The world's people never draw such a path. */
+    freelance?: boolean }
 export interface Branch { at: number; options: BranchOption[] }
 // A career as you live it: the job's ranks up to its first branch, then the ranks of each path you chose. `open`: a
 // branch waiting for your choice (you are at its rank); the next promotion comes once you choose. `pace`: per rank,
@@ -463,7 +477,8 @@ export interface WorkEvent { id: string; setup: string; when?: When; choices: Wo
  *  −2…2), money, how some of the world's people feel about you (`feels`: name → friendship points, 2–5 for "a
  *  little"), a fact; `fail`: what happens instead when the roll fails. `when`: only offered then (`present: Mio`). */
 export interface WorkChoice extends WorkResult { label: string; roll?: { skill?: string; dc: number }; fail?: WorkResult; when?: When;
-    /** (optional) a name a private overlay can rewrite it by, keeping its numbers (as an outcome's `id`) */ id?: string }
+    /** (optional) a name a private overlay can rewrite it by, keeping its numbers (as an outcome's `id`) */ id?: string;
+    /** (photography) it takes a photo, kept in the Lens app, when it succeeds */ photo?: true }
 export interface WorkResult { text?: string; perf?: number; money?: number; effects?: Record<string, number>; feels?: Record<string, number>; fact?: string; /** (E31) a rumor it starts at work */ rumor?: string;
     /** (H) a skill it trains a little (a roll's own skill is trained anyway) */ trains?: string;
     /** (adult) a chance (0–1) the job gets raided over this, rolled with the `risk` effects as an action's is: the job's
@@ -533,7 +548,13 @@ export interface ExampleCharacter {
     /** (museum) Attracted to the player whatever the player's gender, and to no one else: no romance toward, couple with or
      *  fling with another person forms by itself; not on the dating app; never leaves the maps. */
     reserved?: boolean;
+    /** (photography) In front of a camera: `never` (no photos of them at all), `noface` (only from behind), `work` (only
+     *  for work: never an adult brief or a private session), `ask` (they're asked first). Missing: free. Read with adult
+     *  content on or off; an overlay may make it stricter, never looser. Read through `cameraOf` in sim/photo.ts. */
+    camera?: CameraRule;
 }
+/** (photography) How someone stands in front of a camera, from the freest to the strictest (see ExampleCharacter.camera). */
+export type CameraRule = 'ask' | 'work' | 'noface' | 'never';
 /** (museum, people who unlock) A tier of an end-game character, reached the first time `when` holds (latched: never
  *  lost). `caps`: the highest friendship, romance and couple status toward the player this tier allows (missing: no cap;
  *  status `none`: no couple at all; before the first tier is reached, the first tier's caps hold); `hold`: whether a
@@ -615,7 +636,10 @@ export interface ThreadEnding { id: string; when?: When; text: string; job?: str
      *  off or with someone romance is closed to. */
     couple?: 'dating' | 'engaged' | 'married';
     /** (museum) Its person moves in with the player (Tamaki's `partner`), when they're partners (dating or more) by then. */
-    movesIn?: boolean }
+    movesIn?: boolean;
+    /** (photography, housing) It gives the player this photo studio (a `homes.studios` zone) for free; a studio they
+     *  had is given up first (sold, or its rent ended), with a message. */
+    studio?: string }
 /** (storylines) Help in a deciding scene: money (0…10,000,000) and/or hours together (0…8), a label for the button. */
 export interface ThreadHelp { when: When; money?: number; hours?: number; remote?: boolean; only?: boolean; label: string }
 /** (E15) An intimate profile, character-sheet style: experience (a line), what they want, what draws them, how they
@@ -731,7 +755,9 @@ export interface WorldDef {
     homes: { zones: HomeZone[]; kinds: Record<string, HomeKind>;
         expenses?: { id: string; name: string; icon?: string; blocks?: string[]; cut?: string; back?: string }[];
         /** (housing) Rooms and fixtures you can buy for a home you own. */
-        fixtures?: HomeFixture[] };
+        fixtures?: HomeFixture[];
+        /** (photography, housing) Photo studios to rent or buy, one at a time (see StudioZone). */
+        studios?: StudioZone[] };
     statuses: StatusDef[];
     actions: ActionDef[];
     sleep: { until: number; restore: Record<string, number>; homeOnly?: boolean };
@@ -810,6 +836,9 @@ export interface WorldDef {
     keepsakes?: KeepsakeDef[];
     /** (collection) Halls of display slots and the completion record (Tokyo memories): see WorldCollection. */
     collection?: WorldCollection;
+    /** (photography) The photo gigs: reputation, the boards' clients and briefs, photobooks, the hourly studio (see
+     *  PhotoDef; made safe by core/photo.ts). Missing: no Lens app, no boards, no photobooks. */
+    photo?: PhotoDef;
     /** (E17, E28) Street stories: short one-off stories that happen at a place (see StoryDef). */
     stories?: StoryDef[];
     /** (E14) Outcome tables shared by several actions (Tokyo's `omikuji`: one table for every shrine and temple, each
@@ -888,6 +917,67 @@ export interface WorldCollection { halls: HallDef[]; slots: SlotDef[]; minKind?:
  *  season at most. `lend`: its finds go only to an open museum, on loan. */
 export interface DigDef { id: string; name: string; place: string; actions: string[]; season: When;
     chance?: number; sure?: number; most?: number; lend?: boolean }
+/** (photography) A world's photo gigs (`WorldDef.photo`, made safe by `upgradePhoto` in core/photo.ts; played by
+ *  sim/photo.ts and sim/assignments.ts). `words`: the photography reputation in words from these floors up (default:
+ *  0 unknown, 20 getting noticed, 50 in demand, 80 a name). `small`: the small board anyone with a camera has (gigs at
+ *  once, a new one every so many days, the reputation it can raise you to). `full`: the job's board (briefs at once by
+ *  rank). `keepsakes`: keepsakes the Lens app shows as photos besides those of kind `photo`. `rental`: a studio rented
+ *  by the hour (where, its price an hour, while `when` holds; `fallback` the plain one used when it doesn't). `job`: the
+ *  job these rules belong to. `weddingAt`: where the world's weddings are shot (the first open that day). */
+export interface PhotoDef {
+    words?: { at: number; text: string }[];
+    small?: { size?: number; every?: number; cap?: number };
+    full?: { min?: number; max?: number };
+    clients: PhotoClient[];
+    briefs: BriefDef[];
+    books?: PhotobookDef[];
+    keepsakes?: string[];
+    rental?: { at: string; price: number; when?: When; fallback?: { at: string; price: number } };
+    job?: string;
+    weddingAt?: string[];
+}
+export type PhotoKind = 'magazine' | 'wedding' | 'event' | 'portrait' | 'stock';
+export type ClientKind = 'magazine' | 'wedding' | 'event' | 'portrait' | 'small';
+/** (photography) Who a brief is for. `floor`: the reputation it asks for to offer anything; `contact`: how it becomes a
+ *  contact (`job`: the first delivery for it while you hold the job; `always`: from the start; or a condition);
+ *  `pay`: its briefs' pay × this (1 by default). */
+export interface PhotoClient {
+    id: string; name: string; icon?: string; desc?: string; kind: ClientKind;
+    floor?: number; contact?: 'job' | 'always' | When; pay?: number; adult?: boolean;
+}
+/** (photography) A brief as a client writes it. `board`: the small board or the job's full one; `branches`: the
+ *  freelance paths it's mostly offered in; `places`: one of them (or `studio`: any photo studio); `window`: when it can
+ *  be shot (the light, the weather, a festival); `days`: its deadline (5); `pay`: at quality 50, before the client's
+ *  and the difficulty; `rep`: reputation at five stars (3 small, 5 full); `floor`/`contact`: asks for reputation, for
+ *  the client as a contact; `needs`: skills; `rung`: a camera at least this good; `gear`: gear kinds; `studio`: a
+ *  studio (and that fixture in it); `dc` (12), `hours` (1–3); `when`: when it can be offered at all; `book`: part of a
+ *  photobook project. */
+export interface BriefDef {
+    id: string; client: string; name: string; text: string;
+    board: 'small' | 'full'; kind: PhotoKind;
+    branches?: string[]; places: string[]; window?: When; days?: number;
+    pay: number; rep?: number; floor?: number; contact?: boolean;
+    needs?: Record<string, number>; rung?: number; gear?: string[];
+    studio?: boolean | 'cyc' | 'dressing';
+    subject?: SubjectDef; dc?: number; hours?: number;
+    when?: When; book?: string; adult?: boolean;
+}
+/** (photography) Who is in front of the camera: a person by name, `couple` (a wedding's two), `cast` (someone the
+ *  board picks among the people you know), `client` (an anonymous one); the expression wanted (one of the 28, `back`:
+ *  from behind), the outfit, whether they're asked first, and the scene's words for the AI. */
+export interface SubjectDef { who: string; expr?: string; outfit?: 'clothes' | 'naked'; consent?: boolean; scene?: string }
+/** (photography) A photobook a publisher can offer: a city, a person (`who`) or a season; `briefs` to shoot (3–5);
+ *  `pay`: weekly royalties by sales at the start, fading to nothing over `weeks`; `ai`: what the AI is told once out. */
+export interface PhotobookDef {
+    id: string; name: string; kind: 'city' | 'person' | 'season'; who?: string; briefs: number;
+    pay: number; weeks?: number; adult?: boolean; ai?: string;
+}
+/** (photography) What a shop item or fixture is as photo gear (`ShopItem.photo`), read by the engine itself (not as
+ *  effects) so a shoot can name what added: a kind (`camera`, `lens`, `flash`, `drone`, `housing`, `rig`, `cyc`,
+ *  `dressing`, `desk`, `darkroom`), a camera's or lens's rung (1–5), quality points it adds to a shoot or an edit, the
+ *  studio work it opens. */
+export interface PhotoGear { gear: string; rung?: number; shoot?: number; edit?: number; studio?: string }
+
 /** (museum) A museum of your own. `place`: hidden until it's yours. `offer`: when it can be taken on and its price;
  *  `cases`: pieces on show at home before it opens; `room`: pieces its first room shows (any hall) before wings;
  *  `curator`: one of the world's people, given `curatorJob` when it opens. `renown`: levels, renown per piece on show by
@@ -1052,6 +1142,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'campus', name: 'Campus', icon: 'cap', color: '#2f7dd1', on: true },
     { id: 'business', name: 'Business', icon: 'store', color: '#b86b2e', on: true },
     { id: 'collection', name: 'Collection', icon: 'museum', color: '#c0883a', on: true },
+    { id: 'photos', name: 'Lens', icon: 'camera', color: '#3a8fb7', on: true },
     { id: 'sheet', name: 'Character', icon: 'user', color: '#e0533f', on: true, rpg: true },
     { id: 'quests', name: 'Quests', icon: 'map', color: '#c08a2e', on: true, rpg: true },
     { id: 'grimoire', name: 'Grimoire', icon: 'sparkles', color: '#7b5cff', on: true, rpg: true },
@@ -1074,18 +1165,18 @@ export const appsOf = (w: WorldDef): AppDef[] => {
 };
 // The apps the player sees: on in the world, and their system on too.
 // A scenario's phone is smaller: one house, so no moving, holdings, factions or reputation per region.
-export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'social', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection'];
+export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'social', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos'];
 /** Systems a scenario never has: no neighbors (everyone lives in the house), no social network, no crafting. */
 // Home (a scenario): a simpler world made for role-play with your characters in one house. Work, money, courses,
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'photography'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
 const hasDegrees = (w: WorldDef) => (w.institutions ?? []).some(i => (i.degrees ?? []).length);
-export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
+export const appsShown = (w: WorldDef): AppDef[] => appsOf(w).filter(a => a.on && (a.id !== 'campus' || hasDegrees(w)) && (a.id !== 'business' || !!w.ventures?.length) && (a.id !== 'collection' || !!w.collection?.halls?.length) && (a.id !== 'photos' || !!w.photo) && !(isScenario(w) && SCENARIO_APPS_OFF.includes(a.id)) && !(gameMode(w) === 'lifesim' && LIFESIM_APPS_OFF.includes(a.id)) && (!appSystem(a.id) || systemOn(w, appSystem(a.id)!)) && (!DEFAULT_APPS.find(d => d.id === a.id)?.rpg || (gameMode(w) === 'rpg' && !!w.rpg?.classes?.length)));
 const registry = new Map<string, WorldDef>();
 export const BUILT_IN = ['modern', 'urban', 'medieval', 'house', 'manor', 'tokyo'];
 export type GameMode = 'lifesim' | 'rpg' | 'custom';
@@ -1125,7 +1216,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection';
+    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'photography';
 /** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
  *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
@@ -1395,6 +1486,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'trade', name: 'Trade and smuggling', desc: 'no goods to buy and sell between towns, no contraband.', apps: [], blocks: [] },
     { id: 'business', name: 'Running a business', desc: 'no café of your own and no executive\'s division: no ventures to open, grow or run.', apps: ['business'], blocks: ['business'] },
     { id: 'collection', name: 'Collection', desc: 'nothing collected: no Collection app and no record of what you have done.', apps: ['collection'], blocks: [] },
+    { id: 'photography', name: 'Photography', desc: 'no Lens app, no photo gigs or reputation, no photobooks (taking photos and the skill stay).', apps: ['photos'], blocks: [] },
     { id: 'property', name: 'Property and businesses', desc: 'you cannot buy houses to rent out or open a business.', apps: ['assets'], blocks: [] },
     { id: 'banks', name: 'Banks and moneylenders', desc: 'nobody lends money.', apps: [], blocks: [] },
     { id: 'farming', name: 'Growing things', desc: 'nothing to plant at home.', apps: [], blocks: [] },

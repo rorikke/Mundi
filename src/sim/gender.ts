@@ -8,6 +8,7 @@
 import { adultOn, game, type Save, type Resident } from '../core/store.js';
 import { getWorld, systemOn, INTIMATE_ROLES, INTIMATE_DRIVES, type WorldDef, type GenderDef, type ExampleCharacter, type IntimateProfile } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
+import { CAMERA_RULES } from '../core/photo.js';
 import { relOf, idOf, pairOf, YOU, type Person, type Attraction } from './rel.js';
 import { saveSeed } from './relations.js';
 import { isMinor } from './family.js';
@@ -52,6 +53,7 @@ export function cleanPerson(raw: any): Person | undefined {
     if (raw.attMode === 'you' || raw.attMode === 'set') p.attMode = raw.attMode;
     const intimate = cleanIntimate(raw.intimate);
     if (intimate) p.intimate = intimate;
+    if (CAMERA_RULES.includes(raw.camera)) p.camera = raw.camera;   // (photography)
     return Object.keys(p).length ? p : undefined;
 }
 // (E15) An intimate profile: short lines and short lists of plain words, nothing else; undefined when empty.
