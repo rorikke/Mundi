@@ -23,7 +23,14 @@ import { letBlock, nextMonday, putUp, canLeave, leaveOwned, moveIn, type Leave }
 /** Who makes a week sure to have a tenant (track 7's "A good tenant" reward pushes here): none now. */
 export const tenantSure: ((g: Save, w: WorldDef, o: Owned) => boolean)[] = [];
 
-const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
+// (FNV-1a, then a final mix: without it, strings that differ only in their last characters, the week number, give
+// neighbouring values, and a home's tenant weeks came in long runs instead of three in four)
+const H = (s: string) => {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+};
 /** The week a day is in (week 0 is days 1–7; day 1 is a Monday). */
 export const weekNo = (day: number) => Math.floor((Math.max(1, day) - 1) / 7);
 const firstDay = (n: number) => n * 7 + 1;
