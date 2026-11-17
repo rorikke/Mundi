@@ -882,13 +882,16 @@ function threadHolds(g, w, values, x) {
     const there = values.filter(here);
     return !there.length || there.some(v => holds(g, w, 'thread', v, x));
 }
-/** The storylines of the people in this game (an adult person's, or an adult thread, only with adult content on), by id. */
+/** Whether everyone else a storyline needs (`Thread.with`) is in this game too. */
+export const withHere = (g, t) => !t.with?.length || t.with.every(n => !!personNamed(g, n));
+/** The storylines of the people in this game (an adult person's, or an adult thread, only with adult content on; one
+ *  that needs someone who isn't here, not at all), by id. */
 export function threadsInGame(g, w) {
     const out = new Set();
     for (const r of Object.values(g.cast ?? {})) {
         const ex = exampleOf(w, r);
         for (const t of ex?.threads ?? [])
-            if (t.id && ((!t.adult && !ex?.adult) || adultOn(g)))
+            if (t.id && ((!t.adult && !ex?.adult) || adultOn(g)) && withHere(g, t))
                 out.add(t.id);
     }
     return out;

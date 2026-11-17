@@ -612,6 +612,13 @@ function upgradeThread(t) {
     for (const k of ['opensOnly', 'noLast'])
         if (k in t && t[k] !== true)
             delete t[k];
+    if ('with' in t) {
+        const names = Array.isArray(t.with) ? t.with.filter((x) => typeof x === 'string' && x.trim()) : [];
+        if (names.length)
+            t.with = names;
+        else
+            delete t.with;
+    }
     // (NE-1) a stage's appointment: a place, hours and what they're doing, or nothing
     for (const st of Array.isArray(t.stages) ? t.stages : []) {
         if (!st || typeof st !== 'object' || !('ritual' in st))

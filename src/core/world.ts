@@ -588,7 +588,9 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
      *  player by a friendship level and it waits again, once; ignored a second time, it ends without the player. */
     ignored?: 'end' | 'cool';
     /** (museum, people who unlock) Opens only through `opens` (friendship alone doesn't open it). */ opensOnly?: boolean;
-    /** (museum, people who unlock) Its last chances never end it: it waits for the player; the nudges stay reminders. */ noLast?: boolean }
+    /** (museum, people who unlock) Its last chances never end it: it waits for the player; the nudges stay reminders. */ noLast?: boolean;
+    /** Others of the world's people (by name) it can't happen without: while one of them isn't in the game, neither is
+     *  it (it never opens, a record slot about it is left out, and `thread:` holds as for a person left out). */ with?: string[] }
 /** A stage: when it begins (a condition on the calendar or the story so far: `season: summer; seasonDays: 8-14`), how
  *  it's told (`hidden`, `hinted` or `known`), the text, and what it brings: a moment, a rumor, a fact. */
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string;
