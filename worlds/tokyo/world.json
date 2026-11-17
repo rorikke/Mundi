@@ -55708,6 +55708,13 @@
      "f": "none"
     },
     "look": "Waist-long black hair in a high ponytail with blunt bangs, violet-grey eyes, an ivory trouser suit, black leather gloves with an iris signet ring",
+    "avatar": "cast/ayame/portrait.webp",
+    "sprites": "cast/ayame/sprites",
+    "outfits": {
+     "gala": "cast/ayame/gala",
+     "fencing": "cast/ayame/fencing",
+     "night": "cast/ayame/night"
+    },
     "voice": "Low, silky and formal; a pause, then the knife",
     "rituals": [
      {
@@ -56158,6 +56165,13 @@
      "preset": "free"
     },
     "look": "Long chestnut waves piled up with an indigo scarf and a pencil, freckles, golden-hazel eyes, an olive field jacket over a koi-print blouse, rings on most fingers",
+    "avatar": "cast/kaede/portrait.webp",
+    "sprites": "cast/kaede/sprites",
+    "outfits": {
+     "offroad": "cast/kaede/offroad",
+     "roadtrip": "cast/kaede/roadtrip",
+     "night": "cast/kaede/night"
+    },
     "voice": "Husky and quick, laughing, a soft Nagasaki lilt",
     "rituals": [
      {
