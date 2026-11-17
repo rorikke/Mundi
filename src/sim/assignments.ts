@@ -383,7 +383,7 @@ export function setShoot(g: Save, w: WorldDef, id: number, place: string, from: 
     if (t.on !== undefined && Math.floor(from / 1440) !== t.on) return { ok: false, text: 'A wedding is shot on its day.' };
     const ans = inviteShoot(g, w, t.who, place, from, (b.hours ?? BRIEF_HOURS) * 60 + 30, b.name);
     const n = nameOf(g, t.who);
-    if (!ans.ok) return { ok: false, text: `${n} can't then: ${ans.why.replace(/^They /, `${n} `)}` };
+    if (!ans.ok) return { ok: false, text: `${n} can't then: ${ans.why.replace(/^They (are|do|work|already have) /, (_m, v: string) => `${n} ${({ are: 'is', do: 'does', work: 'works', already: 'already has' } as Record<string, string>)[v.split(' ')[0]]} `).replace(/^They /, `${n} `)}` };
     t.plan = ans.id;
     if (place !== STUDIO_ID && b.places.includes(place)) t.place = place;
     return { ok: true, text: `${n} will be at ${ans.where} ${ans.when} for the shoot.` };
