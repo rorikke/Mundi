@@ -60,6 +60,7 @@ import { ventureLine } from './ventures.js';
 import { shopLine } from './shop.js';
 import { homeLine } from './fixtures.js';
 import './letting.js'; // (letting's Monday rent: an onDay hook, loaded with the engine)
+import './milestones.js'; // (track 7) the end game's life points: an onHour hook
 import { museumLine } from './museum.js';
 import { digLine } from './dig.js';
 import { royaltyLine } from './royalties.js'; // (R-b) what the museum's name has come to

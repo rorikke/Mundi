@@ -226,6 +226,30 @@ function canHold(g, w, key, v, inPlay) {
             return w.homes.zones.some(z => ((z.rent ?? 0) > 0 || housingOn(w)) && homeWorth(w, z.id) > homeWorth(w, first));
         }
         case 'known': return systemOn(w, 'romance'); // (adult: the goals that ask for it are adult)
+        // (track 7) more ventures of a sort than this game has (adult ones only with adult content on), a tier or
+        // discoveries beyond them; more halls than are here; a record hall that isn't one, or adult without adult
+        // content; more rooms and fixtures, or things, than the world has
+        case 'venture': {
+            const m = v.trim().match(/^(?:(\d+)\s+)?(\S+)(?:\s+(?:tier\s+(\d+|top)|discoveries\s+(\d+)|\S+))?$/i);
+            if (!m)
+                return true;
+            const like = (w.ventures ?? []).filter(d => adultOk(g, d) && (m[2] === 'any' || d.id === m[2] || d.track === m[2] || d.kind === m[2]));
+            const fit = like.filter(d => (!m[3] || m[3].toLowerCase() === 'top' || (d.tiers?.length ?? 1) >= Number(m[3])) && (!m[4] || (d.discoveries?.length ?? 0) >= Number(m[4])));
+            return fit.length >= Number(m[1] ?? 1);
+        }
+        case 'piece': {
+            const h = v.match(/^halls\s+(\d+)$/i);
+            return !h || (w.collection?.halls ?? []).filter(x => !x.record && adultOk(g, x)).length >= Number(h[1]);
+        }
+        case 'record': {
+            const m = v.match(/^(?:\d+|all)\s+in\s+(\S+)$/i);
+            if (!m)
+                return true;
+            const h = w.collection?.halls.find(x => x.id === m[1]);
+            return !!h?.record && adultOk(g, h);
+        }
+        case 'fixtures': return (w.homes.fixtures ?? []).filter(f => adultOk(g, f)).length >= Number(v);
+        case 'owns': return !/^\d+$/.test(v) || (w.catalogs?.shop ?? []).filter((it) => adultOk(g, it)).length >= Number(v);
         case 'secrets': return threadsHere(g, w).length >= Number(v);
         case 'helped': {
             const good = threadsHere(g, w).filter(({ t }) => (t.endings ?? []).some(e => e.good));
@@ -371,6 +395,8 @@ function finishStep(g, w, s, goal) {
         if (moodInPlay(g, w))
             addStatus(g, w, 'mood', GOAL_MOOD);
         note(g, '{u} reached a life goal: {0}!', [goal.name], [], g.player.loc, 'goal');
+        if (goal.perk?.was)
+            (s.perks ??= {})[goal.id] = goal.perk.name; // (a new finish has the new perk: nothing to tell)
         out.push(`Life goal reached: ${goal.name}!${goal.perk ? ` Perk: ${goal.perk.name}.` : ''}`);
     }
     for (const f of onGoalStep)
@@ -388,7 +414,20 @@ export function checkGoals(g, w) {
     const goal = activeGoal(g, w);
     for (let n = 0; goal && s.active === goal.id && n < goal.steps.length && stepDone(g, w, s, goal); n++)
         out.push(...finishStep(g, w, s, goal));
-    out.push(...pickNotice(g, w));
+    out.push(...pickNotice(g, w), ...perkNotes(g, w, s));
+    return out;
+}
+// (track 7, G-1) A goal finished before the world changed its perk (the perk says what it `was`): told once.
+function perkNotes(g, w, s) {
+    const out = [];
+    for (const id of s.done) {
+        const goal = goalOf(w, id), p = goal?.perk;
+        if (!goal || !p?.was || s.perks?.[id] === p.name)
+            continue;
+        const was = s.perks?.[id] ?? p.was;
+        (s.perks ??= {})[id] = p.name;
+        out.push(`Your perk from ${goal.name} is now ${p.name}: ${p.desc ?? ''} (it was ${was}).`.replace(':  (', ' ('));
+    }
     return out;
 }
 /** Can the active goal's current step be skipped (a step that isn't its last)? */

@@ -41,7 +41,7 @@ export const onKeepsake = [];
 // sim/museum.ts) `piece:` and `museum:` and their words.
 export const collectionLink = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
     piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v,
-    market: () => false, marketWords: (_g, _w, _k, v) => v, dig: () => false, digWords: (_g, _w, v) => v };
+    market: () => false, marketWords: (_g, _w, _k, v) => v, record: () => false, recordWords: (_g, _w, v) => v, dig: () => false, digWords: (_g, _w, v) => v };
 // (museum) What the market (sim/market.ts) asks of the museum's engine (sim/museum.ts fills these in, so neither file
 // imports the other's rules). Unset, the market uses its own plain answers: renown level 0, a piece can be housed when
 // it needs no upgrade or the museum has one by that id or `does`, prices through the difficulty only, and a piece

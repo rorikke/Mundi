@@ -93,7 +93,7 @@ export function slotsHere(g, w) {
 /* ---------- R-4: a district's street stories ---------- */
 // Stories that belong to the Business app and the jobs, not to a district; (museum) nor the museum's and the end game's
 // people's (its milestones at the museum, a tier).
-const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent']);
+const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent', 'board', 'record']);
 const seenOf = (g) => (g.stories?.seen ?? {});
 // A person a story names who left the map or isn't in this game.
 const personGone = (g, name) => { const r = personNamed(g, name); return !r || goneFromMap(r); };
@@ -184,6 +184,37 @@ export function percentOf(g, w, record) {
     const inIt = here.filter(s => counted.has(s.id)), filled = inIt.filter(s => c?.got[s.id]).length;
     return { filled, counted: inIt.length, pct: inIt.length ? Math.floor((filled / inIt.length) * 100) : 0, fresh: here.length - inIt.length };
 }
+// (track 7) `record: 50%` (the record's percentage) and `record: all in cabinet` / `record: 12 in cabinet` (one record
+// hall's slots this game has, filled; an apart hall too), and their words.
+const RECORD_IN = /^(\d+|all)\s+in\s+(\S+)$/i;
+function recordFill(g, w, hall) {
+    const slots = slotsHere(g, w).filter(s => s.hall === hall && !s.bonus), got = collectionOf(g)?.got ?? {};
+    return { have: slots.filter(s => !!got[s.id]).length, all: slots.length };
+}
+collectionLink.record = (g, w, v) => {
+    if (!collectionOn(w))
+        return false;
+    const m = v.match(RECORD_IN);
+    if (m) {
+        if (!hallOf(w, m[2])?.record)
+            return false;
+        const f = recordFill(g, w, m[2]);
+        return m[1].toLowerCase() === 'all' ? f.all > 0 && f.have === f.all : f.have >= Number(m[1]);
+    }
+    const p = v.match(/^(\d+)%$/);
+    if (!p)
+        return false;
+    const r = percentOf(g, w, true);
+    return r.counted > 0 && r.pct >= Number(p[1]);
+};
+collectionLink.recordWords = (g, w, v) => {
+    const m = v.match(RECORD_IN);
+    if (m) {
+        const f = recordFill(g, w, m[2]), name = hallOf(w, m[2])?.name ?? m[2];
+        return m[1].toLowerCase() === 'all' ? `every entry in ${name} (${f.have} of ${f.all})` : `${m[1]} entries in ${name} (${f.have} now)`;
+    }
+    return `${recordName(w)} ${v} complete (${percentOf(g, w, true).pct}% now)`;
+};
 const recordName = (w) => w.collection?.halls.find(h => h.record && !h.apart)?.name ?? 'Your collection';
 /** Fill what holds now (an hourly hook and when a save opens; the first run is the backfill). Returns lines to show. */
 // (a condition can reach `game()`, which settles a save it's opening: never inside a settle already running)

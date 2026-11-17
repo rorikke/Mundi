@@ -1,4 +1,5 @@
 import { collectionLink, museumHooks } from './hooks.js';
+import { effectMul } from './effects.js';
 import { collectionOn, collectionOf } from './collection.js';
 import { museumOn, museumOpen, museumDef, museumOf, museumState, museumPrice, hasPiece, hasUpgrade, wanted, curatorOf, displayHere, fillPiece, whereLine, upgradeName, FIND } from './museum.js';
 import { whenHolds, parseWhen } from './when.js';
@@ -94,7 +95,8 @@ const pieceName = (s) => `${s.icon ? `${s.icon} ` : ''}${s.name}`;
 export function digOdds(g, w, d, ok, mates) {
     const base = d.chance ?? DIG.chance, cur = curatorOf(g, w), withCur = !!cur && (mates.includes(cur.avatar) || withYou(g, w).includes(cur.avatar));
     const k = [ok === true ? FIND.roll : 1, hasUpgrade(g, w, 'reading') ? FIND.reading : 1, withCur ? FIND.curator : 1].sort((p, q) => q - p);
-    return Math.min(base * k[0] * k[1], Math.max(base, FIND.most));
+    // (track 7) a `find` effect, under the same cap
+    return Math.min(base * k[0] * k[1] * effectMul(g, w, 'find'), Math.max(base, FIND.most));
 }
 /** After an action at a dig in its season: the day counted once (a new season's first day closes the last one), then,
  *  under `most` finds this season, one roll; the action that brings the season's days to `sure` with nothing found yet

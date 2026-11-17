@@ -25,7 +25,7 @@ import { myJob, shiftNow, quitJob, choicePractice, addPerf } from './work.js';
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
 import { isHotel, hotelDay, hourMul, pricesOf } from './rooms.js';
 import { personNamed } from './when.js';
-import { effectSources } from './effects.js';
+import { effectSources, effectMul } from './effects.js';
 /** The engine's numbers (tuned by the long run, tokyo-business-long.mjs). `stint`: hours a stint takes unless the
  *  venture says; `events`: the chance one of its events comes after a stint; `rise`: each upgrade of a number costs
  *  this many times the one before it; `manager`: what a manager adds to the share it earns on its own; `sell`: the
@@ -170,7 +170,10 @@ export function shareOf(d, s, ran) {
 /** A day's takings (before the noise): the tier's `base` × how full it is × the day's demand × the share it earns; a
  *  hotel's by its rooms (sim/rooms.ts); a partnership's, your share of them. */
 export const dayValue = (g, w, d, s, day, ran, extra) => (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day))
-    * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day);
+    * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day) * ventureMul(g, w, d);
+// (track 7) A `venture` effect on its takings (Regulars' favourite, Five stars, Ebisu's charm): aimed at the venture, its
+// track or its kind.
+const ventureMul = (g, w, d) => effectMul(g, w, 'venture', [d.id, d.track, d.kind].filter((x) => !!x));
 /** (hospitality) A hotel's day at its tier: rooms, rooms open, how full, what comes in (sim/rooms.ts). */
 export function hotelOn(g, w, d, s, day, extra = {}) {
     const t = tierOf(d, s.tier), stats = { ...s.stats };

@@ -1,4 +1,5 @@
 import { onDay, studentLink } from './hooks.js';
+import { seasonDays } from './time.js';
 import { book } from './ledger.js';
 import { note } from './facts.js';
 import { money } from './needs.js';
@@ -8,8 +9,21 @@ import { homeAddress, playerHomeId } from './places.js';
 import { homeKey } from './homes.js';
 import { housingOn, zoneOf, ownedAt, ownedHere, secondHome, houses, toLet, canBeSecond, letRent, letChance, letFee, upkeepOf, SECOND_HOME_ID, } from './housing.js';
 import { letBlock, nextMonday, putUp, canLeave, leaveOwned, moveIn } from './owning.js';
-/** Who makes a week sure to have a tenant (track 7's "A good tenant" reward pushes here): none now. */
+/** Who makes a week sure to have a tenant (`n`: the week): track 7's "A good tenant" reward, below. */
 export const tenantSure = [];
+// (track 7) A good tenant: every home you let has a tenant each week up to `Houses.sure` (a week number).
+tenantSure.push((g, _w, _o, n) => n <= Number(g.houses?.sure ?? -1));
+/** (track 7) The weeks a good tenant covers: a season's worth of whole weeks, at least one. */
+export const sureWeeks = (g) => Math.max(1, Math.round(seasonDays(g) / 7));
+/** (track 7) Until which week a good tenant is sure (-1: none). */
+export const sureUntil = (g) => Number(g.houses?.sure ?? -1);
+/** (track 7) The rewards shop's good tenant: every home you let has a tenant each week from the next Monday's week for a
+ *  season's worth of weeks (a longer one already bought is kept). Returns the last week covered. */
+export function sureTenants(g) {
+    const from = weekNo(nextMonday(g.day)), until = Math.max(sureUntil(g), from + sureWeeks(g) - 1);
+    houses(g).sure = until;
+    return until;
+}
 // (FNV-1a, then a final mix: without it, strings that differ only in their last characters, the week number, give
 // neighbouring values, and a home's tenant weeks came in long runs instead of three in four)
 const H = (s) => {
@@ -37,7 +51,7 @@ export function tenantIn(g, w, o, n) {
         return false;
     if (l.until !== undefined)
         return true; // (a tenant serving notice is there to the end)
-    if (tenantSure.some(f => f(g, w, o)))
+    if (tenantSure.some(f => f(g, w, o, n)))
         return true;
     return H(`${g.world}|${g.seed ?? ''}|let|${homeKey(o)}|${n}`) < letChance(zoneOf(w, o.zone));
 }

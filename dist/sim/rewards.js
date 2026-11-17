@@ -9,11 +9,14 @@
 // (`makeUp()`), An invitation (sim/initiative.ts), Quiet a rumor (sim/living.ts), Insight (one true thing the engine
 // knows: their heart, how they see you, their secret), Change a trait (`swapTrait()`, `resetHabit()`), Skip a step
 // (sim/goals.ts through `goalLink`), Rent holiday (sim/bills.ts), Clean slate at work (sim/work.ts) and Tokyo's daruma
-// (the active goal's finishing points doubled). What the AI hears is a fact, as for anything else that happens.
+// (the active goal's finishing points doubled). (track 7, the end game) A dealer's tip and an early catalogue (a missing
+// piece you pick, on the ask's terms or as one more lot: sim/market.ts), the workshop's priority (everything in the
+// museum's workshop ready tomorrow, the fee as it was: sim/museum.ts) and a good tenant (sim/letting.ts): none lowers a
+// price. What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
 import { nowAbs, adultOk, adultOn } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs } from '../core/world.js';
-import { rewardsOf, isOwnReward, isSystemNeed, PERSON_KINDS } from '../core/goals.js';
+import { rewardsOf, isOwnReward, isSystemNeed, PERSON_KINDS, PIECE_KINDS } from '../core/goals.js';
 import { goalLink } from './hooks.js';
 import { pointsState, pointsOf, spendPoints, yearOf, whileSkipping } from './points.js';
 import { liftBan } from './caught.js';
@@ -41,8 +44,13 @@ import { habitsOf, resetHabit } from './habits.js';
 import { refreshPersona } from './game.js';
 import { skipBills, billsToPay } from './bills.js';
 import { cleanSlate, slateToClean } from './work.js';
+import { tippable, whyNoTip, tipDealer, earlyPieces, whyNoEarly, earlyLot } from './market.js';
+import { workshopWaiting, rushWorkshop } from './museum.js';
+import { sureTenants, sureUntil, sureWeeks, weekNo } from './letting.js';
+import { nextMonday } from './owning.js';
+import { toLet } from './housing.js';
 const PER_WORDS = { day: 'today', week: 'this week', season: 'this season', year: 'this year', goal: 'for this goal', ever: '' };
-const pickOf = (kind) => (PERSON_KINDS.includes(kind) ? 'person' : kind === 'retrait' ? 'trait' : kind === 'quiet' ? 'rumor' : null);
+const pickOf = (kind) => (PERSON_KINDS.includes(kind) ? 'person' : PIECE_KINDS.includes(kind) ? 'piece' : kind === 'retrait' ? 'trait' : kind === 'quiet' ? 'rumor' : null);
 const shopOn = (g, w) => !!w && systemOn(w, 'goals') && !!g;
 // Needs it counts on that are needs (not systems) must be in play in this game.
 const inPlay = (g, w, need) => activeStatuses(w, g).some(s => s.id === need);
@@ -99,6 +107,25 @@ function whyNot(g, w, def) {
         return 'Nothing to forget at work';
     if (k === 'rentfree' && !billsToPay(g, w).length)
         return 'Nothing to pay';
+    // (track 7)
+    if (k === 'dealer') {
+        const why = whyNoTip(g, w);
+        if (why)
+            return why;
+    }
+    if (k === 'auction') {
+        const why = whyNoEarly(g, w);
+        if (why)
+            return why;
+    }
+    if (k === 'restore' && !workshopWaiting(g, w).length)
+        return 'Nothing waiting in the workshop';
+    if (k === 'tenant') {
+        if (!toLet(g).length)
+            return 'No home to let';
+        if (sureUntil(g) >= weekNo(nextMonday(g.day)) + sureWeeks(g) - 1)
+            return 'Already sure for the season';
+    }
     if (k === 'quiet' && !rumorsAboutYou(g).length)
         return 'No rumor about you is going round';
     if (k === 'retrait') {
@@ -170,6 +197,16 @@ export function peopleFor(g, w, id) {
     if (!def || pickOf(def.kind) !== 'person')
         return [];
     return known(g).map(r => { const x = personWhy(g, w, def, r); return { avatar: r.avatar, name: r.name, ok: !x.why, ...(x.why ? { why: x.why } : {}), ...(x.meters ? { meters: x.meters } : {}), ...(x.questions ? { questions: x.questions } : {}) }; });
+}
+/** The pieces an item can bring now (for the Rewards tab's picker). */
+export function piecesFor(g, w, id) {
+    if (!shopOn(g, w))
+        return [];
+    const def = offeredRewards(g, w).find(x => x.id === id);
+    if (!def || pickOf(def.kind) !== 'piece')
+        return [];
+    const list = def.kind === 'dealer' ? tippable(g, w) : earlyPieces(g, w);
+    return list.map(p => ({ ...p, ok: true }));
 }
 /* ---------- Clear the air, A fresh start ---------- */
 const jealousOf = (g) => (g.jealous ?? {});
@@ -299,6 +336,7 @@ export function traitChoices(g, w) {
 export const rumorsToQuiet = (g, w) => (w && systemOn(w, 'rumors') ? rumorsAboutYou(g) : []);
 /* ---------- buying ---------- */
 const no = (why) => ({ ok: false, lines: [why] });
+const pieceName = (w, id) => w.collection?.slots.find(s => s.id === id)?.name ?? id;
 // What each kind does. A string is a refusal (nothing is spent); else the lines to show.
 function act(g, w, def, c) {
     const r = c.person ? g.cast[c.person] : undefined, a = r?.avatar ?? '', name = r?.name ?? '', home = `home:${a}`;
@@ -414,6 +452,35 @@ function act(g, w, def, c) {
                 return 'Pick a life goal first';
             pointsState(g).double.push(goal);
             return { lines: [`${def.name}: finishing this goal pays double.`] };
+        }
+        // (track 7)
+        case 'dealer': {
+            if (!c.piece)
+                return 'Pick a piece';
+            const why = tipDealer(g, w, c.piece);
+            if (why)
+                return why;
+            return { lines: [`${def.name}: ${pieceName(w, c.piece)} comes with the dealer's next visit.`] };
+        }
+        case 'auction': {
+            if (!c.piece)
+                return 'Pick a piece';
+            const why = earlyLot(g, w, c.piece);
+            if (why)
+                return why;
+            return { lines: [`${def.name}: ${pieceName(w, c.piece)} is one more lot at the next sale.`] };
+        }
+        case 'restore': {
+            const names = rushWorkshop(g, w);
+            if (!names.length)
+                return 'Nothing waiting in the workshop';
+            return { lines: [`${def.name}: ${names.join(', ')} ready tomorrow.`] };
+        }
+        case 'tenant': {
+            if (!toLet(g).length)
+                return 'No home to let';
+            sureTenants(g);
+            return { lines: [`${def.name}: every home you let has a tenant each week this season.`] };
         }
     }
     return 'That does nothing here';

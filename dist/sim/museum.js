@@ -210,7 +210,8 @@ export function renownOf(g, w) {
     n += st.renownAdd ?? 0;
     if (m.shows)
         n += Math.min(m.shows.most ?? 12, (m.shows.lasting ?? 0) * (st.shows?.length ?? 0)) + (showNow(g, w) ? m.shows.renown ?? 0 : 0);
-    return Math.max(0, Math.floor(n));
+    // (track 7) a `renown` effect (In the guidebooks, Press day): never royalties, which follow the percentage
+    return Math.max(0, Math.floor(n * effectMul(g, w, 'renown')));
 }
 const levelsOf = (w) => [...(museumDef(w)?.renown?.levels ?? [])].sort((a, b) => a.at - b.at);
 /** The renown level now (0: none yet) and its name. */
@@ -359,7 +360,8 @@ function found(g, w, a, ok, mates, began) {
     const cur = curatorOf(g, w), withCur = !!cur && (mates.includes(cur.avatar) || withYou(g, w).includes(cur.avatar));
     const base = Math.max(...list.map(f => f.x.chance ?? 0));
     const k = [ok === true ? FIND.roll : 1, hasUpgrade(g, w, 'reading') ? FIND.reading : 1, withCur ? FIND.curator : 1].sort((p, q) => q - p);
-    const odds = Math.min(base * k[0] * k[1], Math.max(base, FIND.most));
+    // (track 7) a `find` effect (Keen eye, a field guide) raises the odds, under the same cap
+    const odds = Math.min(base * k[0] * k[1] * effectMul(g, w, 'find'), Math.max(base, FIND.most));
     if (rnd(g, `find|${a.id}|${place}`) >= odds)
         return [];
     // one of them, by their chances
@@ -480,6 +482,26 @@ export function restorePiece(g, w, id) {
         book(g, `${museumDef(w).name}: restoring`, -r.fee);
     (museumState(g).fix ??= {})[id] = g.day + RESTORE.days;
     return { ok: true, lines: [`${r.name} goes to the workshop: ready in ${RESTORE.days} days.`, ...(r.fee ? [`−${money(w, r.fee)}`] : [])] };
+}
+/** (track 7) What the workshop's priority would speed up: pieces being restored or mounted not ready by tomorrow. */
+export function workshopWaiting(g, w) {
+    const m = museumOf(g), soon = g.day + 1;
+    if (!museumOn(w) || !m)
+        return [];
+    return [...Object.entries(m.fix ?? {}), ...Object.entries(m.mount ?? {})].filter(([, d]) => d > soon).map(([id]) => id);
+}
+/** (track 7) The rewards shop's workshop's priority: everything being restored or mounted is ready tomorrow; nothing paid
+ *  again and nothing given back (the fee was the fee). Returns the pieces' names ([] when nothing waited). */
+export function rushWorkshop(g, w) {
+    const ids = workshopWaiting(g, w), m = museumState(g), soon = g.day + 1;
+    for (const id of ids) {
+        if (m.fix?.[id] !== undefined)
+            m.fix[id] = soon;
+        const mt = m.mount;
+        if (mt?.[id] !== undefined)
+            mt[id] = soon;
+    }
+    return ids.map(id => w.collection?.slots.find(s => s.id === id)?.name ?? id);
 }
 /* ---------- milestone stories ---------- */
 // A street story's result for the museum: lasting renown; the theft's damage (the dearest real piece on show needs
@@ -618,13 +640,23 @@ onDay.push((g, w) => {
     return [`${m.name}'s visitors: +${money(w, n)}`];
 });
 /* ---------- conditions ---------- */
-const PIECE_IN = /^(\d+|all)\s+in\s+(\S+)$/i;
+const PIECE_IN = /^(\d+|all)\s+in\s+(\S+)$/i, HALLS = /^halls\s+(\d+)$/i;
+// (track 7) A hall's pieces this game has (bonus left out), or a group's when no hall has that id.
+const piecesIn = (g, w, id) => { const hall = !!hallOf(w, id); return displayHere(g, w).filter(s => (hall ? s.hall === id : s.group === id) && !s.bonus); };
+const groupName = (w, id) => hallOf(w, id)?.name ?? w.collection?.halls.flatMap(h => h.groups ?? []).find(x => x.id === id)?.name ?? id;
+/** (track 7) The display halls this game has, and those complete (every piece in, bonus left out). */
+export function hallsComplete(g, w) {
+    const all = [...new Set(displayHere(g, w).filter(s => !s.bonus).map(s => s.hall))];
+    return { all, done: all.filter(h => piecesIn(g, w, h).every(s => !!gotOf(g, s.id))) };
+}
 collectionLink.piece = (g, w, v) => {
     if (!collectionOn(w))
         return false;
-    const n = v.match(PIECE_IN);
+    const n = v.match(PIECE_IN), hs = v.match(HALLS);
+    if (hs)
+        return hallsComplete(g, w).done.length >= Number(hs[1]);
     if (n) {
-        const inHall = displayHere(g, w).filter(s => s.hall === n[2] && !s.bonus), have = inHall.filter(s => !!gotOf(g, s.id)).length;
+        const inHall = piecesIn(g, w, n[2]), have = inHall.filter(s => !!gotOf(g, s.id)).length;
         return n[1].toLowerCase() === 'all' ? inHall.length > 0 && have === inHall.length : have >= Number(n[1]);
     }
     if (/^\d+$/.test(v))
@@ -632,9 +664,11 @@ collectionLink.piece = (g, w, v) => {
     return hasPiece(g, v);
 };
 collectionLink.pieceWords = (g, w, v) => {
-    const n = v.match(PIECE_IN), hall = n ? hallOf(w, n[2])?.name ?? n[2] : '';
+    const n = v.match(PIECE_IN), hall = n ? groupName(w, n[2]) : '', hs = v.match(HALLS);
+    if (hs)
+        return `${hs[1]} hall${hs[1] === '1' ? '' : 's'} complete (${hallsComplete(g, w).done.length} now)`;
     if (n) {
-        const inHall = displayHere(g, w).filter(s => s.hall === n[2] && !s.bonus), have = inHall.filter(s => !!gotOf(g, s.id)).length;
+        const inHall = piecesIn(g, w, n[2]), have = inHall.filter(s => !!gotOf(g, s.id)).length;
         return n[1].toLowerCase() === 'all' ? `every piece of ${hall} (${have} of ${inHall.length})` : `${n[1]} pieces of ${hall} (${have} now)`;
     }
     if (/^\d+$/.test(v))

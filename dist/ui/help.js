@@ -16,6 +16,8 @@ import { housingOn, lettable, MAX_LET } from '../sim/housing.js';
 import { museumDef, upgradeName } from '../sim/museum.js';
 import { digsOf, DIG } from '../sim/dig.js';
 import { digSeasonWord } from './museumui.js';
+// (track 7) Does this world have an end game for goals and points: homes to own, ventures, or a collection?
+const endgameOn = (w) => !!w && (housingOn(w) || !!w.ventures?.length || collectionOn(w));
 // (museum) The Collection topic's museum part, in a world with a museum: its numbers are the world's own (the cases,
 // the first room, the dealer's days, the sales' lots), and only the parts it has.
 function museumHelp(w) {
@@ -253,6 +255,8 @@ const topics = (w) => {
                     ['A perk', 'Finishing a goal gives a perk: a small change to the game\'s numbers that lasts for good (lower prices, energy that lasts longer, a bonus on rolls). A goal gives a perk, not a trait: traits are who you are. Your perks are in the Goals app and on your profile; when two touch the same thing, percentages multiply and flat bonuses add.'],
                     ['Life points', `Each step of your goal gives life points (${GOAL_POINTS.step}), and finishing it more (${GOAL_POINTS.goal}). Festivals and city events (the first time each year), street stories, secrets and storylines you followed give a few too, up to ${DAILY_CAP} a day.`],
                     ['Rewards', 'Spend life points in the Goals app\'s Rewards tab: a lucky day, energy full now, a nudge in how someone feels about you, a fresh start with someone, a trait swapped… Each shows its price and how often it can be used; some only work in certain places, and a world may have its own.'],
+                    // (track 7) the end game's goals and points, where the world has them
+                    ...(endgameOn(w) ? [['The end game', `Some goals wait for the late game: a home of your own and its rooms, homes to let, a café or hotels at their top, the executive floor, the museum's halls, the record. Their perks make a number grow (takings, rent, renown, finds), never a price come down. Late-game milestones give life points too (a hall complete, the record by quarters, your first home, a business at its top), inside the ${DAILY_CAP} a day: what doesn't fit comes the next morning.`]] : []),
                 ] }] : []),
         ...((w && degreesOffered(w).length) ? [{ id: 'university', icon: 'book', title: 'University', intro: `Study for a degree at a university, like in The Sims: enroll ${appRef(w, 'campus')}, take a few modules each term (a term is a season) and graduate.`,
                 items: [

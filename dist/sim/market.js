@@ -149,13 +149,18 @@ function dealerVisit(g, w, d) {
         must = Math.max(must, k - n * (j - 1));
     }
     const asked = st.ask && byId.has(st.ask) ? byId.get(st.ask) : null;
-    const room = n + (asked ? 1 : 0); // (the piece asked for is an extra one)
+    // (track 7) a tip from the rewards shop: another piece on top, on the ask's terms
+    const tip = st.tip && st.tip !== st.ask && byId.has(st.tip) ? byId.get(st.tip) : null;
+    const room = n + (asked ? 1 : 0) + (tip ? 1 : 0); // (the piece asked for is an extra one)
     const take = (p, ask = false) => { if (picks.length < room && !picks.some(x => x.p.id === p.id))
         picks.push({ p, ...(ask ? { asked: true } : {}) }); };
     if (asked)
         take(asked, true);
+    if (tip)
+        take(tip, true);
     delete st.ask;
-    delete st.askd; // (askd: a second-visit mark older saves may still have)
+    delete st.askd;
+    delete st.tip; // (askd: a second-visit mark older saves may still have)
     for (const p of order.slice(0, Math.min(n, must)))
         take(p);
     for (const p of order)
@@ -239,6 +244,33 @@ export function askDealer(g, w, id) {
     st.asked = (st.asked ?? 0) + 1;
     return '';
 }
+/** (track 7) What a dealer's tip can ask for: what can be asked, less the piece already asked; each at the ask's price. */
+export function tippable(g, w) {
+    const d = museumDef(w)?.dealer;
+    if (!d || !museumOpen(g, w))
+        return [];
+    const ask = peekDealer(g).ask;
+    return askable(g, w).filter(p => p.id !== ask).map(p => ({ id: p.id, name: nameOf(w, p.id), price: marketPrice(g, w, p.base * (1 + (d.ask ?? 0))) }));
+}
+/** (track 7) Why a tip can't be given now ('' when it can). */
+export function whyNoTip(g, w) {
+    if (!museumDef(w)?.dealer || !museumOpen(g, w))
+        return 'The dealer doesn\'t call yet.';
+    if (peekDealer(g).tip)
+        return 'A tip is already waiting for her next visit.';
+    return tippable(g, w).length ? '' : 'Nothing she can bring.';
+}
+/** (track 7) The rewards shop's dealer's tip: this piece comes with her next visit on top of the stock (and of any piece
+ *  asked), at the asked price. Returns why not, or ''. */
+export function tipDealer(g, w, id) {
+    const why = whyNoTip(g, w);
+    if (why)
+        return why;
+    if (!tippable(g, w).some(p => p.id === id))
+        return 'The dealer can\'t bring that.';
+    dealerOf(g).tip = id;
+    return '';
+}
 /* ---------- the sales ---------- */
 /** The first sale on or after this moment (a sale day before its hour counts). */
 export function saleAfter(g, w, day = g.day, hour = hourOf(g)) {
@@ -301,9 +333,46 @@ function catalogue(g, w, a, sale) {
             if (sl && canHouse(g, w, sl))
                 lots.push({ id, est: marketPrice(g, w, auctionBase(w, id) * again), back: true });
         }
-    for (const p of weighted(g, `sale${sale}`, auctionPool(g, w).filter(p => !lots.some(l => l.id === p.id)), n - lots.length))
+    // (track 7) the early catalogue's piece is one lot more: the draw leaves it out
+    for (const p of weighted(g, `sale${sale}`, auctionPool(g, w).filter(p => !lots.some(l => l.id === p.id) && p.id !== s.early), n - lots.length))
         lots.push({ id: p.id, est: marketPrice(g, w, p.base) });
+    const early = s.early && !lots.some(l => l.id === s.early) ? auctionPool(g, w).find(p => p.id === s.early) : undefined;
+    if (early)
+        lots.push({ id: early.id, est: marketPrice(g, w, early.base), early: true });
+    delete s.early;
     return lots;
+}
+/** (track 7) What an early catalogue can bring: missing pieces the sales could bring, not in the catalogue already;
+ *  each with its estimate now. */
+export function earlyPieces(g, w) {
+    if (!museumDef(w)?.auctions || !museumOpen(g, w))
+        return [];
+    const lots = new Set((peekSales(g).lots ?? []).map(l => l.id));
+    return auctionPool(g, w).filter(p => !lots.has(p.id)).map(p => ({ id: p.id, name: nameOf(w, p.id), price: marketPrice(g, w, p.base) }));
+}
+/** (track 7) Why an early catalogue can't be had now ('' when it can). */
+export function whyNoEarly(g, w) {
+    if (!museumDef(w)?.auctions || !museumOpen(g, w))
+        return 'The sales don\'t know you yet.';
+    if (peekSales(g).early || (peekSales(g).lots ?? []).some(l => l.early))
+        return 'An early lot is already coming.';
+    return earlyPieces(g, w).length ? '' : 'Nothing the sales can bring.';
+}
+/** (track 7) The rewards shop's early catalogue: one more lot of this piece at the next sale, in its catalogue now if it's
+ *  out, else when it comes out. Returns why not, or ''. */
+export function earlyLot(g, w, id) {
+    const why = whyNoEarly(g, w);
+    if (why)
+        return why;
+    const p = earlyPieces(g, w).find(x => x.id === id);
+    if (!p)
+        return 'The sales can\'t bring that.';
+    const s = salesOf(g);
+    if (s.lots)
+        s.lots.push({ id, est: p.price, early: true });
+    else
+        s.early = id;
+    return '';
 }
 /** The other collector at a lot (seeded per sale and lot): does she want it, and her top bid (yen). None for a lot she
  *  sells back. Her odds rise for R4 and above, her top with the museum's renown. */

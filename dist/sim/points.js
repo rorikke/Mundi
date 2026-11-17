@@ -5,6 +5,9 @@
 // its end (20), a keepsake you never had before (10), a like or a hard limit of someone's learned (10, once each: adult
 // content only, from `learn()` through `onLearned`); at most 60 a day from these together, so nothing can be farmed.
 // (museum) A level of the museum's renown the first time it's reached pays 30, once each, outside the cap.
+// (track 7, sim/milestones.ts) The end game's milestones, once each and inside the cap: a display hall complete (30), the
+// museum at 100% (100), the record at each quarter (20), the first home bought (20), a venture at its top tier (40); what
+// the day's cap can't hold is owed and paid first thing on the next days, inside theirs.
 // Every gain goes through `pointsFor()` (sim/perks.ts), so perks with a `points` effect add their share. All of it
 // belongs to the `goals` system: with it off nothing is earned. Read with `??=` (no new schema).
 import { toast, adultOn } from '../core/store.js';
@@ -12,9 +15,12 @@ import { systemOn, getWorld, appsOf } from '../core/world.js';
 import { goalOf, GOAL_POINTS } from '../core/goals.js';
 import { pointsFor } from './perks.js';
 import { seasonDays } from './time.js';
-import { onGoalStep, onLearned } from './hooks.js';
+import { onGoalStep, onLearned, onDay } from './hooks.js';
 /** What a second source pays (before perks), and how much of them a day counts at most. */
-export const SECOND_POINTS = { festival: 10, event: 10, story: 15, secret: 20, thread: 20, keepsake: 10, learned: 10, museum: 30 };
+export const SECOND_POINTS = { festival: 10, event: 10, story: 15, secret: 20, thread: 20, keepsake: 10, learned: 10, museum: 30,
+    hall: 30, record: 20, home: 20, venture: 40 };
+/** (track 7) The museum at 100% (a `hall` milestone of its own). */
+export const MUSEUM_DONE_POINTS = 100;
 export const DAILY_CAP = 60;
 export function pointsState(g) {
     const p = (g.points ??= {});
@@ -109,6 +115,42 @@ export function milestonePoints(g, w, n, key, why) {
     return got ? `${pointsLine(got)} ${why}${shopHint(g, w)}` : '';
 }
 /* ---------- second sources ---------- */
+/** (track 7) A milestone of the end game (sim/milestones.ts): `n` points (before perks), once per key, inside the day's
+ *  cap; what the cap can't hold today is owed to the next days. Returns the line to show ('' when nothing was paid now,
+ *  or it was paid before). `what`: the milestone in words, for the line. */
+export function milestone(g, w, source, key, n, what) {
+    if (!w || !systemOn(w, 'goals') || !key)
+        return '';
+    const p = pointsState(g), k = `${source}:${key}`;
+    if (p.kinds.includes(k))
+        return '';
+    p.kinds.push(k);
+    if (p.today.day !== g.day)
+        p.today = { day: g.day, n: 0 };
+    const all = pointsFor(g, w, source, n), now = Math.max(0, Math.min(all, DAILY_CAP - p.today.n));
+    if (all > now)
+        p.owed = (p.owed ?? 0) + all - now;
+    p.today.n += now;
+    const got = credit(g, now, k);
+    return got ? `${pointsLine(got)} (${what})${all > now ? `, ${all - now} more owed to the next days` : ''}${shopHint(g, w)}` : all > now ? `${pointsLine(all)} (${what}), owed to the next days` : '';
+}
+// (track 7) Owed milestone points, first thing each day inside its cap.
+onDay.push((g, w) => {
+    const p = g.points;
+    if (!p?.owed || !w || !systemOn(w, 'goals'))
+        return [];
+    pointsState(g);
+    if (p.today.day !== g.day)
+        p.today = { day: g.day, n: 0 };
+    const now = Math.min(p.owed, DAILY_CAP - p.today.n);
+    if (!(now > 0))
+        return [];
+    p.owed -= now;
+    p.today.n += now;
+    if (!p.owed)
+        delete p.owed;
+    return [`${pointsLine(credit(g, now, 'owed'))} (owed)`];
+});
 // A like or a hard limit of someone's learned (sim/intimacy.ts `learn()`, whoever called it: a great night, a limit met,
 // Pillow talk the action or the item): once each, and only with adult content on. Said as a toast: the caller's own lines
 // don't know about it.

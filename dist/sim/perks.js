@@ -72,7 +72,8 @@ export function useReroll(g, w) {
 }
 // The groups a `points` effect may name instead of one source: festivals and city events; secrets, street stories and
 // threads.
-const POINT_GROUPS = { festival: 'festivals', event: 'festivals', secret: 'secrets', story: 'secrets', thread: 'secrets' };
+const POINT_GROUPS = { festival: 'festivals', event: 'festivals', secret: 'secrets', story: 'secrets', thread: 'secrets',
+    hall: 'milestones', record: 'milestones', home: 'milestones', venture: 'milestones' };
 /** Life points from a source, with what perks add (`points` effects aimed at the source, its group, or at `active` /
  *  `passive`). */
 export function pointsFor(g, w, source, n) {

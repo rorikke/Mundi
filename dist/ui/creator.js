@@ -2383,7 +2383,8 @@ function strengthsEditor(w, k) {
 const TRAIT_KINDS = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study', 'jealousy', 'risk'];
 const KIND_NAMES = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
     price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)', royalty: "The museum's royalties",
-    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)', letting: 'Rent from your tenants' };
+    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)', letting: 'Rent from your tenants',
+    venture: 'Your businesses\' takings', find: 'The odds of a find (the museum\'s, the dig\'s)', renown: 'The museum\'s renown (not royalties)' };
 // The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
 // first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
 function targetOpts(w, kind, cur = '', wide = false) {
@@ -2418,7 +2419,11 @@ function targetOpts(w, kind, cur = '', wide = false) {
                                                         : kind === 'risk' ? [['', 'Every risky action'], ...w.actions.filter(a => a.risk !== undefined).map(a => [a.id, `Action: ${a.label || a.name}`]), ...tagged(actTags)]
                                                             : kind === 'jealousy' ? [['', 'Every partner']] : kind === 'royalty' ? [['', 'All royalties']]
                                                                 : kind === 'letting' ? [['', 'Every home you let'], ...w.homes.zones.filter(lettable).map(z => [z.id, `Homes at ${z.name}`])]
-                                                                    : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
+                                                                    // (track 7) a venture, its track or its kind; finds and renown have none
+                                                                    : kind === 'venture' ? [['', 'Every business'], ...[...new Set((w.ventures ?? []).map(v => v.track).filter((t) => !!t))].map(t => [t, `Kind of business: ${t}`]),
+                                                                        ...[...new Set((w.ventures ?? []).map(v => v.kind).filter((k) => !!k))].map(k => [k, `Kind: ${k}`]), ...(w.ventures ?? []).map(v => [v.id, `Business: ${v.name}`])]
+                                                                        : kind === 'find' ? [['', 'Every find']] : kind === 'renown' ? [['', 'The museum\'s renown']]
+                                                                            : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
 }
 const hasStd = (n) => !!own(STANDARD_TRAIT_INFO, n);
@@ -2767,7 +2772,10 @@ export function savedNote(w) {
 // What a reward does, by kind (REWARD_KINDS in core/goals.ts; a kind the engine adds later shows by its id).
 const REWARD_KIND_NAMES = { boost: 'A boost for a few days', refill: 'A need full now', nudge: 'Nudge: one person\'s feelings for you grow', clear: 'Clear the air: one person\'s feelings start over',
     fresh: 'A fresh start: one person forgets you', forgive: 'Forgive and forget: a grudge ends', invite: 'An invitation: someone asks you out soon', quiet: 'Quiet a rumor about you', insight: 'Insight: one true thing about someone',
-    retrait: 'Change a trait, or drop a habit', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal' };
+    retrait: 'Change a trait, or drop a habit', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal',
+    // (track 7: the museum and homes you let; none lowers a price)
+    dealer: 'A dealer\'s tip: a missing piece you pick comes with the next visit (at the asked price)', auction: 'An early catalogue: one more lot at the next sale, a missing piece you pick',
+    restore: 'The workshop\'s priority: everything being restored or mounted ready tomorrow', tenant: 'A good tenant: every home you let has a tenant each week for a season' };
 // What an Insight item can tell (sim/rewards.ts): `bed` stands for the three adult ones.
 const INSIGHT_QUESTIONS = [['heart', 'Their heart'], ['view', 'How they see you'], ['secret', 'Their secret'], ['bed_like', 'Something they like (adult)'], ['bed_limit', "Something they won't do (adult)"], ['bed_drive', 'Their drive (adult)'], ['bed', 'Anything about them in bed (adult)']];
 const LIMIT_PER = [['', 'No limit'], ['day', 'A day'], ['week', 'A week'], ['season', 'A season'], ['year', 'A year'], ['goal', 'For each goal you follow'], ['ever', 'Ever']];
@@ -2939,6 +2947,7 @@ function goalForm(w, i) {
         ${steps.length < 6 ? `<button class="mu-ghost" data-act="cw-add" data-what="gstep" data-path="${esc(`${p}.steps`)}">${icon('plus')}<span>Add a step</span></button>` : ''}
         <h4>Its perk (for finishing it)</h4>
         ${goal.perk ? `<div class="mu-row2">${txt('Name', `${p}.perk.name`, 'Shrewd')}${txt('What it does, in a few words', `${p}.perk.desc`, 'Prices 5% lower everywhere.')}</div>
+            ${txt('Was called (empty: never changed)', `${p}.perk.was`, 'Connoisseur')}<p class="mu-muted">When you change what a perk does, give its old name here: a game that finished the goal before is told once what its perk is now.</p>
             <p class="mu-muted">One or two effects, each within ±${PERK_LIMITS.pct * 100}% (a flat amount within ±${PERK_LIMITS.flat}) and the range the game allows for its kind. A perk is not a trait: it is kept with the goal and never told to the AI.</p>
             ${fxEditor(w, `${p}.perk.effects`, 'perk', 2)}
             <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${p}.perk`)}">${icon('x')}<span>No perk</span></button>`
@@ -3030,7 +3039,7 @@ function tidyGoals(w) {
                 }
             }
             if (x.perk)
-                blank(x.perk, ['desc']);
+                blank(x.perk, ['desc', 'was']);
         }
         if (!Object.keys(g).length)
             delete w.goals;
