@@ -22,6 +22,10 @@ const key = (a: string, b: string) => [a, b].sort().join('|');
 export const pairStage = (g: Save, a: string, b: string): Stage | null => { const s = statusOf(g, a, b); return s === 'dating' || s === 'engaged' || s === 'married' ? s : null; };
 export const npcRank = (g: Save, avatar: string) => store(g).ranks[avatar] ?? 0;
 
+/** (photography) A wedding of the world's people set ahead: the pair's key ("a|b", store ids sorted), the two, the day. */
+export interface WeddingAhead { pair: string; a: string; b: string; day: number }
+/** (photography) The world's weddings set ahead (the photo boards offer to shoot them). Filled in by session H. */
+export function weddingsAhead(_g: Save, _w: WorldDef): WeddingAhead[] { return []; }
 function couplesMoveOn(g: Save, w: WorldDef): string[] {
     const out: string[] = [];
     for (const { a, b, status, since } of couplePairs(g)) {
