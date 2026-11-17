@@ -18,6 +18,7 @@ import { presentAt, whereNow, OUT } from './people.js';
 import { partyLine as houseLine } from './houseparty.js';
 import { feelings } from './needs.js';
 import { planLines } from './plans.js';
+import { visitorLine } from './visitors.js';
 import { memoryLines } from './facts.js';
 import { diaryLines } from './diary.js';
 import { tiesLine, householdLine, colleaguesLine } from './living.js';
@@ -184,7 +185,7 @@ export function sceneBlocks(): Built[] {
         world: [worldLine(g, w), festivalLine(g, w), realmLine(g, w), skiesLine(g, w), ...legendLines(g, w)],
         diary: diaryLines(g),
         memories: [...memoryLines(g, w, met, personaName()), ...placeMemoryLines(g, w, present)],
-        plans: planLines(g, present, w),
+        plans: [...planLines(g, present, w), visitorLine(g, w, present)],
         language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g), ...sceneLines.flatMap(f => f(g, w, present))],
         feelings: [feelingLine(g, met)],

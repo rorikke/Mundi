@@ -1,0 +1,15 @@
+/* (plans) A friend staying over: the row on a person's card and page, the form, the doorbell under who is here. */
+#mundi-root .mu-pc-visit { display: grid; gap: 6px; }
+#mundi-root .mu-pc-visit button { display: flex; align-items: center; gap: 8px; justify-content: center; }
+#mundi-root .mu-pc-visit > small { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#mundi-root .mu-pc-visit > small svg { width: 14px; height: 14px; }
+#mundi-root .mu-visitform { display: grid; gap: 8px; max-width: 380px; }
+#mundi-root .mu-visitform h3 { margin: 0 0 4px; }
+#mundi-root .mu-visitform .mu-row { margin-top: 6px; gap: 8px; }
+#mundi-root .mh-doorbell { position: absolute; z-index: 21; top: 222px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 16px; max-width: min(520px, calc(100% - 40px)); }
+#mundi-root .mh-doorbell img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; object-position: top; flex: none; }
+#mundi-root .mh-doorbell > span { display: grid; gap: 2px; min-width: 0; }
+#mundi-root .mh-doorbell > span b { font-size: 14px; }
+#mundi-root .mh-doorbell > span small { font-size: 12px; opacity: .8; }
+#mundi-root .mh-doorbell button { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+#mundi-root:has(.mh-clock.is-bar) .mh-doorbell { top: 142px; }

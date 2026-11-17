@@ -26,6 +26,7 @@ import { saveSeed } from './relations.js';
 import { ties } from './living.js';
 import { npcCareer, npcPath, setNpcPath, pathTo, trackOf } from './work.js';
 import { npcRank } from './longlife.js';
+import { homeIdAt, visSig } from './visitors.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const wdOf = (day: number) => (((day - 1) % 7) + 7) % 7;   // 0 = Monday (day 1 is a Monday)
@@ -66,7 +67,8 @@ const homeIdOf = (r: Resident) => ((r as any).homeWith === '__you' ? 'home:playe
 // and after every click (where everyone is gets asked tens of thousands of times a day: rumors spreading ask about
 // every pair). So a change the engine makes to someone (a new job, a move) reaches the others' plans the next minute.
 export interface Stamp { id: number; w: WorldDef; code: number; sd: number; adult: boolean; swap: string; list: Resident[]; sig: unknown[];
-    /** (NE-1) which storylines' stage appointments are on ("<thread>:<stage>;…") */ rit: string }
+    /** (NE-1) which storylines' stage appointments are on ("<thread>:<stage>;…") */ rit: string;
+    /** who is staying with you and when (sim/visitors.ts: "<avatar>:<from>:<until>;…"): their home steps go to yours */ vis: string }
 let stamps = 0;
 const kept = new WeakMap<Save, Stamp>();
 // The systems it reads, as one number (what each one's switch says: on, off or unset), so systemOn (a search through
@@ -111,10 +113,10 @@ const sigOf = (r: Resident, out: unknown[], i: number) => { out[i] = r; out[i + 
 const checked = new WeakMap<Save, { at: number; n: number }>();
 export function stampOf(g: Save, w: WorldDef): Stamp {
     const s = kept.get(g), code = codeOf(w), sd = seasonDays(g), adult = adultOn(g), swap = (g as any).swap?.avatar ?? '';
-    const at = nowAbs(g), n = changes(), c = checked.get(g), rit = stageRitSig(g, w);
-    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && c && c.at === at && c.n === n) return s;
+    const at = nowAbs(g), n = changes(), c = checked.get(g), rit = stageRitSig(g, w), vis = visSig(g, w);
+    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && s.vis === vis && c && c.at === at && c.n === n) return s;
     checked.set(g, { at, n });
-    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit) {
+    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && s.vis === vis) {
         let i = 0, same = true;
         for (const a in g.cast) {
             const r = g.cast[a], x = s.sig;
@@ -125,7 +127,7 @@ export function stampOf(g: Save, w: WorldDef): Stamp {
     }
     const list = Object.values(g.cast), sig: unknown[] = [];
     list.forEach((r, i) => sigOf(r, sig, i * SIG));
-    const made: Stamp = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit };
+    const made: Stamp = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit, vis };
     kept.set(g, made);
     return made;
 }
@@ -416,7 +418,7 @@ export function ritualOn(g: Save, w: WorldDef, x: RitualRef, day: number, st = s
     if (rit.chance !== undefined && rit.chance < 1 && H(`${g.world}|${day}|ritual|${x.owner}|${x.i}`) >= rit.chance) return null;
     const list = [rit.place, ...(rit.places ?? [])];
     const pick = list[Math.floor(H(`${g.world}|${week}|ritplace|${x.owner}|${x.i}`) * list.length)];
-    const place = pick === 'home' ? homeIdOf(g.cast[x.owner]) : pick;
+    const place = pick === 'home' ? homeIdAt(g, w, g.cast[x.owner], day * 1440 + Math.round(rit.from * 60)) : pick;   // (staying with you: at yours)
     if (!placeOk(g, w, place) || (!place.startsWith('home:') && !isOpen(w, place, (Math.round(rit.from * 60) % 1440)))) return null;
     return { from: day * 1440 + Math.round(rit.from * 60), to: day * 1440 + Math.round(rit.to * 60), place };
 }
@@ -571,7 +573,7 @@ function datePlace(g: Save, w: WorldDef, A: Resident, B: Resident, day: number, 
 function routineStepPlace(g: Save, w: WorldDef, r: Resident, at: number, st: Stamp): string {
     const s = shiftAt(g, w, r, at, st); if (s) return s.place;
     const t = routineStep(r, at)[1];
-    return t === 'home' ? homeIdOf(r) : t === 'work' ? jobOf(g, w, r)?.place ?? '' : t;
+    return t === 'home' ? homeIdAt(g, w, r, at) : t === 'work' ? jobOf(g, w, r)?.place ?? '' : t;
 }
 
 /* ---------- going to an event or a festival (E23) ---------- */
