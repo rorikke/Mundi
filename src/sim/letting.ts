@@ -10,12 +10,12 @@ import { onDay, studentLink } from './hooks.js';
 import { book } from './ledger.js';
 import { note } from './facts.js';
 import { money } from './needs.js';
-import { payOf } from './bills.js';
+import { payOf, priceOf } from './bills.js';
 import { effectMul } from './effects.js';
 import { homeAddress, playerHomeId } from './places.js';
 import { homeKey } from './homes.js';
 import {
-    housingOn, zoneOf, ownedAt, ownedHere, secondHome, houses, toLet, canBeSecond, letRent, letChance, letFee,
+    housingOn, zoneOf, ownedAt, ownedHere, secondHome, houses, toLet, canBeSecond, letRent, letChance, letFee, upkeepOf,
     SECOND_HOME_ID, type Owned,
 } from './housing.js';
 import { letBlock, nextMonday, putUp, canLeave, leaveOwned, moveIn, type Leave } from './owning.js';
@@ -56,6 +56,14 @@ export function letWeek(g: Save, w: WorldDef, o: Owned): { rent: number; fee: nu
     const rent = Math.round(payOf(g, letRent(z)) * effectMul(g, w, 'letting', o.zone));
     const fee = Math.round(rent * letFee(z));
     return { rent, fee, net: rent - fee };
+}
+
+/** What a home here let brings a week on average (the tenant's weeks less the agent's share, less the upkeep paid
+ *  every week), and its parts, for the screens. */
+export function letAverage(g: Save, w: WorldDef, zone: string): { rent: number; fee: number; chance: number; upkeep: number; avg: number } {
+    const z = zoneOf(w, zone), { rent, fee, net } = letWeek(g, w, { zone } as Owned);
+    const chance = letChance(z), upkeep = priceOf(g, upkeepOf(z));
+    return { rent, fee, chance, upkeep, avg: Math.round(chance * net - upkeep) };
 }
 
 /** Why this home of yours can't be put up to let now ('' when it can). */

@@ -58,7 +58,7 @@ import { knownHtml } from './personui.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
-import { HU, ownedHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
+import { HU, ownedHtml, letHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
 
 type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
@@ -385,6 +385,7 @@ function homesApp(g: Save, w: WorldDef) {
         ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}
         ${ownedHtml(g, w)}
         </section>
+        ${letHtml(g, w)}
         ${forSaleHtml(g, w)}
         <section><h4>${T('homesForRent')}</h4>
         ${(() => { // by city (map): the one you live in first
