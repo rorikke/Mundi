@@ -54,6 +54,9 @@ export interface Settings {
     starts?: Record<string, StartDef[]>;
     /** "Something else…" in Things to do (ui/custom.ts); off unless the player turns it on */
     customAction?: boolean;
+    /** adult content for new games, when the player asked Mundi to remember their answer; unset: a new game asks
+     *  (and starts with it off) */
+    adultNew?: boolean;
 }
 /** A preset of people. `hh[].ties`: family in each household; `rels`: starting relations (core/feel.ts). Presets saved
  *  before family-only ties have old relations there (any type and a tone): ui/castpresets.ts converts them on read. */

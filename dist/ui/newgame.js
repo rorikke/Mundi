@@ -7,7 +7,7 @@ import { safeUrl } from '../core/safe.js';
 import { defaultAttrs, pointsUsed, POINTS, POINT_COST, mod } from '../sim/rpg.js';
 import { listSaves } from '../sim/game.js';
 import { castLevel, NEIGHBORS_MIN } from '../sim/happenings.js';
-import { state, notify, esc, toast, game, saveGame } from '../core/store.js';
+import { state, notify, esc, toast, game, saveGame, settings, saveSettings } from '../core/store.js';
 import { roomsOn } from '../sim/places.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { syncScene } from '../sim/game.js';
@@ -47,16 +47,19 @@ function freshHero(w) {
 export function startWizard() {
     resetPick('cast');
     resetPick('scen');
-    const w = getWorld('modern') ?? worlds()[0];
-    state.wizard = { mode: null, sq: '', pick: '', step: 'world', world: w.id, examples: false, cast: [], q: '', hero: freshHero(w), portraitUrl: '' };
+    const w = getWorld(FIRST_WORLD) ?? getWorld('modern') ?? worlds()[0];
+    state.wizard = { mode: null, sq: '', pick: '', step: 'world', world: w.id, examples: false, cast: [], q: '', hero: freshHero(w), portraitUrl: '', adult: settings().adultNew === true };
     setWorldDicts(w.id, w.i18n ?? {});
     state.view = 'newgame';
     notify();
 }
+// Tokyo is Mundi's main world: first in the list and the one chosen when a new game opens.
+const FIRST_WORLD = 'tokyo';
 function stepWorld() {
     const wz = state.wizard;
     const scen = wz.mode === 'scenario';
-    const list = worlds().filter(w => isScenario(w) === scen); // the Scenario mode lists scenarios; the World mode, worlds
+    const list = worlds().filter(w => isScenario(w) === scen) // the Scenario mode lists scenarios; the World mode, worlds
+        .sort((a, b) => Number(b.id === FIRST_WORLD) - Number(a.id === FIRST_WORLD));
     // Medieval and RPG worlds wait for the next update: shown, but locked
     const open = list.filter(w => !worldLocked(w)), locked = list.filter(w => worldLocked(w));
     if (worldLocked(getWorld(wz.world)) || isScenario(getWorld(wz.world)) !== scen) {
@@ -182,8 +185,27 @@ function worldPeopleHtml() {
 }
 // (E15) Adult content for this game, asked here because it decides who can be in it.
 function adultAskHtml() {
+    const saved = settings().adultNew;
     return `<section class="mu-panel mu-ng-adult"><label class="mu-check"><input type="checkbox" data-input="ng-adult" ${state.wizard.adult ? 'checked' : ''}><span>Adult content
-        <small>On: the places, jobs, things to do, lore and people a world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off (the default): all of it is left out. Change it any time in this game's settings (globe → Rules). Everyone in Mundi's worlds is an adult.</small></span></label></section>`;
+        <small>On: the places, jobs, things to do, lore and people a world marks as adult are part of the game, and people's intimate profiles can be seen and changed. Off (the default): all of it is left out. Change it any time in this game's settings (globe → Rules). Everyone in Mundi's worlds is an adult.</small>
+        ${saved === undefined ? '' : `<small>${saved ? 'New games start with it on' : 'New games start with it off'} (Settings → Game).</small>`}</span></label></section>`;
+}
+// Adult content starts off, and a toggle on the page is easy to miss: a world that has some asks once, in a window,
+// as the People step opens. The answer can be remembered for new games (Settings → Game).
+const hasAdult = (w) => JSON.stringify(w).includes('"adult":true');
+const askAdult = () => { const wz = state.wizard; if (!wz.adultAsked && settings().adultNew === undefined && hasAdult(W())) {
+    wz.adultAsk = true;
+    wz.adultRemember ??= true;
+} };
+function adultDialogHtml() {
+    const wz = state.wizard;
+    if (!wz.adultAsk || wz.step !== 'cast')
+        return '';
+    return `<div class="mu-dlg-veil" data-act="ng-adult-close"><div class="mu-dlg mu-panel mu-ng-adultdlg" role="dialog" aria-label="Adult content" data-act="lib-stay">
+        <h3>Adult content?</h3>
+        <p>This world has places, jobs, things to do and people meant for adults. They're left out unless you turn adult content on. Everyone in Mundi's worlds is an adult.</p>
+        <label class="mu-check"><input type="checkbox" data-input="ng-adult-remember" ${wz.adultRemember ? 'checked' : ''}><span>Remember my choice for new games<small>Change it any time in Settings → Game.</small></span></label>
+        <div class="mu-row mu-dlg-btns"><button data-act="ng-adult-pick" data-v="">Keep it off</button><button class="mu-primary" data-act="ng-adult-pick" data-v="1">Turn it on</button></div></div></div>`;
 }
 // The cast: your characters, with folders or without, by tag, by name or only favorites.
 const castList = () => characters();
@@ -495,6 +517,7 @@ export function newGameHtml() {
         <div class="mu-wizard-body" data-keep="wizard">${body}</div>
         <div class="mu-wizard-foot">${block ? `<span class="mu-muted">${esc(block)}</span>` : '<span></span>'}
             ${wz.step === 'review' ? '<button class="mu-primary mu-big" data-act="ng-start" data-sfx="success">Start the game ▶</button>' : `<button class="mu-primary mu-big" data-act="ng-next" ${block ? 'aria-disabled="true"' : ''}>Next ▶</button>`}</div>
+        ${adultDialogHtml()}
     </div>`;
 }
 Object.assign(ACT, {
@@ -525,7 +548,22 @@ Object.assign(ACT, {
         return;
     } state.wizard.world = el.dataset.id; state.wizard.hero = freshHero(W()); delete state.wizard.cstart; setWorldDicts(W().id, W().i18n ?? {}); notify(); },
     'ng-next': () => { const i = STEPS.findIndex(s => s[0] === state.wizard.step); if (canGo(state.wizard.step))
-        return; state.wizard.step = STEPS[i + 1][0]; notify(); },
+        return; state.wizard.step = STEPS[i + 1][0]; if (state.wizard.step === 'cast')
+        askAdult(); notify(); },
+    'ng-adult-pick': (el) => {
+        const wz = state.wizard, on = !!el.dataset.v;
+        wz.adult = on;
+        wz.adultAsk = false;
+        wz.adultAsked = true;
+        if (wz.adultRemember) {
+            settings().adultNew = on;
+            saveSettings();
+        }
+        dropUnoffered(W());
+        notify();
+    },
+    // closing the window without an answer keeps adult content as it was, and the next new game asks again
+    'ng-adult-close': () => { state.wizard.adultAsk = false; state.wizard.adultAsked = true; notify(); },
     'ng-back': () => { const i = STEPS.findIndex(s => s[0] === state.wizard.step); if (i <= 0)
         state.wizard.mode = null;
     else
@@ -723,6 +761,7 @@ Object.assign(ACT, {
 Object.assign(INPUT, {
     'ng-adult': (el) => { state.wizard.adult = el.checked; if (getWorld(state.wizard.world))
         dropUnoffered(W()); notify(); },
+    'ng-adult-remember': (el) => { state.wizard.adultRemember = el.checked; },
     'ng-mem': (el) => { state.wizard.memories = el.value; },
     'ng-q': (el) => { state.wizard.q = el.value; notify(); },
     'ng-pq': (el) => { state.wizard.pq = el.value; notify(); },

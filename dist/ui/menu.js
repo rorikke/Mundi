@@ -32,10 +32,11 @@ function lastPlayed() {
 const canContinue = () => !!lastPlayed();
 const isOpenNow = () => { const l = lastPlayed(); const r = openChatRef(); return !!l && !!r && (!l.chatId || l.chatId === r.chatId) && (l.kind === 'world' ? !!game() && r.group === l.group : !game() && (r.avatar ?? r.group) === (l.avatar ?? l.group)); };
 const when = (t) => fmtDateTime(t);
-// The menu's background: the modern world's maps, one after the other (10 s each, with a slow fade and zoom).
+// The menu's background: Tokyo's maps, one after the other (10 s each, with a slow fade and zoom).
 const SLIDE = 10;
+const menuWorld = () => getWorld('tokyo') ?? getWorld('modern') ?? worlds()[0];
 function slideshow() {
-    const w = getWorld('modern') ?? worlds()[0];
+    const w = menuWorld();
     const pics = w ? [...new Set((w.maps ?? []).map(m => m.image).filter(Boolean))].map(f => worldFile(w, f)) : [];
     const n = pics.length;
     if (n < 2)
@@ -45,7 +46,7 @@ function slideshow() {
     return `<style>${kf}</style>${pics.map((src, i) => `<div class="mu-menu-bg mu-menu-slide" style="background-image:url('${safeUrl(src)}');animation:mu-slide-${n} ${T}s linear ${i * SLIDE - fade / 100 * T}s infinite"></div>`).join('')}`;
 }
 function cover() {
-    const w = getWorld('modern') ?? worlds()[0];
+    const w = menuWorld();
     // under the slides: the first map (never the world's cover, which has its name written on it)
     const map = w?.maps?.[0]?.image;
     return w && map ? worldFile(w, map) : '';

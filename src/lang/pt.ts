@@ -10132,5 +10132,17 @@ const DICT: Record<string, string> = {
  "the zip unpacks to too much": "o zip descompacta grande demais",
  "\"{0}\" is packed in a way Mundi can't read": "\"{0}\" está compactado de um jeito que o Mundi não lê",
  "\"{0}\" is damaged in the zip": "\"{0}\" está danificado no zip",
+ "Adult content?": "Conteúdo adulto?",
+ "This world has places, jobs, things to do and people meant for adults. They're left out unless you turn adult content on. Everyone in Mundi's worlds is an adult.": "Este mundo tem lugares, trabalhos, coisas para fazer e pessoas só para adultos. Ficam de fora a menos que você ative o conteúdo adulto. Todos nos mundos do Mundi são adultos.",
+ "Remember my choice for new games": "Lembrar minha escolha para novos jogos",
+ "Change it any time in Settings → Game.": "Mude quando quiser em Configurações → Jogo.",
+ "Keep it off": "Deixar desativado",
+ "Turn it on": "Ativar",
+ "New games start with it on (Settings → Game).": "Novos jogos começam com ele ativado (Configurações → Jogo).",
+ "New games start with it off (Settings → Game).": "Novos jogos começam com ele desativado (Configurações → Jogo).",
+ "Adult content in new games": "Conteúdo adulto em novos jogos",
+ "Ask me (it starts off)": "Perguntar (começa desativado)",
+ "Off, without asking": "Desativado, sem perguntar",
+ "On, without asking": "Ativado, sem perguntar",
 };
 export default DICT;
