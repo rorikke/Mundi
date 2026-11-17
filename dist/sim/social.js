@@ -159,9 +159,11 @@ export function romanceFrom(g, w, romance) {
 // kind thought. Friendship grows by that (paced), once per kind of keepsake per person; the AI is told how it landed.
 // A romantic gift moves romance too with someone drawn to you. An intimate one only lands with them: anyone else hands
 // it back (a little awkward), and one that touches someone's hard limits is refused; one that matches what they like
-// in their intimate profile is loved.
-export const GIFT = { loves: 8, fits: 4, kind: 1.5 };
+// in their intimate profile is loved. One they can't stand (their name in `hates`) is thanked for politely: nothing
+// gained, a little friendship lost, the kind still open for a better gift.
+export const GIFT = { loves: 8, fits: 4, kind: 1.5, hates: 0 };
 export const GIFT_AWKWARD = 3; // friendship lost when an intimate gift is handed back (twice that when refused)
+export const GIFT_HATED = 2; // friendship lost when someone is given a thing they can't stand
 export const keepsakesOf = (g) => (g.player.keepsakes ??= {});
 export const keepsakeDef = (w, id) => w.keepsakes?.find(k => k.id === id) ?? { id, name: id, icon: '🎁' };
 export function addKeepsake(g, id, n = 1) { const k = keepsakesOf(g); k[id] = (k[id] ?? 0) + n; if (k[id] <= 0)
@@ -188,6 +190,8 @@ export function giftFit(g, w, k, avatar) {
     if (!r)
         return 'kind';
     const loves = k.loves ?? [];
+    if ((k.hates ?? []).some(l => personNamed(g, l)?.avatar === avatar))
+        return 'hates';
     if (loves.some(l => personNamed(g, l)?.avatar === avatar))
         return 'loves';
     if (k.intimate && wordsIn(g, k.loves, profileText(intimateOf(g, avatar))))
@@ -230,6 +234,15 @@ export function giveKeepsake(g, w, id, avatar) {
     if (!given.includes(id))
         given.push(id);
     const fit = giftFit(g, w, k, avatar);
+    // something they can't stand: taken, thanked for politely, a little friendship lost; its kind isn't used up
+    if (fit === 'hates') {
+        const d = lose(g, 'f', avatar, YOU, -GIFT_HATED);
+        touch(g, avatar);
+        sawYou(g, avatar);
+        note(g, '{u} gave {0} a gift: {1}.', [r.name, k.name], [avatar], g.player.loc, 'gift');
+        const ai = `[Just now {{user}} gave ${r.name} a gift: ${k.name}. It is the kind of thing ${r.name} can't stand: ${r.name} thanks {{user}} politely and doesn't make a scene of it, but isn't pleased, and it shows a little. Narrate how ${r.name} reacts.]`;
+        return { ok: true, text: `${r.name} thanks you for the ${k.name}, politely.`, fit, first: false, d: -d, ai };
+    }
     const worth = GIFT[fit] * effectMul(g, w, 'gain', 'gifts');
     const d = first ? gain(g, 'f', avatar, YOU, worth).d : 0;
     const loving = !!(k.romantic || k.intimate) && drawn;

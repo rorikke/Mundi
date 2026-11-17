@@ -350,7 +350,7 @@ export function needsText(g, w, c) {
         return '';
     const out = [];
     for (const cond of parseWhen(c.needs).conds) {
-        const text = `${cond.not ? 'not ' : ''}${cond.key}: ${cond.values.join(' or ')}`;
+        const text = `${cond.key}: ${cond.not ? 'not ' : ''}${cond.values.join(' or ')}`; // (the grammar's own order: `course: not x`)
         if (whenHolds(g, w, text))
             continue;
         if (cond.key === 'skill' && !cond.not)

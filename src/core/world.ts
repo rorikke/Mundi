@@ -867,7 +867,10 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
     romantic?: boolean;
     /** An intimate gift: welcome only from a partner or someone with a Crush on you and up (anyone else hands it back);
      *  refused when a word of `loves` is in their hard limits, loved when one is in their intimate profile. */
-    intimate?: boolean }
+    intimate?: boolean;
+    /** Who can't stand it (names of the world's people): given to them it's thanked for politely, gains nothing and
+     *  costs a little friendship (GIFT_HATED). Tamaki and new things made to look old. */
+    hates?: string[] }
 /** (collection) Halls, each a set of slots in groups. A `record` hall (Tokyo memories) fills by itself from what you did
  *  (each slot's `when`, latched the first time it holds); the others hold pieces you find or buy (their `sources`, from
  *  the museum's track). `minKind`: a keepsake kind gets a record slot only when this game can have that many of it (3). */

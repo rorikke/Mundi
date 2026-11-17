@@ -722,6 +722,8 @@ module gets the skill.
 - **A gift's worth is how well it fits**, as before, whatever it cost: money doesn't buy anyone's affection. An
   expensive one is told to the AI as expensive, and each kind of gift counts once per person, so a hunt for every kind
   is still a hunt: every kind has at least one keepsake you can only earn.
+- **Some people can't stand a gift** (Tamaki and new things made to look old): they thank you politely, nothing is
+  gained, they like you a little less, and that kind of gift still counts the next time.
 - **With adult content on**, the overlay's milder intimate gifts (lingerie, costumes, a blindfold, massage oil) are now
   part of Tokyo itself, sold at Omotesandō, in Kabukichō and at Hotel Coco Palace, with what they unlock.
 
@@ -874,8 +876,8 @@ take a few game years of a top income, and a home with every room it could have 
 
 ## Storylines
 
-Some of Tokyo's people carry a story of their own: a debt, an exam, a lease, a visa, a leaving. 26 of its people have
-one (seven of them are adult). A storyline starts once you know the person, runs on its own time, and at its end it
+Some of Tokyo's people carry a story of their own: a debt, an exam, a lease, a visa, a leaving. There are 43
+storylines for 32 of its people (13 of them adult; Tamaki, Ayame and Kaede have several each). A storyline starts once you know the person, runs on its own time, and at its end it
 waits for you: you decide, in a scene with them, whether to help, wait or let it be, and if you leave it they come back
 a few times before it ends without you.
 
@@ -1067,14 +1069,15 @@ Yanaka, whose curator becomes the end game's reward. It's the largest thing in t
 
 ### The dealer and the sales
 
-- **The dealer**, a woman with an old van, calls every week with three pieces (four once the museum is in the
-  guidebooks), on sale until her next visit. Nothing waits for ever: every piece she can bring comes round within a
-  few visits. You can **ask her for a piece**: it comes with her next visit, on top of the rest, 10% dearer.
+- **The dealer**, Kaede Utsumi (below), parks her old cream camper van in Yanaka every week with three pieces (four
+  once the museum is in the guidebooks), on sale until her next visit. Nothing waits for ever: every piece she can
+  bring comes round within a few visits. You can **ask her for a piece**: it comes with her next visit, on top of the
+  rest, 10% dearer.
 - **The sales**: four a year at an auction house on Ginza's Chūō-dōri (day 10 of each season at 15:00), the catalogue a
-  week before. Set a top bid for each lot (the estimate, +25%, +50%, +100%). Another collector, a woman who bids by
-  phone, wants some lots (the dear ones more often), and bids higher as your museum grows famous. Be in the saleroom as
-  it starts and you get one more step when she outbids you.
-- **A lot she takes comes back** within two sales, offered by her at 20% over the estimate. Not bought then, the dealer
+  week before. Set a top bid for each lot (the estimate, +25%, +50%, +100%). Another collector, Ayame Mikage (below),
+  wants some lots (the dear ones more often), and bids higher as your museum grows famous: by phone at first, in the
+  saleroom once she knows you. Be in the saleroom as it starts and you get one more step when she outbids you.
+- **A lot she takes comes back** within two sales, offered by her at 20% over the estimate. Not bought then, Kaede
   brings it later at half as much again. A piece whose only way has passed (a story played another way, a business you
   never ran) comes from the dealer, or the workshop makes a **replica**: it counts, gives half the renown, and gives way
   to the real piece if that ever comes.
@@ -1094,17 +1097,62 @@ Yanaka, whose curator becomes the end game's reward. It's the largest thing in t
   hours*, *The last case*), wait for you: they never end by last chances. The first is about a painting her grandfather
   sold, which turns up at a sale; win it, and she hangs it in the kura again. The last can end with her moving in.
 - **Her eye**: with her along, a find is likelier and less often damaged; after five of her lessons your own eye stays
-  sharper; from Confidante she tells you which lot the other collector wants.
+  sharper; from Confidante she tells you which lot Ayame wants.
 - **With her**: comb the antique market's stalls, a Jinbōchō evening, festival dates in yukata, staying after closing,
   the kura's roof at night, a weekend in Hakone, each from its tier; gifts she loves (sweets from Yanaka Ginza, a good
-  writing brush, an old sale catalogue) and four keepsakes of hers. With adult content on, her intimate side opens
-  from the later tiers, as anyone's does; with it off, everything else plays.
+  writing brush, an old sale catalogue) and four keepsakes of hers. New things made to look old (the "antique" netsuke
+  and the "Edo" print at Nakamise's souvenir stalls) she can't stand: she thanks you politely, and likes you a little
+  less. With adult content on, her intimate side opens from the later tiers, as anyone's does; with it off, everything
+  else plays.
+
+### Ayame Mikage
+
+- The other collector at the sales: 31, director of the Mikage Foundation, the art collection of an old Den-en-chōfu
+  shipping family; a fencer, ice-cool and exquisitely polite in a way that cuts, gloved, an iris on her signet ring. She
+  hates whoever owns the Kurahashi kura. She's in the game once the kura opens.
+- **Enemies, never friends.** She lets you closer in four tiers, each opened by **lots you take from her** (won over
+  her bid, or bought back from her after she took one): **Rival** when the kura opens, **Contempt** after the first,
+  **Heat** after five, **Obsessed** after nine. Her friendship never rises above wary; what grows is the heat. At
+  Contempt she comes to the sales in person and cuts you at her foundation's gala at the Sky Museum; at Heat she'd
+  rather cross blades with you at her fencing club, or take tea after a sale, than talk; Obsessed, she turns up at the
+  kura at night, furious and unable to stay away.
+- **Her two storylines** wait for you: *The Mikage Sesshū*, about the scroll Tamaki called a copy on Treasure Clinic
+  (she always knew), and *Her grandmother's irises*, the Kōrin screen she means to have back. With adult content on she
+  has two more, *On her terms* and *She is everywhere*.
+- **The Mikage Foundation's loans**: from Contempt, at the start of a season her foundation may ask to borrow a piece
+  you took from her at a sale (one of the dearer ones, ¥¥¥ and up, or the irises) for its season's exhibition at the
+  Sky Museum: ¥50,000 for the season for a ¥¥¥ piece, ¥200,000 for ¥¥¥¥, ¥625,000 for ¥¥¥¥¥. Answer within a week. While it's away it brings no
+  renown but still counts as yours, and it's back after the season's last day; the same piece isn't asked for again for
+  eight weeks.
+- **Six authentication cases**: once you know her family's secret, a crate from the Mikage house comes to the kura on a
+  Thursday early in the season, Ayame with it, and Tamaki goes through another of her grandfather's copies (a
+  Sesshū-school scroll, a black Raku bowl, a pair of screens, a sword guard, a lacquer writing box, his seal), one case
+  after another: ¥500,000 to ¥1,500,000 each, ¥6,000,000 in all. Tell her plainly (and she corrects her catalogue), or
+  keep it between the two of you (and she hates that you know).
+
+### Kaede Utsumi
+
+- The dealer: 28, from Nagasaki, sun-browned and laughing, selling from the back of an old cream camper van to a
+  handful of collectors she likes; she haggles for the joy of it, tells every piece's story half true, and never stays
+  anywhere longer than a season. You find her van in Yanaka by day, at Yamashita Park's harbour on Friday and Saturday
+  evenings and at Hakone-Yumoto on Sundays.
+- **Heat, never commitment.** She wants you from the first visit and says so. Her four tiers open with **what you
+  spend with her**: **Kura-san** when the kura opens, **Flirt** at ¥250,000, **Nights** at ¥2,500,000, **Anything
+  agreed** at ¥7,500,000. She can become a good friend and a crush, never more than something casual. Sit on her
+  tailgate, ask for the true version of a piece's story, harbour drinks, a roadside onsen at Hakone, her bets.
+- **Her storyline** *Back of the van*: a locker at the back of the van stays shut, and the brass pocket watch on her
+  belt doesn't run; the end can bring her into the kura for the first time. With adult content on she has two more,
+  *The road at night* and *A season of dares*, and nights in the van, the night beach and the lake.
+- Neither of them is needed for the museum's 100%, and no piece costs less for knowing them. Both are drawn only to
+  you, aren't on the dating app and never leave Tokyo. A game started before they came offers them once, as any of the
+  world's people added later.
 
 ### How long it takes
 
 - The base halls and the kura's upgrades cost about **¥48 million** (¥44 million of it before Nature and Before Edo),
-  more with shows, lots she pushes up, and pieces bought back. Tokyo's life goal **Patron of the arts** (open the kura, thirty pieces, in the guidebooks,
-  famous) gives the **Connoisseur** perk: museum prices 10% lower (not bids at the sales).
+  more with shows, lots she pushes up, and pieces bought back; Ayame's loans and cases bring some of it back. Tokyo's
+  life goal **Patron of the arts** (open the kura, thirty pieces, in the guidebooks, famous) gives the **In the
+  guidebooks** perk: renown 10% higher, so more visitors to the kura.
 - In the long simulated runs, a player putting the museum first (with a show every season, and Nature and the dig at
   weekends) completes it **four to five game years** after opening the kura on ¥1,500,000 a week, and about **seven**
   on ¥1,000,000; on ¥500,000 it's about 90% after eight years. Spending half as much, and leaving Nature and the dig

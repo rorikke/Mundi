@@ -15,7 +15,7 @@ import * as S from '../sim/shop.js';
 import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, catOf, type Item, type ShopCat, type ShopState } from '../sim/shop.js';
 import { ACT } from './reg.js';
 
-import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf,
+import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf, serviceLeft,
     stockLeft as stockOf, shopPrice as priceAt, buy as buyAt } from '../sim/shop.js';
 const offeredAt = offers;
 
@@ -37,7 +37,7 @@ export const shopHereCount = (g: Save, w: WorldDef): number => (systemOn(w, 'sho
 
 function leftWords(g: Save, it: Item): string {
     const d = daysOf(g, it.id), stock = stockOf(g, it.id);
-    if (d > 0) return plural(d, '1 day left', '{0} days left');
+    if (d > 0) return d === 1 ? '1 day left' : serviceLeft(d);
     if (stock > 0) return plural(stock, '1 left', '{0} left');
     return '';
 }

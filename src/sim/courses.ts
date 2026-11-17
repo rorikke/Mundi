@@ -322,7 +322,7 @@ export function needsText(g: Save, w: WorldDef, c: Course): string {
     if (!c.needs) return '';
     const out: string[] = [];
     for (const cond of parseWhen(c.needs).conds) {
-        const text = `${cond.not ? 'not ' : ''}${cond.key}: ${cond.values.join(' or ')}`;
+        const text = `${cond.key}: ${cond.not ? 'not ' : ''}${cond.values.join(' or ')}`;   // (the grammar's own order: `course: not x`)
         if (whenHolds(g, w, text)) continue;
         if (cond.key === 'skill' && !cond.not) out.push(cond.values.map(v => { const [id, n] = v.split(/\s+/); return `${skillName(w, id)} ${n ?? ''}`.trim(); }).join(' or '));
         else if (cond.key === 'course' && !cond.not) out.push(cond.values.map(v => (/^\d+$/.test(v) ? `${v} courses finished` : courseOf(w, v)?.name ?? v)).join(' or '));

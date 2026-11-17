@@ -2177,6 +2177,7 @@ function keepsakesEditor(w) {
                 <div class="mu-row2">${optTxt('Kind (a gift of each kind counts once per person)', `${p}.kind`, 'charm')}${chk('It can be given', `${p}.gift`, '', true)}</div>
                 ${area('Description', `${p}.desc`, 2)}
                 ${words('Who would love it (names, or words matched against their job and where they spend free time)', `${p}.loves`, '', 'Mio, music, shrine')}
+                ${words("Who can't stand it (names: thanked for politely, a little friendship lost)", `${p}.hates`, '', 'Tamaki')}
                 <div class="mu-row2">${flag('A romantic gift', `${p}.romantic`, 'With someone drawn to you, romance grows too.')}${flag('An intimate gift', `${p}.intimate`, 'Welcome only from a partner or someone with a crush on you.', true)}</div>
                 ${flag('Only with adult content on', `${p}.adult`, '', true)}
                 <details class="mu-cw-kept" ${k.at?.length ? 'open' : ''}><summary>Sold at · ${k.at?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.at`, true)}</details>
@@ -2852,7 +2853,18 @@ export const QUICK = {
     seen: { name: 'A choice made at work', ok: w => workEvents(w).length > 0, opts: w => workEvents(w).map(([o, e]) => [e.id, `${o.name}: ${e.setup.length > 50 ? `${e.setup.slice(0, 49)}…` : e.setup}`]),
         extra: (w, id) => { const e = workEvents(w).find(([, x]) => x.id === id)?.[1]; return [['', 'Any choice'], ...(e?.choices ?? []).map((c, k) => [String(k + 1), c.label])]; },
         make: (id, _n, c) => `seen: ${id}${c ? `:${c}` : ''}` },
+    // (track 7) the end game's keys: homes, rooms and fixtures, letting, the record (a party at home is `did`'s grand_party)
+    home: { name: 'A home of your own', ok: w => systemOn(w, 'housing'), opts: () => [['owned', 'A home of your own'], ['second', 'A second home']], make: x => `home: ${x}` },
+    fixtures: { name: 'Rooms and fixtures bought', ok: w => systemOn(w, 'housing') && (w.homes?.fixtures ?? []).length > 0, opts: () => [['', 'In your homes, in all']], n: 'How many', make: (_x, n) => `fixtures: ${Math.max(1, n)}` },
+    let: { name: 'Homes let', ok: lettingOn, opts: () => [['', 'At once']], n: 'How many', make: (_x, n) => `let: ${Math.max(1, n)}` },
+    rent: { name: 'Rent from your tenants', ok: lettingOn, opts: () => [['', 'In all']], n: 'How much', make: (_x, n) => `rent: ${Math.max(1, n)}` },
+    record: { name: 'The record filled', ok: w => systemOn(w, 'collection') && recordHalls(w).length > 0, n: 'How much',
+        opts: w => [['%', 'A share of the record (percent)'], ...recordHalls(w).flatMap(h => [[`all:${h.id}`, `Every entry in ${h.name}`], [`in:${h.id}`, `A number of entries in ${h.name}`]])],
+        make: (x, n) => (x.startsWith('all:') ? `record: all in ${x.slice(4)}` : x.startsWith('in:') ? `record: ${Math.max(1, n)} in ${x.slice(3)}` : `record: ${Math.min(100, Math.max(1, n))}%`) },
 };
+function lettingOn(w) { return systemOn(w, 'housing') && (w.homes?.zones ?? []).some(z => !!z?.letting); }
+// (a record hall named with a space can't be written in a condition)
+function recordHalls(w) { return (w.collection?.halls ?? []).filter(h => h.record && /^[^\s,;:]+$/.test(h.id)); }
 // The world's work events (a job's and its tracks'), with their job, each once by id.
 function workEvents(w) {
     const out = [];
