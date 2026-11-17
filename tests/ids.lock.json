@@ -1741,7 +1741,10 @@
    "hk_ashi_kaede_tailgate",
    "mg_fencing_bout",
    "mg_fencing_ayame",
-   "mg_fencing_ayame_after"
+   "mg_fencing_ayame_after",
+   "ot_kura_back_tamaki_copyist",
+   "yk_van_kaede_copyist",
+   "mg_viewing_ayame_copyist"
   ],
   "occupations": [
    "rider",
@@ -2381,7 +2384,16 @@
    "mem_sl_kaede_tailgate",
    "mem_sl_kaede_dares",
    "mem_kk_ayame",
-   "mem_kk_kaede"
+   "mem_kk_kaede",
+   "tc_copyist",
+   "ag_copyist",
+   "kl_copyist_end",
+   "kl_copyist",
+   "copyist_landscape",
+   "copyist_pines_mist",
+   "copyist_pine_panel",
+   "copyist_puppies",
+   "mem_sl_kaede_copyist"
   ]
  }
 }
