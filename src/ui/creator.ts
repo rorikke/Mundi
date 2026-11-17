@@ -1893,6 +1893,7 @@ function keepsakesEditor(w: WorldDef) {
                 <div class="mu-row2">${optTxt('Kind (a gift of each kind counts once per person)', `${p}.kind`, 'charm')}${chk('It can be given', `${p}.gift`, '', true)}</div>
                 ${area('Description', `${p}.desc`, 2)}
                 ${words('Who would love it (names, or words matched against their job and where they spend free time)', `${p}.loves`, '', 'Mio, music, shrine')}
+                ${words("Who can't stand it (names: thanked for politely, a little friendship lost)", `${p}.hates`, '', 'Tamaki')}
                 <div class="mu-row2">${flag('A romantic gift', `${p}.romantic`, 'With someone drawn to you, romance grows too.')}${flag('An intimate gift', `${p}.intimate`, 'Welcome only from a partner or someone with a crush on you.', true)}</div>
                 ${flag('Only with adult content on', `${p}.adult`, '', true)}
                 <details class="mu-cw-kept" ${k.at?.length ? 'open' : ''}><summary>Sold at · ${k.at?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.at`, true)}</details>

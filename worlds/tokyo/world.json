@@ -41396,6 +41396,25 @@
    ]
   },
   {
+   "id": "aged_netsuke",
+   "name": "\"Antique\" netsuke",
+   "icon": "🐇",
+   "kind": "charm",
+   "gift": true,
+   "loves": [
+    "Hina",
+    "Linh"
+   ],
+   "hates": [
+    "Tamaki"
+   ],
+   "at": [
+    "ot_sensoji"
+   ],
+   "price": 2400,
+   "desc": "A resin rabbit netsuke from a Nakamise souvenir stall, stained with tea to look two centuries old."
+  },
+  {
    "gift": true,
    "id": "thank_you_note",
    "name": "thank-you note",
@@ -41726,6 +41745,25 @@
     "Kyōko",
     "Yui"
    ]
+  },
+  {
+   "id": "aged_print",
+   "name": "\"Edo\" woodblock print",
+   "icon": "🖼️",
+   "kind": "print",
+   "gift": true,
+   "loves": [
+    "Chloe",
+    "Jake"
+   ],
+   "hates": [
+    "Tamaki"
+   ],
+   "at": [
+    "ot_sensoji"
+   ],
+   "price": 4800,
+   "desc": "A Hokusai wave printed last year on paper browned and foxed to pass for old, in a cellophane sleeve."
   },
   {
    "gift": true,

@@ -307,7 +307,7 @@ Object.assign(ACT, {
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
         const r = giveKeepsake(g, w, el.dataset.id!, el.dataset.who!);
         giveOpen = false;
-        if (r.text) toast(r.text, r.ok && !r.back && r.first && r.fit !== 'kind' ? 'success' : 'info');
+        if (r.text) toast(r.text, r.ok && !r.back && r.first && (r.fit === 'loves' || r.fit === 'fits') ? 'success' : 'info');
         if (r.ok && r.ai && state.view === 'scene') setPrompt('mundi_roll', r.ai);
         if (r.ok) { saveGame(); refreshPrompt(); }
         notify();

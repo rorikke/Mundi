@@ -10110,5 +10110,7 @@ const DICT: Record<string, string> = {
  "three more weeks": "tres semanas más",
  "four more weeks": "cuatro semanas más",
  "{0} more weeks": "{0} semanas más",
+ "{0} thanks you for the {1}, politely.": "{0} te da las gracias por {1}, con educación.",
+ "Who can't stand it (names: thanked for politely, a little friendship lost)": "Quién no lo soporta (nombres: da las gracias con educación, se pierde un poco de amistad)",
 };
 export default DICT;
