@@ -19,7 +19,9 @@ export type Meter = 'f' | 'r';
 export type Status = 'casual' | 'dating' | 'engaged' | 'married';
 /** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no", or `was`).
  *  `was`: the couple they used to be and the day it ended. */
-export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number; was?: Past }
+/** `wedding` (the world's engaged pairs, sim/longlife.ts): the day they marry, set when their marriage roll passes; kept
+ *  through the wedding day itself once married. */
+export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number; was?: Past; wedding?: number }
 /** A couple that ended. `status` missing: exes from before this was kept (what they were is unknown). */
 export interface Past { status?: Status; until: number }
 export type Pace = PaceId;
@@ -220,11 +222,12 @@ export function setStatus(g: Save, a: string, b: string, status: Status | null, 
     a = idOf(g, a); b = idOf(g, b);
     if (!a || !b || a === b) return;
     const st = relOf(g); const k = pk(a, b); const p = (st.pairs[k] ??= {});
-    if (status) { if (p.status !== status) p.since = since; p.status = status; delete p.was; }
+    // (a wedding day set ahead goes with any change: a split before the day, an editor's hand)
+    if (status) { if (p.status !== status) { p.since = since; delete p.wedding; } p.status = status; delete p.was; }
     else {
         const ended = p.status;
         if (ended && remember) p.was = { status: ended, until: g.day };
-        delete p.status; delete p.since; delete p.low;
+        delete p.status; delete p.since; delete p.low; delete p.wedding;
     }
     tidyPair(st, k);
 }
