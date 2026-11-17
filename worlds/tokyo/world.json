@@ -44471,7 +44471,7 @@
         },
         {
          "name": "Star photographer",
-         "pay": 60000,
+         "pay": 56000,
          "days": 3,
          "needs": {
           "photography": 9,
@@ -44531,7 +44531,7 @@
         },
         {
          "name": "The one everyone wants",
-         "pay": 60000,
+         "pay": 56000,
          "days": 3,
          "needs": {
           "photography": 9,
@@ -44548,6 +44548,7 @@
        "desc": "freelance in a studio of your own: portraits, idols, album covers, headshots",
        "freelance": true,
        "hire": "photorep: 30",
+       "pace": 1.12,
        "closed": "Going out on your own takes a photo reputation of 30 first.",
        "promote": [
         5,
@@ -44591,7 +44592,7 @@
         },
         {
          "name": "Star photographer",
-         "pay": 60000,
+         "pay": 56000,
          "days": 3,
          "needs": {
           "photography": 9,
