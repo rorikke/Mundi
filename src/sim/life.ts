@@ -17,6 +17,7 @@ import { placeOf, playerHomeId } from './places.js';
 import { whereNow, residents } from './people.js';
 import { shutOut } from './romance.js';
 import { grudgeOf } from './grudges.js';
+import { sceneHere, roomNow, bedroomDoor } from './homerooms.js';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.world}|${g.day}|${g.minutes}|${salt}`; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -134,12 +135,7 @@ export function doorAnswer(g: Save, w: WorldDef, loc: string): { ok: boolean; te
     if ((r as any).guest) return { ok: true, text: '' };
     const home = whereNow(g, w, r) === loc;
     if (shutOut(g, r.avatar)) return { ok: false, text: lex(w, home ? 'doorOut' : 'doorNobody', r.name) };   // they dislike you: no key, no way in
-    if (isScenario(w)) {   // Home: a bedroom down the hall, not a house across town
-        if (isPartner(g, r.avatar) || bondOf(g, r.avatar) >= 50) return { ok: true, text: home ? '' : `${r.name} is not in, but the door is not locked.` };
-        if (!home) return { ok: false, text: `${r.name}'s room is locked, and you don't know where the key is.` };
-        if (bondOf(g, r.avatar) >= 15) return { ok: true, text: `You knock on ${r.name}'s door and they let you in.` };
-        return { ok: false, text: `You knock on ${r.name}'s door. They talk to you through it, but don't let you in.` };
-    }
+    if (isScenario(w)) return bedroomDoor(g, r, home, false);   // Home: a bedroom down the hall, not a house across town
     if (isPartner(g, r.avatar) || bondOf(g, r.avatar) >= 50) return { ok: true, text: home ? '' : `${r.name} is out, but you know where the key is.` };
     if (!home) return { ok: false, text: lex(w, 'doorNobody', r.name) };
     if (bondOf(g, r.avatar) >= 15) return { ok: true, text: lex(w, 'doorIn', r.name) };
@@ -149,8 +145,9 @@ export function doorAnswer(g: Save, w: WorldDef, loc: string): { ok: boolean; te
 /* ---------- scene lock: people do not walk out in the middle of a conversation ---------- */
 
 export function lockScene(g: Save, w: WorldDef) {
-    const here = residents(g).filter(r => whereNow(g, w, r) === g.player.loc).map(r => r.avatar);
-    (social(g) as any).lock = { loc: g.player.loc, who: here, until: nowAbs(g) + 60 };
+    // (homerooms) in a home with rooms, only the people in your room, kept in that room (`room`)
+    const here = sceneHere(g, w).map(r => r.avatar), room = roomNow(g, w)?.id;
+    (social(g) as any).lock = { loc: g.player.loc, who: here, until: nowAbs(g) + 60, ...(room ? { room } : {}) };
 }
 export function lockedHere(g: Save, avatar: string): string | null {
     const l = (social(g) as any).lock as { loc: string; who: string[]; until: number } | undefined;

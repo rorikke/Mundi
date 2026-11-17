@@ -34,7 +34,6 @@ import { placeOf, playerHomeId } from '../sim/places.js';
 import { missingCourses } from '../sim/courses.js';
 import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf } from '../sim/work.js';
 import { banHere } from '../sim/caught.js';
-import { presentAt } from '../sim/people.js';
 import { approachOn, keepToMyself, setKeepToMyself } from '../sim/approach.js';
 import { period, weekday, seasonOf, toNextPeriod } from '../sim/time.js';
 import { icon } from './icons.js';
@@ -53,7 +52,7 @@ import { bumpHtml } from './bump.js';
 import { newPeopleHtml } from './newpeople.js';
 import { P as phone, phoneUnread } from './phone.js';
 import { PL, facePlanHtml } from './plans.js';
-import { relBar, workButton } from './relui.js';
+import { relBar, workButton, doorbellHtml } from './relui.js';
 import { openNow } from '../sim/daynight.js';
 import { questsHere, doStep } from '../sim/quests.js';
 import { weatherHere, crowdLevel, crowdWord, regionState, regionOf, moodWord, tensionWord } from '../sim/worldstate.js';
@@ -70,6 +69,7 @@ import { rpgOf } from '../core/rpgdef.js';
 import { afterglow, DESIRE } from '../sim/drive.js';
 import { toastLogHtml } from './toastlog.js';
 import { roomRows } from './homesui.js';
+import { roomNow, sceneHere, elsewhereHere } from '../sim/homerooms.js';
 import { SECOND_HOME_ID } from '../sim/housing.js';
 
 /* ---------- you ---------- */
@@ -115,7 +115,8 @@ function clockCard(g: Save, w: WorldDef) {
     const wx = weatherHere(g, w);
     const here = placeOf(g, w, g.player.loc);
     const se = seasonOf(g);
-    const where = esc(g.player.loc === playerHomeId ? 'Home' : here?.name ?? '');
+    const room = roomNow(g, w);   // (homerooms) the room you're in, after the home's name
+    const where = esc(g.player.loc === playerHomeId ? 'Home' : here?.name ?? '') + (room ? `<span class="mh-bar-room"> › ${esc(room.name)}</span>` : '');
     // how busy it is here, and the mood of the region (the living world)
     const reg = systemOn(w, 'living') && g.player.loc !== playerHomeId ? regionState(g, w, regionOf(g, w, g.player.loc)) : null;
     const shut = reg && !openNow(g, w, g.player.loc);
@@ -201,10 +202,18 @@ function timeLeftText(mins: number): string {
 // Who is in this place (not in your party): their pictures under the place's name; a click opens their options.
 function hereBar(g: Save, w: WorldDef) {
     if (state.view !== 'scene') return '';
-    const list = presentAt(g, w, g.player.loc);   // everyone in the place, the people who came with you too
-    if (!list.length) return '';
+    const list = sceneHere(g, w);   // everyone in the place (in your room, at a home with rooms), the people who came with you too
+    const bell = doorbellHtml(g, w);   // (plans) someone come to stay is at the door
+    if (!list.length) return bell + elsewhereBar(g, w);
     const mine = new Set(withYou(g, w));   // (marked: who is with you now, sim/social.ts; the others are only around)
-    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>`;
+    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${bell}${elsewhereBar(g, w)}`;
+}
+// (homerooms) The people you know elsewhere in the house: their face, name and room; a click walks you there (doors
+// apply).
+function elsewhereBar(g: Save, w: WorldDef) {
+    const list = elsewhereHere(g, w);
+    if (!list.length) return '';
+    return `<nav class="mh-here mh-glass mh-elsewhere" aria-label="Elsewhere at home"><small>Elsewhere at home</small>${list.map(x => `<button class="mh-here-p ${x.asleep ? 'is-asleep' : ''}" data-act="hr-room" data-room="${esc(x.room.id)}" title="${esc(x.r.name)}"><img src="${esc(thumb(x.r.avatar))}" alt=""><b data-notr>${esc(x.r.name)}</b><i>${x.room.bed === x.r.avatar ? '<span>Their room</span>' : `<span data-notr>${esc(x.room.name)}</span>`}${x.asleep ? ' · <span>asleep</span>' : ''}</i></button>`).join('')}</nav>`;
 }
 
 /* ---------- things to do (inside a scene) ---------- */
@@ -261,7 +270,7 @@ function shownRows(html: string): number {
 function keepRow(g: Save, w: WorldDef): string {
     if (!approachOn(w)) return '';
     const on = keepToMyself(g);
-    if (!on && !presentAt(g, w, g.player.loc).length) return '';
+    if (!on && !sceneHere(g, w).length) return '';
     return `<button class="mh-act mh-glass mh-keep ${on ? 'is-on' : ''}" data-act="keep-toggle" aria-pressed="${on}"><i>${icon(on ? 'lock' : 'users')}</i><b>Keep to myself</b><small>${on ? 'On · only friends come over, and rarely' : 'Off · people here may come over'}</small></button>`;
 }
 
@@ -280,7 +289,7 @@ function innRows(g: Save, w: WorldDef, atHome: boolean): string[] {
 // (E35) Keepsakes you can give to someone you know who is here (one row; open it to pick what and to whom).
 let giveOpen = false;
 function giftRows(g: Save, w: WorldDef): string[] {
-    const have = giftable(g, w), people = presentAt(g, w, g.player.loc).filter(r => r.met);
+    const have = giftable(g, w), people = sceneHere(g, w).filter(r => r.met);
     if (!have.length || !people.length) return [];
     return [`<button class="mh-act mh-glass" data-act="give-open"><i>🎁</i><b>Give a keepsake</b><small>${have.length} to give</small></button>`,
         ...(giveOpen ? have.flatMap(k => people.map(r => `<button class="mh-act mh-glass is-sub" data-act="give" data-id="${esc(k.id)}" data-who="${esc(r.avatar)}"><i>${esc(k.icon)}</i><b><span data-notr>${esc(k.name)}</span> → <span data-notr>${esc(r.name)}</span></b><small>× ${esc(String(keepsakesOf(g)[k.id] ?? 0))}</small></button>`)) : [])];

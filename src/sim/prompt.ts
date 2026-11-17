@@ -13,11 +13,12 @@ import { getWorld, homeNeedsOn } from '../core/world.js';
 import { aiLangNote } from '../core/i18n.js';
 import { setPrompt, nameOf, chat } from '../st/bridge.js';
 import { weekday, hm, period, seasonOf } from './time.js';
-import { placeOf } from './places.js';
-import { presentAt, whereNow, OUT } from './people.js';
+import { scenePlace, sceneHere, elsewhereLine, partyRoomsLine } from './homerooms.js';
+import { whereNow, OUT } from './people.js';
 import { partyLine as houseLine } from './houseparty.js';
 import { feelings } from './needs.js';
 import { planLines } from './plans.js';
+import { visitorLine } from './visitors.js';
 import { memoryLines } from './facts.js';
 import { diaryLines } from './diary.js';
 import { tiesLine, householdLine, colleaguesLine } from './living.js';
@@ -160,8 +161,8 @@ export function sceneBlocks(): Built[] {
     const g = game();
     const w = g && getWorld(g.world);
     if (!g || !w) return [];
-    const here = placeOf(g, w, g.player.loc);
-    const present = presentAt(g, w, g.player.loc);
+    const here = scenePlace(g, w);   // (homerooms) the home with the room you're in: "My home › Shared kitchen"
+    const present = sceneHere(g, w);
     const met = present.filter(r => r.met);
     const pc = promptCfg();
     const intimate = blocksOf(w, g).some(b => b.id === 'intimate') ? profileLines(g, w, here, present) : { lines: [], limits: '' };
@@ -176,6 +177,7 @@ export function sceneBlocks(): Built[] {
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
             `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
             hereLine(g, w, present, bg, sheets.length > 0),
+            ...(elsewhereLine(g, w) ? [elsewhereLine(g, w)] : []),   // (homerooms) the others at home, in their rooms
             ...(guestLine(g, present) ? [guestLine(g, present)] : []),
             ...(present.some(r => !r.met) ? [`Strangers to {{user}}: ${present.filter(r => !r.met).map(r => r.name).join(', ')}. They and {{user}} have never met: they do not know each other's names until they talk and introduce themselves.`] : []),
         ],
@@ -184,11 +186,11 @@ export function sceneBlocks(): Built[] {
         world: [worldLine(g, w), festivalLine(g, w), realmLine(g, w), skiesLine(g, w), ...legendLines(g, w)],
         diary: diaryLines(g),
         memories: [...memoryLines(g, w, met, personaName()), ...placeMemoryLines(g, w, present)],
-        plans: planLines(g, present, w),
+        plans: [...planLines(g, present, w), visitorLine(g, w, present)],
         language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g), ...sceneLines.flatMap(f => f(g, w, present))],
         feelings: [feelingLine(g, met)],
-        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), royaltyLine(g, w), digLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
+        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), partyRoomsLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), royaltyLine(g, w), digLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],
@@ -246,7 +248,7 @@ export function refreshPrompt() {
     const g = game(), w = g && getWorld(g.world);
     if (g && w) checkInitiative(g, w);
     setPrompt(PROMPT_KEY, sceneText());
-    if (g && w && sceneBlocks().find(b => b.id === 'moments')?.state === 'sent') markSent(momentsFor(g, w, presentAt(g, w, g.player.loc)), chat().length);
+    if (g && w && sceneBlocks().find(b => b.id === 'moments')?.state === 'sent') markSent(momentsFor(g, w, sceneHere(g, w)), chat().length);
 }
 export const clearPrompt = () => setPrompt(PROMPT_KEY, '');
 export const speakerName = (avatar: string) => nameOf(avatar);

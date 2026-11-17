@@ -4,7 +4,7 @@ import { state, game, esc } from '../core/store.js';
 import { setHtml } from '../core/safe.js';
 import { getWorld } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
-import { presentAt } from '../sim/people.js';
+import { sceneHere } from '../sim/homerooms.js';
 
 interface Who { avatar: string; name: string }
 const M = { open: false, items: [] as Who[], sel: 0, start: 0, end: 0 };
@@ -14,7 +14,7 @@ let box: HTMLDivElement | null = null;
 export function mentionable(): Who[] {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w) return [];
-    return presentAt(g, w, g.player.loc).filter(r => r.met).map(r => ({ avatar: r.avatar, name: r.name }));
+    return sceneHere(g, w).filter(r => r.met).map(r => ({ avatar: r.avatar, name: r.name }));
 }
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 

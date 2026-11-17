@@ -16,7 +16,7 @@
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour, onDay, onLook, tierLink } from './hooks.js';
-import { presentAt, residents, routineAt, workingAt } from './people.js';
+import { residents, routineAt, workingAt } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
 import { social, bondOf, textFrom } from './social.js';
@@ -41,6 +41,7 @@ import { driveOf } from './intimacy.js';
 import { actionsHere } from './needs.js';
 import { isPrivateAct, sceneAct } from './actions.js';
 import type { ActionDef } from '../core/world.js';
+import { sceneHere, elsewhereHere, dropIn } from './homerooms.js';
 
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
 const rnd = (g: Save, salt: string) => H(`${g.world}|${g.day}|${salt}`);
@@ -151,7 +152,7 @@ export function readyToAsk(g: Save, w: WorldDef, a: string): Asked | null {
 // A moment for one of them here, sometimes (a fixed chance per day and person), within the budget.
 export function checkAsks(g: Save, w: WorldDef) {
     if (seat(g).moments.some(m => m.kind === 'ask')) return;   // one question at a time
-    for (const r of presentAt(g, w, g.player.loc)) {
+    for (const r of sceneHere(g, w)) {
         // one thing at a time: a confession or a grudge they still have to bring up comes first
         if (!r.met || !isMine(g, r.avatar) || seat(g).moments.some(m => m.who === r.avatar) || rnd(g, `ask|${r.avatar}`) >= 0.35 || !canSpend(g, r.avatar)) continue;
         const k = readyToAsk(g, w, r.avatar); if (!k) continue;
@@ -170,7 +171,7 @@ export const WANT_INVITE = 2;
 export function textAsks(g: Save, w: WorldDef): string[] {
     const h = Math.floor(g.minutes / 60), s = social(g) as any, roll = rnd(g, `textask|${h}`);
     if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE * tierLink.inviteMax(g)) return [];
-    const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
+    const here = new Set(sceneHere(g, w).map(r => r.avatar));
     const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar) && tierLink.invites(g, idOf(g, r.avatar)));
     const pick = (r: Resident): TextAsk | null => {
         const st = romOf(g, r.avatar).status;
@@ -216,7 +217,7 @@ export function fits(g: Save, w: WorldDef, m: Moment): boolean {
     if (m.until !== undefined && g.day > m.until) return false;
     if (m.kind === 'thread') return threadMomentFits(g, m.tier ?? '');
     if (m.kind === 'custom') return true;
-    if (m.kind === 'intro') { if (m.tier?.startsWith('tell:')) return true; const b = g.cast[m.tier ?? '']; return !!b && presentAt(g, w, g.player.loc).includes(b); }
+    if (m.kind === 'intro') { if (m.tier?.startsWith('tell:')) return true; const b = g.cast[m.tier ?? '']; return !!b && sceneHere(g, w).includes(b); }
     if (m.kind === 'down') return bondOf(g, a) < 0;
     if (m.kind === 'grudge') return !!grudgeOf(g, a);
     if (m.kind === 'talk') return lowFor(g, a);
@@ -295,7 +296,7 @@ export function moveActions(g: Save, w: WorldDef, a: string): ActionDef[] {
 // their intimacy needs met, ready again), the two of you alone (nobody else of the world here), awake, nothing going on.
 function canMove(g: Save, w: WorldDef, a: string): boolean {
     if (!adultOn(g) || !initiativeOn(g) || g.asleep || sceneAct(g) || !isMine(g, a)) return false;
-    const here = presentAt(g, w, g.player.loc);
+    const here = sceneHere(g, w);
     if (here.length !== 1 || here[0].avatar !== a || !here[0].met || !withYou(g, w).includes(a)) return false;
     return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a) && tierLink.moves(g, idOf(g, a));   // (museum) from the tier that lets them
 }
@@ -304,7 +305,7 @@ function canMove(g: Save, w: WorldDef, a: string): boolean {
 export function checkMove(g: Save, w: WorldDef, force = false): MoveOffer | null {
     if (!adultOn(g)) return null;
     const open = moveOffer(g, w); if (open) return open;
-    const here = presentAt(g, w, g.player.loc); if (here.length !== 1) return null;
+    const here = sceneHere(g, w); if (here.length !== 1) return null;
     const a = here[0].avatar;
     if (!canMove(g, w, a) || (!force && rnd(g, `move|${a}`) >= CHAR_DRIVE[driveOf(g, a)].move) || !canSpend(g, a)) return null;
     const acts = moveActions(g, w, a); if (!acts.length) return null;
@@ -408,7 +409,7 @@ export function festivalCustoms(g: Save, w: WorldDef): string[] {
             done.late[f.id] = g.day;
             for (const r of people.filter(x => partnerOf(g, x.avatar))) {
                 const plan = social(g).appts.some(a => a.avatar === r.avatar && Math.floor(a.from / 1440) === g.day && (a.state === 'set' || a.state === 'met'));
-                if (plan || isWith(g, r.avatar) || presentAt(g, w, g.player.loc).includes(r)) continue;
+                if (plan || isWith(g, r.avatar) || sceneHere(g, w).includes(r)) continue;
                 lose(g, 'r', r.avatar, YOU, 3);
                 add(r, `${f.id}:late`, `${r.name} is hurt that {{user}} made no plans with them on ${name}, the couples' night, and lets it show in this scene.`, g.day + 2);
             }
@@ -487,7 +488,7 @@ export function introductions(g: Save, w: WorldDef, force = false): string[] {
         const where = placeOf(g, w, spot.place)?.name ?? 'there', when = whenText(g, spot.from);
         const texted = textInvite(g, w, a, spot.place, spot.from, `come to ${where} (${when}): ${b.name}, a good friend of ${a.name}'s, will be there (${spot.why}), and ${a.name} wants them to meet.`, `Come to ${where}, ${when}? I want you to meet ${b.name}.`);
         if (!texted) {
-            if (!presentAt(g, w, g.player.loc).includes(a)) continue;
+            if (!sceneHere(g, w).includes(a)) continue;
             queueMoment(g, { who: a.avatar, kind: 'intro', tier: `tell:${b.avatar}`, text: `${a.name} tells {{user}} about ${b.name}, a good friend of theirs, and suggests coming along to ${where} some time (${spot.why}).` });
         }
         // when the three of you are together, the friend introduces you
@@ -507,9 +508,22 @@ export function checkInitiative(g: Save, w: WorldDef) {
     for (const f of onLook) f(g, w);
     if (!initiativeOn(g)) return;
     checkTiers(g, w);
-    confrontations(g, w, presentAt(g, w, g.player.loc));
+    confrontations(g, w, sceneHere(g, w));
     checkAsks(g, w);
     checkMove(g, w);
+    momentDropIn(g, w);
+}
+// (homerooms) A moment waiting for someone elsewhere in the house (a confession, an ask) only plays in the scene: once
+// an hour, the first of them who is awake comes to find you in your room.
+function momentDropIn(g: Save, w: WorldDef) {
+    const hour = Math.floor(nowAbs(g) / 60);
+    if (g.tick.homeDropIn === hour) return;
+    const far = elsewhereHere(g, w).filter(x => !x.asleep).map(x => x.r);
+    if (!far.length) return;
+    const m = momentsHere(g, far, x => x.sent === undefined && fits(g, w, x))[0];   // (once: a moment already played in a scene doesn't fetch them again)
+    if (!m) return;
+    g.tick.homeDropIn = hour;
+    dropIn(g, w, m.who);
 }
 onHour.push((g, w) => { if (!initiativeOn(g)) return []; checkInitiative(g, w); return [...textAsks(g, w), ...festivalCustoms(g, w), ...introductions(g, w)]; });
 onDay.push((g, w) => { if (initiativeOn(g)) tidyMoments(g, m => fits(g, w, m)); return []; });

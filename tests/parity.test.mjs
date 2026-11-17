@@ -19,7 +19,8 @@ store.state.view = 'creator';
 const DYNAMIC = [/^homes\.kinds\.[^.]+/, /^cast\.routineTemplates\.[^.]+/, /^lexicon\.[^.]+/, /^music\.[^.]+/, /^sleep\.restore\.[^.]+/,
     /^actions\.\*\.effects\.[^.]+/, /^occupations\.\*\.cost\.[^.]+/, /^occupations\.\*\.requires\.[^.]+/, /^homes\.kinds\.\*\.bills\.[^.]+/, /^catalogs\.origins\.\*\.attributes\.[^.]+/,
     /^actions\.\*\.roll\.(success|fail)\.effects\.[^.]+/, /^cast\.routineTemplates\.\*\.(weekday|weekend)/, /^traitInfo\.[^.]+/,
-    /^goals\.names\.[^.]+/, /^rewards\.(names|prices)\.[^.]+/, /^tables\.[^.]+/, /^occupations\.\*\.tracks\.[^.]+/];
+    /^goals\.names\.[^.]+/, /^rewards\.(names|prices)\.[^.]+/, /^tables\.[^.]+/, /^occupations\.\*\.tracks\.[^.]+/,
+    /^homes\.(kinds\.\*|zones\.\*)\.rooms\.\*\.images\.[^.]+/, /^cast\.examples\.\*\.bedroom\.images\.[^.]+/];
 const norm = (p) => { let s = p.replace(/\.\d+(?=\.|$)/g, '.*'); for (const re of DYNAMIC) s = s.replace(re, m => m.replace(/[^.]+$/, '*')); return s; };
 const leaves = (o, at = '') => (o === null || typeof o !== 'object' ? [at] : Array.isArray(o) ? o.flatMap((x, i) => leaves(x, `${at}.${i}`)) : Object.keys(o).length ? Object.entries(o).flatMap(([k, v]) => leaves(v, at ? `${at}.${k}` : k)) : [at]);
 
@@ -32,7 +33,7 @@ const TOOLS = {
     'plan.*': 'Maps & places › Floor plan: floors, their pictures, and the rooms drawn on them', 'maps.*': 'Maps & places: the map editor (add a map, picture, name, parent)', 'places.*.id': 'set by the creator', 'places.*.map': 'Maps & places: the map a pin is put on', 'places.*.x': 'Maps & places: the pin, dragged on the map', 'places.*.y': 'Maps & places: the pin, dragged on the map',
     'places.*.closed': 'Maps & places › a place: Closed at (chips)', 'places.*.roles': 'Maps & places › a place: What it is for the game (chips)', 'places.*.bg': 'Maps & places › a place: Background of the scene (From Backgrounds / Upload)',
     'places.*.bgs': 'Maps & places › a place: the background at other times of the day, seasons and weather (From Backgrounds / Upload)',
-    'homes.zones.*.spots': 'Place the homes on the map', 'homes.kinds.*.image': 'Inside picture (scene)', 'homes.zones.*.id': 'set by the creator', 'homes.fixtures.*.id': 'set by the creator',
+    'homes.zones.*.spots': 'Place the homes on the map', 'homes.zones.*.rooms.*.id': 'set by the creator', 'homes.kinds.*.rooms.*.id': 'set by the creator', 'homes.kinds.*.image': 'Inside picture (scene)', 'homes.zones.*.id': 'set by the creator', 'homes.fixtures.*.id': 'set by the creator',
     'statuses.*.id': 'set by the creator', 'actions.*.id': 'set by the creator', 'occupations.*.id': 'set by the creator', 'catalogs.origins.*.id': 'set by the creator',
     'catalogs.courses.*.id': 'set by the creator', 'occupations.*.branches.*.options.*.id': 'set by the creator', 'catalogs.shop.*.id': 'set by the creator', 'homes.expenses.*.id': 'set by the creator', 'homes.breakables.*.id': 'set by the creator',
     'actions.*.home': 'Where', 'actions.*.anywhere': 'Where', 'actions.*.place': 'Where', 'actions.*.tags': 'Where',

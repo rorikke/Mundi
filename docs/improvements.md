@@ -19,6 +19,8 @@ point of view, and grows as new ones arrive.
 - [Tokyo memories](#tokyo-memories)
 - [A museum of your own, and Tamaki](#a-museum-of-your-own-and-tamaki)
 - [Nature and Before Edo](#nature-and-before-edo)
+- [Rooms at home](#rooms-at-home)
+- [A friend staying over](#a-friend-staying-over)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -1236,6 +1238,56 @@ elephant, found a bone at a time and mounted in the kura.
 - **Your existing games** get the two halls at once. In a museum that isn't complete their pieces count straight away,
   so its percentage drops, and a line says the museum has new halls; a complete museum stays at 100% and shows them as
   new. Tamaki never goes back a tier.
+
+## Rooms at home
+
+A home can have rooms inside, as a Home's house does: Tokyo's Kōenji share house (the University student start) has a
+common room, a shared kitchen, a bathroom and a bedroom for each of the people who live there, you and your four
+housemates.
+
+- **Walking between rooms** takes no time and keeps the scene. Coming home you're in the common room; the HUD has a row
+  for each other room, and the clock bar says which room you're in. Each room has its own picture (a bedroom without
+  one shows the share house's), its own things to do (the TV in the common room, cooking in the kitchen, a shower in
+  the bathroom; private things in your own room) and its own words for the AI. Prices and the things that earn money
+  are as before. Going to sleep, you go to your room, and you wake up there.
+- **Your housemates are in the rooms**, not all in one scene: in their beds at night (the night workers sleep through
+  the morning), in the kitchen at breakfast and dinner, in the common room in the evening, a bath before bed, their own
+  room otherwise; friends and couples end up in the same room. The scene is the room you're in, and "Elsewhere at
+  home" (under the faces of who is here) shows who is in the others, asleep or not; a click takes you to them. The AI is
+  told they're elsewhere, so the story doesn't walk them in.
+- **They come to you.** Now and then a housemate knocks on your door or walks into the kitchen to find you, and someone
+  with something to tell you (a question, a confession) comes looking for you. When you talk with someone, they stay in
+  that room for an hour, and you find them there if you step out and come back. Walking away from someone who spoke
+  ends that part of the scene, as leaving a place does.
+- **Bedroom doors.** Your partner's and a close friend's room you walk into; someone you know a little lets you in when
+  you knock; anyone else talks to you through the door. Someone asleep doesn't answer, unless you're partners. Your
+  room is always yours, and private; a shared room is private only with nobody else in it.
+- **Visiting** someone whose home has rooms, the person you came to see meets you at the entry and goes room to room
+  with you.
+- **A party at home** spreads over the rooms: the guests and your housemates are in the common room and the kitchen,
+  changing every hour; walk around to find them.
+- **World makers**: "Rooms inside" in each kind of home and each housing area of the World creator (a name, words for
+  the AI, what the room is for, where a friend staying over sleeps, things to do only there, its pictures), and "Their
+  room" on a person. **Rooms at home** is one of the world's systems: turned off, a home is one place again. A Home
+  keeps its own rooms.
+- **Your existing games** open at the entry of a home with rooms; nothing else changes. The share house's rooms show the
+  share house's picture until their own are drawn.
+
+## A friend staying over
+
+Someone close can come and stay at your place for a few days: a friend (friendship 50 or more) or your partner.
+
+- **Asking.** On their card (or their page in People), **Ask to stay a few days**: one, two or three nights, or **for
+  a while** (until you say goodbye, a week at most), on the sofa or in your room. The game decides the answer, and the
+  AI plays it. Asked in person, they stay from now; otherwise they come over that evening with their things.
+- **Arriving.** They ring the doorbell when you're home: open the door, or let them in later. If you're out, they let
+  themselves in and wait for you.
+- **While they stay** they keep their own job and days, going out from your place and coming back to it. Each night
+  brings them a little closer, counts as a night over for life goals (a night together, with your partner), and keeps
+  your feelings from fading. The Calendar shows who is staying, which night it is, and a **Say goodbye** button.
+- **Leaving.** They go home on the last morning, when you say goodbye, if they turn against you, or if you move out.
+- In a home with rooms, they're in the common room while awake and sleep where you chose. One visitor at a time; not in
+  a Home, and nothing with Plans turned off.
 
 ## The World creator and the new game
 

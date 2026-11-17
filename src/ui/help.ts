@@ -16,6 +16,8 @@ import { housingOn, lettable, MAX_LET } from '../sim/housing.js';
 import { museumDef, upgradeName } from '../sim/museum.js';
 import { digsOf, DIG } from '../sim/dig.js';
 import { digSeasonWord } from './museumui.js';
+import { homeRoomsOn } from '../sim/homerooms.js';
+import { visitsOn } from '../sim/visitors.js';
 // (track 7) Does this world have an end game for goals and points: homes to own, ventures, or a collection?
 const endgameOn = (w: WorldDef | null | undefined) => !!w && (housingOn(w) || !!w.ventures?.length || collectionOn(w));
 
@@ -153,6 +155,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     const ownOn = !!w && housingOn(w) && on('homes') && w.homes.zones.some(z => (z.price ?? 0) > 0);   // (housing: homes to buy)
     const letOn = ownOn && w!.homes.zones.some(lettable);   // (letting: homes you own that can be let)
     const carHome = !w || shopItems(w).some(it => it.late);
+    const roomsHere = !!w && homeRoomsOn(w) && (Object.values(w.homes.kinds).some(k => k.rooms?.length) || w.homes.zones.some(z => z.rooms?.length));   // (homerooms)
     return [
     { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
         items: [
@@ -196,6 +199,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['During the event', 'A panel shows it. End it to say goodbye (they tell you what they thought), or ask them to stay the night.'],
             ['A party', `Invite several people at once ${appRef(w, 'plans')}. You wait for all your guests in one go.`],
             ['Standing someone up', lex(w, 'standUpHelp')],
+            ...(!w || visitsOn(w) ? [<[string, string]>['Staying over', 'A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, on their card. They ring the doorbell, go out to work from your place, and grow a little closer each night.']] : []),
         ] },
     { id: 'work', icon: 'briefcase', title: 'Work and money', intro: `Find work ${appRef(w, 'jobs')} or at the place itself, then work your shifts. The Work button (top right) takes you there.`,
         items: [
@@ -288,6 +292,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['Your household', 'The faces under your card. Click one to play as them, call them over or go to them.'],
             ['Households', 'In ☰ → This world: who lives where, and how they are related.'],
             ['Children', 'A baby grows a stage at each birthday, once a week. Celebrate it from their card.'],
+            ...(roomsHere ? [<[string, string]>['Rooms at home', `Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and "Elsewhere at home" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then. Someone's bedroom is theirs: close friends walk in, others knock.`]] : []),
         ] },
     { id: 'playas', icon: 'user', title: 'Play as someone else', intro: 'Click your photo to switch to another person of the world.',
         items: [

@@ -5,7 +5,7 @@ import { notify, nowAbs, adultOk, type Save, type Resident, UI } from '../core/s
 import { type WorldDef, type KeepsakeDef, type IntimateProfile, messageKind, aiVoice, systemOn } from '../core/world.js';
 import { fr, ro, gain, lose, setFr, touch, statusOf, relOf, idOf, YOU, isPartner as partnerOfYou } from './rel.js';
 import { charOf, personaName, sayLine, translateTo } from '../st/bridge.js';
-import { whereNow, presentAt, workingAt } from './people.js';
+import { whereNow, workingAt } from './people.js';
 import { personNamed } from './when.js';
 import { romanceBlocked } from './family.js';
 import { CRUSH } from './romance.js';
@@ -20,6 +20,7 @@ import { pricePerk } from './worldstate.js';
 import { tallyEvent } from './tally.js';
 import { usualPay } from './needs.js';
 import { onKeepsake } from './hooks.js';
+import { sceneHere } from './homerooms.js';
 
 export interface Text { me: boolean; text: string; at: number }
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
@@ -104,7 +105,7 @@ export const talkingWith = (g: Save, avatar: string) => { const t = social(g).ta
 // world (a Home, where the people of the house are the scene) the one person here who isn't working is with you.
 export function withYou(g: Save, w: WorldDef): string[] {
     const loc = g.player.loc, now = nowAbs(g);
-    const here = presentAt(g, w, loc), met = here.filter(r => r.met);
+    const here = sceneHere(g, w), met = here.filter(r => r.met);
     const solo = String((social(g) as any).solo ?? '');
     const free = (r: Resident) => workingAt(g, w, r, now) !== loc;
     const mine = met.filter(r => isWith(g, r.avatar) || r.avatar === solo || appointmentNow(g, r.avatar)?.place === loc || (talkingWith(g, r.avatar) && free(r))).map(r => r.avatar);
@@ -202,7 +203,7 @@ export function giveKeepsake(g: Save, w: WorldDef, id: string, avatar: string): 
     const r = g.cast[avatar], k = keepsakeDef(w, id);
     if (!r?.met) return { ok: false, text: '' };
     if (!(keepsakesOf(g)[id] > 0) || k.gift === false || !adultOk(g, k)) return { ok: false, text: 'You don\'t have that to give.' };
-    if (!presentAt(g, w, g.player.loc).includes(r)) return { ok: false, text: `${r.name} isn't here.` };
+    if (!sceneHere(g, w).includes(r)) return { ok: false, text: `${r.name} isn't here.` };
     const drawn = drawnToYou(g, w, avatar);
     // an intimate gift from someone they aren't drawn to, or one past their limits, comes back to you
     if (k.intimate) {

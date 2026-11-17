@@ -12,8 +12,8 @@ import { setCooldown, YOU } from '../sim/rel.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, tierNo, notYetAnswer, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
-import { bondOf, social } from '../sim/social.js';
-import { presentAt } from '../sim/people.js';
+import { bondOf, social, isPartner, textFrom } from '../sim/social.js';
+import { visitAnswer, askToStay, visitOf, sayGoodbye, atTheDoor, letIn, visitWhen, nightsOf, visitsOn, type Visitor, type VisitNights, type VisitSleep } from '../sim/visitors.js';
 import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, type WorkMode, type JobState, type ShiftTime } from '../sim/work.js';
 import { placeOf } from '../sim/places.js';
 import { skillName } from '../sim/hobbies.js';
@@ -29,6 +29,7 @@ import { kidOf, stageOf, canCelebrate, celebrate, daysToBirthday, pregnancy, day
 import { resident, syncScene } from '../sim/game.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { diaryShown } from '../sim/diary.js';
+import { sceneHere, roomNow, dropIn } from '../sim/homerooms.js';
 
 /* ---------- the friendship bar, the same everywhere (card, phone, HUD) ---------- */
 
@@ -53,6 +54,9 @@ export function relSubtitle(g: Save, avatar: string): string {
 
 export function romanceButtons(avatar: string): string {
     const g = game(); if (!g) return '';
+    return `${visitRow(g, getWorld(g.world), avatar)}${loveButtons(g, avatar)}`;
+}
+function loveButtons(g: Save, avatar: string): string {
     // your child: their stage of life and the weekly birthday instead of any romance
     const k = kidOf(g, avatar);
     if (k) {
@@ -73,6 +77,89 @@ export function romanceButtons(avatar: string): string {
         ${p && p.partner === avatar ? `<small class="mu-pc-baby">👶 Expecting a baby · ${daysLeft(g) ? `${daysLeft(g)} day${daysLeft(g) === 1 ? '' : 's'} left` : 'any moment now'}</small>` : ''}
         ${coolingDown(g, avatar) ? '<small class="mu-muted">They need some time before you ask again.</small>' : ''}
     </div>`;
+}
+
+/* ---------- (plans) a friend staying over: asking, the doorbell, saying goodbye (sim/visitors.ts) ---------- */
+
+// The open form: whose, how many nights, where they sleep.
+const VIS = { who: '', nights: 2 as VisitNights, sleep: 'sofa' as VisitSleep, busy: false };
+const NIGHT_CHOICES: [VisitNights, string][] = [[1, '1 night'], [2, '2 nights'], [3, '3 nights'], ['open', 'For a while']];
+const visitWhat = (n: VisitNights) => (n === 'open' ? 'a while' : n === 1 ? 'the night' : `${n} nights`);
+const ORDS = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh'];
+/** Where a stay is at, in a few words ("Second night of 3 · until Friday at 10:00", "Arrives today at 19:00"). */
+export function visitStatus(g: Save, v: Visitor): string {
+    const t = visitWhen(g, v), now = nowAbs(g);
+    if (now < v.from) return `Arrives ${t.arrives}`;
+    if (!v.arrived) return 'On the way to your place';
+    const n = Math.min(nightsOf(v), (v.nights ?? 0) + 1), word = ORDS[n - 1] ?? `Night ${n}`;
+    return v.open ? `${word} night · until you say goodbye (${t.until} at most)` : `${word} night of ${nightsOf(v)} · until ${t.until}`;
+}
+/** The row on a person's card and their page in People: asking them to stay a few days, or how their stay goes. */
+export function visitRow(g: Save, w: WorldDef | null, avatar: string): string {
+    const r = g.cast[avatar];
+    if (!w || !r || !r.met || !visitsOn(w)) return '';
+    const v = visitOf(g, avatar);
+    if (v) return `<div class="mu-pc-visit"><small class="mu-muted">${icon('home')} <span>${v.arrived ? 'Staying with you' : 'Coming to stay'}</span> · ${esc(visitStatus(g, v))}</small>
+        <button class="mu-ghost" data-act="vis-bye" data-who="${esc(avatar)}">${icon('back')}<span>Say goodbye</span></button></div>`;
+    const ans = visitAnswer(g, w, avatar);
+    if (!ans.ok && (!ans.why || (bondOf(g, avatar) < 30 && !isPartner(g, avatar)))) return '';   // (not shown to people you barely know)
+    return `<div class="mu-pc-visit"><button data-act="vis-open" data-who="${esc(avatar)}" ${ans.ok ? '' : 'aria-disabled="true"'}>${icon('home')}<span>Ask to stay a few days</span></button>${ans.ok ? '' : `<small class="mu-muted">${esc(ans.why)}</small>`}</div>`;
+}
+// The form (over everything, from a card, the radial menu or People): how many nights, where they sleep.
+function visitFormHtml(): string {
+    const g = game(); const r = g && VIS.who ? g.cast[VIS.who] : null;
+    if (!g || !r) return '';
+    return `<div class="mu-recap-veil" data-act="vis-cancel-bg"><section class="mu-recap mu-workpick mu-visitform mh-glass" role="dialog" aria-label="${esc(r.name)}">
+        <h3><span>Ask</span> <span data-notr>${esc(r.name)}</span> <span>to stay</span></h3>
+        <small class="mu-muted">How long</small>
+        <div class="mu-chips">${NIGHT_CHOICES.map(([n, label]) => `<button class="mu-chip ${VIS.nights === n ? 'is-on' : ''}" data-act="vis-nights" data-v="${esc(String(n))}">${label}</button>`).join('')}</div>
+        <small class="mu-muted">${VIS.nights === 'open' ? 'Until you say goodbye, a week at most.' : 'They keep their own job and days, going out from your place.'}</small>
+        <small class="mu-muted">Where they sleep</small>
+        <div class="mu-chips"><button class="mu-chip ${VIS.sleep === 'sofa' ? 'is-on' : ''}" data-act="vis-sleep" data-v="sofa">On the sofa</button><button class="mu-chip ${VIS.sleep === 'yours' ? 'is-on' : ''}" data-act="vis-sleep" data-v="yours">In your room</button></div>
+        <div class="mu-row"><button class="mu-primary" data-act="vis-ask" data-who="${esc(r.avatar)}" ${VIS.busy ? 'aria-disabled="true"' : ''}>${icon('home')}<span>Ask them</span></button><button class="mu-ghost" data-act="vis-cancel">Cancel</button></div></section></div>`;
+}
+/** The doorbell (the HUD, under who is here): someone come to stay is at your door. */
+export function doorbellHtml(g: Save, w: WorldDef): string {
+    if (state.view !== 'scene') return '';
+    const v = atTheDoor(g, w); const r = v && g.cast[v.avatar];
+    if (!v || !r) return '';
+    const what = v.open ? 'Come to stay for a while' : nightsOf(v) === 1 ? 'Come to stay the night' : `Come to stay ${nightsOf(v)} nights`;
+    return `<aside class="mh-doorbell mh-glass" role="dialog" aria-label="${esc(r.name)}"><img src="${esc(thumb(r.avatar))}" alt=""><span><b><span data-notr>${esc(r.name)}</span> <span>is at the door</span></b><small>${esc(what)}</small></span>
+        <button class="mu-primary" data-act="vis-door" data-who="${esc(r.avatar)}">Open the door</button><button class="mu-ghost" data-act="vis-later" data-who="${esc(r.avatar)}">Later</button></aside>`;
+}
+// The scene plays a decided moment (the engine already chose), then the line for the AI is taken back.
+function playVisit(line: string, act: string) {
+    setPrompt('mundi_visit', line, 0);
+    if (!sendCanned(act)) toast('SillyTavern\'s message box was not found.', 'error');
+    setTimeout(() => setPrompt('mundi_visit', ''), 60000);
+}
+async function askVisit(avatar: string) {
+    const g = game(); const w = g && getWorld(g.world); const r = g && g.cast[avatar];
+    if (!g || !w || !r || VIS.busy) return;
+    const n = VIS.nights, sleep = VIS.sleep, what = visitWhat(n);
+    const here = sceneHere(g, w).includes(r) && state.view === 'scene';
+    const why = askToStay(g, w, avatar, n, sleep);
+    VIS.who = '';
+    if (why) { toast(why, 'info'); notify(); return; }
+    const v = visitOf(g, avatar)!, when = visitWhen(g, v).arrives;
+    const where = sleep === 'yours' ? "in {{user}}'s room" : 'on the sofa';
+    saveGame(); refreshPrompt(); notify();
+    if (here) {
+        playVisit(`[{{user}} asks ${r.name} to come and stay at {{user}}'s place for ${what}. It is decided: ${r.name} says yes, and will sleep ${where}${v.from > nowAbs(g) ? `, coming over ${when} with their things` : ''}. Write ${r.name}'s answer.]`,
+            `*asks ${r.name} if they'd like to come and stay at my place for ${what}*`);
+        return;
+    }
+    // asked by phone: they answer by text
+    VIS.busy = true;
+    { const { P } = await import('./phone.js'); P.open = true; P.app = 'thread'; P.who = avatar; P.typing = avatar; }
+    notify();
+    try {
+        await textFrom(g, w, avatar, `${r.name} happily agrees to come and stay at ${personaName()}'s place for ${what}, sleeping ${sleep === 'yours' ? `in ${personaName()}'s room` : 'on the sofa'}, and says they'll be there ${when}, in one short message.`,
+            'Yes! I\'ll bring my things.', n === 'open' ? 'Do you want to come and stay at my place for a while?' : `Do you want to come and stay at my place for ${what}?`);
+        toast(`${r.name} is coming to stay (${when}).`, 'success');
+    } catch (e: any) { toast(String(e?.message ?? e), 'error'); }
+    { const { P } = await import('./phone.js'); P.typing = ''; }
+    VIS.busy = false; saveGame(); notify();
 }
 
 /* ---------- asking: the scene plays it, then the engine reads the answer ---------- */
@@ -121,7 +208,7 @@ export function detectAsk(text: string) {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w || ASK.avatar || !text) return;
     const hit = ASK_WORDS.find(([, re]) => re.test(text)); if (!hit) return;
-    const people = presentAt(g, w, g.player.loc).filter(r => canAsk(g, r.avatar, hit[0]));
+    const people = sceneHere(g, w).filter(r => canAsk(g, r.avatar, hit[0]));
     if (!people.length) return;
     const low = text.toLowerCase();
     const solo = String((social(g) as any).solo ?? '');
@@ -395,11 +482,38 @@ Object.assign(ACT, {
     },
 });
 
-export function relOverlays() { return `${trackPickHtml()}${workHtml()}${waitHtml()}${recapHtml()}${birthHtml()}${milestoneHtml()}`; }
+export function relOverlays() { return `${visitFormHtml()}${trackPickHtml()}${workHtml()}${waitHtml()}${recapHtml()}${birthHtml()}${milestoneHtml()}`; }
 
 Object.assign(INPUT, { 'birth-name': (el) => { BIRTH.name = el.value; notify(); } });
 
 Object.assign(ACT, {
+    'vis-open': (el) => { const g = game(); const who = el.dataset.who!; Object.assign(VIS, { who, nights: 2, sleep: g && isPartner(g, who) ? 'yours' : 'sofa' }); notify(); },
+    'vis-cancel': () => { VIS.who = ''; notify(); },
+    'vis-cancel-bg': (el, e) => { if (e.target === el) { VIS.who = ''; notify(); } },
+    'vis-nights': (el) => { const v = el.dataset.v!; VIS.nights = v === 'open' ? 'open' : (Number(v) as VisitNights); notify(); },
+    'vis-sleep': (el) => { VIS.sleep = el.dataset.v === 'yours' ? 'yours' : 'sofa'; notify(); },
+    'vis-ask': (el) => askVisit(el.dataset.who!),
+    'vis-bye': (el) => {
+        const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
+        const r = g.cast[el.dataset.who!], here = !!r && state.view === 'scene' && sceneHere(g, w).includes(r);
+        const t = sayGoodbye(g, el.dataset.who!);
+        if (!t) return;
+        toast(t, 'info'); saveGame(); refreshPrompt();
+        if (here) playVisit(`[{{user}} says goodbye to ${r.name}, whose stay at {{user}}'s place is over. ${r.name} gathers their things and leaves. Write the goodbye.]`, `*says goodbye to ${r.name}*`);
+        void syncScene(); notify();
+    },
+    'vis-door': (el) => {
+        const g = game(); const r = g && g.cast[el.dataset.who!];
+        if (!g || !r || !letIn(g, r.avatar)) return;
+        { const w = getWorld(g.world); if (w && roomNow(g, w)) dropIn(g, w, r.avatar); }   // (homerooms) they come in to where you are
+        saveGame(); refreshPrompt(); notify();
+        playVisit(`[The doorbell: ${r.name} has arrived at {{user}}'s place with their things, to stay. {{user}} opens the door. Write ${r.name} at the door, coming in.]`, '*opens the door*');
+    },
+    'vis-later': (el) => {
+        const g = game(); const r = g && g.cast[el.dataset.who!];
+        if (!g || !r || !letIn(g, r.avatar)) return;
+        toast(`${r.name} came in and settled in.`, 'info'); saveGame(); refreshPrompt(); notify();
+    },
     'rm-ask': (el) => ask(el.dataset.who!, el.dataset.k as AskKind),
     'rm-end': (el) => { END.avatar = el.dataset.who!; notify(); },
     'rm-end-no': () => { END.avatar = ''; notify(); },

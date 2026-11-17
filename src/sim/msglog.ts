@@ -12,11 +12,11 @@
 import { game, saveGame, nowAbs, state, TUT, type Save } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId, type Expr } from '../st/bridge.js';
-import { presentAt } from './people.js';
 import { gain as gainMeter, undoGain, relCfg, ro, touch, SOURCES, YOU, type Meter } from './rel.js';
 import { reactionGain, reactionRomance } from './mood.js';
 import { romanceBlocked } from './family.js';
 import { sawYou } from './warnings.js';
+import { sceneHere } from './homerooms.js';
 
 /** One meter change: `x`'s meter `m` toward `y` (you when absent) moved by `d`, its pacing weight by `fat`. */
 interface Change { x: string; y?: string; m: Meter; d: number; fat: number }
@@ -110,7 +110,7 @@ function undo(g: Save, r: Rec) {
 function judgeLine(g: Save, fp: string, speakers: Set<string>): Rec {
     const w = getWorld(g.world);
     const solo = String((g as any).social?.solo ?? '');
-    const hearers = w ? presentAt(g, w, g.player.loc).filter(r => r.met && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
+    const hearers = w ? sceneHere(g, w).filter(r => r.met && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
     const ch = hearers.map(r => gain(g, r.avatar, SOURCES.talk)).filter((c): c is Change => !!c);
     return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
 }

@@ -10,7 +10,6 @@ import { onHour } from './hooks.js';
 import { isWeekend, hm } from './time.js';
 import { isHome, placeOf, playerHomeId } from './places.js';
 import { regionOf, regionState } from './worldstate.js';
-import { presentAt } from './people.js';
 import { openAt } from './daynight.js';
 import { overhear, couples } from './living.js';
 import { exesOf, fr } from './rel.js';
@@ -18,6 +17,7 @@ import { lex } from '../core/lexicon.js';
 import { scheduled, shiftOn, shiftAt, slotAt, stampOf, broughtNow, onVacation, rankName, type Slot } from './dayplan.js';
 import { workingAt, routineStep, waitingForTrain } from './people.js';
 import { levelHolds } from './when.js';
+import { sceneHere } from './homerooms.js';
 
 const FRIEND = 30;   // where Friend starts (FRIEND_TIERS in sim/romance.ts)
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -115,7 +115,7 @@ export function notice(g: Save, w: WorldDef, present: Resident[]) {
 }
 onHour.push((g, w) => {
     if (g.asleep) return [];
-    const here = presentAt(g, w, g.player.loc);
+    const here = sceneHere(g, w);
     notice(g, w, here);
     return overhear(g, w, here).map(r => lex(w, 'overheard', r.text));   // a rumor you overhear goes into your journal
 });

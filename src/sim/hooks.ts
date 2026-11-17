@@ -3,6 +3,7 @@ import type { Save, Resident } from '../core/store.js';
 import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 import type { ShopItem } from '../core/presets.js';
+import type { RoomHere } from './homerooms.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
 export const onDay: ((g: Save, w: WorldDef) => string[])[] = [];
 // After anything changed (the prompt is refreshed: arriving somewhere, a click, the clock): the world's stories and
@@ -184,3 +185,9 @@ export const ownedPlaces: ((g: Save, w: WorldDef, place: string) => { risk: numb
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];
+/** (homerooms) Rules other parts of the game add to who is in which room of a home (sim/homerooms.ts's homeRoomMap),
+ *  checked after the drop-ins and the host, before sleep and the house's rhythm (a friend staying over: where they
+ *  sleep, the sofa room by day). A room id, or null to leave it to the next rule. */
+export const roomRules: ((g: Save, w: WorldDef, r: Resident, x: { loc: string; rooms: RoomHere[]; at: number; mine: string }) => string | null)[] = [];
+/** (homerooms) During a party at home, where someone is (a room tagged leisure or food). Null: no party for them. */
+export const partyRooms: ((g: Save, w: WorldDef, r: Resident, x: { loc: string; rooms: RoomHere[]; at: number }) => string | null)[] = [];
