@@ -62066,6 +62066,7 @@
    },
    {
     "id": "tk_houseproud",
+    "offer": "did: home_bought",
     "name": "House proud",
     "icon": "🏠",
     "category": "fortune",
@@ -62119,6 +62120,7 @@
    },
    {
     "id": "tk_landlord",
+    "offer": "did: home_bought",
     "name": "Landlord",
     "icon": "🏘️",
     "category": "fortune",
@@ -62173,6 +62175,7 @@
    },
    {
     "id": "tk_goodlife",
+    "offer": "seen: sh_salon",
     "name": "The good life",
     "icon": "🥂",
     "category": "fortune",
@@ -62225,6 +62228,7 @@
    },
    {
     "id": "tk_cafe",
+    "offer": "venture: cafe",
     "name": "A café to remember",
     "icon": "☕",
     "category": "career",
@@ -62277,6 +62281,7 @@
    },
    {
     "id": "tk_hotelier",
+    "offer": "venture: hotel",
     "name": "Hotelier",
     "icon": "🛎️",
     "category": "career",
@@ -62332,6 +62337,7 @@
    },
    {
     "id": "tk_corneroffice",
+    "offer": "job: office or gamedev or tv; rank: top",
     "name": "The corner office",
     "icon": "🏙️",
     "category": "career",
@@ -62385,6 +62391,7 @@
    },
    {
     "id": "tk_chronicler",
+    "offer": "record: 20%",
     "name": "Chronicler of Tokyo",
     "icon": "📔",
     "category": "explorer",
@@ -62436,6 +62443,7 @@
    },
    {
     "id": "tk_naturalhistory",
+    "offer": "piece: 3 in nature",
     "name": "Natural history",
     "icon": "🦋",
     "category": "knowledge",
@@ -62487,6 +62495,7 @@
    },
    {
     "id": "tk_curator",
+    "offer": "museum: open",
     "name": "Every hall",
     "icon": "🏛️",
     "category": "creativity",
@@ -62538,6 +62547,7 @@
    },
    {
     "id": "tk_nightcollector",
+    "offer": "museum: wing_night",
     "name": "Collector of the night",
     "icon": "🌙",
     "category": "explorer",

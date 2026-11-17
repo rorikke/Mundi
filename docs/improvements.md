@@ -249,8 +249,12 @@ own](#a-café-of-your-own), and *Mentor* through [training together](#training-t
 
 ### The end game's goals and rewards
 
-Once the late game opens up (homes of your own, a business, the museum), Tokyo has ten more life goals for it, each
-offered only where its part of the game is on:
+Once the late game opens up (homes of your own, a business, the museum), Tokyo has ten more life goals for it. Each
+appears in the Goals app only once its part of the game is in reach, and stays once you've begun it: House proud and
+Landlord once you've bought a home, The good life after Tsubakiya's salon has invited you, A café to remember and
+Hotelier once you have a café or a hotel, The corner office at the top of an office, games or TV career, Chronicler
+once Tokyo memories is a fifth full, Natural history after three Nature pieces, Every hall once the kura is yours, and
+Collector of the night once its room is built.
 
 | Goal | Its steps | Its perk |
 |---|---|---|
