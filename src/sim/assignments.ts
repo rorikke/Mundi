@@ -338,6 +338,7 @@ export function takeBrief(g: Save, w: WorldDef, id: number): string {
     const p = photoOf(g);
     if (o.who && !subjectYes(g, w, b, o.who, o.id)) {
         p.board = p.board.filter(x => x !== o);
+        (p.recent ??= {})[b.id] = g.day - PHOTO_RULES.recent + 14;   // (the client asks someone else: not offered for two weeks)
         return `${nameOf(g, o.who)} would rather not be photographed for this. ${c.name} will find someone else.`;
     }
     p.board = p.board.filter(x => x !== o);

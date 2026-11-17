@@ -297,7 +297,11 @@ export const careerOf = (g: Save, o: Occupation) => career(trackOf(g, o), g.play
 export function freelancePath(g: Save, w: WorldDef): BranchOption | null {
     const j = g.player.job, o = j && jobDef(w, j.id);
     if (!j?.path?.length || !o?.branches?.length) return null;
-    for (const b of o.branches) for (const opt of b.options ?? []) if (opt.freelance && j.path.includes(opt.id)) return opt;
+    for (const b of o.branches) for (const opt of b.options ?? []) if (opt.freelance && j.path.includes(opt.id)) {
+        // (only from the path's first rank: chosen at the branch, you work your last shifts at the studio until then)
+        const first = careerOf(g, o).ranks.findIndex(r => opt.ranks.includes(r) || opt.ranks.some(x => x.name === r.name && x.pay === r.pay));
+        return first >= 0 && j.rank >= first ? opt : null;
+    }
     return null;
 }
 /** (photography) Are you a freelancer in your job (no shifts, no warnings, no vacation or bonus)? */
