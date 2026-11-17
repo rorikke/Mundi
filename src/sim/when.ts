@@ -19,6 +19,8 @@
 // (hospitality) `venture:` names a kind too (`ryokan`), `tenant: Tsubaki [ryokan]` someone renting a room of yours,
 // `kept: 3` secrets kept at your hotels' desks.
 // The shop: `owns: bike` an item you have, `owns: cat:vehicle [2]` that many things of a category (sim/shop.ts).
+// Letting (housing): `let: 3` that many of your homes let now (a tenant's agreement, notice included), `rent: 1440000`
+// at least that much rent had from your tenants in all (after the agent's share), read from `g.houses` (sim/housing.ts).
 import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
@@ -43,13 +45,13 @@ import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
 import { collectionLink, placeGates } from './hooks.js';
-import { homeWorth, housingOn, ownedHere } from './housing.js';
+import { homeWorth, housingOn, ownedHere, toLet, isLet, rentHad } from './housing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig'] as const;
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -163,6 +165,8 @@ function badValue(key: WhenKey, v: string): string {
         case 'tenant': return /^[^,;]+$/.test(v) ? '' : `"${v}" should be a name, or a name and a venture, like Tsubaki ryokan`;
         case 'owns': { const m = v.match(OWNS); return m && (!m[1] || SHOP_CATS.some(c => c.id === m[1].toLowerCase())) ? '' : `"${v}" should be an item id, or cat: and a category (and how many), like cat:vehicle 2`; }
         case 'kept': return /^\d+$/.test(v) ? '' :`"${v}" should be a number of secrets kept at your hotels`;
+        case 'let': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of homes let`;
+        case 'rent': return /^\d+$/.test(v) ? '' : `"${v}" should be an amount of rent had from your tenants`;
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -366,6 +370,8 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'tenant': return tenantHolds(g, w, v);
         case 'kept': return systemOn(w, 'business') && ventureList(g).reduce((n, s) => n + (s.kept ?? 0), 0) >= Number(v);
         case 'owns': return ownsHolds(g, w, v);
+        case 'let': return housingOn(w) && toLet(g).filter(isLet).length >= Number(v);
+        case 'rent': return housingOn(w) && rentHad(g) >= Number(v);
         case 'had': return hadHolds(g, w, v);
         case 'piece': return collectionLink.piece(g, w, v);
         case 'museum': return collectionLink.museum(g, w, v);
@@ -749,6 +755,9 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
         else if (c.key === 'owns' && !c.not) out.push(ownsWords(w, c.values));
+        // (letting) "3 homes let", "¥1,440,000 of rent from your tenants"
+        else if (c.key === 'let' && !c.not) out.push(c.values.map(v => (Number(v) === 1 ? 'a home let' : `${v} homes let`)).join(' or '));
+        else if (c.key === 'rent' && !c.not) out.push(c.values.map(v => `${money(w, Number(v))} of rent from your tenants`).join(' or '));
         else if (!more) other = true;
         else if (c.key === 'seen' && !c.not) out.push([...new Set(c.values.map(v => seenWords(w, v)))].join(' or '));
         else if (c.key === 'knows' && !c.not) out.push(c.values.map(v => `${threadOwner(w, v)}'s secret`).join(' or '));

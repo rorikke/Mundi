@@ -33,7 +33,7 @@ import { cleanPerson, cleanIntimate, gendersOf } from '../sim/gender.js';
 import { whenError, namedIn, parseWhen, PARTNER_VALUES } from '../sim/when.js';
 import { SHOP_CATS, SHOP_LIMITS, SHOP_NOW_MAX, catOf, shopCat, isAdultItem } from '../sim/shop.js';
 import type { ShopItem } from '../core/presets.js';
-import { RESALE, SIZES, buyable, buyOnly, housingOn, fixturesOf } from '../sim/housing.js';
+import { RESALE, SIZES, buyable, buyOnly, housingOn, fixturesOf, lettable, LETTING } from '../sim/housing.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
 import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind, type EffectKind, type EffectDef, type EffectLimits, type TraitInfo } from '../core/traits.js';
@@ -1927,8 +1927,8 @@ function tabWords(w: WorldDef) {
 const pickChips = (opts: Opt[], p: string) => { const cur = getPath(p); const on: string[] = Array.isArray(cur) ? cur : []; return pairChips([...opts, ...on.filter(v => !opts.some(([x]) => x === v)).map(v => [v, v] as Opt)], p, true); };
 export const fixtureOpts = (w: WorldDef): Opt[] => fixturesOf(w).map(f => [f.id, `${f.icon ?? ''} ${f.name}`.trim()] as Opt);
 type Zone = WorldDef['homes']['zones'][number];
-// (housing) Buying a home in an area: its price, upkeep, what selling gives back, its size, a second home, and the rent
-// before a version raised it. Read with their defaults (sim/housing.ts), so only what's typed is in the file.
+// (housing) Buying a home in an area: its price, upkeep, what selling gives back, its size, a second home, the rent
+// before a version raised it, and (letting) whether homes here can be let and on what terms. Read with their defaults (sim/housing.ts), so only what's typed is in the file.
 function zoneBuying(w: WorldDef, p: string, z: Zone) {
     const cur = esc(w.currency.symbol);
     const warn: string[] = [];
@@ -1936,11 +1936,18 @@ function zoneBuying(w: WorldDef, p: string, z: Zone) {
     if (!buyable(z) && (z.upkeep !== undefined || z.resale !== undefined || z.second !== undefined)) warn.push('Upkeep, resale and second home are read only for a home with a price.');
     const living = w.cast.examples.filter(e => e.home === z.id).length;
     if (buyOnly(z) && living) warn.push(`Only for sale, but ${living} of the world's people live here.`);
+    // (letting) homes here you own can be let: the rent a tenant pays, how often there is one, the agent's share
+    const lets = !!z.letting && typeof z.letting === 'object';
+    if (lets && !buyable(z)) warn.push('Only a home for sale can be let: give it a price.');
+    else if (lets && !lettable(z)) warn.push('A home to let needs a rent: the rent here, or a rent when let.');
     return `<h4>Buying a home here</h4>
         <div class="mu-row2">${num(`Price to buy (${cur}; empty: not for sale)`, `${p}.price`)}${num(`Upkeep a week, once it's yours (${cur})`, `${p}.upkeep`)}</div>
         <div class="mu-row2">${bounded(`Sold back for this share of what you paid (${RESALE.min}–${RESALE.max}; empty: ${RESALE.usual})`, `${p}.resale`, RESALE.min, RESALE.max, 0.05)}${bounded(`Size (${SIZES.min}–${SIZES.max}; empty: its kind's, else 1)`, `${p}.size`, SIZES.min, SIZES.max)}</div>
         <div class="mu-row2">${sel('It can be a second home', `${p}.second`, [['', 'As usual: yes when it is for sale'], ['true', 'Yes'], ['false', 'No']], 'tri')}${num(`Rent before it went up (${cur}; tells old saves)`, `${p}.was`)}</div>
         <small class="mu-muted">${buyOnly(z) ? 'No rent and a price: for sale only. Nobody is placed here by chance.' : buyable(z) ? 'Rented or bought. A home you own pays its upkeep instead of the rent.' : 'Empty rent and a price: for sale only.'}</small>
+        ${chk('Homes here you own can be let', `${p}.letting`, 'An agent finds a tenant most weeks and pays you the rent less a share; the upkeep is still yours. Three homes let at most.')}
+        ${lets ? `<div class="mu-row2">${num(`Rent when let, a week (${cur}; empty: the rent here)`, `${p}.letting.rent`)}${bounded(`A tenant most weeks (${LETTING.chanceMin}–${LETTING.chanceMax}; empty: ${LETTING.chance})`, `${p}.letting.chance`, LETTING.chanceMin, LETTING.chanceMax, 0.05)}</div>
+        <div class="mu-row2">${bounded(`The agent's share of the rent (0–${LETTING.feeMax}; empty: ${LETTING.fee})`, `${p}.letting.fee`, 0, LETTING.feeMax, 0.05)}</div>` : ''}
         ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
 }
 // (housing) A home's rooms and fixtures (`homes.fixtures`): the shop item's form without what only the shop reads, and
@@ -2049,7 +2056,7 @@ function strengthsEditor(w: WorldDef, k: number) {
 const TRAIT_KINDS: EffectKind[] = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study', 'jealousy', 'risk'];
 const KIND_NAMES: Record<string, string> = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
     price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)',
-    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)' };
+    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)', letting: 'Rent from your tenants' };
 // The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
 // first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
 function targetOpts(w: WorldDef, kind: EffectKind, cur = '', wide = false): [string, string][] {
@@ -2083,6 +2090,7 @@ function targetOpts(w: WorldDef, kind: EffectKind, cur = '', wide = false): [str
         : kind === 'interview' ? [['', 'Every job'], ...jobs]
         : kind === 'risk' ? [['', 'Every risky action'], ...w.actions.filter(a => a.risk !== undefined).map(a => [a.id, `Action: ${a.label || a.name}`] as [string, string]), ...tagged(actTags)]
         : kind === 'jealousy' ? [['', 'Every partner']]
+        : kind === 'letting' ? [['', 'Every home you let'], ...w.homes.zones.filter(lettable).map(z => [z.id, `Homes at ${z.name}`] as [string, string])]
         : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
 }
@@ -3561,6 +3569,8 @@ Object.assign(INPUT, {
         else if (p.includes('.when.') && el.value === '') v = undefined;
         else if (t === 'time') { const [h, m] = el.value.split(':').map(Number); v = (h || 0) * 60 + (m || 0); }
         else if (t === 'csv') v = el.value.split(',').map((x: string) => x.trim()).filter(Boolean);
+        // (letting) a zone's homes can be let: an empty block (the defaults), or none
+        if (t === 'bool' && /^homes\.zones\.\d+\.letting$/.test(p)) v = el.checked ? {} : undefined;
         // switching a block on or off (decay, zero, rent)
         if (t === 'bool' && /(\.decay|\.zero|\.crisis|^rent)$/.test(p)) v = el.checked ? (p === 'rent' ? { everyDays: 7, text: 'Rent: {cost}.' } : p.endsWith('crisis') ? { after: 120, text: '', restore: 25 } : p.endsWith('decay') ? { amount: 1, everyMinutes: 60, awakeOnly: true } : { text: '', restore: 30 }) : undefined;
         // optional parts: empty removes them; picking one fills the rest

@@ -36,6 +36,18 @@ export const guestsOf = (w: WorldDef, kind: string | undefined): number | null =
 export const comesWith = (w: WorldDef, kind: string | undefined): string[] => (kind ? (w.homes.kinds[kind]?.fixtures ?? []).filter(id => typeof id === 'string') : []);
 /** A home here can be a second home: as the zone says, else any home you can buy. */
 export const canBeSecond = (z: HomeZone | undefined) => (z?.second ?? buyable(z)) === true;
+/** (letting) The defaults and bounds of a zone's `letting`: a tenant about three weeks in four, the agent's fifth
+ *  (sim/holdings.ts's numbers); at most three homes to let at once (RQ-6). */
+export const LETTING = { chance: 0.75, fee: 0.2, chanceMin: 0.1, chanceMax: 1, feeMax: 0.5 };
+export const MAX_LET = 3;
+/** The rent a tenant pays a week for a home here, before the difficulty (0: it can't be let). */
+export const letRent = (z: HomeZone | undefined) => (z?.letting && typeof z.letting === 'object' ? Math.max(0, Math.round(num(z.letting.rent) || num(z.rent))) : 0);
+/** Homes here you own can be let: the zone is for sale, says so, and has a rent to charge. */
+export const lettable = (z: HomeZone | undefined) => buyable(z) && letRent(z) > 0;
+/** How likely a week is to have a tenant, held to 0.1–1. */
+export const letChance = (z: HomeZone | undefined) => { const v = num(z?.letting?.chance); return v > 0 ? Math.min(LETTING.chanceMax, Math.max(LETTING.chanceMin, v)) : LETTING.chance; };
+/** The agent's share of the rent, held to 0–0.5. */
+export const letFee = (z: HomeZone | undefined) => { const v = z?.letting?.fee; return typeof v === 'number' && Number.isFinite(v) ? Math.min(LETTING.feeMax, Math.max(0, v)) : LETTING.fee; };
 /** The world's rooms and fixtures (a world without them has none). */
 export const fixturesOf = (w: WorldDef): HomeFixture[] => (Array.isArray(w.homes.fixtures) ? w.homes.fixtures : []).filter(f => !!f && typeof f.id === 'string' && !!f.id);
 export const fixtureOf = (w: WorldDef, id: string) => fixturesOf(w).find(f => f.id === id);
@@ -52,10 +64,14 @@ export function homeWorth(w: WorldDef, zoneId: string | undefined): number {
 
 /** A home you own: its spot, what you paid (after the difficulty), the day you bought it, the fixtures bought for it
  *  (`fix`) and those that came with it (`got`). */
-export interface Owned { zone: string; x: number; y: number; n: number; unit?: number; paid: number; day: number; fix: string[]; got?: string[] }
-/** What you own: at most the home you live in and a second home (`second`, its home key); `sold`: homes sold;
- *  `told`: notes already given. */
-export interface Houses { owned: Owned[]; second?: string; sold?: number; told?: string[] }
+export interface Owned { zone: string; x: number; y: number; n: number; unit?: number; paid: number; day: number; fix: string[]; got?: string[]; let?: Letting }
+/** (letting) A home of yours to let: `since` the first day a tenant can be in (the Monday after it was put up); `until`
+ *  the Monday the tenant leaves after notice; `off` the day it became empty (still yours to let); `weeks` weeks it had
+ *  a tenant; `got` the rent you had from it (after the agent); `last` the last week's report (its week number). */
+export interface Letting { since: number; until?: number; off?: number; weeks?: number; got?: number; last?: { n: number; tenant: boolean; rent: number; fee: number } }
+/** What you own: the home you live in and a second home (`second`, its home key), and up to three to let; `sold`:
+ *  homes sold; `told`: notes already given; `rent`: rent had from tenants in all (after the agent's share). */
+export interface Houses { owned: Owned[]; second?: string; sold?: number; told?: string[]; rent?: number }
 const NONE: Readonly<Houses> = Object.freeze({ owned: Object.freeze([]) as unknown as Owned[] });
 /** Read what you own without writing anything into the save (asked on every effect query). */
 export const peekHouses = (g: Save): Readonly<Houses> => ((g as any).houses as Houses | undefined) ?? NONE;
@@ -68,6 +84,13 @@ export function houses(g: Save): Houses {
 }
 export const ownedHomes = (g: Save): readonly Owned[] => peekHouses(g).owned ?? [];
 export const ownedAt = (g: Save, key: string) => ownedHomes(g).find(o => homeKey(o) === key);
+/** (letting) Your homes to let (let, under notice, or empty), and the others: the one you live in and the second. */
+export const toLet = (g: Save): readonly Owned[] => ownedHomes(g).filter(o => !!o.let);
+export const keptHomes = (g: Save): readonly Owned[] => ownedHomes(g).filter(o => !o.let);
+/** A home of yours with a tenant's agreement now: let, or under notice (not empty). */
+export const isLet = (o: Owned | undefined) => !!o?.let && o.let.off === undefined;
+/** Rent had from tenants in all (the `rent:` key). */
+export const rentHad = (g: Save) => num(peekHouses(g).rent);
 /** Do you own the home you live in? */
 export const ownedHere = (g: Save) => !!g.player?.home && !!ownedAt(g, homeKey(g.player.home));
 /** Your second home, when you have one (never the one you live in). */
