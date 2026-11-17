@@ -103,6 +103,7 @@ function book(b: any): PhotobookDef | null {
     const weeks = num(b.weeks, 1, 520); if (weeks !== undefined) out.weeks = weeks;
     if (b.adult === true) out.adult = true;
     if (str(b.ai)) out.ai = str(b.ai);
+    if (when(b.when)) out.when = when(b.when);
     return out;
 }
 function rental(r: any, places: Set<string>): PhotoDef['rental'] | undefined {
@@ -157,5 +158,9 @@ export function upgradePhoto(w: WorldDef) {
     const r = rental(p.rental, places); if (r) out.rental = r;
     if (str(p.job) && ID.test(str(p.job)!)) out.job = str(p.job);
     const wed = strs(p.weddingAt).filter(x => places.has(x)); if (wed.length) out.weddingAt = wed;
+    // (session A) the freelance mentor and her leaving, the photobooks' publisher (a client)
+    if (str(p.mentor)) out.mentor = str(p.mentor);
+    if (when(p.leaving)) out.leaving = when(p.leaving);
+    if (str(p.publisher) && ids.has(str(p.publisher)!)) out.publisher = str(p.publisher);
     w.photo = out;
 }

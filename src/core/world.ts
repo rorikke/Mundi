@@ -485,7 +485,8 @@ export interface WorkResult { text?: string; perf?: number; money?: number; effe
      *  place shuts for 7 days (no shifts, no pay), a warning, a rumor, and the second time you're let go (sim/caught.ts) */ risk?: number;
     /** effects for some days (1–7), as a boost: a ranking's +15% pay for a week (`addBoost` in sim/perks.ts) */ boost?: { effects: EffectDef[]; days: number };
     /** (business: a venture's event or card) points added to the venture's numbers (`quality: 2`), inside its ceiling */ add?: Record<string, number>;
-    /** (business) an upgrade (by id) this turns up for the venture, waiting in the Business app until bought */ finds?: string }
+    /** (business) an upgrade (by id) this turns up for the venture, waiting in the Business app until bought */ finds?: string;
+    /** (photography) photo reputation up or down (a photo of yours going viral: 3), as a full-board brief moves it */ photorep?: number }
 export type RoutineStep = [number, string];   // [hour, 'home' | 'work' | 'leisure' | placeId]
 export interface Routine { weekday: RoutineStep[]; weekend: RoutineStep[] }
 export interface ExampleCharacter {
@@ -935,6 +936,13 @@ export interface PhotoDef {
     rental?: { at: string; price: number; when?: When; fallback?: { at: string; price: number } };
     job?: string;
     weddingAt?: string[];
+    /** (freelance) The job's mentor, one of the world's people by name (Erika): going freelance has her blessing when
+     *  she's a friend of yours or closer then and `leaving` holds (her storyline's leaving stage was played), a
+     *  falling-out otherwise; with no mentor, always the blessing. */
+    mentor?: string; leaving?: When;
+    /** (photobooks) The client who publishes photobooks (Kōyōsha): with reputation 70 and it as a contact, its offers
+     *  come before the third freelance rank. */
+    publisher?: string;
 }
 export type PhotoKind = 'magazine' | 'wedding' | 'event' | 'portrait' | 'stock';
 export type ClientKind = 'magazine' | 'wedding' | 'event' | 'portrait' | 'small';
@@ -967,10 +975,11 @@ export interface BriefDef {
  *  from behind), the outfit, whether they're asked first, and the scene's words for the AI. */
 export interface SubjectDef { who: string; expr?: string; outfit?: 'clothes' | 'naked'; consent?: boolean; scene?: string }
 /** (photography) A photobook a publisher can offer: a city, a person (`who`) or a season; `briefs` to shoot (3–5);
- *  `pay`: weekly royalties by sales at the start, fading to nothing over `weeks`; `ai`: what the AI is told once out. */
+ *  `pay`: weekly royalties by sales at the start, fading to nothing over `weeks`; `ai`: what the AI is told once out;
+ *  `when`: only offered while this holds (a season book's season, an idol's book through her storyline's hook). */
 export interface PhotobookDef {
     id: string; name: string; kind: 'city' | 'person' | 'season'; who?: string; briefs: number;
-    pay: number; weeks?: number; adult?: boolean; ai?: string;
+    pay: number; weeks?: number; adult?: boolean; ai?: string; when?: When;
 }
 /** (photography) What a shop item or fixture is as photo gear (`ShopItem.photo`), read by the engine itself (not as
  *  effects) so a shoot can name what added: a kind (`camera`, `lens`, `flash`, `drone`, `housing`, `rig`, `cyc`,
