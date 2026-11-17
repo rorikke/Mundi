@@ -26,6 +26,8 @@ function museumHelp(w) {
         ['Your own museum', `Keep collecting and ${name} may be offered to you: take it on in the Museum tab, paid once, with no weekly upkeep. Its first room shows ${n(m.room, 12)} pieces from any hall.`],
         ['Wings and upgrades', 'A wing puts a whole hall on show. Other upgrades bring renown, a place to read or have tea, and room for what needs it: some pieces wait for a climate room, security or a night guard, and their tiles say so.'],
         ['Renown and visitors', 'Pieces on show, upgrades, shows and the museum\'s milestones bring renown. Each level opens more (the Museum tab says what the next one brings), and every Monday the visitors pay a little.'],
+        // (R-b) the museum's name on books, prints and television
+        ...(m.royalties ? [['Royalties', `Once the museum is yours and at least ${n(m.royalties.curve[0]?.at, 10)}% complete, its name earns royalties every Monday: more for every piece, the most at 100%, and they keep coming after. Lent pieces count. Renown and shows don't change them.`]] : []),
         ...(m.dealer ? [['The dealer', `Once the museum is yours a dealer calls every ${n(m.dealer.every, 7)} days with a few pieces, on sale until her next visit. No piece waits too long for its turn. You can ask her for one piece at a time: it comes within two visits, a little dearer.`]] : []),
         ...(m.auctions ? [['The sales', 'Sales come four times a year, with a catalogue a week before. Set a top bid for each lot by phone, or be in the saleroom as it starts to raise once more if you are outbid. Another collector bids too; a lot she takes comes back later, dearer.']] : []),
         // (C-7) the other collector's foundation borrowing a piece

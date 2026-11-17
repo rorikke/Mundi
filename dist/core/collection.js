@@ -1,5 +1,6 @@
 import { safeUrl } from './safe.js';
 import { upgradeRival } from './rival.js'; // (C-7) the dealer's and the rival's names, the loans
+import { upgradeRoyalties } from './royalties.js'; // (R-b) the museum's royalties
 /** A keepsake kind gets a record slot only when this game can have at least this many of it. */
 export const MIN_KIND = 3;
 const ID = /^[a-z0-9_]+$/;
@@ -240,7 +241,7 @@ function museum(m, halls) {
             out.shows = x;
         }
     }
-    return upgradeRival(m, out);
+    return upgradeRoyalties(m, upgradeRival(m, out));
 }
 /** (nature) A world's digs made safe: an id, a place, at least one action and a season each (else dropped), ids unique,
  *  numbers held to their ranges. */

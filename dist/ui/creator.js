@@ -1770,6 +1770,16 @@ function museumIssues(w, M) {
     }
     if (M.shows && !ups.some(u => u.does === 'exhibition'))
         out.push('No upgrade is an exhibition hall, so no show can be held.');
+    // (R-b) royalties
+    const rc = M.royalties?.curve ?? [];
+    if (M.royalties) {
+        if (!rc.some(x => Number(x.pay) > 0))
+            out.push('Royalties need a point that pays something: without one they are dropped when the world loads.');
+        rc.forEach((x, i) => { if (i && !(Number(x.at) > Number(rc[i - 1].at)))
+            out.push(`Royalty point ${i + 1} should be at a higher percentage than the one before it.`); });
+        (M.royalties.steps ?? []).forEach((x, i) => { if (!String(x.line ?? '').trim())
+            out.push(`Royalty line ${i + 1} needs its words: without them it is dropped when the world loads.`); });
+    }
     for (const h of halls)
         if (!h.record && (w.collection?.slots ?? []).some(s => s.hall === h.id && s.sources?.length) && !ups.some(u => u.opens === h.id))
             out.push(`No wing opens ${h.name}: its pieces show only in the first room.`);
@@ -1861,6 +1871,7 @@ function museumEditor(w) {
             <div class="mu-row2">${num('Lasting renown per theme shown', `${q}.shows.lasting`)}${num('Lasting renown from shows at most', `${q}.shows.most`)}</div>
             ${num('Pieces on show a theme needs', `${q}.shows.min`)}`)}
         ${loansEditor(w, q, M)}
+        ${royaltiesEditor(w, q, M)}
         ${mpart(`${q}.eye`, !!M.eye, "The curator's eye: finds come damaged less often, for good", "Add the curator's eye", () => `<div class="mu-row2">${cond('Once (a condition)', `${q}.eye.when`, 'did: ot_kura_lesson 5')}${bounded('Damaged odds × (0 … 1)', `${q}.eye.damaged`, 0, 1, 0.05)}</div>`)}</section>`;
 }
 // (C-7) The dealer as one of the world's people, and the pieces her tier adds to a visit.
@@ -1878,6 +1889,20 @@ function loansEditor(w, q, M) {
         <div class="mu-row2">${bounded('The lowest rung she asks for (1–5)', `${q}.loans.min`, 1, 5)}${bounded('Days to answer', `${q}.loans.wait`, 1, 56)}</div>
         <div class="mu-row2">${bounded('Days before the same piece is asked for again', `${q}.loans.again`, 0, 999)}${sel("Where it's shown (the AI is told there)", `${q}.loans.place`, withCur([['', '(nowhere in particular)'], ...placeOpts(w, '(pick one)').filter(o => o[0])], L?.place), 'opt')}</div>
         <div class="mu-row2">${optTxt("What it's lent for", `${q}.loans.label`, "the Mikage Foundation's season exhibition")}${words('Pieces she asks for however they came (slot ids, comma-separated)', `${q}.loans.also`, "Her grandmother's screen, for one.", 'art_korin_irises')}</div>`);
+}
+// (R-b) The museum's name on things: what a week of royalties pays by the museum's percentage, and the lines said as it
+// grows (and what the AI is told from then on).
+function royaltiesEditor(w, q, M) {
+    const R = M.royalties, sym = esc(w.currency.symbol);
+    return mpart(`${q}.royalties`, !!R, "Royalties: the museum's name on books, prints and television, paid each Monday", 'Add royalties', () => `<p class="mu-muted">Once the museum is yours, each Monday it earns by its percentage (the display halls, not a record): nothing below the first point, a straight line between two points, the last one's above it. Lent pieces count; renown and shows don't change it.</p>
+        <span class="mu-cw-sub">What a week pays (${sym}) at a percentage</span>
+        ${(R?.curve ?? []).map((_p, k) => `<div class="mu-row mu-cw-inline">${bounded('At (%)', `${q}.royalties.curve.${k}.at`, 0, 100)}${num(`A week (${sym})`, `${q}.royalties.curve.${k}.pay`)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.royalties.curve.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="mroypt" data-path="${q}.royalties.curve">${icon('plus')}<span>Add a point</span></button>
+        <span class="mu-cw-sub">Lines as it grows (said once, the first time the museum reaches the percentage)</span>
+        ${(R?.steps ?? []).map((_s, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${bounded('At (%)', `${q}.royalties.steps.${k}.at`, 1, 100)}<span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.royalties.steps.${k}" title="Remove">${icon('x')}</button></div>
+            ${txt('The line (in the news)', `${q}.royalties.steps.${k}.line`, "A Jinbōchō publisher wants a book of the kura's prints.")}
+            ${optTxt('What the AI is told from then on', `${q}.royalties.steps.${k}.ai`, "A book of the kura's prints is in the shops.")}</div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="mroystep" data-path="${q}.royalties.steps">${icon('plus')}<span>Add a line</span></button>`);
 }
 // (C-7) What the loans and the women's names can leave empty: an unpicked person, an empty label, place or list; a
 // tier's unset opening feelings and an emptied line about the others.
@@ -2348,7 +2373,7 @@ function strengthsEditor(w, k) {
 // (adult) `jealousy` and `risk` too: a Flirtatious trait minds a partner's other dates less, Shameless takes more chances.
 const TRAIT_KINDS = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study', 'jealousy', 'risk'];
 const KIND_NAMES = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
-    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)',
+    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)', royalty: "The museum's royalties",
     jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)' };
 // The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
 // first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
@@ -2382,7 +2407,7 @@ function targetOpts(w, kind, cur = '', wide = false) {
                                                     ['festivals', 'From festivals and city events'], ['secrets', 'From secrets, street stories and storylines']]
                                                     : kind === 'interview' ? [['', 'Every job'], ...jobs]
                                                         : kind === 'risk' ? [['', 'Every risky action'], ...w.actions.filter(a => a.risk !== undefined).map(a => [a.id, `Action: ${a.label || a.name}`]), ...tagged(actTags)]
-                                                            : kind === 'jealousy' ? [['', 'Every partner']]
+                                                            : kind === 'jealousy' ? [['', 'Every partner']] : kind === 'royalty' ? [['', 'All royalties']]
                                                                 : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
 }
@@ -4049,7 +4074,7 @@ Object.assign(ACT, {
                 return;
             const part = p.split('.').pop();
             setPath(p, part === 'renown' ? { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } : part === 'dealer' ? { every: 7, stock: 3, pity: 6 }
-                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 50000, 200000, 625000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
+                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'royalties' ? { curve: [{ at: 10, pay: 10000 }, { at: 100, pay: 150000 }] } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 50000, 200000, 625000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
                     : { price: Math.round((Number(M.offer?.price) || 100000) / 5), renown: 10 });
             notify();
             return;
@@ -4069,6 +4094,22 @@ Object.assign(ACT, {
             if (getPath(p) !== undefined)
                 return;
             setPath(p, { price: Math.round((Number(getPath(p.replace(/\.mount$/, '.price'))) || 100000) / 10), days: 7 });
+            notify();
+            return;
+        }
+        // (R-b) a royalty point after the last (10 points on), a line at the next quarter
+        if (what === 'mroypt') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            const last = l[l.length - 1];
+            l.push({ at: Math.min(100, (Number(last?.at) || 0) + 10), pay: Number(last?.pay) || 0 });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'mroystep') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ at: Math.min(100, (Number(l[l.length - 1]?.at) || 0) + 25), line: '' });
+            CW.dirty = true;
             notify();
             return;
         }
