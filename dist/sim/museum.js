@@ -106,7 +106,8 @@ export const canHouse = (g, w, s) => !s.needsUpgrade || !museumOn(w) || hasUpgra
 /** Can this piece still come to you: not had for real, not a damaged find waiting, and housed? (A replica can be
  *  replaced by the real piece.) The market's pools use it too. */
 export const wanted = (g, w, s) => !hasPiece(g, s.id) && !damagedOf(g)[s.id] && canHouse(g, w, s);
-const upgradeName = (w, key) => museumDef(w)?.upgrades.find(u => u.id === key || u.does === key)?.name ?? key;
+/** An upgrade's name, by id or by what it does (the key itself when the museum has none). */
+export const upgradeName = (w, key) => museumDef(w)?.upgrades.find(u => u.id === key || u.does === key)?.name ?? key;
 // A piece comes: filled (a replica it replaces is gone), or a damaged find kept aside until the workshop restores it.
 function give(g, w, s, entry, damaged = false) {
     const m = museumState(g), c = collectionOf(g);
@@ -122,6 +123,9 @@ function give(g, w, s, entry, damaged = false) {
     if (!c.counted.includes(s.id))
         c.counted.push(s.id); // (R-8: a slot joins the count when it fills)
 }
+/** (nature, sim/dig.ts) A piece comes from a dig: filled as it is (a dig's find, a piece of parts mounted or complete),
+ *  whatever its housing (the dig's rules decided that). */
+export const fillPiece = (g, w, s, entry) => give(g, w, s, entry);
 /** A piece is yours (the dealer, a sale won, anything else that hands one over): filled with how it came and what it
  *  cost (a replica it replaces is gone), or kept aside damaged (MU-4). Returns the line to show. Nothing for a slot the
  *  world doesn't have or a piece you can't have now (`wanted`). */
@@ -132,8 +136,8 @@ export function receivePiece(g, w, id, how) {
     give(g, w, s, { day: g.day, src: how.src, ...(how.paid ? { paid: how.paid } : {}) }, !!how.damaged && museumOn(w));
     return `${s.icon ? `${s.icon} ` : ''}${s.name} is yours.${whereLine(g, w, s, !!how.damaged && museumOn(w))}`;
 }
-// Where a new piece goes, said after its name.
-function whereLine(g, w, s, damaged) {
+/** Where a new piece goes, said after its name (a sentence with a space before it, or ''). */
+export function whereLine(g, w, s, damaged) {
     const m = museumDef(w);
     if (!m)
         return '';
@@ -335,8 +339,9 @@ const themeName = (w, theme) => { const [h, gr] = theme.split(':'); return hallO
 /** After an action (its roll done): one roll for its finds, then one missing piece among them you can house. The odds
  *  are the best of its finds' `chance`, times the best two of: the action's roll succeeded (×2), the reading room
  *  (×1.5), the curator with you (×1.5), at most `FIND.most`; with the curator a find's damaged odds are halved, and
- *  the museum's `eye` (once its condition holds) lowers them for good. */
-function found(g, w, a, ok, mates) {
+ *  the museum's `eye` (once its condition holds) lowers them for good. A find's window (its `when`) is judged at
+ *  `began`, the minute the try set out (so a dawn walk can find what dawn brings, as the Here tab said it could). */
+function found(g, w, a, ok, mates, began) {
     if (!piecesOn(w))
         return [];
     const place = g.player.loc;
@@ -344,7 +349,7 @@ function found(g, w, a, ok, mates) {
     for (const s of displayHere(g, w)) {
         if (!wanted(g, w, s))
             continue;
-        const x = (s.sources ?? []).find(y => y.kind === 'find' && (y.action ? y.action === a.id : !!y.at?.includes(place)) && (!y.when || whenHolds(g, w, y.when)));
+        const x = (s.sources ?? []).find(y => y.kind === 'find' && (y.action ? y.action === a.id : !!y.at?.includes(place)) && (!y.when || whenHolds(g, w, y.when, began === undefined ? {} : { at: began })));
         if (x)
             list.push({ s, x });
     }
@@ -591,7 +596,8 @@ function settleMuseum(g, w) {
     }
     return out;
 }
-museumHooks.settle = settleMuseum;
+// (nature) the dig's settle after it, through its hook (sim/dig.ts imports this file, so either may load first)
+museumHooks.settle = (g, w) => [...settleMuseum(g, w), ...museumHooks.settleDig(g, w)];
 /* ---------- visitors ---------- */
 // Each Monday, the week's visitors: renown × `income`, twice that while a show is on.
 onDay.push((g, w) => {
@@ -684,6 +690,15 @@ export function pieceTile(g, w, id) {
         out.ready = fix;
     if (!x && !canHouse(g, w, s))
         out.needs = upgradeName(w, s.needsUpgrade);
+    if (s.parts?.length) {
+        // (read straight from the save: sim/dig.ts writes `parts` and imports this file, not the other way round)
+        const have = (collectionOf(g)?.parts?.[id] ?? {}), mount = museumOf(g)?.mount?.[id];
+        out.parts = s.parts.map(p => ({ id: p, have: have[p] !== undefined, ...(s.partPics?.[p] ? { pic: s.partPics[p] } : {}) }));
+        if (!x && mount !== undefined)
+            out.mounting = mount;
+        else if (!x && museumOn(w) && s.mount && out.parts.every(p => p.have))
+            out.toMount = true;
+    }
     return out;
 }
 museumHooks.tile = (g, w, id) => ({ ...pieceTile(g, w, id) });

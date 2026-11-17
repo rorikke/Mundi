@@ -112,14 +112,15 @@ export function doAction(g, w, a, rnd = Math.random) {
     const priv = privateCheck(g, w, a, g.player.loc, mates, rnd);
     if (priv?.stop)
         return priv.stop;
-    const lines = [];
+    const lines = [], began = nowAbs(g);
     applyAction(g, w, a);
     advance(g, w, a.minutes).forEach(m => lines.push({ text: m, kind: 'warn' }));
-    return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd, priv });
+    return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd, priv, began });
 }
 // What came of an action once its time has passed: the roll, an outcome, feelings, a rumor, a keepsake, the time
 // together, the fact and the AI's line. `last`: the newest fact before it began (a roll or an event that wrote its
-// own fact means no plain one); `ended`: it was played out in the scene.
+// own fact means no plain one); `ended`: it was played out in the scene; `began`: the minute it began (a find's window
+// is the one you set out in).
 function results(g, w, a, o) {
     const { place: loc, mates, last, lines, rnd } = o;
     const where = placeName(g, w, loc), home = loc === playerHomeId;
@@ -128,7 +129,8 @@ function results(g, w, a, o) {
     afterAction(g, w, a, ok).forEach(m => lines.push({ text: m, kind: 'success' }));
     afterEvent(g, w, a).forEach(m => lines.push({ text: m, kind: 'success' }));
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
-    museumHooks.found(g, w, a, ok, mates).forEach(m => lines.push({ text: m, kind: 'success' })); // (museum) a piece found
+    museumHooks.found(g, w, a, ok, mates, o.began).forEach(m => lines.push({ text: m, kind: 'success' })); // (museum) a piece found
+    museumHooks.dug(g, w, a, ok, mates, o.began).forEach(m => lines.push({ text: m, kind: 'success' })); // (nature) a day at a dig
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
     const outcome = o.priv && o.priv.outcome !== undefined ? o.priv.outcome : drawOutcome(g, w, a, loc, rnd);
@@ -254,7 +256,7 @@ export function finishSceneAction(g, w, { rest = true, judge = true, rnd = Math.
     const mates = there ? act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a)) : [];
     if (act.priv)
         Object.assign(act.priv, { a: act.a, rnd }); // (the dice don't survive a save)
-    const done = act.priv?.stop ?? results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true, priv: act.priv });
+    const done = act.priv?.stop ?? results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true, priv: act.priv, began: act.start });
     done.lines.forEach(l => toast(l.text, l.kind));
     if (done.roll)
         toast(`${gradeName(done.roll.grade)} — ${done.roll.text}`, done.roll.grade.includes('success') ? 'success' : 'warn');

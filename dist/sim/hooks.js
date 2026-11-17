@@ -10,11 +10,14 @@ export const thingsOwned = [];
 export const onAction = [];
 // (museum, sim/museum.ts) What the rest of the game asks of the museum's engine, so neither waits on the other; with none,
 // nothing. `settle`: run inside the collection's settle (sim/collection.ts), lines to show; `found`: after an action's
-// roll (sim/actions.ts, `ok` its success, null without a roll), a find's lines; `story`: a street story's result with
+// roll (sim/actions.ts, `ok` its success, null without a roll; `began`: the minute the action began, so a find's
+// window is judged as you set out, not as the try ends), a find's lines; `story`: a street story's result with
 // `renown` or `damage` (sim/stories.ts), lines; `begun`: are the display halls shown (null: the world has no museum,
 // track 4's rule); `tile`: what a display piece's tile adds (sim/collection.ts `recordView`); `hall`: how a display
-// hall is on show.
-export const museumHooks = { settle: () => [], found: () => [], story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
+// hall is on show. (nature, sim/dig.ts) `dug`: after the same action, a dig's day and roll, lines; `inSeason`: can a
+// piece's way come round in the season now (the tiles' mark); `settleDig`: the dig's part of the settle, run right after
+// the museum's (pieces mounted on their ready day), lines.
+export const museumHooks = { settle: () => [], settleDig: () => [], found: () => [], dug: () => [], inSeason: () => false, story: () => [], begun: () => null, tile: () => ({}), hall: () => undefined };
 // Who you are seen as right now (an alter ego in disguise): facts, and so rumors, are about that name.
 export const seenAs = [];
 // Other things that help or hurt a d20 check (a familiar, an injury, a debuff, a talent…).
@@ -38,7 +41,7 @@ export const onKeepsake = [];
 // sim/museum.ts) `piece:` and `museum:` and their words.
 export const collectionLink = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
     piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v,
-    market: () => false, marketWords: (_g, _w, _k, v) => v };
+    market: () => false, marketWords: (_g, _w, _k, v) => v, dig: () => false, digWords: (_g, _w, v) => v };
 // (museum) What the market (sim/market.ts) asks of the museum's engine (sim/museum.ts fills these in, so neither file
 // imports the other's rules). Unset, the market uses its own plain answers: renown level 0, a piece can be housed when
 // it needs no upgrade or the museum has one by that id or `does`, prices through the difficulty only, and a piece
