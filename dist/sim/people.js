@@ -19,6 +19,7 @@ import { trainHours } from './transit.js';
 import { partySpot } from './houseparty.js';
 import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace } from './dayplan.js';
 import { guestSpot } from './guests.js';
+import { homeIdAt } from './visitors.js';
 const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -141,8 +142,8 @@ export function routineAt(g, w, r, at) {
 // work hours are free time, and a day off follows its weekend steps.
 function routineCore(g, w, r, at, st) {
     const day = Math.floor(at / 1440);
-    // someone who lives with you (or with someone else) is at that home
-    const homeId = r.homeWith === '__you' ? 'home:player' : r.homeWith ? `home:${r.homeWith}` : `home:${r.avatar}`;
+    // someone who lives with you (or with someone else) is at that home; someone staying with you, at yours
+    const homeId = homeIdAt(g, w, r, at);
     // Home: a job you wrote for them has its shift (out of the house while it lasts); without one, their routine
     if (isScenario(w)) {
         const [start, target] = routineStep(r, at);
@@ -210,7 +211,7 @@ function lateNight(g, w, r, at, homeId, st) {
 export function waitingForTrain(g, w, r, at = nowAbs(g)) {
     if (isScenario(w) || !trainHours(w))
         return false;
-    const homeId = r.homeWith === '__you' ? 'home:player' : r.homeWith ? `home:${r.homeWith}` : `home:${r.avatar}`;
+    const homeId = homeIdAt(g, w, r, at);
     const x = lateNight(g, w, r, at, homeId, stampOf(g, w));
     return !!x && x !== homeId;
 }

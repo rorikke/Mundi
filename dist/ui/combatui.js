@@ -7,9 +7,9 @@ import { rpgOf } from '../core/rpgdef.js';
 import { ACT } from './reg.js';
 import { thumb, setPrompt, personaThumb } from '../st/bridge.js';
 import { placeOf, homeKindAt } from '../sim/places.js';
+import { roomPicture, sceneHere } from '../sim/homerooms.js';
 import { pictureAt } from '../sim/daynight.js';
 import { money } from '../sim/needs.js';
-import { presentAt } from '../sim/people.js';
 import { sheetOf, isRpg } from '../sim/rpg.js';
 import { combatOf, current, yourTurn, targetsFor, standing, chooseMode, act, combatSpells, closeCombat, } from '../sim/combat.js';
 import { partyOf, friends, mercs, memberName, memberKey, canJoin, join, leave, setRow, forHire, hire, dismissMerc, hiringHere, MAX_FRIENDS, MAX_MERCS, } from '../sim/party.js';
@@ -19,7 +19,7 @@ const hpPct = (hp, max) => Math.max(0, Math.min(100, (hp / Math.max(1, max)) * 1
 const hpTone = (p) => (p > 50 ? 'is-ok' : p > 20 ? 'is-mid' : 'is-low');
 function backdrop(g, w, where) {
     const p = placeOf(g, w, where);
-    let img = p ? pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs) ?? '' : '';
+    let img = (p && where === g.player.loc && roomPicture(g, w)) || (p ? pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs) ?? '' : '');
     if (!img && p?.home) {
         const k = w.homes.kinds[homeKindAt(g, w, p.id)];
         img = (k && pictureAt(w, g.minutes, k.image, k.images)) ?? '';
@@ -200,7 +200,7 @@ export function partyApp(g, w, head) {
         <span><b data-notr>${esc(memberName(g, m))}</b><small>${esc(cls(m.cls))}${m.merc ? ` · level ${m.merc.level} · ${esc(money(w, m.merc.wage))}/day` : ''}${m.hp !== undefined ? ' · wounded' : ''}</small>${row(memberKey(m), m.row)}</span>
         <button class="mu-ghost" data-act="${m.merc ? 'party-dismiss' : 'party-leave'}" data-id="${esc(memberKey(m))}">${m.merc ? 'Dismiss' : 'Part ways'}</button></div>`).join('')
         : '<p class="mu-muted">You travel alone. People who trust you (bond 40+) can join you; sellswords can be hired at a tavern or an inn.</p>';
-    const here = presentAt(g, w, g.player.loc).filter(r => r.met && !list.some(m => m.avatar === r.avatar));
+    const here = sceneHere(g, w).filter(r => r.met && !list.some(m => m.avatar === r.avatar));
     const invite = here.length ? `<section><h4>Ask to join (here)</h4>${here.map(r => {
         const why = canJoin(g, w, r.avatar);
         return `<div class="mu-ph-job"><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.name)}</b><small>${why ? esc(why) : 'Ready to follow you'}</small></span>

@@ -21,10 +21,10 @@ import { facts, note, placeName, toldAs } from './facts.js';
 import { whenHolds, markDone, doneToday } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, talkedWith } from './social.js';
 import { playerHomeId } from './places.js';
-import { presentAt } from './people.js';
 import { startRumor } from './living.js';
 import { onLook, privateChecks, privateResults, museumHooks } from './hooks.js';
 import { earn } from './points.js';
+import { sceneAt } from './homerooms.js';
 /** Is this a private action the hooks look at (done in private, or with a risk of being caught; adult content on)? */
 export const isPrivateAct = (g, a) => adultOn(g) && (!!a.private || (a.risk ?? 0) > 0);
 /** (adult) Pillow talk (an action tagged `pillow-talk`): talking about what you each like after a private moment. Not a
@@ -253,7 +253,7 @@ export function finishSceneAction(g, w, { rest = true, judge = true, rnd = Math.
     if (rest && there && left > 0)
         advance(g, w, left).forEach(m => lines.push({ text: m, kind: 'warn' }));
     // (whoever started it with you and is still here: the talk that made them company may be older than its time now)
-    const mates = there ? act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a)) : [];
+    const mates = there ? act.with.filter(a => sceneAt(g, w, act.place).some(r => r.avatar === a)) : [];
     if (act.priv)
         Object.assign(act.priv, { a: act.a, rnd }); // (the dice don't survive a save)
     const done = act.priv?.stop ?? results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true, priv: act.priv, began: act.start });
@@ -273,7 +273,7 @@ export function sceneActLine(g, w) {
     const act = sceneAct(g);
     if (!act || g.player.loc !== act.place)
         return '';
-    const mates = act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a));
+    const mates = act.with.filter(a => sceneAt(g, w, act.place).some(r => r.avatar === a));
     const who = mates.length ? `{{user}} and ${names(g, mates)}` : '{{user}}';
     const why = mates.length && act.a.together?.text ? ` (${act.a.together.text.replace(/[.\s]+$/, '')})` : '';
     const left = sceneActLeft(g);

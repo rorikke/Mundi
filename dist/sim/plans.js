@@ -28,6 +28,7 @@ import { personaName } from '../st/bridge.js';
 import { favorOwed } from './when.js';
 import { callInFavor } from './stories.js';
 import { tallyEvent } from './tally.js';
+import { visitorsSleep, stayingWithYou } from './visitors.js';
 export const HANGOUT_BOND = 15; // acquaintance: you can hang out
 export const DATE_BOND = 50; // a date needs a good bond, a Spark match or being together
 export const COME_BOND = 25; // "come over now"
@@ -336,7 +337,7 @@ function judgeParties(g, appts, now) {
 }
 // A night that's more than a sleepover (life goals): with someone you're a couple with, or who is ready to get
 // intimate with you. The AI plays the night; this only says what it could be.
-function nightTogether(g, a) {
+export function nightTogether(g, a) {
     if (!sysOn(g, 'romance') || romanceBlocked(g, a))
         return false;
     return !!statusOf(g, a, YOU) || intimacyReady(g, a, g.cast[a]?.name ?? '').lean === 'yes';
@@ -357,11 +358,20 @@ export function beforeTravel(g, w, to) {
     }
     return out;
 }
-// Sleeping: everyone goes home (your partner stays when you sleep at home).
+// Sleeping: everyone goes home (your partner stays when you sleep at home). Someone staying with you for a few days
+// (sim/visitors.ts) has their night counted there, and doesn't "go home": they sleep at yours.
 export function beforeSleep(g) {
     const out = [];
     const stay = social(g).stay;
+    visitorsSleep(g);
     for (const c of [...social(g).with]) {
+        if (stayingWithYou(g, c.avatar)) {
+            if (isPartner(g, c.avatar) && g.player.loc === playerHomeId)
+                c.until = nowAbs(g) + 12 * 60;
+            else
+                letGo(g, c.avatar);
+            continue;
+        }
         if (stay && stay.avatar === c.avatar && stay.where === g.player.loc) { // staying the night together
             c.until = Math.max(c.until, nowAbs(g) + 14 * 60);
             tallyEvent(g, 'overnight', 1, c.avatar);

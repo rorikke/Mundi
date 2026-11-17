@@ -16,7 +16,7 @@
 import { nowAbs } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { onHour, onDay, onLook, tierLink } from './hooks.js';
-import { presentAt, residents, routineAt, workingAt } from './people.js';
+import { residents, routineAt, workingAt } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
 import { social, bondOf, textFrom } from './social.js';
@@ -40,6 +40,7 @@ import { wantingYou, driveWant, CHAR_DRIVE } from './drive.js';
 import { driveOf } from './intimacy.js';
 import { actionsHere } from './needs.js';
 import { isPrivateAct, sceneAct } from './actions.js';
+import { sceneHere, elsewhereHere, dropIn } from './homerooms.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -167,7 +168,7 @@ export function readyToAsk(g, w, a) {
 export function checkAsks(g, w) {
     if (seat(g).moments.some(m => m.kind === 'ask'))
         return; // one question at a time
-    for (const r of presentAt(g, w, g.player.loc)) {
+    for (const r of sceneHere(g, w)) {
         // one thing at a time: a confession or a grudge they still have to bring up comes first
         if (!r.met || !isMine(g, r.avatar) || seat(g).moments.some(m => m.who === r.avatar) || rnd(g, `ask|${r.avatar}`) >= 0.35 || !canSpend(g, r.avatar))
             continue;
@@ -189,7 +190,7 @@ export function textAsks(g, w) {
     const h = Math.floor(g.minutes / 60), s = social(g), roll = rnd(g, `textask|${h}`);
     if (!systemOn(w, 'plans') || !systemOn(w, 'romance') || s.invite || h < 10 || h > 19 || roll > 0.05 * WANT_INVITE * tierLink.inviteMax(g))
         return [];
-    const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
+    const here = new Set(sceneHere(g, w).map(r => r.avatar));
     const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar) && tierLink.invites(g, idOf(g, r.avatar)));
     const pick = (r) => {
         const st = romOf(g, r.avatar).status;
@@ -247,7 +248,7 @@ export function fits(g, w, m) {
         if (m.tier?.startsWith('tell:'))
             return true;
         const b = g.cast[m.tier ?? ''];
-        return !!b && presentAt(g, w, g.player.loc).includes(b);
+        return !!b && sceneHere(g, w).includes(b);
     }
     if (m.kind === 'down')
         return bondOf(g, a) < 0;
@@ -339,7 +340,7 @@ export function moveActions(g, w, a) {
 function canMove(g, w, a) {
     if (!adultOn(g) || !initiativeOn(g) || g.asleep || sceneAct(g) || !isMine(g, a))
         return false;
-    const here = presentAt(g, w, g.player.loc);
+    const here = sceneHere(g, w);
     if (here.length !== 1 || here[0].avatar !== a || !here[0].met || !withYou(g, w).includes(a))
         return false;
     return romanticOk(g, w, a) && !grudgeOf(g, a) && !coolingDown(g, a) && wantingYou(g, w, a) && tierLink.moves(g, idOf(g, a)); // (museum) from the tier that lets them
@@ -352,7 +353,7 @@ export function checkMove(g, w, force = false) {
     const open = moveOffer(g, w);
     if (open)
         return open;
-    const here = presentAt(g, w, g.player.loc);
+    const here = sceneHere(g, w);
     if (here.length !== 1)
         return null;
     const a = here[0].avatar;
@@ -475,7 +476,7 @@ export function festivalCustoms(g, w) {
             done.late[f.id] = g.day;
             for (const r of people.filter(x => partnerOf(g, x.avatar))) {
                 const plan = social(g).appts.some(a => a.avatar === r.avatar && Math.floor(a.from / 1440) === g.day && (a.state === 'set' || a.state === 'met'));
-                if (plan || isWith(g, r.avatar) || presentAt(g, w, g.player.loc).includes(r))
+                if (plan || isWith(g, r.avatar) || sceneHere(g, w).includes(r))
                     continue;
                 lose(g, 'r', r.avatar, YOU, 3);
                 add(r, `${f.id}:late`, `${r.name} is hurt that {{user}} made no plans with them on ${name}, the couples' night, and lets it show in this scene.`, g.day + 2);
@@ -571,7 +572,7 @@ export function introductions(g, w, force = false) {
         const where = placeOf(g, w, spot.place)?.name ?? 'there', when = whenText(g, spot.from);
         const texted = textInvite(g, w, a, spot.place, spot.from, `come to ${where} (${when}): ${b.name}, a good friend of ${a.name}'s, will be there (${spot.why}), and ${a.name} wants them to meet.`, `Come to ${where}, ${when}? I want you to meet ${b.name}.`);
         if (!texted) {
-            if (!presentAt(g, w, g.player.loc).includes(a))
+            if (!sceneHere(g, w).includes(a))
                 continue;
             queueMoment(g, { who: a.avatar, kind: 'intro', tier: `tell:${b.avatar}`, text: `${a.name} tells {{user}} about ${b.name}, a good friend of theirs, and suggests coming along to ${where} some time (${spot.why}).` });
         }
@@ -592,9 +593,25 @@ export function checkInitiative(g, w) {
     if (!initiativeOn(g))
         return;
     checkTiers(g, w);
-    confrontations(g, w, presentAt(g, w, g.player.loc));
+    confrontations(g, w, sceneHere(g, w));
     checkAsks(g, w);
     checkMove(g, w);
+    momentDropIn(g, w);
+}
+// (homerooms) A moment waiting for someone elsewhere in the house (a confession, an ask) only plays in the scene: once
+// an hour, the first of them who is awake comes to find you in your room.
+function momentDropIn(g, w) {
+    const hour = Math.floor(nowAbs(g) / 60);
+    if (g.tick.homeDropIn === hour)
+        return;
+    const far = elsewhereHere(g, w).filter(x => !x.asleep).map(x => x.r);
+    if (!far.length)
+        return;
+    const m = momentsHere(g, far, x => x.sent === undefined && fits(g, w, x))[0]; // (once: a moment already played in a scene doesn't fetch them again)
+    if (!m)
+        return;
+    g.tick.homeDropIn = hour;
+    dropIn(g, w, m.who);
 }
 onHour.push((g, w) => { if (!initiativeOn(g))
     return []; checkInitiative(g, w); return [...textAsks(g, w), ...festivalCustoms(g, w), ...introductions(g, w)]; });

@@ -6,7 +6,7 @@ import { adultOn } from '../core/store.js';
 import { systemOn } from '../core/world.js';
 import { crowdLevel } from './worldstate.js';
 import { exampleOf } from './dayplan.js';
-import { companions, giftsGiven } from './social.js';
+import { companions, giftsGiven, withYou } from './social.js';
 import { fr, ro, relOf, idOf, statusOf, YOU } from './rel.js';
 import { friendTier, INTEREST, CRUSH, INFATUATED } from './romance.js';
 import { familyBlocked, isMinor } from './family.js';
@@ -16,6 +16,7 @@ import { jobDef, colleaguesOf } from './work.js';
 import { npcRank } from './longlife.js';
 import { sharedWith, speaks, barrierOn, FLUENT } from './language.js';
 import { intimateLines } from './hooks.js';
+import { sceneHere } from './homerooms.js';
 import './private.js'; // (private moments: what you know of each other comes into this block through intimateLines)
 /* ---------- life around you (E1) ---------- */
 // A place with its own `staff`, or any place in a world that says so (`scene.background`), with the living world on.
@@ -116,6 +117,14 @@ export const PROFILES_MAX = 3;
 export function privateScene(g, w, here) {
     if (!here)
         return false;
+    // (homerooms) a room inside a home: private in a bedroom, or in a shared room with nobody else in it (nobody but
+    // whoever is with you); a housemate in the kitchen makes it not
+    if (here.inRoom) {
+        if (here.inRoom.bed)
+            return true;
+        const mine = new Set(withYou(g, w));
+        return sceneHere(g, w).every(r => mine.has(r.avatar));
+    }
     if (here.private || here.home || isHome(here.id))
         return true;
     return (w.actions ?? []).some(a => a.private && doneToday(g, a.id, here.id));

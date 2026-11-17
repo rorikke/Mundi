@@ -19,7 +19,7 @@ import { finishMoments } from './moments.js';
 import { grudgeOf, holdGrudge, makeUp, GRUDGE } from './grudges.js';
 import { verdictCould, verdictIntimate } from './private.js';
 import { privateScene } from './scenepeople.js';
-import { placeOf } from './places.js';
+import { scenePlace } from './homerooms.js';
 export const MIN_MESSAGES = 4; // passing through a place (a greeting, a word) costs no AI call
 export const verdictOn = (g) => relCfg(g).verdict !== false;
 const LINE = /^\s*[-*•]?\s*([^|\n>]+?)\s*(?:>\s*([^|\n]+?)\s*)?\|\s*friendship\s*([+-]?\s*\d)\s*\|\s*romance\s*([+-]?\s*\d)\s*\|\s*([^|\n]+?)\s*((?:\|\s*(?:made\s*up|intimate)\s*)*)$/i;
@@ -73,7 +73,7 @@ export async function verdictNow(g, w, reason, { end = false } = {}) {
         const romance = systemOn(w, 'romance');
         const between = systemOn(w, 'relations') && people.length >= 2;
         // (adult) who a private moment could have happened with here: the verdict may say it did
-        const privateHere = adultOn(g) && romance && privateScene(g, w, placeOf(g, w, g.player.loc));
+        const privateHere = adultOn(g) && romance && privateScene(g, w, scenePlace(g, w));
         const could = people.filter(p => verdictCould(g, w, p.avatar, privateHere)).map(p => p.avatar);
         const hurt = people.map(p => { const gr = grudgeOf(g, p.avatar); return gr ? `${p.name} (${gr.tag.replace(/^Hurt: /, '')})` : ''; }).filter(Boolean);
         const already = people.map(p => { const c = counted[p.avatar]; return c && (c.f || c.r) ? `${p.name}: friendship ${c.f >= 0 ? '+' : ''}${c.f.toFixed(1)}${c.r ? `, romance ${c.r >= 0 ? '+' : ''}${c.r.toFixed(1)}` : ''}` : ''; }).filter(Boolean);

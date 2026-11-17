@@ -23,7 +23,8 @@ import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, he
 import { PL } from './plans.js';
 import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
-import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack } from './relui.js';
+import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack, visitRow, visitStatus } from './relui.js';
+import { visitors } from '../sim/visitors.js';
 import { note } from '../sim/facts.js';
 import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
@@ -282,6 +283,19 @@ function threadApp(g) {
         <div class="mu-ph-compose"><input type="text" placeholder="${T('messagePlaceholder')}" value="${esc(P.draft)}" data-input="ph-draft" data-focus="ph-draft" ${P.typing ? 'disabled' : ''}>
             <button class="mu-ibtn mu-primary" data-act="ph-send" aria-label="${T('send')}" ${P.typing ? 'disabled' : ''}>${icon('send')}</button></div>`;
 }
+// (plans) The Calendar's "Staying with you": who is staying at your place (or coming to), their night, and goodbye. Put
+// before "Coming up" (the Calendar itself is ui/plans.ts's).
+function withVisitors(g, w, html) {
+    if (isScenario(w) || !systemOn(w, 'plans'))
+        return html;
+    const list = visitors(g).filter(v => g.cast[v.avatar]);
+    if (!list.length)
+        return html;
+    const sec = `<section class="mu-cal-visitors"><h4>Staying with you</h4>${list.map(v => `<div class="mu-ph-job mu-plan-row"><img src="${esc(thumb(v.avatar))}" alt=""><span><b data-notr>${esc(g.cast[v.avatar].name)}</b><small>${esc(visitStatus(g, v))}</small></span>
+        <button class="mu-ghost" data-act="vis-bye" data-who="${esc(v.avatar)}">Say goodbye</button></div>`).join('')}</section>`;
+    const at = html.indexOf('<section><h4>Coming up</h4>');
+    return at < 0 ? html.replace(/<\/div>\s*$/, `${sec}</div>`) : html.slice(0, at) + sec + html.slice(at);
+}
 // People: your partners first, then something casual (listed apart: they aren't partners), then everyone else.
 function peopleApp(g) {
     const list = met(g).filter(r => matchQ(g, r)).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
@@ -304,7 +318,7 @@ function personApp(g, w) {
         ${knownHtml(g, w, r.avatar)}
         ${theirStoryHtml(g, w, r.avatar)}
         <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
-        ${featureOn(w, 'plans') ? planForm(g, w, r.avatar) : ''}
+        ${featureOn(w, 'plans') ? `${planForm(g, w, r.avatar)}${visitRow(g, w, r.avatar)}` : ''}
         ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? '<button data-act="ph-partner">Ask to be together</button>' : ''}
         ${referBtn(g, w, r.avatar)}
         <p class="mu-muted">Now: ${esc(placeOf(g, w, whereNow(g, w, r))?.name ?? '')}${breakNow(g, w, r) && whereNow(g, w, r) === breakNow(g, w, r).place ? ` · <i>${esc(breakNow(g, w, r).why.replace(/^is /, ''))}</i>` : ''}</p>
@@ -665,7 +679,7 @@ export function phoneHtml() {
     LW = w;
     const body = P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-            : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+            : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK)
         return bookHtml(g, w, body);
     const unread = phoneUnread();

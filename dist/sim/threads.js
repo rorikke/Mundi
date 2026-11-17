@@ -2,7 +2,7 @@ import { systemOn } from '../core/world.js';
 import { personaName } from '../st/bridge.js';
 import { onDay, onHour, onLook, tierLink } from './hooks.js';
 import { exampleOf, adultOn } from './dayplan.js';
-import { presentAt, residents } from './people.js';
+import { residents } from './people.js';
 import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwner, withHere } from './when.js';
 import { effectAdd } from './effects.js';
 import { startRumor, rumorPool, liveTogether, YOU } from './living.js';
@@ -17,6 +17,7 @@ import { fr, setFr, attracted, statusOf, isPartner } from './rel.js';
 import { FRIEND_TIERS, becomeCouple, jealousOf } from './romance.js';
 import { romanceBlocked } from './family.js';
 import { playerHomeId } from './places.js';
+import { sceneHere } from './homerooms.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -400,7 +401,7 @@ const sceneOf = (g) => {
     }
     return s;
 };
-const here = (g, w, r) => !g.asleep && r.met && presentAt(g, w, g.player.loc).includes(r);
+const here = (g, w, r) => !g.asleep && r.met && sceneHere(g, w).includes(r);
 // Does this storyline's card wait for an answer in this scene?
 function cardOpen(g, st) {
     if (st.ended || st.due === undefined)
@@ -709,7 +710,7 @@ export function lookThreads(g, w) {
             if (rumor.thread && rumor.knownBy.includes(YOU))
                 revealThread(g, w, rumor.thread, 'rumor');
     }
-    const present = new Set(presentAt(g, w, g.player.loc).filter(r => r.met).map(r => r.avatar));
+    const present = new Set(sceneHere(g, w).filter(r => r.met).map(r => r.avatar));
     for (const { t, r } of list) {
         const st = all[t.id];
         if (!present.has(r.avatar) || !st || st.known !== undefined || st.ended || st.stage < 0)

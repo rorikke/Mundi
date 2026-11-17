@@ -4,7 +4,7 @@ import { state, game, esc } from '../core/store.js';
 import { setHtml } from '../core/safe.js';
 import { getWorld } from '../core/world.js';
 import { thumb } from '../st/bridge.js';
-import { presentAt } from '../sim/people.js';
+import { sceneHere } from '../sim/homerooms.js';
 const M = { open: false, items: [], sel: 0, start: 0, end: 0 };
 let box = null;
 // The people you can name: those in the scene (people you have met show their name).
@@ -13,7 +13,7 @@ export function mentionable() {
     const w = g && getWorld(g.world);
     if (!g || !w)
         return [];
-    return presentAt(g, w, g.player.loc).filter(r => r.met).map(r => ({ avatar: r.avatar, name: r.name }));
+    return sceneHere(g, w).filter(r => r.met).map(r => ({ avatar: r.avatar, name: r.name }));
 }
 const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 // Who a line names with "@" (the longest name first, so "@Diana Zambrozuski" wins over "@Diana"), and the line

@@ -6,12 +6,13 @@
 // same pause and switch.
 import { nowAbs, TUT } from '../core/store.js';
 import { systemOn, isScenario } from '../core/world.js';
-import { presentAt, workingAt } from './people.js';
+import { workingAt } from './people.js';
 import { social, bondOf, isWith, talkingWith, withYou } from './social.js';
 import { statusOf, YOU } from './rel.js';
 import { initiativeOf } from './moments.js';
 import { placeOf } from './places.js';
 import { grudgeOf } from './grudges.js';
+import { sceneHere, elsewhereHere } from './homerooms.js';
 export const APPROACH = {
     /** the most it can be in one go, everyone here together */ max: 0.5,
     /** game minutes before the same person comes over again, and before anyone does */ per: 180, gap: 45,
@@ -59,11 +60,16 @@ export function approachChance(g, w, r, a) {
     const who = !r.met ? STRANGER : close ? PARTNER : b < 0 || grudgeOf(g, r.avatar) ? COLD : BY_BOND.find(([at]) => b >= at)?.[1] ?? STRANGER;
     return who * base * placeMul(g, w) * actionMul(a) * (keepToMyself(g) ? APPROACH.keep : 1);
 }
+/** (homerooms) How much less likely someone elsewhere in the house is to come over than someone in your room. */
+export const DROP_IN = 0.5;
 /** After an action: maybe one of the people here (who isn't with you already) comes over. Everyone's chance together
  *  is held under `max`; who it is goes by their chance. Returns them, or null. */
 export function rollApproach(g, w, a, rnd = Math.random) {
     const mine = new Set(withYou(g, w));
-    const list = presentAt(g, w, g.player.loc).filter(r => !mine.has(r.avatar)).map(r => ({ r, p: approachChance(g, w, r, a) })).filter(x => x.p > 0);
+    // (homerooms) at a home with rooms, the people elsewhere in the house (awake) may come and find you: half the chance,
+    // since they have to come to you
+    const far = elsewhereHere(g, w).filter(x => !x.asleep && !mine.has(x.r.avatar)).map(x => ({ r: x.r, p: approachChance(g, w, x.r, a) * DROP_IN }));
+    const list = [...sceneHere(g, w).filter(r => !mine.has(r.avatar)).map(r => ({ r, p: approachChance(g, w, r, a) })), ...far].filter(x => x.p > 0);
     if (!list.length)
         return null;
     const none = list.reduce((s, x) => s * (1 - x.p), 1), total = list.reduce((s, x) => s + x.p, 0);

@@ -98,7 +98,7 @@ export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'so
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
@@ -167,6 +167,7 @@ export const SYSTEMS = [
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
     { id: 'housing', name: 'Owning a home', desc: 'homes can only be rented: none to buy or sell, no rooms or fixtures to add, no second home.', apps: [], blocks: [] },
+    { id: 'homerooms', name: 'Rooms at home', desc: 'homes are one place: no rooms to walk between, and everyone at home is in the scene with you.', apps: [], blocks: [] },
     { id: 'courses', name: 'Courses', desc: 'no courses to take; jobs do not ask for any.', apps: [], blocks: [] },
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },
     { id: 'breakdowns', name: 'Things break at home', desc: 'nothing at home ever breaks.', apps: [], blocks: [] },

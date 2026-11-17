@@ -8,11 +8,11 @@ import { esc, game, notify, saveGame, state, toast } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { ACT } from './reg.js';
 import { chat, personaName, quiet, sendCanned, setPrompt, speakerOf, thumb, turnsSince } from '../st/bridge.js';
-import { presentAt } from '../sim/people.js';
 import { social } from '../sim/social.js';
 import { advance } from '../sim/time.js';
 import { skillName } from '../sim/hobbies.js';
 import { dropMoment, momentsOf } from '../sim/moments.js';
+import { sceneHere } from '../sim/homerooms.js';
 import { TRAIN, trainingOf, trainingOn, activeOf, possible, whyNot, canArrange, bestOffer, arrange, turnedDown, endArrangement, session, sessionWhy, sessionsThisWeek, standing, kindWords, whatWords } from '../sim/training.js';
 const KEY = 'mundi_train';
 let seq = 0;
@@ -49,7 +49,7 @@ export function detectTrain(text) {
     const w = g && getWorld(g.world);
     if (!g || !w || !trainingOn(w) || TR.avatar || !PROPOSE.test(text))
         return;
-    const people = presentAt(g, w, g.player.loc).filter(r => r.met && !whyNot(g, w, r.avatar, false).startsWith('Not with') && (() => { const p = possible(g, w, r.avatar); return p.learn.length || p.teach.length; })());
+    const people = sceneHere(g, w).filter(r => r.met && !whyNot(g, w, r.avatar, false).startsWith('Not with') && (() => { const p = possible(g, w, r.avatar); return p.learn.length || p.teach.length; })());
     if (!people.length)
         return;
     // whom: the one you name, else the one you're talking to alone, else whoever spoke last

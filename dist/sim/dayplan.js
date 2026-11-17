@@ -26,6 +26,7 @@ import { saveSeed } from './relations.js';
 import { ties } from './living.js';
 import { npcCareer, npcPath, setNpcPath, pathTo, trackOf } from './work.js';
 import { npcRank } from './longlife.js';
+import { homeIdAt, visSig } from './visitors.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -117,11 +118,11 @@ const sigOf = (r, out, i) => { out[i] = r; out[i + 1] = r.occupation; out[i + 2]
 const checked = new WeakMap();
 export function stampOf(g, w) {
     const s = kept.get(g), code = codeOf(w), sd = seasonDays(g), adult = adultOn(g), swap = g.swap?.avatar ?? '';
-    const at = nowAbs(g), n = changes(), c = checked.get(g), rit = stageRitSig(g, w);
-    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && c && c.at === at && c.n === n)
+    const at = nowAbs(g), n = changes(), c = checked.get(g), rit = stageRitSig(g, w), vis = visSig(g, w);
+    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && s.vis === vis && c && c.at === at && c.n === n)
         return s;
     checked.set(g, { at, n });
-    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit) {
+    if (s && s.w === w && s.code === code && s.sd === sd && s.adult === adult && s.swap === swap && s.rit === rit && s.vis === vis) {
         let i = 0, same = true;
         for (const a in g.cast) {
             const r = g.cast[a], x = s.sig;
@@ -136,7 +137,7 @@ export function stampOf(g, w) {
     }
     const list = Object.values(g.cast), sig = [];
     list.forEach((r, i) => sigOf(r, sig, i * SIG));
-    const made = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit };
+    const made = { id: ++stamps, w, code, sd, adult, swap, list, sig, rit, vis };
     kept.set(g, made);
     return made;
 }
@@ -521,7 +522,7 @@ export function ritualOn(g, w, x, day, st = stampOf(g, w)) {
         return null;
     const list = [rit.place, ...(rit.places ?? [])];
     const pick = list[Math.floor(H(`${g.world}|${week}|ritplace|${x.owner}|${x.i}`) * list.length)];
-    const place = pick === 'home' ? homeIdOf(g.cast[x.owner]) : pick;
+    const place = pick === 'home' ? homeIdAt(g, w, g.cast[x.owner], day * 1440 + Math.round(rit.from * 60)) : pick; // (staying with you: at yours)
     if (!placeOk(g, w, place) || (!place.startsWith('home:') && !isOpen(w, place, (Math.round(rit.from * 60) % 1440))))
         return null;
     return { from: day * 1440 + Math.round(rit.from * 60), to: day * 1440 + Math.round(rit.to * 60), place };
@@ -728,7 +729,7 @@ function routineStepPlace(g, w, r, at, st) {
     if (s)
         return s.place;
     const t = routineStep(r, at)[1];
-    return t === 'home' ? homeIdOf(r) : t === 'work' ? jobOf(g, w, r)?.place ?? '' : t;
+    return t === 'home' ? homeIdAt(g, w, r, at) : t === 'work' ? jobOf(g, w, r)?.place ?? '' : t;
 }
 /* ---------- going to an event or a festival (E23) ---------- */
 // Who an event or festival draws: each word of its audience that fits the person weighs their chance (× its crowd in

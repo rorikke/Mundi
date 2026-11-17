@@ -107,3 +107,9 @@ export const ownedPlaces = [];
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines = [];
+/** (homerooms) Rules other parts of the game add to who is in which room of a home (sim/homerooms.ts's homeRoomMap),
+ *  checked after the drop-ins and the host, before sleep and the house's rhythm (a friend staying over: where they
+ *  sleep, the sofa room by day). A room id, or null to leave it to the next rule. */
+export const roomRules = [];
+/** (homerooms) During a party at home, where someone is (a room tagged leisure or food). Null: no party for them. */
+export const partyRooms = [];

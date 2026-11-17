@@ -12,11 +12,11 @@
 import { game, saveGame, nowAbs, state, TUT } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { chat, saveChat, speakerOf, expressionOf, replying, currentChatId } from '../st/bridge.js';
-import { presentAt } from './people.js';
 import { gain as gainMeter, undoGain, relCfg, ro, touch, SOURCES, YOU } from './rel.js';
 import { reactionGain, reactionRomance } from './mood.js';
 import { romanceBlocked } from './family.js';
 import { sawYou } from './warnings.js';
+import { sceneHere } from './homerooms.js';
 const logOf = (g) => (g.rel ??= {}).log;
 /* ---------- fingerprints ---------- */
 const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) {
@@ -102,7 +102,7 @@ function undo(g, r) {
 function judgeLine(g, fp, speakers) {
     const w = getWorld(g.world);
     const solo = String(g.social?.solo ?? '');
-    const hearers = w ? presentAt(g, w, g.player.loc).filter(r => r.met && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
+    const hearers = w ? sceneHere(g, w).filter(r => r.met && (solo ? r.avatar === solo : speakers.has(r.avatar))) : [];
     const ch = hearers.map(r => gain(g, r.avatar, SOURCES.talk)).filter((c) => !!c);
     return { fp, who: YOU, kind: 'line', at: nowAbs(g), why: 'talk', ch };
 }

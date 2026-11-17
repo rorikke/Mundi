@@ -48,9 +48,10 @@ import { runPlans, PL } from './plans.js';
 import { syncNative, releaseNative, guardBackgrounds } from './native.js';
 import { phoneHtml, P as phone, feedTick } from './phone.js';
 import { advance, period, weekday } from '../sim/time.js';
-import { presentAt, residents, whereNow } from '../sim/people.js';
+import { residents, whereNow } from '../sim/people.js';
 import { syncScene } from '../sim/game.js';
 import { refreshPrompt } from '../sim/prompt.js';
+import { sceneHere, roomSig } from '../sim/homerooms.js';
 const root = () => document.getElementById(ROOT_ID);
 const PALETTES = {
     blue: ['#66bbff', '#4fb0ff', '#1e88e5', '#1a72c8', '#12599c', '#fff'], green: ['#7fe06a', '#5fcf45', '#36a81c', '#2b8c14', '#1f6b0d', '#fff'],
@@ -423,7 +424,7 @@ export function mount() {
         if (asking || !state.open || !g || !w || !inGame() || state.busy || state.generating)
             return;
         asking = true;
-        deliverAsk(g, w, a => isWith(g, a) || presentAt(g, w, g.player.loc).some(r => r.avatar === a))
+        deliverAsk(g, w, a => isWith(g, a) || sceneHere(g, w).some(r => r.avatar === a))
             .then(async (name) => name || deliverLetter(g, w)) // or a letter from a friend far away
             .then(name => { if (name) {
             saveGame();
@@ -448,7 +449,7 @@ export function mount() {
         if (runPlans())
             notify();
         lightUpdate();
-        const now = residents(g).map(x => whereNow(g, w, x)).join('|') + `|${g.player.loc}`;
+        const now = residents(g).map(x => whereNow(g, w, x)).join('|') + `|${g.player.loc}|${roomSig(g, w)}`; // (homerooms: and who is in which room)
         if (now !== sig || loc !== g.player.loc) {
             sig = now;
             syncScene().then(notify);
@@ -462,7 +463,7 @@ export function mount() {
     }, 1000);
     return r;
 }
-export const peopleHere = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? presentAt(g, w, g.player.loc) : []; };
+export const peopleHere = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? sceneHere(g, w) : []; };
 export const openOnStart = () => settings().openOnStart;
 // The things to do run down as far as the screen lets them: to whatever sits under them (the dialogue box, the phone's
 // peek, the book button), else to the bottom corner. Something beside them rather than under (a narrow screen's dialogue

@@ -16,10 +16,10 @@ import { state, notify, esc, game, toast, ROOT_ID, saveGame } from '../core/stor
 import { getWorld, worldFile, systemOn } from '../core/world.js';
 import { chat, speakerOf, thumb, sendText, replyAs, regenerate, continueLast, impersonate, stop, swipeLeft, swipeRight, editMessage, deleteMessageAt, fetchSprites, saveChat, me, currentCharacter, charOf, characters, ctx, addUserLine, narratorLine, personaName, quiet, lorebooks, chatLores, setChatLores, scenarioOpen, scenarioCast, scenarioTitle, addToScenario, removeFromScenario, setChatBackground, newScenarioChat, persona, personas, personaThumb, usePersona, } from '../st/bridge.js';
 import { placeOf, isOuting, homeKindAt } from '../sim/places.js';
+import { roomPicture, sceneHere } from '../sim/homerooms.js';
 import { outingOf } from '../sim/outing.js';
 import { bgStyle } from './outing.js';
 import { bgHead, bgGrid } from './bgpick.js';
-import { presentAt } from '../sim/people.js';
 import { toolsHtml } from './tools.js';
 import { mentionIn, closeMention } from './mention.js';
 import { visitStart } from '../sim/visits.js';
@@ -151,6 +151,9 @@ function background(g, w) {
     if (!p)
         return '';
     if (p.home) {
+        const room = roomPicture(g, w, looksAt(g, w, p.id)); // (homerooms) the room you're in
+        if (room)
+            return `background-image:url('${worldFile(w, room)}');background-size:cover;background-position:center`;
         const kind = w.homes.kinds[homeKindAt(g, w, p.id) || 'apartment']; // (a room a guest just left keeps its picture);
         const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id)); // the picture of this part of the day (and weather, season), if it has one
         if (img)
@@ -230,7 +233,7 @@ export function sceneHtml() {
     const w = getWorld(g.world);
     // talking alone with someone: only their picture stays in the scene
     const solo = soloOf(g);
-    const here = presentAt(g, w, g.player.loc).filter(r => !solo || r.avatar === solo);
+    const here = sceneHere(g, w).filter(r => !solo || r.avatar === solo);
     const ex = expressions();
     const nobody = !here.length;
     // how many have a real sprite (the classic layout shows only those, so they share the room among themselves)
@@ -464,7 +467,7 @@ Object.assign(ACT, {
         const g0 = game();
         const w0 = g0 && getWorld(g0.world);
         // alone: nobody is called into the scene; the hidden narrator describes the place, the time and the feelings
-        if (g0 && w0 && !presentAt(g0, w0, g0.player.loc).length && !scenarioOpen()) {
+        if (g0 && w0 && !sceneHere(g0, w0).length && !scenarioOpen()) {
             state.composer = '';
             await soloNarrate(g0, w0, text);
             return;
@@ -474,7 +477,7 @@ Object.assign(ACT, {
             const force = CHECK.on;
             CHECK.on = false;
             try {
-                const res = await socialCheck(g0, w0, text, presentAt(g0, w0, g0.player.loc), force);
+                const res = await socialCheck(g0, w0, text, sceneHere(g0, w0), force);
                 if (res) {
                     setPrompt('mundi_roll', res.prompt, 0);
                     toast(res.toast, res.check.grade.includes('success') ? 'success' : 'warn');

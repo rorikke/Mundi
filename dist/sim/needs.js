@@ -8,11 +8,11 @@ import { priceHere } from './worldstate.js';
 import { openNow } from './daynight.js';
 import { sheetOf, isRpg, changeHp, hpMax } from './rpg.js';
 import { activeStatuses, systemOn, isScenario } from '../core/world.js';
-import { presentAt } from './people.js';
 import { approve } from './living.js';
 import { note } from './facts.js';
 import { placeOf, playerHomeId } from './places.js';
 import { SECOND_HOME_ID } from './housing.js';
+import { homeRooms, roomNow, sceneAt } from './homerooms.js';
 import { book } from './ledger.js';
 import { extraActions, isBlocked, brokenThings } from './life.js';
 import { haveItem } from './shop.js';
@@ -131,7 +131,7 @@ function crisisCheck(g, w, s) {
         return []; // once a time, and once a day
     const where = g.player.loc;
     const placeName = placeOf(g, w, where)?.name ?? 'home';
-    const saw = presentAt(g, w, where).filter(r => r.met);
+    const saw = sceneAt(g, w, where).filter(r => r.met);
     if (c.shame && !saw.length)
         return []; // a crisis about what people think (the smell) needs someone to see it
     g.tick[`crisisDone:${s.id}`] = start;
@@ -199,13 +199,27 @@ export function actionsHere(g, w) {
     // Home: a bathroom or a shower room is not where you grab a snack (what can be done anywhere stays out of it,
     // unless it was chosen for that room)
     const pl = placeOf(g, w, g.player.loc);
-    const wet = homeMode && !!pl && /bath|shower|wash|toilet|restroom|banheiro|lavabo|chuveiro|ba[nñ]o|aseo|ducha/i.test(`${pl.id} ${pl.name}`);
     if (homeMode) {
+        const kinds = roomKinds(pl), wet = kinds.wet;
         const list = all.filter(a => !earns(a)).filter(a => !wet || !a.anywhere || !!chosen?.includes(a.id));
         const pool = w.actions.filter(useful).filter(a => !earns(a)).filter(a => !isBlocked(g, a, w));
-        return homeRoomActions(pl, list, pool, chosen, wet).map(a => (a.cost ? { ...a, cost: 0 } : a));
+        return homeRoomActions(pl, kinds, list, pool, chosen).map(a => (a.cost ? { ...a, cost: 0 } : a));
     }
-    return all.map(a => (a.cost ? { ...a, cost: free.includes(a.id) && a.cost > 0 ? 0 : a.cost > 0 ? Math.round(priceOf(g, a.cost) * here) : priceOf(g, a.cost) } : a));
+    const priced = all.map(a => (a.cost ? { ...a, cost: free.includes(a.id) && a.cost > 0 ? 0 : a.cost > 0 ? Math.round(priceOf(g, a.cost) * here) : priceOf(g, a.cost) } : a));
+    // (homerooms) in a home with rooms, only what fits the room you're in (nothing added from the world, prices and
+    // earning actions as they are)
+    const room = atHome ? roomNow(g, w) : null;
+    if (!room)
+        return priced;
+    const mine = room.bed === 'you', theirs = !!room.bed && !mine;
+    const kinds = roomKinds(room, true);
+    const elsewhere = new Set(homeRooms(g, w, g.player.loc).filter(r => r.id !== room.id).flatMap(r => r.actions ?? []));
+    const listed = (room.actions ?? []).filter(id => !priced.some(a => a.id === id));
+    const extraHere = w.actions.filter(a => listed.includes(a.id)).filter(useful).filter(a => adultOk(g, a)).filter(a => !isBlocked(g, a, w)).filter(a => !a.needsItem || haveItem(g, w, a.needsItem)).filter(a => !cutReason(g, a.id, w))
+        .filter(a => !a.when || whenHolds(g, w, a.when, { id: a.id, key: a.id })).filter(a => !a.together?.needed || withYou(g, w).length > 0).filter(a => !actionGates.length || canDo(g, w, a))
+        .map(a => (a.cost ? { ...a, cost: free.includes(a.id) && a.cost > 0 ? 0 : priceOf(g, a.cost) } : a));
+    return [...priced.filter(a => (room.actions ?? []).includes(a.id) || (!elsewhere.has(a.id) && fitsRoom(a, kinds) && (!kinds.wet || !a.anywhere)
+            && (!theirs || a.anywhere || !!a.together) && (!(a.tags ?? []).includes('solo') || mine))), ...extraHere];
 }
 /** Why this action can't be done here now ('' when it can): what the `actionGates` hooks say (a place that won't serve
  *  you after you were caught there). With none: always ''. */
@@ -276,13 +290,23 @@ export function placeFits(place, room) {
 }
 const SPORTY = (a) => (!WASHY(a) && (a.tags ?? []).includes('sport')) || a.id === 'x-treadmill';
 const KITCHEN_ONLY = new Set(['cook', 'water', 'x-coffee']);
-function homeRoomActions(pl, list, pool, chosen, wet) {
+export function roomKinds(pl, byTags = false) {
+    const tags = pl?.tags ?? [];
+    if (byTags)
+        return { food: tags.includes('food'), kitchen: tags.includes('kitchen'), living: tags.includes('living'), gym: tags.includes('gym'), wet: tags.includes('bath') };
     const who = `${pl?.id ?? ''} ${pl?.name ?? ''}`;
-    const food = (pl?.tags ?? []).includes('food');
-    const kitchen = /kitchen|cozinha|cocina/i.test(who);
-    const living = /living|lounge|family room|tv room|sala de estar|sal[oó]n/i.test(who);
-    const gym = /gym|academia|gimnasio/i.test(who);
-    const fits = (a) => (SPORTY(a) ? gym : WASHY(a) ? wet : FOODY(a) ? food && (kitchen || !KITCHEN_ONLY.has(a.id)) : SCREEN(a) ? living : true);
+    return {
+        food: tags.includes('food'),
+        kitchen: /kitchen|cozinha|cocina/i.test(who),
+        living: /living|lounge|family room|tv room|sala de estar|sal[oó]n/i.test(who),
+        gym: /gym|academia|gimnasio/i.test(who),
+        wet: !!pl && /bath|shower|wash|toilet|restroom|banheiro|lavabo|chuveiro|ba[nñ]o|aseo|ducha/i.test(`${pl.id} ${pl.name}`),
+    };
+}
+/** Does this action fit a room of this kind (the workout in the gym, the TV in the living room…)? */
+export const fitsRoom = (a, k) => (SPORTY(a) ? k.gym : WASHY(a) ? k.wet : FOODY(a) ? k.food && (k.kitchen || !KITCHEN_ONLY.has(a.id)) : SCREEN(a) ? k.living : true);
+function homeRoomActions(pl, kinds, list, pool, chosen) {
+    const fits = (a) => fitsRoom(a, kinds);
     const keep = list.filter(a => !!chosen?.includes(a.id) || fits(a));
     const have = new Set(keep.map(a => a.id));
     const add = chosen ? [] : pool.filter(a => !have.has(a.id) && (FOODY(a) || SCREEN(a) || WASHY(a) || SPORTY(a) || (!!a.place && placeFits(a.place, pl))) && fits(a) && (!!a.place || a.home || a.anywhere || !a.tags?.length || a.tags.some(t => (pl?.tags ?? []).includes(t))) && (!a.place || placeFits(a.place, pl)));

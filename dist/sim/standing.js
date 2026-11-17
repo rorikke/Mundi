@@ -3,10 +3,10 @@ import { onDay, onHour } from './hooks.js';
 import { note } from './facts.js';
 import { seenAs } from './hooks.js';
 import { regionOf } from './worldstate.js';
-import { presentAt } from './people.js';
 import { bondOf } from './social.js';
 import { isRpg, sheetOf, rollCheck, checkWon } from './rpg.js';
 import { isHome } from './places.js';
+import { sceneHere } from './homerooms.js';
 const repOf = (g) => (g.rep ??= {});
 export const identityOf = (g) => (g.identity ??= { alias: '', on: false, suspicion: 0, rep: {} });
 export const disguised = (g, w) => systemOn(w, 'identity') && identityOf(g).on && !!identityOf(g).alias;
@@ -68,7 +68,7 @@ export function toggleDisguise(g, w) {
         return '';
     if (!id.alias)
         return 'Choose a name for your alter ego first.';
-    if (!id.on && !isHome(g.player.loc) && presentAt(g, w, g.player.loc).some(r => r.met))
+    if (!id.on && !isHome(g.player.loc) && sceneHere(g, w).some(r => r.met))
         return 'Not in front of people who know you: change somewhere private.';
     id.on = !id.on;
     return id.on ? `You are ${id.alias} now.` : 'You are yourself again.';
@@ -78,7 +78,7 @@ seenAs.push(g => (g.identity?.on && g.identity?.alias ? g.identity.alias : ''));
 export function suspicionTick(g, w) {
     if (!disguised(g, w))
         return [];
-    const close = presentAt(g, w, g.player.loc).filter(r => r.met && bondOf(g, r.avatar) >= 40);
+    const close = sceneHere(g, w).filter(r => r.met && bondOf(g, r.avatar) >= 40);
     if (!close.length)
         return [];
     let up = close.length * 2;

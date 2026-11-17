@@ -2293,6 +2293,32 @@ function fixtureForm(w, i) {
         ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
     return `${list.length > 1 ? `<div class="mu-row mu-cw-inline">${i > 0 ? move(-1) : ''}${i < list.length - 1 ? move(1) : ''}</div>` : ''}${itemForm(p, f, { fixture: true, fits: where })}`;
 }
+// (homerooms) A picture and its other times of the day, as paths in the world's folder, with an upload for each.
+function roomPics(p, name) {
+    const up = (q, n) => `<button class="mu-ghost mu-ibtn" data-act="cw-room-img" data-path="${esc(q)}" data-name="${esc(n)}" title="Upload">${icon('upload')}</button>`;
+    return `<div class="mu-row mu-cw-inline">${optTxt("Picture (a file in the world's folder; empty: the kind of home's)", `${p}.image`, 'bg/home-kitchen.avif')}${up(`${p}.image`, name)}</div>
+        <details class="mu-me-times" ${Object.keys(getPath(`${p}.images`) ?? {}).length ? 'open' : ''}><summary>At other times of the day</summary>
+        ${TIME_SLOTS.map(per => `<div class="mu-row mu-cw-inline">${optTxt(esc(per.name), `${p}.images.${per.id}`)}${up(`${p}.images.${per.id}`, `${name}-${per.id}`)}</div>`).join('')}</details>`;
+}
+// (homerooms) The rooms inside a kind of home or an area: each written room's form (bedrooms are made from who lives
+// there, so they're never listed).
+function roomsInside(w, p, whose) {
+    const list = getPath(p) ?? [];
+    const tags = [['kitchen', 'Kitchen'], ['living', 'Living room'], ['bath', 'Bathroom'], ['gym', 'Gym'], ['food', 'Food'], ['leisure', 'Leisure'], ['study', 'Study'], ['work', 'Work']];
+    const acts = homeActionOpts(w);
+    return `<details class="mu-cw-kept" ${list.length ? 'open' : ''}><summary>Rooms inside · ${esc(list.length)}</summary>
+        <small class="mu-muted"><span>${esc(whose)}</span> <span>The first is where you come in. Walking between them takes no time and keeps the scene; everyone who lives there also gets a bedroom of their own.</span></small>
+        ${list.map((_r, k) => {
+        const q = `${p}.${k}`;
+        return `<div class="mu-cw-feel"><div class="mu-row mu-cw-inline">${txt('Name', `${q}.name`)}${k > 0 ? `<button class="mu-ghost mu-ibtn" data-act="cw-move" data-path="${esc(p)}" data-i="${esc(k)}" data-d="-1" title="Move up">${icon('up')}</button>` : ''}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+            ${area('Description (told to the AI)', `${q}.desc`, 2)}
+            <div class="mu-field"><span>What it is</span>${pairChips(tags, `${q}.tags`)}</div>
+            ${chk('Where a friend staying over sleeps', `${q}.sofa`, 'Else the first living room.')}
+            ${acts.length ? `<div class="mu-field"><span>Things to do only here</span>${pickChips(acts, `${q}.actions`)}</div>` : ''}
+            ${roomPics(q, `room-${String(getPath(`${q}.id`) ?? k)}`)}</div>`;
+    }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="hroom" data-path="${esc(p)}">${icon('plus')}<span>Add a room</span></button></details>`;
+}
 function tabHomes(w) {
     ensureExpenses(w);
     const kinds = Object.entries(w.homes.kinds);
@@ -2309,6 +2335,7 @@ function tabHomes(w) {
                     <div class="mu-row2">${sel('Kind of home', `${p}.kind`, kinds.map(([id, k]) => [id, k.name]))}${num(`Rent (${esc(w.currency.symbol)})`, `${p}.rent`)}</div>
                     ${sel('On the map', `${p}.map`, w.maps.map(m => [m.id, m.name]))}
                     ${chk('A student home', `${p}.student`, 'While you study for a degree, only these can be rented.')}
+                    ${roomsInside(w, `${p}.rooms`, "This area's own rooms: when it has any, they replace the kind of home's.")}
                     ${housing || z.price !== undefined ? zoneBuying(w, p, z) : ''}
                     <p class="mu-muted">${z.spots.length} homes placed. They are numbered (House 1, House 2…).</p>
                     <button data-act="cw-homes-map" data-i="${esc(i)}">${icon('map')}<span>Place the homes on the map</span></button>`;
@@ -2319,6 +2346,7 @@ function tabHomes(w) {
                 ${exps.length ? `<div class="mu-row2">${exps.map(e => num(`${esc(e.name)} a week (${esc(w.currency.symbol)})`, `homes.kinds.${id}.bills.${e.id}`)).join('')}</div>` : ''}
                 ${housing || k.size !== undefined || k.guests !== undefined ? `<div class="mu-row2">${bounded(`Size (${SIZES.min}–${SIZES.max}; for areas that don't give one)`, `homes.kinds.${id}.size`, SIZES.min, SIZES.max)}${bounded('Guests at a party, at most (empty: no limit)', `homes.kinds.${id}.guests`, 1, 999)}</div>` : ''}
                 ${fixtures.length || k.fixtures?.length ? `<details class="mu-cw-kept" ${k.fixtures?.length ? 'open' : ''}><summary>Comes with these rooms and fixtures · ${esc(k.fixtures?.length ?? 0)}</summary><small class="mu-muted">A home of this kind you buy has them already.</small>${pickChips(fixtures, `homes.kinds.${id}.fixtures`)}</details>` : ''}
+                ${roomsInside(w, `homes.kinds.${id}.rooms`, 'Every home of this kind has them, unless its area has its own.')}
                 <details class="mu-me-times" ${Object.keys(k.images ?? {}).length ? 'open' : ''}><summary>Inside at other times of the day</summary>
                     ${TIME_SLOTS.map(per => {
         const b = k.images?.[per.id] ? worldFile(w, k.images[per.id]) : '';
@@ -3113,6 +3141,8 @@ function personMore(w, p, e) {
     return `<h4>Looks, voice and pictures</h4>
         <div class="mu-row2">${optTxt('Their looks in a line (when present but not speaking)', `${p}.look`)}${optTxt('Their voice in a line', `${p}.voice`)}</div>
         <div class="mu-row2">${optTxt('Portrait (a picture in the world\'s folder)', `${p}.avatar`, 'people/mio.png')}${optTxt('Expression sprites (a folder in the world\'s folder)', `${p}.sprites`, 'sprites/mio')}</div>
+        <details class="mu-cw-kept" ${e.bedroom ? 'open' : ''}><summary>Their room</summary><small class="mu-muted">In a home with rooms inside: how their bedroom looks (empty: the kind of home's picture).</small>
+            ${roomPics(`${p}.bedroom`, `bedroom-${slug(e.name)}`)}${area('Description (told to the AI)', `${p}.bedroom.desc`, 2)}</details>
         ${Object.keys(e.outfits ?? {}).length ? `<div class="mu-row2">${Object.keys(e.outfits ?? {}).map(o => optTxt(`Outfit: ${esc(o)} (a folder of sprites; empty: no such outfit)`, `${p}.outfits.${o}`, 'sprites/mio/yukata')).join('')}</div>` : ''}
         <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
@@ -3867,6 +3897,14 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        if (what === 'hroom') {
+            const p = el.dataset.path;
+            const list = getPath(p) ?? (setPath(p, []), getPath(p));
+            list.push({ id: newId('room'), name: 'New room', tags: [] });
+            CW.dirty = true;
+            notify();
+            return;
+        }
         // a goal's step (six at most), another way to do a step, a perk
         if (what === 'gstep' || what === 'gor') {
             const list = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
@@ -4376,6 +4414,20 @@ Object.assign(ACT, {
                 (k.images ??= {})[per] = url;
             else
                 k.image = url;
+            CW.dirty = true;
+        }
+        catch (e) {
+            toast(String(e?.message ?? e), 'error');
+        }
+        notify();
+    },
+    // (homerooms) a room's picture (or one of its times of the day), and a person's bedroom
+    'cw-room-img': async (el) => {
+        const f = await pickFile('image/*');
+        if (!f)
+            return;
+        try {
+            setPath(el.dataset.path, await uploadWorldPicture(W(), f, slug(el.dataset.name || 'room')));
             CW.dirty = true;
         }
         catch (e) {

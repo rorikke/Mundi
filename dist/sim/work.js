@@ -42,6 +42,7 @@ import { takenSpots } from './housing.js';
 import { canLeave, leaveOwned } from './owning.js';
 import { workRisk } from './caught.js'; // (adult) a choice with a risk of a raid
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
+import { sceneHere } from './homerooms.js';
 export { ledger, book } from './ledger.js';
 export { trackOf, jobTrack, playerTrack, layTrack, needsPick, tracksOf, trackName } from './tracks.js';
 export { scheduleOf } from '../core/presets.js';
@@ -1129,7 +1130,7 @@ function askForDrinks(g, w, o, start, mates) {
     const others = free.filter(r => r !== host).map(r => r.name);
     (s.threads[host.avatar] ??= []).push({ me: false, text: `Drinks after work? ${where}, ${at}.${others.length ? ` ${others.join(', ')} ${others.length > 1 ? 'are' : 'is'} coming.` : ''}`, at: nowAbs(g) });
     s.unread[host.avatar] = (s.unread[host.avatar] ?? 0) + 1;
-    if (presentAt(g, w, g.player.loc).includes(host))
+    if (sceneHere(g, w).includes(host))
         queueMoment(g, { who: host.avatar, kind: 'custom', tier: `drinks:${g.day}`, text: `As the shift ends, ${host.name} asks {{user}} to come along for drinks after work at ${where} (${at})${others.length ? `, with ${names(others)}` : ''}, in this scene.`, until: g.day });
     return [`${host.name} asks if you'd like to come for drinks after work: ${where}, ${at}.`];
 }

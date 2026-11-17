@@ -25,6 +25,7 @@ import { isRpg, longRest } from '../sim/rpg.js';
 import { journeyOf, travelRoad } from '../sim/journey.js';
 import { thumb } from '../st/bridge.js';
 import { pins, placeOf, mapOf, travelMinutes, playerHomeId, isOuting, outingName, homeKindAt } from '../sim/places.js';
+import { sleepRoom } from '../sim/homerooms.js';
 import { SECOND_HOME_ID } from '../sim/housing.js';
 import { tallyEvent } from '../sim/tally.js';
 import { missedTrain, drivesNow, taxiFare, untilFirstTrain, byTrain, fellowTravelers, meetOdds, tookLateTrip } from '../sim/transit.js';
@@ -739,6 +740,7 @@ async function sleep(wakeAt) {
         }
     }
     finishFirst(g, w); // (E14.6) what you were doing in the scene ends first
+    sleepRoom(g, w); // (homerooms) bed is in your own room: you walk there first, and wake up there
     const night = sleepMinutes(g, w, inn);
     const mins = wakeAt !== undefined ? Math.max(0, Math.min(night, wakeAt - nowAbs(g))) : night;
     const part = wakeAt !== undefined ? Math.min(1, mins / (8 * 60)) : 1; // how much of a full night's rest

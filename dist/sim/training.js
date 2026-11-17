@@ -8,13 +8,13 @@ import { speaks } from './language.js';
 import { exampleOf } from './dayplan.js';
 import { npcRank } from './longlife.js';
 import { npcCareer } from './work.js';
-import { presentAt } from './people.js';
 import { isWith } from './social.js';
 import { addStatus } from './needs.js';
 import { effectMul } from './effects.js';
 import { tallyEvent } from './tally.js';
 import { initiativeOn, canSpend, spend, queueMoment, momentsOf } from './moments.js';
 import { FRIEND_TIERS } from './romance.js';
+import { sceneHere } from './homerooms.js';
 /** The rules' numbers (requirements `training.md`, T-4). */
 export const TRAIN = {
     teacher: 6, // a teacher's level, at least
@@ -170,7 +170,7 @@ export function endArrangement(g, w, id, why = '') {
 }
 /* ---------- sessions ---------- */
 export const sessionsThisWeek = (g, a) => a.days.filter(d => g.day - d < 7).length;
-const here = (g, w, who) => isWith(g, who) || presentAt(g, w, g.player.loc).some(r => r.avatar === who);
+const here = (g, w, who) => isWith(g, who) || sceneHere(g, w).some(r => r.avatar === who);
 /** Why there can't be a session now ('' if there can). */
 export function sessionWhy(g, w, a) {
     const n = g.cast[a.who]?.name ?? '';
@@ -298,7 +298,7 @@ export function checkHint(g, w) {
     const s = trainingOf(g);
     if (g.day - s.hint < TRAIN.hintGap || momentsOf(g).some(m => m.kind === 'train'))
         return;
-    for (const r of presentAt(g, w, g.player.loc)) {
+    for (const r of sceneHere(g, w)) {
         if ((s.hinted[r.avatar] ?? -999) > g.day - TRAIN.wait || momentsOf(g, r.avatar).length || !canArrange(g, w, r.avatar))
             continue;
         if (H(`${g.world}|${g.day}|train|${r.avatar}`) >= TRAIN.hintChance || !canSpend(g, r.avatar))

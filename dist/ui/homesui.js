@@ -4,7 +4,7 @@
 // you to a room of your home that's a place (the terrace, the bath). Homes you let (R-a): each one's state, last week
 // and what it brought, Buy to let, taking one back with a week's notice, moving into an empty one. The numbers are the
 // engine's (sim/owning.ts, sim/fixtures.ts, sim/letting.ts); nothing here counts anything.
-import { esc, game, toast, notify, saveGame } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, nowAbs } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { safeUrl } from '../core/safe.js';
 import { worldFile } from '../core/world.js';
@@ -22,6 +22,8 @@ import { fixturesFor, buyFixture, fixturesIn } from '../sim/fixtures.js';
 import { ownedHomes } from '../sim/housing.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
+import { homeRooms, roomNow, enterRoom, roomDoor, roomOf, asleepAt } from '../sim/homerooms.js';
+import { syncScene } from '../sim/game.js';
 export const HU = { rooms: '', ask: null };
 const pct = (v) => `${Math.round(v * 100)}%`;
 const kindPic = (w, kind) => { const im = w.homes.kinds[kind]?.image; return im ? `style="background-image:url('${safeUrl(worldFile(w, im))}')"` : ''; };
@@ -194,8 +196,33 @@ export function askHtml(g, w) {
     const z = zoneOf(w, a.zone);
     return box('Move out of a home you own', `<p>You own the home you live in. Before moving to ${esc(z?.name ?? '')}: sell it, keep it as your second home, or let it?</p>`, leaveButtons('hu-move-go', `data-zone="${esc(a.zone)}"`, 0));
 }
-/** The HUD's rows at a home of yours: the rooms that are places (walk there), and back inside from one. */
+/** The HUD's room rows, one list from two sources: the rooms inside the home you're at (homerooms: no time passes,
+ *  the scene stays) and the rooms of a home you own that are places (housing: the terrace, the onsen), with back
+ *  inside from one of those. */
 export function roomRows(g, w) {
+    return [...innerRooms(g, w), ...placeRooms(g, w)];
+}
+// (homerooms) every other room of the home you're at; a bedroom says whose it is
+function innerRooms(g, w) {
+    const here = roomNow(g, w);
+    if (!here)
+        return [];
+    return homeRooms(g, w, g.player.loc).filter(r => r.id !== here.id).map(r => {
+        const small = r.bed === 'you' ? 'Your own room' : r.bed ? bedLine(g, w, r.bed, r.id) : 'A room of the house';
+        return `<button class="mh-act mh-glass mh-room" data-act="hr-room" data-room="${esc(r.id)}"><i>${r.bed ? '🛏️' : '🚪'}</i><b>${esc(r.bed === 'you' ? 'Go to your room' : `Go to ${r.name}`)}</b><small>${esc(small)}</small></button>`;
+    });
+}
+// (homerooms) a bedroom's row says whether its person is in (and asleep)
+function bedLine(g, w, avatar, id) {
+    const r = g.cast[avatar];
+    if (!r)
+        return 'A bedroom';
+    if (roomOf(g, w, r) !== id)
+        return 'Nobody inside';
+    return asleepAt(g, w, r, nowAbs(g)) ? 'Asleep inside' : 'In their room';
+}
+// (housing) the rooms of a home you own that are places
+function placeRooms(g, w) {
     if (!housingOn(w) || !ownedHomes(g).length)
         return [];
     const loc = g.player.loc, here = loc === playerHomeId ? g.player.home.zone : loc === SECOND_HOME_ID ? secondHome(g)?.zone : w.places.find(p => p.id === loc && p.room)?.homeZone;
@@ -223,6 +250,23 @@ const done = (msg, ok) => {
     notify();
 };
 Object.assign(ACT, {
+    // (homerooms) walking to another room inside: no time passes; the scene follows the room
+    'hr-room': (el) => {
+        const c = C();
+        if (!c)
+            return;
+        const door = roomDoor(c.g, c.w, el.dataset.room ?? ''); // (someone's bedroom: you knock first)
+        const why = door.ok ? enterRoom(c.g, c.w, el.dataset.room ?? '') : door.text;
+        if (why) {
+            toast(why, 'info');
+            return;
+        }
+        if (door.text)
+            toast(door.text, 'info');
+        saveGame();
+        void syncScene().then(notify);
+        notify();
+    },
     'hu-rooms': (el) => { HU.rooms = el.dataset.k ?? ''; notify(); },
     'hu-cancel': () => { HU.ask = null; notify(); },
     'hu-buy': (el) => { if (el.getAttribute('aria-disabled') === 'true') {
