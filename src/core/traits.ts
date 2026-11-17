@@ -31,6 +31,7 @@ export type EffectKind =
     | 'hint'     // on at 1 or more: a friend's hidden secret shows in small signs (told to the AI as hinted; no target)
     | 'royalty'  // what the museum's weekly royalties pay (R-b; no target)
     // adult content (Tokyo's adult progression): kinds that traits (Flirtatious, Shameless) and perks use
+    | 'letting'  // (housing) the rent your tenants pay (target: a zone id; none: every home you let)
     | 'jealousy' // how much a new partner of yours hurts your partners (no target)
     | 'risk';    // the chance of being caught in a risky private action (no target; or the action's id or tags)
 
@@ -54,6 +55,7 @@ export const EFFECT_KINDS: Record<EffectKind, Kind> = {
     pay: { mode: 'mul', min: 0.75, max: 1.5 }, travel: { mode: 'mul', min: 0.5, max: 1.5 }, rest: { mode: 'mul', min: 0.5, max: 2 },
     reroll: { mode: 'add', min: 0, max: 3 }, points: { mode: 'mul', min: 0.5, max: 2 }, interview: { mode: 'add', min: -4, max: 6 },
     hint: { mode: 'add', min: 0, max: 1 }, royalty: { mode: 'mul', min: 0.5, max: 1.5 }, jealousy: { mode: 'mul', min: 0.3, max: 2 }, risk: { mode: 'mul', min: 0.3, max: 2 },
+    letting: { mode: 'mul', min: 0.5, max: 1.5 },
 };
 export const isEffectKind = (k: unknown): k is EffectKind => typeof k === 'string' && Object.prototype.hasOwnProperty.call(EFFECT_KINDS, k);
 

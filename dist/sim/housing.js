@@ -27,6 +27,18 @@ export const guestsOf = (w, kind) => { const n = Math.round(num(kind ? w.homes.k
 export const comesWith = (w, kind) => (kind ? (w.homes.kinds[kind]?.fixtures ?? []).filter(id => typeof id === 'string') : []);
 /** A home here can be a second home: as the zone says, else any home you can buy. */
 export const canBeSecond = (z) => (z?.second ?? buyable(z)) === true;
+/** (letting) The defaults and bounds of a zone's `letting`: a tenant about three weeks in four, the agent's fifth
+ *  (sim/holdings.ts's numbers); at most three homes to let at once (RQ-6). */
+export const LETTING = { chance: 0.75, fee: 0.2, chanceMin: 0.1, chanceMax: 1, feeMax: 0.5 };
+export const MAX_LET = 3;
+/** The rent a tenant pays a week for a home here, before the difficulty (0: it can't be let). */
+export const letRent = (z) => (z?.letting && typeof z.letting === 'object' ? Math.max(0, Math.round(num(z.letting.rent) || num(z.rent))) : 0);
+/** Homes here you own can be let: the zone is for sale, says so, and has a rent to charge. */
+export const lettable = (z) => buyable(z) && letRent(z) > 0;
+/** How likely a week is to have a tenant, held to 0.1–1. */
+export const letChance = (z) => { const v = num(z?.letting?.chance); return v > 0 ? Math.min(LETTING.chanceMax, Math.max(LETTING.chanceMin, v)) : LETTING.chance; };
+/** The agent's share of the rent, held to 0–0.5. */
+export const letFee = (z) => { const v = z?.letting?.fee; return typeof v === 'number' && Number.isFinite(v) ? Math.min(LETTING.feeMax, Math.max(0, v)) : LETTING.fee; };
 /** The world's rooms and fixtures (a world without them has none). */
 export const fixturesOf = (w) => (Array.isArray(w.homes.fixtures) ? w.homes.fixtures : []).filter(f => !!f && typeof f.id === 'string' && !!f.id);
 export const fixtureOf = (w, id) => fixturesOf(w).find(f => f.id === id);
@@ -53,6 +65,13 @@ export function houses(g) {
 }
 export const ownedHomes = (g) => peekHouses(g).owned ?? [];
 export const ownedAt = (g, key) => ownedHomes(g).find(o => homeKey(o) === key);
+/** (letting) Your homes to let (let, under notice, or empty), and the others: the one you live in and the second. */
+export const toLet = (g) => ownedHomes(g).filter(o => !!o.let);
+export const keptHomes = (g) => ownedHomes(g).filter(o => !o.let);
+/** A home of yours with a tenant's agreement now: let, or under notice (not empty). */
+export const isLet = (o) => !!o?.let && o.let.off === undefined;
+/** Rent had from tenants in all (the `rent:` key). */
+export const rentHad = (g) => num(peekHouses(g).rent);
 /** Do you own the home you live in? */
 export const ownedHere = (g) => !!g.player?.home && !!ownedAt(g, homeKey(g.player.home));
 /** Your second home, when you have one (never the one you live in). */

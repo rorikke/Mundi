@@ -12,7 +12,7 @@ import { collectionOn } from '../sim/collection.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { STORYLINES_HELP } from './threadui.js';
-import { housingOn } from '../sim/housing.js';
+import { housingOn, lettable, MAX_LET } from '../sim/housing.js';
 import { museumDef, upgradeName } from '../sim/museum.js';
 import { digsOf, DIG } from '../sim/dig.js';
 import { digSeasonWord } from './museumui.js';
@@ -149,6 +149,7 @@ const topics = (w: WorldDef | null): Topic[] => {
     const collectionHere = !!w && collectionOn(w) && on('collection');
     const museumHere = collectionHere && !!museumDef(w);
     const ownOn = !!w && housingOn(w) && on('homes') && w.homes.zones.some(z => (z.price ?? 0) > 0);   // (housing: homes to buy)
+    const letOn = ownOn && w!.homes.zones.some(lettable);   // (letting: homes you own that can be let)
     const carHome = !w || shopItems(w).some(it => it.late);
     return [
     { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
@@ -232,6 +233,8 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['Rooms and fixtures', "A home you own can be fitted out: a sauna, a grand piano, a garden, a home bar… Each is bought once for that house and adds things to do there and a small help; of what you own, only the best of each kind of help counts. A few are rooms of their own (a rooftop terrace, a bath): Things to do takes you there."],
             ['The second home', "Your second home is on the map: go there, sleep there, and use its rooms while you're there."],
             ['Parties', "A bigger home has room for more guests, and a big one can have a party catered."],
+            ...(letOn ? [<[string, string]>['Letting', `Some homes you own can be let: buy one to let, let your second home, or let the one you live in when you move out. An agent finds a tenant most weeks and pays you every Monday, less a share; the upkeep is still yours, let or not. You can let ${MAX_LET} homes at most.`],
+                <[string, string]>['Taking a home back', "While a tenant is in, taking a home back needs a week's notice: they leave on a Monday and pay to the end. A home with nobody in that week is yours again at once. An empty home you own can be let again, lived in, made your second home or sold; a home that's let can be sold with its tenant."]] : []),
         ] }] : []),
     { id: 'phone', icon: modern ? 'phone' : 'book', title: `The ${devl}`, intro: lex(w, 'deviceIntro'),
         items: [

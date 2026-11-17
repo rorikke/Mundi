@@ -1,0 +1,4 @@
+/* Homes you let (R-a): each home's card under the one you live in and the second, a line between them, its buttons
+   wrapping on a narrow phone. */
+#mundi-root .mu-home-let + .mu-home-let { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .08); }
+#mundi-root .mu-home-let .mu-row { flex-wrap: wrap; }

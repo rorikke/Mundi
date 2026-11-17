@@ -509,7 +509,11 @@
     "price": 2400000,
     "upkeep": 18000,
     "resale": 0.8,
-    "size": 2
+    "size": 2,
+    "letting": {
+     "chance": 0.75,
+     "fee": 0.2
+    }
    },
    {
     "id": "hz_azabu",
@@ -556,7 +560,11 @@
     "price": 4400000,
     "upkeep": 32000,
     "resale": 0.8,
-    "size": 3
+    "size": 3,
+    "letting": {
+     "chance": 0.75,
+     "fee": 0.2
+    }
    },
    {
     "id": "hz_yokohama",

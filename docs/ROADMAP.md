@@ -21,6 +21,8 @@ Ideas planned for later. Nothing here is promised for a date.
 
 - **End-game spending: homes and a collection.** The shop and homes you own are in (see
   [Shopping](improvements.md#shopping) and [Your own home](improvements.md#your-own-home)). Next:
+  - **Letting** a home you own is in ([Letting a home you own](improvements.md#letting-a-home-you-own)): a slow,
+    steady income (an Azabu residence's price comes back in about seven game years), so it doesn't hurry the museum.
   - **Homes, later:** pictures of their own for the four new homes and their rooms (they borrow others' for now),
     parties at the second home with guests staying the night, and homes for sale in the other worlds.
   - **A collection:** the record of what you've lived in Tokyo, a museum of your own and its Nature and Before Edo

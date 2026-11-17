@@ -1,7 +1,8 @@
 // Owning a home (the `housing` system): what's for sale, buying outright (no mortgage), selling back at a loss, the
 // second home, leaving a home you own (sell it or keep it as the second), and settling an old save once the world is
-// known (a tenant told of a new rent; homes or fixtures the world no longer has paid back). At most two homes: the
-// one you live in and a second home. The upkeep is a bill (sim/bills.ts); what the world says and what the save holds
+// known (a tenant told of a new rent; homes or fixtures the world no longer has paid back). At most two homes kept:
+// the one you live in and a second home; and (letting, sim/letting.ts) up to three more to let, bought to let or let
+// when you move out. The upkeep is a bill (sim/bills.ts); what the world says and what the save holds
 // are read through sim/housing.ts.
 import type { Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
@@ -15,13 +16,22 @@ import { homeAddress, playerHomeId } from './places.js';
 import { homeKey } from './homes.js';
 import {
     housingOn, zoneOf, zonePrice, buyable, resaleOf, upkeepOf, sizeOf, canBeSecond, comesWith, fixtureOf, takenSpots,
-    houses, ownedHomes, ownedAt, ownedHere, secondHome, peekHouses, SECOND_HOME_ID, type Owned,
+    houses, ownedAt, ownedHere, secondHome, peekHouses, SECOND_HOME_ID, type Owned,
+    lettable, keptHomes, toLet, MAX_LET,
 } from './housing.js';
 
 /** A home for sale: its spot, what it costs now (after the difficulty) and a week, its size. */
-export interface Sale { key: string; zone: string; x: number; y: number; n: number; name: string; price: number; upkeep: number; size: number; second: boolean }
-/** What happens to a home you own when you leave it. */
-export type Leave = 'sell' | 'second';
+export interface Sale { key: string; zone: string; x: number; y: number; n: number; name: string; price: number; upkeep: number; size: number; second: boolean; let: boolean }
+/** What happens to a home you own when you leave it: sold, kept as the second home, or (letting) let. */
+export type Leave = 'sell' | 'second' | 'let';
+/** The first day of the week after `day` (day 1 is a Monday): when a home put up to let can first have a tenant. */
+export const nextMonday = (day: number) => day + 7 - ((((day - 1) % 7) + 7) % 7);
+/** (letting) Why a home of yours in this zone can't be put up to let now ('' when it can): the zone, and three to let
+ *  at most (`self`: the home is one of them already). */
+export function letBlock(g: Save, w: WorldDef, zone: string, self = false): string {
+    if (!housingOn(w) || !lettable(zoneOf(w, zone))) return "Homes here can't be let.";
+    return toLet(g).length - (self ? 1 : 0) >= MAX_LET ? `You can let ${MAX_LET} homes at most.` : '';
+}
 /** At most this many homes: the one you live in and a second. */
 export const MAX_HOMES = 2;
 
@@ -38,7 +48,7 @@ export function forSale(g: Save, w: WorldDef): Sale[] {
         z.spots.forEach(([x, y], i) => {
             if (taken.has(`${z.id}:${x},${y}`)) return;
             const h = { zone: z.id, x, y, n: i + 1 };
-            out.push({ key: homeKey(h), ...h, name: homeAddress(w, h), price: priceOf(g, zonePrice(z)), upkeep: priceOf(g, upkeepOf(z)), size: sizeOf(w, z), second: canBeSecond(z) });
+            out.push({ key: homeKey(h), ...h, name: homeAddress(w, h), price: priceOf(g, zonePrice(z)), upkeep: priceOf(g, upkeepOf(z)), size: sizeOf(w, z), second: canBeSecond(z), let: lettable(z) });
         });
     }
     return out.sort((a, b) => a.price - b.price || a.key.localeCompare(b.key));
@@ -52,26 +62,40 @@ export function canLeave(g: Save, w: WorldDef, leave: Leave | undefined, cost = 
     if (!leave) return 'You own this home: sell it or keep it as your second home first.';
     if (leave === 'second' && secondHome(g)) return 'You already have a second home: sell one of them first.';
     if (leave === 'second' && !canBeSecond(zoneOf(w, o.zone))) return "This home can't be a second home: sell it instead.";
+    if (leave === 'let') { const why = letBlock(g, w, o.zone); if (why) return why; }
     const have = g.player.money + (leave === 'sell' ? saleValue(w, o) - owedAmount(g, w, UPKEEP) : 0);
     return have < cost ? 'Not enough money.' : '';
 }
-/** Leaves the home you own and live in as `canLeave` allowed: sold, or kept as the second home. */
+/** Leaves the home you own and live in as `canLeave` allowed: sold, kept as the second home, or put up to let. */
 export function leaveOwned(g: Save, w: WorldDef, leave: Leave | undefined) {
     const key = homeKey(g.player.home);
     const o = housingOn(w) && ownedHere(g) ? ownedAt(g, key) : undefined;
     if (!o || !leave) return;
     if (leave === 'second') { houses(g).second = key; return; }
+    if (leave === 'let') { putUp(g, w, o); return; }
     sell(g, w, o);
+}
+/** (letting) A home of yours put up to let: a tenant from the next Monday (an empty one to let keeps its counts). */
+export function putUp(g: Save, w: WorldDef, o: Owned) {
+    const was = o.let;
+    o.let = { ...(was ?? {}), since: nextMonday(g.day) };
+    delete o.let.off; delete o.let.until;
+    if (houses(g).second === homeKey(o)) { houses(g).second = undefined; if (g.player.loc === SECOND_HOME_ID) g.player.loc = playerHomeId; }   // (the second home let: you go home)
+    note(g, '{u} put a home up to let: {0}.', [homeAddress(w, o)], [], g.player.loc, 'home');
 }
 
 /** Buys a home (`key` from `forSale`): to live in (`as: 'live'`, moving in at once; `leave` for a home you own and live
- *  in now) or as a second home. Returns why not, or ''. */
-export function buyHome(g: Save, w: WorldDef, key: string, as: 'live' | 'second', leave?: Leave): string {
+ *  in now), as a second home, or (letting) to let. Returns why not, or ''. */
+export function buyHome(g: Save, w: WorldDef, key: string, as: 'live' | 'second' | 'let', leave?: Leave): string {
     const s = forSale(g, w).find(x => x.key === key);
     if (!s) return 'That home is not for sale.';
     const z = zoneOf(w, s.zone)!;
-    const mine = ownedHomes(g).length, livingInOwn = ownedHere(g);
-    if (as === 'second') {
+    const mine = keptHomes(g).length, livingInOwn = ownedHere(g);
+    if (as === 'let') {
+        const why = letBlock(g, w, s.zone);
+        if (why) return why;
+        if (g.player.money < s.price) return `Not enough money (${money(w, s.price)}).`;
+    } else if (as === 'second') {
         if (!s.second) return "This home can't be a second home.";
         if (secondHome(g)) return 'You already have a second home: sell it first.';
         if (mine >= MAX_HOMES) return 'You can own two homes at most: sell one first.';
@@ -79,8 +103,8 @@ export function buyHome(g: Save, w: WorldDef, key: string, as: 'live' | 'second'
     } else {
         const student = studentLink.homeBlock(g, w, z.id);
         if (student) return student;
-        // the home you leave: sold, kept as the second, or (rented) left as moving always did
-        const freed = livingInOwn && leave === 'sell' ? 1 : 0;
+        // the home you leave: sold, kept as the second, let, or (rented) left as moving always did
+        const freed = livingInOwn && (leave === 'sell' || leave === 'let') ? 1 : 0;
         if (mine - freed >= MAX_HOMES) return 'You can own two homes at most: sell one first.';
         const why = canLeave(g, w, leave, s.price);
         if (why) return why;
@@ -91,7 +115,12 @@ export function buyHome(g: Save, w: WorldDef, key: string, as: 'live' | 'second'
     book(g, `${s.name}: bought`, -s.price);
     houses(g).owned.push({ zone: s.zone, x: s.x, y: s.y, n: s.n, paid: s.price, day: g.day, fix: [], got: comesWith(w, z.kind) });
     tallyEvent(g, 'home_bought');
-    if (as === 'second') {
+    if (as === 'let') {
+        const o = ownedAt(g, key)!;
+        startBill(g, UPKEEP);
+        o.let = { since: nextMonday(g.day) };
+        note(g, '{u} bought a home to let: {0}.', [s.name], [], g.player.loc, 'home');
+    } else if (as === 'second') {
         houses(g).second = key;
         startBill(g, UPKEEP);
         note(g, '{u} bought a second home: {0}.', [s.name], [], g.player.loc, 'home');
@@ -142,7 +171,7 @@ function sell(g: Save, w: WorldDef, o: Owned) {
     note(g, '{u} sold a home: {0}.', [name], [], g.player.loc, 'home');
 }
 // Moving into a home: as `moveTo` does (the rent counts from today, every bill starts fresh; housemates follow you).
-function moveIn(g: Save, w: WorldDef, h: { zone: string; x: number; y: number; n: number; unit?: number }) {
+export function moveIn(g: Save, w: WorldDef, h: { zone: string; x: number; y: number; n: number; unit?: number }) {
     const z = zoneOf(w, h.zone);
     g.player.home = { zone: h.zone, kind: z?.kind ?? g.player.home.kind, x: h.x, y: h.y, n: h.n, ...(h.unit ? { unit: h.unit } : {}) } as typeof g.player.home;
     g.player.rentPaidDay = g.day;
@@ -182,6 +211,9 @@ export function settleHomes(g: Save, w: WorldDef): string {
     }
     for (const o of [...h.owned]) {
         const k = homeKey(o);
+        // (letting) a home to let stays one while its zone can be let; one that can't any more is kept or sold back below
+        if (o.let && k !== live && k !== h.second && lettable(zoneOf(w, o.zone))) continue;
+        if (o.let) { delete o.let; said.push('A home you let can no longer be let in this world.'); }
         if (k === live || k === h.second) continue;
         if (!h.second) { h.second = k; continue; }
         g.player.money += o.paid; book(g, `${homeAddress(w, o)}: sold back`, o.paid);

@@ -1,8 +1,9 @@
 // Owning a home, on the phone's Homes app: the home you own (its upkeep, what it would sell for, its rooms), your
 // second home, homes for sale, the Rooms view (the fixtures that fit a house of yours), and the questions a purchase or
-// a move out of a home you own asks first (sell it, or keep it as your second home). The HUD's Rooms row walks you to
-// a room of your home that's a place (the terrace, the bath). The numbers are the engine's (sim/owning.ts,
-// sim/fixtures.ts); nothing here counts anything.
+// a move out of a home you own asks first (sell it, keep it as your second home, or let it). The HUD's Rooms row walks
+// you to a room of your home that's a place (the terrace, the bath). Homes you let (R-a): each one's state, last week
+// and what it brought, Buy to let, taking one back with a week's notice, moving into an empty one. The numbers are the
+// engine's (sim/owning.ts, sim/fixtures.ts, sim/letting.ts); nothing here counts anything.
 import { esc, game, toast, notify, saveGame, type Save } from '../core/store.js';
 import { getWorld, type WorldDef } from '../core/world.js';
 import { safeUrl } from '../core/safe.js';
@@ -14,15 +15,17 @@ import { homeKey } from '../sim/homes.js';
 import { moveTo } from '../sim/work.js';
 import { itemDoes } from '../sim/shop.js';
 import { billAmount, UPKEEP } from '../sim/bills.js';
-import { housingOn, ownedAt, ownedHere, secondHome, zoneOf, sizeOf, guestsOf, resaleOf, SECOND_HOME_ID, type Owned } from '../sim/housing.js';
-import { forSale, buyHome, sellHome, saleValue, canLeave, MAX_HOMES, type Leave, type Sale } from '../sim/owning.js';
+import { housingOn, ownedAt, ownedHere, secondHome, zoneOf, sizeOf, guestsOf, resaleOf, SECOND_HOME_ID, type Owned, lettable, toLet, keptHomes, isLet, MAX_LET } from '../sim/housing.js';
+import { forSale, buyHome, sellHome, saleValue, canLeave, letBlock, MAX_HOMES, type Leave, type Sale } from '../sim/owning.js';
+import { letState, letAverage, canLet, letHome, takeBack, keepLet, makeSecond, moveIntoOwned, noticeEnds, weekNo } from '../sim/letting.js';
 import { fixturesFor, buyFixture, fixturesIn } from '../sim/fixtures.js';
 import { ownedHomes } from '../sim/housing.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 
 /** What's open: the Rooms view of a house (its key), and a question waiting for an answer. */
-type Ask = { kind: 'buy'; key: string; as: 'live' | 'second' } | { kind: 'sell'; key: string } | { kind: 'leave'; zone: string };
+type Ask = { kind: 'buy'; key: string; as: 'live' | 'second' | 'let' } | { kind: 'sell'; key: string } | { kind: 'leave'; zone: string }
+    | { kind: 'let'; key: string } | { kind: 'take'; key: string } | { kind: 'movein'; key: string };
 export const HU = { rooms: '', ask: null as Ask | null };
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -40,10 +43,40 @@ export function ownedHtml(g: Save, w: WorldDef): string {
             ${second ? `<article class="mu-home-card"><span class="mu-home-pic" ${kindPic(w, z?.kind ?? '')}></span><div class="mu-home-info"><span><b>${esc(homeAddress(w, o))}</b><small>${esc(kindName(w, z?.kind ?? ''))} · Your second home</small></span></div></article>` : ''}
             <p><b>${second ? 'Yours' : 'You own this home'}</b> · upkeep ${money(w, upkeepWeek(g, w, o))} a week · sells for ${money(w, saleValue(w, o))} (${pct(resaleOf(z))} of what you paid)</p>
             <div class="mu-row"><button class="mu-ghost" data-act="hu-rooms" data-k="${esc(homeKey(o))}">${icon('home')}<span>Rooms and fixtures${n ? ` · ${n}` : ''}</span></button>
-            <button class="mu-ghost" data-act="hu-sell" data-k="${esc(homeKey(o))}">${icon('wallet')}<span>Sell…</span></button></div></div>`;
+            <button class="mu-ghost" data-act="hu-sell" data-k="${esc(homeKey(o))}">${icon('wallet')}<span>Sell…</span></button>
+            ${second && lettable(z) ? `<button class="mu-ghost" data-act="hu-let" data-k="${esc(homeKey(o))}" ${btnWhy(canLet(g, w, homeKey(o)))}>${icon('lock')}<span>Let it out…</span></button>` : ''}</div></div>`;
     };
     return `${live ? card(live, false) : ''}${s ? `<h4>Second home</h4>${card(s, true)}` : ''}`;
 }
+// A button's disabled state and why, when there's a reason.
+const btnWhy = (why: string) => (why ? `aria-disabled="true" title="${esc(why)}"` : '');
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/** (letting) Homes you let: each one's card, its state this week, last week, what it brought, what you can do. */
+export function letHtml(g: Save, w: WorldDef): string {
+    if (!housingOn(w)) return '';
+    const list = toLet(g);
+    if (!list.length) return '';
+    const card = (o: Owned) => {
+        const z = zoneOf(w, o.zone), l = o.let!, k = esc(homeKey(o)), st = letState(g, w, o);
+        const state = st === 'soon' ? 'Let · a tenant from Monday' : st === 'tenant' ? 'Let · a tenant this week' : st === 'vacant' ? 'Let · empty this week: the agent is showing it'
+            : st === 'notice' ? `Notice given: the tenant leaves on Monday, in ${plural(l.until! - g.day, 'day')}` : 'Empty: yours to let again, move into or sell';
+        const last = l.last && l.last.n === weekNo(g.day) - 1 ? (l.last.tenant ? `Last week: ${money(w, l.last.rent - l.last.fee)} after the agent's ${money(w, l.last.fee)}` : 'Last week: no tenant') : '';
+        const all = l.weeks ? `${money(w, l.got ?? 0)} in all, over ${plural(l.weeks, 'week')} with a tenant` : '';
+        const buttons = st === 'empty'
+            ? [`<button class="mu-home-move" data-act="hu-let-go" data-k="${k}" ${btnWhy(canLet(g, w, homeKey(o)))}>Let it again</button>`,
+                `<button class="mu-ghost" data-act="hu-movein" data-k="${k}">${icon('home')}<span>Move in…</span></button>`,
+                `<button class="mu-ghost" data-act="hu-second" data-k="${k}" ${btnWhy(secondHome(g) ? 'You already have a second home.' : '')}>${icon('home')}<span>Make it my second home</span></button>`]
+            : st === 'notice' ? [`<button class="mu-ghost" data-act="hu-keep" data-k="${k}">${icon('lock')}<span>Keep it let</span></button>`]
+                : [`<button class="mu-ghost" data-act="hu-take" data-k="${k}">${icon('lock')}<span>Take it back…</span></button>`];
+        return `<div class="mu-home-owned mu-home-let"><article class="mu-home-card"><span class="mu-home-pic" ${kindPic(w, z?.kind ?? '')}></span><div class="mu-home-info"><span><b>${esc(homeAddress(w, o))}</b><small>${esc(kindName(w, z?.kind ?? ''))} · ${esc(state)}</small></span></div></article>
+            <p>${last ? `<b>${esc(last)}</b> · ` : ''}upkeep ${money(w, upkeepWeek(g, w, o))} a week, on the Home upkeep bill${all ? ` · ${esc(all)}` : ''}</p>
+            <div class="mu-row">${buttons.join('')}<button class="mu-ghost" data-act="hu-sell" data-k="${k}">${icon('wallet')}<span>Sell…</span></button></div></div>`;
+    };
+    return `<section><h4>Homes you let</h4>${list.map(card).join('')}
+        <p class="mu-muted">${esc(`An agent finds a tenant most weeks and pays you on Mondays, less a share. You can let ${MAX_LET} homes at most; to have one back, give a week's notice.`)}</p></section>`;
+}
+
 // One home's share of the upkeep bill (what it would cost alone).
 function upkeepWeek(g: Save, w: WorldDef, o: Owned): number {
     const all = billAmount(g, w, UPKEEP), list = ownedHomes(g);
@@ -61,20 +94,22 @@ export function forSaleHtml(g: Save, w: WorldDef, city = ''): string {
     for (const s of all) byZone.set(s.zone, [...(byZone.get(s.zone) ?? []), s]);
     const cards = [...byZone.values()].filter(l => !city || zoneOf(w, l[0].zone)?.map === city).map(l => {
         const s = l[0], z = zoneOf(w, s.zone)!, guests = guestsOf(w, z.kind);
-        const live = whyNotBuy(g, w, s, 'live'), second = s.second && whyNotBuy(g, w, s, 'second');
+        const live = whyNotBuy(g, w, s, 'live'), second = s.second && whyNotBuy(g, w, s, 'second'), toLetWhy = s.let && whyNotBuy(g, w, s, 'let');
         return `<article class="mu-home-card is-sale"><span class="mu-home-pic" ${kindPic(w, z.kind)}></span>
             <div class="mu-home-info"><span><b>${esc(z.name)}</b><small>${esc(kindName(w, z.kind))} · ${money(w, s.price)} · upkeep ${money(w, s.upkeep)}/wk · size ${s.size}${guests ? ` · parties of ${guests}` : ''} · ${l.length} for sale</small>${(z.rent ?? 0) > 0 ? '' : '<small>Only for sale</small>'}</span>
             <span class="mu-row"><button class="mu-home-move" data-act="hu-buy" data-k="${esc(s.key)}" data-as="live" ${live ? `aria-disabled="true" title="${esc(live)}"` : ''}>Buy</button>
-            ${s.second ? `<button class="mu-ghost" data-act="hu-buy" data-k="${esc(s.key)}" data-as="second" ${second ? `aria-disabled="true" title="${esc(second)}"` : ''}>As a second home</button>` : ''}</span></div></article>`;
+            ${s.second ? `<button class="mu-ghost" data-act="hu-buy" data-k="${esc(s.key)}" data-as="second" ${second ? `aria-disabled="true" title="${esc(second)}"` : ''}>As a second home</button>` : ''}
+            ${s.let ? `<button class="mu-ghost" data-act="hu-buy" data-k="${esc(s.key)}" data-as="let" ${btnWhy(toLetWhy || '')}>Buy to let</button>` : ''}</span></div></article>`;
     });
     return `<section><h4>Homes for sale</h4>${cards.join('') || '<p class="mu-muted">Nothing for sale here right now.</p>'}
         <p class="mu-muted">Bought outright, no rent: a weekly upkeep instead. You can own two homes: the one you live in and a second. Sold back, a home returns part of what you paid; its rooms and fixtures stay with it.</p></section>`;
 }
 // Why a purchase can't happen now, without asking the questions a purchase asks (selling or keeping your home).
-function whyNotBuy(g: Save, w: WorldDef, s: Sale, as: 'live' | 'second'): string {
-    if (as === 'second') return secondHome(g) ? 'You already have a second home.' : ownedHomes(g).length >= MAX_HOMES ? 'You can own two homes at most.' : g.player.money < s.price ? 'Not enough money.' : '';
+function whyNotBuy(g: Save, w: WorldDef, s: Sale, as: 'live' | 'second' | 'let'): string {
+    if (as === 'let') return letBlock(g, w, s.zone) || (g.player.money < s.price ? 'Not enough money.' : '');
+    if (as === 'second') return secondHome(g) ? 'You already have a second home.' : keptHomes(g).length >= MAX_HOMES ? 'You can own two homes at most.' : g.player.money < s.price ? 'Not enough money.' : '';
     const living = ownedHere(g), sale = living ? saleValue(w, ownedAt(g, homeKey(g.player.home))!) : 0;
-    if (ownedHomes(g).length >= MAX_HOMES && !living) return 'You can own two homes at most.';
+    if (keptHomes(g).length >= MAX_HOMES && !living) return 'You can own two homes at most.';
     return g.player.money + sale < s.price ? 'Not enough money.' : '';
 }
 
@@ -104,24 +139,45 @@ export function askHtml(g: Save, w: WorldDef): string {
     const leaveButtons = (act: string, extra: string, cost: number) => [
         `<button class="mu-primary" data-act="${act}" ${extra} data-leave="sell" ${canLeave(g, w, 'sell', cost) ? 'aria-disabled="true"' : ''}>Sell my home (${money(w, mineValue)})</button>`,
         `<button class="mu-ghost" data-act="${act}" ${extra} data-leave="second" ${canLeave(g, w, 'second', cost) ? `aria-disabled="true" title="${esc(canLeave(g, w, 'second', cost))}"` : ''}>Keep it as my second home</button>`,
+        ...(mine && lettable(zoneOf(w, mine.zone)) ? [`<button class="mu-ghost" data-act="${act}" ${extra} data-leave="let" ${btnWhy(canLeave(g, w, 'let', cost))}>Let it out</button>`] : []),
     ].join('');
+    const letTerms = (zone: string) => { const a = letAverage(g, w, zone); return `A tenant about ${pct(a.chance)} of weeks pays ${money(w, a.rent)} a week, less the agent's ${money(w, a.fee)}; the upkeep, ${money(w, a.upkeep)} a week, is yours either way: about ${money(w, a.avg)} a week on average.`; };
     if (a.kind === 'buy') {
         const s = forSale(g, w).find(x => x.key === a.key);
         if (!s) { HU.ask = null; return ''; }
         const z = zoneOf(w, s.zone);
-        const body = `<p>${esc(s.name)}: ${money(w, s.price)}, then ${money(w, s.upkeep)} a week of upkeep. Sold back, it returns ${pct(resaleOf(z))} of what you paid.</p>${a.as === 'live' && mine ? `<p>You own the home you live in now. Sell it, or keep it as your second home?</p>` : ''}`;
-        return box(a.as === 'live' ? 'Buy and move in' : 'Buy a second home', body,
+        const body = `<p>${esc(s.name)}: ${money(w, s.price)}, then ${money(w, s.upkeep)} a week of upkeep. Sold back, it returns ${pct(resaleOf(z))} of what you paid.</p>${a.as === 'let' ? `<p>${esc(letTerms(s.zone))} The first tenant can come on Monday.</p>` : ''}${a.as === 'live' && mine ? `<p>You own the home you live in now. Sell it, keep it as your second home, or let it?</p>` : ''}`;
+        return box(a.as === 'live' ? 'Buy and move in' : a.as === 'let' ? 'Buy to let' : 'Buy a second home', body,
             a.as === 'live' && mine ? leaveButtons('hu-buy-go', `data-k="${esc(a.key)}" data-as="live"`, s.price) : `<button class="mu-primary" data-act="hu-buy-go" data-k="${esc(a.key)}" data-as="${a.as}">Buy for ${money(w, s.price)}</button>`);
     }
     if (a.kind === 'sell') {
         const o = ownedAt(g, a.key);
         if (!o) { HU.ask = null; return ''; }
         const living = a.key === homeKey(g.player.home), s = secondHome(g);
-        const body = `<p>${esc(homeAddress(w, o))} sells for ${money(w, saleValue(w, o))} (${pct(resaleOf(zoneOf(w, o.zone)))} of the ${money(w, o.paid)} you paid). Its rooms and fixtures go with it; what's owed on the upkeep is paid from the sale.</p>${living ? (s ? `<p>You'd move into your second home, ${esc(homeAddress(w, s))}.</p>` : '<p>You live here: to sell it, move out (rent a home below, or buy one), and say you sell it then.</p>') : ''}`;
+        const body = `<p>${esc(homeAddress(w, o))} sells for ${money(w, saleValue(w, o))} (${pct(resaleOf(zoneOf(w, o.zone)))} of the ${money(w, o.paid)} you paid). Its rooms and fixtures go with it; what's owed on the upkeep is paid from the sale.</p>${isLet(o) ? '<p>Its tenant stays with the new owner.</p>' : ''}${living ? (s ? `<p>You'd move into your second home, ${esc(homeAddress(w, s))}.</p>` : '<p>You live here: to sell it, move out (rent a home below, or buy one), and say you sell it then.</p>') : ''}`;
         return box('Sell this home', body, !living || s ? `<button class="mu-primary" data-act="hu-sell-go" data-k="${esc(a.key)}">Sell for ${money(w, saleValue(w, o))}</button>` : '');
     }
+    if (a.kind === 'let') {
+        const o = ownedAt(g, a.key);
+        if (!o) { HU.ask = null; return ''; }
+        return box('Let it out', `<p>${esc(`${homeAddress(w, o)} stops being your second home.`)} ${esc(letTerms(o.zone))} The first tenant can come on Monday.</p>`,
+            `<button class="mu-primary" data-act="hu-let-go" data-k="${esc(a.key)}" ${btnWhy(canLet(g, w, a.key))}>Let it out</button>`);
+    }
+    if (a.kind === 'take') {
+        const o = ownedAt(g, a.key);
+        if (!o?.let) { HU.ask = null; return ''; }
+        const tenant = letState(g, w, o) === 'tenant', n = noticeEnds(g.day) - g.day;
+        return box('Take it back', tenant ? `<p>${esc(`A tenant lives at ${homeAddress(w, o)} this week. With a week's notice they leave on Monday, in ${plural(n, 'day')}, paying the rent to the end.`)}</p>` : `<p>${esc(`Nobody lives at ${homeAddress(w, o)} this week: it's yours again at once.`)}</p>`,
+            `<button class="mu-primary" data-act="hu-take-go" data-k="${esc(a.key)}">${tenant ? 'Give notice' : 'Take it back'}</button>`);
+    }
+    if (a.kind === 'movein') {
+        const o = ownedAt(g, a.key);
+        if (!o?.let) { HU.ask = null; return ''; }
+        return box('Move in', `<p>${esc(`Move into ${homeAddress(w, o)}? No deposit: it's yours.`)}</p>${mine ? '<p>You own the home you live in now. Sell it, keep it as your second home, or let it?</p>' : ''}`,
+            mine ? leaveButtons('hu-movein-go', `data-k="${esc(a.key)}"`, 0) : `<button class="mu-primary" data-act="hu-movein-go" data-k="${esc(a.key)}">Move in</button>`);
+    }
     const z = zoneOf(w, a.zone);
-    return box('Move out of a home you own', `<p>You own the home you live in. Before moving to ${esc(z?.name ?? '')}: sell it, or keep it as your second home?</p>`, leaveButtons('hu-move-go', `data-zone="${esc(a.zone)}"`, 0));
+    return box('Move out of a home you own', `<p>You own the home you live in. Before moving to ${esc(z?.name ?? '')}: sell it, keep it as your second home, or let it?</p>`, leaveButtons('hu-move-go', `data-zone="${esc(a.zone)}"`, 0));
 }
 
 /** The HUD's rows at a home of yours: the rooms that are places (walk there), and back inside from one. */
@@ -138,6 +194,7 @@ export function roomRows(g: Save, w: WorldDef): string[] {
     ];
 }
 
+const asOf = (el: HTMLElement): 'live' | 'second' | 'let' => (el.dataset.as === 'second' ? 'second' : el.dataset.as === 'let' ? 'let' : 'live');
 const C = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? { g, w } : null; };
 const done = (msg: string, ok: string) => {
     if (msg) { toast(msg, 'warn'); return; }
@@ -146,12 +203,40 @@ const done = (msg: string, ok: string) => {
 Object.assign(ACT, {
     'hu-rooms': (el) => { HU.rooms = el.dataset.k ?? ''; notify(); },
     'hu-cancel': () => { HU.ask = null; notify(); },
-    'hu-buy': (el) => { if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; } HU.ask = { kind: 'buy', key: el.dataset.k!, as: el.dataset.as === 'second' ? 'second' : 'live' }; notify(); },
+    'hu-buy': (el) => { if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; } HU.ask = { kind: 'buy', key: el.dataset.k!, as: asOf(el) }; notify(); },
     'hu-buy-go': (el) => {
         const c = C(); if (!c) return;
-        const as = el.dataset.as === 'second' ? 'second' : 'live', leave = (el.dataset.leave || undefined) as Leave | undefined;
+        if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; }
+        const as = asOf(el), leave = (el.dataset.leave || undefined) as Leave | undefined;
         const name = forSale(c.g, c.w).find(x => x.key === el.dataset.k)?.name ?? '';
-        done(buyHome(c.g, c.w, el.dataset.k!, as, leave), as === 'live' ? `${name} is yours. Welcome home.` : `${name} is your second home.`);
+        done(buyHome(c.g, c.w, el.dataset.k!, as, leave), as === 'live' ? `${name} is yours. Welcome home.` : as === 'let' ? `${name} is yours, to let from Monday.` : `${name} is your second home.`);
+    },
+    // (letting) putting a home up, taking it back, keeping it let, an empty one made the second or moved into
+    'hu-let': (el) => { if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; } HU.ask = { kind: 'let', key: el.dataset.k! }; notify(); },
+    'hu-let-go': (el) => {
+        const c = C(); if (!c) return;
+        if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; }
+        done(letHome(c.g, c.w, el.dataset.k!), 'Let from Monday.');
+    },
+    'hu-take': (el) => { HU.ask = { kind: 'take', key: el.dataset.k! }; notify(); },
+    'hu-take-go': (el) => {
+        const c = C(); if (!c) return;
+        const o = ownedAt(c.g, el.dataset.k!), tenant = !!o?.let && letState(c.g, c.w, o) === 'tenant';
+        done(takeBack(c.g, c.w, el.dataset.k!), tenant ? 'Notice given.' : "It's yours again.");
+    },
+    'hu-keep': (el) => { const c = C(); if (!c) return; done(keepLet(c.g, el.dataset.k!), 'The tenant stays.'); },
+    'hu-second': (el) => {
+        const c = C(); if (!c) return;
+        if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; }
+        done(makeSecond(c.g, c.w, el.dataset.k!), "It's your second home now.");
+    },
+    'hu-movein': (el) => { HU.ask = { kind: 'movein', key: el.dataset.k! }; notify(); },
+    'hu-movein-go': (el) => {
+        const c = C(); if (!c) return;
+        if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; }
+        const leave = (el.dataset.leave || undefined) as Leave | undefined;
+        if (HU.rooms === homeKey(c.g.player.home) && leave === 'sell') HU.rooms = '';
+        done(moveIntoOwned(c.g, c.w, el.dataset.k!, leave), 'Welcome home.');
     },
     'hu-sell': (el) => { HU.ask = { kind: 'sell', key: el.dataset.k! }; notify(); },
     'hu-sell-go': (el) => {
@@ -162,6 +247,7 @@ Object.assign(ACT, {
     },
     'hu-move-go': (el) => {
         const c = C(); if (!c) return;
+        if (el.getAttribute('aria-disabled') === 'true') { toast(el.title || 'Not now.', 'info'); return; }
         const leave = el.dataset.leave as Leave;
         if (HU.rooms === homeKey(c.g.player.home) && leave === 'sell') HU.rooms = '';
         done(moveTo(c.g, c.w, el.dataset.zone!, leave), 'You moved.');

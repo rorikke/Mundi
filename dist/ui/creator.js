@@ -31,7 +31,7 @@ import { R_NAME, F_NAME, PRESETS as INTIMACY_PRESETS } from '../sim/intimacy.js'
 import { cleanPerson, cleanIntimate, gendersOf } from '../sim/gender.js';
 import { whenError, namedIn, parseWhen, PARTNER_VALUES } from '../sim/when.js';
 import { SHOP_CATS, SHOP_LIMITS, SHOP_NOW_MAX, catOf, shopCat, isAdultItem } from '../sim/shop.js';
-import { RESALE, SIZES, buyable, buyOnly, housingOn, fixturesOf } from '../sim/housing.js';
+import { RESALE, SIZES, buyable, buyOnly, housingOn, fixturesOf, lettable, LETTING } from '../sim/housing.js';
 import { skillsOf } from '../sim/hobbies.js';
 import { WORK_PRESETS, worldPreset } from '../sim/work.js';
 import { STANDARD_TRAIT_INFO, EFFECT_KINDS, TRAIT_LIMITS, OUT_OF_WORK, clampEffect, isEffectKind } from '../core/traits.js';
@@ -1770,16 +1770,6 @@ function museumIssues(w, M) {
     }
     if (M.shows && !ups.some(u => u.does === 'exhibition'))
         out.push('No upgrade is an exhibition hall, so no show can be held.');
-    // (R-b) royalties
-    const rc = M.royalties?.curve ?? [];
-    if (M.royalties) {
-        if (!rc.some(x => Number(x.pay) > 0))
-            out.push('Royalties need a point that pays something: without one they are dropped when the world loads.');
-        rc.forEach((x, i) => { if (i && !(Number(x.at) > Number(rc[i - 1].at)))
-            out.push(`Royalty point ${i + 1} should be at a higher percentage than the one before it.`); });
-        (M.royalties.steps ?? []).forEach((x, i) => { if (!String(x.line ?? '').trim())
-            out.push(`Royalty line ${i + 1} needs its words: without them it is dropped when the world loads.`); });
-    }
     for (const h of halls)
         if (!h.record && (w.collection?.slots ?? []).some(s => s.hall === h.id && s.sources?.length) && !ups.some(u => u.opens === h.id))
             out.push(`No wing opens ${h.name}: its pieces show only in the first room.`);
@@ -1871,7 +1861,6 @@ function museumEditor(w) {
             <div class="mu-row2">${num('Lasting renown per theme shown', `${q}.shows.lasting`)}${num('Lasting renown from shows at most', `${q}.shows.most`)}</div>
             ${num('Pieces on show a theme needs', `${q}.shows.min`)}`)}
         ${loansEditor(w, q, M)}
-        ${royaltiesEditor(w, q, M)}
         ${mpart(`${q}.eye`, !!M.eye, "The curator's eye: finds come damaged less often, for good", "Add the curator's eye", () => `<div class="mu-row2">${cond('Once (a condition)', `${q}.eye.when`, 'did: ot_kura_lesson 5')}${bounded('Damaged odds × (0 … 1)', `${q}.eye.damaged`, 0, 1, 0.05)}</div>`)}</section>`;
 }
 // (C-7) The dealer as one of the world's people, and the pieces her tier adds to a visit.
@@ -1889,20 +1878,6 @@ function loansEditor(w, q, M) {
         <div class="mu-row2">${bounded('The lowest rung she asks for (1–5)', `${q}.loans.min`, 1, 5)}${bounded('Days to answer', `${q}.loans.wait`, 1, 56)}</div>
         <div class="mu-row2">${bounded('Days before the same piece is asked for again', `${q}.loans.again`, 0, 999)}${sel("Where it's shown (the AI is told there)", `${q}.loans.place`, withCur([['', '(nowhere in particular)'], ...placeOpts(w, '(pick one)').filter(o => o[0])], L?.place), 'opt')}</div>
         <div class="mu-row2">${optTxt("What it's lent for", `${q}.loans.label`, "the Mikage Foundation's season exhibition")}${words('Pieces she asks for however they came (slot ids, comma-separated)', `${q}.loans.also`, "Her grandmother's screen, for one.", 'art_korin_irises')}</div>`);
-}
-// (R-b) The museum's name on things: what a week of royalties pays by the museum's percentage, and the lines said as it
-// grows (and what the AI is told from then on).
-function royaltiesEditor(w, q, M) {
-    const R = M.royalties, sym = esc(w.currency.symbol);
-    return mpart(`${q}.royalties`, !!R, "Royalties: the museum's name on books, prints and television, paid each Monday", 'Add royalties', () => `<p class="mu-muted">Once the museum is yours, each Monday it earns by its percentage (the display halls, not a record): nothing below the first point, a straight line between two points, the last one's above it. Lent pieces count; renown and shows don't change it.</p>
-        <span class="mu-cw-sub">What a week pays (${sym}) at a percentage</span>
-        ${(R?.curve ?? []).map((_p, k) => `<div class="mu-row mu-cw-inline">${bounded('At (%)', `${q}.royalties.curve.${k}.at`, 0, 100)}${num(`A week (${sym})`, `${q}.royalties.curve.${k}.pay`)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.royalties.curve.${k}" title="Remove">${icon('x')}</button></div>`).join('')}
-        <button class="mu-ghost" data-act="cw-add" data-what="mroypt" data-path="${q}.royalties.curve">${icon('plus')}<span>Add a point</span></button>
-        <span class="mu-cw-sub">Lines as it grows (said once, the first time the museum reaches the percentage)</span>
-        ${(R?.steps ?? []).map((_s, k) => `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${bounded('At (%)', `${q}.royalties.steps.${k}.at`, 1, 100)}<span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.royalties.steps.${k}" title="Remove">${icon('x')}</button></div>
-            ${txt('The line (in the news)', `${q}.royalties.steps.${k}.line`, "A Jinbōchō publisher wants a book of the kura's prints.")}
-            ${optTxt('What the AI is told from then on', `${q}.royalties.steps.${k}.ai`, "A book of the kura's prints is in the shops.")}</div>`).join('')}
-        <button class="mu-ghost" data-act="cw-add" data-what="mroystep" data-path="${q}.royalties.steps">${icon('plus')}<span>Add a line</span></button>`);
 }
 // (C-7) What the loans and the women's names can leave empty: an unpicked person, an empty label, place or list; a
 // tier's unset opening feelings and an emptied line about the others.
@@ -2234,8 +2209,8 @@ function tabWords(w) {
 // (housing) Chips of what can be picked, and any picked that isn't there any more (to take off); none picked, none in the file.
 const pickChips = (opts, p) => { const cur = getPath(p); const on = Array.isArray(cur) ? cur : []; return pairChips([...opts, ...on.filter(v => !opts.some(([x]) => x === v)).map(v => [v, v])], p, true); };
 export const fixtureOpts = (w) => fixturesOf(w).map(f => [f.id, `${f.icon ?? ''} ${f.name}`.trim()]);
-// (housing) Buying a home in an area: its price, upkeep, what selling gives back, its size, a second home, and the rent
-// before a version raised it. Read with their defaults (sim/housing.ts), so only what's typed is in the file.
+// (housing) Buying a home in an area: its price, upkeep, what selling gives back, its size, a second home, the rent
+// before a version raised it, and (letting) whether homes here can be let and on what terms. Read with their defaults (sim/housing.ts), so only what's typed is in the file.
 function zoneBuying(w, p, z) {
     const cur = esc(w.currency.symbol);
     const warn = [];
@@ -2246,11 +2221,20 @@ function zoneBuying(w, p, z) {
     const living = w.cast.examples.filter(e => e.home === z.id).length;
     if (buyOnly(z) && living)
         warn.push(`Only for sale, but ${living} of the world's people live here.`);
+    // (letting) homes here you own can be let: the rent a tenant pays, how often there is one, the agent's share
+    const lets = !!z.letting && typeof z.letting === 'object';
+    if (lets && !buyable(z))
+        warn.push('Only a home for sale can be let: give it a price.');
+    else if (lets && !lettable(z))
+        warn.push('A home to let needs a rent: the rent here, or a rent when let.');
     return `<h4>Buying a home here</h4>
         <div class="mu-row2">${num(`Price to buy (${cur}; empty: not for sale)`, `${p}.price`)}${num(`Upkeep a week, once it's yours (${cur})`, `${p}.upkeep`)}</div>
         <div class="mu-row2">${bounded(`Sold back for this share of what you paid (${RESALE.min}–${RESALE.max}; empty: ${RESALE.usual})`, `${p}.resale`, RESALE.min, RESALE.max, 0.05)}${bounded(`Size (${SIZES.min}–${SIZES.max}; empty: its kind's, else 1)`, `${p}.size`, SIZES.min, SIZES.max)}</div>
         <div class="mu-row2">${sel('It can be a second home', `${p}.second`, [['', 'As usual: yes when it is for sale'], ['true', 'Yes'], ['false', 'No']], 'tri')}${num(`Rent before it went up (${cur}; tells old saves)`, `${p}.was`)}</div>
         <small class="mu-muted">${buyOnly(z) ? 'No rent and a price: for sale only. Nobody is placed here by chance.' : buyable(z) ? 'Rented or bought. A home you own pays its upkeep instead of the rent.' : 'Empty rent and a price: for sale only.'}</small>
+        ${chk('Homes here you own can be let', `${p}.letting`, 'An agent finds a tenant most weeks and pays you the rent less a share; the upkeep is still yours. Three homes let at most.')}
+        ${lets ? `<div class="mu-row2">${num(`Rent when let, a week (${cur}; empty: the rent here)`, `${p}.letting.rent`)}${bounded(`A tenant most weeks (${LETTING.chanceMin}–${LETTING.chanceMax}; empty: ${LETTING.chance})`, `${p}.letting.chance`, LETTING.chanceMin, LETTING.chanceMax, 0.05)}</div>
+        <div class="mu-row2">${bounded(`The agent's share of the rent (0–${LETTING.feeMax}; empty: ${LETTING.fee})`, `${p}.letting.fee`, 0, LETTING.feeMax, 0.05)}</div>` : ''}
         ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
 }
 // (housing) A home's rooms and fixtures (`homes.fixtures`): the shop item's form without what only the shop reads, and
@@ -2373,8 +2357,8 @@ function strengthsEditor(w, k) {
 // (adult) `jealousy` and `risk` too: a Flirtatious trait minds a partner's other dates less, Shameless takes more chances.
 const TRAIT_KINDS = ['drain', 'learn', 'roll', 'perf', 'career', 'warm', 'gain', 'fade', 'morning', 'party', 'study', 'jealousy', 'risk'];
 const KIND_NAMES = { drain: 'A need drops faster or slower', learn: 'Skills train faster or slower', roll: 'A bonus on rolls', perf: 'Performance gains at work', career: 'Time a rank takes', warm: 'First impressions', gain: 'Friendship or romance gains', fade: 'How fast love fades', morning: 'Mood each morning', party: 'Mood at parties', study: 'What a class is worth',
-    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)', royalty: "The museum's royalties",
-    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)' };
+    price: 'Prices', pay: 'Pay at work', travel: 'How long trips take', rest: 'What a night, a bath or food gives back', reroll: 'Failed rolls rolled again (each day)', points: 'Life points', interview: 'Job interviews', hint: 'Friends\' secrets show in small signs (1: on)',
+    jealousy: 'How much jealousy hurts (adult)', risk: 'The chance of being caught (adult)', letting: 'Rent from your tenants' };
 // The targets each kind's hook asks for. `wide`: also those only life goals' hooks know (a skill's group, a roll at work,
 // first meetings on a map or at a kind of place, a partner's romance, a new job's head start, lessons you give).
 function targetOpts(w, kind, cur = '', wide = false) {
@@ -2407,8 +2391,9 @@ function targetOpts(w, kind, cur = '', wide = false) {
                                                     ['festivals', 'From festivals and city events'], ['secrets', 'From secrets, street stories and storylines']]
                                                     : kind === 'interview' ? [['', 'Every job'], ...jobs]
                                                         : kind === 'risk' ? [['', 'Every risky action'], ...w.actions.filter(a => a.risk !== undefined).map(a => [a.id, `Action: ${a.label || a.name}`]), ...tagged(actTags)]
-                                                            : kind === 'jealousy' ? [['', 'Every partner']] : kind === 'royalty' ? [['', 'All royalties']]
-                                                                : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
+                                                            : kind === 'jealousy' ? [['', 'Every partner']]
+                                                                : kind === 'letting' ? [['', 'Every home you let'], ...w.homes.zones.filter(lettable).map(z => [z.id, `Homes at ${z.name}`])]
+                                                                    : kind === 'travel' ? [['', 'Every trip']] : kind === 'reroll' ? [['', 'Any failed roll']] : [['', 'Everything']];
     return cur && !list.some(([v]) => v === cur) ? [...list, [cur, cur]] : list;
 }
 const hasStd = (n) => !!own(STANDARD_TRAIT_INFO, n);
@@ -4074,7 +4059,7 @@ Object.assign(ACT, {
                 return;
             const part = p.split('.').pop();
             setPath(p, part === 'renown' ? { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } : part === 'dealer' ? { every: 7, stock: 3, pity: 6 }
-                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'royalties' ? { curve: [{ at: 10, pay: 10000 }, { at: 100, pay: 150000 }] } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 50000, 200000, 625000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
+                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 50000, 200000, 625000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
                     : { price: Math.round((Number(M.offer?.price) || 100000) / 5), renown: 10 });
             notify();
             return;
@@ -4094,22 +4079,6 @@ Object.assign(ACT, {
             if (getPath(p) !== undefined)
                 return;
             setPath(p, { price: Math.round((Number(getPath(p.replace(/\.mount$/, '.price'))) || 100000) / 10), days: 7 });
-            notify();
-            return;
-        }
-        // (R-b) a royalty point after the last (10 points on), a line at the next quarter
-        if (what === 'mroypt') {
-            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
-            const last = l[l.length - 1];
-            l.push({ at: Math.min(100, (Number(last?.at) || 0) + 10), pay: Number(last?.pay) || 0 });
-            CW.dirty = true;
-            notify();
-            return;
-        }
-        if (what === 'mroystep') {
-            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
-            l.push({ at: Math.min(100, (Number(l[l.length - 1]?.at) || 0) + 25), line: '' });
-            CW.dirty = true;
             notify();
             return;
         }
@@ -4591,6 +4560,9 @@ Object.assign(INPUT, {
         }
         else if (t === 'csv')
             v = el.value.split(',').map((x) => x.trim()).filter(Boolean);
+        // (letting) a zone's homes can be let: an empty block (the defaults), or none
+        if (t === 'bool' && /^homes\.zones\.\d+\.letting$/.test(p))
+            v = el.checked ? {} : undefined;
         // switching a block on or off (decay, zero, rent)
         if (t === 'bool' && /(\.decay|\.zero|\.crisis|^rent)$/.test(p))
             v = el.checked ? (p === 'rent' ? { everyDays: 7, text: 'Rent: {cost}.' } : p.endsWith('crisis') ? { after: 120, text: '', restore: 25 } : p.endsWith('decay') ? { amount: 1, everyMinutes: 60, awakeOnly: true } : { text: '', restore: 30 }) : undefined;

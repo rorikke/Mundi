@@ -14,7 +14,7 @@ point of view, and grows as new ones arrive.
 - [Training together](#training-together)
 - [Running a business](#running-a-business)
 - [Shopping](#shopping)
-- [Your own home](#your-own-home)
+- [Your own home](#your-own-home) (and [letting it](#letting-a-home-you-own))
 - [Storylines](#storylines)
 - [Tokyo memories](#tokyo-memories)
 - [A museum of your own, and Tamaki](#a-museum-of-your-own-and-tamaki)
@@ -776,6 +776,29 @@ take a few game years of a top income, and a home with every room it could have 
   stay where you live; or keep the home you leave as your second when you move.
 - **It's on the map**, as *My second home*: go there, sleep there, and use its rooms and fixtures while you're there
   (only there). A night there counts as a night away. Nobody lives there, and parties are at the home you live in.
+
+### Letting a home you own
+
+- **A home you own and don't live in can be let**: in Tokyo the Toyosu tower flats and the Azabu residences (the four
+  homes that are only for sale stay homes to live in). Buy one to let (*Buy to let* in Homes for sale), let your
+  second home (it stops being your second home), or let the home you live in when you move out: the question that
+  asks whether to sell it or keep it now has *Let it out* too. **Three homes let at most**, besides the one you live
+  in and a second home.
+- **An agent finds a tenant most weeks** (about three weeks in four) and pays you every Monday the week's rent less a
+  fifth: ¥144,000 for an Azabu residence, ¥72,000 for a Toyosu flat. The home's upkeep is still yours, let or not, on
+  the Home upkeep bill with the rest; on average an Azabu residence let brings about ¥76,000 a week, a Toyosu flat
+  about ¥36,000. A line in the day's messages says what last week brought, and the ledger has it.
+- **Homes you let**, in the Homes app, shows each one: a tenant this week, empty this week while the agent shows it,
+  what last week brought and what it has brought in all.
+- **Having a home back**: while a tenant is in, *Take it back* gives a week's notice: they leave on a Monday and pay to
+  the end (*Keep it let* changes your mind). With nobody in that week, it's yours at once. An empty home you own can be
+  let again, moved into (no deposit), made your second home or sold; a home that's let can be sold with its tenant.
+- **What it's worth**: an Azabu residence costs ¥4,400,000 and its rent pays that back in about seven game years, so
+  letting is a slow, steady income rather than a quick one: best for a home you already own and move out of, or for
+  money you don't need soon. Sold back, a home returns 80% as before.
+- **World makers**: a housing area that's for sale can be let (Homes & rent tab: the rent when let, how often there's a
+  tenant, the agent's share). Older games start with nothing let; with *Owning a home* off, nothing is let or paid.
+  In Portuguese and Spanish, with Help's *Owning a home* explaining it.
 
 ### Parties at a big home
 

@@ -156,6 +156,10 @@ export interface HomeZone {
     second?: boolean;
     /** (housing) The rent before a version raised it: read only when an old save opens, to tell a tenant here. */
     was?: number;
+    /** (housing) Homes here you own can be let to a tenant: the rent the tenant pays a week (default: the zone's rent),
+     *  how likely a week is to have a tenant (0.1–1, default 0.75) and the agent's share of the rent (0–0.5, default
+     *  0.2). Read through `lettable()` and the `let…` helpers in sim/housing.ts. */
+    letting?: { rent?: number; chance?: number; fee?: number };
 }
 /** A kind of home (studio, tower flat, villa…): its name, words and pictures by time of day, and its weekly bills. */
 export interface HomeKind {
