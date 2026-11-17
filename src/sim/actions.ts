@@ -23,7 +23,7 @@ import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, talkedWith,
 import { playerHomeId } from './places.js';
 import { presentAt } from './people.js';
 import { startRumor } from './living.js';
-import { onLook, privateChecks, privateResults, museumHooks } from './hooks.js';
+import { onLook, privateChecks, privateResults, museumHooks, photoLink } from './hooks.js';
 import { earn } from './points.js';
 
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
@@ -122,6 +122,10 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     practice(g, w, a, ok, roll?.grade === 'critical-success').forEach(m => lines.push({ text: m, kind: 'success' }));
     museumHooks.found(g, w, a, ok, mates, o.began).forEach(m => lines.push({ text: m, kind: 'success' }));   // (museum) a piece found
     museumHooks.dug(g, w, a, ok, mates, o.began).forEach(m => lines.push({ text: m, kind: 'success' }));     // (nature) a day at a dig
+    // (photography) the engine's photo actions (a shoot for a brief, an edit) and an action that takes a photo
+    const shoot = photoLink.act(g, w, a, mates, o.began);
+    shoot?.lines.forEach(m => lines.push({ text: m, kind: 'success' }));
+    if (a.photo) photoLink.photo(g, w, { action: a, ok, mates, ...(roll ? { roll: { total: roll.total, dc: roll.dc } } : {}) }).forEach(m => lines.push({ text: m, kind: 'success' }));
     // what came of it: the roll's result, then one of the outcomes
     const res = roll && a.roll ? (ok ? a.roll.success : a.roll.fail) : null;
     const outcome = o.priv && o.priv.outcome !== undefined ? o.priv.outcome : drawOutcome(g, w, a, loc, rnd);
@@ -149,7 +153,7 @@ function results(g: Save, w: WorldDef, a: ActionDef, o: { place: string; mates: 
     // (the same thing twice in a day at the same place is one fact)
     if (t && !facts(g).some(f => f.place === loc && f.t === t && JSON.stringify(f.a) === JSON.stringify(args) && Math.floor(f.at / 1440) === g.day)) note(g, t, args, mates, loc, 'action');
     markDone(g, a.id, loc);
-    const done: ActionDone = { lines, roll, outcome, keepsake: keep, with: mates, together, ai: actionLine(g, w, a, roll, said, mates, o.ended) };
+    const done: ActionDone = { lines, roll, outcome, keepsake: keep, with: mates, together, ai: shoot?.ai ? `[Just now ${shoot.ai} ${o.ended ? 'That is how it ended: narrate the end of it, in the scene; do not change the outcome.' : 'Play it in the scene that way; do not change the outcome.'}]` : actionLine(g, w, a, roll, said, mates, o.ended) };
     privateResult(g, w, o.priv, done);
     return done;
 }
