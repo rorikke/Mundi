@@ -813,6 +813,9 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         else if (c.key === 'tier' && !c.not) out.push(c.values.map(v => { const m = v.match(TIER); return m ? `${m[1]} closer (tier ${m[2]})` : v; }).join(' or '));
         else if (c.key === 'seen' && !c.not && c.values.every(v => !!seenTitle(w, v))) out.push(c.values.map(v => seenTitle(w, v)!).join(' or '));
         // (the shop) "a car of your own", "a Compact camera or a Film camera of your own", "2 vehicles of your own"
+        // (track 7) a number of things, something of every kind
+        else if (c.key === 'owns' && !c.not && c.values.length === 1 && /^\d+$/.test(c.values[0])) out.push(`${c.values[0]} things of your own (${thingsHad(g, w).length} now)`);
+        else if (c.key === 'owns' && !c.not && c.values.length === 1 && /^cat:all$/i.test(c.values[0])) { const k = kindsHad(g, w); out.push(`something of every kind the shops sell (${k.have.length} of ${k.all.length})`); }
         else if (c.key === 'owns' && !c.not) out.push(ownsWords(w, c.values));
         // (letting) "3 homes let", "¥1,440,000 of rent from your tenants"
         else if (c.key === 'let' && !c.not) out.push(c.values.map(v => (Number(v) === 1 ? 'a home let' : `${v} homes let`)).join(' or '));
