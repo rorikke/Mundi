@@ -7,7 +7,7 @@ const STATUSES = ['none', 'casual', 'dating', 'engaged', 'married'];
 const str = (v) => typeof v === 'string' && !!v.trim();
 const isWhen = (v) => typeof v === 'string' || (!!v && typeof v === 'object' && !Array.isArray(v));
 /** One person's tiers made safe, in place: ids `[a-z0-9_]` and unique, a name and a condition each, caps only at known
- *  levels, `hold`, `moves` and `invites` booleans, texts texts, outfits and lines lists of texts; a tier missing any of
+ *  levels, `hold`, `moves` and `invites` booleans, `sets` at known levels, texts texts, outfits and lines lists of texts; a tier missing any of
  *  its musts dropped, and no `tiers` key left when none is. `reserved` only when true. */
 export function upgradeTiers(ex) {
     if (!ex || typeof ex !== 'object')
@@ -84,6 +84,20 @@ export function upgradeTiers(ex) {
                 if (list.length)
                     x[k] = list;
             }
+        if (Array.isArray(t.about)) {
+            const list = t.about.filter((a) => a && typeof a === 'object' && isWhen(a.when) && str(a.ai)).map((a) => ({ when: a.when, ai: a.ai }));
+            if (list.length)
+                x.about = list;
+        }
+        if (t.sets && typeof t.sets === 'object') {
+            const sets = {};
+            if (FRIEND_LEVELS.includes(t.sets.f))
+                sets.f = t.sets.f;
+            if (ROM_LEVELS.includes(t.sets.r))
+                sets.r = t.sets.r;
+            if (Object.keys(sets).length)
+                x.sets = sets;
+        }
         out.push(x);
     }
     if (out.length)

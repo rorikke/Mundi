@@ -22,6 +22,7 @@ import { settleModules } from '../sim/degrees.js';
 import { settleCollection } from '../sim/collection.js';
 import '../sim/museum.js'; // (museum) its hooks: the place gate
 import '../sim/tiers.js'; // (museum) people who unlock: their caps, `reserved` and the tiers opening
+import '../sim/loans.js'; // (C-7) the rival's foundation borrowing your pieces
 import '../sim/market.js'; // (museum) the market's hooks: the dealer's visits, the sales, its condition keys
 import '../sim/dig.js'; // (nature) digs: their condition key, days and finds
 import { settleHomes } from '../sim/owning.js';

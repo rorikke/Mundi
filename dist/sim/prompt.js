@@ -80,6 +80,7 @@ import './spread.js'; // opinions spread through friends (day by day)
 import './journey.js';
 import { systemOn, blockSystem, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { lockedOutLine } from './bills.js';
+import { sceneLines } from './hooks.js'; // (C-7) the market's lines at a sale and at the van, and others
 export const PROMPT_KEY = 'mundi_scene';
 export const BLOCKS = [
     { id: 'core', name: 'Scene basics', desc: 'World, day and time, weather, place, who is here, and the rules of the scene.' },
@@ -179,7 +180,7 @@ export function sceneBlocks() {
         memories: [...memoryLines(g, w, met, personaName()), ...placeMemoryLines(g, w, present)],
         plans: planLines(g, present, w),
         language: languageLines(g, w, present),
-        focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g)],
+        focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g), ...sceneLines.flatMap(f => f(g, w, present))],
         feelings: [feelingLine(g, met)],
         you: [premiseLine(g), g.player.bio ? `About {{user}} in this world: ${g.player.bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), digLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
         solo: [soloLine(g, present)],

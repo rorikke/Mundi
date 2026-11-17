@@ -564,7 +564,7 @@ export function upgradeWorld(w) {
 // hours inside their range (a help without a label or a condition is dropped), a stage's appointment only when it has a
 // place, hours and a text.
 const HELP_MONEY = 10_000_000, HELP_HOURS = 8;
-// (museum) A story result's lasting renown held to ±100, `damage` only when true.
+// (museum) A story result's lasting renown held to ±100, `damage` only when true; (C-7) its romance changes.
 function upgradeStoryMuseum(r) {
     if (!r || typeof r !== 'object')
         return;
@@ -577,6 +577,20 @@ function upgradeStoryMuseum(r) {
     }
     if ('damage' in r && r.damage !== true)
         delete r.damage;
+    // (C-7) romance toward you: names → small whole changes (±20), nothing else
+    if ('romance' in r) {
+        const x = {};
+        if (r.romance && typeof r.romance === 'object' && !Array.isArray(r.romance))
+            for (const [k, v] of Object.entries(r.romance)) {
+                const n = Number(v);
+                if (k.trim() && Number.isFinite(n) && n)
+                    x[k] = Math.max(-20, Math.min(20, Math.round(n)));
+            }
+        if (Object.keys(x).length)
+            r.romance = x;
+        else
+            delete r.romance;
+    }
 }
 function upgradeThread(t) {
     if (!t || typeof t !== 'object')

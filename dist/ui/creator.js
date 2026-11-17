@@ -401,6 +401,7 @@ function storyResult(w, q) {
     const o = getPath(q) ?? {};
     const threads = w.cast.examples.flatMap(e => (e.threads ?? []).map(t => [t.id, `${e.name}: ${t.id}`]));
     return `${outcomeForm(w, q, false)}
+        ${romanceRows(w, `${q}.romance`)}
         <div class="mu-row2">${optTxt('Someone now owes you a favor (a name, or a stranger\'s id)', `${q}.favor`, 'Rina')}${optTxt('A favor it calls in', `${q}.spend`)}</div>
         <div class="mu-row2">${threads.length || o.reveal ? sel('A secret the player learns', `${q}.reveal`, withCur([['', '(none)'], ...threads], o.reveal), 'opt') : '<span></span>'}${skillOpts(w).length ? sel('A skill it trains a little', `${q}.trains`, withCur([['', '(none)'], ...skillOpts(w)], o.trains), 'opt') : '<span></span>'}</div>
         ${upgradeOpts(w).length || o.finds ? sel('An upgrade of a venture it turns up (it waits in the Business app until bought)', `${q}.finds`, withCur([['', '(none)'], ...upgradeOpts(w)], o.finds), 'opt') : ''}`;
@@ -573,6 +574,14 @@ function feelsRows(w, p, who) {
     return `<span class="mu-cw-sub">How people feel about you after it</span>${has.map(n => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Who</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(n)}">${[...names.filter(x => x === n || free.includes(x)), ...(names.includes(n) ? [] : [n])].map(x => `<option value="${esc(x)}" ${x === n ? 'selected' : ''}>${esc(label(x))}</option>`).join('')}</select></label>
             ${num('Friendship (points; 2–5: a little)', `${p}.${n}`, -100)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${n}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
         ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="${who ? 'who' : 'people'}" data-v="3" data-path="${esc(p)}">${icon('plus')}<span>Add someone</span></button>` : ''}`;
+}
+// (C-7) A story choice's heat: how some of the world's people's romance toward you changes (as feelsRows, for romance).
+function romanceRows(w, p) {
+    const map = (getPath(p) ?? {}), names = w.cast.examples.map(e => e.name);
+    const has = Object.keys(map).filter(n => !BAD_KEYS.includes(n)), free = names.filter(n => !has.includes(n));
+    return `<span class="mu-cw-sub">How people's romance toward you changes after it</span>${has.map(n => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Who</span><select data-input="cw-rekey" data-path="${esc(p)}" data-from="${esc(n)}">${[...names.filter(x => x === n || free.includes(x)), ...(names.includes(n) ? [] : [n])].map(x => `<option value="${esc(x)}" ${x === n ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+            ${num('Romance (points; 2–5: a little)', `${p}.${n}`, -20)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${p}.${n}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="people" data-v="3" data-path="${esc(p)}">${icon('plus')}<span>Add someone's romance</span></button>` : ''}`;
 }
 /* ---------- work events and job tracks ---------- */
 // Who an event may come from (`WorkEvent.from.level`): a friendship level, a romance level or a couple's.
@@ -1836,7 +1845,8 @@ function museumEditor(w) {
         ${mpart(`${q}.dealer`, !!d, 'The dealer: a visit with pieces to sell', 'Add a dealer', () => `<div class="mu-row2">${bounded('Comes every (days)', `${q}.dealer.every`, 1, 112)}${bounded('Pieces each visit', `${q}.dealer.stock`, 1, 12)}</div>
             <div class="mu-row2">${bounded('Brings a missing piece within (visits)', `${q}.dealer.pity`, 1, 100)}${bounded('More for asking for a piece (0.1: +10%)', `${q}.dealer.ask`, 0, 5, 0.05)}</div>
             ${bounded('More for a piece whose one-time way has passed (0.5: +50%)', `${q}.dealer.late`, 0, 5, 0.05)}
-            ${pairRows(`${q}.dealer.more`, d?.more, ['From renown level', 'Pieces each visit'], 'More pieces from a renown level', 0, 100)}`)}
+            ${pairRows(`${q}.dealer.more`, d?.more, ['From renown level', 'Pieces each visit'], 'More pieces from a renown level', 0, 100)}
+            ${rivalDealer(w, q, d)}`)}
         ${mpart(`${q}.auctions`, !!a, 'The sales: lots to bid on, a rival collector', 'Add sales', () => `<div class="mu-row2">${sel('Where', `${q}.auctions.place`, withCur(placeOpts(w, '(pick one)'), a?.place))}${bounded('From (hour)', `${q}.auctions.from`, 0, 23.5, 0.5)}</div>
             <span class="mu-cw-sub">On these days of each season</span>${numChips(Array.from({ length: 14 }, (_x, k) => [String(k + 1), String(k + 1)]), `${q}.auctions.days`)}
             <div class="mu-row2">${bounded('Lots each sale', `${q}.auctions.lots`, 1, 20)}${bounded('A lost lot comes back within (sales)', `${q}.auctions.back`, 1, 20)}</div>
@@ -1844,12 +1854,68 @@ function museumEditor(w) {
             ${pairRows(`${q}.auctions.more`, a?.more, ['From renown level', 'Lots each sale'], 'More lots from a renown level', 0, 100)}
             ${a?.rival ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">The rival who bids against you</span><span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.auctions.rival" title="Remove">${icon('x')}</button></div>
                 <div class="mu-row2">${bounded('Odds she wants a lot (0 … 1)', `${q}.auctions.rival.wants`, 0, 1, 0.05)}${bounded('More per renown level (0.05: +5%)', `${q}.auctions.rival.perLevel`, 0, 1, 0.01)}</div>
-                ${pairRows(`${q}.auctions.rival.top`, a.rival.top, ['Her top bid, lowest (× the estimate)', 'Highest'], 'Her top bid', 1, 10, 0.05)}</div>`
+                ${pairRows(`${q}.auctions.rival.top`, a.rival.top, ['Her top bid, lowest (× the estimate)', 'Highest'], 'Her top bid', 1, 10, 0.05)}
+                ${sel("She is (one of the world's people; empty: a collector in words only)", `${q}.auctions.rival.who`, withCur([['', '(nobody: words only)'], ...peopleOpts(w)], a.rival.who), 'opt')}</div>`
         : `<button class="mu-ghost" data-act="cw-add" data-what="mpart" data-path="${q}.auctions.rival">${icon('plus')}<span>Add a rival</span></button>`}`)}
         ${mpart(`${q}.shows`, !!sh, 'Shows in the exhibition hall', 'Add shows', () => `<div class="mu-row2">${num(`A show's price (${sym})`, `${q}.shows.price`)}${num('Renown while it is on', `${q}.shows.renown`)}</div>
             <div class="mu-row2">${num('Lasting renown per theme shown', `${q}.shows.lasting`)}${num('Lasting renown from shows at most', `${q}.shows.most`)}</div>
             ${num('Pieces on show a theme needs', `${q}.shows.min`)}`)}
+        ${loansEditor(w, q, M)}
         ${mpart(`${q}.eye`, !!M.eye, "The curator's eye: finds come damaged less often, for good", "Add the curator's eye", () => `<div class="mu-row2">${cond('Once (a condition)', `${q}.eye.when`, 'did: ot_kura_lesson 5')}${bounded('Damaged odds × (0 … 1)', `${q}.eye.damaged`, 0, 1, 0.05)}</div>`)}</section>`;
+}
+// (C-7) The dealer as one of the world's people, and the pieces her tier adds to a visit.
+function rivalDealer(w, q, d) {
+    return `<div class="mu-row2">${sel("She is (one of the world's people; empty: a dealer in words only)", `${q}.dealer.who`, withCur([['', '(nobody: words only)'], ...peopleOpts(w)], d?.who), 'opt')}<span></span></div>
+        ${pairRows(`${q}.dealer.extra`, d?.extra, ['From her tier (0 = the first)', 'More pieces each visit'], 'More pieces from one of her tiers', 0, 20)}`;
+}
+// (C-7) Someone's foundation borrowing your pieces for a season (RR-1): who, from when, the fee by rung, the rules.
+function loansEditor(w, q, M) {
+    const L = M.loans, sym = esc(w.currency.symbol);
+    return mpart(`${q}.loans`, !!L, 'Loans: someone borrows a piece of yours for a season, for a fee', 'Add loans', () => `<p class="mu-muted">At the start of each season she asks for one piece of yours on show that you took from her at a sale (or one named below), of the lowest rung or more; lent, it brings the fee and is away until the season's last day: no renown from it, still counted as yours.</p>
+        <div class="mu-row2">${sel('Who borrows', `${q}.loans.who`, withCur([['', '(pick one)'], ...peopleOpts(w)], L?.who))}${cond('From when (a condition)', `${q}.loans.when`, 'tier: Ayame 1')}</div>
+        <span class="mu-cw-sub">The fee a season by the piece's rung (${sym}; 0: never asked for)</span>
+        <div class="mu-cw-effects">${RUNG_LABELS.slice(1).map((l, k) => num(l, `${q}.loans.fees.${k}`)).join('')}</div>
+        <div class="mu-row2">${bounded('The lowest rung she asks for (1–5)', `${q}.loans.min`, 1, 5)}${bounded('Days to answer', `${q}.loans.wait`, 1, 56)}</div>
+        <div class="mu-row2">${bounded('Days before the same piece is asked for again', `${q}.loans.again`, 0, 999)}${sel("Where it's shown (the AI is told there)", `${q}.loans.place`, withCur([['', '(nowhere in particular)'], ...placeOpts(w, '(pick one)').filter(o => o[0])], L?.place), 'opt')}</div>
+        <div class="mu-row2">${optTxt("What it's lent for", `${q}.loans.label`, "the Mikage Foundation's season exhibition")}${words('Pieces she asks for however they came (slot ids, comma-separated)', `${q}.loans.also`, "Her grandmother's screen, for one.", 'art_korin_irises')}</div>`);
+}
+// (C-7) What the loans and the women's names can leave empty: an unpicked person, an empty label, place or list; a
+// tier's unset opening feelings and an emptied line about the others.
+function tidyRival(w) {
+    for (const e of w.cast?.examples ?? [])
+        for (const t of e.tiers ?? []) {
+            if (t.sets) {
+                for (const k of ['f', 'r'])
+                    if (!t.sets[k])
+                        delete t.sets[k];
+                if (!Object.keys(t.sets).length)
+                    delete t.sets;
+            }
+            if (Array.isArray(t.about)) {
+                t.about = t.about.filter(a => a && String(a.ai ?? '').trim() && (typeof a.when !== 'string' || a.when.trim()));
+                if (!t.about.length)
+                    delete t.about;
+            }
+        }
+    const M = w.collection?.museum;
+    if (!M)
+        return;
+    if (M.dealer && typeof M.dealer.who === 'string' && !M.dealer.who.trim())
+        delete M.dealer.who;
+    if (M.dealer?.extra && (!Array.isArray(M.dealer.extra) || M.dealer.extra.length !== 2 || Array.from(M.dealer.extra).some(x => typeof x !== 'number' || !isFinite(x))))
+        delete M.dealer.extra;
+    if (M.auctions?.rival && typeof M.auctions.rival.who === 'string' && !M.auctions.rival.who.trim())
+        delete M.auctions.rival.who;
+    const L = M.loans;
+    if (!L)
+        return;
+    for (const k of ['label', 'place'])
+        if (typeof L[k] === 'string' && !L[k].trim())
+            delete L[k];
+    if (Array.isArray(L.also) && !L.also.length)
+        delete L.also;
+    if (Array.isArray(L.fees))
+        L.fees = Array.from({ length: 5 }, (_x, k) => (typeof L.fees[k] === 'number' && isFinite(L.fees[k]) ? L.fees[k] : 0));
 }
 // (the collection) What the forms can leave empty: optional texts, chips, plaques; a block with no hall left goes.
 function tidyCollection(w) {
@@ -2358,6 +2424,7 @@ export function forSaving(w) {
     tidyFixtures(out);
     tidyCollection(out);
     tidyTiers(out);
+    tidyRival(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length)
@@ -3149,9 +3216,13 @@ function tierForm(w, p, k, t, e, issues) {
         <div class="mu-row2">${sel('Friendship up to', `${q}.caps.f`, withCur(levelOpts('f'), t.caps?.f), 'opt')}${sel('Romance up to', `${q}.caps.r`, withCur(levelOpts('r'), t.caps?.r), 'opt')}</div>
         <div class="mu-row2">${sel('Together up to', `${q}.caps.status`, withCur(STATUS_CAPS, t.caps?.status), 'opt')}<span></span></div>
         <div class="mu-row2">${chk('Keep friendship gained past the cap for the next tier', `${q}.hold.f`, 'Up to one level\'s worth; off: it is lost.', true)}${chk('Keep romance gained past the cap for the next tier', `${q}.hold.r`, '', true)}</div>
+        <div class="mu-row2">${sel('As it opens, their friendship becomes', `${q}.sets.f`, withCur([['', '(as it is)'], ...[...FRIEND_TIERS].reverse().map(x => [x.id, x.name])], t.sets?.f), 'opt')}${sel('As it opens, their romance rises to at least', `${q}.sets.r`, withCur([['', '(as it is)'], ...[...ROMANCE_TIERS].reverse().map(x => [x.id, x.name])], t.sets?.r), 'opt')}</div>
         ${optArea('What the AI is told at this tier ({{user}} is the player)', `${q}.ai`, 2, 'Tamaki lets {{user}} see her off duty now…')}
         <div class="mu-row2">${words('Outfits it lets the game put on (names, comma-separated)', `${q}.outfits`, mine.length ? `Theirs: ${mine.join(', ')}` : 'They have no outfits in this world yet.', 'yukata')}${flag('They may make the move from here', `${q}.moves`, '', true)}</div>
         <div class="mu-row2">${flag('They text you invitations from here', `${q}.invites`, 'Once any tier says so, not before that tier.')}${num('Their invitations, × as often from here (empty: as anyone; up to 5)', `${q}.inviteOdds`, 1, 0.5)}</div>
+        <span class="mu-cw-sub">More for the AI while something holds (someone else here, how you stand with another person)</span>
+        ${(t.about ?? []).map((_a, j) => `<div class="mu-row mu-cw-inline">${cond('While', `${q}.about.${j}.when`, 'present: Tamaki')}${optArea('Told to the AI ({{user}})', `${q}.about.${j}.ai`, 2)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.about.${j}`)}" title="Remove">${icon('x')}</button></div>`).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="tabout" data-path="${esc(`${q}.about`)}">${icon('plus')}<span>Add a line while something holds</span></button>
         <div class="mu-row2">${lines(`The move in their own words (one per line; {name}, {action}) ${ADULT}`, `${q}.moveLines`, 2)}${lines(`Asking you over tonight, by text (one per line; {when})`, `${q}.askLines`, 2)}</div>
         <span class="mu-cw-sub">Before getting intimate, from this tier ${ADULT}</span>
         <label class="mu-field"><span>They need</span><select data-input="cw-tintim" data-f="preset" data-path="${esc(`${q}.intimacy`)}">${TIER_PRESETS.map(([v, l]) => `<option value="${esc(v)}" ${v === preset ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="mu-muted">Once any tier sets this, nothing intimate happens before that tier.</small></label>
@@ -3978,7 +4049,7 @@ Object.assign(ACT, {
                 return;
             const part = p.split('.').pop();
             setPath(p, part === 'renown' ? { levels: [], rung: [1, 1, 1, 2, 4, 10], income: 0 } : part === 'dealer' ? { every: 7, stock: 3, pity: 6 }
-                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
+                : part === 'eye' ? { when: '', damaged: 0.75 } : part === 'loans' ? { who: '', when: '', fees: [0, 0, 50000, 200000, 625000], min: 3, wait: 7, again: 56 } : part === 'auctions' ? { place: w.places.find(x => !x.link)?.id ?? '', days: [10], from: 15, lots: 4 } : part === 'rival' ? { wants: 0.4, top: [1.1, 1.8] }
                     : { price: Math.round((Number(M.offer?.price) || 100000) / 5), renown: 10 });
             notify();
             return;
@@ -3988,7 +4059,7 @@ Object.assign(ACT, {
             if (getPath(p) !== undefined)
                 return;
             const parent = getPath(p.replace(/\.[^.]+$/, '')) ?? {};
-            setPath(p, p.endsWith('.top') ? [1.1, 1.8] : [2, (Number(parent.stock ?? parent.lots) || 3) + 1]);
+            setPath(p, p.endsWith('.top') ? [1.1, 1.8] : p.endsWith('.extra') ? [2, 1] : [2, (Number(parent.stock ?? parent.lots) || 3) + 1]);
             notify();
             return;
         }
@@ -4008,6 +4079,13 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        if (what === 'tabout') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ when: '', ai: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        } // (C-7)
         if (what === 'ptier') {
             const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
             l.push({ id: newId('tier'), name: `Tier ${l.length}`, when: '' });

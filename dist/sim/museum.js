@@ -174,7 +174,8 @@ export function onShow(g, w) {
     if (!m)
         return out;
     const fix = museumOf(g)?.fix ?? {};
-    const mine = piecesHad(g, w).filter(s => !gotOf(g, s.id).damaged && fix[s.id] === undefined);
+    const away = museumOf(g)?.loans?.now?.id; // (C-7) lent to the rival's foundation: away, no renown, still yours (sim/loans.ts)
+    const mine = piecesHad(g, w).filter(s => !gotOf(g, s.id).damaged && fix[s.id] === undefined && s.id !== away);
     if (!museumOpen(g, w)) {
         for (const s of mine.sort(dearestFirst).slice(0, m.cases ?? CASES))
             out.set(s.id, 'home');

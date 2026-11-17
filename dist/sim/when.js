@@ -659,7 +659,8 @@ const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)
 // `renown 3` · `shows 2` · `50%` · an upgrade id; `tier: Tamaki 2` (people who unlock: that person's tier reached).
 // (museum, the market) `sales: won 3` (lots won against the other collector) · `lots 5` (every lot bought) · `resold 1`
 // (lots she sold you back); `dealer: spent 2000000` (yen) · `bought 4` · `asked 1` · `visits 3` (visits you bought from).
-const SALES = /^(?:won|lots|resold)\s+\d+$/i, DEALER = /^(?:spent|bought|asked|visits)\s+\d+$/i;
+// (C-7) `sales: bested 4` (won over her bid + sold back by her) · `lent 1` (loans to her foundation); `dealer: here` (a visit's day).
+const SALES = /^(?:won|lots|resold|bested|lent)\s+\d+$/i, DEALER = /^(?:(?:spent|bought|asked|visits)\s+\d+|here)$/i;
 // (nature, the dig) `dig: seasons 1` (past seasons you dug in) · `days 3` (days dug in all) · `found 2` (its finds in all)
 const DIG = /^(?:seasons|days|found)\s+\d+$/i;
 const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
