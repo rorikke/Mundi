@@ -1,7 +1,16 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '0.4.1';
+export const VERSION = '1.0.0';
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG = [
+    { v: '1.0.0', title: "Tokyo's long game", items: [
+            ['book', "Storylines start once you know someone and wait for you at their end: help, wait for a better ending or let it be, with last chances by text. Natsuki, Lisa and Yui have stories of their own."],
+            ['store', "The shop has about 160 things, from a ¥1,000 charm to a car that drives you home after the last train, and photography is a skill."],
+            ['home', "Buy a home to live in or as a second home, from a Toyosu flat to a villa in Hakone, fit it out with rooms and fixtures, and let the ones you don't live in."],
+            ['museum', "A museum of your own in an old Yanaka storehouse, curated by Tamaki: about 100 pieces, insects and fish in their season, a university dig and royalties. The new Collection app also keeps a record of everything you've lived in Tokyo."],
+            ['heart', "Ayame, the rival collector at the Ginza sales, and Kaede, the dealer with the camper van, each let you closer in her own way, and The copyist is a short story with all three women."],
+            ['star', "Ten life goals and eight rewards for the end game, and a new game opens on Tokyo, asking about adult content in a window."],
+            ['globe', "Overlay packs install from a zip in Settings → Add-ons, the World creator edits all of it, and everything new is in Portuguese and Spanish."],
+        ] },
     { v: '0.4.1', title: 'Hotels in Tokyo', items: [
             ['home', "Nest Capsule can be yours: rise to Hotel manager or buy it when it's for sale, its price paid off from the takings, then grow it from capsules to a cabin hotel with a women's floor."],
             ['heart', "Ryokan Kasumi-sō in Hakone takes you in as a partner through Shizuka's family: a third of the takings, half once you fund the open-air bath."],

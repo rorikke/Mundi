@@ -1,5 +1,138 @@
 # Changelog
 
+## 1.0.0 · 2026-11-17
+
+Tokyo's long game. Storylines now start once you know someone and wait for you at their end, and once rent stops
+being the worry there is a whole end game to aim for: a shop of about 160 things, homes you buy, fit out and let, a
+record of everything you've lived in Tokyo, and a museum of your own in an old Yanaka storehouse, with its curator
+Tamaki, a rival collector, a dealer in a camper van, halls for nature and for before Edo, royalties, a short story
+called The copyist and ten life goals of its own. Natsuki, Lisa and Yui get storylines, an overlay someone shares
+installs from a zip, and a new game opens on Tokyo. Your saves are upgraded once (save formats 7 and 8), with a
+backup kept in the save.
+
+### Storylines that wait for you
+
+- **They start once you know someone.** A storyline never starts for someone you haven't met. Most start when you
+  become friends; eight start as soon as you've met (Mio, Kaito, Ayaka, Camille, Linh, Hannah, Momo and Kanon),
+  colleagues' once you work the same job, and a few with a business of yours. Learning someone's secret any other way
+  starts it too. Tokyo has 43, for 32 of its people (13 of them with adult content on).
+- **They wait for you at the end.** A storyline runs through the seasons on its own time, and when its last stage is
+  over, the next time you're together they bring it up. A card asks you: **Help**, **Wait** for a better ending (with
+  what each good way still needs) or **Let it be**. Two stories have a price for Help: lend Kaito what he owes, or put
+  up the key money for Genzō's new lease.
+- **Last chances.** If you wait, they come back about once a season, in person or by a text you answer in the phone
+  (Meet them, Help or Not now), at most two such texts a week. Three missed and the story ends without you, and never
+  well: its good endings need you there. A few whose bad ending is only things going on as they are (Kanon, Hannah,
+  Seo-yeon, Tsubaki, Sumire, Kaoru) cool off a friendship level instead, and wait for you once more.
+- **Stories that hang on each other** wait quietly for the other to end (Genzō's lease on Ayaka's contest, Jake on
+  Rina's company). Someone leaving Tokyo goes the morning after the deciding scene, so the goodbye is played with you.
+- **Their story**, on a person's page in People once you know their secret, says what it's called, where it stands and
+  what would help; **Talk about it** brings the card back whenever you're with them. Help has a topic, Storylines.
+- **New storylines for Natsuki, Lisa and Yui:** NATSU-P and the rhythm-game finals at Pixel Castle, with duets and a
+  word for Hina; Lisa dancing on a torn shoulder, with physio at Seiwa General and her Sunday crowd; Moon Fox's finale
+  on the night of the shrine's moon kagura, with writing afternoons in Jinbōchō and a paperback at the book festival.
+- **A secret learned and a story you followed to its end** give 20 life points each. Rina's Mochi Byte deal waits for
+  you while you work at Mochi Byte as her friend, at any rank.
+- **Your existing games** keep what they had: a storyline already over stays over, one under way with someone you've
+  met keeps its stage and ends in a scene with you, and one with someone you haven't met starts again when you get to
+  know them (a secret you learned stays learned).
+
+### The shop
+
+- **About 160 things in ten categories**, from a ¥1,000 charm to a ¥15,000,000 car with a driver, each a tab, with
+  **Here** for what the place you're at sells and **Yours** for what you have. Most come online; some are sold only at
+  their places (knives at Tsukiji, watches and cars on Ginza Chūō-dōri, a shamisen at Sensō-ji), and some only by
+  invitation.
+- **What they do:** small bonuses where only the best one counts (a skill that trains faster, a better morning, a
+  first impression), services that last some days, over thirty new things to do, and a car that drives you home after
+  the last train. The AI is told the dearest things people can see on you and what's in your home, never what they
+  cost or do.
+- **Photography is a skill:** ten of Tokyo's best views from the first day, a camera to make it come faster, a roll
+  developed at home, photos to sell.
+- **Gifts to give** are bought as keepsakes, to give when you like. A gift's worth is still how well it fits, and some
+  people can't stand one (Tamaki, and new things made to look old).
+- **Two new places:** Kamome Marina in Yokohama and Akatsuki Motorworks behind Azabu's embassy streets. With adult
+  content on, an Adult tab.
+
+### A home of your own
+
+- **Buy a home** to live in or as a second home: at the Toyosu towers or the Azabu residences, or one of four that are
+  only for sale, each with its pictures: a Roppongi penthouse, a hot-spring villa above Lake Ashi in Hakone, a
+  Den-en-chōfu mansion and a 1920s villa in Yamate, Yokohama. A weekly upkeep instead of rent; never repossessed; sold
+  back for part of what you paid.
+- **Rooms and fixtures:** 24 of them, from a yoga room to a grand piano, with things to do at home. Four are rooms of
+  their own on the map: the penthouse's rooftop terrace, the Yamate villa's veranda, the mansion's cypress bath and the
+  Hakone villa's open-air bath, under snow in winter.
+- **Let the homes you don't live in** (at Toyosu and Azabu, three at most): an agent finds a tenant about three weeks in
+  four and pays you the rent less a fifth each Monday. A week's notice has it back.
+- **Parties sized to the home**, up to 30 guests, with a caterer or a chef and staff.
+- **The two top rents went up** to fit homes that can be bought: the Toyosu towers from ¥60,000 to ¥90,000 a week, the
+  Azabu residences from ¥110,000 to ¥180,000. The Family money start keeps its flat at ¥60,000, and a game renting
+  there is told once.
+
+### Tokyo memories, and a museum of your own
+
+- **Tokyo memories**, in the phone's new Collection app: a record that fills by itself, a slot for every storyline
+  (whichever way it ended), festival, city event, district, life-goal tier, business at its top and keepsake kind.
+  Only what your game can have counts, and nothing is ever taken away; a game already running starts it with what it
+  remembers.
+- **A museum of your own:** about 100 pieces of art, crafts and antiques and Modern Tokyo (and the night world, with
+  adult content on), from finds, shops, festival stalls, people's storylines, a weekly dealer and four sales a year.
+  Start with glass cases at home, then take on the Kurahashi kura in Yanaka and grow it with wings and upgrades,
+  renown, visitors, seasonal shows and a workshop that restores damaged pieces and makes replicas.
+- **Tamaki Kurahashi**, its curator, an appraiser who was a child star of a TV show, lets you closer in five tiers as
+  the museum fills, and has four storylines of her own.
+- **Ayame Mikage**, a rival collector who bids against you at the Ginza sales, lets you closer (heat, never friendship)
+  with every lot you take from her: her foundation's gala, her fencing club, the Mikage house, her grandfather's scroll
+  and her grandmother's irises, loans of your pieces for a season and six paid authentication cases. **Kaede Utsumi**,
+  the dealer whose camper van parks in Yanaka, at Yokohama's harbour and in Hakone, warms to you with what you buy.
+  Both have their pictures and storylines.
+- **Nature and Before Edo:** insects, fish and pressed flowers by season and hour in the parks, Hakone and the bay,
+  with a net, a rod and a flower press in the shop; Hijiri University's autumn dig, its finds on loan, and Naumann's
+  elephant, found a part at a time and mounted in the kura.
+- **Royalties** each Monday once the kura is yours, by how complete it is: ¥10,000 a week at 10%, up to ¥150,000 at
+  100%, with postcards, a book of the prints, a documentary and Japan Post's stamps along the way.
+- **The copyist**, a short story for the end game: fakes in Kaede's van, traced with Tamaki and Ayame to old Sekine,
+  the Yanaka mounter who painted the Mikage Sesshū, in five scenes. What you do with his pattern book moves all three
+  women's trust and heat and never costs money; four fakes go in a case of their own. With adult content on, a night
+  with each of them.
+
+### Life goals for the end game
+
+- **Ten new goals for Tokyo**, each offered once its part of the game is in reach: House proud, Landlord, The good
+  life, A café to remember, Hotelier, The corner office, Chronicler of Tokyo, Natural history, Every hall and, with
+  adult content on, Collector of the night. Each ends with a keepsake and a perk that makes a number grow.
+- **Patron of the arts' perk** now raises the museum's renown by 10% instead of lowering its prices; a game that had it
+  is told once.
+- **Eight new rewards** in the shop (a dealer's tip, an early catalogue, Ebisu's charm, a field guide, Press day, the
+  workshop's priority, a party planner, a good tenant), and life points for a museum hall complete, each quarter of
+  Tokyo memories, a first home and a business at its top.
+
+### Starting a game
+
+- **Tokyo leads the way in:** the main menu's slideshow shows Tokyo's maps, and New game › World lists Tokyo first,
+  already chosen.
+- **Adult content is asked.** It is still off by default; when a world has some, a window asks, and the answer can be
+  remembered for new games (Settings → Game: ask, off or on).
+
+### World makers
+
+- **The World creator edits all of it:** a storyline's title, earlier ways in, deciding scene, last-chance texts, an
+  ending's help, a standing appointment for a stage, and "Can't happen without" (a storyline that needs other people in
+  the game besides its own); the shop's items; homes for sale, rooms and fixtures, and letting; the Collection tab,
+  with a button that adds a slot for everything the world has; the museum, its pieces, people's tiers, digs and parts;
+  the end game's goal conditions and reward kinds.
+- **Overlay packs:** an overlay someone shares as a zip installs from Settings → Add-ons, its pictures and all. Mundi
+  never ships one.
+- **Owning a home** and the **Collection** are systems of their own: switched off, none of it exists. Porto Alto and
+  the Shared House play as before.
+
+### Other changes
+
+- Services paid ahead say how long they last, Luxury things a maker ships can be ordered online, and a course's "not"
+  requirement is read right.
+- Everything new in Portuguese and Spanish.
+
 ## 0.4.1 · 2026-11-14
 
 Hotels come to Tokyo, the business end game's third track: a capsule hotel, a ryokan in partnership and, with adult
