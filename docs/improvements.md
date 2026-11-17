@@ -961,10 +961,10 @@ leaves off the screen.
 
 ### What it gives
 
-A secret learned gives 20 life points and a story you knew coming to its end 40, and good endings count for *Keeper of
-secrets* and the goals and upgrades that ask for people you've helped. The executive floor asks for one of your
-company's people's storylines to have ended (Reiko's, Hannah's, Hina's or Nanami's): climbing means getting to know
-your colleagues. A gate never waits on someone left out of your game.
+A secret learned gives 20 life points and a story you knew coming to its end 20 more, and good endings count for
+*Keeper of secrets* and the goals and upgrades that ask for people you've helped. The executive floor asks for one of
+your company's people's storylines to have ended (Reiko's, Hannah's, Hina's or Nanami's): climbing means getting to
+know your colleagues. A gate never waits on someone left out of your game.
 
 ### World makers and older games
 
