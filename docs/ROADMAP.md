@@ -21,19 +21,18 @@ Ideas planned for later. Nothing here is promised for a date.
     fixed small businesses (`property`) moved
     onto the same engine.
 
-- **End-game spending: homes and a collection.** The shop and homes you own are in (see
-  [Shopping](improvements.md#shopping) and [Your own home](improvements.md#your-own-home)). Next:
-  - **Letting** a home you own is in ([Letting a home you own](improvements.md#letting-a-home-you-own)): a slow,
-    steady income (an Azabu residence's price comes back in about seven game years), so it doesn't hurry the museum.
-  - **Homes, later:** pictures of their own for the four new homes and their rooms (they borrow others' for now),
-    parties at the second home with guests staying the night, and homes for sale in the other worlds.
-  - **A collection:** the record of what you've lived in Tokyo, a museum of your own and its Nature and Before Edo
-    halls are in (see [Tokyo memories](improvements.md#tokyo-memories),
-    [A museum of your own](improvements.md#a-museum-of-your-own-and-tamaki) and
-    [Nature and Before Edo](improvements.md#nature-and-before-edo)). Next: the rival collector and the dealer as people
-    of their own, made the way Tamaki is (cards, pictures, tiers from the sales and from what you buy, their
-    storylines). Forgeries (a fake among the dealer's pieces, spotted by a skill check or the curator's eye, never
-    standing in the real piece's way) are kept for later.
+- **End-game spending: homes and a collection.** In Tokyo now: the shop ([Shopping](improvements.md#shopping)), homes
+  you own with their own pictures, rooms and parties ([Your own home](improvements.md#your-own-home)), letting them
+  ([Letting a home you own](improvements.md#letting-a-home-you-own): a slow, steady income, an Azabu residence's
+  price back in about seven game years), the record of what you've lived ([Tokyo memories](improvements.md#tokyo-memories)),
+  a museum of your own with Tamaki, its royalties, the rival collector Ayame Mikage and the dealer Kaede Utsumi with the
+  Mikage Foundation's loans and cases ([A museum of your own](improvements.md#a-museum-of-your-own-and-tamaki)), its
+  Nature and Before Edo halls ([Nature and Before Edo](improvements.md#nature-and-before-edo)), and the end game's life
+  goals ([Life goals and life points](improvements.md#life-goals-and-life-points)). Next:
+  - **Homes, later:** parties at the second home with guests staying the night, and homes for sale in the other worlds.
+  - **The copyist** (a short story for later): fakes turn up in Kaede's van, and Tamaki, Ayame and Kaede trace them
+    to the hand that painted the Mikage "Sesshū". A story with choices for all three and an adult side when adult
+    content is on; nothing to buy twice, and no fake ever stands in a real piece's way.
   - **TODO, the museum's pace:** in the long simulated runs, a player putting the museum first completes its base halls
     5.0–5.9 game years after taking on the kura on ¥1,000,000 a week (3.2–4.2 on ¥1,500,000), with the Mikage
     Foundation's loans and cases and the museum's royalties; without them it took 6.7–8.0. On ¥500,000 it still ends
@@ -44,10 +43,10 @@ Ideas planned for later. Nothing here is promised for a date.
     the museum's money should grow instead: next, stakes in companies (Tycoon, above).
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
 
-- **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:
+- **Storylines: more of them.** Tokyo has 43, for 32 of its people (13 of them adult; see
+  [Storylines](improvements.md#storylines)), and Tokyo memories keeps how each one you saw ended. Next:
   - Storylines for the other worlds' people (the World creator can already write them), and a second storyline for a
     person once their first has ended.
-  - A place to look back on how each story you saw ended.
   - Tuning from play: how long the first stage and the wait between last chances should be, and how many last chances
     a story gets.
 
