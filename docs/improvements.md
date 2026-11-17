@@ -992,6 +992,12 @@ Yanaka, whose curator becomes the end game's reward. It's the largest thing in t
   at worst one needs restoring).
 - **Visitors** pay a small sum each Monday, more with renown and twice that while a show is on. It's a thank-you, not
   an income: the museum costs far more than it ever brings in.
+- **Royalties**: once the museum is yours and a tenth complete, its name earns each Monday for the pictures on
+  postcards, in books and on television: ¥10,000 a week at 10%, more for every piece, ¥150,000 a week at 100%, and they
+  keep coming after it's complete. They go by how complete the museum is, not by renown, and a show doesn't change
+  them; a piece lent to the Mikage Foundation still counts. At a quarter, a half, three quarters and the whole, the
+  museum's name goes further (a Jinbōchō publisher's book of the prints, a television documentary, the catalogue's
+  second print run, Japan Post's stamps), each with a small scene at the kura with Tamaki.
 - **Shows**: with the exhibition hall, once a season, pick a theme with at least six pieces on show (prints, netsuke,
   Shōwa toys…), ¥300,000; renown while it's on and a little for good for each new theme. Your first show has an
   opening night.
