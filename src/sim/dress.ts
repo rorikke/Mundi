@@ -5,9 +5,9 @@
 // room, the action over, gone from the scene) the outfit it put on comes off again. The AI is told the room's code.
 import { cfg, state, adultOn, type Save } from '../core/store.js';
 import { isScenario, type WorldDef } from '../core/world.js';
-import { presentAt } from './people.js';
 import { outfitOf, wearOutfit } from '../st/bridge.js';
 import { tierLink } from './hooks.js';
+import { sceneHere } from './homerooms.js';
 
 export const dressCodes = (g: Save): Record<string, string> => ((cfg(g) as any).dress ??= {});
 // a room's own code; a bedroom (home:…) uses the one set for all the bedrooms
@@ -30,7 +30,7 @@ export function dressFor(g: Save, w: WorldDef, avatar: string): string {
 // isn't here now. `has`: the outfits someone has, given the code (null while still looking: nothing changes yet).
 export function applyDress(g: Save, w: WorldDef, has: (avatar: string, code: string) => string[] | null): boolean {
     const worn = dressed(g); let changed = false;
-    const here = presentAt(g, w, g.player.loc).map(r => r.avatar);
+    const here = sceneHere(g, w).map(r => r.avatar);
     for (const a of new Set([...here, ...Object.keys(worn)])) {
         if (!g.cast[a]) { delete worn[a]; continue; }
         const code = here.includes(a) ? dressFor(g, w, a).toLowerCase() : '';

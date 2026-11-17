@@ -21,10 +21,10 @@ import { facts, note, placeName, toldAs } from './facts.js';
 import { whenHolds, markDone, doneToday } from './when.js';
 import { withYou, doneTogether, feelsFrom, addKeepsake, keepsakeDef, talkedWith, type TogetherGain } from './social.js';
 import { playerHomeId } from './places.js';
-import { presentAt } from './people.js';
 import { startRumor } from './living.js';
 import { onLook, privateChecks, privateResults, museumHooks } from './hooks.js';
 import { earn } from './points.js';
+import { sceneAt } from './homerooms.js';
 
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
@@ -237,7 +237,7 @@ export function finishSceneAction(g: Save, w: WorldDef, { rest = true, judge = t
     const left = Math.max(0, act.until - nowAbs(g));
     if (rest && there && left > 0) advance(g, w, left).forEach(m => lines.push({ text: m, kind: 'warn' }));
     // (whoever started it with you and is still here: the talk that made them company may be older than its time now)
-    const mates = there ? act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a)) : [];
+    const mates = there ? act.with.filter(a => sceneAt(g, w, act.place).some(r => r.avatar === a)) : [];
     if (act.priv) Object.assign(act.priv, { a: act.a, rnd });   // (the dice don't survive a save)
     const done = act.priv?.stop ?? results(g, w, act.a, { place: act.place, mates, last, lines, rnd, ended: true, priv: act.priv, began: act.start });
     done.lines.forEach(l => toast(l.text, l.kind));
@@ -252,7 +252,7 @@ export function finishSceneAction(g: Save, w: WorldDef, { rest = true, judge = t
 export function sceneActLine(g: Save, w: WorldDef): string {
     const act = sceneAct(g);
     if (!act || g.player.loc !== act.place) return '';
-    const mates = act.with.filter(a => presentAt(g, w, act.place).some(r => r.avatar === a));
+    const mates = act.with.filter(a => sceneAt(g, w, act.place).some(r => r.avatar === a));
     const who = mates.length ? `{{user}} and ${names(g, mates)}` : '{{user}}';
     const why = mates.length && act.a.together?.text ? ` (${act.a.together.text.replace(/[.\s]+$/, '')})` : '';
     const left = sceneActLeft(g);

@@ -109,6 +109,10 @@ export interface Save {
         job: { id: string; rank: number; shifts: number; path?: string[]; referral?: string } | null; rentPaidDay: number;
         /** (E16) the start chosen at the new game (a world start's id, or 'custom'), and its premise for the AI */
         start?: string; premise?: string;
+        /** (homerooms) the room you're in at the home at `loc` (a room id, `bed:you` or `bed:<avatar>`); valid only
+         *  while `loc` is still where you are: once you're elsewhere it's forgotten (by the clock or the next look,
+         *  sim/homerooms.ts), so leaving the home in any way clears it */
+        room?: { loc: string; id: string };
     };
     cast: Record<string, Resident>;
     tick: Record<string, number>;   // last time (absolute minutes) each timed rule ran

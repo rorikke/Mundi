@@ -34,7 +34,7 @@ import { period, isWeekend, seasonDays, SEASONS } from './time.js';
 import { weatherIs, regionOf, regionState } from './worldstate.js';
 import { festivalsOn } from './festivals.js';
 import { eventsOn, liveEvents } from './cityevents.js';
-import { presentAt, routineAt, workingAt } from './people.js';
+import { routineAt, workingAt } from './people.js';
 import { visitsTo } from './daylife.js';
 import { levelOf, skillsOf, skillName } from './hobbies.js';
 import { fr, ro, statusOf, relOf, idOf, YOU } from './rel.js';
@@ -51,6 +51,7 @@ import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
 import { collectionLink, placeGates } from './hooks.js';
 import { homeWorth, housingOn, ownedHere, ownedHomes, secondHome, toLet, isLet, rentHad } from './housing.js';
+import { sceneAt } from './homerooms.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
@@ -696,7 +697,7 @@ export function levelHolds(g: Save, w: WorldDef, avatar: string, level: string):
     return i >= 0 && !!s && STATUS_LEVELS.indexOf(s) >= i;
 }
 // Here now (as everyone else sees it), or at another moment by their routine.
-const isHere = (g: Save, w: WorldDef, r: Resident, x: Here) => (x.at === nowAbs(g) ? presentAt(g, w, x.place).includes(r) : routineAt(g, w, r, x.at) === x.place);
+const isHere = (g: Save, w: WorldDef, r: Resident, x: Here) => (x.at === nowAbs(g) ? sceneAt(g, w, x.place).includes(r) : routineAt(g, w, r, x.at) === x.place);
 // At work here: here, and their day says work here (a shift of a job with a schedule, their routine's work hours for
 // one without, or working late).
 function atWork(g: Save, w: WorldDef, r: Resident, x: Here) {

@@ -26,6 +26,13 @@ export function homeKindAt(g: Save, w: WorldDef, id: string): string {
     const zone = g.cast[id.slice(5)]?.home.zone ?? (g as any).vacated?.home?.zone;
     return w.homes.zones.find(z => z.id === zone)?.kind ?? '';
 }
+/** The area (zone id) a home's place is in, by the same branches as homeKindAt; '' for any other place. */
+export function homeZoneAt(g: Save, w: WorldDef, id: string): string {
+    if (id === playerHomeId) return g.player.home.zone;
+    if (id === SECOND_HOME_ID) return secondHome(g)?.zone ?? '';
+    if (!isHome(id)) return '';
+    return g.cast[id.slice(5)]?.home.zone ?? (g as any).vacated?.home?.zone ?? '';
+}
 // (housing) Your second home: on the map while you have one (and the system is on).
 function secondPlace(g: Save, w: WorldDef): (Place & { home?: boolean }) | null {
     const s = housingOn(w) ? secondHome(g) : undefined;

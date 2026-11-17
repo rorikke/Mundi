@@ -26,6 +26,7 @@ import { icon } from './icons.js';
 import { featureOn } from '../sim/creator.js';
 import { ACT, INPUT } from './reg.js';
 import { relNumbersHtml } from './reldebug.js';
+import { sceneHere } from '../sim/homerooms.js';
 
 export const PL = { card: '', kind: 'hangout' as PlanKind, place: '', day: 0, time: 0, busy: '', face: '', title: '', out: '', bg: '' };   // bg: the background of a plan out of the house (Home)
 // Home: a plan can be somewhere out of the house, in your words ("__out" in the list, then the place you type)
@@ -184,7 +185,7 @@ Object.assign(ACT, {
     'pc-plan': async (el) => {
         const c = gw(); const who = el.dataset.who!;
         // she is right here: you ask her in person, in the scene (the phone is for people who are elsewhere)
-        if (c && state.view === 'scene' && whereNow(c.g, c.w, c.g.cast[who]) === c.g.player.loc) { PL.card = ''; PL.face = who; notify(); return; }
+        if (c && state.view === 'scene' && sceneHere(c.g, c.w).some(r => r.avatar === who)) { PL.card = ''; PL.face = who; notify(); return; }
         const { P } = await import('./phone.js');
         PL.card = ''; P.open = true; P.app = 'person'; P.who = who; notify();
     },

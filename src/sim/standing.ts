@@ -10,10 +10,10 @@ import { onDay, onHour } from './hooks.js';
 import { note } from './facts.js';
 import { seenAs } from './hooks.js';
 import { regionOf } from './worldstate.js';
-import { presentAt } from './people.js';
 import { bondOf } from './social.js';
 import { isRpg, sheetOf, rollCheck, checkWon } from './rpg.js';
 import { isHome } from './places.js';
+import { sceneHere } from './homerooms.js';
 
 interface Rep { v: number; at: number }
 interface Identity { alias: string; on: boolean; suspicion: number; rep: Record<string, Rep>; unmasked?: string[] }
@@ -66,7 +66,7 @@ export function toggleDisguise(g: Save, w: WorldDef): string {
     const id = identityOf(g);
     if (!systemOn(w, 'identity')) return '';
     if (!id.alias) return 'Choose a name for your alter ego first.';
-    if (!id.on && !isHome(g.player.loc) && presentAt(g, w, g.player.loc).some(r => r.met)) return 'Not in front of people who know you: change somewhere private.';
+    if (!id.on && !isHome(g.player.loc) && sceneHere(g, w).some(r => r.met)) return 'Not in front of people who know you: change somewhere private.';
     id.on = !id.on;
     return id.on ? `You are ${id.alias} now.` : 'You are yourself again.';
 }
@@ -75,7 +75,7 @@ seenAs.push(g => ((g as any).identity?.on && (g as any).identity?.alias ? (g as 
 // Each hour in disguise near people who know you well: they may notice something familiar.
 export function suspicionTick(g: Save, w: WorldDef): string[] {
     if (!disguised(g, w)) return [];
-    const close = presentAt(g, w, g.player.loc).filter(r => r.met && bondOf(g, r.avatar) >= 40);
+    const close = sceneHere(g, w).filter(r => r.met && bondOf(g, r.avatar) >= 40);
     if (!close.length) return [];
     let up = close.length * 2;
     if (isRpg(w) && sheetOf(g) && !checkWon(rollCheck(g, w, 'deception', 10 + 2 * close.length))) up += 3;

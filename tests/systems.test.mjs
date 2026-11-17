@@ -14,13 +14,13 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const bills = await D('sim/bills.js');
 const prompt = await D('sim/prompt.js'); const skills = await D('sim/courses.js'); const life = await D('sim/life.js');
-const romance = await D('sim/romance.js'); const goals = await D('sim/goals.js');
+const romance = await D('sim/romance.js'); const goals = await D('sim/goals.js'); const hr = await D('sim/homerooms.js');
 let ui = null;
 try { ui = { hud: await D('ui/hud.js'), phone: await D('ui/phone.js'), creator: await D('ui/creator.js') }; } catch (e) { console.log('note: screens not drawn in Node:', e.message); }
 
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
-const step = (name, f) => { try { f(); } catch (e) { fails++; console.log(`  FAIL ${name}: ${e.stack.split('\n').slice(0, 3).join(' | ')}`); } };
+const step = async (name, f) => { try { await f(); } catch (e) { fails++; console.log(`  FAIL ${name}: ${e.stack.split('\n').slice(0, 3).join(' | ')}`); } };
 const open = (save) => { for (const k of Object.keys(meta)) delete meta[k]; meta.mundi = save; return store.game(); };
 const fixture = (f) => JSON.parse(fs.readFileSync(path.join(here, 'fixtures', f), 'utf8'));
 
@@ -29,7 +29,7 @@ for (const [id, file] of [['modern', 'v0.1.0-modern.json'], ['medieval', 'v0.1.0
     for (const sys of W.SYSTEMS) {
         console.log(`${id}: ${sys.id} off`);
         seed(5);
-        step(`${id} ${sys.id}`, () => {
+        await step(`${id} ${sys.id}`, async () => {
             const w = structuredClone(base); w.id = `${id}-no-${sys.id}`; w.features = { ...(w.features ?? {}), [sys.id]: false };
             W.registerWorld(w);
             const s = fixture(file); s.world = w.id;
@@ -64,6 +64,18 @@ for (const [id, file] of [['modern', 'v0.1.0-modern.json'], ['medieval', 'v0.1.0
             if (sys.id === 'romance') ok(!W.systemOn(w, 'family'), 'children need romance');
             if (sys.id === 'rumors') ok(JSON.stringify(g.living?.rumors ?? []) === JSON.stringify(before.living?.rumors ?? []), 'no new rumors');
             if (sys.id === 'goals') { goals.pickGoal(g, w, 'rich'); g.player.money = 1e9; time.advance(g, w, 120); const gs = goals.goalsState(g); ok(!gs.done.includes('rich') && !(gs.steps.rich > 0) && gs.active === null, 'a life goal is never reached'); }
+            if (sys.id === 'homerooms') {
+                // rooms written everywhere, but the system off: no room, the same things to do and the same place
+                g.player.loc = 'home:player'; const plain = needs.actionsHere(g, w).map(a => `${a.id}:${a.cost}`).join(',');
+                const rooms = [{ id: 'lounge', name: 'Lounge', tags: ['living', 'leisure'] }, { id: 'kitchen', name: 'Kitchen', tags: ['kitchen', 'food'] }];
+                for (const k of Object.values(w.homes.kinds)) k.rooms = rooms;
+                for (const z of w.homes.zones) z.rooms = rooms;
+                store.changed();
+                ok(hr.homeRooms(g, w, 'home:player').length === 0 && hr.roomNow(g, w) === null, 'no rooms inside');
+                ok(needs.actionsHere(g, w).map(a => `${a.id}:${a.cost}`).join(',') === plain, 'the same things to do at home');
+                ok(hr.scenePlace(g, w)?.name === 'My home', 'the scene is the whole home');
+                if (ui) { const hs = await D('ui/homesui.js'); ok(hs.roomRows(g, w).length === 0, 'no room rows'); }
+            }
             // nothing in the save was lost while it was off
             for (const k of Object.keys(before)) ok(k in g, `the save still has ${k}`);
             if (ui) { ok(ui.creator !== null, 'creator loads'); }

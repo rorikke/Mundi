@@ -11,9 +11,9 @@ import { diaryTtsButton } from './addons.js';
 import { fmtClock as hm } from '../core/fmt.js';
 import { facts, fill, factText, placeName, note, type Fact } from '../sim/facts.js';
 import { quiet, personaName, chat } from '../st/bridge.js';
-import { presentAt } from '../sim/people.js';
 import { heardRumors, rumorSource } from '../sim/living.js';
 import { ACT } from './reg.js';
+import { sceneHere } from '../sim/homerooms.js';
 
 // A fact as the player reads it, in the interface language.
 export const factUi = (f: Fact) => fill(tr(f.t), (f.a ?? []).map(x => tr(x)), tr('You'));
@@ -143,7 +143,7 @@ Object.assign(ACT, {
         if (!g || !w || !m) return;
         const text = String(m.mes ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
         if (!text) return;
-        const here = presentAt(g, w, g.player.loc);
+        const here = sceneHere(g, w);
         const who = here.map(r => r.avatar);
         const speaker = m.is_user ? '{u}' : String(m.name ?? '');
         note(g, `${speaker === '{u}' ? '{u}' : '{0}'} said: "{1}"`, [speaker === '{u}' ? '' : speaker, text.length > 180 ? `${text.slice(0, 177)}…` : text], who, g.player.loc, 'said');

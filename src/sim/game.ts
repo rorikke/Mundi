@@ -10,6 +10,7 @@ import { SCHEMA } from '../core/saves.js';
 import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES, type Difficulty } from './bills.js';
 import { placeOf as placeOf2, mapOf, homeKindAt } from './places.js';
+import { roomPicture, sceneHere } from './homerooms.js';
 import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
 import {
@@ -28,7 +29,6 @@ import {
 import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
 import { withoutStrengths, applyStrengths } from './traits.js';
 import { playerHomeId } from './places.js';
-import { presentAt } from './people.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
 import { addOldTie, applyStartFeel } from './startfeel.js';
@@ -650,7 +650,7 @@ export function syncScene(): Promise<void> {
         if (!g || !gid || TUT.save) return;   // the tutorial's world is not a group chat
         const w = getWorld(g.world);
         if (!w) return;
-        const here = presentAt(g, w, g.player.loc);
+        const here = sceneHere(g, w);
         checkLeft(g, w, here.map(r => r.avatar));   // someone who spoke left: that part of the scene is judged
         // talking with only one person: the others stay in the scene but keep quiet
         let solo = String((g as any).social?.solo ?? '');
@@ -729,7 +729,7 @@ function followBackground(g: Save, w: WorldDef) {
     const p = placeOf2(g, w, g.player.loc);
     if (!p) return;
     const looks = looksAt(g, w, p.id);
-    let img = pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs, looks) ?? '';
+    let img = roomPicture(g, w, looks) ?? pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs, looks) ?? '';
     if (!img && p.home) { const k = w.homes.kinds[homeKindAt(g, w, p.id)]; img = (k && pictureAt(w, g.minutes, k.image, k.images, looks)) ?? ''; }
     if (!img) return;
     const url = `url("${worldFile(w, img)}")`;

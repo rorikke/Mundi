@@ -23,10 +23,10 @@ import {
     persona, personas, personaThumb, usePersona,
 } from '../st/bridge.js';
 import { placeOf, isOuting, homeKindAt } from '../sim/places.js';
+import { roomPicture, sceneHere } from '../sim/homerooms.js';
 import { outingOf } from '../sim/outing.js';
 import { bgStyle } from './outing.js';
 import { bgHead, bgGrid } from './bgpick.js';
-import { presentAt } from '../sim/people.js';
 import { toolsHtml } from './tools.js';
 import { mentionIn, closeMention } from './mention.js';
 import { visitStart } from '../sim/visits.js';
@@ -156,6 +156,8 @@ function background(g: Save, w: WorldDef) {
     const p = placeOf(g, w, g.player.loc);
     if (!p) return '';
     if (p.home) {
+        const room = roomPicture(g, w, looksAt(g, w, p.id));   // (homerooms) the room you're in
+        if (room) return `background-image:url('${worldFile(w, room)}');background-size:cover;background-position:center`;
         const kind = w.homes.kinds[homeKindAt(g, w, p.id) || 'apartment']   // (a room a guest just left keeps its picture);
         const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id));   // the picture of this part of the day (and weather, season), if it has one
         if (img) return `background-image:url('${worldFile(w, img)}');background-size:cover;background-position:center`;
@@ -225,7 +227,7 @@ export function sceneHtml() {
     const g = game()!; const w = getWorld(g.world)!;
     // talking alone with someone: only their picture stays in the scene
     const solo = soloOf(g);
-    const here = presentAt(g, w, g.player.loc).filter(r => !solo || r.avatar === solo);
+    const here = sceneHere(g, w).filter(r => !solo || r.avatar === solo);
     const ex = expressions();
     const nobody = !here.length;
     // how many have a real sprite (the classic layout shows only those, so they share the room among themselves)
@@ -425,12 +427,12 @@ Object.assign(ACT, {
         const text = shapeLine(raw);
         const g0 = game(); const w0 = g0 && getWorld(g0.world);
         // alone: nobody is called into the scene; the hidden narrator describes the place, the time and the feelings
-        if (g0 && w0 && !presentAt(g0, w0, g0.player.loc).length && !scenarioOpen()) { state.composer = ''; await soloNarrate(g0, w0, text); return; }
+        if (g0 && w0 && !sceneHere(g0, w0).length && !scenarioOpen()) { state.composer = ''; await soloNarrate(g0, w0, text); return; }
         // RPG: an attempt to persuade, lie, threaten… is judged by the AI and decided by the dice before anyone answers
         if (g0 && w0 && isRpg(w0) && !scenarioOpen()) {
             const force = CHECK.on; CHECK.on = false;
             try {
-                const res = await socialCheck(g0, w0, text, presentAt(g0, w0, g0.player.loc), force);
+                const res = await socialCheck(g0, w0, text, sceneHere(g0, w0), force);
                 if (res) { setPrompt('mundi_roll', res.prompt, 0); toast(res.toast, res.check.grade.includes('success') ? 'success' : 'warn'); res.msgs.forEach(m => toast(m, 'success')); saveGame(); }
             } catch { /* the judge is offline: the line goes as it is */ }
         }

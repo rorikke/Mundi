@@ -13,7 +13,6 @@ import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, tierNo, notYetAnswer, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
-import { presentAt } from '../sim/people.js';
 import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, type WorkMode, type JobState, type ShiftTime } from '../sim/work.js';
 import { placeOf } from '../sim/places.js';
 import { skillName } from '../sim/hobbies.js';
@@ -29,6 +28,7 @@ import { kidOf, stageOf, canCelebrate, celebrate, daysToBirthday, pregnancy, day
 import { resident, syncScene } from '../sim/game.js';
 import { refreshPrompt } from '../sim/prompt.js';
 import { diaryShown } from '../sim/diary.js';
+import { sceneHere } from '../sim/homerooms.js';
 
 /* ---------- the friendship bar, the same everywhere (card, phone, HUD) ---------- */
 
@@ -121,7 +121,7 @@ export function detectAsk(text: string) {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w || ASK.avatar || !text) return;
     const hit = ASK_WORDS.find(([, re]) => re.test(text)); if (!hit) return;
-    const people = presentAt(g, w, g.player.loc).filter(r => canAsk(g, r.avatar, hit[0]));
+    const people = sceneHere(g, w).filter(r => canAsk(g, r.avatar, hit[0]));
     if (!people.length) return;
     const low = text.toLowerCase();
     const solo = String((social(g) as any).solo ?? '');

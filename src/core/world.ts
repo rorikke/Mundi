@@ -160,6 +160,16 @@ export interface HomeZone {
      *  how likely a week is to have a tenant (0.1–1, default 0.75) and the agent's share of the rent (0–0.5, default
      *  0.2). Read through `lettable()` and the `let…` helpers in sim/housing.ts. */
     letting?: { rent?: number; chance?: number; fee?: number };
+    /** (homerooms) This area's own rooms inside (see HomeRoom): when it lists any, they replace the kind's. */
+    rooms?: HomeRoom[];
+}
+/** (homerooms) A room inside a home: not a place on the map. The first one listed is the entry. `tags`: what it is
+ *  for the things to do (`kitchen`, `living`, `bath`, `gym`), plus place tags (`food`, `leisure`…) for actions and
+ *  parties. `sofa`: where a visitor sleeps (else the first `living` room). `actions`: extra action ids only here.
+ *  Bedrooms are never listed: they are made from the people who live at the address (sim/homerooms.ts). */
+export interface HomeRoom {
+    id: string; name: string; desc?: string; tags?: string[]; image?: string; images?: Record<string, string>;
+    sofa?: boolean; actions?: string[];
 }
 /** A kind of home (studio, tower flat, villa…): its name, words and pictures by time of day, and its weekly bills. */
 export interface HomeKind {
@@ -170,6 +180,8 @@ export interface HomeKind {
     guests?: number;
     /** (housing) Fixtures that come with a home of this kind when you buy it (the villa's hot-spring bath). */
     fixtures?: string[];
+    /** (homerooms) The rooms inside every home of this kind (see HomeRoom); an area's own list wins. */
+    rooms?: HomeRoom[];
 }
 /** (housing) A room or fixture of a home you own (a sauna, a grand piano, a rooftop terrace): a shop item's shape
  *  (`effects`, `ai`, `told`, `seen`, `adult`, `when`; never `at`, `online`, `repeat`, `now`, `keepsake`, `travel`,
@@ -518,6 +530,9 @@ export interface ExampleCharacter {
     intimate?: IntimateProfile;
     /** (E27) One short line on their looks and one on their voice, for scenes where they're present but not speaking. */
     look?: string; voice?: string;
+    /** (homerooms) Their bedroom's look, in a home with rooms inside: a picture (by time of day, as a place's) and
+     *  words. Without one, their room shows the kind of home's picture. */
+    bedroom?: { image?: string; images?: Record<string, string>; desc?: string };
     /** (E13) How well they speak the world's languages (skill id → level 0–10: `{ english: 9 }`); missing: the world's
      *  own language fluently and its other languages a little (see LanguageDef). */
     languages?: Record<string, number>;
@@ -1080,7 +1095,7 @@ export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'so
 // the economy and the like are gone; what is left is the house, the people, love and plans.
 export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
-    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection'];
+    'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
 export const LIFESIM_APPS_OFF = ['factions', 'assets', 'workshop'];
 // (the Campus app only where a school offers degrees)
@@ -1125,7 +1140,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection';
+    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms';
 /** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
  *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
@@ -1366,6 +1381,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
     { id: 'housing', name: 'Owning a home', desc: 'homes can only be rented: none to buy or sell, no rooms or fixtures to add, no second home.', apps: [], blocks: [] },
+    { id: 'homerooms', name: 'Rooms at home', desc: 'homes are one place: no rooms to walk between, and everyone at home is in the scene with you.', apps: [], blocks: [] },
     { id: 'courses', name: 'Courses', desc: 'no courses to take; jobs do not ask for any.', apps: [], blocks: [] },
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },
     { id: 'breakdowns', name: 'Things break at home', desc: 'nothing at home ever breaks.', apps: [], blocks: [] },

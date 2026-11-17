@@ -287,7 +287,8 @@
   "goals": [],
   "rewards": [],
   "degrees": [],
-  "collection": []
+  "collection": [],
+  "homeRooms": []
  },
  "modern": {
   "maps": [
@@ -538,7 +539,8 @@
   "goals": [],
   "rewards": [],
   "degrees": [],
-  "collection": []
+  "collection": [],
+  "homeRooms": []
  },
  "urban": {
   "maps": [
@@ -782,7 +784,8 @@
   "goals": [],
   "rewards": [],
   "degrees": [],
-  "collection": []
+  "collection": [],
+  "homeRooms": []
  },
  "house": {
   "maps": [
@@ -928,7 +931,8 @@
   "goals": [],
   "rewards": [],
   "degrees": [],
-  "collection": []
+  "collection": [],
+  "homeRooms": []
  },
  "manor": {
   "maps": [
@@ -1016,7 +1020,8 @@
   "goals": [],
   "rewards": [],
   "degrees": [],
-  "collection": []
+  "collection": [],
+  "homeRooms": []
  },
  "tokyo": {
   "maps": [
@@ -2394,6 +2399,11 @@
    "copyist_pine_panel",
    "copyist_puppies",
    "mem_sl_kaede_copyist"
+  ],
+  "homeRooms": [
+   "zone:hz_sharehouse/common",
+   "zone:hz_sharehouse/kitchen",
+   "zone:hz_sharehouse/bath"
   ]
  }
 }

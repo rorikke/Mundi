@@ -22,9 +22,9 @@ import { whenHolds, parseWhen } from './when.js';
 import { addStatus } from './needs.js';
 import { addKeepsake, keepsakeDef, giftsGiven, drawnToYou } from './social.js';
 import { earn } from './points.js';
-import { presentAt } from './people.js';
 import { skillName } from './hobbies.js';
 import { sceneAct, isPrivateAct } from './actions.js';
+import { sceneAt } from './homerooms.js';
 
 export type Item = ShopItem;
 
@@ -348,7 +348,7 @@ export function knowsOf(g: Save, w: WorldDef, avatar: string, it: Item): boolean
 // aren't told with a friend, family or a colleague over, nor with nobody there to see them).
 function intimateCompany(g: Save, w: WorldDef): { avatar: string; name: string }[] {
     if (g.player.loc !== playerHomeId || !adultOn(g)) return [];
-    const here = presentAt(g, w, playerHomeId);
+    const here = sceneAt(g, w, playerHomeId);
     return here.length && here.every(r => drawnToYou(g, w, r.avatar)) ? here.map(r => ({ avatar: r.avatar, name: r.name.split(/\s+/)[0] })) : [];
 }
 // The adult part: what's in sight in the bedroom, and what's put away with who knows of it. One sentence at most.
@@ -377,7 +377,7 @@ function foundLine(g: Save, w: WorldDef): string {
     const f = peek(g).found;
     if (!f || nowAbs(g) - f.at > 60 || !adultOn(g) || g.player.loc !== playerHomeId) return '';
     const r = g.cast[f.who], it = shopItems(w).find(x => x.id === f.item);
-    if (!r || !it || !presentAt(g, w, playerHomeId).includes(r)) return '';
+    if (!r || !it || !sceneAt(g, w, playerHomeId).includes(r)) return '';
     const name = r.name.split(/\s+/)[0];
     return `Just now ${name} came across {{user}}'s ${it.name} put away in a drawer: play ${name}'s reaction.`;
 }

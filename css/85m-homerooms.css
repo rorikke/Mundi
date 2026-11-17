@@ -1,0 +1,7 @@
+/* (homerooms) Rooms inside a home: the room you're in after the home's name, and the rows to the other rooms. */
+#mundi-root .mh-bar-room { font-weight: 500; opacity: .85; }
+#mundi-root .mh-act.mh-room > i { background: rgba(255, 255, 255, .08); }
+/* "Elsewhere at home": the housemates in other rooms, under the Here bar (asleep: dimmed) */
+#mundi-root .mh-elsewhere { margin-top: 6px; }
+#mundi-root .mh-elsewhere .mh-here-p > i { display: block; font-style: normal; font-size: 11px; color: var(--hud-muted); white-space: nowrap; }
+#mundi-root .mh-elsewhere .mh-here-p.is-asleep img { filter: grayscale(.6) brightness(.8); }

@@ -20,6 +20,8 @@ const ids = (w) => ({
     degrees: (w.institutions ?? []).flatMap(i => (i.degrees ?? []).map(d => d.id)),
     // the collection's slots (a save keeps the slots it filled by id)
     collection: (w.collection?.slots ?? []).map(s => s.id),
+    // rooms inside a home (a save keeps the room you're in by id): an area's own and a kind's
+    homeRooms: [...w.homes.zones.flatMap(z => (z.rooms ?? []).map(r => `zone:${z.id}/${r.id}`)), ...Object.entries(w.homes.kinds).flatMap(([k, d]) => (d.rooms ?? []).map(r => `kind:${k}/${r.id}`))],
 });
 const lock = fs.existsSync(lockFile) ? JSON.parse(fs.readFileSync(lockFile, 'utf8')) : {};
 const problems = [];

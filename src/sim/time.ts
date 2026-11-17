@@ -34,6 +34,9 @@ export function toNextPeriod(w: WorldDef, minutes: number) {
 // Moves time forward. Returns the messages the world's rules produced (rent, passing out…).
 export function advance(g: Save, w: WorldDef, mins: number): string[] {
     const out: string[] = [];
+    // (homerooms) the room you were in belongs to the home you were at: once you're elsewhere, it's gone, so coming
+    // back starts at the entry (sim/homerooms.ts reads it the same way)
+    if (g.player.room && g.player.room.loc !== g.player.loc) delete g.player.room;
     let left = Math.max(0, mins);
     while (left > 0) {
         const step = Math.min(left, 30);   // rules run at most every 30 game minutes, so long jumps stay correct

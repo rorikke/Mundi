@@ -7,7 +7,7 @@ import { markMet } from '../sim/game.js';
 import { state, notify, esc, game, saveGame, nowAbs, toast, type Save } from '../core/store.js';
 import { getWorld, type WorldDef, type ActionDef } from '../core/world.js';
 import { tr } from '../core/tr.js';
-import { residents, whereNow, presentAt, stayHere } from '../sim/people.js';
+import { residents, whereNow, stayHere } from '../sim/people.js';
 import { playerHomeId } from '../sim/places.js';
 import { isWorking } from '../sim/plans.js';
 import { bump as addBond, isWith, talkedWith } from '../sim/social.js';
@@ -17,11 +17,12 @@ import { note, placeName } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
 import { thumb } from '../st/bridge.js';
 import { ACT } from './reg.js';
+import { sceneHere, roomNow, dropIn, homeRooms } from '../sim/homerooms.js';
 
 // `on`: where it happens when it isn't here (E11: on the train, at the station). `at`: the place it belongs to; the
 // card can wait behind another one (hud.ts shows one at a time), and once you have left it is gone. `come`: they were
 // already here and came over to you.
-export const BUMP = { who: '', on: '' as '' | 'train' | 'station', at: '', come: false };
+export const BUMP = { who: '', on: '' as '' | 'train' | 'station', at: '', come: false, knock: '' };   // (knock: the room they came into from elsewhere in the house)
 const TALK_MINUTES = 60;
 
 // Called after an action. First, maybe someone here comes over (at home too: a housemate); else, away from home,
@@ -30,11 +31,16 @@ export function maybeBump(g: Save, w: WorldDef, a?: ActionDef) {
     if (BUMP.who && BUMP.at !== g.player.loc) dropBump();
     if (BUMP.who) return;
     const come = rollApproach(g, w, a);
-    if (come) { cameOver(g, come); Object.assign(BUMP, { who: come, on: '', at: g.player.loc, come: true }); return; }
+    if (come) {
+        // (homerooms) someone from another room of the house: they come to the room you're in
+        const room = roomNow(g, w), far = !!room && !sceneHere(g, w).some(r => r.avatar === come);
+        if (far) dropIn(g, w, come);
+        cameOver(g, come); Object.assign(BUMP, { who: come, on: '', at: g.player.loc, come: true, knock: far ? room!.id : '' }); return;
+    }
     if (g.player.loc === playerHomeId || Math.random() >= runInChance(g, w)) return;
     const now = nowAbs(g);
-    const here = new Set(presentAt(g, w, g.player.loc).map(r => r.avatar));
-    const free = residents(g).filter(r => !here.has(r.avatar) && !isWith(g, r.avatar) && !isWorking(g, w, r, now) && whereNow(g, w, r) !== playerHomeId);
+    const here = new Set(sceneHere(g, w).map(r => r.avatar));
+    const free = residents(g).filter(r => !here.has(r.avatar) && whereNow(g, w, r) !== g.player.loc && !isWith(g, r.avatar) && !isWorking(g, w, r, now) && whereNow(g, w, r) !== playerHomeId);
     if (!free.length) return;
     const fond = free.filter(r => r.leisure.includes(g.player.loc));
     const pool = fond.length && Math.random() < 0.7 ? fond : free;
@@ -43,19 +49,25 @@ export function maybeBump(g: Save, w: WorldDef, a?: ActionDef) {
     cameOver(g, BUMP.who);   // (nobody else comes over right after)
 }
 /** Leaving without answering: you just missed each other (nobody is hurt). */
-export function dropBump() { BUMP.who = ''; BUMP.on = ''; BUMP.at = ''; BUMP.come = false; }
+export function dropBump() { BUMP.who = ''; BUMP.on = ''; BUMP.at = ''; BUMP.come = false; BUMP.knock = ''; }
 const MET_ON = { train: 'You run into each other on the train.', station: 'You run into each other at the station.' } as const;
 // The fact of meeting: where you met, here or on the way here, is part of the text so that it can be translated.
 const MET_AT = { '': 'at {1}', train: 'on the train to {1}', station: 'at the station, on the way to {1}' } as const;
 const metNote = (g: Save, w: WorldDef, r: { name: string; avatar: string }, end: string) => note(g, `{u} ran into {0} ${MET_AT[BUMP.on]} ${end}`, [r.name, placeName(g, w, g.player.loc)], [r.avatar], g.player.loc, 'meet');
 
+const fmt = (t: string, ...a: string[]) => tr(t).replace(/\{(\d)\}/g, (_, n) => a[Number(n)] ?? '');
+// (homerooms) how someone from another room comes to you: a knock on a bedroom door, or walking into a shared room
+function knockText(g: Save, w: WorldDef, name: string): string {
+    const room = homeRooms(g, w, g.player.loc).find(x => x.id === BUMP.knock);
+    return room?.bed ? fmt('{0} knocks on your door.', name) : fmt('{0} comes into the {1}.', name, (room?.name ?? '').toLowerCase());
+}
 export function bumpHtml(): string {
     const g = game(); const w = g && getWorld(g.world);
     const r = g && BUMP.who ? g.cast[BUMP.who] : null;
     if (!g || !w || !r || state.view !== 'scene' || BUMP.at !== g.player.loc) return '';
     const name = r.met ? r.name : tr('Someone');
     if (BUMP.come) return `<div class="mu-bump" role="dialog"><img src="${esc(thumb(r.avatar))}" alt="">
-        <div><b data-notr>${esc(name)}</b><p>${r.met ? 'They come over to you.' : 'Someone here comes over to you.'}</p></div>
+        <div><b data-notr>${esc(name)}</b><p>${BUMP.knock ? esc(knockText(g, w, r.name)) : r.met ? 'They come over to you.' : 'Someone here comes over to you.'}</p></div>
         <div class="mu-bump-btns"><button class="mu-primary" data-act="come-talk">Talk</button><button class="mu-ghost" data-act="come-nod">Nod and keep going</button></div></div>`;
     return `<div class="mu-bump" role="dialog"><img src="${esc(thumb(r.avatar))}" alt="">
         <div><b data-notr>${esc(name)}</b><p>${r.met ? (BUMP.on ? MET_ON[BUMP.on] : 'You run into each other here.') :'Someone you do not know yet crosses your path.'}</p></div>
@@ -70,7 +82,9 @@ Object.assign(ACT, {
         if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; }
         dropBump();
         if (!g || !r) return notify();
+        const w = getWorld(g.world);
         stayHere(g, r.avatar, g.player.loc, TALK_MINUTES);
+        if (w && roomNow(g, w)) dropIn(g, w, r.avatar, TALK_MINUTES);   // (homerooms) in your room while you talk
         markMet(g, r.avatar);
         talkedWith(g, r.avatar);
         saveGame(); await syncScene(); notify();

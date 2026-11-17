@@ -9,8 +9,8 @@ import type { Save, Resident } from '../core/store.js';
 import { systemOn, type WorldDef } from '../core/world.js';
 import { onHour } from './hooks.js';
 import { levelOf, trainSkill, skillName, skillXp } from './hobbies.js';
-import { presentAt } from './people.js';
 import { exampleOf } from './dayplan.js';
+import { sceneHere } from './homerooms.js';
 
 /** From this level on, {{user}} speaks the local language well enough that nothing needs saying. */
 export const FLUENT = 7;
@@ -74,7 +74,7 @@ export function immersion(g: Save, w: WorldDef): string[] {
     const p = ((g.player as any).langPractice ??= { day: g.day, xp: 0 }) as Practice;
     if (p.day !== g.day) { p.day = g.day; p.xp = 0; }
     if (p.xp >= IMMERSION.perDay) return [];
-    const locals = presentAt(g, w, g.player.loc).filter(r => !sharedWith(g, w, r) && speaks(w, r, local) >= SHARED).length;
+    const locals = sceneHere(g, w).filter(r => !sharedWith(g, w, r) && speaks(w, r, local) >= SHARED).length;
     const xp = Math.min(IMMERSION.perDay - p.xp, locals ? Math.min(IMMERSION.most, locals) * IMMERSION.perPerson : IMMERSION.alone);
     p.xp += xp;
     return trainSkill(g, w, local, xp);

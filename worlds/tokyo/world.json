@@ -251,7 +251,36 @@
      ]
     ],
     "desc": "a converted two-story house: a heap of shoes at the door, a shared kitchen with labeled shelves, a bath rota taped to the wall",
-    "student": true
+    "student": true,
+    "rooms": [
+     {
+      "id": "common",
+      "name": "Common room",
+      "desc": "The common room: a low table and a sagging sofa, a heap of shoes by the door, the bath rota taped to the wall in five handwritings.",
+      "tags": [
+       "living",
+       "leisure"
+      ],
+      "sofa": true
+     },
+     {
+      "id": "kitchen",
+      "name": "Shared kitchen",
+      "desc": "The shared kitchen: shelves labelled with five names, a rice cooker that is always on, a fridge covered in notes.",
+      "tags": [
+       "kitchen",
+       "food"
+      ]
+     },
+     {
+      "id": "bath",
+      "name": "Bathroom",
+      "desc": "The shared bathroom: a deep tub with a folding lid, a washing machine that walks when it spins, everyone's bottles in a row.",
+      "tags": [
+       "bath"
+      ]
+     }
+    ]
    },
    {
     "id": "hz_apaato",
@@ -54876,6 +54905,9 @@
     "anchored": true,
     "skills": {
      "drawing": 6
+    },
+    "bedroom": {
+     "desc": "Mio's room: canvases against every wall, a futon under paint-flecked sheets, a smell of turpentine and konbini onigiri."
     }
    },
    {
@@ -54965,6 +54997,9 @@
     "anchored": true,
     "skills": {
      "music": 8
+    },
+    "bedroom": {
+     "desc": "Ren's room: a bass on its stand, a crate of records, setlists taped above a futon on the floor."
     }
    },
    {
@@ -55094,6 +55129,9 @@
     },
     "skills": {
      "charisma": 6
+    },
+    "bedroom": {
+     "desc": "Chloe's room: paperbacks on tidy shelves, fairy lights, a kettle and a box of proper English tea, photos from Manchester."
     }
    },
    {
@@ -55207,6 +55245,9 @@
     },
     "skills": {
      "drawing": 9
+    },
+    "bedroom": {
+     "desc": "Haru's room: a light table and a drawing tablet, storyboards pinned up in rows, blackout curtains."
     }
    },
    {
