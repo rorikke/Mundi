@@ -1,150 +1,189 @@
-# Mundi
+<p align="center"><img src="docs/readme/banner.jpg" alt="Tokyo at sunset, with Mount Fuji behind the city"></p>
 
-**Open worlds inside SillyTavern.** Mundi turns a SillyTavern group chat into a life you live: a city with a map and a clock, needs to look after, a job, bills, people with their own days, and the story the AI writes around what you do.
+<h1 align="center">Mundi</h1>
 
-<p align="center"><img src="docs/map.jpg" alt="Midtown, the map of Porto Alto"></p>
+<p align="center">
+  <b>An open-world life sim for SillyTavern, set in the Tokyo of today.</b><br>
+  Get a job, find a place, fall for someone, build something that outlasts you.<br>
+  The engine keeps the clock, the money and the feelings. Your AI writes the scenes.
+</p>
 
-It is a SillyTavern **extension** (no server plugin). Everything is built on what SillyTavern already has: your character cards, personas, lorebooks and group chats. A save *is* a chat.
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="#a-city-with-a-clock">The city</a> ·
+  <a href="#people-with-lives-of-their-own">The people</a> ·
+  <a href="#a-life-to-build">Your life</a> ·
+  <a href="#the-long-game">The long game</a> ·
+  <a href="#under-the-hood">Under the hood</a>
+</p>
 
-## What this fork adds
+<p align="center">
+  <b>37</b> people · <b>117</b> places · <b>10</b> districts and getaways · <b>43</b> personal storylines ·
+  <b>49</b> careers · <b>32</b> festivals · <b>160</b> things to buy · <b>~100</b> museum pieces<br>
+  <sub>Counts include what the adult content switch adds.</sub>
+</p>
 
-This is a fork of [tjalis/Mundi](https://github.com/tjalis/Mundi) with features of its own on top. Its version is **0.4.1**, built on Mundi 0.2.1 ([what changed](CHANGELOG.md)). Your existing Mundi saves open as they are, upgraded once with a backup kept in the save. It adds:
+<p align="center">
+  <img src="docs/readme/scene-shrine.jpg" width="49%" alt="Yui at Tsukimi Inari Shrine on a snowy night">
+  <img src="docs/readme/scene-ramen.jpg" width="49%" alt="Genzō and Ayaka at Ramen Kamejirō">
+</p>
 
-### A new world: Tokyo
+## A city with a clock
 
-<p align="center"><img src="docs/map-tokyo.jpg" alt="The map of Tokyo"></p>
+<p align="center"><img src="docs/readme/map.jpg" alt="The map of Tokyo, by day on the left and by night on the right"></p>
 
-Tokyo today, in anime style: eight districts (Shibuya, Shinjuku, Shimokita and Kōenji, Akihabara, Asakusa and Ueno, Marunouchi and Ginza, Odaiba, Roppongi) and two getaways (Yokohama and Hakone), with 89 places and 34 people who live there.
+Eight districts, from Shibuya and Shinjuku to Asakusa, Akihabara and Odaiba, plus Yokohama and Hakone for a day
+away. Each district has its own illustrated map, by day and by night. You get between them by train: trips take the
+real time for the distance, the last train really is the last, and after it there's a taxi.
 
-- **A city you get around by train.** Trips between districts take the train's time for the distance, there is a last train and a taxi after it, and each district has its own illustrated map, by day and by night.
-- **Its own pictures.** Every place has a background for morning, afternoon and night, and a rainy one; snow, cherry blossom and autumn leaves where they belong. All 34 people have a portrait and 28 expressions.
-- **Its own sounds.** Every place plays recordings made in Tokyo and around (the crowds, izakaya, stations, a konbini, the Shibuya crossing, cicadas in summer, a temple bell), following the hour and how busy it is.
-- **Tokyo's year.** 31 festivals and events (cherry blossoms, Golden Week, Sanja Matsuri, Tanabata, the Sumida fireworks, Bon Odori, New Year's at the shrine…), typhoons, heat waves and the odd snow day.
-- **Life there.** 45 jobs with their ranks (a Streamer among them: start from your room and choose your kind of stream), drinks with colleagues after work, senpai and kōhai, names that change as you get closer (from family name and -san to first names), praying and drawing omikuji at the shrines, and a language barrier if you start as a foreigner, which a language exchange with a friend helps with.
-- **Seven starts** to begin from, and 106 small stories at the places.
+Time moves when you act. Shops open and close, people go to work and come home, and you get tired, hungry and
+behind on rent.
 
-| | | |
-|---|---|---|
-| ![The scramble crossing at night](docs/tokyo-crossing.jpg) | ![Ueno Park in autumn](docs/tokyo-ueno-autumn.jpg) | ![Hakone-Yumoto in the snow](docs/tokyo-hakone-snow.jpg) |
+<p align="center"><img src="docs/readme/day.jpg" alt="The view from the Metropolitan Government Observatory by day, at sunset and at night"></p>
+<p align="center"><sub>Places are drawn for the morning, the afternoon and the night, and outdoors for the rain as well.</sub></p>
 
-### Relationships that feel alive
+<p align="center"><img src="docs/readme/year.jpg" alt="Ueno Park in summer, at cherry-blossom time, in autumn and in winter"></p>
+<p align="center"><sub>The year turns too: cherry blossom, summer green, autumn leaves, bare branches and the odd snow day.</sub></p>
 
-People in your world have feelings of their own, for you and for each other, and act on them. **[Relationships in this fork](docs/relationships.md)** describes it all from a player's point of view.
+- **Tokyo's calendar.** 32 festivals and events, from Sanja Matsuri and the Sumida fireworks to Bon Odori and the
+  New Year's shrine visit, plus typhoons and heat waves.
+- **It sounds like Tokyo.** Places play field recordings (station crowds, an izakaya, a konbini door, cicadas in
+  summer, a temple bell), following the hour and how busy it is.
+- **Small rituals.** Pray and draw omikuji at the shrines, drink with colleagues after work, and watch names change
+  as you get closer, from family name and -san to first names. Start as a foreigner and there's a language barrier
+  to work through.
 
-- **Feelings go both ways.** Everyone feels their own way about everyone else, and people can come to dislike or even hate you. A crush can still outweigh dislike, so enemies to lovers is possible.
-- **Friendship and romance are separate.** A best friend can stay just a friend; a stranger can flirt with you on the first night. Romance fades when you stop seeing each other, partners can leave you, and something casual is possible too. Exes are remembered as exes.
-- **Scenes count.** Each scene is judged when it ends: kindness, flirting, a fight or an insult all change how people feel, right away. Swiping or editing replies no longer stacks changes.
-- **Who people are.** Everyone can have a gender, an attraction (who they can fall for), a way of being about intimacy (from free spirit to devoted) and an exclusive or open relationship style. Your AI can suggest them from the cards. Not everyone is attracted to everyone: someone left unset is drawn to your gender if you are drawn to theirs, and is straight otherwise.
-- **A dating app that takes its time.** On Spark you choose which genders you see; a like is answered days later, or never, and a match takes something in common.
-- **People take the initiative.** They open up, confess their feelings, ask you out, text you, warn you before a breakup, hold grudges until you apologize, get jealous, and talk about you to their friends. How often is up to you.
-- **Being in the same place isn't being together.** What you do on your own goes into the story with no AI reply; someone may come over now and then (friends more often, more in a bar than a library), and you choose to talk or keep going. "Keep to myself" leaves only friends, rarely.
-- **The world's people live their own lives.** They make friends, fall out, fall for each other, date, marry and break up, from their own feelings.
-- **Family is family, feelings are feelings.** Family ties (parents, children, siblings and half-siblings, grandparents, aunts and uncles, cousins, step-family, in-laws, godparents, guardians) are kept apart from how people feel; everything else, from best friends to exes, is set as feelings: in the new game, the World creator and the People tab, without needing the Advanced settings.
+<p align="center"><img src="docs/readme/districts.jpg" alt="Ten district maps: Shibuya, Shinjuku, Akihabara, Asakusa and Ueno, Odaiba, Marunouchi, Roppongi, Kōenji, Hakone and Yokohama"></p>
 
-### Living and working
+## People with lives of their own
 
-- **Jobs with a working week.** Each job has its shifts and days off, and you see them in the Calendar and the Jobs app. How well you work builds your performance, and a promotion says what it still needs ("Logic 2 or Drawing 2"). A career takes about a game year to reach the top. Sick days, vacations and lateness follow work rules you can ease (Realistic, Reduced, Relaxed), and you can set the career speed.
-- **The world's people work too.** They keep their own shifts, with days off spread across the team and vacations, so you find them at work when they're on. The world's own people keep the jobs and homes the world gave them.
-- **A job is something you earn.** An interview is a long shot with nothing that helps (about 30%); what you're good at, the traits a job likes and its course make the difference, a job beyond your reach won't see you, and asking again every day doesn't win it. With adult content on, Tokyo's women's night jobs take anyone else only with an introduction or a top skill. [More on it](docs/improvements.md#jobs-and-rolls).
-- **Skills.** Hobbies became skills that level up, the world's own skills included. Things you do and courses can train them.
-- **Who you are matters.** Your strengths start your skills ("Good cook · Cooking 3"); your personality and interests each do something small, help with the jobs that like them and are told to the AI; habits have names of their own and make their skill train faster. No job is closed to your personality, and every roll gets the same bonus from your skill.
-- **Courses that take weeks.** Classes on a schedule or five days a week, a few you can miss (more cost make-up classes), two courses at once, long programs paid by the season, help with the fee, jobs you can start while you study for them, and a word from your boss when your next rank needs a course. Tokyo has 17, and two more with adult content on. [More on it](docs/improvements.md#who-you-are-and-courses-that-take-weeks).
-- **University.** Study for a degree at Tokyo's Hijiri University, the way The Sims does it: terms of a season, a few modules each term, classes on campus, coursework, grades from A to F and a GPA, a scholarship you can lose, probation, and graduating (with distinction, a rank up in related jobs). While you study, work is part-time and only student homes are open; some jobs want a degree. The University student start begins enrolled, and a Campus app follows it all. [More on it](docs/improvements.md#university).
-- **Training together.** A friend who is good at what you're not can teach you, you can teach what you know, or you trade: a Japanese friend teaching you Japanese while you help with their English. It's agreed in conversation (suggest it in your own words, or accept when someone offers), then sessions of an hour twice a week bring you up to a level below your teacher and bring you closer. It replaces apprentices. [More on it](docs/improvements.md#training-together).
-- **Life goals with perks.** Follow one life goal at a time (get rich, find love, make it in Tokyo…) through its steps; finishing it gives a perk that changes the game's numbers for good, and steps earn life points for a small shop (a lucky day, a nudge, an invitation, Tokyo's shrine charms). Tokyo has 26 goals of its own (six of them adult), and the World creator lets you write your world's. [More on it](docs/improvements.md#life-goals-and-life-points).
-- **Tokyo's adult progression.** With adult content on, Tokyo's love life and night world have something to play: a Sensuality skill, private moments that go better or worse, learning what someone likes, a Desire need and a drive for everyone, the risk of being caught, careers with a track for each gender (AV and the esthe), two courses, traits, goals and shop items. None of it exists with the switch off. [More on it](docs/improvements.md#tokyos-adult-progression).
-- **Storylines that wait for you.** 32 of Tokyo's people carry 43 storylines of their own (13 of them with adult content on): a debt, an exam, a lease, a visa, a leaving. It starts once you know them, runs on its own time through the seasons, and at its end it waits for you: the next time you're together they bring it up and you help (some stories have a price), wait for a better ending, or let it be. Wait, and they come back a few times, in person or by text; leave it unanswered and it ends without you. [More on it](docs/improvements.md#storylines).
-- **Running a business.** An end game for Tokyo in three tracks. A café of your own: take over Kissa Shirakaba when its master retires, or lease a small unit in Shimokita, Yanaka or off Omotesandō and name it, then grow it from a stand to a kissaten, two cafés and a roastery. It grows like an incremental game: four numbers, upgrades you buy, find around the city or earn, a style, discoveries, events at the counter and a calendar card now and then; run the counter yourself, or let hired hands keep it open. Or the executive's floor above Asahina Trading's, Mochi Byte's and Wave TV's top ranks: three seasons at the top, skills at their best, a leadership program and the board's nomination, then a division with a budget, initiatives, the board's verdict and bigger bonuses. Or hotels: Nest Capsule, Ryokan Kasumi-sō as a partner of Shizuka's family, and, with adult content on, Hotel Coco Palace and its night desk, which sees who comes in with whom; rooms filled by the calendar, a price paid off from the takings, people renting a room for a business of their own. The world's people are never your staff, but a business can change how their stories end. A Business app follows it all. [More on it](docs/improvements.md#running-a-business).
-- **A shop for the end game.** The phone's Shop app sells about 160 things in ten categories, from a ¥1,000 charm to a ¥15,000,000 car with a driver: online, or at the places that sell them (a marina and a classic-car garage are new), some only by invitation. Things are yours for good, with no upkeep and nothing to sell back; services last some days. They give small bonuses (only the best of each kind counts), things to do at home and around town, a car that drives you home after the last train, gifts to give, and a new skill, photography. The AI knows what people can see on you and what's at your home. [More on it](docs/improvements.md#shopping).
-- **A home of your own.** Some homes can now be bought outright, to live in or as a second home (two at most): in Tokyo the Toyosu and Azabu flats, and four that are only for sale, from a Roppongi penthouse to a villa in Yamate, about ¥2,400,000 to ¥18,000,000. A home you own pays a weekly upkeep instead of rent (left unpaid, its rooms stop working, but you're never locked out) and sells back at a loss. Fit it out with 24 rooms and fixtures, from a sauna to a grand piano, that work as the shop's things do; four are rooms of their own on the map (a rooftop terrace, a veranda over a rose garden, a cypress bath, an open-air hot-spring bath). A bigger home has room for more guests, and a big one can have its parties catered. A home you own and don't live in can be let (Toyosu and Azabu, three at most): an agent finds a tenant most weeks and pays the rent less a fifth every Monday. [More on it](docs/improvements.md#your-own-home).
-- **Tokyo memories.** A record of what you've lived in Tokyo, in the phone's Collection app: a slot for every storyline (whichever way it ended), festival, city event, district (its street stories and its places), life goal tier, business at its top and keepsake kind, filled by itself as it happens. It shows only what your game can have, never takes a slot away, and older games start it with what they remember. The World creator can give any world one in a click. [More](docs/improvements.md#tokyo-memories)
-- **A museum of your own.** Tokyo's Collection app gains halls of art, crafts and antiques, Modern Tokyo and (with adult content on) the night world: about a hundred pieces from finds, shops, festival stalls, people's storylines, a dealer whose van calls every week and four auctions a year against another collector, where a lot she takes always comes back. Own a few and an old storehouse in Yanaka can become your private museum, with wings and upgrades, renown, shows, a small Monday take from visitors and royalties that grow with every piece (¥10,000 a week at 10% complete, ¥150,000 at 100%); filling it is the end game's biggest spend, about ¥48 million with Nature and Before Edo. Its curator, Tamaki Kurahashi, a former child TV appraiser, lets you closer in five tiers as the museum fills, from colleague to partner, with four storylines of her own that wait for you. The dealer and the rival are people too, each on her own road: Kaede Utsumi, a laughing dealer from Nagasaki with an old camper van, warms to you with what you buy from her, never as far as commitment; Ayame Mikage, the cold heir of the Mikage Foundation, comes closer with every lot you take from her, never as a friend. Ayame's foundation borrows your best pieces for a season's fee, and once you know her family's secret she hires you and Tamaki for six authentication cases, ¥6,000,000 in all. [More](docs/improvements.md#a-museum-of-your-own-and-tamaki)
-- **Nature and Before Edo.** Two more halls for the museum. Look for insects in Tokyo's parks and at Hakone, fish off the seawalls, from a boat on Lake Ashi or a party boat out of Yokohama, and press flowers where they bloom: thirty pieces, each in its season and at its hour (live fish wait for the kura's aquarium tanks), marked In season in the Collection app, with a net, a rod and a flower press in the shop. Once the kura is yours, Hijiri University's archaeology lab asks for volunteers for its dig every autumn: Jōmon pottery, magatama, a dogū and a haniwa on loan, and from the second autumn Naumann's elephant, found a bone at a time under Nihonbashi and mounted by the kura's workshop. [More](docs/improvements.md#nature-and-before-edo)
-- **Life goals for the end game.** Ten more of Tokyo's goals for the late game: a home of your own and its rooms, a landlord's three homes let, Tsubakiya's salon and a car with a driver, a café to its roastery, a hotel of each kind, the executive floor to vice president, Tokyo memories complete, Nature's hall and Naumann's elephant, every hall of the museum and (with adult content on) the night world and Tamaki's cabinet. Their perks make a number grow, never a price come down (Patron of the arts now raises renown), the rewards shop sells a dealer's tip, an early catalogue, a press day, the workshop's priority and a good tenant, and the end game's milestones give life points too.
-- **Gifts that mean something.** Buy them where they're sold. A romantic gift warms a crush or a partner; an intimate one only lands with someone drawn to you, and is loved when it fits their intimate profile. Some people can't stand a gift: they thank you politely, and like you a little less.
-- **Couples go out.** Couples among the world's people go on dates a couple of evenings a week, at places they both like.
-- **A new game your way.** Choose the world's own people one by one, and begin from a start: who you are, your home, money and job, and who you know already. You can write your own start with a premise the AI is told, or change one of the world's starts for that game (its money, home, whom you know and your skills), and keep it for later. One switch decides adult content, and with it on, people's intimate profiles can be seen and changed.
-- **The AI knows the scene better.** In a crowded place it hears once what the people there share (why they're here, where they stand with you), and results written for you ("You nail the chorus") reach it as what you were told. The world's lorebook stays small in every request.
+<p align="center"><img src="docs/readme/cast.jpg" alt="Sixteen of Tokyo's people"></p>
 
-### Other improvements
+An art student working night shifts, a band that can't agree on its future, a ramen master and his daughter, a
+shrine maiden, an English teacher three years in, a host, a section chief, an idol. Each has a home, a job with
+shifts, friends, favorite places and a full set of expressions.
 
-More on each in **[Other improvements in this fork](docs/improvements.md)**.
+<p align="center"><img src="docs/readme/expressions.jpg" alt="Seo-yeon's expressions: calm, joyful, amused, embarrassed, angry, sad, surprised and in love"></p>
+<p align="center"><sub>28 expressions per person, each a pose of its own. The scene shows whichever fits the line.</sub></p>
 
-- **A color for each speaker's dialogue.** The quotes in each line, and the speaker's name, take that person's color, chosen by your AI to fit the characters and kept readable (Chat look, ☰ menu).
-- **Outfits from the game.** With adult content on, the people in a private moment wear their "naked" outfit and dress again after; a world's people can bring outfits of their own. With it off, adult actions stay hidden everywhere.
-- **A World creator that edits everything.** Every field of the built-in worlds, Tokyo included, can be changed in the World creator: lore, rolls and outcomes, street stories, starts, keepsakes, people's appointments and storylines, weather, trains, places' hours and pictures. [More on it](docs/improvements.md#the-world-creator-and-the-new-game).
-- **Your own additions to a built-in world.** A file in SillyTavern's user files (`mundi-overlay-<world id>.json`) adds places, people, actions, lore and pictures to a built-in world when it loads, without touching the world itself (the format is at the top of `src/core/overlay.ts`).
-- **Easier to find your way.** The map's Find button lists every place matching a name, with its district and the trip there; each skill on the Profile says where to practise it and when; the Goals app says how to do each objective (where a keepsake comes from, when a festival is next, where to ask for a job); notices count down one at a time and stay in a Log (☰ menu); the cards that come to you show one at a time; the Jobs app sorts its openings; and the main menu tells you when Mundi has an update. [More on it](CHANGELOG.md#034--2026-11-12).
-- **New pictures and new people reach your games.** When a world updates a character's expressions or outfits, cards made before get them too; when it gains people, a game already running offers to bring them in.
-- **Pictures that follow the weather and the season,** expression sprites in any format, and everything in Portuguese and Spanish.
+- **Your cast, your choice.** Choose Tokyo's people one by one when you start a game. Leave out every man, or anyone
+  else, and the world still works: jobs, storylines, businesses and the museum are all built to run with whoever
+  you keep. Then bring in your own SillyTavern characters: each gets a home, a routine and a job in the city, and
+  you say how they know you. Their cards stay as they are.
+- **Feelings go both ways.** Everyone feels their own way about you and about each other. Friendship and romance
+  are separate bars: a best friend can stay a friend, and a rival can still become something more.
+- **Scenes count.** When a scene ends, the engine judges it. Kindness, flirting, a fight or an insult change how
+  people feel. Swiping a reply doesn't stack the effect.
+- **They take the initiative.** People text you, ask you out, confess, warn you before a breakup, hold grudges until
+  you apologize, get jealous and talk about you to their friends.
+- **They live without you.** The world's people make friends, fall out, date, marry and break up from their own
+  feelings, and couples go on dates of their own.
+- **Storylines that wait for you.** 32 people carry a story: a debt, an exam, a visa, a lease, someone leaving. It
+  runs through the seasons, and at its turning point it waits for you. Help, wait for a better ending, or let it go.
+- **Who people are.** Gender, attraction, intimacy style, exclusive or open: set per person, or let your AI suggest
+  it from the card. Not everyone is drawn to everyone.
 
-## What you can do
+<p align="center">
+  <img src="docs/readme/scene-bar.jpg" width="49%" alt="Kyōko behind the counter of Bar Kotori in Golden Gai">
+  <img src="docs/readme/scene-kura.jpg" width="49%" alt="Ayame, Tamaki and Kaede in the Kurahashi kura">
+</p>
 
-- **Live in a world.** A map of places, time that moves when you act, weather and seasons. Energy, hunger, thirst, mood and hygiene drop over time.
-- **Talk.** A visual-novel scene with Say / Do / Story / See. Type `@` to pick who answers. The engine keeps the numbers (time, money, relationships); the AI writes the scene.
-- **Relationships.** Friendship and romance bars with levels, approval, feelings that fade, dates, proposals, marriage, a baby. People keep their own routines: find them, or text them.
-- **Work and money.** Job interviews (a d20 roll with your skills and the traits the job likes as bonus), shifts, promotions, quick gigs, courses that teach skills, weekly rent, water and power that get cut off if you don't pay (you can pay part of what you owe, and a bill cut off owes no more weeks). Easy / Normal / Hard.
-- **A phone.** Messages, People, Jobs, Bank, Homes, Chirp (social), Spark (dating), Calendar, Journal, Shop, Goals, Profile and Help.
-- **Households and "Play as".** Live with family or roommates, then switch to playing any of them.
-- **A diary.** Each night the day is written as a short entry, so the story remembers what happened.
-- **Make it yours.** Layouts (Visual novel, Classic, Cards), colors with transparency, presets that tint the HUD glass, a world creator for your own maps and rules.
-- **Phones.** Upright and sideways layouts, with their own scale for the HUD.
-- **A tour.** Stella shows you around in a practice world. No AI needed.
-- **Home mode.** A more role-play focused way to play: one house, the characters you choose, no work or bills. Pick the rooms, draw a floor plan, go out and come back.
-- **In your language.** The interface is in English, Português (Brasil) and Español (Settings → Interface → Language).
+## A life to build
 
-It comes with **Porto Alto**, a modern coastal state with five cities (Midtown, Palm Coast, Maple Heights, Pinecrest and Green Valley), **Tokyo** (this fork's), and **The Shared House** for Home mode. The medieval style (Valdoria) and the RPG mode are coming in a later update.
-
-See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
-
-## Screenshots (0.2)
-
-| | | |
-|---|---|---|
-| ![Midtown, the map of Porto Alto](docs/map.jpg) | ![Palm Coast, the beach city](docs/map-palmcoast.jpg) | ![Choosing a city of Porto Alto](docs/map-cities.jpg) |
-| ![The floor plan of the Shared House](docs/house-plan.jpg) | ![At home, in the bedroom](docs/home-bedroom.jpg) | ![An apartment at 13:30](docs/home-apartment.jpg) |
-| ![Sky Hotel & Rooftop Bar](docs/scene-sky.jpg) | ![The university](docs/scene-university.jpg) | ![The stadium](docs/scene-stadium.jpg) |
-
-## Screenshots
+Pick one of seven starts (up from the countryside, a university student, new in Japan, down on your luck…) or write
+your own, and go from there.
 
 | | |
 |---|---|
-| ![At home, with the phone open](docs/home.jpg) | ![Courses](docs/courses.jpg) |
-| ![A match on Spark, the dating app](docs/spark.jpg) | ![Someone's card in a scene](docs/people.jpg) |
-| ![How the day went](docs/diary.jpg) | ![Chirp, the social network](docs/chirp.jpg) |
+| **Work** | 49 careers with ranks, shifts and days off. Interviews are earned with skills and the right traits, not by asking again tomorrow. Promotions say what they still need. One career is a streamer, starting from your room. |
+| **Skills** | 16 skills that level up from practice, courses and the people around you. A friend can teach you what they know, or you trade: your English for their Japanese. |
+| **Study** | Courses that run for weeks on a timetable. Or Hijiri University: terms, modules, coursework, grades and a GPA, a scholarship you can lose, and graduation. |
+| **Goals** | 37 life goals for Tokyo, from *make it in Tokyo* to *find love*. Finish one for a perk that changes the numbers for good; its steps earn points for a small rewards shop, shrine charms included. |
 
-On a phone:
+## The long game
+
+Once rent stops being the worry, Tokyo has something to aim for.
+
+- **Run a business.** Take over an old kissaten when its master retires, or lease a unit and name your own café,
+  then grow it from a stand to a roastery. Climb past the top rank to the executive floor and run a division. Or
+  own hotels: a capsule hotel in Shinjuku, and a ryokan in Hakone as a partner of the family that runs it.
+- **Own your home.** Buy a flat or a villa, fit it out with saunas, a grand piano or a hot-spring bath, and let the
+  homes you don't live in. A tenant's rent arrives every Monday.
+- **Shop.** About 160 things, from a ¥1,000 charm to a car with a driver that takes you home after the last train.
+  The AI knows what people can see on you and what's in your home.
+- **Build a museum.** Collect art, crafts and antiques from finds, festival stalls, a dealer's camper van and four
+  auctions a year. Catch insects and fish in their season, join the university's autumn dig, and turn an old Yanaka
+  storehouse into a private museum.
+
+<p align="center"><img src="docs/readme/museum.jpg" alt="Sixteen museum pieces: prints, armor, a katana, pottery, a dogū, a haniwa, Naumann's elephant, insects, a koi and toys"></p>
+
+The museum has its own people. **Tamaki Kurahashi**, a former child TV appraiser, curates it and lets you closer
+as it fills. **Kaede Utsumi** sells from her van and warms to you with every purchase. **Ayame Mikage**, heir to a
+rival foundation, bids against you, and lets you a little closer with every lot you take from her. All three have
+storylines of their own.
+
+A **Tokyo memories** record fills itself as you play: every storyline, festival, district and milestone you've
+lived through.
+
+### Adult content, if you want it
+
+One switch, off by default. Turn it on and Tokyo's night life opens up: more people, places, careers, storylines,
+and a Sensuality skill with its own rules. Leave it off and none of it is in your game.
+
+## Under the hood
+
+Mundi is a SillyTavern **extension**, with no server plugin. It is built from SillyTavern's own pieces: characters
+are cards, you are a persona, the world's lore is a lorebook, and **a save is a group chat**.
+
+- **The engine owns the numbers, the AI plays the scenes.** The AI is told the state of the world each turn. When
+  the engine needs an answer (how did that scene go?), it asks a short follow-up question and reads the reply, so
+  free text never sets money, time or feelings.
+- **A visual-novel scene.** Say, Do, Story or See. Type `@` to choose who answers. Each speaker's dialogue gets their
+  own color.
+- **A phone.** Messages, People, Jobs, Bank, Homes, Calendar, Goals, Business, Collection, a social network (Chirp)
+  and a dating app (Spark) where a like might be answered days later, or never.
+- **A diary.** Each night the day becomes a short entry, so the story remembers.
+- **Households and "Play as".** Live with family or roommates, and switch to playing any of them.
+- **A World creator that edits everything,** Tokyo included: places, people, jobs, storylines, rules, pictures.
+  Overlay files let you add to a built-in world without touching it.
+- **Layouts and themes.** Visual novel, Classic or Cards, glass colors and transparency, and upright or sideways
+  phone layouts.
+- **In English, Portuguese and Spanish.**
 
 <p align="center">
-  <img src="docs/phone-scene.jpg" width="23%" alt="A scene on a phone">
-  <img src="docs/phone-homes.jpg" width="23%" alt="The Homes app">
-  <img src="docs/phone-profile.jpg" width="23%" alt="The Profile app">
+  <img src="docs/map.jpg" width="49%" alt="Midtown, in the world of Porto Alto">
+  <img src="docs/house-plan.jpg" width="49%" alt="The floor plan of the Shared House">
 </p>
+<p align="center"><sub>Beyond Tokyo: <b>Porto Alto</b>, a coastal state with five cities, and <b>The Shared House</b>
+for Home mode (one house, the characters you choose, no work or bills).</sub></p>
 
 ## Install
 
 1. In SillyTavern, open **Extensions → Install extension**.
-2. Paste `https://github.com/tjalis/Mundi` and install (or `https://github.com/rorikke/Mundi` for this fork; if you already have Mundi installed, remove it first).
-3. Reload SillyTavern (Ctrl+F5). Open Mundi from the **Extensions menu** (the magic wand next to the chat box). The tour starts the first time you open it.
+2. Paste `https://github.com/rorikke/Mundi` and install.
+3. Reload SillyTavern (Ctrl+F5) and open Mundi from the **Extensions menu** (the magic wand by the chat box). A short
+   tour with Stella starts the first time, and needs no AI.
 
-Works with SillyTavern 1.19 or newer. Any chat-completion or text-completion API works; a context of about 30k tokens is a good size.
+**Needs:** SillyTavern 1.19 or newer and any chat-completion or text-completion API. About 30k tokens of context is a
+good size.
 
+The repository ships the built `dist/` and `style.css`, so there's nothing to build. To work on the code, see
+[`docs/dev/ARCHITECTURE.md`](docs/dev/ARCHITECTURE.md) and run `./build.sh` (needs TypeScript).
 
-## Building from source
+## Learn more
 
-The repository ships the compiled `dist/` and `style.css`, so you don't need to build to use it. To change the code:
-
-```sh
-npm i -g typescript
-./build.sh        # src/*.ts → dist/, css/*.css → style.css
-```
+- **[The full guide](docs/improvements.md):** jobs and rolls, university, business, homes, storylines, the museum
+  and the rest, system by system.
+- **[Relationships](docs/relationships.md):** how feelings, romance, attraction and initiative work.
+- **[What changed](CHANGELOG.md)** in each version, and **[what's next](docs/ROADMAP.md)**.
 
 ## Credits
 
-- Sounds by [Kenney](https://kenney.nl) (CC0).
+- Built on the original [Mundi](https://github.com/tjalis/Mundi) engine by tjalis.
+- Interface sounds by [Kenney](https://kenney.nl) (CC0).
 - Tokyo's place sounds: recordings from [Freesound](https://freesound.org) by markystar, manuke, jrussell_tm,
   Heigh-hoo, muse88, Intimana, RutgerMuller, csaszi, gazy, macdaddyno1, piego, BenParamoreAudio, 170026 and Kinoton
-  (CC0), and by RadioGoldProductions, volivieri, LG, Echograin (CC BY 4.0) and Tomlija (CC BY 3.0); see
+  (CC0), and by RadioGoldProductions, volivieri, LG, Echograin (CC BY 4.0) and Tomlija (CC BY 3.0). See
   [`worlds/tokyo/sound/CREDITS.md`](worlds/tokyo/sound/CREDITS.md) for each recording, its license and what was
   changed.
 - Seraphina is SillyTavern's default character; her picture is bundled for the tour.
