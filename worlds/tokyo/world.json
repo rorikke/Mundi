@@ -987,7 +987,7 @@
    "photostudio": {
     "name": "Photo studio",
     "desc": "a room to shoot in, never to live in: white walls, power for the lights, a door that locks",
-    "image": "bg/bay_tv.avif",
+    "image": "bg/hz_ps_urahara.avif",
     "work": true,
     "bills": {
      "water": 600,
@@ -1551,7 +1551,7 @@
      ]
     ],
     "desc": "a concrete basement two lanes behind Cat Street, a roller door to the street, the boutiques' stylists for neighbours",
-    "image": "bg/bay_tv.avif"
+    "image": "bg/hz_ps_urahara.avif"
    },
    {
     "id": "hz_ps_bay",
@@ -1570,7 +1570,11 @@
      ]
     ],
     "desc": "a whole floor of an old warehouse on the water: tall windows, a loading door onto the bay, room for a car on set",
-    "image": "bg/bay_tv.avif"
+    "image": "bg/hz_ps_bay.avif",
+    "images": {
+     "afternoon": "bg/hz_ps_bay-afternoon.avif",
+     "night": "bg/hz_ps_bay-night.avif"
+    }
    },
    {
     "id": "hz_ps_shimokita",
@@ -1589,7 +1593,11 @@
      ]
     ],
     "desc": "the top floor of a small concrete building over the shopping street, skylights in the roof, the trains going by",
-    "image": "bg/bay_tv.avif"
+    "image": "bg/hz_ps_shimokita.avif",
+    "images": {
+     "afternoon": "bg/hz_ps_shimokita-afternoon.avif",
+     "night": "bg/hz_ps_shimokita-night.avif"
+    }
    },
    {
     "id": "hz_ps_mizu",
@@ -1611,7 +1619,7 @@
      "fx_cyclorama"
     ],
     "desc": "Erika's white basement off Cat Street, cyclorama and all, and her coffee machine you may touch now",
-    "image": "bg/bay_tv.avif"
+    "image": "bg/sb_studio_mizu.avif"
    }
   ]
  },
@@ -34633,7 +34641,7 @@
    "sound": [
     "traffic"
    ],
-   "bg": "bg/bay_tv.avif"
+   "bg": "bg/sb_studio_mizu.avif"
   },
   {
    "id": "hk_ryokan_hanare",
