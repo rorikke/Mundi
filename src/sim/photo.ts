@@ -375,7 +375,13 @@ function fromAction(g: Save, w: WorldDef, a: NonNullable<Parameters<typeof photo
     }
     if (ok === false) return [];
     const q = roll ? Math.max(0, Math.min(100, 50 + 6 * (roll.total - roll.dc))) : undefined;
-    const rec = recordPhoto(g, w, { src: 'spot', who: mates.slice(0, 2).map(m => ({ name: name(g, m), expr: 'joy' })).filter(h => h.name), q, adult: !!(a as any).adult, kind: 'street',
+    // who is in the frame: only people whose camera rule lets a friend's snapshot have them (not `never`, not `noface`: it's
+    // their face, not `work`: it isn't work); a private action's photo is a private one (adult, its own expression, the
+    // outfit a private action puts on), and someone who's asked first is in it only there, where they're asked
+    const priv = !!(a as any).private;
+    const inFrame = mates.filter(m => { const r = cameraOf(g, w, m); return !r || (r === 'ask' && priv); });
+    const who = inFrame.slice(0, 2).map(m => ({ name: name(g, m), expr: priv ? 'love' : 'joy', ...(priv && adultOn(g) ? { outfit: 'naked' } : {}) })).filter(h => h.name);
+    const rec = recordPhoto(g, w, { src: priv ? 'private' : 'spot', who, q, adult: priv || !!(a as any).adult, kind: priv ? 'private' : 'street',
         ...(q !== undefined ? { stars: q >= 85 ? 5 : q >= 70 ? 4 : q >= 55 ? 3 : q >= 35 ? 2 : 1 } : {}) });
     if (!rec) return [];
     const out = [`📷 A photo for Lens: ${rec.cap}${rec.undeveloped ? ' (on film: develop the roll to see it)' : ''}.`];
@@ -384,10 +390,13 @@ function fromAction(g: Save, w: WorldDef, a: NonNullable<Parameters<typeof photo
     return out;
 }
 // A work event's choice that takes a photo, when it works: at the job's place, kept as the event's.
+// (an adult event's photo is an adult one: found by the choice among the world's adult work events, the choice itself or
+// a copy of it named for a colleague, by its label)
+const adultChoice = (w: WorldDef, c: { label?: string; text?: string }) => (w.occupations ?? []).some(o => (o.events ?? []).some(e => e.adult && (e.choices ?? []).some(x => x === c || (!!c.label && x.label === c.label))));
 function fromChoice(g: Save, w: WorldDef, c: { label?: string; text?: string }, ok: boolean | null): string[] {
     if (ok === false) return [];
     const o = myJob(g, w);
-    const rec = recordPhoto(g, w, { src: 'event', place: g.player.loc, kind: 'event', cap: `${o?.name ?? 'Work'}: ${(c.label ?? '').replace(/[.!]$/, '')}` });
+    const rec = recordPhoto(g, w, { src: 'event', place: g.player.loc, kind: 'event', adult: adultChoice(w, c), cap: `${o?.name ?? 'Work'}: ${(c.label ?? '').replace(/[.!]$/, '')}` });
     return rec ? [`📷 The shot is in Lens.`] : [];
 }
 
