@@ -19,6 +19,7 @@ import { trainHours } from './transit.js';
 import { partySpot } from './houseparty.js';
 import { stampOf, slotAt, shiftAt, shiftOn, scheduled, dayStep, dayOff, onVacation, broughtNow, adultOn, adultPlaces, jobOf, workPlace, type Stamp } from './dayplan.js';
 import { guestSpot } from './guests.js';
+import { homeIdAt } from './visitors.js';
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 
@@ -114,8 +115,8 @@ export function routineAt(g: Save, w: WorldDef, r: Resident, at: number): string
 // work hours are free time, and a day off follows its weekend steps.
 function routineCore(g: Save, w: WorldDef, r: Resident, at: number, st?: Stamp): string {
     const day = Math.floor(at / 1440);
-    // someone who lives with you (or with someone else) is at that home
-    const homeId = (r as any).homeWith === '__you' ? 'home:player' : (r as any).homeWith ? `home:${(r as any).homeWith}` : `home:${r.avatar}`;
+    // someone who lives with you (or with someone else) is at that home; someone staying with you, at yours
+    const homeId = homeIdAt(g, w, r, at);
     // Home: a job you wrote for them has its shift (out of the house while it lasts); without one, their routine
     if (isScenario(w)) {
         const [start, target] = routineStep(r, at);
@@ -167,7 +168,7 @@ function lateNight(g: Save, w: WorldDef, r: Resident, at: number, homeId: string
 /** (E36) Out past the last train right now, waiting for the first one (what the AI is told). */
 export function waitingForTrain(g: Save, w: WorldDef, r: Resident, at = nowAbs(g)): boolean {
     if (isScenario(w) || !trainHours(w)) return false;
-    const homeId = (r as any).homeWith === '__you' ? 'home:player' : (r as any).homeWith ? `home:${(r as any).homeWith}` : `home:${r.avatar}`;
+    const homeId = homeIdAt(g, w, r, at);
     const x = lateNight(g, w, r, at, homeId, stampOf(g, w));
     return !!x && x !== homeId;
 }

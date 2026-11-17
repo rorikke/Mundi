@@ -52,7 +52,7 @@ import { bumpHtml } from './bump.js';
 import { newPeopleHtml } from './newpeople.js';
 import { P as phone, phoneUnread } from './phone.js';
 import { PL, facePlanHtml } from './plans.js';
-import { relBar, workButton } from './relui.js';
+import { relBar, workButton, doorbellHtml } from './relui.js';
 import { openNow } from '../sim/daynight.js';
 import { questsHere, doStep } from '../sim/quests.js';
 import { weatherHere, crowdLevel, crowdWord, regionState, regionOf, moodWord, tensionWord } from '../sim/worldstate.js';
@@ -203,9 +203,10 @@ function timeLeftText(mins: number): string {
 function hereBar(g: Save, w: WorldDef) {
     if (state.view !== 'scene') return '';
     const list = sceneHere(g, w);   // everyone in the place (in your room, at a home with rooms), the people who came with you too
-    if (!list.length) return elsewhereBar(g, w);
+    const bell = doorbellHtml(g, w);   // (plans) someone come to stay is at the door
+    if (!list.length) return bell + elsewhereBar(g, w);
     const mine = new Set(withYou(g, w));   // (marked: who is with you now, sim/social.ts; the others are only around)
-    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${elsewhereBar(g, w)}`;
+    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${bell}${elsewhereBar(g, w)}`;
 }
 // (homerooms) The people you know elsewhere in the house: their face, name and room; a click walks you there (doors
 // apply).

@@ -15,6 +15,8 @@ import { social, isWith, appointmentNow, bondOf, livePlan } from './social.js';
 import { breakNow } from './daylife.js';
 import { isSleeping } from './plans.js';
 import { FRIEND_TIERS } from './romance.js';
+import { roomRules, partyRooms } from './hooks.js';
+export { roomRules, partyRooms };
 
 /** What a room can be for, as tags the World creator offers (besides the place tags). Bedrooms are made, never
  *  written, so `bed` isn't one of them. */
@@ -147,12 +149,8 @@ const friendLo = () => FRIEND_TIERS.find(t => t.id === 'friend')?.lo ?? 30;
 /** A short stay in your room: someone who came to find you (a knock on your door, walking into the kitchen). */
 export interface DropIn { avatar: string; loc: string; room: string; until: number }
 const dropIns = (g: Save): DropIn[] => ((social(g) as any).dropIn ?? []) as DropIn[];
-/** Rules other parts of the game add, checked after the drop-ins and the host, before sleep and the house's rhythm
- *  (a friend staying over: where they sleep, the sofa room by day). A room id, or null to leave it to the next rule. */
-export const roomRules: ((g: Save, w: WorldDef, r: Resident, x: { loc: string; rooms: RoomHere[]; at: number; mine: string }) => string | null)[] = [];
-/** (parties) During a party at home, where someone is (a room tagged leisure or food). Null: no party for them. */
-export const partyRooms: ((g: Save, w: WorldDef, r: Resident, x: { loc: string; rooms: RoomHere[]; at: number }) => string | null)[] = [];
-
+// (the hook lists `roomRules` and `partyRooms` live in sim/hooks.ts, so the parts that fill them can import nothing of
+// this file's: visitors.ts is imported by people.ts, which this file imports)
 // The house's rhythm: how likely each kind of room is at this hour (the hour before bed: a bath, then their room).
 // First guesses, to be tuned only with the user (plans/tokyo-home-rooms-impl.md).
 const rhythmAt = (h: number, bedtime: boolean): Record<'kitchen' | 'living' | 'bath' | 'own', number> =>
