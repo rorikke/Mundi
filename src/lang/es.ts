@@ -10112,5 +10112,13 @@ const DICT: Record<string, string> = {
  "{0} more weeks": "{0} semanas más",
  "{0} thanks you for the {1}, politely.": "{0} te da las gracias por {1}, con educación.",
  "Who can't stand it (names: thanked for politely, a little friendship lost)": "Quién no lo soporta (nombres: da las gracias con educación, se pierde un poco de amistad)",
+ "Rooms and fixtures bought": "Habitaciones e instalaciones compradas",
+ "In your homes, in all": "En tus casas, en total",
+ "At once": "A la vez",
+ "In all": "En total",
+ "The record filled": "El registro completado",
+ "A share of the record (percent)": "Una parte del registro (por ciento)",
+ "Every entry in {0}": "Todas las entradas de {0}",
+ "A number of entries in {0}": "Un número de entradas de {0}",
 };
 export default DICT;
