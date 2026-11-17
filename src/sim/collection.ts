@@ -19,7 +19,9 @@ import { offeredGoals } from './goals.js';
 export interface Got { day: number; how?: string; good?: boolean; by?: string; back?: boolean;
     /** (museum) a display piece: the source kind it came by, what it cost, a replica (CO-2), damaged and off the show
      *  until restored (the theft's; a damaged find isn't filled until restored, MU-4) */
-    src?: string; paid?: number; replica?: boolean; damaged?: boolean }
+    src?: string; paid?: number; replica?: boolean; damaged?: boolean;
+    /** (nature) the dig a piece came from (`src: 'dig'`) */
+    dig?: string }
 export interface CollectionState { got: Record<string, Got>; counted: string[]; had: string[]; seen?: number; v?: number }
 
 /** The system on and something to collect in this world. */
@@ -90,7 +92,7 @@ export function slotsHere(g: Save, w: WorldDef): SlotDef[] {
 
 // Stories that belong to the Business app and the jobs, not to a district; (museum) nor the museum's and the end game's
 // people's (its milestones at the museum, a tier).
-const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer']);
+const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig']);
 const seenOf = (g: Save) => ((g as any).stories?.seen ?? {}) as Record<string, { day: number; choice?: number }>;
 // A person a story names who left the map or isn't in this game.
 const personGone = (g: Save, name: string) => { const r = personNamed(g, name); return !r || goneFromMap(r); };
@@ -189,22 +191,29 @@ function settle(g: Save, w: WorldDef): string[] {
         filled.push(s);
     }
     // R-8: a slot not counted yet joins the count when it fills, or at once while that percentage isn't 100%
-    const counted = new Set(c.counted);
+    const counted = new Set(c.counted), halls: string[] = [];
     if (first) for (const s of here) counted.add(s.id);
     else for (const record of [true, false]) {
         const fresh = here.filter(s => !counted.has(s.id) && countsIn(w, s, record));
         if (!fresh.length) continue;
         const inIt = here.filter(s => counted.has(s.id) && countsIn(w, s, record) && !s.bonus);
         const done = inIt.length > 0 && inIt.every(s => c.got[s.id]);
+        // a display hall none of whose slots was counted yet (a world's new halls, under a save below 100%) is said
+        // once, as its slots join the count and the percentage drops; only where the display halls are shown
+        if (!record && !done && museumHooks.begun(g, w) !== false) for (const h of w.collection?.halls ?? []) {
+            if (h.record || h.apart || (h.open && !whenHolds(g, w, h.open))) continue;
+            if (fresh.some(s => s.hall === h.id) && !here.some(s => s.hall === h.id && counted.has(s.id))) halls.push(h.name);
+        }
         for (const s of fresh) if (!done || c.got[s.id]) counted.add(s.id);
     }
     // (a hall of its own has no percentage to keep at 100%, so no slot of it is ever "new")
     if (!first) for (const s of here) if (hallOf(w, s.hall)?.apart) counted.add(s.id);
     if (counted.size !== c.counted.length) c.counted = [...counted];
     c.v = 1;
-    if (!filled.length) return [];
+    const news = halls.length === 1 ? [`The museum has a new hall: ${halls[0]}.`] : halls.length ? [`The museum has new halls: ${halls.join(', ')}.`] : [];
+    if (!filled.length) return news;
     // a hall of its own tells what fills in it under its own name, and only while it's open (its slots fill meanwhile)
-    const out: string[] = [], tell = (name: string, list: SlotDef[], begin: boolean) => {
+    const out: string[] = [...news], tell = (name: string, list: SlotDef[], begin: boolean) => {
         if (!list.length) return;
         if (begin) out.push(`${name} begin with ${list.length} things you've already done.`);
         else out.push(list.length <= 2 ? `${name}: ${list.map(s => s.name).join(', ')}.` : `${name}: ${list.length} new.`);

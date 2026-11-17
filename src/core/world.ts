@@ -868,7 +868,15 @@ export interface KeepsakeDef { id: string; name: string; icon: string; kind?: st
 export interface WorldCollection { halls: HallDef[]; slots: SlotDef[]; minKind?: number;
     /** (museum) The museum itself: its place, the offer, upgrades, renown, the dealer, the sales, shows (see MuseumDef).
      *  Without it, display halls are a plain collection (finds, shops, festivals, endings, stories, milestones). */
-    museum?: MuseumDef }
+    museum?: MuseumDef;
+    /** (nature) Digs that come back every season of theirs (Tokyo: Hijiri University's, every autumn); a piece with a
+     *  `dig` source comes from one. */
+    digs?: DigDef[] }
+/** (nature) A dig: at `place`, its `actions` dig while `season` holds, each season counted apart. One action's odds of a
+ *  find are `chance` (times the finds' multipliers); `sure` days dug in a season make sure of one find, `most` finds a
+ *  season at most. `lend`: its finds go only to an open museum, on loan. */
+export interface DigDef { id: string; name: string; place: string; actions: string[]; season: When;
+    chance?: number; sure?: number; most?: number; lend?: boolean }
 /** (museum) A museum of your own. `place`: hidden until it's yours. `offer`: when it can be taken on and its price;
  *  `cases`: pieces on show at home before it opens; `room`: pieces its first room shows (any hall) before wings;
  *  `curator`: one of the world's people, given `curatorJob` when it opens. `renown`: levels, renown per piece on show by
@@ -943,12 +951,16 @@ export interface SlotDef {
     pic?: string;
     /** (museum) A display piece: where it comes from, its price, an upgrade it needs, its parts (a fossil). */
     sources?: PieceSource[]; price?: number; needsUpgrade?: string; parts?: string[];
+    /** (nature) A piece of parts is put together by the workshop for `price` in `days` (missing, or no museum: it fills
+     *  the moment its last part comes); a picture per part. */
+    mount?: { price: number; days: number }; partPics?: Record<string, string>;
     /** (museum) A bonus piece: shown with a gold frame, never counted in a percentage (it can come after 100%). */
     bonus?: boolean }
-/** (museum, read by nothing yet) Where a piece comes from: `find` (after `action`, or any action `at` places, on a roll
- *  of `chance`; `damaged`: the odds it needs restoring), `sold` (at places, for `price`), `festival` (a stall at festival
- *  `id`), `dealer` and `auction` (`price`, `chance` as a rarity weight), `ending` (storyline `id`, any ending),
- *  `milestone` and `story` (`when`, or story `id`), `replica` (the curator's, once `when` holds, for `price`), `dig`. */
+/** (museum) Where a piece comes from: `find` (after `action`, or any action `at` places, on a roll of `chance`;
+ *  `damaged`: the odds it needs restoring), `sold` (at places, for `price`), `festival` (a stall at festival `id`),
+ *  `dealer` and `auction` (`price`, `chance` as a rarity weight), `ending` (storyline `id`, any ending), `milestone` and
+ *  `story` (`when`, or story `id`), `replica` (the curator's, once `when` holds, for `price`), `dig` (dig `id`, `chance`
+ *  as a weight among its pieces, `when`). */
 export interface PieceSource { kind: 'find' | 'sold' | 'dealer' | 'auction' | 'festival' | 'ending' | 'milestone' | 'story' | 'replica' | 'dig';
     at?: string[]; action?: string; when?: When; chance?: number; price?: number; id?: string; damaged?: number }
 /** (E17) A street story, seen once: where, when (see When), the setup told to the AI (unnamed background people, or one

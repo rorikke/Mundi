@@ -23,14 +23,16 @@ Ideas planned for later. Nothing here is promised for a date.
   [Shopping](improvements.md#shopping) and [Your own home](improvements.md#your-own-home)). Next:
   - **Homes, later:** pictures of their own for the four new homes and their rooms (they borrow others' for now),
     parties at the second home with guests staying the night, and homes for sale in the other worlds.
-  - **A collection:** the record of what you've lived in Tokyo and a museum of your own are in (see
-    [Tokyo memories](improvements.md#tokyo-memories) and [A museum of your own](improvements.md#a-museum-of-your-own-and-tamaki)).
-    Next: the rival collector and the dealer as people of their own, made the way Tamaki is (cards, pictures, tiers
-    from the sales and from what you buy, their storylines); Nature (insects, fish, pressed flowers by season) and a
-    dig for what came before Edo, as two more halls.
+  - **A collection:** the record of what you've lived in Tokyo, a museum of your own and its Nature and Before Edo
+    halls are in (see [Tokyo memories](improvements.md#tokyo-memories),
+    [A museum of your own](improvements.md#a-museum-of-your-own-and-tamaki) and
+    [Nature and Before Edo](improvements.md#nature-and-before-edo)). Next: the rival collector and the dealer as people
+    of their own, made the way Tamaki is (cards, pictures, tiers from the sales and from what you buy, their
+    storylines). Forgeries (a fake among the dealer's pieces, spotted by a skill check or the curator's eye, never
+    standing in the real piece's way) are kept for later.
   - **TODO, the museum's pace:** in the long simulated runs, a player putting the museum first completes its base halls
-    about 6.3–7.1 game years after taking on the kura on ¥1,000,000 a week, not the planned five (about four on
-    ¥1,500,000; on ¥500,000 never within eight years). Prices stay as they are; the museum should earn more instead.
+    about 6.8–7.9 game years after taking on the kura on ¥1,000,000 a week with Nature and Before Edo (6.3–7.1 before
+    them), not the planned five (3.9–5.3 on ¥1,500,000; on ¥500,000 never within eight years). Prices stay as they are; the museum should earn more instead.
     Candidates: shows that sell tickets, lending a hall to Ueno Hall of Art for a fee, a museum shop. Raising what
     visitors pay barely helps (they pay by renown, which is low while the museum is being built) and would make them
     more than the small thank-you they are meant to be.

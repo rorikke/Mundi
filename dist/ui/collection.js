@@ -7,6 +7,9 @@
 // halls with their pieces as picture tiles (how each came, where it's on show, Replica, Damaged · restore; a missing
 // one darkened with its hint and price band; a bonus piece in a gold frame), then the record. A Here tab shows where
 // you are sells pieces. The app opens on the Museum tab once the museum's offer has come, else on the first hall.
+// (nature) A missing piece whose way comes round this season is marked In season, and its hall says how many; a piece
+// of parts shows its parts as small pictures (darkened while missing), then Ready to mount or the day it's mounted.
+// Here also lists what could turn up where you are now.
 import { esc, notify } from '../core/store.js';
 import { ACT } from './reg.js';
 import { thumb } from '../st/bridge.js';
@@ -15,7 +18,8 @@ import { recordView, percentOf, collectionOn, collectionOf, markSeen, settleColl
 import { personNamed } from '../sim/when.js';
 import { money } from '../sim/needs.js';
 import { museumOn, museumOf, museumOpen, museumDef, hasUpgrade } from '../sim/museum.js';
-import { museumTab, dealerTab, salesTab, hereTab, piecesHereCount, howItCame, whereWords, priceBand } from './museumui.js';
+import { inSeason } from '../sim/dig.js';
+import { museumTab, dealerTab, salesTab, hereTab, hereHasAny, howItCame, whereWords, priceBand } from './museumui.js';
 /** In memory only: the hall shown, the groups opened, and the day the app was last opened before now (a slot filled
  *  since is marked as just in). */
 export const CL = { hall: '', open: new Set(), since: -1, game: '' };
@@ -56,9 +60,9 @@ function tileHtml(g, w, t) {
 function pieceHtml(g, w, t) {
     const p = (t.piece ?? {}), got = t.got, bonus = !!w.collection?.slots.find(s => s.id === t.id)?.bonus;
     const fresh = !!got && CL.since >= 0 && !got.back && got.day > CL.since, open = museumOpen(g, w), shop = hasUpgrade(g, w, 'workshop');
-    const hurt = !!p.damaged, waiting = hurt && !got;
-    const cls = ['mu-cl-tile', 'mu-cl-piece', got || waiting ? 'is-got' : 'is-empty', t.gold || bonus ? 'is-gold' : '', bonus ? 'is-bonus' : '', hurt ? 'is-damaged' : '', p.replica ? 'is-replica' : '', p.needs && !got ? 'is-needs' : '', t.fresh ? 'is-new' : '', fresh ? 'is-just' : ''].filter(Boolean).join(' ');
-    const marks = `${bonus ? '<em class="mu-cl-mark is-bonus">Bonus</em>' : ''}${p.replica ? '<em class="mu-cl-mark is-replica">Replica</em>' : ''}${t.fresh ? '<em class="mu-cl-mark">New</em>' : ''}${fresh ? '<em class="mu-cl-mark is-just">Just in</em>' : ''}`;
+    const hurt = !!p.damaged, waiting = hurt && !got, season = !got && !waiting && seasonal(g, w, t.id);
+    const cls = ['mu-cl-tile', 'mu-cl-piece', got || waiting ? 'is-got' : 'is-empty', t.gold || bonus ? 'is-gold' : '', bonus ? 'is-bonus' : '', hurt ? 'is-damaged' : '', p.replica ? 'is-replica' : '', p.needs && !got ? 'is-needs' : '', season ? 'is-season' : '', t.fresh ? 'is-new' : '', fresh ? 'is-just' : ''].filter(Boolean).join(' ');
+    const marks = `${bonus ? '<em class="mu-cl-mark is-bonus">Bonus</em>' : ''}${p.replica ? '<em class="mu-cl-mark is-replica">Replica</em>' : ''}${season ? '<em class="mu-cl-mark is-season">In season</em>' : ''}${t.fresh ? '<em class="mu-cl-mark">New</em>' : ''}${fresh ? '<em class="mu-cl-mark is-just">Just in</em>' : ''}`;
     const fix = !hurt ? '' : p.ready !== undefined ? `<small class="mu-cl-fix">${esc(`In the workshop until day ${n(p.ready)}`)}</small>`
         : shop && p.fee ? `<button class="mu-cl-fix" data-act="mus-restore" data-id="${esc(t.id)}" ${g.player.money < p.fee ? `aria-disabled="true" title="${esc(`You need ${money(w, p.fee)}`)}"` : ''}>${esc(`Damaged · restore ${money(w, p.fee)}`)}</button>`
             : `<small class="mu-cl-fix">${esc(waiting ? 'Damaged: it counts once the workshop restores it' : 'Damaged: off the show until the workshop restores it')}</small>`;
@@ -69,9 +73,27 @@ function pieceHtml(g, w, t) {
     else if (waiting)
         body = `<small class="mu-cl-day">${esc(howItCame(g, w, { day: (museumOf(g)?.damaged?.[t.id]?.day ?? g.day), src: p.src }))}</small>${fix}`;
     else
-        body = `<small class="mu-cl-hint ${p.needs ? 'is-needs' : ''}" data-notr>${esc(t.hint)}</small>${priceBand(p.rung ?? 0) ? `<small class="mu-cl-band" title="${esc(`About ${money(w, p.price ?? 0)}`)}">${esc(priceBand(p.rung ?? 0))}</small>` : ''}${p.needs && !said(t.hint, p.needs) ? `<small class="mu-cl-needs">${esc('Needs')} <span data-notr>${esc(p.needs)}</span></small>` : ''}`;
+        body = `<small class="mu-cl-hint ${p.needs ? 'is-needs' : ''}" data-notr>${esc(t.hint)}</small>${priceBand(p.rung ?? 0) ? `<small class="mu-cl-band" title="${esc(`About ${money(w, p.price ?? 0)}`)}">${esc(priceBand(p.rung ?? 0))}</small>` : ''}${p.needs && !said(t.hint, p.needs) ? `<small class="mu-cl-needs">${esc('Needs')} <span data-notr>${esc(p.needs)}</span></small>` : ''}${partsHtml(w, p)}`;
     return `<li class="${cls}" data-piece="${esc(t.id)}">${picOf(g, w, t)}<span class="mu-cl-text">
         <span class="mu-cl-name"><b data-notr>${esc(t.name)}</b>${t.title ? ` <small class="mu-cl-title" data-notr>${esc(t.title)}</small>` : ''}${marks}</span>${body}</span></li>`;
+}
+// (nature) Does a missing piece's way come round this season (sim/dig.ts `inSeason`, a pure reading of its ways; only
+// yearly windows, seasons and festivals: a weekly market would mark a piece all year)?
+const seasonal = (g, w, id) => collectionOn(w) && inSeason(g, w, id, { yearly: true });
+// (nature) A piece of parts not had yet: each part as a small picture (the part's own, else the piece's emoji),
+// darkened while missing, how many are in, then Ready to mount or the day the workshop has it ready.
+function partsHtml(w, p) {
+    if (!p.parts?.length)
+        return '';
+    const have = p.parts.filter(x => x.have).length, of = p.parts.length;
+    const pics = p.parts.map(x => {
+        const src = x.pic ? worldFile(w, x.pic) : '';
+        const img = src ? `<img src="${esc(src)}" alt="" loading="lazy">` : '<i aria-hidden="true">🦴</i>';
+        return `<span class="mu-cl-part ${x.have ? 'is-have' : 'is-missing'}" data-part="${esc(x.id)}" title="${esc(x.id)}">${img}</span>`;
+    }).join('');
+    const state = p.mounting !== undefined ? `<small class="mu-cl-mount">${esc(`Mounting: ready day ${n(p.mounting)}`)}</small>`
+        : p.toMount ? '<small class="mu-cl-mount is-ready">Ready to mount</small>' : '';
+    return `<span class="mu-cl-parts" data-notr>${pics}</span><small class="mu-cl-partnum">${esc(`${n(have)} of ${n(of)} parts`)}</small>${state}`;
 }
 // (a world's hint may already say what the piece waits for: "… Needs security.")
 const said = (hint, needs) => hint.toLowerCase().includes(needs.toLowerCase().replace(/^(the|a|an) /, ''));
@@ -106,7 +128,10 @@ function hallHtml(g, w, h) {
         const bonus = new Set((w.collection?.slots ?? []).filter(s => s.bonus).map(s => s.id));
         const tiles = h.groups.flatMap(gr => gr.tiles).filter(t => !bonus.has(t.id)), have = tiles.filter(t => t.got).length;
         const pct = tiles.length ? Math.floor((have / tiles.length) * 100) : 0;
-        head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(pct)}%</b><span><span>${esc(`${n(have)} of ${n(tiles.length)} pieces`)}</span>${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}${showLine(w, h)}</span></div>`;
+        // (nature) how many of those you haven't got come round this season
+        const now = tiles.filter(t => !t.got && !t.piece?.damaged && seasonal(g, w, t.id)).length;
+        const season = now ? `<small class="mu-cl-season">${esc(`In season now: ${n(now)} you haven't got`)}</small>` : '';
+        head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(pct)}%</b><span><span>${esc(`${n(have)} of ${n(tiles.length)} pieces`)}</span>${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}${season}${showLine(w, h)}</span></div>`;
     }
     const groups = h.groups.map(gr => {
         const key = `${h.id}/${gr.id}`, open = CL.open.has(key), pieces = gr.tiles.some(t => t.piece);
@@ -116,14 +141,15 @@ function hallHtml(g, w, h) {
     }).join('');
     return `${head}${groups}`;
 }
-/** The tabs besides the halls: Here (pieces sold where you are), and the museum's once it has begun. */
+/** The tabs besides the halls: Here (pieces sold where you are, or a find that could turn up there now), and the
+ *  museum's once it has begun. */
 function extraTabs(g, w) {
     const m = museumDef(w), begun = museumOn(w) && museumOf(g)?.begun !== undefined;
     return [
         ...(begun ? [{ id: 'kura', name: 'Museum', icon: '🏛️' }] : []),
         ...(begun && m?.dealer ? [{ id: 'dealer', name: 'Dealer', icon: '🚐' }] : []),
         ...(begun && m?.auctions ? [{ id: 'sales', name: 'Sales', icon: '🔨' }] : []),
-        ...(piecesHereCount(g, w) ? [{ id: 'here', name: 'Here', icon: '📍' }] : []),
+        ...(hereHasAny(g, w) ? [{ id: 'here', name: 'Here', icon: '📍' }] : []),
     ];
 }
 // The tab the app opens on in a game seen for the first time: the museum once its offer has come (or it's yours),

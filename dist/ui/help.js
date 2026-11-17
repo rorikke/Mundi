@@ -13,7 +13,9 @@ import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { STORYLINES_HELP } from './threadui.js';
 import { housingOn } from '../sim/housing.js';
-import { museumDef } from '../sim/museum.js';
+import { museumDef, upgradeName } from '../sim/museum.js';
+import { digsOf, DIG } from '../sim/dig.js';
+import { digSeasonWord } from './museumui.js';
 // (museum) The Collection topic's museum part, in a world with a museum: its numbers are the world's own (the cases,
 // the first room, the dealer's days, the sales' lots), and only the parts it has.
 function museumHelp(w) {
@@ -28,7 +30,32 @@ function museumHelp(w) {
         ...(m.auctions ? [['The sales', 'Sales come four times a year, with a catalogue a week before. Set a top bid for each lot by phone, or be in the saleroom as it starts to raise once more if you are outbid. Another collector bids too; a lot she takes comes back later, dearer.']] : []),
         ['Damaged pieces and replicas', 'A find can come damaged: it counts once the restoration workshop has restored it. A piece whose only chance has passed can be made as a replica by the workshop: it fills the slot at half the renown, and the real piece replaces it if it ever comes.'],
         ...(m.shows ? [['Shows', `With an exhibition hall, open a show once a season on a theme with at least ${n(m.shows.min, 6)} pieces on show: more renown while it's on, and a little for good the first time each theme is shown.`]] : []),
+        ...natureHelp(w),
     ];
+}
+// (nature) "Nature and the dig", in a museum world with pieces that come by season and hour, a dig, or pieces in
+// parts: only the parts the world has, with its own numbers and names. (A piece "by season" is one with a way that
+// names a season: festival stalls and markets are the museum's own items.)
+const TIMED = /\bseason\s*:/;
+function natureHelp(w) {
+    const slots = w.collection?.slots ?? [], n = (v, d) => esc(String(Math.round(v ?? d)));
+    const timed = slots.filter(s => (s.sources ?? []).some(x => (x.kind === 'find' || x.kind === 'sold') && (TIMED.test(String(x.when ?? '')) || TIMED.test(String(w.actions.find(a => a.id === x.action)?.when ?? '')))));
+    const needs = [...new Set(timed.map(s => s.needsUpgrade).filter((u) => !!u))].map(u => `<span data-notr>${esc(upgradeName(w, u))}</span>`);
+    const digs = digsOf(w), parts = slots.some(s => s.parts?.length && s.mount);
+    // each sentence in an element of its own, so the translation (core/tr.ts, text node by text node) finds it whole
+    const s = (text) => `<span>${text}</span>`, out = [];
+    if (timed.length) {
+        out.push(s('Some pieces come only in their season and at their hour: insects, fish and flowers turn up while you look for them in the parks, by the water and where things bloom.'), s('A missing piece marked In season can come now, and its hall says how many; the Here tab says what could turn up where you are.'), s('Gear from the shop adds a little to the roll.'));
+        if (needs.length)
+            out.push(`${s('Some wait for')} ${needs.join(', ')}${s(', as their tiles say.')}`);
+    }
+    for (const d of digs) {
+        const when = digSeasonWord(d);
+        out.push(`<span data-notr>${esc(d.name)}</span> ${s(when ? `comes back every ${esc(when)}: dig or sift with the team on as many days as you like.` : 'comes back in its season: dig or sift with the team on as many days as you like.')}`, s(`${n(d.sure, DIG.sure)} days in one season make sure of a find, and at most ${n(d.most, DIG.most)} come in a season.`), ...(d.lend ? [s('Its finds come only once the museum is yours, on long loan.')] : []), s('The Museum tab\'s Dig card shows how the season is going.'));
+    }
+    if (parts)
+        out.push(s('A piece in parts (a skeleton) comes one part at a time, each shown under its tile.'), s('Once every part is in, the workshop mounts it from the Museum tab, for a fee and a few days, and then it counts.'));
+    return out.length ? [['Nature and the dig', out.join(' ')]] : [];
 }
 // Written with the world's own words: its apps, bills, courses and device (a phone, a journal…).
 // A Home: one house, no work or money, so its own short set of topics.

@@ -60,6 +60,7 @@ import { ventureLine } from './ventures.js';
 import { shopLine } from './shop.js';
 import { homeLine } from './fixtures.js';
 import { museumLine } from './museum.js';
+import { digLine } from './dig.js';
 import { sightingLine } from './sightings.js';
 import './exec.js';   // (business) the executive's division and bonuses
 import { afflictionLine } from './afflictions.js';
@@ -184,7 +185,7 @@ export function sceneBlocks(): Built[] {
         language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g), ...sceneLines.flatMap(f => f(g, w, present))],
         feelings: [feelingLine(g, met)],
-        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
+        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), digLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],

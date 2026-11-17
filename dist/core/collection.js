@@ -90,7 +90,18 @@ function slot(s, halls) {
         out.price = Math.max(0, Math.round(s.price));
     const parts = strs(s.parts)?.filter(x => ID.test(x));
     if (parts?.length)
-        out.parts = parts;
+        out.parts = [...new Set(parts)];
+    // (nature) a piece of parts: put together for a price in days; a picture per part it has
+    if (out.parts && s.mount && typeof s.mount === 'object') {
+        const price = numIn(s.mount.price, 0, MUSEUM_PRICE_MAX), days = numIn(s.mount.days, 1, 60);
+        if (price !== undefined && days !== undefined)
+            out.mount = { price, days };
+    }
+    if (out.parts && s.partPics && typeof s.partPics === 'object' && !Array.isArray(s.partPics)) {
+        const pics = Object.fromEntries(out.parts.map(x => [x, str(s.partPics[x]) && safeUrl(s.partPics[x])]).filter(([, v]) => v));
+        if (Object.keys(pics).length)
+            out.partPics = pics;
+    }
     if (s.bonus === true)
         out.bonus = true;
     return out;
@@ -230,6 +241,33 @@ function museum(m, halls) {
     }
     return out;
 }
+/** (nature) A world's digs made safe: an id, a place, at least one action and a season each (else dropped), ids unique,
+ *  numbers held to their ranges. */
+function digs(list) {
+    const out = [], ids = new Set();
+    for (const d of Array.isArray(list) ? list : []) {
+        if (!d || typeof d !== 'object' || !ID.test(d.id ?? '') || ids.has(d.id) || !str(d.place) || !when(d.season))
+            continue;
+        const actions = strs(d.actions);
+        if (!actions?.length)
+            continue;
+        const x = { id: d.id, name: str(d.name) ?? d.id, place: d.place, actions: [...new Set(actions)], season: d.season };
+        const chance = numIn(d.chance, 0, 1, false);
+        if (chance !== undefined)
+            x.chance = chance;
+        const sure = numIn(d.sure, 0, 60);
+        if (sure !== undefined)
+            x.sure = sure;
+        const most = numIn(d.most, 1, 50);
+        if (most !== undefined)
+            x.most = most;
+        if (d.lend === true)
+            x.lend = true;
+        ids.add(x.id);
+        out.push(x);
+    }
+    return out;
+}
 /** A world's collection made safe: unknown halls and groups dropped with their slots, ids `[a-z0-9_]` and unique,
  *  numbers held to their range. Nothing (undefined) when there's no hall left: the world gets no key. */
 export function upgradeCollection(c) {
@@ -258,6 +296,11 @@ export function upgradeCollection(c) {
         const m = museum(raw.museum, halls);
         if (m)
             out.museum = m;
+    }
+    if ('digs' in raw) {
+        const d = digs(raw.digs);
+        if (d.length)
+            out.digs = d;
     }
     return out;
 }

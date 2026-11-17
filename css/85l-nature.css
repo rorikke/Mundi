@@ -1,0 +1,31 @@
+/* Nature and the dig (ui/collection.ts, ui/museumui.ts): the In season mark and its hall's line, a piece's parts as
+   small pictures under its tile (darkened while missing) with Ready to mount or the day it's mounted, the Museum tab's
+   Dig card with the dig's pieces still to come, the workshop's Mount row, and the Here tab's "Could turn up here now" */
+#mundi-root .mu-cl-mark.is-season { background: #3f9b5a; }
+#mundi-root .mu-cl-piece.is-empty.is-season { border-color: #3f9b5a; }
+#mundi-root .mu-cl-season { color: #5fbf7a; opacity: 1 !important; }
+/* a piece's parts */
+#mundi-root .mu-cl-parts { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+#mundi-root .mu-cl-part { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 6px; overflow: hidden; background: var(--bg2); border: 1px solid var(--line); }
+#mundi-root .mu-cl-part img { width: 100%; height: 100%; object-fit: cover; }
+#mundi-root .mu-cl-part i { font-style: normal; font-size: 16px; }
+#mundi-root .mu-cl-part.is-have { border-color: #d4a017; }
+#mundi-root .mu-cl-part.is-missing img, #mundi-root .mu-cl-part.is-missing i { filter: grayscale(1) brightness(.45) contrast(.8); opacity: .45; }
+#mundi-root .mu-cl-partnum { opacity: .75; }
+#mundi-root .mu-cl-mount { color: var(--accent); font-weight: 700; }
+#mundi-root .mu-cl-mount.is-ready { color: #d4a017; }
+/* the Dig card and small pieces (also the Here tab) */
+#mundi-root .mu-mu-dig.is-on { border-color: #b07a3c; }
+#mundi-root .mu-mu-dig-now { font-size: 13px; font-weight: 600; }
+#mundi-root .mu-mu-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; padding: 0; list-style: none; }
+#mundi-root .mu-mu-chip { display: flex; gap: 6px; align-items: center; max-width: 100%; padding: 3px 8px 3px 3px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 12px; }
+#mundi-root .mu-mu-chip > span { display: grid; gap: 0; min-width: 0; }
+#mundi-root .mu-mu-chip b { font-weight: 600; line-height: 1.2; }
+#mundi-root .mu-mu-chip small { opacity: .75; }
+#mundi-root .mu-mu-chip.is-later { opacity: .6; }
+#mundi-root .mu-mu-chip-pic { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 7px; object-fit: cover; display: grid; place-items: center; font-style: normal; font-size: 18px; background: var(--bg2); }
+#mundi-root .mu-mu-could-row { display: grid; gap: 4px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13px; }
+#mundi-root .mu-mu-could-row:first-child { border-top: 0; }
+#mundi-root .mu-mu-mount.is-off > span > b { opacity: .6; }
+/* the journal (book look) */
+#mundi-root .mu-book .mu-mu-chip, #mundi-root .mu-book .mu-cl-part { background: transparent; border-color: rgba(90, 60, 30, .35); }
