@@ -670,7 +670,9 @@ export interface GoalStep { name: string; when: string; or?: string[]; hold?: nu
 export interface StepReward { keepsake?: string; mood?: number; money?: number; points?: number }
 /** A goal's perk: a name, a few words on what it does, and one or two effects from the fixed list (core/traits.ts),
  *  each held inside the perk limits (`PERK_LIMITS` in core/goals.ts). Kept by the finished goal's id, never a trait. */
-export interface PerkDef { name: string; desc?: string; effects: EffectDef[] }
+/** `was`: the perk's old name, when a world changed what a goal's perk is: a save that finished the goal before is told
+ *  once that its perk is now this one (sim/goals.ts). */
+export interface PerkDef { name: string; desc?: string; effects: EffectDef[]; was?: string }
 /** Something life points buy in the rewards shop. `kind`: what it does: a timed `boost` (its `effects` for `days`, 1–7,
  *  each held inside `BOOST_LIMITS` in core/goals.ts), `refill` (a need full now: `need`), or one of the one-off kinds the
  *  engine has (`REWARD_KINDS` in core/goals.ts: the nudge, clearing the air, insight…), re-themed with its own name and

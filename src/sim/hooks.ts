@@ -72,12 +72,15 @@ export const collectionLink: {
     /** (museum, the market: sim/market.ts) `sales:` and `dealer:`, the counters the rival's and the dealer's tiers read. */
     market: (g: Save, w: WorldDef, key: 'sales' | 'dealer', v: string) => boolean;
     marketWords: (g: Save, w: WorldDef, key: 'sales' | 'dealer', v: string) => string;
+    /** (track 7: sim/collection.ts) `record:`, the record's percentage or a record hall's fill, and its words. */
+    record: (g: Save, w: WorldDef, v: string) => boolean;
+    recordWords: (g: Save, w: WorldDef, v: string) => string;
     /** (nature: sim/dig.ts) `dig:`, the counters of the world's digs, and its words. */
     dig: (g: Save, w: WorldDef, v: string) => boolean;
     digWords: (g: Save, w: WorldDef, v: string) => string;
 } = { storiesDone: () => false, storiesWords: () => '', goalsAll: () => false, goalsWords: () => '',
     piece: () => false, pieceWords: (_g, _w, v) => v, museum: () => false, museumWords: (_g, _w, v) => v,
-    market: () => false, marketWords: (_g, _w, _k, v) => v, dig: () => false, digWords: (_g, _w, v) => v };
+    market: () => false, marketWords: (_g, _w, _k, v) => v, record: () => false, recordWords: (_g, _w, v) => v, dig: () => false, digWords: (_g, _w, v) => v };
 // (museum) What the market (sim/market.ts) asks of the museum's engine (sim/museum.ts fills these in, so neither file
 // imports the other's rules). Unset, the market uses its own plain answers: renown level 0, a piece can be housed when
 // it needs no upgrade or the museum has one by that id or `does`, prices through the difficulty only, and a piece

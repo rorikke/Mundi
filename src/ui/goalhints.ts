@@ -4,7 +4,7 @@
 // scholarship hang on). Only reads the world and the save; an objective that says enough by itself ("A good friend",
 // "Money saved") gets nothing.
 import { adultOk, type Save } from '../core/store.js';
-import type { WorldDef, ActionDef } from '../core/world.js';
+import { appsOf, type WorldDef, type ActionDef } from '../core/world.js';
 import type { Objective } from '../sim/goals.js';
 import { offeredGoals } from '../sim/goals.js';
 import { countedOf } from '../sim/when.js';
@@ -187,6 +187,19 @@ function degreeHints(g: Save, w: WorldDef, v: string): string[] {
 }
 
 /** How to do an objective not done yet: up to four short lines (none when it says enough by itself). */
+// (track 7) Where the end game's keys are done: the app each one lives in.
+function endgameHints(w: WorldDef, key: string, v: string): string[] {
+    const app = (id: string, name: string) => appsOf(w).find(a => a.id === id)?.name ?? name;
+    switch (key) {
+        case 'home': return /^(owned|second)$/i.test(v) ? [`Homes for sale are in the ${app('homes', 'Homes')} app: Buy, then live in it or keep it as a second home.`] : [];
+        case 'fixtures': return [`Rooms and fixtures are bought for a home you own, in the ${app('homes', 'Homes')} app's Rooms tab.`];
+        case 'let': case 'rent': return [`Let a home you own from the ${app('homes', 'Homes')} app (Buy to let, or Let it out): an agent finds the tenants.`];
+        case 'owns': return [`Things are bought in the ${app('shop', 'Shop')} app, or at the shops that sell them.`];
+        case 'venture': case 'board': return [`Your businesses, their tiers and discoveries are in the ${app('business', 'Business')} app.`];
+        case 'record': return [`The record fills by itself as you live: see how far it is in the ${app('collection', 'Collection')} app.`];
+    }
+    return [];
+}
 export function howTo(g: Save, w: WorldDef, o: Objective): string[] {
     if (o.ok || o.not) return [];
     const values = o.text.slice(o.text.indexOf(':') + 1).trim().split(/\s+or\s+/);
@@ -203,7 +216,7 @@ export function howTo(g: Save, w: WorldDef, o: Objective): string[] {
             : o.key === 'stayed' ? stayHints(w, v)
             : o.key === 'degree' ? degreeHints(g, w, v)
             : o.key === 'partner' && v === 'home' ? ['To live together, move your partner into your household: This world → Households.']
-            : [];
+            : endgameHints(w, o.key, v);
         for (const l of lines) if (!out.includes(l)) out.push(l);
     }
     // several ways ("a or b") each say where: keep it short

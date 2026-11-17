@@ -247,6 +247,44 @@ own](#a-café-of-your-own), and *Mentor* through [training together](#training-t
 - Items you can't use right now stay in the list with the reason ("Only at a shrine", "Already full", "Nobody to use it
   on"). A boost can't be bought again while it's running.
 
+### The end game's goals and rewards
+
+Once the late game opens up (homes of your own, a business, the museum), Tokyo has ten more life goals for it. Each
+appears in the Goals app only once its part of the game is in reach, and stays once you've begun it: House proud and
+Landlord once you've bought a home, The good life after Tsubakiya's salon has invited you, A café to remember and
+Hotelier once you have a café or a hotel, The corner office at the top of an office, games or TV career, Chronicler
+once Tokyo memories is a fifth full, Natural history after three Nature pieces, Every hall once the kura is yours, and
+Collector of the night once its room is built.
+
+| Goal | Its steps | Its perk |
+|---|---|---|
+| House proud | a home of your own · six rooms and fixtures · one of Tokyo's best homes, yours · a party for twelve at home | friendship grows 15% faster at your home |
+| Landlord | a second home or one to let · a home let · three let · ¥1,440,000 of rent from your tenants | your tenants' rent 10% higher |
+| The good life | twenty things of your own · something from Tsubakiya's salon · a car with a driver · something of every kind | +1 friendship at a first meeting |
+| A café to remember | a café of your own · a kissaten · three discoveries · the roastery | your café takes 5% more |
+| Hotelier | a hotel · a hotel at its top · two hotels · all three kinds (or two at their top) | your hotels take 5% more |
+| The corner office | Executive officer · a season on the board's target · Managing director · Vice president | seasonal bonuses 10% bigger |
+| Chronicler of Tokyo | Tokyo memories a quarter, half, three-quarters and all complete | 10% more life points |
+| Natural history | ten Nature pieces · the Nature hall · a season at the dig · Naumann's elephant mounted | finds 25% likelier |
+| Every hall | a hall complete · three · the museum at 75% · every hall | the museum's royalties 10% higher |
+| Collector of the night (adult content) | the night world half full · every shunga · the night world complete · Tamaki's cabinet | half as likely to be caught at the kura |
+
+- Each ends with a keepsake of its own (a front-door key in a paulownia box, the café's first ¥100 coin framed, a vice
+  president's name card…), kept, not given away.
+- **No perk or reward makes a price lower**: the end game's perks make a number grow instead. Patron of the arts' perk
+  is now **In the guidebooks: renown 10% higher**, more visitors to the kura (it used to make museum prices 10% lower; a
+  game that had it is told once).
+- **The shop's end-game items**: *a dealer's tip* (a missing piece you pick comes with the dealer's next visit, on top
+  of her stock, at the price of asking for it, 400 points), *an early catalogue* (one more lot at the next sale, a
+  missing piece you pick, 400), *Ebisu's charm* at a shrine (your businesses take 10% more for a week, 400), *a field
+  guide* (finds 50% likelier for three days, 200), *Press day* (renown 20% higher for a week, 500), *the workshop's
+  priority* (everything being restored or mounted is ready tomorrow, the fee as it was, 250), *a party planner*
+  (friendships grow twice as fast at your home for three days, 250) and *a good tenant* (every home you let has a tenant
+  each week for a season, 600). Most can be bought once a season.
+- **Life points from the end game**: a museum hall complete (30), the whole museum (100), Tokyo memories at each
+  quarter (20), your first home (20), a business at its top (40). They count inside the 60 a day: what doesn't fit comes
+  the next morning.
+
 ### World makers and older games
 
 - **The World creator** has a **Goals & rewards** tab: turn general goals and items off, rename or re-price them, and

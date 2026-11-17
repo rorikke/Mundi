@@ -11,8 +11,8 @@ import { getWorld, systemOn, type WorldDef, type GoalDef, type GoalStep } from '
 import { GOAL_CATEGORIES, GOAL_POINTS, isOwnGoal } from '../core/goals.js';
 import { goalsState, offeredGoals, activeGoal, canPick, pickGoal, goalProgress, stepProgress, suggestedGoals, perksOf, needsPick, type Objective } from '../sim/goals.js';
 import { pointsOf } from '../sim/points.js';
-import { shopItems, peopleFor, traitChoices, rumorsToQuiet, buyReward, type ShopItem, type RewardChoice, type InsightId } from '../sim/rewards.js';
-import { countedOf, homeMap } from '../sim/when.js';
+import { shopItems, peopleFor, traitChoices, rumorsToQuiet, piecesFor, buyReward, type ShopItem, type RewardChoice, type InsightId } from '../sim/rewards.js';
+import { countedOf, homeMap, endgameWords } from '../sim/when.js';
 import { placesBeen, beenTo, isRegular } from '../sim/tally.js';
 import { placeOf } from '../sim/places.js';
 import { bannedUntil } from '../sim/caught.js';
@@ -29,10 +29,10 @@ import { howTo } from './goalhints.js';
  *  being bought and what was picked for it. `said`: the last lines shown (toasted). */
 export const GS = {
     tab: 'goals' as 'goals' | 'rewards', open: [] as string[], detail: '',
-    buy: '', person: '', meter: '' as '' | Meter, question: '' as '' | InsightId, group: '', from: '', to: '', habit: '', rumor: '',
+    buy: '', person: '', meter: '' as '' | Meter, question: '' as '' | InsightId, group: '', from: '', to: '', habit: '', rumor: '', piece: '',
     said: [] as string[],
 };
-const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', habit: '', rumor: '' });
+const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', habit: '', rumor: '', piece: '' });
 // What the app shows belongs to one game: a game opened starts again on the Goals tab, with nothing open or picked.
 SAVE.hooks.push(() => { Object.assign(GS, { tab: 'goals', open: [], detail: '' }); clearPick(); });
 
@@ -174,6 +174,9 @@ function extraCount(g: Save, w: WorldDef, key: string, v: string): { have: numbe
 /** One objective as a row reads: its words, and `have/need` where a number says how far you are. */
 export function objectiveWords(g: Save, w: WorldDef, o: Objective): { text: string; have?: number; need?: number } {
     const values = o.text.slice(o.text.indexOf(':') + 1).trim().replace(/^not\s+/, '').split(/\s+or\s+/);
+    // (track 7) the end game's keys: the engine's words, and how far you are for a count
+    const end = values.length === 1 && !o.not ? endgameWords(g, w, o.key, values[0]) : null;
+    if (end) return end.need !== undefined && end.need > 1 && end.have !== undefined ? end : { text: end.text };
     const words = values.map(v => valueWords(w, o.key, v)).join(' or ');
     const text = o.not ? `No ${words.charAt(0).toLowerCase()}${words.slice(1)}` : words;
     let have = o.have, need = o.need;
@@ -193,7 +196,7 @@ export function objectiveWords(g: Save, w: WorldDef, o: Objective): { text: stri
 function objectiveHtml(g: Save, w: WorldDef, o: Objective, said: Set<string>): string {
     const x = objectiveWords(g, w, o);
     const num = x.have !== undefined && x.need !== undefined
-        ? ` <span class="mu-gl-num">${o.key === 'money' ? `${esc(money(w, Math.min(x.have, x.need)))} / ${esc(money(w, x.need))}` : `${n(Math.min(x.have, x.need))}/${n(x.need)}`}</span>` : '';
+        ? ` <span class="mu-gl-num">${o.key === 'money' || o.key === 'rent' ? `${esc(money(w, Math.min(x.have, x.need)))} / ${esc(money(w, x.need))}` : `${n(Math.min(x.have, x.need))}/${n(x.need)}`}</span>` : '';
     const bar = x.have !== undefined && x.need ? `<span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, Math.round((x.have / x.need) * 100)))}%"></i></span>` : '';
     return `<li class="${o.ok ? 'is-ok' : ''}"><i>${o.ok ? '✓' : '○'}</i><span><span class="mu-gl-otext">${esc(x.text)}${num}</span>${bar}${o.ok ? '' : hintOf(g, w, o, said)}</span></li>`;
 }
@@ -329,6 +332,12 @@ function logWords(g: Save, w: WorldDef, why: string, items: ShopItem[]): string 
         case 'keepsake': return a ? `A new keepsake: ${keepsakeName(w, a)}` : 'A new keepsake';
         case 'degree': return `Graduated: ${(w.institutions ?? []).flatMap(i => i.degrees ?? []).find(d => d.id === a)?.name ?? humanize(a ?? '')}`;
         case 'learned': return g.cast[a] ? `Something you learned about ${g.cast[a].name}` : 'Something you learned about someone';   // (adult) never the words
+        // (track 7) the end game's milestones, and what the day's cap held back
+        case 'hall': return a === 'all' ? `${w.collection?.museum?.name ?? 'The museum'} complete` : `${w.collection?.halls.find(h => h.id === a)?.name ?? humanize(a ?? '')} complete`;
+        case 'record': return `${w.collection?.halls.find(h => h.record && !h.apart)?.name ?? 'The record'} ${a}% complete`;
+        case 'home': return 'Your first home';
+        case 'venture': return `${w.ventures?.find(v => v.id === a)?.name ?? humanize(a ?? '')} at its top`;
+        case 'owed': return 'Owed from a day at the cap';
     }
     return items.find(x => x.id === why)?.name ?? humanize(why);
 }
@@ -375,6 +384,13 @@ function pickerHtml(g: Save, w: WorldDef, it: ShopItem): string {
             ready = c.habits.some(h => h.id === GS.habit);
         }
         return `<div class="mu-rw-pick"><small>What changes?</small>${kinds}${more}<small class="mu-muted">Strengths are skill levels: they can't be swapped.</small>${buy(ready)}</div>`;
+    }
+    // (track 7) the dealer's tip and an early catalogue: a missing piece, with what it would cost now
+    if (it.pick === 'piece') {
+        const list = piecesFor(g, w, it.id);
+        if (list.length === 1 && !GS.piece) GS.piece = list[0].id;
+        return `<div class="mu-rw-pick"><small>Which piece?</small>${list.length ? `<div class="mu-rw-pieces">${list.map(p => `<button class="mu-chip ${GS.piece === p.id ? 'is-on' : ''}" data-act="rw-piece" data-v="${esc(p.id)}"><span data-notr>${esc(p.name)}</span> <small>${esc(money(w, p.price))}</small></button>`).join('')}</div>` : '<p class="mu-muted">Nothing to bring now.</p>'}
+            ${buy(list.some(p => p.id === GS.piece))}</div>`;
     }
     if (it.pick === 'rumor') {
         const rumors = rumorsToQuiet(g, w);
@@ -457,6 +473,7 @@ Object.assign(ACT, {
     'rw-to': (el) => { GS.to = el.dataset.v ?? ''; notify(); },
     'rw-habit': (el) => { GS.habit = el.dataset.v ?? ''; notify(); },
     'rw-rumor': (el) => { GS.rumor = el.dataset.v ?? ''; notify(); },
+    'rw-piece': (el) => { GS.piece = el.dataset.v ?? ''; notify(); },
     'rw-buy': (el) => {
         const x = here(); if (!x || el.getAttribute('aria-disabled')) return;
         const id = el.dataset.id ?? '';
@@ -466,6 +483,7 @@ Object.assign(ACT, {
             if (it.pick === 'person') { c.person = GS.person; if (GS.meter) c.meter = GS.meter; if (GS.question) c.question = GS.question; }
             if (it.pick === 'trait') { if (GS.group === 'habit') c.habit = GS.habit; else { c.group = GS.group; c.from = GS.from; c.to = GS.to; } }
             if (it.pick === 'rumor') c.rumor = GS.rumor;
+            if (it.pick === 'piece') c.piece = GS.piece;
         }
         const res = buyReward(x.g, x.w, id, c);
         say(res.lines, res.ok ? 'success' : 'info');

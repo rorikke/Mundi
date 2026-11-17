@@ -1981,7 +1981,17 @@
    "tk_openhearts",
    "tk_thrill",
    "tk_hijiri",
-   "tk_patron"
+   "tk_patron",
+   "tk_houseproud",
+   "tk_landlord",
+   "tk_goodlife",
+   "tk_cafe",
+   "tk_hotelier",
+   "tk_corneroffice",
+   "tk_chronicler",
+   "tk_naturalhistory",
+   "tk_curator",
+   "tk_nightcollector"
   ],
   "rewards": [
    "omikuji",
@@ -1993,7 +2003,15 @@
    "ema",
    "tk_pillowtalk",
    "tk_mamushi",
-   "tk_kanamara"
+   "tk_kanamara",
+   "tk_dealer_tip",
+   "tk_early_catalogue",
+   "tk_ebisu",
+   "tk_field_guide",
+   "tk_press_day",
+   "tk_workshop",
+   "tk_party_planner",
+   "tk_good_tenant"
   ],
   "degrees": [
    "deg_econ",

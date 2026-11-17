@@ -70,10 +70,14 @@ export function useReroll(g: Save, w: WorldDef | null | undefined): boolean {
     return true;
 }
 /** Where life points come from: a step or a finished goal (the active goal's gains), or a second source. */
-export type PointSource = 'step' | 'goal' | 'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned' | 'museum';
+export type PointSource = 'step' | 'goal' | 'festival' | 'event' | 'story' | 'secret' | 'thread' | 'keepsake' | 'learned' | 'museum'
+    // (track 7, sim/milestones.ts) a display hall complete or the museum at 100%, the record's quarters, the first home
+    // bought, a venture at its top tier
+    | 'hall' | 'record' | 'home' | 'venture';
 // The groups a `points` effect may name instead of one source: festivals and city events; secrets, street stories and
 // threads.
-const POINT_GROUPS: Partial<Record<PointSource, string>> = { festival: 'festivals', event: 'festivals', secret: 'secrets', story: 'secrets', thread: 'secrets' };
+const POINT_GROUPS: Partial<Record<PointSource, string>> = { festival: 'festivals', event: 'festivals', secret: 'secrets', story: 'secrets', thread: 'secrets',
+    hall: 'milestones', record: 'milestones', home: 'milestones', venture: 'milestones' };
 /** Life points from a source, with what perks add (`points` effects aimed at the source, its group, or at `active` /
  *  `passive`). */
 export function pointsFor(g: Save, w: WorldDef | null | undefined, source: PointSource, n: number): number {

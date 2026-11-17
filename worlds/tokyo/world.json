@@ -42685,6 +42685,77 @@
     "Ren",
     "Camille"
    ]
+  },
+  {
+   "id": "tk_door_key",
+   "name": "A front-door key in a paulownia box",
+   "icon": "🗝️",
+   "gift": false,
+   "desc": "The first key to a home of your own, in the paulownia box the agent handed it over in: the kind of box kept for good things."
+  },
+  {
+   "id": "tk_first_statement",
+   "name": "The agent's first statement, framed",
+   "icon": "🧾",
+   "gift": false,
+   "desc": "The letting agent's first statement, a tenant's rent less the agent's fifth, in a plain black frame."
+  },
+  {
+   "id": "tk_black_card",
+   "name": "Tsubakiya's black card",
+   "icon": "💳",
+   "gift": false,
+   "desc": "A black card from Tsubakiya's salon. Show it and the tea comes before you sit down."
+  },
+  {
+   "id": "tk_first_coin",
+   "name": "The café's first ¥100 coin, framed",
+   "icon": "🪙",
+   "gift": false,
+   "desc": "The first coin the café ever took, for a coffee at the counter, framed above the till and taken home when the roaster came."
+  },
+  {
+   "id": "tk_room_key",
+   "name": "A brass room key on a tassel",
+   "icon": "🔑",
+   "gift": false,
+   "desc": "The key to the best room of your first hotel, on a red silk tassel the staff gave you when the third kind was yours."
+  },
+  {
+   "id": "tk_vp_card",
+   "name": "A vice president's name card",
+   "icon": "📇",
+   "gift": false,
+   "desc": "The first of a box of name cards with \"Vice President\" under your name, kept back from the first meeting."
+  },
+  {
+   "id": "tk_album",
+   "name": "The memories album, bound",
+   "icon": "📔",
+   "gift": false,
+   "desc": "Every memory of Tokyo you kept a record of, bound in blue cloth by a binder in Jinbōchō."
+  },
+  {
+   "id": "tk_naumann_tooth",
+   "name": "A cast of Naumann's tooth",
+   "icon": "🦷",
+   "gift": false,
+   "desc": "A plaster cast of a molar of Naumann's elephant, from Hijiri University's lab: the real one stands in the kura."
+  },
+  {
+   "id": "tk_door_plate",
+   "name": "The kura's brass door plate",
+   "icon": "🪧",
+   "gift": false,
+   "desc": "The kura's first brass plate, taken down when the last hall was full and a new one went up with your name under the museum's."
+  },
+  {
+   "id": "tk_shunga_fan",
+   "name": "A fan painted with a shunga",
+   "icon": "🪭",
+   "gift": false,
+   "adult": true,
+   "desc": "A folding fan with a spring picture in Utamaro's manner, from the bottom drawer of Tamaki's cabinet: for the back room, not the halls."
   }
  ],
  "occupations": [
@@ -61416,15 +61487,15 @@
      }
     ],
     "perk": {
-     "name": "Connoisseur",
-     "desc": "Museum pieces, upgrades and shows 10% cheaper (not auction bids).",
+     "name": "In the guidebooks",
+     "desc": "Renown 10% higher: more visitors to the kura.",
      "effects": [
       {
-       "kind": "price",
-       "target": "museum",
-       "value": -0.1
+       "kind": "renown",
+       "value": 0.1
       }
-     ]
+     ],
+     "was": "Connoisseur"
     }
    },
    {
@@ -61992,6 +62063,542 @@
       }
      ]
     }
+   },
+   {
+    "id": "tk_houseproud",
+    "offer": "did: home_bought",
+    "name": "House proud",
+    "icon": "🏠",
+    "category": "fortune",
+    "needs": [
+     "housing"
+    ],
+    "desc": "A home that's yours, made yours: rooms and fixtures, one of Tokyo's best homes, and a party people remember.",
+    "steps": [
+     {
+      "name": "A home of your own",
+      "when": "home: owned",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Six rooms and fixtures",
+      "when": "fixtures: 6",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A home among the best, your own",
+      "when": "home: owned; home: top",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A party for twelve at home",
+      "when": "did: grand_party",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_door_key"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Gracious host",
+     "desc": "Friendship grows 15% faster at your home.",
+     "effects": [
+      {
+       "kind": "gain",
+       "target": "friend",
+       "value": 0.15,
+       "when": "place: home:player"
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_landlord",
+    "offer": "did: home_bought",
+    "name": "Landlord",
+    "icon": "🏘️",
+    "category": "fortune",
+    "needs": [
+     "housing"
+    ],
+    "desc": "Homes that pay their way: a second home or one to let, then tenants, three of them, and a year's rent.",
+    "steps": [
+     {
+      "name": "A second home, or one to let",
+      "when": "home: second",
+      "or": [
+       "let: 1"
+      ],
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A home let",
+      "when": "let: 1",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Three homes let",
+      "when": "let: 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A year's rent from your tenants",
+      "when": "rent: 1440000",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_first_statement"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Good references",
+     "desc": "Rent from your tenants 10% higher.",
+     "effects": [
+      {
+       "kind": "letting",
+       "value": 0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_goodlife",
+    "offer": "seen: sh_salon",
+    "name": "The good life",
+    "icon": "🥂",
+    "category": "fortune",
+    "needs": [
+     "shop"
+    ],
+    "desc": "The finer things: twenty of them, Tsubakiya's salon, a car with a driver, and a little of everything.",
+    "steps": [
+     {
+      "name": "Twenty things of your own",
+      "when": "owns: 20",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Something from Tsubakiya's salon",
+      "when": "owns: hm_tobari or fa_couture or fa_living_treasure or lx_sculpture or lx_complication or ve_driver",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A car with a driver",
+      "when": "owns: ve_driver",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Something of every kind",
+      "when": "owns: cat:all",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_black_card"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Well turned out",
+     "desc": "+1 friendship when you first meet someone.",
+     "effects": [
+      {
+       "kind": "warm",
+       "target": "new",
+       "value": 1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_cafe",
+    "offer": "venture: cafe",
+    "name": "A café to remember",
+    "icon": "☕",
+    "category": "career",
+    "needs": [
+     "business"
+    ],
+    "desc": "From a coffee stand to a roastery people cross the city for.",
+    "steps": [
+     {
+      "name": "A café of your own, or Shirakaba",
+      "when": "venture: cafe",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A kissaten",
+      "when": "venture: cafe tier 2",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Three discoveries",
+      "when": "venture: cafe discoveries 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The roastery",
+      "when": "venture: cafe tier 4",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_first_coin"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Regulars' favourite",
+     "desc": "Your café takes 5% more.",
+     "effects": [
+      {
+       "kind": "venture",
+       "target": "cafe",
+       "value": 0.05
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_hotelier",
+    "offer": "venture: hotel",
+    "name": "Hotelier",
+    "icon": "🛎️",
+    "category": "career",
+    "needs": [
+     "business"
+    ],
+    "desc": "Rooms full every night, then more hotels: Tokyo's every kind of stay.",
+    "steps": [
+     {
+      "name": "A hotel of your own",
+      "when": "venture: hotel",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A hotel at its top",
+      "when": "venture: hotel tier top",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Two hotels",
+      "when": "venture: 2 hotel",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "All three kinds, or two at their top",
+      "when": "venture: capsule; venture: ryokan; venture: lovehotel",
+      "or": [
+       "venture: 2 hotel tier top"
+      ],
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_room_key"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Five stars",
+     "desc": "Your hotels take 5% more.",
+     "effects": [
+      {
+       "kind": "venture",
+       "target": "hotel",
+       "value": 0.05
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_corneroffice",
+    "offer": "job: office or gamedev or tv; rank: top",
+    "name": "The corner office",
+    "icon": "🏙️",
+    "category": "career",
+    "needs": [
+     "jobs",
+     "business"
+    ],
+    "desc": "Past the top of the ladder: the executive floor, the board's targets, a vice president's office.",
+    "steps": [
+     {
+      "name": "Executive officer",
+      "when": "venture: exec",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A season on target",
+      "when": "board: 1",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Managing director",
+      "when": "venture: exec tier 2",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Vice president",
+      "when": "venture: exec tier 3",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_vp_card"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Board's favourite",
+     "desc": "Summer and winter bonuses 10% bigger.",
+     "effects": [
+      {
+       "kind": "pay",
+       "target": "bonus",
+       "value": 0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_chronicler",
+    "offer": "record: 20%",
+    "name": "Chronicler of Tokyo",
+    "icon": "📔",
+    "category": "explorer",
+    "needs": [
+     "collection"
+    ],
+    "desc": "Tokyo memories, a quarter at a time: its storylines, festivals, districts and goals, all of it.",
+    "steps": [
+     {
+      "name": "The record a quarter full",
+      "when": "record: 25%",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Half the record",
+      "when": "record: 50%",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Three-quarters of the record",
+      "when": "record: 75%",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The whole record",
+      "when": "record: 100%",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_album"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Old hand",
+     "desc": "Life points 10% more, from everything.",
+     "effects": [
+      {
+       "kind": "points",
+       "value": 0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_naturalhistory",
+    "offer": "piece: 3 in nature",
+    "name": "Natural history",
+    "icon": "🦋",
+    "category": "knowledge",
+    "needs": [
+     "collection"
+    ],
+    "desc": "The kura's natural history: Nature's hall, Hijiri University's dig, and Naumann's elephant standing again.",
+    "steps": [
+     {
+      "name": "Ten Nature pieces",
+      "when": "piece: 10 in nature",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The Nature hall complete",
+      "when": "piece: all in nature",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A season at the dig",
+      "when": "dig: seasons 1",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Naumann's elephant mounted",
+      "when": "piece: be_naumann",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_naumann_tooth"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Keen eye",
+     "desc": "Finds 25% likelier, the dig's too.",
+     "effects": [
+      {
+       "kind": "find",
+       "value": 0.25
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_curator",
+    "offer": "museum: open",
+    "name": "Every hall",
+    "icon": "🏛️",
+    "category": "creativity",
+    "needs": [
+     "collection"
+    ],
+    "desc": "Every hall of the kura complete, one after another.",
+    "steps": [
+     {
+      "name": "A hall complete",
+      "when": "piece: halls 1",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Three halls complete",
+      "when": "piece: halls 3",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The museum three-quarters complete",
+      "when": "museum: 75%",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Every hall complete",
+      "when": "museum: 100%",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_door_plate"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Name on the door",
+     "desc": "The museum's royalties 10% higher.",
+     "effects": [
+      {
+       "kind": "royalty",
+       "value": 0.1
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_nightcollector",
+    "offer": "museum: wing_night",
+    "name": "Collector of the night",
+    "icon": "🌙",
+    "category": "explorer",
+    "needs": [
+     "collection",
+     "romance"
+    ],
+    "adult": true,
+    "desc": "The night world's hall, every shunga, and every label in Tamaki's cabinet.",
+    "steps": [
+     {
+      "name": "The night world half full",
+      "when": "piece: 9 in night",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Every shunga",
+      "when": "piece: all in shunga",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "The night world complete",
+      "when": "piece: all in night",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Tamaki's cabinet complete",
+      "when": "record: all in cabinet",
+      "reward": {
+       "mood": 10,
+       "keepsake": "tk_shunga_fan"
+      }
+     }
+    ],
+    "perk": {
+     "name": "Discreet staff",
+     "desc": "Half as likely to be caught at the kura.",
+     "effects": [
+      {
+       "kind": "risk",
+       "value": -0.5,
+       "when": "place: ot_kura or ot_kura_back"
+      }
+     ]
+    }
    }
   ]
  },
@@ -62195,6 +62802,152 @@
      }
     ],
     "desc": "A charm from Kanayama Shrine in Kawasaki, known for its spring festival: +2 on private moments for a week."
+   },
+   {
+    "id": "tk_dealer_tip",
+    "name": "A dealer's tip",
+    "icon": "🔖",
+    "kind": "dealer",
+    "price": 400,
+    "limit": {
+     "per": "season"
+    },
+    "needs": [
+     "collection"
+    ],
+    "when": "museum: open",
+    "desc": "Tell the dealer what you're after: a missing piece of your choice comes with her next visit, on top of her stock, at the asked price."
+   },
+   {
+    "id": "tk_early_catalogue",
+    "name": "An early catalogue",
+    "icon": "📖",
+    "kind": "auction",
+    "price": 400,
+    "limit": {
+     "per": "season"
+    },
+    "needs": [
+     "collection"
+    ],
+    "when": "museum: open",
+    "desc": "A word with the auction house: the next sale has one more lot, a missing piece of your choice, bid on as any other."
+   },
+   {
+    "id": "tk_ebisu",
+    "name": "Ebisu's charm",
+    "icon": "🎏",
+    "kind": "boost",
+    "price": 400,
+    "days": 7,
+    "limit": {
+     "per": "season"
+    },
+    "roles": [
+     "shrine"
+    ],
+    "needs": [
+     "business"
+    ],
+    "when": "venture: any",
+    "effects": [
+     {
+      "kind": "venture",
+      "value": 0.1
+     }
+    ],
+    "desc": "A shōbai-hanjō omamori for a thriving trade: your ventures take 10% more for a week."
+   },
+   {
+    "id": "tk_field_guide",
+    "name": "A field guide",
+    "icon": "🔍",
+    "kind": "boost",
+    "price": 200,
+    "days": 3,
+    "limit": {
+     "per": "week"
+    },
+    "needs": [
+     "collection"
+    ],
+    "effects": [
+     {
+      "kind": "find",
+      "value": 0.5
+     }
+    ],
+    "desc": "A naturalist's guide with the season's pages marked: finds 50% likelier for three days."
+   },
+   {
+    "id": "tk_press_day",
+    "name": "Press day",
+    "icon": "📰",
+    "kind": "boost",
+    "price": 500,
+    "days": 7,
+    "limit": {
+     "per": "season"
+    },
+    "needs": [
+     "collection"
+    ],
+    "when": "museum: open",
+    "effects": [
+     {
+      "kind": "renown",
+      "value": 0.2
+     }
+    ],
+    "desc": "The papers and the television come to the kura: renown 20% higher for a week, and more visitors with it."
+   },
+   {
+    "id": "tk_workshop",
+    "name": "The workshop's priority",
+    "icon": "🛠️",
+    "kind": "restore",
+    "price": 250,
+    "limit": {
+     "per": "season"
+    },
+    "needs": [
+     "collection"
+    ],
+    "desc": "The workshop works through the night: everything being restored or mounted is ready tomorrow. The fee stays what it was."
+   },
+   {
+    "id": "tk_party_planner",
+    "name": "A party planner",
+    "icon": "🎊",
+    "kind": "boost",
+    "price": 250,
+    "days": 3,
+    "limit": {
+     "per": "week"
+    },
+    "effects": [
+     {
+      "kind": "gain",
+      "target": "friend",
+      "value": 1,
+      "when": "place: home:player"
+     }
+    ],
+    "desc": "Someone who knows who should meet whom: friendships grow twice as fast at your home for three days, time for a party."
+   },
+   {
+    "id": "tk_good_tenant",
+    "name": "A good tenant",
+    "icon": "🤝",
+    "kind": "tenant",
+    "price": 600,
+    "limit": {
+     "per": "season"
+    },
+    "needs": [
+     "housing"
+    ],
+    "desc": "The agent's best list: every home you let has a tenant each week for a season."
    }
   ]
  },

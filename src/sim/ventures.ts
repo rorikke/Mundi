@@ -25,7 +25,7 @@ import { myJob, shiftNow, quitJob, choicePractice, addPerf } from './work.js';
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
 import { isHotel, hotelDay, hourMul, pricesOf, type HotelDay } from './rooms.js';
 import { personNamed } from './when.js';
-import { effectSources } from './effects.js';
+import { effectSources, effectMul } from './effects.js';
 import type { EffectDef } from '../core/traits.js';
 
 /** A venture as the save keeps it. `id`: its world entry's; `place`: where it runs (the unit you lease, the takeover's
@@ -200,7 +200,10 @@ export function shareOf(d: VentureDef, s: VentureState, ran: boolean): number {
  *  hotel's by its rooms (sim/rooms.ts); a partnership's, your share of them. */
 export const dayValue = (g: Save, w: WorldDef, d: VentureDef, s: VentureState, day: number, ran: boolean, extra?: Record<string, number>) =>
     (isHotel(d) ? hotelOn(g, w, d, s, day, extra).net : (tierOf(d, s.tier)?.base ?? 0) * fill(d, s, extra) * demandOn(g, w, d, s, day))
-        * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day);
+        * shareOf(d, s, ran) * mineOf(d, s) * closedOn(g, w, s, day) * ventureMul(g, w, d);
+// (track 7) A `venture` effect on its takings (Regulars' favourite, Five stars, Ebisu's charm): aimed at the venture, its
+// track or its kind.
+const ventureMul = (g: Save, w: WorldDef, d: VentureDef) => effectMul(g, w, 'venture', [d.id, d.track, d.kind].filter((x): x is string => !!x));
 /** (hospitality) A hotel's day at its tier: rooms, rooms open, how full, what comes in (sim/rooms.ts). */
 export function hotelOn(g: Save, w: WorldDef, d: VentureDef, s: VentureState, day: number, extra: Record<string, number> = {}): HotelDay {
     const t = tierOf(d, s.tier), stats: Record<string, number> = { ...s.stats };
