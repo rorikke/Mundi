@@ -9710,6 +9710,8 @@ const DICT: Record<string, string> = {
  "Opens only through these ways in (not at friend, not by learning the secret)": "Abre só por estes caminhos de entrada (não na amizade, não ao descobrir o segredo)",
  "Its last chances never end it": "As últimas chances nunca a encerram",
  "It waits for the player; the texts come back as reminders.": "Ela espera pelo jogador; as mensagens voltam como lembretes.",
+ "Can't happen without (also in the game)": "Não acontece sem (também no jogo)",
+ "While one of them isn't in the game, neither is this storyline: it never opens, and the record leaves it out.": "Enquanto uma dessas pessoas não estiver no jogo, esta trama também não está: ela nunca se abre, e o registro a deixa de fora.",
  "Together with the player after it": "Junto com o jogador depois dele",
  "(no change)": "(sem mudança)",
  "Moves in with you": "Vem morar com você",

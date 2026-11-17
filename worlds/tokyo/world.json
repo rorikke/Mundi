@@ -8909,6 +8909,61 @@
     "desire": 50
    },
    "tags": [
+    "private"
+   ],
+   "id": "ot_kura_back_tamaki_copyist",
+   "name": "Sekine's hand",
+   "label": "After the workshop, with Tamaki",
+   "icon": "🖌️",
+   "cost": 0,
+   "minutes": 90,
+   "place": "ot_kura_back",
+   "when": "tier: Tamaki 3; seen: ot_yanaka_st_copyist_4; present: Tamaki; companion: crush or casual",
+   "dc": 10,
+   "matches": [
+    "quiet places after closing",
+    "slow and tender",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the kura's back room the night after Sekine's workshop, the boxes all round, Tamaki with his pattern book shut on her knees and no wish at all to be clever"
+   },
+   "outcomes": [
+    {
+     "id": "paste",
+     "weight": 50,
+     "text": "She talks about the smell of paste and silk in his shop until she stops talking, and is slower and more careful with you than she has ever been with anything she loved."
+    },
+    {
+     "id": "hands",
+     "weight": 30,
+     "text": "She holds your hand up to the lamp and looks at it the way she looks at brushwork, and laughs at herself, and doesn't let go.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "sleep",
+     "weight": 20,
+     "text": "She falls asleep against you between the boxes, the book on the floor; in the morning she says it was the first night since the funeral she didn't dream of his shop.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent the night in the kura's back room with Tamaki after they found Sekine's workshop"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
     "private",
     "ayame_uninvited"
    ],
@@ -14941,6 +14996,61 @@
     "desire": 50
    },
    "tags": [
+    "private"
+   ],
+   "id": "yk_van_kaede_copyist",
+   "name": "Every buyer called",
+   "label": "The last buyer called, with Kaede",
+   "icon": "📞",
+   "cost": 0,
+   "minutes": 60,
+   "place": "yk_van",
+   "when": "tier: Kaede 2; thread: kaede_copyist; present: Kaede; companion: crush or casual",
+   "dc": 10,
+   "matches": [
+    "the van at night",
+    "laughing in bed",
+    "being asked what they want"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaede's van at the harbour the night after she rang the last buyer of Sekine's copies, the ledger page torn out and pinned to the skylight, a bottle of cheap plum wine open"
+   },
+   "outcomes": [
+    {
+     "id": "page",
+     "weight": 50,
+     "text": "She asks what you want, straight out, and gets it, and laughs at the ledger page over your shoulder the whole time."
+    },
+    {
+     "id": "shaky",
+     "weight": 30,
+     "text": "For once she's quiet first, a little shaky (\"first time I ever sold something false\"), and then she isn't quiet at all.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "honest",
+     "weight": 20,
+     "text": "Near dawn she writes \"honest van\" on the ledger page in pencil, pins it back up and falls asleep across you.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} spent the night in Kaede's van at the harbour after she called back every one of Sekine's copies"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
     "private",
     "ayame_kaede"
    ],
@@ -15207,6 +15317,61 @@
     }
    ],
    "fact": "{u} and Ayame Mikage were in the saleroom's viewing room after the sale"
+  },
+  {
+   "adult": true,
+   "private": true,
+   "trains": "sensuality",
+   "effects": {
+    "mood": 12,
+    "energy": -6,
+    "desire": 50
+   },
+   "tags": [
+    "private"
+   ],
+   "id": "mg_viewing_ayame_copyist",
+   "name": "The empty easel",
+   "label": "The empty easel with Ayame",
+   "icon": "🖼️",
+   "cost": 0,
+   "minutes": 60,
+   "place": "mg_viewing",
+   "when": "tier: Ayame 2; seen: mg_fencing_st_copyist_3; present: Ayame; companion: crush or casual",
+   "dc": 12,
+   "matches": [
+    "after a lost lot",
+    "a fight first",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the saleroom's viewing room the night after Ayame gave {{user}} a name, the easel empty and turned to the wall, the bolt already shot, and one rule: not one word about the past"
+   },
+   "outcomes": [
+    {
+     "id": "rule",
+     "weight": 50,
+     "text": "She lays down her rule at the door and keeps it like a saleroom keeps order: nobody says a name, and for a long time she doesn't say anything at all."
+    },
+    {
+     "id": "easel",
+     "weight": 30,
+     "text": "Afterwards she turns the empty easel back to face the room and stands looking at nothing on it, and lets you watch her do it.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "owe",
+     "weight": 20,
+     "text": "\"I gave you a name,\" she says at the door, buttoning her jacket. \"That is the last thing I will ever give you.\" She is back the next week.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} and Ayame Mikage had each other in the saleroom's viewing room the night after she named the copyist"
   },
   {
    "id": "priv_home_tamaki_yukata",
@@ -25645,7 +25810,10 @@
     "bay_bridge_kaede",
     "priv_home_ayame_kaede",
     "ws_mikage_ayame_kaede",
-    "yk_van_ayame_kaede"
+    "yk_van_ayame_kaede",
+    "ot_kura_back_tamaki_copyist",
+    "mg_viewing_ayame_copyist",
+    "yk_van_kaede_copyist"
    ],
    "count": 5,
    "days": 7,
@@ -41348,6 +41516,263 @@
      "fact": "{u} kept it between themselves and Ayame Mikage that her family's her grandfather's seal was a copy"
     }
    ]
+  },
+  {
+   "id": "ot_yanaka_st_copyist_1",
+   "place": "ot_yanaka",
+   "when": "museum: open; tier: Kaede 1; tier: Ayame 1; knows: ayame_scroll; knows: kaede_back_of_van; dealer: here; present: Kaede",
+   "title": "Three paintings from a clearance",
+   "setup": "Kaede sits on her tailgate in the lane, delighted with a lot from a country clearance marked in pencil \"from a Yanaka workshop\". She unwraps three paintings for {{user}}: an ink landscape in the Sesshū manner, pines in mist, pines on gold. She glances once up the lane toward the kura and says nothing about where the lot came from. \"Good, aren't they? Want the true version?\"",
+   "choices": [
+    {
+     "label": "Ask for the true version",
+     "roll": {
+      "skill": "logic",
+      "dc": 13
+     },
+     "text": "You look the way Tamaki taught you: the ink is too even, all three in one hand, like the Mikage scroll. Kaede stops laughing, takes them off sale and lends you the landscape for Tamaki.",
+     "feels": {
+      "Kaede": 2
+     },
+     "fact": "{u} saw that the three paintings in Kaede's clearance lot shared one too-even hand",
+     "fail": {
+      "text": "Kaede tells a fine story about a temple in Gunma, half of it true, and you can't tell which half; still, she takes the three off sale and lends you the landscape.",
+      "feels": {
+       "Kaede": 1
+      }
+     }
+    },
+    {
+     "label": "Take one to Tamaki",
+     "text": "\"Your silver-haired curator will tell me it's a fake. She always does,\" Kaede says, grinning, and wraps the landscape for you; the other two she takes off sale, just in case.",
+     "romance": {
+      "Kaede": 1
+     },
+     "fact": "{u} took a painting from Kaede's clearance lot to Tamaki"
+    },
+    {
+     "label": "Kiss her and hold them back",
+     "when": "tier: Kaede 2",
+     "text": "You kiss her on the tailgate in front of the whole lane and ask her to hold the three back; she laughs that it isn't how haggling works, and does, and lends you the landscape.",
+     "romance": {
+      "Kaede": 2
+     },
+     "fact": "{u} kissed Kaede on her tailgate and asked her to hold back three paintings"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_copyist_2",
+   "place": "ot_kura",
+   "when": "museum: open; present: Tamaki",
+   "after": "ot_yanaka_st_copyist_1",
+   "title": "The same hand",
+   "setup": "Tamaki turns the landscape to the window with both gloved hands and goes very still. \"Edo? Thirty years at most.\" She lays her still of the Mikage \"Sesshū\" from the old Treasure Clinic tape beside it: the same too-even ink, the same lift at the end of a stroke, and Kaede's other two by the same hand. Then she frowns at the brushwork as if at a face she can't place.",
+   "choices": [
+    {
+     "label": "Ask where she has seen it",
+     "text": "She doesn't know, and it frightens her: long ago, close enough to smell the paste. Ayame would know who her grandfather paid, she says at last; Ayame fences at the Kudan club on Tuesday and Thursday evenings.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "fact": "{u} and Tamaki found that the paintings in Kaede's van were by the hand that painted the Mikage Sesshū"
+    },
+    {
+     "label": "Work through the night with her",
+     "roll": {
+      "skill": "logic",
+      "dc": 12
+     },
+     "minutes": 120,
+     "text": "You match it stroke by stroke with her until the hand is certain, and she falls asleep on the long table near dawn. Ayame will know who painted it, she says: the Kudan club, Tuesday and Thursday evenings.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "fact": "{u} and Tamaki matched the paintings in Kaede's van stroke by stroke to the Mikage Sesshū",
+     "fail": {
+      "text": "You lose the thread long before she does, and she sends you home at midnight, kindly. In the morning: Ayame will know who painted it; the Kudan club, Tuesday and Thursday evenings.",
+      "feels": {
+       "Tamaki": 1
+      }
+     }
+    },
+    {
+     "label": "Take her hand",
+     "when": "tier: Tamaki 2",
+     "text": "You take her gloved hand on the table between the two paintings, and she turns her palm up. \"Ayame will know who painted it,\" she says, not letting go. \"The Kudan club. Tuesday and Thursday evenings.\"",
+     "romance": {
+      "Tamaki": 2
+     },
+     "fact": "{u} held Tamaki's hand over the copies from Kaede's van"
+    }
+   ]
+  },
+  {
+   "id": "mg_fencing_st_copyist_3",
+   "place": "mg_fencing",
+   "when": "tier: Ayame 1; present: Ayame; period: evening",
+   "after": "ot_kura_st_copyist_2",
+   "title": "A name at the club",
+   "setup": "Ayame Mikage finishes her bout before she looks at the photograph of Kaede's landscape, and doesn't look long. \"Sekine,\" she says, pulling off her glove. \"The mounter in Yanaka, two lanes from your kura. My grandfather paid him in cash, in our tearoom. Eleven days.\" He kept a book of everything he painted and for whom, she adds, as if it were nothing; her grandfather's order will be in it.",
+   "choices": [
+    {
+     "label": "Press her for all of it",
+     "roll": {
+      "skill": "charisma",
+      "dc": 14
+     },
+     "text": "She gives you all of it, cold and exact: the bad year, the cash, the left screen of the Mikage pines he painted too, the old man dead last winter, the workshop shut. Tamaki has its key.",
+     "feels": {
+      "Ayame": 2
+     },
+     "fact": "Ayame Mikage named old Sekine, the Yanaka mounter, as the hand that painted her family's Sesshū",
+     "fail": {
+      "text": "She gives you the name and turns back to the piste. On the way out the club's master tells you Sekine died last winter, and Tamaki Kurahashi has the key to his shop.",
+      "feels": {
+       "Ayame": 1
+      }
+     }
+    },
+    {
+     "label": "Let her keep her composure",
+     "text": "You don't press. She notices, and hates it, and tells you the rest by the masks: Sekine died last winter, his workshop is shut, Tamaki has its key. Her face is flushed when she turns away.",
+     "romance": {
+      "Ayame": 2
+     },
+     "fact": "Ayame Mikage named old Sekine, the Yanaka mounter, as the hand that painted her family's Sesshū"
+    },
+    {
+     "label": "Cross blades for it",
+     "when": "tier: Ayame 2",
+     "roll": {
+      "skill": "fitness",
+      "dc": 14
+     },
+     "minutes": 30,
+     "text": "You take the bout by a touch. On the bench, breathing hard, she tells you all of it, the cash and the pines and the shut workshop, and doesn't let go of your sleeve.",
+     "romance": {
+      "Ayame": 3
+     },
+     "fact": "{u} won a bout against Ayame Mikage for the name of the man who painted her family's Sesshū",
+     "fail": {
+      "text": "She takes the bout five touches to one and tells you everything anyway, standing over you, every word an insult: the cash, the pines, the shut workshop whose key Tamaki has.",
+      "romance": {
+       "Ayame": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_yanaka_st_copyist_4",
+   "place": "ot_yanaka",
+   "when": "museum: open; period: evening",
+   "after": "mg_fencing_st_copyist_3",
+   "brings": "Tamaki",
+   "title": "Sekine's workshop",
+   "setup": "After closing Tamaki unlocks Sekine's shuttered workshop two lanes from the kura: paste, old silk, dust. In a drawer is his pattern book, every copy and who ordered it, and a page from 1994: \"Mikage. Winter landscape after Sesshū, to hang in place of the one sold. Eleven days. Cash.\" On the table, Ōkyo's puppies in the snow, half copied, \"for Shūzō\". Tamaki did her homework at that table for years: that is how she knew at fifteen.",
+   "choices": [
+    {
+     "label": "Let her talk about him",
+     "text": "She talks for an hour: the smell of paste, the radio he kept on low, the brush he let her ruin at seven. Then she carries the book and the unfinished puppies back to the kura herself.",
+     "feels": {
+      "Tamaki": 2
+     },
+     "reveal": "kaede_copyist",
+     "fact": "{u} and Tamaki found Sekine's pattern book in his shut workshop, the Mikage page in it"
+    },
+    {
+     "label": "Hold her while she cries",
+     "when": "tier: Tamaki 2",
+     "text": "She doesn't cry until you hold her, and then she does, for the old man and for the fifteen-year-old on television who never knew why she was right. She takes the book home with your hand in hers.",
+     "romance": {
+      "Tamaki": 2
+     },
+     "reveal": "kaede_copyist",
+     "fact": "{u} and Tamaki found Sekine's pattern book in his shut workshop, the Mikage page in it"
+    },
+    {
+     "label": "Take the book and go",
+     "trains": "logic",
+     "text": "You take the pattern book and the half-finished puppies and lock the shop behind you. Tamaki says nothing until the kura's step, and then only that she should have known, and did.",
+     "feels": {
+      "Tamaki": 1
+     },
+     "reveal": "kaede_copyist",
+     "fact": "{u} and Tamaki found Sekine's pattern book in his shut workshop, the Mikage page in it"
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_copyist_5",
+   "place": "ot_kura",
+   "when": "museum: open; present: Tamaki; thread: ayame_scroll",
+   "after": "ot_yanaka_st_copyist_4",
+   "brings": "Ayame",
+   "title": "The pattern book",
+   "setup": "Sekine's pattern book lies open on the kura's long table at the Mikage page, Kaede's ledger of buyers beside it. Tamaki stands on one side, gloves on; Ayame Mikage on the other, gloves on, not looking at the page. If the trade sees the book, every copy in it can be traced and called back, and the Mikage page with them. Both wait for {{user}} to decide.",
+   "choices": [
+    {
+     "label": "Give the whole book to the trade",
+     "text": "You give the trade all of it, the Mikage page too. Every copy is pulled from the market; the papers call Tamaki right a second time. Ayame reads it standing, and doesn't speak to you for a week.",
+     "feels": {
+      "Tamaki": 3,
+      "Kaede": 2,
+      "Ayame": -4
+     },
+     "romance": {
+      "Ayame": 2
+     },
+     "renown": 4,
+     "keepsake": "copyist_brush",
+     "fact": "{u} gave the trade Sekine's whole pattern book, the Mikage page with it"
+    },
+    {
+     "label": "Give it without the Mikage page",
+     "text": "You tear out the Mikage page for Ayame and give the trade the rest. Every copy is called back, her grandfather named in none of it. She hates owing you again; Tamaki says nothing until the next day.",
+     "feels": {
+      "Tamaki": -1,
+      "Kaede": 2,
+      "Ayame": 1
+     },
+     "romance": {
+      "Ayame": 3
+     },
+     "renown": 3,
+     "keepsake": "copyist_brush",
+     "fact": "{u} gave the trade Sekine's pattern book without the Mikage page, and gave the page to Ayame"
+    },
+    {
+     "label": "Lock it in the kura",
+     "text": "You lock the book in the kura's safe and tell no one. Kaede will buy her copies back with her own money; Ayame's grandfather stays a collector; Tamaki puts the key on her ring without a word.",
+     "feels": {
+      "Tamaki": -2,
+      "Kaede": 1
+     },
+     "romance": {
+      "Kaede": 2,
+      "Ayame": 2
+     },
+     "keepsake": "copyist_brush",
+     "fact": "{u} locked Sekine's pattern book in the kura and told no one"
+    },
+    {
+     "label": "Let Ayame decide",
+     "when": "thread: ayame_scroll vindicated",
+     "text": "You push the book across to Ayame. She takes it to the papers herself, her grandfather's page first, with a statement in her own hand: a fifteen-year-old told the truth. Tamaki reads it twice and pours her tea.",
+     "feels": {
+      "Ayame": 3,
+      "Tamaki": 3,
+      "Kaede": 2
+     },
+     "romance": {
+      "Ayame": 1
+     },
+     "renown": 4,
+     "keepsake": "copyist_brush",
+     "fact": "{u} let Ayame Mikage decide, and she took Sekine's pattern book to the papers herself"
+    }
+   ]
   }
  ],
  "keepsakes": [
@@ -41697,6 +42122,13 @@
    "kind": "kaede",
    "gift": false,
    "desc": "A page torn out of her dealer's ledger. Under the prices, in pencil: \"Item 10: free, once.\""
+  },
+  {
+   "id": "copyist_brush",
+   "name": "Sekine's last brush",
+   "icon": "🖌️",
+   "gift": false,
+   "desc": "A worn mounting brush of deer hair with a cracked bamboo handle, from the table in old Sekine's shut workshop in Yanaka. Tamaki gave it to you \"for the case\"."
   },
   {
    "gift": true,
@@ -56592,6 +57024,63 @@
         "text": "She tears the page out laughing and says the best dares are the ones you don't write down."
        }
       ]
+     },
+     {
+      "id": "kaede_copyist",
+      "title": "The copyist",
+      "hidden": "Three paintings in Kaede's last country clearance, a lot marked \"from a Yanaka workshop\", are copies by the hand that painted the Mikage \"Sesshū\": old Sekine, the scroll mounter two lanes from the kura, who died last winter. His nephew sold the workshop up-country, and Sekine's copies are coming back onto the market as old pieces. Kaede has already sold two to collectors she likes.",
+      "known": "{{user}} knows the paintings in Kaede's clearance lot were copies by old Sekine, the Yanaka mounter who painted the Mikage \"Sesshū\", and has his pattern book.",
+      "opens": "museum: open; tier: Kaede 1; tier: Ayame 1; knows: ayame_scroll; knows: kaede_back_of_van",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Kaede best",
+      "with": [
+       "Ayame",
+       "Tamaki"
+      ],
+      "decide": "Kaede sits on the tailgate with her ledger open at the page of buyers she sold Sekine's copies to. She tells {{user}} what she has done about each of them, what she thinks of what {{user}} did with the old mounter's pattern book, and laughs, mostly.",
+      "nudges": [
+       "Got a ledger page I keep not looking at. Come by the van when you can, kura-san.",
+       "The van's in the lane again. Bring whatever you decided about that book.",
+       "Still here, still honest, mostly. Come and tell me how it ends."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "when": "seen: not ot_kura_st_copyist_5",
+        "text": "Kaede has taken three paintings from a country clearance off sale and laughs about them a little too much; she doesn't say why."
+       }
+      ],
+      "endings": [
+       {
+        "id": "exposed",
+        "when": "seen: ot_kura_st_copyist_5:1",
+        "good": true,
+        "text": "Kaede rings every buyer herself with the trade's letter in her hand and takes each copy back at what they paid. \"Honest van,\" she says on the tailgate afterwards. \"Who knew.\""
+       },
+       {
+        "id": "page_torn",
+        "when": "seen: ot_kura_st_copyist_5:2",
+        "good": true,
+        "text": "Kaede rings every buyer with the trade's letter and takes each copy back; she guesses about the page that isn't in the book, and doesn't ask."
+       },
+       {
+        "id": "quiet",
+        "when": "seen: ot_kura_st_copyist_5:3",
+        "good": true,
+        "text": "Kaede buys the copies back one by one, quietly, with her own money, and swears on the tailgate she'll never sell from a Yanaka lot again."
+       },
+       {
+        "id": "herself",
+        "when": "seen: ot_kura_st_copyist_5:4",
+        "good": true,
+        "text": "After Ayame's statement is in the papers, Kaede's buyers ring her before she can ring them, and she takes every copy back, grinning."
+       },
+       {
+        "id": "cold",
+        "text": "Kaede takes the copies off sale and buys back what she can, and doesn't talk about it."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -70244,6 +70733,25 @@
       "icon": "🛣️"
      }
     ]
+   },
+   {
+    "id": "copyist",
+    "name": "The copyist's case",
+    "icon": "🖌️",
+    "desc": "Tamaki's teaching case at the kura: fakes, labelled as fakes. Never for sale.",
+    "record": true,
+    "apart": true,
+    "needs": [
+     "living"
+    ],
+    "open": "seen: ot_kura_st_copyist_2",
+    "groups": [
+     {
+      "id": "copies",
+      "name": "Sekine's copies",
+      "icon": "🖼️"
+     }
+    ]
    }
   ],
   "slots": [
@@ -74140,6 +74648,17 @@
     "plaque": "Three weekends at the inn; the maid now brings two pillows without being asked."
    },
    {
+    "id": "tc_copyist",
+    "hall": "cabinet",
+    "group": "places",
+    "name": "No. 36, the hand she knew",
+    "icon": "🖌️",
+    "hint": "The night after Sekine's workshop, in the back room with her.",
+    "adult": true,
+    "when": "did: ot_kura_back_tamaki_copyist with crush",
+    "plaque": "The night after his workshop: no labels, and one brush laid on the boxes beside the futon."
+   },
+   {
     "id": "ag_lot_1",
     "hall": "ayame_grudges",
     "group": "lots",
@@ -74391,6 +74910,17 @@
     "adult": true,
     "when": "did: tag:ayame_kaede with crush",
     "plaque": "A night with the dealer there too, over a bet she meant to win."
+   },
+   {
+    "id": "ag_copyist",
+    "hall": "ayame_grudges",
+    "group": "nights",
+    "name": "A name, given. Never again.",
+    "icon": "🖼️",
+    "hint": "The viewing room with her after she names the copyist.",
+    "adult": true,
+    "when": "did: mg_viewing_ayame_copyist with crush",
+    "plaque": "The night she gave {{user}} a name, and the easel turned to the wall."
    },
    {
     "id": "kl_spent_1",
@@ -74657,6 +75187,17 @@
     "plaque": "The back page crossed off in two hands."
    },
    {
+    "id": "kl_copyist_end",
+    "hall": "kaede_ledger",
+    "group": "road",
+    "name": "Item 27: an honest van.",
+    "icon": "🖌️",
+    "hint": "See \"The copyist\" through.",
+    "adult": true,
+    "when": "thread: kaede_copyist",
+    "plaque": "Sekine's copies traced, and the van honest again, more or less."
+   },
+   {
     "id": "kl_ayame",
     "hall": "kaede_ledger",
     "group": "bets",
@@ -74666,6 +75207,73 @@
     "adult": true,
     "when": "did: tag:ayame_kaede with crush",
     "plaque": "The ice queen in the van, outraged and staying; nobody won, both claimed it."
+   },
+   {
+    "id": "kl_copyist",
+    "hall": "kaede_ledger",
+    "group": "nights",
+    "name": "Item 26: three copies, called back.",
+    "icon": "📞",
+    "hint": "Her van, the night the last buyer is called.",
+    "adult": true,
+    "when": "did: yk_van_kaede_copyist with crush",
+    "plaque": "The last buyer rung, the ledger page pinned to the skylight, and \"honest van\" in pencil by dawn."
+   },
+   {
+    "id": "copyist_landscape",
+    "hall": "copyist",
+    "group": "copies",
+    "name": "An ink landscape (a copy)",
+    "icon": "🖼️",
+    "hint": "Follow the copies in Kaede's van to the hand that painted them.",
+    "needs": [
+     "living"
+    ],
+    "when": "seen: ot_kura_st_copyist_2",
+    "plaque": "Sesshū manner, about 2010, by the hand that painted the Mikage scroll. From Kaede's van. Not for sale.",
+    "pic": "collection/art/art_sesshu_landscape.avif"
+   },
+   {
+    "id": "copyist_pines_mist",
+    "hall": "copyist",
+    "group": "copies",
+    "name": "Pines in mist (a copy)",
+    "icon": "🖼️",
+    "hint": "Follow the copies in Kaede's van to the hand that painted them.",
+    "needs": [
+     "living"
+    ],
+    "when": "seen: ot_kura_st_copyist_2",
+    "plaque": "After Tōhaku, painted by old Sekine of Yanaka for nobody in particular. From Kaede's van. Not for sale.",
+    "pic": "collection/art/art_tohaku_pines.avif"
+   },
+   {
+    "id": "copyist_pine_panel",
+    "hall": "copyist",
+    "group": "copies",
+    "name": "A pine panel (a copy)",
+    "icon": "🖼️",
+    "hint": "Follow the copies in Kaede's van to the hand that painted them.",
+    "needs": [
+     "living"
+    ],
+    "when": "seen: ot_kura_st_copyist_2",
+    "plaque": "Kano school, by Sekine, who also painted the left screen of the Mikage pines. From Kaede's van. Not for sale.",
+    "pic": "collection/art/art_kano_pines.avif"
+   },
+   {
+    "id": "copyist_puppies",
+    "hall": "copyist",
+    "group": "copies",
+    "name": "Puppies in the snow (unfinished)",
+    "icon": "🖼️",
+    "hint": "Follow the copies in Kaede's van to the hand that painted them.",
+    "needs": [
+     "living"
+    ],
+    "when": "seen: ot_yanaka_st_copyist_4",
+    "plaque": "Begun by Sekine for Shūzō Kurahashi, \"to keep looking at them a little longer\". Never finished. Not for sale.",
+    "pic": "collection/art/art_okyo_puppies.avif"
    },
    {
     "id": "mem_sl_tamaki_cabinet",
@@ -75667,6 +76275,25 @@
     "when": "had: all kaede",
     "icon": "📒",
     "hint": "Hold every keepsake of this kind at some time (from kaede)."
+   },
+   {
+    "id": "mem_sl_kaede_copyist",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Kaede and the copyist",
+    "who": "Kaede",
+    "when": "thread: kaede_copyist",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "exposed": "Every one of Sekine's copies called back, and the van honest again.",
+     "page_torn": "Every copy called back but one page, which {{user}} gave to Ayame.",
+     "quiet": "The pattern book locked in the kura; Kaede buys her copies back on her own.",
+     "herself": "Ayame Mikage told the papers herself; Kaede took every copy back.",
+     "cold": "The book stayed shut, and Kaede took the copies back herself."
+    },
+    "hint": "See Kaede's story through to its end."
    }
   ],
   "museum": {

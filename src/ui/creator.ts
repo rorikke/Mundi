@@ -2181,6 +2181,7 @@ function tidyThreads(w: WorldDef) {
             else if (typeof t.opens === 'string' && !t.opens.trim()) delete t.opens;
         }
         if (t.nudges !== undefined) { const l = (Array.isArray(t.nudges) ? t.nudges : []).map(x => String(x).trim()).filter(Boolean).slice(0, 3); if (l.length) t.nudges = l; else delete t.nudges; }
+        if (t.with !== undefined && !(Array.isArray(t.with) && t.with.length)) delete t.with;   // nobody else it needs: no key
         for (const en of t.endings ?? []) {
             const h = en.help; if (!h) continue;
             if (typeof h.label !== 'string' || !h.label.trim()) { delete en.help; continue; }
@@ -2753,6 +2754,7 @@ function threadsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][n
             ${area('What they know and don\'t say (told to the AI as hidden)', `${q}.hidden`, 2)}
             <div class="mu-row2"><label class="mu-field"><span>How it reads once you know ({{user}} knows …)</span><textarea rows="2" data-input="cw" data-type="opt" data-path="${esc(`${q}.known`)}" data-focus="${esc(`${q}.known`)}">${val(`${q}.known`)}</textarea></label>${cond('They tell you when (empty: once you\'re good friends)', `${q}.reveal`, 'feels: Mio good')}</div>
             ${opensRows(q, t)}
+            <div class="mu-field"><span>Can't happen without (also in the game)</span>${pairChips(withCurAll(peopleOpts(w).filter(([n]) => n !== e.name), t.with), `${q}.with`, true)}<small class="mu-muted">While one of them isn't in the game, neither is this storyline: it never opens, and the record leaves it out.</small></div>
             ${optArea('The deciding scene (for the AI: what is at stake as they bring it up; {{user}} is the player)', `${q}.decide`, 3, 'Empty: made from what they hide and the last stage.')}
             <span class="mu-cw-sub">Last chances by text (in their voice, first to last; empty boxes are left out)</span>
             <div class="mu-row2">${[0, 1, 2].map(n => nudgeBox(q, n)).join('')}</div>
