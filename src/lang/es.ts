@@ -10105,5 +10105,10 @@ const DICT: Record<string, string> = {
  "A good tenant: every home you let has a tenant each week for a season": "Un buen inquilino: cada casa que alquilas tiene inquilino cada semana durante una estación",
  "Was called (empty: never changed)": "Se llamaba (vacío: nunca cambió)",
  "When you change what a perk does, give its old name here: a game that finished the goal before is told once what its perk is now.": "Cuando cambies lo que hace una ventaja, pon aquí su nombre anterior: una partida que completó la meta antes se entera una vez de cuál es su ventaja ahora.",
+ "one more week": "una semana más",
+ "two more weeks": "dos semanas más",
+ "three more weeks": "tres semanas más",
+ "four more weeks": "cuatro semanas más",
+ "{0} more weeks": "{0} semanas más",
 };
 export default DICT;
