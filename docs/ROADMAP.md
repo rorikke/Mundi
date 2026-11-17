@@ -31,11 +31,10 @@ Ideas planned for later. Nothing here is promised for a date.
     storylines). Forgeries (a fake among the dealer's pieces, spotted by a skill check or the curator's eye, never
     standing in the real piece's way) are kept for later.
   - **TODO, the museum's pace:** in the long simulated runs, a player putting the museum first completes its base halls
-    about 6.8–7.9 game years after taking on the kura on ¥1,000,000 a week with Nature and Before Edo (6.3–7.1 before
-    them), not the planned five (3.9–5.3 on ¥1,500,000; on ¥500,000 never within eight years). Prices stay as they are; the museum should earn more instead.
-    Candidates: shows that sell tickets, lending a hall to Ueno Hall of Art for a fee, a museum shop. Raising what
-    visitors pay barely helps (they pay by renown, which is low while the museum is being built) and would make them
-    more than the small thank-you they are meant to be.
+    5.0–5.9 game years after taking on the kura on ¥1,000,000 a week (3.2–4.2 on ¥1,500,000), with the Mikage
+    Foundation's loans and cases and the museum's royalties; without them it took 6.7–8.0. On ¥500,000 it still ends
+    at 97–99% after eight years. Prices stay as they are; the museum's money should grow instead: next, renting out
+    homes you own, then stakes in companies (Tycoon, above).
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
 
 - **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:

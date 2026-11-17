@@ -280,6 +280,7 @@ function effectWords(w: WorldDef, e: EffectDef): string {
             return `${what} restores ${pct(v)} more`;
         }
         case 'price': return `Prices ${pct(v)} ${v <= 0 ? 'lower' : 'higher'}${t ? ` (${t})` : ''}`;
+        case 'royalty': return `The museum's royalties ${v >= 0 ? '+' : '−'}${pct(v)}`;
         default: return `${e.kind} ${EFFECT_KINDS[e.kind]?.mode === 'mul' ? `${v >= 0 ? '+' : '−'}${pct(v)}` : plus(v)}${t ? ` (${t})` : ''}`;
     }
 }
