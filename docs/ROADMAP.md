@@ -16,7 +16,9 @@ Ideas planned for later. Nothing here is promised for a date.
   - **Tycoon:** buying a stake in a company (a seed stake, a large one, a majority), its value as the score: the
     projects you back, a funding round, a listing, selling out; Rina's company, Nanami's band, Lisa's studio, a club
     with Sayuri.
-  - Life goals and keepsakes for each track, and perhaps the other worlds' fixed small businesses (`property`) moved
+  - Life goals for the café, the hotels and the executive's floor are in (A café to remember, Hotelier, The corner
+    office: see [Life goals and life points](improvements.md#life-goals-and-life-points)); perhaps the other worlds'
+    fixed small businesses (`property`) moved
     onto the same engine.
 
 - **End-game spending: homes and a collection.** The shop and homes you own are in (see
@@ -35,8 +37,11 @@ Ideas planned for later. Nothing here is promised for a date.
   - **TODO, the museum's pace:** in the long simulated runs, a player putting the museum first completes its base halls
     5.0–5.9 game years after taking on the kura on ¥1,000,000 a week (3.2–4.2 on ¥1,500,000), with the Mikage
     Foundation's loans and cases and the museum's royalties; without them it took 6.7–8.0. On ¥500,000 it still ends
-    at 97–99% after eight years. Prices stay as they are; the museum's money should grow instead: next, renting out
-    homes you own, then stakes in companies (Tycoon, above).
+    at 97–99% after eight years. With the end game's life goals followed and their rewards bought (Natural history's
+    finds, Every hall's royalties, Patron of the arts' renown, a press day, the dealer's tip, the workshop's priority) it's
+    5.1–5.9 on ¥1,000,000 and 2.9–4.1 on ¥1,500,000; letting three Azabu homes bought from the museum's money makes it
+    5.6–6.3 and 3.6–5.0 (the rent doesn't make their price back before the museum is complete). Prices stay as they are;
+    the museum's money should grow instead: next, stakes in companies (Tycoon, above).
   - The other worlds' shops grown the same way (Porto Alto's, the Shared House's).
 
 - **Storylines: more of them.** Tokyo's 26 are in (see [Storylines](improvements.md#storylines)). Next:
