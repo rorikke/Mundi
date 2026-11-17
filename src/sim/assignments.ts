@@ -17,7 +17,7 @@ import {
     placeCaption, cameraOf, trimPhotos, atHomeNow, photoNote, studioWith,
     type Offer, type Taken, type Shot, type PhotoRec,
 } from './photo.js';
-import { studioOf, inStudio, STUDIO_ID, studioZones } from './studio.js';
+import { studioOf, inStudio, STUDIO_ID, studioZones, rentalOpen } from './studio.js';
 import { weddingsAhead } from './longlife.js';
 import { myJob, careerOf, freelancePath, rankOf } from './work.js';
 import { placeOf } from './places.js';
@@ -371,12 +371,7 @@ export function shootPlaces(g: Save, w: WorldDef, id: number): { id: string; nam
     return out;
 }
 /** The hourly rental you could take now: the world's, while its condition holds, else its plain fallback. */
-export function rentalOffer(g: Save, w: WorldDef): { at: string; price: number } | null {
-    const r = def(w)?.rental;
-    if (!r || !photoOn(w)) return null;
-    if (!r.when || whenHolds(g, w, r.when, { key: 'photo-rental', place: r.at })) return { at: r.at, price: r.price };
-    return r.fallback ?? null;
-}
+export const rentalOffer = (g: Save, w: WorldDef): { at: string; price: number } | null => rentalOpen(g, w);   // (sim/studio.ts's)
 /** Sets the shoot with the subject: a plan of kind `shoot` at one of its places, at `from` (absolute minutes), for the
  *  brief's hours; they say yes or no by their day (work, sleep, other plans). */
 export function setShoot(g: Save, w: WorldDef, id: number, place: string, from: number): { ok: boolean; text: string } {

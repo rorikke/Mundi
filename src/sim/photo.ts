@@ -12,7 +12,7 @@ import { safeUrl } from '../core/safe.js';
 import { relOf, idOf } from './rel.js';
 import { photoLink } from './hooks.js';
 import { ownedDefs } from './shop.js';
-import { studioOf, STUDIO_ID } from './studio.js';
+import { studioOf, STUDIO_ID, myStudio, studioHas } from './studio.js';
 import { myJob, rankOf, freelancePath, isFreelance } from './work.js';
 import { placeOf, playerHomeId, homeKindAt, isHome } from './places.js';
 import { SECOND_HOME_ID } from './housing.js';
@@ -399,10 +399,8 @@ const FIX_WORDS: Record<string, string> = { any: 'a photo studio of your own', c
 export const publishedBooks = (g: Save, w: WorldDef) => peekPhoto(g).books.filter(b => b.state === 'published' && (!w.photo?.books?.find(d => d.id === b.def)?.adult || adultOn(g)));
 /** Does your photo studio have a fixture of this gear kind (`cyc`, `dressing`; `any`: a studio at all)? */
 export function studioWith(g: Save, w: WorldDef, v: string): boolean {
-    const st = studioOf(g);
-    if (!st || !systemOn(w, 'housing')) return false;
-    if (v === 'any') return true;
-    return (st.fix ?? []).some(id => ((w.homes?.fixtures ?? []).find(f => f.id === id) as any)?.photo?.gear === v);
+    // (sim/studio.ts: a studio that's yours, and its working fixtures, the ones it came with included)
+    return v === 'any' ? !!myStudio(g, w) : studioHas(g, w, v);
 }
 /** Did you go freelance (and how you left: `blessing`, `fallout`; `any`)? Kept after quitting. */
 export function wentFreelance(g: Save, w: WorldDef, v: string): boolean {
