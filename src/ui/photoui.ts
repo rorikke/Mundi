@@ -85,7 +85,7 @@ function needsHtml(list: Need[]): string {
 function briefTop(g: Save, w: WorldDef, c: BriefCard): string {
     return `<header class="mu-lens-client"><i aria-hidden="true">${esc(c.client.icon ?? '📷')}</i><b data-notr>${esc(c.client.name)}</b><small>${esc(kindWord(c.brief.kind))}</small></header>
         <b class="mu-lens-name" data-notr>${esc(c.brief.name)}</b>${c.brief.text ? `<small class="mu-lens-text" data-notr>${esc(c.brief.text)}</small>` : ''}
-        <small class="mu-lens-where"><span data-notr>${esc(c.place)}</span>${c.window ? ` · ${esc(c.window)}` : ''} · ${esc(dueWords(c.due))}</small>
+        <small class="mu-lens-where"><span data-notr>${esc(c.place)}</span>${c.window ? ` · <span>${esc(c.window)}</span>` : ''} · <span>${esc(dueWords(c.due))}</span></small>
         ${c.subject ? `<small>With <span data-notr>${esc(c.subject)}</span></small>` : ''}`;
 }
 function boardCard(g: Save, w: WorldDef, c: BriefCard): string {
@@ -140,7 +140,7 @@ function openCard(g: Save, w: WorldDef, c: OpenCard): string {
     const id = c.offer.id, shoot = actHere(g, w, `x-shoot-${id}`), edit = c.canEdit ? actHere(g, w, 'x-photo-edit') : undefined;
     const late = c.late > 0 ? `<small class="mu-lens-why">${esc(c.late === 1 ? 'A day late: paid less if you deliver now.' : `${n(c.late)} days late: paid less if you deliver now.`)}</small>` : '';
     const win = c.brief.window ? `<small class="${c.open ? 'mu-good' : 'mu-muted'}">${esc(c.open ? 'The window is open now.' : `Not now: ${c.window}.`)}</small>` : '';
-    const plan = c.plan ? `<small>The shoot: <span data-notr>${esc(c.plan)}</span></small>` : c.needsPlan ? shootForm(g, w, c) : '';
+    const plan = c.plan ? `<small>${esc(`The shoot: ${c.plan}`)}</small>` : c.needsPlan ? shootForm(g, w, c) : '';
     const shootBtn = shoot ? `<button data-act="lens-do" data-id="${esc(shoot.id)}">${esc(c.shot ? 'Shoot it again' : 'Shoot it now')}</button>` : '';
     // (a second try only while it's still allowed: once shot twice, or its window gone, nothing more is said)
     const shootWhy = !shoot && c.shootWhy && !(c.shot && /twice|second try/i.test(c.shootWhy)) ? `<small class="mu-lens-why">${esc(c.shot ? `To shoot it again: ${c.shootWhy}` : c.shootWhy)}</small>` : '';
@@ -170,7 +170,7 @@ function bigPhoto(g: Save, w: WorldDef, r: PhotoRec): string {
         ${c || b ? `<small>${c ? `<span data-notr>${esc(c.name)}</span>` : ''}${c && b ? ' · ' : ''}${b ? `<span data-notr>${esc(b.name)}</span>` : ''}</small>` : ''}
         <small><span data-notr>${esc(placeName(g, w, r.place))}</span> · ${esc(dayWords(r.day))}, ${esc(hm(r.min))}</small>
         ${r.stars ? `<small class="mu-lens-stars">${starsText(r.stars)}${r.q !== undefined ? ` · ${esc(`quality ${n(r.q)}`)}` : ''}</small>` : ''}
-        ${L.missing.map(m => `<small class="mu-muted" data-notr>${esc(m)}</small>`).join('')}
+        ${L.missing.map(m => `<small class="mu-muted">${esc(m)}</small>`).join('')}
         <button class="mu-ghost" data-act="lens-star" data-id="${n(r.id)}" aria-pressed="${!!r.star}">${r.star ? '★ Starred' : '☆ Star it'}</button></section>`;
 }
 function photosTab(g: Save, w: WorldDef): string {
@@ -233,7 +233,7 @@ export function lensBadge(g: Save, w: WorldDef): boolean {
     const p = peekPhoto(g);
     return p.books.some(b => b.state === 'offered') || p.open.some(t => !!t.shot);
 }
-const TABS: [Tab, string][] = [['board', 'Board'], ['open', 'Open'], ['photos', 'Photos'], ['you', 'You']];
+const TABS: [Tab, string][] = [['board', 'Board'], ['open', 'In progress'], ['photos', 'Photos'], ['you', 'You']];
 /** The Lens app: the four tabs and the one open (nothing in a world without photo gigs or with the system off). */
 export function lensApp(g: Save, w: WorldDef, head: string): string {
     if (!photoOn(w)) return `${head}<div class="mu-ph-body mu-lens"><p class="mu-muted">No photography in this world.</p></div>`;
@@ -296,14 +296,14 @@ Object.assign(ACT, {
     'lens-deliver': (el) => {
         const x = ctxW(); if (!x) return;
         const r = deliverBrief(x.g, x.w, Number(el.dataset.id));
-        if (r.lines.length) toast(r.lines.join(' '), r.ok ? 'success' : 'info');
+        for (const l of r.lines) toast(l, r.ok ? 'success' : 'info');   // (a line a notice, so each is translated whole)
         if (!r.ok) return;
         done();
         if (r.piece && r.photo !== undefined) void askCaption(x.w, r.photo);
     },
     'lens-back': (el) => { LS.back = Number(el.dataset.id) || 0; notify(); },
     'lens-back-no': () => { LS.back = 0; notify(); },
-    'lens-back-go': (el) => { const x = ctxW(); if (!x) return; const lines = giveUpBrief(x.g, x.w, Number(el.dataset.id)); LS.back = 0; if (lines.length) toast(lines.join(' '), 'info'); done(); },
+    'lens-back-go': (el) => { const x = ctxW(); if (!x) return; const lines = giveUpBrief(x.g, x.w, Number(el.dataset.id)); LS.back = 0; for (const l of lines) toast(l, 'info'); done(); },
     'lens-book-yes': (el) => { const x = ctxW(); if (!x) return; const t = acceptBook(x.g, x.w, Number(el.dataset.id)); if (t) toast(t, 'success'); done(); },
     'lens-book-no': (el) => { const x = ctxW(); if (!x) return; const t = declineBook(x.g, x.w, Number(el.dataset.id)); if (t) toast(t, 'info'); done(); },
 });
