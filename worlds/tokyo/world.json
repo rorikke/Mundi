@@ -41520,7 +41520,7 @@
   {
    "id": "ot_yanaka_st_copyist_1",
    "place": "ot_yanaka",
-   "when": "museum: open; tier: Kaede 1; tier: Ayame 1; knows: ayame_scroll; knows: kaede_back_of_van; dealer: here; present: Kaede",
+   "when": "museum: open; tier: Kaede 1; tier: Ayame 1; knows: ayame_scroll; knows: kaede_back_of_van; tier: Tamaki 0; dealer: here; present: Kaede",
    "title": "Three paintings from a clearance",
    "setup": "Kaede sits on her tailgate in the lane, delighted with a lot from a country clearance marked in pencil \"from a Yanaka workshop\". She unwraps three paintings for {{user}}: an ink landscape in the Sesshū manner, pines in mist, pines on gold. She glances once up the lane toward the kura and says nothing about where the lot came from. \"Good, aren't they? Want the true version?\"",
    "choices": [
