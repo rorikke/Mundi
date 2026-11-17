@@ -2,10 +2,11 @@
 // Run: node tests/version.test.mjs [repo root]
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = process.argv[2] ?? path.join(here, '..');
-const V = await import(path.join(root, 'dist/core/version.js'));
+// import() wants a URL: a bare Windows path (C:\…) reads as a URL scheme "c:" and fails
+const V = await import(pathToFileURL(path.join(root, 'dist/core/version.js')).href);
 const man = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8'));
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
