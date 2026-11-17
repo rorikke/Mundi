@@ -23,6 +23,7 @@ import { tierNo } from '../sim/romance.js';
 import { SEASONS, seasonDays } from '../sim/time.js';
 import { ACT, INPUT } from './reg.js';
 import { loanCard } from './rivalui.js';   // (C-7)
+import { royaltyView } from '../sim/royalties.js';   // (R-b)
 
 /** In memory only: the piece picked in the Dealer tab's "Ask for a piece". */
 export const MU = { ask: '' };
@@ -88,6 +89,16 @@ function renownCard(g: Save, w: WorldDef): string {
 function visitorsLine(g: Save, w: WorldDef): string {
     const st = M.museumOf(g);
     return st?.income !== undefined ? `<small>${esc(`Last week's visitors: ${money(w, st.income)}`)}</small>` : '<small>Visitors pay on Mondays.</small>';
+}
+// (R-b) last week's royalties and the percentage they come by, what the whole museum would bring, the next step
+function royaltyLine(g: Save, w: WorldDef): string {
+    const v = royaltyView(g, w);
+    if (!v.on) return '';
+    if (!(v.now > 0)) return `<small>${esc(`Royalties come from ${n(v.from)}% complete.`)}</small>`;
+    const last = v.last !== undefined ? `Last week's royalties: ${money(w, v.last)}` : 'Royalties pay on Mondays.';
+    const rate = v.pct < 100 ? `${money(w, v.now)} a week at ${n(v.pct)}% · ${money(w, v.top)} at 100%` : `${money(w, v.now)} a week at 100%`;
+    const next = v.next ? `<small>${esc(`At ${n(v.next.at)}%:`)} <span data-notr>${esc(v.next.line)}</span></small>` : '';
+    return `<small>${esc(last)}</small><small>${esc(rate)}</small>${next}`;
 }
 function showCard(g: Save, w: WorldDef): string {
     const m = M.museumDef(w)!, s = m.shows;
@@ -189,7 +200,7 @@ export function museumTab(g: Save, w: WorldDef): string {
     }
     const p = percentOf(g, w, false), cur = M.curatorOf(g, w);
     const head = `<section class="mu-mu-card mu-mu-head"><b class="mu-mu-name" data-notr>${esc(m.name)}</b><p><b class="mu-mu-big">${esc(n(p.pct))}%</b> <small>${esc(`${n(p.filled)} of ${n(p.counted)} pieces`)}</small></p>
-        <small>${esc(`Yours since day ${n(st!.opened!)}`)}${cur ? ` · ${esc('curator:')} <span data-notr>${esc(cur.name)}</span>` : ''}</small>${visitorsLine(g, w)}</section>`;
+        <small>${esc(`Yours since day ${n(st!.opened!)}`)}${cur ? ` · ${esc('curator:')} <span data-notr>${esc(cur.name)}</span>` : ''}</small>${visitorsLine(g, w)}${royaltyLine(g, w)}</section>`;
     return `${head}${renownCard(g, w)}${showCard(g, w)}${digCards(g, w)}${workshopCard(g, w)}${upgradesCard(g, w)}`;
 }
 

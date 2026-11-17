@@ -25,6 +25,7 @@ import '../sim/tiers.js';   // (museum) people who unlock: their caps, `reserved
 import '../sim/loans.js';   // (C-7) the rival's foundation borrowing your pieces
 import '../sim/market.js';   // (museum) the market's hooks: the dealer's visits, the sales, its condition keys
 import '../sim/dig.js';   // (nature) digs: their condition key, days and finds
+import '../sim/royalties.js';   // (R-b) the museum's royalties each Monday and its steps' lines
 import { settleHomes } from '../sim/owning.js';
 import { SECOND_HOME_ID, secondHome } from '../sim/housing.js';
 

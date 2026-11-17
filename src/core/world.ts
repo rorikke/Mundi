@@ -904,7 +904,14 @@ export interface MuseumDef { place: string; name: string;
             /** (C-7) the other collector is this one of the world's people */ who?: string }; back?: number; again?: number };
     shows?: { price: number; renown?: number; lasting?: number; most?: number; min?: number };
     /** (C-7) Someone's foundation borrowing your pieces for a season (see LoanDef). */
-    loans?: LoanDef }
+    loans?: LoanDef;
+    /** (R-b) The museum's name on things: a weekly royalty by its percentage (see RoyaltyDef). */
+    royalties?: RoyaltyDef }
+/** (museum, R-b) Royalties: the museum's name on books, prints and a documentary, paid each Monday once the museum is
+ *  yours, by its percentage (the display halls'). `curve`: points rising by `at` (a percentage, 0…100) with what a week
+ *  pays there; a straight line between two points, nothing below the first, the last's above it. `steps`: a line said
+ *  once the percentage first reaches `at`, and what the AI is told from then on (`ai`). */
+export interface RoyaltyDef { curve: { at: number; pay: number }[]; steps?: { at: number; line: string; ai?: string }[] }
 /** (museum, C-7) Someone borrowing your pieces for a season for a fee (the rival's foundation, RR-1). `who`: one of the
  *  world's people (nothing while she isn't in the game); from when `when` holds, at the start of each season she asks
  *  for one piece of yours on show of rung `min` (3) or more that you took from her at a sale (won over her bid, or sold
