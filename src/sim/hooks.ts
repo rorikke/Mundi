@@ -195,3 +195,6 @@ export const photoLink: {
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];
+// (photography) Actions a system offers from its own state where you are (the hourly studio rental), added to the
+// engine's own (`extraActions` in sim/life.ts); what one does is its system's own `onAction`.
+export const engineActions: ((g: Save, w: WorldDef) => ActionDef[])[] = [];

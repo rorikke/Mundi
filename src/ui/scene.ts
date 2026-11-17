@@ -148,7 +148,7 @@ function background(g: Save, w: WorldDef) {
     if (isOuting(g.player.loc)) return bgStyle(outingOf(g)?.bg ?? '');   // Home, out of the house: the background you chose
     const p = placeOf(g, w, g.player.loc);
     if (!p) return '';
-    if (p.home) {
+    if (p.home && !p.bg) {   // ((photography) your photo studio has its own picture)
         const kind = w.homes.kinds[homeKindAt(g, w, p.id) || 'apartment']   // (a room a guest just left keeps its picture);
         const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id));   // the picture of this part of the day (and weather, season), if it has one
         if (img) return `background-image:url('${worldFile(w, img)}');background-size:cover;background-position:center`;

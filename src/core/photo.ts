@@ -3,7 +3,7 @@
 // fixture's `photo` gear, a freelance path's flag). The format is in core/world.ts (PhotoDef); what plays it is
 // sim/photo.ts and sim/assignments.ts. A world without `photo` gets no key; the other fields are only cleaned where
 // they already are.
-import type { WorldDef, PhotoDef, PhotoClient, BriefDef, SubjectDef, PhotobookDef, PhotoGear, CameraRule, PhotoKind, ClientKind } from './world.js';
+import type { WorldDef, PhotoDef, PhotoClient, BriefDef, SubjectDef, PhotobookDef, PhotoGear, CameraRule, PhotoKind, ClientKind, StudioZone } from './world.js';
 
 // (kept here, not in core/world.ts, which imports core/presets.ts, which imports this file)
 export const CAMERA_RULES: CameraRule[] = ['ask', 'work', 'noface', 'never'];
@@ -158,4 +158,38 @@ export function upgradePhoto(w: WorldDef) {
     if (str(p.job) && ID.test(str(p.job)!)) out.job = str(p.job);
     const wed = strs(p.weddingAt).filter(x => places.has(x)); if (wed.length) out.weddingAt = wed;
     w.photo = out;
+}
+
+// (housing) A photo studio's zone from someone else's file: an id no home zone has, a name, a map the world has, one
+// spot (the first good one, else the middle of the map), its kind, money in bounds, its pictures, the fixtures it
+// comes with (those the world has), `given`. The fields only a home has (a second home, letting) are left out.
+function studio(z: any, maps: Set<string>, homes: Set<string>, fixtures: Set<string>): StudioZone | undefined {
+    if (!z || typeof z !== 'object' || !str(z.id) || !ID.test(str(z.id)!) || homes.has(str(z.id)!) || !str(z.name) || !maps.has(z.map)) return undefined;
+    const spot = (Array.isArray(z.spots) ? z.spots : []).find((s: any) => Array.isArray(s) && num(s[0], 0, 100, false) !== undefined && num(s[1], 0, 100, false) !== undefined);
+    const out: StudioZone = { id: str(z.id)!, name: str(z.name)!, map: z.map, kind: str(z.kind) ?? 'photostudio', rent: num(z.rent, 0, PHOTO_PAY_MAX * 10) ?? 0,
+        spots: [spot ? [Math.max(0, Math.min(100, spot[0])), Math.max(0, Math.min(100, spot[1]))] : [50, 50]] };
+    if (str(z.desc)) out.desc = str(z.desc);
+    for (const k of ['price', 'upkeep'] as const) { const v = num(z[k], 0, 1_000_000_000); if (v) out[k] = v; }
+    const resale = num(z.resale, 0, 1, false); if (resale) out.resale = resale;
+    const size = num(z.size, 1, 5); if (size !== undefined) out.size = size;
+    if (str(z.image)) out.image = str(z.image);
+    if (z.images && typeof z.images === 'object' && !Array.isArray(z.images)) {
+        const im = Object.fromEntries(Object.entries(z.images).filter(([k, v]) => str(k) && str(v)).map(([k, v]) => [k, str(v)!]));
+        if (Object.keys(im).length) out.images = im;
+    }
+    const fx = strs(z.fixtures).filter(id => fixtures.has(id)); if (fx.length) out.fixtures = fx;
+    if (z.given === true) out.given = true;
+    return out;
+}
+/** (housing) The photo studios (`homes.studios`) and the kinds' `work` flag made safe, in place (called from
+ *  `upgradeWorld()` after `upgradePhoto`); no key is added where a world has none. Idempotent. */
+export function upgradeStudios(w: WorldDef) {
+    const h: any = w.homes;
+    if (!h || typeof h !== 'object') return;
+    for (const k of Object.values(h.kinds ?? {}) as any[]) if (k && typeof k === 'object' && 'work' in k && k.work !== true) delete k.work;
+    if (!('studios' in h)) return;
+    const maps = new Set((w.maps ?? []).map(m => m.id)), homes = new Set<string>((h.zones ?? []).map((z: any) => z?.id));
+    const fixtures = new Set<string>((Array.isArray(h.fixtures) ? h.fixtures : []).map((f: any) => f?.id).filter(Boolean));
+    const list = uniq((Array.isArray(h.studios) ? h.studios : []).map((z: any) => studio(z, maps, homes, fixtures)).filter(Boolean) as StudioZone[]);
+    if (list.length) h.studios = list; else delete h.studios;
 }
