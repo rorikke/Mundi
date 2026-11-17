@@ -44377,7 +44377,7 @@
     "to": 20
    },
    "shift": 9,
-   "length": 1.1,
+   "length": 2.5,
    "likes": [
     "Art",
     "Fashion",
@@ -44415,8 +44415,8 @@
     }
    ],
    "promote": [
-    6,
-    30
+    3,
+    13
    ],
    "branches": [
     {
@@ -44430,15 +44430,15 @@
        "hire": "photorep: 30",
        "closed": "Going out on your own takes a photo reputation of 30 first.",
        "promote": [
-        4,
-        20,
-        28,
-        36
+        5,
+        25,
+        35,
+        45
        ],
        "ranks": [
         {
          "name": "Freelancer",
-         "pay": 20000,
+         "pay": 40000,
          "days": 3,
          "needs": {
           "photography": 4,
@@ -44449,7 +44449,7 @@
         },
         {
          "name": "Regular contributor",
-         "pay": 35000,
+         "pay": 45000,
          "days": 3,
          "needs": {
           "photography": 5,
@@ -44460,7 +44460,7 @@
         },
         {
          "name": "Name photographer",
-         "pay": 50000,
+         "pay": 55000,
          "days": 3,
          "needs": {
           "photography": 7,
@@ -44471,7 +44471,7 @@
         },
         {
          "name": "Star photographer",
-         "pay": 70000,
+         "pay": 60000,
          "days": 3,
          "needs": {
           "photography": 9,
@@ -44490,15 +44490,15 @@
        "hire": "photorep: 30",
        "closed": "Going out on your own takes a photo reputation of 30 first.",
        "promote": [
-        4,
-        20,
-        28,
-        36
+        5,
+        25,
+        35,
+        45
        ],
        "ranks": [
         {
          "name": "Freelancer",
-         "pay": 20000,
+         "pay": 40000,
          "days": 3,
          "needs": {
           "photography": 4,
@@ -44509,7 +44509,7 @@
         },
         {
          "name": "Booked photographer",
-         "pay": 35000,
+         "pay": 45000,
          "days": 3,
          "needs": {
           "photography": 5,
@@ -44520,7 +44520,7 @@
         },
         {
          "name": "Favorite of the planners",
-         "pay": 50000,
+         "pay": 55000,
          "days": 3,
          "needs": {
           "photography": 7,
@@ -44531,7 +44531,7 @@
         },
         {
          "name": "The one everyone wants",
-         "pay": 70000,
+         "pay": 60000,
          "days": 3,
          "needs": {
           "photography": 9,
@@ -44550,15 +44550,15 @@
        "hire": "photorep: 30",
        "closed": "Going out on your own takes a photo reputation of 30 first.",
        "promote": [
-        4,
-        20,
-        28,
-        36
+        5,
+        25,
+        35,
+        45
        ],
        "ranks": [
         {
          "name": "Freelancer",
-         "pay": 20000,
+         "pay": 40000,
          "days": 3,
          "needs": {
           "photography": 4,
@@ -44569,7 +44569,7 @@
         },
         {
          "name": "Studio regular",
-         "pay": 35000,
+         "pay": 45000,
          "days": 3,
          "needs": {
           "photography": 5,
@@ -44580,7 +44580,7 @@
         },
         {
          "name": "Portraitist",
-         "pay": 50000,
+         "pay": 55000,
          "days": 3,
          "needs": {
           "photography": 7,
@@ -44591,7 +44591,7 @@
         },
         {
          "name": "Star photographer",
-         "pay": 70000,
+         "pay": 60000,
          "days": 3,
          "needs": {
           "photography": 9,
@@ -78201,6 +78201,7 @@
   "briefs": [
    {
     "board": "full",
+    "rep": 3,
     "id": "br_machi_yanaka",
     "client": "machi",
     "kind": "magazine",
@@ -78223,6 +78224,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_machi_street",
     "client": "machi",
     "kind": "magazine",
@@ -78235,7 +78237,7 @@
     ],
     "window": "weekend: yes; period: afternoon",
     "floor": 30,
-    "pay": 26000,
+    "pay": 30000,
     "needs": {
      "photography": 4,
      "fashion": 2
@@ -78251,6 +78253,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_machi_goldengai",
     "client": "machi",
     "kind": "magazine",
@@ -78263,7 +78266,7 @@
     ],
     "window": "period: night or latenight",
     "floor": 40,
-    "pay": 30000,
+    "pay": 34500,
     "needs": {
      "photography": 4
     },
@@ -78275,6 +78278,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_hara_tsukiji",
     "client": "hara_hachibu",
     "kind": "magazine",
@@ -78287,7 +78291,7 @@
     ],
     "window": "period: rush",
     "floor": 20,
-    "pay": 22000,
+    "pay": 25500,
     "needs": {
      "photography": 3
     },
@@ -78296,6 +78300,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_hara_kamejiro",
     "client": "hara_hachibu",
     "kind": "magazine",
@@ -78308,7 +78313,7 @@
     ],
     "window": "period: evening or night",
     "floor": 35,
-    "pay": 28000,
+    "pay": 32000,
     "needs": {
      "photography": 4
     },
@@ -78323,6 +78328,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_tabi_ashi",
     "client": "tabi_kaze",
     "kind": "magazine",
@@ -78335,7 +78341,7 @@
     ],
     "window": "period: firsttrain; weather: sunny or fair",
     "floor": 55,
-    "pay": 42000,
+    "pay": 38000,
     "needs": {
      "photography": 5
     },
@@ -78349,6 +78355,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_tabi_minato",
     "client": "tabi_kaze",
     "kind": "magazine",
@@ -78361,7 +78368,7 @@
     ],
     "window": "period: night; weather: not rain or heavyrain or storm or snow",
     "floor": 50,
-    "pay": 36000,
+    "pay": 32500,
     "needs": {
      "photography": 5
     },
@@ -78372,6 +78379,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_tabi_koyo",
     "client": "tabi_kaze",
     "kind": "magazine",
@@ -78385,7 +78393,7 @@
     "when": "season: autumn",
     "window": "season: autumn; weather: sunny or fair or partly or cloudy",
     "floor": 60,
-    "pay": 40000,
+    "pay": 36000,
     "needs": {
      "photography": 6
     },
@@ -78396,6 +78404,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_tabi_fuji",
     "client": "tabi_kaze",
     "kind": "magazine",
@@ -78409,7 +78418,7 @@
     "when": "season: winter",
     "window": "season: winter; weather: sunny",
     "floor": 70,
-    "pay": 46000,
+    "pay": 41500,
     "needs": {
      "photography": 7
     },
@@ -78421,6 +78430,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_velvet_rain",
     "client": "velvet_mode",
     "kind": "magazine",
@@ -78433,7 +78443,7 @@
     ],
     "window": "weather: rain or heavyrain; period: midmorning or afternoon",
     "floor": 50,
-    "pay": 45000,
+    "pay": 40500,
     "needs": {
      "photography": 5,
      "fashion": 3
@@ -78452,6 +78462,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_velvet_cover",
     "client": "velvet_mode",
     "kind": "magazine",
@@ -78465,7 +78476,7 @@
     "studio": "cyc",
     "floor": 80,
     "contact": true,
-    "pay": 65000,
+    "pay": 58500,
     "needs": {
      "photography": 8,
      "fashion": 6
@@ -78483,6 +78494,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_velvet_ginza",
     "client": "velvet_mode",
     "kind": "magazine",
@@ -78496,7 +78508,7 @@
     "window": "period: evening; weather: sunny or fair or partly or cloudy",
     "floor": 85,
     "contact": true,
-    "pay": 68000,
+    "pay": 61000,
     "needs": {
      "photography": 8,
      "fashion": 6
@@ -78514,6 +78526,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_kura_plates",
     "client": "kurahashi",
     "kind": "magazine",
@@ -78527,7 +78540,7 @@
     "when": "museum: open",
     "window": "period: midmorning or afternoon",
     "floor": 20,
-    "pay": 24000,
+    "pay": 27500,
     "needs": {
      "photography": 4,
      "logic": 2
@@ -78538,8 +78551,10 @@
    },
    {
     "board": "full",
+    "rep": 4,
     "id": "br_mizu_rings",
     "client": "mizu_regulars",
+    "when": "freelance: not any",
     "kind": "magazine",
     "name": "Rings on black velvet",
     "branches": [
@@ -78559,6 +78574,7 @@
    },
    {
     "board": "full",
+    "rep": 3,
     "id": "br_toto_hokoten",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78581,6 +78597,7 @@
    },
    {
     "board": "full",
+    "rep": 3,
     "id": "br_toto_sanja",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78604,6 +78621,7 @@
    },
    {
     "board": "full",
+    "rep": 3,
     "id": "br_toto_ekiden",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78626,6 +78644,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_toto_halloween",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78639,7 +78658,7 @@
     "window": "festival: halloween; period: evening or night",
     "days": 2,
     "floor": 20,
-    "pay": 22000,
+    "pay": 25500,
     "needs": {
      "photography": 3
     },
@@ -78651,6 +78670,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_wave_taping",
     "client": "wave_tv",
     "kind": "event",
@@ -78663,7 +78683,7 @@
     ],
     "window": "event: tv_taping",
     "floor": 20,
-    "pay": 22000,
+    "pay": 25500,
     "needs": {
      "photography": 3
     },
@@ -78672,6 +78692,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_mochi_launch",
     "client": "mochi_byte",
     "kind": "event",
@@ -78684,7 +78705,7 @@
     ],
     "window": "period: afternoon or evening",
     "floor": 20,
-    "pay": 22000,
+    "pay": 25500,
     "needs": {
      "photography": 3
     },
@@ -78699,6 +78720,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_toto_awaodori",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78712,7 +78734,7 @@
     "window": "festival: awaodori",
     "days": 2,
     "floor": 25,
-    "pay": 24000,
+    "pay": 27500,
     "needs": {
      "photography": 3,
      "fitness": 2
@@ -78722,6 +78744,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_toto_illumination",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78735,7 +78758,7 @@
     "window": "festival: illumination; period: evening or night",
     "days": 4,
     "floor": 30,
-    "pay": 26000,
+    "pay": 30000,
     "needs": {
      "photography": 4
     },
@@ -78745,6 +78768,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_wave_fancon",
     "client": "wave_tv",
     "kind": "event",
@@ -78758,7 +78782,7 @@
     "window": "festival: fancon",
     "days": 3,
     "floor": 35,
-    "pay": 28000,
+    "pay": 32000,
     "needs": {
      "photography": 4
     },
@@ -78767,6 +78791,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_toto_fireworks",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78780,7 +78805,7 @@
     "window": "festival: fireworks; period: evening or night",
     "days": 2,
     "floor": 45,
-    "pay": 34000,
+    "pay": 39000,
     "needs": {
      "photography": 5
     },
@@ -78793,6 +78818,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_wave_gig",
     "client": "wave_tv",
     "kind": "event",
@@ -78805,7 +78831,7 @@
     ],
     "window": "event: livehouse_gig",
     "floor": 50,
-    "pay": 38000,
+    "pay": 34000,
     "needs": {
      "photography": 5
     },
@@ -78819,6 +78845,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_toto_tuna",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78831,7 +78858,7 @@
     ],
     "window": "event: tuna",
     "floor": 55,
-    "pay": 36000,
+    "pay": 32500,
     "needs": {
      "photography": 5
     },
@@ -78841,6 +78868,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_toto_newyear",
     "client": "toto_shimbun",
     "kind": "event",
@@ -78855,7 +78883,7 @@
     "days": 2,
     "floor": 80,
     "contact": true,
-    "pay": 55000,
+    "pay": 49500,
     "needs": {
      "photography": 7,
      "fitness": 3
@@ -78867,8 +78895,10 @@
    },
    {
     "board": "full",
+    "rep": 4,
     "id": "br_mizu_engaged",
     "client": "mizu_regulars",
+    "when": "freelance: not any",
     "kind": "wedding",
     "name": "An engagement portrait",
     "branches": [
@@ -78894,6 +78924,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_shirotae_yanaka",
     "client": "shirotae",
     "kind": "wedding",
@@ -78906,7 +78937,7 @@
     ],
     "window": "period: afternoon; weather: sunny or fair",
     "floor": 20,
-    "pay": 24000,
+    "pay": 27500,
     "needs": {
      "photography": 3,
      "charisma": 2
@@ -78922,6 +78953,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_shirotae_party",
     "client": "shirotae",
     "kind": "wedding",
@@ -78934,7 +78966,7 @@
     ],
     "window": "weekend: yes; period: afternoon",
     "floor": 25,
-    "pay": 28000,
+    "pay": 32000,
     "needs": {
      "photography": 4,
      "charisma": 2
@@ -78950,6 +78982,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_shirotae_sakura",
     "client": "shirotae",
     "kind": "wedding",
@@ -78962,7 +78995,7 @@
     ],
     "window": "festival: hanami; weather: not rain or heavyrain or storm",
     "floor": 30,
-    "pay": 30000,
+    "pay": 34500,
     "needs": {
      "photography": 4
     },
@@ -78977,6 +79010,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_shirotae_chinatown",
     "client": "shirotae",
     "kind": "wedding",
@@ -78989,7 +79023,7 @@
     ],
     "window": "weekend: yes; period: evening",
     "floor": 35,
-    "pay": 32000,
+    "pay": 37000,
     "needs": {
      "photography": 4,
      "charisma": 2
@@ -79008,6 +79042,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_shirotae_bay",
     "client": "shirotae",
     "kind": "wedding",
@@ -79020,7 +79055,7 @@
     ],
     "window": "weekend: yes; period: afternoon; weather: sunny or fair",
     "floor": 40,
-    "pay": 34000,
+    "pay": 39000,
     "needs": {
      "photography": 5,
      "charisma": 3
@@ -79036,6 +79071,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_mori_meiji",
     "client": "mori_hikari",
     "kind": "wedding",
@@ -79048,7 +79084,7 @@
     ],
     "window": "weekend: yes; period: midmorning",
     "floor": 50,
-    "pay": 42000,
+    "pay": 38000,
     "needs": {
      "photography": 5,
      "charisma": 3
@@ -79066,6 +79102,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_mori_rain",
     "client": "mori_hikari",
     "kind": "wedding",
@@ -79079,7 +79116,7 @@
     "window": "weekend: yes; weather: rain or heavyrain; period: midmorning or afternoon",
     "days": 14,
     "floor": 60,
-    "pay": 44000,
+    "pay": 39500,
     "needs": {
      "photography": 6,
      "charisma": 4
@@ -79100,6 +79137,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_mori_ryokan",
     "client": "mori_hikari",
     "kind": "wedding",
@@ -79113,7 +79151,7 @@
     "window": "weekend: yes; period: afternoon or evening",
     "days": 10,
     "floor": 65,
-    "pay": 48000,
+    "pay": 43000,
     "needs": {
      "photography": 6,
      "charisma": 4
@@ -79129,6 +79167,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_mori_palace",
     "client": "mori_hikari",
     "kind": "wedding",
@@ -79142,7 +79181,7 @@
     "window": "weekend: yes; period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
     "floor": 80,
     "contact": true,
-    "pay": 64000,
+    "pay": 57500,
     "needs": {
      "photography": 8,
      "charisma": 5
@@ -79160,8 +79199,10 @@
    },
    {
     "board": "full",
+    "rep": 4,
     "id": "br_mizu_headshots",
     "client": "mizu_regulars",
+    "when": "freelance: not any",
     "kind": "portrait",
     "name": "Headshots for an agency",
     "branches": [
@@ -79187,8 +79228,10 @@
    },
    {
     "board": "full",
+    "rep": 4,
     "id": "br_mizu_family",
     "client": "mizu_regulars",
+    "when": "freelance: not any",
     "kind": "portrait",
     "name": "A family in the white room",
     "branches": [
@@ -79214,6 +79257,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_kirameki_press",
     "client": "kirameki",
     "kind": "portrait",
@@ -79226,7 +79270,7 @@
     ],
     "window": "period: evening or night",
     "floor": 20,
-    "pay": 22000,
+    "pay": 25500,
     "needs": {
      "photography": 3
     },
@@ -79241,6 +79285,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_hikari_founder",
     "client": "hikari_labs",
     "kind": "portrait",
@@ -79254,7 +79299,7 @@
     "window": "period: afternoon or evening",
     "floor": 25,
     "contact": true,
-    "pay": 26000,
+    "pay": 30000,
     "needs": {
      "photography": 4
     },
@@ -79269,6 +79314,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_kirameki_cover",
     "client": "kirameki",
     "kind": "portrait",
@@ -79282,7 +79328,7 @@
     "window": "period: night; weather: rain or heavyrain",
     "days": 10,
     "floor": 35,
-    "pay": 30000,
+    "pay": 34500,
     "needs": {
      "photography": 4
     },
@@ -79301,6 +79347,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_kirameki_trio",
     "client": "kirameki",
     "kind": "portrait",
@@ -79313,7 +79360,7 @@
     ],
     "studio": "cyc",
     "floor": 45,
-    "pay": 32000,
+    "pay": 37000,
     "needs": {
      "photography": 5,
      "logic": 2
@@ -79329,6 +79376,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_starlight_intake",
     "client": "starlight",
     "kind": "portrait",
@@ -79341,7 +79389,7 @@
     ],
     "studio": true,
     "floor": 50,
-    "pay": 36000,
+    "pay": 32500,
     "needs": {
      "photography": 5,
      "logic": 2
@@ -79358,6 +79406,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_starlight_single",
     "client": "starlight",
     "kind": "portrait",
@@ -79370,7 +79419,7 @@
     ],
     "window": "period: afternoon or evening",
     "floor": 55,
-    "pay": 40000,
+    "pay": 36000,
     "needs": {
      "photography": 5,
      "fashion": 3
@@ -79387,6 +79436,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_starlight_center",
     "client": "starlight",
     "kind": "portrait",
@@ -79400,7 +79450,7 @@
     "studio": "cyc",
     "floor": 80,
     "contact": true,
-    "pay": 60000,
+    "pay": 54000,
     "needs": {
      "photography": 8,
      "fashion": 5
@@ -79418,6 +79468,7 @@
    },
    {
     "board": "full",
+    "rep": 2,
     "id": "br_velvet_star",
     "client": "velvet_mode",
     "kind": "portrait",
@@ -79432,7 +79483,7 @@
     "studio": true,
     "floor": 85,
     "contact": true,
-    "pay": 70000,
+    "pay": 63000,
     "needs": {
      "photography": 9,
      "fashion": 6
@@ -79450,6 +79501,7 @@
    },
    {
     "board": "full",
+    "rep": 3,
     "id": "wedding_friends",
     "client": "friend",
     "kind": "wedding",
@@ -79462,7 +79514,6 @@
      "yk_park"
     ],
     "pay": 36000,
-    "rep": 5,
     "needs": {
      "photography": 3
     },
@@ -79728,6 +79779,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_city_crossing",
     "book": "pb_city",
     "kind": "magazine",
@@ -79737,7 +79789,7 @@
     ],
     "window": "period: night; weather: rain or heavyrain",
     "days": 14,
-    "pay": 28000,
+    "pay": 25000,
     "needs": {
      "photography": 6
     },
@@ -79748,6 +79800,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_city_goldengai",
     "book": "pb_city",
     "kind": "magazine",
@@ -79757,7 +79810,7 @@
     ],
     "window": "period: night or latenight; weather: rain or heavyrain",
     "days": 14,
-    "pay": 28000,
+    "pay": 25000,
     "needs": {
      "photography": 6
     },
@@ -79768,6 +79821,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_city_sumida",
     "book": "pb_city",
     "kind": "magazine",
@@ -79777,7 +79831,7 @@
     ],
     "window": "period: afternoon or evening; weather: rain or heavyrain",
     "days": 14,
-    "pay": 28000,
+    "pay": 25000,
     "needs": {
      "photography": 6
     },
@@ -79788,6 +79842,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_city_yanaka",
     "book": "pb_city",
     "kind": "magazine",
@@ -79797,7 +79852,7 @@
     ],
     "window": "period: midmorning or afternoon; weather: rain or heavyrain",
     "days": 14,
-    "pay": 28000,
+    "pay": 25000,
     "needs": {
      "photography": 6
     },
@@ -79808,6 +79863,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_yanaka_spring",
     "book": "pb_season",
     "kind": "magazine",
@@ -79818,7 +79874,7 @@
     "when": "season: spring",
     "window": "season: spring",
     "days": 14,
-    "pay": 24000,
+    "pay": 21500,
     "needs": {
      "photography": 5
     },
@@ -79829,6 +79885,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_yanaka_summer",
     "book": "pb_season",
     "kind": "magazine",
@@ -79839,7 +79896,7 @@
     "when": "season: summer",
     "window": "season: summer",
     "days": 14,
-    "pay": 24000,
+    "pay": 21500,
     "needs": {
      "photography": 5
     },
@@ -79850,6 +79907,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_yanaka_autumn",
     "book": "pb_season",
     "kind": "magazine",
@@ -79860,7 +79918,7 @@
     "when": "season: autumn",
     "window": "season: autumn",
     "days": 14,
-    "pay": 24000,
+    "pay": 21500,
     "needs": {
      "photography": 5
     },
@@ -79871,6 +79929,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_yanaka_winter",
     "book": "pb_season",
     "kind": "magazine",
@@ -79881,7 +79940,7 @@
     "when": "season: winter",
     "window": "season: winter",
     "days": 14,
-    "pay": 24000,
+    "pay": 21500,
     "needs": {
      "photography": 5
     },
@@ -79892,6 +79951,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_lanterns_home",
     "book": "pb_lanterns",
     "kind": "portrait",
@@ -79901,7 +79961,7 @@
     ],
     "window": "period: evening or night",
     "days": 14,
-    "pay": 30000,
+    "pay": 27000,
     "needs": {
      "photography": 5
     },
@@ -79918,6 +79978,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_lanterns_noge",
     "book": "pb_lanterns",
     "kind": "portrait",
@@ -79927,7 +79988,7 @@
     ],
     "window": "period: night or latenight",
     "days": 14,
-    "pay": 30000,
+    "pay": 27000,
     "needs": {
      "photography": 5
     },
@@ -79944,6 +80005,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_lanterns_hakone",
     "book": "pb_lanterns",
     "kind": "portrait",
@@ -79953,7 +80015,7 @@
     ],
     "window": "period: rush or midmorning",
     "days": 14,
-    "pay": 30000,
+    "pay": 27000,
     "needs": {
      "photography": 5
     },
@@ -79970,6 +80032,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_lanterns_koenji",
     "book": "pb_lanterns",
     "kind": "portrait",
@@ -79979,7 +80042,7 @@
     ],
     "window": "period: firsttrain or rush",
     "days": 14,
-    "pay": 30000,
+    "pay": 27000,
     "needs": {
      "photography": 5
     },
@@ -79996,6 +80059,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_hina_rehearsal",
     "book": "pb_hina",
     "kind": "portrait",
@@ -80006,7 +80070,7 @@
     "when": "knows: hina_graduation",
     "window": "period: afternoon",
     "days": 14,
-    "pay": 34000,
+    "pay": 30500,
     "needs": {
      "photography": 6
     },
@@ -80023,6 +80087,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_hina_offduty",
     "book": "pb_hina",
     "kind": "portrait",
@@ -80034,7 +80099,7 @@
     "when": "knows: hina_graduation",
     "window": "period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
     "days": 14,
-    "pay": 34000,
+    "pay": 30500,
     "needs": {
      "photography": 6
     },
@@ -80051,6 +80116,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_hina_lastshow",
     "book": "pb_hina",
     "kind": "portrait",
@@ -80062,7 +80128,7 @@
     "when": "knows: hina_graduation",
     "window": "period: evening or night",
     "days": 14,
-    "pay": 34000,
+    "pay": 30500,
     "needs": {
      "photography": 6
     },
@@ -80079,6 +80145,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_erika_studio",
     "book": "pb_erika",
     "kind": "portrait",
@@ -80088,7 +80155,7 @@
     ],
     "when": "thread: erika_mizu comeback",
     "days": 14,
-    "pay": 34000,
+    "pay": 30500,
     "needs": {
      "photography": 7
     },
@@ -80105,6 +80172,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_erika_rain",
     "book": "pb_erika",
     "kind": "portrait",
@@ -80115,7 +80183,7 @@
     "when": "thread: erika_mizu comeback",
     "window": "period: midmorning or afternoon; weather: rain or heavyrain",
     "days": 14,
-    "pay": 34000,
+    "pay": 30500,
     "needs": {
      "photography": 7
     },
@@ -80132,6 +80200,7 @@
    {
     "board": "full",
     "client": "koyosha",
+    "rep": 2,
     "id": "bk_erika_sky",
     "book": "pb_erika",
     "kind": "portrait",
@@ -80142,7 +80211,7 @@
     "when": "thread: erika_mizu comeback",
     "window": "period: evening or night",
     "days": 14,
-    "pay": 34000,
+    "pay": 30500,
     "needs": {
      "photography": 7
     },

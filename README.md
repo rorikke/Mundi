@@ -18,8 +18,8 @@
 </p>
 
 <p align="center">
-  <b>37</b> people · <b>117</b> places · <b>10</b> districts and getaways · <b>43</b> personal storylines ·
-  <b>49</b> careers · <b>32</b> festivals · <b>160</b> things to buy · <b>~100</b> museum pieces<br>
+  <b>38</b> people · <b>118</b> places · <b>10</b> districts and getaways · <b>44</b> personal storylines ·
+  <b>50</b> careers · <b>32</b> festivals · <b>166</b> things to buy · <b>~100</b> museum pieces<br>
   <sub>Counts include what the adult content switch adds.</sub>
 </p>
 
@@ -78,7 +78,7 @@ shifts, friends, favorite places and a full set of expressions.
   you apologize, get jealous and talk about you to their friends.
 - **They live without you.** The world's people make friends, fall out, date, marry and break up from their own
   feelings, and couples go on dates of their own.
-- **Storylines that wait for you.** 32 people carry a story: a debt, an exam, a visa, a lease, someone leaving. It
+- **Storylines that wait for you.** 33 people carry a story: a debt, an exam, a visa, a lease, someone leaving. It
   runs through the seasons, and at its turning point it waits for you. Help, wait for a better ending, or let it go.
 - **Who people are.** Gender, attraction, intimacy style, exclusive or open: set per person, or let your AI suggest
   it from the card. Not everyone is drawn to everyone.
@@ -95,10 +95,10 @@ your own, and go from there.
 
 | | |
 |---|---|
-| **Work** | 49 careers with ranks, shifts and days off. Interviews are earned with skills and the right traits, not by asking again tomorrow. Promotions say what they still need. One career is a streamer, starting from your room. |
+| **Work** | 50 careers with ranks, shifts and days off. Interviews are earned with skills and the right traits, not by asking again tomorrow. Promotions say what they still need. One career is a streamer, starting from your room; another is a photographer, assisting at a studio until you go freelance. |
 | **Skills** | 16 skills that level up from practice, courses and the people around you. A friend can teach you what they know, or you trade: your English for their Japanese. |
 | **Study** | Courses that run for weeks on a timetable. Or Hijiri University: terms, modules, coursework, grades and a GPA, a scholarship you can lose, and graduation. |
-| **Goals** | 37 life goals for Tokyo, from *make it in Tokyo* to *find love*. Finish one for a perk that changes the numbers for good; its steps earn points for a small rewards shop, shrine charms included. |
+| **Goals** | 38 life goals for Tokyo, from *make it in Tokyo* to *find love*. Finish one for a perk that changes the numbers for good; its steps earn points for a small rewards shop, shrine charms included. |
 
 ## The long game
 
@@ -109,8 +109,12 @@ Once rent stops being the worry, Tokyo has something to aim for.
   own hotels: a capsule hotel in Shinjuku, and a ryokan in Hakone as a partner of the family that runs it.
 - **Own your home.** Buy a flat or a villa, fit it out with saunas, a grand piano or a hot-spring bath, and let the
   homes you don't live in. A tenant's rent arrives every Monday.
-- **Shop.** About 160 things, from a ¥1,000 charm to a car with a driver that takes you home after the last train.
+- **Shop.** About 165 things, from a ¥1,000 charm to a car with a driver that takes you home after the last train.
   The AI knows what people can see on you and what's in your home.
+- **Make a name with a camera.** Everyone gets Lens, a phone app for their photos, each a picture of the place as it
+  was and the people in it. A camera opens a board of small paid gigs; assist Erika Mizushima at Studio MIZU, then go
+  freelance in editorial, weddings and events or studio portraits: briefs with a window of light and weather, a
+  deadline and a client's stars, a portfolio, a photo studio of your own and photobooks that pay royalties.
 - **Build a museum.** Collect art, crafts and antiques from finds, festival stalls, a dealer's camper van and four
   auctions a year. Catch insects and fish in their season, join the university's autumn dig, and turn an old Yanaka
   storehouse into a private museum.
@@ -140,8 +144,8 @@ are cards, you are a persona, the world's lore is a lorebook, and **a save is a 
   free text never sets money, time or feelings.
 - **A visual-novel scene.** Say, Do, Story or See. Type `@` to choose who answers. Each speaker's dialogue gets their
   own color.
-- **A phone.** Messages, People, Jobs, Bank, Homes, Calendar, Goals, Business, Collection, a social network (Chirp)
-  and a dating app (Spark) where a like might be answered days later, or never.
+- **A phone.** Messages, People, Jobs, Bank, Homes, Calendar, Goals, Business, Collection, Lens, a social network
+  (Chirp) and a dating app (Spark) where a like might be answered days later, or never.
 - **A diary.** Each night the day becomes a short entry, so the story remembers.
 - **Households and "Play as".** Live with family or roommates, and switch to playing any of them.
 - **A World creator that edits everything,** Tokyo included: places, people, jobs, storylines, rules, pictures.

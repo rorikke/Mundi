@@ -32,7 +32,5 @@ Ideas planned for later. Nothing here is promised for a date.
 - **World creator, "From lorebooks":** your AI reads lorebooks you choose and builds a world from them.
 - **The World creator from inside a game:** everything the creator can change, from ☰ → This world while you play
   (plan and limitations: [`world-edit-in-game.md`](world-edit-in-game.md)).
-- **Tokyo, a photographer's job:** a studio to work from, assignments for magazines, weddings and the city's festivals
-  and events, and an adult side when adult content is on.
 - **Tokyo in Portuguese and Spanish:** the world's own text (places, things to do, stories) in
   `worlds/tokyo/lang/pt.json` and `es.json`, as Porto Alto has.

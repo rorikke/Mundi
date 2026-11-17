@@ -74,6 +74,8 @@ export interface PhotoState {
     freelance?: 'blessing' | 'fallout';
     /** the small board's last new gig (day) and the last days a missed or late brief was said */
     smallDay?: number;
+    /** the full board's (or the contacts' lane's) last new brief (day): one every `PHOTO_RULES.fullEvery` days */
+    fullDay?: number;
     /** clients offering less until that day (a missed brief), contact or not */
     cold?: Record<string, number>;
     /** briefs delivered and the day (none offered again for 28 days) */

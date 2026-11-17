@@ -10,7 +10,7 @@
 import { adultOn, nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type BriefDef, type PhotoClient, type ActionDef } from '../core/world.js';
 import { cameraAllows, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, ANY_STUDIO } from '../core/photo.js';
-import { onDay, onHour, photoLink, sceneLines, engineActions } from './hooks.js';
+import { onDay, onHour, onAction, photoLink, sceneLines, engineActions } from './hooks.js';
 import {
     photoOn, peekPhoto, photoOf, repOf, repWords, smallCap, addRep, clientOf, briefOf, isContact, contactsOf, holdsPhotoJob, noteContacts,
     gearOf, hasCamera, recordPhoto, photoById, addToPortfolio, portfolioOf, portfolioStrength, shownPhotos, photoKeepsakes,
@@ -78,6 +78,8 @@ export interface PhotosView { portfolio: PhotoRec[]; strength: number; rest: Pho
 export const PHOTO_RULES = {
     open: 3, openFree: 5,          // briefs open at once (a freelancer from the third rank: five)
     studioFull: 2, studioFloor: 20, contactsFull: 2,
+    fullEvery: 2,                  // days between new briefs on the full board (L: one a day let a freelancer deliver six to nine a
+                                   // week, half again the stylist's pay at the top; every other day, about three and a half)
     fair: 0.85, most: 28,          // a weather window: at least 85% that it comes within the deadline (28 days at most)
     stay: 4,                       // days a brief stays on the board
     grace: 2,                      // days late a delivery is still taken (paid ×0.7)
@@ -271,8 +273,8 @@ function draw(g: Save, w: WorldDef, lane: 'small' | 'full' | 'contacts', mode?: 
     return offerBrief(g, w, pool[pool.length - 1].b, lane, pool[pool.length - 1].x);
 }
 const laneCount = (g: Save, lane: string) => { const p = peekPhoto(g); return p.board.filter(o => o.lane === lane).length + p.open.filter(t => t.lane === lane).length; };
-/** Each day: the boards fill (one new brief a day on the full board while it's short, one every few days on the
- *  small board), weddings ahead are offered, offers past their days drop. Lines to show. */
+/** Each day: the boards fill (one new brief every other day on the full board while it's short, one every few days on
+ *  the small board), weddings ahead are offered, offers past their days drop. Lines to show. */
 export function fillBoards(g: Save, w: WorldDef): string[] {
     if (!photoOn(w)) return [];
     const bd = boardsOf(g, w), out: string[] = [];
@@ -286,7 +288,9 @@ export function fillBoards(g: Save, w: WorldDef): string[] {
         if (draw(g, w, 'small')) p.smallDay = g.day;
     }
     const lane = bd.mode === 'contacts' ? 'contacts' : 'full';
-    if (bd.full && p.board.filter(o => o.lane === lane).length + p.open.filter(t => t.lane === lane).length < bd.full) draw(g, w, lane, bd.mode);
+    if (bd.full && p.board.filter(o => o.lane === lane).length + p.open.filter(t => t.lane === lane).length < bd.full && g.day - (p.fullDay ?? -99) >= PHOTO_RULES.fullEvery) {
+        if (draw(g, w, lane, bd.mode)) p.fullDay = g.day;
+    }
     out.push(...offerWeddings(g, w));
     return out;
 }
@@ -461,7 +465,9 @@ export const starsOf = (q: number) => (q < 35 ? 1 : q < 55 ? 2 : q < 70 ? 3 : q 
 export function shootNow(g: Save, w: WorldDef, id: number, began = nowAbs(g), rnd = Math.random): { lines: string[]; ai: string } {
     const t = takenById(g, id), b = t && briefOf(w, t.brief), c = b && clientOf(w, b.client);
     if (!t || !b || !c) return { lines: [], ai: '' };
-    const why = shootWhy(g, w, t, began);
+    const start = begun && begun.g === g && begun.id === id && begun.at === began ? begun.why : null;
+    begun = null;
+    const why = start ?? shootWhy(g, w, t, began);
     if (why) return { lines: [why], ai: '' };
     const dc = b.dc ?? BRIEF_DC, kind = b.kind;
     const bonus = rollBonus(g, w, { skill: 'photography', tags: ['shoot', kind] }), d20 = rollD20(g, w, bonus, dc, rnd);
@@ -652,6 +658,14 @@ export function photoActions(g: Save, w: WorldDef): ActionDef[] {
     return out;
 }
 engineActions.push(photoActions);
+// The shoot is judged as it begins (the place, the rented hours, the subject there): the action's hours pass before its
+// result, and a two-hour rental or a shoot plan ending with the shoot mustn't undo it at the last minute.
+let begun: { g: Save; id: number; at: number; why: string } | null = null;
+onAction.push((g, w, a) => {
+    if (!a.id.startsWith('x-shoot-')) return;
+    const t = takenById(g, Number(a.id.slice(8)));
+    begun = t ? { g, id: t.id, at: nowAbs(g), why: shootWhy(g, w, t) } : null;
+});
 photoLink.act = (g, w, a, _mates, began) => {
     if (a.id.startsWith('x-shoot-')) return shootNow(g, w, Number(a.id.slice(8)), began);
     if (a.id === 'x-photo-edit') return editToday(g, w);
