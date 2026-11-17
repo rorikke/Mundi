@@ -32,7 +32,7 @@ import { sceneAct } from '../sim/actions.js';
 import { sceneActRow } from './sceneact.js';
 import { placeOf, playerHomeId } from '../sim/places.js';
 import { missingCourses } from '../sim/courses.js';
-import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf } from '../sim/work.js';
+import { traitsOf, openJobs, offScreen, jobPlace, myJob, trackOf, isFreelance } from '../sim/work.js';
 import { banHere } from '../sim/caught.js';
 import { presentAt } from '../sim/people.js';
 import { approachOn, keepToMyself, setKeepToMyself } from '../sim/approach.js';
@@ -155,7 +155,7 @@ let lookOpen = false;
 function corner(g: Save, w: WorldDef) {
     return `<div class="mh-corner">
         <button class="mh-menu mh-glass ${menuOpen ? 'is-on' : ''}" data-act="hud-menu" title="Menu">${icon('menu')}</button>
-        ${g.player.job && featureOn(w, 'jobs') && myJob(g, w) && !offScreen(w, myJob(g, w)) && g.player.loc !== jobPlace(g, myJob(g, w)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
+        ${g.player.job && featureOn(w, 'jobs') && myJob(g, w) && !offScreen(w, myJob(g, w)) && !isFreelance(g, w) && g.player.loc !== jobPlace(g, myJob(g, w)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
         ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-move" title="Go on to another place">${icon('map')}<span>Go somewhere else</span></button><button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>${isScenario(w) && exitRoom(g, w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
         ${menuOpen ? `<nav class="mh-menu-pop mh-glass">
             <button data-act="open-world">${icon('globe')}<span>${isScenario(w) ? 'This Home' : 'This world'}</span></button>
