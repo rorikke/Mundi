@@ -71,7 +71,8 @@ export interface Owned { zone: string; x: number; y: number; n: number; unit?: n
 export interface Letting { since: number; until?: number; off?: number; weeks?: number; got?: number; last?: { n: number; tenant: boolean; rent: number; fee: number } }
 /** What you own: the home you live in and a second home (`second`, its home key), and up to three to let; `sold`:
  *  homes sold; `told`: notes already given; `rent`: rent had from tenants in all (after the agent's share). */
-export interface Houses { owned: Owned[]; second?: string; sold?: number; told?: string[]; rent?: number }
+/** (track 7) `sure`: the last week a good tenant from the rewards shop covers (every home you let has a tenant). */
+export interface Houses { owned: Owned[]; second?: string; sold?: number; told?: string[]; rent?: number; sure?: number }
 const NONE: Readonly<Houses> = Object.freeze({ owned: Object.freeze([]) as unknown as Owned[] });
 /** Read what you own without writing anything into the save (asked on every effect query). */
 export const peekHouses = (g: Save): Readonly<Houses> => ((g as any).houses as Houses | undefined) ?? NONE;

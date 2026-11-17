@@ -282,6 +282,10 @@ function effectWords(w: WorldDef, e: EffectDef): string {
         case 'letting': return `Rent from your tenants ${v >= 0 ? '+' : '−'}${pct(v)}`;
         case 'price': return `Prices ${pct(v)} ${v <= 0 ? 'lower' : 'higher'}${t ? ` (${t})` : ''}`;
         case 'royalty': return `The museum's royalties ${v >= 0 ? '+' : '−'}${pct(v)}`;
+        // (track 7)
+        case 'venture': return `${t === 'cafe' ? 'Your café takes' : t === 'hotel' ? 'Your hotels take' : t ? `${w.ventures?.find(x => x.id === t)?.name ?? t} takes` : 'Your ventures take'} ${pct(v)} ${v >= 0 ? 'more' : 'less'}`;
+        case 'find': return `Finds ${pct(v)} ${v >= 0 ? 'likelier' : 'less likely'}`;
+        case 'renown': return `Renown ${v >= 0 ? '+' : '−'}${pct(v)}`;
         default: return `${e.kind} ${EFFECT_KINDS[e.kind]?.mode === 'mul' ? `${v >= 0 ? '+' : '−'}${pct(v)}` : plus(v)}${t ? ` (${t})` : ''}`;
     }
 }

@@ -21,6 +21,11 @@
 // The shop: `owns: bike` an item you have, `owns: cat:vehicle [2]` that many things of a category (sim/shop.ts).
 // Letting (housing): `let: 3` that many of your homes let now (a tenant's agreement, notice included), `rent: 1440000`
 // at least that much rent had from your tenants in all (after the agent's share), read from `g.houses` (sim/housing.ts).
+// (track 7, the end game's life goals) `home: owned` (you live in a home you own) and `home: second`; `fixtures: 6` rooms
+// and fixtures bought for your homes; `owns: 20` things of the shop's you have, `owns: cat:all` something of every kind
+// it sells (not gifts, never adult); `venture: 2 hotel [tier top]`, `venture: cafe tier top`, `venture: cafe discoveries 3`;
+// `board: 1` seasons a division met the board's target; (collection) `piece: halls 3`, `piece: all in <group>`,
+// `record: 50%` and `record: all in <record hall>`.
 import { nowAbs, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, WEEKDAY_IDS, type WorldDef, type When, type LoreWhen, type Thread } from '../core/world.js';
 import { FOLDED_GOALS, SKILL_GROUPS } from '../core/goals.js';
@@ -45,13 +50,14 @@ import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
 import { collectionLink, placeGates } from './hooks.js';
-import { homeWorth, housingOn, ownedHere, toLet, isLet, rentHad } from './housing.js';
+import { homeWorth, housingOn, ownedHere, ownedHomes, secondHome, toLet, isLet, rentHad } from './housing.js';
 
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
-    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent'] as const;
+    'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent',
+    'fixtures', 'board', 'record'] as const;
 export type WhenKey = typeof WHEN_KEYS[number];
 // Keys only the old object form has (the region's mood and tension, a range of absolute days).
 type OldKey = 'tensionAbove' | 'moodAbove' | 'moodBelow' | 'fromDay' | 'toDay';
@@ -78,8 +84,9 @@ const FRIENDS = /^(\d+)\s+(\S+)(?:\s+(?:in\s+(\S+)|at\s+(regular)))?$/i;    // 3
 const COUNTED = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?$/;                      // meal 15 · tag:karaoke 3 · ramen_contest
 const DID = /^([^\s,;]+)(?:\s+(\d+(?:\.\d+)?))?(?:\s+with\s+(\S+))?$/i;      // overnight 2 with best: only with someone at that level now
 const DEGREE = /^(?:any|graduated|distinction|scholarship|club|term\s+\d+|gpa\s+\d+(?:\.\d+)?)$/i;   // term 3 · gpa 2.5
-const VENTURE = /^[^\s,;]+(?:\s+(?:tier\s+\d+|[^\s,;]+))?$/i;              // cafe · cafe tier 2 · cafe as_it_was · any
-const OWNS = /^(?:cat:([^\s,;]+)(?:\s+(\d+))?|[^\s,;:]+)$/i;                  // bike · cat:vehicle · cat:fashion 3
+// cafe · cafe tier 2 · cafe as_it_was · any; (track 7) 2 hotel · 2 hotel tier top · cafe tier top · cafe discoveries 3
+const VENTURE = /^(?:(\d+)\s+)?([^\s,;]+)(?:\s+(?:tier\s+(\d+|top)|discoveries\s+(\d+)|([^\s,;]+)))?$/i;
+const OWNS = /^(?:cat:([^\s,;]+)(?:\s+(\d+))?|[^\s,;:]+)$/i;                  // bike · cat:vehicle · cat:fashion 3 · (track 7) 20 · cat:all
 const VISITED = /^(?:(\d+)(?:\s+(regular))?(?:\s+in\s+(\S+))?|all(?:\s+in\s+(\S+))?|map|maps)$/i;   // 3 regular in home
 /** `visited: pk_arcade regular`: a regular at that place. */
 export const PLACE_REGULAR = /^([^\s,;]+)\s+regular$/i;
@@ -159,14 +166,17 @@ function badValue(key: WhenKey, v: string): string {
         case 'dig': return DIG.test(v) ? '' : `"${v}" should be seasons, days or found and a number, like seasons 1`;
         case 'dealer': return DEALER.test(v) ? '' : `"${v}" should be spent and an amount, or bought, asked or visits and a number, like spent 2000000`;
         case 'thread': return /^[^\s,;]+(\s+[^\s,;]+)?$/.test(v) ? '' : `"${v}" should be a thread id, or a thread id and how it ended`;
-        case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier or a style, like cafe tier 2`;
+        case 'venture': return VENTURE.test(v) ? '' : `"${v}" should be a venture (or any), or one and a tier, tier top, discoveries or a style, like cafe tier 2, or how many first, like 2 hotel`;
         case 'upgrade': return ID.test(v) ? '' : `"${v}" should be one upgrade id`;
         case 'inrank': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of days in your rank`;
         case 'tenant': return /^[^,;]+$/.test(v) ? '' : `"${v}" should be a name, or a name and a venture, like Tsubaki ryokan`;
-        case 'owns': { const m = v.match(OWNS); return m && (!m[1] || SHOP_CATS.some(c => c.id === m[1].toLowerCase())) ? '' : `"${v}" should be an item id, or cat: and a category (and how many), like cat:vehicle 2`; }
+        case 'owns': { const m = v.match(OWNS); return m && (!m[1] || m[1].toLowerCase() === 'all' || SHOP_CATS.some(c => c.id === m[1].toLowerCase())) ? '' : `"${v}" should be an item id, or cat: and a category (and how many), like cat:vehicle 2`; }
         case 'kept': return /^\d+$/.test(v) ? '' :`"${v}" should be a number of secrets kept at your hotels`;
         case 'let': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of homes let`;
         case 'rent': return /^\d+$/.test(v) ? '' : `"${v}" should be an amount of rent had from your tenants`;
+        case 'fixtures': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of rooms and fixtures`;
+        case 'board': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of seasons on the board's target`;
+        case 'record': return RECORD.test(v) ? '' : `"${v}" should be a percentage (50%), or a number (or all) in a record hall, like all in cabinet`;
         default: return '';   // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -372,6 +382,9 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
         case 'owns': return ownsHolds(g, w, v);
         case 'let': return housingOn(w) && toLet(g).filter(isLet).length >= Number(v);
         case 'rent': return housingOn(w) && rentHad(g) >= Number(v);
+        case 'fixtures': return housingOn(w) && fixturesBought(g) >= Number(v);
+        case 'board': return systemOn(w, 'business') && boardMet(g) >= Number(v);
+        case 'record': return collectionLink.record(g, w, v);
         case 'had': return hadHolds(g, w, v);
         case 'piece': return collectionLink.piece(g, w, v);
         case 'museum': return collectionLink.museum(g, w, v);
@@ -392,22 +405,62 @@ function holds(g: Save, w: WorldDef, key: Cond['key'], v: string, x: Here): bool
 // (business) The ventures you own (sim/ventures.ts keeps `g.ventures`, read here so this file needs no venture code):
 // `cafe` one you own, `any` any of them, `cafe tier 2` at that tier or past it, `cafe as_it_was` with that style
 // (chosen at any tier and not changed since: the love hotel's window after its floors are themed).
-const ventureList = (g: Save): { id: string; tier?: number; style?: string; styles?: Record<number, string>; owned?: string[]; closed?: number; kept?: number; tenants?: { who: string }[] }[] => ((g as any).ventures?.list ?? []).filter((s: any) => s && !s.closed);
+const ventureList = (g: Save): { id: string; tier?: number; style?: string; styles?: Record<number, string>; owned?: string[]; disc?: string[]; closed?: number; kept?: number; tenants?: { who: string }[]; verdicts?: { got: number; want: number }[] }[] => ((g as any).ventures?.list ?? []).filter((s: any) => s && !s.closed);
 // (a venture's id, its track or its kind: `cafe` for either café, `hotel` for any hotel, `ryokan` for the ryokan)
 const ventureIs = (w: WorldDef, s: { id: string }, id: string) => { if (id === 'any' || s.id === id) return true; const d = w.ventures?.find(x => x.id === s.id); return d?.track === id || d?.kind === id; };
 function ventureHolds(g: Save, w: WorldDef, v: string): boolean {
     if (!systemOn(w, 'business')) return false;
-    const [id, a, b] = v.split(/\s+/);
-    return ventureList(g).some(s => ventureIs(w, s, id) && (!a || (a.toLowerCase() === 'tier' ? (s.tier ?? 1) >= Number(b) : s.style === a || Object.values(s.styles ?? {}).includes(a))));
+    const m = v.trim().match(VENTURE); if (!m) return false;
+    return venturesLike(g, w, m).length >= Number(m[1] ?? 1);
 }
+// (track 7) The ventures of yours a `venture:` value names: of that sort, at that tier (`top`: its last), with that many
+// discoveries, in that style.
+function venturesLike(g: Save, w: WorldDef, m: RegExpMatchArray) {
+    const [, , id, tier, disc, style] = m;
+    const last = (s: { id: string }) => w.ventures?.find(x => x.id === s.id)?.tiers?.length ?? 1;
+    return ventureList(g).filter(s => ventureIs(w, s, id)
+        && (tier === undefined || (s.tier ?? 1) >= (tier.toLowerCase() === 'top' ? last(s) : Number(tier)))
+        && (disc === undefined || (s.disc?.length ?? 0) >= Number(disc))
+        && (style === undefined || s.style === style || Object.values(s.styles ?? {}).includes(style)));
+}
+// (track 7) What a `venture:` value with a number, a top tier or discoveries asks, in words.
+const TRACK_WORDS: Record<string, [string, string]> = { cafe: ['café', 'cafés'], hotel: ['hotel', 'hotels'], exec: ['division', 'divisions'] };
+function ventureWords(g: Save, w: WorldDef, v: string): string {
+    const m = v.trim().match(VENTURE); if (!m) return 'a business of your own';
+    const [, n, id, tier, disc] = m, many = Number(n ?? 1);
+    const d = w.ventures?.find(x => x.id === id), sort = d ? d.track : id;
+    const [one, more] = d ? [d.name, d.name] : TRACK_WORDS[sort] ?? (w.ventures?.find(x => x.kind === id) ? [id, `${id}s`] : ['business', 'businesses']);
+    const what = many > 1 ? `${many} ${more} of your own` : d ? `${one} of your own` : `a ${one} of your own`;
+    const at = tier === undefined ? '' : tier.toLowerCase() === 'top' ? ' at the top tier' : ` at tier ${tier}`;
+    if (disc !== undefined) { const best = Math.max(0, ...ventureList(g).filter(s => ventureIs(w, s, id)).map(s => s.disc?.length ?? 0)); return `${disc} discoveries at ${d ? d.name : `your ${one}`} (${best} now)`; }
+    return `${what}${at}${many > 1 ? ` (${venturesLike(g, w, m).length} now)` : ''}`;
+}
+// (track 7) Seasons a division of yours met the board's target (the verdicts it keeps).
+const boardMet = (g: Save) => ventureList(g).reduce((n, s) => n + (s.verdicts ?? []).filter(x => x.got >= x.want).length, 0);
+// (track 7) Rooms and fixtures bought for the homes you own (what came with a home isn't counted).
+const fixturesBought = (g: Save) => ownedHomes(g).reduce((n, o) => n + (o.fix?.length ?? 0), 0);
 // `owns: bike`: an item you have; `owns: cat:vehicle 2`: that many things of a category (one without a number). Never
 // with the shop off.
 function ownsHolds(g: Save, w: WorldDef, v: string): boolean {
     if (!systemOn(w, 'shop')) return false;
+    if (/^\d+$/.test(v)) return thingsHad(g, w).length >= Number(v);
     const m = v.match(OWNS);
     if (!m?.[1]) return haveItem(g, w, v);
     const cat = m[1].toLowerCase();
+    if (cat === 'all') { const k = kindsHad(g, w); return k.all.length > 0 && k.have.length === k.all.length; }
     return ownedDefs(g, w).filter(it => catOf(it) === cat).length >= Number(m[2] ?? 1);
+}
+// (track 7) The shop's things you have now (rooms and fixtures aren't the shop's), each once.
+function thingsHad(g: Save, w: WorldDef): string[] {
+    const ids = new Set(shopItems(w).map(it => it.id));
+    return [...new Set(ownedDefs(g, w).filter(it => ids.has(it.id)).map(it => it.id))];
+}
+/** (track 7) The kinds the shop sells that you keep (not gifts, never the adult ones), and those you have something of
+ *  now (`owns: cat:all`). */
+export function kindsHad(g: Save, w: WorldDef): { all: string[]; have: string[] } {
+    const items = shopItems(w).filter(it => !it.adult), ids = new Set(thingsHad(g, w));
+    const all = SHOP_CATS.filter(c => !c.adult && c.id !== 'gift' && items.some(it => catOf(it) === c.id)).map(c => c.id);
+    return { all, have: all.filter(c => items.some(it => catOf(it) === c && ids.has(it.id))) };
 }
 // (hospitality) `tenant: Tsubaki` someone renting a room at a venture of yours; `tenant: Tsubaki ryokan` at that one
 // (its id, track or kind). The name may have spaces; the venture is its last word when one of yours matches it.
@@ -461,6 +514,9 @@ function homeHolds(g: Save, w: WorldDef, v: string): boolean {
         // (housing) a home you own counts when it's worth at least the best rented kinds' dearest area
         case 'top': return topKinds(w).includes(h.kind) || (housingOn(w) && ownedHere(g) && homeWorth(w, h.zone) >= Math.min(...topKinds(w).map(k => Math.max(0, ...w.homes.zones.filter(z => z.kind === k).map(z => z.rent ?? 0)))));
         case 'season': return !!t && g.day - t.since >= seasonDays(g);
+        // (track 7, housing) the home you live in is yours; a second home
+        case 'owned': return housingOn(w) && ownedHere(g);
+        case 'second': return housingOn(w) && !!secondHome(g);
         default: return /^\d+$/.test(v) ? !!t && g.day - t.since >= Number(v) : h.kind === v;
     }
 }
@@ -535,7 +591,10 @@ const SEEN_ALL = /^all\s+in\s+([^\s,;]+)$/i, HAD = /^(\d+|all\s+[^,;]+|[^\s,;]+)
 const SALES = /^(?:won|lots|resold|bested|lent)\s+\d+$/i, DEALER = /^(?:(?:spent|bought|asked|visits)\s+\d+|here)$/i;
 // (nature, the dig) `dig: seasons 1` (past seasons you dug in) · `days 3` (days dug in all) · `found 2` (its finds in all)
 const DIG = /^(?:seasons|days|found)\s+\d+$/i;
-const PIECE = /^(?:\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
+// (track 7) `piece: halls 3` (display halls complete), `piece: all in shunga` (a hall's group); `record: 50%` (the
+// record's percentage), `record: all in cabinet` (a record hall's slots filled, an apart one too)
+const RECORD = /^(?:\d+%|(?:\d+|all)\s+in\s+[^\s,;]+)$/i;
+const PIECE = /^(?:\d+|halls\s+\d+|(?:\d+|all)\s+in\s+[^\s,;]+|[^\s,;]+)$/i, MUSEUM = /^(?:open|show|renown\s+\d+|shows\s+\d+|\d+%|(?!(?:renown|shows)$)[a-z0-9_]+)$/i, TIER = /^(.*\S)\s+(\d+)$/;
 // (adult) `known: 5`: likes and hard limits you know of your lovers, in all; `known: Tamaki 5`: of that person; `likes` or
 // `limits` after the number counts only those (`known: Tamaki 2 limits`).
 const KNOWN = /^(?:(.*\S)\s+)?(\d+)(?:\s+(likes|limits))?$/i;
@@ -758,6 +817,12 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         // (letting) "3 homes let", "¥1,440,000 of rent from your tenants"
         else if (c.key === 'let' && !c.not) out.push(c.values.map(v => (Number(v) === 1 ? 'a home let' : `${v} homes let`)).join(' or '));
         else if (c.key === 'rent' && !c.not) out.push(c.values.map(v => `${money(w, Number(v))} of rent from your tenants`).join(' or '));
+        // (track 7) a home of your own, rooms and fixtures, ventures, the board, the record
+        else if (c.key === 'home' && !c.not && c.values.every(v => /^(owned|second)$/i.test(v))) out.push(c.values.map(v => (v.toLowerCase() === 'owned' ? 'a home of your own' : 'a second home')).join(' or '));
+        else if (c.key === 'fixtures' && !c.not) out.push(`${c.values[0]} rooms and fixtures in your homes (${fixturesBought(g)} now)`);
+        else if (c.key === 'board' && !c.not) out.push(c.values[0] === '1' ? 'a season on the board\'s target' : `${c.values[0]} seasons on the board's target (${boardMet(g)} now)`);
+        else if (c.key === 'record' && !c.not) out.push(c.values.map(v => collectionLink.recordWords(g, w, v)).join(' or '));
+        else if (c.key === 'venture' && !c.not && c.values.some(v => /^\d+\s|\stier\s+top$|\sdiscoveries\s/i.test(v))) out.push(c.values.map(v => ventureWords(g, w, v)).join(' or '));
         else if (!more) other = true;
         else if (c.key === 'seen' && !c.not) out.push([...new Set(c.values.map(v => seenWords(w, v)))].join(' or '));
         else if (c.key === 'knows' && !c.not) out.push(c.values.map(v => `${threadOwner(w, v)}'s secret`).join(' or '));
@@ -784,6 +849,36 @@ export function missingWords(g: Save, w: WorldDef, when: When, place?: string, o
         else other = true;
     }
     return other || !out.length ? [...out, 'something more'] : out;
+}
+
+/** (track 7) An objective of the end game's keys as the Goals app reads it: its words and, for a count, how far you are
+ *  (`have`/`need`); null for a value it doesn't word. The collection's keys say how far in their words ("every piece
+ *  of Nature (12 of 30)"). */
+export function endgameWords(g: Save, w: WorldDef, key: string, v: string): { text: string; have?: number; need?: number } | null {
+    const up = (s: string) => s.charAt(0).toUpperCase() + s.slice(1), now = (s: string) => s.replace(/\s*\(\d+ now\)$/, '');
+    switch (key) {
+        case 'home': return /^owned$/i.test(v) ? { text: 'A home of your own' } : /^second$/i.test(v) ? { text: 'A second home' } : null;
+        case 'fixtures': return { text: 'Rooms and fixtures in your homes', have: fixturesBought(g), need: Number(v) };
+        case 'owns': {
+            if (/^\d+$/.test(v)) return { text: 'Things of your own', have: thingsHad(g, w).length, need: Number(v) };
+            if (/^cat:all$/i.test(v)) { const k = kindsHad(g, w); return { text: 'Something of every kind the shops sell', have: k.have.length, need: k.all.length }; }
+            return { text: up(ownsWords(w, [v])) };
+        }
+        case 'venture': {
+            const m = v.trim().match(VENTURE); if (!m) return null;
+            const text = up(now(ventureWords(g, w, v)));
+            if (m[4] !== undefined) return { text, have: Math.max(0, ...ventureList(g).filter(s => ventureIs(w, s, m[2])).map(s => s.disc?.length ?? 0)), need: Number(m[4]) };
+            return m[1] ? { text, have: venturesLike(g, w, m).length, need: Number(m[1]) } : { text };
+        }
+        case 'board': return { text: 'Seasons on the board\'s target', have: boardMet(g), need: Number(v) };
+        case 'let': return { text: 'Homes let', have: toLet(g).filter(isLet).length, need: Number(v) };
+        case 'rent': return { text: 'Rent from your tenants', have: rentHad(g), need: Number(v) };
+        case 'piece': return { text: up(collectionLink.pieceWords(g, w, v)) };
+        case 'museum': return { text: up(collectionLink.museumWords(g, w, v)) };
+        case 'record': return { text: up(collectionLink.recordWords(g, w, v)) };
+        case 'dig': return { text: up(collectionLink.digWords(g, w, v)) };
+    }
+    return null;
 }
 
 /* ---------- what was done today (`after`, `daily`) ---------- */

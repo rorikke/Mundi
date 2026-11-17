@@ -39,8 +39,13 @@ export const FOLDED_GOALS: Record<string, string> = { fit: 'athlete' };
  *  forget you), `forgive` (a grudge ends), `invite` (they ask you out soon), `quiet` (a rumor stops spreading),
  *  `insight` (one true thing about them), `retrait` (swap a personality or interest trait, or drop a habit), `skip`
  *  (the active goal's step counts as done), `rentfree` (the next rent or bills), `cleanslate` (a warning and the last
- *  missed shift forgotten), `double` (the active goal's finishing points doubled: Tokyo's daruma). */
-export const REWARD_KINDS = ['boost', 'refill', 'nudge', 'clear', 'fresh', 'forgive', 'invite', 'quiet', 'insight', 'retrait', 'skip', 'rentfree', 'cleanslate', 'double'] as const;
+ *  missed shift forgotten), `double` (the active goal's finishing points doubled: Tokyo's daruma); (track 7, the end
+ *  game) `dealer` (a missing piece you pick comes with the dealer's next visit, at the asked price), `auction` (one more
+ *  lot at the next sale: a missing piece you pick), `restore` (everything in the museum's workshop ready tomorrow, the
+ *  fee as it was), `tenant` (each home you let has a tenant every week for a season). None of them lowers a price. */
+export const REWARD_KINDS = ['boost', 'refill', 'nudge', 'clear', 'fresh', 'forgive', 'invite', 'quiet', 'insight', 'retrait', 'skip', 'rentfree', 'cleanslate', 'double', 'dealer', 'auction', 'restore', 'tenant'] as const;
+/** One-off kinds that act on a museum piece you pick. */
+export const PIECE_KINDS: RewardKind[] = ['dealer', 'auction'];
 export type RewardKind = typeof REWARD_KINDS[number];
 /** One-off kinds that act on a person you pick. */
 export const PERSON_KINDS: RewardKind[] = ['nudge', 'clear', 'fresh', 'forgive', 'invite', 'insight'];
@@ -204,7 +209,7 @@ function cleanGoal(x: any): GoalDef | null {
     if (!isObj(x) || !str(x.id) || !str(x.name)) return null;
     const steps = (Array.isArray(x.steps) ? x.steps : []).map(cleanStep).filter((y: GoalStep | null): y is GoalStep => !!y);
     if (!steps.length) return null;
-    const p = isObj(x.perk) && str(x.perk.name) ? clean({ name: x.perk.name, desc: str(x.perk.desc), effects: cleanEffects(x.perk.effects, PERK_LIMITS) }) as PerkDef : undefined;
+    const p = isObj(x.perk) && str(x.perk.name) ? clean({ name: x.perk.name, desc: str(x.perk.desc), effects: cleanEffects(x.perk.effects, PERK_LIMITS), was: str(x.perk.was) }) as PerkDef : undefined;
     return clean({ ...x, category: str(x.category) ?? 'social', starts: strs(x.starts), needs: strs(x.needs), steps, perk: p, adult: x.adult === true ? true : undefined, offer: str(x.offer) }) as GoalDef;
 }
 function cleanReward(x: any): RewardDef | null {
