@@ -349,7 +349,10 @@ function toldWords(list, head) {
     const rest = [...byVerb].map(([v, names]) => `${v}: ${names.join(', ')}`).join('; ');
     return [rest ? head(rest) : '', ...own].filter(Boolean).join(' ');
 }
-const serviceWords = (g, it) => { const d = daysLeft(g, it.id); return `${it.name} (${d <= 1 ? 'today' : d <= 7 ? 'this week' : 'this month'})`; };
+// How long a service paid ahead still lasts: whole weeks as weeks ("two more weeks"), else days ("10 more days").
+const WEEKS = ['', 'one more week', 'two more weeks', 'three more weeks', 'four more weeks'];
+export const serviceLeft = (d) => (d <= 1 ? 'today' : d % 7 ? `${d} more days` : WEEKS[d / 7] ?? `${d / 7} more weeks`);
+const serviceWords = (g, it) => `${it.name} (${serviceLeft(daysLeft(g, it.id))})`;
 // Adult things you have: owned ones, and those whose keepsake you hold (a blindfold bought as a gift to give).
 // (housing) a home's adult fixtures (a bedroom suite) are adult things of yours too, told under the same rules; their
 // `ai` is a noun phrase (the home's line lists fixtures), so it stands for their name here

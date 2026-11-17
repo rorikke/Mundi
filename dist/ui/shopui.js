@@ -14,7 +14,7 @@ import { giftsForSale, giftPrice } from '../sim/social.js';
 import * as S from '../sim/shop.js';
 import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, catOf } from '../sim/shop.js';
 import { ACT } from './reg.js';
-import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf, stockLeft as stockOf, shopPrice as priceAt, buy as buyAt } from '../sim/shop.js';
+import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf, serviceLeft, stockLeft as stockOf, shopPrice as priceAt, buy as buyAt } from '../sim/shop.js';
 const offeredAt = offers;
 /** What the app shows (memory only): the tab (`here`, `yours` or a category id; '' picks the first there is). */
 export const SH = { tab: '' };
@@ -30,7 +30,7 @@ export const shopHereCount = (g, w) => (systemOn(w, 'shop') && g.player.loc ? of
 function leftWords(g, it) {
     const d = daysOf(g, it.id), stock = stockOf(g, it.id);
     if (d > 0)
-        return plural(d, '1 day left', '{0} days left');
+        return d === 1 ? '1 day left' : serviceLeft(d);
     if (stock > 0)
         return plural(stock, '1 left', '{0} left');
     return '';
