@@ -73,7 +73,19 @@ function addSettingsBlock() {
 
 function follow() {
     const redraw = () => { if (state.open) notify(); };
-    on('GENERATION_STARTED', (_type: string, _opts: unknown, dryRun: boolean) => { if (dryRun) return; state.generating = true; redraw(); });
+    // The kind of generation running, as SillyTavern names it ('normal', 'swipe', 'continue', 'impersonate', 'quiet'…).
+    // A 'quiet' one is a call outside the scene (the Expressions classifier in Full Context mode, a summary, /gen):
+    // nobody in the scene is answering, so its end must not answer a question (or count as ignoring it).
+    // A dry run only measures the prompt, and says nothing of what's running.
+    let running = '';
+    on('GENERATION_STARTED', (type: string, _opts: unknown, dryRun: boolean) => { if (dryRun) return; running = String(type ?? ''); state.generating = true; redraw(); });
+    // a reply in the scene ended: an empty one is removed, and whatever waits for an answer looks for it
+    const replied = () => {
+        emptyReply();
+        void import('./ui/relui.js').then(m => m.checkAsk());
+        void import('./ui/trainui.js').then(m => m.checkTrain());
+        void import('./ui/events.js').then(m => m.checkEventEnd());
+    };
     const done = () => {
         state.generating = false;
         if (state.impersonating) {   // the AI wrote the player's line into SillyTavern's box: bring it to Mundi's composer
@@ -83,7 +95,11 @@ function follow() {
         }
         redraw();
     };
-    on('GENERATION_ENDED', () => { emptyReply(); done(); void import('./ui/relui.js').then(m => m.checkAsk()); void import('./ui/trainui.js').then(m => m.checkTrain()); void import('./ui/events.js').then(m => m.checkEventEnd()); });
+    on('GENERATION_ENDED', () => {
+        const kind = running; running = '';
+        if (kind !== 'quiet') replied();
+        done();
+    });
     on('GENERATION_STOPPED', done);
     on('GROUP_WRAPPER_FINISHED', done);
     on('STREAM_TOKEN_RECEIVED', () => { if (state.open && state.view === 'scene') patchLastLine(); });

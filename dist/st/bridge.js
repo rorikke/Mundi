@@ -334,6 +334,24 @@ export async function setPresent(groupId, members, present) {
 }
 /* ---------- the open chat ---------- */
 export const chat = () => globalThis.__mundiTutChat ?? ctx().chat ?? []; // the tutorial has its own lines
+// How many turns the scene has had since line `from`: a turn is someone answering, so it's counted once per
+// answered line of yours (the first answer after `from` counts too). It's read from the chat itself, never kept, so a
+// call that wrote nothing into the chat (a background generation, a reply that came back empty and was removed) or
+// a line that was deleted simply isn't there to count.
+export function turnsSince(from) {
+    let turns = 0, waiting = true;
+    for (const m of chat().slice(from)) {
+        if (m.is_system || m.extra?.mundi_narrator)
+            continue;
+        if (m.is_user)
+            waiting = true;
+        else if (waiting) {
+            turns++;
+            waiting = false;
+        }
+    }
+    return turns;
+}
 export const saveMeta = () => ctx().saveMetadata();
 export const saveChat = () => saveChatDebounced();
 // Who wrote a message in a group (avatar file).

@@ -7,7 +7,7 @@
 import { esc, game, notify, saveGame, state, toast } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { ACT } from './reg.js';
-import { chat, personaName, quiet, sendCanned, setPrompt, speakerOf, thumb } from '../st/bridge.js';
+import { chat, personaName, quiet, sendCanned, setPrompt, speakerOf, thumb, turnsSince } from '../st/bridge.js';
 import { presentAt } from '../sim/people.js';
 import { social } from '../sim/social.js';
 import { advance } from '../sim/time.js';
@@ -41,7 +41,7 @@ function parseTerms(w, out, p) {
 }
 const rules = (w, me, name, p) => `What could be arranged (the game's rules): ${name} could teach ${me}: ${names(w, p.learn)}. ${me} could teach ${name}: ${names(w, p.teach)}.`;
 /* ---------- you suggest it ---------- */
-const TR = { avatar: '', name: '', from: 0, start: 0, waits: 0, round: 0, busy: false, checked: {} };
+const TR = { avatar: '', name: '', from: 0, start: 0, round: 0, busy: false, checked: {} };
 /** After each of your lines (index.ts): a suggestion to someone here who could train with you waits for their answer;
  *  someone who can't yet gets a note for the AI, so the reply fits the rules. */
 export function detectTrain(text) {
@@ -71,7 +71,7 @@ export function detectTrain(text) {
         tellAi(`[${r.name} can't take on regular lessons with {{user}} right now (${why.replace(/\.$/, '').toLowerCase()}); ${r.name} says so kindly.]`);
         return;
     }
-    Object.assign(TR, { avatar: r.avatar, name: r.name, from: chat().length, start: chat().length, waits: 0, round: 0 });
+    Object.assign(TR, { avatar: r.avatar, name: r.name, from: chat().length, start: chat().length, round: 0 });
 }
 /** When a reply finishes (index.ts): your suggestion's answer, or an offer in their reply. */
 export async function checkTrain() {
@@ -94,10 +94,10 @@ async function answered(g, w) {
     const list = chat(), { avatar, name } = TR;
     const replies = list.slice(TR.from).filter((m) => !m.is_user && !m.is_system && !m.extra?.mundi_narrator);
     if (!replies.some((m) => speakerOf(m) === avatar) && !(replies.length && new Set(replies.map((m) => String(m.name ?? ''))).size === 1)) {
-        if (++TR.waits >= 3) {
+        if (turnsSince(TR.from) >= 3) {
             TR.avatar = '';
             tellAi('');
-        }
+        } // three turns of the scene without an answer: let go
         return;
     }
     const me = personaName(), p = possible(g, w, avatar);
@@ -112,7 +112,6 @@ async function answered(g, w) {
     if (head !== 'yes' && head !== 'no' && head !== 'none' && TR.round < 2) {
         TR.round++;
         TR.from = list.length;
-        TR.waits = 0;
         tellAi(`[${name} hasn't clearly answered {{user}}'s suggestion to train together yet. In this reply ${name} gives a clear answer, in their own way: yes, no, or that they need time to think.]`);
         return;
     }

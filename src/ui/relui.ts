@@ -5,7 +5,7 @@ import { esc, game, notify, saveGame, toast, state, nowAbs } from '../core/store
 import type { Save } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type Occupation } from '../core/world.js';
 import { sysOn } from '../sim/romance.js';
-import { chat, quiet, sendCanned, setPrompt, thumb, speakerOf } from '../st/bridge.js';
+import { chat, quiet, sendCanned, setPrompt, thumb, speakerOf, turnsSince } from '../st/bridge.js';
 import { momentsOf, dropMoment } from '../sim/moments.js';
 import { ASK_WHAT } from '../sim/initiative.js';
 import { setCooldown, YOU } from '../sim/rel.js';
@@ -79,7 +79,7 @@ export function romanceButtons(avatar: string): string {
 
 // An ask in progress: a romance ask, or staying the night ('stay', with what to do on a yes).
 type Asked = AskKind | 'stay';
-const ASK = { avatar: '', name: '', kind: 'date' as Asked, from: 0, waits: 0, round: 0, start: 0, mine: true, onYes: null as null | (() => void) };
+const ASK = { avatar: '', name: '', kind: 'date' as Asked, from: 0, round: 0, start: 0, mine: true, onYes: null as null | (() => void) };
 const END = { avatar: '' };
 const askWhat = (k: Asked) => k === 'date' ? 'to be a couple' : k === 'casual' ? 'to keep things casual between them' : k === 'stay' ? (ASK.mine ? 'to stay the night' : 'to let them sleep at their place tonight')
     : k === 'baby' ? 'about trying for a baby together' : k === 'propose' ? 'to marry them' : 'to set the date and get married';
@@ -87,7 +87,7 @@ const ASK_FACT: Record<AskKind, string> = { casual: '{u} asked {0} to keep thing
 
 function startAsk(g: Save, avatar: string, kind: Asked, from: number) {
     const r = g.cast[avatar];
-    Object.assign(ASK, { avatar, name: r.name, kind, from, waits: 0, round: 0, start: from });
+    Object.assign(ASK, { avatar, name: r.name, kind, from, round: 0, start: from });
     // the question itself is a fact (the diary and the Journal know it was asked, whatever the answer)
     if (kind !== 'stay') note(g, ASK_FACT[kind], [r.name], [avatar], g.player.loc, kind === 'baby' ? 'family' : 'love');
     saveGame();
@@ -142,7 +142,8 @@ export async function checkAsk() {
     const named = (m: any) => { const n = String(m.name ?? '').toLowerCase().trim(); return n === low || n.split(/\s+/)[0] === first; };
     const speakers = new Set(others.map((m: any) => String(m.name ?? '')));
     const reply = [...others].reverse().find(named) ?? (speakers.size === 1 ? others.at(-1) : undefined);
-    if (!reply) { if (++ASK.waits >= 3) { setPrompt('mundi_ask', ''); ASK.avatar = ''; notify(); } return; }
+    // no answer from them yet: after three turns of the scene without one, the question is let go
+    if (!reply) { if (turnsSince(ASK.from) >= 3) { setPrompt('mundi_ask', ''); ASK.avatar = ''; notify(); } return; }
     const { avatar, name, kind, onYes } = ASK;
     // everything since the question (their words, and yours: a story direction like "she says yes" counts too)
     const clean = (t: unknown) => String(t ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -156,7 +157,7 @@ export async function checkAsk() {
     } catch { /* not sure: treat it as "maybe" */ }
     if (answer === 'maybe' && ASK.round < 2) {
         // not clear yet: the question stays open for a couple more replies, and they are nudged to answer
-        ASK.round++; ASK.from = list.length; ASK.waits = 0;
+        ASK.round++; ASK.from = list.length;
         setPrompt('mundi_ask', `[${name} has not clearly answered {{user}}'s question yet (${askWhat(kind)}). In this reply ${name} gives a clear answer, in their own way: yes, no, or that they need time to think.]`, 0);
         toast(`Waiting for ${name}'s answer…`, 'info'); notify(); return;
     }
