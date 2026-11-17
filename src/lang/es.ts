@@ -10232,5 +10232,7 @@ const DICT: Record<string, string> = {
  "They are not close enough to you to stay at your place.": "No sois lo bastante cercanos para que se quede en tu casa.",
  "{0} is already staying with you.": "{0} ya se queda contigo.",
  "They cannot stay with you.": "No puede quedarse contigo.",
+ "Staying over": "Quedarse a dormir",
+ "A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, on their card. They ring the doorbell, go out to work from your place, and grow a little closer each night.": "Un amigo cercano o tu pareja puede quedarse en tu casa unas noches, o hasta que te despidas (una semana como mucho): Invitar a quedarse unos días, en su tarjeta. Llama al timbre, sale a trabajar desde tu casa y se acerca un poco más cada noche.",
 };
 export default DICT;

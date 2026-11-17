@@ -520,7 +520,7 @@ function momentDropIn(g: Save, w: WorldDef) {
     if (g.tick.homeDropIn === hour) return;
     const far = elsewhereHere(g, w).filter(x => !x.asleep).map(x => x.r);
     if (!far.length) return;
-    const m = momentsHere(g, far, x => fits(g, w, x))[0];
+    const m = momentsHere(g, far, x => x.sent === undefined && fits(g, w, x))[0];   // (once: a moment already played in a scene doesn't fetch them again)
     if (!m) return;
     g.tick.homeDropIn = hour;
     dropIn(g, w, m.who);

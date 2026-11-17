@@ -20,6 +20,7 @@ point of view, and grows as new ones arrive.
 - [A museum of your own, and Tamaki](#a-museum-of-your-own-and-tamaki)
 - [Nature and Before Edo](#nature-and-before-edo)
 - [Rooms at home](#rooms-at-home)
+- [A friend staying over](#a-friend-staying-over)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -1271,6 +1272,22 @@ housemates.
   keeps its own rooms.
 - **Your existing games** open at the entry of a home with rooms; nothing else changes. The share house's rooms show the
   share house's picture until their own are drawn.
+
+## A friend staying over
+
+Someone close can come and stay at your place for a few days: a friend (friendship 50 or more) or your partner.
+
+- **Asking.** On their card (or their page in People), **Ask to stay a few days**: one, two or three nights, or **for
+  a while** (until you say goodbye, a week at most), on the sofa or in your room. The game decides the answer, and the
+  AI plays it. Asked in person, they stay from now; otherwise they come over that evening with their things.
+- **Arriving.** They ring the doorbell when you're home: open the door, or let them in later. If you're out, they let
+  themselves in and wait for you.
+- **While they stay** they keep their own job and days, going out from your place and coming back to it. Each night
+  brings them a little closer, counts as a night over for life goals (a night together, with your partner), and keeps
+  your feelings from fading. The Calendar shows who is staying, which night it is, and a **Say goodbye** button.
+- **Leaving.** They go home on the last morning, when you say goodbye, if they turn against you, or if you move out.
+- In a home with rooms, they're in the common room while awake and sleep where you chose. One visitor at a time; not in
+  a Home, and nothing with Plans turned off.
 
 ## The World creator and the new game
 

@@ -17,6 +17,7 @@ import { museumDef, upgradeName } from '../sim/museum.js';
 import { digsOf, DIG } from '../sim/dig.js';
 import { digSeasonWord } from './museumui.js';
 import { homeRoomsOn } from '../sim/homerooms.js';
+import { visitsOn } from '../sim/visitors.js';
 // (track 7) Does this world have an end game for goals and points: homes to own, ventures, or a collection?
 const endgameOn = (w: WorldDef | null | undefined) => !!w && (housingOn(w) || !!w.ventures?.length || collectionOn(w));
 
@@ -198,6 +199,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['During the event', 'A panel shows it. End it to say goodbye (they tell you what they thought), or ask them to stay the night.'],
             ['A party', `Invite several people at once ${appRef(w, 'plans')}. You wait for all your guests in one go.`],
             ['Standing someone up', lex(w, 'standUpHelp')],
+            ...(!w || visitsOn(w) ? [<[string, string]>['Staying over', 'A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, on their card. They ring the doorbell, go out to work from your place, and grow a little closer each night.']] : []),
         ] },
     { id: 'work', icon: 'briefcase', title: 'Work and money', intro: `Find work ${appRef(w, 'jobs')} or at the place itself, then work your shifts. The Work button (top right) takes you there.`,
         items: [
