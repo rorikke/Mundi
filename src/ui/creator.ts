@@ -1496,7 +1496,7 @@ function bookForm(w: WorldDef, i: number) {
         <div class="mu-row2">${bounded('Weekly royalties at the start (by how good its photos were; held to 5,000–20,000)', `${p}.pay`, 0, PHOTO_PAY_MAX)}${cond('Offered only while (optional)', `${p}.when`, 'season: autumn')}</div>
         ${optArea('Once out, the AI is told ({{user}} is the player)', `${p}.ai`, 2, "{{user}}'s photobook Tokyo After Rain is in the bookshops.")}
         ${flag('Only with adult content on', `${p}.adult`, '', true)}
-        <p class="mu-muted">${n ? `${esc(n)} of the world's briefs are part of it.` : 'No brief is part of it: plain full-board briefs are drawn for it.'}</p>
+        <p class="mu-muted">${n === 1 ? "One of the world's briefs is part of it." : n ? `${esc(n)} of the world's briefs are part of it.` : 'No brief is part of it: plain full-board briefs are drawn for it.'}</p>
         ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
 }
 // Quick-add: a brief made from one of the world's festivals, city events or places (its window and place filled in).

@@ -8,7 +8,7 @@
 // comes from the views at the end. Freelance work (sim/freelance.ts) and photobooks (sim/photobooks.ts) hook in through
 // `afterDelivery`/`afterMissed`/`youParts`, so this file imports neither.
 import { adultOn, nowAbs, type Save, type Resident } from '../core/store.js';
-import { systemOn, type WorldDef, type BriefDef, type PhotoClient, type ActionDef } from '../core/world.js';
+import { systemOn, WEEKDAY_IDS, type WorldDef, type BriefDef, type PhotoClient, type ActionDef } from '../core/world.js';
 import { cameraAllows, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, ANY_STUDIO } from '../core/photo.js';
 import { onDay, onHour, photoLink, sceneLines, engineActions } from './hooks.js';
 import {
@@ -24,7 +24,7 @@ import { placeOf } from './places.js';
 import { openAt } from './daynight.js';
 import { slotAt } from './daynight.js';
 import { regionOf, weatherAt } from './worldstate.js';
-import { weatherChance } from './weather.js';
+import { weatherChance, WEATHER_KINDS } from './weather.js';
 import { whenHolds, parseWhen, personNamed } from './when.js';
 import { festivalsOn } from './festivals.js';
 import { eventsOn } from './cityevents.js';
@@ -43,7 +43,7 @@ import { effectMul } from './effects.js';
 import { book } from './ledger.js';
 import { money } from './needs.js';
 import { tallyEvent } from './tally.js';
-import { hm, weekday } from './time.js';
+import { hm, weekday, WEEKDAYS } from './time.js';
 
 /** Something a brief asks for, and whether you have it ("photography 4 ✓", "a drone ✗", "a studio ✓ rental"). */
 export interface Need { text: string; have: boolean; how?: string }
@@ -183,7 +183,10 @@ export function fairDays(g: Save, w: WorldDef, b: BriefDef, place: string, day =
     for (let n = base; n <= PHOTO_RULES.most; n++) if (chance(n) >= PHOTO_RULES.fair) return n;
     return null;
 }
-/** A window in words: "in the afternoon, rain or heavy rain", "during Sanja"; '' with none. */
+// A kind of weather and a weekday by their names ("partly cloudy", "Sunday"), not their ids.
+const wxWord = (v: string) => WEATHER_KINDS.find(k => k.id === v.toLowerCase())?.name.toLowerCase() ?? v;
+const dayWord = (v: string) => WEEKDAYS[WEEKDAY_IDS.indexOf(v.toLowerCase().slice(0, 3) as typeof WEEKDAY_IDS[number])] ?? v;
+/** A window in words: "in the afternoon, rain or heavy rain", "while Sanja Matsuri is on"; '' with none. */
 export function windowWords(g: Save, w: WorldDef, b: BriefDef): string {
     if (!b.window) return '';
     const p = parseWhen(b.window);
@@ -192,13 +195,13 @@ export function windowWords(g: Save, w: WorldDef, b: BriefDef): string {
     for (const c of p.conds) {
         const not = c.not ? 'not ' : '';
         if (c.key === 'period') out.push(`${not}${c.values.map(v => `in the ${(w.time.periods.find(x => x.id === v)?.name ?? v).toLowerCase()}`).join(' or ')}`);
-        else if (c.key === 'weather') out.push(`${not}${c.values.map(v => v.replace(/heavyrain/i, 'heavy rain')).join(' or ')}`);
-        else if (c.key === 'festival') out.push(`${not}during ${c.values.map(v => w.festivals?.find(f => f.id === v)?.name ?? v).join(' or ')}`);
-        else if (c.key === 'event') out.push(`${not}during ${c.values.map(v => w.cityEvents?.find(e => e.id === v)?.name ?? v).join(' or ')}`);
+        else if (c.key === 'weather') out.push(`${not}${c.values.map(wxWord).join(' or ')}`);
+        else if (c.key === 'festival') out.push(`${not}while ${c.values.map(v => w.festivals?.find(f => f.id === v)?.name ?? v).join(' or ')} is on`);
+        else if (c.key === 'event') out.push(`${not}while ${c.values.map(v => w.cityEvents?.find(e => e.id === v)?.name ?? v).join(' or ')} is on`);
         else if (c.key === 'weekend') out.push(c.values[0] === 'yes' ? 'on a weekend' : 'on a weekday');
         else if (c.key === 'season') out.push(`${not}in ${c.values.join(' or ')}`);
         else if (c.key === 'clock') out.push(`${not}${c.values.join(' or ')}`);
-        else if (c.key === 'weekday') out.push(`${not}on ${c.values.join(' or ')}`);
+        else if (c.key === 'weekday') out.push(`${not}on ${c.values.map(dayWord).join(' or ')}`);
     }
     return out.join(', ');
 }
@@ -414,7 +417,7 @@ export function shootWhy(g: Save, w: WorldDef, t: Taken, at = nowAbs(g)): string
     if (b.rung && gear.camera.rung < b.rung) return 'Your camera isn\'t good enough for this brief.';
     const lack = (b.gear ?? []).filter(k => !gear.kinds.has(k));
     if (lack.length) return `You need ${lack.map(gearWords).join(' and ')}.`;
-    if (!atPlace(g, w, t, b)) return t.place === ANY_STUDIO || b.studio ? 'Shot in a photo studio.' : `At ${placeOf(g, w, t.place)?.name ?? t.place}.`;
+    if (!atPlace(g, w, t, b)) return t.place === ANY_STUDIO || b.studio ? 'Shot in a photo studio.' : `Only at ${placeOf(g, w, t.place)?.name ?? t.place}.`;
     if (!windowHolds(g, w, b, at)) return windowWords(g, w, b) ? `Not now: ${windowWords(g, w, b)}.` : 'Not now.';
     if (t.who && t.lane !== 'wedding' && !here(g, w, t.who)) return `${nameOf(g, t.who)} has to be here (set the shoot).`;
     return '';
@@ -449,7 +452,7 @@ export function shotParts(g: Save, w: WorldDef, t: Taken, b: BriefDef, at = nowA
     if (t.who && t.lane !== 'wedding') { const n = PHOTO_RULES.feel[feelTier(fr(g, t.who, YOU))] ?? 0; if (n) parts.push({ name: `How ${nameOf(g, t.who)} feels about you`, n }); }
     if (studio && rig) parts.push({ name: rig.name, n: rig.photo.shoot ?? PHOTO_RULES.rig });
     for (const it of gear.items) if (it.photo.shoot && !['camera', 'lens', 'flash', 'rig'].includes(it.photo.gear)) parts.push({ name: it.name, n: it.photo.shoot });
-    for (const [s, need] of Object.entries(b.needs ?? {})) { const short = need - levelOf(g, s); if (short > 0) parts.push({ name: `${skillName(w, s)} ${short} short`, n: short * PHOTO_RULES.short }); }
+    for (const [s, need] of Object.entries(b.needs ?? {})) { const short = need - levelOf(g, s); if (short > 0) parts.push({ name: `${skillName(w, s)}: ${short === 1 ? '1 level' : `${short} levels`} short`, n: short * PHOTO_RULES.short }); }
     return parts;
 }
 const howWords = (q: number) => (q >= 85 ? 'brilliantly' : q >= 70 ? 'very well' : q >= 55 ? 'well' : q >= 35 ? 'unevenly' : 'badly');
@@ -601,6 +604,8 @@ function missed(g: Save, w: WorldDef, t: Taken, gaveUp = false): string[] {
     for (const f of afterMissed) out.push(...f(g, w, t, b));
     return out;
 }
+// What a weather window waited for, in words ("the rain never came"; a sunny one "the right weather").
+const WX_CAME: Record<string, string> = { rain: 'the rain', heavyrain: 'the rain', storm: 'the storm', snow: 'the snow' };
 /** Each day: briefs past their deadline are missed, or extended once when their window never came (the client gives
  *  the same days again). Lines to show. */
 export function settleOpen(g: Save, w: WorldDef): string[] {
@@ -615,7 +620,7 @@ export function settleOpen(g: Save, w: WorldDef): string[] {
             const n = t.days ?? b.days ?? BRIEF_DAYS;
             t.due = g.day + n; t.extended = true;
             const wx = parseWhen(b.window).conds.find(x => x.key === 'weather' && !x.not);
-            out.push(`${c.name}: ${wx ? `the ${wx.values[0].replace(/heavyrain/i, 'heavy rain')} never came` : 'the right moment never came'}; take another ${n} days.`);
+            out.push(`${c.name}: ${wx ? `${WX_CAME[wx.values[0].toLowerCase()] ?? 'the right weather'} never came` : 'the right moment never came'}; take another ${n} days.`);
             continue;
         }
         if (g.day > t.due + PHOTO_RULES.grace) out.push(...missed(g, w, t));
