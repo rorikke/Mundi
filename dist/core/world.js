@@ -1,7 +1,7 @@
 import { settings, game, adultOn } from './store.js';
 import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
-import { applyOverlay, overlayFile } from './overlay.js';
+import { applyOverlay, overlayFile, flatUrl } from './overlay.js';
 /** Days of the week as worlds write them (day 1 of a game is a Monday). */
 export const WEEKDAY_IDS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 // Roles a place can have. A place with its own list uses only that list; one without is guessed from its name, so
@@ -271,6 +271,11 @@ export async function loadWorld(id) {
     registry.set(id, upgradeWorld(cleanData(w)));
     return w;
 }
+// The bundled worlds loaded with an overlay this page load, and those whose overlay came in a pack (its pictures saved
+// without folders: see `flatUrl()` in overlay.ts).
+const FLAT = new Set();
+const OVERLAYS = new Map();
+export const overlaysInUse = () => [...OVERLAYS].map(([id, r]) => ({ id, ...r }));
 // The player's private overlay for a bundled world, if they have one (see core/overlay.ts): a file in SillyTavern's
 // user files, so it never reaches the repository. No file is the usual case; a broken one is left out, with a warning.
 async function withOverlay(w) {
@@ -278,8 +283,14 @@ async function withOverlay(w) {
         const res = await fetch(`/${overlayFile(w.id)}`, { cache: 'no-cache' });
         if (!res.ok)
             return w;
-        const r = applyOverlay(w, await res.json());
+        const raw = await res.json();
+        const r = applyOverlay(w, raw);
         console.info(`[Mundi] private overlay for ${w.id}: ${r.added} added, ${r.changed} changed`);
+        if (raw.flatFiles === true)
+            FLAT.add(w.id);
+        else
+            FLAT.delete(w.id);
+        OVERLAYS.set(w.id, { added: r.added, changed: r.changed });
         return r.world;
     }
     catch (e) {
@@ -305,7 +316,7 @@ export const shortDesc = (s) => { const t = String(s ?? '').trim(); return t.len
 // a world's picture or sound: always a safe address (it goes into style="" and url('…'))
 export const worldFile = (w, file) => { if (!file)
     return ''; try {
-    return safeUrl(new URL(file, w.base).href);
+    return safeUrl(new URL(FLAT.has(w.id) ? flatUrl(file) : file, w.base).href);
 }
 catch {
     return '';

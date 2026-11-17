@@ -1,4 +1,5 @@
-// A small zip writer (files stored as they are, no compression: PNG cards are already compressed).
+// A small zip writer (files stored as they are, no compression: PNG cards are already compressed) and reader (stored
+// and deflated files, so a zip made by any tool opens).
 const TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
 export function crc32(b: Uint8Array): number { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = TABLE[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
 
@@ -31,6 +32,53 @@ export function makeZip(files: ZipFile[]): Blob {
     const e = new DataView(new ArrayBuffer(22));
     e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, csize, true); e.setUint32(16, offset, true);
     return new Blob([...parts, ...central, new Uint8Array(e.buffer)] as BlobPart[], { type: 'application/zip' });
+}
+/** The files in a zip (folders left out). Throws on a zip it can't read, an encrypted one, or one that would unpack
+ *  to more than `max` bytes or files (a picked file is untrusted: a small zip can claim to hold gigabytes). */
+export async function readZip(zip: Uint8Array, max = { bytes: 1024 * 1024 * 1024, files: 20000 }): Promise<ZipFile[]> {
+    const v = new DataView(zip.buffer, zip.byteOffset, zip.byteLength);
+    let end = -1;
+    for (let i = zip.length - 22; i >= Math.max(0, zip.length - 22 - 65535); i--) if (v.getUint32(i, true) === 0x06054b50) { end = i; break; }
+    if (end < 0) throw new Error('not a zip file');
+    const count = v.getUint16(end + 10, true);
+    if (count > max.files) throw new Error('too many files in the zip');
+    let at = v.getUint32(end + 16, true), total = 0;
+    const dec = new TextDecoder(); const out: ZipFile[] = [];
+    for (let n = 0; n < count; n++) {
+        if (at + 46 > zip.length || v.getUint32(at, true) !== 0x02014b50) throw new Error('a broken zip file');
+        const flags = v.getUint16(at + 8, true), method = v.getUint16(at + 10, true);
+        const crc = v.getUint32(at + 16, true), packed = v.getUint32(at + 20, true), size = v.getUint32(at + 24, true);
+        const nameLen = v.getUint16(at + 28, true), extra = v.getUint16(at + 30, true), note = v.getUint16(at + 32, true);
+        const local = v.getUint32(at + 42, true);
+        const name = dec.decode(zip.subarray(at + 46, at + 46 + nameLen));
+        at += 46 + nameLen + extra + note;
+        if (name.endsWith('/')) continue;
+        if (flags & 1) throw new Error('the zip is password-protected');
+        if ((total += size) > max.bytes) throw new Error('the zip unpacks to too much');
+        if (local + 30 > zip.length || v.getUint32(local, true) !== 0x04034b50) throw new Error('a broken zip file');
+        const from = local + 30 + v.getUint16(local + 26, true) + v.getUint16(local + 28, true);
+        const raw = zip.subarray(from, from + packed);
+        if (raw.length !== packed) throw new Error('a broken zip file');
+        let data: Uint8Array;
+        if (method === 0) data = raw.slice();
+        else if (method === 8) data = await inflate(raw, size);
+        else throw new Error(`"${name}" is packed in a way Mundi can't read`);
+        if (data.length !== size || crc32(data) !== crc) throw new Error(`"${name}" is damaged in the zip`);
+        out.push({ name, data });
+    }
+    return out;
+}
+async function inflate(raw: Uint8Array, size: number): Promise<Uint8Array> {
+    const stream = new Blob([raw as BlobPart]).stream().pipeThrough(new DecompressionStream('deflate-raw' as CompressionFormat));
+    const reader = stream.getReader(); const parts: Uint8Array[] = []; let got = 0;
+    for (;;) {
+        const { done, value } = await reader.read(); if (done) break;
+        parts.push(value);
+        if ((got += value.length) > size) { await reader.cancel(); break; }   // more than it said: the size check fails it
+    }
+    const out = new Uint8Array(got); let o = 0;
+    for (const p of parts) { out.set(p, o); o += p.length; }
+    return out;
 }
 export function download(blob: Blob, name: string) {
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();

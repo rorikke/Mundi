@@ -20,7 +20,7 @@ export const overlayFile = (worldId: string) => `user/files/mundi-overlay-${worl
 
 const UNSAFE = new Set(['__proto__', 'constructor', 'prototype']);
 const LOCKED = new Set(['id', 'format', 'base', 'i18n']);   // top level
-const NOT_DATA = new Set(['world', 'overlay', 'adult']);   // top level: about the file, not part of the world
+const NOT_DATA = new Set(['world', 'overlay', 'adult', 'flatFiles']);   // top level: about the file, not part of the world
 const isObj = (v: unknown): v is Record<string, any> => !!v && typeof v === 'object' && !Array.isArray(v);
 const copy = <T>(v: T): T => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
 const hasStr = (o: unknown, k: string) => isObj(o) && typeof o[k] === 'string' && !!o[k];
@@ -98,4 +98,60 @@ export function applyOverlay(world: WorldDef, overlay: unknown): OverlayResult {
     }
     w.base = world.base; w.i18n = world.i18n;
     return { world: w as WorldDef, added, changed };
+}
+
+/* ---------- overlay packs: a zip the player installs (Settings → Add-ons) ---------- */
+// A pack is a zip of what goes into SillyTavern's user files: `mundi-overlay-<world id>.json` at its top and the
+// pictures in their folders, as the overlay's `/user/files/…` addresses name them. SillyTavern's upload only takes plain
+// file names, so the pictures are saved with their folders joined by "__" (`priv/tokyo/bar.avif` →
+// `priv__tokyo__bar.avif`) and the overlay is saved with `"flatFiles": true`; Mundi then reads that world's
+// `/user/files/…` addresses the same way (`flatUrl`). An overlay copied in by hand, folders and all, keeps its folders.
+export const flatName = (rel: string) => rel.split('/').join('__');
+export function flatUrl(file: string): string {
+    const m = /^\/user\/files\/([^?#]+)$/.exec(file);
+    return m && m[1].includes('/') ? `/user/files/${flatName(m[1])}` : file;
+}
+
+const PACK_FILE = /\.(png|webp|avif|gif|jpe?g|json|mp3|ogg|wav|m4a)$/i;
+const PART = /^[a-zA-Z0-9_-][a-zA-Z0-9_.-]*$/;   // what SillyTavern's upload takes, one folder or file name at a time
+export interface PackPlan { overlays: { world: string; name: string; text: string }[]; files: { name: string; data: Uint8Array }[]; skipped: string[] }
+
+/** What installing a pack writes (throws with a message for the player when it can't be installed). `worlds`: the
+ *  bundled worlds' ids, the only ones an overlay can be for. Files that can't be saved are skipped (and listed). */
+export function packPlan(entries: { name: string; data: Uint8Array }[], worlds: string[]): PackPlan {
+    let list = entries.map(e => ({ name: e.name.replace(/\\/g, '/').replace(/^(\.\/)+/, ''), data: e.data }))
+        .filter(e => !/(^|\/)(__MACOSX|\.DS_Store|Thumbs\.db|desktop\.ini)(\/|$)/i.test(e.name));
+    // zipped from outside its folder ("pack/mundi-overlay-tokyo.json"): that folder is left out
+    for (;;) {
+        const top = list[0]?.name.split('/')[0];
+        if (!top || list.some(e => !e.name.startsWith(`${top}/`)) || list.some(e => /^mundi-overlay-.*\.json$/.test(e.name))) break;
+        list = list.map(e => ({ ...e, name: e.name.slice(top.length + 1) }));
+    }
+    const plan: PackPlan = { overlays: [], files: [], skipped: [] };
+    const seen = new Map<string, string>();
+    const dec = new TextDecoder();
+    for (const e of list) {
+        const ov = /^mundi-overlay-(.+)\.json$/.exec(e.name);
+        if (ov) {
+            const world = worlds.find(id => overlayFile(id) === `user/files/${e.name}`);
+            if (!world) throw new Error(`"${e.name}" is for a world Mundi doesn't have.`);
+            let o: unknown;
+            try { o = JSON.parse(dec.decode(e.data)); } catch { throw new Error(`"${e.name}" isn't readable JSON.`); }
+            if (!isObj(o)) throw new Error(`"${e.name}" isn't an overlay.`);
+            if (o.world !== undefined && o.world !== world) throw new Error(`"${e.name}" says it is for "${String(o.world)}".`);
+            plan.overlays.push({ world, name: e.name, text: JSON.stringify({ ...o, world, flatFiles: true }) });
+            continue;
+        }
+        const parts = e.name.split('/');
+        // a picture always comes in a folder: a plain name could replace one of Mundi's own files (a made world)
+        if (parts.length < 2 || !parts.every(p => PART.test(p) && p !== '..') || !PACK_FILE.test(e.name)) { plan.skipped.push(e.name); continue; }
+        const name = flatName(e.name);
+        if (name.length > 200) throw new Error(`"${e.name}": the name is too long.`);
+        const before = seen.get(name.toLowerCase());
+        if (before) throw new Error(`"${before}" and "${e.name}" would be saved as the same file.`);
+        seen.set(name.toLowerCase(), e.name);
+        plan.files.push({ name, data: e.data });
+    }
+    if (!plan.overlays.length) throw new Error('No overlay in this zip: it needs a mundi-overlay-<world>.json at its top.');
+    return plan;
 }

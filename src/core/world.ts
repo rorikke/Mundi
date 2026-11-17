@@ -1,7 +1,7 @@
 import { settings, game, adultOn, type Save } from './store.js';
 import { safeUrl, cleanData } from './safe.js';
 import { upgradeWorld, presetOf, PRESETS } from './presets.js';
-import { applyOverlay, overlayFile } from './overlay.js';
+import { applyOverlay, overlayFile, flatUrl } from './overlay.js';
 import type { RpgDef } from './rpgdef.js';
 import type { FeelParts, FamilyType, FriendLevel, RomLevel } from './feel.js';
 import type { TraitInfo, EffectDef } from './traits.js';
@@ -1468,14 +1468,22 @@ export async function loadWorld(id: string): Promise<WorldDef> {
     return w;
 }
 
+// The bundled worlds loaded with an overlay this page load, and those whose overlay came in a pack (its pictures saved
+// without folders: see `flatUrl()` in overlay.ts).
+const FLAT = new Set<string>();
+const OVERLAYS = new Map<string, { added: number; changed: number }>();
+export const overlaysInUse = () => [...OVERLAYS].map(([id, r]) => ({ id, ...r }));
 // The player's private overlay for a bundled world, if they have one (see core/overlay.ts): a file in SillyTavern's
 // user files, so it never reaches the repository. No file is the usual case; a broken one is left out, with a warning.
 async function withOverlay(w: WorldDef): Promise<WorldDef> {
     try {
         const res = await fetch(`/${overlayFile(w.id)}`, { cache: 'no-cache' });
         if (!res.ok) return w;
-        const r = applyOverlay(w, await res.json());
+        const raw = await res.json();
+        const r = applyOverlay(w, raw);
         console.info(`[Mundi] private overlay for ${w.id}: ${r.added} added, ${r.changed} changed`);
+        if (raw.flatFiles === true) FLAT.add(w.id); else FLAT.delete(w.id);
+        OVERLAYS.set(w.id, { added: r.added, changed: r.changed });
         return r.world;
     } catch (e) { console.warn(`[Mundi] the private overlay for ${w.id} was left out:`, e); return w; }
 }
@@ -1499,7 +1507,7 @@ export const getWorld = (id: string) => registry.get(id) ?? null;
 export const WORLD_DESC_MAX = 160;
 export const shortDesc = (s: string) => { const t = String(s ?? '').trim(); return t.length <= WORLD_DESC_MAX ? t : `${t.slice(0, WORLD_DESC_MAX - 1).trimEnd()}…`; };
 // a world's picture or sound: always a safe address (it goes into style="" and url('…'))
-export const worldFile = (w: WorldDef, file?: string) => { if (!file) return ''; try { return safeUrl(new URL(file, w.base).href); } catch { return ''; } };
+export const worldFile = (w: WorldDef, file?: string) => { if (!file) return ''; try { return safeUrl(new URL(FLAT.has(w.id) ? flatUrl(file) : file, w.base).href); } catch { return ''; } };
 
 // How this world's device, social app and messages work, and how its people write (from the world; its style's
 // preset fills them in when missing, see core/presets.ts).

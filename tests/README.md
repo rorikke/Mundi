@@ -33,6 +33,10 @@ A save is hours of a player's life. No update may break one. These rules and che
   back on owe nothing old).
 - `node tests/prompt.test.mjs`: the prompt's editable texts (a block's own text around `{text}`, the rules of the
   scene, your own instructions) land where they should; untouched, the prompt is exactly Mundi's.
+- `node tests/overlaypack.test.mjs`: overlay packs (a zip a player installs from Settings → Add-ons). The zip reader
+  refuses broken, damaged, oversized and lying zips; a pack can only write pictures, sounds and JSON in folders and its
+  overlay (never a made world, a script or a page, nothing climbing out); a pack's world finds its pictures without
+  folders, other worlds and an overlay copied in by hand keep theirs.
 - `node tests/world.test.mjs`: the living world. Regions (maps) keep their public mood, tension and prices in range
   and the same days always give the same world; places are busier at the right hours; prices follow the region; a
   region with a weather of its own keeps it; with the system off nothing is kept or sent.

@@ -5,6 +5,7 @@ import { scriptText } from '../core/safe.js';
 import { ctx, chat } from '../st/bridge.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
+import { overlaysHtml } from './overlayui.js';
 const ext = () => (ctx().extensionSettings ?? {});
 const micEl = () => document.getElementById('microphone_button');
 export const ADDONS = [
@@ -81,7 +82,7 @@ export function addonsTab() {
                 <div class="mu-row"><label class="mu-check"><input type="checkbox" data-input="addon" data-id="${esc(a.id)}" ${prefs()[a.id] !== false ? 'checked' : ''} ${ready ? '' : 'disabled'}><span>Show its button in Mundi</span></label>
                     ${found ? `<button class="mu-ghost mu-addon-cfg" data-act="ext-config" data-title="${esc(a.cfg)}">${icon('gear')}<span>Configure</span></button>` : ''}
                     <a class="mu-addon-link" href="${esc(a.url)}" target="_blank" rel="noopener">${icon('globe')}<span>${a.native ? 'Documentation' : 'Get it on GitHub'}</span></a></div></article>`;
-    }).join('')}</div></section>`;
+    }).join('')}</div></section>${overlaysHtml()}`;
 }
 /* ---------- image generation: a picture button next to Send, with SillyTavern's own options ---------- */
 const SD = { open: false };
