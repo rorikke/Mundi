@@ -23203,11 +23203,11 @@
     "icon": "🍾",
     "price": 120000,
     "cat": "luxury",
+    "online": true,
     "at": [
      "mg_depachika"
     ],
-    "told": "home",
-    "online": false
+    "told": "home"
    },
    {
     "id": "lx_kiriko",
@@ -23216,12 +23216,12 @@
     "icon": "🥃",
     "price": 180000,
     "cat": "luxury",
+    "online": true,
     "at": [
      "mg_depachika",
      "ot_sensoji"
     ],
-    "told": "home",
-    "online": false
+    "told": "home"
    },
    {
     "id": "lx_lacquer",
@@ -23230,11 +23230,11 @@
     "icon": "🗃️",
     "price": 240000,
     "cat": "luxury",
+    "online": true,
     "at": [
      "mg_depachika"
     ],
-    "told": "home",
-    "online": false
+    "told": "home"
    },
    {
     "id": "lx_kizami",
@@ -23243,10 +23243,10 @@
     "icon": "⌚",
     "price": 320000,
     "cat": "luxury",
+    "online": true,
     "at": [
      "mg_chuodori"
-    ],
-    "online": false
+    ]
    },
    {
     "id": "lx_kizami_ltd",
@@ -23294,10 +23294,10 @@
     "icon": "⌚",
     "price": 1600000,
     "cat": "luxury",
+    "online": true,
     "at": [
      "mg_chuodori"
-    ],
-    "online": false
+    ]
    },
    {
     "id": "lx_painting",
