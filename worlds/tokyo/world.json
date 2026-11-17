@@ -44548,7 +44548,6 @@
        "desc": "freelance in a studio of your own: portraits, idols, album covers, headshots",
        "freelance": true,
        "hire": "photorep: 30",
-       "pace": 1.12,
        "closed": "Going out on your own takes a photo reputation of 30 first.",
        "promote": [
         5,
@@ -44577,7 +44576,7 @@
           "logic": 2,
           "performance": 0
          },
-         "when": "photorep: 45; studio: any"
+         "when": "photorep: 50; studio: any"
         },
         {
          "name": "Portraitist",
@@ -44588,7 +44587,7 @@
           "logic": 4,
           "performance": 0
          },
-         "when": "photorep: 65; portfolio: 8; studio: any"
+         "when": "photorep: 70; portfolio: 8; studio: any"
         },
         {
          "name": "Star photographer",
@@ -44599,7 +44598,7 @@
           "logic": 6,
           "performance": 0
          },
-         "when": "photorep: 85; portfolio: 12; studio: any"
+         "when": "photorep: 90; portfolio: 12; studio: any"
         }
        ]
       }
