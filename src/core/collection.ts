@@ -1,6 +1,6 @@
 // The collection's world data made safe (halls, groups and slots from someone else's file) and its fixed numbers.
 // The format is in core/world.ts (WorldCollection); what plays it is sim/collection.ts.
-import type { WorldCollection, HallDef, SlotDef, PieceSource, WorldDef, SystemId, VentureDef, MuseumDef, MuseumUpgrade } from './world.js';
+import type { WorldCollection, HallDef, SlotDef, PieceSource, WorldDef, SystemId, VentureDef, MuseumDef, MuseumUpgrade, DigDef } from './world.js';
 import { safeUrl } from './safe.js';
 
 /** A keepsake kind gets a record slot only when this game can have at least this many of it. */
@@ -56,7 +56,16 @@ function slot(s: any, halls: Map<string, HallDef>): SlotDef | null {
     const pic = str(s.pic) && safeUrl(s.pic); if (pic) out.pic = pic;
     if (Array.isArray(s.sources)) { const list = s.sources.map(source).filter(Boolean) as PieceSource[]; if (list.length) out.sources = list; }
     if (typeof s.price === 'number' && isFinite(s.price)) out.price = Math.max(0, Math.round(s.price));
-    const parts = strs(s.parts)?.filter(x => ID.test(x)); if (parts?.length) out.parts = parts;
+    const parts = strs(s.parts)?.filter(x => ID.test(x)); if (parts?.length) out.parts = [...new Set(parts)];
+    // (nature) a piece of parts: put together for a price in days; a picture per part it has
+    if (out.parts && s.mount && typeof s.mount === 'object') {
+        const price = numIn(s.mount.price, 0, MUSEUM_PRICE_MAX), days = numIn(s.mount.days, 1, 60);
+        if (price !== undefined && days !== undefined) out.mount = { price, days };
+    }
+    if (out.parts && s.partPics && typeof s.partPics === 'object' && !Array.isArray(s.partPics)) {
+        const pics = Object.fromEntries(out.parts.map(x => [x, str(s.partPics[x]) && safeUrl(s.partPics[x])]).filter(([, v]) => v)) as Record<string, string>;
+        if (Object.keys(pics).length) out.partPics = pics;
+    }
     if (s.bonus === true) out.bonus = true;
     return out;
 }
@@ -134,6 +143,22 @@ function museum(m: any, halls: Map<string, HallDef>): MuseumDef | undefined {
     }
     return out;
 }
+/** (nature) A world's digs made safe: an id, a place, at least one action and a season each (else dropped), ids unique,
+ *  numbers held to their ranges. */
+function digs(list: unknown): DigDef[] {
+    const out: DigDef[] = [], ids = new Set<string>();
+    for (const d of Array.isArray(list) ? list as any[] : []) {
+        if (!d || typeof d !== 'object' || !ID.test(d.id ?? '') || ids.has(d.id) || !str(d.place) || !when(d.season)) continue;
+        const actions = strs(d.actions); if (!actions?.length) continue;
+        const x: DigDef = { id: d.id, name: str(d.name) ?? d.id, place: d.place, actions: [...new Set(actions)], season: d.season };
+        const chance = numIn(d.chance, 0, 1, false); if (chance !== undefined) x.chance = chance;
+        const sure = numIn(d.sure, 0, 60); if (sure !== undefined) x.sure = sure;
+        const most = numIn(d.most, 1, 50); if (most !== undefined) x.most = most;
+        if (d.lend === true) x.lend = true;
+        ids.add(x.id); out.push(x);
+    }
+    return out;
+}
 /** A world's collection made safe: unknown halls and groups dropped with their slots, ids `[a-z0-9_]` and unique,
  *  numbers held to their range. Nothing (undefined) when there's no hall left: the world gets no key. */
 export function upgradeCollection(c: unknown): WorldCollection | undefined {
@@ -146,6 +171,7 @@ export function upgradeCollection(c: unknown): WorldCollection | undefined {
     const out: WorldCollection = { halls: [...halls.values()], slots };
     if (typeof raw.minKind === 'number' && isFinite(raw.minKind)) out.minKind = Math.max(1, Math.min(10, Math.round(raw.minKind)));
     if ('museum' in raw) { const m = museum(raw.museum, halls); if (m) out.museum = m; }
+    if ('digs' in raw) { const d = digs(raw.digs); if (d.length) out.digs = d; }
     return out;
 }
 

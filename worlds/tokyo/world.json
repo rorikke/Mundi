@@ -17700,6 +17700,1011 @@
      }
     }
    ]
+  },
+  {
+   "id": "sb_yoyogi_insects",
+   "name": "Insect hunt",
+   "label": "Look for insects in the grass",
+   "icon": "🦗",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: spring or summer or autumn; period: firsttrain or rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "You part the long grass slowly and look where the shade is; the park turns out to be full of small lives.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Everything you spot is gone before you get close. The cicadas go on singing regardless."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "sb_yoyogi"
+  },
+  {
+   "id": "sj_gyoen_insects",
+   "name": "Old trees",
+   "label": "Look for insects among old trees",
+   "icon": "🌳",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: spring or summer; period: midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "Under the plane trees and the old cedars you learn to look at bark, not air, and the garden shows you what lives on it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "You stare at bark until it all looks the same. A gardener smiles at you and keeps raking."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "sj_gyoen"
+  },
+  {
+   "id": "ot_ueno_insects",
+   "name": "Pond insects",
+   "label": "Look for insects by Shinobazu Pond",
+   "icon": "🪷",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: summer or autumn; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "Along the reeds and the lotus beds the air is busy; you stand still long enough for it to come to you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "The boats and the crowds keep everything moving. You watch the turtles on their rock instead."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "ot_ueno"
+  },
+  {
+   "id": "sb_meiji_insects",
+   "name": "Shrine forest",
+   "label": "Hunt beetles in the shrine forest",
+   "icon": "🪲",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: spring or summer; period: firsttrain or rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "Off the gravel path, at the foot of the old oaks, you find where the sap runs and wait quietly beside it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "The forest is deep and quiet, and keeps its beetles to itself today."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "sb_meiji"
+  },
+  {
+   "id": "ot_sumida_insects",
+   "name": "River grass",
+   "label": "Listen for insects by the river",
+   "icon": "🦗",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: autumn; period: evening or night",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "You follow the ringing to a clump of grass by the embankment, and stop the moment it stops, until it starts again.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "Every time you come close, the singing stops. The river lights shiver on the water."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "ot_sumida"
+  },
+  {
+   "id": "hk_ashi_insects",
+   "name": "Cedar avenue",
+   "label": "Walk the cedar avenue",
+   "icon": "🌲",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: spring or summer or autumn",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "Under the four-hundred-year-old cedars of the old Tōkaidō the air is cool and loud, and you know where to look.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "The cedars are tall and the light is low; whatever lives here stays out of sight."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "hk_ashi"
+  },
+  {
+   "id": "hk_yumoto_fireflies",
+   "name": "Fireflies",
+   "label": "Watch for fireflies along the Hayakawa",
+   "icon": "✨",
+   "cost": 0,
+   "minutes": 45,
+   "tags": [
+    "nature",
+    "insects"
+   ],
+   "effects": {
+    "energy": -5,
+    "mood": 5
+   },
+   "when": "season: summer; period: evening; weather: not rain or heavyrain or storm",
+   "together": {
+    "needed": false,
+    "text": "looking together; whoever spots it first calls the other over"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "logic",
+    "traits": [],
+    "success": {
+     "text": "As the light goes, the first green sparks rise from the riverbank, then dozens, drifting over the water.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    "fail": {
+     "text": "A few sparks, far off over the river, and then the clouds come in. Still lovely."
+    }
+   },
+   "trains": "logic",
+   "fact": "{u} looked for insects at {0}",
+   "place": "hk_yumoto"
+  },
+  {
+   "id": "hk_ashi_fish",
+   "name": "Trout boat",
+   "label": "Fish for trout from a boat",
+   "icon": "🎣",
+   "cost": 2500,
+   "minutes": 90,
+   "tags": [
+    "nature",
+    "fishing"
+   ],
+   "effects": {
+    "energy": -8,
+    "mood": 5
+   },
+   "when": "season: spring or summer or autumn; period: firsttrain or rush or midmorning; weather: not storm or heavyrain",
+   "together": {
+    "needed": false,
+    "text": "fishing side by side, mostly in a comfortable quiet"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "fitness",
+    "traits": [],
+    "success": {
+     "text": "The rowboat man points you to a cove under the trees. The line goes tight just as the mist lifts off the lake.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Ninety minutes of a still lake and a still line. The boat man says yesterday was better."
+    }
+   },
+   "trains": "fitness",
+   "fact": "{u} went fishing at {0}",
+   "place": "hk_ashi"
+  },
+  {
+   "id": "bay_beach_fish",
+   "name": "Seawall fishing",
+   "label": "Fish off the seawall",
+   "icon": "🎣",
+   "cost": 500,
+   "minutes": 60,
+   "tags": [
+    "nature",
+    "fishing"
+   ],
+   "effects": {
+    "energy": -6,
+    "mood": 5
+   },
+   "when": "period: not latenight",
+   "together": {
+    "needed": false,
+    "text": "fishing side by side, mostly in a comfortable quiet"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "fitness",
+    "traits": [],
+    "success": {
+     "text": "A tin of bait, a borrowed folding chair and the old men on the wall telling you where to cast. It works.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "The old men on the wall catch three each. You catch the sunset over Rainbow Bridge."
+    }
+   },
+   "trains": "fitness",
+   "fact": "{u} went fishing at {0}",
+   "place": "bay_beach"
+  },
+  {
+   "id": "yk_yamashita_fish",
+   "name": "Seawall fishing",
+   "label": "Fish off the seawall",
+   "icon": "🎣",
+   "cost": 500,
+   "minutes": 60,
+   "tags": [
+    "nature",
+    "fishing"
+   ],
+   "effects": {
+    "energy": -6,
+    "mood": 5
+   },
+   "when": "period: not latenight",
+   "together": {
+    "needed": false,
+    "text": "fishing side by side, mostly in a comfortable quiet"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "fitness",
+    "traits": [],
+    "success": {
+     "text": "Beside the old liner, with the harbour lights coming on, your line goes heavy and alive.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Seagulls, a passing water bus, a tangled line. The bay keeps what it has today."
+    }
+   },
+   "trains": "fitness",
+   "fact": "{u} went fishing at {0}",
+   "place": "yk_yamashita"
+  },
+  {
+   "id": "yk_marina_boatfish",
+   "name": "Party boat",
+   "label": "Go out on a fishing boat",
+   "icon": "🚤",
+   "cost": 9000,
+   "minutes": 240,
+   "tags": [
+    "nature",
+    "fishing"
+   ],
+   "effects": {
+    "energy": -15,
+    "mood": 5
+   },
+   "when": "period: rush; weather: not rain or heavyrain or storm or snow",
+   "together": {
+    "needed": false,
+    "text": "fishing side by side, mostly in a comfortable quiet"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "fitness",
+    "traits": [],
+    "success": {
+     "text": "The skipper finds the shoal on his sonar and shouts \"now!\"; the whole boat hauls at once, and so do you.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "A long grey morning on the swell. The skipper apologises and hands round hot tea on the way in."
+    }
+   },
+   "trains": "fitness",
+   "fact": "{u} went fishing at {0}",
+   "place": "yk_marina"
+  },
+  {
+   "id": "mg_palace_press_plum",
+   "name": "Plum blossom",
+   "label": "Press a sprig of plum",
+   "icon": "🌸",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: winter; period: midmorning or afternoon; weekday: not mon or fri; clock: 9:00-16:00",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "A gardener in the plum grove gives you a sprig he has just pruned. You lay it flat between blotting paper before it wilts.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The blossom bruises as you flatten it. You keep it anyway, for the smell."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "mg_palace"
+  },
+  {
+   "id": "ot_ueno_press_plum",
+   "name": "Plum blossom",
+   "label": "Press a sprig of plum",
+   "icon": "🌸",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: winter; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "Under the plum trees by the shrine a fallen sprig lies perfect on the gravel. You press it at once.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "Every sprig on the ground is trodden or brown. The blossoms overhead smell of honey."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "ot_ueno"
+  },
+  {
+   "id": "ot_ueno_press_cherry",
+   "name": "Cherry blossom",
+   "label": "Press cherry blossoms",
+   "icon": "🌸",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "festival: hanami; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "Among the picnic sheets you find a whole small cluster blown down in the wind, and press it between two pages.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The petals come apart in your fingers. Around you, the whole park is drinking under the trees."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "ot_ueno"
+  },
+  {
+   "id": "sj_gyoen_press_cherry",
+   "name": "Cherry blossom",
+   "label": "Press cherry blossoms",
+   "icon": "🌸",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "festival: hanami; period: midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "On the lawn under the old weeping cherry, a cluster of blossom lands in your lap. You take it as a gift.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "You wait for the right petals to fall and they never do. The garden is lovely anyway."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "sj_gyoen"
+  },
+  {
+   "id": "ot_shrine_press_wisteria",
+   "name": "Wisteria",
+   "label": "Press a spray of wisteria",
+   "icon": "🪻",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: spring; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "The priest's wife lets you take a spray the trellis dropped overnight, and lends you her old phone book to press it in.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The wisteria is heavy and wet and will not lie flat. The bees seem to find this funny."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "ot_shrine"
+  },
+  {
+   "id": "sj_gyoen_press_wisteria",
+   "name": "Wisteria",
+   "label": "Press a spray of wisteria",
+   "icon": "🪻",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: spring; period: midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "A long purple spray has fallen by the trellis in the Japanese garden. You press it with all its little flowers whole.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The spray you find is past its best, brown at the tips. You leave it to the gardeners."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "sj_gyoen"
+  },
+  {
+   "id": "hk_yumoto_press_hydrangea",
+   "name": "Hydrangea",
+   "label": "Press hydrangea florets",
+   "icon": "💠",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: summer; period: midmorning or afternoon or evening",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "The banks beside the mountain railway are a blue wall of hydrangea. A few florets come home flat and perfect.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "Rain has soaked every floret within reach. A train climbs past through the blossoms."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "hk_yumoto"
+  },
+  {
+   "id": "sb_meiji_press_hydrangea",
+   "name": "Hydrangea",
+   "label": "Press hydrangea florets",
+   "icon": "💠",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: summer; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "In the inner garden, by the iris beds, a gardener sweeping up gives you a handful of fallen blue florets.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "Everything fallen has gone brown at the edges. The inner garden is quiet and green."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "sb_meiji"
+  },
+  {
+   "id": "ot_yanaka_press_asagao",
+   "name": "Morning glory",
+   "label": "Press a morning glory",
+   "icon": "🌀",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: summer; period: firsttrain or rush or midmorning",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "An old woman watering her doorstep pots picks you one of her blue morning glories, still open, and tells you to hurry.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "By the time you have it in the press it has closed up for the day, as morning glories do."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "ot_yanaka"
+  },
+  {
+   "id": "ot_ueno_press_lotus",
+   "name": "Lotus",
+   "label": "Press a lotus petal",
+   "icon": "🪷",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: summer; period: firsttrain or rush or midmorning",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "At the edge of Shinobazu Pond, in the early quiet, a pink petal floats within reach. It dries pale and veined.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The petals near the path have all been taken or torn. The great leaves rock on the water."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "ot_ueno"
+  },
+  {
+   "id": "mg_palace_press_maple",
+   "name": "Maple leaves",
+   "label": "Press maple leaves",
+   "icon": "🍁",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "festival: koyo; period: midmorning or afternoon; weekday: not mon or fri; clock: 9:00-16:00",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "Under the maples by the old guardhouse the gravel is red. You choose three leaves, the reddest, and press them flat.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The leaves you pick crumble at the edges. The red overhead is enough to look at."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "mg_palace"
+  },
+  {
+   "id": "hk_ashi_press_maple",
+   "name": "Maple leaves",
+   "label": "Press maple leaves",
+   "icon": "🍁",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: autumn; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "On the path above the lake the maples have turned, and a leaf lands on your sleeve as if it had chosen you.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "Damp leaves, all of them stuck to the path. The lake below is grey and still."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "hk_ashi"
+  },
+  {
+   "id": "yk_park_press_ginkgo",
+   "name": "Ginkgo leaves",
+   "label": "Press ginkgo leaves",
+   "icon": "🍂",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: autumn; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "Ichō Park is ankle deep in gold. You pick the most perfect little fans and press them in a paperback.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The gold carpet smells of ginkgo nuts, and the leaves you pick are torn. You laugh and kick through them instead."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "yk_park"
+  },
+  {
+   "id": "ak_university_press_ginkgo",
+   "name": "Ginkgo leaves",
+   "label": "Press ginkgo leaves",
+   "icon": "🍂",
+   "cost": 0,
+   "minutes": 30,
+   "tags": [
+    "nature",
+    "flowers"
+   ],
+   "effects": {
+    "mood": 4
+   },
+   "when": "season: autumn; period: rush or midmorning or afternoon",
+   "together": {
+    "needed": false,
+    "text": "choosing the best one together"
+   },
+   "roll": {
+    "dc": 9,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "Hijiri's ginkgo avenue has gone yellow overnight. A student with a sketchbook helps you pick the best leaves.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    "fail": {
+     "text": "The groundskeepers have swept the avenue clean this morning. Only a few torn leaves are left."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} pressed flowers at {0}",
+   "place": "ak_university"
+  },
+  {
+   "id": "ak_university_dig",
+   "name": "The dig",
+   "label": "Dig a square with the team",
+   "icon": "⛏️",
+   "cost": 0,
+   "minutes": 180,
+   "effects": {
+    "energy": -20,
+    "hygiene": -10,
+    "mood": 4
+   },
+   "when": "seen: ak_university_st_dig; museum: open; season: autumn; period: midmorning or afternoon; daily: yes",
+   "together": {
+    "needed": false,
+    "text": "digging side by side in the same square"
+   },
+   "roll": {
+    "dc": 11,
+    "skill": "fitness",
+    "traits": [],
+    "success": {
+     "text": "You take your square down a hand's depth through the shells, steady and careful; the professor nods at your clean edges.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Three hours on your knees, a sore back, and a bucket of shells. The professor says that is most days."
+    }
+   },
+   "trains": "fitness",
+   "fact": "{u} dug a square at Hijiri University's autumn dig",
+   "place": "ak_university"
+  },
+  {
+   "id": "ak_university_sift",
+   "name": "The finds tray",
+   "label": "Sift and draw the finds",
+   "icon": "✏️",
+   "cost": 0,
+   "minutes": 120,
+   "effects": {
+    "energy": -8,
+    "mood": 4
+   },
+   "when": "seen: ak_university_st_dig; museum: open; season: autumn; period: midmorning or afternoon; daily: yes",
+   "together": {
+    "needed": false,
+    "text": "sharing a sieve and a finds tray"
+   },
+   "roll": {
+    "dc": 10,
+    "skill": "drawing",
+    "traits": [],
+    "success": {
+     "text": "You shake the soil through the sieve and draw what stays, to scale; the lab pins your drawing to the board.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    "fail": {
+     "text": "Shells, shells and a bottle cap from 1964. Your drawing of the bottle cap is very good."
+    }
+   },
+   "trains": "drawing",
+   "fact": "{u} sifted and drew finds at Hijiri University's autumn dig",
+   "place": "ak_university"
   }
  ],
  "sleep": {
@@ -21538,6 +22543,66 @@
     ],
     "online": false,
     "adult": true
+   },
+   {
+    "id": "hb_insect_net",
+    "name": "Insect net and specimen box",
+    "desc": "A long-handled net and a glass-topped box: insects are a little easier to find.",
+    "icon": "🦋",
+    "price": 3800,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "bay_mall",
+     "ws_shimokita"
+    ],
+    "effects": [
+     {
+      "kind": "roll",
+      "target": "insects",
+      "value": 1
+     }
+    ]
+   },
+   {
+    "id": "hb_fishing_rod",
+    "name": "Fishing rod and tackle",
+    "desc": "A telescopic rod and a box of hooks and lures: fishing goes a little better.",
+    "icon": "🎣",
+    "price": 18000,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "yk_marina",
+     "bay_mall"
+    ],
+    "effects": [
+     {
+      "kind": "roll",
+      "target": "fishing",
+      "value": 1
+     }
+    ]
+   },
+   {
+    "id": "hb_flower_press",
+    "name": "A wooden flower press",
+    "desc": "Two boards, four wing nuts and blotting paper: pressed flowers come out a little better.",
+    "icon": "🌼",
+    "price": 4800,
+    "cat": "hobby",
+    "online": true,
+    "at": [
+     "ak_jinbocho",
+     "ot_sensoji"
+    ],
+    "effects": [
+     {
+      "kind": "roll",
+      "target": "flowers",
+      "value": 1
+     }
+    ]
    }
   ]
  },
@@ -38035,6 +39100,155 @@
      "renown": 5,
      "keepsake": "kura_cloth",
      "rumor": "A piece stolen from the Kurahashi kura turned up in a pawnshop"
+    }
+   ]
+  },
+  {
+   "id": "ak_university_st_dig",
+   "place": "ak_university",
+   "when": "museum: open; period: midmorning or afternoon",
+   "title": "the archaeology lab's call for volunteers",
+   "setup": "A notice on the archaeology lab's door asks for volunteers: no experience needed, gloves provided. The professor herself opens it, sleeves rolled, a trowel in her back pocket. The new library's foundations cut into a Jōmon shell midden, she says; the lab digs it every autumn and is short of hands, and shorter of room. She would rather lend what they find to a small museum that shows it than box it. She has heard of the Kurahashi kura.",
+   "choices": [
+    {
+     "label": "Sign up for the autumn dig",
+     "text": "She writes your name on the list in pencil and hands you a pair of gloves. \"Autumn, behind the old library. Bring old clothes and patience.\"",
+     "effects": {
+      "mood": 5
+     },
+     "fact": "{u} signed up for Hijiri University's autumn dig"
+    },
+    {
+     "label": "Ask what they've found",
+     "roll": {
+      "skill": "logic",
+      "dc": 11
+     },
+     "text": "You ask the right questions, and she takes you down to the finds room: trays of pottery, beads, a shark's tooth from the sands below. \"Come in autumn,\" she says, \"and give them a home.\"",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 2,
+     "fact": "{u} signed up for Hijiri University's autumn dig after a tour of its finds",
+     "fail": {
+      "text": "She answers kindly, but you lose the thread somewhere around the shell layers. She writes your name on the list anyway: \"Autumn. Old clothes.\"",
+      "effects": {
+       "mood": 3
+      }
+     }
+    },
+    {
+     "label": "Let Tamaki talk with her",
+     "when": "present: Tamaki",
+     "text": "Tamaki knows the lab from her certificate course, and the two of them talk soil layers for twenty minutes. The professor promises the kura her best finds.",
+     "effects": {
+      "mood": 5
+     },
+     "renown": 3,
+     "feels": {
+      "Tamaki": 1
+     },
+     "fact": "{u} signed up for Hijiri University's autumn dig"
+    }
+   ]
+  },
+  {
+   "id": "ak_university_st_naumann",
+   "place": "ak_university",
+   "when": "museum: open; dig: seasons 1; season: autumn; period: midmorning or afternoon",
+   "title": "the call to Nihonbashi",
+   "setup": "In the middle of the day's digging the professor's phone rings, and she listens with her trowel in the air. The subway works at Nihonbashi have hit bones in the old bay mud, big ones, and the works stop for nobody: the lab has two days. She looks round the square at her volunteers, {{user}} among them. Naumann's elephants were found under Nihonbashi Hamachō once before, in 1976.",
+   "choices": [
+    {
+     "label": "Go down to the works with them",
+     "roll": {
+      "skill": "fitness",
+      "dc": 12
+     },
+     "text": "Hard hats, floodlights and grey mud to the knee. You and two students carry the first jacketed block up the ladder, and the whole crew cheers.",
+     "effects": {
+      "mood": 8,
+      "energy": -15
+     },
+     "renown": 3,
+     "fact": "{u} helped lift the first of Naumann's elephant's bones out of the subway works at Nihonbashi",
+     "fail": {
+      "text": "The mud takes one of your boots and most of your strength. You end up holding the floodlight, which matters too, the professor says.",
+      "effects": {
+       "mood": 4,
+       "energy": -15
+      }
+     }
+    },
+    {
+     "label": "Stay and clean bones in the lab",
+     "roll": {
+      "skill": "drawing",
+      "dc": 10
+     },
+     "text": "The blocks come back by van and you work through them with a soft brush and a dental pick, drawing each bone as it comes clean.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 2,
+     "fact": "{u} cleaned and drew the bones of Naumann's elephant at Hijiri University's lab",
+     "fail": {
+      "text": "You brush too hard at a corner and the professor takes the pick from you, kindly. You draw instead, and the drawing is good.",
+      "effects": {
+       "mood": 3
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "ot_kura_st_naumann",
+   "place": "ot_kura",
+   "when": "piece: be_naumann",
+   "title": "the elephant's unveiling",
+   "setup": "The Before Edo room is full: the Hijiri team in their best clothes, the professor with a folder of photographs from Nihonbashi, neighbours from Yanaka, people {{user}} knows. Under a sheet in the middle of the room stands Naumann's elephant, mounted at last. Someone has to say something before the sheet comes off.",
+   "choices": [
+    {
+     "label": "Give the speech",
+     "roll": {
+      "skill": "writing",
+      "dc": 12
+     },
+     "text": "You tell them about the old bay mud, the volunteers and the boots lost at the works; the sheet comes off on your last word and the room gasps.",
+     "effects": {
+      "mood": 8
+     },
+     "renown": 10,
+     "rumor": "The Kurahashi kura in Yanaka has a whole elephant's skeleton from under Nihonbashi",
+     "fail": {
+      "text": "You thank everyone twice and forget the professor once. The sheet catches on a tusk. Everyone laughs, then claps, and means it.",
+      "effects": {
+       "mood": 4
+      },
+      "renown": 5
+     }
+    },
+    {
+     "label": "Let the professor speak",
+     "text": "She tells how the bones came up from under the subway, and thanks the kura for giving them a home. The applause is for both of you.",
+     "effects": {
+      "mood": 6
+     },
+     "renown": 8,
+     "rumor": "The Kurahashi kura in Yanaka has a whole elephant's skeleton from under Nihonbashi"
+    },
+    {
+     "label": "Let Tamaki tell its story",
+     "when": "present: Tamaki",
+     "text": "Tamaki tells it quietly, the way she tells every piece, and the room leans in. When the sheet comes off nobody speaks for a moment.",
+     "effects": {
+      "mood": 7
+     },
+     "renown": 10,
+     "feels": {
+      "Tamaki": 1
+     },
+     "rumor": "The Kurahashi kura in Yanaka has a whole elephant's skeleton from under Nihonbashi"
     }
    ]
   }
@@ -64927,6 +66141,47 @@
     ]
    },
    {
+    "id": "before_edo",
+    "name": "Before Edo",
+    "icon": "🦣",
+    "desc": "Jōmon pottery, haniwa, a bronze bell and the fossils under Tokyo.",
+    "groups": [
+     {
+      "id": "ancient",
+      "name": "Ancient finds",
+      "icon": "⚱️"
+     },
+     {
+      "id": "fossils",
+      "name": "Fossils",
+      "icon": "🦴"
+     }
+    ]
+   },
+   {
+    "id": "nature",
+    "name": "Nature",
+    "icon": "🦋",
+    "desc": "Insects, fish and sea life, and pressed flowers, each in its season.",
+    "groups": [
+     {
+      "id": "insects",
+      "name": "Insects",
+      "icon": "🐞"
+     },
+     {
+      "id": "sea",
+      "name": "Fish and sea life",
+      "icon": "🐟"
+     },
+     {
+      "id": "flowers",
+      "name": "Pressed flowers and leaves",
+      "icon": "🌸"
+     }
+    ]
+   },
+   {
     "id": "modern",
     "name": "Modern Tokyo",
     "icon": "📻",
@@ -68963,6 +70218,856 @@
      "locked": "She locks the drawer of her wishes again, its key on the cord with her loupe."
     },
     "hint": "See Tamaki's story through to its end."
+   },
+   {
+    "id": "be_dogu",
+    "hall": "before_edo",
+    "group": "ancient",
+    "name": "A dogū",
+    "icon": "🗿",
+    "hint": "From Hijiri University's autumn dig.",
+    "plaque": "A Jōmon clay figure with great goggle eyes, broken as such figures nearly always were. On long loan from Hijiri University.",
+    "sources": [
+     {
+      "kind": "dig",
+      "id": "hijiri",
+      "chance": 0.6
+     }
+    ],
+    "price": 800000,
+    "pic": "collection/before_edo/be_dogu.avif"
+   },
+   {
+    "id": "be_haniwa",
+    "hall": "before_edo",
+    "group": "ancient",
+    "name": "A haniwa",
+    "icon": "🗿",
+    "hint": "From Hijiri University's autumn dig.",
+    "plaque": "A hollow clay haniwa figure with round eye holes, once set on a burial mound to guard it. On long loan from Hijiri University.",
+    "sources": [
+     {
+      "kind": "dig",
+      "id": "hijiri",
+      "chance": 0.8
+     }
+    ],
+    "price": 400000,
+    "pic": "collection/before_edo/be_haniwa.avif"
+   },
+   {
+    "id": "be_jomon_pot",
+    "hall": "before_edo",
+    "group": "ancient",
+    "name": "A Jōmon pot",
+    "icon": "🏺",
+    "hint": "From Hijiri University's autumn dig.",
+    "plaque": "A flame-rimmed Jōmon pot pressed with cord marks, from the shell midden under the new library. On long loan from Hijiri University.",
+    "sources": [
+     {
+      "kind": "dig",
+      "id": "hijiri",
+      "chance": 1
+     }
+    ],
+    "price": 300000,
+    "pic": "collection/before_edo/be_jomon_pot.avif"
+   },
+   {
+    "id": "be_magatama",
+    "hall": "before_edo",
+    "group": "ancient",
+    "name": "Magatama",
+    "icon": "📿",
+    "hint": "From Hijiri University's autumn dig.",
+    "plaque": "Curved jade magatama beads on a cord, the shape of a comma or a soul. On long loan from Hijiri University.",
+    "sources": [
+     {
+      "kind": "dig",
+      "id": "hijiri",
+      "chance": 1
+     }
+    ],
+    "price": 150000,
+    "pic": "collection/before_edo/be_magatama.avif"
+   },
+   {
+    "id": "be_dotaku",
+    "hall": "before_edo",
+    "group": "ancient",
+    "name": "A bronze bell",
+    "icon": "🔔",
+    "hint": "Turns up at the Ginza sales. Needs security.",
+    "plaque": "A green bronze dōtaku bell with bands of lines and little figures, made to be seen rather than rung.",
+    "sources": [
+     {
+      "kind": "auction",
+      "price": 1200000
+     }
+    ],
+    "price": 1200000,
+    "needsUpgrade": "security",
+    "pic": "collection/before_edo/be_dotaku.avif"
+   },
+   {
+    "id": "be_naumann",
+    "hall": "before_edo",
+    "group": "fossils",
+    "name": "Naumann's elephant",
+    "icon": "🦣",
+    "hint": "Its bones come up at Hijiri University's dig, once the team is called to Nihonbashi; the workshop mounts it. Needs the Before Edo room.",
+    "plaque": "The bones of Naumann's elephant, found under Nihonbashi in the old bay mud, standing again. On long loan from Hijiri University.",
+    "sources": [
+     {
+      "kind": "dig",
+      "id": "hijiri",
+      "chance": 1,
+      "when": "seen: ak_university_st_naumann"
+     }
+    ],
+    "price": 6000000,
+    "needsUpgrade": "wing_before_edo",
+    "parts": [
+     "skull",
+     "tusk",
+     "leg"
+    ],
+    "mount": {
+     "price": 1000000,
+     "days": 7
+    },
+    "partPics": {
+     "skull": "collection/before_edo/be_naumann-skull.avif",
+     "tusk": "collection/before_edo/be_naumann-tusk.avif",
+     "leg": "collection/before_edo/be_naumann-leg.avif"
+    },
+    "pic": "collection/before_edo/be_naumann.avif"
+   },
+   {
+    "id": "be_ammonite",
+    "hall": "before_edo",
+    "group": "fossils",
+    "name": "An ammonite",
+    "icon": "🐚",
+    "hint": "Sold at Ōwakudani's little geology shop.",
+    "plaque": "A spiral ammonite split and polished, its chambers like the inside of a shell staircase.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "hk_owakudani"
+      ],
+      "price": 30000
+     }
+    ],
+    "price": 30000,
+    "pic": "collection/before_edo/be_ammonite.avif"
+   },
+   {
+    "id": "be_shark_tooth",
+    "hall": "before_edo",
+    "group": "fossils",
+    "name": "A shark's tooth",
+    "icon": "🦈",
+    "hint": "From Hijiri University's autumn dig, or once in a while at Yoyogi's Sunday flea market.",
+    "plaque": "A large fossil shark's tooth, grey and serrated, from the sands under old Tokyo Bay.",
+    "sources": [
+     {
+      "kind": "dig",
+      "id": "hijiri",
+      "chance": 1
+     },
+     {
+      "kind": "find",
+      "action": "sb_yoyogi_flea",
+      "chance": 0.05
+     }
+    ],
+    "price": 20000,
+    "pic": "collection/before_edo/be_shark_tooth.avif"
+   },
+   {
+    "id": "na_firefly",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A firefly",
+    "icon": "✨",
+    "hint": "Summer evenings by the river at Hakone-Yumoto, when it isn't raining.",
+    "plaque": "A Genji firefly from the Hayakawa, its tail still faintly green under glass.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "hk_yumoto_fireflies",
+      "chance": 0.3,
+      "when": "season: summer"
+     }
+    ],
+    "price": 3000,
+    "pic": "collection/nature/na_firefly.avif"
+   },
+   {
+    "id": "na_rhino_beetle",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A rhinoceros beetle",
+    "icon": "🪲",
+    "hint": "Summer at first light in Yoyogi Park, or summer nights on Lake Ashi's cedar avenue.",
+    "plaque": "A Japanese rhinoceros beetle, glossy chestnut brown, its forked horn raised like a challenge.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_yoyogi_insects",
+      "chance": 0.2,
+      "when": "season: summer; period: firsttrain"
+     },
+     {
+      "kind": "find",
+      "action": "hk_ashi_insects",
+      "chance": 0.15,
+      "when": "season: summer; period: latenight or firsttrain"
+     }
+    ],
+    "price": 3000,
+    "pic": "collection/nature/na_rhino_beetle.avif"
+   },
+   {
+    "id": "na_stag_beetle",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A stag beetle",
+    "icon": "🪲",
+    "hint": "Early summer mornings in Meiji Jingū's forest, or summer nights on Lake Ashi's cedar avenue.",
+    "plaque": "A stag beetle with long curved jaws, found at a sap tree before the city woke.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_meiji_insects",
+      "chance": 0.15,
+      "when": "season: summer; period: firsttrain or rush"
+     },
+     {
+      "kind": "find",
+      "action": "hk_ashi_insects",
+      "chance": 0.15,
+      "when": "season: summer; period: latenight or firsttrain"
+     }
+    ],
+    "price": 20000,
+    "pic": "collection/nature/na_stag_beetle.avif"
+   },
+   {
+    "id": "na_jewel_beetle",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A jewel beetle",
+    "icon": "💚",
+    "hint": "Bright summer days among the old trees of Shinjuku Gyoen, or by Shinobazu Pond.",
+    "plaque": "A tamamushi, green and violet stripes shining like metal; old temple caskets were inlaid with their wings.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sj_gyoen_insects",
+      "chance": 0.12,
+      "when": "season: summer; weather: sunny or fair or hot"
+     },
+     {
+      "kind": "find",
+      "action": "ot_ueno_insects",
+      "chance": 0.1,
+      "when": "season: summer; weather: sunny or fair or hot"
+     }
+    ],
+    "price": 12000,
+    "pic": "collection/nature/na_jewel_beetle.avif"
+   },
+   {
+    "id": "na_cicada_spring",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A spring cicada",
+    "icon": "🦗",
+    "hint": "Spring days in Meiji Jingū's forest, or along Lake Ashi's cedar avenue.",
+    "plaque": "A small spring cicada of the pines, the first to sing each year, weeks before summer.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_meiji_insects",
+      "chance": 0.25,
+      "when": "season: spring; period: rush or midmorning or afternoon"
+     },
+     {
+      "kind": "find",
+      "action": "hk_ashi_insects",
+      "chance": 0.2,
+      "when": "season: spring; period: rush or midmorning or afternoon"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_cicada_spring.avif"
+   },
+   {
+    "id": "na_cicada_abura",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A large brown cicada",
+    "icon": "🦗",
+    "hint": "Summer days in Yoyogi Park and Ueno Park, wherever the noise is loudest.",
+    "plaque": "An aburazemi with brown, oil-paper wings: the sound of every Tokyo summer.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_yoyogi_insects",
+      "chance": 0.3,
+      "when": "season: summer; period: midmorning or afternoon"
+     },
+     {
+      "kind": "find",
+      "action": "ot_ueno_insects",
+      "chance": 0.3,
+      "when": "season: summer"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_cicada_abura.avif"
+   },
+   {
+    "id": "na_cicada_minmin",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A minmin cicada",
+    "icon": "🦗",
+    "hint": "Summer mornings in Yoyogi Park and Shinjuku Gyoen.",
+    "plaque": "A minminzemi, green and black with clear wings, named for the song it sings.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_yoyogi_insects",
+      "chance": 0.25,
+      "when": "season: summer; period: rush or midmorning"
+     },
+     {
+      "kind": "find",
+      "action": "sj_gyoen_insects",
+      "chance": 0.25,
+      "when": "season: summer; period: midmorning"
+     }
+    ],
+    "price": 1500,
+    "pic": "collection/nature/na_cicada_minmin.avif"
+   },
+   {
+    "id": "na_cicada_higurashi",
+    "hall": "nature",
+    "group": "insects",
+    "name": "An evening cicada",
+    "icon": "🦗",
+    "hint": "Summer evenings and dawns along Lake Ashi.",
+    "plaque": "A higurashi, the cicada whose falling song means a late-summer evening in the hills.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "hk_ashi_insects",
+      "chance": 0.25,
+      "when": "season: summer; period: evening or firsttrain"
+     }
+    ],
+    "price": 2000,
+    "pic": "collection/nature/na_cicada_higurashi.avif"
+   },
+   {
+    "id": "na_bell_cricket",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A bell cricket",
+    "icon": "🔔",
+    "hint": "Autumn evenings in the Sumida's riverside grass.",
+    "plaque": "A suzumushi, the bell cricket of autumn nights, its long white-tipped antennae laid back.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ot_sumida_insects",
+      "chance": 0.25,
+      "when": "season: autumn; period: evening or night"
+     }
+    ],
+    "price": 2000,
+    "pic": "collection/nature/na_bell_cricket.avif"
+   },
+   {
+    "id": "na_red_dragonfly",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A red dragonfly",
+    "icon": "🪰",
+    "hint": "Autumn days by Shinobazu Pond or Lake Ashi.",
+    "plaque": "An akatombo, the red dragonfly that fills the autumn sky over rice fields and lakes.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ot_ueno_insects",
+      "chance": 0.15,
+      "when": "season: autumn"
+     },
+     {
+      "kind": "find",
+      "action": "hk_ashi_insects",
+      "chance": 0.3,
+      "when": "season: autumn; period: rush or midmorning or afternoon"
+     }
+    ],
+    "price": 2000,
+    "pic": "collection/nature/na_red_dragonfly.avif"
+   },
+   {
+    "id": "na_swallowtail",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A swallowtail",
+    "icon": "🦋",
+    "hint": "Fine days in spring and summer at Yoyogi Park or Shinjuku Gyoen.",
+    "plaque": "A swallowtail butterfly, yellow and black, its tails edged with blue and an orange eye.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_yoyogi_insects",
+      "chance": 0.2,
+      "when": "season: spring or summer; period: rush or midmorning or afternoon; weather: not rain or heavyrain or storm"
+     },
+     {
+      "kind": "find",
+      "action": "sj_gyoen_insects",
+      "chance": 0.2,
+      "when": "season: spring or summer; weather: not rain or heavyrain or storm"
+     }
+    ],
+    "price": 3000,
+    "pic": "collection/nature/na_swallowtail.avif"
+   },
+   {
+    "id": "na_mantis",
+    "hall": "nature",
+    "group": "insects",
+    "name": "A mantis",
+    "icon": "🦗",
+    "hint": "Autumn days in the grass of Yoyogi Park and Ueno Park.",
+    "plaque": "A green praying mantis, arms raised, still looking as if it might strike.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "sb_yoyogi_insects",
+      "chance": 0.2,
+      "when": "season: autumn; period: rush or midmorning or afternoon"
+     },
+     {
+      "kind": "find",
+      "action": "ot_ueno_insects",
+      "chance": 0.2,
+      "when": "season: autumn"
+     }
+    ],
+    "price": 1500,
+    "pic": "collection/nature/na_mantis.avif"
+   },
+   {
+    "id": "na_ashi_trout",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A Lake Ashi trout",
+    "icon": "🐟",
+    "hint": "Mornings from a hired boat on Lake Ashi, spring to autumn. Needs the aquarium tanks.",
+    "plaque": "A rainbow trout from Lake Ashi, turning in its tank, a pink stripe down its side.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "hk_ashi_fish",
+      "chance": 0.25
+     }
+    ],
+    "price": 5000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_ashi_trout.avif"
+   },
+   {
+    "id": "na_goby",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A goby",
+    "icon": "🐟",
+    "hint": "Autumn days off the Odaiba seawall. Needs the aquarium tanks.",
+    "plaque": "A goby from Tokyo Bay, the fish everyone's first rod catches in autumn.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "bay_beach_fish",
+      "chance": 0.3,
+      "when": "season: autumn; period: firsttrain or rush or midmorning or afternoon"
+     }
+    ],
+    "price": 1000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_goby.avif"
+   },
+   {
+    "id": "na_sea_bream",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A sea bream",
+    "icon": "🐟",
+    "hint": "Spring and autumn mornings on a party fishing boat out of Kamome Marina. Needs the aquarium tanks.",
+    "plaque": "A red sea bream, the fish of celebrations, pink and silver in the blue light of its tank.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "yk_marina_boatfish",
+      "chance": 0.2,
+      "when": "season: spring or autumn"
+     }
+    ],
+    "price": 8000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_sea_bream.avif"
+   },
+   {
+    "id": "na_sea_bass",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A sea bass",
+    "icon": "🐟",
+    "hint": "Summer and autumn evenings off the seawalls at Odaiba and Yamashita Park. Needs the aquarium tanks.",
+    "plaque": "A silver sea bass from the bay, caught under the city lights after dark.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "bay_beach_fish",
+      "chance": 0.15,
+      "when": "season: summer or autumn; period: evening or night"
+     },
+     {
+      "kind": "find",
+      "action": "yk_yamashita_fish",
+      "chance": 0.15,
+      "when": "season: summer or autumn; period: evening or night"
+     }
+    ],
+    "price": 5000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_sea_bass.avif"
+   },
+   {
+    "id": "na_aji",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A horse mackerel",
+    "icon": "🐟",
+    "hint": "Summer and autumn evenings off Yamashita Park's seawall, or any morning on a party boat from Kamome Marina. Needs the aquarium tanks.",
+    "plaque": "An aji, a small silver horse mackerel, the line of hard scales along its side catching the light.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "yk_yamashita_fish",
+      "chance": 0.3,
+      "when": "season: summer or autumn; period: evening or night"
+     },
+     {
+      "kind": "find",
+      "action": "yk_marina_boatfish",
+      "chance": 0.25
+     }
+    ],
+    "price": 1000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_aji.avif"
+   },
+   {
+    "id": "na_flounder",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A flounder",
+    "icon": "🐟",
+    "hint": "Winter and spring mornings on a party fishing boat out of Kamome Marina. Needs the aquarium tanks.",
+    "plaque": "A flatfish lying on the sand of its tank, both eyes on one side, watching you.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "yk_marina_boatfish",
+      "chance": 0.2,
+      "when": "season: winter or spring"
+     }
+    ],
+    "price": 4000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_flounder.avif"
+   },
+   {
+    "id": "na_octopus",
+    "hall": "nature",
+    "group": "sea",
+    "name": "An octopus",
+    "icon": "🐙",
+    "hint": "Summer mornings on a party fishing boat out of Kamome Marina. Needs the aquarium tanks.",
+    "plaque": "A small red-brown octopus that changes colour when you come near, and has twice found the lid.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "yk_marina_boatfish",
+      "chance": 0.2,
+      "when": "season: summer"
+     }
+    ],
+    "price": 3000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_octopus.avif"
+   },
+   {
+    "id": "na_crab",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A shore crab",
+    "icon": "🦀",
+    "hint": "Days from spring to autumn on the rocks below Yamashita Park. Needs the aquarium tanks.",
+    "plaque": "A shore crab from the rocks of Yokohama, sideways and indignant.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "yk_yamashita_fish",
+      "chance": 0.3,
+      "when": "season: spring or summer or autumn; period: rush or midmorning or afternoon"
+     }
+    ],
+    "price": 1000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_crab.avif"
+   },
+   {
+    "id": "na_koi",
+    "hall": "nature",
+    "group": "sea",
+    "name": "A koi",
+    "icon": "🎏",
+    "hint": "Sold at the koi and goldfish shop under the tracks at Ameyoko. Needs the aquarium tanks.",
+    "plaque": "A red and white koi, slow and patient; the shop said it could live longer than you.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "ot_ameyoko"
+      ],
+      "price": 15000
+     }
+    ],
+    "price": 15000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_koi.avif"
+   },
+   {
+    "id": "na_ayu",
+    "hall": "nature",
+    "group": "sea",
+    "name": "An ayu",
+    "icon": "🐟",
+    "hint": "Sold in summer at Tsukiji's river fishmonger, from his live tank. Needs the aquarium tanks.",
+    "plaque": "An ayu, the sweetfish of clear mountain rivers, which smells faintly of melon.",
+    "sources": [
+     {
+      "kind": "sold",
+      "at": [
+       "mg_tsukiji"
+      ],
+      "price": 4000,
+      "when": "season: summer"
+     }
+    ],
+    "price": 4000,
+    "needsUpgrade": "tanks",
+    "pic": "collection/nature/na_ayu.avif"
+   },
+   {
+    "id": "na_plum",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Plum blossom",
+    "icon": "🌸",
+    "hint": "Winter in the East Gardens' plum grove, or under Ueno Park's plum trees.",
+    "plaque": "A pressed sprig of white plum blossom, the first flower of the year, picked in the cold.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_palace_press_plum",
+      "chance": 0.4,
+      "when": "season: winter"
+     },
+     {
+      "kind": "find",
+      "action": "ot_ueno_press_plum",
+      "chance": 0.4,
+      "when": "season: winter"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_plum.avif"
+   },
+   {
+    "id": "na_cherry",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Cherry blossom",
+    "icon": "🌸",
+    "hint": "During the cherry blossoms, at Ueno Park or Shinjuku Gyoen.",
+    "plaque": "Pressed cherry blossoms, pale pink, from the week all Tokyo picnics under the trees.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ot_ueno_press_cherry",
+      "chance": 0.4,
+      "when": "festival: hanami"
+     },
+     {
+      "kind": "find",
+      "action": "sj_gyoen_press_cherry",
+      "chance": 0.4,
+      "when": "festival: hanami"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_cherry.avif"
+   },
+   {
+    "id": "na_wisteria",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Wisteria",
+    "icon": "🪻",
+    "hint": "Spring at Tsukimi Inari's trellis, or in Shinjuku Gyoen.",
+    "plaque": "A pressed hanging cluster of wisteria, every small flower kept whole.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ot_shrine_press_wisteria",
+      "chance": 0.4,
+      "when": "season: spring"
+     },
+     {
+      "kind": "find",
+      "action": "sj_gyoen_press_wisteria",
+      "chance": 0.4,
+      "when": "season: spring"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_wisteria.avif"
+   },
+   {
+    "id": "na_hydrangea",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Hydrangea",
+    "icon": "💠",
+    "hint": "Summer beside Hakone's mountain railway, or in Meiji Jingū's inner garden.",
+    "plaque": "Pressed blue hydrangea florets from the rainy season, when the hillsides turn blue.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "hk_yumoto_press_hydrangea",
+      "chance": 0.4,
+      "when": "season: summer"
+     },
+     {
+      "kind": "find",
+      "action": "sb_meiji_press_hydrangea",
+      "chance": 0.4,
+      "when": "season: summer"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_hydrangea.avif"
+   },
+   {
+    "id": "na_morning_glory",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Morning glory",
+    "icon": "🌀",
+    "hint": "Summer mornings among Yanaka's doorstep pots, before the flowers close.",
+    "plaque": "A pressed blue morning glory from a Yanaka doorstep, picked open before it closed for the day.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ot_yanaka_press_asagao",
+      "chance": 0.4,
+      "when": "season: summer"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_morning_glory.avif"
+   },
+   {
+    "id": "na_lotus",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Lotus",
+    "icon": "🪷",
+    "hint": "Summer mornings at the edge of Shinobazu Pond.",
+    "plaque": "A pressed lotus petal from Shinobazu Pond, pale pink with fine dark veins.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "ot_ueno_press_lotus",
+      "chance": 0.4,
+      "when": "season: summer"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_lotus.avif"
+   },
+   {
+    "id": "na_maple",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Maple leaves",
+    "icon": "🍁",
+    "hint": "During the autumn leaves at the palace gardens, or autumn days above Lake Ashi.",
+    "plaque": "Pressed red maple leaves, still the colour of the week the moat turned red.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "mg_palace_press_maple",
+      "chance": 0.4,
+      "when": "festival: koyo"
+     },
+     {
+      "kind": "find",
+      "action": "hk_ashi_press_maple",
+      "chance": 0.4,
+      "when": "season: autumn"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_maple.avif"
+   },
+   {
+    "id": "na_ginkgo",
+    "hall": "nature",
+    "group": "flowers",
+    "name": "Ginkgo leaves",
+    "icon": "🍂",
+    "hint": "Autumn days in Ichō Park, or along Hijiri University's ginkgo avenue.",
+    "plaque": "Pressed yellow ginkgo leaves, Tokyo's tree, each one a small gold fan.",
+    "sources": [
+     {
+      "kind": "find",
+      "action": "yk_park_press_ginkgo",
+      "chance": 0.4,
+      "when": "season: autumn"
+     },
+     {
+      "kind": "find",
+      "action": "ak_university_press_ginkgo",
+      "chance": 0.4,
+      "when": "season: autumn"
+     }
+    ],
+    "price": 1000,
+    "pic": "collection/nature/na_ginkgo.avif"
    }
   ],
   "museum": {
@@ -69090,6 +71195,32 @@
      "price": 1800000,
      "renown": 10,
      "does": "exhibition"
+    },
+    {
+     "id": "wing_nature",
+     "name": "The natural history room",
+     "icon": "🦋",
+     "desc": "Puts the whole Nature hall on show: insects, fish and pressed flowers.",
+     "price": 600000,
+     "renown": 5,
+     "opens": "nature"
+    },
+    {
+     "id": "wing_before_edo",
+     "name": "The Before Edo room",
+     "icon": "🦣",
+     "desc": "Puts Before Edo on show, with room for a skeleton to stand.",
+     "price": 1000000,
+     "renown": 5,
+     "opens": "before_edo"
+    },
+    {
+     "id": "tanks",
+     "name": "Aquarium tanks",
+     "icon": "🐠",
+     "desc": "Tanks, pumps and chillers: live fish and sea life can come to the kura.",
+     "price": 700000,
+     "renown": 5
     }
    ],
    "renown": {
@@ -69165,6 +71296,22 @@
     "most": 12,
     "min": 6
    }
-  }
+  },
+  "digs": [
+   {
+    "id": "hijiri",
+    "name": "Hijiri University's autumn dig",
+    "place": "ak_university",
+    "actions": [
+     "ak_university_dig",
+     "ak_university_sift"
+    ],
+    "season": "season: autumn",
+    "chance": 0.2,
+    "sure": 3,
+    "most": 3,
+    "lend": true
+   }
+  ]
  }
 }
