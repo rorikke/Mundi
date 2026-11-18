@@ -95,6 +95,13 @@ const lines = (label: string, p: string, rows = 4, ph = '') => `<label class="mu
 // A choice that may be left to something else (a track's field left to the job's): `*` is "as the job", '' a value.
 const inherit = (label: string, p: string, opts: [string, string][], from: string) => { const v = getPath(p); const on = v === undefined ? '*' : String(v);
     return `<label class="mu-field"><span>${label}</span><select data-input="cw" data-type="inherit" data-path="${esc(p)}">${[['*', from] as [string, string], ...opts].map(([x, l]) => `<option value="${esc(x)}" ${on === x ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`; };
+// (dress) A dress code on a place, an action or a street story: the kind of outfit people put on (empty: none) and
+// while what; scripted, the level it sets whatever their comfort, and only for whom. `what`: who it covers there.
+export function dressBox(p: string, kind: string | undefined, what: string) {
+    return `<details class="mu-cw-kept" ${kind ? 'open' : ''}><summary>What people wear (dress code)</summary><small class="mu-muted">${what}</small>
+        <div class="mu-row2">${optTxt('Kind of outfit (empty: none)', `${p}.dress.kind`, 'swim', 'Whoever has outfits of this kind puts one on, as bold as they go here: swim, yukata…')}${cond('While (optional)', `${p}.dress.when`, 'season: summer; period: day')}</div>
+        <div class="mu-row2">${bounded('Scripted level (1–4; empty: each as bold as they go)', `${p}.dress.level`, 1, 4)}${words('Only for (names; empty: everyone it covers)', `${p}.dress.who`, 'The level is for them; the others as bold as they go.', 'Kaede')}</div></details>`;
+}
 // A condition in the grammar of sim/when.ts, checked as it is typed: what can't be read shows under it (such a condition
 // never holds in a game). `ok`: a value the reader of this field takes besides the grammar.
 export const cond = (label: string, p: string, ph = '', hint = '', ok = '') => {
@@ -245,7 +252,7 @@ function tabActions(w: WorldDef) {
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'] as [string, string], ...(((w.catalogs as any).shop ?? []) as any[]).map(it => [it.id, `${it.icon ?? ''} ${it.name}`] as [string, string])])}
             <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>
-            ${actionMore(w, p, a)}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
+            ${actionMore(w, p, a)}${dressBox(p, a.dress?.kind, 'The people doing it with you put it on while it plays out; in a private moment, instead of undressing.')}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
     }, 'action')}${tablesEditor(w)}${storiesEditor(w)}`;
 }
 // (adult) A private moment: done in private, only with adult content on, how hard it is (the private roll), the words it
@@ -353,6 +360,7 @@ function storiesEditor(w: WorldDef) {
                 ${optTxt('What a condition that asks for it calls it (optional)', `${p}.title`, 'the master\'s offer', 'How a gate with “seen:” and its id names it in words.')}
                 <div class="mu-row2">${sel('Someone placed there while it lasts', `${p}.brings`, withCur([['', '(nobody)'], ...peopleOpts(w)], x.brings), 'opt')}${sel('Only after this story', `${p}.after`, withCur([['', '(any time)'], ...others], x.after), 'opt')}</div>
                 <div class="mu-row2">${flag('It comes back every year', `${p}.yearly`)}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+                ${dressBox(p, x.dress?.kind, 'The people it names (the one it brings, those it needs present) put it on while it goes on.')}
                 ${(x.choices ?? []).map((c, k) => storyChoice(w, `${p}.choices.${k}`, k, c)).join('')}
                 ${(x.choices ?? []).length < 4 ? `<button class="mu-ghost" data-act="cw-add" data-what="schoice" data-path="${esc(`${p}.choices`)}">${icon('plus')}<span>Add a choice</span></button>` : ''}`;
         }, 'story', 'No street stories yet.')}</section>`;
@@ -2704,10 +2712,21 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
         <details class="mu-cw-kept" ${e.bedroom ? 'open' : ''}><summary>Their room</summary><small class="mu-muted">In a home with rooms inside: how their bedroom looks (empty: the kind of home's picture).</small>
             ${roomPics(`${p}.bedroom`, `bedroom-${slug(e.name)}`)}${area('Description (told to the AI)', `${p}.bedroom.desc`, 2)}</details>
         ${Object.keys(e.outfits ?? {}).length ? `<div class="mu-row2">${Object.keys(e.outfits ?? {}).map(o => optTxt(`Outfit: ${esc(o)} (a folder of sprites; empty: no such outfit)`, `${p}.outfits.${o}`, 'sprites/mio/yukata')).join('')}</div>` : ''}
+        ${Object.keys(e.outfits ?? {}).length ? wearBox(p, e) : ''}
         <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
         ${skillOpts(w).length || e.skills ? skillLevels(w, `${p}.skills`, 'What they\'re good at, for training together (teaching takes 6; empty: what their job asks)', 0) : ''}
         <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>`;
+}
+// (dress) What their outfits are, for the game to put one on (a kind, how bold, adult, the AI's words), and how bold
+// they go in public.
+function wearBox(p: string, e: WorldDef['cast']['examples'][number]) {
+    const names = Object.keys(e.outfits ?? {}).filter(o => o !== 'naked');
+    return `<details class="mu-cw-kept" ${e.wear || e.comfort ? 'open' : ''}><summary>What their outfits are · ${Object.keys(e.wear ?? {}).length}</summary>
+        <small class="mu-muted">An outfit with a kind can be put on by a dress code (a pool, a swim, a festival), the boldest they go there; one with a kind uploads the first time it's worn.</small>
+        ${bounded('How bold they go in public (1–3; one more in private with someone close; empty: 2)', `${p}.comfort`, 1, 3)}
+        ${names.map(o => `<div class="mu-cw-feel"><b data-notr>${esc(o)}</b><div class="mu-row2">${optTxt('Kind (empty: none)', `${p}.wear.${o}.kind`, 'swim')}${bounded('How bold (1 modest, 2 everyday, 3 bold, 4 explicit)', `${p}.wear.${o}.level`, 1, 4)}</div>
+            <div class="mu-row2">${optTxt('What it is, for the AI', `${p}.wear.${o}.look`, 'a black string bikini')}${flag('Only with adult content on', `${p}.wear.${o}.adult`, 'Explicit ones (4) always are.', true)}</div></div>`).join('')}</details>`;
 }
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.

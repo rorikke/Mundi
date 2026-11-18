@@ -12,7 +12,7 @@ import { closedOf } from '../sim/daynight.js';
 import { pickFile } from './cropper.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, pairChips, ventureOpts, withCur, fixtureOpts, getPath, setPath } from './creator.js';
+import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, dressBox, pairChips, ventureOpts, withCur, fixtureOpts, getPath, setPath } from './creator.js';
 import { fixturesOf, housingOn } from '../sim/housing.js';
 import { WEATHER_KINDS } from '../sim/weather.js';
 import { WEEKDAY_IDS } from '../core/world.js';
@@ -144,6 +144,7 @@ function placeMore(w: WorldDef, p: Place, path: string) {
         <div class="mu-me-pfcol">${optTxt('Who is around besides the world\'s people (6–20 words, for the AI)', `${path}.staff`, 'the master works in silence; old men at the counter')}
             <div class="mu-row2">${num(`Getting in costs (${esc(w.currency.symbol)}, once a day)`, `${path}.entry`, 0)}${words('What you hear (sound tags)', `${path}.sound`, '', 'station, crowd')}</div>
             <div class="mu-row2">${flag('A private place', `${path}.private`, 'A karaoke room, a love-hotel room: a private scene.')}${flag('Only with adult content on', `${path}.adult`, '', true)}</div>
+            ${dressBox(path, (getPath(path) as Place | undefined)?.dress?.kind, 'Everyone here puts it on while it holds (a pool in summer).')}
             ${chk('Offers what its tags bring', `${path}.generic`, 'A walk, a coffee, a meal… Off: only what is offered here by name.', true)}
             ${(w.ventures ?? []).length || p.venture ? `${sel('A unit of a venture', `${path}.venture`, withCur([['', '(none)'], ...ventureOpts(w)], p.venture), 'opt')}
                 <small class="mu-muted">On the map and in anyone's plans only while that venture of yours runs here (a unit you lease, a second café you open in it).</small>` : ''}

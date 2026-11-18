@@ -101,6 +101,8 @@ export interface Place {
     entry?: number;
     /** (E33) A private place (a karaoke room, a love-hotel room): a private scene for the intimate profiles (E15). */
     private?: boolean;
+    /** (dress) What people wear here while its `when` holds (a pool in summer: `{ kind: 'swim' }`): see DressDef. */
+    dress?: DressDef;
     /** (E15) Only with adult content on: otherwise it's on no map and nobody's routine sends them there. */
     adult?: boolean;
     /** (E12) What you hear there, as sound tags (`station`, `crowd`, `izakaya`, `cicadas`…): played as a quiet loop with
@@ -265,6 +267,9 @@ export interface ActionDef {
     private?: boolean;
     /** (E15) Only with adult content on. */
     adult?: boolean;
+    /** (dress) What the people doing it with you wear while it plays out (a swim: `{ kind: 'swim' }`); in a private
+     *  action, instead of undressing. See DressDef. */
+    dress?: DressDef;
     /** (adult) A chance of being caught, 0–1 (a karaoke corner room 0.15), for a private action done where you
      *  shouldn't: rolled with the `risk` effects (`riskRoll` in sim/dice.ts). Missing: none. */
     risk?: number;
@@ -514,6 +519,11 @@ export interface ExampleCharacter {
     /** Outfits: a name → a folder of sprites like `sprites` (it may have only some expressions), uploaded once into
      *  that outfit of their Expressions ("naked" is worn during a private action, sim/dress.ts). */
     outfits?: Record<string, string>;
+    /** (dress) What some of those outfits are (outfit name → WearDef): a kind and how bold it is, so the game can put
+     *  one on for a place or an activity (sim/dress.ts). An outfit here is uploaded the first time it's worn. */
+    wear?: Record<string, WearDef>;
+    /** (dress) The boldest level (1–3) they wear in public; one more in private with someone close. Missing: 2. */
+    comfort?: number;
     /** (J5) The rank they hold in their job: an index (0 = the first) or the rank's name. */
     rank?: number | string;
     /** (E21) Standing appointments (see Ritual); a stage of one of their storylines can add one for a while
@@ -549,6 +559,14 @@ export interface ExampleCharacter {
      *  fling with another person forms by itself; not on the dating app; never leaves the maps. */
     reserved?: boolean;
 }
+/** (dress) What an outfit is: its `kind` (`swim`, `yukata`…; any word), how bold it is (`level` 1 modest, 2
+ *  everyday, 3 bold, 4 explicit; missing: 1), `adult`: only with adult content on (level 4 always is), and `look`: the
+ *  words the AI is told ("a black string bikini"). */
+export interface WearDef { kind: string; level?: number; adult?: boolean; look?: string }
+/** (dress) A dress code: people put on an outfit of this `kind` while `when` holds, each the boldest their comfort
+ *  allows there (WearDef, ExampleCharacter.comfort). Scripted: `level` sets the level instead, whatever their comfort,
+ *  the place or their tier (only adult content still holds), for everyone it covers or only those named in `who`. */
+export interface DressDef { kind: string; when?: When; level?: number; who?: string[] }
 /** (museum, people who unlock) A tier of an end-game character, reached the first time `when` holds (latched: never
  *  lost). `caps`: the highest friendship, romance and couple status toward the player this tier allows (missing: no cap;
  *  status `none`: no couple at all; before the first tier is reached, the first tier's caps hold); `hold`: whether a
@@ -1001,6 +1019,7 @@ export interface PieceSource { kind: 'find' | 'sold' | 'dealer' | 'auction' | 'f
  *  it lasts; `after`: another story seen first; `yearly`: it comes back every year. */
 /** (business) `place` may be `venture:<id>`: the story happens at whichever place of that venture you own. */
 export interface StoryDef { id: string; place: string; when?: When; setup: string; choices: StoryChoice[]; brings?: string; after?: string; yearly?: boolean; adult?: boolean;
+    /** (dress) What the people it names (`brings`, `present:`) wear while it goes on. See DressDef. */ dress?: DressDef;
     /** (business) what a gate that asks for it (`seen: <id>`) calls it in words: "the board's vote" */ title?: string }
 /** A street story's choice: a label, an optional roll (a skill against `dc`), what happens, and `fail` instead when the
  *  roll fails. `when`: only offered then (`feels: Rina friend`; `favor: Rina` for a favor you can call in). `minutes`:
@@ -1140,7 +1159,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms';
+    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms' | 'dress';
 /** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
  *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
 export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
@@ -1381,6 +1400,7 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
     { id: 'housing', name: 'Owning a home', desc: 'homes can only be rented: none to buy or sell, no rooms or fixtures to add, no second home.', apps: [], blocks: [] },
+    { id: 'dress', name: 'Outfits for the place', desc: 'nobody changes into swimwear or other outfits for a place or an activity (with adult content on, private moments still undress).', apps: [], blocks: [] },
     { id: 'homerooms', name: 'Rooms at home', desc: 'homes are one place: no rooms to walk between, and everyone at home is in the scene with you.', apps: [], blocks: [] },
     { id: 'courses', name: 'Courses', desc: 'no courses to take; jobs do not ask for any.', apps: [], blocks: [] },
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },

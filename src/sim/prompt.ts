@@ -177,6 +177,8 @@ export function sceneBlocks(): Built[] {
             `Now: ${weekday(g.day)}, day ${g.day}, ${hm(g.minutes)} (${period(w, g.minutes).name.toLowerCase()}). Weather: ${weatherHere(g, w).name.toLowerCase()}. Season: ${seasonOf(g).name.toLowerCase()}.`,
             `Place: ${here?.name ?? 'somewhere'}${here?.desc ? ` — ${here.desc}` : ''}${here && !here.home && systemOn(w, 'living') && !openNow(g, w, here.id) ? ' (closed at this hour: the doors are shut; only staff, if anyone, is around)' : ''}`,
             hereLine(g, w, present, bg, sheets.length > 0),
+            // (dress) what people here have put on for the place or what they're doing (a Home's code is in scenarioLines)
+            ...(() => { const l = isScenario(w) ? '' : dressLine(g, w); return l ? [l] : []; })(),
             ...(elsewhereLine(g, w) ? [elsewhereLine(g, w)] : []),   // (homerooms) the others at home, in their rooms
             ...(guestLine(g, present) ? [guestLine(g, present)] : []),
             ...(present.some(r => !r.met) ? [`Strangers to {{user}}: ${present.filter(r => !r.met).map(r => r.name).join(', ')}. They and {{user}} have never met: they do not know each other's names until they talk and introduce themselves.`] : []),
