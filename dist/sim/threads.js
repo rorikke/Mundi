@@ -16,6 +16,7 @@ import { money } from './needs.js';
 import { fr, setFr, attracted, statusOf, isPartner } from './rel.js';
 import { FRIEND_TIERS, becomeCouple, jealousOf } from './romance.js';
 import { romanceBlocked } from './family.js';
+import { giveStudio } from './studio.js';
 import { playerHomeId } from './places.js';
 import { sceneHere } from './homerooms.js';
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${salt}`; for (let i = 0; i < s.length; i++) {
@@ -183,6 +184,8 @@ function endThread(g, w, t, r, e, by) {
     if (e.fact)
         note(g, e.fact, [r.name], [r.avatar], `home:${r.avatar}`, 'thread');
     const out = [`${first(r)}: ${you(trim(e.text))}.`, ...(paid ? [paid] : []), ...coupleOf(g, w, r, e)];
+    if (e.studio)
+        out.push(...giveStudio(g, w, e.studio)); // (photography) a photo studio given (Erika's handed on)
     if (e.leaves) {
         if (by === 'nudges') {
             // the goodbye comes by text, the ending's own words standing in for the AI's

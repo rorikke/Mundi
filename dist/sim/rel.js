@@ -208,9 +208,12 @@ export function setStatus(g, a, b, status, since = g.day, remember = true) {
     const st = relOf(g);
     const k = pk(a, b);
     const p = (st.pairs[k] ??= {});
+    // (a wedding day set ahead goes with any change: a split before the day, an editor's hand)
     if (status) {
-        if (p.status !== status)
+        if (p.status !== status) {
             p.since = since;
+            delete p.wedding;
+        }
         p.status = status;
         delete p.was;
     }
@@ -221,6 +224,7 @@ export function setStatus(g, a, b, status, since = g.day, remember = true) {
         delete p.status;
         delete p.since;
         delete p.low;
+        delete p.wedding;
     }
     tidyPair(st, k);
 }

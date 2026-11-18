@@ -104,6 +104,15 @@ export const tierLink = { cap: () => null, hold: () => { }, reserved: () => fals
 // isn't; else being caught there bans nothing, and `risk` multiplies the chance of being seen (the night guard's
 // rounds). sim/museum.ts fills it in.
 export const ownedPlaces = [];
+// (photography) What the rest of the game asks of the photo gigs (sim/photo.ts and sim/studio.ts fill these in; until
+// then, and with the system off, nothing holds). `holds`: the condition keys `photorep`, `portfolio`, `contact`,
+// `photobook`, `photos`, `studio`, `freelance`; `words`: such a key in words for what a goal or a rank still asks ("a
+// photo reputation of 30 (12 now)"; '' when it has none); `count`: how far you are on a counted one (null: not counted).
+// `photo`: an action or a work event's choice that takes a photo was done (`ok`: its roll; null without one; `roll`: its
+// total and difficulty), lines. `act`: one of the engine's own photo actions was done (Shoot the assignment, Edit today:
+// sim/assignments.ts, offered through `engineActions`; `began`: the minute it began, the window judged then), its
+// lines and what the AI is told, or null for any other action.
+export const photoLink = { holds: () => false, words: () => '', count: () => null, photo: () => [], act: () => null, rep: () => [] };
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines = [];
@@ -113,3 +122,6 @@ export const sceneLines = [];
 export const roomRules = [];
 /** (homerooms) During a party at home, where someone is (a room tagged leisure or food). Null: no party for them. */
 export const partyRooms = [];
+// (photography) Actions a system offers from its own state where you are (the hourly studio rental), added to the
+// engine's own (`extraActions` in sim/life.ts); what one does is its system's own `onAction`.
+export const engineActions = [];

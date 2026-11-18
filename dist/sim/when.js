@@ -49,15 +49,18 @@ import { myJob, rankOf } from './work.js';
 import { exampleOf } from './dayplan.js';
 import { REP_WORDS } from './standing.js';
 import { haveItem, ownedDefs, catOf, shopItems, SHOP_CATS } from './shop.js';
-import { collectionLink, placeGates } from './hooks.js';
+import { collectionLink, placeGates, photoLink } from './hooks.js';
 import { homeWorth, housingOn, ownedHere, ownedHomes, secondHome, toLet, isLet, rentHad } from './housing.js';
 import { sceneAt } from './homerooms.js';
+/** (photography) The photo gigs' keys (sim/photo.ts answers them through `photoLink`), and the kinds `photos:` takes. */
+export const PHOTO_KEYS = ['photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance'];
+export const PHOTO_DONE = ['wedding', 'festival', 'event', 'magazine', 'portrait', 'stock'];
 export const WHEN_KEYS = ['period', 'weekday', 'weekend', 'season', 'seasonDays', 'weather', 'festival', 'event', 'place', 'zone', 'region',
     'daily', 'regular', 'skill', 'feels', 'onShift', 'present', 'after', 'job', 'start', 'chance', 'clock', 'stayed', 'holds', 'companion',
     'knows', 'seen', 'thread', 'favor', 'perf', 'gave', 'course',
     'rank', 'track', 'path', 'gender', 'money', 'home', 'partner', 'friends', 'did', 'visited', 'attended', 'secrets', 'helped', 'goal', 'need', 'rep', 'known', 'degree',
     'venture', 'upgrade', 'inrank', 'tenant', 'kept', 'owns', 'had', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent',
-    'fixtures', 'board', 'record'];
+    'fixtures', 'board', 'record', 'photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance'];
 /** The levels `feels` and `companion` take: friendship tiers, romance tiers, and couple statuses (each at that level or
  *  closer; a level below Stranger means that bad or worse). */
 export const STATUS_LEVELS = ['casual', 'dating', 'engaged', 'married'];
@@ -197,6 +200,14 @@ function badValue(key, v) {
         case 'fixtures': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of rooms and fixtures`;
         case 'board': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of seasons on the board's target`;
         case 'record': return RECORD.test(v) ? '' : `"${v}" should be a percentage (50%), or a number (or all) in a record hall, like all in cabinet`;
+        // (photography)
+        case 'photorep': return /^\d+$/.test(v) && Number(v) <= 100 ? '' : `"${v}" should be a photo reputation from 0 to 100`;
+        case 'portfolio': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of portfolio pieces`;
+        case 'photobook': return /^\d+$/.test(v) ? '' : `"${v}" should be a number of photobooks published`;
+        case 'contact': return ID.test(v) ? '' : `"${v}" should be one client id`;
+        case 'photos': return /^\d+$/.test(v) || PHOTO_DONE.includes(v.toLowerCase()) ? '' : `"${v}" should be a number of deliveries, or a kind: ${PHOTO_DONE.join(', ')}`;
+        case 'studio': return ['any', 'cyc', 'dressing'].includes(v.toLowerCase()) ? '' : `"${v}" should be any, cyc or dressing`;
+        case 'freelance': return ['any', 'blessing', 'fallout'].includes(v.toLowerCase()) ? '' : `"${v}" should be any, blessing or fallout`;
         default: return ''; // period (a name may have spaces in older worlds), weather, present, onShift
     }
 }
@@ -488,6 +499,13 @@ function holds(g, w, key, v, x) {
         case 'fixtures': return housingOn(w) && fixturesBought(g) >= Number(v);
         case 'board': return systemOn(w, 'business') && boardMet(g) >= Number(v);
         case 'record': return collectionLink.record(g, w, v);
+        case 'photorep':
+        case 'portfolio':
+        case 'contact':
+        case 'photobook':
+        case 'photos':
+        case 'studio':
+        case 'freelance': return photoLink.holds(g, w, key, v);
         case 'had': return hadHolds(g, w, v);
         case 'piece': return collectionLink.piece(g, w, v);
         case 'museum': return collectionLink.museum(g, w, v);
@@ -1040,6 +1058,9 @@ export function missingWords(g, w, when, place, opts = {}) {
             out.push(c.values[0] === '1' ? 'a season on the board\'s target' : `${c.values[0]} seasons on the board's target (${boardMet(g)} now)`);
         else if (c.key === 'record' && !c.not)
             out.push(c.values.map(v => collectionLink.recordWords(g, w, v)).join(' or '));
+        // (photography) "a photo reputation of 30 (12 now)", "Velvet Mode as a contact"
+        else if (PHOTO_KEYS.includes(c.key) && !c.not && c.values.every(v => !!photoLink.words(g, w, c.key, v)))
+            out.push(c.values.map(v => photoLink.words(g, w, c.key, v)).join(' or '));
         else if (c.key === 'venture' && !c.not && c.values.some(v => /^\d+\s|\stier\s+top$|\sdiscoveries\s/i.test(v)))
             out.push(c.values.map(v => ventureWords(g, w, v)).join(' or '));
         else if (!more)
@@ -1112,6 +1133,10 @@ export function endgameWords(g, w, key, v) {
         case 'museum': return { text: up(collectionLink.museumWords(g, w, v)) };
         case 'record': return { text: up(collectionLink.recordWords(g, w, v)) };
         case 'dig': return { text: up(collectionLink.digWords(g, w, v)) };
+    }
+    if (PHOTO_KEYS.includes(key)) { // (photography)
+        const text = photoLink.words(g, w, key, v), have = photoLink.count(g, w, key, v);
+        return text ? { text: up(now(text)), ...(have !== null && /^\d+$/.test(v) ? { have, need: Number(v) } : {}) } : null;
     }
     return null;
 }

@@ -31,22 +31,34 @@ export function royaltyNow(g, w, pct = pctNow(g, w)) {
     if (!r || !museumOpen(g, w))
         return 0;
     const base = curvePay(r, pct);
-    return base > 0 ? payOf(g, base * effectMul(g, w, 'royalty')) : 0;
+    return base > 0 ? payOf(g, base * effectMul(g, w, 'royalty', 'museum')) : 0;
 }
-// Each Monday, after the visitors: the week's royalties by the percentage now.
+export const ROYALTY_SOURCES = [{
+        id: 'museum',
+        on: (g, w) => !!royDef(w) && museumOpen(g, w),
+        weekly: (g, w) => { const n = royaltyNow(g, w); return n > 0 ? [{ name: museumDef(w).name, amount: n }] : []; },
+        paidOn: g => peek(g).paidDay,
+        paid: (g, day, amounts) => { const st = state(g); st.paidDay = day; st.last = amounts[0]; },
+    }];
+// Each Monday, after the visitors: the week's royalties of every source (the museum's by its percentage now).
 onDay.push((g, w) => {
-    const m = museumDef(w), r = m?.royalties;
-    if (!m || !r || !museumOpen(g, w) || !isMonday(g.day) || peek(g).paidDay === g.day)
+    if (!isMonday(g.day))
         return [];
-    const n = royaltyNow(g, w);
-    if (!(n > 0))
-        return [];
-    const st = state(g);
-    st.paidDay = g.day;
-    st.last = n;
-    g.player.money += n;
-    book(g, `${m.name}: royalties`, n);
-    return [`${m.name}'s royalties: +${money(w, n)}`];
+    const out = [];
+    for (const s of ROYALTY_SOURCES) {
+        if (!s.on(g, w) || s.paidOn(g) === g.day)
+            continue;
+        const pay = s.weekly(g, w).filter(x => x.amount > 0);
+        if (!pay.length)
+            continue;
+        s.paid(g, g.day, pay.map(x => x.amount));
+        for (const x of pay) {
+            g.player.money += x.amount;
+            book(g, `${x.name}: royalties`, x.amount);
+            out.push(`${x.name}'s royalties: +${money(w, x.amount)}`);
+        }
+    }
+    return out;
 });
 // Each morning: a step reached for the first time is said (only the highest of several reached at once: an old save
 // already past them, or a big day), and the others reached are marked said.

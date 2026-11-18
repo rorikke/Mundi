@@ -75,6 +75,21 @@ export function skyOn(g, w, mapId, day) {
     }
     return named(c, list[list.length - 1]);
 }
+/** (photography) The chance, from the odds alone (never the day's draw), that the weather on a map that day is `v` (a
+ *  kind or a word of its name, as `weatherMatches` reads it, or any of several; a region's own weather by its odds, a
+ *  view also needing a clear sky): what a photo brief's fair window is judged by. */
+export function weatherChance(g, w, mapId, day, v) {
+    const list = (Array.isArray(v) ? v : [v]).map(x => x.toLowerCase()), c = climateOf(w, mapId), odds = c && oddsOn(g, c, day);
+    const table = odds && Object.values(odds).some(x => x > 0) ? odds : { sunny: 30, fair: 25, partly: 20, cloudy: 15, rain: 10 };
+    const total = Object.values(table).reduce((a, x) => a + Math.max(0, x), 0);
+    if (!total)
+        return 0;
+    const of = (match) => WEATHER_KINDS.filter(k => (table[k.id] ?? 0) > 0 && match(c ? named(c, k) : k)).reduce((a, k) => a + table[k.id], 0) / total;
+    const own = list.filter(s => isRegional(w, s)), kinds = list.filter(s => !isRegional(w, s));
+    const sky = kinds.length ? of(k => kinds.some(s => weatherMatches(k, s))) : 0;
+    const region = Math.max(0, ...own.map(s => { const p = c?.regional?.[s]?.[seasonAt(g, day)] ?? 0; return s.endsWith('view') ? p * of(k => CLEAR.includes(k.id)) : p; }));
+    return Math.min(1, Math.max(sky, region));
+}
 /** The world's weather that day (its first map's: the city, for a world of districts). */
 export const worldWeather = (g, w, day) => (climateOf(w, w?.maps[0]?.id) ? skyOn(g, w, w.maps[0].id, day) : weatherOn(g.world, day));
 /* ---------- weather a region has on its own (E2) ---------- */
