@@ -1,7 +1,7 @@
 // Style presets: what a world of each style starts with, as data. The engine reads only the world; a style is just
 // the set of values a new world (or an older world that lacks a field) begins with. Everything here can be changed
 // per world in the world creator.
-import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule, When } from './world.js';
+import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule, When, PhotoGear } from './world.js';
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo, type EffectDef } from './traits.js';
@@ -9,6 +9,7 @@ import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
 import { upgradeCollection } from './collection.js';
 import { upgradeTiers } from './tiers.js';
+import { upgradePhoto, upgradeStudios } from './photo.js';
 
 // Something the shop sells (catalogs.shop). Every field after `price` is optional, so older and user-made worlds read
 // as before; the defaults are read where they're used (`catOf`, `onlineOf`, `toldOf` in sim/shop.ts). The fields say
@@ -29,7 +30,8 @@ export interface ShopItem { id: string; name: string; desc: string; icon: string
     /** what the AI is told while you have it ("{{user}} wears …"); by default its name */ ai?: string;
     /** when the AI is told of it: always, at home, never (by default the category's) */ told?: 'always' | 'home' | 'no';
     /** an adult item: in sight, or put away until someone knows of it */ seen?: 'out' | 'away';
-    /** only with adult content on */ adult?: boolean }
+    /** only with adult content on */ adult?: boolean;
+    /** (photography) what it is as photo gear (a camera's rung, a lens, a lighting rig: PhotoGear in core/world.ts) */ photo?: PhotoGear }
 export interface Breakable { id: string; name: string; blocks: string[] }
 export interface Kinds { deviceLook: 'phone' | 'book'; socialKind: 'feed' | 'board'; messageKind: 'texts' | 'letters'; voice: string }
 
@@ -464,6 +466,10 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     if (w.ventures || w.staffPool) upgradeVentures(w);
     // the collection's halls and slots: made safe, and no key for a world without any
     if ('collection' in w) { const c = upgradeCollection(w.collection); if (c) w.collection = c; else delete w.collection; }
+    // (photography) the photo gigs made safe, the boards' numbers defaulted; no key for a world without them
+    upgradePhoto(w);
+    // (housing) the photo studios and the kinds' `work` flag made safe; no key for a world without studios
+    upgradeStudios(w);
     // storylines: their new fields made safe (no key is added where a world has none)
     for (const ex of w.cast?.examples ?? []) for (const t of ex.threads ?? []) upgradeThread(t);
     // (museum) people who unlock, and a street story's renown and damage: made safe where a world has them
@@ -512,6 +518,8 @@ function upgradeThread(t: any) {
         // (museum) the couple an ending starts with its person, and their moving in with you
         if ('couple' in e && !['dating', 'engaged', 'married'].includes(e.couple)) delete e.couple;
         if ('movesIn' in e && e.movesIn !== true) delete e.movesIn;
+        // (photography) the photo studio it gives you: a zone id
+        if ('studio' in e && (typeof e.studio !== 'string' || !e.studio.trim())) delete e.studio;
         if (!('help' in e)) continue;
         const h = e.help;
         if (!h || typeof h !== 'object' || typeof h.when !== 'string' || typeof h.label !== 'string' || !h.label.trim()) { delete e.help; continue; }

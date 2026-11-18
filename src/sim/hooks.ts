@@ -182,6 +182,23 @@ export const tierLink: {
 // isn't; else being caught there bans nothing, and `risk` multiplies the chance of being seen (the night guard's
 // rounds). sim/museum.ts fills it in.
 export const ownedPlaces: ((g: Save, w: WorldDef, place: string) => { risk: number } | null)[] = [];
+// (photography) What the rest of the game asks of the photo gigs (sim/photo.ts and sim/studio.ts fill these in; until
+// then, and with the system off, nothing holds). `holds`: the condition keys `photorep`, `portfolio`, `contact`,
+// `photobook`, `photos`, `studio`, `freelance`; `words`: such a key in words for what a goal or a rank still asks ("a
+// photo reputation of 30 (12 now)"; '' when it has none); `count`: how far you are on a counted one (null: not counted).
+// `photo`: an action or a work event's choice that takes a photo was done (`ok`: its roll; null without one; `roll`: its
+// total and difficulty), lines. `act`: one of the engine's own photo actions was done (Shoot the assignment, Edit today:
+// sim/assignments.ts, offered through `engineActions`; `began`: the minute it began, the window judged then), its
+// lines and what the AI is told, or null for any other action.
+export const photoLink: {
+    holds: (g: Save, w: WorldDef, key: string, v: string) => boolean;
+    words: (g: Save, w: WorldDef, key: string, v: string) => string;
+    count: (g: Save, w: WorldDef, key: string, v: string) => number | null;
+    photo: (g: Save, w: WorldDef, from: { action?: ActionDef; choice?: WorkResult & { photo?: true; label?: string }; ok: boolean | null; mates: string[]; roll?: { total: number; dc: number } }) => string[];
+    act: (g: Save, w: WorldDef, a: ActionDef, mates: string[], began?: number) => { lines: string[]; ai: string } | null;
+    /** a work result's `photorep`: the reputation moved, lines */
+    rep: (g: Save, w: WorldDef, n: number) => string[];
+} = { holds: () => false, words: () => '', count: () => null, photo: () => [], act: () => null, rep: () => [] };
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];
@@ -191,3 +208,6 @@ export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[
 export const roomRules: ((g: Save, w: WorldDef, r: Resident, x: { loc: string; rooms: RoomHere[]; at: number; mine: string }) => string | null)[] = [];
 /** (homerooms) During a party at home, where someone is (a room tagged leisure or food). Null: no party for them. */
 export const partyRooms: ((g: Save, w: WorldDef, r: Resident, x: { loc: string; rooms: RoomHere[]; at: number }) => string | null)[] = [];
+// (photography) Actions a system offers from its own state where you are (the hourly studio rental), added to the
+// engine's own (`extraActions` in sim/life.ts); what one does is its system's own `onAction`.
+export const engineActions: ((g: Save, w: WorldDef) => ActionDef[])[] = [];

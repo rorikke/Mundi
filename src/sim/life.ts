@@ -8,7 +8,7 @@ import { courseworkAction, addCoursework } from './degrees.js';
 import type { WorldDef, ActionDef, StatusDef } from '../core/world.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
-import { onDay, onHour, tierLink } from './hooks.js';
+import { onDay, onHour, tierLink, engineActions } from './hooks.js';
 import { money } from './needs.js';
 import type { Breakable } from '../core/presets.js';
 import { social, bondOf, isPartner, type PlanKind } from './social.js';
@@ -80,7 +80,8 @@ const blocked = (g: Save, w?: WorldDef | null) => new Set(!systemOn(w, 'breakdow
 /* ---------- actions the engine adds ---------- */
 
 const x = (a: Partial<ActionDef> & { id: string; label: string }): ActionDef => ({ name: a.label, cost: 0, minutes: 60, effects: {}, ...a } as ActionDef);
-// Only what comes from the game's own state: paying to fix what broke, studying the course you take, a degree's coursework.
+// Only what comes from the game's own state: paying to fix what broke, studying the course you take, a degree's coursework,
+// and what other systems add (`engineActions`).
 export function extraActions(g: Save, w: WorldDef): ActionDef[] {
     const out: ActionDef[] = [];
     if (g.player.loc === playerHomeId) for (const b of life(g).broken) out.push(x({ id: `x-repair-${b}`, label: `Pay someone to fix ${thing(w, b)}`, icon: '🧰', minutes: 60, cost: Number((w.homes as any).repairCost ?? 0), effects: {} }));
@@ -92,6 +93,8 @@ export function extraActions(g: Save, w: WorldDef): ActionDef[] {
     }
     // a degree's coursework, where you can study
     const work = courseworkAction(g, w); if (work) out.push(work);
+    // (other systems' own: the hourly studio rental)
+    for (const f of engineActions) out.push(...f(g, w));
     return out;
 }
 // Which world actions are blocked by something broken at home.

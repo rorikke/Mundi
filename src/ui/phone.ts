@@ -13,6 +13,8 @@ import { collectionApp, openCollection, CL } from './collection.js';
 import { tierHtml } from './museumui.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
+import { lensApp, lensBadge } from './photoui.js';
+import { retainerNow } from '../sim/freelance.js';
 import { studentLink } from '../sim/hooks.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
 import { partyApp } from './combatui.js';
@@ -43,7 +45,7 @@ import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText } from '../sim/work.js';
+import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance } from '../sim/work.js';
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
@@ -61,7 +63,7 @@ import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
 import { HU, ownedHtml, letHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
 
-type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'settings' | 'profile';
+type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'social' | 'post' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'photos' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -126,7 +128,7 @@ function head(title: string, back: App | null) {
 function homeApp(g: Save, w: WorldDef) {
     const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
     return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-app="${esc(id)}">
-        <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : id === 'campus' && campusBadge(g, w) ? '<em>!</em>' : id === 'business' && businessBadge(g, w) ? '<em>!</em>' : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : ''}</button>`).join('')}
+        <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : id === 'campus' && campusBadge(g, w) ? '<em>!</em>' : id === 'business' && businessBadge(g, w) ? '<em>!</em>' : id === 'photos' && lensBadge(g, w) ? '<em>!</em>' : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : ''}</button>`).join('')}
         <button class="mu-ph-app" data-act="ph-go" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
         <button class="mu-ph-app" data-act="ph-help"><i style="--c:#30b0c7">${icon('help')}</i><span>${T('help')}</span></button></div>`;
 }
@@ -333,9 +335,11 @@ function jobsApp(g: Save, w: WorldDef) {
     // (job tracks) the track you work it on, and the days still to wait before the first shift
     const track = mine?.track !== undefined ? mine.trackName ?? trackName(w, mine, mine.track) : '';
     const wait = j && (j as any).start > g.day ? (j as any).start - g.day : 0;
+    const free = !!mine && isFreelance(g, w);   // (photography) a freelancer works brief by brief: no shifts, a retainer
     return `${head(appName('jobs'), 'home')}<div class="mu-ph-body">
         ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
-            <small>${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
+            <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
+            ${free ? `<small>Your briefs are in Lens.</small>${appsShown(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
             ${wait ? `<small class="mu-good">Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.</small>` : ''}
             ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
             ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${p.missing.map(m => `<span>${esc(m)}</span>`).join(', ')}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
@@ -564,7 +568,7 @@ export function phoneHtml(): string {
     BOOK = deviceLook(w) === 'book'; BOARD = socialKind(w) === 'board'; LETTERS = messageKind(w) === 'letters'; LW = w;
     const body = P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-        : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+        : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, head(appName('photos'), 'home')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
     const unread = phoneUnread();
     // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never

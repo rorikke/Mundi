@@ -29,7 +29,7 @@ export type EffectKind =
     | 'points'   // life points (target: where they come from: `step`, `goal`, `festival`, `event`, `story`, `secret`, `thread`, `keepsake`, `learned` (a like or limit learned of someone); a group: `festivals` (festival, event), `secrets` (secret, story, thread); or `active`, `passive`)
     | 'interview'   // a flat bonus on job interviews (target: a job id)
     | 'hint'     // on at 1 or more: a friend's hidden secret shows in small signs (told to the AI as hinted; no target)
-    | 'royalty'  // what the museum's weekly royalties pay (R-b; no target)
+    | 'royalty'  // what weekly royalties pay (R-b; target: a source, `museum` or `photobook`; none: all of them)
     | 'venture'  // (business, track 7) a venture's takings (target: a venture id, its track or kind: `cafe`, `hotel`, `ryokan`; none: every venture)
     | 'find'     // (collection, track 7) the odds of a find and of the dig (no target), under the finds' cap
     | 'renown'   // (museum, track 7) the museum's renown (no target): visitors and levels, never royalties

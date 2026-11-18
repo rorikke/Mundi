@@ -1,0 +1,4 @@
+/* The World creator's photography (ui/creator.ts): a photo studio's one spot, clicked on its map's picture */
+#mundi-root .mu-cw-pspot { position: relative; max-width: 420px; margin: 6px 0; border-radius: var(--ri); overflow: hidden; border: 1px solid var(--line); cursor: crosshair; line-height: 0; }
+#mundi-root .mu-cw-pspot img { width: 100%; height: auto; display: block; pointer-events: none; }
+#mundi-root .mu-cw-pspot i { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #3a8fb7; border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(0, 0, 0, .45); pointer-events: none; }

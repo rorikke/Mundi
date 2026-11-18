@@ -1027,6 +1027,16 @@
      "winter-night": "bg/home-onsenvilla-snow-night.avif",
      "snow-night": "bg/home-onsenvilla-snow-night.avif"
     }
+   },
+   "photostudio": {
+    "name": "Photo studio",
+    "desc": "a room to shoot in, never to live in: white walls, power for the lights, a door that locks",
+    "image": "bg/hz_ps_urahara.avif",
+    "work": true,
+    "bills": {
+     "water": 600,
+     "power": 3000
+    }
    }
   },
   "expenses": [
@@ -1363,7 +1373,10 @@
     ],
     "desc": "A red lamp, trays, an enlarger and a line of prints drying: you learn photography a little faster.",
     "ai": "a darkroom for printing photographs",
-    "told": "home"
+    "told": "home",
+    "photo": {
+     "gear": "darkroom"
+    }
    },
    {
     "id": "fx_observatory",
@@ -1494,6 +1507,163 @@
     "desc": "A big bed, low light, a deep bath through a sliding door and a door that locks: nights together give more back.",
     "ai": "a bedroom suite with a deep bath and a door that locks",
     "told": "home"
+   },
+   {
+    "id": "fx_light_rig",
+    "name": "Lighting rig",
+    "icon": "💡",
+    "price": 380000,
+    "size": 1,
+    "kinds": [
+     "photostudio"
+    ],
+    "told": "home",
+    "desc": "Strobes, softboxes and a ceiling rail: studio shoots come out better.",
+    "ai": "a ceiling rig of strobes and softboxes",
+    "photo": {
+     "gear": "rig",
+     "shoot": 6
+    }
+   },
+   {
+    "id": "fx_cyclorama",
+    "name": "Cyclorama wall",
+    "icon": "⬜",
+    "price": 850000,
+    "size": 2,
+    "kinds": [
+     "photostudio"
+    ],
+    "told": "home",
+    "desc": "A curved white wall with no corners: fashion and product briefs can be shot here.",
+    "ai": "a curved white cyclorama wall",
+    "photo": {
+     "gear": "cyc",
+     "studio": "cyc"
+    }
+   },
+   {
+    "id": "fx_dressing",
+    "name": "Dressing room",
+    "icon": "🪞",
+    "price": 520000,
+    "size": 1,
+    "kinds": [
+     "photostudio"
+    ],
+    "told": "home",
+    "desc": "A mirror ringed with bulbs, a rail and a curtain: models and private clients can come.",
+    "ai": "a dressing room with a bulb-lit mirror",
+    "photo": {
+     "gear": "dressing",
+     "studio": "dressing"
+    }
+   },
+   {
+    "id": "fx_retouch",
+    "name": "Retouching desk",
+    "icon": "🖥️",
+    "price": 290000,
+    "size": 1,
+    "kinds": [
+     "photostudio"
+    ],
+    "told": "home",
+    "desc": "A calibrated screen, a pen tablet and a chair worth the money: edits are better and faster.",
+    "ai": "a retouching desk with a calibrated screen",
+    "photo": {
+     "gear": "desk",
+     "edit": 5
+    }
+   }
+  ],
+  "studios": [
+   {
+    "id": "hz_ps_urahara",
+    "name": "A basement in Ura-Harajuku",
+    "map": "shibuya",
+    "kind": "photostudio",
+    "rent": 42000,
+    "price": 3600000,
+    "upkeep": 22000,
+    "resale": 0.7,
+    "size": 3,
+    "spots": [
+     [
+      49,
+      97
+     ]
+    ],
+    "desc": "a concrete basement two lanes behind Cat Street, a roller door to the street, the boutiques' stylists for neighbours",
+    "image": "bg/hz_ps_urahara.avif"
+   },
+   {
+    "id": "hz_ps_bay",
+    "name": "A warehouse floor by the bay",
+    "map": "bay",
+    "kind": "photostudio",
+    "rent": 30000,
+    "price": 2600000,
+    "upkeep": 18000,
+    "resale": 0.7,
+    "size": 5,
+    "spots": [
+     [
+      78,
+      80
+     ]
+    ],
+    "desc": "a whole floor of an old warehouse on the water: tall windows, a loading door onto the bay, room for a car on set",
+    "image": "bg/hz_ps_bay.avif",
+    "images": {
+     "afternoon": "bg/hz_ps_bay-afternoon.avif",
+     "night": "bg/hz_ps_bay-night.avif"
+    }
+   },
+   {
+    "id": "hz_ps_shimokita",
+    "name": "A top floor in Shimokitazawa",
+    "map": "westside",
+    "kind": "photostudio",
+    "rent": 24000,
+    "price": 1900000,
+    "upkeep": 12000,
+    "resale": 0.7,
+    "size": 2,
+    "spots": [
+     [
+      87,
+      60
+     ]
+    ],
+    "desc": "the top floor of a small concrete building over the shopping street, skylights in the roof, the trains going by",
+    "image": "bg/hz_ps_shimokita.avif",
+    "images": {
+     "afternoon": "bg/hz_ps_shimokita-afternoon.avif",
+     "night": "bg/hz_ps_shimokita-night.avif"
+    }
+   },
+   {
+    "id": "hz_ps_mizu",
+    "name": "Studio MIZU",
+    "map": "shibuya",
+    "kind": "photostudio",
+    "rent": 0,
+    "upkeep": 15000,
+    "size": 4,
+    "spots": [
+     [
+      57,
+      94
+     ]
+    ],
+    "given": true,
+    "fixtures": [
+     "fx_light_rig",
+     "fx_cyclorama"
+    ],
+    "desc": "Erika's white basement off Cat Street, cyclorama and all, and her coffee machine you may touch now",
+    "image": "bg/sb_studio_mizu.avif"
    }
   ]
  },
@@ -16439,7 +16609,8 @@
      "keepsake": "gk_photo_crossing"
     }
    ],
-   "fact": "{u} photographed the crossing at {0}"
+   "fact": "{u} photographed the crossing at {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_takeshita",
@@ -16490,7 +16661,8 @@
      "keepsake": "gk_photo_takeshita"
     }
    ],
-   "fact": "{u} photographed street fashion on {0}"
+   "fact": "{u} photographed street fashion on {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_tocho",
@@ -16541,7 +16713,8 @@
      "keepsake": "gk_photo_tocho"
     }
    ],
-   "fact": "{u} photographed the city from {0}"
+   "fact": "{u} photographed the city from {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_yanaka",
@@ -16592,7 +16765,8 @@
      "keepsake": "gk_photo_yanaka"
     }
    ],
-   "fact": "{u} photographed the cats and lanes of {0}"
+   "fact": "{u} photographed the cats and lanes of {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_bridge",
@@ -16643,7 +16817,8 @@
      "keepsake": "gk_photo_bridge"
     }
    ],
-   "fact": "{u} photographed the bay from {0}"
+   "fact": "{u} photographed the bay from {0}",
+   "photo": true
   },
   {
    "adult": true,
@@ -16752,7 +16927,8 @@
      "keepsake": "light_tunnel_photo"
     }
    ],
-   "fact": "{u} photographed the winter illuminations near {0}"
+   "fact": "{u} photographed the winter illuminations near {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_tower",
@@ -16803,7 +16979,8 @@
      "keepsake": "gk_photo_tower"
     }
    ],
-   "fact": "{u} photographed {0} lit up"
+   "fact": "{u} photographed {0} lit up",
+   "photo": true
   },
   {
    "id": "sh_photo_minato",
@@ -16854,7 +17031,8 @@
      "keepsake": "gk_photo_minato"
     }
    ],
-   "fact": "{u} photographed the waterfront at {0}"
+   "fact": "{u} photographed the waterfront at {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_ashi",
@@ -16905,7 +17083,8 @@
      "keepsake": "photo_at_the_water_gate"
     }
    ],
-   "fact": "{u} photographed the water gate at {0}"
+   "fact": "{u} photographed the water gate at {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_skyline",
@@ -16956,7 +17135,8 @@
      "keepsake": "gk_photo_skyline"
     }
    ],
-   "fact": "{u} photographed the night view from {0}"
+   "fact": "{u} photographed the night view from {0}",
+   "photo": true
   },
   {
    "id": "sh_photo_walk",
@@ -17077,7 +17257,10 @@
      "text": "One frame is good enough to print by hand; you rock the tray until the picture rises.",
      "keepsake": "gk_darkroom_print"
     }
-   ]
+   ],
+   "together": {
+    "text": "developing a roll side by side in the red light, comparing negatives"
+   }
   },
   {
    "id": "sh_photo_gallery",
@@ -17111,7 +17294,8 @@
      }
     }
    },
-   "fact": "{u} showed photographs to a gallerist on {0}"
+   "fact": "{u} showed photographs to a gallerist on {0}",
+   "photo": true
   },
   {
    "adult": true,
@@ -22539,7 +22723,11 @@
       "target": "photography",
       "value": 0.05
      }
-    ]
+    ],
+    "photo": {
+     "gear": "camera",
+     "rung": 2
+    }
    },
    {
     "id": "te_tablet",
@@ -22582,7 +22770,11 @@
       "value": 0.08
      }
     ],
-    "online": false
+    "online": false,
+    "photo": {
+     "gear": "camera",
+     "rung": 3
+    }
    },
    {
     "id": "te_projector",
@@ -22615,7 +22807,11 @@
       "value": 0.05
      }
     ],
-    "told": "always"
+    "told": "always",
+    "photo": {
+     "gear": "camera",
+     "rung": 1
+    }
    },
    {
     "id": "te_mirrorless",
@@ -22635,7 +22831,11 @@
       "target": "photography",
       "value": 0.08
      }
-    ]
+    ],
+    "photo": {
+     "gear": "camera",
+     "rung": 4
+    }
    },
    {
     "id": "te_laptop",
@@ -22717,7 +22917,110 @@
      }
     ],
     "told": "always",
-    "online": false
+    "online": false,
+    "photo": {
+     "gear": "camera",
+     "rung": 5
+    }
+   },
+   {
+    "id": "te_lens_prime",
+    "name": "Fast prime lens",
+    "icon": "🔍",
+    "price": 42000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "desc": "An Aozora Optical 50 mm f/1.4: brighter, sharper pictures on a good camera.",
+    "photo": {
+     "gear": "lens",
+     "rung": 1,
+     "shoot": 3
+    }
+   },
+   {
+    "id": "te_lens_zoom",
+    "name": "Pro zoom lens",
+    "icon": "🔍",
+    "price": 168000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric",
+     "mg_chuodori"
+    ],
+    "desc": "A 24–70 mm f/2.8 that the professionals carry: better pictures on a good camera.",
+    "photo": {
+     "gear": "lens",
+     "rung": 2,
+     "shoot": 5
+    }
+   },
+   {
+    "id": "te_lens_tele",
+    "name": "Long telephoto",
+    "icon": "🔭",
+    "price": 420000,
+    "cat": "tech",
+    "online": false,
+    "at": [
+     "mg_chuodori"
+    ],
+    "desc": "A white 100–400 mm for festivals and the far end of a shrine courtyard: much better pictures on a good camera.",
+    "photo": {
+     "gear": "lens",
+     "rung": 3,
+     "shoot": 8
+    }
+   },
+   {
+    "id": "te_flash",
+    "name": "Portable flash",
+    "icon": "⚡",
+    "price": 36000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "desc": "A speedlight with a bounce head: light for night shoots and studio work.",
+    "photo": {
+     "gear": "flash",
+     "shoot": 5
+    }
+   },
+   {
+    "id": "te_drone",
+    "name": "Camera drone",
+    "icon": "🛸",
+    "price": 148000,
+    "cat": "tech",
+    "online": true,
+    "at": [
+     "ak_electric"
+    ],
+    "desc": "A folding drone with a stabilised camera: the briefs that want the view from above.",
+    "photo": {
+     "gear": "drone"
+    }
+   },
+   {
+    "id": "te_housing",
+    "name": "Waterproof housing",
+    "icon": "🌊",
+    "price": 58000,
+    "cat": "tech",
+    "online": false,
+    "at": [
+     "ak_electric",
+     "bay_mall"
+    ],
+    "desc": "A sealed housing for your camera: the beach, the river and the rain.",
+    "photo": {
+     "gear": "housing"
+    }
    },
    {
     "id": "hb_sketchbook",
@@ -31075,6 +31378,15 @@
    ],
    "when": "festival: tsukimi",
    "content": "On the night of the moon viewing, Tsukimi Inari Shrine keeps its own quiet moon night: lanterns along the approach, susuki grass and white dumplings on the offering stand, and the moon kagura, danced by the shrine's daughter for the harvest and the year's safety. Visitors watch in silence and bow before they leave."
+  },
+  {
+   "id": "ph_mizu",
+   "keys": [
+    "Studio MIZU",
+    "Erika Mizushima",
+    "Mizushima"
+   ],
+   "content": "Studio MIZU is Erika Mizushima's photo studio, a white basement off Cat Street in Ura-Harajuku. Erika has shot covers for every fashion monthly since she was twenty-two, and is as famous for her light as for her temper."
   }
  ],
  "places": [
@@ -34348,6 +34660,32 @@
    "actions": [
     "cf_unit_coffee"
    ]
+  },
+  {
+   "id": "sb_studio_mizu",
+   "name": "Studio MIZU",
+   "map": "shibuya",
+   "x": 57,
+   "y": 94,
+   "tags": [
+    "work"
+   ],
+   "desc": "a white basement off Cat Street: a cyclorama wall, flight cases stacked to the ceiling, a coffee machine nobody else may touch, a couch with a blanket on it",
+   "staff": "Erika behind a camera, an assistant taping cables, a model waiting on the couch with a coffee",
+   "crowd": 0.4,
+   "open": [
+    9,
+    24
+   ],
+   "closed": [
+    "latenight",
+    "firsttrain"
+   ],
+   "generic": false,
+   "sound": [
+    "traffic"
+   ],
+   "bg": "bg/sb_studio_mizu.avif"
   },
   {
    "id": "hk_ryokan_hanare",
@@ -43270,6 +43608,20 @@
    "gift": false,
    "adult": true,
    "desc": "A folding fan with a spring picture in Utamaro's manner, from the bottom drawer of Tamaki's cabinet: for the back room, not the halls."
+  },
+  {
+   "id": "gk_my_photobook",
+   "name": "your photobook",
+   "icon": "📕",
+   "kind": "book",
+   "desc": "a copy of a photobook you made, your name on the spine",
+   "gift": true,
+   "loves": [
+    "Erika",
+    "Camille",
+    "Chloe",
+    "Nanami"
+   ]
   }
  ],
  "occupations": [
@@ -44060,6 +44412,796 @@
    ]
   },
   {
+   "id": "photographer",
+   "name": "Photographer",
+   "place": "sb_studio_mizu",
+   "schedule": {
+    "days": 5,
+    "from": 11,
+    "to": 20
+   },
+   "shift": 9,
+   "length": 2.5,
+   "likes": [
+    "Art",
+    "Fashion",
+    "Travel"
+   ],
+   "trains": [
+    "photography",
+    "fashion",
+    "charisma"
+   ],
+   "overtime": true,
+   "hire": [
+    "skill: photography 1",
+    "owns: te_compact_cam or te_film_cam or te_mirrorless or te_fullframe or te_phone"
+   ],
+   "ranks": [
+    {
+     "name": "Studio assistant",
+     "pay": 1200
+    },
+    {
+     "name": "Second assistant",
+     "pay": 1300,
+     "needs": {
+      "photography": 2
+     }
+    },
+    {
+     "name": "First assistant",
+     "pay": 1600,
+     "needs": {
+      "photography": 4,
+      "charisma": 2
+     }
+    }
+   ],
+   "promote": [
+    3,
+    13
+   ],
+   "branches": [
+    {
+     "at": 3,
+     "options": [
+      {
+       "id": "ph_editorial",
+       "name": "Editorial",
+       "desc": "freelance for the magazines: fashion, food, travel and the city",
+       "freelance": true,
+       "hire": "photorep: 30",
+       "closed": "Going out on your own takes a photo reputation of 30 first.",
+       "promote": [
+        5,
+        25,
+        35,
+        45
+       ],
+       "ranks": [
+        {
+         "name": "Freelancer",
+         "pay": 40000,
+         "days": 3,
+         "needs": {
+          "photography": 4,
+          "fashion": 2,
+          "performance": 0
+         },
+         "when": "photorep: 30"
+        },
+        {
+         "name": "Regular contributor",
+         "pay": 45000,
+         "days": 3,
+         "needs": {
+          "photography": 5,
+          "fashion": 3,
+          "performance": 0
+         },
+         "when": "photorep: 45"
+        },
+        {
+         "name": "Name photographer",
+         "pay": 55000,
+         "days": 3,
+         "needs": {
+          "photography": 7,
+          "fashion": 5,
+          "performance": 0
+         },
+         "when": "photorep: 65; portfolio: 8"
+        },
+        {
+         "name": "Star photographer",
+         "pay": 56000,
+         "days": 3,
+         "needs": {
+          "photography": 9,
+          "fashion": 7,
+          "performance": 0
+         },
+         "when": "photorep: 85; portfolio: 12"
+        }
+       ]
+      },
+      {
+       "id": "ph_weddings",
+       "name": "Weddings and events",
+       "desc": "freelance for the planners and the papers: weddings, festivals, the city's nights",
+       "freelance": true,
+       "hire": "photorep: 30",
+       "closed": "Going out on your own takes a photo reputation of 30 first.",
+       "promote": [
+        5,
+        25,
+        35,
+        45
+       ],
+       "ranks": [
+        {
+         "name": "Freelancer",
+         "pay": 40000,
+         "days": 3,
+         "needs": {
+          "photography": 4,
+          "charisma": 2,
+          "performance": 0
+         },
+         "when": "photorep: 30"
+        },
+        {
+         "name": "Booked photographer",
+         "pay": 45000,
+         "days": 3,
+         "needs": {
+          "photography": 5,
+          "charisma": 3,
+          "performance": 0
+         },
+         "when": "photorep: 45; photos: wedding"
+        },
+        {
+         "name": "Favorite of the planners",
+         "pay": 55000,
+         "days": 3,
+         "needs": {
+          "photography": 7,
+          "charisma": 5,
+          "performance": 0
+         },
+         "when": "photorep: 65; portfolio: 8"
+        },
+        {
+         "name": "The one everyone wants",
+         "pay": 56000,
+         "days": 3,
+         "needs": {
+          "photography": 9,
+          "charisma": 7,
+          "performance": 0
+         },
+         "when": "photorep: 85; portfolio: 12"
+        }
+       ]
+      },
+      {
+       "id": "ph_studio",
+       "name": "Studio portraits",
+       "desc": "freelance in a studio of your own: portraits, idols, album covers, headshots",
+       "freelance": true,
+       "hire": "photorep: 30",
+       "closed": "Going out on your own takes a photo reputation of 30 first.",
+       "promote": [
+        5,
+        25,
+        35,
+        45
+       ],
+       "ranks": [
+        {
+         "name": "Freelancer",
+         "pay": 40000,
+         "days": 3,
+         "needs": {
+          "photography": 4,
+          "logic": 1,
+          "performance": 0
+         },
+         "when": "photorep: 30"
+        },
+        {
+         "name": "Studio regular",
+         "pay": 45000,
+         "days": 3,
+         "needs": {
+          "photography": 5,
+          "logic": 2,
+          "performance": 0
+         },
+         "when": "photorep: 50; studio: any"
+        },
+        {
+         "name": "Portraitist",
+         "pay": 55000,
+         "days": 3,
+         "needs": {
+          "photography": 7,
+          "logic": 4,
+          "performance": 0
+         },
+         "when": "photorep: 70; portfolio: 8; studio: any"
+        },
+        {
+         "name": "Star photographer",
+         "pay": 56000,
+         "days": 3,
+         "needs": {
+          "photography": 9,
+          "logic": 6,
+          "performance": 0
+         },
+         "when": "photorep: 90; portfolio: 12; studio: any"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "events": [
+    {
+     "id": "photographer_ev_tears",
+     "setup": "Ten minutes before a cover shoot the model is crying in the dressing corner, and Erika is already shouting for her.",
+     "choices": [
+      {
+       "label": "Sit with her and talk her down",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 1,
+       "feels": {
+        "Erika": 2
+       },
+       "text": "she walks onto the set with dry eyes, and Erika never asks how",
+       "fail": {
+        "text": "she pulls herself together, just; Erika notices the lost twenty minutes",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Pick up a camera and shoot her as she is",
+       "roll": {
+        "skill": "photography",
+        "dc": 13
+       },
+       "photo": true,
+       "perf": 2,
+       "text": "Erika looks at the frames on the laptop for a long time, then pins one to the wall",
+       "fail": {
+        "text": "Erika deletes them without a word",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Fetch Erika",
+       "text": "she sends you for coffee and handles it herself"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_set",
+     "setup": "Erika walks onto the set you spent four hours building, looks at it once, and says: again, all of it.",
+     "choices": [
+      {
+       "label": "Rebuild it without a word",
+       "roll": {
+        "skill": "fitness",
+        "dc": 11
+       },
+       "perf": 1,
+       "effects": {
+        "energy": -10
+       },
+       "text": "it's done by midnight; she nods, which from her is a speech",
+       "fail": {
+        "text": "you're still taping cables when the client walks in",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Ask her what's wrong with it",
+       "roll": {
+        "skill": "charisma",
+        "dc": 13
+       },
+       "perf": 2,
+       "feels": {
+        "Erika": 3
+       },
+       "text": "she tells you, at length; the second set is better, and she knows you know why",
+       "fail": {
+        "text": "she says if you have to ask you shouldn't be here",
+        "perf": -1,
+        "feels": {
+         "Erika": -2
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_brief",
+     "setup": "The client's art director arrives with a new mood board an hour before the shoot: nothing like the one you lit for.",
+     "choices": [
+      {
+       "label": "Relight the set for the new board",
+       "roll": {
+        "skill": "photography",
+        "dc": 12
+       },
+       "perf": 2,
+       "text": "the new light is ready before the model is",
+       "fail": {
+        "text": "the light is wrong all morning, and everyone can see it",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Restyle the model to meet it halfway",
+       "roll": {
+        "skill": "fashion",
+        "dc": 12
+       },
+       "perf": 1,
+       "text": "the art director calls it \"exactly what I meant\"",
+       "fail": {
+        "text": "the stylist takes the jacket back off her without a word",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Leave it to Erika",
+       "text": "she and the art director argue for an hour while you hold the reflector"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_card",
+     "setup": "A memory card with the whole morning on it is missing, and the client wants a selection by six.",
+     "choices": [
+      {
+       "label": "Search the studio case by case",
+       "roll": {
+        "skill": "logic",
+        "dc": 11
+       },
+       "perf": 1,
+       "text": "it's in the pocket of the coat on the couch; nobody asks whose coat",
+       "fail": {
+        "text": "it turns up the next day; the client gets the afternoon's",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Recover what's left on the laptop",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 2,
+       "text": "the backup is there, every frame, and you look like a magician",
+       "fail": {
+        "text": "the laptop has half of it, the wrong half",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Tell Erika at once",
+       "feels": {
+        "Erika": 1
+       },
+       "text": "she swears for a full minute, then thanks you for not hiding it"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_roof",
+     "setup": "A rooftop shoot in Shibuya, and the wind is trying to take the backdrop, the reflector and the model's hat.",
+     "choices": [
+      {
+       "label": "Hold the backdrop yourself",
+       "roll": {
+        "skill": "fitness",
+        "dc": 12
+       },
+       "perf": 1,
+       "effects": {
+        "energy": -8
+       },
+       "text": "it stays up, and so do you, barely",
+       "fail": {
+        "text": "the backdrop wins and sails toward Center Gai",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Shoot the wind instead of fighting it",
+       "roll": {
+        "skill": "photography",
+        "dc": 13
+       },
+       "photo": true,
+       "perf": 2,
+       "text": "the hat in the air, the model laughing: it's the picture they run",
+       "fail": {
+        "text": "thirty frames of hair across her face",
+        "perf": -1
+       }
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_famous",
+     "setup": "An actress everyone knows arrives for a portrait, sees you holding the camera and says she was promised Erika.",
+     "choices": [
+      {
+       "label": "Charm her while Erika finishes her call",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 1,
+       "text": "she's laughing by the time Erika comes down the stairs",
+       "fail": {
+        "text": "she looks at her watch until Erika comes",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Show her what you can do in five frames",
+       "roll": {
+        "skill": "photography",
+        "dc": 15
+       },
+       "perf": 2,
+       "feels": {
+        "Erika": 2
+       },
+       "text": "she asks for your card, and Erika pretends not to have heard",
+       "fail": {
+        "text": "she walks out; Erika doesn't speak to you for two days",
+        "perf": -2,
+        "feels": {
+         "Erika": -3
+        }
+       }
+      },
+      {
+       "label": "Fetch Erika at once",
+       "text": "Erika takes over; the actress never looks at you again"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_midnight",
+     "setup": "The magazine calls Erika's phone at midnight: the editor wants three retouched frames by morning, and Erika is asleep on the couch.",
+     "choices": [
+      {
+       "label": "Retouch them yourself",
+       "roll": {
+        "skill": "photography",
+        "dc": 12
+       },
+       "perf": 2,
+       "effects": {
+        "energy": -12
+       },
+       "feels": {
+        "Erika": 2
+       },
+       "text": "the editor writes back one word, \"good\"; Erika says nothing and buys you breakfast",
+       "fail": {
+        "text": "the editor sends them back with notes in red",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Wake her",
+       "roll": {
+        "skill": "charisma",
+        "dc": 10
+       },
+       "text": "she does them in forty minutes, swearing, and goes back to sleep",
+       "fail": {
+        "text": "she throws a cushion at you and does them anyway",
+        "feels": {
+         "Erika": -2
+        }
+       }
+      },
+      {
+       "label": "Let it ring",
+       "perf": -2,
+       "text": "the editor calls back at seven, and Erika answers"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_laptop",
+     "setup": "The tethered laptop dies in the middle of a shoot, with the client watching the screen that just went black.",
+     "choices": [
+      {
+       "label": "Fix it on the spot",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 2,
+       "text": "a cable, a restart, and the frames come back before anyone panics",
+       "fail": {
+        "text": "it stays black; the shoot finishes blind",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Keep the client happy on the camera's own screen",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 1,
+       "text": "they crowd round the little screen and love it more for being small",
+       "fail": {
+        "text": "the client spends the rest of the shoot on the phone to their boss",
+        "perf": -1
+       }
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_latepay",
+     "when": "path: ph_editorial or ph_weddings or ph_studio",
+     "setup": "A client is thirty days late paying for your last delivery, and their accounts department has stopped answering.",
+     "choices": [
+      {
+       "label": "Call every day, politely",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "money": 15000,
+       "text": "the money comes, with an apology and a little extra for the trouble",
+       "fail": {
+        "text": "it comes in two months, without the apology"
+       }
+      },
+      {
+       "label": "Let it go and take the next brief",
+       "effects": {
+        "mood": -3
+       },
+       "text": "you write it off and try not to think about it"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_mother",
+     "when": "path: ph_weddings",
+     "setup": "The bride's mother has a list of forty family groups to photograph, the light is going, and the bride wants golden hour by the water.",
+     "choices": [
+      {
+       "label": "Rush the groups, then run for the light",
+       "roll": {
+        "skill": "logic",
+        "dc": 13
+       },
+       "perf": 2,
+       "text": "forty groups in thirty minutes and the bride gets her sunset",
+       "fail": {
+        "text": "the groups run late and the sun goes down without you",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Charm the mother into a shorter list",
+       "roll": {
+        "skill": "charisma",
+        "dc": 12
+       },
+       "perf": 1,
+       "text": "twelve groups, a hug, and the last of the light",
+       "fail": {
+        "text": "she adds three more groups",
+        "perf": -1
+       }
+      },
+      {
+       "label": "Do it the mother's way",
+       "perf": -1,
+       "text": "the groups are perfect; the bride's sunset is gone"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_credit",
+     "when": "path: ph_editorial or ph_studio",
+     "setup": "A spread you shot comes out in a magazine under another photographer's name: the agent who handled the delivery.",
+     "choices": [
+      {
+       "label": "Call the photo editor with your files",
+       "roll": {
+        "skill": "logic",
+        "dc": 12
+       },
+       "perf": 1,
+       "text": "a correction runs in the next issue, and the editor remembers your name",
+       "fail": {
+        "text": "the editor says these things happen and hangs up"
+       }
+      },
+      {
+       "label": "Post the originals online",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "perf": 1,
+       "text": "everyone sees whose work it was",
+       "fail": {
+        "text": "it looks petty; two clients go quiet",
+        "perf": -2
+       }
+      },
+      {
+       "label": "Let it pass",
+       "effects": {
+        "mood": -4
+       },
+       "text": "you swallow it, and it tastes bad for a week"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_stolen",
+     "when": "path: ph_editorial or ph_weddings or ph_studio",
+     "setup": "Someone lifts your camera bag at the crossing while you're changing lenses.",
+     "choices": [
+      {
+       "label": "Run after them",
+       "roll": {
+        "skill": "fitness",
+        "dc": 13
+       },
+       "effects": {
+        "energy": -10
+       },
+       "text": "you get it back at the station stairs, out of breath and furious",
+       "fail": {
+        "text": "they're gone; the spare body and a lens cost you",
+        "money": -30000
+       }
+      },
+      {
+       "label": "Report it and get on with the day",
+       "money": -20000,
+       "effects": {
+        "mood": -4
+       },
+       "text": "the police are kind and useless; you rent a body for the week"
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_viral",
+     "when": "path: ph_editorial or ph_weddings or ph_studio",
+     "setup": "A photo of yours from last week is everywhere overnight: shared, reposted, credited and not.",
+     "choices": [
+      {
+       "label": "Ride it: post the rest of the set",
+       "roll": {
+        "skill": "charisma",
+        "dc": 11
+       },
+       "perf": 2,
+       "effects": {
+        "mood": 4
+       },
+       "text": "three new clients write before noon",
+       "fail": {
+        "text": "the rest of the set gets a fraction of the likes",
+        "perf": 0
+       }
+      },
+      {
+       "label": "Ask everyone to credit you",
+       "roll": {
+        "skill": "logic",
+        "dc": 12
+       },
+       "perf": 1,
+       "text": "most of them do, and your name goes round with it",
+       "fail": {
+        "text": "nobody answers, and the picture keeps going without you"
+       }
+      }
+     ]
+    },
+    {
+     "id": "photographer_ev_rights",
+     "when": "path: ph_editorial or ph_studio",
+     "setup": "A big magazine wants the rights to a whole set of yours, forever, for the price of one page.",
+     "choices": [
+      {
+       "label": "Negotiate",
+       "roll": {
+        "skill": "charisma",
+        "dc": 14
+       },
+       "money": 40000,
+       "perf": 1,
+       "text": "they pay for the set and a credit on every page",
+       "fail": {
+        "text": "they walk away; the set stays yours"
+       }
+      },
+      {
+       "label": "Sign it: the exposure is worth it",
+       "money": 10000,
+       "perf": 1,
+       "effects": {
+        "mood": -2
+       },
+       "text": "your name is on a cover, and the set is theirs for good"
+      },
+      {
+       "label": "Refuse",
+       "text": "they say nobody refuses them; you have just shown them somebody does"
+      }
+     ]
+    }
+   ],
+   "drinks": [
+    "sb_centergai"
+   ]
+  },
+  {
+   "id": "mizu_owner",
+   "name": "Photographer, Studio MIZU",
+   "place": "sb_studio_mizu",
+   "hireable": false,
+   "schedule": {
+    "days": [
+     "tue",
+     "wed",
+     "thu",
+     "fri",
+     "sat"
+    ],
+    "from": 12,
+    "to": 22
+   },
+   "shift": 10,
+   "length": 1,
+   "likes": [
+    "Art",
+    "Fashion",
+    "Nightlife"
+   ],
+   "trains": [
+    "photography",
+    "fashion"
+   ],
+   "ranks": [
+    {
+     "name": "Owner",
+     "pay": 6000
+    }
+   ],
+   "events": []
+  },
+  {
    "id": "fashion",
    "name": "Fashion shop clerk",
    "place": "sb_takeshita",
@@ -44222,7 +45364,8 @@
        "fail": {
         "text": "the photos come out flat; the manager redoes half of them",
         "perf": -1
-       }
+       },
+       "photo": true
       },
       {
        "label": "Say photos aren't your thing",
@@ -47587,7 +48730,8 @@
        "fail": {
         "text": "half the shots are blurred; you retake them while the queue grows",
         "perf": -1
-       }
+       },
+       "photo": true
       },
       {
        "label": "Ask to pose instead",
@@ -48806,7 +49950,8 @@
        "fail": {
         "text": "the glare on the glass ruins half of them; a studio is hired after all",
         "perf": -1
-       }
+       },
+       "photo": true
       },
       {
        "label": "Leave it to the curators",
@@ -51473,7 +52618,8 @@
        "fail": {
         "text": "the footage shakes; the editor sighs and cuts around it",
         "perf": -1
-       }
+       },
+       "photo": true
       },
       {
        "label": "Wait for the operator",
@@ -56448,7 +57594,8 @@
      "yukata": "cast/tamaki/yukata",
      "opening": "cast/tamaki/opening",
      "home": "cast/tamaki/home"
-    }
+    },
+    "camera": "never"
    },
    {
     "name": "Ayame",
@@ -57362,7 +58509,8 @@
       ]
      }
     ],
-    "reserved": true
+    "reserved": true,
+    "camera": "work"
    },
    {
     "name": "Reiko",
@@ -57532,7 +58680,8 @@
     "skills": {
      "logic": 7,
      "charisma": 7
-    }
+    },
+    "camera": "work"
    },
    {
     "name": "Rina",
@@ -57954,7 +59103,8 @@
     "skills": {
      "singing": 7,
      "dance": 8
-    }
+    },
+    "camera": "work"
    },
    {
     "name": "Shōta",
@@ -58306,7 +59456,8 @@
     "skills": {
      "gaming": 9,
      "logic": 8
-    }
+    },
+    "camera": "work"
    },
    {
     "name": "Lisa",
@@ -58449,7 +59600,8 @@
      "dance": 9,
      "fitness": 7,
      "music": 6
-    }
+    },
+    "camera": "ask"
    },
    {
     "name": "Sayuri",
@@ -59855,7 +61007,8 @@
     "skills": {
      "charisma": 7,
      "fashion": 6
-    }
+    },
+    "camera": "work"
    },
    {
     "name": "Momo",
@@ -59970,7 +61123,8 @@
     "anchored": true,
     "skills": {
      "fitness": 8
-    }
+    },
+    "camera": "work"
    },
    {
     "name": "Shiori",
@@ -60116,7 +61270,8 @@
     },
     "skills": {
      "music": 7
-    }
+    },
+    "camera": "noface"
    },
    {
     "name": "Tsubaki",
@@ -60248,7 +61403,8 @@
     "skills": {
      "charisma": 6,
      "fitness": 5
-    }
+    },
+    "camera": "work"
    },
    {
     "name": "Sumire",
@@ -60530,7 +61686,143 @@
     "skills": {
      "logic": 6,
      "charisma": 5
-    }
+    },
+    "camera": "never"
+   },
+   {
+    "name": "Erika",
+    "age": 28,
+    "gender": "woman",
+    "occupation": "mizu_owner",
+    "home": "hz_azabu",
+    "leisure": [
+     "sb_omotesando",
+     "rp_lounge",
+     "sb_studio_mizu"
+    ],
+    "routine": "night",
+    "description": "{{char}} is Erika Mizushima, 28, the fashion photographer the magazines call simply \"Erika\", owner of Studio MIZU, a white basement off Cat Street in Ura-Harajuku. Tall and long-limbed, a sleek glossy black pixie cut with a long fringe over her right eye, smoky-grey eyes behind sharp black eyeliner, dark red lips, an oversized black tuxedo blazer over a white silk camisole, a full-frame camera on a worn leather strap. Famous since twenty-two, impossible to book and harder to work for: sharp-tongued, vain about her light, loyal to the few she rates and generous in rare, sudden moments. She has dated models, feuds with Velvet Mode's editor-in-chief, and sleeps on the studio couch more nights than she admits.",
+    "personality": "brilliant, sharp-tongued, vain about her work, restless, secretly tired, fiercely loyal",
+    "first_mes": "*The basement is white from floor to ceiling, and a woman in a tuxedo jacket stands in the middle of it with a camera, glaring at a light stand.* You're the new one. *She doesn't look round.* Move that light thirty centimetres left. No. Your left. *One frame; she checks the screen, and finally looks at you.* Better. The coffee machine is mine. Don't touch it. Everything else, you carry.",
+    "feelings": [
+     {
+      "to": "Hina",
+      "f": "acquaintance"
+     },
+     {
+      "to": "Airi",
+      "f": "friend",
+      "adult": true
+     }
+    ],
+    "intimacy": {
+     "preset": "passionate"
+    },
+    "look": "A short sleek black pixie cut with a long fringe over her right eye, winged eyeliner, dark red lips, tall and slender, an oversized black tuxedo blazer over a white silk camisole, a camera on a worn leather strap",
+    "voice": "Low and quick, clipped orders, a dry laugh she rations",
+    "rituals": [
+     {
+      "place": "rp_lounge",
+      "days": [
+       "fri",
+       "sat"
+      ],
+      "from": 23,
+      "to": 26,
+      "text": "drinks alone at the end of the bar at Lounge Ninth Floor after a shoot, phone face down"
+     }
+    ],
+    "threads": [
+     {
+      "id": "erika_mizu",
+      "title": "The white basement",
+      "hidden": "Erika hasn't shot a cover in eight months and sleeps on the studio couch most nights. Saeko Kurosawa, Velvet Mode's editor-in-chief and her old enemy, has turned the magazines against her, and a model she was with for two years is selling a tell-all about it.",
+      "known": "{{user}} knows Erika hasn't shot a cover in eight months, sleeps at the studio, and that Velvet Mode's editor and an old lover's tell-all are closing the magazines to her.",
+      "opens": "job: photographer; feels: Erika acquaintance",
+      "opensOnly": true,
+      "reveal": "feels: Erika friend",
+      "decide": "Erika sits on the studio couch at two in the morning, the cyclorama lit for nobody. She tells {{user}} the tell-all comes out next month, that Kurosawa has shut every door in Tokyo, and that she doesn't know whether to fight, hand over the keys, or take the next plane to Milan.",
+      "nudges": [
+       "Studio's empty tonight. Coffee machine's on. You're still not allowed to touch it.",
+       "Kurosawa called. I didn't pick up. Come by and stop me calling her back.",
+       "Two plane tickets in a drawer and one set of studio keys. Come and tell me which to use."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She hasn't shot a cover in eight months, and the couch in the studio has a blanket and a pillow on it every morning."
+       },
+       {
+        "when": "job: photographer; rank: 2",
+        "tell": "hinted",
+        "text": "Velvet Mode dropped her from its anniversary issue, and the assistants whisper it was the editor-in-chief's doing.",
+        "rumor": "They say Velvet Mode's editor-in-chief cut Erika Mizushima from the anniversary issue."
+       },
+       {
+        "when": "job: photographer; rank: 3",
+        "tell": "known",
+        "text": "An old lover's tell-all about her years with Erika is coming out, and two of Studio MIZU's regular clients have cancelled.",
+        "rumor": "A model is publishing a tell-all about Erika Mizushima, and clients are cancelling at Studio MIZU."
+       },
+       {
+        "id": "leaving",
+        "when": "job: photographer; rank: 3; inrank: 7; photorep: 25; freelance: not any",
+        "tell": "known",
+        "text": "{{user}} has told Erika they mean to go out on their own as a photographer, and she has taken it the way she takes everything: with a blessing or a slammed door, depending on what {{user}} is to her.",
+        "moment": "Erika has heard {{user}} is thinking of going freelance, and asks them straight out whether it's true"
+       }
+      ],
+      "endings": [
+       {
+        "id": "handed",
+        "when": "freelance: blessing; feels: Erika best; knows: erika_mizu",
+        "good": true,
+        "studio": "hz_ps_mizu",
+        "waits": "freelance: blessing; knows: erika_mizu; feels: Erika good",
+        "text": "She hands {{user}} the keys to the white basement, \"it was always going to be yours\", and goes back to shooting abroad, coming home now and then with a suitcase and a story."
+       },
+       {
+        "id": "comeback",
+        "when": "knows: erika_mizu; feels: Erika good; photorep: 60",
+        "good": true,
+        "waits": "knows: erika_mizu; feels: Erika good",
+        "text": "She shoots her comeback for a magazine Kurosawa doesn't own, with {{user}} on the second camera, and the cover sells out in a week; Kōyōsha wants a book of it."
+       },
+       {
+        "id": "leaves",
+        "leaves": true,
+        "text": "She takes the plane to Milan. Her first assistant runs Studio MIZU, and the white basement isn't let by the hour any more."
+       }
+      ]
+     }
+    ],
+    "intimate": {
+     "experience": "a string of models and one art director, all over by the second season; nobody she let stay",
+     "wants": "someone who isn't impressed by her and doesn't want to be in her pictures",
+     "drawnTo": "people who are good at something and don't say so, and anyone who can make her laugh at two in the morning",
+     "flirts": "she directs you like a model, chin up, turn, hold it, and looks a beat too long",
+     "dynamic": "leads, until someone calls her bluff",
+     "prefs": [
+      "being surprised",
+      "late nights in an empty studio",
+      "honesty, even when it stings"
+     ],
+     "limits": [
+      "no one who wants to be famous through her",
+      "nothing on a working set",
+      "no lies about other people"
+     ],
+     "role": "lead",
+     "drive": "high"
+    },
+    "anchored": true,
+    "skills": {
+     "photography": 10,
+     "fashion": 8,
+     "charisma": 6
+    },
+    "avatar": "cast/erika/portrait.webp",
+    "sprites": "cast/erika/sprites"
    }
   ]
  },
@@ -63199,6 +64491,61 @@
        "kind": "risk",
        "value": -0.5,
        "when": "place: ot_kura or ot_kura_back"
+      }
+     ]
+    }
+   },
+   {
+    "id": "tk_photographer",
+    "name": "Through the lens",
+    "icon": "📷",
+    "category": "creativity",
+    "needs": [
+     "jobs",
+     "photography",
+     "shop",
+     "hobbies"
+    ],
+    "desc": "From carrying Erika's cases to a photobook with your name on it.",
+    "steps": [
+     {
+      "name": "A camera, an eye and a job at Studio MIZU",
+      "when": "owns: te_compact_cam or te_film_cam or te_mirrorless or te_fullframe or te_phone; skill: photography 5; job: photographer",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "Out on your own: five stars, a wedding and a festival",
+      "when": "freelance: any; portfolio: 1; photos: wedding; photos: festival",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A portfolio of twelve and a studio of your own",
+      "when": "portfolio: 12; studio: any",
+      "reward": {
+       "mood": 6
+      }
+     },
+     {
+      "name": "A photobook out, and photography mastered",
+      "when": "photobook: 1; skill: photography 10",
+      "reward": {
+       "mood": 10,
+       "keepsake": "gk_my_photobook"
+      }
+     }
+    ],
+    "perk": {
+     "name": "An eye for light",
+     "desc": "Photography rolls +1, shoots included.",
+     "effects": [
+      {
+       "kind": "roll",
+       "target": "photography",
+       "value": 1
       }
      ]
     }
@@ -76370,6 +77717,23 @@
      "cold": "The book stayed shut, and Kaede took the copies back herself."
     },
     "hint": "See Kaede's story through to its end."
+   },
+   {
+    "id": "mem_sl_erika_mizu",
+    "hall": "memories",
+    "group": "storylines",
+    "name": "Erika",
+    "who": "Erika",
+    "when": "thread: erika_mizu",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "handed": "Erika hands {{user}} the keys to the white basement and goes back to shooting abroad.",
+     "comeback": "Her comeback cover sells out in a week, with {{user}} on the second camera.",
+     "leaves": "She takes the plane to Milan, and Studio MIZU runs on without her."
+    },
+    "hint": "See Erika's story through to its end."
    }
   ],
   "museum": {
@@ -76679,5 +78043,2333 @@
     "lend": true
    }
   ]
+ },
+ "photo": {
+  "words": [
+   {
+    "at": 0,
+    "text": "unknown"
+   },
+   {
+    "at": 20,
+    "text": "getting noticed"
+   },
+   {
+    "at": 50,
+    "text": "in demand"
+   },
+   {
+    "at": 80,
+    "text": "a name"
+   }
+  ],
+  "small": {
+   "size": 3,
+   "every": 2,
+   "cap": 28
+  },
+  "full": {
+   "min": 3,
+   "max": 5
+  },
+  "clients": [
+   {
+    "id": "pixel_harbor",
+    "name": "Pixel Harbor",
+    "icon": "🌊",
+    "kind": "small",
+    "floor": 0,
+    "contact": "always",
+    "pay": 0.8,
+    "desc": "a stock agency that buys pictures of Tokyo by the dozen and never asks your name"
+   },
+   {
+    "id": "shirakaba",
+    "name": "Kissa Shirakaba",
+    "icon": "☕",
+    "kind": "small",
+    "floor": 0,
+    "contact": "always",
+    "pay": 0.8,
+    "desc": "the 1970s coffee house in Shimokitazawa, its master in a bow tie"
+   },
+   {
+    "id": "kamejiro",
+    "name": "Ramen Kamejirō",
+    "icon": "🍜",
+    "kind": "small",
+    "floor": 0,
+    "contact": "always",
+    "pay": 0.8,
+    "desc": "the twelve-seat counter under a red lantern in Asakusa"
+   },
+   {
+    "id": "second_bloom",
+    "name": "Second Bloom",
+    "icon": "👗",
+    "kind": "small",
+    "floor": 0,
+    "contact": "always",
+    "pay": 0.8,
+    "desc": "the vintage shop up a short stair in Shimokitazawa, posting its racks every week"
+   },
+   {
+    "id": "friend",
+    "name": "A friend",
+    "icon": "🤝",
+    "kind": "small",
+    "floor": 0,
+    "contact": "always",
+    "pay": 0.6,
+    "desc": "people you know who want one good picture of themselves"
+   },
+   {
+    "id": "machi",
+    "name": "Machi",
+    "icon": "🗞️",
+    "kind": "magazine",
+    "floor": 15,
+    "contact": "job",
+    "pay": 1,
+    "desc": "a city weekly of neighbourhoods, bars and the people in them"
+   },
+   {
+    "id": "hara_hachibu",
+    "name": "Hara Hachibu",
+    "icon": "🍱",
+    "kind": "magazine",
+    "floor": 20,
+    "contact": "job",
+    "pay": 1,
+    "desc": "a food monthly that photographs the bowl, never the chef's ego"
+   },
+   {
+    "id": "kurahashi",
+    "name": "The Kurahashi kura",
+    "icon": "🏛️",
+    "kind": "magazine",
+    "floor": 20,
+    "contact": "museum: open",
+    "pay": 1,
+    "desc": "the Yanaka storehouse museum and its first catalogue"
+   },
+   {
+    "id": "tabi_kaze",
+    "name": "Tabi to Kaze",
+    "icon": "🗻",
+    "kind": "magazine",
+    "floor": 50,
+    "contact": "job",
+    "pay": 1.2,
+    "desc": "a travel monthly of lakes, ryokan and first light"
+   },
+   {
+    "id": "velvet_mode",
+    "name": "Velvet Mode",
+    "icon": "💄",
+    "kind": "magazine",
+    "floor": 50,
+    "contact": "job",
+    "pay": 1.3,
+    "desc": "the fashion monthly everyone reads at the salon; its editor-in-chief, Saeko Kurosawa, decides who shoots its covers"
+   },
+   {
+    "id": "koyosha",
+    "name": "Kōyōsha",
+    "icon": "📚",
+    "kind": "magazine",
+    "floor": 60,
+    "contact": "job",
+    "pay": 1,
+    "desc": "a small Jinbōchō publisher of photobooks, beautifully printed and slowly sold"
+   },
+   {
+    "id": "toto_shimbun",
+    "name": "Tōto Shimbun",
+    "icon": "📰",
+    "kind": "event",
+    "floor": 10,
+    "contact": "job",
+    "pay": 0.9,
+    "desc": "a daily paper that wants the festival by tomorrow morning"
+   },
+   {
+    "id": "wave_tv",
+    "name": "Wave TV",
+    "icon": "📺",
+    "kind": "event",
+    "floor": 20,
+    "contact": "job",
+    "pay": 1,
+    "desc": "the waterfront station's press office: tapings, conventions and the late music show"
+   },
+   {
+    "id": "mochi_byte",
+    "name": "Mochi Byte Games",
+    "icon": "🎮",
+    "kind": "event",
+    "floor": 20,
+    "contact": "job",
+    "pay": 1,
+    "desc": "the indie studio in Akihabara, launching its new game"
+   },
+   {
+    "id": "shirotae",
+    "name": "Atelier Shirotae",
+    "icon": "💐",
+    "kind": "wedding",
+    "floor": 20,
+    "contact": "job",
+    "pay": 1,
+    "desc": "an Omotesandō wedding planner of small, pretty weddings"
+   },
+   {
+    "id": "mori_hikari",
+    "name": "Mori no Hikari Weddings",
+    "icon": "⛩️",
+    "kind": "wedding",
+    "floor": 50,
+    "contact": "job",
+    "pay": 1.2,
+    "desc": "shrine and ryokan weddings for families who want it done properly"
+   },
+   {
+    "id": "mizu_regulars",
+    "name": "Studio MIZU's regulars",
+    "icon": "📷",
+    "kind": "portrait",
+    "floor": 0,
+    "contact": "job",
+    "pay": 1,
+    "desc": "the small jobs Erika passes down to her first assistant: headshots, families, engagements"
+   },
+   {
+    "id": "kirameki",
+    "name": "Kirameki Records",
+    "icon": "🎸",
+    "kind": "portrait",
+    "floor": 20,
+    "contact": "job",
+    "pay": 1,
+    "desc": "an indie label in Shimokitazawa: Paper Lanterns and a dozen bands nobody has heard of yet"
+   },
+   {
+    "id": "hikari_labs",
+    "name": "Hikari Labs",
+    "icon": "💡",
+    "kind": "portrait",
+    "floor": 20,
+    "contact": "feels: Rina friend",
+    "pay": 1.1,
+    "desc": "Rina's startup, which needs to look like it will survive"
+   },
+   {
+    "id": "starlight",
+    "name": "Stage Starlight",
+    "icon": "🌟",
+    "kind": "portrait",
+    "floor": 50,
+    "contact": "job",
+    "pay": 1.2,
+    "desc": "the Akihabara idol agency behind Hanabira Signal"
+   }
+  ],
+  "briefs": [
+   {
+    "board": "full",
+    "rep": 3,
+    "id": "br_machi_yanaka",
+    "client": "machi",
+    "kind": "magazine",
+    "name": "Yanaka, slowly",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "ot_yanaka"
+    ],
+    "window": "period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "floor": 15,
+    "pay": 16000,
+    "needs": {
+     "photography": 2
+    },
+    "dc": 11,
+    "hours": 2,
+    "text": "The back pages want Yanaka at walking pace: the croquette counter, the temple cats, washing on the poles. Daylight, dry, nothing posed."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_machi_street",
+    "client": "machi",
+    "kind": "magazine",
+    "name": "Takeshita on the weekend",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "sb_takeshita"
+    ],
+    "window": "weekend: yes; period: afternoon",
+    "floor": 30,
+    "pay": 30000,
+    "needs": {
+     "photography": 4,
+     "fashion": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "client",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "young people in their weekend best on Takeshita Street, stopped and asked for one picture"
+    },
+    "text": "Street style for the summer issue: twelve people in their best, one frame each, names spelled right."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_machi_goldengai",
+    "client": "machi",
+    "kind": "magazine",
+    "name": "Golden Gai after midnight",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "sj_goldengai"
+    ],
+    "window": "period: night or latenight",
+    "floor": 40,
+    "pay": 34500,
+    "needs": {
+     "photography": 4
+    },
+    "gear": [
+     "flash"
+    ],
+    "hours": 2,
+    "text": "Six seats, one bulb, a bartender who hates cameras. Get the bar as it is at one in the morning, without anyone's face they didn't agree to."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_hara_tsukiji",
+    "client": "hara_hachibu",
+    "kind": "magazine",
+    "name": "Tsukiji before the crowds",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "mg_tsukiji"
+    ],
+    "window": "period: rush",
+    "floor": 20,
+    "pay": 25500,
+    "needs": {
+     "photography": 3
+    },
+    "hours": 2,
+    "text": "The outer market between seven and ten: knives being honed, the first omelets off the pan, ice on the stalls. Food first, people second."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_hara_kamejiro",
+    "client": "hara_hachibu",
+    "kind": "magazine",
+    "name": "Genzō's broth",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "ot_ramen"
+    ],
+    "window": "period: evening or night",
+    "floor": 35,
+    "pay": 32000,
+    "needs": {
+     "photography": 4
+    },
+    "hours": 2,
+    "subject": {
+     "who": "Genzō",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "Genzō at the pot under the red lantern, steam in the light, the last bowl of the night"
+    },
+    "text": "A page on the last old masters of Asakusa. He says he has no time for this. Get him at the pot anyway."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_tabi_ashi",
+    "client": "tabi_kaze",
+    "kind": "magazine",
+    "name": "Lake Ashi at first light",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "hk_ashi"
+    ],
+    "window": "period: firsttrain; weather: sunny or fair",
+    "floor": 55,
+    "pay": 38000,
+    "needs": {
+     "photography": 5
+    },
+    "gear": [
+     "drone"
+    ],
+    "days": 7,
+    "dc": 13,
+    "hours": 2,
+    "text": "The red gate standing in the water, from above, with the mist still on the lake. One clear dawn is all it takes."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_tabi_minato",
+    "client": "tabi_kaze",
+    "kind": "magazine",
+    "name": "Minato Mirai by night",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "yk_bay"
+    ],
+    "window": "period: night; weather: not rain or heavyrain or storm or snow",
+    "floor": 50,
+    "pay": 32500,
+    "needs": {
+     "photography": 5
+    },
+    "rung": 3,
+    "dc": 13,
+    "hours": 2,
+    "text": "The wheel, the towers and the red-brick warehouses on a still night, long exposures, the water like glass."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_tabi_koyo",
+    "client": "tabi_kaze",
+    "kind": "magazine",
+    "name": "Hakone in red and gold",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "hk_yumoto"
+    ],
+    "when": "season: autumn",
+    "window": "season: autumn; weather: sunny or fair or partly or cloudy",
+    "floor": 60,
+    "pay": 36000,
+    "needs": {
+     "photography": 6
+    },
+    "days": 7,
+    "dc": 13,
+    "hours": 2,
+    "text": "The autumn cover story: the old onsen town under the maples, the river, the steam. Colour, not postcards."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_tabi_fuji",
+    "client": "tabi_kaze",
+    "kind": "magazine",
+    "name": "Fuji from Ōwakudani",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "hk_owakudani"
+    ],
+    "when": "season: winter",
+    "window": "season: winter; weather: sunny",
+    "floor": 70,
+    "pay": 41500,
+    "needs": {
+     "photography": 7
+    },
+    "rung": 4,
+    "days": 10,
+    "dc": 14,
+    "hours": 2,
+    "text": "The mountain over the sulphur vents on a hard blue winter day. Everyone has this picture; we want the one nobody has."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_velvet_rain",
+    "client": "velvet_mode",
+    "kind": "magazine",
+    "name": "Omotesandō in the rain",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "sb_omotesando"
+    ],
+    "window": "weather: rain or heavyrain; period: midmorning or afternoon",
+    "floor": 50,
+    "pay": 40500,
+    "needs": {
+     "photography": 5,
+     "fashion": 3
+    },
+    "rung": 3,
+    "days": 7,
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "client",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "a model in a long camel coat under the zelkovas in the rain, the boutiques blurred behind her"
+    },
+    "text": "Eight pages of coats on the avenue, and it has to be raining. Real rain: the art director can tell."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_velvet_cover",
+    "client": "velvet_mode",
+    "kind": "magazine",
+    "name": "The cover",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "studio"
+    ],
+    "studio": "cyc",
+    "floor": 80,
+    "contact": true,
+    "pay": 58500,
+    "needs": {
+     "photography": 8,
+     "fashion": 6
+    },
+    "rung": 4,
+    "dc": 16,
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "the month's cover model on a white cyclorama, one light, the editor watching the monitor"
+    },
+    "text": "The cover. A white wall, the season's face, and Kurosawa looking over your shoulder at every frame."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_velvet_ginza",
+    "client": "velvet_mode",
+    "kind": "magazine",
+    "name": "Ten pages on Chūō-dōri",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "mg_chuodori"
+    ],
+    "window": "period: evening; weather: sunny or fair or partly or cloudy",
+    "floor": 85,
+    "contact": true,
+    "pay": 61000,
+    "needs": {
+     "photography": 8,
+     "fashion": 6
+    },
+    "rung": 4,
+    "dc": 16,
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "evening gowns on Ginza's grand avenue as the flagship windows light up"
+    },
+    "text": "The anniversary story: gowns on the avenue at the blue hour, the shop windows coming on behind. Ten pages, no second chances."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_kura_plates",
+    "client": "kurahashi",
+    "kind": "magazine",
+    "name": "The catalogue's plates",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "ot_kura"
+    ],
+    "when": "museum: open",
+    "window": "period: midmorning or afternoon",
+    "floor": 20,
+    "pay": 27500,
+    "needs": {
+     "photography": 4,
+     "logic": 2
+    },
+    "dc": 13,
+    "hours": 3,
+    "text": "Every case photographed for the kura's first catalogue: lacquer without glare, gold leaf without fingerprints, and not the curator, thank you."
+   },
+   {
+    "board": "full",
+    "rep": 4,
+    "id": "br_mizu_rings",
+    "client": "mizu_regulars",
+    "when": "freelance: not any",
+    "kind": "magazine",
+    "name": "Rings on black velvet",
+    "branches": [
+     "ph_editorial"
+    ],
+    "places": [
+     "sb_studio_mizu"
+    ],
+    "floor": 10,
+    "pay": 13000,
+    "needs": {
+     "photography": 3
+    },
+    "dc": 11,
+    "hours": 1,
+    "text": "A jeweller off Omotesandō wants twelve rings for her catalogue. Erika won't touch product work. You will, after hours."
+   },
+   {
+    "board": "full",
+    "rep": 3,
+    "id": "br_toto_hokoten",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "Ginza without cars",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "mg_chuodori"
+    ],
+    "window": "event: ginza_hokoten",
+    "floor": 10,
+    "pay": 14000,
+    "needs": {
+     "photography": 2
+    },
+    "dc": 11,
+    "hours": 1,
+    "text": "Sunday on the car-free avenue: the chairs in the street, families on the white lines. One picture for Monday's city page."
+   },
+   {
+    "board": "full",
+    "rep": 3,
+    "id": "br_toto_sanja",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "Sanja's last day",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ot_sensoji"
+    ],
+    "window": "festival: sanja",
+    "days": 2,
+    "floor": 15,
+    "pay": 18000,
+    "needs": {
+     "photography": 3,
+     "fitness": 2
+    },
+    "hours": 2,
+    "text": "The portable shrines through Asakusa on the last day. Get in close; the paper goes to print at midnight."
+   },
+   {
+    "board": "full",
+    "rep": 3,
+    "id": "br_toto_ekiden",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "The relay at the lake",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "hk_ashi"
+    ],
+    "window": "festival: ekiden",
+    "days": 2,
+    "floor": 15,
+    "pay": 18000,
+    "needs": {
+     "photography": 3
+    },
+    "hours": 2,
+    "text": "The university runners coming in by Lake Ashi in the cold. The winner's face, and the last runner's."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_toto_halloween",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "Halloween at the crossing",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "sb_crossing"
+    ],
+    "window": "festival: halloween; period: evening or night",
+    "days": 2,
+    "floor": 20,
+    "pay": 25500,
+    "needs": {
+     "photography": 3
+    },
+    "gear": [
+     "flash"
+    ],
+    "hours": 2,
+    "text": "The ward asks people not to come, and they come anyway. The crowd on the crossing in costume, for the morning edition."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_wave_taping",
+    "client": "wave_tv",
+    "kind": "event",
+    "name": "Behind the taping",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "bay_tv"
+    ],
+    "window": "event: tv_taping",
+    "floor": 20,
+    "pay": 25500,
+    "needs": {
+     "photography": 3
+    },
+    "hours": 2,
+    "text": "Stills of the variety show's audience and the stage for the station's magazine. Stay out of the cameras' way."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_mochi_launch",
+    "client": "mochi_byte",
+    "kind": "event",
+    "name": "Launch day at Mochi Byte",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ak_gamedev"
+    ],
+    "window": "period: afternoon or evening",
+    "floor": 20,
+    "pay": 25500,
+    "needs": {
+     "photography": 3
+    },
+    "hours": 2,
+    "subject": {
+     "who": "Hannah",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "the localisation team at their standing desks as the launch counter hits zero, Hannah in the middle of it"
+    },
+    "text": "The game goes live at five. The team wants the moment it does, and one good picture of the localisation team for the press kit."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_toto_awaodori",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "Awa Odori in Kōenji",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ws_koenji"
+    ],
+    "window": "festival: awaodori",
+    "days": 2,
+    "floor": 25,
+    "pay": 27500,
+    "needs": {
+     "photography": 3,
+     "fitness": 2
+    },
+    "hours": 2,
+    "text": "The dancing troupes through the arcade: hands up, straw hats, the drums. Keep up with them."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_toto_illumination",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "The light tunnels",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "rp_crossing"
+    ],
+    "window": "festival: illumination; period: evening or night",
+    "days": 4,
+    "floor": 30,
+    "pay": 30000,
+    "needs": {
+     "photography": 4
+    },
+    "rung": 3,
+    "hours": 1,
+    "text": "The winter illuminations in Roppongi, with people in them: couples, families, a man alone with a cake box."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_wave_fancon",
+    "client": "wave_tv",
+    "kind": "event",
+    "name": "Cosplay at the convention",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "bay_expo"
+    ],
+    "window": "festival: fancon",
+    "days": 3,
+    "floor": 35,
+    "pay": 32000,
+    "needs": {
+     "photography": 4
+    },
+    "hours": 3,
+    "text": "The summer convention's best costumes for the station's weekend show. Ask first, every time."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_toto_fireworks",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "The fireworks from the water",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ot_sumida"
+    ],
+    "window": "festival: fireworks; period: evening or night",
+    "days": 2,
+    "floor": 45,
+    "pay": 39000,
+    "needs": {
+     "photography": 5
+    },
+    "gear": [
+     "housing"
+    ],
+    "rung": 3,
+    "hours": 2,
+    "text": "A seat on a press boat on the Sumida, spray and all. The front page if it's good."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_wave_gig",
+    "client": "wave_tv",
+    "kind": "event",
+    "name": "Basement Moon for the late show",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ws_livehouse"
+    ],
+    "window": "event: livehouse_gig",
+    "floor": 50,
+    "pay": 34000,
+    "needs": {
+     "photography": 5
+    },
+    "gear": [
+     "flash"
+    ],
+    "rung": 3,
+    "dc": 13,
+    "hours": 2,
+    "text": "The late music show is doing a night of Shimokita bands. Stills from the pit, sweat and all, for the broadcast's titles."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_toto_tuna",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "The tuna auction at dawn",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "bay_market"
+    ],
+    "window": "event: tuna",
+    "floor": 55,
+    "pay": 32500,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 1,
+    "text": "The auctioneer's hand, the buyers' caps, the frozen fish in rows. The weekend magazine's opening spread."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_toto_newyear",
+    "client": "toto_shimbun",
+    "kind": "event",
+    "name": "The year turning at Sensō-ji",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ot_sensoji"
+    ],
+    "window": "festival: omisoka; period: night or latenight",
+    "days": 2,
+    "floor": 80,
+    "contact": true,
+    "pay": 49500,
+    "needs": {
+     "photography": 7,
+     "fitness": 3
+    },
+    "rung": 4,
+    "dc": 16,
+    "hours": 2,
+    "text": "New Year's front page: the bell, the crowd, the incense smoke at midnight. Only one photographer gets the temple roof. This year it's you."
+   },
+   {
+    "board": "full",
+    "rep": 4,
+    "id": "br_mizu_engaged",
+    "client": "mizu_regulars",
+    "when": "freelance: not any",
+    "kind": "wedding",
+    "name": "An engagement portrait",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "sb_studio_mizu"
+    ],
+    "floor": 0,
+    "pay": 14000,
+    "needs": {
+     "photography": 3
+    },
+    "dc": 11,
+    "hours": 1,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "a nervous engaged couple on the white floor of Studio MIZU after hours"
+    },
+    "text": "A couple who wanted Erika and got her first assistant. After hours, in the white room: make them glad it was you."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_shirotae_yanaka",
+    "client": "shirotae",
+    "kind": "wedding",
+    "name": "An engagement walk in Yanaka",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ot_yanaka"
+    ],
+    "window": "period: afternoon; weather: sunny or fair",
+    "floor": 20,
+    "pay": 27500,
+    "needs": {
+     "photography": 3,
+     "charisma": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "an engaged couple walking the old lanes of Yanaka in the afternoon light"
+    },
+    "text": "Our couple met in Yanaka and want it in the pictures: the lanes, the steps, the cats. Light afternoon, nothing stiff."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_shirotae_party",
+    "client": "shirotae",
+    "kind": "wedding",
+    "name": "A small party on Omotesandō",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "sb_omotesando"
+    ],
+    "window": "weekend: yes; period: afternoon",
+    "floor": 25,
+    "pay": 32000,
+    "needs": {
+     "photography": 4,
+     "charisma": 2
+    },
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "thirty guests at a wedding party in a café on the avenue, speeches and a cake"
+    },
+    "text": "Thirty guests, two speeches, a cake from the patisserie next door. The bride's grandmother must be in at least five."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_shirotae_sakura",
+    "client": "shirotae",
+    "kind": "wedding",
+    "name": "Under the cherry blossoms",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "ot_ueno"
+    ],
+    "window": "festival: hanami; weather: not rain or heavyrain or storm",
+    "floor": 30,
+    "pay": 34500,
+    "needs": {
+     "photography": 4
+    },
+    "hours": 2,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "a couple in their wedding clothes under the cherry trees in Ueno Park, blue picnic sheets everywhere"
+    },
+    "text": "Pre-wedding pictures under the blossoms, in the three days they last. Somehow without forty picnic sheets in the frame."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_shirotae_chinatown",
+    "client": "shirotae",
+    "kind": "wedding",
+    "name": "A banquet in Chinatown",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "yk_chinatown"
+    ],
+    "window": "weekend: yes; period: evening",
+    "floor": 35,
+    "pay": 37000,
+    "needs": {
+     "photography": 4,
+     "charisma": 2
+    },
+    "gear": [
+     "flash"
+    ],
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "a wedding banquet of ten round tables in a red-and-gold Chinatown restaurant"
+    },
+    "text": "Ten round tables, a lion dance between the courses, two families who don't speak the same language. Every table, every uncle."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_shirotae_bay",
+    "client": "shirotae",
+    "kind": "wedding",
+    "name": "Vows by the bay",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "yk_yamashita"
+    ],
+    "window": "weekend: yes; period: afternoon; weather: sunny or fair",
+    "floor": 40,
+    "pay": 39000,
+    "needs": {
+     "photography": 5,
+     "charisma": 3
+    },
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "a seafront ceremony in Yamashita Park, the rose garden and the harbour behind"
+    },
+    "text": "A ceremony on the seafront in the rose garden. The wind off the bay has opinions about veils."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_mori_meiji",
+    "client": "mori_hikari",
+    "kind": "wedding",
+    "name": "A shrine wedding at Meiji Jingū",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "sb_meiji"
+    ],
+    "window": "weekend: yes; period: midmorning",
+    "floor": 50,
+    "pay": 38000,
+    "needs": {
+     "photography": 5,
+     "charisma": 3
+    },
+    "rung": 3,
+    "dc": 13,
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "the procession under the red parasol across the shrine's gravel courtyard"
+    },
+    "text": "The procession under the red parasol, the priests, the families in black. Quiet as the shrine, and nothing missed."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_mori_rain",
+    "client": "mori_hikari",
+    "kind": "wedding",
+    "name": "A wedding in the rain",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "sb_meiji"
+    ],
+    "window": "weekend: yes; weather: rain or heavyrain; period: midmorning or afternoon",
+    "days": 14,
+    "floor": 60,
+    "pay": 39500,
+    "needs": {
+     "photography": 6,
+     "charisma": 4
+    },
+    "gear": [
+     "housing"
+    ],
+    "rung": 3,
+    "dc": 14,
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "a shrine wedding in the rain, the red parasol shining wet"
+    },
+    "text": "The couple want rain, on purpose: a wet courtyard, the parasol shining. If the sky won't, we wait for it."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_mori_ryokan",
+    "client": "mori_hikari",
+    "kind": "wedding",
+    "name": "A ryokan wedding in Hakone",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "hk_ryokan"
+    ],
+    "window": "weekend: yes; period: afternoon or evening",
+    "days": 10,
+    "floor": 65,
+    "pay": 43000,
+    "needs": {
+     "photography": 6,
+     "charisma": 4
+    },
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "a small family wedding in a ryokan's tatami hall, the garden behind sliding doors"
+    },
+    "text": "Twenty family, a tatami hall, a garden behind the sliding doors and a dinner that goes on for hours."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_mori_palace",
+    "client": "mori_hikari",
+    "kind": "wedding",
+    "name": "A society wedding by the moat",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "mg_palace"
+    ],
+    "window": "weekend: yes; period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "floor": 80,
+    "contact": true,
+    "pay": 57500,
+    "needs": {
+     "photography": 8,
+     "charisma": 5
+    },
+    "rung": 4,
+    "dc": 16,
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "an old family's wedding portraits by the palace moat and the stone walls"
+    },
+    "text": "An old family, a guest list with ministers on it, portraits by the moat. They asked for you by name."
+   },
+   {
+    "board": "full",
+    "rep": 4,
+    "id": "br_mizu_headshots",
+    "client": "mizu_regulars",
+    "when": "freelance: not any",
+    "kind": "portrait",
+    "name": "Headshots for an agency",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "sb_studio_mizu"
+    ],
+    "floor": 0,
+    "pay": 12000,
+    "needs": {
+     "photography": 3
+    },
+    "dc": 11,
+    "hours": 1,
+    "subject": {
+     "who": "client",
+     "expr": "neutral",
+     "outfit": "clothes",
+     "scene": "a young actor in front of a grey backdrop in Studio MIZU"
+    },
+    "text": "A small acting agency's new faces, one at a time, one light. Erika says if they look like passport photos you're fired."
+   },
+   {
+    "board": "full",
+    "rep": 4,
+    "id": "br_mizu_family",
+    "client": "mizu_regulars",
+    "when": "freelance: not any",
+    "kind": "portrait",
+    "name": "A family in the white room",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "sb_studio_mizu"
+    ],
+    "floor": 5,
+    "pay": 13000,
+    "needs": {
+     "photography": 3
+    },
+    "dc": 11,
+    "hours": 1,
+    "subject": {
+     "who": "client",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "three generations of a family on the white floor, a toddler who won't sit still"
+    },
+    "text": "Grandmother's eightieth: three generations and a toddler, all in one frame, all looking at you at once."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_kirameki_press",
+    "client": "kirameki",
+    "kind": "portrait",
+    "name": "Paper Lanterns' press photo",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "ws_livehouse"
+    ],
+    "window": "period: evening or night",
+    "floor": 20,
+    "pay": 25500,
+    "needs": {
+     "photography": 3
+    },
+    "hours": 2,
+    "subject": {
+     "who": "Nanami",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "the band against Basement Moon's sticker-papered wall before a show, Nanami up front"
+    },
+    "text": "The label needs a press photo that doesn't look like every other band against a wall. It will be a wall. Make it a good one."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_hikari_founder",
+    "client": "hikari_labs",
+    "kind": "portrait",
+    "name": "The founder, for the launch",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "sb_startup"
+    ],
+    "window": "period: afternoon or evening",
+    "floor": 25,
+    "contact": true,
+    "pay": 30000,
+    "needs": {
+     "photography": 4
+    },
+    "hours": 1,
+    "subject": {
+     "who": "Rina",
+     "expr": "optimism",
+     "outfit": "clothes",
+     "scene": "Rina at the glass wall of Hikari Labs, the city behind, a hoodie over a blazer"
+    },
+    "text": "A portrait of the founder for the launch deck and the press: confident, not desperate. Rina says that's the hard part."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_kirameki_cover",
+    "client": "kirameki",
+    "kind": "portrait",
+    "name": "Paper Lanterns' album cover",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "ws_shimokita"
+    ],
+    "window": "period: night; weather: rain or heavyrain",
+    "days": 10,
+    "floor": 35,
+    "pay": 34500,
+    "needs": {
+     "photography": 4
+    },
+    "rung": 3,
+    "gear": [
+     "flash"
+    ],
+    "hours": 2,
+    "subject": {
+     "who": "Nanami",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "Nanami on a Shimokitazawa rooftop at night in the rain, the band behind her, the neon below"
+    },
+    "text": "The new album is called Rain on the Roof, so it's a roof, at night, in the rain. Nanami wants it to look like it hurts."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_kirameki_trio",
+    "client": "kirameki",
+    "kind": "portrait",
+    "name": "A trio on white",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "studio"
+    ],
+    "studio": "cyc",
+    "floor": 45,
+    "pay": 37000,
+    "needs": {
+     "photography": 5,
+     "logic": 2
+    },
+    "hours": 2,
+    "subject": {
+     "who": "client",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "a jazz trio from Yokohama and their instruments on a white cyclorama"
+    },
+    "text": "A jazz trio, a double bass and a white wall. The label wants it clean enough for a vinyl sleeve."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_starlight_intake",
+    "client": "starlight",
+    "kind": "portrait",
+    "name": "Headshots for the new intake",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "studio"
+    ],
+    "studio": true,
+    "floor": 50,
+    "pay": 32500,
+    "needs": {
+     "photography": 5,
+     "logic": 2
+    },
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "client",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "the agency's new trainees one by one under a softbox"
+    },
+    "text": "Twelve trainees, twelve headshots, twelve mothers on the phone afterwards. Studio light, no filters."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_starlight_single",
+    "client": "starlight",
+    "kind": "portrait",
+    "name": "Hanabira Signal's new single",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "ak_idol"
+    ],
+    "window": "period: afternoon or evening",
+    "floor": 55,
+    "pay": 36000,
+    "needs": {
+     "photography": 5,
+     "fashion": 3
+    },
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "Hina",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "Hanabira Signal on the small stage under the fairy lights, Hina in the middle"
+    },
+    "text": "The jacket for the new single: five members, one stage, the fairy lights. The agency approves every frame."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_starlight_center",
+    "client": "starlight",
+    "kind": "portrait",
+    "name": "Hina's solo cover",
+    "branches": [
+     "ph_studio"
+    ],
+    "places": [
+     "studio"
+    ],
+    "studio": "cyc",
+    "floor": 80,
+    "contact": true,
+    "pay": 54000,
+    "needs": {
+     "photography": 8,
+     "fashion": 5
+    },
+    "rung": 4,
+    "dc": 16,
+    "hours": 3,
+    "subject": {
+     "who": "Hina",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "Hina alone on a white cyclorama for her first solo magazine cover"
+    },
+    "text": "Hina's first solo cover. The agency wants the idol; Hina, quietly, wants herself. Get both."
+   },
+   {
+    "board": "full",
+    "rep": 2,
+    "id": "br_velvet_star",
+    "client": "velvet_mode",
+    "kind": "portrait",
+    "name": "A star's portrait",
+    "branches": [
+     "ph_studio",
+     "ph_editorial"
+    ],
+    "places": [
+     "studio"
+    ],
+    "studio": true,
+    "floor": 85,
+    "contact": true,
+    "pay": 63000,
+    "needs": {
+     "photography": 9,
+     "fashion": 6
+    },
+    "rung": 5,
+    "dc": 17,
+    "hours": 3,
+    "subject": {
+     "who": "client",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "a film star everyone knows, one hour, one light, her publicist at the door"
+    },
+    "text": "One hour with an actress who has been photographed by everyone. Make her look like nobody has."
+   },
+   {
+    "board": "full",
+    "rep": 3,
+    "id": "wedding_friends",
+    "client": "friend",
+    "kind": "wedding",
+    "name": "A friend's wedding",
+    "branches": [
+     "ph_weddings"
+    ],
+    "places": [
+     "sb_meiji",
+     "yk_park"
+    ],
+    "pay": 36000,
+    "needs": {
+     "photography": 3
+    },
+    "hours": 3,
+    "subject": {
+     "who": "couple",
+     "expr": "love",
+     "outfit": "clothes",
+     "scene": "the two of them on their wedding day, their friends and families around them"
+    },
+    "text": "Two people you know are getting married and want you behind the camera. No pressure: it's only the most important day of their lives."
+   },
+   {
+    "board": "small",
+    "id": "sm_pixel_rain",
+    "client": "pixel_harbor",
+    "kind": "stock",
+    "name": "Tokyo in the rain",
+    "places": [
+     "sb_crossing",
+     "ws_shimokita",
+     "ot_yanaka"
+    ],
+    "window": "weather: rain or heavyrain",
+    "days": 7,
+    "pay": 6000,
+    "needs": {
+     "photography": 1
+    },
+    "dc": 10,
+    "hours": 1,
+    "text": "Wanted: umbrellas, wet streets, reflections. Any neighbourhood, any time, as long as it's really raining."
+   },
+   {
+    "board": "small",
+    "id": "sm_pixel_tocho",
+    "client": "pixel_harbor",
+    "kind": "stock",
+    "name": "A clear sky over Tochō",
+    "places": [
+     "sj_tocho"
+    ],
+    "window": "weather: sunny",
+    "pay": 5000,
+    "dc": 10,
+    "hours": 1,
+    "text": "The city from the 45th floor on a cloudless day, horizon straight, glass clean."
+   },
+   {
+    "board": "small",
+    "id": "sm_pixel_rush",
+    "client": "pixel_harbor",
+    "kind": "stock",
+    "name": "The crossing at rush hour",
+    "places": [
+     "sb_crossing"
+    ],
+    "window": "period: rush",
+    "pay": 5000,
+    "dc": 10,
+    "hours": 1,
+    "text": "The scramble at eight in the morning: suits, umbrellas, a thousand people at once. Everyone buys this one."
+   },
+   {
+    "board": "small",
+    "id": "sm_pixel_yoyogi",
+    "client": "pixel_harbor",
+    "kind": "event",
+    "name": "Sunday at Yoyogi",
+    "places": [
+     "sb_yoyogi"
+    ],
+    "window": "event: yoyogi_sunday",
+    "pay": 6000,
+    "needs": {
+     "photography": 1
+    },
+    "dc": 10,
+    "hours": 1,
+    "text": "The Sunday crowd in the park: dancers, a band, the flea-market stalls. Faces small, colours big."
+   },
+   {
+    "board": "small",
+    "id": "sm_shirakaba_menu",
+    "client": "shirakaba",
+    "kind": "stock",
+    "name": "The new menu",
+    "places": [
+     "ws_kissaten"
+    ],
+    "window": "period: midmorning or afternoon",
+    "pay": 7000,
+    "needs": {
+     "photography": 2
+    },
+    "dc": 11,
+    "hours": 1,
+    "text": "The master wants the new morning set photographed for the window by Friday. Seo-yeon says she was going to shoot it on film. The master says Friday."
+   },
+   {
+    "board": "small",
+    "id": "sm_kamejiro_bowls",
+    "client": "kamejiro",
+    "kind": "stock",
+    "name": "Bowls for the window",
+    "places": [
+     "ot_ramen"
+    ],
+    "window": "period: evening",
+    "pay": 6000,
+    "needs": {
+     "photography": 1
+    },
+    "dc": 10,
+    "hours": 1,
+    "text": "Three bowls for the sign outside, steam and all. Genzō says the old photo was fine. The old photo is from 1994."
+   },
+   {
+    "board": "small",
+    "id": "sm_bloom_racks",
+    "client": "second_bloom",
+    "kind": "stock",
+    "name": "This week's racks",
+    "places": [
+     "ws_vintage"
+    ],
+    "window": "period: afternoon or evening",
+    "pay": 5000,
+    "needs": {
+     "photography": 1,
+     "fashion": 1
+    },
+    "dc": 10,
+    "hours": 1,
+    "text": "Ten pieces for the shop's posts: the seventies denim, a kimono jacket, the good boots. Flat lay or on the rail, your call."
+   },
+   {
+    "board": "small",
+    "id": "sm_friend_portrait",
+    "client": "friend",
+    "kind": "portrait",
+    "name": "A portrait for a friend",
+    "places": [
+     "sb_yoyogi",
+     "ot_ueno",
+     "yk_yamashita"
+    ],
+    "window": "weather: sunny or fair or partly or cloudy",
+    "pay": 5000,
+    "needs": {
+     "photography": 1
+    },
+    "dc": 10,
+    "hours": 1,
+    "subject": {
+     "who": "cast",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "a friend in the park in good light, laughing at being photographed"
+    },
+    "text": "Someone you know wants one good picture of themselves for once: a profile, a card for their parents, just because."
+   },
+   {
+    "board": "small",
+    "id": "sm_chloe_home",
+    "client": "friend",
+    "kind": "portrait",
+    "name": "Chloe, for her mum",
+    "places": [
+     "ot_yanaka",
+     "sb_yoyogi"
+    ],
+    "window": "weather: sunny or fair or partly or cloudy",
+    "pay": 6000,
+    "needs": {
+     "photography": 2
+    },
+    "dc": 10,
+    "hours": 1,
+    "subject": {
+     "who": "Chloe",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "Chloe in the sunshine, curly hair escaping its clip, for a frame on her mum's mantelpiece in Manchester"
+    },
+    "text": "Chloe's mum keeps asking for a proper photo, \"not a selfie, love\". Something she can put on the mantelpiece."
+   },
+   {
+    "board": "small",
+    "id": "sm_camille_folio",
+    "client": "friend",
+    "kind": "portrait",
+    "name": "Camille's portfolio portrait",
+    "places": [
+     "ws_studio",
+     "ws_koenji"
+    ],
+    "pay": 6000,
+    "needs": {
+     "photography": 2
+    },
+    "dc": 11,
+    "hours": 1,
+    "subject": {
+     "who": "Camille",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "Camille among the drawing desks with paint on her boots, refusing to smile"
+    },
+    "text": "Camille needs a portrait for her portfolio site and refuses to smile in it. Make that work."
+   },
+   {
+    "board": "small",
+    "id": "sm_lisa_poster",
+    "client": "friend",
+    "kind": "portrait",
+    "name": "Lisa's Sunday poster",
+    "places": [
+     "rp_club"
+    ],
+    "window": "weekday: sunday; period: night or latenight",
+    "pay": 8000,
+    "needs": {
+     "photography": 2
+    },
+    "gear": [
+     "flash"
+    ],
+    "dc": 11,
+    "hours": 1,
+    "subject": {
+     "who": "Lisa",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "Lisa behind the decks at Club Undertow for her Sunday-night poster"
+    },
+    "text": "Lisa needs a poster for her Sunday guest sets at Undertow. She'll say yes or no to every frame."
+   },
+   {
+    "board": "small",
+    "id": "sm_hannah_thumbs",
+    "client": "friend",
+    "kind": "portrait",
+    "name": "Thumbnails, never the face",
+    "places": [
+     "ak_electric"
+    ],
+    "window": "period: evening or night",
+    "pay": 6000,
+    "needs": {
+     "photography": 2
+    },
+    "dc": 11,
+    "hours": 1,
+    "subject": {
+     "who": "Hannah",
+     "expr": "back",
+     "outfit": "clothes",
+     "scene": "Hannah from behind against Akihabara's neon, headset on, never her face"
+    },
+    "text": "New thumbnails for a stream that must never be traced to anyone: the neon, the headset, the back of a head. That's all."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_city_crossing",
+    "book": "pb_city",
+    "kind": "magazine",
+    "name": "After Rain: the crossing",
+    "places": [
+     "sb_crossing"
+    ],
+    "window": "period: night; weather: rain or heavyrain",
+    "days": 14,
+    "pay": 25000,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 14,
+    "hours": 2,
+    "text": "The first plate: the scramble at night in the rain, the screens doubled in the wet road."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_city_goldengai",
+    "book": "pb_city",
+    "kind": "magazine",
+    "name": "After Rain: Golden Gai",
+    "places": [
+     "sj_goldengai"
+    ],
+    "window": "period: night or latenight; weather: rain or heavyrain",
+    "days": 14,
+    "pay": 25000,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 14,
+    "hours": 2,
+    "text": "The alleys when the rain empties them: lanterns, wet signs, one door open."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_city_sumida",
+    "book": "pb_city",
+    "kind": "magazine",
+    "name": "After Rain: the river",
+    "places": [
+     "ot_sumida"
+    ],
+    "window": "period: afternoon or evening; weather: rain or heavyrain",
+    "days": 14,
+    "pay": 25000,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 14,
+    "hours": 2,
+    "text": "The Sumida under rain, the water buses and the tower in the cloud."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_city_yanaka",
+    "book": "pb_city",
+    "kind": "magazine",
+    "name": "After Rain: Yanaka",
+    "places": [
+     "ot_yanaka"
+    ],
+    "window": "period: midmorning or afternoon; weather: rain or heavyrain",
+    "days": 14,
+    "pay": 25000,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 14,
+    "hours": 2,
+    "text": "The last plate: the old wooden lanes shining, an umbrella going round the corner."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_yanaka_spring",
+    "book": "pb_season",
+    "kind": "magazine",
+    "name": "Yanaka in spring",
+    "places": [
+     "ot_yanaka"
+    ],
+    "when": "season: spring",
+    "window": "season: spring",
+    "days": 14,
+    "pay": 21500,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "text": "Spring for the book: blossom on the cemetery paths, the croquette queue, the first warm evening."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_yanaka_summer",
+    "book": "pb_season",
+    "kind": "magazine",
+    "name": "Yanaka in summer",
+    "places": [
+     "ot_yanaka"
+    ],
+    "when": "season: summer",
+    "window": "season: summer",
+    "days": 14,
+    "pay": 21500,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "text": "Summer for the book: wind chimes, hoses on the steps, cats flat in the shade."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_yanaka_autumn",
+    "book": "pb_season",
+    "kind": "magazine",
+    "name": "Yanaka in autumn",
+    "places": [
+     "ot_yanaka"
+    ],
+    "when": "season: autumn",
+    "window": "season: autumn",
+    "days": 14,
+    "pay": 21500,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "text": "Autumn for the book: persimmons drying under the eaves, the temple ginkgo turning."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_yanaka_winter",
+    "book": "pb_season",
+    "kind": "magazine",
+    "name": "Yanaka in winter",
+    "places": [
+     "ot_yanaka"
+    ],
+    "when": "season: winter",
+    "window": "season: winter",
+    "days": 14,
+    "pay": 21500,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "text": "Winter for the book: breath in the cold, the bathhouse chimney, the year's last market."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_lanterns_home",
+    "book": "pb_lanterns",
+    "kind": "portrait",
+    "name": "On the Road: the home show",
+    "places": [
+     "ws_livehouse"
+    ],
+    "window": "period: evening or night",
+    "days": 14,
+    "pay": 27000,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "Nanami",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "Paper Lanterns' last night at Basement Moon before the tour, Nanami at the mic"
+    },
+    "text": "The first chapter: the last night at home before the tour, sweat on the ceiling."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_lanterns_noge",
+    "book": "pb_lanterns",
+    "kind": "portrait",
+    "name": "On the Road: Noge after the show",
+    "places": [
+     "yk_noge"
+    ],
+    "window": "period: night or latenight",
+    "days": 14,
+    "pay": 27000,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "Nanami",
+     "expr": "amusement",
+     "outfit": "clothes",
+     "scene": "the band crammed into a Noge standing bar after the Yokohama show"
+    },
+    "text": "Yokohama: the show was fine, the bar after was better. Get the bar."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_lanterns_hakone",
+    "book": "pb_lanterns",
+    "kind": "portrait",
+    "name": "On the Road: the morning after",
+    "places": [
+     "hk_yumoto"
+    ],
+    "window": "period: rush or midmorning",
+    "days": 14,
+    "pay": 27000,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "Nanami",
+     "expr": "neutral",
+     "outfit": "clothes",
+     "scene": "Nanami on the river wall in Hakone-Yumoto the morning after, hood up, no make-up"
+    },
+    "text": "The quiet page: the morning after, in Hakone, nobody talking."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_lanterns_koenji",
+    "book": "pb_lanterns",
+    "kind": "portrait",
+    "name": "On the Road: coming home",
+    "places": [
+     "ws_koenji"
+    ],
+    "window": "period: firsttrain or rush",
+    "days": 14,
+    "pay": 27000,
+    "needs": {
+     "photography": 5
+    },
+    "dc": 13,
+    "hours": 2,
+    "subject": {
+     "who": "Nanami",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "the band coming home through Kōenji's arcade at dawn with their gear"
+    },
+    "text": "The last page: home at dawn through the arcade, cases on wheels, the shutters still down."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_hina_rehearsal",
+    "book": "pb_hina",
+    "kind": "portrait",
+    "name": "After the Lights: rehearsal",
+    "places": [
+     "ak_idol"
+    ],
+    "when": "knows: hina_graduation",
+    "window": "period: afternoon",
+    "days": 14,
+    "pay": 30500,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 14,
+    "hours": 2,
+    "subject": {
+     "who": "Hina",
+     "expr": "neutral",
+     "outfit": "clothes",
+     "scene": "Hina rehearsing alone on the small stage, the fairy lights off"
+    },
+    "text": "The first chapter: Hina rehearsing her last set, lights off, nobody watching but you."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_hina_offduty",
+    "book": "pb_hina",
+    "kind": "portrait",
+    "name": "After the Lights: off duty",
+    "places": [
+     "ot_yanaka",
+     "sb_yoyogi"
+    ],
+    "when": "knows: hina_graduation",
+    "window": "period: midmorning or afternoon; weather: sunny or fair or partly or cloudy",
+    "days": 14,
+    "pay": 30500,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 14,
+    "hours": 2,
+    "subject": {
+     "who": "Hina",
+     "expr": "joy",
+     "outfit": "clothes",
+     "scene": "Hina off duty in a plain cap, mask pulled down for once, eating a croquette"
+    },
+    "text": "The middle: Hina off duty, cap and no mask, the ordinary life she wants. The agency has signed off on this. Just."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_hina_lastshow",
+    "book": "pb_hina",
+    "kind": "portrait",
+    "name": "After the Lights: the last show",
+    "places": [
+     "bay_tv",
+     "ak_idol"
+    ],
+    "when": "knows: hina_graduation",
+    "window": "period: evening or night",
+    "days": 14,
+    "pay": 30500,
+    "needs": {
+     "photography": 6
+    },
+    "dc": 15,
+    "hours": 2,
+    "subject": {
+     "who": "Hina",
+     "expr": "gratitude",
+     "outfit": "clothes",
+     "scene": "Hina's last bow, the lilac twin tails, the audience in tears"
+    },
+    "text": "The last page: the last bow. You get one chance at it."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_erika_studio",
+    "book": "pb_erika",
+    "kind": "portrait",
+    "name": "MIZU: the white room",
+    "places": [
+     "sb_studio_mizu"
+    ],
+    "when": "thread: erika_mizu comeback",
+    "days": 14,
+    "pay": 30500,
+    "needs": {
+     "photography": 7
+    },
+    "dc": 15,
+    "hours": 2,
+    "subject": {
+     "who": "Erika",
+     "expr": "pride",
+     "outfit": "clothes",
+     "scene": "Erika in her own white basement, for once in front of the camera"
+    },
+    "text": "The first plate: Erika in her studio, in front of the lens for once, hating every second of it and showing none."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_erika_rain",
+    "book": "pb_erika",
+    "kind": "portrait",
+    "name": "MIZU: the avenue",
+    "places": [
+     "sb_omotesando"
+    ],
+    "when": "thread: erika_mizu comeback",
+    "window": "period: midmorning or afternoon; weather: rain or heavyrain",
+    "days": 14,
+    "pay": 30500,
+    "needs": {
+     "photography": 7
+    },
+    "dc": 15,
+    "hours": 2,
+    "subject": {
+     "who": "Erika",
+     "expr": "neutral",
+     "outfit": "clothes",
+     "scene": "Erika walking Omotesandō in the rain with no umbrella, camera under her coat"
+    },
+    "text": "The avenue where she made her name, in the rain, the way she shot it at twenty-two."
+   },
+   {
+    "board": "full",
+    "client": "koyosha",
+    "rep": 2,
+    "id": "bk_erika_sky",
+    "book": "pb_erika",
+    "kind": "portrait",
+    "name": "MIZU: above it all",
+    "places": [
+     "rp_sky"
+    ],
+    "when": "thread: erika_mizu comeback",
+    "window": "period: evening or night",
+    "days": 14,
+    "pay": 30500,
+    "needs": {
+     "photography": 7
+    },
+    "dc": 15,
+    "hours": 2,
+    "subject": {
+     "who": "Erika",
+     "expr": "optimism",
+     "outfit": "clothes",
+     "scene": "Erika at the sky museum's glass wall at night, the whole city lit below"
+    },
+    "text": "The last plate: the city she owned once, below her, and the look on her face about it."
+   }
+  ],
+  "books": [
+   {
+    "id": "pb_city",
+    "name": "Tokyo After Rain",
+    "kind": "city",
+    "briefs": 4,
+    "pay": 12000,
+    "ai": "{{user}}'s photobook Tokyo After Rain, the city's streets in the wet, is in the bookshops."
+   },
+   {
+    "id": "pb_season",
+    "name": "A Year in Yanaka",
+    "kind": "season",
+    "briefs": 4,
+    "pay": 8000,
+    "ai": "{{user}}'s photobook A Year in Yanaka, four seasons of the old lanes, is in the bookshops."
+   },
+   {
+    "id": "pb_lanterns",
+    "name": "Paper Lanterns on the Road",
+    "kind": "person",
+    "who": "Nanami",
+    "briefs": 4,
+    "pay": 14000,
+    "ai": "{{user}} made Paper Lanterns on the Road, the photobook of Nanami's band on tour."
+   },
+   {
+    "id": "pb_hina",
+    "name": "Hina, After the Lights",
+    "kind": "person",
+    "who": "Hina",
+    "briefs": 3,
+    "pay": 20000,
+    "when": "knows: hina_graduation",
+    "ai": "{{user}} made Hina, After the Lights, the photobook of Hina's last season as an idol."
+   },
+   {
+    "id": "pb_erika",
+    "name": "MIZU",
+    "kind": "person",
+    "who": "Erika",
+    "briefs": 3,
+    "pay": 18000,
+    "when": "thread: erika_mizu comeback",
+    "ai": "{{user}} made MIZU, the photobook of Erika Mizushima's comeback."
+   }
+  ],
+  "keepsakes": [
+   "gk_photo_zine",
+   "gk_my_photobook",
+   "own_photo_book"
+  ],
+  "rental": {
+   "at": "sb_studio_mizu",
+   "price": 6000,
+   "when": "freelance: not fallout; thread: not erika_mizu leaves",
+   "fallback": {
+    "at": "bay_tv",
+    "price": 9000
+   }
+  },
+  "job": "photographer",
+  "weddingAt": [
+   "sb_meiji",
+   "yk_park"
+  ],
+  "mentor": "Erika",
+  "leaving": "knows: erika_mizu; job: photographer; rank: 3; inrank: 7; photorep: 25",
+  "publisher": "koyosha"
  }
 }

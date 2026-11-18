@@ -5,6 +5,8 @@
 // told from then on. What the percentage counts, royalties count: a piece lent to the rival's foundation still pays.
 // The save: `g.collection.museum.roy` ({ paidDay, last, said }). With the collection off, no museum, no royalties or
 // the museum not yours yet, nothing here reads or writes anything.
+// (photography) Royalties can come from more than the museum: each source (ROYALTY_SOURCES) is paid on Mondays in its
+// own line with its own guard; the museum is the first, and photobooks (sim/photobooks.ts) add theirs.
 import type { Save } from '../core/store.js';
 import type { WorldDef, RoyaltyDef } from '../core/world.js';
 import { onDay } from './hooks.js';
@@ -42,20 +44,43 @@ export function royaltyNow(g: Save, w: WorldDef, pct = pctNow(g, w)): number {
     const r = royDef(w);
     if (!r || !museumOpen(g, w)) return 0;
     const base = curvePay(r, pct);
-    return base > 0 ? payOf(g, base * effectMul(g, w, 'royalty')) : 0;
+    return base > 0 ? payOf(g, base * effectMul(g, w, 'royalty', 'museum')) : 0;
 }
 
-// Each Monday, after the visitors: the week's royalties by the percentage now.
+/** Something that pays royalties each Monday: whether it's on for this game, what this week pays (after the difficulty
+ *  and effects; 0: nothing), and its name for the ledger and the line. `paid` records the week (its own guard and what
+ *  it brought); `paidOn` reads it. A source may pay several lines (a photobook each): `lines` gives them instead. */
+export interface RoyaltySource {
+    id: string;
+    on: (g: Save, w: WorldDef) => boolean;
+    weekly: (g: Save, w: WorldDef) => { name: string; amount: number }[];
+    paidOn: (g: Save) => number | undefined;
+    paid: (g: Save, day: number, amounts: number[]) => void;
+}
+export const ROYALTY_SOURCES: RoyaltySource[] = [{
+    id: 'museum',
+    on: (g, w) => !!royDef(w) && museumOpen(g, w),
+    weekly: (g, w) => { const n = royaltyNow(g, w); return n > 0 ? [{ name: museumDef(w)!.name, amount: n }] : []; },
+    paidOn: g => peek(g).paidDay,
+    paid: (g, day, amounts) => { const st = state(g); st.paidDay = day; st.last = amounts[0]; },
+}];
+
+// Each Monday, after the visitors: the week's royalties of every source (the museum's by its percentage now).
 onDay.push((g, w) => {
-    const m = museumDef(w), r = m?.royalties;
-    if (!m || !r || !museumOpen(g, w) || !isMonday(g.day) || peek(g).paidDay === g.day) return [];
-    const n = royaltyNow(g, w);
-    if (!(n > 0)) return [];
-    const st = state(g);
-    st.paidDay = g.day; st.last = n;
-    g.player.money += n;
-    book(g, `${m.name}: royalties`, n);
-    return [`${m.name}'s royalties: +${money(w, n)}`];
+    if (!isMonday(g.day)) return [];
+    const out: string[] = [];
+    for (const s of ROYALTY_SOURCES) {
+        if (!s.on(g, w) || s.paidOn(g) === g.day) continue;
+        const pay = s.weekly(g, w).filter(x => x.amount > 0);
+        if (!pay.length) continue;
+        s.paid(g, g.day, pay.map(x => x.amount));
+        for (const x of pay) {
+            g.player.money += x.amount;
+            book(g, `${x.name}: royalties`, x.amount);
+            out.push(`${x.name}'s royalties: +${money(w, x.amount)}`);
+        }
+    }
+    return out;
 });
 
 // Each morning: a step reached for the first time is said (only the highest of several reached at once: an old save

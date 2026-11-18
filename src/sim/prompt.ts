@@ -79,6 +79,10 @@ import { traitLine } from './traits.js';
 import { degreeLine } from './degrees.js';
 import { petLine } from './pets.js';
 import { trainingLine } from './training.js';
+import { photoLine } from './photo.js';   // (photography) your photography, after the job's line
+import './assignments.js';   // (photography) the photo boards: their days and hours, the shoot's scene line
+import './freelance.js';   // (photography) the freelance retainer and events
+import './photobooks.js';   // (photography) photobooks and their royalties
 import './letters.js';
 import './spread.js';   // opinions spread through friends (day by day)
 import './journey.js';
@@ -190,7 +194,7 @@ export function sceneBlocks(): Built[] {
         language: languageLines(g, w, present),
         focus: [eventLine(g, w), combatLine(g, w), prisonLine(g, w), ...towerLines(g, w), ...contractLines(g, w), ...institutionLines(g, w), focusLine(g, w, present, bg), ...whyHereLines(g, w, present), ...questLines(g), ...sceneLines.flatMap(f => f(g, w, present))],
         feelings: [feelingLine(g, met)],
-        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), partyRoomsLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), royaltyLine(g, w), digLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
+        you: [premiseLine(g), (g.player as any).bio ? `About {{user}} in this world: ${(g.player as any).bio}` : '', sheetLine(g, w), afflictionLine(g, w), ...artifactLines(g, w), partyLine(g, w), partyRoomsLine(g, w), photoLine(g, w), standingLine(g, w), bountyLine(g, w), tradeLine(g, w), holdingsLine(g, w), ventureLine(g, w), shopLine(g, w), homeLine(g, w), museumLine(g, w), royaltyLine(g, w), digLine(g, w), sightingLine(g, w, present.map(r => r.avatar)), lockedOutLine(g, w), traitLine(g, w), hobbyLine(g, w), degreeLine(g, w), workLine(g, w, met), petLine(g, w), trainingLine(g, w, present.map(r => r.avatar)), physiqueLine(g), goalLine(g, w)],
         solo: [soloLine(g, present)],
         approval: [approvalLine(g, met)],
         couples: [couplesLine(g, present, w)],

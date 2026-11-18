@@ -16,6 +16,7 @@ import { bump } from './social.js';
 import { note } from './facts.js';
 import { startRumor } from './living.js';
 import { addBoost } from './perks.js';
+import { photoLink } from './hooks.js';
 
 /** The events of a list that can come now at this place: adult ones only with adult content on, with choices, and their
  *  condition holding (`key`: the condition's salt for its chances, `work|<event id>` at a job). */
@@ -25,11 +26,14 @@ export function eventsReady(g: Save, w: WorldDef, events: WorkEvent[] | undefine
 /** A choice's roll, if it has one: d20 + the roll bonus (with `tags`: what effects aimed at this kind of roll add)
  *  against its difficulty. `res`: what it leads to (its `fail` when the roll didn't work); `line`: the die for the screen. */
 export function rollChoice(g: Save, w: WorldDef, c: WorkChoice, tags: string[], rnd = Math.random): { ok: boolean | null; res: WorkResult; line?: string } {
-    if (!c.roll) return { ok: null, res: c };
+    // (photography) a choice that takes a photo keeps one in Lens when it works (or has no roll to work)
+    const shot = (ok: boolean | null) => (c.photo && ok !== false ? photoLink.photo(g, w, { choice: c, ok, mates: [] }) : []);
+    if (!c.roll) { const ph = shot(null); return { ok: null, res: c, ...(ph.length ? { line: ph.join(' ') } : {}) }; }
     const bonus = rollBonus(g, w, { skill: c.roll.skill, tags }), d20 = rollD20(g, w, bonus, c.roll.dc, rnd);
     const ok = d20 === 20 || (d20 > 1 && d20 + bonus >= c.roll.dc);
     if (ok) tallyRoll(g, c.roll.skill);
-    return { ok, res: ok ? c : c.fail ?? { text: 'It did not work out.' }, line: `🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}` };
+    const line = [`🎲 ${d20}${bonusLabel(bonus)} against ${c.roll.dc}: ${ok ? 'it worked.' : 'it did not work.'}`, ...shot(ok)].join(' ');
+    return { ok, res: ok ? c : c.fail ?? { text: 'It did not work out.' }, line };
 }
 
 /** Where a result lands. `place`: where it happens (facts, rumors); `name`: what a fact calls it; `label`: the bank
@@ -60,6 +64,7 @@ export function applyWorkResult(g: Save, w: WorldDef, r: WorkResult, x: ResultCt
     const fx = r.boost ? cleanEffects(r.boost.effects, BOOST_LIMITS).filter(e => !x.gentle || e.value >= 0) : [];
     if (fx.length) addBoost(g, x.boost, fx, r.boost!.days);
     if (r.risk && !x.gentle && x.risk) out.push(...x.risk(r, rnd));   // (adult) caught: a raid
+    if (ok(r.photorep)) out.push(...photoLink.rep(g, w, ok(r.photorep)));   // (photography) a photo of yours going viral
     if (x.more) out.push(...x.more(r, ok));
     return out;
 }
