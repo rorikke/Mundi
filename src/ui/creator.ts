@@ -2712,7 +2712,7 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
         <details class="mu-cw-kept" ${e.bedroom ? 'open' : ''}><summary>Their room</summary><small class="mu-muted">In a home with rooms inside: how their bedroom looks (empty: the kind of home's picture).</small>
             ${roomPics(`${p}.bedroom`, `bedroom-${slug(e.name)}`)}${area('Description (told to the AI)', `${p}.bedroom.desc`, 2)}</details>
         ${Object.keys(e.outfits ?? {}).length ? `<div class="mu-row2">${Object.keys(e.outfits ?? {}).map(o => optTxt(`Outfit: ${esc(o)} (a folder of sprites; empty: no such outfit)`, `${p}.outfits.${o}`, 'sprites/mio/yukata')).join('')}</div>` : ''}
-        ${Object.keys(e.outfits ?? {}).length ? wearBox(p, e) : ''}
+        ${Object.keys(e.outfits ?? {}).length || Object.keys(e.wear ?? {}).length ? wearBox(p, e) : ''}
         <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
         ${skillOpts(w).length || e.skills ? skillLevels(w, `${p}.skills`, 'What they\'re good at, for training together (teaching takes 6; empty: what their job asks)', 0) : ''}
@@ -2721,12 +2721,14 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
 // (dress) What their outfits are, for the game to put one on (a kind, how bold, adult, the AI's words), and how bold
 // they go in public.
 function wearBox(p: string, e: WorldDef['cast']['examples'][number]) {
-    const names = Object.keys(e.outfits ?? {}).filter(o => o !== 'naked');
+    // an outfit with its folder, or one described and waiting for its pictures (its folder asked for here)
+    const names = [...new Set([...Object.keys(e.outfits ?? {}), ...Object.keys(e.wear ?? {})])].filter(o => o !== 'naked');
+    const folder = (o: string) => e.outfits?.[o] === undefined ? optTxt('Its folder of sprites (empty: waiting for its pictures)', `${p}.outfits.${o}`, `sprites/mio/${o}`) : '';
     return `<details class="mu-cw-kept" ${e.wear || e.comfort ? 'open' : ''}><summary>What their outfits are · ${Object.keys(e.wear ?? {}).length}</summary>
         <small class="mu-muted">An outfit with a kind can be put on by a dress code (a pool, a swim, a festival), the boldest they go there; one with a kind uploads the first time it's worn.</small>
         ${bounded('How bold they go in public (1–3; one more in private with someone close; empty: 2)', `${p}.comfort`, 1, 3)}
         ${names.map(o => `<div class="mu-cw-feel"><b data-notr>${esc(o)}</b><div class="mu-row2">${optTxt('Kind (empty: none)', `${p}.wear.${o}.kind`, 'swim')}${bounded('How bold (1 modest, 2 everyday, 3 bold, 4 explicit)', `${p}.wear.${o}.level`, 1, 4)}</div>
-            <div class="mu-row2">${optTxt('What it is, for the AI', `${p}.wear.${o}.look`, 'a black string bikini')}${flag('Only with adult content on', `${p}.wear.${o}.adult`, 'Explicit ones (4) always are.', true)}</div></div>`).join('')}</details>`;
+            <div class="mu-row2">${optTxt('What it is, for the AI', `${p}.wear.${o}.look`, 'a black string bikini')}${flag('Only with adult content on', `${p}.wear.${o}.adult`, 'Explicit ones (4) always are.', true)}</div>${folder(o)}</div>`).join('')}</details>`;
 }
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.

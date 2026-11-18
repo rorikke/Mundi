@@ -10256,5 +10256,8 @@ const DICT: Record<string, string> = {
  "What it is, for the AI": "Qué es, para la IA",
  "Explicit ones (4) always are.": "Las explícitas (4) siempre lo son.",
  "{0}: that outfit couldn't be loaded.": "{0}: no se pudo cargar esa ropa.",
+ "Dressing for the place": "Ropa para el lugar",
+ "At a pool, on a beach in summer or for a swim, people change into swimwear, each as bold as they go in public, a little bolder in private with someone close. Click a sprite to change an outfit yourself. The AI is told what everyone wears.": "En una piscina, en una playa en verano o para nadar, la gente se pone ropa de baño, cada uno tan atrevido como se permita en público, un poco más en privado con alguien cercano. Haz clic en un sprite para cambiar la ropa tú mismo. La IA sabe lo que lleva cada uno.",
+ "Its folder of sprites (empty: waiting for its pictures)": "Su carpeta de sprites (vacío: esperando sus imágenes)",
 };
 export default DICT;
