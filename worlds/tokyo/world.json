@@ -261,7 +261,12 @@
        "living",
        "leisure"
       ],
-      "sofa": true
+      "sofa": true,
+      "image": "bg/home-sharehouse-common.avif",
+      "images": {
+       "afternoon": "bg/home-sharehouse-common-afternoon.avif",
+       "night": "bg/home-sharehouse-common-night.avif"
+      }
      },
      {
       "id": "kitchen",
@@ -270,7 +275,12 @@
       "tags": [
        "kitchen",
        "food"
-      ]
+      ],
+      "image": "bg/home-sharehouse-kitchen.avif",
+      "images": {
+       "afternoon": "bg/home-sharehouse-kitchen-afternoon.avif",
+       "night": "bg/home-sharehouse-kitchen-night.avif"
+      }
      },
      {
       "id": "bath",
@@ -278,7 +288,12 @@
       "desc": "The shared bathroom: a deep tub with a folding lid, a washing machine that walks when it spins, everyone's bottles in a row.",
       "tags": [
        "bath"
-      ]
+      ],
+      "image": "bg/home-sharehouse-bath.avif",
+      "images": {
+       "afternoon": "bg/home-sharehouse-bath-afternoon.avif",
+       "night": "bg/home-sharehouse-bath-night.avif"
+      }
      }
     ]
    },
@@ -54907,7 +54922,12 @@
      "drawing": 6
     },
     "bedroom": {
-     "desc": "Mio's room: canvases against every wall, a futon under paint-flecked sheets, a smell of turpentine and konbini onigiri."
+     "desc": "Mio's room: canvases against every wall, a futon under paint-flecked sheets, a smell of turpentine and konbini onigiri.",
+     "image": "bg/home-sharehouse-mio.avif",
+     "images": {
+      "afternoon": "bg/home-sharehouse-mio-afternoon.avif",
+      "night": "bg/home-sharehouse-mio-night.avif"
+     }
     }
    },
    {
@@ -54999,7 +55019,12 @@
      "music": 8
     },
     "bedroom": {
-     "desc": "Ren's room: a bass on its stand, a crate of records, setlists taped above a futon on the floor."
+     "desc": "Ren's room: a bass on its stand, a crate of records, setlists taped above a futon on the floor.",
+     "image": "bg/home-sharehouse-ren.avif",
+     "images": {
+      "afternoon": "bg/home-sharehouse-ren-afternoon.avif",
+      "night": "bg/home-sharehouse-ren-night.avif"
+     }
     }
    },
    {
@@ -55131,7 +55156,12 @@
      "charisma": 6
     },
     "bedroom": {
-     "desc": "Chloe's room: paperbacks on tidy shelves, fairy lights, a kettle and a box of proper English tea, photos from Manchester."
+     "desc": "Chloe's room: paperbacks on tidy shelves, fairy lights, a kettle and a box of proper English tea, photos from Manchester.",
+     "image": "bg/home-sharehouse-chloe.avif",
+     "images": {
+      "afternoon": "bg/home-sharehouse-chloe-afternoon.avif",
+      "night": "bg/home-sharehouse-chloe-night.avif"
+     }
     }
    },
    {
@@ -55247,7 +55277,12 @@
      "drawing": 9
     },
     "bedroom": {
-     "desc": "Haru's room: a light table and a drawing tablet, storyboards pinned up in rows, blackout curtains."
+     "desc": "Haru's room: a light table and a drawing tablet, storyboards pinned up in rows, blackout curtains.",
+     "image": "bg/home-sharehouse-haru.avif",
+     "images": {
+      "afternoon": "bg/home-sharehouse-haru-afternoon.avif",
+      "night": "bg/home-sharehouse-haru-night.avif"
+     }
     }
    },
    {
