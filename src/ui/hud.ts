@@ -266,12 +266,14 @@ function shownRows(html: string): number {
 }
 
 // "Keep to myself": the people here rarely come over while you get things done (sim/approach.ts). Shown when someone
-// is here, or while it's on wherever you are.
+// is here, or (homerooms) someone awake is elsewhere in the house and could come to find you, or while it's on wherever
+// you are.
 function keepRow(g: Save, w: WorldDef): string {
     if (!approachOn(w)) return '';
-    const on = keepToMyself(g);
-    if (!on && !sceneHere(g, w).length) return '';
-    return `<button class="mh-act mh-glass mh-keep ${on ? 'is-on' : ''}" data-act="keep-toggle" aria-pressed="${on}"><i>${icon(on ? 'lock' : 'users')}</i><b>Keep to myself</b><small>${on ? 'On · only friends come over, and rarely' : 'Off · people here may come over'}</small></button>`;
+    const on = keepToMyself(g), house = !sceneHere(g, w).length && elsewhereHere(g, w).some(x => !x.asleep);
+    if (!on && !sceneHere(g, w).length && !house) return '';
+    const small = house ? (on ? 'On · only friends come to find you, and rarely' : 'Off · housemates may come to find you') : on ? 'On · only friends come over, and rarely' : 'Off · people here may come over';
+    return `<button class="mh-act mh-glass mh-keep ${on ? 'is-on' : ''}" data-act="keep-toggle" aria-pressed="${on}"><i>${icon(on ? 'lock' : 'users')}</i><b>Keep to myself</b><small>${small}</small></button>`;
 }
 
 // (E6) A place you can sleep at: book the night (when it includes things to do first) and sleep in your room.

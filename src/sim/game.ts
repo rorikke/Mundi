@@ -10,7 +10,7 @@ import { SCHEMA } from '../core/saves.js';
 import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES, type Difficulty } from './bills.js';
 import { placeOf as placeOf2, mapOf, homeKindAt } from './places.js';
-import { roomPicture, sceneHere } from './homerooms.js';
+import { roomPicture, sceneHere, heldHere } from './homerooms.js';
 import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
 import {
@@ -651,7 +651,9 @@ export function syncScene(): Promise<void> {
         const w = getWorld(g.world);
         if (!w) return;
         const here = sceneHere(g, w);
-        checkLeft(g, w, here.map(r => r.avatar));   // someone who spoke left: that part of the scene is judged
+        // someone who spoke left: that part of the scene is judged ((homerooms) not while they're only in the room you
+        // stepped out of, within the hour)
+        checkLeft(g, w, [...here.map(r => r.avatar), ...heldHere(g, w)]);
         // talking with only one person: the others stay in the scene but keep quiet
         let solo = String((g as any).social?.solo ?? '');
         // the one you were talking to alone left: everyone talks again

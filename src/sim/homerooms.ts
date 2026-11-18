@@ -151,15 +151,17 @@ export interface DropIn { avatar: string; loc: string; room: string; until: numb
 const dropIns = (g: Save): DropIn[] => ((social(g) as any).dropIn ?? []) as DropIn[];
 // (the hook lists `roomRules` and `partyRooms` live in sim/hooks.ts, so the parts that fill them can import nothing of
 // this file's: visitors.ts is imported by people.ts, which this file imports)
-// The house's rhythm: how likely each kind of room is at this hour (the hour before bed: a bath, then their room).
-// First guesses, to be tuned only with the user (plans/tokyo-home-rooms-impl.md).
+// The house's rhythm: how likely each kind of room is at this hour. The hour before bed stays social (it's often the
+// only evening hour everyone is home): the common room first, a bath or their room. Tuned with the user 2026-11-18.
 const rhythmAt = (h: number, bedtime: boolean): Record<'kitchen' | 'living' | 'bath' | 'own', number> =>
-    bedtime ? { kitchen: 0, living: 1, bath: 2, own: 2 }
+    bedtime ? { kitchen: 0, living: 2, bath: 1, own: 1 }
         : h >= 6 && h < 9 ? { kitchen: 3, living: 0, bath: 1, own: 2 }
         : h === 12 ? { kitchen: 2, living: 1, bath: 0, own: 2 }
         : h >= 18 && h < 20 ? { kitchen: 3, living: 2, bath: 0, own: 1 }
         : h >= 20 && h < 23 ? { kitchen: 1, living: 3, bath: 0, own: 2 }
         : { kitchen: 1, living: 1, bath: 0, own: 4 };
+/** How likely a friend or partner joins the other's shared room, each hour (two in three). */
+export const LEAN = 2 / 3;
 // The home id a person sleeps at (their routine's "home"): yours when they live with you, else their household's.
 const homeIdOf = (r: Resident) => ((r as any).homeWith === '__you' ? playerHomeId : (r as any).homeWith ? `home:${(r as any).homeWith}` : `home:${r.avatar}`);
 
@@ -261,7 +263,7 @@ export function homeRoomMap(g: Save, w: WorldDef, loc: string = g.player.loc): M
         for (const o of people) {
             const there = map.get(o.avatar);
             if (o === r || !there || there.startsWith('bed:') || there === bath || there === map.get(r.avatar)) continue;
-            if ((fr(g, r.avatar, o.avatar) >= friendLo() || statusOf(g, r.avatar, o.avatar)) && H(`${r.avatar}|${o.avatar}|${day}|${h}`) < 0.5) { map.set(r.avatar, there); break; }
+            if ((fr(g, r.avatar, o.avatar) >= friendLo() || statusOf(g, r.avatar, o.avatar)) && H(`${r.avatar}|${o.avatar}|${day}|${h}`) < LEAN) { map.set(r.avatar, there); break; }
         }
     }
     m.set(loc, { w, key, map });
@@ -291,11 +293,22 @@ export function elsewhereHere(g: Save, w: WorldDef): { r: Resident; room: RoomHe
     }
     return out;
 }
-/** For the live clock: changes when you or anyone at your home changes room. '' at a place without rooms. */
+/** For the live clock: changes when you or anyone at your home changes room, and when the people you were talking
+ *  with stop being held (the scene lock ends: what they said is judged then). '' at a place without rooms. */
 export function roomSig(g: Save, w: WorldDef): string {
     const room = roomNow(g, w);
     if (!room) return '';
-    return `${room.id}|${[...homeRoomMap(g, w)].map(([a, id]) => `${a}=${id}`).join(',')}`;
+    return `${room.id}|${heldHere(g, w).join(',')}|${[...homeRoomMap(g, w)].map(([a, id]) => `${a}=${id}`).join(',')}`;
+}
+/** The people you were talking with in another room of this home, still where you left them (the scene lock, an hour
+ *  after your last line): walking away from them isn't judged yet, so a quick trip to your room and back is still one
+ *  conversation. It's judged when the lock ends or when you leave the home (the visit ends). */
+export function heldHere(g: Save, w: WorldDef): string[] {
+    const room = roomNow(g, w);
+    const lock = (social(g) as any).lock as { loc: string; who: string[]; until: number; room?: string } | undefined;
+    if (!room || !lock?.room || lock.loc !== g.player.loc || nowAbs(g) >= lock.until) return [];
+    const map = homeRoomMap(g, w);
+    return lock.who.filter(a => map.get(a) === lock.room);
 }
 /** Someone comes to find you in the room you're in, and stays there a while (unless the scene keeps them longer). */
 export function dropIn(g: Save, w: WorldDef, avatar: string, minutes = 45): void {

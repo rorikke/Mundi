@@ -10180,7 +10180,6 @@ const DICT: Record<string, string> = {
  "Things to do only here": "O que fazer só aqui",
  "Picture (a file in the world's folder; empty: the kind of home's)": "Imagem (um arquivo na pasta do mundo; vazio: a do tipo de casa)",
  "In a home with rooms inside: how their bedroom looks (empty: the kind of home's picture).": "Numa casa com cômodos: como é o quarto da pessoa (vazio: a imagem do tipo de casa).",
- "Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and \"Elsewhere at home\" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then. Someone's bedroom is theirs: close friends walk in, others knock.": "Algumas casas têm cômodos (uma casa compartilhada: a sala comum, a cozinha, o banheiro, um quarto para cada um). Andar entre eles não leva tempo; a cena é o cômodo onde você está, e \"Em outro lugar da casa\" mostra quem está nos outros. Os moradores seguem o ritmo da casa e de vez em quando vêm te procurar. O quarto de alguém é dele: amigos próximos entram, os outros batem.",
  "Ask to stay a few days": "Convidar para ficar uns dias",
  "Staying with you": "Hospedado com você",
  "Coming to stay": "Vem se hospedar",
@@ -10223,5 +10222,8 @@ const DICT: Record<string, string> = {
  "They cannot stay with you.": "A pessoa não pode ficar com você.",
  "Staying over": "Hospedar alguém",
  "A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, on their card. They ring the doorbell, go out to work from your place, and grow a little closer each night.": "Um amigo próximo ou seu par pode ficar na sua casa por algumas noites, ou até você se despedir (uma semana no máximo): Convidar para ficar uns dias, no cartão da pessoa. Ela toca a campainha, sai para trabalhar da sua casa e fica um pouco mais próxima a cada noite.",
+ "On · only friends come to find you, and rarely": "Ligado · só amigos vêm te procurar, e raramente",
+ "Off · housemates may come to find you": "Desligado · os moradores podem vir te procurar",
+ "Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and \"Elsewhere at home\" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then (Keep to myself keeps all but friends away). Someone's bedroom is theirs: close friends walk in, others knock.": "Algumas casas têm cômodos (uma casa compartilhada: a sala comum, a cozinha, o banheiro, um quarto para cada um). Andar entre eles não leva tempo; a cena é o cômodo onde você está, e \"Em outro lugar da casa\" mostra quem está nos outros. Os moradores seguem o ritmo da casa e de vez em quando vêm te procurar (Ficar na minha afasta todos, menos os amigos). O quarto de alguém é dele: amigos próximos entram, os outros batem.",
 };
 export default DICT;
