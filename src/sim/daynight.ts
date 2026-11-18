@@ -3,8 +3,8 @@
 // · Opening hours: a place is closed in some parts of the day (place.closed: the ids of those parts). A place
 //   without a list closes like places of its kind do (shops at night, offices at dawn…); parks never close.
 //   (E19) A place can also keep hours by the clock (place.open, openBySeason, or openByDay for the nights a club
-//   stays open later), close on some weekdays (closedDays) and in some weather (closedIn: a valley on volcanic-gas
-//   days), stay open all night on its festivals (festivalOpen), and charge to get in once a day (entry).
+//   stays open later), close on some weekdays (closedDays), whole seasons (closedSeasons: a night pool open only in
+//   summer) and in some weather (closedIn: a valley on volcanic-gas days), stay open all night on its festivals (festivalOpen), and charge to get in once a day (entry).
 // · Prices: each part of the day can make things cost more or less (time.periods[].prices, × as listed).
 // · Pictures: a place, a home and a map can have a picture for each part of the day (bgs / images: { partId: url }),
 //   and (E7) for a kind of weather or a season, alone or with a part of the day (`rain-night`, `spring-day`, `snow`);
@@ -12,7 +12,7 @@
 import { closedByEvents } from './hooks.js';
 export { closedByEvents };
 import { nowAbs, type Save } from '../core/store.js';
-import { WEEKDAY_IDS, systemOn, type WorldDef, type Place } from '../core/world.js';
+import { WEEKDAY_IDS, systemOn, type WorldDef, type Place, type SeasonId } from '../core/world.js';
 import { period, seasonDays, SEASONS } from './time.js';
 import { festivalsOn } from './festivals.js';
 import { priceOf } from './bills.js';
@@ -65,6 +65,7 @@ export function openAt(g: Save, w: WorldDef, placeId: string, at = nowAbs(g)): b
     const day = Math.floor(at / 1440), m = dayMinute(at);
     if (festivalNight(g, w, p, day, m)) return true;
     if (closedOf(w, p).includes(periodId(w, m))) return false;
+    if (p.closedSeasons?.includes(seasonAt(g, day) as SeasonId)) return false;
     // past midnight, the night before may still be going (its own hours: a club open until 5 only on Saturdays)
     let biz = day, h = hoursOf(g, p, day);
     const before = hoursOf(g, p, day - 1);

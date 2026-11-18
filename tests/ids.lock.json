@@ -1154,7 +1154,9 @@
    "mg_viewing",
    "mg_fencing",
    "yk_van",
-   "ws_mikage"
+   "ws_mikage",
+   "rp_nightpool",
+   "hk_spapark"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1751,7 +1753,13 @@
    "yk_van_kaede_copyist",
    "mg_viewing_ayame_copyist",
    "bay_beach_swim",
-   "bay_beach_sunbathe"
+   "bay_beach_sunbathe",
+   "rp_nightpool_swim",
+   "rp_nightpool_bar",
+   "rp_nightpool_dance",
+   "hk_spapark_pools",
+   "hk_spapark_slide",
+   "hk_spapark_cave"
   ],
   "occupations": [
    "rider",

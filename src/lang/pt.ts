@@ -10248,5 +10248,6 @@ const DICT: Record<string, string> = {
  "Dressing for the place": "Roupa para o lugar",
  "At a pool, on a beach in summer or for a swim, people change into swimwear, each as bold as they go in public, a little bolder in private with someone close. Click a sprite to change an outfit yourself. The AI is told what everyone wears.": "Numa piscina, numa praia no verão ou para nadar, as pessoas põem roupa de banho, cada uma tão ousada quanto se permite em público, um pouco mais em particular com alguém próximo. Clique num sprite para trocar a roupa você mesmo. A IA fica sabendo o que cada um veste.",
  "Its folder of sprites (empty: waiting for its pictures)": "A pasta de sprites dela (vazio: esperando as imagens)",
+ "Closed all through": "Fechado durante todo o",
 };
 export default DICT;

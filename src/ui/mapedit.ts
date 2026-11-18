@@ -139,7 +139,7 @@ function placeMore(w: WorldDef, p: Place, path: string) {
     const wx: [string, string][] = [...WEATHER_KINDS.map(k => [k.id, `${k.icon} ${k.name}`] as [string, string]), ...regional.map(r => [r, r] as [string, string])];
     const extra = w.actions.filter(a => !a.place || (p.actions ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`] as [string, string]);
     const here = w.actions.filter(a => a.place === p.id || (a.places ?? []).includes(p.id) || (p.actions ?? []).includes(a.id) || (p.sleep?.includes ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`] as [string, string]);
-    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep || p.venture || p.room || p.homeZone || p.when;
+    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedSeasons || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep || p.venture || p.room || p.homeZone || p.when;
     return `<details class="mu-me-more" ${set ? 'open' : ''}><summary>Hours, visitors and more</summary><div class="mu-me-pf">
         <div class="mu-me-pfcol">${optTxt('Who is around besides the world\'s people (6–20 words, for the AI)', `${path}.staff`, 'the master works in silence; old men at the counter')}
             <div class="mu-row2">${num(`Getting in costs (${esc(w.currency.symbol)}, once a day)`, `${path}.entry`, 0)}${words('What you hear (sound tags)', `${path}.sound`, '', 'station, crowd')}</div>
@@ -155,6 +155,7 @@ function placeMore(w: WorldDef, p: Place, path: string) {
             <details class="mu-cw-kept" ${p.openBySeason ? 'open' : ''}><summary>Hours by season</summary>${SEASONS4.map(([s, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openBySeason.${s}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openBySeason.${s}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
             <details class="mu-cw-kept" ${p.openByDay ? 'open' : ''}><summary>Hours on some weekdays (the evening's weekday)</summary>${days.map(([d, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openByDay.${d}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openByDay.${d}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
             <div class="mu-field"><span>Closed all day on</span>${pairChips(days, `${path}.closedDays`, true)}</div>
+            <div class="mu-field"><span>Closed all through</span>${pairChips(SEASONS4, `${path}.closedSeasons`, true)}</div>
             <div class="mu-field"><span>Closed in this weather</span>${pairChips(wx, `${path}.closedIn`, true)}</div>
             ${(w.festivals ?? []).length ? `<div class="mu-field"><span>Open all night on these festivals</span>${pairChips((w.festivals ?? []).map(f => [f.id, f.name] as [string, string]), `${path}.festivalOpen`, true)}</div>` : ''}</div>
         <div class="mu-me-pfcol"><label class="mu-check"><input type="checkbox" data-input="me-sleep" ${p.sleep ? 'checked' : ''}><span>You can sleep here<small>A capsule, a ryokan, a manga café.</small></span></label>

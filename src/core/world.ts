@@ -88,6 +88,8 @@ export interface Place {
     open?: [number, number]; openBySeason?: Partial<Record<SeasonId, [number, number]>>;
     /** (E19) Weekdays it's closed all day (`mon` … `sun`). */
     closedDays?: WeekdayId[];
+    /** (dress) Seasons it's closed all through (a hotel's night pool, open only in summer). */
+    closedSeasons?: SeasonId[];
     /** (E19) Hours on some weekdays (a club open until 5 on Fridays and Saturdays, a pub opening early on Sundays): the
      *  weekday the evening starts on → [from, to), as `open` reads them; over `openBySeason` and `open` on those days. */
     openByDay?: Partial<Record<WeekdayId, [number, number]>>;
