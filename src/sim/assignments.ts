@@ -36,7 +36,7 @@ import { FRIEND_TIERS, shutOut } from './romance.js';
 import { isMinor, romanceBlocked } from './family.js';
 import { matchIn, limitsOf } from './private.js';
 import { isWith, withYou, social, livePlan } from './social.js';
-import { presentAt } from './people.js';
+import { sceneHere } from './homerooms.js';
 import { inviteShoot, earliest } from './plans.js';
 import { payOf } from './bills.js';
 import { effectMul } from './effects.js';
@@ -400,7 +400,8 @@ const planOf = (g: Save, t: Taken) => (t.plan ? social(g).appts.find(a => a.id =
 
 /* ---------- shooting ---------- */
 
-const here = (g: Save, w: WorldDef, a: string) => isWith(g, a) || presentAt(g, w, g.player.loc).some(r => r.avatar === a);
+// ((homerooms) at home with rooms inside, only the room you are in)
+const here = (g: Save, w: WorldDef, a: string) => isWith(g, a) || sceneHere(g, w).some(r => r.avatar === a);
 const studioNeed = (b: BriefDef) => (b.studio === 'cyc' || b.studio === 'dressing' ? b.studio : undefined);
 // At the brief's place (a studio brief: in a photo studio, with its fixture when it asks for one)?
 function atPlace(g: Save, w: WorldDef, t: Taken, b: BriefDef): boolean {
