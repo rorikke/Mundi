@@ -1257,8 +1257,9 @@ housemates.
   told they're elsewhere, so the story doesn't walk them in.
 - **They come to you.** Now and then a housemate knocks on your door or walks into the kitchen to find you, and someone
   with something to tell you (a question, a confession) comes looking for you. When you talk with someone, they stay in
-  that room for an hour, and you find them there if you step out and come back. Walking away from someone who spoke
-  ends that part of the scene, as leaving a place does.
+  that room for an hour, and you find them there if you step out and come back: a quick trip to your room and back is
+  still one conversation. Walking away for good ends that part of the scene, as leaving a place does. Don't want to be
+  disturbed? **Keep to myself** works at home too: only friends still come to find you, and rarely.
 - **Bedroom doors.** Your partner's and a close friend's room you walk into; someone you know a little lets you in when
   you knock; anyone else talks to you through the door. Someone asleep doesn't answer, unless you're partners. Your
   room is always yours, and private; a shared room is private only with nobody else in it.
