@@ -1728,6 +1728,25 @@ function tidyPhoto(w) {
             if (g[k] === 0)
                 delete g[k];
     }
+    // (the camera change) a step's or a tier's emptied lists and line; a tier's camera left "as before"; no steps left
+    const tidyChange = (c) => { for (const k of ['lifts', 'adds'])
+        if (Array.isArray(c[k]) && !c[k].length)
+            delete c[k]; if (typeof c.line === 'string' && !c.line.trim())
+        delete c.line; };
+    for (const e of w.cast?.examples ?? []) {
+        if (Array.isArray(e.cameraSteps)) {
+            for (const c of e.cameraSteps)
+                tidyChange(c);
+            if (!e.cameraSteps.length)
+                delete e.cameraSteps;
+        }
+        for (const t of e.tiers ?? [])
+            if (t.camera) {
+                tidyChange(t.camera);
+                if (!t.camera.camera)
+                    delete t.camera;
+            }
+    }
     const st = w.homes?.studios;
     for (const z of st ?? []) {
         if (z.images && !Object.keys(z.images).length)
@@ -3441,7 +3460,28 @@ function personMore(w, p, e) {
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
         ${skillOpts(w).length || e.skills ? skillLevels(w, `${p}.skills`, 'What they\'re good at, for training together (teaching takes 6; empty: what their job asks)', 0) : ''}
         <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>
-        ${systemOn(w, 'photography') || e.camera ? `<div class="mu-row2">${sel('In front of a camera', `${p}.camera`, withCur([['', CAMERA_NAMES['']], ['ask', CAMERA_NAMES.ask], ['work', CAMERA_NAMES.work], ['noface', CAMERA_NAMES.noface], ['never', CAMERA_NAMES.never]], e.camera), 'opt')}<small class="mu-muted">Whether briefs and photos may have them in front of the lens, adult content on or off; a card's own settings can only make it stricter.</small></div>` : ''}`;
+        ${systemOn(w, 'photography') || e.camera ? `<div class="mu-row2">${sel('In front of a camera', `${p}.camera`, withCur([['', CAMERA_NAMES['']], ['ask', CAMERA_NAMES.ask], ['work', CAMERA_NAMES.work], ['noface', CAMERA_NAMES.noface], ['never', CAMERA_NAMES.never]], e.camera), 'opt')}<small class="mu-muted">Whether briefs and photos may have them in front of the lens, adult content on or off; a card's own settings can only make it stricter.</small></div>` : ''}
+        ${systemOn(w, 'photography') || e.cameraSteps ? cameraStepsEditor(p, e) : ''}`;
+}
+// (photography, the camera change) How a person's camera rule loosens over a game: each step latches the first time its
+// condition holds and is never lost (sim/camera.ts); its limits come off and on in the save's copy of their profile.
+const STEP_RULES = [['free', CAMERA_NAMES['']], ...['ask', 'work', 'noface', 'never'].map(k => [k, CAMERA_NAMES[k]])];
+function cameraChangeFields(q, rule) {
+    return `<div class="mu-row2">${sel('From then on in front of a camera', `${q}.camera`, rule, 'opt')}${flag('Only with adult content on', `${q}.adult`, 'Otherwise it never opens, and its line is never shown.', true)}</div>
+        <div class="mu-row2">${lines('Hard limits it lifts (one per line, as their profile has them)', `${q}.lifts`, 2, 'nothing in front of a camera')}${lines('Hard limits it adds (one per line)', `${q}.adds`, 2)}</div>
+        ${optTxt('What the player is told, once ({name}: their name)', `${q}.line`, '{name} has agreed to be in your photos now, if you ask first.')}`;
+}
+function cameraStepsEditor(p, e) {
+    const l = e.cameraSteps ?? [];
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>In front of a camera, over a game · ${l.length}</summary>
+        <p class="mu-muted">Steps that loosen their rule, each the first time its condition holds, never lost; a later one brings those before it. A tier can loosen it too (its own camera, under Tiers).</p>
+        ${l.map((_s, k) => {
+        const q = `${p}.cameraSteps.${k}`;
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k + 1}</b><span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+            ${cond('Opens when (a condition; never lost after)', `${q}.when`, 'thread: kaoru_notebook owner_window; feels: Kaoru good')}
+            ${cameraChangeFields(q, STEP_RULES)}</div>`;
+    }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="cstep" data-path="${esc(`${p}.cameraSteps`)}">${icon('plus')}<span>Add a step</span></button></details>`;
 }
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
@@ -3612,6 +3652,7 @@ function tierForm(w, p, k, t, e, issues) {
         <label class="mu-field"><span>They need</span><select data-input="cw-tintim" data-f="preset" data-path="${esc(`${q}.intimacy`)}">${TIER_PRESETS.map(([v, l]) => `<option value="${esc(v)}" ${v === preset ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select><small class="mu-muted">Once any tier sets this, nothing intimate happens before that tier.</small></label>
         ${preset === 'custom' ? `<div class="mu-row2">${sel('Romance', `${q}.intimacy.r`, withCur(Object.entries(R_NAME), i?.r))}${sel('Friendship', `${q}.intimacy.f`, withCur(Object.entries(F_NAME), i?.f))}</div>` : ''}
         ${i ? `<label class="mu-check"><input type="checkbox" data-input="cw-tintim" data-f="casual" data-path="${esc(`${q}.intimacy`)}" ${i.casual === false ? 'checked' : ''}><span>Only with a partner</span></label>` : ''}
+        ${systemOn(w, 'photography') || t.camera ? `<span class="mu-cw-sub">In front of a camera, from this tier</span>${cameraChangeFields(`${q}.camera`, [['', '(as before)'], ...STEP_RULES])}` : ''}
         <details class="mu-cw-kept" ${t.intimate ? 'open' : ''}><summary>Profile lines added at this tier ${ADULT} · ${Object.keys(t.intimate ?? {}).length}</summary>
             ${TIER_INTIMATE.map(([f, l, how]) => how === 'list' ? lines(l, `${q}.intimate.${f}`, 3) : how === 'area' ? optArea(l, `${q}.intimate.${f}`, 2) : optTxt(l, `${q}.intimate.${f}`)).join('')}
             <div class="mu-row2">${sel('In bed', `${q}.intimate.role`, withCur(nameOpts(ROLE_NAME), t.intimate?.role), 'opt')}${sel('Drive', `${q}.intimate.drive`, withCur(nameOpts(DRIVE_NAME), t.intimate?.drive), 'opt')}</div></details>
@@ -4491,6 +4532,13 @@ Object.assign(ACT, {
             notify();
             return;
         } // (C-7)
+        if (what === 'cstep') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ when: '', camera: 'ask' });
+            CW.dirty = true;
+            notify();
+            return;
+        } // (photography)
         if (what === 'ptier') {
             const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
             l.push({ id: newId('tier'), name: `Tier ${l.length}`, when: '' });
