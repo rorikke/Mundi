@@ -7,7 +7,7 @@ import { countUp } from './skills.js';
 import { courseworkAction, addCoursework } from './degrees.js';
 import { systemOn, isScenario } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
-import { onDay, onHour, tierLink } from './hooks.js';
+import { onDay, onHour, tierLink, engineActions } from './hooks.js';
 import { money } from './needs.js';
 import { social, bondOf, isPartner } from './social.js';
 import { note } from './facts.js';
@@ -68,7 +68,8 @@ export const brokenThings = (g, w) => (systemOn(w, 'breakdowns') ? life(g).broke
 const blocked = (g, w) => new Set(!systemOn(w, 'breakdowns') ? [] : life(g).broken.flatMap(id => breakables(w).find(b => b.id === id)?.blocks ?? []));
 /* ---------- actions the engine adds ---------- */
 const x = (a) => ({ name: a.label, cost: 0, minutes: 60, effects: {}, ...a });
-// Only what comes from the game's own state: paying to fix what broke, studying the course you take, a degree's coursework.
+// Only what comes from the game's own state: paying to fix what broke, studying the course you take, a degree's coursework,
+// and what other systems add (`engineActions`).
 export function extraActions(g, w) {
     const out = [];
     if (g.player.loc === playerHomeId)
@@ -86,6 +87,9 @@ export function extraActions(g, w) {
     const work = courseworkAction(g, w);
     if (work)
         out.push(work);
+    // (other systems' own: the hourly studio rental)
+    for (const f of engineActions)
+        out.push(...f(g, w));
     return out;
 }
 // Which world actions are blocked by something broken at home.

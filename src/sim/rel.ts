@@ -36,7 +36,9 @@ export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: b
     /** (museum, people who unlock: sim/tiers.ts) the highest tier reached and the day; gains past a cap held for the next */
     tier?: { n: number; day: number }; held?: { f?: number; r?: number };
     /** (photography) in front of a camera (ExampleCharacter.camera); read through `cameraOf` in sim/photo.ts */
-    camera?: CameraRule }
+    camera?: CameraRule;
+    /** (photography) the camera steps latched (sim/camera.ts): a step's key (`s0`, `t:<tier id>`) → the day */
+    camSteps?: Record<string, number> }
 export type AttMode = 'you' | 'set';
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */

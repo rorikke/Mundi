@@ -17,6 +17,7 @@ import { thumb, sendCanned, addUserLine, replyAs, personaName, setAsk } from '..
 import { weekday } from '../sim/time.js';
 import { fmtClock as hm } from '../core/fmt.js';
 import { placeOf, playerHomeId, pins } from '../sim/places.js';
+import { STUDIO_ID } from '../sim/studio.js';
 import { bondOf, isPartner, social, isWith } from '../sim/social.js';
 import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
 import { shutOut } from '../sim/romance.js';
@@ -98,7 +99,7 @@ export function planForm(g, w, avatar, face = false) {
         PL.kind = 'date';
     // a scenario: plans are made in a room of the house (the rooms of this game, and your room)
     const places = isScenario(w) ? [...pins(g, w).filter(p => !p.link && !p.home), { id: playerHomeId, name: 'Your room' }, { id: OUT_PICK, name: 'Somewhere out… (write where)' }]
-        : [...w.places.filter(p => !p.link), ...(placeOf(g, w, playerHomeId) ? [{ id: playerHomeId, name: 'Your home' }] : [])];
+        : [...w.places.filter(p => !p.link), ...(placeOf(g, w, playerHomeId) ? [{ id: playerHomeId, name: 'Your home' }] : []), ...(placeOf(g, w, STUDIO_ID) ? [{ id: STUDIO_ID, name: 'Your photo studio' }] : [])];
     if (!places.some(p => p.id === PL.place))
         PL.place = places.find(p => (p.tags ?? []).includes('leisure'))?.id ?? places[0]?.id ?? '';
     const times = slots(g);

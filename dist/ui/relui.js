@@ -13,7 +13,7 @@ import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, tierNo, notYetAnswer, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS } from '../sim/romance.js';
 import { bondOf, social } from '../sim/social.js';
 import { presentAt } from '../sim/people.js';
-import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen } from '../sim/work.js';
+import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, isFreelance } from '../sim/work.js';
 import { placeOf } from '../sim/places.js';
 import { skillName } from '../sim/hobbies.js';
 import { hm } from '../sim/time.js';
@@ -392,8 +392,8 @@ export function shiftLabel(g, w, o) {
 /** The work button where you can work (at your rank's place, or anywhere for an off-screen job). */
 export function workButton(g, w) {
     const o = myJob(g, w);
-    if (!o || !systemOn(w, 'jobs') || !atWork(g, w, o))
-        return '';
+    if (!o || !systemOn(w, 'jobs') || !atWork(g, w, o) || isFreelance(g, w))
+        return ''; // (a freelancer has no shifts)
     const l = shiftLabel(g, w, o);
     return `<button class="mh-act is-work mh-glass ${offScreen(w, o) ? 'is-outing' : ''}" data-act="work" ${l.ok ? '' : 'aria-disabled="true"'}><i>${icon('briefcase')}</i><b>${offScreen(w, o) ? 'Go to work' : 'Work a shift'}</b><small>${esc(l.text)}</small></button>`;
 }
@@ -401,8 +401,8 @@ export function workButton(g, w) {
 // the shift you'd rather work in a job worked round the clock.
 export function workWeekHtml(g, w) {
     const o = myJob(g, w);
-    if (!o || !systemOn(w, 'jobs'))
-        return '';
+    if (!o || !systemOn(w, 'jobs') || isFreelance(g, w))
+        return ''; // (freelance: no work week)
     const j = g.player.job, now = nowAbs(g);
     const list = [];
     for (let d = g.day - 1; d <= g.day + 6; d++) {

@@ -12,6 +12,7 @@ import { money } from './needs.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { effectMul } from './effects.js';
 import { housingOn, ownedHere, ownedHomes, upkeepOf, zoneOf, fixturesOf, buyOnly, buyable } from './housing.js';
+import { studioOf, studioZoneOf, studioZones, studioRent } from './studio.js';
 // In a Home (no money) the difficulty is how fast relationships grow (`bond`).
 export const DIFFICULTIES = [
     { id: 'easy', name: 'Easy', desc: 'Work pays more, things cost less, you start with more money, and careers go a little faster.', homeDesc: 'Friendship and love grow fast.', pay: 1.25, price: 0.8, start: 1.5, bond: 1.5, career: 1.2 },
@@ -33,8 +34,9 @@ export const expensesOf = (w) => (w?.homes?.expenses ?? DEFAULT_EXPENSES.map(e =
 export const billList = (w) => (systemOn(w, 'bills') ? allBills(w) : []);
 const allBills = (w) => [
     { id: 'rent', name: lex(w, 'bill_rent'), icon: 'home', blocks: [] },
-    ...expensesOf(w).filter(e => e.id && e.id !== 'rent' && e.id !== UPKEEP).map(e => ({ icon: 'wallet', ...e, blocks: e.blocks ?? [] })),
-    ...(w && housingOn(w) && w.homes.zones.some(buyable) ? [upkeepBill(w)] : []),
+    ...expensesOf(w).filter(e => e.id && e.id !== 'rent' && e.id !== UPKEEP && e.id !== STUDIO_RENT).map(e => ({ icon: 'wallet', ...e, blocks: e.blocks ?? [] })),
+    ...(w && housingOn(w) && (w.homes.zones.some(buyable) || studioZones(w).some(z => upkeepOf(z) > 0)) ? [upkeepBill(w)] : []),
+    ...(w && studioZones(w).some(z => studioRent(z) > 0) ? [STUDIO_BILL] : []),
 ];
 /** (housing) The upkeep of the homes you own, last, in a world with homes to buy: 0 while you own none, so it's never
  *  billed or shown. Cut off a week, it stops what the rooms and fixtures unlock (their actions) and never locks you out. */
@@ -52,6 +54,16 @@ function upkeepBill(w) {
     }
     return k.def;
 }
+/** (photography, housing) The rent of a photo studio you rent by the week (sim/studio.ts), in a world with studios to
+ *  rent: 0 without one, so it's never billed or shown. Cut off a week, the studio can't be worked in (nothing at home
+ *  stops). */
+export const STUDIO_RENT = 'studio';
+const STUDIO_BILL = { id: STUDIO_RENT, name: 'Studio rent', icon: 'camera', blocks: [],
+    cut: "The rent of your photo studio is a week overdue: you can't work there, and its fixtures are off, until it's paid ({app}).",
+    back: 'Studio rent paid: your photo studio is yours to work in again.' };
+// (a bought or given photo studio: its upkeep is on the homes' bill)
+const ownsStudio = (g) => studioOf(g)?.way === 'buy';
+const rentsStudio = (g) => studioOf(g)?.way === 'rent';
 export const billName = (w, id) => allBills(w).find(b => b.id === id)?.name ?? id;
 const EVERY = 7;
 export function bills(g) {
@@ -64,8 +76,10 @@ export function bills(g) {
     return x.bills;
 }
 // One bill's state; an expense the world added later starts a week from now.
-// (the upkeep isn't written into a save that owns nothing: a passing bill, a week ahead)
-const billOf = (g, id) => (id === UPKEEP && !bills(g)[id] && !ownedHomes(g).length ? { due: g.day + EVERY } : held(g, (bills(g)[id] ??= { due: g.day + EVERY })));
+// (the upkeep isn't written into a save that owns nothing, nor the studio's rent into one that rents no studio: a passing
+// bill, a week ahead)
+const billOf = (g, id) => ((id === UPKEEP && !bills(g)[id] && !ownedHomes(g).length && !ownsStudio(g)) || (id === STUDIO_RENT && !bills(g)[id] && !rentsStudio(g))
+    ? { due: g.day + EVERY } : held(g, (bills(g)[id] ??= { due: g.day + EVERY })));
 /** Starts a bill a week from now if it isn't running yet (the upkeep, when your first home is bought). */
 export function startBill(g, id) { bills(g)[id] ??= { due: g.day + EVERY }; }
 // A bill cut off owes no more weeks (nobody charges rent for a door they locked): at most the week that was cut off and
@@ -89,10 +103,15 @@ export function billAmount(g, w, id) {
     // week); the upkeep is that of every home you own
     if (id === 'rent' && ownedHere(g))
         return 0;
+    if (id === STUDIO_RENT) {
+        const st = studioOf(g), rent = st?.way === 'rent' && housingOn(w) ? studioRent(studioZoneOf(w, st.zone)) : 0;
+        return rent ? priceOf(g, rent * effectMul(g, w, 'price', ['prices', STUDIO_RENT])) : 0;
+    }
     if (id === UPKEEP) {
         if (!housingOn(w))
             return 0;
-        const sum = ownedHomes(g).reduce((a, o) => a + upkeepOf(zoneOf(w, o.zone)), 0);
+        const st = studioOf(g);
+        const sum = ownedHomes(g).reduce((a, o) => a + upkeepOf(zoneOf(w, o.zone)), 0) + (st?.way === 'buy' ? upkeepOf(studioZoneOf(w, st.zone)) : 0);
         return sum ? priceOf(g, sum * effectMul(g, w, 'price', ['bills', UPKEEP])) : 0;
     }
     const zone = playerZone(g, w);
@@ -195,16 +214,19 @@ export function settleStartRent(g, w) {
 // Moving in: the first week is paid with the deposit, so everything starts fresh (what the old home was still owed
 // stays behind, with its deposit).
 // (housing) The upkeep isn't the home's: it keeps running as it was (moving doesn't clear what's owed on it), and starts
-// only once something is owned.
+// only once something is owned. Nor is a photo studio's rent.
 export function resetBills(g, w) {
-    const was = g.bills?.[UPKEEP];
+    const was = g.bills?.[UPKEEP], studio = g.bills?.[STUDIO_RENT];
     const ids = new Set([...Object.keys(g.bills ?? {}), ...allBills(w).map(b => b.id)]);
     ids.delete(UPKEEP);
+    ids.delete(STUDIO_RENT);
     g.bills = Object.fromEntries([...ids].map(id => [id, { due: g.day + EVERY }]));
     if (was)
         g.bills[UPKEEP] = was;
-    else if (ownedHomes(g).length)
+    else if (ownedHomes(g).length || ownsStudio(g))
         startBill(g, UPKEEP);
+    if (studio)
+        g.bills[STUDIO_RENT] = studio;
 }
 // Once a day (from the timed rules): the bill that became due, and the one that was cut off.
 export function billNews(g, w) {

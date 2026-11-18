@@ -8,6 +8,7 @@
 import { adultOn, game } from '../core/store.js';
 import { getWorld, systemOn, INTIMATE_ROLES, INTIMATE_DRIVES } from '../core/world.js';
 import { DEFAULT_GENDERS } from '../core/presets.js';
+import { CAMERA_RULES } from '../core/photo.js';
 import { relOf, idOf, pairOf, YOU } from './rel.js';
 import { saveSeed } from './relations.js';
 import { isMinor } from './family.js';
@@ -65,6 +66,8 @@ export function cleanPerson(raw) {
     const intimate = cleanIntimate(raw.intimate);
     if (intimate)
         p.intimate = intimate;
+    if (CAMERA_RULES.includes(raw.camera))
+        p.camera = raw.camera; // (photography)
     return Object.keys(p).length ? p : undefined;
 }
 // (E15) An intimate profile: short lines and short lists of plain words, nothing else; undefined when empty.

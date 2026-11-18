@@ -1,16 +1,19 @@
 // People's lives over the weeks (also while you sleep or skip time): couples get engaged, marry and move in
 // together, or break up, by how they feel about each other (sim/relations.ts); people get promoted at work. What
 // happens to someone you know reaches you as news. Everything is the engine's, day by day, the same for the same days.
+// An engaged pair whose marriage roll passes sets a wedding day, the first Saturday or Sunday a week or two ahead
+// (`PairState.wedding`), and marries on it, with or without a photographer there (the photo boards offer to shoot it:
+// `weddingsAhead`); a split before the day calls it off.
 import { cfg } from '../core/store.js';
 import { systemOn } from '../core/world.js';
-import { seasonDays } from './time.js';
+import { seasonDays, isWeekend, weekday } from './time.js';
 import { exampleOf, seedRanks } from './dayplan.js';
 import { onDay } from './hooks.js';
 import { note } from './facts.js';
 import { npcCareer, trackOf } from './work.js';
 import { lifeMoment } from './happenings.js';
 import { liveTogether, homeKey } from './living.js';
-import { couplePairs, setStatus, statusOf, gain } from './rel.js';
+import { couplePairs, setStatus, statusOf, gain, relOf } from './rel.js';
 import { coupleOdds, feelOf, splitUp } from './relations.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -22,10 +25,35 @@ const key = (a, b) => [a, b].sort().join('|');
 // The stage of a couple between two people of the world (the relationships store, sim/rel.ts).
 export const pairStage = (g, a, b) => { const s = statusOf(g, a, b); return s === 'dating' || s === 'engaged' || s === 'married' ? s : null; };
 export const npcRank = (g, avatar) => store(g).ranks[avatar] ?? 0;
+/** The days from a passed marriage roll to the wedding: the first Saturday or Sunday this many days ahead or more. */
+export const WEDDING_AHEAD = { min: 7, max: 14 };
+/** The wedding day for a roll passed on `day`: the first weekend day from a week ahead (always within two weeks). */
+export function weddingDay(day) {
+    for (let d = day + WEDDING_AHEAD.min; d <= day + WEDDING_AHEAD.max; d++)
+        if (isWeekend(d))
+            return d;
+    return day + WEDDING_AHEAD.min;
+}
+/** The world's weddings set ahead, soonest first, today's included (on the day they're already married): what the photo
+ *  boards offer to shoot. None with relations or romance off. */
+export function weddingsAhead(g, w) {
+    if (!systemOn(w, 'relations') || !systemOn(w, 'romance'))
+        return [];
+    const out = [];
+    for (const { a, b, status } of couplePairs(g)) {
+        const p = relOf(g).pairs[key(a, b)], day = p?.wedding;
+        if (day === undefined || day < g.day || (status !== 'engaged' && !(status === 'married' && day === g.day && p.since === day)))
+            continue;
+        out.push({ pair: key(a, b), a, b, day });
+    }
+    return out.sort((x, y) => x.day - y.day || x.pair.localeCompare(y.pair));
+}
 function couplesMoveOn(g, w) {
     const out = [];
     for (const { a, b, status, since } of couplePairs(g)) {
-        const k = key(a, b), A = g.cast[a], B = g.cast[b];
+        const k = key(a, b), A = g.cast[a], B = g.cast[b], pair = relOf(g).pairs[k];
+        if (status === 'married' && pair.wedding !== undefined && pair.wedding < g.day)
+            delete pair.wedding; // (the day is over)
         const known = A.met || B.met;
         const tell = (t, kind, tone = 'good') => {
             note(g, t, [A.name, B.name], [a, b], `home:${a}`, kind);
@@ -44,8 +72,17 @@ function couplesMoveOn(g, w) {
             setStatus(g, a, b, 'engaged');
             tell('{0} and {1} got engaged!', 'life');
         }
-        else if (status === 'engaged' && rnd(g, `marry|${k}`) < odds.up) {
+        else if (status === 'engaged' && pair.wedding === undefined && rnd(g, `marry|${k}`) < odds.up) {
+            // the roll sets the day (no second roll while it's ahead); the news says when
+            const day = pair.wedding = weddingDay(g.day);
+            const t = '{0} and {1} set a date: they marry on {2}, in {3} days.';
+            note(g, t, [A.name, B.name, weekday(day), String(day - g.day)], [a, b], `home:${a}`, 'life');
+            if (known)
+                out.push(t.replace('{0}', A.name).replace('{1}', B.name).replace('{2}', weekday(day)).replace('{3}', String(day - g.day)));
+        }
+        else if (status === 'engaged' && pair.wedding !== undefined && g.day >= pair.wedding) {
             setStatus(g, a, b, 'married');
+            pair.wedding = g.day; // (kept through the day: the photographer shooting it finds it)
             for (const [x, y] of [[a, b], [b, a]])
                 gain(g, 'f', x, y, 5, false); // the wedding brings them closer
             // they move in together (unless one of them lives with you: then nobody moves)

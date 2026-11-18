@@ -1,6 +1,7 @@
 // People who unlock (the museum's end-game characters): a person's tiers and `reserved` from someone else's file made
 // safe. The format is PersonTier in core/world.ts; what plays it is sim/tiers.ts. A world without tiers gets no key.
 import { FRIEND_LEVELS, ROM_LEVELS } from './feel.js';
+import { cameraChange } from './photo.js';
 const ID = /^[a-z0-9_]+$/;
 // (a cap of `none`: no couple at all while at that tier)
 const STATUSES = ['none', 'casual', 'dating', 'engaged', 'married'];
@@ -8,7 +9,7 @@ const str = (v) => typeof v === 'string' && !!v.trim();
 const isWhen = (v) => typeof v === 'string' || (!!v && typeof v === 'object' && !Array.isArray(v));
 /** One person's tiers made safe, in place: ids `[a-z0-9_]` and unique, a name and a condition each, caps only at known
  *  levels, `hold`, `moves` and `invites` booleans, `sets` at known levels, texts texts, outfits and lines lists of texts; a tier missing any of
- *  its musts dropped, and no `tiers` key left when none is. `reserved` only when true. */
+ *  its musts dropped, and no `tiers` key left when none is; a camera change made safe (core/photo.ts). `reserved` only when true. */
 export function upgradeTiers(ex) {
     if (!ex || typeof ex !== 'object')
         return;
@@ -97,6 +98,12 @@ export function upgradeTiers(ex) {
                 sets.r = t.sets.r;
             if (Object.keys(sets).length)
                 x.sets = sets;
+        }
+        // (photography) the camera rule it loosens to (sim/camera.ts)
+        if ('camera' in t) {
+            const c = cameraChange(t.camera);
+            if (c)
+                x.camera = c;
         }
         out.push(x);
     }

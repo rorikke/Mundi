@@ -1,10 +1,12 @@
-// Places: the world's public places plus homes (the player's and each resident's). Distances and travel time.
+// Places: the world's public places plus homes (the player's and each resident's), your second home and (photography)
+// your photo studio. Distances and travel time.
 import { travelFactor } from './life.js';
 import { cfg } from '../core/store.js';
 import { isScenario, systemOn } from '../core/world.js';
 import { effectMul } from './effects.js';
 import { housingOn, ownsFixtureIn, secondHome, SECOND_HOME_ID } from './housing.js';
 import { placeGates } from './hooks.js';
+import { STUDIO_ID, studioPlace, studioMap, myStudio } from './studio.js';
 export const playerHomeId = 'home:player';
 export const isHome = (id) => id.startsWith('home:');
 // "North Suburbs, House 4": every home spot of the map has a fixed number.
@@ -25,6 +27,8 @@ export function homeKindAt(g, w, id) {
         const s = secondHome(g);
         return (s && w.homes.zones.find(z => z.id === s.zone)?.kind) ?? '';
     }
+    if (id === STUDIO_ID)
+        return myStudio(g, w)?.z.kind ?? '';
     if (!isHome(id))
         return '';
     const zone = g.cast[id.slice(5)]?.home.zone ?? g.vacated?.home?.zone;
@@ -41,6 +45,8 @@ function secondPlace(g, w) {
 export function placeOf(g, w, id) {
     if (id === SECOND_HOME_ID)
         return secondPlace(g, w);
+    if (id === STUDIO_ID)
+        return studioPlace(g, w);
     if (id === playerHomeId) {
         const h = g.player.home, kind = w.homes.kinds[h.kind];
         const zone = w.homes.zones.find(z => z.id === h.zone);
@@ -83,6 +89,8 @@ export function mapOf(g, w, id) {
         return w.homes.zones.find(z => z.id === g.player.home.zone)?.map ?? w.maps[0].id;
     if (id === SECOND_HOME_ID)
         return secondPlace(g, w)?.map;
+    if (id === STUDIO_ID)
+        return studioMap(g, w);
     if (isHome(id)) {
         const r = g.cast[id.slice(5)];
         if (!r)
@@ -155,6 +163,9 @@ export function pins(g, w) {
     const second = secondPlace(g, w);
     if (second)
         out.push(second);
+    const studio = studioPlace(g, w);
+    if (studio)
+        out.push(studio);
     // (a guest with no bedroom of their own, zone '__guest', has no room to show)
     for (const r of Object.values(g.cast))
         if (r.met && r.home.zone !== '__guest') {

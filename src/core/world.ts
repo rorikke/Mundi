@@ -553,9 +553,19 @@ export interface ExampleCharacter {
      *  for work: never an adult brief or a private session), `ask` (they're asked first). Missing: free. Read with adult
      *  content on or off; an overlay may make it stricter, never looser. Read through `cameraOf` in sim/photo.ts. */
     camera?: CameraRule;
+    /** (photography) How that rule loosens over a game (CameraStep): each step latches once its `when` holds and is
+     *  never lost. A base person's live in the base world only; an overlay may give them only to its own people. */
+    cameraSteps?: CameraStep[];
 }
 /** (photography) How someone stands in front of a camera, from the freest to the strictest (see ExampleCharacter.camera). */
 export type CameraRule = 'ask' | 'work' | 'noface' | 'never';
+/** (photography) A loosening of someone's camera rule (a step, or a tier's `camera`): the rule from then on (`free`:
+ *  none), hard limits it takes off (`lifts`, by their words) and adds (`adds`) in the save's copy of their profile, the
+ *  line the player sees once (`{name}`), and `adult`: only with adult content on (else it never latches). */
+export interface CameraChange { camera: CameraRule | 'free'; lifts?: string[]; adds?: string[]; line?: string; adult?: boolean }
+/** (photography) A camera step: latched the first time `when` holds (checked every hour and day); a later step that
+ *  latches brings the ones before it. */
+export interface CameraStep extends CameraChange { when: When }
 /** (museum, people who unlock) A tier of an end-game character, reached the first time `when` holds (latched: never
  *  lost). `caps`: the highest friendship, romance and couple status toward the player this tier allows (missing: no cap;
  *  status `none`: no couple at all; before the first tier is reached, the first tier's caps hold); `hold`: whether a
@@ -581,7 +591,9 @@ export interface PersonTier { id: string; name: string; when: When;
     sets?: { f?: FriendLevel; r?: RomLevel };
     /** (C-7) More for the AI while a condition holds (someone else here, how you stand with another person: `present:
      *  Tamaki`, `feels: Tamaki dating`): the nearest reached tier's list, each line told while its `when` holds. */
-    about?: { when: When; ai: string }[] }
+    about?: { when: When; ai: string }[];
+    /** (photography) As this tier opens, their camera rule loosens (CameraChange; read by sim/camera.ts). */
+    camera?: CameraChange }
 /** (E21) A standing appointment: where (a place, or `home`: the owner's own home, where those who come join them), which
  *  weekdays (none: the owner's days off), hours [from, to) (past 24 runs into the
  *  night: 21–26 is 21:00 to 2:00). `every`: each week (default), every N weeks (`2`, starting on week `week`), once a
