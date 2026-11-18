@@ -19,7 +19,7 @@ import { onHour, onDay, onLook, tierLink } from './hooks.js';
 import { residents, routineAt, workingAt } from './people.js';
 import { placeOf, playerHomeId } from './places.js';
 import { hm } from './time.js';
-import { social, bondOf, textFrom } from './social.js';
+import { social, bondOf, textFrom, isPartner } from './social.js';
 import { personaName } from '../st/bridge.js';
 import { FRIEND_TIERS, ROMANCE_TIERS, friendTier, romOf, romValue, coolingDown, askScore, canAsk, tierNo, shutOut, HATES, DISLIKES, ASKS } from './romance.js';
 import { romanceBlocked } from './family.js';
@@ -36,6 +36,7 @@ import { slotAt, adultOn } from './dayplan.js';
 import { ties } from './living.js';
 import { threadMomentFits, goneFromMap } from './threads.js';
 import { isWith, withYou } from './social.js';
+import { keepToMyself, APPROACH } from './approach.js';
 import { wantingYou, driveWant, CHAR_DRIVE } from './drive.js';
 import { driveOf } from './intimacy.js';
 import { actionsHere } from './needs.js';
@@ -604,7 +605,8 @@ function momentDropIn(g, w) {
     const hour = Math.floor(nowAbs(g) / 60);
     if (g.tick.homeDropIn === hour)
         return;
-    const far = elsewhereHere(g, w).filter(x => !x.asleep).map(x => x.r);
+    // (keeping to yourself: only friends and partners still come, as with the approach roll)
+    const far = elsewhereHere(g, w).filter(x => !x.asleep && (!keepToMyself(g) || isPartner(g, x.r.avatar) || bondOf(g, x.r.avatar) >= APPROACH.keepBond)).map(x => x.r);
     if (!far.length)
         return;
     const m = momentsHere(g, far, x => x.sent === undefined && fits(g, w, x))[0]; // (once: a moment already played in a scene doesn't fetch them again)

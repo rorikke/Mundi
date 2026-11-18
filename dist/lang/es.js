@@ -10190,7 +10190,6 @@ const DICT = {
     "Things to do only here": "Cosas que hacer solo aquí",
     "Picture (a file in the world's folder; empty: the kind of home's)": "Imagen (un archivo en la carpeta del mundo; vacío: la del tipo de casa)",
     "In a home with rooms inside: how their bedroom looks (empty: the kind of home's picture).": "En una casa con habitaciones: cómo es su dormitorio (vacío: la imagen del tipo de casa).",
-    "Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and \"Elsewhere at home\" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then. Someone's bedroom is theirs: close friends walk in, others knock.": "Algunas casas tienen habitaciones (una casa compartida: la sala común, la cocina, el baño, un dormitorio para cada uno). Moverse entre ellas no lleva tiempo; la escena es la habitación en la que estás, y \"En otra parte de la casa\" muestra quién está en las demás. Los compañeros siguen el ritmo de la casa y de vez en cuando vienen a buscarte. El dormitorio de alguien es suyo: los amigos cercanos entran, los demás llaman.",
     "Ask to stay a few days": "Invitar a quedarse unos días",
     "Staying with you": "Se queda contigo",
     "Coming to stay": "Viene a quedarse",
@@ -10233,5 +10232,8 @@ const DICT = {
     "They cannot stay with you.": "No puede quedarse contigo.",
     "Staying over": "Quedarse a dormir",
     "A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, on their card. They ring the doorbell, go out to work from your place, and grow a little closer each night.": "Un amigo cercano o tu pareja puede quedarse en tu casa unas noches, o hasta que te despidas (una semana como mucho): Invitar a quedarse unos días, en su tarjeta. Llama al timbre, sale a trabajar desde tu casa y se acerca un poco más cada noche.",
+    "On · only friends come to find you, and rarely": "Activado · solo los amigos vienen a buscarte, y pocas veces",
+    "Off · housemates may come to find you": "Desactivado · tus compañeros pueden venir a buscarte",
+    "Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and \"Elsewhere at home\" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then (Keep to myself keeps all but friends away). Someone's bedroom is theirs: close friends walk in, others knock.": "Algunas casas tienen habitaciones (una casa compartida: la sala común, la cocina, el baño, un dormitorio para cada uno). Moverse entre ellas no lleva tiempo; la escena es la habitación en la que estás, y \"En otra parte de la casa\" muestra quién está en las demás. Los compañeros siguen el ritmo de la casa y de vez en cuando vienen a buscarte (A lo mío aleja a todos menos a los amigos). El dormitorio de alguien es suyo: los amigos cercanos entran, los demás llaman.",
 };
 export default DICT;
