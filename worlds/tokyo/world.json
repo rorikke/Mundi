@@ -25166,7 +25166,11 @@
     "neighbors",
     "couples"
    ],
-   "roles": []
+   "roles": [],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "fireworks",
@@ -25181,7 +25185,11 @@
     "couples",
     "friends",
     "everyone"
-   ]
+   ],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "ramen_contest",
@@ -25214,7 +25222,11 @@
    "audience": [
     "neighbors",
     "couples"
-   ]
+   ],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "noryo",
@@ -25264,7 +25276,11 @@
    "audience": [
     "everyone"
    ],
-   "roles": []
+   "roles": [],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "tsukimi",
@@ -35061,12 +35077,12 @@
    "dress": {
     "kind": "swim"
    },
-   "bg": "bg/rp_pent_terrace-night.avif",
    "actions": [
     "rp_nightpool_swim",
     "rp_nightpool_bar",
     "rp_nightpool_dance"
-   ]
+   ],
+   "bg": "bg/rp_pent_terrace-night.avif"
   },
   {
    "id": "hk_spapark",
@@ -35094,12 +35110,12 @@
    "dress": {
     "kind": "swim"
    },
-   "bg": "bg/hk_villa_onsen.avif",
    "actions": [
     "hk_spapark_pools",
     "hk_spapark_slide",
     "hk_spapark_cave"
-   ]
+   ],
+   "bg": "bg/hk_villa_onsen.avif"
   }
  ],
  "stories": [
@@ -56987,6 +57003,11 @@
       "kind": "swim",
       "level": 2,
       "look": "a cream frilled off-shoulder bikini, her plum-blossom hairpin"
+     },
+     "yukata": {
+      "kind": "yukata",
+      "level": 1,
+      "look": "a summer yukata of dark indigo cotton printed with small white plum blossoms, a mustard-yellow obi and wooden geta"
      }
     }
    },
@@ -57061,7 +57082,10 @@
       ],
       "from": 19,
       "to": 21,
-      "text": "fences at the Kudan club in white, the ponytail coming loose"
+      "text": "fences at the Kudan club in white, the ponytail coming loose",
+      "dress": {
+       "kind": "fencing"
+      }
      },
      {
       "place": "ot_kura",
@@ -57459,6 +57483,11 @@
       "level": 3,
       "adult": true,
       "look": "an ivory halter one-piece swimsuit with a plunging neckline and a gold ring at the chest, her hair in a high ponytail with a black velvet ribbon"
+     },
+     "fencing": {
+      "kind": "fencing",
+      "level": 1,
+      "look": "a white padded fencing jacket with a high collar, white breeches to the knee and tall black socks, her hair in a high ponytail"
      }
     }
    },
@@ -57505,7 +57534,10 @@
       "from": 11,
       "to": 15,
       "when": "dealer: here",
-      "text": "sits on the tailgate of her cream camper van in the lane outside the Kurahashi kura, this week's pieces wrapped in blankets behind her"
+      "text": "sits on the tailgate of her cream camper van in the lane outside the Kurahashi kura, this week's pieces wrapped in blankets behind her",
+      "dress": {
+       "kind": "van"
+      }
      },
      {
       "place": "yk_yamashita",
@@ -57515,7 +57547,10 @@
       ],
       "from": 19,
       "to": 22,
-      "text": "sits on the sea wall by her parked van with a mug of tea, singing badly"
+      "text": "sits on the sea wall by her parked van with a mug of tea, singing badly",
+      "dress": {
+       "kind": "van"
+      }
      },
      {
       "place": "hk_yumoto",
@@ -57931,6 +57966,11 @@
       "kind": "swim",
       "level": 2,
       "look": "a white bikini top with low denim cut-off shorts, a red bandana at her neck"
+     },
+     "offroad": {
+      "kind": "van",
+      "level": 1,
+      "look": "a big hand-knitted rust-orange jumper and wide cream trousers, an indigo scarf round her bun, a mug of tea"
      }
     }
    },

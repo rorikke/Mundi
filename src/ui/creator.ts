@@ -1060,6 +1060,7 @@ function tabCustoms(w: WorldDef) {
                 <details class="mu-cw-kept" ${(w.festivals ?? [])[i]?.places?.length ? 'open' : ''}><summary>More places it fills · ${(w.festivals ?? [])[i]?.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${p}.places`, true)}</details>
                 ${sel('A custom between people', `${p}.custom.kind`, [['', '(none)'], ['gift', 'People who like you give you something'], ['return', 'The return gift'], ['couples', 'Partners expect a date'], ['family', 'Family and close friends go together'], ['group', 'Friends invite you along']], 'opt')}
                 ${(w.festivals ?? [])[i]?.custom ? `<div class="mu-row2">${optTxt('The custom in a sentence (for the AI)', `${p}.custom.text`)}${bounded('Done at (hour; empty: soon after they ask)', `${p}.custom.at`, 0, 24, 0.5)}</div>` : ''}
+                ${dressBox(p, (w.festivals ?? [])[i]?.dress?.kind, 'Everyone at its places puts it on during its days (yukata at a summer festival).')}
                 ${audienceRows(w, p)}`;
         }, 'festival')}</section>
         <section class="mu-cw-sec"><h4>City events</h4><p class="mu-muted">Shows, matches, fairs: on a weekday, every few weeks, at a place. They are in the calendar and you go if you want.</p>
@@ -2748,7 +2749,8 @@ function ritualRow(w: WorldDef, q: string, r: Ritual, others: [string, string][]
             ${txt('What they\'re doing (for the AI)', `${q}.text`, 'sings at Bar Kotori')}
             <div class="mu-row2">${cond('Only while (optional)', `${q}.when`, 'season: summer')}${flag('Only with adult content on', `${q}.adult`, '', true)}</div>
             <div class="mu-field"><span>Who comes along</span>${pairChips(withCurAll(others, r.with), `${q}.with`, true)}</div>
-            <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details></div>`;
+            <details class="mu-cw-kept" ${r.places?.length ? 'open' : ''}><summary>Some weeks one of these instead · ${r.places?.length ?? 0}</summary>${pairChips(placeOpts(w), `${q}.places`, true)}</details>
+            ${dressBox(q, r.dress?.kind, "They put it on while they're at it (her fencing whites at the club).")}</div>`;
 }
 function ritualsEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
     const l = e.rituals ?? [];

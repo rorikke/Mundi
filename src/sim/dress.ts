@@ -1,7 +1,7 @@
 // What people wear in the scene, from the game rather than by hand. Home: a dress code per room ("swimsuit" at the
 // pool, "pajamas" in the bedrooms). Any world with adult content on: the people doing a private action with you
 // (a night at a love hotel, a bath for two) wear their "naked" outfit while it plays out. (dress) Any world: a place,
-// an action or a street story can carry a dress code by kind (`swim`), and the people it covers put on an outfit of
+// an action, a street story, a festival or a standing appointment can carry a dress code by kind (`swim`, `yukata`), and the people it covers put on an outfit of
 // that kind, chosen by how bold it is (its level, ExampleCharacter.wear) against how bold they go (their comfort:
 // in public, or one more in private with someone close); a scripted code sets the level itself. Whoever has an outfit
 // with that name (a subfolder of their Expressions folder) wears it; when the code no longer holds for them (another
@@ -11,7 +11,8 @@ import { isScenario, systemOn, type WorldDef, type DressDef, type WearDef, type 
 import { outfitOf, wearOutfit } from '../st/bridge.js';
 import { tierLink } from './hooks.js';
 import { sceneHere } from './homerooms.js';
-import { exampleOf } from './dayplan.js';
+import { exampleOf, slotAt } from './dayplan.js';
+import { festivalsOn } from './festivals.js';
 import { placeOf, isHome } from './places.js';
 import { whenHolds, personNamed, parseWhen, levelHolds } from './when.js';
 import { statusOf, YOU } from './rel.js';
@@ -79,7 +80,8 @@ const storyPeople = (s: { brings?: string; when?: unknown; dress?: DressDef }) =
 /** What one person in the scene is to wear now, or null. A Home's room code; else, with adult content on, the people
  *  taking part in a private action with you undress (or, when it has a dress code, put that on, up to explicit); else
  *  (the `dress` system) an action's code for the people doing it with you, a street story's for the people it names,
- *  then the place's for everyone here. */
+ *  a standing appointment's for the people at it here, a festival's for everyone at its places on its days, then the
+ *  place's for everyone here. */
 export function needFor(g: Save, w: WorldDef, avatar: string): DressNeed | null {
     if (isScenario(w)) { const c = dressAt(g, g.player.loc); return c ? { code: c } : null; }
     const on = systemOn(w, 'dress');
@@ -94,9 +96,18 @@ export function needFor(g: Save, w: WorldDef, avatar: string): DressNeed | null 
         return fromCode(g, w, doing.a!.dress!, avatar, !!doing.a!.adult);
     const s = storyHere(g, w);
     if (s && holds(g, w, s.dress, `story|${s.id}`) && named(g, storyPeople(s), avatar)) return fromCode(g, w, s.dress!, avatar, !!s.adult);
+    const r = g.cast[avatar], slot = r ? slotAt(g, w, r, nowAbs(g)) : null;
+    if (slot?.kind === 'ritual' && slot.place === g.player.loc && holds(g, w, slot.dress, `ritual|${slot.key ?? avatar}`)) return fromCode(g, w, slot.dress!, avatar, false);
+    const f = festivalHere(g, w);
+    if (f) return fromCode(g, w, f.dress!, avatar, !!f.adult);
     const p = placeOf(g, w, g.player.loc);
     if (holds(g, w, p?.dress, `place|${p?.id}`)) return fromCode(g, w, p!.dress!, avatar, false);
     return null;
+}
+// A festival on today at the place you're at whose code holds now
+function festivalHere(g: Save, w: WorldDef) {
+    const loc = g.player.loc;
+    return systemOn(w, 'festivals') ? festivalsOn(g, w).find(f => (f.place === loc || f.places?.includes(loc)) && (!f.adult || adultOn(g)) && holds(g, w, f.dress, `festival|${f.id}`)) : undefined;
 }
 /** The code for one person here, as a word: an outfit's name or a kind (empty: nothing). */
 export function dressFor(g: Save, w: WorldDef, avatar: string): string {
@@ -184,7 +195,8 @@ export function applyDress(g: Save, w: WorldDef, has: (avatar: string, code: str
 
 /* ---------- for the AI ---------- */
 
-const KIND_LINE: Record<string, string> = { swim: 'In swimwear' };
+// the words for a kind the AI is told about (any other: "Dressed for it")
+const KIND_LINE: Record<string, string> = { swim: 'In swimwear', yukata: 'In yukata', fencing: 'In fencing whites' };
 // What people here wear because of a code: a Home's room; elsewhere each person's outfit in words, and how bold it is
 // for them (above their public comfort, explicit, or at ease being looked at).
 export function dressLine(g: Save, w: WorldDef): string {
@@ -206,9 +218,10 @@ export function dressLine(g: Save, w: WorldDef): string {
     }
     const mine = playerKind(g, w);
     if (mine && !byKind.has(mine)) byKind.set(mine, []);
-    return [...byKind].map(([k, list]) => `${KIND_LINE[k] ?? `Dressed for it (${k})`}: ${[...list, ...(k === mine ? ['{{user}} too'] : [])].join('; ')}.`).join(' ');
+    return [...byKind].map(([k, list]) => `${KIND_LINE[k] ?? 'Dressed for it'}: ${[...list, ...(k === mine ? ['{{user}} too'] : [])].join('; ')}.`).join(' ');
 }
-// The kind a code puts on you too: the action you're doing, the street story you're in, the place you're at.
+// The kind a code puts on you too: the action you're doing, the street story you're in, the place you're at (not a
+// festival's or someone's appointment: whether you came in a yukata is yours to say).
 function playerKind(g: Save, w: WorldDef): string {
     const act = (g as any).act as Act | undefined;
     if (act?.a && act.place === g.player.loc && holds(g, w, act.a.dress, 'act|you') && !(act.a.private && adultOn(g) && !act.a.dress)) return kindOf(act.a.dress.kind);

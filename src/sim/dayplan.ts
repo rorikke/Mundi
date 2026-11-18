@@ -11,7 +11,7 @@
 // kept until anything it reads changes (who works where, a click, the rules). A job without a schedule, a world
 // without rituals, roles or audiences: nothing here changes, the routine templates play as before.
 import { nowAbs, changes, type Save, type Resident, adultOn } from '../core/store.js';
-import { systemOn, isScenario, offScreenWork, exampleTag, WEEKDAY_IDS, type WorldDef, type Occupation, type ExampleCharacter, type Ritual, type FestivalDef, type When } from '../core/world.js';
+import { systemOn, isScenario, offScreenWork, exampleTag, WEEKDAY_IDS, type WorldDef, type Occupation, type ExampleCharacter, type Ritual, type FestivalDef, type When, type DressDef } from '../core/world.js';
 import { charOf } from '../st/bridge.js';
 import { onDay, ventureLink } from './hooks.js';
 import { isWeekend, seasonDays } from './time.js';
@@ -429,7 +429,8 @@ const sameDay = (g: Save, w: WorldDef, x: RitualRef, d: number, days: number[]) 
 export type SlotKind = 'role' | 'ritual' | 'date' | 'outing';
 /** Something that takes someone somewhere for a while: [from, to) in absolute minutes, the place, what kind, what they
  *  do (for the AI), and who else is part of it. */
-export interface Slot { from: number; to: number; place: string; kind: SlotKind; why: string; with: string[]; secret?: boolean; partner?: string; when?: When; key?: string }
+export interface Slot { from: number; to: number; place: string; kind: SlotKind; why: string; with: string[]; secret?: boolean; partner?: string; when?: When; key?: string;
+    /** (dress) a ritual's dress code, for the people at it */ dress?: DressDef }
 // The plans are kept until the stamp changes, a click, or a couple forms, moves on or ends (that happens during the day
 // without a click: looked at once a game minute, like the stamp).
 interface Day { st: Stamp; n: number; at: number; pairs: string; days: Map<number, Map<string, Slot[]>> }
@@ -500,7 +501,7 @@ function fill(g: Save, w: WorldDef, day: number, st: Stamp, m: Map<string, Slot[
             go.push([a, from, to]);
         }
         if (!owner) continue;
-        for (const [a, from, to] of go) add(a, { from, to, place: t.place, kind: 'ritual', why: x.rit.text, with: x.who.filter(b => b !== a), ...(x.rit.when ? { when: x.rit.when, key: `ritual|${x.owner}|${x.i}` } : {}) });
+        for (const [a, from, to] of go) add(a, { from, to, place: t.place, kind: 'ritual', why: x.rit.text, with: x.who.filter(b => b !== a), ...(x.rit.when ? { when: x.rit.when, key: `ritual|${x.owner}|${x.i}` } : {}), ...(x.rit.dress ? { dress: x.rit.dress } : {}) });
     }
     // couples going out (E29)
     if (systemOn(w, 'relations') && systemOn(w, 'romance')) for (const d of datesOn(g, w, day, st, busy, workClash)) for (const [a, b] of [[d.a, d.b], [d.b, d.a]])

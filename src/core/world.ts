@@ -606,6 +606,8 @@ export interface Ritual {
     place: string; days?: WeekdayId[]; from: number; to: number;
     every?: 'week' | 'month' | 'year' | number; week?: number; festival?: string; event?: string;
     places?: string[]; with?: string[]; chance?: number; text: string; when?: When; adult?: boolean;
+    /** (dress) What the people at it wear while it lasts (her fencing whites at the club): see DressDef. */
+    dress?: DressDef;
 }
 /** (E22) A secret or storyline that moves in stages. `hidden`: what the character knows and doesn't say (told to the
  *  AI as hidden); `known`: how it reads once the player knows ({{user}} knows …); `reveal`: when the character tells
@@ -1208,6 +1210,8 @@ export interface HobbyDef { id: string; name: string; icon?: string; desc?: stri
 export interface FestivalDef {
     id: string; name: string; season: string; day: number; days?: number; place?: string; prices?: number; mood?: number; desc?: string;
     places?: string[]; crowd?: number; audience?: Audience[]; roles?: EventRole[]; custom?: FestivalCustom; adult?: boolean;
+    /** (dress) What people at its places wear on its days (yukata at a summer festival): see DressDef. */
+    dress?: DressDef;
 }
 /** (E5) A festival's custom between people, played as moments chosen by each person's feelings: `gift` (people who
  *  like you give you something: Valentine's chocolate), `return` (the return gift: White Day), `couples` (partners

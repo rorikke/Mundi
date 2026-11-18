@@ -10249,5 +10249,7 @@ const DICT: Record<string, string> = {
  "At a pool, on a beach in summer or for a swim, people change into swimwear, each as bold as they go in public, a little bolder in private with someone close. Click a sprite to change an outfit yourself. The AI is told what everyone wears.": "Numa piscina, numa praia no verão ou para nadar, as pessoas põem roupa de banho, cada uma tão ousada quanto se permite em público, um pouco mais em particular com alguém próximo. Clique num sprite para trocar a roupa você mesmo. A IA fica sabendo o que cada um veste.",
  "Its folder of sprites (empty: waiting for its pictures)": "A pasta de sprites dela (vazio: esperando as imagens)",
  "Closed all through": "Fechado durante todo o",
+ "Everyone at its places puts it on during its days (yukata at a summer festival).": "Todos nos lugares dele vestem nos dias dele (yukata num festival de verão).",
+ "They put it on while they're at it (her fencing whites at the club).": "Vestem enquanto estão nele (o uniforme branco de esgrima dela no clube).",
 };
 export default DICT;
