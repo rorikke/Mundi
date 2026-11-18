@@ -57507,7 +57507,15 @@
       "askLines": [
        "The kura is shut and the drawer is open. {when}, at mine? Bring nothing but yourself.",
        "I've chosen a card for tonight. You'll have to come over at {when} to find out which."
-      ]
+      ],
+      "camera": {
+       "camera": "ask",
+       "lifts": [
+        "nothing in front of a camera",
+        "no photos or recordings"
+       ],
+       "line": "Tamaki will sit for your camera now, if you ask her first."
+      }
      }
     ],
     "reserved": true,
@@ -61611,7 +61619,20 @@
      "logic": 6,
      "charisma": 5
     },
-    "camera": "never"
+    "camera": "never",
+    "cameraSteps": [
+     {
+      "when": "thread: kaoru_notebook burns_notebook or kaoru_notebook owner_window; feels: Kaoru good",
+      "camera": "ask",
+      "lifts": [
+       "nothing in front of a camera"
+      ],
+      "adds": [
+       "never photographed at Coco Palace, where she works"
+      ],
+      "line": "Kaoru has agreed to be in your photos now, if you ask her first. Never at Coco Palace."
+     }
+    ]
    },
    {
     "name": "Erika",
