@@ -206,13 +206,14 @@ const aboutOf = (g: Save, names: string | string[] | undefined) => (Array.isArra
  *  thread's stage): the people at `place` know it first (or two whose days pass through there), never the ones it's
  *  about. `you`: the player was there (it isn't news to you). Returns it, or null when nobody is there to tell it or
  *  the rumors system is off. */
-export function startRumor(g: Save, w: WorldDef, text: string, place: string, o: { about?: string | string[]; secret?: boolean; thread?: string; you?: boolean; id?: string } = {}): Rumor | null {
+export function startRumor(g: Save, w: WorldDef, text: string, place: string, o: { about?: string | string[]; secret?: boolean; thread?: string; you?: boolean; id?: string; first?: string[] } = {}): Rumor | null {
     if (!systemOn(w, 'rumors') || !text.trim()) return null;
     const st = L(g), id = o.id ?? `r${nowAbs(g)}|${text.slice(0, 24)}`;
     if (st.rumors.some(r => r.id === id)) return null;
     const about = aboutOf(g, o.about);
-    let first = presentAt(g, w, place).filter(r => !about.includes(r.avatar)).map(r => r.avatar);
-    if (!first.length) {
+    // (`first`: who hears it first, when the caller knows: the people of a home)
+    let first = (o.first ?? presentAt(g, w, place).map(r => r.avatar)).filter(a => !!g.cast[a] && !about.includes(a));
+    if (!first.length && !o.first) {
         const there = (r: Resident) => r.leisure.includes(place) || w.occupations.find(x => x.id === r.occupation)?.place === place;
         first = residents(g).filter(r => !about.includes(r.avatar) && there(r)).sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2).map(r => r.avatar);
     }
@@ -225,11 +226,11 @@ export function startRumor(g: Save, w: WorldDef, text: string, place: string, o:
 /** (adult) A rumor that you were caught somewhere (`text`: who and where), about you and the people `with` you: they never
  *  hear it, but anyone else can, their partners too. `seen`: someone was there to see who it was (false: no rumor); nothing
  *  starts with adult content off or the rumors system off. `caught`: the place a ban came from, so Quiet a rumor can lift
- *  it. */
-export function startCaughtRumor(g: Save, w: WorldDef, text: string, place: string, o: { with?: string[]; id: string; caught?: string; seen?: boolean }): Rumor | null {
+ *  it. `first`: who hears it first (the people of a home, sim/caught.ts), instead of whoever is at the place. */
+export function startCaughtRumor(g: Save, w: WorldDef, text: string, place: string, o: { with?: string[]; id: string; caught?: string; seen?: boolean; first?: string[] }): Rumor | null {
     if (!adultOn(g) || !systemOn(w, 'rumors') || o.seen === false) return null;
     const mates = o.with ?? [];
-    const r = startRumor(g, w, text, place, { about: mates.map(a => g.cast[a]?.name ?? '').filter(Boolean), you: true, id: o.id });
+    const r = startRumor(g, w, text, place, { about: mates.map(a => g.cast[a]?.name ?? '').filter(Boolean), you: true, id: o.id, ...(o.first ? { first: o.first } : {}) });
     if (!r) return null;
     r.adult = true; r.about = [...new Set([...mates, YOU])];
     if (o.caught) r.caught = o.caught;

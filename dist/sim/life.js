@@ -15,7 +15,7 @@ import { placeOf, playerHomeId } from './places.js';
 import { whereNow, residents } from './people.js';
 import { shutOut } from './romance.js';
 import { grudgeOf } from './grudges.js';
-import { sceneHere, roomNow, bedroomDoor } from './homerooms.js';
+import { sceneHere, roomNow, bedroomDoor, doorShut, doorWords } from './homerooms.js';
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const rnd = (g, salt) => { let h = 2166136261; const s = `${g.world}|${g.day}|${g.minutes}|${salt}`; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
@@ -147,6 +147,9 @@ export function afterAction(g, w, a, success) {
     return out;
 }
 /* ---------- who lets you in ---------- */
+/** Whether you get into someone's home (`home:<avatar>`), and what you're told at the door. The one who answers is the
+ *  person the home is named after (in a shared home, the household's own); their own rule (ExampleCharacter.door) comes
+ *  before how close you are. */
 export function doorAnswer(g, w, loc) {
     if (!loc.startsWith('home:') || loc === playerHomeId)
         return { ok: true, text: '' };
@@ -160,7 +163,10 @@ export function doorAnswer(g, w, loc) {
     if (shutOut(g, r.avatar))
         return { ok: false, text: lex(w, home ? 'doorOut' : 'doorNobody', r.name) }; // they dislike you: no key, no way in
     if (isScenario(w))
-        return bedroomDoor(g, r, home, false); // Home: a bedroom down the hall, not a house across town
+        return bedroomDoor(g, r, home, false, w); // Home: a bedroom down the hall, not a house across town
+    // their own rule (nobody comes in, or not yet) before how close you are: no key, and at the door they keep you there
+    if (doorShut(g, w, r))
+        return { ok: false, text: home ? doorWords(w, r) : lex(w, 'doorNobody', r.name) };
     if (isPartner(g, r.avatar) || bondOf(g, r.avatar) >= 50)
         return { ok: true, text: home ? '' : `${r.name} is out, but you know where the key is.` };
     if (!home)

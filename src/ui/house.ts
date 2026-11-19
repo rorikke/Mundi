@@ -6,6 +6,7 @@ import { thumb } from '../st/bridge.js';
 import { homeKey } from '../sim/living.js';
 import { social, isWith } from '../sim/social.js';
 import { whereNow } from '../sim/people.js';
+import { doorShut } from '../sim/homerooms.js';
 import { placeOf } from '../sim/places.js';
 import { note } from '../sim/facts.js';
 import { kidOf, stageOf } from '../sim/family.js';
@@ -46,8 +47,11 @@ Object.assign(ACT, {
         const g = game(); const w = g && getWorld(g.world); const r = g && g.cast[el.dataset.who!];
         if (!g || !w || !r) return;
         H.open = '';
+        // (a room whose person's own rule keeps it closed to you stays closed: the door says why, as on the map)
+        const to = whereNow(g, w, r), owner = to.startsWith('home:') ? g.cast[to.slice(5)] : null;
+        if (owner && doorShut(g, w, owner)) { const { doorAnswer } = await import('../sim/life.js'); const d = doorAnswer(g, w, to); if (!d.ok) { toast(d.text, 'info'); notify(); return; } }
         const { travelTo } = await import('./map.js');
-        await travelTo(whereNow(g, w, r));
+        await travelTo(to);
     },
 });
 // closes when you click elsewhere

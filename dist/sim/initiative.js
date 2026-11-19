@@ -41,7 +41,7 @@ import { wantingYou, driveWant, CHAR_DRIVE } from './drive.js';
 import { driveOf } from './intimacy.js';
 import { actionsHere } from './needs.js';
 import { isPrivateAct, sceneAct } from './actions.js';
-import { sceneHere, elsewhereHere, dropIn } from './homerooms.js';
+import { sceneHere, elsewhereHere, dropIn, doorShut } from './homerooms.js';
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -137,11 +137,14 @@ export const ASK_WHAT = {
     baby: 'about having a baby together', stay: 'if they could stay the night', staytheirs: 'to stay the night at their place',
 };
 const homeOf = (g, a) => { const h = g.cast[a]; const wth = h?.homeWith; return wth === YOU ? playerHomeId : `home:${wth && g.cast[wth] ? wth : a}`; };
-// Where a night could be asked for: at your home (they stay) or theirs (you stay), in the evening.
-function stayKind(g, a) {
+// Where a night could be asked for: at your home (they stay) or theirs (you stay), in the evening; never at theirs while
+// their own rule keeps their home closed to you (ExampleCharacter.door).
+function stayKind(g, w, a) {
     if (Math.floor(g.minutes / 60) < 20 || social(g).stay)
         return null;
-    return g.player.loc === playerHomeId ? 'stay' : g.player.loc === homeOf(g, a) ? 'staytheirs' : null;
+    if (g.player.loc === playerHomeId)
+        return 'stay';
+    return g.player.loc === homeOf(g, a) && !(g.cast[a] && doorShut(g, w, g.cast[a])) ? 'staytheirs' : null;
 }
 const likelyYes = (g, a, k) => { const s = askScore(g, a, k); return s.score >= s.need; };
 // What they would ask now, if anything: the next step for your status, when it's what they'd say yes to themselves.
@@ -162,7 +165,7 @@ export function readyToAsk(g, w, a) {
         return 'marry';
     if (ok('baby') && likelyYes(g, a, 'baby'))
         return 'baby';
-    const s = night ? stayKind(g, a) : null;
+    const s = night ? stayKind(g, w, a) : null;
     return s;
 }
 // A moment for one of them here, sometimes (a fixed chance per day and person), within the budget.
@@ -195,11 +198,13 @@ export function textAsks(g, w) {
     const pool = residents(g).filter(r => r.met && isMine(g, r.avatar) && !here.has(r.avatar) && romanticOk(g, w, r.avatar) && !coolingDown(g, r.avatar) && !grudgeOf(g, r.avatar) && canSpend(g, r.avatar) && tierLink.invites(g, idOf(g, r.avatar)));
     const pick = (r) => {
         const st = romOf(g, r.avatar).status;
-        if (st === 'casual' && intimacyReady(g, r.avatar, '').lean === 'yes')
+        // (a "come over tonight?" is to their place: not while their own rule keeps it closed to you)
+        const over = !doorShut(g, w, r);
+        if (st === 'casual' && over && intimacyReady(g, r.avatar, '').lean === 'yes')
             return { kind: 'casual' };
         if (st === 'none' && romValue(g, r.avatar) >= ROMANCE_TIERS[2].lo && canDate(g, r.avatar) && r.leisure.length)
             return { kind: 'date' };
-        if (partnered(g, r.avatar) && homeOf(g, r.avatar) !== playerHomeId && wantingYou(g, w, r.avatar))
+        if (partnered(g, r.avatar) && over && homeOf(g, r.avatar) !== playerHomeId && wantingYou(g, w, r.avatar))
             return { kind: 'casual' };
         return null;
     };
@@ -276,7 +281,7 @@ function readyToAskStill(g, w, m) {
     if (m.sent !== undefined)
         return k === 'stay' || k === 'staytheirs' || ASKS[k].from.includes(romOf(g, m.who).status); // unless it's already settled
     if (k === 'stay' || k === 'staytheirs')
-        return stayKind(g, m.who) === k && romanticOk(g, w, m.who);
+        return stayKind(g, w, m.who) === k && romanticOk(g, w, m.who);
     return romanticOk(g, w, m.who) && !coolingDown(g, m.who) && ASKS[k].from.includes(romOf(g, m.who).status);
 }
 export function momentsFor(g, w, present) { return momentsHere(g, present, m => fits(g, w, m)); }

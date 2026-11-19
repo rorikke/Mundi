@@ -11,6 +11,7 @@ import { shutOut } from '../sim/romance.js';
 import { isMinor } from '../sim/family.js';
 import { askStay } from './relui.js';
 import { playerHomeId } from '../sim/places.js';
+import { doorShut } from '../sim/homerooms.js';
 import { note } from '../sim/facts.js';
 import { syncScene } from '../sim/game.js';
 import { icon } from './icons.js';
@@ -45,11 +46,13 @@ export function beginStay(g, who, mine) {
     note(g, mine ? '{0} stayed the night at {u}\'s place.' : '{u} stayed the night at {0}\'s place.', [r.name], [who]);
     saveGame();
 }
-// Where you could ask: your home (them staying over) or their home (you staying over).
+// Where you could ask: your home (them staying over) or their home (you staying over), never while their own rule keeps
+// their home closed to you.
 function stayWhere(g, avatar) {
     if (g.player.loc === playerHomeId)
         return 'mine';
-    if (g.player.loc === homeOf(g, avatar))
+    const r = g.cast[avatar];
+    if (g.player.loc === homeOf(g, avatar) && !(r && doorShut(g, getWorld(g.world), r)))
         return 'theirs';
     return '';
 }

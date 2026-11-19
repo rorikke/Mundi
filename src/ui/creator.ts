@@ -1613,6 +1613,15 @@ function tidyPhoto(w: WorldDef) {
         if (Array.isArray(e.cameraSteps)) { for (const c of e.cameraSteps) tidyChange(c); if (!e.cameraSteps.length) delete e.cameraSteps; }
         for (const t of e.tiers ?? []) if (t.camera) { tidyChange(t.camera); if (!t.camera.camera) delete t.camera; }
     }
+    // a door left as usual, an emptied line; caught rows' empty parts, and a row with no words goes
+    for (const e of w.cast?.examples ?? []) {
+        if (typeof e.door === 'string' && !e.door.trim()) delete e.door;
+        if (typeof e.doorLine === 'string' && !e.doorLine.trim()) delete e.doorLine;
+        if (!Array.isArray(e.caught)) continue;
+        e.caught = e.caught.filter(r => r && String(r.text ?? '').trim());
+        for (const r of e.caught as any[]) { for (const k of ['where', 'action', 'rumor', 'when']) if (typeof r[k] === 'string' && !r[k].trim()) delete r[k]; for (const k of ['feels', 'romance']) if (r[k] === 0) delete r[k]; }
+        if (!e.caught.length) delete e.caught;
+    }
     const st = w.homes?.studios;
     for (const z of st ?? []) {
         if (z.images && !Object.keys(z.images).length) delete z.images;
@@ -2998,6 +3007,34 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
         ${systemOn(w, 'photography') || e.camera ? `<div class="mu-row2">${sel('In front of a camera', `${p}.camera`, withCur([['', CAMERA_NAMES['']], ['ask', CAMERA_NAMES.ask], ['work', CAMERA_NAMES.work], ['noface', CAMERA_NAMES.noface], ['never', CAMERA_NAMES.never]], e.camera), 'opt')}<small class="mu-muted">Whether briefs and photos may have them in front of the lens, adult content on or off; a card's own settings can only make it stricter.</small></div>` : ''}
         ${systemOn(w, 'photography') || e.cameraSteps ? cameraStepsEditor(p, e) : ''}`;
 }
+// Who they let into their home, asked before how close you are: as usual, nobody ever, or only once a condition holds
+// (the condition itself is the rule; picking "only once" starts from an example to change).
+function doorEditor(p: string, e: WorldDef['cast']['examples'][number]) {
+    const d = typeof e.door === 'string' ? e.door : '', first = e.name.split(/\s+/)[0];
+    const cur = d && d !== 'never' ? d : `feels: ${first} good`;
+    return `<h4>Their door</h4><p class="mu-muted">Who comes into their home, asked before how close the player is. It closes their bedroom in a home with rooms, staying the night at theirs and their "come over tonight?" too, adult content on or off.</p>
+        <div class="mu-row2">${sel('Who they let in', `${p}.door`, [['', 'As usual (friends come in, close friends know where the key is)'], ['never', 'Nobody, ever (not even a partner)'], [cur, 'Only once a condition holds']], 'opt')}
+            ${d && d !== 'never' ? cond('Their door opens once (a condition)', `${p}.door`, 'thread: priv_tsubaki_hands your_hands') : '<span></span>'}</div>
+        ${d ? optTxt("What the player is told at their closed door ({name}: their name; empty: the world's words)", `${p}.doorLine`, "{name} meets you downstairs: nobody comes up to {name}'s flat.") : ''}`;
+}
+// (adult) The ways of getting caught with them: each row says where it can happen, who saw and how they take it, and
+// what it changes (their feelings toward the player, the rumor in its own words). Ids are shown, never typed.
+function caughtEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const l = e.caught ?? [];
+    const tags = [...new Set(w.places.flatMap(x => x.tags ?? []))].sort();
+    const acts: Opt[] = [['', 'Any risky action'], ...w.actions.filter(a => (a.risk ?? 0) > 0).map(a => [a.id, a.label || a.name] as Opt)];
+    const where: Opt[] = [['', 'Anywhere with them'], ['home', 'At their home (shared or not)'], ['yours', 'At your home'],
+        ...w.homes.zones.map(z => [z.id, `Any home in ${z.name}`] as Opt), ...placeOpts(w), ...tags.map(t => [`tag:${t}`, `Any place tagged ${t}`] as Opt)];
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Getting caught with them ${ADULT} · ${l.length}</summary>
+        <p class="mu-muted">When a risky private moment with them is seen: one row that fits where it happens is drawn by weight instead of the plain line. At a home nobody bans you (word gets around from the people who live there); anywhere else the place still won't serve you for a week.</p>
+        ${l.map((r, k) => { const q = `${p}.caught.${k}`; return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k + 1}</b>${idTag(r?.id)}<span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${sel('Where', `${q}.where`, withCur(where, r?.where), 'opt')}${sel('Doing', `${q}.action`, withCur(acts, r?.action), 'opt')}</div>
+            ${cond('Only while (optional)', `${q}.when`, 'period: night or latenight')}
+            ${area('Who saw, and how they take it ({{user}}: you)', `${q}.text`, 3)}
+            <div class="mu-row2">${num('Weight (how often, against their other rows)', `${q}.weight`, 0)}${optTxt('The rumor in its own words ({u}: you; empty: who and where)', `${q}.rumor`)}</div>
+            <div class="mu-row2">${bounded('Their friendship toward you after it (−20–20)', `${q}.feels`, -20, 20)}${bounded('Their romance toward you after it (−20–20)', `${q}.romance`, -20, 20)}</div></div>`; }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="ccaught" data-path="${esc(`${p}.caught`)}">${icon('plus')}<span>Add a way of getting caught</span></button></details>`;
+}
 // (photography, the camera change) How a person's camera rule loosens over a game: each step latches the first time its
 // condition holds and is never lost (sim/camera.ts); its limits come off and on in the save's copy of their profile.
 const STEP_RULES: Opt[] = [['free', CAMERA_NAMES['']], ...(['ask', 'work', 'noface', 'never'] as const).map(k => [k, CAMERA_NAMES[k]] as Opt)];
@@ -3228,6 +3265,8 @@ function peopleEditor(w: WorldDef) {
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 ${personMore(w, p, e)}
+                ${doorEditor(p, e)}
+                ${caughtEditor(w, p, e)}
                 ${tiersEditor(w, p, e)}
                 <h4>Their life</h4>${ritualsEditor(w, p, e)}${threadsEditor(w, p, e)}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
@@ -3748,6 +3787,7 @@ Object.assign(ACT, {
         if (what === 'mroystep') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ at: Math.min(100, (Number(l[l.length - 1]?.at) || 0) + 25), line: '' }); CW.dirty = true; notify(); return; }
         if (what === 'mlevel') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ at: (Number(l[l.length - 1]?.at) || 0) + 20, name: '' }); CW.dirty = true; notify(); return; }
         if (what === 'tabout') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ when: '', ai: '' }); CW.dirty = true; notify(); return; }   // (C-7)
+        if (what === 'ccaught') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ id: newId('caught'), text: '' }); CW.dirty = true; notify(); return; }   // (adult) a way of getting caught
         if (what === 'cstep') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ when: '', camera: 'ask' }); CW.dirty = true; notify(); return; }   // (photography)
         if (what === 'ptier') { const l = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[]; l.push({ id: newId('tier'), name: `Tier ${l.length}`, when: '' }); CW.dirty = true; notify(); return; }
         if (what === 'cgroup') { (getPath(el.dataset.path!) as any[]).push({ id: newId('group'), name: 'New group' }); CW.dirty = true; notify(); return; }

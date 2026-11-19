@@ -7,10 +7,13 @@
 // second time you're let go. The `risk` effects (Shameless a little more, a perk less) read through `riskRoll` in
 // sim/dice.ts. At a place that is yours (the museum you own and its rooms, sim/museum.ts through `ownedPlaces`) nobody
 // bans you: caught there, someone who works there sees (the world's table `owncaught` says who, and how the one with you
-// takes it), word gets around, and that's all; the night guard's rounds double the chance. Everything goes through the
-// hooks in sim/hooks.ts; nothing here does anything with adult content off.
-import { adultOn, nowAbs, type Save } from '../core/store.js';
-import { isScenario, type WorldDef, type ActionDef, type Occupation, type WorkResult } from '../core/world.js';
+// takes it), word gets around, and that's all; the night guard's rounds double the chance. At a home (yours, theirs, a
+// shared house) nobody bans you either: you aren't sent away, and word gets around from the people who live there (else
+// the neighbours). Wherever it happens, the people with you may have rows of their own (ExampleCharacter.caught: who saw,
+// how they take it, a change in how they feel toward you, the rumor in its own words), drawn instead of the plain line.
+// Everything goes through the hooks in sim/hooks.ts; nothing here does anything with adult content off.
+import { adultOn, nowAbs, type Save, type Resident } from '../core/store.js';
+import { isScenario, systemOn, type WorldDef, type ActionDef, type Occupation, type WorkResult, type CaughtRow } from '../core/world.js';
 import { privateChecks, privateResults, actionGates, onDay, ownedPlaces } from './hooks.js';
 import type { PrivateCtx, ActionDone, ActionLine } from './actions.js';
 import { riskRoll } from './dice.js';
@@ -25,6 +28,12 @@ import { whoJoins, matchIn, limitsOf } from './private.js';
 import { myJob, jobPlace, shiftOn, addPerf, jobTags, type JobState } from './work.js';
 import { whenHolds } from './when.js';
 import { personaName } from '../st/bridge.js';
+import { exampleOf } from './dayplan.js';
+import { placeOf, playerHomeId, homeKindAt, homeZoneAt } from './places.js';
+import { SECOND_HOME_ID } from './housing.js';
+import { visitOf } from './visitors.js';
+import { gain, lose, YOU } from './rel.js';
+import { romanceBlocked } from './family.js';
 
 /** What getting caught costs, and what not getting caught gives. */
 export const CAUGHT = {
@@ -98,34 +107,95 @@ function workWarning(g: Save, w: WorldDef, perf: number): string[] {
     return out;
 }
 
+/* ---------- who saw: the rows of the people with you ---------- */
+
+/** (homes) Is this place a home: yours, your second home, someone's (a guest's room is a room of yours)? */
+export const isHomeAt = (g: Save, place: string) => place === playerHomeId || place === SECOND_HOME_ID || (place.startsWith('home:') && !!g.cast[place.slice(5)]);
+// The home someone lives in: a housemate's is yours, someone who lives with another person is at that person's home.
+const ownHome = (g: Save, r: Resident) => { const hw = (r as any).homeWith as string | undefined; return hw === '__you' ? playerHomeId : hw && g.cast[hw] ? `home:${hw}` : `home:${r.avatar}`; };
+// The home a place stands for, so two ways of naming the same home compare equal (a guest's room is in your home).
+const homeHere = (g: Save, place: string) => {
+    if (!place.startsWith('home:') || place === playerHomeId || place === SECOND_HOME_ID) return place;
+    const r = g.cast[place.slice(5)];
+    return !r ? place : (r as any).guest ? playerHomeId : ownHome(g, r);
+};
+/** Does a row of someone's fit where you're caught with them (its `where` and `when`), doing `act` (its `action`)? */
+export function rowFits(g: Save, w: WorldDef, r: Resident, row: CaughtRow, place: string, act = ''): boolean {
+    if (!row?.text || (row.weight ?? 1) <= 0) return false;
+    if (row.action && !row.action.split(/\s*,\s*|\s+or\s+/).map(x => x.trim()).includes(act)) return false;
+    if (row.when && !whenHolds(g, w, row.when, { place })) return false;
+    const at = String(row.where ?? '').trim(), here = homeHere(g, place), home = isHomeAt(g, place);
+    if (!at) return true;
+    if (at === 'home') return home && here === homeHere(g, ownHome(g, r));
+    if (at === 'yours') return here === playerHomeId || here === SECOND_HOME_ID;
+    if (at.startsWith('tag:')) { const t = at.slice(4).trim(); return home ? t === 'home' || homeKindAt(g, w, here) === t : (placeOf(g, w, place)?.tags ?? []).includes(t); }
+    if (w.homes.zones.some(z => z.id === at)) return home && homeZoneAt(g, w, here) === at;
+    return place === at;
+}
+/** What someone caught with you says of it: a row (ExampleCharacter.caught) of one of the people with you that fits here,
+ *  doing `act` (an action's id), drawn by weight, and at a place of yours the world's `owncaught` rows with them; null
+ *  when none fits. `who`: the person whose row it is ('' for an `owncaught` row). */
+export function caughtRow(g: Save, w: WorldDef, with_: string[], place: string, rnd: () => number = Math.random, own = false, act = ''): { id: string; text: string; who: string; row?: CaughtRow } | null {
+    const pool: { id: string; text: string; who: string; weight: number; row?: CaughtRow }[] = [];
+    for (const a of with_) {
+        const r = g.cast[a], ex = r && exampleOf(w, r);
+        for (const row of ex?.caught ?? []) if (rowFits(g, w, r!, row, place, act)) pool.push({ id: row.id, text: row.text, who: a, weight: row.weight ?? 1, row });
+    }
+    if (own) for (const t of w.tables?.owncaught ?? []) if (t?.text && (t.weight ?? 1) > 0 && (!t.when || whenHolds(g, w, t.when))) pool.push({ id: t.id, text: t.text, who: '', weight: t.weight ?? 1 });
+    const total = pool.reduce((n, x) => n + x.weight, 0);
+    if (!pool.length || !(total > 0)) return null;
+    let x = rnd() * total;
+    const hit = pool.find(p => (x -= p.weight) < 0) ?? pool.at(-1)!;
+    return { id: hit.id, text: hit.text, who: hit.who, ...(hit.row ? { row: hit.row } : {}) };
+}
+// A row shown on screen names you; the AI keeps {{user}}.
+const shown = (t: string) => t.replace(/\{\{user\}\}/g, personaName());
+// How the one with you takes it: a change in how they feel toward you (a rise through the usual gain, a fall in full;
+// romance only with that system on and for someone romance is open to).
+function reactTo(g: Save, w: WorldDef, hit: { who: string; row?: CaughtRow } | null) {
+    const r = hit?.row, a = hit?.who;
+    if (!r || !a || !g.cast[a]) return;
+    if (r.feels) { if (r.feels > 0) gain(g, 'f', a, YOU, r.feels); else lose(g, 'f', a, YOU, r.feels); }
+    if (r.romance && systemOn(w, 'romance') && !romanceBlocked(g, a)) { if (r.romance > 0) gain(g, 'r', a, YOU, r.romance); else lose(g, 'r', a, YOU, r.romance); }
+}
+// The rumor's words: the row's own (`{u}`: you), else who and where.
+const rumorText = (g: Save, hit: { row?: CaughtRow } | null, who: string[], where: string) => {
+    const own = hit?.row?.rumor?.trim();
+    if (own) return own.replace(/\{u\}|\{\{user\}\}/g, personaName());
+    return `${personaName()}${who.length ? ` and ${names(g, who)}` : ''} ${who.length ? 'were' : 'was'} caught being intimate at ${where}.`;
+};
+
 /* ---------- a risky action: caught, or the thrill ---------- */
 
 // What the AI is told when you were caught: it happens, they leave at once, and nothing more.
-function caughtLine(g: Save, a: ActionDef, who: string[], where: string): string {
+function caughtLine(g: Save, a: ActionDef, who: string[], where: string, row = ''): string {
     const label = a.label.toLowerCase(), people = names(g, who), setting = a.together?.text ? ` (${a.together.text.replace(/[.\s]+$/, '')})` : '';
-    return `[Just now ${people ? `{{user}} and ${people}` : '{{user}}'} were about to ${label} at ${where}${setting}, but someone came by and saw them. They leave at once, embarrassed, and nothing more happens there. Narrate it briefly, in that light; nobody is hurt.]`;
+    return `[Just now ${people ? `{{user}} and ${people}` : '{{user}}'} were about to ${label} at ${where}${setting}, but someone came by and saw them${row ? `: ${row.replace(/[.\s]+$/, '')}` : ''}. They leave at once, embarrassed, and nothing more happens there. Narrate it briefly, in that light; nobody is hurt.]`;
 }
 /** The action is caught: nothing of it plays. Returns what came of it instead (the caught outcome). */
 function caught(g: Save, w: WorldDef, x: PrivateCtx, who: string[]): ActionDone {
-    const a = x.a, where = placeName(g, w, x.place), me = personaName(), lines: ActionLine[] = [];
+    const a = x.a, where = placeName(g, w, x.place), lines: ActionLine[] = [];
     const say = (text: string) => lines.push({ text, kind: 'warn' });
-    say('Someone saw you. You leave at once.');
+    // who saw, in the words of one of the people with you (their rows), else the plain line
+    const hit = caughtRow(g, w, who, x.place, x.rnd, false, a.id);
+    if (hit) { say(shown(hit.text)); say('You leave at once.'); } else say('Someone saw you. You leave at once.');
     addStatus(g, w, 'mood', CAUGHT.mood);
     // the fee, taken from what you have
     const fee = Math.min(g.player.money, Math.max(0, priceOf(g, Math.max(0, Number(a.fee) || 0))));
     if (fee > 0) { g.player.money -= fee; book(g, `${a.name}: fee`, -fee); say(`You pay a fee of ${money(w, fee)}.`); }
     banPlace(g, x.place);
     say(`${where} won't serve you for ${CAUGHT.days} days.`);
-    // someone must have been there to see who it was (one of the world's people, not one of you)
-    const seen = presentAt(g, w, x.place).some(r => !x.with.includes(r.avatar));
-    const text = `${me}${who.length ? ` and ${names(g, who)}` : ''} ${who.length ? 'were' : 'was'} caught being intimate at ${where}.`;
-    const rumor = startCaughtRumor(g, w, text, x.place, { with: who, id: `caught:${a.id}:${nowAbs(g)}`, caught: x.place, seen });
+    // someone must have been there to see who it was (one of the world's people, not one of you; a row says who saw)
+    // (and when a row says who saw, word starts there or around there even with none of the world's people in the room)
+    const seen = presentAt(g, w, x.place).some(r => !x.with.includes(r.avatar)), o = { with: who, id: `caught:${a.id}:${nowAbs(g)}`, caught: x.place };
+    const rumor = hit ? wordAround(g, w, rumorText(g, hit, who, where), x.place, { ...o, seen: true }) : !!startCaughtRumor(g, w, rumorText(g, hit, who, where), x.place, { ...o, seen });
     if (rumor) say('Word may get around.');
+    reactTo(g, w, hit);
     if (atMyWork(g, w, x.place)) workWarning(g, w, CAUGHT.atWork).forEach(say);
     note(g, who.length ? '{u} and {0} were caught at {1}.' : '{u} was caught at {1}.', [names(g, who), where], who, x.place, 'action');
     tallyEvent(g, 'caught', 1, who[0]);
     const first = lines[0].text;
-    return { lines, roll: null, outcome: { id: CAUGHT_ID, weight: 0, text: first }, keepsake: null, with: who, together: [], ai: caughtLine(g, a, who, where) };
+    return { lines, roll: null, outcome: { id: CAUGHT_ID, weight: 0, text: first }, keepsake: null, with: who, together: [], ai: caughtLine(g, a, who, where, hit?.text) };
 }
 
 /* ---------- caught at a place of your own ---------- */
@@ -138,30 +208,67 @@ export const ownedHere = (g: Save, w: WorldDef, place: string): { risk: number }
 /** What a world says when you're caught at a place of yours: a row of its `owncaught` table whose `when` holds
  *  (who saw you, and how the one with you takes it), drawn by weight; none: a plain line. */
 export function ownCaughtRow(g: Save, w: WorldDef, rnd: () => number = Math.random): { id: string; text: string } {
-    const rows = (w.tables?.owncaught ?? []).filter(r => r?.text && (r.weight ?? 1) > 0 && (!r.when || whenHolds(g, w, r.when)));
-    const total = rows.reduce((t, r) => t + (r.weight ?? 1), 0);
-    let x = rnd() * total;
-    for (const r of rows) if ((x -= r.weight ?? 1) < 0) return { id: r.id, text: r.text! };
-    return rows.length ? { id: rows.at(-1)!.id, text: rows.at(-1)!.text! } : { id: '', text: 'Someone who works here saw you, and looked away.' };
+    const r = caughtRow(g, w, [], '', rnd, true);
+    return r ? { id: r.id, text: r.text } : { id: '', text: 'Someone who works here saw you, and looked away.' };
+}
+// Word starts with `first` when given (a home's people), else with the people of the place, else of its neighbourhood
+// (its map's public places): true when it started.
+function wordAround(g: Save, w: WorldDef, text: string, place: string, o: { with: string[]; id: string; seen: true; first?: string[]; caught?: string }): boolean {
+    if (o.first?.length && startCaughtRumor(g, w, text, place, o)) return true;
+    const map = placeOf(g, w, place)?.map, plain = { with: o.with, id: o.id, seen: o.seen, ...(o.caught ? { caught: o.caught } : {}) };
+    const near = [...(isHomeAt(g, place) ? [] : [place]), ...w.places.filter(p => p.map === map && p.id !== place && !p.private && !p.link).map(p => p.id)];
+    return near.some(p => startCaughtRumor(g, w, text, p, plain));
 }
 /** Caught at a place of yours: nothing of it plays, but nobody bans you or takes a fee: someone who works there saw, the
- *  one with you is mortified (the world's words), and word may get around. */
+ *  one with you is mortified (the world's words, or a row of their own), and word may get around. */
 function caughtAtYours(g: Save, w: WorldDef, x: PrivateCtx, who: string[]): ActionDone {
-    const a = x.a, where = placeName(g, w, x.place), me = personaName(), lines: ActionLine[] = [];
+    const a = x.a, where = placeName(g, w, x.place), lines: ActionLine[] = [];
     const say = (text: string) => lines.push({ text, kind: 'warn' });
-    const row = ownCaughtRow(g, w, x.rnd);
-    say(row.text);
+    const hit = caughtRow(g, w, who, x.place, x.rnd, true, a.id);
+    const row = hit?.text ?? 'Someone who works here saw you, and looked away.';
+    say(shown(row));
     addStatus(g, w, 'mood', CAUGHT.mood);
     say("It's your own place: nobody asks you to leave.");
-    const text = `${me}${who.length ? ` and ${names(g, who)}` : ''} ${who.length ? 'were' : 'was'} caught being intimate at ${where}.`;
     // whoever works there talks: word starts with the people of the place, else of its neighbourhood (its map)
-    const map = w.places.find(p => p.id === x.place)?.map, o = { with: who, id: `caught:${a.id}:${nowAbs(g)}`, seen: true };
-    const near = [x.place, ...w.places.filter(p => p.map === map && p.id !== x.place && !p.private && !p.link).map(p => p.id)];
-    if (near.some(p => startCaughtRumor(g, w, text, p, o))) say('Word may get around.');
+    if (wordAround(g, w, rumorText(g, hit, who, where), x.place, { with: who, id: `caught:${a.id}:${nowAbs(g)}`, seen: true })) say('Word may get around.');
+    reactTo(g, w, hit);
     note(g, who.length ? '{u} and {0} were caught at {1}.' : '{u} was caught at {1}.', [names(g, who), where], who, x.place, 'action');
     tallyEvent(g, 'caught', 1, who[0]);
     const label = a.label.toLowerCase(), people = names(g, who);
-    const ai = `[Just now ${people ? `{{user}} and ${people}` : '{{user}}'} were about to ${label} at ${where}, a place of {{user}}'s own, but someone who works there came by and saw them: ${row.text.replace(/[.\s]+$/, '')}. Nobody makes them leave and nothing more happens; narrate it briefly, in that light.]`;
+    const ai = `[Just now ${people ? `{{user}} and ${people}` : '{{user}}'} were about to ${label} at ${where}, a place of {{user}}'s own, but someone who works there came by and saw them: ${row.replace(/[.\s]+$/, '')}. Nobody makes them leave and nothing more happens; narrate it briefly, in that light.]`;
+    return { lines, roll: null, outcome: { id: CAUGHT_ID, weight: 0, text: lines[0].text }, keepsake: null, with: who, together: [], ai };
+}
+
+/* ---------- caught at a home ---------- */
+
+/** (homes) Who hears first when you're caught at a home: the people who live there or are there now (a guest, someone
+ *  staying the night at yours), never the ones with you; with nobody, the neighbours (the people of the same home area). */
+export function homeHearers(g: Save, w: WorldDef, place: string, with_: string[]): string[] {
+    const here = homeHere(g, place), out = new Set<string>();
+    const other = (r: Resident) => !with_.includes(r.avatar) && !(r as any).gone;
+    for (const r of Object.values(g.cast)) if (other(r) && (homeHere(g, ownHome(g, r)) === here || (here === playerHomeId && (!!(r as any).guest || !!visitOf(g, r.avatar))))) out.add(r.avatar);
+    for (const r of presentAt(g, w, place)) if (other(r)) out.add(r.avatar);
+    if (out.size) return [...out];
+    const zone = homeZoneAt(g, w, here);
+    return zone ? Object.values(g.cast).filter(r => other(r) && homeZoneAt(g, w, homeHere(g, ownHome(g, r))) === zone).map(r => r.avatar) : [];
+}
+/** Caught at a home (yours, theirs, a shared house): nothing of it plays, but it's a home: nobody sends you away or bans
+ *  you, and nobody charges a fee. Someone saw or heard (a row of the one with you says who, and how they take it), and
+ *  word gets around from the people who live there, else the neighbours, else the neighbourhood's places. */
+function caughtAtHome(g: Save, w: WorldDef, x: PrivateCtx, who: string[]): ActionDone {
+    const a = x.a, where = placeName(g, w, x.place), lines: ActionLine[] = [];
+    const say = (text: string) => lines.push({ text, kind: 'warn' });
+    const hit = caughtRow(g, w, who, x.place, x.rnd, false, a.id);
+    say(hit ? shown(hit.text) : 'Someone saw or heard you.');
+    addStatus(g, w, 'mood', CAUGHT.mood);
+    say("It's a home: nobody asks you to leave.");
+    const first = homeHearers(g, w, x.place, who);
+    if (wordAround(g, w, rumorText(g, hit, who, where), x.place, { with: who, id: `caught:${a.id}:${nowAbs(g)}`, seen: true, first })) say('Word may get around.');
+    reactTo(g, w, hit);
+    note(g, who.length ? '{u} and {0} were caught at {1}.' : '{u} was caught at {1}.', [names(g, who), where], who, x.place, 'action');
+    tallyEvent(g, 'caught', 1, who[0]);
+    const label = a.label.toLowerCase(), people = names(g, who), setting = a.together?.text ? ` (${a.together.text.replace(/[.\s]+$/, '')})` : '';
+    const ai = `[Just now ${people ? `{{user}} and ${people}` : '{{user}}'} were about to ${label} at ${where}${setting}, but someone saw or heard them${hit ? `: ${hit.text.replace(/[.\s]+$/, '')}` : ''}. It's a home, so nobody makes them leave, but nothing more happens now; narrate it briefly, in that light.]`;
     return { lines, roll: null, outcome: { id: CAUGHT_ID, weight: 0, text: lines[0].text }, keepsake: null, with: who, together: [], ai };
 }
 
@@ -173,7 +280,7 @@ privateChecks.push((g, w, x) => {
     if (!who.length && x.a.together?.needed) return;
     if (who.some(p => matchIn(g, x.a.matches, limitsOf(g, p)))) return;
     const own = ownedHere(g, w, x.place), a = own && own.risk !== 1 ? { ...x.a, risk: Math.min(1, (x.a.risk ?? 0) * own.risk) } : x.a;
-    if (riskRoll(g, w, a, x.rnd).caught) { x.stop = own ? caughtAtYours(g, w, x, who) : caught(g, w, x, who); return; }
+    if (riskRoll(g, w, a, x.rnd).caught) { x.stop = own ? caughtAtYours(g, w, x, who) : isHomeAt(g, x.place) ? caughtAtHome(g, w, x, who) : caught(g, w, x, who); return; }
     x.notes.risky = true; x.notes.riskWith = who;
 });
 

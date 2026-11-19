@@ -16,6 +16,8 @@ import { breakNow } from './daylife.js';
 import { isSleeping } from './plans.js';
 import { FRIEND_TIERS } from './romance.js';
 import { roomRules, partyRooms } from './hooks.js';
+import { whenHolds } from './when.js';
+import { lex } from '../core/lexicon.js';
 export { roomRules, partyRooms };
 /** What a room can be for, as tags the World creator offers (besides the place tags). Bedrooms are made, never
  *  written, so `bed` isn't one of them. */
@@ -105,12 +107,31 @@ export function roomDoor(g, w, id) {
     if (!r)
         return { ok: true, text: '' };
     const inside = roomOf(g, w, r) === to.id;
-    return bedroomDoor(g, r, inside, inside && asleepAt(g, w, r, nowAbs(g)));
+    return bedroomDoor(g, r, inside, inside && asleepAt(g, w, r, nowAbs(g)), w);
 }
+/** Does someone's own rule keep their door closed to you now (ExampleCharacter.door: `never`, or a condition that
+ *  doesn't hold yet)? Asked before how close you are, so a partner or a best friend is kept out too; only the world's
+ *  people have one. Every way into their home asks it: the door (sim/life.ts doorAnswer), their bedroom here, staying
+ *  the night at theirs and their "come over tonight?" (sim/initiative.ts, ui/events.ts). */
+export function doorShut(g, w, r) {
+    const rule = (w && exampleOf(w, r)?.door)?.trim();
+    if (!w || !rule)
+        return false;
+    return rule.toLowerCase() === 'never' || !whenHolds(g, w, rule);
+}
+/** What you're told at a door their rule keeps closed: their own line, else the world's words. */
+export const doorWords = (w, r) => {
+    const own = exampleOf(w, r)?.doorLine?.trim();
+    return own ? own.replace(/\{name\}/g, r.name) : lex(w, 'doorKept', r.name);
+};
 /** Someone's bedroom door (a Home's rooms down the hall, and a bedroom inside a home with rooms): your partner's or a
  *  close friend's (50+) you walk into; someone you know a little (15+) lets you in when you knock; anyone else talks
- *  to you through it. Asleep inside, a knock gets no answer and the door stays shut, unless you're partners. */
-export function bedroomDoor(g, r, inside, asleep) {
+ *  to you through it. Asleep inside, a knock gets no answer and the door stays shut, unless you're partners. Their own
+ *  rule (doorShut, with the world given) comes before all of that. */
+export function bedroomDoor(g, r, inside, asleep, w) {
+    // their own rule first: at the door they talk to you there (their words), and their room is locked while they're out
+    if (doorShut(g, w, r))
+        return { ok: false, text: inside ? doorWords(w, r) : `${r.name}'s room is locked, and you don't know where the key is.` };
     if (isPartner(g, r.avatar, YOU))
         return { ok: true, text: inside ? '' : `${r.name} is not in, but the door is not locked.` };
     if (inside && asleep)

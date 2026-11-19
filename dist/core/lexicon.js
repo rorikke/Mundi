@@ -62,6 +62,8 @@ export const LEXICON = {
     doorNobody: { modern: 'You ring {0}\'s doorbell. Nobody answers.', medieval: 'You knock on {0}\'s door. Nobody answers.' },
     doorIn: { modern: 'You ring the doorbell. {0} opens the door and lets you in.', medieval: 'You knock. {0} opens the door and lets you in.' },
     doorOut: { modern: 'You ring the doorbell. {0} talks to you through the door, but does not let you in.', medieval: 'You knock. {0} talks to you through the door, but does not let you in.' },
+    // someone whose own rule keeps their home closed to you (ExampleCharacter.door), however close you are
+    doorKept: { modern: "You ring the doorbell. {0} comes to the door but doesn't ask you in: nobody comes into {0}'s home.", medieval: "You knock. {0} comes to the door but doesn't ask you in: nobody comes into {0}'s home." },
     // the phone / journal screens
     inYourDevice: { modern: '“{0}” in your phone', medieval: '“{0}” in your journal' },
     searchMessages: { modern: 'Search names and messages', medieval: 'Search names and letters' },
@@ -185,7 +187,7 @@ export const LEX_GROUPS = [
     { title: 'Life and society', keys: ['letter', 'alias', 'apprentice', 'festival', 'factions'] },
     { title: 'Adventure (RPG)', keys: ['spellNoun', 'spellsNoun', 'castBtn', 'castVerb', 'magicMenu', 'spellIcon', 'whichSpell', 'noFightSpell', 'noSpells', 'notCaster', 'learnSpells', 'spellLearned', 'cannotCast', 'youCast', 'schoolsWord', 'healer', 'seeHealer', 'atHealer', 'healerOnly', 'healerAsks', 'healerDone', 'guards', 'guardsTitle', 'guardsStop', 'resistArrest', 'mercs', 'mercAlone', 'mercLeaves', 'askTavern', 'gems', 'journey', 'journeyText', 'makeCamp', 'pushOn', 'quests', 'newQuest', 'grimoire', 'sheet', 'rollAsk', 'bill_upkeep'] },
     { title: 'The world around you', keys: ['tensionUp', 'tensionDown', 'pricesUp', 'pricesDown', 'overheard', 'heardAround'] },
-    { title: 'People, plans and love', keys: ['inviteText', 'doorNobody', 'doorIn', 'doorOut', 'reachThem', 'standUpHelp', 'stoodUpFallback', 'stoodUpFact', 'noneMet', 'dateNeeds', 'planTitleEg', 'matchTitle', 'profileAbout', 'nextSuitor', 'like', 'pass', 'matches', 'noMatches', 'noCandidates', 'profileStart', 'yourProfile'] },
+    { title: 'People, plans and love', keys: ['inviteText', 'doorNobody', 'doorIn', 'doorOut', 'doorKept', 'reachThem', 'standUpHelp', 'stoodUpFallback', 'stoodUpFact', 'noneMet', 'dateNeeds', 'planTitleEg', 'matchTitle', 'profileAbout', 'nextSuitor', 'like', 'pass', 'matches', 'noMatches', 'noCandidates', 'profileStart', 'yourProfile'] },
     { title: 'Profile and help', keys: ['profile', 'help', 'profileHelp', 'deviceIntro', 'messagesHelp', 'socialHelp', 'interviewHelp', 'noGoalYet'] },
 ];
 export const lexGroups = () => {
