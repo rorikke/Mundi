@@ -19,7 +19,7 @@ import { statsOf, statName, STAT_NAMES, VENTURE_STATS, EXEC_STATS } from '../cor
 import { STYLES, inWorld } from './styles.js';
 import { SKINS } from './skins.js';
 import { tr, setWorldDicts } from '../core/tr.js';
-import { lorebooks } from '../st/bridge.js';
+import { lorebooks, DEFAULT_EXPRESSIONS } from '../st/bridge.js';
 import { hm, WEEKDAYS } from '../sim/time.js';
 import { newWorldFrom, worldInLang, saveWorld, deleteWorld, exportWorld, importWorld, uploadWorldPicture, appsOf, slug, newId } from '../sim/creator.js';
 import { mapEditorHtml, ME } from './mapedit.js';
@@ -39,11 +39,12 @@ import { GENERAL_GOALS, GENERAL_REWARDS, GOAL_CATEGORIES, PERK_LIMITS, BOOST_LIM
 import { TALLY_EVENTS } from '../sim/tally.js';
 import { SECOND_POINTS } from '../sim/points.js';
 import { missingFromRecord, MUSEUM_PRICE_MAX } from '../core/collection.js';
+import { PHOTO_KINDS, CLIENT_KINDS, GEAR_KINDS, PHOTO_WORDS, SMALL_BOARD, FULL_BOARD, BRIEF_DAYS, BRIEF_DC, BRIEF_HOURS, BRIEF_REP, PHOTO_PAY_MAX, ANY_STUDIO, SUBJECT_KINDS, cameraAllows } from '../core/photo.js';
 const TABS = [['general', 'General'], ['features', 'Features'], ['needs', 'Needs'], ['maps', 'Maps & places'], ['homes', 'Homes & rent'],
-    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['goals', 'Goals & rewards'], ['business', 'Business'], ['courses', 'Courses'], ['shop', 'Shop'], ['collection', 'Collection'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
+    ['actions', 'Things to do'], ['jobs', 'Jobs'], ['photo', 'Photography'], ['goals', 'Goals & rewards'], ['business', 'Business'], ['courses', 'Courses'], ['shop', 'Shop'], ['collection', 'Collection'], ['words', 'Words (lexicon)'], ['character', 'Character creation'], ['rpg', 'RPG'], ['customs', 'Customs & calendar'], ['realm', 'Realm & factions'], ['economy', 'Economy & skies'], ['people', 'People & routines'], ['lore', 'Lore'], ['books', 'Lorebooks & notes']];
 // A scenario (one house, its residents) leaves out the tabs about towns, careers and kingdoms (a switch shows them), and
-// life goals (a Home has them off).
-const SCENARIO_HIDES = ['realm', 'economy', 'rpg', 'goals'];
+// life goals and photography (a Home has them off).
+const SCENARIO_HIDES = ['realm', 'economy', 'rpg', 'goals', 'photo'];
 export const CW = {
     w: null, tab: 'general', dirty: false, saving: false, confirmDel: false, leaveAsk: false, nameMiss: false,
     sel: { courses: 0, needs: 0, actions: 0, jobs: 0, zones: 0, kinds: '', traits: 0, origins: 0, people: 0, routine: '', lore: 0, tinfo: '' },
@@ -281,7 +282,8 @@ function actionMore(w, p, a) {
         <label class="mu-check"><input type="checkbox" data-input="cw-from" data-path="${esc(`${p}.together`)}" ${a.together ? 'checked' : ''}><span>Done with the people with you<small>It counts as time together with whoever came along (and the one you talk to alone).</small></span></label>
         ${a.together ? `<div class="mu-row2">${flag('Not alone', `${p}.together.needed`, 'Only offered with someone.')}${optTxt('What it means for you two (for the AI)', `${p}.together.text`, 'eating side by side at the counter')}</div>` : ''}
         <div class="mu-row2">${skillOpts(w).length ? sel('A skill it trains a little', `${p}.trains`, withCur([['', '(none)'], ...skillOpts(w)], a.trains), 'opt') : '<span></span>'}${keepsakeOpts(w).length ? sel('A keepsake it always leaves', `${p}.keepsake`, withCur([['', '(none)'], ...ks], a.keepsake), 'opt') : '<span></span>'}</div>
-        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${p}.fact`, '{u} ate ramen at {0}')}${sel('Played out in the scene', `${p}.scene`, [['', 'As the world says'], ['true', 'Yes'], ['false', 'Never']], 'tri')}</div>`;
+        <div class="mu-row2">${optTxt('Remembered (a fact; {u}: you, {0}: the place)', `${p}.fact`, '{u} ate ramen at {0}')}${sel('Played out in the scene', `${p}.scene`, [['', 'As the world says'], ['true', 'Yes'], ['false', 'Never']], 'tri')}</div>
+        ${systemOn(w, 'photography') || a.photo ? flag('Records a photo', `${p}.photo`, 'Kept in the Lens app: the place as it was, whoever is with you in the frame (none when its roll fails).') : ''}`;
 }
 const keepsakeOpts = (w) => (w.keepsakes ?? []).map(k => [k.id, `${k.icon ?? ''} ${k.name}`]);
 // What a roll's result, an outcome or a table's row does: what happens, needs, money, a keepsake, how some of the world's
@@ -617,6 +619,7 @@ function choiceForm(w, q, k, c, who, v, card = false) {
         <div class="mu-row2"><label class="mu-field"><span>A roll</span><select data-input="cw-roll" data-path="${esc(q)}">${rolls.map(([v, l]) => `<option value="${esc(v)}" ${v === roll ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
             ${c.roll ? bounded('Against (1–30)', `${q}.roll.dc`, 1, 30) : card ? num('Takes … minutes (empty: no time)', `${q}.minutes`, 1) : '<span></span>'}</div>
         ${card && c.roll ? num('Takes … minutes (empty: no time)', `${q}.minutes`, 1) : ''}
+        ${!card && (systemOn(w, 'photography') || c.photo) ? flag('Records a photo (when it works)', `${q}.photo`, 'Kept in the Lens app as a photo of the moment, when its roll works or it has none.') : ''}
         ${resultForm(w, q, who, v)}
         ${c.roll ? (c.fail ? `<div class="mu-cw-path"><span class="mu-cw-sub">When the roll fails, instead</span>${resultForm(w, `${q}.fail`, who, v)}
                 <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="${esc(`${q}.fail`)}">${icon('x')}<span>Remove: a failed roll only “did not work out”</span></button></div>`
@@ -1254,13 +1257,14 @@ function branchEditor(w, o, p) {
         const q = `${p}.branches.${bi}.options.${k}`;
         return `<div class="mu-cw-path">
                 <div class="mu-row2">${txt('Path', `${q}.name`)}${txt('What it is', `${q}.desc`)}</div>
-                ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(`Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Time to reach it (relative)', `${q}.promote.${ri}`, 1)}
+                ${x.ranks.map((_r, ri) => `<div class="mu-row mu-cw-inline">${txt('Rank', `${q}.ranks.${ri}.name`)}${num(x.freelance ? `Retainer (${esc(w.currency.symbol)} a week)` : `Pay (${esc(w.currency.symbol)}/h)`, `${q}.ranks.${ri}.pay`)}${num('Time to reach it (relative)', `${q}.promote.${ri}`, 1)}
                     ${bounded('Days a week (empty: the schedule\'s)', `${q}.ranks.${ri}.days`, 1, 7)}
                     <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${q}.ranks.${ri}" title="Remove">${icon('x')}</button></div>${rankMore(w, `${q}.ranks.${ri}`, x.ranks[ri])}`).join('')}
                 <button class="mu-ghost" data-act="cw-add" data-what="rank" data-path="${q}.ranks">${icon('plus')}<span>Add a rank</span></button>
                 <div class="mu-field"><span>Traits that help on this path</span>${chips(traitOptions(w), `${q}.likes`)}</div>
                 ${earlier(b.at).length ? `<div class="mu-field"><span>Only after (empty: after any)</span>${pairChips(earlier(b.at), `${q}.after`)}</div>` : ''}
                 <div class="mu-row2">${flag('Only with adult content on', `${q}.adult`, '', true)}${bounded('Pace (its ranks take this many times as long: 0.1–4)', `${q}.pace`, 0.1, 4, 0.1)}</div>
+                ${systemOn(w, 'photography') || x.freelance ? flag('Freelance (no shifts; rank pay is a weekly retainer)', `${q}.freelance`, 'Paid by the brief: a week with a delivery also pays its rank\'s retainer, and each delivery counts as a shift toward promotion.') : ''}
                 ${words('Kinds of job on this path (tags, comma separated)', `${q}.tags`, 'On top of the job\'s own: effects aim at them (adult-stage).', 'adult-stage')}
                 <span class="mu-cw-sub">Taken only with (one of these is enough; none: anyone)</span>
                 ${hireRows(q, x)}
@@ -1427,6 +1431,312 @@ function tabShop(w) {
     return `<section class="mu-cw-sec"><h4>Shop</h4>
         <p class="mu-muted">What the world sells: online in the phone's Shop app, or at its places while they're open. Things are kept for good, or bought again (a service for some days, stock for some uses, a gift to give). Nothing is sold back, and nothing costs anything weekly.</p>${filter}
         ${master('shop', 'catalogs.shop', (it) => `<b>${esc(it.icon ?? '')} ${esc(it.name)}</b><small>${esc(money(w, Number(it.price) || 0))}${f ? '' : ` · ${esc(shopCat(it).name)}`}${isAdultItem(it) ? ' · adult' : ''}</small>`, i => itemForm(`catalogs.shop.${i}`, list[i]), 'item', f ? 'Nothing in this category.' : 'Nothing for sale.', f ? (it) => catOf(it) === f : undefined)}</section>${keepsakesEditor(w)}`;
+}
+/* ---------- photography: the photo gigs (plans/photographer.md, session E) ---------- */
+// The words the forms use for the format's values (core/photo.ts holds the values themselves).
+const CLIENT_KIND_NAMES = { magazine: 'A magazine', wedding: 'Weddings', event: 'Events', portrait: 'Portraits', small: 'Small jobs (the small board)' };
+const PHOTO_KIND_NAMES = { magazine: 'Magazine', wedding: 'Wedding', event: 'Event', portrait: 'Portrait', stock: 'Stock' };
+const GEAR_NAMES = { camera: 'A camera', lens: 'A lens', flash: 'A flash', drone: 'A drone', housing: 'An underwater housing', rig: 'A light rig (studio)', cyc: 'A cyclorama wall (studio)', dressing: 'A dressing room (studio)', desk: 'A retouching desk', darkroom: 'A darkroom' };
+const CAMERA_NAMES = { '': 'Free: any photo', ask: 'Asks first: yes as a friend, half the time as an acquaintance', work: 'Work only: never an adult brief', noface: 'Not the face: only from behind', never: 'Never in a photo' };
+const RUNG_NAMES = ['', 'a phone', 'a compact', 'film', 'mirrorless', 'full frame'];
+const BOOK_KIND_NAMES = { city: 'The city (photos with nobody in them)', person: 'A person', season: 'A season' };
+const STUDIO_NEEDS = [['', 'No studio'], ['true', 'A photo studio (any)'], ['cyc', 'A studio with a cyclorama wall'], ['dressing', 'A studio with a dressing room']];
+const rungOpts = (none) => [['', none], ...[1, 2, 3, 4, 5].map(n => [String(n), `${n} · ${RUNG_NAMES[n]}`])];
+const gearOpts = () => GEAR_KINDS.map(k => [k, GEAR_NAMES[k] ?? k]);
+const clientOpts = (w) => (w.photo?.clients ?? []).map(c => [c.id, `${c.icon ?? ''} ${c.name}`.trim()]);
+const bookOpts = (w) => (w.photo?.books ?? []).map(b => [b.id, b.name]);
+const studioOpts = (w) => (w.homes.studios ?? []).map(z => [z.id, z.name]);
+// The paths a brief can be mostly offered in: every career path of the world (the photo job's first).
+const pathOpts = (w) => [...w.occupations].sort((a, b) => (a.id === w.photo?.job ? 0 : 1) - (b.id === w.photo?.job ? 0 : 1))
+    .flatMap(o => (o.branches ?? []).flatMap(b => b.options.map(x => [x.id, `${o.name}: ${x.name}${x.freelance ? ' (freelance)' : ''}`])));
+// A select whose options are written here (the studio a brief needs, how a client becomes a contact): `act` handles it.
+const selAct = (label, act, p, opts, on) => `<label class="mu-field"><span>${label}</span><select data-input="${act}" data-path="${esc(p)}">${opts.map(([v, l]) => `<option value="${esc(v)}" ${v === on ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+// Places as chips under their maps, with "any photo studio" first (a brief's places); one picked that isn't a place stays shown, to take off.
+function shotAt(w, p) {
+    const on = getPath(p) ?? [];
+    const ok = realPlaces(w);
+    const chip = (v, l, adult = false) => `<button class="mu-chip ${on.includes(v) ? 'is-on' : ''}" data-act="cw-chip" data-path="${esc(p)}" data-v="${esc(v)}" data-drop="1">${esc(l)}${adult ? ` ${ADULT}` : ''}</button>`;
+    const groups = w.maps.map(m => [m.name, ok.filter(x => x.map === m.id)]).filter(([, l]) => l.length);
+    const loose = ok.filter(x => !w.maps.some(m => m.id === x.map)), stray = on.filter(id => id !== ANY_STUDIO && !ok.some(x => x.id === id));
+    return `<div class="mu-chips">${chip(ANY_STUDIO, 'Any photo studio (yours, or the hourly one)')}</div>
+        ${groups.map(([name, l]) => `<span class="mu-cw-sub">${esc(name)}</span><div class="mu-chips">${l.map(x => chip(x.id, x.name, !!x.adult)).join('')}</div>`).join('')}
+        ${loose.length ? `<div class="mu-chips">${loose.map(x => chip(x.id, x.name, !!x.adult)).join('')}</div>` : ''}
+        ${stray.length ? `<span class="mu-cw-sub">Not a place of this world (dropped when it loads)</span><div class="mu-chips">${stray.map(id => chip(id, id)).join('')}</div>` : ''}`;
+}
+// The rules: reputation in words, the two boards, the job they belong to, its mentor, the publisher, photo keepsakes, where
+// weddings are shot, and the studio rented by the hour (with the plain one used when it isn't open to you).
+function photoRules(w) {
+    const P = w.photo, cur = esc(w.currency.symbol), r = P.rental;
+    const places = (cur2) => withCur(placeOpts(w), cur2);
+    return `<section class="mu-cw-sec mu-cw-wide"><div class="mu-row mu-cw-inline"><h4>Photography</h4><span class="mu-cw-spacer"></span><button class="mu-ghost mu-danger-text" data-act="cw-photo-off">${icon('trash')}<span>Remove the photo gigs</span></button></div>
+        <p class="mu-muted">Anyone with a camera gets the small board of photo gigs in the Lens app; the job's studio ranks and its freelance paths get the full board. Briefs are shot, edited and delivered for stars, pay and reputation; a photographer with a name is offered photobooks.</p>
+        ${systemOn(w, 'photography') ? '' : '<p class="mu-warn">The Photography system is off in this world (Features): none of this plays.</p>'}
+        <span class="mu-cw-sub">Reputation in words (each from its number up)</span>
+        ${(P.words ?? []).map((_x, k) => `<div class="mu-row mu-cw-inline">${bounded('From (0–100)', `photo.words.${k}.at`, 0, 100)}${txt('In words', `photo.words.${k}.text`, 'in demand')}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="photo.words.${k}" title="Remove">${icon('x')}</button></div>`).join('') || '<small class="mu-muted">None: the game\'s own (unknown, getting noticed, in demand, a name).</small>'}
+        ${addBtn('pword', 'photo.words', 'Add a step')}
+        <div class="mu-row2">${bounded(`The small board: gigs at once (1–8; empty: ${SMALL_BOARD.size})`, 'photo.small.size', 1, 8)}${bounded(`…a new one every (days, 1–28; empty: ${SMALL_BOARD.every})`, 'photo.small.every', 1, 28)}</div>
+        <div class="mu-row2">${bounded(`…raising reputation up to (0–100; empty: ${SMALL_BOARD.cap})`, 'photo.small.cap', 0, 100)}<span></span></div>
+        <div class="mu-row2">${bounded(`The full board: briefs at once, going freelance (1–8; empty: ${FULL_BOARD.min})`, 'photo.full.min', 1, 8)}${bounded(`…at the top freelance rank (1–8; empty: ${FULL_BOARD.max})`, 'photo.full.max', 1, 8)}</div>
+        <div class="mu-row2">${sel('The job these rules belong to (its ranks give the full board)', 'photo.job', withCur([['', '(none: the small board only)'], ...jobOpts(w)], P.job), 'opt')}${sel('Photobooks published by', 'photo.publisher', withCur([['', '(none: from the third freelance rank only)'], ...clientOpts(w)], P.publisher), 'opt')}</div>
+        <div class="mu-row2">${sel("The job's mentor", 'photo.mentor', withCur([['', '(none: going freelance always has the blessing)'], ...peopleOpts(w)], P.mentor), 'opt')}${cond('…going freelance has their blessing once this held (and they\'re a friend)', 'photo.leaving', 'knows: erika_mizu; job: photographer; rank: 3')}</div>
+        <details class="mu-cw-kept" ${P.keepsakes?.length ? 'open' : ''}><summary>Keepsakes shown as photos · ${esc(P.keepsakes?.length ?? 0)}</summary><small class="mu-muted">Besides every keepsake of the kind photo.</small>${pickChips(keepsakeOpts(w), 'photo.keepsakes')}</details>
+        <details class="mu-cw-kept" ${P.weddingAt?.length ? 'open' : ''}><summary>Where weddings are shot · ${esc(P.weddingAt?.length ?? 0)}</summary><small class="mu-muted">The first open on the day; none: no wedding offers.</small>${pickChips(placeOpts(w), 'photo.weddingAt')}</details>
+        ${r ? `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><span class="mu-cw-sub">The studio rented by the hour (two hours at a time)</span><span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="photo.rental" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${sel('At', 'photo.rental.at', places(r.at))}${num(`Price an hour (${cur})`, 'photo.rental.price')}</div>
+            ${cond('Open to you while (empty: always)', 'photo.rental.when', 'freelance: not fallout')}
+            ${r.fallback ? `<div class="mu-row2">${sel('Otherwise the plain one, at', 'photo.rental.fallback.at', places(r.fallback.at))}${num(`Its price an hour (${cur})`, 'photo.rental.fallback.price')}</div>
+                <button class="mu-ghost mu-danger-text" data-act="cw-del" data-path="photo.rental.fallback">${icon('x')}<span>No plain studio</span></button>`
+        : addBtn('prentalfb', 'photo.rental.fallback', 'Add a plain studio for when it isn\'t open to you')}</div>`
+        : addBtn('prental', 'photo.rental', 'Add a studio rented by the hour')}</section>`;
+}
+// A client: who a brief is for, the reputation it asks before offering anything, how it becomes a contact, its rate.
+function clientForm(w, i) {
+    const p = `photo.clients.${i}`, c = w.photo?.clients[i];
+    if (!c)
+        return '';
+    const mode = c.contact === undefined ? '' : c.contact === 'job' || c.contact === 'always' ? c.contact : 'when';
+    const n = (w.photo?.briefs ?? []).filter(b => b.client === c.id).length;
+    const warn = [];
+    if (!n)
+        warn.push('No brief is for this client yet.');
+    if (c.kind === 'small' && mode !== 'always')
+        warn.push('A small client is a contact from the start on the small board: pick "From the start".');
+    return `<div class="mu-row mu-cw-inline">${idTag(c.id)}${w.photo?.publisher === c.id ? '<small class="mu-muted">Publishes the photobooks</small>' : ''}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '📰')}</div>
+        ${optArea('What it is (for the AI and the app)', `${p}.desc`, 2, 'a monthly city magazine, all back pages and long walks')}
+        <div class="mu-row2">${sel('Kind', `${p}.kind`, withCur(CLIENT_KINDS.map(k => [k, CLIENT_KIND_NAMES[k] ?? k]), c.kind))}${bounded('Reputation it asks before offering anything (0–100)', `${p}.floor`, 0, 100)}</div>
+        <div class="mu-row2">${selAct('It becomes a contact', 'cw-pcontact', `${p}.contact`, [['', 'Never'], ['job', 'The first delivery for it while you hold the job'], ['always', 'From the start'], ['when', 'Once a condition holds (then for good)']], mode)}${bounded('Its pay × (0.1–3; empty: 1)', `${p}.pay`, 0.1, 3, 0.05)}</div>
+        ${mode === 'when' ? cond('A contact once this holds', `${p}.contact`, 'museum: open') : ''}
+        ${flag('Only with adult content on', `${p}.adult`, '', true)}
+        <p class="mu-muted">Briefs for it: ${esc(n)}.</p>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// Who a brief is shot of: a person by name (their own rule in front of a camera shown beside), a wedding's couple, someone
+// the board picks, the client's own; the expression wanted, what they wear, asked first, the scene's words for the AI.
+function subjectForm(w, q, b) {
+    const s = b.subject, person = w.cast.examples.find(e => e.name === s.who), rule = person?.camera ?? '';
+    const who = [['cast', 'Someone you know (the board picks)'], ['client', "The client's own (nobody named)"], ['couple', "A wedding's couple"], ...peopleOpts(w)];
+    const exprs = [['', '(none: neutral)'], ['back', 'From behind (no face)'], ...DEFAULT_EXPRESSIONS.map(x => [x, x])];
+    const warn = [];
+    if (person && !cameraAllows(rule || undefined, b))
+        warn.push(`${person.name}'s rule in front of a camera rules this brief out: it is dropped when the world loads.`);
+    if (!person && !SUBJECT_KINDS.includes(s.who))
+        warn.push('Nobody of the world has that name: it is never offered.');
+    if (s.outfit === 'naked' && !b.adult)
+        warn.push('Wearing nothing only in an adult brief: mark it adult.');
+    return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('Who', `${q}.who`, withCur(who, s.who))}${person ? `<small class="mu-muted">In front of a camera: ${esc(CAMERA_NAMES[rule] ?? rule)}</small>` : ''}<span class="mu-cw-spacer"></span>
+            <button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Nobody in it">${icon('x')}</button></div>
+        <div class="mu-row2">${sel('Their expression', `${q}.expr`, withCur(exprs, s.expr), 'opt')}${sel('Wearing', `${q}.outfit`, withCur([['', '(as they are)'], ['clothes', 'Clothes'], ['naked', 'Nothing (adult)']], s.outfit), 'opt')}</div>
+        ${flag('Asked first', `${q}.consent`, 'Yes as a friend, half the time as an acquaintance; otherwise the offer goes.')}
+        ${optArea('The scene, for the AI', `${q}.scene`, 2, 'the cover model on a white cyclorama, one light, the editor at the monitor')}
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}</div>`;
+}
+// What world-check and the loader say of a brief (a missing client or place, a studio brief not at a studio, a book gone).
+function briefIssues(w, b) {
+    const out = [];
+    if (!(w.photo?.clients ?? []).some(c => c.id === b.client))
+        out.push('No such client: it is dropped when the world loads.');
+    const at = (b.places ?? []).filter(id => id === ANY_STUDIO || w.places.some(x => x.id === id));
+    if (!at.length)
+        out.push('It needs a place to be shot at: without one it is dropped when the world loads.');
+    if (b.studio && !(b.places ?? []).includes(ANY_STUDIO))
+        out.push('A brief that needs a studio is shot at Any photo studio: pick it among the places.');
+    if (b.book && !(w.photo?.books ?? []).some(x => x.id === b.book))
+        out.push('No such photobook: its part in one is dropped when the world loads.');
+    if (b.gear?.some(g => !GEAR_KINDS.includes(g)))
+        out.push('Gear of a kind the game doesn\'t know.');
+    return out;
+}
+function briefForm(w, i) {
+    const p = `photo.briefs.${i}`, b = w.photo?.briefs[i];
+    if (!b)
+        return '';
+    const c = (w.photo?.clients ?? []).find(x => x.id === b.client), cur = esc(w.currency.symbol), paths = pathOpts(w);
+    return `<div class="mu-row mu-cw-inline">${idTag(b.id)}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'Yanaka, slowly')}${sel('For', `${p}.client`, withCur(clientOpts(w), b.client))}</div>
+        ${area('The brief, as the client writes it', `${p}.text`, 3, 'The back pages want Yanaka at walking pace…')}
+        <div class="mu-row2">${sel('On the board', `${p}.board`, [['small', 'The small board (anyone with a camera)'], ['full', "The full board (the job's)"]])}${sel('Kind of work', `${p}.kind`, withCur(PHOTO_KINDS.map(k => [k, PHOTO_KIND_NAMES[k] ?? k]), b.kind))}</div>
+        ${paths.length || b.branches?.length ? `<details class="mu-cw-kept" ${b.branches?.length ? 'open' : ''}><summary>Mostly offered on these paths · ${esc(b.branches?.length ?? 0)}</summary><small class="mu-muted">Three times as often there; the other paths see it too.</small>${pickChips(paths, `${p}.branches`)}</details>` : ''}
+        <h4>Where and when</h4>
+        <details class="mu-cw-kept" ${(b.places ?? []).length < 6 ? 'open' : ''}><summary>Shot at (one of these, drawn when it's offered) · ${esc(b.places?.length ?? 0)}</summary>${shotAt(w, `${p}.places`)}</details>
+        <div class="mu-row2">${cond('Shot only while (the light, the weather, a festival)', `${p}.window`, 'period: afternoon; weather: sunny or fair')}${cond('Offered only while (optional)', `${p}.when`, 'season: spring')}</div>
+        <div class="mu-row2">${bounded(`Deadline in days (1–28; empty: ${BRIEF_DAYS})`, `${p}.days`, 1, 28)}${bounded(`Hours the shoot takes (1–3; empty: ${BRIEF_HOURS})`, `${p}.hours`, 1, 3)}</div>
+        <small class="mu-muted">The deadline counts from the day it's offered; a window whose weather is rare in the season gets more days, and the client one extension when it never came.</small>
+        <h4>Pay and reputation</h4>
+        <div class="mu-row2">${bounded(`Pay at quality 50 (${cur}; before the client's rate and the difficulty)`, `${p}.pay`, 0, PHOTO_PAY_MAX)}${bounded(`Reputation at five stars (0–100; empty: ${b.board === 'small' ? BRIEF_REP.small : BRIEF_REP.full})`, `${p}.rep`, 0, 100)}</div>
+        <h4>What it asks</h4>
+        <div class="mu-row2">${bounded('Reputation at least (0–100)', `${p}.floor`, 0, 100)}${flag('Only once the client is a contact', `${p}.contact`, c ? `Offered only once ${esc(c.name)} is a contact of yours.` : '')}</div>
+        ${skillOpts(w).length || b.needs ? skillLevels(w, `${p}.needs`, 'Skills (offered within two levels short; each level short costs quality)') : ''}
+        <div class="mu-row2">${sel('A camera at least', `${p}.rung`, rungOpts('(any; counted against a compact)'), 'num')}${bounded(`How hard the shoot is (1–30; empty: ${BRIEF_DC})`, `${p}.dc`, 1, 30)}</div>
+        <div class="mu-field"><span>Gear it needs (refused without it)</span>${pickChips(gearOpts(), `${p}.gear`)}</div>
+        ${selAct('A studio', 'cw-pstudio', `${p}.studio`, STUDIO_NEEDS, b.studio === undefined ? '' : String(b.studio))}
+        <h4>Who is in front of the camera</h4>
+        ${b.subject ? subjectForm(w, `${p}.subject`, b) : `<p class="mu-muted">Nobody: a place, a dish, the city.</p>${addBtn('psubject', `${p}.subject`, 'Add who is in it')}`}
+        <div class="mu-row2">${sel('Part of a photobook', `${p}.book`, withCur([['', '(none)'], ...bookOpts(w)], b.book), 'opt')}${flag('Only with adult content on', `${p}.adult`, '', true)}</div>
+        ${briefIssues(w, b).map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// A photobook a publisher can offer: a city, a person or a season, the briefs it takes, its royalties fading over weeks.
+function bookForm(w, i) {
+    const p = `photo.books.${i}`, b = w.photo?.books?.[i];
+    if (!b)
+        return '';
+    const n = (w.photo?.briefs ?? []).filter(x => x.book === b.id).length, who = w.cast.examples.find(e => e.name === b.who);
+    const warn = [];
+    if (b.kind === 'person' && !who)
+        warn.push('A book of a person needs one of the world\'s people.');
+    if (who?.camera === 'never')
+        warn.push(`${who.name} is never in a photo: this book can't be made.`);
+    if (b.ai && !b.ai.includes('{{user}}'))
+        warn.push("The AI's line should name {{user}} (the player).");
+    return `<div class="mu-row mu-cw-inline">${idTag(b.id)}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'Tokyo After Rain')}${sel('Of', `${p}.kind`, withCur(Object.entries(BOOK_KIND_NAMES), b.kind))}</div>
+        ${b.kind === 'person' || b.who ? sel('Who', `${p}.who`, withCur([['', '(nobody)'], ...peopleOpts(w)], b.who), 'opt') : ''}
+        <div class="mu-row2">${bounded('Briefs to shoot (1–8)', `${p}.briefs`, 1, 8)}${bounded('Weeks its royalties fade over (1–520; empty: two seasons)', `${p}.weeks`, 1, 520)}</div>
+        <div class="mu-row2">${bounded('Weekly royalties at the start (by how good its photos were; held to 5,000–20,000)', `${p}.pay`, 0, PHOTO_PAY_MAX)}${cond('Offered only while (optional)', `${p}.when`, 'season: autumn')}</div>
+        ${optArea('Once out, the AI is told ({{user}} is the player)', `${p}.ai`, 2, "{{user}}'s photobook Tokyo After Rain is in the bookshops.")}
+        ${flag('Only with adult content on', `${p}.adult`, '', true)}
+        <p class="mu-muted">${n === 1 ? "One of the world's briefs is part of it." : n ? `${esc(n)} of the world's briefs are part of it.` : 'No brief is part of it: plain full-board briefs are drawn for it.'}</p>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// Quick-add: a brief made from one of the world's festivals, city events or places (its window and place filled in).
+const quickSources = (w) => [...(w.festivals ?? []).map(f => [`festival:${f.id}`, `Festival: ${f.name}`]), ...(w.cityEvents ?? []).map(e => [`event:${e.id}`, `Event: ${e.name}`]),
+    ...realPlaces(w).map(x => [`place:${x.id}`, `Place: ${x.name}`])];
+function quickBrief(w, src) {
+    const P = w.photo;
+    if (!P?.clients.length)
+        return null;
+    const [k, id] = [src.slice(0, src.indexOf(':')), src.slice(src.indexOf(':') + 1)];
+    const f = k === 'festival' ? (w.festivals ?? []).find(x => x.id === id) : undefined, e = k === 'event' ? (w.cityEvents ?? []).find(x => x.id === id) : undefined;
+    const pl = k === 'place' ? w.places.find(x => x.id === id) : undefined;
+    if (!f && !e && !pl)
+        return null;
+    const at = [f?.place, ...(f?.places ?? []), e?.place, pl?.id].filter((x) => !!x && w.places.some(y => y.id === x));
+    const first = realPlaces(w)[0]?.id;
+    if (!at.length && !first)
+        return null;
+    const kind = f || e ? 'event' : 'stock';
+    const client = P.clients.find(c => c.kind === kind) ?? P.clients.find(c => c.kind !== 'small') ?? P.clients[0];
+    const pays = P.briefs.filter(b => b.board === 'full').map(b => b.pay), pay = pays.length ? Math.round(pays.reduce((a, b) => a + b, 0) / pays.length) : 100;
+    return { id: newId('br'), client: client.id, name: (f ?? e ?? pl).name, text: '', board: 'full', kind, places: at.length ? [at[0]] : [first], pay,
+        ...(f ? { window: `festival: ${f.id}` } : e ? { window: `event: ${e.id}` } : {}) };
+}
+function tabPhoto(w) {
+    const P = w.photo;
+    if (!P)
+        return `<section class="mu-cw-sec mu-cw-wide"><h4>Photography</h4><p class="mu-muted">No photo gigs in this world: no Lens app, no boards of briefs, no photobooks. Taking photos and the photography skill still play.</p>${addBtn('photo', 'photo', 'Add photo gigs to this world')}</section>`;
+    const f = PHOTO_KINDS.includes(CW.sel.briefKind) || CW.sel.briefKind === 'small' ? String(CW.sel.briefKind) : '';
+    const keep = (b) => !f || (f === 'small' ? b.board === 'small' : b.kind === f);
+    const count = (k) => P.briefs.filter(b => (k === 'small' ? b.board === 'small' : b.kind === k)).length;
+    const filter = `<label class="mu-field"><span>Show</span><select data-input="cw-briefkind">${[['', `Every brief · ${P.briefs.length}`], ['small', `The small board · ${count('small')}`], ...PHOTO_KINDS.map(k => [k, `${PHOTO_KIND_NAMES[k]} · ${count(k)}`])]
+        .map(([v, l]) => `<option value="${esc(v)}" ${v === f ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
+    const src = quickSources(w), on = src.some(([v]) => v === CW.sel.pquick) ? String(CW.sel.pquick) : src[0]?.[0] ?? '';
+    const quick = src.length && P.clients.length ? `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Quick-add a brief for</span><select data-input="cw-pquick">${src.map(([v, l]) => `<option value="${esc(v)}" ${v === on ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+        <button class="mu-ghost" data-act="cw-pquick-go">${icon('plus')}<span>Add it</span></button></div>` : '';
+    const clientName = (id) => P.clients.find(c => c.id === id)?.name ?? id;
+    return `<div class="mu-cw-grid">${photoRules(w)}
+        <section class="mu-cw-sec mu-cw-wide"><h4>Clients</h4><p class="mu-muted">Who the briefs are for: magazines, wedding planners, events, small jobs. A client offers nothing below its reputation; a contact keeps calling after you quit the job.</p>
+            ${master('photo-clients', 'photo.clients', (c) => `<b>${esc(c.icon ?? '')} <span data-notr>${esc(c.name)}</span></b><small>${esc(CLIENT_KIND_NAMES[c.kind] ?? c.kind)}${c.floor ? ` · from ${esc(c.floor)}` : ''}${c.adult ? ' · adult' : ''}</small>`, i => clientForm(w, i), 'pclient', 'No clients yet.')}</section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>Briefs</h4><p class="mu-muted">The jobs on the boards, as each client writes them: where and when they can be shot, what they pay, what they ask, and who is in front of the camera.</p>
+            ${quick}${filter}
+            ${master('photo-briefs', 'photo.briefs', (b) => `<b data-notr>${esc(b.name)}</b><small><span data-notr>${esc(clientName(b.client))}</span> · ${esc(PHOTO_KIND_NAMES[b.kind] ?? b.kind)}${b.board === 'small' ? ' · small board' : ''}${b.adult ? ' · adult' : ''}</small>`, i => briefForm(w, i), 'pbrief', f ? 'No briefs of this kind.' : 'No briefs yet.', f ? keep : undefined)}</section>
+        <section class="mu-cw-sec mu-cw-wide"><h4>Photobooks</h4><p class="mu-muted">What a publisher can offer a photographer with a name: a book of the city, a person or a season, shot brief by brief, then paying royalties that fade.</p>
+            ${master('photo-books', 'photo.books', (b) => `<b data-notr>${esc(b.name)}</b><small>${esc(b.kind === 'person' && b.who ? b.who : BOOK_KIND_NAMES[b.kind] ?? b.kind)} · ${esc(b.briefs)} briefs${b.adult ? ' · adult' : ''}</small>`, i => bookForm(w, i), 'pbook', 'No photobooks yet.')}</section>
+    </div>`;
+}
+// (photography) A shop item's or a fixture's photo gear: its kind, a camera's or lens's rung, what it adds to a shoot or
+// an edit, the studio work it opens. Read by the engine itself, so a shoot's result names what added.
+function gearBox(w, p, it) {
+    const g = it.photo;
+    if (!g && !systemOn(w, 'photography'))
+        return '';
+    const kind = g?.gear ?? '';
+    return `<details class="mu-cw-kept" ${g ? 'open' : ''}><summary>Photo gear${g ? `: ${esc(GEAR_NAMES[kind] ?? kind)}` : ''}</summary>
+        <small class="mu-muted">Read by the photo gigs themselves, so a shoot's result names what added to it.</small>
+        ${selAct('It is', 'cw-gear', `${p}.photo`, [['', 'Not photo gear'], ...withCur(gearOpts(), kind)], kind)}
+        ${g ? `<div class="mu-row2">${kind === 'camera' || kind === 'lens' || g.rung !== undefined ? sel(kind === 'lens' ? 'Its rung (1–5)' : 'Its rung (1 a phone … 5 full frame)', `${p}.photo.rung`, rungOpts('(none)'), 'num') : '<span></span>'}${bounded('Adds to a shoot (quality, −20–20)', `${p}.photo.shoot`, -20, 20)}</div>
+            <div class="mu-row2">${bounded('Adds to an edit (quality, −20–20)', `${p}.photo.edit`, -20, 20)}${sel('Opens studio work', `${p}.photo.studio`, withCur([['', '(none)'], ['cyc', 'Briefs that need a cyclorama wall'], ['dressing', 'Briefs that need a dressing room']], g.studio), 'opt')}</div>` : ''}</details>`;
+}
+// (photography, housing) A photo studio's zone: one spot on a map (clicked on its picture, or typed), its rent, price and
+// upkeep, its pictures, what it comes with, and `given` (only an ending gives it).
+function studioForm(w, i) {
+    const p = `homes.studios.${i}`, z = w.homes.studios?.[i];
+    if (!z)
+        return '';
+    const cur = esc(w.currency.symbol), m = w.maps.find(x => x.id === z.map), s = z.spots?.[0] ?? [50, 50];
+    const at = (v) => Math.max(0, Math.min(100, Number(v) || 0));
+    const kinds = Object.entries(w.homes.kinds).map(([id, k]) => [id, `${k.name}${k.work ? '' : ' (not work only)'}`]);
+    const gives = w.cast.examples.some(e => (e.threads ?? []).some(t => (t.endings ?? []).some(en => en.studio === z.id)));
+    const times = [...new Set(['afternoon', 'night', ...Object.keys(z.images ?? {})])].filter(k => !BAD_KEYS.includes(k));
+    const warn = [];
+    if (w.homes.zones.some(x => x.id === z.id))
+        warn.push('The same id as a housing area: it is dropped when the world loads.');
+    if (!m)
+        warn.push('On no map of the world: it is dropped when the world loads.');
+    if (!w.homes.kinds[z.kind]?.work)
+        warn.push('Its kind of home isn\'t marked Work only (Kinds of home).');
+    if (!z.given && !(Number(z.rent) > 0) && !(Number(z.price) > 0))
+        warn.push('Neither rented nor for sale: give it a rent or a price, or mark it given by an ending.');
+    if ((Number(z.price) > 0 || z.given) && !(Number(z.upkeep) > 0))
+        warn.push('A studio you own needs an upkeep a week.');
+    if (z.given && !gives)
+        warn.push('Given by an ending, but no storyline ending gives it (People → a storyline → an ending).');
+    return `<div class="mu-row mu-cw-inline">${idTag(z.id)}</div>
+        ${txt('Name', `${p}.name`, 'A basement in Ura-Harajuku')}${optArea('Description', `${p}.desc`, 2)}
+        <div class="mu-row2">${sel('Kind', `${p}.kind`, withCur(kinds, z.kind))}${sel('On the map', `${p}.map`, withCur(w.maps.map(x => [x.id, x.name]), z.map))}</div>
+        ${m?.image ? `<div class="mu-cw-pspot" data-act="cw-studio-spot" data-i="${esc(i)}" title="Click to put it here"><img src="${safeUrl(worldFile(w, m.image))}" alt=""><i style="left:${esc(at(s[0]))}%;top:${esc(at(s[1]))}%"></i></div>` : ''}
+        <div class="mu-row2">${bounded('Across the map (0–100%)', `${p}.spots.0.0`, 0, 100, 0.1)}${bounded('Down the map (0–100%)', `${p}.spots.0.1`, 0, 100, 0.1)}</div>
+        <div class="mu-row2">${num(`Rent a week (${cur}; 0: not rented)`, `${p}.rent`)}${num(`Price to buy (${cur}; empty: not for sale)`, `${p}.price`)}</div>
+        <div class="mu-row2">${num(`Upkeep a week, once it's yours (${cur})`, `${p}.upkeep`)}${bounded(`Sold back for this share of what you paid (${RESALE.min}–${RESALE.max}; empty: ${RESALE.usual})`, `${p}.resale`, RESALE.min, RESALE.max, 0.05)}</div>
+        <div class="mu-row2">${bounded(`Size (${SIZES.min}–${SIZES.max}; empty: its kind's)`, `${p}.size`, SIZES.min, SIZES.max)}${flag('Given by a storyline\'s ending only', `${p}.given`, 'Never offered to rent or buy.')}</div>
+        <div class="mu-row2">${optTxt('Picture inside (in the world\'s folder; empty: its kind\'s)', `${p}.image`, 'bg/studio.avif')}<span></span></div>
+        <details class="mu-cw-kept" ${Object.keys(z.images ?? {}).length ? 'open' : ''}><summary>Inside at other times of the day · ${esc(Object.keys(z.images ?? {}).length)}</summary><small class="mu-muted">None: the same picture at every hour (a basement has no windows).</small>
+            <div class="mu-row2">${times.map(t => optTxt(esc(TIME_SLOTS.find(x => x.id === t)?.name ?? t), `${p}.images.${t}`, `bg/studio-${t}.avif`)).join('')}</div></details>
+        <details class="mu-cw-kept" ${z.fixtures?.length ? 'open' : ''}><summary>Comes with these fixtures · ${esc(z.fixtures?.length ?? 0)}</summary><small class="mu-muted">Besides what its kind comes with.</small>${pickChips(fixtureOpts(w), `${p}.fixtures`)}</details>
+        ${warn.map(x => `<p class="mu-warn">${esc(x)}</p>`).join('')}`;
+}
+// (photography) What the photo forms can leave empty: lists with nothing picked, a skill map emptied, empty words, a gear
+// bonus of 0, a rental with no place, a studio's pictures all cleared. Nothing else is touched.
+function tidyPhoto(w) {
+    const P = w.photo;
+    if (P) {
+        for (const k of ['keepsakes', 'weddingAt', 'books', 'words'])
+            if (Array.isArray(P[k]) && !P[k].length)
+                delete P[k];
+        if (P.rental?.fallback && !P.rental.fallback.at)
+            delete P.rental.fallback;
+        if (P.rental && !P.rental.at)
+            delete P.rental;
+        for (const c of P.clients ?? [])
+            for (const k of ['icon', 'desc'])
+                if (typeof c[k] === 'string' && !c[k].trim())
+                    delete c[k];
+        for (const b of P.briefs ?? []) {
+            for (const k of ['branches', 'gear'])
+                if (Array.isArray(b[k]) && !b[k].length)
+                    delete b[k];
+            if (b.needs && typeof b.needs === 'object' && !Object.keys(b.needs).length)
+                delete b.needs;
+            if (b.subject && typeof b.subject.scene === 'string' && !b.subject.scene.trim())
+                delete b.subject.scene;
+        }
+    }
+    for (const it of [...(w.catalogs?.shop ?? []), ...(w.homes?.fixtures ?? [])]) {
+        const g = it.photo;
+        if (!g)
+            continue;
+        for (const k of ['shoot', 'edit'])
+            if (g[k] === 0)
+                delete g[k];
+    }
+    const st = w.homes?.studios;
+    for (const z of st ?? []) {
+        if (z.images && !Object.keys(z.images).length)
+            delete z.images;
+        if (Array.isArray(z.fixtures) && !z.fixtures.length)
+            delete z.fixtures;
+    }
+    if (Array.isArray(st) && !st.length)
+        delete w.homes.studios;
 }
 /* ---------- the collection: halls, their groups, and slots (plans/collection.md, session E) ---------- */
 // The systems a hall or a slot can need (its slot shown only with them on), as chips.
@@ -2128,6 +2438,7 @@ export function itemForm(p, it, as = {}) {
         <span class="mu-cw-sub">Small effects</span>
         <p class="mu-muted">Up to three, each within ±${SHOP_LIMITS.mul * 100}% (a flat amount within ±${SHOP_LIMITS.add}), counted with the shop's things: only the best one of each kind counts. They work in the home it's in: the one you live in, or your second home while you're there.</p>
         ${fxEditor(w, `${p}.effects`, 'shop', 3)}
+        ${gearBox(w, p, it)}
         <p class="mu-muted">${unlocks.length ? `Unlocks: ${esc([...new Set(unlocks.map(a => a.label || a.name))].join(', '))}.` : 'Unlocks nothing to do yet: in Things to do, pick this item under "Only if the player owns".'}</p>
         <h4>What the AI is told</h4>
         ${optTxt('Its words (optional; empty: its name)', `${p}.ai`, 'a black grand piano by the window', 'At a home you own: "It has …", the dearest five.')}
@@ -2155,6 +2466,7 @@ export function itemForm(p, it, as = {}) {
         <span class="mu-cw-sub">Small effects</span>
         <p class="mu-muted">Up to three, each within ±${SHOP_LIMITS.mul * 100}% (a flat amount within ±${SHOP_LIMITS.add}); of the things you own, only the best one of each kind counts. A good thing +5%, a fine one +8%, luxury +10%: the top pays in status and words, not bigger numbers.</p>
         ${fxEditor(w, `${p}.effects`, 'shop', 3)}
+        ${gearBox(w, p, it)}
         ${sel('Gives a keepsake (a gift to give)', `${p}.keepsake`, withCur([['', '(none)'], ...gifts], it.keepsake), 'opt')}
         <p class="mu-muted">${unlocks.length ? `Unlocks: ${esc([...new Set(unlocks.map(a => a.label || a.name))].join(', '))}.` : 'Unlocks nothing to do yet: in Things to do, pick this item under "Only if the player owns".'}</p>
         <h4>What the AI is told</h4>
@@ -2275,7 +2587,9 @@ function fixtureForm(w, i) {
     const rooms = w.places.filter(x => x.room === f.id).map(x => [x.id, x.name]);
     const fits = (z) => (!f.size || (Number(z.size) || Number(w.homes.kinds[z.kind]?.size) || 1) >= f.size) && (!f.kinds?.length || f.kinds.includes(z.kind)) && (!f.zones?.length || f.zones.includes(z.id));
     const warn = [];
-    if (!w.homes.zones.some(z => buyable(z) && fits(z)))
+    // (photography) a fixture with photo gear, or of a studio's kind, fits a photo studio (sim/fixtures.ts fitsStudio)
+    const fitsStudio = (z) => (!!f.photo || !!f.kinds?.includes(z.kind)) && (!f.zones?.length || f.zones.includes(z.id)) && (!f.size || (Number(z.size) || Number(w.homes.kinds[z.kind]?.size) || 1) >= f.size);
+    if (!w.homes.zones.some(z => buyable(z) && fits(z)) && !(w.homes.studios ?? []).some(fitsStudio))
         warn.push('It fits no home for sale (its size, kinds and areas).');
     if (f.needs && f.needs === f.id)
         warn.push('It needs itself.');
@@ -2325,6 +2639,8 @@ function tabHomes(w) {
     const exps = w.homes.expenses ?? [];
     const housing = housingOn(w) || !!w.homes.fixtures?.length;
     const fixtures = fixtureOpts(w);
+    // (photography) photo studios: with housing on and photo gigs in the world, or any already there
+    const studios = (housing && !!w.photo) || !!w.homes.studios?.length;
     const priced = (z) => (buyOnly(z) ? 'for sale only' : esc(money(w, Number(z.rent) || 0))) + (buyable(z) ? ` · ${esc(money(w, Number(z.price)))} to buy` : '');
     return `<div class="mu-cw-grid">
         <section class="mu-cw-sec"><h4>Housing areas</h4>
@@ -2345,6 +2661,7 @@ function tabHomes(w) {
                 <div>${txt('Name', `homes.kinds.${id}.name`)}${area('Description', `homes.kinds.${id}.desc`, 2)}
                 ${exps.length ? `<div class="mu-row2">${exps.map(e => num(`${esc(e.name)} a week (${esc(w.currency.symbol)})`, `homes.kinds.${id}.bills.${e.id}`)).join('')}</div>` : ''}
                 ${housing || k.size !== undefined || k.guests !== undefined ? `<div class="mu-row2">${bounded(`Size (${SIZES.min}–${SIZES.max}; for areas that don't give one)`, `homes.kinds.${id}.size`, SIZES.min, SIZES.max)}${bounded('Guests at a party, at most (empty: no limit)', `homes.kinds.${id}.guests`, 1, 999)}</div>` : ''}
+                ${studios || k.work ? flag('Work only', `homes.kinds.${id}.work`, 'Never lived in, let or anybody\'s home: a photo studio\'s kind (Photo studios, below).') : ''}
                 ${fixtures.length || k.fixtures?.length ? `<details class="mu-cw-kept" ${k.fixtures?.length ? 'open' : ''}><summary>Comes with these rooms and fixtures · ${esc(k.fixtures?.length ?? 0)}</summary><small class="mu-muted">A home of this kind you buy has them already.</small>${pickChips(fixtures, `homes.kinds.${id}.fixtures`)}</details>` : ''}
                 ${roomsInside(w, `homes.kinds.${id}.rooms`, 'Every home of this kind has them, unless its area has its own.')}
                 <details class="mu-me-times" ${Object.keys(k.images ?? {}).length ? 'open' : ''}><summary>Inside at other times of the day</summary>
@@ -2359,6 +2676,9 @@ function tabHomes(w) {
         ${housing ? `<section class="mu-cw-sec"><h4>Rooms and fixtures</h4>
             <p class="mu-muted">What can be added to a home you own, in the phone's Homes app: a sauna, a grand piano, a rooftop terrace. Each is bought once for one house and stays with it, sold with it; it works as the shop's things do while you're there, and one can open a room of its own on the map.</p>
             ${master('fixtures', 'homes.fixtures', (f) => `<b>${esc(f.icon ?? '')} ${esc(f.name)}</b><small>${esc(money(w, Number(f.price) || 0))}${f.size ? ` · size ${esc(f.size)}+` : ''}${f.room ? ' · a room' : ''}${isAdultItem(f) ? ' · adult' : ''}</small>`, i => fixtureForm(w, i), 'fixture', 'No rooms or fixtures yet.')}</section>` : ''}
+        ${studios ? `<section class="mu-cw-sec"><h4>Photo studios</h4>
+            <p class="mu-muted">A studio the player can rent by the week or buy, one at a time, in the Homes app: a place of its own to shoot and edit in, with fixtures bought for it. Never lived in, let or anybody's home; housing areas never list it.</p>
+            ${master('studios', 'homes.studios', z => `<b data-notr>${esc(z.name)}</b><small>${z.given ? 'given by an ending' : [Number(z.rent) > 0 ? `${esc(money(w, Number(z.rent)))}/wk` : '', Number(z.price) > 0 ? `${esc(money(w, Number(z.price)))} to buy` : ''].filter(Boolean).join(' · ') || 'not offered'}</small>`, i => studioForm(w, i), 'studio', 'No photo studios yet.')}</section>` : ''}
         <section class="mu-cw-sec"><h4>Expenses (besides the rent)</h4>
             <p class="mu-muted">Bills every home pays each week with the rent: water, power, firewood, servants, taxes… as many as you like, or none. Each kind of home sets its own amount above. One left unpaid for a week stops the things you pick here.</p>
             ${master('expenses', 'homes.expenses', e => `<b>${esc(e.name || lexDefault(w, `bill_${e.id}`))}${e.rpg ? ' <small>(RPG)</small>' : ''}</b><small>${(e.blocks ?? []).length ? `stops ${(e.blocks ?? []).length} thing${(e.blocks ?? []).length === 1 ? '' : 's'}` : 'stops nothing'}</small>`, i => {
@@ -2494,6 +2814,7 @@ export function forSaving(w) {
     tidyCollection(out);
     tidyTiers(out);
     tidyRival(out);
+    tidyPhoto(out);
     for (const g of out.sheet?.traits ?? []) {
         const left = Object.keys(g.skills ?? {}).filter(n => !g.options.includes(n) && !(g.adultOptions ?? []).includes(n) && !(g.formerly ?? []).includes(n));
         if (left.length)
@@ -2832,7 +3153,9 @@ const MOMENT_NAMES = { meal: 'Cook a meal', workout: 'Work out', painting: 'Pain
     // (adult)
     intimate: 'A private moment with someone (adult)', learned: 'Learn something someone likes or won\'t do (adult)', risky: 'Get away with something risky (adult)', caught: 'Get caught (adult)',
     threesome: 'A night for three (adult)', jealous: 'Make a partner jealous', gift_loved: 'A gift someone loved',
-    home_bought: 'Buy a home', home_sold: 'Sell a home', grand_party: 'A party at home 12 came to' };
+    home_bought: 'Buy a home', home_sold: 'Sell a home', grand_party: 'A party at home 12 came to',
+    // (photography)
+    photo_delivered: 'Deliver a photo brief', photobook: 'Publish a photobook' };
 const PARTNER_NAMES = { any: 'Any partner', none: 'No partner', home: 'A partner living with you', casual: 'Something casual', dating: 'Dating', engaged: 'Engaged', married: 'Married', open: 'A partner fine with more than one' };
 const realPlaces = (w) => w.places.filter(p => !p.link);
 // (an area named with a space can't be written in a condition)
@@ -3147,7 +3470,8 @@ function personMore(w, p, e) {
         <div class="mu-row2">${optTxt('Household (everyone with the same one shares a home)', `${p}.household`, 'sharehouse')}${ranks.length ? `<label class="mu-field"><span>The rank they hold</span><select data-input="cw" data-type="num" data-path="${esc(`${p}.rank`)}"><option value="" ${at < 0 ? 'selected' : ''}>The first</option>${ranks.map((r, k) => `<option value="${k}" ${k === at ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></label>` : '<span></span>'}</div>
         ${skillOpts(w).length || e.languages ? skillLevels(w, `${p}.languages`, 'Languages they speak (empty: the world\'s own fluently, the others a little)', 0) : ''}
         ${skillOpts(w).length || e.skills ? skillLevels(w, `${p}.skills`, 'What they\'re good at, for training together (teaching takes 6; empty: what their job asks)', 0) : ''}
-        <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>`;
+        <div class="mu-row2">${flag('Only with adult content on', `${p}.adult`, 'Otherwise their card isn\'t made, and ties and households with them are left out.', true)}${chk('Stays themselves', `${p}.anchored`, 'No random new job or home (only their storylines or the player change that).', true)}</div>
+        ${systemOn(w, 'photography') || e.camera ? `<div class="mu-row2">${sel('In front of a camera', `${p}.camera`, withCur([['', CAMERA_NAMES['']], ['ask', CAMERA_NAMES.ask], ['work', CAMERA_NAMES.work], ['noface', CAMERA_NAMES.noface], ['never', CAMERA_NAMES.never]], e.camera), 'opt')}<small class="mu-muted">Whether briefs and photos may have them in front of the lens, adult content on or off; a card's own settings can only make it stricter.</small></div>` : ''}`;
 }
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
@@ -3250,6 +3574,7 @@ function threadsEditor(w, p, e) {
                 ${optTxt('Remembered (a fact)', `${s}.fact`)}
                 <div class="mu-row2">${flag('They leave the world\'s maps', `${s}.leaves`)}${flag('A good ending', `${s}.good`, 'A storyline you knew that ends this way counts as one you helped.')}</div>
                 <div class="mu-row2">${sel('Together with the player after it', `${s}.couple`, withCur(ENDING_COUPLE, en.couple), 'opt')}${flag('Moves in with you', `${s}.movesIn`, 'If you are together (dating or more) by then.')}</div>
+                ${studioOpts(w).length || en.studio ? sel('Gives the player a photo studio', `${s}.studio`, withCur([['', '(none)'], ...studioOpts(w)], en.studio), 'opt') : ''}
                 ${helpForm(w, s, en)}</div>`;
         }).join('')}
             <button class="mu-ghost" data-act="cw-add" data-what="tend" data-path="${esc(`${q}.endings`)}">${icon('plus')}<span>Add an ending</span></button></div>`;
@@ -3541,7 +3866,7 @@ export function creatorHtml() {
     if (!w)
         return '';
     const body = CW.tab === 'general' ? tabGeneral(w) : CW.tab === 'features' ? tabFeatures(w) : CW.tab === 'needs' ? tabNeeds(w) : CW.tab === 'maps' ? (isScenario(w) ? houseMapsHtml(w) : mapEditorHtml(w))
-        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'business' ? tabBusiness(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'collection' ? tabCollection(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
+        : CW.tab === 'homes' ? tabHomes(w) : CW.tab === 'actions' ? tabActions(w) : CW.tab === 'jobs' ? tabJobs(w) : CW.tab === 'photo' ? tabPhoto(w) : CW.tab === 'goals' ? tabGoals(w) : CW.tab === 'business' ? tabBusiness(w) : CW.tab === 'courses' ? tabCourses(w) : CW.tab === 'shop' ? tabShop(w) : CW.tab === 'collection' ? tabCollection(w) : CW.tab === 'words' ? tabWords(w) : CW.tab === 'character' ? tabCharacter(w) : CW.tab === 'rpg' ? tabRpg(w) : CW.tab === 'customs' ? tabCustoms(w) : CW.tab === 'realm' ? tabRealm(w) : CW.tab === 'economy' ? tabEconomy(w)
             : CW.tab === 'people' ? tabPeople(w) : CW.tab === 'books' ? tabBooks(w) : tabLore(w);
     const head = CW.view ? (isScenario(w) ? 'The Home' : 'The world') : isScenario(w) ? 'Home creator' : 'World creator';
     return `<div class="mu-settings mu-creator-ed ${CW.view ? 'is-view' : ''}">
@@ -3549,7 +3874,7 @@ export function creatorHtml() {
             ${CW.view ? `<span class="mu-cw-viewnote">${icon('lock')}<span>${isScenario(w) ? 'View only: the Home as it is made. What this game chose for itself (its rules, who lives where) is in This Home.' : 'View only: the world as it is made. What this game chose for itself (difficulty, work, relationships, who lives where) is in This world.'}</span></span>` : ''}
 </div>
         <div class="mu-settings-layout mu-cw-layout">
-            <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).filter(([id]) => id !== 'business' || systemOn(W(), 'business') || CW.tab === 'business').map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
+            <nav class="mu-tabs">${TABS.filter(([id]) => !(RPG_LOCKED && id === 'rpg')).filter(([id]) => CW.allTabs || !isScenario(W()) || !SCENARIO_HIDES.includes(id)).filter(([id]) => id !== 'business' || systemOn(W(), 'business') || CW.tab === 'business').filter(([id]) => id !== 'photo' || systemOn(W(), 'photography') || !!W().photo || CW.tab === 'photo').map(([id, l]) => `<button class="${CW.tab === id ? 'is-on' : ''}" data-act="cw-tab" data-tab="${esc(id)}">${l}</button>`).join('')}</nav>
             <div class="mu-settings-body mu-panel ${CW.tab === 'maps' ? 'is-maps' : ''}" data-keep="cw-body">${body}</div>
         </div>
         ${CW.view ? '' : `<div class="mu-row mu-cw-new-go mu-cw-foot">
@@ -3619,8 +3944,8 @@ export function openCreatorView(id, tab = 'general') {
 // field of the creator is refused (viewRefuses, called for each click and input) and drawn disabled (lockView),
 // and setPath writes nothing. A button that only edits (add, remove, a picture…) is hidden instead.
 const VIEW_ACTS = new Set(['cw-close', 'cw-tab', 'cw-pick', 'cw-fold', 'cw-routine', 'cw-wev', 'cw-track', 'cw-table', 'cw-climate', 'cw-tinfo', 'me-map', 'me-zoom', 'pe-view', 'pe-floor', 'pe-pick', 'pp-int-open']);
-const VIEW_INPUTS = new Set(['cw-words-q', 'cw-alltabs']);
-const EDIT_ONLY = /^(cw-(add|del|move|crel|fx-add|ti-add|ti-del|ti-reset|hire-del|qa-add|rnd-.+|cover.*|kind-img.*|homes-map|rpg-.+)|me-(add-.+|del-.+|new-zone|bg-.+|map-img.*|map-lib|mode)|pe-(floor-.+|room-off)|pp-sug.*|pp-suggest)$/;
+const VIEW_INPUTS = new Set(['cw-words-q', 'cw-alltabs', 'cw-briefkind']);
+const EDIT_ONLY = /^(cw-(add|del|move|crel|pquick-go|photo-off|fx-add|ti-add|ti-del|ti-reset|hire-del|qa-add|rnd-.+|cover.*|kind-img.*|homes-map|rpg-.+)|me-(add-.+|del-.+|new-zone|bg-.+|map-img.*|map-lib|mode)|pe-(floor-.+|room-off)|pp-sug.*|pp-suggest)$/;
 export function viewRefuses(el) {
     if (!CW.view || state.view !== 'creator' || !el.closest('.mu-creator-ed'))
         return false;
@@ -3678,6 +4003,11 @@ const NEW = {
     mup: () => ['collection.museum.upgrades', { id: newId('up'), name: 'New upgrade', price: 100000 }],
     // (nature) a dig: at the first place, in autumn, with its things to do still to pick
     cdig: () => ['collection.digs', { id: newId('dig'), name: 'New dig', place: W().places.find(p => !p.link)?.id ?? '', actions: [], season: 'season: autumn' }],
+    // (photography) a client, a brief (for the first client, at the first place; of the kind the list shows), a photobook, a studio
+    pclient: () => ['photo.clients', { id: newId('cl'), name: 'New client', kind: 'magazine', contact: 'job' }],
+    pbrief: () => { const w = W(), k = CW.sel.briefKind; return ['photo.briefs', { id: newId('br'), client: w.photo?.clients[0]?.id ?? '', name: 'New brief', text: '', board: k === 'small' ? 'small' : 'full', kind: PHOTO_KINDS.includes(k) ? k : 'magazine', places: [realPlaces(w)[0]?.id ?? ANY_STUDIO], pay: 100 }]; },
+    pbook: () => ['photo.books', { id: newId('pb'), name: 'New photobook', kind: 'city', briefs: 4, pay: 10000 }],
+    studio: () => { const w = W(), kind = Object.entries(w.homes.kinds).find(([, k]) => k.work)?.[0] ?? 'photostudio'; return ['homes.studios', { id: newId('hz_ps'), name: 'New photo studio', map: w.maps[0]?.id ?? '', kind, rent: 100, spots: [[50, 50]] }]; },
     fixture: () => ['homes.fixtures', { id: newId('fx'), name: 'New fixture', desc: '', icon: '🛋️', price: 1000 }],
     breakable: () => ['homes.breakables', { id: newId('thing'), name: 'the new thing', blocks: [] }],
     course: () => ['catalogs.courses', { id: newId('course'), name: 'New course', area: 'General', days: 3, cost: 100, grants: [], icon: '📚', desc: '' }],
@@ -3701,7 +4031,7 @@ const NEW = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'photo.clients': 'photo-clients', 'photo.briefs': 'photo-briefs', 'photo.books': 'photo-books', 'homes.studios': 'studios', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },
@@ -4224,6 +4554,31 @@ Object.assign(ACT, {
             notify();
             return;
         }
+        // (photography) the photo gigs with the game's numbers, a reputation step, the hourly studio and its plain one, who is in a brief
+        if (what === 'photo') {
+            if (!w.photo)
+                w.photo = { words: PHOTO_WORDS.map(x => ({ ...x })), small: { ...SMALL_BOARD }, full: { ...FULL_BOARD }, clients: [], briefs: [] };
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'pword') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ at: Math.min(100, (Number(l[l.length - 1]?.at) || 0) + 10), text: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        }
+        if (what === 'prental' || what === 'prentalfb') {
+            setPath(el.dataset.path, { at: realPlaces(w)[0]?.id ?? '', price: 0 });
+            notify();
+            return;
+        }
+        if (what === 'psubject') {
+            setPath(el.dataset.path, { who: 'cast' });
+            notify();
+            return;
+        }
         const [path, item] = NEW[what]();
         // (a shop item added while the list shows one category is in that category, so it stays in sight)
         if (what === 'item' && SHOP_CATS.some(c => c.id === CW.sel.shopCat))
@@ -4232,6 +4587,35 @@ Object.assign(ACT, {
         list.push(item);
         if (listKey[path])
             CW.sel[listKey[path]] = list.length - 1;
+        CW.dirty = true;
+        notify();
+    },
+    // (photography) the world's photo gigs gone whole (a top-level key cw-del can't reach); a brief made from a festival, an event or a place
+    'cw-photo-off': () => { const w = W(); if (CW.view || !w.photo)
+        return; delete w.photo; CW.dirty = true; notify(); },
+    'cw-pquick-go': () => {
+        const w = W();
+        if (CW.view || !w.photo)
+            return;
+        const src = quickSources(w), on = src.some(([v]) => v === CW.sel.pquick) ? String(CW.sel.pquick) : src[0]?.[0] ?? '';
+        const b = quickBrief(w, on);
+        if (!b) {
+            toast('Add a client first.', 'info');
+            return;
+        }
+        w.photo.briefs.push(b);
+        CW.sel['photo-briefs'] = w.photo.briefs.length - 1;
+        CW.sel.briefKind = '';
+        CW.dirty = true;
+        notify();
+    },
+    // (photography) a photo studio's one spot, clicked on its map's picture
+    'cw-studio-spot': (el, e) => {
+        const z = W().homes.studios?.[Number(el.dataset.i)], me = e, r = el.getBoundingClientRect?.();
+        if (CW.view || !z || !r?.width || !r.height)
+            return;
+        const at = (v) => Math.round(Math.max(0, Math.min(100, v)) * 10) / 10;
+        z.spots = [[at(((me.clientX - r.left) / r.width) * 100), at(((me.clientY - r.top) / r.height) * 100)]];
         CW.dirty = true;
         notify();
     },
@@ -4511,6 +4895,28 @@ Object.assign(INPUT, {
         dirtyMark();
     },
     'cw-words-q': (el) => { WORDS.q = el.value; notify(); },
+    // (photography) the briefs' list by kind ('' : every one; small: the small board), the quick-add's pick
+    'cw-briefkind': (el) => { CW.sel.briefKind = el.value; notify(); },
+    'cw-pquick': (el) => { CW.sel.pquick = el.value; },
+    // (photography) how a client becomes a contact: never (no key), job, always, or a condition (a first one to change)
+    'cw-pcontact': (el) => {
+        const p = el.dataset.path, cur = getPath(p);
+        if (el.value === 'when') {
+            if (cur === undefined || cur === 'job' || cur === 'always')
+                setPath(p, 'photorep: 20');
+        }
+        else
+            setPath(p, el.value || undefined);
+        notify();
+    },
+    // (photography) the studio a brief needs: none, any (true), or one with that fixture
+    'cw-pstudio': (el) => { setPath(el.dataset.path, el.value === '' ? undefined : el.value === 'true' ? true : el.value); notify(); },
+    // (photography) an item's gear kind: none removes its photo gear whole; another keeps its rung and bonuses
+    'cw-gear': (el) => {
+        const p = el.dataset.path, cur = getPath(p);
+        setPath(p, el.value ? { ...(cur && typeof cur === 'object' ? cur : {}), gear: el.value } : undefined);
+        notify();
+    },
     // (museum) a piece's source changed to another kind: what the new kind doesn't read goes (its condition kept where read)
     'cw-src-kind': (el) => {
         const q = el.dataset.path.replace(/\.kind$/, '');

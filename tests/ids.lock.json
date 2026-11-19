@@ -1155,6 +1155,7 @@
    "mg_fencing",
    "yk_van",
    "ws_mikage",
+   "sb_studio_mizu",
    "rp_nightpool",
    "hk_spapark"
   ],
@@ -1188,7 +1189,8 @@
    "penthouse",
    "estate",
    "villa",
-   "onsenvilla"
+   "onsenvilla",
+   "photostudio"
   ],
   "expenses": [
    "water",
@@ -1752,14 +1754,14 @@
    "ot_kura_back_tamaki_copyist",
    "yk_van_kaede_copyist",
    "mg_viewing_ayame_copyist",
-   "bay_beach_swim",
-   "bay_beach_sunbathe",
    "rp_nightpool_swim",
    "rp_nightpool_bar",
    "rp_nightpool_dance",
    "hk_spapark_pools",
    "hk_spapark_slide",
-   "hk_spapark_cave"
+   "hk_spapark_cave",
+   "bay_beach_swim",
+   "bay_beach_sunbathe"
   ],
   "occupations": [
    "rider",
@@ -1810,7 +1812,9 @@
    "aroma_salon",
    "lovehotel_day",
    "bizhotel_night",
-   "kura"
+   "kura",
+   "photographer",
+   "mizu_owner"
   ],
   "courses": [
    "japanese",
@@ -1918,7 +1922,8 @@
    "Kaoru",
    "Tamaki",
    "Ayame",
-   "Kaede"
+   "Kaede",
+   "Erika"
   ],
   "apps": [],
   "ranks": {
@@ -1970,7 +1975,9 @@
    "aroma_salon": 1,
    "lovehotel_day": 1,
    "bizhotel_night": 1,
-   "kura": 1
+   "kura": 1,
+   "photographer": 3,
+   "mizu_owner": 1
   },
   "goals": [
    "tk_makeit",
@@ -2009,7 +2016,8 @@
    "tk_chronicler",
    "tk_naturalhistory",
    "tk_curator",
-   "tk_nightcollector"
+   "tk_nightcollector",
+   "tk_photographer"
   ],
   "rewards": [
    "omikuji",
@@ -2408,7 +2416,8 @@
    "copyist_pines_mist",
    "copyist_pine_panel",
    "copyist_puppies",
-   "mem_sl_kaede_copyist"
+   "mem_sl_kaede_copyist",
+   "mem_sl_erika_mizu"
   ],
   "homeRooms": [
    "zone:hz_sharehouse/common",

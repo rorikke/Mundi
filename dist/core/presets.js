@@ -5,6 +5,7 @@ import { upgradeGoals, upgradeRewards } from './goals.js';
 import { upgradeVentures } from './ventures.js';
 import { upgradeCollection } from './collection.js';
 import { upgradeTiers } from './tiers.js';
+import { upgradePhoto, upgradeStudios } from './photo.js';
 const roll = (dc, traits, ok, okFx, okMoney, bad, badFx) => ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper, water) => ({
@@ -546,6 +547,10 @@ export function upgradeWorld(w) {
         else
             delete w.collection;
     }
+    // (photography) the photo gigs made safe, the boards' numbers defaulted; no key for a world without them
+    upgradePhoto(w);
+    // (housing) the photo studios and the kinds' `work` flag made safe; no key for a world without studios
+    upgradeStudios(w);
     // storylines: their new fields made safe (no key is added where a world has none)
     for (const ex of w.cast?.examples ?? [])
         for (const t of ex.threads ?? [])
@@ -635,6 +640,9 @@ function upgradeThread(t) {
             delete e.couple;
         if ('movesIn' in e && e.movesIn !== true)
             delete e.movesIn;
+        // (photography) the photo studio it gives you: a zone id
+        if ('studio' in e && (typeof e.studio !== 'string' || !e.studio.trim()))
+            delete e.studio;
         if (!('help' in e))
             continue;
         const h = e.help;

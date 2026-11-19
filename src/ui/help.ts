@@ -2,7 +2,7 @@
 import { notify, game, esc, adultOn } from '../core/store.js';
 import { getWorld, appsOf, styleOf, isScenario, systemOn, type WorldDef } from '../core/world.js';
 import { lex, appRef } from '../core/lexicon.js';
-import { GOAL_POINTS } from '../core/goals.js';
+import { GOAL_POINTS, goalsOf } from '../core/goals.js';
 import { DAILY_CAP } from '../sim/points.js';
 import { degreesOffered } from '../sim/degrees.js';
 import { ventureDefs } from '../sim/ventures.js';
@@ -18,6 +18,9 @@ import { digsOf, DIG } from '../sim/dig.js';
 import { digSeasonWord } from './museumui.js';
 import { homeRoomsOn } from '../sim/homerooms.js';
 import { visitsOn } from '../sim/visitors.js';
+import { photoOn, smallCap } from '../sim/photo.js';
+import { studioZones } from '../sim/studio.js';
+import { BOOKS } from '../sim/photobooks.js';
 // (track 7) Does this world have an end game for goals and points: homes to own, ventures, or a collection?
 const endgameOn = (w: WorldDef | null | undefined) => !!w && (housingOn(w) || !!w.ventures?.length || collectionOn(w));
 
@@ -69,6 +72,44 @@ function natureHelp(w: WorldDef): [string, string][] {
     }
     if (parts) out.push(s('A piece in parts (a skeleton) comes one part at a time, each shown under its tile.'), s('Once every part is in, the workshop mounts it from the Museum tab, for a fee and a few days, and then it counts.'));
     return out.length ? [['Nature and the dig', out.join(' ')]] : [];
+}
+// (photography) The Photography topic, in a world with photo gigs: its own numbers (the small board's, the hourly
+// rental's) and names (the job's place, its mentor, the life goal), and only the parts it has. A sentence with a name
+// in it is one text, so its translation keeps the name where the language puts it.
+function photoHelp(w: WorldDef): Topic {
+    const p = w.photo!, n = (v: number | undefined, d: number) => esc(String(Math.round(v ?? d)));
+    const jobs = systemOn(w, 'jobs'), o = jobs && p.job ? w.occupations.find(x => x.id === p.job) : undefined;
+    const placeName = (id: string | undefined) => w.places.find(x => x.id === id)?.name;
+    const where = o ? placeName(o.place) : undefined, mentor = p.mentor ? w.cast.examples.find(c => c.name === p.mentor) : undefined;
+    const free = (o?.branches ?? []).some(b => b.options.some(x => x.freelance));
+    const studios = systemOn(w, 'housing') && studioZones(w).length > 0, rental = p.rental && placeName(p.rental.at);
+    const weddings = systemOn(w, 'relations') && systemOn(w, 'romance') && p.briefs.some(b => b.kind === 'wedding');
+    const lockout = /fallout/.test(String(p.rental?.when ?? ''));   // (Tokyo's: Studio MIZU's hours aren't for one who left badly)
+    const goal = systemOn(w, 'goals') ? goalsOf(w).find(x => x.steps.some(s => /\b(photorep|portfolio|photobook|freelance)\s*:/.test(String(s.when ?? '')))) : undefined;
+    const item = (k: string, v: string): [string, string] => [k, v];
+    return { id: 'photography', icon: 'camera', title: 'Photography', intro: `Photo gigs, ${appRef(w, 'photos')}: briefs from clients on a board, shot, edited and delivered for pay, stars and reputation.`,
+        items: [
+            item('A camera', `With a camera of your own you get the small board: up to ${n(p.small?.size, 3)} small gigs at once from cafés, shops and friends, a new one every few days. Small gigs raise your reputation up to ${n(smallCap(w), 28)}; past that, it takes bigger clients.`),
+            item('Taking photos', 'Photo spots, photo actions and some moments at work keep a photo in the Photos tab too. Selling your photos from home pays now and then, but brings no reputation.'),
+            // (each sentence in an element of its own, so the one with the names translates whole and the other alone)
+            ...(o ? [item('The studio', `<span>${where && mentor ? `A job at ${esc(where)} starts you as an assistant, with ${esc(mentor.name)} as your mentor.` : where ? `A job at ${esc(where)} starts you as an assistant.` : 'The photographer\'s job starts you as an assistant.'}</span> <span>Its shifts are like any job's, with the trade to learn rank by rank. From its third rank the full board replaces the small one: the studio's own briefs, and bigger clients as your reputation grows.</span>`)] : []),
+            ...(o && free ? [item('Going freelance', 'Higher up, with a reputation that allows it, you can go out on your own on one of its paths: no shifts, paid by the brief, and a week with a delivery also pays your rank\'s weekly retainer. Each delivery counts toward the next rank, which asks for reputation and a portfolio rather than hours, and your path\'s kind of brief comes more often.'),
+                item('Leaving well', !mentor ? 'With no mentor to answer to, you always leave the studio on good terms.'
+                    : lockout ? `Go with ${esc(mentor.name)}'s blessing (a friend of yours, at the right moment) or after a falling-out: it changes what comes after, down to renting the studio by the hour.`
+                    : `Go with ${esc(mentor.name)}'s blessing (a friend of yours, at the right moment) or after a falling-out: it changes what comes after.`)] : []),
+            item('Briefs', 'Each brief names its client, where it can be shot and when (the light, the weather, a festival), its deadline, its pay at quality 50 and 100, and what it asks: skills, a camera good enough, gear like a drone or a flash, a studio. Without the gear you can\'t shoot it; a skill short costs quality. The deadline counts from the day it was offered, and when its weather never came the client gives you more days, once.'),
+            item('In front of the camera', 'A brief with someone in it needs a person who allows it: some people are never photographed, some only from behind, some only for work, and some ask first (yes as a friend, half the time as an acquaintance). Set the shoot with them in the In progress tab: it becomes a plan, and they come.'),
+            item('Shooting and editing', 'Shoot at the brief\'s place, in its window, from Things to do there. A photography roll sets the quality, then each part adds or takes and is named: the camera, the lens, a flash, the golden hour, real rain, an assistant with you, how your subject feels about you. You get one more try; the better shot is kept. Editing today\'s shoots at home or in a studio adds a little more (film needs a darkroom).'),
+            item('Delivering', 'Deliver from the In progress tab: the quality makes the pay and the stars (one to five), the stars make the reputation, and a five-star shot joins your portfolio. Up to two days late it pays less; later, or given back, it counts as missed: reputation drops and the client stays cold for a while.'),
+            item('Reputation and contacts', 'Your reputation (0–100) opens better clients: each asks for one before offering anything. It never fades on its own. Clients you work for through the job become contacts and keep calling after you leave it.'),
+            item('The portfolio', 'Your best twelve pieces, first in the Photos tab. Its strength grows with more pieces and more kinds of work; the freelance ranks ask for it. Star the photos you want to keep: only so many of the others are kept.'),
+            ...(p.books?.length ? [item('Photobooks', `Once you're a name (the third freelance rank, or a reputation of ${n(BOOKS.rep, 70)} with the publisher as a contact) a publisher may offer a photobook: of the city, of a person or of a season. Accepted, its briefs come one at a time; once they're shot it's published, and it pays royalties every Monday that fade over the weeks.`)] : []),
+            ...(studios ? [item('Your own studio', `Rent or buy a photo studio ${appRef(w, 'homes')}: a place to shoot studio briefs and edit, fitted out with what you buy for it (a light rig, a cyclorama wall, a dressing room, a retouching desk). One at a time, and never lived in. A week unpaid, it can't be worked in until it's paid.`)] : []),
+            ...(rental ? [item('A studio by the hour', `Without one, rent a studio by the hour at ${esc(rental)}, two hours at a time, from its Things to do: enough for a studio brief that needs no dressing room. The You tab says where it is for you now.`)] : []),
+            ...(weddings ? [item('Weddings', 'When people you know set a wedding date, a photographer with a camera may be offered the wedding: shot on the day only, at the ceremony, with both of them in the picture.')] : []),
+            ...(goal ? [item('A life goal', `${esc(goal.name)} follows a photographer's way: a camera, the studio, going freelance, a portfolio, a studio of your own, a photobook.`)] : []),
+            ...(adultOn(game()) ? [item('Adult briefs', 'Shown, and offered, only while adult content is on in this game; photos from them are hidden otherwise and kept for when it\'s on again.')] : []),
+        ] };
 }
 // Written with the world's own words: its apps, bills, courses and device (a phone, a journal…).
 // A Home: one house, no work or money, so its own short set of topics.
@@ -213,6 +254,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             [`${app('bank')} and ${app('shop')}`, 'See where your money goes, and buy things that make life easier.'],
             ['At home', lex(w, 'homeUnwind', app('shop'))],
         ] },
+    ...(w && photoOn(w) && on('photos') ? [photoHelp(w)] : []),
     ...(shopOn ? [<Topic>{ id: 'shopping', icon: 'wallet', title: 'Shopping', intro: `What money buys, ${appRef(w, 'shop')}: a tab for each kind of thing, Here for the place you're at, and Yours for what you have.`,
         items: [
             ['Where things are sold', `Most things are sold ${appRef(w, 'shop')}, delivered. A place that sells shows "Shop here" in its things to do while it's open: it opens the Here tab, with what that place sells (some things are sold only there) and the gifts sold there.`],

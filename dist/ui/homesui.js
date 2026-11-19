@@ -2,8 +2,10 @@
 // second home, homes for sale, the Rooms view (the fixtures that fit a house of yours), and the questions a purchase or
 // a move out of a home you own asks first (sell it, keep it as your second home, or let it). The HUD's Rooms row walks
 // you to a room of your home that's a place (the terrace, the bath). Homes you let (R-a): each one's state, last week
-// and what it brought, Buy to let, taking one back with a week's notice, moving into an empty one. The numbers are the
-// engine's (sim/owning.ts, sim/fixtures.ts, sim/letting.ts); nothing here counts anything.
+// and what it brought, Buy to let, taking one back with a week's notice, moving into an empty one. (photography) Your
+// photo studio: yours (rented or bought, what it costs a week, its fixtures, Give it up) or the studios to rent or buy,
+// shown with the homes for sale. The numbers are the engine's (sim/owning.ts, sim/fixtures.ts, sim/letting.ts,
+// sim/studio.ts); nothing here counts anything.
 import { esc, game, toast, notify, saveGame, nowAbs } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { safeUrl } from '../core/safe.js';
@@ -14,12 +16,15 @@ import { homeAddress, placeOn, playerHomeId } from '../sim/places.js';
 import { homeKey } from '../sim/homes.js';
 import { moveTo } from '../sim/work.js';
 import { itemDoes } from '../sim/shop.js';
-import { billAmount, UPKEEP } from '../sim/bills.js';
-import { housingOn, ownedAt, ownedHere, secondHome, zoneOf, sizeOf, guestsOf, resaleOf, SECOND_HOME_ID, lettable, toLet, keptHomes, isLet, MAX_LET } from '../sim/housing.js';
+import { billAmount, UPKEEP, priceOf, owed, owedAmount } from '../sim/bills.js';
+import { housingOn, ownedAt, ownedHere, secondHome, zoneOf, sizeOf, guestsOf, resaleOf, SECOND_HOME_ID, lettable, toLet, keptHomes, isLet, MAX_LET, zonePrice, upkeepOf } from '../sim/housing.js';
 import { forSale, buyHome, sellHome, saleValue, canLeave, letBlock, MAX_HOMES } from '../sim/owning.js';
 import { letState, letAverage, canLet, letHome, takeBack, keepLet, makeSecond, moveIntoOwned, noticeEnds, weekNo } from '../sim/letting.js';
 import { fixturesFor, buyFixture, fixturesIn } from '../sim/fixtures.js';
 import { ownedHomes } from '../sim/housing.js';
+import { STUDIO_ID, myStudio, studioOf, studioOffers, studioSale, giveUpBlock, rentStudio, buyStudio, giveUpStudio, studioFixtureIds, studioCut, studioZoneOf } from '../sim/studio.js';
+import { studioWeekNow } from '../sim/fixtures.js';
+import { STUDIO_RENT } from '../sim/bills.js';
 import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { homeRooms, roomNow, enterRoom, roomDoor, roomOf, asleepAt } from '../sim/homerooms.js';
@@ -83,8 +88,45 @@ function upkeepWeek(g, w, o) {
     const raw = (x) => zoneOf(w, x.zone)?.upkeep ?? 0, sum = list.reduce((a, x) => a + raw(x), 0);
     return sum ? Math.round(all * raw(o) / sum) : 0;
 }
-/** Homes for sale, one card per zone (its cheapest free spot): price, upkeep, size, guests, the two ways to buy. */
+/** (photography) The photo studio: yours (how you hold it, what it costs a week and on which bill, its fixtures, Give it
+ *  up…), then the studios you could rent or buy instead. '' with housing off or a world without studios. */
+export function studioHtml(g, w) {
+    if (!housingOn(w))
+        return '';
+    const m = myStudio(g, w), offers = studioOffers(g, w);
+    if (!m && !offers.length)
+        return '';
+    const mine = m ? (() => {
+        const n = studioFixtureIds(g, w).length, week = studioWeekNow(g, w);
+        const how = m.st.free ? 'Given to you' : m.st.way === 'rent' ? 'Rented by the week' : 'Yours';
+        const pays = m.st.way === 'rent' ? `rent ${money(w, week)} a week, on the Studio rent bill` : `upkeep ${money(w, week)} a week, on the Home upkeep bill`;
+        const back = m.st.way === 'buy' && !m.st.free ? ` · sells for ${money(w, studioSale(w, m.st))} (${pct(resaleOf(m.z))} of what you paid)` : '';
+        return `<div class="mu-home-owned mu-home-studio"><article class="mu-home-card"><span class="mu-home-pic" ${studioPic(w, m.z)}></span><div class="mu-home-info"><span><b data-notr>${esc(m.z.name)}</b><small><span data-notr>${esc(kindName(w, m.z.kind))}</span> · ${esc(how)}</small></span></div></article>
+            <p><b>Your photo studio</b> · ${esc(pays)}${esc(back)}</p>
+            ${studioCut(g) ? `<p class="mu-bad">${esc(m.st.way === 'rent' ? "Its rent is a week overdue: pay it to work there again." : "The upkeep is a week overdue: the studio's fixtures are off and you can't work there until it's paid.")}</p>` : ''}
+            <div class="mu-row"><button class="mu-ghost" data-act="hu-rooms" data-k="${esc(STUDIO_ID)}">${icon('home')}<span>Fixtures${n ? ` · ${n}` : ''}</span></button>
+            <button class="mu-ghost" data-act="hu-studio-off" ${btnWhy(giveUpBlock(g, w))}>${icon('wallet')}<span>Give it up…</span></button></div></div>`;
+    })() : '';
+    const card = (o) => {
+        const size = sizeOf(w, o.z), map = w.maps.find(x => x.id === o.z.map)?.name ?? '';
+        const names = [kindName(w, o.z.kind), ...(map ? [map] : [])].map(x => `<span data-notr>${esc(x)}</span>`);
+        const facts = [...names, ...[...(o.whyRent !== null ? [`${money(w, o.rent)}/wk`] : []), ...(o.whyBuy !== null ? [`${money(w, o.price)} to buy`, `upkeep ${money(w, o.upkeep)}/wk`] : []), `size ${size}`].map(esc)];
+        return `<article class="mu-home-card is-sale"><span class="mu-home-pic" ${studioPic(w, o.z)}></span>
+            <div class="mu-home-info"><span><b data-notr>${esc(o.z.name)}</b><small>${facts.join(' · ')}</small>${o.z.desc ? `<small data-notr>${esc(o.z.desc)}</small>` : ''}</span>
+            <span class="mu-row">${o.whyRent !== null ? `<button class="mu-home-move" data-act="hu-studio" data-z="${esc(o.z.id)}" data-way="rent" ${btnWhy(o.whyRent)}>Rent</button>` : ''}
+            ${o.whyBuy !== null ? `<button class="${o.whyRent !== null ? 'mu-ghost' : 'mu-home-move'}" data-act="hu-studio" data-z="${esc(o.z.id)}" data-way="buy" ${btnWhy(o.whyBuy)}>Buy</button>` : ''}</span></div></article>`;
+    };
+    return `<section class="mu-studios"><h4>Photo studio</h4>${mine}${offers.length ? `${m ? '<h4>Other studios</h4>' : ''}${offers.map(card).join('')}` : ''}
+        <p class="mu-muted">A place to work, never to live in: it isn't one of your homes. One studio at a time: taking another gives up the one you have. Rented, it's a weekly rent; bought, a weekly upkeep, and sold back it returns part of what you paid (its fixtures stay with it).</p></section>`;
+}
+// A studio's picture: its own, else its kind's.
+const studioPic = (w, z) => { const im = z.image ?? w.homes.kinds[z.kind]?.image; return im ? `style="background-image:url('${safeUrl(worldFile(w, im))}')"` : ''; };
+/** Homes for sale, one card per zone (its cheapest free spot): price, upkeep, size, guests, the two ways to buy.
+ *  (photography) The photo studio's section comes first, so the Homes app (ui/phone.ts) shows it without a change. */
 export function forSaleHtml(g, w, city = '') {
+    return `${studioHtml(g, w)}${homesForSale(g, w, city)}`;
+}
+function homesForSale(g, w, city) {
     if (!housingOn(w))
         return '';
     const all = forSale(g, w);
@@ -116,21 +158,26 @@ function whyNotBuy(g, w, s, as) {
         return 'You can own two homes at most.';
     return g.player.money + sale < s.price ? 'Not enough money.' : '';
 }
-/** The Rooms view of a house of yours: what it has, what fits, Buy. */
+/** The Rooms view of a house of yours (or your photo studio's fixtures): what it has, what fits, Buy. */
 export function roomsHtml(g, w) {
-    const o = ownedAt(g, HU.rooms);
-    if (!o) {
+    const studio = HU.rooms === STUDIO_ID ? myStudio(g, w) : null;
+    const o = studio ? null : ownedAt(g, HU.rooms);
+    if (!o && !studio) {
         HU.rooms = '';
         return '';
     }
-    const z = zoneOf(w, o.zone), list = fixturesFor(g, w, HU.rooms);
+    const z = o ? zoneOf(w, o.zone) : studio.z, list = fixturesFor(g, w, HU.rooms);
     const row = (x) => {
         const does = itemDoes(g, w, x.f);
         const room = x.f.room && w.places.find(p => p.id === x.f.room);
         return `<article class="mu-fix ${x.have ? 'is-have' : ''}"><i>${esc(x.f.icon || '🏠')}</i>
             <span><b>${esc(x.f.name)}</b>${x.f.desc ? `<small>${esc(x.f.desc)}</small>` : ''}${does.length ? `<small>${does.map(esc).join(' · ')}</small>` : ''}${room ? `<small>${esc(`Opens ${room.name}`)}</small>` : ''}</span>
-            ${x.have ? `<em>${x.came ? 'Came with the house' : 'Yours'}</em>` : `<button class="mu-home-move" data-act="hu-fix" data-id="${esc(x.f.id)}" ${x.why ? `aria-disabled="true" title="${esc(x.why)}"` : ''}>${money(w, x.price)}</button>`}</article>`;
+            ${x.have ? `<em>${x.came ? (studio ? 'Came with the studio' : 'Came with the house') : 'Yours'}</em>` : `<button class="mu-home-move" data-act="hu-fix" data-id="${esc(x.f.id)}" ${x.why ? `aria-disabled="true" title="${esc(x.why)}"` : ''}>${money(w, x.price)}</button>`}</article>`;
     };
+    if (studio)
+        return `<section class="mu-rooms"><header class="mu-row"><button class="mu-ghost" data-act="hu-rooms" data-k="">${icon('back')}<span>Back</span></button><h4 data-notr>${esc(studio.z.name)}</h4></header>
+        <p class="mu-muted"><span data-notr>${esc(kindName(w, studio.z.kind))}</span> · size ${sizeOf(w, studio.z)}. Fixtures are bought for this studio and stay with it; they work while you're there and its bill is paid.</p>
+        ${list.length ? list.map(row).join('') : '<p class="mu-muted">Nothing fits this studio.</p>'}</section>`;
     return `<section class="mu-rooms"><header class="mu-row"><button class="mu-ghost" data-act="hu-rooms" data-k="">${icon('back')}<span>Back</span></button><h4>${esc(homeAddress(w, o))}</h4></header>
         <p class="mu-muted">${esc(kindName(w, z?.kind ?? ''))} · size ${sizeOf(w, z)}. Rooms and fixtures are bought for this house and stay with it; of what you own, only the best of each kind of help counts.</p>
         ${list.length ? list.map(row).join('') : '<p class="mu-muted">Nothing fits this home.</p>'}</section>`;
@@ -192,6 +239,28 @@ export function askHtml(g, w) {
             return '';
         }
         return box('Move in', `<p>${esc(`Move into ${homeAddress(w, o)}? No deposit: it's yours.`)}</p>${mine ? '<p>You own the home you live in now. Sell it, keep it as your second home, or let it?</p>' : ''}`, mine ? leaveButtons('hu-movein-go', `data-k="${esc(a.key)}"`, 0) : `<button class="mu-primary" data-act="hu-movein-go" data-k="${esc(a.key)}">Move in</button>`);
+    }
+    if (a.kind === 'studio') {
+        const o = studioOffers(g, w).find(x => x.z.id === a.zone), rented = studioOf(g)?.zone === a.zone ? studioZoneOf(w, a.zone) : undefined;
+        if (!o && !(rented && a.way === 'buy')) {
+            HU.ask = null;
+            return '';
+        }
+        const z = o?.z ?? rented, cost = a.way === 'rent' ? o.rent : priceOf(g, zonePrice(z));
+        const mine = myStudio(g, w), why = a.way === 'rent' ? o.whyRent : o ? o.whyBuy : '';
+        const terms = a.way === 'rent' ? `${z.name}: ${money(w, cost)} a week, the first week paid now; the Studio rent bill comes every week after.` : `${z.name}: ${money(w, cost)}, then ${money(w, priceOf(g, upkeepOf(z)))} a week of upkeep on the Home upkeep bill. Sold back, it returns ${pct(resaleOf(z))} of what you paid.`;
+        const before = mine && mine.z.id !== z.id ? (mine.st.way === 'rent' ? `You rent ${mine.z.name} now: its rent ends.` : mine.st.free ? `${mine.z.name} was given to you: given up, it's gone for good.` : `${mine.z.name} is sold for ${money(w, studioSale(w, mine.st))}.`) : mine && a.way === 'buy' ? 'The studio you rent becomes yours: its rent ends.' : '';
+        return box(a.way === 'rent' ? 'Rent a photo studio' : 'Buy a photo studio', `<p>${esc(terms)}</p>${before ? `<p>${esc(before)}</p>` : ''}`, `<button class="mu-primary" data-act="hu-studio-go" data-z="${esc(z.id)}" data-way="${a.way}" ${btnWhy(why ?? '')}>${a.way === 'rent' ? `Rent for ${money(w, cost)}` : `Buy for ${money(w, cost)}`}</button>`);
+    }
+    if (a.kind === 'studio-off') {
+        const m = myStudio(g, w);
+        if (!m) {
+            HU.ask = null;
+            return '';
+        }
+        const body = m.st.way === 'rent' ? `The rent of ${m.z.name} ends today${owedNow(g, w) ? `; what's owed, ${money(w, owedNow(g, w))}, is paid first` : ''}. Its fixtures stay with the studio.`
+            : m.st.free ? `${m.z.name} was given to you: given up, it's gone for good, with its fixtures.` : `${m.z.name} sells for ${money(w, studioSale(w, m.st))} (${pct(resaleOf(m.z))} of the ${money(w, m.st.paid)} you paid). Its fixtures go with it; what's owed on the upkeep is paid from the sale.`;
+        return box('Give up your photo studio', `<p>${esc(body)}</p>`, `<button class="mu-primary" data-act="hu-studio-off-go" ${btnWhy(giveUpBlock(g, w))}>${m.st.way === 'buy' && !m.st.free ? `Sell for ${money(w, studioSale(w, m.st))}` : 'Give it up'}</button>`);
     }
     const z = zoneOf(w, a.zone);
     return box('Move out of a home you own', `<p>You own the home you live in. Before moving to ${esc(z?.name ?? '')}: sell it, keep it as your second home, or let it?</p>`, leaveButtons('hu-move-go', `data-zone="${esc(a.zone)}"`, 0));
@@ -370,13 +439,49 @@ Object.assign(ACT, {
             toast(err, 'warn');
             return;
         }
-        toast('Added to your home.', 'success');
+        toast(HU.rooms === STUDIO_ID ? 'Added to your studio.' : 'Added to your home.', 'success');
         saveGame();
         refreshPrompt();
         notify();
     },
     'hu-go': async (el) => { const { travelTo } = await import('./map.js'); await travelTo(el.dataset.loc); },
+    // (photography) the photo studio: renting or buying one, giving yours up
+    'hu-studio': (el) => { if (el.getAttribute('aria-disabled') === 'true') {
+        toast(el.title || 'Not now.', 'info');
+        return;
+    } HU.ask = { kind: 'studio', zone: el.dataset.z, way: el.dataset.way === 'buy' ? 'buy' : 'rent' }; notify(); },
+    'hu-studio-go': (el) => {
+        const c = C();
+        if (!c)
+            return;
+        if (el.getAttribute('aria-disabled') === 'true') {
+            toast(el.title || 'Not now.', 'info');
+            return;
+        }
+        const zone = el.dataset.z, name = studioZoneOf(c.w, zone)?.name ?? '', rent = el.dataset.way !== 'buy';
+        if (HU.rooms === STUDIO_ID)
+            HU.rooms = '';
+        done(rent ? rentStudio(c.g, c.w, zone) : buyStudio(c.g, c.w, zone), rent ? `${name} is your photo studio, by the week.` : `${name} is your photo studio.`);
+    },
+    'hu-studio-off': (el) => { if (el.getAttribute('aria-disabled') === 'true') {
+        toast(el.title || 'Not now.', 'info');
+        return;
+    } HU.ask = { kind: 'studio-off' }; notify(); },
+    'hu-studio-off-go': (el) => {
+        const c = C();
+        if (!c)
+            return;
+        if (el.getAttribute('aria-disabled') === 'true') {
+            toast(el.title || 'Not now.', 'info');
+            return;
+        }
+        if (HU.rooms === STUDIO_ID)
+            HU.rooms = '';
+        done(giveUpStudio(c.g, c.w), 'You gave up your photo studio.');
+    },
 });
+// (photography) What's owed now on your studio's rent.
+const owedNow = (g, w) => (owed(g, STUDIO_RENT) ? owedAmount(g, w, STUDIO_RENT) : 0);
 /** The Homes app's Move button: a home you own asks first (sell it, or keep it as the second). */
 export function askLeave(g, w, zone) {
     if (!housingOn(w) || !ownedHere(g))

@@ -93,7 +93,7 @@ export function slotsHere(g, w) {
 /* ---------- R-4: a district's street stories ---------- */
 // Stories that belong to the Business app and the jobs, not to a district; (museum) nor the museum's and the end game's
 // people's (its milestones at the museum, a tier).
-const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent', 'board', 'record']);
+const NOT_DISTRICT = new Set(['venture', 'job', 'rank', 'upgrade', 'inrank', 'tenant', 'kept', 'track', 'piece', 'museum', 'tier', 'sales', 'dealer', 'dig', 'let', 'rent', 'board', 'record', 'photorep', 'portfolio', 'contact', 'photobook', 'photos', 'studio', 'freelance']);
 const seenOf = (g) => (g.stories?.seen ?? {});
 // A person a story names who left the map or isn't in this game.
 const personGone = (g, name) => { const r = personNamed(g, name); return !r || goneFromMap(r); };

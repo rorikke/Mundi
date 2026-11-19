@@ -28,6 +28,7 @@ import '../sim/dig.js'; // (nature) digs: their condition key, days and finds
 import '../sim/royalties.js'; // (R-b) the museum's royalties each Monday and its steps' lines
 import { settleHomes } from '../sim/owning.js';
 import { SECOND_HOME_ID, secondHome } from '../sim/housing.js';
+import { STUDIO_ID, myStudio, settleStudio } from '../sim/studio.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
 export const SCHEMA = 8;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -321,7 +322,7 @@ export function migrate(g) {
 }
 /* ---------- links to the world ---------- */
 const HOME = 'home:player';
-const isPlace = (g, w, id) => id === HOME || (id === SECOND_HOME_ID && !!secondHome(g)) || (id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
+const isPlace = (g, w, id) => id === HOME || (id === SECOND_HOME_ID && !!secondHome(g)) || (id === STUDIO_ID ? !!myStudio(g, w) : id.startsWith('home:') && !!g.cast[id.slice(5)]) || w.places.some(p => p.id === id && !p.link);
 const firstSpot = (w, zoneId) => { const z = w.homes.zones.find(x => x.id === zoneId); const s = z?.spots?.[0]; return { x: s?.[0] ?? 0, y: s?.[1] ?? 0, n: 1 }; };
 // Repairs what in the save points to things the world no longer has. Safe to run on every load.
 export function repair(g, w) {
@@ -535,14 +536,15 @@ export function checkSave(g) {
             changed = true;
             later(() => toast(storylinesToast(n.reset, n.kept), 'info'));
         }
-        // homes you can buy (schema 8): a tenant whose rent went up is told, once the world is known
+        // homes you can buy (schema 8): a tenant whose rent went up is told, once the world is known; and (photography)
+        // a photo studio the world no longer has
         const homes = structuredClone(g);
-        settleHomes(homes, w);
+        settleAllHomes(homes, w);
         if (JSON.stringify(homes) !== JSON.stringify(g)) {
             if (!backedUp)
                 backup(g, 'before settling your home');
             backedUp = true;
-            const said = settleHomes(g, w);
+            const said = settleAllHomes(g, w);
             changed = true;
             if (said)
                 later(() => toast(`${said} A backup of the save was kept (Settings → Game → This save).`, 'info'));
@@ -568,3 +570,4 @@ export function checkSave(g) {
         ctx().saveMetadataDebounced();
 }
 SAVE.hooks.push(checkSave);
+const settleAllHomes = (g, w) => [settleHomes(g, w), settleStudio(g, w)].filter(Boolean).join(' ');

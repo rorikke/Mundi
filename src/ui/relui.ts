@@ -14,7 +14,7 @@ import { ACT } from './reg.js';
 import { ASKS, canAsk, coolingDown, readiness, stayReadiness, forcedNo, tierNo, notYetAnswer, applyAnswer, pushTooSoon, endRelationship, romOf, friendTier, romanceTier, tierPct, labelToward, addRomance, slowedDown, FRIEND_TIERS, ROMANCE_TIERS, type AskKind, type Change, type Tier } from '../sim/romance.js';
 import { bondOf, social, isPartner, textFrom } from '../sim/social.js';
 import { visitAnswer, askToStay, visitOf, sayGoodbye, atTheDoor, letIn, visitWhen, nightsOf, visitsOn, type Visitor, type VisitNights, type VisitSleep } from '../sim/visitors.js';
-import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, type WorkMode, type JobState, type ShiftTime } from '../sim/work.js';
+import { myJob, hire, feeOf, waitDays, realDays, WORK_MODES, workShift, jobDef, rankOf, canWork, atWork, offScreen, promoNeeds, promoProgress, perfOf, pendingEvent, chooseEvent, dropEvent, shiftOn, shiftHours, scheduleOf, vacationLeft, sickNo, workRules, weekText, jobPlace, bookOff, callSick, chooseShift, whenText as shiftWhen, isFreelance, type WorkMode, type JobState, type ShiftTime } from '../sim/work.js';
 import { placeOf } from '../sim/places.js';
 import { skillName } from '../sim/hobbies.js';
 import { hm } from '../sim/time.js';
@@ -395,14 +395,14 @@ export function shiftLabel(g: Save, w: WorldDef, o: Occupation): { ok: boolean; 
 /** The work button where you can work (at your rank's place, or anywhere for an off-screen job). */
 export function workButton(g: Save, w: WorldDef): string {
     const o = myJob(g, w);
-    if (!o || !systemOn(w, 'jobs') || !atWork(g, w, o)) return '';
+    if (!o || !systemOn(w, 'jobs') || !atWork(g, w, o) || isFreelance(g, w)) return '';   // (a freelancer has no shifts)
     const l = shiftLabel(g, w, o);
     return `<button class="mh-act is-work mh-glass ${offScreen(w, o) ? 'is-outing' : ''}" data-act="work" ${l.ok ? '' : 'aria-disabled="true"'}><i>${icon('briefcase')}</i><b>${offScreen(w, o) ? 'Go to work' : 'Work a shift'}</b><small>${esc(l.text)}</small></button>`;
 }
 // Your shifts this week (also in the Calendar and the Jobs app): days off to book or give back, calling in sick, and
 // the shift you'd rather work in a job worked round the clock.
 export function workWeekHtml(g: Save, w: WorldDef): string {
-    const o = myJob(g, w); if (!o || !systemOn(w, 'jobs')) return '';
+    const o = myJob(g, w); if (!o || !systemOn(w, 'jobs') || isFreelance(g, w)) return '';   // (freelance: no work week)
     const j = g.player.job as JobState, now = nowAbs(g);
     const list: ShiftTime[] = [];
     for (let d = g.day - 1; d <= g.day + 6; d++) { const s = shiftOn(g, w, o, d); if (s && s.end - 60 > now) list.push(s); }

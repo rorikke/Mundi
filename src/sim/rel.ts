@@ -12,14 +12,16 @@ import { CURVES, HALF_LIFE, PACE, faded, paced, rawFor, rateAt, type Curve, type
 import { tierLink } from './hooks.js';
 import { FAMILY_START, FRIEND_START, COUPLE_FRIEND, isFamily } from '../core/feel.js';
 import type { Intimacy, RelStyle } from './intimacy.js';
-import type { IntimateProfile } from '../core/world.js';
+import type { IntimateProfile, CameraRule } from '../core/world.js';
 
 export const YOU = '__you';
 export type Meter = 'f' | 'r';
 export type Status = 'casual' | 'dating' | 'engaged' | 'married';
 /** The pair's state. `status` absent: not a couple (an entry may hold only a cooldown after a "no", or `was`).
  *  `was`: the couple they used to be and the day it ended. */
-export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number; was?: Past }
+/** `wedding` (the world's engaged pairs, sim/longlife.ts): the day they marry, set when their marriage roll passes; kept
+ *  through the wedding day itself once married. */
+export interface PairState { status?: Status; since?: number; cooldown?: number; low?: number; was?: Past; wedding?: number }
 /** A couple that ended. `status` missing: exes from before this was kept (what they were is unknown). */
 export interface Past { status?: Status; until: number }
 export type Pace = PaceId;
@@ -32,7 +34,9 @@ export type Pace = PaceId;
  *  else `'you'`. In a save, `att` alone counts (missing: everyone). */
 export interface Person { pace?: { f?: Pace; r?: Pace }; age?: number; minor?: boolean; intimacy?: Intimacy; style?: RelStyle; looking?: string; gender?: string; att?: Attraction; attMode?: AttMode; intimate?: IntimateProfile;
     /** (museum, people who unlock: sim/tiers.ts) the highest tier reached and the day; gains past a cap held for the next */
-    tier?: { n: number; day: number }; held?: { f?: number; r?: number } }
+    tier?: { n: number; day: number }; held?: { f?: number; r?: number };
+    /** (photography) in front of a camera (ExampleCharacter.camera); read through `cameraOf` in sim/photo.ts */
+    camera?: CameraRule }
 export type AttMode = 'you' | 'set';
 /** Per gender id: how much of the normal rate this person's friendship (`f`) and romance (`r`) grow toward people of
  *  that gender, 0..1 (missing: 1). */
@@ -218,11 +222,12 @@ export function setStatus(g: Save, a: string, b: string, status: Status | null, 
     a = idOf(g, a); b = idOf(g, b);
     if (!a || !b || a === b) return;
     const st = relOf(g); const k = pk(a, b); const p = (st.pairs[k] ??= {});
-    if (status) { if (p.status !== status) p.since = since; p.status = status; delete p.was; }
+    // (a wedding day set ahead goes with any change: a split before the day, an editor's hand)
+    if (status) { if (p.status !== status) { p.since = since; delete p.wedding; } p.status = status; delete p.was; }
     else {
         const ended = p.status;
         if (ended && remember) p.was = { status: ended, until: g.day };
-        delete p.status; delete p.since; delete p.low;
+        delete p.status; delete p.since; delete p.low; delete p.wedding;
     }
     tidyPair(st, k);
 }

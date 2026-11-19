@@ -184,6 +184,7 @@ const span = (from: number, to: number) => (((to - from) % 24) + 24) % 24 || 24;
  *  longer than the shift lets you start any time it still fits (`latest`: the last start on time). */
 export interface ShiftTime { day: number; start: number; end: number; hours: number; latest: number }
 export function shiftOn(g: Save, w: WorldDef, o: Occupation, day: number): ShiftTime | null {
+    if (freelanceIn(g, w, o)) return null;   // (photography: a freelancer has briefs, not shifts)
     o = trackOf(g, o);
     if (!workdays(g, w, o).includes(wdOf(day))) return null;
     const j = g.player.job as JobState | null;
@@ -225,6 +226,7 @@ export function canWork(g: Save, w: WorldDef, o: Occupation): { kind: 'shift' | 
     const s = shiftNow(g, w, o), now = nowAbs(g), grace = workRules(g, w).grace;
     if (s) return { kind: 'shift', shift: s, early: now < s.start, late: grace !== null && now > s.latest + grace };
     const j = jobOf(g);
+    if (freelanceIn(g, w, o)) return { kind: 'none', why: 'You work brief by brief now: your briefs are in Lens.' };
     if (o.overtime && isOpen(g, o) && j?.extraDay !== g.day && !(j?.start !== undefined && g.day < j.start)) return { kind: 'overtime' };   // one overtime shift a day
     const n = nextShift(g, w, o);
     return { kind: 'none', why: n ? `Your next shift: ${whenText(g, n)}.` : 'No shift this week.' };
@@ -291,6 +293,23 @@ const jobPath = (g: Save) => g.player.job?.path ?? [];
 // Your career in this job (for someone else's: a path picked for them, the same every time).
 // (on your track: sim/tracks.ts)
 export const careerOf = (g: Save, o: Occupation) => career(trackOf(g, o), g.player.job?.id === o.id ? jobPath(g) : []);
+/** (photography) The freelance path of your job you're on (BranchOption.freelance), or null: a job without shifts,
+ *  whose deliveries count as shifts and whose ranks pay a weekly retainer (sim/freelance.ts). */
+export function freelancePath(g: Save, w: WorldDef): BranchOption | null {
+    const j = g.player.job, o = j && jobDef(w, j.id);
+    if (!j?.path?.length || !o?.branches?.length) return null;
+    for (const b of o.branches) for (const opt of b.options ?? []) if (opt.freelance && j.path.includes(opt.id)) {
+        // (only from the path's first rank: chosen at the branch, you work your last shifts at the studio until then)
+        const first = careerOf(g, o).ranks.findIndex(r => opt.ranks.includes(r) || opt.ranks.some(x => x.name === r.name && x.pay === r.pay));
+        return first >= 0 && j.rank >= first ? opt : null;
+    }
+    return null;
+}
+/** (photography) Are you a freelancer in your job (no shifts, no warnings, no vacation or bonus)? */
+export const isFreelance = (g: Save, w: WorldDef) => !!freelancePath(g, w);
+/** (photography) Is this job, for you, a freelance one (it's your job and you're on its freelance path)? */
+const freelanceIn = (g: Save, w: WorldDef, o: Occupation) => g.player.job?.id === o.id && isFreelance(g, w);
+export const FREELANCE_NO = 'You set your own hours now: there are no shifts to take off.';
 // With the save: the path the world gave them (a rank named in a branch, see `pathTo`), kept in `living.paths`; and
 // their own track (their gender's).
 export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
@@ -300,7 +319,10 @@ export function npcCareer(o: Occupation, avatar: string, g?: Save): Career {
         const c = career(o, path);
         if (!c.open) return belowTop(c);
         // (an adult path isn't one of theirs with adult content off)
-        const opts = c.open.options.filter(x => !x.adult || (!!g && adultOn(g))), from = opts.length ? opts : c.open.options;
+        // (photography: nor a freelance path, the player's alone; with only freelance paths left, they stay below the branch)
+        const mine = c.open.options.filter(x => !x.freelance);
+        if (!mine.length) return belowTop({ ...c, open: null });
+        const opts = mine.filter(x => !x.adult || (!!g && adultOn(g))), from = opts.length ? opts : mine;
         path.push(from[H(`${avatar}|${o.id}|${n}`) % from.length].id);
     }
     return belowTop(career(o, path));
@@ -538,6 +560,7 @@ export function addPerf(g: Save, w: WorldDef, n: number): string[] {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return [];
     if (n > 0) n *= effectMul(g, w, 'perf', ['gain', o.id, ...jobTags(g, o)]);
     j.perf = Math.max(0, Math.min(100, (j.perf ?? 50) + n));
+    if (isFreelance(g, w)) { delete j.warn; return []; }   // (photography: clients don't warn, they stop calling)
     const low = workRules(g, w).low, out: string[] = [];
     if (j.perf >= 60) delete j.warn;
     const warn = j.warn ?? 0;
@@ -669,7 +692,7 @@ export function workShift(g: Save, w: WorldDef, mode: WorkMode = 'normal', hours
     return out;
 }
 // A promotion when everything it asks for is there (what's left over of the shifts counts toward the next rank).
-function tryPromote(g: Save, w: WorldDef, o: Occupation): string[] {
+export function tryPromote(g: Save, w: WorldDef, o: Occupation): string[] {
     const j = jobOf(g); const p = promoNeeds(g, w, o);
     if (!j || !p?.ready) return [];
     j.rank++; j.shifts = Math.max(0, Math.round((j.shifts - p.shifts) * 100) / 100); j.since = nowAbs(g);
@@ -793,6 +816,7 @@ export const vacationLeft = (g: Save, w: WorldDef) => (workRules(g, w).vacation 
 /** Book a day off (a vacation day) for a shift today (not started) or later this week, or give it back. */
 export function bookOff(g: Save, w: WorldDef, day: number): string {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return '';
+    if (isFreelance(g, w)) return FREELANCE_NO;
     const off = (j.off ??= {});
     if (off[day] === 'vacation') { delete off[day]; if (workRules(g, w).vacation) j.vac = (j.vac ?? 0) + 1; return 'Day off cancelled: you work that day.'; }
     const s = shiftOn(g, w, o, day);
@@ -819,7 +843,7 @@ export function sickNo(g: Save, w: WorldDef): string {
 /** Kept off work until `until` (absolute minutes: a night in hospital): every shift not yet over that starts before then
  *  is a sick day, whatever the rules on calling in sick. */
 export function sickLeave(g: Save, w: WorldDef, until: number) {
-    const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return;
+    const j = jobOf(g); const o = myJob(g, w); if (!j || !o || isFreelance(g, w)) return;
     for (let d = g.day - 1; d * 1440 < until; d++) {
         const s = shiftOn(g, w, o, d);
         if (s && s.start < until && s.end > nowAbs(g) && !worked(j, d) && !offOn(j, d)) (j.off ??= {})[d] = 'sick';
@@ -827,6 +851,7 @@ export function sickLeave(g: Save, w: WorldDef, until: number) {
 }
 export function callSick(g: Save, w: WorldDef): string {
     const j = jobOf(g); const o = myJob(g, w); if (!j || !o) return '';
+    if (isFreelance(g, w)) return FREELANCE_NO;
     const why = sickNo(g, w); if (why) return why;
     const s = shiftNow(g, w, o) ?? nextShift(g, w, o);
     if (!s || s.day > g.day + 1) return 'You have no shift to call in sick for.';
@@ -873,6 +898,7 @@ export function workDay(g: Save, w: WorldDef): string[] {
     const j = jobOf(g); const o = myJob(g, w);
     if (!j || !o || !systemOn(w, 'jobs')) return [];
     const rules = workRules(g, w), out: string[] = [];
+    if (isFreelance(g, w)) { j.vacAt = g.day; return out; }   // (photography: no vacation days and no seasonal bonus)
     if (rules.vacation) { while (g.day - (j.vacAt ?? g.day) >= rules.vacation) { j.vacAt = (j.vacAt ?? g.day) + rules.vacation; j.vac = Math.min(10, (j.vac ?? 0) + 1); } }
     else j.vacAt = g.day;
     const sd = seasonDays(g), season = Math.floor((g.day - 1) / sd) % 4, first = (g.day - 1) % sd === 0;
@@ -996,6 +1022,8 @@ export function workLine(g: Save, w: WorldDef, present: Resident[]): string {
     const seniors = seniorsOf(g, w, o, present);
     const juniors = w.address?.junior ? juniorsOf(g, w, o, present) : [];
     const boss = bossOf(g, w, o);
+    const free = freelancePath(g, w);
+    if (free) return `{{user}} is a freelance ${(o.name || 'worker').toLowerCase()} (${free.name}: ${rankOf(g, o).name}).`;
     return `{{user}} works as ${rankOf(g, o).name} (${o.name}, rank ${j.rank + 1} of ${c.ranks.length + (c.open ? 1 : 0)}).${seniors.length ? ` At work, ${seniors.map(r => r.name).join(' and ')} ${seniors.length > 1 ? 'are' : 'is'} senior to {{user}} (senpai)${boss && seniors.includes(boss) ? `; ${boss.name} is the boss` : ''}.` : ''}${juniors.length ? ` ${juniors.map(r => r.name).join(' and ')} ${juniors.length > 1 ? 'are' : 'is'} junior to {{user}} (kōhai).` : ''}`;
 }
 

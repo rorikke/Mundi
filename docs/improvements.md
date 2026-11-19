@@ -21,6 +21,7 @@ point of view, and grows as new ones arrive.
 - [Nature and Before Edo](#nature-and-before-edo)
 - [Rooms at home](#rooms-at-home)
 - [A friend staying over](#a-friend-staying-over)
+- [A photographer's life](#a-photographers-life)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -715,6 +716,10 @@ Ginza Chūō-dōri buys a good photographer's work. Four jobs have a moment that
 the museum, the maid café), and Hijiri's *Photography* module now teaches it: a game whose degree already passed that
 module gets the skill.
 
+The shop also sells a photographer's gear for [a photographer's life](#a-photographers-life): a fast prime, a pro zoom
+and a long telephoto lens, a portable flash, a camera drone and a waterproof housing. A lens helps only on a camera good
+enough for one (the film camera, the mirrorless or the full frame); Lens names what each piece added to a shot.
+
 ### Gifts
 
 - **Gifts to give** are sold like everything else: roses, Ginza chocolates, a crown melon, a silver necklace, pair
@@ -1289,6 +1294,113 @@ Someone close can come and stay at your place for a few days: a friend (friendsh
 - **Leaving.** They go home on the last morning, when you say goodbye, if they turn against you, or if you move out.
 - In a home with rooms, they're in the common room while awake and sleep where you chose. One visitor at a time; not in
   a Home, and nothing with Plans turned off.
+
+## A photographer's life
+
+Tokyo has a photographer's job now, and everyone gets **Lens**, a phone app for their photography. Take photos with a
+camera of your own and a small board of paid gigs opens; take a job at **Studio MIZU**, a white basement off Cat Street
+in Omotesandō, and assist Erika Mizushima until you can go out on your own, brief by brief, for the city's magazines,
+wedding planners, agencies and bands.
+
+### Lens and the small board
+
+- **Lens** is on the phone's home screen for everyone. Its **Photos** tab shows the photos you take as pictures: the
+  place as it was that moment (its hour, weather and season), a friend in the frame, the camera's look (a phone's plain
+  shot, a digital camera's crisp one, film's warm grain, an instant camera's white border). Photo keepsakes have a row
+  of their own.
+- **A camera of your own** (the compact at ¥48,000 is the way in, or the good phone) opens the **small board**: a few
+  little gigs at a time (a stock agency's request, a café's new menu, a vintage shop's racks, a friend's portrait, a
+  small local event), each with its place, when it can be shot, a deadline and its pay.
+- Small gigs raise a **photo reputation** a little, up to 28. Past that only real briefs move it (the job's, or a
+  contact's). *Sell your photos* at home still pays, and never touches reputation.
+
+### A brief, start to finish
+
+- **The board** shows each brief's client, place, window (*a clear afternoon*, *at night in the rain*, *during
+  Sanja*), deadline, pay at an ordinary and at a perfect result, the reputation five stars bring, and what it asks for,
+  each marked had or missing (Photography 4 ✓, a drone ✗, a studio ✓ by the hour).
+- **Fair windows.** A brief that wants weather comes with a deadline long enough for that weather to turn up in the
+  season, and if it never does, the client gives you the same days again once ("the rain never came").
+- **Take it**, then go there while its window holds and **Shoot the assignment** (one to three hours). A brief with a
+  person in it needs a time with them first: *Set the shoot* in Lens, and they come if their day allows. The roll is on
+  Photography, and every part that adds to it is named in Lens: the camera's level, a lens, the flash at night or in a
+  studio, golden hour, real rain, a friend assisting, how the subject feels about you, the studio's lights. A weak shot
+  can be taken again once while the window holds.
+- **Edit today's shoots** at home or in a studio (an hour, a little more for each brief): it lifts a weak result, never
+  by more than 15. Then **Deliver** from Lens: a quality, the client's stars, the pay, the reputation. Late (up to two
+  days) pays less and costs reputation; missed costs more, and that client calls less for two weeks.
+- Five-star work goes into your **portfolio**, the best twelve, shown first in Photos with its strength. A great shot
+  at a photo spot can join it too, once you're very good.
+
+### Studio MIZU and going freelance
+
+- **The job** (Shibuya, ¥1,200 an hour to start): carry cases, tape cables, hold the reflector, and Erika's temper.
+  Three studio ranks; at **First assistant** the studio passes you two easy briefs of your own, shot after hours.
+- With a photo reputation of 30 you **go freelance**, in one branch: **Editorial** (magazines: fashion, food, travel and
+  the city), **Weddings and events** (planners, festivals, the papers) or **Studio portraits** (headshots, idols, album
+  covers; its second rank asks for a studio of your own). Every branch still sees some briefs of the others.
+- **Freelance has no shifts.** Three to five briefs on a full board at once; each delivery counts toward the next rank
+  and its stars move your performance. Each rank pays a **retainer** on Mondays (¥40,000 to ¥60,000 a week), but only
+  for a week with at least one delivery. Freelance ranks ask for reputation (45, 65, 85) and, at the top two, a
+  portfolio.
+- **Contacts.** Clients you deliver to while you hold the job become contacts, and keep sending briefs after you quit.
+  Your reputation is yours, kept with or without the job.
+- **Erika** has a storyline of her own, *The white basement*: she hasn't shot a cover in eight months, and how you
+  leave her studio (with her blessing or after a falling-out) matters to how it ends.
+
+### Your own studio
+
+- The **Homes app** lists photo studios to rent by the week or buy (a basement in Ura-Harajuku, a warehouse floor by
+  the bay, a top floor in Shimokitazawa): work-only, one at a time, never counted as a home. Fixtures make it better: a
+  lighting rig, a cyclorama wall, a dressing room, a retouching desk, the darkroom.
+- Until then, **Rent the studio** at Studio MIZU by the hour (¥12,000 for two hours); after a falling-out with Erika,
+  Wave TV's spare stage rents instead.
+
+### Photobooks
+
+From a freelance branch's third rank (or with a reputation of 70 and the publisher as a contact), Kōyōsha offers a
+**photobook**: of the city in the rain, of Yanaka through the year, of Paper Lanterns on tour, and two more through
+people's storylines. Accept and its briefs come one at a time; published, it's a keepsake and pays small royalties
+each Monday that fade to nothing over about two game years.
+
+### Weddings
+
+The world's couples now marry on a set day, a weekend one or two weeks after they decide, instead of at once. A
+photographer who knows either of them is asked to shoot it.
+
+### How long it takes, what it pays
+
+From the long simulated runs (four game years, a player who works the board well):
+
+- **The studio stage** pays like the other jobs' first ranks (¥1,200 to ¥1,600 an hour). First assistant comes in about
+  two weeks, and a reputation of 30 from its easy briefs a few weeks after that.
+- **A branch's top** comes in about two to two and a half game years from the day you're hired (the gravure path's in
+  under three).
+- **A full week of briefs** (three and a half deliveries is typical, a new brief reaching the board every other day) pays
+  about ¥225,000 to ¥240,000 at the top with the retainer, about what Tokyo's other top careers pay for a week of
+  shifts (the hair stylist's Name stylist earns about ¥257,000). The first freelance weeks earn about ¥145,000 to
+  ¥175,000, more than the first assistant's wages and easy briefs together (about ¥140,000).
+- **Photobooks** pay about ¥10,000 to ¥15,000 a week at first and fade over two game years: a few percent of a star's
+  income.
+- **The weather** is fair: fewer than one brief in ten with a weather window is extended, and almost none is missed
+  because its weather never came.
+- **The small board** alone, opened twice a week, pays about ¥10,000 a week and takes reputation to its cap of 28 in
+  about two game years.
+
+### Adult content
+
+With adult content on, a fourth branch, **Gravure and adult**, and the briefs, clients, events and photobooks that go
+with it; with it off, none of it shows, and photos marked adult stay hidden.
+
+### World makers and older games
+
+- The **World creator** has a Photography tab (the rules, clients, briefs and photobooks), gear fields on shop items
+  and fixtures, photo studios in Homes & rent, a freelance flag on a branch, *Records a photo* on things to do and work
+  choices, and who will stand in front of a camera on people (free, never, not the face, work only, asks first).
+- A world can switch **Photography** off (Features › Systems): no Lens, no gigs or reputation, no photobooks; *Take
+  photos* and the skill stay, and the job's freelance branch closes.
+- **Your existing games** get Lens at once; the boards fill the next morning, and photo keepsakes you already have show
+  in Photos.
 
 ## The World creator and the new game
 
