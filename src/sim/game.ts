@@ -11,6 +11,7 @@ import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES, type Difficulty } from './bills.js';
 import { placeOf as placeOf2, mapOf, homeKindAt } from './places.js';
 import { roomPicture, sceneHere, heldHere } from './homerooms.js';
+import { actionPicture } from './actionbg.js';
 import { exampleOf as exampleOfResident } from './dayplan.js';
 import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
@@ -767,7 +768,9 @@ function followBackground(g: Save, w: WorldDef) {
     let img = roomPicture(g, w, looks) ?? pictureAt(w, g.minutes, p.bg, w.places.find(x => x.id === p.id)?.bgs, looks) ?? '';
     if (!img && p.home) { const k = w.homes.kinds[homeKindAt(g, w, p.id)]; img = (k && pictureAt(w, g.minutes, k.image, k.images, looks)) ?? ''; }
     if (!img) return;
-    const url = `url("${worldFile(w, img)}")`;
+    // (E-5) an action's own picture over it (the usual one shows through if it doesn't load)
+    const own = worldFile(w, actionPicture(g, w) ?? '');
+    const url = `${own ? `url("${own}"), ` : ''}url("${worldFile(w, img)}")`;
     const m = ctx().chatMetadata;
     if (m.custom_background === url) return;
     m.custom_background = url; ctx().saveMetadataDebounced();

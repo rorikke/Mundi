@@ -294,6 +294,12 @@ export interface ActionDef {
     /** (adult) A private action's difficulty for its roll (a lazy morning 8, bed 10, toys or a costume 12); missing:
      *  the engine's default. */
     dc?: number;
+    /** (E-5) Its own background, for a room inside a place that isn't a place (a bar's back room, a hotel's themed
+     *  room): a file in the world's folder or an absolute `/user/files/…` address. While it plays, the scene shows it
+     *  instead of the place's or the room's, until the scene moves on (sim/actionbg.ts). */
+    bg?: string;
+    /** (E-5) The same at other parts of the day (`day`, `afternoon`, `night`, or a period id → picture), as `Place.bgs`. */
+    bgs?: Record<string, string>;
 }
 /** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
  *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little");

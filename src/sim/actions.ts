@@ -25,6 +25,7 @@ import { startRumor } from './living.js';
 import { onLook, privateChecks, privateResults, museumHooks, photoLink } from './hooks.js';
 import { earn } from './points.js';
 import { sceneAt } from './homerooms.js';
+import { noteActionPic } from './actionbg.js';
 
 export interface ActionLine { text: string; kind: 'success' | 'warn' | 'info' }
 /** What doing an action came to: messages for the screen, the roll, the outcome drawn, the keepsake, who was with
@@ -103,6 +104,7 @@ export function doAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.random):
     const priv = privateCheck(g, w, a, g.player.loc, mates, rnd);
     if (priv?.stop) return priv.stop;
     const lines: ActionLine[] = [], began = nowAbs(g);
+    noteActionPic(g, w, a, began, began + Math.max(0, a.minutes));   // (E-5) its own background, here, until the scene moves on
     applyAction(g, w, a);
     advance(g, w, a.minutes).forEach(m => lines.push({ text: m, kind: 'warn' }));
     return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd, priv, began });
@@ -203,6 +205,7 @@ export function startSceneAction(g: Save, w: WorldDef, a: ActionDef, rnd = Math.
     const hooked = !!priv && (!!priv.stop || privateResults.length > 0);   // (kept in the save only when someone reads it)
     const act: SceneAct = { a, place: g.player.loc, start: now, until: priv?.stop ? now : now + Math.max(0, a.minutes), with: mates, lines: [], ...(hooked ? { priv } : {}) };
     (g as any).act = act;
+    if (!priv?.stop) noteActionPic(g, w, a, now, act.until);   // (E-5) its own background while it plays, and a little after
     if (!priv?.stop) markDone(g, a.id, act.place);   // done today (`daily`, `after`) from the moment it starts
     setPrompt('mundi_roll', '');   // an earlier action's "just now" is over
     return act;
