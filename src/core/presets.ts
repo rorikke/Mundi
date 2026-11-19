@@ -330,6 +330,21 @@ export function scheduleOf(o: Occupation): Schedule {
 const ROLES = ['lead', 'follow', 'switch'], DRIVES = ['low', 'average', 'high'];
 const strList = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && !!x) : []);
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+// (E-5) An action's own background: a picture is a non-empty text; by part of the day, only the parts pictures are
+// chosen by (the three of sim/daynight.ts's TIME_SLOTS, and the world's own periods). Nothing empty is kept.
+const PIC_SLOTS = ['day', 'afternoon', 'night'];
+function upgradeActionPics(w: WorldDef) {
+    const known = new Set([...PIC_SLOTS, ...(w.time?.periods ?? []).map(p => p?.id).filter(Boolean)]);
+    const pic = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+    for (const a of w.actions ?? []) {
+        if (a.bg !== undefined) { const v = pic(a.bg); if (v) a.bg = v; else delete a.bg; }
+        if (a.bgs !== undefined) {
+            const out: Record<string, string> = {};
+            if (isObj(a.bgs)) for (const [k, v] of Object.entries(a.bgs)) { const f = pic(v); if (known.has(k) && f) out[k] = f; }
+            if (Object.keys(out).length) a.bgs = out; else delete a.bgs;
+        }
+    }
+}
 function upgradeAdult(w: WorldDef) {
     for (const o of w.occupations ?? []) {
         if (o.tags !== undefined) o.tags = strList(o.tags);
@@ -445,6 +460,7 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     const info = upgradeTraitInfo(w.traitInfo, (w.sheet?.traits ?? []).flatMap(t => [...(t.options ?? []), ...(t.adultOptions ?? [])]));
     if (info) w.traitInfo = info;
     upgradeAdult(w);
+    upgradeActionPics(w);
     // degrees (sim/degrees.ts): entries without an id or a name dropped, numbers inside sensible bounds; nothing is added
     // to a world without them (the defaults are read where they're used)
     for (const i of w.institutions ?? []) if (i.degrees) {

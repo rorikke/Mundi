@@ -25,6 +25,7 @@ import { startRumor } from './living.js';
 import { onLook, privateChecks, privateResults, museumHooks, photoLink } from './hooks.js';
 import { earn } from './points.js';
 import { sceneAt } from './homerooms.js';
+import { noteActionPic } from './actionbg.js';
 /** Is this a private action the hooks look at (done in private, or with a risk of being caught; adult content on)? */
 export const isPrivateAct = (g, a) => adultOn(g) && (!!a.private || (a.risk ?? 0) > 0);
 /** (adult) Pillow talk (an action tagged `pillow-talk`): talking about what you each like after a private moment. Not a
@@ -113,6 +114,7 @@ export function doAction(g, w, a, rnd = Math.random) {
     if (priv?.stop)
         return priv.stop;
     const lines = [], began = nowAbs(g);
+    noteActionPic(g, w, a, began, began + Math.max(0, a.minutes)); // (E-5) its own background, here, until the scene moves on
     applyAction(g, w, a);
     advance(g, w, a.minutes).forEach(m => lines.push({ text: m, kind: 'warn' }));
     return results(g, w, a, { place: g.player.loc, mates, last, lines, rnd, priv, began });
@@ -218,6 +220,8 @@ export function startSceneAction(g, w, a, rnd = Math.random) {
     const hooked = !!priv && (!!priv.stop || privateResults.length > 0); // (kept in the save only when someone reads it)
     const act = { a, place: g.player.loc, start: now, until: priv?.stop ? now : now + Math.max(0, a.minutes), with: mates, lines: [], ...(hooked ? { priv } : {}) };
     g.act = act;
+    if (!priv?.stop)
+        noteActionPic(g, w, a, now, act.until); // (E-5) its own background while it plays, and a little after
     if (!priv?.stop)
         markDone(g, a.id, act.place); // done today (`daily`, `after`) from the moment it starts
     setPrompt('mundi_roll', ''); // an earlier action's "just now" is over

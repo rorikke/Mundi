@@ -18,6 +18,7 @@ import { getWorld, worldFile, systemOn } from '../core/world.js';
 import { chat, speakerOf, thumb, sendText, replyAs, regenerate, continueLast, impersonate, stop, swipeLeft, swipeRight, editMessage, deleteMessageAt, fetchSprites, saveChat, me, currentCharacter, charOf, characters, ctx, addUserLine, narratorLine, personaName, quiet, lorebooks, chatLores, setChatLores, scenarioOpen, scenarioCast, scenarioTitle, addToScenario, removeFromScenario, setChatBackground, newScenarioChat, persona, personas, personaThumb, usePersona, } from '../st/bridge.js';
 import { placeOf, isOuting, homeKindAt } from '../sim/places.js';
 import { roomPicture, sceneHere } from '../sim/homerooms.js';
+import { actionPicture } from '../sim/actionbg.js';
 import { outingOf } from '../sim/outing.js';
 import { bgStyle } from './outing.js';
 import { bgHead, bgGrid } from './bgpick.js';
@@ -140,24 +141,37 @@ function diceButton(nobody) {
 function background(g, w) {
     if (isOuting(g.player.loc))
         return bgStyle(outingOf(g)?.bg ?? ''); // Home, out of the house: the background you chose
+    // (E-5) an action with a picture of its own (a back room, a themed room) is drawn over the usual one, which stays
+    // under it: a picture that doesn't load leaves the usual one showing
+    const own = worldFile(w, actionPicture(g, w) ?? '');
+    const layers = [...(own ? [{ url: own, size: 'cover', pos: 'center' }] : []), ...usualBackground(g, w)];
+    if (!layers.length)
+        return '';
+    return `background-image:${layers.map(l => `url('${l.url}')`).join(',')};background-size:${layers.map(l => l.size).join(',')};background-position:${layers.map(l => l.pos).join(',')}`;
+}
+/** (for checks) The scene's background style as it's drawn now. */
+export const sceneBackground = background;
+// The place's picture (or the room's, the home's, the map's) at this time of day, as the background's layer.
+function usualBackground(g, w) {
     const p = placeOf(g, w, g.player.loc);
     if (!p)
-        return '';
+        return [];
+    const full = (file) => [{ url: worldFile(w, file), size: 'cover', pos: 'center' }];
     if (p.home && !p.bg) { // ((photography) your photo studio has its own picture)
         const room = roomPicture(g, w, looksAt(g, w, p.id)); // (homerooms) the room you're in
         if (room)
-            return `background-image:url('${worldFile(w, room)}');background-size:cover;background-position:center`;
+            return full(room);
         const kind = w.homes.kinds[homeKindAt(g, w, p.id) || 'apartment']; // (a room a guest just left keeps its picture);
         const img = kind && pictureAt(w, g.minutes, kind.image, kind.images, looksAt(g, w, p.id)); // the picture of this part of the day (and weather, season), if it has one
         if (img)
-            return `background-image:url('${worldFile(w, img)}');background-size:cover;background-position:center`;
+            return full(img);
     }
     const pub = w.places.find(x => x.id === p.id);
     const bg = pictureAt(w, g.minutes, p.bg, pub?.bgs, looksAt(g, w, p.id));
     if (bg)
-        return `background-image:url('${worldFile(w, bg)}');background-size:cover;background-position:center`;
+        return full(bg);
     const map = w.maps.find(m => m.id === p.map) ?? w.maps[0];
-    return `background-image:url('${worldFile(w, pictureAt(w, g.minutes, map.image, map.images, looksAt(g, w, undefined, map.id)))}');background-size:420% auto;background-position:${p.x}% ${p.y}%`;
+    return [{ url: worldFile(w, pictureAt(w, g.minutes, map.image, map.images, looksAt(g, w, undefined, map.id))), size: '420% auto', pos: `${p.x}% ${p.y}%` }];
 }
 import { fullPicOf as fullPic, lineFile } from './chatlook.js';
 import { lineColor } from '../sim/talkcolors.js';

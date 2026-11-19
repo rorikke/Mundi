@@ -8,6 +8,7 @@ import { ACT } from './reg.js';
 import { thumb, setPrompt, personaThumb } from '../st/bridge.js';
 import { placeOf, homeKindAt } from '../sim/places.js';
 import { roomPicture, sceneHere } from '../sim/homerooms.js';
+import { actionPicture } from '../sim/actionbg.js';
 import { pictureAt } from '../sim/daynight.js';
 import { money } from '../sim/needs.js';
 import { sheetOf, isRpg } from '../sim/rpg.js';
@@ -28,6 +29,10 @@ function backdrop(g, w, where) {
         const m = w.maps.find(x => x.id === p.map);
         img = m ? pictureAt(w, g.minutes, m.image, m.images) ?? '' : '';
     }
+    // (E-5) an action's own picture over it, where you are (the usual one shows through if it doesn't load)
+    const own = where === g.player.loc ? worldFile(w, actionPicture(g, w) ?? '') : '';
+    if (own)
+        return `background-image:url('${own}')${img ? `,url('${safeUrl(worldFile(w, img))}')` : ''}`;
     return img ? `background-image:url('${safeUrl(worldFile(w, img))}')` : '';
 }
 function sprite(g, w, c, f, hp, hit, targets) {
