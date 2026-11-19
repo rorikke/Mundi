@@ -56550,6 +56550,11 @@
       "level": 2,
       "look": "a pink gingham frilled bikini"
      }
+    },
+    "outfits": {
+     "swim-overalls": "cast/mio/swim-overalls",
+     "swim-onepiece": "cast/mio/swim-onepiece",
+     "swim-frill": "cast/mio/swim-frill"
     }
    },
    {
@@ -56655,6 +56660,9 @@
       "level": 1,
       "look": "plain faded navy board shorts to the knee, a thin cord necklace"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/ren/swim-trunks"
     }
    },
    {
@@ -56809,6 +56817,11 @@
       "level": 1,
       "look": "a white one-piece swimsuit with a deep scoop back"
      }
+    },
+    "outfits": {
+     "swim-sporty": "cast/chloe/swim-sporty",
+     "swim-mustard": "cast/chloe/swim-mustard",
+     "swim-onepiece": "cast/chloe/swim-onepiece"
     }
    },
    {
@@ -56938,6 +56951,9 @@
       "level": 1,
       "look": "a fitted charcoal long-sleeve rash guard and loose dark grey swim shorts to the knee"
      }
+    },
+    "outfits": {
+     "swim-rashguard": "cast/haru/swim-rashguard"
     }
    },
    {
@@ -57068,6 +57084,11 @@
       "level": 2,
       "look": "a black cut-out one-piece swimsuit with a lace-up front, rings on her fingers"
      }
+    },
+    "outfits": {
+     "swim-black": "cast/nanami/swim-black",
+     "swim-plaid": "cast/nanami/swim-plaid",
+     "swim-onepiece": "cast/nanami/swim-onepiece"
     }
    },
    {
@@ -57210,6 +57231,9 @@
       "level": 1,
       "look": "plain orange board shorts with a side stripe"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/kaito/swim-trunks"
     }
    },
    {
@@ -57386,6 +57410,9 @@
       "level": 1,
       "look": "plain dark navy swim trunks to mid-thigh, a white towel around his neck"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/genzo/swim-trunks"
     }
    },
    {
@@ -57515,6 +57542,10 @@
       "level": 2,
       "look": "a red tropical-print triangle bikini, a bandana tied over her hair"
      }
+    },
+    "outfits": {
+     "swim-sporty": "cast/ayaka/swim-sporty",
+     "swim-tropical": "cast/ayaka/swim-tropical"
     }
    },
    {
@@ -57650,6 +57681,10 @@
       "level": 1,
       "look": "a fitted white long-sleeve rash guard over a red bikini bottom with short swim shorts over it"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/yui/swim-onepiece",
+     "swim-rashguard": "cast/yui/swim-rashguard"
     }
    },
    {
@@ -58160,7 +58195,9 @@
      "offduty": "cast/tamaki/offduty",
      "yukata": "cast/tamaki/yukata",
      "opening": "cast/tamaki/opening",
-     "home": "cast/tamaki/home"
+     "home": "cast/tamaki/home",
+     "swim-onepiece": "cast/tamaki/swim-onepiece",
+     "swim-frill": "cast/tamaki/swim-frill"
     },
     "camera": "never",
     "wear": {
@@ -58209,7 +58246,9 @@
     "outfits": {
      "gala": "cast/ayame/gala",
      "fencing": "cast/ayame/fencing",
-     "night": "cast/ayame/night"
+     "night": "cast/ayame/night",
+     "swim-onepiece": "cast/ayame/swim-onepiece",
+     "swim-ivory": "cast/ayame/swim-ivory"
     },
     "voice": "Low, silky and formal; a pause, then the knife",
     "rituals": [
@@ -58687,7 +58726,10 @@
     "outfits": {
      "offroad": "cast/kaede/offroad",
      "roadtrip": "cast/kaede/roadtrip",
-     "night": "cast/kaede/night"
+     "night": "cast/kaede/night",
+     "swim-sporty": "cast/kaede/swim-sporty",
+     "swim-koi": "cast/kaede/swim-koi",
+     "swim-denim": "cast/kaede/swim-denim"
     },
     "voice": "Husky and quick, laughing, a soft Nagasaki lilt",
     "rituals": [
@@ -59332,6 +59374,11 @@
       "level": 2,
       "look": "a white triangle bikini with thin ties"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/reiko/swim-onepiece",
+     "swim-black": "cast/reiko/swim-black",
+     "swim-white": "cast/reiko/swim-white"
     }
    },
    {
@@ -59509,6 +59556,10 @@
       "level": 2,
       "look": "a coral triangle bikini, a smartwatch on her wrist"
      }
+    },
+    "outfits": {
+     "swim-sporty": "cast/rina/swim-sporty",
+     "swim-coral": "cast/rina/swim-coral"
     }
    },
    {
@@ -59632,6 +59683,9 @@
       "level": 1,
       "look": "plain dark blue swim trunks, a sport watch on his wrist"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/daisuke/swim-trunks"
     }
    },
    {
@@ -59787,6 +59841,10 @@
       "level": 1,
       "look": "a lilac one-piece swimsuit with a short frilled skirt, her pastel lilac twin tails"
      }
+    },
+    "outfits": {
+     "swim-idol": "cast/hina/swim-idol",
+     "swim-onepiece": "cast/hina/swim-onepiece"
     }
    },
    {
@@ -59862,6 +59920,9 @@
       "level": 1,
       "look": "short fitted black swim trunks, a thin silver necklace and silver rings"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/shota/swim-trunks"
     }
    },
    {
@@ -59961,6 +60022,10 @@
       "level": 1,
       "look": "a deep purple one-piece swimsuit with a matching patterned sarong tied at her hip, her hair in an updo"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/kyoko/swim-onepiece",
+     "swim-sarong": "cast/kyoko/swim-sarong"
     }
    },
    {
@@ -60173,6 +60238,10 @@
       "level": 2,
       "look": "a black bikini with a big open charcoal zip-up rash guard hoodie over it, headphones around her neck"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/natsuki/swim-onepiece",
+     "swim-hoodie": "cast/natsuki/swim-hoodie"
     }
    },
    {
@@ -60352,6 +60421,12 @@
       "adult": true,
       "look": "a tiny gold micro bikini, her shoulder tattoo"
      }
+    },
+    "outfits": {
+     "swim-black": "cast/lisa/swim-black",
+     "swim-neon": "cast/lisa/swim-neon",
+     "swim-sporty": "cast/lisa/swim-sporty",
+     "swim-micro": "cast/lisa/swim-micro"
     }
    },
    {
@@ -60520,6 +60595,11 @@
       "level": 2,
       "look": "a white bikini under a sheer navy kimono-style beach robe hanging open"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/sayuri/swim-onepiece",
+     "swim-red": "cast/sayuri/swim-red",
+     "swim-white": "cast/sayuri/swim-white"
     }
    },
    {
@@ -60588,6 +60668,11 @@
       "level": 1,
       "look": "a red racing one-piece swimsuit with a high neck"
      }
+    },
+    "outfits": {
+     "swim-sporty": "cast/akane/swim-sporty",
+     "swim-black": "cast/akane/swim-black",
+     "swim-onepiece": "cast/akane/swim-onepiece"
     }
    },
    {
@@ -60722,6 +60807,10 @@
       "level": 2,
       "look": "a pale lavender bikini under a sheer white beach cover-up tied at the waist"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/shizuka/swim-onepiece",
+     "swim-wrap": "cast/shizuka/swim-wrap"
     }
    },
    {
@@ -60877,6 +60966,10 @@
       "level": 1,
       "look": "a camel-brown one-piece swimsuit with a square neckline"
      }
+    },
+    "outfits": {
+     "swim-frill": "cast/seoyeon/swim-frill",
+     "swim-onepiece": "cast/seoyeon/swim-onepiece"
     }
    },
    {
@@ -60999,6 +61092,10 @@
       "level": 2,
       "look": "a teal halter bikini with black piping"
      }
+    },
+    "outfits": {
+     "swim-black": "cast/camille/swim-black",
+     "swim-teal": "cast/camille/swim-teal"
     }
    },
    {
@@ -61117,6 +61214,9 @@
       "level": 1,
       "look": "plain green board shorts"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/lucas/swim-trunks"
     }
    },
    {
@@ -61252,6 +61352,10 @@
       "level": 2,
       "look": "a white-and-green floral tankini top with matching high-waisted bikini briefs, her long black braid"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/linh/swim-onepiece",
+     "swim-tankini": "cast/linh/swim-tankini"
     }
    },
    {
@@ -61396,6 +61500,11 @@
       "level": 2,
       "look": "a light grey bandeau bikini top and separate light grey high-waisted bikini briefs, red nails, her sleek high ponytail"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/mei/swim-onepiece",
+     "swim-white": "cast/mei/swim-white",
+     "swim-grey": "cast/mei/swim-grey"
     }
    },
    {
@@ -61509,6 +61618,10 @@
       "level": 1,
       "look": "a dark red one-piece swimsuit with a deep scoop back, a septum ring"
      }
+    },
+    "outfits": {
+     "swim-black": "cast/hannah/swim-black",
+     "swim-onepiece": "cast/hannah/swim-onepiece"
     }
    },
    {
@@ -61659,6 +61772,9 @@
       "level": 1,
       "look": "plain navy board shorts"
      }
+    },
+    "outfits": {
+     "swim-trunks": "cast/jake/swim-trunks"
     }
    },
    {
@@ -61790,6 +61906,12 @@
       "adult": true,
       "look": "a black sling swimsuit, big round glasses"
      }
+    },
+    "outfits": {
+     "swim-navy": "cast/kanon/swim-navy",
+     "swim-mint": "cast/kanon/swim-mint",
+     "swim-black": "cast/kanon/swim-black",
+     "swim-sling": "cast/kanon/swim-sling"
     }
    },
    {
@@ -61951,6 +62073,12 @@
       "adult": true,
       "look": "a tiny black micro bikini"
      }
+    },
+    "outfits": {
+     "swim-red": "cast/airi/swim-red",
+     "swim-white": "cast/airi/swim-white",
+     "swim-leopard": "cast/airi/swim-leopard",
+     "swim-micro": "cast/airi/swim-micro"
     }
    },
    {
@@ -62089,6 +62217,12 @@
       "level": 2,
       "look": "a black one-piece swimsuit with a deep plunge and high-cut legs"
      }
+    },
+    "outfits": {
+     "swim-sporty": "cast/momo/swim-sporty",
+     "swim-volleyball": "cast/momo/swim-volleyball",
+     "swim-white": "cast/momo/swim-white",
+     "swim-onepiece": "cast/momo/swim-onepiece"
     }
    },
    {
@@ -62254,6 +62388,11 @@
       "adult": true,
       "look": "a black string bikini, a pearl clip in her long black hair"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/shiori/swim-onepiece",
+     "swim-bikini": "cast/shiori/swim-bikini",
+     "swim-black": "cast/shiori/swim-black"
     }
    },
    {
@@ -62407,6 +62546,11 @@
       "adult": true,
       "look": "a black string bikini, her auburn hair in a loose side ponytail"
      }
+    },
+    "outfits": {
+     "swim-rose": "cast/tsubaki/swim-rose",
+     "swim-white": "cast/tsubaki/swim-white",
+     "swim-black": "cast/tsubaki/swim-black"
     }
    },
    {
@@ -62575,6 +62719,11 @@
       "adult": true,
       "look": "a black monokini, a cut-out swimsuit open at the stomach with a gold ring there, cut high at the hips, drop earrings"
      }
+    },
+    "outfits": {
+     "swim-violet": "cast/sumire/swim-violet",
+     "swim-white": "cast/sumire/swim-white",
+     "swim-black": "cast/sumire/swim-black"
     }
    },
    {
@@ -62730,6 +62879,10 @@
       "level": 1,
       "look": "a black one-piece swimsuit under a long open grey linen beach shirt"
      }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/kaoru/swim-onepiece",
+     "swim-cover": "cast/kaoru/swim-cover"
     }
    },
    {
