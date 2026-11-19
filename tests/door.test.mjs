@@ -3,7 +3,9 @@
 // out), with their own line at the door or the world's (lexicon `doorKept`); a condition: closed until it holds, then the
 // usual rules (15 to be let in, 50 or a partner for the key). Every other way in asks it too: their bedroom in a home with
 // rooms and in a Home, staying the night at theirs (their ask and yours), and their texted "come over tonight?".
-// Someone without a rule is let in exactly as before; upgradeWorld() cleans the fields; the creator edits them.
+// Someone without a rule is let in exactly as before. A rule marked `doorAdult` holds only with adult content on: with
+// it off they let you in by the usual rules, as if there were no rule. upgradeWorld() cleans the fields; the creator
+// edits them.
 // Each block ends with `[n/total] · avg Xs · ~N min left`. Run: node tests/door.test.mjs [repo root]
 import fs from 'node:fs';
 import path from 'node:path';
@@ -25,7 +27,7 @@ const YOU = R.YOU;
 seed(5);
 
 let fails = 0, passes = 0, block = 0;
-const BLOCKS = 8, T0 = performance.now();
+const BLOCKS = 9, T0 = performance.now();
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
 const secs = (ms) => `${(ms / 1000).toFixed(1)}s`;
 const done = (name) => { block++; const el = performance.now() - T0, avg = el / block; console.log(`[${block}/${BLOCKS}] · avg ${secs(avg)} · ~${Math.round(avg * (BLOCKS - block) / 60000)} min left  (${name})`); };
@@ -36,7 +38,8 @@ const raw = world(ext, 'tokyo'); raw.id = 'tokyo-door';
 const ex = (n) => raw.cast.examples.find(e => e.name === n);
 ex('Sumire').door = '  NEVER '; ex('Sumire').doorLine = '  {name} meets you downstairs:   nobody comes up. ';
 ex('Tsubaki').door = 'thread: priv_tsubaki_hands your_hands';
-ex('Kanon').door = '   '; ex('Kanon').doorLine = '';
+ex('Kanon').door = '   '; ex('Kanon').doorLine = ''; ex('Kanon').doorAdult = true;
+ex('Sumire').doorAdult = 'yes';
 const w = PR.upgradeWorld(raw); W.registerWorld(w);
 const wex = (n) => w.cast.examples.find(e => e.name === n);
 
@@ -69,6 +72,7 @@ const door = (x, a) => LIFE.doorAnswer(x, w, `home:${a}`);
     ok(wex('Sumire').door === 'never' && wex('Sumire').doorLine === '{name} meets you downstairs: nobody comes up.', `"never" in any case, the line trimmed (${wex('Sumire').door} / ${wex('Sumire').doorLine})`);
     ok(wex('Tsubaki').door === 'thread: priv_tsubaki_hands your_hands', 'a condition kept as written');
     ok(!('door' in wex('Kanon')) && !('doorLine' in wex('Kanon')), 'empty ones: no key');
+    ok(!('doorAdult' in wex('Sumire')) && !('doorAdult' in wex('Kanon')), 'doorAdult: only true, and only beside a door');
     ok(has(LX.lex(w, 'doorKept', 'Aoi'), "nobody comes into Aoi's home"), 'the world\'s words for a closed door (lexicon doorKept)');
     done('cleaning');
 }
@@ -112,6 +116,34 @@ const door = (x, a) => LIFE.doorAnswer(x, w, `home:${a}`);
     ok(door(x, T).ok, 'once it holds: the usual rules, a close friend walks in');
     R.setFr(x, T, YOU, 5); ok(!door(x, T).ok && door(x, T).text === LX.lex(w, 'doorOut', 'Tsubaki'), '…and a near stranger is still kept out by them');
     done('a condition');
+}
+
+/* ---------- a door that holds only with adult content on ---------- */
+{
+    const w3 = structuredClone(w); w3.id = 'tokyo-door3';
+    for (const n of ['Tsubaki', 'Sumire']) w3.cast.examples.find(e => e.name === n).doorAdult = true;
+    PR.upgradeWorld(w3); W.registerWorld(w3);
+    ok(w3.cast.examples.find(e => e.name === 'Tsubaki').doorAdult === true, 'doorAdult true beside a door: kept');
+    const d3 = (x, a) => LIFE.doorAnswer(x, w3, `home:${a}`);
+    const play = (adult) => { const x = fresh(); x.world = w3.id; x.cfg.adult = adult; return x; };
+    // adult content off: as if she had no rule, the usual rules decide
+    const x = play(false); atHome(x, T);
+    R.setFr(x, T, YOU, 5); ok(!d3(x, T).ok && d3(x, T).text === LX.lex(w3, 'doorOut', 'Tsubaki'), 'adult off: a near stranger is kept out by the usual rules');
+    R.setFr(x, T, YOU, 20); ok(d3(x, T).ok && d3(x, T).text === LX.lex(w3, 'doorIn', 'Tsubaki'), 'adult off: a friend (15+) walks in, her storyline not ended');
+    atHome(x, T, false); ok(!d3(x, T).ok, 'adult off, out, only a friend: nobody answers');
+    R.setFr(x, T, YOU, 55); ok(d3(x, T).ok && has(d3(x, T).text, 'you know where the key is'), 'adult off, a close friend: the key');
+    ok(!HR.doorShut(x, w3, x.cast[T]) && !HR.doorShut(x, w3, x.cast[S]), 'adult off: neither door is shut (a condition or never)');
+    R.setStatus(x, S, YOU, 'dating'); ok(HR.bedroomDoor(x, x.cast[S], true, false, w3).ok, "adult off: her partner walks into Sumire's room");
+    // adult content on: the rule holds
+    const y = play(true); atHome(y, T); R.setFr(y, T, YOU, 60);
+    ok(!d3(y, T).ok && d3(y, T).text === LX.lex(w3, 'doorKept', 'Tsubaki'), 'adult on: closed, even to a close friend');
+    y.threads = { ...(y.threads ?? {}), priv_tsubaki_hands: { ended: 'your_hands' } };
+    ok(d3(y, T).ok, 'adult on: once the storyline ends that way, she lets you in');
+    atHome(y, S); R.setFr(y, S, YOU, 90); ok(!d3(y, S).ok && HR.doorShut(y, w3, y.cast[S]), 'adult on: never stays never');
+    // without doorAdult: the rule holds with adult content off too, as before
+    const z = fresh(); z.cfg.adult = false; atHome(z, T); R.setFr(z, T, YOU, 60);
+    ok(!door(z, T).ok && HR.doorShut(z, w, z.cast[T]), 'no doorAdult, adult off: still closed');
+    done('only with adult content on');
 }
 
 /* ---------- their bedroom: a home with rooms, and a Home ---------- */
@@ -181,8 +213,10 @@ const door = (x, a) => LIFE.doorAnswer(x, w, `home:${a}`);
     const paths = [...html.matchAll(/data-path="([^"]+)"/g)].map(m => m[1]);
     ok(paths.includes(`cast.examples.${i}.door`) && paths.includes(`cast.examples.${i}.doorLine`), 'her door and its line have form fields');
     ok(has(html, 'Only once a condition holds') && has(html, 'thread: priv_tsubaki_hands your_hands'), 'a condition shows as "only once", with the condition to edit');
+    ok(paths.includes(`cast.examples.${i}.doorAdult`) && has(html.split('Their door</h4>')[1], 'Only with adult content on'), 'beside her door: "Only with adult content on"');
     cw.CW.sel.people = cw.CW.w.cast.examples.findIndex(e => e.name === 'Kanon');
     const h2 = cw.creatorHtml();
+    ok(!h2.includes(`cast.examples.${cw.CW.sel.people}.doorAdult`), 'as usual: no adult-only box');
     ok(has(h2, 'Their door') && !/cast\.examples\.\d+\.doorLine/.test(h2.split('Their door')[1]?.split('</h4>').slice(0, 3).join('') ?? ''), 'as usual: no line to write');
     done('the creator');
 }

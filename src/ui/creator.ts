@@ -1617,6 +1617,7 @@ function tidyPhoto(w: WorldDef) {
     for (const e of w.cast?.examples ?? []) {
         if (typeof e.door === 'string' && !e.door.trim()) delete e.door;
         if (typeof e.doorLine === 'string' && !e.doorLine.trim()) delete e.doorLine;
+        if (e.doorAdult !== true || !e.door) delete e.doorAdult;
         if (!Array.isArray(e.caught)) continue;
         e.caught = e.caught.filter(r => r && String(r.text ?? '').trim());
         for (const r of e.caught as any[]) { for (const k of ['where', 'action', 'rumor', 'when']) if (typeof r[k] === 'string' && !r[k].trim()) delete r[k]; for (const k of ['feels', 'romance']) if (r[k] === 0) delete r[k]; }
@@ -3008,13 +3009,15 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
         ${systemOn(w, 'photography') || e.cameraSteps ? cameraStepsEditor(p, e) : ''}`;
 }
 // Who they let into their home, asked before how close you are: as usual, nobody ever, or only once a condition holds
-// (the condition itself is the rule; picking "only once" starts from an example to change).
+// (the condition itself is the rule; picking "only once" starts from an example to change). A rule may hold only with
+// adult content on (a door an adult-only storyline opens), so with it off they let the player in as usual.
 function doorEditor(p: string, e: WorldDef['cast']['examples'][number]) {
     const d = typeof e.door === 'string' ? e.door : '', first = e.name.split(/\s+/)[0];
     const cur = d && d !== 'never' ? d : `feels: ${first} good`;
-    return `<h4>Their door</h4><p class="mu-muted">Who comes into their home, asked before how close the player is. It closes their bedroom in a home with rooms, staying the night at theirs and their "come over tonight?" too, adult content on or off.</p>
+    return `<h4>Their door</h4><p class="mu-muted">Who comes into their home, asked before how close the player is. It closes their bedroom in a home with rooms, staying the night at theirs and their "come over tonight?" too, adult content on or off (unless it holds only with adult content on).</p>
         <div class="mu-row2">${sel('Who they let in', `${p}.door`, [['', 'As usual (friends come in, close friends know where the key is)'], ['never', 'Nobody, ever (not even a partner)'], [cur, 'Only once a condition holds']], 'opt')}
             ${d && d !== 'never' ? cond('Their door opens once (a condition)', `${p}.door`, 'thread: priv_tsubaki_hands your_hands') : '<span></span>'}</div>
+        ${d ? `<div class="mu-row2">${flag('Only with adult content on', `${p}.doorAdult`, 'With adult content off they let the player in as usual, as if they had no rule (for a door an adult storyline opens).', true)}<span></span></div>` : ''}
         ${d ? optTxt("What the player is told at their closed door ({name}: their name; empty: the world's words)", `${p}.doorLine`, "{name} meets you downstairs: nobody comes up to {name}'s flat.") : ''}`;
 }
 // (adult) The ways of getting caught with them: each row says where it can happen, who saw and how they take it, and

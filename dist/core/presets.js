@@ -561,7 +561,7 @@ export function upgradeWorld(w) {
             upgradeTiers(ex);
     // a person's door and the ways of getting caught with them: made safe where a world has them
     for (const ex of w.cast?.examples ?? [])
-        if ('door' in ex || 'doorLine' in ex || 'caught' in ex)
+        if ('door' in ex || 'doorLine' in ex || 'doorAdult' in ex || 'caught' in ex)
             upgradeDoorCaught(ex);
     for (const s of w.stories ?? [])
         for (const c of s.choices ?? [])
@@ -569,9 +569,10 @@ export function upgradeWorld(w) {
                 upgradeStoryMuseum(r);
     return w;
 }
-// A person's door rule (`never`, or a condition), the line at their closed door, and their caught rows, from someone
-// else's file: texts stay short texts, a row without an id or a text (or with an id seen before) is dropped, its weight
-// at least 0, its feelings whole and small (±20), and nothing else is kept on it. No key is left empty.
+// A person's door rule (`never`, or a condition), whether it holds only with adult content on (`true`, and only beside a
+// rule), the line at their closed door, and their caught rows, from someone else's file: texts stay short texts, a row
+// without an id or a text (or with an id seen before) is dropped, its weight at least 0, its feelings whole and small
+// (±20), and nothing else is kept on it. No key is left empty.
 const CAUGHT_FEEL = 20;
 function upgradeDoorCaught(ex) {
     const text = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
@@ -589,6 +590,8 @@ function upgradeDoorCaught(ex) {
         else
             delete ex.doorLine;
     }
+    if ('doorAdult' in ex && (ex.doorAdult !== true || !('door' in ex)))
+        delete ex.doorAdult;
     if (!('caught' in ex))
         return;
     const seen = new Set(), rows = [];
