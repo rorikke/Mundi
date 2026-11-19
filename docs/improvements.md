@@ -22,6 +22,7 @@ point of view, and grows as new ones arrive.
 - [Rooms at home](#rooms-at-home)
 - [A friend staying over](#a-friend-staying-over)
 - [A photographer's life](#a-photographers-life)
+- [Dressing for the place](#dressing-for-the-place)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -1401,6 +1402,31 @@ with it; with it off, none of it shows, and photos marked adult stay hidden.
   photos* and the skill stay, and the job's freelance branch closes.
 - **Your existing games** get Lens at once; the boards fill the next morning, and photo keepsakes you already have show
   in Photos.
+
+## Dressing for the place
+
+People now change for where they are. At a pool, on a beach in summer or for a swim, everyone puts on swimwear of their
+own, and the AI is told who wears what. Tokyo's people have their swimsuits drawn: two to four sets for most women, one
+for the men, each with its full set of expressions, from a modest one-piece to a string bikini.
+
+- **As bold as they go.** Each outfit has a level, from modest to bold, and each person a comfort: how bold they go in
+  public. Someone reserved keeps to her one-piece; the night world's regulars wear their boldest. In private with
+  someone close they go one step further. They don't wear the same set every day.
+- **Where.** Odaiba's beach is open for swimming in summer, with two new things to do there (swim in the bay, sunbathe
+  on the sand). Two new places: the **Azabu Terrace Night Pool**, a hotel's rooftop pool in Roppongi on summer evenings
+  (a pool bar, a DJ, and the night-world regulars on their nights off), and **Hoshizora Spa Park** in Hakone, a
+  swimsuit hot spring open all year, where friends of any gender bathe together. A plunge pool at home, a day out on a
+  boat and wading in summer dress people too.
+- **Other occasions.** The same works for other outfits: Tamaki comes to the summer festivals in her yukata once she's
+  your sweetheart, Ayame fences at her club in her whites, and Kaede sits at her van in her jumper with a mug of tea.
+- **Your choice too.** Click someone's sprite to change their outfit yourself; the outfits the world has for them are
+  listed with how bold each is. An outfit's pictures upload the first time it's worn.
+- **Adult content.** The bold sets show only with adult content on, and the explicit ones only in a private or adult
+  scene.
+
+World makers set a place's, a thing to do's, a street story's, a festival's or a standing appointment's dress code in
+the World creator, and on a person their outfits' kind, level and words for the AI. The new system *Outfits for the
+place* can be turned off: then nobody changes. Older games and worlds without outfits play as before.
 
 ## The World creator and the new game
 
