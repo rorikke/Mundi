@@ -475,18 +475,20 @@ export function upgradeWorld(w: WorldDef): WorldDef {
     // (museum) people who unlock, and a street story's renown and damage: made safe where a world has them
     for (const ex of w.cast?.examples ?? []) if ('tiers' in ex || 'reserved' in ex) upgradeTiers(ex);
     // a person's door and the ways of getting caught with them: made safe where a world has them
-    for (const ex of w.cast?.examples ?? []) if ('door' in ex || 'doorLine' in ex || 'caught' in ex) upgradeDoorCaught(ex);
+    for (const ex of w.cast?.examples ?? []) if ('door' in ex || 'doorLine' in ex || 'doorAdult' in ex || 'caught' in ex) upgradeDoorCaught(ex);
     for (const s of w.stories ?? []) for (const c of s.choices ?? []) for (const r of [c, c.fail]) upgradeStoryMuseum(r);
     return w;
 }
-// A person's door rule (`never`, or a condition), the line at their closed door, and their caught rows, from someone
-// else's file: texts stay short texts, a row without an id or a text (or with an id seen before) is dropped, its weight
-// at least 0, its feelings whole and small (±20), and nothing else is kept on it. No key is left empty.
+// A person's door rule (`never`, or a condition), whether it holds only with adult content on (`true`, and only beside a
+// rule), the line at their closed door, and their caught rows, from someone else's file: texts stay short texts, a row
+// without an id or a text (or with an id seen before) is dropped, its weight at least 0, its feelings whole and small
+// (±20), and nothing else is kept on it. No key is left empty.
 const CAUGHT_FEEL = 20;
 function upgradeDoorCaught(ex: any) {
     const text = (v: unknown, n: number) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
     if ('door' in ex) { const d = text(ex.door, 300); if (d) ex.door = d.toLowerCase() === 'never' ? 'never' : d; else delete ex.door; }
     if ('doorLine' in ex) { const l = text(ex.doorLine, 300); if (l) ex.doorLine = l; else delete ex.doorLine; }
+    if ('doorAdult' in ex && (ex.doorAdult !== true || !('door' in ex))) delete ex.doorAdult;
     if (!('caught' in ex)) return;
     const seen = new Set<string>(), rows: any[] = [];
     for (const r of Array.isArray(ex.caught) ? ex.caught : []) {

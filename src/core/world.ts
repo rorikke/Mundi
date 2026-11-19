@@ -587,8 +587,11 @@ export interface ExampleCharacter {
      *  in, however close, a partner too), or a condition (`thread: priv_tsubaki_hands your_hands`) that has to hold first.
      *  Missing: the usual (a friend lets you in, a close friend or a partner knows where the key is). It closes their
      *  bedroom in a home with rooms or a Home, staying the night at theirs and their "come over tonight?" too. Read with
-     *  adult content on or off; an overlay may make it stricter, never looser. */
+     *  adult content on or off (unless `doorAdult`); an overlay may make it stricter, never looser. */
     door?: string;
+    /** (adult) The `door` rule holds only with adult content on: with it off they let you in by the usual rules, as if
+     *  there were no rule (a door kept by an adult-only storyline that would otherwise never open). Only beside a `door`. */
+    doorAdult?: true;
     /** What the player is told at their door while it stays closed (`{name}`: their name). Missing: the world's words
      *  (the lexicon's `doorKept`). */
     doorLine?: string;

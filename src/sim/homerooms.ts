@@ -2,7 +2,7 @@
 // address gets a bedroom. At home you are in one room: its picture, its things to do, the AI told where you are.
 // A room is a detail of the home, never a place: `g.player.loc` stays the home, `whereNow` is untouched, and the room
 // you're in (`g.player.room`) is kept with the home it belongs to, so leaving the home in any way makes it stale.
-import { changes, nowAbs, type Save, type Resident } from '../core/store.js';
+import { adultOn, changes, nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type Place, type HomeRoom } from '../core/world.js';
 import { placeOf, homeKindAt, homeZoneAt, playerHomeId, isHome } from './places.js';
 import { secondHome, SECOND_HOME_ID } from './housing.js';
@@ -107,10 +107,11 @@ export function roomDoor(g: Save, w: WorldDef, id: string): { ok: boolean; text:
 /** Does someone's own rule keep their door closed to you now (ExampleCharacter.door: `never`, or a condition that
  *  doesn't hold yet)? Asked before how close you are, so a partner or a best friend is kept out too; only the world's
  *  people have one. Every way into their home asks it: the door (sim/life.ts doorAnswer), their bedroom here, staying
- *  the night at theirs and their "come over tonight?" (sim/initiative.ts, ui/events.ts). */
+ *  the night at theirs and their "come over tonight?" (sim/initiative.ts, ui/events.ts). A rule marked `doorAdult` is
+ *  kept only with adult content on: with it off, nothing here shuts the door and the usual rules decide. */
 export function doorShut(g: Save, w: WorldDef | null | undefined, r: Resident): boolean {
-    const rule = (w && exampleOf(w, r)?.door)?.trim();
-    if (!w || !rule) return false;
+    const ex = w ? exampleOf(w, r) : undefined, rule = ex?.door?.trim();
+    if (!w || !rule || (ex!.doorAdult === true && !adultOn(g))) return false;
     return rule.toLowerCase() === 'never' || !whenHolds(g, w, rule);
 }
 /** What you're told at a door their rule keeps closed: their own line, else the world's words. */
