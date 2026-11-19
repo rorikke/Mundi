@@ -1820,7 +1820,12 @@
    "priv_airi_long",
    "priv_airi_wand",
    "priv_airi_pampered",
-   "priv_airi_closing"
+   "priv_airi_closing",
+   "priv_sumire_cabana",
+   "priv_sumire_boudoir",
+   "priv_lisa_nightpool",
+   "priv_tsubaki_hakone_spa",
+   "priv_momo_beach"
   ],
   "occupations": [
    "rider",
