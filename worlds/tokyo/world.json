@@ -24523,6 +24523,102 @@
    ],
    "fact": "{u} spent a summer day on the sand at {0} with Momo",
    "adult": true
+  },
+  {
+   "id": "priv_yui_page_nearly",
+   "cost": 1200,
+   "minutes": 60,
+   "effects": {
+    "mood": 12,
+    "energy": -10,
+    "desire": 40
+   },
+   "trains": "sensuality",
+   "dc": 12,
+   "name": "The near-miss page",
+   "label": "Try Yui's near-miss page",
+   "icon": "📖",
+   "places": [
+    "sb_karaoke",
+    "ak_mangacafe"
+   ],
+   "risk": 0.15,
+   "when": "period: evening or night; present: Yui; companion: crush or casual; knows: priv_yui_research",
+   "tags": [
+    "private",
+    "risky",
+    "folded_page"
+   ],
+   "matches": [
+    "whispered words",
+    "a thrill for being nearly caught"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the folded page Yui chose to try: in a booth with a thin door, she whispers the scene's lines as they go, stopping dead at every footstep in the corridor and starting again"
+   },
+   "outcomes": [
+    {
+     "id": "steps",
+     "weight": 60,
+     "text": "Footsteps stop outside the booth; Yui freezes mid-line, whispers the next one anyway, and the footsteps move on."
+    },
+    {
+     "id": "song",
+     "weight": 40,
+     "text": "She keeps a song playing for cover and mouths the page's lines over it, very politely, and not politely at all."
+    }
+   ],
+   "fact": "{u} tried the near-miss page of Yui's book with her at {0}",
+   "private": true,
+   "adult": true
+  },
+  {
+   "id": "priv_yui_page_story",
+   "cost": 0,
+   "minutes": 60,
+   "effects": {
+    "mood": 12,
+    "energy": -10,
+    "desire": 40
+   },
+   "trains": "sensuality",
+   "dc": 12,
+   "name": "The narrated page",
+   "label": "Act out Yui's narrated page",
+   "icon": "📖",
+   "home": true,
+   "places": [
+    "sb_lovehotel"
+   ],
+   "when": "present: Yui; companion: crush or casual; knows: priv_yui_research",
+   "tags": [
+    "private",
+    "folded_page"
+   ],
+   "matches": [
+    "reading her own pages aloud to someone",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the folded page Yui chose to try: she reads the scene aloud from her own book in her soft formal voice, line by line, telling {{user}} what happens next, until neither can keep reading"
+   },
+   "outcomes": [
+    {
+     "id": "voice",
+     "weight": 60,
+     "text": "She narrates in the same polite voice she uses at the amulet stall, telling you what happens next, and never once loses her place."
+    },
+    {
+     "id": "off",
+     "weight": 40,
+     "text": "Two pages in she puts the book down and says \"the rest isn't written yet\", and goes on from memory."
+    }
+   ],
+   "fact": "{u} acted out a page of Yui's book as she narrated it at {0}",
+   "private": true,
+   "adult": true
   }
  ],
  "sleep": {
@@ -61124,6 +61220,46 @@
         "text": "She dances the kagura, and the finale comes a month late to half her readers."
        }
       ]
+     },
+     {
+      "id": "priv_yui_research",
+      "title": "Yui's research",
+      "adult": true,
+      "hidden": "Her romance novels are research she has never done, and she wants to try a scene from her own pages with someone safe, every detail agreed beforehand.",
+      "known": "{{user}} knows Yui wants to try a scene from her own novels with {{user}}.",
+      "opens": [
+       "feels: Yui crush",
+       "knows: yui_fox"
+      ],
+      "decide": "Yui has a confession, very politely made. Her novels are research she has never done: she hands {{user}} one of her books with pages folded down, a near miss in public, a scene she would read aloud, and asks which one {{user}} would like to try with her, everything agreed beforehand.",
+      "nudges": [
+       "I have folded down some pages in a book for you. Please read them before we next meet. No pressure, of course.",
+       "Have you read the pages? I find I cannot concentrate on the amulet stall at all. May I see you?",
+       "I shall take the book back on Sunday unless you have chosen a page. I would much rather you chose."
+      ],
+      "ignored": "cool",
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "She writes scenes she has never lived, and blushes behind the amulet stall when she remembers them."
+       },
+       {
+        "tell": "hinted",
+        "text": "She has started asking {{user}} oddly specific questions, then writing the answers down."
+       }
+      ],
+      "endings": [
+       {
+        "id": "tried_a_page",
+        "when": "knows: priv_yui_research; feels: Yui crush; did: tag:folded_page",
+        "good": true,
+        "text": "{{user}} tried one of her pages with her, and she directed every line of it; the next chapter is the best thing Moon Fox ever wrote."
+       },
+       {
+        "id": "keeps_to_paper",
+        "text": "She keeps it all on paper, and writes the scenes the way she imagines them."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -65428,6 +65564,44 @@
        }
       ],
       "adult": true
+     },
+     {
+      "id": "priv_kanon_model",
+      "title": "Kanon's life model",
+      "adult": true,
+      "hidden": "Her next book is stuck: she has only ever drawn people from references and wants someone real to pose for her, but can't make herself ask.",
+      "known": "{{user}} knows Kanon needs a life model for her next book.",
+      "decide": "Kanon's next book is stuck: every figure she draws looks like a copy of a copy. Talking too fast, she tells {{user}} she has only ever drawn from references and needs someone real to pose for her, for hours, then asks whether {{user}} would and hides behind her sketchbook.",
+      "nudges": [
+       "ok hypothetically. how would you feel about being drawn. like. properly. for a whole book",
+       "deleted fourteen pages today. the figures are all wrong. I need a real model. you? (you can say no) (I'd be very professional) (mostly)",
+       "ok I'm shelving the book unless someone poses this week. no pressure. some pressure. come over?"
+      ],
+      "reveal": "feels: Kanon friend",
+      "stages": [
+       {
+        "when": "season: spring",
+        "tell": "hidden",
+        "text": "She deletes page after page; the figures look like copies of copies."
+       },
+       {
+        "when": "season: summer; seasonDays: 1-10",
+        "tell": "known",
+        "text": "The convention is days away and the book has no middle; she has to ask someone to pose or cancel."
+       }
+      ],
+      "endings": [
+       {
+        "id": "posed",
+        "when": "knows: priv_kanon_model; feels: Kanon friend",
+        "text": "{{user}} posed for her; the book is her best yet, and she knows exactly whose body is in every line.",
+        "good": true
+       },
+       {
+        "id": "references",
+        "text": "She draws from references again; the book sells, and she isn't proud of it."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -66032,6 +66206,46 @@
         "text": "She deletes Hotaru and every file, and is very, very polite for a month."
        }
       ]
+     },
+     {
+      "id": "priv_shiori_first",
+      "title": "Shiori's first time",
+      "adult": true,
+      "hidden": "She has decided she wants her first time before her parents arrange her a match, with someone who knows she is Hotaru; she has drafted a polite message asking for it a dozen times and deleted it each time.",
+      "known": "{{user}} knows Shiori wants her first time, and wants it with someone who knows her secret.",
+      "opens": "knows: shiori_hotaru",
+      "decide": "Shiori has finally sent the message she drafted a dozen times. Scarlet, in perfect polite Japanese, she tells {{user}} that her mother is choosing her a husband, that she has never been with anyone, and that she wants her first time before then, slowly, with someone who knows she is Hotaru, and asks whether {{user}} would be the one.",
+      "nudges": [
+       "Did my message reach you? I keep rereading it and covering my face. Please forgive the boldness.",
+       "My mother sent another photograph from Kyoto. I would rather not wait for him. Might we meet?",
+       "If I hear nothing by Sunday I shall take it as an answer and stop asking. I would so much rather see you."
+      ],
+      "ignored": "cool",
+      "reveal": "knows: shiori_hotaru; feels: Shiori friend",
+      "stages": [
+       {
+        "when": "season: spring or summer",
+        "tell": "hidden",
+        "text": "After every stream she lies awake, still masked, wondering what it would be like with a real person."
+       },
+       {
+        "when": "season: autumn or winter",
+        "tell": "known",
+        "text": "Her mother sends photographs of a suitable young man from Kyoto. Shiori shuts the closet door and finally sends the message."
+       }
+      ],
+      "endings": [
+       {
+        "id": "first_with_you",
+        "when": "knows: priv_shiori_first; feels: Shiori good",
+        "text": "Her first time was with {{user}}, slow and terrified and wonderful, and she has been making up for lost time ever since.",
+        "good": true
+       },
+       {
+        "id": "still_waiting",
+        "text": "She keeps the message in her drafts and the mask on."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -66233,6 +66447,45 @@
        }
       ],
       "adult": true
+     },
+     {
+      "id": "priv_tsubaki_hands",
+      "title": "Someone else's hands",
+      "adult": true,
+      "hidden": "After eight hours of looking after strangers she goes home with nobody looking after her; she wants someone to lay her down and give her the long course for once, and would never ask.",
+      "known": "{{user}} knows Tsubaki would love to be looked after the way she looks after everyone else.",
+      "decide": "After a double shift Tsubaki lies face down on her own treatment bed, still in uniform. She tells {{user}} that after eight hours of looking after strangers she goes home with nobody looking after her, that she would give anything to be given the long course herself, by someone she trusts, and that she has never asked anyone.",
+      "nudges": [
+       "Last booking cancelled and my hands ache. Do you know how to give a massage? Asking for me.",
+       "Lay down on my own bed again after closing, in uniform. Felt ridiculous. Come by after hours?",
+       "I'm off tomorrow, the salon is empty and the oil is warm. Come, or I'll stop hoping."
+      ],
+      "ignored": "cool",
+      "reveal": "feels: Tsubaki friend",
+      "stages": [
+       {
+        "when": "season: spring or summer",
+        "tell": "hidden",
+        "text": "She rubs her own aching hands on the last train and pretends not to watch the couples."
+       },
+       {
+        "when": "season: autumn or winter",
+        "tell": "known",
+        "text": "One night after a double shift she lies face down on her own treatment bed, still in her uniform, and says she would give anything for someone else to do it."
+       }
+      ],
+      "endings": [
+       {
+        "id": "your_hands",
+        "when": "knows: priv_tsubaki_hands; feels: Tsubaki good",
+        "text": "{{user}} gave her the long course, and she has kept the salon's spare key on a ribbon for {{user}} ever since.",
+        "good": true
+       },
+       {
+        "id": "own_hands",
+        "text": "She buys a massage chair and calls it even."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -66532,6 +66785,46 @@
        }
       ],
       "adult": true
+     },
+     {
+      "id": "priv_sumire_friday",
+      "title": "Sumire's Fridays",
+      "adult": true,
+      "hidden": "Every Friday after closing she goes to a hotel with her top client, a married company president, because his bottles keep her number one; she hates every minute of it and smiles through it.",
+      "known": "{{user}} knows about Sumire's Fridays with her top client, and why she keeps them.",
+      "opens": "knows: sumire_tab",
+      "decide": "Her top client has asked for Saturdays too. Still smiling, Sumire tells {{user}} about her Fridays: after closing she goes to his hotel with him, a married company president, because his bottles keep her number one, and she hates every minute. She asks {{user}}, lightly, what her number is worth.",
+      "nudges": [
+       "Friday again. I showered twice. Have a drink with me on Saturday, somewhere he's never been?",
+       "He wants Saturdays now. I said yes at the table. I'd like to say something else, to someone.",
+       "His hotel is booked for Friday. I go, or I lose my number and stop. Come and see me first."
+      ],
+      "ignored": "cool",
+      "reveal": "knows: sumire_tab; feels: Sumire friend",
+      "stages": [
+       {
+        "when": "season: spring or summer",
+        "tell": "hidden",
+        "text": "On Fridays she showers twice before she goes home, and on Saturdays she is extra sharp with everyone."
+       },
+       {
+        "when": "season: autumn or winter",
+        "tell": "known",
+        "text": "He asks for Saturdays too. She says yes at the table and throws up in Velvet's bathroom afterward."
+       }
+      ],
+      "endings": [
+       {
+        "id": "drops_him",
+        "when": "knows: priv_sumire_friday; feels: Sumire good",
+        "text": "She drops him, loses her number for a month, gets it back on her own, and spends Fridays with someone she picked.",
+        "good": true
+       },
+       {
+        "id": "keeps_fridays",
+        "text": "She keeps the Fridays and keeps her number."
+       }
+      ]
      }
     ],
     "intimate": {
@@ -66705,6 +66998,46 @@
        {
         "id": "keeps_window",
         "text": "The window stays, and so does she, and so does the notebook."
+       }
+      ]
+     },
+     {
+      "id": "priv_kaoru_rounds",
+      "title": "Kaoru's rounds",
+      "adult": true,
+      "hidden": "On her rounds she lingers outside the doors of the loudest rooms, and at dawn she sits a long while alone in the back office before going home; she is ashamed of it and does it anyway.",
+      "known": "{{user}} knows what Kaoru does on her rounds, and that she wants a room of her own for one night.",
+      "opens": "knows: kaoru_notebook",
+      "decide": "The mirrored room's key card has sat on Kaoru's counter all night. Over her glasses she tells {{user}} what she does on her rounds, lingering at the loudest doors and listening longer than she should, and that for one night she wants the room for herself, every light on, and someone in it with her.",
+      "nudges": [
+       "The mirrored room is free on Tuesday. I keep picking up its key card. Tea at the window?",
+       "Lingered outside 302 again tonight and the cleaner saw. Come by, I'd rather talk to you than to her.",
+       "My night off is Thursday. I take that room, or I put the card back for good. Come?"
+      ],
+      "ignored": "cool",
+      "reveal": "knows: kaoru_notebook; feels: Kaoru friend",
+      "stages": [
+       {
+        "when": "season: spring or summer",
+        "tell": "hidden",
+        "text": "She takes her rounds slower than she needs to, and the night cleaner has started to notice."
+       },
+       {
+        "when": "season: autumn or winter",
+        "tell": "known",
+        "text": "On a quiet night she leaves the key card of the mirrored room on the counter, looks at it for an hour, and puts it back."
+       }
+      ],
+      "endings": [
+       {
+        "id": "mirror_room",
+        "when": "knows: priv_kaoru_rounds; feels: Kaoru good",
+        "text": "On her night off she took the mirrored room with {{user}} and kept every light on.",
+        "good": true
+       },
+       {
+        "id": "back_office",
+        "text": "She keeps to her rounds and the back office."
        }
       ]
      }
@@ -82967,6 +83300,108 @@
      "bar_sofa": "The chairs up, the till counted, and Airi asleep on the bar's little sofa under a borrowed coat."
     },
     "hint": "See Airi's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_sumire_friday",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Sumire after closing",
+    "who": "Sumire",
+    "when": "thread: priv_sumire_friday",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "drops_him": "She stops seeing the president, loses her number for a month, wins it back, and spends Fridays with someone she chose.",
+     "keeps_fridays": "Every Friday with a man she hates, smiling through it; her number stays first."
+    },
+    "hint": "See Sumire's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_yui_research",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Yui's next chapter",
+    "who": "Yui",
+    "when": "thread: priv_yui_research",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "tried_a_page": "She tried a scene from her own pages with {{user}}, directing every line; the next chapter is Moon Fox's best.",
+     "keeps_to_paper": "She keeps it all on paper: every scene written the way she imagines it, and none of them tried."
+    },
+    "hint": "See Yui's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_kaoru_rounds",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kaoru's night shift",
+    "who": "Kaoru",
+    "when": "thread: priv_kaoru_rounds",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "mirror_room": "On her night off she took the mirrored room with {{user}} and kept every light on, so she could watch.",
+     "back_office": "Her rounds past the loudest doors, and at dawn the back office, alone."
+    },
+    "hint": "See Kaoru's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_shiori_first",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Shiori's drafts",
+    "who": "Shiori",
+    "when": "thread: priv_shiori_first",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "first_with_you": "Her first time was with {{user}}, slow, terrified and wonderful; she has been making up for lost time since.",
+     "still_waiting": "The message asking for her first time stays in her drafts, and the mask stays on."
+    },
+    "hint": "See Shiori's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_tsubaki_hands",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Tsubaki off the clock",
+    "who": "Tsubaki",
+    "when": "thread: priv_tsubaki_hands",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "your_hands": "{{user}} laid her down and gave her the long course; she keeps the salon's spare key on a ribbon for {{user}}.",
+     "own_hands": "She buys a massage chair, and calls it even."
+    },
+    "hint": "See Tsubaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_kanon_model",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kanon's next book",
+    "who": "Kanon",
+    "when": "thread: priv_kanon_model",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "posed": "{{user}} posed for her; the book is her best yet, and she knows whose body is in every line.",
+     "references": "She draws from references again; the book sells, and she isn't proud of it."
+    },
+    "hint": "See Kanon's story through to its end."
    }
   ],
   "museum": {

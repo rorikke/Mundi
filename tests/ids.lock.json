@@ -1825,7 +1825,9 @@
    "priv_sumire_boudoir",
    "priv_lisa_nightpool",
    "priv_tsubaki_hakone_spa",
-   "priv_momo_beach"
+   "priv_momo_beach",
+   "priv_yui_page_nearly",
+   "priv_yui_page_story"
   ],
   "occupations": [
    "rider",
@@ -2490,7 +2492,13 @@
    "mem_sl_priv_kanon_after_con",
    "mem_sl_priv_momo_date",
    "mem_sl_priv_airi_no_angles",
-   "mem_sl_priv_airi_last_call"
+   "mem_sl_priv_airi_last_call",
+   "mem_sl_priv_sumire_friday",
+   "mem_sl_priv_yui_research",
+   "mem_sl_priv_kaoru_rounds",
+   "mem_sl_priv_shiori_first",
+   "mem_sl_priv_tsubaki_hands",
+   "mem_sl_priv_kanon_model"
   ],
   "homeRooms": [
    "zone:hz_sharehouse/common",
