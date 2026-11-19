@@ -33506,7 +33506,13 @@
     "night": "bg/bay_beach-night.avif",
     "rain-day": "bg/bay_beach-rain-day.avif",
     "rain-afternoon": "bg/bay_beach-rain-afternoon.avif",
-    "rain-night": "bg/bay_beach-rain-night.avif"
+    "rain-night": "bg/bay_beach-rain-night.avif",
+    "summer-day": "bg/bay_beach-summer-day.avif",
+    "summer-afternoon": "bg/bay_beach-summer-afternoon.avif",
+    "summer-night": "bg/bay_beach-summer-night.avif",
+    "snow-day": "bg/bay_beach-snow-day.avif",
+    "snow-afternoon": "bg/bay_beach-snow-afternoon.avif",
+    "snow-night": "bg/bay_beach-snow-night.avif"
    },
    "x": 26.03,
    "y": 54.54,
@@ -35082,7 +35088,12 @@
     "rp_nightpool_bar",
     "rp_nightpool_dance"
    ],
-   "bg": "bg/rp_pent_terrace-night.avif"
+   "bg": "bg/rp_nightpool-night.avif",
+   "bgs": {
+    "afternoon": "bg/rp_nightpool-afternoon.avif",
+    "rain-afternoon": "bg/rp_nightpool-rain-afternoon.avif",
+    "rain-night": "bg/rp_nightpool-rain-night.avif"
+   }
   },
   {
    "id": "hk_spapark",
@@ -35115,7 +35126,20 @@
     "hk_spapark_slide",
     "hk_spapark_cave"
    ],
-   "bg": "bg/hk_villa_onsen.avif"
+   "bg": "bg/hk_spapark.avif",
+   "bgs": {
+    "afternoon": "bg/hk_spapark-afternoon.avif",
+    "night": "bg/hk_spapark-night.avif",
+    "rain-day": "bg/hk_spapark-rain-day.avif",
+    "rain-afternoon": "bg/hk_spapark-rain-afternoon.avif",
+    "rain-night": "bg/hk_spapark-rain-night.avif",
+    "snow-day": "bg/hk_spapark-snow-day.avif",
+    "snow-afternoon": "bg/hk_spapark-snow-afternoon.avif",
+    "snow-night": "bg/hk_spapark-snow-night.avif",
+    "autumn-day": "bg/hk_spapark-autumn-day.avif",
+    "autumn-afternoon": "bg/hk_spapark-autumn-afternoon.avif",
+    "autumn-night": "bg/hk_spapark-autumn-night.avif"
+   }
   }
  ],
  "stories": [
