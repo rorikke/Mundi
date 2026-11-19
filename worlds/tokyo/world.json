@@ -66587,7 +66587,15 @@
      "swim-violet": "cast/sumire/swim-violet",
      "swim-white": "cast/sumire/swim-white",
      "swim-black": "cast/sumire/swim-black"
-    }
+    },
+    "caught": [
+     {
+      "id": "sumire_driver",
+      "where": "sj_kabukicho",
+      "action": "priv_sumire_taxi",
+      "text": "The taxi driver pulls over on Yasukuni-dōri, turns round, and asks very politely whether they would like to get out here; Sumire tips him ten thousand yen to forget her face."
+     }
+    ]
    },
    {
     "name": "Kaoru",
