@@ -10969,5 +10969,8 @@ const DICT: Record<string, string> = {
  "Doing": "Haciendo",
  "Any risky action": "Cualquier acción arriesgada",
  "Add a way of getting caught": "Añadir una forma de que te pillen",
+ "Its own background": "Fondo propio",
+ "While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.": "Mientras transcurre, la escena muestra esta imagen en lugar de la del lugar o la habitación, hasta que la escena sigue adelante.",
+ "Picture (a file in the world's folder or a /user/files/ address; empty: the place's)": "Imagen (un archivo en la carpeta del mundo o una dirección /user/files/; vacío: la del lugar)",
 };
 export default DICT;

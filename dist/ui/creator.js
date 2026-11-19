@@ -265,8 +265,18 @@ function tabActions(w) {
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'], ...(w.catalogs.shop ?? []).map(it => [it.id, `${it.icon ?? ''} ${it.name}`])])}
             <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>
-            ${actionMore(w, p, a)}${dressBox(p, a.dress?.kind, 'The people doing it with you put it on while it plays out; in a private moment, instead of undressing.')}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
+            ${actionMore(w, p, a)}${actionPics(p, a)}${dressBox(p, a.dress?.kind, 'The people doing it with you put it on while it plays out; in a private moment, instead of undressing.')}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
     }, 'action')}${tablesEditor(w)}${storiesEditor(w)}`;
+}
+// (E-5) An action's own background, for a room inside a place that isn't a place (a back room, a themed hotel room): a
+// picture and its other times of the day, with an upload for each. Folded when it has none.
+function actionPics(p, a) {
+    const up = (q, n) => `<button class="mu-ghost mu-ibtn" data-act="cw-room-img" data-path="${esc(q)}" data-name="${esc(n)}" title="Upload">${icon('upload')}</button>`;
+    const name = `act-${a.id || 'action'}`;
+    return `<details class="mu-me-times" ${a.bg || Object.keys(a.bgs ?? {}).length ? 'open' : ''}><summary>Its own background</summary>
+        <small class="mu-muted">While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.</small>
+        <div class="mu-row mu-cw-inline">${optTxt("Picture (a file in the world's folder or a /user/files/ address; empty: the place's)", `${p}.bg`, 'bg/hotel-jungle.avif')}${up(`${p}.bg`, name)}</div>
+        ${TIME_SLOTS.map(per => `<div class="mu-row mu-cw-inline">${optTxt(esc(per.name), `${p}.bgs.${per.id}`)}${up(`${p}.bgs.${per.id}`, `${name}-${per.id}`)}</div>`).join('')}</details>`;
 }
 // (adult) A private moment: done in private, only with adult content on, how hard it is (the private roll), the words it
 // matches against someone's likes and hard limits, and the chance of being caught where it's done (with what that costs).

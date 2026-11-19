@@ -10955,5 +10955,8 @@ const DICT = {
     "Doing": "Fazendo",
     "Any risky action": "Qualquer ação arriscada",
     "Add a way of getting caught": "Adicionar um jeito de ser pego",
+    "Its own background": "Fundo próprio",
+    "While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.": "Enquanto acontece, a cena mostra esta imagem em vez da do lugar ou do cômodo, até a cena seguir adiante.",
+    "Picture (a file in the world's folder or a /user/files/ address; empty: the place's)": "Imagem (um arquivo na pasta do mundo ou um endereço /user/files/; vazio: a do lugar)",
 };
 export default DICT;
