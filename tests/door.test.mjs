@@ -37,7 +37,9 @@ const has = (s, t) => String(s ?? '').includes(t);
 const raw = world(ext, 'tokyo'); raw.id = 'tokyo-door';
 const ex = (n) => raw.cast.examples.find(e => e.name === n);
 ex('Sumire').door = '  NEVER '; ex('Sumire').doorLine = '  {name} meets you downstairs:   nobody comes up. ';
-ex('Tsubaki').door = 'thread: priv_tsubaki_hands your_hands';
+// (Tokyo's own door for Tsubaki, the same condition held only with adult content on and her line, is set aside: the
+// fixture gives each person exactly the rule its checks need)
+ex('Tsubaki').door = 'thread: priv_tsubaki_hands your_hands'; delete ex('Tsubaki').doorAdult; delete ex('Tsubaki').doorLine;
 ex('Kanon').door = '   '; ex('Kanon').doorLine = ''; ex('Kanon').doorAdult = true;
 ex('Sumire').doorAdult = 'yes';
 const w = PR.upgradeWorld(raw); W.registerWorld(w);
