@@ -28,6 +28,49 @@ const num = (v, lo, hi, whole = true) => {
 const uniq = (list) => { const seen = new Set(); return list.filter(x => !seen.has(x.id) && !!seen.add(x.id)); };
 /** The strictest of two camera rules (missing: free). */
 export const stricter = (a, b) => (a && b ? CAMERA_RULES[Math.max(CAMERA_RULES.indexOf(a), CAMERA_RULES.indexOf(b))] : a ?? b);
+/** The freest of two camera rules (missing: free, so missing wins). */
+export const looser = (a, b) => (a && b ? CAMERA_RULES[Math.min(CAMERA_RULES.indexOf(a), CAMERA_RULES.indexOf(b))] : undefined);
+/** A step's rule as a rule (`free`: none). */
+export const stepRule = (c) => (c.camera === 'free' ? undefined : c.camera);
+export function cameraStepsOf(ex) {
+    if (!ex)
+        return [];
+    const own = (ex.cameraSteps ?? []).map((s, i) => ({ ...s, key: `s${i}` }));
+    const tiers = (ex.tiers ?? []).flatMap((t, i) => (t.camera && (t.camera.camera === 'free' || CAMERA_RULES.includes(t.camera.camera)) ? [{ ...t.camera, key: `t:${t.id}`, tier: i }] : []));
+    return [...own, ...tiers];
+}
+/** The freest rule someone can ever reach (their world's rule, or a step's): what a brief naming them is kept for. */
+export const loosestCamera = (ex) => cameraStepsOf(ex).reduce((r, s) => looser(r, stepRule(s)), ex?.camera);
+const cleanWords = (v) => (Array.isArray(v) ? [...new Set(v.filter((x) => typeof x === 'string').map(x => x.replace(/\s+/g, ' ').trim().slice(0, 120)).filter(Boolean))] : []);
+/** A camera change made safe (null: no rule it could be). */
+export function cameraChange(c) {
+    if (!c || typeof c !== 'object' || !(c.camera === 'free' || CAMERA_RULES.includes(c.camera)))
+        return null;
+    const out = { camera: c.camera };
+    for (const k of ['lifts', 'adds']) {
+        const l = cleanWords(c[k]);
+        if (l.length)
+            out[k] = l;
+    }
+    if (str(c.line))
+        out.line = String(c.line).replace(/\s+/g, ' ').trim().slice(0, 300);
+    if (c.adult === true)
+        out.adult = true;
+    return out;
+}
+/** A person's camera steps made safe, in place: each a rule and a condition, its lists words; no key when none is left. */
+export function upgradeCameraSteps(ex) {
+    if (!ex || typeof ex !== 'object' || !('cameraSteps' in ex))
+        return;
+    const list = (Array.isArray(ex.cameraSteps) ? ex.cameraSteps : []).map((s) => {
+        const c = cameraChange(s), w = when(s?.when);
+        return c && w ? { when: w, ...c } : null;
+    }).filter(Boolean);
+    if (list.length)
+        ex.cameraSteps = list;
+    else
+        delete ex.cameraSteps;
+}
 /** Does this camera rule let a person be the subject of this brief (`never`: no; `noface`: only from behind; `work`:
  *  never an adult brief)? `ask` lets them in: they're asked when it's taken. */
 export function cameraAllows(rule, b) {
@@ -184,13 +227,15 @@ function gear(x) {
     return out;
 }
 /** `w.photo` made safe (in place): clients and briefs that can't be played dropped (a brief's client, its places, a
- *  subject whose `camera` rules the brief out), numbers inside their bounds, the words sorted, the boards' numbers given
+ *  subject whose `camera` rules the brief out, even at their freest step), numbers inside their bounds, the words sorted, the boards' numbers given
  *  their defaults; and the photo fields elsewhere cleaned where they are. Idempotent. */
 export function upgradePhoto(w) {
     const people = new Map((w.cast?.examples ?? []).map(ex => [ex.name, ex]));
-    for (const ex of w.cast?.examples ?? [])
+    for (const ex of w.cast?.examples ?? []) {
         if ('camera' in ex && !CAMERA_RULES.includes(ex.camera))
             delete ex.camera;
+        upgradeCameraSteps(ex);
+    }
     const items = [...(w.catalogs?.shop ?? []), ...(w.homes?.fixtures ?? [])];
     for (const it of items)
         if (it && 'photo' in it) {
@@ -217,7 +262,7 @@ export function upgradePhoto(w) {
     const books = uniq((Array.isArray(p.books) ? p.books : []).map(book).filter(Boolean));
     const ids = new Set(clients.map(c => c.id)), bookIds = new Set(books.map(b => b.id));
     const briefs = uniq((Array.isArray(p.briefs) ? p.briefs : []).map((b) => brief(b, places, ids)).filter(Boolean))
-        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || cameraAllows(people.get(who)?.camera, b); });
+        .filter(b => { const who = b.subject?.who; return !who || SUBJECT_KINDS.includes(who) || cameraAllows(loosestCamera(people.get(who)), b); });
     for (const b of briefs)
         if (b.book && !bookIds.has(b.book))
             delete b.book;

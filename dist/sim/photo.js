@@ -6,7 +6,7 @@
 // system off, or a world without `photo`, nothing here writes anything.
 import { adultOn, nowAbs } from '../core/store.js';
 import { systemOn, worldFile } from '../core/world.js';
-import { stricter } from '../core/photo.js';
+import { stricter, looser, stepRule, cameraStepsOf } from '../core/photo.js';
 import { safeUrl } from '../core/safe.js';
 import { relOf, idOf } from './rel.js';
 import { photoLink } from './hooks.js';
@@ -43,12 +43,33 @@ export function photoOf(g) {
 function blank() { return { rep: 0, contacts: {}, board: [], open: [], photos: [], portfolio: [], books: [], done: 0, week: { from: 0, n: 0 }, nextId: 1 }; }
 /** Your photo reputation, 0–100. */
 export const repOf = (g) => peekPhoto(g).rep;
-/** How someone stands in front of a camera: the strictest of what the world says of them and what the game keeps (a
- *  card's own settings); missing: free. `avatar` is a store id. */
+/** The world's person behind someone in this game (by name), if any. */
+export const cameraPerson = (g, w, avatar) => {
+    const r = g.cast?.[avatar];
+    return r ? (w.cast?.examples ?? []).find(e => e.name === r.name) : undefined;
+};
+/** Does this camera change count now: photography on, and an adult one only with adult content on. */
+export const stepCounts = (g, w, s) => systemOn(w, 'photography') && (!s.adult || adultOn(g));
+/** The camera step that holds for someone now (sim/camera.ts latches them): the last of theirs latched in the save that
+ *  counts now; undefined before any. */
+export function cameraStepNow(g, w, avatar, ex = cameraPerson(g, w, avatar)) {
+    const got = relOf(g).people[idOf(g, avatar)]?.camSteps;
+    if (!got || !ex)
+        return undefined;
+    return cameraStepsOf(ex).filter(s => got[s.key] !== undefined && stepCounts(g, w, s)).at(-1);
+}
+/** How someone stands in front of a camera; missing: free. `avatar` is a store id. Someone the game made (no world
+ *  person behind them): their own rule. The world's people: the world's rule loosened to the camera step that holds
+ *  now (none: the world's rule); a card's own rule stricter than the world's is the card's choice and stays (the
+ *  stricter of the two), while one the same as the world's (the copy a new game keeps) loosens with the steps. */
 export function cameraOf(g, w, avatar) {
-    const r = g.cast?.[avatar], ex = r ? (w.cast?.examples ?? []).find(e => e.name === r.name) : undefined;
+    const ex = cameraPerson(g, w, avatar);
     const own = relOf(g).people[idOf(g, avatar)]?.camera;
-    return stricter(ex?.camera, own);
+    if (!ex)
+        return own;
+    const step = cameraStepNow(g, w, avatar, ex);
+    const world = step ? looser(ex.camera, stepRule(step)) : ex.camera;
+    return stricter(world, own === ex.camera || stricter(own, ex.camera) === ex.camera ? undefined : own);
 }
 /* ---------- reputation and contacts ---------- */
 /** A reputation in the world's words (from its floors up). */
