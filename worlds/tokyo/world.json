@@ -22530,6 +22530,7 @@
    "cost": 0,
    "minutes": 120,
    "place": "sb_lovehotel",
+   "bg": "bg/sb_lovehotel-mirror.avif",
    "effects": {
     "mood": 14,
     "energy": -8,
@@ -22801,6 +22802,7 @@
    "cost": 0,
    "minutes": 120,
    "place": "sb_lovehotel",
+   "bg": "bg/sb_lovehotel-jungle.avif",
    "effects": {
     "mood": 15,
     "energy": -10,
@@ -24628,6 +24630,7 @@
    "cost": 0,
    "minutes": 60,
    "place": "sj_hostess",
+   "bg": "bg/sj_hostess-vip.avif",
    "effects": {
     "mood": 15,
     "energy": -8,
@@ -25353,6 +25356,7 @@
    "cost": 0,
    "minutes": 120,
    "place": "sb_lovehotel",
+   "bg": "bg/sb_lovehotel-spa.avif",
    "effects": {
     "mood": 15,
     "energy": 4,
@@ -26671,6 +26675,7 @@
    "cost": 0,
    "minutes": 90,
    "anywhere": true,
+   "bg": "bg/home-shiori-closet.avif",
    "effects": {
     "mood": 15,
     "energy": -8,
@@ -26725,6 +26730,7 @@
    "cost": 0,
    "minutes": 60,
    "anywhere": true,
+   "bg": "bg/home-shiori-closet.avif",
    "effects": {
     "mood": 14,
     "energy": -6,
@@ -26895,6 +26901,7 @@
    "cost": 0,
    "minutes": 90,
    "anywhere": true,
+   "bg": "bg/home-shiori-closet.avif",
    "effects": {
     "mood": 15,
     "energy": -8,
@@ -27222,6 +27229,7 @@
    "cost": 0,
    "minutes": 90,
    "anywhere": true,
+   "bg": "bg/home-shiori-closet.avif",
    "effects": {
     "mood": 14,
     "energy": -8,
@@ -27276,6 +27284,7 @@
    "cost": 0,
    "minutes": 90,
    "anywhere": true,
+   "bg": "bg/home-shiori-closet.avif",
    "effects": {
     "mood": 16,
     "energy": -10,
