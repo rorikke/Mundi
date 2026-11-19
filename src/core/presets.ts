@@ -331,8 +331,9 @@ const ROLES = ['lead', 'follow', 'switch'], DRIVES = ['low', 'average', 'high'];
 const strList = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && !!x) : []);
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 // (E-5) An action's own background: a picture is a non-empty text; by part of the day, only the parts pictures are
-// chosen by (the three of sim/daynight.ts's TIME_SLOTS, and the world's own periods). Nothing empty is kept.
-const PIC_SLOTS = ['day', 'afternoon', 'night'];
+// chosen by (the three of sim/daynight.ts's TIME_SLOTS, and the world's own periods); by place, any non-empty place id
+// (homes and places a later version adds included). Nothing empty is kept; `keepBg` is `true` or nothing.
+const PIC_SLOTS = ['day', 'afternoon', 'night'], NOT_KEYS = ['__proto__', 'constructor', 'prototype'];
 function upgradeActionPics(w: WorldDef) {
     const known = new Set([...PIC_SLOTS, ...(w.time?.periods ?? []).map(p => p?.id).filter(Boolean)]);
     const pic = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
@@ -343,6 +344,12 @@ function upgradeActionPics(w: WorldDef) {
             if (isObj(a.bgs)) for (const [k, v] of Object.entries(a.bgs)) { const f = pic(v); if (known.has(k) && f) out[k] = f; }
             if (Object.keys(out).length) a.bgs = out; else delete a.bgs;
         }
+        if (a.bgAt !== undefined) {
+            const out: Record<string, string> = {};
+            if (isObj(a.bgAt)) for (const [k, v] of Object.entries(a.bgAt)) { const f = pic(v); if (k.trim() && f && !NOT_KEYS.includes(k)) out[k] = f; }
+            if (Object.keys(out).length) a.bgAt = out; else delete a.bgAt;
+        }
+        if (a.keepBg !== undefined && (a.keepBg as unknown) !== true) delete a.keepBg;
     }
 }
 function upgradeAdult(w: WorldDef) {

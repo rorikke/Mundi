@@ -3,7 +3,7 @@
 // scene stays the same, the scene shows the action's picture instead of the place's or the room's.
 //
 // How long it stays: from the moment the action starts until the scene moves on, which is the first of
-// · another action, with no picture of its own (one with a picture takes over);
+// · another action, with no picture of its own here and not keeping the room (one with a picture takes over);
 // · leaving the place, or walking into another room of the home;
 // · the visit ending (leaving, sleeping);
 // · once the action is over, `LINGER` minutes passing or the part of the day changing (the moment the place's own
@@ -11,6 +11,8 @@
 // It never sticks: the action is read from the world each time (a world that no longer has the action or its picture
 // shows the usual one), an adult action shows only with adult content on, and a record that no longer holds is dropped
 // as soon as anything looks. The save keeps one small record, `g.actPic`, only after an action with a picture.
+// Two more fields: `bgAt` (a picture by place, for an action played at several places: a room where it fits, none where
+// it doesn't) and `keepBg` (an action that stays in the room the scene is in: tea after a back-room scene, aftercare).
 import { adultOk, nowAbs, type Save } from '../core/store.js';
 import type { WorldDef, ActionDef } from '../core/world.js';
 import { slotAt, pictureAt } from './daynight.js';
@@ -24,13 +26,22 @@ export const LINGER = 60;
 
 const roomId = (g: Save, w: WorldDef) => roomNow(g, w)?.id ?? '';
 const visitOf = (g: Save) => Number((g as any).visitStart ?? 0) || 0;
-/** Has this action a picture of its own? */
-export const hasActionPic = (a: ActionDef | null | undefined) => !!a && (!!a.bg || !!(a.bgs && Object.keys(a.bgs).length));
+// Its picture for one place (`bgAt`, by the place's id: `g.player.loc`, so a home is `home:player`, `home:second` or
+// `home:<avatar>`), '' when it has none there.
+const picHere = (a: ActionDef, loc: string) => { const m = a.bgAt; const v = m && Object.hasOwn(m, loc) ? m[loc] : ''; return typeof v === 'string' ? v : ''; };
+/** Has this action a picture of its own where it plays (`loc`)? Its picture for that place, else its `bg`/`bgs`. */
+export const hasActionPic = (a: ActionDef | null | undefined, loc: string) => !!a && (!!picHere(a, loc) || !!a.bg || !!(a.bgs && Object.keys(a.bgs).length));
 
-/** An action starts (`to`: the minute it ends): one with a picture is shown from now, and any other one ends what
- *  was shown. A world without these pictures never writes anything. */
+/** An action starts (`to`: the minute it ends): one with a picture here is shown from now; one that keeps the room
+ *  (`keepBg`) keeps the picture showing, its time renewed from this action's; any other one ends what was shown. A
+ *  world without these pictures never writes anything. */
 export function noteActionPic(g: Save, w: WorldDef, a: ActionDef, from: number, to: number) {
-    if (!hasActionPic(a)) { if ((g as any).actPic) delete (g as any).actPic; return; }
+    if (!hasActionPic(a, g.player.loc)) {
+        // (picAction drops a record that no longer holds, so an ended picture can't come back this way)
+        if (a.keepBg && picAction(g, w)) { (g as any).actPic = { ...(g as any).actPic as ActPic, from, to: Math.max(from, to) } satisfies ActPic; return; }
+        if ((g as any).actPic) delete (g as any).actPic;
+        return;
+    }
     const room = roomId(g, w);
     (g as any).actPic = { id: a.id, loc: g.player.loc, ...(room ? { room } : {}), from, to: Math.max(from, to), visit: visitOf(g) } satisfies ActPic;
 }
@@ -49,12 +60,12 @@ export function picAction(g: Save, w: WorldDef): ActionDef | null {
     if (!r) return null;
     if (typeof r !== 'object' || typeof r.id !== 'string' || !holds(g, w, r)) { delete (g as any).actPic; return null; }
     const a = w.actions.find(x => x.id === r.id);
-    return a && adultOk(g, a) && hasActionPic(a) ? a : null;
+    return a && adultOk(g, a) && hasActionPic(a, r.loc) ? a : null;
 }
 
-/** The picture of the action going on, for this part of the day (a file as the world names it, for `worldFile()`),
- *  or null: the scene shows its usual picture. */
+/** The picture of the action going on, for this place (`bgAt`) or else this part of the day (a file as the world names
+ *  it, for `worldFile()`), or null: the scene shows its usual picture. */
 export function actionPicture(g: Save, w: WorldDef): string | null {
     const a = picAction(g, w);
-    return (a && pictureAt(w, g.minutes, a.bg, a.bgs)) || null;
+    return (a && (picHere(a, g.player.loc) || pictureAt(w, g.minutes, a.bg, a.bgs))) || null;
 }

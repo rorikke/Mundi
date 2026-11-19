@@ -300,6 +300,13 @@ export interface ActionDef {
     bg?: string;
     /** (E-5) The same at other parts of the day (`day`, `afternoon`, `night`, or a period id → picture), as `Place.bgs`. */
     bgs?: Record<string, string>;
+    /** (E-5) Its picture by place id, for an action played at several places (four love hotels, a hotel or the ryokan):
+     *  where it plays at a place listed, this one picture is shown instead of `bg`/`bgs`; elsewhere `bg`/`bgs` as usual
+     *  (with neither, the place's own). A home is keyed as the player stands in it: `home:player`, `home:second`. */
+    bgAt?: Record<string, string>;
+    /** (E-5) It keeps the room the scene is in: an action's picture showing when it starts stays, as though this were
+     *  part of it, its time renewed from this one's (tea after a back-room scene, aftercare). Nothing showing: nothing. */
+    keepBg?: true;
 }
 /** A roll's result. `keepsake` and `fact` as on the action (E14); `feels`: how some of the world's people feel about
  *  you after it (a name → a small change, up paced and down in full: "Mio's and Chloe's friendship up a little");
