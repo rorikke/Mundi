@@ -24219,6 +24219,310 @@
    ],
    "fact": "{u} went home with Airi after she closed her own bar for the first time",
    "adult": true
+  },
+  {
+   "id": "priv_sumire_cabana",
+   "name": "The cabana",
+   "label": "Sumire's cabana at the night pool",
+   "icon": "🏝️",
+   "cost": 0,
+   "minutes": 60,
+   "place": "rp_nightpool",
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.05,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: evening or night; present: Sumire; companion: crush or casual",
+   "dress": {
+    "kind": "swim",
+    "level": 4,
+    "who": [
+     "Sumire"
+    ]
+   },
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "teasing and denial"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a curtained daybed at the Azabu Terrace Night Pool on one of Sumire's summer nights off, the curtain half drawn, Sumire in her boldest swimsuit, the DJ's bass through the boards, and the pool crowd walking past an arm's length away"
+   },
+   "outcomes": [
+    {
+     "id": "chain",
+     "weight": 50,
+     "text": "She lies back on the daybed with the curtain half open and orders from the passing waiter in her lightest hostess voice while her foot finds your lap; she makes you behave each time someone walks by, and stop behaving when she says."
+    },
+    {
+     "id": "denied",
+     "weight": 30,
+     "text": "She lets you touch nothing but the strap of her swimsuit for half an hour and calls it foreplay. You call it something else; she laughs and makes you ask again, nicely.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "recognised",
+     "weight": 20,
+     "text": "A man at the bar squints at the daybed as if he knows her from somewhere. Sumire looks straight back at him over her sunglasses until he decides he doesn't, then laughs into your neck for a full minute.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} kept Sumire company on a curtained daybed at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_boudoir",
+   "name": "Boudoir",
+   "label": "A boudoir sitting with Sumire",
+   "icon": "🕯️",
+   "cost": 0,
+   "minutes": 120,
+   "place": "home:studio",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "photo": true,
+   "dc": 12,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; studio: dressing; period: evening or night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "dressing up",
+    "being in control",
+    "a thrill for being watched"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a boudoir sitting in {{user}}'s photo studio after hours, the dressing room's bulbs lit and one soft light on the chaise: Sumire directing her own poses, first in the violet gown unzipped, then in garters and stockings, and {{user}} doing exactly as told on both sides of the camera"
+   },
+   "outcomes": [
+    {
+     "id": "directs",
+     "weight": 50,
+     "text": "She comes out of the dressing room in the violet gown unzipped to the small of her back and directs you like a junior: higher, the light lower, closer, not that close. By the garters the camera is on the floor, and she decides the last frames will have to be earned."
+    },
+    {
+     "id": "proofs",
+     "weight": 30,
+     "text": "Afterward she goes through every frame on the laptop with a red pen in her teeth, deletes half without pity, and keeps the one where she was laughing at you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "zip",
+     "weight": 20,
+     "text": "The gown's zip jams halfway down and she has to stand perfectly still, swearing elegantly in Kansai dialect, while you work it free. She says her face during it is the only honest frame of the night.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shot a boudoir sitting with Sumire in their studio",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_nightpool",
+   "name": "Night pool",
+   "label": "Lisa at the night pool",
+   "icon": "🌃",
+   "cost": 0,
+   "minutes": 60,
+   "place": "rp_nightpool",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.05,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; period: night; present: Lisa; companion: crush or casual",
+   "dress": {
+    "kind": "swim",
+    "level": 3,
+    "who": [
+     "Lisa"
+    ]
+   },
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for semi-public places",
+    "exhibitionist streak"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the Azabu Terrace Night Pool on Lisa's summer night off, Lisa in her boldest swimsuit, dancing on the wet tiles by the DJ booth until the set ends, then pulling {{user}} into the water in the booth's shadow, close, while the dancers above never stop"
+   },
+   "outcomes": [
+    {
+     "id": "booth",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "She dances on the wet deck until half the pool is watching her, then drops off the edge into the water in front of you and wraps her legs round your waist. In the shadow under the booth nobody can see what her hands are doing, and she doesn't care if they can."
+    },
+    {
+     "id": "booth_w",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "She dances on the wet deck until half the pool is watching her, then drops into the water in front of you and pulls you close. In the shadow under the booth nobody can see what her hands are doing, and she doesn't care if they can."
+    },
+    {
+     "id": "airi",
+     "weight": 30,
+     "text": "Airi spots the two of you from a daybed, raises her glass and very loudly asks the DJ for something slower. Lisa flips her off with great affection.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "string",
+     "weight": 20,
+     "text": "Her swimsuit's string comes undone in the water and floats off; you spend ten minutes diving for a piece of gold the size of a postage stamp while Lisa laughs from the edge, completely unbothered.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} stayed in the water with Lisa at {0}, in the shadow of the DJ booth",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_hakone_spa",
+   "name": "Private bath",
+   "label": "Tsubaki's oil at Hoshizora",
+   "icon": "🌿",
+   "cost": 0,
+   "minutes": 120,
+   "place": "hk_spapark",
+   "effects": {
+    "mood": 15,
+    "energy": 4,
+    "hygiene": 30,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; knows: priv_tsubaki_daylight; period: midmorning or afternoon; present: Tsubaki; companion: crush or casual",
+   "dress": {
+    "kind": "swim",
+    "level": 4,
+    "who": [
+     "Tsubaki"
+    ]
+   },
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "massage",
+    "warm oil and towels",
+    "slow and unhurried"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the private rental bath at the top of Hoshizora Spa Park, booked by Tsubaki for two hours on her day off and the door locked: a cedar tub, a warm stone bench and the cedars outside, Tsubaki in her boldest swimsuit, giving {{user}} her long course on the warm stone, and then asking for it back"
+   },
+   "outcomes": [
+    {
+     "id": "stone",
+     "weight": 50,
+     "text": "She lays you face down on the warm stone and gives you the long course, inch by inch, unhurried, until you're not sure you can stand. Then she lies down on the stone herself and says, \"Now me. Slowly. I'll tell you where.\""
+    },
+    {
+     "id": "back",
+     "weight": 30,
+     "text": "She talks you through her own course on her, hand by hand, correcting your thumbs in that unhurried voice, and falls asleep for ten minutes in the middle of it, which she says is the highest compliment she can pay.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "timer",
+     "weight": 20,
+     "text": "The bath's timer rings at the worst possible moment; Tsubaki books another hour through the door in her most professional voice.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} traded the long course with Tsubaki in the private bath at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_beach",
+   "name": "A beach date",
+   "label": "A beach day with Momo",
+   "icon": "🏖️",
+   "cost": 0,
+   "minutes": 180,
+   "place": "bay_beach",
+   "effects": {
+    "mood": 12,
+    "energy": -12
+   },
+   "when": "thread: priv_momo_date winner; feels: Momo crush; season: summer; period: midmorning or afternoon; weather: not rain; present: Momo",
+   "dress": {
+    "kind": "swim",
+    "level": 2,
+    "who": [
+     "Momo"
+    ]
+   },
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "a summer day on the sand at Odaiba Seaside Park, Momo in her swimsuit: two-on-two volleyball against a pair of university students she challenges herself, a swim out to the buoys and back, and the loser buying dinner"
+   },
+   "outcomes": [
+    {
+     "id": "buoys",
+     "weight": 50,
+     "text": "She challenges two university students to two-on-two, carries you through three games with her diving digs, then races you out to the buoys and back and wins that too. On the sand afterward she lies with her head on your stomach and says the loser's buying dinner, and also that she has decided what happens after."
+    },
+    {
+     "id": "sunscreen",
+     "weight": 30,
+     "text": "She asks you to do her back with sunscreen, then to do it again because you missed a bit, then a third time, red to the ears, because she just wanted you to.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "gull",
+     "weight": 20,
+     "text": "A gull steals her onigiri mid-sentence. She chases it the length of the beach with an athlete's turn of speed and loses anyway.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent a summer day on the sand at {0} with Momo",
+   "adult": true
   }
  ],
  "sleep": {
@@ -85221,6 +85525,35 @@
      "scene": "Erika at the sky museum's glass wall at night, the whole city lit below"
     },
     "text": "The last plate: the city she owned once, below her, and the look on her face about it."
+   },
+   {
+    "board": "small",
+    "id": "sm_lisa_studio_poster",
+    "client": "friend",
+    "kind": "portrait",
+    "name": "Lisa's studio poster",
+    "places": [
+     "rp_poleclub"
+    ],
+    "window": "period: afternoon",
+    "when": "thread: priv_lisa_studio opens",
+    "pay": 12000,
+    "needs": {
+     "photography": 3
+    },
+    "gear": [
+     "flash"
+    ],
+    "dc": 12,
+    "hours": 2,
+    "subject": {
+     "who": "Lisa",
+     "expr": "pride",
+     "outfit": "clothes",
+     "consent": true,
+     "scene": "Lisa upside down on Pole Star's main pole in her stage set, chalk on her palms, for the opening poster of her own dance studio"
+    },
+    "text": "Lisa's own studio opens next month and its poster can't wait for the mirrors: she wants it shot upside down on Pole Star's main pole before the evening crowd. Ask her first; she'll say yes or no to every frame."
    }
   ],
   "books": [
