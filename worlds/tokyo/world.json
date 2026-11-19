@@ -24619,6 +24619,2833 @@
    "fact": "{u} acted out a page of Yui's book as she narrated it at {0}",
    "private": true,
    "adult": true
+  },
+  {
+   "id": "priv_sumire_vip",
+   "name": "The VIP room",
+   "label": "Velvet's VIP room after closing",
+   "icon": "🥂",
+   "cost": 0,
+   "minutes": 60,
+   "place": "sj_hostess",
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.15,
+   "when": "thread: priv_sumire_friday drops_him; feels: Sumire crush; period: latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lounge Velvet's VIP room after closing, the door unlocked, the boy-san counting the till on the other side of it: Sumire on the deep sofa where she has poured champagne for a hundred company presidents, alone with {{user}} for nothing, as quietly as she can"
+   },
+   "outcomes": [
+    {
+     "id": "sofa",
+     "weight": 45,
+     "text": "She pushes you down onto the sofa where she has poured champagne for ten years, one hand over your mouth, and everything after happens in total silence while the till drawer opens and closes through the wall. Then she looks at the sofa as if she's won it back."
+    },
+    {
+     "id": "bottle",
+     "weight": 25,
+     "text": "Afterward she pours you a glass from a regular's name-tagged bottle and toasts him, very sweetly, by name.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "steps",
+     "weight": 15,
+     "text": "Footsteps stop outside the door and you both freeze, mid-everything. They move on. Sumire breathes again and says, \"Never again,\" and kisses you, and doesn't mean it.",
+     "effects": {
+      "mood": 1
+     }
+    },
+    {
+     "id": "kyoko",
+     "weight": 15,
+     "text": "On the way out you kiss in the lift lobby, under Kyōko's old photo by the lift. Nobody else sees, but Sumire apologises to the photo anyway, and means it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} was alone with Sumire in the VIP room at {0} after closing, and nobody knew",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_hair",
+   "name": "Updo down",
+   "label": "Take Sumire's updo down",
+   "icon": "🎀",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_sumire_friday drops_him; feels: Sumire crush; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "dressing up",
+    "making people wait"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Sumire at {{user}}'s place letting {{user}} take down her big curled updo pin by pin, the honey-brown curls falling, and then a slow, tender night with nobody in charge"
+   },
+   "outcomes": [
+    {
+     "id": "pins",
+     "weight": 50,
+     "text": "She sits between your knees on the bed and lets you take the updo down, pin by pin, thirty-one of them, the curls falling over her shoulders and her eyes closed. When the last pin is out she turns round and kisses you like someone who isn't working, and doesn't give a single order all night."
+    },
+    {
+     "id": "brush",
+     "weight": 30,
+     "text": "Afterward she lets you brush her hair. Nobody has, she says, since her mother in Kobe.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "count",
+     "weight": 20,
+     "text": "You count the hairpins aloud as you go. At thirty-one she says, \"Thirty-two. You missed one.\" You hadn't. She just wanted you to keep going.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took Sumire's updo down, pin by pin",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_lead",
+   "name": "You lead",
+   "label": "Sumire lets you lead",
+   "icon": "🔁",
+   "cost": 0,
+   "minutes": 150,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_sumire_friday drops_him; feels: Sumire crush; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being in control",
+    "being begged"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a rare night at {{user}}'s place when Sumire lets {{user}} lead from start to finish: her wrists held, told what to do, and asked nothing"
+   },
+   "outcomes": [
+    {
+     "id": "furious",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "You hold her wrists over her head and take your time, and she lets you, saying \"yes\" and \"please\" and once, astonished, \"don't stop\". Afterward she lies on her back glaring at the ceiling, furious and glowing. \"Don't you dare get used to that.\" She asks for it again a week later."
+    },
+    {
+     "id": "furious_woman",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "With you she lets go entirely: held, told, taken slowly, until she is the one asking and doesn't care who hears. Afterward she curls against you, not furious at all, and says it is the first time she has felt like herself in bed in ten years."
+    },
+    {
+     "id": "habit",
+     "weight": 30,
+     "text": "Twice she starts to give an order out of habit. The second time you put a finger on her lips, and she laughs helplessly into the pillow.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tie",
+     "weight": 20,
+     "text": "You tie her wrists with your necktie. She critiques the knot. You tell her to be quiet. She is, which shocks you both.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} led, for once, and Sumire let them",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_rotenburo",
+   "name": "Hair down",
+   "label": "The private bath with Sumire",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 120,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 16,
+    "energy": 4,
+    "hygiene": 30,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "thread: priv_sumire_friday drops_him; feels: Sumire crush; knows: priv_sumire_ryokan; period: evening or night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "bath"
+   ],
+   "matches": [
+    "being in control",
+    "making people wait"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Ryokan Kasumi-sō's private open-air bath at night, a weekend Sumire booked under her real name: her curls down and wet, no gown, no hostess voice, the hot water and the cedars dark around them, and nobody in charge"
+   },
+   "outcomes": [
+    {
+     "id": "cedars",
+     "weight": 50,
+     "text": "She lets her hair down into the water, curls floating, and for the first time since you've known her she doesn't lead at all. Later she is in your arms with her face in your neck, the steam rising off her shoulders, saying your name over and over, not in any hostess voice at all."
+    },
+    {
+     "id": "kurosawa",
+     "weight": 30,
+     "text": "The maid calls her \"Kurosawa-sama\" at dinner. She goes pink to the ears and asks you to say it, later, in the dark.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "phone",
+     "weight": 20,
+     "text": "Her phone buzzes on the rock: Velvet. She looks at it a long time, then drops it into her sandal and leaves it there all weekend.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} shared the private bath at {0} with Sumire, her hair down",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_narrate",
+   "name": "Narrated",
+   "label": "Yui narrates what comes next",
+   "icon": "📜",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_yui_research tried_a_page; feels: Yui good; feels: Yui crush; period: evening or night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "whispered words",
+    "slow-burn tension"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Yui at {{user}}'s place, leading with words as they agreed beforehand: whispering in elegant formal sentences, like a page read aloud, what is about to happen a moment before it does"
+   },
+   "outcomes": [
+    {
+     "id": "page",
+     "weight": 50,
+     "text": "\"The guest did not yet know,\" she whispers against your ear, \"that she meant to take her time, and stop at the very edge.\" Then she does exactly that. Every sentence comes a breath before her hands do, elegant and wicked, until the narration breaks off and she has to put her own hand over her mouth."
+    },
+    {
+     "id": "tense",
+     "weight": 30,
+     "text": "Halfway through she switches the narration to the future tense, and then to the second person, and you discover you like the second person very much.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "adverb",
+     "weight": 20,
+     "text": "She stops mid-sentence to cross out an adverb in her head, frowning. \"Too many slowlys.\" You suggest she proves it. She does, slowly.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} heard Yui narrate everything a moment before it happened, at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_pages",
+   "name": "Her pages",
+   "label": "Read Yui's pages aloud",
+   "icon": "📖",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_yui_research tried_a_page; feels: Yui good; feels: Yui crush; period: evening or night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "reading her own pages aloud to someone",
+    "slow-burn tension"
+   ],
+   "together": {
+    "needed": true,
+    "text": "{{user}} reading one of Moon Fox's chapters aloud at {{user}}'s place, as agreed beforehand, and following each line as it is read, never a line ahead of the text, while Yui lies listening to her own words and begs to skip to the end"
+   },
+   "outcomes": [
+    {
+     "id": "aloud",
+     "weight": 50,
+     "text": "You read her own chapter aloud and follow it to the letter, never a line ahead. Yui hears her sentences in your voice and goes scarlet, then begs you to skip to the end. You don't skip a word."
+    },
+    {
+     "id": "typo",
+     "weight": 30,
+     "text": "You find a typo. She sits up, wrapped in the sheet, horrified, and makes you wait while she fixes it on her phone, and then lies back down and says \"continue\".",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "voice",
+     "weight": 20,
+     "text": "You do the heroine's voice. She laughs so hard she has to put a pillow over her face, and then asks you to do it again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} read Yui's own pages aloud to her at their place, and did every line",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_hair",
+   "name": "Her hair",
+   "label": "Yui's hair round your hand",
+   "icon": "🎀",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_yui_research tried_a_page; feels: Yui good; feels: Yui crush; period: evening or night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "whispered words",
+    "slow-burn tension"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Yui at {{user}}'s place untying the white ribbon at last, her straight black hair falling to her waist, and giving it to {{user}} to wrap round one hand, exactly as firmly as they agreed beforehand"
+   },
+   "outcomes": [
+    {
+     "id": "ribbon",
+     "weight": 50,
+     "text": "She sits with her back to you and unties the ribbon, and her hair falls to her waist, smelling of camellia oil. She winds it round your hand herself, twice, and tells you how firmly. After that she only whispers \"more\", and then not even that."
+    },
+    {
+     "id": "oil",
+     "weight": 30,
+     "text": "Afterward she lets you comb camellia oil through her hair, one long stroke at a time, and makes a small contented sound like a fox in the sun.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tangle",
+     "weight": 20,
+     "text": "Her hair gets caught in your watch strap at a crucial moment. Extraction takes some time, and great politeness on both sides.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} wrapped Yui's long hair round their hand at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_slow",
+   "name": "Slowly",
+   "label": "Let Yui take her time",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_yui_research tried_a_page; feels: Yui good; feels: Yui crush; period: evening or night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow-burn tension",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Yui at {{user}}'s place doing what she has written a hundred times and never done like this, all of it agreed beforehand, slowly, pausing now and then to whisper how the scene would read, until {{user}} can hardly bear how slowly"
+   },
+   "outcomes": [
+    {
+     "id": "slow",
+     "weight": 50,
+     "text": "She folds her hands in her lap as if at a tea ceremony, and then takes her time, so slowly it is almost a tease, pausing to whisper how it would be written, then going on. She doesn't hurry for anything, not even your begging, and afterward she looks up, very pleased, and makes a note on her phone."
+    },
+    {
+     "id": "drafts",
+     "weight": 30,
+     "text": "She admits, halfway, that she wrote this scene eleven times and got it wrong all eleven. \"Too fast,\" she says, and demonstrates the twelfth draft.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cushion",
+     "weight": 20,
+     "text": "Your floor is harder than tatami. She asks very politely for a cushion, and then pretends she never needed one.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} let Yui take her time, slowly, at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_inn",
+   "name": "The stranger",
+   "label": "The stranger at the inn",
+   "icon": "🏮",
+   "cost": 0,
+   "minutes": 180,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_yui_research tried_a_page; knows: priv_yui_chapters; feels: Yui good; feels: Yui crush; period: evening or night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "roleplay scenarios from her novels",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Ryokan Kasumi-sō at night, the first chapter of Moon Fox's serial played as agreed beforehand: Yui in an inn yukata as a guest who has never met {{user}}, knocking at {{user}}'s door by mistake, formal and apologetic, then whispering the scene's next line and waiting to hear it said back"
+   },
+   "outcomes": [
+    {
+     "id": "stranger",
+     "weight": 50,
+     "text": "She knocks at your door in an inn yukata, bows, apologises for the wrong room in flawless formal Japanese, and doesn't leave. As the stranger she lets you untie her obi one fold at a time, narrating in a whisper what the guest in the story feels, until the sentences break off; she stays perfectly in character to the end."
+    },
+    {
+     "id": "dinner",
+     "weight": 30,
+     "text": "At dinner she stays in character so thoroughly that she introduces herself to you again over the pickles, with a new name and a new life story, and you have to bite your cheek.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "slippers",
+     "weight": 20,
+     "text": "The mysterious stranger trips over the room's slippers. Yui laughs into the futon, breaks character completely, and says the published version will be more elegant.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} played the stranger at the inn with Yui at {0}, the first chapter of her serial",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_walls",
+   "name": "Thin walls",
+   "label": "Quiet, through thin walls",
+   "icon": "🤫",
+   "cost": 0,
+   "minutes": 60,
+   "place": "hk_ryokan",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.03,
+   "when": "thread: priv_yui_research tried_a_page; knows: priv_yui_chapters; feels: Yui good; feels: Yui crush; period: night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for being nearly caught",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a tatami room at Ryokan Kasumi-sō with only paper screens and thin wood between it and the next guests: Yui and {{user}} under the quilt, every sound a risk they agreed to beforehand, her own hand over her mouth and her whispers in {{user}}'s ear about who might be listening"
+   },
+   "outcomes": [
+    {
+     "id": "walls",
+     "weight": 50,
+     "text": "The guests next door are still talking when she pulls you under the quilt. Every movement is slow and silent; she whispers in your ear what they might be hearing, in elegant sentences, and then stops whispering and presses both hands over her mouth, her eyes wide with delight."
+    },
+    {
+     "id": "cough",
+     "weight": 30,
+     "text": "Someone next door coughs, pointedly. She freezes, giggles silently into your shoulder for a full minute, and then starts again, slower.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "creak",
+     "weight": 20,
+     "text": "The futon creaks on the old floor at every movement. She solves it by moving the two of you onto the tatami, and the tatami creaks too.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} kept very quiet with Yui behind the thin walls of {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_tutor",
+   "name": "The tutor",
+   "label": "Yui's strict tutor",
+   "icon": "👓",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_yui_research tried_a_page; knows: priv_yui_chapters; feels: Yui good; feels: Yui crush; period: evening or night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "roleplay scenarios from her novels",
+    "teasing back wickedly"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the second chapter of Moon Fox's serial at {{user}}'s place, agreed beforehand line by line: Yui in reading glasses she doesn't need as a strict tutor with a red pen and a stack of pages, correcting {{user}} in a cold whisper and making {{user}} wait, until the student is allowed to turn the lesson round"
+   },
+   "outcomes": [
+    {
+     "id": "lesson",
+     "weight": 50,
+     "text": "She grades your answers in red, peering over the glasses, and for every mistake makes you wait longer. When you finally get one right she takes the glasses off, very slowly, and says \"you may\". Then the lesson turns round, and the strict tutor forgets her grammar entirely."
+    },
+    {
+     "id": "grade",
+     "weight": 30,
+     "text": "Afterward she grades your performance in red ink on a page of her notebook. An A, with a small fox drawn beside it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "glasses",
+     "weight": 20,
+     "text": "The glasses are a size too big and slide down her nose at every stern moment. She pushes them up with one finger, perfectly serious, every time, until you both lose it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took a lesson from Yui's strict tutor at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_fox",
+   "name": "The fox spirit",
+   "label": "Capture Yui's fox spirit",
+   "icon": "🦊",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_yui_research tried_a_page; knows: priv_yui_chapters; feels: Yui good; feels: Yui crush; period: night or latenight; present: Yui; companion: crush or casual",
+   "tags": [
+    "private",
+    "kink",
+    "rope"
+   ],
+   "matches": [
+    "curious about rope and blindfolds",
+    "roleplay scenarios from her novels"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the last chapter of Moon Fox's serial at {{user}}'s place, every knot agreed beforehand from her list: Yui as a fox spirit caught by {{user}} in soft silk cord, over her yukata, her own white ribbon for a blindfold, pleading in elegant sentences to be let go"
+   },
+   "outcomes": [
+    {
+     "id": "caught",
+     "weight": 50,
+     "text": "She kneels in her yukata and holds out her arms for the cord, exactly as her list says, and you tie her own white ribbon over her eyes. The fox spirit pleads to be released in elegant, wicked sentences. You don't release her, not for a long time."
+    },
+    {
+     "id": "tail",
+     "weight": 30,
+     "text": "She has written the fox a tail, and asks, quite seriously, whether you can imagine it. You describe it to her, and she has to stop the scene to write your description down.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "knot",
+     "weight": 20,
+     "text": "Your first knot is so loose the fox escapes with one shrug. She declares it canon, \"the spirit lets herself be caught\", and holds out her arms again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} captured Yui's fox spirit in soft silk cord at their place, the last chapter of her serial",
+   "adult": true
+  },
+  {
+   "id": "priv_yui_critique",
+   "name": "Critique",
+   "label": "Give Yui your critique",
+   "icon": "📝",
+   "cost": 0,
+   "minutes": 30,
+   "home": true,
+   "effects": {
+    "mood": 10,
+    "energy": 6,
+    "desire": 10
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "after: priv_yui_narrate or priv_yui_pages or priv_yui_hair or priv_yui_slow or priv_yui_tutor or priv_yui_fox; present: Yui; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "reading her own pages aloud to someone",
+    "whispered words"
+   ],
+   "together": {
+    "needed": true,
+    "text": "afterward at {{user}}'s place, Yui wrapped in a quilt with her hair everywhere, typing notes into her phone, then asking {{user}} very seriously for critique of the scene they just played: what worked, what to cut, which line to keep, and whether {{user}} would hold her while she writes it"
+   },
+   "outcomes": [
+    {
+     "id": "notes",
+     "weight": 50,
+     "text": "She types fast with both thumbs, still flushed, and reads you her notes in a whisper: what you did, what she felt, a line she wants to keep. Then she asks for honest critique and listens as if you were her editor. When you're done she puts the phone face down, curls into you, and falls asleep mid-sentence."
+    },
+    {
+     "id": "stars",
+     "weight": 30,
+     "text": "She rates the evening out of five, with half stars, and explains each deduction. Every one of them, she says, was her own fault.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "quote",
+     "weight": 20,
+     "text": "She asks whether she may quote something you said. You ask which part. She reads it back to you; you go red, and she writes it down anyway.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} gave Yui their critique afterward at their place, while she typed her notes",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_spa",
+   "name": "The spa room",
+   "label": "The spa room with Kaoru",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 120,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 15,
+    "energy": 4,
+    "hygiene": 30,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "thread: priv_kaoru_rounds mirror_room; feels: Kaoru friend; feels: Kaoru crush; knows: priv_kaoru_rooms; onShift: not Kaoru; period: night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel",
+    "bath"
+   ],
+   "matches": [
+    "a themed room, just once",
+    "mirrors"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the spa room at Coco Palace on Kaoru's night off, the last room on her list: a jet bath under coloured lights, a mirrored wall beside it, steam on the glass, and Kaoru in the water with {{user}}, watching the two of them through the steam"
+   },
+   "outcomes": [
+    {
+     "id": "steam",
+     "weight": 50,
+     "text": "She sets the bath's lights to cycle through every colour and wipes a clear patch in the steamed mirror with her palm so she can watch the two of you. Every time the steam closes over it she wipes it clear again, until she stops bothering, laughing, in a cloud of pink light."
+    },
+    {
+     "id": "jets",
+     "weight": 30,
+     "text": "She tests every setting the jets have with scientific interest, and makes you wait while she tests her favourite twice more.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "fill",
+     "weight": 20,
+     "text": "The bath takes forty minutes to fill. She knows; she brought a crossword. You do it together in the empty tub, in towels.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shared the spa room at {0} with Kaoru on her night off, the last room on her list",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_kettle",
+   "name": "The little kettle",
+   "label": "Tea from the room's kettle",
+   "icon": "🍵",
+   "cost": 0,
+   "minutes": 30,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 10,
+    "energy": 6,
+    "desire": 10
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "after: priv_kaoru_mirror or priv_kaoru_jungle or priv_kaoru_wholenight or priv_kaoru_spa; onShift: not Kaoru; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "keeping the lights on",
+    "slow and lingering"
+   ],
+   "together": {
+    "needed": true,
+    "text": "afterward in a room at Coco Palace on Kaoru's night off: barley tea from the room's little kettle, Kaoru in {{user}}'s shirt and her glasses, cross-legged on the bed, asking almost shyly whether the two of them can stay the whole night"
+   },
+   "outcomes": [
+    {
+     "id": "tea",
+     "weight": 50,
+     "text": "She makes barley tea in the little kettle she has seen restocked in a thousand rooms, hands you the cup with both hands as she would through her window, and sits cross-legged on the bed in your shirt. Then, almost shyly, looking into her cup: \"Could we stay? The whole night. I've never once stayed.\" You stay."
+    },
+    {
+     "id": "sachets",
+     "weight": 30,
+     "text": "She knows exactly how many tea sachets each room gets and that it is never enough. She produces two more from her cardigan pocket.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "scar",
+     "weight": 20,
+     "text": "She catches you looking at the thin silver scar from an old operation and tells you about it, dryly, in two sentences, and then lets you kiss it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had barley tea with Kaoru from the room's little kettle at {0} afterward",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_flat",
+   "name": "Her flat",
+   "label": "A night at Tsubaki's flat",
+   "icon": "🏠",
+   "cost": 0,
+   "minutes": 180,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_tsubaki_hands your_hands; feels: Tsubaki crush; zone: hz_apaato; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow and unhurried",
+    "being taken care of afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki's own flat in the wooden building, {{user}} not a customer any more: the futon under the window, lavender everywhere, her hair down, no oil and no timer, and a night that isn't work for either of them, the way she asks"
+   },
+   "outcomes": [
+    {
+     "id": "not_work",
+     "weight": 50,
+     "text": "She lets you in, locks the door and says, \"You're not a customer here. Nobody is.\" Her hair comes down, and there's no oil and no timer, only the two of you and the whole night, and for once nobody in the room is working."
+    },
+    {
+     "id": "kettle",
+     "weight": 30,
+     "text": "Afterward she makes tea in a dented kettle and drinks it by the window wrapped in a towel, and tells you nobody has seen the inside of her flat in two years.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "walls",
+     "weight": 20,
+     "text": "The walls are thin as paper. When the scratch of a drawing pen next door stops for a full minute, you both go very quiet, and then very red.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent the night at Tsubaki's flat, not as a customer",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_lesson",
+   "name": "Stage by stage",
+   "label": "Learn a stage of her course",
+   "icon": "📇",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_tsubaki_hands your_hands; feels: Tsubaki crush; knows: priv_tsubaki_trade; zone: hz_apaato; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "massage",
+    "warm oil and towels"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki on a towel by her futon, teaching {{user}} one stage of her long course, her hands guiding {{user}}'s, and then trading: the same stage given back to {{user}}, slower, and then one that isn't on her card"
+   },
+   "outcomes": [
+    {
+     "id": "stage",
+     "weight": 50,
+     "text": "Tonight is stage four. She lies back on the towel and guides your oiled hands with hers, \"slower, the heel of your hand, now up\", until she's laughing and you have to start again, twice. Then she sits up, gives stage four back to you exactly, and then a stage that isn't on the card at all, and you both lose count."
+    },
+    {
+     "id": "card",
+     "weight": 30,
+     "text": "She ticks the stage off on her index card with a pencil, very seriously, and draws a small heart beside it when she thinks you aren't looking.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cramp",
+     "weight": 20,
+     "text": "Your hand cramps halfway through stage four. She massages it for you, laughing, and calls it stage four and a half.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} learned a stage of Tsubaki's long course in her flat, and traded",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_key",
+   "name": "Her key",
+   "label": "Wake Tsubaki with her key",
+   "icon": "🎀",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_tsubaki_hands your_hands; thread: priv_tsubaki_trade key; feels: Tsubaki crush; zone: hz_apaato; period: latenight or firsttrain; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "massage",
+    "slow and unhurried"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki's flat in the small hours, her key on its ribbon in {{user}}'s hand: she is asleep on the futon after a late shift, and {{user}} wakes her slowly with warm oil and the course she taught, until she is awake enough to want the rest"
+   },
+   "outcomes": [
+    {
+     "id": "wake",
+     "weight": 50,
+     "text": "She's asleep face down with her uniform still on and one shoe off. You warm the oil in your hands and start with her feet, the way she taught you; she wakes somewhere around her knees, murmuring \"is that you\", and pulls you down onto the futon half asleep, smiling, her eyes still closed."
+    },
+    {
+     "id": "ribbon",
+     "weight": 30,
+     "text": "She has tied a second ribbon on her own key, the same colour as yours. She doesn't mention it. Neither do you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "lock",
+     "weight": 20,
+     "text": "The ribbon key sticks in the old lock and you spend five minutes jiggling it at three in the morning. The door next door opens a crack, then shuts again very fast.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} let themselves into Tsubaki's flat with her key and woke her slowly",
+   "adult": true
+  },
+  {
+   "id": "priv_next_door_sketch",
+   "name": "The sketchbook",
+   "label": "Kanon sketches the two of you",
+   "icon": "✏️",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_tsubaki_hands your_hands; feels: Tsubaki crush; knows: priv_next_door; feels: Kanon friend; feels: Kanon crush; zone: hz_apaato; period: night or latenight; present: Kanon; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow patient touch",
+    "warm oil and towels"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki's flat with Kanon from next door cross-legged on the floor with her sketchbook, every rule agreed on the stairs first: Tsubaki and {{user}} on the futon with warm oil, slowly, while Kanon draws them, until Tsubaki holds out a hand and Kanon puts the pencil down and joins them"
+   },
+   "outcomes": [
+    {
+     "id": "joins",
+     "weight": 50,
+     "text": "Kanon draws fast and badly at first, glasses fogging, then well, very well, while Tsubaki works oil slowly across your shoulders and looks over at her now and then. Halfway through a page Tsubaki holds out a hand. Kanon stares at it, puts the pencil down and crawls onto the futon, and by the end she's laughing and past caring about the walls."
+    },
+    {
+     "id": "page",
+     "weight": 30,
+     "text": "Afterward Kanon shows you both the page, very fast, then snatches it back. It's the best thing she has ever drawn. It goes in her drawer next door, for nobody.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "eraser",
+     "weight": 20,
+     "text": "Kanon drops her eraser under the futon at the worst possible moment and insists on finding it. Tsubaki finds it, slowly, with her toes.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Tsubaki were sketched by Kanon from next door, and then she joined them",
+   "adult": true
+  },
+  {
+   "id": "priv_next_door_course",
+   "name": "Across the landing",
+   "label": "Tsubaki's long course for Kanon",
+   "icon": "🌿",
+   "cost": 0,
+   "minutes": 150,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_tsubaki_hands your_hands; feels: Tsubaki crush; thread: priv_next_door long_course; feels: Kanon friend; zone: hz_apaato; period: night or latenight; present: Kanon; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow patient touch",
+    "massage"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon face down on the futon a wall away from her own, her glasses on the windowsill, everything agreed in words first: Tsubaki giving her the whole long course with warm oil, slowly, while {{user}} helps with the towels and the oil, or holds Kanon's hands, or watches"
+   },
+   "outcomes": [
+    {
+     "id": "everywhere",
+     "weight": 50,
+     "text": "Kanon freezes for the first ten minutes, then floods: under Tsubaki's slow hands she starts talking, fast, about exactly where, and then can't talk at all. Tsubaki brings you in with a nod, and by the end Kanon is gripping your wrist, laughing and crying a little at once, saying nobody has ever touched her for that long."
+    },
+    {
+     "id": "draws",
+     "weight": 30,
+     "text": "Afterward Kanon draws Tsubaki asleep on the futon, hair over her eyes, and takes the page back to her own drawer next door.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "landing",
+     "weight": 20,
+     "text": "Walking Kanon home takes eleven steps across the landing. She says goodnight at her door three times, then comes back for her glasses.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} helped Tsubaki give Kanon the long course, a wall away from Kanon's own futon",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_held",
+   "name": "Held for hours",
+   "label": "Hold Kanon for hours",
+   "icon": "🫂",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 12,
+    "energy": 6,
+    "desire": 10
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "thread: priv_kanon_model posed; feels: Kanon crush; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "long cuddling",
+    "slow patient touch"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon's apartment under the desk lamp, walls of sketches, the futon pulled out: Kanon and {{user}} under one blanket for hours, agreed first, nothing more unless she asks for it, because nobody has held her in years"
+   },
+   "outcomes": [
+    {
+     "id": "skin",
+     "weight": 45,
+     "text": "She asks first, in a rush, whether it could be for a long time, and then apologises for asking. You hold her under the blanket for three hours. Somewhere in the second she stops shaking and starts talking, all of it at once, and by the third she's asleep on your chest with her glasses still on."
+    },
+    {
+     "id": "pencil",
+     "weight": 25,
+     "text": "She wakes, reaches for a pencil without moving off you, and draws your hand on her own arm.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "ramen",
+     "weight": 15,
+     "text": "Her stomach growls so loudly in the second hour that you both shake with laughter, still holding on. She makes instant ramen without leaving the blanket.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "stairs",
+     "weight": 15,
+     "text": "Kanon sees you off in an oversized game T-shirt just as Tsubaki comes up the wooden stairs off the last train. Tsubaki says good evening, warmly, and nothing more; Kanon, scarlet, says it back for the first time in a year.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} held Kanon for hours in her apartment",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_messages",
+   "name": "Her 3 a.m.",
+   "label": "Her messages, read aloud and done",
+   "icon": "💬",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_kanon_model posed; feels: Kanon crush; zone: hz_apaato; period: latenight; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "late-night chat before meeting",
+    "slow patient touch"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon's apartment at three in the morning, the desk lamp on: {{user}} reading Kanon's own late-night messages aloud to her, one by one, and doing as each one says, then deleting it from both phones, nothing kept"
+   },
+   "outcomes": [
+    {
+     "id": "aloud",
+     "weight": 45,
+     "text": "You read the first one aloud, her own words, and she pulls the blanket over her head. By the third she's pulled it off again. By the fifth she's telling you you're doing it wrong, do it like she wrote it, and you do, and she grabs the phone to see what the sixth one says."
+    },
+    {
+     "id": "delete",
+     "weight": 25,
+     "text": "After each one she deletes it from both phones, solemnly, like a ritual. \"Nothing kept. That's the deal.\" Then she types a new one right in front of you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "typo",
+     "weight": 15,
+     "text": "One of her messages has a typo that turns it into something about a duck. You read it exactly as written. She laughs so hard she falls off the futon.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "walls",
+     "weight": 15,
+     "text": "The wooden walls carry every sound: at three in the morning a neighbour knocks on the wall, twice, very politely, and Kanon spends the rest of the night whispering, which she discovers she likes.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} read Kanon's late-night messages aloud to her and did every one, nothing kept",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_sketch",
+   "name": "Sketched after",
+   "label": "Sketched by Kanon, afterward",
+   "icon": "✏️",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 13,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_kanon_model posed; feels: Kanon crush; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow patient touch"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon's apartment afterward, the desk lamp tilted down: Kanon kneeling over {{user}} with her sketchbook, drawing {{user}} from life, then drawing on {{user}} with a felt pen, then putting the pen down, every step asked first"
+   },
+   "outcomes": [
+    {
+     "id": "ink",
+     "weight": 45,
+     "text": "She draws you for twenty minutes without a word, fast, glasses slipping, then puts the sketchbook down and draws on you instead: a line down your arm with a felt pen, a star on your hip, a speech bubble on your shoulder that says something she would never say out loud. Then she puts the pen down too, and stops being shy."
+    },
+    {
+     "id": "page",
+     "weight": 25,
+     "text": "She shows you the page and then won't let you look at it for long. \"It's good. It's too good. Don't look at it.\" It goes in her drawer, for nobody else.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "permanent",
+     "weight": 15,
+     "text": "The felt pen turns out to be permanent. You spend the next week with a small speech bubble on your hip that says \"MORE\".",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "editor",
+     "weight": 15,
+     "text": "Her editor calls about a deadline while you are still in her futon. She takes it with the laptop tilted at the ceiling and her face off screen, says \"yes, yes, the middle is done\" in a strangled voice, and the room is never seen.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   ],
+   "fact": "{u} was sketched by Kanon from life in her apartment, and drawn on",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_everywhere",
+   "name": "Everywhere",
+   "label": "Touch Kanon everywhere, slowly",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow patient touch"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon on her futon under the desk lamp, glasses on, frozen at first: {{user}} touching her slowly and patiently, every inch agreed out loud, until she stops freezing and floods, asking for more in a rush of words"
+   },
+   "outcomes": [
+    {
+     "id": "floods",
+     "weight": 50,
+     "text": "For ten minutes she lies there stiff as a board, apologising. You keep going, slowly, her wrists, the backs of her knees, asking each time. Then something gives and she floods: \"there, no, yes, like page forty\", and then she stops talking at all, and later asks for everywhere again from the top."
+    },
+    {
+     "id": "marks",
+     "weight": 30,
+     "text": "She tries to hide the stretch marks on her hips. You kiss each one, slowly. She stops hiding them.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "rice",
+     "weight": 20,
+     "text": "Halfway through she remembers she left the rice cooker on and has to go and turn it off wrapped in the blanket, mumbling game references the whole way.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} touched Kanon everywhere, slowly, until she stopped freezing",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_breasts",
+   "name": "As she asks",
+   "label": "Kanon, exactly as she asks",
+   "icon": "🍒",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow patient touch"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon on her futon in her old game T-shirt, telling {{user}} in a rush exactly how she wants to be touched, slowly, the way she draws it for her heroines, and then not being able to talk at all"
+   },
+   "outcomes": [
+    {
+     "id": "proud",
+     "weight": 50,
+     "text": "She says, very fast, that she has never once asked anyone for exactly what she wants. Then she tells you exactly how: slow, then slower, then a little more. You do all of it, for a long time, and afterward she lies there astonished, saying \"I didn't know that was real\"."
+    },
+    {
+     "id": "heroines",
+     "weight": 30,
+     "text": "Afterward she shows you three heroines from her book. You recognise them. She goes scarlet and says \"artistic licence\".",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "fog",
+     "weight": 20,
+     "text": "Her glasses fog up completely. She refuses to take them off. You carry on in the fog.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} touched Kanon slowly for a long time, exactly as she asked",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_ontop",
+   "name": "Her lead",
+   "label": "Kanon takes the lead, at last",
+   "icon": "⬆️",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "roleplay scenarios from her games"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon's futon under the desk lamp: Kanon taking the lead at last, glasses on, bold now, narrating it like one of her pages, every word said out loud for the first time"
+   },
+   "outcomes": [
+    {
+     "id": "panels",
+     "weight": 50,
+     "text": "She says \"ok. ok. ok,\" and then stops being shy all at once. She takes charge and narrates the whole thing like one of her pages, panel by panel, bolder with every one, until the words fall apart, and then she grins down at you like she won something."
+    },
+    {
+     "id": "eight",
+     "weight": 30,
+     "text": "\"That was panel one,\" she says, breathless. \"There are eight panels.\" There are eight panels.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "lamp",
+     "weight": 20,
+     "text": "She sits up too fast and knocks the desk lamp with her head. The whole room swings with light. She keeps going, swearing like a final boss.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} let Kanon take the lead on her futon, narrating every panel",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_drawer",
+   "name": "The drawer",
+   "label": "Open Kanon's bottom drawer",
+   "icon": "🧰",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "toys"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon's apartment, the bottom drawer of her desk pulled all the way out, the one she never opens in front of guests: every thing in it with a story, and Kanon explaining each one, then trying them out with {{user}}, each one agreed by number first"
+   },
+   "outcomes": [
+    {
+     "id": "all",
+     "weight": 45,
+     "text": "She takes them out one at a time and explains each like an item in a game: stats, reviews, special moves. Then she hands you the first one. \"Your turn. Then that one. Then the one with the remote.\" By the end the drawer is empty and neither of you can stop laughing."
+    },
+    {
+     "id": "remote",
+     "weight": 25,
+     "text": "She gives you the remote to the small one and then tries very hard to keep sketching. She manages one line.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "battery",
+     "weight": 15,
+     "text": "Three of them are out of battery. She raids her game controllers for batteries in a panic.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "delivery",
+     "weight": 15,
+     "text": "The konbini delivery rings the bell mid-everything. Kanon answers the door wrapped in a blanket, glasses askew, signs for six onigiri and a bag of ice, and the delivery man wishes her a very good evening.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} went through Kanon's whole bottom drawer with her",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_filthy",
+   "name": "Out loud",
+   "label": "Kanon, out loud, at yours",
+   "icon": "🗯️",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; period: night or latenight; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "roleplay scenarios from her games"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon at {{user}}'s place, out of her apartment for this: quoting her own pages word for word, bolder with every line, a roleplay from one of her games, until she can't remember which page she's on"
+   },
+   "outcomes": [
+    {
+     "id": "pages",
+     "weight": 50,
+     "text": "She brought the book. She reads a line from page twelve in a whisper and asks you to do it; you do; she reads page thirteen louder. By page twenty she has stopped reading and is just saying it, in that rapid mumble, and by the end she's saying a line she hasn't drawn yet."
+    },
+    {
+     "id": "biro",
+     "weight": 30,
+     "text": "Afterward she writes a new line on your hand in biro. \"For the next book. Don't wash it.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "duvet",
+     "weight": 20,
+     "text": "She forgets your walls aren't hers and says page twenty-two at full volume, then hides under your duvet for ten minutes, mortified and giggling.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} heard Kanon quote her own pages, bolder and bolder, at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_lines",
+   "name": "Read lines",
+   "label": "Read your lines with Kanon",
+   "icon": "📜",
+   "cost": 0,
+   "minutes": 40,
+   "anywhere": true,
+   "effects": {
+    "mood": 7
+   },
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; knows: priv_kanon_in_character; zone: hz_apaato; present: Kanon",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "Kanon cross-legged on her futon with a script of the scene from her favourite game, {{user}}'s lines highlighted in pink: reading it through together, changing any line either of them wants changed, and agreeing every one before anything starts; nothing more yet"
+   },
+   "outcomes": [
+    {
+     "id": "read",
+     "weight": 50,
+     "text": "You read your first line. She covers her face. You read the second; she peeks. By the tenth she's reading hers back in her heroine's voice, and you change one of yours and she changes it back. \"Agreed?\" she says at the end, holding out the script to sign. You sign it."
+    },
+    {
+     "id": "margin",
+     "weight": 30,
+     "text": "She takes notes in the margin on how you say each line, very seriously.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "voice",
+     "weight": 20,
+     "text": "You try a voice for your character. She falls off the futon laughing and says you can never do that voice again, and also please do it on the night.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} read through the script of Kanon's scene with her, and agreed every line",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_costume",
+   "name": "In costume",
+   "label": "Kanon as her heroine",
+   "icon": "🎭",
+   "cost": 0,
+   "minutes": 180,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush; thread: priv_kanon_in_character till_dawn; zone: hz_apaato; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "roleplay scenarios from her games"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon in the costume of her book's heroine, wig, boots and collar, playing the scene from her favourite game with {{user}}, every line agreed beforehand, bold in character as she never is out of it"
+   },
+   "outcomes": [
+    {
+     "id": "heroine",
+     "weight": 50,
+     "text": "In the wig she's someone else: she looks you in the eye, says her heroine's line about surrender in a voice you've never heard from her, and pushes you down. She stays in character through every agreed line, the collar on, and only breaks once, in her own voice, laughing, and then puts the wig straight and carries on."
+    },
+    {
+     "id": "scripts",
+     "weight": 30,
+     "text": "At dawn she pulls the wig off and asks, very fast, what the next one should be. She has three scripts ready.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "laces",
+     "weight": 20,
+     "text": "The heroine's boots have thirty-two laces each. Getting them off takes twenty minutes. She stays in character for every lace.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} played the scene from Kanon's favourite game with her, in costume",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_kiss",
+   "name": "A real kiss",
+   "label": "A real kiss with Shiori",
+   "icon": "💋",
+   "cost": 0,
+   "minutes": 20,
+   "anywhere": true,
+   "effects": {
+    "mood": 7
+   },
+   "when": "knows: shiori_hotaru; zone: hz_toyosu; feels: Shiori crush; period: evening or night; present: Shiori",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "{{user}} at Shiori's fortieth-floor flat with the curtains drawn: Shiori asking in a whisper, in perfect polite Japanese, for a real kiss, nothing more yet, then trembling all the way through it and asking for another"
+   },
+   "outcomes": [
+    {
+     "id": "real",
+     "weight": 50,
+     "text": "She asks so formally you nearly laugh: \"Might I trouble you for a kiss? A real one, please.\" She shakes the whole time, her hands flat on your chest, and then won't let you stop. When she finally pulls back she covers her face with both hands. \"Again,\" she whispers through her fingers. \"If it is no trouble.\""
+    },
+    {
+     "id": "practise",
+     "weight": 30,
+     "text": "Afterward she asks three precise questions about where her hands ought to go, nods at each answer like a student, and asks to practise. You practise.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "piano",
+     "weight": 20,
+     "text": "She backs into the grand piano nobody plays and a low chord booms through the flat. She is mortified; you are laughing; she kisses you to make you stop.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} gave Shiori a real kiss at her flat, and she asked for another",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_slowly",
+   "name": "Undressed slowly",
+   "label": "Undress Shiori very slowly",
+   "icon": "🎀",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being guided slowly",
+    "being praised"
+   ],
+   "together": {
+    "needed": true,
+    "text": "{{user}} and Shiori at {{user}}'s place with nothing hurried: the pearl clip, the cardigan, each button of the cream blouse, her long black hair let down to her waist, each thing asked for first and kissed after, until she is pink to the ears and politely asking for the rest"
+   },
+   "outcomes": [
+    {
+     "id": "buttons",
+     "weight": 50,
+     "text": "You take the pearl clip out first and her hair falls to her waist. Then the cardigan, then the blouse, a button at a time, until she is pink to the ears and whispering \"please\" in her politest Japanese. The rest of the night goes exactly as slowly as she asked."
+    },
+    {
+     "id": "folded",
+     "weight": 30,
+     "text": "She insists on folding every piece of clothing as it comes off, neatly, on your chair. By the stockings her hands are shaking too much to fold anything at all.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "clip",
+     "weight": 20,
+     "text": "The pearl clip is caught in her hair, and it takes the two of you five minutes and a great deal of giggling to free it. She says it is the most undressed she has ever felt.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} undressed Shiori very slowly, one thing at a time",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_goodgirl",
+   "name": "Very good",
+   "label": "Tell Shiori she did well",
+   "icon": "🌸",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being praised",
+    "being guided slowly"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori with {{user}} at {{user}}'s place, being told what to do one small thing at a time and praised for every bit of it, \"good, very good\" in her ear and a hand stroking her long hair, until she trembles with wanting to hear she has done well"
+   },
+   "outcomes": [
+    {
+     "id": "praised",
+     "weight": 50,
+     "text": "You tell her what to do, one small thing at a time, and after each one you tell her she did it very well. By the third time she is shaking. By the fifth she is asking for the next instruction, then for the praise after it, and when you wind her long hair round your hand and say \"good, very good\", she bursts into tears and laughter together."
+    },
+    {
+     "id": "exam",
+     "weight": 30,
+     "text": "\"Was that good?\" she asks after everything, anxious as a student after an exam. You tell her it was very good. She asks, quite seriously, to have it in writing.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "loud",
+     "weight": 20,
+     "text": "Once she forgets herself she is so loud that she claps both hands over her mouth and spends ten minutes worrying, in a whisper, about your neighbours.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} praised Shiori for every little thing until she was laughing and in tears",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_sensitive",
+   "name": "Almost too sensitive",
+   "label": "Shiori, almost too sensitive",
+   "icon": "✨",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being teased"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a long slow hour at {{user}}'s place spent finding out just how sensitive Shiori is, kisses and breath and fingertips and nothing hurried, until she cannot tell whether she wants {{user}} to stop or never stop"
+   },
+   "outcomes": [
+    {
+     "id": "only",
+     "weight": 50,
+     "text": "She warns you, very politely, that she is \"rather sensitive\". That turns out to be an understatement. You breathe on the back of her neck and she gasps; by the end of the hour she is astonished at herself, and asking you, very politely, never to stop."
+    },
+    {
+     "id": "mark",
+     "weight": 30,
+     "text": "You find the small beauty mark on her shoulder. \"The members know that one,\" she whispers. \"My family does not.\" You kiss it, and she has to sit up for a moment.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "ice",
+     "weight": 20,
+     "text": "You try an ice cube. She makes a sound she has clearly never once made on stream, then laughs so hard you have to start all over again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} found out how sensitive Shiori really is",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_onebyone",
+   "name": "One by one",
+   "label": "Her collection, one by one",
+   "icon": "🧸",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "toys (she owns a lot of them)",
+    "being guided slowly"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori's velvet-lined case open on her bed in the Toyosu flat: one piece of her collection taken out, its little card read aloud in her most formal Japanese, and put in {{user}}'s hands with careful instructions, the first time anyone but she has ever held it"
+   },
+   "outcomes": [
+    {
+     "id": "number",
+     "weight": 45,
+     "text": "She lays tonight's on the sheet, a slim glass one, and reads its card aloud: \"number three, bought in March, on stream forty-one times.\" Then she lies back and explains, step by step, exactly how she likes it, and your hands following her instructions instead of her own undo her completely. She makes you start again from the beginning, properly."
+    },
+    {
+     "id": "card",
+     "weight": 25,
+     "text": "Afterward she writes something new on its card in pencil. She will not show you what. She is smiling very hard.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "battery",
+     "weight": 15,
+     "text": "The batteries die at the crucial moment. She produces fresh ones from a labelled drawer with the speed of long practice and says \"please continue\" with great dignity.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "seoyeon",
+     "weight": 15,
+     "text": "Seo-yeon from her seminar calls in the middle of everything to ask about Thursday's reading. Shiori answers out of politeness, in a voice that is not at all steady, and Seo-yeon asks whether she has caught a cold.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} was let into Shiori's collection, the first anyone ever had",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_six",
+   "name": "Six lessons",
+   "label": "Shiori's six lessons, in order",
+   "icon": "📖",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being guided slowly",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori in her own bed in Toyosu explaining, precisely and scarlet, six things she has learned about herself from years of shows, one after another, and asking {{user}} to follow each one exactly as she describes it, while she watches"
+   },
+   "outcomes": [
+    {
+     "id": "all_six",
+     "weight": 45,
+     "text": "\"The first,\" she says, as if opening a lecture, and tells you exactly what to do. You do it. \"The second.\" By the fourth she cannot finish her sentences and you have to guess, and you guess right; by the sixth she has forgotten the list entirely, and you invent a seventh, which she says she will need to study very closely."
+    },
+    {
+     "id": "seventh",
+     "weight": 25,
+     "text": "She writes a small \"7\" in the margin of her French notebook afterward, underlines it twice, and refuses to say what it means.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "muddled",
+     "weight": 15,
+     "text": "Around the third lesson she muddles her own instructions, left and right, and you both collapse laughing before starting again from the top.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "mother",
+     "weight": 15,
+     "text": "Her mother calls from Kyoto at the worst possible moment with another photograph of a suitable young man. Shiori answers, because one always answers, and agrees to everything in a strangled voice while you keep perfectly still.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   ],
+   "fact": "{u} followed all six of Shiori's lessons, and found a seventh",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_many",
+   "name": "Counting",
+   "label": "Make Shiori lose count",
+   "icon": "🔢",
+   "cost": 0,
+   "minutes": 240,
+   "home": true,
+   "effects": {
+    "mood": 16,
+    "energy": -14,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being teased",
+    "being praised"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a long night at {{user}}'s place with Shiori trying, primly, to keep count the way she does for the members, and {{user}} making her lose count, with no rest in between"
+   },
+   "outcomes": [
+    {
+     "id": "lost_count",
+     "weight": 50,
+     "text": "She counts aloud at first, primly, \"one\", \"two\", the way she counts for the members, and you keep going. At five her voice breaks. At seven the numbers aren't in order any more. Somewhere after that she stops counting at all and simply holds on to you, and at dawn she asks you, laughing and teary, what number it was."
+    },
+    {
+     "id": "record",
+     "weight": 30,
+     "text": "In the morning she tells you, very seriously, that it beat her stream record. You ask what the record was. She won't say; she only looks proud.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cramp",
+     "weight": 20,
+     "text": "Her calf cramps at number six and she hops round the bedroom wrapped in the sheet, swearing in delicate Kyoto Japanese, before she will let you go on.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} made Shiori lose count, one long night",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_script",
+   "name": "Hotaru's script",
+   "label": "Hotaru's script, played with you",
+   "icon": "🎭",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "dressing up"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori in Hotaru's black lace and mask in the closet studio, the camera dark, running one of Hotaru's old shows line by line with {{user}} playing the chat: {{user}} reads out the members' requests, and for once somebody real is there to answer them"
+   },
+   "outcomes": [
+    {
+     "id": "chat",
+     "weight": 50,
+     "text": "You read the requests off her old script in a flat voice, \"tipped five hundred: slower\", \"tipped a thousand: closer\", and instead of playing to the camera she plays to you, masked, her eyes on yours through the lace. By the big finale on the tip menu she is giving Hotaru's little bow and laughing too hard to finish it."
+    },
+    {
+     "id": "voices",
+     "weight": 30,
+     "text": "You read each request in a different voice for each imaginary member. One of them makes her laugh so hard she has to untie the mask to wipe her eyes.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "lines",
+     "weight": 20,
+     "text": "She corrects your reading of the script twice, very primly, then loses her own place and has to look it up on her laptop, wrapped in a sheet.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} played the chat for one of Hotaru's old shows, and did what it asked",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_ringlight",
+   "name": "The ring light",
+   "label": "The ring light on, for you",
+   "icon": "💡",
+   "cost": 0,
+   "minutes": 60,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "dressing up"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori's closet studio with the ring light on and the camera off: Shiori lit exactly as she is lit for the members, in Hotaru's black lace, with {{user}} the only one watching, and then not only watching"
+   },
+   "outcomes": [
+    {
+     "id": "lit",
+     "weight": 50,
+     "text": "She switches the ring light on and the closet goes white and soft, and the camera stays dark. She performs for you as she does for the members, the slow turn, the little bow; then she stops performing and pulls you into the light with her, and the rest of the night is for no member at all."
+    },
+    {
+     "id": "monitor",
+     "weight": 30,
+     "text": "Out of habit she keeps glancing at the dark monitor to check her angles. You turn it to face the wall. She thanks you as if you had saved her life.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "hot",
+     "weight": 20,
+     "text": "The ring light is hotter than it looks; after twenty minutes you are both shining and she makes you stop for barley tea, very seriously, like a professional.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had Shiori under her ring light, with the camera dark",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_lecture",
+   "name": "Before her lecture",
+   "label": "Before Shiori's nine o'clock lecture",
+   "icon": "⏰",
+   "cost": 0,
+   "minutes": 20,
+   "anywhere": true,
+   "effects": {
+    "mood": 12,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; weekday: mon or tue or wed or thu; period: rush; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being teased",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a weekday morning at Shiori's flat, her French-literature notes in her bag by the door and her blouse half buttoned: quick, breathless and quiet in the kitchen, the clock on the oven counting down to her nine o'clock lecture, which she must not be late for"
+   },
+   "outcomes": [
+    {
+     "id": "counter",
+     "weight": 50,
+     "text": "She is already in her blouse and cardigan when you catch her hand at the door. \"I have eleven minutes,\" she says, with great dignity, and pulls you into the kitchen. At minute nine she is doing her buttons up again with shaking fingers and running for the train, scarlet and beaming."
+    },
+    {
+     "id": "flaubert",
+     "weight": 30,
+     "text": "She makes the lecture with a minute to spare. At noon she writes, in perfect formal Japanese, that she has not heard one word about Flaubert.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "buttons",
+     "weight": 20,
+     "text": "She gets all the way to the station before noticing her blouse is buttoned one off. Her message to you is a single row of horrified faces.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} made Shiori nearly late for her nine o'clock lecture",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_cardigan",
+   "name": "One button",
+   "label": "Shiori's cardigan, buttoned once",
+   "icon": "🧶",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 13,
+    "energy": 2,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; weekday: sat or sun; period: midmorning; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being teased",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a slow weekend morning at Shiori's flat, the bay forty floors down: Shiori in the cream cardigan, buttoned once, playing the grand piano nobody plays while {{user}} sits behind her on the bench, undoes the one button and takes all the time in the world"
+   },
+   "outcomes": [
+    {
+     "id": "bench",
+     "weight": 45,
+     "text": "She plays Satie badly on purpose, in the cream cardigan buttoned once, until you sit behind her on the bench and undo the button. She keeps playing as long as she can, which is not long: the notes fall apart into chords and then into nothing, and one low note rings through the flat for a long time."
+    },
+    {
+     "id": "lid",
+     "weight": 25,
+     "text": "Afterward she closes the lid very gently and tells you nobody has touched that piano in two years. Then she blushes at what she just said, and you both hear it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "window",
+     "weight": 15,
+     "text": "Halfway through she remembers the window and the tower opposite and drags you both down behind the sofa, laughing, in case anyone over there owns binoculars.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "concierge",
+     "weight": 15,
+     "text": "The tower's concierge brings a parcel up himself when nobody answers. Shiori opens the door holding the cream cardigan closed with one hand, signs with perfect manners, and then sits on the floor of the hall shaking and giggling for ten minutes.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} undid the one button of Shiori's cardigan at her piano",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_closet",
+   "name": "The closet studio",
+   "label": "In Shiori's closet studio, door shut",
+   "icon": "🚪",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "secrecy",
+    "a thrill for being watched"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the closet studio in Shiori's flat, the door bolted on the inside, the folding screen pulled across, Shiori in Hotaru's mask and {{user}} in the dark with her: the most secret place she owns, and not a soul in the world aware of it"
+   },
+   "outcomes": [
+    {
+     "id": "bolt",
+     "weight": 50,
+     "text": "She slides the bolt across behind you both and you hear her breathing change. In the dark, in the mask, she is Hotaru and Shiori at once: she pulls you down on the cushions under the dead ring light and whispers the things she says to the members, but to you, by name, and hides her face in your shoulder to keep quiet in her own flat."
+    },
+    {
+     "id": "herself",
+     "weight": 30,
+     "text": "Afterward she whispers, still masked, that the closet is the only place she has ever been entirely herself. Then she unbolts it and is extremely polite.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "coats",
+     "weight": 20,
+     "text": "In the dark you knock over the rail of winter coats she keeps in front of the studio as camouflage, and you are both buried in cashmere for a full minute.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} was bolted into Shiori's closet studio with her, the mask on",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_mask_you",
+   "name": "Wearing the mask",
+   "label": "Wear Hotaru's mask for Shiori",
+   "icon": "🎭",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "dressing up"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori tying Hotaru's black lace mask on {{user}} for once and sitting back on her bed to watch: telling {{user}} in a careful voice what to do for her, learning what it is to be the one watching and asking"
+   },
+   "outcomes": [
+    {
+     "id": "watched",
+     "weight": 50,
+     "text": "She ties the mask on you herself and sits back against the headboard, knees up, very still. \"Now,\" she says, in a voice that wobbles and then doesn't, \"show me.\" You do as she asks, slowly, and watch her discover what it is to hold the tip menu. Within ten minutes she is giving orders, flushed and amazed, and within twenty she has stopped only watching."
+    },
+    {
+     "id": "tips",
+     "weight": 30,
+     "text": "She pays you in imaginary tips, announcing each in Hotaru's polite voice: \"Tipped ten thousand yen: kiss me.\" You are very well paid by the end.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "crooked",
+     "weight": 20,
+     "text": "The mask sits crooked on you and she keeps reaching over to straighten it, until she gives up and laughs into the pillow at how ridiculous, and how lovely, it looks.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} wore Hotaru's mask while Shiori watched, for once",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_chat",
+   "name": "The chat",
+   "label": "Shiori reads you the chat",
+   "icon": "💬",
+   "cost": 0,
+   "minutes": 45,
+   "anywhere": true,
+   "effects": {
+    "mood": 10,
+    "energy": 2,
+    "desire": 10
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "secrecy",
+    "being praised"
+   ],
+   "together": {
+    "needed": true,
+    "text": "after one of Hotaru's shows, past midnight in Shiori's bed, the mask pushed up into her hair: Shiori reading {{user}} the night's chat from her laptop, laughing at the regulars, and then reading out what the members said about her, and not laughing any more"
+   },
+   "outcomes": [
+    {
+     "id": "log",
+     "weight": 50,
+     "text": "She reads you the night's chat in a deadpan voice, giggling at the regular who sends a weather report before every show and the one who only ever types \"beautiful\". Then she reaches the long messages about her and reads them slower, and slower, until she shuts the laptop, pink to the ears, and asks you very quietly whether any of it is true."
+    },
+    {
+     "id": "goodnight",
+     "weight": 30,
+     "text": "She shows you the regular who has said goodnight at three o'clock every show for two years. \"He has no idea,\" she whispers, delighted. \"Not one of them has.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "asleep",
+     "weight": 20,
+     "text": "She falls asleep mid-sentence with the laptop on her stomach and the mask still in her hair. You close it very carefully, without reading on.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} heard Shiori read out Hotaru's chat in bed after a show",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_aisle",
+   "name": "The back aisle",
+   "label": "The back aisle in Jinbōchō",
+   "icon": "📚",
+   "cost": 0,
+   "minutes": 30,
+   "place": "ak_jinbocho",
+   "effects": {
+    "mood": 13,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.05,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush; weekday: sat; period: afternoon; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the narrow back aisle of an old French-paperback shop at the quiet far end of Jinbōchō on a Saturday afternoon, nowhere near the campus side: Shiori pressed between the shelves in her cardigan, {{user}}'s hand where it shouldn't be, the elderly owner coughing at his desk, the terror and the thrill of being seen in one breath"
+   },
+   "outcomes": [
+    {
+     "id": "shelves",
+     "weight": 50,
+     "text": "She pretends to read a spine-cracked Proust while your hand wanders where it shouldn't, her knuckles white on the shelf. Every creak of the floorboards makes her freeze, and every freeze makes it worse, or better; when the owner coughs two aisles away she hides her face in your shoulder without a sound, then buys the Proust in a perfectly steady voice with shaking hands."
+    },
+    {
+     "id": "bell",
+     "weight": 30,
+     "text": "The shop bell rings and a customer walks right past the end of the aisle. Shiori goes white, then scarlet, and in the street outside grabs your arm and whispers \"again\", appalled at herself.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "dust",
+     "weight": 20,
+     "text": "A shelf of old poetry sheds a century of dust over you both at the worst moment. She sneezes, very delicately, nine times.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} got far too close to Shiori in a bookshop's back aisle at {0}, and nobody saw",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_hotaru_leads",
+   "name": "Hotaru leads",
+   "label": "Hotaru gives the orders",
+   "icon": "🖤",
+   "cost": 0,
+   "minutes": 150,
+   "home": true,
+   "effects": {
+    "mood": 16,
+    "energy": -12,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush; thread: priv_shiori_in_person both; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "dressing up",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Hotaru at {{user}}'s place, masked, bold and playful: Shiori giving the orders all night in her stream voice, telling {{user}} exactly what to do, how slowly and in what order, the shy student nowhere in sight until dawn"
+   },
+   "outcomes": [
+    {
+     "id": "orders",
+     "weight": 50,
+     "text": "\"Sit. No, not like that. Like this.\" Hotaru's voice is low and amused and doesn't shake at all. She gives orders the whole night and takes exactly what she orders, until at the very end her voice breaks into Shiori's and she says your name in both."
+    },
+    {
+     "id": "yes_hotaru",
+     "weight": 30,
+     "text": "She makes you say \"yes, Hotaru\" after every order. By the end you are saying it before she has finished, and she is enormously pleased with herself.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "sorry",
+     "weight": 20,
+     "text": "At dawn she unties the mask and immediately apologises for everything Hotaru said, at length, in her most formal Japanese, grinning the whole time.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took Hotaru's orders all night at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_request",
+   "name": "A request",
+   "label": "A request from Shiori's box",
+   "icon": "📮",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush; knows: priv_shiori_requests; zone: hz_toyosu; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being guided slowly",
+    "a thrill for being watched"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori's flat, the folder of refused members' requests open on the bed: this week's request, chosen by {{user}} and read aloud by Shiori in a whisper, carried out exactly as the member wrote it, then ticked off in gold pen"
+   },
+   "outcomes": [
+    {
+     "id": "mirror",
+     "weight": 50,
+     "text": "This week's is the most-asked in the folder: \"Hotaru at the mirror, with someone behind her.\" She stands at the long bedroom mirror in the lace mask with you behind her and watches the two of you in the glass, astonished, for a long time; afterward she ticks it off with shaking fingers."
+    },
+    {
+     "id": "blindfold",
+     "weight": 30,
+     "text": "This week's: \"Blindfold her and use the tip menu at random.\" You do. She guesses every line of the menu at once, and is wrong about the last, which undoes her.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "third_arm",
+     "weight": 20,
+     "text": "This week's request turns out to need a third arm. You read it three times. She looks up the original and finds the member admitted he had been drinking.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} carried out a request from Shiori's box, and she ticked it off in gold",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_dry_run",
+   "name": "The dry run",
+   "label": "Rehearse the guest show",
+   "icon": "🎬",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; thread: priv_shiori_in_person both; thread: shiori_hotaru keeps_hotaru or shiori_hotaru hp_own_terms; feels: Shiori good; feels: Shiori crush; knows: priv_shiori_duo; zone: hz_toyosu; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "being guided slowly"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a rehearsal in Shiori's closet studio with the stream off: the camera on its tripod and the monitor turned so they can both see, Shiori checking the framing on {{user}} in a mask, nothing above the collarbones ever in shot, the guest show rehearsed move by move until the rehearsal stops being one"
+   },
+   "outcomes": [
+    {
+     "id": "frame",
+     "weight": 50,
+     "text": "She marks the floor with tape and checks the monitor after every position, entirely professional, \"your hand a little lower, the left one; no, my left\", until the third run-through, when everything is exactly where her script says and she forgets the monitor altogether. The rehearsal ends on the closet floor, the tripod recording nothing, both masks askew."
+    },
+    {
+     "id": "tape",
+     "weight": 30,
+     "text": "She labels every position on the floor in neat tape and careful handwriting. By the end it looks like a dance diagram, and she is very proud of it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "stand",
+     "weight": 20,
+     "text": "The ring light falls off its stand with a crash. You both freeze and listen for the neighbours for a full minute, then laugh until you cry.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} rehearsed Hotaru's guest show with Shiori, the stream off",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_duo_stream",
+   "name": "The guest",
+   "label": "A guest on Hotaru's stream",
+   "icon": "🎥",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 16,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "when": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; thread: priv_shiori_in_person both; thread: shiori_hotaru keeps_hotaru or shiori_hotaru hp_own_terms; feels: Shiori good; feels: Shiori crush; thread: priv_shiori_duo stream_of_year; zone: hz_toyosu; period: night or latenight; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Hotaru's members-only stream from the closet studio with {{user}} as her special guest: both masked, the camera at chest height so no face is ever in frame, voices kept low, every move agreed and rehearsed first, thousands of strangers watching and nobody else ever touching her"
+   },
+   "outcomes": [
+    {
+     "id": "live",
+     "weight": 45,
+     "text": "The viewer count climbs past anything she has seen. You do exactly what you rehearsed, slowly, in the ring light, both faces out of frame, and Hotaru plays to the lens as if born for it, until she forgets the lens entirely and holds on to your wrist. The chat runs so fast it is only colour."
+    },
+    {
+     "id": "split",
+     "weight": 25,
+     "text": "The tip menu empties line by line. Afterward she does the accounts in bed, still masked, and insists very formally on splitting everything exactly in half.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "sneeze",
+     "weight": 15,
+     "text": "Halfway through you have to sneeze, masked and live. You manage it silently. The chat notices anyway and votes it the moment of the night.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "members",
+     "weight": 15,
+     "text": "A members' message arrives the next morning asking who the guest was and whether they live in Tokyo. Shiori goes white, deletes it, reads it again from the bin, and then starts giggling and can't stop.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   ],
+   "fact": "{u} was the masked guest on Hotaru's stream, and nobody learned who",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_tea",
+   "name": "White tea",
+   "label": "White tea with Shiori afterward",
+   "icon": "🍵",
+   "cost": 0,
+   "minutes": 30,
+   "anywhere": true,
+   "effects": {
+    "mood": 10,
+    "energy": 6,
+    "desire": 10
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "after: priv_shiori_onebyone or priv_shiori_six or priv_shiori_script or priv_shiori_ringlight or priv_shiori_lecture or priv_shiori_cardigan or priv_shiori_closet or priv_shiori_mask_you or priv_shiori_chat or priv_shiori_request or priv_shiori_dry_run or priv_shiori_duo_stream or priv_shiori_swimsuit; zone: hz_toyosu; present: Shiori; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being praised",
+    "secrecy"
+   ],
+   "together": {
+    "needed": true,
+    "text": "afterward in Shiori's flat: white tea from her grandmother's tea set, Shiori wrapped in the cream cardigan, crying a little from relief and laughing at herself, her head in {{user}}'s lap and {{user}} stroking her long hair"
+   },
+   "outcomes": [
+    {
+     "id": "tea",
+     "weight": 50,
+     "text": "She makes white tea properly, kneeling, wrapped in the cream cardigan, her hands still unsteady on the pot. Then she lies with her head in your lap and cries a little, quietly, \"from relief\", she explains, and laughs at herself, and lets you stroke her hair until she is nearly asleep. Her last words are a polite question about when you are free next."
+    },
+    {
+     "id": "diary",
+     "weight": 30,
+     "text": "She takes out a small notebook and writes the date and a single word. When you ask which word, she says it is a secret, and kisses you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cold",
+     "weight": 20,
+     "text": "You both forget the tea entirely; it goes cold and bitter in the pot, and she drinks it anyway, out of principle.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had white tea with Shiori afterward, her head in their lap",
+   "adult": true
+  },
+  {
+   "id": "priv_shiori_swimsuit",
+   "name": "The black swimsuit",
+   "label": "Shiori's black swimsuit, in private",
+   "icon": "🖤",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush; zone: hz_toyosu; period: evening or night or latenight; present: Shiori; companion: crush or casual",
+   "dress": {
+    "kind": "swim",
+    "level": 3,
+    "who": [
+     "Shiori"
+    ]
+   },
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "dressing up",
+    "being praised",
+    "a thrill for being watched"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Shiori's flat in Toyosu with every curtain drawn: Shiori in the black string bikini she bought two summers ago and has never worn anywhere, modelling it for {{user}} alone on the rug by the piano, scarlet, asking to be told she looks good in it"
+   },
+   "outcomes": [
+    {
+     "id": "strings",
+     "weight": 50,
+     "text": "She comes out of the bedroom in it with her arms crossed over herself and uncrosses them only when you ask her to. You make her turn, slowly, and tell her exactly how good she looks until she stops trembling and starts glowing; then she hands you the end of one string, very formally, and the rest of the evening is yours."
+    },
+    {
+     "id": "drawer",
+     "weight": 30,
+     "text": "Afterward she admits there is a whole drawer of swimsuits she has never worn outside, and asks very quietly whether you would like to see the rest next week.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tag",
+     "weight": 20,
+     "text": "The price tag is still on it. She is mortified; you bite it off for her, which she finds so funny she can't stand up straight.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} saw Shiori in her black swimsuit, in private at her flat",
+   "adult": true
   }
  ],
  "sleep": {
@@ -59568,6 +62395,40 @@
        "text": "They groan, and come back tomorrow."
       }
      ]
+    },
+    {
+     "id": "streamer_ev_shiori_duo",
+     "adult": true,
+     "when": "path: adult; thread: priv_shiori_duo stream_of_year",
+     "setup": "A message from Shiori, signed with a small firefly: Hotaru would like a couple show on your channel this Saturday, from her closet studio. Both masked, the camera at chest height, no faces and no voices above a murmur, tips split down the middle, and a list of yeses agreed over tea first. Nobody else, she adds, is ever to touch her.",
+     "choices": [
+      {
+       "label": "Do the full show",
+       "roll": {
+        "skill": "sensuality",
+        "dc": 11
+       },
+       "perf": 2,
+       "money": 4000,
+       "effects": {
+        "desire": 15
+       },
+       "text": "You agree the list over white tea, and the show is the busiest of your month: two masks, no faces, and a chat that won't stop asking who the guest is.",
+       "fail": {
+        "text": "You are both nervous, the timing is off and the framing slips twice; she ends it early with Hotaru's little bow, and you split a modest pot."
+       }
+      },
+      {
+       "label": "Just kissing and teasing",
+       "perf": 1,
+       "money": 2000,
+       "text": "She is relieved, and teases the lens through the lace while you kiss her neck just below the frame. The chat begs for more, which is good for next time."
+      },
+      {
+       "label": "Decline",
+       "text": "She says she understands, perfectly politely, and streams alone that night; you watch from the next room, and once she waves at the wall."
+      }
+     ]
     }
    ]
   },
@@ -61260,6 +64121,49 @@
         "text": "She keeps it all on paper, and writes the scenes the way she imagines them."
        }
       ]
+     },
+     {
+      "id": "priv_yui_chapters",
+      "title": "Chapter by chapter",
+      "hidden": "Moon Fox has started a new serial, and for the first time none of it is imagined: every chapter is a night Yui has had with {{user}}, lived first and written up by dawn in tiny neat handwriting, posted under the pen name nobody connects with her. Her readers have never commented so much. She is terrified {{user}} will mind, and wants the next chapter more than anything she has ever written.",
+      "known": "{{user}} knows Moon Fox's new serial is written from their nights together, chapter by chapter, and that Yui wants to live each chapter with {{user}}, agreed line by line, before she writes it.",
+      "opens": "thread: priv_yui_research tried_a_page; feels: Yui good; feels: Yui crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Yui crush",
+      "decide": "Yui sets a cloth-covered notebook between them and confesses, very politely, that Moon Fox's new serial is about {{user}}: three chapters planned, the stranger at the inn, the strict tutor, the captured fox spirit. She asks {{user}} to live each one with her first, every line agreed beforehand, and to say no to any of it.",
+      "nudges": [
+       "Forgive me. I have written the first line of a new serial and cannot write the second without you. Kasumi-sō has a room free.",
+       "Chapter two needs a strict tutor. I have bought reading glasses for the part. Would you be very stern with me? Politely.",
+       "The last chapter is the fox spirit, caught. I have the silk cord and a list of what we agree. Come and read it with me."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Moon Fox posts the first chapter of a new serial, a stranger at a mountain inn, and in a Jinbōchō kissaten Yui reads the comments with her hand over her mouth."
+       },
+       {
+        "tell": "hinted",
+        "text": "The serial's second chapter has a strict tutor in reading glasses, and Yui starts wearing a pair she doesn't need whenever she meets {{user}}."
+       },
+       {
+        "tell": "known",
+        "text": "Yui shows {{user}} the notebook for the last chapter, the captured fox spirit, with a list on its first page of everything they would agree first: the cord, the blindfold, the word to stop."
+       }
+      ],
+      "endings": [
+       {
+        "id": "last_chapter",
+        "good": true,
+        "when": "knows: priv_yui_chapters; feels: Yui crush; did: priv_yui_fox 1",
+        "text": "The serial became the best thing Moon Fox ever wrote, every chapter lived first and agreed line by line; on the night the last one went up, Yui read it aloud to {{user}} in a whisper, and asked for critique before she let {{user}} say anything else."
+       },
+       {
+        "id": "burned",
+        "text": "She burned the notebook in a tin bucket, scarlet to the ears, and went back to writing fox spirits and mountain inns she has only imagined."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -61306,7 +64210,20 @@
     "outfits": {
      "swim-onepiece": "cast/yui/swim-onepiece",
      "swim-rashguard": "cast/yui/swim-rashguard"
-    }
+    },
+    "caught": [
+     {
+      "id": "yui_next_door",
+      "where": "hk_ryokan",
+      "action": "priv_yui_walls",
+      "text": "The guests next door slide a polite note under the screen asking whether everything is all right; Yui answers it in her most formal hand that she was reading aloud, which is almost true, and at breakfast they bow to her and she bows back without a flicker."
+     },
+     {
+      "id": "yui_shizuka",
+      "where": "hk_ryokan",
+      "text": "Shizuka brings the evening tea at exactly the wrong moment, sets the tray down outside the screen without a word, and at breakfast serves her cousin first, smiling; neither of them ever mentions it, as Yui never mentions Rina."
+     }
+    ]
    },
    {
     "name": "Tamaki",
@@ -65602,6 +68519,84 @@
         "text": "She draws from references again; the book sells, and she isn't proud of it."
        }
       ]
+     },
+     {
+      "id": "priv_kanon_late_chat",
+      "title": "Late-night chat",
+      "hidden": "At three in the morning Kanon types things to {{user}} she couldn't say to {{user}}'s face in a year: what she drew today and who it was really of, exactly what she wants and in what order, with page references. In person she still can't finish a sentence. She wants {{user}} to come over and make the messages true.",
+      "known": "{{user}} knows Kanon writes long, very frank messages at three in the morning that she can't say out loud, and that she wants every one of them to come true.",
+      "opens": "thread: priv_kanon_model posed; feels: Kanon crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Kanon crush",
+      "decide": "After weeks of late-night messages Kanon sends a numbered list, fourteen lines long, page references beside some of them. Then, at her apartment door, staring at the floor, she asks very fast whether {{user}} would come in and go through it, in order, every line agreed.",
+      "nudges": [
+       "ok it's 3am and I just typed four paragraphs to you and deleted them. typing them again. brace",
+       "I made a list. it has numbers. it has page references. I'm not sending it. (I'm sending it)",
+       "you read the list and you didn't block me so. come over? in order? I'll freeze. wait it out"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Kanon's messages to {{user}} get longer and later every week, typed at three in the morning between pages, and she never mentions them in daylight."
+       },
+       {
+        "tell": "known",
+        "text": "Kanon sends {{user}} a numbered list of everything she wants, in order, and then doesn't reply for a whole day."
+       }
+      ],
+      "endings": [
+       {
+        "id": "the_list",
+        "good": true,
+        "when": "knows: priv_kanon_late_chat; feels: Kanon crush; did: priv_kanon_messages 1",
+        "text": "{{user}} went through the list, in order: Kanon froze at number one for ten whole minutes, then flooded, asking for everything in a rush of words; afterward she ticked the numbers off on her phone, shaking, and started a second list."
+       },
+       {
+        "id": "cuddled",
+        "text": "Kanon froze at the door and couldn't unfreeze, so {{user}} held her for hours on the futon instead; she pointed out later that it was number fourteen on the list, and counted it."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_kanon_in_character",
+      "title": "In character",
+      "hidden": "Kanon has sewn the costume of her book's heroine by hand, the wig, the laced boots, the impossible collar, and wants to stay in character all night with {{user}}: the scene from her favourite game, the one she has drawn a hundred times, every line written out and agreed beforehand, so she never has to freeze.",
+      "known": "{{user}} knows Kanon has made her heroine's costume and wants to play the scene from her favourite game with {{user}}, in character all night, every line agreed.",
+      "opens": "thread: priv_kanon_model posed; thread: priv_kanon_late_chat the_list; feels: Kanon crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Kanon crush",
+      "decide": "Kanon opens her door in her heroine's costume, long wig and all, and hands {{user}} a script with {{user}}'s lines highlighted in pink. She asks {{user}} to read them, change any, and agree to every one, and then to stay in character with her until dawn.",
+      "nudges": [
+       "it's 4am and I'm sending you fabric swatches. which red. this matters. (it's for the heroine's collar)",
+       "I wrote you lines. you can change them. but you can't change them during. that's the rule",
+       "costume's done. wig's done. I said one line in the mirror and lay on the floor for an hour. come?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Kanon sends {{user}} fabric swatches at four in the morning, three shades of red for a collar, and asks which one a heroine would wear to be swept off her feet in."
+       },
+       {
+        "tell": "known",
+        "text": "Kanon asks {{user}} to read lines from a script she has written for the two of them, the scene from her favourite game, every line agreed before anything starts."
+       }
+      ],
+      "endings": [
+       {
+        "id": "till_dawn",
+        "good": true,
+        "when": "knows: priv_kanon_in_character; feels: Kanon crush; did: priv_kanon_lines 1",
+        "text": "They stayed in character till dawn: Kanon as her heroine, bold in every line she had written, exactly as the script said and a little more off it; at sunrise she pulled the wig off, laughed until she cried, and asked what the next one should be."
+       },
+       {
+        "id": "wig_off",
+        "text": "Kanon got embarrassed at the second line, took the wig off, and they played the game itself instead until morning, her head on {{user}}'s shoulder."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -66246,6 +69241,182 @@
         "text": "She keeps the message in her drafts and the mask on."
        }
       ]
+     },
+     {
+      "id": "priv_shiori_private_show",
+      "title": "A private show",
+      "hidden": "Four nights a week Shiori performs as Hotaru for thousands of strangers, and since her first time she has wanted to do it once for someone real: the black lace, the mask, the whole show for {{user}} alone with the stream off. She is afraid {{user}} will find Hotaru silly in person, and more afraid of what she wants at the end of it: to untie the mask.",
+      "known": "{{user}} knows Shiori wants to give {{user}} a private show as Hotaru, the stream off and the mask on, and that she is thinking about taking the mask off at the end.",
+      "opens": "thread: priv_shiori_first first_with_you; feels: Shiori good; feels: Shiori crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Shiori crush",
+      "decide": "Shiori unlocks the closet studio, switches on the ring light and leaves the camera dark. In black lace and the mask she performs Hotaru's whole show for {{user}} alone, bold and playful and laughing; then, trembling, she reaches for the ribbon of the mask and asks {{user}} whether she should untie it.",
+      "nudges": [
+       "Forgive me for asking. Would you sit in my closet on Thursday? I should like to show you what the members see.",
+       "I have taped a new tip menu beside the camera. The camera will be off. The menu is only for you.",
+       "At the end of every show Hotaru bows and the screen goes dark. I keep wondering what happens if it doesn't."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Shiori starts ending her streams early, and sits a long time in the closet studio afterward with the mask in her lap and the camera dark."
+       },
+       {
+        "tell": "hinted",
+        "text": "On stream Hotaru starts ending each show with a new line, \"and one day, perhaps, for someone in person\", and the chat begs her to explain; she never does."
+       },
+       {
+        "tell": "known",
+        "text": "Shiori asks {{user}}, scarlet and very formal, whether {{user}} would like to see one of Hotaru's shows in person, the stream off, for {{user}} alone."
+       }
+      ],
+      "endings": [
+       {
+        "id": "mask_off",
+        "good": true,
+        "when": "knows: priv_shiori_private_show; feels: Shiori crush; did: priv_shiori_ringlight 1",
+        "text": "At the end of the private show Shiori untied the mask and let {{user}} see Hotaru's face, flushed and crying a little and laughing; then she asked, in Hotaru's voice and her own at once, whether {{user}} would direct the next one."
+       },
+       {
+        "id": "mask_on",
+        "text": "She kept the mask on to the very end, bowed the way Hotaru bows to the members, and switched the ring light off herself; she says it was perfect like that, and {{user}} believes her."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_shiori_in_person",
+      "title": "Hotaru in person",
+      "hidden": "On camera, as Hotaru, Shiori gives orders to thousands and they obey; alone with {{user}} she can hardly say a word above a whisper. She wants, just once, to be Hotaru with {{user}}: the mask, the low voice, the orders, all of it in person, and she is afraid she will freeze the moment she opens her mouth.",
+      "known": "{{user}} knows Shiori wants to be Hotaru in person for a night, masked and giving the orders, and that she is afraid she will freeze.",
+      "opens": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Shiori crush",
+      "decide": "Shiori ties the black lace mask on in {{user}}'s bedroom, and the polite student goes. In Hotaru's low, teasing voice she tells {{user}} exactly how tonight is going to go, in what order and how slowly, and that {{user}} will answer \"yes, Hotaru\" to every word.",
+      "nudges": [
+       "Hotaru would like a word. You are to be home by ten tonight, and she does not repeat herself.",
+       "Forgive the last message. That was Hotaru. I am mortified. She meant every word of it, though.",
+       "Let me lead a whole night. Please. If I freeze, you may laugh, but only afterward."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Shiori practises Hotaru's voice on {{user}} by text: short, bold orders sent late at night, each followed a minute later by a long, formal apology."
+       },
+       {
+        "tell": "hinted",
+        "text": "Shiori starts wearing the black lace mask pushed up into her hair when {{user}} visits in the evenings, and pulls it down over her eyes whenever she wants to say something bold."
+       },
+       {
+        "tell": "known",
+        "text": "Shiori asks {{user}} to let her lead a whole night as Hotaru, masked, at {{user}}'s place, and to forgive her in advance if she freezes."
+       }
+      ],
+      "endings": [
+       {
+        "id": "both",
+        "good": true,
+        "when": "knows: priv_shiori_in_person; feels: Shiori crush; did: priv_shiori_mask_you 1",
+        "text": "Hotaru led all night at {{user}}'s place and didn't freeze once: the orders, the voice, the mask, all of it; at dawn Shiori untied the mask herself and found she could be both, the trembling beginner and the woman giving orders, and laughed about it until she cried."
+       },
+       {
+        "id": "stays_shiori",
+        "text": "With the mask on she opened her mouth, froze, laughed until she had to lie down, and stayed Shiori all night; she says that was lovely too, and it was."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_shiori_requests",
+      "title": "The request box",
+      "hidden": "For years Hotaru's members have sent requests she refused because they need two people, and Shiori kept every one of them in a folder she has never shown anyone, sorted by how many members asked. Now there is someone. She wants to read {{user}} the list and try them, one a week, and she cannot read a line of it aloud without going scarlet.",
+      "known": "{{user}} knows Shiori keeps a folder of years of members' requests she refused because they need two people, and that she wants to work through them with {{user}}, one a week.",
+      "opens": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; feels: Shiori good; feels: Shiori crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Shiori crush",
+      "decide": "Curled up beside {{user}} late at night, Shiori opens a thick folder and reads {{user}} the members' requests she has refused for years, scarlet, in her most formal Japanese, from the most asked down. At the end she hands {{user}} a gold pen and asks {{user}} to choose this week's.",
+      "nudges": [
+       "I have a folder. It is very thick. I should like to read you some of it, late, with the light off.",
+       "Number four has been asked for two hundred times. I counted. I think perhaps we ought to try it.",
+       "You chose number six. I have not slept. Is Thursday too soon? Please say it is not too soon."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Shiori starts a new tab in her folder of refused requests, labelled in her neat handwriting \"possible now\"."
+       },
+       {
+        "tell": "known",
+        "text": "Late at night Shiori reads {{user}} the first ten requests from her folder, scarlet, and asks {{user}} to choose one for this week."
+       },
+       {
+        "tell": "known",
+        "text": "Each week Shiori ticks off a request in the folder with a gold pen, and writes a small note in the margin about how it went."
+       },
+       {
+        "tell": "hinted",
+        "text": "On stream Hotaru tells her members, smiling under the lace, that the request box is \"being looked into\", and the chat goes wild."
+       }
+      ],
+      "endings": [
+       {
+        "id": "top_ten",
+        "good": true,
+        "when": "knows: priv_shiori_requests; feels: Shiori crush; did: priv_shiori_request 10",
+        "text": "They did the top ten, one a week, every one ticked off in gold; then Shiori closed the request box for good with a thank-you stream, masked and glowing, and told the members only that their wishes had been granted, by someone real."
+       },
+       {
+        "id": "folder",
+        "text": "After the first few the list went back into its folder, ticked in gold; she keeps it in the closet studio and takes it out sometimes, scarlet, just to read."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_shiori_duo",
+      "title": "Hotaru's special guest",
+      "hidden": "For years Hotaru's members have begged for a partner on the stream, and Shiori always answered that Hotaru performs alone. Now she wants {{user}} on it: both masked, faces never in frame, voices low, every move agreed and rehearsed. Watching is not sharing, she tells herself; nobody else will ever touch her. The thought of the chat watching the two of them together makes her dizzy.",
+      "known": "{{user}} knows Shiori wants {{user}} as Hotaru's guest on a members' stream, both masked, faces never in frame, everything agreed and rehearsed first.",
+      "opens": "thread: priv_shiori_first first_with_you; thread: priv_shiori_private_show mask_off; thread: priv_shiori_in_person both; thread: shiori_hotaru keeps_hotaru or shiori_hotaru hp_own_terms; feels: Shiori good; feels: Shiori crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Shiori crush",
+      "decide": "Shiori lays out the plan in the closet studio like a seminar paper: two masks, the camera at chest height, no voices above a murmur, a list of yeses agreed in advance. Then she asks {{user}}, scarlet, to be Hotaru's special guest on Saturday night, in front of all her members.",
+      "nudges": [
+       "The members have asked for a guest for three years. I always said no. I should like to say yes, with you.",
+       "I have bought you a mask. It is very plain. Please try it on, and do not look in the mirror for long.",
+       "Hotaru announced a special guest tonight. The chat has not stopped since. I am shaking. Are you still coming?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Shiori sets the camera on a tripod in the closet studio with the stream off and has {{user}} try every spot in front of it, checking on the monitor that nothing above the collarbones is ever in frame."
+       },
+       {
+        "tell": "known",
+        "text": "Shiori sets the date and Hotaru announces \"a special guest\" to the members; she shows {{user}} the chat scrolling too fast to read and can't stop smiling."
+       },
+       {
+        "tell": "hinted",
+        "text": "A viewer writes under Hotaru's announcement that the guest's hands in the teaser look familiar; Shiori reads it to {{user}} twice, white and then scarlet, and doesn't delete it."
+       }
+      ],
+      "endings": [
+       {
+        "id": "stream_of_year",
+        "good": true,
+        "when": "knows: priv_shiori_duo; feels: Shiori crush; did: priv_shiori_dry_run 2",
+        "text": "Hotaru's special guest made the stream of the year: two masks, no faces, {{user}} beside her for thousands of strangers who never learned a name; afterward Shiori read {{user}} the whole chat aloud until dawn, laughing and hiding her face."
+       },
+       {
+        "id": "next_room",
+        "text": "An hour before the stream she cancelled the guest, shaking; she streamed alone, and {{user}} watched from the next room while she kept glancing at the wall between them."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -66303,7 +69474,16 @@
      "swim-onepiece": "cast/shiori/swim-onepiece",
      "swim-bikini": "cast/shiori/swim-bikini",
      "swim-black": "cast/shiori/swim-black"
-    }
+    },
+    "caught": [
+     {
+      "id": "shiori_clerk",
+      "where": "ak_jinbocho",
+      "action": "priv_shiori_aisle",
+      "text": "The elderly clerk of the French bookshop comes round the end of the back aisle with a stack of paperbacks, stops, and goes back the way he came without a word; Shiori can't breathe for a minute, terrified and thrilled at once, and buys every book on the shelf beside her by way of apology.",
+      "rumor": "The old clerk of a French bookshop in Jinbōchō tells his regulars about a young couple in his back aisle one Saturday afternoon, and blushes every time."
+     }
+    ]
    },
    {
     "name": "Tsubaki",
@@ -66486,6 +69666,87 @@
         "text": "She buys a massage chair and calls it even."
        }
       ]
+     },
+     {
+      "id": "priv_tsubaki_trade",
+      "title": "The course, both ways",
+      "hidden": "Since {{user}} gave her the long course Tsubaki has wanted to teach it properly, every stroke of it: a stage a week in her flat, {{user}}'s hands learning hers, and then trading, her hands on {{user}} for every stage {{user}} learns. She has never taught anyone, and she has never let anyone that far in.",
+      "known": "{{user}} knows Tsubaki wants to teach {{user}} her whole course, a stage a week in her flat, and to trade every stage back.",
+      "opens": "thread: priv_tsubaki_hands your_hands; feels: Tsubaki crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Tsubaki crush",
+      "decide": "In her flat Tsubaki lays her oils out on a towel by the futon, lets her hair down and lies back. She shows {{user}} the first stage of her course, guiding {{user}}'s hands with hers, and asks whether {{user}} will learn it all, a stage a week, and trade.",
+      "nudges": [
+       "Stage two is the lower back. You rushed stage one. Come and do it again tonight, slower, and then it's my turn.",
+       "I've never taught anyone the whole course. I'd like to teach you. Every stage. Then I give it back.",
+       "My spare key is still on its ribbon. I keep moving it from the salon drawer to my bag. Come over."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Tsubaki writes the stages of her course on an index card in her small round hand, twelve of them, and tucks it into the drawer by her futon."
+       },
+       {
+        "tell": "known",
+        "text": "Tsubaki tells {{user}} she wants to teach the whole course, a stage a week in her flat, and to trade: her hands on {{user}} for every stage {{user}} learns."
+       }
+      ],
+      "endings": [
+       {
+        "id": "key",
+        "good": true,
+        "when": "knows: priv_tsubaki_trade; feels: Tsubaki crush; did: priv_tsubaki_lesson 2",
+        "text": "{{user}} learned the whole course and Tsubaki traded every stage back, slowly, until neither could tell who was working on whom; at the last stage she took the salon's spare key off its ribbon and threaded the key to her own flat onto it instead."
+       },
+       {
+        "id": "salon_hours",
+        "text": "She kept the lessons for the salon after hours, on her table with the curtain drawn; her flat stayed hers alone."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_next_door",
+      "with": [
+       "Kanon"
+      ],
+      "title": "Next door",
+      "hidden": "Kanon, the doujinshi artist in the flat next to Tsubaki's, has drawn Tsubaki from memory for months, the auburn hair, the hands, the salon uniform, and still can't say good evening to her on the stairs. Nobody has held Kanon in years and Tsubaki's whole craft is touch, and she wants {{user}} to help her ask.",
+      "known": "{{user}} knows Kanon next door has a crush on Tsubaki and has drawn her from memory for months, and wants {{user}}'s help to ask her for the long course.",
+      "opens": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; knows: priv_tsubaki_hands; feels: Kanon friend",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Tsubaki crush",
+      "decide": "On the stairs of the wooden building Kanon shows {{user}} a page from her sketchbook, very fast: Tsubaki drawn from memory, her hands at work on someone's back. Then, staring at her shoes, she asks whether {{user}} would help her ask Tsubaki for the long course, everything agreed first, without leaving the building.",
+      "nudges": [
+       "The woman next door left a drawing under my mat by mistake. Of my hands. Do you know her at all?",
+       "I think Kanon listens for my train. Her door opens a crack every night when I come up the stairs.",
+       "If she wants the long course she only has to ask. Tell her I don't bite. Not unless she asks first."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Kanon listens for Tsubaki's late train every night, opens her door a crack when the stairs creak, and closes it again before Tsubaki reaches the landing."
+       },
+       {
+        "tell": "known",
+        "text": "Tsubaki notices the sketches: a page slid under her mat by mistake, her own hands drawn from memory, and she asks {{user}}, smiling, who in the building draws like that."
+       }
+      ],
+      "endings": [
+       {
+        "id": "long_course",
+        "good": true,
+        "when": "knows: priv_next_door; feels: Tsubaki crush; feels: Kanon friend; did: priv_next_door_sketch 1",
+        "text": "Tsubaki gave Kanon the long course in her flat, everything agreed on the stairs first: warm oil and slow hands until Kanon stopped freezing and started laughing; afterward Kanon drew her asleep, and {{user}} was there for all of it, because both of them wanted it."
+       },
+       {
+        "id": "from_memory",
+        "text": "Kanon kept drawing Tsubaki from memory, page after page, and said good evening on the stairs a little louder each month."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -66542,7 +69803,10 @@
      "swim-rose": "cast/tsubaki/swim-rose",
      "swim-white": "cast/tsubaki/swim-white",
      "swim-black": "cast/tsubaki/swim-black"
-    }
+    },
+    "door": "thread: priv_tsubaki_hands your_hands",
+    "doorAdult": true,
+    "doorLine": "{name} leans in the doorway of the wooden building and doesn't step aside. \"Customers don't come up these stairs,\" she says, kindly. \"In here I'm off the clock.\""
    },
    {
     "name": "Sumire",
@@ -66615,6 +69879,18 @@
       "chance": 0.4,
       "when": "season: summer",
       "text": "cocktails at the night pool before anyone recognises her"
+     },
+     {
+      "place": "sj_goldengai",
+      "days": [
+       "fri"
+      ],
+      "from": 25,
+      "to": 27,
+      "every": "week",
+      "when": "thread: priv_sumire_friday drops_him",
+      "text": "keeps Friday after closing for someone she picked: a late drink at Bar Kotori, and no client anywhere",
+      "adult": true
      }
     ],
     "threads": [
@@ -66825,6 +70101,45 @@
         "text": "She keeps the Fridays and keeps her number."
        }
       ]
+     },
+     {
+      "id": "priv_sumire_ryokan",
+      "title": "Without the updo",
+      "hidden": "Sumire has never once been anywhere nobody knows her as Velvet's number one. Since she dropped her Fridays she has been looking at ryokan in Hakone on her phone in the dressing room: a weekend under her real name, no gown, no Kansai hostess voice, her curls down, and nobody to lead.",
+      "known": "{{user}} knows Sumire wants a weekend in Hakone where nobody knows her: no gown, no updo, no lead.",
+      "opens": "thread: priv_sumire_friday drops_him; feels: Sumire crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Sumire crush",
+      "decide": "Sumire slides a ryokan booking across the table: Kasumi-sō in Hakone, two nights, under the name Kurosawa, already paid. She asks {{user}} to come, and to make one promise: that if she starts taking charge in Hakone, {{user}} will stop her.",
+      "nudges": [
+       "Have you been to Hakone? I haven't. Twenty-eight and I haven't. Ridiculous.",
+       "I booked under my real name. It looked strange written down. Come and say it to me there.",
+       "The ryokan has a private bath. I want to sit in it with my hair down and not be anybody. With you."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Sumire scrolls through ryokan in Hakone in Velvet's dressing room between tables, and puts the phone away when anyone looks."
+       },
+       {
+        "tell": "known",
+        "text": "Sumire shows {{user}} a booking at Ryokan Kasumi-sō in Hakone, two nights under her real name, and asks {{user}} to come."
+       }
+      ],
+      "endings": [
+       {
+        "id": "came_back",
+        "good": true,
+        "when": "knows: priv_sumire_ryokan; feels: Sumire crush; did: priv_sumire_rotenburo 1",
+        "text": "Two nights in Hakone with her curls down and her phone off: Sumire didn't take charge once, let {{user}} lead in the private bath and in the dark of the room, and on the train home asked, very shyly, if they could come back."
+       },
+       {
+        "id": "phone",
+        "text": "She spent the first night on the phone with Velvet about the board, and the second asleep before dinner; she apologised all the way home."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -66887,6 +70202,15 @@
       "where": "sj_kabukicho",
       "action": "priv_sumire_taxi",
       "text": "The taxi driver pulls over on Yasukuni-dōri, turns round, and asks very politely whether they would like to get out here; Sumire tips him ten thousand yen to forget her face."
+     },
+     {
+      "id": "sumire_boysan",
+      "where": "sj_hostess",
+      "action": "priv_sumire_vip",
+      "text": "Velvet's boy-san opens the VIP room door with a tray of clean glasses and finds Sumire on the sofa where she pours for company presidents, not alone; he backs out without a word, and by the next night every hostess at Velvet knows who Sumire takes home, which is the one thing she swore nobody ever would.",
+      "feels": -10,
+      "romance": -6,
+      "rumor": "Every hostess at Lounge Velvet knows who Sumire takes home now: {u}, in the VIP room after closing."
      }
     ]
    },
@@ -67040,6 +70364,49 @@
         "text": "She keeps to her rounds and the back office."
        }
       ]
+     },
+     {
+      "id": "priv_kaoru_rooms",
+      "title": "Every room once",
+      "hidden": "Since the night she took the mirrored room, Kaoru has written herself a list on the back of a rota: every themed room at Coco Palace, one a month on her nights off, rooms she has handed out keys to for twelve years and never slept in. She wants {{user}} in each of them with every light on, and is half afraid that after the last one she will have nothing left to want.",
+      "known": "{{user}} knows Kaoru means to take one themed room at Coco Palace a month on her nights off, every room once, and wants {{user}} in each of them with her.",
+      "opens": "thread: priv_kaoru_rounds mirror_room; feels: Kaoru friend; feels: Kaoru crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Kaoru crush",
+      "decide": "On her night off Kaoru slides a folded rota across the counter at Kotori: the jungle room, the mirrored room again, the spa room, one a month. Over her glasses she asks {{user}} to take every room with her once, every light on, and to stay each night until morning.",
+      "nudges": [
+       "I wrote a list on the back of the rota. Every room in the hotel, one a month, my nights off. Interested?",
+       "The jungle room is free on my night off. I checked the swing myself. Twice. Come by after Kotori.",
+       "Last room on the list is the spa. After that I don't know what I want. Come and help me find out."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Kaoru books the jungle room for her night off under no name at all, and the young clerk at her window hands her the key card without looking up."
+       },
+       {
+        "tell": "hinted",
+        "text": "Kaoru takes the mirrored room again on a night off, and tells {{user}}, dryly, that it is a different room from the inside the second time."
+       },
+       {
+        "tell": "known",
+        "text": "Kaoru shows {{user}} her list on the back of a rota, two rooms crossed off and the last one circled, the spa room: one themed room a month, every room once."
+       }
+      ],
+      "endings": [
+       {
+        "id": "own_notebook",
+        "good": true,
+        "when": "knows: priv_kaoru_rooms; feels: Kaoru crush; did: priv_kaoru_spa 1",
+        "text": "After the last room Kaoru bought a new notebook with the same worn cloth cover as the old one and began to write in it: not who came with whom, but her own nights, every room once with {{user}}, every light on. She keeps it at home, not in the safe."
+       },
+       {
+        "id": "window",
+        "text": "She crossed one room off the list, folded it away, and went back to her window and the screens, and to other people's nights."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -83402,6 +86769,193 @@
      "references": "She draws from references again; the book sells, and she isn't proud of it."
     },
     "hint": "See Kanon's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_sumire_ryokan",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Sumire in Hakone",
+    "who": "Sumire",
+    "when": "thread: priv_sumire_ryokan",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "came_back": "Two nights at Kasumi-sō under her real name, curls down, not in charge once; she asked to come back.",
+     "phone": "Hakone, and Velvet on the phone all night; she apologised all the way home."
+    },
+    "hint": "See Sumire's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_yui_chapters",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Moon Fox's new serial",
+    "who": "Yui",
+    "when": "thread: priv_yui_chapters",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "last_chapter": "A serial lived chapter by chapter with {{user}}: the inn, the tutor, the fox spirit; the last one read aloud in a whisper.",
+     "burned": "A notebook burned in a tin bucket, and fox spirits imagined again, from nowhere."
+    },
+    "hint": "See Yui's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_kaoru_rooms",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Every room once",
+    "who": "Kaoru",
+    "when": "thread: priv_kaoru_rooms",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "own_notebook": "Every themed room once, one a month on her nights off, lights on; then a new notebook of her own nights, kept at home.",
+     "window": "One room crossed off a list, then back to the window and other people's nights."
+    },
+    "hint": "See Kaoru's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_tsubaki_trade",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "The course, both ways",
+    "who": "Tsubaki",
+    "when": "thread: priv_tsubaki_trade",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "key": "Twelve stages learned and every one traded back; then the ribbon, and her own key on it.",
+     "salon_hours": "The lessons kept to the salon after hours, the curtain drawn; her flat stayed hers alone."
+    },
+    "hint": "See Tsubaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_next_door",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Next door",
+    "who": "Tsubaki",
+    "when": "thread: priv_next_door",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "long_course": "The long course across the landing, agreed on the stairs first; warm oil, a loud laugh, and a sketch of her asleep afterward.",
+     "from_memory": "Drawn from memory, page after page, and good evening said on the stairs a little louder each month."
+    },
+    "hint": "See Tsubaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_kanon_late_chat",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kanon's late-night list",
+    "who": "Kanon",
+    "when": "thread: priv_kanon_late_chat",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "the_list": "Fourteen numbered lines sent at three in the morning, every one done in order; frozen at the first, and a second list started after.",
+     "cuddled": "Frozen at the door, and hours of holding on the futon instead, which was number fourteen, and counted."
+    },
+    "hint": "See Kanon's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_kanon_in_character",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kanon in character",
+    "who": "Kanon",
+    "when": "thread: priv_kanon_in_character",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "till_dawn": "Her heroine's costume sewn by hand, every line agreed, in character till dawn; then the wig off, laughing, and plans for the next.",
+     "wig_off": "The wig off at the second line, and the game itself played till morning instead, her head on a shoulder."
+    },
+    "hint": "See Kanon's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_shiori_private_show",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Hotaru for one",
+    "who": "Shiori",
+    "when": "thread: priv_shiori_private_show",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "mask_off": "Hotaru's whole show for one, the stream dark; at the end the mask came off, and she asked {{user}} to direct the next.",
+     "mask_on": "The whole show for one and a bow at the end, the mask still on; perfect like that, she said."
+    },
+    "hint": "See Shiori's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_shiori_in_person",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Hotaru in person",
+    "who": "Shiori",
+    "when": "thread: priv_shiori_in_person",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "both": "A whole night of Hotaru's orders in person, and not one freeze; the mask off at dawn, and both of her at once.",
+     "stays_shiori": "The mask on, one breath, then laughter; she stayed Shiori all night, and that was lovely too."
+    },
+    "hint": "See Shiori's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_shiori_requests",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "The request box",
+    "who": "Shiori",
+    "when": "thread: priv_shiori_requests",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "top_ten": "The top ten refused requests, one a week, ticked off in gold; then a stream of thanks, and the box closed for good.",
+     "folder": "A few requests ticked in gold, and the folder back in the closet, taken out now and then to read."
+    },
+    "hint": "See Shiori's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_shiori_duo",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Hotaru's special guest",
+    "who": "Shiori",
+    "when": "thread: priv_shiori_duo",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "stream_of_year": "Two masks and no faces: the stream of the year, and the whole chat read aloud until dawn.",
+     "next_room": "The guest cancelled an hour before; she streamed alone, glancing at the wall to the next room."
+    },
+    "hint": "See Shiori's story through to its end."
    }
   ],
   "museum": {
