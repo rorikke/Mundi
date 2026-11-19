@@ -265,18 +265,28 @@ function tabActions(w) {
             ${chk('An outing (off-screen)', `${p}.outing`, 'You leave for a while (work, errands, a night out) and come back: offered even when needs are off. Made for Homes.')}
             ${sel('Only if the player owns', `${p}.needsItem`, [['', 'Nothing (always offered)'], ...(w.catalogs.shop ?? []).map(it => [it.id, `${it.icon ?? ''} ${it.name}`])])}
             <h4>Effects</h4><div class="mu-cw-effects">${w.statuses.map(s => num(esc(`${s.icon} ${s.name}`), `${p}.effects.${s.id}`, -1000)).join('')}</div>
-            ${actionMore(w, p, a)}${actionPics(p, a)}${dressBox(p, a.dress?.kind, 'The people doing it with you put it on while it plays out; in a private moment, instead of undressing.')}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
+            ${actionMore(w, p, a)}${actionPics(w, p, a)}${dressBox(p, a.dress?.kind, 'The people doing it with you put it on while it plays out; in a private moment, instead of undressing.')}${privateBox(w, p, a)}${rollEditor(w, p, a)}${outcomesEditor(w, `${p}.outcomes`, a.outcomes ?? [], 'outcome')}${wordsEditor(w, p, a)}`;
     }, 'action')}${tablesEditor(w)}${storiesEditor(w)}`;
 }
 // (E-5) An action's own background, for a room inside a place that isn't a place (a back room, a themed hotel room): a
-// picture and its other times of the day, with an upload for each. Folded when it has none.
-function actionPics(p, a) {
+// picture and its other times of the day, a picture by place (an action played at several places), with an upload for
+// each, and whether it keeps the room a scene is in. Folded when it has none of it.
+function actionPics(w, p, a) {
     const up = (q, n) => `<button class="mu-ghost mu-ibtn" data-act="cw-room-img" data-path="${esc(q)}" data-name="${esc(n)}" title="Upload">${icon('upload')}</button>`;
-    const name = `act-${a.id || 'action'}`;
-    return `<details class="mu-me-times" ${a.bg || Object.keys(a.bgs ?? {}).length ? 'open' : ''}><summary>Its own background</summary>
+    const name = `act-${a.id || 'action'}`, q = `${p}.bgAt`;
+    // (places by the id the player stands at: a home as `home:player`, `home:second`; a key from the file that isn't one
+    // of them is kept, shown as it's written)
+    const all = [...placeOpts(w), ['home:player', 'Your home'], ['home:second', 'Your second home']];
+    const has = Object.keys(a.bgAt ?? {}).filter(k => !BAD_KEYS.includes(k)), free = all.filter(([id]) => !has.includes(id));
+    const row = (k) => `<div class="mu-row mu-cw-inline"><label class="mu-field"><span>Place</span><select data-input="cw-rekey" data-path="${esc(q)}" data-from="${esc(k)}">${[...all.filter(([id]) => id === k || free.some(([f]) => f === id)), ...(all.some(([id]) => id === k) ? [] : [[k, k]])].map(([id, n]) => `<option value="${esc(id)}" ${id === k ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+        ${txt('Picture', `${q}.${k}`, 'bg/hotel-jungle.avif')}${up(`${q}.${k}`, `${name}-${k.replace(/^home:/, 'home-')}`)}<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(`${q}.${k}`)}" title="Remove">${icon('x')}</button></div>`;
+    return `<details class="mu-me-times" ${a.bg || Object.keys(a.bgs ?? {}).length || has.length || a.keepBg ? 'open' : ''}><summary>Its own background</summary>
         <small class="mu-muted">While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.</small>
         <div class="mu-row mu-cw-inline">${optTxt("Picture (a file in the world's folder or a /user/files/ address; empty: the place's)", `${p}.bg`, 'bg/hotel-jungle.avif')}${up(`${p}.bg`, name)}</div>
-        ${TIME_SLOTS.map(per => `<div class="mu-row mu-cw-inline">${optTxt(esc(per.name), `${p}.bgs.${per.id}`)}${up(`${p}.bgs.${per.id}`, `${name}-${per.id}`)}</div>`).join('')}</details>`;
+        ${TIME_SLOTS.map(per => `<div class="mu-row mu-cw-inline">${optTxt(esc(per.name), `${p}.bgs.${per.id}`)}${up(`${p}.bgs.${per.id}`, `${name}-${per.id}`)}</div>`).join('')}
+        <span class="mu-cw-sub">A picture by place (shown there instead of the ones above)</span>${has.map(row).join('') || '<small class="mu-muted">None.</small>'}
+        ${free.length ? `<button class="mu-ghost" data-act="cw-add" data-what="mapkey" data-keys="places" data-path="${esc(q)}">${icon('plus')}<span>Add a place's picture</span></button>` : ''}
+        ${flag("Keeps the room it's in", `${p}.keepBg`, "If an action's own background is showing when it starts, it stays, as though this were part of it: tea after a back-room scene, aftercare.")}</details>`;
 }
 // (adult) A private moment: done in private, only with adult content on, how hard it is (the private roll), the words it
 // matches against someone's likes and hard limits, and the chance of being caught where it's done (with what that costs).
@@ -4385,12 +4395,15 @@ Object.assign(ACT, {
         if (what === 'mapkey') {
             const p = el.dataset.path;
             const m = (getPath(p) ?? {});
+            // (an action's picture by place: a place, then your home, a picture to fill in)
+            const places = el.dataset.keys === 'places';
             const keys = el.dataset.keys === 'skills' ? skillOpts(w).map(([id]) => id) : el.dataset.keys === 'festivals' ? (w.festivals ?? []).map(f => f.id)
-                : [...(el.dataset.keys === 'who' ? ['{who}'] : []), ...w.cast.examples.map(e => e.name)];
+                : places ? [...placeOpts(w).map(([id]) => id), 'home:player', 'home:second']
+                    : [...(el.dataset.keys === 'who' ? ['{who}'] : []), ...w.cast.examples.map(e => e.name)];
             const k = keys.find(x => !BAD_KEYS.includes(x) && own(m, x) === undefined);
             if (!k)
                 return;
-            setPath(p, { ...m, [k]: Number(el.dataset.v) || 3 });
+            setPath(p, { ...m, [k]: places ? '' : Number(el.dataset.v) || 3 });
             notify();
             return;
         }

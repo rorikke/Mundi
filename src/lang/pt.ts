@@ -10960,5 +10960,9 @@ const DICT: Record<string, string> = {
  "Its own background": "Fundo próprio",
  "While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.": "Enquanto acontece, a cena mostra esta imagem em vez da do lugar ou do cômodo, até a cena seguir adiante.",
  "Picture (a file in the world's folder or a /user/files/ address; empty: the place's)": "Imagem (um arquivo na pasta do mundo ou um endereço /user/files/; vazio: a do lugar)",
+ "A picture by place (shown there instead of the ones above)": "Uma imagem por lugar (mostrada lá em vez das de cima)",
+ "Add a place's picture": "Adicionar a imagem de um lugar",
+ "Keeps the room it's in": "Mantém o cômodo em que está",
+ "If an action's own background is showing when it starts, it stays, as though this were part of it: tea after a back-room scene, aftercare.": "Se o fundo próprio de uma ação estiver aparecendo quando esta começa, ele fica, como se esta fizesse parte dela: um chá depois de uma cena na sala dos fundos, o cuidado depois.",
 };
 export default DICT;
