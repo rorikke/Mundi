@@ -21038,6 +21038,3187 @@
     }
    ],
    "fact": "{u} lay in the sun at {0}"
+  },
+  {
+   "id": "priv_sumire_kiss",
+   "name": "Free kiss",
+   "label": "Ask the price of a kiss",
+   "icon": "💋",
+   "cost": 0,
+   "minutes": 20,
+   "place": "sj_hostess",
+   "effects": {
+    "mood": 7
+   },
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; period: night or latenight; present: Sumire",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "Sumire at the good table in Lounge Velvet naming a price for a kiss as a joke, then kissing {{user}} for free behind the menus"
+   },
+   "outcomes": [
+    {
+     "id": "free",
+     "weight": 50,
+     "text": "\"Ten thousand,\" she says, and when your hand moves to your jacket she catches it and kisses you behind the drinks menu. \"Put that away. That one was free.\""
+    },
+    {
+     "id": "again",
+     "weight": 30,
+     "text": "She kisses you for free, then names a much higher price for a second one, and laughs when you look ready to pay it. The second one is free too.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "mama",
+     "weight": 20,
+     "text": "Mama passes the table at exactly the wrong moment. \"He was checking my lipstick, Mama.\" Mama says the lipstick looks well checked.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} asked Sumire the price of a kiss at {0}, and she kissed them for free",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_suite",
+   "name": "Her room",
+   "label": "The room Sumire paid for",
+   "icon": "🗝️",
+   "cost": 0,
+   "minutes": 180,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 14,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "making people wait",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a love hotel room on Dōgenzaka that Sumire booked and paid for herself, {{user}} told to wait on the bed while she takes her time"
+   },
+   "outcomes": [
+    {
+     "id": "hour",
+     "weight": 50,
+     "text": "She makes you wait on the bed for a full hour while she takes off her jewellery, her gown, one stocking, slowly. When you finally ask nicely she says \"again\", and then she stops making you wait."
+    },
+    {
+     "id": "receipt",
+     "weight": 30,
+     "text": "Afterward she shows you the receipt with the price circled, very pleased with herself: \"Mine. You owe me nothing.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "panel",
+     "weight": 20,
+     "text": "The lobby panel only has the karaoke-themed room left. She makes you wait anyway, in front of a microphone shaped like a heart, and you both laugh until the waiting goes to pieces.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent a night with Sumire in a room she paid for herself at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_wait",
+   "name": "Made to wait",
+   "label": "Made to wait by Sumire",
+   "icon": "⏳",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "teasing and denial",
+    "making people wait"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Sumire at {{user}}'s place after closing, still in her gown, teasing and making {{user}} wait for her"
+   },
+   "outcomes": [
+    {
+     "id": "edge",
+     "weight": 50,
+     "text": "She teases you and stops, and teases you and stops, smiling down at you, \"not yet\", in that soft Kansai drawl, until you're shaking. When she finally lets you, she watches every second of it."
+    },
+    {
+     "id": "clock",
+     "weight": 30,
+     "text": "She puts your bedside clock where you can see it and tells you the exact minute. She is three minutes late, on purpose.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "earring",
+     "weight": 20,
+     "text": "Halfway through her diamond earring falls into the sheets and everything stops for a fingertip search.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} was teased and made to wait by Sumire at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_beg",
+   "name": "Ask nicely",
+   "label": "Ask Sumire nicely. Again.",
+   "icon": "🙏",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being begged",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Sumire sitting on the edge of {{user}}'s bed with her legs crossed, making {{user}} ask for every single thing, nicely, and then again"
+   },
+   "outcomes": [
+    {
+     "id": "words",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "You ask to kiss her ankle; she says \"properly\". You ask properly. By her knee you are begging in sentences, and only then does she uncross her legs and pull you closer."
+    },
+    {
+     "id": "words_woman",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "You ask, and she makes you ask again, and somewhere along the way the hostess voice goes and she is asking too, pulling you up beside her, and neither of you is in charge."
+    },
+    {
+     "id": "again",
+     "weight": 30,
+     "text": "\"Again,\" she says, every time, delighted, until you start laughing in the middle of a very elaborate sentence and she laughs too.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cramp",
+     "weight": 20,
+     "text": "Your knee goes dead on the hard floor. She throws you a cushion and says that begging is no excuse for bad posture.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} begged Sumire nicely at their place, and asked again",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_under",
+   "name": "Under Sumire",
+   "label": "Under Sumire, taking orders",
+   "icon": "👑",
+   "cost": 0,
+   "minutes": 90,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "being in control",
+    "being begged"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a hotel room on Dōgenzaka with Sumire very much in charge, giving orders in polite Kansai hostess Japanese"
+   },
+   "outcomes": [
+    {
+     "id": "orders",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "She gives orders in her politest Kansai, \"a little slower, if you'd be so kind, ookini\", as if she were seating you at a table, and you follow every one of them."
+    },
+    {
+     "id": "orders_woman",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "She gives orders, and then stops giving them, and the night turns slow and greedy and tender, and she makes a sound she has never made for anyone."
+    },
+    {
+     "id": "twice",
+     "weight": 30,
+     "text": "Afterward she says \"once more, please\" in exactly the voice she uses to order champagne, and laughs at the ceiling.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "hairpins",
+     "weight": 20,
+     "text": "Two hairpins fall out of the updo onto your face. \"Occupational hazard,\" she says.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took orders from Sumire in a room at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_garters",
+   "name": "Garters only",
+   "label": "Sumire in garters and nothing else",
+   "icon": "🖤",
+   "cost": 0,
+   "minutes": 90,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "dressing up",
+    "making people wait"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a hotel room on Dōgenzaka, Sumire in black garters and stockings in front of the mirror, letting {{user}} look and not touch"
+   },
+   "outcomes": [
+    {
+     "id": "mirror",
+     "weight": 50,
+     "text": "She stands in front of the mirror in garters, stockings and her diamonds and lets you look for a long time before she says you may unclip one. Only one, to begin with."
+    },
+    {
+     "id": "tan",
+     "weight": 30,
+     "text": "You find the faint garter-belt tan line from summer and she laughs and calls it her uniform.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "ladder",
+     "weight": 20,
+     "text": "You ladder a stocking with your watch. \"That pair was eight thousand yen. You can apologise.\"",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent a night with Sumire in black garters at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_nails",
+   "name": "Her nails",
+   "label": "Sumire's nails down your back",
+   "icon": "💅",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being in control",
+    "teasing and denial"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Sumire at {{user}}'s place, her long manicured nails drawn slowly down {{user}}'s back"
+   },
+   "outcomes": [
+    {
+     "id": "lines",
+     "weight": 50,
+     "text": "She draws her nails down your back from shoulder to hip, slowly, hard enough to leave ten pink lines, and smiles when you shiver."
+    },
+    {
+     "id": "map",
+     "weight": 30,
+     "text": "In the bathroom mirror afterward your back looks like a map of Kabukichō. She traces it with a fingertip and names the streets.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "chip",
+     "weight": 20,
+     "text": "She chips a nail on your belt buckle and swears in such vivid Kobe dialect that you both have to stop.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} wore Sumire's nail marks home on their back",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_bitten",
+   "name": "Bitten gently",
+   "label": "Bite Sumire, gently",
+   "icon": "🌸",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being in control",
+    "being begged"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Sumire at {{user}}'s place, telling {{user}} exactly how she likes to be kissed and bitten, gently"
+   },
+   "outcomes": [
+    {
+     "id": "exactly",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "She tells you, \"gently, yes, a little harder, no, that\", until you have it exactly right, and then stops talking altogether."
+    },
+    {
+     "id": "exactly_woman",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "She tells you how, and then doesn't need to. She stops giving directions altogether, and lets you take your time."
+    },
+    {
+     "id": "tattoo",
+     "weight": 30,
+     "text": "You find the tiny violet flower tattooed low on her hip. \"Only lovers see that,\" she says. \"Congratulations.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "ticklish",
+     "weight": 20,
+     "text": "She is ticklish just under the ribs, which she has hidden from every client for ten years. She makes you swear never to tell.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} learned exactly how Sumire likes to be kissed",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_orders",
+   "name": "Polite filth",
+   "label": "Sumire's polite filth",
+   "icon": "🗣️",
+   "cost": 0,
+   "minutes": 90,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "being in control",
+    "teasing and denial"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a hotel room on Dōgenzaka, Sumire talking the whole time in the polished hostess Japanese she uses on company presidents, saying the most indecent things in the politest words"
+   },
+   "outcomes": [
+    {
+     "id": "keigo",
+     "weight": 50,
+     "text": "She describes, in flawless honorific Japanese, exactly what she is going to do and in what order, \"if it isn't too much trouble\", and then does it."
+    },
+    {
+     "id": "menu",
+     "weight": 30,
+     "text": "She reads you the evening's options like a drinks menu, and you choose three, and she says \"an excellent choice\" to each.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "kansai",
+     "weight": 20,
+     "text": "At the end the honorifics fall apart into pure Kobe dialect and she is mortified. You make her say it again.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} heard Sumire say indecent things in her politest hostess Japanese at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_no_night",
+   "name": "Night of no",
+   "label": "A night of no with Sumire",
+   "icon": "🚫",
+   "cost": 0,
+   "minutes": 300,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 12,
+    "energy": -14,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "teasing and denial",
+    "making people wait"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a whole night in a hotel room on Dōgenzaka where Sumire says \"not yet\" until dawn, by her own rule"
+   },
+   "outcomes": [
+    {
+     "id": "dawn",
+     "weight": 50,
+     "text": "She says no at one, at two, at three, each time an inch away. At the first train she checks the time, kisses you once, and says \"tomorrow\"."
+    },
+    {
+     "id": "breaks",
+     "weight": 30,
+     "text": "At half past four it is she who breaks. \"Don't tell anyone I lost,\" she says afterward.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "asleep",
+     "weight": 20,
+     "text": "Around five she falls asleep mid-no, one hand still on your chest, and you lie there wide awake until the first train.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   ],
+   "fact": "{u} spent a whole night hearing Sumire say not yet at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_everything",
+   "name": "Then everything",
+   "label": "Then everything, with Sumire",
+   "icon": "💜",
+   "cost": 0,
+   "minutes": 240,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 16,
+    "energy": -12,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; did: priv_sumire_no_night 1; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "being begged",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the night after the night of \"not yet\", in the same hotel on Dōgenzaka: Sumire giving {{user}} everything she refused"
+   },
+   "outcomes": [
+    {
+     "id": "all",
+     "weight": 50,
+     "text": "She keeps every promise she made the night before, one after another, until you lose count. Near dawn she asks, very quietly, \"was it worth the wait?\" and doesn't let you answer."
+    },
+    {
+     "id": "list",
+     "weight": 30,
+     "text": "She has written down everything she refused on the hotel notepad, and crosses each one out with her lipstick as you go.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "room_service",
+     "weight": 20,
+     "text": "Halfway through you are both too hungry to go on. Room service is instant curry. She says it's the best meal of her life.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} got everything Sumire had refused them the night before, at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_taxi",
+   "name": "The taxi home",
+   "label": "Share Sumire's taxi at closing",
+   "icon": "🚕",
+   "cost": 0,
+   "minutes": 30,
+   "place": "sj_kabukicho",
+   "effects": {
+    "mood": 12,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.05,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for being watched",
+    "teasing and denial"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a taxi from Kabukichō at closing time, Sumire's gown spread over both laps, her hand where it shouldn't be, both of them watching the driver's eyes in the mirror"
+   },
+   "outcomes": [
+    {
+     "id": "mirror",
+     "weight": 50,
+     "text": "She chats to the driver about the traffic in perfect hostess Japanese while her hand wanders under the violet satin, her face perfectly composed, and tips him double."
+    },
+    {
+     "id": "meter",
+     "weight": 30,
+     "text": "She makes the driver take the long way round \"for the view\" and keeps you on edge for as long as the meter runs.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "wink",
+     "weight": 20,
+     "text": "At the last light the driver meets your eyes in the mirror, very deadpan, and turns the radio up.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shared a taxi out of {0} with Sumire at closing",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_woman",
+   "name": "Never told",
+   "label": "What Sumire never told anyone",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 150,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; gender: woman; period: night or latenight; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "women (she keeps it quiet)",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Sumire with a woman at {{user}}'s place, the hostess act gone, tender and unhurried"
+   },
+   "outcomes": [
+    {
+     "id": "greedy",
+     "weight": 50,
+     "text": "The act goes the moment the door closes. She kisses you like she has been starving and takes a very long time over you. Later she takes your hands and whispers, \"I never ask. I'm asking.\""
+    },
+    {
+     "id": "told",
+     "weight": 30,
+     "text": "Afterward, by the window, she tells you about the women she has never told anyone about, and that you are the first she hasn't had to pretend with.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "lipstick",
+     "weight": 20,
+     "text": "You both wear the same shade of red by the end. She inspects you in the morning light and says it's the best her lipstick has ever looked.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} saw Sumire without the act, with a woman for once, at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_sumire_bath",
+   "name": "After-closing bath",
+   "label": "A bath with Sumire after closing",
+   "icon": "🛁",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 12,
+    "energy": 4,
+    "hygiene": 40,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; period: latenight or firsttrain; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private",
+    "bath"
+   ],
+   "matches": [
+    "being in control",
+    "making people wait"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a hot bath at {{user}}'s place after Velvet closes, Sumire's make-up coming off, her long legs over {{user}}'s in the water"
+   },
+   "outcomes": [
+    {
+     "id": "water",
+     "weight": 50,
+     "text": "She sinks into the water with a groan that has nothing to do with you, then remembers you are there and puts her foot on your chest, and tells you to wash her legs, slowly, all the way up."
+    },
+    {
+     "id": "face",
+     "weight": 30,
+     "text": "Her make-up comes off in the steam and she lets you see her without it, for the first time, and doesn't look away.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "flood",
+     "weight": 20,
+     "text": "Two people and a pair of very long legs are too much for your bathtub. The floor floods; she calls it a very expensive champagne tower.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shared a bath with Sumire after closing",
+   "adult": true
+  },
+  {
+   "id": "priv_strong_legs_three",
+   "name": "Lisa's legs",
+   "label": "Sumire's rules, Lisa's legs",
+   "icon": "💃",
+   "cost": 0,
+   "minutes": 120,
+   "place": "rp_poleclub",
+   "effects": {
+    "mood": 16,
+    "energy": -12,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_strong_legs legs; period: latenight; present: Lisa; present: Sumire; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being in control",
+    "dancing close until closing time",
+    "a thrill for being watched"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Pole Star's private room after the last set: Lisa dancing close for Sumire and {{user}} by Sumire's rules, and then, slowly, no rules"
+   },
+   "outcomes": [
+    {
+     "id": "thighs",
+     "weight": 50,
+     "text": "Sumire sets the rules from the velvet bench: no touching, not yet. Lisa dances them both into pieces, slow and laughing, until Sumire breaks her own rules first and the night belongs to the three of you."
+    },
+    {
+     "id": "upside",
+     "weight": 30,
+     "text": "Lisa hangs upside down from the room's pole by her knees and kisses Sumire like that, and Sumire forgets every rule she ever made.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tips",
+     "weight": 20,
+     "text": "Out of pure habit Sumire tucks a note into Lisa's garter. Lisa tucks it straight back. \"House rules. You don't pay me.\"",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} shared Pole Star's private room with Sumire and Lisa after the last set",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_lapdance",
+   "name": "Lap dance",
+   "label": "A private lap dance from Lisa",
+   "icon": "💃",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; period: evening or night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "dancing close until closing time",
+    "likes to lead"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa at {{user}}'s place in her stage shorts and top, a chair in the middle of the room and her own playlist on: a slow lap dance by Pole Star's house rules, until she breaks them herself"
+   },
+   "outcomes": [
+    {
+     "id": "lap",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "She pushes you down into the chair and dances an inch away, slow, \"no hands, house rules, ne\". Three songs in she breaks her own rules first, and the playlist runs out long before the night does."
+    },
+    {
+     "id": "lap_woman",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "She dances you into the chair, slow and close, and halfway through the second song decides house rules are for customers. The rest of the playlist is the two of you, and nobody watching."
+    },
+    {
+     "id": "rules",
+     "weight": 30,
+     "text": "You reach for her hip out of reflex. She slaps your hand away, delighted: \"Ah ah. That gets you thrown out at Pole Star.\" Then she puts it back herself.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "chair",
+     "weight": 20,
+     "text": "Your chair creaks at the first hip roll and gives up at the second. She dances the rest on the floor, laughing.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} got a private lap dance from Lisa at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_splits",
+   "name": "Standing splits",
+   "label": "Lisa's standing splits, against the wall",
+   "icon": "🤸",
+   "cost": 0,
+   "minutes": 40,
+   "anywhere": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; zone: hz_studio; period: night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "likes to lead"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa's one-room flat behind Shinjuku station, her back to the wall by her practice pole, one ankle up by her ear in a standing split, showing {{user}} exactly how flexible a pole dancer is"
+   },
+   "outcomes": [
+    {
+     "id": "split",
+     "weight": 50,
+     "text": "She puts her back to the wall, lifts one leg straight up until her ankle rests by her ear, and pulls you in by the belt. \"Go on. I can hold this all night.\" She can."
+    },
+    {
+     "id": "pole",
+     "weight": 30,
+     "text": "Halfway through she hooks her leg round the practice pole and uses it to pull you closer. It is not a move they teach in class.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "neighbour",
+     "weight": 20,
+     "text": "Her heel knocks the thin wall in rhythm. Next door knocks back, politely, twice. Lisa calls \"gomen ne!\" and doesn't lower her leg.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} found out how long Lisa can hold a standing split, at her flat",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_shoulders",
+   "name": "Over your shoulders",
+   "label": "Lisa's legs over your shoulders",
+   "icon": "🦵",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; period: night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "dirty talk"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa on {{user}}'s bed, for once letting {{user}} lead, her strong dancer's legs over {{user}}'s shoulders and her laugh asking for more"
+   },
+   "outcomes": [
+    {
+     "id": "hard",
+     "weight": 50,
+     "text": "She drapes her calves over your shoulders, folds herself in half like it's nothing and grabs the headboard. \"Motto. I won't break, I hang off poles for a living.\" She doesn't, and she asks for it again."
+    },
+    {
+     "id": "ankles",
+     "weight": 30,
+     "text": "She hooks her ankles behind your head and pulls you down to kiss her without unfolding at all. You will be thinking about that for a week.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cramp",
+     "weight": 20,
+     "text": "Your own hamstring cramps before hers does. She massages it out for you, very smug.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had Lisa's legs over their shoulders",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_backward",
+   "name": "Riding backward",
+   "label": "Lisa riding backward, facing the mirror",
+   "icon": "🔄",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; zone: hz_studio; period: night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "likes to lead"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa's flat, the mirror on her wardrobe door turned toward the futon, Lisa very much in charge and making {{user}} watch the two of them in it"
+   },
+   "outcomes": [
+    {
+     "id": "mirror",
+     "weight": 50,
+     "text": "She catches your eyes in the mirror. \"Watch. Don't look at me, look at us.\" You watch, and so does she, right to the end."
+    },
+    {
+     "id": "koi",
+     "weight": 30,
+     "text": "You trace the koi on her shoulder with your thumb. She tells you, breathless, that each of them has a name, and recites them all.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "futon",
+     "weight": 20,
+     "text": "The futon slides across the floor until you're both half under the wardrobe. She calls it choreography.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} watched Lisa in her mirror, very much in charge",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_strap",
+   "name": "Her strap-on",
+   "label": "Lisa and her favourite toy",
+   "icon": "🖤",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; thread: lisa_shoulder residency; zone: hz_studio; period: night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "toys",
+    "likes to lead"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa's flat, the bottom drawer open, Lisa in charge with a toy of her own choosing and no intention at all of handing over the lead"
+   },
+   "outcomes": [
+    {
+     "id": "peg",
+     "weight": 50,
+     "when": "gender: not woman",
+     "text": "She buckles on her favourite toy with a dancer's efficiency and takes her time, murmuring encouragement in English and Japanese, until you're gasping and she's laughing softly."
+    },
+    {
+     "id": "strap_woman",
+     "weight": 50,
+     "when": "gender: woman",
+     "text": "She pushes you back onto the futon and takes the lead entirely, watching your face, slower and then not, and grins \"one more, ne\" before she lets you turn the tables."
+    },
+    {
+     "id": "buckle",
+     "weight": 30,
+     "text": "The buckle defeats her in the dark. She swears at it in three languages, one of them the English swearing Chloe taught her.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "drawer",
+     "weight": 20,
+     "text": "You catch a glimpse of the rest of the drawer. \"That's for the next ten Fridays,\" she says, and shuts it with her foot.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} let Lisa take the lead with a toy of hers at her flat",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_drawer",
+   "name": "The toy drawer",
+   "label": "Pick from Lisa's drawer",
+   "icon": "🎁",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; zone: hz_studio; period: evening or night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "toys"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa's flat, her famous drawer pulled out onto the futon, {{user}} blindfolded with her scarf and told to choose by touch alone"
+   },
+   "outcomes": [
+    {
+     "id": "blind",
+     "weight": 50,
+     "text": "You pick blind, three times. She finds a use for each of them, on both of you, one after another, and at the end knocks the whole drawer off the futon, laughing."
+    },
+    {
+     "id": "remote",
+     "weight": 30,
+     "text": "She gives you the remote for the little one and goes to make tea. She doesn't get as far as the kettle.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "batteries",
+     "weight": 20,
+     "text": "The best one is dead. She hunts for batteries in every drawer of the flat, wrapped in a sheet and swearing, and finds them in the TV remote.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} picked blind from Lisa's drawer at her flat",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_mirrors",
+   "name": "The mirror wall",
+   "label": "Pole Star's mirrors after hours",
+   "icon": "🪩",
+   "cost": 0,
+   "minutes": 45,
+   "place": "rp_poleclub",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.05,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; period: latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for semi-public places",
+    "exhibitionist streak"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Pole Star after the last set, the house lights down and the manager counting the till behind the office door: Lisa backing {{user}} against the mirror wall, a dozen reflections of them under the blue light"
+   },
+   "outcomes": [
+    {
+     "id": "reflections",
+     "weight": 50,
+     "text": "She turns you both to face the mirror wall and makes you watch, a dozen of each of you in the angled glass under the blue light, and she doesn't look away once."
+    },
+    {
+     "id": "upside",
+     "weight": 30,
+     "text": "She ends up on the centre pole instead, upside down, and the mirrors show it from every angle. \"Best set of the night.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "till",
+     "weight": 20,
+     "text": "The office door opens and the manager calls goodnight across the dark club without looking. Lisa calls goodnight back, perfectly normal, with her hand over your mouth.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} stayed behind with Lisa at {0} after the last set, by the mirror wall",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_booth",
+   "name": "The DJ booth",
+   "label": "In the booth during Lisa's set",
+   "icon": "🎧",
+   "cost": 0,
+   "minutes": 30,
+   "place": "rp_club",
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.1,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; thread: lisa_shoulder residency; weekday: sun; period: night; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for semi-public places",
+    "dancing close until closing time"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the DJ booth at Club Undertow during Lisa's Sunday set, a long track mixed in, {{user}} out of sight below the booth's half wall and Lisa keeping her face perfectly composed for the room"
+   },
+   "outcomes": [
+    {
+     "id": "drop",
+     "weight": 50,
+     "text": "She mixes in a seven-minute track and pulls you down below the booth's half wall by your collar. Her face stays perfectly composed for the room above, right up to the drop, when she throws a hand up and the whole floor screams."
+    },
+    {
+     "id": "headphones",
+     "weight": 30,
+     "text": "Afterward she puts her headphones on you so you can hear the mix she was cueing the whole time. She didn't miss a single beat.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "mic",
+     "weight": 20,
+     "text": "Her elbow knocks the mic channel open for one second. Lisa grabs the mic: \"Undertow, are you READY?\" They are.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} kept Lisa company in the DJ booth at {0} during her set, out of sight",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_shower",
+   "name": "Shower after class",
+   "label": "A shower with Lisa after class",
+   "icon": "🚿",
+   "cost": 0,
+   "minutes": 45,
+   "place": "rp_poleclub",
+   "effects": {
+    "mood": 12,
+    "energy": 3,
+    "hygiene": 40,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; period: afternoon; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private",
+    "bath"
+   ],
+   "matches": [
+    "likes to lead"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the dancers' shower behind Pole Star's stage after Lisa's afternoon class, the club still empty before opening, chalk and coconut oil washing off under the hot water"
+   },
+   "outcomes": [
+    {
+     "id": "tiles",
+     "weight": 50,
+     "text": "She washes the chalk off her hands, then off you, then pins you to the tiles and stretches a leg up over your shoulder like a warm-up at the barre. It turns into a very long shower."
+    },
+    {
+     "id": "chalk",
+     "weight": 30,
+     "text": "You find chalk handprints on your back afterward, perfectly white, five fingers each side. She says you've been signed.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cold",
+     "weight": 20,
+     "text": "The hot water runs out the moment things get interesting. Lisa shrieks, laughs, and wraps you both in towels on the changing-room bench.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} shared the dancers' shower at {0} with Lisa after her class",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_twotongues",
+   "name": "Two tongues",
+   "label": "Lisa's dirty talk in two languages",
+   "icon": "🗣️",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; period: night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "dirty talk",
+    "roleplay scenarios"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Lisa at {{user}}'s place talking the whole time, teasing in English, worse in Japanese, switching mid-sentence whenever {{user}} is about to understand"
+   },
+   "outcomes": [
+    {
+     "id": "switch",
+     "weight": 50,
+     "text": "She tells you in English exactly what she's about to do; then she says the next part in Japanese, low and quick, and you only catch one word, which is enough."
+    },
+    {
+     "id": "chloe",
+     "weight": 30,
+     "text": "She tries out the new English swear words Chloe taught her at the pub. Some of them are very ambitious.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "lesson",
+     "weight": 20,
+     "text": "Your Japanese collapses at the critical moment into \"sugoi\". She laughs so hard she has to stop, and gives you a C minus.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} heard Lisa tease them in two languages at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_lisa_christen",
+   "name": "Christen it",
+   "label": "Christen Lisa's empty studio",
+   "icon": "🔑",
+   "cost": 0,
+   "minutes": 180,
+   "anywhere": true,
+   "effects": {
+    "mood": 16,
+    "energy": -12,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; thread: lisa_shoulder residency; knows: priv_lisa_studio; zone: hz_studio; period: evening or night or latenight; present: Lisa; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "likes to lead",
+    "dancing close until closing time"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the empty unit Lisa has signed for, two streets from her flat behind Shinjuku station: bare floor, no mirrors yet, the keys still new, and Lisa set on christening every corner of it with {{user}}"
+   },
+   "outcomes": [
+    {
+     "id": "corners",
+     "weight": 50,
+     "text": "She walks you round the bare room as if it were already finished, \"mirrors here, poles here\", and christens each spot as she names it. By midnight there isn't a corner left. \"Okay. Now it's mine.\""
+    },
+    {
+     "id": "echo",
+     "weight": 30,
+     "text": "An empty room echoes. Every sound comes back twice. She finds this extremely motivating.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tape",
+     "weight": 20,
+     "text": "A builder's tape measure left on the windowsill snaps shut with a bang at the worst possible moment. Lisa measures you, solemnly, \"for the plans\".",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} christened Lisa's empty studio with her before the mirrors went up",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_kotori",
+   "name": "Her night off",
+   "label": "A drink with Kaoru at Kotori",
+   "icon": "🍶",
+   "cost": 0,
+   "minutes": 40,
+   "place": "sj_goldengai",
+   "effects": {
+    "mood": 7
+   },
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 3; feels: Kaoru friend; period: night or latenight; present: Kaoru",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "Kaoru on her night off at Bar Kotori in Golden Gai, on the next stool for once instead of behind her window, looking at {{user}} over her glasses, then a kiss in the alley outside"
+   },
+   "outcomes": [
+    {
+     "id": "stool",
+     "weight": 50,
+     "text": "Without the window she doesn't know where to put her hands, so she puts one on your knee and leaves it there. When Mama goes to change the karaoke book, she kisses you, slowly."
+    },
+    {
+     "id": "mama",
+     "weight": 30,
+     "text": "Mama Kyōko slides two glasses across without being asked and tells Kaoru, \"you're smiling, dear.\" Kaoru says it's the lighting. It isn't.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "id": "alley",
+     "weight": 20,
+     "text": "In the alley outside, a shy couple she checked in last week walk past without recognising her. Kaoru laughs until she has to lean on the wall.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} had a drink with Kaoru at {0} on her night off",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_mirror",
+   "name": "Every light on",
+   "label": "Kaoru in front of the mirror",
+   "icon": "🪞",
+   "cost": 0,
+   "minutes": 120,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; onShift: not Kaoru; period: night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "mirrors",
+    "keeping the lights on"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a room at Coco Palace on Kaoru's night off, every light in the room switched on, Kaoru in front of the long mirror in her cardigan and glasses, watching the two of them in it"
+   },
+   "outcomes": [
+    {
+     "id": "lights",
+     "weight": 50,
+     "text": "She switches on every light, even the one over the bath, and stands in front of the mirror while you take the cardigan off her. She watches your hands in the glass, not your face, and doesn't look away once."
+    },
+    {
+     "id": "dimmer",
+     "weight": 30,
+     "text": "Out of habit she reaches for the dimmer at the crucial moment, then stops herself, and turns everything up instead.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "slot",
+     "weight": 20,
+     "text": "The key card slot keeps cutting the lights every few minutes. She knows exactly which room this is and how to fix it, and does, muttering about maintenance tickets.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent Kaoru's night off with her in front of the mirror at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_eyes",
+   "name": "Her eyes",
+   "label": "Kaoru rides, eyes on the mirror",
+   "icon": "👓",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; zone: hz_setagaya; period: evening or night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "mirrors",
+    "slow and lingering"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaoru's flat in Setagaya, her wardrobe mirror propped beside the futon and every lamp on, Kaoru on top and her eyes on the mirror the whole time"
+   },
+   "outcomes": [
+    {
+     "id": "watch",
+     "weight": 50,
+     "text": "She props the wardrobe mirror against the wall, turns on every lamp and never once looks away from it: her eyes are on the two of you, on her own face, wide and astonished, as if she had never seen it before."
+    },
+    {
+     "id": "look",
+     "weight": 30,
+     "text": "\"Look at her,\" she says of herself in the mirror, faintly amazed, and you do, and so does she, for a long time.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "hook",
+     "weight": 20,
+     "text": "The mirror slides slowly down the wall until it shows mostly the ceiling. She refuses to stop and directs you to fix it with your foot.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} watched Kaoru watch the two of them in the mirror, at her flat",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_neck",
+   "name": "Held there",
+   "label": "Hold Kaoru still",
+   "icon": "🖤",
+   "cost": 0,
+   "minutes": 60,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; zone: hz_setagaya; period: firsttrain or rush; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "mirrors",
+    "slow and lingering"
+   ],
+   "together": {
+    "needed": true,
+    "text": "dawn at Kaoru's flat after her shift, still in her long grey cardigan, Kaoru facing the mirror and {{user}} holding her firmly by the back of the neck, the one thing she asked for by name"
+   },
+   "outcomes": [
+    {
+     "id": "held",
+     "weight": 50,
+     "text": "She comes in from her shift at first light and asks for it by name before her shoes are off. You hold her firmly by the back of the neck, facing the mirror, and she goes completely still, then completely loose."
+    },
+    {
+     "id": "still",
+     "weight": 30,
+     "text": "She tells you afterward that nobody has held her still in twelve years, and that she hadn't known she was waiting for it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "machine",
+     "weight": 20,
+     "text": "At six the neighbour's washing machine starts and drowns out everything. She says it's the first time in her life she has been the loud one.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} held Kaoru still at her flat, at dawn after her shift",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_told",
+   "name": "Told",
+   "label": "Tell Kaoru what to do",
+   "icon": "🗝️",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; period: evening or night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being talked through it",
+    "keeping the lights on"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaoru at {{user}}'s place with the lights on, asking {{user}} to tell her exactly what to do, step by step, and doing each thing she is told"
+   },
+   "outcomes": [
+    {
+     "id": "told",
+     "weight": 50,
+     "text": "\"Tell me,\" she says, sitting on the edge of your bed with her glasses on. So you do, step by step, and she follows every word with a strange, delighted concentration, until she is laughing that she has never been so well managed."
+    },
+    {
+     "id": "repeat",
+     "weight": 30,
+     "text": "Out of twelve years' habit she repeats each instruction back to you before doing it, like a room booking.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "glasses",
+     "weight": 20,
+     "text": "You tell her to take her glasses off. She does, can't see a thing, and asks for them back at once, because she wants to watch.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} told Kaoru what to do, step by step, at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_narrate",
+   "name": "Until she can't",
+   "label": "Kaoru describes it, until she can't",
+   "icon": "💬",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; period: evening or night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being talked through it",
+    "slow and lingering"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kaoru at {{user}}'s place in the lamplight, describing in her low dry drawl what the two of them are doing as it happens, until the sentences get shorter and stop"
+   },
+   "outcomes": [
+    {
+     "id": "drawl",
+     "weight": 50,
+     "text": "\"Your hand is on my hip,\" she says, in the voice she uses through the window. \"You're slower than I expected. Good.\" She keeps describing it, dry and precise, until the sentences shrink to words and the words to your name."
+    },
+    {
+     "id": "loudest",
+     "weight": 30,
+     "text": "Afterward she says, very dry, that the two of you would have been the loudest room on her rounds. From her, it is the highest praise.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "thursday",
+     "weight": 20,
+     "text": "Mid-sentence she says, \"the Thursday couple did this,\" and is mortified, and then decides they would have approved.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} heard Kaoru describe it all as it happened, until she couldn't, at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_jungle",
+   "name": "The jungle room",
+   "label": "The jungle room, off shift",
+   "icon": "🌴",
+   "cost": 0,
+   "minutes": 120,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; onShift: not Kaoru; period: night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "a themed room",
+    "keeping the lights on"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Coco Palace's jungle room on Kaoru's night off: plastic vines, a green light, a swing repaired twice, and Kaoru in it at last with {{user}}, laughing at all of it"
+   },
+   "outcomes": [
+    {
+     "id": "swing",
+     "weight": 50,
+     "text": "She has handed out this key card a thousand times and never stepped inside. Now she stands among the plastic vines in the green light, laughs, sits in the swing and says, quite seriously, \"show me how it's used.\""
+    },
+    {
+     "id": "bolts",
+     "weight": 30,
+     "text": "Before anything else she checks the swing's bolts, very thoroughly, as only the night manager would. Then she nods. \"Now.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "birds",
+     "weight": 20,
+     "text": "The room has a button for jungle birdsong. She presses it at the worst possible moment, on purpose, and you both lie among the vines crying with laughter.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent Kaoru's night off with her in the jungle room at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_wholenight",
+   "name": "The whole night",
+   "label": "Stay the whole night with Kaoru",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 420,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 15,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; onShift: not Kaoru; period: night; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "slow and lingering",
+    "keeping the lights on"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a whole night in a room at Coco Palace on Kaoru's night off, not a two-hour rest: the lights on, tea from the little kettle at two, and Kaoru asleep against {{user}} at dawn"
+   },
+   "outcomes": [
+    {
+     "id": "stay",
+     "weight": 50,
+     "text": "For twelve years she has watched couples check out at dawn. Tonight she makes tea in the little kettle at two in the morning, keeps you up until four, and at six she is asleep on your chest in the lavender sheets, glasses folded on the pillow."
+    },
+    {
+     "id": "extend",
+     "weight": 30,
+     "text": "At midnight she calls the window herself and extends the room to a stay, in her own night manager's voice. The young clerk is too stunned to answer.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "pot",
+     "weight": 20,
+     "text": "At dawn the cleaners knock, recognise the voice that answers, and leave a second pot of tea outside the door without a word.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} stayed the whole night with Kaoru at {0}, on her night off",
+   "adult": true
+  },
+  {
+   "id": "priv_kaoru_yourmirror",
+   "name": "Her mirror",
+   "label": "The mirror you bought Kaoru",
+   "icon": "🎁",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "knows: kaoru_notebook; did: sb_lovehotel_kaoru 5; feels: Kaoru friend; feels: Kaoru crush; period: evening or night or latenight; present: Kaoru; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "mirrors",
+    "keeping the lights on"
+   ],
+   "together": {
+    "needed": true,
+    "text": "{{user}}'s place, a tall mirror {{user}} bought and hung beside the bed for Kaoru, so she never needs a hotel room to watch the two of them again"
+   },
+   "outcomes": [
+    {
+     "id": "hers",
+     "weight": 50,
+     "text": "She stands in front of the new mirror for a long time with her hand over her mouth. Then: \"Mine?\" You nod. She doesn't take her eyes off it all night."
+    },
+    {
+     "id": "tilt",
+     "weight": 30,
+     "text": "She adjusts the mirror's angle by two centimetres, three times, with professional precision, then declares it perfect and pulls you in front of it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "prints",
+     "weight": 20,
+     "text": "In the morning the glass is covered in handprints. She inspects them over her glasses with deep satisfaction and forbids you to clean it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} hung a mirror for Kaoru at their place, and she kept it",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_turns",
+   "name": "The long course",
+   "label": "Tsubaki's long course, at yours",
+   "icon": "💆",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "massage",
+    "warm oil and towels"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki at {{user}}'s place after her shift with her oil kit and warm towels: a slow massage that turns, inch by inch, into something no price list mentions"
+   },
+   "outcomes": [
+    {
+     "id": "inch",
+     "weight": 50,
+     "text": "She works your shoulders for twenty honest minutes, then lower, each long stroke ending a little further than the last, until the massage isn't a massage any more and she is smiling, unhurried, watching your face."
+    },
+    {
+     "id": "towel",
+     "weight": 30,
+     "text": "Afterward she cleans you up with a hot towel like a professional, then drops onto your bed and holds out her hands. \"My turn. These ache.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "timer",
+     "weight": 20,
+     "text": "Out of pure habit she sets the timer on her phone. When it chimes she nearly says \"next time\", and laughs at herself. \"Off the clock. Sorry.\"",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had Tsubaki's long course at their place, off the clock",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_edge",
+   "name": "On the edge",
+   "label": "Kept on the edge by Tsubaki",
+   "icon": "🌊",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "teasing and making someone wait",
+    "being in control"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki at {{user}}'s place, teasing and stopping, again and again, laughing softly in her low murmur and deciding exactly when {{user}} has waited long enough"
+   },
+   "outcomes": [
+    {
+     "id": "edge",
+     "weight": 50,
+     "text": "She teases and stops, and teases and stops. \"Where does it ache?\" she murmurs, and you can't answer. She counts you down from ten in that unhurried voice, and on one she finally lets you."
+    },
+    {
+     "id": "beg",
+     "weight": 30,
+     "text": "You start begging around the fifth time. She asks you to say it more politely, and then grins and doesn't make you.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "vowels",
+     "weight": 20,
+     "text": "By the end she's tired enough that her Sendai vowels come out, and when she says \"not yet\" in pure Tōhoku dialect you both lose it completely.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} was teased and made to wait by Tsubaki at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_hour",
+   "name": "A daylight hour",
+   "label": "An hour of Tsubaki's teasing",
+   "icon": "☀️",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; knows: priv_tsubaki_daylight; period: afternoon; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "teasing and making someone wait",
+    "slow and unhurried"
+   ],
+   "together": {
+    "needed": true,
+    "text": "an afternoon at {{user}}'s place with the blinds open a crack: Tsubaki, off work in daylight for once, teasing {{user}} for a whole hour by the clock before she lets anything else happen"
+   },
+   "outcomes": [
+    {
+     "id": "clock",
+     "weight": 50,
+     "text": "She sets your bedside clock where you can both see it and doesn't look at it once. An hour of slow teasing in the striped sunlight, never quite enough, and then, when the hour is up, everything else, just as slowly."
+    },
+    {
+     "id": "sun",
+     "weight": 30,
+     "text": "Afterward she lies in the stripe of sun across your bed with her eyes closed. \"Daylight,\" she says, as if it were a word in another language.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "laundry",
+     "weight": 20,
+     "text": "A neighbour's laundry pole squeaks just outside the open blinds at exactly the worst moment. Tsubaki doesn't stop. \"Let them hang their sheets.\"",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} spent a daylight hour being teased by Tsubaki at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_pinned",
+   "name": "Her turn",
+   "label": "Hold Tsubaki down, as asked",
+   "icon": "🔥",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; did: priv_tsubaki_edge 1; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being in control",
+    "being taken care of afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki at {{user}}'s place after she has had her fun, asking, in so many words, for {{user}} to take charge for once and hold her wrists"
+   },
+   "outcomes": [
+    {
+     "id": "asked",
+     "weight": 50,
+     "text": "\"Your turn,\" she says, and then, because she always says what she wants, she tells you exactly how. You hold her wrists and she arches up into you, and for once Tsubaki isn't the one in charge, and she doesn't mind at all."
+    },
+    {
+     "id": "meant",
+     "weight": 30,
+     "text": "Halfway through she checks in with a look and you ease off; she shakes her head and tells you, in so many words, that she meant it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "pillow",
+     "weight": 20,
+     "text": "She tries to hide her belly under a pillow. You throw the pillow across the room. She glares, then laughs, then forgets all about it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} held Tsubaki's wrists for once, exactly as she asked",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_yourhands",
+   "name": "Your hands",
+   "label": "Give Tsubaki the long course",
+   "icon": "🤲",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "massage",
+    "being taken care of afterward"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki lying face down on {{user}}'s bed for once, her auburn hair down, while {{user}} warms her oil and gives her the long course: her aching hands first, then everything else, slowly"
+   },
+   "outcomes": [
+    {
+     "id": "lying",
+     "weight": 50,
+     "text": "You start with her hands, the way she taught you, and she makes a sound you've never heard from her. Then her shoulders, her back, and slowly further, until she turns over and pulls you down, and doesn't once tell you what to do."
+    },
+    {
+     "id": "tips",
+     "weight": 30,
+     "text": "She corrects your technique twice, very gently, and then stops correcting anything at all.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "asleep",
+     "weight": 20,
+     "text": "She falls asleep under your hands within ten minutes, snoring softly, the first time she has slept on her front in years. You let her.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} gave Tsubaki the long course at their place, for once",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_mutual",
+   "name": "Both ways",
+   "label": "Oil and hands, both ways",
+   "icon": "🫶",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; period: night or latenight; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "slow and unhurried",
+    "warm oil and towels"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Tsubaki and {{user}} face to face on {{user}}'s bed with a bottle of warm oil between them, nobody working and nobody being worked on, slowly, both ways"
+   },
+   "outcomes": [
+    {
+     "id": "both",
+     "weight": 50,
+     "text": "She pours oil into both your palms and says \"same speed\". Face to face, slowly, stroke for stroke, her breath on your mouth, until neither of you can keep the rhythm."
+    },
+    {
+     "id": "student",
+     "weight": 30,
+     "text": "\"You've been watching my hands,\" she says, pleased, when you copy her exact stroke back at her. \"Good student.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "bottle",
+     "weight": 20,
+     "text": "The oil bottle tips over on your sheets. She looks at the stain with professional sorrow and tells you exactly how to wash it out, mid-kiss.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} and Tsubaki traded warm oil and slow hands at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_tsubaki_lily",
+   "name": "After hours",
+   "label": "Aroma Room Lily after hours",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 60,
+   "place": "sj_esthe",
+   "effects": {
+    "mood": 15,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 13,
+   "risk": 0.1,
+   "when": "did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush; period: night; present: Tsubaki; companion: crush or casual",
+   "tags": [
+    "private",
+    "exhib"
+   ],
+   "matches": [
+    "a thrill for semi-public places",
+    "massage"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Aroma Room Lily after Tsubaki's last booking, the manager gone home and the curtain drawn, the police on the next street: Tsubaki on her own treatment table with {{user}}, as quietly as possible"
+   },
+   "outcomes": [
+    {
+     "id": "table",
+     "weight": 50,
+     "text": "She locks the door, turns off everything but the warming lamp and climbs onto her own treatment table. \"Quietly,\" she whispers, pulling you closer. The table creaks; out on the next street a police radio crackles; she muffles her laughter in your shoulder."
+    },
+    {
+     "id": "curtain",
+     "weight": 30,
+     "text": "She insists on the curtain, \"where it belongs\", and then pulls it halfway open herself so she can watch the locked door.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "siren",
+     "weight": 20,
+     "text": "A siren goes past in the street below and you both freeze. It keeps going. Tsubaki breathes out, \"Not for us,\" and pulls you back.",
+     "effects": {
+      "mood": 1
+     }
+    }
+   ],
+   "fact": "{u} stayed late with Tsubaki at {0} after hours",
+   "adult": true
+  },
+  {
+   "id": "priv_kanon_con_night",
+   "name": "Her night out",
+   "label": "Kanon stays over at yours",
+   "icon": "🎒",
+   "cost": 0,
+   "minutes": 240,
+   "home": true,
+   "effects": {
+    "mood": 15,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: kanon_door starts_going_out; feels: Kanon crush; thread: priv_kanon_after_con came_home; period: night or latenight; present: Kanon; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "long cuddling",
+    "slow patient touch"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Kanon at {{user}}'s place, a night away from her own door: frozen in the doorway with her tote bag, then talking fast, then held for a long time, and hardly any sleep"
+   },
+   "outcomes": [
+    {
+     "id": "out",
+     "weight": 50,
+     "text": "She stands in your doorway clutching her tote bag for a full minute. Then she drops it and talks, all of it, very fast, and pulls you onto the bed with her lanyard still round her neck. By dawn she's asleep across your chest, mumbling that she's outside."
+    },
+    {
+     "id": "shirt",
+     "weight": 30,
+     "text": "In the morning she borrows one of your shirts and wears it home on the train. She doesn't give it back.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "konbini",
+     "weight": 20,
+     "text": "At four in the morning she insists on a konbini run, \"to see if outside is still there\". It is. She buys six onigiri.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had Kanon stay over at their place, a night away from her apartment",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_race",
+   "name": "The race",
+   "label": "Race Momo round Yoyogi",
+   "icon": "🏃",
+   "cost": 0,
+   "minutes": 45,
+   "place": "sb_yoyogi",
+   "effects": {
+    "mood": 8,
+    "energy": -10
+   },
+   "when": "feels: Momo crush; knows: priv_momo_date; period: firsttrain or rush; present: Momo",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "an early morning at Yoyogi Park, Momo in running shorts challenging {{user}} to one lap of the ginkgo avenue, loser buys breakfast, apologizing at the start line and then sprinting off laughing"
+   },
+   "outcomes": [
+    {
+     "id": "legs",
+     "weight": 50,
+     "text": "She apologizes for her legs at the start line, then leaves you standing. At the gate she jogs on the spot, flushed and grinning, and waits so she can say \"sorry, sorry, you were bari close\"."
+    },
+    {
+     "id": "rematch",
+     "weight": 30,
+     "text": "You win by a stride and she is outraged, then delighted. \"Rematch. Saturday. And I'm buying breakfast anyway.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "shiba",
+     "weight": 20,
+     "text": "A dog walker's shiba joins the race halfway and beats you both. Momo insists it counts and buys the shiba a sausage.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} raced Momo round {0} before breakfast",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_volley",
+   "name": "Beach volleyball",
+   "label": "Play volleyball with Momo",
+   "icon": "🏐",
+   "cost": 0,
+   "minutes": 90,
+   "place": "bay_beach",
+   "effects": {
+    "mood": 9,
+    "energy": -12
+   },
+   "when": "feels: Momo crush; knows: priv_momo_date; did: priv_momo_race 1; period: midmorning or afternoon; present: Momo",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "beach volleyball on the sand at Odaiba Seaside Park with Rainbow Bridge across the water, Momo in her old jersey diving for every ball, promising to go easy on {{user}}, and the loser buying dinner"
+   },
+   "outcomes": [
+    {
+     "id": "spike",
+     "weight": 50,
+     "text": "She goes easy on you for exactly two points, then forgets herself and spikes one into the sand at your feet. \"Sorry! Old habits.\" She wins by a mile and lets you brush the sand off her shoulders."
+    },
+    {
+     "id": "dive",
+     "weight": 30,
+     "text": "She dives for a ball that was going out anyway and comes up with sand in her hair and a huge grin. She decides it was worth it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "bay",
+     "weight": 20,
+     "text": "A gust off the bay carries the ball into the shallows. You stand ankle-deep arguing about whose fault it was until you're both laughing.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} played volleyball with Momo on the sand at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_dinner",
+   "name": "Loser pays",
+   "label": "Yakitori with Momo, loser pays",
+   "icon": "🍢",
+   "cost": 0,
+   "minutes": 90,
+   "place": "sj_omoide",
+   "effects": {
+    "mood": 9
+   },
+   "when": "feels: Momo crush; knows: priv_momo_date; did: priv_momo_volley 1; period: evening or night; present: Momo",
+   "tags": [],
+   "together": {
+    "needed": true,
+    "text": "yakitori at a smoky counter in Omoide Yokochō, elbows touching under the railway tracks, Momo keeping score of the whole day on a napkin, loser pays"
+   },
+   "outcomes": [
+    {
+     "id": "skewer",
+     "weight": 50,
+     "text": "She counts the skewers on the napkin, recounts them, and goes scarlet: she has won by one. \"Sorry. So the winner decides what happens after, yeah?\" She pays, apologizing to the cook, and holds your hand under the counter."
+    },
+    {
+     "id": "you_win",
+     "weight": 30,
+     "text": "You win by one skewer. She looks at you for a long moment, then whispers \"so? decide, then,\" and hides behind her drink.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "train",
+     "weight": 20,
+     "text": "A train thunders over just as she says the important part, and she has to say it again, louder, and the whole counter hears.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had yakitori with Momo at {0}, and the loser paid",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_winner",
+   "name": "Winner decides",
+   "label": "The winner decides, with Momo",
+   "icon": "🏆",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_momo_date winner; feels: Momo crush; zone: hz_studio; period: night or latenight; present: Momo; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "competition",
+    "being teased"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a race up the stairs to Momo's fourth-floor flat in Shinjuku, the winner deciding what happens after, and Momo winning, apologizing, and then deciding everything"
+   },
+   "outcomes": [
+    {
+     "id": "decides",
+     "weight": 50,
+     "text": "She wins the stairs and apologizes for all of it: \"sorry, can you sit down? sorry, is this ok?\" You say yes every time, and she decides the rest of the night, grinning, until she's laughing too hard to decide anything."
+    },
+    {
+     "id": "loses",
+     "weight": 30,
+     "text": "You beat her up the stairs, just. She leans on her door, flushed and outraged and thrilled. \"Ok. Fine. You decide.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "tie",
+     "weight": 20,
+     "text": "You reach her door at exactly the same moment, argue about the rules for ten minutes on the landing, then decide to both decide.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} lost a race up the stairs to Momo, and she decided what happened after",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_lifted",
+   "name": "Lifted",
+   "label": "Lift Momo against the wall",
+   "icon": "💪",
+   "cost": 0,
+   "minutes": 40,
+   "anywhere": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "thread: priv_momo_date winner; feels: Momo crush; zone: hz_studio; period: evening or night or latenight; present: Momo; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being teased",
+    "quick to blush"
+   ],
+   "together": {
+    "needed": true,
+    "text": "just inside Momo's flat door, Momo asking {{user}} with a nervous laugh whether {{user}} can really lift her, all that height and muscle, and then her legs round {{user}}'s waist and her back to the wall"
+   },
+   "outcomes": [
+    {
+     "id": "wall",
+     "weight": 50,
+     "text": "\"Sorry, I'm heavy, are you sure?\" You lift her anyway. She wraps her legs round you, her back against the wall, red to the ears and laughing, and the neighbours hear rather more than they need to."
+    },
+    {
+     "id": "grip",
+     "weight": 30,
+     "text": "Lisa's Wednesday class has given her a grip like a vice: she holds herself up on the door frame with one hand to help, very proud of it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "shoes",
+     "weight": 20,
+     "text": "You trip over the pile of trainers by her door on the way to the wall. She apologizes to the trainers.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} lifted Momo against the wall of her flat",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_stamina",
+   "name": "Her stamina",
+   "label": "Momo rides till you give up",
+   "icon": "🔥",
+   "cost": 0,
+   "minutes": 180,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -16,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_momo_date winner; feels: Momo crush; period: night or latenight; present: Momo; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "competition",
+    "being encouraged"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a long night at {{user}}'s place turned into the friendly contest Momo asked for, round after round, until one of them gives up, and she is very sure it won't be her"
+   },
+   "outcomes": [
+    {
+     "id": "gives_up",
+     "weight": 50,
+     "text": "She keeps going long after you'd have stopped, checking \"ok? still ok?\" every time you nod. Somewhere after two in the morning you give up, and she flops down beside you, triumphant. \"Sorry. I win. Again tomorrow?\""
+    },
+    {
+     "id": "chicken",
+     "weight": 30,
+     "text": "Halfway through she is starving, and you both eat konbini fried chicken in bed, sticky-fingered, before round three.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "cramp",
+     "weight": 20,
+     "text": "In round four her calf cramps and she hops round your room swearing in Fukuoka dialect, then declares it a draw. It was not a draw.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} gave up first at their place, and Momo won",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_praise",
+   "name": "Just like that",
+   "label": "Good, just like that, Momo",
+   "icon": "🌟",
+   "cost": 0,
+   "minutes": 90,
+   "place": "sb_lovehotel",
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_momo_date winner; feels: Momo crush; period: night or latenight; present: Momo; companion: crush or casual",
+   "tags": [
+    "private",
+    "lovehotel"
+   ],
+   "matches": [
+    "being encouraged and praised"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a room at Hotel Coco Palace on Dōgenzaka that Momo picked, giggling, and Momo asking {{user}} for one thing: to tell her how good she is, and lighting up at every word"
+   },
+   "outcomes": [
+    {
+     "id": "just_like",
+     "weight": 50,
+     "text": "Every time you say \"good, just like that\" she glows and tries even harder, until your voice is all she can hear. Afterward she asks you to say it once more, just to hear it."
+    },
+    {
+     "id": "blush",
+     "weight": 30,
+     "text": "You tell her she's beautiful: not good at anything, just beautiful. She goes red from her ears to her collarbones and hides under the pillow.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "palm",
+     "weight": 20,
+     "text": "The only room left has a tropical theme and a plastic palm tree by the bed. She apologizes to the palm tree every time she knocks it.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} told Momo how good she was, all night, at {0}",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_morning",
+   "name": "Rematch",
+   "label": "A morning rematch with Momo",
+   "icon": "🌅",
+   "cost": 0,
+   "minutes": 60,
+   "home": true,
+   "effects": {
+    "mood": 13,
+    "energy": 4,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 8,
+   "when": "thread: priv_momo_date winner; feels: Momo crush; did: priv_momo_stamina 1; period: firsttrain or rush or midmorning; present: Momo; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "mornings in bed"
+   ],
+   "together": {
+    "needed": true,
+    "text": "a slow morning at {{user}}'s place after a long night, Momo waking first with her hair sticking up and asking with a sleepy grin whether {{user}} is up for a rematch"
+   },
+   "outcomes": [
+    {
+     "id": "rematch",
+     "weight": 50,
+     "text": "She wakes you by poking your shoulder. \"Sorry. Are you awake? Rematch?\" You say yes before your eyes are open, and the morning goes slowly and lazily under the covers."
+    },
+    {
+     "id": "hungry",
+     "weight": 30,
+     "text": "Afterward she eats a whole konbini breakfast in your bed and asks if it's weird that she's hungry again already.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "alarm",
+     "weight": 20,
+     "text": "Your alarm goes off at the worst possible moment. She throws it into the laundry basket across the room with an accuracy that explains the volleyball.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} woke up to a rematch with Momo at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_momo_told",
+   "name": "Her list",
+   "label": "Tell Momo what to do",
+   "icon": "📋",
+   "cost": 0,
+   "minutes": 120,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_momo_date winner; feels: Momo crush; did: priv_momo_praise 1; zone: hz_studio; period: night or latenight; present: Momo; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being told what to do (agreed)"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Momo on her bed with a list on her phone, going through it with {{user}} line by line and agreeing to each, and then {{user}} telling her what to do, and Momo following every word eagerly"
+   },
+   "outcomes": [
+    {
+     "id": "list",
+     "weight": 50,
+     "text": "She reads you her list first, red to the ears, and you agree on every line. Then you tell her what to do, and she does each thing eagerly, breathless, saying \"yes\" before you finish. Afterward she asks, shyly, to add a line."
+    },
+    {
+     "id": "not_tonight",
+     "weight": 30,
+     "text": "Halfway through you ask about something that isn't on the list. She thinks about it seriously and says \"not tonight. ask me again.\" You do, a week later.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "airi",
+     "weight": 20,
+     "text": "She admits Airi told her that anyone worth it reads the list first. You say Airi is right. She sends Airi a thumbs-up and throws the phone under the bed.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} went through Momo's list with her, and then told her what to do",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_dinner",
+   "name": "Dinner first",
+   "label": "Dinner, then Airi's place",
+   "icon": "🍜",
+   "cost": 0,
+   "minutes": 180,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "feels: Airi crush; zone: hz_azabu; period: night or latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "a proper dinner first",
+    "knows what she likes and says it"
+   ],
+   "together": {
+    "needed": true,
+    "text": "dinner first, soba on Azabu-Jūban with Airi ordering for both of them in loud Osaka dialect, then up to her flat above the shopping street, heels off, the lights low, and Airi saying plainly what she wants"
+   },
+   "outcomes": [
+    {
+     "id": "real",
+     "weight": 50,
+     "text": "She eats two bowls of soba and half of yours, then takes you upstairs. \"Right. My pace. Slower. There.\" She is frank and kind and laughing the whole time, and at the end she kisses you like she means it."
+    },
+    {
+     "id": "bill",
+     "weight": 30,
+     "text": "She fights you for the bill at the soba shop and wins, in Osaka dialect, to the owner's delight. \"Dinner first. My rule. My treat.\"",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "slurp",
+     "weight": 20,
+     "text": "You slurp your noodles so loudly she has to put her chopsticks down. Upstairs, much later, she still giggles every time she remembers.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} had dinner with Airi on Azabu-Jūban, and then went back to her place",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_pace",
+   "name": "Her pace",
+   "label": "Airi on top, at her pace",
+   "icon": "🌙",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 13,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "feels: Airi crush; zone: hz_azabu; period: night or latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "likes to be in charge"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Airi's bedroom in her Azabu flat, Tokyo Tower in the window, and Airi entirely in charge, telling {{user}} kindly and plainly to keep still, slower, stay there"
+   },
+   "outcomes": [
+    {
+     "id": "still",
+     "weight": 50,
+     "text": "\"Don't move. No, honma, don't move.\" She takes everything at a pace so slow it is almost cruel, her chestnut waves falling round her face, and laughs into her hand at the end."
+    },
+    {
+     "id": "tower",
+     "weight": 30,
+     "text": "The lights on Tokyo Tower go out at midnight right behind her. She takes it personally, and then as a sign.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "watch",
+     "weight": 20,
+     "text": "Her hair catches in your watch strap and the two of you are stuck together, giggling, for two whole minutes.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} kept still for Airi at her flat while she took her own pace",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_laughing",
+   "name": "Laughing",
+   "label": "Laughing in bed with Airi",
+   "icon": "😂",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "feels: Airi crush; zone: hz_azabu; period: night or latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "knows what she likes and says it"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Airi's flat after midnight, the two of them laughing at everything, her plain directions (\"not like that, like this\"), a knee in the wrong place, and nobody pretending anything at all"
+   },
+   "outcomes": [
+    {
+     "id": "laugh",
+     "weight": 50,
+     "text": "Everything is funny: your elbow, her ticklish ribs, the way she says \"not like that, like this\" as if she's explaining a train map. Then you get it right, and for a while she stops laughing."
+    },
+    {
+     "id": "out",
+     "weight": 30,
+     "text": "You make a theatrical noise as a joke. She sits up, points at the door and says \"out\", and then laughs so hard she can't throw you anywhere.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "bed",
+     "weight": 20,
+     "text": "One leg of her expensive bed gives way with a crack. She lies in the slope crying with laughter and says it never stood a chance.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} laughed in bed with Airi at her flat until it hurt",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_long",
+   "name": "Take your time",
+   "label": "Take your time with Airi",
+   "icon": "💋",
+   "cost": 0,
+   "minutes": 90,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": -6,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: priv_airi_no_angles not_work; feels: Airi crush; period: night or latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "likes to be in charge",
+    "knows what she likes and says it"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Airi on {{user}}'s bed with one hand in {{user}}'s hair, telling {{user}} plainly and kindly exactly what she wants and how slowly, and in no hurry at all"
+   },
+   "outcomes": [
+    {
+     "id": "stay",
+     "weight": 50,
+     "text": "She tells you, \"there. Slower. Stay there, don't go anywhere,\" and you stay there for a very long time, until she clamps a hand over her eyes and laughs. \"Again.\""
+    },
+    {
+     "id": "longer",
+     "weight": 30,
+     "text": "She asks for nothing but \"longer\", every time you think you're done. You lose track of the hour entirely, and so does she.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "hoover",
+     "weight": 20,
+     "text": "Your neighbour starts vacuuming at one in the morning. Airi lies there helpless with laughter: \"ignore him. Keep going.\"",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} took their time with Airi at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_wand",
+   "name": "Her wand",
+   "label": "Airi's favourite toy",
+   "icon": "🪄",
+   "cost": 0,
+   "minutes": 90,
+   "anywhere": true,
+   "effects": {
+    "mood": 14,
+    "energy": -8,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 12,
+   "when": "thread: priv_airi_no_angles not_work; feels: Airi crush; zone: hz_azabu; period: night or latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "toys"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Airi's bedroom in Azabu, her own favourite toy from her bedside drawer, which she offers {{user}} with a grin, and a night entirely at her pace"
+   },
+   "outcomes": [
+    {
+     "id": "thrice",
+     "weight": 50,
+     "text": "She takes it out of the drawer like a trophy. \"My favourite. Mine, bought myself.\" The rest of the night goes entirely at her pace, and she laughs harder each time."
+    },
+    {
+     "id": "battery",
+     "weight": 30,
+     "text": "The battery dies at the crucial moment. She stares at it in betrayal, then plugs it in at the wall.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "floor",
+     "weight": 20,
+     "text": "Left buzzing on the bedside table, it walks itself off onto the floor and under the bed. You both hunt for it, giggling, by the light of Tokyo Tower.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} met Airi's favourite toy at her flat",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_pampered",
+   "name": "Pampered",
+   "label": "A bath and massage for Airi",
+   "icon": "🛁",
+   "cost": 0,
+   "minutes": 120,
+   "home": true,
+   "effects": {
+    "mood": 14,
+    "energy": 6,
+    "hygiene": 40,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 11,
+   "when": "thread: priv_airi_no_angles not_work; feels: Airi crush; period: evening or night or latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private",
+    "bath"
+   ],
+   "matches": [
+    "being pampered off duty"
+   ],
+   "together": {
+    "needed": true,
+    "text": "Airi pampered at {{user}}'s place: a hot bath run for her, {{user}} washing her hair, then a long massage with warm oil from shoulders to ankles, and only after all of that, everything else"
+   },
+   "outcomes": [
+    {
+     "id": "now",
+     "weight": 50,
+     "text": "She sinks into the bath with a groan and lets you wash her hair. On the bed you work warm oil into her shoulders, her back, her calves, until she is boneless and humming. Then she pulls you down by the wrist and says, very low, \"now.\""
+    },
+    {
+     "id": "asleep",
+     "weight": 30,
+     "text": "Halfway through the massage she falls asleep completely, and snores. When she wakes she is furious you let her, and then very pleased.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "foam",
+     "weight": 20,
+     "text": "You overdo the bubble bath. She sits in a mountain of foam with only her face showing and declares herself a cake.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} ran Airi a bath and gave her a massage at their place",
+   "adult": true
+  },
+  {
+   "id": "priv_airi_closing",
+   "name": "After closing",
+   "label": "Home with Airi after closing",
+   "icon": "🔑",
+   "cost": 0,
+   "minutes": 180,
+   "anywhere": true,
+   "effects": {
+    "mood": 16,
+    "energy": -10,
+    "desire": 50
+   },
+   "trains": "sensuality",
+   "private": true,
+   "dc": 10,
+   "when": "thread: airi_retirement retires_opens_bar; thread: priv_airi_no_angles not_work; feels: Airi crush; knows: priv_airi_last_call; zone: hz_azabu; period: latenight; present: Airi; companion: crush or casual",
+   "tags": [
+    "private"
+   ],
+   "matches": [
+    "being pampered off duty",
+    "likes to be in charge"
+   ],
+   "together": {
+    "needed": true,
+    "text": "the first night Airi closes her own bar, the chairs up, the till counted twice, the sign switched off, then a taxi home to Azabu with {{user}}, and the rest of her life starting"
+   },
+   "outcomes": [
+    {
+     "id": "mine",
+     "weight": 50,
+     "text": "She can't stop smiling in the taxi or talking about the till. At her flat, in the light of the tower, she stops in the middle of a kiss, both hands on your chest, and says \"it's mine. All of it,\" laughing and crying at once."
+    },
+    {
+     "id": "till",
+     "weight": 30,
+     "text": "She recounts the night's takings aloud, in bed, three times. The total is very small. She is enormously proud of it.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "id": "keys",
+     "weight": 20,
+     "text": "She locks her keys inside the bar on its first night. You sit on the step outside together, laughing at two in the morning, until a taxi comes.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} went home with Airi after she closed her own bar for the first time",
+   "adult": true
   }
  ],
  "sleep": {
@@ -60371,6 +63552,49 @@
         "text": "She dances the spring showcase and tears the shoulder again; off the pole for a long while, she DJs anyway."
        }
       ]
+     },
+     {
+      "id": "priv_lisa_studio",
+      "title": "Her own studio",
+      "hidden": "Lisa has saved for a studio of her own since she was twenty-two, in an envelope in her Pole Star locker, and the Sunday residency finally tipped it: she has signed for an empty unit two streets from her flat. Before the mirrors go up, she wants one night there with {{user}}.",
+      "known": "{{user}} knows Lisa has finally signed for a studio of her own, an empty unit behind Shinjuku station, and wants one night there with {{user}} before the mirrors go up.",
+      "opens": "did: rp_poleclub_walk 3; feels: Lisa friend; feels: Lisa crush; thread: lisa_shoulder residency",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Lisa crush",
+      "decide": "Lisa dangles a new key in front of {{user}}: an empty unit behind Shinjuku station, bare concrete, no mirrors yet, paid for with the residency money. Before the builders and the first student, she says, it gets christened properly, and she wants {{user}} there with her for all of it.",
+      "nudges": [
+       "ok so I did a thing. signed a lease. it's tiny and empty and completely MINE. come see?",
+       "mirrors arrive next week. before they go up I want one night in there with you. just us, ne",
+       "last night before the builders. bring nothing, I have the key, a blanket and a plan."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Lisa counts the envelope in her locker at Pole Star between sets and writes the total on the back of her hand in pen."
+       },
+       {
+        "tell": "hinted",
+        "text": "Lisa scrolls through empty shop units at the bar after her set and puts her phone away, grinning, when {{user}} asks whose they are."
+       },
+       {
+        "tell": "known",
+        "text": "Lisa gets the keys to an empty unit behind Shinjuku station and tells {{user}} she wants one night there with {{user}} before the mirrors go up."
+       }
+      ],
+      "endings": [
+       {
+        "id": "opens",
+        "good": true,
+        "when": "knows: priv_lisa_studio; feels: Lisa crush; did: priv_lisa_christen 1",
+        "text": "They spent one night in the empty studio before the mirrors went up, Lisa leading and laughing; a month later it opened, the first class was hers to teach, and the first night in it was {{user}}'s."
+       },
+       {
+        "id": "saving",
+        "text": "The lease fell through and Lisa shrugged it off: the envelope went back in her locker, and she kept saving, and kept dancing at Pole Star."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -61861,6 +65085,45 @@
         "text": "She stays in, a little less alone."
        }
       ]
+     },
+     {
+      "id": "priv_kanon_after_con",
+      "title": "After the convention",
+      "hidden": "The convention is the one day of the year Kanon goes out, and this year her circle's table sells out by noon. Giddy and exhausted, she can't face going back behind her door tonight, and wants to spend the night with {{user}} instead.",
+      "known": "{{user}} knows Kanon doesn't want to go back behind her door after the convention, and wants to go home with {{user}} instead.",
+      "opens": "thread: kanon_door starts_going_out; feels: Kanon crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Kanon crush",
+      "decide": "At the end of the convention's second day Kanon sits on her empty table in the emptying hall, giddy, her cash box full. She tells {{user}}, very fast, that she doesn't want to go home tonight, and asks whether she could come home with {{user}} instead, and stay.",
+      "nudges": [
+       "SOLD OUT. by noon. I'm sitting under the table screaming quietly. come to the hall?",
+       "I don't want to go home. that's new. I always want to go home. what do I do with that",
+       "can I come back to yours tonight. I don't want today to end yet. is that weird"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Kanon finishes her book in a run of all-nighters, messaging {{user}} her page count at four in the morning, and packs the box for her table three days early."
+       },
+       {
+        "tell": "known",
+        "text": "Kanon's table sells out on the convention's second day, and she tells {{user}} she doesn't want to go back behind her door tonight."
+       }
+      ],
+      "endings": [
+       {
+        "id": "came_home",
+        "good": true,
+        "when": "knows: priv_kanon_after_con; feels: Kanon crush; did: bay_expo_fancon 1",
+        "text": "Kanon came home with {{user}}, her first night away from her apartment in a year: she talked the whole train ride, froze in the doorway, and then didn't want the night to end; in the morning she borrowed a shirt and kept it."
+       },
+       {
+        "id": "texts",
+        "text": "Kanon went straight home behind her door, and texted {{user}} all night instead."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -62025,6 +65288,84 @@
         "text": "She retires from the screen and directs."
        }
       ]
+     },
+     {
+      "id": "priv_airi_no_angles",
+      "title": "No angles",
+      "hidden": "Off duty Airi wants the one thing her job never gives her: a night that is only a night, with laughing, plain directions and nothing put on for anybody. She has started to think {{user}} likes her and not the symbol, and she means to find out over dinner, and then at her place in Azabu.",
+      "known": "{{user}} knows Airi wants it real off duty: dinner first, then her place, plain directions, laughing, and nothing put on for anyone.",
+      "opens": "feels: Airi crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Airi crush",
+      "decide": "After soba on Azabu-Jūban Airi takes {{user}} up to her flat, kicks off her heels and says frankly how the night goes: her pace, her directions, and nobody pretending anything. Then she laughs at her own speech, and kisses {{user}}.",
+      "nudges": [
+       "Oi. You're cute. Dinner Friday? I pick the place, you don't pick the topic. Deal?",
+       "Soba on Azabu-Jūban, then my place. I'll tell you exactly what I want. Honma, exactly. Bring an appetite.",
+       "One rule for tonight: nobody pretends anything. Not a word, not a smile. Think you can manage that?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Airi takes her sunglasses off when {{user}} sits down beside her at Bar Kotori, which she does for almost nobody, and laughs louder than usual."
+       },
+       {
+        "tell": "known",
+        "text": "Airi asks {{user}} to dinner on Azabu-Jūban and then back to her place, and lays down one rule with a grin: nobody pretends anything."
+       }
+      ],
+      "endings": [
+       {
+        "id": "not_work",
+        "good": true,
+        "when": "knows: priv_airi_no_angles; feels: Airi crush; did: priv_airi_dinner 1",
+        "text": "Airi got it real: her pace, plain directions and a lot of laughing; afterward, tangled up and eating cold takoyaki, she said it was the first time in years it hadn't felt like work."
+       },
+       {
+        "id": "home_alone",
+        "text": "Over dessert {{user}} asked about her job, the one thing she never talks about off duty. Airi was kind about it, paid for dinner, and went home alone."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_airi_last_call",
+      "title": "Last call",
+      "hidden": "Airi's bar has eight stools and a counter she sanded herself, and she has never once closed anything of her own: put the chairs up, counted the till, switched off the sign. She wants {{user}} there the first night it is hers to close, and she can't say so without crying.",
+      "known": "{{user}} knows Airi wants {{user}} there when she closes her own bar for the first time, and for the night after it.",
+      "opens": "thread: airi_retirement retires_opens_bar; thread: priv_airi_no_angles not_work; feels: Airi crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Airi crush",
+      "decide": "At two in the morning Airi puts the last chair up on her own bar, counts the till twice and laughs at the total. Then she switches off the sign, takes {{user}} home to Azabu in a taxi, and asks {{user}} to stay for the first night of the rest of her life.",
+      "nudges": [
+       "Eight stools, one counter, my name on the lease. Opening night's Friday. Come and sit at the end?",
+       "I keep practising putting the chairs up. Ridiculous. Stay till closing on my first night, will you?",
+       "First night I close my own place. I want you there for the till and for after."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Airi wears a key on a red cord round her neck and touches it whenever she laughs, and won't tell {{user}} what it opens."
+       },
+       {
+        "tell": "known",
+        "text": "Airi shows {{user}} her bar the week before it opens, eight stools and a counter she sanded herself, and asks {{user}} to stay until closing on the first night."
+       }
+      ],
+      "endings": [
+       {
+        "id": "last_stool",
+        "good": true,
+        "when": "knows: priv_airi_last_call; feels: Airi crush; did: priv_airi_closing 1",
+        "text": "Airi closed her own bar for the first time and took {{user}} home for the first night of the rest of her life; the next evening the last stool at the end of her counter had a card on it in her handwriting, kept for {{user}}."
+       },
+       {
+        "id": "bar_sofa",
+        "text": "She was too tired and too happy: with the chairs up and the till counted she fell asleep on the bar's little sofa mid-sentence, and {{user}} put a coat over her."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -62173,6 +65514,49 @@
         "text": "She cuts contact for a while."
        }
       ]
+     },
+     {
+      "id": "priv_momo_date",
+      "title": "A proper date first",
+      "hidden": "Momo hasn't been on a proper date since her college boyfriend, and she wants one more than she can say: three of them, in order, before anything else happens. She has decided that whoever wins the last one decides what happens after.",
+      "known": "{{user}} knows Momo wants three proper dates before anything else, a race, a volleyball game and dinner, and that the winner of the last one decides what happens after.",
+      "opens": "feels: Momo crush",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Momo crush",
+      "decide": "Over yakitori at Omoide Yokochō Momo wins the last bet by one skewer and goes red to the ears. Apologizing all the way to her flat, she tells {{user}} that the winner decides what happens after, and then, very shyly, decides everything.",
+      "nudges": [
+       "sorry, random! are you free saturday morning? Yoyogi, one lap, loser buys breakfast. I'm bari fast, just warning you.",
+       "ok that was fun!! next one's volleyball on the sand at Odaiba. I'll go easy on you. probably not. sorry in advance.",
+       "last date: yakitori at Omoide Yokochō. loser pays, and the winner decides what happens after. sorry!!"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Momo turns up at Yoyogi Park in running shorts at seven in the morning, challenges {{user}} to a lap of the ginkgo avenue, and apologizes for winning."
+       },
+       {
+        "tell": "hinted",
+        "text": "Momo keeps a tally of who won what on her phone, and goes red to the ears when {{user}} sees its title: \"proper dates\"."
+       },
+       {
+        "tell": "known",
+        "text": "Momo tells {{user}} her rules, apologizing: three dates, a race, a volleyball game and dinner, and the winner of the last one decides what happens after."
+       }
+      ],
+      "endings": [
+       {
+        "id": "winner",
+        "good": true,
+        "when": "knows: priv_momo_date; feels: Momo crush; did: priv_momo_dinner 1",
+        "text": "Momo won the last bet and decided everything, apologizing the whole time, and {{user}} stayed the night at her flat; in the morning she asked, red to the ears, for a rematch."
+       },
+       {
+        "id": "running_partner",
+        "text": "She keeps {{user}} as her running partner: Saturday laps round Yoyogi, the loser buying breakfast, and nothing after."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -62503,6 +65887,48 @@
         "text": "She keeps working the late slots; the tin fills slowly, and her ex keeps texting."
        }
       ]
+     },
+     {
+      "id": "priv_tsubaki_daylight",
+      "title": "In daylight",
+      "hidden": "Tsubaki has spent seven years working after dark with the blinds down. Now her licensed salon has her name on the door and daylight hours, and she wants it christened properly, in daylight, with the blinds open a crack, and with {{user}}.",
+      "known": "{{user}} knows Tsubaki wants her new salon christened in daylight with {{user}}, the blinds open a crack.",
+      "opens": [
+       "thread: tsubaki_salon own_salon; did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush",
+       "thread: tsubaki_salon salon_at_hotel; did: sj_esthe_book 3; feels: Tsubaki friend; feels: Tsubaki crush"
+      ],
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Tsubaki crush",
+      "decide": "After her salon's first day Tsubaki locks the door at four in the afternoon, opens the blinds a crack and warms the oil. She asks {{user}} to lie on her brand-new table first, and then to stay for the rest of the afternoon, on her terms, with her name on the door.",
+      "nudges": [
+       "First day in my own salon. Nine bookings, all in daylight. Come by at closing? Four o'clock. Bring nothing.",
+       "The table is new. Nobody has been on it but customers. I'd like that to change, today, with the blinds open.",
+       "I left the blinds open a crack this afternoon and thought about you for an hour. Come and close the shop with me."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Tsubaki hangs her name on the door of the new salon and stands looking at it for a long minute, then oils the new treatment table with her own hands."
+       },
+       {
+        "tell": "known",
+        "text": "Tsubaki tells {{user}} she wants the salon christened in daylight, the blinds open a crack, and that she wants {{user}} to be the first on her table who isn't a customer."
+       }
+      ],
+      "endings": [
+       {
+        "id": "christened",
+        "good": true,
+        "when": "knows: priv_tsubaki_daylight; feels: Tsubaki crush; did: priv_tsubaki_hour 1",
+        "text": "Tsubaki christened her salon in daylight: {{user}} on her new table first, then Tsubaki herself, with the blinds open a crack and the afternoon sun across her back; her salon, her terms, and nobody paying anyone."
+       },
+       {
+        "id": "asleep",
+        "text": "The first day was too long: she fell asleep on her own table in her uniform while the oil warmed, and {{user}} covered her with a towel and locked up."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -62677,6 +66103,131 @@
         "text": "She keeps her number and keeps the tab; the champagne towers get taller."
        }
       ]
+     },
+     {
+      "id": "priv_sumire_free",
+      "title": "For free",
+      "hidden": "Nobody has wanted Sumire without a bill on the table since she was nineteen, and she doesn't know whether she can bear it. She has started to want {{user}} to want her for nothing, and to make {{user}} wait for it.",
+      "known": "{{user}} knows nobody has ever wanted Sumire without paying, and that she wants {{user}} to be the first who doesn't, on her terms.",
+      "opens": "did: sj_hostess_sumire 3; feels: Sumire friend",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Sumire crush",
+      "decide": "At the good table Sumire names a price for a kiss as a joke and then kisses {{user}} for free. She books a hotel room herself, pays for it herself, and keeps {{user}} waiting on the bed for an hour before she lets {{user}} near her.",
+      "nudges": [
+       "Don't you dare pay for my drink. I mean it. Come and sit at the good table, and keep your wallet in your coat.",
+       "I wrote my private number on a Velvet card for you. Nobody at the lounge has it.",
+       "I booked a room on Dōgenzaka. I paid for it. You'll wait for me. Still coming?"
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Sumire stops letting {{user}} pay for her drinks at Velvet and takes the bill out of the boy-san's hand herself."
+       },
+       {
+        "tell": "known",
+        "text": "Sumire gives {{user}} her private number written on the back of a Velvet card, and says nobody at the lounge has it."
+       }
+      ],
+      "endings": [
+       {
+        "id": "first_night",
+        "good": true,
+        "when": "knows: priv_sumire_free; feels: Sumire crush; did: priv_sumire_wait 1",
+        "text": "Sumire had {{user}} for nothing at last: a room she paid for, a long wait, and a night entirely on her terms; she smoked by the window afterward and talked honestly for once."
+       },
+       {
+        "id": "favourite_guest",
+        "text": "She keeps {{user}} as her favourite guest: the good table, drinks she pays for herself, and nothing more."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_sumire_ranking",
+      "title": "The board",
+      "hidden": "A new girl at Velvet has climbed to second on the ranking board in three weeks, and Sumire hasn't slept properly since. For the first time she wants someone else to take charge for a night and make her stop counting.",
+      "known": "{{user}} knows the ranking board is eating Sumire alive, and that she wants {{user}}, just once, to take charge.",
+      "opens": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Sumire crush",
+      "decide": "After closing Sumire sits in {{user}}'s room in her violet gown and recites the board's numbers like a prayer. Then she asks {{user}}, without any of her hostess voice, to take charge tonight and make her stop counting.",
+      "nudges": [
+       "Number two climbed again tonight. I counted bottles in the bath for an hour. Distract me?",
+       "I haven't slept in four days. I keep thinking it would help if someone else were in charge. Just once.",
+       "Tomorrow the board resets. Tonight I want you to make me stop counting."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Sumire checks the ranking board by Velvet's lift three times a night and recounts her bottles on a napkin under the table."
+       },
+       {
+        "tell": "hinted",
+        "text": "Sumire falls asleep against {{user}}'s shoulder in a taxi for the first time, mid-sentence, and wakes up furious with herself."
+       },
+       {
+        "tell": "known",
+        "text": "The new girl takes the number-two spot on Velvet's board, and Sumire tells {{user}} she hasn't slept in a week."
+       }
+      ],
+      "endings": [
+       {
+        "id": "lets_go",
+        "good": true,
+        "when": "knows: priv_sumire_ranking; known: Sumire 5",
+        "waits": "feels: Sumire",
+        "text": "{{user}} took charge for a night and Sumire let go entirely, until she stopped counting and slept; she lost the number one spot for a month and didn't care."
+       },
+       {
+        "id": "counting",
+        "text": "She kept the number, and the insomnia, and the napkins full of figures."
+       }
+      ],
+      "adult": true
+     },
+     {
+      "id": "priv_strong_legs",
+      "with": [
+       "Lisa"
+      ],
+      "title": "Strong legs",
+      "hidden": "For a year Sumire has slipped into the back of Pole Star to watch Lisa dance, and never said a word to her. She wants to, and she wants {{user}} there so she doesn't lose her nerve.",
+      "known": "{{user}} knows Sumire has a year-long crush on Lisa from Pole Star, and wants {{user}} to take her to Lisa's show, and then to the private room.",
+      "opens": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab; feels: Lisa friend",
+      "opensOnly": true,
+      "noLast": true,
+      "reveal": "feels: Sumire crush",
+      "decide": "At Pole Star's bar Sumire watches Lisa dance and forgets to drink. Then she asks {{user}}, very quietly, to get Lisa to the private room after the last set: Sumire will set the rules, Lisa will dance, and {{user}} will be there too.",
+      "nudges": [
+       "Take me to Pole Star? I'll sit at the back. I always sit at the back.",
+       "Your friend Lisa. The one with the legs. Ask her about me, will you?",
+       "The private room is free after the last set. I've set the rules already. I just need you to make the introduction."
+      ],
+      "stages": [
+       {
+        "tell": "hidden",
+        "text": "Sumire tips the dancers at Pole Star far too much from the back table and leaves before the last set."
+       },
+       {
+        "tell": "known",
+        "text": "Sumire asks {{user}} to take her to Lisa's show at Pole Star, and to get the private room after the last set."
+       }
+      ],
+      "endings": [
+       {
+        "id": "legs",
+        "good": true,
+        "when": "knows: priv_strong_legs; feels: Sumire crush; feels: Lisa crush",
+        "text": "In Pole Star's private room Lisa danced by Sumire's rules, and then the rules went; Sumire left at dawn with her updo down, smiling."
+       },
+       {
+        "id": "tips",
+        "text": "She tipped Lisa far too much from the back table, said nothing, and went home alone."
+       }
+      ],
+      "adult": true
      }
     ],
     "intimate": {
@@ -78951,6 +82502,159 @@
      "leaves": "She takes the plane to Milan, and Studio MIZU runs on without her."
     },
     "hint": "See Erika's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_sumire_free",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Sumire for free",
+    "who": "Sumire",
+    "when": "thread: priv_sumire_free",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "first_night": "A room she paid for herself, a long wait, a night on her terms; nothing was owed.",
+     "favourite_guest": "The good table and drinks on her; her favourite guest and no further."
+    },
+    "hint": "See Sumire's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_sumire_ranking",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Sumire and the board",
+    "who": "Sumire",
+    "when": "thread: priv_sumire_ranking",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "lets_go": "One night someone else was in charge, and she stopped counting; she lost the number for a month.",
+     "counting": "She kept the number one spot, and the sleepless nights."
+    },
+    "hint": "See Sumire's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_strong_legs",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Sumire's strong legs",
+    "who": "Sumire",
+    "when": "thread: priv_strong_legs",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "legs": "Pole Star's private room: Lisa dancing by Sumire's rules, then no rules, and her updo down by dawn.",
+     "tips": "Too many tips from the back table at Pole Star, and not one word to the dancer."
+    },
+    "hint": "See Sumire's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_lisa_studio",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Lisa's own studio",
+    "who": "Lisa",
+    "when": "thread: priv_lisa_studio",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "opens": "One night in an empty unit before the mirrors; the first class was hers, the first night was {{user}}'s.",
+     "saving": "The lease fell through; the envelope went back in her Pole Star locker, and she kept saving."
+    },
+    "hint": "See Lisa's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_tsubaki_daylight",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Tsubaki in daylight",
+    "who": "Tsubaki",
+    "when": "thread: priv_tsubaki_daylight",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "christened": "Her new salon christened at four in the afternoon, the blinds open a crack, on her terms; nobody paid anyone.",
+     "asleep": "The first day was too long: asleep on her own table in her uniform, a towel over her and the door locked."
+    },
+    "hint": "See Tsubaki's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_kanon_after_con",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Kanon after the convention",
+    "who": "Kanon",
+    "when": "thread: priv_kanon_after_con",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "came_home": "Sold out by noon, then a first night away from her apartment in a year, and a borrowed shirt kept.",
+     "texts": "Straight home behind her door after the hall, and messages all night instead."
+    },
+    "hint": "See Kanon's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_momo_date",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Momo's proper date",
+    "who": "Momo",
+    "when": "thread: priv_momo_date",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "winner": "Three dates, then the winner decided what happened after, apologizing; a night at her flat and a rematch at dawn.",
+     "running_partner": "Saturday laps round Yoyogi with {{user}}, the loser buying breakfast; a running partner, nothing after."
+    },
+    "hint": "See Momo's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_airi_no_angles",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Airi with no angles",
+    "who": "Airi",
+    "when": "thread: priv_airi_no_angles",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "not_work": "Her pace, plain directions and a lot of laughing; the first time in years it wasn't work.",
+     "home_alone": "One question about her job over dessert; she was kind about it, paid, and went home alone."
+    },
+    "hint": "See Airi's story through to its end."
+   },
+   {
+    "id": "mem_sl_priv_airi_last_call",
+    "hall": "memories",
+    "group": "storylines",
+    "adult": true,
+    "name": "Airi's last call",
+    "who": "Airi",
+    "when": "thread: priv_airi_last_call",
+    "needs": [
+     "living"
+    ],
+    "plaques": {
+     "last_stool": "Her own bar closed for the first time, then home together; the last stool kept for {{user}}.",
+     "bar_sofa": "The chairs up, the till counted, and Airi asleep on the bar's little sofa under a borrowed coat."
+    },
+    "hint": "See Airi's story through to its end."
    }
   ],
   "museum": {
