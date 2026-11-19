@@ -1613,6 +1613,11 @@ function tidyPhoto(w: WorldDef) {
         if (Array.isArray(e.cameraSteps)) { for (const c of e.cameraSteps) tidyChange(c); if (!e.cameraSteps.length) delete e.cameraSteps; }
         for (const t of e.tiers ?? []) if (t.camera) { tidyChange(t.camera); if (!t.camera.camera) delete t.camera; }
     }
+    // a door left as usual, an emptied line
+    for (const e of w.cast?.examples ?? []) {
+        if (typeof e.door === 'string' && !e.door.trim()) delete e.door;
+        if (typeof e.doorLine === 'string' && !e.doorLine.trim()) delete e.doorLine;
+    }
     const st = w.homes?.studios;
     for (const z of st ?? []) {
         if (z.images && !Object.keys(z.images).length) delete z.images;
@@ -2998,6 +3003,16 @@ function personMore(w: WorldDef, p: string, e: WorldDef['cast']['examples'][numb
         ${systemOn(w, 'photography') || e.camera ? `<div class="mu-row2">${sel('In front of a camera', `${p}.camera`, withCur([['', CAMERA_NAMES['']], ['ask', CAMERA_NAMES.ask], ['work', CAMERA_NAMES.work], ['noface', CAMERA_NAMES.noface], ['never', CAMERA_NAMES.never]], e.camera), 'opt')}<small class="mu-muted">Whether briefs and photos may have them in front of the lens, adult content on or off; a card's own settings can only make it stricter.</small></div>` : ''}
         ${systemOn(w, 'photography') || e.cameraSteps ? cameraStepsEditor(p, e) : ''}`;
 }
+// Who they let into their home, asked before how close you are: as usual, nobody ever, or only once a condition holds
+// (the condition itself is the rule; picking "only once" starts from an example to change).
+function doorEditor(p: string, e: WorldDef['cast']['examples'][number]) {
+    const d = typeof e.door === 'string' ? e.door : '', first = e.name.split(/\s+/)[0];
+    const cur = d && d !== 'never' ? d : `feels: ${first} good`;
+    return `<h4>Their door</h4><p class="mu-muted">Who comes into their home, asked before how close the player is. It closes their bedroom in a home with rooms, staying the night at theirs and their "come over tonight?" too, adult content on or off.</p>
+        <div class="mu-row2">${sel('Who they let in', `${p}.door`, [['', 'As usual (friends come in, close friends know where the key is)'], ['never', 'Nobody, ever (not even a partner)'], [cur, 'Only once a condition holds']], 'opt')}
+            ${d && d !== 'never' ? cond('Their door opens once (a condition)', `${p}.door`, 'thread: priv_tsubaki_hands your_hands') : '<span></span>'}</div>
+        ${d ? optTxt("What the player is told at their closed door ({name}: their name; empty: the world's words)", `${p}.doorLine`, "{name} meets you downstairs: nobody comes up to {name}'s flat.") : ''}`;
+}
 // (photography, the camera change) How a person's camera rule loosens over a game: each step latches the first time its
 // condition holds and is never lost (sim/camera.ts); its limits come off and on in the save's copy of their profile.
 const STEP_RULES: Opt[] = [['free', CAMERA_NAMES['']], ...(['ask', 'work', 'noface', 'never'] as const).map(k => [k, CAMERA_NAMES[k]] as Opt)];
@@ -3228,6 +3243,7 @@ function peopleEditor(w: WorldDef) {
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 ${personMore(w, p, e)}
+                ${doorEditor(p, e)}
                 ${tiersEditor(w, p, e)}
                 <h4>Their life</h4>${ritualsEditor(w, p, e)}${threadsEditor(w, p, e)}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>

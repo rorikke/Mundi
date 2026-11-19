@@ -60,6 +60,10 @@ A save is hours of a player's life. No update may break one. These rules and che
 - `node tests/hobbies.test.mjs`: city events on their weekdays (every N weeks), called off by rain, in the calendar and the
   prompt, crowds at the place, the "I'll go" reminder, once per event; hobbies that level with practice, add to their
   rolls, pay more, open jobs, and are known by the AI; with the systems off, nothing.
+- `node tests/door.test.mjs`: a person's door (`door`: `never` or a condition, read before how close you are; its
+  line): kept at the door however close, no key while out, the usual rules once a condition holds; their bedroom (a
+  home with rooms, a Home), staying the night at theirs and their "come over tonight?" ask it too; someone without a
+  rule as before; cleaning and the creator's fields.
 - `node tests/parity.test.mjs`: every field of a built-in world can be made in the world creator (a form field on
   some tab, or one of the creator's tools listed in `TOOLS`). A new field nobody can edit fails the build.
 

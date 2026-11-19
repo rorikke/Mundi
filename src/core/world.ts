@@ -583,6 +583,15 @@ export interface ExampleCharacter {
     /** (photography) How that rule loosens over a game (CameraStep): each step latches once its `when` holds and is
      *  never lost. A base person's live in the base world only; an overlay may give them only to its own people. */
     cameraSteps?: CameraStep[];
+    /** Who they let into their home, asked before how close you are (sim/homerooms.ts `doorShut`): `never` (nobody comes
+     *  in, however close, a partner too), or a condition (`thread: priv_tsubaki_hands your_hands`) that has to hold first.
+     *  Missing: the usual (a friend lets you in, a close friend or a partner knows where the key is). It closes their
+     *  bedroom in a home with rooms or a Home, staying the night at theirs and their "come over tonight?" too. Read with
+     *  adult content on or off; an overlay may make it stricter, never looser. */
+    door?: string;
+    /** What the player is told at their door while it stays closed (`{name}`: their name). Missing: the world's words
+     *  (the lexicon's `doorKept`). */
+    doorLine?: string;
 }
 /** (dress) What an outfit is: its `kind` (`swim`, `yukata`…; any word), how bold it is (`level` 1 modest, 2
  *  everyday, 3 bold, 4 explicit; missing: 1), `adult`: only with adult content on (level 4 always is), and `look`: the

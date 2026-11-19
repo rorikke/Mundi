@@ -10924,5 +10924,17 @@ const DICT = {
     "Logic 8": "Lógica 8",
     "Logic 9": "Lógica 9",
     "Logic 10": "Lógica 10",
+    // a person's door (sim/homerooms.ts, core/lexicon.ts, ui/creator.ts)
+    "You ring the doorbell. {0} comes to the door but doesn't ask you in: nobody comes into {0}'s home.": "Você toca a campainha. {0} vem até a porta, mas não convida você a entrar: ninguém entra na casa de {0}.",
+    "You knock. {0} comes to the door but doesn't ask you in: nobody comes into {0}'s home.": "Você bate. {0} vem até a porta, mas não convida você a entrar: ninguém entra na casa de {0}.",
+    "Their door": "A porta da pessoa",
+    "Who comes into their home, asked before how close the player is. It closes their bedroom in a home with rooms, staying the night at theirs and their \"come over tonight?\" too, adult content on or off.": "Quem entra na casa da pessoa, perguntado antes de ver o quanto o jogador é próximo. Também fecha o quarto dela numa casa com cômodos, dormir na casa dela e o \"vem pra cá hoje?\" dela, com conteúdo adulto ligado ou desligado.",
+    "Who they let in": "Quem ela deixa entrar",
+    "As usual (friends come in, close friends know where the key is)": "Como de costume (amigos entram, amigos próximos sabem onde está a chave)",
+    "Nobody, ever (not even a partner)": "Ninguém, nunca (nem um parceiro)",
+    "Only once a condition holds": "Só depois que uma condição valer",
+    "Their door opens once (a condition)": "A porta se abre quando (uma condição)",
+    "What the player is told at their closed door ({name}: their name; empty: the world's words)": "O que o jogador ouve na porta fechada ({name}: o nome da pessoa; vazio: as palavras do mundo)",
+    "{name} meets you downstairs: nobody comes up to {name}'s flat.": "{name} encontra você lá embaixo: ninguém sobe até o apartamento de {name}.",
 };
 export default DICT;

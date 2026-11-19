@@ -559,11 +559,34 @@ export function upgradeWorld(w) {
     for (const ex of w.cast?.examples ?? [])
         if ('tiers' in ex || 'reserved' in ex)
             upgradeTiers(ex);
+    // a person's door: made safe where a world has one
+    for (const ex of w.cast?.examples ?? [])
+        if ('door' in ex || 'doorLine' in ex)
+            upgradeDoor(ex);
     for (const s of w.stories ?? [])
         for (const c of s.choices ?? [])
             for (const r of [c, c.fail])
                 upgradeStoryMuseum(r);
     return w;
+}
+// A person's door rule (`never`, or a condition) and the line at their closed door, from someone else's file: short texts,
+// no key left empty.
+function upgradeDoor(ex) {
+    const text = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
+    if ('door' in ex) {
+        const d = text(ex.door, 300);
+        if (d)
+            ex.door = d.toLowerCase() === 'never' ? 'never' : d;
+        else
+            delete ex.door;
+    }
+    if ('doorLine' in ex) {
+        const l = text(ex.doorLine, 300);
+        if (l)
+            ex.doorLine = l;
+        else
+            delete ex.doorLine;
+    }
 }
 // A storyline's words and prices from someone else's file: texts stay texts, at most three nudges, a help's price and
 // hours inside their range (a help without a label or a condition is dropped), a stage's appointment only when it has a
