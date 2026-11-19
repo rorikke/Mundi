@@ -20,7 +20,7 @@ const DYNAMIC = [/^homes\.kinds\.[^.]+/, /^cast\.routineTemplates\.[^.]+/, /^lex
     /^actions\.\*\.effects\.[^.]+/, /^occupations\.\*\.cost\.[^.]+/, /^occupations\.\*\.requires\.[^.]+/, /^homes\.kinds\.\*\.bills\.[^.]+/, /^catalogs\.origins\.\*\.attributes\.[^.]+/,
     /^actions\.\*\.roll\.(success|fail)\.effects\.[^.]+/, /^cast\.routineTemplates\.\*\.(weekday|weekend)/, /^traitInfo\.[^.]+/,
     /^goals\.names\.[^.]+/, /^rewards\.(names|prices)\.[^.]+/, /^tables\.[^.]+/, /^occupations\.\*\.tracks\.[^.]+/,
-    /^homes\.(kinds\.\*|zones\.\*)\.rooms\.\*\.images\.[^.]+/, /^cast\.examples\.\*\.bedroom\.images\.[^.]+/, /^actions\.\*\.bgs\.[^.]+/];
+    /^homes\.(kinds\.\*|zones\.\*)\.rooms\.\*\.images\.[^.]+/, /^cast\.examples\.\*\.bedroom\.images\.[^.]+/, /^actions\.\*\.bgs\.[^.]+/, /^actions\.\*\.bgAt\.[^.]+/];
 const norm = (p) => { let s = p.replace(/\.\d+(?=\.|$)/g, '.*'); for (const re of DYNAMIC) s = s.replace(re, m => m.replace(/[^.]+$/, '*')); return s; };
 const leaves = (o, at = '') => (o === null || typeof o !== 'object' ? [at] : Array.isArray(o) ? o.flatMap((x, i) => leaves(x, `${at}.${i}`)) : Object.keys(o).length ? Object.entries(o).flatMap(([k, v]) => leaves(v, at ? `${at}.${k}` : k)) : [at]);
 
