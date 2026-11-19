@@ -68,7 +68,9 @@ const at = (x, h, m = 0) => { x.minutes = h * 60 + m; };
     ok(JSON.stringify(j.bgs) === JSON.stringify({ night: 'bg/t-jungle-night.avif', evening: 'bg/t-jungle-evening.avif' }), `bgs: the parts of the day and the world's periods, strings only (${JSON.stringify(j.bgs)})`);
     ok(!('bg' in A('t_empty')) && !('bgs' in A('t_empty')), 'empty ones: no key');
     ok(!('bg' in A('t_drink')) && !('bgs' in A('t_drink')), 'an action without them gets none');
-    ok(w.actions.filter(a => !a.id.startsWith('t_')).every(a => !('bg' in a) && !('bgs' in a)), "Tokyo's own actions: no key added");
+    // (Tokyo's own rooms, a few of its actions with a picture since cast depth, are kept as the world file writes them)
+    const file0 = new Map(world(ext, 'tokyo').actions.map(a => [a.id, a]));
+    ok(w.actions.filter(a => !a.id.startsWith('t_')).every(a => JSON.stringify([a.bg, a.bgs]) === JSON.stringify([file0.get(a.id)?.bg, file0.get(a.id)?.bgs])), "Tokyo's own actions: no key added, its own pictures kept");
     ok(PR.upgradeWorld(structuredClone(w)).actions.every((a, i) => JSON.stringify(a) === JSON.stringify(w.actions[i])), 'cleaning twice changes nothing');
     done('cleaning');
 }
