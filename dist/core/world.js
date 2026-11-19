@@ -168,6 +168,7 @@ export const SYSTEMS = [
     { id: 'jobs', name: 'Jobs and promotions', desc: 'nobody works, not even you; no jobs anywhere.', apps: ['jobs'], blocks: [] },
     { id: 'bills', name: 'Rent and bills', desc: 'homes are free and nothing is ever cut off.', apps: [], blocks: [] },
     { id: 'housing', name: 'Owning a home', desc: 'homes can only be rented: none to buy or sell, no rooms or fixtures to add, no second home.', apps: [], blocks: [] },
+    { id: 'dress', name: 'Outfits for the place', desc: 'nobody changes into swimwear or other outfits for a place or an activity (with adult content on, private moments still undress).', apps: [], blocks: [] },
     { id: 'homerooms', name: 'Rooms at home', desc: 'homes are one place: no rooms to walk between, and everyone at home is in the scene with you.', apps: [], blocks: [] },
     { id: 'courses', name: 'Courses', desc: 'no courses to take; jobs do not ask for any.', apps: [], blocks: [] },
     { id: 'shop', name: 'Shop', desc: 'nothing to buy for your home.', apps: ['shop'], blocks: [] },

@@ -11,6 +11,7 @@ import { worldFile, isScenario, SCENARIO_STARTS } from '../core/world.js';
 import { DIFFICULTIES } from './bills.js';
 import { placeOf as placeOf2, mapOf, homeKindAt } from './places.js';
 import { roomPicture, sceneHere, heldHere } from './homerooms.js';
+import { exampleOf as exampleOfResident } from './dayplan.js';
 import { TUT, settings as settings2, cfg as cfgOf } from '../core/store.js';
 import { note, placeName } from './facts.js';
 import { settings, saveSettings, state, game, setGame, saveGame, notify, toast, } from '../core/store.js';
@@ -181,32 +182,68 @@ async function examplePictures(w, ex, avatar) {
                     await saveCardMundi(avatar, { sprites: set.key }); // none found: tried again next time
             }
         }
-        // each outfit into its subfolder of their Expressions, once per folder and version
-        const had = { ...(card.outfits ?? {}) };
-        for (const [name, folder] of Object.entries(ex.outfits ?? {})) {
-            const outfit = String(name).trim().replace(/[\\/:*?"<>|]+/g, '');
-            if (!outfit || typeof folder !== 'string')
+        // each outfit into its subfolder of their Expressions, once per folder and version; (dress) one the world
+        // describes (`wear`: the swimsuits) waits until it's first worn, then keeps up with new versions like the rest
+        for (const name of Object.keys(ex.outfits ?? {})) {
+            if (ex.wear?.[name] && !card.outfits?.[cleanOutfit(name)])
                 continue;
-            const set = await spriteFiles(w, folder);
-            if (had[outfit] === set.key)
-                continue;
-            let n = 0;
-            for (const s of set.list) {
-                const b = await worldPicture(w, s.file);
-                if (!b)
-                    continue;
-                await uploadSprite(avatar, s.label, b, s.label, outfit);
-                n++;
-            }
-            if (n) {
-                had[outfit] = set.key;
-                await saveCardMundi(avatar, { outfits: had });
-            }
+            await uploadOutfit(w, ex, avatar, name);
         }
     }
     catch (e) {
         console.warn('[Mundi] pictures of', ex.name, e);
     }
+}
+const cleanOutfit = (name) => String(name).trim().replace(/[\\/:*?"<>|]+/g, '');
+// One outfit of the world's into its subfolder of their Expressions, unless the card has this version already; true
+// when it's there. One person's uploads go one after another (each adds its folder to what the card remembers).
+const cardQueue = new Map();
+function uploadOutfit(w, ex, avatar, name) {
+    const run = async () => {
+        const outfit = cleanOutfit(name), folder = ex.outfits?.[name];
+        if (!outfit || typeof folder !== 'string')
+            return false;
+        const set = await spriteFiles(w, folder);
+        const had = { ...(charOf(avatar)?.data?.extensions?.mundi?.outfits ?? {}) };
+        if (had[outfit] === set.key)
+            return true;
+        let n = 0;
+        for (const s of set.list) {
+            const b = await worldPicture(w, s.file);
+            if (!b)
+                continue;
+            await uploadSprite(avatar, s.label, b, s.label, outfit);
+            n++;
+        }
+        if (n) {
+            had[outfit] = set.key;
+            await saveCardMundi(avatar, { outfits: had });
+        }
+        return n > 0;
+    };
+    const job = (cardQueue.get(avatar) ?? Promise.resolve()).catch(() => undefined).then(run);
+    cardQueue.set(avatar, job);
+    return job;
+}
+// (dress) Is one of the world's outfits in their Expressions yet? Not yet: it's uploaded in the background (once a
+// session: one that fails isn't tried again until the page reloads) and the scene syncs again once it's there.
+const outfitJobs = new Map();
+export function ensureOutfit(w, avatar, name) {
+    const k = `${avatar}|${name}`, have = outfitJobs.get(k);
+    if (have)
+        return have;
+    const r = game()?.cast[avatar], ex = r ? exampleOfResident(w, r) : null;
+    const job = ex ? uploadOutfit(w, ex, avatar, name).catch(e => { console.warn('[Mundi] outfit', name, e); return false; }) : Promise.resolve(false);
+    outfitJobs.set(k, job);
+    return job;
+}
+export function outfitReady(w, avatar, name) {
+    if (charOf(avatar)?.data?.extensions?.mundi?.outfits?.[cleanOutfit(name)])
+        return true;
+    if (!outfitJobs.has(`${avatar}|${name}`))
+        void ensureOutfit(w, avatar, name).then(ok => { if (ok)
+            void syncScene(); });
+    return false;
 }
 /* ---------- adult content (E15) ---------- */
 // The world's people in a game: the ones chosen (all of them when none are named), without the adult-only ones when
@@ -797,12 +834,12 @@ export function syncScene() {
         }
         const talking = solo ? [solo] : here.map(r => r.avatar);
         await setPresent(gid, Object.keys(g.cast), talking);
-        // what people wear: a Home's dress code, or "naked" during a private action (the outfits are looked up in the
-        // background; the next sync catches up)
+        // what people wear: a Home's dress code, "naked" during a private action, or (dress) a place's, an action's or
+        // a story's code (the outfits are looked up, and the world's uploaded, in the background; the next sync catches up)
         {
             const { applyDress } = await import('./dress.js');
             const { outfitsOf, hasOutfit } = await import('../ui/outfits.js');
-            applyDress(g, w, (a, code) => { const l = outfitsOf(a); const h = hasOutfit(a, code); return h === null ? null : h ? [...(l ?? []), code] : (l ?? []); });
+            applyDress(g, w, (a, code) => { const l = outfitsOf(a); const h = hasOutfit(a, code); return h === null ? null : h ? [...(l ?? []), code] : (l ?? []); }, (a, o) => outfitReady(w, a, o));
         }
         followBackground(g, w);
         refreshPrompt();
