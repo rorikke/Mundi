@@ -229,6 +229,7 @@ const topics = (w) => {
                 ['Proposing, marriage, a baby', 'Once you are a couple, the next steps appear on their card.'],
                 ['What they think of you', 'Approval goes up when you keep your word and down when you let people down. Feelings (happy, hurt…) fade with the days.'],
                 ['Their own lives', `People work, go out and sleep on their own schedule. ${lex(w, 'reachThem')}`],
+                ...(!w || systemOn(w, 'dress') ? [['Dressing for the place', 'At a pool, on a beach in summer or for a swim, people change into swimwear, each as bold as they go in public, a little bolder in private with someone close. Click a sprite to change an outfit yourself. The AI is told what everyone wears.']] : []),
             ] },
         ...(!w || systemOn(w, 'living') ? [{ id: 'storylines', icon: 'book', ...STORYLINES_HELP }] : []),
         { id: 'plans', icon: 'calendar', title: 'Plans and events', intro: 'Invite people to hang out, go on a date or come to your party. A plan becomes an event when it starts.',

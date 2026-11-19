@@ -1155,7 +1155,9 @@
    "mg_fencing",
    "yk_van",
    "ws_mikage",
-   "sb_studio_mizu"
+   "sb_studio_mizu",
+   "rp_nightpool",
+   "hk_spapark"
   ],
   "zones": [
    "hz_sharehouse",
@@ -1751,7 +1753,15 @@
    "mg_fencing_ayame_after",
    "ot_kura_back_tamaki_copyist",
    "yk_van_kaede_copyist",
-   "mg_viewing_ayame_copyist"
+   "mg_viewing_ayame_copyist",
+   "rp_nightpool_swim",
+   "rp_nightpool_bar",
+   "rp_nightpool_dance",
+   "hk_spapark_pools",
+   "hk_spapark_slide",
+   "hk_spapark_cave",
+   "bay_beach_swim",
+   "bay_beach_sunbathe"
   ],
   "occupations": [
    "rider",

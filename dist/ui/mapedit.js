@@ -12,7 +12,7 @@ import { closedOf } from '../sim/daynight.js';
 import { pickFile } from './cropper.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, pairChips, ventureOpts, withCur, fixtureOpts, getPath, setPath } from './creator.js';
+import { CW, W, txt, area, sel, num, chk, optTxt, flag, bounded, words, cond, dressBox, pairChips, ventureOpts, withCur, fixtureOpts, getPath, setPath } from './creator.js';
 import { fixturesOf, housingOn } from '../sim/housing.js';
 import { WEATHER_KINDS } from '../sim/weather.js';
 import { WEEKDAY_IDS } from '../core/world.js';
@@ -163,11 +163,12 @@ function placeMore(w, p, path) {
     const wx = [...WEATHER_KINDS.map(k => [k.id, `${k.icon} ${k.name}`]), ...regional.map(r => [r, r])];
     const extra = w.actions.filter(a => !a.place || (p.actions ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`]);
     const here = w.actions.filter(a => a.place === p.id || (a.places ?? []).includes(p.id) || (p.actions ?? []).includes(a.id) || (p.sleep?.includes ?? []).includes(a.id)).map(a => [a.id, `${a.icon ?? ''} ${a.label || a.name}`]);
-    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep || p.venture || p.room || p.homeZone || p.when;
+    const set = p.open || p.openBySeason || p.openByDay || p.closedDays || p.closedSeasons || p.closedIn || p.festivalOpen || p.entry !== undefined || p.staff || p.sound || p.private || p.adult || p.actions || p.generic === false || p.sleep || p.venture || p.room || p.homeZone || p.when;
     return `<details class="mu-me-more" ${set ? 'open' : ''}><summary>Hours, visitors and more</summary><div class="mu-me-pf">
         <div class="mu-me-pfcol">${optTxt('Who is around besides the world\'s people (6–20 words, for the AI)', `${path}.staff`, 'the master works in silence; old men at the counter')}
             <div class="mu-row2">${num(`Getting in costs (${esc(w.currency.symbol)}, once a day)`, `${path}.entry`, 0)}${words('What you hear (sound tags)', `${path}.sound`, '', 'station, crowd')}</div>
             <div class="mu-row2">${flag('A private place', `${path}.private`, 'A karaoke room, a love-hotel room: a private scene.')}${flag('Only with adult content on', `${path}.adult`, '', true)}</div>
+            ${dressBox(path, getPath(path)?.dress?.kind, 'Everyone here puts it on while it holds (a pool in summer).')}
             ${chk('Offers what its tags bring', `${path}.generic`, 'A walk, a coffee, a meal… Off: only what is offered here by name.', true)}
             ${(w.ventures ?? []).length || p.venture ? `${sel('A unit of a venture', `${path}.venture`, withCur([['', '(none)'], ...ventureOpts(w)], p.venture), 'opt')}
                 <small class="mu-muted">On the map and in anyone's plans only while that venture of yours runs here (a unit you lease, a second café you open in it).</small>` : ''}
@@ -178,6 +179,7 @@ function placeMore(w, p, path) {
             <details class="mu-cw-kept" ${p.openBySeason ? 'open' : ''}><summary>Hours by season</summary>${SEASONS4.map(([s, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openBySeason.${s}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openBySeason.${s}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
             <details class="mu-cw-kept" ${p.openByDay ? 'open' : ''}><summary>Hours on some weekdays (the evening's weekday)</summary>${days.map(([d, l]) => `<div class="mu-row2">${bounded(`${l}: from`, `${path}.openByDay.${d}.0`, 0, 24, 0.25)}${bounded('to', `${path}.openByDay.${d}.1`, 0, 24, 0.25)}</div>`).join('')}</details>
             <div class="mu-field"><span>Closed all day on</span>${pairChips(days, `${path}.closedDays`, true)}</div>
+            <div class="mu-field"><span>Closed all through</span>${pairChips(SEASONS4, `${path}.closedSeasons`, true)}</div>
             <div class="mu-field"><span>Closed in this weather</span>${pairChips(wx, `${path}.closedIn`, true)}</div>
             ${(w.festivals ?? []).length ? `<div class="mu-field"><span>Open all night on these festivals</span>${pairChips((w.festivals ?? []).map(f => [f.id, f.name]), `${path}.festivalOpen`, true)}</div>` : ''}</div>
         <div class="mu-me-pfcol"><label class="mu-check"><input type="checkbox" data-input="me-sleep" ${p.sleep ? 'checked' : ''}><span>You can sleep here<small>A capsule, a ryokan, a manga café.</small></span></label>

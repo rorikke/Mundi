@@ -82,6 +82,8 @@ shifts, friends, favorite places and a full set of expressions.
   runs through the seasons, and at its turning point it waits for you. Help, wait for a better ending, or let it go.
 - **Who people are.** Gender, attraction, intimacy style, exclusive or open: set per person, or let your AI suggest
   it from the card. Not everyone is drawn to everyone.
+- **Dressed for the place.** At the pool, on the beach in summer or at a swimsuit hot spring, people change into
+  their own swimwear, each as bold as they go in public. Tamaki wears her yukata to the summer festivals.
 
 <p align="center">
   <img src="docs/readme/scene-bar.jpg" width="49%" alt="Kyōko behind the counter of Bar Kotori in Golden Gai">

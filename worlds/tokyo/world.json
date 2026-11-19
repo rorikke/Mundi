@@ -10819,7 +10819,7 @@
    "outcomes": [
     {
      "weight": 75,
-     "text": "Shoes in hand, cold water over your ankles; swimming is banned, but nobody minds wading.",
+     "text": "Cold water over your ankles, then your knees; out past the buoys, someone is swimming laps.",
      "effects": {}
     },
     {
@@ -10838,7 +10838,11 @@
      }
     }
    ],
-   "fact": "{u} waded in the bay at {0}"
+   "fact": "{u} waded in the bay at {0}",
+   "dress": {
+    "kind": "swim",
+    "when": "season: summer"
+   }
   },
   {
    "id": "bay_beach_picnic",
@@ -18093,7 +18097,11 @@
      }
     }
    ],
-   "fact": "{u} took friends out on the bay from {0}"
+   "fact": "{u} took friends out on the bay from {0}",
+   "dress": {
+    "kind": "swim",
+    "when": "season: summer"
+   }
   },
   {
    "id": "sh_cruise_date",
@@ -18845,6 +18853,9 @@
    "together": {
     "needed": false,
     "text": "a swim in the rooftop plunge pool"
+   },
+   "dress": {
+    "kind": "swim"
    }
   },
   {
@@ -19533,7 +19544,14 @@
      }
     }
    ],
-   "fact": "{u} and Kaede went down to Odaiba's beach at night"
+   "fact": "{u} and Kaede went down to Odaiba's beach at night",
+   "dress": {
+    "kind": "swim",
+    "level": 4,
+    "who": [
+     "Kaede"
+    ]
+   }
   },
   {
    "id": "yk_yamashita_fish",
@@ -20711,6 +20729,315 @@
     }
    ],
    "fact": "{u} stayed after hours at the fencing club with Ayame Mikage"
+  },
+  {
+   "id": "rp_nightpool_swim",
+   "name": "Swim",
+   "label": "Swim under the lights",
+   "icon": "🏊",
+   "cost": 0,
+   "minutes": 40,
+   "place": "rp_nightpool",
+   "effects": {
+    "mood": 9,
+    "energy": -8,
+    "hygiene": -4
+   },
+   "trains": "fitness",
+   "together": {
+    "needed": false,
+    "text": "swimming in the lit blue water of a rooftop night pool, the bass from the DJ booth through the water"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Slow lengths through water lit blue from below, the bass coming through it, Tokyo Tower orange over the railing.",
+     "effects": {}
+    },
+    {
+     "weight": 25,
+     "text": "You float at the shallow end under a swaying string of lights while someone on a daybed films their friends.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "weight": 15,
+     "text": "A giant inflatable swan drifts into you; its owner apologises with a round of shots you didn't ask for.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} swam at {0}"
+  },
+  {
+   "id": "rp_nightpool_bar",
+   "name": "Pool bar",
+   "label": "Cocktails at the pool bar",
+   "icon": "🍹",
+   "cost": 1800,
+   "minutes": 45,
+   "place": "rp_nightpool",
+   "effects": {
+    "mood": 8,
+    "thirst": 12
+   },
+   "together": {
+    "needed": false,
+    "text": "cocktails at a night pool's bar, wet hair, the city lit up beyond the glass"
+   },
+   "outcomes": [
+    {
+     "weight": 65,
+     "text": "Something blue with too much ice, drunk on a stool with your feet in the warm night air.",
+     "effects": {}
+    },
+    {
+     "weight": 35,
+     "text": "The bartender pours a little extra when the DJ drops the song he likes.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} had cocktails at {0}"
+  },
+  {
+   "id": "rp_nightpool_dance",
+   "name": "Dance",
+   "label": "Dance by the DJ booth",
+   "icon": "🎧",
+   "cost": 0,
+   "minutes": 45,
+   "place": "rp_nightpool",
+   "effects": {
+    "mood": 10,
+    "energy": -10,
+    "thirst": -6
+   },
+   "together": {
+    "needed": false,
+    "text": "dancing barefoot on a wet pool deck by the DJ booth"
+   },
+   "outcomes": [
+    {
+     "weight": 55,
+     "text": "Barefoot on the wet deck in front of the booth, everyone a little sunburnt from the week and loud.",
+     "effects": {}
+    },
+    {
+     "weight": 30,
+     "text": "The DJ points at your corner and the whole deck turns around and cheers.",
+     "effects": {
+      "mood": 4
+     }
+    },
+    {
+     "weight": 15,
+     "text": "You slip on the wet deck and are caught by three strangers at once.",
+     "effects": {
+      "mood": 2
+     }
+    }
+   ],
+   "fact": "{u} danced at {0}"
+  },
+  {
+   "id": "hk_spapark_pools",
+   "name": "Pools",
+   "label": "Soak in the open-air pools",
+   "icon": "♨️",
+   "cost": 0,
+   "minutes": 60,
+   "place": "hk_spapark",
+   "effects": {
+    "mood": 8,
+    "energy": 8,
+    "hygiene": 8
+   },
+   "together": {
+    "needed": false,
+    "text": "soaking side by side in a warm hillside pool among the cedars"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Pool to pool down the hill, each one a little hotter, the cedars dripping and the valley white with steam.",
+     "effects": {}
+    },
+    {
+     "weight": 25,
+     "text": "A cloud comes down the mountain and the whole park disappears into warm fog for ten minutes.",
+     "effects": {
+      "mood": 3
+     }
+    },
+    {
+     "weight": 15,
+     "text": "A grandmother in a flowered swimsuit tells you the best pool is the last one, and she is right.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} soaked in the pools at {0}"
+  },
+  {
+   "id": "hk_spapark_slide",
+   "name": "Slide",
+   "label": "Ride the water slide",
+   "icon": "🛝",
+   "cost": 0,
+   "minutes": 20,
+   "place": "hk_spapark",
+   "effects": {
+    "mood": 8,
+    "energy": -4
+   },
+   "together": {
+    "needed": false,
+    "text": "racing each other down a long warm water slide"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Down the long tube in the dark and out into the warm pool at the bottom with a shout.",
+     "effects": {}
+    },
+    {
+     "weight": 40,
+     "text": "You queue behind a line of shrieking students and lose the race to every one of them.",
+     "effects": {
+      "mood": 3
+     }
+    }
+   ],
+   "fact": "{u} rode the slide at {0}"
+  },
+  {
+   "id": "hk_spapark_cave",
+   "name": "Cave bath",
+   "label": "Steam in the cave bath",
+   "icon": "🌫️",
+   "cost": 0,
+   "minutes": 40,
+   "place": "hk_spapark",
+   "effects": {
+    "mood": 6,
+    "energy": 10,
+    "hygiene": 6
+   },
+   "together": {
+    "needed": false,
+    "text": "sitting close in a dim steaming cave bath"
+   },
+   "outcomes": [
+    {
+     "weight": 70,
+     "text": "Warm water to the chin in a lantern-lit cave, the drip of the ceiling, every voice turned soft.",
+     "effects": {}
+    },
+    {
+     "weight": 30,
+     "text": "Too hot to talk; you sit until your fingers wrinkle and come out light-headed and happy.",
+     "effects": {
+      "energy": 2
+     }
+    }
+   ],
+   "fact": "{u} sat in the cave bath at {0}"
+  },
+  {
+   "id": "bay_beach_swim",
+   "name": "Swim",
+   "label": "Swim in the bay",
+   "icon": "🏊",
+   "cost": 0,
+   "minutes": 45,
+   "place": "bay_beach",
+   "when": "season: summer; period: midmorning or afternoon; weather: not rain or heavyrain or storm",
+   "effects": {
+    "mood": 9,
+    "energy": -10,
+    "hygiene": -6,
+    "thirst": -4
+   },
+   "trains": "fitness",
+   "together": {
+    "needed": false,
+    "text": "a swim off Odaiba's beach, inside the buoys, with the bridge across the water"
+   },
+   "dress": {
+    "kind": "swim"
+   },
+   "outcomes": [
+    {
+     "weight": 60,
+     "text": "Out to the buoys and back, the water warm on top and cold underneath, the skyline bobbing up between strokes.",
+     "effects": {}
+    },
+    {
+     "weight": 25,
+     "text": "The lifeguard whistles you back inside the rope; you float on your back instead and watch a jet climb over the bay.",
+     "effects": {
+      "mood": 2
+     }
+    },
+    {
+     "weight": 15,
+     "text": "A water bus's wake rolls in and lifts the whole swimming area at once; everyone shrieks and laughs.",
+     "effects": {
+      "mood": 4
+     }
+    }
+   ],
+   "fact": "{u} swam in the bay at {0}"
+  },
+  {
+   "id": "bay_beach_sunbathe",
+   "name": "Sunbathe",
+   "label": "Sunbathe on the sand",
+   "icon": "🏖️",
+   "cost": 0,
+   "minutes": 60,
+   "place": "bay_beach",
+   "when": "season: summer; period: midmorning or afternoon; weather: sunny or hot or fair or humid or partly",
+   "effects": {
+    "mood": 8,
+    "energy": 6,
+    "thirst": -8
+   },
+   "together": {
+    "needed": false,
+    "text": "lying on towels side by side on Odaiba's sand"
+   },
+   "dress": {
+    "kind": "swim"
+   },
+   "outcomes": [
+    {
+     "weight": 55,
+     "text": "Towel, sunscreen, the slap of small waves; you doze off to the sound of a radio two towels away.",
+     "effects": {}
+    },
+    {
+     "weight": 30,
+     "text": "You wake up warm and a little pink on one side, the bridge shimmering in the heat.",
+     "effects": {
+      "mood": -1
+     }
+    },
+    {
+     "weight": 15,
+     "text": "A beach-volleyball ball lands on your towel; you send it back, and get asked to make up the numbers.",
+     "effects": {
+      "mood": 4,
+      "energy": -4
+     }
+    }
+   ],
+   "fact": "{u} lay in the sun at {0}"
   }
  ],
  "sleep": {
@@ -25142,7 +25469,11 @@
     "neighbors",
     "couples"
    ],
-   "roles": []
+   "roles": [],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "fireworks",
@@ -25157,7 +25488,11 @@
     "couples",
     "friends",
     "everyone"
-   ]
+   ],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "ramen_contest",
@@ -25190,7 +25525,11 @@
    "audience": [
     "neighbors",
     "couples"
-   ]
+   ],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "noryo",
@@ -25240,7 +25579,11 @@
    "audience": [
     "everyone"
    ],
-   "roles": []
+   "roles": [],
+   "dress": {
+    "kind": "yukata",
+    "when": "period: afternoon or evening or night"
+   }
   },
   {
    "id": "tsukimi",
@@ -29447,7 +29790,7 @@
     "Odaiba beach",
     "statue"
    ],
-   "content": "Odaiba Seaside Park is a man-made beach on reclaimed land. Swimming is banned, so people walk the sand, wade, windsurf offshore, and sit on the boardwalk steps looking across at Rainbow Bridge and the skyline. A small copy of the Statue of Liberty stands on the shore."
+   "content": "Odaiba Seaside Park is a man-made beach on reclaimed land. In summer a roped-off stretch of the bay is open for swimming, with a lifeguard; the rest of the year people walk the sand, wade, windsurf offshore, and sit on the boardwalk steps looking across at Rainbow Bridge and the skyline. A small copy of the Statue of Liberty stands on the shore."
   },
   {
    "keys": [],
@@ -31387,6 +31730,24 @@
     "Mizushima"
    ],
    "content": "Studio MIZU is Erika Mizushima's photo studio, a white basement off Cat Street in Ura-Harajuku. Erika has shot covers for every fashion monthly since she was twenty-two, and is as famous for her light as for her temper."
+  },
+  {
+   "id": "tk_lore_nightpool",
+   "keys": [
+    "night pool",
+    "Azabu Terrace",
+    "pool party"
+   ],
+   "content": "In summer several Tokyo hotels open their rooftop pools at night for adults: DJs, colored lights, cocktails and a crowd dressed up in its boldest swimwear. The Azabu Terrace Night Pool in Roppongi is one, open July to September from six in the evening, ¥6,000 at the door."
+  },
+  {
+   "id": "tk_lore_spapark",
+   "keys": [
+    "spa park",
+    "Hoshizora",
+    "swimsuit onsen"
+   ],
+   "content": "Hoshizora Spa Park in Hakone is a swimsuit hot spring: pools of spring water in tiers down a wooded slope, a water slide and a cave bath, where couples and friends of any gender bathe together in swimwear, unlike the onsen, which are split by gender and have no swimwear."
   }
  ],
  "places": [
@@ -33448,7 +33809,7 @@
    "tags": [
     "leisure"
    ],
-   "desc": "a long man-made beach facing the bay, with Rainbow Bridge and the skyline across the water: a boardwalk, a small copy of a famous statue, windsurfers offshore, and signs that say no swimming",
+   "desc": "a long man-made beach facing the bay, with Rainbow Bridge and the skyline across the water: a boardwalk, a small copy of a famous statue, windsurfers offshore, and in summer a roped-off stretch of water for swimmers under a lifeguard's tower",
    "staff": "joggers and dog walkers on the boardwalk, couples on the sand, windsurf instructors, a photographer with a tripod",
    "closed": [],
    "bg": "bg/bay_beach.avif",
@@ -33457,14 +33818,24 @@
     "night": "bg/bay_beach-night.avif",
     "rain-day": "bg/bay_beach-rain-day.avif",
     "rain-afternoon": "bg/bay_beach-rain-afternoon.avif",
-    "rain-night": "bg/bay_beach-rain-night.avif"
+    "rain-night": "bg/bay_beach-rain-night.avif",
+    "summer-day": "bg/bay_beach-summer-day.avif",
+    "summer-afternoon": "bg/bay_beach-summer-afternoon.avif",
+    "summer-night": "bg/bay_beach-summer-night.avif",
+    "snow-day": "bg/bay_beach-snow-day.avif",
+    "snow-afternoon": "bg/bay_beach-snow-afternoon.avif",
+    "snow-night": "bg/bay_beach-snow-night.avif"
    },
    "x": 26.03,
    "y": 54.54,
    "sound": [
     "waves",
     "wind"
-   ]
+   ],
+   "dress": {
+    "kind": "swim",
+    "when": "season: summer; period: midmorning or afternoon; weather: not rain"
+   }
   },
   {
    "id": "bay_bridge",
@@ -35019,6 +35390,94 @@
     "winter-night": "bg/hk_villa_onsen-snow-night.avif",
     "snow-night": "bg/hk_villa_onsen-snow-night.avif"
    }
+  },
+  {
+   "id": "rp_nightpool",
+   "name": "Azabu Terrace Night Pool",
+   "map": "roppongi",
+   "x": 18,
+   "y": 34,
+   "tags": [
+    "leisure"
+   ],
+   "desc": "a hotel's rooftop pool after dark: water lit electric blue from below, a DJ booth at the deep end, daybeds and a cocktail bar, Tokyo Tower glowing over the railing",
+   "staff": "a DJ at the booth, bartenders in white, a lifeguard who has seen everything, door staff checking ages",
+   "open": [
+    18,
+    23
+   ],
+   "closedSeasons": [
+    "spring",
+    "autumn",
+    "winter"
+   ],
+   "entry": 6000,
+   "crowd": 1.4,
+   "sound": [
+    "club",
+    "water"
+   ],
+   "generic": false,
+   "dress": {
+    "kind": "swim"
+   },
+   "bg": "bg/rp_nightpool-night.avif",
+   "bgs": {
+    "afternoon": "bg/rp_nightpool-afternoon.avif",
+    "rain-afternoon": "bg/rp_nightpool-rain-afternoon.avif",
+    "rain-night": "bg/rp_nightpool-rain-night.avif"
+   },
+   "actions": [
+    "rp_nightpool_swim",
+    "rp_nightpool_bar",
+    "rp_nightpool_dance"
+   ]
+  },
+  {
+   "id": "hk_spapark",
+   "name": "Hoshizora Spa Park",
+   "map": "hakone",
+   "x": 60,
+   "y": 64,
+   "tags": [
+    "leisure",
+    "health"
+   ],
+   "desc": "a swimsuit hot-spring park on a wooded slope: warm pools in tiers down the hill, a long water slide, a steaming cave bath, couples and groups of friends in swimwear under the cedars",
+   "staff": "attendants handing out towels and wristbands, a lifeguard on a tall chair, a queue at the top of the slide",
+   "open": [
+    9,
+    19
+   ],
+   "entry": 2800,
+   "crowd": 1.2,
+   "sound": [
+    "water",
+    "birds"
+   ],
+   "generic": false,
+   "dress": {
+    "kind": "swim"
+   },
+   "bg": "bg/hk_spapark.avif",
+   "bgs": {
+    "afternoon": "bg/hk_spapark-afternoon.avif",
+    "night": "bg/hk_spapark-night.avif",
+    "rain-day": "bg/hk_spapark-rain-day.avif",
+    "rain-afternoon": "bg/hk_spapark-rain-afternoon.avif",
+    "rain-night": "bg/hk_spapark-rain-night.avif",
+    "snow-day": "bg/hk_spapark-snow-day.avif",
+    "snow-afternoon": "bg/hk_spapark-snow-afternoon.avif",
+    "snow-night": "bg/hk_spapark-snow-night.avif",
+    "autumn-day": "bg/hk_spapark-autumn-day.avif",
+    "autumn-afternoon": "bg/hk_spapark-autumn-afternoon.avif",
+    "autumn-night": "bg/hk_spapark-autumn-night.avif"
+   },
+   "actions": [
+    "hk_spapark_pools",
+    "hk_spapark_slide",
+    "hk_spapark_cave"
+   ]
   }
  ],
  "stories": [
@@ -56074,6 +56533,28 @@
       "afternoon": "bg/home-sharehouse-mio-afternoon.avif",
       "night": "bg/home-sharehouse-mio-night.avif"
      }
+    },
+    "wear": {
+     "swim-overalls": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a yellow-and-blue color-block bikini with high-waisted bottoms and a paint-spattered denim bucket hat"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a sky-blue one-piece swimsuit with a white stripe across the chest"
+     },
+     "swim-frill": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a pink gingham frilled bikini"
+     }
+    },
+    "outfits": {
+     "swim-overalls": "cast/mio/swim-overalls",
+     "swim-onepiece": "cast/mio/swim-onepiece",
+     "swim-frill": "cast/mio/swim-frill"
     }
    },
    {
@@ -56171,6 +56652,17 @@
       "afternoon": "bg/home-sharehouse-ren-afternoon.avif",
       "night": "bg/home-sharehouse-ren-night.avif"
      }
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "plain faded navy board shorts to the knee, a thin cord necklace"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/ren/swim-trunks"
     }
    },
    {
@@ -56308,6 +56800,28 @@
       "afternoon": "bg/home-sharehouse-chloe-afternoon.avif",
       "night": "bg/home-sharehouse-chloe-night.avif"
      }
+    },
+    "wear": {
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a navy sporty bikini with a racerback top and shorts-cut bottoms, her curly auburn hair in a claw clip"
+     },
+     "swim-mustard": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a mustard-yellow halter bikini, her curly auburn hair in a claw clip"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a white one-piece swimsuit with a deep scoop back"
+     }
+    },
+    "outfits": {
+     "swim-sporty": "cast/chloe/swim-sporty",
+     "swim-mustard": "cast/chloe/swim-mustard",
+     "swim-onepiece": "cast/chloe/swim-onepiece"
     }
    },
    {
@@ -56429,6 +56943,17 @@
       "afternoon": "bg/home-sharehouse-haru-afternoon.avif",
       "night": "bg/home-sharehouse-haru-night.avif"
      }
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-rashguard": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a fitted charcoal long-sleeve rash guard and loose dark grey swim shorts to the knee"
+     }
+    },
+    "outfits": {
+     "swim-rashguard": "cast/haru/swim-rashguard"
     }
    },
    {
@@ -56542,6 +57067,28 @@
     "skills": {
      "singing": 8,
      "fashion": 7
+    },
+    "wear": {
+     "swim-black": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black bikini with silver O-rings at the hips and chest, rings on her fingers, a black choker"
+     },
+     "swim-plaid": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a dark red plaid halter bikini top and separate matching plaid bikini briefs, nothing at her waist, rings on her fingers"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black cut-out one-piece swimsuit with a lace-up front, rings on her fingers"
+     }
+    },
+    "outfits": {
+     "swim-black": "cast/nanami/swim-black",
+     "swim-plaid": "cast/nanami/swim-plaid",
+     "swim-onepiece": "cast/nanami/swim-onepiece"
     }
    },
    {
@@ -56676,6 +57223,17 @@
     "skills": {
      "music": 7,
      "fitness": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "plain orange board shorts with a side stripe"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/kaito/swim-trunks"
     }
    },
    {
@@ -56844,6 +57402,17 @@
     },
     "skills": {
      "cooking": 10
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "plain dark navy swim trunks to mid-thigh, a white towel around his neck"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/genzo/swim-trunks"
     }
    },
    {
@@ -56961,6 +57530,22 @@
     "anchored": true,
     "skills": {
      "cooking": 7
+    },
+    "wear": {
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black sports-bra bikini top with two thin shoulder straps and black shorts-cut bikini bottoms, a bandana tied over her hair, a nose stud"
+     },
+     "swim-tropical": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a red tropical-print triangle bikini, a bandana tied over her hair"
+     }
+    },
+    "outfits": {
+     "swim-sporty": "cast/ayaka/swim-sporty",
+     "swim-tropical": "cast/ayaka/swim-tropical"
     }
    },
    {
@@ -57083,6 +57668,23 @@
     "skills": {
      "dance": 6,
      "writing": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a modest white one-piece swimsuit with a small frilled skirt and a red ribbon at the chest, her hair tied low with a white ribbon"
+     },
+     "swim-rashguard": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a fitted white long-sleeve rash guard over a red bikini bottom with short swim shorts over it"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/yui/swim-onepiece",
+     "swim-rashguard": "cast/yui/swim-rashguard"
     }
    },
    {
@@ -57593,9 +58195,29 @@
      "offduty": "cast/tamaki/offduty",
      "yukata": "cast/tamaki/yukata",
      "opening": "cast/tamaki/opening",
-     "home": "cast/tamaki/home"
+     "home": "cast/tamaki/home",
+     "swim-onepiece": "cast/tamaki/swim-onepiece",
+     "swim-frill": "cast/tamaki/swim-frill"
     },
-    "camera": "never"
+    "camera": "never",
+    "wear": {
+     "yukata": {
+      "kind": "yukata",
+      "level": 1,
+      "look": "a summer yukata of dark indigo cotton printed with small white plum blossoms, a mustard-yellow obi and wooden geta"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a plum-red one-piece swimsuit with a high neck and a little lace trim, her grandfather's plum-blossom hairpin in her silver hair"
+     },
+     "swim-frill": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a cream frilled off-shoulder bikini, her plum-blossom hairpin"
+     }
+    },
+    "comfort": 1
    },
    {
     "name": "Ayame",
@@ -57624,7 +58246,9 @@
     "outfits": {
      "gala": "cast/ayame/gala",
      "fencing": "cast/ayame/fencing",
-     "night": "cast/ayame/night"
+     "night": "cast/ayame/night",
+     "swim-onepiece": "cast/ayame/swim-onepiece",
+     "swim-ivory": "cast/ayame/swim-ivory"
     },
     "voice": "Low, silky and formal; a pause, then the knife",
     "rituals": [
@@ -57668,7 +58292,10 @@
       ],
       "from": 19,
       "to": 21,
-      "text": "fences at the Kudan club in white, the ponytail coming loose"
+      "text": "fences at the Kudan club in white, the ponytail coming loose",
+      "dress": {
+       "kind": "fencing"
+      }
      },
      {
       "place": "ot_kura",
@@ -58054,7 +58681,25 @@
       ]
      }
     ],
-    "reserved": true
+    "reserved": true,
+    "wear": {
+     "fencing": {
+      "kind": "fencing",
+      "level": 1,
+      "look": "a white padded fencing jacket with a high collar, white breeches to the knee and tall black socks, her hair in a high ponytail"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a sleek black one-piece swimsuit with long sleeves and a high neck, cut very high at the hips, her hair in a high ponytail tied with a black velvet ribbon"
+     },
+     "swim-ivory": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "an ivory halter one-piece swimsuit with a plunging neckline and a gold ring at the chest, her hair in a high ponytail with a black velvet ribbon"
+     }
+    }
    },
    {
     "name": "Kaede",
@@ -58081,7 +58726,10 @@
     "outfits": {
      "offroad": "cast/kaede/offroad",
      "roadtrip": "cast/kaede/roadtrip",
-     "night": "cast/kaede/night"
+     "night": "cast/kaede/night",
+     "swim-sporty": "cast/kaede/swim-sporty",
+     "swim-koi": "cast/kaede/swim-koi",
+     "swim-denim": "cast/kaede/swim-denim"
     },
     "voice": "Husky and quick, laughing, a soft Nagasaki lilt",
     "rituals": [
@@ -58099,7 +58747,10 @@
       "from": 11,
       "to": 15,
       "when": "dealer: here",
-      "text": "sits on the tailgate of her cream camper van in the lane outside the Kurahashi kura, this week's pieces wrapped in blankets behind her"
+      "text": "sits on the tailgate of her cream camper van in the lane outside the Kurahashi kura, this week's pieces wrapped in blankets behind her",
+      "dress": {
+       "kind": "van"
+      }
      },
      {
       "place": "yk_yamashita",
@@ -58109,7 +58760,10 @@
       ],
       "from": 19,
       "to": 22,
-      "text": "sits on the sea wall by her parked van with a mug of tea, singing badly"
+      "text": "sits on the sea wall by her parked van with a mug of tea, singing badly",
+      "dress": {
+       "kind": "van"
+      }
      },
      {
       "place": "hk_yumoto",
@@ -58510,7 +59164,29 @@
      }
     ],
     "reserved": true,
-    "camera": "work"
+    "camera": "work",
+    "wear": {
+     "offroad": {
+      "kind": "van",
+      "level": 1,
+      "look": "a big hand-knitted rust-orange jumper and wide cream trousers, an indigo scarf round her bun, a mug of tea"
+     },
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a faded olive sporty bikini with a crop top, gold hoop earrings, sunglasses pushed into her hair"
+     },
+     "swim-koi": {
+      "kind": "swim",
+      "level": 2,
+      "look": "an orange-and-teal koi-print triangle bikini, gold hoop earrings, rings on her fingers"
+     },
+     "swim-denim": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white bikini top with low denim cut-off shorts, a red bandana at her neck"
+     }
+    }
    },
    {
     "name": "Reiko",
@@ -58681,7 +59357,29 @@
      "logic": 7,
      "charisma": 7
     },
-    "camera": "work"
+    "camera": "work",
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a navy blue one-piece swimsuit cut high at the hips, with a deep V neckline"
+     },
+     "swim-black": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black halter bikini top and separate black high-waisted bikini briefs"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white triangle bikini with thin ties"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/reiko/swim-onepiece",
+     "swim-black": "cast/reiko/swim-black",
+     "swim-white": "cast/reiko/swim-white"
+    }
    },
    {
     "name": "Rina",
@@ -58846,6 +59544,22 @@
     "skills": {
      "logic": 6,
      "charisma": 7
+    },
+    "wear": {
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a grey-and-navy sporty bikini with a zip-front top, a smartwatch on her wrist"
+     },
+     "swim-coral": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a coral triangle bikini, a smartwatch on her wrist"
+     }
+    },
+    "outfits": {
+     "swim-sporty": "cast/rina/swim-sporty",
+     "swim-coral": "cast/rina/swim-coral"
     }
    },
    {
@@ -58961,6 +59675,17 @@
     "anchored": true,
     "skills": {
      "logic": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "plain dark blue swim trunks, a sport watch on his wrist"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/daisuke/swim-trunks"
     }
    },
    {
@@ -59104,7 +59829,23 @@
      "singing": 7,
      "dance": 8
     },
-    "camera": "work"
+    "camera": "work",
+    "wear": {
+     "swim-idol": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white-and-lilac frilled idol bikini with ribbons at the hips, her pastel lilac twin tails"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a lilac one-piece swimsuit with a short frilled skirt, her pastel lilac twin tails"
+     }
+    },
+    "outfits": {
+     "swim-idol": "cast/hina/swim-idol",
+     "swim-onepiece": "cast/hina/swim-onepiece"
+    }
    },
    {
     "name": "Shōta",
@@ -59171,6 +59912,17 @@
      "charisma": 9,
      "fashion": 7,
      "mixology": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "short fitted black swim trunks, a thin silver necklace and silver rings"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/shota/swim-trunks"
     }
    },
    {
@@ -59257,6 +60009,23 @@
     "skills": {
      "mixology": 9,
      "charisma": 8
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a classic black one-piece swimsuit with a deep V neckline and a wide-brimmed black sun hat, red lipstick, gold earrings"
+     },
+     "swim-sarong": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a deep purple one-piece swimsuit with a matching patterned sarong tied at her hip, her hair in an updo"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/kyoko/swim-onepiece",
+     "swim-sarong": "cast/kyoko/swim-sarong"
     }
    },
    {
@@ -59457,7 +60226,23 @@
      "gaming": 9,
      "logic": 8
     },
-    "camera": "work"
+    "camera": "work",
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a black one-piece swimsuit with a neon green trim, a messy dark ponytail"
+     },
+     "swim-hoodie": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black bikini with a big open charcoal zip-up rash guard hoodie over it, headphones around her neck"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/natsuki/swim-onepiece",
+     "swim-hoodie": "cast/natsuki/swim-hoodie"
+    }
    },
    {
     "name": "Lisa",
@@ -59501,6 +60286,17 @@
       "to": 26,
       "every": "week",
       "text": "plays a guest DJ set at Club Undertow"
+     },
+     {
+      "place": "rp_nightpool",
+      "from": 20,
+      "to": 23,
+      "chance": 0.6,
+      "with": [
+       "Airi"
+      ],
+      "when": "season: summer",
+      "text": "a night at the Azabu Terrace Night Pool with Airi"
      }
     ],
     "threads": [
@@ -59601,7 +60397,37 @@
      "fitness": 7,
      "music": 6
     },
-    "camera": "ask"
+    "camera": "ask",
+    "comfort": 3,
+    "wear": {
+     "swim-black": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black strappy bikini with crossed straps over her stomach, her shoulder tattoo"
+     },
+     "swim-neon": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a neon pink triangle bikini with thin ties, her shoulder tattoo"
+     },
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white sporty bikini with a crop top, her shoulder tattoo"
+     },
+     "swim-micro": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a tiny gold micro bikini, her shoulder tattoo"
+     }
+    },
+    "outfits": {
+     "swim-black": "cast/lisa/swim-black",
+     "swim-neon": "cast/lisa/swim-neon",
+     "swim-sporty": "cast/lisa/swim-sporty",
+     "swim-micro": "cast/lisa/swim-micro"
+    }
    },
    {
     "name": "Sayuri",
@@ -59651,6 +60477,17 @@
        "Akane"
       ],
       "text": "drinks in the Noge alleys after Akane closes up"
+     },
+     {
+      "place": "rp_nightpool",
+      "from": 21,
+      "to": 23,
+      "chance": 0.5,
+      "with": [
+       "Tsubaki"
+      ],
+      "when": "season: summer",
+      "text": "a rare night off at the hotel night pool, Tsubaki in tow"
      }
     ],
     "threads": [
@@ -59739,6 +60576,30 @@
      "charisma": 8,
      "fashion": 7,
      "mixology": 6
+    },
+    "comfort": 3,
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a navy one-piece swimsuit cut high at the hips, with a deep plunging neckline, a gold bracelet"
+     },
+     "swim-red": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a red halter bikini with gold rings at the hips, a gold bracelet"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white bikini under a sheer navy kimono-style beach robe hanging open"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/sayuri/swim-onepiece",
+     "swim-red": "cast/sayuri/swim-red",
+     "swim-white": "cast/sayuri/swim-white"
     }
    },
    {
@@ -59790,6 +60651,28 @@
     "anchored": true,
     "skills": {
      "fitness": 8
+    },
+    "wear": {
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a red sporty bikini with white stripes, a crop top and short bottoms, white tape wrapped around her knuckles"
+     },
+     "swim-black": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black triangle bikini, white tape wrapped around her knuckles"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a red racing one-piece swimsuit with a high neck"
+     }
+    },
+    "outfits": {
+     "swim-sporty": "cast/akane/swim-sporty",
+     "swim-black": "cast/akane/swim-black",
+     "swim-onepiece": "cast/akane/swim-onepiece"
     }
    },
    {
@@ -59911,6 +60794,23 @@
     "skills": {
      "charisma": 6,
      "cooking": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "an elegant deep plum one-piece swimsuit with a high neck and a low open back, her hair in a neat bun"
+     },
+     "swim-wrap": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a pale lavender bikini under a sheer white beach cover-up tied at the waist"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/shizuka/swim-onepiece",
+     "swim-wrap": "cast/shizuka/swim-wrap"
     }
    },
    {
@@ -60054,6 +60954,22 @@
     },
     "skills": {
      "writing": 7
+    },
+    "wear": {
+     "swim-frill": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a cream frilled bikini with a matching short wrap skirt and a beret, a small film camera on a strap across her body"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a camel-brown one-piece swimsuit with a square neckline"
+     }
+    },
+    "outfits": {
+     "swim-frill": "cast/seoyeon/swim-frill",
+     "swim-onepiece": "cast/seoyeon/swim-onepiece"
     }
    },
    {
@@ -60164,6 +61080,22 @@
     },
     "skills": {
      "drawing": 8
+    },
+    "wear": {
+     "swim-black": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black bandeau bikini with high-cut bottoms, teal-dyed ends to her undercut"
+     },
+     "swim-teal": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a teal halter bikini with black piping"
+     }
+    },
+    "outfits": {
+     "swim-black": "cast/camille/swim-black",
+     "swim-teal": "cast/camille/swim-teal"
     }
    },
    {
@@ -60274,6 +61206,17 @@
     "skills": {
      "logic": 7,
      "fitness": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "plain green board shorts"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/lucas/swim-trunks"
     }
    },
    {
@@ -60396,6 +61339,23 @@
     },
     "skills": {
      "cooking": 6
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a soft jade-green one-piece swimsuit with a little ruffle at the shoulders, her long black braid over one shoulder, the jade bracelet on her wrist"
+     },
+     "swim-tankini": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white-and-green floral tankini top with matching high-waisted bikini briefs, her long black braid"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/linh/swim-onepiece",
+     "swim-tankini": "cast/linh/swim-tankini"
     }
    },
    {
@@ -60523,6 +61483,28 @@
     "skills": {
      "writing": 8,
      "logic": 6
+    },
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a red one-piece swimsuit with a high neckline and a cut-out at the waist, red nails, her sleek high ponytail"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white bikini with a gold ring at the chest, red nails, her sleek high ponytail"
+     },
+     "swim-grey": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a light grey bandeau bikini top and separate light grey high-waisted bikini briefs, red nails, her sleek high ponytail"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/mei/swim-onepiece",
+     "swim-white": "cast/mei/swim-white",
+     "swim-grey": "cast/mei/swim-grey"
     }
    },
    {
@@ -60624,6 +61606,22 @@
     "skills": {
      "writing": 7,
      "gaming": 7
+    },
+    "wear": {
+     "swim-black": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black high-waisted bikini with a strappy top, a septum ring, black lipstick, her ash-blond braid around her head"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a dark red one-piece swimsuit with a deep scoop back, a septum ring"
+     }
+    },
+    "outfits": {
+     "swim-black": "cast/hannah/swim-black",
+     "swim-onepiece": "cast/hannah/swim-onepiece"
     }
    },
    {
@@ -60766,6 +61764,17 @@
     },
     "skills": {
      "logic": 9
+    },
+    "comfort": 1,
+    "wear": {
+     "swim-trunks": {
+      "kind": "swim",
+      "level": 1,
+      "look": "plain navy board shorts"
+     }
+    },
+    "outfits": {
+     "swim-trunks": "cast/jake/swim-trunks"
     }
    },
    {
@@ -60873,6 +61882,36 @@
     "skills": {
      "drawing": 8,
      "writing": 6
+    },
+    "wear": {
+     "swim-navy": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a navy one-piece swimsuit with a square neckline, big round glasses, chipped black nail polish"
+     },
+     "swim-mint": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a mint-green frilled bikini top and matching bikini briefs, big round glasses"
+     },
+     "swim-black": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a black string bikini a size too small, big round glasses"
+     },
+     "swim-sling": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a black sling swimsuit, big round glasses"
+     }
+    },
+    "outfits": {
+     "swim-navy": "cast/kanon/swim-navy",
+     "swim-mint": "cast/kanon/swim-mint",
+     "swim-black": "cast/kanon/swim-black",
+     "swim-sling": "cast/kanon/swim-sling"
     }
    },
    {
@@ -61008,7 +62047,39 @@
      "charisma": 7,
      "fashion": 6
     },
-    "camera": "work"
+    "camera": "work",
+    "comfort": 3,
+    "wear": {
+     "swim-red": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a glossy red triangle bikini with gold rings, oversized sunglasses pushed up into her chestnut waves"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a white plunging one-piece swimsuit cut very high at the hips, oversized sunglasses pushed up into her hair"
+     },
+     "swim-leopard": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a leopard-print string bikini, oversized sunglasses pushed up into her hair"
+     },
+     "swim-micro": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a tiny black micro bikini"
+     }
+    },
+    "outfits": {
+     "swim-red": "cast/airi/swim-red",
+     "swim-white": "cast/airi/swim-white",
+     "swim-leopard": "cast/airi/swim-leopard",
+     "swim-micro": "cast/airi/swim-micro"
+    }
    },
    {
     "name": "Momo",
@@ -61124,7 +62195,35 @@
     "skills": {
      "fitness": 8
     },
-    "camera": "work"
+    "camera": "work",
+    "wear": {
+     "swim-sporty": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a navy sporty bikini with a white stripe, a crop top and short bottoms"
+     },
+     "swim-volleyball": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a red beach volleyball bikini with a high-cut bottom"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white triangle bikini with thin ties"
+     },
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a black one-piece swimsuit with a deep plunge and high-cut legs"
+     }
+    },
+    "outfits": {
+     "swim-sporty": "cast/momo/swim-sporty",
+     "swim-volleyball": "cast/momo/swim-volleyball",
+     "swim-white": "cast/momo/swim-white",
+     "swim-onepiece": "cast/momo/swim-onepiece"
+    }
    },
    {
     "name": "Shiori",
@@ -61271,7 +62370,30 @@
     "skills": {
      "music": 7
     },
-    "camera": "noface"
+    "camera": "noface",
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "an elegant cream one-piece swimsuit with a sweetheart neckline, a pearl clip in her long black hair"
+     },
+     "swim-bikini": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a pale pink frilled bikini with a short wrap skirt, a pearl clip in her long black hair"
+     },
+     "swim-black": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a black string bikini, a pearl clip in her long black hair"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/shiori/swim-onepiece",
+     "swim-bikini": "cast/shiori/swim-bikini",
+     "swim-black": "cast/shiori/swim-black"
+    }
    },
    {
     "name": "Tsubaki",
@@ -61404,7 +62526,32 @@
      "charisma": 6,
      "fitness": 5
     },
-    "camera": "work"
+    "camera": "work",
+    "comfort": 3,
+    "wear": {
+     "swim-rose": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a dusty-rose triangle bikini with thin ties, her auburn hair in a loose side ponytail"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a white one-piece swimsuit with a deep plunge to the waist"
+     },
+     "swim-black": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a black string bikini, her auburn hair in a loose side ponytail"
+     }
+    },
+    "outfits": {
+     "swim-rose": "cast/tsubaki/swim-rose",
+     "swim-white": "cast/tsubaki/swim-white",
+     "swim-black": "cast/tsubaki/swim-black"
+    }
    },
    {
     "name": "Sumire",
@@ -61469,6 +62616,14 @@
       "to": 21,
       "every": "week",
       "text": "has a quiet early drink at Bar Kotori and asks Mama about the old Velvet"
+     },
+     {
+      "place": "rp_nightpool",
+      "from": 20,
+      "to": 22.5,
+      "chance": 0.4,
+      "when": "season: summer",
+      "text": "cocktails at the night pool before anyone recognises her"
      }
     ],
     "threads": [
@@ -61545,6 +62700,30 @@
      "charisma": 8,
      "singing": 5,
      "fashion": 6
+    },
+    "comfort": 3,
+    "wear": {
+     "swim-violet": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a violet satin halter bikini top with silver rings and matching bikini briefs, drop earrings, a sparkling bracelet, her curled updo"
+     },
+     "swim-white": {
+      "kind": "swim",
+      "level": 2,
+      "look": "a white bikini with crystal details at the straps, drop earrings"
+     },
+     "swim-black": {
+      "kind": "swim",
+      "level": 3,
+      "adult": true,
+      "look": "a black monokini, a cut-out swimsuit open at the stomach with a gold ring there, cut high at the hips, drop earrings"
+     }
+    },
+    "outfits": {
+     "swim-violet": "cast/sumire/swim-violet",
+     "swim-white": "cast/sumire/swim-white",
+     "swim-black": "cast/sumire/swim-black"
     }
    },
    {
@@ -61687,7 +62866,24 @@
      "logic": 6,
      "charisma": 5
     },
-    "camera": "never"
+    "camera": "never",
+    "comfort": 1,
+    "wear": {
+     "swim-onepiece": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a plain navy one-piece swimsuit with a square neckline"
+     },
+     "swim-cover": {
+      "kind": "swim",
+      "level": 1,
+      "look": "a black one-piece swimsuit under a long open grey linen beach shirt"
+     }
+    },
+    "outfits": {
+     "swim-onepiece": "cast/kaoru/swim-onepiece",
+     "swim-cover": "cast/kaoru/swim-cover"
+    }
    },
    {
     "name": "Erika",

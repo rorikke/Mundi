@@ -638,7 +638,7 @@ function fill(g, w, day, st, m) {
             if (!owner)
                 continue;
             for (const [a, from, to] of go)
-                add(a, { from, to, place: t.place, kind: 'ritual', why: x.rit.text, with: x.who.filter(b => b !== a), ...(x.rit.when ? { when: x.rit.when, key: `ritual|${x.owner}|${x.i}` } : {}) });
+                add(a, { from, to, place: t.place, kind: 'ritual', why: x.rit.text, with: x.who.filter(b => b !== a), ...(x.rit.when ? { when: x.rit.when, key: `ritual|${x.owner}|${x.i}` } : {}), ...(x.rit.dress ? { dress: x.rit.dress } : {}) });
         }
     // couples going out (E29)
     if (systemOn(w, 'relations') && systemOn(w, 'romance'))
