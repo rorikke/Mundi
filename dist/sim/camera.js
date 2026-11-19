@@ -15,7 +15,7 @@ import { onHour, onDay, actionGates } from './hooks.js';
 import { relOf, idOf, YOU } from './rel.js';
 import { whenHolds } from './when.js';
 import { tierReached } from './tiers.js';
-import { presentAt } from './people.js';
+import { sceneHere } from './homerooms.js';
 import { limitsOf, matchIn } from './private.js';
 import { cameraOf, cameraPerson, stepCounts } from './photo.js';
 // Two limits are the same one when their words are (case, spaces and stops aside).
@@ -88,7 +88,8 @@ export const LENS_WORDS = ['photos', 'photo', 'camera', 'cameras', 'being photog
  *  whose hard limits meet a lens or the action's own words. '' when nobody does. */
 export function lensRefused(g, w, a) {
     const words = [...new Set([...LENS_WORDS, ...(a.matches ?? [])])];
-    for (const r of presentAt(g, w, g.player.loc)) {
+    // ((homerooms) at home with rooms inside, only the room you are in: a housemate down the hall isn't in the photo)
+    for (const r of sceneHere(g, w)) {
         if (idOf(g, r.avatar) === YOU)
             continue;
         const rule = cameraOf(g, w, r.avatar);
