@@ -97,7 +97,9 @@ const rumors = (x) => LV.rumorsAboutYou(x);
     ok(r.text === 'two spaces' && r.feels === 20 && r.romance === -20 && r.weight === 0 && r.where === 'tag:bar' && !('rumor' in r) && !('when' in r), `texts trimmed, feelings held to ±20, weight at least 0, "tag: bar" read as tag:bar (${JSON.stringify(r)})`);
     const z = PR.upgradeWorld({ ...structuredClone(raw), id: 'tk3', cast: { ...raw.cast, examples: [{ ...structuredClone(sumireEx), caught: [{ id: 'x' }] }] } });
     ok(!('caught' in z.cast.examples[0]), 'no row left: no key');
-    ok(PR.upgradeWorld(world(ext, 'tokyo')).cast.examples.every(e => !('caught' in e) && !('door' in e) && !('doorLine' in e)), 'a world without them gets no key');
+    // (Tokyo's own people may carry rows: Sumire's taxi driver; everyone without them gets no key)
+    const bare = world(ext, 'tokyo'), had = new Set(bare.cast.examples.filter(e => 'caught' in e || 'door' in e || 'doorLine' in e).map(e => e.name));
+    ok(PR.upgradeWorld(bare).cast.examples.every(e => had.has(e.name) || (!('caught' in e) && !('door' in e) && !('doorLine' in e))), 'someone without them gets no key');
     done('cleaning');
 }
 
