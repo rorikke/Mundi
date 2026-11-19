@@ -44,7 +44,7 @@ const TOOLS = {
     'genders.*.id': 'set by the creator', 'sheet.appearance.*.id': 'set by the creator', 'sheet.traits.*.id': 'set by the creator', 'skills.*.id': 'set by the creator',
     'starts.*.id': 'set by the creator', 'stories.*.id': 'set by the creator', 'keepsakes.*.id': 'set by the creator', 'tables.*.*.id': 'set by the creator',
     'occupations.*.events.*.id': 'set by the creator', 'occupations.*.schedule.shifts.*.id': 'set by the creator', 'catalogs.courses.*.aid.*.id': 'set by the creator', 'institutions.*.degrees.*.id': 'set by the creator', 'institutions.*.degrees.*.aid.*.id': 'set by the creator',
-    'cast.examples.*.threads.*.id': 'set by the creator', 'cast.examples.*.threads.*.endings.*.id': 'set by the creator', 'cast.examples.*.threads.*.stages.*.id': 'set by the creator',
+    'cast.examples.*.threads.*.id': 'set by the creator', 'cast.examples.*.caught.*.id': 'set by the creator', 'cast.examples.*.threads.*.endings.*.id': 'set by the creator', 'cast.examples.*.threads.*.stages.*.id': 'set by the creator',
     'ventures.*.id': 'set by the creator', 'ventures.*.tiers.*.id': 'set by the creator', 'ventures.*.styles.*.id': 'set by the creator', 'ventures.*.upgrades.*.id': 'set by the creator',
     'ventures.*.discoveries.*.id': 'set by the creator', 'ventures.*.events.*.id': 'set by the creator', 'ventures.*.cards.*.id': 'set by the creator',
     'ventures.*.tenancies.*.id': 'set by the creator', 'ventures.*.sightings.*.id': 'set by the creator', 'ventures.*.buyers.*.id': 'set by the creator',

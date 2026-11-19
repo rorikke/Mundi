@@ -559,19 +559,21 @@ export function upgradeWorld(w) {
     for (const ex of w.cast?.examples ?? [])
         if ('tiers' in ex || 'reserved' in ex)
             upgradeTiers(ex);
-    // a person's door: made safe where a world has one
+    // a person's door and the ways of getting caught with them: made safe where a world has them
     for (const ex of w.cast?.examples ?? [])
-        if ('door' in ex || 'doorLine' in ex)
-            upgradeDoor(ex);
+        if ('door' in ex || 'doorLine' in ex || 'caught' in ex)
+            upgradeDoorCaught(ex);
     for (const s of w.stories ?? [])
         for (const c of s.choices ?? [])
             for (const r of [c, c.fail])
                 upgradeStoryMuseum(r);
     return w;
 }
-// A person's door rule (`never`, or a condition) and the line at their closed door, from someone else's file: short texts,
-// no key left empty.
-function upgradeDoor(ex) {
+// A person's door rule (`never`, or a condition), the line at their closed door, and their caught rows, from someone
+// else's file: texts stay short texts, a row without an id or a text (or with an id seen before) is dropped, its weight
+// at least 0, its feelings whole and small (±20), and nothing else is kept on it. No key is left empty.
+const CAUGHT_FEEL = 20;
+function upgradeDoorCaught(ex) {
     const text = (v, n) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, n) : '');
     if ('door' in ex) {
         const d = text(ex.door, 300);
@@ -587,6 +589,41 @@ function upgradeDoor(ex) {
         else
             delete ex.doorLine;
     }
+    if (!('caught' in ex))
+        return;
+    const seen = new Set(), rows = [];
+    for (const r of Array.isArray(ex.caught) ? ex.caught : []) {
+        const id = text(r?.id, 80), t = text(r?.text, 1000);
+        if (!id || !t || seen.has(id))
+            continue;
+        seen.add(id);
+        const out = { id };
+        const where = text(r.where, 80).replace(/^tag:\s*/i, 'tag:');
+        if (where)
+            out.where = where;
+        const action = text(r.action, 300);
+        if (action)
+            out.action = action;
+        if (typeof r.when === 'string' ? r.when.trim() : r.when && typeof r.when === 'object' && !Array.isArray(r.when))
+            out.when = typeof r.when === 'string' ? r.when.trim() : r.when;
+        out.text = t;
+        const wt = Number(r.weight);
+        if (r.weight !== undefined && Number.isFinite(wt))
+            out.weight = Math.max(0, Math.min(1000, wt));
+        for (const k of ['feels', 'romance']) {
+            const n = Math.round(Number(r[k]));
+            if (Number.isFinite(n) && n)
+                out[k] = Math.max(-CAUGHT_FEEL, Math.min(CAUGHT_FEEL, n));
+        }
+        const rumor = text(r.rumor, 300);
+        if (rumor)
+            out.rumor = rumor;
+        rows.push(out);
+    }
+    if (rows.length)
+        ex.caught = rows;
+    else
+        delete ex.caught;
 }
 // A storyline's words and prices from someone else's file: texts stay texts, at most three nudges, a help's price and
 // hours inside their range (a help without a label or a condition is dropped), a stage's appointment only when it has a

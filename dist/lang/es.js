@@ -10936,7 +10936,10 @@ const DICT = {
     "Logic 8": "Lógica 8",
     "Logic 9": "Lógica 9",
     "Logic 10": "Lógica 10",
-    // a person's door (sim/homerooms.ts, core/lexicon.ts, ui/creator.ts)
+    // a person's door and getting caught with them (sim/homerooms.ts, sim/caught.ts, core/lexicon.ts, ui/creator.ts)
+    "You leave at once.": "Te vas en el acto.",
+    "Someone saw or heard you.": "Alguien os vio u oyó.",
+    "It's a home: nobody asks you to leave.": "Es una casa: nadie te pide que te vayas.",
     "You ring the doorbell. {0} comes to the door but doesn't ask you in: nobody comes into {0}'s home.": "Llamas al timbre. {0} sale a la puerta, pero no te invita a pasar: nadie entra en casa de {0}.",
     "You knock. {0} comes to the door but doesn't ask you in: nobody comes into {0}'s home.": "Llamas a la puerta. {0} sale, pero no te invita a pasar: nadie entra en casa de {0}.",
     "Their door": "Su puerta",
@@ -10948,5 +10951,20 @@ const DICT = {
     "Their door opens once (a condition)": "Su puerta se abre cuando (una condición)",
     "What the player is told at their closed door ({name}: their name; empty: the world's words)": "Lo que oye el jugador ante su puerta cerrada ({name}: su nombre; vacío: las palabras del mundo)",
     "{name} meets you downstairs: nobody comes up to {name}'s flat.": "{name} baja a verte: nadie sube al piso de {name}.",
+    "Getting caught with them": "Que te pillen con esa persona",
+    "When a risky private moment with them is seen: one row that fits where it happens is drawn by weight instead of the plain line. At a home nobody bans you (word gets around from the people who live there); anywhere else the place still won't serve you for a week.": "Cuando alguien ve un momento íntimo arriesgado con esa persona: se sortea por peso una fila que encaje con el sitio, en lugar de la frase simple. En una casa nadie te veta (la noticia corre desde quienes viven allí); en cualquier otro sitio, el lugar sigue sin atenderte una semana.",
+    "Anywhere with them": "En cualquier sitio con esa persona",
+    "At their home (shared or not)": "En su casa (compartida o no)",
+    "At your home": "En tu casa",
+    "Any home in {0}": "Cualquier casa en {0}",
+    "Any place tagged {0}": "Cualquier sitio con la etiqueta {0}",
+    "Who saw, and how they take it ({{user}}: you)": "Quién lo vio, y cómo se lo toma ({{user}}: tú)",
+    "Weight (how often, against their other rows)": "Peso (con qué frecuencia, frente a sus otras filas)",
+    "The rumor in its own words ({u}: you; empty: who and where)": "El rumor con sus propias palabras ({u}: tú; vacío: quién y dónde)",
+    "Their friendship toward you after it (−20–20)": "Su amistad hacia ti después (−20–20)",
+    "Their romance toward you after it (−20–20)": "Su romance hacia ti después (−20–20)",
+    "Doing": "Haciendo",
+    "Any risky action": "Cualquier acción arriesgada",
+    "Add a way of getting caught": "Añadir una forma de que te pillen",
 };
 export default DICT;

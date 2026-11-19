@@ -52,6 +52,8 @@ node tests/homerooms.test.mjs > /tmp/mundi-homerooms-test.log 2>&1 || { cat /tmp
 echo "$(tail -1 /tmp/mundi-homerooms-test.log)"
 node tests/door.test.mjs > /tmp/mundi-door-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-door-test.log; echo "DOOR TESTS FAILED"; exit 1; }
 echo "$(tail -1 /tmp/mundi-door-test.log)"
+node tests/caught.test.mjs > /tmp/mundi-caught-test.log 2>&1 || { grep -v "^\[Mundi\]" /tmp/mundi-caught-test.log; echo "CAUGHT TESTS FAILED"; exit 1; }
+echo "$(tail -1 /tmp/mundi-caught-test.log)"
 node tests/sounds.test.mjs > /tmp/mundi-sounds-test.log 2>&1 || { cat /tmp/mundi-sounds-test.log; echo "SOUND TESTS FAILED"; exit 1; }
 echo "sounds: $(tail -1 /tmp/mundi-sounds-test.log)"
 node tests/version.test.mjs > /tmp/mundi-version-test.log 2>&1 || { cat /tmp/mundi-version-test.log; echo "VERSION TESTS FAILED"; exit 1; }

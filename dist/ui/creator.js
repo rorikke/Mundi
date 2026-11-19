@@ -1756,12 +1756,25 @@ function tidyPhoto(w) {
                     delete t.camera;
             }
     }
-    // a door left as usual, an emptied line
+    // a door left as usual, an emptied line; caught rows' empty parts, and a row with no words goes
     for (const e of w.cast?.examples ?? []) {
         if (typeof e.door === 'string' && !e.door.trim())
             delete e.door;
         if (typeof e.doorLine === 'string' && !e.doorLine.trim())
             delete e.doorLine;
+        if (!Array.isArray(e.caught))
+            continue;
+        e.caught = e.caught.filter(r => r && String(r.text ?? '').trim());
+        for (const r of e.caught) {
+            for (const k of ['where', 'action', 'rumor', 'when'])
+                if (typeof r[k] === 'string' && !r[k].trim())
+                    delete r[k];
+            for (const k of ['feels', 'romance'])
+                if (r[k] === 0)
+                    delete r[k];
+        }
+        if (!e.caught.length)
+            delete e.caught;
     }
     const st = w.homes?.studios;
     for (const z of st ?? []) {
@@ -3520,6 +3533,27 @@ function doorEditor(p, e) {
             ${d && d !== 'never' ? cond('Their door opens once (a condition)', `${p}.door`, 'thread: priv_tsubaki_hands your_hands') : '<span></span>'}</div>
         ${d ? optTxt("What the player is told at their closed door ({name}: their name; empty: the world's words)", `${p}.doorLine`, "{name} meets you downstairs: nobody comes up to {name}'s flat.") : ''}`;
 }
+// (adult) The ways of getting caught with them: each row says where it can happen, who saw and how they take it, and
+// what it changes (their feelings toward the player, the rumor in its own words). Ids are shown, never typed.
+function caughtEditor(w, p, e) {
+    const l = e.caught ?? [];
+    const tags = [...new Set(w.places.flatMap(x => x.tags ?? []))].sort();
+    const acts = [['', 'Any risky action'], ...w.actions.filter(a => (a.risk ?? 0) > 0).map(a => [a.id, a.label || a.name])];
+    const where = [['', 'Anywhere with them'], ['home', 'At their home (shared or not)'], ['yours', 'At your home'],
+        ...w.homes.zones.map(z => [z.id, `Any home in ${z.name}`]), ...placeOpts(w), ...tags.map(t => [`tag:${t}`, `Any place tagged ${t}`])];
+    return `<details class="mu-cw-kept" ${l.length ? 'open' : ''}><summary>Getting caught with them ${ADULT} · ${l.length}</summary>
+        <p class="mu-muted">When a risky private moment with them is seen: one row that fits where it happens is drawn by weight instead of the plain line. At a home nobody bans you (word gets around from the people who live there); anywhere else the place still won't serve you for a week.</p>
+        ${l.map((r, k) => {
+        const q = `${p}.caught.${k}`;
+        return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k + 1}</b>${idTag(r?.id)}<span class="mu-cw-spacer"></span><button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button></div>
+            <div class="mu-row2">${sel('Where', `${q}.where`, withCur(where, r?.where), 'opt')}${sel('Doing', `${q}.action`, withCur(acts, r?.action), 'opt')}</div>
+            ${cond('Only while (optional)', `${q}.when`, 'period: night or latenight')}
+            ${area('Who saw, and how they take it ({{user}}: you)', `${q}.text`, 3)}
+            <div class="mu-row2">${num('Weight (how often, against their other rows)', `${q}.weight`, 0)}${optTxt('The rumor in its own words ({u}: you; empty: who and where)', `${q}.rumor`)}</div>
+            <div class="mu-row2">${bounded('Their friendship toward you after it (−20–20)', `${q}.feels`, -20, 20)}${bounded('Their romance toward you after it (−20–20)', `${q}.romance`, -20, 20)}</div></div>`;
+    }).join('')}
+        <button class="mu-ghost" data-act="cw-add" data-what="ccaught" data-path="${esc(`${p}.caught`)}">${icon('plus')}<span>Add a way of getting caught</span></button></details>`;
+}
 // (photography, the camera change) How a person's camera rule loosens over a game: each step latches the first time its
 // condition holds and is never lost (sim/camera.ts); its limits come off and on in the save's copy of their profile.
 const STEP_RULES = [['free', CAMERA_NAMES['']], ...['ask', 'work', 'noface', 'never'].map(k => [k, CAMERA_NAMES[k]])];
@@ -3768,6 +3802,7 @@ function peopleEditor(w) {
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 ${personMore(w, p, e)}
                 ${doorEditor(p, e)}
+                ${caughtEditor(w, p, e)}
                 ${tiersEditor(w, p, e)}
                 <h4>Their life</h4>${ritualsEditor(w, p, e)}${threadsEditor(w, p, e)}
                 <div class="mu-row"><button class="mu-ghost" data-act="cw-rnd-person" data-i="${esc(i)}">${icon('redo')}<span>New job, home and routine</span></button></div>
@@ -4611,6 +4646,13 @@ Object.assign(ACT, {
             notify();
             return;
         } // (C-7)
+        if (what === 'ccaught') {
+            const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
+            l.push({ id: newId('caught'), text: '' });
+            CW.dirty = true;
+            notify();
+            return;
+        } // (adult) a way of getting caught
         if (what === 'cstep') {
             const l = (getPath(el.dataset.path) ?? (setPath(el.dataset.path, []), getPath(el.dataset.path)));
             l.push({ when: '', camera: 'ask' });

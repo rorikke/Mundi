@@ -213,8 +213,9 @@ export function startRumor(g, w, text, place, o = {}) {
     if (st.rumors.some(r => r.id === id))
         return null;
     const about = aboutOf(g, o.about);
-    let first = presentAt(g, w, place).filter(r => !about.includes(r.avatar)).map(r => r.avatar);
-    if (!first.length) {
+    // (`first`: who hears it first, when the caller knows: the people of a home)
+    let first = (o.first ?? presentAt(g, w, place).map(r => r.avatar)).filter(a => !!g.cast[a] && !about.includes(a));
+    if (!first.length && !o.first) {
         const there = (r) => r.leisure.includes(place) || w.occupations.find(x => x.id === r.occupation)?.place === place;
         first = residents(g).filter(r => !about.includes(r.avatar) && there(r)).sort((a, b) => rnd(g, `${id}|${a.avatar}`) - rnd(g, `${id}|${b.avatar}`)).slice(0, 2).map(r => r.avatar);
     }
@@ -229,12 +230,12 @@ export function startRumor(g, w, text, place, o = {}) {
 /** (adult) A rumor that you were caught somewhere (`text`: who and where), about you and the people `with` you: they never
  *  hear it, but anyone else can, their partners too. `seen`: someone was there to see who it was (false: no rumor); nothing
  *  starts with adult content off or the rumors system off. `caught`: the place a ban came from, so Quiet a rumor can lift
- *  it. */
+ *  it. `first`: who hears it first (the people of a home, sim/caught.ts), instead of whoever is at the place. */
 export function startCaughtRumor(g, w, text, place, o) {
     if (!adultOn(g) || !systemOn(w, 'rumors') || o.seen === false)
         return null;
     const mates = o.with ?? [];
-    const r = startRumor(g, w, text, place, { about: mates.map(a => g.cast[a]?.name ?? '').filter(Boolean), you: true, id: o.id });
+    const r = startRumor(g, w, text, place, { about: mates.map(a => g.cast[a]?.name ?? '').filter(Boolean), you: true, id: o.id, ...(o.first ? { first: o.first } : {}) });
     if (!r)
         return null;
     r.adult = true;

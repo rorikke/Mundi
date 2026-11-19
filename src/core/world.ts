@@ -592,7 +592,18 @@ export interface ExampleCharacter {
     /** What the player is told at their door while it stays closed (`{name}`: their name). Missing: the world's words
      *  (the lexicon's `doorKept`). */
     doorLine?: string;
+    /** (adult) Getting caught with them (see CaughtRow): who saw and how they take it, wherever you're caught with them;
+     *  read by sim/caught.ts only with adult content on. */
+    caught?: CaughtRow[];
 }
+/** (adult) A way of getting caught with someone (ExampleCharacter.caught): drawn by `weight` (missing: 1) among their
+ *  rows that fit where you're caught and whose `when` holds. `where`: `home` (their own home, shared or not), `yours`
+ *  (your home), a place id, a home area's id (any home in it), or `tag:<word>` (a place with that tag, or a home of that
+ *  kind); missing: anywhere with them. `action`: only when that risky action is the one caught (an id, or several with
+ *  `or`); missing: any. `text`: who saw and how they take it (`{{user}}`: you), shown and told to the AI.
+ *  The reaction: `feels` and `romance`, a small change (±20) in how they feel toward you (up through the usual gain,
+ *  down in full), and `rumor`, the rumor in its own words (`{u}`: you) instead of the plain "… were caught at …". */
+export interface CaughtRow { id: string; where?: string; action?: string; when?: When; text: string; weight?: number; feels?: number; romance?: number; rumor?: string }
 /** (dress) What an outfit is: its `kind` (`swim`, `yukata`…; any word), how bold it is (`level` 1 modest, 2
  *  everyday, 3 bold, 4 explicit; missing: 1), `adult`: only with adult content on (level 4 always is), and `look`: the
  *  words the AI is told ("a black string bikini"). */
