@@ -365,10 +365,15 @@ export function draftRecord(w, { night = true } = {}) {
     }
     return { halls, slots };
 }
-/** What the quick-add would add to a world's collection: the draft's halls and slots it doesn't have yet (by id). */
+/** What the quick-add would add to a world's collection: the draft's halls and slots it doesn't have yet (by id, and a
+ *  storyline by its condition too). */
 export function missingFromRecord(w) {
-    const d = draftRecord(w), c = w.collection;
-    const halls = d.halls.filter(h => !(c?.halls ?? []).some(x => x.id === h.id));
-    const slots = d.slots.filter(s => !(c?.slots ?? []).some(x => x.id === s.id));
+    const d = draftRecord(w), have = w.collection?.slots ?? [];
+    // (a storyline may have its slot under another id or hall than the draft's: Tokyo keeps an adult person's later
+    // storylines in the record, which is always shown, not among the night world's mementos; a second slot would be a copy)
+    const has = (s) => have.some(x => x.id === s.id || (typeof s.when === 'string' && s.when.startsWith('thread: ') && x.when === s.when));
+    const slots = d.slots.filter(s => !has(s));
+    // (a hall only the missing slots need: the night world's, when every one of its mementos is already elsewhere)
+    const halls = d.halls.filter(h => !(w.collection?.halls ?? []).some(x => x.id === h.id) && (h.record || slots.some(s => s.hall === h.id)));
     return { halls, slots };
 }
