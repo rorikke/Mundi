@@ -1313,7 +1313,7 @@ housemates.
 
 Someone close can come and stay at your place for a few days: a friend (friendship 50 or more) or your partner.
 
-- **Asking.** On their card (or their page in People), **Ask to stay a few days**: one, two or three nights, or **for
+- **Asking.** In the menu when you click them in the scene (or their page in People), **Ask to stay a few days**: one, two or three nights, or **for
   a while** (until you say goodbye, a week at most), on the sofa or in your room. The game decides the answer, and the
   AI plays it. Asked in person, they stay from now; otherwise they come over that evening with their things.
 - **Arriving.** They ring the doorbell when you're home: open the door, or let them in later. If you're out, they let

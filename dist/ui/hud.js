@@ -16,7 +16,8 @@ import { payOf, lockedOut, toGetBackIn } from '../sim/bills.js';
 //   right       — things to do here (only inside a scene)
 //   bottom      — the dialogue box (scene.ts); bottom right: the phone, peeking up when it is closed
 import { needWord } from '../sim/life.js';
-import { lifeOverlays, lifeAskHtml, soloOf } from './lifeui.js';
+import { lifeOverlays, lifeAskHtml, soloOf, playAsOn } from './lifeui.js';
+import { swapOf } from '../sim/playas.js';
 import { clockWaitHtml, clockWaitBtn, waitGoHtml } from './waitgo.js';
 import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
 import { getWorld, activeStatuses, systemOn, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
@@ -52,7 +53,7 @@ import { refreshPrompt } from '../sim/prompt.js';
 import { bumpHtml } from './bump.js';
 import { newPeopleHtml } from './newpeople.js';
 import { P as phone, phoneUnread } from './phone.js';
-import { PL, facePlanHtml } from './plans.js';
+import { facePlanHtml } from './plans.js';
 import { relBar, workButton, doorbellHtml } from './relui.js';
 import { openNow } from '../sim/daynight.js';
 import { questsHere, doStep } from '../sim/quests.js';
@@ -96,7 +97,7 @@ function personaCard(g, w) {
     const size = bars >= 3 || rings >= 6 ? 'is-tight' : bars === 2 || rings === 5 ? 'is-snug' : '';
     const bare = !shown.length && !sh; // nothing to look after (needs off): the money goes under the name
     return `<aside class="mh-persona mh-glass ${size} ${bare ? 'no-needs' : ''}" aria-label="${esc(personaName())}">
-        <button class="mh-face" data-act="pa-open" title="Play as…">${img ? `<img src="${esc(img)}" alt="">` : icon('user')}<i class="mh-face-swap">${icon('users')}</i></button>
+        <button class="mh-face" data-act="pa-open" title="${playAsOn() || swapOf(g)?.avatar ? 'Play as…' : 'Your persona'}">${img ? `<img src="${esc(img)}" alt="">` : icon('user')}<i class="mh-face-swap">${icon('users')}</i></button>
         <div class="mh-needs">
             <div class="mh-who"><b>${esc(personaName())}</b>${levelChip()}${isScenario(w) ? '' : `<span class="mu-cash">${esc(money(w, g.player.money))}</span>`}</div>
             ${shown.filter(isBar).map(s => `<div class="mh-bar ${v(s) <= 20 ? 'is-low' : ''}" data-stat="${esc(s.id)}" data-word="${esc(sh && (s.id === 'life' || s.id === 'health') ? `${sh.hp}/${hpMax(w, sh)} HP` : needWord(s, v(s)))}" style="--c:${esc(s.color)};--v:${v(s)}">
@@ -170,6 +171,8 @@ function corner(g, w) {
     </div>`;
 }
 /* ---------- people with you ---------- */
+// Their page in People is open on the phone (a face in Here or With you opens it).
+const pageOpen = (avatar) => phone.open && phone.app === 'person' && phone.who === avatar;
 // Your party: the people who came along with you (in the scene and on the map). Who is simply in this place is
 // shown at the top ("Here").
 function peopleColumn(g, w) {
@@ -180,7 +183,7 @@ function peopleColumn(g, w) {
     return `<aside class="mh-people mh-glass" aria-label="With you">${list.map(r => {
         const c = social(g).with.find(x => x.avatar === r.avatar);
         const left = c && !isScenario(w) ? Math.max(0, Math.min(100, ((c.until - now) / 240) * 100)) : null; // Home: no timer
-        return `<button class="mh-person ${PL.card === r.avatar ? 'is-on' : ''} ${c ? 'is-with' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}">
+        return `<button class="mh-person ${pageOpen(r.avatar) ? 'is-on' : ''} ${c ? 'is-with' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}">
             <img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b>
             <span class="mh-mini-rel">${relBar(r.avatar, false)}</span>
             ${left !== null ? `<span class="mh-mini-time" title="${esc(timeLeftText(c.until - now))}">${icon('clock')}<span class="mh-mini is-time"><i style="width:${left}%"></i></span></span>` : ''}</button>`;
@@ -195,7 +198,7 @@ function timeLeftText(mins) {
     const left = h ? (rest ? `${h} h ${rest} min` : `${h} h`) : `${m} min`;
     return `Time left together: about ${left}. When it runs out, they have to go.`;
 }
-// Who is in this place (not in your party): their pictures under the place's name; a click opens their options.
+// Who is in this place (not in your party): their pictures under the place's name; a click opens their page in People.
 function hereBar(g, w) {
     if (state.view !== 'scene')
         return '';
@@ -204,7 +207,7 @@ function hereBar(g, w) {
     if (!list.length)
         return bell + elsewhereBar(g, w);
     const mine = new Set(withYou(g, w)); // (marked: who is with you now, sim/social.ts; the others are only around)
-    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${PL.card === r.avatar ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${bell}${elsewhereBar(g, w)}`;
+    return `<nav class="mh-here mh-glass" aria-label="Who is here"><small>Here</small>${list.map(r => `<button class="mh-here-p ${pageOpen(r.avatar) ? 'is-on' : ''} ${soloOf(g) === r.avatar ? 'is-solo' : ''} ${isWith(g, r.avatar) || mine.has(r.avatar) ? 'is-with' : ''}" data-act="pc-open" data-who="${esc(r.avatar)}" title="${esc(r.met ? r.name : 'Someone')}"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.met ? r.name : '?')}</b></button>`).join('')}</nav>${bell}${elsewhereBar(g, w)}`;
 }
 // (homerooms) The people you know elsewhere in the house: their face, name and room; a click walks you there (doors
 // apply).

@@ -1,13 +1,13 @@
 import { cityBadge } from './cityui.js';
 import { agendaHtml } from './agenda.js';
 import { visitors } from '../sim/visitors.js';
-import { romanceButtons, relBar, relSubtitle, visitStatus } from './relui.js';
+import { visitStatus } from './relui.js';
 import { lex } from '../core/lexicon.js';
-import { stayButton, tidyEvent } from './events.js';
+import { tidyEvent } from './events.js';
 // Plans on screen: the card of a person in the scene ("come with me", "make plans"), the plan form and the
 // Calendar app on the phone, and the toasts the clock produces (reminders, arrivals, missed plans).
 import { housePartyHtml, partyForm } from './lifeui.js';
-import { CAL, calendarTabs, visitsTab, bgButton, guestButtons } from './guestsui.js';
+import { CAL, calendarTabs, visitsTab, bgButton } from './guestsui.js';
 import { rememberOutingBg } from '../sim/outing.js';
 import { guestTick } from '../sim/guests.js';
 import { notify, esc, game, toast, saveGame, nowAbs, state } from '../core/store.js';
@@ -20,19 +20,17 @@ import { weekday } from '../sim/time.js';
 import { fmtClock as hm } from '../core/fmt.js';
 import { placeOf, playerHomeId, pins } from '../sim/places.js';
 import { STUDIO_ID } from '../sim/studio.js';
-import { bondOf, isPartner, social, isWith, type PlanKind } from '../sim/social.js';
+import { bondOf, social, type PlanKind } from '../sim/social.js';
 import { canAskByText, looksLikeAsk, readAsk } from '../sim/texting.js';
 import { scheduled, shiftOn, onVacation } from '../sim/dayplan.js';
-import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, isSleeping, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
+import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, isSleeping, canDate, canHang, canPlan, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
 import { shutOut } from '../sim/romance.js';
 import { whereNow } from '../sim/people.js';
 import { icon } from './icons.js';
-import { featureOn } from '../sim/creator.js';
 import { ACT, INPUT } from './reg.js';
-import { relNumbersHtml } from './reldebug.js';
 import { sceneHere } from '../sim/homerooms.js';
 
-export const PL = { card: '', kind: 'hangout' as PlanKind, place: '', day: 0, time: 0, busy: '', face: '', title: '', out: '', bg: '' };   // bg: the background of a plan out of the house (Home)
+export const PL = { kind: 'hangout' as PlanKind, place: '', day: 0, time: 0, busy: '', face: '', title: '', out: '', bg: '' };   // bg: the background of a plan out of the house (Home)
 // Home: a plan can be somewhere out of the house, in your words ("__out" in the list, then the place you type)
 const OUT_PICK = '__out';
 const planPlace = () => (PL.place === OUT_PICK ? (PL.out.trim() ? outingId(PL.out) : '') : PL.place);
@@ -73,34 +71,6 @@ export function runPlans() {
     if (news.length) saveGame();
     void import('./phone.js').then(p => p.laterTick());   // answers to messages read later, once they're free
     return news.length > 0;
-}
-
-/* ---------- the person card in the scene ---------- */
-
-// a bar that fills inside its tier, in the tier's color
-export function sceneCard(g: Save, w: WorldDef): string {
-    const r = PL.card && g.cast[PL.card];
-    if (!r || !featureOn(w, 'plans')) return '';
-    const b = bondOf(g, r.avatar);
-    const along = isWith(g, r.avatar);
-    const working = isWorking(g, w, r, nowAbs(g));
-    return `<div class="mu-pcard" role="dialog" aria-label="${esc(r.name)}">
-        <header><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr>${esc(r.met ? r.name : 'Someone')}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>
-            <button class="mu-ibtn mu-ghost" data-act="pc-close" aria-label="Close">${icon('x')}</button></header>
-        ${r.met ? '' : `<p class="mu-muted">You don't know them yet. Talk to them, or:</p><button class="mu-primary" data-act="pc-intro" data-who="${esc(r.avatar)}">${icon('chat')}<span>Introduce yourself</span></button>`}
-        ${along ? `<p class="mu-muted">${esc(fmt('{0} is with you.', r.name))}</p>
-            <button data-act="pc-bye" data-who="${esc(r.avatar)}">${icon('back')}<span>Say goodbye</span></button>`
-            : `<button class="mu-primary" data-act="pc-along" data-who="${esc(r.avatar)}" ${canAlong(g, r.avatar) ? '' : 'aria-disabled="true"'}>${icon('users')}<span>Come with me</span></button>
-            <small class="mu-muted">${canAlong(g, r.avatar) ? (working ? 'They are working now.' : 'They go with you from place to place for a few hours.') : shutOut(g, r.avatar, isPartner(g, r.avatar)) ? 'They do not want to go anywhere with you.' : esc(fmt('Get closer first ({0}/{1}).', String(b), String(ALONG_BOND)))}</small>`}
-        <button data-act="pc-plan" data-who="${esc(r.avatar)}">${icon('pin')}<span>Make plans</span></button>
-        ${String((social(g) as any).solo ?? '') === r.avatar ? `<button data-act="solo-off">${icon('users')}<span>Talk with everyone again</span></button>`
-            : `<button data-act="solo-on" data-who="${esc(r.avatar)}">${icon('chat')}<span>Talk only with them</span></button>`}
-        ${stayButton(r.avatar)}
-        ${relNumbersHtml(g, r.avatar)}
-        ${guestButtons(g, r.avatar).join('')}
-        ${romanceButtons(r.avatar)}
-        ${!isScenario(getWorld(g.world)) && (along || isPartner(g, r.avatar) || b >= 60) ? `<button class="mu-ghost" data-act="swap-to" data-who="${esc(r.avatar)}">${icon('user')}<span>Play as them</span></button>` : ''}
-    </div>`;
 }
 
 /* ---------- the plan form (phone, on her page) ---------- */
@@ -191,12 +161,17 @@ export const plansBadge = (g: Save) => { const w = getWorld(g.world); return upc
 
 const gw = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? { g, w } : null; };
 Object.assign(ACT, {
-    'pc-open': (el) => { PL.card = PL.card === el.dataset.who ? '' : el.dataset.who!; notify(); },
-    'pc-close': () => { PL.card = ''; notify(); },
+    // a face in Here or With you, or Their card in a sprite's menu: their page in People (the same face again closes
+    // it). What you can do with them in the scene is in the sprite's menu (ui/radial.ts).
+    'pc-open': async (el) => {
+        const who = el.dataset.who!; const { P } = await import('./phone.js'), { PP } = await import('./personpage.js');
+        if (P.open && P.app === 'person' && P.who === who) P.open = false;
+        else { P.open = true; P.app = 'person'; P.who = who; PP.tab = 'about'; PP.more = false; }
+        notify();
+    },
     // walking up to a stranger: your line in the scene, and they answer (their answer is what makes you know each other)
     'pc-intro': async (el) => {
         const g = game(); const who = el.dataset.who!; if (!g || !g.cast[who] || state.generating) return;
-        PL.card = ''; notify();
         setAsk(`[{{user}} walks up to this person and introduces themself. ${g.cast[who].name} answers and says their name.]`);
         await addUserLine(`*walks up with a friendly smile* Hi, I'm ${personaName()}.`);
         await replyAs(who);
@@ -207,23 +182,23 @@ Object.assign(ACT, {
         const ans = askAlong(c.g, c.w, who);
         if (!ans.ok) { toast(ans.why, 'info'); return; }
         toast(fmt('{0} comes with you.', c.g.cast[who]?.name ?? ''), 'success');
-        PL.card = ''; saveGame(); notify();
+        saveGame(); notify();
     },
     'pc-bye': async (el) => {
         const c = gw(); if (!c) return;
         const who = el.dataset.who!;
         letGo(c.g, who);
         toast(fmt('{0} went back to their day.', c.g.cast[who]?.name ?? ''), 'info');
-        PL.card = ''; saveGame();
+        saveGame();
         const { syncScene } = await import('../sim/game.js');
         await syncScene(); notify();
     },
     'pc-plan': async (el) => {
         const c = gw(); const who = el.dataset.who!;
         // she is right here: you ask her in person, in the scene (the phone is for people who are elsewhere)
-        if (c && state.view === 'scene' && sceneHere(c.g, c.w).some(r => r.avatar === who)) { PL.card = ''; PL.face = who; notify(); return; }
+        if (c && state.view === 'scene' && sceneHere(c.g, c.w).some(r => r.avatar === who)) { PL.face = who; notify(); return; }
         const { P } = await import('./phone.js'), { PP } = await import('./personpage.js');
-        PL.card = ''; P.open = true; P.app = 'person'; P.who = who; PP.tab = 'about'; notify();   // the plan form is in About
+        P.open = true; P.app = 'person'; P.who = who; PP.tab = 'about'; notify();   // the plan form is in About
     },
     'pl-face-close': () => { PL.face = ''; notify(); },
     'pl-invite-face': (el) => {

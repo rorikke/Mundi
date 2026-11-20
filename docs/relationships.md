@@ -26,7 +26,7 @@ other additions are in [Other improvements in this fork](improvements.md).
   you. Enemies to lovers is possible, and the card says "Love-hate".
 - **Feelings in words.** Cards show what both bars mean together: *Soulmates*, *In love*, *Infatuated*, *Love-hate*,
   *Platonic*. The AI hears the same words.
-- **Playing as someone else ("Play as").** While you play a character, their own feelings wait. When you switch
+- **Playing as someone else ("Play as", turned on in Settings → Game).** While you play a character, their own feelings wait. When you switch
   back, they can either take on what everyone came to feel about them, or carry on from where they were (your
   choice).
 
@@ -64,7 +64,7 @@ other additions are in [Other improvements in this fork](improvements.md).
 - **Long conversations count more, without running away.** A long warm talk raises friendship a lot more than a quick
   hello. Each gain counts a little less as it piles up, and the pace comes back over the next hours. Nobody goes from
   stranger to good friend in one evening, but nothing ever stops completely either.
-- **"Needs some time."** When someone has warmed up to you very fast, their card says they need some time, and the
+- **"Needs some time."** When someone has warmed up to you very fast, their page in People says they need some time, and the
   story reflects it.
 - **No more lost friendship from misread words.** Mentioning the gym or calling a movie stupid no longer costs
   anything, and neither does a character's sad reply. Losses come from what actually happened in the scene.

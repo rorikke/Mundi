@@ -153,7 +153,7 @@ are cards, you are a persona, the world's lore is a lorebook, and **a save is a 
   texts that make plans), People, Work (Jobs, Campus, Business and Lens), Money, Homes, a Calendar that's an agenda,
   Goals, Collection, and a dating app (Spark) where a like might be answered days later, or never.
 - **A diary.** Each night the day becomes a short entry, so the story remembers.
-- **Households and "Play as".** Live with family or roommates, and switch to playing any of them.
+- **Households and "Play as".** Live with family or roommates, and (with Play as turned on in Settings) switch to playing any of them.
 - **A World creator that edits everything,** Tokyo included: places, people, jobs, storylines, rules, pictures.
   Overlay files let you add to a built-in world without touching it.
 - **Layouts and themes.** Visual novel, Classic or Cards, glass colors and transparency, and upright or sideways

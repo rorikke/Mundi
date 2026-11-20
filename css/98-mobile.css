@@ -121,7 +121,6 @@
 #mundi-root[data-mobile] .mu-ph-status { padding: calc(10px + env(safe-area-inset-top)) 16px 6px !important; }
 
 /* ---------- cards and pop-ups ---------- */
-#mundi-root[data-mobile] .mu-pcard { top: auto !important; bottom: calc(var(--m-dlg) + 8px) !important; left: var(--m-gap) !important; right: var(--m-gap) !important; transform: none !important; width: auto !important; max-height: calc(100% - var(--m-dlg) - 24px); overflow: auto; }
 #mundi-root[data-mobile] #mundi-toasts { top: var(--m-gap) !important; width: calc(100% - 24px) !important; }
 #mundi-root[data-mobile] .mu-recap-veil { padding: 0 !important; }
 #mundi-root[data-mobile] .mu-recap { width: 100% !important; max-width: none !important; max-height: 100% !important; height: auto; border-radius: 22px 22px 0 0 !important; align-self: end; }
@@ -173,7 +172,6 @@
 #mundi-root[data-mobile="land"] .mh-people { max-width: calc(50% - 2 * var(--m-gap)); }
 #mundi-root[data-mobile="land"] .mu-sprites { right: 50% !important; left: 0 !important; bottom: 0 !important; width: auto !important; }
 #mundi-root[data-mobile="land"] .mh-peek, #mundi-root[data-mobile="land"] .mh-bookbtn { right: var(--m-half); bottom: calc(var(--m-gap) + 4px); }
-#mundi-root[data-mobile="land"] .mu-pcard { right: var(--m-half) !important; bottom: var(--m-gap) !important; max-height: calc(100% - var(--m-row3, 132px) - 24px); }
 #mundi-root[data-mobile="land"] #mundi-toasts { left: 25% !important; width: calc(50% - 24px) !important; }
 #mundi-root[data-mobile="land"] .mu-recap { max-width: 640px !important; border-radius: 22px !important; align-self: center; }
 #mundi-root[data-mobile="land"] .mu-pop, #mundi-root[data-mobile="land"] .mu-pop.is-here { left: auto !important; width: min(380px, 50%) !important; max-height: calc(100% - 16px); }

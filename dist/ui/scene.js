@@ -27,7 +27,6 @@ import { mentionIn, closeMention } from './mention.js';
 import { visitStart } from '../sim/visits.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
-import { sceneCard } from './plans.js';
 import { micButton, sdButton, ttsButton } from './addons.js';
 import { isWith } from '../sim/social.js';
 import { sceneText } from '../sim/prompt.js';
@@ -275,7 +274,6 @@ export function sceneHtml() {
                 </div>
             </div>
         </section>
-        ${sceneCard(g, w)}
         ${portraitHtml()}${lightboxHtml()}${lookConfirmHtml()}
         ${extMenuHtml()}
         ${toolsHtml()}

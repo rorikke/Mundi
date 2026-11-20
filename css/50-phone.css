@@ -160,13 +160,6 @@
 #mundi-root .mu-person.is-on { border-color: var(--accent); }
 #mundi-root .mu-person i { display: inline-flex; color: var(--accent); }
 #mundi-root .mu-person i .mu-ic { width: 14px; height: 14px; }
-#mundi-root .mu-pcard { position: absolute; top: 108px; left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 32px)); z-index: 6; display: grid; gap: 8px; padding: 12px;
-    background: var(--panel); border: 2px solid var(--pe); box-shadow: 0 0 0 1px var(--line), var(--shadow); border-radius: var(--r); }
-#mundi-root .mu-pcard header { display: grid; grid-template-columns: 48px 1fr auto; gap: 10px; align-items: center; }
-#mundi-root .mu-pcard header img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; object-position: top; }
-#mundi-root .mu-pcard header span { display: grid; gap: 3px; min-width: 0; }
-#mundi-root .mu-pcard > button { display: flex; align-items: center; justify-content: center; gap: 8px; }
-#mundi-root .mu-pcard small { font-size: 12px; }
 #mundi-root .mu-hud-with { display: flex; align-items: center; gap: 4px; }
 #mundi-root .mu-hud-with small { font-size: 11px; color: var(--muted); margin-right: 2px; }
 #mundi-root .mu-hud-with button { padding: 0; width: 26px; height: 26px; border-radius: 50%; overflow: hidden; min-height: 0; }

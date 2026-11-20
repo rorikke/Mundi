@@ -54,6 +54,8 @@ export interface Settings {
     starts?: Record<string, StartDef[]>;
     /** "Something else…" in Things to do (ui/custom.ts); off unless the player turns it on */
     customAction?: boolean;
+    /** "Play as" someone else of the world (ui/lifeui.ts, sim/playas.ts); off unless the player turns it on */
+    playAs?: boolean;
     /** adult content for new games, when the player asked Mundi to remember their answer; unset: a new game asks
      *  (and starts with it off) */
     adultNew?: boolean;

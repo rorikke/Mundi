@@ -734,13 +734,6 @@ body.mundi-open { overflow: hidden; }
 #mundi-root .mu-person.is-on { border-color: var(--accent); }
 #mundi-root .mu-person i { display: inline-flex; color: var(--accent); }
 #mundi-root .mu-person i .mu-ic { width: 14px; height: 14px; }
-#mundi-root .mu-pcard { position: absolute; top: 108px; left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 32px)); z-index: 6; display: grid; gap: 8px; padding: 12px;
-    background: var(--panel); border: 2px solid var(--pe); box-shadow: 0 0 0 1px var(--line), var(--shadow); border-radius: var(--r); }
-#mundi-root .mu-pcard header { display: grid; grid-template-columns: 48px 1fr auto; gap: 10px; align-items: center; }
-#mundi-root .mu-pcard header img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; object-position: top; }
-#mundi-root .mu-pcard header span { display: grid; gap: 3px; min-width: 0; }
-#mundi-root .mu-pcard > button { display: flex; align-items: center; justify-content: center; gap: 8px; }
-#mundi-root .mu-pcard small { font-size: 12px; }
 #mundi-root .mu-hud-with { display: flex; align-items: center; gap: 4px; }
 #mundi-root .mu-hud-with small { font-size: 11px; color: var(--muted); margin-right: 2px; }
 #mundi-root .mu-hud-with button { padding: 0; width: 26px; height: 26px; border-radius: 50%; overflow: hidden; min-height: 0; }
@@ -1712,7 +1705,7 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root[data-skin="dark"] { --glass: rgba(20, 12, 11, .58); --glass-strong: rgba(16, 10, 9, .74); --glass-edge: rgba(179, 38, 30, .32); }
 
 /* the glass material */
-#mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-pcard, #mundi-root .mu-bump, #mundi-root .mu-mapnav, #mundi-root .mu-toast, #mundi-root .mu-pop {
+#mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-bump, #mundi-root .mu-mapnav, #mundi-root .mu-toast, #mundi-root .mu-pop {
     background: linear-gradient(160deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .03) 42%, rgba(255, 255, 255, 0) 62%), var(--glass) !important;
     -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-edge) !important;
@@ -1832,7 +1825,6 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mh-bookbtn .mu-ic { width: 30px; height: 30px; }
 
 /* everything else that floats over the game moves out of the HUD's way */
-#mundi-root .mu-pcard { top: 172px !important; }
 #mundi-root .mu-bump { top: 172px; border-radius: 22px !important; }
 #mundi-root .mu-mapnav { top: 172px; border-radius: 18px !important; }
 #mundi-toasts { top: 168px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; justify-items: center !important; width: min(420px, calc(100% - 24px)) !important; }
@@ -1845,7 +1837,7 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-pin > .label { background: rgba(16, 22, 36, .5) !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, .22) !important; border-radius: 10px !important; color: #fff !important; }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    #mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-pcard, #mundi-root .mu-bump, #mundi-root .mu-toast { background: var(--panel) !important; }
+    #mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-bump, #mundi-root .mu-toast { background: var(--panel) !important; }
 }
 
 /* small screens: you and the clock on top, people and things to do as rows */
@@ -2112,7 +2104,7 @@ body.mundi-open #toast-container { display: none !important; }
     --gb-on: linear-gradient(160deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .06) 55%), color-mix(in srgb, var(--accent) 52%, transparent);
     --gb-strong: linear-gradient(160deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, .08) 55%), color-mix(in srgb, var(--accent) 78%, transparent);
 }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)) {
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)) {
     background: var(--gb-bg) !important;
     border: 1px solid var(--gb-edge) !important;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 2px 8px rgba(0, 0, 0, .16) !important;
@@ -2120,25 +2112,25 @@ body.mundi-open #toast-container { display: none !important; }
     -webkit-backdrop-filter: none; backdrop-filter: none;
     transition: background .15s, box-shadow .15s, transform .1s;
 }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)):hover:not(:disabled):not([aria-disabled="true"]) {
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)):hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--gb-bg-hover) !important; border-color: rgba(255, 255, 255, .34) !important;
 }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)):is(.is-on, .mu-primary), #mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)):is(.is-on, .mu-primary):hover:not(:disabled) {
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)):is(.is-on, .mu-primary), #mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)):is(.is-on, .mu-primary):hover:not(:disabled) {
     background: var(--gb-on) !important;
     border-color: color-mix(in srgb, var(--accent) 65%, #fff) !important;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 0 14px color-mix(in srgb, var(--accent) 40%, transparent) !important;
     color: #fff !important;
 }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)).mu-primary { background: var(--gb-strong) !important; font-weight: 700; }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap) button.mu-ghost:not(.mu-ibtn):not(.mh-glass) { background: transparent !important; border: 1px solid transparent !important; box-shadow: none !important; color: var(--hud-fg) !important; }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap) .mu-ghost:not(.mu-ibtn):hover:not(:disabled) { background: rgba(255, 255, 255, .1) !important; border-color: rgba(255, 255, 255, .16) !important; }
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap, .mu-mapnav) button:not(.mh-glass):not(.mu-ghost):not(.mu-ibtn):not(:has(> img)).mu-primary { background: var(--gb-strong) !important; font-weight: 700; }
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap) button.mu-ghost:not(.mu-ibtn):not(.mh-glass) { background: transparent !important; border: 1px solid transparent !important; box-shadow: none !important; color: var(--hud-fg) !important; }
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap) .mu-ghost:not(.mu-ibtn):hover:not(:disabled) { background: rgba(255, 255, 255, .1) !important; border-color: rgba(255, 255, 255, .16) !important; }
 
 /* fields on glass */
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap) :is(input[type="text"], input[type="search"], input[type="number"], input:not([type]), select, textarea) {
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap) :is(input[type="text"], input[type="search"], input[type="number"], input:not([type]), select, textarea) {
     background: rgba(0, 0, 0, .2) !important; border: 1px solid rgba(255, 255, 255, .18) !important; color: var(--hud-fg) !important;
     border-radius: 12px !important; box-shadow: inset 0 2px 5px rgba(0, 0, 0, .22) !important;
 }
-#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-pcard, .mu-recap) select option { background: #1b2232; color: #f4f7fc; }
+#mundi-root[data-style="modern"] :is(.mh-glass, .mu-pop, .mu-recap) select option { background: #1b2232; color: #f4f7fc; }
 
 /* the menu: plain rows on glass (not pills) */
 #mundi-root[data-style="modern"] .mh-menu-pop { background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .02) 50%), var(--glass-strong) !important; }
@@ -3655,8 +3647,6 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mh-here-p:hover b { opacity: 1; }
 @media (max-width: 1100px) { #mundi-root .mh-here { max-width: calc(100% - 28px); top: 166px; } }
 @media (max-width: 760px) { #mundi-root .mh-here { top: 96px; } }
-/* the person's options open over everything in the scene, the dialogue box included */
-#mundi-root .mu-pcard { z-index: 35 !important; top: 220px !important; }
 
 /* ---------- Chat look: sections fold; colors as a grid of tiles ---------- */
 #mundi-root .mu-look-sec { border-top: 1px solid rgba(255, 255, 255, .1); }
@@ -3690,7 +3680,6 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mh-bar-sky .mh-weather { font-size: 24px; line-height: 1; }
 /* with the bar, "Here" sits right under it */
 #mundi-root:has(.mh-clock.is-bar) .mh-here { top: 86px; }
-#mundi-root:has(.mh-clock.is-bar) .mu-pcard { top: 140px !important; }
 @media (max-width: 1100px) { #mundi-root .mh-clock.is-bar { max-width: calc(100% - 28px); top: 132px; left: 50%; } #mundi-root:has(.mh-clock.is-bar) .mh-here { top: 196px; } }
 @media (max-width: 760px) { #mundi-root .mh-clock.is-bar { top: auto; bottom: calc(50vh + 70px); gap: 10px; padding: 6px 12px; } #mundi-root .mh-bar-day { display: none; } }
 
@@ -4428,7 +4417,6 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root[data-mobile] .mu-ph-status { padding: calc(10px + env(safe-area-inset-top)) 16px 6px !important; }
 
 /* ---------- cards and pop-ups ---------- */
-#mundi-root[data-mobile] .mu-pcard { top: auto !important; bottom: calc(var(--m-dlg) + 8px) !important; left: var(--m-gap) !important; right: var(--m-gap) !important; transform: none !important; width: auto !important; max-height: calc(100% - var(--m-dlg) - 24px); overflow: auto; }
 #mundi-root[data-mobile] #mundi-toasts { top: var(--m-gap) !important; width: calc(100% - 24px) !important; }
 #mundi-root[data-mobile] .mu-recap-veil { padding: 0 !important; }
 #mundi-root[data-mobile] .mu-recap { width: 100% !important; max-width: none !important; max-height: 100% !important; height: auto; border-radius: 22px 22px 0 0 !important; align-self: end; }
@@ -4480,7 +4468,6 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root[data-mobile="land"] .mh-people { max-width: calc(50% - 2 * var(--m-gap)); }
 #mundi-root[data-mobile="land"] .mu-sprites { right: 50% !important; left: 0 !important; bottom: 0 !important; width: auto !important; }
 #mundi-root[data-mobile="land"] .mh-peek, #mundi-root[data-mobile="land"] .mh-bookbtn { right: var(--m-half); bottom: calc(var(--m-gap) + 4px); }
-#mundi-root[data-mobile="land"] .mu-pcard { right: var(--m-half) !important; bottom: var(--m-gap) !important; max-height: calc(100% - var(--m-row3, 132px) - 24px); }
 #mundi-root[data-mobile="land"] #mundi-toasts { left: 25% !important; width: calc(50% - 24px) !important; }
 #mundi-root[data-mobile="land"] .mu-recap { max-width: 640px !important; border-radius: 22px !important; align-self: center; }
 #mundi-root[data-mobile="land"] .mu-pop, #mundi-root[data-mobile="land"] .mu-pop.is-here { left: auto !important; width: min(380px, 50%) !important; max-height: calc(100% - 16px); }

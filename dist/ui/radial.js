@@ -1,5 +1,5 @@
-// Click a character's sprite: a radial menu around them with what you can do with them (the same as their card in
-// "Here", except "Play as them"). What they wear isn't yours to pick: the game dresses them for the place (sim/dress.ts).
+// Click a character's sprite: a radial menu around them with what you can do with them in the scene; Their card opens
+// their page in People. What they wear isn't yours to pick: the game dresses them for the place (sim/dress.ts).
 import { esc, game, notify } from '../core/store.js';
 import { getWorld } from '../core/world.js';
 import { ACT } from './reg.js';

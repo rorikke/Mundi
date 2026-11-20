@@ -3,7 +3,7 @@ import { relOverlays, endConfirmHtml } from './relui.js';
 // ui/shopui.ts, the Goals app ui/goalsui.ts), throwing a party, talking with only one person, and playing as someone else.
 import { currentHappening, answer } from '../sim/happenings.js';
 import { storyHtml } from './storyui.js';
-import { esc, game, toast, notify, saveGame, nowAbs, state } from '../core/store.js';
+import { esc, game, toast, notify, saveGame, nowAbs, state, settings } from '../core/store.js';
 import { countUp } from '../sim/skills.js';
 import { getWorld } from '../core/world.js';
 import { styleOf } from '../core/world.js';
@@ -151,6 +151,10 @@ export function swapBadge(g) {
 }
 /* ---------- "Play as": your photo opens who you can play (and the choice of who that is) ---------- */
 const PA = { open: false, edit: false, q: '' };
+// "Play as" is off unless the player turns it on (Settings → Game). Someone already playing another person can
+// always go back to their own character, so the picker still opens for them, with only that choice.
+export const playAsOn = () => !!settings().playAs;
+const swapped = (g) => !!swapOf(g)?.avatar;
 function playAsHtml(g) {
     if (!PA.open)
         return '';
@@ -158,7 +162,7 @@ function playAsHtml(g) {
     const cur = s?.avatar ?? '';
     const origName = s?.origName || personaName();
     const origPic = s?.orig ? personaThumb(s.orig) : personaThumb();
-    const list = roster(g).filter(a => g.cast[a] && charOf(a));
+    const list = playAsOn() ? roster(g).filter(a => g.cast[a] && charOf(a)) : [];
     const card = (who, name, pic, sub) => `<button class="mu-pa-card ${who === cur ? 'is-on' : ''}" data-act="pa-go" data-who="${esc(who)}" ${who === cur ? 'aria-disabled="true"' : ''}>
         <img src="${esc(pic)}" alt=""><b data-notr>${esc(name)}</b><small>${who === cur ? 'Playing now' : esc(sub)}</small></button>`;
     const q = PA.q.trim().toLowerCase();
@@ -172,7 +176,7 @@ function playAsHtml(g) {
             <footer class="mu-row"><button class="mu-primary mu-right" data-act="pa-edit">${icon('check')}<span>Done</span></button></footer></div>`
         : `<div class="mu-pa-grid">${card('', origName, origPic, 'Your character')}${list.map(a => card(a, g.cast[a].name, thumb(a), placeOf(g, getWorld(g.world), whereNow(g, getWorld(g.world), g.cast[a]))?.name ?? '')).join('')}</div>
             <p class="mu-muted mu-pa-note">You take their place and their home. The one you were stays where they are (or with you, if they were your company). Energy, needs and money stay the same; each person keeps their own relationships, diary and job.</p>
-            <footer class="mu-row"><button data-act="pa-edit">${icon('edit')}<span>Choose who you can play (${list.length})</span></button><button data-act="pa-persona"><img class="mu-pa-me" src="${esc(personaThumb())}" alt=""><span>Use another persona</span></button></footer>`}
+            <footer class="mu-row">${playAsOn() ? `<button data-act="pa-edit">${icon('edit')}<span>Choose who you can play (${list.length})</span></button>` : ''}<button data-act="pa-persona"><img class="mu-pa-me" src="${esc(personaThumb())}" alt=""><span>Use another persona</span></button></footer>`}
     </section></div>`;
 }
 export const openPlayAs = () => { PA.open = true; PA.edit = false; notify(); };
@@ -330,17 +334,22 @@ Object.assign(ACT, {
         return; social(g).solo = el.dataset.who; saveGame(); await syncScene(); notify(); },
     'solo-off': async () => { const g = game(); if (!g)
         return; social(g).solo = ''; saveGame(); await syncScene(); notify(); },
-    'swap-to': async (el) => { await goPlay(el.dataset.who ?? ''); },
+    'swap-to': async (el) => { if (playAsOn())
+        await goPlay(el.dataset.who ?? ''); },
     'swap-back': async () => { await goPlay(''); },
-    'pa-go': async (el) => { if (el.getAttribute('aria-disabled'))
+    'pa-go': async (el) => { if (el.getAttribute('aria-disabled') || (el.dataset.who && !playAsOn()))
         return; PA.open = false; await goPlay(el.dataset.who ?? ''); },
-    'pa-open': () => openPlayAs(),
+    // with Play as off, your photo is only your SillyTavern persona
+    'pa-open': (el, e) => { const g = game(); if (!playAsOn() && !(g && swapped(g)))
+        ACT['pa-persona'](el, e);
+    else
+        openPlayAs(); },
     'pa-close': () => { PA.open = false; notify(); },
     'pa-bg': (el, e) => { if (e.target === el) {
         PA.open = false;
         notify();
     } },
-    'pa-edit': () => { PA.edit = !PA.edit; PA.q = ''; notify(); },
+    'pa-edit': () => { PA.edit = playAsOn() && !PA.edit; PA.q = ''; notify(); },
     'pa-pick': (el) => { const g = game(); if (!g)
         return; const list = roster(g); const a = el.dataset.who; const i = list.indexOf(a); if (i >= 0)
         list.splice(i, 1);

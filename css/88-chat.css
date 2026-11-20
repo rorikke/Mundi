@@ -317,8 +317,6 @@
 #mundi-root .mh-here-p:hover b { opacity: 1; }
 @media (max-width: 1100px) { #mundi-root .mh-here { max-width: calc(100% - 28px); top: 166px; } }
 @media (max-width: 760px) { #mundi-root .mh-here { top: 96px; } }
-/* the person's options open over everything in the scene, the dialogue box included */
-#mundi-root .mu-pcard { z-index: 35 !important; top: 220px !important; }
 
 /* ---------- Chat look: sections fold; colors as a grid of tiles ---------- */
 #mundi-root .mu-look-sec { border-top: 1px solid rgba(255, 255, 255, .1); }
@@ -352,7 +350,6 @@
 #mundi-root .mh-bar-sky .mh-weather { font-size: 24px; line-height: 1; }
 /* with the bar, "Here" sits right under it */
 #mundi-root:has(.mh-clock.is-bar) .mh-here { top: 86px; }
-#mundi-root:has(.mh-clock.is-bar) .mu-pcard { top: 140px !important; }
 @media (max-width: 1100px) { #mundi-root .mh-clock.is-bar { max-width: calc(100% - 28px); top: 132px; left: 50%; } #mundi-root:has(.mh-clock.is-bar) .mh-here { top: 196px; } }
 @media (max-width: 760px) { #mundi-root .mh-clock.is-bar { top: auto; bottom: calc(50vh + 70px); gap: 10px; padding: 6px 12px; } #mundi-root .mh-bar-day { display: none; } }
 

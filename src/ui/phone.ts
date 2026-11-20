@@ -31,7 +31,7 @@ import { note } from '../sim/facts.js';
 import { notify, esc, game, toast, saveGame, settings, saveSettings, nowAbs, UI } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, messageKind, appsShown, systemOn, type WorldDef, type Occupation, isScenario } from '../core/world.js';
-import { upcoming, when as planWhen } from '../sim/plans.js';
+import { upcoming, when as planWhen, isWorking } from '../sim/plans.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { whenText } from './plans.js';
 import type { Save, Resident } from '../core/store.js';
@@ -427,6 +427,7 @@ const quickCouple = (g: Save, a: string) => bondOf(g, a) >= PARTNER_BOND && crus
 // A person's page: who they are to you on top (with the buttons that matter most), then the tabs of ui/personpage.ts.
 function personApp(g: Save, w: WorldDef) {
     const r = g.cast[P.who]; if (!r) return peopleApp(g);
+    if (!r.met) return strangerApp(g, w, r);
     const a = r.avatar, partner = isPartner(g, a);
     const here = whereNow(g, w, r), br = breakNow(g, w, r);
     const now = `<section class="mu-pp-sec mu-pp-now"><h5>${icon('pin')}<span>Now</span></h5><b data-notr>${esc(placeOf(g, w, here)?.name ?? '')}</b>${br && here === br.place ? `<small>${esc(br.why.replace(/^is /, ''))}</small>` : ''}</section>`;
@@ -439,6 +440,18 @@ function personApp(g: Save, w: WorldDef) {
             ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? `<button data-act="ph-partner">${icon('heart')}<span>Ask to be together</span></button>` : ''}</div>
         ${personTabs(g, w, a)}
         <div class="mu-pp-body">${body}</div>
+    </div>`;
+}
+
+// Someone you haven't met (a face in Here, Their card on a sprite): only what you can see. No name, no number to
+// write to and nothing in the tabs yet: where they are, and their job while they're at it. Once you've met, their
+// page is the whole one.
+function strangerApp(g: Save, w: WorldDef, r: Resident) {
+    const here = whereNow(g, w, r), seen = here === g.player.loc;   // (only where you see them: here with you)
+    const job = seen && isWorking(g, w, r, nowAbs(g)) ? w.occupations.find(o => o.id === r.occupation)?.name ?? '' : '';
+    return `${head('Someone', 'people')}<div class="mu-ph-body mu-pp">
+        <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b>Someone</b><small>You don't know them yet.</small></div>
+        ${seen ? `<section class="mu-pp-sec mu-pp-now"><h5>${icon('pin')}<span>Now</span></h5><b data-notr>${esc(placeOf(g, w, here)?.name ?? '')}</b>${job ? `<small><span>At work</span>: <span data-notr>${esc(job)}</span></small>` : ''}</section>` : ''}
     </div>`;
 }
 

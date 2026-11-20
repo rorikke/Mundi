@@ -186,7 +186,7 @@ export function yourHouseholdHtml(fromStart = []) {
     const pool = characters().filter(c => !fam.some(f => f.avatar === c.avatar) && !hhs().some(h => h.members.includes(c.avatar)) && !worldCard(w, c) && (!q || String(c.name).toLowerCase().includes(q))).slice(0, 40);
     const start = fromStart.map(s => `<div class="mu-ties-add"><b data-notr>${esc(s.name)}</b><small class="mu-muted">lives with you: your start</small></div>`).join('');
     return `<section class="mu-panel mu-ngfam"><h3>Your household</h3>
-        <p class="mu-muted">The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later ("Play as"). A partner or a friend: say how you get along under Your relations.</p>
+        <p class="mu-muted">The people who live with you: family, a partner, roommates. They share your home and your wallet. A partner or a friend: say how you get along under Your relations.</p>
         ${fromStart.length ? '<p class="mu-muted">Your start has you living with them; to live with someone else, change the start ("Who you live with"). You can still add people.</p>' : ''}
         ${start}${fam.map((f, k) => `<div class="mu-ties-add">${face(f.avatar)}<b data-notr>${esc(nm(f.avatar))}</b><span>is your</span>
             <select data-input="ngf-set" data-k="${esc(k)}" data-f="type">${opt('', 'housemate (not family)', !f.type)}${TIE_TYPES.map(([id, l]) => opt(id, l.replace(/ of$/, ''), f.type === id)).join('')}</select>

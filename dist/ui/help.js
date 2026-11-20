@@ -1,5 +1,5 @@
 // The phone's Help app: a window in the middle of the screen that explains each part of the game, topic by topic.
-import { notify, game, esc, adultOn } from '../core/store.js';
+import { notify, game, esc, adultOn, settings } from '../core/store.js';
 import { getWorld, appsOf, styleOf, isScenario, systemOn } from '../core/world.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { GOAL_POINTS, goalsOf } from '../core/goals.js';
@@ -117,7 +117,7 @@ const homeTopics = (w) => {
         { id: 'start', icon: 'home', title: 'Getting started', intro: 'A Home is one house and the characters you chose to live in it. No work, money or bills: just the people, their days and the story the AI writes.',
             items: [
                 ['The clock (top left)', 'The day, the time and the weather. Click it to let time pass until the next part of the day.'],
-                ['Here', 'Who is in this room with you. Click a face for what you can do with that person.'],
+                ['Here', 'Who is in this room with you. Click a face to open their page in People; click them in the scene for what you can do with them.'],
                 ['Things to do (right)', 'What this room offers: eat, rest, shower… They cost nothing. Turn on "Something else…" in Settings → Game to do anything you can think of.'],
                 ['Rooms', 'The house, floor by floor. Click a room to go there: inside the house, walking takes no time.'],
             ] },
@@ -153,7 +153,7 @@ const homeTopics = (w) => {
         { id: 'people', icon: 'heart', title: 'People and relationships', intro: 'Everyone has two bars: friendship and romance. Each bar fills inside its level, then the level goes up.',
             items: [
                 ['Levels', 'Stranger, acquaintance, friend, good friend, best friend; and for romance, from a crush up to love.'],
-                ['Asking someone out', 'From their card or with your own words. The engine decides how ready they are; the scene shows the answer.'],
+                ['Asking someone out', 'From the menu when you click them in the scene, or with your own words. The engine decides how ready they are; the scene shows the answer.'],
                 ['Your persona (☰)', 'Play as another of your SillyTavern personas, like in a chat.'],
                 ['Difficulty', 'Easy, Normal or Hard: how fast people grow close to you.'],
             ] },
@@ -198,9 +198,9 @@ const topics = (w) => {
     return [
         { id: 'start', icon: 'home', title: 'Getting started', intro: 'Mundi turns a SillyTavern group chat into a life you live: a world, a clock, needs, people with their own days, and the story the AI writes around what you do.',
             items: [
-                ['Your card (top left)', 'Your name, money, energy and needs. Click your photo to play as someone else.'],
+                ['Your card (top left)', settings().playAs ? 'Your name, money, energy and needs. Click your photo to play as someone else.' : 'Your name, money, energy and needs. Click your photo to use another SillyTavern persona.'],
                 ['The clock (top)', 'The day, the time, where you are and the weather. Time passes when you do things, travel or sleep. Click it to let time pass.'],
-                ['Here', 'Who is in this place right now. Click a face for what you can do with that person.'],
+                ['Here', 'Who is in this place right now. Click a face to open their page in People; click them in the scene for what you can do with them.'],
                 ['Things to do (right)', 'What this place offers: eat, drink, work, rest… Turn on "Something else…" in Settings → Game to do anything you can think of.'],
                 ['Doing things with people around', "Being in the same place isn't being together: what you do on your own goes into the story with no reply, and the people here go on with their own things. Someone may come over now and then (friends more often, and more in a bar than a library): talk, or nod and keep going. Talk to someone and they're with you for a while. \"Keep to myself\" in Things to do: only friends come over, and rarely."],
                 ['Map', 'Go to other places. Travelling takes time; the people you are with can come along.'],
@@ -209,7 +209,7 @@ const topics = (w) => {
             items: [
                 ['Say, Do, Story, See', 'Say: what you say out loud. Do: what you do. Story: a direction for the story ("it starts to rain"). See: ask the narrator to describe something.'],
                 ['@ someone', 'Type @ and pick a name: only that person answers your line.'],
-                ['Talk only with them', 'On a person\'s card: the others stay but give you space.'],
+                ['Talk only with them', 'In the menu when you click someone in the scene: the others stay but give you space.'],
                 ['Buttons on a line', 'Edit, delete, regenerate, continue, or let the AI write your line.'],
                 ['Bonds grow as you talk', 'Being kind brings people closer (a little each line, up to a limit each day). Rude lines push them away.'],
             ] },
@@ -225,8 +225,8 @@ const topics = (w) => {
         { id: 'people', icon: 'heart', title: 'People and relationships', intro: 'Everyone has two bars: friendship and romance. Each bar fills inside its level, then the level goes up and the bar changes color.',
             items: [
                 ['Levels', 'Stranger, acquaintance, friend, good friend, best friend; and for romance, from a crush up to love.'],
-                ['Asking someone out', 'From their card or with your own words ("will you be my girlfriend?"). The engine decides how ready they are; the scene shows the answer. If they need time, wait before asking again.'],
-                ['Proposing, marriage, a baby', 'Once you are a couple, the next steps appear on their card.'],
+                ['Asking someone out', 'From the menu when you click them in the scene, or with your own words ("will you be my girlfriend?"). The engine decides how ready they are; the scene shows the answer. If they need time, wait before asking again.'],
+                ['Proposing, marriage, a baby', 'Once you are a couple, the next steps appear in the menu when you click them in the scene.'],
                 ['What they think of you', 'Approval goes up when you keep your word and down when you let people down. Feelings (happy, hurt…) fade with the days.'],
                 ['Their own lives', `People work, go out and sleep on their own schedule. ${lex(w, 'reachThem')}`],
                 ...(!w || systemOn(w, 'dress') ? [['Dressing for the place', 'At a pool, on a beach in summer or for a swim, people change into swimwear, each as bold as they go in public, a little bolder in private with someone close. What they wear is theirs to choose, not yours. The AI is told what everyone wears.']] : []),
@@ -234,13 +234,13 @@ const topics = (w) => {
         ...(!w || systemOn(w, 'living') ? [{ id: 'storylines', icon: 'book', ...STORYLINES_HELP }] : []),
         { id: 'plans', icon: 'calendar', title: 'Plans and events', intro: 'Invite people to hang out, go on a date or come to your party. A plan becomes an event when it starts.',
             items: [
-                ['Make plans', `From a person's card (in person) or the ${devl}. Choose where, when, and give it a name: the story will be about it ("${lex(w, 'planTitleEg').replace(/^e\.g\. /, '').split(',')[0]}").`],
+                ['Make plans', `In person (click them in the scene) or from the ${devl}. Choose where, when, and give it a name: the story will be about it ("${lex(w, 'planTitleEg').replace(/^e\.g\. /, '').split(',')[0]}").`],
                 ['Getting there', 'An hour before, "Things to do" lets you wait for them; half an hour before, a reminder asks if you want to go.'],
                 ['Wait and go', `${appRef(w, 'plans').charAt(0).toUpperCase()}${appRef(w, 'plans').slice(1)}, on a plan or an event you're going to: time passes until it's time to leave, then you go and arrive as it starts (it says first what the wait would make you miss). The clock's "Let time pass?" can also wait until it's time to leave.`],
                 ['During the event', 'A panel shows it. End it to say goodbye (they tell you what they thought), or ask them to stay the night.'],
                 ['A party', `Invite several people at once ${appRef(w, 'plans')}. You wait for all your guests in one go.`],
                 ['Standing someone up', lex(w, 'standUpHelp')],
-                ...(!w || visitsOn(w) ? [['Staying over', 'A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, on their card. They ring the doorbell, go out to work from your place, and grow a little closer each night.']] : []),
+                ...(!w || visitsOn(w) ? [['Staying over', 'A close friend or your partner can stay at your place for a few nights, or until you say goodbye (a week at most): Ask to stay a few days, in the menu when you click them in the scene. They ring the doorbell, go out to work from your place, and grow a little closer each night.']] : []),
             ] },
         { id: 'work', icon: 'briefcase', title: 'Work and money', intro: `Find work ${appRef(w, 'jobs')} or at the place itself, then work your shifts. The Work button (top right) takes you there.`,
             items: [
@@ -338,18 +338,18 @@ const topics = (w) => {
             ] },
         { id: 'family', icon: 'users', title: 'Households and family', intro: 'People who live together share a home, like in The Sims.',
             items: [
-                ['Your household', 'The faces under your card. Click one to play as them, call them over or go to them.'],
+                ['Your household', settings().playAs ? 'The faces under your card. Click one to play as them, call them over or go to them.' : 'The faces under your card. Click one to call them over or go to them.'],
                 ['Households', 'In ☰ → This world: who lives where, and how they are related.'],
                 ['Children', 'A baby grows a stage at each birthday, once a week. Celebrate it from their card.'],
                 ...(roomsHere ? [['Rooms at home', `Some homes have rooms inside (a share house: the common room, the kitchen, the bathroom, a bedroom each). Walking between them takes no time; the scene is the room you are in, and "Elsewhere at home" shows who is in the others. Housemates keep the house's rhythm and come to find you now and then (Keep to myself keeps all but friends away). Someone's bedroom is theirs: close friends walk in, others knock.`]] : []),
             ] },
-        { id: 'playas', icon: 'user', title: 'Play as someone else', intro: 'Click your photo to switch to another person of the world.',
-            items: [
-                ['Choosing who you can play', '"Choose who you can play" keeps people ready; you switch only when you click one.'],
-                ['What changes', 'You go where they are and live in their home. Each person keeps their own relationships, diary and job.'],
-                ['What stays', 'Energy, needs and money are the same for everyone you play.'],
-                ['The one you were', 'Stays where they were, or with you if they were your company.'],
-            ] },
+        ...(settings().playAs ? [{ id: 'playas', icon: 'user', title: 'Play as someone else', intro: 'Click your photo to switch to another person of the world.',
+                items: [
+                    ['Choosing who you can play', '"Choose who you can play" keeps people ready; you switch only when you click one.'],
+                    ['What changes', 'You go where they are and live in their home. Each person keeps their own relationships, diary and job.'],
+                    ['What stays', 'Energy, needs and money are the same for everyone you play.'],
+                    ['The one you were', 'Stays where they were, or with you if they were your company.'],
+                ] }] : []),
         { id: 'look', icon: 'palette', title: 'Look and settings', intro: 'Make it yours.',
             items: [
                 ['Chat look (☰ menu)', 'Visual novel, Classic or Cards; sizes; colors with transparency; colors from a SillyTavern theme.'],

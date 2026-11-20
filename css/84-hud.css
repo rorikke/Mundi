@@ -14,7 +14,7 @@
 #mundi-root[data-skin="dark"] { --glass: rgba(20, 12, 11, .58); --glass-strong: rgba(16, 10, 9, .74); --glass-edge: rgba(179, 38, 30, .32); }
 
 /* the glass material */
-#mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-pcard, #mundi-root .mu-bump, #mundi-root .mu-mapnav, #mundi-root .mu-toast, #mundi-root .mu-pop {
+#mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-bump, #mundi-root .mu-mapnav, #mundi-root .mu-toast, #mundi-root .mu-pop {
     background: linear-gradient(160deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .03) 42%, rgba(255, 255, 255, 0) 62%), var(--glass) !important;
     -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-edge) !important;
@@ -134,7 +134,6 @@
 #mundi-root .mh-bookbtn .mu-ic { width: 30px; height: 30px; }
 
 /* everything else that floats over the game moves out of the HUD's way */
-#mundi-root .mu-pcard { top: 172px !important; }
 #mundi-root .mu-bump { top: 172px; border-radius: 22px !important; }
 #mundi-root .mu-mapnav { top: 172px; border-radius: 18px !important; }
 #mundi-toasts { top: 168px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; justify-items: center !important; width: min(420px, calc(100% - 24px)) !important; }
@@ -147,7 +146,7 @@
 #mundi-root .mu-pin > .label { background: rgba(16, 22, 36, .5) !important; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, .22) !important; border-radius: 10px !important; color: #fff !important; }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    #mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-pcard, #mundi-root .mu-bump, #mundi-root .mu-toast { background: var(--panel) !important; }
+    #mundi-root .mh-glass, #mundi-root .mu-dialog, #mundi-root .mu-bump, #mundi-root .mu-toast { background: var(--panel) !important; }
 }
 
 /* small screens: you and the clock on top, people and things to do as rows */

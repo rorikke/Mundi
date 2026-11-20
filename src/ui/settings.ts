@@ -73,6 +73,7 @@ function tabGame() {
     return `<section><h3>General</h3>
             <label class="mu-check"><input type="checkbox" data-input="set-openstart" ${settings().openOnStart ? 'checked' : ''}><span>Open Mundi when SillyTavern starts</span></label>
             <label class="mu-check"><input type="checkbox" data-input="set-customact" ${settings().customAction ? 'checked' : ''}><span>"Something else…" in Things to do<small>An action you name yourself and choose how long it takes. It only passes the time and goes into your journal.</small></span></label>
+            <label class="mu-check"><input type="checkbox" data-input="set-playas" ${settings().playAs ? 'checked' : ''}><span>Play as someone else<small>Switch to another person of the world from your photo or your household. Each person keeps their own relationships, diary and job.</small></span></label>
             <label class="mu-field"><span>Adult content in new games</span><select data-input="set-adultnew">${([['', 'Ask me (it starts off)'], ['off', 'Off, without asking'], ['on', 'On, without asking']] as const).map(([v, l]) => `<option value="${v}" ${(settings().adultNew === undefined ? '' : settings().adultNew ? 'on' : 'off') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label></section>
         <section><h3>AI calls</h3><p class="mu-muted">What makes Mundi call the AI (the diary, people's posts in the news, characters' texts, narrating what you do) is now in the game: ☰ → This world → AI context.</p></section>
         <section><h3>Background</h3>
@@ -148,6 +149,7 @@ Object.assign(INPUT, {
     'set-diary': (el) => { (settings() as any).diaryOnSleep = el.checked; saveSettings(); },
     'set-openstart': (el) => { settings().openOnStart = el.checked; saveSettings(); },
     'set-customact': (el) => { settings().customAction = el.checked; saveSettings(); notify(); },
+    'set-playas': (el) => { settings().playAs = el.checked; saveSettings(); notify(); },
     'set-adultnew': (el) => { const s = settings(); if (el.value) s.adultNew = el.value === 'on'; else delete s.adultNew; saveSettings(); },
     'set-speed': (el) => { const g = game(); if (g) { g.speed = Number(el.value); saveGame(); } },
 });

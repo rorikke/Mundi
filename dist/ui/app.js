@@ -44,7 +44,7 @@ import { libraryHtml, libraryEscape } from './library.js';
 import { galleryHtml, closeLightbox } from './gallery.js';
 import { closeToastLog } from './toastlog.js';
 import { refreshList, chat } from '../st/bridge.js';
-import { runPlans, PL } from './plans.js';
+import { runPlans } from './plans.js';
 import { syncNative, releaseNative, guardBackgrounds } from './native.js';
 import { phoneHtml, P as phone, feedTick } from './phone.js';
 import { attachHScroll } from './hscroll.js';
@@ -339,11 +339,6 @@ function attach(r) {
             return;
         if (phone.open && inGame()) {
             phone.open = false;
-            notify();
-            return;
-        }
-        if (PL.card) {
-            PL.card = '';
             notify();
             return;
         }
