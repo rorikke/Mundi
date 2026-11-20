@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <b>38</b> people · <b>118</b> places · <b>10</b> districts and getaways · <b>44</b> personal storylines ·
+  <b>38</b> people · <b>120</b> places · <b>10</b> districts and getaways · <b>70</b> personal storylines ·
   <b>50</b> careers · <b>32</b> festivals · <b>166</b> things to buy · <b>~100</b> museum pieces<br>
   <sub>Counts include what the adult content switch adds.</sub>
 </p>
@@ -84,6 +84,9 @@ shifts, friends, favorite places and a full set of expressions.
   it from the card. Not everyone is drawn to everyone.
 - **Dressed for the place.** At the pool, on the beach in summer or at a swimsuit hot spring, people change into
   their own swimwear, each as bold as they go in public. Tamaki wears her yukata to the summer festivals.
+- **Under one roof.** The Kōenji share house has a room for each of you, a kitchen and a common room, and your
+  housemates keep its rhythm: breakfast in the kitchen, the TV in the evening, a knock on your door. A close friend
+  can come and stay for a few days.
 
 <p align="center">
   <img src="docs/readme/scene-bar.jpg" width="49%" alt="Kyōko behind the counter of Bar Kotori in Golden Gai">
@@ -146,8 +149,9 @@ are cards, you are a persona, the world's lore is a lorebook, and **a save is a 
   free text never sets money, time or feelings.
 - **A visual-novel scene.** Say, Do, Story or See. Type `@` to choose who answers. Each speaker's dialogue gets their
   own color.
-- **A phone.** Messages (with the news of the town and the people you know), People, Jobs, Bank, Homes, Calendar,
-  Goals, Business, Collection, Lens, and a dating app (Spark) where a like might be answered days later, or never.
+- **A phone** that unfolds to twice its width: Messages (with the news of the town and the people you know, and
+  texts that make plans), People, Work (Jobs, Campus, Business and Lens), Money, Homes, a Calendar that's an agenda,
+  Goals, Collection, and a dating app (Spark) where a like might be answered days later, or never.
 - **A diary.** Each night the day becomes a short entry, so the story remembers.
 - **Households and "Play as".** Live with family or roommates, and switch to playing any of them.
 - **A World creator that edits everything,** Tokyo included: places, people, jobs, storylines, rules, pictures.

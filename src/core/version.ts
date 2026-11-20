@@ -1,9 +1,19 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '1.0.0';
+export const VERSION = '1.1.0';
 
 export interface Release { v: string; title: string; items: [string, string][] }
 // Newest first. The first one is what the window shows after an update.
 export const CHANGELOG: Release[] = [
+    { v: '1.1.0', title: 'Through the lens, and at home in Tokyo', items: [
+        ['camera', "A photographer's career: assist Erika Mizushima at Studio MIZU, then go freelance with briefs that wait for their light and weather, a photo studio of your own and photobooks. Everyone gets Lens for their photos."],
+        ['home', "The Kōenji share house has rooms inside, with housemates keeping the house's rhythm, and a friend can stay over for a few days."],
+        ['image', "People dress for the place: swimwear at Odaiba's summer beach, the Azabu Terrace Night Pool and Hoshizora Spa Park in Hakone, yukata at the summer festivals."],
+        ['phone', "A new phone: bigger, unfolding to twice its width, with the news in Messages (Chirp is gone), invitations by text, filters in People and the Calendar as an agenda."],
+        ['user', "Who you are counts for more: a strength adds to your start, Tokyo has one for every skill, every personality trait has a cost, and every interest fits something in Tokyo."],
+        ['calendar', "The world's couples marry on a set day, and some people's rule about being photographed loosens as you get closer."],
+        ['moon', "With adult content on, 26 new storylines for nine of Tokyo's women, many more private moments, and rooms of their own for the scenes."],
+        ['globe', "Habits are gone, the World creator edits everything new, and everything new is in Portuguese and Spanish."],
+    ] },
     { v: '1.0.0', title: "Tokyo's long game", items: [
         ['book', "Storylines start once you know someone and wait for you at their end: help, wait for a better ending or let it be, with last chances by text. Natsuki, Lisa and Yui have stories of their own."],
         ['store', "The shop has about 160 things, from a ¥1,000 charm to a car that drives you home after the last train, and photography is a skill."],

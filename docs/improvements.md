@@ -23,6 +23,7 @@ point of view, and grows as new ones arrive.
 - [A friend staying over](#a-friend-staying-over)
 - [A photographer's life](#a-photographers-life)
 - [Dressing for the place](#dressing-for-the-place)
+- [The phone](#the-phone)
 - [The World creator and the new game](#the-world-creator-and-the-new-game)
 
 ## A color for each speaker's dialogue
@@ -63,6 +64,13 @@ cherry blossom and autumn leaves in the parks, and bare trees in winter.
   covers heavy rain and storms too, `snow`…) and the seasons. A home kind's `images` work the same way.
 - **Expression sprites in any format.** A world's sprites can be PNG, WebP or AVIF (Tokyo's are AVIF, about half the
   size); each is saved to the card under its own type.
+- **A room for the scene.** A thing to do can show a picture of its own while it plays (a back room, a hotel's themed
+  room, a closet studio at a friend's), by part of the day, instead of the place's or the room's. It stays until the
+  scene moves on: another action, leaving the place or the room, the visit ending, or an hour later, never past the
+  part of the day. Something that follows it (tea from the kettle, pillow talk) can keep the room showing, and a thing
+  played at several places can have a picture for each (a love hotel's room, your home's). A picture that doesn't
+  load leaves the usual one, and an adult one shows only with adult content on. World makers set it under *Its own
+  background* on a thing to do.
 
 ## Who you are, and courses that take weeks
 
@@ -416,6 +424,10 @@ office (20%), Ueno Park after dark (15%), the ryokan's shared bath after midnigh
   manga café), the place won't serve you what's private, risky or paid for **for a week** (the map and the things to do say
   so, and for how many days more), and if someone from the world was there, a rumor about you and who was with you
   starts. At your own workplace your boss gives you a warning.
+- **Who saw.** A place, a home, a home area, a risky action or a person can have their own words for it: who walked in
+  and how they take it, a change in how they feel about you and a rumor of their own (in Tokyo, Sumire's taxi driver,
+  the clerk of a Jinbōchō bookshop with Shiori, the guests next door at the ryokan with Yui). Caught at someone's home,
+  nobody bans you; word gets around from the people who live there instead.
 - *Shameless* makes it 10% more likely, the *Blind spots* perk half as likely, and *Quiet a rumor* in the shop also
   lifts the ban when the rumor is about getting caught.
 - **Work can be risky too:** at the esthe, "a little more" has a 10% chance of a raid. The shop shuts for a week (no
@@ -1284,6 +1296,10 @@ housemates.
   room is always yours, and private; a shared room is private only with nobody else in it.
 - **Visiting** someone whose home has rooms, the person you came to see meets you at the entry and goes room to room
   with you.
+- **Some people keep their home to themselves:** for good, or until something has happened (in Tokyo, Tsubaki opens her
+  flat once a storyline of hers has come far enough), and a door can hold only with adult content on. However close you
+  are, their door stays shut: no visit, no night at theirs, no "come over tonight?", and they say so in their own words.
+  World makers set it under *Their door* on a person.
 - **A party at home** spreads over the rooms: the guests and your housemates are in the common room and the kitchen,
   changing every hour; walk around to find them.
 - **World makers**: "Rooms inside" in each kind of home and each housing area of the World creator (a name, words for
@@ -1354,7 +1370,7 @@ wedding planners, agencies and bands.
   the city), **Weddings and events** (planners, festivals, the papers) or **Studio portraits** (headshots, idols, album
   covers; its second rank asks for a studio of your own). Every branch still sees some briefs of the others.
 - **Freelance has no shifts.** Three to five briefs on a full board at once; each delivery counts toward the next rank
-  and its stars move your performance. Each rank pays a **retainer** on Mondays (¥40,000 to ¥60,000 a week), but only
+  and its stars move your performance. Each rank pays a **retainer** on Mondays (¥40,000 to ¥56,000 a week), but only
   for a week with at least one delivery. Freelance ranks ask for reputation (45, 65, 85) and, at the top two, a
   portfolio.
 - **Contacts.** Clients you deliver to while you hold the job become contacts, and keep sending briefs after you quit.
@@ -1401,6 +1417,15 @@ From the long simulated runs (four game years, a player who works the board well
 - **The small board** alone, opened twice a week, pays about ¥10,000 a week and takes reputation to its cap of 28 in
   about two game years.
 
+### Who will be photographed
+
+- Each person has a rule in front of a camera: free, never, not the face, only for work, or asks first. It holds for
+  briefs (a brief with someone who won't isn't offered) and for your own snapshots (a friend who won't be photographed
+  stays out of them). An adult work event's photo is an adult one, and a private moment's photo is private.
+- **A rule can loosen** as a game goes on, once something has happened, and stays loosened; you're told once. Tamaki
+  sits for your camera at her last tier and, with adult content on, Kaoru agrees once her notebook ends well and you're
+  good friends (she asks first, and never at Coco Palace).
+
 ### Adult content
 
 With adult content on, a fourth branch, **Gravure and adult**, and the briefs, clients, events and photobooks that go
@@ -1440,6 +1465,34 @@ for the men, each with its full set of expressions, from a modest one-piece to a
 World makers set a place's, a thing to do's, a street story's, a festival's or a standing appointment's dress code in
 the World creator, and on a person their outfits' kind, level and words for the AI. The new system *Outfits for the
 place* can be turned off: then nobody changes. Older games and worlds without outfits play as before.
+
+## The phone
+
+The phone is bigger and has no frame. **Unfold** (in the status bar, beside the time and Close) doubles its width:
+Messages and People show the list beside the conversation or the person, and jobs and homes take two columns. One
+**Back** button goes back a step at a time, closing what's open inside an app first, and a bar at the bottom goes to
+the home screen.
+
+- **Messages** starts with the town's news, in place of Chirp: the next thing on in town and the two newest news of the
+  people you know (new jobs, promotions, couples, weddings, moves, what they post), with All for the rest. It's
+  read-only, and tapping someone opens their page.
+- **Texts that make plans.** "Dinner tomorrow at 8?" is an invitation, answered by the same rules as Make plans; what it
+  leaves out is filled in (a place they like, seven in the evening). Someone at work answers when they get a moment,
+  someone asleep in the morning, and your message shows as delivered until then. Quick replies fit the moment (sorry
+  while they're hurt, good night, miss you). A heart on their message gives a little friendship once, but a heart on
+  bad news, a worry or an apology lands badly. A world can switch *Busy people* off, and then everyone answers at once.
+- **People** has filters with their counts (free now, friends, romance, family, at home, work, neighbours) and a dot on
+  each picture: free, at work or asleep. A person's page has tabs: **About** (where they are, their job and today's
+  shift, their week and free time once you're friends, plans), **Memories** (what you went through together),
+  **Circle** (the people you've met in their life) and **Notes** (your own note, never sent to the AI, the gifts you gave
+  and how each landed, what you learned of them in bed).
+- **The Calendar is an agenda:** the next seven days in a strip, and the chosen day with everything in it in time
+  order (shifts and classes, plans, photo shoots, what's on in town, festivals, weddings, bills, Lens briefs), each
+  opening where you act on it.
+- **The Profile** is in tabs under its top card (You, Skills, Courses, Perks), and the card's counts open them.
+  **Jobs** has two views while you have a job: Your job and Openings.
+- **Money** pays the bills (Homes keeps one line with what your home costs), and Jobs, Campus, Business and Lens share
+  one Work icon with a tab each.
 
 ## The World creator and the new game
 

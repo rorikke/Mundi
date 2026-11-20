@@ -1,5 +1,146 @@
 # Changelog
 
+## 1.1.0 · 2026-11-20
+
+Through the lens, and at home in Tokyo. Tokyo has a photographer's career, from Studio MIZU's white basement to a
+freelance name with a studio and photobooks of your own, and everyone gets Lens for their photos. The Kōenji share
+house has rooms inside, a friend can stay over for a few days, and people dress for where they are: swimwear at
+Odaiba's summer beach and two new places to swim, yukata at the festivals. The phone is new from end to end, who you
+are counts for more when you make your character, and with adult content on, nine of Tokyo's women have much more to
+them. Habits are gone. Your saves are upgraded once (save
+format 9), with a backup kept in the save.
+
+### A photographer's life
+
+- **Lens, for everyone:** a phone app that shows the photos you take as pictures of the place as it was (its hour,
+  weather and season) and the people in the frame, with the camera's look, your portfolio first, a photo large and
+  starred, and your photo keepsakes.
+- **A small board of photo gigs** opens with a camera of your own: a stock agency's request, a café's new menu, a
+  friend's portrait, each with its place, its window, a deadline and its pay.
+- **Studio MIZU**, off Cat Street, and **Erika Mizushima**, the photographer who runs it, with her portrait, 28
+  expressions and a storyline, *The white basement*. Assist her through three studio ranks, then **go freelance** in
+  Editorial, Weddings and events or Studio portraits (and, with adult content on, Gravure and adult). Freelance has no
+  shifts: you're paid by the brief, with a retainer on Mondays (¥40,000 to ¥56,000 a week) for a week with a delivery,
+  and how you leave the studio, with Erika's blessing or after a falling-out, is remembered. A branch's top takes about
+  two game years.
+- **Briefs, start to finish:** offered by your reputation, your contacts, your skills and who will stand in front of a
+  camera, each with a window of light, weather and day (*a clear afternoon*, *at night in the rain*, *while Sanja
+  Matsuri is on*) and a deadline long enough for its weather to come, extended once if it never did. Set the shoot with
+  its subject, **Shoot the assignment** with every part of the quality named (the camera, a lens, the flash, the light,
+  an assistant, how the subject feels about you, the studio's lights), take it again once, **Edit today's shoots**, and
+  **Deliver** for the client's stars, the pay and reputation. Twenty clients in Tokyo; contacts keep calling after you
+  quit.
+- **A photo studio of your own:** rent or buy one of three in the Homes app (a basement in Ura-Harajuku, a warehouse
+  floor by the bay, a top floor in Shimokitazawa), fit it with a lighting rig, a cyclorama, a dressing room or a
+  retouching desk, or rent Studio MIZU by the hour. A storyline can end by handing you one.
+- **Photobooks:** five, from Kōyōsha once you have a name, published as keepsakes with royalties that fade over about
+  two game years. New gear in the shop: three lenses, a flash, a drone and a waterproof housing.
+- **Weddings on a set day.** The world's engaged couples now pick the first weekend a week or two ahead, the news says
+  when, and they marry on it (a split before the day calls it off). A photographer who knows them is asked to shoot it.
+- **People's rule in front of a camera:** some won't be photographed, some only from behind or only for work, and
+  some ask first, in your snapshots too. A rule can loosen as a game goes on, and you're told when it does: Tamaki sits
+  for your camera at her last tier and, with adult content on, Kaoru agrees once her notebook ends well.
+- A new life goal, **Through the lens**.
+
+### At home
+
+- **Rooms inside a home.** The Kōenji share house has a common room, a shared kitchen, a bathroom and a bedroom each for
+  you, Mio, Ren, Chloe and Haru, each with its pictures by day, afternoon and night, its own things to do and its own
+  words for the AI. Walking between them takes no time, and the scene is the room you're in.
+- **Housemates keep the house's rhythm:** in bed at night, the kitchen at meals, the common room in the evening. They
+  come to find you now and then, and their bedroom doors open to close friends. "Elsewhere at home" shows who is where,
+  a party at home spreads over the rooms, and Keep to myself keeps housemates away too.
+- **A friend can stay over:** ask someone close (friendship 50, or your partner) from their card or their page in
+  People to stay one to three nights, or for a while (a week at most), on the sofa or in your room. They ring the
+  doorbell that evening, keep their own job and days, grow a little closer each night, and go home on the last
+  morning. The Calendar shows who is staying. Not in a Home.
+
+### Dressing for the place
+
+- **People change for where they are,** as bold as they go in public, a step bolder in private with someone close,
+  and not the same set every day. The AI is told who wears what, and a sprite's menu lists their outfits.
+- **Swimwear for 37 of Tokyo's people:** 85 sets from a modest one-piece to a string bikini, each with its
+  expressions (the bold ones only with adult content on).
+- **Odaiba's beach is open for swimming** in summer, drawn again with its summer look, and there are **two new places
+  to swim**: the **Azabu Terrace Night Pool**, a hotel's rooftop pool in Roppongi on summer evenings (¥6,000: the pool,
+  a bar and a DJ), and **Hoshizora Spa Park** in Hakone, a swimsuit hot spring open all year (¥2,800: pools down the
+  hill, a slide, a cave bath), with their pictures in the rain, the snow and autumn.
+- **Outfits for the occasion:** Tamaki and Yui in yukata at the summer festivals, Ayame in her fencing whites at the
+  Kudan club, Kaede in her jumper at her van. Eight more outfit sets come with Tokyo.
+
+### The phone
+
+- **Bigger and frameless.** It unfolds to twice its width, showing a list beside the conversation or the person, and
+  one **Back** button goes back a step at a time.
+- **Messages** has the town's news at the top: **Chirp is gone**. A text that asks to meet is an invitation, busy
+  people answer later, quick replies fit the moment, and a heart on a message lands well or, on bad news, badly.
+- **People** has filters (free now, friends, romance, family, at home, work, neighbours) and a dot on each picture;
+  a person's page has tabs: About, Memories, Circle and Notes.
+- **The Calendar is an agenda:** the next seven days in a strip, and the chosen day with everything in it in time
+  order. **The Profile** is in tabs (You, Skills, Courses, Perks), and **Jobs** has Your job and Openings.
+- **Money** pays the bills, and Jobs, Campus, Business and Lens share one Work icon.
+
+### Who you are
+
+- **A strength adds to your start.** When your start already gives you some of a skill, a strength raises it two
+  levels more, so it's never wasted: Musical after *Back after years away* makes Music 5, and the chip says so
+  ("Musical · Music 3 → 5").
+- **One strength for each of Tokyo's skills:** Good singer, Good dancer, Way with words, Fashionable, Gamer, Good eye
+  (Photography), Bilingual (English or Japanese, whichever your start gives you less of) and Good bartender (Mixology)
+  are new. Strong, Handy, Good with numbers and Tech-savvy are no longer offered, as they said the same as Athletic,
+  Smart and Gamer; a persona that has them still converts.
+- **Every personality trait has a cost,** so no choice is simply best: Calm, Cheerful, Romantic, Curious and Kind now
+  give something up too, and Curious trains skills 10% faster up to level 5 (it was 15% up to level 3). Opposites
+  can't be picked together (Outgoing and Shy, Calm and Hot-headed, Ambitious and Lazy, Polite and Sarcastic). Tokyo
+  adds **Polite**, **Night owl** and **Studious**, each liked by a few jobs.
+- **Every interest counts in Tokyo:** Travel is a day in Yokohama or Hakone, Nightlife a night in Golden Gai,
+  Kabukichō, Roppongi or Noge, Art the museums too, Books Jinbōchō and the university, Anime & manga Akihabara. Two
+  new interests: **Nature** and **Photography**.
+- **Your household shows who your start has you living with,** instead of "You live alone for now", and the
+  Households step only appears when you bring characters of your own.
+- Your existing games keep the character you made; the traits' new costs count from now on.
+
+### Adult content (adult content only)
+
+- **Sumire, Lisa, Tsubaki, Kanon, Momo, Airi, Shiori, Yui and Kaoru** have 26 new storylines between them, from
+  Sumire's Fridays and Lisa's own studio to Shiori's request box and Kaoru's rooms, each with its tile in Tokyo memories,
+  and Tokyo's private moments go from 17 to 134.
+- **Rooms of their own:** a night at a love hotel shows its room, Lounge Velvet's VIP room, Coco Palace's themed rooms
+  and Shiori's closet studio show theirs while the scene plays, and tea or pillow talk afterwards stays in that room.
+- **Getting caught with someone** has their own words wherever it happens: who saw, how they take it, a change in how
+  they feel about you and a rumor. Caught at a home, nobody bans you, but word gets around.
+- Sumire, Lisa, Tsubaki and Momo at the night pool, the spa park and the beach, a boudoir sitting in your studio, and
+  Lisa's studio poster on the small photo board.
+
+### Habits are gone
+
+- Doing something often no longer turns into a trait (Gym regular, Early riser…): no morning mood or energy, no
+  faster learning, no Habits panel. Life goals' perks reward what you work at, and a place still knows you as a regular.
+  Your existing games lose the habits they had.
+
+### World makers
+
+- **The World creator** has a Photography tab (the rules, both boards, clients, briefs and photobooks), photo gear on
+  shop items and fixtures, photo studios in Homes & rent, freelance paths, a person's rule in front of a camera and how
+  it loosens, and an ending that gives a photo studio.
+- **Rooms inside** a kind of home or a housing area; **Outfits for the place** on places, things to do, street
+  stories, festivals and standing appointments, with outfits waiting for their pictures marked; a place closed for
+  whole seasons.
+- **A person's own door:** their home kept closed for good, until something has happened, or only with adult content
+  on, with their own words at the door. **Getting caught** words for a place, a home or a person.
+- **A thing to do's own background**, by part of the day: it shows while the scene plays, can keep the room it's in,
+  and can have a picture for each place it's played at.
+- **Character creation:** which traits can't go with each other ("Can't go with"), and strengths that raise only the
+  lowest of their skills (Bilingual).
+- New systems you can switch off: Photography, Rooms at home, Outfits for the place and Busy people.
+
+### Other changes
+
+- Background AI calls (the Expressions classifier in Full Context mode, a summary, /gen) no longer count as turns of
+  the scene, so a question you asked waits for the real answer.
+- Help explains rooms at home, friends staying over, photography, dressing for the place and the new phone.
+- Everything new in Portuguese and Spanish.
+
 ## 1.0.0 · 2026-11-17
 
 Tokyo's long game. Storylines now start once you know someone and wait for you at their end, and once rent stops
