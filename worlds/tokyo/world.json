@@ -64248,11 +64248,17 @@
       "kind": "swim",
       "level": 1,
       "look": "a fitted white long-sleeve rash guard over a red bikini bottom with short swim shorts over it"
+     },
+     "yukata": {
+      "kind": "yukata",
+      "level": 1,
+      "look": "an indigo cotton yukata printed with small white foxes and a red obi, her hair tied back with its white ribbon"
      }
     },
     "outfits": {
      "swim-onepiece": "cast/yui/swim-onepiece",
-     "swim-rashguard": "cast/yui/swim-rashguard"
+     "swim-rashguard": "cast/yui/swim-rashguard",
+     "yukata": "cast/yui/yukata"
     },
     "caught": [
      {
@@ -67052,13 +67058,19 @@
       "level": 3,
       "adult": true,
       "look": "a tiny gold micro bikini, her shoulder tattoo"
+     },
+     "stage": {
+      "kind": "stage",
+      "level": 3,
+      "adult": true
      }
     },
     "outfits": {
      "swim-black": "cast/lisa/swim-black",
      "swim-neon": "cast/lisa/swim-neon",
      "swim-sporty": "cast/lisa/swim-sporty",
-     "swim-micro": "cast/lisa/swim-micro"
+     "swim-micro": "cast/lisa/swim-micro",
+     "stage": "cast/lisa/stage"
     }
    },
    {
@@ -68692,13 +68704,25 @@
       "level": 3,
       "adult": true,
       "look": "a black sling swimsuit, big round glasses"
+     },
+     "cosplay": {
+      "kind": "cosplay",
+      "level": 3,
+      "adult": true
+     },
+     "tshirt": {
+      "kind": "nightwear",
+      "level": 3,
+      "adult": true
      }
     },
     "outfits": {
      "swim-navy": "cast/kanon/swim-navy",
      "swim-mint": "cast/kanon/swim-mint",
      "swim-black": "cast/kanon/swim-black",
-     "swim-sling": "cast/kanon/swim-sling"
+     "swim-sling": "cast/kanon/swim-sling",
+     "cosplay": "cast/kanon/cosplay",
+     "tshirt": "cast/kanon/tshirt"
     }
    },
    {
@@ -68937,13 +68961,19 @@
       "level": 3,
       "adult": true,
       "look": "a tiny black micro bikini"
+     },
+     "robe": {
+      "kind": "robe",
+      "level": 3,
+      "adult": true
      }
     },
     "outfits": {
      "swim-red": "cast/airi/swim-red",
      "swim-white": "cast/airi/swim-white",
      "swim-leopard": "cast/airi/swim-leopard",
-     "swim-micro": "cast/airi/swim-micro"
+     "swim-micro": "cast/airi/swim-micro",
+     "robe": "cast/airi/robe"
     }
    },
    {
@@ -69130,7 +69160,8 @@
      "swim-sporty": "cast/momo/swim-sporty",
      "swim-volleyball": "cast/momo/swim-volleyball",
      "swim-white": "cast/momo/swim-white",
-     "swim-onepiece": "cast/momo/swim-onepiece"
+     "swim-onepiece": "cast/momo/swim-onepiece",
+     "jersey": "cast/momo/jersey"
     }
    },
    {
@@ -69511,12 +69542,18 @@
       "level": 3,
       "adult": true,
       "look": "a black string bikini, a pearl clip in her long black hair"
+     },
+     "hotaru": {
+      "kind": "lingerie",
+      "level": 3,
+      "adult": true
      }
     },
     "outfits": {
      "swim-onepiece": "cast/shiori/swim-onepiece",
      "swim-bikini": "cast/shiori/swim-bikini",
-     "swim-black": "cast/shiori/swim-black"
+     "swim-black": "cast/shiori/swim-black",
+     "hotaru": "cast/shiori/hotaru"
     },
     "caught": [
      {
@@ -70232,12 +70269,18 @@
       "level": 3,
       "adult": true,
       "look": "a black monokini, a cut-out swimsuit open at the stomach with a gold ring there, cut high at the hips, drop earrings"
+     },
+     "lingerie": {
+      "kind": "lingerie",
+      "level": 3,
+      "adult": true
      }
     },
     "outfits": {
      "swim-violet": "cast/sumire/swim-violet",
      "swim-white": "cast/sumire/swim-white",
-     "swim-black": "cast/sumire/swim-black"
+     "swim-black": "cast/sumire/swim-black",
+     "lingerie": "cast/sumire/lingerie"
     },
     "caught": [
      {
