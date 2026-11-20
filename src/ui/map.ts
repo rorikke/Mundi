@@ -3,7 +3,7 @@
 import { lex, appRef } from '../core/lexicon.js';
 import { safeUrl, setHtml } from '../core/safe.js';
 import { showTransition } from './lifeui.js';
-import { lockedOut, toGetBackIn } from '../sim/bills.js';
+import { lockedOut, toGetBackIn, billsApp } from '../sim/bills.js';
 import { doorAnswer, sleepMood } from '../sim/life.js';
 import { hobbyNeed } from '../sim/hobbies.js';
 import { doAction, playsInScene, isPrivateAct } from '../sim/actions.js';
@@ -602,7 +602,7 @@ async function sleep(wakeAt?: number) {
     const stay = stayOf(g); const away = !!stay && stay.where === g.player.loc && g.player.loc !== playerHomeId;
     const inn = innHere(g, w, away);   // (E6) a capsule, a manga café, a ryokan…
     if (w.sleep.homeOnly && g.player.loc !== playerHomeId && g.player.loc !== SECOND_HOME_ID && !away && !inn) { toast('You can only sleep at home.', 'info'); return; }
-    if (g.player.loc === playerHomeId && !away && lockedOut(g)) { toast(lex(w, 'lockedOutGo', appRef(w, 'homes'), money(w, toGetBackIn(g, w, 'rent'))), 'warn'); return; }
+    if (g.player.loc === playerHomeId && !away && lockedOut(g)) { toast(lex(w, 'lockedOutGo', appRef(w, billsApp(w)), money(w, toGetBackIn(g, w, 'rent'))), 'warn'); return; }
     if (inn && !bookedHere(g, w)) { const why = bookNight(g, w); if (why) { toast(why, 'info'); return; } }
     finishFirst(g, w);   // (E14.6) what you were doing in the scene ends first
     sleepRoom(g, w);   // (homerooms) bed is in your own room: you walk there first, and wake up there

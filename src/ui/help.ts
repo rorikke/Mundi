@@ -6,7 +6,7 @@ import { GOAL_POINTS, goalsOf } from '../core/goals.js';
 import { DAILY_CAP } from '../sim/points.js';
 import { degreesOffered } from '../sim/degrees.js';
 import { ventureDefs } from '../sim/ventures.js';
-import { billList as bills } from '../sim/bills.js';
+import { billList as bills, billsApp } from '../sim/bills.js';
 import { shopItems } from '../sim/shop.js';
 import { collectionOn } from '../sim/collection.js';
 import { icon } from './icons.js';
@@ -220,7 +220,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['Actions take time', 'Each action shows its cost and how long it takes. The clock moves forward when you do it.'],
             ['Sleep', 'At home (or where you stay the night). The night ends the day: your diary is written and you see how the day went with everyone.'],
             ['Let time pass', 'Click the clock: time jumps to the next part of the day.'],
-            ...(billList ? [<[string, string]>['Rent and bills', `${billList} are weekly bills: pay them ${appRef(w, 'homes')} (they turn red when due). One left unpaid for a week stops (or, for the rent, you are locked out of your home) until you pay what is overdue; you can pay part of a bill, and one that stopped owes no more weeks.`]] : []),
+            ...(billList ? [<[string, string]>['Rent and bills', `${billList} are weekly bills: pay them ${appRef(w, w ? billsApp(w) : 'homes')} (they turn red when due). One left unpaid for a week stops (or, for the rent, you are locked out of your home) until you pay what is overdue; you can pay part of a bill, and one that stopped owes no more weeks.`]] : []),
             ['Difficulty', 'Easy, Normal or Hard (chosen when you start, changeable in ☰ → This world): it changes what work pays and what things cost.'],
             ['Events lift your mood', 'Being on a date or at a party raises your mood and keeps it up while it lasts.'],
         ] },
@@ -295,6 +295,8 @@ const topics = (w: WorldDef | null): Topic[] => {
             ...(!w || systemOn(w, 'social') ? [[lex(w, 'news'), lex(w, 'newsHelp')] as [string, string]] : []),
             ...(on('dating') ? [[app('dating'), lex(w, 'socialHelp')] as [string, string]] : []),
             [app('plans'), 'Your plans, who is with you, and parties.'],
+            ...(on('bank') ? [[app('bank'), 'Your money: the bills to pay, the last week in and out, and every payment.'] as [string, string]] : []),
+            ...(modern ? [['Work', 'Jobs, Campus, Business and Lens under one icon, a tab each (the ones this world has).'] as [string, string]] : []),
             [app('journal'), 'A calendar of your days, with each day\'s diary and what happened.'],
             [lex(w, 'profile'), lex(w, 'profileHelp')],
             ...(goalsOn ? [[app('goals'), 'Your life goal, its steps and the goals you could follow; its Rewards tab spends your life points.'] as [string, string]] : []),

@@ -20,7 +20,8 @@ import { placeOf, playerHomeId, pins } from '../sim/places.js';
 import { STUDIO_ID } from '../sim/studio.js';
 import { bondOf, isPartner, social, isWith } from '../sim/social.js';
 import { canAskByText, looksLikeAsk, readAsk } from '../sim/texting.js';
-import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
+import { scheduled, shiftOn, onVacation } from '../sim/dayplan.js';
+import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, isSleeping, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
 import { shutOut } from '../sim/romance.js';
 import { whereNow } from '../sim/people.js';
 import { icon } from './icons.js';
@@ -109,6 +110,21 @@ function slots(g) {
             out.push(base + m);
     return out;
 }
+// (a friend, who knows their week) Their day at the time picked: their shift that day, and whether they'd be at work
+// or asleep then. The plan rules still answer; this only saves asking at a bad time.
+const FRIEND_KNOWS = 30;
+function freeThen(g, w, avatar, at) {
+    const r = g.cast[avatar];
+    if (!r || bondOf(g, avatar) < FRIEND_KNOWS || isScenario(w))
+        return '';
+    const day = Math.floor(at / 1440), shift = scheduled(g, w, r) ? shiftOn(g, w, r, day) : null;
+    const span = shift ? `${hm(shift.from % 1440)}–${hm(shift.to % 1440)}` : '';
+    const busy = isWorking(g, w, r, at) ? fmt('{0} will be at work then.', r.name) : isSleeping(r, at) ? fmt('{0} will be asleep then.', r.name) : '';
+    const dayLine = scheduled(g, w, r) ? (shift ? fmt('That day {0} works {1}.', r.name, span) : onVacation(g, w, r, day) ? fmt('{0} is on vacation that day.', r.name) : fmt('{0} has that day off.', r.name)) : '';
+    if (!busy && !dayLine)
+        return '';
+    return `<p class="mu-pl-free ${busy ? 'is-busy' : 'is-free'}">${icon(busy ? 'clock' : 'check')}<span>${[dayLine, busy].filter(Boolean).map(t => `<span>${esc(t)}</span>`).join(' ')}</span></p>`;
+}
 export function planForm(g, w, avatar, face = false) {
     const r = g.cast[avatar];
     const b = bondOf(g, avatar);
@@ -142,6 +158,7 @@ export function planForm(g, w, avatar, face = false) {
             ${PL.place === OUT_PICK ? `<label class="mu-field"><span>Where out</span><input type="text" maxlength="80" data-input="pl-out" data-focus="plout" placeholder="${styleOf(w) === 'medieval' ? 'the market square, the village tavern, the riverbank…' : 'the beach, a café downtown, the cinema…'}" value="${esc(PL.out)}"></label>${bgButton('date', PL.bg)}` : ''}
             <div class="mu-row2"><label class="mu-field"><span>Day</span><select data-input="pl-day">${[0, 1, 2, 3, 4, 5, 6].map(d => `<option value="${d}" ${PL.day === d ? 'selected' : ''}>${d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : weekday(g.day + d)}</option>`).join('')}</select></label>
                 <label class="mu-field"><span>Time</span><select data-input="pl-time">${times.map(t => `<option value="${t % 1440}" ${PL.time === t % 1440 ? 'selected' : ''}>${hm(t % 1440)}</option>`).join('') || '<option>—</option>'}</select></label></div>
+            ${freeThen(g, w, avatar, (g.day + PL.day) * 1440 + PL.time)}
             <button class="mu-primary" data-act="${face ? 'pl-invite-face' : 'pl-invite'}" data-who="${esc(avatar)}" ${PL.busy || !times.length ? 'disabled' : ''}>${icon(face ? 'chat' : 'send')}<span>${face ? 'Ask them' : 'Invite'}</span></button>
         </section>
         ${face ? '' : `<section class="mu-ph-plan"><h4>Right now</h4>

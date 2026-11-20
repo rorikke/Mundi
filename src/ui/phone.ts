@@ -5,7 +5,7 @@ import { approvalOf, approvalWord } from '../sim/living.js';
 import { interviewChance, interviewSkill, triedToday, retryText } from '../sim/skills.js';
 import { missingCourses, isTaking } from '../sim/courses.js';
 import { profileApp, jobCourseHtml } from './courses.js';
-import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, type BillId } from '../sim/bills.js';
+import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, billsApp, type BillId } from '../sim/bills.js';
 import { shopApp } from './lifeui.js';
 import { SH } from './shopui.js';
 import { goalsApp, goalsBadge, GS } from './goalsui.js';
@@ -28,7 +28,7 @@ import { journalApp, openJournal } from './journal.js';
 import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack, visitRow, visitStatus } from './relui.js';
 import { visitors } from '../sim/visitors.js';
 import { note } from '../sim/facts.js';
-import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
+import { notify, esc, game, toast, saveGame, settings, saveSettings, nowAbs, UI } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, messageKind, appsShown, systemOn, type WorldDef, type Occupation, isScenario } from '../core/world.js';
 import { upcoming, when as planWhen } from '../sim/plans.js';
@@ -51,7 +51,7 @@ import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pend
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
-import { generatePosts, shouldPost, dating, theirProfile, candidates, swipe, waitingCount, appInterests, LOOKING } from '../sim/feed.js';
+import { generatePosts, shouldPost, feedPrefs, dating, theirProfile, candidates, swipe, waitingCount, appInterests, LOOKING } from '../sim/feed.js';
 import { newsStripHtml, newsApp, refreshNews } from './newsui.js';
 import { gendersOf } from '../sim/gender.js';
 import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/bridge.js';
@@ -85,12 +85,14 @@ const SECTIONS: { id: string; name: string; icon: string; color: string; apps: A
     { id: 'companions', name: 'Companions', icon: 'heart', color: '#e58a4e', apps: ['pets', 'soulbond', 'blade'] },
     { id: 'groups', name: 'Groups', icon: 'users', color: '#6b4fd8', apps: ['party', 'factions'] },
     { id: 'missions', name: 'Missions', icon: 'map', color: '#c08a2e', apps: ['quests', 'tower', 'contracts'] },
+    { id: 'work', name: 'Work', icon: 'briefcase', color: '#0a84ff', apps: ['jobs', 'campus', 'business', 'photos'] },
 ];
 const LAST_TAB: Record<string, App> = {};
 const sectionFor = (a: App) => SECTIONS.find(s => s.apps.includes(a));
 // The apps of a section this world shows (the profile is always there).
 const secApps = (w: WorldDef, s: typeof SECTIONS[number]) => { const shown = new Set(appsShown(w).map(x => x.id)); return s.apps.filter(a => (a === 'profile' && !isScenario(w)) || shown.has(a)); };   // Home: no Profile app
 // The device's list: each app, or its section in the place of the section's first app (the profile at the end when none shows).
+// A section with only one app this world shows is that app, under its own name.
 // [the app it opens, name, icon, color, its key in the list]
 const APPS = (w: WorldDef): [App, string, string, string, string][] => {
     const out: [App, string, string, string, string][] = []; const done = new Set<string>();
@@ -99,7 +101,8 @@ const APPS = (w: WorldDef): [App, string, string, string, string][] => {
         if (!s) { out.push([x.id as App, x.name, x.icon, x.color, x.id]); continue; }
         if (done.has(s.id)) continue; done.add(s.id);
         const list = secApps(w, s); if (!list.length) continue; const open = LAST_TAB[s.id] && list.includes(LAST_TAB[s.id]) ? LAST_TAB[s.id] : list[0];
-        out.push([open, s.name, s.icon, s.color, s.id]);
+        const only = list.length === 1 ? appsShown(w).find(a => a.id === list[0]) : undefined;
+        out.push(only ? [only.id as App, only.name, only.icon, only.color, only.id] : [open, s.name, s.icon, s.color, s.id]);
     }
     if (!done.has('profile') && !isScenario(w)) { const s = SECTIONS[0]; out.push([LAST_TAB.profile ?? 'profile', s.name, s.icon, s.color, 'profile']); }
     return out;
@@ -110,9 +113,9 @@ function hd(app: App, title?: string) {
     const name = (a: App) => (a === 'profile' ? T('profile') : appName(a));
     const list = s && w ? secApps(w, s) : [];
     if (!s) return head(title ?? name(app), 'home');
-    if (list.length < 2) return head(esc(s.name), 'home');
-    // the Goals tab carries the "pick a life goal" badge (D-7)
-    const mark = (a: App) => (a === 'goals' && g && w && goalsBadge(g, w) ? ' <em class="mu-sec-badge">!</em>' : '');
+    if (list.length < 2) return head(title ?? name(app), 'home');
+    // a tab carries its app's badge (Goals: "pick a life goal", D-7; Campus, Business, Lens: something to do)
+    const mark = (a: App) => (g && w && badgeOf(g, w, a) ? ' <em class="mu-sec-badge">!</em>' : '');
     return head(esc(s.name), 'home').replace(/<\/div>$/, `<nav class="mu-sec-tabs">${list.map(a => `<button class="${a === app ? 'is-on' : ''}" data-act="ph-go" data-app="${esc(a)}">${name(a)}${mark(a)}</button>`).join('')}</nav></div>`);
 }
 const appName = (id: string) => { const g = game(); const w = g && getWorld(g.world); return esc(w ? appsOf(w).find(a => a.id === id)?.name ?? id : id); };
@@ -189,10 +192,24 @@ function pairHtml(g: Save, w: WorldDef, list: App): string {
 }
 const isOpenRow = (avatar: string) => (P.app === 'thread' || P.app === 'person') && P.who === avatar;
 
+// An app's badge: unread messages, plans to answer, bills due (where they're paid), something to do in Campus,
+// Business or Lens, a life goal to pick. A number, '!' or nothing.
+function badgeOf(g: Save, w: WorldDef, a: string): number | '!' | '' {
+    if (a === 'messages') return Object.values(social(g).unread).reduce((x, y) => x + y, 0) || '';
+    if (a === 'plans') return plansBadge(g) || '';
+    if (a === billsApp(w) && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id))) return '!';
+    if ((a === 'campus' && campusBadge(g, w)) || (a === 'business' && businessBadge(g, w)) || (a === 'photos' && lensBadge(g, w)) || (a === 'goals' && goalsBadge(g, w))) return '!';
+    return '';
+}
+// The badge of a tile on the home screen (or a ribbon of the journal): its app's, or for a section, the first of its apps'.
+function tileBadge(g: Save, w: WorldDef, id: string, key: string): string {
+    const s = SECTIONS.find(x => x.id === key);
+    const b = s ? secApps(w, s).map(a => badgeOf(g, w, a)).find(Boolean) ?? '' : badgeOf(g, w, id);
+    return b ? `<em${key === 'profile' ? ' class="is-goals"' : ''}>${b}</em>` : '';
+}
 function homeApp(g: Save, w: WorldDef) {
-    const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
     return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="${esc(id)}">
-        <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : id === 'campus' && campusBadge(g, w) ? '<em>!</em>' : id === 'business' && businessBadge(g, w) ? '<em>!</em>' : id === 'photos' && lensBadge(g, w) ? '<em>!</em>' : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : ''}</button>`).join('')}
+        <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${tileBadge(g, w, id, key)}</button>`).join('')}
         <button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
         <button class="mu-ph-app" data-act="ph-help"><i style="--c:#30b0c7">${icon('help')}</i><span>${T('help')}</span></button></div>`;
 }
@@ -222,6 +239,17 @@ const wallpaper = () => String((settings() as any).phoneBg ?? '');
 const cssUrl = (u: string) => `url("${safeUrl(u)}")`;
 // The pictures of the chat being played (Image Generation, attachments, links), newest first.
 const chatPictures = (): string[] => [...new Set(chat().flatMap((m: any, i: number) => photosOf(m, i).map(p => p.url)))].reverse();
+// The phone's own options (the same as in This world → AI context, for all your games): when people post in the news,
+// pictures in their posts, and whether characters write their own texts.
+function phoneOptions(): string {
+    const fp = feedPrefs(), news = !LW || systemOn(LW, 'social');
+    const modes: [string, string][] = [['button', 'Only when you tap "More news"'], ['open', 'New posts each time you open Messages'], ['auto', 'The characters, on their own as time passes']];
+    return `${news ? `<section class="mu-ph-opts"><h4>${esc(LW ? lex(LW, 'news') : 'News')}</h4>
+            <label class="mu-field"><span>People's posts in the news</span><select data-input="set-feed">${modes.map(([v, l]) => `<option value="${v}" ${fp.mode === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+            <label class="mu-check"><input type="checkbox" data-input="set-feedimg" ${fp.images ? 'checked' : ''}><span>Pictures in posts<small>Made with SillyTavern's Image Generation extension, when it is set up.</small></span></label></section>` : ''}
+        <section class="mu-ph-opts"><h4>${esc(LW ? appName('messages') : 'Messages')}</h4>
+            <label class="mu-check"><input type="checkbox" data-input="ui-bool" data-key="aiTexts" ${UI().aiTexts !== false ? 'checked' : ''}><span>Characters write their own texts<small>Answers to your invitations, being stood up, asking your advice, letters from far away. Off: short ready-made replies.</small></span></label></section>`;
+}
 function settingsApp() {
     const cur = wallpaper();
     const pics = WP.pick === 'chat' ? chatPictures() : WP.pick === 'gallery' ? galleryPictures() : [];
@@ -235,6 +263,7 @@ function settingsApp() {
             <label class="mu-field"><span>Or a picture from the web (link)</span></label>
             <div class="mu-ph-wp-link"><input type="text" inputmode="url" data-input="wp-url" data-focus="wpurl" placeholder="https://…/picture.jpg" value="${esc(WP.url)}" aria-label="Picture link"><button data-act="wp-set-url" title="Use this link">${icon('check')}<span>Use</span></button></div>
             ${cur ? `<button class="mu-ghost" data-act="wp-reset">${icon('undo')}<span>Back to the default</span></button>` : ''}</section>
+        ${phoneOptions()}
         ${WP.pick ? `<section class="mu-ph-wp-pick">
             <div class="mu-sec-tabs"><button class="${WP.pick === 'chat' ? 'is-on' : ''}" data-act="wp-src" data-v="chat">From this chat</button><button class="${WP.pick === 'gallery' ? 'is-on' : ''}" data-act="wp-src" data-v="gallery">From the Mundi gallery</button></div>
             ${pics === null ? '<p class="mu-muted"><span class="mu-spin"></span> Loading your pictures…</p>'
@@ -432,7 +461,7 @@ function jobsApp(g: Save, w: WorldDef) {
     const track = mine?.track !== undefined ? mine.trackName ?? trackName(w, mine, mine.track) : '';
     const wait = j && (j as any).start > g.day ? (j as any).start - g.day : 0;
     const free = !!mine && isFreelance(g, w);   // (photography) a freelancer works brief by brief: no shifts, a retainer
-    return `${head(appName('jobs'), 'home')}<div class="mu-ph-body">
+    return `${hd('jobs')}<div class="mu-ph-body">
         ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
             <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
             ${free ? `<small>Your briefs are in Lens.</small>${appsShown(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
@@ -458,20 +487,24 @@ function jobsApp(g: Save, w: WorldDef) {
     </div>`;
 }
 
+// Your money: the balance, the bills to pay (in the world's Bank; sim/bills.ts billsApp), the last week in and out,
+// and the statement.
 function bankApp(g: Save, w: WorldDef) {
-    const zone = w.homes.zones.find(z => z.id === g.player.home.zone);
+    const since = nowAbs(g) - 7 * 1440, week = ledger(g).filter(e => e.at >= since);
+    const got = week.filter(e => e.amount > 0).reduce((a, e) => a + e.amount, 0), spent = week.filter(e => e.amount < 0).reduce((a, e) => a - e.amount, 0);
     return `${head(appName('bank'), 'home')}<div class="mu-ph-body">
-        <section class="mu-ph-card mu-ph-balance"><small>${T('balance')}</small><b>${money(w, g.player.money)}</b></section>
-        ${zone?.rent && billList(w).length ? `<p>${esc(T('billsLine', billList(w).filter(b => billAmount(g, w, b.id)).map(b => `${billName(w, b.id)} ${money(w, billAmount(g, w, b.id))}`).join(' · '), appRef(w, 'homes')))}${billList(w).some(b => owed(g, b.id)) ? ' <b class="mu-bad">(due now)</b>' : ''}</p>` : ''}
+        <section class="mu-ph-card mu-ph-balance"><small>${T('balance')}</small><b>${money(w, g.player.money)}</b>
+            ${week.length ? `<small class="mu-ph-week">${esc('Last 7 days')}: <span class="mu-good">+${money(w, got)}</span> · <span class="mu-bad">−${money(w, spent)}</span></small>` : ''}</section>
+        ${billsApp(w) === 'bank' ? billsHtml(g, w) : ''}
         <h4>${T('statement')}</h4>
         <div class="mu-ph-ledger">${ledger(g).map(e => `<div><span>${esc(e.text)}<small>${day(g, e.at)}</small></span><b class="${e.amount < 0 ? 'mu-bad' : 'mu-good'}">${e.amount < 0 ? '−' : '+'}${money(w, Math.abs(e.amount))}</b></div>`).join('') || `<p class="mu-muted">${T('noMovements')}</p>`}</div>
     </div>`;
 }
 
-const HF = { city: '' };   // Homes: the city whose homes are shown ('' all)
-function homesApp(g: Save, w: WorldDef) {
-    const pic = (kind: string) => { const im = w.homes.kinds[kind]?.image; return im ? `style="background-image:url('${safeUrl(worldFile(w, im))}')"` : ''; };
-    const mine = w.homes.zones.find(z => z.id === g.player.home.zone);
+// The bills: a tile each (pay it, part of it, or get back in), moving somewhere cheaper when you're locked out, and
+// Pay everything. In the Bank, or in Homes in a world without a Bank.
+function billsHtml(g: Save, w: WorldDef): string {
+    if (!billList(w).some(b => billAmount(g, w, b.id))) return '';
     const billBtn = (b: ReturnType<typeof billList>[number]) => {
         const amount = billAmount(g, w, b.id); if (!amount) return '';
         const n = owed(g, b.id), cut = isCut(g, b.id), left = daysLeft(g, b.id), paid = paidToward(g, b.id), plan = payPlan(g, w, b.id), toCut = daysToCut(g, b.id);
@@ -486,16 +519,29 @@ function homesApp(g: Save, w: WorldDef) {
     };
     // locked out: the cheapest home you could move to instead, when it costs less than getting back in
     const cheaper = isCut(g, 'rent') && billAmount(g, w, 'rent') ? cheapestHome(g, w, z => freeSpots(g, w, z).length) : null;
+    return `<section class="mu-ph-bills"><h4>${esc('Bills')}</h4><div class="mu-bills">${billList(w).map(billBtn).join('')}</div>
+        ${cheaper && cheaper.rent < toGetBackIn(g, w, 'rent') ? `<p class="mu-bad">${esc(`Or move somewhere cheaper: ${cheaper.name}, ${money(w, cheaper.rent)} a week, paid one week in advance.`)}</p>${billsApp(w) === 'bank' ? `<button class="mu-ghost" data-act="ph-go" data-app="homes">${icon('home')}<span>${esc(appName('homes'))}</span></button>` : ''}` : ''}
+        <small class="mu-muted">${T('billsNote')}</small>
+        ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}</section>`;
+}
+
+const HF = { city: '' };   // Homes: the city whose homes are shown ('' all)
+// (Homes, with a Bank) what your home costs a week, and the way to pay: the Bank, marked when something is due.
+function billsLine(g: Save, w: WorldDef): string {
+    const list = billList(w).filter(b => billAmount(g, w, b.id)); if (!list.length) return '';
+    const due = list.some(b => owed(g, b.id));
+    return `<button class="mu-ph-billsline ${due ? 'is-due' : ''}" data-act="ph-go" data-app="bank"><span>${esc(T('billsLine', list.map(b => `${billName(w, b.id)} ${money(w, billAmount(g, w, b.id))}`).join(' · '), appRef(w, 'bank')))}</span>${due ? `<b class="mu-bad">${esc('Due now')}</b>` : ''}${icon('forward')}</button>`;
+}
+function homesApp(g: Save, w: WorldDef) {
+    const pic = (kind: string) => { const im = w.homes.kinds[kind]?.image; return im ? `style="background-image:url('${safeUrl(worldFile(w, im))}')"` : ''; };
+    const mine = w.homes.zones.find(z => z.id === g.player.home.zone);
     // (housing) a house of yours' rooms and fixtures, in place of the rest
     if (HU.rooms) { const r = roomsHtml(g, w); if (r) return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${r}</div>${askHtml(g, w)}`; }
     return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">
         <section><h4>${T('myHome')}</h4>
         <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span>
             <div class="mu-home-info"><span><b>${esc(homeAddress(w, g.player.home))}</b><small>${esc(w.homes.kinds[g.player.home.kind ?? mine?.kind ?? '']?.name ?? '')} · ${T('yourHome')}</small></span></div></article>
-        ${billList(w).length ? `<div class="mu-bills">${billList(w).map(billBtn).join('')}</div>
-        ${cheaper && cheaper.rent < toGetBackIn(g, w, 'rent') ? `<p class="mu-bad">${esc(`Or move somewhere cheaper: ${cheaper.name}, ${money(w, cheaper.rent)} a week, paid one week in advance.`)}</p>` : ''}
-        <small class="mu-muted">${T('billsNote')}</small>` : ''}
-        ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}
+        ${billsApp(w) === 'homes' ? billsHtml(g, w) : billsLine(g, w)}
         ${ownedHtml(g, w)}
         </section>
         ${letHtml(g, w)}
@@ -532,6 +578,7 @@ Object.assign(ACT, {
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
     'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
+    'ph-open-bills': () => { const g = game(); const w = g && getWorld(g.world); P.open = true; P.app = w ? billsApp(w) : 'homes'; notify(); },   // (the HUD's "Locked out")
     'ph-open-campus': () => { P.open = true; P.app = 'campus'; notify(); },
     'ph-open-business': () => { P.open = true; P.app = 'business'; notify(); },
     'ph-open-shop': () => { P.open = true; P.app = 'shop'; SH.tab = 'here'; notify(); },   // (the HUD's "Shop here")
@@ -631,7 +678,7 @@ export function phoneHtml(): string {
     const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
     const body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-        : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, head(appName('photos'), 'home')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+        : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, hd('photos')) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
     const unread = phoneUnread();
     // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never
@@ -669,8 +716,7 @@ function bookHtml(g: Save, w: WorldDef, body: string): string {
     // A turn keeps going across re-renders (the clock re-draws the screen every few seconds).
     const t = Date.now() - turn.at;
     const leaf = t < TURN_MS ? `<i class="mu-bk-leaf ${turn.back ? 'is-back' : ''}" style="animation-delay:-${t}ms"></i>` : '';
-    const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
-    const badge = (id: string, key = id) => (id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : '');
+    const badge = (id: string, key = id) => tileBadge(g, w, id, key);
     const left = `<header class="mu-bk-title"><small>${esc(w.features?.device ?? 'Journal')}</small><b data-notr>${esc(personaName())}</b>
             <span>${esc(weekday(g.day))} · Day ${g.day + 1} · ${hm(g.minutes % 1440)}</span><span class="mu-bk-purse">${icon('wallet')}${money(w, g.player.money)}</span></header>
         <h4 class="mu-bk-h">Contents</h4>

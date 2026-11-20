@@ -1226,7 +1226,7 @@ export const DEFAULT_APPS: AppDef[] = [
     { id: 'messages', name: 'Messages', icon: 'chat', color: '#34c759', on: true },
     { id: 'people', name: 'People', icon: 'users', color: '#ff9f0a', on: true },
     { id: 'jobs', name: 'Jobs', icon: 'briefcase', color: '#0a84ff', on: true },
-    { id: 'bank', name: 'Bank', icon: 'wallet', color: '#5e5ce6', on: true },
+    { id: 'bank', name: 'Money', icon: 'wallet', color: '#5e5ce6', on: true },
     { id: 'homes', name: 'Homes', icon: 'home', color: '#ff375f', on: true },
     { id: 'dating', name: 'Spark', icon: 'flame', color: '#ff4f6d', on: true },
     { id: 'plans', name: 'Calendar', icon: 'calendar', color: '#ff9500', on: true },

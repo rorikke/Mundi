@@ -4553,6 +4553,29 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mh-cneed .mu-ic, #mundi-root .mh-cneed i { position: relative; width: 15px; height: 15px; color: var(--c, #fff); font-style: normal; font-size: 13px; line-height: 1; }
 #mundi-root .mh-cneed.is-low { animation: mh-cneed-low 1.6s ease-in-out infinite; }
 @keyframes mh-cneed-low { 50% { box-shadow: 0 0 0 3px rgba(255, 80, 80, .45); } }
+/* The apps put in order: the Money app's week and bills, Homes' line to them, the plan form's "free then?" line and
+   the phone's own options in Settings. */
+#mundi-root .mu-ph-balance .mu-ph-week { font-size: 12px; color: var(--muted); }
+#mundi-root .mu-ph-bills { display: grid; gap: 6px; }
+#mundi-root .mu-ph-bills > h4 { margin: 0; }
+#mundi-root .mu-ph-bills > .mu-bills { margin: 0; }
+#mundi-root .mu-ph-bills > button { justify-self: start; display: inline-flex; align-items: center; gap: 6px; }
+/* Homes: what your home costs, and the way to the bills */
+#mundi-root .mu-ph-billsline, #mundi-root .mu-ph-billsline:hover:not(:disabled) { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; text-align: left; font-size: 12.5px;
+    border-radius: 12px !important; background: var(--bg2) !important; border: 1px solid var(--line) !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-ph-billsline > span { flex: 1; min-width: 0; }
+#mundi-root .mu-ph-billsline .mu-ic { width: 15px; height: 15px; flex: none; opacity: .7; }
+#mundi-root .mu-ph-billsline.is-due { border-color: color-mix(in srgb, var(--bad) 55%, var(--line)) !important; }
+/* the plan form: are they free then */
+#mundi-root .mu-pl-free { display: flex; gap: 6px; align-items: flex-start; margin: 0; font-size: 12px; line-height: 1.35; }
+#mundi-root .mu-pl-free .mu-ic { width: 14px; height: 14px; flex: none; margin-top: 1px; }
+#mundi-root .mu-pl-free.is-free { color: var(--good); }
+#mundi-root .mu-pl-free.is-busy { color: #ffb36b; }
+#mundi-root .mu-pl-free > span > span + span { margin-left: 2px; }
+/* Settings: the phone's options */
+#mundi-root .mu-ph-opts { display: grid; gap: 8px; }
+#mundi-root .mu-ph-opts > h4 { margin: 8px 0 0; }
+#mundi-root .mu-ph-opts .mu-check small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
 /* The scene's background fading from one time of day to the next (ui/bgfade.ts): the old picture, on top, fading out. */
 #mundi-root .mu-scene-bg-old { position: absolute; inset: 0; background-color: #10141f; background-repeat: no-repeat; pointer-events: none; }
 /* The character picker's folders (new game, someone moves in, guests…): the same size as a character's card (the

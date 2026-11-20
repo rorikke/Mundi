@@ -11065,5 +11065,13 @@ const DICT = {
     "What makes Mundi call the AI (the diary, people's posts in the news, characters' texts, narrating what you do) is now in the game: ☰ → This world → AI context.": "Lo que hace que Mundi llame a la IA (el diario, las publicaciones de la gente en las noticias, los mensajes de los personajes, narrar lo que haces) ahora está en el juego: ☰ → Este mundo → Contexto de la IA.",
     "Hearts": "Me gusta",
     "A heart on someone's message is a small kindness; on bad news, a worry or an apology it lands badly, and they tell you so.": "Dar me gusta al mensaje de alguien es un pequeño detalle; en una mala noticia, una preocupación o una disculpa sienta mal, y te lo dice.",
+    "Last 7 days": "Últimos 7 días",
+    "{0} will be at work then.": "{0} estará trabajando a esa hora.",
+    "{0} will be asleep then.": "{0} estará dormido a esa hora.",
+    "That day {0} works {1}.": "Ese día {0} trabaja {1}.",
+    "{0} is on vacation that day.": "{0} está de vacaciones ese día.",
+    "{0} has that day off.": "{0} libra ese día.",
+    "Your money: the bills to pay, the last week in and out, and every payment.": "Tu dinero: las facturas por pagar, la última semana de entradas y salidas, y cada pago.",
+    "Jobs, Campus, Business and Lens under one icon, a tab each (the ones this world has).": "Empleos, Campus, Negocios y Lens en un solo icono, una pestaña cada uno (los que tiene este mundo).",
 };
 export default DICT;

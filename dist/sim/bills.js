@@ -1,18 +1,20 @@
 // Difficulty and the bills of your home.
 // Difficulty changes the economy: how much work pays, what things cost and the money you start with; and a little how
 // fast careers go (`career`, a speed that combines with the world's and the save's career speed, sim/work.ts).
-// Bills (rent, water, power) are due every week and paid by you, in the Homes app. A bill left unpaid for a week is
+// Bills (rent, water, power) are due every week and paid by you, in the Bank app (Homes when a world has no Bank). A bill left unpaid for a week is
 // cut off: no water (no shower, no tap, no cooking), no power (no stove, TV, computer, coffee machine…), or, for the
 // rent, you are locked out of your home until you pay what's overdue. You can pay part of a bill (toward its oldest
 // week), and a bill that's cut off owes no more weeks, so a debt never grows past what you can pay back.
 import { cfg } from '../core/store.js';
-import { systemOn, getWorld, gameMode } from '../core/world.js';
+import { systemOn, getWorld, gameMode, appsShown } from '../core/world.js';
 import { book } from './ledger.js';
 import { money } from './needs.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { effectMul } from './effects.js';
 import { housingOn, ownedHere, ownedHomes, upkeepOf, zoneOf, fixturesOf, buyOnly, buyable } from './housing.js';
 import { studioOf, studioZoneOf, studioZones, studioRent } from './studio.js';
+/** The app where bills are paid: the Bank (with your money and its statement), or Homes in a world without one. */
+export const billsApp = (w) => (appsShown(w).some(a => a.id === 'bank') ? 'bank' : 'homes');
 // In a Home (no money) the difficulty is how fast relationships grow (`bond`).
 export const DIFFICULTIES = [
     { id: 'easy', name: 'Easy', desc: 'Work pays more, things cost less, you start with more money, and careers go a little faster.', homeDesc: 'Friendship and love grow fast.', pay: 1.25, price: 0.8, start: 1.5, bond: 1.5, career: 1.2 },
@@ -241,17 +243,17 @@ export function billNews(g, w) {
         } // nothing to pay: always paid up
         if (isCut(g, def.id) && b.cutTold !== b.due) {
             b.cutTold = b.due;
-            out.push(def.cut ? def.cut.replace('{app}', appRef(w, 'homes')) : LEX_CUT[def.id] && defaultName(w, def) ? lex(w, LEX_CUT[def.id], appRef(w, 'homes')) : lex(w, 'cutGeneric', def.name, appRef(w, 'homes')));
+            out.push(def.cut ? def.cut.replace('{app}', appRef(w, billsApp(w))) : LEX_CUT[def.id] && defaultName(w, def) ? lex(w, LEX_CUT[def.id], appRef(w, billsApp(w))) : lex(w, 'cutGeneric', def.name, appRef(w, billsApp(w))));
         }
         else if (isDue(g, def.id) && g.day >= b.due + EVERY - 1 && b.warned !== b.due) {
             // the last day before it's cut off
             b.warned = b.due;
             b.told = b.due;
-            out.push(lex(w, def.id === 'rent' ? 'lastRent' : 'lastBill', def.name, money(w, owedAmount(g, w, def.id)), appRef(w, 'homes')));
+            out.push(lex(w, def.id === 'rent' ? 'lastRent' : 'lastBill', def.name, money(w, owedAmount(g, w, def.id)), appRef(w, billsApp(w))));
         }
         else if (isDue(g, def.id) && b.told !== b.due) {
             b.told = b.due;
-            out.push(lex(w, 'billDue', def.name, money(w, billAmount(g, w, def.id)), appRef(w, 'homes')));
+            out.push(lex(w, 'billDue', def.name, money(w, billAmount(g, w, def.id)), appRef(w, billsApp(w))));
         }
     }
     return out;
