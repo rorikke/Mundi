@@ -123,6 +123,9 @@ const TRAIT_GROUPS = (w: WorldDef): [string, string][] => [['personality', 'Pers
     ['learned', lex(w, 'learnedIn')], ['earned', 'Earned with life goals'], ['school', 'From school'], ['education', 'Education']];
 // What a finished course taught: its skills ("Japanese 4"), or the traits an older world's course grants.
 const taught = (w: WorldDef, c: { skills?: Record<string, number>; grants?: string[] }) => Object.entries(c.skills ?? {}).map(([id, n]) => `${skillName(w, id)} ${n}`).join(', ') || (c.grants ?? []).join(', ');
+// The Profile, in tabs under who you are (the top card: its counts open their tab): You (experience, who you are, what
+// you like, activity), Skills (and training together), Courses, Perks. A tab only where this world has it.
+export const PF = { tab: 'you' as 'you' | 'skills' | 'courses' | 'perks' };
 export function profileApp(g: Save, w: WorldDef, head: string): string {
     const l = learning(g); const life = lifeOf(g);
     // the traits that count in this game: adult ones (In bed, the Drive…) only with adult content on
@@ -135,25 +138,29 @@ export function profileApp(g: Save, w: WorldDef, head: string): string {
     const goalsOn = systemOn(w, 'goals'), goals = goalsOn ? goalsState(g).done.length : 0;
     const nTraits = Object.values(t).flat().length, nShifts = Math.round(countOf(g, 'shifts'));
     const taking = takingRows(g, w);
-    return `${head}<div class="mu-ph-body mu-profile">
-        <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
-            <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
-            <span class="mu-pf-stats"><span><b>${nTraits}</b><small>${nTraits === 1 ? 'trait' : 'traits'}</small></span><span><b>${l.done.length}</b><small>${lex(w, 'coursesShort')}</small></span>${goalsOn ? `<span><b>${esc(String(goals))}</b><small>${goals === 1 ? 'goal' : 'goals'}</small></span>` : ''}<span><b>${nShifts}</b><small>${nShifts === 1 ? 'shift' : 'shifts'}</small></span></span></section>
-        <section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j!.rank + 1} of ${careerOf(g, o).ranks.length + (careerOf(g, o).open ? 1 : 0)}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
-        <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are on the skills list below.</p>
+    const skills = hobbiesHtml(g, w) + trainingHtml(g, w);
+    const tabs: [typeof PF.tab, string][] = [['you', 'You'], ...(skills ? [['skills', w.skills?.length ? 'Skills' : 'Hobbies'] as [typeof PF.tab, string]] : []), ['courses', lex(w, 'courses')], ...(goalsOn ? [['perks', 'Perks'] as [typeof PF.tab, string]] : [])];
+    const tab = tabs.some(x => x[0] === PF.tab) ? PF.tab : 'you';
+    const stat = (n: number | string, word: string, to: typeof PF.tab) => `<button class="mu-pf-stat" data-act="pf-tab" data-v="${to}"><b>${esc(String(n))}</b><small>${word}</small></button>`;
+    const you = `<section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j!.rank + 1} of ${careerOf(g, o).ranks.length + (careerOf(g, o).open ? 1 : 0)}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
+        <section><h4>${icon('star')} Who you are</h4><p class="mu-muted">Your personality nudges small things, your interests lift your mood when you do them, and your skills are in their own tab.</p>
             ${[...groups, ...other.map(k => [k, k[0].toUpperCase() + k.slice(1)] as [string, string])].map(([k, name]) => `<div class="mu-pf-group"><small>${esc(name)}</small><div class="mu-chips">${(t[k] ?? []).map(x => `<span class="mu-chip ${k === 'learned' || k === 'earned' ? 'is-on' : ''}" ${w.traitInfo?.[x]?.desc ? `title="${esc(w.traitInfo[x].desc!)}"` : ''}>${esc(x)}</span>`).join('')}</div>
                 ${(t[k] ?? []).filter(x => w.traitInfo?.[x]?.desc).map(x => `<small class="mu-muted"><b data-notr>${esc(x)}:</b> ${esc(w.traitInfo![x].desc!)}</small>`).join('')}</div>`).join('') || '<p class="mu-muted">No traits yet.</p>'}
         </section>
         ${yourLikesHtml(g)}
-        ${goalsOn ? `<section class="mu-pf-perks"><h4>${icon('heart')} Your perks</h4><p class="mu-muted">What your finished life goals give you, for good. A perk is not a trait: it changes numbers in the game.</p>${perksListHtml(g, w)}</section>` : ''}
-        <section><h4>${icon('book')} ${lex(w, 'courses')}</h4>
+        <section><h4>${icon('bolt')} Activity</h4><small class="mu-muted">Fitness ${life.fitness}/100 · ${countOf(g, 'meals')} meals cooked · ${countOf(g, 'workouts')} good workouts · ${countOf(g, 'parties')} parties</small></section>`;
+    const courses = `<section>
             ${taking}
             ${l.done.map(id => courseOf(w, id)).filter(Boolean).map(c => `<div class="mu-pf-row"><b>${esc(c!.icon)} ${esc(c!.name)}</b><small>✓ Finished${taught(w, c!) ? ` · ${esc(taught(w, c!))}` : ''}</small></div>`).join('')}
             ${!taking && !l.done.length ? `<p class="mu-muted">${lex(w, 'noCourses')}</p>` : ''}
-            <button class="mu-primary" data-act="course-open">${icon('plus')}<span>${lex(w, 'browseCourses')}</span></button></section>
-        ${hobbiesHtml(g, w)}
-        ${trainingHtml(g, w)}
-        <section><h4>${icon('bolt')} Activity</h4><small class="mu-muted">Fitness ${life.fitness}/100 · ${countOf(g, 'meals')} meals cooked · ${countOf(g, 'workouts')} good workouts · ${countOf(g, 'parties')} parties</small></section>
+            <button class="mu-primary" data-act="course-open">${icon('plus')}<span>${lex(w, 'browseCourses')}</span></button></section>`;
+    const perks = `<section class="mu-pf-perks"><h4>${icon('heart')} Your perks</h4><p class="mu-muted">What your finished life goals give you, for good. A perk is not a trait: it changes numbers in the game.</p>${perksListHtml(g, w)}</section>`;
+    return `${head}<div class="mu-ph-body mu-profile">
+        <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
+            <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
+            <span class="mu-pf-stats">${stat(nTraits, nTraits === 1 ? 'trait' : 'traits', 'you')}${stat(l.done.length, lex(w, 'coursesShort'), 'courses')}${goalsOn ? stat(goals, goals === 1 ? 'goal' : 'goals', 'perks') : ''}${stat(nShifts, nShifts === 1 ? 'shift' : 'shifts', 'you')}</span></section>
+        ${tabs.length > 1 ? `<nav class="mu-pf-tabs">${tabs.map(([id, name]) => `<button class="${id === tab ? 'is-on' : ''}" data-act="pf-tab" data-v="${id}" aria-pressed="${id === tab}">${esc(name)}</button>`).join('')}</nav>` : ''}
+        ${tab === 'skills' ? skills : tab === 'courses' ? courses : tab === 'perks' ? perks : you}
     </div>`;
 }
 
@@ -178,6 +185,7 @@ Object.assign(INPUT, {
 });
 
 Object.assign(ACT, {
+    'pf-tab': (el) => { PF.tab = (el.dataset.v as typeof PF.tab) || 'you'; notify(); },
     'course-open': () => openCourses(),
     'course-close': () => { CS.open = false; notify(); },
     'course-bg': (el, e) => { if (e.target === el) { CS.open = false; notify(); } },

@@ -4929,6 +4929,23 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-practice li { display: grid; gap: 1px; padding: 5px 9px; border-radius: 8px; background: rgba(255, 255, 255, .05); }
 #mundi-root .mu-practice li b { font-size: 12px; display: block; }
 #mundi-root .mu-practice li small, #mundi-root .mu-practice > small { font-size: 11px; color: var(--muted); display: block; }
+/* The Profile's tabs (ui/courses.ts profileApp): You, Skills, Courses, Perks, under the top card, whose counts open
+   their tab. The same segmented row as a person's page. */
+#mundi-root .mu-pf-stats .mu-pf-stat, #mundi-root .mu-pf-stats .mu-pf-stat:hover:not(:disabled) { display: grid; justify-items: center; padding: 6px 2px; min-height: 0; border-radius: 10px !important;
+    background: rgba(255, 255, 255, .06) !important; border: 0 !important; box-shadow: none !important; transform: none !important; color: inherit; }
+#mundi-root .mu-pf-stats .mu-pf-stat:hover:not(:disabled) { background: rgba(255, 255, 255, .12) !important; }
+#mundi-root .mu-pf-tabs { position: sticky; top: 54px; z-index: 1; display: flex; gap: 4px; padding: 3px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+#mundi-root .mu-pf-tabs button { flex: 1; min-width: 0; min-height: 32px; padding: 4px 6px; border: 0 !important; border-radius: 999px !important; background: transparent !important;
+    box-shadow: none !important; color: inherit; font-weight: 700; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mundi-root .mu-pf-tabs button.is-on { background: var(--accent) !important; color: #fff; }
+/* in a section (Profile, Goals, Collection…) the header is taller: its tabs sit under it */
+#mundi-root .mu-ph-screen:has(.mu-sec-tabs) .mu-pf-tabs { top: 96px; }
+/* the medieval journal: paper */
+#mundi-root .mu-book .mu-pf-tabs { position: static; background: transparent; border-color: rgba(90, 60, 30, .35); -webkit-backdrop-filter: none; backdrop-filter: none; }
+#mundi-root .mu-book .mu-pf-tabs button { color: #4a3322 !important; font-family: inherit; }
+#mundi-root .mu-book .mu-pf-tabs button.is-on { background: rgba(120, 70, 30, .85) !important; color: #f6e7c8 !important; }
+#mundi-root .mu-book .mu-pf-stats .mu-pf-stat { background: rgba(255, 248, 228, .55) !important; }
 /* A sprite's menu (ui/radial.ts) over the chat box (12) and the HUD's bars (20), under the cards that ask you
    something (24 and up): a copy of the sprite's slot where only the buttons show and take clicks, so the picture and
    the text stay as they are. */

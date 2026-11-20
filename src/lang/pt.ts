@@ -11073,5 +11073,7 @@ const DICT: Record<string, string> = {
  "Nothing planned that day.": "Nada marcado nesse dia.",
  "Nothing planned that day. Open someone in People to invite them out.": "Nada marcado nesse dia. Abra alguém em Pessoas para convidar para sair.",
  "Missed:": "Perdidos:",
+ "Your personality nudges small things, your interests lift your mood when you do them, and your skills are in their own tab.": "Sua personalidade mexe em pequenas coisas, seus interesses melhoram seu humor quando você os pratica, e suas habilidades ficam numa aba própria.",
+ "Perks": "Vantagens",
 };
 export default DICT;

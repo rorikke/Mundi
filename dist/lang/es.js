@@ -11083,5 +11083,7 @@ const DICT = {
     "Nothing planned that day.": "Nada previsto ese día.",
     "Nothing planned that day. Open someone in People to invite them out.": "Nada previsto ese día. Abre a alguien en Personas para invitarle a salir.",
     "Missed:": "Perdidos:",
+    "Your personality nudges small things, your interests lift your mood when you do them, and your skills are in their own tab.": "Tu personalidad cambia pequeñas cosas, tus intereses te suben el ánimo cuando los practicas, y tus habilidades tienen su propia pestaña.",
+    "Perks": "Ventajas",
 };
 export default DICT;
