@@ -24683,7 +24683,7 @@
    ],
    "together": {
     "needed": true,
-    "text": "Lounge Velvet's VIP room after closing, the door unlocked, the floor waiter counting the till on the other side of it: Sumire on the deep sofa where she has poured champagne for a hundred company presidents, alone with {{user}} for nothing, as quietly as she can"
+    "text": "Lounge Velvet's VIP room after closing, the door unlocked, the boy-san counting the till on the other side of it: Sumire on the deep sofa where she has poured champagne for a hundred company presidents, alone with {{user}} for nothing, as quietly as she can"
    },
    "outcomes": [
     {
@@ -69761,7 +69761,7 @@
       "stages": [
        {
         "tell": "hidden",
-        "text": "Sumire stops letting {{user}} pay for her drinks at Velvet and takes the bill out of the waiter's hand herself."
+        "text": "Sumire stops letting {{user}} pay for her drinks at Velvet and takes the bill out of the boy-san's hand herself."
        },
        {
         "tell": "known",
@@ -69785,7 +69785,7 @@
      {
       "id": "priv_sumire_ranking",
       "title": "The board",
-      "hidden": "A new hostess at Velvet has climbed to second on the ranking board in three weeks, and Sumire hasn't slept properly since. For the first time she wants someone else to take charge for a night and make her stop counting.",
+      "hidden": "A new girl at Velvet has climbed to second on the ranking board in three weeks, and Sumire hasn't slept properly since. For the first time she wants someone else to take charge for a night and make her stop counting.",
       "known": "{{user}} knows the ranking board is eating Sumire alive, and that she wants {{user}}, just once, to take charge.",
       "opens": "did: sj_hostess_sumire 3; feels: Sumire friend; feels: Sumire crush; knows: sumire_tab",
       "opensOnly": true,
@@ -69808,7 +69808,7 @@
        },
        {
         "tell": "known",
-        "text": "The new hostess takes the number-two spot on Velvet's board, and Sumire tells {{user}} she hasn't slept in a week."
+        "text": "The new girl takes the number-two spot on Velvet's board, and Sumire tells {{user}} she hasn't slept in a week."
        }
       ],
       "endings": [
@@ -70019,7 +70019,7 @@
       "id": "sumire_boysan",
       "where": "sj_hostess",
       "action": "priv_sumire_vip",
-      "text": "Velvet's floor waiter opens the VIP room door with a tray of clean glasses and finds Sumire on the sofa where she pours for company presidents, not alone; he backs out without a word, and by the next night every hostess at Velvet knows who Sumire takes home, which is the one thing she swore nobody ever would.",
+      "text": "Velvet's boy-san opens the VIP room door with a tray of clean glasses and finds Sumire on the sofa where she pours for company presidents, not alone; he backs out without a word, and by the next night every hostess at Velvet knows who Sumire takes home, which is the one thing she swore nobody ever would.",
       "feels": -10,
       "romance": -6,
       "rumor": "Every hostess at Lounge Velvet knows who Sumire takes home now: {u}, in the VIP room after closing."
