@@ -28,6 +28,7 @@ import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
 import { addOldTie, applyStartFeel } from './startfeel.js';
 import { FRIEND_START, levelOfApproval, isFamily } from '../core/feel.js';
 import { checkLeft } from './verdict.js';
+import { learnJobs } from './jobknown.js';
 import { fr, setFr, seedFamily, relOf, gain, lose, YOU } from './rel.js';
 import { effectAdd } from './effects.js';
 import { cleanPerson, exampleSettings, applyPerson, fitToYou } from './gender.js';
@@ -823,6 +824,7 @@ export function syncScene() {
         if (!w)
             return;
         const here = sceneHere(g, w);
+        learnJobs(g, w, here);
         // someone who spoke left: that part of the scene is judged ((homerooms) not while they're only in the room you
         // stepped out of, within the hour)
         checkLeft(g, w, [...here.map(r => r.avatar), ...heldHere(g, w)]);

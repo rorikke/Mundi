@@ -11161,6 +11161,7 @@ const DICT = {
     "Your name, money, energy and needs. Click your photo to use another SillyTavern persona.": "Tu nombre, dinero, energía y necesidades. Haz clic en tu foto para usar otra persona de SillyTavern.",
     "The faces under your card. Click one to call them over or go to them.": "Las caras bajo tu tarjeta. Haz clic en una para llamarla o ir con ella.",
     "You don't know them yet.": "Aún no conoces a esta persona.",
+    "You don't know what they do yet.": "Aún no sabes a qué se dedica esta persona.",
     "My page in People. Friendship and romance bars fill up as we hang out. Plans, messages, what you know about me: it's all here.": "Mi página en Gente. Las barras de amistad y romance se llenan cuando quedamos. Planes, mensajes, lo que sabes de mí: está todo aquí.",
     "Click me in the scene for what we can do right now: come along with you, make plans, talk just to me.": "Haz clic en mí en la escena para ver qué podemos hacer ahora: ir contigo, hacer planes, hablar solo conmigo.",
     "Click your photo to switch personas. Turn on Play as in Settings and you can be anyone in your world. Wild, right?": "Haz clic en tu foto para cambiar de persona. Activa Jugar como en Ajustes y puedes ser cualquiera de tu mundo. Una locura, ¿eh?",

@@ -101,6 +101,8 @@ export interface Resident {
     avatar: string; name: string; occupation: string | null;
     home: { zone: string; x: number; y: number; n?: number; /** a second (third…) flat at the same address, when every home is taken */ unit?: number };
     routine: Routine; leisure: string[]; met: boolean;
+    /** you've learned what they do (seen them at work, or got to know them: sim/jobknown.ts); absent = not yet */
+    jobKnown?: boolean;
 }
 export interface Save {
     v: 1; world: string; lang: string; day: number; minutes: number; speed: number; asleep?: boolean;

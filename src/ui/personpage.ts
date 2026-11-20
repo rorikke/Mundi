@@ -9,7 +9,8 @@ import { fmtClock as hm } from '../core/fmt.js';
 import { weekday } from '../sim/time.js';
 import { placeOf } from '../sim/places.js';
 import { OUT } from '../sim/people.js';
-import { jobOf, rankName, shiftOn, onVacation, scheduled, secretCouple } from '../sim/dayplan.js';
+import { jobOf, rankName, shiftOn, onVacation, scheduled, secretCouple, ruleOn } from '../sim/dayplan.js';
+import { knowsJob } from '../sim/jobknown.js';
 import { fr, statusOf, pastOf, PARTNER, type Status } from '../sim/rel.js';
 import { friendTier } from '../sim/romance.js';
 import { ties, TIE_TYPES } from '../sim/living.js';
@@ -42,9 +43,12 @@ export function feelingsNow(g: Save, a: string): string {
 
 const placeWord = (g: Save, w: WorldDef, id: string) => (id === OUT ? 'away' : placeOf(g, w, id)?.name ?? '');
 const span = (from: number, to: number) => `${hm(from % 1440)}–${hm(to % 1440)}`;
-// Their work: the job and rank, where, and today's shift; their week (a Friend), a day at a time.
+// Their work: the job and rank, where, and today's shift; their week (a Friend), a day at a time. Only once you know
+// what they do (sim/jobknown.ts); before that the same line for everyone, so it doesn't tell who has a job at all.
 function workHtml(g: Save, w: WorldDef, a: string): string {
-    const r = g.cast[a], o = r && jobOf(g, w, r); if (!r || !o) return '';
+    const r = g.cast[a]; if (!r) return '';
+    if (!knowsJob(g, r)) return ruleOn(w, 'jobs') ? `<section class="mu-pp-sec"><h5>${icon('briefcase')}<span>Work</span></h5><small class="mu-muted">You don't know what they do yet.</small></section>` : '';
+    const o = jobOf(g, w, r); if (!o) return '';
     const rank = rankName(g, w, r), timed = scheduled(g, w, r);
     const today = timed ? shiftOn(g, w, r, g.day) : null;
     const now = timed ? (onVacation(g, w, r, g.day) ? 'On vacation today' : today ? `Works today ${span(today.from, today.to)}` : 'Day off today') : '';

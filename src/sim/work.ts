@@ -43,6 +43,7 @@ import { canLeave, leaveOwned, type Leave } from './owning.js';
 import { workRisk } from './caught.js';   // (adult) a choice with a risk of a raid
 import { eventsReady, rollChoice, applyWorkResult, choiceOpen } from './workevents.js';
 import { sceneHere } from './homerooms.js';
+import { knowsJob } from './jobknown.js';
 export { ledger, book } from './ledger.js';
 export { trackOf, jobTrack, playerTrack, layTrack, needsPick, tracksOf, trackName, type TrackedJob } from './tracks.js';
 export { scheduleOf } from '../core/presets.js';
@@ -262,7 +263,7 @@ function nightMinutes(start: number, minutes: number) {
 export const REFER_RANK = 2, REFER_BOND = 40;
 export function canRefer(g: Save, w: WorldDef, avatar: string): Occupation | null {
     const r = g.cast[avatar]; const job = r && jobDef(w, r.occupation), o = job && trackOf(g, job);
-    if (!r || !o || !r.met || !systemOn(w, 'jobs') || g.player.job?.id === o.id || o.hireable === false) return null;
+    if (!r || !o || !r.met || !knowsJob(g, r) || !systemOn(w, 'jobs') || g.player.job?.id === o.id || o.hireable === false) return null;
     if (npcRank(g, avatar) < REFER_RANK || (bondOf(g, avatar) < REFER_BOND && !favorOwed(g, avatar))) return null;
     return o;
 }

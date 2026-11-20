@@ -11151,6 +11151,7 @@ const DICT: Record<string, string> = {
  "Your name, money, energy and needs. Click your photo to use another SillyTavern persona.": "Seu nome, dinheiro, energia e necessidades. Clique na sua foto para usar outra persona do SillyTavern.",
  "The faces under your card. Click one to call them over or go to them.": "Os rostos embaixo do seu card. Clique num para chamá-lo ou ir até ele.",
  "You don't know them yet.": "Você ainda não conhece essa pessoa.",
+ "You don't know what they do yet.": "Você ainda não sabe o que essa pessoa faz.",
  "My page in People. Friendship and romance bars fill up as we hang out. Plans, messages, what you know about me: it's all here.": "Minha página em Pessoas. As barras de amizade e romance enchem conforme a gente sai junto. Planos, mensagens, o que você sabe de mim: tá tudo aqui.",
  "Click me in the scene for what we can do right now: come along with you, make plans, talk just to me.": "Clique em mim na cena para ver o que dá para fazer agora: ir junto com você, fazer planos, falar só comigo.",
  "Click your photo to switch personas. Turn on Play as in Settings and you can be anyone in your world. Wild, right?": "Clique na sua foto para trocar de persona. Ligue Jogar como nas Configurações e você pode ser qualquer pessoa do seu mundo. Doido, né?",
