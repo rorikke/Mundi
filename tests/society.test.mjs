@@ -1,4 +1,4 @@
-// Life and society (§9C): habits that become traits, reputation that fades, a secret identity with suspicion, pets and
+// Life and society (§9C): no habits (doing something often gives no trait), reputation that fades, a secret identity with suspicion, pets and
 // familiars, training together, letters from friends far away, festivals. Run: node tests/society.test.mjs [repo root]
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,7 +13,7 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js'); await D('core/saves.js');
 const time = await D('sim/time.js'); const needs = await D('sim/needs.js'); const R = await D('sim/rpg.js'); const S = await D('sim/social.js');
 const REL = await D('sim/rel.js'); const setBond = (g, a, v) => REL.setFr(g, a, REL.YOU, v);   // friendship toward you (sim/rel.ts)
-const HB = await D('sim/habits.js'); const ST = await D('sim/standing.js'); const PT = await D('sim/pets.js'); const MT = await D('sim/training.js');
+const ST = await D('sim/standing.js'); const PT = await D('sim/pets.js'); const MT = await D('sim/training.js');
 const LT = await D('sim/letters.js'); const FS = await D('sim/festivals.js'); const P = await D('sim/prompt.js'); const facts = await D('sim/facts.js');
 const people = await D('sim/people.js'); const WS = await D('sim/worldstate.js'); const UI = await D('ui/lifeplus.js');
 let fails = 0, passes = 0;
@@ -25,18 +25,14 @@ seed(8);
 const w = world(ext, 'medieval'); W.registerWorld(w);
 const act = (id) => w.actions.find(a => a.id === id);
 
-// habits
+// no habits: doing something often gives no trait
 {
     const g = fresh();
-    ok(w.habits.length >= 5 && w.festivals.length >= 3 && w.pets.length >= 3, 'the world has habits, festivals and animals');
+    ok(!w.habits && w.festivals.length >= 3 && w.pets.length >= 3, 'the world has festivals and animals, and no habits');
     g.player.money = 1000; g.player.loc = 'tavern';
     for (let i = 0; i < 6; i++) { needs.applyAction(g, w, act('ale')); if (i % 2) time.advance(g, w, 1440); }
     time.advance(g, w, 1440);
-    ok(HB.habitTraits(g, w).includes('Heavy drinker') && Object.values(g.player.traits).flat().includes('Heavy drinker'), 'ale six times in a week: "Heavy drinker"');
-    ok(P.sceneText().includes('heavy drinker'), 'the AI knows the habit');
-    time.advance(g, w, 15 * 1440);
-    ok(!HB.habitTraits(g, w).includes('Heavy drinker'), 'two weeks without it: the habit fades');
-    ok(HB.matches({ hours: [5, 8], count: 1, days: 1 }, { id: 'x' }, 6 * 60) && !HB.matches({ hours: [5, 8], count: 1, days: 1 }, { id: 'x' }, 9 * 60), 'habits by the hour');
+    ok(!('habits' in g) && !('habits' in (g.player.traits ?? {})) && !P.sceneText().includes('Habits:'), 'ale six times in a week gives no trait');
 }
 // reputation
 {
@@ -140,7 +136,7 @@ const act = (id) => w.actions.find(a => a.id === id);
 // screens
 {
     const g = fresh(true); g.player.loc = 'square';
-    ok(UI.standingApp(g, w, '').includes('Habits') && UI.standingApp(g, w, '').includes('Mask'), 'the Reputation app');
+    ok(!UI.standingApp(g, w, '').includes('Habits') && UI.standingApp(g, w, '').includes('Mask'), 'the Reputation app');
     ok(UI.petsApp(g, w, '').includes('For sale here'), 'the Animals app');
     ok(W.appsShown(w).some(a => a.id === 'standing') && W.appsShown(w).some(a => a.id === 'pets'), 'both apps are on the phone');
     const off = structuredClone(w); off.features = { ...(off.features ?? {}), pets: false, reputation: false };

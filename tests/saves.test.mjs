@@ -76,7 +76,8 @@ for (const f of fixtures) {
         // a redrawn map of homes moves where a home sits (its area stays), and a retired map's region data moves to its heir
         // (schema 5: the course being taken moves into `taking`, and the trait lists are settled once the world is known; the old lists stay whole in `traitsBefore`)
         // (schema 2: friendship, romance and couples move into the relationships store, checked just below)
-        const moved = (x) => /\.home\.(x|y|n)$/.test(x.split(':')[0]) || /^\.(regions|bounty|rep)\.city/.test(x) || /^\.player\.(learning\.current|traits\.)/.test(x) || REL_MOVED.test(x);
+        // (schema 9: the habits you had and their counts go, `habits` and `player.traits.habits`)
+        const moved = (x) => /\.home\.(x|y|n)$/.test(x.split(':')[0]) || /^\.habits\./.test(x) || /^\.(regions|bounty|rep)\.city/.test(x) || /^\.player\.(learning\.current|traits\.)/.test(x) || REL_MOVED.test(x);
         const lost = kept(orig, g).filter(x => !moved(x)); ok(!lost.length, `nothing lost (${lost.slice(0, 3).join('; ')})`);
         const notMoved = relMoved(orig, g); ok(!notMoved.length, `friendship, romance and couples moved into the relationships store (${notMoved.slice(0, 3).join('; ')})`);
         if (saves.schemaOf(orig) < 5) ok(JSON.stringify(g.player.traitsBefore) === JSON.stringify(orig.player.traits ?? {}) && (!orig.player.learning?.current || g.player.learning.taking?.includes(orig.player.learning.current)), 'the old traits (traitsBefore) and the course being taken (taking) are kept');
@@ -112,6 +113,17 @@ for (const f of fixtures) {
         play(g, w2, 3);
     });
 }
+step('habits go (schema 9)', () => {
+    const orig = JSON.parse(fs.readFileSync(path.join(here, 'fixtures', fixtures[0]), 'utf8')); orig.schema = 8;
+    orig.habits = { log: { early: [1, 2], drinker: [2] }, has: ['early'] };
+    const chosen = structuredClone(orig.player.traits ?? {});
+    orig.player.traits = { ...chosen, habits: ['Early riser'] };
+    const g = open(structuredClone(orig));
+    ok(saves.schemaOf(g) === saves.SCHEMA, `migrated to format ${saves.SCHEMA}`);
+    ok(!('habits' in g) && !('habits' in (g.player.traits ?? {})), 'the habits you had and their counts are gone');
+    ok(Object.entries(chosen).every(([k, v]) => JSON.stringify(g.player.traits[k]) === JSON.stringify(v)), 'the traits you chose stay');
+    ok(meta.mundi_backups?.length === 1 && meta.mundi_backups[0].data.habits?.has?.[0] === 'early', 'the backup keeps them');
+});
 step('newer save is never written', () => {
     const orig = JSON.parse(fs.readFileSync(path.join(here, 'fixtures', fixtures[0]), 'utf8')); orig.schema = 99;
     const writes = io.writes;

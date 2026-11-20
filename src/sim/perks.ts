@@ -13,7 +13,7 @@ import { onDay } from './hooks.js';
 import { goalsState } from './goals.js';
 
 /** The goals whose perks you have, by id: the finished ones (sim/goals.ts; old saves' finished aspirations included,
- *  In top shape as Athlete). Never from a trait's name: a habit called "Athletic" gives nothing (D-12). */
+ *  In top shape as Athlete). Never from a trait's name: a trait called "Athletic" gives nothing (D-12). */
 export function perkGoalIds(g: Save, w: WorldDef): string[] { void w; return goalsState(g).done; }
 
 // A perk on a need that isn't in play here does nothing (a drain, a morning's mood: a goal that needs it isn't offered

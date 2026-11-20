@@ -1,7 +1,7 @@
 // Style presets: what a world of each style starts with, as data. The engine reads only the world; a style is just
 // the set of values a new world (or an older world that lacks a field) begins with. Everything here can be changed
 // per world in the world creator.
-import type { WorldDef, GenderDef, ActionDef, Crisis, HabitDef, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule, When, PhotoGear } from './world.js';
+import type { WorldDef, GenderDef, ActionDef, Crisis, FestivalDef, PetDef, FactionDef, RealmDef, InstitutionDef, GoodDef, CropDef, BusinessDef, RecipeDef, TowerDef, BladeDef, Occupation, Schedule, When, PhotoGear } from './world.js';
 import { MEDIEVAL_RPG, MODERN_RPG, type RpgDef } from './rpgdef.js';
 import { fromOldTie, isFamily } from './feel.js';
 import { upgradeTraitInfo, type EffectDef } from './traits.js';
@@ -38,7 +38,7 @@ export interface Kinds { deviceLook: 'phone' | 'book'; socialKind: 'feed' | 'boa
 const roll = (dc: number, traits: string[], ok: string, okFx: Record<string, number> | null, okMoney: number | null, bad: string, badFx: Record<string, number>) =>
     ({ dc, traits, success: { text: ok, ...(okMoney ? { money: okMoney } : {}), ...(okFx ? { effects: okFx } : {}) }, fail: { text: bad, effects: badFx } });
 
-export interface Preset { recipes?: RecipeDef[]; towers?: TowerDef[]; blades?: BladeDef[]; goods?: GoodDef[]; crops?: CropDef[]; businesses?: BusinessDef[]; skies?: WorldDef['skies']; climates?: Record<string, string>; institutions?: InstitutionDef[]; factions?: FactionDef[]; realm?: RealmDef; habits?: HabitDef[]; festivals?: FestivalDef[]; pets?: PetDef[]; rpg?: RpgDef; origins?: Record<string, { skills: string[]; feature: string; attributes?: Record<string, number> }>; kinds: Kinds; shop: ShopItem[]; actions: ActionDef[]; breakables: Breakable[]; repairCost: number; crises?: Record<string, Crisis> }
+export interface Preset { recipes?: RecipeDef[]; towers?: TowerDef[]; blades?: BladeDef[]; goods?: GoodDef[]; crops?: CropDef[]; businesses?: BusinessDef[]; skies?: WorldDef['skies']; climates?: Record<string, string>; institutions?: InstitutionDef[]; factions?: FactionDef[]; realm?: RealmDef; festivals?: FestivalDef[]; pets?: PetDef[]; rpg?: RpgDef; origins?: Record<string, { skills: string[]; feature: string; attributes?: Record<string, number> }>; kinds: Kinds; shop: ShopItem[]; actions: ActionDef[]; breakables: Breakable[]; repairCost: number; crises?: Record<string, Crisis> }
 // What happens when a need stays at zero (the same idea in every style; only the words change).
 const CRISES = (helper: string, water: string): Record<string, Crisis> => ({
     hunger: { after: 180, text: `You feel faint from hunger and nearly collapse. ${helper} helps you sit down and gives you something to eat.`, restore: 25, mood: -15, shame: 0, seen: '{u} nearly fainted from hunger at {0}.' },
@@ -102,15 +102,6 @@ export const PRESETS: Record<string, Preset> = {
             { id: 'union', name: 'Dockworkers\' Union', kind: 'union', desc: 'the workers of the port, proud and loud', hq: 'docks', ranks: ['Member', 'Shop steward', 'Organizer', 'Union boss'], jobs: ['dockworker', 'mechanic', 'engineer'], allies: ['cityhall'], rivals: ['halcyon'], dues: 5, quota: 1 },
             { id: 'saints', name: 'The Saints', kind: 'gang', desc: 'a street gang that runs the industrial zone at night', hq: 'industrial', ranks: ['Lookout', 'Runner', 'Lieutenant', 'Boss'], beats: 'halcyon', rivals: ['cityhall'], secret: true, quota: 2 },
             { id: 'society', name: 'Campus Society', kind: 'club', desc: 'students and scholars with old traditions', hq: 'campus', ranks: ['Pledge', 'Member', 'Officer', 'President'], jobs: ['librarian', 'researcher', 'teacher'], quota: 1 },
-        ],
-        habits: [
-            { id: 'early', name: 'Early riser', trait: 'Early riser', desc: 'Up and doing things before 8, five days in a week.', hours: [5, 8], count: 5, days: 7, daily: { energy: 3 } },
-            { id: 'owl', name: 'Night owl', trait: 'Night owl', desc: 'Out and about after midnight, four times in a week.', hours: [0, 4], count: 4, days: 7 },
-            { id: 'coffee', name: 'Coffee addict', trait: 'Coffee addict', desc: 'Coffee eight times in a week.', actions: ['coffee', 'x-coffee'], count: 8, days: 7, daily: { mood: -2 } },
-            { id: 'fit', name: 'Fitness buff', trait: 'Athletic', desc: 'Working out or running five times in ten days.', actions: ['x-workout', 'x-run', 'x-treadmill'], count: 5, days: 10, daily: { mood: 2 } },
-            { id: 'party', name: 'Party animal', trait: 'Nightlife', desc: 'Drinks out six times in a week.', actions: ['drink'], count: 6, days: 7, daily: { energy: -3 } },
-            { id: 'chef', name: 'Home chef', trait: 'Good cook', desc: 'Cooking at home five times in a week.', actions: ['cook'], count: 5, days: 7 },
-            { id: 'clean', name: 'Neat freak', trait: 'Tidy', desc: 'Showering every day for a week.', actions: ['shower', 'gymshower'], count: 7, days: 7 },
         ],
         festivals: [
             { id: 'spring', name: 'Spring Street Fair', season: 'spring', day: 7, days: 1, place: 'downtown', prices: 1.1, mood: 15, desc: 'food trucks, music and stalls fill downtown' },
@@ -232,15 +223,6 @@ export const PRESETS: Record<string, Preset> = {
             { id: 'arcanum', name: 'The Grand Arcanum', kind: 'order', desc: 'the greatest order of mages of the Three Crowns', hq: 'arcanum', region: 'lumeria', ranks: ['Novice', 'Adept', 'Magister', 'Archmage'], jobs: ['arcanist'], dues: 8, quota: 1, joinRep: 15 },
             { id: 'league', name: 'Merchants\' League', kind: 'guild', desc: 'the merchants who move goods and gold between the kingdoms', hq: 'trade_school', ranks: ['Clerk', 'Factor', 'Master merchant', 'Guildmaster'], jobs: ['merchant', 'customs', 'trader', 'porter'], beats: 'crown', rivals: ['hand'], dues: 6, quota: 1 },
             { id: 'hand', name: 'The Velvet Hand', kind: 'thieves\' guild', desc: 'thieves and smugglers who rule the docks after dark', hq: 'docks', ranks: ['Footpad', 'Cutpurse', 'Shadow', 'Guildmaster'], beats: 'league', rivals: ['crown', 'league'], secret: true, quota: 2 },
-        ],
-        habits: [
-            { id: 'early', name: 'Early riser', trait: 'Early riser', desc: 'Up and working before 8, five days in a week.', hours: [5, 8], count: 5, days: 7, daily: { energy: 3 } },
-            { id: 'owl', name: 'Night owl', trait: 'Night owl', desc: 'Up after midnight, four times in a week.', hours: [0, 4], count: 4, days: 7 },
-            { id: 'drinker', name: 'Heavy drinker', trait: 'Heavy drinker', desc: 'Ale six times in a week.', actions: ['ale'], count: 6, days: 7, daily: { mood: -2, energy: -2 } },
-            { id: 'devout', name: 'Devout', trait: 'Devout', desc: 'Praying four times in a week.', actions: ['pray'], count: 4, days: 7, daily: { mood: 2 } },
-            { id: 'minstrel', name: 'Street minstrel', trait: 'Musical', desc: 'Busking five times in ten days.', actions: ['busk'], count: 5, days: 10 },
-            { id: 'angler', name: 'Angler', trait: 'Fishing', desc: 'Fishing five times in ten days.', actions: ['fish'], count: 5, days: 10 },
-            { id: 'clean', name: 'Fastidious', trait: 'Tidy', desc: 'A bath or a wash every day for a week.', actions: ['bath', 'basin'], count: 7, days: 7 },
         ],
         festivals: [
             { id: 'spring', name: 'Spring Fair', season: 'spring', day: 7, days: 1, place: 'square', prices: 1.1, mood: 15, desc: 'jugglers, ribbons and stalls in the market square' },
@@ -420,9 +402,8 @@ export function upgradeWorld(w: WorldDef): WorldDef {
         if (p.realm && !w.realm) w.realm = structuredClone(p.realm);
         (w as any).presetRealm = true;
     }
-    // habits, festivals and animals: once for a world made before them (removed ones stay removed)
+    // festivals and animals: once for a world made before them (removed ones stay removed)
     if (!(w as any).presetLife2) {
-        if (p.habits && !w.habits) w.habits = structuredClone(p.habits);
         if (p.festivals && !w.festivals) w.festivals = structuredClone(p.festivals).filter(f => !f.place || w.places.some(x => x.id === f.place));
         if (p.pets && !w.pets) w.pets = structuredClone(p.pets);
         (w as any).presetLife2 = true;

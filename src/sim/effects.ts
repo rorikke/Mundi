@@ -1,4 +1,4 @@
-// Small effects on the game's numbers from where you are in life: personality and habits now, finished life goals'
+// Small effects on the game's numbers from where you are in life: personality now, finished life goals'
 // perks and timed boosts later. Systems ask one question at the place they own a number ("how much faster does this
 // drain?", "what's added to this roll?") and every source that has an answer is combined here: percentages multiply,
 // flat amounts add, and the total stays inside the bounds in core/traits.ts. With no source giving anything, the
