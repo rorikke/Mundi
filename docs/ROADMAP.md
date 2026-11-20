@@ -26,6 +26,17 @@ Ideas planned for later. Nothing here is promised for a date.
 - Tuning from play: how long the first stage and the wait between last chances should be, and how many last chances a
   story gets.
 
+## Rumors
+
+- **Habits people notice:** what you do often, seen by the same people, becomes a rumor in the world's words ("{{user}}
+  is at the pachinko parlor almost every night") instead of a trait. It counts what habits used to count (actions,
+  place tags or hours, so many times in so many days) and remembers who was there each time; those who saw it most
+  start it, and it spreads, garbles and dies out like any rumor, so only people the gossip reached know it (a partner
+  can hear about your nights in Kabukichō; nobody else simply knows). Keep it up and it starts again once the old one
+  has died out. No trait, bonus or app panel; Quiet a rumor stops it. Only habits worth gossip (not showering or cooking
+  at home); a world's habit without its own words gets a plain one. Runs with the rumors system. Habits as they were
+  (removed in schema 9) are in git history: `git log -S HabitDef`.
+
 ## Worlds
 
 - **Medieval:** paused; it gets the systems built for the modern worlds once they are done.

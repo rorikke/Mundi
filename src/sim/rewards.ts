@@ -7,7 +7,7 @@
 // in friendship or romance, a week's hold on romance fading), Clear the air and A fresh start (their feelings for you
 // back to zero; a fresh start also hides what they remember from the AI and makes you strangers), Forgive and forget
 // (`makeUp()`), An invitation (sim/initiative.ts), Quiet a rumor (sim/living.ts), Insight (one true thing the engine
-// knows: their heart, how they see you, their secret), Change a trait (`swapTrait()`, `resetHabit()`), Skip a step
+// knows: their heart, how they see you, their secret), Change a trait (`swapTrait()`), Skip a step
 // (sim/goals.ts through `goalLink`), Rent holiday (sim/bills.ts), Clean slate at work (sim/work.ts) and Tokyo's daruma
 // (the active goal's finishing points doubled). (track 7, the end game) A dealer's tip and an early catalogue (a missing
 // piece you pick, on the ask's terms or as one more lot: sim/market.ts), the workshop's priority (everything in the
@@ -40,7 +40,6 @@ import { approvalOf, approve, rumorsAboutYou, quietRumor, type Rumor } from './l
 import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap } from './threads.js';
 import { exampleOf, secretCouple } from './dayplan.js';
 import { swapTrait, traitNames, strengthGroups, groupOptions, isAdultTrait } from './traits.js';
-import { habitsOf, resetHabit } from './habits.js';
 import { refreshPersona } from './game.js';
 import { skipBills, billsToPay } from './bills.js';
 import { cleanSlate, slateToClean } from './work.js';
@@ -51,7 +50,7 @@ import { nextMonday } from './owning.js';
 import { toLet } from './housing.js';
 
 /** What an item needs picked before it's bought: a person (with `meter` for the Nudge and `question` for Insight), a
- *  trait or habit, a rumor. */
+ *  trait, a rumor. */
 export type RewardPick = 'person' | 'trait' | 'rumor' | 'piece';
 /** An item as the Rewards tab shows it. `own`: the world's own item (not a general one). `limit`: its limit and how
  *  much of it is used now (`used` is left out for limits per person: see `peopleFor`). `ok`: it can be bought now (a
@@ -61,8 +60,8 @@ export interface ShopItem {
     limit: { per: string; n: number; used?: number; person: boolean } | null; ok: boolean; why?: string; def: RewardDef;
 }
 /** What the buyer picked: the person (an avatar), the Nudge's meter (`f` friendship, `r` romance), Insight's question,
- *  Change a trait's group with the trait to swap (`from`) and the new one (`to`), or a habit to drop, the rumor's id. */
-export interface RewardChoice { person?: string; meter?: Meter; question?: InsightId; group?: string; from?: string; to?: string; habit?: string; rumor?: string; /** (track 7) a museum piece */ piece?: string }
+ *  Change a trait's group with the trait to swap (`from`) and the new one (`to`), the rumor's id. */
+export interface RewardChoice { person?: string; meter?: Meter; question?: InsightId; group?: string; from?: string; to?: string; rumor?: string; /** (track 7) a museum piece */ piece?: string }
 /** What buying did. `persona`: the persona card being written again (Change a trait). */
 export interface RewardResult { ok: boolean; lines: string[]; persona?: Promise<boolean> }
 
@@ -115,7 +114,7 @@ function whyNot(g: Save, w: WorldDef, def: RewardDef): string | null {
     if (k === 'restore' && !workshopWaiting(g, w).length) return 'Nothing waiting in the workshop';
     if (k === 'tenant') { if (!toLet(g).length) return 'No home to let'; if (sureUntil(g) >= weekNo(nextMonday(g.day)) + sureWeeks(g) - 1) return 'Already sure for the season'; }
     if (k === 'quiet' && !rumorsAboutYou(g).length) return 'No rumor about you is going round';
-    if (k === 'retrait') { const c = traitChoices(g, w); if (!c.groups.length && !c.habits.length) return 'Nothing to change'; }
+    if (k === 'retrait') { const c = traitChoices(g, w); if (!c.groups.length) return 'Nothing to change'; }
     if (pickOf(k) === 'person' && !peopleFor(g, w, def.id).some(p => p.ok)) return 'Nobody to use it on';
     if (def.price > pointsOf(g)) return 'Not enough life points';
     return null;
@@ -293,15 +292,14 @@ export function insightQuestions(g: Save, w: WorldDef | null | undefined, a: str
 
 const SWAPPABLE: Record<string, string> = { personality: 'Personality', interests: 'Interests' };
 /** What Change a trait can do: per group (personality, interests), the traits you have and those you could take
- *  instead; the habits you could drop. Strengths are skill levels: never here. */
-export function traitChoices(g: Save, w: WorldDef | null | undefined): { groups: { id: string; name: string; have: string[]; can: string[] }[]; habits: { id: string; name: string }[] } {
-    if (!w) return { groups: [], habits: [] };
+ *  instead. Strengths are skill levels: never here. */
+export function traitChoices(g: Save, w: WorldDef | null | undefined): { groups: { id: string; name: string; have: string[]; can: string[] }[] } {
+    if (!w) return { groups: [] };
     const strengths = strengthGroups(w), mine = traitNames(g);
-    // (adult traits and habits only with adult content on: what you have stays, and isn't listed while it's off)
+    // (adult traits only with adult content on: what you have stays, and isn't listed while it's off)
     const groups = (w.sheet?.traits ?? []).filter(t => SWAPPABLE[t.id] && !strengths.includes(t)).map(t => ({ id: t.id, name: SWAPPABLE[t.id],
         have: [...(((g.player.traits ?? {}) as Record<string, string[]>)[t.id] ?? [])].filter(o => adultOn(g) || !isAdultTrait(w, o)), can: groupOptions(g, t).filter(o => !mine.includes(o)) })).filter(x => x.have.length && x.can.length);
-    const habits = systemOn(w, 'habits') ? habitsOf(g).has.map(id => w.habits?.find(h => h.id === id)).filter(h => !!h && (!h.adult || adultOn(g))).map(h => ({ id: h!.id, name: h!.trait || h!.name })) : [];
-    return { groups, habits };
+    return { groups };
 }
 
 /** Rumors about you that Quiet a rumor can stop. */
@@ -358,12 +356,6 @@ function act(g: Save, w: WorldDef, def: RewardDef, c: RewardChoice): string | { 
             return { lines: [said.charAt(0).toUpperCase() + said.slice(1)] };
         }
         case 'retrait': {
-            if (c.habit) {
-                const h = traitChoices(g, w).habits.find(x => x.id === c.habit);
-                if (!h || !resetHabit(g, w, h.id)) return 'You don\'t have that habit';
-                note(g, '{u} dropped a habit: {0}.', [h.name.toLowerCase()], [], g.player.loc, 'skill');
-                return { lines: [`No longer: ${h.name}.`] };
-            }
             if (!c.group || !SWAPPABLE[c.group] || strengthGroups(w).some(t => t.id === c.group)) return 'Only a personality or an interest trait can be swapped (strengths are skill levels)';
             if (!c.from || !c.to) return 'Pick the trait to swap and the new one';
             const res = swapTrait(g, w, c.group, c.from, c.to);

@@ -1,16 +1,14 @@
 // Who you are: strengths (what you're good at when a game starts: they become skill levels), personality (small effects
 // on the game's numbers, through the effects engine), interests (doing something that fits one lifts your mood a
-// little more), habits (their skill trains a little faster while you keep them) and, with adult content and Desire in
-// play, the Drive (how fast Desire drains and what a night gives: sim/drive.ts uses it). Also what the AI is told about
-// you every turn, swapping a trait later (life goals' "Change a trait"), and `settleTraits`, which brings a save made
-// under the old rules (every trait a flat bonus, courses and goals handing out traits) onto the new ones once its
-// world is known.
+// little more) and, with adult content and Desire in play, the Drive (how fast Desire drains and what a night gives:
+// sim/drive.ts uses it). Also what the AI is told about you every turn, swapping a trait later (life goals' "Change a
+// trait"), and `settleTraits`, which brings a save made under the old rules (every trait a flat bonus, courses and
+// goals handing out traits) onto the new ones once its world is known.
 import { adultOn, type Save } from '../core/store.js';
 import { systemOn, activeStatuses, getWorld, type WorldDef, type TraitGroup } from '../core/world.js';
 import { clampEffect, TRAIT_LIMITS, OUT_OF_WORK, type EffectDef } from '../core/traits.js';
 import { effectSources } from './effects.js';
 import { onAction } from './hooks.js';
-import { habitsOf, habitTraits, syncHabitTraits } from './habits.js';
 import { setSkillLevel, skillDef, hobbyFor, MAX_LEVEL } from './hobbies.js';
 import { whenHolds } from './when.js';
 import { placeOf } from './places.js';
@@ -19,8 +17,6 @@ import { note } from './facts.js';
 
 /** How much more mood a matching interest gives (once per action, however many interests match). */
 export const INTEREST_MOOD = 3;
-/** A habit trains its skill this much faster while you keep it. */
-export const HABIT_LEARN = 0.1;
 
 const names = (list: unknown): string[] => (Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : []);
 /** Every trait name the player has, once each, whatever the group. */
@@ -129,13 +125,12 @@ const driveNames = (w: WorldDef) => new Set(driveGroup(w)?.options ?? []);
 /* ---------- the trait source for the effects engine ---------- */
 
 const holds = (g: Save, w: WorldDef, e: EffectDef) => !e.when || (e.when === OUT_OF_WORK ? systemOn(w, 'jobs') && !g.player.job : whenHolds(g, w, e.when, { key: `trait|${e.kind}|${e.target ?? ''}` }));
-// Personality's effects (from the world's `traitInfo`), the habits' faster learning while they hold, and the Drive's
+// Personality's effects (from the world's `traitInfo`) and the Drive's
 // Desire drain and romance from private actions (a choice with a cost each way: past a trait's ±15%).
 effectSources.push((g, w) => {
     const out: EffectDef[] = [];
     const info = w.traitInfo, drives = driveNames(w);
     if (info) for (const t of traitsInPlay(g, w)) if (!drives.has(t)) for (const e of info[t]?.effects ?? []) if (holds(g, w, e)) out.push(clampEffect(e, TRAIT_LIMITS));
-    if (systemOn(w, 'habits')) for (const id of habitsOf(g).has) { const h = w.habits?.find(x => x.id === id); if (h?.learn && (!h.adult || adultOn(g))) out.push({ kind: 'learn', target: h.learn, value: HABIT_LEARN }); }
     const d = playerDrive(g, w);
     if (d && d !== 'average') out.push({ kind: 'drain', target: 'desire', value: PLAYER_DRIVE[d].drain - 1 }, { kind: 'gain', target: 'intimate', value: PLAYER_DRIVE[d].romance });
     return out;
@@ -155,19 +150,19 @@ onAction.push((g, w, a) => {
 
 /* ---------- what the AI is told ---------- */
 
-/** One short line every turn: personality, interests, habits, the lines a world gives its traits for the AI (`ai`) and
+/** One short line every turn: personality, interests, the lines a world gives its traits for the AI (`ai`) and
  *  the drive (the persona card says them once at the new game and goes stale; this stays true). Empty when there's
  *  nothing to say. */
 export function traitLine(g: Save, w: WorldDef): string {
     const t = (g.player.traits ?? {}) as Record<string, unknown>;
     const lower = (l: string[]) => l.map(x => x.toLowerCase()).join(', ');
     const on = adultOn(g), shown = (l: string[]) => (on ? l : l.filter(x => !isAdultTrait(w, x)));
-    const per = shown(names(t.personality)), fun = shown(names(t.interests)), habits = habitTraits(g, w);
+    const per = shown(names(t.personality)), fun = shown(names(t.interests));
     const drive = playerDrive(g, w), drives = driveNames(w), ai = (n: string) => w.traitInfo?.[n]?.ai ?? '';
     // a trait's own line for the AI (the world's words: In bed's, an overlay's), a drive's in place of the engine's
     const pick = drive ? names(t[DRIVE_GROUP]).find(x => drives.has(x)) : undefined;
-    const lines = [...new Set([...traitsInPlay(g, w), ...habits])].filter(x => !drives.has(x)).map(ai).filter(Boolean);
-    const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', habits.length ? `Habits: ${lower(habits)}.` : '', ...lines, drive ? (pick && ai(pick)) || PLAYER_DRIVE[drive].ai : ''].filter(Boolean);
+    const lines = [...new Set(traitsInPlay(g, w))].filter(x => !drives.has(x)).map(ai).filter(Boolean);
+    const parts = [per.length ? `{{user}} is ${lower(per)}.` : '', fun.length ? `Interests: ${lower(fun)}.` : '', ...lines, drive ? (pick && ai(pick)) || PLAYER_DRIVE[drive].ai : ''].filter(Boolean);
     return parts.join(' ');
 }
 
@@ -223,7 +218,7 @@ export function settleShifts(g: Save, w: WorldDef): string[] {
 
 /** Brings a save made under the old rules onto the new ones, once (`player.traitsTodo`, set by migration 5): strengths
  *  and learned or school traits the world maps to a skill become levels (never lowering one), finished courses give their
- *  levels, the old life goals' reward traits go, habits are rebuilt from the habits you have. Picks the world doesn't
+ *  levels, the old life goals' reward traits go. Picks the world doesn't
  *  map stay (custom worlds, worlds without skills). The old lists are kept in `player.traitsBefore`. Idempotent. */
 export function settleTraits(g: Save, w: WorldDef): string[] {
     const p = g.player as any;
@@ -259,6 +254,5 @@ export function settleTraits(g: Save, w: WorldDef): string[] {
         delete p.traitsTodo;
     }
     settleShifts(g, w);
-    syncHabitTraits(g, w);
     return notes;
 }

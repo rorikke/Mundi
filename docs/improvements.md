@@ -66,8 +66,8 @@ cherry blossom and autumn leaves in the parks, and bare trees in winter.
 
 ## Who you are, and courses that take weeks
 
-In Tokyo and Porto Alto, what you're good at is a skill, who you are is your personality, interests and habits, and a
-course teaches you skills over a few weeks.
+In Tokyo and Porto Alto, what you're good at is a skill, who you are is your personality and interests, and a course
+teaches you skills over a few weeks.
 
 ### Strengths start your skills
 
@@ -100,14 +100,15 @@ thing (a few cost you something too, so no choice is simply best):
 
 Each trait's line is shown when you pick it and on your profile ("Who you are").
 
-### Interests and habits
+### Interests
 
 - **Interests** still fill your dating profile, and doing something that fits one lifts your mood a little more:
   playing music with Music, a round of games with Games, cooking with Cooking.
-- **Habits have names of their own.** Work out often and you become a Gym regular; cook often and you're a Home cook
-  (in Tokyo also a Karaoke regular or an Izakaya regular). While you keep a habit, its skill trains 10% faster.
-- **The AI knows who you are.** Your personality, interests and habits are told to it every turn, so they stay true
-  after a habit comes or goes.
+- **The AI knows who you are.** Your personality and interests are told to it every turn, so they stay true after you
+  change a trait.
+- **No more habits.** Doing something often no longer turns into a trait ("Gym regular", "Early riser"): life goals'
+  perks already reward what you work at, and a place still knows you as a regular. Habits you had are gone from older
+  games.
 
 ### Jobs and rolls
 
@@ -199,7 +200,7 @@ Steps and goals also earn **life points**, which you spend in a small shop.
   profile, after who you are.
 - **A perk is not a trait.** It isn't told to the AI as who you are, and jobs and rolls that look at traits don't count
   it. The AI does hear what you did ("reached a life goal…") and the goal you're working toward.
-- **Perks add up**, with your personality and habits: percentages multiply (two −20% make −36%, never reaching zero) and
+- **Perks add up**, with your personality: percentages multiply (two −20% make −36%, never reaching zero) and
   flat bonuses add, and every kind has a limit for the whole pile, so collecting goals makes you stronger without breaking
   the game.
 
@@ -242,7 +243,7 @@ own](#a-café-of-your-own), and *Mentor* through [training together](#training-t
 | An invitation | someone you know asks you out in the next days | 150 |
 | Quiet a rumor | a rumor about you stops spreading | 200 |
 | Insight | one true thing about someone: who they have feelings for, how they see you, or their secret | 250 |
-| Change a trait | swap a personality or interest trait, or drop a habit (your persona card is updated) | 500 |
+| Change a trait | swap a personality or interest trait (your persona card is updated) | 500 |
 | Skip a step | the current step counts as done; never the last one, once per goal, and it pays no points | 400 |
 
 - **Tokyo's shrines** sell their own, at Sensō-ji, Meiji Jingū, Kanda Myōjin and Tsukimi Inari: an *omikuji* (a lucky
@@ -444,16 +445,13 @@ Both are adult, run on a schedule like Tokyo's others, and teach Sensuality:
 - **Sensual massage course** (¥65,000 a season, online and at home) teaches Sensuality and Charisma, and unlocks *Full oil
   massage* and the way into the esthe job.
 
-### Traits and habits
+### Traits
 
 - **Strengths:** *Good in bed* (Sensuality 3).
 - **Personality:** *Flirtatious* (above) and *Shameless* (+1 on rolls where being seen is part of it, but 10% more likely
   to be caught).
 - **Interests:** *Kink*, a little more mood from what fits it; on the dating app it shows on people whose likes fit, and counts as an interest you share with them.
 - **In bed** and **Drive:** one pick each (above).
-- **Habits** come from doing: *An active love life* (five private moments in a week: Sensuality trains 10% faster, +2
-  mood each morning) and *Kabukichō regular* (four nights at a host club, hostess lounge or Pole Star in a week:
-  Charisma trains 10% faster, but −3 energy each morning).
 
 ### Goals and the shop
 
@@ -479,8 +477,8 @@ Nothing in the shop gets past a hard limit, a "not tonight", a lack of attractio
 
 ### World makers and older games
 
-- **The World creator** edits every part: a skill marked adult, adult trait options and groups, adult courses, needs and
-  habits, a private action's difficulty, the words it matches and its chance of being caught, jobs' kinds and tracks (a
+- **The World creator** edits every part: a skill marked adult, adult trait options and groups, adult courses and
+  needs, a private action's difficulty, the words it matches and its chance of being caught, jobs' kinds and tracks (a
   track editor beside the ranks, hiring conditions, fees, days a week per rank, who a work event comes from, a choice's
   boost or risk), the pool of likes and limits for people made in the game, each person's role and drive, and the
   questions an insight item can answer. What a world doesn't use stays out of its file.

@@ -871,9 +871,6 @@ export interface WorldDef {
     note?: { text: string; depth?: number; interval?: number; position?: number };
     /** The RPG of the world (attributes, classes, magic…): needed for the RPG mode. */
     rpg?: RpgDef;
-    /** Habits that become traits (do something often enough and it sticks; stop and it fades), each under a name of its
-     *  own (`trait`), never one a player can choose. */
-    habits?: HabitDef[];
     /** What a trait means here, by name: a description, effects from the fixed list (core/traits.ts) and, for an
      *  interest, what it covers. The standard names get theirs from `upgradeWorld()` unless an entry is here. */
     traitInfo?: Record<string, TraitInfo>;
@@ -1263,7 +1260,7 @@ export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'da
 /** Systems a scenario never has: no neighbors (everyone lives in the house), no social network, no crafting. */
 // Home (a scenario): a simpler world made for role-play with your characters in one house. Work, money, courses,
 // the economy and the like are gone; what is left is the house, the people, love and plans.
-export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals', 'habits',
+export const SCENARIO_SYSTEMS_OFF: SystemId[] = ['neighbors', 'social', 'crafting', 'events', 'jobs', 'courses', 'shop', 'consults', 'rumors', 'goals',
     'trade', 'farming', 'dice', 'factions', 'institutions', 'property', 'banks', 'auctions', 'taxes', 'ecology', 'mounts', 'prison', 'trophies', 'identity',
     'mentors', 'letters', 'legends', 'festivals', 'hobbies', 'reputation', 'bills', 'breakdowns', 'living', 'business', 'housing', 'collection', 'homerooms', 'photography'];
 // Life-Sim keeps to daily life: no groups to join, property to run or recipes to craft (those come with the RPG mode).
@@ -1310,12 +1307,7 @@ export const activeStatuses = (w: WorldDef, g?: unknown) => (isScenario(w) && g 
 // the phone or journal, the AI's prompt, and the engine stops running it. What the save holds for it is kept, so
 // turning it back on picks up where it was. `apps`: the apps it owns; `blocks`: the prompt blocks it owns.
 export type SystemId = 'living' | 'neighbors' | 'consults' | 'needs' | 'jobs' | 'bills' | 'courses' | 'shop' | 'breakdowns' | 'plans' | 'romance' | 'relations' | 'family' | 'social' | 'rumors' | 'diary' | 'goals'
-    | 'habits' | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms' | 'photography' | 'dress' | 'busy';
-/** A habit. `trait`: the name it shows as while you have it (its own: "Gym regular", not a trait the character sheet
- *  offers, which a player who chose it would already have). `learn`: a skill id that trains 10% faster while you keep it. */
-export interface HabitDef { id: string; name: string; desc?: string; trait: string; /** a skill id: it trains a little faster while you keep the habit */ learn?: string; actions?: string[]; tags?: string[]; hours?: [number, number]; count: number; days: number; lose?: number; daily?: Record<string, number>;
-    /** Only with adult content on (Active love life, Night-world regular): otherwise it isn't gained, named, counted or felt. */
-    adult?: boolean }
+    | 'reputation' | 'identity' | 'pets' | 'mentors' | 'letters' | 'festivals' | 'factions' | 'faith' | 'legends' | 'talents' | 'institutions' | 'trade' | 'property' | 'banks' | 'farming' | 'auctions' | 'taxes' | 'skies' | 'ecology' | 'debuffs' | 'injuries' | 'fatigue' | 'elements' | 'mounts' | 'prison' | 'towers' | 'sentient' | 'crafting' | 'trophies' | 'contracts' | 'soulbound' | 'dice' | 'pins' | 'events' | 'hobbies' | 'business' | 'housing' | 'collection' | 'homerooms' | 'photography' | 'dress' | 'busy';
 export interface CityEventDef {
     id: string; name: string; icon?: string; desc?: string; place: string;
     /** 0 = Monday … 6 = Sunday; `every` weeks (1 = every week), starting on week `week`. */
@@ -1569,7 +1561,6 @@ export const SYSTEMS: SystemDef[] = [
     { id: 'rumors', name: 'Rumors', desc: 'people do not gossip about what you do.', apps: [], blocks: ['rumors'] },
     { id: 'diary', name: 'Diary', desc: 'no diary written when you sleep, and none sent to the AI (the notes of each day stay).', apps: [], blocks: ['diary'] },
     { id: 'goals', name: 'Life goals', desc: 'no life goal to chase.', apps: ['goals'], blocks: [] },
-    { id: 'habits', name: 'Habits become traits', desc: 'what you do often never becomes part of who you are.', apps: [], blocks: [] },
     { id: 'reputation', name: 'Reputation', desc: 'no reputation per region (and it never fades).', apps: ['standing'], blocks: [] },
     { id: 'identity', name: 'Secret identity', desc: 'no alter ego or disguise.', apps: [], blocks: [] },
     { id: 'pets', name: 'Pets and familiars', desc: 'no animals to keep.', apps: ['pets'], blocks: [] },
