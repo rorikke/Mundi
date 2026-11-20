@@ -58,7 +58,8 @@ import { pickFile } from './cropper.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, relOf, YOU } from '../sim/rel.js';
-import { crushOn, canAsk, tierNo } from '../sim/romance.js';
+import { ties } from '../sim/living.js';
+import { crushOn, canAsk, tierNo, romanceTier } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
 import { PP, personTabs, feelingsNow, aboutHtml, memoriesHtml, circleHtml, notesHtml } from './personpage.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
@@ -366,14 +367,46 @@ function threadApp(g: Save) {
 }
 
 // People: your partners first, then something casual (listed apart: they aren't partners), then everyone else.
+// Filters over it (who you'd look for): friends, romance, family, who lives with you, coworkers, neighbours, and who
+// is free right now; each only when it has someone (and not everyone). A dot on each row says free, at work or asleep (Busy people).
+type PeopleFilter = 'all' | 'free' | 'friends' | 'romance' | 'family' | 'home' | 'work' | 'neighbours';
+const PEOPLE = { filter: 'all' as PeopleFilter };
+const FRIEND_AT = 30;
+const livesWithYou = (r: Resident) => (r as any).homeWith === '__you';
+function peopleFilters(g: Save, w: WorldDef): [PeopleFilter, string, (r: Resident) => boolean][] {
+    const job = g.player.job?.id, zone = g.player.home.zone;
+    const family = new Set(ties(g).filter(t => t.a === YOU || t.b === YOU).map(t => (t.a === YOU ? t.b : t.a)));
+    return [
+        ['free', 'Free now', r => systemOn(w, 'busy') && !awayNow(g, w, r)],
+        ['friends', 'Friends', r => bondOf(g, r.avatar) >= FRIEND_AT],
+        ['romance', 'Romance', r => systemOn(w, 'romance') && (isPartner(g, r.avatar) || casualsOf(g).includes(r.avatar) || romanceTier(g, r.avatar).id !== 'none')],
+        ['family', 'Family', r => family.has(r.avatar)],
+        ['home', 'At home', r => livesWithYou(r)],
+        ['work', 'Work', r => !!job && r.occupation === job],
+        ['neighbours', 'Neighbours', r => !isScenario(w) && r.home?.zone === zone && !livesWithYou(r)],
+    ];
+}
+// Free, at work or asleep: a dot on the row (nothing with Busy people off).
+function busyDot(g: Save, w: WorldDef, r: Resident): string {
+    if (!systemOn(w, 'busy')) return '';
+    const away = awayNow(g, w, r);
+    const word = away === 'work' ? 'At work' : away === 'sleep' ? 'Asleep' : 'Free now';
+    return `<i class="mu-ph-dot is-${away || 'free'}" title="${esc(word)}" aria-label="${esc(word)}"></i>`;
+}
 function peopleApp(g: Save) {
-    const list = met(g).filter(r => matchQ(g, r)).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
+    const w = LW!;
+    const all = met(g).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
+    const filters = peopleFilters(g, w).map(([id, name, ok]) => [id, name, ok, all.filter(ok).length] as const).filter(f => f[3] > 0 && f[3] < all.length);   // (one that is everyone says nothing)
+    const on = filters.find(f => f[0] === PEOPLE.filter) ?? null;
+    if (!on) PEOPLE.filter = 'all';
+    const list = all.filter(r => matchQ(g, r) && (!on || on[2](r)));
     const casual = new Set(casualsOf(g));
-    const row = (r: Resident) => `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-person" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+    const row = (r: Resident) => `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-person" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">${busyDot(g, w, r)}
         <span><b data-notr>${esc(contactName(g, r))}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>${isPartner(g, r.avatar) ? `<i class="mu-ph-heart">${icon('heart')}</i>` : ''}</button>`;
     const groups: [string, Resident[]][] = [['', list.filter(r => isPartner(g, r.avatar))], ['Casual', list.filter(r => casual.has(r.avatar))], ['', list.filter(r => !isPartner(g, r.avatar) && !casual.has(r.avatar))]];
-    return `${head(appName('people'), 'home')}${searchBox('Search people')}<div class="mu-ph-list">${list.length ? groups.filter(([, rs]) => rs.length).map(([h, rs]) => `${h ? `<h5 class="mu-ph-group">${h}</h5>` : ''}${rs.map(row).join('')}`).join('')
-        : `<p class="mu-muted mu-pad">${T('noneMet')}</p>`}</div>`;
+    const chips = all.length && filters.length ? `<div class="mu-chips mu-ph-filters">${[['all', 'All', null, all.length] as const, ...filters].map(([id, name, , n]) => `<button class="mu-chip ${PEOPLE.filter === id ? 'is-on' : ''}" data-act="ph-people-filter" data-v="${id}" aria-pressed="${PEOPLE.filter === id}">${esc(name)} <small>${n}</small></button>`).join('')}</div>` : '';
+    return `${head(appName('people'), 'home')}${searchBox('Search people')}${chips}<div class="mu-ph-list">${list.length ? groups.filter(([, rs]) => rs.length).map(([h, rs]) => `${h ? `<h5 class="mu-ph-group">${h}</h5>` : ''}${rs.map(row).join('')}`).join('')
+        : `<p class="mu-muted mu-pad">${all.length ? esc('No one here.') : T('noneMet')}</p>`}</div>`;
 }
 
 // A sure yes by phone: very close friends who also have a crush on you (being a couple needs both).
@@ -563,6 +596,7 @@ Object.assign(ACT, {
         notify();
     },
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
+    'ph-people-filter': (el) => { PEOPLE.filter = (el.dataset.v as PeopleFilter) || 'all'; notify(); },
     'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
     'ph-open-bills': () => { const g = game(); const w = g && getWorld(g.world); P.open = true; P.app = w ? billsApp(w) : 'homes'; notify(); },   // (the HUD's "Locked out")

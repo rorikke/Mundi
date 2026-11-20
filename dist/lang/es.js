@@ -11085,5 +11085,9 @@ const DICT = {
     "Missed:": "Perdidos:",
     "Your personality nudges small things, your interests lift your mood when you do them, and your skills are in their own tab.": "Tu personalidad cambia pequeñas cosas, tus intereses te suben el ánimo cuando los practicas, y tus habilidades tienen su propia pestaña.",
     "Perks": "Ventajas",
+    "Free now": "Libre ahora",
+    "Neighbours": "Vecinos",
+    "Asleep": "Durmiendo",
+    "No one here.": "Nadie aquí.",
 };
 export default DICT;

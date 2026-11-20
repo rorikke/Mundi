@@ -1,0 +1,9 @@
+/* People: the filters under the search box (friends, romance, family, at home, work, neighbours, free now), and the
+   dot on each picture: free, at work or asleep. */
+#mundi-root .mu-ph-filters { flex-wrap: wrap; gap: 5px; padding: 0 12px 8px; }
+#mundi-root .mu-ph-filters .mu-chip { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; }
+#mundi-root .mu-ph-filters .mu-chip small { opacity: .7; font-weight: 600; }
+#mundi-root .mu-ph-row > .mu-ph-dot { position: absolute; left: 46px; top: 40px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--bg, #0d1119); background: #8a94a6; }
+#mundi-root .mu-ph-dot.is-free { background: #34c759; }
+#mundi-root .mu-ph-dot.is-work { background: #ff9f0a; }
+#mundi-root .mu-ph-dot.is-sleep { background: #6b7280; }
