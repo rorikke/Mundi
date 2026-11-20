@@ -1109,27 +1109,13 @@ function tabRealm(w) {
     </div>`;
 }
 const DAYS = [['0', 'Monday'], ['1', 'Tuesday'], ['2', 'Wednesday'], ['3', 'Thursday'], ['4', 'Friday'], ['5', 'Saturday'], ['6', 'Sunday']];
-// Habits that become traits, festivals of the calendar, pets and familiars.
+// Festivals of the calendar, pets and familiars.
 function tabCustoms(w) {
     const acts = w.actions.map(a => [a.id, a.name]);
-    const tags = [...new Set(w.places.flatMap(p => p.tags ?? []))].map(t => [t, t]);
     const seasons = [['spring', 'Spring'], ['summer', 'Summer'], ['autumn', 'Autumn'], ['winter', 'Winter']];
     const places = w.places.filter(p => !p.link).map(p => [p.id, p.name]);
     const skills = (w.rpg?.skills ?? []).map(k => [k.id, k.name]);
     return `<div class="mu-cw-grid">
-        <section class="mu-cw-sec mu-cw-wide"><h4>Habits that become traits</h4><p class="mu-muted">Do something often enough in a few days and it becomes a trait (jobs like it, the AI knows it); stop for long and it fades.</p>
-        ${master('habit', 'habits', h => `<b>${esc(h.trait)}</b><small>${h.count}× in ${h.days} days</small>`, i => {
-        const p = `habits.${i}`;
-        return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Trait it gives', `${p}.trait`, 'Early riser')}</div>${txt('How to get it', `${p}.desc`)}
-                <div class="mu-field"><span>Actions that count</span>${pairChips(acts, `${p}.actions`)}</div>
-                <div class="mu-field"><span>Or any action at places tagged</span>${pairChips(tags, `${p}.tags`)}</div>
-                <div class="mu-row2">${num('Only between (hour)', `${p}.hours.0`, 0)}${num('and (hour)', `${p}.hours.1`, 0)}</div>
-                <div class="mu-row2">${num('Times', `${p}.count`, 1)}${num('In how many days', `${p}.days`, 1)}</div>
-                ${num('Fades after days without it (empty: twice the days above)', `${p}.lose`, 1)}
-                ${skillOpts(w).length ? sel('A skill it trains a little faster while you have it', `${p}.learn`, [['', '(none)'], ...skillOpts(w)], 'opt') : ''}
-                ${flag('Only with adult content on', `${p}.adult`, "Otherwise it isn't gained, named, counted or felt.", true)}
-                <h4>Every morning while you have it</h4><div class="mu-row2">${w.statuses.map(st => num(esc(st.name), `${p}.daily.${st.id}`, -50)).join('')}</div>`;
-    }, 'habit')}</section>
         <section class="mu-cw-sec"><h4>Festivals</h4>${master('festival', 'festivals', f => `<b>${esc(f.name)}</b><small>${esc(f.season)} ${f.day}</small>`, i => {
         const p = `festivals.${i}`;
         return `${txt('Name', `${p}.name`)}${txt('What it is like (told to the AI)', `${p}.desc`)}
@@ -3024,8 +3010,6 @@ function tidyInfo(info) {
 const pctOf = (k) => EFFECT_KINDS[k].mode === 'mul';
 function traitInfoEditor(w) {
     const groups = (w.sheet.traits ?? []).filter(t => !t.skills && (t.options.length || t.adultOptions?.length)).map(t => [t.label, [...t.options, ...(t.adultOptions ?? [])]]);
-    if ((w.habits ?? []).length)
-        groups.push(['Habits', [...new Set((w.habits ?? []).map(h => h.trait).filter(Boolean))]]);
     const listed = new Set(groups.flatMap(g => g[1]));
     const others = Object.keys(w.traitInfo ?? {}).filter(n => !listed.has(n) && !BAD_KEYS.includes(n));
     if (others.length)
@@ -3194,7 +3178,7 @@ export function savedNote(w) {
 // What a reward does, by kind (REWARD_KINDS in core/goals.ts; a kind the engine adds later shows by its id).
 const REWARD_KIND_NAMES = { boost: 'A boost for a few days', refill: 'A need full now', nudge: 'Nudge: one person\'s feelings for you grow', clear: 'Clear the air: one person\'s feelings start over',
     fresh: 'A fresh start: one person forgets you', forgive: 'Forgive and forget: a grudge ends', invite: 'An invitation: someone asks you out soon', quiet: 'Quiet a rumor about you', insight: 'Insight: one true thing about someone',
-    retrait: 'Change a trait, or drop a habit', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal',
+    retrait: 'Change a trait', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal',
     // (track 7: the museum and homes you let; none lowers a price)
     dealer: 'A dealer\'s tip: a missing piece you pick comes with the next visit (at the asked price)', auction: 'An early catalogue: one more lot at the next sale, a missing piece you pick',
     restore: 'The workshop\'s priority: everything being restored or mounted ready tomorrow', tenant: 'A good tenant: every home you let has a tenant each week for a season' };
@@ -4127,7 +4111,6 @@ const NEW = {
     faction: () => ['factions', { id: newId('fac'), name: 'New faction', kind: 'guild', ranks: ['Member', 'Officer', 'Leader'], quota: 1 }],
     inst: () => ['institutions', { id: newId('school'), name: 'New school', place: W().places.find(p => !p.link)?.id ?? '', ranks: ['Student', 'Prefect', 'Teacher', 'Head'], tuition: 10, examEvery: 7 }],
     rtal: () => ['rpg.talents', { id: newId('talent'), name: 'New talent', tier: 1, effect: { kind: 'hp', amount: 5 } }],
-    habit: () => ['habits', { id: newId('habit'), name: 'New habit', trait: 'New trait', actions: [], count: 5, days: 7 }],
     festival: () => ['festivals', { id: newId('fest'), name: 'New festival', season: 'spring', day: 1, days: 1, mood: 15 }],
     cevent: () => ['cityEvents', { id: newId('event'), name: 'New event', icon: '🎉', place: W().places.find(p => !p.link)?.id ?? '', weekday: 5, every: 1, from: 18, hours: 3, mood: 12 }],
     hobby: () => ['hobbies', { id: newId('hobby'), name: 'New hobby', icon: '⭐', actions: [] }],
@@ -4172,7 +4155,7 @@ const NEW = {
     venture: () => ['ventures', { id: newId('vn'), track: 'cafe', name: 'New venture', tiers: [{ id: newId('tier'), name: 'Open', ceiling: 50 }] }],
     reward: () => ['rewards.add', { id: newId('reward'), name: 'New reward', icon: '🎁', desc: '', price: 200, kind: 'boost', effects: [{ kind: 'roll', value: 1 }], days: 1, limit: { per: 'day' } }],
 };
-const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', habits: 'habit', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'photo.clients': 'photo-clients', 'photo.briefs': 'photo-briefs', 'photo.books': 'photo-books', 'homes.studios': 'studios', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
+const listKey = { 'collection.halls': 'chall', 'collection.slots': 'cslot', 'collection.museum.upgrades': 'mup', 'collection.digs': 'cdig', 'rpg.attributes': 'rattr', 'rpg.skills': 'rskill', 'rpg.classes': 'rclass', 'rpg.schools': 'rschool', 'rpg.spells': 'rspell', 'rpg.titles': 'rtitle', 'rpg.bestiary': 'rfoe', festivals: 'festival', cityEvents: 'cevent', hobbies: 'hobby', pets: 'pet', 'realm.pantheon': 'god', factions: 'faction', institutions: 'inst', 'rpg.talents': 'rtal', goods: 'good', recipes: 'recipe', towers: 'tower', blades: 'blade', crops: 'crop', businesses: 'biz', 'skies.events': 'sky', 'skies.hazards': 'hazard', 'catalogs.shop': 'shop', 'homes.fixtures': 'fixtures', 'photo.clients': 'photo-clients', 'photo.briefs': 'photo-briefs', 'photo.books': 'photo-books', 'homes.studios': 'studios', 'homes.breakables': 'breakables', 'catalogs.courses': 'courses', 'homes.expenses': 'expenses', statuses: 'needs', actions: 'actions', occupations: 'jobs', 'homes.zones': 'zones', 'catalogs.origins': 'origins', 'cast.examples': 'people', lore: 'lore', 'goals.add': 'goal', 'rewards.add': 'reward', skills: 'skill', stories: 'story', keepsakes: 'keep', starts: 'start', ventures: 'venture' };
 Object.assign(ACT, {
     'cw-rpg-preset': (el) => { W().rpg = structuredClone(el.dataset.v === 'modern' ? MODERN_RPG : el.dataset.v === 'powers' ? POWERS_RPG : MEDIEVAL_RPG); CW.dirty = true; notify(); },
     'cw-rpg-empty': () => { W().rpg = { attributes: [], hpAttr: '', skills: [], classes: [], xp: [100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500, 6600], schools: [], spells: [], titles: [] }; CW.dirty = true; notify(); },

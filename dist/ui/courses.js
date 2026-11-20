@@ -116,7 +116,7 @@ export function jobCourseHtml(g, w, jobId) {
 }
 /* ---------- the Profile app ---------- */
 // Who you are, then what a world's other groups hold (a proficiency its world didn't turn into skills, what courses or schools gave).
-const TRAIT_GROUPS = (w) => [['personality', 'Personality'], ['interests', 'Interests'], ['habits', 'Habits'],
+const TRAIT_GROUPS = (w) => [['personality', 'Personality'], ['interests', 'Interests'],
     ...(w.sheet?.traits ?? []).filter(x => !['personality', 'interests'].includes(x.id)).map(x => [x.id, x.label]),
     ['learned', lex(w, 'learnedIn')], ['earned', 'Earned with life goals'], ['school', 'From school'], ['education', 'Education']];
 // What a finished course taught: its skills ("Japanese 4"), or the traits an older world's course grants.

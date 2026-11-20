@@ -6,7 +6,7 @@ export const onLook = [];
 // Things you have, in a shop item's shape: each entry lists what you own right now. Only the shop's (sim/shop.ts) for
 // now; a home's rooms and fixtures can join later. Read through `ownedDefs` in sim/shop.ts, never one by one.
 export const thingsOwned = [];
-// After you do an action (habits, pets…).
+// After you do an action (interests, pets…).
 export const onAction = [];
 // (museum, sim/museum.ts) What the rest of the game asks of the museum's engine, so neither waits on the other; with none,
 // nothing. `settle`: run inside the collection's settle (sim/collection.ts), lines to show; `found`: after an action's

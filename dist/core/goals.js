@@ -32,7 +32,7 @@ export const FOLDED_GOALS = { fit: 'athlete' };
  *  full now; the rest act once, through the systems they touch (sim/rewards.ts): `nudge` (one person's friendship or
  *  romance for you +15, within the rules), `clear` (their feelings for you back to zero), `fresh` (that, and they
  *  forget you), `forgive` (a grudge ends), `invite` (they ask you out soon), `quiet` (a rumor stops spreading),
- *  `insight` (one true thing about them), `retrait` (swap a personality or interest trait, or drop a habit), `skip`
+ *  `insight` (one true thing about them), `retrait` (swap a personality or interest trait), `skip`
  *  (the active goal's step counts as done), `rentfree` (the next rent or bills), `cleanslate` (a warning and the last
  *  missed shift forgotten), `double` (the active goal's finishing points doubled: Tokyo's daruma); (track 7, the end
  *  game) `dealer` (a missing piece you pick comes with the dealer's next visit, at the asked price), `auction` (one more
@@ -157,7 +157,7 @@ export const GENERAL_REWARDS = [
     { id: 'invitation', name: 'An invitation', icon: '✉️', desc: 'Someone you know asks you out in the next days.', price: 150, kind: 'invite', needs: ['plans'] },
     { id: 'quietrumor', name: 'Quiet a rumor', icon: '🤫', desc: 'One rumor about you stops spreading.', price: 200, kind: 'quiet', needs: ['rumors'] },
     { id: 'insight', name: 'Insight', icon: '🔮', desc: 'Learn one true thing about someone.', price: 250, kind: 'insight', limit: { per: 'season', person: true } },
-    { id: 'changetrait', name: 'Change a trait', icon: '🎭', desc: 'Swap a personality or interest trait, or drop a habit.', price: 500, kind: 'retrait' },
+    { id: 'changetrait', name: 'Change a trait', icon: '🎭', desc: 'Swap a personality or interest trait.', price: 500, kind: 'retrait' },
     { id: 'skipstep', name: 'Skip a step', icon: '⏭️', desc: 'The current step of your goal counts as done (never the last).', price: 400, kind: 'skip', limit: { per: 'goal' } },
 ];
 /* ---------- a world's goals and rewards ---------- */

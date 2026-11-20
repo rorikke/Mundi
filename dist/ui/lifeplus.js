@@ -1,6 +1,6 @@
-// Life and society on screen: the Reputation app (how each town sees you, your alter ego, habits on the way to
-// becoming traits), the Animals app, help for a friend's letter, and the HUD's festival and school buttons. (Training
-// together, which took the place of apprentices, is ui/trainui.ts.)
+// Life and society on screen: the Reputation app (how each town sees you, your alter ego, your studies), the Animals
+// app, help for a friend's letter, and the HUD's festival and school buttons. (Training together, which took the place
+// of apprentices, is ui/trainui.ts.)
 import { esc, game, notify, saveGame, toast } from '../core/store.js';
 import { getWorld, systemOn, appsOf } from '../core/world.js';
 import { lex } from '../core/lexicon.js';
@@ -8,7 +8,6 @@ import { ACT } from './reg.js';
 import { money } from '../sim/needs.js';
 import { advance } from '../sim/time.js';
 import { reputationList, repWord, identityOf, disguised, setAlias, toggleDisguise, addRep } from '../sim/standing.js';
-import { habitProgress } from '../sim/habits.js';
 import { petsOf, petDef, petsAvailable, soldHere, buyPet, feedPet, playWithPet, releasePet, petWord, MAX_PETS } from '../sim/pets.js';
 import { helpAsked, sendHelp } from '../sim/letters.js';
 import { canCelebrate, celebrate, festivalOn } from '../sim/festivals.js';
@@ -37,9 +36,6 @@ export function standingApp(g, w, head) {
             : '<p class="mu-muted">A second name to live a second life: what you do in disguise is told about that name. People who know you well may see through it.</p>'}
             ${on ? '' : `<div class="mu-row"><input type="text" maxlength="40" placeholder="Name of your alter ego" data-input="lp-alias" data-focus="lp-alias" value="${esc(UIS.alias)}"><button class="mu-ghost" data-act="lp-alias">${id.alias ? 'Rename' : 'Create'}</button></div>`}</section>`);
     }
-    const habits = habitProgress(g, w);
-    if (habits.length)
-        parts.push(`<section><h4>Habits</h4>${habits.map(({ h, n, has }) => `<div class="mu-lp-row ${has ? 'is-has' : ''}"><b>${esc(h.trait)}</b><small>${has ? '✓ part of you' : `${Math.min(n, h.count)}/${h.count} in ${h.days} days`} · ${esc(h.desc ?? '')}</small>${has ? '' : bar((n / h.count) * 100)}</div>`).join('')}</section>`);
     const studies = Object.entries(schoolOf(g)).map(([id, e]) => ({ d: instDef(w, id), e })).filter(x => x.d);
     if (studies.length)
         parts.push(`<section><h4>Studies</h4>${studies.map(({ d, e }) => {

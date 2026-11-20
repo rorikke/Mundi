@@ -31,7 +31,7 @@ import { settleHomes } from '../sim/owning.js';
 import { SECOND_HOME_ID, secondHome } from '../sim/housing.js';
 import { STUDIO_ID, myStudio, settleStudio } from '../sim/studio.js';
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 8;
+export const SCHEMA = 9;
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
 const MIGRATIONS = [
     // 1 (Mundi 0.1.x): the first versioned format. Saves from before only get the stamp; every system already fills
@@ -54,6 +54,8 @@ const MIGRATIONS = [
     { to: 7, what: 'storylines wait for the player', run: g => storylinesTodo(g) },
     // 8 (homes you can buy): a tenant whose rent went up is told once the world is known (settleHomes, sim/owning.ts).
     { to: 8, what: 'homes you can buy', run: g => homesTodo(g) },
+    // 9 (habits removed): what you did often no longer becomes a trait; the habits you had and their counts go.
+    { to: 9, what: 'habits removed', run: g => noHabits(g) },
 ];
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
 // directions toward you, the status (and the partner list) the pair's; each "Play as" copy (`swap.persp`) holds how
@@ -281,6 +283,15 @@ function storylinesTodo(g) {
 function homesTodo(g) {
     if (g.player && typeof g.player === 'object')
         g.player.homesTodo = true;
+}
+// Schema 9. Habits were traits the engine gave for what you did often (`habits`: the counts and the ones you had;
+// `player.traits.habits`: their names). A habit named like a trait you chose was never in that list, so the traits you
+// chose stay.
+function noHabits(g) {
+    delete g.habits;
+    const t = g.player?.traits;
+    if (t && typeof t === 'object')
+        delete t.habits;
 }
 export const schemaOf = (g) => Number(g.schema ?? 0);
 const KEEP = 3;

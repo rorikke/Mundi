@@ -27,10 +27,10 @@ import { howTo } from './goalhints.js';
  *  being bought and what was picked for it. `said`: the last lines shown (toasted). */
 export const GS = {
     tab: 'goals', open: [], detail: '',
-    buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', habit: '', rumor: '', piece: '',
+    buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '',
     said: [],
 };
-const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', habit: '', rumor: '', piece: '' });
+const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '' });
 // What the app shows belongs to one game: a game opened starts again on the Goals tab, with nothing open or picked.
 SAVE.hooks.push(() => { Object.assign(GS, { tab: 'goals', open: [], detail: '' }); clearPick(); });
 /** The Goals app's badge (D-7): no goal followed and one to pick. Never with the `goals` system off. */
@@ -428,16 +428,12 @@ function pickerHtml(g, w, it) {
     }
     if (it.pick === 'trait') {
         const c = traitChoices(g, w), grp = c.groups.find(x => x.id === GS.group);
-        const kinds = `<div class="mu-chips">${c.groups.map(x => chip('rw-group', x.id, `Swap: ${x.name}`, GS.group === x.id)).join('')}${c.habits.length ? chip('rw-group', 'habit', 'Drop a habit', GS.group === 'habit') : ''}</div>`;
+        const kinds = `<div class="mu-chips">${c.groups.map(x => chip('rw-group', x.id, `Swap: ${x.name}`, GS.group === x.id)).join('')}</div>`;
         let more = '', ready = false;
         if (grp) {
             more = `<small>Swap…</small><div class="mu-chips">${grp.have.map(t => chip('rw-from', t, t, GS.from === t)).join('')}</div>
                 <small>…for</small><div class="mu-chips">${grp.can.map(t => chip('rw-to', t, t, GS.to === t)).join('')}</div>`;
             ready = grp.have.includes(GS.from) && grp.can.includes(GS.to);
-        }
-        else if (GS.group === 'habit') {
-            more = `<div class="mu-chips">${c.habits.map(h => chip('rw-habit', h.id, h.name, GS.habit === h.id)).join('')}</div>`;
-            ready = c.habits.some(h => h.id === GS.habit);
         }
         return `<div class="mu-rw-pick"><small>What changes?</small>${kinds}${more}<small class="mu-muted">Strengths are skill levels: they can't be swapped.</small>${buy(ready)}</div>`;
     }
@@ -538,10 +534,9 @@ Object.assign(ACT, {
     },
     'rw-meter': (el) => { GS.meter = el.dataset.v === 'r' ? 'r' : 'f'; notify(); },
     'rw-question': (el) => { GS.question = (el.dataset.v ?? ''); notify(); },
-    'rw-group': (el) => { GS.group = el.dataset.v ?? ''; GS.from = ''; GS.to = ''; GS.habit = ''; notify(); },
+    'rw-group': (el) => { GS.group = el.dataset.v ?? ''; GS.from = ''; GS.to = ''; notify(); },
     'rw-from': (el) => { GS.from = el.dataset.v ?? ''; notify(); },
     'rw-to': (el) => { GS.to = el.dataset.v ?? ''; notify(); },
-    'rw-habit': (el) => { GS.habit = el.dataset.v ?? ''; notify(); },
     'rw-rumor': (el) => { GS.rumor = el.dataset.v ?? ''; notify(); },
     'rw-piece': (el) => { GS.piece = el.dataset.v ?? ''; notify(); },
     'rw-buy': (el) => {
@@ -562,13 +557,9 @@ Object.assign(ACT, {
                     c.question = GS.question;
             }
             if (it.pick === 'trait') {
-                if (GS.group === 'habit')
-                    c.habit = GS.habit;
-                else {
-                    c.group = GS.group;
-                    c.from = GS.from;
-                    c.to = GS.to;
-                }
+                c.group = GS.group;
+                c.from = GS.from;
+                c.to = GS.to;
             }
             if (it.pick === 'rumor')
                 c.rumor = GS.rumor;
