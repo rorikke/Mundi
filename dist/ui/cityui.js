@@ -3,12 +3,13 @@ import { esc, game, notify, saveGame, toast, nowAbs } from '../core/store.js';
 import { trainingPracticeHtml } from './trainui.js';
 import { getWorld } from '../core/world.js';
 import { ACT } from './reg.js';
-import { comingEvents, isGoing, toggleGoing, eventHere } from '../sim/cityevents.js';
+import { comingEvents, isGoing, toggleGoing, eventHere, cityOf } from '../sim/cityevents.js';
 import { skillsOf, progressOf, titleOf, MAX_LEVEL } from '../sim/hobbies.js';
 import { practiceFor } from '../sim/practice.js';
 // The HUD chip while an event is on where you are.
 export const eventChip = (g, w) => { const x = eventHere(g, w); return x ? `<small class="mh-crowd mh-fest" title="${esc(x.ev.desc ?? '')}">${esc(x.ev.icon ?? '🎉')}<span>${esc(x.ev.name)}</span></small>` : ''; };
-export const cityBadge = (g, w) => comingEvents(g, w, 1).filter(x => isGoing(g, x.key) && !x.off && x.from - nowAbs(g) <= 120 && x.to > nowAbs(g)).length;
+// (one you've already been to, still going on, asks nothing more of you)
+export const cityBadge = (g, w) => comingEvents(g, w, 1).filter(x => isGoing(g, x.key) && !cityOf(g).went.includes(x.key) && !x.off && x.from - nowAbs(g) <= 120 && x.to > nowAbs(g)).length;
 // The Profile's skills and hobbies: level, title and a bar to the next level.
 export function hobbiesHtml(g, w) {
     const list = skillsOf(w, g);
