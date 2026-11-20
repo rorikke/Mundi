@@ -11063,5 +11063,15 @@ const DICT: Record<string, string> = {
  "{0} has that day off.": "{0} está de folga nesse dia.",
  "Your money: the bills to pay, the last week in and out, and every payment.": "Seu dinheiro: as contas a pagar, a última semana de entradas e saídas, e cada pagamento.",
  "Jobs, Campus, Business and Lens under one icon, a tab each (the ones this world has).": "Empregos, Campus, Negócios e Lens num só ícone, uma aba cada (os que este mundo tem).",
+ "Work: {0}": "Trabalho: {0}",
+ "Photo shoot": "Sessão de fotos",
+ "Cancel with {0}": "Cancelar com {0}",
+ "{0} and {1} get married": "{0} e {1} se casam",
+ "{0} due": "{0} vence",
+ "Bills due": "Contas vencendo",
+ "Brief due: {0}": "Prazo do trabalho: {0}",
+ "Nothing planned that day.": "Nada marcado nesse dia.",
+ "Nothing planned that day. Open someone in People to invite them out.": "Nada marcado nesse dia. Abra alguém em Pessoas para convidar para sair.",
+ "Missed:": "Perdidos:",
 };
 export default DICT;

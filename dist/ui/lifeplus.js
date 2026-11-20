@@ -11,7 +11,7 @@ import { reputationList, repWord, identityOf, disguised, setAlias, toggleDisguis
 import { habitProgress } from '../sim/habits.js';
 import { petsOf, petDef, petsAvailable, soldHere, buyPet, feedPet, playWithPet, releasePet, petWord, MAX_PETS } from '../sim/pets.js';
 import { helpAsked, sendHelp } from '../sim/letters.js';
-import { canCelebrate, celebrate, festivalOn, upcoming } from '../sim/festivals.js';
+import { canCelebrate, celebrate, festivalOn } from '../sim/festivals.js';
 import { eventChip } from './cityui.js';
 import { campusActs } from './campus.js';
 import { schoolOf, instDef, instAt, enroll, drop, attend, examDue, sitExam, joinClub, clubMeeting, faculty } from '../sim/institutions.js';
@@ -92,10 +92,6 @@ export function schoolActs(g, w) {
     }).join('');
 }
 export const festivalChip = (g, w) => { const f = festivalOn(g, w); return (f ? `<small class="mh-crowd mh-fest" title="${esc(f.desc ?? '')}">🎉<span>${esc(f.name)}</span></small>` : '') + eventChip(g, w); };
-export function festivalsHtml(g, w) {
-    const list = upcoming(g, w);
-    return list.length ? `<section><h4>${esc(lex(w, 'festival'))}s</h4>${list.map(x => `<div class="mu-lp-row"><b>${esc(x.f.name)}</b><small>${x.day === g.day ? 'today' : `in ${x.day - g.day} day${x.day - g.day === 1 ? '' : 's'}`}${x.f.place ? ` · ${esc(w.places.find(p => p.id === x.f.place)?.name ?? '')}` : ''}</small></div>`).join('')}</section>` : '';
-}
 const S = () => { const g = game(); const w = g && getWorld(g.world); return g && w ? { g, w } : null; };
 const done = (m, kind = 'success') => { if (m)
     toast(m, kind); saveGame(); notify(); };

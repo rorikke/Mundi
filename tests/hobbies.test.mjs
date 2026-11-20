@@ -14,7 +14,7 @@ const D = (p) => import(`${ext}/dist/${p}`);
 const store = await D('core/store.js'); const W = await D('core/world.js');
 const CE = await D('sim/cityevents.js'); const H = await D('sim/hobbies.js'); const needs = await D('sim/needs.js');
 const people = await D('sim/people.js'); const P = await D('sim/prompt.js'); const T = await D('sim/time.js');
-const dice = await D('sim/dice.js'); const work = await D('sim/work.js'); const UI = await D('ui/cityui.js');
+const dice = await D('sim/dice.js'); const work = await D('sim/work.js');
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
 const fixture = (f) => JSON.parse(fs.readFileSync(path.join(here, 'fixtures', f), 'utf8'));
@@ -52,7 +52,7 @@ ok(!needs.actionsHere(g, w).some(x => x.id === 'x-ev-football'), 'once per event
 g.minutes = 9 * 60; let sat = g.day; while (wd(sat) !== 5) sat++;
 const coming = CE.comingEvents(g, w, 7);
 ok(coming.length >= 3, `the calendar lists the week's events (${coming.map(x => x.ev.id).join(',')})`);
-ok(/In the city/.test(UI.cityEventsHtml(g, w)), 'the Calendar shows them');
+{ const AG = await D('ui/agenda.js'); ok(coming.every(x => AG.dayItems(g, w, x.day).some(i => i.kind === 'event' && i.title === x.ev.name)), 'the Calendar shows them, each on its day'); }
 const mic = coming.find(x => x.ev.id === 'openmic');
 ok(!!mic, 'the open mic is in the week');
 CE.toggleGoing(g, mic.key); ok(CE.isGoing(g, mic.key), "I'll go");

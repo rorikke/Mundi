@@ -1,6 +1,7 @@
-import { festivalsHtml } from './lifeplus.js';
-import { cityEventsHtml, cityBadge } from './cityui.js';
-import { romanceButtons, relBar, relSubtitle, workWeekHtml } from './relui.js';
+import { cityBadge } from './cityui.js';
+import { agendaHtml } from './agenda.js';
+import { visitors } from '../sim/visitors.js';
+import { romanceButtons, relBar, relSubtitle, visitStatus } from './relui.js';
 import { lex } from '../core/lexicon.js';
 import { stayButton, tidyEvent } from './events.js';
 // Plans on screen: the card of a person in the scene ("come with me", "make plans"), the plan form and the
@@ -10,7 +11,7 @@ import { CAL, calendarTabs, visitsTab, bgButton, guestButtons } from './guestsui
 import { rememberOutingBg } from '../sim/outing.js';
 import { guestTick } from '../sim/guests.js';
 import { notify, esc, game, toast, saveGame, nowAbs, state } from '../core/store.js';
-import { getWorld, isScenario, styleOf } from '../core/world.js';
+import { getWorld, isScenario, styleOf, systemOn } from '../core/world.js';
 import { outingId } from '../sim/places.js';
 import { tr } from '../core/tr.js';
 import { thumb, sendCanned, addUserLine, replyAs, personaName, setAsk } from '../st/bridge.js';
@@ -173,22 +174,22 @@ function planRow(g, w, a, withName = true) {
         <small>${esc(placeName(g, w, a.place))} · ${esc(whenText(g, a.from))}</small></span>
         <button class="mu-ghost" data-act="pl-cancel" data-id="${esc(a.id)}">Cancel</button></div>`;
 }
-// The Calendar app: every plan coming up, and the people with you.
+// The Calendar app: who is with you or staying with you, then the agenda (ui/agenda.ts: the next seven days, each one
+// with everything in it), throwing a party, and plans you missed.
 export function calendarApp(g, w, head) {
-    const list = upcoming(g);
     const s = social(g);
     const past = s.appts.filter(a => a.state === 'missed').slice(-3).reverse();
     if (isScenario(w) && CAL.tab === 'visits')
         return `${head}${visitsTab(g, w, calendarTabs(w))}`;
-    return `${head}<div class="mu-ph-body">${calendarTabs(w)}
-        ${s.with.length ? `<section><h4>With you</h4>${s.with.map(c => `<div class="mu-ph-job mu-plan-row"><img src="${esc(thumb(c.avatar))}" alt=""><span><b data-notr>${esc(g.cast[c.avatar]?.name ?? '')}</b>${isScenario(getWorld(g.world)) ? '' : `<small>${esc(fmt('Until {0}', hm(c.until % 1440)))}</small>`}</span>
+    const staying = !isScenario(w) && systemOn(w, 'plans') ? visitors(g).filter(v => g.cast[v.avatar]) : [];
+    return `${head}<div class="mu-ph-body mu-cal">${calendarTabs(w)}
+        ${s.with.length ? `<section><h4>With you</h4>${s.with.map(c => `<div class="mu-ph-job mu-plan-row"><img src="${esc(thumb(c.avatar))}" alt=""><span><b data-notr>${esc(g.cast[c.avatar]?.name ?? '')}</b>${isScenario(w) ? '' : `<small>${esc(fmt('Until {0}', hm(c.until % 1440)))}</small>`}</span>
             <button class="mu-ghost" data-act="pc-bye" data-who="${esc(c.avatar)}">Say goodbye</button></div>`).join('')}</section>` : ''}
-        ${isScenario(w) ? housePartyHtml(g, w) : `${partyForm(g, w)}
-        ${cityEventsHtml(g, w)}
-        ${festivalsHtml(g, w)}`}
-        <section><h4>Coming up</h4>${list.length ? list.map(a => planRow(g, w, a)).join('') : '<p class="mu-muted">No plans. Open someone in People to invite them out.</p>'}</section>
-        ${workWeekHtml(g, w)}
-        ${past.length ? `<section><h4>Missed</h4>${past.map(a => `<p class="mu-muted"><span data-notr>${esc(g.cast[a.avatar]?.name ?? '')}</span> · ${esc(placeName(g, w, a.place))} · ${esc(whenText(g, a.from))}</p>`).join('')}</section>` : ''}
+        ${staying.length ? `<section class="mu-cal-visitors"><h4>Staying with you</h4>${staying.map(v => `<div class="mu-ph-job mu-plan-row"><img src="${esc(thumb(v.avatar))}" alt=""><span><b data-notr>${esc(g.cast[v.avatar].name)}</b><small>${esc(visitStatus(g, v))}</small></span>
+            <button class="mu-ghost" data-act="vis-bye" data-who="${esc(v.avatar)}">Say goodbye</button></div>`).join('')}</section>` : ''}
+        ${agendaHtml(g, w)}
+        ${isScenario(w) ? housePartyHtml(g, w) : partyForm(g, w)}
+        ${past.length ? `<p class="mu-muted mu-cal-missed">${icon('clock')}<span>${esc(tr('Missed:'))}</span> ${past.map(a => `<span data-notr>${esc(g.cast[a.avatar]?.name ?? '')}</span> <span>(${esc(whenText(g, a.from))})</span>`).join(', ')}</p>` : ''}
     </div>`;
 }
 export const plansBadge = (g) => { const w = getWorld(g.world); return upcoming(g).filter(a => a.from - nowAbs(g) <= 120).length + (w ? cityBadge(g, w) : 0); };

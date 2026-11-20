@@ -4553,6 +4553,51 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mh-cneed .mu-ic, #mundi-root .mh-cneed i { position: relative; width: 15px; height: 15px; color: var(--c, #fff); font-style: normal; font-size: 13px; line-height: 1; }
 #mundi-root .mh-cneed.is-low { animation: mh-cneed-low 1.6s ease-in-out infinite; }
 @keyframes mh-cneed-low { 50% { box-shadow: 0 0 0 3px rgba(255, 80, 80, .45); } }
+/* The Calendar's agenda (ui/agenda.ts): seven days in a strip (each with how many things it holds), then the chosen
+   day in time order, all-day things first, a line where the time is now. */
+#mundi-root .mu-ag-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+#mundi-root .mu-ag-days button, #mundi-root .mu-ag-days button:hover:not(:disabled) { display: grid; justify-items: center; gap: 1px; padding: 6px 2px 5px; min-height: 0; border-radius: 12px !important;
+    background: var(--bg2) !important; border: 1px solid var(--line) !important; box-shadow: none !important; transform: none !important; color: inherit; }
+#mundi-root .mu-ag-days small { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+#mundi-root .mu-ag-days b { font-size: 15px; line-height: 1.1; }
+#mundi-root .mu-ag-days i { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; font: 700 10px/16px system-ui, sans-serif; font-style: normal; text-align: center;
+    background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+#mundi-root .mu-ag-days i.is-none { background: none; }
+#mundi-root .mu-ag-days button.is-today b { color: var(--accent); }
+#mundi-root .mu-ag-days button.is-on, #mundi-root .mu-ag-days button.is-on:hover:not(:disabled) { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff; }
+#mundi-root .mu-ag-days button.is-on :is(small, b) { color: #fff; }
+#mundi-root .mu-ag-days button.is-on i { background: rgba(255, 255, 255, .25); color: #fff; }
+/* the day */
+#mundi-root .mu-ag { display: grid; gap: 6px; }
+#mundi-root .mu-ag > h4 small { font-weight: 600; color: var(--muted); margin-left: 4px; }
+#mundi-root .mu-ag-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-ag-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--line); }
+#mundi-root .mu-ag-item > button:not(.mu-ag-open), #mundi-root .mu-ag-item > button:not(.mu-ag-open):hover:not(:disabled) { flex: none; padding: 5px 10px; min-height: 0; font-size: 12px; }
+#mundi-root .mu-ag-open, #mundi-root .mu-ag-open:hover:not(:disabled) { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-start !important; gap: 10px; padding: 0; min-height: 0; text-align: left;
+    background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important; color: inherit; }
+#mundi-root .mu-ag-open > img, #mundi-root .mu-ag-ic { flex: none; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; object-position: top; }
+#mundi-root .mu-ag-ic { display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+#mundi-root .mu-ag-ic .mu-ic { width: 17px; height: 17px; }
+#mundi-root .mu-ag-open > span { display: grid; gap: 1px; min-width: 0; }
+#mundi-root .mu-ag-open b { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-ag-open small { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-ag-who { color: var(--fg) !important; font-weight: 600; }
+#mundi-root .mu-ag-item.is-allday { padding-block: 4px; background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root .mu-ag-item.is-allday .mu-ag-ic { width: 28px; height: 28px; }
+#mundi-root .mu-ag-item.is-work .mu-ag-ic { background: rgba(10, 132, 255, .18); color: #4aa3ff; }
+#mundi-root .mu-ag-item.is-class .mu-ag-ic { background: rgba(47, 125, 209, .18); color: #6aa8ea; }
+#mundi-root .mu-ag-item.is-bill .mu-ag-ic { background: rgba(240, 84, 92, .18); color: #ff7b82; }
+#mundi-root .mu-ag-item.is-wedding .mu-ag-open > img { box-shadow: 0 0 0 2px #ff6fa0; }
+#mundi-root .mu-ag-item.is-done { opacity: .55; }
+#mundi-root .mu-ag-now { display: flex; align-items: center; gap: 6px; margin: 2px 0; color: #ff6b6b; font-size: 11px; font-weight: 800; }
+#mundi-root .mu-ag-now::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: currentColor; opacity: .7; }
+#mundi-root .mu-ag-empty { text-align: center; padding: 12px 6px; }
+#mundi-root .mu-cal-missed { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0; font-size: 12px; }
+#mundi-root .mu-cal-missed .mu-ic { width: 13px; height: 13px; }
+/* the medieval journal: paper */
+#mundi-root .mu-book :is(.mu-ag-item, .mu-ag-days button) { background: rgba(255, 248, 228, .6) !important; border-color: rgba(140, 100, 50, .35) !important; }
+#mundi-root .mu-book .mu-ag-days button.is-on { background: rgba(120, 70, 30, .85) !important; color: #f6e7c8; }
+#mundi-root .mu-book .mu-ag-ic { background: rgba(160, 58, 42, .12); color: #8b2e1f; }
 /* The apps put in order: the Money app's week and bills, Homes' line to them, the plan form's "free then?" line and
    the phone's own options in Settings. */
 #mundi-root .mu-ph-balance .mu-ph-week { font-size: 12px; color: var(--muted); }

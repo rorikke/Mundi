@@ -11073,5 +11073,15 @@ const DICT = {
     "{0} has that day off.": "{0} libra ese día.",
     "Your money: the bills to pay, the last week in and out, and every payment.": "Tu dinero: las facturas por pagar, la última semana de entradas y salidas, y cada pago.",
     "Jobs, Campus, Business and Lens under one icon, a tab each (the ones this world has).": "Empleos, Campus, Negocios y Lens en un solo icono, una pestaña cada uno (los que tiene este mundo).",
+    "Work: {0}": "Trabajo: {0}",
+    "Photo shoot": "Sesión de fotos",
+    "Cancel with {0}": "Cancelar con {0}",
+    "{0} and {1} get married": "{0} y {1} se casan",
+    "{0} due": "{0} vence",
+    "Bills due": "Facturas que vencen",
+    "Brief due: {0}": "Entrega del encargo: {0}",
+    "Nothing planned that day.": "Nada previsto ese día.",
+    "Nothing planned that day. Open someone in People to invite them out.": "Nada previsto ese día. Abre a alguien en Personas para invitarle a salir.",
+    "Missed:": "Perdidos:",
 };
 export default DICT;
