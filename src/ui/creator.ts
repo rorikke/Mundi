@@ -190,7 +190,7 @@ function tabFeatures(w: WorldDef) {
             <small class="mu-muted">Rename an app, change its icon and color, or turn it off.</small></section>
         <section class="mu-cw-sec"><h4>How things work here</h4>
             ${sel('The device looks like', 'features.deviceLook', [['phone', 'A phone (apps on a screen)'], ['book', 'A journal (an open book with pages)']])}
-            ${sel('The social app is', 'features.socialKind', [['feed', 'A social network (posts, likes and replies)'], ['board', 'A notice board (notices; whoever answers writes you a letter)']])}
+            ${sel('People\'s posts in the news are', 'features.socialKind', [['feed', 'Posts, like on a social network'], ['board', 'Notices pinned on a board']])}
             ${sel('Messages are', 'features.messageKind', [['texts', 'Text messages'], ['letters', 'Letters carried by a courier']])}
             ${txt('How people write (what the AI is told for messages and posts)', 'ai.voice', 'casual; emoji and hashtags are fine')}
             ${flag('Background people everywhere', 'scene.background', 'The AI may describe unnamed staff, regulars and passers-by at every place, not only where a place says who is around.')}

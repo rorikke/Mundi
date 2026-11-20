@@ -318,7 +318,7 @@ function attach(r) {
         }
         if (t.dataset?.focus === 'ph-draft' && e.key === 'Enter' && !e.isComposing) {
             e.preventDefault();
-            ACT[phone.app === 'social' ? 'ph-chirp' : phone.app === 'post' ? 'ph-reply' : 'ph-send']?.(t, e);
+            ACT['ph-send']?.(t, e);
         }
     });
     document.addEventListener('keydown', (e) => {

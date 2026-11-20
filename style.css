@@ -674,23 +674,6 @@ body.mundi-open { overflow: hidden; }
 #mundi-root .mu-pop .mu-badge { justify-self: start; }
 @media (max-width: 760px) { #mundi-root .mu-pop, #mundi-root .mu-pop.is-here { width: min(320px, calc(100% - 16px)); } }
 @media (min-width: 761px) { #mundi-root:has(.mu-phone) #mundi-toasts { right: calc(var(--ph-room) - 40px); } }
-/* Chirp */
-#mundi-root .mu-ph-compose.is-top { position: static; border-top: 0; border-bottom: 1px solid var(--line); }
-#mundi-root .mu-ch-refresh { margin: 6px auto; font-size: 13px; }
-#mundi-root .mu-ch-feed { display: grid; align-content: start; }
-#mundi-root .mu-ch-post { display: grid; grid-template-columns: 40px 1fr; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
-#mundi-root .mu-ch-post:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
-#mundi-root .mu-ch-post > img, #mundi-root .mu-ch-reply > img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-#mundi-root .mu-ch-post header { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
-#mundi-root .mu-ch-post p { margin: 2px 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
-#mundi-root .mu-ch-img { width: 100%; border-radius: 12px; margin-bottom: 6px; }
-#mundi-root .mu-ch-post footer { display: flex; gap: 22px; align-items: center; color: var(--muted); font-size: 12px; }
-#mundi-root .mu-ch-post footer > span, #mundi-root .mu-ch-like { display: inline-flex; align-items: center; gap: 5px; }
-#mundi-root .mu-ch-post footer .mu-ic { width: 16px; height: 16px; }
-#mundi-root .mu-ch-like { padding: 2px 6px; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--muted); font-size: 12px; }
-#mundi-root .mu-ch-like.is-on { color: #f91880; }
-#mundi-root .mu-ch-reply { display: grid; grid-template-columns: 40px 1fr; gap: 10px; padding: 10px 14px 10px 28px; border-bottom: 1px solid var(--line); font-size: 13px; }
-#mundi-root .mu-ch-reply p { margin: 2px 0 0; }
 /* Spark */
 #mundi-root .mu-sp-card { position: relative; margin: 12px; border-radius: 18px; overflow: hidden; background: #000; flex: 1; min-height: 360px; display: flex; }
 #mundi-root .mu-sp-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -3006,31 +2989,9 @@ body.mundi-open #toast-container { display: none !important; }
     background: rgba(255, 248, 228, .7) !important; color: #3a2817 !important; border: 1px solid #b48d52 !important; box-shadow: none !important; text-shadow: none !important; border-radius: 999px;
 }
 #mundi-root .mu-book .mu-chip.is-on, #mundi-root .mu-book .mu-chip.is-on:hover:not(:disabled) { background: linear-gradient(180deg, #a03a2a, #7a2418) !important; color: #f6d98f !important; border-color: #4a120c !important; }
-#mundi-root .mu-book .mu-bk-page.is-right .mu-ch-refresh, #mundi-root .mu-book .mu-bk-page.is-right .mu-ch-refresh:hover:not(:disabled) {
-    background: none !important; border: 1px dashed #b48d52 !important; box-shadow: none !important; color: #6a4222 !important; text-shadow: none;
-}
 #mundi-root .mu-book .mu-sp-card { background: rgba(255, 248, 228, .6); border: 1px solid var(--line); }
 #mundi-root .mu-book .mu-sp-info, #mundi-root .mu-book .mu-sp-info h3 { color: var(--fg); }
 
-/* the notice board: slips of parchment pinned with a red pin */
-#mundi-root .mu-bd-board { display: grid; gap: 14px; padding: 12px 2px 6px; }
-#mundi-root .mu-bd-note {
-    position: relative; display: grid; gap: 6px; padding: 16px 14px 12px; background: #fbf3df; border: 1px solid #d8c29a;
-    box-shadow: 0 3px 6px rgba(60, 35, 10, .22); transform: rotate(-.6deg);
-}
-#mundi-root .mu-bd-note:nth-child(even) { transform: rotate(.7deg); }
-#mundi-root .mu-bd-note::before { content: ""; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #e0635a, #8b1e14); box-shadow: 0 2px 2px rgba(0, 0, 0, .35); }
-#mundi-root .mu-bd-note header { display: flex; align-items: center; gap: 8px; }
-#mundi-root .mu-bd-note header img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #b48d52; }
-#mundi-root .mu-bd-note header b { font-family: "Cinzel", serif; font-size: .95em; }
-#mundi-root .mu-bd-note header small { margin-left: auto; }
-#mundi-root .mu-bd-note p { margin: 0; font-size: 1.05em; font-style: italic; line-height: 1.35; }
-#mundi-root .mu-bd-note .mu-ch-img { width: 100%; border-radius: 3px; }
-#mundi-root .mu-book .mu-bd-write, #mundi-root .mu-book .mu-bd-write:hover:not(:disabled) {
-    justify-self: end; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: .9em;
-}
-#mundi-root .mu-bd-write .mu-ic { width: 14px; height: 14px; }
-#mundi-root .mu-bd-mine { justify-self: end; font-style: italic; }
 
 /* the matchmaker's news: a sealed note, not the modern app's pink screen */
 #mundi-root .mu-book .mu-sp-match { background: none; color: var(--fg); padding: 22px 6px; gap: 12px; }
@@ -4731,6 +4692,40 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-np-faces em { display: grid; place-items: center; font-style: normal; font-size: 13px; background: rgba(255, 255, 255, .12); }
 #mundi-root .mu-np-box { display: grid; gap: 6px; padding: 8px 10px; margin: 6px 0; border-radius: 12px; background: rgba(255, 255, 255, .06); }
 #mundi-root .mu-np-box small { opacity: .85; }
+/* The news in Messages (ui/newsui.ts): a strip of cards under the search box, and the News view (coming up in town,
+   then the last two weeks a day at a time). Read-only. */
+#mundi-root .mu-nw-strip { display: grid; gap: 4px; padding: 6px 0 8px; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-nw-strip > header { display: flex; align-items: center; gap: 4px; padding: 0 14px; }
+#mundi-root .mu-nw-strip > header b { flex: 1; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+#mundi-root .mu-nw-strip > header .mu-ibtn { width: 28px; height: 28px; }
+#mundi-root .mu-nw-strip > header .mu-ibtn .mu-ic { width: 15px; height: 15px; }
+#mundi-root .mu-nw-all { padding: 3px 10px; min-height: 0; font-size: 12px; }
+#mundi-root .mu-nw-strip > p { margin: 0; padding: 0 14px; font-size: 12px; }
+#mundi-root .mu-nw-cards { display: grid; gap: 4px; padding: 0 10px; }
+#mundi-root .mu-nw-card, #mundi-root .mu-nw-card:hover:not(:disabled) { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 8px; align-items: center; justify-items: start;
+    padding: 5px 8px; min-height: 0; text-align: left; border-radius: 10px !important; background: var(--bg2) !important; border: 1px solid var(--line) !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-nw-card:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)) !important; }
+#mundi-root .mu-nw-card > img, #mundi-root .mu-nw-row img:not(.mu-nw-img) { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; object-position: top; }
+#mundi-root .mu-nw-card > img, #mundi-root .mu-nw-card > .mu-nw-ic { width: 26px; height: 26px; }
+#mundi-root .mu-nw-card > span { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 500; }
+#mundi-root .mu-nw-card > span b, #mundi-root .mu-nw-row b { font-weight: 800; margin-right: 4px; }
+#mundi-root .mu-nw-card > small { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+#mundi-root .mu-nw-card.is-city { background: color-mix(in srgb, var(--accent) 12%, var(--bg2)) !important; }
+#mundi-root .mu-nw-ic { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+#mundi-root .mu-nw-ic .mu-ic { width: 16px; height: 16px; }
+/* the News view */
+#mundi-root .mu-nw-list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-nw-row { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-nw-row > span { display: grid; gap: 3px; font-size: 13.5px; line-height: 1.4; }
+#mundi-root .mu-nw-row > span > b { margin: 0; }
+#mundi-root .mu-nw-row small { color: var(--muted); font-size: 11px; }
+#mundi-root .mu-nw-who, #mundi-root .mu-nw-who:hover:not(:disabled) { padding: 0; min-height: 0; border: 0 !important; background: none !important; box-shadow: none !important; border-radius: 50% !important; }
+#mundi-root .mu-nw-img { width: 100%; max-width: 360px; border-radius: 12px; margin-top: 4px; }
+#mundi-root .mu-nw-day { margin: 10px 0 0; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+#mundi-root .mu-nw-day:first-child { margin-top: 0; }
+/* the medieval journal: notices on paper */
+#mundi-root .mu-book .mu-nw-card, #mundi-root .mu-book .mu-nw-card:hover:not(:disabled) { background: linear-gradient(170deg, #fdf6e1, #f1e2bd) !important; border-color: rgba(140, 100, 50, .35) !important; border-radius: 3px !important; color: #3a2817; }
+#mundi-root .mu-book .mu-nw-ic { background: rgba(160, 58, 42, .12); color: #8b2e1f; }
 /* A person's page on the phone (ui/personpage.ts): the buttons under who they are, the tabs (About, Memories, Circle,
    Notes) and what each one holds. Unfolded, About's sections sit in two columns. */
 #mundi-root .mu-pp { gap: 12px; }
@@ -4857,7 +4852,6 @@ body.mundi-open #completion_prompt_manager_popup {
     #mundi-root .mu-ph-jobs { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
     #mundi-root .mu-home-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
     #mundi-root .mu-home-card.is-mine .mu-home-pic { max-height: 260px; }
-    #mundi-root :is(.mu-ch-feed, .mu-bd-board) { width: min(640px, 100%); margin-inline: auto; }
 }
 @media (prefers-reduced-motion: reduce) { #mundi-root .mu-phone { transition: none; } }
 /* Where to practise, under each skill on the Profile. */

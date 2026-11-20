@@ -246,7 +246,7 @@ function attach(r: HTMLElement) {
         if (t.dataset?.focus === 'lib-dlg-name' && e.key === 'Enter' && !(e as KeyboardEvent).isComposing && state.modal?.type === 'lib-dlg-renfolder') { e.preventDefault(); ACT['lib-folder-ren-yes']?.(t, e); }
         if (t.dataset?.focus === 'lib-dlg-name' && e.key === 'Enter' && !(e as KeyboardEvent).isComposing && state.modal?.type === 'lib-dlg-newfolder') { e.preventDefault(); ACT['lib-newfolder-yes']?.(t, e); }
         if (t.dataset?.focus === 'lib-tag-text' && e.key === 'Enter' && !(e as KeyboardEvent).isComposing) { e.preventDefault(); ACT['lib-tag-add']?.(t, e); }
-        if (t.dataset?.focus === 'ph-draft' && e.key === 'Enter' && !(e as KeyboardEvent).isComposing) { e.preventDefault(); ACT[phone.app === 'social' ? 'ph-chirp' : phone.app === 'post' ? 'ph-reply' : 'ph-send']?.(t, e); }
+        if (t.dataset?.focus === 'ph-draft' && e.key === 'Enter' && !(e as KeyboardEvent).isComposing) { e.preventDefault(); ACT['ph-send']?.(t, e); }
     });
     document.addEventListener('keydown', (e) => {
         if (!state.open || (e.target as HTMLElement).closest?.('textarea, input, select')) return;

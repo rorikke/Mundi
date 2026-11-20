@@ -1,0 +1,34 @@
+/* The news in Messages (ui/newsui.ts): a strip of cards under the search box, and the News view (coming up in town,
+   then the last two weeks a day at a time). Read-only. */
+#mundi-root .mu-nw-strip { display: grid; gap: 4px; padding: 6px 0 8px; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-nw-strip > header { display: flex; align-items: center; gap: 4px; padding: 0 14px; }
+#mundi-root .mu-nw-strip > header b { flex: 1; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+#mundi-root .mu-nw-strip > header .mu-ibtn { width: 28px; height: 28px; }
+#mundi-root .mu-nw-strip > header .mu-ibtn .mu-ic { width: 15px; height: 15px; }
+#mundi-root .mu-nw-all { padding: 3px 10px; min-height: 0; font-size: 12px; }
+#mundi-root .mu-nw-strip > p { margin: 0; padding: 0 14px; font-size: 12px; }
+#mundi-root .mu-nw-cards { display: grid; gap: 4px; padding: 0 10px; }
+#mundi-root .mu-nw-card, #mundi-root .mu-nw-card:hover:not(:disabled) { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 8px; align-items: center; justify-items: start;
+    padding: 5px 8px; min-height: 0; text-align: left; border-radius: 10px !important; background: var(--bg2) !important; border: 1px solid var(--line) !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-nw-card:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)) !important; }
+#mundi-root .mu-nw-card > img, #mundi-root .mu-nw-row img:not(.mu-nw-img) { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; object-position: top; }
+#mundi-root .mu-nw-card > img, #mundi-root .mu-nw-card > .mu-nw-ic { width: 26px; height: 26px; }
+#mundi-root .mu-nw-card > span { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; font-weight: 500; }
+#mundi-root .mu-nw-card > span b, #mundi-root .mu-nw-row b { font-weight: 800; margin-right: 4px; }
+#mundi-root .mu-nw-card > small { font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+#mundi-root .mu-nw-card.is-city { background: color-mix(in srgb, var(--accent) 12%, var(--bg2)) !important; }
+#mundi-root .mu-nw-ic { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+#mundi-root .mu-nw-ic .mu-ic { width: 16px; height: 16px; }
+/* the News view */
+#mundi-root .mu-nw-list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-nw-row { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+#mundi-root .mu-nw-row > span { display: grid; gap: 3px; font-size: 13.5px; line-height: 1.4; }
+#mundi-root .mu-nw-row > span > b { margin: 0; }
+#mundi-root .mu-nw-row small { color: var(--muted); font-size: 11px; }
+#mundi-root .mu-nw-who, #mundi-root .mu-nw-who:hover:not(:disabled) { padding: 0; min-height: 0; border: 0 !important; background: none !important; box-shadow: none !important; border-radius: 50% !important; }
+#mundi-root .mu-nw-img { width: 100%; max-width: 360px; border-radius: 12px; margin-top: 4px; }
+#mundi-root .mu-nw-day { margin: 10px 0 0; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+#mundi-root .mu-nw-day:first-child { margin-top: 0; }
+/* the medieval journal: notices on paper */
+#mundi-root .mu-book .mu-nw-card, #mundi-root .mu-book .mu-nw-card:hover:not(:disabled) { background: linear-gradient(170deg, #fdf6e1, #f1e2bd) !important; border-color: rgba(140, 100, 50, .35) !important; border-radius: 3px !important; color: #3a2817; }
+#mundi-root .mu-book .mu-nw-ic { background: rgba(160, 58, 42, .12); color: #8b2e1f; }

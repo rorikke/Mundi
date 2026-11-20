@@ -142,31 +142,9 @@
     background: rgba(255, 248, 228, .7) !important; color: #3a2817 !important; border: 1px solid #b48d52 !important; box-shadow: none !important; text-shadow: none !important; border-radius: 999px;
 }
 #mundi-root .mu-book .mu-chip.is-on, #mundi-root .mu-book .mu-chip.is-on:hover:not(:disabled) { background: linear-gradient(180deg, #a03a2a, #7a2418) !important; color: #f6d98f !important; border-color: #4a120c !important; }
-#mundi-root .mu-book .mu-bk-page.is-right .mu-ch-refresh, #mundi-root .mu-book .mu-bk-page.is-right .mu-ch-refresh:hover:not(:disabled) {
-    background: none !important; border: 1px dashed #b48d52 !important; box-shadow: none !important; color: #6a4222 !important; text-shadow: none;
-}
 #mundi-root .mu-book .mu-sp-card { background: rgba(255, 248, 228, .6); border: 1px solid var(--line); }
 #mundi-root .mu-book .mu-sp-info, #mundi-root .mu-book .mu-sp-info h3 { color: var(--fg); }
 
-/* the notice board: slips of parchment pinned with a red pin */
-#mundi-root .mu-bd-board { display: grid; gap: 14px; padding: 12px 2px 6px; }
-#mundi-root .mu-bd-note {
-    position: relative; display: grid; gap: 6px; padding: 16px 14px 12px; background: #fbf3df; border: 1px solid #d8c29a;
-    box-shadow: 0 3px 6px rgba(60, 35, 10, .22); transform: rotate(-.6deg);
-}
-#mundi-root .mu-bd-note:nth-child(even) { transform: rotate(.7deg); }
-#mundi-root .mu-bd-note::before { content: ""; position: absolute; top: -6px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #e0635a, #8b1e14); box-shadow: 0 2px 2px rgba(0, 0, 0, .35); }
-#mundi-root .mu-bd-note header { display: flex; align-items: center; gap: 8px; }
-#mundi-root .mu-bd-note header img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #b48d52; }
-#mundi-root .mu-bd-note header b { font-family: "Cinzel", serif; font-size: .95em; }
-#mundi-root .mu-bd-note header small { margin-left: auto; }
-#mundi-root .mu-bd-note p { margin: 0; font-size: 1.05em; font-style: italic; line-height: 1.35; }
-#mundi-root .mu-bd-note .mu-ch-img { width: 100%; border-radius: 3px; }
-#mundi-root .mu-book .mu-bd-write, #mundi-root .mu-book .mu-bd-write:hover:not(:disabled) {
-    justify-self: end; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: .9em;
-}
-#mundi-root .mu-bd-write .mu-ic { width: 14px; height: 14px; }
-#mundi-root .mu-bd-mine { justify-self: end; font-style: italic; }
 
 /* the matchmaker's news: a sealed note, not the modern app's pink screen */
 #mundi-root .mu-book .mu-sp-match { background: none; color: var(--fg); padding: 22px 6px; gap: 12px; }

@@ -1,17 +1,18 @@
-// The social network (short posts, like Twitter/X) and the dating app. Posts are written by the AI in one batch
-// call; who posts and whether posts get a picture are options in the game settings.
+// What people post (short posts, or notices on a board in an older world) and the dating app. Posts are written by
+// the AI, two at a time, and shown read-only in the news (ui/newsui.ts); who posts when, and whether posts get a
+// picture, are options in the game settings.
 import { romanceBlocked } from './family.js';
 import { relOf, idOf, attraction, YOU } from './rel.js';
 import { needsOf } from './intimacy.js';
 import { scriptText } from '../core/safe.js';
 import { nowAbs, settings, saveSettings, adultOn, type Save, type Resident } from '../core/store.js';
-import { appsOf, socialKind, aiVoice, systemOn, type WorldDef } from '../core/world.js';
+import { socialKind, aiVoice, systemOn, type WorldDef } from '../core/world.js';
 import { ctx, charOf, personaName, sayLine } from '../st/bridge.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
 import { whereNow, residents } from './people.js';
-import { social, addBond, standsWith, isPartner, bondAtLeast, wordsIn } from './social.js';
+import { social, isPartner, bondAtLeast, wordsIn } from './social.js';
 import { sharedLikes, likesOf } from './private.js';
 import { groupOptions } from './traits.js';
 import { levelOf, skillDef } from './hobbies.js';
@@ -26,18 +27,19 @@ export function feed(g: Save): Feed {
     f.posts ??= []; f.last ??= 0;
     return f;
 }
-export type FeedMode = 'button' | 'auto' | 'open' | 'react';
-// Default: new posts only when you tap "New posts". (Saves from before had "open" as the default: moved once.)
+export type FeedMode = 'button' | 'auto' | 'open';
+// Default: new posts only when you tap "More news". (Saves from before had "open" as the default: moved once. "Only
+// you post; they reply" went with posting: it is the default now.)
 export const feedPrefs = () => {
     const s = settings() as any; s.social ??= {};
     if (!s.social.v2) { if (!s.social.mode || s.social.mode === 'open') s.social.mode = 'button'; s.social.v2 = true; saveSettings(); }
+    if (s.social.mode === 'react') s.social.mode = 'button';
     s.social.mode ??= 'button'; s.social.images ??= false;
     return s.social as { mode: FeedMode; images: boolean };
 };
 
 const hash = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 const handle = (name: string) => `@${name.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '')}`;
-export const handleOf = (g: Save, by: string) => (by === 'me' ? handle(personaName()) : handle(g.cast[by]?.name ?? '?'));
 
 const about = (r: Resident) => String(charOf(r.avatar)?.description ?? '').replace(/{{char}}/g, r.name).replace(/{{user}}/g, personaName()).slice(0, 500);
 
@@ -53,7 +55,7 @@ async function picture(prompt: string): Promise<string | undefined> {
 }
 
 // The feed as the AI sees it: a social network or a notice board (the world's socialKind), in the world's voice.
-const appTitle = (w: WorldDef) => appsOf(w).find(a => a.id === 'social')?.name ?? 'Chirp';
+const appTitle = (w: WorldDef) => (socialKind(w) === 'board' ? 'notice board' : 'Chirp');   // (the network's name, for the AI only)
 const header = (g: Save, w: WorldDef) => socialKind(w) === 'board'
     ? `[The ${appTitle(w)} of ${w.name}: people pin short notices, rumors, offers and requests, and others scribble answers below. ${weekday(g.day)}, ${hm(g.minutes)}. Notices and answers are short (one or two sentences), written in ${aiLangName(g.lang)}, ${aiVoice(w)}. An answer replies to the notice above it.]`
     : `[${appTitle(w)}, the Twitter-like social network of ${w.name}. ${weekday(g.day)}, ${hm(g.minutes)}. Posts and replies are short (one or two sentences), written in ${aiLangName(g.lang)}; ${aiVoice(w)}. A reply answers the message right above it.]`;
@@ -64,7 +66,7 @@ export async function generatePosts(g: Save, w: WorldDef, count = 2): Promise<nu
     const now = nowAbs(g);
     const pool = residents(g).sort((a, b) => hash(`${a.avatar}|${now}`) - hash(`${b.avatar}|${now}`)).slice(0, count);
     const f = feed(g);
-    const recent = f.posts.slice(0, 3).reverse().map(p => `${p.by === 'me' ? personaName() : g.cast[p.by]?.name ?? '?'} (${handleOf(g, p.by)}) posted: ${p.text}`);
+    const recent = f.posts.slice(0, 3).reverse().map(p => `${p.by === 'me' ? personaName() : g.cast[p.by]?.name ?? '?'} (${handle(p.by === 'me' ? personaName() : g.cast[p.by]?.name ?? '?')}) posted: ${p.text}`);
     let n = 0;
     for (const r of pool) {
         const transcript = [header(g, w), `[${r.name}: ${about(r)} Right now at ${placeOf(g, w, whereNow(g, w, r))?.name ?? 'home'}.]`, ...recent].join('\n');
@@ -80,52 +82,9 @@ export async function generatePosts(g: Save, w: WorldDef, count = 2): Promise<nu
     return n;
 }
 
-// The thread of one post as a transcript (post, then replies in order).
-function threadOf(g: Save, w: WorldDef, post: Post, aboutWho: Resident[]) {
-    const nameOf = (by: string) => (by === 'me' ? personaName() : g.cast[by]?.name ?? '?');
-    return [
-        header(g, w),
-        ...aboutWho.map(r => `[${r.name}: ${about(r).slice(0, 350)} ${r.met ? `${standsWith(g, r.avatar, r.name, personaName())}.` : `${r.name} does not know ${personaName()} yet.`}]`),
-        `${nameOf(post.by)} (${handleOf(g, post.by)}) posted: ${post.text}`,
-        ...post.replies.map(x => `${nameOf(x.by)} (${handleOf(g, x.by)}) replied: ${x.text}`),
-    ].join('\n');
-}
-
-// When to post on their own: "auto" every few game hours (called by the clock), "open" when the app opens.
-// "button" (the default) and "react" never post on their own: only the "New posts" button (forced) makes new posts.
+// When to post on their own: "auto" every few game hours (called by the clock), "open" when Messages opens.
+// "button" (the default) never posts on its own: only "More news" (forced) makes new posts.
 export const shouldPost = (g: Save, mode: FeedMode) => feedPrefs().mode === mode && nowAbs(g) - feed(g).last >= (mode === 'auto' ? 180 : 120);
-
-/* ---------- the player posts, likes and replies ---------- */
-
-export async function postAsMe(g: Save, w: WorldDef, text: string) {
-    const now = nowAbs(g);
-    const post: Post = { id: `m${now}`, by: 'me', text, at: now, likes: 0, liked: false, reposts: 0, replies: [] };
-    feed(g).posts.unshift(post);
-    // people who know you react, one after the other (each sees the replies before hers)
-    const known = residents(g).filter(r => r.met).sort((a, b) => hash(`${a.avatar}${now}`) - hash(`${b.avatar}${now}`)).slice(0, 2);
-    post.likes = known.length + hash(text) % 8;
-    for (const r of known) {
-        const line = await sayLine(threadOf(g, w, post, [r]), `${r.name} (${handle(r.name)}) replied`, [r.name, personaName()], 200, 80);
-        if (line) post.replies.push({ by: r.avatar, text: line, at: now + 5 });
-    }
-    return post;
-}
-
-export function toggleLike(g: Save, post: Post) {
-    post.liked = !post.liked;
-    post.likes += post.liked ? 1 : -1;
-    if (post.liked && post.by !== 'me' && g.cast[post.by]?.met) addBond(g, post.by, 1);
-}
-
-export async function replyTo(g: Save, w: WorldDef, post: Post, text: string) {
-    const now = nowAbs(g);
-    post.replies.push({ by: 'me', text, at: now });
-    const r = g.cast[post.by];
-    if (!r) return;
-    if (r.met) addBond(g, r.avatar, 2);
-    const line = await sayLine(threadOf(g, w, post, [r]), `${r.name} (${handle(r.name)}) replied`, [r.name, personaName()], 200, 80);
-    if (line) post.replies.push({ by: r.avatar, text: line, at: now + 3 });
-}
 
 /* ---------- dating ---------- */
 

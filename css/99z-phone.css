@@ -45,6 +45,5 @@
     #mundi-root .mu-ph-jobs { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
     #mundi-root .mu-home-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
     #mundi-root .mu-home-card.is-mine .mu-home-pic { max-height: 260px; }
-    #mundi-root :is(.mu-ch-feed, .mu-bd-board) { width: min(640px, 100%); margin-inline: auto; }
 }
 @media (prefers-reduced-motion: reduce) { #mundi-root .mu-phone { transition: none; } }

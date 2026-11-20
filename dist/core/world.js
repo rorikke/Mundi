@@ -61,7 +61,6 @@ export const DEFAULT_APPS = [
     { id: 'jobs', name: 'Jobs', icon: 'briefcase', color: '#0a84ff', on: true },
     { id: 'bank', name: 'Bank', icon: 'wallet', color: '#5e5ce6', on: true },
     { id: 'homes', name: 'Homes', icon: 'home', color: '#ff375f', on: true },
-    { id: 'social', name: 'Chirp', icon: 'at', color: '#1d9bf0', on: true },
     { id: 'dating', name: 'Spark', icon: 'flame', color: '#ff4f6d', on: true },
     { id: 'plans', name: 'Calendar', icon: 'calendar', color: '#ff9500', on: true },
     { id: 'journal', name: 'Journal', icon: 'book', color: '#8e6cf0', on: true },
@@ -93,7 +92,7 @@ export const appsOf = (w) => {
 };
 // The apps the player sees: on in the world, and their system on too.
 // A scenario's phone is smaller: one house, so no moving, holdings, factions or reputation per region.
-export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'social', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos'];
+export const SCENARIO_APPS_OFF = ['homes', 'assets', 'factions', 'standing', 'dating', 'workshop', 'jobs', 'bank', 'shop', 'goals', 'collection', 'photos'];
 /** Systems a scenario never has: no neighbors (everyone lives in the house), no social network, no crafting. */
 // Home (a scenario): a simpler world made for role-play with your characters in one house. Work, money, courses,
 // the economy and the like are gone; what is left is the house, the people, love and plans.
@@ -178,7 +177,7 @@ export const SYSTEMS = [
     { id: 'romance', name: 'Romance', desc: 'only friendship: no dating, love, engagement or marriage.', apps: ['dating'], blocks: ['couples', 'intimate'] },
     { id: 'relations', name: 'Relationships between people', desc: 'people\'s feelings for each other never change, and couples between them never form, move on or end by themselves.', apps: [], blocks: [] },
     { id: 'family', name: 'Children', desc: 'no babies (children already born stay).', apps: [], blocks: [], needs: 'romance' },
-    { id: 'social', name: 'Social network', desc: 'no posts, likes or notices.', apps: ['social'], blocks: [] },
+    { id: 'social', name: 'News and introductions', desc: 'no news in Messages (what people post, the news of their lives, what is on in town), and friends never introduce you to their friends.', apps: [], blocks: [] },
     { id: 'neighbors', name: 'Neighbors', desc: 'nobody from your area knocks at your door. (Needs at least 2 of the world\'s people living in your area.)', apps: [], blocks: [] },
     { id: 'consults', name: 'Advice and life events', desc: 'friends do not ask your advice, and you do not hear of birthdays, promotions or weddings.', apps: [], blocks: [] },
     { id: 'rumors', name: 'Rumors', desc: 'people do not gossip about what you do.', apps: [], blocks: ['rumors'] },

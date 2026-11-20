@@ -5,7 +5,7 @@
 import { nowAbs, type Save, type Resident } from '../core/store.js';
 import { systemOn, isScenario, type WorldDef } from '../core/world.js';
 import { quiet, personaName } from '../st/bridge.js';
-import { social, type PlanKind } from './social.js';
+import { social, loseBond, textFrom, type PlanKind } from './social.js';
 import { canPlan, isWorking, isSleeping, earliest } from './plans.js';
 import { placeOf, playerHomeId } from './places.js';
 import { breakNow } from './daylife.js';
@@ -99,4 +99,26 @@ export function dueLater(g: Save): string[] {
     if (!due.length) return [];
     (social(g) as any).later = list.filter(l => !due.includes(l));
     return due.map(l => l.who).filter(a => g.cast[a]);
+}
+
+/* ---------- a heart on their message ---------- */
+
+// A heart on bad news, a worry, an apology or a hurt feeling lands badly: friendship down instead of up, and they
+// say so. The AI only reads which one it is (once per message, kept on it); the engine moves the numbers.
+export const HEART = { ok: 1, wrong: 2 };
+export type HeartTone = 'ok' | 'wrong';
+export async function heartTone(g: Save, r: Resident, text: string): Promise<HeartTone> {
+    const me = personaName();
+    try {
+        const out = await quiet(`${r.name} texted ${me}: """${text.replace(/"""/g, '"')}"""\n\n${me} answered it with nothing but a heart (a like). Would that feel wrong to ${r.name}: is the message sad, bad news, hurt, angry, a worry, an apology or a confession of something painful? Reply with one word: ok or wrong.`,
+            10, 'You judge how a reaction lands. One word: ok or wrong.', { lane: 'now' });
+        return /\bwrong\b/i.test(out) ? 'wrong' : 'ok';
+    } catch { return 'ok'; }   // not sure: a heart is a kind thing
+}
+/** The heart landed badly: friendship lost, and their answer (the AI's words, or a short ready-made one). */
+export async function heartBackfired(g: Save, w: WorldDef, avatar: string, text: string): Promise<string> {
+    const r = g.cast[avatar]; if (!r) return '';
+    loseBond(g, avatar, HEART.wrong);
+    return textFrom(g, w, avatar, `${personaName()} reacted to ${r.name}'s message ("${text.replace(/\s+/g, ' ').slice(0, 200)}") with nothing but a heart. It felt wrong to ${r.name}: it was not something to like. ${r.name} answers in one short message, hurt or puzzled, in character.`,
+        'A heart? Really?');
 }

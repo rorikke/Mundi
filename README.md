@@ -146,8 +146,8 @@ are cards, you are a persona, the world's lore is a lorebook, and **a save is a 
   free text never sets money, time or feelings.
 - **A visual-novel scene.** Say, Do, Story or See. Type `@` to choose who answers. Each speaker's dialogue gets their
   own color.
-- **A phone.** Messages, People, Jobs, Bank, Homes, Calendar, Goals, Business, Collection, Lens, a social network
-  (Chirp) and a dating app (Spark) where a like might be answered days later, or never.
+- **A phone.** Messages (with the news of the town and the people you know), People, Jobs, Bank, Homes, Calendar,
+  Goals, Business, Collection, Lens, and a dating app (Spark) where a like might be answered days later, or never.
 - **A diary.** Each night the day becomes a short entry, so the story remembers.
 - **Households and "Play as".** Live with family or roommates, and switch to playing any of them.
 - **A World creator that edits everything,** Tokyo included: places, people, jobs, storylines, rules, pictures.

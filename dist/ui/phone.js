@@ -30,7 +30,7 @@ import { visitors } from '../sim/visitors.js';
 import { note } from '../sim/facts.js';
 import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
-import { getWorld, worldFile, deviceLook, socialKind, messageKind, appsShown, systemOn, isScenario } from '../core/world.js';
+import { getWorld, worldFile, deviceLook, messageKind, appsShown, systemOn, isScenario } from '../core/world.js';
 import { upcoming, when as planWhen } from '../sim/plans.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { whenText } from './plans.js';
@@ -42,7 +42,7 @@ import { placeOf, homeAddress } from '../sim/places.js';
 import { whereNow, residents } from '../sim/people.js';
 import { breakNow } from '../sim/daylife.js';
 import { social, bondOf, bondLabel, isPartner, textOut, textBack, addBond, PARTNER_BOND } from '../sim/social.js';
-import { awayNow, answerLater, dueLater, waitingOn } from '../sim/texting.js';
+import { awayNow, answerLater, dueLater, waitingOn, heartTone, heartBackfired, HEART } from '../sim/texting.js';
 import { grudgeOf } from '../sim/grudges.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
@@ -50,7 +50,8 @@ import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pend
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
-import { feed, feedPrefs, generatePosts, shouldPost, postAsMe, toggleLike, replyTo, handleOf, dating, theirProfile, candidates, swipe, waitingCount, appInterests, LOOKING } from '../sim/feed.js';
+import { generatePosts, shouldPost, dating, theirProfile, candidates, swipe, waitingCount, appInterests, LOOKING } from '../sim/feed.js';
+import { newsStripHtml, newsApp, refreshNews } from './newsui.js';
 import { gendersOf } from '../sim/gender.js';
 import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
@@ -80,7 +81,7 @@ export function closePhone() {
     clearTimeout(closeTimer);
     closeTimer = window.setTimeout(() => { P.closing = false; P.open = false; notify(); }, 260);
 }
-export const P = { closing: false, open: false, app: 'home', who: '', draft: '', typing: '', post: '', busy: false, matched: '', q: '' };
+export const P = { closing: false, open: false, app: 'home', who: '', draft: '', typing: '', busy: false, matched: '', q: '' };
 // Sections: several apps under one icon (on the phone and in the journal), with tabs to move between them.
 const SECTIONS = [
     { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'goals', 'collection', 'trophies', 'standing'] },
@@ -135,7 +136,7 @@ function hd(app, title) {
 }
 const appName = (id) => { const g = game(); const w = g && getWorld(g.world); return esc(w ? appsOf(w).find(a => a.id === id)?.name ?? id : id); };
 // Words that change with the world's style: the medieval journal speaks of letters, notices and the matchmaker.
-let BOOK = false, BOARD = false, LETTERS = false, LW = null; // the world's device, social app and messages
+let BOOK = false, LETTERS = false, LW = null; // the world's device and messages
 const T = (key, ...a) => lex(LW, key, ...a);
 const met = (g) => residents(g).filter(r => r.met);
 const day = (g, at) => { const d = Math.floor(at / 1440); return d === g.day ? hm(at % 1440) : `${weekday(d).slice(0, 3)} ${hm(at % 1440)}`; };
@@ -149,8 +150,8 @@ function head(title, back) {
 }
 const backBtn = (parent) => `<button class="mu-ibtn mu-ghost" data-act="ph-back" data-app="${esc(parent)}" aria-label="Back" title="Back">${icon('back')}</button>`;
 const NAV = { stack: [], last: null, mode: '' };
-const viewNow = () => ({ app: P.app, who: P.app === 'thread' || P.app === 'person' ? P.who : '', post: P.app === 'post' ? P.post : '' });
-const sameView = (a, b) => a.app === b.app && a.who === b.who && a.post === b.post;
+const viewNow = () => ({ app: P.app, who: P.app === 'thread' || P.app === 'person' ? P.who : '' });
+const sameView = (a, b) => a.app === b.app && a.who === b.who;
 // Run on every drawing of the open phone, so views opened from anywhere (a card in the scene, a toast) count too.
 // Not a step: the home screen and what it opens, a section's tabs, another conversation picked from the list
 // (data-nav="swap"). Another person's page opened from a person's Circle is one.
@@ -226,8 +227,8 @@ function openApp(app) {
             P.matched = n;
     }
     notify();
-    if (app === 'social' && g && w && feedPrefs().mode === 'open')
-        refreshFeed(g, w); // only in "each time you open the app" mode
+    if (app === 'messages')
+        void refreshNews(); // new posts in the news, only in "each time you open Messages" mode
 }
 /* ---------- the unfolded phone: twice as wide, lists and what's open side by side ---------- */
 // A computer only: on a phone's screen the phone already fills it.
@@ -363,7 +364,7 @@ function rowNote(g, avatar, last) {
 function messagesApp(g) {
     const s = social(g);
     const list = met(g).filter(r => matchQ(g, r, true)).sort((a, b) => (s.threads[b.avatar]?.at(-1)?.at ?? 0) - (s.threads[a.avatar]?.at(-1)?.at ?? 0));
-    return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}<div class="mu-ph-list">${list.length ? list.map(r => {
+    return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}${P.q.trim() || !LW ? '' : newsStripHtml(g, LW)}<div class="mu-ph-list">${list.length ? list.map(r => {
         const last = s.threads[r.avatar]?.at(-1);
         return `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-thread" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
             <span><b data-notr>${esc(contactName(g, r))}</b><small>${rowNote(g, r.avatar, last)}</small></span>${s.unread[r.avatar] ? `<em>${s.unread[r.avatar]}</em>` : last ? `<small>${day(g, last.at)}</small>` : ''}</button>`;
@@ -412,7 +413,7 @@ function threadApp(g) {
         ${NICK.who === r.avatar ? `<p class="mu-ph-editnote">${icon('trash')} ${T('deleteMsgHint')}</p>` : ''}
         <div class="mu-ph-thread ${NICK.who === r.avatar ? 'is-editing' : ''}" data-keep="ph-thread" data-bottom>${t.map((m, i) => NICK.who === r.avatar
         ? `<button class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr data-act="ph-msg-del" data-i="${esc(i)}" title="${esc(T('deleteMsg'))}">${esc(m.text)}<small>${day(g, m.at)}</small><i class="mu-ph-del">${icon('trash')}</i></button>`
-        : `<div class="mu-ph-msg ${m.me ? 'is-me' : ''} ${m.heart ? 'has-heart' : ''}"><span data-notr>${esc(m.text)}</span><small>${day(g, m.at)}</small>${m.me ? '' : `<button class="mu-ph-like ${m.heart ? 'is-on' : ''}" data-act="ph-heart" data-i="${esc(i)}" aria-pressed="${!!m.heart}" aria-label="Heart" title="Heart">${icon(m.heart ? 'heart' : 'heartLine')}</button>`}</div>`).join('')}
+        : `<div class="mu-ph-msg ${m.me ? 'is-me' : ''} ${m.heart ? 'has-heart' : ''}"><span data-notr>${esc(m.text)}</span><small>${day(g, m.at)}</small>${m.me || LETTERS ? '' : `<button class="mu-ph-like ${m.heart ? 'is-on' : ''}" data-act="ph-heart" data-i="${esc(i)}" aria-pressed="${!!m.heart}" aria-label="Heart" title="Heart">${icon(m.heart ? 'heart' : 'heartLine')}</button>`}</div>`).join('')}
             ${NICK.who === r.avatar ? '' : laterNote(g, r.avatar)}
             ${P.typing === r.avatar ? '<div class="mu-ph-msg is-typing"><i></i><i></i><i></i></div>' : ''}
             ${t.length ? '' : `<p class="mu-muted mu-pad">${T('emptyThread')}</p>`}${NICK.who === r.avatar ? '' : (() => { const w = getWorld(g.world); return w ? nudgeAnswersHtml(g, w, r.avatar) : ''; })()}</div>
@@ -681,53 +682,6 @@ Object.assign(ACT, {
         notify();
     },
 });
-/* ---------- Chirp: short posts, like Twitter/X ---------- */
-const who = (g, by) => by === 'me' ? { name: personaName(), img: personaThumb() } : { name: g.cast[by]?.name ?? '?', img: thumb(by) };
-function postHtml(g, p, full = false) {
-    const a = who(g, p.by);
-    return `<article class="mu-ch-post" ${full ? '' : `data-act="ph-post" data-id="${esc(p.id)}"`}>
-        <img src="${esc(a.img)}" alt="">
-        <div><header><b data-notr>${esc(a.name)}</b><small data-notr>${esc(handleOf(g, p.by))} · ${day(g, p.at)}</small></header>
-            <p data-notr>${esc(p.text)}</p>${p.image ? `<img class="mu-ch-img" src="${esc(p.image)}" alt="">` : ''}
-            <footer><span>${icon('chat')}${p.replies.length}</span><span>${icon('repost')}${p.reposts}</span>
-                <button class="mu-ch-like ${p.liked ? 'is-on' : ''}" data-act="ph-like" data-id="${esc(p.id)}" aria-label="Like">${icon(p.liked ? 'heart' : 'heartLine')}${p.likes}</button></footer>
-        </div></article>`;
-}
-// The medieval notice board: notices pinned by people; answering one means writing its author a letter.
-function noteHtml(g, p) {
-    const a = who(g, p.by);
-    return `<article class="mu-bd-note"><header><img src="${esc(a.img)}" alt=""><b data-notr>${esc(a.name)}</b><small>${day(g, p.at)}</small></header>
-        <p data-notr>${esc(p.text)}</p>${p.image ? `<img class="mu-ch-img" src="${esc(p.image)}" alt="">` : ''}
-        ${p.by !== 'me' && g.cast[p.by] ? `<button class="mu-bd-write" data-act="ph-thread" data-who="${esc(p.by)}">${icon('send')}<span>Write to them</span></button>` : p.by === 'me' ? '<small class="mu-bd-mine">Your notice</small>' : ''}</article>`;
-}
-function boardApp(g) {
-    const f = feed(g);
-    return `${head(appName('social'), 'home')}
-        <div class="mu-ph-compose is-top"><input type="text" placeholder="Pin a notice on the board…" value="${esc(P.draft)}" data-input="ph-draft" data-focus="ph-draft" ${P.busy ? 'disabled' : ''}>
-            <button class="mu-ibtn mu-primary" data-act="ph-chirp" aria-label="Pin it" title="Pin it" ${P.busy ? 'disabled' : ''}>${icon('pin')}</button></div>
-        ${feedPrefs().mode !== 'react' ? `<button class="mu-ghost mu-ch-refresh" data-act="ph-refresh" ${P.busy ? 'disabled' : ''}>${icon('redo')}<span>${P.busy ? 'Reading the board…' : 'Look for new notices'}</span></button>` : ''}
-        <div class="mu-bd-board">${f.posts.length ? f.posts.map(p => noteHtml(g, p)).join('') : `<p class="mu-muted mu-pad">${P.busy ? 'Reading the board…' : feedPrefs().mode === 'react' ? 'The board is empty. Pin a notice and people will answer.' : 'The board is empty. Tap "Look for new notices" to see what people pinned.'}</p>`}</div>`;
-}
-function socialApp(g) {
-    if (BOARD)
-        return boardApp(g);
-    const f = feed(g);
-    return `${head(appName('social'), 'home')}
-        <div class="mu-ph-compose is-top"><input type="text" placeholder="What's happening?" value="${esc(P.draft)}" data-input="ph-draft" data-focus="ph-draft" ${P.busy ? 'disabled' : ''}>
-            <button class="mu-ibtn mu-primary" data-act="ph-chirp" aria-label="Post" ${P.busy ? 'disabled' : ''}>${icon('send')}</button></div>
-        ${feedPrefs().mode !== 'react' ? `<button class="mu-ghost mu-ch-refresh" data-act="ph-refresh" ${P.busy ? 'disabled' : ''}>${icon('redo')}<span>${P.busy ? 'Loading…' : 'New posts'}</span></button>` : ''}
-        <div class="mu-ch-feed">${f.posts.length ? f.posts.map(p => postHtml(g, p)).join('') : `<p class="mu-muted mu-pad">${P.busy ? 'Loading…' : feedPrefs().mode === 'react' ? 'Nothing here yet. Post something and people will reply.' : 'Nothing here yet. Tap "New posts" to see what people are saying.'}</p>`}</div>`;
-}
-function postApp(g) {
-    const p = feed(g).posts.find(x => x.id === P.post);
-    if (!p)
-        return socialApp(g);
-    return `${head('Post', 'social')}<div class="mu-ch-feed">${postHtml(g, p, true)}
-        ${p.replies.map(r => { const a = who(g, r.by); return `<div class="mu-ch-reply"><img src="${esc(a.img)}" alt=""><div><b data-notr>${esc(a.name)}</b> <small data-notr>${esc(handleOf(g, r.by))}</small><p data-notr>${esc(r.text)}</p></div></div>`; }).join('')}
-        ${P.busy ? '<p class="mu-muted mu-pad">…</p>' : ''}</div>
-        <div class="mu-ph-compose"><input type="text" placeholder="Reply" value="${esc(P.draft)}" data-input="ph-draft" data-focus="ph-draft" ${P.busy ? 'disabled' : ''}>
-            <button class="mu-ibtn mu-primary" data-act="ph-reply" aria-label="Reply" ${P.busy ? 'disabled' : ''}>${icon('send')}</button></div>`;
-}
 /* ---------- Spark: the dating app ---------- */
 function chips(list, on, act) {
     return `<div class="mu-chips">${list.map(x => `<button class="mu-chip ${on.includes(x) ? 'is-on' : ''}" data-act="${esc(act)}" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
@@ -783,21 +737,6 @@ function matchesApp(g) {
     const n = waitingCount(g);
     return `${head(T('matches'), 'dating')}${n ? `<p class="mu-muted mu-pad">${esc(n === 1 ? 'One like is waiting for an answer.' : `${n} likes are waiting for an answer.`)}</p>` : ''}<div class="mu-ph-list">${d.matches.length ? d.matches.map(a => `<button class="mu-ph-row" data-act="ph-thread" data-who="${esc(a)}"><img src="${esc(thumb(a))}" alt=""><span><b data-notr>${esc(g.cast[a]?.name ?? '')}</b><small>${bondLabel(g, a)}</small></span></button>`).join('') : `<p class="mu-muted mu-pad">${T('noMatches')}</p>`}</div>`;
 }
-async function refreshFeed(g, w, force = false) {
-    if (P.busy || (!force && !shouldPost(g, 'open')))
-        return;
-    P.busy = true;
-    notify();
-    try {
-        await generatePosts(g, w);
-    }
-    catch (e) {
-        toast(String(e?.message ?? e), 'error');
-    }
-    P.busy = false;
-    saveGame();
-    notify();
-}
 // The clock calls this: in "characters post on their own" mode, new posts every few game hours.
 let autoBusy = false;
 export function feedTick() {
@@ -846,14 +785,13 @@ export function phoneHtml() {
         return '';
     }
     BOOK = deviceLook(w) === 'book';
-    BOARD = socialKind(w) === 'board';
     LETTERS = messageKind(w) === 'letters';
     LW = w;
     trackView();
     const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
     const body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-            : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, head(appName('photos'), 'home')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+            : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, head(appName('photos'), 'home')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK)
         return bookHtml(g, w, body);
     const unread = phoneUnread();
@@ -877,7 +815,7 @@ const TURN_MS = 650;
 const turn = { app: '', at: 0, back: false, opened: 0 };
 const OPEN_MS = 350;
 // Which section a view belongs to, so moving inside one (a thread inside Letters) does not turn the page.
-const sectionOf = (a) => (a === 'thread' ? 'messages' : a === 'person' ? 'people' : a === 'post' ? 'social' : a === 'dprofile' || a === 'matches' ? 'dating' : sectionFor(a)?.id ?? a);
+const sectionOf = (a) => (a === 'thread' ? 'messages' : a === 'person' ? 'people' : a === 'news' ? 'messages' : a === 'dprofile' || a === 'matches' ? 'dating' : sectionFor(a)?.id ?? a);
 function bookHtml(g, w, body) {
     const apps = APPS(w);
     const sec = sectionOf(P.app);
@@ -919,17 +857,6 @@ function bookFront(g, w) {
         : '<p class="mu-muted">Nothing written for the days to come. Send a letter to arrange a meeting.</p>'}
         <p class="mu-bk-flourish">❦</p></div>`;
 }
-// On the notice board nobody scribbles below your notice: whoever answers sends you a letter.
-function lettersFromNotice(g, post) {
-    const s = social(g);
-    for (const r of post.replies) {
-        (s.threads[r.by] ??= []).push({ me: false, text: r.text, at: r.at });
-        if (!(P.open && P.app === 'thread' && P.who === r.by))
-            s.unread[r.by] = (s.unread[r.by] ?? 0) + 1;
-        toast(lex(getWorld(g.world), 'newMessage', g.cast[r.by]?.name ?? ''), 'info');
-    }
-    post.replies = [];
-}
 export const phoneUnread = () => { const g = game(); return g ? Object.values(social(g).unread).reduce((a, b) => a + b, 0) : 0; };
 Object.assign(ACT, {
     phone: () => { if (P.open)
@@ -951,66 +878,11 @@ Object.assign(ACT, {
         }
         const v = NAV.stack.pop();
         NAV.mode = 'back';
-        if (v) {
+        if (v)
             P.who = v.who || P.who;
-            P.post = v.post || P.post;
-        }
         openApp(v?.app ?? (el.dataset.app || 'home'));
     },
     'ph-fold': () => { settings().phoneWide = !settings().phoneWide; saveSettings(); notify(); },
-    // Chirp
-    'ph-refresh': () => { const g = game(); const w = g && getWorld(g.world); if (g && w)
-        refreshFeed(g, w, true); },
-    'ph-post': (el, e) => { if (e.target.closest('[data-act="ph-like"]'))
-        return; P.post = el.dataset.id; P.app = 'post'; P.draft = ''; notify(); },
-    'ph-like': (el, e) => { e.stopPropagation(); const g = game(); if (!g)
-        return; const p = feed(g).posts.find(x => x.id === el.dataset.id); if (p) {
-        toggleLike(g, p);
-        saveGame();
-        notify();
-    } },
-    'ph-chirp': async () => {
-        const g = game();
-        const w = g && getWorld(g.world);
-        const text = P.draft.trim();
-        if (!g || !w || !text || P.busy)
-            return;
-        P.draft = '';
-        P.busy = true;
-        notify();
-        try {
-            const post = await postAsMe(g, w, text);
-            if (socialKind(w) === 'board')
-                lettersFromNotice(g, post);
-        }
-        catch (e) {
-            toast(String(e?.message ?? e), 'error');
-        }
-        P.busy = false;
-        saveGame();
-        notify();
-    },
-    'ph-reply': async () => {
-        const g = game();
-        const text = P.draft.trim();
-        const p = g && feed(g).posts.find(x => x.id === P.post);
-        if (!g || !p || !text || P.busy)
-            return;
-        P.draft = '';
-        P.busy = true;
-        notify();
-        try {
-            const w = getWorld(g.world);
-            if (w)
-                await replyTo(g, w, p, text);
-        }
-        catch (e) {
-            toast(String(e?.message ?? e), 'error');
-        }
-        P.busy = false;
-        saveGame();
-        notify();
-    },
     // Spark
     'sp-look': (el) => { const g = game(); if (!g)
         return; const l = dating(g).profile.looking; const v = el.dataset.v; const i = l.indexOf(v); i >= 0 ? l.splice(i, 1) : l.push(v); notify(); },
@@ -1083,16 +955,38 @@ Object.assign(ACT, {
         saveGame();
         notify();
     },
-    // a heart on their message: a little friendship the first time (no AI), and it can be taken back
-    'ph-heart': (el) => {
+    // a heart on their message, the first time: a little friendship, or (bad news, a worry, an apology…) a little
+    // lost and their answer. Taking it back undoes nothing; giving it again does nothing more.
+    'ph-heart': async (el) => {
         const g = game();
-        const m = g && social(g).threads[P.who]?.[Number(el.dataset.i)];
-        if (!g || !m || m.me)
+        const w = g && getWorld(g.world);
+        const who = P.who;
+        const m = g && social(g).threads[who]?.[Number(el.dataset.i)];
+        if (!g || !w || !m || m.me || LETTERS || !g.cast[who])
             return;
         m.heart = !m.heart;
-        if (m.heart && !m.liked) {
-            m.liked = true;
-            addBond(g, P.who, 1);
+        saveGame();
+        notify();
+        if (!m.heart || m.liked)
+            return;
+        m.liked = true;
+        m.tone ??= await heartTone(g, g.cast[who], m.text);
+        if (m.tone === 'ok') {
+            addBond(g, who, HEART.ok);
+            saveGame();
+            notify();
+            return;
+        }
+        P.typing = who;
+        notify();
+        try {
+            await heartBackfired(g, w, who, m.text);
+        }
+        catch { /* the AI may be offline: the friendship moved anyway */ }
+        P.typing = '';
+        if (!(P.open && P.app === 'thread' && P.who === who)) {
+            social(g).unread[who] = (social(g).unread[who] ?? 0) + 1;
+            toast(lex(w, 'newMessage', g.cast[who]?.name ?? ''), 'info');
         }
         saveGame();
         notify();

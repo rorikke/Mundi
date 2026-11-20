@@ -100,23 +100,6 @@
 #mundi-root .mu-pop .mu-badge { justify-self: start; }
 @media (max-width: 760px) { #mundi-root .mu-pop, #mundi-root .mu-pop.is-here { width: min(320px, calc(100% - 16px)); } }
 @media (min-width: 761px) { #mundi-root:has(.mu-phone) #mundi-toasts { right: calc(var(--ph-room) - 40px); } }
-/* Chirp */
-#mundi-root .mu-ph-compose.is-top { position: static; border-top: 0; border-bottom: 1px solid var(--line); }
-#mundi-root .mu-ch-refresh { margin: 6px auto; font-size: 13px; }
-#mundi-root .mu-ch-feed { display: grid; align-content: start; }
-#mundi-root .mu-ch-post { display: grid; grid-template-columns: 40px 1fr; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
-#mundi-root .mu-ch-post:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
-#mundi-root .mu-ch-post > img, #mundi-root .mu-ch-reply > img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-#mundi-root .mu-ch-post header { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
-#mundi-root .mu-ch-post p { margin: 2px 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
-#mundi-root .mu-ch-img { width: 100%; border-radius: 12px; margin-bottom: 6px; }
-#mundi-root .mu-ch-post footer { display: flex; gap: 22px; align-items: center; color: var(--muted); font-size: 12px; }
-#mundi-root .mu-ch-post footer > span, #mundi-root .mu-ch-like { display: inline-flex; align-items: center; gap: 5px; }
-#mundi-root .mu-ch-post footer .mu-ic { width: 16px; height: 16px; }
-#mundi-root .mu-ch-like { padding: 2px 6px; background: none !important; border: 0 !important; box-shadow: none !important; color: var(--muted); font-size: 12px; }
-#mundi-root .mu-ch-like.is-on { color: #f91880; }
-#mundi-root .mu-ch-reply { display: grid; grid-template-columns: 40px 1fr; gap: 10px; padding: 10px 14px 10px 28px; border-bottom: 1px solid var(--line); font-size: 13px; }
-#mundi-root .mu-ch-reply p { margin: 2px 0 0; }
 /* Spark */
 #mundi-root .mu-sp-card { position: relative; margin: 12px; border-radius: 18px; overflow: hidden; background: #000; flex: 1; min-height: 360px; display: flex; }
 #mundi-root .mu-sp-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

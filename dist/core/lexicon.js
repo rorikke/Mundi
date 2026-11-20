@@ -118,7 +118,10 @@ export const LEXICON = {
     homeUnwind: { modern: 'Every home has an old TV to unwind a little; better things come from {0}.', medieval: 'Every home has a hearth to sit by; better things come from {0}.' },
     deviceIntro: { modern: 'The phone in the corner holds your apps.', medieval: 'The journal in the corner holds your letters, the people you know and everything you keep track of.' },
     messagesHelp: { modern: 'Text anyone you have met. The ✎ pencil renames a contact and lets you delete messages.', medieval: 'Write to anyone you have met; a courier carries your letters. The ✎ pencil changes the name you call them and lets you throw letters away.' },
-    socialHelp: { modern: 'The social network and the dating app.', medieval: 'The notice board in the square, and the matchmaker who introduces you to people.' },
+    socialHelp: { modern: 'The dating app.', medieval: 'The matchmaker who introduces you to people.' },
+    news: { modern: 'News', medieval: 'Notices' },
+    noNews: { modern: 'No news yet.', medieval: 'Nothing pinned on the board yet.' },
+    newsHelp: { modern: 'At the top of Messages: what is on in town, what happened in the lives of the people you know, and what they post. Tap someone to open their page.', medieval: 'At the top of your letters: what is on in town, the news of the people you know, and the notices they pin on the board.' },
     // someone asks you out
     // the world around you (region news: {0} = the region)
     overheard: { modern: 'You overhear people talking: "{0}"', medieval: 'You overhear folk whispering: "{0}"' },
@@ -188,7 +191,7 @@ export const LEX_GROUPS = [
     { title: 'Adventure (RPG)', keys: ['spellNoun', 'spellsNoun', 'castBtn', 'castVerb', 'magicMenu', 'spellIcon', 'whichSpell', 'noFightSpell', 'noSpells', 'notCaster', 'learnSpells', 'spellLearned', 'cannotCast', 'youCast', 'schoolsWord', 'healer', 'seeHealer', 'atHealer', 'healerOnly', 'healerAsks', 'healerDone', 'guards', 'guardsTitle', 'guardsStop', 'resistArrest', 'mercs', 'mercAlone', 'mercLeaves', 'askTavern', 'gems', 'journey', 'journeyText', 'makeCamp', 'pushOn', 'quests', 'newQuest', 'grimoire', 'sheet', 'rollAsk', 'bill_upkeep'] },
     { title: 'The world around you', keys: ['tensionUp', 'tensionDown', 'pricesUp', 'pricesDown', 'overheard', 'heardAround'] },
     { title: 'People, plans and love', keys: ['inviteText', 'doorNobody', 'doorIn', 'doorOut', 'doorKept', 'reachThem', 'standUpHelp', 'stoodUpFallback', 'stoodUpFact', 'noneMet', 'dateNeeds', 'planTitleEg', 'matchTitle', 'profileAbout', 'nextSuitor', 'like', 'pass', 'matches', 'noMatches', 'noCandidates', 'profileStart', 'yourProfile'] },
-    { title: 'Profile and help', keys: ['profile', 'help', 'profileHelp', 'deviceIntro', 'messagesHelp', 'socialHelp', 'interviewHelp', 'noGoalYet'] },
+    { title: 'Profile and help', keys: ['profile', 'help', 'profileHelp', 'deviceIntro', 'messagesHelp', 'news', 'noNews', 'newsHelp', 'socialHelp', 'interviewHelp', 'noGoalYet'] },
 ];
 export const lexGroups = () => {
     const listed = new Set(LEX_GROUPS.flatMap(g => g.keys));

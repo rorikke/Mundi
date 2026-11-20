@@ -22,7 +22,7 @@ import { usualPay } from './needs.js';
 import { onKeepsake } from './hooks.js';
 import { sceneHere } from './homerooms.js';
 
-export interface Text { me: boolean; text: string; at: number; heart?: boolean; liked?: boolean }   // heart: you hearted their message (liked: its friendship was given)
+export interface Text { me: boolean; text: string; at: number; heart?: boolean; liked?: boolean; tone?: 'ok' | 'wrong' }   // heart: you hearted their message (liked: what it did was done; tone: how a heart lands on it, sim/texting.ts)
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
 // (photography) `shoot`: the subject of a photo brief comes to the shoot's place at the time set (sim/assignments.ts).
 export type PlanKind = 'hangout' | 'date' | 'party' | 'shoot';

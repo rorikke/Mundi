@@ -289,9 +289,11 @@ const topics = (w: WorldDef | null): Topic[] => {
         items: [
             [app('messages'), lex(w, 'messagesHelp')],
             ...(!w || systemOn(w, 'plans') ? [['Asking by text', 'Write "dinner tomorrow at 8?" and it is an invitation: they say yes or no as they would to Make plans, and a yes is in the calendar.'] as [string, string]] : []),
+            ...(modern ? [['Hearts', 'A heart on someone\'s message is a small kindness; on bad news, a worry or an apology it lands badly, and they tell you so.'] as [string, string]] : []),
             ...(!w || systemOn(w, 'busy') ? [['Busy people', 'Someone at work answers when they get a moment, someone asleep in the morning; your message shows as delivered until then.'] as [string, string]] : []),
             [app('people'), 'Everyone you know, with their bars and what they feel. A person\'s page has About (where they are, their work and week), Memories, Circle (the people in their life) and Notes (yours, and the gifts you gave).'],
-            ...(on('social') || on('dating') ? [[[on('social') ? app('social') : '', on('dating') ? app('dating') : ''].filter(Boolean).join(' and '), lex(w, 'socialHelp')] as [string, string]] : []),
+            ...(!w || systemOn(w, 'social') ? [[lex(w, 'news'), lex(w, 'newsHelp')] as [string, string]] : []),
+            ...(on('dating') ? [[app('dating'), lex(w, 'socialHelp')] as [string, string]] : []),
             [app('plans'), 'Your plans, who is with you, and parties.'],
             [app('journal'), 'A calendar of your days, with each day\'s diary and what happened.'],
             [lex(w, 'profile'), lex(w, 'profileHelp')],
