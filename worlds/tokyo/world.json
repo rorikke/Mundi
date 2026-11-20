@@ -14981,6 +14981,7 @@
    "cost": 0,
    "minutes": 20,
    "anywhere": true,
+   "keepBg": true,
    "effects": {
     "mood": 3
    },
@@ -15659,6 +15660,9 @@
     "sb_lovehotel",
     "hk_ryokan"
    ],
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif"
+   },
    "effects": {
     "mood": 10,
     "energy": 10,
@@ -15917,6 +15921,10 @@
    "cost": 11000,
    "minutes": 480,
    "place": "sb_lovehotel",
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif",
+    "yk_lovehotel_mirage": "bg/lovehotel-room.avif"
+   },
    "effects": {
     "energy": 40,
     "mood": 16,
@@ -15977,6 +15985,7 @@
    "cost": 6000,
    "minutes": 120,
    "place": "sb_lovehotel",
+   "bg": "bg/sb_lovehotel-carousel.avif",
    "when": "tier: Kaede 3; present: Kaede; companion: crush or casual",
    "dc": 9,
    "matches": [
@@ -16341,6 +16350,9 @@
    "places": [
     "sb_lovehotel"
    ],
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif"
+   },
    "private": true,
    "when": "gave: g_lace_set or g_babydoll or g_silk_boxers",
    "together": {
@@ -16399,6 +16411,9 @@
    "places": [
     "sb_lovehotel"
    ],
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif"
+   },
    "private": true,
    "when": "gave: g_blindfold",
    "together": {
@@ -16462,6 +16477,9 @@
     "sb_lovehotel",
     "hk_ryokan"
    ],
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif"
+   },
    "private": true,
    "when": "gave: g_massage_oil",
    "together": {
@@ -16521,6 +16539,9 @@
    "places": [
     "sb_lovehotel"
    ],
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif"
+   },
    "private": true,
    "when": "gave: g_maid_costume or g_nurse_costume or g_bunny_costume",
    "together": {
@@ -21090,6 +21111,7 @@
    "cost": 0,
    "minutes": 180,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 14,
     "energy": -10,
@@ -21260,6 +21282,7 @@
    "cost": 0,
    "minutes": 90,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 14,
     "energy": -8,
@@ -21322,6 +21345,7 @@
    "cost": 0,
    "minutes": 90,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 14,
     "energy": -8,
@@ -21492,6 +21516,7 @@
    "cost": 0,
    "minutes": 90,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 13,
     "energy": -8,
@@ -21547,6 +21572,7 @@
    "cost": 0,
    "minutes": 300,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 12,
     "energy": -14,
@@ -21602,6 +21628,7 @@
    "cost": 0,
    "minutes": 240,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 16,
     "energy": -12,
@@ -22858,6 +22885,7 @@
    "cost": 0,
    "minutes": 420,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 15,
     "energy": -6,
@@ -23694,6 +23722,7 @@
    "cost": 0,
    "minutes": 90,
    "place": "sb_lovehotel",
+   "bg": "bg/lovehotel-room.avif",
    "effects": {
     "mood": 14,
     "energy": -8,
@@ -24593,6 +24622,9 @@
    "places": [
     "sb_lovehotel"
    ],
+   "bgAt": {
+    "sb_lovehotel": "bg/lovehotel-room.avif"
+   },
    "when": "present: Yui; companion: crush or casual; knows: priv_yui_research",
    "tags": [
     "private",
@@ -25302,6 +25334,7 @@
    "cost": 0,
    "minutes": 30,
    "home": true,
+   "keepBg": true,
    "effects": {
     "mood": 10,
     "energy": 6,
@@ -25414,6 +25447,7 @@
    "cost": 0,
    "minutes": 30,
    "place": "sb_lovehotel",
+   "keepBg": true,
    "effects": {
     "mood": 10,
     "energy": 6,

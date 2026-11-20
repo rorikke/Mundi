@@ -92,7 +92,8 @@ const at = (x, h, m = 0) => { x.minutes = h * 60 + m; };
     ok(JSON.stringify(d) === JSON.stringify({ sb_z: 'bg/z.avif' }) && Object.getPrototypeOf(d) === Object.prototype, `bgAt: empty ids and pictures, numbers and "__proto__" dropped (${JSON.stringify(d)})`);
     ok(!('bgAt' in A('t_dirty2')) && !('bgAt' in A('t_dirty3')), 'bgAt not a map, or left empty: no key');
     ok(!('keepBg' in A('t_drink')) && !('bgAt' in A('t_drink')) && !('bgAt' in A('t_tea')), 'an action without them gets none');
-    ok(w.actions.filter(a => !a.id.startsWith('t_')).every(a => !('keepBg' in a) && !('bgAt' in a)), "Tokyo's own actions: no keepBg, no bgAt");
+    // (Tokyo's own love-hotel rooms by place and the actions keeping the room, since cast depth: as the world file has them)
+    ok(w.actions.filter(a => !a.id.startsWith('t_')).every(a => JSON.stringify([a.keepBg, a.bgAt]) === JSON.stringify([file0.get(a.id)?.keepBg, file0.get(a.id)?.bgAt])), "Tokyo's own actions: no keepBg or bgAt added, its own kept");
     ok(PR.upgradeWorld(structuredClone(w)).actions.every((a, i) => JSON.stringify(a) === JSON.stringify(w.actions[i])), 'cleaning twice changes nothing');
     done('cleaning');
 }
@@ -390,6 +391,8 @@ const at = (x, h, m = 0) => { x.minutes = h * 60 + m; };
 /* ---------- a world without the fields, exactly as before; the creator ---------- */
 {
     const raw3 = served(world(ext, 'tokyo')); raw3.id = 'tokyo-actionbg-plain';
+    // (Tokyo's own pictures by place and keepBg, since cast depth, taken out: a world without them)
+    for (const a of raw3.actions) { delete a.bgAt; delete a.keepBg; }
     const w5 = PR.upgradeWorld(raw3); W.registerWorld(w5);
     const a = w5.actions.find(x => x.place === 'sb_crossing' && !x.adult && x.minutes >= 20) ?? w5.actions.find(x => x.anywhere);
     const x = save(a.place ?? 'sb_crossing'); x.world = w5.id; at(x, 14);
