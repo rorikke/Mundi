@@ -245,7 +245,7 @@ export function developRoll(g, star = false) {
 // The sprite files each folder lists (its `sprites.json`), once loaded (loadPhotoSprites); a folder not loaded yet
 // is read as the 28 expressions in `.avif`, the built-in worlds' way.
 const SETS = new Map();
-const LABELS = ['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement',
+export const LABELS = ['admiration', 'amusement', 'anger', 'annoyance', 'approval', 'caring', 'confusion', 'curiosity', 'desire', 'disappointment', 'disapproval', 'disgust', 'embarrassment', 'excitement',
     'fear', 'gratitude', 'grief', 'joy', 'love', 'nervousness', 'neutral', 'optimism', 'pride', 'realization', 'relief', 'remorse', 'sadness', 'surprise'];
 const folderOf = (f) => f.replace(/\/*$/, '/');
 /** The sprite folders some photos need (for `loadPhotoSprites` before drawing them). */

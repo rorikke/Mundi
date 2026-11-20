@@ -46,7 +46,7 @@ const actHere = (g, w, id) => actionsHere(g, w).find(a => a.id === id);
 const LOOKS = ['phone', 'digital', 'film', 'instant'];
 const loading = new Set();
 // Reads the sprite lists the photos need (once), then draws again with the expressions each set really has.
-function wantSprites(w, recs) {
+export function wantSprites(w, recs) {
     const folders = photoSpriteFolders(w, recs).filter(f => !loading.has(f));
     if (!folders.length)
         return;

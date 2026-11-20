@@ -7,7 +7,8 @@ import { needsOf } from './intimacy.js';
 import { scriptText } from '../core/safe.js';
 import { nowAbs, settings, saveSettings, adultOn } from '../core/store.js';
 import { socialKind, aiVoice, systemOn } from '../core/world.js';
-import { ctx, charOf, personaName, sayLine } from '../st/bridge.js';
+import { ctx, charOf, personaName, sayLine, quiet } from '../st/bridge.js';
+import { exampleOf } from './dayplan.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
@@ -124,18 +125,78 @@ export const KINK_WORDS = ['rope', 'tied', 'tied up', 'shibari', 'bondage', 'cuf
 export const appInterests = (g, w) => { const t = w.sheet.traits?.find(x => x.id === 'interests'); return t ? groupOptions(g, t) : []; };
 // The world's adult interest named Kink, with adult content on.
 export const kinkInterest = (g, w) => (adultOn(g) ? appInterests(g, w).find(o => /kink/i.test(o) && !(w.sheet.traits?.find(x => x.id === 'interests')?.options ?? []).includes(o)) ?? '' : '');
-// Her profile on the app: who she is, what she looks for and a few interests.
+/** The questions a profile can answer (DatingCard.prompts' `q`, word for word: the interface translates them). */
+export const DATING_PROMPTS = ['My ideal Sunday', 'A perfect first date', "I'm looking for someone who", 'The way to win me over', 'My most unpopular opinion',
+    "I'll know it's going well when", 'Two truths and a lie', "Don't hate me if I", 'My simple pleasures', 'I get way too excited about', 'Typical Friday night', 'Green flags'];
+// What the AI wrote for someone the world has no profile for (card people, newcomers): kept in the save, so it's
+// written once. `failed`: asked this session and it didn't answer (asked again next session).
+const writtenOf = (g) => (dating(g).written ??= {});
+const failed = new Set(), writing = new Set();
+const cleanPrompts = (list) => (Array.isArray(list) ? list : [])
+    .filter((p) => p && DATING_PROMPTS.includes(p.q) && String(p.a ?? '').trim()).map((p) => ({ q: p.q, a: String(p.a).trim() })).slice(0, 3);
+// Her profile on the app: what she looks for, a few interests, and what she wrote: the world's own words for her, else
+// what the AI wrote (empty until it has: `pending` while nothing is written and it can still be asked), and her age.
 export function theirProfile(g, w, r) {
     const h = hash(r.avatar);
     const interests = (w.sheet.traits?.find(t => t.id === 'interests')?.options ?? []);
     const own = [interests[h % interests.length], interests[(h >> 3) % interests.length]].filter((x, i, a) => x && a.indexOf(x) === i);
     const kink = kinkInterest(g, w);
+    const ex = exampleOf(w, r), card = ex?.dating, kept = writtenOf(g)[r.avatar];
+    const bio = String(card?.bio ?? kept?.bio ?? '').trim();
     return {
         looking: lookingOf(g, r.avatar),
         interests: kink && likesOf(g, r.avatar).some(l => wordsIn(g, KINK_WORDS, l)) ? [...own, kink] : own,
-        bio: about(r).split(/(?<=[.!?])\s/).slice(0, 2).join(' '),
+        bio, prompts: cleanPrompts(card?.prompts ?? kept?.prompts),
+        age: relOf(g).people[idOf(g, r.avatar)]?.age ?? ex?.age, // (a save's own, else the world's)
+        pending: !bio && !failed.has(r.avatar),
         onApp: h % 10 < 8,
     };
+}
+// Asks the AI once for the profile of someone the world wrote none for, in their own words (a matchmaker's in a world
+// with notice boards instead of a feed). True when something was written.
+export async function writeProfile(g, w, r) {
+    if (exampleOf(w, r)?.dating?.bio || writtenOf(g)[r.avatar] || failed.has(r.avatar) || writing.has(r.avatar))
+        return false;
+    writing.add(r.avatar);
+    const old = socialKind(w) === 'board';
+    const prompt = old
+        ? `${r.name}: ${about(r)}\n\nIn ${w.name}, a matchmaker introduces people. Write what the matchmaker tells someone about ${r.name}: two or three warm, slightly gossipy sentences in ${aiLangName(g.lang)}, ${aiVoice(w)}, with one telling detail and what ${r.name} hopes for. Not a record: no surname, age or trade. Nothing ${r.name} keeps secret.\n\nReply with one line:\nBIO: <the words>`
+        : `${r.name}: ${about(r)}\n\nWrite ${r.name}'s profile on a dating app, as ${r.name} would really write it: in their own voice, in ${aiLangName(g.lang)}, one to three sentences, concrete and specific, in their own style (lowercase, emoji, dry, terse or chatty, as fits them). Never their surname, age, job title or workplace by name, never their looks, nothing they keep secret, no dating-app clichés. Then answer one or two of these questions in their voice, each under 15 words: ${DATING_PROMPTS.join('; ')}.\n\nReply in exactly this format, nothing else:\nBIO: <the bio>\nQ: <a question, word for word>\nA: <the answer>`;
+    try {
+        const out = await quiet(prompt, 300, 'You write short in-character text in the exact format asked, nothing else.');
+        const line = (k) => out.split('\n').map(l => l.trim()).filter(l => l.toUpperCase().startsWith(`${k}:`)).map(l => l.slice(k.length + 1).trim().replace(/^["“]|["”]$/g, ''));
+        const bio = line('BIO')[0]?.slice(0, 400) ?? '';
+        if (!bio) {
+            failed.add(r.avatar);
+            return false;
+        }
+        const qs = line('Q'), as = line('A');
+        writtenOf(g)[r.avatar] = { bio, prompts: old ? [] : cleanPrompts(qs.map((q, i) => ({ q: DATING_PROMPTS.find(p => p.toLowerCase() === q.toLowerCase().replace(/[:?.]+$/, '')) ?? '', a: (as[i] ?? '').slice(0, 160) }))) };
+        return true;
+    }
+    catch {
+        failed.add(r.avatar);
+        return false;
+    }
+    finally {
+        writing.delete(r.avatar);
+    }
+}
+/** The photos on someone's profile, as Lens records (ui/photoui.ts draws them): the world's DatingCard photos whose
+ *  place and outfit exist (an adult outfit only with adult content on); none without sprites (the portrait then). */
+export function profilePhotos(g, w, r) {
+    const ex = exampleOf(w, r);
+    if (!ex?.sprites)
+        return [];
+    return (ex.dating?.photos ?? []).filter(p => {
+        if (!w.places.some(x => x.id === p.place))
+            return false;
+        if (!p.outfit)
+            return true;
+        const wear = ex.wear?.[p.outfit];
+        return p.outfit !== 'naked' && !!ex.outfits?.[p.outfit] && (adultOn(g) || !(wear?.adult || (wear?.level ?? 1) >= 4));
+    }).slice(0, 6).map((p, i) => ({ id: -1 - i, day: g.day, min: 0, src: 'spot', place: p.place, slot: p.slot ?? 'day', looks: [], who: [{ name: ex.name, expr: p.expr || 'joy', ...(p.outfit ? { outfit: p.outfit } : {}) }],
+        frame: [50, 40, 1], look: 'phone', cap: '' }));
 }
 // The genders the app shows you: the ones you chose on your profile, else the ones you're drawn to.
 function shows(g, d, r) {

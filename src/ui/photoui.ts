@@ -51,7 +51,7 @@ const actHere = (g: Save, w: WorldDef, id: string) => actionsHere(g, w).find(a =
 const LOOKS = ['phone', 'digital', 'film', 'instant'];
 const loading = new Set<string>();
 // Reads the sprite lists the photos need (once), then draws again with the expressions each set really has.
-function wantSprites(w: WorldDef, recs: PhotoRec[]) {
+export function wantSprites(w: WorldDef, recs: PhotoRec[]) {
     const folders = photoSpriteFolders(w, recs).filter(f => !loading.has(f));
     if (!folders.length) return;
     folders.forEach(f => loading.add(f));

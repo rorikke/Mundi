@@ -3,6 +3,8 @@
 // JSON file in SillyTavern's user files. Inputs bind to the draft by path: data-path="statuses.2.name".
 import { TIME_SLOTS } from '../sim/daynight.js';
 import { WEATHER_KINDS } from '../sim/weather.js';
+import { DATING_PROMPTS } from '../sim/feed.js';
+import { LABELS } from '../sim/photo.js';
 import { safeUrl } from '../core/safe.js';
 import { money } from '../sim/needs.js';
 import { DEFAULT_EXPENSES } from '../sim/bills.js';
@@ -3076,6 +3078,26 @@ function wearBox(p: string, e: WorldDef['cast']['examples'][number]) {
         ${names.map(o => `<div class="mu-cw-feel"><b data-notr>${esc(o)}</b><div class="mu-row2">${optTxt('Kind (empty: none)', `${p}.wear.${o}.kind`, 'swim')}${bounded('How bold (1 modest, 2 everyday, 3 bold, 4 explicit)', `${p}.wear.${o}.level`, 1, 4)}</div>
             <div class="mu-row2">${optTxt('What it is, for the AI', `${p}.wear.${o}.look`, 'a black string bikini')}${flag('Only with adult content on', `${p}.wear.${o}.adult`, 'Explicit ones (4) always are.', true)}</div>${folder(o)}</div>`).join('')}</details>`;
 }
+// Their profile on the dating app: what they wrote, the app's questions they answered, and their photos (a place's
+// picture with one of their sprites on it; only with sprites).
+function datingEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][number]) {
+    const d = e.dating ?? {}, prompts = d.prompts ?? [], photos = d.photos ?? [];
+    const qs: [string, string][] = DATING_PROMPTS.map(q => [q, q]);
+    const exprs: [string, string][] = [['', 'Joy (the default)'], ...LABELS.map(l => [l, l.charAt(0).toUpperCase() + l.slice(1)] as [string, string])];
+    const outfits: [string, string][] = [['', 'Their usual clothes'], ...Object.keys(e.outfits ?? {}).filter(o => o !== 'naked').map(o => [o, o] as [string, string])];
+    const slots: [string, string][] = [['', 'Day'], ['afternoon', 'Afternoon'], ['night', 'Night']];
+    const del = (q: string) => `<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button>`;
+    return `<details class="mu-cw-kept" ${e.dating ? 'open' : ''}><summary>On the dating app · ${photos.length} photos</summary>
+        <small class="mu-muted">What they put up, in their own words: no surname, job or age (the app shows the age). In a world with a matchmaker, the matchmaker's word about them. Empty: the AI writes one the first time they're shown.</small>
+        ${optArea('What they wrote', `${p}.dating.bio`, 3, 'night owl · i draw strangers on the train · friday is karaoke')}
+        ${prompts.map((_x, k) => { const q = `${p}.dating.prompts.${k}`; return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('A question', `${q}.q`, withCur(qs, prompts[k]?.q))}<span class="mu-cw-spacer"></span>${del(q)}</div>${txt('Their answer', `${q}.a`)}</div>`; }).join('')}
+        ${prompts.length < 3 ? `<button class="mu-ghost" data-act="cw-add" data-what="dprompt" data-path="${esc(`${p}.dating.prompts`)}">${icon('plus')}<span>Answer a question</span></button>` : ''}
+        ${e.sprites || photos.length ? `${photos.map((_x, k) => { const q = `${p}.dating.photos.${k}`; return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline"><b class="mu-cw-stepno">${k + 1}</b><span class="mu-cw-spacer"></span>${del(q)}</div>
+            <div class="mu-row2">${sel('Where', `${q}.place`, withCur(placeOpts(w), photos[k]?.place))}${sel('Time of day', `${q}.slot`, slots, 'opt')}</div>
+            <div class="mu-row2">${sel('Expression (the nearest their set has)', `${q}.expr`, withCur(exprs, photos[k]?.expr), 'opt')}${sel('Wearing', `${q}.outfit`, withCur(outfits, photos[k]?.outfit), 'opt')}</div></div>`; }).join('')}
+        ${photos.length < 6 ? `<button class="mu-ghost" data-act="cw-add" data-what="dphoto" data-path="${esc(`${p}.dating.photos`)}">${icon('plus')}<span>Add a photo</span></button>` : ''}
+        <small class="mu-muted">The first photo is the main one. Without photos, their portrait.</small>` : ''}</details>`;
+}
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
 const EVERY: [string, string][] = [['', 'Every week'], ['2', 'Every 2 weeks'], ['3', 'Every 3 weeks'], ['4', 'Every 4 weeks'], ['month', 'Once a month'], ['year', 'Once a year']];
@@ -3277,6 +3299,7 @@ function peopleEditor(w: WorldDef) {
                 <h4>Their ways</h4><p class="mu-muted">Where every game of this world starts from (a card's own Mundi settings come first). Unset: the defaults.</p>
                 ${personPanel('cw', String(i), ['attraction', 'pace', 'ways'])}
                 ${personMore(w, p, e)}
+                ${datingEditor(w, p, e)}
                 ${doorEditor(p, e)}
                 ${caughtEditor(w, p, e)}
                 ${tiersEditor(w, p, e)}
@@ -3650,6 +3673,12 @@ Object.assign(ACT, {
             CW.dirty = true; notify(); return;
         }
         if (what === 'step') { (getPath(el.dataset.path!) as any[]).push([12, 'leisure']); CW.dirty = true; notify(); return; }
+        if (what === 'dprompt' || what === 'dphoto') {
+            const list = (getPath(el.dataset.path!) ?? (setPath(el.dataset.path!, []), getPath(el.dataset.path!))) as any[];
+            const used = new Set(list.map((x: any) => x?.q));
+            list.push(what === 'dprompt' ? { q: DATING_PROMPTS.find(q => !used.has(q)) ?? DATING_PROMPTS[0], a: '' } : { place: list[list.length - 1]?.place ?? placeOpts(w)[0]?.[0] ?? '' });
+            CW.dirty = true; notify(); return;
+        }
         if (what === 'cskill') {
             const c = ((w.catalogs as any).courses ?? [])[Number(el.dataset.i)]; if (!c) return;
             const free = skillOpts(w).find(([id]) => !own(c.skills, id)); if (!free) return;

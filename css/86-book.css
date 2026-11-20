@@ -142,8 +142,10 @@
     background: rgba(255, 248, 228, .7) !important; color: #3a2817 !important; border: 1px solid #b48d52 !important; box-shadow: none !important; text-shadow: none !important; border-radius: 999px;
 }
 #mundi-root .mu-book .mu-chip.is-on, #mundi-root .mu-book .mu-chip.is-on:hover:not(:disabled) { background: linear-gradient(180deg, #a03a2a, #7a2418) !important; color: #f6d98f !important; border-color: #4a120c !important; }
-#mundi-root .mu-book .mu-sp-card { background: rgba(255, 248, 228, .6); border: 1px solid var(--line); }
-#mundi-root .mu-book .mu-sp-info, #mundi-root .mu-book .mu-sp-info h3 { color: var(--fg); }
+#mundi-root .mu-book .mu-sp-hero { background: rgba(255, 248, 228, .6); border: 1px solid var(--line); border-radius: 6px; }
+#mundi-root .mu-book .mu-sp-bio, #mundi-root .mu-book .mu-sp-prompt { background: rgba(255, 248, 228, .6); border: 1px solid var(--line); border-radius: 6px; }
+#mundi-root .mu-book .mu-sp-bio p { font-style: italic; }
+#mundi-root .mu-book .mu-sp-btns { background: none; }
 
 
 /* the matchmaker's news: a sealed note, not the modern app's pink screen */

@@ -101,15 +101,31 @@
 @media (max-width: 760px) { #mundi-root .mu-pop, #mundi-root .mu-pop.is-here { width: min(320px, calc(100% - 16px)); } }
 @media (min-width: 761px) { #mundi-root:has(.mu-phone) #mundi-toasts { right: calc(var(--ph-room) - 40px); } }
 /* Spark */
-#mundi-root .mu-sp-card { position: relative; margin: 12px; border-radius: 18px; overflow: hidden; background: #000; flex: 1; min-height: 360px; display: flex; }
-#mundi-root .mu-sp-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-#mundi-root .mu-sp-info { position: relative; margin-top: auto; width: 100%; padding: 60px 16px 16px; background: linear-gradient(transparent, rgba(0, 0, 0, .85)); color: #fff; display: grid; gap: 6px; }
-#mundi-root .mu-sp-info h3 { color: #fff; font-size: 22px; }
+/* a profile read top to bottom: the first picture with name and age, the bio, the other pictures between the answers */
+#mundi-root .mu-sp-card { margin: 12px 12px 0; display: grid; gap: 10px; flex: none; }
+#mundi-root .mu-sp-hero { position: relative; border-radius: 18px; overflow: hidden; background: #000; aspect-ratio: 4 / 5; display: flex; }
+#mundi-root .mu-sp-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#mundi-root .mu-sp-card .mu-lens-pic { aspect-ratio: 4 / 5; border-radius: 18px; }
+#mundi-root .mu-sp-hero > .mu-lens-pic { position: absolute; inset: 0; height: 100%; }
+#mundi-root .mu-sp-card .mu-lens-spr { height: 90%; max-width: 100%; }
+#mundi-root .mu-sp-info { position: relative; margin-top: auto; width: 100%; padding: 70px 16px 14px; background: linear-gradient(transparent, rgba(0, 0, 0, .8)); color: #fff; display: grid; gap: 4px; }
+#mundi-root .mu-sp-info h3 { color: #fff; font-size: 24px; margin: 0; }
+#mundi-root .mu-sp-age { font-weight: 400; }
 #mundi-root .mu-sp-info small { color: #ffd1da; font-weight: 700; }
-#mundi-root .mu-sp-info p { font-size: 13px; color: #eee; }
-#mundi-root .mu-sp-info .mu-chip { background: rgba(255, 255, 255, .15); border: 1px solid rgba(255, 255, 255, .3); color: #fff; padding: 3px 10px; font-size: 12px; }
-#mundi-root .mu-sp-info .mu-chip.is-on { background: #ff4f6d; border-color: #ff4f6d; }
-#mundi-root .mu-sp-btns { display: flex; justify-content: center; gap: 28px; padding: 4px 0 16px; }
+#mundi-root .mu-sp-count { position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 99px; background: rgba(0, 0, 0, .45); color: #fff; font-size: 12px; }
+#mundi-root .mu-sp-count .mu-ic { width: 14px; height: 14px; }
+#mundi-root .mu-sp-bio, #mundi-root .mu-sp-prompt { padding: 14px 16px; border-radius: 16px; background: var(--bg2); }
+#mundi-root .mu-sp-bio p { margin: 0; font-size: 15px; line-height: 1.45; white-space: pre-line; }
+#mundi-root .mu-sp-bio small, #mundi-root .mu-sp-prompt small { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 700; opacity: .7; }
+#mundi-root .mu-sp-prompt p { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 600; }
+#mundi-root .mu-sp-bio.is-pending { display: flex; gap: 5px; padding: 18px 16px; }
+#mundi-root .mu-sp-bio.is-pending i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .3; animation: mu-sp-dot 1.2s infinite; }
+#mundi-root .mu-sp-bio.is-pending i:nth-child(2) { animation-delay: .2s; } #mundi-root .mu-sp-bio.is-pending i:nth-child(3) { animation-delay: .4s; }
+@keyframes mu-sp-dot { 40% { opacity: .9; } }
+#mundi-root .mu-sp-likes { display: grid; gap: 6px; padding: 2px 4px; }
+#mundi-root .mu-sp-likes .mu-chip { padding: 3px 10px; font-size: 12px; background: var(--bg2); border: 1px solid var(--line); }
+#mundi-root .mu-sp-likes .mu-chip.is-on { background: #ff4f6d; border-color: #ff4f6d; color: #fff; }
+#mundi-root .mu-sp-btns { position: sticky; bottom: 0; display: flex; justify-content: center; gap: 28px; padding: 14px 0 16px; margin-top: auto; background: linear-gradient(transparent, var(--bg) 40%); }
 #mundi-root .mu-sp-btns button { width: 64px; height: 64px; border-radius: 50% !important; padding: 0; background: var(--bg2); box-shadow: 0 4px 14px rgba(0, 0, 0, .3); }
 #mundi-root .mu-sp-btns .mu-ic { width: 30px; height: 30px; }
 #mundi-root .mu-sp-no { color: #ff6b6b; } #mundi-root .mu-sp-yes { color: #2ed47a; }
