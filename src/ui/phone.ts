@@ -472,8 +472,15 @@ function sortedOpenings(g: Save, w: WorldDef, list: Occupation[]): Occupation[] 
     return list.map(job => ({ job, o: on(job) })).sort((x, y) => cmp(x.o, y.o)).map(x => x.job);
 }
 const jobSortChips = () => `<div class="mu-chips mu-jobs-sort"><small class="mu-muted">Sort by</small>${JOB_SORTS.map(([id, name]) => `<button class="mu-chip ${JF.sort === id ? 'is-on' : ''}" data-act="ph-jobs-sort" data-id="${esc(id)}">${esc(name)}</button>`).join('')}</div>`;
+// Jobs in two views while you have a job: Your job (rank, pay, performance, promotion, your week) and Openings (the
+// list, sorted as you pick). It opens on Your job, and on Openings again once you quit or before you're hired; a job
+// taken or left (however: the list, a pick of track, the scene) starts it over.
+const JV = { tab: '' as '' | 'mine' | 'openings', job: undefined as string | undefined };
 function jobsApp(g: Save, w: WorldDef) {
     const j = g.player.job; const mine = myJob(g, w);   // the job you hold, on your track
+    if (JV.job !== j?.id) { JV.job = j?.id; JV.tab = ''; }
+    const view = mine && j ? (JV.tab || 'mine') : 'openings';
+    const openings = openJobs(g, w).filter(o => o.id !== j?.id);
     const p = mine && j ? promoNeeds(g, w, mine) : null;
     const where = (o: Occupation) => (offScreen(w, o) ? 'off-screen' : placeOf(g, w, mine && o.id === mine.id ? jobPlace(g, o) : o.place)?.name ?? '');
     const sched = systemOn(w, 'jobs');
@@ -481,8 +488,10 @@ function jobsApp(g: Save, w: WorldDef) {
     const track = mine?.track !== undefined ? mine.trackName ?? trackName(w, mine, mine.track) : '';
     const wait = j && (j as any).start > g.day ? (j as any).start - g.day : 0;
     const free = !!mine && isFreelance(g, w);   // (photography) a freelancer works brief by brief: no shifts, a retainer
-    return `${hd('jobs')}<div class="mu-ph-body">
-        ${mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
+    const tabs = mine && j ? `<nav class="mu-pf-tabs mu-jb-tabs"><button class="${view === 'mine' ? 'is-on' : ''}" data-act="ph-jobs-view" data-v="mine" aria-pressed="${view === 'mine'}">${T('yourJob')}</button>
+        <button class="${view === 'openings' ? 'is-on' : ''}" data-act="ph-jobs-view" data-v="openings" aria-pressed="${view === 'openings'}">${T('openings')} <small>${openings.length}</small></button></nav>` : '';
+    return `${hd('jobs')}<div class="mu-ph-body">${tabs}
+        ${view !== 'mine' ? '' : mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
             <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
             ${free ? `<small>Your briefs are in Lens.</small>${appsShown(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
             ${wait ? `<small class="mu-good">Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.</small>` : ''}
@@ -492,10 +501,10 @@ function jobsApp(g: Save, w: WorldDef) {
             ${jobCourseHtml(g, w, mine.id)}
             ${likes(g, mine).length ? `<small>Your traits help: ${esc(likes(g, mine).join(', '))}</small>` : ''}
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
-            ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
-        <h4>${T('openings')}</h4>
-        ${openJobs(g, w).filter(o => o.id !== j?.id).length > 1 ? jobSortChips() : ''}
-        <div class="mu-ph-jobs">${sortedOpenings(g, w, openJobs(g, w).filter(o => o.id !== j?.id)).map(job => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
+            ${workWeekHtml(g, w)}` : ''}
+        ${view !== 'openings' ? '' : `${mine && j ? '' : `<p class="mu-muted">${T('noJob')}</p><h4>${T('openings')}</h4>`}
+        ${openings.length > 1 ? jobSortChips() : ''}
+        <div class="mu-ph-jobs">${sortedOpenings(g, w, openings).map(job => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
             return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}</small>
             ${picks.length > 1 ? `<small>${esc(picks.length === 2 ? 'Two tracks' : `${picks.length} tracks`)}: ${esc(picks.map(t => trackName(w, job, t)).join(' or '))} (you choose when hired)</small>` : o.track !== undefined && o.trackName ? `<small>Your track: ${esc(o.trackName)}</small>` : ''}
             ${fee ? `<small>A fee of ${money(w, fee)} when you start</small>` : ''}${days ? `<small>First shift ${days} ${days === 1 ? 'day' : 'days'} after signing</small>` : ''}
@@ -503,7 +512,7 @@ function jobsApp(g: Save, w: WorldDef) {
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
             ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}${interviewChance(g, o, traitsOf(g)) ? `<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id, o, traitsOf(g)) ? ` · try again ${retryText(g, o.id, o, traitsOf(g))}` : ''}</small>` : '<small class="mu-bad">Interview: out of your reach for now</small>'}`}</span>
-            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}</div>
+            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}</div>`}
     </div>`;
 }
 
@@ -598,6 +607,7 @@ Object.assign(ACT, {
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
     'ph-people-filter': (el) => { PEOPLE.filter = (el.dataset.v as PeopleFilter) || 'all'; notify(); },
     'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
+    'ph-jobs-view': (el) => { JV.tab = el.dataset.v === 'openings' ? 'openings' : 'mine'; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
     'ph-open-bills': () => { const g = game(); const w = g && getWorld(g.world); P.open = true; P.app = w ? billsApp(w) : 'homes'; notify(); },   // (the HUD's "Locked out")
     'ph-open-campus': () => { P.open = true; P.app = 'campus'; notify(); },
