@@ -5367,6 +5367,7 @@
  "festivals": [
   {
    "id": "spring",
+   "icon": "🌷",
    "name": "Spring Street Fair",
    "season": "spring",
    "day": 7,
@@ -5378,6 +5379,7 @@
   },
   {
    "id": "summer",
+   "icon": "🏖️",
    "name": "Summer Beach Festival",
    "season": "summer",
    "day": 10,
@@ -5389,6 +5391,7 @@
   },
   {
    "id": "halloween",
+   "icon": "🎃",
    "name": "Halloween Night",
    "season": "autumn",
    "day": 12,
@@ -5400,6 +5403,7 @@
   },
   {
    "id": "newyear",
+   "icon": "🎆",
    "name": "New Year's Eve",
    "season": "winter",
    "day": 14,
@@ -5411,6 +5415,7 @@
   },
   {
    "id": "harvest",
+   "icon": "🌾",
    "name": "Green Valley Harvest Fair",
    "season": "autumn",
    "day": 5,
@@ -5422,6 +5427,7 @@
   },
   {
    "id": "snowfest",
+   "icon": "❄️",
    "name": "Pinecrest Snow Festival",
    "season": "winter",
    "day": 6,
@@ -5433,6 +5439,7 @@
   },
   {
    "id": "arenashow",
+   "icon": "🎤",
    "name": "Palm Coast Arena Concert",
    "season": "summer",
    "day": 3,
@@ -5444,6 +5451,7 @@
   },
   {
    "id": "blockparty",
+   "icon": "🎈",
    "name": "Maple Heights Block Party",
    "season": "spring",
    "day": 12,
@@ -5455,6 +5463,7 @@
   },
   {
    "id": "artwalk",
+   "icon": "🎨",
    "name": "Midtown Art Walk",
    "season": "autumn",
    "day": 11,

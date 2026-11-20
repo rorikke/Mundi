@@ -1118,7 +1118,7 @@ function tabCustoms(w) {
     return `<div class="mu-cw-grid">
         <section class="mu-cw-sec"><h4>Festivals</h4>${master('festival', 'festivals', f => `<b>${esc(f.name)}</b><small>${esc(f.season)} ${f.day}</small>`, i => {
         const p = `festivals.${i}`;
-        return `${txt('Name', `${p}.name`)}${txt('What it is like (told to the AI)', `${p}.desc`)}
+        return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon', `${p}.icon`, '🎊')}</div>${txt('What it is like (told to the AI)', `${p}.desc`)}
                 <div class="mu-row2">${sel('Season', `${p}.season`, seasons)}${num('Day of the season', `${p}.day`, 1)}</div>
                 <div class="mu-row2">${num('Lasts (days)', `${p}.days`, 1)}${sel('People gather at', `${p}.place`, [['', '(nowhere in particular)'], ...places])}</div>
                 <div class="mu-row2">${num('Prices ×', `${p}.prices`, 0, 0.05)}${num('Mood when you celebrate', `${p}.mood`, 0)}</div>

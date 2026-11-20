@@ -24,7 +24,7 @@ import { museumTab, dealerTab, salesTab, hereTab, hereHasAny, howItCame, whereWo
 
 /** In memory only: the hall shown, the groups opened, and the day the app was last opened before now (a slot filled
  *  since is marked as just in). */
-export const CL = { hall: '', open: new Set<string>(), since: -1, game: '' };
+export const CL = { hall: '', open: new Set<string>(), since: -1, game: '', seeded: '' };   // seeded: the hall whose first group was opened on arrival
 
 const n = (x: number) => String(Math.round(x));
 const plural = (k: number, one: string, many: string) => (k === 1 ? one : many.replace('{0}', n(k)));
@@ -157,14 +157,15 @@ export function collectionApp(g: Save, w: WorldDef, head: string): string {
     if (!collectionOn(w)) return `${head}<div class="mu-ph-body mu-cl"><p class="mu-muted">Nothing to collect in this world.</p></div>`;
     if (CL.game !== g.world + '|' + (g as any).seed) {
         // a game seen for the first time here: back to the first hall, the first group open, the last visit remembered
-        CL.game = g.world + '|' + (g as any).seed; CL.hall = ''; CL.open = new Set(); CL.since = collectionOf(g)?.seen ?? -1;
+        CL.game = g.world + '|' + (g as any).seed; CL.hall = ''; CL.open = new Set(); CL.seeded = ''; CL.since = collectionOf(g)?.seen ?? -1;
     }
     const halls = recordView(g, w), extra = extraTabs(g, w);
     if (!halls.length && !extra.length) return `${head}<div class="mu-ph-body mu-cl"><p class="mu-muted">Nothing to collect yet.</p></div>`;
     const ids = [...extra.map(t => t.id), ...halls.map(h => h.id)];
     if (!ids.includes(CL.hall)) CL.hall = firstTab(g, w, extra, halls);
     const h = halls.find(x => x.id === CL.hall);
-    if (h && !CL.open.size && h.groups[0]) CL.open.add(`${h.id}/${h.groups[0].id}`);
+    // arriving at a hall opens its first group, once: closing every group afterwards leaves them closed
+    if (h && CL.seeded !== h.id) { CL.seeded = h.id; if (!CL.open.size && h.groups[0]) CL.open.add(`${h.id}/${h.groups[0].id}`); }
     const tab = (id: string, name: string, icon: string | undefined, notr: boolean) => `<button class="${id === CL.hall ? 'is-on' : ''}" data-act="cl-hall" data-v="${esc(id)}" aria-pressed="${id === CL.hall}"><i aria-hidden="true">${esc(icon ?? '')}</i><span${notr ? ' data-notr' : ''}>${esc(name)}</span></button>`;
     const tabs = ids.length > 1
         ? `<nav class="mu-cl-tabs" data-keep="cl-tabs">${extra.map(t => tab(t.id, t.name, t.icon, false)).join('')}${extra.length && halls.length ? '<span class="mu-cl-tabsep" aria-hidden="true"></span>' : ''}${halls.map(x => tab(x.id, x.name, x.icon, true)).join('')}</nav>`
@@ -182,6 +183,6 @@ export function openCollection(g: Save, w: WorldDef) {
 }
 
 Object.assign(ACT, {
-    'cl-hall': (el) => { CL.hall = el.dataset.v ?? ''; CL.open = new Set(); notify(); },
+    'cl-hall': (el) => { CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; notify(); },
     'cl-fold': (el) => { const k = el.dataset.v ?? ''; if (CL.open.has(k)) CL.open.delete(k); else CL.open.add(k); notify(); },
 });

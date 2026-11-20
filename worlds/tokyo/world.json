@@ -31828,6 +31828,7 @@
  "festivals": [
   {
    "id": "whiteday",
+   "icon": "🍬",
    "name": "White Day",
    "season": "spring",
    "day": 3,
@@ -31840,6 +31841,7 @@
   },
   {
    "id": "hanami",
+   "icon": "🌸",
    "name": "Cherry blossoms",
    "season": "spring",
    "day": 4,
@@ -31867,6 +31869,7 @@
   },
   {
    "id": "newyear_fiscal",
+   "icon": "🏢",
    "name": "Start of the work year",
    "season": "spring",
    "day": 5,
@@ -31879,6 +31882,7 @@
   },
   {
    "id": "goldenweek",
+   "icon": "🎏",
    "name": "Golden Week",
    "season": "spring",
    "day": 9,
@@ -31893,6 +31897,7 @@
   },
   {
    "id": "sanja",
+   "icon": "⛩️",
    "name": "Sanja Matsuri",
    "season": "spring",
    "day": 13,
@@ -31908,6 +31913,7 @@
   },
   {
    "id": "noge_daidogei",
+   "icon": "🤹",
    "name": "Noge street performers' festival",
    "season": "spring",
    "day": 6,
@@ -31936,6 +31942,7 @@
   },
   {
    "id": "pride",
+   "icon": "🏳️‍🌈",
    "name": "Pride week",
    "season": "summer",
    "day": 7,
@@ -31952,6 +31959,7 @@
   },
   {
    "id": "tanabata",
+   "icon": "🎋",
    "name": "Tanabata",
    "season": "summer",
    "day": 5,
@@ -31971,6 +31979,7 @@
   },
   {
    "id": "fireworks",
+   "icon": "🎆",
    "name": "Sumida River Fireworks",
    "season": "summer",
    "day": 6,
@@ -31990,6 +31999,7 @@
   },
   {
    "id": "ramen_contest",
+   "icon": "🍜",
    "name": "Tokyo ramen contest",
    "season": "summer",
    "day": 10,
@@ -32009,6 +32019,7 @@
   },
   {
    "id": "bon",
+   "icon": "🏮",
    "name": "Bon Odori",
    "season": "summer",
    "day": 10,
@@ -32027,6 +32038,7 @@
   },
   {
    "id": "noryo",
+   "icon": "🍧",
    "name": "Azabu-Jūban summer festival",
    "season": "summer",
    "day": 12,
@@ -32041,6 +32053,7 @@
   },
   {
    "id": "fancon",
+   "icon": "🎨",
    "name": "Summer fan convention",
    "season": "summer",
    "day": 13,
@@ -32062,6 +32075,7 @@
   },
   {
    "id": "awaodori",
+   "icon": "💃",
    "name": "Kōenji Awa Odori",
    "season": "summer",
    "day": 13,
@@ -32081,6 +32095,7 @@
   },
   {
    "id": "tsukimi",
+   "icon": "🎑",
    "name": "Moon viewing",
    "season": "autumn",
    "day": 3,
@@ -32104,6 +32119,7 @@
   },
   {
    "id": "halloween",
+   "icon": "🎃",
    "name": "Halloween",
    "season": "autumn",
    "day": 9,
@@ -32118,6 +32134,7 @@
   },
   {
    "id": "bookfair",
+   "icon": "📚",
    "name": "Used-book festival",
    "season": "autumn",
    "day": 8,
@@ -32134,6 +32151,7 @@
   },
   {
    "id": "unifest",
+   "icon": "🎓",
    "name": "University festivals",
    "season": "autumn",
    "day": 10,
@@ -32163,6 +32181,7 @@
   },
   {
    "id": "koyo",
+   "icon": "🍁",
    "name": "Autumn leaves",
    "season": "autumn",
    "day": 11,
@@ -32179,6 +32198,7 @@
   },
   {
    "id": "illumination",
+   "icon": "✨",
    "name": "Winter illuminations",
    "season": "winter",
    "day": 1,
@@ -32194,6 +32214,7 @@
   },
   {
    "id": "bonenkai",
+   "icon": "🍻",
    "name": "Year-end parties",
    "season": "winter",
    "day": 2,
@@ -32212,6 +32233,7 @@
   },
   {
    "id": "yearend_market",
+   "icon": "🛍️",
    "name": "Year-end market rush",
    "season": "winter",
    "day": 3,
@@ -32228,6 +32250,7 @@
   },
   {
    "id": "christmas",
+   "icon": "🎄",
    "name": "Christmas Eve",
    "season": "winter",
    "day": 4,
@@ -32245,6 +32268,7 @@
   },
   {
    "id": "omisoka",
+   "icon": "🔔",
    "name": "New Year's Eve",
    "season": "winter",
    "day": 5,
@@ -32265,6 +32289,7 @@
   },
   {
    "id": "hatsumode",
+   "icon": "⛩️",
    "name": "New Year's shrine visit",
    "season": "winter",
    "day": 6,
@@ -32285,6 +32310,7 @@
   },
   {
    "id": "first_auction",
+   "icon": "🐟",
    "name": "The year's first tuna auction",
    "season": "winter",
    "day": 6,
@@ -32297,6 +32323,7 @@
   },
   {
    "id": "ekiden",
+   "icon": "🏃",
    "name": "New Year university relay",
    "season": "winter",
    "day": 6,
@@ -32311,6 +32338,7 @@
   },
   {
    "id": "seijin",
+   "icon": "👘",
    "name": "Coming of Age Day",
    "season": "winter",
    "day": 6,
@@ -32319,6 +32347,7 @@
   },
   {
    "id": "setsubun",
+   "icon": "👹",
    "name": "Setsubun",
    "season": "winter",
    "day": 10,
@@ -32334,6 +32363,7 @@
   },
   {
    "id": "valentine",
+   "icon": "🍫",
    "name": "Valentine's Day",
    "season": "winter",
    "day": 11,
@@ -32346,6 +32376,7 @@
   },
   {
    "id": "chinese_newyear",
+   "icon": "🧧",
    "name": "Chinese New Year",
    "season": "winter",
    "day": 12,
@@ -32363,6 +32394,7 @@
   },
   {
    "id": "rhythm_finals",
+   "icon": "🎮",
    "name": "Rhythm game finals",
    "season": "winter",
    "day": 13,

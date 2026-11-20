@@ -1351,6 +1351,7 @@ export interface HobbyDef { id: string; name: string; icon?: string; desc?: stri
  *  `roles` as for city events. (E5) `custom`: what it means between people (see FestivalCustom). (E15) `adult`. */
 export interface FestivalDef {
     id: string; name: string; season: string; day: number; days?: number; place?: string; prices?: number; mood?: number; desc?: string;
+    /** An emoji for it in the Calendar (🎊 when none). */ icon?: string;
     places?: string[]; crowd?: number; audience?: Audience[]; roles?: EventRole[]; custom?: FestivalCustom; adult?: boolean;
     /** (dress) What people at its places wear on its days (yukata at a summer festival): see DressDef. */
     dress?: DressDef;

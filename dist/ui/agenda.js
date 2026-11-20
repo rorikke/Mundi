@@ -54,13 +54,13 @@ export function dayItems(g, w, d) {
     // what's on in town
     for (const x of comingEvents(g, w, DAYS).filter(x => x.from >= start && x.from < end)) {
         const going = isGoing(g, x.key), live = x.from <= now && x.to > now && !x.off;
-        out.push({ from: x.from, to: x.to, kind: 'event', icon: 'star', title: x.ev.name, titleData: true, sub: x.off ? tr('Called off: rain') : `${span(x.from, x.to)} · ${where(g, w, x.ev.place)}`, done: x.off,
+        out.push({ from: x.from, to: x.to, kind: 'event', icon: 'star', emoji: x.ev.icon || '🎉', title: x.ev.name, titleData: true, sub: x.off ? tr('Called off: rain') : `${span(x.from, x.to)} · ${where(g, w, x.ev.place)}`, done: x.off,
             btn: x.off ? '' : live && g.player.loc !== x.ev.place ? `<button class="mu-primary" data-act="go" data-loc="${esc(x.ev.place)}">${esc(tr('Go now'))}</button>`
                 : live ? '' : `<button class="${going ? 'mu-primary' : 'mu-ghost'}" data-act="ce-go" data-key="${esc(x.key)}">${esc(going ? tr('✓ Going') : tr("I'll go"))}</button>` });
     }
     // festivals, weddings, bills and briefs: all day
     for (const x of festivalsAhead(g, w, DAYS).filter(x => x.day <= d && d < x.day + (x.f.days ?? 1)))
-        out.push({ from: start, allDay: true, kind: 'festival', icon: 'sparkles', title: x.f.name, titleData: true, sub: x.f.desc ?? '' });
+        out.push({ from: start, allDay: true, kind: 'festival', icon: 'sparkles', emoji: x.f.icon || '🎊', title: x.f.name, titleData: true, sub: x.f.desc ?? '' });
     if (systemOn(w, 'romance'))
         for (const x of weddingsAhead(g, w).filter(x => x.day === d && (g.cast[x.a]?.met || g.cast[x.b]?.met)))
             out.push({ from: start, allDay: true, kind: 'wedding', icon: 'heart', title: fmt('{0} and {1} get married', g.cast[x.a]?.name ?? '', g.cast[x.b]?.name ?? ''), sub: '', who: g.cast[x.a]?.met ? x.a : x.b });
@@ -77,7 +77,7 @@ export function dayItems(g, w, d) {
 }
 const dayName = (g, d) => (d === g.day ? tr('Today') : d === g.day + 1 ? tr('Tomorrow') : tr(weekday(d)));
 function itemHtml(g, it) {
-    const face = it.who ? `<img src="${esc(thumb(it.who))}" alt="">` : `<i class="mu-ag-ic">${icon(it.icon)}</i>`;
+    const face = it.who ? `<img src="${esc(thumb(it.who))}" alt="">` : it.emoji ? `<i class="mu-ag-ic is-emoji" aria-hidden="true">${esc(it.emoji)}</i>` : `<i class="mu-ag-ic">${icon(it.icon)}</i>`;
     const title = it.titleData ? `<span data-notr>${esc(it.title)}</span>` : esc(it.title);
     const who = it.who && it.kind === 'plan' ? `<small class="mu-ag-who" data-notr>${esc(g.cast[it.who]?.name ?? '')}</small>` : '';
     const body = `${face}<span><b>${title}</b>${who}${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</span>`;

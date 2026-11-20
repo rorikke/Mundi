@@ -330,8 +330,11 @@ export function itemDoes(g, w, it) {
     const now = Object.entries(it.now ?? {}).filter(([, v]) => Number(v)).map(([id, v]) => `${needName(w, id)} ${plus(Math.max(-SHOP_NOW_MAX, Math.min(SHOP_NOW_MAX, Number(v))))}`);
     if (now.length)
         out.push(`At once: ${now.join(', ')}`);
-    if (it.keepsake)
-        out.push(`Gives: ${keepsakeDef(w, it.keepsake).name}`);
+    // a gift to give (what most keepsakes are), else what you keep, by name when it isn't the item's own
+    if (it.keepsake) {
+        const k = keepsakeDef(w, it.keepsake);
+        out.push(k.gift !== false ? 'Can be given as a gift' : k.name.toLowerCase() === String(it.name ?? '').toLowerCase() ? 'Yours to keep' : `Gives: ${k.name}`);
+    }
     return out;
 }
 /* ---------- what the AI is told ---------- */

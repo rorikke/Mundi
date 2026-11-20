@@ -194,12 +194,13 @@ function pairHtml(g: Save, w: WorldDef, list: App): string {
 const isOpenRow = (avatar: string) => (P.app === 'thread' || P.app === 'person') && P.who === avatar;
 
 // An app's badge: unread messages, plans to answer, bills due (where they're paid), something to do in Campus,
-// Business or Lens, a life goal to pick. A number, '!' or nothing.
+// Business or Lens, a life goal to pick, a path to choose at your job. A number, '!' or nothing.
 function badgeOf(g: Save, w: WorldDef, a: string): number | '!' | '' {
     if (a === 'messages') return Object.values(social(g).unread).reduce((x, y) => x + y, 0) || '';
     if (a === 'plans') return plansBadge(g) || '';
     if (a === billsApp(w) && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id))) return '!';
     if ((a === 'campus' && campusBadge(g, w)) || (a === 'business' && businessBadge(g, w)) || (a === 'photos' && lensBadge(g, w)) || (a === 'goals' && goalsBadge(g, w))) return '!';
+    if (a === 'jobs') { const o = myJob(g, w); if (o && pendingBranch(g, o)) return '!'; }   // a path to choose at your job
     return '';
 }
 // The badge of a tile on the home screen (or a ribbon of the journal): its app's, or for a section, the first of its apps'.
@@ -560,12 +561,13 @@ function billsHtml(g: Save, w: WorldDef): string {
     // locked out: the cheapest home you could move to instead, when it costs less than getting back in
     const cheaper = isCut(g, 'rent') && billAmount(g, w, 'rent') ? cheapestHome(g, w, z => freeSpots(g, w, z).length) : null;
     return `<section class="mu-ph-bills"><h4>${esc('Bills')}</h4><div class="mu-bills">${billList(w).map(billBtn).join('')}</div>
-        ${cheaper && cheaper.rent < toGetBackIn(g, w, 'rent') ? `<p class="mu-bad">${esc(`Or move somewhere cheaper: ${cheaper.name}, ${money(w, cheaper.rent)} a week, paid one week in advance.`)}</p>${billsApp(w) === 'bank' ? `<button class="mu-ghost" data-act="ph-go" data-app="homes">${icon('home')}<span>${esc(appName('homes'))}</span></button>` : ''}` : ''}
+        ${cheaper && cheaper.rent < toGetBackIn(g, w, 'rent') ? `<p class="mu-bad">${esc(`Or move somewhere cheaper: ${cheaper.name}, ${money(w, cheaper.rent)} a week, paid one week in advance.`)}</p>${billsApp(w) === 'bank' ? `<button class="mu-ghost" data-act="ph-homes-rent">${icon('home')}<span>${esc(appName('homes'))}</span></button>` : ''}` : ''}
         <small class="mu-muted">${T('billsNote')}</small>
         ${billList(w).filter(b => billAmount(g, w, b.id) && owed(g, b.id)).length > 1 ? `<button class="mu-primary" data-act="ph-bill-all">${icon('wallet')}<span>Pay everything</span></button>` : ''}</section>`;
 }
 
 const HF = { city: '' };   // Homes: the city whose homes are shown ('' all)
+const HV = { tab: 'mine' as 'mine' | 'rent' | 'sale' };   // Homes: the tab shown
 // (Homes, with a Bank) what your home costs a week, and the way to pay: the Bank, marked when something is due.
 function billsLine(g: Save, w: WorldDef): string {
     const list = billList(w).filter(b => billAmount(g, w, b.id)); if (!list.length) return '';
@@ -577,16 +579,21 @@ function homesApp(g: Save, w: WorldDef) {
     const mine = w.homes.zones.find(z => z.id === g.player.home.zone);
     // (housing) a house of yours' rooms and fixtures, in place of the rest
     if (HU.rooms) { const r = roomsHtml(g, w); if (r) return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${r}</div>${askHtml(g, w)}`; }
-    return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">
-        <section><h4>${T('myHome')}</h4>
+    // in tabs: your home (and what you own or let), homes for rent, homes and studios for sale (when there are any)
+    const sale = forSaleHtml(g, w);
+    const tabs: [typeof HV.tab, string][] = [['mine', T('myHome')], ['rent', 'For rent'], ...(sale.trim() ? [['sale', 'For sale'] as [typeof HV.tab, string]] : [])];
+    const tab = tabs.some(t => t[0] === HV.tab) ? HV.tab : 'mine';
+    const nav = `<nav class="mu-pf-tabs mu-hm-tabs">${tabs.map(([id, name]) => `<button class="${id === tab ? 'is-on' : ''}" data-act="ph-homes-tab" data-v="${id}" aria-pressed="${id === tab}">${esc(name)}</button>`).join('')}</nav>`;
+    return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${nav}
+        ${tab !== 'mine' ? '' : `<section><h4>${T('myHome')}</h4>
         <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span>
             <div class="mu-home-info"><span><b>${esc(homeAddress(w, g.player.home))}</b><small>${esc(w.homes.kinds[g.player.home.kind ?? mine?.kind ?? '']?.name ?? '')} · ${T('yourHome')}</small></span></div></article>
         ${billsApp(w) === 'homes' ? billsHtml(g, w) : billsLine(g, w)}
         ${ownedHtml(g, w)}
         </section>
-        ${letHtml(g, w)}
-        ${forSaleHtml(g, w)}
-        <section><h4>${T('homesForRent')}</h4>
+        ${letHtml(g, w)}`}
+        ${tab === 'sale' ? sale : ''}
+        ${tab !== 'rent' ? '' : `<section><h4>${T('homesForRent')}</h4>
         ${(() => { // by city (map): the one you live in first
             const cities = [...new Set(w.homes.zones.filter(z => z.id !== g.player.home.zone).map(z => z.map))].map(id => w.maps.find(m => m.id === id)).filter(Boolean) as { id: string; name: string }[];
             if (cities.length < 2) return '';
@@ -600,7 +607,7 @@ function homesApp(g: Save, w: WorldDef) {
                 <button class="mu-home-move" data-act="ph-move" data-id="${esc(z.id)}" ${free && g.player.money >= rent && !student ? '' : 'aria-disabled="true"'} ${student ? 'title="Not while you study for a degree"' : ''}>Move</button></div></article>`;
         }).join('')}</div>
         ${w.homes.zones.some(z => studentLink.homeBlock(g, w, z.id)) ? `<p class="mu-bad">${esc(w.homes.zones.map(z => studentLink.homeBlock(g, w, z.id)).find(Boolean)!)}</p>` : ''}
-        <p class="mu-muted">${T('movingNote')}</p></section>
+        <p class="mu-muted">${T('movingNote')}</p></section>`}
     </div>${askHtml(g, w)}`;
 }
 Object.assign(ACT, {
@@ -616,6 +623,8 @@ Object.assign(ACT, {
         notify();
     },
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
+    'ph-homes-tab': (el) => { HV.tab = (el.dataset.v as typeof HV.tab) || 'mine'; notify(); },
+    'ph-homes-rent': () => { HV.tab = 'rent'; openApp('homes'); },   // (Money's "move somewhere cheaper")
     'ph-people-filter': (el) => { PEOPLE.filter = (el.dataset.v as PeopleFilter) || 'all'; notify(); },
     'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
     'ph-jobs-view': (el) => { JV.tab = el.dataset.v === 'openings' ? 'openings' : 'mine'; notify(); },
@@ -626,7 +635,7 @@ Object.assign(ACT, {
     'ph-open-shop': () => { P.open = true; P.app = 'shop'; SH.tab = 'here'; notify(); },   // (the HUD's "Shop here")
     'ph-open-collection': (el) => {   // (the HUD's "Museum pieces": the Collection app on Here)
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
-        P.open = true; P.app = 'collection'; openCollection(g, w); CL.hall = el.dataset.v ?? ''; CL.open = new Set(); saveGame(); notify();
+        P.open = true; P.app = 'collection'; openCollection(g, w); CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; saveGame(); notify();
     },
 });
 

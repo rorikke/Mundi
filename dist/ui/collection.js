@@ -22,7 +22,7 @@ import { inSeason } from '../sim/dig.js';
 import { museumTab, dealerTab, salesTab, hereTab, hereHasAny, howItCame, whereWords, priceBand } from './museumui.js';
 /** In memory only: the hall shown, the groups opened, and the day the app was last opened before now (a slot filled
  *  since is marked as just in). */
-export const CL = { hall: '', open: new Set(), since: -1, game: '' };
+export const CL = { hall: '', open: new Set(), since: -1, game: '', seeded: '' }; // seeded: the hall whose first group was opened on arrival
 const n = (x) => String(Math.round(x));
 const plural = (k, one, many) => (k === 1 ? one : many.replace('{0}', n(k)));
 // A tile's picture: the slot's own (the museum's pieces, from the art track, through the world's files), else the
@@ -169,6 +169,7 @@ export function collectionApp(g, w, head) {
         CL.game = g.world + '|' + g.seed;
         CL.hall = '';
         CL.open = new Set();
+        CL.seeded = '';
         CL.since = collectionOf(g)?.seen ?? -1;
     }
     const halls = recordView(g, w), extra = extraTabs(g, w);
@@ -178,8 +179,12 @@ export function collectionApp(g, w, head) {
     if (!ids.includes(CL.hall))
         CL.hall = firstTab(g, w, extra, halls);
     const h = halls.find(x => x.id === CL.hall);
-    if (h && !CL.open.size && h.groups[0])
-        CL.open.add(`${h.id}/${h.groups[0].id}`);
+    // arriving at a hall opens its first group, once: closing every group afterwards leaves them closed
+    if (h && CL.seeded !== h.id) {
+        CL.seeded = h.id;
+        if (!CL.open.size && h.groups[0])
+            CL.open.add(`${h.id}/${h.groups[0].id}`);
+    }
     const tab = (id, name, icon, notr) => `<button class="${id === CL.hall ? 'is-on' : ''}" data-act="cl-hall" data-v="${esc(id)}" aria-pressed="${id === CL.hall}"><i aria-hidden="true">${esc(icon ?? '')}</i><span${notr ? ' data-notr' : ''}>${esc(name)}</span></button>`;
     const tabs = ids.length > 1
         ? `<nav class="mu-cl-tabs" data-keep="cl-tabs">${extra.map(t => tab(t.id, t.name, t.icon, false)).join('')}${extra.length && halls.length ? '<span class="mu-cl-tabsep" aria-hidden="true"></span>' : ''}${halls.map(x => tab(x.id, x.name, x.icon, true)).join('')}</nav>`
@@ -198,7 +203,7 @@ export function openCollection(g, w) {
     markSeen(g);
 }
 Object.assign(ACT, {
-    'cl-hall': (el) => { CL.hall = el.dataset.v ?? ''; CL.open = new Set(); notify(); },
+    'cl-hall': (el) => { CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; notify(); },
     'cl-fold': (el) => { const k = el.dataset.v ?? ''; if (CL.open.has(k))
         CL.open.delete(k);
     else

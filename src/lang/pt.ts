@@ -11089,5 +11089,11 @@ const DICT: Record<string, string> = {
  "Asleep": "Dormindo",
  "No one here.": "Ninguém aqui.",
  "Nothing else planned today.": "Nada mais marcado para hoje.",
+ "For rent": "Para alugar",
+ "Can be given as a gift": "Pode ser dado de presente",
+ "Yours to keep": "Seu para guardar",
+ "Choose term {0}'s modules": "Escolha as disciplinas do período {0}",
+ "Choose your first modules": "Escolha suas primeiras disciplinas",
+ "{0} until the term begins: the required ones are already picked, the rest are yours to choose.": "{0} até o período começar: as obrigatórias já estão marcadas, o resto você escolhe.",
 };
 export default DICT;

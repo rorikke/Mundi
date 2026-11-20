@@ -11099,5 +11099,11 @@ const DICT = {
     "Asleep": "Durmiendo",
     "No one here.": "Nadie aquí.",
     "Nothing else planned today.": "Nada más previsto para hoy.",
+    "For rent": "En alquiler",
+    "Can be given as a gift": "Se puede regalar",
+    "Yours to keep": "Tuyo para guardar",
+    "Choose term {0}'s modules": "Elige las asignaturas del trimestre {0}",
+    "Choose your first modules": "Elige tus primeras asignaturas",
+    "{0} until the term begins: the required ones are already picked, the rest are yours to choose.": "{0} hasta que empiece el trimestre: las obligatorias ya están marcadas, el resto lo eliges tú.",
 };
 export default DICT;

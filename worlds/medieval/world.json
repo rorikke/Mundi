@@ -6673,6 +6673,7 @@
  "festivals": [
   {
    "id": "spring",
+   "icon": "🌸",
    "name": "Spring Fair",
    "season": "spring",
    "day": 7,
@@ -6684,6 +6685,7 @@
   },
   {
    "id": "midsummer",
+   "icon": "🔥",
    "name": "Midsummer Night",
    "season": "summer",
    "day": 10,
@@ -6695,6 +6697,7 @@
   },
   {
    "id": "harvest",
+   "icon": "🌾",
    "name": "Harvest Festival",
    "season": "autumn",
    "day": 7,
@@ -6706,6 +6709,7 @@
   },
   {
    "id": "midwinter",
+   "icon": "🍖",
    "name": "Midwinter Feast",
    "season": "winter",
    "day": 12,

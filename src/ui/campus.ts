@@ -91,7 +91,11 @@ function studentHtml(g: Save, w: WorldDef, s: DegreeState): string {
     const mods = s.picks.map(id => courseOf(w, id)).filter((c): c is Course => !!c);
     const now = s.termDay ? `<h4>This term</h4>${mods.map(c => moduleCard(g, w, s, c)).join('') || '<p class="mu-muted">No modules this term.</p>'}
         <p class="mu-muted">Classes are on campus (Study, in the things to do there). Coursework: at home, in a library or a café for it; each hour goes to the module furthest behind. Each grade is attendance, coursework and the final.</p>` : '';
-    return `${head}${now}${pickHtml(g, w, s)}${clubsHtml(g, w, s, inst.clubs ?? [])}${gradesHtml(g, w, s)}
+    // modules to choose (the badge's reason): a card at the top, like Goals' "Pick a life goal", and the choice under it
+    const toPick = pickingNow(g, s) && !s.next.length && creditsLeft(g, w, s) > 0;
+    const pickCard = toPick ? `<section class="mu-ph-card mu-campus-alert"><b>${esc(s.termDay ? `Choose term ${s.term + 1}'s modules` : 'Choose your first modules')} <em class="mu-gl-badge">!</em></b>
+        <small>${esc(plural(s.termDay ? termEndOf(g) + 1 - g.day : daysToNextTerm(g), 'day'))} until the term begins: the required ones are already picked, the rest are yours to choose.</small></section>` : '';
+    return `${head}${toPick ? `${pickCard}${pickHtml(g, w, s)}${now}` : `${now}${pickHtml(g, w, s)}`}${clubsHtml(g, w, s, inst.clubs ?? [])}${gradesHtml(g, w, s)}
         <section class="mu-campus-leave">${CA.leave ? `<small class="mu-bad">Leave ${esc(d.name)}? This term's modules end without a grade, and what you passed doesn't make a degree.</small><div class="mu-row"><button class="mu-danger" data-act="ca-leave">Yes, leave</button><button class="mu-ghost" data-act="ca-stay">Stay</button></div>` : '<button class="mu-ghost mu-danger-text" data-act="ca-leave-ask">Leave the degree</button>'}</section>`;
 }
 
