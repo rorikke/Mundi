@@ -27572,19 +27572,23 @@
     "label": "Strengths",
     "max": 2,
     "options": [
-     "Strong",
+     "Athletic",
      "Smart",
      "Charming",
      "Creative",
-     "Athletic",
-     "Handy",
      "Musical",
-     "Good with numbers",
+     "Good singer",
+     "Good dancer",
+     "Way with words",
+     "Fashionable",
      "Good cook",
-     "Tech-savvy"
+     "Gamer",
+     "Good eye",
+     "Bilingual",
+     "Good bartender"
     ],
     "skills": {
-     "Strong": {
+     "Athletic": {
       "fitness": 3
      },
      "Smart": {
@@ -27596,30 +27600,64 @@
      "Creative": {
       "drawing": 3
      },
-     "Athletic": {
+     "Musical": {
+      "music": 3
+     },
+     "Good singer": {
+      "singing": 3
+     },
+     "Good dancer": {
+      "dance": 3
+     },
+     "Way with words": {
+      "writing": 3
+     },
+     "Fashionable": {
+      "fashion": 3
+     },
+     "Good cook": {
+      "cooking": 3
+     },
+     "Gamer": {
+      "gaming": 3
+     },
+     "Good eye": {
+      "photography": 3
+     },
+     "Bilingual": {
+      "english": 3,
+      "japanese": 3
+     },
+     "Good bartender": {
+      "mixology": 3
+     },
+     "Good in bed": {
+      "sensuality": 3
+     },
+     "Strong": {
       "fitness": 3
      },
      "Handy": {
       "logic": 3
      },
-     "Musical": {
-      "music": 3
-     },
      "Good with numbers": {
       "logic": 3
      },
-     "Good cook": {
-      "cooking": 3
-     },
      "Tech-savvy": {
       "gaming": 3
-     },
-     "Good in bed": {
-      "sensuality": 3
      }
     },
     "adultOptions": [
      "Good in bed"
+    ],
+    "formerly": [
+     "Strong",
+     "Handy",
+     "Good with numbers",
+     "Tech-savvy"
+    ],
+    "lowest": [
+     "Bilingual"
     ]
    },
    {
@@ -27639,7 +27677,10 @@
      "Curious",
      "Sarcastic",
      "Kind",
-     "Flirtatious"
+     "Flirtatious",
+     "Polite",
+     "Night owl",
+     "Studious"
     ],
     "adultOptions": [
      "Shameless"
@@ -27661,7 +27702,9 @@
      "Nightlife",
      "Karaoke",
      "Sports",
-     "Travel"
+     "Travel",
+     "Nature",
+     "Photography"
     ],
     "adultOptions": [
      "Kink"
@@ -38164,7 +38207,8 @@
    "name": "Meiji Jingū",
    "map": "shibuya",
    "tags": [
-    "leisure"
+    "leisure",
+    "park"
    ],
    "desc": "a vast planted forest with a gravel path under a giant wooden torii; barrels of sake and wine line the way to a quiet main hall of cypress",
    "staff": "white-robed priests sweeping gravel, shrine maidens at the amulet office, visitors bowing at the torii, a few foreign tourists",
@@ -38213,7 +38257,8 @@
    "map": "shibuya",
    "tags": [
     "leisure",
-    "sport"
+    "sport",
+    "park"
    ],
    "desc": "wide lawns, cherry trees and a ginkgo avenue beside the forest: dancers at the gate on Sundays, flea-market tarps, joggers, dog walkers and bands rehearsing under the trees",
    "staff": "rockabilly dancers in leather and pompadours, joggers, dog walkers, a band rehearsing, flea-market sellers on blue tarps",
@@ -38313,7 +38358,8 @@
    "tags": [
     "leisure",
     "food",
-    "shop"
+    "shop",
+    "nightlife"
    ],
    "desc": "the nightlife quarter under the giant red neon gate: touts in black coats, host portraits above every stairwell, pachinko roar spilling from every door, and streets lit brighter than noon",
    "staff": "touts with quotas; hosts and hostesses heading to work; delivery riders; neighborhood patrols in vests; crows at the garbage",
@@ -38341,7 +38387,8 @@
    "tags": [
     "leisure",
     "work",
-    "nightworld"
+    "nightworld",
+    "nightlife"
    ],
    "desc": "a host club behind a black glass door: portrait boards of smiling men in suits out front; inside mirrors, chandeliers, deep sofas and champagne calls that stop the room",
    "staff": "hosts in dark suits rotating between tables; a floor captain; a doorman; women guests alone or in pairs",
@@ -38372,7 +38419,8 @@
    "tags": [
     "leisure",
     "work",
-    "nightworld"
+    "nightworld",
+    "nightlife"
    ],
    "desc": "a hostess lounge on a fourth floor: low lights, deep sofas, bottles with name tags on the shelves, hostesses in evening dresses pouring drinks for company men",
    "staff": "hostesses in evening dresses; the mama circulating between tables; a bartender; company men in loosened ties",
@@ -38430,7 +38478,8 @@
    "map": "shinjuku",
    "tags": [
     "food",
-    "leisure"
+    "leisure",
+    "nightlife"
    ],
    "desc": "a smoky alley of yakitori counters and tiny izakaya wedged by the train tracks: charcoal haze, elbows touching, and the whole row shaking when a train passes overhead",
    "staff": "cooks fanning charcoal; an old mama pouring beer; salarymen shoulder to shoulder; a few tourists with maps; trains overhead",
@@ -38466,7 +38515,8 @@
    "map": "shinjuku",
    "tags": [
     "leisure",
-    "work"
+    "work",
+    "nightlife"
    ],
    "desc": "a six-seat bar behind a narrow door in Golden Gai: a worn counter, a shelf of marked bottles, a karaoke machine older than the staff, and Mama pouring until dawn",
    "staff": "a young barback; regulars on the same stools every night; a retired editor second from the end; the karaoke book",
@@ -38494,7 +38544,8 @@
    "name": "Bar Lilac, Ni-chōme",
    "map": "shinjuku",
    "tags": [
-    "leisure"
+    "leisure",
+    "nightlife"
    ],
    "desc": "a bar up a narrow stair in Ni-chōme: warm lamps, a long counter and two sofas, mismatched chairs, a shelf of board games, and friends, couples and people who just wanted a quiet drink",
    "staff": "the bartender, forties, who never asks a question and always notices; friends helping behind the counter; regulars of every kind",
@@ -38563,7 +38614,8 @@
    "map": "shinjuku",
    "tags": [
     "leisure",
-    "sport"
+    "sport",
+    "park"
    ],
    "desc": "the national garden: wide lawns, a French formal garden, a Japanese garden with a teahouse pond, a tropical greenhouse and a thousand cherry trees; no alcohol, a small gate fee, closed at sunset",
    "staff": "gate attendants selling tickets; gardeners raking; picnickers on sheets; elderly strollers; university students sketching",
@@ -38721,7 +38773,8 @@
    "tags": [
     "leisure",
     "work",
-    "music"
+    "music",
+    "nightlife"
    ],
    "desc": "a basement stage down a steep stair: black walls papered with stickers and flyers, room for a hundred, a bar by the door, a sound desk on a platform at the back",
    "staff": "a bartender handing out drink tickets, a sound engineer at the desk, bands hauling amps through the crowd",
@@ -38970,7 +39023,8 @@
    "map": "akiba",
    "tags": [
     "shop",
-    "leisure"
+    "leisure",
+    "anime"
    ],
    "desc": "the main street of Akihabara under towering signs: parts stalls beneath the tracks, capsule-toy walls, used-figure shops, cosplayers photographing each other; on Sunday afternoons the cars vanish",
    "staff": "stall owners calling prices, maids with menu boards, solo travelers, fans with heavy bags, cosplayers in side streets",
@@ -39002,7 +39056,8 @@
    "map": "akiba",
    "tags": [
     "food",
-    "work"
+    "work",
+    "anime"
    ],
    "desc": "a maid café up a narrow staircase: pink and cream walls, a stage the size of a table, a menu of omurice with ketchup pictures, and staff who greet everyone with \"welcome home\"",
    "staff": "maids in uniform playing characters, a calm cook in the kitchen, regulars with notebooks, first-timers who don't know where to look",
@@ -39033,7 +39088,8 @@
    "name": "Pixel Castle",
    "map": "akiba",
    "tags": [
-    "leisure"
+    "leisure",
+    "anime"
    ],
    "desc": "a seven-floor game center: prize machines at the door, rhythm cabinets upstairs, a floor of photo booths, a medal-game hall on top, and a thump of music that never stops",
    "staff": "staff in headsets nudging prizes, salarymen after work, couples at the photo booths, players waiting in silence for the rhythm cabinets",
@@ -39063,7 +39119,8 @@
    "tags": [
     "leisure",
     "work",
-    "music"
+    "music",
+    "anime"
    ],
    "desc": "a small idol theater in a basement: a stage a step above the floor, a ceiling of fairy lights, a merch table by the door, a hundred seats and a cheki corner",
    "staff": "the theater's manager at the door, a sound engineer behind the desk, trainers in the rehearsal room, front-row regulars, new fans in rows",
@@ -39116,7 +39173,8 @@
    "map": "akiba",
    "tags": [
     "service",
-    "leisure"
+    "leisure",
+    "anime"
    ],
    "desc": "a manga and internet café over several floors: shelves to the ceiling, private booths with reclining seats and curtains, a drink bar, a shower room, and a hush broken by page-turns",
    "staff": "a clerk at the desk with a ticket machine, people asleep in booths, a salaryman with a bag on his lap, gamers with headphones",
@@ -39173,7 +39231,8 @@
    "tags": [
     "shop",
     "food",
-    "leisure"
+    "leisure",
+    "books"
    ],
    "desc": "street after street of used bookshops with carts out front, ink and old paper in the air, a curry house with a line, and coffee shops tucked between the shelves",
    "staff": "elderly shop owners behind piles of books, readers standing in aisles, a queue outside a curry house, solo travelers with heavy bags",
@@ -39232,7 +39291,8 @@
    "map": "akiba",
    "tags": [
     "study",
-    "leisure"
+    "leisure",
+    "books"
    ],
    "desc": "a university campus by the Ochanomizu bridges: brick lecture halls, a language center in an old annex, a library that never has a free seat, a row of club rooms",
    "staff": "lecturers with laptops, third-years in club jackets, exchange students in the stairwell, a library desk, vending machines on every floor",
@@ -39296,7 +39356,8 @@
    "map": "oldtown",
    "tags": [
     "leisure",
-    "sport"
+    "sport",
+    "park"
    ],
    "desc": "a river walk lined with cherry trees, water buses sliding past, and the Skytree standing tall across the water; benches, joggers and a breeze that smells of the river",
    "staff": "joggers, an old man feeding pigeons, couples on the benches, a water-bus conductor, street sketchers",
@@ -39341,7 +39402,8 @@
    "name": "Izakaya Daruma",
    "map": "oldtown",
    "tags": [
-    "food"
+    "food",
+    "nightlife"
    ],
    "desc": "an open-front stew-and-beer shop with no sign on a lantern-lit lane near Sensō-ji: crates for stools, a pot of stew that never leaves the flame, a daruma doll with one eye painted watching the till",
    "staff": "the stout owner shouts orders; a cook stirs the pot; old men and salarymen share tables spilling onto the lane",
@@ -39369,7 +39431,8 @@
    "map": "oldtown",
    "tags": [
     "leisure",
-    "sport"
+    "sport",
+    "park"
    ],
    "desc": "a huge park of museums, the lotus pond and the zoo gate, with broad avenues of cherry trees and street performers on the plaza",
    "staff": "joggers, sketchers with easels, a juggler on the plaza, boat attendants, couples and friends at the zoo gate",
@@ -39418,7 +39481,8 @@
    "tags": [
     "leisure",
     "study",
-    "work"
+    "work",
+    "museum"
    ],
    "desc": "a quiet art museum in the park: stone steps and tall windows, a hall of Japanese paintings and prints, a new special exhibition each season, and a café on the ground floor",
    "staff": "guards in soft shoes, a ticket clerk, guides in navy blazers, couples on a slow weekday and university art students sketching",
@@ -39789,7 +39853,8 @@
    "map": "marunouchi",
    "tags": [
     "food",
-    "work"
+    "work",
+    "nightlife"
    ],
    "desc": "a noisy izakaya in one brick arch under the Yūrakuchō railway tracks: a red lantern, a smoky yakitori grill by the door, plastic stools in the street and a train rumbling over every few minutes",
    "staff": "the master grills at the door; servers shout orders; office groups in loosened ties; a regular asleep in the corner",
@@ -39833,7 +39898,8 @@
    "map": "marunouchi",
    "tags": [
     "leisure",
-    "sport"
+    "sport",
+    "park"
    ],
    "desc": "old Edo Castle's moat and stone walls, with the free East Gardens inside: broad lawns, a pond garden, the base of a vanished tower, and outside, the running loop around the whole palace",
    "staff": "runners in bright gear, guards handing out tokens, a cycling club resting by the moat, a gardener raking gravel",
@@ -39984,7 +40050,8 @@
    "name": "Odaiba Seaside Park",
    "map": "bay",
    "tags": [
-    "leisure"
+    "leisure",
+    "park"
    ],
    "desc": "a long man-made beach facing the bay, with Rainbow Bridge and the skyline across the water: a boardwalk, a small copy of a famous statue, windsurfers offshore, and in summer a roped-off stretch of water for swimmers under a lifeguard's tower",
    "staff": "joggers and dog walkers on the boardwalk, couples on the sand, windsurf instructors, a photographer with a tripod",
@@ -40100,7 +40167,8 @@
    "name": "Lumen Digital Art Museum",
    "map": "bay",
    "tags": [
-    "leisure"
+    "leisure",
+    "museum"
    ],
    "desc": "a warehouse of dark rooms where light is the art: a hall of hanging paper lanterns that whisper, a long table that serves projected meals, a room of a hundred glowing clocks",
    "staff": "attendants in black with penlights, couples whispering, photographers hunting angles, a ticket desk with a timed-entry line",
@@ -40221,7 +40289,8 @@
    "map": "roppongi",
    "tags": [
     "leisure",
-    "food"
+    "food",
+    "nightlife"
    ],
    "desc": "the junction under the expressway where two avenues cross: taxi queues, touts with flyers, a corner café everyone uses as a meeting spot, neon and a hum from the road overhead",
    "staff": "touts with flyers; taxi drivers in white gloves; police on patrol; clubbers meeting friends; a kebab-cart vendor",
@@ -40250,7 +40319,8 @@
    "tags": [
     "leisure",
     "work",
-    "music"
+    "music",
+    "nightlife"
    ],
    "desc": "three floors of a former printing works: a basement main floor under a wall of speakers, a lounge bar on the ground floor, a roof terrace to cool off on",
    "staff": "door staff checking IDs; bartenders pouring fast; DJs in the booth; security in black tees; clubbers speaking five languages",
@@ -40293,7 +40363,8 @@
    "map": "roppongi",
    "tags": [
     "leisure",
-    "study"
+    "study",
+    "museum"
    ],
    "desc": "an art museum and sky deck at the top of a tower: long white galleries, a glass-walled deck over the whole city, and a night view that runs to the bay",
    "staff": "ticket staff in dark uniforms; gallery guards; a docent murmuring to a group of retirees; solo visitors and couples at the glass",
@@ -40395,7 +40466,8 @@
    "map": "roppongi",
    "tags": [
     "food",
-    "leisure"
+    "leisure",
+    "nightlife"
    ],
    "desc": "a cocktail lounge on the ninth floor of a quiet tower: low sofas, a window wall facing Tokyo Tower, a long bar with one bartender, and prices nobody mentions",
    "staff": "a bartender in a white jacket; a host checking reservations at the door; regulars with bottles in a cabinet",
@@ -40438,7 +40510,8 @@
    "tags": [
     "food",
     "leisure",
-    "work"
+    "work",
+    "nightlife"
    ],
    "desc": "a British-style pub with dark wood, a dartboard, a long bar with hand pumps, football on a big screen and a crowd that sounds like four continents",
    "staff": "the landlord pulling pints; bar staff who switch languages mid-order; regulars on their stools; a cook in the back",
@@ -40484,7 +40557,8 @@
    "tags": [
     "leisure",
     "work",
-    "nightworld"
+    "nightworld",
+    "nightlife"
    ],
    "desc": "a basement stage with three chrome poles under blue light, a bar and low tables, and house rules posted by the door: watch, tip, don't touch; dancers here are athletes in sport costumes",
    "staff": "a bouncer at the door; a bartender; the house manager; dancers off stage with towels and water bottles; quiet regulars",
@@ -40519,7 +40593,8 @@
     "food",
     "shop",
     "leisure",
-    "work"
+    "work",
+    "travel"
    ],
    "desc": "Japan's biggest Chinatown: ten red-and-gold gates, lanterns over narrow streets, steam from bun stalls, a hundred restaurants, fortune tellers at folding tables and two temples among the shops",
    "staff": "bun vendors, cooks at open woks, fortune tellers at folding tables, a hen party in matching sashes, couples sharing a bun",
@@ -40550,7 +40625,8 @@
    "map": "yokohama",
    "tags": [
     "leisure",
-    "shop"
+    "shop",
+    "travel"
    ],
    "desc": "the glossy bay: a giant Ferris wheel with a clock face, tall towers, red-brick warehouses turned into shops and halls, and a wide promenade over the water where couples sit until the lights come on",
    "staff": "couples on benches, photographers with tripods, warehouse shop clerks, joggers, a busker with a keyboard, office workers on break",
@@ -40577,7 +40653,9 @@
    "name": "Yamashita Park",
    "map": "yokohama",
    "tags": [
-    "leisure"
+    "leisure",
+    "travel",
+    "park"
    ],
    "desc": "a long seafront park along the bay: a promenade of benches, a rose garden, a fountain, and an old pre-war ocean liner moored at one end, white and quiet, with ship horns across the water",
    "staff": "couples walking, dog walkers, wedding photographers, a volunteer guide at the liner, joggers, a man selling roasted chestnuts",
@@ -40605,7 +40683,8 @@
    "tags": [
     "shop",
     "food",
-    "leisure"
+    "leisure",
+    "travel"
    ],
    "desc": "the long neon shopping arcade a few minutes from the station: pawn shops, pachinko roar, diners, secondhand bookstores, buskers on corners, hand-lettered sale signs, everybody's business everybody's",
    "staff": "shopkeepers sweeping doorsteps, buskers on corners, pawnbrokers behind glass, pachinko regulars, delivery bikes, old men on benches",
@@ -40631,7 +40710,9 @@
    "map": "yokohama",
    "tags": [
     "food",
-    "leisure"
+    "leisure",
+    "nightlife",
+    "travel"
    ],
    "desc": "a maze of cramped alleys by the river: standing bars, three-stool counters, hand-written menus, grilled-skewer smoke, red lanterns and the cheapest drinks in the city",
    "staff": "bar owners calling regulars by name, salarymen in loosened ties, old couples at counters, a street performer, cats in doorways",
@@ -40663,7 +40744,8 @@
     "service",
     "leisure",
     "work",
-    "nightworld"
+    "nightworld",
+    "nightlife"
    ],
    "desc": "a hostess club on the second floor of an Isezaki building: eight velvet sofas, a faded hibiscus mural, a karaoke screen, and a mama who greets every guest by name",
    "staff": "a young bartender, four hostesses on a quiet night, a doorman in a vest, a regular nursing one bottle",
@@ -40761,7 +40843,9 @@
    "name": "Ichō Park",
    "map": "yokohama",
    "tags": [
-    "leisure"
+    "leisure",
+    "travel",
+    "park"
    ],
    "desc": "a small ginkgo park a few streets from the arcade: a bandstand, a few benches, a tap, a path under the trees, and a neighborhood of tents and blue tarps where people without homes keep each other company",
    "staff": "a man sweeping the path, a woman tending potted herbs, a few people playing shogi, neighbors dropping off bread",
@@ -40811,7 +40895,8 @@
    "tags": [
     "shop",
     "food",
-    "leisure"
+    "leisure",
+    "travel"
    ],
    "desc": "the hot-spring town at the station gate: a narrow street of souvenir shops and bun counters by the Hayakawa river, steam from the vents, a little red mountain train waiting",
    "staff": "shopkeepers offering samples, a bun-steamer in a white cap, travelers with wheeled bags, an old man hosing his doorstep",
@@ -40849,7 +40934,8 @@
    "tags": [
     "service",
     "work",
-    "health"
+    "health",
+    "travel"
    ],
    "desc": "a family ryokan up a steep lane: a lantern gate, a dark-wood lobby of slippers, a tatami corridor to eight rooms, a garden, an outdoor rock bath under the cedars",
    "staff": "the okami in kimono at the door; room attendants carrying trays; a cook behind a sliding door; guests in yukata",
@@ -40897,7 +40983,9 @@
    "name": "Lake Ashi",
    "map": "hakone",
    "tags": [
-    "leisure"
+    "leisure",
+    "travel",
+    "park"
    ],
    "desc": "an old volcanic crater filled with water: the red shrine gate standing in the lake at Moto-Hakone, cruise boats dressed as pirate galleons, cedars on the shore, Mt. Fuji beyond the hills on clear days",
    "staff": "a boat attendant at the pier, retirees on a club trip, a rowboat man in a straw hat by the dock, couples on benches",
@@ -40930,7 +41018,8 @@
    "tags": [
     "leisure",
     "food",
-    "shop"
+    "shop",
+    "travel"
    ],
    "desc": "a steaming valley of yellow rock and the smell of sulfur: the ropeway station above it, a shop selling black eggs by the bag, a trail through the steam, Fuji beyond on clear days",
    "staff": "egg-shop staff in aprons, a trail guard with a whistle, a university hiking club in matching caps, a ropeway attendant",
@@ -40978,7 +41067,9 @@
    "tags": [
     "leisure",
     "shop",
-    "study"
+    "study",
+    "travel",
+    "museum"
    ],
    "desc": "an open-air sculpture garden on a wooded hillside: steel, stone and bronze among cedars, a lawn of reeds that ring in the wind, a café terrace over the valley",
    "staff": "guides in gray aprons, a café barista, a guard on a stool, art students with sketchbooks, couples on benches",
@@ -41347,7 +41438,8 @@
    "y": 46.5,
    "tags": [
     "leisure",
-    "shop"
+    "shop",
+    "travel"
    ],
    "desc": "a marina below the Minato Mirai towers: floating pontoons, white cruisers and sailboats in rows, a harbor office with a terrace, gulls on the masts and the Ferris wheel across the water",
    "staff": "the harbormaster in a white cap, owners hosing their decks, a broker showing a cruiser to a couple",
@@ -41575,7 +41667,8 @@
    "x": 18,
    "y": 34,
    "tags": [
-    "leisure"
+    "leisure",
+    "nightlife"
    ],
    "desc": "a hotel's rooftop pool after dark: water lit electric blue from below, a DJ booth at the deep end, daybeds and a cocktail bar, Tokyo Tower glowing over the railing",
    "staff": "a DJ at the booth, bartenders in white, a lifeguard who has seen everything, door staff checking ages",
@@ -41618,7 +41711,8 @@
    "y": 64,
    "tags": [
     "leisure",
-    "health"
+    "health",
+    "travel"
    ],
    "desc": "a swimsuit hot-spring park on a wooded slope: warm pools in tiers down the hill, a long water slide, a steaming cave bath, couples and groups of friends in swimwear under the cedars",
    "staff": "attendants handing out towels and wristbands, a lifeguard on a tall chair, a queue at the top of the slide",
@@ -51061,7 +51155,8 @@
    "likes": [
     "Art",
     "Fashion",
-    "Travel"
+    "Travel",
+    "Photography"
    ],
    "trains": [
     "photography",
@@ -51823,7 +51918,8 @@
    "likes": [
     "Art",
     "Fashion",
-    "Nightlife"
+    "Nightlife",
+    "Photography"
    ],
    "trains": [
     "photography",
@@ -52900,7 +52996,8 @@
     "Calm",
     "Sarcastic",
     "Nightlife",
-    "Flirtatious"
+    "Flirtatious",
+    "Night owl"
    ],
    "trains": [
     "mixology",
@@ -53134,7 +53231,8 @@
    "likes": [
     "Shy",
     "Lazy",
-    "Travel"
+    "Travel",
+    "Night owl"
    ],
    "trains": [
     "japanese",
@@ -53293,7 +53391,8 @@
    "likes": [
     "Lazy",
     "Kind",
-    "Anime & manga"
+    "Anime & manga",
+    "Night owl"
    ],
    "trains": [
     "charisma"
@@ -54352,7 +54451,8 @@
    "likes": [
     "Calm",
     "Shy",
-    "Books"
+    "Books",
+    "Polite"
    ],
    "trains": [
     "cooking",
@@ -55654,7 +55754,8 @@
    "likes": [
     "Serious",
     "Curious",
-    "Books"
+    "Books",
+    "Studious"
    ],
    "trains": [
     "logic",
@@ -56013,7 +56114,8 @@
    "likes": [
     "Calm",
     "Romantic",
-    "Travel"
+    "Travel",
+    "Nature"
    ],
    "trains": [
     "japanese",
@@ -56166,7 +56268,8 @@
    "likes": [
     "Cheerful",
     "Sports",
-    "Travel"
+    "Travel",
+    "Nature"
    ],
    "trains": [
     "fitness",
@@ -56370,7 +56473,8 @@
    "likes": [
     "Curious",
     "Calm",
-    "Art"
+    "Art",
+    "Studious"
    ],
    "trains": [
     "japanese",
@@ -56626,7 +56730,8 @@
    "likes": [
     "Art",
     "Books",
-    "Shy"
+    "Shy",
+    "Studious"
    ],
    "trains": [
     "writing",
@@ -56658,7 +56763,8 @@
    "likes": [
     "Serious",
     "Ambitious",
-    "Technology"
+    "Technology",
+    "Polite"
    ],
    "trains": [
     "logic",
@@ -57368,7 +57474,8 @@
    "likes": [
     "Cheerful",
     "Serious",
-    "Fashion"
+    "Fashion",
+    "Polite"
    ],
    "trains": [
     "charisma",
@@ -58083,7 +58190,8 @@
    "likes": [
     "Serious",
     "Ambitious",
-    "Curious"
+    "Curious",
+    "Studious"
    ],
    "trains": [
     "logic",
@@ -58792,7 +58900,8 @@
    "likes": [
     "Ambitious",
     "Sarcastic",
-    "Art"
+    "Art",
+    "Photography"
    ],
    "trains": [
     "charisma",
@@ -59291,7 +59400,8 @@
     "Hot-headed",
     "Outgoing",
     "Nightlife",
-    "Flirtatious"
+    "Flirtatious",
+    "Night owl"
    ],
    "trains": [
     "mixology",
@@ -60777,7 +60887,8 @@
    "likes": [
     "Sarcastic",
     "Lazy",
-    "Games"
+    "Games",
+    "Night owl"
    ],
    "trains": [
     "logic",
@@ -61126,7 +61237,8 @@
    "likes": [
     "Kind",
     "Romantic",
-    "Travel"
+    "Travel",
+    "Polite"
    ],
    "trains": [
     "japanese",
@@ -61795,7 +61907,8 @@
     "Shy",
     "Sarcastic",
     "Games",
-    "Technology"
+    "Technology",
+    "Night owl"
    ],
    "trains": [
     "charisma",
@@ -70852,12 +70965,15 @@
  },
  "traitInfo": {
   "Anime & manga": {
-   "desc": "Anime, manga and the Akihabara scene.",
+   "desc": "Anime, manga and Akihabara: drawing, writing, games and a day in Akihabara lift your mood a little more.",
    "covers": {
     "skills": [
      "drawing",
      "writing",
      "gaming"
+    ],
+    "tags": [
+     "anime"
     ]
    }
   },
@@ -70871,11 +70987,14 @@
    }
   },
   "Nightlife": {
-   "desc": "Bars, clubs and the last train missed on purpose.",
+   "desc": "Bars, clubs and the last train missed on purpose: a night out lifts your mood a little more.",
    "covers": {
     "skills": [
      "mixology",
      "dance"
+    ],
+    "tags": [
+     "nightlife"
     ]
    }
   },
@@ -70958,6 +71077,38 @@
    "covers": {
     "tags": [
      "kink"
+    ]
+   }
+  },
+  "Art": {
+   "desc": "Making art, and Tokyo's museums and galleries, lift your mood a little more.",
+   "covers": {
+    "skills": [
+     "drawing"
+    ],
+    "tags": [
+     "art",
+     "museum"
+    ]
+   }
+  },
+  "Nature": {
+   "desc": "Parks, gardens, flowers, insects and a line in the water lift your mood a little more.",
+   "covers": {
+    "tags": [
+     "nature",
+     "flowers",
+     "insects",
+     "fishing",
+     "park"
+    ]
+   }
+  },
+  "Travel": {
+   "desc": "Getting away (Yokohama, Hakone) lifts your mood a little more.",
+   "covers": {
+    "tags": [
+     "travel"
     ]
    }
   }

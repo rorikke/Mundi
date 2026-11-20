@@ -73,7 +73,15 @@ teaches you skills over a few weeks.
 
 - **Two strengths, each a skill level.** When you make your character, each strength names the skill it starts:
   "Good cook · Cooking 3", "Charming · Charisma 3". Two strengths on the same skill add only one more level (Strong and
-  Athletic: Fitness 4). A start that already gives you a higher level keeps it.
+  Athletic: Fitness 4).
+- **A strength adds to your start.** When your start already gives you some of a skill, a strength raises it two levels
+  more, so it's never wasted: Musical after *Back after years away* (Music 3) makes Music 5, and the chip says so
+  ("Musical · Music 3 → 5").
+- **One strength per skill in Tokyo**: Athletic, Smart, Charming, Creative, Musical, Good singer, Good dancer, Way with
+  words, Fashionable, Good cook, Gamer, Good eye (Photography), Bilingual (English or Japanese, whichever your start
+  gives you less of) and Good bartender (Mixology); Good
+  in bed with adult content on. Strong, Handy, Good with numbers and Tech-savvy are no longer offered (they said the
+  same as Athletic, Smart and Gamer); a persona that has them still converts.
 - **Your own personas convert too.** A persona made before keeps its picks, and a new game turns them into levels the
   same way.
 - Worlds without skills (the Shared House, for example) keep these choices as traits, as before.
@@ -81,22 +89,26 @@ teaches you skills over a few weeks.
 ### Personality
 
 Your three personality traits tell your employers who you are, are told to the AI every turn, and each does one small
-thing (a few cost you something too, so no choice is simply best):
+thing and costs you something, so no choice is simply best. Opposites can't be picked together (Outgoing and Shy,
+Calm and Hot-headed, Ambitious and Lazy, Polite and Sarcastic):
 
 | Trait | What it does |
 |---|---|
 | Outgoing | a warmer first impression, and friendships grow a little faster |
 | Shy | a cooler first impression, but romance fades more slowly |
-| Calm | mood drains 10% slower |
+| Calm | mood drains 10% slower, but parties give 10% less mood |
 | Hot-headed | +1 on fitness and dance rolls, but mood drains 10% faster |
-| Cheerful | +1 mood every morning |
+| Cheerful | +1 mood every morning, but performance grows 5% slower |
 | Serious | performance at work grows 10% faster, but parties give 10% less mood |
-| Romantic | romance from dates +10% |
-| Ambitious | ranks take 5% less time, but a morning without a job costs 1 mood |
+| Romantic | romance from dates +10%, but love fades 10% faster without them |
+| Ambitious | promotions at work come 5% sooner, but a morning without a job costs 1 mood |
 | Lazy | energy drains 10% slower, but performance grows 10% slower |
-| Curious | skills train 15% faster up to level 3 |
-| Kind | gifts give 10% more friendship |
+| Curious | skills train 10% faster up to level 5, but promotions at work take 5% longer |
+| Kind | gifts give 10% more friendship, but romance grows 5% slower until a crush |
 | Sarcastic | friendships with good friends grow 10% faster, first impressions are cooler |
+| Polite (Tokyo) | a warmer first impression, but friendships with good friends grow 5% slower |
+| Night owl (Tokyo) | energy drains 15% slower at night, but every morning costs 1 mood |
+| Studious (Tokyo) | classes are worth 10% more, but energy drains 5% faster |
 
 Each trait's line is shown when you pick it and on your profile ("Who you are").
 
@@ -104,6 +116,9 @@ Each trait's line is shown when you pick it and on your profile ("Who you are").
 
 - **Interests** still fill your dating profile, and doing something that fits one lifts your mood a little more:
   playing music with Music, a round of games with Games, cooking with Cooking.
+- **Every interest counts in Tokyo.** Travel is a day in Yokohama or Hakone, Nightlife a night in Golden Gai, Kabukichō,
+  Roppongi or Noge, Art the museums too, Books Jinbōchō and the university, Anime & manga Akihabara. Two new ones:
+  **Nature** (the parks, flowers, insects and fishing) and **Photography**.
 - **The AI knows who you are.** Your personality and interests are told to it every turn, so they stay true after you
   change a trait.
 - **No more habits.** Doing something often no longer turns into a trait ("Gym regular", "Early riser"): life goals'
@@ -1443,6 +1458,11 @@ place* can be turned off: then nobody changes. Older games and worlds without ou
   your skills and the premise become yours to change for that game (it's copied into Custom, so the world's start stays
   as it is). Starts you save keep their skills. A start you live in with others (Tokyo's student start in the Kōenji
   share house) keeps its home, the Home step marks your start's area, and a changed start says who you live with.
+- **Your household shows who your start has you living with**, instead of "You live alone for now": they're listed
+  (to live with someone else, change the start), and you can still add people. Their cards from an earlier game aren't
+  offered a second time.
+- **The Households step only appears when you bring characters of your own** (People step): the world's people already
+  have their homes, families and jobs, so with only them there was nothing to set.
 
 ### Tokyo's starts and money
 

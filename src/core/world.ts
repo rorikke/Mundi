@@ -324,6 +324,9 @@ export interface Attribute { id: string; name: string; desc?: string }
  *  group: each option stands for skill levels the pick starts with (`{ "Good cook": { cooking: 3 } }`). `formerly`:
  *  options no longer offered that keep their mapping in `skills`, so old saves and persona sheets still convert. */
 export interface TraitGroup { id: string; label: string; max: number; options: string[]; skills?: Record<string, Record<string, number>>; formerly?: string[];
+    /** (a strengths group) Options that raise only the lowest of the skills they name, at the new game (Bilingual:
+     *  English or Japanese, whichever the start gives less of). */
+    lowest?: string[];
     /** The whole group only with adult content on (In bed, Drive). */
     adult?: boolean;
     /** More options offered only with adult content on (Good in bed in the strengths group, Shameless in personality),
