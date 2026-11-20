@@ -187,8 +187,8 @@ Object.assign(ACT, {
         const c = gw(); const who = el.dataset.who!;
         // she is right here: you ask her in person, in the scene (the phone is for people who are elsewhere)
         if (c && state.view === 'scene' && sceneHere(c.g, c.w).some(r => r.avatar === who)) { PL.card = ''; PL.face = who; notify(); return; }
-        const { P } = await import('./phone.js');
-        PL.card = ''; P.open = true; P.app = 'person'; P.who = who; notify();
+        const { P } = await import('./phone.js'), { PP } = await import('./personpage.js');
+        PL.card = ''; P.open = true; P.app = 'person'; P.who = who; PP.tab = 'about'; notify();   // the plan form is in About
     },
     'pl-face-close': () => { PL.face = ''; notify(); },
     'pl-invite-face': (el) => {

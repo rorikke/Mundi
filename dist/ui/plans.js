@@ -209,12 +209,13 @@ Object.assign(ACT, {
             notify();
             return;
         }
-        const { P } = await import('./phone.js');
+        const { P } = await import('./phone.js'), { PP } = await import('./personpage.js');
         PL.card = '';
         P.open = true;
         P.app = 'person';
         P.who = who;
-        notify();
+        PP.tab = 'about';
+        notify(); // the plan form is in About
     },
     'pl-face-close': () => { PL.face = ''; notify(); },
     'pl-invite-face': (el) => {

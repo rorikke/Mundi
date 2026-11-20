@@ -6,7 +6,7 @@ import { interviewChance, interviewSkill, triedToday, retryText } from '../sim/s
 import { missingCourses, isTaking } from '../sim/courses.js';
 import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, type BillId } from '../sim/bills.js';
-import { shopApp, feelingsHtml } from './lifeui.js';
+import { shopApp } from './lifeui.js';
 import { SH } from './shopui.js';
 import { goalsApp, goalsBadge, GS } from './goalsui.js';
 import { collectionApp, openCollection, CL } from './collection.js';
@@ -58,6 +58,7 @@ import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, relOf, YOU } from '../sim/rel.js';
 import { crushOn, canAsk, tierNo } from '../sim/romance.js';
 import { knownHtml } from './personui.js';
+import { PP, personTabs, feelingsNow, aboutHtml, memoriesHtml, circleHtml, notesHtml } from './personpage.js';
 import { nudgeAnswersHtml, theirStoryHtml } from './threadui.js';
 import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
@@ -133,16 +134,17 @@ const backBtn = (parent: App) => `<button class="mu-ibtn mu-ghost" data-act="ph-
 // The views you came through, the one showing not included. Back first closes what is open inside an app (a goal, a
 // photo, a house's rooms), then goes to the view before; with none before, to the head's parent, then home.
 type View = { app: App; who: string; post: string };
-const NAV = { stack: [] as View[], last: null as View | null, mode: '' as '' | 'root' | 'back' };
+const NAV = { stack: [] as View[], last: null as View | null, mode: '' as '' | 'root' | 'back' | 'swap' };
 const viewNow = (): View => ({ app: P.app, who: P.app === 'thread' || P.app === 'person' ? P.who : '', post: P.app === 'post' ? P.post : '' });
 const sameView = (a: View, b: View) => a.app === b.app && a.who === b.who && a.post === b.post;
 // Run on every drawing of the open phone, so views opened from anywhere (a card in the scene, a toast) count too.
-// Not a step: the home screen and what it opens, a section's tabs, another conversation in place of one.
+// Not a step: the home screen and what it opens, a section's tabs, another conversation picked from the list
+// (data-nav="swap"). Another person's page opened from a person's Circle is one.
 function trackView() {
     const now = viewNow(), prev = NAV.last, mode = NAV.mode;
     NAV.last = now; NAV.mode = '';
     if (!prev || now.app === 'home' || mode === 'root') { NAV.stack = []; return; }
-    if (mode === 'back' || sameView(prev, now) || prev.app === 'home' || prev.app === now.app) return;
+    if (mode === 'back' || sameView(prev, now) || prev.app === 'home' || (prev.app === now.app && (mode === 'swap' || !now.who))) return;
     const s = sectionFor(prev.app); if (s && s === sectionFor(now.app)) return;
     // back on a view already passed through (a person's page → their conversation → their page): no loop
     const i = NAV.stack.findIndex(v => sameView(v, now));
@@ -274,7 +276,7 @@ function messagesApp(g: Save) {
     const list = met(g).filter(r => matchQ(g, r, true)).sort((a, b) => (s.threads[b.avatar]?.at(-1)?.at ?? 0) - (s.threads[a.avatar]?.at(-1)?.at ?? 0));
     return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}<div class="mu-ph-list">${list.length ? list.map(r => {
         const last = s.threads[r.avatar]?.at(-1);
-        return `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-thread" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+        return `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-thread" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
             <span><b data-notr>${esc(contactName(g, r))}</b><small data-notr>${last ? esc(last.text) : ''}</small></span>${s.unread[r.avatar] ? `<em>${s.unread[r.avatar]}</em>` : last ? `<small>${day(g, last.at)}</small>` : ''}</button>`;
     }).join('') : `<p class="mu-muted mu-pad">${T('noContacts')}</p>`}</div>`;
 }
@@ -296,7 +298,7 @@ function threadApp(g: Save) {
             ${t.length ? '' : `<p class="mu-muted mu-pad">${T('emptyThread')}</p>`}${NICK.who === r.avatar ? '' : (() => { const w = getWorld(g.world); return w ? nudgeAnswersHtml(g, w, r.avatar) : ''; })()}</div>
         <div class="mu-ph-quick">
             <button data-act="pl-come" data-who="${esc(r.avatar)}" ${PL.busy ? 'disabled' : ''}>${icon('home')}<span>Come over</span></button>
-            <button data-act="ph-person" data-who="${esc(r.avatar)}">${icon('calendar')}<span>Make plans</span></button>
+            <button data-act="ph-person" data-who="${esc(r.avatar)}" data-tab="about">${icon('calendar')}<span>Make plans</span></button>
             <button data-act="ph-quick" data-text="How are you doing?">${icon('chat')}<span>How are you?</span></button>
             <button data-act="ph-quick" data-text="I was thinking about you.">${icon('heart')}<span>Thinking of you</span></button>${(() => { const w = getWorld(g.world); return w ? helpBtn(g, w, r.avatar) : ""; })()}</div>
         <div class="mu-ph-compose"><input type="text" placeholder="${T('messagePlaceholder')}" value="${esc(P.draft)}" data-input="ph-draft" data-focus="ph-draft" ${P.typing ? 'disabled' : ''}>
@@ -319,7 +321,7 @@ function withVisitors(g: Save, w: WorldDef, html: string): string {
 function peopleApp(g: Save) {
     const list = met(g).filter(r => matchQ(g, r)).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
     const casual = new Set(casualsOf(g));
-    const row = (r: Resident) => `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+    const row = (r: Resident) => `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-person" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
         <span><b data-notr>${esc(contactName(g, r))}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>${isPartner(g, r.avatar) ? `<i class="mu-ph-heart">${icon('heart')}</i>` : ''}</button>`;
     const groups: [string, Resident[]][] = [['', list.filter(r => isPartner(g, r.avatar))], ['Casual', list.filter(r => casual.has(r.avatar))], ['', list.filter(r => !isPartner(g, r.avatar) && !casual.has(r.avatar))]];
     return `${head(appName('people'), 'home')}${searchBox('Search people')}<div class="mu-ph-list">${list.length ? groups.filter(([, rs]) => rs.length).map(([h, rs]) => `${h ? `<h5 class="mu-ph-group">${h}</h5>` : ''}${rs.map(row).join('')}`).join('')
@@ -329,18 +331,21 @@ function peopleApp(g: Save) {
 // A sure yes by phone: very close friends who also have a crush on you (being a couple needs both).
 const quickCouple = (g: Save, a: string) => bondOf(g, a) >= PARTNER_BOND && crushOn(g, a) && canAsk(g, a, 'date') && attracted(g, a, YOU) && !tierNo(g, a, 'date');   // a sure yes: never against attraction, nor (museum) before their tier
 
+// A person's page: who they are to you on top (with the buttons that matter most), then the tabs of ui/personpage.ts.
 function personApp(g: Save, w: WorldDef) {
     const r = g.cast[P.who]; if (!r) return peopleApp(g);
-    const partner = isPartner(g, r.avatar);
-    return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body">
-        <div class="mu-ph-profile"><img src="${esc(thumb(r.avatar))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[r.avatar] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[r.avatar]))}</small>` : ''}<small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}${tierHtml(g, w, r.avatar)}<small>${approvalWord(approvalOf(g, r.avatar))}</small>${feelingsHtml(g, r.avatar)}</div>
-        ${knownHtml(g, w, r.avatar)}
-        ${theirStoryHtml(g, w, r.avatar)}
-        <button data-act="ph-thread" data-who="${esc(r.avatar)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
-        ${featureOn(w, 'plans') ? `${planForm(g, w, r.avatar)}${visitRow(g, w, r.avatar)}` : ''}
-        ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? '<button data-act="ph-partner">Ask to be together</button>' : ''}
-        ${referBtn(g, w, r.avatar)}
-        <p class="mu-muted">Now: ${esc(placeOf(g, w, whereNow(g, w, r))?.name ?? '')}${breakNow(g, w, r) && whereNow(g, w, r) === breakNow(g, w, r)!.place ? ` · <i>${esc(breakNow(g, w, r)!.why.replace(/^is /, ''))}</i>` : ''}</p>
+    const a = r.avatar, partner = isPartner(g, a);
+    const here = whereNow(g, w, r), br = breakNow(g, w, r);
+    const now = `<section class="mu-pp-sec mu-pp-now"><h5>${icon('pin')}<span>Now</span></h5><b data-notr>${esc(placeOf(g, w, here)?.name ?? '')}</b>${br && here === br.place ? `<small>${esc(br.why.replace(/^is /, ''))}</small>` : ''}</section>`;
+    const plans = featureOn(w, 'plans') ? `<section class="mu-pp-sec">${planForm(g, w, a)}${visitRow(g, w, a)}</section>` : '';
+    const body = PP.tab === 'memories' ? memoriesHtml(g, w, a) : PP.tab === 'circle' ? circleHtml(g, w, a) : PP.tab === 'notes' ? notesHtml(g, w, a, knownHtml(g, w, a))
+        : aboutHtml(g, w, a, now, `${plans}${theirStoryHtml(g, w, a)}${referBtn(g, w, a)}`);
+    return `${head(esc(contactName(g, r)), 'people')}<div class="mu-ph-body mu-pp">
+        <div class="mu-ph-profile"><img src="${esc(thumb(a))}" alt=""><b data-notr>${esc(r.name)}</b>${nicks(g)[a] ? `<small data-notr>${esc(T('inYourDevice', nicks(g)[a]))}</small>` : ''}<small>${relSubtitle(g, a)}</small>${relBar(a)}${tierHtml(g, w, a)}<small>${approvalWord(approvalOf(g, a))}</small>${feelingsNow(g, a)}</div>
+        <div class="mu-pp-acts"><button class="mu-primary" data-act="ph-thread" data-who="${esc(a)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('writeMessage')}</span></button>
+            ${partner ? '<p class="mu-ph-love">You are together.</p>' : quickCouple(g, P.who) ? `<button data-act="ph-partner">${icon('heart')}<span>Ask to be together</span></button>` : ''}</div>
+        ${personTabs(g, w, a)}
+        <div class="mu-pp-body">${body}</div>
     </div>`;
 }
 
@@ -754,8 +759,8 @@ Object.assign(ACT, {
     },
     'sp-next': () => { P.matched = ''; notify(); },
     'ph-quick': async (el) => { P.draft = await translateTo(el.dataset.text ?? ''); ACT['ph-send']?.(el, new Event('click')); },
-    'ph-thread': (el) => { P.who = el.dataset.who!; P.app = 'thread'; P.draft = ''; notify(); },
-    'ph-person': (el) => { P.who = el.dataset.who!; P.app = 'person'; notify(); },
+    'ph-thread': (el) => { if (el.dataset.nav === 'swap') NAV.mode = 'swap'; P.who = el.dataset.who!; P.app = 'thread'; P.draft = ''; notify(); },
+    'ph-person': (el) => { if (el.dataset.nav === 'swap') NAV.mode = 'swap'; if (el.dataset.who !== P.who) PP.more = false; if (el.dataset.tab) PP.tab = 'about'; P.who = el.dataset.who!; P.app = 'person'; notify(); },
     'ph-send': async () => {
         const g = game(); const w = g && getWorld(g.world);
         const text = P.draft.trim(); const who = P.who;
