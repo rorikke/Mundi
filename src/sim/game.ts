@@ -29,7 +29,7 @@ import {
     readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS,
 } from '../st/bridge.js';
 import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
-import { withoutStrengths, applyStrengths } from './traits.js';
+import { withoutStrengths, addStrengths } from './traits.js';
 import { playerHomeId } from './places.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
@@ -548,8 +548,8 @@ export async function startNewGame(o: NewGame) {
     for (const ex of w.cast.examples) for (const f of ex.feelings ?? []) { const a = exAvatar.get(ex.name), b = exAvatar.get(f.to); if (a && b && a !== b && (adult || !f.adult)) { const { to, adult: x, ...feel } = f; void to; void x; applyStartFeel(save, { a, b, ...feel }); } }
     // (E16) the start: its job, skills, the people you already know, the household you live with
     applyStart(save, w, start, o.degree);
-    // what you're good at: the strengths picked become skill levels, at least, after the start's own skills
-    applyStrengths(save, w, o.hero.traits);
+    // what you're good at: the strengths picked become skill levels, over what the start already gave
+    addStrengths(save, w, o.hero.traits);
     for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b) continue;
         if (t.family && isFamily(t.family)) addOldTie(save, { a: t.a, b: t.b, type: t.family }, true);

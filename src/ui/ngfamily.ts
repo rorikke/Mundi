@@ -4,7 +4,7 @@
 import { homeKindName } from '../sim/places.js';
 import { safeUrl } from '../core/safe.js';
 import { state, notify, esc, toast, busy } from '../core/store.js';
-import { getWorld, worldFile, isScenario, systemOn, type WorldDef, type StartDef } from '../core/world.js';
+import { getWorld, worldFile, isScenario, systemOn, exampleTag, type WorldDef, type StartDef } from '../core/world.js';
 import { characters, thumb, charOf, createCharacter } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
 import { TIE_TYPES } from '../sim/living.js';
@@ -31,6 +31,13 @@ const hhs = (): NgHousehold[] => (wz().hh ??= []);
 export const familyOf = (): NgFamily[] => (wz().family ??= []);
 const inHousehold = (a: string) => hhs().some(h => h.members.includes(a)) || familyOf().some(f => f.avatar === a);
 const opt = (v: string, l: string, on: boolean) => `<option value="${esc(v)}" ${on ? 'selected' : ''}>${esc(l)}</option>`;
+/** A card Mundi made for one of this world's own people in an earlier game: they're chosen in the world's people list
+ *  (and live where the world or your start has them), so the pickers of your own characters leave them out (no second
+ *  copy of Mio among "your characters"). */
+export const worldCard = (w: WorldDef | null | undefined, c: any): boolean => {
+    const tag = c?.data?.extensions?.mundi?.example;
+    return !!w && typeof tag === 'string' && w.cast.examples.some(e => exampleTag(w, e) === tag);
+};
 const face = (a: string) => `<img src="${esc(thumb(a))}" alt="" title="${esc(nm(a))}">`;
 /* ---------- step: households ---------- */
 
@@ -43,6 +50,7 @@ export function stepHouseholds(): string {
         ${z.presetEdit || !(z.cast as string[]).length ? '' : `<div class="mu-row"><button class="mu-ghost" data-act="cp-save-wizard">${icon('save')}<span>Save these people as a preset</span></button></div>`}`;
     return `<h3>Households</h3>
         <p class="mu-muted">A household is people who live in the same home: a family, a couple, roommates. Put together the people who live together and say who is family. Everyone you leave out gets a home of their own, at random. You can skip this.</p>
+        ${(wz().wp ?? []).length ? '<p class="mu-muted">Only the characters you brought yourself are here: the world\'s own people already have their homes and families.</p>' : ''}
         <div class="mu-ngh">
             <aside class="mu-ngh-list">${list.map((x, i) => `<button class="mu-ngh-card ${i === sel ? 'is-on' : ''}" data-act="ngh-sel" data-i="${esc(i)}"><b>Household ${i + 1}</b>
                 <span class="mu-hh-faces">${x.members.map(face).join('') || '<em>Empty</em>'}</span></button>`).join('')}
@@ -169,16 +177,20 @@ function relationsHtml(mine: boolean): string {
 
 /* ---------- your household (on the "Your character" step, once you have one) ---------- */
 
-export function yourHouseholdHtml(): string {
-    const z = wz(); const fam = familyOf();
-    if (isScenario(getWorld(z.world))) return relationsHtml(true);   // one house: no household of your own
+/** `fromStart`: the world's people your start has you living with (its "Who you live with"): shown, not editable here
+ *  (the start says who they are to you; changing the start changes them). */
+export function yourHouseholdHtml(fromStart: { name: string; ex: { name: string; from?: string } }[] = []): string {
+    const z = wz(); const fam = familyOf(); const w = getWorld(z.world)!;
+    if (isScenario(w)) return relationsHtml(true);   // one house: no household of your own
     const q = String(z.famQ ?? '').toLowerCase();
-    const pool = characters().filter(c => !fam.some(f => f.avatar === c.avatar) && !hhs().some(h => h.members.includes(c.avatar)) && (!q || String(c.name).toLowerCase().includes(q))).slice(0, 40);
+    const pool = characters().filter(c => !fam.some(f => f.avatar === c.avatar) && !hhs().some(h => h.members.includes(c.avatar)) && !worldCard(w, c) && (!q || String(c.name).toLowerCase().includes(q))).slice(0, 40);
+    const start = fromStart.map(s => `<div class="mu-ties-add"><b data-notr>${esc(s.name)}</b><small class="mu-muted">lives with you: your start</small></div>`).join('');
     return `<section class="mu-panel mu-ngfam"><h3>Your household</h3>
         <p class="mu-muted">The people who live with you: family, a partner, roommates. They share your home and your wallet, and you can play as any of them later ("Play as"). A partner or a friend: say how you get along under Your relations.</p>
-        ${fam.map((f, k) => `<div class="mu-ties-add">${face(f.avatar)}<b data-notr>${esc(nm(f.avatar))}</b><span>is your</span>
+        ${fromStart.length ? '<p class="mu-muted">Your start has you living with them; to live with someone else, change the start ("Who you live with"). You can still add people.</p>' : ''}
+        ${start}${fam.map((f, k) => `<div class="mu-ties-add">${face(f.avatar)}<b data-notr>${esc(nm(f.avatar))}</b><span>is your</span>
             <select data-input="ngf-set" data-k="${esc(k)}" data-f="type">${opt('', 'housemate (not family)', !f.type)}${TIE_TYPES.map(([id, l]) => opt(id, l.replace(/ of$/, ''), f.type === id)).join('')}</select>
-            <button class="mu-ibtn mu-ghost" data-act="ngf-del" data-k="${esc(k)}">${icon('x')}</button></div>`).join('') || '<p class="mu-muted">You live alone for now.</p>'}
+            <button class="mu-ibtn mu-ghost" data-act="ngf-del" data-k="${esc(k)}">${icon('x')}</button></div>`).join('') || (start ? '' : '<p class="mu-muted">You live alone for now.</p>')}
         ${z.famNew ? newCharForm(z.famNew) : z.famOpen ? `<input class="mu-search" type="search" data-input="ngf-q" data-focus="ngfq" placeholder="Search your characters" value="${esc(z.famQ ?? '')}">
             <div class="mu-chips mu-ngfam-pool"><button class="mu-chip mu-ngfam-newchip" data-act="ngf-new">${icon('plus')}<span>Create a new character</span></button>${pool.map(c => `<button class="mu-chip" data-act="ngf-add" data-who="${esc(c.avatar)}">${face(c.avatar)}<span data-notr>${esc(c.name)}</span></button>`).join('') || '<p class="mu-muted">No characters found.</p>'}</div>`
             : `<div class="mu-row mu-ngfam-btns"><button data-act="ngf-open">${icon('plus')}<span>Add someone to your household</span></button><button data-act="ngf-new">${icon('user')}<span>Create a new character</span></button></div>`}

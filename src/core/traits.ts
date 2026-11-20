@@ -90,6 +90,8 @@ export function cleanEffects(list: unknown, lim: EffectLimits = TRAIT_LIMITS): E
 export interface TraitCovers { skills?: string[]; tags?: string[] }
 /** A trait's meaning in a world (`WorldDef.traitInfo`, by trait name). */
 export interface TraitInfo { desc?: string; effects?: EffectDef[]; covers?: TraitCovers;
+    /** (optional) Traits it can't go with: picking one rules out the other, either way round (Outgoing and Shy). */
+    not?: string[];
     /** (optional) What the AI is told while you have it, `{{user}}` for you (an adult trait's only with adult content on):
      *  In bed's "{{user}} takes the lead…", a drive's own words in place of the engine's. `desc` is the player's. */
     ai?: string }
@@ -106,18 +108,22 @@ export interface TraitInfo { desc?: string; effects?: EffectDef[]; covers?: Trai
 export const OUT_OF_WORK = 'out of work';
 export const STANDARD_TRAIT_INFO: Record<string, TraitInfo> = {
     // personality
-    'Outgoing': { desc: 'Easy with new people: a warmer first impression, and friendships grow a little faster.', effects: [{ kind: 'warm', target: 'new', value: 1 }, { kind: 'gain', target: 'friend', value: 0.05 }] },
-    'Shy': { desc: 'Slow to open up, but holds on to love: a cooler first impression, and romance fades more slowly.', effects: [{ kind: 'warm', target: 'new', value: -1 }, { kind: 'fade', target: 'romance', value: -0.15 }] },
-    'Calm': { desc: 'Hard to rattle: mood drains 10% slower.', effects: [{ kind: 'drain', target: 'mood', value: -0.1 }] },
-    'Hot-headed': { desc: 'Quick to act: +1 on fitness and dance, but mood drains 10% faster.', effects: [{ kind: 'roll', target: 'fitness', value: 1 }, { kind: 'roll', target: 'dance', value: 1 }, { kind: 'drain', target: 'mood', value: 0.1 }] },
-    'Cheerful': { desc: 'Wakes up in a good mood: +1 mood every morning.', effects: [{ kind: 'morning', target: 'mood', value: 1 }] },
+    // (each gives something and costs something, so no pick is simply best; opposites rule each other out)
+    'Outgoing': { desc: 'Easy with new people: a warmer first impression, and friendships grow a little faster.', effects: [{ kind: 'warm', target: 'new', value: 1 }, { kind: 'gain', target: 'friend', value: 0.05 }], not: ['Shy'] },
+    'Shy': { desc: 'Slow to open up, but holds on to love: a cooler first impression, and romance fades more slowly.', effects: [{ kind: 'warm', target: 'new', value: -1 }, { kind: 'fade', target: 'romance', value: -0.15 }], not: ['Outgoing'] },
+    'Calm': { desc: 'Hard to rattle, hard to excite: mood drains 10% slower, but parties give 10% less mood.', effects: [{ kind: 'drain', target: 'mood', value: -0.1 }, { kind: 'party', target: 'mood', value: -0.1 }], not: ['Hot-headed'] },
+    'Hot-headed': { desc: 'Quick to act: +1 on fitness and dance, but mood drains 10% faster.', effects: [{ kind: 'roll', target: 'fitness', value: 1 }, { kind: 'roll', target: 'dance', value: 1 }, { kind: 'drain', target: 'mood', value: 0.1 }], not: ['Calm'] },
+    'Cheerful': { desc: 'Wakes up in a good mood (+1 mood every morning), but takes work lightly: performance grows 5% slower.', effects: [{ kind: 'morning', target: 'mood', value: 1 }, { kind: 'perf', target: 'gain', value: -0.05 }] },
     'Serious': { desc: 'Takes work seriously: performance grows 10% faster, but parties give 10% less mood.', effects: [{ kind: 'perf', target: 'gain', value: 0.1 }, { kind: 'party', target: 'mood', value: -0.1 }] },
-    'Romantic': { desc: 'Makes dates count: romance from dates +10%.', effects: [{ kind: 'gain', target: 'dates', value: 0.1 }] },
-    'Ambitious': { desc: 'Wants to rise: ranks take 5% less time, but a morning without a job costs 1 mood.', effects: [{ kind: 'career', target: 'rank', value: -0.05 }, { kind: 'morning', target: 'mood', value: -1, when: OUT_OF_WORK }] },
-    'Lazy': { desc: 'Takes it easy: energy drains 10% slower, but performance grows 10% slower.', effects: [{ kind: 'drain', target: 'energy', value: -0.1 }, { kind: 'perf', target: 'gain', value: -0.1 }] },
-    'Curious': { desc: 'Always learning: skills train 15% faster up to level 3.', effects: [{ kind: 'learn', target: 'upto:3', value: 0.15 }] },
-    'Kind': { desc: 'Generous: gifts give 10% more friendship.', effects: [{ kind: 'gain', target: 'gifts', value: 0.1 }] },
-    'Sarcastic': { desc: 'A sharp tongue: friendships with good friends grow 10% faster, first impressions are cooler.', effects: [{ kind: 'gain', target: 'good friends', value: 0.1 }, { kind: 'warm', target: 'new', value: -1 }] },
+    'Romantic': { desc: 'Makes dates count: romance from dates +10%, but love fades 10% faster without them.', effects: [{ kind: 'gain', target: 'dates', value: 0.1 }, { kind: 'fade', target: 'romance', value: 0.1 }] },
+    'Ambitious': { desc: 'Wants to rise: promotions at work come 5% sooner, but a morning without a job costs 1 mood.', effects: [{ kind: 'career', target: 'rank', value: -0.05 }, { kind: 'morning', target: 'mood', value: -1, when: OUT_OF_WORK }], not: ['Lazy'] },
+    'Lazy': { desc: 'Takes it easy: energy drains 10% slower, but performance grows 10% slower.', effects: [{ kind: 'drain', target: 'energy', value: -0.1 }, { kind: 'perf', target: 'gain', value: -0.1 }], not: ['Ambitious'] },
+    'Curious': { desc: 'Always onto something new: skills train 10% faster up to level 5, but promotions at work take 5% longer.', effects: [{ kind: 'learn', target: 'upto:5', value: 0.1 }, { kind: 'career', target: 'rank', value: 0.05 }] },
+    'Kind': { desc: 'Generous: gifts give 10% more friendship, but romance grows 5% slower until a crush (easily seen as just a friend).', effects: [{ kind: 'gain', target: 'gifts', value: 0.1 }, { kind: 'gain', target: 'romance:early', value: -0.05 }] },
+    'Sarcastic': { desc: 'A sharp tongue: friendships with good friends grow 10% faster, first impressions are cooler.', effects: [{ kind: 'gain', target: 'good friends', value: 0.1 }, { kind: 'warm', target: 'new', value: -1 }], not: ['Polite'] },
+    'Polite': { desc: 'Good manners: a warmer first impression, but friendships with good friends grow 5% slower (always a little formal).', effects: [{ kind: 'warm', target: 'new', value: 1 }, { kind: 'gain', target: 'good friends', value: -0.05 }], not: ['Sarcastic'] },
+    'Night owl': { desc: 'Comes alive after dark: energy drains 15% slower at night, but every morning costs 1 mood.', effects: [{ kind: 'drain', target: 'energy', value: -0.15, when: 'period: night or latenight' }, { kind: 'morning', target: 'mood', value: -1 }] },
+    'Studious': { desc: 'At home with books: classes are worth 10% more, but energy drains 5% faster.', effects: [{ kind: 'study', target: 'class', value: 0.1 }, { kind: 'drain', target: 'energy', value: 0.05 }] },
     // interests: doing something that fits one lifts mood a little more
     'Music': { desc: 'Playing or singing lifts your mood a little more.', covers: { skills: ['music', 'singing'] } },
     'Karaoke': { desc: 'Singing lifts your mood a little more.', covers: { skills: ['singing'], tags: ['karaoke'] } },
@@ -135,6 +141,7 @@ export const STANDARD_TRAIT_INFO: Record<string, TraitInfo> = {
     'Movies': { desc: 'A film lifts your mood a little more.', covers: { tags: ['cinema', 'movies'] } },
     'Travel': { desc: 'Getting away lifts your mood a little more.', covers: { tags: ['travel'] } },
     'Dancing': { desc: 'Dancing lifts your mood a little more.', covers: { skills: ['dance'] } },
+    'Photography': { desc: 'Taking pictures lifts your mood a little more.', covers: { skills: ['photography'] } },
     'Swordplay': { desc: 'Training with a blade lifts your mood a little more.', covers: { tags: ['sword', 'arms'] } },
     'Riding': { desc: 'Riding lifts your mood a little more.', covers: { tags: ['riding', 'stable'] } },
     'Hunting': { desc: 'The hunt lifts your mood a little more.', covers: { tags: ['hunting', 'forest'] } },
@@ -156,6 +163,7 @@ export function upgradeTraitInfo(own: Record<string, TraitInfo> | undefined, off
         if (typeof info.desc === 'string') x.desc = info.desc;
         if (typeof info.ai === 'string' && info.ai.trim()) x.ai = info.ai.trim();
         if (info.effects !== undefined) x.effects = cleanEffects(info.effects);
+        if (Array.isArray(info.not)) x.not = info.not.filter((n): n is string => typeof n === 'string' && !!n);
         if (info.covers && typeof info.covers === 'object') x.covers = { ...(Array.isArray(info.covers.skills) ? { skills: info.covers.skills.filter(s => typeof s === 'string') } : {}), ...(Array.isArray(info.covers.tags) ? { tags: info.covers.tags.filter(s => typeof s === 'string') } : {}) };
         out[name] = x;
     }

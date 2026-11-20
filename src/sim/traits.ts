@@ -9,7 +9,7 @@ import { systemOn, activeStatuses, getWorld, type WorldDef, type TraitGroup } fr
 import { clampEffect, TRAIT_LIMITS, OUT_OF_WORK, type EffectDef } from '../core/traits.js';
 import { effectSources } from './effects.js';
 import { onAction } from './hooks.js';
-import { setSkillLevel, skillDef, hobbyFor, MAX_LEVEL } from './hobbies.js';
+import { setSkillLevel, skillDef, hobbyFor, levelOf, MAX_LEVEL } from './hobbies.js';
 import { whenHolds } from './when.js';
 import { placeOf } from './places.js';
 import { addStatus } from './needs.js';
@@ -40,6 +40,15 @@ export const groupOptions = (g: Save, t: TraitGroup): string[] => (isDriveGroup(
  *  off later; what you have stays, and counts again when it's back on). */
 export const traitsInPlay = (g: Save, w: WorldDef): string[] => { const all = traitNames(g), s = adultNames(w); return !s.size || adultOn(g) ? all : all.filter(t => !s.has(t)); };
 
+/* ---------- opposites ---------- */
+
+/** The trait among `mine` that `name` can't go with (the world's `traitInfo` `not`, read either way round: Outgoing
+ *  and Shy), or '' when there's none. */
+export const clashOf = (w: WorldDef | null | undefined, name: string, mine: string[]): string => {
+    const not = (n: string) => w?.traitInfo?.[n]?.not ?? [];
+    return mine.find(m => m !== name && (not(name).includes(m) || not(m).includes(name))) ?? '';
+};
+
 /* ---------- strengths: picks that become skill levels ---------- */
 
 /** The groups of a world's character sheet that are strengths (their options stand for skill levels). */
@@ -58,17 +67,56 @@ export function strengthOf(w: WorldDef | null | undefined, name: string): Record
     }
     return null;
 }
-/** A strengths option as chips say it: "Cooking 3" ('' for an option that isn't one). */
-export const strengthText = (w: WorldDef | null | undefined, name: string): string => Object.entries(strengthOf(w, name) ?? {}).map(([id, n]) => `${skillDef(w, id)?.name ?? id} ${n}`).join(', ');
+/** A pick as the group offers it now: itself while offered, else the option that stands for the same skills (a persona's
+ *  Strong is Athletic now: both Fitness 3), else '' (nothing offered says the same). */
+export function currentOption(w: WorldDef | null | undefined, grp: TraitGroup, name: string): string {
+    if (grp.options.includes(name)) return name;
+    const key = (n: string) => JSON.stringify(Object.entries(strengthOf(w, n) ?? {}).sort());
+    const was = grp.skills ? key(name) : '[]';
+    return was === '[]' ? '' : grp.options.find(o => key(o) === was) ?? '';
+}
+/** Does this option raise only the lowest of its skills (its group's `lowest`: Bilingual, English or Japanese)? */
+export const raisesLowest = (w: WorldDef | null | undefined, name: string): boolean => strengthGroups(w).some(grp => (grp.lowest ?? []).includes(name));
+/** A strengths option as chips say it: "Cooking 3", "English or Japanese 3" for one that raises the lowest ('' for an
+ *  option that isn't one). */
+export const strengthText = (w: WorldDef | null | undefined, name: string): string => {
+    const got = Object.entries(strengthOf(w, name) ?? {}), say = (id: string) => skillDef(w, id)?.name ?? id;
+    return raisesLowest(w, name) && got.length > 1 ? `${got.map(([id]) => say(id)).join(' or ')} ${Math.max(...got.map(([, n]) => n))}` : got.map(([id, n]) => `${say(id)} ${n}`).join(', ');
+};
 
-/** The skill levels a set of picks gives (a list of names, or a hero's `traits` by group; only strengths groups count).
- *  Two picks on one skill don't stack past the better one plus 1 (Strong and Athletic: Fitness 4). */
+/** How many levels a new game's strength adds over what the start already gave its skill. */
+export const STRENGTH_STEP = 2;
+
+// The names picked (a list, or a hero's `traits` by group; only strengths groups count).
+const pickNames = (w: WorldDef | null | undefined, picks: string[] | Record<string, string[]>): string[] =>
+    [...new Set(Array.isArray(picks) ? picks : strengthGroups(w).flatMap(grp => names((picks as Record<string, string[]>)?.[grp.id])))];
+// Per skill, the levels the picks name. One that raises the lowest of its skills counts for the one you have least of
+// (`from`: what you start with; a tie, the first it names).
+function strengthPicks(w: WorldDef | null | undefined, picks: string[] | Record<string, string[]>, from: Record<string, number> = {}): Record<string, number[]> {
+    const per: Record<string, number[]> = {}, lv = (id: string) => Number(from[id]) || 0;
+    for (const name of pickNames(w, picks)) {
+        let got = Object.entries(strengthOf(w, name) ?? {});
+        if (got.length > 1 && raisesLowest(w, name)) got = [got.reduce((a, b) => (lv(b[0]) < lv(a[0]) ? b : a))];
+        for (const [id, n] of got) (per[id] ??= []).push(n);
+    }
+    return per;
+}
+/** The skill levels a set of picks gives on its own. Two picks on one skill don't stack past the better one plus 1
+ *  (Strong and Athletic: Fitness 4). */
 export function strengthLevels(w: WorldDef | null | undefined, picks: string[] | Record<string, string[]>): Record<string, number> {
-    const list = Array.isArray(picks) ? picks : strengthGroups(w).flatMap(grp => names((picks as Record<string, string[]>)?.[grp.id]));
-    const per: Record<string, number[]> = {};
-    for (const name of new Set(list)) for (const [id, n] of Object.entries(strengthOf(w, name) ?? {})) (per[id] ??= []).push(n);
     const out: Record<string, number> = {};
-    for (const [id, ns] of Object.entries(per)) out[id] = Math.min(MAX_LEVEL, Math.max(...ns) + (ns.length > 1 ? 1 : 0));
+    for (const [id, ns] of Object.entries(strengthPicks(w, picks))) out[id] = Math.min(MAX_LEVEL, Math.max(...ns) + (ns.length > 1 ? 1 : 0));
+    return out;
+}
+/** The levels a new game's picks give on top of the skills you start with (`from`, by skill): STRENGTH_STEP over the
+ *  start's level (one more for two picks on one skill), and never below the level the strength names. A strength the
+ *  start already covers still counts (Musical after a start with Music 3: Music 5). */
+export function strengthsOver(w: WorldDef | null | undefined, picks: string[] | Record<string, string[]>, from: Record<string, number>): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const [id, ns] of Object.entries(strengthPicks(w, picks, from))) {
+        const two = ns.length > 1 ? 1 : 0, start = Math.max(0, Number(from[id]) || 0);
+        out[id] = Math.min(MAX_LEVEL, Math.max(Math.max(...ns) + two, start ? start + STRENGTH_STEP + two : 0));
+    }
     return out;
 }
 /** The picks a world maps to skills, and the rest: only the rest stays a trait. */
@@ -82,9 +130,16 @@ export function withoutStrengths(w: WorldDef, traits: Record<string, string[]>):
     for (const [k, v] of Object.entries(out)) out[k] = splitStrengths(w, names(v)).rest;
     return out;
 }
-/** Raises the skills the picks stand for to at least their levels (never lowers one); the notes say what rose. */
+/** Raises the skills the picks stand for to at least their levels (never lowers one): a save from before strengths
+ *  were skill levels, whose skills since aren't a start's. */
 export function applyStrengths(g: Save, w: WorldDef, picks: string[] | Record<string, string[]>): void {
     for (const [id, n] of Object.entries(strengthLevels(w, picks))) setSkillLevel(g, id, n);
+}
+/** A new game's strengths, after its start: each one raises its skill over what the start gave (`strengthsOver`). */
+export function addStrengths(g: Save, w: WorldDef, picks: string[] | Record<string, string[]>): void {
+    const from: Record<string, number> = {};
+    for (const id of pickNames(w, picks).flatMap(n => Object.keys(strengthOf(w, n) ?? {}))) from[id] = levelOf(g, id);
+    for (const [id, n] of Object.entries(strengthsOver(w, picks, from))) setSkillLevel(g, id, n);
 }
 
 /* ---------- the Drive (adult content, with Desire in play) ---------- */
@@ -179,6 +234,8 @@ export function swapTrait(g: Save, w: WorldDef, groupId: string, from: string, t
     if (i < 0) return { ok: false, text: `You are not ${from.toLowerCase()}.` };
     if (!groupOptions(g, grp).includes(to)) return { ok: false, text: `${to} is not something you can become.` };
     if (traitNames(g).includes(to)) return { ok: false, text: `You already are ${to.toLowerCase()}.` };
+    const clash = clashOf(w, to, traitNames(g).filter(x => x !== from));
+    if (clash) return { ok: false, text: `You can't be ${to.toLowerCase()} and ${clash.toLowerCase()} at once.` };
     mine[i] = to;
     note(g, '{u} changed: no longer {0}, now {1}.', [from.toLowerCase(), to.toLowerCase()], [], g.player.loc, 'skill');
     return { ok: true, text: `You are no longer ${from.toLowerCase()}. You are now ${to.toLowerCase()}.` };
