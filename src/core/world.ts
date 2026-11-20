@@ -631,8 +631,9 @@ export interface CaughtRow { id: string; where?: string; action?: string; when?:
  *  the pictures they put up, each drawn as a place's picture with one of their sprites on it: `place` a place id,
  *  `slot` its time of day (missing: day), `expr` an expression (missing: joy; the nearest one their set has), `outfit`
  *  one of their outfits (missing: their usual clothes; an adult outfit only with adult content on). Without photos (or
- *  sprites) the portrait is the only picture. */
-export interface DatingCard { bio?: string; prompts?: { q: string; a: string }[]; photos?: DatingPhoto[] }
+ *  sprites) the portrait is the only picture. `off`: they aren't the kind to have a profile at all (never on the app,
+ *  and nothing else here is read); someone the world wrote a profile for is on it. */
+export interface DatingCard { off?: boolean; bio?: string; prompts?: { q: string; a: string }[]; photos?: DatingPhoto[] }
 export interface DatingPhoto { place: string; slot?: 'day' | 'afternoon' | 'night'; expr?: string; outfit?: string }
 /** (dress) What an outfit is: its `kind` (`swim`, `yukata`…; any word), how bold it is (`level` 1 modest, 2
  *  everyday, 3 bold, 4 explicit; missing: 1), `adult`: only with adult content on (level 4 always is), and `look`: the

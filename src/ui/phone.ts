@@ -684,17 +684,19 @@ function datingApp(g: Save, w: WorldDef) {
     const photos = profilePhotos(g, w, r);
     wantSprites(w, photos);
     // A profile read top to bottom: the first picture with who they are, what they wrote, then their other pictures
-    // between their answers, the way dating apps lay one out.
-    const pic = (i: number) => (photos[i] ? `<div class="mu-sp-photo">${photoPic(g, w, photos[i])}</div>` : '');
+    // between their answers, the way dating apps lay one out. The first picture is one of them: places without them
+    // (someone who keeps their face off the app) come after their portrait.
+    const lead = photos[0]?.who?.length ? photos[0] : null, more = lead ? photos.slice(1) : photos;
+    const pic = (i: number) => (more[i - 1] ? `<div class="mu-sp-photo">${photoPic(g, w, more[i - 1])}</div>` : '');
     const answer = (i: number) => (p.prompts[i] ? `<div class="mu-sp-prompt"><small>${esc(p.prompts[i].q)}</small><p data-notr>${esc(p.prompts[i].a)}</p></div>` : '');
-    const hero = `<div class="mu-sp-hero">${photos[0] ? photoPic(g, w, photos[0]) : `<img src="${esc(thumb(r.avatar))}" alt="">`}
+    const hero = `<div class="mu-sp-hero">${lead ? photoPic(g, w, lead) : `<img src="${esc(thumb(r.avatar))}" alt="">`}
             <div class="mu-sp-info"><h3><span data-notr>${esc(r.name)}</span>${Number.isFinite(p.age) ? `<span class="mu-sp-age">, ${Math.round(p.age!)}</span>` : ''}</h3><small>${esc(p.looking)}</small></div>
             ${photos.length > 1 ? `<span class="mu-sp-count">${icon('image')}${photos.length}</span>` : ''}</div>`;
     const bio = p.bio ? `<div class="mu-sp-bio">${BOOK ? '<small>The matchmaker says</small>' : ''}<p data-notr>${esc(p.bio)}</p></div>`
         : p.pending ? `<div class="mu-sp-bio is-pending" aria-label="Writing…"><i></i><i></i><i></i></div>` : '';
     const likes = `<div class="mu-sp-likes"><div class="mu-chips">${interests.map(i => `<span class="mu-chip ${shared.includes(i) ? 'is-on' : ''}">${esc(i)}</span>`).join('')}</div>
             ${both.length ? `<small class="mu-sp-both">${icon('flame')}<span>In bed, you both like:</span> <span data-notr>${esc(both.join(', '))}</span></small>` : ''}</div>`;
-    const rest = photos.slice(3).map((_, i) => pic(i + 3) + answer(i + 2)).join('') + (photos.length <= 3 ? answer(2) : '');
+    const rest = more.slice(2).map((_, i) => pic(i + 3) + answer(i + 2)).join('') + (more.length <= 2 ? answer(2) : '');
     return `${top}<div class="mu-sp-card" data-keep="sp-${esc(r.avatar)}">${hero}${bio}${pic(1)}${answer(0)}${likes}${pic(2)}${answer(1)}${rest}</div>
         <div class="mu-sp-btns"><button class="mu-sp-no" data-act="sp-swipe" data-who="${esc(r.avatar)}" data-like="0" aria-label="${T('pass')}" title="${T('pass')}">${icon('x')}</button>
             <button class="mu-sp-yes" data-act="sp-swipe" data-who="${esc(r.avatar)}" data-like="1" aria-label="${T('like')}" title="${T('like')}">${icon('heart')}</button></div>`;

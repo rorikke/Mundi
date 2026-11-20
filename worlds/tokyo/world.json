@@ -63432,25 +63432,7 @@
      "swim-rashguard": "cast/haru/swim-rashguard"
     },
     "dating": {
-     "bio": "they/them. I draw: at work, then again at night. Quiet isn't bored. I notice things and mostly keep them to myself.",
-     "prompts": [
-      {
-       "q": "Green flags",
-       "a": "You can sit in a kissaten for an hour without filling the silence. And you ask, instead of guessing."
-      }
-     ],
-     "photos": [
-      {
-       "place": "bay_art",
-       "slot": "night",
-       "expr": "neutral"
-      },
-      {
-       "place": "ak_jinbocho",
-       "slot": "afternoon",
-       "expr": "curiosity"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -64001,20 +63983,7 @@
      "swim-trunks": "cast/genzo/swim-trunks"
     },
     "dating": {
-     "bio": "Widower. I cook. I don't talk much. Eat well and we'll get along.",
-     "prompts": [
-      {
-       "q": "My simple pleasures",
-       "a": "The river at dawn. A cold beer after closing."
-      }
-     ],
-     "photos": [
-      {
-       "place": "ot_sumida",
-       "slot": "day",
-       "expr": "neutral"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -64425,35 +64394,7 @@
      }
     ],
     "dating": {
-     "bio": "I spend my days at a quiet little shrine and my evenings in Jinbōchō's bookshops. Very well-mannered, I promise. Please bring a good book and a slightly improper sense of humour.",
-     "prompts": [
-      {
-       "q": "Two truths and a lie",
-       "a": "I can fold a paper crane in twenty seconds. I've read every book on my shelf. I've never blushed in a bookshop."
-      },
-      {
-       "q": "The way to win me over",
-       "a": "Recommend a book I'd be embarrassed to be seen buying. I'll buy it anyway. Politely."
-      }
-     ],
-     "photos": [
-      {
-       "place": "ot_shrine",
-       "slot": "day",
-       "expr": "joy"
-      },
-      {
-       "place": "ak_jinbocho",
-       "slot": "afternoon",
-       "expr": "amusement"
-      },
-      {
-       "place": "ot_sensoji",
-       "slot": "night",
-       "expr": "embarrassment",
-       "outfit": "yukata"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -66158,25 +66099,7 @@
      "swim-white": "cast/reiko/swim-white"
     },
     "dating": {
-     "bio": "Long days, short sentences. I'm not looking to be impressed. A quiet bar, a song I don't have to explain, and someone who needs nothing from me. That would be enough.",
-     "prompts": [
-      {
-       "q": "Typical Friday night",
-       "a": "A six-seat bar in Golden Gai. One song. Occasionally two."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sj_goldengai",
-       "slot": "night",
-       "expr": "neutral"
-      },
-      {
-       "place": "ak_myojin",
-       "slot": "day",
-       "expr": "neutral"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -66360,49 +66283,7 @@
      "swim-coral": "cast/rina/swim-coral"
     },
     "dating": {
-     "bio": "Building something 🚀 Two phones, zero chill, will book us a weekend in Hakone at 11pm on a Thursday. Looking for someone grounded enough to tell me to put the phones down. I might even listen.",
-     "prompts": [
-      {
-       "q": "A perfect first date",
-       "a": "Zero plan. Pick a train line, get off at stop five, iterate from there."
-      },
-      {
-       "q": "My most unpopular opinion",
-       "a": "The safe career is the risky one. (My big sister disagrees. Loudly.)"
-      },
-      {
-       "q": "I'll know it's going well when",
-       "a": "I forget to check either phone for an hour. That's my north-star metric."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sb_omotesando",
-       "slot": "afternoon",
-       "expr": "joy"
-      },
-      {
-       "place": "bay_beach",
-       "slot": "day",
-       "expr": "excitement",
-       "outfit": "swim-coral"
-      },
-      {
-       "place": "rp_lounge",
-       "slot": "night",
-       "expr": "amusement"
-      },
-      {
-       "place": "hk_yumoto",
-       "slot": "day",
-       "expr": "joy"
-      },
-      {
-       "place": "bay_bridge",
-       "slot": "night",
-       "expr": "optimism"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -66531,29 +66412,7 @@
      "swim-trunks": "cast/daisuke/swim-trunks"
     },
     "dating": {
-     "bio": "Sorry, I'm not very good at these. I work a lot, people say I make good tea, and I always walk on the street side. Sorry if that's too much. Thank you for reading this far!",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "Ah, sorry, I don't think it's difficult? If you notice me, that's already a lot."
-      },
-      {
-       "q": "My simple pleasures",
-       "a": "The East Gardens at lunch. A cold beer under the train tracks. Sorry, that's two."
-      }
-     ],
-     "photos": [
-      {
-       "place": "mg_palace",
-       "slot": "day",
-       "expr": "joy"
-      },
-      {
-       "place": "sj_omoide",
-       "slot": "night",
-       "expr": "embarrassment"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -66715,25 +66574,7 @@
      "swim-onepiece": "cast/hina/swim-onepiece"
     },
     "dating": {
-     "bio": "can't say much about work, sorry. what i want is boring: a walk somewhere green, holding hands, a normal date nobody takes pictures of. please not a fan.",
-     "prompts": [
-      {
-       "q": "My ideal Sunday",
-       "a": "a manga café booth, a whole series, a melon soda. nobody knows where i am."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sj_gyoen",
-       "slot": "afternoon",
-       "expr": "joy"
-      },
-      {
-       "place": "ak_mangacafe",
-       "slot": "night",
-       "expr": "amusement"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -66814,30 +66655,7 @@
      "swim-trunks": "cast/shota/swim-trunks"
     },
     "dating": {
-     "bio": "I spend my nights making other people's evenings better. On my nights off I'd like someone who asks about mine. Honesty is attractive. Flattery I can do myself.",
-     "prompts": [
-      {
-       "q": "I'm looking for someone who",
-       "a": "asks what I want, not what I can do for them. Nobody's asked in a while."
-      }
-     ],
-     "photos": [
-      {
-       "place": "rp_azabu",
-       "slot": "afternoon",
-       "expr": "neutral"
-      },
-      {
-       "place": "sj_goldengai",
-       "slot": "night",
-       "expr": "amusement"
-      },
-      {
-       "place": "rp_pub",
-       "slot": "night",
-       "expr": "approval"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -66943,34 +66761,7 @@
      "swim-sarong": "cast/kyoko/swim-sarong"
     },
     "dating": {
-     "bio": "I keep a little bar and a great many secrets, dear, none of them mine to tell. Bring me something to laugh about and don't try to fix me. I'm not a project, and I'm certainly not your mother.",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "Flatter me, dear. Badly is fine. Sincerely is better."
-      },
-      {
-       "q": "My simple pleasures",
-       "a": "Gyoen before the crowds, red lipstick, a cigarette holder with nothing in it."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sj_omoide",
-       "slot": "night",
-       "expr": "amusement"
-      },
-      {
-       "place": "sj_gyoen",
-       "slot": "day",
-       "expr": "neutral"
-      },
-      {
-       "place": "sj_nichome",
-       "slot": "night",
-       "expr": "joy"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -67189,29 +66980,7 @@
      "swim-hoodie": "cast/natsuki/swim-hoodie"
     },
     "dating": {
-     "bio": "i make games, then go home and play other people's. gg ez (it was not ez). if you can sit next to me while i grind and not talk, that's basically a proposal",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "beat me at anything in Pixel Castle. you can't. respect for trying tho, fr"
-      },
-      {
-       "q": "Don't hate me if I",
-       "a": "go silent for twenty minutes. not mad. just processing. or mid-match."
-      }
-     ],
-     "photos": [
-      {
-       "place": "ak_arcade",
-       "slot": "night",
-       "expr": "excitement"
-      },
-      {
-       "place": "sj_tocho",
-       "slot": "night",
-       "expr": "neutral"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -67958,25 +67727,7 @@
      "swim-wrap": "cast/shizuka/swim-wrap"
     },
     "dating": {
-     "bio": "I live in Hakone and come into Tokyo on my days off. I like Lake Ashi early, before the first boat, and the sculpture garden when it rains. My family thinks I ought to meet people. I would rather begin with a conversation than a meeting.",
-     "prompts": [
-      {
-       "q": "My simple pleasures",
-       "a": "The bath after the last guest is asleep. Folding things properly. A day that is entirely mine."
-      }
-     ],
-     "photos": [
-      {
-       "place": "hk_ashi",
-       "slot": "day",
-       "expr": "neutral"
-      },
-      {
-       "place": "hk_sculpture",
-       "slot": "afternoon",
-       "expr": "curiosity"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -68138,34 +67889,7 @@
      "swim-onepiece": "cast/seoyeon/swim-onepiece"
     },
     "dating": {
-     "bio": "I read slowly and walk slowly. On Saturdays I am usually somewhere in Jinbōchō, with a film camera that has thirty-six frames and very little patience for me. If you lend me a book you love, I will return it with notes in the margin. In pencil, of course.",
-     "prompts": [
-      {
-       "q": "A perfect first date",
-       "a": "A secondhand bookshop, one book chosen for each other, then coffee somewhere quiet enough to read the first page aloud."
-      },
-      {
-       "q": "I'll know it's going well when",
-       "a": "you find the quotation I left between the pages, and you answer it."
-      }
-     ],
-     "photos": [
-      {
-       "place": "ak_jinbocho",
-       "slot": "afternoon",
-       "expr": "joy"
-      },
-      {
-       "place": "ot_yanaka",
-       "slot": "afternoon",
-       "expr": "curiosity"
-      },
-      {
-       "place": "ot_museum",
-       "slot": "day",
-       "expr": "admiration"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -69769,49 +69493,7 @@
      "robe": "cast/airi/robe"
     },
     "dating": {
-     "bio": "Yes, it's really me. No autographs, no \"I've seen your work\". Buy me a highball, tell me something dumb about your day, and I'll laugh louder than anybody in the bar, honma. Osaka girl, eats like one.",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "Don't google me. Or do, and never bring it up. Talk to me about takoyaki instead."
-      },
-      {
-       "q": "Typical Friday night",
-       "a": "Sunglasses on, the smallest bar in Golden Gai, a mama-san who never asks."
-      },
-      {
-       "q": "My most unpopular opinion",
-       "a": "Tokyo okonomiyaki is a crime. I will fight anyone, anywhere."
-      }
-     ],
-     "photos": [
-      {
-       "place": "rp_azabu",
-       "slot": "afternoon",
-       "expr": "joy"
-      },
-      {
-       "place": "sj_goldengai",
-       "slot": "night",
-       "expr": "amusement"
-      },
-      {
-       "place": "sb_omotesando",
-       "slot": "day",
-       "expr": "pride"
-      },
-      {
-       "place": "rp_lounge",
-       "slot": "night",
-       "expr": "desire"
-      },
-      {
-       "place": "rp_nightpool",
-       "slot": "night",
-       "expr": "amusement",
-       "outfit": "swim-red"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -70002,50 +69684,7 @@
      "jersey": "cast/momo/jersey"
     },
     "dating": {
-     "bio": "Sorry, first time doing this! Ex-volleyball girl from Fukuoka. I'll race you across Yoyogi Park and probably win, sorry again 🏐 I want a proper date, with a reservation and everything. I'll bring snacks, that's a promise tai!",
-     "prompts": [
-      {
-       "q": "A perfect first date",
-       "a": "A real one! You pick the place, I wear something nice, we share mentaiko and I try not to apologize the whole time."
-      },
-      {
-       "q": "Two truths and a lie",
-       "a": "I once spiked a ball into the vice-principal. I can climb a pole to the ceiling. I'm calm on first dates."
-      },
-      {
-       "q": "Green flags",
-       "a": "You laugh easily. You don't mind that I'm taller. You eat seconds."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sb_yoyogi",
-       "slot": "day",
-       "expr": "joy"
-      },
-      {
-       "place": "sb_centergai",
-       "slot": "afternoon",
-       "expr": "amusement"
-      },
-      {
-       "place": "yk_batting",
-       "slot": "afternoon",
-       "expr": "pride",
-       "outfit": "jersey"
-      },
-      {
-       "place": "bay_beach",
-       "slot": "day",
-       "expr": "excitement",
-       "outfit": "swim-volleyball"
-      },
-      {
-       "place": "sj_gyoen",
-       "slot": "afternoon",
-       "expr": "embarrassment"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -70449,29 +70088,7 @@
      }
     ],
     "dating": {
-     "bio": "I am reading Colette this month, slowly, in French. I like Jinbōchō on rainy afternoons, the wagashi counter at the depachika, and conversations nobody hurries. I'm told I am too formal. I am trying. Discretion matters to me a great deal.",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "Be kind, be discreet, and please take the lead. Gently."
-      },
-      {
-       "q": "I'll know it's going well when",
-       "a": "I forget to be polite."
-      }
-     ],
-     "photos": [
-      {
-       "place": "ak_jinbocho",
-       "slot": "afternoon",
-       "expr": "joy"
-      },
-      {
-       "place": "ot_museum",
-       "slot": "day",
-       "expr": "admiration"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -70797,34 +70414,7 @@
     "doorAdult": true,
     "doorLine": "{name} leans in the doorway of the wooden building and doesn't step aside. \"Customers don't come up these stairs,\" she says, kindly. \"In here I'm off the clock.\"",
     "dating": {
-     "bio": "I spend all day helping other people unwind. Your turn to try it on me. The sentō at opening time, a cold beer in Omoide Yokochō, a slow walk through Gyoen. Good manners will get you very, very far.",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "Say thank you like you mean it. Then offer me your shoulder, for once."
-      },
-      {
-       "q": "Green flags",
-       "a": "Steady hands. Clean nails. You thank the staff on the way out."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sj_gyoen",
-       "slot": "afternoon",
-       "expr": "amusement"
-      },
-      {
-       "place": "sj_omoide",
-       "slot": "night",
-       "expr": "desire"
-      },
-      {
-       "place": "ws_koenji",
-       "slot": "day",
-       "expr": "neutral"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -71239,54 +70829,7 @@
      }
     ],
     "dating": {
-     "bio": "I'm very good at making people wait. Don't take it personally; take it as a compliment. Impress me with something money can't buy, I've seen the rest. Kobe girl, Tokyo nights, and Sunday mornings in Gyoen when nobody's watching.",
-     "prompts": [
-      {
-       "q": "The way to win me over",
-       "a": "Don't try. The ones who try are so tiring, honestly."
-      },
-      {
-       "q": "Typical Friday night",
-       "a": "Working. You couldn't afford my Friday, darling. Ask me about Sunday."
-      },
-      {
-       "q": "Don't hate me if I",
-       "a": "take three days to answer. Worth it. I promise."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sb_omotesando",
-       "slot": "afternoon",
-       "expr": "pride"
-      },
-      {
-       "place": "rp_azabu",
-       "slot": "day",
-       "expr": "joy"
-      },
-      {
-       "place": "sj_goldengai",
-       "slot": "night",
-       "expr": "amusement"
-      },
-      {
-       "place": "sj_gyoen",
-       "slot": "day",
-       "expr": "neutral"
-      },
-      {
-       "place": "rp_lounge",
-       "slot": "night",
-       "expr": "approval"
-      },
-      {
-       "place": "rp_nightpool",
-       "slot": "night",
-       "expr": "desire",
-       "outfit": "swim-violet"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -71544,25 +71087,7 @@
      "swim-cover": "cast/kaoru/swim-cover"
     },
     "dating": {
-     "bio": "I work nights and I've watched every kind of first date walk past me. None of them were mine. Kissaten coffee, a sentō, a slow walk in Shimokita. I don't shock easily and I don't gossip.",
-     "prompts": [
-      {
-       "q": "Two truths and a lie",
-       "a": "Nothing at work has surprised me in twelve years. I live alone in Setagaya. I've been on a lot of first dates."
-      }
-     ],
-     "photos": [
-      {
-       "place": "ws_kissaten",
-       "slot": "afternoon",
-       "expr": "amusement"
-      },
-      {
-       "place": "ws_shimokita",
-       "slot": "day",
-       "expr": "neutral"
-      }
-     ]
+     "off": true
     }
    },
    {
@@ -71700,34 +71225,7 @@
     "avatar": "cast/erika/portrait.webp",
     "sprites": "cast/erika/sprites",
     "dating": {
-     "bio": "I don't photograph dates. Don't ask. Be good at something and don't tell me about it; I'll notice. I'm funny at two in the morning and not before.",
-     "prompts": [
-      {
-       "q": "A perfect first date",
-       "a": "Somewhere with terrible lighting, so I stop working."
-      },
-      {
-       "q": "Don't hate me if I",
-       "a": "fix your posture. Chin up. Turn. Hold it."
-      }
-     ],
-     "photos": [
-      {
-       "place": "sb_studio_mizu",
-       "slot": "day",
-       "expr": "pride"
-      },
-      {
-       "place": "sb_omotesando",
-       "slot": "afternoon",
-       "expr": "neutral"
-      },
-      {
-       "place": "rp_lounge",
-       "slot": "night",
-       "expr": "amusement"
-      }
-     ]
+     "off": true
     }
    }
   ]

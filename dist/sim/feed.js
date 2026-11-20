@@ -2,13 +2,15 @@
 // the AI, two at a time, and shown read-only in the news (ui/newsui.ts); who posts when, and whether posts get a
 // picture, are options in the game settings.
 import { romanceBlocked } from './family.js';
-import { relOf, idOf, attraction, YOU } from './rel.js';
-import { needsOf } from './intimacy.js';
+import { relOf, idOf, attraction, partnersOf, YOU } from './rel.js';
+import { needsOf, styleOf } from './intimacy.js';
 import { scriptText } from '../core/safe.js';
 import { nowAbs, settings, saveSettings, adultOn } from '../core/store.js';
 import { socialKind, aiVoice, systemOn } from '../core/world.js';
 import { ctx, charOf, personaName, sayLine, quiet } from '../st/bridge.js';
 import { exampleOf } from './dayplan.js';
+import { cameraPerson } from './photo.js';
+import { stricter } from '../core/photo.js';
 import { aiLangName } from '../core/i18n.js';
 import { hm, weekday } from './time.js';
 import { placeOf } from './places.js';
@@ -94,7 +96,9 @@ export async function generatePosts(g, w, count = 2) {
 // "button" (the default) never posts on its own: only "More news" (forced) makes new posts.
 export const shouldPost = (g, mode) => feedPrefs().mode === mode && nowAbs(g) - feed(g).last >= (mode === 'auto' ? 180 : 120);
 /* ---------- dating ---------- */
-export const LOOKING = ['A relationship', 'Something casual', 'Friendship', 'Not sure yet'];
+// The app is for dating: what someone can be there for. (A "Friendship" from before isn't one: a player's is dropped
+// when read, and someone set to want only that isn't on the app.)
+export const LOOKING = ['A relationship', 'Something casual', 'Not sure yet'];
 export function dating(g) {
     const s = social(g);
     const d = (s.dating ??= {});
@@ -103,13 +107,16 @@ export function dating(g) {
     d.matches ??= [];
     d.waiting ??= {};
     d.news ??= [];
+    if (d.profile.looking.some(x => !LOOKING.includes(x)))
+        d.profile.looking = d.profile.looking.filter(x => LOOKING.includes(x));
     return d;
 }
-// What someone looks for on the app: set for them, else from how they are about intimacy (only with a partner: a
-// relationship; a free spirit: something casual), else fixed per person.
+// What someone looks for on the app: set for them (any word: one that isn't LOOKING's keeps them off the app), else
+// from how they are about intimacy (only with a partner: a relationship; a free spirit: something casual), else fixed
+// per person.
 export function lookingOf(g, avatar) {
     const set = relOf(g).people[idOf(g, avatar)]?.looking;
-    if (set && LOOKING.includes(set))
+    if (set)
         return set;
     const n = needsOf(g, avatar);
     if (n.partnerOnly)
@@ -149,13 +156,25 @@ export function theirProfile(g, w, r) {
         bio, prompts: cleanPrompts(card?.prompts ?? kept?.prompts),
         age: relOf(g).people[idOf(g, r.avatar)]?.age ?? ex?.age, // (a save's own, else the world's)
         pending: !bio && !failed.has(r.avatar),
-        onApp: h % 10 < 8,
+        onApp: onTheApp(g, w, r),
     };
 }
-// Asks the AI once for the profile of someone the world wrote none for, in their own words (a matchmaker's in a world
+// Whether someone would have a profile at all. The world decides for its own people: `off`, not the kind to (an idol
+// whose agency forbids it, someone already spoken for in secret, someone who'd be recognized); a profile it wrote, on
+// it. Never someone who won't be photographed at all, nor someone who only wants friendship, nor someone with a
+// partner who isn't open to more. Anyone else (card people, newcomers): most are, fixed per person.
+export function onTheApp(g, w, r) {
+    const card = exampleOf(w, r)?.dating;
+    if (card?.off || publicCamera(g, w, r.avatar) === 'never' || !LOOKING.includes(lookingOf(g, r.avatar)))
+        return false;
+    if (partnersOf(g, r.avatar).length && styleOf(g, r.avatar) !== 'open')
+        return false;
+    return card?.bio ? true : hash(r.avatar) % 10 < 8;
+}
+// Asks the AI once for the profile of someone on the app the world wrote none for, in their own words (a matchmaker's in a world
 // with notice boards instead of a feed). True when something was written.
 export async function writeProfile(g, w, r) {
-    if (exampleOf(w, r)?.dating?.bio || writtenOf(g)[r.avatar] || failed.has(r.avatar) || writing.has(r.avatar))
+    if (exampleOf(w, r)?.dating?.bio || writtenOf(g)[r.avatar] || !onTheApp(g, w, r) || failed.has(r.avatar) || writing.has(r.avatar))
         return false;
     writing.add(r.avatar);
     const old = socialKind(w) === 'board';
@@ -183,12 +202,17 @@ export async function writeProfile(g, w, r) {
     }
 }
 /** The photos on someone's profile, as Lens records (ui/photoui.ts draws them): the world's DatingCard photos whose
- *  place and outfit exist (an adult outfit only with adult content on); none without sprites (the portrait then). */
+ *  place and outfit exist (an adult outfit only with adult content on); none without sprites (the portrait then).
+ *  Their public camera rule holds here too: `noface`, the places without them (`who` empty), the way people who keep
+ *  their face off an app post where they go; `never` isn't on the app at all (candidates), so no photos. */
 export function profilePhotos(g, w, r) {
     const ex = exampleOf(w, r);
     if (!ex?.sprites)
         return [];
-    return (ex.dating?.photos ?? []).filter(p => {
+    const rule = publicCamera(g, w, r.avatar);
+    if (rule === 'never')
+        return [];
+    const recs = (ex.dating?.photos ?? []).filter(p => {
         if (!w.places.some(x => x.id === p.place))
             return false;
         if (!p.outfit)
@@ -197,6 +221,10 @@ export function profilePhotos(g, w, r) {
         return p.outfit !== 'naked' && !!ex.outfits?.[p.outfit] && (adultOn(g) || !(wear?.adult || (wear?.level ?? 1) >= 4));
     }).slice(0, 6).map((p, i) => ({ id: -1 - i, day: g.day, min: 0, src: 'spot', place: p.place, slot: p.slot ?? 'day', looks: [], who: [{ name: ex.name, expr: p.expr || 'joy', ...(p.outfit ? { outfit: p.outfit } : {}) }],
         frame: [50, 40, 1], look: 'phone', cap: '' }));
+    if (rule === 'noface')
+        for (const x of recs)
+            x.who = [];
+    return recs;
 }
 // The genders the app shows you: the ones you chose on your profile, else the ones you're drawn to.
 function shows(g, d, r) {
@@ -206,8 +234,11 @@ function shows(g, d, r) {
     const theirs = relOf(g).people[idOf(g, r.avatar)]?.gender;
     return !theirs || show.includes(theirs);
 }
-// Who the app shows: never someone not attracted to your gender, nor someone of a gender you didn't ask to see; the ones
-// of the genders you're most attracted to first.
+// How someone is about their picture in public: their own camera rule (the world's, or a stricter one set for them),
+// never what a game loosens with the player (camera steps, tiers): a profile is for everyone to see.
+const publicCamera = (g, w, avatar) => stricter(cameraPerson(g, w, avatar)?.camera, relOf(g).people[idOf(g, avatar)]?.camera);
+// Who the app shows: people with a profile (onTheApp), never someone not attracted to your gender, nor someone of a
+// gender you didn't ask to see; the ones of the genders you're most attracted to first.
 export function candidates(g, w) {
     const d = dating(g);
     // a random order, the same until the app is opened again (so the card on screen does not jump)

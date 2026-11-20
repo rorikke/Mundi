@@ -3087,7 +3087,9 @@ function datingEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][nu
     const outfits: [string, string][] = [['', 'Their usual clothes'], ...Object.keys(e.outfits ?? {}).filter(o => o !== 'naked').map(o => [o, o] as [string, string])];
     const slots: [string, string][] = [['', 'Day'], ['afternoon', 'Afternoon'], ['night', 'Night']];
     const del = (q: string) => `<button class="mu-ghost mu-ibtn" data-act="cw-del" data-path="${esc(q)}" title="Remove">${icon('x')}</button>`;
-    return `<details class="mu-cw-kept" ${e.dating ? 'open' : ''}><summary>On the dating app · ${photos.length} photos</summary>
+    return `<details class="mu-cw-kept" ${e.dating ? 'open' : ''}><summary>${d.off ? 'Not on the dating app' : `On the dating app · ${photos.length} photos`}</summary>
+        ${flag('Not the kind to have a dating profile', `${p}.dating.off`, 'Never on the app: an idol whose agency forbids it, someone spoken for in secret, someone who would be recognized.')}
+        ${d.off ? '' : `
         <small class="mu-muted">What they put up, in their own words: no surname, job or age (the app shows the age). In a world with a matchmaker, the matchmaker's word about them. Empty: the AI writes one the first time they're shown.</small>
         ${optArea('What they wrote', `${p}.dating.bio`, 3, 'night owl · i draw strangers on the train · friday is karaoke')}
         ${prompts.map((_x, k) => { const q = `${p}.dating.prompts.${k}`; return `<div class="mu-cw-path"><div class="mu-row mu-cw-inline">${sel('A question', `${q}.q`, withCur(qs, prompts[k]?.q))}<span class="mu-cw-spacer"></span>${del(q)}</div>${txt('Their answer', `${q}.a`)}</div>`; }).join('')}
@@ -3096,7 +3098,7 @@ function datingEditor(w: WorldDef, p: string, e: WorldDef['cast']['examples'][nu
             <div class="mu-row2">${sel('Where', `${q}.place`, withCur(placeOpts(w), photos[k]?.place))}${sel('Time of day', `${q}.slot`, slots, 'opt')}</div>
             <div class="mu-row2">${sel('Expression (the nearest their set has)', `${q}.expr`, withCur(exprs, photos[k]?.expr), 'opt')}${sel('Wearing', `${q}.outfit`, withCur(outfits, photos[k]?.outfit), 'opt')}</div></div>`; }).join('')}
         ${photos.length < 6 ? `<button class="mu-ghost" data-act="cw-add" data-what="dphoto" data-path="${esc(`${p}.dating.photos`)}">${icon('plus')}<span>Add a photo</span></button>` : ''}
-        <small class="mu-muted">The first photo is the main one. Without photos, their portrait.</small>` : ''}</details>`;
+        <small class="mu-muted">The first photo is the main one. Without photos, their portrait.</small>` : ''}`}</details>`;
 }
 // Standing appointments: where (a place, or their own home), which weekdays, the hours (past 24 runs into the night),
 // how often, who comes, and what they're doing, for the AI. They win over free time, not over a work shift.
