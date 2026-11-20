@@ -4,8 +4,8 @@
 // Every change is saved into the native SillyTavern object (card, persona, lorebook, chat).
 import { state, notify, esc, game, toast, busy, settings, saveSettings } from '../core/store.js';
 import { getWorld, loadWorld, BUILT_IN, activeStatuses, worlds, isScenario } from '../core/world.js';
-import { ctx, characters, charOf, thumb, fullCharacter, saveCharacter, personas, savePersona, personaThumb, persona, lorebooks, loadLore, saveLore, newLoreEntry, chatLore, groupOf, selectedGroup, bindChatLore, charLorebooks, setCharLorebooks, importCharacterFiles, importLorebookFiles, importPersonaPictures, folders, tagIdsOf, newFolder, putInFolder, isFav, setFavorite, deleteCharacters, deletePersonas, deleteLorebooks, createCharacter, createPersona, createLorebook, duplicateCharacter, duplicatePersona, duplicateLorebook, setCharacterImage, setPersonaImage, defaultPersona, setDefaultPersona, personaSheet, setPersonaSheet, fetchSprites, uploadSprite, deleteSprite, expressionLabels, bgList, bgThumb, bgUrl, bgUpload, bgRename, bgDelete, bgFolderCreate, bgFolderPut, refreshList, folderColor, setFolderColor, deleteFolder, personaLore, setPersonaLore, exportCharacter, cardFile, fileNameOf, baseSpriteFolder, loreCount, charTags, tagColor, tagCharacter, untagCharacter, allTags, cardTokens, cachedTokens, folderMade, renameFolder, characterChats, useGreeting, openCharacter, } from '../st/bridge.js';
-import { gameEntry, heroDescription, initialsAvatar, sheetWritten } from '../sim/game.js';
+import { ctx, characters, charOf, thumb, fullCharacter, saveCharacter, personas, savePersona, personaThumb, persona, lorebooks, loadLore, saveLore, newLoreEntry, chatLore, groupOf, selectedGroup, bindChatLore, charLorebooks, setCharLorebooks, importCharacterFiles, importLorebookFiles, importPersonaPictures, folders, tagIdsOf, newFolder, putInFolder, isFav, setFavorite, deleteCharacters, deletePersonas, deleteLorebooks, createCharacter, createPersona, createLorebook, duplicateCharacter, duplicatePersona, duplicateLorebook, setCharacterImage, setPersonaImage, defaultPersona, setDefaultPersona, personaSheet, setPersonaSheet, fetchSprites, uploadSprite, deleteSprite, expressionLabels, saveCardMundi, bgList, bgThumb, bgUrl, bgUpload, bgRename, bgDelete, bgFolderCreate, bgFolderPut, refreshList, folderColor, setFolderColor, deleteFolder, personaLore, setPersonaLore, exportCharacter, cardFile, fileNameOf, baseSpriteFolder, loreCount, charTags, tagColor, tagCharacter, untagCharacter, allTags, cardTokens, cachedTokens, folderMade, renameFolder, characterChats, useGreeting, openCharacter, } from '../st/bridge.js';
+import { gameEntry, heroDescription, initialsAvatar, sheetWritten, syncScene } from '../sim/game.js';
 import { sceneText } from '../sim/prompt.js';
 import { ACT, INPUT } from './reg.js';
 import { leaveHtml } from './creator.js';
@@ -348,7 +348,7 @@ async function saveChar(avatar) {
     await saveCharacter(avatar, p);
 }
 /* ---------- expressions: one picture per emotion, in the character's sprite folder ---------- */
-// Outfits: the usual sprites, or a subfolder (pajamas, swimsuit…). Clicking a sprite in the game lets you change it.
+// Outfits: the usual sprites, or a subfolder (pajamas, swimsuit…). The game decides when they wear one, not you.
 const EO = { outfit: '', name: '' };
 function outfitBar(avatar) {
     const list = outfitsOf(avatar) ?? [];
@@ -357,7 +357,35 @@ function outfitBar(avatar) {
         <button class="mu-chip ${EO.outfit ? '' : 'is-on'}" data-act="lib-outfit" data-o="">Usual</button>
         ${list.map(o => `<span class="mu-chip-wrap"><button class="mu-chip ${EO.outfit.toLowerCase() === o.toLowerCase() ? 'is-on' : ''}" data-act="lib-outfit" data-o="${esc(o)}">${esc(outfitLabel(o))}</button>${saved.includes(o) ? `<button class="mu-ghost mu-ibtn" data-act="lib-outfit-del" data-o="${esc(o)}" title="Forget this outfit (the pictures stay)">${icon('x')}</button>` : ''}</span>`).join('')}</div>
         <div class="mu-lib-searchrow"><input type="text" placeholder="New outfit (a folder name, like pajamas)" value="${esc(EO.name)}" data-input="lib-outfit-name" data-focus="lib-outfit-name">${btn('lib-outfit-add', 'plus', 'Add')}</div>
-        <small class="mu-muted">An outfit is a subfolder of their Expressions folder${EO.outfit ? ` (<span data-notr>${esc(baseSpriteFolder(avatar))}/${esc(EO.outfit)}</span>)` : ''}. Upload its pictures here; in the game, click their sprite to change clothes.</small></div>`;
+        <small class="mu-muted">An outfit is a subfolder of their Expressions folder${EO.outfit ? ` (<span data-notr>${esc(baseSpriteFolder(avatar))}/${esc(EO.outfit)}</span>)` : ''}. Upload its pictures here; in the game, the place and the moment decide what they wear.</small>
+        ${boldRow(avatar)}</div>`;
+}
+// How bold they go, and how bold the outfit shown is: a Home's room dress code is followed only that far
+// (sim/dress.ts). The world's own people have theirs from their world.
+function boldRow(avatar) {
+    const m = charOf(avatar)?.data?.extensions?.mundi ?? {};
+    if (m.example)
+        return `<small class="mu-muted">How bold they go, and how bold their outfits are, comes from their world.</small>`;
+    const sel = (act, cur, opts) => `<select data-input="${esc(act)}">${opts.map(([v, l]) => `<option value="${esc(v)}" ${String(cur) === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+    const o = EO.outfit;
+    const lv = o ? Object.entries(m.wear ?? {}).find(([k]) => k.toLowerCase() === o.toLowerCase())?.[1] : null;
+    const outfit = o && o.toLowerCase() !== 'naked'
+        ? `<label class="mu-field"><span>How bold this outfit is</span>${sel('lib-wear', Number(lv) || 1, [['1', 'Everyday'], ['2', 'A little revealing'], ['3', 'Revealing'], ['4', 'Explicit']])}</label>` : '';
+    return `<div class="mu-lib-grid"><label class="mu-field"><span>How bold they go in public</span>${sel('lib-comfort', Number(m.comfort) || 2, [['1', 'Modest'], ['2', 'At ease'], ['3', 'Daring']])}</label>${outfit}</div>
+        <small class="mu-muted">A room's dress code at Home is followed only this far: anyone it asks for a bolder outfit keeps their own clothes (one level more in private with someone close; never explicit).</small>`;
+}
+// Saves a change to how bold they go on the card, and dresses the scene again.
+async function saveBold(avatar, patch) {
+    try {
+        await saveCardMundi(avatar, patch);
+    }
+    catch (e) {
+        toast(String(e?.message ?? e), 'error');
+        return;
+    }
+    if (game())
+        void syncScene();
+    notify();
 }
 function exprHtml(avatar) {
     const c = charOf(avatar);
@@ -1448,6 +1476,15 @@ Object.assign(INPUT, {
     'lib-dlg-name': (el) => { if (state.modal)
         state.modal.name = el.value; },
     'lib-outfit-name': (el) => { EO.name = el.value; },
+    'lib-comfort': (el) => { const a = L.expr; if (a)
+        void saveBold(a, { comfort: Number(el.value) || 2 }); },
+    'lib-wear': (el) => {
+        const a = L.expr, o = EO.outfit;
+        if (!a || !o)
+            return;
+        const wear = Object.fromEntries(Object.entries(charOf(a)?.data?.extensions?.mundi?.wear ?? {}).filter(([k]) => k.toLowerCase() !== o.toLowerCase()));
+        void saveBold(a, { wear: { ...wear, [o]: Number(el.value) || 1 } });
+    },
     'lib-tag-text': (el) => { TG.text = el.value; },
     'lib-dlg-desc': (el) => { if (state.modal)
         state.modal.desc = el.value; },

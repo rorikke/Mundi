@@ -1,14 +1,18 @@
 // What people wear in the scene, from the game rather than by hand. Home: a dress code per room ("swimsuit" at the
-// pool, "pajamas" in the bedrooms). Any world with adult content on: the people doing a private action with you
-// (a night at a love hotel, a bath for two) wear their "naked" outfit while it plays out. (dress) Any world: a place,
+// pool, "pajamas" in the bedrooms), which each person follows only as far as their comfort goes (their card's, set in
+// Library › Expressions with how bold each of their outfits is; never undressed by it). Any world with adult content
+// on: the people doing a private action with you (a night at a love hotel, a bath for two) wear their "naked" outfit
+// while it plays out. (dress) Any world: a place,
 // an action, a street story, a festival or a standing appointment can carry a dress code by kind (`swim`, `yukata`), and the people it covers put on an outfit of
 // that kind, chosen by how bold it is (its level, ExampleCharacter.wear) against how bold they go (their comfort:
 // in public, or one more in private with someone close); a scripted code sets the level itself. Whoever has an outfit
 // with that name (a subfolder of their Expressions folder) wears it; when the code no longer holds for them (another
-// room, the action over, gone from the scene) the outfit it put on comes off again. The AI is told what they wear.
+// room, the action over, gone from the scene) the outfit it put on comes off again. You don't pick what the world's
+// people wear: with the dress system on, someone here in an outfit nothing calls for changes back into their own
+// clothes. The AI is told what they wear.
 import { cfg, state, adultOn, nowAbs } from '../core/store.js';
 import { isScenario, systemOn } from '../core/world.js';
-import { outfitOf, wearOutfit } from '../st/bridge.js';
+import { outfitOf, wearOutfit, charOf } from '../st/bridge.js';
 import { tierLink } from './hooks.js';
 import { sceneHere } from './homerooms.js';
 import { exampleOf, slotAt } from './dayplan.js';
@@ -33,15 +37,26 @@ export const levelOf = (d) => Math.min(4, Math.max(1, Math.round(Number(d?.level
 export const adultWear = (d) => !!d && (d.adult === true || levelOf(d) >= 4);
 export const comfortOf = (ex) => Math.min(3, Math.max(1, Math.round(Number(ex?.comfort) || 2)));
 const exOf = (g, w, avatar) => (g.cast[avatar] ? exampleOf(w, g.cast[avatar]) : null);
+// Your own cards (a Home's cast) carry their comfort and how bold each outfit is (`data.extensions.mundi`, Library ›
+// Expressions); the world's people have theirs from the world.
+const cardDress = (avatar) => { const m = charOf(avatar)?.data?.extensions?.mundi ?? {}; return { comfort: m.comfort, wear: (m.wear ?? {}) }; };
+/** How bold someone goes in public (1–3; unset: 2). */
+export const comfortFor = (g, w, avatar) => { const ex = exOf(g, w, avatar); return comfortOf(ex ?? { comfort: cardDress(avatar).comfort }); };
+/** How bold one of their outfits is (1–4): what the world says, else their card; "naked" is explicit; unset: 1. */
+export function outfitLevel(g, w, avatar, outfit) {
+    const o = outfit.trim().toLowerCase();
+    if (o === UNDRESSED)
+        return 4;
+    const d = exOf(g, w, avatar)?.wear?.[outfit];
+    if (d)
+        return levelOf(d);
+    const c = Object.entries(cardDress(avatar).wear).find(([k]) => k.toLowerCase() === o)?.[1];
+    return levelOf({ kind: '', level: Number(c) || 1 });
+}
 /** Someone's outfits the world describes, with what each is (only those with a folder). */
 export function wearOf(g, w, avatar) {
     const ex = exOf(g, w, avatar);
     return Object.entries(ex?.wear ?? {}).filter(([o, d]) => d && typeof d.kind === 'string' && typeof ex?.outfits?.[o] === 'string');
-}
-/** An outfit the sprite menu may offer them now (adult content, their tier): every outfit without a description. */
-export function wearOpen(g, w, avatar, outfit) {
-    const d = exOf(g, w, avatar)?.wear?.[outfit];
-    return !d || ((!adultWear(d) || adultOn(g)) && tierLink.outfit(g, avatar, outfit));
 }
 const named = (g, names, avatar) => !!names?.some(n => personNamed(g, n)?.avatar === avatar);
 const closeToYou = (g, w, avatar) => !!statusOf(g, avatar, YOU) || levelHolds(g, w, avatar, 'good') || (systemOn(w, 'romance') && levelHolds(g, w, avatar, 'crush'));
@@ -68,9 +83,10 @@ const storyPeople = (s) => [...(s.dress?.who ?? []), ...(s.brings ? [s.brings] :
  *  a standing appointment's for the people at it here, a festival's for everyone at its places on its days, then the
  *  place's for everyone here. */
 export function needFor(g, w, avatar) {
+    // (your home: someone close goes a level bolder)
     if (isScenario(w)) {
         const c = dressAt(g, g.player.loc);
-        return c ? { code: c } : null;
+        return c ? { code: c, room: true, bump: closeToYou(g, w, avatar) } : null;
     }
     const on = systemOn(w, 'dress');
     const act = g.act;
@@ -109,6 +125,8 @@ export function dressFor(g, w, avatar) {
     return n?.code ?? n?.kind ?? '';
 }
 /* ---------- choosing the outfit ---------- */
+// The boldest level someone wears for a code: their comfort, one more in private with someone close (never explicit).
+const roomAllowed = (g, w, avatar, need) => Math.min(3, comfortFor(g, w, avatar) + (need.bump ? 1 : 0));
 const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);
     h = Math.imul(h, 16777619);
@@ -120,7 +138,6 @@ const H = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) {
 export function chooseWear(g, w, avatar, need) {
     if (!need.kind)
         return undefined;
-    const ex = exOf(g, w, avatar);
     const list = wearOf(g, w, avatar).filter(([o, d]) => kindOf(d.kind) === need.kind && (!adultWear(d) || adultOn(g)) && (levelOf(d) < 4 || need.explicit)
         && (need.level ? true : tierLink.outfit(g, avatar, o)));
     if (!list.length)
@@ -132,7 +149,7 @@ export function chooseWear(g, w, avatar, need) {
         pool = from.filter(([, d]) => levelOf(d) === at).map(([o]) => [o, 1]);
     }
     else {
-        const allowed = need.explicit ? 4 : Math.min(3, comfortOf(ex) + (need.bump ? 1 : 0));
+        const allowed = need.explicit ? 4 : roomAllowed(g, w, avatar, need);
         const fit = list.filter(([, d]) => levelOf(d) <= allowed);
         if (!fit.length)
             return undefined;
@@ -154,7 +171,7 @@ export function chooseWear(g, w, avatar, need) {
 // `ready`: whether one of the world's outfits is in their Expressions yet (false: it's being uploaded, and the scene
 // syncs again when it's there).
 export function applyDress(g, w, has, ready = () => true) {
-    const worn = dressed(g);
+    const worn = dressed(g), on = systemOn(w, 'dress');
     let changed = false;
     const here = sceneHere(g, w).map(r => r.avatar);
     for (const a of new Set([...here, ...Object.keys(worn)])) {
@@ -188,6 +205,9 @@ export function applyDress(g, w, has, ready = () => true) {
                     }
                     // ((museum) an outfit someone's tier hasn't opened yet isn't put on)
                     match = list.find(o => o.toLowerCase() === n.toLowerCase() && tierLink.outfit(g, a, o));
+                    // a Home's room code: not past their comfort (and so never undressed)
+                    if (match && need.room && outfitLevel(g, w, a, match) > roomAllowed(g, w, a, need))
+                        match = undefined;
                     if (match)
                         break;
                 }
@@ -204,8 +224,10 @@ export function applyDress(g, w, has, ready = () => true) {
                 changed = true;
             }
         }
-        else if (worn[a]) {
-            if (cur.toLowerCase() === worn[a].toLowerCase()) {
+        else if (worn[a] || (cur && on && here.includes(a))) {
+            // what they wear is the game's to say, not yours: with the dress system on, an outfit nothing here calls
+            // for (put on by hand, through /costume or the sprite menu of older versions) comes off too
+            if (cur && (on || cur.toLowerCase() === worn[a]?.toLowerCase())) {
                 wearOutfit(a, '');
                 delete state.sprites[a];
                 changed = true;
@@ -223,7 +245,12 @@ const KIND_LINE = { swim: 'In swimwear', yukata: 'In yukata', fencing: 'In fenci
 export function dressLine(g, w) {
     if (isScenario(w)) {
         const code = dressAt(g, g.player.loc);
-        return code ? `Dress code here: people wear their ${code} (outfit) in this room.` : '';
+        if (!code)
+            return '';
+        // who follows it and who keeps their clothes (it's too bold for them, or they have no such outfit)
+        const worn = dressed(g), here = sceneHere(g, w), on = here.filter(r => worn[r.avatar] && outfitOf(r.avatar).toLowerCase() === worn[r.avatar].toLowerCase());
+        const off = here.filter(r => !on.includes(r));
+        return `Dress code in this room: ${code}.${on.length ? ` Wearing it: ${on.map(r => `${r.name} (${worn[r.avatar]})`).join('; ')}.` : ''}${off.length ? ` In their own clothes: ${off.map(r => r.name).join(', ')}.` : ''}`;
     }
     if (!systemOn(w, 'dress'))
         return '';
@@ -235,7 +262,7 @@ export function dressLine(g, w) {
         const d = exOf(g, w, r.avatar)?.wear?.[o];
         if (!d)
             continue;
-        const lv = levelOf(d), c = comfortOf(exOf(g, w, r.avatar));
+        const lv = levelOf(d), c = comfortFor(g, w, r.avatar);
         const how = lv >= 4 ? ' (explicit)' : lv > c ? ' (bolder than they wear in public)' : lv >= 3 && c >= 3 ? ' (at ease being looked at)' : '';
         const look = String(d.look ?? '').trim();
         (byKind.get(need.kind) ?? byKind.set(need.kind, []).get(need.kind)).push(`${r.name}${look ? ` in ${look}` : ''}${how}`);

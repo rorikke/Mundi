@@ -1,7 +1,6 @@
-// Click a character's sprite: a radial menu around them. On the right, what you can do with them (the same as their
-// card in "Here", except "Play as them"); on the left, the outfits they have (subfolders of their Expressions folder),
-// shown only when they have any.
-import { esc, game, notify, state, toast, type Save, type Resident } from '../core/store.js';
+// Click a character's sprite: a radial menu around them with what you can do with them (the same as their card in
+// "Here", except "Play as them"). What they wear isn't yours to pick: the game dresses them for the place (sim/dress.ts).
+import { esc, game, notify, type Save, type Resident } from '../core/store.js';
 import { getWorld, type WorldDef } from '../core/world.js';
 import { ACT } from './reg.js';
 import { icon } from './icons.js';
@@ -11,9 +10,7 @@ import { shutOut } from '../sim/romance.js';
 import { featureOn } from '../sim/creator.js';
 import { stayButton } from './events.js';
 import { romanceButtons } from './relui.js';
-import { outfitOf, wearOutfit, charOf } from '../st/bridge.js';
-import { outfitsOf, outfitLabel } from './outfits.js';
-import { wearOf, wearOpen, levelOf } from '../sim/dress.js';
+import { charOf } from '../st/bridge.js';
 import { guestButtons } from './guestsui.js';
 
 export const RAD = { who: '' };
@@ -35,34 +32,20 @@ function actions(g: Save, w: WorldDef, r: Resident): string[] {
     out.push(btn('pc-open', r.avatar, 'user', 'Their card'));
     return out;
 }
-// (dress) with the world's own outfits for them (the swimsuits, uploaded when first chosen), each with how bold it is
-// in dots; one only for adult content, or a tier not reached yet, isn't offered
-function outfits(g: Save, w: WorldDef, avatar: string): string[] {
-    const seen = new Set<string>(), list: string[] = [];
-    for (const o of [...(outfitsOf(avatar) ?? []), ...wearOf(g, w, avatar).map(([o]) => o)]) {
-        if (seen.has(o.toLowerCase()) || !wearOpen(g, w, avatar, o)) continue;
-        seen.add(o.toLowerCase()); list.push(o);
-    }
-    if (!list.length) return [];
-    const cur = outfitOf(avatar), wear = Object.fromEntries(wearOf(g, w, avatar).map(([o, d]) => [o.toLowerCase(), d]));
-    const dots = (o: string) => { const d = wear[o.toLowerCase()]; return d ? ` ${'•'.repeat(levelOf(d))}` : ''; };
-    return [`<button data-act="spr-outfit" data-who="${esc(avatar)}" data-o="" class="${cur ? '' : 'is-on'}">👕<span>Default</span></button>`,
-        ...list.map(o => `<button data-act="spr-outfit" data-who="${esc(avatar)}" data-o="${esc(o)}" class="${cur.toLowerCase() === o.toLowerCase() ? 'is-on' : ''}">${wear[o.toLowerCase()]?.kind === 'swim' ? '👙' : '👗'}<span>${esc(outfitLabel(o) + dots(o))}</span></button>`)];
-}
-// Puts the buttons on an arc: angle from top to bottom on each side.
-const arc = (items: string[], side: 'l' | 'r') => {
+// Puts the buttons on an arc: angle from top to bottom.
+const arc = (items: string[]) => {
     const n = items.length, step = n > 1 ? Math.min(17, 100 / (n - 1)) : 0;
-    return items.map((h, k) => h.replace('<button', `<button style="--a:${((k - (n - 1) / 2) * step).toFixed(1)}deg;--k:${k}" data-rad="${esc(side)}"`)).join('');
+    return items.map((h, k) => h.replace('<button', `<button style="--a:${((k - (n - 1) / 2) * step).toFixed(1)}deg;--k:${k}" data-rad="r"`)).join('');
 };
 
 // The menu for one sprite (empty when closed). `r` is null for someone who is not one of the world's people (a scenario's card).
 export function radialHtml(avatar: string, r: Resident | null): string {
     if (RAD.who !== avatar) return '';
     const g = game(); const w = g && getWorld(g.world); if (!g || !w) return '';
-    const right = r ? actions(g, w, r) : [], left = outfits(g, w, avatar);
-    if (!right.length && !left.length) return '';
+    const right = r ? actions(g, w, r) : [];
+    if (!right.length) return '';
     return `<div class="mu-radial" role="menu" aria-label="${esc(r?.name ?? String(charOf(avatar)?.name ?? ''))}">
-        <div class="mu-rad-side is-left">${arc(left, 'l')}</div><div class="mu-rad-side is-right">${arc(right, 'r')}</div></div>`;
+        <div class="mu-rad-side is-right">${arc(right)}</div></div>`;
 }
 
 // The open menu goes over the chat box, but the sprites stay under it (their pictures would cover the text). So the
@@ -80,19 +63,6 @@ Object.assign(ACT, {
         RAD.who = RAD.who === who ? '' : who; notify();
     },
     'spr-close': () => { if (RAD.who) { RAD.who = ''; notify(); } },
-    'spr-outfit': async (el) => {
-        const who = el.dataset.who!; const o = el.dataset.o ?? '';
-        // (dress) one of the world's outfits not in their Expressions yet is uploaded first
-        const g = game(), w = g && getWorld(g.world);
-        if (o && g && w && wearOf(g, w, who).some(([x]) => x === o)) {
-            const { ensureOutfit } = await import('../sim/game.js');
-            if (!await ensureOutfit(w, who, o)) { toast(`${String(charOf(who)?.name ?? '')}: that outfit couldn't be loaded.`, 'warn'); RAD.who = ''; notify(); return; }
-        }
-        wearOutfit(who, o);
-        delete (state.sprites as any)[who];   // the sprites of the new outfit are loaded again
-        toast(o ? `${String(charOf(who)?.name ?? '')} is wearing: ${outfitLabel(o)}.` : `${String(charOf(who)?.name ?? '')} is back in the usual outfit.`, 'success');
-        RAD.who = ''; notify();
-    },
 });
 // Any choice in the menu closes it.
 document.addEventListener('click', (e) => {
