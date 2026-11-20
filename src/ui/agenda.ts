@@ -19,6 +19,7 @@ import { weddingsAhead } from '../sim/longlife.js';
 import { billList, billAmount, billName, owed, daysLeft, billsApp } from '../sim/bills.js';
 import { peekPhoto, briefOf, photoOn } from '../sim/photo.js';
 import { icon } from './icons.js';
+import { waitGoBtn } from './waitgo.js';
 import { ACT } from './reg.js';
 
 export const AG = { day: 0 };   // the day shown, from today (0) to six days ahead
@@ -50,14 +51,14 @@ export function dayItems(g: Save, w: WorldDef, d: number): Item[] {
         out.push({ from: a.from, to: a.to, kind: 'plan', icon: a.kind === 'date' ? 'heart' : a.kind === 'shoot' ? 'camera' : a.kind === 'party' ? 'users' : 'calendar',
             title: a.title ? a.title : a.come ? tr('Coming over') : tr(KIND_NAME[a.kind] ?? 'Hang out'), titleData: !!a.title,
             sub: `${span(a.from)} · ${where(g, w, a.place)}`, who: a.avatar, tap: `data-act="ph-person" data-who="${esc(a.avatar)}"`,
-            btn: `<button class="mu-ghost" data-act="pl-cancel" data-id="${esc(a.id)}" title="${esc(fmt('Cancel with {0}', name))}">${esc(tr('Cancel'))}</button>` });
+            btn: `${!a.come && a.from > now && !isScenario(w) ? waitGoBtn({ kind: 'plan', id: a.id }) : ''}<button class="mu-ghost" data-act="pl-cancel" data-id="${esc(a.id)}" title="${esc(fmt('Cancel with {0}', name))}">${esc(tr('Cancel'))}</button>` });
     }
     // what's on in town
     for (const x of comingEvents(g, w, DAYS).filter(x => x.from >= start && x.from < end)) {
         const going = isGoing(g, x.key), live = x.from <= now && x.to > now && !x.off;
         out.push({ from: x.from, to: x.to, kind: 'event', icon: 'star', emoji: x.ev.icon || '🎉', title: x.ev.name, titleData: true, sub: x.off ? tr('Called off: rain') : `${span(x.from, x.to)} · ${where(g, w, x.ev.place)}`, done: x.off,
             btn: x.off ? '' : live && g.player.loc !== x.ev.place ? `<button class="mu-primary" data-act="go" data-loc="${esc(x.ev.place)}">${esc(tr('Go now'))}</button>`
-                : live ? '' : `<button class="${going ? 'mu-primary' : 'mu-ghost'}" data-act="ce-go" data-key="${esc(x.key)}">${esc(going ? tr('✓ Going') : tr("I'll go"))}</button>` });
+                : live ? '' : `${going ? waitGoBtn({ kind: 'event', id: x.key }) : ''}<button class="mu-ghost" data-act="ce-go" data-key="${esc(x.key)}">${esc(going ? tr('✓ Going') : tr("I'll go"))}</button>` });
     }
     // festivals, weddings, bills and briefs: all day
     for (const x of festivalsAhead(g, w, DAYS).filter(x => x.day <= d && d < x.day + (x.f.days ?? 1)))

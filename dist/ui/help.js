@@ -236,6 +236,7 @@ const topics = (w) => {
             items: [
                 ['Make plans', `From a person's card (in person) or the ${devl}. Choose where, when, and give it a name: the story will be about it ("${lex(w, 'planTitleEg').replace(/^e\.g\. /, '').split(',')[0]}").`],
                 ['Getting there', 'An hour before, "Things to do" lets you wait for them; half an hour before, a reminder asks if you want to go.'],
+                ['Wait and go', `${appRef(w, 'plans').charAt(0).toUpperCase()}${appRef(w, 'plans').slice(1)}, on a plan or an event you're going to: time passes until it's time to leave, then you go and arrive as it starts (it says first what the wait would make you miss). The clock's "Let time pass?" can also wait until it's time to leave.`],
                 ['During the event', 'A panel shows it. End it to say goodbye (they tell you what they thought), or ask them to stay the night.'],
                 ['A party', `Invite several people at once ${appRef(w, 'plans')}. You wait for all your guests in one go.`],
                 ['Standing someone up', lex(w, 'standUpHelp')],

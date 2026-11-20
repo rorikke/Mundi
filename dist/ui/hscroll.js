@@ -1,6 +1,6 @@
 // Rows that scroll sideways (the Shop's, Collection's and Lens's tabs, a conversation's quick replies, the library's
-// tabs…) with a mouse: drag them like a finger on a phone, or turn the wheel over them. A drag never counts as a click
-// on what's under it. Only rows that scroll sideways and not up and down; the map and the map editor keep their own.
+// tabs…) with a mouse: drag them like a finger on a phone, or turn the wheel over them (the page under them doesn't
+// scroll). A drag never counts as a click on what's under it. Only rows that scroll sideways and not up and down; the map and the map editor keep their own.
 const SKIP = '.mu-map, .mu-me-stage, input, textarea, select, [contenteditable], [data-nodrag]';
 const DRAG_AFTER = 5; // pixels before a press becomes a drag
 // The row under the pointer that can scroll sideways (and only sideways).
@@ -50,16 +50,14 @@ export function attachHScroll(root) {
         e.preventDefault();
         e.stopPropagation();
     } }, true);
-    // the wheel over a sideways row scrolls it sideways (a trackpad's own sideways swipe passes through)
+    // the wheel over a sideways row scrolls it sideways, and only it: at its end it stops there, the page under it
+    // doesn't scroll instead (a trackpad's own sideways swipe passes through)
     root.addEventListener('wheel', (e) => {
         if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY))
             return;
         const r = rowAt(e.target, root);
         if (!r)
             return;
-        const max = r.scrollWidth - r.clientWidth;
-        if ((e.deltaY < 0 && r.scrollLeft <= 0) || (e.deltaY > 0 && r.scrollLeft >= max - 1))
-            return; // at its end: the page scrolls on
         r.scrollLeft += e.deltaY;
         e.preventDefault();
     }, { passive: false });

@@ -17,6 +17,7 @@ import { payOf, lockedOut, toGetBackIn } from '../sim/bills.js';
 //   bottom      — the dialogue box (scene.ts); bottom right: the phone, peeking up when it is closed
 import { needWord } from '../sim/life.js';
 import { lifeOverlays, lifeAskHtml, soloOf } from './lifeui.js';
+import { clockWaitHtml, clockWaitBtn, waitGoHtml } from './waitgo.js';
 import { game, esc, state, UI, settings, saveSettings, notify, nowAbs, clockMode, onPhone, toast, saveGame } from '../core/store.js';
 import { getWorld, activeStatuses, systemOn, type StatusDef, type WorldDef, type ActionDef, deviceLook, offScreenWork, isScenario, HOME_NEEDS, homeNeedsOn } from '../core/world.js';
 import { levelChip } from './rpgui.js';
@@ -140,14 +141,15 @@ function clockCard(g: Save, w: WorldDef) {
     <div class="mh-where ${home}">${icon('pin')}<span>${where}</span>${crowd}${festivalChip(g, w)}</div>`;
 }
 
-// Clicking the clock: let time pass (to the next part of the day), after asking.
-const SKIP = { ask: false };
+// Clicking the clock: let time pass (to the next part of the day), or until it's time to leave for the next thing
+// you're going to (ui/waitgo.ts), after asking.
+export const SKIP = { ask: false };
 function skipAskHtml(g: Save, w: WorldDef) {
     if (!SKIP.ask) return '';
     const next = period(w, (g.minutes + toNextPeriod(w, g.minutes)) % 1440).name;
     return `<div class="mu-dlg-veil" data-act="skip-no"></div><div class="mu-panel mu-dlg mu-glassdlg mu-outback" role="dialog"><h3>Let time pass?</h3>
-        <p class="mu-muted">Until the ${esc(next.toLowerCase())}.</p>
-        <div class="mu-row mu-dlg-btns"><button data-act="skip-no">Not now</button><button class="mu-primary" data-act="skip-yes">${icon('skip')}<span>Let time pass</span></button></div></div>`;
+        <p class="mu-muted">Until the ${esc(next.toLowerCase())}.</p>${clockWaitHtml(g, w)}
+        <div class="mu-row mu-dlg-btns"><button data-act="skip-no">Not now</button>${clockWaitBtn(g, w)}<button class="mu-primary" data-act="skip-yes">${icon('skip')}<span>Let time pass</span></button></div></div>`;
 }
 
 /* ---------- wallet, menu, map ---------- */
@@ -358,7 +360,7 @@ export function hudHtml() {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w) return '';
     // Home: no card of your own (no money, no needs); your persona is in the menu, as in a chat
-    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${askCard(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}`;
+    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${askCard(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${waitGoHtml()}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}`;
 }
 
 Object.assign(ACT, {

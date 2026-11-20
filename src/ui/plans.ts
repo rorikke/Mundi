@@ -119,8 +119,9 @@ function freeThen(g: Save, w: WorldDef, avatar: string, at: number): string {
     const r = g.cast[avatar]; if (!r || bondOf(g, avatar) < FRIEND_KNOWS || isScenario(w)) return '';
     const day = Math.floor(at / 1440), shift = scheduled(g, w, r) ? shiftOn(g, w, r, day) : null;
     const span = shift ? `${hm(shift.from % 1440)}–${hm(shift.to % 1440)}` : '';
-    const busy = isWorking(g, w, r, at) ? fmt('{0} will be at work then.', r.name) : isSleeping(r, at) ? fmt('{0} will be asleep then.', r.name) : '';
-    const dayLine = scheduled(g, w, r) ? (shift ? fmt('That day {0} works {1}.', r.name, span) : onVacation(g, w, r, day) ? fmt('{0} is on vacation that day.', r.name) : fmt('{0} has that day off.', r.name)) : '';
+    // (in English: the screen's translation reads it, the name kept as it is)
+    const busy = isWorking(g, w, r, at) ? `${r.name} will be at work then.` : isSleeping(r, at) ? `${r.name} will be asleep then.` : '';
+    const dayLine = scheduled(g, w, r) ? (shift ? `That day ${r.name} works ${span}.` : onVacation(g, w, r, day) ? `${r.name} is on vacation that day.` : `${r.name} has that day off.`) : '';
     if (!busy && !dayLine) return '';
     return `<p class="mu-pl-free ${busy ? 'is-busy' : 'is-free'}">${icon(busy ? 'clock' : 'check')}<span>${[dayLine, busy].filter(Boolean).map(t => `<span>${esc(t)}</span>`).join(' ')}</span></p>`;
 }

@@ -744,7 +744,7 @@ export function phoneHtml(): string {
                 <button class="mu-ph-sbtn mu-ph-fold" data-act="ph-fold" aria-pressed="${wide}" aria-label="${wide ? 'Fold the phone' : 'Unfold the phone'}" title="${wide ? 'Fold the phone' : 'Unfold the phone'}">${icon(wide ? 'fold' : 'unfold')}</button>
                 <button class="mu-ph-sbtn" data-act="ph-close" aria-label="${esc(T('closeDevice'))}" title="${esc(T('closeDevice'))}">${icon('x')}</button></span></div>
         <div class="mu-ph-screen" data-keep="ph-screen-${esc(pair ?? P.app)}">${body}</div>
-        <button class="mu-ph-homebar" data-act="ph-go" data-nav="root" data-app="home" aria-label="Home screen" title="Home screen"></button></div>`;
+        <button class="mu-ph-homebar" data-act="ph-homebar" aria-label="${P.app === 'home' ? esc(T('closeDevice')) : 'Home screen'}" title="${P.app === 'home' ? esc(T('closeDevice')) : 'Home screen'}"></button></div>`;
 }
 /* ---------- the medieval journal: an open book, contents on the left, the chosen section on the right ---------- */
 
@@ -799,6 +799,8 @@ Object.assign(ACT, {
     'bk-bg': (el, e) => { if (e.target === el) { P.open = false; notify(); } },
     // data-nav="root": opened from the home screen or the journal's contents, so Back goes home from there
     'ph-go': (el) => { if (el.dataset.nav === 'root') NAV.mode = 'root'; openApp(el.dataset.app as App); },
+    // the bar at the bottom: the home screen, or from it, the phone closes (like going home twice)
+    'ph-homebar': () => { if (P.app === 'home') { closePhone(); return; } NAV.mode = 'root'; openApp('home'); },
     'ph-back': (el) => {
         if (innerBack()) { notify(); return; }
         const v = NAV.stack.pop();
