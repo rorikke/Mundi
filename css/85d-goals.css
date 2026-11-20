@@ -52,7 +52,6 @@
 #mundi-root .mu-gl-rows { display: grid; gap: 6px; padding-left: 8px; }
 /* a goal's detail */
 #mundi-root .mu-gl-detail { display: grid; gap: 10px; }
-#mundi-root .mu-gl-back { justify-self: start; padding: 4px 10px; min-height: 30px; }
 #mundi-root .mu-gl-detail > header { display: flex; gap: 12px; align-items: center; }
 #mundi-root .mu-gl-detail > header > i { font-style: normal; font-size: 34px; line-height: 1; }
 #mundi-root .mu-gl-detail > header span { display: grid; gap: 2px; }

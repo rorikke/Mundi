@@ -276,7 +276,7 @@
 #mundi-root .mu-dialog { width: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px)); height: min(calc(44vh * var(--mu-dlg-h, 1)), calc(440px * var(--mu-dlg-h, 1)), calc(100% - 90px)); }
 #mundi-root[data-layout="cards"] .mu-dialog { height: min(calc(62vh * var(--mu-dlg-h, 1)), calc(640px * var(--mu-dlg-h, 1)), calc(100% - 90px)); }
 #mundi-root[data-layout="classic"] .mu-dialog { width: min(calc(760px * var(--mu-dlg-w, 1)), calc(100% - 24px)); top: auto; height: calc((100% - 88px) * min(var(--mu-dlg-h, 1), 1)); }
-@media (min-width: 1100px) { #mundi-root:has(.mu-phone) .mu-dialog { width: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 440px)); } }
+@media (min-width: 1100px) { #mundi-root:has(.mu-phone) .mu-dialog { width: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - var(--ph-room))); } }
 @media (max-width: 760px) { #mundi-root .mu-dialog { width: calc(100% - 16px); } }
 
 /* the scenario's side menu fills the whole right side; its buttons keep their size and only Look scrolls */

@@ -159,15 +159,16 @@
 }
 
 /* ---------- the phone ---------- */
-#mundi-root .mu-phone { border-radius: 46px !important; padding: 10px !important; background: linear-gradient(160deg, #3a4254, #12161f 40%, #0a0d14) !important;
-    box-shadow: 0 0 0 1.5px #5b667c, inset 0 0 0 2px #1c212c, 0 30px 70px rgba(0, 0, 0, .6) !important; }
-#mundi-root .mu-ph-status { padding: 8px 22px 6px !important; }
-#mundi-root .mu-ph-screen { border-radius: 36px !important; background: linear-gradient(180deg, #161c28, #0d1119) !important; color: #eef3fb !important;
+/* no frame: the screen's dark glass is the whole phone, status bar and home bar included */
+#mundi-root .mu-phone { border-radius: 30px !important; padding: 0 !important; background: linear-gradient(180deg, #161c28, #0d1119) !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .16), 0 30px 70px rgba(0, 0, 0, .6) !important; }
+#mundi-root .mu-ph-status { padding: 7px 10px 5px 22px !important; }
+#mundi-root .mu-ph-screen { border-radius: 0 !important; background: none !important; color: #eef3fb !important;
     --fg: #eef3fb; --muted: #9aa8bf; --line: rgba(255, 255, 255, .08); --bg2: rgba(255, 255, 255, .05); --panel: rgba(14, 18, 27, .85); }
 #mundi-root .mu-ph-head { background: rgba(14, 18, 27, .85) !important; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, .06) !important; }
 #mundi-root .mu-ph-head b { font-size: 20px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
 /* home screen: pastel wallpaper and frosted, glowing app tiles */
-#mundi-root .mu-ph-screen:has(.mu-ph-apps) { background: linear-gradient(160deg, #bfe0ff, #dccdff 50%, #ffd6e6) !important; }
+#mundi-root .mu-phone:has(.mu-ph-apps) { background: linear-gradient(160deg, #bfe0ff, #dccdff 50%, #ffd6e6) !important; }
 #mundi-root .mu-ph-apps { gap: 22px 10px !important; padding: 36px 18px !important; }
 #mundi-root .mu-ph-app i { width: 60px !important; height: 60px !important; border-radius: 18px !important; color: #fff !important;
     background: linear-gradient(160deg, rgba(255, 255, 255, .75), color-mix(in srgb, var(--c) 55%, rgba(255, 255, 255, .25))) !important;
@@ -187,7 +188,7 @@
 #mundi-root .mu-home-move[aria-disabled="true"] { filter: grayscale(.8); opacity: .5; box-shadow: none !important; }
 #mundi-root .mu-home-card.is-mine { box-shadow: 0 0 0 2px #13cfe0, 0 6px 18px rgba(0, 0, 0, .35); }
 /* the phone open: the dialogue box makes room for it */
-@media (min-width: 1100px) { #mundi-root:has(.mu-phone) .mu-dialog { left: calc(50% - 200px); width: min(980px, calc(100% - 440px)); } }
+@media (min-width: 1100px) { #mundi-root:has(.mu-phone) .mu-dialog { left: calc(50% - var(--ph-room) / 2 + 20px); width: min(980px, calc(100% - var(--ph-room))); } }
 
 /* needs in words: shown when the mouse is over them */
 #mundi-root .mh-bar, #mundi-root .mh-ring { position: relative; cursor: default; }

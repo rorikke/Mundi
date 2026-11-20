@@ -1,0 +1,50 @@
+/* The phone without a frame: the status bar carries Unfold and Close, a bar at the bottom goes to the home screen,
+   and unfolded (twice as wide) a list and what it opens sit side by side. Sizes are in 50-phone.css (--ph-w). */
+#mundi-root .mu-ph-status { gap: 10px; min-height: 36px; color: #eef3fb; background: rgba(14, 18, 27, .85); }
+#mundi-root .mu-ph-status > span { flex: none; color: inherit; font-size: 12px; }
+#mundi-root .mu-ph-right { gap: 8px; }
+#mundi-root .mu-ph-right > svg, #mundi-root .mu-ph-batt { opacity: .8; }
+/* on the home screen the bars are part of the wallpaper */
+#mundi-root .mu-phone:has(.mu-ph-apps) :is(.mu-ph-status, .mu-ph-homebar) { background: none; color: #33405a; }
+#mundi-root .mu-phone.has-bg:has(.mu-ph-apps) :is(.mu-ph-status, .mu-ph-homebar) { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+#mundi-root .mu-phone.has-bg:has(.mu-ph-apps) .mu-ph-status { background: linear-gradient(rgba(0, 0, 0, .35), transparent); }
+/* the wallpaper alone, so it runs on under the home bar without a seam */
+#mundi-root .mu-phone .mu-ph-apps { background: none !important; }
+
+/* the status bar's buttons: small and round, like the rest of the bar */
+#mundi-root .mu-ph-sbtn, #mundi-root .mu-ph-sbtn:hover:not(:disabled) { display: grid; place-items: center; width: 28px; height: 28px; min-height: 0; padding: 0; color: inherit !important;
+    border: 0 !important; border-radius: 50% !important; background: transparent !important; box-shadow: none !important; transform: none !important; }
+#mundi-root .mu-ph-sbtn:hover:not(:disabled), #mundi-root .mu-ph-sbtn:focus-visible { background: color-mix(in srgb, currentColor 16%, transparent) !important; }
+#mundi-root .mu-ph-sbtn .mu-ic { width: 17px; height: 17px; }
+#mundi-root .mu-ph-sbtn + .mu-ph-sbtn { margin-left: -4px; }
+#mundi-root[data-mobile] .mu-ph-fold { display: none; }
+
+/* the bar at the bottom: the home screen */
+#mundi-root .mu-ph-homebar, #mundi-root .mu-ph-homebar:hover:not(:disabled) { position: relative; display: block; width: 100%; height: 20px; min-height: 0; margin: 0; padding: 0; color: #eef3fb;
+    border: 0 !important; border-radius: 0 !important; background: rgba(14, 18, 27, .85) !important; box-shadow: none !important; transform: none !important; cursor: pointer; }
+#mundi-root .mu-ph-homebar::before { content: ""; position: absolute; left: 50%; top: 50%; width: 120px; height: 5px; transform: translate(-50%, -50%); border-radius: 3px;
+    background: currentColor; opacity: .45; transition: opacity .15s, width .15s; }
+#mundi-root .mu-ph-homebar:hover::before, #mundi-root .mu-ph-homebar:focus-visible::before { opacity: .85; width: 150px; }
+#mundi-root .mu-phone:has(.mu-ph-apps) .mu-ph-homebar { background: none !important; }
+#mundi-root[data-mobile] .mu-ph-homebar { height: calc(20px + env(safe-area-inset-bottom)); }
+
+/* unfolded: the list on the left, what it opens on the right, each scrolling on its own */
+#mundi-root .mu-ph-split { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(250px, 38%) minmax(0, 1fr); }
+#mundi-root .mu-ph-pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: auto; }
+#mundi-root .mu-ph-pane.is-list { border-right: 1px solid var(--line); }
+#mundi-root .mu-ph-row.is-on { background: color-mix(in srgb, var(--accent) 18%, transparent) !important; border-color: var(--line) !important; box-shadow: none !important; }
+#mundi-root .mu-ph-none { margin: auto; display: grid; justify-items: center; gap: 10px; padding: 24px; color: var(--muted); text-align: center; }
+#mundi-root .mu-ph-none .mu-ic { width: 44px; height: 44px; opacity: .5; }
+
+/* lists of cards: one column on the phone, as many as fit unfolded */
+#mundi-root .mu-ph-jobs { display: grid; column-gap: 24px; }
+#mundi-root .mu-home-grid { display: grid; gap: 14px; }
+@container ph (min-width: 600px) {
+    #mundi-root .mu-ph-apps { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)) !important; padding: 40px 36px !important; }
+    #mundi-root .mu-ph-body { padding: 18px 24px; }
+    #mundi-root .mu-ph-jobs { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    #mundi-root .mu-home-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    #mundi-root .mu-home-card.is-mine .mu-home-pic { max-height: 260px; }
+    #mundi-root :is(.mu-ch-feed, .mu-bd-board) { width: min(640px, 100%); margin-inline: auto; }
+}
+@media (prefers-reduced-motion: reduce) { #mundi-root .mu-phone { transition: none; } }

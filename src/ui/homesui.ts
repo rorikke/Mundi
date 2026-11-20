@@ -171,10 +171,10 @@ export function roomsHtml(g: Save, w: WorldDef): string {
             <span><b>${esc(x.f.name)}</b>${x.f.desc ? `<small>${esc(x.f.desc)}</small>` : ''}${does.length ? `<small>${does.map(esc).join(' · ')}</small>` : ''}${room ? `<small>${esc(`Opens ${room.name}`)}</small>` : ''}</span>
             ${x.have ? `<em>${x.came ? (studio ? 'Came with the studio' : 'Came with the house') : 'Yours'}</em>` : `<button class="mu-home-move" data-act="hu-fix" data-id="${esc(x.f.id)}" ${x.why ? `aria-disabled="true" title="${esc(x.why)}"` : ''}>${money(w, x.price)}</button>`}</article>`;
     };
-    if (studio) return `<section class="mu-rooms"><header class="mu-row"><button class="mu-ghost" data-act="hu-rooms" data-k="">${icon('back')}<span>Back</span></button><h4 data-notr>${esc(studio.z.name)}</h4></header>
+    if (studio) return `<section class="mu-rooms"><header class="mu-row"><h4 data-notr>${esc(studio.z.name)}</h4></header>
         <p class="mu-muted"><span data-notr>${esc(kindName(w, studio.z.kind))}</span> · size ${sizeOf(w, studio.z)}. Fixtures are bought for this studio and stay with it; they work while you're there and its bill is paid.</p>
         ${list.length ? list.map(row).join('') : '<p class="mu-muted">Nothing fits this studio.</p>'}</section>`;
-    return `<section class="mu-rooms"><header class="mu-row"><button class="mu-ghost" data-act="hu-rooms" data-k="">${icon('back')}<span>Back</span></button><h4>${esc(homeAddress(w, o!))}</h4></header>
+    return `<section class="mu-rooms"><header class="mu-row"><h4>${esc(homeAddress(w, o!))}</h4></header>
         <p class="mu-muted">${esc(kindName(w, z?.kind ?? ''))} · size ${sizeOf(w, z)}. Rooms and fixtures are bought for this house and stay with it; of what you own, only the best of each kind of help counts.</p>
         ${list.length ? list.map(row).join('') : '<p class="mu-muted">Nothing fits this home.</p>'}</section>`;
 }

@@ -4,17 +4,20 @@
     position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #ff3b30; color: #fff;
     font: 700 11px/18px system-ui, sans-serif; font-style: normal; text-align: center;
 }
+/* its width, and the room the dialogue box leaves it (--ph-room); unfolded, it is about twice as wide */
+#mundi-root { --ph-w: 420px; --ph-room: calc(var(--ph-w) + 40px); }
+#mundi-root:has(.mu-phone.is-wide) { --ph-w: min(900px, calc(100% - 32px)); --ph-room: min(calc(var(--ph-w) + 40px), calc(100% - 440px)); }
 #mundi-root .mu-phone {
-    position: absolute; z-index: 25; right: 22px; bottom: 22px; width: 360px; height: min(700px, calc(100% - 100px));
-    display: grid; grid-template-rows: auto 1fr auto; border-radius: 38px; padding: 10px; background: #0b0d12;
-    box-shadow: 0 0 0 2px #2a2f3a, 0 24px 60px rgba(0, 0, 0, .55); animation: mu-phone-in .22s ease;
+    position: absolute; z-index: 25; right: 16px; bottom: 16px; width: var(--ph-w); height: min(920px, calc(100% - 92px));
+    display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-radius: 30px; padding: 0; overflow: hidden; background: #0b0d12;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 24px 60px rgba(0, 0, 0, .55); animation: mu-phone-in .22s ease;
+    transition: width .4s cubic-bezier(.22, 1, .36, 1);
 }
 @keyframes mu-phone-in { from { transform: translateY(30px); opacity: 0; } }
 #mundi-root .mu-ph-status { display: flex; align-items: center; gap: 8px; padding: 6px 14px 8px; color: #fff; font-size: 13px; }
 #mundi-root .mu-ph-status span { flex: 1; text-align: center; color: #9aa3b8; font-size: 12px; }
 #mundi-root .mu-ph-status .mu-ibtn { width: 28px; height: 28px; color: #fff; background: transparent; border: 0; box-shadow: none; }
-#mundi-root .mu-ph-screen { position: relative; overflow: auto; border-radius: 28px; background: var(--bg); color: var(--fg); display: flex; flex-direction: column; min-height: 0; }
-#mundi-root .mu-ph-homebar { justify-self: center; width: 120px; height: 5px; margin: 8px 0 2px; padding: 0; border-radius: 3px; background: #6b7280; border: 0; box-shadow: none; }
+#mundi-root .mu-ph-screen { position: relative; overflow: auto; background: none; color: var(--fg); display: flex; flex-direction: column; min-height: 0; container: ph / inline-size; }
 #mundi-root .mu-ph-head { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; padding: 10px 8px; background: var(--panel); border-bottom: 1px solid var(--line); text-align: center; }
 #mundi-root .mu-ph-head .mu-ibtn { width: 34px; height: 34px; }
 /* home screen */
@@ -96,7 +99,7 @@
 #mundi-root .mu-pop .mu-acts { display: grid; gap: 6px; }
 #mundi-root .mu-pop .mu-badge { justify-self: start; }
 @media (max-width: 760px) { #mundi-root .mu-pop, #mundi-root .mu-pop.is-here { width: min(320px, calc(100% - 16px)); } }
-@media (min-width: 761px) { #mundi-root:has(.mu-phone) #mundi-toasts { right: 400px; } }
+@media (min-width: 761px) { #mundi-root:has(.mu-phone) #mundi-toasts { right: calc(var(--ph-room) - 40px); } }
 /* Chirp */
 #mundi-root .mu-ph-compose.is-top { position: static; border-top: 0; border-bottom: 1px solid var(--line); }
 #mundi-root .mu-ch-refresh { margin: 6px auto; font-size: 13px; }
@@ -140,21 +143,15 @@
 #mundi-root .mu-ph-notif { display: inline-grid; place-items: center; color: #34c759; animation: mu-in .25s ease; }
 #mundi-root .mu-ph-notif .mu-ic, #mundi-root .mu-ph-right .mu-ic { width: 16px; height: 16px; }
 #mundi-root .mu-ph-batt { display: inline-flex; align-items: center; gap: 4px; }
-#mundi-root .mu-ph-batt small { color: #fff; font-size: 11px; font-weight: 700; }
-#mundi-root .mu-ph-batt i { position: relative; width: 24px; height: 12px; border: 1.5px solid #fff; border-radius: 3px; padding: 1.5px; display: block; }
-#mundi-root .mu-ph-batt i::after { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 4px; border-radius: 0 1px 1px 0; background: #fff; }
+#mundi-root .mu-ph-batt i { position: relative; width: 22px; height: 11px; border: 1.5px solid currentColor; border-radius: 3px; padding: 1.5px; display: block; }
+#mundi-root .mu-ph-batt i::after { content: ""; position: absolute; right: -4px; top: 2.5px; width: 2px; height: 3.5px; border-radius: 0 1px 1px 0; background: currentColor; }
 #mundi-root .mu-ph-batt b { display: block; width: 100%; height: 100%; border-radius: 1px; background: #34c759; }
-/* the round button that closes the phone */
-#mundi-root .mu-ph-close, #mundi-root .mu-ph-close:hover:not(:disabled) { justify-self: center; width: 42px; height: 42px; margin: 8px 0 2px; padding: 0; border-radius: 50% !important;
-    background: radial-gradient(circle at 50% 40%, #2a2f3a, #14171e) !important; border: 2px solid #3a404d !important; box-shadow: inset 0 1px 2px rgba(255, 255, 255, .08) !important; }
-#mundi-root .mu-ph-close:hover:not(:disabled) { border-color: #6b7280 !important; }
 /* WhatsApp-style chat header */
 #mundi-root .mu-ph-head.is-chat { grid-template-columns: 40px 1fr; text-align: left; }
 #mundi-root .mu-ph-chathead, #mundi-root .mu-ph-chathead:hover:not(:disabled) { justify-content: flex-start; gap: 10px; padding: 0; background: none !important; border: 0 !important; box-shadow: none !important; text-align: left; }
 #mundi-root .mu-ph-chathead img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
 #mundi-root .mu-ph-chathead span { display: grid; line-height: 1.2; }
 #mundi-root .mu-ph-chathead small { font-size: 11px; color: var(--muted); font-weight: 600; }
-@media (max-width: 760px) { #mundi-root .mu-ph-close { margin: 6px 0 10px; } }
 #mundi-root .mu-ph-status { padding: 6px 6px 8px 20px; } #mundi-root .mu-ph-right { margin-right: -2px; }
 
 /* ---------- plans: people in the scene, their card, the plan form ---------- */
@@ -506,8 +503,8 @@ body.mundi-open #toast-container { display: none !important; }
 #mundi-root .mu-ph-app:hover i { transform: translateY(-2px) scale(1.05); box-shadow: 0 8px 16px rgba(0, 0, 0, .28); }
 #mundi-root .mu-ph-app:active i { transform: scale(.95); }
 /* wallpaper */
-#mundi-root .mu-ph-screen.has-bg:has(.mu-ph-apps) { background: var(--ph-bg) center / cover no-repeat !important; }
-#mundi-root .mu-ph-screen.has-bg .mu-ph-app span { color: #fff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, .85) !important; }
+#mundi-root .mu-phone.has-bg:has(.mu-ph-apps) { background: var(--ph-bg) center / cover no-repeat !important; }
+#mundi-root .mu-phone.has-bg .mu-ph-app span { color: #fff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, .85) !important; }
 #mundi-root .mu-ph-wp-now { height: 150px; border-radius: 14px; background: linear-gradient(160deg, #bfe0ff, #dccdff 50%, #ffd6e6) center / cover no-repeat; display: grid; place-items: center; margin-bottom: 10px; color: #33405a; }
 #mundi-root .mu-ph-wp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 #mundi-root .mu-ph-wp-grid button { aspect-ratio: 9 / 16; padding: 0; border-radius: 10px; background: #0002 center / cover no-repeat; border: 2px solid transparent; }

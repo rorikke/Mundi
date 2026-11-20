@@ -12,9 +12,9 @@
 }
 /* the phone open on the right: the box makes room for it (centered in what is left, or still on the left) */
 @media (min-width: 1100px) {
-    #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 440px)); left: calc(50% - 200px - var(--dlg-cw) / 2); }
+    #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - var(--ph-room))); left: calc(50% - var(--ph-room) / 2 + 20px - var(--dlg-cw) / 2); }
     #mundi-root[data-layout="vn"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 24px)); left: calc(50% - var(--dlg-cw) / 2); }
-    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 454px)); left: 14px; }
+    #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - var(--ph-room) - 14px)); left: 14px; }
     #mundi-root[data-layout="vn"][data-dialogpos="left"]:not([data-mobile]):has(.mu-phone.is-closing) .mu-dialog { --dlg-cw: min(calc(980px * var(--mu-dlg-w, 1)), calc(100% - 28px)); left: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { #mundi-root .mu-dialog { transition: none !important; } }

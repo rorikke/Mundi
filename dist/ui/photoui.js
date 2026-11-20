@@ -168,7 +168,7 @@ function openTab(g, w) {
 /* ---------- Photos ---------- */
 function bigPhoto(g, w, r) {
     const L = photoLayers(g, w, r), c = clientOf(w, r.client), b = briefOf(w, r.brief);
-    return `<section class="mu-lens-big"><button class="mu-ghost" data-act="lens-photo" data-id="0">← All photos</button>${photoPic(g, w, r, true)}
+    return `<section class="mu-lens-big">${photoPic(g, w, r, true)}
         <b class="mu-lens-cap" data-notr>${esc(capOf(r))}</b>
         ${c || b ? `<small>${c ? `<span data-notr>${esc(c.name)}</span>` : ''}${c && b ? ' · ' : ''}${b ? `<span data-notr>${esc(b.name)}</span>` : ''}</small>` : ''}
         <small><span data-notr>${esc(placeName(g, w, r.place))}</span> · ${esc(dayWords(r.day))}, ${esc(hm(r.min))}</small>

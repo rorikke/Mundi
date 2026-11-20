@@ -10962,5 +10962,10 @@ const DICT = {
     "Add a place's picture": "Adicionar a imagem de um lugar",
     "Keeps the room it's in": "Mantém o cômodo em que está",
     "If an action's own background is showing when it starts, it stays, as though this were part of it: tea after a back-room scene, aftercare.": "Se o fundo próprio de uma ação estiver aparecendo quando esta começa, ele fica, como se esta fizesse parte dela: um chá depois de uma cena na sala dos fundos, o cuidado depois.",
+    "Unfold the phone": "Desdobrar o celular",
+    "Fold the phone": "Dobrar o celular",
+    "Home screen": "Tela inicial",
+    "Pick a conversation.": "Escolha uma conversa.",
+    "Pick someone to see their page.": "Escolha alguém para ver a página da pessoa.",
 };
 export default DICT;

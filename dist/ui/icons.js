@@ -28,6 +28,9 @@ const P = {
     crown: '<path d="M4 8l4 4 4-7 4 7 4-4-1.5 10h-13z"/><path d="M5.5 21h13"/>',
     crownFill: '<path fill="currentColor" d="M4 8l4 4 4-7 4 7 4-4-1.5 10h-13z"/><path d="M5.5 21h13"/>',
     back: '<path d="M15 5l-7 7 7 7"/>',
+    // the phone unfolding to twice its width, and folding back
+    unfold: '<rect x="8" y="4" width="8" height="16" rx="2"/><path d="M5 9l-3 3 3 3M19 9l3 3-3 3"/>',
+    fold: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M6.5 10l2 2-2 2M17.5 10l-2 2 2 2"/>',
     upload: '<path d="M12 16V4M7 9l5-5 5 5M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>',
     sort: '<path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/>',
     download: '<path d="M12 4v12M7 11l5 5 5-5M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>',

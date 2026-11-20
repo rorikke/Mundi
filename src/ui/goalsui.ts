@@ -294,7 +294,7 @@ function detailHtml(g: Save, w: WorldDef, goal: GoalDef): string {
     }).join('');
     const pick = canPick(g, w, goal.id)
         ? `<button class="mu-primary" data-act="gl-pick" data-id="${esc(goal.id)}">${cur ? 'Switch to this goal' : 'Pick this goal'}</button>${cur ? `<small class="mu-muted">${esc(cur.name)} is paused and keeps its progress.</small>` : ''}` : '';
-    return `<div class="mu-gl-detail"><button class="mu-ghost mu-gl-back" data-act="gl-close">‹ All goals</button>
+    return `<div class="mu-gl-detail">
         <header><i>${esc(goal.icon ?? '⭐')}</i><span><b>${esc(goal.name)}${isOwnGoal(goal.id) ? ` <span class="mu-gl-own">✦ ${esc(`${w.name}'s own`)}</span>` : ''}</b><small>${esc(cat ? `${cat.icon} ${cat.name}` : '')}</small></span></header>
         ${goal.desc ? `<p>${esc(goal.desc)}</p>` : ''}
         ${goal.perk ? `<section class="mu-ph-card mu-gl-perkcard"><small>Perk for finishing it</small><b>${esc(goal.perk.name)}</b>${goal.perk.desc ? `<small>${esc(goal.perk.desc)}</small>` : ''}<small class="mu-muted">A perk is not a trait: it changes numbers in the game, for good.</small></section>` : ''}

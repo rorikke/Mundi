@@ -8,12 +8,12 @@ import { profileApp, jobCourseHtml } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, type BillId } from '../sim/bills.js';
 import { shopApp, feelingsHtml } from './lifeui.js';
 import { SH } from './shopui.js';
-import { goalsApp, goalsBadge } from './goalsui.js';
+import { goalsApp, goalsBadge, GS } from './goalsui.js';
 import { collectionApp, openCollection, CL } from './collection.js';
 import { tierHtml } from './museumui.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
-import { lensApp, lensBadge } from './photoui.js';
+import { lensApp, lensBadge, LS } from './photoui.js';
 import { retainerNow } from '../sim/freelance.js';
 import { studentLink } from '../sim/hooks.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
@@ -121,15 +121,74 @@ const bar = (v: number) => `<span class="mu-bond"><i style="width:${Math.max(0, 
 
 // Signal bars (always full), like a real phone's status bar.
 const SIGNAL = '<svg class="mu-ic" viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><rect x="3" y="15" width="3" height="5" rx="1"/><rect x="8" y="11" width="3" height="9" rx="1"/><rect x="13" y="7" width="3" height="13" rx="1"/><rect x="18" y="3" width="3" height="17" rx="1"/></svg>';
+// The head of a view. Its Back button goes one step back (ph-back); `back` is where it goes when there is no step
+// to go back to (the phone opened straight on a conversation: Messages).
 function head(title: string, back: App | null) {
-    return `<div class="mu-ph-head">${back ? `<button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="${esc(back)}" aria-label="Back">${icon('back')}</button>` : '<span></span>'}<b>${title}</b><span></span></div>`;
+    return `<div class="mu-ph-head">${back ? backBtn(back) : '<span></span>'}<b>${title}</b><span></span></div>`;
 }
+const backBtn = (parent: App) => `<button class="mu-ibtn mu-ghost" data-act="ph-back" data-app="${esc(parent)}" aria-label="Back" title="Back">${icon('back')}</button>`;
+
+/* ---------- going back: one Back button, a step at a time ---------- */
+
+// The views you came through, the one showing not included. Back first closes what is open inside an app (a goal, a
+// photo, a house's rooms), then goes to the view before; with none before, to the head's parent, then home.
+type View = { app: App; who: string; post: string };
+const NAV = { stack: [] as View[], last: null as View | null, mode: '' as '' | 'root' | 'back' };
+const viewNow = (): View => ({ app: P.app, who: P.app === 'thread' || P.app === 'person' ? P.who : '', post: P.app === 'post' ? P.post : '' });
+const sameView = (a: View, b: View) => a.app === b.app && a.who === b.who && a.post === b.post;
+// Run on every drawing of the open phone, so views opened from anywhere (a card in the scene, a toast) count too.
+// Not a step: the home screen and what it opens, a section's tabs, another conversation in place of one.
+function trackView() {
+    const now = viewNow(), prev = NAV.last, mode = NAV.mode;
+    NAV.last = now; NAV.mode = '';
+    if (!prev || now.app === 'home' || mode === 'root') { NAV.stack = []; return; }
+    if (mode === 'back' || sameView(prev, now) || prev.app === 'home' || prev.app === now.app) return;
+    const s = sectionFor(prev.app); if (s && s === sectionFor(now.app)) return;
+    // back on a view already passed through (a person's page → their conversation → their page): no loop
+    const i = NAV.stack.findIndex(v => sameView(v, now));
+    if (i >= 0) NAV.stack.length = i; else NAV.stack.push(prev);
+}
+// What Back closes inside an app before leaving it.
+function innerBack(): boolean {
+    if (P.app === 'thread' && NICK.who) { NICK.who = ''; return true; }
+    if (P.app === 'goals' && GS.detail) { GS.detail = ''; return true; }
+    if (P.app === 'photos' && LS.photo) { LS.photo = 0; return true; }
+    if (P.app === 'homes' && HU.rooms) { HU.rooms = ''; return true; }
+    if (P.app === 'dating' && P.matched) { P.matched = ''; return true; }
+    return false;
+}
+// Opening an app, forward or back: what each one does when it opens.
+function openApp(app: App) {
+    P.app = app; P.draft = ''; P.matched = ''; P.q = '';
+    { const s = sectionFor(app); if (s) LAST_TAB[s.id] = app; }
+    const g = game(); const w = g && getWorld(g.world);
+    if (app === 'journal') openJournal();
+    if (app === 'collection' && g && w) { openCollection(g, w); saveGame(); }
+    // a new shuffle of Spark, and the newest match that came while you were away (its "It's a match!")
+    if (app === 'dating' && g) { const d = dating(g); (d as any).seed = Math.random().toString(36).slice(2); const n = d.news.shift(); if (n && g.cast[n]) P.matched = n; }
+    notify();
+    if (app === 'social' && g && w && feedPrefs().mode === 'open') refreshFeed(g, w);   // only in "each time you open the app" mode
+}
+
+/* ---------- the unfolded phone: twice as wide, lists and what's open side by side ---------- */
+
+// A computer only: on a phone's screen the phone already fills it.
+const isWide = () => !!(settings() as any).phoneWide && !document.getElementById('mundi-root')?.dataset.mobile;
+// Unfolded, a list and the view it opens show together: the conversation next to Messages, the person next to People.
+const PAIRS: Partial<Record<App, App>> = { messages: 'messages', thread: 'messages', people: 'people', person: 'people' };
+function pairHtml(g: Save, w: WorldDef, list: App): string {
+    const open = list === 'messages' ? (P.app === 'thread' && g.cast[P.who] ? threadApp(g) : '') : P.app === 'person' && g.cast[P.who] ? personApp(g, w) : '';
+    const none = list === 'messages' ? 'Pick a conversation.' : 'Pick someone to see their page.';
+    return `<div class="mu-ph-split"><div class="mu-ph-pane is-list" data-keep="ph-pane-list">${list === 'messages' ? messagesApp(g) : peopleApp(g)}</div>
+        <div class="mu-ph-pane is-open" data-keep="ph-pane-open-${esc(P.app)}">${open || `<p class="mu-ph-none">${icon(list === 'messages' ? 'chat' : 'users')}<span>${esc(none)}</span></p>`}</div></div>`;
+}
+const isOpenRow = (avatar: string) => (P.app === 'thread' || P.app === 'person') && P.who === avatar;
 
 function homeApp(g: Save, w: WorldDef) {
     const unread = Object.values(social(g).unread).reduce((a, b) => a + b, 0);
-    return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-app="${esc(id)}">
+    return `<div class="mu-ph-apps">${APPS(w).map(([id, name, ic, color, key]) => `<button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="${esc(id)}">
         <i style="--c:${color}">${icon(ic)}</i><span>${esc(name)}</span>${id === 'messages' && unread ? `<em>${unread}</em>` : id === 'plans' && plansBadge(g) ? `<em>${plansBadge(g)}</em>` : id === 'homes' && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id)) ? `<em>!</em>` : id === 'campus' && campusBadge(g, w) ? '<em>!</em>' : id === 'business' && businessBadge(g, w) ? '<em>!</em>' : id === 'photos' && lensBadge(g, w) ? '<em>!</em>' : key === 'profile' && goalsBadge(g, w) ? '<em class="is-goals">!</em>' : ''}</button>`).join('')}
-        <button class="mu-ph-app" data-act="ph-go" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
+        <button class="mu-ph-app" data-act="ph-go" data-nav="root" data-app="settings"><i style="--c:#7d8597">${icon('gear')}</i><span>Settings</span></button>
         <button class="mu-ph-app" data-act="ph-help"><i style="--c:#30b0c7">${icon('help')}</i><span>${T('help')}</span></button></div>`;
 }
 
@@ -215,7 +274,7 @@ function messagesApp(g: Save) {
     const list = met(g).filter(r => matchQ(g, r, true)).sort((a, b) => (s.threads[b.avatar]?.at(-1)?.at ?? 0) - (s.threads[a.avatar]?.at(-1)?.at ?? 0));
     return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}<div class="mu-ph-list">${list.length ? list.map(r => {
         const last = s.threads[r.avatar]?.at(-1);
-        return `<button class="mu-ph-row" data-act="ph-thread" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+        return `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-thread" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
             <span><b data-notr>${esc(contactName(g, r))}</b><small data-notr>${last ? esc(last.text) : ''}</small></span>${s.unread[r.avatar] ? `<em>${s.unread[r.avatar]}</em>` : last ? `<small>${day(g, last.at)}</small>` : ''}</button>`;
     }).join('') : `<p class="mu-muted mu-pad">${T('noContacts')}</p>`}</div>`;
 }
@@ -224,7 +283,7 @@ function threadApp(g: Save) {
     const r = g.cast[P.who]; if (!r) return messagesApp(g);
     const t = social(g).threads[r.avatar] ?? [];
     social(g).unread[r.avatar] = 0;
-    return `<div class="mu-ph-head is-chat"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="messages" aria-label="Back">${icon('back')}</button>
+    return `<div class="mu-ph-head is-chat">${backBtn('messages')}
             ${NICK.who === r.avatar
                 ? `<div class="mu-ph-nick"><input type="text" maxlength="40" data-input="ph-nick" data-focus="ph-nick" value="${esc(NICK.text)}" placeholder="${esc(r.name)}"><button class="mu-ibtn mu-primary" data-act="ph-nick-save" aria-label="Save">${icon('check')}</button></div>`
                 : `<button class="mu-ph-chathead" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt=""><span><b data-notr title="${esc(contactName(g, r))}">${esc(contactName(g, r))}</b><small>${P.typing === r.avatar ? T('typing') : bondLabel(g, r.avatar)}</small></span></button>
@@ -260,7 +319,7 @@ function withVisitors(g: Save, w: WorldDef, html: string): string {
 function peopleApp(g: Save) {
     const list = met(g).filter(r => matchQ(g, r)).sort((a, b) => bondOf(g, b.avatar) - bondOf(g, a.avatar));
     const casual = new Set(casualsOf(g));
-    const row = (r: Resident) => `<button class="mu-ph-row" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
+    const row = (r: Resident) => `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-person" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
         <span><b data-notr>${esc(contactName(g, r))}</b><small>${relSubtitle(g, r.avatar)}</small>${relBar(r.avatar)}</span>${isPartner(g, r.avatar) ? `<i class="mu-ph-heart">${icon('heart')}</i>` : ''}</button>`;
     const groups: [string, Resident[]][] = [['', list.filter(r => isPartner(g, r.avatar))], ['Casual', list.filter(r => casual.has(r.avatar))], ['', list.filter(r => !isPartner(g, r.avatar) && !casual.has(r.avatar))]];
     return `${head(appName('people'), 'home')}${searchBox('Search people')}<div class="mu-ph-list">${list.length ? groups.filter(([, rs]) => rs.length).map(([h, rs]) => `${h ? `<h5 class="mu-ph-group">${h}</h5>` : ''}${rs.map(row).join('')}`).join('')
@@ -350,7 +409,7 @@ function jobsApp(g: Save, w: WorldDef) {
             ${workWeekHtml(g, w)}` : `<p class="mu-muted">${T('noJob')}</p>`}
         <h4>${T('openings')}</h4>
         ${openJobs(g, w).filter(o => o.id !== j?.id).length > 1 ? jobSortChips() : ''}
-        ${sortedOpenings(g, w, openJobs(g, w).filter(o => o.id !== j?.id)).map(job => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
+        <div class="mu-ph-jobs">${sortedOpenings(g, w, openJobs(g, w).filter(o => o.id !== j?.id)).map(job => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
             return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}</small>
             ${picks.length > 1 ? `<small>${esc(picks.length === 2 ? 'Two tracks' : `${picks.length} tracks`)}: ${esc(picks.map(t => trackName(w, job, t)).join(' or '))} (you choose when hired)</small>` : o.track !== undefined && o.trackName ? `<small>Your track: ${esc(o.trackName)}</small>` : ''}
             ${fee ? `<small>A fee of ${money(w, fee)} when you start</small>` : ''}${days ? `<small>First shift ${days} ${days === 1 ? 'day' : 'days'} after signing</small>` : ''}
@@ -358,7 +417,7 @@ function jobsApp(g: Save, w: WorldDef) {
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
             ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}${interviewChance(g, o, traitsOf(g)) ? `<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id, o, traitsOf(g)) ? ` · try again ${retryText(g, o.id, o, traitsOf(g))}` : ''}</small>` : '<small class="mu-bad">Interview: out of your reach for now</small>'}`}</span>
-            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}
+            <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`; }).join('')}</div>
     </div>`;
 }
 
@@ -410,13 +469,13 @@ function homesApp(g: Save, w: WorldDef) {
             if (cities.length < 2) return '';
             if (HF.city && !cities.some(c => c.id === HF.city)) HF.city = '';
             return `<div class="mu-chips mu-homes-cities"><button class="mu-chip ${HF.city ? '' : 'is-on'}" data-act="ph-homes-city" data-id="">All</button>${cities.map(c => `<button class="mu-chip ${HF.city === c.id ? 'is-on' : ''}" data-act="ph-homes-city" data-id="${esc(c.id)}">${esc(c.name)}</button>`).join('')}</div>`; })()}
-        ${w.homes.zones.filter(z => z.id !== g.player.home.zone && !buyOnly(z) && (!HF.city || z.map === HF.city)).map(z => {   // (homes you can only buy aren't for rent)
+        <div class="mu-home-grid">${w.homes.zones.filter(z => z.id !== g.player.home.zone && !buyOnly(z) && (!HF.city || z.map === HF.city)).map(z => {   // (homes you can only buy aren't for rent)
             const free = freeSpots(g, w, z.id).length, student = studentLink.homeBlock(g, w, z.id);   // (a student: student homes only)
             const rent = priceOf(g, z.rent), bills = priceOf(g, billsOf(w, z.kind));
             return `<article class="mu-home-card"><span class="mu-home-pic" ${pic(z.kind)}></span>
                 <div class="mu-home-info"><span><b>${esc(z.name)}</b><small>${esc(w.homes.kinds[z.kind]?.name ?? z.kind)} · ${money(w, rent)}/wk${bills ? ` + ${money(w, bills)} bills` : ''} · ${free} free</small></span>
                 <button class="mu-home-move" data-act="ph-move" data-id="${esc(z.id)}" ${free && g.player.money >= rent && !student ? '' : 'aria-disabled="true"'} ${student ? 'title="Not while you study for a degree"' : ''}>Move</button></div></article>`;
-        }).join('')}
+        }).join('')}</div>
         ${w.homes.zones.some(z => studentLink.homeBlock(g, w, z.id)) ? `<p class="mu-bad">${esc(w.homes.zones.map(z => studentLink.homeBlock(g, w, z.id)).find(Boolean)!)}</p>` : ''}
         <p class="mu-muted">${T('movingNote')}</p></section>
     </div>${askHtml(g, w)}`;
@@ -528,7 +587,7 @@ function datingApp(g: Save, w: WorldDef) {
     }
     const list = candidates(g, w);
     const r = list[0];
-    const top = `<div class="mu-ph-head"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="home" aria-label="Back">${icon('back')}</button><b>${appName('dating')}</b>
+    const top = `<div class="mu-ph-head">${backBtn('home')}<b>${appName('dating')}</b>
         <span class="mu-row"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="matches" aria-label="${T('matches')}" title="${T('matches')}">${icon('chat')}</button><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="dprofile" aria-label="${T('yourProfile')}" title="${T('yourProfile')}">${icon('user')}</button></span></div>`;
     if (!r) return `${top}<p class="mu-muted mu-pad">${T('noCandidates')}</p>`;
     const p = theirProfile(g, w, r), interests = p.interests;
@@ -564,20 +623,28 @@ export function feedTick() {
 
 export function phoneHtml(): string {
     const g = game(); const w = g && getWorld(g.world);
-    if (!P.open || !g || !w) { turn.opened = 0; return ''; }
+    if (!P.open || !g || !w) { turn.opened = 0; NAV.last = null; return ''; }
     BOOK = deviceLook(w) === 'book'; BOARD = socialKind(w) === 'board'; LETTERS = messageKind(w) === 'letters'; LW = w;
-    const body = P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
+    trackView();
+    const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
+    const body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
         : P.app === 'social' ? socialApp(g) : P.app === 'post' ? postApp(g) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? withVisitors(g, w, calendarApp(g, w, head(appName('plans'), 'home'))) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, head(appName('photos'), 'home')) : P.app === 'campus' ? campusApp(g, w, head(appName('campus'), 'home')) : P.app === 'business' ? businessApp(g, w, head(appName('business'), 'home')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
     const unread = phoneUnread();
     // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never
-    // taken for it, which rebuilt the phone and replayed its slide-in)
-    return `<div class="mu-phone ${P.closing ? 'is-closing' : ''}" data-keep="phone" role="dialog" aria-label="Phone"><div class="mu-ph-status">
+    // taken for it, which rebuilt the phone and replayed its slide-in). The screen's key changes with the app, so an app
+    // opens at its top instead of where the last one was scrolled to.
+    // No frame around the screen: the status bar holds the time and the buttons (unfold, close), the bar at the bottom
+    // goes to the home screen.
+    const bg = wallpaper();
+    return `<div class="mu-phone ${P.closing ? 'is-closing' : ''} ${wide ? 'is-wide' : ''} ${bg ? 'has-bg' : ''}" data-keep="phone" role="dialog" aria-label="Phone" style="${bg ? `--ph-bg:${esc(cssUrl(bg))}` : ''}"><div class="mu-ph-status">
             <span class="mu-ph-left"><b>${hm(g.minutes)}</b>${unread ? `<i class="mu-ph-notif" title="${unread}">${icon('chat')}</i>` : ''}</span>
-            <span class="mu-ph-right">${SIGNAL}${icon('wifi')}<span class="mu-ph-batt"><small>100%</small><i><b></b></i></span></span></div>
-        <div class="mu-ph-screen ${wallpaper() ? 'has-bg' : ''}" data-keep="ph-screen" style="${wallpaper() ? `--ph-bg:${esc(cssUrl(wallpaper()))}` : ''}">${body}</div>
-        <button class="mu-ph-close" data-act="ph-close" aria-label="${esc(T('closeDevice'))}"></button></div>`;
+            <span class="mu-ph-right">${SIGNAL}<span class="mu-ph-batt"><i><b></b></i></span>
+                <button class="mu-ph-sbtn mu-ph-fold" data-act="ph-fold" aria-pressed="${wide}" aria-label="${wide ? 'Fold the phone' : 'Unfold the phone'}" title="${wide ? 'Fold the phone' : 'Unfold the phone'}">${icon(wide ? 'fold' : 'unfold')}</button>
+                <button class="mu-ph-sbtn" data-act="ph-close" aria-label="${esc(T('closeDevice'))}" title="${esc(T('closeDevice'))}">${icon('x')}</button></span></div>
+        <div class="mu-ph-screen" data-keep="ph-screen-${esc(pair ?? P.app)}">${body}</div>
+        <button class="mu-ph-homebar" data-act="ph-go" data-nav="root" data-app="home" aria-label="Home screen" title="Home screen"></button></div>`;
 }
 /* ---------- the medieval journal: an open book, contents on the left, the chosen section on the right ---------- */
 
@@ -605,13 +672,13 @@ function bookHtml(g: Save, w: WorldDef, body: string): string {
     const left = `<header class="mu-bk-title"><small>${esc(w.features?.device ?? 'Journal')}</small><b data-notr>${esc(personaName())}</b>
             <span>${esc(weekday(g.day))} · Day ${g.day + 1} · ${hm(g.minutes % 1440)}</span><span class="mu-bk-purse">${icon('wallet')}${money(w, g.player.money)}</span></header>
         <h4 class="mu-bk-h">Contents</h4>
-        <ol class="mu-bk-toc">${apps.map(([id, name, ic, , key]) => `<li><button class="${sec === key ? 'is-here' : ''}" data-act="ph-go" data-app="${esc(id)}">${icon(ic)}<span>${esc(name)}</span><i></i>${badge(id, key)}</button></li>`).join('')}
+        <ol class="mu-bk-toc">${apps.map(([id, name, ic, , key]) => `<li><button class="${sec === key ? 'is-here' : ''}" data-act="ph-go" data-nav="root" data-app="${esc(id)}">${icon(ic)}<span>${esc(name)}</span><i></i>${badge(id, key)}</button></li>`).join('')}
             <li><button data-act="ph-help">${icon('help')}<span>${esc(T('help'))}</span><i></i></button></li></ol>`;
     return `<div class="mu-bk-wrap${opening}" data-act="bk-bg"><div class="mu-book ${P.app === 'home' ? 'is-home' : ''}" role="dialog" aria-label="${esc(w.features?.device ?? 'Journal')}">
         <div class="mu-bk-page is-left" data-keep="bk-left">${left}</div>
         <div class="mu-bk-page is-right mu-ph-screen ${t < TURN_MS ? 'is-turning' : ''}" data-keep="ph-screen" style="--turn-delay:-${Math.min(t, TURN_MS)}ms">${body}</div>
         ${leaf}
-        <nav class="mu-bk-ribbons">${apps.slice(0, RIBBONS.length).map(([id, name, ic, , key], i) => `<button class="mu-bk-ribbon ${sec === id ? 'is-here' : ''}" style="top:${RIBBONS[i]}%" data-act="ph-go" data-app="${esc(id)}" title="${esc(name)}">${icon(ic)}<span>${esc(name)}</span>${badge(id, key)}</button>`).join('')}</nav>
+        <nav class="mu-bk-ribbons">${apps.slice(0, RIBBONS.length).map(([id, name, ic, , key], i) => `<button class="mu-bk-ribbon ${sec === id ? 'is-here' : ''}" style="top:${RIBBONS[i]}%" data-act="ph-go" data-nav="root" data-app="${esc(id)}" title="${esc(name)}">${icon(ic)}<span>${esc(name)}</span>${badge(id, key)}</button>`).join('')}</nav>
         <button class="mu-bk-close" data-act="ph-close" aria-label="Close the journal" title="Close">${icon('x')}</button>
     </div></div>`;
 }
@@ -642,17 +709,16 @@ Object.assign(ACT, {
     'ph-close': () => closePhone(),
     'ph-help': () => openHelp(),
     'bk-bg': (el, e) => { if (e.target === el) { P.open = false; notify(); } },
-    'ph-go': (el) => {
-        P.app = el.dataset.app as App; P.draft = ''; P.matched = ''; P.q = '';
-        { const s = sectionFor(P.app); if (s) LAST_TAB[s.id] = P.app; }
-        if (P.app === 'journal') openJournal();
-        if (P.app === 'collection') { const g = game(); const w = g && getWorld(g.world); if (g && w) { openCollection(g, w); saveGame(); } }
-        // a new shuffle of Spark, and the newest match that came while you were away (its "It's a match!")
-        if (P.app === 'dating') { const g = game(); if (g) { const d = dating(g); (d as any).seed = Math.random().toString(36).slice(2); const n = d.news.shift(); if (n && g.cast[n]) P.matched = n; } }
-        notify();
-        const g = game(); const w = g && getWorld(g.world);
-        if (P.app === 'social' && g && w && feedPrefs().mode === 'open') refreshFeed(g, w);   // only in "each time you open the app" mode
+    // data-nav="root": opened from the home screen or the journal's contents, so Back goes home from there
+    'ph-go': (el) => { if (el.dataset.nav === 'root') NAV.mode = 'root'; openApp(el.dataset.app as App); },
+    'ph-back': (el) => {
+        if (innerBack()) { notify(); return; }
+        const v = NAV.stack.pop();
+        NAV.mode = 'back';
+        if (v) { P.who = v.who || P.who; P.post = v.post || P.post; }
+        openApp(v?.app ?? ((el.dataset.app as App) || 'home'));
     },
+    'ph-fold': () => { (settings() as any).phoneWide = !(settings() as any).phoneWide; saveSettings(); notify(); },
     // Chirp
     'ph-refresh': () => { const g = game(); const w = g && getWorld(g.world); if (g && w) refreshFeed(g, w, true); },
     'ph-post': (el, e) => { if ((e.target as HTMLElement).closest('[data-act="ph-like"]')) return; P.post = el.dataset.id!; P.app = 'post'; P.draft = ''; notify(); },
