@@ -307,19 +307,25 @@ function nowDoing(g, w, r) {
     const p = at === `home:${r.avatar}` || at.startsWith('home:') ? 'at home' : placeOf(g, w, at)?.name ? `at ${placeOf(g, w, at).name}` : 'out';
     return p;
 }
-export async function sendText(g, w, avatar, text) {
-    const s = social(g);
-    const r = g.cast[avatar];
-    if (!r)
-        return '';
-    (s.threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
+/** Your message, sent: in the conversation, and what texting does for the friendship (paced). False for no one. */
+export function textOut(g, avatar, text) {
+    if (!g.cast[avatar])
+        return false;
+    (social(g).threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
     addBond(g, avatar, 2);
     touch(g, avatar);
     sawYou(g, avatar);
     ((g.post ??= { queue: [], contact: {} }).contact)[avatar] = g.day; // keeping in touch (letters from afar)
+    return true;
+}
+/** Their answer to the conversation so far (now, or later when they're free: sim/texting.ts). '' without the AI. */
+export async function textBack(g, w, avatar) {
+    const r = g.cast[avatar];
+    if (!r)
+        return '';
     const reply = await sayLine(textTranscript(g, w, r), r.name, [r.name, personaName()], 320, 120, 'now');
     if (reply)
-        s.threads[avatar].push({ me: false, text: reply, at: nowAbs(g) });
+        (social(g).threads[avatar] ??= []).push({ me: false, text: reply, at: nowAbs(g) });
     return reply;
 }
 // She texts you (an answer to an invitation, or on her own), following `note` (what she must convey).

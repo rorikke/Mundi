@@ -22,7 +22,7 @@ import { standingApp, petsApp, helpBtn } from './lifeplus.js';
 import { factionsApp } from './factionsui.js';
 import { holdingsApp } from './holdingsui.js';
 import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, healthApp } from './adventureui.js';
-import { PL } from './plans.js';
+import { PL, askByText } from './plans.js';
 import { feel } from '../sim/life.js';
 import { journalApp, openJournal } from './journal.js';
 import { relBar, relSubtitle, workWeekHtml, perfWord, askTrack, visitRow, visitStatus } from './relui.js';
@@ -31,7 +31,7 @@ import { note } from '../sim/facts.js';
 import { notify, esc, game, toast, saveGame, settings, saveSettings } from '../core/store.js';
 import { galleryPictures, photosOf } from './gallery.js';
 import { getWorld, worldFile, deviceLook, socialKind, messageKind, appsShown, systemOn, isScenario } from '../core/world.js';
-import { upcoming } from '../sim/plans.js';
+import { upcoming, when as planWhen } from '../sim/plans.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { whenText } from './plans.js';
 import { thumb, chat } from '../st/bridge.js';
@@ -41,7 +41,9 @@ import { money, billsOf } from '../sim/needs.js';
 import { placeOf, homeAddress } from '../sim/places.js';
 import { whereNow, residents } from '../sim/people.js';
 import { breakNow } from '../sim/daylife.js';
-import { social, bondOf, bondLabel, isPartner, sendText, PARTNER_BOND } from '../sim/social.js';
+import { social, bondOf, bondLabel, isPartner, textOut, textBack, addBond, PARTNER_BOND } from '../sim/social.js';
+import { awayNow, answerLater, dueLater, waitingOn } from '../sim/texting.js';
+import { grudgeOf } from '../sim/grudges.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
 import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance } from '../sim/work.js';
@@ -348,14 +350,53 @@ const matchQ = (g, r, texts = false) => {
 // The name you saved them under (like a phone contact): their name unless you changed it.
 const nicks = (g) => (social(g).nick ??= {});
 const contactName = (g, r) => nicks(g)[r.avatar] || r.name;
+// Under a name in Messages: their last message, marked when it waits for your answer (a question you haven't
+// answered), or yours with a tick while they will answer later.
+function rowNote(g, avatar, last) {
+    if (!last)
+        return '';
+    const text = `<span data-notr>${esc(last.text)}</span>`;
+    if (last.me)
+        return waitingOn(g, avatar) ? `<i class="mu-ph-sent" title="Delivered">${icon('check')}</i>${text}` : text;
+    return /\?\s*$/.test(last.text) && !social(g).unread[avatar] ? `<i class="mu-ph-yourturn" title="Waiting for your answer">${icon('chat')}</i>${text}` : text;
+}
 function messagesApp(g) {
     const s = social(g);
     const list = met(g).filter(r => matchQ(g, r, true)).sort((a, b) => (s.threads[b.avatar]?.at(-1)?.at ?? 0) - (s.threads[a.avatar]?.at(-1)?.at ?? 0));
     return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}<div class="mu-ph-list">${list.length ? list.map(r => {
         const last = s.threads[r.avatar]?.at(-1);
         return `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-thread" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
-            <span><b data-notr>${esc(contactName(g, r))}</b><small data-notr>${last ? esc(last.text) : ''}</small></span>${s.unread[r.avatar] ? `<em>${s.unread[r.avatar]}</em>` : last ? `<small>${day(g, last.at)}</small>` : ''}</button>`;
+            <span><b data-notr>${esc(contactName(g, r))}</b><small>${rowNote(g, r.avatar, last)}</small></span>${s.unread[r.avatar] ? `<em>${s.unread[r.avatar]}</em>` : last ? `<small>${day(g, last.at)}</small>` : ''}</button>`;
     }).join('') : `<p class="mu-muted mu-pad">${T('noContacts')}</p>`}</div>`;
+}
+// Under your last message while their answer waits: delivered, and why not yet (work, sleep).
+function laterNote(g, avatar) {
+    const l = waitingOn(g, avatar);
+    if (!l)
+        return '';
+    const why = l.why === 'sleep' ? "Delivered. They're probably asleep: they'll answer in the morning." : "Delivered. They're probably at work: they'll answer when they get a moment.";
+    return `<p class="mu-ph-later">${icon('clock')}<span>${esc(why)}</span></p>`;
+}
+// The quick replies: what fits now (sorry while they're hurt, a plan coming up, the time of day, a partner), then
+// "How are you?". Four at most, the first ones first.
+function quickReplies(g, avatar) {
+    const out = [];
+    const h = Math.floor(g.minutes / 60), close = bondOf(g, avatar) >= 30;
+    if (grudgeOf(g, avatar))
+        out.push(['Say sorry', "I'm sorry about before.", 'heart']);
+    const next = upcoming(g, avatar)[0];
+    if (next)
+        out.push(['See you then', `See you ${planWhen(g, next.from)}!`, 'calendar']);
+    if (!LETTERS && close && h >= 5 && h < 11)
+        out.push(['Good morning', 'Good morning!', 'chat']);
+    if (!LETTERS && close && (h >= 21 || h < 2))
+        out.push(['Good night', 'Good night!', 'moon']);
+    if (isPartner(g, avatar))
+        out.push(['Miss you', 'I miss you.', 'heart']);
+    else if (close)
+        out.push(['Thinking of you', 'I was thinking about you.', 'heart']);
+    out.push(['How are you?', 'How are you doing?', 'chat']);
+    return out.slice(0, 4);
 }
 function threadApp(g) {
     const r = g.cast[P.who];
@@ -371,14 +412,14 @@ function threadApp(g) {
         ${NICK.who === r.avatar ? `<p class="mu-ph-editnote">${icon('trash')} ${T('deleteMsgHint')}</p>` : ''}
         <div class="mu-ph-thread ${NICK.who === r.avatar ? 'is-editing' : ''}" data-keep="ph-thread" data-bottom>${t.map((m, i) => NICK.who === r.avatar
         ? `<button class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr data-act="ph-msg-del" data-i="${esc(i)}" title="${esc(T('deleteMsg'))}">${esc(m.text)}<small>${day(g, m.at)}</small><i class="mu-ph-del">${icon('trash')}</i></button>`
-        : `<div class="mu-ph-msg ${m.me ? 'is-me' : ''}" data-notr>${esc(m.text)}<small>${day(g, m.at)}</small></div>`).join('')}
+        : `<div class="mu-ph-msg ${m.me ? 'is-me' : ''} ${m.heart ? 'has-heart' : ''}"><span data-notr>${esc(m.text)}</span><small>${day(g, m.at)}</small>${m.me ? '' : `<button class="mu-ph-like ${m.heart ? 'is-on' : ''}" data-act="ph-heart" data-i="${esc(i)}" aria-pressed="${!!m.heart}" aria-label="Heart" title="Heart">${icon(m.heart ? 'heart' : 'heartLine')}</button>`}</div>`).join('')}
+            ${NICK.who === r.avatar ? '' : laterNote(g, r.avatar)}
             ${P.typing === r.avatar ? '<div class="mu-ph-msg is-typing"><i></i><i></i><i></i></div>' : ''}
             ${t.length ? '' : `<p class="mu-muted mu-pad">${T('emptyThread')}</p>`}${NICK.who === r.avatar ? '' : (() => { const w = getWorld(g.world); return w ? nudgeAnswersHtml(g, w, r.avatar) : ''; })()}</div>
         <div class="mu-ph-quick">
             <button data-act="pl-come" data-who="${esc(r.avatar)}" ${PL.busy ? 'disabled' : ''}>${icon('home')}<span>Come over</span></button>
             <button data-act="ph-person" data-who="${esc(r.avatar)}" data-tab="about">${icon('calendar')}<span>Make plans</span></button>
-            <button data-act="ph-quick" data-text="How are you doing?">${icon('chat')}<span>How are you?</span></button>
-            <button data-act="ph-quick" data-text="I was thinking about you.">${icon('heart')}<span>Thinking of you</span></button>${(() => { const w = getWorld(g.world); return w ? helpBtn(g, w, r.avatar) : ""; })()}</div>
+            ${quickReplies(g, r.avatar).map(([label, text, ic]) => `<button data-act="ph-quick" data-text="${esc(text)}">${icon(ic)}<span>${esc(label)}</span></button>`).join('')}${(() => { const w = getWorld(g.world); return w ? helpBtn(g, w, r.avatar) : ""; })()}</div>
         <div class="mu-ph-compose"><input type="text" placeholder="${T('messagePlaceholder')}" value="${esc(P.draft)}" data-input="ph-draft" data-focus="ph-draft" ${P.typing ? 'disabled' : ''}>
             <button class="mu-ibtn mu-primary" data-act="ph-send" aria-label="${T('send')}" ${P.typing ? 'disabled' : ''}>${icon('send')}</button></div>`;
 }
@@ -770,6 +811,32 @@ export function feedTick() {
         notify();
     } }).catch(() => { }).finally(() => { autoBusy = false; });
 }
+// The answers to messages read later (sim/texting.ts), once they're free: run after the clock moves (ui/plans.ts's
+// runPlans). One at a time, so two answers never write over each other.
+let laterBusy = false;
+export async function laterTick() {
+    const g = game();
+    const w = g && getWorld(g.world);
+    if (!g || !w || laterBusy)
+        return;
+    const due = dueLater(g);
+    if (!due.length)
+        return;
+    laterBusy = true;
+    try {
+        for (const who of due) {
+            if (await textBack(g, w, who).catch(() => '') && !(P.open && P.app === 'thread' && P.who === who)) {
+                social(g).unread[who] = (social(g).unread[who] ?? 0) + 1;
+                toast(lex(w, 'newMessage', g.cast[who]?.name ?? ''), 'info');
+            }
+        }
+    }
+    finally {
+        laterBusy = false;
+        saveGame();
+        notify();
+    }
+}
 export function phoneHtml() {
     const g = game();
     const w = g && getWorld(g.world);
@@ -981,17 +1048,30 @@ Object.assign(ACT, {
         const w = g && getWorld(g.world);
         const text = P.draft.trim();
         const who = P.who;
-        if (!g || !w || !text || !who || P.typing)
+        if (!g || !w || !text || !who || P.typing || !g.cast[who])
             return;
         P.draft = '';
-        P.typing = who;
-        notify();
         try {
             // the answer to a friend's question: what it means is judged, and they decide
-            const reply = askingFrom(g, who) ? (await answerAdvice(g, w, who, text), social(g).threads[who]?.at(-1)?.text ?? '') : await sendText(g, w, who, text);
-            if (!reply)
-                toast('No answer (is the AI connected?).', 'warn');
-            else if (!(P.open && P.app === 'thread' && P.who === who)) {
+            if (askingFrom(g, who)) {
+                P.typing = who;
+                notify();
+                await answerAdvice(g, w, who, text);
+            }
+            else {
+                textOut(g, who, text);
+                P.typing = who;
+                notify();
+                // asking to meet: the plan rules answer; else they answer now, or later when they're free
+                const away = awayNow(g, w, g.cast[who]);
+                if (await askByText(g, w, who, text)) { /* answered, with the plan's toast */ }
+                else if (away)
+                    answerLater(g, w, who, away);
+                else if (!await textBack(g, w, who))
+                    toast('No answer (is the AI connected?).', 'warn');
+            }
+            const last = social(g).threads[who]?.at(-1);
+            if (last && !last.me && !(P.open && P.app === 'thread' && P.who === who)) {
                 social(g).unread[who] = (social(g).unread[who] ?? 0) + 1;
                 toast(lex(getWorld(g.world), 'newMessage', g.cast[who]?.name ?? ''), 'info');
             }
@@ -1000,6 +1080,20 @@ Object.assign(ACT, {
             toast(String(e?.message ?? e), 'error');
         }
         P.typing = '';
+        saveGame();
+        notify();
+    },
+    // a heart on their message: a little friendship the first time (no AI), and it can be taken back
+    'ph-heart': (el) => {
+        const g = game();
+        const m = g && social(g).threads[P.who]?.[Number(el.dataset.i)];
+        if (!g || !m || m.me)
+            return;
+        m.heart = !m.heart;
+        if (m.heart && !m.liked) {
+            m.liked = true;
+            addBond(g, P.who, 1);
+        }
         saveGame();
         notify();
     },

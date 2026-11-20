@@ -22,7 +22,7 @@ import { usualPay } from './needs.js';
 import { onKeepsake } from './hooks.js';
 import { sceneHere } from './homerooms.js';
 
-export interface Text { me: boolean; text: string; at: number }
+export interface Text { me: boolean; text: string; at: number; heart?: boolean; liked?: boolean }   // heart: you hearted their message (liked: its friendship was given)
 // A plan with you: she goes to `place` from `from` to `to`. "come" plans are "come over to where I am now".
 // (photography) `shoot`: the subject of a photo brief comes to the shoot's place at the time set (sim/assignments.ts).
 export type PlanKind = 'hangout' | 'date' | 'party' | 'shoot';
@@ -292,15 +292,19 @@ function nowDoing(g: Save, w: WorldDef, r: Resident): string {
     const p = at === `home:${r.avatar}` || at.startsWith('home:') ? 'at home' : placeOf(g, w, at)?.name ? `at ${placeOf(g, w, at)!.name}` : 'out';
     return p;
 }
-export async function sendText(g: Save, w: WorldDef, avatar: string, text: string): Promise<string> {
-    const s = social(g);
-    const r = g.cast[avatar];
-    if (!r) return '';
-    (s.threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
+/** Your message, sent: in the conversation, and what texting does for the friendship (paced). False for no one. */
+export function textOut(g: Save, avatar: string, text: string): boolean {
+    if (!g.cast[avatar]) return false;
+    (social(g).threads[avatar] ??= []).push({ me: true, text, at: nowAbs(g) });
     addBond(g, avatar, 2); touch(g, avatar); sawYou(g, avatar);
     (((g as any).post ??= { queue: [], contact: {} }).contact)[avatar] = g.day;   // keeping in touch (letters from afar)
+    return true;
+}
+/** Their answer to the conversation so far (now, or later when they're free: sim/texting.ts). '' without the AI. */
+export async function textBack(g: Save, w: WorldDef, avatar: string): Promise<string> {
+    const r = g.cast[avatar]; if (!r) return '';
     const reply = await sayLine(textTranscript(g, w, r), r.name, [r.name, personaName()], 320, 120, 'now');
-    if (reply) s.threads[avatar].push({ me: false, text: reply, at: nowAbs(g) });
+    if (reply) (social(g).threads[avatar] ??= []).push({ me: false, text: reply, at: nowAbs(g) });
     return reply;
 }
 

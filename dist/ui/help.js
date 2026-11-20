@@ -286,13 +286,16 @@ const topics = (w) => {
         { id: 'phone', icon: modern ? 'phone' : 'book', title: `The ${devl}`, intro: lex(w, 'deviceIntro'),
             items: [
                 [app('messages'), lex(w, 'messagesHelp')],
-                [app('people'), 'Everyone you know, with their bars and what they feel.'],
+                ...(!w || systemOn(w, 'plans') ? [['Asking by text', 'Write "dinner tomorrow at 8?" and it is an invitation: they say yes or no as they would to Make plans, and a yes is in the calendar.']] : []),
+                ...(!w || systemOn(w, 'busy') ? [['Busy people', 'Someone at work answers when they get a moment, someone asleep in the morning; your message shows as delivered until then.']] : []),
+                [app('people'), 'Everyone you know, with their bars and what they feel. A person\'s page has About (where they are, their work and week), Memories, Circle (the people in their life) and Notes (yours, and the gifts you gave).'],
                 ...(on('social') || on('dating') ? [[[on('social') ? app('social') : '', on('dating') ? app('dating') : ''].filter(Boolean).join(' and '), lex(w, 'socialHelp')]] : []),
                 [app('plans'), 'Your plans, who is with you, and parties.'],
                 [app('journal'), 'A calendar of your days, with each day\'s diary and what happened.'],
                 [lex(w, 'profile'), lex(w, 'profileHelp')],
                 ...(goalsOn ? [[app('goals'), 'Your life goal, its steps and the goals you could follow; its Rewards tab spends your life points.']] : []),
                 ...(modern ? [['Settings', 'Change the wallpaper: a picture from your computer, a link, or your gallery.']] : []),
+                ...(modern ? [['Unfold', 'The button next to ✕ makes the phone twice as wide: Messages and People show the list and what it opens side by side. Back goes one step back; the bar at the bottom goes home.']] : []),
             ] },
         ...(goalsOn ? [{ id: 'goals', icon: 'star', title: 'Life goals and life points', intro: `Like in The Sims: follow one life goal at a time, ${appRef(w, 'goals')}. Nothing is required; a goal gives your days a direction, and finishing it gives you something for good.`,
                 items: [

@@ -19,6 +19,7 @@ import { fmtClock as hm } from '../core/fmt.js';
 import { placeOf, playerHomeId, pins } from '../sim/places.js';
 import { STUDIO_ID } from '../sim/studio.js';
 import { bondOf, isPartner, social, isWith } from '../sim/social.js';
+import { canAskByText, looksLikeAsk, readAsk } from '../sim/texting.js';
 import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
 import { shutOut } from '../sim/romance.js';
 import { whereNow } from '../sim/people.js';
@@ -38,6 +39,25 @@ export function whenText(g, at) {
     return d === g.day ? fmt('today at {0}', hm(at % 1440)) : d === g.day + 1 ? fmt('tomorrow at {0}', hm(at % 1440)) : fmt('on {0} at {1}', tr(weekday(d)), hm(at % 1440));
 }
 const placeName = (g, w, id) => (id === playerHomeId ? tr(isScenario(w) ? 'your room' : 'your home') : tr(placeOf(g, w, id)?.name ?? ''));
+/** (the Messages app) Your text, already sent, read for an invitation: a plan the rules answer (or "come over" right
+ *  now), with the toast the form gives. False when it isn't one: the conversation goes on as usual. */
+export async function askByText(g, w, who, text) {
+    const r = g.cast[who];
+    if (!r || !canAskByText(g, w, who) || !looksLikeAsk(text))
+        return false;
+    const ask = await readAsk(g, w, r, text);
+    if (!ask)
+        return false;
+    if (ask.now) {
+        const ans = await callOver(g, w, who, '');
+        toast(ans.ok ? fmt('{0} is on the way (about {1} min).', r.name, String((ans.at ?? 0) - nowAbs(g))) : ans.why, ans.ok ? 'success' : 'info');
+    }
+    else {
+        const ans = await invite(g, w, who, ask.place, ask.at, ask.kind, '');
+        toast(ans.ok ? fmt('{0} said yes: {1}, {2}.', r.name, placeName(g, w, ask.place), whenText(g, ask.at)) : ans.why, ans.ok ? 'success' : 'info');
+    }
+    return true;
+}
 /* ---------- the clock ---------- */
 export function runPlans() {
     const g = game();
@@ -49,6 +69,7 @@ export function runPlans() {
     news.forEach(n => toast(n.text, n.kind));
     if (news.length)
         saveGame();
+    void import('./phone.js').then(p => p.laterTick()); // answers to messages read later, once they're free
     return news.length > 0;
 }
 /* ---------- the person card in the scene ---------- */

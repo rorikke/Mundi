@@ -20,6 +20,7 @@ import { fmtClock as hm } from '../core/fmt.js';
 import { placeOf, playerHomeId, pins } from '../sim/places.js';
 import { STUDIO_ID } from '../sim/studio.js';
 import { bondOf, isPartner, social, isWith, type PlanKind } from '../sim/social.js';
+import { canAskByText, looksLikeAsk, readAsk } from '../sim/texting.js';
 import { invite, inviteFace, callOver, askAlong, letGo, cancelPlan, upcoming, planTick, earliest, isWorking, canDate, canHang, canPlan, canAlong, ALONG_BOND, HANGOUT_BOND, DATE_BOND } from '../sim/plans.js';
 import { shutOut } from '../sim/romance.js';
 import { whereNow } from '../sim/people.js';
@@ -42,6 +43,23 @@ export function whenText(g: Save, at: number) {
 }
 const placeName = (g: Save, w: WorldDef, id: string) => (id === playerHomeId ? tr(isScenario(w) ? 'your room' : 'your home') : tr(placeOf(g, w, id)?.name ?? ''));
 
+/** (the Messages app) Your text, already sent, read for an invitation: a plan the rules answer (or "come over" right
+ *  now), with the toast the form gives. False when it isn't one: the conversation goes on as usual. */
+export async function askByText(g: Save, w: WorldDef, who: string, text: string): Promise<boolean> {
+    const r = g.cast[who];
+    if (!r || !canAskByText(g, w, who) || !looksLikeAsk(text)) return false;
+    const ask = await readAsk(g, w, r, text);
+    if (!ask) return false;
+    if (ask.now) {
+        const ans = await callOver(g, w, who, '');
+        toast(ans.ok ? fmt('{0} is on the way (about {1} min).', r.name, String((ans.at ?? 0) - nowAbs(g))) : ans.why, ans.ok ? 'success' : 'info');
+    } else {
+        const ans = await invite(g, w, who, ask.place, ask.at, ask.kind, '');
+        toast(ans.ok ? fmt('{0} said yes: {1}, {2}.', r.name, placeName(g, w, ask.place), whenText(g, ask.at)) : ans.why, ans.ok ? 'success' : 'info');
+    }
+    return true;
+}
+
 /* ---------- the clock ---------- */
 
 export function runPlans() {
@@ -51,6 +69,7 @@ export function runPlans() {
     tidyEvent(g);
     news.forEach(n => toast(n.text, n.kind));
     if (news.length) saveGame();
+    void import('./phone.js').then(p => p.laterTick());   // answers to messages read later, once they're free
     return news.length > 0;
 }
 

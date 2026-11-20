@@ -1,0 +1,24 @@
+/* Messages: a heart on their message, "Delivered" while they'll answer later, and the marks in the list (a question
+   waiting for your answer, your message delivered). */
+#mundi-root .mu-ph-msg { position: relative; }
+#mundi-root .mu-ph-like, #mundi-root .mu-ph-like:hover:not(:disabled) { position: absolute; right: -30px; bottom: 2px; display: grid; place-items: center; width: 24px; height: 24px; min-height: 0;
+    padding: 0; border: 0 !important; border-radius: 50% !important; background: transparent !important; box-shadow: none !important; color: var(--muted); opacity: 0; transition: opacity .15s, transform .15s; }
+#mundi-root .mu-ph-like .mu-ic { width: 15px; height: 15px; }
+#mundi-root .mu-ph-msg:hover .mu-ph-like, #mundi-root .mu-ph-like:focus-visible { opacity: .8; }
+#mundi-root .mu-ph-like:hover:not(:disabled) { opacity: 1; transform: scale(1.15) !important; }
+@media (hover: none) { #mundi-root .mu-ph-like { opacity: .45; } }
+/* hearted: the heart stays, on the bubble's corner */
+#mundi-root .mu-ph-msg.has-heart { margin-bottom: 8px; }
+#mundi-root .mu-ph-like.is-on, #mundi-root .mu-ph-like.is-on:hover:not(:disabled) { opacity: 1; right: -8px; bottom: -10px; width: 22px; height: 22px; color: #ff375f;
+    background: var(--panel) !important; box-shadow: 0 0 0 1px var(--line) !important; }
+#mundi-root .mu-ph-like.is-on .mu-ic { width: 13px; height: 13px; }
+/* their answer comes later */
+#mundi-root .mu-ph-later { align-self: flex-end; display: block; max-width: 85%; margin: -2px 0 0; font-size: 11px; color: var(--muted); text-align: right; }
+#mundi-root .mu-ph-later .mu-ic { display: inline-block; width: 12px; height: 12px; margin-right: 4px; vertical-align: -2px; }
+#mundi-root .mu-ph-later > span { display: inline; }
+/* the list's marks, before the last message */
+#mundi-root .mu-ph-row > span > small { display: flex; align-items: center; gap: 4px; }
+#mundi-root .mu-ph-row > span > small > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+#mundi-root .mu-ph-row :is(.mu-ph-sent, .mu-ph-yourturn) { display: inline-grid; flex: none; }
+#mundi-root .mu-ph-row :is(.mu-ph-sent, .mu-ph-yourturn) .mu-ic { width: 13px; height: 13px; }
+#mundi-root .mu-ph-yourturn { color: var(--accent); }
