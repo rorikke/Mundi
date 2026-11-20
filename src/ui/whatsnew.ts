@@ -24,7 +24,7 @@ let asked = false;
 export function whatsNewHtml(): string {
     if (asked && !tutorialOn()) return changelogHtml(false);
     if (state.view !== 'menu' || tutorialOn() || !S().tourSeen) return '';
-    if (!newer(VERSION, seenVersion())) return '';
+    if (!newer(CHANGELOG[0].v, seenVersion())) return '';   // (a release without its own entry shows nothing new)
     return changelogHtml(newer(TOUR_VERSION, seenVersion()));
 }
 function changelogHtml(offerTour: boolean): string {

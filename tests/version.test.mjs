@@ -11,7 +11,7 @@ const man = JSON.parse(fs.readFileSync(path.join(root, 'manifest.json'), 'utf8')
 let fails = 0, passes = 0;
 const ok = (c, m) => { if (c) passes++; else { fails++; console.log('  FAIL', m); } };
 ok(V.VERSION === man.version, `VERSION (${V.VERSION}) is the manifest's (${man.version})`);
-ok(V.CHANGELOG[0]?.v === V.VERSION, 'the changelog starts with this version');
+ok(V.CHANGELOG[0] && !V.newer(V.CHANGELOG[0].v, V.VERSION), 'the changelog starts with this version or an older one (a release without an entry of its own)');
 ok(V.newer('0.2.0', '0.1.9') && V.newer('0.10.0', '0.9.0') && !V.newer('0.2.0', '0.2.0') && !V.newer('0.1.0', '0.2.0') && V.newer('1.0', '0.9.9'), 'versions compare as numbers');
 console.log(`${passes} passed, ${fails} failed`);
 process.exit(fails ? 1 : 0);

@@ -1,6 +1,7 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '1.1.0';
-// Newest first. The first one is what the window shows after an update.
+export const VERSION = '1.1.1';
+// Newest first. The first one is what the window shows after an update; a small release can have none of its own
+// (1.1.1), and then the window doesn't open for it.
 export const CHANGELOG = [
     { v: '1.1.0', title: 'Through the lens, and at home in Tokyo', items: [
             ['camera', "A photographer's career: assist Erika Mizushima at Studio MIZU, then go freelance with briefs that wait for their light and weather, a photo studio of your own and photobooks. Everyone gets Lens for their photos."],

@@ -1,5 +1,62 @@
 # Changelog
 
+## 1.1.1 · 2026-11-20
+
+Small changes after 1.1.0: Spark shows real profiles, the Calendar can wait until it's time to go, people's pages open
+from their faces, you learn someone's job by seeing them at it, and you no longer pick what other people wear. Your
+saves open as they are: no save format change.
+
+### Spark
+
+- **Real profiles:** a first name and age, what they wrote in their own words, the app's questions they answered, and
+  one to six photos of them at the places they go, in outfits that fit (adult ones only with adult content on). No
+  surname, no job title, nothing they keep secret. Every built-in person on the app has one; anyone else gets one from
+  the AI the first time they're shown, kept in the save.
+- **Only people who would really put up a profile are on it.** In Tokyo, sixteen are; nineteen aren't the kind (the
+  idol whose agency forbids it, the secret couple, the host and the hostess, people who would be recognized…). Nobody
+  who refuses every photo is on it, and someone who gets together with anyone leaves it unless they're open to more.
+- **Spark is for dating:** Friendship is gone from what you can look for (a Friendship picked in an existing game is
+  dropped), and nobody's photos go further than they would in public.
+
+### The phone and the Calendar
+
+- **Wait and go:** a plan or an event you said you'd go to can wait in the Calendar until it's time to leave, then
+  make the trip so you arrive as it starts. It asks first, with what the wait would make you miss (a shift, another
+  plan, the place closing, someone going their own way). The clock's "Let time pass?" offers the same.
+- **The home screen** has bigger icons under a Today card (the time, the day and what's next, opening the Calendar),
+  and the closed phone in the corner peeks in the new style. The bar at the bottom closes the phone from the home
+  screen.
+- **Homes is in tabs** (Your home, For rent, For sale), Campus and Jobs show what's waiting for you to choose, the
+  Shop says when something can be given as a gift, the Calendar shows each event's and festival's own emoji, and
+  Collection's groups stay closed once you close them.
+- **Rows that scroll sideways** (tabs, quick replies) can be dragged or wheeled with a mouse, and the wheel over them no
+  longer scrolls the page.
+
+### People
+
+- **A face opens their page:** a face in Here or With you, or Their card on a sprite, opens that person's page in
+  People; someone you haven't met gets a short page ("You don't know them yet"). The scene card is gone: what you can
+  do with someone stays in the menu you get by clicking them.
+- **You no longer pick what other people wear:** the sprite menu has no outfits, and anyone left in one nothing calls
+  for changes back. At Home, a room's dress code is followed only as far as each person's comfort goes (set on your own
+  cards in Library › Expressions), and never undresses anyone.
+- **You learn what someone does for a living** by seeing them at work, working the same job or getting to know them
+  (Acquaintance), not just from saying hi; family and whoever lives with you you'd know anyway, and once learned it
+  stays learned. Their page says when you don't know yet, and a good word at their job needs knowing it. In an existing
+  game, people you've only said hi to are learned again the same way.
+- **Play as is off** unless you turn it on (Settings → Game); someone already playing another person can still go back
+  to their own character.
+- **Suggested life goals fit where you are:** your start's own first, then what fits who you are and what you're doing.
+
+### World makers
+
+- The World creator edits a person's dating profile ("On the dating app", or "Not the kind to have a dating
+  profile") and a festival's icon.
+
+### Other changes
+
+- Everything new in Portuguese and Spanish.
+
 ## 1.1.0 · 2026-11-20
 
 Through the lens, and at home in Tokyo. Tokyo has a photographer's career, from Studio MIZU's white basement to a
