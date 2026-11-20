@@ -29,9 +29,9 @@ import { styleName, inWorld, LOCKED_NOTE } from './styles.js';
 import { pickAndCrop, pickFile } from './cropper.js';
 import { uploadWorldPicture } from '../sim/creator.js';
 import { icon } from './icons.js';
-import { stepHouseholds, yourHouseholdHtml, stepHome, ngPeopleFor, youWaysHtml } from './ngfamily.js';
+import { stepHouseholds, yourHouseholdHtml, stepHome, ngPeopleFor, youWaysHtml, worldCard } from './ngfamily.js';
 import { traitsHtml, toggleTrait } from './traits.js';
-import { sheetGroups, desireOffered } from '../sim/traits.js';
+import { sheetGroups, desireOffered, currentOption } from '../sim/traits.js';
 import { charPicker, shownChars, resetPick } from './charpick.js';
 const STEPS_ALL = [['world', 'World'], ['cast', 'People'], ['homes', 'Households'], ['hero', 'Your character'], ['house', 'Home'], ['review', 'Start']];
 // A scenario: the same steps, named for a house (everyone lives under one roof; your room instead of a home).
@@ -207,8 +207,9 @@ function adultDialogHtml() {
         <label class="mu-check"><input type="checkbox" data-input="ng-adult-remember" ${wz.adultRemember ? 'checked' : ''}><span>Remember my choice for new games<small>Change it any time in Settings → Game.</small></span></label>
         <div class="mu-row mu-dlg-btns"><button data-act="ng-adult-pick" data-v="">Keep it off</button><button class="mu-primary" data-act="ng-adult-pick" data-v="1">Turn it on</button></div></div></div>`;
 }
-// The cast: your characters, with folders or without, by tag, by name or only favorites.
-const castList = () => characters();
+// The cast: your characters, with folders or without, by tag, by name or only favorites (not the cards of this world's
+// own people from an earlier game: they're in the world's list above).
+const castList = () => characters().filter(c => !worldCard(W(), c));
 function stepCast() {
     const wz = state.wizard;
     return `${adultAskHtml()}${worldPeopleHtml()}
@@ -311,8 +312,8 @@ function stepHero() {
         return stepHeroChoice();
     // once you have a character: who lives with you
     if (mode === 'existing')
-        return `${stepHeroExisting()}${state.wizard.persona ? `<div class="mu-creator is-persona">${heroSheetHtml(true)}</div>` : ''}${rpgHtml()}${state.wizard.persona ? yourHouseholdHtml() : ''}`;
-    return `<div class="mu-row"><button class="mu-ghost" data-act="ng-heromode" data-v="">${icon('back')}<span>Back</span></button></div>${stepHeroNew()}${rpgHtml()}${state.wizard.hero.name.trim() ? yourHouseholdHtml() : ''}`;
+        return `${stepHeroExisting()}${state.wizard.persona ? `<div class="mu-creator is-persona">${heroSheetHtml(true)}</div>` : ''}${rpgHtml()}${state.wizard.persona ? yourHouseholdHtml(startHousehold()) : ''}`;
+    return `<div class="mu-row"><button class="mu-ghost" data-act="ng-heromode" data-v="">${icon('back')}<span>Back</span></button></div>${stepHeroNew()}${rpgHtml()}${state.wizard.hero.name.trim() ? yourHouseholdHtml(startHousehold()) : ''}`;
 }
 function stepHeroNew() {
     const h = state.wizard.hero, sh = W().sheet;
@@ -339,20 +340,24 @@ function stepHeroNew() {
 // The sheet's groups for this game: adult strengths, options and the In bed group only with adult content on, the Drive
 // only when Desire will be in play.
 const ngGroups = (w) => { const adult = !!state.wizard.adult; return sheetGroups(w, adult, desireOffered(w, adult)); };
-// Picks the game won't have (adult ones after adult content is turned off) are dropped, so nothing adult is saved.
+// Picks the game won't have (adult ones after adult content is turned off) are dropped, so nothing adult is saved; a
+// persona's pick the world no longer offers becomes the one that now says the same (Strong: Athletic), else goes, so
+// the count matches the chips lit.
 function dropUnoffered(w) {
     const h = state.wizard.hero, groups = ngGroups(w);
     for (const s of w.sheet.traits ?? []) {
         const t = groups.find(x => x.id === s.id);
-        if (h.traits?.[s.id])
-            h.traits[s.id] = t ? h.traits[s.id].filter(o => t.options.includes(o)) : [];
+        if (!h.traits?.[s.id])
+            continue;
+        h.traits[s.id] = t ? [...new Set(h.traits[s.id].map(o => currentOption(w, t, o)))].filter(o => o && t.options.includes(o)).slice(0, t.max) : [];
     }
 }
 const asks = (w, k) => w.sheet.ask?.[k] !== false;
 function heroSheetHtml(persona) {
     const w = W(), h = state.wizard.hero, sh = w.sheet;
+    dropUnoffered(w); // (picks kept from before, as the sheet offers them now)
     return `${youWaysHtml()}${isScenario(w) ? situationHtml() : ''}${asks(w, 'origin') && !isScenario(w) ? startPickHtml(w, h.origin, !!state.wizard.adult) + degreePickHtml(w) : ''}
-        ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(ngGroups(w), h.traits, 'ng-trait', w)}</section>` : ''}
+        ${sh.traits?.length && asks(w, 'traits') ? `<section class="mu-attrs">${traitsHtml(ngGroups(w), h.traits, 'ng-trait', w, isScenario(w) ? undefined : chosenStart()?.skills ?? {})}</section>` : ''}
         ${asks(w, 'bio') ? `<section class="mu-bio"><label class="mu-field"><span>${persona ? 'About you in this world (optional; your persona\'s description is not changed)' : 'About you (optional)'}</span><textarea rows="4" data-input="ng-bio" data-focus="ngbio" placeholder="${persona ? 'What you do here, what people know about you' : 'Personality, quirks, what drives you'}">${esc(h.bio)}</textarea></label></section>` : ''}`;
 }
 // A start enrolled in a degree (Tokyo's university student): which of its school's degrees you study for.
@@ -381,6 +386,11 @@ function situationHtml() {
             <div class="mu-chips mu-situation-books">${books.slice(0, 60).map(b => `<button class="mu-chip ${st.books.includes(b) ? 'is-on' : ''}" data-act="ng-start-book" data-name="${esc(b)}" data-notr>${esc(b)}</button>`).join('') || '<span class="mu-muted">No lorebooks.</span>'}</div>
             <div class="mu-row"><button class="mu-primary" data-act="ng-start-gen" ${st.books.length && !st.busy ? '' : 'aria-disabled="true"'}>${icon('sparkles')}<span>${st.busy ? 'Writing…' : st.text.trim() ? 'Write it again' : 'Write the premise'}</span></button>
                 <small class="mu-muted">${st.books.length} chosen</small></div></div>` : `<blockquote class="mu-premise" data-notr>${esc([w.scenario?.premise ?? '', SCENARIO_STARTS.find(s => s.id === st.id)?.you ?? ''].filter(Boolean).join(' '))}</blockquote>`}</section>`;
+}
+// The world's people the chosen start has you living with ("Who you live with"), among those in this game.
+function startHousehold() {
+    const w = W(), st = isScenario(w) ? undefined : chosenStart(), names = wpChosen();
+    return st?.household ? w.cast.examples.filter(e => e.household === st.household && names.includes(e.name)).map(e => ({ name: e.name.split(/\s+/)[0], ex: e })) : [];
 }
 // (E16) The start chosen: one of the world's or yours, the custom one being written, or the world's default.
 function chosenStart() {
@@ -503,7 +513,9 @@ export function newGameHtml() {
     const wz = state.wizard;
     if (!wz)
         return '';
-    STEPS = wz.mode === 'scenario' ? STEPS_SCEN : STEPS_ALL;
+    // (Households places the characters you brought yourself: with only the world's people, who already have their
+    // homes and families, there's nothing for it to do)
+    STEPS = wz.mode === 'scenario' ? STEPS_SCEN : (wz.cast ?? []).length || wz.step === 'homes' ? STEPS_ALL : STEPS_ALL.filter(s => s[0] !== 'homes');
     if (!wz.mode)
         return modeHtml();
     if (wz.mode === 'chat')
@@ -540,6 +552,7 @@ Object.assign(ACT, {
             if (findStart(w, sheet.origin, !!wz.adult))
                 wz.hero.origin = sheet.origin;
             wz.hero.bio = sheet.bio ?? '';
+            dropUnoffered(w);
         }
         notify();
     },
@@ -726,7 +739,7 @@ Object.assign(ACT, {
     },
     'ng-skill': (el) => { const x = rpgState(); if (!x)
         return; const id = el.dataset.id; const l = x.s.skills; x.s.skills = l.includes(id) ? l.filter(k => k !== id) : [...l, id].slice(-2); notify(); },
-    'ng-trait': (el) => { toggleTrait(ngGroups(W()), state.wizard.hero.traits, el.dataset.k, el.dataset.v); notify(); },
+    'ng-trait': (el) => { toggleTrait(ngGroups(W()), state.wizard.hero.traits, el.dataset.k, el.dataset.v, W()); notify(); },
     'ng-portrait': async () => {
         const blob = await pickAndCrop();
         if (!blob)

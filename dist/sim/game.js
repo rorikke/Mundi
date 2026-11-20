@@ -21,7 +21,7 @@ import { setWorldDicts } from '../core/tr.js';
 import { lang } from '../core/i18n.js';
 import { characters, charOf, createCharacter, createPersona, usePersona, createGroup, openGame, groupOf, clearGreetings, writeLorebook, bindChatLore, lorebooks, loadLore, setPresent, saveMeta, chat, currentChatId, selectedGroup, pastChats, deleteChat, deleteGroup, setPersonaSheet, personaSheet, personaName, recentChats, ctx, deleteScenarioChat, saveName, copyGroupChat, groupChatId, persona, savePersona, readChatMeta, uploadSprite, saveCardMundi, setCharacterImage, DEFAULT_EXPRESSIONS, } from '../st/bridge.js';
 import { findStart, defaultStart, withStartTraits, applyStart } from './starts.js';
-import { withoutStrengths, applyStrengths } from './traits.js';
+import { withoutStrengths, addStrengths } from './traits.js';
 import { playerHomeId } from './places.js';
 import { sceneText, refreshPrompt } from './prompt.js';
 import { liveTogether, normalizeHomes, ties as tiesOfSave } from './living.js';
@@ -654,8 +654,8 @@ export async function startNewGame(o) {
         }
     // (E16) the start: its job, skills, the people you already know, the household you live with
     applyStart(save, w, start, o.degree);
-    // what you're good at: the strengths picked become skill levels, at least, after the start's own skills
-    applyStrengths(save, w, o.hero.traits);
+    // what you're good at: the strengths picked become skill levels, over what the start already gave
+    addStrengths(save, w, o.hero.traits);
     for (const t of o.relations ?? []) {
         if ((t.a !== '__you' && !save.cast[t.a]) || (t.b !== '__you' && !save.cast[t.b]) || t.a === t.b)
             continue;

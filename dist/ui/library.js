@@ -1409,7 +1409,7 @@ Object.assign(ACT, {
         if (!sheet || !w)
             return;
         const t = L.draft.__traits ?? JSON.parse(JSON.stringify(sheet.traits ?? {}));
-        toggleTrait(w.sheet.traits ?? [], t, el.dataset.k, el.dataset.v);
+        toggleTrait(w.sheet.traits ?? [], t, el.dataset.k, el.dataset.v, w);
         L.draft.__traits = t;
         notify();
     },

@@ -2776,6 +2776,7 @@ function strengthsEditor(w, k) {
     };
     return `<div class="mu-cw-strengths"><span class="mu-cw-sub">Skill each option starts</span>${names.map(row).join('')}
         ${csv('Former options (no longer offered; old saves and persona sheets still convert)', `${p}.formerly`)}
+        ${csv('Options that raise only the lowest of their skills (Bilingual: English or Japanese, whichever the start gives less of)', `${p}.lowest`)}
         <label class="mu-check"><input type="checkbox" data-input="cw-strengths" data-k="${esc(k)}" checked><span>Strengths: each option starts a skill<small>Off: the options are traits again, and their skills are forgotten.</small></span></label></div>`;
 }
 // What each trait does in this world (`traitInfo`): a line for the creation screen and the profile, small effects
@@ -2998,6 +2999,8 @@ function tidyInfo(info) {
         delete info.ai;
     if (!info.effects?.length)
         delete info.effects;
+    if (!info.not?.length)
+        delete info.not;
     if (info.covers) {
         if (!info.covers.skills?.length)
             delete info.covers.skills;
@@ -3049,6 +3052,8 @@ function traitInfoEditor(w) {
             <label class="mu-field"><span>Description (when picking it, and on the profile)</span><input data-input="cw-ti" ${at('desc')} data-focus="${esc(`${p}.desc`)}" value="${esc(info?.desc ?? '')}"></label>
             <label class="mu-field"><span>What the AI is told while the player has it (optional)</span><input data-input="cw-ti" ${at('ai')} data-focus="${esc(`${p}.ai`)}" value="${esc(info?.ai ?? '')}" placeholder="{{user}} likes to take the lead.">
                 <small class="mu-muted">{{user}} is the player. Empty: no line of its own (a drive keeps the game's). An adult trait's line only with adult content on.</small></label>
+            <label class="mu-field"><span>Can't go with (traits, comma separated)</span><input data-input="cw-ti" ${at('not')} data-focus="${esc(`${p}.not`)}" value="${esc((info?.not ?? []).join(', '))}" placeholder="Shy">
+                <small class="mu-muted">Picking one rules out the other, either way round (Outgoing and Shy).</small></label>
             <h4>Effects</h4>${(info?.effects ?? []).map(effect).join('') || '<p class="mu-muted">No effects: it only colors how the AI plays you (and job fit, when jobs like it).</p>'}
             <button class="mu-ghost" data-act="cw-ti-add" data-name="${esc(n)}">${icon('plus')}<span>Add an effect</span></button>
             <h4>An interest covers</h4>
@@ -5366,6 +5371,7 @@ Object.assign(INPUT, {
         else {
             delete t.skills;
             delete t.formerly;
+            delete t.lowest;
         }
         CW.dirty = true;
         notify();
@@ -5416,6 +5422,8 @@ Object.assign(INPUT, {
             info[f] = el.value.trim() ? el.value : '';
         else if (f === 'covers.tags')
             (info.covers ??= {}).tags = el.value.split(',').map(x => x.trim()).filter(Boolean);
+        else if (f === 'not')
+            info.not = el.value.split(',').map(x => x.trim()).filter(Boolean);
         else {
             const m = f.match(/^effects\.(\d+)\.(kind|target|value|when)$/);
             const e = m ? info.effects?.[Number(m[1])] : undefined;
