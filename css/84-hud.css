@@ -116,14 +116,19 @@
 #mundi-root .mh-act[aria-disabled="true"] { opacity: .55; }
 
 /* ----- the phone, closed: it peeks up from the bottom right ----- */
-#mundi-root .mh-peek { position: absolute; z-index: 18; right: 34px; bottom: -110px; width: 150px; height: 230px; padding: 10px; border-radius: 30px 30px 0 0 !important;
-    background: linear-gradient(160deg, #2b3242, #0d1018) !important; border: 2px solid #4a5468 !important; box-shadow: 0 -6px 26px rgba(0, 0, 0, .45) !important; transition: transform .25s ease; }
+/* the phone peeking up from the corner, as it looks open: no frame, a hairline edge, the time, the wallpaper */
+#mundi-root .mh-peek { position: absolute; z-index: 18; right: 34px; bottom: -110px; width: 150px; height: 230px; padding: 0; overflow: visible; border-radius: 26px 26px 0 0 !important;
+    background: linear-gradient(160deg, #bfe0ff, #dccdff 50%, #ffd6e6) !important; border: 0 !important;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .22), 0 -6px 26px rgba(0, 0, 0, .45) !important; transition: transform .25s ease; }
+#mundi-root .mh-peek.has-bg { background: var(--ph-bg) center / cover no-repeat !important; }
 #mundi-root .mh-peek:hover { transform: translateY(-36px) rotate(-2deg); }
-#mundi-root .mh-peek-notch { position: absolute; top: 12px; left: 50%; width: 44px; height: 12px; margin-left: -22px; border-radius: 8px; background: #05070b; }
-#mundi-root .mh-peek-screen { position: absolute; inset: 8px 8px 0; border-radius: 24px 24px 0 0; padding: 34px 12px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start;
-    background: linear-gradient(160deg, #cfe6ff, #e7d8ff 55%, #ffe1ec); }
-#mundi-root .mh-peek-screen i { aspect-ratio: 1; border-radius: 10px; display: grid; place-items: center; color: #fff; background: color-mix(in srgb, var(--c) 70%, #fff); box-shadow: 0 0 12px var(--c), inset 0 1px 0 rgba(255, 255, 255, .7); }
-#mundi-root .mh-peek-screen .mu-ic { width: 18px; height: 18px; }
+#mundi-root .mh-peek-screen { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; padding: 30px 14px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start; }
+#mundi-root .mh-peek-bar { position: absolute; top: 9px; left: 16px; font: 800 11px/1 system-ui, sans-serif; color: #33405a; }
+#mundi-root .mh-peek.has-bg .mh-peek-bar { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); }
+#mundi-root .mh-peek-screen i { aspect-ratio: 1; border-radius: 11px; display: grid; place-items: center; font-style: normal;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .78), color-mix(in srgb, var(--c) 55%, rgba(255, 255, 255, .25)));
+    border: 1px solid rgba(255, 255, 255, .8); box-shadow: 0 0 12px color-mix(in srgb, var(--c) 55%, transparent), inset 0 1px 0 #fff; }
+#mundi-root .mh-peek-screen .mu-ic { width: 18px; height: 18px; color: color-mix(in srgb, var(--c) 80%, #000); }
 #mundi-root .mh-peek em, #mundi-root .mh-bookbtn em { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 800; color: #fff; background: #ff3b5c; box-shadow: 0 0 10px #ff3b5c; }
 #mundi-root .mh-bookbtn { position: absolute; z-index: 18; right: 18px; bottom: 18px; width: 64px; height: 64px; border-radius: 20px !important; display: grid; place-items: center; color: var(--hud-fg) !important; }
 #mundi-root .mh-bookbtn .mu-ic { width: 30px; height: 30px; }

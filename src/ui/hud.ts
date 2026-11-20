@@ -1,6 +1,7 @@
 import { lookPanelHtml } from './chatlook.js';
 import { lex, appRef } from '../core/lexicon.js';
 import { fmtClock, is12h } from '../core/fmt.js';
+import { safeUrl } from '../core/safe.js';
 import { interviewChance, interviewSkill, triedToday } from '../sim/skills.js';
 import { skillName, trainedBy } from '../sim/hobbies.js';
 import { courseRow } from './courses.js';
@@ -338,9 +339,12 @@ function phoneButton(w: WorldDef) {
     if (!w.features?.phone || phone.open) return '';
     const n = phoneUnread();
     if (deviceLook(w) === 'book') return `<button class="mh-bookbtn mh-glass" data-act="phone" title="${esc(w.features.device ?? 'Journal')}">${icon('book')}${n ? `<em>${n}</em>` : ''}</button>`;
-    return `<button class="mh-peek" data-act="phone" title="${esc(w.features.device ?? 'Phone')}"><span class="mh-peek-notch"></span><span class="mh-peek-ic">${icon('phone')}</span><span class="mh-peek-screen">
-        <i style="--c:#7fd3ff">${icon('chat')}</i><i style="--c:#ff9ac1">${icon('heart')}</i><i style="--c:#b6a6ff">${icon('users')}</i>
-        <i style="--c:#9be7c4">${icon('wallet')}</i><i style="--c:#ffc58a">${icon('calendar')}</i><i style="--c:#ffd36e">${icon('briefcase')}</i></span>${n ? `<em>${n}</em>` : ''}</button>`;
+    // the phone as it looks open, peeking up: no frame, the time in its status bar, your wallpaper, frosted icons
+    const g = game(), bg = String((settings() as any).phoneBg ?? '');
+    return `<button class="mh-peek ${bg ? 'has-bg' : ''}" data-act="phone" title="${esc(w.features.device ?? 'Phone')}" style="${bg ? `--ph-bg:url(&quot;${esc(safeUrl(bg))}&quot;)` : ''}"><span class="mh-peek-ic">${icon('phone')}</span><span class="mh-peek-screen">
+        <b class="mh-peek-bar">${g ? esc(fmtClock(g.minutes % 1440)) : ''}</b>
+        <i style="--c:#34c759">${icon('chat')}</i><i style="--c:#ff9f0a">${icon('users')}</i><i style="--c:#0a84ff">${icon('briefcase')}</i>
+        <i style="--c:#5e5ce6">${icon('wallet')}</i><i style="--c:#ff9500">${icon('calendar')}</i><i style="--c:#ff4f6d">${icon('flame')}</i></span>${n ? `<em>${n}</em>` : ''}</button>`;
 }
 
 // The cards that come to you and wait for an answer all sit in one place under the top bar, so only one shows at a

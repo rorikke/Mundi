@@ -47,3 +47,29 @@
     #mundi-root .mu-home-card.is-mine .mu-home-pic { max-height: 260px; }
 }
 @media (prefers-reduced-motion: reduce) { #mundi-root .mu-phone { transition: none; } }
+
+/* rows that scroll sideways (ui/hscroll.ts): a mouse drags them */
+#mundi-root :is(.mu-shop-tabs, .mu-cl-tabs, .mu-lens-tabs, .mu-ph-quick, .mu-lib-tabs) { cursor: grab; }
+#mundi-root .is-dragging { cursor: grabbing; user-select: none; scroll-behavior: auto; }
+#mundi-root .is-dragging * { pointer-events: none; }
+
+/* the home screen: bigger icons under a Today card (the time, the day, what's next today) */
+#mundi-root .mu-phone .mu-ph-apps { gap: 26px 8px !important; padding: 18px 18px 30px !important; }
+#mundi-root .mu-phone .mu-ph-app i { width: 68px !important; height: 68px !important; border-radius: 20px !important; }
+#mundi-root .mu-phone .mu-ph-app i .mu-ic { width: 32px; height: 32px; }
+#mundi-root .mu-phone .mu-ph-app span { font-size: 12px; }
+#mundi-root .mu-ph-today, #mundi-root .mu-ph-today:hover:not(:disabled) { grid-column: 1 / -1; display: grid; gap: 8px; justify-items: stretch; justify-content: stretch !important; align-items: start !important; padding: 14px 16px; margin-bottom: 4px; text-align: left !important;
+    border-radius: 22px !important; color: #24304a; background: rgba(255, 255, 255, .55) !important; border: 1px solid rgba(255, 255, 255, .75) !important;
+    box-shadow: 0 6px 18px rgba(40, 50, 90, .12), inset 0 1px 0 #fff !important; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transform: none !important; }
+#mundi-root .mu-pt-clock { display: flex; align-items: baseline; gap: 10px; }
+#mundi-root .mu-pt-clock b { font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+#mundi-root .mu-pt-clock small { font-size: 12.5px; font-weight: 700; opacity: .75; }
+#mundi-root .mu-ph-today ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-ph-today li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 12.5px; font-weight: 600; }
+#mundi-root .mu-ph-today li i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: rgba(10, 132, 255, .14); color: #0a63c9; }
+#mundi-root .mu-ph-today li i .mu-ic { width: 13px; height: 13px; }
+#mundi-root .mu-ph-today li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-ph-today li small { font-weight: 700; opacity: .7; }
+#mundi-root .mu-ph-today p { margin: 0; font-size: 12.5px; opacity: .7; }
+#mundi-root .mu-phone.has-bg .mu-ph-today { background: rgba(20, 24, 36, .45) !important; border-color: rgba(255, 255, 255, .25) !important; color: #fff; }
+#mundi-root .mu-phone.has-bg .mu-ph-today li i { background: rgba(255, 255, 255, .18); color: #fff; }

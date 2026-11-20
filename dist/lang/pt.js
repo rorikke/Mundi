@@ -11086,5 +11086,6 @@ const DICT = {
     "Neighbours": "Vizinhos",
     "Asleep": "Dormindo",
     "No one here.": "Ninguém aqui.",
+    "Nothing else planned today.": "Nada mais marcado para hoje.",
 };
 export default DICT;

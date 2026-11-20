@@ -47,6 +47,7 @@ import { refreshList, chat } from '../st/bridge.js';
 import { runPlans, PL } from './plans.js';
 import { syncNative, releaseNative, guardBackgrounds } from './native.js';
 import { phoneHtml, P as phone, feedTick } from './phone.js';
+import { attachHScroll } from './hscroll.js';
 import { advance, period, weekday } from '../sim/time.js';
 import { residents, whereNow } from '../sim/people.js';
 import { syncScene } from '../sim/game.js';
@@ -268,6 +269,7 @@ function attach(r: HTMLElement) {
         notify();
     });
     mapInput.attach(r);
+    attachHScroll(r);   // rows that scroll sideways: dragged or wheeled with a mouse
     guardBackgrounds(r);
 }
 

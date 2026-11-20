@@ -525,14 +525,67 @@ export function stepProgress(g, w, id, step) {
     const h = st.hold ? { days: s.hold && s.hold.goal === goal.id && s.hold.step === i ? Math.floor((nowAbs(g) - s.hold.from) / 1440) : 0, need: st.hold === 'season' ? seasonDays(g) : st.hold } : undefined;
     return { step: i, name: st.name, ways, ...(h ? { hold: h } : {}) };
 }
-/** Goals to suggest (D-7): those made for your start first, then those with progress, then the ones in the categories
- *  you've finished least; never a finished one or the one you follow. */
+/** Goals to suggest (D-7), from where you are: those made for your start first, then those you've made progress on, how
+ *  far you already are into a goal's first step, and what you're doing (learning goals while you study, career goals
+ *  once you hold a job, not before), who you are (a goal training a skill you're good at or an interest covers), the
+ *  categories you've finished least; never a finished one or the one you follow.
+ *  Early on (your first season) a goal that starts by moving out isn't suggested while you share a home: you just got
+ *  there. No two of the same category, while there are others. */
+export const SUGGEST = { start: 100, paused: 50, near: 40, trueNow: 0.3, fits: 25, noJob: 30, moveOut: 60, doneCat: 10 };
 export function suggestedGoals(g, w, n = 3) {
     const s = goalsState(g), start = g.player.start ?? g.player.origin;
     const list = offeredGoals(g, w).filter(x => !s.done.includes(x.id) && s.active !== x.id);
     const doneIn = (cat) => s.done.filter(id => goalOf(w, id)?.category === cat).length;
-    const tier = (x) => ((x.starts ?? []).includes(start) ? 0 : goalProgress(g, w, x.id).paused ? 1 : 2);
-    return list.map((x, i) => ({ x, i })).sort((a, b) => tier(a.x) - tier(b.x) || doneIn(a.x.category) - doneIn(b.x.category) || a.i - b.i).slice(0, n).map(y => y.x);
+    const job = !!g.player.job, studying = !!degreeOf(g, w) || (g.player.learning?.taking?.length ?? 0) > 0;
+    const shared = Object.values(g.cast).some(r => r.homeWith === '__you'), early = g.day < seasonDays(g);
+    // your skills (a strength starts one) and the ones your interests cover
+    const traits = Object.values((g.player.traits ?? {})).flat();
+    const mine = new Set([...skillsOf(w, g).filter(h => levelOf(g, h.id) > 0).map(h => h.id), ...traits.flatMap(t => w.traitInfo?.[t]?.covers?.skills ?? [])]);
+    const score = (x) => {
+        let v = (x.starts ?? []).includes(start) ? SUGGEST.start : 0;
+        if (goalProgress(g, w, x.id).paused)
+            v += SUGGEST.paused;
+        v += SUGGEST.near * firstStepNear(g, w, x);
+        const first = waysText(x.steps[0]);
+        const wantsJob = (x.needs ?? []).includes('jobs') || /\b(rank|job|shift)\b\s*:/.test(first);
+        if (wantsJob)
+            v += job ? SUGGEST.fits : -SUGGEST.noJob;
+        if (x.category === 'knowledge' && studying)
+            v += SUGGEST.fits;
+        if (goalSkills(x).some(k => mine.has(k)))
+            v += SUGGEST.fits;
+        if (early && shared && /\bhome:\s*alone\b/.test(first))
+            v -= SUGGEST.moveOut;
+        return v - SUGGEST.doneCat * doneIn(x.category);
+    };
+    const ranked = list.map((x, i) => ({ x, i, v: score(x) })).sort((a, b) => b.v - a.v || a.i - b.i).map(y => y.x);
+    // one per category first, then the rest in order
+    const out = [], cats = new Set();
+    for (const x of ranked)
+        if (out.length < n && !cats.has(x.category)) {
+            out.push(x);
+            cats.add(x.category);
+        }
+    for (const x of ranked)
+        if (out.length < n && !out.includes(x))
+            out.push(x);
+    return out;
+}
+// The skills a goal's steps ask for (a group, "creative", counts as each of its skills).
+const goalSkills = (x) => x.steps.flatMap(st => [...waysText(st).matchAll(/\bskill:\s*([a-z_]+)/g)].map(m => m[1])).flatMap(k => SKILL_GROUPS[k] ?? [k]);
+// The text of a step's ways ("money: 2 weeks; …"), to read what it asks.
+const waysText = (st) => (st ? waysOf(st).map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(' | ') : '');
+/** How far you already are into a goal's first step, 0 to 1: its best way, each objective by how much of it you have
+ *  (money saved, meals cooked…); one that is simply true right now (you live alone, your needs are fine) counts a
+ *  little, so a goal you'd tick off by doing nothing doesn't push out one that fits you. */
+function firstStepNear(g, w, x) {
+    if ((goalsState(g).steps[x.id] ?? 0) > 0)
+        return 1;
+    const p = stepProgress(g, w, x.id, 0);
+    if (!p || !p.ways.length)
+        return 0;
+    const part = (o) => (o.have !== undefined && o.need ? Math.max(0, Math.min(1, o.have / o.need)) : o.ok ? SUGGEST.trueNow : 0);
+    return Math.max(...p.ways.map(way => (way.length ? way.reduce((a, o) => a + part(o), 0) / way.length : 0)));
 }
 /** The perks you have, from the goals you finished (in the order you finished them). */
 export function perksOf(g, w) {

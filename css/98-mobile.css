@@ -111,7 +111,7 @@
 #mundi-root[data-mobile] .mh-peek { right: 12px; bottom: calc(var(--m-dlg) + 10px); width: 50px; height: 50px; padding: 0; border-radius: 17px !important; transform: none !important;
     background: linear-gradient(160deg, #3a4254, #12161f) !important; box-shadow: 0 0 0 1.5px #5b667c, 0 8px 20px rgba(0, 0, 0, .45) !important; display: grid; place-items: center; }
 #mundi-root[data-mobile] .mh-peek:hover { transform: none !important; }
-#mundi-root[data-mobile] .mh-peek-notch, #mundi-root[data-mobile] .mh-peek-screen { display: none; }
+#mundi-root[data-mobile] .mh-peek-screen { display: none; }
 #mundi-root[data-mobile] .mh-peek-ic { display: grid; color: #dfe8ff; }
 #mundi-root[data-mobile] .mh-peek-ic .mu-ic { width: 24px; height: 24px; }
 #mundi-root[data-mobile] .mh-bookbtn { right: 12px; bottom: calc(var(--m-dlg) + 10px); top: auto; }
