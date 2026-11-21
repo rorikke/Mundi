@@ -1,8 +1,11 @@
-// The Collection app (phone, Profile section, next to Goals): the halls this game has, the record's percentage and new
-// slots, and each group folded with its slots: a filled one with its emoji or the person's portrait, its plaque, the
-// day and a gold frame for a good ending; an empty one greyed with its hint and how far along it is. Drawn from
-// sim/collection.ts alone (`recordView`, `percentOf`); it holds no numbers of its own. With the collection system off,
-// or a world without halls, the app isn't on the phone and this draws only a line.
+// The Collection app (its own icon on the phone): the halls this game has, the record's percentage and new slots, and
+// each group folded with its slots: a filled one with its emoji or the person's portrait, its plaque, the day and a gold
+// frame for a good ending; an empty one greyed with its hint and how far along it is. Tapping a slot opens its page:
+// the slot large, and what it's made of (a keepsake kind's keepsakes, had or missing, with where each comes from; a
+// district's places, and the street stories still to find there), or how to fill it. "Missing only" hides what's
+// filled. Unfolded, the groups are a list on the left and the open group's slots (or a slot's page) on the right, like
+// Messages. Drawn from sim/collection.ts alone (`recordView`, `percentOf`, `slotParts`); it holds no numbers of its own.
+// With the collection system off, or a world without halls, the app isn't on the phone and this draws only a line.
 // (museum) Once the museum has begun, its tabs come first (Museum, Dealer, Sales: ui/museumui.ts), then the display
 // halls with their pieces as picture tiles (how each came, where it's on show, Replica, Damaged · restore; a missing
 // one darkened with its hint and price band; a bonus piece in a gold frame), then the record. A Here tab shows where
@@ -12,19 +15,23 @@
 // Here also lists what could turn up where you are now.
 import { esc, notify, type Save } from '../core/store.js';
 import type { WorldDef } from '../core/world.js';
-import { ACT } from './reg.js';
+import { ACT, INPUT } from './reg.js';
 import { thumb } from '../st/bridge.js';
 import { worldFile } from '../core/world.js';
-import { recordView, percentOf, collectionOn, collectionOf, markSeen, settleCollection, type Tile, type HallView } from '../sim/collection.js';
+import { itemIco } from './itempic.js';
+import { hintsFor, keepsakeHints } from './goalhints.js';
+import { recordView, percentOf, collectionOn, collectionOf, markSeen, settleCollection, slotParts, type Tile, type HallView, type SlotParts } from '../sim/collection.js';
 import { personNamed } from '../sim/when.js';
 import { money } from '../sim/needs.js';
 import { museumOn, museumOf, museumOpen, museumDef, hasUpgrade, type PieceTile, type HallShow } from '../sim/museum.js';
 import { inSeason } from '../sim/dig.js';
 import { museumTab, dealerTab, salesTab, hereTab, hereHasAny, howItCame, whereWords, priceBand } from './museumui.js';
 
-/** In memory only: the hall shown, the groups opened, and the day the app was last opened before now (a slot filled
- *  since is marked as just in). */
-export const CL = { hall: '', open: new Set<string>(), since: -1, game: '', seeded: '' };   // seeded: the hall whose first group was opened on arrival
+/** In memory only: the hall shown, the groups opened (folded) or the group shown (unfolded), the slot whose page is
+ *  open, Missing only, and the day the app was last opened before now (a slot filled since is marked as just in). */
+export const CL = { hall: '', open: new Set<string>(), since: -1, game: '', seeded: '', group: '', slot: '', missing: false,
+    // seeded: the hall whose first group was opened on arrival; back: where the list was scrolled, to come back to it
+    back: null as { sel: string; top: number } | null };
 
 const n = (x: number) => String(Math.round(x));
 const plural = (k: number, one: string, many: string) => (k === 1 ? one : many.replace('{0}', n(k)));
@@ -41,7 +48,9 @@ function dayWords(t: Tile): string {
     if (!t.got) return '';
     return t.got.back ? 'Before the record began' : `Day ${n(t.got.day)}`;
 }
-function tileHtml(g: Save, w: WorldDef, t: Tile): string {
+// The whole tile opens the slot's page: a button laid over it (a piece's own buttons sit above it).
+const hit = (t: Tile, link: boolean) => (link ? `<button class="mu-cl-hit" data-act="cl-slot" data-id="${esc(t.id)}" aria-label="${esc(t.name)}" data-notr></button>` : '');
+function tileHtml(g: Save, w: WorldDef, t: Tile, link = true): string {
     const got = !!t.got, fresh = got && CL.since >= 0 && !t.got!.back && t.got!.day > CL.since;
     const cls = ['mu-cl-tile', got ? 'is-got' : 'is-empty', t.gold ? 'is-gold' : '', t.fresh ? 'is-new' : '', fresh ? 'is-just' : ''].filter(Boolean).join(' ');
     const count = t.count ? `<span class="mu-cl-count">${n(Math.min(t.count.have, t.count.need))}/${n(t.count.need)}</span>` : '';
@@ -51,13 +60,13 @@ function tileHtml(g: Save, w: WorldDef, t: Tile): string {
     const body = got
         ? `${t.plaque ? `<span class="mu-cl-plaque" data-notr>${esc(t.plaque)}</span>` : ''}${t.away ? '<small class="mu-cl-away">You weren\'t there when it ended.</small>' : ''}<small class="mu-cl-day">${esc(dayWords(t))}</small>`
         : `<small class="mu-cl-hint" data-notr>${esc(t.hint)}</small>${bar}${gone}`;
-    return `<li class="${cls}">${picOf(g, w, t)}<span class="mu-cl-text">
+    return `<li class="${cls}${link ? ' is-link' : ''}">${hit(t, link)}${picOf(g, w, t)}<span class="mu-cl-text">
         <span class="mu-cl-name"><b data-notr>${esc(t.name)}</b>${t.title ? ` <small class="mu-cl-title" data-notr>${esc(t.title)}</small>` : ''}${count}${marks}</span>${body}</span></li>`;
 }
 // (museum) A display piece's tile: its picture, name, plaque, how it came and where it's on show, Replica, Damaged with
 // the restoring (or the day it's back); missing: darkened, its hint, its price band and the upgrade it waits for; a
 // bonus piece in a gold frame. A damaged find isn't filled yet (MU-4): it shows as yours, waiting for the workshop.
-function pieceHtml(g: Save, w: WorldDef, t: Tile): string {
+function pieceHtml(g: Save, w: WorldDef, t: Tile, link = true): string {
     const p = (t.piece ?? {}) as Partial<PieceTile>, got = t.got, bonus = !!w.collection?.slots.find(s => s.id === t.id)?.bonus;
     const fresh = !!got && CL.since >= 0 && !got.back && got.day > CL.since, open = museumOpen(g, w), shop = hasUpgrade(g, w, 'workshop');
     const hurt = !!p.damaged, waiting = hurt && !got, season = !got && !waiting && seasonal(g, w, t.id);
@@ -71,7 +80,7 @@ function pieceHtml(g: Save, w: WorldDef, t: Tile): string {
         <small class="mu-cl-day">${esc(howItCame(g, w, got as any))}</small>${museumOn(w) && !hurt ? `<small class="mu-cl-at">${esc(whereWords(p.at, open))}</small>` : ''}${fix}`;
     else if (waiting) body = `<small class="mu-cl-day">${esc(howItCame(g, w, { day: (museumOf(g)?.damaged?.[t.id]?.day ?? g.day), src: p.src }))}</small>${fix}`;
     else body = `<small class="mu-cl-hint ${p.needs ? 'is-needs' : ''}" data-notr>${esc(t.hint)}</small>${priceBand(p.rung ?? 0) ? `<small class="mu-cl-band" title="${esc(`About ${money(w, p.price ?? 0)}`)}">${esc(priceBand(p.rung ?? 0))}</small>` : ''}${p.needs && !said(t.hint, p.needs) ? `<small class="mu-cl-needs">${esc('Needs')} <span data-notr>${esc(p.needs)}</span></small>` : ''}${partsHtml(w, p)}`;
-    return `<li class="${cls}" data-piece="${esc(t.id)}">${picOf(g, w, t)}<span class="mu-cl-text">
+    return `<li class="${cls}${link ? ' is-link' : ''}" data-piece="${esc(t.id)}">${hit(t, link)}${picOf(g, w, t)}<span class="mu-cl-text">
         <span class="mu-cl-name"><b data-notr>${esc(t.name)}</b>${t.title ? ` <small class="mu-cl-title" data-notr>${esc(t.title)}</small>` : ''}${marks}</span>${body}</span></li>`;
 }
 // (nature) Does a missing piece's way come round this season (sim/dig.ts `inSeason`, a pure reading of its ways; only
@@ -106,7 +115,8 @@ function showLine(w: WorldDef, h: HallView): string {
     ];
     return `${parts.length ? `<small>${esc(parts.join(' · '))}</small>` : ''}${wing && (s.boxed || s.room) ? `<small>${esc('Build')} <span data-notr>${esc(wing)}</span> ${esc('to show it all')}</small>` : ''}`;
 }
-function hallHtml(g: Save, w: WorldDef, h: HallView): string {
+// A hall's head: its percentage and counts, and Missing only.
+function hallHead(g: Save, w: WorldDef, h: HallView): string {
     let head: string;
     if (h.apart) {
         // a record hall of its own: its own share, in neither percentage
@@ -126,13 +136,92 @@ function hallHtml(g: Save, w: WorldDef, h: HallView): string {
         const season = now ? `<small class="mu-cl-season">${esc(`In season now: ${n(now)} you haven't got`)}</small>` : '';
         head = `<div class="mu-cl-sum"><b class="mu-cl-pct">${n(pct)}%</b><span><span>${esc(`${n(have)} of ${n(tiles.length)} pieces`)}</span>${h.desc ? `<small data-notr>${esc(h.desc)}</small>` : ''}${season}${showLine(w, h)}</span></div>`;
     }
+    const only = `<label class="mu-cl-only"><input type="checkbox" data-input="cl-missing" ${CL.missing ? 'checked' : ''}><span>${esc('Missing only')}</span></label>`;
+    return `${head}${only}`;
+}
+type GroupView = HallView['groups'][number];
+const tilesHtml = (g: Save, w: WorldDef, gr: GroupView, grid: boolean) => {
+    const list = CL.missing ? gr.tiles.filter(t => !t.got) : gr.tiles, pieces = gr.tiles.some(t => t.piece);
+    if (!list.length) return `<p class="mu-cl-alldone">${esc('Every one is filled.')}</p>`;
+    return `<ul class="mu-cl-tiles ${pieces ? 'is-pieces' : ''} ${grid ? 'is-grid' : ''}">${list.map(t => (t.piece ? pieceHtml(g, w, t) : tileHtml(g, w, t))).join('')}</ul>`;
+};
+const gnum = (gr: GroupView) => `<span class="mu-cl-gnum">${n(gr.filled)}/${n(gr.tiles.length)}</span>`;
+const isDone = (gr: GroupView) => gr.filled >= gr.tiles.length;
+// Folded: each group opens where it is.
+function hallHtml(g: Save, w: WorldDef, h: HallView): string {
     const groups = h.groups.map(gr => {
-        const key = `${h.id}/${gr.id}`, open = CL.open.has(key), pieces = gr.tiles.some(t => t.piece);
-        return `<section class="mu-cl-group ${open ? 'is-open' : ''}">
-            <button class="mu-cl-ghead" data-act="cl-fold" data-v="${esc(key)}" aria-expanded="${open}"><i aria-hidden="true">${esc(gr.icon ?? '')}</i><b data-notr>${esc(gr.name)}</b><span class="mu-cl-gnum">${n(gr.filled)}/${n(gr.tiles.length)}</span></button>
-            ${open ? `<ul class="mu-cl-tiles ${pieces ? 'is-pieces' : ''}">${gr.tiles.map(t => (t.piece ? pieceHtml(g, w, t) : tileHtml(g, w, t))).join('')}</ul>` : ''}</section>`;
+        const key = `${h.id}/${gr.id}`, open = CL.open.has(key);
+        return `<section class="mu-cl-group ${open ? 'is-open' : ''} ${isDone(gr) ? 'is-done' : ''}">
+            <button class="mu-cl-ghead" data-act="cl-fold" data-v="${esc(key)}" aria-expanded="${open}"><i aria-hidden="true">${esc(gr.icon ?? '')}</i><b data-notr>${esc(gr.name)}</b>${gnum(gr)}</button>
+            ${open ? tilesHtml(g, w, gr, false) : ''}</section>`;
     }).join('');
-    return `${head}${groups}`;
+    return `${hallHead(g, w, h)}${groups}`;
+}
+// Unfolded: the groups as a list (the one shown marked, a bar each), its slots on the right.
+const groupKey = (h: HallView) => (h.groups.some(gr => `${h.id}/${gr.id}` === CL.group) ? CL.group : `${h.id}/${h.groups[0]?.id ?? ''}`);
+function groupList(h: HallView): string {
+    const on = groupKey(h);
+    return `<nav class="mu-cl-glist">${h.groups.map(gr => {
+        const key = `${h.id}/${gr.id}`, pct = gr.tiles.length ? Math.round((gr.filled / gr.tiles.length) * 100) : 0;
+        return `<button class="mu-cl-grow ${key === on ? 'is-on' : ''} ${isDone(gr) ? 'is-done' : ''}" data-act="cl-group" data-v="${esc(key)}" aria-pressed="${key === on}">
+            <i aria-hidden="true">${esc(gr.icon ?? '')}</i><span><b data-notr>${esc(gr.name)}</b><span class="mu-cl-bar"><b style="width:${pct}%"></b></span></span>${gnum(gr)}</button>`;
+    }).join('')}</nav>`;
+}
+const groupPane = (g: Save, w: WorldDef, gr: GroupView) =>
+    `<h3 class="mu-cl-gtitle"><i aria-hidden="true">${esc(gr.icon ?? '')}</i><b data-notr>${esc(gr.name)}</b>${gnum(gr)}</h3>${tilesHtml(g, w, gr, true)}`;
+
+/* ---------- a slot's page ---------- */
+
+// Where a keepsake comes from (the Goals app's hints); giving one away doesn't matter here: it was held.
+const fromLines = (g: Save, w: WorldDef, id: string) => keepsakeHints(g, w, id).filter(l => l !== 'Giving it as a gift uses it up.');
+const line = (l: string) => `<small class="mu-cl-from">${esc(l)}</small>`;
+// A keepsake kind's keepsakes, the missing first, each with where it comes from.
+function keepsakesHtml(g: Save, w: WorldDef, list: NonNullable<SlotParts['keepsakes']>): string {
+    const rows = [...list].sort((a, b) => Number(a.had) - Number(b.had)).map(k => {
+        const state = k.holding ? `Yours now: ${n(k.holding)}` : k.had ? 'Had' : 'Not yet';
+        const from = k.had ? [] : fromLines(g, w, k.id);
+        const how = k.had ? '' : from.length ? from.map(line).join('') : line('No known way to get it yet.');
+        return `<li class="mu-cl-item ${k.had ? 'is-had' : 'is-missing'}">${itemIco(w, k, '🎁')}<span><span class="mu-cl-iname"><b data-notr>${esc(k.name)}</b><small class="mu-cl-istate">${esc(state)}</small></span>${how}</span></li>`;
+    }).join('');
+    const had = list.filter(k => k.had).length;
+    return `<section class="mu-cl-sec"><h4>${esc('The keepsakes')} <small>${esc(`${n(had)} of ${n(list.length)} held at some time`)}</small></h4><ul class="mu-cl-items">${rows}</ul></section>`;
+}
+// A district's places, those not been to yet first.
+function placesHtml(list: NonNullable<SlotParts['places']>): string {
+    const been = list.filter(p => p.been).length;
+    const chips = [...list].sort((a, b) => Number(a.been) - Number(b.been)).map(p => `<li class="${p.been ? 'is-done' : ''}"><i aria-hidden="true">${p.been ? '✓' : '•'}</i><span data-notr>${esc(p.name)}</span></li>`).join('');
+    return `<section class="mu-cl-sec"><h4>${esc('Places')} <small>${esc(`${n(been)} of ${n(list.length)} been to`)}</small></h4><ul class="mu-cl-chips">${chips}</ul></section>`;
+}
+// A district's street stories: where the ones still to find happen (never what they are).
+function storiesHtml(s: NonNullable<SlotParts['stories']>): string {
+    const rows = s.open.map(x => `<li><span data-notr>${esc(x.place)}</span><small>${esc(plural(x.n, '1 to find', '{0} to find'))}</small></li>`).join('');
+    return `<section class="mu-cl-sec"><h4>${esc('Street stories')} <small>${esc(`${n(s.seen)} seen`)}</small></h4>
+        ${rows ? `<ul class="mu-cl-where">${rows}</ul>` : `<p class="mu-muted">${esc('None left to find.')}</p>`}
+        ${s.gone ? `<small class="mu-cl-gone">${esc(plural(s.gone, "1 can't happen any more", "{0} can't happen any more"))}</small>` : ''}</section>`;
+}
+function slotPage(g: Save, w: WorldDef, t: Tile, gr: GroupView): string {
+    const p = slotParts(g, w, t.id) ?? {};
+    const back = `<button class="mu-cl-back" data-act="cl-back"><i aria-hidden="true">‹</i> <span data-notr>${esc(gr.name)}</span></button>`;
+    const card = `<ul class="mu-cl-tiles is-detail ${t.piece ? 'is-pieces' : ''}">${t.piece ? pieceHtml(g, w, t, false) : tileHtml(g, w, t, false)}</ul>`;
+    const parts = `${p.keepsakes?.length ? keepsakesHtml(g, w, p.keepsakes) : ''}${p.places?.length ? placesHtml(p.places) : ''}${p.stories ? storiesHtml(p.stories) : ''}`;
+    // nothing to list: how to fill it, as the Goals app says it (a festival's days, a place's map…)
+    const how = !t.got && !parts && p.cond ? hintsFor(g, w, p.cond.key, p.cond.values) : [];
+    const howHtml = how.length ? `<section class="mu-cl-sec"><h4>${esc('How')}</h4>${how.map(line).join('')}</section>` : '';
+    return `<div class="mu-cl-page">${back}${card}${parts}${howHtml}</div>`;
+}
+// The slot whose page is open, and its group, in the hall shown.
+function openSlot(h: HallView | undefined): { t: Tile; gr: GroupView } | undefined {
+    if (!h || !CL.slot) return undefined;
+    for (const gr of h.groups) { const t = gr.tiles.find(x => x.id === CL.slot); if (t) return { t, gr }; }
+    return undefined;
+}
+/** Closing a slot's page (its Back, or the phone's): the list again, where it was scrolled to. */
+export function closeSlot(): boolean {
+    if (!CL.slot) return false;
+    const b = CL.back;
+    CL.slot = ''; CL.back = null;
+    if (b) setTimeout(() => { const el = document.querySelector<HTMLElement>(b.sel); if (el) el.scrollTop = b.top; }, 30);
+    return true;
 }
 /** The tabs besides the halls: Here (pieces sold where you are, or a find that could turn up there now), and the
  *  museum's once it has begun. */
@@ -152,12 +241,12 @@ function firstTab(g: Save, w: WorldDef, extra: { id: string }[], halls: HallView
     if (extra.some(t => t.id === 'kura') && (st?.offered !== undefined || st?.opened !== undefined)) return 'kura';
     return halls[0]?.id ?? extra[0]?.id ?? '';
 }
-/** The app's body under the header. */
-export function collectionApp(g: Save, w: WorldDef, head: string): string {
+/** The app's body under the header; `wide`: the unfolded phone (groups and slots side by side). */
+export function collectionApp(g: Save, w: WorldDef, head: string, wide = false): string {
     if (!collectionOn(w)) return `${head}<div class="mu-ph-body mu-cl"><p class="mu-muted">Nothing to collect in this world.</p></div>`;
     if (CL.game !== g.world + '|' + (g as any).seed) {
         // a game seen for the first time here: back to the first hall, the first group open, the last visit remembered
-        CL.game = g.world + '|' + (g as any).seed; CL.hall = ''; CL.open = new Set(); CL.seeded = ''; CL.since = collectionOf(g)?.seen ?? -1;
+        CL.game = g.world + '|' + (g as any).seed; CL.hall = ''; CL.open = new Set(); CL.seeded = ''; CL.group = ''; CL.slot = ''; CL.since = collectionOf(g)?.seen ?? -1;
     }
     const halls = recordView(g, w), extra = extraTabs(g, w);
     if (!halls.length && !extra.length) return `${head}<div class="mu-ph-body mu-cl"><p class="mu-muted">Nothing to collect yet.</p></div>`;
@@ -170,6 +259,15 @@ export function collectionApp(g: Save, w: WorldDef, head: string): string {
     const tabs = ids.length > 1
         ? `<nav class="mu-cl-tabs" data-keep="cl-tabs">${extra.map(t => tab(t.id, t.name, t.icon, false)).join('')}${extra.length && halls.length ? '<span class="mu-cl-tabsep" aria-hidden="true"></span>' : ''}${halls.map(x => tab(x.id, x.name, x.icon, true)).join('')}</nav>`
         : h ? `<h3 class="mu-cl-hname"><i aria-hidden="true">${esc(h.icon ?? '')}</i> <span data-notr>${esc(h.name)}</span></h3>` : '';
+    const open = openSlot(h);
+    if (!open) CL.slot = '';
+    if (wide && h) {
+        // the right pane's key changes with what it shows, so each opens at its top
+        const key = groupKey(h), gr = h.groups.find(x => `${h.id}/${x.id}` === key)!;
+        return `${head}<div class="mu-ph-split mu-cl-split"><div class="mu-ph-pane is-list" data-keep="cl-pane-list"><div class="mu-ph-body mu-cl">${tabs}${hallHead(g, w, h)}${groupList(h)}</div></div>
+            <div class="mu-ph-pane is-open" data-keep="cl-pane-${esc(open ? `slot/${open.t.id}` : key)}"><div class="mu-ph-body mu-cl">${open ? slotPage(g, w, open.t, open.gr) : groupPane(g, w, gr)}</div></div></div>`;
+    }
+    if (open) return `${head}<div class="mu-ph-body mu-cl">${slotPage(g, w, open.t, open.gr)}</div>`;
     const body = h ? hallHtml(g, w, h) : CL.hall === 'kura' ? museumTab(g, w) : CL.hall === 'dealer' ? dealerTab(g, w) : CL.hall === 'sales' ? salesTab(g, w) : CL.hall === 'here' ? hereTab(g, w) : '';
     return `${head}<div class="mu-ph-body mu-cl">${tabs}${body}</div>`;
 }
@@ -183,6 +281,16 @@ export function openCollection(g: Save, w: WorldDef) {
 }
 
 Object.assign(ACT, {
-    'cl-hall': (el) => { CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; notify(); },
+    'cl-hall': (el) => { CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; CL.group = ''; CL.slot = ''; notify(); },
     'cl-fold': (el) => { const k = el.dataset.v ?? ''; if (CL.open.has(k)) CL.open.delete(k); else CL.open.add(k); notify(); },
+    'cl-group': (el) => { CL.group = el.dataset.v ?? ''; CL.slot = ''; CL.back = null; notify(); },
+    'cl-slot': (el) => {
+        const pane = el.closest('.mu-ph-pane') as HTMLElement | null, box = pane ?? el.closest('.mu-ph-screen') as HTMLElement | null;
+        CL.back = box ? { sel: pane ? '#mundi-root .mu-cl-split .mu-ph-pane.is-open' : '#mundi-root .mu-ph-screen', top: box.scrollTop } : null;
+        CL.slot = el.dataset.id ?? ''; notify();
+        // folded, the page shows in the same screen as the list: from its top
+        if (!pane) setTimeout(() => { const s = document.querySelector<HTMLElement>('#mundi-root .mu-ph-screen'); if (s) s.scrollTop = 0; }, 30);
+    },
+    'cl-back': () => { if (closeSlot()) notify(); },
 });
+Object.assign(INPUT, { 'cl-missing': (el) => { CL.missing = (el as HTMLInputElement).checked; notify(); } });

@@ -267,6 +267,7 @@ const topics = (w) => {
         ...(collectionHere ? [{ id: 'collection', icon: 'museum', title: 'Collection', intro: `What you have lived here, ${appRef(w, 'collection')}: a record that fills by itself as things happen, with a slot for each.`,
                 items: [
                     ['What fills it', 'A storyline coming to its end, a festival or a city event you were at, every street story of a district and every place in it, life goals, a business at its top, every keepsake of a kind. Each slot fills the first time it happens and stays filled, whatever happens after.'],
+                    ['Finding what\'s missing', 'Tap a slot to open its page. A keepsake kind lists its keepsakes, the missing first, each with where it comes from; a district lists its places and where its street stories still wait; a festival or an event says when it\'s next. Missing only hides what you\'ve already filled.'],
                     ['Any ending counts', 'A storyline fills its slot however it ended; its plaque says how. A good ending gets a gold frame, never needed for 100%.'],
                     ['What can no longer happen', "A district's count leaves out the stories tied to a business or a job, and a story that can't happen any more (its person is gone, or it hung on another ending) drops out of it and says so."],
                     ['New slots', 'When the world gains something new, a record already at 100% stays at 100%, with the new slots marked New until you fill them.'],

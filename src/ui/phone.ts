@@ -9,7 +9,7 @@ import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, 
 import { shopApp } from './lifeui.js';
 import { SH } from './shopui.js';
 import { goalsApp, goalsBadge, GS } from './goalsui.js';
-import { collectionApp, openCollection, CL } from './collection.js';
+import { collectionApp, openCollection, closeSlot, CL } from './collection.js';
 import { tierHtml } from './museumui.js';
 import { campusApp, campusBadge } from './campus.js';
 import { businessApp, businessBadge } from './business.js';
@@ -82,7 +82,7 @@ export function closePhone() {
 export const P = { closing: false, open: false, app: 'home' as App, who: '' as string, draft: '', typing: '' as string, busy: false, matched: '' as string, q: '' };
 // Sections: several apps under one icon (on the phone and in the journal), with tabs to move between them.
 const SECTIONS: { id: string; name: string; icon: string; color: string; apps: App[] }[] = [
-    { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'goals', 'collection', 'trophies', 'standing'] },
+    { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'goals', 'trophies', 'standing'] },
     { id: 'companions', name: 'Companions', icon: 'heart', color: '#e58a4e', apps: ['pets', 'soulbond', 'blade'] },
     { id: 'groups', name: 'Groups', icon: 'users', color: '#6b4fd8', apps: ['party', 'factions'] },
     { id: 'missions', name: 'Missions', icon: 'map', color: '#c08a2e', apps: ['quests', 'tower', 'contracts'] },
@@ -163,6 +163,7 @@ function innerBack(): boolean {
     if (P.app === 'goals' && GS.detail) { GS.detail = ''; return true; }
     if (P.app === 'photos' && LS.photo) { LS.photo = 0; return true; }
     if (P.app === 'homes' && HU.rooms) { HU.rooms = ''; return true; }
+    if (P.app === 'collection' && closeSlot()) return true;
     if (P.app === 'dating' && P.matched) { P.matched = ''; return true; }
     return false;
 }
@@ -648,7 +649,7 @@ Object.assign(ACT, {
     'ph-open-shop': () => { P.open = true; P.app = 'shop'; SH.tab = 'here'; notify(); },   // (the HUD's "Shop here")
     'ph-open-collection': (el) => {   // (the HUD's "Museum pieces": the Collection app on Here)
         const g = game(); const w = g && getWorld(g.world); if (!g || !w) return;
-        P.open = true; P.app = 'collection'; openCollection(g, w); CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; saveGame(); notify();
+        P.open = true; P.app = 'collection'; openCollection(g, w); CL.hall = el.dataset.v ?? ''; CL.open = new Set(); CL.seeded = ''; CL.group = ''; CL.slot = ''; saveGame(); notify();
     },
 });
 
@@ -755,7 +756,7 @@ export function phoneHtml(): string {
     const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
     const body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-        : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection')) : P.app === 'photos' ? lensApp(g, w, hd('photos')) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+        : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home')) : P.app === 'goals' ? goalsApp(g, w, hd('goals')) : P.app === 'collection' ? collectionApp(g, w, hd('collection'), wide) : P.app === 'photos' ? lensApp(g, w, hd('photos')) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
     const unread = phoneUnread();
     // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never

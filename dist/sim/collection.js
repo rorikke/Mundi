@@ -8,7 +8,7 @@ import { adultOn } from '../core/store.js';
 import { systemOn, getWorld } from '../core/world.js';
 import { MIN_KIND } from '../core/collection.js';
 import { onHour, onKeepsake, collectionLink, museumHooks } from './hooks.js';
-import { parseWhen, whenHolds, namedIn, personNamed, threadsInGame, missingWords, kindHere, placesToVisit } from './when.js';
+import { parseWhen, whenHolds, namedIn, personNamed, threadsInGame, missingWords, kindHere, placesToVisit, placesOnMap } from './when.js';
 import { threadsOf, goneFromMap, titleOf } from './threads.js';
 import { personaName } from '../st/bridge.js';
 import { offeredGoals } from './goals.js';
@@ -382,6 +382,34 @@ export function recordView(g, w) {
             return { id: gr.id, name: gr.name, icon: gr.icon, tiles, filled: tiles.filter(t => t.got).length };
         }).filter(gr => gr.tiles.length),
     })).filter(h => h.groups.length);
+}
+export function slotParts(g, w, id) {
+    const s = collectionOn(w) ? slotsHere(g, w).find(x => x.id === id) : undefined;
+    if (!s)
+        return null;
+    const out = {}, conds = parseWhen(s.when).conds.filter(c => !c.not);
+    for (const c of conds) {
+        if (c.values.length !== 1)
+            continue;
+        const v = c.values[0];
+        const kind = c.key === 'had' ? v.match(/^all\s+(.+)$/i) : null;
+        if (kind) {
+            const had = new Set(collectionOf(g)?.had ?? []), hand = (g.player.keepsakes ?? {});
+            out.keepsakes = kindHere(g, w, kind[1].trim()).map(k => ({ id: k.id, name: k.name, icon: k.icon, pic: k.pic, had: had.has(k.id) || (hand[k.id] ?? 0) > 0, holding: Math.max(0, hand[k.id] ?? 0) }));
+        }
+        const map = c.key === 'visited' || c.key === 'seen' ? v.match(/^all\s+in\s+(\S+)$/i) : null;
+        if (map && c.key === 'visited')
+            out.places = placesOnMap(g, w, map[1]);
+        if (map && c.key === 'seen') {
+            const p = storyPool(g, w, map[1]), by = new Map();
+            for (const st of p.open)
+                by.set(st.place, (by.get(st.place) ?? 0) + 1);
+            out.stories = { seen: p.seen.length, gone: p.gone.length, open: [...by].map(([pl, n]) => ({ place: w.places.find(x => x.id === pl)?.name ?? pl, n })).sort((a, b) => b.n - a.n) };
+        }
+    }
+    if (conds.length === 1)
+        out.cond = { key: conds[0].key, values: conds[0].values };
+    return out;
 }
 /** The app was opened: new marks are seen. */
 export function markSeen(g) { const c = collectionOf(g); if (c)

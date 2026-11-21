@@ -702,8 +702,12 @@ function friendsHold(g, w, v) {
 const visitable = (w) => { const own = w.collection?.museum?.place; return w.places.filter(p => !p.link && !p.private && !p.adult && !p.venture && !p.room && p.id !== own); };
 /** (the collection) The places `visited: all in <map>` asks for, and how many of them you've been to. */
 export function placesToVisit(g, w, map) {
-    const on = visitable(w).filter(p => onMapOf(w, p, mapArg(g, w, map)));
-    return { all: on.length, been: on.filter(p => beenTo(g, p.id)).length };
+    const on = placesOnMap(g, w, map);
+    return { all: on.length, been: on.filter(p => p.been).length };
+}
+/** (the collection) Those places one by one, and whether you've been to each (the Collection app's page of a slot). */
+export function placesOnMap(g, w, map) {
+    return visitable(w).filter(p => onMapOf(w, p, mapArg(g, w, map))).map(p => ({ id: p.id, name: p.name, been: beenTo(g, p.id) }));
 }
 const onMapOf = (w, p, map) => !!map && (p.map === map || w.maps.find(m => m.id === p.map)?.area === map);
 /** The map `in home` means: the map your home is on ('' with no home). */

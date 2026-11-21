@@ -1,0 +1,84 @@
+/* The Collection app as its own app (ui/collection.ts): a whole slot opens its page (a button laid over the tile), Missing
+   only, a slot's page (the slot large, then the keepsakes of a kind with where each comes from, a district's places and
+   its stories still to find, or how to fill it), and unfolded: the groups listed on the left, the open group's slots as
+   cards on the right */
+#mundi-root .mu-cl { isolation: isolate; }   /* the raised buttons stay under the phone's sticky header */
+#mundi-root .mu-cl-tile.is-link { position: relative; }
+/* above everything in the tile: a faded picture or hint (opacity, filter) is a layer of its own and would take the click */
+#mundi-root .mu-cl-hit, #mundi-root .mu-cl-hit:hover:not(:disabled) { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0;
+    border: 0 !important; border-radius: inherit !important; background: transparent !important; box-shadow: none !important; transform: none !important; cursor: pointer; }
+#mundi-root .mu-cl-hit:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#mundi-root .mu-cl-tile.is-link:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+#mundi-root .mu-cl-tile.is-link :is(button, a):not(.mu-cl-hit) { position: relative; z-index: 3; }   /* a piece's Restore stays its own button */
+#mundi-root .mu-cl-only { justify-self: end; display: inline-flex; gap: 6px; align-items: center; font-size: 12px; opacity: .85; cursor: pointer; }
+#mundi-root .mu-cl-only input { margin: 0; }
+#mundi-root .mu-cl-alldone { margin: 0; padding: 10px 12px; font-size: 13px; opacity: .7; }
+#mundi-root .mu-cl-group.is-done .mu-cl-gnum::after, #mundi-root .mu-cl-grow.is-done .mu-cl-gnum::after { content: " ✓"; color: var(--good); }
+
+/* unfolded: the groups on the left */
+#mundi-root .mu-cl-split .mu-ph-body { padding: 14px; }
+#mundi-root .mu-cl-glist { display: grid; gap: 5px; }
+#mundi-root .mu-cl-grow, #mundi-root .mu-cl-grow:hover:not(:disabled) { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 46px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root .mu-cl-grow:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root .mu-cl-grow.is-on, #mundi-root .mu-cl-grow.is-on:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
+#mundi-root .mu-cl-grow i { font-style: normal; }
+#mundi-root .mu-cl-grow > span:not(.mu-cl-gnum) { display: grid; gap: 4px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-cl-grow b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-cl-grow.is-done .mu-cl-bar b { background: #d4a017; }
+
+/* unfolded: the open group's slots as cards */
+#mundi-root .mu-cl-gtitle { display: flex; gap: 8px; align-items: center; margin: 0; font-size: 16px; }
+#mundi-root .mu-cl-gtitle i { font-style: normal; }
+#mundi-root .mu-cl-gtitle b { flex: 1; }
+#mundi-root .mu-cl-tiles.is-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: 0; }
+#mundi-root .mu-cl-tiles.is-grid.is-pieces { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+#mundi-root .mu-cl-tiles.is-grid .mu-cl-tile { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg2); }
+#mundi-root .mu-cl-tiles.is-grid .mu-cl-tile.is-empty:not(.mu-cl-piece) { background: transparent; border-style: dashed; }
+#mundi-root .mu-cl-tiles.is-grid .mu-cl-tile.is-gold { border-color: #d4a017; }
+#mundi-root .mu-cl-tiles.is-grid .mu-cl-pic { width: 100%; height: auto; aspect-ratio: 1; border-radius: 10px; font-size: 44px; }
+#mundi-root .mu-cl-tiles.is-grid .mu-cl-pic.is-face { border-radius: 10px; }
+#mundi-root .mu-cl-tiles.is-grid .mu-cl-hint, #mundi-root .mu-cl-tiles.is-grid .mu-cl-plaque { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* a slot's page */
+#mundi-root .mu-cl-page { display: grid; gap: 14px; align-content: start; }
+#mundi-root .mu-cl-back, #mundi-root .mu-cl-back:hover:not(:disabled) { justify-self: start; display: inline-flex; gap: 4px; align-items: center; min-height: 0; padding: 2px 4px;
+    border: 0; background: transparent; box-shadow: none; color: var(--accent); font-weight: 700; font-size: 13px; transform: none; }
+#mundi-root .mu-cl-back i { font-style: normal; font-size: 18px; line-height: 1; }
+#mundi-root .mu-cl-tiles.is-detail { padding: 0; grid-template-columns: 1fr; }
+#mundi-root .mu-cl-tiles.is-detail .mu-cl-tile { flex-direction: row; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg2); }
+#mundi-root .mu-cl-tiles.is-detail .mu-cl-pic { width: 96px; height: 96px; aspect-ratio: auto; border-radius: 16px; font-size: 54px; }
+#mundi-root .mu-cl-tiles.is-detail .mu-cl-pic.is-face { border-radius: 50%; }
+#mundi-root .mu-cl-tiles.is-detail .mu-cl-text { font-size: 14px; gap: 4px; }
+#mundi-root .mu-cl-tiles.is-detail .mu-cl-name b { font-size: 17px; }
+#mundi-root .mu-cl-sec { display: grid; gap: 6px; }
+#mundi-root .mu-cl-sec h4 { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; margin: 0; font-size: 14px; }
+#mundi-root .mu-cl-sec h4 small { font-weight: 400; opacity: .7; }
+#mundi-root .mu-cl-sec .mu-muted { margin: 0; font-size: 13px; }
+#mundi-root .mu-cl-from { font-size: 13px; opacity: .8; }
+
+/* the keepsakes of a kind, the missing first */
+#mundi-root .mu-cl-items { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-cl-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg2); }
+#mundi-root .mu-cl-item > i { flex: 0 0 auto; display: grid; place-items: center; width: 42px; height: 42px; overflow: hidden; border-radius: 10px; background: var(--bg); font-style: normal; font-size: 24px; }
+#mundi-root .mu-cl-item > i img { width: 100%; height: 100%; object-fit: cover; }
+#mundi-root .mu-cl-item.is-missing { border-style: dashed; background: transparent; }
+#mundi-root .mu-cl-item.is-missing > i { filter: grayscale(1); opacity: .5; }
+#mundi-root .mu-cl-item > span { flex: 1; display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-cl-iname { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+#mundi-root .mu-cl-istate { margin-left: auto; font-size: 12px; opacity: .7; }
+#mundi-root .mu-cl-item.is-had .mu-cl-istate { color: var(--good); opacity: 1; }
+
+/* a district's places and its stories still to find */
+#mundi-root .mu-cl-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-cl-chips li { display: inline-flex; gap: 5px; align-items: center; padding: 3px 10px; border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; }
+#mundi-root .mu-cl-chips li i { font-style: normal; }
+#mundi-root .mu-cl-chips li.is-done { border-color: var(--line); opacity: .6; }
+#mundi-root .mu-cl-chips li.is-done i { color: var(--good); }
+#mundi-root .mu-cl-where { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+#mundi-root .mu-cl-where li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--bg2); font-size: 13px; }
+#mundi-root .mu-cl-where small { opacity: .75; white-space: nowrap; }
+
+/* the journal (book look) */
+#mundi-root .mu-book :is(.mu-cl-item, .mu-cl-where li, .mu-cl-tiles.is-detail .mu-cl-tile) { background: transparent; border-color: rgba(90, 60, 30, .35); }
+#mundi-root .mu-book .mu-cl-back { color: #7a4a1e; }

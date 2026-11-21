@@ -55,7 +55,7 @@ const nextIn = (days: number) => (days <= 0 ? 'Next: today.' : days === 1 ? 'Nex
 
 // Where a keepsake comes from: actions (always, when the roll goes well, or one outcome in so many), street stories,
 // shops and other goals' steps. The likeliest first.
-function keepsakeHints(g: Save, w: WorldDef, id: string): string[] {
+export function keepsakeHints(g: Save, w: WorldDef, id: string): string[] {
     const k = w.keepsakes?.find(x => x.id === id); if (!k) return [];
     const from: { text: string; odds: number; a?: ActionDef }[] = [];
     for (const a of w.actions) {
@@ -202,21 +202,25 @@ function endgameHints(w: WorldDef, key: string, v: string): string[] {
 }
 export function howTo(g: Save, w: WorldDef, o: Objective): string[] {
     if (o.ok || o.not) return [];
-    const values = o.text.slice(o.text.indexOf(':') + 1).trim().split(/\s+or\s+/);
+    return hintsFor(g, w, o.key, o.text.slice(o.text.indexOf(':') + 1).trim().split(/\s+or\s+/));
+}
+/** How to make a condition hold (`attended: koyo`, `visited: …`), as for a goal's objective; the Collection app asks it
+ *  for a slot. */
+export function hintsFor(g: Save, w: WorldDef, key: string, values: string[]): string[] {
     // a long list of ways ("one of nine jobs") would bury the step under hints
     if (values.length > 3) return [];
     const out: string[] = [];
     for (const v of values) {
-        const lines = o.key === 'holds' && !/^\d+$/.test(v) && !v.startsWith('kind:') ? keepsakeHints(g, w, v)
-            : o.key === 'did' ? didHints(g, w, v)
-            : o.key === 'attended' ? attendHints(g, w, v)
-            : o.key === 'skill' ? skillHints(g, w, v)
-            : o.key === 'job' ? jobHints(g, w, v)
-            : o.key === 'visited' ? visitHints(g, w, v)
-            : o.key === 'stayed' ? stayHints(w, v)
-            : o.key === 'degree' ? degreeHints(g, w, v)
-            : o.key === 'partner' && v === 'home' ? ['To live together, move your partner into your household: This world → Households.']
-            : endgameHints(w, o.key, v);
+        const lines = key === 'holds' && !/^\d+$/.test(v) && !v.startsWith('kind:') ? keepsakeHints(g, w, v)
+            : key === 'did' ? didHints(g, w, v)
+            : key === 'attended' ? attendHints(g, w, v)
+            : key === 'skill' ? skillHints(g, w, v)
+            : key === 'job' ? jobHints(g, w, v)
+            : key === 'visited' ? visitHints(g, w, v)
+            : key === 'stayed' ? stayHints(w, v)
+            : key === 'degree' ? degreeHints(g, w, v)
+            : key === 'partner' && v === 'home' ? ['To live together, move your partner into your household: This world → Households.']
+            : endgameHints(w, key, v);
         for (const l of lines) if (!out.includes(l)) out.push(l);
     }
     // several ways ("a or b") each say where: keep it short
