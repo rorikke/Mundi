@@ -11195,7 +11195,6 @@ const DICT: Record<string, string> = {
  "Hide owned": "Ocultar lo que ya tienes",
  "You own everything here.": "Ya tienes todo lo de aquí.",
  "Your money": "Tu dinero",
- "Pick a job to see it.": "Elige un empleo para verlo.",
  "1 home": "1 casa",
  "{0} homes": "{0} casas",
 };

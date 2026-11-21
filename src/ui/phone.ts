@@ -86,7 +86,7 @@ const SECTIONS: { id: string; name: string; icon: string; color: string; apps: A
     { id: 'companions', name: 'Companions', icon: 'heart', color: '#e58a4e', apps: ['pets', 'soulbond', 'blade'] },
     { id: 'groups', name: 'Groups', icon: 'users', color: '#6b4fd8', apps: ['party', 'factions'] },
     { id: 'missions', name: 'Missions', icon: 'map', color: '#c08a2e', apps: ['quests', 'tower', 'contracts'] },
-    { id: 'work', name: 'Work', icon: 'briefcase', color: '#0a84ff', apps: ['jobs', 'campus', 'business', 'photos'] },
+    { id: 'work', name: 'Work', icon: 'briefcase', color: '#0a84ff', apps: ['jobs', 'campus', 'business'] },
 ];
 const LAST_TAB: Record<string, App> = {};
 // Apps shown inside another rather than on their own: Reputation is a tab of the Profile.
@@ -121,9 +121,26 @@ function hd(app: App, title?: string) {
     const list = s && w ? secApps(w, s) : [];
     if (!s) return head(title ?? name(app), 'home');
     if (list.length < 2) return head(title ?? name(app), 'home');
+    if (w && sideSection(w, app)) return head(esc(s.name), 'home');   // (unfolded: the apps are listed on the left instead)
     // a tab carries its app's badge (Goals: "pick a life goal", D-7; Campus, Business, Lens: something to do)
     const mark = (a: App) => (g && w && badgeOf(g, w, a) ? ' <em class="mu-sec-badge">!</em>' : '');
     return head(esc(s.name), 'home').replace(/<\/div>$/, `<nav class="mu-sec-tabs">${list.map(a => `<button class="${a === app ? 'is-on' : ''}" data-act="ph-go" data-app="${esc(a)}">${name(a)}${mark(a)}</button>`).join('')}</nav></div>`);
+}
+// Unfolded, a section's apps are a list on the left and the open one fills the right (the Profile's section keeps its
+// tabs: the Profile has a layout of its own). The section, when it's drawn that way.
+const SIDE_SECTIONS = new Set(['work', 'companions', 'groups', 'missions']);
+function sideSection(w: WorldDef, app: App): typeof SECTIONS[number] | undefined {
+    const s = sectionFor(app);
+    return s && SIDE_SECTIONS.has(s.id) && !BOOK && isWide() && secApps(w, s).length > 1 ? s : undefined;
+}
+// The section's apps on the left (each with its badge), the app as it draws on the right, under the section's head.
+function sideHtml(g: Save, w: WorldDef, s: typeof SECTIONS[number], body: string): string {
+    const top = head(esc(s.name), 'home');
+    if (!body.startsWith(top)) return body;
+    const icons = Object.fromEntries(appsOf(w).map(a => [a.id, a.icon]));
+    const rows = secApps(w, s).map(a => `<button class="mu-sec-row ${a === P.app ? 'is-on' : ''}" data-act="ph-go" data-app="${esc(a)}" aria-pressed="${a === P.app}">${icon(icons[a] ?? 'grid')}<b>${appName(a)}</b>${badgeOf(g, w, a) ? '<em class="mu-sec-badge">!</em>' : ''}</button>`).join('');
+    return `${top}<div class="mu-ph-split mu-sec-split"><div class="mu-ph-pane is-list" data-keep="sec-pane-list"><div class="mu-ph-body"><nav class="mu-sec-rows">${rows}</nav></div></div>
+        <div class="mu-ph-pane is-open" data-keep="sec-pane-${esc(P.app)}">${body.slice(top.length)}</div></div>`;
 }
 const appName = (id: string) => { const g = game(); const w = g && getWorld(g.world); return esc(w ? appsOf(w).find(a => a.id === id)?.name ?? id : id); };
 // Words that change with the world's style: the medieval journal speaks of letters, notices and the matchmaker.
@@ -508,12 +525,10 @@ const jobSortChips = () => `<div class="mu-chips mu-jobs-sort"><small class="mu-
 // Jobs in two views while you have a job: Your job (rank, pay, performance, promotion, your week) and Openings (the
 // list, sorted as you pick). It opens on Your job, and on Openings again once you quit or before you're hired; a job
 // taken or left (however: the list, a pick of track, the scene) starts it over.
-// Unfolded (`wide`), like Messages: your job and the openings as a list on the left, the picked one (`JV.pick`: an
-// opening's id, or '' for your job, else the first opening) with all it says on the right.
-const JV = { tab: '' as '' | 'mine' | 'openings', job: undefined as string | undefined, pick: '' };
-function jobsApp(g: Save, w: WorldDef, wide = false) {
+const JV = { tab: '' as '' | 'mine' | 'openings', job: undefined as string | undefined };
+function jobsApp(g: Save, w: WorldDef) {
     const j = g.player.job; const mine = myJob(g, w);   // the job you hold, on your track
-    if (JV.job !== j?.id) { JV.job = j?.id; JV.tab = ''; JV.pick = ''; }
+    if (JV.job !== j?.id) { JV.job = j?.id; JV.tab = ''; }
     const view = mine && j ? (JV.tab || 'mine') : 'openings';
     const openings = openJobs(g, w).filter(o => o.id !== j?.id);
     const p = mine && j ? promoNeeds(g, w, mine) : null;
@@ -548,7 +563,6 @@ function jobsApp(g: Save, w: WorldDef, wide = false) {
             ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}${interviewChance(g, o, traitsOf(g)) ? `<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id, o, traitsOf(g)) ? ` · try again ${retryText(g, o.id, o, traitsOf(g))}` : ''}</small>` : '<small class="mu-bad">Interview: out of your reach for now</small>'}`}</span>
             <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`;  };
     const sorted = sortedOpenings(g, w, openings);
-    if (wide) return jobsWide(g, w, { mine, j, sorted, mineHtml, card, where });
     return `${hd('jobs')}<div class="mu-ph-body">${tabs}
         ${view !== 'mine' ? '' : mineHtml()}
         ${view !== 'openings' ? '' : `${mine && j ? '' : `<p class="mu-muted">${T('noJob')}</p><h4>${T('openings')}</h4>`}
@@ -556,22 +570,6 @@ function jobsApp(g: Save, w: WorldDef, wide = false) {
         <div class="mu-ph-jobs">${sorted.map(card).join('')}</div>`}
     </div>`;
 }
-// Unfolded: the list on the left (your job first, then the openings in the order picked), the picked one on the right
-// (its key changes with the pick, so each opens at its top).
-function jobsWide(g: Save, w: WorldDef, x: { mine: ReturnType<typeof myJob>; j: Save['player']['job']; sorted: Occupation[]; mineHtml: () => string; card: (o: Occupation) => string; where: (o: Occupation) => string }): string {
-    const has = (id: string) => x.sorted.some(o => o.id === id);
-    const pick = JV.pick && has(JV.pick) ? JV.pick : x.mine && x.j ? '' : x.sorted[0]?.id ?? '';
-    const pay = (o: Occupation) => { const t = trackOf(g, o); return `${money(w, payOf(g, t.ranks[0].pay))}–${money(w, payOf(g, t.ranks.at(-1)!.pay))}/h`; };
-    const row = (id: string, title: string, sub: string, on: boolean) => `<button class="mu-jb-row ${on ? 'is-on' : ''}" data-act="ph-jobs-pick" data-id="${esc(id)}" aria-pressed="${on}"><b>${esc(title)}</b><small>${esc(sub)}</small></button>`;
-    const mineRow = x.mine && x.j ? `<h4>${T('yourJob')}</h4>${row('', rankOf(g, x.mine).name, `${x.mine.name} · ${x.where(x.mine)}`, pick === '')}` : `<p class="mu-muted">${T('noJob')}</p>`;
-    const list = x.sorted.map(o => { const t = trackOf(g, o); return row(o.id, t.name, `${x.where(t)} · ${pay(o)}`, pick === o.id); }).join('');
-    const open = pick ? x.sorted.find(o => o.id === pick) : undefined;
-    const right = open ? `<div class="mu-ph-jobs">${x.card(open)}</div>` : x.mineHtml();
-    return `${hd('jobs')}<div class="mu-ph-split mu-jb-split"><div class="mu-ph-pane is-list" data-keep="jb-pane-list"><div class="mu-ph-body">${mineRow}
-            <h4>${T('openings')} <small>${x.sorted.length}</small></h4>${x.sorted.length > 1 ? jobSortChips() : ''}<nav class="mu-jb-rows">${list}</nav></div></div>
-        <div class="mu-ph-pane is-open" data-keep="jb-pane-${esc(pick || 'mine')}"><div class="mu-ph-body">${right || `<p class="mu-ph-none">${icon('briefcase')}<span>${esc('Pick a job to see it.')}</span></p>`}</div></div></div>`;
-}
-
 // Your money: the balance, the bills to pay (in the world's Bank; sim/bills.ts billsApp), the last week in and out,
 // and the statement.
 function bankApp(g: Save, w: WorldDef) {
@@ -685,7 +683,6 @@ Object.assign(ACT, {
     'ph-homes-rent': () => { HV.tab = 'rent'; openApp('homes'); },   // (Money's "move somewhere cheaper")
     'ph-people-filter': (el) => { PEOPLE.filter = (el.dataset.v as PeopleFilter) || 'all'; notify(); },
     'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
-    'ph-jobs-pick': (el) => { JV.pick = el.dataset.id ?? ''; notify(); },
     'ph-jobs-view': (el) => { JV.tab = el.dataset.v === 'openings' ? 'openings' : 'mine'; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
     'ph-open-bills': () => { const g = game(); const w = g && getWorld(g.world); P.open = true; P.app = w ? billsApp(w) : 'homes'; notify(); },   // (the HUD's "Locked out")
@@ -815,10 +812,12 @@ export function phoneHtml(): string {
     BOOK = deviceLook(w) === 'book'; LETTERS = messageKind(w) === 'letters'; LW = w;
     trackView();
     const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
-    const body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
-        : P.app === 'jobs' ? jobsApp(g, w, wide) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w, wide)
+    let body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
+        : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w, wide)
         : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w, wide) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home'), wide) : P.app === 'goals' ? goalsApp(g, w, hd('goals'), wide) : P.app === 'collection' ? collectionApp(g, w, hd('collection'), wide) : P.app === 'photos' ? lensApp(g, w, hd('photos')) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile')), wide, repTab(g, w)) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
+    const side = sideSection(w, P.app);
+    if (side) body = sideHtml(g, w, side, body);
     const unread = phoneUnread();
     // data-keep: the phone keeps its identity when the screen is redrawn (a dialog opening right before it is never
     // taken for it, which rebuilt the phone and replayed its slide-in). The screen's key changes with the app, so an app

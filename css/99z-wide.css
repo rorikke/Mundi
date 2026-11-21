@@ -1,22 +1,22 @@
-/* Profile, Jobs, Homes and Spark unfolded (ui/courses.ts, ui/phone.ts): a list on the left (the Profile's tabs, your
-   job and the openings, the Homes tabs, your Spark profile and matches), what's picked on the right */
-#mundi-root :is(.mu-pf-split, .mu-jb-split, .mu-hm-split, .mu-sp-split) .mu-ph-body { padding: 14px; }
-#mundi-root :is(.mu-pf-rows, .mu-jb-rows, .mu-hm-rows) { display: grid; gap: 5px; }
-#mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row), #mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row):hover:not(:disabled) {
+/* Unfolded (ui/courses.ts, ui/phone.ts): a list on the left (the Profile's tabs, the Homes tabs, your Spark profile and
+   matches, a section's apps such as Work's), what's picked on the right */
+#mundi-root :is(.mu-pf-split, .mu-hm-split, .mu-sp-split) .mu-ph-body { padding: 14px; }
+#mundi-root :is(.mu-pf-rows, .mu-hm-rows) { display: grid; gap: 5px; }
+#mundi-root :is(.mu-pf-row-tab, .mu-hm-row), #mundi-root :is(.mu-pf-row-tab, .mu-hm-row):hover:not(:disabled) {
     display: grid; gap: 2px; align-items: center; justify-items: start; width: 100%; min-height: 42px; padding: 7px 10px;
     border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
-#mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row):hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
-#mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row).is-on, #mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row).is-on:hover:not(:disabled) {
+#mundi-root :is(.mu-pf-row-tab, .mu-hm-row):hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root :is(.mu-pf-row-tab, .mu-hm-row).is-on, #mundi-root :is(.mu-pf-row-tab, .mu-hm-row).is-on:hover:not(:disabled) {
     background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
-#mundi-root :is(.mu-jb-row, .mu-hm-row), #mundi-root :is(.mu-jb-row, .mu-hm-row):hover:not(:disabled) { grid-template-columns: minmax(0, 1fr); justify-content: stretch; }
-#mundi-root :is(.mu-jb-row, .mu-hm-row) b { font-size: 13px; }
-#mundi-root :is(.mu-jb-row, .mu-hm-row) small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; opacity: .7; }
+#mundi-root :is(.mu-hm-row), #mundi-root :is(.mu-hm-row):hover:not(:disabled) { grid-template-columns: minmax(0, 1fr); justify-content: stretch; }
+#mundi-root :is(.mu-hm-row) b { font-size: 13px; }
+#mundi-root :is(.mu-hm-row) small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; opacity: .7; }
 /* the Profile's tabs: an icon and the name */
 #mundi-root .mu-pf-row-tab, #mundi-root .mu-pf-row-tab:hover:not(:disabled) { grid-template-columns: 22px minmax(0, 1fr); column-gap: 8px; }
 #mundi-root .mu-pf-row-tab .mu-ic { width: 17px; height: 17px; opacity: .8; }
 #mundi-root .mu-pf-row-tab b { font-size: 13px; }
-/* Jobs: the counts by the headings */
-#mundi-root .mu-jb-split h4 small, #mundi-root .mu-sp-split h4 small { font-weight: 400; opacity: .7; }
+/* Spark: the count by Matches */
+#mundi-root .mu-sp-split h4 small { font-weight: 400; opacity: .7; }
 /* Homes: your home's picture over the list */
 #mundi-root .mu-hm-split .is-list .mu-home-card.is-mine { display: block; padding: 0; overflow: hidden; }
 #mundi-root .mu-hm-split .is-list .mu-home-card.is-mine .mu-home-pic { display: block; width: 100%; height: 120px; max-height: none; border-radius: 0; }
@@ -31,3 +31,13 @@
 #mundi-root .mu-sp-split .mu-sp-card { width: min(100% - 24px, 440px); margin-inline: auto; }
 /* (homes for rent two side by side in the pane, not one large card per row) */
 #mundi-root .mu-hm-split .mu-home-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+/* a section's apps (Work: Jobs, Campus, Business), a narrow list: the app gets the room */
+#mundi-root .mu-sec-split { grid-template-columns: 200px minmax(0, 1fr); }
+#mundi-root .mu-sec-split .is-list .mu-ph-body { padding: 14px 10px; }
+#mundi-root .mu-sec-rows { display: grid; gap: 5px; }
+#mundi-root .mu-sec-row, #mundi-root .mu-sec-row:hover:not(:disabled) { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; min-height: 42px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root .mu-sec-row:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root .mu-sec-row.is-on, #mundi-root .mu-sec-row.is-on:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
+#mundi-root .mu-sec-row .mu-ic { width: 17px; height: 17px; opacity: .8; }
+#mundi-root .mu-sec-row b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
