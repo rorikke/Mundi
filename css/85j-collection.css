@@ -27,7 +27,7 @@
 #mundi-root .mu-cl-tile.is-empty .mu-cl-pic { filter: grayscale(1); opacity: .45; }
 #mundi-root .mu-cl-tile.is-empty .mu-cl-pic:not(.is-face):not(.is-emoji) { filter: brightness(0); opacity: .25; }   /* a piece's own picture as its silhouette */
 #mundi-root .mu-cl-tile.is-gold .mu-cl-pic { box-shadow: 0 0 0 2px #d4a017; }
-#mundi-root .mu-cl-text { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-cl-text { flex: 1; display: grid; gap: 2px; min-width: 0; font-size: 13px; }   /* the whole row, so a bar and count reach the edge */
 #mundi-root .mu-cl-name { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; }
 #mundi-root .mu-cl-title, #mundi-root .mu-cl-day, #mundi-root .mu-cl-hint, #mundi-root .mu-cl-gone, #mundi-root .mu-cl-away { opacity: .75; }
 #mundi-root .mu-cl-tile.is-empty .mu-cl-name b { opacity: .7; }

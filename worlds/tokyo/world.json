@@ -82991,10 +82991,10 @@
     "id": "mem_kk_plush",
     "hall": "memories",
     "group": "keepsakes",
-    "name": "Plushs",
+    "name": "Plushies",
     "when": "had: all plush",
     "icon": "🧸",
-    "hint": "Hold every keepsake of this kind at some time (plushs)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_music",
@@ -83003,7 +83003,7 @@
     "name": "Music",
     "when": "had: all music",
     "icon": "🎵",
-    "hint": "Hold every keepsake of this kind at some time (music)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_charm",
@@ -83012,7 +83012,7 @@
     "name": "Charms",
     "when": "had: all charm",
     "icon": "🧿",
-    "hint": "Hold every keepsake of this kind at some time (charms)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_stationery",
@@ -83021,7 +83021,7 @@
     "name": "Stationery",
     "when": "had: all stationery",
     "icon": "🖋️",
-    "hint": "Hold every keepsake of this kind at some time (stationery)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_print",
@@ -83030,16 +83030,16 @@
     "name": "Prints",
     "when": "had: all print",
     "icon": "🖼️",
-    "hint": "Hold every keepsake of this kind at some time (prints)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_accessory",
     "hall": "memories",
     "group": "keepsakes",
-    "name": "Accessorys",
+    "name": "Accessories",
     "when": "had: all accessory",
     "icon": "👜",
-    "hint": "Hold every keepsake of this kind at some time (accessorys)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_photo",
@@ -83048,7 +83048,7 @@
     "name": "Photos",
     "when": "had: all photo",
     "icon": "📷",
-    "hint": "Hold every keepsake of this kind at some time (photos)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_book",
@@ -83057,7 +83057,7 @@
     "name": "Books",
     "when": "had: all book",
     "icon": "📚",
-    "hint": "Hold every keepsake of this kind at some time (books)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_food_box",
@@ -83066,7 +83066,7 @@
     "name": "Food boxes",
     "when": "had: all food box",
     "icon": "🍱",
-    "hint": "Hold every keepsake of this kind at some time (food boxes)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_card",
@@ -83075,7 +83075,7 @@
     "name": "Cards",
     "when": "had: all card",
     "icon": "🃏",
-    "hint": "Hold every keepsake of this kind at some time (cards)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_clothing",
@@ -83084,16 +83084,16 @@
     "name": "Clothing",
     "when": "had: all clothing",
     "icon": "👘",
-    "hint": "Hold every keepsake of this kind at some time (clothing)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_flowers",
     "hall": "memories",
     "group": "keepsakes",
-    "name": "Flowerss",
+    "name": "Flowers",
     "when": "had: all flowers",
     "icon": "💐",
-    "hint": "Hold every keepsake of this kind at some time (flowerss)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_jewellery",
@@ -83102,7 +83102,7 @@
     "name": "Jewellery",
     "when": "had: all jewellery",
     "icon": "💍",
-    "hint": "Hold every keepsake of this kind at some time (jewellery)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_lingerie",
@@ -83112,7 +83112,7 @@
     "when": "had: all lingerie",
     "adult": true,
     "icon": "🩱",
-    "hint": "Hold every keepsake of this kind at some time (lingerie)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_bedroom",
@@ -83122,7 +83122,7 @@
     "when": "had: all bedroom",
     "adult": true,
     "icon": "🕯️",
-    "hint": "Hold every keepsake of this kind at some time (for the bedroom)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_costume",
@@ -83131,7 +83131,7 @@
     "name": "Costumes",
     "when": "had: all costume",
     "icon": "🎭",
-    "hint": "Hold every keepsake of this kind at some time (costumes)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_spirits",
@@ -83140,7 +83140,7 @@
     "name": "Spirits",
     "when": "had: all spirits",
     "icon": "🍶",
-    "hint": "Hold every keepsake of this kind at some time (spirits)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_tableware",
@@ -83149,7 +83149,7 @@
     "name": "Tableware",
     "when": "had: all tableware",
     "icon": "🍵",
-    "hint": "Hold every keepsake of this kind at some time (tableware)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_go_20",
@@ -85157,7 +85157,7 @@
     "name": "From the kura",
     "when": "had: all museum",
     "icon": "🏛️",
-    "hint": "Hold every keepsake of this kind at some time (from the kura)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_sl_tamaki_clinic",
@@ -85214,7 +85214,7 @@
     "name": "From Tamaki",
     "when": "had: all tamaki",
     "icon": "🏷️",
-    "hint": "Hold every keepsake of this kind at some time (from tamaki)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_sl_tamaki_spring_pictures",
@@ -87170,7 +87170,7 @@
     "name": "From Ayame",
     "when": "had: all ayame",
     "icon": "🖤",
-    "hint": "Hold every keepsake of this kind at some time (from ayame)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_kk_kaede",
@@ -87179,7 +87179,7 @@
     "name": "From Kaede",
     "when": "had: all kaede",
     "icon": "📒",
-    "hint": "Hold every keepsake of this kind at some time (from kaede)."
+    "hint": "Hold every keepsake of this kind at some time."
    },
    {
     "id": "mem_sl_kaede_copyist",
