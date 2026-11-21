@@ -1104,7 +1104,8 @@
     ],
     "desc": "A walnut counter, a back bar of bottles and an ice machine: parties at home go a little better.",
     "ai": "a walnut home bar with a back bar of bottles",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_bar.avif"
    },
    {
     "id": "fx_cellar",
@@ -1121,7 +1122,8 @@
     ],
     "desc": "A cooled cellar of racked bottles, some older than you: parties at home go better.",
     "ai": "a cooled wine cellar",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_cellar.avif"
    },
    {
     "id": "fx_kitchen",
@@ -1138,7 +1140,8 @@
     ],
     "desc": "A steel range, a long marble island and every knife you could want: you learn to cook faster.",
     "ai": "a chef's kitchen with a long marble island",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_kitchen.avif"
    },
    {
     "id": "fx_tearoom",
@@ -1161,7 +1164,8 @@
     ],
     "desc": "Four and a half tatami, a sunken hearth and a scroll in the alcove: you wake up a little happier.",
     "ai": "a four-and-a-half-mat tea room",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_tearoom.avif"
    },
    {
     "id": "fx_sauna",
@@ -1178,7 +1182,8 @@
     ],
     "desc": "A Finnish cedar sauna and a cold shower beside it: baths give a little more back.",
     "ai": "a cedar sauna",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_sauna.avif"
    },
    {
     "id": "fx_cypress",
@@ -1201,7 +1206,8 @@
     ],
     "desc": "A square hinoki tub in a stone room off a moss garden: baths give more back. Opens the cypress bath.",
     "ai": "a hinoki cypress bath off a moss garden",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_cypress.avif"
    },
    {
     "id": "fx_onsen",
@@ -1224,7 +1230,8 @@
     ],
     "desc": "A rock-lined pool fed by the villa's own hot spring, on a cedar deck over the forest: baths give the most back. Comes with the house.",
     "ai": "an open-air hot-spring bath of its own over the forest",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_onsen.avif"
    },
    {
     "id": "fx_gym",
@@ -1241,7 +1248,8 @@
     ],
     "desc": "Racks, a rowing machine and a mirrored wall: you get fitter faster.",
     "ai": "a private gym",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_gym.avif"
    },
    {
     "id": "fx_massage",
@@ -1258,7 +1266,8 @@
     ],
     "desc": "A quiet room with a padded table, warm stones and a therapist on call: you sleep a little better at home.",
     "ai": "a massage room with a therapist on call",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_massage.avif"
    },
    {
     "id": "fx_yoga",
@@ -1268,7 +1277,8 @@
     "size": 2,
     "desc": "A bare wooden room full of morning light, with mats and blocks on a shelf.",
     "ai": "a light yoga room",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_yoga.avif"
    },
    {
     "id": "fx_theatre",
@@ -1278,7 +1288,8 @@
     "size": 3,
     "desc": "Twelve reclining seats, a wall-sized screen and sound you feel in your chest.",
     "ai": "a twelve-seat home theatre",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_theatre.avif"
    },
    {
     "id": "fx_piano",
@@ -1295,7 +1306,8 @@
     ],
     "desc": "A black concert grand by the window, tuned every season: you learn music faster than with anything else.",
     "ai": "a black concert grand piano by the window",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_piano.avif"
    },
    {
     "id": "fx_studio",
@@ -1312,7 +1324,8 @@
     ],
     "desc": "A soundproofed booth, a good microphone and a mixing desk: you learn to sing faster.",
     "ai": "a soundproofed recording studio",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_studio.avif"
    },
    {
     "id": "fx_library",
@@ -1329,7 +1342,8 @@
     ],
     "desc": "Shelves to the ceiling, a ladder on a rail and a reading chair: you learn to write a little faster.",
     "ai": "a library with shelves to the ceiling",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_library.avif"
    },
    {
     "id": "fx_games",
@@ -1339,7 +1353,8 @@
     "size": 3,
     "desc": "A billiard table under a low lamp, a dartboard and a shelf of board games.",
     "ai": "a games room with a billiard table",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_games.avif"
    },
    {
     "id": "fx_atelier",
@@ -1356,7 +1371,8 @@
     ],
     "desc": "North light, easels, a big table and the smell of oil paint: you learn to draw faster.",
     "ai": "a painter's atelier with north light",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_atelier.avif"
    },
    {
     "id": "fx_darkroom",
@@ -1376,7 +1392,8 @@
     "told": "home",
     "photo": {
      "gear": "darkroom"
-    }
+    },
+    "pic": "items/fx_darkroom.avif"
    },
    {
     "id": "fx_observatory",
@@ -1390,7 +1407,8 @@
     ],
     "desc": "A small white dome on the roof with a real telescope that turns with the sky.",
     "ai": "a telescope dome on the roof",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_observatory.avif"
    },
    {
     "id": "fx_terrace",
@@ -1413,7 +1431,8 @@
     ],
     "desc": "A wooden deck on the roof with a plunge pool, a bar counter and the city all around: parties at home go best. Opens the terrace.",
     "ai": "a rooftop terrace with a plunge pool",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_terrace.avif"
    },
    {
     "id": "fx_veranda",
@@ -1436,7 +1455,8 @@
     ],
     "desc": "A white-painted veranda over the roses, with a breakfast table and the harbor beyond: parties at home go better. Opens the veranda.",
     "ai": "a white veranda over a rose garden and the harbor",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_veranda.avif"
    },
    {
     "id": "fx_garden",
@@ -1457,7 +1477,8 @@
     ],
     "desc": "Raked gravel, mossy stones, a maple and a stone lantern, kept by a gardener: you wake up a little happier.",
     "ai": "a Japanese garden with a stone lantern",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_garden.avif"
    },
    {
     "id": "fx_pond",
@@ -1472,7 +1493,8 @@
     "needs": "fx_garden",
     "desc": "A pond under the maple with a dozen koi, red, white and gold, who come when they hear your steps.",
     "ai": "a koi pond under the maple",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_pond.avif"
    },
    {
     "id": "fx_guestroom",
@@ -1482,7 +1504,8 @@
     "size": 2,
     "desc": "A spare bedroom with fresh sheets and its own bathroom: a guest sleeps in a bed, not on the sofa.",
     "ai": "a guest room",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_guestroom.avif"
    },
    {
     "id": "fx_suite",
@@ -1506,7 +1529,8 @@
     ],
     "desc": "A big bed, low light, a deep bath through a sliding door and a door that locks: nights together give more back.",
     "ai": "a bedroom suite with a deep bath and a door that locks",
-    "told": "home"
+    "told": "home",
+    "pic": "items/fx_suite.avif"
    },
    {
     "id": "fx_light_rig",
@@ -1523,7 +1547,8 @@
     "photo": {
      "gear": "rig",
      "shoot": 6
-    }
+    },
+    "pic": "items/fx_light_rig.avif"
    },
    {
     "id": "fx_cyclorama",
@@ -1540,7 +1565,8 @@
     "photo": {
      "gear": "cyc",
      "studio": "cyc"
-    }
+    },
+    "pic": "items/fx_cyclorama.avif"
    },
    {
     "id": "fx_dressing",
@@ -1557,7 +1583,8 @@
     "photo": {
      "gear": "dressing",
      "studio": "dressing"
-    }
+    },
+    "pic": "items/fx_dressing.avif"
    },
    {
     "id": "fx_retouch",
@@ -1574,7 +1601,8 @@
     "photo": {
      "gear": "desk",
      "edit": 5
-    }
+    },
+    "pic": "items/fx_retouch.avif"
    }
   ],
   "studios": [
@@ -28961,7 +28989,8 @@
      "bay_mall",
      "yk_isezaki"
     ],
-    "online": true
+    "online": true,
+    "pic": "items/bed.avif"
    },
    {
     "id": "coffee",
@@ -28970,7 +28999,8 @@
     "icon": "☕",
     "price": 8000,
     "cat": "kitchen",
-    "online": true
+    "online": true,
+    "pic": "items/coffee.avif"
    },
    {
     "id": "bike",
@@ -28984,7 +29014,8 @@
      "bay_mall",
      "yk_isezaki"
     ],
-    "online": true
+    "online": true,
+    "pic": "items/bike.avif"
    },
    {
     "id": "pc",
@@ -28996,7 +29027,8 @@
     "at": [
      "ak_electric"
     ],
-    "online": true
+    "online": true,
+    "pic": "items/pc.avif"
    },
    {
     "id": "easel",
@@ -29008,7 +29040,8 @@
     "at": [
      "ak_electric"
     ],
-    "online": true
+    "online": true,
+    "pic": "items/easel.avif"
    },
    {
     "id": "guitar",
@@ -29021,7 +29054,8 @@
      "ws_vintage",
      "ak_electric"
     ],
-    "online": true
+    "online": true,
+    "pic": "items/guitar.avif"
    },
    {
     "id": "kotatsu",
@@ -29030,7 +29064,8 @@
     "icon": "🛋️",
     "price": 15000,
     "cat": "home",
-    "online": true
+    "online": true,
+    "pic": "items/kotatsu.avif"
    },
    {
     "id": "console",
@@ -29043,7 +29078,8 @@
      "ak_electric",
      "bay_mall"
     ],
-    "online": true
+    "online": true,
+    "pic": "items/console.avif"
    },
    {
     "id": "hm_cushions",
@@ -29055,7 +29091,8 @@
     "online": true,
     "at": [
      "bay_mall"
-    ]
+    ],
+    "pic": "items/hm_cushions.avif"
    },
    {
     "id": "hm_curtains",
@@ -29071,7 +29108,8 @@
       "target": "sleep home",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hm_curtains.avif"
    },
    {
     "id": "hm_plant",
@@ -29084,7 +29122,8 @@
     "at": [
      "ws_shimokita",
      "yk_isezaki"
-    ]
+    ],
+    "pic": "items/hm_plant.avif"
    },
    {
     "id": "hm_lamp",
@@ -29096,7 +29135,8 @@
     "online": true,
     "at": [
      "bay_mall"
-    ]
+    ],
+    "pic": "items/hm_lamp.avif"
    },
    {
     "id": "hm_bookshelf",
@@ -29105,7 +29145,8 @@
     "icon": "📚",
     "price": 19000,
     "cat": "home",
-    "online": true
+    "online": true,
+    "pic": "items/hm_bookshelf.avif"
    },
    {
     "id": "hm_rug",
@@ -29118,7 +29159,8 @@
     "at": [
      "bay_mall",
      "yk_isezaki"
-    ]
+    ],
+    "pic": "items/hm_rug.avif"
    },
    {
     "id": "hm_purifier",
@@ -29137,7 +29179,8 @@
       "target": "sleep home",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hm_purifier.avif"
    },
    {
     "id": "hm_desk",
@@ -29156,7 +29199,8 @@
       "target": "writing",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hm_desk.avif"
    },
    {
     "id": "hm_sofabed",
@@ -29169,7 +29213,8 @@
     "at": [
      "bay_mall",
      "yk_isezaki"
-    ]
+    ],
+    "pic": "items/hm_sofabed.avif"
    },
    {
     "id": "hm_shirotae",
@@ -29188,7 +29233,8 @@
       "target": "sleep home",
       "value": 0.08
      }
-    ]
+    ],
+    "pic": "items/hm_shirotae.avif"
    },
    {
     "id": "hm_aquarium",
@@ -29200,7 +29246,8 @@
     "online": true,
     "at": [
      "bay_mall"
-    ]
+    ],
+    "pic": "items/hm_aquarium.avif"
    },
    {
     "id": "hm_reading_chair",
@@ -29213,7 +29260,8 @@
     "at": [
      "ws_vintage",
      "mg_depachika"
-    ]
+    ],
+    "pic": "items/hm_reading_chair.avif"
    },
    {
     "id": "hm_hinoki_bed",
@@ -29226,7 +29274,8 @@
     "online": true,
     "at": [
      "mg_depachika"
-    ]
+    ],
+    "pic": "items/hm_hinoki_bed.avif"
    },
    {
     "id": "hm_tansu",
@@ -29239,7 +29288,8 @@
      "ws_vintage"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/hm_tansu.avif"
    },
    {
     "id": "hm_dining",
@@ -29252,7 +29302,8 @@
      "mg_depachika"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/hm_dining.avif"
    },
    {
     "id": "hm_tobari",
@@ -29266,7 +29317,8 @@
     ],
     "when": "seen: sh_salon",
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/hm_tobari.avif"
    },
    {
     "id": "kt_pourover",
@@ -29279,7 +29331,8 @@
     "at": [
      "ak_jinbocho",
      "mg_tsukiji"
-    ]
+    ],
+    "pic": "items/kt_pourover.avif"
    },
    {
     "id": "kt_teaset",
@@ -29292,7 +29345,8 @@
     "at": [
      "ot_sensoji",
      "mg_tsukiji"
-    ]
+    ],
+    "pic": "items/kt_teaset.avif"
    },
    {
     "id": "kt_donabe",
@@ -29305,7 +29359,8 @@
     "at": [
      "mg_tsukiji",
      "ot_ameyoko"
-    ]
+    ],
+    "pic": "items/kt_donabe.avif"
    },
    {
     "id": "kt_ricecooker",
@@ -29325,7 +29380,8 @@
       "target": "cooking",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/kt_ricecooker.avif"
    },
    {
     "id": "kt_mixer",
@@ -29338,7 +29394,8 @@
     "at": [
      "ak_electric",
      "bay_mall"
-    ]
+    ],
+    "pic": "items/kt_mixer.avif"
    },
    {
     "id": "kt_knives",
@@ -29357,7 +29414,8 @@
       "value": 0.05
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/kt_knives.avif"
    },
    {
     "id": "kt_winefridge",
@@ -29370,7 +29428,8 @@
     "at": [
      "ak_electric"
     ],
-    "told": "home"
+    "told": "home",
+    "pic": "items/kt_winefridge.avif"
    },
    {
     "id": "kt_espresso",
@@ -29383,7 +29442,8 @@
     "at": [
      "ak_electric",
      "mg_depachika"
-    ]
+    ],
+    "pic": "items/kt_espresso.avif"
    },
    {
     "id": "kt_sakai",
@@ -29403,7 +29463,8 @@
       "value": 0.1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/kt_sakai.avif"
    },
    {
     "id": "kt_copper",
@@ -29422,7 +29483,8 @@
       "value": 0.08
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/kt_copper.avif"
    },
    {
     "id": "kt_sake_service",
@@ -29435,7 +29497,8 @@
      "mg_depachika"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/kt_sake_service.avif"
    },
    {
     "id": "te_earbuds",
@@ -29448,7 +29511,8 @@
     "at": [
      "ak_electric",
      "bay_mall"
-    ]
+    ],
+    "pic": "items/te_earbuds.avif"
    },
    {
     "id": "te_ereader",
@@ -29460,7 +29524,8 @@
     "online": true,
     "at": [
      "ak_electric"
-    ]
+    ],
+    "pic": "items/te_ereader.avif"
    },
    {
     "id": "te_speaker",
@@ -29472,7 +29537,8 @@
     "online": true,
     "at": [
      "ak_electric"
-    ]
+    ],
+    "pic": "items/te_speaker.avif"
    },
    {
     "id": "te_headphones",
@@ -29491,7 +29557,8 @@
       "target": "music",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/te_headphones.avif"
    },
    {
     "id": "te_handheld",
@@ -29504,7 +29571,8 @@
     "at": [
      "ak_electric",
      "bay_mall"
-    ]
+    ],
+    "pic": "items/te_handheld.avif"
    },
    {
     "id": "te_smartwatch",
@@ -29524,7 +29592,8 @@
       "target": "fitness",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/te_smartwatch.avif"
    },
    {
     "id": "te_compact_cam",
@@ -29548,7 +29617,8 @@
     "photo": {
      "gear": "camera",
      "rung": 2
-    }
+    },
+    "pic": "items/te_compact_cam.avif"
    },
    {
     "id": "te_tablet",
@@ -29560,7 +29630,8 @@
     "online": true,
     "at": [
      "ak_electric"
-    ]
+    ],
+    "pic": "items/te_tablet.avif"
    },
    {
     "id": "te_vr",
@@ -29572,7 +29643,8 @@
     "online": true,
     "at": [
      "ak_electric"
-    ]
+    ],
+    "pic": "items/te_vr.avif"
    },
    {
     "id": "te_film_cam",
@@ -29595,7 +29667,8 @@
     "photo": {
      "gear": "camera",
      "rung": 3
-    }
+    },
+    "pic": "items/te_film_cam.avif"
    },
    {
     "id": "te_projector",
@@ -29607,7 +29680,8 @@
     "online": true,
     "at": [
      "ak_electric"
-    ]
+    ],
+    "pic": "items/te_projector.avif"
    },
    {
     "id": "te_phone",
@@ -29632,7 +29706,8 @@
     "photo": {
      "gear": "camera",
      "rung": 1
-    }
+    },
+    "pic": "items/te_phone.avif"
    },
    {
     "id": "te_mirrorless",
@@ -29656,7 +29731,8 @@
     "photo": {
      "gear": "camera",
      "rung": 4
-    }
+    },
+    "pic": "items/te_mirrorless.avif"
    },
    {
     "id": "te_laptop",
@@ -29675,7 +29751,8 @@
       "target": "writing",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/te_laptop.avif"
    },
    {
     "id": "te_recording",
@@ -29699,7 +29776,8 @@
       "value": 0.08
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/te_recording.avif"
    },
    {
     "id": "te_rig",
@@ -29718,7 +29796,8 @@
       "value": 0.1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/te_rig.avif"
    },
    {
     "id": "te_fullframe",
@@ -29742,7 +29821,8 @@
     "photo": {
      "gear": "camera",
      "rung": 5
-    }
+    },
+    "pic": "items/te_fullframe.avif"
    },
    {
     "id": "te_lens_prime",
@@ -29759,7 +29839,8 @@
      "gear": "lens",
      "rung": 1,
      "shoot": 3
-    }
+    },
+    "pic": "items/te_lens_prime.avif"
    },
    {
     "id": "te_lens_zoom",
@@ -29777,7 +29858,8 @@
      "gear": "lens",
      "rung": 2,
      "shoot": 5
-    }
+    },
+    "pic": "items/te_lens_zoom.avif"
    },
    {
     "id": "te_lens_tele",
@@ -29794,7 +29876,8 @@
      "gear": "lens",
      "rung": 3,
      "shoot": 8
-    }
+    },
+    "pic": "items/te_lens_tele.avif"
    },
    {
     "id": "te_flash",
@@ -29810,7 +29893,8 @@
     "photo": {
      "gear": "flash",
      "shoot": 5
-    }
+    },
+    "pic": "items/te_flash.avif"
    },
    {
     "id": "te_drone",
@@ -29825,7 +29909,8 @@
     "desc": "A folding drone with a stabilised camera: the briefs that want the view from above.",
     "photo": {
      "gear": "drone"
-    }
+    },
+    "pic": "items/te_drone.avif"
    },
    {
     "id": "te_housing",
@@ -29841,7 +29926,8 @@
     "desc": "A sealed housing for your camera: the beach, the river and the rain.",
     "photo": {
      "gear": "housing"
-    }
+    },
+    "pic": "items/te_housing.avif"
    },
    {
     "id": "hb_sketchbook",
@@ -29861,7 +29947,8 @@
       "target": "drawing",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hb_sketchbook.avif"
    },
    {
     "id": "hb_yogamat",
@@ -29873,7 +29960,8 @@
     "online": true,
     "at": [
      "bay_mall"
-    ]
+    ],
+    "pic": "items/hb_yogamat.avif"
    },
    {
     "id": "hb_bonsai",
@@ -29886,7 +29974,8 @@
     "at": [
      "ot_sensoji",
      "ws_shimokita"
-    ]
+    ],
+    "pic": "items/hb_bonsai.avif"
    },
    {
     "id": "hb_karaoke_mic",
@@ -29905,7 +29994,8 @@
       "target": "singing",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hb_karaoke_mic.avif"
    },
    {
     "id": "hb_cocktail",
@@ -29924,7 +30014,8 @@
       "target": "mixology",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hb_cocktail.avif"
    },
    {
     "id": "hb_calligraphy",
@@ -29937,7 +30028,8 @@
     "at": [
      "ak_jinbocho",
      "ot_sensoji"
-    ]
+    ],
+    "pic": "items/hb_calligraphy.avif"
    },
    {
     "id": "hb_keyboard",
@@ -29956,7 +30048,8 @@
       "target": "music",
       "value": 0.05
      }
-    ]
+    ],
+    "pic": "items/hb_keyboard.avif"
    },
    {
     "id": "hb_barre",
@@ -29972,7 +30065,8 @@
       "target": "dance",
       "value": 0.08
      }
-    ]
+    ],
+    "pic": "items/hb_barre.avif"
    },
    {
     "id": "hb_telescope",
@@ -29984,7 +30078,8 @@
     "online": true,
     "at": [
      "ak_electric"
-    ]
+    ],
+    "pic": "items/hb_telescope.avif"
    },
    {
     "id": "hb_electric",
@@ -30004,7 +30099,8 @@
       "target": "music",
       "value": 0.08
      }
-    ]
+    ],
+    "pic": "items/hb_electric.avif"
    },
    {
     "id": "hb_pendisplay",
@@ -30023,7 +30119,8 @@
       "target": "drawing",
       "value": 0.08
      }
-    ]
+    ],
+    "pic": "items/hb_pendisplay.avif"
    },
    {
     "id": "hb_stagepiano",
@@ -30042,7 +30139,8 @@
       "target": "music",
       "value": 0.08
      }
-    ]
+    ],
+    "pic": "items/hb_stagepiano.avif"
    },
    {
     "id": "hb_shamisen",
@@ -30061,7 +30159,8 @@
       "value": 0.1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/hb_shamisen.avif"
    },
    {
     "id": "hb_synth",
@@ -30080,7 +30179,8 @@
       "value": 0.1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/hb_synth.avif"
    },
    {
     "id": "hb_vintage_guitar",
@@ -30100,7 +30200,8 @@
      }
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/hb_vintage_guitar.avif"
    },
    {
     "id": "hb_violin",
@@ -30121,7 +30222,8 @@
      }
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/hb_violin.avif"
    },
    {
     "id": "fa_umbrella",
@@ -30134,7 +30236,8 @@
     "at": [
      "ot_ameyoko",
      "bay_mall"
-    ]
+    ],
+    "pic": "items/fa_umbrella.avif"
    },
    {
     "id": "fa_cardcase",
@@ -30147,7 +30250,8 @@
     "at": [
      "mg_chuodori",
      "ot_ameyoko"
-    ]
+    ],
+    "pic": "items/fa_cardcase.avif"
    },
    {
     "id": "fa_wool_scarf",
@@ -30160,7 +30264,8 @@
     "at": [
      "sb_takeshita",
      "ot_ameyoko"
-    ]
+    ],
+    "pic": "items/fa_wool_scarf.avif"
    },
    {
     "id": "fa_sneakers",
@@ -30173,7 +30278,8 @@
     "at": [
      "ot_ameyoko",
      "sb_takeshita"
-    ]
+    ],
+    "pic": "items/fa_sneakers.avif"
    },
    {
     "id": "fa_tote",
@@ -30186,7 +30292,8 @@
     "at": [
      "sb_omotesando",
      "bay_mall"
-    ]
+    ],
+    "pic": "items/fa_tote.avif"
    },
    {
     "id": "fa_yukata",
@@ -30199,7 +30306,8 @@
     "at": [
      "ot_sensoji",
      "sb_takeshita"
-    ]
+    ],
+    "pic": "items/fa_yukata.avif"
    },
    {
     "id": "fa_coat",
@@ -30212,7 +30320,8 @@
     "at": [
      "sb_omotesando",
      "bay_mall"
-    ]
+    ],
+    "pic": "items/fa_coat.avif"
    },
    {
     "id": "fa_boots",
@@ -30225,7 +30334,8 @@
     "at": [
      "ot_ameyoko",
      "ws_vintage"
-    ]
+    ],
+    "pic": "items/fa_boots.avif"
    },
    {
     "id": "fa_suit",
@@ -30244,7 +30354,8 @@
       "kind": "interview",
       "value": 1
      }
-    ]
+    ],
+    "pic": "items/fa_suit.avif"
    },
    {
     "id": "fa_sunglasses",
@@ -30257,7 +30368,8 @@
     "at": [
      "sb_omotesando",
      "mg_chuodori"
-    ]
+    ],
+    "pic": "items/fa_sunglasses.avif"
    },
    {
     "id": "fa_leather_jacket",
@@ -30269,7 +30381,8 @@
     "at": [
      "ws_vintage"
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_leather_jacket.avif"
    },
    {
     "id": "fa_dress",
@@ -30289,7 +30402,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_dress.avif"
    },
    {
     "id": "fa_tailored",
@@ -30312,7 +30426,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_tailored.avif"
    },
    {
     "id": "fa_handbag",
@@ -30332,7 +30447,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_handbag.avif"
    },
    {
     "id": "fa_jewels",
@@ -30351,7 +30467,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_jewels.avif"
    },
    {
     "id": "fa_kimono",
@@ -30370,7 +30487,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_kimono.avif"
    },
    {
     "id": "fa_couture",
@@ -30390,7 +30508,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_couture.avif"
    },
    {
     "id": "fa_living_treasure",
@@ -30410,7 +30529,8 @@
       "value": 1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/fa_living_treasure.avif"
    },
    {
     "id": "ve_ebike",
@@ -30424,7 +30544,8 @@
     "at": [
      "bay_mall",
      "yk_isezaki"
-    ]
+    ],
+    "pic": "items/ve_ebike.avif"
    },
    {
     "id": "ve_scooter",
@@ -30437,7 +30558,8 @@
     "at": [
      "bay_mall"
     ],
-    "online": false
+    "online": false,
+    "pic": "items/ve_scooter.avif"
    },
    {
     "id": "ve_compact",
@@ -30451,7 +30573,8 @@
     "at": [
      "mg_chuodori"
     ],
-    "online": false
+    "online": false,
+    "pic": "items/ve_compact.avif"
    },
    {
     "id": "ve_sedan",
@@ -30465,7 +30588,8 @@
     "at": [
      "mg_chuodori"
     ],
-    "online": false
+    "online": false,
+    "pic": "items/ve_sedan.avif"
    },
    {
     "id": "ve_sports",
@@ -30480,7 +30604,8 @@
      "mg_chuodori"
     ],
     "ai": "{{user}} drives a red Arashiro sports car.",
-    "online": false
+    "online": false,
+    "pic": "items/ve_sports.avif"
    },
    {
     "id": "ve_cruiser",
@@ -30495,7 +30620,8 @@
     "when": "seen: sh_marina",
     "ai": "{{user}} keeps a motor cruiser at the Yokohama marina.",
     "told": "always",
-    "online": false
+    "online": false,
+    "pic": "items/ve_cruiser.avif"
    },
    {
     "id": "ve_classic",
@@ -30511,7 +30637,8 @@
     ],
     "when": "seen: sh_dealer",
     "ai": "{{user}} drives a restored 1960s coupé.",
-    "online": false
+    "online": false,
+    "pic": "items/ve_classic.avif"
    },
    {
     "id": "ve_driver",
@@ -30527,7 +30654,8 @@
     ],
     "when": "seen: sh_salon",
     "ai": "{{user}} is driven around Tokyo in a black sedan with a driver.",
-    "online": false
+    "online": false,
+    "pic": "items/ve_driver.avif"
    },
    {
     "id": "lx_decanter",
@@ -30540,7 +30668,8 @@
     "at": [
      "mg_depachika"
     ],
-    "told": "home"
+    "told": "home",
+    "pic": "items/lx_decanter.avif"
    },
    {
     "id": "lx_kiriko",
@@ -30554,7 +30683,8 @@
      "mg_depachika",
      "ot_sensoji"
     ],
-    "told": "home"
+    "told": "home",
+    "pic": "items/lx_kiriko.avif"
    },
    {
     "id": "lx_lacquer",
@@ -30567,7 +30697,8 @@
     "at": [
      "mg_depachika"
     ],
-    "told": "home"
+    "told": "home",
+    "pic": "items/lx_lacquer.avif"
    },
    {
     "id": "lx_kizami",
@@ -30579,7 +30710,8 @@
     "online": true,
     "at": [
      "mg_chuodori"
-    ]
+    ],
+    "pic": "items/lx_kizami.avif"
    },
    {
     "id": "lx_kizami_ltd",
@@ -30591,7 +30723,8 @@
     "at": [
      "mg_chuodori"
     ],
-    "online": false
+    "online": false,
+    "pic": "items/lx_kizami_ltd.avif"
    },
    {
     "id": "lx_scroll",
@@ -30604,7 +30737,8 @@
      "mg_chuodori"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/lx_scroll.avif"
    },
    {
     "id": "lx_pine",
@@ -30618,7 +30752,8 @@
      "mg_depachika"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/lx_pine.avif"
    },
    {
     "id": "lx_watch",
@@ -30630,7 +30765,8 @@
     "online": true,
     "at": [
      "mg_chuodori"
-    ]
+    ],
+    "pic": "items/lx_watch.avif"
    },
    {
     "id": "lx_painting",
@@ -30643,7 +30779,8 @@
      "mg_chuodori"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/lx_painting.avif"
    },
    {
     "id": "lx_screen",
@@ -30656,7 +30793,8 @@
      "mg_depachika"
     ],
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/lx_screen.avif"
    },
    {
     "id": "lx_sculpture",
@@ -30670,7 +30808,8 @@
     ],
     "when": "seen: sh_salon",
     "told": "home",
-    "online": false
+    "online": false,
+    "pic": "items/lx_sculpture.avif"
    },
    {
     "id": "lx_complication",
@@ -30683,7 +30822,8 @@
      "mg_depachika"
     ],
     "when": "seen: sh_salon",
-    "online": false
+    "online": false,
+    "pic": "items/lx_complication.avif"
    },
    {
     "id": "wl_flowers",
@@ -30703,7 +30843,8 @@
       "value": 1
      }
     ],
-    "told": "home"
+    "told": "home",
+    "pic": "items/wl_flowers.avif"
    },
    {
     "id": "wl_mealkit",
@@ -30715,7 +30856,8 @@
     "online": true,
     "repeat": {
      "stock": 5
-    }
+    },
+    "pic": "items/wl_mealkit.avif"
    },
    {
     "id": "wl_massage",
@@ -30732,7 +30874,8 @@
      "energy": 25,
      "mood": 10
     },
-    "told": "no"
+    "told": "no",
+    "pic": "items/wl_massage.avif"
    },
    {
     "id": "wl_cleaner",
@@ -30751,7 +30894,8 @@
       "target": "hygiene",
       "value": -0.1
      }
-    ]
+    ],
+    "pic": "items/wl_cleaner.avif"
    },
    {
     "id": "wl_sake",
@@ -30766,7 +30910,8 @@
     ],
     "repeat": {
      "stock": 6
-    }
+    },
+    "pic": "items/wl_sake.avif"
    },
    {
     "id": "wl_wine",
@@ -30781,7 +30926,8 @@
     ],
     "repeat": {
      "stock": 6
-    }
+    },
+    "pic": "items/wl_wine.avif"
    },
    {
     "id": "wl_spa_day",
@@ -30803,7 +30949,8 @@
      "hygiene": 30
     },
     "told": "no",
-    "online": false
+    "online": false,
+    "pic": "items/wl_spa_day.avif"
    },
    {
     "id": "wl_chef",
@@ -30819,7 +30966,8 @@
     "now": {
      "hunger": 40,
      "mood": 20
-    }
+    },
+    "pic": "items/wl_chef.avif"
    },
    {
     "id": "wl_tutor_ja",
@@ -30838,7 +30986,8 @@
       "target": "japanese",
       "value": 0.1
      }
-    ]
+    ],
+    "pic": "items/wl_tutor_ja.avif"
    },
    {
     "id": "wl_tutor_en",
@@ -30857,7 +31006,8 @@
       "target": "english",
       "value": 0.1
      }
-    ]
+    ],
+    "pic": "items/wl_tutor_en.avif"
    },
    {
     "id": "wl_trainer",
@@ -30876,7 +31026,8 @@
       "target": "fitness",
       "value": 0.1
      }
-    ]
+    ],
+    "pic": "items/wl_trainer.avif"
    },
    {
     "id": "wl_stylist",
@@ -30898,7 +31049,8 @@
       "target": "new",
       "value": 1
      }
-    ]
+    ],
+    "pic": "items/wl_stylist.avif"
    },
    {
     "id": "wl_massage_chair",
@@ -30912,7 +31064,8 @@
      "ak_electric",
      "bay_mall"
     ],
-    "told": "home"
+    "told": "home",
+    "pic": "items/wl_massage_chair.avif"
    },
    {
     "id": "wl_spa_member",
@@ -30934,7 +31087,8 @@
       "value": 0.1
      }
     ],
-    "online": false
+    "online": false,
+    "pic": "items/wl_spa_member.avif"
    },
    {
     "id": "gf_enmusubi",
@@ -31284,7 +31438,8 @@
      "sj_kabukicho"
     ],
     "seen": "away",
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_cards.avif"
    },
    {
     "id": "ad_massage_oil",
@@ -31316,7 +31471,8 @@
      "stock": 3
     },
     "seen": "out",
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_candles.avif"
    },
    {
     "id": "ad_nurse",
@@ -31421,7 +31577,8 @@
      "ak_electric"
     ],
     "seen": "away",
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_instant.avif"
    },
    {
     "id": "ad_moodlight",
@@ -31432,7 +31589,8 @@
     "cat": "adult",
     "online": true,
     "seen": "out",
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_moodlight.avif"
    },
    {
     "id": "ad_robe",
@@ -31446,7 +31604,8 @@
      "sb_omotesando"
     ],
     "seen": "out",
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_robe.avif"
    },
    {
     "id": "ad_sheets",
@@ -31467,7 +31626,8 @@
       "value": 0.08
      }
     ],
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_sheets.avif"
    },
    {
     "id": "ad_couture",
@@ -31488,7 +31648,8 @@
      }
     ],
     "online": false,
-    "adult": true
+    "adult": true,
+    "pic": "items/ad_couture.avif"
    },
    {
     "id": "hb_insect_net",
@@ -31508,7 +31669,8 @@
       "target": "insects",
       "value": 1
      }
-    ]
+    ],
+    "pic": "items/hb_insect_net.avif"
    },
    {
     "id": "hb_fishing_rod",
@@ -31528,7 +31690,8 @@
       "target": "fishing",
       "value": 1
      }
-    ]
+    ],
+    "pic": "items/hb_fishing_rod.avif"
    },
    {
     "id": "hb_flower_press",
@@ -31548,7 +31711,8 @@
       "target": "flowers",
       "value": 1
      }
-    ]
+    ],
+    "pic": "items/hb_flower_press.avif"
    }
   ]
  },
@@ -48929,7 +49093,8 @@
    "loves": [
     "Mio",
     "Hina"
-   ]
+   ],
+   "pic": "items/claw_machine_plush.avif"
   },
   {
    "gift": true,
@@ -48940,7 +49105,8 @@
    "loves": [
     "Ren",
     "Nanami"
-   ]
+   ],
+   "pic": "items/old_record.avif"
   },
   {
    "gift": true,
@@ -48951,7 +49117,8 @@
    "loves": [
     "Rina",
     "Kaito"
-   ]
+   ],
+   "pic": "items/lucky_arrow.avif"
   },
   {
    "gift": true,
@@ -48962,7 +49129,8 @@
    "loves": [
     "Kyōko",
     "Kaito"
-   ]
+   ],
+   "pic": "items/lucky_cat.avif"
   },
   {
    "id": "aged_netsuke",
@@ -48981,7 +49149,8 @@
     "ot_sensoji"
    ],
    "price": 2400,
-   "desc": "A resin rabbit netsuke from a Nakamise souvenir stall, stained with tea to look two centuries old."
+   "desc": "A resin rabbit netsuke from a Nakamise souvenir stall, stained with tea to look two centuries old.",
+   "pic": "items/aged_netsuke.avif"
   },
   {
    "gift": true,
@@ -48991,7 +49160,8 @@
    "kind": "stationery",
    "loves": [
     "Seo-yeon"
-   ]
+   ],
+   "pic": "items/thank_you_note.avif"
   },
   {
    "gift": true,
@@ -49004,7 +49174,8 @@
     "ak_university",
     "ak_jinbocho"
    ],
-   "price": 6800
+   "price": 6800,
+   "pic": "items/hijiri_fountain_pen.avif"
   },
   {
    "id": "good_brush",
@@ -49021,7 +49192,8 @@
     "ot_sensoji"
    ],
    "price": 8500,
-   "desc": "A weasel-hair brush from an old brush-maker off Nakamise, in a paulownia box with the maker's seal."
+   "desc": "A weasel-hair brush from an old brush-maker off Nakamise, in a paulownia box with the maker's seal.",
+   "pic": "items/good_brush.avif"
   },
   {
    "gift": true,
@@ -49031,7 +49203,8 @@
    "kind": "print",
    "loves": [
     "Haru"
-   ]
+   ],
+   "pic": "items/pond_sketch.avif"
   },
   {
    "gift": true,
@@ -49043,7 +49216,8 @@
     "Ren",
     "Nanami",
     "Kaito"
-   ]
+   ],
+   "pic": "items/used_record.avif"
   },
   {
    "gift": true,
@@ -49055,7 +49229,8 @@
     "Seo-yeon",
     "Nanami",
     "Lisa"
-   ]
+   ],
+   "pic": "items/vintage_piece.avif"
   },
   {
    "gift": true,
@@ -49067,7 +49242,8 @@
     "Ayaka",
     "Kaito",
     "Genzō"
-   ]
+   ],
+   "pic": "items/troupe_towel.avif"
   },
   {
    "gift": true,
@@ -49077,7 +49253,8 @@
    "kind": "photo",
    "loves": [
     "Natsuki"
-   ]
+   ],
+   "pic": "items/cheki.avif"
   },
   {
    "gift": true,
@@ -49089,7 +49266,8 @@
     "Rina",
     "Jake",
     "Natsuki"
-   ]
+   ],
+   "pic": "items/it_charm.avif"
   },
   {
    "gift": true,
@@ -49100,7 +49278,8 @@
    "loves": [
     "Seo-yeon",
     "Yui"
-   ]
+   ],
+   "pic": "items/old_paperback.avif"
   },
   {
    "id": "old_sale_catalogue",
@@ -49117,7 +49296,8 @@
     "ak_jinbocho"
    ],
    "price": 3000,
-   "desc": "A Taishō-era auction catalogue from a Jinbōchō dealer, someone's pencilled prices in the margins."
+   "desc": "A Taishō-era auction catalogue from a Jinbōchō dealer, someone's pencilled prices in the margins.",
+   "pic": "items/old_sale_catalogue.avif"
   },
   {
    "id": "moon_fox_paperback",
@@ -49125,7 +49305,8 @@
    "icon": "📕",
    "kind": "book",
    "gift": false,
-   "desc": "A slim, privately printed paperback of Moon Fox's serial, a fox and a moon on the cover and no name anywhere."
+   "desc": "A slim, privately printed paperback of Moon Fox's serial, a fox and a moon on the cover and no name anywhere.",
+   "pic": "items/moon_fox_paperback.avif"
   },
   {
    "gift": true,
@@ -49137,7 +49318,8 @@
     "Seo-yeon",
     "Haru",
     "Camille"
-   ]
+   ],
+   "pic": "items/exhibition_postcard.avif"
   },
   {
    "id": "kura_programme",
@@ -49145,7 +49327,8 @@
    "icon": "🎴",
    "kind": "museum",
    "gift": false,
-   "desc": "A folded card printed for the kura's first show, its pieces listed by hand in brush pen, a ring from a teacup on the back."
+   "desc": "A folded card printed for the kura's first show, its pieces listed by hand in brush pen, a ring from a teacup on the back.",
+   "pic": "items/kura_programme.avif"
   },
   {
    "id": "kura_review",
@@ -49153,7 +49336,8 @@
    "icon": "📰",
    "kind": "museum",
    "gift": false,
-   "desc": "A newspaper clipping on the Kurahashi kura, folded twice, one line underlined in pencil."
+   "desc": "A newspaper clipping on the Kurahashi kura, folded twice, one line underlined in pencil.",
+   "pic": "items/kura_review.avif"
   },
   {
    "id": "kura_guidebook",
@@ -49161,7 +49345,8 @@
    "icon": "📕",
    "kind": "museum",
    "gift": false,
-   "desc": "A pocket guide to old Tokyo, open at a page of its own on the Kurahashi kura, the photo slightly crooked."
+   "desc": "A pocket guide to old Tokyo, open at a page of its own on the Kurahashi kura, the photo slightly crooked.",
+   "pic": "items/kura_guidebook.avif"
   },
   {
    "id": "kura_cloth",
@@ -49169,7 +49354,8 @@
    "icon": "🧣",
    "kind": "museum",
    "gift": false,
-   "desc": "The plain grey furoshiki a thief wrapped a piece in and left behind in the lane, folded now in the kura office drawer."
+   "desc": "The plain grey furoshiki a thief wrapped a piece in and left behind in the lane, folded now in the kura office drawer.",
+   "pic": "items/kura_cloth.avif"
   },
   {
    "id": "tamaki_label",
@@ -49177,7 +49363,8 @@
    "icon": "🏷️",
    "kind": "tamaki",
    "gift": false,
-   "desc": "One of the labels Tamaki wrote for the kura when she was eight, in careful pencil: \"Puppy, very old, not for sale.\""
+   "desc": "One of the labels Tamaki wrote for the kura when she was eight, in careful pencil: \"Puppy, very old, not for sale.\"",
+   "pic": "items/tamaki_label.avif"
   },
   {
    "id": "tamaki_pin",
@@ -49185,7 +49372,8 @@
    "icon": "📌",
    "kind": "tamaki",
    "gift": false,
-   "desc": "The small enamel badge every appraiser on Treasure Clinic wore. She kept hers in a desk drawer for eleven years."
+   "desc": "The small enamel badge every appraiser on Treasure Clinic wore. She kept hers in a desk drawer for eleven years.",
+   "pic": "items/tamaki_pin.avif"
   },
   {
    "id": "tamaki_leaf",
@@ -49193,7 +49381,8 @@
    "icon": "🍁",
    "kind": "tamaki",
    "gift": false,
-   "desc": "A maple leaf from the kura's roof pressed flat on a notebook page, labelled in her brush pen: \"No. 1, the roof, at night.\""
+   "desc": "A maple leaf from the kura's roof pressed flat on a notebook page, labelled in her brush pen: \"No. 1, the roof, at night.\"",
+   "pic": "items/tamaki_leaf.avif"
   },
   {
    "id": "tamaki_key",
@@ -49201,7 +49390,8 @@
    "icon": "🗝️",
    "kind": "tamaki",
    "gift": false,
-   "desc": "A small iron key on a red silk cord, for the lacquered box her grandfather hid under the tokonoma's floor."
+   "desc": "A small iron key on a red silk cord, for the lacquered box her grandfather hid under the tokonoma's floor.",
+   "pic": "items/tamaki_key.avif"
   },
   {
    "id": "ayame_paddle",
@@ -49209,7 +49399,8 @@
    "icon": "🪧",
    "kind": "ayame",
    "gift": false,
-   "desc": "A saleroom paddle with the Mikage number on it, torn clean in half the day she lost a lot to you; she left both halves on your chair."
+   "desc": "A saleroom paddle with the Mikage number on it, torn clean in half the day she lost a lot to you; she left both halves on your chair.",
+   "pic": "items/ayame_paddle.avif"
   },
   {
    "id": "ayame_card",
@@ -49217,7 +49408,8 @@
    "icon": "🎫",
    "kind": "ayame",
    "gift": false,
-   "desc": "An ivory place card from the Mikage Foundation's gala, your name in her own hand, crossed out once, firmly, and written again underneath."
+   "desc": "An ivory place card from the Mikage Foundation's gala, your name in her own hand, crossed out once, firmly, and written again underneath.",
+   "pic": "items/ayame_card.avif"
   },
   {
    "id": "ayame_glove",
@@ -49225,7 +49417,8 @@
    "icon": "🧤",
    "kind": "ayame",
    "gift": false,
-   "desc": "A white fencing glove, worn at the fingers, thrown at your feet after a bout. She never asked for it back."
+   "desc": "A white fencing glove, worn at the fingers, thrown at your feet after a bout. She never asked for it back.",
+   "pic": "items/ayame_glove.avif"
   },
   {
    "id": "ayame_ribbon",
@@ -49233,7 +49426,8 @@
    "icon": "🎀",
    "kind": "ayame",
    "gift": false,
-   "desc": "The narrow black velvet ribbon from her ponytail, left on your pillow with no note. It still smells of her perfume."
+   "desc": "The narrow black velvet ribbon from her ponytail, left on your pillow with no note. It still smells of her perfume.",
+   "pic": "items/ayame_ribbon.avif"
   },
   {
    "id": "kaede_pipe",
@@ -49241,7 +49435,8 @@
    "icon": "🪈",
    "kind": "kaede",
    "gift": false,
-   "desc": "A long white clay pipe from her mother's curio shop by Nagasaki harbour, its bowl stamped with a Dutch maker's mark. \"Stock,\" she says. \"Keep it.\""
+   "desc": "A long white clay pipe from her mother's curio shop by Nagasaki harbour, its bowl stamped with a Dutch maker's mark. \"Stock,\" she says. \"Keep it.\"",
+   "pic": "items/kaede_pipe.avif"
   },
   {
    "id": "kaede_shard",
@@ -49249,7 +49444,8 @@
    "icon": "🍵",
    "kind": "kaede",
    "gift": false,
-   "desc": "A shard of the cracked tea bowl she keeps in the van for luck, wrapped in a scrap of indigo silk. She broke off the smallest piece for you."
+   "desc": "A shard of the cracked tea bowl she keeps in the van for luck, wrapped in a scrap of indigo silk. She broke off the smallest piece for you.",
+   "pic": "items/kaede_shard.avif"
   },
   {
    "id": "kaede_ring",
@@ -49257,7 +49453,8 @@
    "icon": "💍",
    "kind": "kaede",
    "gift": false,
-   "desc": "An old silver ring she twisted off her own finger and dropped in your palm: \"Stock. Don't sell it to anyone I like.\""
+   "desc": "An old silver ring she twisted off her own finger and dropped in your palm: \"Stock. Don't sell it to anyone I like.\"",
+   "pic": "items/kaede_ring.avif"
   },
   {
    "id": "kaede_page",
@@ -49265,14 +49462,16 @@
    "icon": "📒",
    "kind": "kaede",
    "gift": false,
-   "desc": "A page torn out of her dealer's ledger. Under the prices, in pencil: \"Item 10: free, once.\""
+   "desc": "A page torn out of her dealer's ledger. Under the prices, in pencil: \"Item 10: free, once.\"",
+   "pic": "items/kaede_page.avif"
   },
   {
    "id": "copyist_brush",
    "name": "Sekine's last brush",
    "icon": "🖌️",
    "gift": false,
-   "desc": "A worn mounting brush of deer hair with a cracked bamboo handle, from the table in old Sekine's shut workshop in Yanaka. Tamaki gave it to you \"for the case\"."
+   "desc": "A worn mounting brush of deer hair with a cracked bamboo handle, from the table in old Sekine's shut workshop in Yanaka. Tamaki gave it to you \"for the case\".",
+   "pic": "items/copyist_brush.avif"
   },
   {
    "gift": true,
@@ -49284,7 +49483,8 @@
     "Yui",
     "Shizuka",
     "Hina"
-   ]
+   ],
+   "pic": "items/fox_charm.avif"
   },
   {
    "gift": true,
@@ -49296,7 +49496,8 @@
     "Genzō",
     "Ayaka",
     "Mio"
-   ]
+   ],
+   "pic": "items/new_years_feast_box.avif"
   },
   {
    "gift": true,
@@ -49308,7 +49509,8 @@
     "Mio",
     "Kyōko",
     "Chloe"
-   ]
+   ],
+   "pic": "items/wrapped_sweets_box.avif"
   },
   {
    "gift": true,
@@ -49320,7 +49522,8 @@
     "Seo-yeon",
     "Kyōko",
     "Yui"
-   ]
+   ],
+   "pic": "items/kabuki_program.avif"
   },
   {
    "id": "aged_print",
@@ -49339,7 +49542,8 @@
     "ot_sensoji"
    ],
    "price": 4800,
-   "desc": "A Hokusai wave printed last year on paper browned and foxed to pass for old, in a cellophane sleeve."
+   "desc": "A Hokusai wave printed last year on paper browned and foxed to pass for old, in a cellophane sleeve.",
+   "pic": "items/aged_print.avif"
   },
   {
    "gift": true,
@@ -49350,7 +49554,8 @@
    "loves": [
     "Ayaka",
     "Genzō"
-   ]
+   ],
+   "pic": "items/hand_honed_kitchen_knife.avif"
   },
   {
    "gift": true,
@@ -49360,7 +49565,8 @@
    "kind": "charm",
    "loves": [
     "Natsuki"
-   ]
+   ],
+   "pic": "items/kaien_charm.avif"
   },
   {
    "gift": true,
@@ -49370,7 +49576,8 @@
    "kind": "photo",
    "loves": [
     "Seo-yeon"
-   ]
+   ],
+   "pic": "items/shadow_portrait.avif"
   },
   {
    "gift": true,
@@ -49380,7 +49587,8 @@
    "kind": "print",
    "loves": [
     "Haru"
-   ]
+   ],
+   "pic": "items/fan_book.avif"
   },
   {
    "gift": true,
@@ -49391,7 +49599,8 @@
    "loves": [
     "Seo-yeon",
     "Chloe"
-   ]
+   ],
+   "pic": "items/light_tunnel_photo.avif"
   },
   {
    "gift": true,
@@ -49402,7 +49611,8 @@
    "loves": [
     "Yui",
     "Genzō"
-   ]
+   ],
+   "pic": "items/temple_charm.avif"
   },
   {
    "gift": true,
@@ -49413,7 +49623,8 @@
    "loves": [
     "Hina",
     "Mio"
-   ]
+   ],
+   "pic": "items/tower_keychain.avif"
   },
   {
    "gift": true,
@@ -49424,7 +49635,8 @@
    "loves": [
     "Yui",
     "Shizuka"
-   ]
+   ],
+   "pic": "items/glass_float.avif"
   },
   {
    "gift": true,
@@ -49435,7 +49647,8 @@
    "loves": [
     "Haru",
     "Camille"
-   ]
+   ],
+   "pic": "items/portrait_sketch.avif"
   },
   {
    "gift": true,
@@ -49446,7 +49659,8 @@
    "loves": [
     "Ren",
     "Nanami"
-   ]
+   ],
+   "pic": "items/demo_disc.avif"
   },
   {
    "gift": true,
@@ -49457,7 +49671,8 @@
    "loves": [
     "Yui",
     "Genzō"
-   ]
+   ],
+   "pic": "items/box_of_manju.avif"
   },
   {
    "id": "yanaka_sweets",
@@ -49474,7 +49689,8 @@
     "ot_yanaka"
    ],
    "price": 900,
-   "desc": "Skewered dango and a paper bag of karintō from the old shops on Yanaka Ginza, still warm."
+   "desc": "Skewered dango and a paper bag of karintō from the old shops on Yanaka Ginza, still warm.",
+   "pic": "items/yanaka_sweets.avif"
   },
   {
    "gift": true,
@@ -49485,7 +49701,8 @@
    "loves": [
     "Seo-yeon",
     "Shizuka"
-   ]
+   ],
+   "pic": "items/photo_at_the_water_gate.avif"
   },
   {
    "gift": true,
@@ -49496,7 +49713,8 @@
    "loves": [
     "Ren",
     "Haru"
-   ]
+   ],
+   "pic": "items/wind_recording.avif"
   },
   {
    "id": "av_director_card",
@@ -49505,7 +49723,8 @@
    "kind": "card",
    "gift": false,
    "adult": true,
-   "desc": "A plain card with a studio name and a phone number: an introduction to the video industry for a man who can perform on cue."
+   "desc": "A plain card with a studio name and a phone number: an introduction to the video industry for a man who can perform on cue.",
+   "pic": "items/av_director_card.avif"
   },
   {
    "gift": true,
@@ -49517,7 +49736,8 @@
     "Lisa",
     "Camille"
    ],
-   "adult": true
+   "adult": true,
+   "pic": "items/own_photo_book.avif"
   },
   {
    "gift": true,
@@ -49530,7 +49750,8 @@
     "Kanon"
    ],
    "desc": "A reprint of an Edo woodblock print, from a Jinbōchō print shop.",
-   "adult": true
+   "adult": true,
+   "pic": "items/shunga_print.avif"
   },
   {
    "gift": true,
@@ -49542,7 +49763,8 @@
     "Shizuka",
     "Rina"
    ],
-   "adult": true
+   "adult": true,
+   "pic": "items/pair_yukata.avif"
   },
   {
    "gift": true,
@@ -49554,7 +49776,8 @@
     "Kyōko",
     "Camille"
    ],
-   "adult": true
+   "adult": true,
+   "pic": "items/three_keys_ring.avif"
   },
   {
    "gift": true,
@@ -49566,7 +49789,8 @@
     "Yui",
     "Rina"
    ],
-   "adult": true
+   "adult": true,
+   "pic": "items/staff_key_tag.avif"
   },
   {
    "id": "g_roses",
@@ -49579,7 +49803,8 @@
    "loves": [
     "Shizuka",
     "Sayuri"
-   ]
+   ],
+   "pic": "items/g_roses.avif"
   },
   {
    "id": "g_chocolates",
@@ -49593,7 +49818,8 @@
     "Hina",
     "Mio",
     "Seo-yeon"
-   ]
+   ],
+   "pic": "items/g_chocolates.avif"
   },
   {
    "id": "g_melon",
@@ -49605,7 +49831,8 @@
    "loves": [
     "Genzō",
     "Kyōko"
-   ]
+   ],
+   "pic": "items/g_melon.avif"
   },
   {
    "id": "g_necklace",
@@ -49619,7 +49846,8 @@
     "Airi",
     "Sayuri",
     "Reiko"
-   ]
+   ],
+   "pic": "items/g_necklace.avif"
   },
   {
    "id": "g_pair_rings",
@@ -49628,7 +49856,8 @@
    "kind": "jewellery",
    "desc": "two matching plain bands, the Japanese couple's promise short of an engagement",
    "gift": true,
-   "romantic": true
+   "romantic": true,
+   "pic": "items/g_pair_rings.avif"
   },
   {
    "id": "g_perfume",
@@ -49642,7 +49871,8 @@
     "Reiko",
     "Chloe",
     "Rina"
-   ]
+   ],
+   "pic": "items/g_perfume.avif"
   },
   {
    "id": "g_silk_scarf",
@@ -49656,7 +49886,8 @@
     "Kyōko",
     "Nanami",
     "Camille"
-   ]
+   ],
+   "pic": "items/g_silk_scarf.avif"
   },
   {
    "id": "g_enmusubi",
@@ -49669,7 +49900,8 @@
    "loves": [
     "Yui",
     "Linh"
-   ]
+   ],
+   "pic": "items/g_enmusubi.avif"
   },
   {
    "id": "g_lace_set",
@@ -49685,7 +49917,8 @@
     "lace",
     "garters",
     "dressing up"
-   ]
+   ],
+   "pic": "items/g_lace_set.avif"
   },
   {
    "id": "g_babydoll",
@@ -49701,7 +49934,8 @@
     "sheer",
     "being looked at",
     "showing off"
-   ]
+   ],
+   "pic": "items/g_babydoll.avif"
   },
   {
    "id": "g_silk_boxers",
@@ -49716,7 +49950,8 @@
     "silk",
     "underwear",
     "lingerie"
-   ]
+   ],
+   "pic": "items/g_silk_boxers.avif"
   },
   {
    "id": "g_blindfold",
@@ -49734,7 +49969,8 @@
     "sensory",
     "sensory play",
     "anticipation"
-   ]
+   ],
+   "pic": "items/g_blindfold.avif"
   },
   {
    "id": "g_massage_oil",
@@ -49751,7 +49987,8 @@
     "oil",
     "being touched",
     "sensual"
-   ]
+   ],
+   "pic": "items/g_massage_oil.avif"
   },
   {
    "id": "g_feather",
@@ -49767,7 +50004,8 @@
     "feather",
     "tickling",
     "light touch"
-   ]
+   ],
+   "pic": "items/g_feather.avif"
   },
   {
    "id": "g_maid_costume",
@@ -49786,7 +50024,8 @@
     "roleplay",
     "role play",
     "dressing up"
-   ]
+   ],
+   "pic": "items/g_maid_costume.avif"
   },
   {
    "id": "g_nurse_costume",
@@ -49804,7 +50043,8 @@
     "roleplay",
     "role play",
     "doctor"
-   ]
+   ],
+   "pic": "items/g_nurse_costume.avif"
   },
   {
    "id": "g_bunny_costume",
@@ -49822,7 +50062,8 @@
     "bunny",
     "dressing up",
     "showing off"
-   ]
+   ],
+   "pic": "items/g_bunny_costume.avif"
   },
   {
    "id": "gk_plush_whale",
@@ -49835,7 +50076,8 @@
     "Hina",
     "Mio",
     "Linh"
-   ]
+   ],
+   "pic": "items/gk_plush_whale.avif"
   },
   {
    "id": "gk_plush_shiba",
@@ -49848,7 +50090,8 @@
     "Hina",
     "Natsuki",
     "Akane"
-   ]
+   ],
+   "pic": "items/gk_plush_shiba.avif"
   },
   {
    "id": "gk_bouquet",
@@ -49862,7 +50105,8 @@
     "Shizuka",
     "Seo-yeon",
     "Linh"
-   ]
+   ],
+   "pic": "items/gk_bouquet.avif"
   },
   {
    "id": "gk_yosegi_box",
@@ -49875,7 +50119,8 @@
     "Natsuki",
     "Hannah",
     "Daisuke"
-   ]
+   ],
+   "pic": "items/gk_yosegi_box.avif"
   },
   {
    "id": "gk_watch_gift",
@@ -49889,7 +50134,8 @@
     "Reiko",
     "Daisuke",
     "Jake"
-   ]
+   ],
+   "pic": "items/gk_watch_gift.avif"
   },
   {
    "id": "gk_yorunami",
@@ -49902,7 +50148,8 @@
     "Kyōko",
     "Genzō",
     "Daisuke"
-   ]
+   ],
+   "pic": "items/gk_yorunami.avif"
   },
   {
    "id": "gk_closed_whisky",
@@ -49915,7 +50162,8 @@
     "Kyōko",
     "Lucas",
     "Reiko"
-   ]
+   ],
+   "pic": "items/gk_closed_whisky.avif"
   },
   {
    "id": "gk_kutani_cup",
@@ -49928,7 +50176,8 @@
     "Shizuka",
     "Yui",
     "Genzō"
-   ]
+   ],
+   "pic": "items/gk_kutani_cup.avif"
   },
   {
    "id": "gk_kiriko_glasses",
@@ -49941,7 +50190,8 @@
     "Kyōko",
     "Sayuri",
     "Lucas"
-   ]
+   ],
+   "pic": "items/gk_kiriko_glasses.avif"
   },
   {
    "id": "gk_first_edition",
@@ -49954,7 +50204,8 @@
     "Seo-yeon",
     "Yui",
     "Camille"
-   ]
+   ],
+   "pic": "items/gk_first_edition.avif"
   },
   {
    "id": "gk_cashmere_wrap",
@@ -49968,7 +50219,8 @@
     "Reiko",
     "Shizuka",
     "Mei"
-   ]
+   ],
+   "pic": "items/gk_cashmere_wrap.avif"
   },
   {
    "id": "gk_fountain_pen",
@@ -49981,7 +50233,8 @@
     "Seo-yeon",
     "Daisuke",
     "Mei"
-   ]
+   ],
+   "pic": "items/gk_fountain_pen.avif"
   },
   {
    "id": "gk_pearl_necklace",
@@ -49995,7 +50248,8 @@
     "Shizuka",
     "Reiko",
     "Sayuri"
-   ]
+   ],
+   "pic": "items/gk_pearl_necklace.avif"
   },
   {
    "id": "gk_diamond_pendant",
@@ -50009,7 +50263,8 @@
     "Rina",
     "Chloe",
     "Airi"
-   ]
+   ],
+   "pic": "items/gk_diamond_pendant.avif"
   },
   {
    "id": "gk_ring",
@@ -50018,7 +50273,8 @@
    "kind": "jewellery",
    "desc": "a ring with a stone that makes a room go quiet",
    "gift": true,
-   "romantic": true
+   "romantic": true,
+   "pic": "items/gk_ring.avif"
   },
   {
    "id": "gk_signed_copy",
@@ -50030,7 +50286,8 @@
    "loves": [
     "Seo-yeon",
     "Haru"
-   ]
+   ],
+   "pic": "items/gk_signed_copy.avif"
   },
   {
    "id": "gk_photo_zine",
@@ -50043,7 +50300,8 @@
     "Chloe",
     "Camille",
     "Nanami"
-   ]
+   ],
+   "pic": "items/gk_photo_zine.avif"
   },
   {
    "id": "gk_happi",
@@ -50056,7 +50314,8 @@
     "Kaito",
     "Genzō",
     "Ayaka"
-   ]
+   ],
+   "pic": "items/gk_happi.avif"
   },
   {
    "id": "gk_pressed_sakura",
@@ -50070,7 +50329,8 @@
     "Yui",
     "Seo-yeon",
     "Haru"
-   ]
+   ],
+   "pic": "items/gk_pressed_sakura.avif"
   },
   {
    "id": "gk_old_brooch",
@@ -50083,7 +50343,8 @@
     "Nanami",
     "Kyōko",
     "Seo-yeon"
-   ]
+   ],
+   "pic": "items/gk_old_brooch.avif"
   },
   {
    "id": "gk_own_kiriko",
@@ -50095,7 +50356,8 @@
    "loves": [
     "Haru",
     "Kaito"
-   ]
+   ],
+   "pic": "items/gk_own_kiriko.avif"
   },
   {
    "id": "gk_last_bottle",
@@ -50107,7 +50369,8 @@
    "loves": [
     "Kyōko",
     "Ren"
-   ]
+   ],
+   "pic": "items/gk_last_bottle.avif"
   },
   {
    "id": "gk_cosplay_cape",
@@ -50119,7 +50382,8 @@
    "loves": [
     "Natsuki",
     "Hina"
-   ]
+   ],
+   "pic": "items/gk_cosplay_cape.avif"
   },
   {
    "id": "gk_silk_chemise",
@@ -50134,7 +50398,8 @@
     "silk",
     "lingerie",
     "dressing up"
-   ]
+   ],
+   "pic": "items/gk_silk_chemise.avif"
   },
   {
    "id": "gk_hotel_bath_set",
@@ -50149,7 +50414,8 @@
     "bath together",
     "baths",
     "massage"
-   ]
+   ],
+   "pic": "items/gk_hotel_bath_set.avif"
   },
   {
    "id": "gk_salon_card",
@@ -50157,7 +50423,8 @@
    "icon": "💳",
    "kind": "card",
    "desc": "a heavy black card with a gold camellia: Tsubakiya's members' salon",
-   "gift": false
+   "gift": false,
+   "pic": "items/gk_salon_card.avif"
   },
   {
    "id": "gk_dealer_card",
@@ -50165,7 +50432,8 @@
    "icon": "🪪",
    "kind": "card",
    "desc": "Akatsuki Motorworks' card, with a private number written on the back",
-   "gift": false
+   "gift": false,
+   "pic": "items/gk_dealer_card.avif"
   },
   {
    "id": "gk_marina_pass",
@@ -50173,7 +50441,8 @@
    "icon": "⚓",
    "kind": "card",
    "desc": "a pass to the berths at the Kamome Marina",
-   "gift": false
+   "gift": false,
+   "pic": "items/gk_marina_pass.avif"
   },
   {
    "id": "gk_gallery_card",
@@ -50181,7 +50450,8 @@
    "icon": "🪪",
    "kind": "card",
    "desc": "a Ginza gallerist's card, the date of a group show written on it",
-   "gift": false
+   "gift": false,
+   "pic": "items/gk_gallery_card.avif"
   },
   {
    "id": "gk_photo_crossing",
@@ -50194,7 +50464,8 @@
     "Chloe",
     "Kaito",
     "Jake"
-   ]
+   ],
+   "pic": "items/gk_photo_crossing.avif"
   },
   {
    "id": "gk_photo_takeshita",
@@ -50207,7 +50478,8 @@
     "Nanami",
     "Hina",
     "Lisa"
-   ]
+   ],
+   "pic": "items/gk_photo_takeshita.avif"
   },
   {
    "id": "gk_photo_tocho",
@@ -50220,7 +50492,8 @@
     "Reiko",
     "Rina",
     "Daisuke"
-   ]
+   ],
+   "pic": "items/gk_photo_tocho.avif"
   },
   {
    "id": "gk_photo_yanaka",
@@ -50233,7 +50506,8 @@
     "Mio",
     "Yui",
     "Linh"
-   ]
+   ],
+   "pic": "items/gk_photo_yanaka.avif"
   },
   {
    "id": "gk_photo_bridge",
@@ -50246,7 +50520,8 @@
     "Kaito",
     "Hannah",
     "Lucas"
-   ]
+   ],
+   "pic": "items/gk_photo_bridge.avif"
   },
   {
    "id": "gk_photo_tower",
@@ -50259,7 +50534,8 @@
     "Hina",
     "Chloe",
     "Mio"
-   ]
+   ],
+   "pic": "items/gk_photo_tower.avif"
   },
   {
    "id": "gk_photo_minato",
@@ -50272,7 +50548,8 @@
     "Shizuka",
     "Camille",
     "Ren"
-   ]
+   ],
+   "pic": "items/gk_photo_minato.avif"
   },
   {
    "id": "gk_photo_skyline",
@@ -50285,7 +50562,8 @@
     "Rina",
     "Jake",
     "Seo-yeon"
-   ]
+   ],
+   "pic": "items/gk_photo_skyline.avif"
   },
   {
    "id": "gk_darkroom_print",
@@ -50298,70 +50576,80 @@
     "Haru",
     "Ren",
     "Camille"
-   ]
+   ],
+   "pic": "items/gk_darkroom_print.avif"
   },
   {
    "id": "tk_door_key",
    "name": "A front-door key in a paulownia box",
    "icon": "🗝️",
    "gift": false,
-   "desc": "The first key to a home of your own, in the paulownia box the agent handed it over in: the kind of box kept for good things."
+   "desc": "The first key to a home of your own, in the paulownia box the agent handed it over in: the kind of box kept for good things.",
+   "pic": "items/tk_door_key.avif"
   },
   {
    "id": "tk_first_statement",
    "name": "The agent's first statement, framed",
    "icon": "🧾",
    "gift": false,
-   "desc": "The letting agent's first statement, a tenant's rent less the agent's fifth, in a plain black frame."
+   "desc": "The letting agent's first statement, a tenant's rent less the agent's fifth, in a plain black frame.",
+   "pic": "items/tk_first_statement.avif"
   },
   {
    "id": "tk_black_card",
    "name": "Tsubakiya's black card",
    "icon": "💳",
    "gift": false,
-   "desc": "A black card from Tsubakiya's salon. Show it and the tea comes before you sit down."
+   "desc": "A black card from Tsubakiya's salon. Show it and the tea comes before you sit down.",
+   "pic": "items/tk_black_card.avif"
   },
   {
    "id": "tk_first_coin",
    "name": "The café's first ¥100 coin, framed",
    "icon": "🪙",
    "gift": false,
-   "desc": "The first coin the café ever took, for a coffee at the counter, framed above the till and taken home when the roaster came."
+   "desc": "The first coin the café ever took, for a coffee at the counter, framed above the till and taken home when the roaster came.",
+   "pic": "items/tk_first_coin.avif"
   },
   {
    "id": "tk_room_key",
    "name": "A brass room key on a tassel",
    "icon": "🔑",
    "gift": false,
-   "desc": "The key to the best room of your first hotel, on a red silk tassel the staff gave you when the third kind was yours."
+   "desc": "The key to the best room of your first hotel, on a red silk tassel the staff gave you when the third kind was yours.",
+   "pic": "items/tk_room_key.avif"
   },
   {
    "id": "tk_vp_card",
    "name": "A vice president's name card",
    "icon": "📇",
    "gift": false,
-   "desc": "The first of a box of name cards with \"Vice President\" under your name, kept back from the first meeting."
+   "desc": "The first of a box of name cards with \"Vice President\" under your name, kept back from the first meeting.",
+   "pic": "items/tk_vp_card.avif"
   },
   {
    "id": "tk_album",
    "name": "The memories album, bound",
    "icon": "📔",
    "gift": false,
-   "desc": "Every memory of Tokyo you kept a record of, bound in blue cloth by a binder in Jinbōchō."
+   "desc": "Every memory of Tokyo you kept a record of, bound in blue cloth by a binder in Jinbōchō.",
+   "pic": "items/tk_album.avif"
   },
   {
    "id": "tk_naumann_tooth",
    "name": "A cast of Naumann's tooth",
    "icon": "🦷",
    "gift": false,
-   "desc": "A plaster cast of a molar of Naumann's elephant, from Hijiri University's lab: the real one stands in the kura."
+   "desc": "A plaster cast of a molar of Naumann's elephant, from Hijiri University's lab: the real one stands in the kura.",
+   "pic": "items/tk_naumann_tooth.avif"
   },
   {
    "id": "tk_door_plate",
    "name": "The kura's brass door plate",
    "icon": "🪧",
    "gift": false,
-   "desc": "The kura's first brass plate, taken down when the last hall was full and a new one went up with your name under the museum's."
+   "desc": "The kura's first brass plate, taken down when the last hall was full and a new one went up with your name under the museum's.",
+   "pic": "items/tk_door_plate.avif"
   },
   {
    "id": "tk_shunga_fan",
@@ -50369,7 +50657,8 @@
    "icon": "🪭",
    "gift": false,
    "adult": true,
-   "desc": "A folding fan with a spring picture in Utamaro's manner, from the bottom drawer of Tamaki's cabinet: for the back room, not the halls."
+   "desc": "A folding fan with a spring picture in Utamaro's manner, from the bottom drawer of Tamaki's cabinet: for the back room, not the halls.",
+   "pic": "items/tk_shunga_fan.avif"
   },
   {
    "id": "gk_my_photobook",
@@ -50383,7 +50672,8 @@
     "Camille",
     "Chloe",
     "Nanami"
-   ]
+   ],
+   "pic": "items/gk_my_photobook.avif"
   }
  ],
  "occupations": [
@@ -74055,7 +74345,8 @@
     },
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/omikuji.avif"
    },
    {
     "id": "omamori_love",
@@ -74077,7 +74368,8 @@
     },
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/omamori_love.avif"
    },
    {
     "id": "omamori_study",
@@ -74098,7 +74390,8 @@
     },
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/omamori_study.avif"
    },
    {
     "id": "omamori_health",
@@ -74119,7 +74412,8 @@
     },
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/omamori_health.avif"
    },
    {
     "id": "omamori_work",
@@ -74141,7 +74435,8 @@
     },
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/omamori_work.avif"
    },
    {
     "id": "daruma",
@@ -74155,7 +74450,8 @@
     },
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/daruma.avif"
    },
    {
     "id": "ema",
@@ -74169,7 +74465,8 @@
     ],
     "roles": [
      "shrine"
-    ]
+    ],
+    "pic": "items/ema.avif"
    },
    {
     "id": "tk_pillowtalk",
@@ -74188,7 +74485,8 @@
      "per": "season",
      "person": true
     },
-    "desc": "Learn one thing someone close likes, one hard limit or their drive, before any night together."
+    "desc": "Learn one thing someone close likes, one hard limit or their drive, before any night together.",
+    "pic": "items/tk_pillowtalk.avif"
    },
    {
     "id": "tk_mamushi",
@@ -74213,7 +74511,8 @@
       "value": -0.3
      }
     ],
-    "desc": "A pit-viper tonic from a Shinjuku drugstore: private moments give half as much again, and energy drains slower for a day."
+    "desc": "A pit-viper tonic from a Shinjuku drugstore: private moments give half as much again, and energy drains slower for a day.",
+    "pic": "items/tk_mamushi.avif"
    },
    {
     "id": "tk_kanamara",
@@ -74233,7 +74532,8 @@
       "value": 2
      }
     ],
-    "desc": "A charm from Kanayama Shrine in Kawasaki, known for its spring festival: +2 on private moments for a week."
+    "desc": "A charm from Kanayama Shrine in Kawasaki, known for its spring festival: +2 on private moments for a week.",
+    "pic": "items/tk_kanamara.avif"
    },
    {
     "id": "tk_dealer_tip",
@@ -74248,7 +74548,8 @@
      "collection"
     ],
     "when": "museum: open",
-    "desc": "Tell the dealer what you're after: a missing piece of your choice comes with her next visit, on top of her stock, at the asked price."
+    "desc": "Tell the dealer what you're after: a missing piece of your choice comes with her next visit, on top of her stock, at the asked price.",
+    "pic": "items/tk_dealer_tip.avif"
    },
    {
     "id": "tk_early_catalogue",
@@ -74263,7 +74564,8 @@
      "collection"
     ],
     "when": "museum: open",
-    "desc": "A word with the auction house: the next sale has one more lot, a missing piece of your choice, bid on as any other."
+    "desc": "A word with the auction house: the next sale has one more lot, a missing piece of your choice, bid on as any other.",
+    "pic": "items/tk_early_catalogue.avif"
    },
    {
     "id": "tk_ebisu",
@@ -74288,7 +74590,8 @@
       "value": 0.1
      }
     ],
-    "desc": "A shōbai-hanjō omamori for a thriving trade: your ventures take 10% more for a week."
+    "desc": "A shōbai-hanjō omamori for a thriving trade: your ventures take 10% more for a week.",
+    "pic": "items/tk_ebisu.avif"
    },
    {
     "id": "tk_field_guide",
@@ -74309,7 +74612,8 @@
       "value": 0.5
      }
     ],
-    "desc": "A naturalist's guide with the season's pages marked: finds 50% likelier for three days."
+    "desc": "A naturalist's guide with the season's pages marked: finds 50% likelier for three days.",
+    "pic": "items/tk_field_guide.avif"
    },
    {
     "id": "tk_press_day",
@@ -74331,7 +74635,8 @@
       "value": 0.2
      }
     ],
-    "desc": "The papers and the television come to the kura: renown 20% higher for a week, and more visitors with it."
+    "desc": "The papers and the television come to the kura: renown 20% higher for a week, and more visitors with it.",
+    "pic": "items/tk_press_day.avif"
    },
    {
     "id": "tk_workshop",
@@ -74345,7 +74650,8 @@
     "needs": [
      "collection"
     ],
-    "desc": "The workshop works through the night: everything being restored or mounted is ready tomorrow. The fee stays what it was."
+    "desc": "The workshop works through the night: everything being restored or mounted is ready tomorrow. The fee stays what it was.",
+    "pic": "items/tk_workshop.avif"
    },
    {
     "id": "tk_party_planner",
@@ -74365,7 +74671,8 @@
       "when": "place: home:player"
      }
     ],
-    "desc": "Someone who knows who should meet whom: friendships grow twice as fast at your home for three days, time for a party."
+    "desc": "Someone who knows who should meet whom: friendships grow twice as fast at your home for three days, time for a party.",
+    "pic": "items/tk_party_planner.avif"
    },
    {
     "id": "tk_good_tenant",
@@ -74379,9 +74686,28 @@
     "needs": [
      "housing"
     ],
-    "desc": "The agent's best list: every home you let has a tenant each week for a season."
+    "desc": "The agent's best list: every home you let has a tenant each week for a season.",
+    "pic": "items/tk_good_tenant.avif"
    }
-  ]
+  ],
+  "pics": {
+   "focused": "items/focused.avif",
+   "luckyday": "items/luckyday.avif",
+   "secondwind": "items/secondwind.avif",
+   "clearhead": "items/clearhead.avif",
+   "workboost": "items/workboost.avif",
+   "cleanslate": "items/cleanslate.avif",
+   "rentholiday": "items/rentholiday.avif",
+   "nudge": "items/nudge.avif",
+   "cleartheair": "items/cleartheair.avif",
+   "freshstart": "items/freshstart.avif",
+   "forgive": "items/forgive.avif",
+   "invitation": "items/invitation.avif",
+   "quietrumor": "items/quietrumor.avif",
+   "insight": "items/insight.avif",
+   "changetrait": "items/changetrait.avif",
+   "skipstep": "items/skipstep.avif"
+  }
  },
  "intimatePool": {
   "prefs": [
@@ -87683,7 +88009,8 @@
      "desc": "Puts the whole Art hall on show.",
      "price": 1500000,
      "renown": 5,
-     "opens": "art"
+     "opens": "art",
+     "pic": "items/wing_art.avif"
     },
     {
      "id": "wing_crafts",
@@ -87692,7 +88019,8 @@
      "desc": "Puts all of Crafts and antiques on show.",
      "price": 1200000,
      "renown": 5,
-     "opens": "crafts"
+     "opens": "crafts",
+     "pic": "items/wing_crafts.avif"
     },
     {
      "id": "wing_modern",
@@ -87701,7 +88029,8 @@
      "desc": "Puts all of Modern Tokyo on show.",
      "price": 600000,
      "renown": 5,
-     "opens": "modern"
+     "opens": "modern",
+     "pic": "items/wing_modern.avif"
     },
     {
      "id": "wing_night",
@@ -87711,7 +88040,8 @@
      "price": 800000,
      "renown": 5,
      "opens": "night",
-     "adult": true
+     "adult": true,
+     "pic": "items/wing_night.avif"
     },
     {
      "id": "lighting",
@@ -87719,7 +88049,8 @@
      "icon": "💡",
      "desc": "Proper lights in every case: the pieces look their best.",
      "price": 500000,
-     "renown": 15
+     "renown": 15,
+     "pic": "items/lighting.avif"
     },
     {
      "id": "climate",
@@ -87728,7 +88059,8 @@
      "desc": "Steady warmth and damp for textiles, screens and scrolls.",
      "price": 1800000,
      "renown": 5,
-     "does": "climate"
+     "does": "climate",
+     "pic": "items/climate.avif"
     },
     {
      "id": "security",
@@ -87737,7 +88069,8 @@
      "desc": "Locked cases and alarms, for swords, armour and sculpture.",
      "price": 1000000,
      "renown": 5,
-     "does": "security"
+     "does": "security",
+     "pic": "items/security.avif"
     },
     {
      "id": "guard",
@@ -87749,7 +88082,8 @@
      "needs": [
       "security"
      ],
-     "does": "guard"
+     "does": "guard",
+     "pic": "items/guard.avif"
     },
     {
      "id": "workshop",
@@ -87758,7 +88092,8 @@
      "desc": "Restores damaged finds, and makes replicas of pieces that can no longer be had.",
      "price": 900000,
      "renown": 5,
-     "does": "workshop"
+     "does": "workshop",
+     "pic": "items/workshop.avif"
     },
     {
      "id": "reading",
@@ -87767,7 +88102,8 @@
      "desc": "Catalogues and old sale records: you spot finds more often.",
      "price": 600000,
      "renown": 5,
-     "does": "reading"
+     "does": "reading",
+     "pic": "items/reading.avif"
     },
     {
      "id": "garden",
@@ -87775,7 +88111,8 @@
      "icon": "🌿",
      "desc": "A small tea garden behind the kura.",
      "price": 800000,
-     "renown": 10
+     "renown": 10,
+     "pic": "items/garden.avif"
     },
     {
      "id": "exhibition",
@@ -87784,7 +88121,8 @@
      "desc": "Room for a show each season.",
      "price": 1800000,
      "renown": 10,
-     "does": "exhibition"
+     "does": "exhibition",
+     "pic": "items/exhibition.avif"
     },
     {
      "id": "wing_nature",
@@ -87793,7 +88131,8 @@
      "desc": "Puts the whole Nature hall on show: insects, fish and pressed flowers.",
      "price": 600000,
      "renown": 5,
-     "opens": "nature"
+     "opens": "nature",
+     "pic": "items/wing_nature.avif"
     },
     {
      "id": "wing_before_edo",
@@ -87802,7 +88141,8 @@
      "desc": "Puts Before Edo on show, with room for a skeleton to stand.",
      "price": 1000000,
      "renown": 5,
-     "opens": "before_edo"
+     "opens": "before_edo",
+     "pic": "items/wing_before_edo.avif"
     },
     {
      "id": "tanks",
@@ -87810,7 +88150,8 @@
      "icon": "🐠",
      "desc": "Tanks, pumps and chillers: live fish and sea life can come to the kura.",
      "price": 700000,
-     "renown": 5
+     "renown": 5,
+     "pic": "items/tanks.avif"
     }
    ],
    "renown": {
