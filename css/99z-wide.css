@@ -41,3 +41,18 @@
 #mundi-root .mu-sec-row.is-on, #mundi-root .mu-sec-row.is-on:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
 #mundi-root .mu-sec-row .mu-ic { width: 17px; height: 17px; opacity: .8; }
 #mundi-root .mu-sec-row b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Lens: your reputation and the four tabs on the left, the open tab's cards side by side on the right */
+#mundi-root .mu-lens-split .mu-ph-body { padding: 14px; }
+#mundi-root .mu-lens-rows { display: grid; gap: 5px; }
+#mundi-root .mu-lens-row-tab, #mundi-root .mu-lens-row-tab:hover:not(:disabled) { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; width: 100%; min-height: 42px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root .mu-lens-row-tab:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root .mu-lens-row-tab.is-on, #mundi-root .mu-lens-row-tab.is-on:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
+#mundi-root .mu-lens-row-tab b { font-size: 13px; }
+#mundi-root .mu-lens-row-tab small { font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
+#mundi-root .mu-lens-list-body.is-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; align-items: start; }
+#mundi-root .mu-lens-list-body.is-cards > :not(.mu-lens-brief):not(.mu-lens-card) { grid-column: 1 / -1; }
+/* a photo opened large: its Back */
+#mundi-root .mu-lens-close, #mundi-root .mu-lens-close:hover:not(:disabled) { justify-self: start; display: inline-flex; gap: 4px; align-items: center; min-height: 0; padding: 2px 4px;
+    border: 0; background: transparent; box-shadow: none; color: var(--accent); font-weight: 700; font-size: 13px; transform: none; }
+#mundi-root .mu-lens-close i { font-style: normal; font-size: 18px; line-height: 1; }

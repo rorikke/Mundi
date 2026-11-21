@@ -5,7 +5,9 @@
 // actions offer them, Deliver with its stars and pay. Photos: the portfolio first with its strength, then the rest
 // newest first, each a layered picture (the place's background, the people's sprites, the camera's look, the frame),
 // opening large; the photo keepsakes as a small row. You: reputation, freelance standing, deliveries, contacts, the
-// photo studio and the hourly rental, photobooks, Sell your photos. The engine owns every number (sim/photo.ts,
+// photo studio and the hourly rental, photobooks, Sell your photos. A photo opened large has a Back to the rest. Unfolded,
+// like Messages: your reputation and the four tabs (with how many each holds) as a list on the left, the open tab on the
+// right with its cards side by side. The engine owns every number (sim/photo.ts,
 // sim/assignments.ts, sim/freelance.ts, sim/photobooks.ts, sim/studio.ts); this file only draws and calls, and asks the
 // AI for a portfolio piece's caption (the engine keeps its own when the answer isn't clean).
 import { esc, game, toast, notify, saveGame, SAVE } from '../core/store.js';
@@ -169,7 +171,7 @@ function openTab(g, w) {
 /* ---------- Photos ---------- */
 function bigPhoto(g, w, r) {
     const L = photoLayers(g, w, r), c = clientOf(w, r.client), b = briefOf(w, r.brief);
-    return `<section class="mu-lens-big">${photoPic(g, w, r, true)}
+    return `<section class="mu-lens-big"><button class="mu-lens-close" data-act="lens-photo-close"><i aria-hidden="true">‹</i> <span>${esc('Photos')}</span></button>${photoPic(g, w, r, true)}
         <b class="mu-lens-cap" data-notr>${esc(capOf(r))}</b>
         ${c || b ? `<small>${c ? `<span data-notr>${esc(c.name)}</span>` : ''}${c && b ? ' · ' : ''}${b ? `<span data-notr>${esc(b.name)}</span>` : ''}</small>` : ''}
         <small><span data-notr>${esc(placeName(g, w, r.place))}</span> · ${esc(dayWords(r.day))}, ${esc(hm(r.min))}</small>
@@ -240,12 +242,29 @@ export function lensBadge(g, w) {
     return p.books.some(b => b.state === 'offered') || p.open.some(t => !!t.shot);
 }
 const TABS = [['board', 'Board'], ['open', 'In progress'], ['photos', 'Photos'], ['you', 'You']];
-/** The Lens app: the four tabs and the one open (nothing in a world without photo gigs or with the system off). */
-export function lensApp(g, w, head) {
+// Unfolded: your reputation, then a row per tab with how many it holds (the briefs on the board, those in progress
+// marked when one waits to be delivered, your photos); the open tab on the right, its key changing with the tab and the
+// photo opened, so each opens at its top.
+function lensWide(g, w, head, body) {
+    const v = youView(g, w), b = boardView(g, w), ph = photosView(g, w), p = peekPhoto(g);
+    const count = { board: b.kind === 'none' ? '' : n(b.cards.length), open: n(p.open.length), photos: n(ph.portfolio.length + ph.rest.length), you: '' };
+    const ready = p.open.some(t => !!t.shot);
+    const rows = TABS.map(([id, name]) => `<button class="mu-lens-row-tab ${id === LS.tab ? 'is-on' : ''}" data-act="lens-tab" data-v="${id}" aria-pressed="${id === LS.tab}"><b>${esc(name)}</b>${id === 'open' && ready ? '<em class="mu-sec-badge">!</em>' : ''}<small>${esc(count[id])}</small></button>`).join('');
+    const worldWords = !PHOTO_WORDS.some(x => x.text === v.words) ? ' data-notr' : '';
+    const repCard = `<section class="mu-lens-card"><small>${esc('Reputation')}</small><div class="mu-lens-rep"><b class="mu-lens-big-n">${n(v.rep)}</b><span${worldWords}>${esc(v.words)}</span></div><span class="mu-bond"><i style="width:${Math.max(0, Math.min(100, num(v.rep)))}%"></i></span></section>`;
+    const cards = LS.tab !== 'photos';
+    return `${head}<div class="mu-ph-split mu-lens-split"><div class="mu-ph-pane is-list" data-keep="lens-pane-list"><div class="mu-ph-body mu-lens">${repCard}<nav class="mu-lens-rows">${rows}</nav></div></div>
+        <div class="mu-ph-pane is-open" data-keep="lens-pane-${LS.tab}${LS.photo ? `-${n(LS.photo)}` : ''}"><div class="mu-ph-body mu-lens"><div class="mu-lens-list-body ${cards ? 'is-cards' : ''}">${body}</div></div></div></div>`;
+}
+/** The Lens app: the four tabs and the one open (nothing in a world without photo gigs or with the system off);
+ *  `wide`: the unfolded phone (the tabs listed beside the open one). */
+export function lensApp(g, w, head, wide = false) {
     if (!photoOn(w))
         return `${head}<div class="mu-ph-body mu-lens"><p class="mu-muted">No photography in this world.</p></div>`;
     const open = peekPhoto(g).open.length;
     const body = LS.tab === 'open' ? openTab(g, w) : LS.tab === 'photos' ? photosTab(g, w) : LS.tab === 'you' ? youTab(g, w) : boardTab(g, w);
+    if (wide)
+        return lensWide(g, w, head, body);
     return `${head}<div class="mu-ph-body mu-lens">
         <nav class="mu-lens-tabs" data-keep="lens-tabs">${TABS.map(([id, name]) => `<button class="${id === LS.tab ? 'is-on' : ''}" data-act="lens-tab" data-v="${id}" aria-pressed="${id === LS.tab}">${esc(name)}${id === 'open' && open ? ` <em>${n(open)}</em>` : ''}</button>`).join('')}</nav>
         <div class="mu-lens-list-body">${body}</div></div>`;
@@ -278,6 +297,7 @@ const done = () => { saveGame(); refreshPrompt(); notify(); };
 Object.assign(ACT, {
     'lens-tab': (el) => { LS.tab = (TABS.find(t => t[0] === el.dataset.v)?.[0] ?? 'board'); LS.photo = 0; LS.back = 0; notify(); },
     'lens-photo': (el) => { LS.photo = Number(el.dataset.id) || 0; notify(); },
+    'lens-photo-close': () => { LS.photo = 0; notify(); },
     'lens-star': (el) => { const x = ctxW(); if (!x)
         return; starPhoto(x.g, Number(el.dataset.id)); saveGame(); notify(); },
     'lens-take': (el) => {
