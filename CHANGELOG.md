@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.1.2 · 2026-11-21
+
+What people wear follows the story, and a few fixes. Your saves open as they are: no save format change.
+
+### What people wear
+
+- **Outfits follow the story.** When a reply clearly has someone undress, half-undress, dress again or change clothes,
+  their picture follows and the AI is told. Undressing happens only in a private place with adult content on, and
+  changing into another outfit only where they can change (their home). It costs one short AI call after a reply, and
+  only when someone in it could change; a new setting, **Outfits follow the story** (☰ → This world → World), turns it
+  off.
+- **More of Tokyo's outfits can be put on as the story goes,** each saying what it is so the AI knows how it looks:
+  Tamaki's off-duty, opening-night and home clothes, Ayame's gala gown and night out, Kaede's road-trip and night-out
+  clothes (her road-trip clothes can be her clothes at the van too), and Momo's volleyball jersey. Kanon's old T-shirt
+  is what's left of her own clothes, and Kaoru's plain one-piece is her beach cover-up with the shirt off.
+- **World makers:** an outfit can say what it opens from, in the World creator.
+
+### Fixes
+
+- The Calendar's badge no longer counts a city event you've already been to while it's still going on.
+- Collection: Tokyo's keepsake kinds are spelled right (Plushies, Accessories, Flowers), their hint no longer repeats
+  the name in brackets, and a group's progress bar and count run the full width of the row.
+- Everything new in Portuguese and Spanish.
+
 ## 1.1.1 · 2026-11-20
 
 Small changes after 1.1.0: Spark shows real profiles, the Calendar can wait until it's time to go, people's pages open

@@ -1,5 +1,5 @@
 // The version of Mundi (the same as manifest.json: a test checks it) and what each version brought.
-export const VERSION = '1.1.1';
+export const VERSION = '1.1.2';
 
 export interface Release { v: string; title: string; items: [string, string][] }
 // Newest first. The first one is what the window shows after an update; a small release can have none of its own
