@@ -195,7 +195,7 @@ export function rewardsOf(w) {
         return [];
     const own = w.rewards ?? {}, off = new Set(own.off ?? []), add = own.add ?? [];
     const general = GENERAL_REWARDS.filter(x => !off.has(x.id) && !add.some(a => a.id === x.id))
-        .map(x => (own.names?.[x.id] || own.prices?.[x.id] !== undefined ? { ...x, ...(own.names?.[x.id] ? { name: own.names[x.id] } : {}), ...(typeof own.prices?.[x.id] === 'number' ? { price: own.prices[x.id] } : {}) } : x));
+        .map(x => (own.names?.[x.id] || own.prices?.[x.id] !== undefined || own.pics?.[x.id] ? { ...x, ...(own.names?.[x.id] ? { name: own.names[x.id] } : {}), ...(typeof own.prices?.[x.id] === 'number' ? { price: own.prices[x.id] } : {}), ...(typeof own.pics?.[x.id] === 'string' ? { pic: own.pics[x.id] } : {}) } : x));
     return [...general, ...add].filter(x => systemsOk(w, x.needs));
 }
 export const rewardOf = (w, id) => rewardsOf(w).find(x => x.id === id) ?? null;
@@ -242,5 +242,5 @@ export function upgradeRewards(v) {
     if (!isObj(v))
         return undefined;
     const prices = isObj(v.prices) ? Object.fromEntries(Object.entries(v.prices).filter(([, n]) => typeof n === 'number' && Number.isFinite(n) && n >= 0).map(([k, n]) => [k, Math.round(n)])) : undefined;
-    return clean({ off: strs(v.off), names: cleanNames(v.names), prices, add: Array.isArray(v.add) ? v.add.map(cleanReward).filter((x) => !!x) : undefined });
+    return clean({ off: strs(v.off), names: cleanNames(v.names), prices, pics: cleanNames(v.pics), add: Array.isArray(v.add) ? v.add.map(cleanReward).filter((x) => !!x) : undefined });
 }

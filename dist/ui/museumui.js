@@ -24,6 +24,7 @@ import { SEASONS, seasonDays } from '../sim/time.js';
 import { ACT, INPUT } from './reg.js';
 import { loanCard } from './rivalui.js'; // (C-7)
 import { royaltyView } from '../sim/royalties.js'; // (R-b)
+import { itemIco } from './itempic.js';
 /** In memory only: the piece picked in the Dealer tab's "Ask for a piece". */
 export const MU = { ask: '' };
 const n = (x) => String(Math.round(x));
@@ -147,7 +148,7 @@ function upgradesCard(g, w) {
     const hall = (id) => (id ? w.collection?.halls.find(h => h.id === id)?.name : undefined);
     return `<section class="mu-mu-card"><h4>Upgrades</h4><ul class="mu-mu-list">${list.map(v => {
         const opens = hall(v.u.opens), renown = v.u.renown ? `renown +${n(v.u.renown)}` : '';
-        return `<li class="mu-mu-row mu-mu-up ${v.owned ? 'is-owned' : v.why ? 'is-off' : ''}" data-up="${esc(v.u.id)}"><i aria-hidden="true">${esc(v.u.icon ?? '🏗️')}</i>
+        return `<li class="mu-mu-row mu-mu-up ${v.owned ? 'is-owned' : v.why ? 'is-off' : ''}" data-up="${esc(v.u.id)}">${itemIco(w, v.u, '🏗️')}
             <span><b data-notr>${esc(v.u.name)}</b>${v.u.desc ? `<small data-notr>${esc(v.u.desc)}</small>` : ''}<small>${opens && !v.u.desc ? `${esc('Puts the whole of')} <span data-notr>${esc(opens)}</span> ${esc('on show')}${renown ? ' · ' : ''}` : ''}${esc(renown)}</small>${!v.owned && v.why ? `<small class="mu-mu-why">${esc(v.why)}</small>` : ''}</span>
             ${v.owned ? '<em>Built</em>' : `<button data-act="mus-up" data-id="${esc(v.u.id)}" ${off(v.why)}>${esc(`Build · ${money(w, v.price)}`)}</button>`}</li>`;
     }).join('')}</ul></section>`;

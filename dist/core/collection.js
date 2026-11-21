@@ -123,6 +123,8 @@ function upgrade(u, halls) {
     for (const k of ['icon', 'desc'])
         if (str(u[k]))
             out[k] = u[k];
+    if (str(u.pic) && safeUrl(u.pic))
+        out.pic = safeUrl(u.pic);
     const renown = numIn(u.renown, 0, 1000);
     if (renown)
         out.renown = renown;

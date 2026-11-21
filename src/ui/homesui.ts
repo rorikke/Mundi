@@ -30,6 +30,7 @@ import { icon } from './icons.js';
 import { ACT } from './reg.js';
 import { homeRooms, roomNow, enterRoom, roomDoor, roomOf, asleepAt } from '../sim/homerooms.js';
 import { syncScene } from '../sim/game.js';
+import { itemIco } from './itempic.js';
 
 /** What's open: the Rooms view of a house (its key), and a question waiting for an answer. */
 type Ask = { kind: 'buy'; key: string; as: 'live' | 'second' | 'let' } | { kind: 'sell'; key: string } | { kind: 'leave'; zone: string }
@@ -167,7 +168,7 @@ export function roomsHtml(g: Save, w: WorldDef): string {
     const row = (x: ReturnType<typeof fixturesFor>[number]) => {
         const does = itemDoes(g, w, x.f);
         const room = x.f.room && w.places.find(p => p.id === x.f.room);
-        return `<article class="mu-fix ${x.have ? 'is-have' : ''}"><i>${esc(x.f.icon || '🏠')}</i>
+        return `<article class="mu-fix ${x.have ? 'is-have' : ''}">${itemIco(w, x.f, '🏠')}
             <span><b>${esc(x.f.name)}</b>${x.f.desc ? `<small>${esc(x.f.desc)}</small>` : ''}${does.length ? `<small>${does.map(esc).join(' · ')}</small>` : ''}${room ? `<small>${esc(`Opens ${room.name}`)}</small>` : ''}</span>
             ${x.have ? `<em>${x.came ? (studio ? 'Came with the studio' : 'Came with the house') : 'Yours'}</em>` : `<button class="mu-home-move" data-act="hu-fix" data-id="${esc(x.f.id)}" ${x.why ? `aria-disabled="true" title="${esc(x.why)}"` : ''}>${money(w, x.price)}</button>`}</article>`;
     };

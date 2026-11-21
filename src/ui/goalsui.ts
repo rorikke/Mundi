@@ -24,6 +24,7 @@ import type { Meter } from '../sim/rel.js';
 import { ACT } from './reg.js';
 import { degreeOf, gpaOf, uniOf } from '../sim/degrees.js';
 import { howTo } from './goalhints.js';
+import { itemIco } from './itempic.js';
 
 /** What the Goals app shows (memory only): the tab, the categories opened, the goal whose detail is open, the item
  *  being bought and what was picked for it. `said`: the last lines shown (toasted). */
@@ -402,7 +403,7 @@ function itemHtml(g: Save, w: WorldDef, it: ShopItem): string {
         : it.pick ? `<button class="${open ? 'is-on' : ''}" data-act="rw-choose" data-id="${esc(it.id)}">${open ? 'Close' : 'Choose'}</button>`
         : `<button class="mu-primary" data-act="rw-buy" data-id="${esc(it.id)}">Buy</button>`;
     const lim = limitWords(it);
-    return `<article class="mu-rw-item ${it.ok ? '' : 'is-not'} ${open ? 'is-open' : ''}"><i>${esc(it.icon)}</i>
+    return `<article class="mu-rw-item ${it.ok ? '' : 'is-not'} ${open ? 'is-open' : ''}">${itemIco(w, it.def ?? it, '🎁')}
         <span><b>${esc(it.name)}</b><small>${esc(it.desc)}</small>
             <small class="mu-rw-price">${n(it.price)} points${lim ? ` · ${esc(lim)}` : ''}</small>${it.ok ? '' : `<small class="mu-rw-why">${esc(it.why ?? '')}</small>`}</span>
         ${btn}${open ? pickerHtml(g, w, it) : ''}</article>`;

@@ -17,6 +17,7 @@ import { ACT } from './reg.js';
 
 import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf, serviceLeft,
     stockLeft as stockOf, shopPrice as priceAt, buy as buyAt } from '../sim/shop.js';
+import { itemIco } from './itempic.js';
 const offeredAt = offers;
 
 /** What the app shows (memory only): the tab (`here`, `yours` or a category id; '' picks the first there is). */
@@ -48,14 +49,14 @@ function card(g: Save, w: WorldDef, it: Item, where: string, canBuy = true): str
     const does = itemDoes(g, w, it).map(t => `<li>${esc(t)}</li>`).join('');
     const act = owned ? '<em>Owned</em>'
         : canBuy ? `<button data-act="shop-buy" data-id="${esc(it.id)}" data-where="${esc(where)}" ${why ? `aria-disabled="true" title="${esc(why.replace(/\.$/, ''))}"` : ''}>${again ? 'Buy again' : 'Buy'}</button>` : '';
-    return `<article class="mu-shop-item ${owned ? 'is-owned' : ''}" data-item="${esc(it.id)}"><i>${esc(it.icon ?? '')}</i>
+    return `<article class="mu-shop-item ${owned ? 'is-owned' : ''}" data-item="${esc(it.id)}">${itemIco(w, it)}
         <span><b data-notr>${esc(it.name)}</b>${it.desc ? `<small data-notr>${esc(it.desc)}</small>` : ''}${does ? `<ul class="mu-shop-does">${does}</ul>` : ''}
         <small class="mu-shop-price">${esc(money(w, price))}</small>${left ? `<small class="mu-shop-left">${esc(left)}</small>` : ''}</span>${act}</article>`;
 }
 // A gift sold at the place as a keepsake (its "Buy a gift" row in the scene does the same).
 function giftCard(g: Save, w: WorldDef, k: KeepsakeDef): string {
     const price = giftPrice(g, w, k), poor = num(g.player.money) < price;
-    return `<article class="mu-shop-item" data-item="${esc(k.id)}"><i>${esc(k.icon ?? '')}</i><span><b data-notr>${esc(k.name)}</b>${k.desc ? `<small data-notr>${esc(k.desc)}</small>` : ''}
+    return `<article class="mu-shop-item" data-item="${esc(k.id)}">${itemIco(w, k)}<span><b data-notr>${esc(k.name)}</b>${k.desc ? `<small data-notr>${esc(k.desc)}</small>` : ''}
         <small class="mu-shop-price">${esc(money(w, price))}</small></span>
         <button data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}>Buy</button></article>`;
 }

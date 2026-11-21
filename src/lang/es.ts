@@ -10977,6 +10977,7 @@ const DICT: Record<string, string> = {
  "Its own background": "Fondo propio",
  "While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.": "Mientras transcurre, la escena muestra esta imagen en lugar de la del lugar o la habitación, hasta que la escena sigue adelante.",
  "Picture (a file in the world's folder or a /user/files/ address; empty: the place's)": "Imagen (un archivo en la carpeta del mundo o una dirección /user/files/; vacío: la del lugar)",
+ "Picture (a file in the world's folder or a /user/files/ address; empty: the icon)": "Imagen (un archivo en la carpeta del mundo o una dirección /user/files/; vacío: el icono)",
  "A picture by place (shown there instead of the ones above)": "Una imagen por lugar (se muestra allí en lugar de las de arriba)",
  "Add a place's picture": "Añadir la imagen de un lugar",
  "Keeps the room it's in": "Mantiene la habitación en la que está",

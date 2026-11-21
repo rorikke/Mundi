@@ -10963,6 +10963,7 @@ const DICT = {
     "Its own background": "Fundo próprio",
     "While it plays, the scene shows this instead of the place's or the room's picture, until the scene moves on.": "Enquanto acontece, a cena mostra esta imagem em vez da do lugar ou do cômodo, até a cena seguir adiante.",
     "Picture (a file in the world's folder or a /user/files/ address; empty: the place's)": "Imagem (um arquivo na pasta do mundo ou um endereço /user/files/; vazio: a do lugar)",
+    "Picture (a file in the world's folder or a /user/files/ address; empty: the icon)": "Imagem (um arquivo na pasta do mundo ou um endereço /user/files/; vazio: o ícone)",
     "A picture by place (shown there instead of the ones above)": "Uma imagem por lugar (mostrada lá em vez das de cima)",
     "Add a place's picture": "Adicionar a imagem de um lugar",
     "Keeps the room it's in": "Mantém o cômodo em que está",

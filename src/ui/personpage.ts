@@ -21,6 +21,7 @@ import { social, bondOf, giftsGiven, giftFit, keepsakeDef, type GiftFit } from '
 import { activeFeelings } from '../sim/life.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
+import { itemIco } from './itempic.js';
 
 export type PersonTab = 'about' | 'memories' | 'circle' | 'notes';
 export const PP = { tab: 'about' as PersonTab, more: false };
@@ -146,7 +147,7 @@ const FIT_WORD: Record<GiftFit, string> = { loves: 'Loved it', fits: 'Liked it',
 function giftsHtml(g: Save, w: WorldDef, a: string): string {
     const given = giftsGiven(g)[a] ?? []; if (!given.length) return '';
     return `<section class="mu-pp-sec"><h5>${icon('heart')}<span>Gifts you gave</span></h5><ul class="mu-pp-gifts">${given.map(id => { const k = keepsakeDef(w, id), fit = giftFit(g, w, k, a);
-        return `<li class="is-${fit}"><i aria-hidden="true">${esc(k.icon ?? '🎁')}</i><span data-notr>${esc(k.name)}</span><small>${esc(FIT_WORD[fit])}</small></li>`; }).join('')}</ul></section>`;
+        return `<li class="is-${fit}">${itemIco(w, k, '🎁')}<span data-notr>${esc(k.name)}</span><small>${esc(FIT_WORD[fit])}</small></li>`; }).join('')}</ul></section>`;
 }
 /** The Notes tab: your own note (only for you: the AI never reads it), the gifts you gave, then `known` (what you
  *  learned of them in bed, from the phone). */

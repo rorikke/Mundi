@@ -92,6 +92,8 @@ const ADULT = '<em class="mu-cw-adult" title="Only with adult content on">Adult<
 export const flag = (label: string, p: string, hint = '', adult = false) => `<label class="mu-check"><input type="checkbox" data-input="cw" data-type="flag" data-path="${esc(p)}" ${getPath(p) ? 'checked' : ''}><span>${label}${adult ? ` ${ADULT}` : ''}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
 // Words separated by commas, or a text, where nothing typed leaves nothing in the file (an optional id, a job's tags).
 export const words = (label: string, p: string, hint = '', ph = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc((getPath(p) ?? []).join(', '))}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
+/** An item's picture (keepsakes, shop items, home fixtures, rewards, museum upgrades): its field and an upload. */
+const picField = (p: string, name: string) => `<div class="mu-row mu-cw-inline mu-cw-pic">${optTxt("Picture (a file in the world's folder or a /user/files/ address; empty: the icon)", p, 'items/lucky_cat.avif')}<button class="mu-ghost mu-ibtn" data-act="cw-room-img" data-path="${esc(p)}" data-name="${esc(name)}" title="Upload">${icon('upload')}</button></div>`;
 export const optTxt = (label: string, p: string, ph = '', hint = '') => `<label class="mu-field"><span>${label}</span><input data-input="cw" data-type="opt" data-path="${esc(p)}" data-focus="${esc(p)}" value="${val(p)}" placeholder="${esc(ph)}">${hint ? `<small class="mu-muted">${hint}</small>` : ''}</label>`;
 // One per line (likes, limits), kept as typed while typing; nothing typed leaves nothing in the file.
 const lines = (label: string, p: string, rows = 4, ph = '') => `<label class="mu-field"><span>${label}</span><textarea rows="${rows}" data-input="cw" data-type="lines" data-path="${esc(p)}" data-focus="${esc(p)}" placeholder="${esc(ph)}">${esc((getPath(p) ?? []).join('\n'))}</textarea></label>`;
@@ -1915,7 +1917,7 @@ function upgradeForm(w: WorldDef, i: number) {
     const others: Opt[] = upgradeOptsOf(w).filter(([id]) => id !== u.id);
     const halls: Opt[] = (w.collection?.halls ?? []).filter(h => !h.record).map(h => [h.id, `${h.icon ?? ''} ${h.name}`.trim()] as Opt);
     return `<div class="mu-row mu-cw-inline">${idTag(u.id)}</div>
-        <div class="mu-row2">${txt('Name', `${p}.name`, 'The Art wing')}${optTxt('Icon (an emoji)', `${p}.icon`, '🖼️')}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`, 'The Art wing')}${optTxt('Icon (an emoji)', `${p}.icon`, '🖼️')}</div>${picField(`${p}.pic`, `item-${u.id}`)}
         ${optTxt('What it does, in a line (optional)', `${p}.desc`, 'Puts the whole Art hall on show.')}
         <div class="mu-row2">${num(`Price (${esc(w.currency.symbol)})`, `${p}.price`)}${num('Renown it adds (optional)', `${p}.renown`)}</div>
         <div class="mu-row2">${sel('A wing: puts this hall on show', `${p}.opens`, withCur([['', '(not a wing)'], ...halls], u.opens), 'opt')}${sel('What else it does', `${p}.does`, withCur(UPGRADE_DOES, u.does), 'opt')}</div>
@@ -2127,7 +2129,7 @@ export function itemForm(p: string, it: ShopItem, as: { fixture?: boolean; fits?
     if (!adult && unlocks.length && unlocks.every(a => a.adult)) warn.push('It only unlocks adult things to do: mark it adult.');
     const price = num(`Price (${esc(w.currency.symbol)})`, `${p}.price`);
     const head = `<div class="mu-row mu-cw-inline">${idTag(it.id, `${p}.id`)}</div>
-        <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🛏️')}</div>
+        <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🛏️')}</div>${picField(`${p}.pic`, `item-${it.id}`)}
         ${area('Description', `${p}.desc`, 2)}`;
     if (fx) return `${head}<div class="mu-row2">${price}</div>${as.fits ?? ''}
         ${cond('Offered when (a condition; empty: always)', `${p}.when`, 'money: 1000000', 'The Homes app offers it only while it holds; kept once bought.')}
@@ -2182,7 +2184,7 @@ function keepsakesEditor(w: WorldDef) {
         ${master('keep', 'keepsakes', k => `<b>${esc(k.icon ?? '')} ${esc(k.name)}</b><small>${esc(k.kind ?? '')}${k.adult ? ' · adult' : ''}</small>`, i => {
             const p = `keepsakes.${i}`; const k = (w.keepsakes ?? [])[i];
             return `<div class="mu-row mu-cw-inline">${idTag(k.id)}</div>
-                <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎁')}</div>
+                <div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎁')}</div>${picField(`${p}.pic`, `item-${k.id}`)}
                 <div class="mu-row2">${optTxt('Kind (a gift of each kind counts once per person)', `${p}.kind`, 'charm')}${chk('It can be given', `${p}.gift`, '', true)}</div>
                 ${area('Description', `${p}.desc`, 2)}
                 ${words('Who would love it (names, or words matched against their job and where they spend free time)', `${p}.loves`, '', 'Mio, music, shrine')}
@@ -2889,7 +2891,7 @@ function goalForm(w: WorldDef, i: number) {
 function rewardForm(w: WorldDef, i: number) {
     const p = `rewards.add.${i}`; const r = w.rewards!.add![i]; const kind = r.kind;
     const kinds = [...REWARD_KINDS as readonly string[], ...((REWARD_KINDS as readonly string[]).includes(kind) ? [] : [kind])];
-    return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎁')}</div>
+    return `<div class="mu-row2">${txt('Name', `${p}.name`)}${txt('Icon (an emoji)', `${p}.icon`, '🎁')}</div>${picField(`${p}.pic`, `item-${r.id}`)}
         ${area('Description (what the player reads in the shop)', `${p}.desc`, 2)}
         <div class="mu-row2">${num('Price (life points)', `${p}.price`, 0, 10)}<label class="mu-field"><span>What it does</span><select data-input="cw-rkind" data-path="${esc(`${p}.kind`)}">${kinds.map(k => `<option value="${esc(k)}" ${k === kind ? 'selected' : ''}>${esc(REWARD_KIND_NAMES[k] ?? k)}</option>`).join('')}</select></label></div>
         ${kind === 'boost' ? `${bounded(`For how many days (${BOOST_DAYS.min}–${BOOST_DAYS.max})`, `${p}.days`, BOOST_DAYS.min, BOOST_DAYS.max)}
@@ -2925,6 +2927,7 @@ function tabGoals(w: WorldDef) {
             <label class="mu-check"><input type="checkbox" data-input="cw-off" data-path="rewards.off" data-id="${esc(x.id)}" ${on ? 'checked' : ''}><span>${esc(x.icon ?? '')}</span></label>
             <label class="mu-field"><span>Name</span><input data-input="cw-rename" data-path="rewards.names.${esc(x.id)}" data-focus="rewards.names.${esc(x.id)}" value="${esc(own(rs.names, x.id) ?? '')}" placeholder="${esc(x.name)}"></label>
             <label class="mu-field"><span>Price</span><input type="number" min="0" step="10" data-input="cw-reprice" data-path="rewards.prices.${esc(x.id)}" data-focus="rewards.prices.${esc(x.id)}" value="${esc(own(rs.prices, x.id) ?? '')}" placeholder="${esc(x.price)}"></label>
+            ${picField(`rewards.pics.${x.id}`, `item-${x.id}`)}
             <small class="mu-muted">${esc(x.desc ?? '')}${off.length ? ` Not sold here: needs ${esc(off.join(', '))} on.` : ''}${mine ? ' This world\'s own item with the same id takes its place.' : ''}</small></div>`;
     }).join('');
     const goalRow = (x: GoalDef) => { const is = goalIssues(x); return `<b>${esc(x.icon ?? '')} ${esc(x.name)}</b><small>${esc(cat(x.category))} · ${esc((x.steps ?? []).length)} steps${is.bad.length ? ' · can\'t work yet' : is.warn.length ? ' · may not be offered' : ''}</small>`; };

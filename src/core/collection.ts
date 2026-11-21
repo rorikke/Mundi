@@ -82,6 +82,7 @@ function upgrade(u: any, halls: Map<string, HallDef>): MuseumUpgrade | null {
     if (!u || typeof u !== 'object' || !ID.test(u.id ?? '') || !str(u.name)) return null;
     const out: MuseumUpgrade = { id: u.id, name: u.name, price: numIn(u.price, 0, MUSEUM_PRICE_MAX) ?? 0 };
     for (const k of ['icon', 'desc'] as const) if (str(u[k])) out[k] = u[k];
+    if (str(u.pic) && safeUrl(u.pic)) out.pic = safeUrl(u.pic);
     const renown = numIn(u.renown, 0, 1000); if (renown) out.renown = renown;
     if (str(u.opens) && halls.has(u.opens)) out.opens = u.opens;
     const needs = strs(u.needs)?.filter(x => ID.test(x)); if (needs?.length) out.needs = needs;

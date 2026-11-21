@@ -1,0 +1,31 @@
+/* Item pictures (keepsakes, shop items, home fixtures, rewards, museum upgrades): src/ui/itempic.ts puts the picture
+   inside the <i> each layout sizes for an emoji and marks it .has-pic; here the slot grows a little to show it. */
+#mundi-root i.has-pic { display: block; padding: 0; overflow: hidden; border-radius: 10px; font-size: 0; line-height: 0; }
+#mundi-root i.has-pic > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* the Shop app's cards (and gifts sold here) */
+#mundi-root .mu-shop-item:has(> i.has-pic) { grid-template-columns: 60px minmax(0, 1fr) auto; }
+#mundi-root .mu-shop-item > i.has-pic { width: 60px; height: 60px; border-radius: 12px; }
+#mundi-root .mu-book .mu-shop-item:has(> i.has-pic) { grid-template-columns: 56px minmax(0, 1fr) auto; }
+#mundi-root .mu-book .mu-shop-item > i.has-pic { width: 56px; height: 56px; }
+
+/* the Rewards tab */
+#mundi-root .mu-rw-item:has(> i.has-pic) { grid-template-columns: 52px minmax(0, 1fr) auto; }
+#mundi-root .mu-rw-item > i.has-pic { width: 52px; height: 52px; }
+
+/* the Homes app's rooms and fixtures */
+#mundi-root .mu-fix:has(> i.has-pic) { grid-template-columns: 56px 1fr auto; }
+#mundi-root .mu-fix > i.has-pic { width: 56px; height: 56px; }
+
+/* the museum's upgrades */
+#mundi-root .mu-mu-row > i.has-pic { flex: 0 0 44px; width: 44px; height: 44px; }
+
+/* "Give a keepsake" and "Buy a gift" in the scene: the tile shows the picture instead of its glass */
+#mundi-root .mh-act > i.has-pic { background: none; box-shadow: none; }
+
+/* a person's page: gifts you gave */
+#mundi-root .mu-pp-gifts li:has(> i.has-pic) { grid-template-columns: 32px 1fr auto; }
+#mundi-root .mu-pp-gifts li > i.has-pic { width: 32px; height: 32px; border-radius: 8px; }
+
+/* the Lens app's photo keepsakes */
+#mundi-root .mu-lens-keep > i.has-pic { width: 22px; height: 22px; border-radius: 6px; }

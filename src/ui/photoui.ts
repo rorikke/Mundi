@@ -26,6 +26,7 @@ import { acceptBook, declineBook, type BookView } from '../sim/photobooks.js';
 import { myStudio, studioZones, rentalOpen, RENTAL_HOURS } from '../sim/studio.js';
 import { studioWeekNow } from '../sim/fixtures.js';
 import { ACT, INPUT } from './reg.js';
+import { itemIco } from './itempic.js';
 
 type Tab = 'board' | 'open' | 'photos' | 'you';
 /** What the app shows (memory only): the tab, the photo open large, the brief whose shoot is being set (its place,
@@ -178,7 +179,7 @@ function photosTab(g: Save, w: WorldDef): string {
     const big = LS.photo ? [...v.portfolio, ...v.rest].find(r => r.id === LS.photo) : undefined;
     wantSprites(w, big ? [big] : [...v.portfolio, ...v.rest]);
     if (big) return bigPhoto(g, w, big);
-    const keep = v.keepsakes.length ? `<h4 class="mu-lens-sub">Photo keepsakes</h4><div class="mu-lens-keeps">${v.keepsakes.map(k => `<span class="mu-lens-keep"><i aria-hidden="true">${esc(k.icon)}</i><span data-notr>${esc(k.name)}</span>${k.n > 1 ? `<small>×${n(k.n)}</small>` : ''}</span>`).join('')}</div>` : '';
+    const keep = v.keepsakes.length ? `<h4 class="mu-lens-sub">Photo keepsakes</h4><div class="mu-lens-keeps">${v.keepsakes.map(k => `<span class="mu-lens-keep">${itemIco(w, w.keepsakes?.find(x => x.id === k.id) ?? k)}<span data-notr>${esc(k.name)}</span>${k.n > 1 ? `<small>×${n(k.n)}</small>` : ''}</span>`).join('')}</div>` : '';
     if (!v.portfolio.length && !v.rest.length) return `<p class="mu-muted">No photos yet. Take photos at the city's photo spots, or shoot a brief.</p>${keep}`;
     const roll = v.undeveloped ? `<p class="mu-lens-line"><small>${esc(plural(v.undeveloped, '1 photo waits on an undeveloped roll.', '{0} photos wait on an undeveloped roll.'))}</small></p>` : '';
     const port = v.portfolio.length ? `<h4 class="mu-lens-sub">Portfolio</h4><p class="mu-lens-line"><small>${esc(`Strength ${n(v.strength)} of 100 · ${n(v.portfolio.length)} of 12 pieces`)}</small></p>

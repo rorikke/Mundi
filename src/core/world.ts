@@ -809,7 +809,7 @@ export interface PerkDef { name: string; desc?: string; effects: EffectDef[]; wa
  *  text. `limit`: how often (`n` times, default 1, `per` day, week, season, year, goal, or `ever`; `person`: counted
  *  for each person apart, "once per person per season"). `roles`: only at a place with one of these roles (a shrine).
  *  `when`: only while this holds. `needs`, `adult`: as for goals. */
-export interface RewardDef { id: string; name: string; icon?: string; desc?: string; price: number; kind: string; effects?: EffectDef[]; days?: number; need?: string;
+export interface RewardDef { id: string; name: string; icon?: string; /** a picture shown instead of the icon */ pic?: string; desc?: string; price: number; kind: string; effects?: EffectDef[]; days?: number; need?: string;
     limit?: RewardLimit; roles?: string[]; when?: string; needs?: string[]; adult?: boolean;
     /** An `insight` item kept to these questions (`heart`, `view`, `secret`, `bed`); missing: all of them. */
     questions?: string[] }
@@ -819,7 +819,8 @@ export interface RewardLimit { per?: 'day' | 'week' | 'season' | 'year' | 'goal'
  *  takes its place). A private overlay adds to `add` by id and to `off` with `off+`. */
 export interface WorldGoals { off?: string[]; names?: Record<string, string>; add?: GoalDef[] }
 /** The world's rewards shop beside the general items: `off`, `names`, `add` as for goals, and `prices` (id → points). */
-export interface WorldRewards { off?: string[]; names?: Record<string, string>; prices?: Record<string, number>; add?: RewardDef[] }
+/** `pics`: pictures for the general rewards it keeps (by id), shown instead of their icons. */
+export interface WorldRewards { off?: string[]; names?: Record<string, string>; prices?: Record<string, number>; pics?: Record<string, string>; add?: RewardDef[] }
 
 export interface WorldDef {
     format: 1;
@@ -993,6 +994,8 @@ export interface SkillDef { id: string; name: string; icon?: string; desc?: stri
  *  be given (`gift: false`: it can't; missing: it can), and who would love it (names of the world's people, or words
  *  matched against a person's job and the places, and kinds of place, where they spend their free time). */
 export interface KeepsakeDef { id: string; name: string; icon: string; kind?: string; desc?: string; gift?: boolean; loves?: string[]; adult?: boolean;
+    /** Its picture (a world file or a /user/files/ address), shown instead of the icon. */
+    pic?: string;
     /** Sold at these places (place ids) for `price`: a "Buy a gift" row there. */
     at?: string[]; price?: number;
     /** A romantic gift (flowers, jewelry): with someone drawn to you (a partner, or a Crush and up) romance grows too. */
@@ -1133,7 +1136,7 @@ export interface LoanDef { who: string; when: When; fees: number[]; min?: number
 /** (museum) An upgrade bought once: `opens` a hall (the wing that puts it on show), `needs` other upgrades first,
  *  `does` what the engine reads (a climate room, security, a night guard, the workshop, the reading room, the
  *  exhibition hall), `renown` it adds. */
-export interface MuseumUpgrade { id: string; name: string; icon?: string; desc?: string; price: number; renown?: number;
+export interface MuseumUpgrade { id: string; name: string; icon?: string; /** a picture shown instead of the icon */ pic?: string; desc?: string; price: number; renown?: number;
     opens?: string; needs?: string[];
     does?: 'climate' | 'security' | 'guard' | 'workshop' | 'reading' | 'exhibition';
     when?: When; adult?: boolean }
@@ -1709,6 +1712,13 @@ export const WORLD_DESC_MAX = 160;
 export const shortDesc = (s: string) => { const t = String(s ?? '').trim(); return t.length <= WORLD_DESC_MAX ? t : `${t.slice(0, WORLD_DESC_MAX - 1).trimEnd()}…`; };
 // a world's picture or sound: always a safe address (it goes into style="" and url('…'))
 export const worldFile = (w: WorldDef, file?: string) => { if (!file) return ''; try { return safeUrl(new URL(FLAT.has(w.id) ? flatUrl(file) : file, w.base).href); } catch { return ''; } };
+/** An item's picture as an address ('' when it has none: show its icon): a keepsake, shop item, home fixture, reward or
+ *  museum upgrade. A shop item that gives a keepsake and has no picture of its own shows the keepsake's. */
+export function itemPic(w: WorldDef, it: { pic?: string; keepsake?: string } | null | undefined): string {
+    if (!it) return '';
+    const pic = typeof it.pic === 'string' && it.pic ? it.pic : it.keepsake ? w.keepsakes?.find(k => k.id === it.keepsake)?.pic : undefined;
+    return typeof pic === 'string' ? worldFile(w, pic) : '';
+}
 
 // How this world's device, social app and messages work, and how its people write (from the world; its style's
 // preset fills them in when missing, see core/presets.ts).

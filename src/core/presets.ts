@@ -15,6 +15,8 @@ import { upgradePhoto, upgradeStudios } from './photo.js';
 // as before; the defaults are read where they're used (`catOf`, `onlineOf`, `toldOf` in sim/shop.ts). The fields say
 // what a thing you have does, not where it's sold, so a home's rooms and fixtures can take the same shape later.
 export interface ShopItem { id: string; name: string; desc: string; icon: string; price: number;
+    /** its picture (a world file or a /user/files/ address), shown instead of the icon; one that gives a keepsake and has
+     *  none shows the keepsake's (`itemPic` in core/world.ts) */ pic?: string;
     /** trips take this share of the time (0.5 = half); the best vehicle you own counts */ travel?: number;
     /** mood gained each morning you wake up at home */ sleepMood?: number;
     /** its category (`SHOP_CATS` in sim/shop.ts): without one, `vehicle` when it has `travel`, else `home`; an unknown

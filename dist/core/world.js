@@ -324,6 +324,14 @@ export const worldFile = (w, file) => { if (!file)
 catch {
     return '';
 } };
+/** An item's picture as an address ('' when it has none: show its icon): a keepsake, shop item, home fixture, reward or
+ *  museum upgrade. A shop item that gives a keepsake and has no picture of its own shows the keepsake's. */
+export function itemPic(w, it) {
+    if (!it)
+        return '';
+    const pic = typeof it.pic === 'string' && it.pic ? it.pic : it.keepsake ? w.keepsakes?.find(k => k.id === it.keepsake)?.pic : undefined;
+    return typeof pic === 'string' ? worldFile(w, pic) : '';
+}
 // How this world's device, social app and messages work, and how its people write (from the world; its style's
 // preset fills them in when missing, see core/presets.ts).
 const kinds = (w) => (w ? presetOf(w) : PRESETS.modern).kinds;

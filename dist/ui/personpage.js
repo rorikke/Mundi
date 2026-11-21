@@ -21,6 +21,7 @@ import { social, bondOf, giftsGiven, giftFit, keepsakeDef } from '../sim/social.
 import { activeFeelings } from '../sim/life.js';
 import { icon } from './icons.js';
 import { ACT, INPUT } from './reg.js';
+import { itemIco } from './itempic.js';
 export const PP = { tab: 'about', more: false };
 const FRIEND_AT = 30; // a Friend knows your week and where you go in your free time (FRIEND_TIERS' Friend)
 // The tabs, each with how many things it holds (Memories, Circle).
@@ -165,7 +166,7 @@ function giftsHtml(g, w, a) {
         return '';
     return `<section class="mu-pp-sec"><h5>${icon('heart')}<span>Gifts you gave</span></h5><ul class="mu-pp-gifts">${given.map(id => {
         const k = keepsakeDef(w, id), fit = giftFit(g, w, k, a);
-        return `<li class="is-${fit}"><i aria-hidden="true">${esc(k.icon ?? '🎁')}</i><span data-notr>${esc(k.name)}</span><small>${esc(FIT_WORD[fit])}</small></li>`;
+        return `<li class="is-${fit}">${itemIco(w, k, '🎁')}<span data-notr>${esc(k.name)}</span><small>${esc(FIT_WORD[fit])}</small></li>`;
     }).join('')}</ul></section>`;
 }
 /** The Notes tab: your own note (only for you: the AI never reads it), the gifts you gave, then `known` (what you

@@ -73,6 +73,7 @@ import { toastLogHtml } from './toastlog.js';
 import { roomRows } from './homesui.js';
 import { roomNow, sceneHere, elsewhereHere } from '../sim/homerooms.js';
 import { SECOND_HOME_ID } from '../sim/housing.js';
+import { itemIco } from './itempic.js';
 /* ---------- you ---------- */
 // Health and energy are bars; the other needs are round badges. A world can choose with `hudKind`.
 const isBar = (s) => (s.hudKind ? s.hudKind === 'bar' : ['life', 'health', 'energy'].includes(s.id));
@@ -301,7 +302,7 @@ function giftRows(g, w) {
     if (!have.length || !people.length)
         return [];
     return [`<button class="mh-act mh-glass" data-act="give-open"><i>🎁</i><b>Give a keepsake</b><small>${have.length} to give</small></button>`,
-        ...(giveOpen ? have.flatMap(k => people.map(r => `<button class="mh-act mh-glass is-sub" data-act="give" data-id="${esc(k.id)}" data-who="${esc(r.avatar)}"><i>${esc(k.icon)}</i><b><span data-notr>${esc(k.name)}</span> → <span data-notr>${esc(r.name)}</span></b><small>× ${esc(String(keepsakesOf(g)[k.id] ?? 0))}</small></button>`)) : [])];
+        ...(giveOpen ? have.flatMap(k => people.map(r => `<button class="mh-act mh-glass is-sub" data-act="give" data-id="${esc(k.id)}" data-who="${esc(r.avatar)}">${itemIco(w, k)}<b><span data-notr>${esc(k.name)}</span> → <span data-notr>${esc(r.name)}</span></b><small>× ${esc(String(keepsakesOf(g)[k.id] ?? 0))}</small></button>`)) : [])];
 }
 // Gifts sold here (a keepsake's `at` and `price`): one row; open it to see them with their prices.
 let buyOpen = false;
@@ -310,7 +311,7 @@ function buyRows(g, w) {
     if (!list.length)
         return [];
     return [`<button class="mh-act mh-glass" data-act="buy-open"><i>🛍️</i><b>Buy a gift</b><small>${list.length} for sale</small></button>`,
-        ...(buyOpen ? list.map(k => { const poor = g.player.money < giftPrice(g, w, k); return `<button class="mh-act mh-glass is-sub" data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}><i>${esc(k.icon)}</i><b data-notr>${esc(k.name)}</b><small>${esc(money(w, giftPrice(g, w, k)))}${k.desc ? ` · <span data-notr>${esc(k.desc)}</span>` : ''}</small></button>`; }) : [])];
+        ...(buyOpen ? list.map(k => { const poor = g.player.money < giftPrice(g, w, k); return `<button class="mh-act mh-glass is-sub" data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}>${itemIco(w, k)}<b data-notr>${esc(k.name)}</b><small>${esc(money(w, giftPrice(g, w, k)))}${k.desc ? ` · <span data-notr>${esc(k.desc)}</span>` : ''}</small></button>`; }) : [])];
 }
 Object.assign(ACT, {
     'buy-open': () => { buyOpen = !buyOpen; notify(); },
