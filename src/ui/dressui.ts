@@ -1,7 +1,7 @@
 // This Home › Dress code: for each room, the outfit people wear there (the name of an outfit folder in their
 // Expressions, like "swimsuit" or "pajamas"). Someone without that outfit, or for whom it's bolder than they go,
-// keeps what they wear.
-import { notify, esc, saveGame, game, type Save } from '../core/store.js';
+// keeps what they wear. Also, in any game: whether what people have on follows the story (sim/storydress.ts).
+import { notify, esc, saveGame, game, cfg, type Save } from '../core/store.js';
 import { type WorldDef } from '../core/world.js';
 import { pins } from '../sim/places.js';
 import { dressCodes } from '../sim/dress.js';
@@ -21,7 +21,18 @@ export function dressHtml(g: Save, w: WorldDef): string {
         <datalist id="mu-dress-names">${names.map(n => `<option value="${esc(n)}">${esc(outfitLabel(n))}</option>`).join('')}</datalist>
         <div class="mu-dress">${rooms.map(p => row(p.id, p.name)).join('')}${row('__bedrooms', 'Bedrooms')}</div></section>`;
 }
+// Outfits that follow the story: on unless turned off (it costs a small AI call per reply where it can matter).
+export function storyDressHtml(g: Save): string {
+    return `<section class="mu-wc-sec"><h4>Outfits</h4>
+        <label class="mu-check"><input type="checkbox" data-input="wc-storydress" ${(cfg(g) as any).storyDress !== false ? 'checked' : ''}><span>Outfits follow the story
+            <small>When a reply clearly has someone undress, dress again or change clothes, their picture follows and the AI is told. Undressing only in a private place with adult content on; changing into another outfit only where they can change (their home). One short AI call after a reply, only when someone in it could change. Off: only places, things to do and private moments change what people wear.</small></span></label></section>`;
+}
 Object.assign(INPUT, {
+    'wc-storydress': (el) => {
+        const g = game(); if (!g) return;
+        if ((el as HTMLInputElement).checked) delete (cfg(g) as any).storyDress; else (cfg(g) as any).storyDress = false;
+        saveGame(); void syncScene().then(notify);
+    },
     dress: (el) => {
         const g = game(); if (!g) return;
         const codes = dressCodes(g); const id = el.dataset.id!; const v = el.value.trim();

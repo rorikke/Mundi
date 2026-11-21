@@ -3076,7 +3076,13 @@ function wearBox(p: string, e: WorldDef['cast']['examples'][number]) {
         <small class="mu-muted">An outfit with a kind can be put on by a dress code (a pool, a swim, a festival), the boldest they go there; one with a kind uploads the first time it's worn.</small>
         ${bounded('How bold they go in public (1–3; one more in private with someone close; empty: 2)', `${p}.comfort`, 1, 3)}
         ${names.map(o => `<div class="mu-cw-feel"><b data-notr>${esc(o)}</b><div class="mu-row2">${optTxt('Kind (empty: none)', `${p}.wear.${o}.kind`, 'swim')}${bounded('How bold (1 modest, 2 everyday, 3 bold, 4 explicit)', `${p}.wear.${o}.level`, 1, 4)}</div>
-            <div class="mu-row2">${optTxt('What it is, for the AI', `${p}.wear.${o}.look`, 'a black string bikini')}${flag('Only with adult content on', `${p}.wear.${o}.adult`, 'Explicit ones (4) always are.', true)}</div>${folder(o)}</div>`).join('')}</details>`;
+            <div class="mu-row2">${optTxt('What it is, for the AI', `${p}.wear.${o}.look`, 'a black string bikini')}${flag('Only with adult content on', `${p}.wear.${o}.adult`, 'Explicit ones (4) always are.', true)}</div>${fromField(`${p}.wear.${o}.from`)}${folder(o)}</div>`).join('')}</details>`;
+}
+// What an outfit is a state of (`from`, sim/storydress.ts): their other outfits it opens from, "own" for their own
+// clothes (a world may have written it as one name, or '' for their own clothes).
+function fromField(p: string) {
+    const v = getPath(p), list = (Array.isArray(v) ? v : v === undefined || v === null ? [] : [v]).map((x: unknown) => String(x ?? '').trim() || 'own');
+    return `<label class="mu-field"><span>Opens from (the story)</span><input data-input="cw" data-type="words" data-path="${esc(p)}" data-focus="${esc(p)}" value="${esc(list.join(', '))}" placeholder="own, swim-black"><small class="mu-muted">The outfits this one is a state of, comma-separated ("own" for their own clothes): when the story has them open or take something off, it can go from those into this one, and back. In private; in public too when it isn't adult and stays within how bold they go there. A half-undressed outfit (kind "undressed") with nothing here opens from their own clothes.</small></label>`;
 }
 // Their profile on the dating app: what they wrote, the app's questions they answered, and their photos (a place's
 // picture with one of their sprites on it; only with sprites).

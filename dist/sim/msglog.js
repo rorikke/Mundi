@@ -230,6 +230,8 @@ export function reconcile() {
         void import('./verdict.js').then(v => { const w = getWorld(g.world); if (w)
             void v.verdictNow(g, w, 'an action ended'); });
     }
+    // what people have on follows the story (imported lazily: it reads these messages back)
+    void import('./storydress.js').then(s => s.afterReconcile()).catch(e => console.warn('[Mundi] story outfits', e));
 }
 const LONG_SCENE = 30;
 // Outside a game (a chat with characters): only the emotions of the last replies, for the sprites. A label from

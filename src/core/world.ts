@@ -637,8 +637,11 @@ export interface DatingCard { off?: boolean; bio?: string; prompts?: { q: string
 export interface DatingPhoto { place: string; slot?: 'day' | 'afternoon' | 'night'; expr?: string; outfit?: string }
 /** (dress) What an outfit is: its `kind` (`swim`, `yukata`…; any word), how bold it is (`level` 1 modest, 2
  *  everyday, 3 bold, 4 explicit; missing: 1), `adult`: only with adult content on (level 4 always is), and `look`: the
- *  words the AI is told ("a black string bikini"). */
-export interface WearDef { kind: string; level?: number; adult?: boolean; look?: string }
+ *  words the AI is told ("a black string bikini"). `from`: the outfits it is a state of, '' for their own clothes (a
+ *  string or a list), so in private (or anywhere, when it isn't adult and is within their public comfort) the story
+ *  can open what they actually have on into it, and dress them back (sim/storydress.ts); any kind may have one (a sheer wrap left on with the bikini off), and a half-undressed state
+ *  (kind `undressed`) without one is a state of their own clothes. */
+export interface WearDef { kind: string; level?: number; adult?: boolean; look?: string; from?: string | string[] }
 /** (dress) A dress code: people put on an outfit of this `kind` while `when` holds, each the boldest their comfort
  *  allows there (WearDef, ExampleCharacter.comfort). Scripted: `level` sets the level instead, whatever their comfort,
  *  the place or their tier (only adult content still holds), for everyone it covers or only those named in `who`. */

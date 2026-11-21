@@ -9,7 +9,8 @@
 // with that name (a subfolder of their Expressions folder) wears it; when the code no longer holds for them (another
 // room, the action over, gone from the scene) the outfit it put on comes off again. You don't pick what the world's
 // people wear: with the dress system on, someone here in an outfit nothing calls for changes back into their own
-// clothes. The AI is told what they wear.
+// clothes. The AI is told what they wear. On top of all that, what the story says someone has on (sim/storydress.ts:
+// undressing in a private place, changing at home) wins while the codes stay as they were when it said so.
 import { cfg, state, adultOn, nowAbs, type Save } from '../core/store.js';
 import { isScenario, systemOn, type WorldDef, type DressDef, type WearDef, type ExampleCharacter } from '../core/world.js';
 import { outfitOf, wearOutfit, charOf } from '../st/bridge.js';
@@ -20,6 +21,7 @@ import { festivalsOn } from './festivals.js';
 import { placeOf, isHome } from './places.js';
 import { whenHolds, personNamed, parseWhen, levelHolds } from './when.js';
 import { statusOf, YOU } from './rel.js';
+import { storyOutfit } from './storydress.js';
 
 export const dressCodes = (g: Save): Record<string, string> => ((cfg(g) as any).dress ??= {});
 // a room's own code; a bedroom (home:…) uses the one set for all the bedrooms
@@ -65,8 +67,8 @@ export function wearOf(g: Save, w: WorldDef, avatar: string): [string, WearDef][
 /** What someone is to wear now. `code`: an outfit's own name (a Home's room, "naked"), else `kind` chosen by level;
  *  `level`: a scripted level; `explicit`: level 4 may be worn (a private or adult scene with adult content on);
  *  `bump`: a private place and someone close: one level bolder than in public; `room`: a Home's room code, which
- *  nobody follows past their comfort. */
-export interface DressNeed { code?: string; kind?: string; level?: number; explicit?: boolean; bump?: boolean; room?: boolean }
+ *  nobody follows past their comfort; `outfit`: the very outfit the story says they have on (sim/storydress.ts). */
+export interface DressNeed { code?: string; kind?: string; level?: number; explicit?: boolean; bump?: boolean; room?: boolean; outfit?: string }
 
 type Act = { a?: { private?: boolean; adult?: boolean; tags?: string[]; dress?: DressDef }; place?: string; with?: string[]; priv?: { notes?: { a?: { who?: string[] } } } };
 const named = (g: Save, names: string[] | undefined, avatar: string) => !!names?.some(n => personNamed(g, n)?.avatar === avatar);
@@ -91,12 +93,22 @@ function storyHere(g: Save, w: WorldDef) {
 const storyPeople = (s: { brings?: string; when?: unknown; dress?: DressDef }) =>
     [...(s.dress?.who ?? []), ...(s.brings ? [s.brings] : []), ...parseWhen(typeof s.when === 'string' ? s.when : '').conds.filter(c => c.key === 'present' && !c.not).flatMap(c => c.values)];
 
-/** What one person in the scene is to wear now, or null. A Home's room code; else, with adult content on, the people
+/** What one person in the scene is to wear now, or null (their own clothes): what the story last said they have on,
+ *  while the codes still call for what they did then; else the codes (codeNeed). */
+export function needFor(g: Save, w: WorldDef, avatar: string): DressNeed | null {
+    const code = codeNeed(g, w, avatar);
+    const s = storyOutfit(g, avatar, wordOf(code));
+    return s === undefined ? code : s ? { outfit: s } : null;
+}
+const wordOf = (n: DressNeed | null) => n?.code ?? n?.kind ?? '';
+/** What the codes alone call for someone, as a word (an outfit's name or a kind; empty: nothing). */
+export const codeFor = (g: Save, w: WorldDef, avatar: string) => wordOf(codeNeed(g, w, avatar));
+/** What the codes call for one person in the scene, or null. A Home's room code; else, with adult content on, the people
  *  taking part in a private action with you undress (or, when it has a dress code, put that on, up to explicit); else
  *  (the `dress` system) an action's code for the people doing it with you, a street story's for the people it names,
  *  a standing appointment's for the people at it here, a festival's for everyone at its places on its days, then the
  *  place's for everyone here. */
-export function needFor(g: Save, w: WorldDef, avatar: string): DressNeed | null {
+export function codeNeed(g: Save, w: WorldDef, avatar: string): DressNeed | null {
     // (your home: someone close goes a level bolder)
     if (isScenario(w)) { const c = dressAt(g, g.player.loc); return c ? { code: c, room: true, bump: closeToYou(g, w, avatar) } : null; }
     const on = systemOn(w, 'dress');
@@ -127,7 +139,7 @@ function festivalHere(g: Save, w: WorldDef) {
 /** The code for one person here, as a word: an outfit's name or a kind (empty: nothing). */
 export function dressFor(g: Save, w: WorldDef, avatar: string): string {
     const n = needFor(g, w, avatar);
-    return n?.code ?? n?.kind ?? '';
+    return n?.outfit ?? wordOf(n);
 }
 
 /* ---------- choosing the outfit ---------- */
@@ -176,7 +188,12 @@ export function applyDress(g: Save, w: WorldDef, has: (avatar: string, code: str
         if (!g.cast[a]) { delete worn[a]; continue; }
         const need = here.includes(a) ? needFor(g, w, a) : null;
         let match: string | undefined;
-        if (need) {
+        if (need?.outfit) {
+            // the story's own pick: one of the world's outfits (uploaded the first time), else a folder they have
+            const o = need.outfit;
+            if (wearOf(g, w, a).some(([n]) => n === o)) { if (!ready(a, o)) continue; match = o; }
+            else { const list = has(a, o.toLowerCase()); if (!list) continue; match = list.find(x => x.toLowerCase() === o.toLowerCase()); }
+        } else if (need) {
             // a Home's code naming a kind, or a kind: the world's outfits by level first
             const kind = need.kind ?? (need.code && need.code !== UNDRESSED && kindOf(need.code) !== need.code.toLowerCase() ? kindOf(need.code) : undefined);
             const pick = kind ? chooseWear(g, w, a, { ...need, kind }) : undefined;
@@ -218,14 +235,26 @@ export function applyDress(g: Save, w: WorldDef, has: (avatar: string, code: str
 
 // the words for a kind the AI is told about (any other: "Dressed for it")
 const KIND_LINE: Record<string, string> = { swim: 'In swimwear', yukata: 'In yukata', fencing: 'In fencing whites' };
-// What people here wear because of a code: a Home's room; elsewhere each person's outfit in words, and how bold it is
-// for them (above their public comfort, explicit, or at ease being looked at).
+// What people here wear: what the story put on them, then because of a code (a Home's room; elsewhere each person's
+// outfit in words, and how bold it is for them: above their public comfort, explicit, or at ease being looked at).
 export function dressLine(g: Save, w: WorldDef): string {
+    const story = sceneHere(g, w).map(r => [r, needFor(g, w, r.avatar)?.outfit] as const).filter((x): x is readonly [typeof x[0], string] => !!x[1]);
+    const told = story.length ? `What they have on now, as the story left it: ${story.map(([r, o]) => `${r.name} ${storyWords(g, w, r.avatar, o)}`).join('; ')}.` : '';
+    return [told, codeLine(g, w, new Set(story.map(([r]) => r.avatar)))].filter(Boolean).join(' ');
+}
+// an outfit the story put on, in words: naked, or what the world says it looks like
+function storyWords(g: Save, w: WorldDef, avatar: string, o: string): string {
+    if (o.toLowerCase() === UNDRESSED) return 'naked';
+    const look = String(exOf(g, w, avatar)?.wear?.[o]?.look ?? '').trim();
+    return `in ${look || o.replace(/[-_]+/g, ' ')}`;
+}
+// What the codes have people here wear (`skip`: the ones the story dressed instead).
+function codeLine(g: Save, w: WorldDef, skip: Set<string>): string {
     if (isScenario(w)) {
         const code = dressAt(g, g.player.loc);
         if (!code) return '';
         // who follows it and who keeps their clothes (it's too bold for them, or they have no such outfit)
-        const worn = dressed(g), here = sceneHere(g, w), on = here.filter(r => worn[r.avatar] && outfitOf(r.avatar).toLowerCase() === worn[r.avatar].toLowerCase());
+        const worn = dressed(g), here = sceneHere(g, w).filter(r => !skip.has(r.avatar)), on = here.filter(r => worn[r.avatar] && outfitOf(r.avatar).toLowerCase() === worn[r.avatar].toLowerCase());
         const off = here.filter(r => !on.includes(r));
         return `Dress code in this room: ${code}.${on.length ? ` Wearing it: ${on.map(r => `${r.name} (${worn[r.avatar]})`).join('; ')}.` : ''}${off.length ? ` In their own clothes: ${off.map(r => r.name).join(', ')}.` : ''}`;
     }

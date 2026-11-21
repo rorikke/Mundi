@@ -5,7 +5,7 @@ import { bondOf } from '../sim/social.js';
 import { state, notify, esc, game, toast, saveGame, cfg, adultOn } from '../core/store.js';
 import { DIFFICULTIES, difficultyOf } from '../sim/bills.js';
 import { isCustom, getWorld, activeStatuses, gameMode, GAME_MODES, systemOn, isScenario, homeNeedsOn } from '../core/world.js';
-import { dressHtml } from './dressui.js';
+import { dressHtml, storyDressHtml } from './dressui.js';
 import { homeJobOf, SHIFTS, DAYS } from '../sim/hometime.js';
 import { homeSettingsHtml } from './homeui.js';
 import { ctx, thumb, characters, charOf, personaThumb, personaName, lorebooks, chatLore, bindChatLore, createLorebook, saveCardPerson } from '../st/bridge.js';
@@ -306,7 +306,7 @@ function tabRules(g, w) {
     return `<section class="mu-wc-sec"><h4>${esc(w.name)}</h4><p>${esc(w.description)}</p><p class="mu-muted">Game mode: <b>${GAME_MODES.find(m => m.id === gameMode(w)).name}</b> (change it in the world creator).</p>
             <button data-act="wc-view" data-tab="general">${icon('book')}<span>${isScenario(w) ? 'See everything about this Home' : 'See everything about this world'}</span></button>
             <small class="mu-muted">Every part of it, as the world creator shows it: places, jobs and their careers, needs, things to do, courses, the shop… Only to look: nothing can be changed there.</small></section>
-        ${isScenario(w) ? `<section class="mu-wc-sec">${homeSettingsHtml(g)}</section>${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}<section class="mu-wc-sec">${head('Rooms', 'maps')}${list(w.places.map(p => p.name))}</section>` : `
+        ${isScenario(w) ? `<section class="mu-wc-sec">${homeSettingsHtml(g)}</section>${dressHtml(g, w)}${relSection(g, w)}${adultSettingHtml(g)}${storyDressHtml(g)}<section class="mu-wc-sec">${head('Rooms', 'maps')}${list(w.places.map(p => p.name))}</section>` : `
         <section class="mu-wc-sec"><h4>Time</h4>
             <div class="mu-heropick is-start">
                 <button class="mu-herocard ${live ? '' : 'is-on'}" data-act="wc-clock" data-v="action"><b>Only with actions</b><p>The clock moves only when you do something: eat, drink, sleep, work, travel, or let time pass. Talking does not spend time.</p></button>
@@ -316,6 +316,7 @@ function tabRules(g, w) {
         ${workSection(g, w)}
         ${relSection(g, w)}
         ${adultSettingHtml(g)}
+        ${storyDressHtml(g)}
         ${lifeSection(g, w)}
         <section class="mu-wc-sec">${head('Needs', 'needs')}${list(activeStatuses(w, g).map(s => `${s.icon} ${s.name}`))}</section>
         <section class="mu-wc-sec">${head('Places', 'maps')}${list(w.places.map(p => p.name))}</section>
