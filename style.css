@@ -4815,9 +4815,6 @@ body.mundi-open #completion_prompt_manager_popup {
 
 /* the journal (book look) */
 #mundi-root .mu-book .mu-gl-back { color: #7a4a1e; }
-/* unfolded: six suggestions, as cards */
-#mundi-root .mu-gl-suggest.is-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-#mundi-root .mu-gl-suggest.is-grid > h4 { grid-column: 1 / -1; }
 /* (unfolded cards: the perk over two lines, not cut after a few words) */
 #mundi-root :is(.mu-gl-suggest.is-grid, .mu-gl-rows.is-grid) .mu-gl-row > small { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 /* Home guests (ui/guestsui.ts): the people chosen (a small round picture and a × to take them off), the Calendar's tabs. */
@@ -5244,6 +5241,39 @@ body.mundi-open #completion_prompt_manager_popup {
 /* Stella's picture sits exactly on the box's bottom line */
 #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box img, #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box.is-wide img { position: absolute; left: 22px; bottom: 0; margin: 0; }
 #mundi-root:not([data-mobile]) .mu-tut .mu-tut-box .mu-tut-talk { grid-column: 2; }
+/* Profile, Jobs, Homes and Spark unfolded (ui/courses.ts, ui/phone.ts): a list on the left (the Profile's tabs, your
+   job and the openings, the Homes tabs, your Spark profile and matches), what's picked on the right */
+#mundi-root :is(.mu-pf-split, .mu-jb-split, .mu-hm-split, .mu-sp-split) .mu-ph-body { padding: 14px; }
+#mundi-root :is(.mu-pf-rows, .mu-jb-rows, .mu-hm-rows) { display: grid; gap: 5px; }
+#mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row), #mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row):hover:not(:disabled) {
+    display: grid; gap: 2px; align-items: center; justify-items: start; width: 100%; min-height: 42px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row):hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row).is-on, #mundi-root :is(.mu-pf-row-tab, .mu-jb-row, .mu-hm-row).is-on:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
+#mundi-root :is(.mu-jb-row, .mu-hm-row), #mundi-root :is(.mu-jb-row, .mu-hm-row):hover:not(:disabled) { grid-template-columns: minmax(0, 1fr); justify-content: stretch; }
+#mundi-root :is(.mu-jb-row, .mu-hm-row) b { font-size: 13px; }
+#mundi-root :is(.mu-jb-row, .mu-hm-row) small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; opacity: .7; }
+/* the Profile's tabs: an icon and the name */
+#mundi-root .mu-pf-row-tab, #mundi-root .mu-pf-row-tab:hover:not(:disabled) { grid-template-columns: 22px minmax(0, 1fr); column-gap: 8px; }
+#mundi-root .mu-pf-row-tab .mu-ic { width: 17px; height: 17px; opacity: .8; }
+#mundi-root .mu-pf-row-tab b { font-size: 13px; }
+/* Jobs: the counts by the headings */
+#mundi-root .mu-jb-split h4 small, #mundi-root .mu-sp-split h4 small { font-weight: 400; opacity: .7; }
+/* Homes: your home's picture over the list */
+#mundi-root .mu-hm-split .is-list .mu-home-card.is-mine { display: block; padding: 0; overflow: hidden; }
+#mundi-root .mu-hm-split .is-list .mu-home-card.is-mine .mu-home-pic { display: block; width: 100%; height: 120px; max-height: none; border-radius: 0; }
+/* Spark: your profile, to edit it */
+#mundi-root .mu-sp-me, #mundi-root .mu-sp-me:hover:not(:disabled) { display: grid; grid-template-columns: 44px minmax(0, 1fr) 18px; gap: 10px; align-items: center; width: 100%; padding: 8px 10px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root .mu-sp-me img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; object-position: top; }
+#mundi-root .mu-sp-me span { display: grid; gap: 2px; }
+#mundi-root .mu-sp-me small { font-size: 12px; opacity: .7; }
+#mundi-root .mu-sp-pane { position: relative; }
+/* (the profile you look at keeps a phone's width, its photo not stretched across the pane) */
+#mundi-root .mu-sp-split .mu-sp-card { width: min(100% - 24px, 440px); margin-inline: auto; }
+/* (homes for rent two side by side in the pane, not one large card per row) */
+#mundi-root .mu-hm-split .mu-home-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
 /* The world creator opened from a game only to look (This world → In detail): its fields read as plain values
    rather than greyed-out boxes, and what only edits is hidden. */
 #mundi-root .mu-creator-ed.is-view .mu-cw-viewnote { display: flex; align-items: center; gap: 8px; margin-left: auto; max-width: 620px; font-size: .85em; opacity: .9; }

@@ -124,9 +124,12 @@ const TRAIT_GROUPS = (w: WorldDef): [string, string][] => [['personality', 'Pers
 // What a finished course taught: its skills ("Japanese 4"), or the traits an older world's course grants.
 const taught = (w: WorldDef, c: { skills?: Record<string, number>; grants?: string[] }) => Object.entries(c.skills ?? {}).map(([id, n]) => `${skillName(w, id)} ${n}`).join(', ') || (c.grants ?? []).join(', ');
 // The Profile, in tabs under who you are (the top card: its counts open their tab): You (experience, who you are, what
-// you like, activity), Skills (and training together), Courses, Perks. A tab only where this world has it.
-export const PF = { tab: 'you' as 'you' | 'skills' | 'courses' | 'perks' };
-export function profileApp(g: Save, w: WorldDef, head: string): string {
+// you like, activity), Skills (and training together), Courses, Perks, Reputation (the Reputation app's page, given by
+// the phone: `rep`, its name and body, or none). A tab only where this world has it. Unfolded (`wide`), like Messages:
+// the top card and the tabs as a list on the left, the open tab on the right.
+export const PF = { tab: 'you' as 'you' | 'skills' | 'courses' | 'perks' | 'reputation' };
+const TAB_ICONS: Record<typeof PF.tab, string> = { you: 'user', skills: 'star', courses: 'cap', perks: 'heart', reputation: 'crown' };
+export function profileApp(g: Save, w: WorldDef, head: string, wide = false, rep?: { name: string; html: string }): string {
     const l = learning(g); const life = lifeOf(g);
     // the traits that count in this game: adult ones (In bed, the Drive…) only with adult content on
     const t = Object.fromEntries(Object.entries((g.player.traits ?? {}) as Record<string, string[]>).map(([k, v]) => [k, (v ?? []).filter(x => adultOn(g) || !isAdultTrait(w, x))]));
@@ -139,7 +142,7 @@ export function profileApp(g: Save, w: WorldDef, head: string): string {
     const nTraits = Object.values(t).flat().length, nShifts = Math.round(countOf(g, 'shifts'));
     const taking = takingRows(g, w);
     const skills = hobbiesHtml(g, w) + trainingHtml(g, w);
-    const tabs: [typeof PF.tab, string][] = [['you', 'You'], ...(skills ? [['skills', w.skills?.length ? 'Skills' : 'Hobbies'] as [typeof PF.tab, string]] : []), ['courses', lex(w, 'courses')], ...(goalsOn ? [['perks', 'Perks'] as [typeof PF.tab, string]] : [])];
+    const tabs: [typeof PF.tab, string][] = [['you', 'You'], ...(skills ? [['skills', w.skills?.length ? 'Skills' : 'Hobbies'] as [typeof PF.tab, string]] : []), ['courses', lex(w, 'courses')], ...(goalsOn ? [['perks', 'Perks'] as [typeof PF.tab, string]] : []), ...(rep?.html ? [['reputation', rep.name] as [typeof PF.tab, string]] : [])];
     const tab = tabs.some(x => x[0] === PF.tab) ? PF.tab : 'you';
     const stat = (n: number | string, word: string, to: typeof PF.tab) => `<button class="mu-pf-stat" data-act="pf-tab" data-v="${to}"><b>${esc(String(n))}</b><small>${word}</small></button>`;
     const you = `<section><h4>${icon('briefcase')} Experience</h4>${o ? `<div class="mu-pf-row"><b>${esc(o.name)}</b><small>${esc(rankOf(g, o).name)} · rank ${j!.rank + 1} of ${careerOf(g, o).ranks.length + (careerOf(g, o).open ? 1 : 0)}</small></div>` : `<p class="mu-muted">${lex(w, 'noJobYet', appRef(w, 'jobs'))}</p>`}</section>
@@ -155,12 +158,19 @@ export function profileApp(g: Save, w: WorldDef, head: string): string {
             ${!taking && !l.done.length ? `<p class="mu-muted">${lex(w, 'noCourses')}</p>` : ''}
             <button class="mu-primary" data-act="course-open">${icon('plus')}<span>${lex(w, 'browseCourses')}</span></button></section>`;
     const perks = `<section class="mu-pf-perks"><h4>${icon('heart')} Your perks</h4><p class="mu-muted">What your finished life goals give you, for good. A perk is not a trait: it changes numbers in the game.</p>${perksListHtml(g, w)}</section>`;
-    return `${head}<div class="mu-ph-body mu-profile">
-        <section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
+    const top = `<section class="mu-pf-top"><div class="mu-pf-cover"></div><img src="${esc(personaThumb())}" alt=""><b data-notr>${esc(personaName())}</b>
             <small>${o ? `${esc(rankOf(g, o).name)} · ${esc(o.name)}` : lex(w, 'openToWork')}</small>
-            <span class="mu-pf-stats">${stat(nTraits, nTraits === 1 ? 'trait' : 'traits', 'you')}${stat(l.done.length, lex(w, 'coursesShort'), 'courses')}${goalsOn ? stat(goals, goals === 1 ? 'goal' : 'goals', 'perks') : ''}${stat(nShifts, nShifts === 1 ? 'shift' : 'shifts', 'you')}</span></section>
+            <span class="mu-pf-stats">${stat(nTraits, nTraits === 1 ? 'trait' : 'traits', 'you')}${stat(l.done.length, lex(w, 'coursesShort'), 'courses')}${goalsOn ? stat(goals, goals === 1 ? 'goal' : 'goals', 'perks') : ''}${stat(nShifts, nShifts === 1 ? 'shift' : 'shifts', 'you')}</span></section>`;
+    const body = tab === 'skills' ? skills : tab === 'courses' ? courses : tab === 'perks' ? perks : tab === 'reputation' ? rep!.html : you;
+    if (wide) {
+        // the right pane's key changes with the tab, so each opens at its top
+        const rows = tabs.map(([id, name]) => `<button class="mu-pf-row-tab ${id === tab ? 'is-on' : ''}" data-act="pf-tab" data-v="${id}" aria-pressed="${id === tab}">${icon(TAB_ICONS[id])}<b>${esc(name)}</b></button>`).join('');
+        return `${head}<div class="mu-ph-split mu-pf-split"><div class="mu-ph-pane is-list" data-keep="pf-pane-list"><div class="mu-ph-body mu-profile">${top}<nav class="mu-pf-rows">${rows}</nav></div></div>
+            <div class="mu-ph-pane is-open" data-keep="pf-pane-${tab}"><div class="mu-ph-body mu-profile">${body}</div></div></div>`;
+    }
+    return `${head}<div class="mu-ph-body mu-profile">${top}
         ${tabs.length > 1 ? `<nav class="mu-pf-tabs">${tabs.map(([id, name]) => `<button class="${id === tab ? 'is-on' : ''}" data-act="pf-tab" data-v="${id}" aria-pressed="${id === tab}">${esc(name)}</button>`).join('')}</nav>` : ''}
-        ${tab === 'skills' ? skills : tab === 'courses' ? courses : tab === 'perks' ? perks : you}
+        ${body}
     </div>`;
 }
 

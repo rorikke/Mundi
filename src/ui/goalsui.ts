@@ -341,8 +341,9 @@ export function closeGoal(): boolean {
 // The goal you follow, small: it opens on the right (where it shows anyway until something else is picked).
 function activeSmall(g: Save, w: WorldDef): string {
     const goal = activeGoal(g, w);
-    if (!goal) return `<button class="mu-ph-card mu-gl-active is-empty mu-gl-pane-btn ${GS.cat === '' && !GS.detail ? 'is-on' : ''}" data-act="gl-show" data-v=""><b>Pick a life goal <em class="mu-gl-badge">!</em></b>
-        <small>${esc('It guides your days, and finishing it gives you a perk.')}</small></button>`;
+    // (with none followed it only says so: Suggested, under it, is where to pick one)
+    if (!goal) return `<section class="mu-ph-card mu-gl-active is-empty"><b>Pick a life goal <em class="mu-gl-badge">!</em></b>
+        <small>${esc('It guides your days, and finishing it gives you a perk.')}</small></section>`;
     const p = goalProgress(g, w, goal.id), i = Math.min(p.done, goal.steps.length - 1);
     const on = GS.detail === goal.id || (GS.cat === '' && !GS.detail);
     return `<button class="mu-ph-card mu-gl-active mu-gl-pane-btn ${on ? 'is-on' : ''}" data-act="gl-show" data-v=""><small>Your life goal</small>

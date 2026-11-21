@@ -4,7 +4,7 @@ import { askingFrom, answerAdvice } from '../sim/happenings.js';
 import { approvalOf, approvalWord } from '../sim/living.js';
 import { interviewChance, interviewSkill, triedToday, retryText } from '../sim/skills.js';
 import { missingCourses, isTaking } from '../sim/courses.js';
-import { profileApp, jobCourseHtml } from './courses.js';
+import { profileApp, jobCourseHtml, PF } from './courses.js';
 import { billList, billAmount, billName, owed, isCut, daysLeft, payBill, payOf, priceOf, owedAmount, paidToward, payPlan, daysToCut, toGetBackIn, cheapestHome, billsApp } from '../sim/bills.js';
 import { shopApp } from './lifeui.js';
 import { SH } from './shopui.js';
@@ -18,7 +18,7 @@ import { retainerNow } from '../sim/freelance.js';
 import { studentLink } from '../sim/hooks.js';
 import { sheetApp, questsApp, grimoireApp } from './rpgui.js';
 import { partyApp } from './combatui.js';
-import { standingApp, petsApp, helpBtn } from './lifeplus.js';
+import { standingApp, standingHtml, petsApp, helpBtn } from './lifeplus.js';
 import { factionsApp } from './factionsui.js';
 import { holdingsApp } from './holdingsui.js';
 import { towerApp, contractsApp, workshopApp, trophiesApp, bladeApp, soulApp, healthApp } from './adventureui.js';
@@ -85,13 +85,18 @@ export function closePhone() {
 export const P = { closing: false, open: false, app: 'home', who: '', draft: '', typing: '', busy: false, matched: '', q: '' };
 // Sections: several apps under one icon (on the phone and in the journal), with tabs to move between them.
 const SECTIONS = [
-    { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'trophies', 'standing'] },
+    { id: 'profile', name: 'Profile', icon: 'user', color: '#0a66c2', apps: ['profile', 'sheet', 'trophies'] },
     { id: 'companions', name: 'Companions', icon: 'heart', color: '#e58a4e', apps: ['pets', 'soulbond', 'blade'] },
     { id: 'groups', name: 'Groups', icon: 'users', color: '#6b4fd8', apps: ['party', 'factions'] },
     { id: 'missions', name: 'Missions', icon: 'map', color: '#c08a2e', apps: ['quests', 'tower', 'contracts'] },
     { id: 'work', name: 'Work', icon: 'briefcase', color: '#0a84ff', apps: ['jobs', 'campus', 'business', 'photos'] },
 ];
 const LAST_TAB = {};
+// Apps shown inside another rather than on their own: Reputation is a tab of the Profile.
+const FOLDED = new Set(['standing']);
+// The Profile's Reputation tab: the Reputation app's name and page, where this world shows that app and has something
+// on it.
+const repTab = (g, w) => (appsShown(w).some(a => a.id === 'standing') ? { name: appsOf(w).find(a => a.id === 'standing')?.name ?? 'Reputation', html: standingHtml(g, w) } : undefined);
 const sectionFor = (a) => SECTIONS.find(s => s.apps.includes(a));
 // The apps of a section this world shows (the profile is always there).
 const secApps = (w, s) => { const shown = new Set(appsShown(w).map(x => x.id)); return s.apps.filter(a => (a === 'profile' && !isScenario(w)) || shown.has(a)); }; // Home: no Profile app
@@ -102,6 +107,8 @@ const APPS = (w) => {
     const out = [];
     const done = new Set();
     for (const x of appsShown(w)) {
+        if (FOLDED.has(x.id))
+            continue;
         const s = sectionFor(x.id);
         if (!s) {
             out.push([x.id, x.name, x.icon, x.color, x.id]);
@@ -205,6 +212,10 @@ function innerBack() {
 }
 // Opening an app, forward or back: what each one does when it opens.
 function openApp(app) {
+    if (app === 'standing') {
+        app = 'profile';
+        PF.tab = 'reputation';
+    } // (folded into the Profile)
     P.app = app;
     P.draft = '';
     P.matched = '';
@@ -601,13 +612,16 @@ const jobSortChips = () => `<div class="mu-chips mu-jobs-sort"><small class="mu-
 // Jobs in two views while you have a job: Your job (rank, pay, performance, promotion, your week) and Openings (the
 // list, sorted as you pick). It opens on Your job, and on Openings again once you quit or before you're hired; a job
 // taken or left (however: the list, a pick of track, the scene) starts it over.
-const JV = { tab: '', job: undefined };
-function jobsApp(g, w) {
+// Unfolded (`wide`), like Messages: your job and the openings as a list on the left, the picked one (`JV.pick`: an
+// opening's id, or '' for your job, else the first opening) with all it says on the right.
+const JV = { tab: '', job: undefined, pick: '' };
+function jobsApp(g, w, wide = false) {
     const j = g.player.job;
     const mine = myJob(g, w); // the job you hold, on your track
     if (JV.job !== j?.id) {
         JV.job = j?.id;
         JV.tab = '';
+        JV.pick = '';
     }
     const view = mine && j ? (JV.tab || 'mine') : 'openings';
     const openings = openJobs(g, w).filter(o => o.id !== j?.id);
@@ -620,8 +634,8 @@ function jobsApp(g, w) {
     const free = !!mine && isFreelance(g, w); // (photography) a freelancer works brief by brief: no shifts, a retainer
     const tabs = mine && j ? `<nav class="mu-pf-tabs mu-jb-tabs"><button class="${view === 'mine' ? 'is-on' : ''}" data-act="ph-jobs-view" data-v="mine" aria-pressed="${view === 'mine'}">${T('yourJob')}</button>
         <button class="${view === 'openings' ? 'is-on' : ''}" data-act="ph-jobs-view" data-v="openings" aria-pressed="${view === 'openings'}">${T('openings')} <small>${openings.length}</small></button></nav>` : '';
-    return `${hd('jobs')}<div class="mu-ph-body">${tabs}
-        ${view !== 'mine' ? '' : mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path))}` : ''}</small>
+    // your job, all it says (and your week)
+    const mineHtml = () => (mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path))}` : ''}</small>
             <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
             ${free ? `<small>Your briefs are in Lens.</small>${appsShown(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
             ${wait ? `<small class="mu-good">Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.</small>` : ''}
@@ -631,10 +645,9 @@ function jobsApp(g, w) {
             ${jobCourseHtml(g, w, mine.id)}
             ${likes(g, mine).length ? `<small>Your traits help: ${esc(likes(g, mine).join(', '))}</small>` : ''}
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
-            ${workWeekHtml(g, w)}` : ''}
-        ${view !== 'openings' ? '' : `${mine && j ? '' : `<p class="mu-muted">${T('noJob')}</p><h4>${T('openings')}</h4>`}
-        ${openings.length > 1 ? jobSortChips() : ''}
-        <div class="mu-ph-jobs">${sortedOpenings(g, w, openings).map(job => {
+            ${workWeekHtml(g, w)}` : '');
+    // an opening, all it says, with Apply
+    const card = (job) => {
         const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
         return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1).pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}</small>
             ${picks.length > 1 ? `<small>${esc(picks.length === 2 ? 'Two tracks' : `${picks.length} tracks`)}: ${esc(picks.map(t => trackName(w, job, t)).join(' or '))} (you choose when hired)</small>` : o.track !== undefined && o.trackName ? `<small>Your track: ${esc(o.trackName)}</small>` : ''}
@@ -644,8 +657,31 @@ function jobsApp(g, w) {
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
             ${missingCourses(g, w, o).length ? '' : `${interviewHelp(g, w, o)}${interviewChance(g, o, traitsOf(g)) ? `<small>Interview: ${interviewChance(g, o, traitsOf(g))}% chance${triedToday(g, o.id, o, traitsOf(g)) ? ` · try again ${retryText(g, o.id, o, traitsOf(g))}` : ''}</small>` : '<small class="mu-bad">Interview: out of your reach for now</small>'}`}</span>
             <button data-act="ph-apply" data-id="${esc(o.id)}" ${missingCourses(g, w, o).length || triedToday(g, o.id, o, traitsOf(g)) || !interviewChance(g, o, traitsOf(g)) ? 'aria-disabled="true"' : ''}>${T('jobApply')}</button></div>`;
-    }).join('')}</div>`}
+    };
+    const sorted = sortedOpenings(g, w, openings);
+    if (wide)
+        return jobsWide(g, w, { mine, j, sorted, mineHtml, card, where });
+    return `${hd('jobs')}<div class="mu-ph-body">${tabs}
+        ${view !== 'mine' ? '' : mineHtml()}
+        ${view !== 'openings' ? '' : `${mine && j ? '' : `<p class="mu-muted">${T('noJob')}</p><h4>${T('openings')}</h4>`}
+        ${openings.length > 1 ? jobSortChips() : ''}
+        <div class="mu-ph-jobs">${sorted.map(card).join('')}</div>`}
     </div>`;
+}
+// Unfolded: the list on the left (your job first, then the openings in the order picked), the picked one on the right
+// (its key changes with the pick, so each opens at its top).
+function jobsWide(g, w, x) {
+    const has = (id) => x.sorted.some(o => o.id === id);
+    const pick = JV.pick && has(JV.pick) ? JV.pick : x.mine && x.j ? '' : x.sorted[0]?.id ?? '';
+    const pay = (o) => { const t = trackOf(g, o); return `${money(w, payOf(g, t.ranks[0].pay))}–${money(w, payOf(g, t.ranks.at(-1).pay))}/h`; };
+    const row = (id, title, sub, on) => `<button class="mu-jb-row ${on ? 'is-on' : ''}" data-act="ph-jobs-pick" data-id="${esc(id)}" aria-pressed="${on}"><b>${esc(title)}</b><small>${esc(sub)}</small></button>`;
+    const mineRow = x.mine && x.j ? `<h4>${T('yourJob')}</h4>${row('', rankOf(g, x.mine).name, `${x.mine.name} · ${x.where(x.mine)}`, pick === '')}` : `<p class="mu-muted">${T('noJob')}</p>`;
+    const list = x.sorted.map(o => { const t = trackOf(g, o); return row(o.id, t.name, `${x.where(t)} · ${pay(o)}`, pick === o.id); }).join('');
+    const open = pick ? x.sorted.find(o => o.id === pick) : undefined;
+    const right = open ? `<div class="mu-ph-jobs">${x.card(open)}</div>` : x.mineHtml();
+    return `${hd('jobs')}<div class="mu-ph-split mu-jb-split"><div class="mu-ph-pane is-list" data-keep="jb-pane-list"><div class="mu-ph-body">${mineRow}
+            <h4>${T('openings')} <small>${x.sorted.length}</small></h4>${x.sorted.length > 1 ? jobSortChips() : ''}<nav class="mu-jb-rows">${list}</nav></div></div>
+        <div class="mu-ph-pane is-open" data-keep="jb-pane-${esc(pick || 'mine')}"><div class="mu-ph-body">${right || `<p class="mu-ph-none">${icon('briefcase')}<span>${esc('Pick a job to see it.')}</span></p>`}</div></div></div>`;
 }
 // Your money: the balance, the bills to pay (in the world's Bank; sim/bills.ts billsApp), the last week in and out,
 // and the statement.
@@ -696,22 +732,21 @@ function billsLine(g, w) {
     const due = list.some(b => owed(g, b.id));
     return `<button class="mu-ph-billsline ${due ? 'is-due' : ''}" data-act="ph-go" data-app="bank"><span>${esc(T('billsLine', list.map(b => `${billName(w, b.id)} ${money(w, billAmount(g, w, b.id))}`).join(' · '), appRef(w, 'bank')))}</span>${due ? `<b class="mu-bad">${esc('Due now')}</b>` : ''}${icon('forward')}</button>`;
 }
-function homesApp(g, w) {
+// Unfolded (`wide`), like Messages: your home and the tabs as a list on the left (how many homes are for rent), the
+// open tab (or a house's rooms) on the right.
+function homesApp(g, w, wide = false) {
     const pic = (kind) => { const im = w.homes.kinds[kind]?.image; return im ? `style="background-image:url('${safeUrl(worldFile(w, im))}')"` : ''; };
     const mine = w.homes.zones.find(z => z.id === g.player.home.zone);
     // (housing) a house of yours' rooms and fixtures, in place of the rest
-    if (HU.rooms) {
-        const r = roomsHtml(g, w);
-        if (r)
-            return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${r}</div>${askHtml(g, w)}`;
-    }
+    const rooms = HU.rooms ? roomsHtml(g, w) : '';
+    if (rooms && !wide)
+        return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${rooms}</div>${askHtml(g, w)}`;
     // in tabs: your home (and what you own or let), homes for rent, homes and studios for sale (when there are any)
     const sale = forSaleHtml(g, w);
     const tabs = [['mine', T('myHome')], ['rent', 'For rent'], ...(sale.trim() ? [['sale', 'For sale']] : [])];
     const tab = tabs.some(t => t[0] === HV.tab) ? HV.tab : 'mine';
     const nav = `<nav class="mu-pf-tabs mu-hm-tabs">${tabs.map(([id, name]) => `<button class="${id === tab ? 'is-on' : ''}" data-act="ph-homes-tab" data-v="${id}" aria-pressed="${id === tab}">${esc(name)}</button>`).join('')}</nav>`;
-    return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${nav}
-        ${tab !== 'mine' ? '' : `<section><h4>${T('myHome')}</h4>
+    const content = `${tab !== 'mine' ? '' : `<section><h4>${T('myHome')}</h4>
         <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span>
             <div class="mu-home-info"><span><b>${esc(homeAddress(w, g.player.home))}</b><small>${esc(w.homes.kinds[g.player.home.kind ?? mine?.kind ?? '']?.name ?? '')} · ${T('yourHome')}</small></span></div></article>
         ${billsApp(w) === 'homes' ? billsHtml(g, w) : billsLine(g, w)}
@@ -736,9 +771,20 @@ function homesApp(g, w) {
                 <button class="mu-home-move" data-act="ph-move" data-id="${esc(z.id)}" ${free && g.player.money >= rent && !student ? '' : 'aria-disabled="true"'} ${student ? 'title="Not while you study for a degree"' : ''}>Move</button></div></article>`;
     }).join('')}</div>
         ${w.homes.zones.some(z => studentLink.homeBlock(g, w, z.id)) ? `<p class="mu-bad">${esc(w.homes.zones.map(z => studentLink.homeBlock(g, w, z.id)).find(Boolean))}</p>` : ''}
-        <p class="mu-muted">${T('movingNote')}</p></section>`}
+        <p class="mu-muted">${T('movingNote')}</p></section>`}`;
+    if (wide) {
+        const forRent = w.homes.zones.filter(z => z.id !== g.player.home.zone && !buyOnly(z)).length;
+        const sub = { mine: homeAddress(w, g.player.home), rent: plural(forRent, '1 home', '{0} homes'), sale: '' };
+        const rows = tabs.map(([id, name]) => { const on = id === tab && !rooms; return `<button class="mu-hm-row ${on ? 'is-on' : ''}" data-act="ph-homes-tab" data-v="${id}" aria-pressed="${on}"><b>${esc(name)}</b>${sub[id] ? `<small>${esc(sub[id])}</small>` : ''}</button>`; }).join('');
+        return `${head(appName('homes'), 'home')}<div class="mu-ph-split mu-hm-split"><div class="mu-ph-pane is-list" data-keep="hm-pane-list"><div class="mu-ph-body mu-homes">
+                <article class="mu-home-card is-mine"><span class="mu-home-pic" ${pic(g.player.home.kind ?? mine?.kind ?? '')}></span></article><nav class="mu-hm-rows">${rows}</nav></div></div>
+            <div class="mu-ph-pane is-open" data-keep="hm-pane-${rooms ? 'rooms' : tab}"><div class="mu-ph-body mu-homes">${rooms || content}</div></div></div>${askHtml(g, w)}`;
+    }
+    return `${head(appName('homes'), 'home')}<div class="mu-ph-body mu-homes">${nav}
+        ${content}
     </div>${askHtml(g, w)}`;
 }
+const plural = (k, one, many) => (k === 1 ? one : many.replace('{0}', String(k)));
 Object.assign(ACT, {
     'ph-refer': (el) => { const g = game(); const w = g && getWorld(g.world); if (!g || !w)
         return; const r = askReferral(g, w, el.dataset.who); if (r.text)
@@ -779,10 +825,13 @@ Object.assign(ACT, {
         notify();
     },
     'ph-homes-city': (el) => { HF.city = el.dataset.id ?? ''; notify(); },
-    'ph-homes-tab': (el) => { HV.tab = el.dataset.v || 'mine'; notify(); },
+    // (unfolded, the tabs sit beside a house's rooms: picking one leaves them; folded, the rooms hide the tabs)
+    'ph-homes-tab': (el) => { HV.tab = el.dataset.v || 'mine'; if (isWide())
+        HU.rooms = ''; notify(); },
     'ph-homes-rent': () => { HV.tab = 'rent'; openApp('homes'); }, // (Money's "move somewhere cheaper")
     'ph-people-filter': (el) => { PEOPLE.filter = el.dataset.v || 'all'; notify(); },
     'ph-jobs-sort': (el) => { JF.sort = el.dataset.id ?? ''; notify(); },
+    'ph-jobs-pick': (el) => { JV.pick = el.dataset.id ?? ''; notify(); },
     'ph-jobs-view': (el) => { JV.tab = el.dataset.v === 'openings' ? 'openings' : 'mine'; notify(); },
     'ph-open-homes': () => { P.open = true; P.app = 'homes'; notify(); },
     'ph-open-bills': () => { const g = game(); const w = g && getWorld(g.world); P.open = true; P.app = w ? billsApp(w) : 'homes'; notify(); }, // (the HUD's "Locked out")
@@ -828,24 +877,28 @@ function datingProfileApp(g, w) {
         <button class="mu-primary" data-act="sp-save" ${d.profile.looking.length ? '' : 'aria-disabled="true"'}>${d.profile.ready ? 'Save' : T('profileStart')}</button>
     </div>`;
 }
-function datingApp(g, w) {
+// Unfolded (`wide`), like Messages: your profile and your matches as a list on the left, the profile you're looking at
+// (or "It's a match!") on the right.
+function datingApp(g, w, wide = false) {
     const d = dating(g);
     if (!d.profile.ready)
         return datingProfileApp(g, w);
+    const side = (right, key) => sparkWide(g, w, right, key);
     if (P.matched) {
         const r = g.cast[P.matched];
-        return `${head(appName('dating'), 'home')}<div class="mu-sp-match"><h2>${T('matchTitle')}</h2>
+        const match = `<div class="mu-sp-match"><h2>${T('matchTitle')}</h2>
             <div class="mu-sp-pair"><img src="${esc(personaThumb())}" alt=""><img src="${esc(thumb(P.matched))}" alt=""></div>
             <p>${esc(T('matchLine', r?.name ?? ''))}</p>
             <button class="mu-primary" data-act="ph-thread" data-who="${esc(P.matched)}">${icon(LETTERS ? 'send' : 'chat')}<span>${T('sendMessage')}</span></button>
             <button data-act="sp-next">${T('nextSuitor')}</button></div>`;
+        return wide ? side(match, `match-${P.matched}`) : `${head(appName('dating'), 'home')}${match}`;
     }
     const list = candidates(g, w);
     const r = list[0];
     const top = `<div class="mu-ph-head">${backBtn('home')}<b>${appName('dating')}</b>
         <span class="mu-row"><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="matches" aria-label="${T('matches')}" title="${T('matches')}">${icon('chat')}</button><button class="mu-ibtn mu-ghost" data-act="ph-go" data-app="dprofile" aria-label="${T('yourProfile')}" title="${T('yourProfile')}">${icon('user')}</button></span></div>`;
     if (!r)
-        return `${top}<p class="mu-muted mu-pad">${T('noCandidates')}</p>`;
+        return wide ? side(`<p class="mu-muted mu-pad">${T('noCandidates')}</p>`, 'none') : `${top}<p class="mu-muted mu-pad">${T('noCandidates')}</p>`;
     const p = theirProfile(g, w, r), interests = p.interests;
     if (p.pending)
         writeProfile(g, w, r).then(ok => { if (ok)
@@ -867,9 +920,21 @@ function datingApp(g, w) {
     const likes = `<div class="mu-sp-likes"><div class="mu-chips">${interests.map(i => `<span class="mu-chip ${shared.includes(i) ? 'is-on' : ''}">${esc(i)}</span>`).join('')}</div>
             ${both.length ? `<small class="mu-sp-both">${icon('flame')}<span>In bed, you both like:</span> <span data-notr>${esc(both.join(', '))}</span></small>` : ''}</div>`;
     const rest = more.slice(2).map((_, i) => pic(i + 3) + answer(i + 2)).join('') + (more.length <= 2 ? answer(2) : '');
-    return `${top}<div class="mu-sp-card" data-keep="sp-${esc(r.avatar)}">${hero}${bio}${pic(1)}${answer(0)}${likes}${pic(2)}${answer(1)}${rest}</div>
+    const card = `<div class="mu-sp-card" data-keep="sp-${esc(r.avatar)}">${hero}${bio}${pic(1)}${answer(0)}${likes}${pic(2)}${answer(1)}${rest}</div>
         <div class="mu-sp-btns"><button class="mu-sp-no" data-act="sp-swipe" data-who="${esc(r.avatar)}" data-like="0" aria-label="${T('pass')}" title="${T('pass')}">${icon('x')}</button>
             <button class="mu-sp-yes" data-act="sp-swipe" data-who="${esc(r.avatar)}" data-like="1" aria-label="${T('like')}" title="${T('like')}">${icon('heart')}</button></div>`;
+    return wide ? side(card, `p-${r.avatar}`) : `${top}${card}`;
+}
+// Spark unfolded: your profile (to edit it) and your matches on the left, `right` on the right (its key changes with
+// what it shows, so each opens at its top).
+function sparkWide(g, w, right, key) {
+    const d = dating(g), n = waitingCount(g);
+    const me = `<button class="mu-sp-me" data-act="ph-go" data-app="dprofile"><img src="${esc(personaThumb())}" alt=""><span><b data-notr>${esc(personaName())}</b><small>${T('yourProfile')}</small></span>${icon('forward')}</button>`;
+    const matches = d.matches.length ? d.matches.map(a => `<button class="mu-ph-row" data-act="ph-thread" data-who="${esc(a)}"><img src="${esc(thumb(a))}" alt=""><span><b data-notr>${esc(g.cast[a]?.name ?? '')}</b><small>${bondLabel(g, a)}</small></span></button>`).join('')
+        : `<p class="mu-muted">${T('noMatches')}</p>`;
+    return `${head(appName('dating'), 'home')}<div class="mu-ph-split mu-sp-split"><div class="mu-ph-pane is-list" data-keep="sp-pane-list"><div class="mu-ph-body">${me}
+            <h4>${T('matches')} <small>${d.matches.length}</small></h4>${n ? `<small class="mu-muted">${esc(n === 1 ? 'One like is waiting for an answer.' : `${n} likes are waiting for an answer.`)}</small>` : ''}<div class="mu-ph-list">${matches}</div></div></div>
+        <div class="mu-ph-pane is-open mu-sp-pane" data-keep="sp-pane-${esc(key)}">${right}</div></div>`;
 }
 function matchesApp(g) {
     const d = dating(g);
@@ -929,8 +994,8 @@ export function phoneHtml() {
     trackView();
     const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
     const body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
-        : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w)
-            : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home'), wide) : P.app === 'goals' ? goalsApp(g, w, hd('goals'), wide) : P.app === 'collection' ? collectionApp(g, w, hd('collection'), wide) : P.app === 'photos' ? lensApp(g, w, hd('photos')) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile'))) : BOOK ? bookFront(g, w) : homeApp(g, w);
+        : P.app === 'jobs' ? jobsApp(g, w, wide) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w, wide)
+            : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w, wide) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home'), wide) : P.app === 'goals' ? goalsApp(g, w, hd('goals'), wide) : P.app === 'collection' ? collectionApp(g, w, hd('collection'), wide) : P.app === 'photos' ? lensApp(g, w, hd('photos')) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile')), wide, repTab(g, w)) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK)
         return bookHtml(g, w, body);
     const unread = phoneUnread();

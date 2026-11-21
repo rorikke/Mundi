@@ -11181,5 +11181,8 @@ const DICT = {
     "Hide owned": "Ocultar o que já tem",
     "You own everything here.": "Você já tem tudo daqui.",
     "Your money": "Seu dinheiro",
+    "Pick a job to see it.": "Escolha um emprego para vê-lo.",
+    "1 home": "1 casa",
+    "{0} homes": "{0} casas",
 };
 export default DICT;

@@ -20,6 +20,11 @@ const bar = (v, cls = '') => `<span class="mu-lp-bar ${cls}"><i style="width:${M
 const repBar = (v) => `<span class="mu-lp-rep"><i style="${v >= 0 ? `left:50%;width:${v / 2}%` : `right:50%;width:${-v / 2}%`}" class="${v >= 0 ? 'is-good' : 'is-bad'}"></i></span>`;
 /* ---------- Reputation ---------- */
 export function standingApp(g, w, head) {
+    return `${head}<div class="mu-ph-body mu-lp">${standingHtml(g, w) || '<p class="mu-muted">Nothing here in this world.</p>'}</div>`;
+}
+/** The Reputation page's body ('' when this world has nothing for it): how each town sees you, your alter ego, your
+ *  studies. The Profile shows it as its Reputation tab. */
+export function standingHtml(g, w) {
     const parts = [];
     if (systemOn(w, 'reputation')) {
         const list = reputationList(g, w);
@@ -44,7 +49,7 @@ export function standingApp(g, w, head) {
         ${(d.clubs ?? []).length && !e.club ? `<div class="mu-row">${d.clubs.map(cl => `<button class="mu-ghost" data-act="lp-club" data-id="${esc(d.id)}" data-v="${esc(cl)}">Join the ${esc(cl)}</button>`).join('')}</div>` : e.club ? `<small>Club: ${esc(e.club)}</small>` : ''}
         <button class="mu-ghost mu-danger-text" data-act="lp-drop-school" data-id="${esc(d.id)}">Leave the school</button></div>`;
         }).join('')}</section>`);
-    return `${head}<div class="mu-ph-body mu-lp">${parts.join('') || '<p class="mu-muted">Nothing here in this world.</p>'}</div>`;
+    return parts.length ? `<div class="mu-lp">${parts.join('')}</div>` : '';
 }
 /* ---------- Animals ---------- */
 export function petsApp(g, w, head) {
