@@ -11188,5 +11188,9 @@ const DICT: Record<string, string> = {
  "How": "Cómo",
  "Finding what's missing": "Encontrar lo que falta",
  "Tap a slot to open its page. A keepsake kind lists its keepsakes, the missing first, each with where it comes from; a district lists its places and where its street stories still wait; a festival or an event says when it's next. Missing only hides what you've already filled.": "Toca un espacio para abrir su página. Un tipo de recuerdo lista sus recuerdos, los que faltan primero, cada uno con de dónde viene; un barrio lista sus lugares y dónde siguen esperando sus historias callejeras; un festival o un evento dice cuándo es el próximo. Solo lo que falta oculta lo que ya completaste.",
+ "Hide finished": "Ocultar terminadas",
+ "Every goal here is finished.": "Todas las metas de aquí están terminadas.",
+ "Nothing to suggest now.": "Nada que sugerir ahora.",
+ "{0} of {1} finished": "{0} de {1} terminadas",
 };
 export default DICT;

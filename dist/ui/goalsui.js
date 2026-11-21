@@ -1,11 +1,14 @@
-// The Goals app (phone, Profile section) and its Rewards tab. Goals: the goal you follow (its perk first, its steps as
-// pips, the current step's objectives with how far you are and how to do them), or "Pick a life goal" with the badge (D-7); goals
-// suggested for you; every goal this game offers in the nine categories, folded (finished ones with a check, the
-// world's own with a mark; nothing greyed out: goals a game can't offer simply aren't there); a goal's detail (steps,
-// objectives, step rewards, perk); the perks you have. Rewards: your life points and the shop (sim/rewards.ts), with
-// the pickers an item needs (a person, the Nudge's meter, Insight's question, a trait, a rumor). The engine owns every
-// number (sim/goals.ts, sim/points.ts, sim/rewards.ts); this file only draws and calls. With the `goals` system off
-// there is nothing here, no badge and nothing on the profile.
+// The Goals app (its own icon on the phone) and its Rewards tab. Goals: the goal you follow (its perk first, its steps
+// as pips, the current step's objectives with how far you are and how to do them), or "Pick a life goal" with the badge
+// (D-7); goals suggested for you; every goal this game offers in the nine categories, folded (finished ones with a
+// check, the world's own with a mark; nothing greyed out: goals a game can't offer simply aren't there; Hide finished
+// leaves them out); a goal's page (steps, objectives, step rewards, perk; its Back returns where the list was
+// scrolled); the perks you have. Rewards: your life points and the shop (sim/rewards.ts), with the pickers an item
+// needs (a person, the Nudge's meter, Insight's question, a trait, a rumor). Unfolded, like Messages: the goal you
+// follow, Suggested, the categories and Your perks as a list on the left, what's picked (or the goal you follow) on
+// the right; Rewards has the points on the left and the shop on the right. The engine owns every number
+// (sim/goals.ts, sim/points.ts, sim/rewards.ts); this file only draws and calls. With the `goals` system off there is
+// nothing here, no badge and nothing on the profile.
 import { esc, game, toast, notify, saveGame, SAVE } from '../core/store.js';
 import { getWorld, systemOn } from '../core/world.js';
 import { GOAL_CATEGORIES, GOAL_POINTS, isOwnGoal } from '../core/goals.js';
@@ -20,20 +23,21 @@ import { courseOf } from '../sim/courses.js';
 import { money } from '../sim/needs.js';
 import { skillName } from '../sim/hobbies.js';
 import { refreshPrompt } from '../sim/prompt.js';
-import { ACT } from './reg.js';
+import { ACT, INPUT } from './reg.js';
 import { degreeOf, gpaOf, uniOf } from '../sim/degrees.js';
 import { howTo } from './goalhints.js';
 import { itemIco } from './itempic.js';
-/** What the Goals app shows (memory only): the tab, the categories opened, the goal whose detail is open, the item
- *  being bought and what was picked for it. `said`: the last lines shown (toasted). */
+/** What the Goals app shows (memory only): the tab, the categories opened (folded) or what's picked in the list
+ *  (unfolded: a category, 'suggested' or 'perks'), the goal whose page is open, Hide finished, the item being bought and
+ *  what was picked for it. `said`: the last lines shown (toasted); `back`: where the list was scrolled, to come back to. */
 export const GS = {
-    tab: 'goals', open: [], detail: '',
+    tab: 'goals', open: [], detail: '', cat: '', hideDone: false,
     buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '',
-    said: [],
+    said: [], back: null,
 };
 const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '' });
 // What the app shows belongs to one game: a game opened starts again on the Goals tab, with nothing open or picked.
-SAVE.hooks.push(() => { Object.assign(GS, { tab: 'goals', open: [], detail: '' }); clearPick(); });
+SAVE.hooks.push(() => { Object.assign(GS, { tab: 'goals', open: [], detail: '', cat: '', back: null }); clearPick(); });
 /** The Goals app's badge (D-7): no goal followed and one to pick. Never with the `goals` system off. */
 export const goalsBadge = (g, w) => systemOn(w, 'goals') && needsPick(g, w);
 const n = (x) => esc(Math.round(x).toLocaleString('en-US'));
@@ -304,15 +308,23 @@ function rowHtml(g, w, goal) {
     return `<button class="mu-gl-row ${p.active ? 'is-on' : ''} ${p.finished ? 'is-done' : ''}" data-act="gl-open" data-id="${esc(goal.id)}"><i>${esc(goal.icon ?? '⭐')}</i>
         <b>${esc(goal.name)}${ownMark(w, goal)}</b><small>${esc(perkLine(goal))}</small>${state}</button>`;
 }
-function allGoalsHtml(g, w) {
-    const goals = offeredGoals(g, w), s = goalsState(g);
+// A category's goals: those under way first, then the rest, the finished last (left out with Hide finished).
+function catGoals(g, w, goals, cat) {
+    const s = goalsState(g);
     const order = (x) => { const p = goalProgress(g, w, x.id); return p.finished ? 2 : p.active || p.paused || p.done ? 0 : 1; };
-    return `<section class="mu-gl-all"><h4>All goals</h4>${categoriesOf(goals).map(c => {
-        const mine = goals.map((x, i) => ({ x, i })).filter(y => y.x.category === c.id).sort((a, b) => order(a.x) - order(b.x) || a.i - b.i).map(y => y.x);
-        const done = mine.filter(x => s.done.includes(x.id)).length, open = GS.open.includes(c.id);
+    const all = goals.map((x, i) => ({ x, i })).filter(y => y.x.category === cat).sort((a, b) => order(a.x) - order(b.x) || a.i - b.i).map(y => y.x);
+    return { all, shown: GS.hideDone ? all.filter(x => !s.done.includes(x.id)) : all, done: all.filter(x => s.done.includes(x.id)).length };
+}
+const rowsHtml = (g, w, list, grid = false) => (list.length
+    ? `<div class="mu-gl-rows ${grid ? 'is-grid' : ''}">${list.map(x => rowHtml(g, w, x)).join('')}</div>` : `<p class="mu-muted mu-gl-alldone">${esc('Every goal here is finished.')}</p>`);
+const hideToggle = () => `<label class="mu-gl-hide"><input type="checkbox" data-input="gl-hide" ${GS.hideDone ? 'checked' : ''}><span>${esc('Hide finished')}</span></label>`;
+function allGoalsHtml(g, w) {
+    const goals = offeredGoals(g, w);
+    return `<section class="mu-gl-all"><h4>All goals ${hideToggle()}</h4>${categoriesOf(goals).map(c => {
+        const x = catGoals(g, w, goals, c.id), open = GS.open.includes(c.id);
         return `<div class="mu-gl-cat ${open ? 'is-open' : ''}"><button class="mu-gl-cathead" data-act="gl-cat" data-id="${esc(c.id)}" aria-expanded="${open}"><i>${esc(c.icon)}</i><b>${esc(c.name)}</b>
-            <small>${n(mine.length)} goal${mine.length === 1 ? '' : 's'}${done ? ` · ${n(done)} finished` : ''}</small><span class="mu-gl-fold">${open ? '▾' : '▸'}</span></button>
-            ${open ? `<div class="mu-gl-rows">${mine.map(x => rowHtml(g, w, x)).join('')}</div>` : ''}</div>`;
+            <small>${n(x.all.length)} goal${x.all.length === 1 ? '' : 's'}${x.done ? ` · ${n(x.done)} finished` : ''}</small><span class="mu-gl-fold">${open ? '▾' : '▸'}</span></button>
+            ${open ? rowsHtml(g, w, x.shown) : ''}</div>`;
     }).join('')}</section>`;
 }
 /** "Your perks": what the goals you finished gave you (also on the profile). */
@@ -336,7 +348,8 @@ function rewardWords(w, st) {
         out.push('a good mood');
     return out.join(' · ');
 }
-function detailHtml(g, w, goal) {
+// `back`: the words of the page's Back (where it came from), or none (unfolded, the goal you follow shown by default).
+function detailHtml(g, w, goal, back = 'Goals') {
     const p = goalProgress(g, w, goal.id), cur = activeGoal(g, w);
     const cat = categoriesOf([goal])[0];
     const status = p.finished ? 'Finished' : p.active ? 'Your life goal now' : p.paused ? `Paused: ${p.done} of ${p.total} steps done, progress kept` : '';
@@ -348,7 +361,7 @@ function detailHtml(g, w, goal) {
     }).join('');
     const pick = canPick(g, w, goal.id)
         ? `<button class="mu-primary" data-act="gl-pick" data-id="${esc(goal.id)}">${cur ? 'Switch to this goal' : 'Pick this goal'}</button>${cur ? `<small class="mu-muted">${esc(cur.name)} is paused and keeps its progress.</small>` : ''}` : '';
-    return `<div class="mu-gl-detail">
+    return `<div class="mu-gl-detail">${back ? `<button class="mu-gl-back" data-act="gl-close"><i aria-hidden="true">‹</i> <span>${esc(back)}</span></button>` : ''}
         <header><i>${esc(goal.icon ?? '⭐')}</i><span><b>${esc(goal.name)}${isOwnGoal(goal.id) ? ` <span class="mu-gl-own">✦ ${esc(`${w.name}'s own`)}</span>` : ''}</b><small>${esc(cat ? `${cat.icon} ${cat.name}` : '')}</small></span></header>
         ${goal.desc ? `<p>${esc(goal.desc)}</p>` : ''}
         ${goal.perk ? `<section class="mu-ph-card mu-gl-perkcard"><small>Perk for finishing it</small><b>${esc(goal.perk.name)}</b>${goal.perk.desc ? `<small>${esc(goal.perk.desc)}</small>` : ''}<small class="mu-muted">A perk is not a trait: it changes numbers in the game, for good.</small></section>` : ''}
@@ -357,11 +370,68 @@ function detailHtml(g, w, goal) {
         <small class="mu-muted">Finishing it: +${n(GOAL_POINTS.goal)} life points${goal.perk ? ` and the perk ${esc(goal.perk.name)}` : ''}.</small>
         ${pick}</div>`;
 }
+const perksHtml = (g, w) => `<section class="mu-gl-perks"><h4>Your perks</h4>${perksListHtml(g, w)}</section>`;
+const openGoal = (g, w) => (GS.detail ? offeredGoals(g, w).find(x => x.id === GS.detail) : undefined);
 function goalsTab(g, w) {
-    const goal = GS.detail ? offeredGoals(g, w).find(x => x.id === GS.detail) : null;
+    const goal = openGoal(g, w);
     if (goal)
         return detailHtml(g, w, goal);
-    return `${activeHtml(g, w)}${suggestedHtml(g, w)}${allGoalsHtml(g, w)}<section class="mu-gl-perks"><h4>Your perks</h4>${perksListHtml(g, w)}</section>`;
+    return `${activeHtml(g, w)}${suggestedHtml(g, w)}${allGoalsHtml(g, w)}${perksHtml(g, w)}`;
+}
+/** Closing a goal's page (its Back, or the phone's): the list again, where it was scrolled to. */
+export function closeGoal() {
+    if (!GS.detail)
+        return false;
+    const b = GS.back;
+    GS.detail = '';
+    GS.back = null;
+    if (b)
+        setTimeout(() => { const el = document.querySelector(b.sel); if (el)
+            el.scrollTop = b.top; }, 30);
+    return true;
+}
+/* ---------- unfolded: the list on the left, what's picked on the right ---------- */
+// The goal you follow, small: it opens on the right (where it shows anyway until something else is picked).
+function activeSmall(g, w) {
+    const goal = activeGoal(g, w);
+    if (!goal)
+        return `<button class="mu-ph-card mu-gl-active is-empty mu-gl-pane-btn ${GS.cat === '' && !GS.detail ? 'is-on' : ''}" data-act="gl-show" data-v=""><b>Pick a life goal <em class="mu-gl-badge">!</em></b>
+        <small>${esc('It guides your days, and finishing it gives you a perk.')}</small></button>`;
+    const p = goalProgress(g, w, goal.id), i = Math.min(p.done, goal.steps.length - 1);
+    const on = GS.detail === goal.id || (GS.cat === '' && !GS.detail);
+    return `<button class="mu-ph-card mu-gl-active mu-gl-pane-btn ${on ? 'is-on' : ''}" data-act="gl-show" data-v=""><small>Your life goal</small>
+        <span class="mu-gl-title"><i>${esc(goal.icon ?? '⭐')}</i><b>${esc(goal.name)}</b></span>${pipsHtml(p.done, p.total, p.finished)}
+        <small>Step ${n(i + 1)} of ${n(p.total)}: <b>${esc(goal.steps[i].name)}</b></small></button>`;
+}
+function goalsList(g, w) {
+    const goals = offeredGoals(g, w), sug = suggestedGoals(g, w, 3), on = (v) => GS.cat === v && !GS.detail;
+    const row = (v, icon, name, num, pct) => `<button class="mu-gl-crow ${on(v) ? 'is-on' : ''}" data-act="gl-show" data-v="${esc(v)}" aria-pressed="${on(v)}">
+        <i aria-hidden="true">${esc(icon)}</i><span><b>${esc(name)}</b>${pct === null ? '' : `<span class="mu-bond"><i style="width:${pct}%"></i></span>`}</span><small>${esc(num)}</small></button>`;
+    const cats = categoriesOf(goals).map(c => { const x = catGoals(g, w, goals, c.id); return row(c.id, c.icon, c.name, `${x.done}/${x.all.length}`, x.all.length ? Math.round((x.done / x.all.length) * 100) : 0); });
+    return `${activeSmall(g, w)}<nav class="mu-gl-clist">${sug.length ? row('suggested', '💡', 'Suggested', String(sug.length), null) : ''}
+        <h4>All goals ${hideToggle()}</h4>${cats.join('')}${row('perks', '🏅', 'Your perks', String(perksOf(g, w).length), null)}</nav>`;
+}
+// The right side: a goal's page (Back to what was picked), else what's picked, else the goal you follow (or Suggested,
+// or the first category, with none followed).
+function goalsPane(g, w) {
+    const goals = offeredGoals(g, w), cats = categoriesOf(goals);
+    const catName = (v) => (v === 'suggested' ? 'Suggested' : v === 'perks' ? 'Your perks' : cats.find(c => c.id === v)?.name ?? 'Goals');
+    const goal = openGoal(g, w);
+    if (goal)
+        return { key: `goal/${goal.id}`, html: detailHtml(g, w, goal, catName(GS.cat || goal.category)) };
+    let v = GS.cat;
+    if (!v) {
+        const cur = activeGoal(g, w);
+        if (cur)
+            return { key: `now/${cur.id}`, html: detailHtml(g, w, cur, '') };
+        v = suggestedGoals(g, w, 3).length ? 'suggested' : cats[0]?.id ?? 'perks';
+    }
+    if (v === 'perks')
+        return { key: 'perks', html: perksHtml(g, w) };
+    if (v === 'suggested')
+        return { key: 'suggested', html: suggestedHtml(g, w) || `<p class="mu-muted">${esc('Nothing to suggest now.')}</p>` };
+    const c = cats.find(x => x.id === v), x = catGoals(g, w, goals, v);
+    return { key: `cat/${v}`, html: `<h3 class="mu-gl-ctitle"><i aria-hidden="true">${esc(c?.icon ?? '🌟')}</i><b>${esc(c?.name ?? humanize(v))}</b><small>${esc(`${x.done} of ${x.all.length} finished`)}</small></h3>${rowsHtml(g, w, x.shown, true)}` };
 }
 /* ---------- the Rewards tab ---------- */
 const PER = { day: 'a day', week: 'a week', season: 'a season', year: 'a year', goal: 'per goal' };
@@ -464,25 +534,35 @@ function itemHtml(g, w, it) {
             <small class="mu-rw-price">${n(it.price)} points${lim ? ` · ${esc(lim)}` : ''}</small>${it.ok ? '' : `<small class="mu-rw-why">${esc(it.why ?? '')}</small>`}</span>
         ${btn}${open ? pickerHtml(g, w, it) : ''}</article>`;
 }
-function rewardsTab(g, w) {
+// `wide`: the points stay on the left, only the shop here.
+function rewardsTab(g, w, wide = false) {
     const items = shopItems(g, w);
     const list = (xs) => [...xs.filter(x => x.ok), ...xs.filter(x => !x.ok)].map(x => itemHtml(g, w, x)).join('');
     const general = items.filter(x => !x.own), own = items.filter(x => x.own);
-    return `${pointsHtml(g, w, items)}
+    return `${wide ? '' : pointsHtml(g, w, items)}
         ${general.length ? `<section class="mu-rw-list"><h4>Rewards</h4>${list(general)}</section>` : ''}
         ${own.length ? `<section class="mu-rw-list"><h4>${esc(`${w.name}'s own`)}</h4>${list(own)}</section>` : ''}
         ${items.length ? '' : '<p class="mu-muted">Nothing in the shop in this world.</p>'}`;
 }
 /* ---------- the app ---------- */
-/** The Goals app: the Goals tab or the Rewards tab, under the section's header. */
-export function goalsApp(g, w, head) {
+/** The Goals app: the Goals tab or the Rewards tab, under the app's header; `wide`: the unfolded phone (the list and
+ *  what it opens side by side). */
+export function goalsApp(g, w, head, wide = false) {
     if (!systemOn(w, 'goals'))
         return `${head}<div class="mu-ph-body"><p class="mu-muted">No life goals in this world.</p></div>`;
     const tab = GS.tab === 'rewards' ? 'rewards' : 'goals';
-    return `${head}<div class="mu-ph-body mu-gl">
-        <nav class="mu-gl-tabs"><button class="${tab === 'goals' ? 'is-on' : ''}" data-act="gl-tab" data-v="goals">Goals${goalsBadge(g, w) ? ' <em class="mu-gl-badge">!</em>' : ''}</button>
-            <button class="${tab === 'rewards' ? 'is-on' : ''}" data-act="gl-tab" data-v="rewards">Rewards <small>${n(pointsOf(g))}</small></button></nav>
-        ${tab === 'rewards' ? rewardsTab(g, w) : goalsTab(g, w)}</div>`;
+    if (GS.detail && !openGoal(g, w))
+        GS.detail = '';
+    const tabs = `<nav class="mu-gl-tabs"><button class="${tab === 'goals' ? 'is-on' : ''}" data-act="gl-tab" data-v="goals">Goals${goalsBadge(g, w) ? ' <em class="mu-gl-badge">!</em>' : ''}</button>
+            <button class="${tab === 'rewards' ? 'is-on' : ''}" data-act="gl-tab" data-v="rewards">Rewards <small>${n(pointsOf(g))}</small></button></nav>`;
+    if (wide) {
+        // the right pane's key changes with what it shows, so each opens at its top
+        const pane = tab === 'rewards' ? { key: 'rewards', html: rewardsTab(g, w, true) } : goalsPane(g, w);
+        const left = tab === 'rewards' ? pointsHtml(g, w, shopItems(g, w)) : goalsList(g, w);
+        return `${head}<div class="mu-ph-split mu-gl-split"><div class="mu-ph-pane is-list" data-keep="gl-pane-list"><div class="mu-ph-body mu-gl">${tabs}${left}</div></div>
+            <div class="mu-ph-pane is-open" data-keep="gl-pane-${esc(pane.key)}"><div class="mu-ph-body mu-gl">${pane.html}</div></div></div>`;
+    }
+    return `${head}<div class="mu-ph-body mu-gl">${tabs}${tab === 'rewards' ? rewardsTab(g, w) : goalsTab(g, w)}</div>`;
 }
 // Shows what the engine said (toasts), and remembers it for the checks.
 function say(lines, kind = 'success') {
@@ -496,10 +576,22 @@ const toggle = (list, v) => { const i = list.indexOf(v); if (i >= 0)
 else
     list.push(v); };
 Object.assign(ACT, {
-    'gl-tab': (el) => { GS.tab = el.dataset.v === 'rewards' ? 'rewards' : 'goals'; GS.detail = ''; clearPick(); notify(); },
+    'gl-tab': (el) => { GS.tab = el.dataset.v === 'rewards' ? 'rewards' : 'goals'; GS.detail = ''; GS.back = null; clearPick(); notify(); },
     'gl-cat': (el) => { toggle(GS.open, el.dataset.id ?? ''); notify(); },
-    'gl-open': (el) => { GS.detail = el.dataset.id ?? ''; notify(); },
-    'gl-close': () => { GS.detail = ''; notify(); },
+    'gl-show': (el) => { GS.cat = el.dataset.v ?? ''; GS.detail = ''; GS.back = null; notify(); },
+    // the list's scroll is kept, to come back to it where it was
+    'gl-open': (el) => {
+        const pane = el.closest?.('.mu-ph-pane'), box = pane ?? el.closest?.('.mu-ph-screen');
+        GS.back = box ? { sel: pane ? '#mundi-root .mu-gl-split .mu-ph-pane.is-open' : '#mundi-root .mu-ph-screen', top: box.scrollTop } : null;
+        GS.detail = el.dataset.id ?? '';
+        notify();
+        // folded, the page shows in the same screen as the list: from its top
+        if (!pane)
+            setTimeout(() => { const s = document.querySelector('#mundi-root .mu-ph-screen'); if (s)
+                s.scrollTop = 0; }, 30);
+    },
+    'gl-close': () => { if (closeGoal())
+        notify(); },
     // one tap picks (switching needs no warning: the goal you followed is paused and keeps its progress)
     'gl-pick': (el) => {
         const x = here();
@@ -581,3 +673,4 @@ Object.assign(ACT, {
         notify();
     },
 });
+Object.assign(INPUT, { 'gl-hide': (el) => { GS.hideDone = el.checked; notify(); } });

@@ -4782,6 +4782,39 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-gal-tabs button { flex: 0 0 auto; width: auto !important; display: inline-flex !important; flex-direction: row !important; align-items: center; gap: 8px; padding: 9px 16px !important; border-radius: 999px !important; min-height: 0; font-size: 14px; }
 #mundi-root .mu-gal-tabs button .mu-ic, #mundi-root .mu-gal-tabs button svg { width: 16px; height: 16px; }
 #mundi-root .mu-album small span { opacity: .85; }
+/* The Goals app as its own app (ui/goalsui.ts): Hide finished, a goal page's Back, and unfolded: the goal you follow,
+   Suggested, the categories and Your perks listed on the left, what's picked on the right (a category's goals as cards) */
+#mundi-root .mu-gl-all > h4, #mundi-root .mu-gl-clist > h4 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#mundi-root .mu-gl-hide { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: normal; color: var(--fg); opacity: .85; cursor: pointer; }
+#mundi-root .mu-gl-hide input { margin: 0; }
+#mundi-root .mu-gl-alldone { margin: 0; padding: 6px 10px; font-size: 13px; }
+#mundi-root .mu-gl-back, #mundi-root .mu-gl-back:hover:not(:disabled) { justify-self: start; display: inline-flex; gap: 4px; align-items: center; min-height: 0; padding: 2px 4px;
+    border: 0; background: transparent; box-shadow: none; color: var(--accent); font-weight: 700; font-size: 13px; transform: none; }
+#mundi-root .mu-gl-back i { font-style: normal; font-size: 18px; line-height: 1; }
+
+/* unfolded: the list on the left */
+#mundi-root .mu-gl-split .mu-ph-body { padding: 14px; }
+#mundi-root .mu-gl-pane-btn, #mundi-root .mu-gl-pane-btn:hover:not(:disabled) { display: grid; justify-items: start; width: 100%; color: inherit; text-align: left; box-shadow: none; transform: none; cursor: pointer; }
+#mundi-root .mu-gl-pane-btn.is-on { border-color: #ffb02e; background: rgba(255, 176, 46, .12); }
+#mundi-root .mu-gl-pane-btn .mu-gl-pips { width: 100%; }
+#mundi-root .mu-gl-clist { display: grid; gap: 5px; }
+#mundi-root .mu-gl-crow, #mundi-root .mu-gl-crow:hover:not(:disabled) { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 46px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root .mu-gl-crow:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root .mu-gl-crow.is-on, #mundi-root .mu-gl-crow.is-on:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
+#mundi-root .mu-gl-crow > i { font-style: normal; font-size: 18px; text-align: center; }
+#mundi-root .mu-gl-crow > span { display: grid; gap: 4px; min-width: 0; font-size: 13px; }
+#mundi-root .mu-gl-crow b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mundi-root .mu-gl-crow > small { font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
+
+/* unfolded: what's picked on the right */
+#mundi-root .mu-gl-ctitle { display: flex; gap: 8px; align-items: baseline; margin: 0; font-size: 16px; }
+#mundi-root .mu-gl-ctitle i { font-style: normal; }
+#mundi-root .mu-gl-ctitle small { margin-left: auto; font-size: 12px; font-weight: 400; opacity: .7; }
+#mundi-root .mu-gl-rows.is-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); padding-left: 0; }
+
+/* the journal (book look) */
+#mundi-root .mu-book .mu-gl-back { color: #7a4a1e; }
 /* Home guests (ui/guestsui.ts): the people chosen (a small round picture and a × to take them off), the Calendar's tabs. */
 #mundi-root .mu-guest-chips { margin: 4px 0; }
 #mundi-root .mu-guest-chips .mu-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 3px; }

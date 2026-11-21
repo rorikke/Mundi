@@ -285,7 +285,7 @@ Object.assign(ACT, {
     'cl-fold': (el) => { const k = el.dataset.v ?? ''; if (CL.open.has(k)) CL.open.delete(k); else CL.open.add(k); notify(); },
     'cl-group': (el) => { CL.group = el.dataset.v ?? ''; CL.slot = ''; CL.back = null; notify(); },
     'cl-slot': (el) => {
-        const pane = el.closest('.mu-ph-pane') as HTMLElement | null, box = pane ?? el.closest('.mu-ph-screen') as HTMLElement | null;
+        const pane = el.closest?.('.mu-ph-pane') as HTMLElement | null, box = pane ?? el.closest?.('.mu-ph-screen') as HTMLElement | null;
         CL.back = box ? { sel: pane ? '#mundi-root .mu-cl-split .mu-ph-pane.is-open' : '#mundi-root .mu-ph-screen', top: box.scrollTop } : null;
         CL.slot = el.dataset.id ?? ''; notify();
         // folded, the page shows in the same screen as the list: from its top

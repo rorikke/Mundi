@@ -318,7 +318,7 @@ Object.assign(ACT, {
         CL.open.add(k); notify(); },
     'cl-group': (el) => { CL.group = el.dataset.v ?? ''; CL.slot = ''; CL.back = null; notify(); },
     'cl-slot': (el) => {
-        const pane = el.closest('.mu-ph-pane'), box = pane ?? el.closest('.mu-ph-screen');
+        const pane = el.closest?.('.mu-ph-pane'), box = pane ?? el.closest?.('.mu-ph-screen');
         CL.back = box ? { sel: pane ? '#mundi-root .mu-cl-split .mu-ph-pane.is-open' : '#mundi-root .mu-ph-screen', top: box.scrollTop } : null;
         CL.slot = el.dataset.id ?? '';
         notify();
