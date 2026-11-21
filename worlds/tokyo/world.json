@@ -64933,6 +64933,21 @@
       "kind": "swim",
       "level": 2,
       "look": "a cream frilled off-shoulder bikini, her plum-blossom hairpin"
+     },
+     "offduty": {
+      "kind": "casual",
+      "level": 1,
+      "look": "a forest-green cardigan over a cream blouse, a brown plaid skirt with a bow at the waist, a beige beret and a long pendant, a canvas tote of books"
+     },
+     "opening": {
+      "kind": "formal",
+      "level": 2,
+      "look": "a one-shouldered gown of deep purple velvet with a draped sleeve, a black choker, her plum-blossom hairpin in her silver hair"
+     },
+     "home": {
+      "kind": "loungewear",
+      "level": 1,
+      "look": "a loose cream cable-knit sweater and soft grey drawstring trousers, a long pendant"
      }
     },
     "comfort": 1
@@ -65416,6 +65431,16 @@
       "level": 3,
       "adult": true,
       "look": "an ivory halter one-piece swimsuit with a plunging neckline and a gold ring at the chest, her hair in a high ponytail with a black velvet ribbon"
+     },
+     "gala": {
+      "kind": "formal",
+      "level": 1,
+      "look": "a long-sleeved black velvet gown with a high neck and a fitted waist, long black gloves, her hair up in a high bun"
+     },
+     "night": {
+      "kind": "evening",
+      "level": 2,
+      "look": "a midnight-blue satin wrap top tied with a sash over a black turtleneck, blue satin trousers, her hair up in a high bun"
      }
     }
    },
@@ -65903,6 +65928,16 @@
       "kind": "swim",
       "level": 2,
       "look": "a white bikini top with low denim cut-off shorts, a red bandana at her neck"
+     },
+     "roadtrip": {
+      "kind": "van",
+      "level": 1,
+      "look": "a white T-shirt under faded denim overall shorts, an orange bandana at her neck, sunglasses pushed into her hair, gold hoop earrings"
+     },
+     "night": {
+      "kind": "evening",
+      "level": 1,
+      "look": "an olive utility jacket over a long teal wrap dress printed with gold feathers, gold hoop earrings and bracelets"
      }
     }
    },
@@ -69201,7 +69236,10 @@
      "tshirt": {
       "kind": "nightwear",
       "level": 3,
-      "adult": true
+      "adult": true,
+      "from": [
+       ""
+      ]
      }
     },
     "outfits": {
@@ -69674,6 +69712,11 @@
       "kind": "swim",
       "level": 2,
       "look": "a black one-piece swimsuit with a deep plunge and high-cut legs"
+     },
+     "jersey": {
+      "kind": "sport",
+      "level": 1,
+      "look": "her old white-and-navy volleyball jersey with a big number 4 from her Fukuoka team, worn soft, and black running shorts"
      }
     },
     "outfits": {
@@ -71074,7 +71117,10 @@
      "swim-onepiece": {
       "kind": "swim",
       "level": 1,
-      "look": "a plain navy one-piece swimsuit with a square neckline"
+      "look": "a plain navy one-piece swimsuit with a square neckline",
+      "from": [
+       "swim-cover"
+      ]
      },
      "swim-cover": {
       "kind": "swim",
