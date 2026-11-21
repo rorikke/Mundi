@@ -2,8 +2,10 @@
 // Adult and Explicit only with adult content on), Here at a place that sells (its stock, and the gifts sold there as
 // keepsakes), and Yours (kept things, services with the days left, stock with the uses left). A card: icon, name,
 // description, price, what the engine says the item does, and Buy / Owned / Buy again. Items whose `when` doesn't hold
-// are hidden; a category with some says "More by invitation." once. Also the HUD's "Shop here" row at such a place.
-// The engine owns every number (sim/shop.ts); this file only draws and calls.
+// are hidden; a category with some says "More by invitation." once. Hide owned leaves out the kept things you have.
+// Unfolded, like Messages: your money and the tabs as a list on the left (how many for sale, how many yours), the tab's
+// cards side by side on the right. Also the HUD's "Shop here" row at such a place. The engine owns every number
+// (sim/shop.ts); this file only draws and calls.
 import { esc, game, toast, notify, saveGame, adultOn, SAVE, type Save } from '../core/store.js';
 import { getWorld, systemOn, type WorldDef, type KeepsakeDef } from '../core/world.js';
 import { num } from '../core/safe.js';
@@ -13,15 +15,16 @@ import { placeOf } from '../sim/places.js';
 import { giftsForSale, giftPrice } from '../sim/social.js';
 import * as S from '../sim/shop.js';
 import { SHOP_CATS, shopItems, offers, ownedDefs, hasItem, catOf, type Item, type ShopCat, type ShopState } from '../sim/shop.js';
-import { ACT } from './reg.js';
+import { ACT, INPUT } from './reg.js';
 
 import { itemDoes, isKept as kept, whyNotBuy as whyNot, moreByInvitation as invitedCats, daysLeft as daysOf, serviceLeft,
     stockLeft as stockOf, shopPrice as priceAt, buy as buyAt } from '../sim/shop.js';
 import { itemIco } from './itempic.js';
 const offeredAt = offers;
 
-/** What the app shows (memory only): the tab (`here`, `yours` or a category id; '' picks the first there is). */
-export const SH = { tab: '' };
+/** What the app shows (memory only): the tab (`here`, `yours` or a category id; '' picks the first there is), and
+ *  Hide owned. */
+export const SH = { tab: '', hideOwned: false };
 SAVE.hooks.push(() => { SH.tab = ''; });
 
 const catShown = (g: Save, c: ShopCat) => !c.adult || adultOn(g);
@@ -63,6 +66,11 @@ function giftCard(g: Save, w: WorldDef, k: KeepsakeDef): string {
 // (cheapest first, as a shop window would)
 const cheapestFirst = (g: Save, w: WorldDef, where: string, list: Item[]) => list.map(it => ({ it, p: priceAt(g, w, it, where) })).sort((a, b) => a.p - b.p).map(x => x.it);
 const invite = '<p class="mu-muted mu-shop-invite">More by invitation.</p>';
+// A kept thing you have (left out with Hide owned; services and stock can always be bought again).
+const isOwned = (g: Save, it: Item) => kept(it) && hasItem(g, it.id);
+const unowned = (g: Save, list: Item[]) => (SH.hideOwned ? list.filter(it => !isOwned(g, it)) : list);
+const allOwned = '<p class="mu-muted mu-shop-allown">You own everything here.</p>';
+const hideToggle = () => `<label class="mu-shop-hide"><input type="checkbox" data-input="sh-hide" ${SH.hideOwned ? 'checked' : ''}><span>${esc('Hide owned')}</span></label>`;
 
 /* ---------- the tabs ---------- */
 
@@ -75,15 +83,15 @@ function tabsOf(g: Save, w: WorldDef, place: string): { id: string; name: string
     ];
 }
 function catTab(g: Save, w: WorldDef, cat: string): string {
-    const on = cheapestFirst(g, w, 'online', offeredAt(g, w, 'online').filter(it => catOf(it) === cat));
-    return `${on.map(it => card(g, w, it, 'online')).join('')}${invitedCats(g, w, 'online').includes(cat) ? invite : ''}`;
+    const all = offeredAt(g, w, 'online').filter(it => catOf(it) === cat), on = cheapestFirst(g, w, 'online', unowned(g, all));
+    return `${on.length || !all.length ? on.map(it => card(g, w, it, 'online')).join('') : allOwned}${invitedCats(g, w, 'online').includes(cat) ? invite : ''}`;
 }
 function hereTab(g: Save, w: WorldDef, place: string): string {
-    const on = cheapestFirst(g, w, place, offeredAt(g, w, place).filter(it => catShown(g, S.shopCat(it))));
+    const all = offeredAt(g, w, place).filter(it => catShown(g, S.shopCat(it))), on = cheapestFirst(g, w, place, unowned(g, all));
     const hidden = invitedCats(g, w, place).some(c => catShown(g, SHOP_CATS.find(x => x.id === c) ?? SHOP_CATS[0]));
     const gifts = giftsForSale(g, w, place);
     const name = placeOf(g, w, place)?.name ?? '';
-    return `<p class="mu-shop-where"><small>Sold at</small> <b data-notr>${esc(name)}</b></p>${on.map(it => card(g, w, it, place)).join('')}${hidden ? invite : ''}
+    return `<p class="mu-shop-where"><small>Sold at</small> <b data-notr>${esc(name)}</b></p>${on.length || !all.length ? on.map(it => card(g, w, it, place)).join('') : allOwned}${hidden ? invite : ''}
         ${gifts.length ? `<h4 class="mu-shop-sub">Gifts sold here</h4>${gifts.map(k => giftCard(g, w, k)).join('')}` : ''}`;
 }
 function yoursTab(g: Save, w: WorldDef): string {
@@ -96,15 +104,35 @@ function yoursTab(g: Save, w: WorldDef): string {
 
 /* ---------- the app ---------- */
 
-/** The Shop app: the tabs and the one open. */
-export function shopApp(g: Save, w: WorldDef, head: string): string {
+// How many a tab holds, for the unfolded list: for sale (and how many of them are yours), or yours.
+function tabCount(g: Save, w: WorldDef, id: string, place: string): string {
+    if (id === 'yours') return String(ownedDefs(g, w).filter(it => catShown(g, S.shopCat(it))).length);
+    const list = id === 'here' ? offeredAt(g, w, place).filter(it => catShown(g, S.shopCat(it))) : offeredAt(g, w, 'online').filter(it => catOf(it) === id);
+    const n = list.length + (id === 'here' ? giftsForSale(g, w, place).length : 0), mine = list.filter(it => isOwned(g, it)).length;
+    return mine ? `${mine}/${n}` : String(n);
+}
+// Unfolded: your money and the tabs on the left, the open tab's cards on the right (its key changes with the tab, so
+// each opens at its top).
+function wideShop(g: Save, w: WorldDef, head: string, tabs: { id: string; name: string; icon: string }[], tab: string, place: string, body: string): string {
+    const t = tabs.find(x => x.id === tab)!;
+    const rows = tabs.map(x => `<button class="mu-shop-row ${x.id === tab ? 'is-on' : ''}" data-act="sh-tab" data-v="${esc(x.id)}" aria-pressed="${x.id === tab}">
+        <i aria-hidden="true">${esc(x.icon)}</i><b>${esc(x.name)}</b><small>${esc(tabCount(g, w, x.id, place))}</small></button>`).join('');
+    return `${head}<div class="mu-ph-split mu-shop-split"><div class="mu-ph-pane is-list" data-keep="sh-pane-list"><div class="mu-ph-body mu-shop">
+            <section class="mu-ph-card mu-shop-wallet"><small>${esc('Your money')}</small><b>${esc(money(w, num(g.player.money)))}</b></section>
+            ${tab === 'yours' ? '' : hideToggle()}<nav class="mu-shop-rows">${rows}</nav></div></div>
+        <div class="mu-ph-pane is-open" data-keep="sh-pane-${esc(tab)}"><div class="mu-ph-body mu-shop">
+            <h3 class="mu-shop-title"><i aria-hidden="true">${esc(t.icon)}</i><b>${esc(t.name)}</b></h3><div class="mu-shop-list is-grid">${body}</div></div></div></div>`;
+}
+/** The Shop app: the tabs and the one open; `wide`: the unfolded phone (the tabs listed beside the open one). */
+export function shopApp(g: Save, w: WorldDef, head: string, wide = false): string {
     if (!systemOn(w, 'shop') || !shopItems(w).length) return `${head}<div class="mu-ph-body mu-shop"><p class="mu-muted">Nothing for sale in this world.</p></div>`;
     const place = herePlace(g, w), tabs = tabsOf(g, w, place);
     const tab = tabs.find(t => t.id === SH.tab)?.id ?? (tabs.length > 1 ? tabs[0].id : 'yours');
     const body = tab === 'here' ? hereTab(g, w, place) : tab === 'yours' ? yoursTab(g, w) : catTab(g, w, tab);
+    if (wide) return wideShop(g, w, head, tabs, tab, place, body);
     return `${head}<div class="mu-ph-body mu-shop">
         <nav class="mu-shop-tabs" data-keep="shop-tabs">${tabs.map(t => `<button class="${t.id === tab ? 'is-on' : ''}" data-act="sh-tab" data-v="${esc(t.id)}" aria-pressed="${t.id === tab}"><i>${esc(t.icon)}</i><span>${esc(t.name)}</span></button>`).join('')}</nav>
-        <div class="mu-shop-list">${body}</div></div>`;
+        ${tab === 'yours' ? '' : hideToggle()}<div class="mu-shop-list">${body}</div></div>`;
 }
 
 /* ---------- the HUD's row at a place that sells ---------- */
@@ -116,6 +144,7 @@ export function shopHereRows(g: Save, w: WorldDef): string[] {
     return n ? [`<button class="mh-act mh-glass mh-shop-here" data-act="ph-open-shop"><i>🛒</i><b>Shop here</b><small>${esc(plural(n, '1 for sale', '{0} for sale'))}</small></button>`] : [];
 }
 
+Object.assign(INPUT, { 'sh-hide': (el) => { SH.hideOwned = (el as HTMLInputElement).checked; notify(); } });
 Object.assign(ACT, {
     'sh-tab': (el) => { SH.tab = el.dataset.v ?? ''; notify(); },
     'shop-buy': (el) => {

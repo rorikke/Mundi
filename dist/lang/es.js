@@ -11190,5 +11190,8 @@ const DICT = {
     "Every goal here is finished.": "Todas las metas de aquí están terminadas.",
     "Nothing to suggest now.": "Nada que sugerir ahora.",
     "{0} of {1} finished": "{0} de {1} terminadas",
+    "Hide owned": "Ocultar lo que ya tienes",
+    "You own everything here.": "Ya tienes todo lo de aquí.",
+    "Your money": "Tu dinero",
 };
 export default DICT;

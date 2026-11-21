@@ -31,3 +31,8 @@
 
 /* the journal (book look) */
 #mundi-root .mu-book .mu-gl-back { color: #7a4a1e; }
+/* unfolded: six suggestions, as cards */
+#mundi-root .mu-gl-suggest.is-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+#mundi-root .mu-gl-suggest.is-grid > h4 { grid-column: 1 / -1; }
+/* (unfolded cards: the perk over two lines, not cut after a few words) */
+#mundi-root :is(.mu-gl-suggest.is-grid, .mu-gl-rows.is-grid) .mu-gl-row > small { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }

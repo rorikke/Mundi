@@ -1,0 +1,24 @@
+/* The Shop app unfolded (ui/shopui.ts): your money and the tabs listed on the left with how many each holds, the open
+   tab's cards side by side on the right; Hide owned in both layouts */
+#mundi-root .mu-shop-hide { justify-self: end; display: inline-flex; gap: 6px; align-items: center; font-size: 12px; opacity: .85; cursor: pointer; }
+#mundi-root .mu-shop-hide input { margin: 0; }
+#mundi-root .mu-shop-allown { margin: 2px; font-size: 13px; text-align: center; }
+
+#mundi-root .mu-shop-split .mu-ph-body { padding: 14px; }
+#mundi-root .mu-shop-wallet { gap: 2px; }
+#mundi-root .mu-shop-wallet b { font-size: 20px; color: var(--good); font-variant-numeric: tabular-nums; }
+#mundi-root .mu-shop-rows { display: grid; gap: 5px; }
+#mundi-root .mu-shop-row, #mundi-root .mu-shop-row:hover:not(:disabled) { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 42px; padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 11px; background: var(--bg2); box-shadow: none; color: inherit; text-align: left; transform: none; }
+#mundi-root .mu-shop-row:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 9%, var(--bg2)); }
+#mundi-root .mu-shop-row.is-on, #mundi-root .mu-shop-row.is-on:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); border-color: var(--accent); }
+#mundi-root .mu-shop-row > i { font-style: normal; font-size: 17px; text-align: center; }
+#mundi-root .mu-shop-row > b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+#mundi-root .mu-shop-row > small { font-size: 12px; opacity: .7; font-variant-numeric: tabular-nums; }
+
+#mundi-root .mu-shop-title { display: flex; gap: 8px; align-items: center; margin: 0; font-size: 16px; }
+#mundi-root .mu-shop-title i { font-style: normal; }
+#mundi-root .mu-shop-list.is-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); align-items: start; }
+/* (a heading, a note or "Sold at" spans the row) */
+#mundi-root .mu-shop-list.is-grid > :not(.mu-shop-item) { grid-column: 1 / -1; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item { height: 100%; }

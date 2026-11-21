@@ -11180,5 +11180,8 @@ const DICT: Record<string, string> = {
  "Every goal here is finished.": "Todas as metas daqui estão concluídas.",
  "Nothing to suggest now.": "Nada a sugerir agora.",
  "{0} of {1} finished": "{0} de {1} concluídas",
+ "Hide owned": "Ocultar o que já tem",
+ "You own everything here.": "Você já tem tudo daqui.",
+ "Your money": "Seu dinheiro",
 };
 export default DICT;

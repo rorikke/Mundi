@@ -289,11 +289,14 @@ function activeHtml(g, w) {
 }
 // The small mark a world's own goal carries in a list (Suggested and the categories).
 const ownMark = (w, goal) => (isOwnGoal(goal.id) ? ` <span class="mu-gl-own" title="${esc(`${w.name}'s own`)}">✦</span>` : '');
-function suggestedHtml(g, w) {
-    const list = suggestedGoals(g, w, 3);
+// How many goals are suggested: three, six unfolded (where they're cards with room for them); past that it would be the
+// best of every category rather than a suggestion.
+const SUGGEST_N = 3, SUGGEST_WIDE = 6;
+function suggestedHtml(g, w, wide = false) {
+    const list = suggestedGoals(g, w, wide ? SUGGEST_WIDE : SUGGEST_N);
     if (!list.length)
         return '';
-    return `<section class="mu-gl-suggest"><h4>Suggested</h4>${list.map(x => `<div class="mu-gl-sug">
+    return `<section class="mu-gl-suggest ${wide ? 'is-grid' : ''}"><h4>Suggested</h4>${list.map(x => `<div class="mu-gl-sug">
         <button class="mu-gl-row" data-act="gl-open" data-id="${esc(x.id)}"><i>${esc(x.icon ?? '⭐')}</i><b>${esc(x.name)}${ownMark(w, x)}</b><small>${esc(perkLine(x))}</small></button>
         <button class="mu-primary" data-act="gl-pick" data-id="${esc(x.id)}">Pick</button></div>`).join('')}</section>`;
 }
@@ -404,7 +407,7 @@ function activeSmall(g, w) {
         <small>Step ${n(i + 1)} of ${n(p.total)}: <b>${esc(goal.steps[i].name)}</b></small></button>`;
 }
 function goalsList(g, w) {
-    const goals = offeredGoals(g, w), sug = suggestedGoals(g, w, 3), on = (v) => GS.cat === v && !GS.detail;
+    const goals = offeredGoals(g, w), sug = suggestedGoals(g, w, SUGGEST_WIDE), on = (v) => GS.cat === v && !GS.detail;
     const row = (v, icon, name, num, pct) => `<button class="mu-gl-crow ${on(v) ? 'is-on' : ''}" data-act="gl-show" data-v="${esc(v)}" aria-pressed="${on(v)}">
         <i aria-hidden="true">${esc(icon)}</i><span><b>${esc(name)}</b>${pct === null ? '' : `<span class="mu-bond"><i style="width:${pct}%"></i></span>`}</span><small>${esc(num)}</small></button>`;
     const cats = categoriesOf(goals).map(c => { const x = catGoals(g, w, goals, c.id); return row(c.id, c.icon, c.name, `${x.done}/${x.all.length}`, x.all.length ? Math.round((x.done / x.all.length) * 100) : 0); });
@@ -424,12 +427,12 @@ function goalsPane(g, w) {
         const cur = activeGoal(g, w);
         if (cur)
             return { key: `now/${cur.id}`, html: detailHtml(g, w, cur, '') };
-        v = suggestedGoals(g, w, 3).length ? 'suggested' : cats[0]?.id ?? 'perks';
+        v = suggestedGoals(g, w, SUGGEST_WIDE).length ? 'suggested' : cats[0]?.id ?? 'perks';
     }
     if (v === 'perks')
         return { key: 'perks', html: perksHtml(g, w) };
     if (v === 'suggested')
-        return { key: 'suggested', html: suggestedHtml(g, w) || `<p class="mu-muted">${esc('Nothing to suggest now.')}</p>` };
+        return { key: 'suggested', html: suggestedHtml(g, w, true) || `<p class="mu-muted">${esc('Nothing to suggest now.')}</p>` };
     const c = cats.find(x => x.id === v), x = catGoals(g, w, goals, v);
     return { key: `cat/${v}`, html: `<h3 class="mu-gl-ctitle"><i aria-hidden="true">${esc(c?.icon ?? '🌟')}</i><b>${esc(c?.name ?? humanize(v))}</b><small>${esc(`${x.done} of ${x.all.length} finished`)}</small></h3>${rowsHtml(g, w, x.shown, true)}` };
 }
