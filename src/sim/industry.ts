@@ -29,8 +29,9 @@ export interface Offer {
 }
 /** A title as the save keeps it: core/industry.ts's TitleRec and what A keeps beside it: the fee (paid at the wrap),
  *  the `set` plans made with Tokyo's people, the best chart place is `peak`, weeks in the top 10, last week's sales, the
- *  brief it came from, Kanon's script, whether the shoot began (`started`), it was released (`out`). */
-export interface Title extends TitleRec { fee?: number; plans?: string[]; charts?: number; lastWeek?: number; brief?: true; script?: true; started?: true; out?: true; warned?: true; cut?: number }
+ *  brief it came from, Kanon's script, whether the shoot began (`started`), it was released (`out`), each week's sales
+ *  (`hist`, the Take app's sparkline; older titles have none). */
+export interface Title extends TitleRec { fee?: number; plans?: string[]; charts?: number; lastWeek?: number; brief?: true; script?: true; started?: true; out?: true; warned?: true; cut?: number; hist?: number[] }
 export interface ChartRow { name: string; label: string; sales: number; title?: string }
 export interface IndustryState {
     seats: { perform?: SeatState; direct?: SeatState };
