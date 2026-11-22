@@ -5172,7 +5172,8 @@ body.mundi-open #completion_prompt_manager_popup {
 #mundi-root .mu-rad-layer .mu-sprite { overflow: visible; }
 #mundi-root .mu-rad-layer .mu-sprite > :not(.mu-radial) { visibility: hidden; pointer-events: none !important; }
 /* The Shop app unfolded (ui/shopui.ts): your money and the tabs listed on the left with how many each holds, the open
-   tab's cards side by side on the right; Hide owned in both layouts */
+   tab's cards side by side on the right (each card: the picture beside the name and description, what it does under
+   them across the card, the price and Buy along the bottom); Hide owned in both layouts */
 #mundi-root .mu-shop-hide { justify-self: end; display: inline-flex; gap: 6px; align-items: center; font-size: 12px; opacity: .85; cursor: pointer; }
 #mundi-root .mu-shop-hide input { margin: 0; }
 #mundi-root .mu-shop-allown { margin: 2px; font-size: 13px; text-align: center; }
@@ -5195,6 +5196,22 @@ body.mundi-open #completion_prompt_manager_popup {
 /* (a heading, a note or "Sold at" spans the row) */
 #mundi-root .mu-shop-list.is-grid > :not(.mu-shop-item) { grid-column: 1 / -1; }
 #mundi-root .mu-shop-list.is-grid > .mu-shop-item { height: 100%; }
+
+/* unfolded cards: the text gets the card's width (the picture only sits beside the name and description, Buy moves to
+   the bottom), and the bottom row lines up across a row of cards. Rows are placed by number so a card without a
+   description or days left just leaves that row empty (no row gap, so empty rows take no room). */
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) { grid-template-columns: 60px minmax(0, 1fr) auto; grid-template-rows: auto auto auto auto 1fr;
+    column-gap: 12px; row-gap: 0; align-items: start; padding: 12px; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > span { display: contents; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > i { grid-column: 1; grid-row: 1 / span 3; align-self: start; width: 60px; height: 60px; font-size: 34px; line-height: 60px; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > span > b { grid-column: 2 / -1; grid-row: 1; font-size: 14px; line-height: 1.25; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > span > small:not(.mu-shop-price, .mu-shop-left) { grid-column: 2 / -1; grid-row: 2; margin-top: 3px; font-size: 12px; line-height: 1.35; opacity: .8; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > span > .mu-shop-left { grid-column: 2 / -1; grid-row: 3; margin-top: 4px; font-size: 12px; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) .mu-shop-does { grid-column: 1 / -1; grid-row: 4; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) .mu-shop-price { grid-column: 1 / 3; grid-row: 5; align-self: end; margin-top: 10px; font-size: 15px; line-height: 32px; font-variant-numeric: tabular-nums; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > :is(button, em) { grid-column: 3; grid-row: 5; align-self: end; justify-self: end; margin-top: 10px; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > button { min-height: 32px; padding: 4px 14px; white-space: nowrap; }
+#mundi-root .mu-shop-list.is-grid > .mu-shop-item:not(.mu-book *) > em { line-height: 32px; }
 /* Classic and Cards: the characters with Expressions sprites stand beside the conversation, in the space left free
    on each side of it. One: on the left. Two or more: the 1st, 3rd… on the left and the 2nd, 4th… on the right (see
    stageVars in ui/scene.ts: --side, --pk, --nk).
