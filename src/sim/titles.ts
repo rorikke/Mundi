@@ -646,6 +646,9 @@ onDay.push((g, w) => {
     st.offers = st.offers.filter(o => o.until >= g.day);
     out.push(...settleTrend(g, w), ...pastShoots(g, w), ...editTimeouts(g), ...releases(g, w));
     if (isMonday(g.day)) { salesWeek(g, w); out.push(...fillOffers(g, w)); }
+    // a new hire's first offers (hired in the last two days) come on their first day in the job, not the next Monday (the law's month before the shoot
+    // is wait enough; Monday deals as usual): so a booked career starts at the shift job's pace
+    else if (st.drawn === undefined && inIndustry(g, w) && nowAbs(g) - ((g.player.job as { since?: number } | null)?.since ?? -Infinity) <= 2 * 1440) out.push(...fillOffers(g, w));
     return out;
 });
 // what the AI is told: today's shoot, the latest release
