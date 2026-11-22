@@ -72700,7 +72700,7 @@
        },
        {
         "id": "top",
-        "when": "rank: 5; titles: 10",
+        "when": "rank: 5; titles: 10; inrank: not 14",
         "tell": "known",
         "text": "{{user}} has made a name in the industry, and Naomi has started asking {{user}}, half joking, what they would do with a label of their own.",
         "moment": "Naomi asks {{user}} straight out whether they have ever thought of running a label"
