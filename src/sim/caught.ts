@@ -95,8 +95,9 @@ onDay.push(g => {
 /* ---------- caught at your own workplace ---------- */
 
 const atMyWork = (g: Save, w: WorldDef, place: string) => { const o = myJob(g, w); return !!o && !!place && jobPlace(g, o) === place; };
-// A warning at work: performance down (it may bring its own consequences when low), and a warning on record.
-function workWarning(g: Save, w: WorldDef, perf: number): string[] {
+// A warning at work: performance down (it may bring its own consequences when low), and a warning on record. (Also
+// sim/fame.ts: a coworker who recognized you from adult video.)
+export function workWarning(g: Save, w: WorldDef, perf: number): string[] {
     const o = myJob(g, w), j = g.player.job as JobState | null;
     if (!o || !j) return [];
     const out = [`Your boss had a word with you about it at ${o.name}: a warning.`];
