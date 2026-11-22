@@ -37,12 +37,13 @@ export const FOLDED_GOALS = { fit: 'athlete' };
  *  missed shift forgotten), `double` (the active goal's finishing points doubled: Tokyo's daruma); (track 7, the end
  *  game) `dealer` (a missing piece you pick comes with the dealer's next visit, at the asked price), `auction` (one more
  *  lot at the next sale: a missing piece you pick), `restore` (everything in the museum's workshop ready tomorrow, the
- *  fee as it was), `tenant` (each home you let has a tenant every week for a season). None of them lowers a price. */
-export const REWARD_KINDS = ['boost', 'refill', 'nudge', 'clear', 'fresh', 'forgive', 'invite', 'quiet', 'insight', 'retrait', 'skip', 'rentfree', 'cleanslate', 'double', 'dealer', 'auction', 'restore', 'tenant'];
+ *  fee as it was), `tenant` (each home you let has a tenant every week for a season); `redo` (one of someone's storylines
+ *  that didn't end well begins again: sim/threads.ts). None of them lowers a price. */
+export const REWARD_KINDS = ['boost', 'refill', 'nudge', 'clear', 'fresh', 'forgive', 'invite', 'quiet', 'insight', 'retrait', 'skip', 'rentfree', 'cleanslate', 'double', 'dealer', 'auction', 'restore', 'tenant', 'redo'];
 /** One-off kinds that act on a museum piece you pick. */
 export const PIECE_KINDS = ['dealer', 'auction'];
 /** One-off kinds that act on a person you pick. */
-export const PERSON_KINDS = ['nudge', 'clear', 'fresh', 'forgive', 'invite', 'insight'];
+export const PERSON_KINDS = ['nudge', 'clear', 'fresh', 'forgive', 'invite', 'insight', 'redo'];
 /* ---------- the general goals ---------- */
 const s = (name, when, hold) => (hold ? { name, when, hold } : { name, when });
 const perk = (name, desc, ...effects) => ({ name, desc, effects });
@@ -158,6 +159,7 @@ export const GENERAL_REWARDS = [
     { id: 'quietrumor', name: 'Quiet a rumor', icon: '🤫', desc: 'One rumor about you stops spreading.', price: 200, kind: 'quiet', needs: ['rumors'] },
     { id: 'insight', name: 'Insight', icon: '🔮', desc: 'Learn one true thing about someone.', price: 250, kind: 'insight', limit: { per: 'season', person: true } },
     { id: 'changetrait', name: 'Change a trait', icon: '🎭', desc: 'Swap a personality or interest trait.', price: 500, kind: 'retrait' },
+    { id: 'secondchance', name: 'A second chance', icon: '🔁', desc: "One storyline that didn't end well begins again from the start. What its ending changed stays, but someone it took away comes back.", price: 1000, kind: 'redo', needs: ['living'] },
     { id: 'skipstep', name: 'Skip a step', icon: '⏭️', desc: 'The current step of your goal counts as done (never the last).', price: 400, kind: 'skip', limit: { per: 'goal' } },
 ];
 /* ---------- a world's goals and rewards ---------- */

@@ -4,7 +4,7 @@
 // check, the world's own with a mark; nothing greyed out: goals a game can't offer simply aren't there; Hide finished
 // leaves them out); a goal's page (steps, objectives, step rewards, perk; its Back returns where the list was
 // scrolled); the perks you have. Rewards: your life points and the shop (sim/rewards.ts), with the pickers an item
-// needs (a person, the Nudge's meter, Insight's question, a trait, a rumor). Unfolded, like Messages: the goal you
+// needs (a person, the Nudge's meter, Insight's question, A second chance's storyline, a trait, a rumor). Unfolded, like Messages: the goal you
 // follow, Suggested, the categories and Your perks as a list on the left, what's picked (or the goal you follow) on
 // the right; Rewards has the points on the left and the shop on the right. The engine owns every number
 // (sim/goals.ts, sim/points.ts, sim/rewards.ts); this file only draws and calls. With the `goals` system off there is
@@ -32,10 +32,10 @@ import { itemIco } from './itempic.js';
  *  what was picked for it. `said`: the last lines shown (toasted); `back`: where the list was scrolled, to come back to. */
 export const GS = {
     tab: 'goals', open: [], detail: '', cat: '', hideDone: false,
-    buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '',
+    buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '', thread: '',
     said: [], back: null,
 };
-const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '' });
+const clearPick = () => Object.assign(GS, { buy: '', person: '', meter: '', question: '', group: '', from: '', to: '', rumor: '', piece: '', thread: '' });
 // What the app shows belongs to one game: a game opened starts again on the Goals tab, with nothing open or picked.
 SAVE.hooks.push(() => { Object.assign(GS, { tab: 'goals', open: [], detail: '', cat: '', back: null }); clearPick(); });
 /** The Goals app's badge (D-7): no goal followed and one to pick. Never with the `goals` system off. */
@@ -479,7 +479,8 @@ function pointsHtml(g, w, items) {
         <small class="mu-muted">Earned from your life goal's steps (+${n(GOAL_POINTS.step)}) and finishing it (+${n(GOAL_POINTS.goal)}), and a little from festivals, stories and secrets.</small>
         ${log.length ? `<ul class="mu-rw-log">${log.map(x => `<li><b class="${x.n < 0 ? 'is-spent' : ''}">${x.n > 0 ? '+' : ''}${n(x.n)}</b><span>${esc(logWords(g, w, x.why, items))}</span><small>Day ${n(x.day + 1)}</small></li>`).join('')}</ul>` : ''}</section>`;
 }
-// The choices an item needs before it's bought (a person, a meter, a question, a trait, a rumor), and the buy button.
+// The choices an item needs before it's bought (a person, a meter, a question, a storyline, a trait, a rumor), and the
+// buy button.
 function pickerHtml(g, w, it) {
     const buy = (ready) => `<button class="mu-primary" data-act="rw-buy" data-id="${esc(it.id)}" ${ready ? '' : 'aria-disabled="true"'}>Buy · ${n(it.price)} points</button>`;
     const chip = (act, v, label, on) => `<button class="mu-chip ${on ? 'is-on' : ''}" data-act="${act}" data-v="${esc(v)}">${esc(label)}</button>`;
@@ -495,6 +496,11 @@ function pickerHtml(g, w, it) {
             const qs = who.questions ?? [];
             more = `<small>What do you want to know?</small><div class="mu-chips">${qs.map(q => chip('rw-question', q.id, q.name, GS.question === q.id)).join('')}</div>`;
             ready = qs.some(q => q.id === GS.question);
+        }
+        if (who && it.kind === 'redo') {
+            const ls = who.storylines ?? [];
+            more = `<small>Which storyline?</small><div class="mu-chips">${ls.map(t => `<button class="mu-chip ${GS.thread === t.id ? 'is-on' : ''}" data-act="rw-thread" data-v="${esc(t.id)}"><span data-notr>${esc(t.name)}</span></button>`).join('')}</div>`;
+            ready = ls.some(t => t.id === GS.thread);
         }
         return `<div class="mu-rw-pick"><small>Who?</small>${people.length ? `<div class="mu-rw-people">${people.map(p => p.ok
             ? `<button class="mu-chip ${GS.person === p.avatar ? 'is-on' : ''}" data-act="rw-person" data-v="${esc(p.avatar)}"><span data-notr>${esc(p.name)}</span></button>`
@@ -621,12 +627,15 @@ Object.assign(ACT, {
         GS.person = el.dataset.v ?? '';
         GS.meter = '';
         GS.question = '';
+        GS.thread = '';
         // a single choice is made for you
         const p = peopleFor(x.g, x.w, GS.buy).find(y => y.avatar === GS.person);
         if (p?.meters?.length === 1)
             GS.meter = p.meters[0];
         if (p?.questions?.length === 1)
             GS.question = p.questions[0].id;
+        if (p?.storylines?.length === 1)
+            GS.thread = p.storylines[0].id;
         notify();
     },
     'rw-meter': (el) => { GS.meter = el.dataset.v === 'r' ? 'r' : 'f'; notify(); },
@@ -636,6 +645,7 @@ Object.assign(ACT, {
     'rw-to': (el) => { GS.to = el.dataset.v ?? ''; notify(); },
     'rw-rumor': (el) => { GS.rumor = el.dataset.v ?? ''; notify(); },
     'rw-piece': (el) => { GS.piece = el.dataset.v ?? ''; notify(); },
+    'rw-thread': (el) => { GS.thread = el.dataset.v ?? ''; notify(); },
     'rw-buy': (el) => {
         const x = here();
         if (!x || el.getAttribute('aria-disabled'))
@@ -652,6 +662,8 @@ Object.assign(ACT, {
                     c.meter = GS.meter;
                 if (GS.question)
                     c.question = GS.question;
+                if (GS.thread)
+                    c.thread = GS.thread;
             }
             if (it.pick === 'trait') {
                 c.group = GS.group;

@@ -96,7 +96,8 @@ export const STORYLINES_HELP = {
         ['Last chances', 'If you wait, they come back to you about once a season: in person when you are together, or by text from the evening. Answer a text with Meet them, Help (when it works by text) or Not now; a text left three days counts as missed. After three last chances the story ends the way it would without you, never one of its good endings. A few stories instead cool off toward you, a friendship level down, and wait for you once more.'],
         ['Hanging on someone else', 'Some stories depend on how another one ends. They wait, and the card says so; you can still Help or Let it be from "Talk about it" on their page.'],
         ['Talk about it', 'On their page, when you are with them: brings the card back in this scene.'],
-        ['How it ends', 'A story ends one way, for good, and the news keeps it. Some people leave the maps when it does. Learning a secret and seeing a story to its end give life points.'],
+        ['How it ends', 'A story ends one way, and the news keeps it. Some people leave the maps when it does. Learning a secret and seeing a story to its end give life points.'],
+        ['A second chance', "A story that didn't end well can begin again with A second chance, in the Goals app's Rewards. It starts over from its first stage, and what you knew of it stays known. What its ending changed stays, but someone it took away comes back. Their slot in the collection follows how it ends next time."],
     ],
 };
 /* ---------- what the buttons do ---------- */

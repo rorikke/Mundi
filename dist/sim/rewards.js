@@ -12,7 +12,8 @@
 // (the active goal's finishing points doubled). (track 7, the end game) A dealer's tip and an early catalogue (a missing
 // piece you pick, on the ask's terms or as one more lot: sim/market.ts), the workshop's priority (everything in the
 // museum's workshop ready tomorrow, the fee as it was: sim/museum.ts) and a good tenant (sim/letting.ts): none lowers a
-// price. What the AI hears is a fact, as for anything else that happens.
+// price. A second chance begins again one of someone's storylines that didn't end well (`redoThread()` in
+// sim/threads.ts). What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
 import { nowAbs, adultOk, adultOn } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs } from '../core/world.js';
@@ -37,7 +38,7 @@ import { feelingsOf } from './life.js';
 import { seat } from './moments.js';
 import { inviteSoon, invitesDue, wantOf } from './initiative.js';
 import { approvalOf, approve, rumorsAboutYou, quietRumor } from './living.js';
-import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap } from './threads.js';
+import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap, redoable, redoThread } from './threads.js';
 import { exampleOf, secretCouple } from './dayplan.js';
 import { swapTrait, traitNames, strengthGroups, groupOptions, isAdultTrait } from './traits.js';
 import { refreshPersona } from './game.js';
@@ -132,6 +133,8 @@ function whyNot(g, w, def) {
         if (!c.groups.length)
             return 'Nothing to change';
     }
+    if (k === 'redo' && !peopleFor(g, w, def.id).some(p => p.ok))
+        return 'No storyline to begin again';
     if (pickOf(k) === 'person' && !peopleFor(g, w, def.id).some(p => p.ok))
         return 'Nobody to use it on';
     if (def.price > pointsOf(g))
@@ -185,6 +188,10 @@ function personWhy(g, w, def, r) {
             const questions = insightQuestions(g, w, a, def.questions);
             return { why: questions.length ? null : 'Nothing to learn', questions };
         }
+        case 'redo': {
+            const all = redoable(g, w, a), storylines = all.filter(x => !x.why).map(x => ({ id: x.id, name: x.name }));
+            return { why: storylines.length ? null : all[0]?.why ?? 'No storyline over', storylines };
+        }
     }
     return { why: null };
 }
@@ -195,7 +202,7 @@ export function peopleFor(g, w, id) {
     const def = offeredRewards(g, w).find(x => x.id === id);
     if (!def || pickOf(def.kind) !== 'person')
         return [];
-    return known(g).map(r => { const x = personWhy(g, w, def, r); return { avatar: r.avatar, name: r.name, ok: !x.why, ...(x.why ? { why: x.why } : {}), ...(x.meters ? { meters: x.meters } : {}), ...(x.questions ? { questions: x.questions } : {}) }; });
+    return known(g).map(r => { const x = personWhy(g, w, def, r); return { avatar: r.avatar, name: r.name, ok: !x.why, ...(x.why ? { why: x.why } : {}), ...(x.meters ? { meters: x.meters } : {}), ...(x.questions ? { questions: x.questions } : {}), ...(x.storylines ? { storylines: x.storylines } : {}) }; });
 }
 /** The pieces an item can bring now (for the Rewards tab's picker). */
 export function piecesFor(g, w, id) {
@@ -472,6 +479,12 @@ function act(g, w, def, c) {
                 return 'No home to let';
             sureTenants(g);
             return { lines: [`${def.name}: every home you let has a tenant each week this season.`] };
+        }
+        case 'redo': {
+            if (!c.thread || !redoable(g, w, a).some(x => x.id === c.thread && !x.why))
+                return 'Pick one of their storylines';
+            const done = redoThread(g, w, c.thread);
+            return typeof done === 'string' ? done : { lines: done };
         }
     }
     return 'That does nothing here';

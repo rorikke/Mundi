@@ -18,6 +18,7 @@
 // for you or on another, and an ending played in this scene have lines of their own. Nothing the AI says is read back.
 // The player also learns a thread when its owner trusts them enough while they're together (`reveal`, by default a good
 // friend), from a street story's choice, by overhearing a rumor one of its stages started, Insight, or a sighting.
+// A storyline that didn't end well can begin again from the start with the rewards shop's A second chance (`redoThread`).
 // It all belongs to the living world (`living`); nothing moves with it off. Old saves are settled once (`settleThreads`).
 import type { Save, Resident } from '../core/store.js';
 import { systemOn, type WorldDef, type Thread, type ThreadStage, type ThreadEnding, type ThreadHelp } from '../core/world.js';
@@ -29,7 +30,7 @@ import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwn
 import { effectAdd } from './effects.js';
 import { startRumor, rumorPool, liveTogether, YOU } from './living.js';
 import { queueMoment, inviteSoon } from './moments.js';
-import { note } from './facts.js';
+import { note, facts } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
 import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
@@ -50,10 +51,11 @@ const rnd = (g: Save, salt: string) => { let h = 2166136261; const s = `${g.worl
  *  chance waiting for an answer (`asked`: when, which one, in person or by text), last chances left unanswered
  *  (`missed`), the day the next one comes (`next`), how it ended (`endedBy`, for the museum's plaque), the day of the
  *  scene after which its person leaves (`leaving`), the scene in which you brought it up (`talk`), the day they cooled
- *  toward you after a round of last chances went unanswered (`cooled`, an `ignored: cool` storyline's one second round). */
+ *  toward you after a round of last chances went unanswered (`cooled`, an `ignored: cool` storyline's one second round),
+ *  how many times A second chance began it again (`redone`). */
 export interface ThreadState { stage: number; since: number; known?: number; how?: 'friend' | 'story' | 'rumor' | 'open' | 'insight' | 'saw' | 'told'; ended?: string; endDay?: number;
     opened?: number; due?: number; waiting?: number; on?: string; asked?: { day: number; n: number; by: 'text' | 'card'; text?: string }; missed?: number; next?: number;
-    endedBy?: 'calendar' | 'scene' | 'let' | 'help' | 'nudges'; leaving?: number; talk?: string; cooled?: number }
+    endedBy?: 'calendar' | 'scene' | 'let' | 'help' | 'nudges'; leaving?: number; talk?: string; cooled?: number; redone?: number }
 export const threadStates = (g: Save) => ((g as any).threads ??= {}) as Record<string, ThreadState>;
 // How long an ending is still news for the AI.
 const NEWS_DAYS = 14;
@@ -583,6 +585,48 @@ export function storylineOf(g: Save, w: WorldDef, who: string): Storyline | null
     const d = decideNow(g, w, x.t), talk = here(g, w, x.r);
     if (st.on || d.kind === 'pending') return { ...base, state: 'pending', on: threadOwner(w, st.on ?? d.on ?? ''), talk };
     return { ...base, state: st.waiting !== undefined ? 'waiting' : 'due', missing: d.waitFor.map(y => y.missing), talk };
+}
+
+/* ---------- A second chance (the rewards shop) ---------- */
+
+const endingNow = (t: Thread, st: ThreadState | undefined) => (st?.ended ? t.endings?.find(e => e.id === st.ended) : undefined);
+/** Why a storyline can't begin again with A second chance (null: it can): only one that's over in a way that wasn't
+ *  good, of someone you don't play, that no other storyline's ending came from (that one has played out for good). */
+export function redoWhy(g: Save, w: WorldDef, t: Thread, r: Resident): string | null {
+    const st = threadStates(g)[t.id];
+    if (!st?.ended) return 'Not over yet';
+    if (endingNow(t, st)?.good) return 'It ended well';
+    if (r.avatar === self(g)) return 'You are playing them';
+    const after = threadsOf(g, w).find(x => { if (x.t.id === t.id) return false; const e = endingNow(x.t, threadStates(g)[x.t.id]); return !!e && namedThreads(e).includes(t.id); });
+    return after ? `${titleOf(after.t, after.r)} ended because of it` : null;
+}
+/** Someone's storylines that are over, each with why A second chance can't begin it again (none: it can). */
+export function redoable(g: Save, w: WorldDef, avatar: string): { id: string; name: string; why?: string }[] {
+    if (!systemOn(w, 'living')) return [];
+    return threadsOf(g, w).filter(x => x.r.avatar === avatar && threadStates(g)[x.t.id]?.ended).map(({ t, r }) => {
+        const why = redoWhy(g, w, t, r);
+        return { id: t.id, name: titleOf(t, r), ...(why ? { why } : {}) };
+    });
+}
+/** A second chance: a storyline that didn't end well begins again from the start. What you knew of it stays known (it
+ *  opens on the next day, and its secret isn't paid twice). What its ending changed stays (a job, a home), but someone
+ *  it took away comes back. The AI is no longer told its stages' facts or its ending (the journal keeps them), its
+ *  stages' rumors are gone so they can start again, and the collection follows the next ending (sim/collection.ts).
+ *  Returns the lines to show, or why it can't. */
+export function redoThread(g: Save, w: WorldDef, id: string): string[] | string {
+    const x = systemOn(w, 'living') ? findThread(g, w, id) : null;
+    if (!x) return 'No such storyline';
+    const why = redoWhy(g, w, x.t, x.r);
+    if (why) return why;
+    const { t, r } = x, all = threadStates(g), st = all[t.id], e = endingNow(t, st);
+    const told = new Set([...t.stages.map(s => s.fact), e?.text.replace(/\{\{user\}\}/g, '{u}'), e?.fact].filter((s): s is string => !!s));
+    for (const f of facts(g)) if (f.kind === 'thread' && f.who.includes(r.avatar) && told.has(f.t)) f.forgot = [...new Set([...(f.forgot ?? []), ...f.who])];
+    const pool = rumorPool(g);
+    for (let i = pool.length - 1; i >= 0; i--) if (pool[i].thread === t.id) pool.splice(i, 1);
+    all[t.id] = { stage: -1, since: g.day, ...(st.known !== undefined ? { known: st.known, ...(st.how ? { how: st.how } : {}) } : {}), redone: (st.redone ?? 0) + 1 };
+    const out = [`${titleOf(t, r)} begins again.`];
+    if (e?.leaves && goneFromMap(r)) { delete (r as any).gone; out.push(`${r.name} is back.`); }
+    return out;
 }
 
 /* ---------- the player learns it ---------- */

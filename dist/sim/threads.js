@@ -7,7 +7,7 @@ import { whenHolds, levelHolds, parseWhen, calendarOnly, missingWords, threadOwn
 import { effectAdd } from './effects.js';
 import { startRumor, rumorPool, liveTogether, YOU } from './living.js';
 import { queueMoment, inviteSoon } from './moments.js';
-import { note } from './facts.js';
+import { note, facts } from './facts.js';
 import { homeSpot, takenHomes, normalizeHomes } from './homes.js';
 import { earn } from './points.js';
 import { seasonDays, advance } from './time.js';
@@ -675,6 +675,60 @@ export function storylineOf(g, w, who) {
     if (st.on || d.kind === 'pending')
         return { ...base, state: 'pending', on: threadOwner(w, st.on ?? d.on ?? ''), talk };
     return { ...base, state: st.waiting !== undefined ? 'waiting' : 'due', missing: d.waitFor.map(y => y.missing), talk };
+}
+/* ---------- A second chance (the rewards shop) ---------- */
+const endingNow = (t, st) => (st?.ended ? t.endings?.find(e => e.id === st.ended) : undefined);
+/** Why a storyline can't begin again with A second chance (null: it can): only one that's over in a way that wasn't
+ *  good, of someone you don't play, that no other storyline's ending came from (that one has played out for good). */
+export function redoWhy(g, w, t, r) {
+    const st = threadStates(g)[t.id];
+    if (!st?.ended)
+        return 'Not over yet';
+    if (endingNow(t, st)?.good)
+        return 'It ended well';
+    if (r.avatar === self(g))
+        return 'You are playing them';
+    const after = threadsOf(g, w).find(x => { if (x.t.id === t.id)
+        return false; const e = endingNow(x.t, threadStates(g)[x.t.id]); return !!e && namedThreads(e).includes(t.id); });
+    return after ? `${titleOf(after.t, after.r)} ended because of it` : null;
+}
+/** Someone's storylines that are over, each with why A second chance can't begin it again (none: it can). */
+export function redoable(g, w, avatar) {
+    if (!systemOn(w, 'living'))
+        return [];
+    return threadsOf(g, w).filter(x => x.r.avatar === avatar && threadStates(g)[x.t.id]?.ended).map(({ t, r }) => {
+        const why = redoWhy(g, w, t, r);
+        return { id: t.id, name: titleOf(t, r), ...(why ? { why } : {}) };
+    });
+}
+/** A second chance: a storyline that didn't end well begins again from the start. What you knew of it stays known (it
+ *  opens on the next day, and its secret isn't paid twice). What its ending changed stays (a job, a home), but someone
+ *  it took away comes back. The AI is no longer told its stages' facts or its ending (the journal keeps them), its
+ *  stages' rumors are gone so they can start again, and the collection follows the next ending (sim/collection.ts).
+ *  Returns the lines to show, or why it can't. */
+export function redoThread(g, w, id) {
+    const x = systemOn(w, 'living') ? findThread(g, w, id) : null;
+    if (!x)
+        return 'No such storyline';
+    const why = redoWhy(g, w, x.t, x.r);
+    if (why)
+        return why;
+    const { t, r } = x, all = threadStates(g), st = all[t.id], e = endingNow(t, st);
+    const told = new Set([...t.stages.map(s => s.fact), e?.text.replace(/\{\{user\}\}/g, '{u}'), e?.fact].filter((s) => !!s));
+    for (const f of facts(g))
+        if (f.kind === 'thread' && f.who.includes(r.avatar) && told.has(f.t))
+            f.forgot = [...new Set([...(f.forgot ?? []), ...f.who])];
+    const pool = rumorPool(g);
+    for (let i = pool.length - 1; i >= 0; i--)
+        if (pool[i].thread === t.id)
+            pool.splice(i, 1);
+    all[t.id] = { stage: -1, since: g.day, ...(st.known !== undefined ? { known: st.known, ...(st.how ? { how: st.how } : {}) } : {}), redone: (st.redone ?? 0) + 1 };
+    const out = [`${titleOf(t, r)} begins again.`];
+    if (e?.leaves && goneFromMap(r)) {
+        delete r.gone;
+        out.push(`${r.name} is back.`);
+    }
+    return out;
 }
 /* ---------- the player learns it ---------- */
 /** The player learns a thread (a story's choice, an overheard rumor, being told, Insight, a sighting). Learning about

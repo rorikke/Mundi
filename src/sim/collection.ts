@@ -1,5 +1,6 @@
 // The collection: halls of slots and the completion record (Tokyo memories). A record slot fills by itself, for good,
-// the first time its condition holds; R-1 leaves out what this game can't have (and someone added later brings theirs
+// the first time its condition holds (a storyline begun again with A second chance moves its entry to the next
+// ending); R-1 leaves out what this game can't have (and someone added later brings theirs
 // back); R-3 records any ending; R-4 leaves a district's stories that can't happen any more out of its count; R-8 keeps
 // a finished record finished when the world gains slots. Old saves are filled once, the first time, from what they
 // remember. The world data is `w.collection` (core/world.ts, made safe by core/collection.ts); the save is
@@ -209,6 +210,15 @@ function settle(g: Save, w: WorldDef): string[] {
         // (`back`: filled by the first settle on a day the save doesn't know: "before the record began")
         c.got[s.id] = { day: day ?? g.day, ...(t ? endingOf(g, w, t) : {}), ...(first && day === undefined ? { back: true } : {}) };
         filled.push(s);
+    }
+    // a storyline that began again (the rewards shop's A second chance) and ended once more: its entry, filled by the
+    // first ending, follows the new one (a slot or a piece about that one storyline only)
+    const ths = threadStates(g);
+    for (const s of here) {
+        const x = c.got[s.id], id = x?.how ? storyOfSlot(s) : null, st = id ? ths[id] : undefined;
+        if (!x || !id || endingsOfSlot(s).length > 1 || !st?.ended || st.ended === x.how) continue;
+        delete x.good; delete x.by; delete x.back;
+        Object.assign(x, { day: st.endDay ?? g.day }, endingOf(g, w, id));
     }
     // R-8: a slot not counted yet joins the count when it fills, or at once while that percentage isn't 100%
     const counted = new Set(c.counted), halls: string[] = [];

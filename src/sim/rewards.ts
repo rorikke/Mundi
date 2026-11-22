@@ -12,7 +12,8 @@
 // (the active goal's finishing points doubled). (track 7, the end game) A dealer's tip and an early catalogue (a missing
 // piece you pick, on the ask's terms or as one more lot: sim/market.ts), the workshop's priority (everything in the
 // museum's workshop ready tomorrow, the fee as it was: sim/museum.ts) and a good tenant (sim/letting.ts): none lowers a
-// price. What the AI hears is a fact, as for anything else that happens.
+// price. A second chance begins again one of someone's storylines that didn't end well (`redoThread()` in
+// sim/threads.ts). What the AI hears is a fact, as for anything else that happens.
 // All of it belongs to the `goals` system: with it off the shop is empty.
 import { nowAbs, adultOk, adultOn, type Save, type Resident } from '../core/store.js';
 import { systemOn, activeStatuses, placeIs, type WorldDef, type RewardDef } from '../core/world.js';
@@ -37,7 +38,7 @@ import { feelingsOf } from './life.js';
 import { seat } from './moments.js';
 import { inviteSoon, invitesDue, wantOf } from './initiative.js';
 import { approvalOf, approve, rumorsAboutYou, quietRumor, type Rumor } from './living.js';
-import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap } from './threads.js';
+import { threadsOf, threadStates, advanceThreads, revealThread, goneFromMap, redoable, redoThread } from './threads.js';
 import { exampleOf, secretCouple } from './dayplan.js';
 import { swapTrait, traitNames, strengthGroups, groupOptions, isAdultTrait } from './traits.js';
 import { refreshPersona } from './game.js';
@@ -60,8 +61,9 @@ export interface ShopItem {
     limit: { per: string; n: number; used?: number; person: boolean } | null; ok: boolean; why?: string; def: RewardDef;
 }
 /** What the buyer picked: the person (an avatar), the Nudge's meter (`f` friendship, `r` romance), Insight's question,
- *  Change a trait's group with the trait to swap (`from`) and the new one (`to`), the rumor's id. */
-export interface RewardChoice { person?: string; meter?: Meter; question?: InsightId; group?: string; from?: string; to?: string; rumor?: string; /** (track 7) a museum piece */ piece?: string }
+ *  Change a trait's group with the trait to swap (`from`) and the new one (`to`), the rumor's id, A second chance's
+ *  storyline (`thread`). */
+export interface RewardChoice { person?: string; meter?: Meter; question?: InsightId; group?: string; from?: string; to?: string; rumor?: string; /** (track 7) a museum piece */ piece?: string; thread?: string }
 /** What buying did. `persona`: the persona card being written again (Change a trait). */
 export interface RewardResult { ok: boolean; lines: string[]; persona?: Promise<boolean> }
 
@@ -115,6 +117,7 @@ function whyNot(g: Save, w: WorldDef, def: RewardDef): string | null {
     if (k === 'tenant') { if (!toLet(g).length) return 'No home to let'; if (sureUntil(g) >= weekNo(nextMonday(g.day)) + sureWeeks(g) - 1) return 'Already sure for the season'; }
     if (k === 'quiet' && !rumorsAboutYou(g).length) return 'No rumor about you is going round';
     if (k === 'retrait') { const c = traitChoices(g, w); if (!c.groups.length) return 'Nothing to change'; }
+    if (k === 'redo' && !peopleFor(g, w, def.id).some(p => p.ok)) return 'No storyline to begin again';
     if (pickOf(k) === 'person' && !peopleFor(g, w, def.id).some(p => p.ok)) return 'Nobody to use it on';
     if (def.price > pointsOf(g)) return 'Not enough life points';
     return null;
@@ -135,8 +138,8 @@ export function shopItems(g: Save, w: WorldDef | null | undefined): ShopItem[] {
 /* ---------- people ---------- */
 
 /** Someone an item can be used on, or why not. `meters`: what the Nudge can raise for them; `questions`: what Insight
- *  can ask about them. */
-export interface RewardPerson { avatar: string; name: string; ok: boolean; why?: string; meters?: Meter[]; questions?: InsightQuestion[] }
+ *  can ask about them; `storylines`: theirs that A second chance can begin again. */
+export interface RewardPerson { avatar: string; name: string; ok: boolean; why?: string; meters?: Meter[]; questions?: InsightQuestion[]; storylines?: { id: string; name: string }[] }
 const togetherWith = (g: Save, a: string) => !!statusOf(g, a, YOU);
 // People you know (not the one you play).
 const known = (g: Save): Resident[] => Object.values(g.cast).filter(r => r.met && idOf(g, r.avatar) !== YOU);
@@ -150,7 +153,7 @@ export function nudgeWhy(g: Save, w: WorldDef, a: string, m: Meter): string | nu
     if ((m === 'r' ? ro(g, a, YOU) : fr(g, a, YOU)) >= 100) return 'Already as high as it goes';
     return null;
 }
-function personWhy(g: Save, w: WorldDef, def: RewardDef, r: Resident): { why: string | null; meters?: Meter[]; questions?: InsightQuestion[] } {
+function personWhy(g: Save, w: WorldDef, def: RewardDef, r: Resident): { why: string | null; meters?: Meter[]; questions?: InsightQuestion[]; storylines?: { id: string; name: string }[] } {
     const a = r.avatar;
     if (def.limit?.person && limitLeft(g, def, a) <= 0) return { why: def.limit.per && def.limit.per !== 'ever' ? `Used for them ${PER_WORDS[def.limit.per]}` : 'Already used for them' };
     switch (def.kind) {
@@ -160,6 +163,10 @@ function personWhy(g: Save, w: WorldDef, def: RewardDef, r: Resident): { why: st
         case 'forgive': return { why: grudgeOf(g, a) ? null : 'No grudge to forgive' };
         case 'invite': return { why: goneFromMap(r) ? 'Not around any more' : bondOf(g, a) < DISLIKES ? 'They dislike you' : grudgeOf(g, a) ? 'Still upset with you' : a in invitesDue(g) ? 'Already on its way' : null };
         case 'insight': { const questions = insightQuestions(g, w, a, def.questions); return { why: questions.length ? null : 'Nothing to learn', questions }; }
+        case 'redo': {
+            const all = redoable(g, w, a), storylines = all.filter(x => !x.why).map(x => ({ id: x.id, name: x.name }));
+            return { why: storylines.length ? null : all[0]?.why ?? 'No storyline over', storylines };
+        }
     }
     return { why: null };
 }
@@ -168,7 +175,7 @@ export function peopleFor(g: Save, w: WorldDef | null | undefined, id: string): 
     if (!shopOn(g, w)) return [];
     const def = offeredRewards(g, w).find(x => x.id === id);
     if (!def || pickOf(def.kind) !== 'person') return [];
-    return known(g).map(r => { const x = personWhy(g, w, def, r); return { avatar: r.avatar, name: r.name, ok: !x.why, ...(x.why ? { why: x.why } : {}), ...(x.meters ? { meters: x.meters } : {}), ...(x.questions ? { questions: x.questions } : {}) }; });
+    return known(g).map(r => { const x = personWhy(g, w, def, r); return { avatar: r.avatar, name: r.name, ok: !x.why, ...(x.why ? { why: x.why } : {}), ...(x.meters ? { meters: x.meters } : {}), ...(x.questions ? { questions: x.questions } : {}), ...(x.storylines ? { storylines: x.storylines } : {}) }; });
 }
 
 /* ---------- (track 7) a museum piece ---------- */
@@ -376,6 +383,11 @@ function act(g: Save, w: WorldDef, def: RewardDef, c: RewardChoice): string | { 
         case 'auction': { if (!c.piece) return 'Pick a piece'; const why = earlyLot(g, w, c.piece); if (why) return why; return { lines: [`${def.name}: ${pieceName(w, c.piece)} is one more lot at the next sale.`] }; }
         case 'restore': { const names = rushWorkshop(g, w); if (!names.length) return 'Nothing waiting in the workshop'; return { lines: [`${def.name}: ${names.join(', ')} ready tomorrow.`] }; }
         case 'tenant': { if (!toLet(g).length) return 'No home to let'; sureTenants(g); return { lines: [`${def.name}: every home you let has a tenant each week this season.`] }; }
+        case 'redo': {
+            if (!c.thread || !redoable(g, w, a).some(x => x.id === c.thread && !x.why)) return 'Pick one of their storylines';
+            const done = redoThread(g, w, c.thread);
+            return typeof done === 'string' ? done : { lines: done };
+        }
     }
     return 'That does nothing here';
 }

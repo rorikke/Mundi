@@ -2716,7 +2716,8 @@ const REWARD_KIND_NAMES: Record<string, string> = { boost: 'A boost for a few da
     retrait: 'Change a trait', skip: 'Skip the current step of your goal', rentfree: 'Rent holiday: the next rent and bills a week later', cleanslate: 'Clean slate at work', double: 'Double the finishing points of your goal',
     // (track 7: the museum and homes you let; none lowers a price)
     dealer: 'A dealer\'s tip: a missing piece you pick comes with the next visit (at the asked price)', auction: 'An early catalogue: one more lot at the next sale, a missing piece you pick',
-    restore: 'The workshop\'s priority: everything being restored or mounted ready tomorrow', tenant: 'A good tenant: every home you let has a tenant each week for a season' };
+    restore: 'The workshop\'s priority: everything being restored or mounted ready tomorrow', tenant: 'A good tenant: every home you let has a tenant each week for a season',
+    redo: "A second chance: one of someone's storylines that didn't end well begins again" };
 // What an Insight item can tell (sim/rewards.ts): `bed` stands for the three adult ones.
 const INSIGHT_QUESTIONS: Opt[] = [['heart', 'Their heart'], ['view', 'How they see you'], ['secret', 'Their secret'], ['bed_like', 'Something they like (adult)'], ['bed_limit', "Something they won't do (adult)"], ['bed_drive', 'Their drive (adult)'], ['bed', 'Anything about them in bed (adult)']];
 const LIMIT_PER: Opt[] = [['', 'No limit'], ['day', 'A day'], ['week', 'A week'], ['season', 'A season'], ['year', 'A year'], ['goal', 'For each goal you follow'], ['ever', 'Ever']];
