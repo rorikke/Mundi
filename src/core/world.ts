@@ -747,7 +747,13 @@ export interface Thread { id: string; hidden: string; known?: string; reveal?: W
 export interface ThreadStage { id?: string; when?: When; tell?: 'hidden' | 'hinted' | 'known'; text: string; moment?: string; rumor?: string; fact?: string;
     /** (NE-1) A standing appointment its person keeps while the storyline is at this stage (at the last stage, until it
      *  ends): a person's `rituals` format (Lisa's physio twice a week while her shoulder heals). */
-    ritual?: Ritual }
+    ritual?: Ritual;
+    /** (adult industry) An offer it brings: an entry of the industry's job by id (the lens: `lens`), made when the entry's
+     *  own condition holds (sim/titles.ts). */
+    offer?: string;
+    /** (adult industry) A title it cancels: `true` (or `latest`), the latest title with its person in it, within a year
+     *  of its release (a performer's right: Momo's family). */
+    cancel?: true | 'latest' }
 /** How a thread ends, picked by what happened (`when`, asked once the last stage is over; the first that holds, the
  *  last one without `when` otherwise): the text, and a life that changes (a new job or home: a home zone id). */
 export interface ThreadEnding { id: string; when?: When; text: string; job?: string; home?: string; fact?: string;
