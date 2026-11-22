@@ -31,7 +31,7 @@ export const FAME = {
     seat: { perform: 1, direct: 1 / 3, label: 0.1 } as Record<Seat, number>,
     chart: 1,          // a week with a title of yours in the chart's top 10 (× the seat's share)
     top3: 2,           // …in its top 3, instead
-    recognize: 0.25,   // a public place's chance: fame/100 × the place's weight × this
+    recognize: 0.08,   // a public place's chance: fame/100 × the place's weight × this (L: 0.25 recognized a famous player every other day)
     fan: 0.6,          // of those recognized, a fan's approach (else a stranger tells someone present; always a fan when nobody is)
     clingy: 0.2,       // a fan who won't let go
     fanMood: 3,        // a photo or a signature: mood
