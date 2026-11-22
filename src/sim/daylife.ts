@@ -111,7 +111,7 @@ export function notice(g: Save, w: WorldDef, present: Resident[]) {
         m.at = loc;
         if (!isHome(loc)) { const v = (m.visits[loc] ??= { n: 0, first: now, last: now }); v.n += 1; v.last = now; }
     }
-    for (const r of present) if (r.met) m.seen[r.avatar] = { place: loc, at: now };
+    for (const r of present) if (r.met && !r.onset) m.seen[r.avatar] = { place: loc, at: now };   // ((adult industry) not a performer on a set)
 }
 onHour.push((g, w) => {
     if (g.asleep) return [];

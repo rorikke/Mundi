@@ -62,7 +62,7 @@ export async function verdictNow(g: Save, w: WorldDef, reason: string, { end = f
         if (!end && msgs.length < MIN_MESSAGES) return NONE;
         // capture what the scene was
         const me = personaName();
-        const spoke = [...new Set(msgs.filter(m => !m.is_user).map(m => speakerOf(m) ?? ''))].filter(a => g.cast[a]?.met);
+        const spoke = [...new Set(msgs.filter(m => !m.is_user).map(m => speakerOf(m) ?? ''))].filter(a => g.cast[a]?.met && !g.cast[a].onset);   // ((adult industry) a performer on a set: never judged)
         const people = spoke.map(a => ({ avatar: a, name: g.cast[a].name }));
         const counted = openTotals(g);
         const since = openSince(g);

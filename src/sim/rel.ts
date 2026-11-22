@@ -272,13 +272,15 @@ export function casualsOf(g: Save, id = YOU): string[] {
     }
     return out;
 }
+// One of the world's people in the game now ((adult industry) a performer on a set isn't one).
+const ofWorld = (g: Save, a: string) => !!g.cast[a] && !g.cast[a].onset;
 // Couples between two people of the world (not you).
 export function couplePairs(g: Save): { a: string; b: string; status: Status; since: number }[] {
     const out: { a: string; b: string; status: Status; since: number }[] = [];
     for (const [k, p] of Object.entries(relOf(g).pairs)) {
         if (!p.status || !PARTNER.includes(p.status)) continue;
         const [a, b] = k.split('|');
-        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, status: p.status, since: p.since ?? g.day });
+        if (a !== YOU && b !== YOU && ofWorld(g, a) && ofWorld(g, b)) out.push({ a, b, status: p.status, since: p.since ?? g.day });
     }
     return out;
 }
@@ -289,7 +291,7 @@ export function casualPairs(g: Save): { a: string; b: string; since: number }[] 
     for (const [k, p] of Object.entries(relOf(g).pairs)) {
         if (p.status !== 'casual') continue;
         const [a, b] = k.split('|');
-        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, since: p.since ?? g.day });
+        if (a !== YOU && b !== YOU && ofWorld(g, a) && ofWorld(g, b)) out.push({ a, b, since: p.since ?? g.day });
     }
     return out;
 }
@@ -327,7 +329,7 @@ export function pastPairs(g: Save): { a: string; b: string; was: Past }[] {
     for (const [k, p] of Object.entries(relOf(g).pairs)) {
         if (!p.was) continue;
         const [a, b] = k.split('|');
-        if (a !== YOU && b !== YOU && g.cast[a] && g.cast[b]) out.push({ a, b, was: p.was });
+        if (a !== YOU && b !== YOU && ofWorld(g, a) && ofWorld(g, b)) out.push({ a, b, was: p.was });
     }
     return out;
 }

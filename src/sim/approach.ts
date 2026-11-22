@@ -70,7 +70,7 @@ export function rollApproach(g: Save, w: WorldDef, a?: ActionDef | null, rnd = M
     // (homerooms) at a home with rooms, the people elsewhere in the house (awake) may come and find you: half the chance,
     // since they have to come to you
     const far = elsewhereHere(g, w).filter(x => !x.asleep && !mine.has(x.r.avatar)).map(x => ({ r: x.r, p: approachChance(g, w, x.r, a) * DROP_IN }));
-    const list = [...sceneHere(g, w).filter(r => !mine.has(r.avatar)).map(r => ({ r, p: approachChance(g, w, r, a) })), ...far].filter(x => x.p > 0);
+    const list = [...sceneHere(g, w).filter(r => !mine.has(r.avatar) && !r.onset).map(r => ({ r, p: approachChance(g, w, r, a) })), ...far].filter(x => x.p > 0);
     if (!list.length) return null;
     const none = list.reduce((s, x) => s * (1 - x.p), 1), total = list.reduce((s, x) => s + x.p, 0);
     if (rnd() >= Math.min(APPROACH.max, 1 - none)) return null;
