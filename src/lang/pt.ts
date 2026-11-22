@@ -12275,5 +12275,10 @@ const DICT: Record<string, string> = {
  "Photography −9": "Fotografia −9",
  "Photography +10": "Fotografia +10",
  "Photography −10": "Fotografia −10",
+ // the adult industry in the Calendar (ui/agenda.ts)
+ "Shoot: {0}": "Filmagem: {0}",
+ "Call at {0}": "Chamada às {0}",
+ "Last day to edit: {0}": "Último dia para editar: {0}",
+ "Release: {0}": "Lançamento: {0}",
 };
 export default DICT;
