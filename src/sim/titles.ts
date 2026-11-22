@@ -732,7 +732,7 @@ function chartHolds(g: Save, v: string): { ok: boolean; n: number; seat?: string
     };
     industryLink.words = (g, w, k, v) => {
         if (!MINE.has(k)) return prev.words(g, w, k, v);
-        if (k === 'titles') { const c = titlesCount(g, w, v); if (!c) return ''; const what = c.what === 'perform' ? ' performing' : c.what === 'direct' ? ' directed' : c.what === 'label' ? ' for your label' : c.what ? ` for ${c.what}` : ''; return `${c.need === 1 ? 'a title' : `${c.need} titles`}${what} (${c.have} now)`; }
+        if (k === 'titles') { const c = titlesCount(g, w, v); if (!c) return ''; const what = c.what === 'perform' ? ' you star in' : c.what === 'direct' ? ' you directed' : c.what === 'label' ? ' for your label' : c.what ? ` for ${c.what}` : ''; return `${c.need === 1 ? 'a title' : `${c.need} titles`}${what} (${c.have} now)`; }
         if (k === 'chart') { const c = chartHolds(g, v); return c ? `a title${c.seat === 'perform' ? ' you star in' : c.seat === 'direct' ? ' you directed' : ''} in the chart's top ${c.n}` : ''; }
         const s = v.trim().toLowerCase();
         return s === 'perform' ? 'performing in adult video' : s === 'direct' ? 'directing adult video' : s === 'label' ? 'a label of your own' : '';
