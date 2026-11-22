@@ -61,6 +61,8 @@ export const TITLES = {
     rosterFame: 18, npcFame: 12,
     /** how far ahead a shoot day can be found for Tokyo's co-stars (days after the wait), the choices offered */
     search: 10, choices: 3,
+    /** the star-producer's own brief: one every this many weeks (L: every week put her branch above a name director's) */
+    ownEvery: 2,
 };
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
 function pickW<T>(list: T[], weight: (x: T) => number, r: number): T | undefined {
@@ -286,7 +288,7 @@ export function fillOffers(g: Save, w: WorldDef): string[] {
         const o = drawOffer(g, w, dir ? 'brief' : 'title', label, `${g.world}|${g.day}|${i}`);
         if (o) made.push(o);
     }
-    if (star) { const lb = (c && labelOf(w, c.label)) || homeLabel(w); const o = lb && drawOffer(g, w, 'brief', lb, `${g.world}|${g.day}|own`, true); if (o) made.push(o); }
+    if (star && Math.floor((g.day - 1) / 7) % Math.max(1, TITLES.ownEvery) === 0) { const lb = (c && labelOf(w, c.label)) || homeLabel(w); const o = lb && drawOffer(g, w, 'brief', lb, `${g.world}|${g.day}|own`, true); if (o) made.push(o); }
     for (const o of [offerExclusive(g, w, newId(g)), offerMeeting(g, w, newId(g))]) if (o) made.push(o);
     st.offers.push(...made);
     st.offers = st.offers.slice(-(TITLES.offers + 4));
