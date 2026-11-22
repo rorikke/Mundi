@@ -11,8 +11,9 @@ import { seasonDays } from './time.js';
 import { myJob, jobDef, bookedJob, careerOf, rankOf, trackOf } from './work.js';
 
 /** A contract you're under (the actress's exclusive: its ContractDef's id, the label, since when, the fee multiple with
- *  its raises, the season it was last renewed in). */
-export interface ContractState { id: string; label: string; since: number; fee: number; season: number }
+ *  its raises, the season it was last renewed in; her titles' sales for it counted each Monday since the first one, or
+ *  the last renewal, `from`). */
+export interface ContractState { id: string; label: string; since: number; fee: number; season: number; sold?: number; from?: number }
 /** A seat you have held: titles made in it, the last one's shoot day, the fan base (the performer's: grows with each
  *  release), the contract (the actress's exclusive; none: freelance), `lens`: a director who came from the lens. (Fame
  *  is sim/fame.ts's, in `IndustryState.fame`.) */
@@ -37,8 +38,9 @@ export interface IndustryState {
     seats: { perform?: SeatState; direct?: SeatState };
     offers: Offer[];
     titles: Title[];
-    /** titles folded out of the list (older than a year, past the 80 kept), their sales, the best seller's name */
-    totals: { titles: number; sales: number; best?: string; bestSold?: number };
+    /** titles folded out of the list (older than a year, past the ones kept), their sales, the best seller's name, the
+     *  best chart place they reached (any, and by seat) */
+    totals: { titles: number; sales: number; best?: string; bestSold?: number; peaks?: Partial<Record<'any' | Seat, number>> };
     chart: { week: number; rows: ChartRow[] };
     trend: { month: number; hot: string[]; cold: string; line?: string };
     /** the day of the last monthly test */

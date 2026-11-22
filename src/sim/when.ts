@@ -782,7 +782,8 @@ function inRankWords(g: Save, w: WorldDef, days: number): string {
 // What a gate calls a story or a work event (`title`), if it gives one.
 function seenTitle(w: WorldDef, v: string): string | undefined {
     const id = v.split(':')[0];
-    return (w.stories ?? []).find(s => s.id === id)?.title ?? w.occupations.flatMap(o => o.events ?? []).find(e => e.id === id)?.title;
+    // (a track's own events too: the actor's callback is his track's)
+    return (w.stories ?? []).find(s => s.id === id)?.title ?? w.occupations.flatMap(o => [...(o.events ?? []), ...Object.values(o.tracks ?? {}).flatMap(t => t?.events ?? [])]).find(e => e.id === id)?.title;
 }
 // (storylines) A story without a title, in words: where it happens, never its text.
 function seenWords(w: WorldDef, v: string): string {

@@ -49281,7 +49281,8 @@
      "text": "Twenty boxes later he gives you his card and says your titles are welcome on his van; the deal waits for you in the Business app.",
      "finds": "lb_distributor",
      "fail": {
-      "text": "He thanks you for the boxes, climbs into the van, and has forgotten your label's name before he reaches the corner."
+      "text": "He thanks you for the boxes and takes your card, though he'll want a bigger cut than you'd like; the deal waits for you in the Business app.",
+      "finds": "lb_distributor"
      }
     },
     {
@@ -62155,7 +62156,7 @@
        "ranks": [
         {
          "name": "TV guest",
-         "pay": 4800,
+         "pay": 4200,
          "needs": {
           "charisma": 6,
           "sensuality": 5
@@ -62164,7 +62165,7 @@
         },
         {
          "name": "Household name",
-         "pay": 5800,
+         "pay": 4600,
          "needs": {
           "charisma": 7,
           "logic": 3,
@@ -62189,7 +62190,7 @@
         },
         {
          "name": "Director",
-         "pay": 5200,
+         "pay": 4800,
          "needs": {
           "logic": 6,
           "charisma": 6,
@@ -62198,7 +62199,7 @@
         },
         {
          "name": "Name director",
-         "pay": 6200,
+         "pay": 5600,
          "needs": {
           "logic": 7,
           "charisma": 7
@@ -62214,7 +62215,7 @@
        "ranks": [
         {
          "name": "Producer-star",
-         "pay": 4800,
+         "pay": 4200,
          "needs": {
           "charisma": 6,
           "logic": 4,
@@ -62224,7 +62225,7 @@
         },
         {
          "name": "A brand of her own",
-         "pay": 5800,
+         "pay": 4400,
          "needs": {
           "charisma": 7,
           "logic": 5,
@@ -62263,8 +62264,8 @@
        "id": "exclusive",
        "name": "Exclusive",
        "exclusive": true,
-       "titles": 2,
-       "fee": 3,
+       "titles": 1,
+       "fee": 1.5,
        "counts": 2,
        "fame": 2,
        "renew": 600000
@@ -62428,7 +62429,7 @@
           },
           {
            "name": "Author and TV name",
-           "pay": 4400,
+           "pay": 4000,
            "days": 3,
            "needs": {
             "charisma": 6,
@@ -62444,7 +62445,7 @@
          "ranks": [
           {
            "name": "Assistant director",
-           "pay": 4200,
+           "pay": 3400,
            "days": 3,
            "needs": {
             "charisma": 5,
@@ -62453,7 +62454,7 @@
           },
           {
            "name": "Director",
-           "pay": 5200,
+           "pay": 3900,
            "days": 3,
            "needs": {
             "logic": 6,
@@ -62462,7 +62463,7 @@
           },
           {
            "name": "Name director",
-           "pay": 6200,
+           "pay": 4500,
            "needs": {
             "logic": 7,
             "charisma": 7
@@ -62479,7 +62480,7 @@
          "ranks": [
           {
            "name": "Women's line regular",
-           "pay": 3800,
+           "pay": 3500,
            "days": 3,
            "needs": {
             "charisma": 5,
@@ -62489,7 +62490,7 @@
           },
           {
            "name": "Women's line star",
-           "pay": 4800,
+           "pay": 4200,
            "days": 3,
            "needs": {
             "charisma": 7,
@@ -62596,7 +62597,7 @@
       {
        "id": "av_ev_callback",
        "setup": "A director you worked with last week asks for you by name for the next shoot.",
-       "when": "perf: 60",
+       "when": "perf: 60; seen: not av_ev_callback",
        "choices": [
         {
          "id": "yes",
@@ -62616,12 +62617,13 @@
          "perf": -1,
          "text": "He nods, a little cooler: there are always others."
         }
-       ]
+       ],
+       "title": "a director's callback"
       },
       {
        "id": "av_ev_request",
        "setup": "{who} has told the studio she wants to work with you again.",
-       "when": "perf: 70",
+       "when": "perf: 70; seen: not av_ev_request",
        "from": {
         "level": "friend",
         "fallback": "An actress",
@@ -62657,7 +62659,8 @@
          "perf": -1,
          "text": "The studio notes it. Requests do not come twice."
         }
-       ]
+       ],
+       "title": "an actress asking for you"
       },
       {
        "id": "av_wl_ev_signing",
@@ -72700,7 +72703,7 @@
        },
        {
         "id": "top",
-        "when": "rank: 5; titles: 10",
+        "when": "rank: 5; titles: 10; inrank: not 14",
         "tell": "known",
         "text": "{{user}} has made a name in the industry, and Naomi has started asking {{user}}, half joking, what they would do with a label of their own.",
         "moment": "Naomi asks {{user}} straight out whether they have ever thought of running a label"

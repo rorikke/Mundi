@@ -15,7 +15,7 @@ import {
     peekIndustry, industryOf, industryOn, inIndustry, industryJob, labelOf, labelsOf, homeLabel, monthDays, releaseDays, seasonIndex, fameOf, onPath, STAR_PATH,
     type Title, type Offer, type SeatState,
 } from './industry.js';
-import { myJob, rankOf, trackOf, realDays, addPerf, tryPromote, payMul, perfOf, workRules, rollWorkEvent, bookedLink, hireEntry, quitJob, type JobState } from './work.js';
+import { myJob, rankOf, trackOf, realDays, addPerf, tryPromote, payMul, perfOf, workRules, rollWorkEvent, pendingEvent, bookedLink, hireEntry, quitJob, type JobState } from './work.js';
 import { whenHolds } from './when.js';
 import { YOU } from './rel.js';
 import { payOf, priceOf } from './bills.js';
@@ -33,12 +33,14 @@ export const BOOKINGS = {
     perf: { base: 4, skills: 1, great: 3, good: 1, poor: -3 },
     /** scene rolls lost per title over the rank's days + 1 in seven days */
     burnout: 2,
-    /** fans a release brings at quality 60 (× fame and the contract's `fame`) */
-    fans: 600,
-    /** a fan meeting's pay per fan, the fan club's per fan a week */
-    meeting: 5, club: 2,
-    /** an exclusive's renewal: a raise at this share above the line, the raise */
-    raiseAt: 1.25, raise: 1.1,
+    /** fans a release brings at quality 60 (× fame and the contract's `fame`), fewer as the fan base nears `fanCap`
+     *  (tuned in L: the base had no ceiling, and four years of releases made a fan meeting pay ¥500,000) */
+    fans: 600, fanCap: 8000,
+    /** a fan meeting's pay per fan, the fan club's per fan a week (L: 5 and 2 before the cap) */
+    meeting: 2, club: 1,
+    /** an exclusive's renewal: a raise at this share above the line, the raise, and the most the raises add up to (×
+     *  the contract's own fee; L: raises compounded every season without one) */
+    raiseAt: 1.25, raise: 1.1, raiseMax: 1.2,
     /** a missed shoot: performance, the label's standing */
     missed: { perf: -8, standing: -2 },
     /** the clinic's test: its price, and how early it can be taken (days before it's due) */
@@ -94,7 +96,8 @@ export function wrapStep(g: Save, w: WorldDef, title: TitleRec): string[] {
         j.shifts = Math.round((j.shifts + titleCounts(g, w, t)) * 100) / 100;
         out.push(...addPerf(g, w, titlePerf(g, w, t)));
         out.push(...tryPromote(g, w, o));
-        if (!j.event) { rollWorkEvent(g, w, o); if (j.event) out.push('Something came up on set: see your job.'); }
+        // (an event left unanswered past its day no longer waits: L found one blocking every event after it)
+        if (!pendingEvent(g, w)) { rollWorkEvent(g, w, o); if (j.event) out.push('Something came up on set: see your job.'); }
     }
     out.push(`"${t.name}" is in the can: quality ${t.q}. It comes out in ${t.release - g.day} days.`);
     return out;
@@ -165,17 +168,24 @@ export function answerContract(g: Save, w: WorldDef, o: Offer, yes: boolean): st
 }
 /** Sales of her titles for a label since a day (the exclusive's season, read at its renewal). */
 const salesSince = (g: Save, label: string, since: number) => peekIndustry(g).titles.filter(t => t.label === label && t.you.includes('perform') && t.contract >= since).reduce((a, t) => a + t.sold, 0);
-/** On a season's first Monday, an exclusive is renewed by the season's sales against its line: a raise, as it is, or not
+/** On a season's first Monday, an exclusive is renewed by a season's sales against its line: a raise, as it is, or not
  *  renewed (freelance from today: never jobless). A card in Take says which (a raise or as it is can still be turned
- *  down). Lines. */
+ *  down). The sales are those counted each Monday since the last renewal (`sold`, from `from`), as a season's worth;
+ *  the first renewal waits for a season of them, since a title comes out a month and four months after its contract
+ *  (L: judged at once, every exclusive was dropped with nothing sold). A contract from before that count is judged
+ *  by its titles' sales, once one has sold. Lines. */
 export function renewContract(g: Save, w: WorldDef, newId: () => number): string[] {
     const st = industryOf(g), seat = st.seats.perform, c = seat?.contract, d = contractDef(g, w);
     if (!seat || !c || seasonIndex(g) === c.season) return [];
     if (!d) { delete seat.contract; return []; }
-    const sold = salesSince(g, c.label, c.since), line = d.renew ?? 0, name = labelOf(w, c.label)?.name ?? c.label;
+    const before = c.from === undefined ? salesSince(g, c.label, c.since) : 0;
+    if (c.from === undefined ? !before : seasonIndex(g, c.from) === seasonIndex(g)) return [];
+    const weeks = Math.max(1, Math.round((g.day - (c.from ?? g.day)) / 7));
+    const sold = c.from === undefined ? before : Math.round((c.sold ?? 0) / weeks * (seasonDays(g) / 7));
+    const line = d.renew ?? 0, name = labelOf(w, c.label)?.name ?? c.label;
     const result: Offer['result'] = sold >= line * BOOKINGS.raiseAt && line > 0 ? 'raise' : sold >= line ? 'same' : 'dropped';
-    c.season = seasonIndex(g); c.since = g.day;
-    if (result === 'raise') c.fee = Math.round(c.fee * BOOKINGS.raise * 100) / 100;
+    c.season = seasonIndex(g); c.since = g.day; c.from = g.day; c.sold = 0;
+    if (result === 'raise') c.fee = Math.min(Math.round(c.fee * BOOKINGS.raise * 100) / 100, Math.round((d.fee ?? 3) * BOOKINGS.raiseMax * 100) / 100);
     if (result === 'dropped') delete seat.contract;
     st.offers.push({ id: newId(), kind: 'renewal', day: g.day, until: g.day + 7, label: c.label, result, amount: sold });
     return [result === 'dropped' ? `${name} didn't renew your exclusive contract: you're freelance from today.` : result === 'raise' ? `${name} renewed your exclusive contract with a raise.` : `${name} renewed your exclusive contract as it is.`];

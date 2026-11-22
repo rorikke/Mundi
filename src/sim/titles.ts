@@ -43,8 +43,9 @@ import { note } from './facts.js';
 
 /** The rules' numbers (first guesses, tuned by the long run). */
 export const TITLES = {
-    /** offers kept, titles kept (older ones folded into the totals), days an offer is kept */
-    offers: 6, keep: 80, offerDays: 7,
+    /** offers kept, titles kept (older ones folded into the totals; L: a label head's record reached 52 KB at 80, 42 KB
+     *  at 60), days an offer is kept */
+    offers: 6, keep: 50, offerDays: 7,
     /** the call time and the latest the shoot can begin (hours), a shoot day's length (minutes, for the `set` plan) */
     call: 9, lastCall: 18, shootMinutes: 9 * 60,
     /** a label's tier as a multiple of sales (tier 2 is 1) */
@@ -61,6 +62,8 @@ export const TITLES = {
     rosterFame: 18, npcFame: 12,
     /** how far ahead a shoot day can be found for Tokyo's co-stars (days after the wait), the choices offered */
     search: 10, choices: 3,
+    /** the star-producer's own brief: one every this many weeks (L: every week put her branch above a name director's) */
+    ownEvery: 2,
 };
 const H = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; return (h >>> 0) / 4294967296; };
 function pickW<T>(list: T[], weight: (x: T) => number, r: number): T | undefined {
@@ -217,13 +220,22 @@ export function titleFee(g: Save, w: WorldDef, label: string, genre: string, sea
     return Math.min(INDUSTRY_PAY_MAX, payOf(g, rankOf(g, o).pay * (t.shift || 8) * (genreOf(w, genre)?.pay ?? 1) * (labelOf(w, label)?.pay ?? 1) * ex * payMul(g, w, o, 'wage')));
 }
 const NAMES = ['Midnight', 'Lessons', 'Secret', 'Summer', 'Heat', 'Velvet', 'Afterhours', 'Desire', 'Weekend', 'Close', 'Neon', 'Diary', 'Rain', 'Hotel', 'Sweet', 'Temptation'];
-/** A made-up title's name: two of the chart's words (the world's list, else plain ones); a list of whole titles is
- *  used as it is. */
+/** A made-up title's name: two of the chart's words (the world's list, else plain ones); a list of whole titles (any
+ *  entry with a space: "Housewarming" beside "Late Checkout" is a whole title too) is used as it is. */
 export function madeUpName(w: WorldDef, salt: string): string {
     const list = w.industry?.chart?.names?.length ? w.industry.chart.names : NAMES;
-    if (list.some(x => /\s/.test(x)) && list.every(x => /\s/.test(x))) return list[Math.floor(H(salt) * list.length)];
+    if (list.some(x => /\s/.test(x))) return list[Math.floor(H(salt) * list.length)];
     const a = list[Math.floor(H(`${salt}|a`) * list.length)], b = list[Math.floor(H(`${salt}|b`) * list.length)];
     return a === b ? a : `${a} ${b}`;
+}
+/** A new title's name: a made-up one, numbered as a sequel when one of your titles or offers has it already ("Late
+ *  Checkout 2"). */
+export function titleName(g: Save, w: WorldDef, salt: string): string {
+    const name = madeUpName(w, salt), st = peekIndustry(g);
+    const taken = new Set([...st.titles.map(t => t.name), ...st.offers.map(o => o.name ?? '')]);
+    if (!taken.has(name)) return name;
+    for (let n = 2; n < 100; n++) if (!taken.has(`${name} ${n}`)) return `${name} ${n}`;
+    return name;
 }
 /** Offers a week: your rank's days (fewer with a low performance: offers dry up to one a week instead of a sack); an
  *  exclusive's titles a month. */
@@ -243,7 +255,7 @@ export function drawOffer(g: Save, w: WorldDef, kind: 'title' | 'brief', label: 
     const genre = genreFor(g, w, label, `${salt}|g`);
     if (!genre) return null;
     const set = setFor(w, label, genre), st = industryOf(g);
-    const name = madeUpName(w, `${salt}|name`);
+    const name = titleName(g, w, `${salt}|name`);
     if (kind === 'brief') {
         const star = own ? undefined : H(`${salt}|star`) < 1 / 3 ? rosterNow(g, w).filter(p => (p.genres ?? []).includes(genre.id) || !p.genres?.length)[0]?.id : undefined;
         return { id: st.nextId++, kind: 'brief', day: g.day, until: g.day + TITLES.offerDays, label: label.id, genre: genre.id, name, set: set?.id, fee: titleFee(g, w, label.id, genre.id, 'direct'), ...(star ? { star } : {}), ...(own ? { own: true as const } : {}) };
@@ -277,7 +289,7 @@ export function fillOffers(g: Save, w: WorldDef): string[] {
         const o = drawOffer(g, w, dir ? 'brief' : 'title', label, `${g.world}|${g.day}|${i}`);
         if (o) made.push(o);
     }
-    if (star) { const lb = (c && labelOf(w, c.label)) || homeLabel(w); const o = lb && drawOffer(g, w, 'brief', lb, `${g.world}|${g.day}|own`, true); if (o) made.push(o); }
+    if (star && Math.floor((g.day - 1) / 7) % Math.max(1, TITLES.ownEvery) === 0) { const lb = (c && labelOf(w, c.label)) || homeLabel(w); const o = lb && drawOffer(g, w, 'brief', lb, `${g.world}|${g.day}|own`, true); if (o) made.push(o); }
     for (const o of [offerExclusive(g, w, newId(g)), offerMeeting(g, w, newId(g))]) if (o) made.push(o);
     st.offers.push(...made);
     st.offers = st.offers.slice(-(TITLES.offers + 4));
@@ -330,7 +342,7 @@ export function setShootDay(g: Save, w: WorldDef, id: string, day: number): { ok
 const dayWords = (g: Save, day: number) => (day === g.day ? 'today' : day === g.day + 1 ? 'tomorrow' : `in ${day - g.day} days`);
 function newTitle(g: Save, w: WorldDef, o: Offer, you: Seat[], cast: string[], scenes: TitleScene[], fee: number, extra: Partial<Title> = {}): Title {
     const st = industryOf(g);
-    const t: Title = { id: `t${st.nextId++}`, name: o.name ?? madeUpName(w, `${g.day}|${o.id}`), genre: o.genre ?? '', label: o.label ?? '', you, cast, scenes, set: o.set ?? '',
+    const t: Title = { id: `t${st.nextId++}`, name: o.name ?? titleName(g, w, `${g.day}|${o.id}`), genre: o.genre ?? '', label: o.label ?? '', you, cast, scenes, set: o.set ?? '',
         contract: g.day, shoot: 0, release: 0, sold: 0, weeks: 0, adult: true, ...(fee ? { fee } : {}), ...extra };
     st.titles.push(t);
     return t;
@@ -532,16 +544,24 @@ export function weekSales(g: Save, w: WorldDef, t: Title): number {
 }
 /** Releases due: the title out, its fans, the `onRelease` steps (sim/fame.ts, sim/stance.ts). Lines. */
 export function releases(g: Save, w: WorldDef): string[] {
-    const st = industryOf(g), out: string[] = [];
+    const st = industryOf(g), out: string[] = [], made: string[] = [];
     for (const t of st.titles as Title[]) {
         if (t.out || t.cancelled || t.q === undefined || !t.release || t.release > g.day) continue;
         t.out = true;
         if (t.edited === undefined) { t.edited = g.day; t.cut = 0; }
+        // (out, it keeps its scenes' grades, not their rolls' parts or the shoot's bookkeeping: most of a title's bytes, and
+        // a label head has thirty titles on the way at once)
+        for (const s of t.scenes) delete s.parts;
+        delete t.plans; delete t.warned; delete t.started;
         const fans = releaseFans(g, w, t);
-        if (fans) { const s = (st.seats.perform ??= { titles: 0 }); s.fans = (s.fans ?? 0) + fans; }
-        out.push(`"${t.name}" is out today (${labelOf(w, t.label)?.name ?? t.label}).`);
+        // (fewer new fans as the base nears its ceiling: a fan meeting's pay is held)
+        if (fans) { const s = (st.seats.perform ??= { titles: 0 }), f = s.fans ?? 0; s.fans = Math.round(f + fans * Math.max(0, 1 - f / BOOKINGS.fanCap)); }
+        // (a major's titles made without you come out several a week: one line a day for all of them, below)
+        if (t.you.length === 1 && t.you[0] === 'label') made.push(t.name);
+        else out.push(`"${t.name}" is out today (${labelOf(w, t.label)?.name ?? t.label}).`);
         for (const f of onRelease) out.push(...f(g, w, t));
     }
+    if (made.length) out.push(made.length === 1 ? `"${made[0]}", made for your label, is out today.` : `${made.length} titles made for your label are out today: ${listed(made.map(n => `"${n}"`))}.`);
     return out;
 }
 /** Monday's sales (once a Monday): each title's week, what each label sold, your shares (a name director's share of the
@@ -550,7 +570,7 @@ export function salesWeek(g: Save, w: WorldDef) {
     const st = industryOf(g);
     if (st.week.day === g.day) return;
     const labels: Record<string, number> = {}, pay: { name: string; amount: number }[] = [];
-    const share = directorShare(g, w);
+    const share = directorShare(g, w), c = st.seats.perform?.contract;
     let shares = 0;
     for (const t of st.titles as Title[]) {
         const n = weekSales(g, w, t);
@@ -560,6 +580,8 @@ export function salesWeek(g: Save, w: WorldDef) {
         (t.hist ??= []).push(n);   // (Take's sparkline: a title sells a season's weeks at most)
         labels[t.label] = (labels[t.label] ?? 0) + n;
         if (share && t.you.includes('direct')) shares += Math.round(n * share);
+        // (an exclusive's renewal reads what her titles for its label sold since the last one: sim/bookings.ts)
+        if (c && t.label === c.label && t.you.includes('perform')) { c.from ??= g.day; c.sold = (c.sold ?? 0) + n; }
     }
     if (shares) pay.push({ name: 'Your share as a name director', amount: payOf(g, shares) });
     const club = fanClubWeek(g, w);
@@ -585,7 +607,10 @@ export function chartWeek(g: Save, w: WorldDef) {
     const [lo, hi] = TITLES.madeUp, n = lo + Math.floor(H(`${g.world}|chart|${week}`) * (hi - lo + 1));
     for (let i = 0; i < n; i++) {
         const r = H(`${g.world}|chart|${week}|${i}`);
-        rows.push({ name: madeUpName(w, `${g.world}|c|${week}|${i}`), label: labs[Math.floor(H(`${g.world}|cl|${week}|${i}`) * labs.length)]?.id ?? '', sales: Math.round(base * (0.35 + 1.9 * r * r)) });
+        // (a name once a chart: drawn again when this week's rows have it already)
+        let name = madeUpName(w, `${g.world}|c|${week}|${i}`);
+        for (let k = 1; k < 6 && rows.some(x => x.name === name); k++) name = madeUpName(w, `${g.world}|c|${week}|${i}|${k}`);
+        rows.push({ name, label: labs[Math.floor(H(`${g.world}|cl|${week}|${i}`) * labs.length)]?.id ?? '', sales: Math.round(base * (0.35 + 1.9 * r * r)) });
     }
     rows.sort((a, b) => b.sales - a.sales);
     st.chart = { week, rows: rows.slice(0, TITLES.rows) };
@@ -598,8 +623,15 @@ function fold(g: Save) {
     const old = (st.titles as Title[]).filter(t => done(t) && g.day - (t.release || t.contract) > year);
     const over = Math.max(0, st.titles.length - old.length - TITLES.keep);
     const gone = new Set([...old, ...(st.titles as Title[]).filter(t => done(t) && !old.includes(t)).slice(0, over)]);
-    for (const t of gone) { st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; } }
+    for (const t of gone) {
+        st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; }
+        // (its best chart place stays, for `chart: top N`, by each seat you held on it)
+        if (t.peak) { const p = (st.totals.peaks ??= {}); for (const k of ['any', ...t.you] as const) p[k] = Math.min(p[k] ?? 99, t.peak); }
+    }
     if (gone.size) st.titles = st.titles.filter(t => !gone.has(t as Title));
+    // a title done selling keeps its scenes' grades, not their rolls' parts or the shoot day's bookkeeping (most of a
+    // title's bytes: 80 kept stay well under 40 KB)
+    for (const t of st.titles as Title[]) if (done(t)) { for (const s of t.scenes) delete s.parts; delete t.plans; delete t.warned; delete t.started; }
 }
 // the `industry` royalty source: your shares, paid Mondays (computed then, once)
 ROYALTY_SOURCES.push({
@@ -686,7 +718,8 @@ function chartHolds(g: Save, v: string): { ok: boolean; n: number; seat?: string
     const m = /^\s*(?:(\S+)\s+)?top\s+(\d+)\s*$/i.exec(v);
     if (!m) return null;
     const seat = m[1]?.toLowerCase(), n = Number(m[2]);
-    return { ok: (peekIndustry(g).titles as Title[]).some(t => (t.peak ?? 99) <= n && (!seat || t.you.includes(seat as Seat))), n, seat };
+    const st = peekIndustry(g), folded = st.totals.peaks?.[(seat as Seat | undefined) ?? 'any'] ?? 99;
+    return { ok: folded <= n || (st.titles as Title[]).some(t => (t.peak ?? 99) <= n && (!seat || t.you.includes(seat as Seat))), n, seat };
 }
 {
     const prev = { holds: industryLink.holds, words: industryLink.words, count: industryLink.count };
@@ -772,7 +805,7 @@ export const titleSales = (g: Save, id: string) => { const t = titleById(g, id) 
 export function makeTitle(g: Save, w: WorldDef, x: { label: string; genre: string; q: number; cast?: string[]; name?: string; you?: Seat[] }): Title | null {
     if (!industryOn(g, w) || !labelOf(w, x.label) && !x.you?.includes('label')) return null;
     const st = industryOf(g);
-    const t: Title = { id: `t${st.nextId++}`, name: x.name ?? madeUpName(w, `${g.world}|make|${st.nextId}`), genre: x.genre, label: x.label, you: x.you ?? ['label'], cast: x.cast ?? [], scenes: [], set: '',
+    const t: Title = { id: `t${st.nextId++}`, name: x.name ?? titleName(g, w, `${g.world}|make|${st.nextId}`), genre: x.genre, label: x.label, you: x.you ?? ['label'], cast: x.cast ?? [], scenes: [], set: '',
         contract: g.day, shoot: g.day, release: g.day + releaseDays(g), q: Math.max(0, Math.min(100, Math.round(x.q))), edited: g.day, sold: 0, weeks: 0, adult: true };
     st.titles.push(t);
     return t;
