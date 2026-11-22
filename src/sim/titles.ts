@@ -43,9 +43,9 @@ import { note } from './facts.js';
 
 /** The rules' numbers (first guesses, tuned by the long run). */
 export const TITLES = {
-    /** offers kept, titles kept (older ones folded into the totals; L: 80 made a label head's record 52 KB), days an
-     *  offer is kept */
-    offers: 6, keep: 60, offerDays: 7,
+    /** offers kept, titles kept (older ones folded into the totals; L: a label head's record reached 52 KB at 80, 42 KB
+     *  at 60), days an offer is kept */
+    offers: 6, keep: 50, offerDays: 7,
     /** the call time and the latest the shoot can begin (hours), a shoot day's length (minutes, for the `set` plan) */
     call: 9, lastCall: 18, shootMinutes: 9 * 60,
     /** a label's tier as a multiple of sales (tier 2 is 1) */
