@@ -451,7 +451,8 @@ export function waysOpen(g: Save, w: WorldDef): WayOpen[] {
     const out: WayOpen[] = [];
     for (const d of ventureDefs(g, w)) {
         if (d.track === 'exec' || venturesOf(g).some(s => s.id === d.id || kindOf(ventureDef(w, s.id)) === kindOf(d))) continue;
-        if (d.ways?.when && !whenHolds(g, w, d.ways.when, { place: d.place, key: `ways|${d.id}` })) continue;   // (adult industry: the label waits for Naomi's storyline)
+        if (d.ways?.when && !whenHolds(g, w, d.ways.when, { place: d.place, key: `ways|${d.id}` })) continue;
+        if ((d.track === 'label' || d.kind === 'label') && !systemOn(w, 'industry')) continue;   // (adult industry: a label only with the industry)   // (adult industry: the label waits for Naomi's storyline)
         for (const way of ['takeover', 'buy', 'partner'] as const) {
             const t = d.ways?.[way] as { place?: string; when?: string; story?: string; cost: number; rent?: number; note?: { down: number; weeks: number }; with?: string } | undefined;
             if (!t || (t.when && !whenHolds(g, w, t.when, { place: t.place ?? d.place, key: `${way}|${d.id}` })) || (t.story && !whenHolds(g, w, `seen: ${t.story}`))) continue;

@@ -94,7 +94,9 @@ export const labelsOf = (w: WorldDef): LabelDef[] => w.industry?.labels ?? [];
 export const setsOf = (w: WorldDef): SetDef[] => w.industry?.sets ?? [];
 export const rosterOf = (w: WorldDef): RosterPerson[] => w.industry?.roster ?? [];
 export const genreOf = (w: WorldDef, id?: string) => genresOf(w).find(x => x.id === id);
-export const labelOf = (w: WorldDef, id?: string) => labelsOf(w).find(x => x.id === id);
+// (a label of your own is a venture, not one of the world's labels: named by its venture)
+export const labelOf = (w: WorldDef, id?: string): LabelDef | undefined => labelsOf(w).find(x => x.id === id)
+    ?? (() => { const v = (w.ventures ?? []).find(x => x.id === id && (x.track === 'label' || x.kind === 'label')); return v ? { id: v.id, name: v.name } : undefined; })();
 export const setOf = (w: WorldDef, id?: string) => setsOf(w).find(x => x.id === id);
 export const rosterPerson = (w: WorldDef, id?: string) => rosterOf(w).find(x => x.id === id);
 /** The director's label (the first offer, brief or the lens's offer is always its): the first label naming a director,
