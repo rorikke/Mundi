@@ -15,7 +15,7 @@ import {
     peekIndustry, industryOf, industryOn, inIndustry, industryJob, labelOf, labelsOf, homeLabel, monthDays, releaseDays, seasonIndex, fameOf, onPath, STAR_PATH,
     type Title, type Offer, type SeatState,
 } from './industry.js';
-import { myJob, rankOf, trackOf, realDays, addPerf, tryPromote, payMul, perfOf, workRules, rollWorkEvent, bookedLink, hireEntry, quitJob, type JobState } from './work.js';
+import { myJob, rankOf, trackOf, realDays, addPerf, tryPromote, payMul, perfOf, workRules, rollWorkEvent, pendingEvent, bookedLink, hireEntry, quitJob, type JobState } from './work.js';
 import { whenHolds } from './when.js';
 import { YOU } from './rel.js';
 import { payOf, priceOf } from './bills.js';
@@ -94,7 +94,8 @@ export function wrapStep(g: Save, w: WorldDef, title: TitleRec): string[] {
         j.shifts = Math.round((j.shifts + titleCounts(g, w, t)) * 100) / 100;
         out.push(...addPerf(g, w, titlePerf(g, w, t)));
         out.push(...tryPromote(g, w, o));
-        if (!j.event) { rollWorkEvent(g, w, o); if (j.event) out.push('Something came up on set: see your job.'); }
+        // (an event left unanswered past its day no longer waits: L found one blocking every event after it)
+        if (!pendingEvent(g, w)) { rollWorkEvent(g, w, o); if (j.event) out.push('Something came up on set: see your job.'); }
     }
     out.push(`"${t.name}" is in the can: quality ${t.q}. It comes out in ${t.release - g.day} days.`);
     return out;
