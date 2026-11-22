@@ -33,10 +33,11 @@ export const BOOKINGS = {
     perf: { base: 4, skills: 1, great: 3, good: 1, poor: -3 },
     /** scene rolls lost per title over the rank's days + 1 in seven days */
     burnout: 2,
-    /** fans a release brings at quality 60 (× fame and the contract's `fame`) */
-    fans: 600,
-    /** a fan meeting's pay per fan, the fan club's per fan a week */
-    meeting: 5, club: 2,
+    /** fans a release brings at quality 60 (× fame and the contract's `fame`), fewer as the fan base nears `fanCap`
+     *  (tuned in L: the base had no ceiling, and four years of releases made a fan meeting pay ¥500,000) */
+    fans: 600, fanCap: 8000,
+    /** a fan meeting's pay per fan, the fan club's per fan a week (L: 5 and 2 before the cap) */
+    meeting: 2, club: 1,
     /** an exclusive's renewal: a raise at this share above the line, the raise, and the most the raises add up to (×
      *  the contract's own fee; L: raises compounded every season without one) */
     raiseAt: 1.25, raise: 1.1, raiseMax: 1.2,

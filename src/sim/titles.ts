@@ -547,7 +547,8 @@ export function releases(g: Save, w: WorldDef): string[] {
         t.out = true;
         if (t.edited === undefined) { t.edited = g.day; t.cut = 0; }
         const fans = releaseFans(g, w, t);
-        if (fans) { const s = (st.seats.perform ??= { titles: 0 }); s.fans = (s.fans ?? 0) + fans; }
+        // (fewer new fans as the base nears its ceiling: a fan meeting's pay is held)
+        if (fans) { const s = (st.seats.perform ??= { titles: 0 }), f = s.fans ?? 0; s.fans = Math.round(f + fans * Math.max(0, 1 - f / BOOKINGS.fanCap)); }
         // (a major's titles made without you come out several a week: one line a day for all of them, below)
         if (t.you.length === 1 && t.you[0] === 'label') made.push(t.name);
         else out.push(`"${t.name}" is out today (${labelOf(w, t.label)?.name ?? t.label}).`);
