@@ -39,7 +39,7 @@ import { styleOf } from '../core/world.js';
 import { skinOf } from './skins.js';
 import { creatorHtml, CW, viewRefuses, lockView } from './creator.js';
 const creatorWorld = () => CW.w ?? (CW.start ? getWorld(CW.start.base) ?? null : null);
-import { hudHtml, clock12, ampm } from './hud.js';
+import { hudHtml, clock12, ampm, uiBare, showUi } from './hud.js';
 import { libraryHtml, libraryEscape } from './library.js';
 import { galleryHtml, closeLightbox } from './gallery.js';
 import { closeToastLog } from './toastlog.js';
@@ -135,6 +135,7 @@ export function render() {
     { const g = game(); rainAmbience(!!g && inGame() && (state.view === 'map' || state.view === 'scene') && weatherHere(g, getWorld(g.world)).rain); }   // rain you can hear
     { const g = game(), w = g && getWorld(g.world); syncAmbience(g && w && inGame() && (state.view === 'map' || state.view === 'scene') ? soundsAt(g, w) : [], w); }   // (E12) the place's sounds
     r.dataset.view = state.view;
+    if (inGame() && uiBare()) r.dataset.bare = ''; else delete r.dataset.bare;
     // the style of the world on screen (the medieval look, the modern one…)
     const g = game();
     const shown = state.view === 'creator' ? creatorWorld() : state.view === 'newgame' && state.wizard ? getWorld(state.wizard.world) : (inGame() || state.view === 'worldcfg') && g ? getWorld(g.world) : null;
@@ -250,6 +251,8 @@ function attach(r: HTMLElement) {
         if (t.dataset?.focus === 'ph-draft' && e.key === 'Enter' && !(e as KeyboardEvent).isComposing) { e.preventDefault(); ACT['ph-send']?.(t, e); }
     });
     document.addEventListener('keydown', (e) => {
+        // with the interface hidden, any key brings it back (and does nothing else)
+        if (state.open && inGame() && uiBare() && !['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) { e.preventDefault(); showUi(); return; }
         if (!state.open || (e.target as HTMLElement).closest?.('textarea, input, select')) return;
         if (state.view === 'gallery' && state.gal.photo !== null && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
             r.querySelector<HTMLElement>(`.mu-lb-nav.${e.key === 'ArrowLeft' ? 'is-prev' : 'is-next'}:not(:disabled)`)?.click();

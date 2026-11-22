@@ -11213,5 +11213,7 @@ const DICT: Record<string, string> = {
  "A story ends one way, and the news keeps it. Some people leave the maps when it does. Learning a secret and seeing a story to its end give life points.": "Una trama acaba de una sola manera, y las noticias lo recuerdan. Algunas personas salen de los mapas cuando acaba. Descubrir un secreto y ver una trama llegar a su fin dan puntos de logro.",
  "A story that didn't end well can begin again with A second chance, in the Goals app's Rewards. It starts over from its first stage, and what you knew of it stays known. What its ending changed stays, but someone it took away comes back. Their slot in the collection follows how it ends next time.": "Una trama que no acabó bien puede volver a empezar con Una segunda oportunidad, en las Recompensas de la app Metas. Vuelve a su primera etapa, y lo que sabías de ella sigue sabido. Lo que cambió su final se queda, pero quien se llevó vuelve. Su hueco en la colección sigue cómo acabe la próxima vez.",
  "{0}'s storyline": "La trama de {0}",
+ "Hide the interface": "Ocultar la interfaz",
+ "Show the interface": "Mostrar la interfaz",
 };
 export default DICT;

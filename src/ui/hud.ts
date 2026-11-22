@@ -158,11 +158,19 @@ function skipAskHtml(g: Save, w: WorldDef) {
 
 let menuOpen = false;
 let lookOpen = false;
+// Hide the interface, as in a visual novel: only the place and the people in it stay on screen until a click or a key
+// brings the rest back. Only in a scene; leaving the scene shows the interface again.
+let bare = false;
+export function uiBare(): boolean { if (state.view !== 'scene') bare = false; return bare; }
+export function showUi(): boolean { if (!bare) return false; bare = false; notify(); return true; }
+// (on a phone the top row has no room for it, so it's in the menu)
+const bareBtn = () => state.view === 'scene' && !onPhone() ? `<button class="mh-menu mh-glass mh-barebtn" data-act="hud-bare" title="${bare ? 'Show the interface' : 'Hide the interface'}" aria-pressed="${bare}">${icon(bare ? 'eye' : 'eyeOff')}</button>` : '';
 function corner(g: Save, w: WorldDef) {
     return `<div class="mh-corner">
         <button class="mh-menu mh-glass ${menuOpen ? 'is-on' : ''}" data-act="hud-menu" title="Menu">${icon('menu')}</button>
         ${g.player.job && featureOn(w, 'jobs') && myJob(g, w) && !offScreen(w, myJob(g, w)) && !isFreelance(g, w) && g.player.loc !== jobPlace(g, myJob(g, w)!) ? `<button class="mh-mapbtn mh-glass" data-act="go-work" title="Go to work">${icon('briefcase')}<span>Work</span></button>` : ''}
         ${isScenario(w) && isOuting(g.player.loc) ? `<button class="mh-mapbtn mh-glass" data-act="out-move" title="Go on to another place">${icon('map')}<span>Go somewhere else</span></button><button class="mh-mapbtn mh-glass" data-act="out-back" title="Go back home">${icon('home')}<span>Back home</span></button>` : state.view === 'scene' ? `<button class="mh-mapbtn mh-glass" data-act="to-map" title="${state.generating ? 'Wait until they finish speaking' : 'Map'}" ${state.generating ? 'aria-disabled="true"' : ''}>${icon(isScenario(w) ? 'home' : 'map')}<span>${isScenario(w) ? 'Rooms' : 'Map'}</span></button>${isScenario(w) && exitRoom(g, w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}` : `<button class="mh-mapbtn mh-glass" data-act="go-home" title="${isScenario(w) ? 'Go to my room' : 'Go home'}">${icon('home')}<span>${isScenario(w) ? 'My room' : 'Home'}</span></button>${isScenario(w) ? `<button class="mh-mapbtn mh-glass" data-act="out-open" title="Leave the house for a while">${icon('map')}<span>Go out</span></button>` : ''}`}
+        ${bareBtn()}
         ${menuOpen ? `<nav class="mh-menu-pop mh-glass">
             <button data-act="open-world">${icon('globe')}<span>${isScenario(w) ? 'This Home' : 'This world'}</span></button>
             ${clockMode(g) === 'live' ? `<button data-act="speed">${icon('pause')}<span>Clock speed: ${g.speed ? `×${g.speed / 60}` : 'paused'}</span></button>` : ''}
@@ -170,6 +178,7 @@ function corner(g: Save, w: WorldDef) {
             ${isScenario(w) && isOuting(g.player.loc) ? `<button data-act="out-bg-open">${icon('image')}<span>Background</span></button>` : ''}
             ${isScenario(w) ? `<button data-act="res-open">${icon('users')}<span>Who lives here</span></button>` : ''}
             ${isScenario(w) ? `<button data-act="sc-open" data-v="persona"><span class="mh-drawer-mew"><img class="mh-drawer-me" src="${esc(personaThumb())}" alt=""></span><span>Your persona<small data-notr>${esc(personaName())}</small></span></button>` : ''}
+            ${state.view === 'scene' && onPhone() ? `<button data-act="hud-bare">${icon('eyeOff')}<span>Hide the interface</span></button>` : ''}
             <button data-act="log-open">${icon('bell')}<span>Log</span></button>
             <button data-act="hud-look">${icon('palette')}<span>Chat look</span></button>
             <button data-act="open-settings">${icon('gear')}<span>Settings</span></button>
@@ -365,7 +374,7 @@ export function hudHtml() {
     const g = game(); const w = g && getWorld(g.world);
     if (!g || !w) return '';
     // Home: no card of your own (no money, no needs); your persona is in the menu, as in a chat
-    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${askCard(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${waitGoHtml()}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}`;
+    return `${isScenario(w) ? '' : personaCard(g, w)}${houseBar(g, w)}${clockCard(g, w)}${corner(g, w)}${moveCardHtml(g, w) || eventPanelHtml(g, w)}${hereBar(g, w)}${peopleColumn(g, w)}${actsColumn(g, w)}${phoneButton(w)}${askCard(g, w)}${conflictHtml(g, w)}${facePlanHtml()}${customModalHtml()}${skipAskHtml(g, w)}${waitGoHtml()}${personaPickHtml()}${isScenario(w) ? `${outingHtml()}${residentsHtml()}${guestDialogsHtml()}` : ''}${doingHtml()}${lifeOverlays()}${toastLogHtml()}${uiBare() ? '<div class="mh-bare-veil" data-act="hud-bare" title="Show the interface"></div>' : ''}`;
 }
 
 Object.assign(ACT, {
@@ -385,6 +394,7 @@ Object.assign(ACT, {
         saveGame(); refreshPrompt(); notify();
     },
     'dock-toggle': () => { if (onPhone()) { actsPhone = !actsPhone; notify(); return; } (UI() as any).actsOpen = (UI() as any).actsOpen === false; saveSettings(); notify(); },
+    'hud-bare': () => { bare = !bare; menuOpen = lookOpen = false; notify(); },
     'hud-menu': () => { menuOpen = !menuOpen; lookOpen = false; notify(); },   // the menu replaces Chat look
     'hud-look': () => { lookOpen = !lookOpen; notify(); },
     'skip-ask': () => { if (state.generating) { toast('Wait until they finish speaking.', 'info'); return; } SKIP.ask = true; notify(); },

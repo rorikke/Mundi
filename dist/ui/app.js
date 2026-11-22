@@ -39,7 +39,7 @@ import { styleOf } from '../core/world.js';
 import { skinOf } from './skins.js';
 import { creatorHtml, CW, viewRefuses, lockView } from './creator.js';
 const creatorWorld = () => CW.w ?? (CW.start ? getWorld(CW.start.base) ?? null : null);
-import { hudHtml, clock12, ampm } from './hud.js';
+import { hudHtml, clock12, ampm, uiBare, showUi } from './hud.js';
 import { libraryHtml, libraryEscape } from './library.js';
 import { galleryHtml, closeLightbox } from './gallery.js';
 import { closeToastLog } from './toastlog.js';
@@ -155,6 +155,10 @@ export function render() {
         syncAmbience(g && w && inGame() && (state.view === 'map' || state.view === 'scene') ? soundsAt(g, w) : [], w);
     } // (E12) the place's sounds
     r.dataset.view = state.view;
+    if (inGame() && uiBare())
+        r.dataset.bare = '';
+    else
+        delete r.dataset.bare;
     // the style of the world on screen (the medieval look, the modern one…)
     const g = game();
     const shown = state.view === 'creator' ? creatorWorld() : state.view === 'newgame' && state.wizard ? getWorld(state.wizard.world) : (inGame() || state.view === 'worldcfg') && g ? getWorld(g.world) : null;
@@ -323,6 +327,12 @@ function attach(r) {
         }
     });
     document.addEventListener('keydown', (e) => {
+        // with the interface hidden, any key brings it back (and does nothing else)
+        if (state.open && inGame() && uiBare() && !['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) {
+            e.preventDefault();
+            showUi();
+            return;
+        }
         if (!state.open || e.target.closest?.('textarea, input, select'))
             return;
         if (state.view === 'gallery' && state.gal.photo !== null && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
