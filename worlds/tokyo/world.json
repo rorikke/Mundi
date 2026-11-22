@@ -62597,7 +62597,7 @@
       {
        "id": "av_ev_callback",
        "setup": "A director you worked with last week asks for you by name for the next shoot.",
-       "when": "perf: 60",
+       "when": "perf: 60; seen: not av_ev_callback",
        "choices": [
         {
          "id": "yes",
@@ -62617,12 +62617,13 @@
          "perf": -1,
          "text": "He nods, a little cooler: there are always others."
         }
-       ]
+       ],
+       "title": "a director's callback"
       },
       {
        "id": "av_ev_request",
        "setup": "{who} has told the studio she wants to work with you again.",
-       "when": "perf: 70",
+       "when": "perf: 70; seen: not av_ev_request",
        "from": {
         "level": "friend",
         "fallback": "An actress",
@@ -62658,7 +62659,8 @@
          "perf": -1,
          "text": "The studio notes it. Requests do not come twice."
         }
-       ]
+       ],
+       "title": "an actress asking for you"
       },
       {
        "id": "av_wl_ev_signing",
