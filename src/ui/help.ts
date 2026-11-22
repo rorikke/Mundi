@@ -111,6 +111,32 @@ function photoHelp(w: WorldDef): Topic {
             ...(adultOn(game()) ? [item('Adult briefs', 'Shown, and offered, only while adult content is on in this game; photos from them are hidden otherwise and kept for when it\'s on again.')] : []),
         ] };
 }
+// (adult industry) The adult industry topic, in a world with an industry while it plays (the system and adult content on):
+// what Take does, the bookings, the three seats, fame and what people think, each part only where the world has it. Its
+// checks read the world, not sim/industry.ts, so Help doesn't load the industry's modules earlier than the game does.
+function industryHelp(w: WorldDef): Topic {
+    const job = w.industry ? w.occupations.find(o => o.id === w.industry!.job) : undefined;
+    const tracks = job ? [job, ...Object.values(job.tracks ?? {})] : [];
+    const exclusive = tracks.some(t => t?.contracts?.some(c => c.exclusive));
+    const direct = tracks.some(t => t?.entries?.length || t?.branches?.some(b => b.options.some(o => o.id === 'director')));
+    const label = systemOn(w, 'business') && (w.ventures ?? []).some(v => ((v as { kind?: string }).kind ?? v.track) === 'label');
+    const item = (k: string, v: string): [string, string] => [k, v];
+    return { id: 'industry', icon: 'film', title: 'The adult industry', intro: `Adult video, ${appRef(w, 'take')}: offers of one title at a time, each with its contract and its shoot day, then the release, the weekly sales and the chart.`,
+        items: [
+            item('Title by title', 'The adult video job has no shifts: each title counts toward your next rank instead. Once hired, offers come to Take every Monday, fewer when your performance is low. Each offer keeps a few days; the badge on Take says when something new is there.'),
+            item('Contracts', 'An offer is one title: its label, genre, set, fee and every scene with who is in it. A scene that goes against someone\'s limits (yours, written in Take, or a co-star\'s) is never in a contract. You can ask for a scene off; the label remembers it for a while. Signed, the shoot is set after a month\'s wait, on a day everyone in it can come, and you can move it.'),
+            item('The monthly test', 'Performers take a test at a clinic once a month, from its Things to do. While it\'s overdue you can\'t sign a contract or shoot.'),
+            item('The shoot day', 'Be at the set from the call time. After hair and make-up come two to four scenes, each rolled: your skills, how you suit your co-star, a like of theirs you know, the script, the set and how tired you are. Play a scene with the AI, or skip to the result. Missing a shoot loses the title, and the label won\'t forget it.'),
+            item('Release and sales', 'A few weeks after the shoot the title comes out. It sells every Monday for a season: more with a better quality, a bigger label, a genre that\'s hot this month and a famous star. The week\'s best sellers make the chart.'),
+            item('Three seats', `Performing, directing and running a label of your own are the industry's three seats; Take shows the ones you hold, each with its own fame.`),
+            ...(exclusive ? [item('An exclusive contract', 'A performer who sells may be offered an exclusive contract: titles from that label only, each a big release with a bigger fee and more fame. It is renewed each season by your sales; turning it down keeps you freelance, free to work for any label.')] : []),
+            ...(direct ? [item('Behind the camera', 'Higher up, or by another way in, you can go behind the camera. A director gets briefs instead of offers: choose the cast and the set, shoot it, then edit it at home or at the set for a better title (left a week, the label\'s editor does it). A name director takes a share of the sales.')] : []),
+            ...(label ? [item('Your own label', `Opened ${appRef(w, 'business')}, a label makes titles every month without you and earns from their sales, far more from the ones you make yourself. You can sign performers as exclusives and choose how it's run: by the law's spirit, or cutting corners for more money and the risk of a scandal.`)] : []),
+            item('Fame', 'Each release raises your fame (0 to 100) in its seat, and a week in the chart more; weeks without a release let it fade. With fame, people recognize you in busy places: a fan may ask for a photo or a signature, or someone tells the people around. A day job may not like it: a coworker who recognizes you can mean a warning, or worse.'),
+            item('What people think', 'Everyone has a stance on your work: fine, uneasy or a deal-breaker. It only matters once they know, through word going round, a title, your fame, or you telling them yourself, which makes it weigh less for a season. An uneasy partner may be jealous after a shoot. Someone for whom it\'s a deal-breaker won\'t be with you while you perform, and asks for a talk: keep working, stop performing or give it time. Directing or a label weighs less than performing.'),
+            item('Stances change', 'A close friendship softens a stance a little each season, and so does stopping or giving it time in the talk. Once you have gone a season without performing, it no longer stands in the way.'),
+        ] };
+}
 // Written with the world's own words: its apps, bills, courses and device (a phone, a journal…).
 // A Home: one house, no work or money, so its own short set of topics.
 const homeTopics = (w: WorldDef): Topic[] => {
@@ -256,6 +282,7 @@ const topics = (w: WorldDef | null): Topic[] => {
             ['At home', lex(w, 'homeUnwind', app('shop'))],
         ] },
     ...(w && photoOn(w) && on('photos') ? [photoHelp(w)] : []),
+    ...(w?.industry && systemOn(w, 'industry') && adultOn(game()) && on('take') ? [industryHelp(w)] : []),
     ...(shopOn ? [<Topic>{ id: 'shopping', icon: 'wallet', title: 'Shopping', intro: `What money buys, ${appRef(w, 'shop')}: a tab for each kind of thing, Here for the place you're at, and Yours for what you have.`,
         items: [
             ['Where things are sold', `Most things are sold ${appRef(w, 'shop')}, delivered. A place that sells shows "Shop here" in its things to do while it's open: it opens the Here tab, with what that place sells (some things are sold only there) and the gifts sold there.`],
