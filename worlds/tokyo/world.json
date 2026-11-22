@@ -62919,9 +62919,9 @@
     },
     {
      "id": "av_rs_family",
-     "title": "Kotoha's brother",
+     "title": "Mitsuki's mother",
      "when": "titles: 8",
-     "setup": "Kotoha Fujinami gets a message between takes and goes pale: her brother in Kyoto has seen one of her titles, and wants to talk tonight.",
+     "setup": "Mitsuki Himuro has just run a whole scene, and the director, in three words. Then she reads a message between takes and goes pale: her mother in Nagano has found out what she does, and is on a train to Tokyo tonight.",
      "choices": [
       {
        "id": "call",
@@ -62931,21 +62931,21 @@
         "dc": 12
        },
        "perf": 1,
-       "text": "You write it out with her on the back of the call sheet; she calls him at the wrap, and comes back with red eyes and a small smile.",
+       "text": "You write it out with her on the back of the call sheet; she meets her mother at the station after the wrap, and comes back the next day with a jar of her mother's pickles and a small smile.",
        "fail": {
-        "text": "Nothing you write sounds right; she calls him anyway, and says only that it went."
+        "text": "Nothing you write sounds right; she goes to the station anyway, and says only that it went."
        }
       },
       {
        "id": "stop",
        "label": "Ask the director to stop for the day",
        "perf": -1,
-       "text": "The director grumbles and moves the last scene; Kotoha bows to you twice."
+       "text": "The director grumbles and moves the last scene; Mitsuki thanks you, which nobody on the crew has ever heard her do."
       },
       {
        "id": "on",
        "label": "Carry on with the shoot",
-       "text": "She finishes the scene perfectly, and leaves without saying goodbye to anyone."
+       "text": "She finishes the scene perfectly, gives every order exactly once, and leaves without saying goodbye to anyone."
       }
      ]
     }
@@ -92814,6 +92814,25 @@
     ]
    },
    {
+    "id": "dominant",
+    "name": "Dominant",
+    "skill": "charisma",
+    "pay": 1.1,
+    "dc": 13,
+    "words": [
+     "camera",
+     "dominance",
+     "taking orders",
+     "a performer in charge"
+    ],
+    "scenes": [
+     "the rules and the safe word",
+     "orders",
+     "the main scene",
+     "looking after each other"
+    ]
+   },
+   {
     "id": "pov",
     "name": "POV",
     "skill": "sensuality",
@@ -92893,7 +92912,8 @@
      "drama",
      "cosplay",
      "pov",
-     "ensemble"
+     "ensemble",
+     "dominant"
     ],
     "set": "set_rental",
     "desc": "the big one: single-title exclusives with their own posters, a distributor in every city, and lawyers on the payroll"
@@ -92932,7 +92952,8 @@
     "genres": [
      "stamina",
      "ensemble",
-     "amateur"
+     "amateur",
+     "dominant"
     ],
     "set": "set_rental",
     "desc": "a label of athletic, crowded titles from a team of ex-gym trainers, more energy than budget"
@@ -92960,7 +92981,8 @@
      "amateur",
      "ensemble",
      "cosplay",
-     "stamina"
+     "stamina",
+     "dominant"
     ],
     "fee": 40000
    },
@@ -93005,7 +93027,8 @@
      "drama",
      "pov",
      "cosplay",
-     "womens"
+     "womens",
+     "dominant"
     ],
     "fee": 0
    },
@@ -93421,47 +93444,49 @@
    {
     "gender": "woman",
     "occupation": "avactress",
-    "id": "rs_kyoto",
-    "name": "Kotoha Fujinami",
-    "age": 27,
-    "rank": 2,
+    "id": "rs_queen",
+    "name": "Mitsuki Himuro",
+    "age": 31,
+    "rank": 3,
     "genres": [
-     "mature",
+     "dominant",
      "drama",
-     "location"
+     "mature"
     ],
     "stories": [
      "av_rs_family"
     ],
-    "description": "{{char}} is Kotoha Fujinami (a stage name), 27, from an old Kyoto family that makes incense, who came to Tokyo to work in the industry and tells them she is in publishing. Slender, long black hair in a low bun with a tortoiseshell kanzashi, a quiet smile, a wisteria kimono for her own titles. Soft-spoken, unhurried and very hard to rattle, in Kyoto dialect. She wants to choose her own life without hurting her family. Secretly her brother has found out, and hasn't said anything yet.",
-    "personality": "soft-spoken, unhurried, graceful, stubborn underneath, guilty about her family",
-    "first_mes": "*Kotoha pours you tea from a flask she brought from home, both hands on the cup.* Please. The coffee here is terrible. *She smiles, barely.* We have time. The director is always late on Thursdays.",
-    "look": "Slender, long black hair gathered in a low bun with a tortoiseshell kanzashi, soft side-swept bangs, slightly droopy eyes, a quiet smile, a wisteria-patterned kimono",
-    "voice": "Soft Kyoto dialect, unhurried, every sentence ending politely",
+    "description": "{{char}} is Mitsuki Himuro (a stage name), 31, the industry's best-known dominant performer, eight years of titles where she gives every order. Tall and long-legged, a sleek black bob cut sharp at the jaw, dark red lips, a tailored black trench over a fitted dress, heeled boots. On set she is cool and sharp-tongued, runs her scenes and the director too, and nobody starts a take before she has gone through the rules and the safe word with everyone. Off set she is unexpectedly homey: she knits between takes, brings home-cooked nikujaga for the crew and fusses over her old cat. She wants a quiet house and a garden. Secretly her mother thinks she works in insurance.",
+    "personality": "cool, sharp-tongued, commanding, meticulous, warm and homey off set",
+    "first_mes": "*Mitsuki looks up from her knitting, needles still moving, and gives you one long, assessing look.* You're my co-star. Sit. *She nods at the chair; it is not a request.* We go through the rules and the safe word before anyone touches a camera. Then you do exactly what I say. *A beat.* There's nikujaga in the green room. Eat first.",
+    "look": "Tall and long-legged, a sleek black bob cut sharp at the jaw, dark eyes, dark red lips, a tailored black trench over a fitted black dress, heeled boots",
+    "voice": "Low, cool and precise on set, every order once; soft and fussy off it",
     "intimacy": {
      "preset": "passionate"
     },
     "intimate": {
-     "experience": "one serious relationship in Kyoto, ended when she left",
-     "wants": "patience",
-     "drawnTo": "people who are quiet and mean what they say",
-     "flirts": "tea, a long look, a sentence left unfinished",
-     "dynamic": "follows, slowly, and surprises you",
+     "experience": "eight years of sets as the one in charge, and two long relationships with people who liked being looked after",
+     "wants": "someone who hands her the lead and trusts her with it",
+     "drawnTo": "people who listen the first time, and anyone brave enough to tease her off duty",
+     "flirts": "a cool order, then a plate of food pushed across the table",
+     "dynamic": "leads, always, and takes care of you after",
      "prefs": [
-      "slow and tender",
-      "quiet",
-      "a bath first",
-      "being held after"
+      "in charge, always",
+      "rules agreed beforehand",
+      "praise earned, never given",
+      "a safe word everyone knows",
+      "looking after you after"
      ],
      "limits": [
-      "nothing her family could see her face in",
-      "no rough handling"
+      "no one who ignores a safe word",
+      "nothing outside the contract",
+      "no one who expects her on-set self at home"
      ],
-     "role": "follow",
-     "drive": "average"
+     "role": "lead",
+     "drive": "high"
     },
-    "avatar": "cast/rs_kyoto/portrait.webp",
-    "sprites": "cast/rs_kyoto/sprites"
+    "avatar": "cast/rs_queen/portrait.webp",
+    "sprites": "cast/rs_queen/sprites"
    },
    {
     "gender": "man",
