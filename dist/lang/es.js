@@ -1265,6 +1265,7 @@ const DICT = {
     "Each message": "Cada mensaje",
     "A few minutes go by with every message you send (☰ → This Home → Home sets how many, or turns it off).": "Pasan unos minutos con cada mensaje que envías (☰ → Este Home → Casa define cuántos, o lo desactiva).",
     "Let time pass": "Dejar pasar el tiempo",
+    "Back to the scene": "Volver a la escena",
     "Click the clock: time jumps to the next part of the day.": "Haz clic en el reloj: el tiempo salta a la siguiente parte del día.",
     "Sleep": "Dormir",
     "In your bedroom. You wake up in the morning, back where you went to bed, and the diary of the day is written.": "En tu dormitorio. Te despiertas por la mañana, donde te acostaste, y se escribe el diario del día.",

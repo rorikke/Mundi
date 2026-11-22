@@ -110,6 +110,8 @@
 #mundi-root .mu-plan-floors button .mu-ic { width: 16px; height: 16px; }
 /* the clock: click it to let time pass */
 #mundi-root .mh-clock[data-act="skip-ask"] { cursor: pointer; pointer-events: auto; transition: box-shadow .15s, transform .15s; }
+#mundi-root .mh-where[data-act="to-scene"] { cursor: pointer; pointer-events: auto; transition: box-shadow .15s; }
+#mundi-root .mh-where[data-act="to-scene"]:hover { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent); }
 #mundi-root .mh-clock[data-act="skip-ask"]:hover { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent), var(--shadow, 0 8px 24px rgba(0,0,0,.3)); }
 /* on a picture of the plan: the rooms are outlines with their name (the plan shows through) */
 #mundi-root .mu-plan.has-pic { border: 0; background-color: transparent; }

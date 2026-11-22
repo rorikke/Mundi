@@ -136,7 +136,7 @@ function clockCard(g, w) {
         <div class="mh-clock-strip"><span data-period>${esc(period(w, g.minutes).name)}</span><span>Day ${g.day}</span></div>
         ${isScenario(w) && homeNeedsOn(g) ? clockNeeds(g, w) : ''}
     </div>
-    <div class="mh-where ${home}">${icon('pin')}<span>${where}</span>${crowd}${festivalChip(g, w)}</div>`;
+    <div class="mh-where ${home}" ${state.view === 'scene' ? '' : `data-act="to-scene" title="Back to the scene" role="button"`}>${icon('pin')}<span>${where}</span>${crowd}${festivalChip(g, w)}</div>`;
 }
 // Clicking the clock: let time pass (to the next part of the day), or until it's time to leave for the next thing
 // you're going to (ui/waitgo.ts), after asking.

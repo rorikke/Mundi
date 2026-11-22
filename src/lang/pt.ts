@@ -1258,6 +1258,7 @@ const DICT: Record<string, string> = {
  "Each message": "Cada mensagem",
  "A few minutes go by with every message you send (☰ → This Home → Home sets how many, or turns it off).": "Alguns minutos passam a cada mensagem que você envia (☰ → Este Home → Casa define quantos, ou desliga).",
  "Let time pass": "Deixar o tempo passar",
+ "Back to the scene": "Voltar para a cena",
  "Click the clock: time jumps to the next part of the day.": "Clique no relógio: o tempo pula para a próxima parte do dia.",
  "Sleep": "Dormir",
  "In your bedroom. You wake up in the morning, back where you went to bed, and the diary of the day is written.": "No seu quarto. Você acorda de manhã, de volta onde foi dormir, e o diário do dia é escrito.",
