@@ -47,7 +47,7 @@ import { awayNow, answerLater, dueLater, waitingOn, heartTone, heartBackfired, H
 import { grudgeOf } from '../sim/grudges.js';
 import { planForm, calendarApp, plansBadge } from './plans.js';
 import { hobbyNeed, hobbyFits, skillName } from '../sim/hobbies.js';
-import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance } from '../sim/work.js';
+import { likes, traitsOf, hire, quitJob, ledger, freeSpots, moveTo, rankOf, pendingBranch, choosePath, canRefer, askReferral, referralFor, askedThisWeek, promoNeeds, promoProgress, perfOf, hourlyPay, weekText, careerOf, openJobs, offScreen, jobPlace, realDays, myJob, trackOf, needsPick, openTracks, feeOf, waitDays, pathChoices, closedText, isFreelance, bookedJob } from '../sim/work.js';
 import { trackName } from '../sim/tracks.js';
 import { icon } from './icons.js';
 import { appsOf, featureOn } from '../sim/creator.js';
@@ -56,6 +56,10 @@ import { newsStripHtml, newsApp, refreshNews } from './newsui.js';
 import { gendersOf } from '../sim/gender.js';
 import { personaName, personaThumb, translateTo, uploadUserFile } from '../st/bridge.js';
 import { pickFile } from './cropper.js';
+// (adult industry) after the screens above, which have loaded the industry's modules: the order modules load in stays
+import { takeApp, takeBadge, seeTake, takeBack, takeNewsHtml } from './takeui.js';
+import { titleFee, offersAWeek } from '../sim/titles.js';
+import { directing } from '../sim/industry.js';
 import { openHelp } from './help.js';
 import { ACT, INPUT } from './reg.js';
 import { setStatus, casualsOf, attracted, relOf, YOU } from '../sim/rel.js';
@@ -68,7 +72,7 @@ import { sharedLikes } from '../sim/private.js';
 import { buyOnly } from '../sim/housing.js';
 import { HU, ownedHtml, letHtml, forSaleHtml, roomsHtml, askHtml, askLeave } from './homesui.js';
 
-type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'news' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'photos' | 'settings' | 'profile';
+type App = 'campus' | 'business' | 'sheet' | 'quests' | 'grimoire' | 'party' | 'standing' | 'pets' | 'factions' | 'assets' | 'tower' | 'contracts' | 'workshop' | 'trophies' | 'blade' | 'soulbond' | 'health' | 'home' | 'messages' | 'thread' | 'people' | 'person' | 'jobs' | 'bank' | 'homes' | 'news' | 'dating' | 'dprofile' | 'matches' | 'plans' | 'journal' | 'shop' | 'goals' | 'collection' | 'photos' | 'take' | 'settings' | 'profile';
 // Closing slides the phone away first (the dialogue box glides back at the same time), then it is gone.
 let closeTimer = 0;
 export function closePhone() {
@@ -187,6 +191,7 @@ function innerBack(): boolean {
     if (P.app === 'thread' && NICK.who) { NICK.who = ''; return true; }
     if (P.app === 'goals' && closeGoal()) return true;
     if (P.app === 'photos' && LS.photo) { LS.photo = 0; return true; }
+    if (P.app === 'take' && takeBack()) return true;
     if (P.app === 'homes' && HU.rooms) { HU.rooms = ''; return true; }
     if (P.app === 'collection' && closeSlot()) return true;
     if (P.app === 'dating' && P.matched) { P.matched = ''; return true; }
@@ -200,6 +205,7 @@ function openApp(app: App) {
     const g = game(); const w = g && getWorld(g.world);
     if (app === 'journal') openJournal();
     if (app === 'collection' && g && w) { openCollection(g, w); saveGame(); }
+    if (app === 'take' && g && w && seeTake(g, w)) saveGame();   // (its offers and releases seen: the badge goes)
     // a new shuffle of Spark, and the newest match that came while you were away (its "It's a match!")
     if (app === 'dating' && g) { const d = dating(g); (d as any).seed = Math.random().toString(36).slice(2); const n = d.news.shift(); if (n && g.cast[n]) P.matched = n; }
     notify();
@@ -221,12 +227,12 @@ function pairHtml(g: Save, w: WorldDef, list: App): string {
 const isOpenRow = (avatar: string) => (P.app === 'thread' || P.app === 'person') && P.who === avatar;
 
 // An app's badge: unread messages, plans to answer, bills due (where they're paid), something to do in Campus,
-// Business or Lens, a life goal to pick, a path to choose at your job. A number, '!' or nothing.
+// Business, Lens or Take, a life goal to pick, a path to choose at your job. A number, '!' or nothing.
 function badgeOf(g: Save, w: WorldDef, a: string): number | '!' | '' {
     if (a === 'messages') return Object.values(social(g).unread).reduce((x, y) => x + y, 0) || '';
     if (a === 'plans') return plansBadge(g) || '';
     if (a === billsApp(w) && billList(w).some(b => billAmount(g, w, b.id) && owed(g, b.id))) return '!';
-    if ((a === 'campus' && campusBadge(g, w)) || (a === 'business' && businessBadge(g, w)) || (a === 'photos' && lensBadge(g, w)) || (a === 'goals' && goalsBadge(g, w))) return '!';
+    if ((a === 'campus' && campusBadge(g, w)) || (a === 'business' && businessBadge(g, w)) || (a === 'photos' && lensBadge(g, w)) || (a === 'take' && takeBadge(g, w)) || (a === 'goals' && goalsBadge(g, w))) return '!';
     if (a === 'jobs') { const o = myJob(g, w); if (o && pendingBranch(g, o)) return '!'; }   // a path to choose at your job
     return '';
 }
@@ -353,7 +359,7 @@ function rowNote(g: Save, avatar: string, last: { me: boolean; text: string } | 
 function messagesApp(g: Save) {
     const s = social(g);
     const list = met(g).filter(r => matchQ(g, r, true)).sort((a, b) => (s.threads[b.avatar]?.at(-1)?.at ?? 0) - (s.threads[a.avatar]?.at(-1)?.at ?? 0));
-    return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}${P.q.trim() || !LW ? '' : newsStripHtml(g, LW)}<div class="mu-ph-list">${list.length ? list.map(r => {
+    return `${head(appName('messages'), 'home')}${searchBox(T('searchMessages'))}${P.q.trim() || !LW ? '' : `${newsStripHtml(g, LW)}${takeNewsHtml(g, LW)}`}<div class="mu-ph-list">${list.length ? list.map(r => {
         const last = s.threads[r.avatar]?.at(-1);
         return `<button class="mu-ph-row ${isOpenRow(r.avatar) ? 'is-on' : ''}" data-act="ph-thread" data-nav="swap" data-who="${esc(r.avatar)}"><img src="${esc(thumb(r.avatar))}" alt="">
             <span><b data-notr>${esc(contactName(g, r))}</b><small>${rowNote(g, r.avatar, last)}</small></span>${s.unread[r.avatar] ? `<em>${s.unread[r.avatar]}</em>` : last ? `<small>${day(g, last.at)}</small>` : ''}</button>`;
@@ -540,13 +546,16 @@ function jobsApp(g: Save, w: WorldDef) {
     const track = mine?.track !== undefined ? mine.trackName ?? trackName(w, mine, mine.track) : '';
     const wait = j && (j as any).start > g.day ? (j as any).start - g.day : 0;
     const free = !!mine && isFreelance(g, w);   // (photography) a freelancer works brief by brief: no shifts, a retainer
+    const booked = !!mine && !free && bookedJob(g, w, mine);   // (adult industry) worked title by title: the offers are in Take
+    const per = (k: number) => (k === 1 ? 'about 1 offer a week' : `about ${k} offers a week`);
     const tabs = mine && j ? `<nav class="mu-pf-tabs mu-jb-tabs"><button class="${view === 'mine' ? 'is-on' : ''}" data-act="ph-jobs-view" data-v="mine" aria-pressed="${view === 'mine'}">${T('yourJob')}</button>
         <button class="${view === 'openings' ? 'is-on' : ''}" data-act="ph-jobs-view" data-v="openings" aria-pressed="${view === 'openings'}">${T('openings')} <small>${openings.length}</small></button></nav>` : '';
     // your job, all it says (and your week)
     const mineHtml = () => (mine && j ? `<section class="mu-ph-card"><h4>${T('yourJob')}</h4><b>${esc(rankOf(g, mine).name)}</b><small>${esc(mine.name)}${track ? ` · ${esc(track)}` : ''} · ${esc(where(mine))}${(j.path ?? []).length ? ` · ${esc(pathNames(mine, j.path!))}` : ''}</small>
-            <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
+            <small>${free ? esc(`${money(w, retainerNow(g, w))} a week with a delivery`) : booked ? esc(`About ${money(w, titleFee(g, w, '', ''))} a title · ${per(offersAWeek(g, w))}`) : `${money(w, payOf(g, hourlyPay(g, w, mine)))}/h · ${mine.shift} h shifts · ${esc(weekText(g, w, mine))}`} · rank ${j.rank + 1} of ${careerOf(g, mine).ranks.length + (careerOf(g, mine).open ? 1 : 0)}</small>
             ${free ? `<small>Your briefs are in Lens.</small>${shownApps(w).some(a => a.id === 'photos') ? '<button class="mu-ghost" data-act="ph-go" data-app="photos">Open Lens</button>' : ''}` : ''}
-            ${wait ? `<small class="mu-good">Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.</small>` : ''}
+            ${booked ? `<small>${directing(g, w) ? 'You work title by title: your briefs are in Take.' : 'You work title by title: your offers are in Take.'}</small>${shownApps(w).some(a => a.id === 'take') ? '<button class="mu-ghost" data-act="ph-go" data-app="take">Open Take</button>' : ''}` : ''}
+            ${wait ? `<small class="mu-good">${booked ? `Your first offers come in ${wait} ${wait === 1 ? 'day' : 'days'}.` : `Your first shift is in ${wait} ${wait === 1 ? 'day' : 'days'}.`}</small>` : ''}
             ${sched ? `<small>Performance: ${perfOf(g)} (${perfWord(perfOf(g))})</small>${bar(perfOf(g))}` : ''}
             ${p ? `<small>Next rank: ${esc(p.rank.name)}</small>${bar(promoProgress(p))}${p.missing.length ? `<small class="mu-muted">Still needs: ${p.missing.map(m => `<span>${esc(m)}</span>`).join(', ')}</small>` : ''}` : pendingBranch(g, mine) ? '' : '<small>Top rank.</small>'}
             ${branchPicker(g, w, mine)}
@@ -555,10 +564,11 @@ function jobsApp(g: Save, w: WorldDef) {
             <button class="mu-danger" data-act="ph-quit">Quit</button></section>
             ${workWeekHtml(g, w)}` : '');
     // an opening, all it says, with Apply
-    const card = (job: Occupation) => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job);
-            return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}</small>
+    const card = (job: Occupation) => { const o = trackOf(g, job), picks = needsPick(g, job) ? openTracks(g, w, job) : [], fee = feeOf(g, w, job), days = waitDays(g, job), byTitle = bookedJob(g, w, job);
+            const hours = o.shift || 8;   // (adult industry) a title pays the rank's pay for a shift's hours
+            return `<div class="mu-ph-job"><span><b>${esc(o.name)}</b><small>${esc(where(o))} · ${byTitle ? `${money(w, payOf(g, o.ranks[0].pay * hours))}–${money(w, payOf(g, o.ranks.at(-1)!.pay * hours))} a title · offers in Take, no shifts` : `${money(w, payOf(g, o.ranks[0].pay))}–${money(w, payOf(g, o.ranks.at(-1)!.pay))}/h${sched ? ` · ${realDays(o, o.ranks[0])} days a week` : ''}`}</small>
             ${picks.length > 1 ? `<small>${esc(picks.length === 2 ? 'Two tracks' : `${picks.length} tracks`)}: ${esc(picks.map(t => trackName(w, job, t)).join(' or '))} (you choose when hired)</small>` : o.track !== undefined && o.trackName ? `<small>Your track: ${esc(o.trackName)}</small>` : ''}
-            ${fee ? `<small>A fee of ${money(w, fee)} when you start</small>` : ''}${days ? `<small>First shift ${days} ${days === 1 ? 'day' : 'days'} after signing</small>` : ''}
+            ${fee ? `<small>A fee of ${money(w, fee)} when you start</small>` : ''}${days ? `<small>${byTitle ? `First offers ${days} ${days === 1 ? 'day' : 'days'} after signing` : `First shift ${days} ${days === 1 ? 'day' : 'days'} after signing`}</small>` : ''}
             ${missingCourses(g, w, o).length ? `<small class="mu-bad">${T('needsCourse')}: ${esc(missingCourses(g, w, o).join(', '))}</small>` : ((o as any).courses ?? []).length ? `<small class="mu-good">${((o as any).courses as string[]).some(id => isTaking(g, id)) ? 'You can start while you study for it' : T('courseDone')}</small>` : ''}
             ${o.needs?.length ? `<small class="${o.needs.some(t => traitsOf(g).includes(t)) ? 'mu-good' : ''}">Looks for: ${esc(o.needs.join(' / '))}${o.needs.some(t => traitsOf(g).includes(t)) ? ' ✓' : ''}</small>` : ''}
             ${hobbyNeed(g, w, o) ? `<small class="${hobbyFits(g, w, o) ? 'mu-good' : 'mu-bad'}">Needs: ${esc(hobbyNeed(g, w, o))}${hobbyFits(g, w, o) ? ' ✓' : ''}</small>` : ''}
@@ -816,7 +826,7 @@ export function phoneHtml(): string {
     const wide = !BOOK && isWide(), pair = wide ? PAIRS[P.app] : undefined;
     let body = pair ? pairHtml(g, w, pair) : P.app === 'messages' ? messagesApp(g) : P.app === 'thread' ? threadApp(g) : P.app === 'people' ? peopleApp(g) : P.app === 'person' ? personApp(g, w)
         : P.app === 'jobs' ? jobsApp(g, w) : P.app === 'bank' ? bankApp(g, w) : P.app === 'homes' ? homesApp(g, w, wide)
-        : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w, wide) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home'), wide) : P.app === 'goals' ? goalsApp(g, w, hd('goals'), wide) : P.app === 'collection' ? collectionApp(g, w, hd('collection'), wide) : P.app === 'photos' ? lensApp(g, w, hd('photos'), wide) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile')), wide, repTab(g, w)) : BOOK ? bookFront(g, w) : homeApp(g, w);
+        : P.app === 'news' ? newsApp(g, w, head(esc(lex(w, 'news')), 'messages')) : P.app === 'dating' ? datingApp(g, w, wide) : P.app === 'dprofile' ? datingProfileApp(g, w) : P.app === 'matches' ? matchesApp(g) : P.app === 'plans' ? calendarApp(g, w, head(appName('plans'), 'home')) : P.app === 'journal' ? journalApp(g, w, head(appName('journal'), 'home')) : P.app === 'shop' ? shopApp(g, w, head(appName('shop'), 'home'), wide) : P.app === 'goals' ? goalsApp(g, w, hd('goals'), wide) : P.app === 'collection' ? collectionApp(g, w, hd('collection'), wide) : P.app === 'photos' ? lensApp(g, w, hd('photos'), wide) : P.app === 'take' ? takeApp(g, w, hd('take'), wide) : P.app === 'campus' ? campusApp(g, w, hd('campus')) : P.app === 'business' ? businessApp(g, w, hd('business')) : P.app === 'sheet' ? sheetApp(g, w, hd('sheet')) : P.app === 'quests' ? questsApp(g, w, hd('quests')) : P.app === 'grimoire' ? grimoireApp(g, w, head(appName('grimoire'), 'home')) : P.app === 'party' ? partyApp(g, w, hd('party')) : P.app === 'standing' ? standingApp(g, w, hd('standing')) : P.app === 'pets' ? petsApp(g, w, hd('pets')) : P.app === 'factions' ? factionsApp(g, w, hd('factions')) : P.app === 'assets' ? holdingsApp(g, w, head(appName('assets'), 'home')) : P.app === 'tower' ? towerApp(g, w, hd('tower')) : P.app === 'contracts' ? contractsApp(g, w, hd('contracts')) : P.app === 'workshop' ? workshopApp(g, w, head(appName('workshop'), 'home')) : P.app === 'trophies' ? trophiesApp(g, w, hd('trophies')) : P.app === 'blade' ? bladeApp(g, w, hd('blade')) : P.app === 'soulbond' ? soulApp(g, w, hd('soulbond')) : P.app === 'health' ? healthApp(g, w, head(appName('health'), 'home')) : P.app === 'settings' ? settingsApp() : P.app === 'profile' ? profileApp(g, w, hd('profile', T('profile')), wide, repTab(g, w)) : BOOK ? bookFront(g, w) : homeApp(g, w);
     if (BOOK) return bookHtml(g, w, body);
     const side = sideSection(w, P.app);
     if (side) body = sideHtml(g, w, side, body);
