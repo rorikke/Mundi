@@ -65,7 +65,9 @@ export interface IndustryState {
     scripts?: number;
 }
 
-export const peekIndustry = (g: Save): IndustryState => ((g as any).industry ?? EMPTY) as IndustryState;
+// (a record another part of the industry began, sim/fame.ts or sim/stance.ts writing only their own keys, is read with
+// the rest defaulted, never written: industryOf fills it in for good on the first write)
+export const peekIndustry = (g: Save): IndustryState => { const s = (g as any).industry; return (!s ? EMPTY : s.seats && s.offers && s.titles && s.totals && s.chart && s.trend ? s : { ...EMPTY, ...s }) as IndustryState; };
 const EMPTY: IndustryState = Object.freeze({ seats: {}, offers: [], titles: [], totals: { titles: 0, sales: 0 }, chart: { week: -1, rows: [] }, trend: { month: -1, hot: [], cold: '' }, test: -9999, roster: {}, week: {}, nextId: 1, limits: [], standing: {}, yes: {} }) as any;
 export function industryOf(g: Save): IndustryState {
     const s = ((g as any).industry ??= {}) as IndustryState;
