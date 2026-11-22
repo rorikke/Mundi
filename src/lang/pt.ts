@@ -11597,6 +11597,8 @@ const DICT: Record<string, string> = {
  "You go through the takes and do the mosaic: the cut is done.": "Você revisa as tomadas e aplica o mosaico: a edição está pronta.",
  "The label's editor finished \"{0}\" without you.": "O editor do selo terminou \"{0}\" sem você.",
  "\"{0}\" is out today ({1}).": "\"{0}\" foi lançado hoje ({1}).",
+ "\"{0}\", made for your label, is out today.": "\"{0}\", feito para o seu selo, foi lançado hoje.",
+ "{0} titles made for your label are out today: {1}.": "{0} títulos feitos para o seu selo foram lançados hoje: {1}.",
  "Your share as a name director": "Sua parte como diretor(a) de renome",
  "Your fan club": "Seu fã-clube",
  "It has been out for more than a year.": "Já foi lançado há mais de um ano.",
