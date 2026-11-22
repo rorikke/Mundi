@@ -3,6 +3,7 @@ import type { Save, Resident } from '../core/store.js';
 import type { WorldDef, ActionDef, Place, StatusDef, WorkResult, SlotDef, VentureDef } from '../core/world.js';
 import type { PrivateCtx, ActionDone } from './actions.js';
 import type { ShopItem } from '../core/presets.js';
+import type { SetCall, TitleRec } from '../core/industry.js';
 import type { RoomHere } from './homerooms.js';
 export const onHour: ((g: Save, w: WorldDef) => string[])[] = [];
 export const onDay: ((g: Save, w: WorldDef) => string[])[] = [];
@@ -222,6 +223,24 @@ export const stanceLink: {
 // (adult industry) A venture kind's own earnings for a day (sim/label.ts: a label's are its titles' sales), before the
 // share, ownership, closed days and effects; null: the usual takings (the tier's base, its fill and the day's demand).
 export const kindEarn: ((g: Save, w: WorldDef, d: VentureDef, day: number) => number | null)[] = [];
+// (adult industry) The set (sim/onset.ts fills `setLink` in; sim/titles.ts calls it on a shoot day). `start`: the call
+// time has come: the roster performers arrive on set, and the scenes can be played; its lines. `current`: the shoot
+// being played now, or null. `wrap`: the shoot ends (all scenes played or skipped, or you left the set): performers
+// leave, its lines; the title's scenes then hold their `q`, `grade`, `parts` and `pic`.
+export const setLink: {
+    start: (g: Save, w: WorldDef, call: SetCall) => string[];
+    current: (g: Save) => SetCall | null;
+    wrap: (g: Save, w: WorldDef) => string[];
+} = { start: () => [], current: () => null, wrap: () => [] };
+// (adult industry) After a shoot wraps (sim/onset.ts calls these; sim/titles.ts counts the title as a shift, sets its
+// quality and release): lines.
+export const onWrap: ((g: Save, w: WorldDef, title: TitleRec) => string[])[] = [];
+// (adult industry) A title is released (sim/titles.ts calls these; sim/fame.ts adds fame, sim/stance.ts may let people
+// learn of it): lines.
+export const onRelease: ((g: Save, w: WorldDef, title: TitleRec) => string[])[] = [];
+// (adult industry) Are you performing now (a performer title in the last 30 days, or a performer offer taken)?
+// sim/titles.ts fills it in; sim/stance.ts reads it. False until then.
+export const performingLink: { now: (g: Save, w: WorldDef) => boolean; lastDay: (g: Save) => number | null } = { now: () => false, lastDay: () => null };
 // (C-7) Lines for the AI about the people here and the place right now, from systems that have them (the market's: the
 // other collector at a sale, the dealer at her van). Called in the scene's focus block (sim/prompt.ts).
 export const sceneLines: ((g: Save, w: WorldDef, present: Resident[]) => string[])[] = [];
