@@ -557,6 +557,7 @@ export function salesWeek(g: Save, w: WorldDef) {
         t.lastWeek = n;
         if (!n) continue;
         t.sold += n; t.weeks++;
+        (t.hist ??= []).push(n);   // (Take's sparkline: a title sells a season's weeks at most)
         labels[t.label] = (labels[t.label] ?? 0) + n;
         if (share && t.you.includes('direct')) shares += Math.round(n * share);
     }
