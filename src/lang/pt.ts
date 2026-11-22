@@ -12288,5 +12288,7 @@ const DICT: Record<string, string> = {
  "Made for your label": "Feitos para o seu selo",
  "1 title your label commissioned, shot without you": "1 título encomendado pelo seu selo, filmado sem você",
  "{0} titles your label commissioned, shot without you": "{0} títulos encomendados pelo seu selo, filmados sem você",
+ // an exclusive contract ends with the job (sim/bookings.ts)
+ "Your exclusive contract with {0} ended with the job.": "Seu contrato exclusivo com {0} terminou com o emprego.",
 };
 export default DICT;

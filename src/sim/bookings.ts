@@ -10,7 +10,7 @@
 import { nowAbs, type Save } from '../core/store.js';
 import type { WorldDef, ActionDef, ContractDef, EntryDef } from '../core/world.js';
 import { INDUSTRY, type SceneGrade, type TitleRec } from '../core/industry.js';
-import { onWrap, onRelease, engineActions, onAction } from './hooks.js';
+import { onWrap, onRelease, engineActions, onAction, onQuit, onDay } from './hooks.js';
 import {
     peekIndustry, industryOf, industryOn, inIndustry, industryJob, labelOf, labelsOf, homeLabel, monthDays, releaseDays, seasonIndex, fameOf, onPath, STAR_PATH,
     type Title, type Offer, type SeatState,
@@ -166,6 +166,20 @@ export function answerContract(g: Save, w: WorldDef, o: Offer, yes: boolean): st
     }
     return o.result === 'dropped' ? '' : `You stay with ${name}.`;
 }
+/** An exclusive contract lasts as long as the job it was signed in: once you've left it (quit, let go, another job taken)
+ *  it ends, so a later hire starts freelance. A contract signed before your latest hire is one from an earlier stint.
+ *  Lines (the record's note too); nothing with the industry off (it ends at the first day back on). */
+export function endContract(g: Save, w: WorldDef): string[] {
+    const seat = peekIndustry(g).seats.perform, c = seat?.contract, j = g.player.job as JobState | null;
+    if (!c || !industryOn(g, w)) return [];
+    if (j?.id === w.industry!.job && c.since >= Math.floor((j.since ?? 0) / 1440)) return [];
+    delete seat!.contract;
+    const name = labelOf(w, c.label)?.name ?? c.label;
+    note(g, '{u}\'s exclusive contract with {0} ended with the job.', [name], [], g.player.loc, 'work');
+    return [`Your exclusive contract with ${name} ended with the job.`];
+}
+onQuit.push((g, w) => { endContract(g, w); });
+onDay.push((g, w) => endContract(g, w));
 /** Sales of her titles for a label since a day (the exclusive's season, read at its renewal). */
 const salesSince = (g: Save, label: string, since: number) => peekIndustry(g).titles.filter(t => t.label === label && t.you.includes('perform') && t.contract >= since).reduce((a, t) => a + t.sold, 0);
 /** On a season's first Monday, an exclusive is renewed by a season's sales against its line: a raise, as it is, or not
@@ -273,7 +287,10 @@ export function settleIndustry(g: Save, w: WorldDef): string | null {
 
 /* ---------- the texts ---------- */
 
-bookedLink.hired = (g, w) => (industryOn(g, w) ? 'There are no shifts: offers come to Take, one title at a time, each with a contract, a month\'s wait and a shoot day.' : 'Your offers will come to Take, one title at a time.');
+bookedLink.hired = (g, w) => {
+    endContract(g, w);   // (hired again after leaving the same day: the old stint's exclusive is over, you start freelance)
+    return industryOn(g, w) ? 'There are no shifts: offers come to Take, one title at a time, each with a contract, a month\'s wait and a shoot day.' : 'Your offers will come to Take, one title at a time.';
+};
 bookedLink.line = (g, w) => {
     const o = myJob(g, w);
     if (!o || !inIndustry(g, w)) return '';

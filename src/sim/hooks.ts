@@ -15,6 +15,10 @@ export const onLook: ((g: Save, w: WorldDef) => void)[] = [];
 // now; a home's rooms and fixtures can join later. Read through `ownedDefs` in sim/shop.ts, never one by one.
 export const thingsOwned: ((g: Save, w: WorldDef) => ShopItem[])[] = [];
 
+// After you quit a job (sim/work.ts `quitJob`), with the job's id: what was tied to it ends (the adult industry's
+// exclusive contract, sim/bookings.ts).
+export const onQuit: ((g: Save, w: WorldDef, job: string) => void)[] = [];
+
 // After you do an action (interests, pets…).
 export const onAction: ((g: Save, w: WorldDef, a: { id: string; tags?: string[]; name: string }) => void)[] = [];
 // (museum, sim/museum.ts) What the rest of the game asks of the museum's engine, so neither waits on the other; with none,
