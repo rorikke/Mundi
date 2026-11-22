@@ -23,7 +23,7 @@ import { bondOf } from './social.js';
 import { pairOf, setStatus, YOU } from './rel.js';
 import { addRomance } from './romance.js';
 import { approve, rumorPool } from './living.js';
-import { presentAt } from './people.js';
+import { sceneHere } from './homerooms.js';
 import { seasonDays } from './time.js';
 import { note } from './facts.js';
 import { tallyEvent } from './tally.js';
@@ -316,7 +316,7 @@ const TELL = 'x-avtell-', TALK = 'x-avtalk-';
 export function stanceActions(g: Save, w: WorldDef): ActionDef[] {
     if (!industryOn(g, w) || !hasWork(g, w) || peekInd(g)?.out?.talk) return [];
     const out: ActionDef[] = [];
-    for (const r of presentAt(g, w, g.player.loc).filter(x => !x.onset && x.avatar !== YOU)) {
+    for (const r of sceneHere(g, w).filter(x => !x.onset && x.avatar !== YOU)) {
         if (!knows(g, r.avatar)) {
             if (bondOf(g, r.avatar) < STANCE.friend) continue;
             const s = stanceOf(g, w, r.avatar, activeSeat(g, w) ?? 'perform');
