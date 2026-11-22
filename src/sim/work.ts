@@ -26,7 +26,7 @@ import { scheduleOf } from '../core/presets.js';
 import { advance, hour, hm, seasonDays, WEEKDAYS } from './time.js';
 import { addStatus, money } from './needs.js';
 import { book } from './ledger.js';
-import { onHour, onDay, onLook, studentLink, ventureLink } from './hooks.js';
+import { onHour, onDay, onLook, onQuit, studentLink, ventureLink } from './hooks.js';
 import { queueMoment } from './moments.js';
 import { shiftOn as npcShiftOn, slotAt, placeOk, bringTo } from './dayplan.js';
 import { festivalsOn } from './festivals.js';
@@ -584,7 +584,12 @@ function headStart(g: Save, w: WorldDef, o: Occupation, j: JobState) {
     j.shifts = Math.round(p.shifts * share * 100) / 100;
     j.since = nowAbs(g) - Math.round(p.days * share * 1440);
 }
-export function quitJob(g: Save, w?: WorldDef) { const o = w && jobDef(w, g.player.job?.id); if (o) note(g, '{u} quit the job ({0}).', [o.name], [], g.player.loc, 'work'); g.player.job = null; }
+export function quitJob(g: Save, w?: WorldDef) {
+    const id = g.player.job?.id, o = w && jobDef(w, id);
+    if (o) note(g, '{u} quit the job ({0}).', [o.name], [], g.player.loc, 'work');
+    g.player.job = null;
+    if (w && id) for (const f of onQuit) f(g, w, id);
+}
 // Round the clock: the shift you'd rather work (from your next one on).
 export function chooseShift(g: Save, w: WorldDef, id: string): string {
     const j = jobOf(g); const o = myJob(g, w); const s = o && scheduleOf(o).shifts?.find(x => x.id === id);

@@ -12275,5 +12275,20 @@ const DICT: Record<string, string> = {
  "Photography −9": "Fotografia −9",
  "Photography +10": "Fotografia +10",
  "Photography −10": "Fotografia −10",
+ // the adult industry in the Calendar (ui/agenda.ts)
+ "Shoot: {0}": "Filmagem: {0}",
+ "Call at {0}": "Chamada às {0}",
+ "Last day to edit: {0}": "Último dia para editar: {0}",
+ "Release: {0}": "Lançamento: {0}",
+ // a risky set at the call (sim/onset.ts)
+ "Someone saw the crew setting up at {0}: the shoot for \"{1}\" is stopped.": "Alguém viu a equipe montando o set em {0}: a filmagem de \"{1}\" foi interrompida.",
+ "{0} is closed to shoots for {1} days.": "{0} está fechado para filmagens por {1} dias.",
+ "{0} is closed to shoots this week: the shoot for \"{1}\" is called off.": "{0} está fechado para filmagens esta semana: a filmagem de \"{1}\" foi cancelada.",
+ // the label's commissioned titles apart in Take (ui/takeui.ts)
+ "Made for your label": "Feitos para o seu selo",
+ "1 title your label commissioned, shot without you": "1 título encomendado pelo seu selo, filmado sem você",
+ "{0} titles your label commissioned, shot without you": "{0} títulos encomendados pelo seu selo, filmados sem você",
+ // an exclusive contract ends with the job (sim/bookings.ts)
+ "Your exclusive contract with {0} ended with the job.": "Seu contrato exclusivo com {0} terminou com o emprego.",
 };
 export default DICT;

@@ -616,6 +616,9 @@ export function chartWeek(g: Save, w: WorldDef) {
     st.chart = { week, rows: rows.slice(0, TITLES.rows) };
     st.chart.rows.forEach((row, i) => { const t = row.title ? titleById(g, row.title) as Title : undefined; if (t) { t.charts = (t.charts ?? 0) + 1; t.peak = Math.min(t.peak ?? 99, i + 1); } });
 }
+/** A title your label commissioned (sim/label.ts): made with no seat of yours (`you` without `perform` or `direct`). It's
+ *  the label's, not yours: kept out of your titles' counts, the Titles list and the badge (Take shows it apart). */
+export const isCommissioned = (t: { you: Seat[] }) => !t.you.includes('perform') && !t.you.includes('direct');
 // (a title older than a year that's done selling, or past the 80 kept, is folded into the totals)
 function fold(g: Save) {
     const st = industryOf(g), year = 4 * seasonDays(g);
@@ -624,6 +627,7 @@ function fold(g: Save) {
     const over = Math.max(0, st.titles.length - old.length - TITLES.keep);
     const gone = new Set([...old, ...(st.titles as Title[]).filter(t => done(t) && !old.includes(t)).slice(0, over)]);
     for (const t of gone) {
+        if (isCommissioned(t)) { st.totals.label = (st.totals.label ?? 0) + 1; continue; }
         st.totals.titles++; st.totals.sales += t.sold; if (t.sold > (st.totals.bestSold ?? 0)) { st.totals.bestSold = t.sold; st.totals.best = t.name; }
         // (its best chart place stays, for `chart: top N`, by each seat you held on it)
         if (t.peak) { const p = (st.totals.peaks ??= {}); for (const k of ['any', ...t.you] as const) p[k] = Math.min(p[k] ?? 99, t.peak); }
@@ -709,17 +713,17 @@ function titlesCount(g: Save, w: WorldDef, v: string): { have: number; need: num
     const m = /^\s*(?:(\S+)\s+)?(\d+)\s*$/.exec(v);
     if (!m) return null;
     const by = m[1]?.toLowerCase(), need = Number(m[2]), st = peekIndustry(g);
-    const list = st.titles.filter(t => t.q !== undefined && (!by || (SEATS.includes(by) ? t.you.includes(by as Seat) : t.label.toLowerCase() === by)));
+    const list = st.titles.filter(t => t.q !== undefined && (!by ? !isCommissioned(t) : SEATS.includes(by) ? t.you.includes(by as Seat) : t.label.toLowerCase() === by));
     const folded = !by ? st.totals.titles : 0;
     return { have: list.length + folded, need, what: by ? (SEATS.includes(by) ? by : labelOf(w, by)?.name ?? by) : '' };
 }
-// `chart: top 10`, `chart: perform top 3` (a title of yours reached that place)
+// `chart: top 10`, `chart: perform top 3` (a title of yours reached that place; the label's commissioned ones only for `label`)
 function chartHolds(g: Save, v: string): { ok: boolean; n: number; seat?: string } | null {
     const m = /^\s*(?:(\S+)\s+)?top\s+(\d+)\s*$/i.exec(v);
     if (!m) return null;
     const seat = m[1]?.toLowerCase(), n = Number(m[2]);
     const st = peekIndustry(g), folded = st.totals.peaks?.[(seat as Seat | undefined) ?? 'any'] ?? 99;
-    return { ok: folded <= n || (st.titles as Title[]).some(t => (t.peak ?? 99) <= n && (!seat || t.you.includes(seat as Seat))), n, seat };
+    return { ok: folded <= n || (st.titles as Title[]).some(t => (t.peak ?? 99) <= n && (seat ? t.you.includes(seat as Seat) : !isCommissioned(t))), n, seat };
 }
 {
     const prev = { holds: industryLink.holds, words: industryLink.words, count: industryLink.count };
@@ -770,7 +774,8 @@ export function offersView(g: Save, w: WorldDef): OffersView {
     return { on: industryOn(g, w), seat, offers, testDue: inIndustry(g, w) && testDue(g), testNext: testNext(g), limits: [...st.limits], hot: now ? t.hot.map(id => genreOf(w, id)?.name ?? id) : [], cold: now ? genreOf(w, t.cold)?.name ?? '' : '',
         perWeek: offersAWeek(g, w), ...(c ? { contract: { label: labelOf(w, c.label)?.name ?? c.label, since: c.since, fee: c.fee } } : {}), fans: st.seats.perform?.fans ?? 0 };
 }
-/** Take's Schedule and Titles tabs: every title, newest first, with what it waits for. */
+/** Take's Schedule and Titles tabs: every title, newest first, with what it waits for; `made` and `sold` count yours only
+ *  (not the label's commissioned titles). */
 export function titlesView(g: Save, w: WorldDef): TitlesView {
     const st = peekIndustry(g);
     const titles = ([...st.titles] as Title[]).reverse().map((t): TitleCard => {
@@ -781,7 +786,8 @@ export function titlesView(g: Save, w: WorldDef): TitlesView {
             sold: t.sold, weeks: t.weeks, lastWeek: t.lastWeek ?? 0, ...(t.peak ? { peak: t.peak } : {}), charts: t.charts ?? 0, fee: t.fee ?? 0, cancelled: !!t.cancelled, state,
             days: state === 'waiting' ? shootDays(g, w, t.id) : [], canEdit: state === 'edit' && canEditHere(g, w, t), canCancel: !t.cancelled && t.you.includes('perform') && (!t.out || g.day - t.release <= 4 * seasonDays(g)) };
     });
-    return { titles, totals: { ...st.totals }, made: st.titles.filter(t => t.q !== undefined).length + st.totals.titles, sold: st.titles.reduce((a, t) => a + t.sold, 0) + st.totals.sales };
+    const own = st.titles.filter(t => !isCommissioned(t));
+    return { titles, totals: { ...st.totals }, made: own.filter(t => t.q !== undefined).length + st.totals.titles, sold: own.reduce((a, t) => a + t.sold, 0) + st.totals.sales };
 }
 /** Take's Chart tab: this week's top 10, yours marked; the month's hot and cold genres and the news line. */
 export function chartView(g: Save, w: WorldDef): ChartView {
@@ -789,13 +795,15 @@ export function chartView(g: Save, w: WorldDef): ChartView {
     return { week: st.chart.week, rows: st.chart.rows.map((r, i) => ({ pos: i + 1, name: r.name, label: labelOf(w, r.label)?.name ?? r.label, sales: r.sales, ...(r.title ? { mine: r.title } : {}) })),
         hot: now ? t.hot.map(id => genreOf(w, id)?.name ?? id) : [], cold: now ? genreOf(w, t.cold)?.name ?? '' : '', line: now ? t.line ?? '' : '' };
 }
-/** Take's Roster tab: the roster's performers (those you've worked with first), and Tokyo's people in your titles. */
+/** Take's Roster tab: the roster's performers (those you've worked with first), and Tokyo's people in your titles (not in
+ *  the label's commissioned ones). */
 export function rosterView(g: Save, w: WorldDef): RosterView {
     const st = peekIndustry(g);
     const people = rosterOf(w).map((p): RosterCard => ({ id: p.id, name: p.name, rank: p.rank ?? 0, genres: (p.genres ?? []).map(id => genreOf(w, id)?.name ?? id), titles: st.roster[p.id]?.titles ?? 0, ...(st.roster[p.id]?.last ? { last: st.roster[p.id].last } : {}),
         fame: Math.min(100, (p.rank ?? 0) * TITLES.rosterFame), ...(p.avatar ? { avatar: p.avatar } : {}), debut: (p.debut ?? 0) <= g.day }))
         .filter(p => p.debut).sort((a, b) => b.titles - a.titles || b.rank - a.rank || a.name.localeCompare(b.name));
-    const tokyo = [...new Set(st.titles.flatMap(t => t.cast).filter(x => x !== YOU && !x.startsWith('roster:') && g.cast[x]))].map(a => ({ avatar: a, name: g.cast[a].name, titles: st.titles.filter(t => t.cast.includes(a)).length }));
+    const own = st.titles.filter(t => !isCommissioned(t));
+    const tokyo = [...new Set(own.flatMap(t => t.cast).filter(x => x !== YOU && !x.startsWith('roster:') && g.cast[x]))].map(a => ({ avatar: a, name: g.cast[a].name, titles: own.filter(t => t.cast.includes(a)).length }));
     return { people, tokyo };
 }
 /** For sim/label.ts: a title's sales so far and last week (0 when unknown). */
