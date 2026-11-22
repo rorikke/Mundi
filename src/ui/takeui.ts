@@ -23,7 +23,7 @@ import {
 import { fanBase, testNext, entriesOf } from '../sim/bookings.js';
 import {
     offersView, titlesView, chartView, rosterView, castChoices, takeOffer, declineOffer, askSceneOff, planBrief, setShootDay, cancelTitle, setLimits,
-    salesWeeks, setPlace, TITLES, EDIT_ID, type OfferCard, type TitleCard,
+    salesWeeks, setPlace, isCommissioned, TITLES, EDIT_ID, type OfferCard, type TitleCard,
 } from '../sim/titles.js';
 import { fanNow, answerFan } from '../sim/fame.js';
 import { talkNow, answerTalk, type TalkCard } from '../sim/stance.js';
@@ -308,9 +308,13 @@ function titlesTab(g: Save, w: WorldDef): string {
     const v = titlesView(g, w), open = TK.title ? v.titles.find(t => t.id === TK.title) : undefined;
     if (open) return titlePage(g, w, open);
     const head = `<p class="mu-take-line"><small>${esc(`${plural(v.made, '1 title made', '{0} titles made')} · ${money(w, num(v.sold))} sold`)}</small>${v.totals.best ? `<small>${esc('Best seller of the older ones:')} ${W(v.totals.best)}</small>` : ''}</p>`;
+    // yours first; the label's commissioned titles (shot without you) under their own heading
+    const mine = v.titles.filter(t => !isCommissioned(t)), label = v.titles.filter(t => isCommissioned(t));
     if (!v.titles.length) return `${head}<p class="mu-muted">${esc('No titles yet.')}</p>`;
     wantCoverSprites(g, w, v.titles.map(t => rawTitle(g, t.id)));
-    return `${head}<div class="mu-take-grid">${v.titles.map(t => titleThumb(g, w, t)).join('')}</div>`;
+    const grid = (list: TitleCard[]) => `<div class="mu-take-grid">${list.map(t => titleThumb(g, w, t)).join('')}</div>`;
+    return `${head}${mine.length ? grid(mine) : `<p class="mu-muted">${esc('No titles yet.')}</p>`}
+        ${label.length ? `<h4 class="mu-take-sub">${esc('Made for your label')}</h4><p class="mu-take-line"><small>${esc(plural(label.length, '1 title your label commissioned, shot without you', '{0} titles your label commissioned, shot without you'))}</small></p>${grid(label)}` : ''}`;
 }
 
 /* ---------- Chart ---------- */
@@ -350,11 +354,12 @@ function labelTab(g: Save, w: WorldDef): string {
 
 /* ---------- the app ---------- */
 
-/** Something new in Take: an offer you haven't seen, or a title of yours released since you last looked. */
+/** Something new in Take: an offer you haven't seen, or a title of yours released since you last looked (not one the
+ *  label commissioned: those come out every few days, and its weekly report tells of them). */
 export function takeBadge(g: Save, w: WorldDef): boolean {
     if (!industryOn(g, w) || !(g as any).industry) return false;
     const st = peekIndustry(g), looked = num((st as any).looked, -1);
-    return st.offers.some(o => !o.seen) || (st.titles as Title[]).some(t => t.out && !t.cancelled && num(t.release) > looked);
+    return st.offers.some(o => !o.seen) || (st.titles as Title[]).some(t => t.out && !t.cancelled && !isCommissioned(t) && num(t.release) > looked);
 }
 /** Opening Take: what it shows is seen (the badge goes). Written only into a save that has the industry's record. */
 export function seeTake(g: Save, w: WorldDef): boolean {
@@ -369,7 +374,7 @@ const tabsOf = (g: Save, w: WorldDef): [Tab, string][] => TABS.filter(([id]) => 
 function counts(g: Save, w: WorldDef): Record<Tab, string> {
     const t = titlesView(g, w).titles, c = chartView(g, w).rows, r = rosterView(g, w);
     const sched = t.filter(x => ['waiting', 'shoot', 'edit', 'coming'].includes(x.state)).length;
-    return { offers: n(offersView(g, w).offers.length), schedule: n(sched), titles: n(t.length), chart: n(c.filter(x => x.mine).length), roster: n(r.people.filter(p => p.titles > 0).length + r.tokyo.length), label: n(myLabels(g, w).length) };
+    return { offers: n(offersView(g, w).offers.length), schedule: n(sched), titles: n(t.filter(x => !isCommissioned(x)).length), chart: n(c.filter(x => x.mine).length), roster: n(r.people.filter(p => p.titles > 0).length + r.tokyo.length), label: n(myLabels(g, w).length) };
 }
 // Your seats: each with its rank and fame; the fans, the contract and the test under them.
 function seatsCard(g: Save, w: WorldDef): string {

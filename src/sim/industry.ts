@@ -39,8 +39,8 @@ export interface IndustryState {
     offers: Offer[];
     titles: Title[];
     /** titles folded out of the list (older than a year, past the ones kept), their sales, the best seller's name, the
-     *  best chart place they reached (any, and by seat) */
-    totals: { titles: number; sales: number; best?: string; bestSold?: number; peaks?: Partial<Record<'any' | Seat, number>> };
+     *  best chart place they reached (any, and by seat); `label`: the label's commissioned titles folded (never yours) */
+    totals: { titles: number; sales: number; best?: string; bestSold?: number; peaks?: Partial<Record<'any' | Seat, number>>; label?: number };
     chart: { week: number; rows: ChartRow[] };
     trend: { month: number; hot: string[]; cold: string; line?: string };
     /** the day of the last monthly test */

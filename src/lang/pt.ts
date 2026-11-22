@@ -12284,5 +12284,9 @@ const DICT: Record<string, string> = {
  "Someone saw the crew setting up at {0}: the shoot for \"{1}\" is stopped.": "Alguém viu a equipe montando o set em {0}: a filmagem de \"{1}\" foi interrompida.",
  "{0} is closed to shoots for {1} days.": "{0} está fechado para filmagens por {1} dias.",
  "{0} is closed to shoots this week: the shoot for \"{1}\" is called off.": "{0} está fechado para filmagens esta semana: a filmagem de \"{1}\" foi cancelada.",
+ // the label's commissioned titles apart in Take (ui/takeui.ts)
+ "Made for your label": "Feitos para o seu selo",
+ "1 title your label commissioned, shot without you": "1 título encomendado pelo seu selo, filmado sem você",
+ "{0} titles your label commissioned, shot without you": "{0} títulos encomendados pelo seu selo, filmados sem você",
 };
 export default DICT;
