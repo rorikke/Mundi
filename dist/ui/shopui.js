@@ -1,7 +1,7 @@
 // The Shop app (phone, system `shop`): what money buys, in tabs by category (only the ones with something offered;
 // Adult and Explicit only with adult content on), Here at a place that sells (its stock, and the gifts sold there as
 // keepsakes), and Yours (kept things, services with the days left, stock with the uses left). A card: icon, name,
-// description, price, what the engine says the item does, and Buy / Owned / Buy again. Items whose `when` doesn't hold
+// description, price, what the engine says the item does, and Buy / Owned / Buy again; tapping its picture opens it large. Items whose `when` doesn't hold
 // are hidden; a category with some says "More by invitation." once. Hide owned leaves out the kept things you have.
 // Unfolded, like Messages: your money and the tabs as a list on the left (how many for sale, how many yours), the tab's
 // cards side by side on the right. Also the HUD's "Shop here" row at such a place. The engine owns every number
@@ -46,14 +46,14 @@ function card(g, w, it, where, canBuy = true) {
     const does = itemDoes(g, w, it).map(t => `<li>${esc(t)}</li>`).join('');
     const act = owned ? '<em>Owned</em>'
         : canBuy ? `<button data-act="shop-buy" data-id="${esc(it.id)}" data-where="${esc(where)}" ${why ? `aria-disabled="true" title="${esc(why.replace(/\.$/, ''))}"` : ''}>${again ? 'Buy again' : 'Buy'}</button>` : '';
-    return `<article class="mu-shop-item ${owned ? 'is-owned' : ''}" data-item="${esc(it.id)}">${itemIco(w, it)}
+    return `<article class="mu-shop-item ${owned ? 'is-owned' : ''}" data-item="${esc(it.id)}">${itemIco(w, it, '', true)}
         <span><b data-notr>${esc(it.name)}</b>${it.desc ? `<small data-notr>${esc(it.desc)}</small>` : ''}${does ? `<ul class="mu-shop-does">${does}</ul>` : ''}
         <small class="mu-shop-price">${esc(money(w, price))}</small>${left ? `<small class="mu-shop-left">${esc(left)}</small>` : ''}</span>${act}</article>`;
 }
 // A gift sold at the place as a keepsake (its "Buy a gift" row in the scene does the same).
 function giftCard(g, w, k) {
     const price = giftPrice(g, w, k), poor = num(g.player.money) < price;
-    return `<article class="mu-shop-item" data-item="${esc(k.id)}">${itemIco(w, k)}<span><b data-notr>${esc(k.name)}</b>${k.desc ? `<small data-notr>${esc(k.desc)}</small>` : ''}
+    return `<article class="mu-shop-item" data-item="${esc(k.id)}">${itemIco(w, k, '', true)}<span><b data-notr>${esc(k.name)}</b>${k.desc ? `<small data-notr>${esc(k.desc)}</small>` : ''}
         <small class="mu-shop-price">${esc(money(w, price))}</small></span>
         <button data-act="buy-gift" data-id="${esc(k.id)}" ${poor ? 'aria-disabled="true" title="Not enough money"' : ''}>Buy</button></article>`;
 }

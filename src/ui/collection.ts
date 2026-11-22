@@ -2,9 +2,10 @@
 // each group folded with its slots: a filled one with its emoji or the person's portrait, its plaque, the day and a gold
 // frame for a good ending; an empty one greyed with its hint and how far along it is. Tapping a slot opens its page:
 // the slot large, and what it's made of (a keepsake kind's keepsakes, had or missing, with where each comes from; a
-// district's places, and the street stories still to find there), or how to fill it. "Missing only" hides what's
-// filled. Unfolded, the groups are a list on the left and the open group's slots (or a slot's page) on the right, like
-// Messages. Drawn from sim/collection.ts alone (`recordView`, `percentOf`, `slotParts`); it holds no numbers of its own.
+// district's places, and the street stories still to find there; a keepsake you've had opens its picture large when
+// tapped), or how to fill it. "Missing only" hides what's filled. Unfolded, the groups are a list on the left and the
+// open group's slots (or a slot's page) on the right, like Messages. Drawn from sim/collection.ts alone (`recordView`,
+// `percentOf`, `slotParts`); it holds no numbers of its own.
 // With the collection system off, or a world without halls, the app isn't on the phone and this draws only a line.
 // (museum) Once the museum has begun, its tabs come first (Museum, Dealer, Sales: ui/museumui.ts), then the display
 // halls with their pieces as picture tiles (how each came, where it's on show, Replica, Damaged · restore; a missing
@@ -181,7 +182,7 @@ function keepsakesHtml(g: Save, w: WorldDef, list: NonNullable<SlotParts['keepsa
         const state = k.holding ? `Yours now: ${n(k.holding)}` : k.had ? 'Had' : 'Not yet';
         const from = k.had ? [] : fromLines(g, w, k.id);
         const how = k.had ? '' : from.length ? from.map(line).join('') : line('No known way to get it yet.');
-        return `<li class="mu-cl-item ${k.had ? 'is-had' : 'is-missing'}">${itemIco(w, k, '🎁')}<span><span class="mu-cl-iname"><b data-notr>${esc(k.name)}</b><small class="mu-cl-istate">${esc(state)}</small></span>${how}</span></li>`;
+        return `<li class="mu-cl-item ${k.had ? 'is-had' : 'is-missing'}">${itemIco(w, { ...k, desc: w.keepsakes?.find(x => x.id === k.id)?.desc }, '🎁', k.had)}<span><span class="mu-cl-iname"><b data-notr>${esc(k.name)}</b><small class="mu-cl-istate">${esc(state)}</small></span>${how}</span></li>`;
     }).join('');
     const had = list.filter(k => k.had).length;
     return `<section class="mu-cl-sec"><h4>${esc('The keepsakes')} <small>${esc(`${n(had)} of ${n(list.length)} held at some time`)}</small></h4><ul class="mu-cl-items">${rows}</ul></section>`;

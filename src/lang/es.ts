@@ -11215,5 +11215,6 @@ const DICT: Record<string, string> = {
  "{0}'s storyline": "La trama de {0}",
  "Hide the interface": "Ocultar la interfaz",
  "Show the interface": "Mostrar la interfaz",
+ "See it full size": "Ver a tamaño completo",
 };
 export default DICT;

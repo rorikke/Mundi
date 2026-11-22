@@ -42,6 +42,7 @@ const creatorWorld = () => CW.w ?? (CW.start ? getWorld(CW.start.base) ?? null :
 import { hudHtml, clock12, ampm, uiBare, showUi } from './hud.js';
 import { libraryHtml, libraryEscape } from './library.js';
 import { galleryHtml, closeLightbox } from './gallery.js';
+import { itemViewHtml, closeItemView } from './itempic.js';
 import { closeToastLog } from './toastlog.js';
 import { refreshList, chat } from '../st/bridge.js';
 import { runPlans } from './plans.js';
@@ -144,7 +145,7 @@ export function render() {
     const keep = {};
     main.querySelectorAll('[data-keep]').forEach(el => { keep[el.dataset.keep] = { top: el.scrollTop, h: el.scrollHeight, atEnd: el.scrollHeight - el.scrollTop - el.clientHeight < 40 }; });
     // only what changed is redrawn (morph), so nothing else on screen "resets"
-    morph(main, `${body()}${inGame() ? hudHtml() + phoneHtml() + helpHtml() + coursesHtml() + journeyHtml() + rpgOverlays() + combatHtml() + audienceHtml() + arrestHtml() + diceHtml() : ''}${updateHtml()}${whatsNewHtml()}${tutorialHtml()}${state.busy ? `<div class="mu-busy"><i></i><span>${state.busy}…</span></div>` : ''}`);
+    morph(main, `${body()}${inGame() ? hudHtml() + phoneHtml() + itemViewHtml() + helpHtml() + coursesHtml() + journeyHtml() + rpgOverlays() + combatHtml() + audienceHtml() + arrestHtml() + diceHtml() : ''}${updateHtml()}${whatsNewHtml()}${tutorialHtml()}${state.busy ? `<div class="mu-busy"><i></i><span>${state.busy}…</span></div>` : ''}`);
     lockView(main); // (the world creator opened only to look: its fields drawn disabled)
     {
         const g = game();
@@ -342,6 +343,8 @@ function attach(r) {
         if (e.key !== 'Escape')
             return;
         if (state.view === 'gallery' && closeLightbox())
+            return;
+        if (closeItemView())
             return;
         if (closeToastLog())
             return;
