@@ -49281,7 +49281,8 @@
      "text": "Twenty boxes later he gives you his card and says your titles are welcome on his van; the deal waits for you in the Business app.",
      "finds": "lb_distributor",
      "fail": {
-      "text": "He thanks you for the boxes, climbs into the van, and has forgotten your label's name before he reaches the corner."
+      "text": "He thanks you for the boxes and takes your card, though he'll want a bigger cut than you'd like; the deal waits for you in the Business app.",
+      "finds": "lb_distributor"
      }
     },
     {
