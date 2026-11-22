@@ -30,9 +30,11 @@ import '../sim/royalties.js';   // (R-b) the museum's royalties each Monday and 
 import { settleHomes } from '../sim/owning.js';
 import { SECOND_HOME_ID, secondHome } from '../sim/housing.js';
 import { STUDIO_ID, myStudio, settleStudio } from '../sim/studio.js';
+import { settleIndustry } from '../sim/bookings.js';   // (adult industry) schema 10's settle
+import '../sim/titles.js';   // (adult industry) titles and bookings: their hooks
 
 /** The save format this version of Mundi writes. Raise it together with a new migration. */
-export const SCHEMA = 9;
+export const SCHEMA = 10;
 
 interface Migration { to: number; what: string; run: (g: any) => void }
 // In order. `run` gets a save at schema `to - 1` and leaves it at `to`.
@@ -59,6 +61,9 @@ const MIGRATIONS: Migration[] = [
     { to: 8, what: 'homes you can buy', run: g => homesTodo(g) },
     // 9 (habits removed): what you did often no longer becomes a trait; the habits you had and their counts go.
     { to: 9, what: 'habits removed', run: g => noHabits(g) },
+    // 10 (the adult industry): a job in the industry is worked by bookings, not shifts; whether this save holds it
+    // depends on the world, so it's settled once the world is known (settleIndustry, sim/bookings.ts).
+    { to: 10, what: 'the adult industry: bookings', run: g => industryTodo(g) },
 ];
 
 // Schema 2. Every value moves as it is: friendship toward you (`social.bond`) and romance (`romance[a]`) become the
@@ -248,6 +253,12 @@ function noHabits(g: any) {
     if (t && typeof t === 'object') delete t.habits;
 }
 
+// Schema 10. The industry's job goes from shifts to bookings: a save holding a job is asked to settle it once the world
+// is known (job, track, rank, path and shifts kept); it changes nothing else. A second run sets the same flag.
+function industryTodo(g: any) {
+    if (g.player && typeof g.player === 'object' && g.player.job && typeof g.player.job === 'object') g.industryTodo = true;
+}
+
 export const schemaOf = (g: Save) => Number((g as any).schema ?? 0);
 
 /* ---------- backups ---------- */
@@ -342,7 +353,8 @@ export function repair(g: Save, w: WorldDef): string[] {
     // the people
     for (const r of Object.values(g.cast)) {
         if (r.occupation && !w.occupations.some(o => o.id === r.occupation)) r.occupation = null;
-        if (zones.length && !zones.some(z => z.id === r.home?.zone)) r.home = { zone: zones[0].id, ...firstSpot(w, zones[0].id) };
+        // (adult industry) a performer on a set has a guest's home (sim/onset.ts): not one of the world's homes to repair
+        if (zones.length && !(r as any).onset && !zones.some(z => z.id === r.home?.zone)) r.home = { zone: zones[0].id, ...firstSpot(w, zones[0].id) };
         if (Array.isArray(r.leisure)) r.leisure = r.leisure.filter(id => isPlace(g, w, id));
     }
     // the world's own people get the role and drive their world gives them; with adult content on, the others draw a
@@ -450,6 +462,15 @@ export function checkSave(g: Save) {
             const raised = settleModules(g, w);
             changed = true;
             later(() => toast(`Modules you passed now teach what they teach today: ${raised.join(', ')}.`, 'info'));
+        }
+        // (adult industry, schema 10) a job in the industry goes on bookings, once the world is known
+        const ind = structuredClone(g);
+        if (settleIndustry(ind, w) !== null && JSON.stringify(ind) !== JSON.stringify(g)) {
+            if (!backedUp) backup(g, 'before settling your work in the industry');
+            backedUp = true;
+            const said = settleIndustry(g, w);
+            changed = true;
+            if (said) later(() => toast(`${said} A backup of the save was kept (Settings → Game → This save).`, 'info'));
         }
         // the collection's record (only its own key is written: no backup); the first time, it fills from what the
         // save remembers
