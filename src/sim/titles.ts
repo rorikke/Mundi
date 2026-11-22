@@ -541,16 +541,19 @@ export function weekSales(g: Save, w: WorldDef, t: Title): number {
 }
 /** Releases due: the title out, its fans, the `onRelease` steps (sim/fame.ts, sim/stance.ts). Lines. */
 export function releases(g: Save, w: WorldDef): string[] {
-    const st = industryOf(g), out: string[] = [];
+    const st = industryOf(g), out: string[] = [], made: string[] = [];
     for (const t of st.titles as Title[]) {
         if (t.out || t.cancelled || t.q === undefined || !t.release || t.release > g.day) continue;
         t.out = true;
         if (t.edited === undefined) { t.edited = g.day; t.cut = 0; }
         const fans = releaseFans(g, w, t);
         if (fans) { const s = (st.seats.perform ??= { titles: 0 }); s.fans = (s.fans ?? 0) + fans; }
-        out.push(`"${t.name}" is out today (${labelOf(w, t.label)?.name ?? t.label}).`);
+        // (a major's titles made without you come out several a week: one line a day for all of them, below)
+        if (t.you.length === 1 && t.you[0] === 'label') made.push(t.name);
+        else out.push(`"${t.name}" is out today (${labelOf(w, t.label)?.name ?? t.label}).`);
         for (const f of onRelease) out.push(...f(g, w, t));
     }
+    if (made.length) out.push(made.length === 1 ? `"${made[0]}", made for your label, is out today.` : `${made.length} titles made for your label are out today: ${listed(made.map(n => `"${n}"`))}.`);
     return out;
 }
 /** Monday's sales (once a Monday): each title's week, what each label sold, your shares (a name director's share of the
