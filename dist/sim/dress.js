@@ -90,7 +90,8 @@ const wordOf = (n) => n?.code ?? n?.kind ?? '';
 /** What the codes alone call for someone, as a word (an outfit's name or a kind; empty: nothing). */
 export const codeFor = (g, w, avatar) => wordOf(codeNeed(g, w, avatar));
 /** What the codes call for one person in the scene, or null. A Home's room code; else, with adult content on, the people
- *  taking part in a private action with you undress (or, when it has a dress code, put that on, up to explicit); else
+ *  taking part in a private action with you undress (or, when it has a dress code, put that on, up to explicit, and
+ *  whoever of the world's people it has no outfit for undresses anyway); else
  *  (the `dress` system) an action's code for the people doing it with you, a street story's for the people it names,
  *  a standing appointment's for the people at it here, a festival's for everyone at its places on its days, then the
  *  place's for everyone here. */
@@ -106,8 +107,17 @@ export function codeNeed(g, w, avatar) {
     // the ones taking part in a private action (sim/private.ts: one or two people ready for it), or, when its check
     // didn't say, everyone doing it with you
     const inPrivate = doing?.a?.private && !doing.a.tags?.includes('pillow-talk') && adultOn(g) && (doing.priv?.notes?.a?.who ?? doing.with)?.includes(avatar);
-    if (inPrivate)
-        return on && holds(g, w, doing.a.dress, `act|${avatar}`) ? fromCode(g, w, doing.a.dress, avatar, true) : { code: UNDRESSED };
+    if (inPrivate) {
+        const d = doing.a.dress;
+        if (on && holds(g, w, d, `act|${avatar}`)) {
+            const n = fromCode(g, w, d, avatar, true);
+            // (a code written for one of them, her own lingerie: whoever of the world's people it has nothing for
+            // undresses as they would without it, rather than keeping their clothes on)
+            if (!exOf(g, w, avatar) || chooseWear(g, w, avatar, n))
+                return n;
+        }
+        return { code: UNDRESSED };
+    }
     if (!on)
         return null;
     if (doing && (doing.with?.includes(avatar) || named(g, doing.a?.dress?.who, avatar)) && holds(g, w, doing.a?.dress, `act|${avatar}`))
@@ -266,7 +276,7 @@ export function applyDress(g, w, has, ready = () => true) {
 }
 /* ---------- for the AI ---------- */
 // the words for a kind the AI is told about (any other: "Dressed for it")
-const KIND_LINE = { swim: 'In swimwear', yukata: 'In yukata', fencing: 'In fencing whites' };
+const KIND_LINE = { swim: 'In swimwear', yukata: 'In yukata', fencing: 'In fencing whites', lingerie: 'In lingerie', undressed: 'Half undressed', robe: 'In a robe' };
 // What people here wear: what the story put on them, then because of a code (a Home's room; elsewhere each person's
 // outfit in words, and how bold it is for them: above their public comfort, explicit, or at ease being looked at).
 export function dressLine(g, w) {
